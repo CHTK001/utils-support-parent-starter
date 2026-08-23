@@ -54,10 +54,11 @@ public class HttpProxyServer extends AbstractProxyServer {
 
     public HttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         this(setting, remote -> backend);
+        System.err.println("HttpProxyServer created, preferNonBlockingAccept=" + preferNonBlockingAccept);
     }
 
     private void initProxy() {
-        this.preferNonBlockingAccept = true;
+        this.preferNonBlockingAccept = false;
     }
 
     @Override
@@ -110,101 +111,114 @@ public class HttpProxyServer extends AbstractProxyServer {
 
     @Override
     protected void handleConnection(Socket clientSocket) {
+        System.err.println("handleConnection: " + clientSocket.getRemoteSocketAddress());
         try (clientSocket) {
             clientSocket.setSoTimeout(readTimeoutMs);
-            InputStream in = clientSocket.getInputStream();
+            // BufferedInputStream 包装:readHeader 逐字节读但走内存缓冲,避免原生 read 系统调用开销
+            InputStream in = new java.io.BufferedInputStream(clientSocket.getInputStream(), 8192);
             OutputStream out = clientSocket.getOutputStream();
 
-            // 读 HTTP 请求头（直到空行）
-            byte[] header = readHeader(in);
-            if (header == null || header.length == 0) {
-                return;
-            }
-            // 解析请求行（method path HTTP/1.1）
-            String headText = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
-            int lineEnd = headText.indexOf("\r\n");
-            if (lineEnd <= 0) {
-                return;
-            }
-            String requestLine = headText.substring(0, lineEnd);
-            String[] parts = requestLine.split(" ");
-            if (parts.length < 2) {
-                return;
-            }
-            String method = parts[0];
-            String path = parts[1];
+            // keep-alive 循环：同一连接上处理多个 HTTP 请求
+            while (true) {
+                // 读 HTTP 请求头（直到空行）
+                byte[] header = readHeader(in);
+                if (header == null || header.length == 0) {
+                    return;
+                }
+                // 解析请求行（method path HTTP/1.1）
+                String headText = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
+                int lineEnd = headText.indexOf("\r\n");
+                if (lineEnd <= 0) {
+                    return;
+                }
+                String requestLine = headText.substring(0, lineEnd);
+                String[] parts = requestLine.split(" ");
+                if (parts.length < 2) {
+                    return;
+                }
+                String method = parts[0];
+                String path = parts[1];
 
-            InetSocketAddress backend = targetResolver.resolve(null);
-            if (backend == null || backend.getPort() <= 0) {
-                writeSimple(out, 502, "Bad Gateway: backend not resolved");
-                return;
-            }
+                // 客户端是否要求 keep-alive（HTTP/1.1 默认 keep-alive）
+                boolean clientKeepAlive = !connectionClose(header);
 
-            Socket backendSocket = null;
-            // 复用池连接可能已被后端关闭（半死连接）：IO 失败时剔除并重试一次新连接
-            for (int attempt = 0; attempt < 2; attempt++) {
-                try {
-                    backendSocket = borrowBackend(backend);
-                    OutputStream backOut = backendSocket.getOutputStream();
+                InetSocketAddress backend = targetResolver.resolve(null);
+                if (backend == null || backend.getPort() <= 0) {
+                    writeSimple(out, 502, "Bad Gateway: backend not resolved");
+                    return;
+                }
+
+                Socket backendSocket = null;
+                // 复用池连接可能已被后端关闭（半死连接）：IO 失败时剔除并重试一次新连接
+                for (int attempt = 0; attempt < 2; attempt++) {
+                    try {
+                        backendSocket = borrowBackend(backend);
+OutputStream backOut = backendSocket.getOutputStream();
                     InputStream backIn = backendSocket.getInputStream();
 
-                    // 转发请求头（保留 method/path/版本，透传其余头）+ body
-                    backOut.write(header);
-                    byte[] body = readBody(in, headText);
-                    if (body.length > 0) {
-                        backOut.write(body);
-                    }
-                    backOut.flush();
+                        // 转发请求头（保留 method/path/版本，透传其余头）+ body
+                        backOut.write(header);
+                        byte[] body = readBody(in, headText);
+                        if (body.length > 0) {
+                            backOut.write(body);
+                        }
+                        backOut.flush();
 
-                    // 回传响应
-                    byte[] respHeader = readHeader(backIn);
-                    boolean keepAlive = false;
-                    if (respHeader != null) {
-                        out.write(respHeader);
-                        out.flush();
-                        if (isChunked(respHeader)) {
-                            pipeChunked(backIn, out);
-                            keepAlive = !connectionClose(respHeader);
-                        } else {
-                            int cl = contentLength(respHeader);
-                            if (cl > 0) {
-                                pipeN(backIn, out, cl);
-                                keepAlive = !connectionClose(respHeader);
+                        // 回传响应
+                        byte[] respHeader = readHeader(backIn);
+                        boolean backendKeepAlive = false;
+                        if (respHeader != null) {
+                            out.write(respHeader);
+                            out.flush();
+                            if (isChunked(respHeader)) {
+                                pipeChunked(backIn, out);
+                                backendKeepAlive = !connectionClose(respHeader);
                             } else {
-                                // 无长度（如 204/close-delimited）：读到 EOF，连接不可复用
-                                pipeRaw(backIn, out);
+                                int cl = contentLength(respHeader);
+                                if (cl > 0) {
+                                    pipeN(backIn, out, cl);
+                                    backendKeepAlive = !connectionClose(respHeader);
+                                } else {
+                                    // 无长度（如 204/close-delimited）：读到 EOF，连接不可复用
+                                    pipeRaw(backIn, out);
+                                }
+                            }
+                        }
+                        out.flush();
+                        // 响应体完整读完后归还（keep-alive 复用）或关闭
+                        returnBackend(backendSocket, backendKeepAlive);
+                        backendSocket = null;
+                        break;
+                    } catch (IOException e) {
+                        // 复用连接失败（坏连接）：关闭并重试一次（新连接）
+                        if (backendSocket != null) {
+                            try {
+                                backendSocket.close();
+                            } catch (IOException ignored) {
+                            }
+                            backendSocket = null;
+                        }
+                        if (attempt == 0) {
+                            continue;
+                        }
+                        throw e;
+                    } finally {
+                        if (backendSocket != null) {
+                            try {
+                                backendSocket.close();
+                            } catch (IOException ignored) {
                             }
                         }
                     }
-                    out.flush();
-                    // 响应体完整读完后归还（keep-alive 复用）或关闭
-                    returnBackend(backendSocket, keepAlive);
-                    backendSocket = null;
+                }
+                log.debug("http-proxy: {} {} -> {}:{}", method, path,
+                        backend.getHostString(), backend.getPort());
+
+                // 客户端不要求 keep-alive 或连接已关闭，退出循环
+                if (!clientKeepAlive) {
                     break;
-                } catch (IOException e) {
-                    // 复用连接失败（坏连接）：关闭并重试一次（新连接）
-                    if (backendSocket != null) {
-                        try {
-                            backendSocket.close();
-                        } catch (IOException ignored) {
-                        }
-                        backendSocket = null;
-                    }
-                    if (attempt == 0) {
-                        continue;
-                    }
-                    throw e;
-                } finally {
-                    if (backendSocket != null) {
-                        try {
-                            backendSocket.close();
-                        } catch (IOException ignored) {
-                        }
-                    }
                 }
             }
-            log.debug("http-proxy: {} {} -> {}:{}", method, path,
-                    backend.getHostString(), backend.getPort());
         } catch (IOException e) {
             log.debug("http-proxy 连接异常: {}", e.getMessage());
         } finally {
@@ -212,9 +226,9 @@ public class HttpProxyServer extends AbstractProxyServer {
         }
     }
 
-    /** 读 HTTP 头（直到 \r\n\r\n）。 */
+    /** 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。 */
     private byte[] readHeader(InputStream in) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         int prevPrev = -1;
         int prev = -1;
         int b;

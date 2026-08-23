@@ -58,8 +58,8 @@ public class NioServerRequest implements ServerRequest {
     private String queryString;
     /** HTTP版本 */
     private String httpVersion = "HTTP/1.1";
-    /** headers */
-    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    /** headers - 使用 HashMap(忽略大小写通过 toLowerCase 保证) */
+    private final java.util.HashMap<String, String> headers = new java.util.HashMap<>(8);
     /** 请求体 */
     private byte[] body;
     /** 行解析缓冲(REQUEST_LINE/HEADERS/chunked 头);懒分配,空闲连接(未收到数据)不占用
@@ -132,9 +132,11 @@ public class NioServerRequest implements ServerRequest {
                 // buf 已满但仍未解析出完整行 → 真·超长行
                 return -1;
             }
-            byte[] chunk = new byte[toCopy];
-            data.get(chunk);
-            buf.put(chunk);
+            // 零分配:直接从 data 转移到 buf,避免临时 byte[] 分配
+            int oldLimit = data.limit();
+            data.limit(data.position() + toCopy);
+            buf.put(data);
+            data.limit(oldLimit);
             buf.flip();
         }
 
@@ -178,7 +180,7 @@ public class NioServerRequest implements ServerRequest {
                     } else {
                         int colon = line.indexOf(':');
                         if (colon > 0) {
-                            headers.put(line.substring(0, colon).trim(), line.substring(colon + 1).trim());
+                            headers.put(line.substring(0, colon).trim().toLowerCase(), line.substring(colon + 1).trim());
                         }
                     }
                 }

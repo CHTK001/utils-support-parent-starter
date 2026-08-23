@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRUD API 全功能测试报告</title>
+<style>
+:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
+    --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+.header { background:var(--card); border-bottom:1px solid var(--border); padding:32px 48px; }
+.header h1 { font-size:1.5em; color:#f0f6fc; margin-bottom:6px; }
+.header p { color:var(--muted); font-size:0.9em; }
+.container { max-width:960px; margin:0 auto; padding:32px 48px; }
+h2 { font-size:1.15em; color:#f0f6fc; margin:32px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+pre { background:#0d1117; border:1px solid var(--border); border-radius:8px; padding:16px; overflow-x:auto; font-size:0.85em; }
+table { width:100%; border-collapse:collapse; margin:16px 0; }
+th,td { border:1px solid var(--border); padding:8px 12px; text-align:left; font-size:0.88em; }
+th { background:var(--card); color:#f0f6fc; }
+.badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:0.78em; font-weight:600; }
+.badge-ok { background:rgba(63,185,80,.15); color:var(--green); }
+.badge-err { background:rgba(248,81,73,.15); color:var(--red); }
+.badge-warn { background:rgba(210,153,34,.15); color:var(--orange); }
+.stat { display:inline-flex; align-items:center; gap:8px; padding:12px 20px; background:var(--card); border:1px solid var(--border); border-radius:8px; margin:8px 4px; }
+.stat-num { font-size:1.8em; font-weight:700; }
+.stat-label { font-size:0.8em; color:var(--muted); }
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+.back { display:inline-block; margin-bottom:16px; color:var(--accent); text-decoration:none; font-size:0.9em; }
+.footer { text-align:center; padding:24px; color:var(--muted); font-size:0.8em; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>CRUD API 全功能测试报告</h1>
+    <p>ApiChatController · ApiProviderController · ApiPresetController · ... · 2026-08-23</p>
+</div>
+
+<div class="container">
+<a class="back" href="index.html">&larr; 返回文档中心</a>
+
+<h2>测试环境</h2>
+<table>
+<tr><th>项目</th><th>值</th></tr>
+<tr><td>后端服务</td><td>spring-support-ai-starter 4.0.0.42</td></tr>
+<tr><td>端口</td><td>http://127.0.0.1:8787</td></tr>
+<tr><td>测试脚本</td><td>crud-test.ps1</td></tr>
+<tr><td>JDK</td><td>OpenJDK 25.0.3 (Corretto)</td></tr>
+</table>
+
+<h2>总体结果</h2>
+<div style="text-align:center; padding:24px;">
+    <div class="stat"><span class="stat-num" style="color:var(--green)">88</span><span class="stat-label">总计</span></div>
+    <div class="stat"><span class="stat-num" style="color:var(--green)">88</span><span class="stat-label">通过</span></div>
+    <div class="stat"><span class="stat-num" style="color:var(--red)">0</span><span class="stat-label">失败</span></div>
+    <div class="stat"><span class="stat-num" style="color:var(--orange)">0</span><span class="stat-label">错误</span></div>
+    <div class="stat"><span class="stat-num" style="color:var(--green)">100%</span><span class="stat-label">成功率</span></div>
+</div>
+
+<h2>各模块测试详情</h2>
+
+<h3>1. ApiChatController (/api/conversations)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建对话</td><td>POST /api/conversations</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询对话列表</td><td>GET /api/conversations</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改对话名称</td><td>PATCH /api/conversations/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>克隆对话</td><td>POST /api/conversations/clone</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>发送消息</td><td>POST /api/conversations/{id}/messages</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>重置对话</td><td>POST /api/conversations/{id}/reset</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>清理上下文</td><td>POST /api/conversations/{id}/clear-context</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除对话</td><td>DELETE /api/conversations/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>2. ApiProviderController (/api/providers)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建提供商</td><td>POST /api/providers</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询提供商列表</td><td>GET /api/providers</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改提供商</td><td>PUT /api/providers/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>克隆提供商</td><td>POST /api/providers/{id}/clone</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>保存自定义模型</td><td>PUT /api/provider-models</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询模型列表</td><td>GET /api/provider-models</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除提供商</td><td>DELETE /api/providers/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>3. ApiSkillController (/api/skills)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>查询技能列表</td><td>GET /api/skills</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>市场启用</td><td>POST /api/skills/market/enable</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>市场禁用</td><td>POST /api/skills/market/disable</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>4. ApiPresetController (/api/presets)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建预设</td><td>POST /api/presets</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询预设列表</td><td>GET /api/presets</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改预设</td><td>PUT /api/presets/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>设置预设状态</td><td>PATCH /api/presets/{id}/state</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>解析预设</td><td>POST /api/presets/{id}/resolve</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>导入预设</td><td>POST /api/presets/import</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除预设</td><td>DELETE /api/presets/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>5. ApiPresetTagController (/api/preset-tags)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建标签</td><td>POST /api/preset-tags</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询标签列表</td><td>GET /api/preset-tags</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改标签</td><td>PUT /api/preset-tags/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除标签</td><td>DELETE /api/preset-tags/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>6. ApiKnowledgeController (/api/knowledge)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建知识库</td><td>POST /api/knowledge/bases</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询知识库列表</td><td>GET /api/knowledge/bases</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>获取知识库详情</td><td>GET /api/knowledge/bases/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改知识库</td><td>PUT /api/knowledge/bases/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询知识库标签</td><td>GET /api/knowledge/tags</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除知识库</td><td>DELETE /api/knowledge/bases/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>7. ApiSshController (/api/ssh-hosts)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建SSH主机</td><td>POST /api/ssh-hosts</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询SSH主机列表</td><td>GET /api/ssh-hosts</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>获取SSH主机详情</td><td>GET /api/ssh-hosts/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改SSH主机</td><td>PUT /api/ssh-hosts/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除SSH主机</td><td>DELETE /api/ssh-hosts/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>8. ApiRequirementController (/api/requirements)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建需求</td><td>POST /api/requirements</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询需求列表</td><td>GET /api/requirements</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>获取需求详情</td><td>GET /api/requirements/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改需求</td><td>PUT /api/requirements/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询需求标签</td><td>GET /api/requirements/tags</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除需求</td><td>DELETE /api/requirements/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>9. ApiMcpController (/api/mcp)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建MCP服务器</td><td>POST /api/mcp/servers</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询MCP服务器列表</td><td>GET /api/mcp/servers</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改MCP服务器</td><td>PUT /api/mcp/servers/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>启用/禁用MCP</td><td>POST /api/mcp/servers/{id}/toggle</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除MCP服务器</td><td>DELETE /api/mcp/servers/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>10. ApiCronController (/api/cron/jobs)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建定时任务</td><td>POST /api/cron/jobs</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询定时任务列表</td><td>GET /api/cron/jobs</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改定时任务</td><td>PUT /api/cron/jobs/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>手动执行任务</td><td>POST /api/cron/jobs/{id}/run</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除定时任务</td><td>DELETE /api/cron/jobs/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>11. ApiCompanionController (/api/companion)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建伙伴</td><td>POST /api/companion/companions</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询伙伴列表</td><td>GET /api/companion/companions</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>获取伙伴详情</td><td>GET /api/companion/companions/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改伙伴</td><td>PATCH /api/companion/companions/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询伙伴记忆</td><td>GET /api/companion/memories</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除伙伴</td><td>DELETE /api/companion/companions/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>12. ApiWebhookController (/api/webhooks)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>创建Webhook</td><td>POST /api/webhooks</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询Webhook列表</td><td>GET /api/webhooks</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>修改Webhook</td><td>PUT /api/webhooks/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>删除Webhook</td><td>DELETE /api/webhooks/{id}</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>13. ApiCustomerController (/api/customer-service)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>查询客服Agent列表</td><td>GET /api/customer-service/agents</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>创建客服Agent</td><td>POST /api/customer-service/agents</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>14. ApiAgentController (/api/agent-execution-templates)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>查询Agent模板</td><td>GET /api/agent-execution-templates</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>查询Agent执行列表</td><td>GET /api/agent-executions</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>15. ApiFsController (/api/fs)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>浏览目录</td><td>GET /api/fs/browse</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>创建目录</td><td>POST /api/fs/directory</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h3>16. ApiSystemController (/api/system)</h3>
+<table>
+<tr><th>接口</th><th>方法</th><th>结果</th></tr>
+<tr><td>系统信息</td><td>GET /api/system/info</td><td><span class="badge badge-ok">PASS</span></td></tr>
+<tr><td>获取设置</td><td>GET /api/settings/client</td><td><span class="badge badge-ok">PASS</span></td></tr>
+</table>
+
+<h2>测试脚本修复记录</h2>
+<table>
+<tr><th>问题</th><th>原因</th><th>修复</th></tr>
+<tr>
+<td>GET/DELETE 请求返回 body 错误</td>
+<td>Invoke-WebRequest 对 GET 方法带 body 不兼容</td>
+<td>GET/DELETE 时 $Body 设为 $null</td>
+</tr>
+<tr>
+<td>删除操作 NullReferenceException</td>
+<td>创建操作返回的 ID 字段名与提取字段不匹配</td>
+<td>修正字段名: base_id→knowledge_base_id, host_id→ssh_host_id, server_id→mcp_server_id</td>
+</tr>
+<tr>
+<td>部分接口 404/405</td>
+<td>HTTP 方法或路径与后端不匹配</td>
+<td>修正: MCP toggle POST, 机器人 PATCH, 伴侣 PATCH, 知识库标签路径等</td>
+</tr>
+<tr>
+<td>API key 变量缺失</td>
+<td>PowerShell Where-Object 计数 bug ($_.Status 解析问题)</td>
+<td>改用 foreach 循环计数</td>
+</tr>
+</table>
+
+<div class="footer">utils-support-parent-starter &copy; 2026 &middot; Apache License 2.0</div>
+</div>
+</body>
+</html>

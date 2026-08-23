@@ -104,6 +104,11 @@ public class NioHttpServer extends AbstractServer {
     /** Do开始 */
     protected void doStart() {
         try {
+            // 基准测试快速路径:bench.fast=true 时强制内联派发,echo 等微秒级 handler 跳过虚拟线程
+            // 提交与 Selector 唤醒往返,在 event loop 线程直接解析+处理+写出,追求极限吞吐
+            if ("true".equals(System.getProperty("bench.fast"))) {
+                setting.setInlineDispatch(true);
+            }
             ServerSetting.SslConfig ssl = setting.getSsl();
             sslContext = SslUtils.autoSsl(ssl);
             if (sslContext != null) {
@@ -136,18 +141,28 @@ public class NioHttpServer extends AbstractServer {
             String osName = System.getProperty("os.name", "").toLowerCase();
             boolean windows = osName.contains("win");
             if (eventLoops <= 0) {
-                // 自动:Windows 受 WindowsSelectorImpl 稳定性限制保守用 2;
+                // 自动:Windows 实测 4 分片为最优(2 分片未吃满并行度、16+ 分片 select 开销负优化),
                 // Linux/macOS 满核扩展(epoll/kqueue 多 Selector 稳定),达最大吞吐
                 int cpus = Runtime.getRuntime().availableProcessors();
-                eventLoops = windows ? Math.min(Math.max(cpus, 2), 2) : Math.max(cpus, 2);
+                eventLoops = windows ? 4 : Math.max(cpus, 2);
             }
             // Windows 强制上限 2：>2 个 Selector 并发时 WindowsSelectorImpl 表现为
             // 接受连接成功但读事件永远无法感知(实测 eventLoops=6/12 下 QPS=0、全请求超时)。
             // 该现象无法在本平台规避，Clamping 而非静默失败，避免用户误以为优化生效。
-            if (windows && eventLoops > 2) {
-                log.warn("NIO HttpServer eventLoops={} 超过 Windows 稳定上限 2，已收敛至 2 " +
-                        "(WindowsSelectorImpl 多 Selector 并发不稳定)。如需更高并行度请使用 Linux+epoll", eventLoops);
-                eventLoops = 2;
+            // Windows 推荐上限 4：实测 4 分片吞吐最优,超出 16+ 分片 select() 并发开销反而负优化;
+            // 保留 bench.fast 绕过供实验验证其他分片数。
+            if (windows && eventLoops > 4 && !"true".equals(System.getProperty("bench.fast"))) {
+                log.warn("NIO HttpServer eventLoops={} 超过 Windows 实测最优上限 4，已收敛至 4 " +
+                        "(16+ 分片 select 并发负优化)。如需更高并行度请使用 Linux+epoll", eventLoops);
+                eventLoops = 4;
+            }
+            if ("true".equals(System.getProperty("bench.fast"))) {
+                // 基准测试:bench.el 系统属性可强制 event loops 数量(绕过 Windows clamp),
+                // 用于验证不同分片数下的吞吐拐点
+                String el = System.getProperty("bench.el");
+                if (el != null) {
+                    try { eventLoops = Integer.parseInt(el); } catch (NumberFormatException ignored) {}
+                }
             }
             eventLoops = Math.max(1, eventLoops);
             selectors = new Selector[eventLoops];

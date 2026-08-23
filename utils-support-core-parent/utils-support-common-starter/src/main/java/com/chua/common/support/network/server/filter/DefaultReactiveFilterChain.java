@@ -61,8 +61,6 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     @Override
     /** Do过滤 */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response) {
-        System.err.println("[REACTIVE-DEBUG] doFilter called, filters=" + filters.size() + ", index=" + index);
-        for (int i = 0; i < filters.size(); i++) { System.err.println("[REACTIVE-DEBUG]   filter[" + i + "]=" + filters.get(i).getClass().getSimpleName() + " order=" + filters.get(i).getOrder()); }
         // 全部过滤器已执行完，调用目标处理器
         if (index >= filters.size()) {
             if (handler != null && !response.isEnded()) {

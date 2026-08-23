@@ -47,6 +47,14 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
     private final ServerHandlerFactory<ServerHandlerAnnotationParser> factory;
 
     /**
+     * 获取处理器工厂
+     * @return 工厂实例
+     */
+    public ServerHandlerFactory<ServerHandlerAnnotationParser> getFactory() {
+        return factory;
+    }
+
+    /**
      * 默认排序值
      */
     private static final int FILTER_ORDER = Integer.MAX_VALUE - 100;

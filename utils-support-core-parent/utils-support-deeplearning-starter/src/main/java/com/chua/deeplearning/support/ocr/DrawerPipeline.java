@@ -122,7 +122,7 @@ public class DrawerPipeline {
                 this.labels.add(String.format("%.2f", b.confidence()));
             }
             if (callback != null) {
-                callback.onProcess(b, matched ? bestText : "", bestConf, i, total);
+                callback.onProcess(b, textMatched ? bestText : "", bestConf, i, total);
             }
         }
         return this;
