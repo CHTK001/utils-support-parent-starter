@@ -1,23 +1,126 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
+import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
+import com.chua.datasource.support.wrapper.EngineQueryWrapper;
+import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
+import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
+import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
+import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * 内存响应式引擎，对应同步侧 {@link InMemoryEngine}。
+ * 内存响应式引擎，真正响应式实现。
  *
- * <p>通过 {@link DefaultReactorEngine} 将同步 InMemoryEngine 包装为响应式，
- * 所有阻塞调用通过 {@code boundedElastic} 调度执行。</p>
+ * <p>内存操作无阻塞 I/O，所有终端方法直接返回 {@link Flux}/{@link Mono}，
+ * 不经过 {@code boundedElastic} 调度，在订阅者线程直接执行。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Spi("memory")
-public class InMemoryReactorEngine extends DefaultReactorEngine {
+public class InMemoryReactorEngine implements ReactorEngine {
+
+    private final InMemoryEngine delegate = new InMemoryEngine();
+
+    @Override
+    public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
+        return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
+            @Override
+            public Flux<T> list() {
+                return Flux.fromIterable(doQuery(entityClass));
+            }
+
+            @Override
+            public Mono<T> one() {
+                return Mono.fromSupplier(() -> {
+                    List<T> r = doQuery(entityClass);
+                    return r.isEmpty() ? null : r.getFirst();
+                });
+            }
+
+            @Override
+            public Mono<Page<T>> page(int pn, int ps) {
+                return Mono.fromSupplier(() -> {
+                    List<T> r = doQuery(entityClass);
+                    int from = (pn - 1) * ps;
+                    int to = Math.min(from + ps, r.size());
+                    if (from >= r.size()) {
+                        return new Page<T>(pn, ps, r.size(), List.of());
+                    }
+                    return new Page<T>(pn, ps, r.size(), r.subList(from, to));
+                });
+            }
+
+            private <T> List<T> doQuery(Class<T> clazz) {
+                EngineQueryWrapper<T> w = new EngineQueryWrapper<>(delegate, clazz);
+                w.getConditions().addAll(getConditions());
+                w.getOrderBys().addAll(getOrderBys());
+                return delegate.evaluateQuery(w);
+            }
+        };
+    }
+
+    @Override
+    public <T> ReactorLambdaUpdateWrapper<T> update(Class<T> entityClass) {
+        return new ReactorLambdaUpdateWrapper<T>(delegate, entityClass) {
+            @Override
+            public Mono<Integer> update() {
+                return Mono.fromSupplier(() -> {
+                    EngineUpdateWrapper<T> w = new EngineUpdateWrapper<>(delegate, entityClass);
+                    w.getConditions().addAll(getConditions());
+                    w.getSetValues().putAll(getSetValues());
+                    return delegate.evaluateUpdate(w);
+                });
+            }
+        };
+    }
+
+    @Override
+    public <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass) {
+        return new ReactorLambdaDeleteWrapper<T>(delegate, entityClass) {
+            @Override
+            public Mono<Integer> remove() {
+                return Mono.fromSupplier(() -> {
+                    EngineDeleteWrapper<T> w = new EngineDeleteWrapper<>(delegate, entityClass);
+                    w.getConditions().addAll(getConditions());
+                    return delegate.evaluateDelete(w);
+                });
+            }
+        };
+    }
+
+    @Override
+    public Flux<Map<String, Object>> query(String sql, Object... params) {
+        return Flux.error(new UnsupportedOperationException("InMemoryReactorEngine 不支持原生 SQL"));
+    }
+
+    @Override
+    public <T> Flux<T> query(String sql, Class<T> rowType, Object... params) {
+        return Flux.error(new UnsupportedOperationException("InMemoryReactorEngine 不支持原生 SQL"));
+    }
+
+    @Override
+    public Mono<Integer> execute(String sql, Object... params) {
+        return Mono.error(new UnsupportedOperationException("InMemoryReactorEngine 不支持原生 SQL"));
+    }
+
+    @Override
+    public Flux<Integer> batch(String sql, List<Object[]> batchParams) {
+        return Flux.error(new UnsupportedOperationException("InMemoryReactorEngine 不支持原生 SQL"));
+    }
 
     /**
-     * 创建内存响应式引擎，内部持有同步 {@link InMemoryEngine}。
+     * 关闭引擎，释放内存数据。
      */
-    public InMemoryReactorEngine() {
-        super(new InMemoryEngine());
+    public void close() {
+        delegate.close();
     }
 }

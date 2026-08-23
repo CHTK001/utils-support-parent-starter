@@ -69,6 +69,15 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     }
 
     /**
+     * 获取 SET 值映射。
+     *
+     * @return SET 值映射（列名 → 新值）
+     */
+    public Map<String, Object> getSetValues() {
+        return setValues;
+    }
+
+    /**
      * 构建更新 SQL 信息。
      */
     public UpdateSql<T> buildSql() {

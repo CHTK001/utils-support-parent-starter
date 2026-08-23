@@ -1,6 +1,6 @@
 package com.chua.common.support.network.client;
 
-import java.util.concurrent.CompletableFuture;
+import reactor.core.publisher.Mono;
 
 /**
  * HTTP 客户端抽象基类，采用<b>模板方法模式（Template Method）</b>封装通用逻辑。
@@ -142,41 +142,24 @@ public abstract class AbstractHttpClient implements HttpClient {
     }
 
     /**
-     * 异步执行 HTTP 请求（模板方法 + 虚拟线程）。
+     * 异步执行 HTTP 请求（NIO 非阻塞 + Reactor Mono）。
      *
-     * <p>覆写 {@link HttpClient#executeAsync(ClientRequest)} 方法，
-     * 使用虚拟线程包装异步执行流程，确保 {@link #beforeExecute(ClientRequest)}
-     * 和 {@link #afterExecute(ClientRequest)} 扩展点仍然生效。</p>
-     *
-     * <p><b>执行流程：</b></p>
-     * <ol>
-     *   <li>在虚拟线程中执行 {@link #beforeExecute(ClientRequest)}</li>
-     *   <li>调用子类实现的 {@link #doExecute(ClientRequest)} 发起请求</li>
-     *   <li>在 finally 块中执行 {@link #afterExecute(ClientRequest)}</li>
-     * </ol>
-     *
-     * <p><b>关于虚拟线程：</b></p>
-     * <p>虚拟线程（Virtual Threads）是 Java 21 引入的轻量级线程，
-     * 由 JVM 管理而非操作系统。与平台线程相比：</p>
-     * <ul>
-     *   <li>创建成本极低，适合大量并发 I/O 场景</li>
-     *   <li>在阻塞操作（如 I/O）时自动让出载体线程</li>
-     *   <li>与 {@link HttpClient#execute(ClientRequest)} 完全兼容，无需改动同步代码</li>
-     * </ul>
+     * <p>委托给 {@link #doExecute(ClientRequest)}，在 Reactor 的
+     * {@code boundedElastic} 线程上执行，支持背压和操作符链。</p>
      *
      * @param request 封装好的请求对象
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * @return 响应 Mono
      */
     @Override
-    public CompletableFuture<ClientResponse> executeAsync(ClientRequest request) {
-        return CompletableFuture.supplyAsync(() -> {
+    public Mono<ClientResponse> executeAsync(ClientRequest request) {
+        return Mono.fromCallable(() -> {
             beforeExecute(request);
             try {
                 return doExecute(request);
             } finally {
                 afterExecute(request);
             }
-        });
+        }).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
     /**
