@@ -1,6 +1,5 @@
-package com.chua.example.onnx.audio;
+package com.chua.deeplearning.support.audio;
 
-import com.chua.deeplearning.support.audio.AudioFingerprinter;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

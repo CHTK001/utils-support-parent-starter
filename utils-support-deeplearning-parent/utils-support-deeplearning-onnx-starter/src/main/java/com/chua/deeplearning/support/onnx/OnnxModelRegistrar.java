@@ -339,8 +339,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("wd-tagger-swinv2", "com.chua.deeplearning.support.onnx.classification.ClTaggerTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/wd-swinv2-tagger-v3/model.onnx", "https://huggingface.co/SmilingWolf/wd-swinv2-tagger-v3/resolve/main/model.onnx", false, null);
         // 情绪识别(YOLOv11-face)：YOLOv11n 人脸情绪识别（开心、难过、生气等）；适用人脸情绪分析
         reg("yolo-face-emotion", "com.chua.deeplearning.support.onnx.emotion.EmotionFerplusTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/expression/yolo11-face-emotion.onnx", "https://huggingface.co/leeyunjai/yolo11-face-emotion-fer2013-cls/resolve/main/model.onnx", false, null);
-        // 语音识别(Moonshine-base)：Moonshine 语音识别，输入音频输出文本；适用语音转文字、语音指令
-        reg("moonshine-base", "com.chua.deeplearning.support.onnx.text.BertSquadTranslator", String.class, String.class, Object.class, "nlp/audio/moonshine-base/model.onnx", "https://huggingface.co/onnx-community/moonshine-base-ONNX/resolve/main/onnx/model.onnx", false, null);
+        // 语音识别(Whisper-tiny)：OpenAI Whisper 多语言语音识别，音频转文本；适用语音转写、字幕生成、TTS 回读验证
+        // 模型权重在 utils-support-models-onnx-whisper jar 中（audio/asr/whisper-tiny/，fp32 约 251MB）
+        // 由 WhisperAudioClient 直接加载（encoder + 两阶段 decoder），无需注册 translator 类。
+        reg("whisper-tiny", null, byte[].class, String.class, Object.class, "audio/asr/whisper-tiny/config.json");
+
+        // 语音识别(Moonshine-base)：Moonshine 轻量语音识别，输入音频输出文本，速度远快于 Whisper；适用边缘设备实时转写
+        // 模型权重在 utils-support-models-onnx-moonshine jar 中（nlp/audio/moonshine/，preprocess+encode+cached_decode 约 155MB）
+        // 由示例 VoiceCloneMoonshineExample 直接加载，无需注册 translator 类。
+        reg("moonshine-base", null, byte[].class, String.class, Object.class, "nlp/audio/moonshine/preprocess.onnx");
         // 情感分析(RoBERTa-go-emotions)：28 种细粒度情感分类（如"兴奋"、"悲伤"、"愤怒"等）；适用细粒度情感分析、用户评论分析
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
@@ -375,7 +382,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 卡片矫正检测(Card Correction)：检测卡片类图片（身份证、名片等）四角点；适用文档扫描、证件识别
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "cv/card_correction/card_detection.onnx");
         // 车牌检测(YOLOv11)：YOLOv11 架构的车牌检测（morsetechlab），内嵌模型，更高精度
-        reg("yolo11-plate-detect", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolo11_plate/yolo11_plate_detect.onnx");
+        reg("yolo11-plate-detect", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolo11_plate/yolo11_plate_detect.onnx");
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
         reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateRecTranslator", byte[].class, com.chua.deeplearning.support.plate.PlateResult.class, com.chua.deeplearning.support.plate.LicensePlateRecognizer.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
         // OCR检测(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字检测；适用移动端 OCR

@@ -125,12 +125,26 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
                 TimeUnit.MILLISECONDS);
     }
 
-    /** 每轮同步：注册自身 → 子类发现/扩散 → 心跳探活 → 持久化。 */
+    /** 每轮同步：注册自身 → 子类发现/扩散 → 心跳探活 → 持久化。
+     * 每步之间检查 started 标志：close() 后仍在执行中的旧一轮必须尽快退出，
+     * 防止 persistNodes 把过期服务表写回磁盘污染下一次启动（跨测试/重启污染）。 */
     private void discoveryRound() {
         try {
+            if (!started) {
+                return;
+            }
             updateSelfWeight();
+            if (!started) {
+                return;
+            }
             doDiscoveryRound();
+            if (!started) {
+                return;
+            }
             healthCheck();
+            if (!started) {
+                return;
+            }
             persistNodes();
         } catch (Exception e) {
             log.debug("发现轮异常: {}", e.getMessage());
@@ -359,7 +373,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /** 持久化：服务表 + seed 列表落盘。 */
     protected void persistNodes() {
-        if (!setting.isPersistenceEnabled()) {
+        if (!setting.isPersistenceEnabled() || !started) {
             return;
         }
         try {
