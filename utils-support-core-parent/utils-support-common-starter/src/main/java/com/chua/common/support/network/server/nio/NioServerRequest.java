@@ -421,7 +421,9 @@ public class NioServerRequest implements ServerRequest {
     @Override public String getHeader(String name) { return headers.get(name.toLowerCase()); }
     @Override public HttpHeader getHeaders() { HttpHeader h = HttpHeader.create(); headers.forEach(h::add); return h; }
     @Override public Map<String, String> getParams() {
-        if (queryString == null || queryString.isEmpty()) return Map.of();
+        if (queryString == null || queryString.isEmpty()) {
+            return Map.of();
+        }
         Map<String, String> map = new LinkedHashMap<>();
         for (String pair : queryString.split("&")) {
             String[] kv = pair.split("=", 2);
@@ -433,7 +435,9 @@ public class NioServerRequest implements ServerRequest {
     @Override public String getContentType() { return headers.get("content-type"); }
     @Override public long getContentLength() {
         String cl = headers.get("content-length");
-        if (cl == null) return -1;
+        if (cl == null) {
+            return -1;
+        }
         try { return Long.parseLong(cl); } catch (NumberFormatException e) { return -1; }
     }
     @Override public byte[] getBody() { return body != null ? body : new byte[0]; }
@@ -459,29 +463,41 @@ public class NioServerRequest implements ServerRequest {
     @Override public void setAttribute(String name, Object value) { attributes.put(name, value); }
     @Override public Map<String, String> getFormData() {
         String ct = getContentType();
-        if (ct == null) return Collections.emptyMap();
+        if (ct == null) {
+            return Collections.emptyMap();
+        }
         String lower = ct.toLowerCase();
         if (lower.startsWith("application/x-www-form-urlencoded")) {
             String bodyStr = getBodyString();
-            if (bodyStr.isEmpty()) return Collections.emptyMap();
+            if (bodyStr.isEmpty()) {
+                return Collections.emptyMap();
+            }
             Map<String, String> form = new LinkedHashMap<>();
             for (String pair : bodyStr.split("&")) {
                 String[] kv = pair.split("=", 2);
-                if (kv.length > 0) form.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
+                if (kv.length > 0) form.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) {
+                    : "");
+                }
             }
             return form;
         }
         if (lower.startsWith("multipart/form-data")) {
             MultipartParser parser = ServiceProvider.of(MultipartParser.class).getExtension("fileupload");
-            if (parser != null) return parser.parseFormFields(getBody(), ct);
+            if (parser != null) return parser.parseFormFields(getBody() {
+                , ct);
+            }
         }
         return Collections.emptyMap();
     }
     @Override public List<FormFile> getFiles() {
         String ct = getContentType();
-        if (ct == null || !ct.toLowerCase().startsWith("multipart/form-data")) return Collections.emptyList();
+        if (ct == null || !ct.toLowerCase().startsWith("multipart/form-data")) {
+            return Collections.emptyList();
+        }
         MultipartParser parser = ServiceProvider.of(MultipartParser.class).getExtension("fileupload");
-        if (parser == null) return Collections.emptyList();
+        if (parser == null) {
+            return Collections.emptyList();
+        }
         return parser.parse(getBody(), ct);
     }
 
