@@ -2,6 +2,7 @@ package com.chua.common.support.network.client;
 
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
+import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -814,7 +815,7 @@ public class HttpClientBuilder {
      *
      * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
      */
-    public CompletableFuture<ClientResponse> executeAsync() {
+    public Mono<ClientResponse> executeAsync() {
         String url = baseUrl;
         if (path != null && !path.isEmpty()) {
             url = baseUrl.endsWith("/") ? baseUrl + path.substring(1) : baseUrl + path;
@@ -870,13 +871,7 @@ public class HttpClientBuilder {
      *                 失败时回调 {@link Callback#onError(Throwable)}
      */
     public void executeAsync(Callback<ClientResponse> callback) {
-        executeAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        executeAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     // ==================== 同步快捷方法 ====================
@@ -961,183 +956,107 @@ public class HttpClientBuilder {
     // ==================== 异步快捷方法 ====================
 
     /**
-     * 异步执行 GET 请求，返回 {@link CompletableFuture}。
-     *
-     * <p>将请求方法设为 GET 后异步执行。<b>不阻塞当前线程</b>。</p>
-     *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * 异步执行 GET 请求，返回 {@link Mono}。
      */
-    public CompletableFuture<ClientResponse> getAsync() {
+    public Mono<ClientResponse> getAsync() {
         method = HttpMethod.GET;
         return executeAsync();
     }
 
     /**
      * 异步执行 GET 请求，通过回调通知结果。
-     *
-     * <p>将请求方法设为 GET 后异步执行。成功或失败时通过回调通知。</p>
-     *
-     * @param callback 异步回调
      */
     public void getAsync(Callback<ClientResponse> callback) {
-        getAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        getAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
-     * 异步执行 POST 请求，返回 {@link CompletableFuture}。
-     *
-     * <p>将请求方法设为 POST 后异步执行。<b>不阻塞当前线程</b>。</p>
-     *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * 异步执行 POST 请求，返回 {@link Mono}。
      */
-    public CompletableFuture<ClientResponse> postAsync() {
+    public Mono<ClientResponse> postAsync() {
         method = HttpMethod.POST;
         return executeAsync();
     }
 
     /**
      * 异步执行 POST 请求，通过回调通知结果。
-     *
-     * @param callback 异步回调
      */
     public void postAsync(Callback<ClientResponse> callback) {
-        postAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        postAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
-     * 异步执行 PUT 请求，返回 {@link CompletableFuture}。
-     *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * 异步执行 PUT 请求，返回 {@link Mono}。
      */
-    public CompletableFuture<ClientResponse> putAsync() {
+    public Mono<ClientResponse> putAsync() {
         method = HttpMethod.PUT;
         return executeAsync();
     }
 
     /**
      * 异步执行 PUT 请求，通过回调通知结果。
-     *
-     * @param callback 异步回调
      */
     public void putAsync(Callback<ClientResponse> callback) {
-        putAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        putAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
-     * 异步执行 DELETE 请求，返回 {@link CompletableFuture}。
-     *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * 异步执行 DELETE 请求，返回 {@link Mono}。
      */
-    public CompletableFuture<ClientResponse> deleteAsync() {
+    public Mono<ClientResponse> deleteAsync() {
         method = HttpMethod.DELETE;
         return executeAsync();
     }
 
     /**
      * 异步执行 DELETE 请求，通过回调通知结果。
-     *
-     * @param callback 异步回调
      */
     public void deleteAsync(Callback<ClientResponse> callback) {
-        deleteAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        deleteAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
-     * 异步执行 PATCH 请求，返回 {@link CompletableFuture}。
-     *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * 异步执行 PATCH 请求，返回 {@link Mono}。
      */
-    public CompletableFuture<ClientResponse> patchAsync() {
+    public Mono<ClientResponse> patchAsync() {
         method = HttpMethod.PATCH;
         return executeAsync();
     }
 
     /**
      * 异步执行 PATCH 请求，通过回调通知结果。
-     *
-     * @param callback 异步回调
      */
     public void patchAsync(Callback<ClientResponse> callback) {
-        patchAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        patchAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
-     * 异步执行 HEAD 请求，返回 {@link CompletableFuture}。
-     *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * 异步执行 HEAD 请求，返回 {@link Mono}。
      */
-    public CompletableFuture<ClientResponse> headAsync() {
+    public Mono<ClientResponse> headAsync() {
         method = HttpMethod.HEAD;
         return executeAsync();
     }
 
     /**
      * 异步执行 HEAD 请求，通过回调通知结果。
-     *
-     * @param callback 异步回调
      */
     public void headAsync(Callback<ClientResponse> callback) {
-        headAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        headAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
-     * 异步执行 OPTIONS 请求，返回 {@link CompletableFuture}。
-     *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * 异步执行 OPTIONS 请求，返回 {@link Mono}。
      */
-    public CompletableFuture<ClientResponse> optionsAsync() {
+    public Mono<ClientResponse> optionsAsync() {
         method = HttpMethod.OPTIONS;
         return executeAsync();
     }
 
     /**
      * 异步执行 OPTIONS 请求，通过回调通知结果。
-     *
-     * @param callback 异步回调
      */
     public void optionsAsync(Callback<ClientResponse> callback) {
-        optionsAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        optionsAsync().subscribe(callback::onSuccess, callback::onError);
     }
 }

@@ -162,16 +162,20 @@ public interface Engine extends AutoCloseable {
     SqlExecutor getExecutor();
 
     /**
-     * 执行 SQL 更新语句（INSERT / UPDATE / DELETE / DDL）。
-     * <p>默认实现通过 {@link #getExecutor()} 代理，建议子类直接覆盖。</p>
+     * 执行数据操作语句（INSERT / UPDATE / DELETE / CREATE 等）。
+     * <p>参数名为 ql（查询语言），SQL 引擎执行 SQL，NoSQL 引擎执行对应方言。</p>
+     * <p>默认实现通过 {@link #getExecutor()} 代理，非 SQL 引擎应覆盖实现。</p>
      *
-     * @param sql    SQL 语句
+     * @param ql     数据操作语句
      * @param params 参数
      * @return 受影响行数
      */
-    default int execute(String sql, Object... params) {
+    default int execute(String ql, Object... params) {
         SqlExecutor e = getExecutor();
-        return e != null ? e.execute(sql, params) : 0;
+        if (e == null) {
+            throw new UnsupportedOperationException("当前引擎不支持数据操作: " + getClass().getName());
+        }
+        return e.execute(ql, params);
     }
 
     /**

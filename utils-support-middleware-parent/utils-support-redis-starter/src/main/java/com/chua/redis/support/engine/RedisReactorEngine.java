@@ -1,8 +1,6 @@
 package com.chua.redis.support.engine;
 
-import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
@@ -12,6 +10,8 @@ import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 基于 Lettuce 的 Redis 响应式引擎，实现 ReactorEngine 接口。
  *
- * <p>不依赖 R2DBC，完全基于 Lettuce 响应式 API 实现。
+ * <p>不依赖 R2DBC，完全基于 Lettuce 的响应式 API 实现。
  * 所有操作通过 boundedElastic 调度器执行，避免阻塞 Reactor 事件循环线程。</p>
  *
  * <p>支持多数据源模式，每个数据源独立维护一个 Lettuce RedisClient 实例。</p>
@@ -39,6 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 响应式执行 Redis 命令
  * Mono<Integer> result = engine.execute("SET mykey myvalue");
+ *
+ * // 前缀扫描
+ * Flux<String> keys = engine.scanKeys("user:*");
  * }</pre>
  *
  * @author CH
@@ -46,7 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @SuppressWarnings("rawtypes")
-@Spi("redis")
+@ Spi("redis")
 public class RedisReactorEngine implements ReactorEngine {
 
     /**
@@ -212,8 +215,15 @@ public class RedisReactorEngine implements ReactorEngine {
         if (name == null) {
             return Flux.error(new IllegalStateException("未配置 Redis 数据源"));
         }
-        return Flux.fromIterable(executeSingleCommand(name, sql, params))
-                .map(val -> Collections.singletonMap("value", val));
+        try {
+            Object result = executeSingleCommand(name, sql, params);
+            if (result == null) {
+                return Flux.empty();
+            }
+            return Flux.just(Collections.singletonMap("value", result));
+        } catch (Exception e) {
+            return Flux.error(e);
+        }
     }
 
     /**
@@ -231,14 +241,18 @@ public class RedisReactorEngine implements ReactorEngine {
         if (name == null) {
             return Flux.error(new IllegalStateException("未配置 Redis 数据源"));
         }
-        Object result = executeSingleCommand(name, sql, params);
-        return Flux.just(convertTo(result, rowType));
+        try {
+            Object result = executeSingleCommand(name, sql, params);
+            return Flux.just(convertTo(result, rowType));
+        } catch (Exception e) {
+            return Flux.error(e);
+        }
     }
 
     /**
      * 响应式执行 Redis 写操作命令。
      *
-     * <p>支持命令：SET、DEL、INCR、DECR、LPUSH、RPUSH、HSET、SADD、ZADD 等。</p>
+     * <p>支持命令：SET、DEL、INCR、DECR、LPUSH、RPUSH、HSET、HDEL、SADD、ZADD 等。</p>
      *
      * @param sql    Redis 命令
      * @param params 命令参数
@@ -250,8 +264,12 @@ public class RedisReactorEngine implements ReactorEngine {
         if (name == null) {
             return Mono.error(new IllegalStateException("未配置 Redis 数据源"));
         }
+        // 将命令名与参数重新组合，确保 executeSingleCommand 能正确解析
+        Object[] fullArgs = new Object[params.length + 1];
+        fullArgs[0] = sql.toUpperCase();
+        System.arraycopy(params, 0, fullArgs, 1, params.length);
         return Mono.fromCallable(() -> {
-            Object result = executeSingleCommand(name, sql, params);
+            Object result = executeSingleCommand(name, sql, fullArgs);
             if (result instanceof Number num) {
                 return num.intValue();
             }
@@ -277,7 +295,10 @@ public class RedisReactorEngine implements ReactorEngine {
         }
         return Flux.fromIterable(batchParams)
                 .map(params -> {
-                    Object result = executeSingleCommand(name, sql, params);
+                    Object[] fullArgs = new Object[params.length + 1];
+                    fullArgs[0] = sql.toUpperCase();
+                    System.arraycopy(params, 0, fullArgs, 1, params.length);
+                    Object result = executeSingleCommand(name, sql, fullArgs);
                     if (result instanceof Number num) {
                         return num.intValue();
                     }
@@ -291,164 +312,191 @@ public class RedisReactorEngine implements ReactorEngine {
     /**
      * 解析并执行单条 Redis 命令，返回原始结果对象。
      *
+     * <p>支持两种调用模式：</p>
+     * <ul>
+     *   <li>直接调用（结构化）：{@code executeSingleCommand(name, "GET", "key")} — command为命令名，params为参数</li>
+     *   <li>通过 execute()/execCommand()：{@code executeSingleCommand(name, "GET mykey")} — command为完整命令字符串</li>
+     * </ul>
+     *
      * @param name    数据源名称
-     * @param command 命令字符串（如 "GET mykey"）
-     * @param params  额外参数数组
+     * @param command 命令字符串（如 "GET" 或 "GET mykey"）
+     * @param params  额外参数（结构化调用时使用）
      * @return 命令执行结果
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked"})
     private Object executeSingleCommand(String name, String command, Object... params) {
         RedisClient client = lettuceClients.get(name);
         if (client == null) {
             throw new IllegalStateException("Redis 数据源未配置: " + name);
         }
         Duration timeout = timeouts.getOrDefault(name, Duration.ofSeconds(5));
+        RedisCommands<String, String> conn = null;
         try {
-            io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
-            conn.setTimeout(timeout);
-            io.lettuce.core.api.sync.RedisStringCommands<String, String> str = conn.sync();
-            io.lettuce.core.api.sync.RedisListCommands<String, String> list = conn.sync();
-            io.lettuce.core.api.sync.RedisSetCommands<String, String> set = conn.sync();
-            io.lettuce.core.api.sync.RedisServerCommands<String, String> server = conn.sync();
-            io.lettuce.core.api.sync.RedisKeyCommands<String, String> key = conn.sync();
-            io.lettuce.core.api.sync.RedisHashCommands<String, String> hash = conn.sync();
-            io.lettuce.core.api.sync.RedisZSetCommands<String, String> zset = conn.sync();
+            io.lettuce.core.api.StatefulRedisConnection<String, String> connection = client.connect();
+            connection.setTimeout(timeout);
+            conn = connection.sync();
 
-            String[] parts = command.trim().toUpperCase().split("\\s+");
-            String cmd = parts[0];
+            String cmd;
             String[] args;
-            if (params != null && params.length > 0) {
+            // 判断是否为"完整命令字符串"模式（无额外 params 时）
+            if (params == null || params.length == 0) {
+                String[] parts = command.trim().toUpperCase().split("\\s+");
+                cmd = parts[0];
+                args = Arrays.copyOfRange(parts, 1, parts.length);
+            } else {
+                // 结构化模式：command 为命令名，params 为参数
+                cmd = command.trim().toUpperCase();
                 args = new String[params.length];
                 for (int i = 0; i < params.length; i++) {
                     args[i] = params[i].toString();
                 }
-            } else {
-                args = Arrays.copyOfRange(parts, 1, parts.length);
             }
 
             Object result;
             switch (cmd) {
                 case "GET":
-                    result = str.get(args[0]);
+                    result = conn.get(args[0]);
                     break;
                 case "SET":
-                    str.set(args[0], args.length > 1 ? args[1] : "");
+                    conn.set(args[0], args.length > 1 ? args[1] : "");
                     result = "OK";
                     break;
                 case "DEL":
-                    result = key.del(args);
+                    result = conn.del(args);
                     break;
                 case "EXISTS":
-                    result = key.exists(args);
+                    result = conn.exists(args);
                     break;
                 case "TTL":
-                    result = key.ttl(args[0]);
+                    result = conn.ttl(args[0]);
                     break;
                 case "PTTL":
-                    result = key.pttl(args[0]);
+                    result = conn.pttl(args[0]);
                     break;
                 case "INCR":
-                    result = str.incr(args[0]);
+                    result = conn.incr(args[0]);
                     break;
                 case "INCRBY":
-                    result = str.incrby(args[0], Long.parseLong(args[1]));
+                    result = conn.incrby(args[0], parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
                     break;
                 case "DECR":
-                    result = str.decr(args[0]);
+                    result = conn.decr(args[0]);
                     break;
                 case "DECRBY":
-                    result = str.decrby(args[0], Long.parseLong(args[1]));
+                    result = conn.decrby(args[0], parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]));
                     break;
                 case "APPEND":
-                    result = str.append(args[0], args[1]);
+                    result = conn.append(args[0], args[1]);
                     break;
                 case "STRLEN":
-                    result = str.strlen(args[0]);
+                    result = conn.strlen(args[0]);
                     break;
                 case "LPUSH":
-                    result = list.lpush(args[0], Arrays.copyOfRange(args, 1, args.length));
+                    result = conn.lpush(args[0], Arrays.copyOfRange(args, 1, args.length));
                     break;
                 case "RPUSH":
-                    result = list.rpush(args[0], Arrays.copyOfRange(args, 1, args.length));
+                    result = conn.rpush(args[0], Arrays.copyOfRange(args, 1, args.length));
                     break;
                 case "LPOP":
-                    result = list.lpop(args[0]);
+                    result = conn.lpop(args[0]);
                     break;
                 case "RPOP":
-                    result = list.rpop(args[0]);
+                    result = conn.rpop(args[0]);
                     break;
                 case "LRANGE":
-                    long lStart = Long.parseLong(args[0]);
-                    long lEnd = Long.parseLong(args[1]);
-                    result = list.lrange(args[2], lStart, lEnd);
+                    String lrangeKey = args[0];
+                    long lStartIdx = parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]);
+                    long lEndIdx = parseLong(Converter.convertIfNecessary(args[2], Long.class), args[2]);
+                    result = conn.lrange(lrangeKey, lStartIdx, lEndIdx);
                     break;
                 case "LLEN":
-                    result = list.llen(args[0]);
+                    result = conn.llen(args[0]);
                     break;
                 case "HGET":
-                    result = hash.hget(args[0], args[1]);
+                    result = conn.hget(args[0], args[1]);
                     break;
                 case "HSET":
-                    result = hash.hset(args[0], args[1], args[2]);
+                    result = conn.hset(args[0], args[1], args[2]);
                     break;
                 case "HDEL":
-                    result = hash.hdel(args[0], Arrays.copyOfRange(args, 1, args.length));
+                    result = conn.hdel(args[0], Arrays.copyOfRange(args, 1, args.length));
                     break;
                 case "HGETALL":
-                    result = hash.hgetall(args[0]);
+                    result = conn.hgetall(args[0]);
                     break;
                 case "HEXISTS":
-                    result = hash.hexists(args[0], args[1]);
+                    result = conn.hexists(args[0], args[1]);
                     break;
                 case "HLEN":
-                    result = hash.hlen(args[0]);
+                    result = conn.hlen(args[0]);
                     break;
                 case "SADD":
-                    result = set.sadd(args[0], Arrays.copyOfRange(args, 1, args.length));
+                    result = conn.sadd(args[0], Arrays.copyOfRange(args, 1, args.length));
                     break;
                 case "SMEMBERS":
-                    result = new ArrayList<>(set.smembers(args[0]));
+                    result = new ArrayList<>(conn.smembers(args[0]));
                     break;
                 case "SREM":
-                    result = set.srem(args[0], Arrays.copyOfRange(args, 1, args.length));
+                    result = conn.srem(args[0], Arrays.copyOfRange(args, 1, args.length));
                     break;
                 case "SCARD":
-                    result = set.scard(args[0]);
+                    result = conn.scard(args[0]);
                     break;
                 case "ZADD":
-                    double score = Double.parseDouble(args[1]);
-                    result = zset.zadd(args[0], score, args[2]);
+                    double score = parseDouble(Converter.convertIfNecessary(args[1], Double.class), args[1]);
+                    result = conn.zadd(args[0], score, args[2]);
                     break;
                 case "ZRANGE":
-                    long zStart = Long.parseLong(args[1]);
-                    long zEnd = Long.parseLong(args[2]);
-                    result = zset.zrange(args[0], zStart, zEnd);
+                    long zStart = parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]);
+                    long zEnd = parseLong(Converter.convertIfNecessary(args[2], Long.class), args[2]);
+                    result = conn.zrange(args[0], zStart, zEnd);
                     break;
                 case "ZCARD":
-                    result = zset.zcard(args[0]);
+                    result = conn.zcard(args[0]);
                     break;
                 case "KEYS":
-                    result = new ArrayList<>(key.keys(args[0]));
+                    result = new ArrayList<>(conn.keys(args[0]));
                     break;
                 case "DBSIZE":
-                    result = server.dbSize();
+                    result = conn.dbsize();
                     break;
                 case "PING":
-                    result = server.ping();
+                    result = conn.ping();
+                    break;
+                case "SETEX":
+                    conn.setex(args[0], parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]), args[2]);
+                    result = "OK";
                     break;
                 case "FLUSHDB":
-                    server.flushdb();
+                    conn.flushdb();
                     result = 1;
+                    break;
+                case "SELECT":
+                    int db = parseInt(Converter.convertIfNecessary(args[0], Integer.class), args[0]);
+                    conn.select(db);
+                    result = 1;
+                    break;
+                case "AUTH":
+                    if (args.length > 0) {
+                        conn.auth(args[0]);
+                    }
+                    result = "OK";
                     break;
                 default:
                     log.warn("不支持的 Redis 命令: {}", cmd);
                     result = null;
             }
-            conn.close();
             return result;
         } catch (Exception e) {
             log.error("执行 Redis 命令失败: {} {}", command, Arrays.toString(params), e);
             throw new RuntimeException("Redis 命令执行失败: " + command, e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.getStatefulConnection().close();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
@@ -501,9 +549,10 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return 值 Mono，不存在返回空 Mono
      */
     public Mono<String> get(String key) {
-        return Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, "GET", key))
-                .subscribeOn(Schedulers.boundedElastic())
-                .map(r -> r != null ? r.toString() : null);
+        return Mono.fromCallable(() -> {
+            Object result = executeSingleCommand(defaultDataSourceName, "GET", key);
+            return result != null ? result.toString() : null;
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
@@ -528,19 +577,8 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return 完成 Mono
      */
     public Mono<Void> setex(String key, String value, long ttl) {
-        return Mono.fromCallable(() -> {
-            RedisClient client = lettuceClients.get(defaultDataSourceName);
-            if (client == null) {
-                throw new IllegalStateException("Redis 数据源未配置");
-            }
-            Duration timeout = timeouts.getOrDefault(defaultDataSourceName, Duration.ofSeconds(5));
-            io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
-            conn.setTimeout(timeout);
-            io.lettuce.core.api.sync.RedisStringCommands<String, String> str = conn.sync();
-            str.setex(key, ttl, value);
-            conn.close();
-            return 1;
-        }).subscribeOn(Schedulers.boundedElastic())
+        return Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, "SETEX", key, ttl, value))
+                .subscribeOn(Schedulers.boundedElastic())
                 .then();
     }
 
@@ -552,8 +590,8 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     public Mono<Boolean> delete(String key) {
         return Mono.fromCallable(() -> {
-            Long result = (Long) executeSingleCommand(defaultDataSourceName, "DEL", key);
-            return result != null && result > 0;
+            Object result = executeSingleCommand(defaultDataSourceName, "DEL", key);
+            return result instanceof Number num ? num.longValue() > 0 : false;
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -565,8 +603,8 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     public Mono<Boolean> exists(String key) {
         return Mono.fromCallable(() -> {
-            Long result = (Long) executeSingleCommand(defaultDataSourceName, "EXISTS", key);
-            return result != null && result > 0;
+            Object result = executeSingleCommand(defaultDataSourceName, "EXISTS", key);
+            return result instanceof Number num ? num.longValue() > 0 : false;
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -646,14 +684,19 @@ public class RedisReactorEngine implements ReactorEngine {
     public Flux<Map.Entry<String, String>> hgetall(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "HGETALL", key);
-            if (result instanceof Map map) {
+            if (result instanceof Map<?, ?> map) {
                 List<Map.Entry<String, String>> entries = new ArrayList<>();
-                map.forEach((k, v) -> entries.add(new AbstractMap.SimpleEntry<>(k.toString(), v != null ? v.toString() : null)));
+                map.forEach((k, v) -> entries.add(new AbstractMap.SimpleEntry<>(
+                        k.toString(), v != null ? v.toString() : null)));
                 return entries;
             }
             return Collections.emptyList();
         }).subscribeOn(Schedulers.boundedElastic())
-                .flatMapMany(list -> Flux.fromIterable(list));
+                .flatMapMany(list -> {
+                    @SuppressWarnings("unchecked")
+                    List<Map.Entry<String, String>> typedList = (List) list;
+                    return Flux.fromIterable(typedList);
+                });
     }
 
     /**
@@ -682,8 +725,14 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     public Mono<Long> lpush(String key, String... values) {
         return Mono.fromCallable(() -> {
-            Object result = executeSingleCommand(defaultDataSourceName, "LPUSH", key, (Object) values);
-            return result instanceof Number num ? num.longValue() : 0L;
+            RedisClient client = lettuceClients.get(defaultDataSourceName);
+            if (client == null) throw new IllegalStateException("Redis 数据源未配置");
+            Duration timeout = timeouts.getOrDefault(defaultDataSourceName, Duration.ofSeconds(5));
+            io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
+            conn.setTimeout(timeout);
+            long result = conn.sync().lpush(key, values);
+            conn.close();
+            return result;
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -732,8 +781,14 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     public Mono<Long> sadd(String key, String... values) {
         return Mono.fromCallable(() -> {
-            Object result = executeSingleCommand(defaultDataSourceName, "SADD", key, (Object) values);
-            return result instanceof Number num ? num.longValue() : 0L;
+            RedisClient client = lettuceClients.get(defaultDataSourceName);
+            if (client == null) throw new IllegalStateException("Redis 数据源未配置");
+            Duration timeout = timeouts.getOrDefault(defaultDataSourceName, Duration.ofSeconds(5));
+            io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
+            conn.setTimeout(timeout);
+            long result = conn.sync().sadd(key, values);
+            conn.close();
+            return result;
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -759,9 +814,8 @@ public class RedisReactorEngine implements ReactorEngine {
             return Flux.empty();
         }
         return Flux.fromIterable(commands)
-                .map(cmd -> Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, cmd))
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .block())
+                .flatMap(cmd -> Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, cmd))
+                        .subscribeOn(Schedulers.boundedElastic()))
                 .filter(Objects::nonNull);
     }
 
@@ -805,5 +859,49 @@ public class RedisReactorEngine implements ReactorEngine {
     public RedisReactorEngine setTimeout(String name, Duration timeout) {
         timeouts.put(name, timeout);
         return this;
+    }
+
+    // ==================== 类型转换辅助方法 ====================
+
+    /**
+     * 使用 Converter 转换字符串为 Long，转换失败时兜底 parseLong。
+     *
+     * @param converted 转换结果（可能为 null）
+     * @param raw       原始字符串
+     * @return Long 值
+     */
+    private static long parseLong(Long converted, String raw) {
+        if (converted != null) {
+            return converted;
+        }
+        return Long.parseLong(raw);
+    }
+
+    /**
+     * 使用 Converter 转换字符串为 Integer，转换失败时兜底 parseInt。
+     *
+     * @param converted 转换结果（可能为 null）
+     * @param raw       原始字符串
+     * @return Integer 值
+     */
+    private static int parseInt(Integer converted, String raw) {
+        if (converted != null) {
+            return converted;
+        }
+        return Integer.parseInt(raw);
+    }
+
+    /**
+     * 使用 Converter 转换字符串为 Double，转换失败时兜底 parseDouble。
+     *
+     * @param converted 转换结果（可能为 null）
+     * @param raw       原始字符串
+     * @return Double 值
+     */
+    private static double parseDouble(Double converted, String raw) {
+        if (converted != null) {
+            return converted;
+        }
+        return Double.parseDouble(raw);
     }
 }

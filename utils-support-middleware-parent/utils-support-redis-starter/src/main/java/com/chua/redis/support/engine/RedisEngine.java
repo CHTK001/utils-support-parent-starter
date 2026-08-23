@@ -2,6 +2,8 @@ package com.chua.redis.support.engine;
 
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.redis.support.command.RedisCommandHandler;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -182,6 +184,40 @@ public class RedisEngine {
             }
         }
         dataSources.clear();
+    }
+
+    /**
+     * 执行 Redis 命令，通过 SPI 分发到对应命令处理器。
+     *
+     * <p>支持 SET / GET / DEL / HSET / EXPIRE / INCR 等常见命令，
+     * 未知命令抛 {@link UnsupportedOperationException}。</p>
+     *
+     * @param ql     Redis 命令，如 {@code SET key value}
+     * @param params 额外参数，追加到命令之后
+     * @return 受影响行数 / 命中数量
+     */
+    public int execute(String ql, Object... params) {
+        // 空命令保护
+        if (ql == null || ql.trim().isEmpty()) {
+            throw new IllegalArgumentException("Redis 命令不能为空");
+        }
+        String[] tokens = ql.trim().split("\\s+");
+        String command = tokens[0].toUpperCase();
+        List<String> args = new ArrayList<>();
+        for (int i = 1; i < tokens.length; i++) {
+            args.add(tokens[i]);
+        }
+        for (Object param : params) {
+            args.add(String.valueOf(param));
+        }
+        // 通过 SPI 加载命令处理器
+        RedisCommandHandler handler = ServiceProvider.of(RedisCommandHandler.class).getExtension(command);
+        if (handler == null) {
+            throw new UnsupportedOperationException("不支持的 Redis 命令: " + command);
+        }
+        try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
+            return handler.execute(jedis, args);
+        }
     }
 
     /**

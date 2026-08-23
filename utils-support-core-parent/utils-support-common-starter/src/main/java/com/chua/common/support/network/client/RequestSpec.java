@@ -595,11 +595,11 @@ public class RequestSpec {
     }
 
     /**
-     * 异步执行请求，返回 {@link CompletableFuture}。
+     * 异步执行请求，返回 {@link Mono}。
      *
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * @return 响应 Mono
      */
-    public CompletableFuture<ClientResponse> executeAsync() {
+    public Mono<ClientResponse> executeAsync() {
         return client.executeAsync(buildRequest());
     }
 
@@ -609,13 +609,7 @@ public class RequestSpec {
      * @param callback 异步回调
      */
     public void executeAsync(Callback<ClientResponse> callback) {
-        executeAsync().whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        executeAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     // ==================== Reactor 支持 ====================
@@ -638,7 +632,7 @@ public class RequestSpec {
      * @return Mono 包装的响应
      */
     public Mono<ClientResponse> executeMono() {
-        return Mono.fromFuture(() -> client.executeAsync(buildRequest()));
+        return client.executeAsync(buildRequest());
     }
 
     /**
