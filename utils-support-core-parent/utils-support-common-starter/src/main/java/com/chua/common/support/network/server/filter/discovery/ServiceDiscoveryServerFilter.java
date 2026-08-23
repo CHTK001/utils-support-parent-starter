@@ -164,13 +164,11 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
         }
 
         if (discovery == null) {
-            System.err.println("[DISC] NO SERVICE for " + servicePath);
+            log.debug("服务未找到: {} (balance={}, protocol={}, scatterId={})",
+                    servicePath, balance, protocol, scatterId);
             next.accept(request, response);
             return;
         }
-
-        System.err.println("[DISC] found: " + path + " -> " + discovery.getHost() + ":" + discovery.getPort()
-                + " serverId=" + discovery.getServerId() + " scatterId=" + discovery.getScatterId());
 
         ServerAttribute.setBackendDiscovery(request, discovery);
         ServerAttribute.setBackendAddress(request, discovery.getHost() + ":" + discovery.getPort());

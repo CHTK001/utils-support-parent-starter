@@ -88,7 +88,7 @@ public final class EntityDocumentConverter {
         }
         try {
             T entity = ReflectUtils.instantiate(entityClass);
-            for (Field field : entityClass.getDeclaredFields()) {
+             for (java.lang.reflect.Field field : entityClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 String fieldName = field.getName();
                 String valueStr = doc.getField(fieldName) != null ? doc.getField(fieldName).stringValue() : null;
@@ -161,7 +161,7 @@ public final class EntityDocumentConverter {
      * @param valueStr 字符串值
      * @param fieldType 字段类型
      */
-    private static void setFieldValue(Object entity, Field field, String valueStr, Class<?> fieldType) {
+    private static void setFieldValue(Object entity, java.lang.reflect.Field field, String valueStr, Class<?> fieldType) {
         try {
             if (fieldType == String.class) {
                 field.set(entity, valueStr);

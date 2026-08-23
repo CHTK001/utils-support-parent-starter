@@ -21,12 +21,8 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
 @Spi("sqlite")
 public class SqliteReactorEngine extends JdbcReactorEngine {
 
-    /**
-     * 创建 SQLite 响应式引擎，内部持有同步 {@link SqliteEngine}。
-     */
-    public SqliteReactorEngine() {
-        super(new SqliteEngine());
-    }
+    /** 对应的同步引擎，用于承载 SQLite 数据源配置 */
+    private final SqliteEngine delegate = new SqliteEngine();
 
     /**
      * 添加一个 SQLite 数据源（委托给同步引擎）。
@@ -36,7 +32,7 @@ public class SqliteReactorEngine extends JdbcReactorEngine {
      * @return 当前引擎实例
      */
     public SqliteReactorEngine addDataSource(String name, String filePath) {
-        ((SqliteEngine) delegate).addDataSource(name, filePath);
+        delegate.addDataSource(name, filePath);
         return this;
     }
 }
