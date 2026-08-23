@@ -26,8 +26,7 @@ import kcp.ChannelConfig;
 import kcp.KcpListener;
 import kcp.Ukcp;
 import kcp.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -54,12 +53,8 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Spi("kcp")
+@Slf4j
 public class KcpServer extends AbstractServer {
-
-    /**
-     * 日志实例
-     */
-    private static final Logger log = LoggerFactory.getLogger(KcpServer.class);
 
     /**
      * KCP 会话标识（conv），两端保持一致
