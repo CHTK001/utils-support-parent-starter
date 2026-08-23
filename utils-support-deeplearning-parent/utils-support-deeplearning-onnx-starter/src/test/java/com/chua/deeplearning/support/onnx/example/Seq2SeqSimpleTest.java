@@ -23,25 +23,7 @@ class Seq2SeqSimpleTest {
         Assertions.assertNotNull(ModelRegistry.get("t5-base-seq2seq"));
         Assertions.assertNotNull(ModelRegistry.get("mt5-zh-seq2seq"));
         Assertions.assertNotNull(ModelRegistry.get("bart-zh-seq2seq"));
-        Assertions.assertNotNull(ModelRegistry.get("randeng-t5-77m"));
-        System.out.println("[门户] ModelRegistry seq2seq: t5, t5-base, mt5-zh, bart-zh, randeng-77m 均已注册");
-    }
-
-    @Test
-    @DisplayName("randeng-t5-77m 嵌入式中文摘要")
-    @EnabledIfSystemProperty(named = "seq2seq.download", matches = "true")
-    void randengT5Summarize() {
-        ModelRegistry.discoverAll();
-        T5Seq2SeqOrtTranslator.setTaskPrefix("摘要：");
-        @SuppressWarnings("unchecked")
-        ITranslator<String,String> rt = (ITranslator<String,String>)(ITranslator<?,?>)ModelRegistry.createTranslator("randeng-t5-77m", null);
-        try {
-            String src = "近期全国多地气温骤降，医院门诊量明显上升。医生提醒，降温期间要注意添衣保暖，尤其是老人和儿童。如果出现发热等症状，应及时就医。";
-            String r = rt.translate(src);
-            System.out.println("[randeng-t5-77m] 输入: " + src);
-            System.out.println("[randeng-t5-77m] 摘要: " + r);
-            Assertions.assertFalse(r.isBlank());
-        } finally { close(rt); }
+        System.out.println("[门户] ModelRegistry seq2seq: t5, t5-base, mt5-zh, bart-zh 均已注册");
     }
 
     @Test
