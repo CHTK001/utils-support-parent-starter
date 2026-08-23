@@ -42,6 +42,18 @@
             <version>0.7.3</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Lettuce 响应式 Redis 客户端（provided，由 Spring Boot BOM 管理版本） -->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
 

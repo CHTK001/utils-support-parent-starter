@@ -113,7 +113,9 @@ public interface Engine extends AutoCloseable {
      *
      * @param dataSourceName 数据源名称
      * @return SQL 执行器
+     * @deprecated 请使用 {@link #execute(String, Object...)} 或 {@link #query(String, Object...)} 代替
      */
+    @Deprecated
     SqlExecutor getExecutor(String dataSourceName);
 
     /**
@@ -154,8 +156,23 @@ public interface Engine extends AutoCloseable {
      * 获取默认数据源的 SQL 执行器。
      *
      * @return SQL 执行器
+     * @deprecated 请使用 {@link #execute(String, Object...)} 或 {@link #query(String, Object...)} 代替
      */
+    @Deprecated
     SqlExecutor getExecutor();
+
+    /**
+     * 执行 SQL 更新语句（INSERT / UPDATE / DELETE / DDL）。
+     * <p>默认实现通过 {@link #getExecutor()} 代理，建议子类直接覆盖。</p>
+     *
+     * @param sql    SQL 语句
+     * @param params 参数
+     * @return 受影响行数
+     */
+    default int execute(String sql, Object... params) {
+        SqlExecutor e = getExecutor();
+        return e != null ? e.execute(sql, params) : 0;
+    }
 
     /**
      * 根据名称获取数据源封装对象。
