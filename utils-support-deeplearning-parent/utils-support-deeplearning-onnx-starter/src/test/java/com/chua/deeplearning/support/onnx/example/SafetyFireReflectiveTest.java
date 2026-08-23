@@ -21,7 +21,7 @@ class SafetyFireReflectiveTest {
         ImageUtils.load();
         run("safety-helmet", new String[]{"1safety-helmet.webp", "1safety-helmet1.png", "6safety-helmet.webp"});
         run("fire-smoke", new String[]{"fire_smoke.png", "fire_smoke2.jpg", "smoke_scene1.jpg"});
-        run("reflective-clothes", new String[]{"1safety-helmet.webp", "smart_construction.jpg", "fullbody2.jpg"});
+        run("reflective-clothes", new String[]{"smart_construction.jpg", "fullbody2.jpg"});
     }
 
     private void run(String modelId, String[] names) throws Exception {

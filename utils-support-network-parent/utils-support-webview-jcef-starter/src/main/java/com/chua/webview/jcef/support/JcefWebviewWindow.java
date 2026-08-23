@@ -14,8 +14,7 @@ import org.cef.browser.CefMessageRouter;
 import org.cef.browser.CefMessageRouter.CefMessageRouterConfig;
 import org.cef.handler.CefMessageRouterHandlerAdapter;
 import org.cef.callback.CefQueryCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
