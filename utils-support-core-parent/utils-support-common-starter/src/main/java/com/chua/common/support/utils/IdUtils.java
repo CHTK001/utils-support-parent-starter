@@ -134,6 +134,46 @@ public class IdUtils {
     }
 
     /**
+     * UUIDv7：时间有序 UUID（RFC 9562）
+     * <p>
+     * 将 Unix 毫秒时间戳编码进 UUID 前 48 位，具有单调递增、可排序、带时间语义的特点。
+     * 格式：{time_ms:48}{ver:4}{rand_a:12}{var:2}{rand_b:62}
+     * </p>
+     *
+     * @return UUIDv7 字符串
+     */
+    public static String uuidv7() {
+        return createUuidv7();
+    }
+
+    /**
+     * 创建 UUIDv7（时间有序 UUID，RFC 9562）
+     * <p>
+     * 前 48 位为 Unix 毫秒时间戳，保证生成的 UUID 在时间上单调递增，
+     * 适用于分布式 ID、数据库主键、日志追踪等需要有序唯一标识的场景。
+     * </p>
+     *
+     * @return UUIDv7 字符串
+     */
+    public static String createUuidv7() {
+        long timestamp = System.currentTimeMillis();
+        // uuid7 时间戳占高 48 位，左移 16 位到 mostSigBits 的高 48 位
+        long mostSigBits = (timestamp & 0xFFFFFFFFFFFFL) << 16;
+        // 设置版本：bits 48-51 = 7（即 mostSigBits 的第 12-15 位）
+        mostSigBits |= (7L << 12);
+        // 生成完整随机 long，从中提取 rand_a（12 bits）和 rand_b（62 bits）
+        long random = ThreadLocalRandom.current().nextLong();
+        // rand_a: 取 random 的低 12 bits，放到 mostSigBits 的低 12 位（version 已占 4 bits，rand_a 在其后）
+        long randA = random & 0xFFFL;
+        mostSigBits |= randA;
+        // rand_b: 取 random 的高 62 bits，放到 leastSigBits 的低 62 位
+        // variant: bits 64-65 = 10（RFC 4122），即 leastSigBits 的最高两位为 10
+        long randB = (random >>> 12) & 0x3FFFFFFFFFFFFFL;
+        long leastSigBits = randB | 0x8000000000000000L;
+        return new UUID(mostSigBits, leastSigBits).toString();
+    }
+
+    /**
      * UUID
      * <p>
      * a5c8a5e8-df2b-4706-bea4-08d0939410e3
