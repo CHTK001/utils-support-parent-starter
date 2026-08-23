@@ -80,6 +80,9 @@ public class ClusterServerForwardTest {
         if (nodeA != null) { try { nodeA.close(); } catch (Exception ignored) {} }
         if (nodeB != null) { try { nodeB.close(); } catch (Exception ignored) {} }
         if (backendB != null) { try { backendB.stop(0); } catch (Exception ignored) {} }
+        // 关闭后再清理一次：防止后台发现轮在 close 前后把过期服务表写回磁盘
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-a.json"));
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-b.json"));
     }
 
     /**
