@@ -156,6 +156,14 @@ class DefaultMattingService implements MattingService {
                 return image;
             }
         }
+        if (result instanceof byte[] bytes) {
+            try {
+                java.io.ByteArrayInputStream bis = new java.io.ByteArrayInputStream(bytes);
+                BufferedImage bi = javax.imageio.ImageIO.read(bis);
+                if (bi != null) return bi;
+            } catch (Exception ignored) {
+            }
+        }
         return null;
     }
 }
