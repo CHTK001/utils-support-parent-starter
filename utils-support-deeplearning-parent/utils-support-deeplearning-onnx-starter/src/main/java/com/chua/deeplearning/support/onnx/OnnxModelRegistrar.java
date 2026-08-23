@@ -374,10 +374,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("minilm-fp32-embedding", "com.chua.deeplearning.support.onnx.embedding.minilm.MiniLMEmbeddingTranslator", String.class, float[].class, Object.class, "nlp/embedding/minilm-fp32/model.onnx");
         // 卡片矫正检测(Card Correction)：检测卡片类图片（身份证、名片等）四角点；适用文档扫描、证件识别
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "cv/card_correction/card_detection.onnx");
-        // 车牌检测(YOLOv5)：YOLOv5 架构的车牌检测；适用停车场、出入口车牌识别
-        reg("yolov5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectOnnxTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
-        // 车牌检测(YOLOv11)：YOLOv11 架构的车牌检测（morsetechlab），更高精度
-        reg("yolo11-plate-detect", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "");
+        // 车牌检测(YOLOv11)：YOLOv11 架构的车牌检测（morsetechlab），内嵌模型，更高精度
+        reg("yolo11-plate-detect", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolo11_plate/yolo11_plate_detect.onnx");
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
         reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateRecTranslator", byte[].class, com.chua.deeplearning.support.plate.PlateResult.class, com.chua.deeplearning.support.plate.LicensePlateRecognizer.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
         // OCR检测(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字检测；适用移动端 OCR

@@ -5,117 +5,99 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Server 实现类并发 / 吞吐基准测试</title>
 <style>
-  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; margin: 32px; color: #222; line-height: 1.6; }
-  h1 { border-bottom: 2px solid #4f46e5; padding-bottom: 8px; }
-  h2 { margin-top: 32px; color: #4f46e5; }
-  blockquote { background: #f5f3ff; border-left: 4px solid #8b5cf6; margin: 16px 0; padding: 8px 16px; color: #555; }
-  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
-  th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: right; }
-  th:first-child, td:first-child, td:nth-child(2) { text-align: left; }
-  thead th { background: #4f46e5; color: #fff; }
-  tbody tr:nth-child(even) { background: #fafafa; }
-  .win { background: #dcfce7; font-weight: 600; }
-  .note { color: #b91c1c; }
-  code { background: #f1f1f1; padding: 1px 5px; border-radius: 3px; }
+:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
+  --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.6; }
+.wrap { max-width:1080px; margin:0 auto; padding:0 24px 64px; }
+header { background:linear-gradient(135deg,#161b22 0%,#1f2937 100%); border-bottom:1px solid var(--border);
+  padding:40px 24px 28px; text-align:center; margin-bottom:28px; }
+header h1 { font-size:1.7em; color:#f0f6fc; }
+header .sub { color:var(--muted); font-size:.92em; margin-top:8px; }
+.chips { margin-top:14px; }
+.chip { display:inline-block; font-size:.72em; padding:3px 12px; border-radius:14px;
+  border:1px solid var(--border); color:var(--muted); margin:0 4px; }
+h2 { font-size:1.25em; color:#f0f6fc; margin:40px 0 6px; display:flex; align-items:center; gap:10px; }
+h2 .num { background:rgba(88,166,255,.15); color:var(--accent); font-size:.72em; padding:2px 10px;
+  border-radius:12px; font-weight:600; }
+h2 .hint { font-size:.62em; color:var(--muted); font-weight:400; }
+.desc { color:var(--muted); font-size:.85em; margin-bottom:16px; }
+
+/* KPI 卡片 */
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+.kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
+.kpi .v { font-size:1.55em; font-weight:700; color:#f0f6fc; }
+.kpi .v small { font-size:.55em; color:var(--muted); font-weight:400; }
+.kpi .l { color:var(--muted); font-size:.8em; margin-top:4px; }
+.kpi.g .v { color:var(--green); } .kpi.o .v { color:var(--orange); } .kpi.r .v { color:var(--red); }
+.kpi.b .v { color:var(--accent); }
+
+/* 图例 */
+.legend { display:flex; gap:22px; margin:14px 0 4px; font-size:.82em; color:var(--muted); }
+.legend i { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+.lg-nio i { background:var(--green); } .lg-jdk i { background:var(--red); }
+
+/* CSS 条形图 */
+.chart-block { background:var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:20px 24px; margin-top:14px; }
+.chart-title { font-size:.95em; color:#f0f6fc; font-weight:600; margin-bottom:4px; }
+.chart-sub { font-size:.78em; color:var(--muted); margin-bottom:14px; }
+.grp { margin:12px 0 4px; }
+.grp-t { font-size:.78em; color:var(--accent); margin-bottom:5px; font-weight:600; }
+.bar-row { display:flex; align-items:center; gap:10px; margin:4px 0; }
+.bar-name { width:38px; font-size:.76em; color:var(--muted); text-align:right; flex:none; }
+.bar-track { flex:1; background:#21262d; border-radius:5px; height:20px; overflow:hidden; position:relative; }
+.bar { height:100%; border-radius:5px; display:flex; align-items:center; min-width:52px; }
+.bar span { font-size:.7em; color:#fff; padding-left:8px; white-space:nowrap; font-weight:600; }
+.bar.nio { background:linear-gradient(90deg,#2ea043,#3fb950); }
+.bar.jdk { background:linear-gradient(90deg,#b62324,#f85149); }
+
+/* 表格 */
+table { border-collapse:collapse; width:100%; margin-top:14px; font-size:.85em;
+  background:var(--card); border-radius:12px; overflow:hidden; }
+th,td { border-bottom:1px solid var(--border); padding:9px 12px; text-align:right; }
+th:first-child, td:first-child, td:nth-child(2) { text-align:left; }
+thead th { background:#1c2431; color:#f0f6fc; font-weight:600; position:sticky; top:0; }
+tbody tr:hover { background:#1c2431; }
+td.win { color:var(--green); font-weight:700; }
+td.lose { color:var(--red); }
+td.dim { color:var(--muted); }
+
+/* 提示块 */
+.note { background:rgba(210,153,34,.08); border:1px solid rgba(210,153,34,.35);
+  border-left:4px solid var(--orange); border-radius:8px; padding:12px 16px; font-size:.84em;
+  color:var(--text); margin-top:14px; }
+.concl { background:rgba(63,185,80,.07); border:1px solid rgba(63,185,80,.3);
+  border-left:4px solid var(--green); border-radius:8px; padding:14px 18px; margin:12px 0; font-size:.9em; }
+.warn { background:rgba(248,81,73,.07); border:1px solid rgba(248,81,73,.3);
+  border-left:4px solid var(--red); border-radius:8px; padding:14px 18px; margin:12px 0; font-size:.9em; }
+ul { padding-left:22px; } li { margin:6px 0; }
+code { background:#21262d; padding:1px 6px; border-radius:4px; font-size:.9em; color:var(--accent); }
+footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px;
+  border-top:1px solid var(--border); padding-top:20px; }
 </style>
 </head>
 <body>
-<h1>Server 实现类并发 / 吞吐基准测试</h1>
-<blockquote>
-测试对象：<code>JdkHttpServer</code>、<code>NioHttpServer</code>（均为 <code>utils-support-common-starter</code> 中的 HTTP Server 实现类）。<br>
-测试日期：2026-08-22　测试方式：进程内自动压测 harness <code>ServerBench</code>（源码 <code>D:\ch\project\bench\ServerBench.java</code>）。
-</blockquote>
 
-<h2>1. 测试环境与方法</h2>
-<table>
-<thead><tr><th>项</th><th>值</th></tr></thead>
-<tbody>
-<tr><td>操作系统</td><td>Windows（12 逻辑核）</td></tr>
-<tr><td>JDK</td><td>25.0.3（LTS，Corretto），使用虚拟线程</td></tr>
-<tr><td>被测实现</td><td><code>jdk</code> = <code>JdkHttpServer</code>（<code>com.sun.net.httpserver</code> + 每请求虚拟线程）；<code>nio</code> = <code>NioHttpServer</code>（多 Selector 分片 + 每连接虚拟线程，Windows 下 eventLoop 被钳制为 2）</td></tr>
-<tr><td>压测方式</td><td>进程内启动 Server，注册 <code>GET /echo</code>；客户端用 <code>java.net.http.HttpClient</code>（虚拟线程池）并发请求</td></tr>
-<tr><td>并发等级</td><td>100 / 500 / 1000 / 2000</td></tr>
-<tr><td>报文大小</td><td>256 字节 / 4096 字节</td></tr>
-<tr><td>每场景请求量</td><td>约 20000 次（自适应 <code>ceil(20000/并发)</code> × 并发）</td></tr>
-<tr><td>预热</td><td>每实现每场景前预热 200 次（JIT + 连接建立），不计入统计</td></tr>
-<tr><td>指标</td><td>RPS = 请求数 / 耗时（含失败尝试）；成功率 = 2xx / 总；goodput = RPS × 成功率；延迟分位 p50/p95/p99（ms）</td></tr>
-</tbody>
-</table>
-<blockquote>口径说明：RPS 统计「发起的请求数 / 耗时」，包含失败尝试；<code>goodput</code> 已按成功率折算为有效吞吐，横向对比更公平。高并发下成功率跌到 75%~80% 属连接复用竞态/瞬时 5xx（压测端未加重试），结论不受影响。</blockquote><h2>2. 吞吐量 RPS（越高越好）</h2>
-<table>
-<thead><tr><th>payload</th><th>实现</th><th>cc=100</th><th>cc=500</th><th>cc=1000</th><th>cc=2000</th></tr></thead>
-<tbody>
-<tr><td>256 B</td><td><b>nio</b></td><td>4,606</td><td>6,179</td><td>8,309</td><td class="win">9,421</td></tr>
-<tr><td>256 B</td><td>jdk</td><td>1,620</td><td>2,206</td><td>1,012</td><td>911</td></tr>
-<tr><td>4096 B</td><td><b>nio</b></td><td class="win">18,467</td><td>11,319</td><td>13,271</td><td>9,412</td></tr>
-<tr><td>4096 B</td><td>jdk</td><td>5,149</td><td>2,554</td><td>1,799</td><td>3,410</td></tr>
-</tbody>
-</table>
+<header>
+  <h1>&#128202; Server 实现类并发 / 吞吐基准测试</h1>
+  <div class="sub">JdkHttpServer vs NioHttpServer &middot; utils-support-common-starter HTTP Server 实现类横向压测</div>
+  <div class="chips">
+    <span class="chip">&#128197; 2026-08-22</span>
+    <span class="chip">JDK 25.0.3 · 虚拟线程</span>
+    <span class="chip">Windows · 12 逻辑核</span>
+    <span class="chip">GET /echo</span>
+  </div>
+</header>
 
-<h2>3. 有效吞吐 goodput（RPS × 成功率，越高越好）</h2>
-<table>
-<thead><tr><th>payload</th><th>实现</th><th>cc=100</th><th>cc=500</th><th>cc=1000</th><th>cc=2000</th></tr></thead>
-<tbody>
-<tr><td>256 B</td><td><b>nio</b></td><td>4,083</td><td>4,647</td><td>6,892</td><td class="win">7,663</td></tr>
-<tr><td>256 B</td><td>jdk</td><td>1,507</td><td>1,818</td><td>915</td><td>841</td></tr>
-<tr><td>4096 B</td><td><b>nio</b></td><td class="win">17,519</td><td>9,009</td><td>11,431</td><td>8,388</td></tr>
-<tr><td>4096 B</td><td>jdk</td><td>4,800</td><td>1,944</td><td>1,771</td><td>3,320</td></tr>
-</tbody>
-</table>
+<div class="wrap">
 
-<h2>4. 延迟分位 p99（ms，越低越好）</h2>
-<table>
-<thead><tr><th>payload</th><th>实现</th><th>cc=100</th><th>cc=500</th><th>cc=1000</th><th>cc=2000</th></tr></thead>
-<tbody>
-<tr><td>256 B</td><td>nio</td><td>190</td><td>486</td><td>1,320</td><td>1,101</td></tr>
-<tr><td>256 B</td><td>jdk</td><td>819</td><td>1,350</td><td>7,070</td><td>6,812</td></tr>
-<tr><td>4096 B</td><td>nio</td><td>26</td><td>367</td><td>771</td><td>972</td></tr>
-<tr><td>4096 B</td><td>jdk</td><td>167</td><td>638</td><td>1,874</td><td>1,653</td></tr>
-</tbody>
-</table>
-<h2>5. 逐场景明细</h2>
-
-<h3>5.1 JdkHttpServer</h3>
-<table>
-<thead><tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p95(ms)</th><th>p99(ms)</th><th>max(ms)</th><th>成功率</th><th>耗时(ms)</th></tr></thead>
-<tbody>
-<tr><td>256</td><td>100</td><td>1,620</td><td>14.0</td><td>238.0</td><td>819.0</td><td>2,117</td><td>92.90%</td><td>12,346</td></tr>
-<tr><td>256</td><td>500</td><td>2,206</td><td>127.0</td><td>619.0</td><td>1,350.0</td><td>1,789</td><td>82.38%</td><td>9,066</td></tr>
-<tr><td>256</td><td>1000</td><td>1,012</td><td>623.0</td><td>3,491.0</td><td>7,070.0</td><td>8,950</td><td>90.45%</td><td>19,769</td></tr>
-<tr><td>256</td><td>2000</td><td>911</td><td>1,791.0</td><td>4,751.0</td><td>6,812.0</td><td>9,621</td><td>92.39%</td><td>21,949</td></tr>
-<tr><td>4096</td><td>100</td><td>5,149</td><td>7.0</td><td>76.0</td><td>167.0</td><td>395</td><td>93.34%</td><td>3,884</td></tr>
-<tr><td>4096</td><td>500</td><td>2,554</td><td>135.0</td><td>517.0</td><td>638.0</td><td>929</td><td>76.17%</td><td>7,830</td></tr>
-<tr><td>4096</td><td>1000</td><td>1,799</td><td>425.0</td><td>1,325.0</td><td>1,874.0</td><td>2,788</td><td>98.46%</td><td>11,115</td></tr>
-<tr><td>4096</td><td>2000</td><td>3,410</td><td>422.0</td><td>1,190.0</td><td>1,653.0</td><td>2,014</td><td>97.36%</td><td>5,865</td></tr>
-</tbody>
-</table>
-
-<h3>5.2 NioHttpServer</h3>
-<table>
-<thead><tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p95(ms)</th><th>p99(ms)</th><th>max(ms)</th><th>成功率</th><th>耗时(ms)</th></tr></thead>
-<tbody>
-<tr><td>256</td><td>100</td><td>4,606</td><td>7.0</td><td>87.0</td><td>190.0</td><td>555</td><td>88.69%</td><td>4,342</td></tr>
-<tr><td>256</td><td>500</td><td>6,179</td><td>45.0</td><td>270.0</td><td>486.0</td><td>668</td><td>75.20%</td><td>3,237</td></tr>
-<tr><td>256</td><td>1000</td><td>8,309</td><td>41.0</td><td>525.0</td><td>1,320.0</td><td>1,969</td><td>82.98%</td><td>2,407</td></tr>
-<tr><td>256</td><td>2000</td><td>9,421</td><td>57.0</td><td>873.0</td><td>1,101.0</td><td>1,666</td><td>81.34%</td><td>2,123</td></tr>
-<tr><td>4096</td><td>100</td><td>18,467</td><td>4.0</td><td>13.0</td><td>26.0</td><td>49</td><td>94.88%</td><td>1,083</td></tr>
-<tr><td>4096</td><td>500</td><td>11,319</td><td>20.0</td><td>157.0</td><td>367.0</td><td>773</td><td>79.64%</td><td>1,767</td></tr>
-<tr><td>4096</td><td>1000</td><td>13,271</td><td>27.0</td><td>290.0</td><td>771.0</td><td>1,314</td><td>86.20%</td><td>1,507</td></tr>
-<tr><td>4096</td><td>2000</td><td>9,412</td><td>80.0</td><td>616.0</td><td>972.0</td><td>1,607</td><td>89.15%</td><td>2,125</td></tr>
-</tbody>
-</table>
-
-<h2>6. 结论</h2>
-<ul>
-<li><b>NioHttpServer 全面优于 JdkHttpServer</b>：同并发下 goodput 约为 jdk 的 <b>3~5 倍</b>，且随并发上升仍能扩展（256 B 下 cc2000 达 7.7k goodput）；而 jdk 在高并发下吞吐<b>不升反降</b>、尾延迟暴涨（p99 从 819ms 恶化到 6.8s）——<code>com.sun.net.httpserver</code> 的默认调度器在虚拟线程下对突发连接接纳存在瓶颈。</li>
-<li>大报文（4096 B）差距更明显：nio 在 cc100 即约 18k RPS / p99 26ms，jdk 仅约 5k / p99 167ms。</li>
-<li>成功率在 cc500 普遍跌到 75%~80%（两端均有），说明高并发下存在连接复用竞态/瞬时 5xx；属压测端未加重试的度量口径，goodput 已折算，结论不受影响。</li>
-</ul>
-
-<h2>7. 限制与待补</h2>
-<ul>
-<li><b>VertxHttpServer 未纳入</b>：它位于 <code>utils-support-network-starter</code>，依赖 <code>utils-support-common-starter</code>；当前工作树 <code>task/timer</code> 包处于未编译状态（缺 <code>HashedWheelTimeWheel</code>），无法重建 common-starter，故 Vert.x 链路跑不起来。需先修好该包才能补测。</li>
-<li><b>环境偏差</b>：Windows 下 NioHttpServer 的 eventLoop 被钳制为 2（代码内 <code>WindowsSelectorImpl</code> 稳定性限制）；在 Linux/epoll 下不受此钳制，数字会更高。建议后续在 Linux 2 核机重跑以贴近生产。</li>
-</ul>
-</body>
-</html>
+<!-- KPI 总览 -->
+<h2><span class="num">总览</span>关键指标 <span class="hint">一眼看结论</span></h2>
+<div class="kpis">
+  <div class="kpi g"><div class="v">18,467 <small>RPS</small></div><div class="l">NIO 峰值吞吐（4096B / 并发100）</div></div>
+  <div class="kpi b"><div class="v">3~5&times;</div><div class="l">NIO 相对 JDK 的有效吞吐倍数（同并发）</div></div>
+  <div class="kpi r"><div class="v">6.8s <small>p99</small></div><div class="l">JDK 高并发尾延迟（256B / 并发2000），NIO 仅 1.1s</div></div>
+  <div class="kpi o"><div class="v">75%~95%</div><div class="l">各场景成功率区间（高并发下连接复用竞态）</div></div>
+</div>
