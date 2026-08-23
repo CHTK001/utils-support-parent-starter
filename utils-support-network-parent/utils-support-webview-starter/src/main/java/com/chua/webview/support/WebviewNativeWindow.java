@@ -5,8 +5,7 @@ import com.chua.common.support.utils.ThreadUtils;
 import com.chua.webview.support.webview.WebViewWindow;
 import dev.webview.Webview;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于 webview_java 的 WebView 实现。
@@ -28,12 +27,8 @@ import org.slf4j.LoggerFactory;
  */
 @ConditionalOnClass("dev.webview.Webview")
 @RequiredArgsConstructor
+@Slf4j
 public class WebviewNativeWindow implements WebViewWindow {
-
-    /**
-     * 日志记录器实例。
-     */
-    private static final Logger log = LoggerFactory.getLogger(WebviewNativeWindow.class);
 
     /**
      * 底层 Webview 实例。
