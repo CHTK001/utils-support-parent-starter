@@ -358,7 +358,10 @@ public class ExcelFileSystem implements FileSystem {
         private static class SheetContext {
             final String name;
             final List<Map<String, Object>> rows = new ArrayList<>();
-            List<String> headerColumns;        // null 则自动推断
+            /**
+             * 表头列，为 null 则自动推断
+             */
+            List<String> headerColumns;
             boolean withHeader = true;
             CellStyleConfig defaultStyle;
             CellStyleConfig headerStyle;

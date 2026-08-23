@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>不处理 ping/pong、fragment、mask（浏览器自动 mask）。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -14,6 +14,7 @@ import lombok.Getter;
  * 内置的预置组件（CpuWidget、MemoryWidget 等）可直接使用。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Getter

@@ -30,6 +30,7 @@ import java.util.function.Function;
  * </ul>
  * </p>
  *
+ * @author CH
  * @since 2020/12/19
  */
 @SuppressWarnings({"ALL", "unchecked"})

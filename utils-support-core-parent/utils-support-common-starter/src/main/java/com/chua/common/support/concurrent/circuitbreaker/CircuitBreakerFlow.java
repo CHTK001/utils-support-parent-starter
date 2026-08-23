@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  * CircuitBreakerFlow.of("api").fallback(() -> fallbackResult).execute(() -> doSomething());
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class CircuitBreakerFlow {

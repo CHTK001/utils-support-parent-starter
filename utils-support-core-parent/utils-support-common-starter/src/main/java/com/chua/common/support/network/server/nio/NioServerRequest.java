@@ -37,13 +37,50 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NioServerRequest implements ServerRequest {
 
-    /** 解析状态 */
+    /**
+     * HTTP 请求增量解析状态机的状态枚举。
+     *
+     * <p>状态推进路径:
+     * {@code REQUEST_LINE → HEADERS → BODY → COMPLETE}。
+     * 每次调用 {@link #feed(ByteBuffer)} 时从当前状态继续消费数据,
+     * 数据不足则停留在原状态等待下次 feed。</p>
+     *
+     * @author CH
+     * @since 2026/08/12
+     */
     public enum ParseState {
-        REQUEST_LINE, HEADERS, BODY, COMPLETE
+        /**
+         * 请求行解析中:等待 "METHOD URI VERSION\r\n" 完整一行,
+         * 解析出 method/uri/path/queryString/httpVersion 后进入 HEADERS
+         */
+        REQUEST_LINE,
+        /**
+         * 头部解析中:逐行读取请求头直到空行(\r\n),
+         * 根据 Transfer-Encoding/Content-Length 决定进入 BODY 或直接 COMPLETE
+         */
+        HEADERS,
+        /**
+         * 请求体接收中:非 chunked 按 Content-Length 剩余字节数消费;
+         * chunked 则逐 chunk 推进(读 chunk 头 → 读 chunk 体 → 消费尾部 CRLF)
+         */
+        BODY,
+        /**
+         * 解析完成:完整请求已就绪,可交由 handler 链处理;
+         * Keep-Alive 场景经 {@link #resetForNextRequest()} 重置回 REQUEST_LINE
+         */
+        COMPLETE
     }
 
-    /** 通道 */
+    /**
+     * 通道(阻塞/非阻塞 NIO 场景使用;AIO 等无通道场景为 null,
+     * 此时远端地址取 {@link #remoteAddress} 预存值)
+     */
     private final SocketChannel channel;
+    /**
+     * 预存的远端地址:构造时一次性取出,避免热路径反复系统调用;
+     * 无通道场景(AIO)必填,有通道场景可为 null
+     */
+    private final SocketAddress remoteAddress;
     /** 最大值请求尺寸 */
     private final long maxRequestSize;
     /** 默认字符集 */
@@ -85,13 +122,29 @@ public class NioServerRequest implements ServerRequest {
     private boolean chunkHeaderPending = false;
 
     /**
-     * 创建 NioServerRequest 实例
+     * 创建 NioServerRequest 实例(NIO 场景,远端地址从 channel 动态获取)
      * @param channel channel
      * @param long long
      * @param String String
      */
     public NioServerRequest(SocketChannel channel, long maxRequestSize, String charset) {
         this.channel = channel;
+        this.remoteAddress = null;
+        this.maxRequestSize = maxRequestSize;
+        this.defaultCharset = Charset.forName(charset);
+    }
+
+    /**
+     * 创建 NioServerRequest 实例(传输无关场景:AIO/IOCP 等无 {@link SocketChannel} 的实现,
+     * 解析状态机与 NIO 完全共用,仅远端地址由调用方在连接建立时预存传入)
+     *
+     * @param remoteAddress  远端地址(连接建立时预存,可为 null 表示未知)
+     * @param maxRequestSize 最大请求体尺寸(字节)
+     * @param charset        默认字符集名称
+     */
+    public NioServerRequest(SocketAddress remoteAddress, long maxRequestSize, String charset) {
+        this.channel = null;
+        this.remoteAddress = remoteAddress;
         this.maxRequestSize = maxRequestSize;
         this.defaultCharset = Charset.forName(charset);
     }
@@ -102,7 +155,7 @@ public class NioServerRequest implements ServerRequest {
      * @param data 事件循环读到的数据(可空,表示无新数据仅推进)
      * @return 1=完整请求已解析完成;0=需要更多数据;-1=解析错误
      */
-    int feed(ByteBuffer data) {
+    public int feed(ByteBuffer data) {
         ensureBuf();
         // BODY 阶段:直接消费 data,不并入行解析缓冲,避免大 body 撑爆 8K 缓冲
         if (parseState == ParseState.BODY && !chunked) {
@@ -387,11 +440,18 @@ public class NioServerRequest implements ServerRequest {
     @Override public String getBodyString() { return new String(getBody(), resolveCharset()); }
     @Override public InputStream getInputStream() { return new ByteArrayInputStream(getBody()); }
     @Override public String getRemoteAddress() {
-        try { SocketAddress sa = channel.getRemoteAddress(); if (sa instanceof InetSocketAddress inet) return inet.getHostString(); }
+        // 优先使用预存地址(传输无关场景);否则从 channel 动态获取(NIO 场景)
+        if (remoteAddress instanceof InetSocketAddress inet) {
+            return inet.getHostString();
+        }
+        try { SocketAddress sa = channel != null ? channel.getRemoteAddress() : null; if (sa instanceof InetSocketAddress addr) return addr.getHostString(); }
         catch (IOException ignored) {} return "unknown";
     }
     @Override public int getRemotePort() {
-        try { SocketAddress sa = channel.getRemoteAddress(); if (sa instanceof InetSocketAddress inet) return inet.getPort(); }
+        if (remoteAddress instanceof InetSocketAddress inet) {
+            return inet.getPort();
+        }
+        try { SocketAddress sa = channel != null ? channel.getRemoteAddress() : null; if (sa instanceof InetSocketAddress addr) return addr.getPort(); }
         catch (IOException ignored) {} return 0;
     }
     @Override public Map<String, Object> getAttributes() { return attributes; }
@@ -440,8 +500,19 @@ public class NioServerRequest implements ServerRequest {
         }
         return defaultCharset;
     }
-    String getHttpVersion() { return httpVersion; }
-    void resetForNextRequest() {
+    /**
+     * 获取 HTTP 协议版本(如 "HTTP/1.1"),供 Keep-Alive 判断使用。
+     *
+     * @return 协议版本字符串
+     */
+    public String getHttpVersion() { return httpVersion; }
+
+    /**
+     * 重置解析状态以复用同一实例处理 Keep-Alive 连接的下一条请求。
+     * <p>保留行缓冲中未消费的数据(可能是 pipeline 的下一条请求前缀),
+     * 仅清空已解析字段并将状态机归位。</p>
+     */
+    public void resetForNextRequest() {
         method = null; uri = null; path = null; queryString = null;
         httpVersion = "HTTP/1.1"; headers.clear(); body = null;
         attributes.clear();

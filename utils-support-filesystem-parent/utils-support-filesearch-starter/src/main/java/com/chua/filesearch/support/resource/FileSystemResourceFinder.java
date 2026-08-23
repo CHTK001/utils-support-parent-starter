@@ -5,8 +5,7 @@ import com.chua.common.support.file.resource.Resource;
 import com.chua.common.support.file.resource.ResourceConfiguration;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filesearch.support.bridge.RustFileSearchBridge;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -24,10 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class FileSystemResourceFinder extends AbstractResourceFinder {
-
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(FileSystemResourceFinder.class);
 
     /**
      * 文件系统协议前缀 {@value}。

@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.translator.ITranslator;
 /**
+ * @author CH
  */
 
 public abstract class AbstractOnnxTranslator<I, O> implements ITranslator<I, O> {

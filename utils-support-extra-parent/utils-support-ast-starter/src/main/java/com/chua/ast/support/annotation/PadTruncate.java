@@ -27,6 +27,7 @@ import java.lang.annotation.*;
  * // 自定义填充字符：@PadTruncate(start=2, end=10, padChar='0')
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Documented

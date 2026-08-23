@@ -16,6 +16,7 @@ import java.nio.file.Path;
  *
  * <p>逐 token 生成，遇 Qwen 结束符 {@code <|im_end|>} 或达到 {@link #MAX_TOKENS}
  * 提前终止（{@code LlamaIterator.cancel()}），避免长回复无限输出。</p>
+ * @author CH
  */
 @Slf4j
 public class Qwen2ChatTranslator implements ITranslator<String, String>, AutoCloseable {

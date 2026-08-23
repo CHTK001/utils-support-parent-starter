@@ -18,6 +18,7 @@ import java.util.Map;
  * 子类提供 {@link com.chua.datasync.agent.support.DataSyncAgentSource} 与 {@link com.chua.datasync.agent.support.DataSyncAgentSink} 实现。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -74,12 +74,17 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
             }
             if (t.isEmpty()) { sb.append("\n"); continue; }
 
-            if (t.startsWith("### ")) sb.append("<h3>").append(escapeHtml(t.substring(4))).append("</h3>\n");
-            else if (t.startsWith("## ")) sb.append("<h2>").append(escapeHtml(t.substring(3))).append("</h2>\n");
-            else if (t.startsWith("# ")) sb.append("<h1>").append(escapeHtml(t.substring(2))).append("</h1>\n");
-            else if (t.startsWith("- ") || t.startsWith("* ")) sb.append("<li>").append(escapeHtml(t.substring(2))).append("</li>\n");
-            else if (t.startsWith("> ")) sb.append("<blockquote><p>").append(escapeHtml(t.substring(2))).append("</p></blockquote>\n");
-            else if (t.matches("^\\d+\\.\\s.*")) {
+            if (t.startsWith("### ")) {
+                sb.append("<h3>").append(escapeHtml(t.substring(4))).append("</h3>\n");
+            } else if (t.startsWith("## ")) {
+                sb.append("<h2>").append(escapeHtml(t.substring(3))).append("</h2>\n");
+            } else if (t.startsWith("# ")) {
+                sb.append("<h1>").append(escapeHtml(t.substring(2))).append("</h1>\n");
+            } else if (t.startsWith("- ") || t.startsWith("* ")) {
+                sb.append("<li>").append(escapeHtml(t.substring(2))).append("</li>\n");
+            } else if (t.startsWith("> ")) {
+                sb.append("<blockquote><p>").append(escapeHtml(t.substring(2))).append("</p></blockquote>\n");
+            } else if (t.matches("^\\d+\\.\\s.*")) {
                 String[] parts = t.split("\\.\\s", 2);
                 sb.append("<li>").append(escapeHtml(parts.length > 1 ? parts[1] : "")).append("</li>\n");
             } else if (t.startsWith("[") && t.contains("](") && t.endsWith(")")) {

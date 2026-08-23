@@ -20,6 +20,7 @@ import java.lang.annotation.Target;
  * }
  * }</pre>
  *
+ * @author CH
  * @since 2024/8/13
  */
 @Target(ElementType.TYPE)

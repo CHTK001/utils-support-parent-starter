@@ -98,13 +98,15 @@ public class ImageMosaicFilter extends AbstractImageFilter {
         if (src.getWidth() % size == 0) {
             xCount = src.getWidth() / size;
         } else {
-            xCount = src.getWidth() / size + 1; // 处理不能整除的情况
+            // 处理不能整除的情况
+            xCount = src.getWidth() / size + 1;
         }
 
         if (src.getHeight() % size == 0) {
             yCount = src.getHeight() / size;
         } else {
-            yCount = src.getHeight() / size + 1; // 处理不能整除的情况
+            // 处理不能整除的情况
+            yCount = src.getHeight() / size + 1;
         }
 
         // 当前绘制位置坐标

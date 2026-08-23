@@ -67,6 +67,7 @@ import java.lang.annotation.*;
  *   <li> {@link Spi} 用于指定 SPI 实现的名称或标识 </li>
  * </ul>
  *
+ * @author CH
  * @since 2024-01-01
  * @version 1.0.0
  * @see Spi

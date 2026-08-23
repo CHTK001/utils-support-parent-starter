@@ -9,8 +9,7 @@ import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.record.City;
 import com.maxmind.geoip2.record.Country;
 import com.maxmind.geoip2.record.Subdivision;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +27,7 @@ import java.nio.file.Path;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("geoip2")
 public class GeoLite2IpPosition implements IpPosition {
 
@@ -88,8 +88,7 @@ public class GeoLite2IpPosition implements IpPosition {
             }
             return mapResponse(response);
         } catch (Exception e) {
-            LoggerFactory.getLogger(GeoLite2IpPosition.class)
-                    .error("GeoLite2 查询失败: ip={}", ip, e);
+            log.error("GeoLite2 查询失败: ip={}", ip, e);
             return null;
         }
     }

@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link #executeUpdate} 和 {@link #executeDelete} 实现真实数据库操作。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractEngine implements Engine {
@@ -238,11 +239,19 @@ public abstract class AbstractEngine implements Engine {
     public <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         var sql = wrapper.buildSql();
         List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass);
-        if (sql.orderBys() != null && !sql.orderBys().isEmpty() && result != null && !result.isEmpty()) {
-            result = new ArrayList<>(result);
-            result.sort((a, b) -> compareOrdered(a, b, sql.orderBys()));
+        if (result == null || result.isEmpty()) {
+            return result;
         }
-        return result;
+        // 过滤 null 元素，避免排序引发 NPE
+        List<T> valid = result.stream()
+                .filter(java.util.Objects::nonNull)
+                .toList();
+        if (sql.orderBys() != null && !sql.orderBys().isEmpty() && !valid.isEmpty()) {
+            List<T> sorted = new ArrayList<>(valid);
+            sorted.sort((a, b) -> compareOrdered(a, b, sql.orderBys()));
+            return sorted;
+        }
+        return valid;
     }
 
     /**

@@ -6,6 +6,7 @@ package com.chua.common.support.constant;
  *
  * <p>集中存放验证码模块使用的 Session Key 等常量，避免魔法值散落各处。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class CaptchaConstant {

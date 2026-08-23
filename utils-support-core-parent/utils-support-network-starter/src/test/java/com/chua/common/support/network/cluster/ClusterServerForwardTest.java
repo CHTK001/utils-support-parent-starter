@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>验证：curl 请求 Node A 的 HTTP 入口 → ServiceDiscoveryServerFilter 选目标 →
  * ReverseProxyServerFilter 代理转发 → 拿到后端响应。</p>
+ * @author CH
  */
 public class ClusterServerForwardTest {
 

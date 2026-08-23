@@ -10,6 +10,7 @@ import java.util.List;
  * 子类只需实现 {@link #doAdd(String, float[])} 和 {@link #doSearch(float[], int)} 方法。
  * </p>
  *
+ * @author CH
  * @since 2024/12/12
  */
 public abstract class AbstractVectorStorage implements VectorStorage {

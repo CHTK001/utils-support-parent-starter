@@ -8,6 +8,7 @@ import com.chua.common.support.concurrent.offset.OffsetFlow;
  *
  * <p>后续内部会加入 reactor 背压、批量推送、订阅续订等能力。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractDatalakeSubscriber {

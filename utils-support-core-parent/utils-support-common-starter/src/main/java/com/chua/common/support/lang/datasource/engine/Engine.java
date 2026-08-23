@@ -5,6 +5,8 @@ import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.lang.datasource.flyway.DefaultFlyway;
+import com.chua.common.support.lang.datasource.flyway.Flyway;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 
 import java.util.List;
@@ -176,6 +178,22 @@ public interface Engine extends AutoCloseable {
             throw new UnsupportedOperationException("当前引擎不支持数据操作: " + getClass().getName());
         }
         return e.execute(ql, params);
+    }
+
+    /**
+     * 获取数据库迁移工具，提供类似 Flyway 的 SQL 脚本版本化管理。
+     *
+     * <p>使用示例：</p>
+     * <pre>{@code
+     * engine.flyway()
+     *     .location("classpath:db/migration")
+     *     .migrate();
+     * }</pre>
+     *
+     * @return 迁移工具
+     */
+    default Flyway flyway() {
+        return new DefaultFlyway(this);
     }
 
     /**

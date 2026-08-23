@@ -16,6 +16,7 @@ import java.util.Set;
  * 在方法体开头插入 {@code param = param.trim();} 赋值语句。
  * </p>
  *
+ * @author CH
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Trim")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)

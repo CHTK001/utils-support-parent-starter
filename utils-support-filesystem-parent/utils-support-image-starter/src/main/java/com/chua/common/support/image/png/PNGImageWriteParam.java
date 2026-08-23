@@ -8,6 +8,7 @@ import java.util.Locale;
 /**
  * PNG 图像写入参数类，继承自 ImageWriteParam，配置 PNG 图像的压缩参数。
  *
+* @author CH
  * @since 4.0.0.42
 */
 @EqualsAndHashCode(callSuper = true)
@@ -33,9 +34,12 @@ public final class PNGImageWriteParam extends ImageWriteParam {
      * 压缩质量描述数组，对应不同的压缩质量级别。
      */
     private static final String[] qualityDescs = {
-            "Low compression",   // 高压缩率，低图像质量
-            "Medium compression", // 中等压缩率，中等图像质量
-            "High compression"     // 低压缩率，高图像质量
+            // 高压缩率，低图像质量
+            "Low compression",
+            // 中等压缩率，中等图像质量
+            "Medium compression",
+            // 低压缩率，高图像质量
+            "High compression"
     };
 
     /**

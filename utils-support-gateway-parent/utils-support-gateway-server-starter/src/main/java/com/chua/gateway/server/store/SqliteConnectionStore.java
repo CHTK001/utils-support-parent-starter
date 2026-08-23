@@ -30,6 +30,7 @@ import java.util.Optional;
  *   - updated_at INTEGER DEFAULT (strftime('%s','now'))
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

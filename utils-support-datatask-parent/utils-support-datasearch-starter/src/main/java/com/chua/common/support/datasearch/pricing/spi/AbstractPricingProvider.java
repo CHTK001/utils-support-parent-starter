@@ -24,6 +24,7 @@ import java.util.List;
  *
  * <p>兜底机制：若子类需要，可通过 {@link #readClasspathPricing()} 读取 classpath 内置 JSON 作为兜底。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractPricingProvider implements PricingProvider {

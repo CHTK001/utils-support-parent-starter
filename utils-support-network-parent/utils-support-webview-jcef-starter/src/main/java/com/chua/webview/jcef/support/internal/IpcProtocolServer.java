@@ -3,6 +3,7 @@ package com.chua.webview.jcef.support.internal;
 /**
  * IPC 协议服务器抽象基类。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class IpcProtocolServer implements ProtocolServer {

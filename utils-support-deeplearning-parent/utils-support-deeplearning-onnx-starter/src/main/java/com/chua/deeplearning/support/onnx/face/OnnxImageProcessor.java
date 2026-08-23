@@ -30,6 +30,7 @@ import java.nio.FloatBuffer;
  * numpy 引擎并抛 UnsupportedOperationException），且 Java 像素处理已经足够快 —
  * 这里刻意避开所有高级 NDArray 算子。</p>
  *
+ * @author CH
  * @since 2026-08-08
  */
 public final class OnnxImageProcessor {

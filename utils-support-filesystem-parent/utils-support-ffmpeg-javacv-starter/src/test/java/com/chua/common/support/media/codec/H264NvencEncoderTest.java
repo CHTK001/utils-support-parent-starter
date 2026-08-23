@@ -63,8 +63,12 @@ public class H264NvencEncoderTest {
         for (int i = 0; i < first.length - 4; i++) {
             if (first[i] == 0 && first[i + 1] == 0 && first[i + 2] == 0 && first[i + 3] == 1) {
                 int nalType = first[i + 4] & 0x1f;
-                if (nalType == 7) hasSPS = true;
-                if (nalType == 8) hasPPS = true;
+                if (nalType == 7) {
+                    hasSPS = true;
+                }
+                if (nalType == 8) {
+                    hasPPS = true;
+                }
             }
         }
         System.out.println("首帧含 SPS: " + hasSPS);

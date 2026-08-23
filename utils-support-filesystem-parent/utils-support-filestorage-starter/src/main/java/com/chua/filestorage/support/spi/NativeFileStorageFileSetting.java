@@ -47,7 +47,9 @@ public class NativeFileStorageFileSetting implements FileStorageFileSetting {
 
     /** ParamsToJson */
     private String paramsToJson(Map<String, String> params) {
-        if (params == null || params.isEmpty()) return "{}";
+        if (params == null || params.isEmpty()) {
+            return "{}";
+        }
         StringBuilder sb = new StringBuilder("{");
         params.forEach((k, v) -> {
             if (v != null && !v.isBlank()) {

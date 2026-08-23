@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * 容器识别到此注解后，会扫描该类中标注了 {@link ConfigValue} 的字段，
  * 并将环境配置中的值注入到对应字段中。</p>
  *
+ * @author CH
  * @since 2024/12/20
  */
 @Target(ElementType.TYPE)

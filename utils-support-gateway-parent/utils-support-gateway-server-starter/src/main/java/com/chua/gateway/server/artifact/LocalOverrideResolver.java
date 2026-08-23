@@ -24,6 +24,7 @@ import java.nio.file.Paths;
  * <p>本地回退目录允许用户在网络不通时手动放置文件，
  * 是中国网络环境下推荐配置。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

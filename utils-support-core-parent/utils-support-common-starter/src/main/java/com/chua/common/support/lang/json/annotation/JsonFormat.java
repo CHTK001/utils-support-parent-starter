@@ -22,6 +22,7 @@ import java.lang.annotation.*;
  * Json.toJson(order);  // {"createTime":"2026-08-15 12:30:00"}
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Documented

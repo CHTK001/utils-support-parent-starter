@@ -5,8 +5,7 @@ import com.linuxense.javadbf.DBFDataType;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.linuxense.javadbf.DBFWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -25,10 +24,8 @@ import java.util.stream.Collectors;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class DbfDataTable extends MutableDataTable {
-
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(DbfDataTable.class);
 
     /**
      * DBF 文件路径

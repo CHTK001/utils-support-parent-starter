@@ -8,6 +8,7 @@ import com.arcsoft.face.FaceEngine;
  * <p>封装 {@link FaceEngine} 的创建逻辑，统一处理 SDK 库加载与异常，
  * 供 {@link ArcFaceModelProvider} 等模块复用。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class ArcFaceEngineFactory {

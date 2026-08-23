@@ -32,6 +32,7 @@ import java.lang.annotation.*;
  * <p><b>注意：</b>参数必须实现 {@link AutoCloseable} 接口，否则编译期会发出警告。
  * close() 方法调用中的异常会被捕获并忽略。</p>
  *
+ * @author CH
  * @since 2024
  * @see AutoCloseable
  */

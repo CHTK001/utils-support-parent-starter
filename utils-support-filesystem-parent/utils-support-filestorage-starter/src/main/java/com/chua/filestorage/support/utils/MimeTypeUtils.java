@@ -19,6 +19,7 @@ import java.util.Set;
  *   <li>判断是否支持范围请求（Range）</li>
  * </ul>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class MimeTypeUtils {

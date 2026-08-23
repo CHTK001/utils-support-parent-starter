@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JdbcReactorEngine 单元测试，覆盖方言检测、URL转换、H2 执行路径。
+ * @author CH
  */
 class JdbcReactorEngineTest {
 

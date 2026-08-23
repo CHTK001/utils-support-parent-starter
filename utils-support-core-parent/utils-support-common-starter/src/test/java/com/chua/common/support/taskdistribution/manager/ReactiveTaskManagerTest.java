@@ -97,6 +97,10 @@ class ReactiveTaskManagerTest {
     @Test
     void submitReturnsExistingResultWhenAlreadyCompleted() {
         String taskId = UUID.randomUUID().toString();
+        // 必须先注册任务，handleResult 对未知任务会忽略
+        manager.addTask(
+                Task.<String>builder().taskId(taskId).taskType("test").build(),
+                null);
         manager.handleResult(TaskResult.success(taskId, "cached", "w1"));
 
         Task<String> task = Task.<String>builder()
@@ -153,11 +157,17 @@ class ReactiveTaskManagerTest {
                 .taskType("test")
                 .payload("x")
                 .build();
+        // 先注册任务，否则 cancel 因任务不存在返回 false
+        reactor.core.publisher.Mono<TaskResult<String>> submitMono = reactive.submit(task);
 
-        reactor.core.publisher.Mono<Boolean> cancelMono = reactive.cancel(taskId);
-        StepVerifier.create(cancelMono)
+        StepVerifier.create(reactive.cancel(taskId))
                 .assertNext(b -> assertTrue(b))
                 .verifyComplete();
+
+        // 取消后 submit Mono 应以异常完成
+        StepVerifier.create(submitMono)
+                .expectError(RuntimeException.class)
+                .verify();
     }
 
     @Test
@@ -180,12 +190,13 @@ class ReactiveTaskManagerTest {
         manager.addTask(task, null);
 
         reactor.core.publisher.Flux<TaskResult<String>> flux = reactive.watch(taskId);
-        StepVerifier.create(flux)
-                .thenAwait()
-                .verifyTimeout(java.time.Duration.ofSeconds(2));
 
-        // 触发完成
-        manager.handleResult(TaskResult.success(taskId, "watch-result", "w1"));
+        // 在后台线程触发完成，StepVerifier 等待发射后流自动完成
+        Thread worker = new Thread(() -> {
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+            manager.handleResult(TaskResult.success(taskId, "watch-result", "w1"));
+        });
+        worker.start();
 
         StepVerifier.create(flux)
                 .assertNext(r -> {
@@ -194,6 +205,8 @@ class ReactiveTaskManagerTest {
                     assertEquals("watch-result", r.getData());
                 })
                 .verifyComplete();
+
+        try { worker.join(2000); } catch (InterruptedException ignored) {}
     }
 
     // ==================== pause / resume ====================
@@ -223,6 +236,79 @@ class ReactiveTaskManagerTest {
         StepVerifier.create(reactive.pause("no-such-task"))
                 .assertNext(b -> assertFalse(b))
                 .verifyComplete();
+    }
+
+    // ==================== 链式构建 API ====================
+
+    @Test
+    void fluentBuildProducesConfiguredTask() {
+        Task<String> task = reactive.task("email-send", "a@b.c")
+                .traceId("trace-xyz")
+                .tag("scene", "test")
+                .shard(4, "region-a")
+                .timeout(java.time.Duration.ofSeconds(15))
+                .maxRetries(5)
+                .priority(com.chua.common.support.taskdistribution.task.TaskPriority.HIGH)
+                .build();
+
+        assertEquals("email-send", task.getTaskType());
+        assertEquals("a@b.c", task.getPayload());
+        assertEquals("trace-xyz", task.getTraceId());
+        assertEquals("test", task.getTags().get("scene"));
+        assertEquals(4, task.getShardCount());
+        assertEquals("region-a", task.getShardKey());
+        assertEquals(15000L, task.getTimeoutMs());
+        assertEquals(5, task.getMaxRetries());
+        assertNotNull(task.getTaskId());
+    }
+
+    @Test
+    void fluentSubmitCompletesWithWorkerResult() {
+        // 复用同一 Fluent 引用：build 与 submit 共享同一个 taskId
+        ReactiveTaskManager.TaskFluent<String> fluent = reactive.task("job-x", "payload")
+                .tag("k", "v")
+                .timeout(java.time.Duration.ofSeconds(10));
+        String taskId = fluent.build().getTaskId();
+
+        Thread worker = new Thread(() -> {
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+            manager.handleResult(TaskResult.success(taskId, "fluent-ok", "w1"));
+        });
+        worker.start();
+
+        StepVerifier.create(fluent.submit())
+                .assertNext(r -> {
+                    assertTrue(r.isSuccess());
+                    assertEquals(taskId, r.getTaskId());
+                    assertEquals("fluent-ok", r.getData());
+                })
+                .verifyComplete();
+
+        try { worker.join(2000); } catch (InterruptedException ignored) {}
+    }
+
+    @Test
+    void fluentSubmitOnRegisteredTaskCompletes() {
+        Task<String> task = reactive.task("job-y", "data-1")
+                .traceId("tr-1")
+                .build();
+        manager.addTask(task, null);
+
+        Thread worker = new Thread(() -> {
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+            manager.handleResult(TaskResult.success(task.getTaskId(), "y-result", "w1"));
+        });
+        worker.start();
+
+        reactor.core.publisher.Mono<TaskResult<String>> mono = reactive.submit(task);
+        StepVerifier.create(mono)
+                .assertNext(r -> {
+                    assertTrue(r.isSuccess());
+                    assertEquals("y-result", r.getData());
+                })
+                .verifyComplete();
+
+        try { worker.join(2000); } catch (InterruptedException ignored) {}
     }
 
     // ==================== 资源管理 ====================

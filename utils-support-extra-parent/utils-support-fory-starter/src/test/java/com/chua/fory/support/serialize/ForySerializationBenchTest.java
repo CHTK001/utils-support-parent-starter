@@ -72,7 +72,9 @@ class ForySerializationBenchTest {
 
     long bestOf(Runnable task, long ms, int rounds) {
         long best = 0;
-        for (int i = 0; i < rounds; i++) best = Math.max(best, measureOps(task, ms));
+        for (int i = 0; i < rounds; i++) {
+            best = Math.max(best, measureOps(task, ms));
+        }
         return best;
     }
 

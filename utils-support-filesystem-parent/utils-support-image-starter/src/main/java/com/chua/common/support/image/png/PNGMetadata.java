@@ -98,10 +98,14 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     // Rendering intents for sRGB chunk
     static final String[] renderingIntentNames = {
-        "Perceptual", // 0
-        "Relative colorimetric", // 1
-        "Saturation", // 2
-        "Absolute colorimetric" // 3
+        // 0
+        "Perceptual",
+        // 1
+        "Relative colorimetric",
+        // 2
+        "Saturation",
+        // 3
+        "Absolute colorimetric"
     };
 
     // Color space types for Chroma->ColorSpaceType node

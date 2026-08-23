@@ -11,6 +11,7 @@ import lombok.Getter;
  * 通过继承该类可以统一获取 {@link DispatcherConfig} 并复用公共状态。
  * </p>
  *
+ * @author CH
  * @since 2025-11-26
  */
 @Getter

@@ -35,6 +35,7 @@ import java.lang.annotation.*;
  *   <li>需要 JDK 21+ 虚拟线程支持</li>
  * </ul>
  *
+ * @author CH
  * @since 2024
  * @see Thread#startVirtualThread(Runnable)
  */

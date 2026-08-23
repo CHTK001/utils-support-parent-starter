@@ -16,6 +16,7 @@ import java.util.Map;
 
 /**
  * 抽象读取器类，用于处理文件的读取操作。
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

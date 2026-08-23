@@ -183,7 +183,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
         }
         StringBuilder sb = new StringBuilder();
         for (File f : inputs) {
-            if (sb.length() > 0) sb.append(';');
+            if (sb.length() > 0) {
+                sb.append(';');
+            }
             sb.append(f.getAbsolutePath());
         }
         int ret = RustFFmpegBridge.concatFiles(sb.toString(), output.getAbsolutePath());
@@ -388,35 +390,73 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     private FFmpegMediaInfo parseMediaInfo(String json) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(json);
         FFmpegMediaInfo info = new FFmpegMediaInfo();
-        if (root.has("formatName")) info.setFormatName(root.get("formatName").asText());
-        if (root.has("formatLongName")) info.setFormatLongName(root.get("formatLongName").asText());
-        if (root.has("duration")) info.setDuration(root.get("duration").asDouble());
-        if (root.has("bitrate")) info.setBitrate(root.get("bitrate").asLong());
+        if (root.has("formatName")) {
+            info.setFormatName(root.get("formatName").asText());
+        }
+        if (root.has("formatLongName")) {
+            info.setFormatLongName(root.get("formatLongName").asText());
+        }
+        if (root.has("duration")) {
+            info.setDuration(root.get("duration").asDouble());
+        }
+        if (root.has("bitrate")) {
+            info.setBitrate(root.get("bitrate").asLong());
+        }
 
         if (root.has("videoStream")) {
             JsonNode vs = root.get("videoStream");
             FFmpegMediaInfo.VideoStream video = new FFmpegMediaInfo.VideoStream();
-            if (vs.has("index")) video.setIndex(vs.get("index").asInt());
-            if (vs.has("codec")) video.setCodec(vs.get("codec").asText());
-            if (vs.has("codecLongName")) video.setCodecLongName(vs.get("codecLongName").asText());
-            if (vs.has("width")) video.setWidth(vs.get("width").asInt());
-            if (vs.has("height")) video.setHeight(vs.get("height").asInt());
-            if (vs.has("fps")) video.setFps(vs.get("fps").asDouble());
-            if (vs.has("bitrate")) video.setBitrate(vs.get("bitrate").asLong());
-            if (vs.has("duration")) video.setDuration(vs.get("duration").asDouble());
+            if (vs.has("index")) {
+                video.setIndex(vs.get("index").asInt());
+            }
+            if (vs.has("codec")) {
+                video.setCodec(vs.get("codec").asText());
+            }
+            if (vs.has("codecLongName")) {
+                video.setCodecLongName(vs.get("codecLongName").asText());
+            }
+            if (vs.has("width")) {
+                video.setWidth(vs.get("width").asInt());
+            }
+            if (vs.has("height")) {
+                video.setHeight(vs.get("height").asInt());
+            }
+            if (vs.has("fps")) {
+                video.setFps(vs.get("fps").asDouble());
+            }
+            if (vs.has("bitrate")) {
+                video.setBitrate(vs.get("bitrate").asLong());
+            }
+            if (vs.has("duration")) {
+                video.setDuration(vs.get("duration").asDouble());
+            }
             info.setVideoStream(video);
         }
 
         if (root.has("audioStream")) {
             JsonNode as = root.get("audioStream");
             FFmpegMediaInfo.AudioStream audio = new FFmpegMediaInfo.AudioStream();
-            if (as.has("index")) audio.setIndex(as.get("index").asInt());
-            if (as.has("codec")) audio.setCodec(as.get("codec").asText());
-            if (as.has("codecLongName")) audio.setCodecLongName(as.get("codecLongName").asText());
-            if (as.has("sampleRate")) audio.setSampleRate(as.get("sampleRate").asInt());
-            if (as.has("channels")) audio.setChannels(as.get("channels").asInt());
-            if (as.has("bitrate")) audio.setBitrate(as.get("bitrate").asLong());
-            if (as.has("duration")) audio.setDuration(as.get("duration").asDouble());
+            if (as.has("index")) {
+                audio.setIndex(as.get("index").asInt());
+            }
+            if (as.has("codec")) {
+                audio.setCodec(as.get("codec").asText());
+            }
+            if (as.has("codecLongName")) {
+                audio.setCodecLongName(as.get("codecLongName").asText());
+            }
+            if (as.has("sampleRate")) {
+                audio.setSampleRate(as.get("sampleRate").asInt());
+            }
+            if (as.has("channels")) {
+                audio.setChannels(as.get("channels").asInt());
+            }
+            if (as.has("bitrate")) {
+                audio.setBitrate(as.get("bitrate").asLong());
+            }
+            if (as.has("duration")) {
+                audio.setDuration(as.get("duration").asDouble());
+            }
             info.setAudioStream(audio);
         }
 

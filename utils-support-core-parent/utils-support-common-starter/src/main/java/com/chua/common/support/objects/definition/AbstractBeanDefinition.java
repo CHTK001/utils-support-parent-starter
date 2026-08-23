@@ -39,6 +39,7 @@ import java.util.function.Function;
  *
  * <p>子类需要实现 {@link #setBean(Object)} 方法来保存创建的实例。</p>
  *
+ * @author CH
  * @since 2024/12/20
  */
 @Slf4j

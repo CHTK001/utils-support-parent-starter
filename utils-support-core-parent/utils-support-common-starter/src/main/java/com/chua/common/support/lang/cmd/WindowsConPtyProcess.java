@@ -21,6 +21,7 @@ import java.util.Map;
  * 提供伪终端输入管道、UTF-16LE 环境块与 ConPTY 进程属性列表的封装，对外暴露 {@link InputStream} 与 {@link #waitFor()}。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class WindowsConPtyProcess implements Closeable {

@@ -23,7 +23,9 @@ public class H264EncoderValidationTest {
         ByteBuffer yBuf = ByteBuffer.allocateDirect(ySize);
         ByteBuffer uBuf = ByteBuffer.allocateDirect(uvSize);
         ByteBuffer vBuf = ByteBuffer.allocateDirect(uvSize);
-        for (int i = 0; i < ySize; i++) yBuf.put((byte)((i*7)&0xFF));
+        for (int i = 0; i < ySize; i++) {
+            yBuf.put((byte)((i*7)&0xFF));
+        }
         for (int i = 0; i < uvSize; i++) { uBuf.put((byte)128); vBuf.put((byte)128); }
         yBuf.flip(); uBuf.flip(); vBuf.flip();
         frame.image[0] = yBuf; frame.image[1] = uBuf; frame.image[2] = vBuf;
@@ -52,8 +54,11 @@ public class H264EncoderValidationTest {
         boolean pps = nalTypes.contains(8);
         boolean idr = nalTypes.contains(5);
         System.out.println("SPS=" + sps + " PPS=" + pps + " IDR=" + idr);
-        if (sps && pps && idr) System.out.println("[PASS] Valid H.264 keyframe with SPS+PPS+IDR");
-        else System.out.println("[INFO] Note: keyframe pattern depends on encoder configuration");
+        if (sps && pps && idr) {
+            System.out.println("[PASS] Valid H.264 keyframe with SPS+PPS+IDR");
+        } else {
+            System.out.println("[INFO] Note: keyframe pattern depends on encoder configuration");
+        }
     }
 }
 

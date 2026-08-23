@@ -454,7 +454,8 @@ public class PNGImageReader extends ImageReader {
                    metadata.IHDR_colorType == PNG_COLOR_GRAY_ALPHA) {
             metadata.bKGD_colorType = PNG_COLOR_GRAY;
             metadata.bKGD_gray = stream.readUnsignedShort();
-        } else { // RGB or RGB_ALPHA
+        } else {
+            // RGB 或 RGB_ALPHA
             metadata.bKGD_colorType = PNG_COLOR_RGB;
             metadata.bKGD_red = stream.readUnsignedShort();
             metadata.bKGD_green = stream.readUnsignedShort();
@@ -568,7 +569,8 @@ public class PNGImageReader extends ImageReader {
         byte[] b = new byte[textLength];
         stream.readFully(b);
 
-        if (compressionFlag == 1) { // Decompress the text
+        if (compressionFlag == 1) {
+            // 解压文本
             text = new String(inflate(b), StandardCharsets.UTF_8);
         } else {
             text = new String(b, StandardCharsets.UTF_8);
@@ -1195,10 +1197,14 @@ public class PNGImageReader extends ImageReader {
     /** Bandoffsets */
     private static final int[][] bandOffsets = {
         null,
-        { 0 }, // G
-        { 0, 1 }, // GA in GA order
-        { 0, 1, 2 }, // RGB in RGB order
-        { 0, 1, 2, 3 } // RGBA in RGBA order
+        // 灰度（G）
+        { 0 },
+        // 灰度+透明（GA 顺序）
+        { 0, 1 },
+        // RGB 顺序
+        { 0, 1, 2 },
+        // RGBA 顺序
+        { 0, 1, 2, 3 }
     };
 
     /**

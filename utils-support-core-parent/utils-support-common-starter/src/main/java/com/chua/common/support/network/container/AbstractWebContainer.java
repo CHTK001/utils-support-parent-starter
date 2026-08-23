@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>子类只需实现 {@link #doStart()} 和 {@link #doStop()} 方法，以及
  * {@link #doDeploy(String, String, DeployUnitType)} 即可完成容器适配。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

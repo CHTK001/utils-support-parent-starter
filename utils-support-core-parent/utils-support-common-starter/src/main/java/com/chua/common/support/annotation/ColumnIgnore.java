@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
  *     <li>表结构同步时，该字段不会被纳入同步范围</li>
  * </ul>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Target({ElementType.FIELD})

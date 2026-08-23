@@ -22,6 +22,7 @@ import java.util.UUID;
  * 子类只需指定引擎名称（如 "onnx"）。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractLocalAudioClient implements AudioClient {

@@ -10,6 +10,7 @@ import java.awt.*;
  * 提供绘图解析功能的抽象类，作为DrawResolver接口的一个实现基础。
  * 该类为抽象类，不能直接实例化，但提供了基本的框架，以供具体实现时继承和扩展。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractDrawResolver implements DrawResolver {

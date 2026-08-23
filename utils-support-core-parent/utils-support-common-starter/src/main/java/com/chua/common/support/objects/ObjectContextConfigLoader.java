@@ -26,6 +26,7 @@ import java.util.List;
  * </pre>
  * 扁平写法：{@code object-context.scan-packages=com.example.app,com.example.other}</p>
  *
+ * @author CH
  * @since 2026/07/20
  */
 @Slf4j

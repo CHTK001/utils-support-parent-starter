@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * RAG 功能集成测试：验证 uploadDocument / updateDocument / deleteDocument 完整链路
+ * @author CH
  */
 class RagClientIntegrationTest {
 

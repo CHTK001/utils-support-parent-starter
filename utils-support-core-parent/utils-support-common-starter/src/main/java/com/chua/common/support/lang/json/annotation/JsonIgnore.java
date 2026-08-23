@@ -21,6 +21,7 @@ import java.lang.annotation.*;
  * Json.toJson(user);  // {"name":"chua"}，password 不参与序列化
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Documented

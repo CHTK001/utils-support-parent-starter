@@ -17,6 +17,7 @@ import java.util.Map;
  * 子类只需实现具体的搜索引擎客户端交互逻辑。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractMetaSearch implements MetaSearch {

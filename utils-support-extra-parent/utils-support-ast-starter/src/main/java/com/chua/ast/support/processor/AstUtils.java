@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
  * <p>提供从 {@code com.sun.tools.javac.tree.TreeMaker} 和 {@code com.sun.tools.javac.util.Names}
  * 等 javac 内部 API 的便捷访问方法，简化 AST 处理器的开发。</p>
  *
+ * @author CH
  * @since 2024
  */
 public final class AstUtils {
@@ -311,11 +312,15 @@ public final class AstUtils {
         return maker.MethodDef(maker.Modifiers(mods),
                 names.fromString("toString"),
                 returnType,
-com.sun.tools.javac.util.List.nil(),        // 类型参数
-                com.sun.tools.javac.util.List.nil(),        // 参数列表
-                com.sun.tools.javac.util.List.nil(),        // 异常列表
+                // 类型参数
+                com.sun.tools.javac.util.List.nil(),
+                // 参数列表
+                com.sun.tools.javac.util.List.nil(),
+                // 异常列表
+                com.sun.tools.javac.util.List.nil(),
                 body,
-                null);  // defaultValue
+                // defaultValue
+                null);
     }
 
 

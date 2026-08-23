@@ -88,8 +88,16 @@ public class NioServerResponse implements ServerResponse {
         this.channel = channel;
     }
 
-    /** 设置异步写出回调(由事件循环注入)。 */
-    void setAsyncWriter(java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter) {
+    /**
+     * 设置异步写出回调(由事件循环注入)。
+     *
+     * <p>设置后 {@link #complete()} 不再直接写 channel,而是把响应头/体字节
+     * 交给回调,由传输层(AIO 完成回调 / NIO OP_WRITE)驱动写出。
+     * 供跨传输复用(AIO/IOCP 等 Proactor 实现)。</p>
+     *
+     * @param asyncWriter 异步写出回调,参数依次为响应头、响应体(体可为 null)
+     */
+    public void setAsyncWriter(java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter) {
         this.asyncWriter = asyncWriter;
     }
 
@@ -330,7 +338,7 @@ public class NioServerResponse implements ServerResponse {
      * 完成响应：将缓冲区内容写入到 channel。
      * <p>SSE 模式下只关闭 channel；缓冲模式下构建完整 HTTP/1.1 响应报文。</p>
      */
-    void complete() {
+    public void complete() {
         if (sent) {
             return;
         }
@@ -454,7 +462,7 @@ public class NioServerResponse implements ServerResponse {
     /**
      * 判断 channel 是否已关闭（SSE close 后）。
      */
-    boolean isChannelClosed() {
+    public boolean isChannelClosed() {
         return channelClosed;
     }
 
@@ -494,7 +502,10 @@ public class NioServerResponse implements ServerResponse {
 
     /** 写入ToChannel */
     private void writeToChannel(byte[] data) {
-        if (channelClosed) {
+        // 无通道场景(AIO 复用,channel 为 null):直接写通道不可用,标记关闭并静默返回,
+        // 正常响应路径由 asyncWriter 接管,此处仅兜底 SSE 等直写调用
+        if (channelClosed || channel == null) {
+            channelClosed = true;
             return;
         }
         try {
@@ -516,7 +527,9 @@ public class NioServerResponse implements ServerResponse {
      * 使用 varargs 重载直接调用 channel.write(ByteBuffer[])，减少包装开销。
      */
     private void writeToChannel(ByteBuffer headerBuf, ByteBuffer bodyBuf) {
-        if (channelClosed) {
+        // 无通道场景(AIO 复用):同 writeToChannel(byte[]) 的兜底保护
+        if (channelClosed || channel == null) {
+            channelClosed = true;
             return;
         }
         try {

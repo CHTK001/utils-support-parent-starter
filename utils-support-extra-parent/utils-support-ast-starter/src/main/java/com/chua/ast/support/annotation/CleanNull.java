@@ -22,6 +22,7 @@ import java.lang.annotation.*;
  * // 自定义关键词：public void process(@CleanNull({"unknown", "-"}) String name) { ... }
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Documented

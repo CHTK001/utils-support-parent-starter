@@ -18,6 +18,7 @@ import java.util.Set;
 /**
  * {@link CleanNull} 注解的 AST 处理器
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.CleanNull")
@@ -124,7 +125,8 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
                     int intValue = Integer.parseInt(keyword);
                     keywordExpr = maker.Literal(com.sun.tools.javac.code.TypeTag.INT, intValue);
                 } catch (NumberFormatException e) {
-                    continue; // 无法解析的关键词跳过
+                    // 无法解析的关键词跳过
+                    continue;
                 }
             }
 

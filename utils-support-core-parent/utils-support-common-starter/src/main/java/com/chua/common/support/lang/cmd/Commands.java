@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
  * }
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  * @see Cmd
  * @see CmdResult

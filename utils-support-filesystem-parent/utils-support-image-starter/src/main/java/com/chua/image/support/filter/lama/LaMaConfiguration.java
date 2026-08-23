@@ -187,11 +187,12 @@ public class LaMaConfiguration {
      * @return GPU配置实例
      */
     public static LaMaConfiguration createGpu(String modelPath) {
+        // GPU模式下通常使用较少的CPU线程
         return new LaMaConfiguration()
                 .setModelPath(modelPath)
                 .setUseGpu(true)
                 .setInputSize(512)
-                .setCpuThreads(1); // GPU模式下通常使用较少的CPU线程
+                .setCpuThreads(1);
     }
 
     /**

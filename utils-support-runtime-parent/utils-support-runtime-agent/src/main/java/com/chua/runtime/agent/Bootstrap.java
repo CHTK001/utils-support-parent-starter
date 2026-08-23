@@ -14,6 +14,7 @@ import com.chua.runtime.spy.RuntimeSpy;
  * <p>Bootstrap 的 onIntercept / onException 方法签名必须与 RuntimeSpy 中同名方法一致，
  * 因为 SpyTransformer 生成的字节码使用固定描述符。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class Bootstrap {

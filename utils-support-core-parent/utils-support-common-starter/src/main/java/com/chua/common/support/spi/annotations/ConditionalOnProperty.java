@@ -7,6 +7,7 @@ import java.lang.annotation.*;
  * <p>
  * 用于 SPI 机制中，根据环境配置属性的值来条件化地注册或实例化组件。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Target({ElementType.TYPE})

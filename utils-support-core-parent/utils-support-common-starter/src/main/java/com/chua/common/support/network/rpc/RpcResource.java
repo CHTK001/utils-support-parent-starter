@@ -32,6 +32,7 @@ import java.lang.annotation.Target;
  * <p>当此注解上的参数与 {@link RpcConsumerConfig} 全局配置冲突时，
  * 注解上的细粒度配置优先级更高（就近原则）。</p>
  *
+ * @author CH
  * @since 1.0.0
  */
 @Documented

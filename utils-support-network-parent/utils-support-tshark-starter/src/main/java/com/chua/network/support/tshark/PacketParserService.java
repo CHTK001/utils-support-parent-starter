@@ -18,6 +18,7 @@ import java.util.Map;
  * <p>负责将 TShark 命令行输出的 JSON 格式单包数据解析为结构化对象。</p>
  * <p>支持帧层、IP层、传输层协议检测，以及 TCP flags/lifecycle 计算。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

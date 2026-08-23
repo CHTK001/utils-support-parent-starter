@@ -13,6 +13,7 @@ import java.util.Set;
  *
  * <p>前端 {@code GET /api/connections/list} 调用此扫描器，列出可用协议。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

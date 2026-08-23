@@ -1,6 +1,7 @@
 package com.chua.metrics.support;
 
 import com.chua.common.support.utils.NativeLoader;
+import com.chua.common.support.utils.NativeUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.foreign.Arena;

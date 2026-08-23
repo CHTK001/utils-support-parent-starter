@@ -72,10 +72,14 @@ public class SepiaToneImageFilter extends AbstractImageFilter {
                 index = row * width + col;
 
 // 提取ARGB分量
-ta = (inPixels[index] >> 24) & 0xff; // Alpha通道
-tr = (inPixels[index] >> 16) & 0xff; // 红色通道
-tg = (inPixels[index] >> 8) & 0xff;  // 绿色通道
-tb = inPixels[index] & 0xff;         // 蓝色通道
+// Alpha通道
+ta = (inPixels[index] >> 24) & 0xff;
+// 红色通道
+tr = (inPixels[index] >> 16) & 0xff;
+// 绿色通道
+tg = (inPixels[index] >> 8) & 0xff;
+// 蓝色通道
+tb = inPixels[index] & 0xff;
 
                 // 应用棕褐色调变换矩阵
                 int fr = (int) colorBlend(noise(), (tr * 0.393) + (tg * 0.769) + (tb * 0.189), tr);

@@ -8,6 +8,7 @@ import java.util.Objects;
 /**
  * 配置保存或加载的抽象基类。
  * 提供通用的配置键标准化、路径拼接以及结果构建逻辑。
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {

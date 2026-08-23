@@ -501,7 +501,9 @@ public class H264NvencEncoder implements VideoEncoder {
     /** BytesToHex */
     private static String bytesToHex(byte[] data, int n) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < n; i++) sb.append(String.format("%02x ", data[i] & 0xff));
+        for (int i = 0; i < n; i++) {
+            sb.append(String.format("%02x ", data[i] & 0xff));
+        }
         return sb.toString().trim();
     }
 

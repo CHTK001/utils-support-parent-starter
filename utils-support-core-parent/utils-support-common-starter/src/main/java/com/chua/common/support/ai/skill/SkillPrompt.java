@@ -16,6 +16,7 @@ import java.util.Map;
  * client.system(system).chatSync(prompt);
  * }</pre>
  *
+ * @author CH
  */
 public final class SkillPrompt {
 

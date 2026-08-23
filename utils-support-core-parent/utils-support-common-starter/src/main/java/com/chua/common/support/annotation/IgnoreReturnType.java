@@ -11,6 +11,7 @@ import java.lang.annotation.*;
  *     <li>标记 Controller 类，使该类所有方法返回值保持原样</li>
  * </ul>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Target({ElementType.TYPE, ElementType.METHOD})

@@ -19,6 +19,7 @@ import java.nio.file.Path;
  * Depth-Anything V2 ONNX（ORT 直连，规避 DJL onnxruntime 对 Resize op 的兼容问题）。
  *
  * <p>输入 byte[] → 518x518 ImageNet normalize → ORT 推理 → 深度图归一化 → 缩放到原图尺寸 → byte[]</p>
+ * @author CH
  */
 @Slf4j
 public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, AutoCloseable {

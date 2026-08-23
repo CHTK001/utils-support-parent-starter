@@ -9,6 +9,7 @@ import java.io.IOException;
 /**
  * FFmpeg 处理器抽象基类，提供 FFmpeg 可执行文件查找和通用参数构建逻辑。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {

@@ -233,7 +233,9 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         if (!StringUtils.isEmpty(filename)) {
             return filename;
         }
-        if (key != null && key.contains("/")) return key.substring(key.lastIndexOf('/') + 1);
+        if (key != null && key.contains("/")) {
+            return key.substring(key.lastIndexOf('/') + 1);
+        }
         return key;
     }
 
