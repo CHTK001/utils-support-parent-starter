@@ -1,7 +1,6 @@
 package com.chua.common.support.network.discovery.peermesh;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,10 +14,9 @@ import java.nio.charset.StandardCharsets;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class MessageProtocol {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(MessageProtocol.class);
     /**
      * 协议魔数
      */

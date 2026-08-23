@@ -1,7 +1,6 @@
 package com.chua.common.support.task.timer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,10 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class TimerTask {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(TimerTask.class);
 
     /** 任务唯一标识 */
     private final String id;

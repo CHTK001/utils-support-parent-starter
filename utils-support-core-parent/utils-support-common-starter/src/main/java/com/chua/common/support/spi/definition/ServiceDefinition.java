@@ -6,8 +6,7 @@ import com.chua.common.support.spi.autowire.ServiceAutowire;
 import com.chua.common.support.spi.condition.SpiCondition;
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -28,10 +27,9 @@ import java.util.Set;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class ServiceDefinition implements Comparable<ServiceDefinition> {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(ServiceDefinition.class);
 
     /**
      * 默认排序比较器，优先级越高的服务定义排在前面。

@@ -13,8 +13,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import kcp.ChannelConfig;
 import kcp.KcpListener;
 import kcp.Ukcp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -50,12 +49,8 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class KcpClient {
-
-    /**
-     * 日志实例
-     */
-    private static final Logger log = LoggerFactory.getLogger(KcpClient.class);
 
     /**
      * 注册指令前缀
@@ -566,8 +561,9 @@ public class KcpClient {
                 receiveBuffer.append(byteBuf.toString(StandardCharsets.UTF_8));
                 String buffered = receiveBuffer.toString();
                 int newline = buffered.lastIndexOf('\n');
+                // 无完整行，全部保留
                 if (newline < 0) {
-                    return; // 无完整行，全部保留
+                    return;
                 }
                 String complete = buffered.substring(0, newline);
                 receiveBuffer.setLength(0);

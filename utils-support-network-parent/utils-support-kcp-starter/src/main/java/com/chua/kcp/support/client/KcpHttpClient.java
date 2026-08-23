@@ -4,8 +4,7 @@ import com.chua.common.support.lang.json.Json;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import kcp.Ukcp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -21,12 +20,8 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class KcpHttpClient {
-
-    /**
-     * 日志实例
-     */
-    private static final Logger log = LoggerFactory.getLogger(KcpHttpClient.class);
 
     /**
      * KCP 服务器主机地址

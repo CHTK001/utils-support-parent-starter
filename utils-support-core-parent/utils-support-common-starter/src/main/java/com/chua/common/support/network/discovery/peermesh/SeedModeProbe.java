@@ -3,8 +3,7 @@ package com.chua.common.support.network.discovery.peermesh;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.peermesh.MessageProtocol;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -22,10 +21,9 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class SeedModeProbe implements ProbeStrategy {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(SeedModeProbe.class);
     /** Connect_timeout_ms */
     private static final int CONNECT_TIMEOUT_MS = 500;
 

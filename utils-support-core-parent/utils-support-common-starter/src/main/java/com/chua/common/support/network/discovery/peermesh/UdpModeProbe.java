@@ -1,8 +1,7 @@
 package com.chua.common.support.network.discovery.peermesh;
 
 import com.chua.common.support.lang.json.Json;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -21,10 +20,9 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class UdpModeProbe implements ProbeStrategy {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(UdpModeProbe.class);
     /** Receive_timeout_ms */
     private static final int RECEIVE_TIMEOUT_MS = 2000;
 

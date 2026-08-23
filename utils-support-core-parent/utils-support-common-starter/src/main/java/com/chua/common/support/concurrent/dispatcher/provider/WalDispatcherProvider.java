@@ -1,4 +1,4 @@
-package com.chua.common.support.concurrent.dispatcher.provider;
+﻿package com.chua.common.support.concurrent.dispatcher.provider;
 
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * WAL（Write-Ahead Log）分发器提供者。
+ * WAL（Write-Ahead log）分发器提供者。
  *
  * <p>双支杆架构：
  * <ul>
@@ -318,6 +318,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
      *
      * @since 4.0.0.42
      */
+    @Slf4j
     static class WalLog {
 
         /**
@@ -344,11 +345,6 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
          * 是否启用 mmap
          */
         private volatile boolean useMmap = true;
-
-        /**
-         * 日志记录器
-         */
-        private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(WalLog.class);
 
         /**
          * 写入端已确认的提交位置，消费者仅读到该位置
@@ -381,9 +377,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 long size = MMAP_GROW;
                 mappedBuf = channel.map(FileChannel.MapMode.READ_WRITE, 0, size);
                 mappedSize = size;
-                LOG.info("WAL mmap 已启用 file={}", file.getFileName());
+                log.info("WAL mmap 已启用 file={}", file.getFileName());
             } catch (Throwable t) {
-                LOG.warn("WAL mmap 不可用，降级 I/O cause={}", t.getMessage());
+                log.warn("WAL mmap 不可用，降级 I/O cause={}", t.getMessage());
                 useMmap = false;
                 mappedBuf = null;
             }
@@ -406,7 +402,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                 mappedBuf.position(pos);
                 mappedSize = newSize;
             } catch (Throwable t) {
-                LOG.warn("WAL mmap 扩容失败，降级 I/O cause={}", t.getMessage());
+                log.warn("WAL mmap 扩容失败，降级 I/O cause={}", t.getMessage());
                 useMmap = false;
                 mappedBuf = null;
             }
@@ -445,7 +441,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
                     channel.write(ByteBuffer.wrap(payload));
                     commitPos.set(pos + FRAME_HEADER_SIZE + payload.length);
                 } catch (Exception e) {
-                    LOG.warn("WAL 写入失败 file={}", file, e);
+                    log.warn("WAL 写入失败 file={}", file, e);
                 }
             }
         }

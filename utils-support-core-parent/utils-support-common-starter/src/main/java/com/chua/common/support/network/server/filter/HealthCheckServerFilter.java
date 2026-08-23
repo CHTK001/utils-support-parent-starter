@@ -60,6 +60,12 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     @Override
+    /** SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突) */
+    public String supportPath() {
+        return null;
+    }
+
+    @Override
     /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
@@ -76,4 +82,50 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 探针路径命中:直接响应并终止链,不进入路由与业务处理
-        if (
+        if (isHealthPath(request)) {
+            respondOk(response);
+            return;
+        }
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    /**
+     * 响应式Do过滤
+     *
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
+    public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
+                                          ReactiveFilterChain chain) {
+        if (isHealthPath(request)) {
+            respondOk(response);
+            return CompletableFuture.completedStage(null);
+        }
+        return chain.doFilter(request, response);
+    }
+
+    /**
+     * 判断请求路径是否为健康探针路径。
+     *
+     * @param request 请求对象
+     * @return true 表示命中探针路径
+     */
+    private boolean isHealthPath(ServerRequest request) {
+        return healthPaths.contains(request.getPath());
+    }
+
+    /**
+     * 输出 200 OK 探针响应。
+     *
+     * @param response 响应对象
+     */
+    private void respondOk(ServerResponse response) {
+        if (!response.isEnded()) {
+            response.setStatus(STATUS_OK);
+            response.setBody("OK");
+            response.end();
+        }
+    }
+}

@@ -2,8 +2,7 @@ package com.chua.common.support.network.discovery.peermesh;
 
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.discovery.Discovery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -26,10 +25,9 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class CModeProbe implements ProbeStrategy {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(CModeProbe.class);
     /** Connect_timeout_ms */
     private static final int CONNECT_TIMEOUT_MS = 200;
     /** Max_hosts_per_cidr */
