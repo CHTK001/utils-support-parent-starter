@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import io.greptime.models.DataType;
 import io.greptime.models.Table;
 import io.greptime.models.TableSchema;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -21,10 +22,27 @@ class GreptimeDbIntegrationTest {
     private static final String ENDPOINT = "172.16.0.40:4001";
     private static final String DATABASE = "public";
 
+    /**
+     * 测试期间创建的引擎，结束后统一关闭，避免泄漏 gRPC 连接。
+     */
+    private final java.util.List<GreptimeDbEngine> engines = new java.util.ArrayList<>();
+
+    @AfterEach
+    void tearDown() {
+        for (GreptimeDbEngine e : engines) {
+            try {
+                e.close();
+            } catch (Exception ignored) {
+            }
+        }
+        engines.clear();
+    }
+
     @Test
     void write_metrics_to_greptimedb() throws Exception {
         GreptimeDbEngine engine = (GreptimeDbEngine) Engine.create("greptimedb");
         engine.addDataSource("default", ENDPOINT, DATABASE, "", "");
+        engines.add(engine);
 
         TableSchema schema = TableSchema.newBuilder("metrics_demo")
                 .addTag("host", DataType.String)

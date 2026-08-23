@@ -93,4 +93,174 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
   <div class="kpi r"><div class="v">2.1k~3.0s</div><div class="l">JDK 高并发退化：并发2000 时吞吐跌至 2.1k、p99 涨到 2.6~3.0s</div></div>
 </div>
 
-<div class="note"><b>&#9888;&#65039; 环境敏感性（重要）</b>：本机为共享开发机，负载波动极大。繁忙期（CPU&gt;80%）三个实现的成功率会同时跌至 17%~50%（其中 503 为框架内置 <code>maxConcurrency</code> 限流主动甩负载，属保护行为而非故障）。<b>本报告全部数据在 CPU&lt;35% 空闲窗口采集</b>，成功率 98.7%~100%，可放心横向对比。</div>
+<div class="note"><b>&#9888;&#65039; 环境敏感性（重要）</b>：本机为共享开发机，负载波动极大。繁忙期（CPU&gt;80%）三个实现的成功率会同时跌至 17%~50%（其中 503 为框架内置 <code>maxConcurrency</code> 限流主动甩负载，属保护行为而非故障）。<b>本报告全部数据在 CPU&lt;35% 空闲窗口采集</b>，成功率 98.7%~100%，可放心横向对比。</div><h2><span class="num">1</span>吞吐量 RPS <span class="hint">越高越好 · 每场景约 20000 请求 / 预热 200 次</span></h2>
+<div class="legend"><span class="lg-nio"><i></i>NioHttpServer（多 Selector 分片 + 虚拟线程）</span><span class="lg-vtx"><i></i>VertxHttpServer（Vert.x + 虚拟线程 handler）</span><span class="lg-jdk"><i></i>JdkHttpServer（com.sun.net.httpserver）</span></div>
+
+<div class="chart-block">
+  <div class="chart-title">报文 256 字节 <span style="color:var(--muted);font-weight:400">— NIO 全档领先，但高并发段优势收窄</span></div>
+  <div class="grp"><div class="grp-t">并发 100</div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:100%"><span>22,396</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:45%"><span>10,070</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:22.2%"><span>4,983</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 500</div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:98.7%"><span>22,099</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:29.2%"><span>6,545</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:23.5%"><span>5,255</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 1000</div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:54.4%"><span>12,180</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:30.8%"><span>6,894</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:22.9%"><span>5,120</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 2000</div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:42.7%"><span>9,565</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:40.7%"><span>9,120</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:9.3%"><span>2,085</span></div></div></div>
+  </div>
+</div>
+
+<div class="chart-block">
+  <div class="chart-title">报文 4096 字节 <span style="color:var(--muted);font-weight:400">— 低并发 NIO 王，中高并发 Vert.x 反超</span></div>
+  <div class="grp"><div class="grp-t">并发 100</div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:100%"><span>23,753</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:70.2%"><span>16,681</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:58.5%"><span>13,908</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 500</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:65.4%"><span>15,540</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:46.9%"><span>11,142</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:33.1%"><span>7,859</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 1000</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:61%"><span>14,482</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:36.8%"><span>8,753</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:17.8%"><span>4,219</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 2000</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:47.7%"><span>11,338</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:22.4%"><span>5,323</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:9.1%"><span>2,155</span></div></div></div>
+  </div>
+</div>
+
+<div class="note"><b>&#128161; 怎么读这两张图</b>：成功率 98.7%~100%，goodput &asymp; RPS。三条彩色条按组内最大值等比缩放，条最长者即该档冠军。</div>
+<h2><span class="num">2</span>尾延迟 p99 <span class="hint">条越短越好</span></h2>
+<div class="legend"><span class="lg-nio"><i></i>NioHttpServer</span><span class="lg-vtx"><i></i>VertxHttpServer</span><span class="lg-jdk"><i></i>JdkHttpServer</span></div>
+
+<div class="chart-block">
+  <div class="chart-title">报文 256 字节（组内最长条 = 2587ms）</div>
+  <div class="grp"><div class="grp-t">并发 100</div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:10%"><span>21 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:12%"><span>33 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:16%"><span>85 ms</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 500</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:18%"><span>165 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:22%"><span>203 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:34%"><span>383 ms</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 1000</div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:42%"><span>498 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:60%"><span>709 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:66%"><span>779 ms</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 2000</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:96%"><span>1,421 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:97%"><span>1,425 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:100%"><span>2,587 ms</span></div></div></div>
+  </div>
+</div>
+
+<div class="chart-block">
+  <div class="chart-title">报文 4096 字节（组内最长条 = 2975ms）<span style="color:var(--green);font-weight:400"> — Vert.x 高并发尾延迟最优</span></div>
+  <div class="grp"><div class="grp-t">并发 100</div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:8%"><span>11 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:10%"><span>21 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:12%"><span>34 ms</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 500</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:14%"><span>105 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:20%"><span>202 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:36%"><span>404 ms</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 1000</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:46%"><span>513 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:54%"><span>597 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:78%"><span>1,071 ms</span></div></div></div>
+  </div>
+  <div class="grp"><div class="grp-t">并发 2000</div>
+    <div class="bar-row"><span class="bar-name">vertx</span><div class="bar-track"><div class="bar vtx" style="width:52%"><span>747 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:86%"><span>2,475 ms</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">jdk</span><div class="bar-track"><div class="bar jdk" style="width:100%"><span>2,975 ms</span></div></div></div>
+  </div>
+</div>
+
+<h2><span class="num">3</span>逐场景明细</h2>
+<div class="desc"><span style="color:var(--green)">绿色 = 该行全场最优。</span>耗时 = 场景墙钟时间（含 200 次预热之外的测量段）。</div>
+
+<table>
+<thead><tr><th colspan="7" style="text-align:left;background:#0f2417;color:var(--green)">NioHttpServer（低并发吞吐王，高并发退化明显）</th></tr>
+<tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p99(ms)</th><th>成功率</th><th>耗时(ms)</th></tr></thead>
+<tbody>
+<tr><td>256</td><td>100</td><td class="win">22,396</td><td class="win">2.0</td><td class="win">21.0</td><td>100.00%</td><td>893</td></tr>
+<tr><td>256</td><td>500</td><td class="win">22,099</td><td class="win">9.0</td><td>203.0</td><td>99.10%</td><td>905</td></tr>
+<tr><td>256</td><td>1000</td><td class="win">12,180</td><td>27.0</td><td>709.0</td><td>99.31%</td><td>1,642</td></tr>
+<tr><td>256</td><td>2000</td><td class="win">9,565</td><td>68.0</td><td>1,425.0</td><td>99.43%</td><td>2,091</td></tr>
+<tr><td>4096</td><td>100</td><td class="win">23,753</td><td class="win">3.0</td><td class="win">11.0</td><td>100.00%</td><td>842</td></tr>
+<tr><td>4096</td><td>500</td><td>11,142</td><td>18.0</td><td>404.0</td><td>99.60%</td><td>1,795</td></tr>
+<tr><td>4096</td><td>1000</td><td>8,753</td><td>44.0</td><td>1,071.0</td><td>99.94%</td><td>2,285</td></tr>
+<tr><td>4096</td><td>2000</td><td>5,323</td><td>130.0</td><td>2,475.0</td><td>99.26%</td><td>3,757</td></tr>
+</tbody>
+</table>
+
+<table>
+<thead><tr><th colspan="7" style="text-align:left;background:#0d1a2d;color:var(--accent)">VertxHttpServer（扩展曲线最稳，高并发冠军）</th></tr>
+<tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p99(ms)</th><th>成功率</th><th>耗时(ms)</th></tr></thead>
+<tbody>
+<tr><td>256</td><td>100</td><td>4,983</td><td>14.0</td><td>85.0</td><td>100.00%</td><td>4,014</td></tr>
+<tr><td>256</td><td>500</td><td>6,545</td><td>69.0</td><td>165.0</td><td>100.00%</td><td>3,056</td></tr>
+<tr><td>256</td><td>1000</td><td>6,894</td><td>120.0</td><td>779.0</td><td>99.97%</td><td>2,901</td></tr>
+<tr><td>256</td><td>2000</td><td>9,120</td><td>99.0</td><td>1,421.0</td><td>100.00%</td><td>2,193</td></tr>
+<tr><td>4096</td><td>100</td><td>16,681</td><td>4.0</td><td>21.0</td><td>100.00%</td><td>1,199</td></tr>
+<tr><td>4096</td><td>500</td><td class="win">15,540</td><td>27.0</td><td class="win">105.0</td><td>99.82%</td><td>1,287</td></tr>
+<tr><td>4096</td><td>1000</td><td class="win">14,482</td><td>51.0</td><td class="win">513.0</td><td>99.98%</td><td>1,381</td></tr>
+<tr><td>4096</td><td>2000</td><td class="win">11,338</td><td>94.0</td><td class="win">747.0</td><td>99.17%</td><td>1,764</td></tr>
+</tbody>
+</table>
+
+<table>
+<thead><tr><th colspan="7" style="text-align:left;background:#2a1214;color:var(--red)">JdkHttpServer（全面第三，高并发退化最重）</th></tr>
+<tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p99(ms)</th><th>成功率</th><th>耗时(ms)</th></tr></thead>
+<tbody>
+<tr><td>256</td><td>100</td><td>10,070</td><td>5.0</td><td>33.0</td><td>100.00%</td><td>1,986</td></tr>
+<tr><td>256</td><td>500</td><td>5,255</td><td>41.0</td><td>383.0</td><td>99.99%</td><td>3,806</td></tr>
+<tr><td>256</td><td>1000</td><td>5,120</td><td>175.0</td><td>498.0</td><td>99.08%</td><td>3,906</td></tr>
+<tr><td>256</td><td>2000</td><td>2,085</td><td>701.0</td><td>2,587.0</td><td>99.33%</td><td>9,592</td></tr>
+<tr><td>4096</td><td>100</td><td>13,908</td><td>4.0</td><td>34.0</td><td>100.00%</td><td>1,438</td></tr>
+<tr><td>4096</td><td>500</td><td>7,859</td><td>26.0</td><td>202.0</td><td>99.44%</td><td>2,545</td></tr>
+<tr><td>4096</td><td>1000</td><td>4,219</td><td>238.0</td><td>597.0</td><td>99.18%</td><td>4,741</td></tr>
+<tr><td>4096</td><td>2000</td><td>2,155</td><td>745.0</td><td>2,975.0</td><td>98.69%</td><td>9,281</td></tr>
+</tbody>
+</table>
+
+<h2><span class="num">4</span>结论与建议</h2>
+<div class="concl"><b>&#9989; 选型结论</b>
+<ul>
+<li><b>小报文 / 中低并发 &rarr; NioHttpServer</b>：256B 下四个并发档全部第一（cc100 达 22.4k RPS、p99 仅 21ms），零外部依赖纯 JDK 实现。</li>
+<li><b>大报文 / 高并发 &rarr; VertxHttpServer</b>：4096B 从 cc500 起持续反超，cc2000 时 11.3k RPS 为 NIO 的 2.1 倍；高并发下尾延迟也最低（p99 747ms vs NIO 2475ms / JDK 2975ms）——h2c 多路复用 + maxConcurrentStreams&ge;1024 调优生效。</li>
+<li><b>JdkHttpServer 全面第三</b>：低并发尚可（13.9k @4096B/cc100），但 cc2000 时吞吐跌至 2.1k、p99 近 3s，仅适合轻量内嵌场景。</li>
+<li><b>退化拐点</b>：NIO 在 cc500&rarr;2000 区间吞吐衰减约 57%（Windows eventLoop 钳制为 2 所致）；Linux/epoll 不受此限，预计高并发段表现会显著更好。</li>
+</ul></div>
+<div class="warn"><b>&#9888;&#65039; 限制说明</b>
+<ul>
+<li><b>环境敏感</b>：共享开发机繁忙期（CPU&gt;80%）所有实现成功率会跌至 17%~50%——其中 HTTP 503 是框架内置 <code>maxConcurrency</code> 限流的主动甩负载（保护行为），另有少量 ConnectException（backlog 瞬时打满）。<b>本报告数据全部在 CPU&lt;35% 空闲窗口采集</b>。</li>
+<li><b>Windows 钳制</b>：NIO 的 eventLoop 在 Windows 上被钳制为 2（<code>WindowsSelectorImpl</code> 多 Selector 并发不稳定），Linux/epoll 下按核数扩展。</li>
+<li>每场景 ~20000 请求、自适应请求数（<code>ceil(20000/并发)</code>&times;并发）、预热 200 次；失败请求不计入分位数统计。</li>
+</ul></div>
+
+<footer>压测 harness：<code>D:\ch\project\bench\ServerBench.java</code> &middot; 三实现在同一进程同一环境顺序压测 &middot; utils-support-parent-starter &copy; 2026</footer>
+
+</div>
+</body>
+</html>
