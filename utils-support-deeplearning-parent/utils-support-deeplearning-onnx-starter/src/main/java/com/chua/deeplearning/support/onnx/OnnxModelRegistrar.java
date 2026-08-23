@@ -375,6 +375,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("visdrone-small-detector", "com.chua.deeplearning.support.onnx.yolo.VisDroneSmallDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/visdrone/damoyolo_visdrone.onnx");
         // 火灾烟雾检测(CCCCTV fire-smoke)：YOLOv8n 320 检测，cctv-ai-fire-smoke 嵌入式
         reg("fire-smoke", "com.chua.deeplearning.support.onnx.yolo.FireSmokeDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx");
+        // 口罩检测(SigLIP2)：2 类 Face_Mask Found / Not_Found，224×224 输入
+        reg("face-mask", "com.chua.deeplearning.support.onnx.classification.FaceMaskTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/face-mask/model.onnx");
         // 安全帽检测(HudatersU Safety_helmet)：YOLOv8 640 检测，2 类 helmet/no-helmet（174MB，全图覆盖）
         reg("safety-helmet", "com.chua.deeplearning.support.onnx.yolo.SafetyHelmetDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/ppe/yolov8n/model.onnx");
         // 反光衣检测(ReflectiveClothes)：YOLOv8n 640 检测，2 类 safe/unsafe
