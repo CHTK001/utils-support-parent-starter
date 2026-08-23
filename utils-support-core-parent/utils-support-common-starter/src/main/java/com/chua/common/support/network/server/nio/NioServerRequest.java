@@ -477,7 +477,6 @@ public class NioServerRequest implements ServerRequest {
                 String[] kv = pair.split("=", 2);
                 if (kv.length > 0) form.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
             }
-        }
             return form;
         }
         if (lower.startsWith("multipart/form-data")) {

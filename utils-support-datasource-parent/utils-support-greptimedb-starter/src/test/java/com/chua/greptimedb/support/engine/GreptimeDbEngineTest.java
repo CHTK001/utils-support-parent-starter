@@ -88,7 +88,12 @@ class GreptimeDbEngineTest {
     @Test
     void add_datasource_builds_client() {
         GreptimeDbEngine engine = (GreptimeDbEngine) Engine.create("greptimedb");
-        engine.addDataSource("default", "127.0.0.1:4001", "public", "", "");
-        assertNotNull(engine.client());
+        try {
+            engine.addDataSource("default", "127.0.0.1:4001", "public", "", "");
+            assertNotNull(engine.client());
+        } finally {
+            // 立即关闭，避免不可达端点的 gRPC 通道在后台无限重连
+            engine.close();
+        }
     }
 }
