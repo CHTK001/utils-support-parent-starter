@@ -379,13 +379,6 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- 口罩检测模型（SigLIP2，2 类） -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-face-mask</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
         <!-- 口罩检测模型（YOLOv8，2 类：cloth/surgical，可画框） -->
         <dependency>
             <groupId>com.chua</groupId>
