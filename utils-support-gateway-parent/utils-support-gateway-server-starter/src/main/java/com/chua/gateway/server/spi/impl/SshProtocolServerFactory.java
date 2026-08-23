@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * 新实现统一协议栈，避免前端维护两套 viewer（{@code ReRdpViewer} 与 {@code ReSshViewer}），
  * 也不需要在网关内嵌入 JSCH。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

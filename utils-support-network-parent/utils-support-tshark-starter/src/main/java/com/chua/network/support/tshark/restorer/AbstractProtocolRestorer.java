@@ -17,6 +17,7 @@ import java.util.Map;
  * </ul>
  * 子类仅需实现 {@link #getProtocolName()} 与 {@link #restore(Map, byte[])}。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractProtocolRestorer implements ProtocolRestorer {

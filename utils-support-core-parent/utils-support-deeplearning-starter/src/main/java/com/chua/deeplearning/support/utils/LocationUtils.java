@@ -17,6 +17,7 @@ import java.util.List;
 /**
  * 模型资源定位工具。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * 显式指定名称（{@code fury} / {@code fory} / {@code jackson} / {@code java}），
  * 未指定时按上述优先级自动选择。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class RpcSerialization {

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
  * 该基类提供了获取属性的基本逻辑，包括直接获取、嵌套属性解析以及键名变体匹配。
  * 具体实现需要子类提供原始数据源 {@link #getRawProperty(String)} 和完整的数据结构 {@link #getSource()}。
  *
+ * @author CH
  * @since 2023-08-01
  */
 @Getter

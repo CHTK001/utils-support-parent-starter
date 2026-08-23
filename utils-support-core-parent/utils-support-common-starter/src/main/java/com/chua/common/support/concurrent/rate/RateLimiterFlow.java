@@ -18,6 +18,7 @@ import java.util.function.Supplier;
  * RateLimiterFlow.of("api", 100.0).fallback(() -> fallbackResult).execute(() -> doSomething());
  * }</pre>
  *
+ * @author CH
  * @since 2026/07/24
  */
 public final class RateLimiterFlow {

@@ -9,6 +9,7 @@ import com.chua.common.support.lang.json.Json;
  * 复用已有工具避免重复造轮子。导出格式与前端 ReFlow 画布数据完全一致，
  * 支持双向互通。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class FlowJson {

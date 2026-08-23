@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  * TimeoutFlow.of("api").timeout(3, TimeUnit.SECONDS).fallback(() -> fallbackResult).execute(() -> callApi());
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class TimeoutFlow {

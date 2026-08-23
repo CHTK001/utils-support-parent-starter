@@ -85,7 +85,8 @@ public class NightVisionImageFilter extends AbstractImageFilter{
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int rgb = src.getRGB(x, y);
-int alpha = (rgb >> 24) & 0xff; // 设置完全不透明
+                // 设置完全不透明
+int alpha = (rgb >> 24) & 0xff;
                 int red, green, blue;
 
                 // 增强饱和度并降低亮度以模拟夜视效果

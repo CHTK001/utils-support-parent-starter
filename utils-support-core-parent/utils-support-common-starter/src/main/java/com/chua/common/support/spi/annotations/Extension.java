@@ -5,6 +5,7 @@ import java.lang.annotation.*;
 /**
  * 扩展点注解，用于为 SPI 实现指定扩展名。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Target({ElementType.TYPE})

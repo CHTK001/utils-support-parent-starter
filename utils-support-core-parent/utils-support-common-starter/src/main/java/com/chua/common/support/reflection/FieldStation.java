@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentMap;
  * 提供对 bean 字段按字符串名称的动态读写能力。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class FieldStation {

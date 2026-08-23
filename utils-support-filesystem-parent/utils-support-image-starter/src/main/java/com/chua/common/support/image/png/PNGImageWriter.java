@@ -21,6 +21,7 @@ import java.util.zip.DeflaterOutputStream;
  * 内部通过 {@link RowFilter} 实时行过滤，通过 {@link ChunkStream} 同步累积 CRC。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class PNGImageWriter extends ImageWriter {

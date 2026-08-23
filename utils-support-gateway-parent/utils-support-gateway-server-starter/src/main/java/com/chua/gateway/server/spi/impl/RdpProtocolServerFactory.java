@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>本实现使用 {@code rdp} 作为 SPI 名称，但实际可经 guacd 支持 RDP/VNC/SSH。
  * 如专用于 RDP，建议调用方传 {@link Connection#protocol()} = "rdp"。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

@@ -39,6 +39,7 @@ import java.util.List;
  * <p>从 classpath {@link #classNamesResourcePath()} 加载（通常 1 行），缺失时回退
  * {@link #defaultClassName()}。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

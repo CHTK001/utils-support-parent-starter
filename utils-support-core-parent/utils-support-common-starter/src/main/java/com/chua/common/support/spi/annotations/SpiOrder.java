@@ -57,6 +57,7 @@ import java.lang.annotation.*;
  * </ul>
  *
  * @version 1.0.0
+ * @author CH
  * @since 2025/01/22
  * @see Spi
  */

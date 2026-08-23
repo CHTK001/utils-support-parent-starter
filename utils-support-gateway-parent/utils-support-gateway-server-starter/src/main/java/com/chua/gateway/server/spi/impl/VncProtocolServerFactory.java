@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>创建 {@link NoVncBridge} 实例并返回封装好的 {@link GatewayTunnel}。
  * 浏览器侧连接 noVNC 客户端，协议字节通过 WebSocket 透明转发到 VNC Server。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

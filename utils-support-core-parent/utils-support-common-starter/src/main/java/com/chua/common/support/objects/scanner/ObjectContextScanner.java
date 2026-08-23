@@ -20,6 +20,7 @@ import java.util.stream.Stream;
  * <p>
  * 支持从文件系统目录和 JAR 包中扫描类文件，并过滤掉无法实例化的类（如接口、枚举、注解等）。
  *
+ * @author CH
  * @since 2026/07/16
  */
 @Slf4j

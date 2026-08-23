@@ -1,8 +1,7 @@
 package com.chua.utils.support.appimage;
 
 import com.chua.utils.support.appimage.exception.AppImageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  */
+@Slf4j
 public class AppImageManager {
 
-    /** 日志记录器 */
-    private static final Logger log = LoggerFactory.getLogger(AppImageManager.class);
     /** 单例实例 */
     private static volatile AppImageManager INSTANCE;
 

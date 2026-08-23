@@ -27,6 +27,7 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  * @see com.chua.ssh.support.server.SshServer
  */

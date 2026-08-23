@@ -48,6 +48,7 @@ import java.lang.annotation.Target;
  * UserApi api = InvokerFactory.create(UserApi.class);
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  * @see InvokerFactory
  * @see RemoteMethod

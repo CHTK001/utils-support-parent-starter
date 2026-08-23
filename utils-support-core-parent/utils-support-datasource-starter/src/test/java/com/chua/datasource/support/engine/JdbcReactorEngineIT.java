@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JdbcReactorEngine 完整集成测试（H2 + MySQL 远程 + PostgreSQL/SQL Server Docker 容器）
+ * @author CH
  */
 class JdbcReactorEngineIT {
 

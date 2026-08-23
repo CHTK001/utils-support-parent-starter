@@ -368,10 +368,12 @@ public final class TraceContext {
         int maxLeftWidth = 0;
         for (TraceNode node : nodes) {
             if (maxDepth != null && maxDepth > 0 && node.depth >= maxDepth) { continue; }
-            int leftWidth = getIndent(node.depth).length() + 5; // "100%  "
+            // 左侧宽度先计入百分比展示宽度（"100%  " 共 5 个字符）
+            int leftWidth = getIndent(node.depth).length() + 5;
             leftWidth += node.className.length() + 1 + node.methodName.length();
             if (node.args != null) {
-                leftWidth += node.args.length() + 2; // "()" 或 "(args)"
+                // 参数展示两侧各有一个括号，即 "()" 或 "(args)" 的括号宽度
+                leftWidth += node.args.length() + 2;
             } else {
                 leftWidth += 2;
             }

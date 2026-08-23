@@ -50,6 +50,18 @@ public class SafeTensorIdentificationEngine implements IdentificationEngine {
     }
 
     @Override
+    /** 按能力接口查询模型名称（Safetensors 引擎暂无注册模型，返回空列表） */
+    public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    /** 按能力标签查询模型名称（Safetensors 引擎暂无注册模型，返回空列表） */
+    public List<String> getModelNamesByCapability(String capability) {
+        return new ArrayList<>();
+    }
+
+    @Override
     /** 关闭 */
     public void close() {
     }

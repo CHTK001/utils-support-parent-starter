@@ -9,6 +9,7 @@ import java.util.concurrent.Semaphore;
  *
  * <p>相同名称的并发隔离共享同一个 {@link Semaphore}，确保并发计数全局一致。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class SemaphoreRegistry {

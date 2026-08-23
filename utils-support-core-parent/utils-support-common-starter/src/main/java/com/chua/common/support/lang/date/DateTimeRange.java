@@ -7,6 +7,7 @@ import java.time.Duration;
  * 时间区间。
  * <p>描述一个起止时间范围，支持区间判断、交集、并集及持续时间计算。</p>
  *
+ * @author CH
  * @since 2026/07/19
  */
 public final class DateTimeRange {

@@ -9,6 +9,7 @@ import java.nio.file.Path;
  * 文件转换器抽象基类 — 简化 ConvertFileSystem 实现。
  * <p>子类只需实现 {@link #doConvert(InputStream, OutputStream, File, File)} 和 {@link #type()}。</p>
  *
+ * @author CH
  * @since 2026-07-16
  */
 public abstract class AbstractConvertFileSystem implements ConvertFileSystem {

@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Bean 单例注册器，管理单例 Bean 实例的创建和注册。
  *
+ * @author CH
  * @since 2024/12/20
  */
 @Slf4j

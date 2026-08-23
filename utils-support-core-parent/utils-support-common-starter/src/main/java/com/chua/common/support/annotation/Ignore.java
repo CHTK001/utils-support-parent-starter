@@ -11,6 +11,7 @@ import java.lang.annotation.*;
  *     <li>标记接口或方法，使其在鉴权/拦截链路中被放行</li>
  * </ul>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Target({ElementType.TYPE, ElementType.METHOD})

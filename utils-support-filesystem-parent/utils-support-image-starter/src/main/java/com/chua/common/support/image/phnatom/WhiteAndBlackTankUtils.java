@@ -6,8 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -16,9 +15,8 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 4.0.0.42
 */
+@Slf4j
 public class WhiteAndBlackTankUtils {
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(WhiteAndBlackTankUtils.class);
 
     /**
      * 生产黑白幻影坦克图片

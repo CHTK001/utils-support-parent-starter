@@ -275,7 +275,9 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
             Map<String, Object> r = new HashMap<>();
             r.put("timestamp", ts);
             r.put("metric_type", type);
-            if (name != null) r.put("name", name);
+            if (name != null) {
+                r.put("name", name);
+            }
             for (int i = 0; i < kv.length; i += 2) {
                 r.put(String.valueOf(kv[i]), kv[i + 1]);
             }

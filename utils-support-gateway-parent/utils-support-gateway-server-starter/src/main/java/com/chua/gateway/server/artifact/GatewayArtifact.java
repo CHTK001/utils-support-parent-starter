@@ -11,6 +11,7 @@ import com.chua.gateway.server.config.GatewayProperties;
  * 不下载任何东西 — 仅描述网关服务进程本身，不启动子进程。
  * guacd 等子进程由 {@link GuacdArtifact} 等单独定义。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class GatewayArtifact {

@@ -22,6 +22,7 @@ import java.util.Map;
  *   <li>普通字面量，直接使用</li>
  * </ol>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractMethodAnnotationIntercept {

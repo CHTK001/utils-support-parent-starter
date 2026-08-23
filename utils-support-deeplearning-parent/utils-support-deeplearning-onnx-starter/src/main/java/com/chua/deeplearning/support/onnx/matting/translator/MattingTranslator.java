@@ -20,6 +20,7 @@ import java.awt.image.WritableRaster;
  * 通用抠图 Translator，支持 ISNet/U2Net/Anime/Cloth/Human 等分割模型。
  * 使用 AWT Graphics2D 替代 NDImageUtils.resize（ORT 引擎不支持后者）。
  *
+ * @author CH
  * @since 2025/10/22
  */
 public final class MattingTranslator implements Translator<Image, Image> {

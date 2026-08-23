@@ -16,6 +16,7 @@ import java.util.stream.Stream;
  *
  * <p>提供文件读取的通用配置和默认实现，子类通过覆盖各方法实现具体格式的读取逻辑。</p>
  *
+ * @author CH
  * @since 1.0.0
  */
 public abstract class ReadBuilder {

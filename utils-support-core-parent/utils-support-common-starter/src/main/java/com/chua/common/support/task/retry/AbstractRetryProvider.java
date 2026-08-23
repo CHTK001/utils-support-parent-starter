@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
  * <p>提供无返回值重试的默认实现，子类只需实现核心重试逻辑：
  * {@link #doExecute(Callable, RetryConfig)}。
  *
+ * @author CH
  * @since 1.0.0
  */
 public abstract class AbstractRetryProvider implements RetryProvider {

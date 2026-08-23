@@ -15,6 +15,7 @@ import java.util.function.Supplier;
  * BulkheadFlow.of("api").maxConcurrent(10).fallback(() -> fallbackResult).execute(() -> callApi());
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class BulkheadFlow {

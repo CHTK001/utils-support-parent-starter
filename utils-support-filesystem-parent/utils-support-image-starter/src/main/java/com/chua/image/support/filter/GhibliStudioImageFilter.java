@@ -187,8 +187,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
                 int green = (rgb >> 8) & 0xFF;
                 int blue = rgb & 0xFF;
 
-                // 色彩分层：将颜色量化到特定层次
-                int layers = (int) (8 + colorLayeringStrength * 8); // 8-16层
+                // 色彩分层：将颜色量化到特定层次（8-16层）
+                int layers = (int) (8 + colorLayeringStrength * 8);
                 double factor = 255.0 / (layers - 1);
 
                 red = (int) (Math.round(red / factor) * factor);

@@ -22,6 +22,7 @@ import java.util.Map;
  * // 后续 RuntimeSpy 拦截的事件都作为该 trace 的子 Span
  * </pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class TraceContextPropagator {

@@ -322,12 +322,10 @@ public class MysqlMetaTable extends AbstractMetaTable {
             sb.append(";");
             String sql = sb.toString();
             metaTable.executeUpdate(sql);
-            TableDef def = metaTable.get();
-            if (def == null) {
-                def = new TableDef();
-                def.setName(tableName);
-                def.setColumns(columns);
-            }
+            // 不依赖未实现的 get()，直接构造建表结果
+            TableDef def = new TableDef();
+            def.setName(tableName);
+            def.setColumns(columns);
             return def;
         }
     }

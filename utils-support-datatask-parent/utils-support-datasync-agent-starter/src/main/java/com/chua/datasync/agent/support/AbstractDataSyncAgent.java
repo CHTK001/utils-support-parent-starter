@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * 数据同步 Agent 抽象基类，统一管理 Source、Sink 与生命周期。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

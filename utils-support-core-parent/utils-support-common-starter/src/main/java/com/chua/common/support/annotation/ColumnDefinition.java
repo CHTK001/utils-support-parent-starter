@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
  *     <li>标记字段在表结构同步时是否强制刷新</li>
  * </ul>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Target({ElementType.FIELD})

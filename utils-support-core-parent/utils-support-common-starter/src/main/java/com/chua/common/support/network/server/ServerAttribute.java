@@ -18,6 +18,7 @@ import java.util.Map;
  *   <li>{@link #PATH_VARIABLES} — 路径模板变量 Map</li>
  * </ul>
  *
+ * @author CH
  * @since 2026/07/16
  */
 public final class ServerAttribute {

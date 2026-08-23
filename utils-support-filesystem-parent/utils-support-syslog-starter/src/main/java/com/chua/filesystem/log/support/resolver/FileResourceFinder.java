@@ -6,8 +6,7 @@ import com.chua.common.support.file.resource.ResourceConfiguration;
 import com.chua.common.support.file.resource.ResourceFinder;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filesystem.log.support.bridge.PlatformSystems;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,10 +35,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author CH
  * @since 4.0.0.42
 */
+@Slf4j
 public class FileResourceFinder implements ResourceFinder {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(FileResourceFinder.class);
     /** Default_max_depth */
     private static final int DEFAULT_MAX_DEPTH = 128;
 

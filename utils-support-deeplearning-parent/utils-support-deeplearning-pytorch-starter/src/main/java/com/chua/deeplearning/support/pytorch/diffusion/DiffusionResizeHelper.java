@@ -4,6 +4,7 @@ package com.chua.deeplearning.support.pytorch.diffusion;
  * Diffusion 条件图通用尺寸工具。
  * <p>将短边对齐到指定分辨率，再四舍五入到 64 的倍数。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class DiffusionResizeHelper {

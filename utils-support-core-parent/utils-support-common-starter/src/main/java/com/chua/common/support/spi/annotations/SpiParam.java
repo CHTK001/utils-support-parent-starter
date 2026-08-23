@@ -5,6 +5,7 @@ import java.lang.annotation.*;
 /**
  * SPI 参数注解，用于描述 SPI 实现的可选参数配置项。
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Target({})

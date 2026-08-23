@@ -13,6 +13,7 @@ package com.chua.common.support.concurrent.queue;
  *
  * <p>本类为纯静态工具类，禁止实例化。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class LockFreeQueueFlow {

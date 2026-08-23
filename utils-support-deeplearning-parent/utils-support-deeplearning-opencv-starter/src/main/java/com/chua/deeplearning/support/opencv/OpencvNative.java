@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * 保证 Haar/LBP 级联与图像编解码在 JVM 中可用。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

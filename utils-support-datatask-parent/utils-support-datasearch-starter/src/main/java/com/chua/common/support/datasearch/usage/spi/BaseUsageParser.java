@@ -17,6 +17,7 @@ import java.util.Map;
 /**
  * UsageParser 基类 — 提供按天聚合公共逻辑
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class BaseUsageParser implements UsageParser {

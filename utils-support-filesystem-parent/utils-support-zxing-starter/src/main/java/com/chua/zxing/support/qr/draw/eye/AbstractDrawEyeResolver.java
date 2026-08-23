@@ -11,6 +11,7 @@ import static com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.inOuterDetectC
 
 /**
  * DrawEyeResolver接口定义了绘制眼睛图形的方法。
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{

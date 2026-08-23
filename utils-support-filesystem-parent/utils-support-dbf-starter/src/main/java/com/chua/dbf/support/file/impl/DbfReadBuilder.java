@@ -47,7 +47,8 @@ public class DbfReadBuilder extends ReadBuilder {
                     callback.onBody(map);
                 }
             }
-        } catch (IOException ignored) {}            // 应用行过滤 + 行数据转换
+        } catch (IOException ignored) {}
+        // 应用行过滤 + 行数据转换
             result = applyFilter(result);
             result = applyRowMapping(result);
             if (callback != null) {

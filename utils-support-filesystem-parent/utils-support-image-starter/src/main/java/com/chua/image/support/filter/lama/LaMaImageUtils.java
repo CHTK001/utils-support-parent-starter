@@ -59,8 +59,10 @@ public class LaMaImageUtils {
             // CHW格式存储
             // // R通道
             tensorData[i] = rNorm;
-            tensorData[size * size + i] = gNorm;      // G通道
-            tensorData[2 * size * size + i] = bNorm;  // B通道
+            // G通道
+            tensorData[size * size + i] = gNorm;
+            // B通道
+            tensorData[2 * size * size + i] = bNorm;
         }
         
         return tensorData;

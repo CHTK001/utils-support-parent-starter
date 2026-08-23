@@ -452,9 +452,12 @@ public abstract class AbstractImageFilter implements ImageFilter {
             h -= 360.0;
         }
 
-        hsl1[0] = h;  // 色相 (0-360)
-        hsl1[1] = s;  // 饱和度 (0-255)
-        hsl1[2] = l;  // 亮度 (0-255)
+        // 色相 (0-360)
+        hsl1[0] = h;
+        // 饱和度 (0-255)
+        hsl1[1] = s;
+        // 亮度 (0-255)
+        hsl1[2] = l;
         return hsl1;
     }
 
@@ -472,8 +475,10 @@ public abstract class AbstractImageFilter implements ImageFilter {
         // [0];  // 色相
         h = hsl[0];
         // [1];  // 饱和度
-        s = hsl[1];  // 饱和度 (0-255)
-        l = hsl[2];  // 亮度 (0-255)
+        // 饱和度 (0-255)
+        s = hsl[1];
+        // 亮度 (0-255)
+        l = hsl[2];
         int[] rgb1 = {0, 0, 0};
         double v1, v2, v3, h1;
 

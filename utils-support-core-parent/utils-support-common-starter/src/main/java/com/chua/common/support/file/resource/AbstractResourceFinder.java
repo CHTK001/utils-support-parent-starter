@@ -29,6 +29,7 @@ import static com.chua.common.support.constant.CommonConstant.JAR_URL_SEPARATOR;
  *   <li>JAR URL 识别（{@link #isJarUrl(java.net.URL)}）</li>
  * </ul>
  *
+ * @author CH
  * @since 1.0.0
  */
 public abstract class AbstractResourceFinder implements ResourceFinder {

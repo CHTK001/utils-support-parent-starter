@@ -34,7 +34,9 @@ public class H264EncoderFpsTest {
         ByteBuffer yBuf = ByteBuffer.allocateDirect(ySize);
         ByteBuffer uBuf = ByteBuffer.allocateDirect(uvSize);
         ByteBuffer vBuf = ByteBuffer.allocateDirect(uvSize);
-        for (int i = 0; i < ySize; i++) yBuf.put((byte) ((i * 7) & 0xFF));
+        for (int i = 0; i < ySize; i++) {
+            yBuf.put((byte) ((i * 7) & 0xFF));
+        }
         for (int i = 0; i < uvSize; i++) { uBuf.put((byte) 128); vBuf.put((byte) 128); }
         yBuf.flip(); uBuf.flip(); vBuf.flip();
         frame.image[0] = yBuf; frame.image[1] = uBuf; frame.image[2] = vBuf;
@@ -66,8 +68,12 @@ public class H264EncoderFpsTest {
                     for (int j = 0; j < data.length - 4; j++) {
                         if (data[j]==0 && data[j+1]==0 && data[j+2]==0 && data[j+3]==1) {
                             int nalType = data[j+4] & 0x1f;
-                            if (nalType == 7) firstKeyHasSps = true;
-                            if (nalType == 8) firstKeyHasPps = true;
+                            if (nalType == 7) {
+                                firstKeyHasSps = true;
+                            }
+                            if (nalType == 8) {
+                                firstKeyHasPps = true;
+                            }
                         }
                     }
                 }

@@ -19,6 +19,7 @@ import java.nio.file.Path;
  * <p>通过 SPI 自动发现 {@link ModelProvider} 实现，构建模型注册表，
  * 支持按名称和类型查找模型实例。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

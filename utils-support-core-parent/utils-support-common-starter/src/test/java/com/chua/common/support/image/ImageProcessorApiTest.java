@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * ImageProcessor API 基础测试
+ * @author CH
  */
 class ImageProcessorApiTest {
 

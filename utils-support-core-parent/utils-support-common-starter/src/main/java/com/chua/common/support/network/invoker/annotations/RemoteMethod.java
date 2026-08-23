@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
  * }
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  * @see RemoteService
  * @see RemoteParameter

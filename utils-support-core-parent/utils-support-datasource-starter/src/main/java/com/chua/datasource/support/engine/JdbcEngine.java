@@ -20,6 +20,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.reflection.ReflectUtils;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.*;
@@ -85,7 +86,11 @@ public abstract class JdbcEngine extends AbstractEngine {
                 int columnCount = metaData.getColumnCount();
 
                 while (rs.next()) {
-                    T instance = ReflectUtils.instantiate(clazz);
+                    // 使用反射无参构造实例化，避免 MethodHandle 对部分类的访问限制
+                    Constructor<?> constructor = clazz.getDeclaredConstructor();
+                    constructor.setAccessible(true);
+                    @SuppressWarnings("unchecked")
+                    T instance = (T) constructor.newInstance();
                     for (int i = 1; i <= columnCount; i++) {
                         String columnName = metaData.getColumnLabel(i);
                         if (columnName == null || columnName.isEmpty()) {

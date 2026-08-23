@@ -26,6 +26,7 @@ import java.util.logging.Logger;
  * <p>子类只需声明名称、协议、软件栈、拦截方法列表与目标端点构建逻辑，
  * 公共的记录存储、依赖图同步、生命周期管理全部由基类完成。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Interceptor {

@@ -22,6 +22,7 @@ import java.nio.file.Path;
  *
  * <p>从 classpath 加载预编译的 {@code rust_smb_server} 动态库，通过 FFM API 调用 FFI 函数。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @Slf4j

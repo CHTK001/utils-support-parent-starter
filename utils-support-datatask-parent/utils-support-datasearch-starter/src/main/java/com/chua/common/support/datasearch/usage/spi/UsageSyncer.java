@@ -29,6 +29,7 @@ import java.util.Map;
  *   UsageSyncer.syncToEngine(engine, "opencode", "vscode");
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class UsageSyncer {

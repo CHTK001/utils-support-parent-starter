@@ -14,6 +14,7 @@ import java.util.List;
  * 子类只需实现具体的 JDBC 元数据读取和 DDL 生成逻辑。
  * </p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractMetaIndex implements MetaIndex {

@@ -148,10 +148,14 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
                 index = row * width + col;
 
 // 提取 ARGB 分量
-        ta = (inPixels[index] >> 24) & 0xff; // Alpha 通道
-        tr = (inPixels[index] >> 16) & 0xff; // 红色通道
-        tg = (inPixels[index] >> 8) & 0xff;  // 绿色通道
-        tb = inPixels[index] & 0xff;         // 蓝色通道
+        // Alpha 通道
+        ta = (inPixels[index] >> 24) & 0xff;
+        // 红色通道
+        tr = (inPixels[index] >> 16) & 0xff;
+        // 绿色通道
+        tg = (inPixels[index] >> 8) & 0xff;
+        // 蓝色通道
+        tb = inPixels[index] & 0xff;
 
                 // RGB 转换为 HSL 色彩空间
                 double[] hsl = rgb2Hsl(new int[]{tr, tg, tb});

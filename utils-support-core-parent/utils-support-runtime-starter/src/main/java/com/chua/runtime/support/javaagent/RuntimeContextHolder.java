@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * RuntimeContextHolder.start("my-app");
  * }</pre>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 public final class RuntimeContextHolder {

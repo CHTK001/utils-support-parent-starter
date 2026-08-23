@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  *   <li>完整格式：{@code @RequestMethod(value = "/api/users/{id}", method = "GET")} — 方法和路径分开声明</li>
  * </ul>
  *
+ * @author CH
  * @since 2026/07/18
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

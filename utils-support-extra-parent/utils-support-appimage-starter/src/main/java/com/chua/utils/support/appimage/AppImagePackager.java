@@ -2,8 +2,7 @@ package com.chua.utils.support.appimage;
 
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -22,10 +21,8 @@ import java.util.stream.Collectors;
  *
  * @author CH
  */
+@Slf4j
 public class AppImagePackager {
-
-    /** 日志记录器 */
-    private static final Logger log = LoggerFactory.getLogger(AppImagePackager.class);
 
     /** 应用配置属性 */
     private final AppImageProperties properties;
