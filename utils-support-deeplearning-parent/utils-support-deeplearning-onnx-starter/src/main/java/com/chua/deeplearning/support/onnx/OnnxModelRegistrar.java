@@ -377,6 +377,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("fire-smoke", "com.chua.deeplearning.support.onnx.yolo.FireSmokeDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/fire-smoke/yolov8n/model.onnx");
         // 安全帽检测(HudatersU Safety_helmet)：YOLOv8 640 检测，2 类 helmet/no-helmet（174MB，全图覆盖）
         reg("safety-helmet", "com.chua.deeplearning.support.onnx.yolo.SafetyHelmetDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/ppe/yolov8n/model.onnx");
+        // 反光衣检测(ReflectiveClothes)：YOLOv8n 640 检测，2 类 safe/unsafe
+        reg("reflective-clothes", "com.chua.deeplearning.support.onnx.yolo.ReflectiveClothesDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/reflective-clothes/yolov8n/model.onnx");
         // 人脸关键点(FacePlugin-Landmark)：人脸 68 关键点检测；适用人脸对齐、表情识别
         reg("faceplugin-face-landmark", "com.chua.deeplearning.support.onnx.face.FacePluginLandmarkTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "models/onnx/face/landmark/faceplugin/face_landmark.onnx");
         // 人脸特征(FacePlugin-Feature)：人脸特征向量提取，配合 FacePlugin 检测/关键点使用；适用人脸识别
