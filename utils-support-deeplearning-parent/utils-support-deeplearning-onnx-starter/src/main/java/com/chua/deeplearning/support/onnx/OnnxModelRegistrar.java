@@ -159,10 +159,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("matting-isnet", "com.chua.deeplearning.support.onnx.matting.translator.IsnetSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/isnet/isnet.onnx");
         // 动漫人像分割：F:\models/anime.onnx，176MB，1024×1024
         reg("anime-seg", "com.chua.deeplearning.support.onnx.matting.translator.IsnetSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/anime/anime.onnx");
-        // 衣物分割(U2Net Cloth)：F:\models/cloth.onnx，176MB，768×768 4通道输出（暂跳过）
-        // reg("cloth-seg", ...)
+        // 衣物分割(U2Net Cloth)：F:\models/cloth.onnx，176MB，768×768 4通道输出；适用服装换装、虚拟试衣
+        reg("cloth-seg", "com.chua.deeplearning.support.onnx.matting.translator.ClothSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/cloth/cloth.onnx");
         // 人像全身分割：F:\models/human.onnx，176MB，320×320
         reg("human-seg", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/human/human.onnx");
+        // SAM2-tiny：encoder/decoder 双文件交互式分割，需点提示；暂不注册（适合人机交互场景）
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
