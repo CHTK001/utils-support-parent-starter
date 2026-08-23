@@ -119,6 +119,20 @@ public class HttpClientFactory {
     }
 
     /**
+     * 获取响应式 HTTP 客户端实例（全局单例）。
+     *
+     * <p>底层执行器与 {@link #getClient()} 相同（按优先级自动选择），
+     * 但所有方法返回 {@link reactor.core.publisher.Mono}/{@link reactor.core.publisher.Flux}，
+     * 支持背压和响应式操作符链。</p>
+     *
+     * @return 响应式 HTTP 客户端
+     * @see ReactiveHttpClient
+     */
+    public static ReactiveHttpClient getReactiveClient() {
+        return new ReactiveHttpClient(getClient());
+    }
+
+    /**
      * 创建链式 HTTP 请求构建器。
      *
      * <p>这是<b>推荐</b>的 HTTP 请求构建方式。通过链式调用依次设置

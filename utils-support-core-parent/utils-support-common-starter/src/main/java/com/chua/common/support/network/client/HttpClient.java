@@ -1,6 +1,7 @@
 package com.chua.common.support.network.client;
 
 import com.chua.common.support.network.http.HttpMethod;
+import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -129,64 +130,46 @@ public interface HttpClient extends AutoCloseable {
     }
 
     /**
-     * 异步执行 HTTP 请求，返回 {@link CompletableFuture}。
+     * 异步执行 HTTP 请求，返回 {@link Mono}。
      *
-     * <p>发送异步 HTTP 请求，不会阻塞当前线程。返回的 {@link CompletableFuture}
-     * 在请求完成后完成，可通过 thenApply/whenComplete 等链式方法组合异步逻辑。
-     * 默认实现使用虚拟线程包装 {@link #execute(ClientRequest)} 同步调用。</p>
+     * <p>发送异步 HTTP 请求，底层通过 {@code sendAsync()}（NIO 非阻塞）实现，
+     * 不阻塞调用线程。返回的 {@link Mono} 在请求完成后发出响应，
+     * 支持背压和 Reactor 操作符链组合（map/flatMap/timeout/retryWhen 等）。</p>
+     *
+     * <p><b>与 {@link #execute} 的关系：</b>
+     * {@link #get}/{@link #post}/{@link #put}/{@link #delete} 走同步 {@link #execute()}；
+     * 异步场景统一走本方法，通过 subscribe/block 控制执行时机。</p>
      *
      * <p><b>使用示例：</b></p>
      * <pre>{@code
      * client.executeAsync(ClientRequest.of("http://api.example.com"))
-     *     .thenApply(ClientResponse::getBodyString)
-     *     .thenAccept(System.out::println)
-     *     .exceptionally(err -> { System.err.println(err.getMessage()); return null; });
+     *     .timeout(Duration.ofSeconds(5))
+     *     .doOnNext(resp -> System.out.println(resp.getBodyString()))
+     *     .subscribe();
+     *
+     * // 或直接阻塞等待
+     * ClientResponse resp = client.executeAsync(request).block();
      * }</pre>
      *
      * @param request 封装好的请求对象
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * @return 响应 Mono，完成时包含 {@link ClientResponse}
      */
-    default CompletableFuture<ClientResponse> executeAsync(ClientRequest request) {
-        return CompletableFuture.supplyAsync(() -> execute(request));
-    }
+    Mono<ClientResponse> executeAsync(ClientRequest request);
 
     /**
      * 异步执行 HTTP 请求，通过回调通知结果。
      *
-     * <p>以回调风格发送异步 HTTP 请求，无需手动管理 {@link CompletableFuture}。
-     * 成功时调用 {@link Callback#onSuccess(Object)}，失败时调用
-     * {@link Callback#onError(Throwable)}。</p>
-     *
-     * <p><b>使用示例：</b></p>
-     * <pre>{@code
-     * client.executeAsync(ClientRequest.of("http://api.example.com"), new Callback<>() {
-     *     public void onSuccess(ClientResponse resp) {
-     *         System.out.println(resp.getBodyString());
-     *     }
-     *     public void onError(Throwable err) {
-     *         System.err.println(err.getMessage());
-     *     }
-     * });
-     *
-     * // Lambda 简化写法
-     * client.executeAsync(request,
-     *     resp -> System.out.println(resp.getBodyString()),
-     *     err  -> System.err.println(err.getMessage())
-     * );
-     * }</pre>
+     * <p>内部委托给 {@link #executeAsync(ClientRequest)}，以回调风格包装 Mono 结果。</p>
      *
      * @param request  封装好的请求对象
      * @param callback 异步回调，成功时回调 {@link Callback#onSuccess(Object)}，
      *                 失败时回调 {@link Callback#onError(Throwable)}
      */
     default void executeAsync(ClientRequest request, Callback<ClientResponse> callback) {
-        executeAsync(request).whenComplete((resp, err) -> {
-            if (err != null) {
-                callback.onError(err);
-            } else {
-                callback.onSuccess(resp);
-            }
-        });
+        executeAsync(request).subscribe(
+                callback::onSuccess,
+                callback::onError
+        );
     }
 
     /**

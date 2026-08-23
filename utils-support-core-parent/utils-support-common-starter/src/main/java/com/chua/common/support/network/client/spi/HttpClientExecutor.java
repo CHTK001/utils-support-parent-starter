@@ -3,9 +3,9 @@ package com.chua.common.support.network.client.spi;
 import com.chua.common.support.network.client.ClientRequest;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.http.HttpVersion;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * HTTP 客户端执行器 SPI（Service Provider Interface），封装不同 HTTP 库的实现差异。
@@ -90,27 +90,26 @@ public interface HttpClientExecutor {
     boolean isAvailable();
 
     /**
-     * 异步执行 HTTP 请求。
+     * 异步执行 HTTP 请求，返回 {@link Mono}。
      *
-     * <p>使用虚拟线程包装同步请求的默认实现。子类应覆写此方法以提供真正的异步执行能力，
-     * 例如 {@link com.chua.common.support.network.client.JdkHttpClientExecutor} 使用
-     * JDK HttpClient 的 {@code sendAsync()} 方法实现原生异步。</p>
+     * <p>子类应覆写此方法以提供真正的 NIO 非阻塞异步执行能力，
+     * 例如 {@link com.chua.common.support.network.client.JdkHttpClientExecutor}
+     * 使用 JDK {@code sendAsync()} 直接返回 {@code Mono}，零线程切换。</p>
      *
-     * <p><b>默认实现：</b></p>
-     * <p>在虚拟线程中调用 {@link #execute(ClientRequest)} 并返回 {@link CompletableFuture}。
-     * 虚拟线程是 Java 21+ 的轻量级线程，由 JVM 管理，适合大量并发 I/O 场景。</p>
+     * <p><b>默认实现：</b>将同步 {@link #execute} 包装为 {@code Mono.justOrEmpty()}，
+     * 在 Reactor 的 {@code boundedElastic} 线程上执行。</p>
      *
      * @param request 封装好的请求对象
-     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
+     * @return 响应 Mono，完成时包含 {@link ClientResponse}
      */
-    default CompletableFuture<ClientResponse> executeAsync(ClientRequest request) {
-        return CompletableFuture.supplyAsync(() -> {
+    default Mono<ClientResponse> executeAsync(ClientRequest request) {
+        return Mono.fromFuture(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
                 return execute(request);
             } catch (Exception e) {
                 throw new RuntimeException("HTTP async request failed: " + request.getUrl(), e);
             }
-        });
+        }));
     }
 
     /**

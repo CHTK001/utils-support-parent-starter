@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import reactor.core.publisher.Mono;
+
 /**
  * JDK 内置 {@link java.net.http.HttpClient} 的执行器实现。
  *
@@ -227,75 +229,50 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
      * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
      */
     @Override
-    public CompletableFuture<ClientResponse> executeAsync(ClientRequest request) {
+    public Mono<ClientResponse> executeAsync(ClientRequest request) {
         try {
-            // 构建 JDK HttpRequest（复用同步方法的构建逻辑）
             HttpRequest.Builder builder = HttpRequest.newBuilder()
                     .uri(URI.create(request.getUrl()))
                     .timeout(Duration.ofMillis(request.getReadTimeout()));
 
-            // 设置请求头
             if (request.getHeaders() != null) {
                 for (Map.Entry<String, String> entry : request.getHeaders().toMap().entrySet()) {
                     builder.header(entry.getKey(), entry.getValue());
                 }
             }
 
-            // 根据 HTTP 方法设置请求体和内容发布器
             switch (request.getMethod()) {
-                case GET:
-                    builder.GET();
-                    break;
-                case DELETE:
-                    builder.DELETE();
-                    break;
-                case POST:
-                    builder.POST(bodyPublisher(request));
-                    break;
-                case PUT:
-                    builder.PUT(bodyPublisher(request));
-                    break;
-                case PATCH:
-                    builder.method("PATCH", bodyPublisher(request));
-                    break;
-                case HEAD:
-                    builder.method("HEAD", HttpRequest.BodyPublishers.noBody());
-                    break;
-                case OPTIONS:
-                    builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody());
-                    break;
+                case GET:      builder.GET(); break;
+                case DELETE:   builder.DELETE(); break;
+                case POST:     builder.POST(bodyPublisher(request)); break;
+                case PUT:      builder.PUT(bodyPublisher(request)); break;
+                case PATCH:    builder.method("PATCH", bodyPublisher(request)); break;
+                case HEAD:     builder.method("HEAD", HttpRequest.BodyPublishers.noBody()); break;
+                case OPTIONS:  builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody()); break;
                 default:
                     throw new UnsupportedOperationException("Unsupported method: " + request.getMethod());
             }
 
-            // 根据代理和重定向配置选择合适的客户端实例
             HttpClient targetClient = resolveHttpClient(request);
-
-            // 异步发送请求并处理重定向回调
             CompletableFuture<HttpResponse<byte[]>> future = targetClient
                     .sendAsync(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
-
-            return future.thenApply(response -> {
-                // 封装响应
+            return Mono.fromFuture(future).map(response -> {
                 ClientResponse cr = new ClientResponse();
                 cr.setStatusCode(response.statusCode());
                 cr.setBody(response.body());
                 HttpHeader header = HttpHeader.create();
                 response.headers().map().forEach((k, v) -> header.add(k, String.join(", ", v)));
                 cr.setHeaders(header);
-
-                // 当不自动跟随重定向且有自定义重定向处理器时，触发处理器
                 if (!request.isFollowRedirects()) {
                     Consumer<ClientResponse> handler = request.getRedirectHandler();
                     if (handler != null && isRedirect(response.statusCode())) {
                         handler.accept(cr);
                     }
                 }
-
                 return cr;
-            });
+            }).onErrorMap(e -> new RuntimeException("HTTP async request failed: " + request.getUrl(), e));
         } catch (Exception e) {
-            return CompletableFuture.failedFuture(e);
+            return Mono.error(new RuntimeException("HTTP async request failed: " + request.getUrl(), e));
         }
     }
 
