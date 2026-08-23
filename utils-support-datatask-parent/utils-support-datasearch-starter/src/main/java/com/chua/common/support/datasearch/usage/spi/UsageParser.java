@@ -10,12 +10,6 @@ import java.util.List;
  * <p>各工具（OpenCode、Cursor、VSCode 等）在本地存储了各自的用量信息，
  * UsageParser 负责从这些本地文件/配置中解析出标准化的 {@link AiUsage}。</p>
  *
- * <p>与 {@link UsageProvider} 的区别：
- * <ul>
- *   <li>UsageProvider：聚合 ChatClient 调用，异步实时存储用量和统计</li>
- *   <li>UsageParser：解析外部工具本地数据，纯只读</li>
- * </ul>
- *
  * @author CH
  * @since 4.0.0.42
  */

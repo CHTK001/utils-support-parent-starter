@@ -613,9 +613,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         ensureLoaded();
         int size = dataStore.size();
         T[] arr = a.length >= size ? a : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
-        for (int i = 0; i < size; i++) arr[i] = (T) {
-            dataStore.get(i);
-        }
+        for (int i = 0; i < size; i++) arr[i] = (T) dataStore.get(i);
         if (arr.length > size) {
             arr[size] = null;
         }
@@ -672,9 +670,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
             int remaining = maxCapacity - dataStore.size();
             if (remaining <= 0) { log.warn("addAll 超过最大容量 {}，已拒绝", maxCapacity); return false; }
             int toAdd = Math.min(c.size(), remaining);
-            if (toAdd < c.size()) log.warn("addAll 部分截断：请求 {}，允许 {}", c.size() {
-                , toAdd);
-            }
+            if (toAdd < c.size()) log.warn("addAll 部分截断：请求 {}，允许 {}", c.size(), toAdd)
             int count = 0;
             for (E e : c) { if (count >= toAdd) break; dataStore.append(e); count++; }
             return count > 0;
@@ -744,9 +740,7 @@ public class LazyExpiringList<E extends Serializable> implements List<E>, AutoCl
         if (fromIndex < 0 || toIndex > size || fromIndex > toIndex)
             throw new IndexOutOfBoundsException("fromIndex=" + fromIndex + ", toIndex=" + toIndex + ", size=" + size);
         List<E> result = new ArrayList<>(toIndex - fromIndex);
-        for (int i = fromIndex; i < toIndex; i++) result.add(dataStore.get(i) {
-            );
-        }
+        for (int i = fromIndex; i < toIndex; i++) result.add(dataStore.get(i));
         return result;
     }
 

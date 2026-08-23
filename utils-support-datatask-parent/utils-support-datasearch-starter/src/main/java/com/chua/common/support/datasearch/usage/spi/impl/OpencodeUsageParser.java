@@ -9,9 +9,14 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * OpenCode 用量解析器 — 从 Electron 桌面端日志解析
+ * OpenCode 用量解析器 — 从本地存储目录解析
  *
- * <p>数据源: %APPDATA%/ai.opencode.desktop/logs/</p>
+ * <p>数据源: %USERPROFILE%\.local\share\opencode\
+ * <ul>
+ *   <li>项目位于 Git 仓库时: &lt;project-slug&gt;/storage/</li>
+ *   <li>非 Git 仓库: global/storage/</li>
+ * </ul>
+ * </p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,9 +24,9 @@ import java.util.List;
 @Spi("opencode")
 public class OpencodeUsageParser extends BaseUsageParser {
 
-    /** Logs_dir */
-    private static final Path LOGS_DIR = Path.of(
-            System.getProperty("user.home"), "AppData", "Roaming", "ai.opencode.desktop", "logs");
+    /** Data_dir */
+    private static final Path DATA_DIR = Path.of(
+            System.getProperty("user.home"), ".local", "share", "opencode");
 
     @Override
     /** Name */
@@ -32,12 +37,12 @@ public class OpencodeUsageParser extends BaseUsageParser {
     @Override
     /** 解析All */
     public List<AiUsage> parseAll() {
-        if (!Files.isDirectory(LOGS_DIR)) {
-            log.debug("[opencode] 日志目录不存在: {}", LOGS_DIR);
+        if (!Files.isDirectory(DATA_DIR)) {
+            log.debug("[opencode] 数据目录不存在: {}", DATA_DIR);
             return List.of();
         }
-        // TODO: 解析 Electron leveldb / 日志中的 token 用量
-        log.debug("[opencode] 日志目录存在，待实现解析逻辑");
+        // TODO: 解析 project/<slug>/storage/ 或 global/storage/ 中的会话数据
+        log.debug("[opencode] 数据目录存在，待实现解析逻辑");
         return List.of();
     }
 }

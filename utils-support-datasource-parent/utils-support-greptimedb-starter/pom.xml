@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-datasource-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-greptimedb-starter</artifactId>
+    <name>GreptimeDB Starter</name>
+    <description>GreptimeDB 时序数据库 Ingester 集成模块，基于 gRPC SDK 提供 Engine 引擎与高性能写入能力</description>
+
+    <properties>
+        <!--
+            GreptimeDB 的 Bulk 写入依赖 Apache Arrow（arrow-memory-netty 14.0.2），
+            而 Arrow 14 需要 Netty 4.1.x 运行期（PoolArena.chunkSize 字段在 Netty 4.2 中被移除）。
+            本模块覆盖项目统一管理的 netty.version（4.2.15.Final），固定为 4.1.x 以兼容 Arrow/Bulk 写入。
+        -->
+        <netty.version>4.1.115.Final</netty.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.greptime</groupId>
+            <artifactId>ingester-all</artifactId>
+            <version>0.15.0</version>
+        </dependency>
+
+        <!--
+            固定 protobuf-java 版本。
+            GreptimeDB proto (greptimedb-proto 0.9.0) 由 protoc 旧版生成，依赖 protobuf 3.x 运行期；
+            若运行时 classpath 上存在 protobuf 4.x，会抛出 'NoSuchMethodError: makeExtensionsImmutable()'。
+            因此在本模块内显式固定为 3.21.12（覆盖 common-starter 传递性引入的 4.31.1）。
+        -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.21.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

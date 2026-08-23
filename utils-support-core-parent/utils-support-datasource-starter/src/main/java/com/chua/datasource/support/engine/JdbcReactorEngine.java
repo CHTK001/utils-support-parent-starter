@@ -86,6 +86,10 @@ public class JdbcReactorEngine implements ReactorEngine {
     private static final Pattern JDBC_PREFIX_PATTERN = Pattern.compile("^jdbc:");
     /** r2dbc-mssql 的 SimpleMssqlStatement 不支持参数绑定，SQL Server 统一走 JDBC 路径 */
     private static final String JDBC_PREFIX_SQLSERVER = "jdbc:sqlserver:";
+    /** asyncer r2dbc-mysql 批量操作存在 bug，MySQL 也走 JDBC 路径 */
+    private static final String JDBC_PREFIX_MYSQL = "jdbc:mysql:";
+    /** MariaDB 无可用 R2DBC 驱动，统一走 JDBC 路径 */
+    private static final String JDBC_PREFIX_MARIADB = "jdbc:mariadb:";
 
     /** 默认数据源名称，首次 addDataSource 时自动设置 */
     private String defaultDataSourceName;
@@ -134,6 +138,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         /* 检测是否为 R2DBC URL */
         if (jdbcUrl.startsWith(R2DBC_PREFIX)) {
             r2dbcFactories.put(name, buildConnectionFactory(jdbcUrl, username, password));
+        } else if (jdbcUrl.startsWith(JDBC_PREFIX_MARIADB)) {
+            /* MariaDB 无可用 R2DBC 驱动，仅创建 JDBC DataSource */
+            jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
+            jdbcUrls.put(name, jdbcUrl);
         } else {
             /* JDBC URL → R2DBC URL 转换 */
             String r2dbcUrl = convertJdbcToR2dbc(jdbcUrl);
@@ -480,6 +488,12 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
         }
+        if (needsJdbcPath(defaultDataSourceName)) {
+            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
+            if (ds != null) {
+                return queryViaJdbc(ds, sql, params);
+            }
+        }
         return queryViaR2dbc(defaultDataSourceName, sql, params);
     }
 
@@ -490,6 +504,12 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         if (defaultDataSourceName == null) {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
+        }
+        if (needsJdbcPath(defaultDataSourceName)) {
+            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
+            if (ds != null) {
+                return queryTypedViaJdbc(ds, sql, rowType, params);
+            }
         }
         return queryTypedViaR2dbc(defaultDataSourceName, sql, rowType, params);
     }
@@ -502,6 +522,12 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Mono.error(new IllegalStateException("未配置数据源，无法执行语句"));
         }
+        if (needsJdbcPath(defaultDataSourceName)) {
+            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
+            if (ds != null) {
+                return executeViaJdbc(ds, sql, params);
+            }
+        }
         return executeViaR2dbc(defaultDataSourceName, sql, params);
     }
 
@@ -513,10 +539,26 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             throw new IllegalStateException("未配置数据源，无法执行批次");
         }
+        if (needsJdbcPath(defaultDataSourceName)) {
+            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
+            if (ds != null) {
+                return batchViaJdbc(ds, sql, batchParams);
+            }
+        }
         return batchViaR2dbc(defaultDataSourceName, sql, batchParams);
     }
 
     /* ==================== R2DBC 执行路径（单数据源） ==================== */
+
+    /**
+     * 判断数据源是否需要走 JDBC 路径（无可用 R2DBC 驱动或驱动有已知 bug）。
+     */
+    private boolean needsJdbcPath(String name) {
+        String url = jdbcUrls.get(name);
+        return url != null && (url.startsWith(JDBC_PREFIX_SQLSERVER)
+                || url.startsWith(JDBC_PREFIX_MYSQL)
+                || url.startsWith(JDBC_PREFIX_MARIADB));
+    }
 
     private Flux<Map<String, Object>> queryViaR2dbc(String name, String sql, Object... params) {
         ConnectionFactory factory = r2dbcFactories.get(name);
@@ -549,8 +591,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        /* DDL（CREATE/DROP/ALTER）或 SQL Server（r2dbc-mssql 有已知 bug）：若配置了 JDBC 数据源则走 JDBC 路径 */
-        if (isDdl(sql) || jdbcUrls.get(name) != null && jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)) {
+        /* DDL（CREATE/DROP/ALTER）或 SQL Server/MariaDB（无可用 R2DBC 驱动）：若配置了 JDBC 数据源则走 JDBC 路径 */
+        if (isDdl(sql) || jdbcUrls.get(name) != null && (jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)
+                || jdbcUrls.get(name).startsWith(JDBC_PREFIX_MARIADB))) {
             DataSource ds = jdbcDataSources.get(name);
             if (ds != null) {
                 return executeViaJdbc(ds, sql, params);
@@ -630,8 +673,12 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (batchParams == null || batchParams.isEmpty()) {
             return Flux.empty();
         }
-        /* SQL Server 统一走 JDBC 路径（r2dbc-mssql 有已知 bug） */
-        if (jdbcUrls.get(name) != null && jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)) {
+        /* SQL Server/MySQL/MariaDB 走 JDBC 路径：r2dbc-mssql 不支持参数绑定；asyncer r2dbc-mysql 的
+         * 批量操作存在 ClassCastException 且部分执行后回滚不彻底，会导致降级到 JDBC 时主键冲突；
+         * MariaDB 无可用 R2DBC 驱动 */
+        if (jdbcUrls.get(name) != null && (jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)
+                || jdbcUrls.get(name).startsWith(JDBC_PREFIX_MYSQL)
+                || jdbcUrls.get(name).startsWith(JDBC_PREFIX_MARIADB))) {
             DataSource ds = jdbcDataSources.get(name);
             if (ds != null) {
                 return batchViaJdbc(ds, sql, batchParams);
@@ -652,17 +699,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                         .collectList()
                         .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
                 conn -> Mono.empty()))
-                .onErrorResume(ClassCastException.class, e -> {
-                    /* MySQL 驱动批量操作 ClassCastException，降级到 JDBC 路径 */
-                    DataSource ds = jdbcDataSources.get(name);
-                    if (ds != null) {
-                        return batchViaJdbc(ds, sql, batchParams);
-                    }
-                    return Flux.error(e);
-                })
-                .onErrorResume(UnsupportedOperationException.class, e -> {
-                    /* SQL Server r2dbc-mssql 不支持参数绑定，降级到 JDBC */
-                    logger.warn("batchViaR2dbc falling back to JDBC due to: {}", e.getMessage());
+                .onErrorResume(e -> e instanceof ClassCastException || e instanceof UnsupportedOperationException
+                        || e instanceof IndexOutOfBoundsException || e instanceof java.sql.BatchUpdateException, e -> {
+                    /* MySQL/PostgreSQL 驱动异常，降级到 JDBC 路径 */
                     DataSource ds = jdbcDataSources.get(name);
                     if (ds != null) {
                         return batchViaJdbc(ds, sql, batchParams);
@@ -742,7 +781,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             return Flux.empty();
         }
         return Mono.fromCallable(() -> {
-            List<Integer> results = new ArrayList<>();
+            int total = 0;
             try (java.sql.Connection conn = ds.getConnection();
                  java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
                 for (Object[] params : batchParams) {
@@ -752,16 +791,14 @@ public class JdbcReactorEngine implements ReactorEngine {
                     ps.addBatch();
                 }
                 int[] updates = ps.executeBatch();
-                System.out.println("[DEBUG] batchViaJdbc: sql=" + sql + " batches=" + batchParams.size() + " updates=" + java.util.Arrays.toString(updates));
                 for (int update : updates) {
-                    results.add(update);
+                    total += update;
                 }
             } catch (Exception e) {
-                System.err.println("[DEBUG] batchViaJdbc FAILED: " + e.getMessage());
-                e.printStackTrace();
+                logger.warn("batchViaJdbc failed: {}", e.getMessage());
             }
-            return results;
-        }).flatMapMany(Flux::fromIterable);
+            return total;
+        }).flatMapMany(total -> Flux.just(total));
     }
 
     /* ==================== 静态辅助方法 ==================== */

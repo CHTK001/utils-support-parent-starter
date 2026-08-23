@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -25,6 +25,27 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>audio/**</exclude>
+                <exclude>nlp/**</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -195,12 +216,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-paddleocrv6-medium</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-whisper</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -460,19 +475,26 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-            <dependency>
+        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-visdrone</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-            <dependency>
+        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-yoloworld-s</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
-</project>
-
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-whisper</artifactId>
+            <version>4.0.0.42</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-moonshine</artifactId>
+            <version>4.0.0.42</version>
+        </dependency>
 

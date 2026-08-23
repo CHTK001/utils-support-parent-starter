@@ -1052,20 +1052,6 @@ a { color: var(--accent); }
 <td><strong>⭐推荐（本地文件·最高精度）</strong> SCRFD 高精度人脸检测（G:\work\models\face\detection\scrfd\2.5g_bnkps.onnx）。<strong>实测</strong>：三个人.jpg 检测 3 张（conf 0.83/0.77/0.74）、黑白人物.jpg 1 张、很多人小脸.jpg 人群图 195 张（含大量 31~73px 小脸，小目标最全）</td>
 </tr>
 <tr>
-<td>ultra-face</td>
-<td>自动下载</td>
-<td>~5MB</td>
-<td>⏳ 下载受限</td>
-<td>超轻量人脸检测（证书失败）</td>
-</tr>
-<tr>
-<td>yolo-face-detector</td>
-<td>自动下载</td>
-<td>~6MB</td>
-<td>⏳ 下载受限</td>
-<td>YOLOv11n 人脸检测（证书失败）</td>
-</tr>
-<tr>
 <td>faceplugin-face-detect-slim</td>
 <td>嵌入式</td>
 <td>1.13MB</td>
@@ -1100,14 +1086,14 @@ a { color: var(--accent); }
 <td>11.5MB</td>
 <td>~374ms</td>
 <td>✅ 通过</td>
-<td>动漫人脸检测（YOLOv8 v1.4_n，deepghs/anime_face_detection，内嵌 jar <code>utils-support-models-onnx-anime-face</code>）。<strong>实测</strong>：动漫图检测 12 张人脸（conf 0.30~0.72）。重写为纯 Java 预处理（onnxruntime 不支持 NDArray letterbox/resize/NMS）</td>
+<td>动漫人脸检测（YOLOv8 v1.4_n，deepghs/anime_face_detection，内嵌 jar <code>utils-support-models-onnx-anime-face</code>）。<strong>实测（4 图含 webp）</strong>：anime.jpg 33 张 / anime.webp 27 张 / anime_face1.png 39 张 / anime_face2.png 41 张（conf 0.30~0.72，耗时 568~5653ms）。<strong>运行时修复</strong>：<code>ModelRegistry.newTranslatorInstance</code> 在 JDK25 上 <code>ReflectUtils.instantiate</code>（MethodHandle）静默返回 null 导致 translator=null NPE，改标准反射 <code>getDeclaredConstructor().newInstance()</code>；<code>DjlModelTranslator.translate</code> 图像分支改用 <code>ImageIO.read</code> 解码（原 <code>ImageUtils.toBufferedImage</code> 经 OpenCV 返回 null）。重写为纯 Java 预处理（onnxruntime 不支持 NDArray letterbox/resize/NMS）</td>
 </tr>
 <tr>
 <td>anime-face-yolov8</td>
 <td>自动下载</td>
 <td>~6MB</td>
 <td>⏳ 下载受限</td>
-<td>YOLOv8 动漫人脸检测（证书失败）</td>
+<td>YOLOv8 动漫人脸检测（Fuyucchi/yolov8_animeface）。<strong>实测</strong>：环境无外网，hf 证书失败(PKIX) + hf-mirror 超时，自动下载失败，无法实测（维持下载受限）</td>
 </tr>
 </tbody>
 </table>
