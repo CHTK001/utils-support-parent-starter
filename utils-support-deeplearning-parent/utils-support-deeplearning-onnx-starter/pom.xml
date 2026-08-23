@@ -318,12 +318,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-randeng-t5-77m</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- 注：utils-support-models-onnx-randeng-t5-77m 构件从未部署到任何可达仓库且全仓零代码引用，已移除该死依赖 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-insightface-landmark</artifactId>
