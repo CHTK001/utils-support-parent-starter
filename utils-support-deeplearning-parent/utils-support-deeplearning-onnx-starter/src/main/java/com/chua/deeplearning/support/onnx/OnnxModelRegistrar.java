@@ -151,18 +151,18 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("rmbg20", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-2.0/onnx/model.onnx", "https://huggingface.co/briaai/RMBG-2.0/resolve/main/onnx/model.onnx", false, null);
         // 抠图(RMBG-1.4)：BRIA 背景移除 v1.4，42MB 嵌入式，效果接近 2.0；适用离线抠图、嵌入式设备
         reg("rmbg14", "com.chua.deeplearning.support.onnx.matting.translator.Rmbg20Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/RMBG-1.4/onnx/model_quantized.onnx");
-        // 抠图(U2Net 嵌入)：F:\models/u2net.onnx，通用前景抠图；MattingTranslator 复用
-        reg("matting-u2net", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/u2net/u2net.onnx");
-        // 抠图(U2Netp 轻量嵌入)：F:\models/u2netp.onnx，4.5MB
-        reg("matting-u2netp", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/u2netp/u2netp.onnx");
-        // 抠图(ISNet 通用)：F:\models/isnet-general-use.onnx，178MB 高精度
-        reg("matting-isnet", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/isnet/isnet.onnx");
-        // 动漫人像分割：F:\models/anime.onnx，176MB
-        reg("anime-seg", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/anime/anime.onnx");
-        // 衣物分割(U2Net Cloth)：F:\models/cloth.onnx，176MB
-        reg("cloth-seg", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/cloth/cloth.onnx");
-        // 人像全身分割：F:\models/human.onnx，176MB
-        reg("human-seg", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/human/human.onnx");
+        // 抠图(U2Net 嵌入)：F:\models/u2net.onnx，通用前景抠图；320×320
+        reg("matting-u2net", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/u2net/u2net.onnx");
+        // 抠图(U2Netp 轻量嵌入)：F:\models/u2netp.onnx，4.5MB，320×320
+        reg("matting-u2netp", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/u2netp/u2netp.onnx");
+        // 抠图(ISNet 通用)：F:\models/isnet-general-use.onnx，178MB，1024×1024
+        reg("matting-isnet", "com.chua.deeplearning.support.onnx.matting.translator.IsnetSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/isnet/isnet.onnx");
+        // 动漫人像分割：F:\models/anime.onnx，176MB，1024×1024
+        reg("anime-seg", "com.chua.deeplearning.support.onnx.matting.translator.IsnetSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/anime/anime.onnx");
+        // 衣物分割(U2Net Cloth)：F:\models/cloth.onnx，176MB，768×768 4通道输出（暂跳过）
+        // reg("cloth-seg", ...)
+        // 人像全身分割：F:\models/human.onnx，176MB，320×320
+        reg("human-seg", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/human/human.onnx");
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
