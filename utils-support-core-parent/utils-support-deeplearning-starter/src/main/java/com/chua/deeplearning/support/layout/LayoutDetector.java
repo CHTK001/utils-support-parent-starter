@@ -247,12 +247,21 @@ class DefaultLayoutDetector implements LayoutDetector {
     @SuppressWarnings("unchecked")
     /** Detect */
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
-        ITranslator<byte[], Map<String, List<PredictRectangle>>> t =
-                (ITranslator<byte[], Map<String, List<PredictRectangle>>>) engine.get(modelName, ITranslator.class);
+        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
-        return t.translate(imageData);
+        Object result = t.translate(imageData);
+        if (result instanceof Map<?, ?> map) {
+            return (Map<String, List<PredictRectangle>>) map;
+        }
+        if (result instanceof List<?> list) {
+            // DetectedObjects → List<PredictRectangle> 适配为 Map<"layout", list>
+            Map<String, List<PredictRectangle>> grouped = new java.util.LinkedHashMap<>();
+            grouped.put("layout", (List<PredictRectangle>) list);
+            return grouped;
+        }
+        throw new IllegalStateException("模型输出不是检测结果: " + modelName + " -> " + result.getClass());
     }
 
     @Override
@@ -268,7 +277,16 @@ class DefaultLayoutDetector implements LayoutDetector {
             return txt;  // 端到端解析器（OvisOCR2）直接返回 Markdown
         }
         // 传统检测框模型 → 按区域类型名拼接
-        Map<String, List<PredictRectangle>> regions = (Map<String, List<PredictRectangle>>) result;
+        Map<String, List<PredictRectangle>> regions;
+        if (result instanceof Map<?, ?> map) {
+            regions = (Map<String, List<PredictRectangle>>) map;
+        } else if (result instanceof List<?> list) {
+            Map<String, List<PredictRectangle>> grouped = new java.util.LinkedHashMap<>();
+            grouped.put("layout", (List<PredictRectangle>) list);
+            regions = grouped;
+        } else {
+            throw new IllegalStateException("模型输出不是检测结果: " + modelName + " -> " + result.getClass());
+        }
         StringBuilder sb = new StringBuilder();
         for (var entry : regions.entrySet()) {
             for (var rect : entry.getValue()) {
