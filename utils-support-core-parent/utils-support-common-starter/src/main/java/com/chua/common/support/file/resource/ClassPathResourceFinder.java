@@ -1,8 +1,7 @@
 package com.chua.common.support.file.resource;
 
 import com.chua.common.support.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,10 +39,9 @@ import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX
  * @author CH
  * @since 1.0.0
  */
+@Slf4j
 public class ClassPathResourceFinder extends AbstractResourceFinder {
 
-    /** 日志对象 */
-    private static final Logger log = LoggerFactory.getLogger(ClassPathResourceFinder.class);
 
     /**
      * 文件树遍历默认最大深度。

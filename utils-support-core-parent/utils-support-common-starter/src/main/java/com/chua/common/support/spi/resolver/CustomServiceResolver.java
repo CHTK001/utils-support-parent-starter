@@ -3,8 +3,7 @@ package com.chua.common.support.spi.resolver;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,10 +32,9 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 2024-01-03
  */
+@Slf4j
 public class CustomServiceResolver implements ServiceResolver {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(CustomServiceResolver.class);
 
     /**
      * SPI 配置文件在 classpath 中的路径

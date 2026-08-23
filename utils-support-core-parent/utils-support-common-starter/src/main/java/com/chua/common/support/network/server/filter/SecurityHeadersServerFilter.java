@@ -4,16 +4,21 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
+import java.util.concurrent.CompletionStage;
+
 /**
  * 安全响应头过滤器。
  *
  * <p>为所有响应统一附加浏览器安全头,防 MIME 嗅探、点击劫持与
  * Referrer 泄漏;HSTS 头仅对 TLS 部署有意义,通过构造参数控制是否附加。</p>
  *
+ * <p>同时实现同步({@link ServerFilter})与响应式({@link ReactiveServerFilter})
+ * 两种链接口:阻塞传输走同步链,NIO/AIO 响应式传输走响应式链。</p>
+ *
  * @author CH
  * @since 2026/08/24
  */
-public class SecurityHeadersServerFilter implements ServerFilter {
+public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
      * 防 MIME 嗅探
@@ -81,6 +86,12 @@ public class SecurityHeadersServerFilter implements ServerFilter {
     }
 
     @Override
+    /** SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突) */
+    public String supportPath() {
+        return null;
+    }
+
+    @Override
     /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
@@ -96,13 +107,36 @@ public class SecurityHeadersServerFilter implements ServerFilter {
      */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
+        applyHeaders(response);
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    /**
+     * 响应式Do过滤
+     *
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
+    public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
+                                          ReactiveFilterChain chain) {
         // 先置响应头再放行:后续 handler 仍可覆盖同名头
+        applyHeaders(response);
+        return chain.doFilter(request, response);
+    }
+
+    /**
+     * 向响应附加安全头集合。
+     *
+     * @param response 响应对象
+     */
+    private void applyHeaders(ServerResponse response) {
         response.setHeader(HEADER_NOSNIFF, VALUE_NOSNIFF);
         response.setHeader(HEADER_FRAME_OPTIONS, VALUE_FRAME_DENY);
         response.setHeader(HEADER_REFERRER_POLICY, VALUE_REFERRER);
         if (hstsEnabled) {
             response.setHeader(HEADER_HSTS, VALUE_HSTS);
         }
-        chain.doFilter(request, response);
     }
 }

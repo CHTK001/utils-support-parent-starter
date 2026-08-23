@@ -5,8 +5,7 @@ import com.chua.common.support.spi.annotations.ConditionalOnMissingClass;
 import com.chua.common.support.spi.annotations.ConditionalOnProperty;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,10 +36,9 @@ import javax.annotation.Nullable;
  * @see ConditionalOnClass
  * @see ConditionalOnMissingClass
  */
+@Slf4j
 public class ConditionEvaluator {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(ConditionEvaluator.class);
 
     /** 创建 ConditionEvaluator 实例 */
     public ConditionEvaluator() {

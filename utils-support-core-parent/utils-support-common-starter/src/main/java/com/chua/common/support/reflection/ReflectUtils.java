@@ -1,7 +1,6 @@
 package com.chua.common.support.reflection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Proxy;
@@ -29,10 +28,9 @@ import java.util.function.Function;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class ReflectUtils {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(ReflectUtils.class);
 
     // ==================== 缓存 ====================
 

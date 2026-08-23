@@ -9,8 +9,7 @@ import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * RPC 请求/响应编解码适配器。
@@ -32,12 +31,12 @@ import org.slf4j.LoggerFactory;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class RpcSerialization {
 
     /**
      * 日志
      */
-    private static final Logger log = LoggerFactory.getLogger(RpcSerialization.class);
 
     /**
      * 支持的序列化名称（映射到实现类全限定名）

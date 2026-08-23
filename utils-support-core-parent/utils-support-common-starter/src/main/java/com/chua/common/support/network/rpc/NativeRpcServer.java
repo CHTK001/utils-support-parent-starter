@@ -9,8 +9,7 @@ import com.chua.common.support.network.tcp.TcpServer;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,13 +32,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 1.0.0
  */
+@Slf4j
 @Spi("native")
 public class NativeRpcServer implements RpcServer {
 
     /**
      * 日志
      */
-    private static final Logger log = LoggerFactory.getLogger(NativeRpcServer.class);
 
     /**
      * 默认端口

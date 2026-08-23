@@ -48,6 +48,12 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
     }
 
     @Override
+    /** SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突) */
+    public String supportPath() {
+        return null;
+    }
+
+    @Override
     /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];

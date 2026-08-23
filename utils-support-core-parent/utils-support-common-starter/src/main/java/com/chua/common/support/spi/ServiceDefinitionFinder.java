@@ -9,8 +9,7 @@ import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.spi.resolver.ServiceResolver;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.function.NameAware;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,10 +34,9 @@ import javax.annotation.Nullable;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class ServiceDefinitionFinder {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(ServiceDefinitionFinder.class);
 
     /**
      * 默认空服务定义

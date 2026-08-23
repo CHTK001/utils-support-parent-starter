@@ -11,6 +11,7 @@ import com.chua.common.support.reflection.ReflectUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.io.*;
@@ -41,11 +42,9 @@ import static com.chua.common.support.converter.Converter.convertIfPrimitive;
  *
  * @author CH
  */
+@Slf4j
 @SuppressWarnings("ALL")
 public class ClassUtils {
-
-    /** 日志 */
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClassUtils.class);
 
     /**
      *       .

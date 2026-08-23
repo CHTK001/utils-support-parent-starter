@@ -5,8 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -32,10 +31,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author CH
  * @since 4.0.0.42
  */@Spi("udp-broadcast")
+@Slf4j
 public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery implements Runnable {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(UdpBroadcastServiceDiscovery.class);
 
     /**
      * 默认监听端口

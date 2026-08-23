@@ -1,8 +1,7 @@
 package com.chua.common.support.lang.placeholder;
 
 import com.chua.common.support.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,12 +16,11 @@ import java.util.Set;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class StringValuePropertyResolver implements PropertyResolver {
 
     /** Placeholdersupport */
     private final PlaceholderSupport placeholderSupport;
-    /** Logger */
-    private static final Logger LOGGER = LoggerFactory.getLogger(StringValuePropertyResolver.class);
 
     /**
      * 定义右括号到左括号的映射关系，用于处理简单的嵌套前缀匹配
@@ -128,8 +126,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     // 替换原始字符串中的占位符部分为解析后的值
                     result.replace(startIndex, endIndex + placeholderSupport.getPlaceholderSuffix().length(), StringUtils.defaultString(propVal, ""));
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Resolved placeholder '" + placeholder + "'");
+                    if (log.isTraceEnabled()) {
+                        log.trace("Resolved placeholder '" + placeholder + "'");
                     }
                     // 更新起始索引，继续搜索后续占位符
                     startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), startIndex + propVal.length());
@@ -234,8 +232,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
                     // 递归解析解析后的值中的嵌套占位符
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     result.replace(startIndex, endIndex + placeholderSupport.getPlaceholderSuffix().length(), propVal);
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Resolved placeholder '" + placeholder + "'");
+                    if (log.isTraceEnabled()) {
+                        log.trace("Resolved placeholder '" + placeholder + "'");
                     }
                     startIndex = result.indexOf(placeholderSupport.getPlaceholderPrefix(), startIndex + propVal.length());
                 } else if (placeholderSupport.isIgnoreUnresolvablePlaceholders()) {

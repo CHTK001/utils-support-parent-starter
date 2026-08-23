@@ -1,7 +1,6 @@
 package com.chua.common.support.network.discovery.peermesh;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -18,10 +17,9 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class InterfaceSelector {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(InterfaceSelector.class);
 
     /**
      * 默认构造函数。

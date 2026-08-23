@@ -10,8 +10,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,13 +36,13 @@ import java.util.function.Function;
  * @author CH
  * @since 1.0.0
  */
+@Slf4j
 @Spi("native")
 public class NativeRpcClient implements RpcClient {
 
     /**
      * 日志
      */
-    private static final Logger log = LoggerFactory.getLogger(NativeRpcClient.class);
 
     /**
      * 默认端口

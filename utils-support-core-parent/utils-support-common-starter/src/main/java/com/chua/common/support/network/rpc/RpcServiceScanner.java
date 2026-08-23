@@ -1,8 +1,7 @@
 package com.chua.common.support.network.rpc;
 
 import com.chua.common.support.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
 
@@ -12,10 +11,9 @@ import java.util.Set;
  * @author CH
  * @since 1.0.0
  */
+@Slf4j
 public class RpcServiceScanner {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(RpcServiceScanner.class);
     /** 服务器 */
     private final RpcServer server;
 

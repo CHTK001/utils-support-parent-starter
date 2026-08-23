@@ -4,6 +4,8 @@ import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,10 +20,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>内存防护:跟踪的 IP 数量有硬上限,超限后新 IP 放行(不入表),
  * 避免攻击者用海量伪造源 IP 撑爆过滤器的映射表。</p>
  *
+ * <p>同时实现同步({@link ServerFilter})与响应式({@link ReactiveServerFilter})
+ * 两种链接口:阻塞传输走同步链,NIO/AIO 响应式传输走响应式链
+ * (经 whenComplete 释放预算,不改变链的异步语义)。</p>
+ *
  * @author CH
  * @since 2026/08/24
  */
-public class ConnectionBudgetServerFilter implements ServerFilter {
+public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
      * HTTP 429 状态码:请求过多
@@ -61,6 +67,12 @@ public class ConnectionBudgetServerFilter implements ServerFilter {
     }
 
     @Override
+    /** SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突) */
+    public String supportPath() {
+        return null;
+    }
+
+    @Override
     /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
@@ -76,31 +88,74 @@ public class ConnectionBudgetServerFilter implements ServerFilter {
      */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
-        String ip = request.getRemoteAddress();
-        AtomicInteger counter = null;
-        // 达到跟踪上限时不再为新 IP 建表项(内存防护),已有 IP 正常限流
-        if (inFlightByIp.size() < MAX_TRACKED_IPS || inFlightByIp.containsKey(ip)) {
-            counter = inFlightByIp.computeIfAbsent(ip, k -> new AtomicInteger());
-        }
+        AtomicInteger counter = acquire(request);
         if (counter == null) {
+            // 超出跟踪上限的新 IP:放行(内存防护优先)
             chain.doFilter(request, response);
             return;
         }
-        // CAS 递增防止超卖:超过预算直接拒绝
         if (counter.incrementAndGet() > maxConcurrentPerIp) {
             counter.decrementAndGet();
-            if (!response.isEnded()) {
-                response.setStatus(STATUS_TOO_MANY_REQUESTS);
-                response.setBody("{\"error\":\"Too Many Requests\",\"limit\":"
-                        + maxConcurrentPerIp + "}");
-                response.end();
-            }
+            reject(response);
             return;
         }
         try {
             chain.doFilter(request, response);
         } finally {
             counter.decrementAndGet();
+        }
+    }
+
+    @Override
+    /**
+     * 响应式Do过滤
+     *
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
+    public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
+                                          ReactiveFilterChain chain) {
+        AtomicInteger counter = acquire(request);
+        if (counter == null) {
+            return chain.doFilter(request, response);
+        }
+        if (counter.incrementAndGet() > maxConcurrentPerIp) {
+            counter.decrementAndGet();
+            reject(response);
+            return CompletableFuture.completedStage(null);
+        }
+        // whenComplete 释放预算:无论成功失败都归还,且不改变上游异常传播
+        return chain.doFilter(request, response).whenComplete((v, ex) ->
+                counter.decrementAndGet());
+    }
+
+    /**
+     * 获取来源 IP 的在途计数器(超跟踪上限返回 null)。
+     *
+     * @param request 请求对象
+     * @return 计数器或 null(不跟踪)
+     */
+    private AtomicInteger acquire(ServerRequest request) {
+        String ip = request.getRemoteAddress();
+        // 达到跟踪上限时不再为新 IP 建表项(内存防护),已有 IP 正常限流
+        if (inFlightByIp.size() >= MAX_TRACKED_IPS && !inFlightByIp.containsKey(ip)) {
+            return null;
+        }
+        return inFlightByIp.computeIfAbsent(ip, k -> new AtomicInteger());
+    }
+
+    /**
+     * 返回 429 标准错误响应并终止链。
+     *
+     * @param response 响应对象
+     */
+    private void reject(ServerResponse response) {
+        if (!response.isEnded()) {
+            response.setStatus(STATUS_TOO_MANY_REQUESTS);
+            response.setBody("{\"error\":\"Too Many Requests\",\"limit\":"
+                    + maxConcurrentPerIp + "}");
+            response.end();
         }
     }
 }
