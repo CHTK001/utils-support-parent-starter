@@ -6,8 +6,7 @@ import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.kcp.support.client.KcpClient;
 import com.chua.kcp.support.server.KcpServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -25,12 +24,8 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Spi("kcp")
+@Slf4j
 public class KcpSyncClient implements SyncClient {
-
-    /**
-     * 日志实例
-     */
-    private static final Logger log = LoggerFactory.getLogger(KcpSyncClient.class);
 
     /**
      * 服务端 URL（kcp://host:port）

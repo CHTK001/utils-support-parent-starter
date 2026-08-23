@@ -1,4 +1,4 @@
-﻿package com.chua.common.support.concurrent.dispatcher.provider;
+package com.chua.common.support.concurrent.dispatcher.provider;
 
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
