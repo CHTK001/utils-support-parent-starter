@@ -36,7 +36,9 @@ class FieldStationTest {
     @Test
     @DisplayName("camelCase 转换：首字母大写转小写")
     void testCamelCase() {
-        FieldStation station = FieldStation.of(new TestBean());
+        TestBean bean = new TestBean();
+        bean.setCheckCodeOpen(true);
+        FieldStation station = FieldStation.of(bean);
         // PascalCase -> camelCase
         assertTrue((Boolean) station.getValue("CheckCodeOpen"));
     }

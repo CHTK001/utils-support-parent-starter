@@ -1,1 +1,1 @@
-MYSQL=com.chua.mysql.support.engine.MysqlEngine
+﻿mysql=com.chua.mysql.support.engine.MysqlEngine

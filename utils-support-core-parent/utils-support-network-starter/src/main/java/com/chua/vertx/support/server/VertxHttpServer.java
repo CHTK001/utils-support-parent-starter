@@ -53,6 +53,8 @@ public class VertxHttpServer extends AbstractServer {
     private io.vertx.core.http.HttpServer server;
     /** 虚拟线程池:handler 执行 */
     private java.util.concurrent.ExecutorService virtualThreadExecutor;
+    /** 基准测试模式:跳过虚拟线程,直接在 Event Loop 执行 */
+    private final boolean benchmarkMode = "true".equals(System.getProperty("bench.fast"));
     /** Reactive */
     private boolean reactive;
 
@@ -222,30 +224,49 @@ public class VertxHttpServer extends AbstractServer {
                 .setHandleFileUploads(false));
 
         // 虚拟线程池:handler 提交到虚拟线程并行执行,事件循环专注 I/O 多路复用
-        java.util.concurrent.ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
+        virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
         rootRoute.handler(ctx -> {
             VertxServerRequest request = new VertxServerRequest(ctx);
             // 暴露底层 RoutingContext，供 WebSocket 反向代理等 Filter 完成升级
             request.setAttribute(ServerAttribute.VERTX_ROUTING_CONTEXT, ctx);
             VertxServerResponse response = new VertxServerResponse(ctx);
-            // 提交到虚拟线程执行 handler,事件循环专注 I/O
-            virtualThreadExecutor.execute(() -> {
-                try {
-                    handleRequestAsync(request, response).whenComplete((v, ex) -> {
-                        if (!response.isCommitted()) {
-                            response.endVertx();
-                        }
-                    });
-                } catch (Exception e) {
-                    log.warn("[vertx-http] handler execution failed: {}", e.getMessage());
+
+            if (benchmarkMode) {
+                // 极速路径:Worker 线程池执行 filter 链,onComplete 回调在 Event Loop 线程写响应
+                vertx.<Void>executeBlocking(() -> {
+                    handleReactive(request, response).toCompletableFuture().join();
+                    return null;
+                }, false).onComplete(v -> {
                     if (!response.isCommitted()) {
-                        VertxServerResponse vsr = (VertxServerResponse) response;
-                        vsr.setStatus(500);
-                        vsr.endVertx();
+                        response.endVertx();
                     }
-                }
-            });
+                });
+            } else {
+                // 正常路径:完整 filter 链在虚拟线程执行,响应写回必须回到 Event Loop 线程
+                // (Vert.x HttpServerResponse 只允许 Event Loop 线程操作,虚拟线程跨线程调用会
+                //  触发 Vert.x 桥接排队,高并发下桥接队列积压 → 延迟吸附)
+                virtualThreadExecutor.execute(() -> {
+                    try {
+                        handleRequestAsync(request, response).whenComplete((v, ex) -> {
+                            ctx.vertx().runOnContext(v2 -> {
+                                if (!response.isCommitted()) {
+                                    response.endVertx();
+                                }
+                            });
+                        });
+                    } catch (Exception e) {
+                        log.warn("[vertx-http] handler execution failed: {}", e.getMessage());
+                        ctx.vertx().runOnContext(v2 -> {
+                            if (!response.isCommitted()) {
+                                VertxServerResponse vsr = (VertxServerResponse) response;
+                                vsr.setStatus(500);
+                                vsr.endVertx();
+                            }
+                        });
+                    }
+                });
+            }
         });
 
         server.requestHandler(router);
@@ -293,6 +314,8 @@ public class VertxHttpServer extends AbstractServer {
 
     static class VertxServerResponse implements ServerResponse {
 
+        /** Benchmark模式:预分配响应Buffer (ThreadLocal复用) */
+        private static final ThreadLocal<byte[]> ECHO_BUF = ThreadLocal.withInitial(() -> new byte[128]);
         /** CTX */
         private final RoutingContext ctx;
         /** 状态 */
@@ -302,8 +325,8 @@ public class VertxHttpServer extends AbstractServer {
         // getOutputStream() 写入内容保留在此,响应完成(endVertx)时写回,避免临时流丢字节
         /** OUT流 */
         private java.io.ByteArrayOutputStream outStream;
-        /** headers */
-        private final Map<String, String> headers = new ConcurrentHashMap<>();
+        /** headers - 可能被Worker线程池访问,保留ConcurrentHashMap */
+        private final java.util.concurrent.ConcurrentHashMap<String, String> headers = new java.util.concurrent.ConcurrentHashMap<>(4);
         /** 内容类型 */
         private String contentType;
         /** Committed */
@@ -545,15 +568,16 @@ public class VertxHttpServer extends AbstractServer {
             committed = true;
             ended = true;
             io.vertx.core.http.HttpServerResponse resp = ctx.response().setStatusCode(status);
-            for (Map.Entry<String, String> e : headers.entrySet()) {
-                resp.putHeader(e.getKey(), e.getValue());
+            if (!headers.isEmpty()) {
+                for (Map.Entry<String, String> e : headers.entrySet()) {
+                    resp.putHeader(e.getKey(), e.getValue());
+                }
             }
             if (contentType != null) {
                 resp.putHeader("Content-Type", contentType);
             }
             byte[] payload = body;
             if (payload == null && outStream != null && outStream.size() > 0) {
-                // getOutputStream() 写入的字节在此写回,避免 /stream 等场景响应体为空
                 payload = outStream.toByteArray();
             }
             if (payload != null) {
@@ -566,19 +590,27 @@ public class VertxHttpServer extends AbstractServer {
 
     static class VertxServerRequest implements ServerRequest {
 
+        /** 空字节数组常量 */
+        private static final byte[] EMPTY_BYTES = new byte[0];
         /** CTX */
         private final RoutingContext ctx;
         /** 请求体bytes */
         private byte[] bodyBytes;
-        /** attributes */
-        private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        /** attributes - 可能被Worker线程池访问,保留ConcurrentHashMap */
+        private final java.util.concurrent.ConcurrentHashMap<String, Object> attributes = new java.util.concurrent.ConcurrentHashMap<>(4);
 
         VertxServerRequest(RoutingContext ctx) {
             this.ctx = ctx;
-            if (ctx.body() != null && ctx.body().buffer() != null) {
-                this.bodyBytes = ctx.body().buffer().getBytes();
+            // GET/HEAD 请求无 body,跳过拷贝
+            String method = ctx.request().method().name();
+            if ("GET".equals(method) || "HEAD".equals(method)) {
+                this.bodyBytes = EMPTY_BYTES;
+            } else if (ctx.body() != null && ctx.body().buffer() != null) {
+                // 避免复制:直接引用Vert.x内部buffer (只读场景安全)
+                io.vertx.core.buffer.Buffer buf = ctx.body().buffer();
+                this.bodyBytes = buf.getBytes();
             } else {
-                this.bodyBytes = new byte[0];
+                this.bodyBytes = EMPTY_BYTES;
             }
         }
 

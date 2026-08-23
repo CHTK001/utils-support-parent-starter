@@ -545,6 +545,12 @@ public class DockerClient implements Closeable {
             /** CPU 配额（纳核） */
             private Long nanoCpus;
 
+            /** 启动命令（覆盖镜像默认 CMD） */
+            private List<String> command;
+
+            /** 入口点（覆盖镜像默认 ENTRYPOINT） */
+            private List<String> entrypoint;
+
             /**
              * 构造创建命令。
              *
@@ -704,31 +710,59 @@ public class DockerClient implements Closeable {
             }
 
             /**
+             * 设置容器启动命令，覆盖镜像默认 CMD。
+             *
+             * @param c 命令及参数
+             * @return this
+             */
+            public CreateCmd cmd(String... c) {
+                this.command = c == null ? null : List.of(c);
+                return this;
+            }
+
+            /**
+             * 设置容器入口点，覆盖镜像默认 ENTRYPOINT。
+             *
+             * @param e 入口点及参数
+             * @return this
+             */
+            public CreateCmd entrypoint(String... e) {
+                this.entrypoint = e == null ? null : List.of(e);
+                return this;
+            }
+
+            /**
              * 执行创建，返回容器 ID。
              *
              * @return 容器 ID
              */
             public String exec() {
-                CreateContainerCmd cmd = client.delegate.createContainerCmd(image)
+                CreateContainerCmd create = client.delegate.createContainerCmd(image)
                         .withName(name)
                         .withLabels(labels)
                         .withRestartPolicy(RestartPolicy.parse(restartPolicy))
                         .withStdinOpen(stdinOpen)
                         .withTty(tty);
                 if (workingDir != null) {
-                    cmd.withWorkingDir(workingDir);
+                    create.withWorkingDir(workingDir);
                 }
                 if (user != null) {
-                    cmd.withUser(user);
+                    create.withUser(user);
                 }
                 if (memory != null) {
-                    cmd.withMemory(memory);
+                    create.withMemory(memory);
                 }
                 if (!env.isEmpty()) {
                     List<String> envList = env.entrySet().stream()
                             .map(e -> e.getKey() + "=" + e.getValue())
                             .toList();
-                    cmd.withEnv(envList);
+                    create.withEnv(envList);
+                }
+                if (command != null && !command.isEmpty()) {
+                    create.withCmd(command);
+                }
+                if (entrypoint != null && !entrypoint.isEmpty()) {
+                    create.withEntrypoint(entrypoint);
                 }
                 if (!portBindings.isEmpty()) {
                     Map<String, List<Map<String, String>>> primitive = new HashMap<>();
@@ -740,12 +774,12 @@ public class DockerClient implements Closeable {
                         bindings.add(binding);
                         primitive.put(e.getValue(), bindings);
                     }
-                    cmd.withPortBindings(Ports.fromPrimitive(primitive));
+                    create.withPortBindings(Ports.fromPrimitive(primitive));
                 }
                 if (!binds.isEmpty()) {
-                    cmd.withBinds(binds.toArray(new Bind[0]));
+                    create.withBinds(binds.toArray(new Bind[0]));
                 }
-                String id = cmd.exec().getId();
+                String id = create.exec().getId();
                 log.info("容器创建: {} -> {}", name, id.substring(0, 12));
                 return id;
             }

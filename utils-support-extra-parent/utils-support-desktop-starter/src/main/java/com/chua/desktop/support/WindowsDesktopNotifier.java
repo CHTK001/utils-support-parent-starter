@@ -9,10 +9,10 @@ public class WindowsDesktopNotifier implements NativeDesktopNotifier {
     public void notify(String title, String content, String icon) throws Exception {
         String script = String.format(
             "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null;"
-            + "=New-Object System.Windows.Forms.NotifyIcon;"
-            + ".Icon=[System.Drawing.SystemIcons]::Information;"
-            + ".Visible=True;"
-            + ".ShowBalloonTip(5000,'%s','%s',[System.Windows.Forms.ToolTipIcon]::Info)",
+            + "$ni=New-Object System.Windows.Forms.NotifyIcon;"
+            + "$ni.Icon=[System.Drawing.SystemIcons]::Information;"
+            + "$ni.Visible=True;"
+            + "$ni.ShowBalloonTip(5000,'%s','%s',[System.Windows.Forms.ToolTipIcon]::Info)",
             title.replace("'", "''"), content.replace("'", "''"));
         ProcessBuilder pb = new ProcessBuilder("powershell", "-NoProfile", "-Command", script);
         pb.redirectErrorStream(true);

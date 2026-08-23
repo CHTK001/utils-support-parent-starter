@@ -1,5 +1,7 @@
-com.chua.common.support.network.server.impl.JdkHttpServer
+﻿com.chua.common.support.network.server.impl.JdkHttpServer
 com.chua.common.support.network.server.impl.JdkTcpServer
 com.chua.common.support.network.server.proxy.TcpProxyServer
 com.chua.common.support.network.server.proxy.Socks5ProxyServer
 com.chua.common.support.network.server.nio.NioHttpServer
+com.chua.common.support.network.server.proxy.HttpProxyServer
+com.chua.common.support.network.server.proxy.JdkHttpProxyServer

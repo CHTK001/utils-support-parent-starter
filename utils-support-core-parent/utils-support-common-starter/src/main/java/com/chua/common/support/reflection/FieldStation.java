@@ -1,124 +1,125 @@
 package com.chua.common.support.reflection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 字段访问工具，通过反射按字段名读写对象属性。
+ * 字段访问工具。
  * <p>
- * 字段查找结果通过 {@link ConcurrentMap} 缓存，避免重复反射开销。
+ * 通过 {@link ReflectUtils} 提供的字段读写、查找能力封装，
+ * 提供对 bean 字段按字符串名称的动态读写能力。
+ * </p>
  *
- * @since 2024/8/6
+ * @since 4.0.0.42
  */
 public final class FieldStation {
 
-    /** 日志 */
-    private static final Logger log = LoggerFactory.getLogger(FieldStation.class);
-
-    /** 类级字段缓存：key = className + "|" + fieldName */
-    private static final ConcurrentMap<String, Field> FIELD_CACHE = new ConcurrentHashMap<>(256);
-
     /** 实例 */
     private final Object instance;
+
+    /** 类型 */
     private final Class<?> type;
 
     /**
-     * 创建 FieldStation 实例
-     * @param instance instance
-     * @param Class Class
-     * @param type type
+     * 私有构造。
+     *
+     * @param instance 实例
+     * @param type     类型
      */
     private FieldStation(Object instance, Class<?> type) {
         this.instance = instance;
         this.type = type;
     }
 
-    /** Of */
+    /**
+     * 按类创建 FieldStation。
+     *
+     * @param type 类型
+     * @return FieldStation 实例
+     */
     public static FieldStation of(Class<?> type) {
         return new FieldStation(null, type);
     }
 
-    /** Of */
+    /**
+     * 按实例创建 FieldStation。
+     *
+     * @param instance 实例，允许为 null
+     * @return FieldStation 实例
+     */
     public static FieldStation of(Object instance) {
+        if (instance == null) {
+            return new FieldStation(null, null);
+        }
         return new FieldStation(instance, instance.getClass());
     }
 
-    /** 获取Value */
+    /**
+     * 读取字段值。
+     *
+     * @param name 字段名（支持 PascalCase，自动转 camelCase）
+     * @return 字段值，不存在返回 null
+     */
     public Object getValue(String name) {
-        try {
-            Field field = findField(type, toCamelCase(name));
-            field.setAccessible(true);
-            return field.get(instance);
-        } catch (NoSuchFieldException e) {
-            // 字段不存在属于业务正常情况（sys_setting_name 与 Bean 字段未对齐），不记录 ERROR
-            log.debug("[FieldStation] 字段不存在: type={}, name={}", type.getName(), name);
-            return null;
-        } catch (IllegalAccessException e) {
-            log.warn("[FieldStation] 字段访问被拒绝: type={}, name={}", type.getName(), name, e);
-            return null;
-        } catch (Exception e) {
-            log.error("[FieldStation] 读取字段失败: type={}, name={}", type.getName(), name, e);
+        if (type == null) {
             return null;
         }
+        return ReflectUtils.getField(instance, toCamelCase(name));
     }
 
-    /** 设置IgnoreNameValue */
+    /**
+     * 按名写入字段值。
+     *
+     * @param name  字段名
+     * @param value 值
+     */
     public void setIgnoreNameValue(String name, Object value) {
-        try {
-            Field field = findField(type, toCamelCase(name));
-            field.setAccessible(true);
-            field.set(instance, value);
-        } catch (NoSuchFieldException e) {
-            log.debug("[FieldStation] 字段不存在，跳过写入: type={}, name={}", type.getName(), name);
-        } catch (IllegalAccessException e) {
-            log.warn("[FieldStation] 字段写入被拒绝: type={}, name={}", type.getName(), name, e);
-        } catch (Exception e) {
-            log.error("[FieldStation] 写入字段失败: type={}, name={}", type.getName(), name, e);
+        if (type == null) {
+            return;
         }
+        ReflectUtils.setField(instance, toCamelCase(name), value);
     }
 
-    /** ToCamelCase */
+    /**
+     * 将字段名首字母大写转小写（PascalCase → camelCase）。
+     *
+     * @param name 字段名
+     * @return 转换后的字段名
+     */
     private String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
             return name;
         }
         char first = name.charAt(0);
-        return Character.isUpperCase(first) ? (Character.toLowerCase(first) + name.substring(1)) : name;
+        if (!Character.isLetter(first)) {
+            return name;
+        }
+        return Character.toLowerCase(first) + name.substring(1);
     }
 
     /**
-     * 查找字段（含继承链），结果缓存于 {@link #FIELD_CACHE}。
+     * 查找字段（含继承链），结果缓存。
+     *
+     * @param type 目标类型
+     * @param name 字段名
+     * @return Field 对象
+     * @throws NoSuchFieldException 当字段不存在时
      */
     static Field findField(Class<?> type, String name) throws NoSuchFieldException {
-        String cacheKey = type.getName() + "|" + name;
-        Field cached = FIELD_CACHE.get(cacheKey);
-        if (cached != null) {
-            return cached;
+        Field field = ReflectUtils.findField(type, name);
+        if (field == null) {
+            throw new NoSuchFieldException("No such field: " + name + " in " + type.getName());
         }
-        Class<?> current = type;
-        while (current != null) {
-            try {
-                Field field = current.getDeclaredField(name);
-                FIELD_CACHE.putIfAbsent(cacheKey, field);
-                return field;
-            } catch (NoSuchFieldException e) {
-                current = current.getSuperclass();
-            }
-        }
-        throw new NoSuchFieldException("No such field: " + name + " in " + type.getName());
+        return field;
     }
 
     /**
      * 测试钩子：暴露包级访问以便单元测试验证缓存命中行为。
-     * 生产代码请使用 {@link #getValue(String)} 或 {@link #setIgnoreNameValue(String, Object)}。
      *
      * @param type 目标类型
-     * @param name 字段名（camelCase）
-     * @return 反射得到的 Field 对象
+     * @param name 字段名
+     * @return Field 对象
      */
     static Field findFieldForTest(Class<?> type, String name) {
         try {

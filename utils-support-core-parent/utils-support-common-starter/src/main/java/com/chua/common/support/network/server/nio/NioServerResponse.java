@@ -345,14 +345,13 @@ public class NioServerResponse implements ServerResponse {
         committed = true;
         try {
             byte[] data = resolveBody();
-            // 响应头与响应体分别包装为 ByteBuffer，gather write 一次写出，避免拼接拷贝
-            ByteBuffer headerBuf = ByteBuffer.wrap(buildHttpHeaders(data.length));
-            ByteBuffer bodyBuf = ByteBuffer.wrap(data);
+            byte[] headerBytes = buildHttpHeaders(data.length);
             if (asyncWriter != null) {
                 // 真响应式:字节交给事件循环 OP_WRITE 异步写出
-                asyncWriter.accept(headerBuf, bodyBuf);
+                asyncWriter.accept(ByteBuffer.wrap(headerBytes), ByteBuffer.wrap(data));
             } else {
-                writeToChannel(headerBuf, bodyBuf);
+                // gather write：将 header 和 body 一次性写出
+                writeToChannel(ByteBuffer.wrap(headerBytes), ByteBuffer.wrap(data));
             }
         } catch (Exception e) {
             // 静默处理写入失败（连接可能已被客户端关闭）
@@ -382,7 +381,7 @@ public class NioServerResponse implements ServerResponse {
                 headers.put("Content-Type", "application/octet-stream");
             }
             // 响应头先写
-            writeToChannel(ByteBuffer.wrap(buildHttpHeaders((int) fileSize)));
+            writeToChannel(buildHttpHeaders((int) fileSize));
             // 文件体 zero-copy 发送
             long position = 0;
             while (position < fileSize) {
@@ -465,10 +464,14 @@ public class NioServerResponse implements ServerResponse {
             return body;
         }
         if (rawOutput != null && rawOutput.size() > 0) {
-            return rawOutput.toByteArray();
+            byte[] result = rawOutput.toByteArray();
+            rawOutput.reset();
+            return result;
         }
-        return new byte[0];
+        return EMPTY_BYTES;
     }
+    /** 空字节数组常量 */
+    private static final byte[] EMPTY_BYTES = new byte[0];
 
     /** 写入Headers */
     private void writeHeaders(int status) {
@@ -510,24 +513,18 @@ public class NioServerResponse implements ServerResponse {
 
     /**
      * gather write：将多个 ByteBuffer 一次性写出（zero copy，避免中间拼接）。
+     * 使用 varargs 重载直接调用 channel.write(ByteBuffer[])，减少包装开销。
      */
-    private void writeToChannel(ByteBuffer... buffers) {
+    private void writeToChannel(ByteBuffer headerBuf, ByteBuffer bodyBuf) {
         if (channelClosed) {
             return;
         }
         try {
-            // 过滤空缓冲，全部写完为止（阻塞通道 write 通常一次完成，循环兜底部分写入）
-            while (true) {
-                boolean allDone = true;
-                for (ByteBuffer bb : buffers) {
-                    if (bb.hasRemaining()) {
-                        channel.write(bb);
-                        if (bb.hasRemaining()) {
-                            allDone = false;
-                        }
-                    }
-                }
-                if (allDone) {
+            ByteBuffer[] buffers = {headerBuf, bodyBuf};
+            while (headerBuf.hasRemaining() || bodyBuf.hasRemaining()) {
+                long written = channel.write(buffers);
+                if (written < 0) {
+                    channelClosed = true;
                     return;
                 }
             }
