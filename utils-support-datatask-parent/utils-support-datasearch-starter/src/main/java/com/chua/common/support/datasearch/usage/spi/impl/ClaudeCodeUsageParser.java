@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +60,55 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         return result;
     }
 
+        /**
+     * 流式解析全部 JSONL 会话文件：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
+     */
+    @Override
+    public Flux<AiUsage> streamAll() {
+        if (!Files.isDirectory(PROJECTS_DIR)) {
+            return Flux.empty();
+        }
+        try {
+            List<Path> files;
+            try (var stream = Files.walk(PROJECTS_DIR)) {
+                files = stream.filter(Files::isRegularFile)
+                        .filter(p -> p.toString().endsWith(".jsonl"))
+                        .toList();
+            }
+            return Flux.fromIterable(files)
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .concatMap(this::streamJsonlFile);
+        } catch (IOException e) {
+            return Flux.error(new IllegalStateException("walk failed", e));
+        }
+    }
+
+    /**
+     * 单个 JSONL 文件的行流（惰性 + 背压）。
+     */
+    private Flux<AiUsage> streamJsonlFile(Path file) {
+        return streamLines(file)
+                .filter(line -> !line.isBlank())
+                .map(this::parseLineSafe)
+                .filter(java.util.Optional::isPresent)
+                .map(java.util.Optional::get);
+    }
+
+    /**
+     * 安全解析单行，失败返回 empty。
+     */
+    private java.util.Optional<AiUsage> parseLineSafe(String line) {
+        try {
+            return parseNode(Json.parse(line));
+        } catch (Exception e) {
+            log.debug("[claude-code] line parse failed: {}", e.getMessage());
+            return java.util.Optional.empty();
+        }
+    }
+
+    /**
+     * 逐行读取 JSONL 文件并追加解析结果（旧契约内部实现）。
+     */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
