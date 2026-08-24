@@ -200,7 +200,7 @@ public class TaskRunner {
         if (definitions.containsKey(id)) {
             throw new IllegalStateException("节点 id 已注册: " + id);
         }
-        var def = new TaskDefinition(id, action);
+        var def = new TaskDefinition(this, id, action);
         definitions.put(id, def);
         return def;
     }

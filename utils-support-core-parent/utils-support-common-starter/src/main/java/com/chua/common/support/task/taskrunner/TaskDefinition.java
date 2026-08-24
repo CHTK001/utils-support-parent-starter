@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
@@ -46,6 +47,11 @@ public final class TaskDefinition {
      * 重试退避最大间隔毫秒
      */
     private static final long BACKOFF_CAP_MS = 2_000L;
+
+    /**
+     * 所属运行器，用于链式续接注册与执行出口
+     */
+    private final TaskRunner owner;
 
     /**
      * 节点 ID，运行内唯一
@@ -105,15 +111,87 @@ public final class TaskDefinition {
     /**
      * 创建任务定义（由 TaskRunner#task 调用）。
      *
+     * @param owner  所属运行器
      * @param id     节点 ID，不为空
      * @param action 执行函数，不为 null
      */
-    TaskDefinition(String id, Function<RunnerContext, Object> action) {
+    TaskDefinition(TaskRunner owner, String id, Function<RunnerContext, Object> action) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("节点 id 不能为空");
         }
+        this.owner = Objects.requireNonNull(owner, "owner must not be null");
         this.id = id;
         this.action = Objects.requireNonNull(action, "action must not be null");
+    }
+
+    /**
+     * 继续注册下一个任务节点（委托给所属运行器）。
+     *
+     * @param id     节点 ID，运行内唯一且非空
+     * @param action 执行函数
+     * @return 新任务定义
+     */
+    public TaskDefinition task(String id, Function<RunnerContext, Object> action) {
+        return owner.task(id, action);
+    }
+
+    /**
+     * 设置完成策略（委托给所属运行器）。
+     *
+     * @param p 完成策略，不为 null
+     * @return 所属运行器
+     */
+    public TaskRunner policy(CompletionPolicy p) {
+        return owner.policy(p);
+    }
+
+    /**
+     * 注册事件监听器（委托给所属运行器）。
+     *
+     * @param l 监听器，不为 null
+     * @return 所属运行器
+     */
+    public TaskRunner listener(RunnerListener l) {
+        return owner.listener(l);
+    }
+
+    /**
+     * 同步执行整个拓扑图（委托给所属运行器）。
+     *
+     * @param input 初始输入，可为 null
+     * @return 整体结果
+     */
+    public RunResult executeSync(Object input) {
+        return owner.executeSync(input);
+    }
+
+    /**
+     * 异步执行整个拓扑图（委托给所属运行器）。
+     *
+     * @param input 初始输入，可为 null
+     * @return 整体结果 Future
+     */
+    public CompletableFuture<RunResult> execute(Object input) {
+        return owner.execute(input);
+    }
+
+    /**
+     * 响应式执行整个拓扑图（委托给所属运行器）。
+     *
+     * @param input 初始输入，可为 null
+     * @return 整体结果 Mono
+     */
+    public reactor.core.publisher.Mono<RunResult> executeReactor(Object input) {
+        return owner.executeReactor(input);
+    }
+
+    /**
+     * 订阅运行事件流（委托给所属运行器）。
+     *
+     * @return 事件 Flux
+     */
+    public reactor.core.publisher.Flux<RunnerEvent> watch() {
+        return owner.watch();
     }
 
     /**
