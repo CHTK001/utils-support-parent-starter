@@ -14,11 +14,14 @@ import org.apache.parquet.avro.AvroParquetReader;
 import org.apache.parquet.avro.AvroParquetWriter;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.ParquetWriter;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.parquet.io.InputFile;
+import org.apache.parquet.io.OutputFile;
+import org.apache.parquet.io.PositionOutputStream;
+import org.apache.parquet.io.SeekableInputStream;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,8 +34,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Parquet 列式存储引擎实现（真实文件读写）。
  * <p>
  * 数据以 {@code <baseDir>/<table>.parquet} 真实落盘（Avro schema 按实体字段推断）；
- * 查询读取真实文件后进行条件过滤，UPDATE/DELETE 以"读-改-写回文件"实现并返回真实行数。
- * 通过 SPI 注册为 {@code "parquet"}，使用前需 {@code addDataSource(name, baseDir)} 指定目录。
+ * 查询读取真实文件后条件过滤；UPDATE/DELETE 以"读-改-写回文件"实现并返回真实行数。
+ * 通过 parquet 的 {@link OutputFile}/{@link InputFile} 抽象直连本地文件，
+ * 不引入任何 Hadoop 运行时依赖。SPI 键 {@code "parquet"}；
+ * 使用前需 {@code addDataSource(name, baseDir)} 指定目录。
  * </p>
  *
  * @author CH
@@ -60,7 +65,7 @@ public class ParquetEngine extends AbstractEngine {
     private volatile String baseDir;
 
     /**
-     * 注册数据源：此处传入 Parquet 文件的基础目录。
+     * 注册数据源：传入 Parquet 文件基础目录。
      *
      * @param name       数据源名称
      * @param dataSource 目录路径字符串或 File
@@ -68,21 +73,16 @@ public class ParquetEngine extends AbstractEngine {
      * @return this
      */
     @Override
-    @SuppressWarnings("unchecked")
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         Object source = dataSource.getSource();
         if (source instanceof String s) {
-            this.baseDir = s;
+            setBaseDir(s);
         } else if (source instanceof File f) {
-            this.baseDir = f.getAbsolutePath();
+            setBaseDir(f.getAbsolutePath());
         } else {
             throw new IllegalArgumentException("ParquetEngine 仅支持目录路径(String)或 File");
         }
-        File dir = new File(baseDir);
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IllegalStateException("无法创建 Parquet 目录: " + baseDir);
-        }
-        return super.addDataSource(name, dataSource);
+        return this;
     }
 
     /**
@@ -93,12 +93,19 @@ public class ParquetEngine extends AbstractEngine {
      * @return this
      */
     public ParquetEngine addDataSource(String name, String srcDir) {
-        baseDir = srcDir;
-        File dir = new File(srcDir);
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IllegalStateException("无法创建 Parquet 目录: " + srcDir);
-        }
+        setBaseDir(srcDir);
         return this;
+    }
+
+    /**
+     * 初始化并校验基础目录。
+     */
+    private void setBaseDir(String dirPath) {
+        baseDir = dirPath;
+        File dir = new File(dirPath);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IllegalStateException("无法创建 Parquet 目录: " + dirPath);
+        }
     }
 
     // ==================== 写入（真实落盘） ====================
@@ -109,28 +116,27 @@ public class ParquetEngine extends AbstractEngine {
     @Override
     public <T> Engine store(String name, List<T> data) {
         try {
-            writeAll(name, entityClassOf(data), data);
+            Class<?> clazz = null;
+            for (Object o : data) {
+                if (o != null) {
+                    clazz = o.getClass();
+                    break;
+                }
+            }
+            if (clazz == null) {
+                throw new IllegalArgumentException("空列表无法推断实体类型");
+            }
+            writeAll(name, clazz, data);
+            return this;
         } catch (IOException e) {
             throw new IllegalStateException("Parquet 写入失败: " + name, e);
         }
-        return this;
     }
 
-    /**
-     * 推断列表元素类型。
-     */
-    @SuppressWarnings("unchecked")
-    private static <T> Class<T> entityClassOf(List<T> data) {
-        for (T t : data) {
-            if (t != null) {
-                return (Class<T>) t.getClass();
-            }
-        }
-        throw new IllegalArgumentException("空列表无法推断实体类型");
-    }
+    // ==================== 查询（真实文件 + 条件过滤） ====================
 
     /**
-     * 读取真实文件 + 内存条件过滤（数据来源为磁盘 Parquet 文件）。
+     * 读取真实文件后按 WHERE 过滤（排序/分页由父类完成）。
      */
     @Override
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
@@ -138,11 +144,9 @@ public class ParquetEngine extends AbstractEngine {
         List<T> out = new ArrayList<>(records.size());
         Map<String, Field> fields = fieldsOf(entityClass);
         for (GenericRecord rec : records) {
-            T inst;
             try {
-                inst = entityClass.getDeclaredConstructor().newInstance();
-                for (int i = 0; i < rec.getSchema().getFields().size(); i++) {
-                    Schema.Field sf = rec.getSchema().getFields().get(i);
+                T inst = entityClass.getDeclaredConstructor().newInstance();
+                for (Schema.Field sf : rec.getSchema().getFields()) {
                     Field f = fields.get(sf.name());
                     Object v = rec.get(sf.name());
                     if (f == null || v == null) {
@@ -151,16 +155,15 @@ public class ParquetEngine extends AbstractEngine {
                     f.setAccessible(true);
                     f.set(inst, convert(v, f.getType()));
                 }
+                out.add(inst);
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Parquet 行映射失败: " + entityClass.getName(), e);
             }
-            out.add(inst);
         }
         if (where == null || where.trim().isEmpty()) {
             return out;
         }
-        MemoryWhereParser parser = new MemoryWhereParser();
-        var predicate = parser.parse(where.trim(),
+        var predicate = new MemoryWhereParser().parse(where.trim(),
                 params == null ? List.of() : Arrays.asList(params));
         return out.stream().filter(predicate).toList();
     }
@@ -174,15 +177,13 @@ public class ParquetEngine extends AbstractEngine {
     public <T> int executeUpdate(UpdateSql<T> sql) {
         try {
             Class<T> ec = sql.entityClass();
-            String normWhere = normalizeColumns(sql.whereClause(), ec);
             List<T> whole = doRead(ec);
             if (whole.isEmpty()) {
                 return 0;
             }
-            // 解析 SET 子句："col1 = ?, col2 = ?"（SET 参数在前，WHERE 参数在后）
             Map<String, Field> fields = fieldsOf(ec);
             String setClause = sql.setClause();
-            List<Object> params = sql.params();
+            List<Object> params = sql.params() == null ? List.of() : sql.params();
             int setCount = setClause == null || setClause.isEmpty()
                     ? 0 : setClause.split(", ").length;
             Map<Field, Object> sets = new java.util.LinkedHashMap<>();
@@ -198,7 +199,8 @@ public class ParquetEngine extends AbstractEngine {
             }
             List<Object> whereParams = params.size() > setCount
                     ? params.subList(setCount, params.size()) : List.of();
-            var hit = new MemoryWhereParser().parse(normWhere, new ArrayList<>(whereParams));
+            var hit = new MemoryWhereParser().parse(
+                    normalizeColumns(sql.whereClause(), ec), new ArrayList<>(whereParams));
             int affected = 0;
             for (T row : whole) {
                 if (!hit.test(row)) {
@@ -247,70 +249,27 @@ public class ParquetEngine extends AbstractEngine {
     }
 
     /**
-     * 归一化表达式中的列名（驼峰/去下划线变体 -> 真实列名）。
-     */
-    private String normalizeColumns(String expr, Class<?> entityClass) {
-        if (expr == null || expr.isEmpty()) {
-            return expr;
-        }
-        Map<String, Field> fields = fieldsOf(entityClass);
-        List<String[]> rules = new ArrayList<>();
-        for (Map.Entry<String, Field> e : fields.entrySet()) {
-            String canonical = e.getKey();
-            addRule(rules, e.getValue().getName(), canonical);
-            addRule(rules, e.getValue().getName().toLowerCase(), canonical);
-            addRule(rules, canonical.replace("_", ""), canonical);
-        }
-        rules.sort((x, y) -> y[0].length() - x[0].length());
-        String out = expr;
-        for (String[] rule : rules) {
-            out = out.replaceAll("(?<![\\w])" + java.util.regex.Pattern.quote(rule[0]) + "(?![\\w])",
-                    java.util.regex.Matcher.quoteReplacement(rule[1]));
-        }
-        return out;
-    }
-
-    /**
-     * 追加别名规则（去重、忽略同名词）。
-     */
-    private void addRule(List<String[]> rules, String variant, String canonical) {
-        if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
-                && rules.stream().noneMatch(r -> r[0].equals(variant))) {
-            rules.add(new String[]{variant, canonical});
-        }
-    }
-
-    /**
      * 读取整表实体列表（文件不存在时返回空表）。
      */
     private <T> List<T> doRead(Class<T> entityClass) {
         return executeNewQuery("", new Object[0], entityClass);
     }
-
-    // ==================== Parquet IO ====================
+    // ==================== Parquet 本地 IO ====================
 
     /**
-     * 覆盖写入整表数据到 Parquet 文件。
+     * 覆盖写入整表数据到 Parquet 文件（先写临时文件再原子改名）。
      */
-    private <T> void writeAll(String table, Class<T> entityClass, List<T> data) throws IOException {
+    private <T> void writeAll(String table, Class<?> entityClass, List<?> data) throws IOException {
         Schema schema = schemaFor(entityClass);
-        Path path = filePath(table);
-        File tmp = new File(new File(baseDir), table + ".writing");
-        ParquetWriter<GenericRecord> writer;
+        File target = new File(baseDir, table + ".parquet");
+        File tmp = new File(baseDir, table + ".writing");
+        ParquetWriter<GenericRecord> writer = AvroParquetWriter
+                .<GenericRecord>builder(localOutput(tmp))
+                .withSchema(schema)
+                .build();
+        Map<String, Field> fields = fieldsOf(entityClass);
         try {
-            writer = ugi().doAs((java.security.PrivilegedExceptionAction<ParquetWriter<GenericRecord>>)
-                    () -> AvroParquetWriter
-                            .<GenericRecord>builder(new Path(tmp.getAbsolutePath()))
-                            .withSchema(schema)
-                            .withWriteMode(org.apache.parquet.hadoop.ParquetFileWriter.Mode.OVERWRITE)
-                            .build());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("构建 ParquetWriter 被中断", e);
-        }
-        try {
-            Map<String, Field> fields = fieldsOf(entityClass);
-            for (T item : data) {
+            for (Object item : data) {
                 GenericRecord rec = new GenericData.Record(schema);
                 for (Schema.Field sf : schema.getFields()) {
                     Field f = fields.get(sf.name());
@@ -325,7 +284,6 @@ public class ParquetEngine extends AbstractEngine {
         } finally {
             writer.close();
         }
-        File target = new File(baseDir, table + ".parquet");
         if (target.exists() && !target.delete()) {
             throw new IOException("无法覆盖旧文件: " + target);
         }
@@ -335,7 +293,7 @@ public class ParquetEngine extends AbstractEngine {
     }
 
     /**
-     * 读取整表 Parquet 文件。
+     * 读取整表 Parquet 文件（不存在返回空表）。
      */
     private List<GenericRecord> readAll(String table) {
         File file = new File(baseDir, table + ".parquet");
@@ -343,37 +301,164 @@ public class ParquetEngine extends AbstractEngine {
         if (!file.exists()) {
             return out;
         }
-        try {
-            ParquetReader<GenericRecord> reader = ugi().doAs(
-                    (java.security.PrivilegedExceptionAction<ParquetReader<GenericRecord>>)
-                            () -> AvroParquetReader
-                                    .<GenericRecord>builder(new Path(file.getAbsolutePath())).build());
+        try (ParquetReader<GenericRecord> reader =
+                     AvroParquetReader.<GenericRecord>builder(localInput(file)).build()) {
             GenericRecord rec;
             while ((rec = reader.read()) != null) {
                 out.add(rec);
             }
-            reader.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IllegalStateException("Parquet 读取失败: " + file, e);
         }
         return out;
     }
 
     /**
-     * Hadoop UGI：JDK 移除 SecurityManager 后 getSubject 不再可用，
-     * 预先创建远程用户并以 doAs 执行文件系统操作。
+     * 本地文件 OutputFile 实现。
      */
-    private static UserGroupInformation ugi() {
-        return UserGroupInformation.createRemoteUser(
-                System.getProperty("user.name", "parquet"));
+    private static OutputFile localOutput(File file) {
+        return new OutputFile() {
+            @Override
+            public PositionOutputStream create(long blockSize) throws IOException {
+                return stream(file, false);
+            }
+
+            @Override
+            public PositionOutputStream createOrOverwrite(long blockSize) throws IOException {
+                return stream(file, true);
+            }
+
+            @Override
+            public boolean supportsBlockSize() {
+                return false;
+            }
+
+            @Override
+            public long defaultBlockSize() {
+                return 0;
+            }
+        };
     }
 
     /**
-     * 表对应文件路径。
+     * 本地文件输入流包装。
      */
-    private Path filePath(String table) {
-        return new Path(new File(baseDir, table + ".parquet").getAbsolutePath());
+    private static PositionOutputStream stream(File file, boolean overwrite) throws IOException {
+        if (file.exists() && !overwrite) {
+            throw new IOException("文件已存在: " + file);
+        }
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        raf.setLength(0);
+        return new PositionOutputStream() {
+            @Override
+            public long getPos() throws IOException {
+                return raf.getFilePointer();
+            }
+
+            @Override
+            public void write(int b) throws IOException {
+                raf.write(b);
+            }
+
+            @Override
+            public void write(byte[] b) throws IOException {
+                raf.write(b);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                raf.write(b, off, len);
+            }
+
+            @Override
+            public void flush() throws IOException {
+                raf.getFD().sync();
+            }
+
+            @Override
+            public void close() throws IOException {
+                raf.close();
+            }
+        };
     }
+
+    /**
+     * 本地文件 InputFile 实现。
+     */
+    private static InputFile localInput(File file) {
+        return new InputFile() {
+            @Override
+            public long getLength() throws IOException {
+                return file.length();
+            }
+
+            @Override
+            public SeekableInputStream newStream() throws IOException {
+                return new SeekableInputStream() {
+                    private final RandomAccessFile raf = new RandomAccessFile(file, "r");
+
+                    @Override
+      public long getPos() throws IOException {
+                        return raf.getFilePointer();
+                    }
+
+                    @Override
+                    public void seek(long pos) throws IOException {
+                        raf.seek(pos);
+                    }
+
+                    @Override
+                    public void readFully(byte[] b) throws IOException {
+                        raf.readFully(b);
+                    }
+
+                    @Override
+                    public void readFully(byte[] b, int off, int len) throws IOException {
+                        raf.readFully(b, off, len);
+                    }
+
+                    @Override
+                    public int read(java.nio.ByteBuffer bb) throws IOException {
+                        byte[] buf = new byte[bb.remaining()];
+                        int n = raf.read(buf);
+                        if (n > 0) {
+                            bb.put(buf, 0, n);
+                        }
+                        return n;
+                    }
+
+                    @Override
+                    public void readFully(java.nio.ByteBuffer bb) throws IOException {
+                        byte[] buf = new byte[bb.remaining()];
+                        raf.readFully(buf);
+                        bb.put(buf);
+                    }
+
+                    @Override
+                    public int read() throws IOException {
+                        return raf.read();
+                    }
+
+                    @Override
+                    public int read(byte[] b) throws IOException {
+                        return raf.read(b);
+                    }
+
+                    @Override
+                    public int read(byte[] b, int off, int len) throws IOException {
+                        return raf.read(b, off, len);
+                    }
+
+                    @Override
+                    public void close() throws IOException {
+                        raf.close();
+                    }
+                };
+            }
+        };
+    }
+
+    // ==================== 元信息与工具 ====================
 
     /**
      * 按实体受支持字段构建 Avro Schema（忽略不支持类型字段）。
@@ -441,19 +526,54 @@ public class ParquetEngine extends AbstractEngine {
     }
 
     /**
+     * 归一化表达式中的列名（驼峰/去下划线变体 -> 真实列名）。
+     */
+    private String normalizeColumns(String expr, Class<?> entityClass) {
+        if (expr == null || expr.isEmpty()) {
+            return expr;
+        }
+        Map<String, Field> fields = fieldsOf(entityClass);
+        List<String[]> rules = new ArrayList<>();
+        for (Map.Entry<String, Field> e : fields.entrySet()) {
+            String canonical = e.getKey();
+            addRule(rules, e.getValue().getName(), canonical);
+            addRule(rules, e.getValue().getName().toLowerCase(), canonical);
+            addRule(rules, canonical.replace("_", ""), canonical);
+        }
+        rules.sort((x, y) -> y[0].length() - x[0].length());
+        String out = expr;
+        for (String[] rule : rules) {
+            out = out.replaceAll("(?<![\\w])" + java.util.regex.Pattern.quote(rule[0]) + "(?![\\w])",
+                    java.util.regex.Matcher.quoteReplacement(rule[1]));
+        }
+        return out;
+    }
+
+    /**
+     * 追加别名规则（去重、忽略同名词）。
+     */
+    private void addRule(List<String[]> rules, String variant, String canonical) {
+        if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
+                && rules.stream().noneMatch(r -> r[0].equals(variant))) {
+            rules.add(new String[]{variant, canonical});
+        }
+    }
+
+    /**
      * Avro 取值按目标类型转换（Utf8/数值/布尔）。
      */
     private static Object convert(Object v, Class<?> type) {
         if (type == String.class) {
             return v.toString();
         }
-        long asLong = Long.MIN_VALUE;
-        double asDouble = Double.NaN;
+        if (v instanceof Boolean b) {
+            return b;
+        }
+        long asLong;
+        double asDouble;
         if (v instanceof Number num) {
             asLong = num.longValue();
             asDouble = num.doubleValue();
-        } else if (v instanceof Boolean b) {
-            return b;
         } else {
             BigDecimal bd = new BigDecimal(v.toString());
             asLong = bd.longValue();

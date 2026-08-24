@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -258,7 +259,7 @@ public class HBaseEngine extends AbstractEngine {
         if (r.isEmpty()) {
             return m;
         }
-        r.getScanner().forEach(cell -> {
+        for (org.apache.hadoop.hbase.Cell cell : r.rawCells()) {
             String fam = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
             if (family.equals(fam)) {
                 String q = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
@@ -267,7 +268,7 @@ public class HBaseEngine extends AbstractEngine {
                     m.put(q, v);
                 }
             }
-        });
+        }
         return m;
     }
 

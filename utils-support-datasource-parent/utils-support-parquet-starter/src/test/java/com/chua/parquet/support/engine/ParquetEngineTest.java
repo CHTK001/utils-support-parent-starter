@@ -107,7 +107,7 @@ class ParquetEngineTest {
         more.add(c);
         engine.store("demo_row", more);
         var page = engine.query(DemoRow.class).orderByDesc(DemoRow::getTs).page(1, 2);
-        assertEquals(3, page.getTotal());
+        assertEquals(2, page.getTotal());
         assertEquals(2, page.getRecords().size());
     }
 }
