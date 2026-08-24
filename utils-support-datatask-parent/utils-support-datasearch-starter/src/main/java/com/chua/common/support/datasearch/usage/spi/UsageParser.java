@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.usage.spi;
 
 import com.chua.common.support.ai.AiUsage;
 
+import reactor.core.publisher.Flux;
 import java.util.List;
 
 /**
@@ -16,23 +17,14 @@ import java.util.List;
 public interface UsageParser {
 
     /**
-     * 解析全量用量数据。
+     * 流式解析全部用量数据（响应式，支持背压）。
      *
-     * @return 用量数据列表
+     * <p>这是唯一的取数入口：实现必须以惰性、逐条方式产出，
+     * 禁止一次性全量装载进内存。</p>
+     *
+     * @return 用量记录流
      */
-    List<AiUsage> parseAll();
-
-    /**
-     * 按天聚合用量数据。
-     *
-     * <p>默认实现调用 {@link #parseAll()} 后按天聚合。
-     * 子类可覆写以实现更精细的聚合逻辑。</p>
-     *
-     * @return 每天一条聚合记录，按日期升序
-     */
-    default List<AiUsage> parseDaily() {
-        return parseAll();
-    }
+    Flux<AiUsage> streamAll();
 
     /**
      * 当前解析器标识（如 "opencode"、"codex++"）。

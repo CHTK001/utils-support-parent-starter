@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.usage.spi;
 import com.chua.common.support.ai.AiUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -31,14 +32,102 @@ public abstract class BaseUsageParser implements UsageParser {
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-     * 解析全量用量数据（子类实现）。
+     * 解析全量用量数据（遗留桥接，子类实现）。
+     *
+     * <p>已从接口移除：新代码请重写 {@link #streamAll()} 实现真流式。
+     * 基类通过下方桥接将本方法包装为响应式入口，保证存量实现可用。</p>
      *
      * @return 原始 AiUsage 记录列表
      */
-    @Override
     public abstract List<AiUsage> parseAll();
 
+    /**
+     * 遗留桥接：把旧的阻塞式 parseAll 包装为响应式流（惰性委托）。
+     *
+     * <p>数据量大的实现应直接重写 streamAll() 实现真流式以避免 OOM。</p>
+     */
     @Override
+    public Flux<AiUsage> streamAll() {
+        return Flux.defer(() -> Flux.fromIterable(parseAll()));
+    }
+
+    /**
+     * 按行惰性读取文本文件（内存占用与总量无关）。
+     *
+     * @param file 文本文件
+     * @return 行内容流；文件由 Flux.using 负责关闭
+     */
+    protected static Flux<String> streamLines(java.nio.file.Path file) {
+        return Flux.using(
+                () -> java.nio.file.Files.newBufferedReader(file),
+                reader -> Flux.fromStream(reader.lines()),
+                reader -> {
+                    try {
+                        reader.close();
+                    } catch (Exception ignored) {
+                        // 忽略关闭异常
+                    }
+                });
+    }
+
+    /**
+     * 解析 ISO-8601 时间字符串为 epoch 毫秒（子类通用工具）。
+     *
+     * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
+     * 解析失败返回 0L。</p>
+     *
+     * @param isoTimestamp ISO-8601 时间字符串
+     * @return epoch 毫秒；入参为空或非法时返回 0L
+     */
+    protected static long parseInstantToMillis(String isoTimestamp) {
+        if (isoTimestamp == null || isoTimestamp.isBlank()) {
+            return 0L;
+        }
+        try {
+            return Instant.parse(isoTimestamp).toEpochMilli();
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    /**
+     * 解析 yyyy-MM-dd 日期字符串为当天零点的 epoch 毫秒（子类通用工具）。
+     *
+     * @param dateStr 日期字符串
+     * @return epoch 毫秒；入参为空或非法时返回 0L
+     */
+    protected static long parseDayStartToMillis(String dateStr) {
+        if (dateStr == null || dateStr.isBlank()) {
+            return 0L;
+        }
+        try {
+            return LocalDate.parse(dateStr, DAY_FMT)
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant().toEpochMilli();
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    /**
+     * 返回第一个非空白字符串（子类通用工具）。
+     *
+     * @param value    待检查的值
+     * @param fallback 兜底值
+     * @return value 非空白时返回 value，否则返回 fallback
+     */
+    protected static String firstNonBlank(String value, String fallback) {
+        if (value != null && !value.isBlank()) {
+            return value;
+        }
+        return fallback;
+    }
+
+    /**
+     * 按天聚合（遗留便捷方法）：基于桥接的全量结果聚合，内存与天数成正比。
+     *
+     * @return 每天一条聚合记录
+     */
     public List<AiUsage> parseDaily() {
         List<AiUsage> all = parseAll();
         if (all.isEmpty()) {
