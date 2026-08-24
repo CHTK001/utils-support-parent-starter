@@ -27,6 +27,7 @@ import java.io.Serializable;
  */
 @Data
 public class RpcRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 远程服务接口的全限定类名
      *

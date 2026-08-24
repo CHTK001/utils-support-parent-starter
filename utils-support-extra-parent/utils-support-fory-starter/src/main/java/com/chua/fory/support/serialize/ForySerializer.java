@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Spi({"fory", "fury"})
 public class ForySerializer<T extends Serializable> implements Serializer<T> {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 是否启用引用跟踪（支持循环引用 / 共享引用对象图）

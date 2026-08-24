@@ -444,7 +444,7 @@ public class SipClient {
     private void connectDataStream(SipTunnelSession session, String role) {
         try {
             SipTunnelStream stream = new SipTunnelStream(serverHost, serverPort,
-                    session.getChannelId(), role, sessionToken, encryptData);
+                    session.getChannelId(), role, token, sessionToken, encryptData);
             session.attachStream(stream);
             log.debug("SIP 数据平面连接已建立: channel={}, role={}", session.getChannelId(), role);
         } catch (Exception e) {

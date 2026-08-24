@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 
 public class MediaType implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /** 类型 */
     private final String type;

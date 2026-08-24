@@ -33,10 +33,6 @@ import java.time.Duration;
 public class PlaywrightFetcher implements SpiderFetcher {
 
     /**
-     * 加载 超时时间
-     */
-    private static final Duration LOAD_TIMEOUT = Duration.ofSeconds(30);
-    /**
      * nav 超时时间
      */
     private static final Duration NAV_TIMEOUT = Duration.ofSeconds(60);
@@ -92,7 +88,7 @@ public class PlaywrightFetcher implements SpiderFetcher {
                         .setViewportSize(1280, 720))) {
 
             context.setDefaultNavigationTimeout(NAV_TIMEOUT.toMillis());
-            context.setDefaultTimeout(LOAD_TIMEOUT.toMillis());
+            context.setDefaultTimeout(NAV_TIMEOUT.toMillis());
 
             Page page = context.newPage();
 

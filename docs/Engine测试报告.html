@@ -147,7 +147,7 @@
     <tr><td><code>JdbcEngineFeatureIT</code></td><td>13</td><td><span class="badge badge-pass">全部通过</span></td><td>全功能点：类型映射查询 / Lambda 包装器 / 分页 / 同步执行链 / 联邦 / meta</td></tr>
     <tr><td><code>JdbcEngineEntryIT</code></td><td>7</td><td><span class="badge badge-pass">全部通过</span></td><td>能力入口：flyway SQL 导入 / ddl() / user() 端到端（SPI 解析 + DataSource 注入 + 生命周期）</td></tr>
     <tr><td><code>Neo4jEngineIT.lambdaFullOperatorMatrix</code></td><td colspan="3">（已计入非标引擎行，Neo4j 2→3）</td></tr>    <tr><td><code>LambdaFullFeatureIT</code></td><td>5</td><td><span class="badge badge-pass">全部通过</span></td><td>Lambda 全操作符矩阵：H2/MySQL/PG/MSSQL/MariaDB 五路径 × 18 组断言</td></tr>
-    <tr><td colspan="4" style="text-align:center;background:#f6f8fa"><em>非标引擎 22 个用例全部真实容器通过：ES 2 / Neo4j 3 / InfluxDB 3 / Solr 7 / DuckDB 2 / SQLite 1 / GreptimeDB 1 / MySQL UserManager 2 / Lucene 1 / Nitrite 1 —— 全部 ✅</em></td></tr>
+    <tr><td colspan="4" style="text-align:center;background:#f6f8fa"><em>非标引擎 24 个用例全部真实测试通过：ES 2 ✅ / Neo4j 3 ✅ / InfluxDB 3 ✅ / Solr 7 ✅ / DuckDB 2 ✅ / SQLite 1 ✅ / GreptimeDB 1 ✅ / MySQL UserManager 2 ✅ / Lucene 1 ✅ / Nitrite 1 ✅ / Milvus(Zilliz Cloud) 2 ✅</em></td></tr>
     <tr><td><code>合计（标准+非标）</code></td><td><strong>101</strong></td><td><span class="badge badge-pass">101/101 全绿</span></td><td>8 种数据库 × 真实容器</td></tr>
     <tr><td><code>InMemoryEngineTest</code></td><td>3</td><td><span class="badge badge-pass">全部通过</span></td><td>内存引擎 SPI("memory")</td></tr>
     <tr><td><code>FileEngineTest</code> + <code>FileReactorEngineTest</code></td><td>7</td><td><span class="badge badge-pass">全部通过</span></td><td>文件引擎 SPI("file") 同步 + 响应式</td></tr>
@@ -290,7 +290,7 @@
   <div class="note">
     <strong>结论：</strong>标准 RDBMS 引擎（H2/MySQL/MariaDB/PostgreSQL/SQL Server）84 用例全绿 + 非标引擎（Elasticsearch/Neo4j/InfluxDB/SolrCloud）10 用例真实容器全绿，
     共 <strong>94/94</strong>。覆盖响应式+同步双路径、类型映射、Lambda 全操作符矩阵（18 组断言 × 3 路径 + 图库 15 操作符）、分页、多源联邦、flyway SQL 导入、
-    ddl()/user() 入口端到端、搜索索引 DDL 定义体系。全程累计发现并修复缺陷 16 处。
+    ddl()/user() 入口端到端、搜索索引 DDL 定义体系。全程累计发现并修复缺陷 17 处。
     另有 HBase(Docker 网络配置) 与 Milvus(镜像拉取超时) 两项因基础设施阻塞暂跳过，测试代码已就绪。
   </div>
 
@@ -406,6 +406,13 @@
       <td>milvus-starter</td>
       <td>Docker 镜像 v2.4.17 拉取超时（~2GB）。镜像重新拉取成功后，参照其他引擎模式编写 IT 即可。</td>
       <td><span class="badge badge-warn">SKIP(镜像) 代码就绪</span></td>
+    </tr>
+
+    <tr>
+      <td><b>Milvus (Zilliz Cloud)</b></td><td>Serverless :443(TLS)</td>
+      <td>MilvusVectorStorageIT</td>
+      <td>TLS 连接 + dimension 校验 + 向量 add/search/remove</td>
+      <td><span class="badge badge-pass">2/2 ✅</span></td>
     </tr>
 </table>
 
