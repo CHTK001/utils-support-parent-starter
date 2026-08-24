@@ -62,13 +62,13 @@ public record CompletionPolicy(Mode mode, int n, double rate) {
     }
 
     /**
-     * 创建完成策略（内部工厂入口）。
+     * 创建完成策略（内部工厂入口，参数合法性由各静态工厂保证）。
      *
      * @param mode 策略模式
      * @param n    阈值参数（仅阈值型模式使用，其余传 0）
      * @param rate 成功率参数（仅成功率模式使用，其余传 0）
      */
-    private CompletionPolicy {
+    public CompletionPolicy {
     }
 
     /**

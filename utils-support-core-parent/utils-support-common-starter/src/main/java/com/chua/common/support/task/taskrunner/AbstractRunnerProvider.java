@@ -6,7 +6,6 @@ import com.chua.common.support.utils.ThreadUtils;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.StructuredTaskScope;
-import java.util.concurrent.TimeoutException;
 
 /**
  * 运行器提供者模板基类 — 封装单节点执行链的通用组装逻辑。
@@ -150,9 +149,11 @@ public abstract class AbstractRunnerProvider {
                 scope.join();
                 return subtask.get();
             } catch (StructuredTaskScope.FailedException e) {
-                throw unwrap(e.getCause());
-            } catch (TimeoutException e) {
-                throw e;
+                var cause = e.getCause();
+                if (cause instanceof Exception ex) {
+                    throw ex;
+                }
+                throw new IllegalStateException("节点执行失败", cause);
             }
         };
     }
