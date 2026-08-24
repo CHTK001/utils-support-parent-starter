@@ -94,7 +94,7 @@ public class SshBridge implements RemoteBridge {
         channel.setPtyType("xterm");
         channel.setPtySize(120, 30, 480, 640);
         channel.connect(SESSION_TIMEOUT_MS);
-        System.out.println("[SshBridge] channel.isOpen=" + channel.isOpen() + ", connected=" + channel.isConnected() + ", isClosed=" + channel.isClosed());
+        System.out.println("[SshBridge] channel.open=" + !channel.isClosed() + ", connected=" + channel.isConnected() + ", isClosed=" + channel.isClosed());
         log.info("[gateway-server] SSH 连接 + shell 通道建立");
     }
 

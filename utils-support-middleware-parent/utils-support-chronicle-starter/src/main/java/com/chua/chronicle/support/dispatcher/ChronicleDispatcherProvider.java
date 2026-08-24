@@ -38,6 +38,8 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     private final Map<String, ChronicleQueue> queueMap = new ConcurrentHashMap<>();
     /** definitionMap */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
+    /** Chronicle 初始化失败时启用的内存回退队列 */
+    private final java.util.Map<String, java.util.Queue<Object>> memoryFallback = new java.util.concurrent.ConcurrentHashMap<>();
     /** 执行器 */
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("chronicle-dispatcher-", 0).factory());
@@ -52,6 +54,36 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         super(config);
     }
 
+    /**
+     * 内存队列消费循环（Chronicle 不可用时的降级路径）。
+     *
+     * @param topic 主题
+     */
+    private void startMemoryConsumer(String topic) {
+        var queue = memoryFallback.computeIfAbsent(topic, t -> new java.util.concurrent.ConcurrentLinkedQueue<>());
+        executor.submit(() -> {
+            while (!closed) {
+                Object payload = queue.poll();
+                if (payload == null) {
+                    try { Thread.sleep(5); } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                    continue;
+                }
+                var definitions = definitionMap.get(topic);
+                if (definitions != null) {
+                    for (var def : definitions) {
+                        try {
+                            def.dispatch(payload);
+                        } catch (Exception e) {
+                            log.warn("内存分发执行异常，主题：{}", topic, e);
+                        }
+                    }
+                }
+            }
+        });
+    }
     /** 获取Or创建Queue */
     private ChronicleQueue getOrCreateQueue(String topic) {
         try {
@@ -73,7 +105,15 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     @Override
     /** 发布 */
     public void publish(String topic, Object body) {
-        var queue = getOrCreateQueue(topic);
+        ChronicleQueue queue;
+        try {
+            queue = getOrCreateQueue(topic);
+        } catch (Exception e) {
+            // Chronicle 不可用（如 JDK 未加 --add-opens）：降级为内存队列投递
+            log.warn("Chronicle 不可用，topic={} 回退内存队列", topic);
+            memoryFallback.computeIfAbsent(topic, t -> new java.util.concurrent.ConcurrentLinkedQueue<>()).add(body);
+            return;
+        }
         try {
             try (var dc = queue.createAppender().writingDocument()) {
                 byte[] data = SERIALIZER.serialize(body);
@@ -99,7 +139,14 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
     /** 开始Consumer */
     private void startConsumer(String topic) {
-        ChronicleQueue queue = getOrCreateQueue(topic);
+        ChronicleQueue queue;
+        try {
+            queue = getOrCreateQueue(topic);
+        } catch (Exception e) {
+            log.warn("Chronicle 不可用，topic={} 消费走内存队列", topic);
+            startMemoryConsumer(topic);
+            return;
+        }
 executor.submit(() -> {
             ExcerptTailer tailer = queue.createTailer().toStart();
             while (!closed) {

@@ -67,7 +67,7 @@ class ChronicleDispatcherProviderTest {
         List<String> received = new CopyOnWriteArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
         provider.subscribe(new ConsumerDispatcherDefinition<>(s -> {
-            received.add(s);
+            received.add((String) s);
             latch.countDown();
         }, List.of("topic-basic")));
 
@@ -122,7 +122,7 @@ class ChronicleDispatcherProviderTest {
         List<List<java.util.Map<String, Object>>> received = new CopyOnWriteArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
         provider.subscribe(new ConsumerDispatcherDefinition<>(payload -> {
-            received.add(payload);
+            received.add((List<java.util.Map<String, Object>>) payload);
             latch.countDown();
         }, List.of("topic-complex")));
 
