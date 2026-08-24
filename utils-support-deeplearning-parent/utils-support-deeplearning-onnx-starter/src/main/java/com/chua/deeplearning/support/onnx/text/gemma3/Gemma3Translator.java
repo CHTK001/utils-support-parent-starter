@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -226,6 +227,20 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             return;
         }
         Path modelPath = ModelRegistry.resolveModelPath(modelId);
+        if (modelPath == null || !Files.exists(modelPath)) {
+            // 嵌入式回退：注册表无法定位时，从模型 jar 整目录抽取（含 model.onnx 与 tokenizer）
+            Path base = Paths.get(System.getProperty("java.io.tmpdir"), "chua-models", modelId);
+            log.info("[Gemma3] registry 未命中({})，从 classpath 抽取到 {}", modelPath, base);
+            NativeLoader.of(modelId + "-resources")
+                    .from(Gemma3Translator.class.getClassLoader())
+                    .basePath("models/" + modelId + "/")
+                    .toTarget(base)
+                    .glob("*")
+                    .withMd5(true)
+                    .extractOnly(true)
+                    .load();
+            modelPath = base.resolve("model.onnx");
+        }
         if (modelPath == null || !Files.exists(modelPath)) {
             throw new IllegalStateException("模型文件不存在: " + modelPath
                     + "，请确认已引入 utils-support-models-onnx-gemma-3-270m 模块");
