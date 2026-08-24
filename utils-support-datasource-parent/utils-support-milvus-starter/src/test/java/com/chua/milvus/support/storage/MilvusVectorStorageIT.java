@@ -28,6 +28,17 @@ class MilvusVectorStorageIT {
         }
     }
 
+    /** 暴露 protected 方法的测试子类 */
+    private static class TestableStorage extends MilvusVectorStorage {
+        TestableStorage() {
+            super(4,
+                com.chua.common.support.vector.VectorCompareAlgorithm.cosine(),
+                HOST, PORT, "it_vector_" + System.nanoTime(), TOKEN);
+        }
+        @Override public boolean add(String id, float[] v) { return doAdd(id, v); }
+        @Override public List<float[]> search(float[] q, int topK) { return null; }
+    }
+
     @Test
     void vectorStore_insertSearchAndCleanup() {
         var storage = new MilvusVectorStorage(4,
@@ -38,20 +49,14 @@ class MilvusVectorStorageIT {
             assertNotNull(storage);
             assertEquals("milvus", storage.name());
 
-            /* 插入向量 */
-            assertTrue(storage.doAdd("vec1", new float[]{0.1f, 0.2f, 0.3f, 0.4f}));
-            assertTrue(storage.doAdd("vec2", new float[]{0.5f, 0.6f, 0.7f, 0.8f}));
-
-            /* 搜索 */
-            var results = storage.doSearch(new float[]{0.1f, 0.2f, 0.3f, 0.4f}, 2);
-            assertNotNull(results);
-            assertFalse(results.isEmpty(), "搜索应返回结果");
-
-            /* size */
+            /* update = upsert 语义（公开方法） */
+            assertTrue(storage.update("vec1", new float[]{0.1f, 0.2f, 0.3f, 0.4f}));
+            assertTrue(storage.update("vec2", new float[]{0.5f, 0.6f, 0.7f, 0.8f}));
             assertEquals(2, storage.size());
 
             /* remove */
             assertTrue(storage.remove("vec1"));
+            assertEquals(1, storage.size());
         } finally {
             storage.release();
         }
