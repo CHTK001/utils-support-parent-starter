@@ -219,8 +219,9 @@ public class ServerSetting {
     private int maxConcurrency = 0;
 
     /**
-     * 是否显式设置过 maxConcurrency(autoConfig 跳过覆盖;默认 false,由 autoConfig 按核数给默认)
+     * 是否显式设置过 maxConcurrency(autoConfig 内部标记;默认 false,由 autoConfig 设置时置默认)
      */
+    @Builder.Default
     private boolean maxConcurrencyExplicit = false;
 
     /**
