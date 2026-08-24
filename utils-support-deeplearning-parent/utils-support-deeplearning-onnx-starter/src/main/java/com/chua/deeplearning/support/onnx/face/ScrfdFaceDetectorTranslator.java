@@ -17,6 +17,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * SCRFD 2.5G BNKPS              Translator   
@@ -37,6 +38,14 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     private static final int INPUT_SIZE = 640;
     /** 步长数组 */
     /** Strides */
+
+    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
     private static final int[] STRIDES = {8, 16, 32};
     /** 锚框数量 */
     /** Num_anchors */
@@ -102,7 +111,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         int limit = Math.min(scoreLength, boxLength);
         for (int idx = 0; idx < limit; idx++) {
             float score = scores[idx];
-            if (score < SCORE_THRESHOLD) continue;
+            if (score < effThreshold(SCORE_THRESHOLD)) continue;
             int location = idx / NUM_ANCHORS;
             int y = location / featureSize; int x = location % featureSize;
             float l = boxes[idx * 4] * stride, t = boxes[idx * 4 + 1] * stride, r = boxes[idx * 4 + 2] * stride, b = boxes[idx * 4 + 3] * stride;
@@ -140,4 +149,23 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     private record Candidate(Landmark landmark, double score) {
         private Rectangle rectangle() { return landmark; }
     }
+        /** 默认构造。 */
+    public ScrfdFaceDetectorTranslator() {
+    }
+
+/**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public ScrfdFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this();
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
 }
