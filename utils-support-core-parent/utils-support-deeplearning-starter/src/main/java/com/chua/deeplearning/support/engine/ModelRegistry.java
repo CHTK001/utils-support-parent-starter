@@ -1008,7 +1008,7 @@ public final class ModelRegistry {
      */
     private static Object newTranslatorInstance(String translatorClassName, Map<String, Object> options) {
         try {
-            Class<?> translatorClass = Class.forName(translatorClassName);
+            Class<?> translatorClass = ReflectUtils.forName(translatorClassName);
             if (options != null && !options.isEmpty()) {
                 try {
                     java.lang.reflect.Constructor<?> cfgCtor =

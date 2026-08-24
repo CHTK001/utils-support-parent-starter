@@ -1,6 +1,7 @@
 package com.chua.common.support.vector;
 
 
+import com.chua.common.support.reflection.ReflectUtils;
 /**
  * 向量存储链式构建器。
  * <p>
@@ -161,7 +162,7 @@ public class VectorStorageBuilder {
             case "MEMORY" -> new MemoryVectorStorage(dimension, algo);
             case "JVECTOR" -> {
                 try {
-                    var cls = Class.forName("com.chua.jvector.support.storage.JVectorVectorStorage");
+                    var cls = ReflectUtils.forName("com.chua.jvector.support.storage.JVectorVectorStorage");
                     var ctor = cls.getConstructor(int.class, VectorCompareAlgorithm.class);
                     yield (VectorStorage) ctor.newInstance(dimension, algo);
                 } catch (Exception e) {
@@ -170,7 +171,7 @@ public class VectorStorageBuilder {
             }
             case "MILVUS" -> {
                 try {
-                    var cls = Class.forName("com.chua.milvus.support.storage.MilvusVectorStorage");
+                    var cls = ReflectUtils.forName("com.chua.milvus.support.storage.MilvusVectorStorage");
                     var ctor = cls.getConstructor(int.class, VectorCompareAlgorithm.class, String.class, int.class, String.class);
                     yield (VectorStorage) ctor.newInstance(dimension, algo, host, port, collection);
                 } catch (Exception e) {

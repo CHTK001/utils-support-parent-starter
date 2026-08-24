@@ -154,10 +154,12 @@ public final class Branch<T> {
      * @param <R>       动作产出类型
      * @return 类型切换后的分支链
      */
+    @SuppressWarnings("unchecked")
     public <R> Branch<R> whenBytes(Predicate<byte[]> condition,
                                    Function<? super byte[], ? extends R> action) {
-        return when(v -> v instanceof byte[] b && condition.test(b),
-                v -> action.apply((byte[]) v));
+        Branch<Object> self = (Branch<Object>) this;
+        return self.<R>when(v -> v instanceof byte[] b && condition.test(b),
+                v -> action.apply((byte[]) v)).end();
     }
 
     /**
@@ -167,8 +169,10 @@ public final class Branch<T> {
      * @param <R>    动作产出类型
      * @return 类型切换后的分支链
      */
+    @SuppressWarnings("unchecked")
     public <R> Branch<R> mapBytes(Function<? super byte[], ? extends R> action) {
-        return when(v -> true, v -> action.apply((byte[]) v));
+        Branch<Object> self = (Branch<Object>) this;
+        return self.<R>when(v -> true, v -> action.apply((byte[]) v)).end();
     }
 
     /* ---------------- 条件组 ---------------- */

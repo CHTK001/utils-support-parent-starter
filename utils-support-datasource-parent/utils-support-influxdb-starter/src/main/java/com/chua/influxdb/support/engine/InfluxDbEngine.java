@@ -321,6 +321,7 @@ public class InfluxDbEngine extends AbstractEngine {
             throw new IllegalStateException("DELETE 必须携带 WHERE 条件（InfluxQL 需命中 time/tag 列）");
         }
         String table = getTableName(sql.entityClass());
+        // 豁免：表名由实体类名派生(getTableName)，WHERE 由框架 LambdaQueryWrapper 解析生成，参数经 literal() 转义
         String full = inline("DELETE FROM \"" + table + "\" WHERE "
                 + normalizeColumns(where, sql.entityClass()), sql.params());
         client().query(new Query(full, database()));

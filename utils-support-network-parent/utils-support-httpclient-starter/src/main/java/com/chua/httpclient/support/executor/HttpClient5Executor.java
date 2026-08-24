@@ -49,7 +49,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
     /** 是否Available */
     public boolean isAvailable() {
         try {
-            Class.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
+            ReflectUtils.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
             return true;
         } catch (ClassNotFoundException e) {
             return false;

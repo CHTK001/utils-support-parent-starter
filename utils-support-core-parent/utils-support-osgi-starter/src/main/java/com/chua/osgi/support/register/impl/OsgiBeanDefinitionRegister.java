@@ -1,5 +1,6 @@
 package com.chua.osgi.support.register.impl;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
@@ -105,7 +106,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
             if (parts.length < 2) {
                 return null;
             }
-            Class<?> type = Class.forName(parts[1]);
+            Class<?> type = ReflectUtils.forName(parts[1]);
             Object instance = launcher.getService(type);
             if (instance == null) {
                 return null;
@@ -128,7 +129,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
             return Collections.emptyList();
         }
         try {
-            Class<?> type = Class.forName(typeName);
+            Class<?> type = ReflectUtils.forName(typeName);
             List<?> services = launcher.getServices(type);
             if (services == null || services.isEmpty()) {
                 return Collections.emptyList();

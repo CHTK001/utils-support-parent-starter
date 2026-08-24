@@ -101,7 +101,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
             // Paddle LoD：若运行时为 PpNDArray 则设置
-            Class<?> pp = Class.forName("ai.djl.paddlepaddle.engine.PpNDArray");
+            Class<?> pp = ReflectUtils.forName("ai.djl.paddlepaddle.engine.PpNDArray");
             if (pp.isInstance(ndArray)) {
                 long[][] lod = new long[1][2];
                 lod[0][0] = begin;
