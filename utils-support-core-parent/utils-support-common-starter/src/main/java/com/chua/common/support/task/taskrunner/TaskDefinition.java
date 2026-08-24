@@ -282,7 +282,7 @@ public final class TaskDefinition {
      * @param attempt 从 0 开始的失败序号
      * @return 退避毫秒数
      */
-    long backoffMillis(int attempt) {
+    static long backoffMillis(int attempt) {
         var scaled = BACKOFF_BASE_MS << Math.min(attempt, 4);
         return Math.min(scaled, BACKOFF_CAP_MS);
     }
