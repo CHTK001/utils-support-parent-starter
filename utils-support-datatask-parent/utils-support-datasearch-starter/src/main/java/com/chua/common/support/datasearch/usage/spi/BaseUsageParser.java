@@ -32,26 +32,6 @@ public abstract class BaseUsageParser implements UsageParser {
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-     * 解析全量用量数据（遗留桥接，子类实现）。
-     *
-     * <p>已从接口移除：新代码请重写 {@link #streamAll()} 实现真流式。
-     * 基类通过下方桥接将本方法包装为响应式入口，保证存量实现可用。</p>
-     *
-     * @return 原始 AiUsage 记录列表
-     */
-    public abstract List<AiUsage> parseAll();
-
-    /**
-     * 遗留桥接：把旧的阻塞式 parseAll 包装为响应式流（惰性委托）。
-     *
-     * <p>数据量大的实现应直接重写 streamAll() 实现真流式以避免 OOM。</p>
-     */
-    @Override
-    public Flux<AiUsage> streamAll() {
-        return Flux.defer(() -> Flux.fromIterable(parseAll()));
-    }
-
-    /**
      * 按行惰性读取文本文件（内存占用与总量无关）。
      *
      * @param file 文本文件
@@ -121,19 +101,6 @@ public abstract class BaseUsageParser implements UsageParser {
             return value;
         }
         return fallback;
-    }
-
-    /**
-     * 按天聚合（遗留便捷方法）：基于桥接的全量结果聚合，内存与天数成正比。
-     *
-     * @return 每天一条聚合记录
-     */
-    public List<AiUsage> parseDaily() {
-        List<AiUsage> all = parseAll();
-        if (all.isEmpty()) {
-            return List.of();
-        }
-        return aggregateByDay(all);
     }
 
     /**

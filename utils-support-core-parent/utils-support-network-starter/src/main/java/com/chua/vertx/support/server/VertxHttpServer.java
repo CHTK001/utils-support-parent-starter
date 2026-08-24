@@ -133,7 +133,8 @@ public class VertxHttpServer extends AbstractServer {
         // 显式开启 h2c 明文多路复用(HTTP/2 多路流共享单连接,单连接并发吞吐数倍于 HTTP/1.1)
         httpOpts.setHttp2ClearTextEnabled(true);
 
-        if (setting.getSsl() != null && setting.getSsl().isEnabled()) {
+        // 与 SslUtils.isSslEnabled 对齐:selfSignedAuto 单独开启也应生效
+        if (setting.getSsl() != null && (setting.getSsl().isEnabled() || setting.getSsl().isSelfSignedAuto())) {
             httpOpts.setSsl(true);
             ServerSetting.SslConfig ssl = setting.getSsl();
             if (ssl.getKeyStorePath() != null) {
