@@ -476,7 +476,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-yoloworld-s</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
