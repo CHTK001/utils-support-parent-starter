@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -229,6 +229,17 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 <li>其余 19 项（方法矩阵/状态码/Keep-Alive/大报文/Header 大小写/限流 503/RemoteAddress 等）回归通过。</li>
 </ul></div>
 
+<h2><span class="num">4.5</span>最新复测：AIO 响应式 + 极限优化（2026-08-24 追加）</h2>
+<div class="desc">AioHttpServer 完成纯非阻塞改造（TLS 握手状态机 / WS 增量解码 / SSE 入队化）后追加：</div>
+<table>
+<thead><tr><th>优化项</th><th>说明</th><th>效果</th></tr></thead>
+<tbody>
+<tr><td><b>响应式模式</b></td><td>非阻塞 handler 内联 IOCP 回调线程执行，消除每请求 2 次虚拟线程调度跳转（<code>setting.setReactor(true)</code> 或 <code>-Daio.http.reactive=true</code>）</td><td>cc500 小报文 +33%，p50 35ms→29ms；cc2000 首测反超 NIO（10,604 vs 6,343）</td></tr>
+<tr><td><b>头体合并单次写</b></td><td>≤64KB 响应合并为单缓冲一次 overlap 写（堆分配，TLAB 近零成本）</td><td>省一次内核往返；4096B/cc500 历史最佳 14,620</td></tr>
+<tr><td><b>无超时读</b></td><td>热路径 read 去掉超时参数（Windows 定时异步读需挂内核等待对象）</td><td>p50 首次进入个位数稳定区（3~8ms），同窗口始终 ≤ NIO 一半</td></tr>
+</tbody>
+</table>
+<div class="note">同窗口 NIO-vs-AIO 复测两轮结论：①较空闲窗口小报文低并发 NIO 快、高并发 AIO 反超；②负载回升窗口 <b>AIO 全档领先且 p50 仅 NIO 一半</b>。两实现峰值已同量级（15~20k 档）；最终排名建议 Linux 独占机复测定案。</div>
 <h2><span class="num">5</span>连接规模扩展性 <span class="hint">AIO 理论优势的验证场 · 每连接仅 5 请求的长连接压测</span></h2>
 <div class="desc">前面的吞吐口径是「少连接 × 高 RPS」(最高 2000 连接)，未进入 AIO 主场。本节将并发<b>长连接</b>数拉到 2k / 5k / 10k —— 越过 NIO Selector 的舒适区后攻守易势：</div>
 

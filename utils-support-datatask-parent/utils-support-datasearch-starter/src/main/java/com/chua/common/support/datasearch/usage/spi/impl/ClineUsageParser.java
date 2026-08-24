@@ -104,8 +104,8 @@ public class ClineUsageParser extends BaseUsageParser {
             int cacheRead = usage.get("cacheReadTokens").toIntValue(0);
             int cacheWrite = usage.get("cacheWriteTokens").toIntValue(0);
             double cost = usage.get("totalCost").toDoubleValue(0.0d);
-            long startTime = parseIso(node.get("started_at").toStringValue());
-            long endTime = parseIso(node.get("ended_at").toStringValue());
+            long startTime = parseInstantToMillis(node.get("started_at").toStringValue());
+            long endTime = parseInstantToMillis(node.get("ended_at").toStringValue());
             return java.util.Optional.of(AiUsage.builder()
                     .provider(firstNonBlank(node.get("provider").toStringValue(), "cline"))
                     .model(node.get("model").toStringValue())
@@ -124,23 +124,5 @@ public class ClineUsageParser extends BaseUsageParser {
             log.debug("[cline] parse failed {}: {}", file.getFileName(), e.getMessage());
             return java.util.Optional.empty();
         }
-    }
-
-    private long parseIso(String ts) {
-        if (ts == null || ts.isBlank()) {
-            return 0L;
-        }
-        try {
-            return Instant.parse(ts).toEpochMilli();
-        } catch (Exception e) {
-            return 0L;
-        }
-    }
-
-    private String firstNonBlank(String value, String fallback) {
-        if (value != null && !value.isBlank()) {
-            return value;
-        }
-        return fallback;
     }
 }

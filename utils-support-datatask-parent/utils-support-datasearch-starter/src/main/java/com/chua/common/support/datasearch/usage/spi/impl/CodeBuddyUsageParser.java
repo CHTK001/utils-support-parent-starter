@@ -8,21 +8,48 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * CodeBuddy usage parser.
+ * Tencent CodeBuddy Code usage parser.
  *
- * <p>CodeBuddy stores chat history in {@code %LOCALAPPDATA%\CodeBuddyExtension\Data\},
- * but the history format does not include token usage information (input/output tokens, cost).
- * Usage is managed server-side by the CodeBuddy platform.</p>
+ * <p>CodeBuddy Code (npm {@code @tencent-ai/codebuddy-code}) persists each
+ * session as a Claude-Code-style transcript under
+ * {@code ~/.codebuddy/projects/<project>/<sessionId>.jsonl}. Completed
+ * assistant messages carry real per-request usage:</p>
  *
- * <p>To get CodeBuddy usage: check the CodeBuddy web dashboard or contact
- * CodeBuddy support for usage reports.</p>
+ * <pre>{@code
+ * {
+ *   "type": "message",
+ *   "role": "assistant",
+ *   "timestamp": 1787546545090,
+ *   "sessionId": "...",
+ *   "message": {
+ *     "usage": {
+ *       "input_tokens": 24964,
+ *       "output_tokens": 17,
+ *       "total_tokens": 24981,
+ *       "cache_read_input_tokens": 24928
+ *     }
+ *   },
+ *   "providerData": {
+ *     "model": "hy3",
+ *     "rawUsage": {
+ *       "prompt_cache_hit_tokens": 24928,
+ *       "completion_thinking_tokens": 14,
+ *       "credit": 0, ...
+ *     }
+ *   }
+ * }
+ * }</pre>
+ *
+ * <p>The CN-edition twin directory {@code ~/.codebuddycn} is scanned as well.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -30,66 +57,158 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi("codebuddy")
 public class CodeBuddyUsageParser extends BaseUsageParser {
 
-    private static final Path CODEBUDDY_DATA = Path.of(
-            System.getProperty("user.home"), "AppData", "Local",
-            "CodeBuddyExtension", "Data");
+    private static final Path PROJECTS_DIR_INTL = Path.of(
+            System.getProperty("user.home"), ".codebuddy", "projects");
 
+    private static final Path PROJECTS_DIR_CN = Path.of(
+            System.getProperty("user.home"), ".codebuddycn", "projects");
+
+    private static final String PROVIDER_CODEBUDDY = "codebuddy";
+
+    /**
+     * Returns the SPI name for CodeBuddy.
+     *
+     * @return {@code "codebuddy"}
+     */
     @Override
     public String name() {
         return "codebuddy";
     }
 
+    /**
+     * Parses all CodeBuddy session transcripts and extracts token usage.
+     *
+     * @return list of AiUsage records, one per completed assistant response
+     */
     @Override
     public List<AiUsage> parseAll() {
-        if (!Files.isDirectory(CODEBUDDY_DATA)) {
-            log.debug("[codebuddy] CodeBuddy not installed");
-            return List.of();
-        }
+        List<AiUsage> result = new ArrayList<>();
         AtomicInteger fileCount = new AtomicInteger(0);
-        try (var stream = Files.walk(CODEBUDDY_DATA)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".jsonl"))
-                    .forEach(file -> {
-                        fileCount.incrementAndGet();
-                        try {
-                            parseJsonlFile(file);
-                        } catch (IOException e) {
-                            log.debug("[codebuddy] read failed {}: {}", file.getFileName(), e.getMessage());
-                        }
-                    });
-        } catch (IOException e) {
-            log.warn("[codebuddy] walk failed: {}", e.getMessage(), e);
+        for (Path projectsDir : new Path[] {PROJECTS_DIR_INTL, PROJECTS_DIR_CN}) {
+            if (!Files.isDirectory(projectsDir)) {
+                log.debug("[codebuddy] projects dir not found: {}", projectsDir);
+                continue;
+            }
+            try (var stream = Files.walk(projectsDir)) {
+                stream.filter(Files::isRegularFile)
+                        .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
+                        .forEach(file -> {
+                            fileCount.incrementAndGet();
+                            try {
+                                parseJsonlFile(file, result);
+                            } catch (IOException e) {
+                                log.debug("[codebuddy] read failed {}: {}",
+                                        file.getFileName(), e.getMessage());
+                            }
+                        });
+            } catch (IOException e) {
+                log.warn("[codebuddy] walk failed {}: {}", projectsDir, e.getMessage());
+            }
         }
-        if (fileCount.get() == 0) {
-            log.debug("[codebuddy] No JSONL files found in CodeBuddy data directory");
-        }
-        return List.of();
+        log.info("[codebuddy] scanned {} session files, parsed {} records",
+                fileCount.get(), result.size());
+        return result;
     }
 
-    private void parseJsonlFile(Path file) throws IOException {
+    /**
+     * Reads one transcript file line by line, extracting assistant usage.
+     *
+     * @param file   path to the session JSONL file
+     * @param result accumulator list for parsed records
+     * @throws IOException if the file cannot be read
+     */
+    private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.isBlank()) continue;
+                if (line.isBlank()) {
+                    continue;
+                }
                 try {
-                    JsonNode node = Json.parse(line);
-                    if ("assistant".equals(node.get("type").toStringValue())) {
-                        JsonNode msg = node.get("message");
-                        if ("assistant".equals(msg.get("role").toStringValue())) {
-                            JsonNode usage = msg.get("usage");
-                            if (!usage.isMissingValue()) {
-                                int inputTokens = usage.get("input_tokens").toIntValue(-1);
-                                int outputTokens = usage.get("output_tokens").toIntValue(-1);
-                                if (inputTokens > 0 || outputTokens > 0) {
-                                    log.debug("[codebuddy] Found usage in CodeBuddy JSONL: in={}, out={}", inputTokens, outputTokens);
-                                }
-                            }
-                        }
-                    }
+                    parseNode(Json.parse(line)).ifPresent(result::add);
                 } catch (Exception e) {
-                    log.debug("[codebuddy] parse failed: {}", e.getMessage());
+                    log.debug("[codebuddy] parse failed {}: {}", file.getFileName(), e.getMessage());
                 }
             }
         }
+    }
+
+    /**
+     * Converts one transcript JSON line into an AiUsage record when it is a
+     * completed assistant response carrying usage data.
+     *
+     * @param node parsed JSON of a single transcript line
+     * @return the parsed record, or empty when no usage is present
+     */
+    private java.util.Optional<AiUsage> parseNode(JsonNode node) {
+        if (!"message".equals(node.get("type").toStringValue())
+                || !"assistant".equals(node.get("role").toStringValue())) {
+            return java.util.Optional.empty();
+        }
+        JsonNode usage = node.get("message").get("usage");
+        if (usage.isMissingValue()) {
+            return java.util.Optional.empty();
+        }
+        int inputTokens = usage.get("input_tokens").toIntValue(-1);
+        int outputTokens = usage.get("output_tokens").toIntValue(-1);
+        if (inputTokens <= 0 && outputTokens <= 0) {
+            return java.util.Optional.empty();
+        }
+        long startTime = node.get("timestamp").toLongValue(0L);
+        JsonNode providerData = node.get("providerData");
+        double credit = 0.0d;
+        if (!providerData.isMissingValue() && !providerData.get("rawUsage").isMissingValue()) {
+            credit = providerData.get("rawUsage").get("credit").toDoubleValue(0.0d);
+        }
+
+        AiUsage.AiUsageBuilder builder = AiUsage.builder()
+                .provider(PROVIDER_CODEBUDDY)
+                .model(firstNonBlank(providerData.get("model").toStringValue(), "unknown"))
+                .requestId(firstNonBlank(node.get("id").toStringValue(),
+                        node.get("sessionId").toStringValue()))
+                .inputTokens(inputTokens)
+                .outputTokens(outputTokens)
+                .totalTokens(inputTokens + outputTokens)
+                .cacheTokens(readCacheTokens(usage))
+                .reasoningTokens(readReasoningTokens(providerData))
+                .startTime(startTime > 0 ? startTime : null)
+                .finishReason(node.get("status").toStringValue());
+        if (credit > 0) {
+            builder.totalCost(BigDecimal.valueOf(credit)).currency("CREDITS");
+        }
+        return java.util.Optional.of(builder.build());
+    }
+
+    /**
+     * Reads cached-token count from the transcript usage block.
+     *
+     * @param usage the message.usage block
+     * @return cached tokens, or null when absent or zero
+     */
+    private Integer readCacheTokens(JsonNode usage) {
+        int cached = usage.get("cache_read_input_tokens").toIntValue(0);
+        return cached > 0 ? cached : null;
+    }
+
+    /**
+     * Reads reasoning-token count from the raw provider usage metadata.
+     *
+     * @param providerData the line-level providerData block
+     * @return reasoning tokens, or null when absent or zero
+     */
+    private Integer readReasoningTokens(JsonNode providerData) {
+        if (providerData.isMissingValue()) {
+            return null;
+        }
+        JsonNode rawUsage = providerData.get("rawUsage");
+        if (rawUsage.isMissingValue()) {
+            return null;
+        }
+        JsonNode details = rawUsage.get("completion_tokens_details");
+        if (details.isMissingValue()) {
+            return null;
+        }
+        int reasoning = details.get("reasoning_tokens").toIntValue(0);
+        return reasoning > 0 ? reasoning : null;
     }
 }

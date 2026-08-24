@@ -428,6 +428,27 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
+     * 注册纯 JDBC 数据源（不创建 R2DBC 工厂）。
+     *
+     * <p>供无 R2DBC 驱动的数据库（SQLite/DuckDB/MySQL 伪响应式等）使用：
+     * 响应式 query/execute/batch 将经由 {@code needsJdbcPath} 路由到
+     * JDBC DataSource 执行。</p>
+     *
+     * @param name    数据源名称
+     * @param jdbcUrl JDBC 连接串
+     * @param username 用户名，可为 null
+     * @param password 密码，可为 null
+     */
+    protected void registerJdbcDataSource(String name, String jdbcUrl, String username, String password) {
+        jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
+        jdbcUrls.put(name, jdbcUrl);
+        dialects.put(name, detectDialect(jdbcUrl));
+        if (defaultDataSourceName == null) {
+            defaultDataSourceName = name;
+        }
+    }
+
+    /**
      * 获取默认数据源名称。
      */
     public String getDefaultDataSourceName() {
@@ -1139,7 +1160,15 @@ public class JdbcReactorEngine implements ReactorEngine {
         public Engine setDefaultDataSourceName(String name) { JdbcReactorEngine.this.defaultDataSourceName = name; return this; }
         @Override
         public SqlExecutor getExecutor(String dataSourceName) {
-            return new R2dbcSqlExecutorWrapper(r2dbcFactories.get(dataSourceName), dialects.get(dataSourceName));
+            /* 与响应式路径同一判据：无可用 R2DBC 驱动或驱动有已知缺陷的数据源，
+             * 同步执行器直接走 JDBC，避免 asyncer getRowsUpdated 的 ClassCastException */
+            if (needsJdbcPath(dataSourceName)) {
+                DataSource ds = jdbcDataSources.get(dataSourceName);
+                if (ds != null) {
+                    return new JdbcSqlExecutorWrapper(ds);
+                }
+            }
+            return new R2dbcSqlExecutorWrapper(r2dbcFactories.get(dataSourceName), dialects.get(dataSourceName), dataSourceName);
         }
         @Override
         public SqlExecutor getExecutor() { return getExecutor(defaultDataSourceName); }
@@ -1197,9 +1226,15 @@ public class JdbcReactorEngine implements ReactorEngine {
     private class R2dbcSqlExecutorWrapper implements SqlExecutor {
         private final ConnectionFactory factory;
         private final Dialect dialect;
+        /** 所属数据源名（用于方言占位符转换，如 PG ?→$n） */
+        private final String dataSourceName;
         R2dbcSqlExecutorWrapper(ConnectionFactory factory, Dialect dialect) {
+            this(factory, dialect, null);
+        }
+        R2dbcSqlExecutorWrapper(ConnectionFactory factory, Dialect dialect, String dataSourceName) {
             this.factory = factory;
             this.dialect = dialect;
+            this.dataSourceName = dataSourceName;
         }
         @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
@@ -1207,7 +1242,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 throw new IllegalStateException("R2DBC 连接工厂未配置");
             }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
-                    conn -> Flux.from(executeStatement(conn, sql, params, null))
+                    conn -> Flux.from(executeStatement(conn, sql, params, jdbcUrls.get(dataSourceName)))
                             .flatMap(r -> Flux.from(r.map(JdbcReactorEngine.this::toMap)).collectList()),
                     conn -> Mono.empty())).block();
         }
@@ -1217,7 +1252,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 throw new IllegalStateException("R2DBC 连接工厂未配置");
             }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
-                    conn -> Flux.from(executeStatement(conn, sql, params, null))
+                    conn -> Flux.from(executeStatement(conn, sql, params, jdbcUrls.get(dataSourceName)))
                             .flatMap(r -> Flux.from(r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType)))
                                     .collectList()),
                     conn -> Mono.empty())).block();
@@ -1245,7 +1280,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 throw new IllegalStateException("R2DBC 连接工厂未配置");
             }
             return Mono.usingWhen(Mono.from(factory.create()),
-                    conn -> Flux.from(executeStatement(conn, sql, params, null))
+                    conn -> Flux.from(executeStatement(conn, sql, params, jdbcUrls.get(dataSourceName)))
                             .flatMap(r -> safeGetRowsUpdated(r))
                             .collectList()
                             .map(list -> list.stream().mapToLong(Long::longValue).sum()),

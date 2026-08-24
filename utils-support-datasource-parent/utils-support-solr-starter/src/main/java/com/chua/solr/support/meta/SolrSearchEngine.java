@@ -52,14 +52,14 @@ public class SolrSearchEngine implements SearchEngine {
         try {
             CollectionAdminRequest.List request = new CollectionAdminRequest.List();
             CollectionAdminResponse response = request.process(client);
-            List<String> collections = new ArrayList<>();
-            if (response.getCollectionStatus() != null) {
-                NamedList<NamedList<Object>> status = response.getCollectionStatus();
-                for (int i = 0; i < status.size(); i++) {
-                    collections.add(status.getName(i));
-                }
+            /* solrj9 LIST 响应体：{ collections: [名称...] } */
+            Object names = response.getResponse().get("collections");
+            if (names instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<String> list = (List<String>) names;
+                return new ArrayList<>(list);
             }
-            return collections;
+            return java.util.Collections.emptyList();
         } catch (Exception e) {
             throw new RuntimeException("列出 Solr 索引失败", e);
         }
