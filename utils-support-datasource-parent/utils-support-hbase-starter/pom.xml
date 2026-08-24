@@ -11,6 +11,16 @@
     <name>HBase Starter</name>
     <description>HBase分布式数据库ORM</description>
     <dependencies>
+        <!--
+            JDK25 移除 SecurityManager 后，hadoop-common 3.4.1 的 UGI.getCurrentUser
+            调用 Subject.getSubject 必抛 UnsupportedOperationException。
+            升级到已适配的 hadoop-common（覆盖 hbase-client 的传递版本）。
+        -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>3.5.0</version>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
@@ -37,5 +47,19 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+        </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- 客户端库存在非守护线程，测试完成后强制回收 fork 进程 -->
+                    <forkedProcessExitTimeoutInSeconds>15</forkedProcessExitTimeoutInSeconds>
+                    <surefire.timeout>120</surefire.timeout>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
