@@ -450,6 +450,9 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     /**
      * 解析单元格文本中的单价数值。
      *
+     * <p>兼容"0.5元"、"$3 / MTok"、"￥3.00"等带单位/符号的写法，
+     * 提取首个数值；免费标记返回 0。</p>
+     *
      * @param text 单元格文本
      * @return 单价数值，无法解析时返回 null；免费标记返回 0
      */
@@ -465,8 +468,9 @@ public abstract class AbstractPricingProvider implements PricingProvider {
         if ("free".equalsIgnoreCase(cleaned) || cleaned.contains("免费")) {
             return BigDecimal.ZERO;
         }
+        Matcher matcher = Pattern.compile("[0-9]+(?:\\.[0-9]+)?").matcher(cleaned);
         try {
-            return new BigDecimal(cleaned);
+            return matcher.find() ? new BigDecimal(matcher.group()) : null;
         } catch (NumberFormatException ignored) {
             return null;
         }

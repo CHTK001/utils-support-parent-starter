@@ -32,6 +32,7 @@ public class FinalTest {
         test("ccswitch", new CcswitchUsageParser());
         test("joycode", new JoyCodeUsageParser());
         test("qoder", new QoderUsageParser());
+        test("openclaw", new OpenClawUsageParser());
     }
 
     /**
