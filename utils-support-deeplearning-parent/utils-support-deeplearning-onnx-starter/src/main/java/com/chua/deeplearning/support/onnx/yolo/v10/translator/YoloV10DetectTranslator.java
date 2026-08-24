@@ -32,7 +32,19 @@ public class YoloV10DetectTranslator extends DocLayoutYoloTranslator {
             "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier",
             "toothbrush");
 
-    /**
+        /**
+     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public YoloV10DetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        super(640,
+                configuration == null ? 0.2f
+                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, 0.2f),
+                COCO_CLASSES);
+    }
+
+/**
      * 无参构造（640 输入，COCO 80 类）。
      */
     public YoloV10DetectTranslator() {

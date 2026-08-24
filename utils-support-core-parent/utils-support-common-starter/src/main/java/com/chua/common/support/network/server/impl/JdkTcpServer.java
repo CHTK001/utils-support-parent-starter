@@ -85,9 +85,6 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     private static final ThreadLocal<byte[]> THREAD_LOCAL_BUFFER =
             ThreadLocal.withInitial(() -> new byte[8192]);
 
-    /** 加密密钥（null 表示未启用加密） */
-    private volatile SecretKeySpec encryptKeySpec;
-
     /**
      * 服务器通道
      */

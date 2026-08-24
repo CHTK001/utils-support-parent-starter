@@ -180,8 +180,6 @@ class SipTunnelStream {
             buffer.put(nonce);
             buffer.put(cipherText);
             return buffer.array();
-        } catch (IOException e) {
-            throw e;
         } catch (Exception e) {
             throw new IOException("SIP 帧加密失败: " + channelId, e);
         }

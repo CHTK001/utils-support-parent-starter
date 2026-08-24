@@ -198,18 +198,42 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     }
 
     /**
+     * 共享渲染器缓存（跨实例复用同一浏览器进程）
+     */
+    private static volatile PricingPageRenderer cachedRenderer;
+
+    /**
+     * 渲染器是否已解析（含解析失败的情况，避免重复扫描）
+     */
+    private static volatile boolean rendererResolved;
+
+    /**
      * 通过可选的 {@link PricingPageRenderer} SPI 渲染页面。
+     *
+     * <p>渲染器全局只解析一次并复用，避免每个提供者各起一个浏览器进程。</p>
      *
      * @param url 页面地址
      * @return 渲染后的 HTML，无渲染器或渲染失败返回 null
      */
     private String renderViaSpi(String url) {
-        try {
-            PricingPageRenderer renderer = ServiceProvider.of(PricingPageRenderer.class).getExtension("playwright");
-            if (renderer == null) {
-                return null;
+        if (!rendererResolved) {
+            synchronized (AbstractPricingProvider.class) {
+                if (!rendererResolved) {
+                    try {
+                        cachedRenderer = ServiceProvider.of(PricingPageRenderer.class).getExtension("playwright");
+                    } catch (Throwable t) {
+                        log.debug("[{}] 渲染器初始化失败: {}", name(), t.getMessage());
+                        cachedRenderer = null;
+                    }
+                    rendererResolved = true;
+                }
             }
-            return renderer.render(url);
+        }
+        if (cachedRenderer == null) {
+            return null;
+        }
+        try {
+            return cachedRenderer.render(url);
         } catch (Exception e) {
             log.debug("[{}] 渲染器调用失败: {}", name(), e.getMessage());
             return null;

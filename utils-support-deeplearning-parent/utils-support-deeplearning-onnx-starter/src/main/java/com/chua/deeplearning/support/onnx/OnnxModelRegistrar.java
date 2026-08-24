@@ -357,11 +357,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 由 WhisperAudioClient 直接加载（encoder + 两阶段 decoder），无需注册 translator 类。
         reg("whisper-tiny", null, byte[].class, String.class, Object.class, "audio/asr/whisper-tiny/config.json");
 
-        // 语音识别(Moonshine-tiny)：Moonshine 轻量英文语音识别，速度远快于同精度 Whisper；适用边缘设备实时转写
-        // 模型权重在 utils-support-models-onnx-moonshine jar 中（nlp/audio/moonshine/，
         // preprocess+encode+uncached+cached 四模型 int8 约 118MB），词表 32768
-        // 由 MoonshineAudioClient 直接加载（sherpa-onnx 四阶段贪心解码）。
-        reg("moonshine-base", null, byte[].class, String.class, Object.class, "nlp/audio/moonshine/preprocess.onnx");
         // 语音识别(SenseVoice-small)：阿里 FunAudioLLM 多语言 ASR（中/英/日/韩/粤），含 ITN 数字归一化
         // 模型权重在 utils-support-models-onnx-sensevoice jar 中（audio/asr/sensevoice-small/，int8 约 228MB）
         // 由 SenseVoiceAudioClient 直接加载（fbank+LFR+CMVN+CTC），无需注册 translator 类。

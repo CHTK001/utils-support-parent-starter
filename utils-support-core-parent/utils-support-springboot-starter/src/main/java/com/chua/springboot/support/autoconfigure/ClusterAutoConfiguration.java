@@ -69,8 +69,9 @@ public class ClusterAutoConfiguration {
 
         // 3. nodeId: ip:port（保证同机多实例唯一）
         if (clusterProperties.getNodeId() == null || clusterProperties.getNodeId().isBlank()) {
+            String rawId = clusterProperties.getHost() + ":" + clusterProperties.getPort();
             clusterProperties.setNodeId(
-                    clusterProperties.getHost() + ":" + clusterProperties.getPort());
+                    com.chua.common.support.utils.DigestUtils.md5Hex(rawId).substring(0, 12));
         }
     }
 
