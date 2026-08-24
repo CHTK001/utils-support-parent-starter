@@ -12,6 +12,7 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,26 +73,37 @@ public class OpenClawUsageParser extends BaseUsageParser {
     private Flux<AiUsage> streamTrajectoryFile(Path file) {
         return streamLines(file)
                 .flatMap(line -> Mono.fromCallable(() -> parseLine(line))
-                        .subscribeOn(Schedulers.boundedElastic()), 16)
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .flatMap(Mono::justOrEmpty),
+                        16)
                 .onErrorResume(e -> {
                     log.debug("[openclaw] read failed {}: {}", file.getFileName(), e.getMessage());
                     return Flux.empty();
-                })
-                .flatMap(Flux::justOrEmpty);
+                });
     }
 
     private List<Path> listTrajectoryFiles() {
-        if (!Files.isDirectory(OPENCLAW_DIR)) {
+        Path agentsDir = OPENCLAW_DIR.resolve("agents");
+        if (!Files.isDirectory(agentsDir)) {
             return List.of();
         }
-        try (var stream = Files.walk(OPENCLAW_DIR)) {
-            return stream.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".trajectory.jsonl"))
-                    .toList();
+        List<Path> files = new ArrayList<>();
+        try (var agents = Files.list(agentsDir)) {
+            for (Path agent : (Iterable<Path>) agents::iterator) {
+                Path sessions = agent.resolve("sessions");
+                if (!Files.isDirectory(sessions)) {
+                    continue;
+                }
+                try (var stream = Files.list(sessions)) {
+                    stream.filter(Files::isRegularFile)
+                            .filter(p -> p.getFileName().toString().endsWith(".trajectory.jsonl"))
+                            .forEach(files::add);
+                }
+            }
         } catch (IOException e) {
-            log.warn("[openclaw] walk failed: {}", e.getMessage(), e);
-            return List.of();
+            log.warn("[openclaw] scan failed: {}", e.getMessage(), e);
         }
+        return files;
     }
 
     private Optional<AiUsage> parseLine(String line) {

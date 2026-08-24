@@ -4,17 +4,12 @@ import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.function.Consumer;
 
 /**
@@ -24,8 +19,8 @@ import java.util.function.Consumer;
  * <p>连接建立后首先发送 {@code CONNECT|channelId|role|signature} 握手行，
  * 随后即为裸字节流（与 TcpProxyServer 相同模式）。</p>
  *
- * <p>可选端到端加密（AES-256-GCM）：开启后握手行之后的载荷按帧加密传输，
- * 帧格式 {@code [4B 长度][12B nonce][密文+16B 认证标签]}，密钥由共享 token 派生，
+ * <p>可选流加密（AES-256-GCM 帧式，见 {@link com.chua.common.support.network.crypto.AesGcmUtils}）：
+ * 开启后整个连接（含握手行）均在客户端侧加解密，密钥由共享 token 派生，
  * 服务端仅桥接密文无法窥探内容。加密开关要求 visitor 与 provider 两侧一致。</p>
  *
  * @author CH
@@ -43,21 +38,6 @@ class SipTunnelStream {
      * 角色：提供方
      */
     static final String ROLE_PROVIDER = "provider";
-
-    /**
-     * GCM nonce 长度（字节）
-     */
-    private static final int NONCE_LEN = 12;
-
-    /**
-     * GCM 认证标签长度（字节）
-     */
-    private static final int TAG_LEN = 16;
-
-    /**
-     * 单帧最大长度（含 nonce 与标签），超出视为协议错误并断链
-     */
-    private static final int MAX_FRAME_LEN = 64 * 1024 + NONCE_LEN + TAG_LEN;
 
     /**
      * 通道标识
@@ -88,11 +68,6 @@ class SipTunnelStream {
      * 加密密钥（由共享 token 派生）
      */
     private final SecretKeySpec aesKey;
-
-    /**
-     * 随机数发生器（生成每帧 nonce）
-     */
-    private final SecureRandom random = new SecureRandom();
 
     /**
      * 是否已关闭
@@ -134,21 +109,6 @@ class SipTunnelStream {
     }
 
     /**
-     * 由共享 token 派生 AES-256 密钥（SHA-256）。
-     *
-     * @param token 共享令牌
-     * @return AES 密钥
-     */
-    private static SecretKeySpec deriveKey(String token) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return new SecretKeySpec(digest.digest(token.getBytes(StandardCharsets.UTF_8)), "AES");
-        } catch (Exception e) {
-            throw new IllegalStateException("SIP 加密密钥派生失败", e);
-        }
-    }
-
-    /**
      * 获取通道标识。
      *
      * @return 通道标识
@@ -165,36 +125,8 @@ class SipTunnelStream {
      */
     void send(byte[] payload) throws IOException {
         synchronized (out) {
-            if (!encrypt) {
-                out.write(payload);
-            } else {
-                out.write(encryptFrame(payload));
-            }
+            out.write(payload);
             out.flush();
-        }
-    }
-
-    /**
-     * 将明文加密为一帧：[4B 长度][12B nonce][密文+标签]。
-     *
-     * @param plain 明文
-     * @return 完整帧
-     * @throws IOException 加密失败
-     */
-    private byte[] encryptFrame(byte[] plain) throws IOException {
-        try {
-            byte[] nonce = new byte[NONCE_LEN];
-            random.nextBytes(nonce);
-            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, aesKey, new GCMParameterSpec(TAG_LEN * 8, nonce));
-            byte[] cipherText = cipher.doFinal(plain);
-            ByteBuffer buffer = ByteBuffer.allocate(4 + NONCE_LEN + cipherText.length);
-            buffer.putInt(NONCE_LEN + cipherText.length);
-            buffer.put(nonce);
-            buffer.put(cipherText);
-            return buffer.array();
-        } catch (Exception e) {
-            throw new IOException("SIP 帧加密失败: " + channelId, e);
         }
     }
 
@@ -206,12 +138,8 @@ class SipTunnelStream {
     void startRead(Consumer<byte[]> consumer) {
         ThreadUtils.startVirtualThread("sip-data-stream-" + channelId, () -> {
             try {
-                InputStream in = socketIn;
-                if (!encrypt) {
-                    readRaw(in, consumer);
-                } else {
-                    readFrames(in, consumer);
-                }
+                // socketIn 在加密模式下已包装为解密流，统一按裸字节读取
+                readRaw(socketIn, consumer);
             } catch (Exception e) {
                 if (!closed) {
                     log.debug("SIP 数据流读取异常: {}", e.getMessage());
@@ -223,7 +151,7 @@ class SipTunnelStream {
     }
 
     /**
-     * 裸字节流读取（未加密模式）。
+     * 裸字节流读取。
      *
      * @param in       输入流
      * @param consumer 数据消费者
@@ -239,59 +167,6 @@ class SipTunnelStream {
                 consumer.accept(data);
             }
         }
-    }
-
-    /**
-     * 帧模式读取（加密模式）：逐帧解密后回调。
-     *
-     * @param in       输入流
-     * @param consumer 数据消费者
-     * @throws IOException IO 异常或认证失败
-     */
-    private void readFrames(InputStream in, Consumer<byte[]> consumer) throws IOException {
-        while (!closed) {
-            byte[] lenBytes = readFully(in, 4);
-            int len = ByteBuffer.wrap(lenBytes).getInt();
-            if (len <= 0 || len > MAX_FRAME_LEN) {
-                throw new IOException("SIP 加密帧长度非法: " + len);
-            }
-            byte[] frame = readFully(in, len);
-            byte[] nonce = new byte[NONCE_LEN];
-            byte[] cipherText = new byte[len - NONCE_LEN];
-            System.arraycopy(frame, 0, nonce, 0, NONCE_LEN);
-            System.arraycopy(frame, NONCE_LEN, cipherText, 0, cipherText.length);
-            try {
-                Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-                cipher.init(Cipher.DECRYPT_MODE, aesKey, new GCMParameterSpec(TAG_LEN * 8, nonce));
-                byte[] plain = cipher.doFinal(cipherText);
-                if (!closed) {
-                    consumer.accept(plain);
-                }
-            } catch (java.security.GeneralSecurityException e) {
-                throw new IOException("SIP 解密失败: " + channelId, e);
-            }
-        }
-    }
-
-    /**
-     * 阻塞读满指定长度。
-     *
-     * @param in 输入流
-     * @param n  期望长度
-     * @return 读满的字节数组
-     * @throws IOException 流结束或 IO 异常
-     */
-    private byte[] readFully(InputStream in, int n) throws IOException {
-        byte[] data = new byte[n];
-        int offset = 0;
-        while (offset < n) {
-            int read = in.read(data, offset, n - offset);
-            if (read == -1) {
-                throw new IOException("SIP 加密帧不完整，连接已关闭");
-            }
-            offset += read;
-        }
-        return data;
     }
 
     /**
