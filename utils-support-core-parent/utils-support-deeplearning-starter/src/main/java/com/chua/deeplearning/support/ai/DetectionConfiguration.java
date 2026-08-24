@@ -14,6 +14,12 @@ import java.util.Map;
  */
 public class DetectionConfiguration {
 
+    /** 运行参数键：置信度阈值 */
+    public static final String KEY_THRESHOLD = "threshold";
+
+    /** 运行参数键：NMS IOU 阈值 */
+    public static final String KEY_IOU_THRESHOLD = "iouThreshold";
+
     /** 默认配置实例 */
     /** 默认 */
     public static final DetectionConfiguration DEFAULT = new DetectionConfiguration();
@@ -79,6 +85,31 @@ public class DetectionConfiguration {
      */
     public Map<String, Object> systemOption() {
         return systemOption;
+    }
+
+    /**
+     * 读取浮点运行参数。
+     *
+     * @param key 键（如 {@link #KEY_THRESHOLD}）
+     * @param def 默认值
+     * @return 参数值或默认值
+     */
+    public float optFloat(String key, float def) {
+        if (systemOption == null) {
+            return def;
+        }
+        Object v = systemOption.get(key);
+        if (v instanceof Number num) {
+            return num.floatValue();
+        }
+        if (v instanceof String s && !s.isBlank()) {
+            try {
+                return Float.parseFloat(s.trim());
+            } catch (NumberFormatException ignored) {
+                return def;
+            }
+        }
+        return def;
     }
 
     /**

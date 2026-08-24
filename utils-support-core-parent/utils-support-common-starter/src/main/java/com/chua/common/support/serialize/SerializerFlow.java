@@ -32,6 +32,8 @@ import java.lang.reflect.Type;
  */
 public class SerializerFlow {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 底层序列化提供者
      */

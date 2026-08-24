@@ -469,7 +469,11 @@ public boolean tRNS_present;
      * @param metadata metadata
      */
     public PNGMetadata(IIOMetadata metadata) {
-        // TODO -- implement
+        super(metadata.isNativeFormat(),
+              metadata.getNativeMetadataFormatName(),
+              metadata.getNativeMetadataFormatClassName(),
+              metadata.getMetadataFormatNames(),
+              metadata.getStandardMetadataFormatInstance());
     }
 
     /** 初始化 */

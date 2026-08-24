@@ -240,6 +240,7 @@ public class AgentScopeAgent implements Agent {
     @Override
     /** PrintConfig */
     public Agent printConfig(boolean printConfig) {
+                this.printConfig = printConfig;
         if (printConfig) {
             log.info("[Agent] printConfig已弃用，请使用debug(true)启用日志调试");
         }
@@ -316,7 +317,11 @@ public class AgentScopeAgent implements Agent {
                 this.maxToolIterations,
                 definition != null ? definition.getMaxToolIterations() : 0);
 
+        if (printConfig) {
+            printArchitectureDiagram();
+        }
         if (debugLogging) {
+            printSystemPromptsTree();
             logArchitecture(effectiveMaxIters);
         }
 
@@ -602,6 +607,74 @@ public class AgentScopeAgent implements Agent {
     }
 
     /** 记录日志Architecture */
+    /**
+     * 打印代理架构图（printConfig(true) 时随 run 输出到宿主控制台）。
+     */
+    private static final String DIAGRAM_HEADER = "===== Agent Architecture Diagram =====";
+    private static final String PROMPTS_TREE_HEADER = "===== System Prompts Tree =====";
+    private static final String ROUTER_NODE_LABEL = "\u53ef\u7528\u5b50 Agent";
+
+    /**
+     * Print architecture diagram (printConfig(true)).
+     */
+    private void printArchitectureDiagram() {
+        boolean leader = definition != null && definition.isLeader();
+        String mainLabel = leader ? "Main Agent"
+                : (definition != null && definition.getName() != null ? definition.getName() : "Agent");
+        StringBuilder sb = new StringBuilder();
+        sb.append(DIAGRAM_HEADER).append('\n');
+        sb.append("[Leader] ").append(mainLabel);
+        if (definition != null && definition.getId() != null) {
+            sb.append(" (id=").append(definition.getId()).append(')');
+        }
+        sb.append('\n');
+        for (ChatClient cc : chatClients.values()) {
+            sb.append("  ChatClient: ").append(cc).append('\n');
+        }
+        sb.append("SubAgents (").append(subAgentDefinitions.size()).append("):\n");
+        int i = 1;
+        for (AgentDefinition sub : subAgentDefinitions) {
+            String sid = sub.getId() != null ? sub.getId() : ("sub-" + i);
+            String sname = sub.getName() != null ? sub.getName() : "Unnamed";
+            if (sub instanceof com.chua.common.support.ai.agent.ImageDefinition img) {
+                sb.append("  [").append(i).append("] ImageGenerationModel(")
+                  .append(img.getImageModel()).append(") | ").append(sname).append('\n');
+            } else {
+                sb.append("  [").append(i).append("] ").append(sid).append(" | ").append(sname).append('\n');
+            }
+            i++;
+        }
+        System.out.print(sb);
+    }
+
+    /**
+     * Print system prompts tree (debug(true)); router node only for leader+ROUTER.
+     */
+    private void printSystemPromptsTree() {
+        boolean leader = definition != null && definition.isLeader();
+        String mainName = definition != null && definition.getName() != null ? definition.getName() : "?";
+        String mainLabel = leader ? "Main Agent" : mainName;
+        boolean routerPrefix = leader && mode == AgentMode.ROUTER;
+        StringBuilder sb = new StringBuilder();
+        sb.append(PROMPTS_TREE_HEADER).append('\n');
+        sb.append("[Main Agent] ").append(mainName).append('\n');
+        if (routerPrefix) {
+            sb.append("  [").append(ROUTER_NODE_LABEL)
+              .append("] dispatch requests to sub agents\n");
+        }
+        sb.append("  - prompt: ")
+          .append(definition != null && definition.getInstruction() != null ? definition.getInstruction() : "")
+          .append('\n');
+        for (AgentDefinition sub : subAgentDefinitions) {
+            sb.append("  - ").append(sub.getName() != null ? sub.getName() : sub.getId()).append('\n');
+            sb.append("      prompt: ")
+              .append(sub.getInstruction() != null ? sub.getInstruction() : "").append('\n');
+        }
+        System.err.println("===TREE-BEGIN===");
+        System.err.println(sb);
+        System.err.println("===TREE-END===");
+        System.out.print(sb);
+    }
     private void logArchitecture(int effectiveMaxIters) {
         String mainAgentId = definition != null && definition.getId() != null ? definition.getId() : "agent";
         String mainAgentName = definition != null && definition.getName() != null ? definition.getName() : "Agent";

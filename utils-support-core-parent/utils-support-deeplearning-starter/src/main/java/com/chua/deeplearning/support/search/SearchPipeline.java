@@ -95,6 +95,23 @@ public class SearchPipeline {
     }
 
     /**
+     * 入库：提取图像特征并写入向量库。
+     *
+     * @param id 业务标识
+     * @param imageData 图像字节
+     * @throws IllegalStateException 特征为空或入库失败
+     */
+    public void enroll(String id, byte[] imageData) {
+        float[] feature = featureExtractor.extract(imageData);
+        if (feature == null) {
+            throw new IllegalStateException("特征提取失败，无法入库: " + id);
+        }
+        if (!vectorStorage.add(id, feature)) {
+            throw new IllegalStateException("向量入库失败: " + id);
+        }
+    }
+
+    /**
      * 执行检索。
      *
      * @param imageData 查询图

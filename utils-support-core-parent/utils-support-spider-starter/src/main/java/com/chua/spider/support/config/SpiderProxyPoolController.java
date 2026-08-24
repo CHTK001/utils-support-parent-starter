@@ -31,14 +31,14 @@ public class SpiderProxyPoolController {
     /**
      * 代理节点连通性测试器
      */
-    private final SpiderProxyTester tester;
+    private final SpiderProxyProbe tester;
 
     /**
      * 创建 SpiderProxyPoolController 实例
      * @param store store
-     * @param SpiderProxyTester SpiderProxyTester
+     * @param SpiderProxyProbe SpiderProxyProbe
      */
-    public SpiderProxyPoolController(SpiderProxyPoolStore store, SpiderProxyTester tester) {
+    public SpiderProxyPoolController(SpiderProxyPoolStore store, SpiderProxyProbe tester) {
         this.store = store;
         this.tester = tester;
     }

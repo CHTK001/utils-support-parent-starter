@@ -97,6 +97,16 @@ public class TablesawEngine implements Engine {
         return this;
     }
 
+    /**
+     * 获取默认数据源名称。
+     *
+     * @return 默认数据源名称
+     */
+    @Override
+    public String getDefaultDataSourceName() {
+        return defaultDataSourceName;
+    }
+
     @Override
     /** Store */
     public <T> Engine store(String name, List<T> data) {

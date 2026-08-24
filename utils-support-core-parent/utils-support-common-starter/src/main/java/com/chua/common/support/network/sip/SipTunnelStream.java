@@ -1,8 +1,11 @@
 package com.chua.common.support.network.sip;
 
+import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
+import com.chua.common.support.network.crypto.AesGcmUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,8 +17,12 @@ import java.util.function.Consumer;
  * frp 数据平面客户端连接：与 SipServer 数据平面建立独立 TCP 长连接，
  * 握手携带签名后进入裸字节流双向透传，无 Base64 开销、无帧封装。
  *
- * <p>连接建立后首先发送 {@code channelId|role|signature} 握手行，
+ * <p>连接建立后首先发送 {@code CONNECT|channelId|role|signature} 握手行，
  * 随后即为裸字节流（与 TcpProxyServer 相同模式）。</p>
+ *
+ * <p>可选流加密（AES-256-GCM 帧式，见 {@link com.chua.common.support.network.crypto.AesGcmUtils}）：
+ * 开启后整个连接（含握手行）均在客户端侧加解密，密钥由共享 token 派生，
+ * 服务端仅桥接密文无法窥探内容。加密开关要求 visitor 与 provider 两侧一致。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -44,9 +51,24 @@ class SipTunnelStream {
     private final Socket socket;
 
     /**
-     * 输出流
+     * 输出流（加密开启时为加密流）
      */
     private final OutputStream out;
+
+    /**
+     * 输入流（加密开启时为解密流）
+     */
+    private final InputStream socketIn;
+
+    /**
+     * 是否启用端到端加密（AES-256-GCM）
+     */
+    private final boolean encrypt;
+
+    /**
+     * 加密密钥（由共享 token 派生）
+     */
+    private final SecretKeySpec aesKey;
 
     /**
      * 是否已关闭
@@ -56,20 +78,33 @@ class SipTunnelStream {
     /**
      * 建立数据平面连接（携带签名握手）。
      *
-     * @param host      数据平面地址
-     * @param port      数据平面端口
-     * @param channelId 通道标识
-     * @param role      角色（visitor / provider）
-     * @param token     认证令牌
+     * @param host        数据平面地址
+     * @param port        数据平面端口
+     * @param channelId   通道标识
+     * @param role        角色（visitor / provider）
+     * @param sharedToken 共享令牌（流加密密钥派生源，与服务端 encryptKey 一致）
+     * @param sessionToken 会话令牌（CONNECT 握手签名用）
+     * @param encrypt     是否启用流加密（两侧需一致）
      * @throws IOException IO 异常
      */
-    SipTunnelStream(String host, int port, String channelId, String role, String token) throws IOException {
+    SipTunnelStream(String host, int port, String channelId, String role,
+                    String sharedToken, String sessionToken, boolean encrypt) throws IOException {
         this.channelId = channelId;
+        this.encrypt = encrypt;
+        this.aesKey = encrypt ? AesGcmUtils.deriveKey(sharedToken) : null;
         this.socket = new Socket();
         socket.setTcpNoDelay(true);
         socket.connect(new java.net.InetSocketAddress(host, port), 5000);
-        this.out = socket.getOutputStream();
-        String signature = com.chua.common.support.lang.algorithm.hmac.HMacUtils.hmacSha256Hex(token, channelId + role);
+        OutputStream rawOut = socket.getOutputStream();
+        InputStream rawIn = socket.getInputStream();
+        if (encrypt) {
+            // 加密包装必须先于握手行：服务端从连接首字节即开始解密
+            rawOut = AesGcmUtils.encrypting(rawOut, aesKey);
+            rawIn = AesGcmUtils.decrypting(rawIn, aesKey);
+        }
+        this.out = rawOut;
+        this.socketIn = rawIn;
+        String signature = HMacUtils.hmacSha256Hex(sessionToken, channelId + role);
         out.write((SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR
                 + channelId + SipProtocol.SEPARATOR + role + SipProtocol.SEPARATOR + signature + "\n")
                 .getBytes(StandardCharsets.UTF_8));
@@ -86,7 +121,7 @@ class SipTunnelStream {
     }
 
     /**
-     * 发送字节流。
+     * 发送字节流（加密开启时按 GCM 帧加密）。
      *
      * @param payload 负载字节
      * @throws IOException IO 异常
@@ -99,24 +134,16 @@ class SipTunnelStream {
     }
 
     /**
-     * 启动读循环，将收到的裸字节流回调给消费者。
+     * 启动读循环，将收到的字节流（加密开启时先解密）回调给消费者。
      *
      * @param consumer 数据消费者
      */
     void startRead(Consumer<byte[]> consumer) {
         ThreadUtils.startVirtualThread("sip-data-stream-" + channelId, () -> {
             try {
-                InputStream in = socket.getInputStream();
-                byte[] buf = new byte[64 * 1024];
-                int n;
-                while (!closed && (n = in.read(buf)) != -1) {
-                    byte[] data = new byte[n];
-                    System.arraycopy(buf, 0, data, 0, n);
-                    if (!closed) {
-                        consumer.accept(data);
-                    }
-                }
-            } catch (IOException e) {
+                // socketIn 在加密模式下已包装为解密流，统一按裸字节读取
+                readRaw(socketIn, consumer);
+            } catch (Exception e) {
                 if (!closed) {
                     log.debug("SIP 数据流读取异常: {}", e.getMessage());
                 }
@@ -124,6 +151,25 @@ class SipTunnelStream {
                 close();
             }
         });
+    }
+
+    /**
+     * 裸字节流读取。
+     *
+     * @param in       输入流
+     * @param consumer 数据消费者
+     * @throws IOException IO 异常
+     */
+    private void readRaw(InputStream in, Consumer<byte[]> consumer) throws IOException {
+        byte[] buf = new byte[64 * 1024];
+        int n;
+        while (!closed && (n = in.read(buf)) != -1) {
+            byte[] data = new byte[n];
+            System.arraycopy(buf, 0, data, 0, n);
+            if (!closed) {
+                consumer.accept(data);
+            }
+        }
     }
 
     /**

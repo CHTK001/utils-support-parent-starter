@@ -1016,11 +1016,80 @@ public class FacePipeline {
      * @return 框列表
      */
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
-        List<PredictRectangle> boxes = detector.detect(imageData);
-        if (boxes == null || boxes.isEmpty()) {
+        // 双检测器合并：常规模型检真人、动漫模型检动漫脸，混合图两者互补；
+        // 结果合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 labelName 判断。
+        List<PredictRectangle> merged = new ArrayList<>();
+        try {
+            List<PredictRectangle> boxes = detector.detect(imageData);
+            if (boxes != null) {
+                merged.addAll(boxes);
+            }
+        } catch (Exception e) {
+            log.debug("[face-pipeline] 常规检测失败: {}", e.getMessage());
+        }
+        if (animeDetector != null) {
+            try {
+                List<PredictRectangle> animeBoxes = animeDetector.detect(imageData);
+                if (animeBoxes != null) {
+                    merged.addAll(animeBoxes);
+                }
+            } catch (Exception e) {
+                log.debug("[face-pipeline] 动漫检测失败: {}", e.getMessage());
+            }
+        }
+        if (merged.isEmpty()) {
             return List.of();
         }
-        // 置信度 + 面积阈值过滤
+        return filterBoxes(crossNms(merged));
+    }
+
+    /**
+     * 跨模型合并 NMS：按置信度贪心保留，抑制两检测器对同一张脸的重复框。
+     *
+     * @param input 合并后的候选框
+     * @return 去重后的框列表
+     */
+    private static List<PredictRectangle> crossNms(List<PredictRectangle> input) {
+        List<PredictRectangle> pool = new ArrayList<>(input);
+        List<PredictRectangle> keep = new ArrayList<>();
+        while (!pool.isEmpty()) {
+            int best = 0;
+            for (int i = 1; i < pool.size(); i++) {
+                if (pool.get(i).confidence() > pool.get(best).confidence()) {
+                    best = i;
+                }
+            }
+            PredictRectangle b = pool.remove(best);
+            keep.add(b);
+            pool.removeIf(o -> iou(b, o) > 0.5f);
+        }
+        return keep;
+    }
+
+    /**
+     * 计算两框 IoU。
+     *
+     * @param a 框 a
+     * @param b 框 b
+     * @return IoU 值
+     */
+    private static float iou(PredictRectangle a, PredictRectangle b) {
+        float ix1 = Math.max(a.x(), b.x());
+        float iy1 = Math.max(a.y(), b.y());
+        float ix2 = Math.min(a.x() + a.width(), b.x() + b.width());
+        float iy2 = Math.min(a.y() + a.height(), b.y() + b.height());
+        float inter = Math.max(0f, ix2 - ix1) * Math.max(0f, iy2 - iy1);
+        float union = a.width() * a.height() + b.width() * b.height() - inter;
+        return union <= 0f ? 0f : inter / union;
+    }
+
+    /**
+     * 置信度 + 最小面积过滤。
+     *
+     * @param boxes 原始检测框
+     * @return 过滤后的框列表
+     */
+    private List<PredictRectangle> filterBoxes(List<PredictRectangle> boxes) {
         return boxes.stream()
                 .filter(b -> b.confidence() >= minConfidence || minConfidence == 0f)
                 .filter(b -> (b.width() * b.height()) >= minFaceArea || minFaceArea == 0f)

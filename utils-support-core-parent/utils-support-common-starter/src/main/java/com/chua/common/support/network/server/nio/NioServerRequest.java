@@ -487,17 +487,13 @@ public class NioServerRequest implements ServerRequest {
             Map<String, String> form = new LinkedHashMap<>();
             for (String pair : bodyStr.split("&")) {
                 String[] kv = pair.split("=", 2);
-                if (kv.length > 0) form.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) {
-                    : "");
-                }
+                if (kv.length > 0) form.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
             }
             return form;
         }
         if (lower.startsWith("multipart/form-data")) {
             MultipartParser parser = ServiceProvider.of(MultipartParser.class).getExtension("fileupload");
-            if (parser != null) return parser.parseFormFields(getBody() {
-                , ct);
-            }
+            if (parser != null) return parser.parseFormFields(getBody(), ct);
         }
         return Collections.emptyMap();
     }

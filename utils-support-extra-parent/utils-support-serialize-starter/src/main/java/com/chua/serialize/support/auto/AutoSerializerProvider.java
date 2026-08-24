@@ -36,6 +36,7 @@ public class AutoSerializerProvider implements SerializerProvider {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends Serializable> Serializer<T> getSerializer(Class<T> type) {
+        private static final long serialVersionUID = 1L;
         return (Serializer<T>) serializerCache.computeIfAbsent(type, t -> new AutoSerializer(t));
     }
 

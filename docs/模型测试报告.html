@@ -890,13 +890,22 @@ a { color: var(--accent); }
 <td>YOLOv5 车牌检测（证书失败）</td>
 </tr>
 <tr>
+<td>yolo11-plate-detect</td>
+<td>嵌入式</td>
+<td>37.8MB(v1s)</td>
+<td>~0.5s</td>
+<td>-</td>
+<td>✅ 通过（⭐推荐）</td>
+<td>YOLOv11 车牌检测（morsetechlab），内嵌 resources/vision/detection/yolo11_plate/，DJL Translator，5 测试图全部检出；替代 yolov5-plate-detect（2026-08-24）</td>
+</tr>
+<tr>
 <td>yolov5-plate-detect</td>
 <td>嵌入式</td>
 <td>3.7MB</td>
 <td>~1.2s</td>
 <td>-</td>
 <td>✅ 通过</td>
-<td>嵌入式车牌检测（ORT原生+OpenCV，已修复）</td>
+<td>已移除注册，由 yolo11-plate-detect 替代</td>
 </tr>
 <tr>
 <td>yolov5-plate-recognize</td>
@@ -918,6 +927,25 @@ a { color: var(--accent); }
 </tr>
 </tbody>
 </table>
+<hr>
+<h2 id="multi-detect-20260824">附：多模型检测综合实测（2026-08-24）</h2>
+<p>ImageDetector 统一入口批量验证（example-starter <code>MultiModelDetectExample</code>，标注图输出 <code>D:/images/output/{model-id}/</code>），7 模型 / 15 图、634+目标全部检出：</p>
+<table>
+<thead>
+<tr><th>模型ID</th><th>能力</th><th>测试图 → 检出数</th><th>结果</th></tr>
+</thead>
+<tbody>
+<tr><td>insightface-scrfd</td><td>人脸检测</td><td>1people <strong>1</strong> / 3people <strong>3</strong> / selfie <strong>243</strong></td><td>✅</td></tr>
+<tr><td>anime-face-detector</td><td>动漫脸检测（输出标签 anime_face）</td><td>anime.webp <strong>27</strong> / face1 <strong>39</strong> / face2 <strong>41</strong></td><td>✅</td></tr>
+<tr><td>doc-layout-yolo</td><td>文档版面</td><td>paper-real-full <strong>49</strong> / document <strong>3</strong> / table <strong>9</strong></td><td>✅</td></tr>
+<tr><td>paddleocrv6-det</td><td>PP-OCRv6 文字检测</td><td>ticket_new <strong>22</strong> / freetxt <strong>7</strong></td><td>✅</td></tr>
+<tr><td>duguang-det-small</td><td>读光 DBNet 文字检测</td><td>ticket <strong>20</strong> / chTable <strong>69</strong></td><td>✅</td></tr>
+<tr><td>yolov8s</td><td>COCO 80 类（自动下载 42.8MB，hf-mirror）</td><td>1people <strong>40</strong> / more car plate <strong>63</strong></td><td>✅</td></tr>
+<tr><td>yolov10n</td><td>通用检测（自动下载 9MB）</td><td>3peoplebeauty <strong>7</strong></td><td>✅</td></tr>
+<tr><td>yolov8s-world</td><td>开放词表检测（COCO-80 CLIP 嵌入，零下载）</td><td>1people <strong>2</strong> / more car plate <strong>0</strong>（无 plate 类）/ fire.webp <strong>0</strong>（无 fire 类）</td><td>✅</td></tr>
+</tbody>
+</table>
+<p><strong>根因修复：</strong>paddleocrv6-tiny / insightface-scrfd / anime-face / duguang-ocr 四个模型 jar 此前为 <code>test</code> 作用域、未进运行时 classpath，误报“资源缺失”；已改 <code>compile</code> 并重新安装 onnx-starter 后全部通过。另注意：java 直连 huggingface.co 仍 PKIX 证书失败，hf-mirror.com 镜像下载正常。</p>
 <hr>
 <h2 id="9-ocr">9. OCR/文字识别</h2>
 <table>
@@ -1052,20 +1080,6 @@ a { color: var(--accent); }
 <td><strong>⭐推荐（本地文件·最高精度）</strong> SCRFD 高精度人脸检测（G:\work\models\face\detection\scrfd\2.5g_bnkps.onnx）。<strong>实测</strong>：三个人.jpg 检测 3 张（conf 0.83/0.77/0.74）、黑白人物.jpg 1 张、很多人小脸.jpg 人群图 195 张（含大量 31~73px 小脸，小目标最全）</td>
 </tr>
 <tr>
-<td>ultra-face</td>
-<td>自动下载</td>
-<td>~5MB</td>
-<td>⏳ 下载受限</td>
-<td>超轻量人脸检测（证书失败）</td>
-</tr>
-<tr>
-<td>yolo-face-detector</td>
-<td>自动下载</td>
-<td>~6MB</td>
-<td>⏳ 下载受限</td>
-<td>YOLOv11n 人脸检测（证书失败）</td>
-</tr>
-<tr>
 <td>faceplugin-face-detect-slim</td>
 <td>嵌入式</td>
 <td>1.13MB</td>
@@ -1100,14 +1114,14 @@ a { color: var(--accent); }
 <td>11.5MB</td>
 <td>~374ms</td>
 <td>✅ 通过</td>
-<td>动漫人脸检测（YOLOv8 v1.4_n，deepghs/anime_face_detection，内嵌 jar <code>utils-support-models-onnx-anime-face</code>）。<strong>实测</strong>：动漫图检测 12 张人脸（conf 0.30~0.72）。重写为纯 Java 预处理（onnxruntime 不支持 NDArray letterbox/resize/NMS）</td>
+<td>动漫人脸检测（YOLOv8 v1.4_n，deepghs/anime_face_detection，内嵌 jar <code>utils-support-models-onnx-anime-face</code>）。<strong>实测（4 图含 webp）</strong>：anime.jpg 33 张 / anime.webp 27 张 / anime_face1.png 39 张 / anime_face2.png 41 张（conf 0.30~0.72，耗时 568~5653ms）。<strong>运行时修复</strong>：<code>ModelRegistry.newTranslatorInstance</code> 在 JDK25 上 <code>ReflectUtils.instantiate</code>（MethodHandle）静默返回 null 导致 translator=null NPE，改标准反射 <code>getDeclaredConstructor().newInstance()</code>；<code>DjlModelTranslator.translate</code> 图像分支改用 <code>ImageIO.read</code> 解码（原 <code>ImageUtils.toBufferedImage</code> 经 OpenCV 返回 null）。重写为纯 Java 预处理（onnxruntime 不支持 NDArray letterbox/resize/NMS）</td>
 </tr>
 <tr>
 <td>anime-face-yolov8</td>
 <td>自动下载</td>
 <td>~6MB</td>
 <td>⏳ 下载受限</td>
-<td>YOLOv8 动漫人脸检测（证书失败）</td>
+<td>YOLOv8 动漫人脸检测（Fuyucchi/yolov8_animeface）。<strong>实测</strong>：环境无外网，hf 证书失败(PKIX) + hf-mirror 超时，自动下载失败，无法实测（维持下载受限）</td>
 </tr>
 </tbody>
 </table>

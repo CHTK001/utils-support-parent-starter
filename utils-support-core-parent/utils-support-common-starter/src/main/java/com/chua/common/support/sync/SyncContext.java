@@ -24,6 +24,8 @@ import java.util.Map;
 @AllArgsConstructor
 public class SyncContext implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 输入源标识
      */

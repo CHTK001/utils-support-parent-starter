@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * PP-OCRv6 文字检测（DB 算法，ORT 原生 + OpenCV）。
@@ -45,13 +46,36 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     /** Max_side */
     private static final int MAX_SIDE = 960;
 
+        /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
+
     /**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public PpOcrDetTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this();
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
+/**
      * 获取 DB 二值化阈值，子类可覆盖（如 medium 模型用 0.25）。
      *
      * @return 阈值
      */
     protected float getThreshold() {
-        return THRESHOLD;
+        return thresholdOverride > 0 ? thresholdOverride : THRESHOLD;
     }
 
     /** 模型文件路径 */

@@ -23,6 +23,8 @@ import java.util.function.BiConsumer;
  */
 public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /** targetMap */
     private final Map<K, List<V>> targetMap = new LinkedHashMap<>();
 

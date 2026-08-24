@@ -26,6 +26,62 @@
             <artifactId>parquet-avro</artifactId>
             <version>1.14.4</version>
         </dependency>
+        <!-- 根 parent 将 parquet-hadoop 管理到 1.15.2，与 avro 1.14.4 混用会缺类；显式对齐 -->
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-hadoop</artifactId>
+            <version>1.14.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-common</artifactId>
+            <version>1.14.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-column</artifactId>
+            <version>1.14.4</version>
+        </dependency>
 
-    </dependencies>
+        <!--
+            仅编译期需要：AvroParquetWriter.builder 存在 hadoop Path 重载，
+            缺失该类型会导致重载解析失败。本引擎实际走 OutputFile 本地文件通道，
+            运行期不会触发 Hadoop FileSystem/UGI。
+        -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-api</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-runtime</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+
+            <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- 客户端库存在非守护线程，测试完成后强制回收 fork 进程 -->
+                    <forkedProcessExitTimeoutInSeconds>15</forkedProcessExitTimeoutInSeconds>
+                    <surefire.timeout>120</surefire.timeout>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

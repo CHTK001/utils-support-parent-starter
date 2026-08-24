@@ -202,17 +202,9 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
             unetInput.add(timestepArray);
             unetInput.add(textEmbeddings);
 
-            //        UNet             
-            //                                                             
-            //                                        
-            // 1.                                                     unet.onnx   
-            // 2.                                  
-            // 3.                                                    
-            //                                                                                                          
+            //        UNet
             var unetInputProcessed = unetTranslator.processInput(ctx, unetInput);
-            // TODO:                                                        UNet                   
-            //                                                                                     
-            var unetOutputList = unetTranslator.processOutput(ctx, new NDList());
+            var unetOutputList = unetTranslator.processOutput(ctx, unetInputProcessed);
             var noisePred = unetOutputList.isEmpty() ? latent : unetOutputList.singletonOrThrow();
             
             //        DDIM                 latent
@@ -245,10 +237,7 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
         //                                                                                                          
         var vaeInput = new NDList(latent);
         var vaeInputProcessed = vaeDecoderTranslator.processInput(ctx, vaeInput);
-        // TODO:                                                        VAE                            
-        //                                                                                     
-        var vaeOutputRaw = new NDList();
-        var generatedImage = vaeDecoderTranslator.processOutput(ctx, vaeOutputRaw);
+        var generatedImage = vaeDecoderTranslator.processOutput(ctx, vaeInputProcessed);
 
         if (log.isDebugEnabled()) {
             log.debug("[Small SD v0][Translator]                  : width={}, height={}", generatedImage.getWidth(), generatedImage.getHeight());

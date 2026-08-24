@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <pre>{@code
  * // 定义消息类
  * public class User implements Serializable {
+     private static final long serialVersionUID = 1L;
  *     @Tag(1)
  *     private String name;
  *     @Tag(2)

@@ -131,9 +131,7 @@ public class JdkUdpServer extends AbstractServer {
                 InetSocketAddress sender = new InetSocketAddress(packet.getAddress(), packet.getPort());
                 workerPool.submit(() -> handlePacket(data, sender));
             } catch (Exception e) {
-                if (running) log.debug("UDP 接收异常: {}", e.getMessage() {
-                    );
-                }
+                if (running) log.debug("UDP 接收异常: {}", e.getMessage());
             }
         }
     }

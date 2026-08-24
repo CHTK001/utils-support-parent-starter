@@ -71,6 +71,24 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
+     * 创建 YoloV8sTranslator 实例（支持运行参数覆盖阈值）。
+     *
+     * <p>支持的键：{@code threshold}（置信度，默认 0.25）、{@code iouThreshold}（默认 0.45），
+     * 未提供的键使用内置准确默认值。</p>
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public YoloV8sTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this(configuration == null ? DEFAULT_THRESHOLD
+                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD,
+                        DEFAULT_THRESHOLD),
+                configuration == null ? DEFAULT_NMS_THRESHOLD
+                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD,
+                        DEFAULT_NMS_THRESHOLD), CLASSES);
+    }
+
+
+    /**
      * 创建 YoloV8sTranslator 实例
      * @param threshold threshold
      * @param float float

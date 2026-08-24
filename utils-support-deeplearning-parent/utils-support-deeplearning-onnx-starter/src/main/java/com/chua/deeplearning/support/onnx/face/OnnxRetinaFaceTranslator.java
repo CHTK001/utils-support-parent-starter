@@ -18,17 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * RetinaFace 人脸检测 Translator（ONNX 版，AIAS traced 导出）。
- *
- * <p>模型输出 3 个 tensor：loc([1,N,4])、conf([1,N,2])、landms([1,N,10])，N 由输入尺寸决定。
- * 关键点顺序：左眼、右眼、鼻、左嘴角、右嘴角，用于 5 点仿射对齐。输入为原图尺寸（任意 H×W）。</p>
- *
- * @author CH
- * @since 4.0.0.42
- */
 public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjects> {
-
+    /**     * 构造 Translator，支持从外部传入参数键值对。     *     * @param configuration 检测配置，可空；未提供时使用默认值     */    public OnnxRetinaFaceTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {        this(configuration == null ? java.util.Collections.emptyMap() : configuration.systemOption());    }
     private static final int TOP_K = 200;
     private static final double EYE_DIST_THRESHOLD = 5;
     private static final double[] VARIANCE = {0.1, 0.2};

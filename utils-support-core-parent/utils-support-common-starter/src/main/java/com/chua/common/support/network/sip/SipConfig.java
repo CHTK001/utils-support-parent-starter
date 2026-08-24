@@ -48,6 +48,16 @@ public class SipConfig {
     private String token = "chua-sip-default-token";
 
     /**
+     * 流加密开关（AES-256-GCM 帧式加密，密钥短语复用 {@link #token}）。
+     *
+     * <p>开启后服务端与所有客户端的信令及数据面均加密传输；
+     * 要求服务端与全部客户端同时开启，默认关闭。</p>
+     */
+    @Builder.Default
+    /** 加密是否启用 */
+    private boolean encrypt = false;
+
+    /**
      * 创建一份独立的默认配置。
      *
      * @return 新的默认配置实例

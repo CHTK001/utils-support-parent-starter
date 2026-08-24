@@ -68,6 +68,10 @@ public class ClusterServer implements AutoCloseable {
         return node.getTcpPort();
     }
 
+    public int getScatterPort() {
+        return node.getScatterPort();
+    }
+
     @Override
     public void close() throws Exception {
         node.close();
@@ -171,10 +175,8 @@ public class ClusterServer implements AutoCloseable {
             return addServer(servicePath, host, port, "http");
         }
 
-        /**
-         * 设置集群 master 节点（域名/主入口），用于网关模式下的流量入口标记。
-         * 仅记录元数据，不影响 scatter 对等发现逻辑。
-         */
+        /** 设置集群 master 节点（域名/主入口，用于标识集群中的引导节点）。
+         * 仅作为元数据记录，不影响 scatter 对等发现逻辑。 */
         public Builder master(String master) {
             setting.setMaster(master);
             return this;
