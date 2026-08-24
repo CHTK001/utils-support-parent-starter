@@ -942,6 +942,7 @@ a { color: var(--accent); }
 <tr><td>duguang-det-small</td><td>读光 DBNet 文字检测</td><td>ticket <strong>20</strong> / chTable <strong>69</strong></td><td>✅</td></tr>
 <tr><td>yolov8s</td><td>COCO 80 类（自动下载 42.8MB，hf-mirror）</td><td>1people <strong>40</strong> / more car plate <strong>63</strong></td><td>✅</td></tr>
 <tr><td>yolov10n</td><td>通用检测（自动下载 9MB）</td><td>3peoplebeauty <strong>7</strong></td><td>✅</td></tr>
+<tr><td>yolov8s-world</td><td>开放词表检测（COCO-80 CLIP 嵌入，零下载）</td><td>1people <strong>2</strong> / more car plate <strong>0</strong>（无 plate 类）/ fire.webp <strong>0</strong>（无 fire 类）</td><td>✅</td></tr>
 </tbody>
 </table>
 <p><strong>根因修复：</strong>paddleocrv6-tiny / insightface-scrfd / anime-face / duguang-ocr 四个模型 jar 此前为 <code>test</code> 作用域、未进运行时 classpath，误报“资源缺失”；已改 <code>compile</code> 并重新安装 onnx-starter 后全部通过。另注意：java 直连 huggingface.co 仍 PKIX 证书失败，hf-mirror.com 镜像下载正常。</p>
