@@ -1,6 +1,20 @@
 # utils-support-greptimedb-starter
 
-GreptimeDB 时序数据库 Ingester 集成模块，基于官方 gRPC Java SDK (`io.greptime:ingester-all`) 提供 `Engine` 引擎与高性能写入能力。
+GreptimeDB 时序数据库集成模块：**写入**走官方 gRPC Ingester SDK（`io.greptime:ingester-all`，单表/批量/流式/Bulk 堆外写入），**查询与删除**经 HTTP `/v1/sql` 执行真实 SQL，通过 `Engine` 接口提供统一的 Lambda 链式 ORM 能力。
+
+## 读写架构
+
+| 操作 | 通道 | 说明 |
+|---|---|---|
+| `write(Table)` / `write(Table...)` | gRPC :4001 | 官方 SDK 异步写入，自动建表 |
+| `client().streamWriter()` | gRPC :4001 | 流式限速写入 |
+| `client().bulkStreamWriter()` | Arrow Flight | 堆外高性能批量写入 |
+| `query(Class)` Lambda 链式 | HTTP /v1/sql | WHERE/ORDER BY 翻译为真实 SQL 下推 |
+| `delete(Class)` Lambda 链式 | HTTP /v1/sql | 真实 DELETE（条件需命中 tag/time 列） |
+| `update(Class)` | — | **时序库无 UPDATE**：相同 tag+时间戳重新 write 即覆盖(upsert)，调用将抛出明确异常 |
+
+> 查询列名归一化：Lambda 解析出的驼峰/去下划线标识符会自动映射回实体真实 snake_case 列名。
+> gRPC 端点默认推导同主机 HTTP 端口 4000；非标准部署可 `setHttpEndpoint("http://host:port")` 覆盖。
 
 ---
 
@@ -81,13 +95,29 @@ docker run -d --name greptimedb \
 
 ---
 
-## 依赖版本注意（protobuf）
+## 依赖版本注意（protobuf / netty）
 
-GreptimeDB Java SDK 的 proto（`greptimedb-proto 0.9.0`）由旧版 protoc 生成，依赖
-`protobuf-java 3.x` 运行期。若 classpath 上存在 `protobuf-java 4.x`（如被
-`utils-support-common-starter` 传递引入 4.31.1），写入时会抛出
-`NoSuchMethodError: makeExtensionsImmutable()`。本模块已在 `pom.xml` 中显式固定
-`protobuf-java 3.21.12` 解决该冲突。
+1. **protobuf 固定 3.25.1**：项目传递引入的 `protobuf-java 4.31.1` 会使 GreptimeDB proto 抛
+   `NoSuchMethodError: makeExtensionsImmutable()`；而 3.21.12 又缺少 Arrow Flight 14 生成代码所需的
+   `LazyStringArrayList.emptyList()`。**3.25.1**（GreptimeDB SDK 自身 dependencyManagement 所用版本）
+   同时兼容两者，本模块已显式固定。
+
+2. **Netty 全工程统一 4.2.15（Bulk 写入兼容方案）**：GreptimeDB 的 Bulk 写入依赖 Apache Arrow 14，
+   其默认的 `arrow-memory-netty` 分配器会反射读取 Netty `PoolArena.chunkSize` 字段，
+   该字段在 Netty 4.2 中已被移除。本模块的处理方式：
+   - 从 `ingester-all` 中 **exclude 掉 `arrow-memory-netty`**；
+   - 引入 **`arrow-memory-unsafe` 14.0.2**（Unsafe 堆外分配器，完全不依赖 Netty）；
+   - JVM 需追加参数（Arrow 官方要求，模块 surefire 已配置）：
+     `--add-opens=java.base/java.nio=ALL-UNNAMED`
+   - 业务应用集成本模块并使用 Bulk 写入时，同样需要为应用 JVM 追加上述参数。
+
+   由此 Arrow 不再对 Netty 版本有任何要求，全工程可统一使用 Netty 4.2.x。
+
+3. **Engine 为 SPI 单例**：`Engine.create("greptimedb")` 经 ServiceProvider 返回共享实例；
+   多数据源场景下切换默认数据源请显式调用 `setDefaultDataSourceName(name)`。
+
+4. **查询/删除的鉴权与地址**：HTTP SQL 通道复用数据源配置的用户名密码（Basic Auth）；
+   数据库名默认 `public`。
 
 ---
 
@@ -99,9 +129,12 @@ mvn test -DskipTests=false -Dtest=GreptimeDbEngineTest
 
 # 集成测试（需先部署 172.16.0.40:4001 的 GreptimeDB）
 mvn test -DskipTests=false -Dtest=GreptimeDbIntegrationTest
+
+# 全功能集成测试（普通/批量/流式/Bulk 写入 + 多数据源分支，需 GreptimeDB 服务）
+mvn test -DskipTests=false -Dtest=GreptimeDbFullIntegrationTest
 ```
 
-集成测试会向 `metrics_demo` 表写入 2 行并通过 HTTP SQL 校验落库。
+集成测试会向 `metrics_demo` 等表写入数据并通过 HTTP SQL 校验落库。
 
 ---
 

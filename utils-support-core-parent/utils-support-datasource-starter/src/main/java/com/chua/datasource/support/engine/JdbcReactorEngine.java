@@ -11,6 +11,9 @@ import com.chua.common.support.network.net.NetAddress;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.datasource.support.ddl.DslManager;
+import com.chua.datasource.support.user.DataSourceAware;
+import com.chua.datasource.support.user.UserManager;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
@@ -453,6 +456,90 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /* ==================== ReactorEngine 接口实现 ==================== */
+
+    /* ==================== 能力入口（与 meta() 同模式） ==================== */
+
+    /**
+     * 获取 SQL 文件迁移入口（flylink），支持 {@code V{版本}__{描述}.sql} 规范脚本、
+     * classpath / 文件系统位置、{@code flyway_schema_history} 幂等记录。
+     *
+     * <pre>{@code
+     * engine.flyway()
+     *     .location("classpath:db/migration")
+     *     .migrate();
+     * }</pre>
+     *
+     * @return Flyway 迁移接口
+     */
+    public com.chua.common.support.lang.datasource.flyway.Flyway flyway() {
+        return new com.chua.common.support.lang.datasource.flyway.DefaultFlyway(
+                new com.chua.datasource.support.flyway.ReactorFlywayBridge(this));
+    }
+
+    /**
+     * 获取 DDL 管理器入口（与 meta() 同模式）。
+     * <p>通过 ServiceProvider 按当前方言协议（如 mysql/oracle）解析 SPI 实现，
+     * 未找到实现时抛出 UnsupportedOperationException。</p>
+     *
+     * @return DdlManager 实例
+     */
+    public DslManager ddl() {
+        DslManager manager = resolveManager(DslManager.class);
+        if (manager == null) {
+            throw new UnsupportedOperationException(
+                    "未找到与方言 '" + currentDialectProtocol() + "' 匹配的 DdlManager SPI 实现");
+        }
+        return manager;
+    }
+
+    /**
+     * 获取用户管理器入口（与 meta() 同模式）。
+     * <p>通过 ServiceProvider 按当前方言协议解析 SPI 实现，
+     * 实现 {@link DataSourceAware} 时自动注入 JDBC 数据源；
+     * 未找到实现时抛出 UnsupportedOperationException。</p>
+     *
+     * @return UserManager 实例
+     */
+    public UserManager user() {
+        UserManager manager = resolveManager(UserManager.class);
+        if (manager == null) {
+            throw new UnsupportedOperationException(
+                    "未找到与方言 '" + currentDialectProtocol() + "' 匹配的 UserManager SPI 实现");
+        }
+        return manager;
+    }
+
+    /**
+     * 当前默认数据源的方言协议标识（mysql/postgresql/sqlserver/h2 等）。
+     */
+    private String currentDialectProtocol() {
+        Dialect dialect = dialects.get(defaultDataSourceName);
+        return dialect == null ? "unknown" : dialect.protocol();
+    }
+
+    /**
+     * 按 SPI 类型 + 方言协议解析实现；实现 DataSourceAware 时注入 JDBC 数据源。
+     */
+    private <T> T resolveManager(Class<T> clazz) {
+        try {
+            String type = currentDialectProtocol();
+            ServiceProvider<T> provider = ServiceProvider.of(clazz);
+            T extension = provider.getExtension(type);
+            if (extension == null) {
+                return null;
+            }
+            if (extension instanceof DataSourceAware aware) {
+                javax.sql.DataSource ds = jdbcDataSources.get(defaultDataSourceName);
+                if (ds != null) {
+                    aware.setDataSource(ds);
+                }
+            }
+            return extension;
+        } catch (Exception e) {
+            logger.debug("SPI 解析 {} 失败: {}", clazz.getSimpleName(), e.getMessage());
+            return null;
+        }
+    }
 
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
@@ -919,7 +1006,12 @@ public class JdbcReactorEngine implements ReactorEngine {
      * @param value          列值
      */
     private static void setFieldValue(Object instance, String columnName, Object value) {
-        List<String> candidates = List.of(columnName, toCamelCase(columnName));
+        /* H2/Oracle 等驱动返回大写列名，需同时尝试小写形式 */
+        List<String> candidates = List.of(
+                columnName,
+                toCamelCase(columnName),
+                columnName.toLowerCase(),
+                toCamelCase(columnName.toLowerCase()));
         for (String candidate : candidates) {
             java.lang.reflect.Field field = findField(instance.getClass(), candidate);
             if (field == null) {

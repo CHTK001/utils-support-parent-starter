@@ -23,22 +23,18 @@
         <dependency>
             <groupId>org.neo4j.driver</groupId>
             <artifactId>neo4j-java-driver</artifactId>
-            <version>5.28.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j.bolt</groupId>
-            <artifactId>neo4j-bolt-connection-netty</artifactId>
-            <version>2.0.0</version>
+            <version>5.14.0</version>
         </dependency>
 
-    </dependencies>
-    <dependencyManagement>
-        <dependencies>
             <dependency>
-                <groupId>org.neo4j.bolt</groupId>
-                <artifactId>neo4j-bolt-connection-netty</artifactId>
-                <version>2.0.0</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

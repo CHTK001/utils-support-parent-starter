@@ -92,6 +92,7 @@ public interface ProxyProvider<T> {
      * 使得代理对象可以转型为这些接口类型。常用于给代理对象附加标记接口或回调接口。</p>
      *
      * @param interfaces 要代理的额外接口数组，如 {@code new Class<?>[]{Closeable.class, Serializable.class}}
+    private static final long serialVersionUID = 1L;
      * @return 当前代理提供者实例（支持链式调用）
      */
     ProxyProvider<T> interfaces(Class<?>... interfaces);

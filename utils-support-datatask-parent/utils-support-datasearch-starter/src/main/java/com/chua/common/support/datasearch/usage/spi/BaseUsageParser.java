@@ -15,26 +15,30 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * UsageParser 基类 — 提供按天聚合公共逻辑
+ * UsageParser 基类 — 提供按天聚合公共逻辑。
+ *
+ * <p>子类实现 {@link #parseAll()} 从各自数据源读取原始用量记录，
+ * 本基类提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public abstract class BaseUsageParser implements UsageParser {
 
-    /** 日志 */
+    /** Logger */
     protected final Logger log = LoggerFactory.getLogger(getClass());
-    /** Day_fmt */
+
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-     * 解析全量用量数据（子类实现）
+     * 解析全量用量数据（子类实现）。
+     *
+     * @return 原始 AiUsage 记录列表
      */
     @Override
     public abstract List<AiUsage> parseAll();
 
     @Override
-    /** 解析Daily */
     public List<AiUsage> parseDaily() {
         List<AiUsage> all = parseAll();
         if (all.isEmpty()) {
@@ -43,7 +47,12 @@ public abstract class BaseUsageParser implements UsageParser {
         return aggregateByDay(all);
     }
 
-    /** AggregateByDay */
+    /**
+     * 将原始记录按天聚合，每天一条 AiUsage 记录。
+     *
+     * @param records 原始用量记录列表
+     * @return 按天聚合后的记录列表
+     */
     protected List<AiUsage> aggregateByDay(List<AiUsage> records) {
         Map<String, DayAggregator> dayMap = new LinkedHashMap<>();
         for (AiUsage usage : records) {
@@ -57,7 +66,6 @@ public abstract class BaseUsageParser implements UsageParser {
         return result;
     }
 
-    /** ToDay */
     private String toDay(Long millis) {
         if (millis == null) {
             return "";
@@ -67,21 +75,14 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     protected static class DayAggregator {
-        /** DAY */
+
         private final String day;
-        /** 提供者 */
         private final String provider;
-        /** 输入tokens */
         private int inputTokens;
-        /** 输出tokens */
         private int outputTokens;
-        /** 总数tokens */
         private int totalTokens;
-        /** 总数cost */
         private BigDecimal totalCost = BigDecimal.ZERO;
-        /** 总数持续时间 */
         private long totalDuration;
-        /** 数量 */
         private int count;
 
         DayAggregator(String day, String provider) {
@@ -125,10 +126,10 @@ public abstract class BaseUsageParser implements UsageParser {
                     .build();
         }
 
-        /** ToMillis */
         private long toMillis(String d) {
             try {
-                return LocalDate.parse(d, DAY_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                return LocalDate.parse(d, DAY_FMT).atStartOfDay(ZoneId.systemDefault())
+                        .toInstant().toEpochMilli();
             } catch (Exception e) {
                 return 0L;
             }

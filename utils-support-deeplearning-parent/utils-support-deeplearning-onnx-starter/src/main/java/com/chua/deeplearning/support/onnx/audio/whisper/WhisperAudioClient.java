@@ -259,6 +259,9 @@ public class WhisperAudioClient implements AudioClient {
                         .load();
             }
             translator.prepare(modelDir);
+            if (language != null && !language.isBlank()) {
+                translator.setLanguage(language);
+            }
             prepared = true;
         } catch (Exception e) {
             throw new RuntimeException("Whisper model prepare failed", e);

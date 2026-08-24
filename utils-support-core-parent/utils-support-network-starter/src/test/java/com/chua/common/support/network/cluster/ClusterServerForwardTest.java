@@ -154,13 +154,21 @@ public class ClusterServerForwardTest {
 
     /**
      * 辅助测试：验证 scatter 双向发现正常
+     *
+     * <p>同步时序受负载影响，采用轮询等待（最长 20 秒）而非固定 sleep。</p>
      */
     @Test
     void testScatterDiscovery() throws Exception {
-        TimeUnit.SECONDS.sleep(5);
-
-        java.util.Set<Discovery> bServices = nodeB.discovery().getServiceAll("/api");
-        boolean hasNodeA = bServices.stream().anyMatch(d -> "node-a".equals(d.getServerId()));
+        java.util.Set<Discovery> bServices = java.util.Collections.emptySet();
+        boolean hasNodeA = false;
+        for (int i = 0; i < 20; i++) {
+            bServices = nodeB.discovery().getServiceAll("/api");
+            hasNodeA = bServices.stream().anyMatch(d -> "node-a".equals(d.getServerId()));
+            if (hasNodeA) {
+                break;
+            }
+            TimeUnit.MILLISECONDS.sleep(1000);
+        }
         Assertions.assertTrue(hasNodeA, "node-B 应通过 scatter 发现 node-A. Services: " + bServices);
     }
 }

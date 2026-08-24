@@ -42,6 +42,7 @@ class GreptimeDbIntegrationTest {
     void write_metrics_to_greptimedb() throws Exception {
         GreptimeDbEngine engine = (GreptimeDbEngine) Engine.create("greptimedb");
         engine.addDataSource("default", ENDPOINT, DATABASE, "", "");
+        engine.setDefaultDataSourceName("default");
         engines.add(engine);
 
         TableSchema schema = TableSchema.newBuilder("metrics_demo")

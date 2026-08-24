@@ -230,12 +230,35 @@ class JdbcEngineFeatureIT {
 
     @Test
     void meta_defaultImplementation_throwsUnsupported() {
-        try (var engine = h2Engine()) {
-            var metaData = new com.chua.datasource.support.meta.DefaultMetaData(engine.getDataSource());
+        JdbcReactorEngine engine = h2Engine();
+        try {
+            var metaData = new com.chua.datasource.support.meta.DefaultMetaData(new MinimalEngine(engine));
             assertThrows(UnsupportedOperationException.class, metaData::table);
             assertThrows(UnsupportedOperationException.class, metaData::view);
             assertThrows(UnsupportedOperationException.class, metaData::index);
+        } finally {
+            engine.close();
         }
+    }
+
+    /** 测试辅助：最小 Engine 适配器 */
+    static class MinimalEngine implements com.chua.common.support.lang.datasource.engine.Engine {
+        private final JdbcReactorEngine delegate;
+        MinimalEngine(JdbcReactorEngine delegate) { this.delegate = delegate; }
+
+        @Override public <T> com.chua.common.support.lang.datasource.engine.Engine addDataSource(String name,
+                com.chua.common.support.lang.datasource.engine.EngineDataSource<T> ds) { throw new UnsupportedOperationException(); }
+        @Override public <T> com.chua.common.support.lang.datasource.engine.Engine store(String name, List<T> data) { throw new UnsupportedOperationException(); }
+        @Override public com.chua.common.support.lang.datasource.engine.Engine setDefaultDataSourceName(String name) { throw new UnsupportedOperationException(); }
+        @Override public com.chua.common.support.lang.datasource.engine.executor.SqlExecutor getExecutor(String dataSourceName) { throw new UnsupportedOperationException(); }
+        @Override public com.chua.common.support.lang.datasource.engine.executor.SqlExecutor getExecutor() { throw new UnsupportedOperationException(); }
+        @Override public <T> com.chua.common.support.lang.datasource.engine.EngineDataSource<T> getDataSource(String name) { throw new UnsupportedOperationException(); }
+        @Override public <T> com.chua.common.support.lang.datasource.engine.EngineDataSource<T> getDataSource() { throw new UnsupportedOperationException(); }
+        @Override public <T> com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper<T> query(Class<T> c) { throw new UnsupportedOperationException(); }
+        @Override public <T> com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper<T> update(Class<T> c) { throw new UnsupportedOperationException(); }
+        @Override public <T> com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper<T> delete(Class<T> c) { throw new UnsupportedOperationException(); }
+        @Override public com.chua.common.support.lang.datasource.dialect.Dialect getDialect(String n) { throw new UnsupportedOperationException(); }
+        @Override public void close() { delegate.close(); }
     }
 
     // ==================== 多数据源联邦（JDBC 同步路径） ====================
@@ -255,8 +278,13 @@ class JdbcEngineFeatureIT {
             assertNotNull(rows);
             assertFalse(rows.isEmpty());
 
-            Mono<Integer> result = engine.execute("SELECT 1");
-            assertNotNull(result.block());
+            /* 联邦模式下 execute 走 JDBC PreparedStatement.executeUpdate，
+             * 仅适用于 DML/DDL，不能执行 SELECT */
+            String tbl = "jte_fed_" + System.nanoTime();
+            engine.execute("CREATE TABLE " + tbl + " (id INT)").block();
+            Mono<Integer> inserted = engine.execute("INSERT INTO " + tbl + " VALUES (1)");
+            assertEquals(1, inserted.block());
+            engine.execute("DROP TABLE " + tbl).block();
         } finally {
             engine.close();
         }

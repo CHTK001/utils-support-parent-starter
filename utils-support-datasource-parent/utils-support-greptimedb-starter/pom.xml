@@ -11,14 +11,6 @@
     <name>GreptimeDB Starter</name>
     <description>GreptimeDB 时序数据库 Ingester 集成模块，基于 gRPC SDK 提供 Engine 引擎与高性能写入能力</description>
 
-    <properties>
-        <!--
-            GreptimeDB 的 Bulk 写入依赖 Apache Arrow（arrow-memory-netty 14.0.2），
-            而 Arrow 14 需要 Netty 4.1.x 运行期（PoolArena.chunkSize 字段在 Netty 4.2 中被移除）。
-            本模块覆盖项目统一管理的 netty.version（4.2.15.Final），固定为 4.1.x 以兼容 Arrow/Bulk 写入。
-        -->
-        <netty.version>4.1.115.Final</netty.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -34,18 +26,46 @@
             <groupId>io.greptime</groupId>
             <artifactId>ingester-all</artifactId>
             <version>0.15.0</version>
+            <exclusions>
+                <!--
+                    排除 arrow-memory-netty（其反射读取 PoolArena.chunkSize，
+                    该字段在项目统一的 Netty 4.2 中已移除）。
+                    改用下方 arrow-memory-unsafe 分配器（不依赖 Netty），
+                    从而使全工程统一使用 Netty 4.2.15。
+                -->
+                <exclusion>
+                    <groupId>org.apache.arrow</groupId>
+                    <artifactId>arrow-memory-netty</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Arrow 堆外内存分配器（Unsafe 实现，无 Netty 依赖），替代 arrow-memory-netty -->
+        <dependency>
+            <groupId>org.apache.arrow</groupId>
+            <artifactId>arrow-memory-unsafe</artifactId>
+            <version>14.0.2</version>
         </dependency>
 
         <!--
-            固定 protobuf-java 版本。
-            GreptimeDB proto (greptimedb-proto 0.9.0) 由 protoc 旧版生成，依赖 protobuf 3.x 运行期；
-            若运行时 classpath 上存在 protobuf 4.x，会抛出 'NoSuchMethodError: makeExtensionsImmutable()'。
-            因此在本模块内显式固定为 3.21.12（覆盖 common-starter 传递性引入的 4.31.1）。
+            查询/删除通道：官方文档首推使用 MySQL 协议成熟驱动查询 GreptimeDB(4002 端口)。
+            版本由根 parent dependencyManagement 统一管理（9.3.0）。
+        -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+        </dependency>
+
+        <!--
+            固定 protobuf-java 版本（取 GreptimeDB SDK 自身 dependencyManagement 的 3.25.1）。
+            项目传递引入的 4.31.1 会使 GreptimeDB proto 抛 'NoSuchMethodError: makeExtensionsImmutable()'；
+            而 3.21.12 又缺少 Arrow Flight 14 生成代码所需的 LazyStringArrayList.emptyList()。
+            3.25.1 同时兼容两者。
         -->
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.21.12</version>
+            <version>3.25.1</version>
         </dependency>
 
         <dependency>
@@ -64,4 +84,17 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Arrow Unsafe 堆外分配器在 JDK9+ 需要打开 java.nio 模块（Arrow 官方要求） -->
+                    <argLine>--add-opens=java.base/java.nio=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

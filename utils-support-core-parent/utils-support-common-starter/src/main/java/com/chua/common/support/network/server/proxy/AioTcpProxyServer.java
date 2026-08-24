@@ -115,7 +115,8 @@ public class AioTcpProxyServer extends AbstractServer {
      * 挂起一次重叠 accept。
      */
     private void issueAccept() {
-        if (!running || serverChannel == null || !serverChannel.isOpen()) {
+        // 不检查 running:start() 模板在 doStart 返回后才置位,首挂 accept 会因此永不发生
+        if (serverChannel == null || !serverChannel.isOpen()) {
             return;
         }
         serverChannel.accept(null, new java.nio.channels.CompletionHandler<AsynchronousSocketChannel, Void>() {

@@ -342,8 +342,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("dinov3-feature", "com.chua.deeplearning.support.onnx.dinov2.DinoV2Translator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/dinov3-vits16/model.onnx", "https://huggingface.co/onnx-community/dinov3-vits16-pretrain-lvd1689m-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 视觉特征提取(ResNet50)：ResNet50 图像特征提取（2048维）；适用图像检索、特征比对
         reg("resnet50-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/resnet50/model.onnx", "https://modelscope.cn/models/Xenova/resnet-50/resolve/master/onnx/model.onnx", false, null);
-        // 声纹特征提取(Wespeaker)：说话人识别/声纹特征提取，ResNet34 架构；适用说话人识别、声纹比对
-        reg("wespeaker-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/wespeaker-resnet34/model.onnx", "https://huggingface.co/onnx-community/wespeaker-voxceleb-resnet34-LM/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv26n)：YOLOv26 通用检测，最新版；适用通用物体检测
         reg("yolo26n", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx", "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv10m)：YOLOv10m 通用 COCO 检测，精度较高；适用通用物体检测
@@ -359,9 +357,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 由 WhisperAudioClient 直接加载（encoder + 两阶段 decoder），无需注册 translator 类。
         reg("whisper-tiny", null, byte[].class, String.class, Object.class, "audio/asr/whisper-tiny/config.json");
 
-        // 语音识别(Moonshine-base)：Moonshine 轻量语音识别，输入音频输出文本，速度远快于 Whisper；适用边缘设备实时转写
-        // 模型权重在 utils-support-models-onnx-moonshine jar 中（nlp/audio/moonshine/，preprocess+encode+cached_decode 约 155MB）
-        // 由示例 VoiceCloneMoonshineExample 直接加载，无需注册 translator 类。
+        // 语音识别(Moonshine-tiny)：Moonshine 轻量英文语音识别，速度远快于同精度 Whisper；适用边缘设备实时转写
+        // 模型权重在 utils-support-models-onnx-moonshine jar 中（nlp/audio/moonshine/，
+        // preprocess+encode+uncached+cached 四模型 int8 约 118MB），词表 32768
+        // 由 MoonshineAudioClient 直接加载（sherpa-onnx 四阶段贪心解码）。
         reg("moonshine-base", null, byte[].class, String.class, Object.class, "nlp/audio/moonshine/preprocess.onnx");
         // 情感分析(RoBERTa-go-emotions)：28 种细粒度情感分类（如"兴奋"、"悲伤"、"愤怒"等）；适用细粒度情感分析、用户评论分析
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);

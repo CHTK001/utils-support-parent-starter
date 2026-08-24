@@ -58,52 +58,48 @@ public class WhisperMelExtractor {
      * @return (80, 3000) float32 log-mel
      */
     public float[][] extract(float[] audio) {
-        // 1. pad/trim to N_SAMPLES
-        float[] padded = new float[N_SAMPLES];
-        if (audio.length >= N_SAMPLES) {
-            System.arraycopy(audio, 0, padded, 0, N_SAMPLES);
-        } else {
-            System.arraycopy(audio, 0, padded, 0, audio.length);
+        // 1. 截断到 30s；中心零填充（与参考实现一致：pad N_FFT/2 零，不预补满 30s）
+        int inputLen = Math.min(audio.length, N_SAMPLES);
+        float[] padded = new float[inputLen + N_FFT];
+        System.arraycopy(audio, 0, padded, N_FFT / 2, inputLen);
+
+        // 2. STFT（精确 400 点 DFT，与 numpy.rfft 频率采样一致；仅有效帧）
+        int nFreq = N_FFT / 2 + 1; // 201
+        int nValidFrames = Math.max(1, (inputLen + N_FFT / 2) / HOP_LENGTH);
+        float[][] mag = new float[nFreq][nValidFrames];
+        double[] cosTab = new double[N_FFT];
+        double[] sinTab = new double[N_FFT];
+        for (int j = 0; j < N_FFT; j++) {
+            cosTab[j] = Math.cos(-2.0 * Math.PI * j / N_FFT);
+            sinTab[j] = Math.sin(-2.0 * Math.PI * j / N_FFT);
         }
 
-        // 2. STFT
-        int nFreq = N_FFT / 2 + 1; // 201
-        float[][] mag = new float[nFreq][N_FRAMES];
-
-        for (int i = 0; i < N_FRAMES; i++) {
+        for (int i = 0; i < nValidFrames; i++) {
             int start = i * HOP_LENGTH;
-            float[] frame = new float[N_FFT];
-            for (int j = 0; j < N_FFT; j++) {
-                int srcIdx = start + j;
-                float sample;
-                if (srcIdx < 0) {
-                    sample = padded[-srcIdx];
-                } else if (srcIdx >= N_SAMPLES) {
-                    int reflected = 2 * N_SAMPLES - srcIdx - 2;
-                    if (reflected < 0) reflected = 0;
-                    if (reflected >= N_SAMPLES) reflected = N_SAMPLES - 1;
-                    sample = padded[reflected];
-                } else {
-                    sample = padded[srcIdx];
-                }
-                frame[j] = sample * window[j];
-            }
-            float[] real = new float[nFreq];
-            float[] imag = new float[nFreq];
-            fft(frame, real, imag);
             for (int k = 0; k < nFreq; k++) {
-                float r = real[k];
-                float im = imag[k];
-                mag[k][i] = (float) Math.sqrt(r * r + im * im);
+                double re = 0;
+                double im = 0;
+                int idx = k;
+                for (int j = 0; j < N_FFT; j++) {
+                    float sample = (start + j >= 0 && start + j < padded.length
+                            ? padded[start + j] : 0F) * window[j];
+                    re += sample * cosTab[idx];
+                    im += sample * sinTab[idx];
+                    idx += k;
+                    if (idx >= N_FFT) {
+                        idx -= N_FFT;
+                    }
+                }
+                mag[k][i] = (float) (re * re + im * im);
             }
         }
 
         // 3. mel filterbank
         float[][] mel = applyMelFilterbank(mag);
 
-        // 4. log10
+        // 4. log10（复用步骤 2 声明的有效帧数）
         for (int m = 0; m < N_MELS; m++) {
-            for (int f = 0; f < N_FRAMES; f++) {
+            for (int f = 0; f < nValidFrames; f++) {
                 mel[m][f] = (float) Math.log10(Math.max(mel[m][f], 1e-10));
             }
         }
@@ -111,24 +107,29 @@ public class WhisperMelExtractor {
         // 5. normalize
         float maxV = Float.NEGATIVE_INFINITY;
         for (int m = 0; m < N_MELS; m++) {
-            for (int f = 0; f < N_FRAMES; f++) {
+            for (int f = 0; f < nValidFrames; f++) {
                 if (mel[m][f] > maxV) maxV = mel[m][f];
             }
         }
         float floor = maxV - 8.0f;
         for (int m = 0; m < N_MELS; m++) {
-            for (int f = 0; f < N_FRAMES; f++) {
+            for (int f = 0; f < nValidFrames; f++) {
                 float v = mel[m][f];
                 if (v < floor) v = floor;
                 mel[m][f] = (v + 4.0f) / 4.0f;
             }
         }
-        return mel;
+        // 步骤 5b：尾部静音帧补零（与参考实现一致：归一化后补零，而非参与统计）
+        float[][] out = new float[N_MELS][N_FRAMES];
+        for (int m = 0; m < N_MELS; m++) {
+            System.arraycopy(mel[m], 0, out[m], 0, nValidFrames);
+        }
+        return out;
     }
 
     /** 应用MelFilterbank */
     private float[][] applyMelFilterbank(float[][] mag) {
-        float[][] mel = new float[N_MELS][N_FRAMES];
+        float[][] mel = new float[N_MELS][mag[0].length];
         int nFreq = mag.length;
 
         float lowFreqMel = hzToMel(0.0f);
@@ -146,16 +147,22 @@ public class WhisperMelExtractor {
             int left = binPoints[m];
             int center = binPoints[m + 1];
             int right = binPoints[m + 2];
-            for (int k = left; k < right && k < nFreq; k++) {
-                float weight;
-                if (k <= center) {
-                    weight = (float) (k - left) / (center - left);
-                } else {
-                    weight = (float) (right - k) / (right - center);
+            // 与参考实现一致的三角形滤波器：左坡 [left,center)、右坡 [center,right)
+            // 零宽坡自然跳过，避免除零且保留中心峰值
+            for (int k = left; k < center && k < nFreq; k++) {
+                if (center > left) {
+                    float weight = (float) (k - left) / (center - left);
+                    for (int f = 0; f < mag[0].length; f++) {
+                        mel[m][f] += weight * mag[k][f];
+                    }
                 }
-                if (weight < 0) weight = 0;
-                for (int f = 0; f < N_FRAMES; f++) {
-                    mel[m][f] += weight * mag[k][f];
+            }
+            for (int k = center; k < right && k < nFreq; k++) {
+                if (right > center) {
+                    float weight = (float) (right - k) / (right - center);
+                    for (int f = 0; f < mag[0].length; f++) {
+                        mel[m][f] += weight * mag[k][f];
+                    }
                 }
             }
         }
@@ -170,56 +177,5 @@ public class WhisperMelExtractor {
     /** MelToHz */
     private static float melToHz(float mel) {
         return (float) (700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0));
-    }
-
-    /** Fft */
-    private static void fft(float[] in, float[] realOut, float[] imagOut) {
-        // pad to next power of 2 for radix-2 FFT
-        int nIn = in.length;
-        int n = 1;
-        while (n < nIn) n <<= 1;
-        float[] padded = new float[n];
-        System.arraycopy(in, 0, padded, 0, nIn);
-        int[] bits = new int[n];
-        for (int i = 0; i < n; i++) bits[i] = i;
-        for (int i = 1, j = 0; i < n; i++) {
-            int bit = n >> 1;
-            for (; j >= bit; bit >>= 1) j -= bit;
-            j += bit;
-            int tmp = bits[i];
-            bits[i] = bits[j];
-            bits[j] = tmp;
-        }
-        float[] real = new float[n];
-        float[] imag = new float[n];
-        for (int i = 0; i < n; i++) {
-            real[i] = padded[bits[i]];
-            imag[i] = 0.0f;
-        }
-        for (int len = 2; len <= n; len <<= 1) {
-            float angle = (float) (-2.0 * Math.PI / len);
-            float wlenR = (float) Math.cos(angle);
-            float wlenI = (float) Math.sin(angle);
-            for (int i = 0; i < n; i += len) {
-                float wR = 1.0f, wI = 0.0f;
-                for (int j = 0; j < len / 2; j++) {
-                    int u = i + j;
-                    int v = i + j + len / 2;
-                    float tR = wR * real[v] - wI * imag[v];
-                    float tI = wR * imag[v] + wI * real[v];
-                    real[v] = real[u] - tR;
-                    imag[v] = imag[u] - tI;
-                    real[u] += tR;
-                    real[u] += tI;
-                    float nR = wR * wlenR - wI * wlenI;
-                    float nI = wR * wlenI + wI * wlenR;
-                    wR = nR;
-                    wI = nI;
-                }
-            }
-        }
-        int outLen = realOut.length;
-        System.arraycopy(real, 0, realOut, 0, outLen);
-        System.arraycopy(imag, 0, imagOut, 0, outLen);
     }
 }

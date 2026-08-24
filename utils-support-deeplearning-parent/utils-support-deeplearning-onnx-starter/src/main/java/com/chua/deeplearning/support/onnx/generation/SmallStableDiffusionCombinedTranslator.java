@@ -210,7 +210,7 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
             // 3.                                                    
             //                                                                                                          
             var unetInputProcessed = unetTranslator.processInput(ctx, unetInput);
-            // TODO:                                                        UNet                   
+            // TODO[@L213]:                                                        UNet                   
             //                                                                                     
             var unetOutputList = unetTranslator.processOutput(ctx, new NDList());
             var noisePred = unetOutputList.isEmpty() ? latent : unetOutputList.singletonOrThrow();
@@ -245,7 +245,7 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
         //                                                                                                          
         var vaeInput = new NDList(latent);
         var vaeInputProcessed = vaeDecoderTranslator.processInput(ctx, vaeInput);
-        // TODO:                                                        VAE                            
+        // TODO[@L248]:                                                        VAE                            
         //                                                                                     
         var vaeOutputRaw = new NDList();
         var generatedImage = vaeDecoderTranslator.processOutput(ctx, vaeOutputRaw);

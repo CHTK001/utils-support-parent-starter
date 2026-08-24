@@ -229,6 +229,24 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 获取并注入运行参数 */
+    public <T> T get(String name, Class<T> target, java.util.Map<String, Object> options) {
+        TranslatorModelDefinition def = modelMap.get(name);
+        if (def == null) {
+            return null;
+        }
+        Object translator = def.getTranslator();
+        if (translator instanceof DetectionConfigurable configurable) {
+            configurable.configure(options);
+        }
+        if (target.isInstance(translator)) {
+            return (T) translator;
+        }
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     /** 获取 */
     public <T> T get(Class<T> target) {
         for (TranslatorModelDefinition def : modelMap.values()) {
