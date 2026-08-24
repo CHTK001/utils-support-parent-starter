@@ -127,11 +127,11 @@ public class BenchmarkDocumentData extends DocumentData {
             if (values != null) {
                 Number p95 = (Number) values.get("p(95)");
                 Number p99 = (Number) values.get("p(99)");
-                if (p95 != null) row.setP95(p95.doubleValue() {
-                    );
+                if (p95 != null) {
+                    row.setP95(p95.doubleValue());
                 }
-                if (p99 != null) row.setP99(p99.doubleValue() {
-                    );
+                if (p99 != null) {
+                    row.setP99(p99.doubleValue());
                 }
             }
         }

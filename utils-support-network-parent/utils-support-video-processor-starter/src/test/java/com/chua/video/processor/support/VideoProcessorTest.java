@@ -31,7 +31,9 @@ public class VideoProcessorTest {
         System.out.println("  通过: " + passed);
         System.out.println("  失败: " + failed);
         System.out.println("  总计: " + (passed + failed));
-        if (failed > 0) System.exit(1);
+        if (failed > 0) {
+            System.exit(1);
+        }
     }
 
     /** TestBridge加载 */
