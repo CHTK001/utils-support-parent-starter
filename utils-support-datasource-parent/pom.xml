@@ -30,6 +30,9 @@
         <module>utils-support-elasticsearch-starter</module>
         <module>utils-support-duckdb-starter</module>
         <module>utils-support-mysql-starter</module>
+        <module>utils-support-postgresql-starter</module>
+        <module>utils-support-sqlserver-starter</module>
+        <module>utils-support-clickhouse-starter</module>
     <module>utils-support-tablesaw-starter</module>
     <module>utils-support-solr-starter</module>
     <module>utils-support-debezium-starter</module>
