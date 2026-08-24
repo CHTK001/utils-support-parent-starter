@@ -222,7 +222,7 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-paraformer-zh-small</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -344,13 +344,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-moonshine</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- 嵌入式中文对话模型（Gemma-3-270M，uint8 ONNX ~437MB），供 Gemma3TranslatorTest 冒烟验证 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-gemma-3-270m</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

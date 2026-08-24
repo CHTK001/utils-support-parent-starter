@@ -274,7 +274,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
 
         ortEnv = OrtEnvironment.getEnvironment();
         SessionOptions opts = new SessionOptions();
-        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        // 线程数可用 -Dgemma.intraop=N 覆盖（低内存环境调小可显著降低原生内存峰值）
+        int intraOp = Integer.getInteger("gemma.intraop", Math.min(8, Runtime.getRuntime().availableProcessors()));
+        opts.setIntraOpNumThreads(intraOp);
         // uint8 量化模型：必须保留默认图优化（ALL_OPT）。
         // NO_OPT 下量化 MatMul 走降级内核，需物化 ~671MB 反量化权重（262144×640 fp32）→ bad allocation，
         // 且输出 token 与优化路径不一致；ALL_OPT 使用优化内核。
