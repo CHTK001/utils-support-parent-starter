@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.plate;
 
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
@@ -109,11 +110,7 @@ public interface PlateDetector {
  */
 class DefaultPlateDetector implements PlateDetector {
 
-    /**
-     * 默认检测阈值。
-     */
-    private static final float DEFAULT_THRESHOLD = 0.5f;
-
+    
     /**
      * 默认运行设备（CPU）。
      */
@@ -142,7 +139,7 @@ class DefaultPlateDetector implements PlateDetector {
     /**
      * 检测阈值。
      */
-    private float threshold = DEFAULT_THRESHOLD;
+    private Float threshold;
 
     /**
      * 模型路径。
@@ -199,7 +196,7 @@ class DefaultPlateDetector implements PlateDetector {
     /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
-                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

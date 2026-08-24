@@ -450,7 +450,6 @@ public class SshServer extends AbstractServer {
                     .port(port)
                     .password(password)
                     .build();
-            server.registerBean(new com.chua.ssh.support.example.BuiltinShellCommands());
             server.start();
             Runtime.getRuntime().addShutdownHook(new Thread(server::close));
         } catch (Exception e) {

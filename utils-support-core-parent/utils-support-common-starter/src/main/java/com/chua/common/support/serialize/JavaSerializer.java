@@ -15,6 +15,7 @@ import java.io.Serializable;
 @Spi("java")
 @SpiDefault
 public class JavaSerializer<T extends Serializable> implements Serializer<T> {
+    private static final long serialVersionUID = 1L;
 
     @Override
     /** 序列化 */

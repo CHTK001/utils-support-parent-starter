@@ -44,7 +44,19 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * 置信度阈值。
      */
-    private static final float CONF_THRESHOLD = 0.25f;
+    /** 置信度阈值（默认 0.5），可经 DetectionConfiguration 覆盖。 */
+        /**
+     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public AnimeFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        if (configuration != null) {
+            this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
+        }
+    }
+
+private float confThreshold = 0.45f;
 
     /**
      * NMS IOU 阈值。
@@ -54,7 +66,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * Top-K。
      */
-    private static final int TOP_K = 300;
+    private static final int TOP_K = 100;
 
     /**
      * letterbox 缩放比例与填充。
@@ -127,12 +139,9 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
         // 兼容 [1,5,8400] / [5,8400] / [1,8400,5] 布局，统一为 [numDets, numChannels]
         int dim = shape.length;
         if (dim == 3) {
-            // [B,C,N]：C 小（类别维 5）；或 [B,N,C]：C 大（检测框维）
-            if (!(shape[1] == 5 || shape[1] == 6 || shape[1] < shape[2])) {
-                // [B,N,C]（C 大）→ 需转置，改用 NCH 步长直接读
-                return processNch(dim, shape, data);
-            }
-            // [B,C,N] → 步长 C * (N stride)
+            // [B,C,N]：C 小（通道维 5/6）。内存为通道优先（C-contiguous），必须按 ch*N+i 步长读，
+            // 不能按 i*C+ch 读（会串通道导致坐标/conf 全错）
+            return processNch(dim, shape, data);
         }
         int numDets;
         int numChannels;
@@ -218,7 +227,8 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
             for (int cc = 4; cc < numChannels && offset + cc < data.length; cc++) {
                 conf = Math.max(conf, data[offset + cc]);
             }
-            if (conf < CONF_THRESHOLD) {
+            // 模型 ONNX 已含 sigmoid，输出为概率，无需再变换
+            if (conf < confThreshold) {
                 continue;
             }
             boxes.add(new float[]{cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2});

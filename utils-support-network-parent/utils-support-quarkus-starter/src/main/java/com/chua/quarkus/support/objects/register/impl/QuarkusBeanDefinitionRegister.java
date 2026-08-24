@@ -1,5 +1,6 @@
 package com.chua.quarkus.support.objects.register.impl;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
@@ -118,7 +119,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
             return Collections.emptyList();
         }
         try {
-            Class<?> type = Class.forName(typeName);
+            Class<?> type = ReflectUtils.forName(typeName);
             if (!ClassUtils.isPresent(CDI_CLASS)) {
                 return Collections.emptyList();
             }

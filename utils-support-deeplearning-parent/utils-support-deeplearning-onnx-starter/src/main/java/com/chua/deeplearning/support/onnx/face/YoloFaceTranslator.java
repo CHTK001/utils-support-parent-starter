@@ -43,17 +43,34 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
      * 置信度阈值。
      */
-    private static final float CONF_THRESHOLD = 0.25f;
+    /** 置信度阈值（默认 0.85），可经 DetectionConfiguration 覆盖。 */
+        /**
+     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public YoloFaceTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        if (configuration != null) {
+            this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
+        }
+    }
+
+private float confThreshold = 0.85f;
 
     /**
      * NMS IOU 阈值。
      */
-    private static final float IOU_THRESHOLD = 0.45f;
+    private static final float IOU_THRESHOLD = 0.9f;
 
     /**
      * Top-K。
      */
-    private static final int TOP_K = 300;
+    private static final int TOP_K = 20;
+
+    /**
+     * 最小人脸尺寸比例，过滤边缘假阳性。
+     */
+    private static final float MIN_FACE_RATIO = 0.08f;
 
     /**
      * letterbox 缩放比例。
@@ -183,7 +200,9 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                 }
                 conf = Math.max(conf, data[idx]);
             }
-            if (conf < CONF_THRESHOLD) {
+            // YOLOv8 onnx 输出原始 logit，需做 sigmoid 转为概率
+            conf = 1f / (1f + (float) Math.exp(-conf));
+            if (conf < confThreshold) {
                 continue;
             }
             boxes.add(new float[]{cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2});
@@ -197,7 +216,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         int[] keep = nms(boxes, scores);
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
-        List<BoundingBox> rects = new ArrayList<>();
+        List<Rectangle> rects = new ArrayList<>();
         int topK = Math.min(keep.length, TOP_K);
         for (int i = 0; i < topK; i++) {
             float[] b = boxes.get(keep[i]);
@@ -209,12 +228,72 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
             if (x2 <= x1 || y2 <= y1) {
                 continue;
             }
+            // 过滤过小的人脸（<8% 图片宽度或高度）
+            float faceW = (x2 - x1) / imageWidth;
+            float faceH = (y2 - y1) / imageHeight;
+            if (faceW < MIN_FACE_RATIO || faceH < MIN_FACE_RATIO) {
+                continue;
+            }
+            // 过滤贴边的框（letterbox 填充区假阳性）
+            float margin = 0.02f;
+            if (x1 / imageWidth < margin || y1 / imageHeight < margin) {
+                continue;
+            }
             names.add(FACE_LABEL);
             probs.add((double) scores.get(keep[i]));
             rects.add(new Rectangle(x1 / imageWidth, y1 / imageHeight,
                     (x2 - x1) / imageWidth, (y2 - y1) / imageHeight));
         }
-        return new DetectedObjects(names, probs, rects);
+        // 后处理：去重（中心点距离过滤 + 嵌套框过滤）
+        java.util.List<Integer> finalKeep = new java.util.ArrayList<>();
+        boolean[] suppressed = new boolean[names.size()];
+        for (int i = 0; i < names.size(); i++) {
+            if (suppressed[i]) continue;
+            finalKeep.add(i);
+            Rectangle ri = rects.get(i);
+            double cxI = ri.getX() + ri.getWidth() / 2.0;
+            double cyI = ri.getY() + ri.getHeight() / 2.0;
+            double diagI = Math.sqrt(ri.getWidth() * ri.getWidth() + ri.getHeight() * ri.getHeight());
+            for (int j = i + 1; j < names.size(); j++) {
+                if (suppressed[j]) continue;
+                Rectangle rj = rects.get(j);
+                double cxJ = rj.getX() + rj.getWidth() / 2.0;
+                double cyJ = rj.getY() + rj.getHeight() / 2.0;
+                double dist = Math.sqrt((cxI - cxJ) * (cxI - cxJ) + (cyI - cyJ) * (cyI - cyJ));
+                double diagJ = Math.sqrt(rj.getWidth() * rj.getWidth() + rj.getHeight() * rj.getHeight());
+                if (dist < Math.max(diagI, diagJ) * 0.25) {
+                    suppressed[probs.get(j) >= probs.get(i) ? j : i] = true;
+                    if (probs.get(j) >= probs.get(i)) { cxI = cxJ; cyI = cyJ; diagI = diagJ; }
+                    continue;
+                }
+                double ix1 = Math.max(ri.getX(), rj.getX());
+                double iy1 = Math.max(ri.getY(), rj.getY());
+                double ix2 = Math.min(ri.getX() + ri.getWidth(), rj.getX() + rj.getWidth());
+                double iy2 = Math.min(ri.getY() + ri.getHeight(), rj.getY() + rj.getHeight());
+                double inter = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
+                double areaI = ri.getWidth() * ri.getHeight();
+                double areaJ = rj.getWidth() * rj.getHeight();
+                if (areaI > 0 && inter / areaI > 0.8) {
+                    suppressed[i] = true;
+                    finalKeep.remove(Integer.valueOf(i));
+                    break;
+                }
+                if (areaJ > 0 && inter / areaJ > 0.95 && areaI > areaJ) {
+                    suppressed[j] = true;
+                }
+            }
+        }
+        List<String> finalNames = new ArrayList<>(finalKeep.size());
+        List<Double> finalProbs = new ArrayList<>(finalKeep.size());
+        List<BoundingBox> finalBoxes = new ArrayList<>(finalKeep.size());
+        for (int idx : finalKeep) {
+            if (!suppressed[idx]) {
+                finalNames.add(names.get(idx));
+                finalProbs.add(probs.get(idx));
+                finalBoxes.add(rects.get(idx));
+            }
+        }
+        return new DetectedObjects(finalNames, finalProbs, finalBoxes);
     }
 
     /**

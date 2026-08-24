@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.image;
 
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
@@ -125,6 +126,16 @@ public interface ImageClassifier {
      * @return 分类信息列表
      */
     List<DetectionInfo> classifyTopK(byte[] imageData, int k);
+
+    /**
+     * 设置置信度阈值（null 表示使用模型默认值）。
+     *
+     * @param threshold 阈值
+     * @return this
+     */
+    default ImageClassifier threshold(float threshold) {
+        return this;
+    }
 }
 
 /**
@@ -148,6 +159,11 @@ class DefaultImageClassifier implements ImageClassifier {
     /**
      * 识别引擎。
      */
+    /**
+     * 置信度阈值（null 表示使用模型默认值）。
+     */
+    private Float threshold;
+
     private final IdentificationEngine engine;
 
     /**
@@ -197,6 +213,13 @@ class DefaultImageClassifier implements ImageClassifier {
     }
 
     @Override
+    /** Threshold */
+    public ImageClassifier threshold(float threshold) {
+        this.threshold = threshold;
+        return this;
+    }
+
+    @Override
     /** TopK */
     public ImageClassifier topK(int k) {
         this.topK = k;
@@ -222,7 +245,7 @@ class DefaultImageClassifier implements ImageClassifier {
     /** Classify */
     public String classify(byte[] imageData) {
         ITranslator<byte[], String> t =
-                (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -234,7 +257,7 @@ class DefaultImageClassifier implements ImageClassifier {
     /** ClassifyTopK */
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         ITranslator<byte[], List<DetectionInfo>> t =
-                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

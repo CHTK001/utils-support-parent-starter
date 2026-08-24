@@ -156,7 +156,7 @@ public final class ReflectUtils {
      * @return 方法返回值
      */
     public static Object invoke(Object target, String methodName, Class<?> returnType) {
-        return invoke(target, methodName, returnType, (Class<?>[]) new Class<?>[0]);
+        return invoke(target, methodName, returnType, new Class<?>[0], new Object[0]);
     }
 
     /**
@@ -429,7 +429,9 @@ public final class ReflectUtils {
             if (handle == null) {
                 return null;
             }
-            return (T) handle.invokeExact();
+            /* invoke 会自动做 asType 适配；invokeExact 在泛型擦除后调用点签名
+             * 为 ()Object，与构造器句柄类型 ()X 不匹配，必然抛 WrongMethodTypeException */
+            return clazz.cast(handle.invoke());
         } catch (Throwable e) {
             log.debug("[ReflectUtils] 实例化失败: {}", clazz.getName(), e);
             return null;
@@ -547,14 +549,14 @@ public final class ReflectUtils {
                 // 调整为返回 Object 以便 Box/unbox
                 implMethod = implMethod.asType(MethodType.methodType(Object.class, paramTypes));
             }
-            return (T) LambdaMetafactory.metafactory(
+            return functionalInterface.cast(LambdaMetafactory.metafactory(
                     LOOKUP,
                     functionalInterface.getMethod("apply", paramTypes).getName(),
                     MethodType.methodType(functionalInterface),
                     MethodType.methodType(Object.class, paramTypes),
                     implMethod,
                     implMethod.type().changeReturnType(Object.class)
-            ).getTarget().invokeExact();
+            ).getTarget().invoke());
         } catch (Throwable e) {
             log.debug("[ReflectUtils] LambdaMetafactory 创建失败", e);
             return null;
@@ -574,8 +576,7 @@ public final class ReflectUtils {
                     MethodType.methodType(Object.class),
                     mh,
                     mh.type().changeReturnType(Object.class)
-            ).getTarget().invokeExact();
-        } catch (Throwable e) {
+            ).getTarget().invokeExact();        } catch (Throwable e) {
             log.debug("[ReflectUtils] Callable 适配失败", e);
             return null;
         }

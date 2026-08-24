@@ -14,7 +14,19 @@ import java.util.List;
  */
 public class VisDroneSmallDetectorTranslator extends YoloTranslator {
 
-    /**
+        /**
+     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public VisDroneSmallDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        super(640,
+                configuration == null ? 0.10f
+                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, 0.10f),
+                0.50f, VISDRONE_10_CLASSES, true);
+    }
+
+/**
      * VisDrone 数据集 10 个类别名称。
      */
     private static final List<String> VISDRONE_10_CLASSES = Arrays.asList(

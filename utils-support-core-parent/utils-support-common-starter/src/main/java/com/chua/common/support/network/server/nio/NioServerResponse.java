@@ -500,8 +500,33 @@ public class NioServerResponse implements ServerResponse {
         }
     }
 
+    /**
+     * 流式直写钩子(非 SocketChannel 传输复用,如 AIO Proactor):
+     * 设置后 {@code writeToChannel} 经由此回调输出(SSE/直写路径),
+     * 优先级高于 channel 直写。
+     */
+    private java.util.function.Consumer<byte[]> streamWriter;
+
+    /**
+     * 设置流式直写钩子(AIO 等传输实现调用)。
+     *
+     * @param writer 字节消费器
+     */
+    public void setStreamWriter(java.util.function.Consumer<byte[]> writer) {
+        this.streamWriter = writer;
+    }
+
     /** 写入ToChannel */
     private void writeToChannel(byte[] data) {
+        // 流式钩子优先(AIO 复用):TLS 感知的阻塞写出
+        if (streamWriter != null) {
+            try {
+                streamWriter.accept(data);
+            } catch (Exception e) {
+                channelClosed = true;
+            }
+            return;
+        }
         // 无通道场景(AIO 复用,channel 为 null):直接写通道不可用,标记关闭并静默返回,
         // 正常响应路径由 asyncWriter 接管,此处仅兜底 SSE 等直写调用
         if (channelClosed || channel == null) {

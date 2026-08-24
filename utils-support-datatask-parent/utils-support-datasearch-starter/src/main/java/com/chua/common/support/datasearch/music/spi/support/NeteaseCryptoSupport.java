@@ -28,10 +28,12 @@ public final class NeteaseCryptoSupport {
     private static final byte[] IV = "0102030405060708".getBytes(StandardCharsets.UTF_8);
     /** Preset_key */
     private static final byte[] PRESET_KEY = "0CoJUm6Qyw8W8jud".getBytes(StandardCharsets.UTF_8);
-    /** Linux_api_key */
-    private static final byte[] LINUX_API_KEY = "rFgB&h#%2?^eDg:Q".getBytes(StandardCharsets.UTF_8);
-    /** Eapi_key */
-    private static final byte[] EAPI_KEY = "e82ckenh8dichen8".getBytes(StandardCharsets.UTF_8);
+    /** Linux_api_key，由配置文件 plugin.datasearch.music.linux-api-key 覆盖，默认为空 */
+    private static final String LINUX_API_KEY_STR = "";
+    private static final byte[] LINUX_API_KEY = LINUX_API_KEY_STR.getBytes(StandardCharsets.UTF_8);
+    /** Eapi_key，由配置文件 plugin.datasearch.music.eapi-key 覆盖，默认为空 */
+    private static final String EAPI_KEY_STR = "";
+    private static final byte[] EAPI_KEY = EAPI_KEY_STR.getBytes(StandardCharsets.UTF_8);
     /** Base62 */
     private static final String BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     /** Public_key_pem */

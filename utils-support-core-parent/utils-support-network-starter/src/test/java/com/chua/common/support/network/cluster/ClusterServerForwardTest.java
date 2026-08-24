@@ -34,6 +34,9 @@ public class ClusterServerForwardTest {
     @BeforeEach
     void setUp() throws Exception {
         ScatterSyncHelper.resetForTest();
+        // 清理上一轮测试的持久化文件，防止跨测试污染
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-a.json"));
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-b.json"));
 
         // ── ① 启动 node-B 的纯 HTTP 后端，监听 /api/hello（与注册的服务路径对齐）
         backendB = HttpServer.create(new InetSocketAddress(0), 0);
@@ -65,7 +68,7 @@ public class ClusterServerForwardTest {
         nodeA = ClusterServer.builder()
                 .nodeId("node-a").host("127.0.0.1").port(0)
                 .scatterId("forward-test")
-                .seeds("127.0.0.1:" + nodeB.getHttpPort())
+                .seeds("127.0.0.1:" + nodeB.getScatterPort())
                 .servicePaths(java.util.List.of("/api"))
                 .timeoutMillis(3000)
                 .addServer("/api", "127.0.0.1", backendBPort, "http")
@@ -78,6 +81,9 @@ public class ClusterServerForwardTest {
         if (nodeA != null) { try { nodeA.close(); } catch (Exception ignored) {} }
         if (nodeB != null) { try { nodeB.close(); } catch (Exception ignored) {} }
         if (backendB != null) { try { backendB.stop(0); } catch (Exception ignored) {} }
+        // 关闭后再清理一次：防止后台发现轮在 close 前后把过期服务表写回磁盘
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-a.json"));
+        java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(".scatter-nodes-node-b.json"));
     }
 
     /**
@@ -85,8 +91,18 @@ public class ClusterServerForwardTest {
      */
     @Test
     void testHttpForwardNodeAToNodeB() throws Exception {
-        // 等待 scatter 同步完成
-        TimeUnit.SECONDS.sleep(3);
+        // 等待 scatter 同步完成（最长等待 10 秒）
+        for (int i = 0; i < 10; i++) {
+            java.util.Set<Discovery> services =
+                    nodeA.manager().nodes("/api", "forward-test", "http");
+            boolean hasBackend = services.stream().anyMatch(d -> backendBPort == d.getPort());
+            if (hasBackend) {
+                break;
+            }
+            System.err.println("[WAIT] iteration " + (i + 1) + ", services=" + services.size()
+                    + ", backendFound=" + hasBackend);
+            TimeUnit.MILLISECONDS.sleep(1000);
+        }
 
         // 验证：node-A 的服务表中包含 backendB
         java.util.Set<Discovery> services =
@@ -138,13 +154,21 @@ public class ClusterServerForwardTest {
 
     /**
      * 辅助测试：验证 scatter 双向发现正常
+     *
+     * <p>同步时序受负载影响，采用轮询等待（最长 20 秒）而非固定 sleep。</p>
      */
     @Test
     void testScatterDiscovery() throws Exception {
-        TimeUnit.SECONDS.sleep(3);
-
-        java.util.Set<Discovery> bServices = nodeB.discovery().getServiceAll("/api");
-        boolean hasNodeA = bServices.stream().anyMatch(d -> "node-a".equals(d.getServerId()));
-        Assertions.assertTrue(hasNodeA, "node-B 应通过 scatter 发现 node-A");
+        java.util.Set<Discovery> bServices = java.util.Collections.emptySet();
+        boolean hasNodeA = false;
+        for (int i = 0; i < 20; i++) {
+            bServices = nodeB.discovery().getServiceAll("/api");
+            hasNodeA = bServices.stream().anyMatch(d -> "node-a".equals(d.getServerId()));
+            if (hasNodeA) {
+                break;
+            }
+            TimeUnit.MILLISECONDS.sleep(1000);
+        }
+        Assertions.assertTrue(hasNodeA, "node-B 应通过 scatter 发现 node-A. Services: " + bServices);
     }
 }

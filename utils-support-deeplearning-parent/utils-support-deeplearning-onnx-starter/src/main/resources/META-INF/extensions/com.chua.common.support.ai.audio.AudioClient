@@ -6,3 +6,6 @@ paraformer-zh-small=com.chua.deeplearning.support.onnx.audio.paraformer.Paraform
 paraformer-onnx=com.chua.deeplearning.support.onnx.audio.paraformer.ParaformerAudioClient
 sherpa-onnx-paraformer=com.chua.deeplearning.support.onnx.audio.paraformer.ParaformerAudioClient
 onnx=com.chua.deeplearning.support.onnx.OnnxAudioClient
+sensevoice=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
+sensevoice-small=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
+sense-voice=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient

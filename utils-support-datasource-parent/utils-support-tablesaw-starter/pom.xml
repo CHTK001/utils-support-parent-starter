@@ -25,5 +25,27 @@
             <artifactId>tablesaw-core</artifactId>
             <version>0.43.1</version>
         </dependency>
-    </dependencies>
+            <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkedProcessExitTimeoutInSeconds>15</forkedProcessExitTimeoutInSeconds>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

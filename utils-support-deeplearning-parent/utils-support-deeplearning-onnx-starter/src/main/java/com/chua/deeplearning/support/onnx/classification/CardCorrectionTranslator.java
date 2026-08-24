@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * 卡片矫正检测（CenterNet，ORT 原生 + OpenCV）。
@@ -40,6 +41,14 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     private static final int INPUT_SIZE = 768;
     /** 热力图尺寸 */
     /** Heat_size */
+
+    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
     private static final int HEAT_SIZE = 192;
     /** 角点数量 */
     /** Num_corners */
@@ -276,7 +285,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         float scaleX = (float) srcWidth / INPUT_SIZE;
         float scaleY = (float) srcHeight / INPUT_SIZE;
         List<float[][]> result = new ArrayList<>();
-        List<int[]> centers = findPeaks(hm, CONF_THRESHOLD);
+        List<int[]> centers = findPeaks(hm, effThreshold(CONF_THRESHOLD));
         for (int[] c : centers) {
             int bestY = c[0];
             int bestX = c[1];
@@ -387,4 +396,23 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         session = null;
         ortEnv = null;
     }
+        /** 默认构造。 */
+    public CardCorrectionTranslator() {
+    }
+
+/**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public CardCorrectionTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this();
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
 }

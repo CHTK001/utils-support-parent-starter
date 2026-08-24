@@ -28,6 +28,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class Discovery implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 服务唯一标识符

@@ -2,19 +2,14 @@ package com.chua.common.support.datasearch.usage.spi;
 
 import com.chua.common.support.ai.AiUsage;
 
+import reactor.core.publisher.Flux;
 import java.util.List;
 
 /**
- * AI 用量解析器接口 — 解析外部 AI 工具本地存储的用量数据
+ * AI 用量解析器接口 — 解析外部 AI 工具本地存储的用量数据。
  *
- * <p>各工具（OpenCode、Cursor、VSCode 等）在本地存储了各自的用量信息，
+ * <p>各工具（OpenCode、Codex 等）在本地存储了各自的用量信息，
  * UsageParser 负责从这些本地文件/配置中解析出标准化的 {@link AiUsage}。</p>
- *
- * <p>与 {@link UsageProvider} 的区别：
- * <ul>
- *   <li>UsageProvider：聚合 ChatClient 调用，异步实时存储用量和统计</li>
- *   <li>UsageParser：解析外部工具本地数据，纯只读</li>
- * </ul>
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,23 +17,19 @@ import java.util.List;
 public interface UsageParser {
 
     /**
-     * 解析全量用量数据
+     * 流式解析全部用量数据（响应式，支持背压）。
      *
-     * @return 用量数据列表
+     * <p>这是唯一的取数入口：实现必须以惰性、逐条方式产出，
+     * 禁止一次性全量装载进内存。</p>
+     *
+     * @return 用量记录流
      */
-    List<AiUsage> parseAll();
+    Flux<AiUsage> streamAll();
 
     /**
-     * 按天聚合用量数据
+     * 当前解析器标识（如 "opencode"、"codex++"）。
      *
-     * @return 每天一条聚合记录，按日期升序
-     */
-    default List<AiUsage> parseDaily() {
-        return parseAll();
-    }
-
-    /**
-     * 当前解析器标识（如 "opencode"、"cursor-byok"）
+     * @return SPI 名称
      */
     String name();
 }

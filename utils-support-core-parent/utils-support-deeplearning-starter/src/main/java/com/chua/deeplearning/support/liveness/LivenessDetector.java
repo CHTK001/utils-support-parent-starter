@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.liveness;
 
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
@@ -132,11 +133,7 @@ public interface LivenessDetector {
  */
 class DefaultLivenessDetector implements LivenessDetector {
 
-    /**
-     * 默认活体阈值。
-     */
-    private static final float DEFAULT_THRESHOLD = 0.5f;
-
+    
     /**
      * 默认运行设备（CPU）。
      */
@@ -162,7 +159,7 @@ class DefaultLivenessDetector implements LivenessDetector {
     /**
      * 活体阈值。
      */
-    private float threshold = DEFAULT_THRESHOLD;
+    private Float threshold;
 
     /**
      * 模型路径。
@@ -219,7 +216,7 @@ class DefaultLivenessDetector implements LivenessDetector {
     /** 是否Live */
     public boolean isLive(byte[] imageData) {
         ITranslator<byte[], Object> t =
-                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -244,7 +241,7 @@ class DefaultLivenessDetector implements LivenessDetector {
     /** LiveScore */
     public float liveScore(byte[] imageData) {
         ITranslator<byte[], Object> t =
-                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

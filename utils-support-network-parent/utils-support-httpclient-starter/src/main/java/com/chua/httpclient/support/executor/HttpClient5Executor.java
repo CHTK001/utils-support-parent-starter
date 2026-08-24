@@ -1,6 +1,7 @@
 package com.chua.httpclient.support.executor;
 
 import com.chua.common.support.network.client.ClientRequest;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.spi.annotations.Spi;
@@ -49,7 +50,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
     /** 是否Available */
     public boolean isAvailable() {
         try {
-            Class.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
+            ReflectUtils.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
             return true;
         } catch (ClassNotFoundException e) {
             return false;

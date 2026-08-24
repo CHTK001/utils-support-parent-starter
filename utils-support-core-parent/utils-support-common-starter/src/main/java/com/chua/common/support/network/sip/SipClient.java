@@ -1,6 +1,7 @@
 package com.chua.common.support.network.sip;
 
 import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
+import com.chua.common.support.network.crypto.AesGcmUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -20,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * SIP 单端口客户端：先认证换取会话 token，再持 token 建隧道数据连接。
@@ -67,6 +71,11 @@ public class SipClient {
      * 会话令牌（认证成功后由服务端颁发）
      */
     private volatile String sessionToken;
+
+    /**
+     * 数据面端到端加密开关（AES-256-GCM，密钥由共享 token 派生，两侧需一致）
+     */
+    private volatile boolean encryptData;
 
     /**
      * 信令连接
@@ -162,6 +171,20 @@ public class SipClient {
     }
 
     /**
+     * 设置数据面端到端加密开关（AES-256-GCM，密钥由共享 token 派生）。
+     *
+     * <p>开启后 visitor 与 provider 之间的数据在客户端侧加密、服务端仅桥接密文；
+     * 要求隧道两侧客户端同时开启，默认关闭。</p>
+     *
+     * @param encryptData true 开启加密
+     * @return 当前客户端实例，支持链式调用
+     */
+    public SipClient encrypt(boolean encryptData) {
+        this.encryptData = encryptData;
+        return this;
+    }
+
+    /**
      * 设置认证令牌（初始共享密钥，与 {@link #token(String)} 等价）。
      *
      * @param token 认证令牌
@@ -187,14 +210,21 @@ public class SipClient {
             socket.setTcpNoDelay(true);
             socket.connect(new InetSocketAddress(serverHost, serverPort), 5000);
             this.signalSocket = socket;
-            this.signalWriter = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8);
+            OutputStream rawOut = socket.getOutputStream();
+            InputStream rawIn = socket.getInputStream();
+            if (encryptData) {
+                SecretKeySpec key = AesGcmUtils.deriveKey(token);
+                rawOut = AesGcmUtils.encrypting(rawOut, key);
+                rawIn = AesGcmUtils.decrypting(rawIn, key);
+            }
+            this.signalWriter = new PrintWriter(rawOut, true, StandardCharsets.UTF_8);
             // 认证握手：AUTH|clientId|host|port|signature
             String signature = HMacUtils.hmacSha256Hex(token, clientId + serverHost + serverPort);
             PrintWriter writer = signalWriter;
             writer.println(SipProtocol.line(SipProtocol.PREFIX_AUTH, clientId, serverHost, String.valueOf(serverPort), signature));
             writer.flush();
             // 读响应，等待 TOKEN
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(rawIn, StandardCharsets.UTF_8));
             String line = reader.readLine();
             if (line == null || !line.startsWith(SipProtocol.PREFIX_TOKEN + SipProtocol.SEPARATOR)) {
                 socket.close();
@@ -414,7 +444,7 @@ public class SipClient {
     private void connectDataStream(SipTunnelSession session, String role) {
         try {
             SipTunnelStream stream = new SipTunnelStream(serverHost, serverPort,
-                    session.getChannelId(), role, sessionToken);
+                    session.getChannelId(), role, token, sessionToken, encryptData);
             session.attachStream(stream);
             log.debug("SIP 数据平面连接已建立: channel={}, role={}", session.getChannelId(), role);
         } catch (Exception e) {

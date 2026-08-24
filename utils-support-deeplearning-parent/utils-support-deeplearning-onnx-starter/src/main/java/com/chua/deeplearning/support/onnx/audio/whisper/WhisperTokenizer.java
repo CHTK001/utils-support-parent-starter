@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,18 +73,29 @@ public class WhisperTokenizer {
      * @return tokenizer 实例
      */
     public static WhisperTokenizer load(Path vocabJson, Path tokJson) throws IOException {
-        // 1. 加载 BPE vocab
+        // 1. 加载 BPE vocab（自动识别方向：id→token 或 token→id）
         Map<Integer, String> idToTokenMap = new HashMap<>();
         try (InputStream in = Files.newInputStream(vocabJson)) {
             JsonNode root = MAPPER.readTree(in);
-            root.fields().forEachRemaining(e -> {
-                try {
-                    int id = Integer.parseInt(e.getKey());
-                    idToTokenMap.put(id, e.getValue().asText());
-                } catch (NumberFormatException ignored) {
-                    // skip non-integer keys
+            List<Map.Entry<String, JsonNode>> entries = new ArrayList<>();
+            root.fields().forEachRemaining(entries::add);
+            boolean idKeyed = !entries.isEmpty() && isIntKey(entries.get(0).getKey());
+            for (Map.Entry<String, JsonNode> e : entries) {
+                if (idKeyed) {
+                    try {
+                        idToTokenMap.put(Integer.parseInt(e.getKey()), e.getValue().asText());
+                    } catch (NumberFormatException ignored) {
+                        // skip
+                    }
+                } else {
+                    // token→id 格式（如 Xenova 导出），反转
+                    try {
+                        idToTokenMap.put(e.getValue().asInt(), e.getKey());
+                    } catch (Exception ignored) {
+                        // skip
+                    }
                 }
-            });
+            }
         }
 
         // 2. 合并 tokenizer.json 的 added_tokens（覆盖重复 ID）
@@ -184,4 +197,17 @@ public class WhisperTokenizer {
     public static final int NO_SPEECH = 50362;
     /** Language token base id */
     public static final int LANG_BASE = 50260;
+    /** 判断字符串是否为整数键 */
+    private static boolean isIntKey(String key) {
+        if (key == null || key.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < key.length(); i++) {
+            char ch = key.charAt(i);
+            if (ch < '0' || ch > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Spi("kryo")
 public class KryoSerializer<T extends Serializable> implements Serializer<T> {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Kryo 实例缓存池，按实体类类型缓存 Kryo 实例

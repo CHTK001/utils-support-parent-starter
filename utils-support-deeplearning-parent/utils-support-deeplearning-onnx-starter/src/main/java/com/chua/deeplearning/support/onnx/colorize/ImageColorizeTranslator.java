@@ -45,13 +45,18 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDManager manager = ctx.getNDManager();
 
-        // 灰度图像预处理：确保为灰度 -> 归一化 [0, 1] -> [1, 1, H, W]
+        // 预处理：确保为灰度 -> 归一化 [0, 1] -> 复制三通道 -> [1, 3, H, W]
+        // （嵌入式 DeOldify ONNX 的输入为 NCHW 3 通道）
         NDArray gray = input.toNDArray(manager, Image.Flag.GRAYSCALE);
         if (!DataType.FLOAT32.equals(gray.getDataType())) {
             gray = gray.toType(DataType.FLOAT32, false);
         }
         gray = gray.div(255.0f);
-        gray = gray.transpose(2, 0, 1).expandDims(0);
+        gray = gray.transpose(2, 0, 1);
+        // 复制三通道（Rust 引擎未实现 repeat，改用 concat 拼接）
+        gray = ai.djl.ndarray.NDArrays.concat(
+                new NDList(gray, gray, gray), 0).get(0);
+        gray = gray.expandDims(0);
 
         log.debug("[ImageColorize] Input: gray={}", gray.getShape());
         return new NDList(gray);
@@ -62,6 +67,7 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         long[] shape = output.getShape().getShape();
+        log.info("[ImageColorize] Output raw shape={} dtype={}", java.util.Arrays.toString(shape), output.getDataType());
 
         if (shape.length == 4) {
             output = output.squeeze(0);

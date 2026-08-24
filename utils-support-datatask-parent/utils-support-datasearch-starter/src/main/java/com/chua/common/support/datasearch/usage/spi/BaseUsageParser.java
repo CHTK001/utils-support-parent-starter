@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.usage.spi;
 import com.chua.common.support.ai.AiUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,35 +16,171 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * UsageParser 基类 — 提供按天聚合公共逻辑
+ * UsageParser 基类 — 提供按天聚合公共逻辑。
+ *
+ * <p>子类实现 {@link #parseAll()} 从各自数据源读取原始用量记录，
+ * 本基类提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public abstract class BaseUsageParser implements UsageParser {
 
-    /** 日志 */
+    /** Logger */
     protected final Logger log = LoggerFactory.getLogger(getClass());
-    /** Day_fmt */
+
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-     * 解析全量用量数据（子类实现）
+     * 按行惰性读取文本文件（内存占用与总量无关）。
+     *
+     * @param file 文本文件
+     * @return 行内容流；文件由 Flux.using 负责关闭
      */
-    @Override
-    public abstract List<AiUsage> parseAll();
-
-    @Override
-    /** 解析Daily */
-    public List<AiUsage> parseDaily() {
-        List<AiUsage> all = parseAll();
-        if (all.isEmpty()) {
-            return List.of();
-        }
-        return aggregateByDay(all);
+    protected static Flux<String> streamLines(java.nio.file.Path file) {
+        return Flux.using(
+                () -> java.nio.file.Files.newBufferedReader(file),
+                reader -> Flux.fromStream(reader.lines()),
+                reader -> {
+                    try {
+                        reader.close();
+                    } catch (Exception ignored) {
+                        // 忽略关闭异常
+                    }
+                });
     }
 
-    /** AggregateByDay */
+    /**
+     * 解析 ISO-8601 时间字符串为 epoch 毫秒（子类通用工具）。
+     *
+     * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
+     * 解析失败返回 0L。</p>
+     *
+     * @param isoTimestamp ISO-8601 时间字符串
+     * @return epoch 毫秒；入参为空或非法时返回 0L
+     */
+    protected static long parseInstantToMillis(String isoTimestamp) {
+        if (isoTimestamp == null || isoTimestamp.isBlank()) {
+            return 0L;
+        }
+        try {
+            return Instant.parse(isoTimestamp).toEpochMilli();
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    /**
+     * 解析 yyyy-MM-dd 日期字符串为当天零点的 epoch 毫秒（子类通用工具）。
+     *
+     * @param dateStr 日期字符串
+     * @return epoch 毫秒；入参为空或非法时返回 0L
+     */
+    protected static long parseDayStartToMillis(String dateStr) {
+        if (dateStr == null || dateStr.isBlank()) {
+            return 0L;
+        }
+        try {
+            return LocalDate.parse(dateStr, DAY_FMT)
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant().toEpochMilli();
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
+    /**
+     * 返回第一个非空白字符串（子类通用工具）。
+     *
+     * @param value    待检查的值
+     * @param fallback 兜底值
+     * @return value 非空白时返回 value，否则返回 fallback
+     */
+    protected static String firstNonBlank(String value, String fallback) {
+        if (value != null && !value.isBlank()) {
+            return value;
+        }
+        return fallback;
+    }
+
+    /**
+     * 将数据库列值转换为 int（子类通用工具）。
+     *
+     * <p>兼容 Number、可解析的字符串；无法转换时返回 0。</p>
+     *
+     * @param value 原始列值
+     * @return int 值
+     */
+    protected static int asInt(Object value) {
+        if (value instanceof Number n) {
+            return n.intValue();
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return Integer.parseInt(s.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 将数据库列值转换为 long（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return long 值
+     */
+    protected static long asLong(Object value) {
+        if (value instanceof Number n) {
+            return n.longValue();
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return Long.parseLong(s.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return 0L;
+    }
+
+    /**
+     * 将数据库列值转换为 double（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return double 值
+     */
+    protected static double asDouble(Object value) {
+        if (value instanceof Number n) {
+            return n.doubleValue();
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return Double.parseDouble(s.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return 0.0d;
+    }
+
+    /**
+     * 将数据库列值转换为非空字符串（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return 字符串形式；null 转为空串
+     */
+    protected static String asStr(Object value) {
+        return value == null ? "" : value.toString();
+    }
+
+    /**
+     * 将原始记录按天聚合，每天一条 AiUsage 记录。
+     *
+     * @param records 原始用量记录列表
+     * @return 按天聚合后的记录列表
+     */
     protected List<AiUsage> aggregateByDay(List<AiUsage> records) {
         Map<String, DayAggregator> dayMap = new LinkedHashMap<>();
         for (AiUsage usage : records) {
@@ -57,7 +194,6 @@ public abstract class BaseUsageParser implements UsageParser {
         return result;
     }
 
-    /** ToDay */
     private String toDay(Long millis) {
         if (millis == null) {
             return "";
@@ -67,21 +203,14 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     protected static class DayAggregator {
-        /** DAY */
+
         private final String day;
-        /** 提供者 */
         private final String provider;
-        /** 输入tokens */
         private int inputTokens;
-        /** 输出tokens */
         private int outputTokens;
-        /** 总数tokens */
         private int totalTokens;
-        /** 总数cost */
         private BigDecimal totalCost = BigDecimal.ZERO;
-        /** 总数持续时间 */
         private long totalDuration;
-        /** 数量 */
         private int count;
 
         DayAggregator(String day, String provider) {
@@ -125,10 +254,10 @@ public abstract class BaseUsageParser implements UsageParser {
                     .build();
         }
 
-        /** ToMillis */
         private long toMillis(String d) {
             try {
-                return LocalDate.parse(d, DAY_FMT).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                return LocalDate.parse(d, DAY_FMT).atStartOfDay(ZoneId.systemDefault())
+                        .toInstant().toEpochMilli();
             } catch (Exception e) {
                 return 0L;
             }

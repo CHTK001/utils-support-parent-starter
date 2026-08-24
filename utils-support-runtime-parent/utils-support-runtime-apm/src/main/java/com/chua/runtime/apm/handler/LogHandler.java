@@ -1,5 +1,6 @@
 package com.chua.runtime.apm.handler;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.Plugin;
 import com.chua.runtime.plugin.PluginContext;
@@ -376,8 +377,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         }
         // 尝试反射调用 getName()（SLF4J Logger、JUL Logger、APCL Log、Log4j2 Logger 均支持）
         try {
-            java.lang.reflect.Method getName = loggerInstance.getClass().getMethod("getName");
-            Object result = getName.invoke(loggerInstance);
+            Object result = ReflectUtils.invoke(loggerInstance, "getName", String.class);
             if (result instanceof String && !((String) result).isEmpty()) {
                 return (String) result;
             }

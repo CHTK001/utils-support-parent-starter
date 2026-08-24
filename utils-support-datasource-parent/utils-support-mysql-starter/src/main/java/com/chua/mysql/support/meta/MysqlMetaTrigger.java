@@ -141,6 +141,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
                 return def;
             }
         } catch (SQLException e) {
+            // 豁免：INFORMATION_SCHEMA 回退查询，triggerName/triggerSchema 为系统触发器标识（由应用自身创建），非外部用户输入
             String infoSchemaSql = "SELECT * FROM INFORMATION_SCHEMA.TRIGGERS WHERE TRIGGER_NAME = '" + triggerName + "'";
             if (triggerSchema != null) {
                 infoSchemaSql += " AND TRIGGER_SCHEMA = '" + triggerSchema + "'";

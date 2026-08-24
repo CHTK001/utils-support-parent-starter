@@ -60,11 +60,11 @@ public class MordantHelper {
         String osName = System.getProperty("os.name", "unknown").toLowerCase();
         try {
             if (osName.contains("win")) {
-                Class<?> cls = Class.forName(
+                Class<?> cls = ReflectUtils.forName(
                         "com.github.ajalt.mordant.terminal.terminalinterface.jna.TerminalInterfaceJnaWindows");
                 return (TerminalInterface) ReflectUtils.instantiate(cls);
             }
-            Class<?> cls = Class.forName(
+            Class<?> cls = ReflectUtils.forName(
                     "com.github.ajalt.mordant.terminal.terminalinterface.jna.TerminalInterfaceJnaLinux");
             return (TerminalInterface) ReflectUtils.instantiate(cls);
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.chua.common.support.network.server.impl;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.crypto.AesGcmUtils;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.tcp.TcpServer;
@@ -9,6 +10,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -127,6 +129,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * 帧式处理器（{@link TcpServer} 接口）
      */
     private volatile TcpServerHandler frameHandler;
+
+    /**
+     * 流加密密钥（doStart 时由 encryptKey 派生缓存；null 表示未启用加密，连接路径零开销）
+     */
+    private volatile SecretKeySpec encryptKeySpec;
 
     /**
      * 流式处理器表（兼容既有 API）
@@ -256,6 +263,19 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             serverChannel.bind(addr, Math.max(setting.getBacklog(), 2048));
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverChannel.socket().getLocalPort());
+
+            // 流加密密钥：启动时派生一次并缓存，避免每连接重复 SHA-256
+            if (setting.isEncrypt()) {
+                String encryptKey = setting.getEncryptKey();
+                if (encryptKey == null || encryptKey.isBlank()) {
+                    log.warn("TCP 加密已启用但未配置 encryptKey，连接将按明文处理");
+                } else {
+                    encryptKeySpec = AesGcmUtils.deriveKey(encryptKey);
+                    if (frameHandler != null) {
+                        log.warn("TCP 加密仅支持流式协议，当前为帧式(NIO)协议，加密未生效");
+                    }
+                }
+            }
 
             acceptSelector = Selector.open();
             serverChannel.register(acceptSelector, SelectionKey.OP_ACCEPT);
@@ -399,7 +419,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             return;
         }
         if (frameHandler != null) {
-            // 帧式协议：注册到 IO Selector，NIO 拼帧
+            // 帧式协议：注册到 IO Selector，NIO 拼帧（加密告警已在 doStart 统一提示）
             sc.configureBlocking(false);
             Selector ioSelector = ioSelectors[Math.floorMod(ioCursor.getAndIncrement(), ioSelectors.length)];
             sc.register(ioSelector, SelectionKey.OP_READ, new Attachment(ioSelector));
@@ -525,8 +545,15 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         String clientKey = socket.getRemoteSocketAddress().toString();
         log.debug("TCP 连接: {}", clientKey);
 
-        try (InputStream in = socket.getInputStream();
-             OutputStream out = socket.getOutputStream()) {
+        try (InputStream rawIn = socket.getInputStream();
+             OutputStream rawOut = socket.getOutputStream()) {
+            InputStream in = rawIn;
+            OutputStream out = rawOut;
+            // 快路径：未启用加密时仅一次 null 判断，零额外开销
+            if (encryptKeySpec != null) {
+                in = AesGcmUtils.decrypting(rawIn, encryptKeySpec);
+                out = AesGcmUtils.encrypting(rawOut, encryptKeySpec);
+            }
 
             TcpHandler handler = findHandler(clientKey);
             if (handler != null) {

@@ -16,6 +16,8 @@ import java.net.URISyntaxException;
 @Accessors(chain = true)
 public class NetAddress implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /** 协议 */
     private String protocol;
     /**

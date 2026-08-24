@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Spi("auto")
 public class AutoSerializer<T extends Serializable> implements Serializer<T> {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 序列化器降级链

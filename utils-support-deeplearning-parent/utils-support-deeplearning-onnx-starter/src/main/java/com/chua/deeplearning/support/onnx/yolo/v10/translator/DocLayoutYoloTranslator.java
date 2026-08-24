@@ -123,7 +123,19 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     /** 图片高度 */
     private int imageHeight;
 
-    /**
+        /**
+     * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public DocLayoutYoloTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this(DEFAULT_INPUT_SIZE,
+                configuration == null ? DEFAULT_THRESHOLD
+                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, DEFAULT_THRESHOLD),
+                DOCSTRUCTBENCH_CLASSES);
+    }
+
+/**
      *                    -                   
      */
     public DocLayoutYoloTranslator() {

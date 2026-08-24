@@ -136,19 +136,11 @@ public interface ImageDetector {
 class DefaultImageDetector implements ImageDetector {
 
     /**
-     * 默认检测阈值。
-     */
-    private static final float DEFAULT_THRESHOLD = 0.5f;
-
-    /**
-     * 默认 NMS 阈值。
-     */
-    private static final float DEFAULT_NMS = 0.4f;
-
-    /**
      * 默认运行设备（CPU）。
      */
     private static final String DEFAULT_DEVICE = "cpu";
+
+
 
     /**
      * 识别引擎。
@@ -168,14 +160,14 @@ class DefaultImageDetector implements ImageDetector {
     private final ModelSetting setting;
 
     /**
-     * 检测阈值。
+     * 检测阈值（null 表示未显式设置，使用各模型自身默认值）。
      */
-    private float threshold = DEFAULT_THRESHOLD;
+    private Float threshold;
 
     /**
-     * NMS 阈值。
+     * NMS 阈值（null 表示未显式设置，使用各模型自身默认值）。
      */
-    private float nms = DEFAULT_NMS;
+    private Float nms;
 
     /**
      * 模型路径。
@@ -239,7 +231,7 @@ class DefaultImageDetector implements ImageDetector {
     /** Detect */
     public List<DetectionInfo> detect(byte[] imageData) {
         ITranslator<byte[], Object> t =
-                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, detectOptions());
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -262,5 +254,14 @@ class DefaultImageDetector implements ImageDetector {
             return out;
         }
         throw new IllegalStateException("模型输出不是检测结果: " + modelName + " -> " + result.getClass());
+    }
+
+    /**
+     * 汇总显式设置的运行参数（未设置的键不出现，保留各模型默认值）。
+     *
+     * @return 运行参数（可能为空 Map）
+     */
+    private java.util.Map<String, Object> detectOptions() {
+        return com.chua.deeplearning.support.engine.DetectOptions.of(threshold, nms);
     }
 }

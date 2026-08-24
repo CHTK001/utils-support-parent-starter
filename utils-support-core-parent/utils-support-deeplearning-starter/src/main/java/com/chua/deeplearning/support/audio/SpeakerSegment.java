@@ -67,6 +67,13 @@ public record SpeakerSegment(
      * @param endTimeMs    结束时间（毫秒）
      * @param transcript   转录文本，可为 null
      */
+    public SpeakerSegment(String speakerId, long startTimeMs, long endTimeMs, String transcript) {
+        this(speakerId, startTimeMs, endTimeMs, transcript, 1.0f);
+    }
+
+    /**
+     * 全参紧凑构造器：置信度为 NaN 时回退为 1.0。
+     */
     public SpeakerSegment {
         confidence = Float.isNaN(confidence) ? 1.0f : confidence;
     }

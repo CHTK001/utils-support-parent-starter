@@ -1,0 +1,51 @@
+package com.chua.common.support.datasearch.conversation;
+
+import lombok.Builder;
+import lombok.Data;
+
+/**
+ * AI 工具本地会话中的一条消息记录。
+ *
+ * <p>由 {@code ConversationParser} 从各工具的本地会话文件中解析得出，
+ * 仅包含文本类内容；thinking、tool_use 等非文本块以类型标记保留，
+ * 内容置空，避免敏感信息扩散。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Data
+@Builder(toBuilder = true)
+public class ConversationMessage {
+
+    /** 来源工具标识（如 claude-code、qoder） */
+    private String provider;
+
+    /** 会话 ID */
+    private String sessionId;
+
+    /** 消息 ID */
+    private String messageId;
+
+    /** 角色：user / assistant */
+    private String role;
+
+    /**
+     * 内容块类型。
+     *
+     * <p>text = 正文文本；thinking = 思考块（内容为空）；
+     * tool_use = 工具调用（内容为工具名）；tool_result = 工具结果（内容为空）。</p>
+     */
+    private String contentType;
+
+    /** 文本内容（仅 text 块有值） */
+    private String content;
+
+    /** assistant 消息的模型名 */
+    private String model;
+
+    /** 时间戳（epoch 毫秒） */
+    private Long timestamp;
+
+    /** 消息发生时的工作目录 */
+    private String cwd;
+}

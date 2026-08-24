@@ -1,6 +1,6 @@
 # utils-support-mysql-starter
 
-MySQL 数据库适配：用户管理、索引管理
+MySQL 数据库支持：用户管理、元数据管理、阻塞与响应式双引擎。
 
 ---
 
@@ -22,23 +22,47 @@ MySQL 数据库适配：用户管理、索引管理
 
 | 类/接口 | 说明 |
 |---------|------|
-| `MysqlEngine` | MySQL 数据库引擎。 继承自 ，提供 MySQL 特有的便捷数据源配置方法。 使用 HikariCP 连接池，默认最大连接数为 10。 使用示例： (SPI: `mysql`) |
-| `MysqlCreateIndexStep` | MysqlCreateIndexStep |
-| `MysqlDropIndexStep` | MysqlDropIndexStep |
-| `MysqlIndexManager` | MysqlIndexManager |
-| `MysqlMetaData` | MySQL 元数据入口。 通过 SPI 机制注册为 MySQL 引擎的元数据实现。 提供表、视图、索引、触发器、存储过程、外键的元数据操作能力。 (SPI: `mysql`) |
-| `MysqlMetaForeignKey` | MysqlMetaForeignKey |
-| `MysqlMetaIndex` | MysqlMetaIndex |
-| `MysqlMetaProcedure` | MysqlMetaProcedure |
-| `MysqlMetaTable` | MysqlMetaTable |
-| `MysqlMetaTrigger` | MysqlMetaTrigger |
-| ... | 共 14 个类 |
+| `MysqlEngine` | MySQL 阻塞引擎。基于 HikariCP 连接池（默认最大连接 10），提供 MySQL 专有的表结构、数据源配置方法 (SPI: `mysql`) |
+| `MysqlReactorEngine` | MySQL 响应式引擎，extends JdbcReactorEngine。经 `boundedElastic` 调度在 JDBC DataSource 上执行，对外暴露 Flux/Mono (SPI: 继承注册路径) |
+| `MysqlMetaData` / `MysqlMetaTable` 等 | 表、视图、列、索引、外键、存储过程、触发器元数据操作 |
+
+> 其余 DDL 步骤类（`MysqlCreateIndexStep` 等）用于索引管理与 DSL 构建。
 
 ---
 
-## 配置说明
+## 使用示例
 
-本模块为零配置模块，引入依赖后即可使用。
+```java
+// 阻塞引擎
+MysqlEngine engine = new MysqlEngine();
+engine.addDataSource("m", "172.16.0.40", 3306, "mydb", "root", "password");
+List<Map<String,Object>> rows = engine.getExecutor()
+        .query("SELECT * FROM t WHERE id = ?", 1);
+
+// 响应式引擎（同一数据库）
+MysqlReactorEngine reactor = new MysqlReactorEngine();
+reactor.addDataSource("r", "172.16.0.40", 3306, "mydb", "root", "password");
+reactor.query("SELECT id, name FROM t")
+        .doOnNext(row -> System.out.println(row))
+        .subscribe();
+```
+
+> 注意：响应式引擎内部经 `registerJdbcDataSource` 注册纯 JDBC 数据源，
+> 在 `boundedElastic` 上执行真实 JDBC 调用。
+
+---
+
+## 测试
+
+```bash
+mvn test -DskipTests=false "-Dtest=MysqlEnginesTest"
+```
+
+- `MysqlEnginesTest` 为**真实服务集成测试**（默认目标 172.16.0.40:3308 / testdb），
+  环境不可达时自动跳过。
+- 远程账号需允许来源 IP 访问；容器化 MySQL 可用：
+  `CREATE USER 'it'@'%' IDENTIFIED BY '...'; GRANT ALL ON testdb.* TO 'it'@'%';`
+- 已知外部遗留：`MysqlUserManagerIT` 凭据过期（root@），仅编译校验不参与执行。
 
 ---
 
@@ -46,5 +70,7 @@ MySQL 数据库适配：用户管理、索引管理
 
 ```
 utils-support-mysql-starter
-├── utils-support-datasource-starter
+├── utils-support-datasource-starter (provided)
+├── HikariCP
+└── mysql-connector-j (runtime)
 ```

@@ -29,7 +29,8 @@ public class FireSmokeDetectorTranslator extends YoloTranslator {
         if (arguments != null && arguments.containsKey("inputSize")) {
             return Integer.parseInt(arguments.get("inputSize").toString());
         }
-        return 320;
+        // 嵌入式权重(vision/fire-smoke/yolov8n/model.onnx)为 640 导出，默认对齐 640
+        return 640;
     }
 
     private static float resolveThreshold(Map<String, ?> arguments) {

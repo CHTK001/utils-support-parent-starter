@@ -456,7 +456,7 @@ public class SolrEngine extends AbstractEngine {
                 if (!where.isEmpty()) {
                     query = String.join(" AND ", where);
                 }
-                String jsonFacet = buildJsonFacet(groupByCols, 0);
+                String jsonFacet = buildJsonFacet(groupByCols, 0, offset, limit);
                 org.apache.solr.client.solrj.SolrQuery sq = new org.apache.solr.client.solrj.SolrQuery();
                 sq.setQuery(query);
                 sq.setParam("json.facet", jsonFacet);
@@ -482,7 +482,7 @@ public class SolrEngine extends AbstractEngine {
 
     @SuppressWarnings("unchecked")
     /** 构建JsonFacet */
-    private static String buildJsonFacet(List<String> cols, int idx) {
+    private static String buildJsonFacet(List<String> cols, int idx, int offset, int limit) {
         if (idx >= cols.size()) {
             return "{\"count\":\"*\"}";
         }
@@ -491,10 +491,10 @@ public class SolrEngine extends AbstractEngine {
         sb.append("{\"").append(col).append("\":{");
         sb.append("\"type\":\"terms\",");
         sb.append("\"field\":\"").append(col).append("\",");
-        sb.append("\"limit\":-1,");
+        sb.append("\"offset\":").append(idx == 0 ? offset : 0).append(",").append("\"limit\":").append(limit).append(",");
         sb.append("\"mincount\":1");
         if (idx < cols.size() - 1) {
-            sb.append(",\"facet\":{").append(buildJsonFacet(cols, idx + 1)).append("}");
+            sb.append(",\"facet\":{").append(buildJsonFacet(cols, idx + 1, 0, limit)).append("}");
         }
         sb.append("}}");
         return sb.toString();
@@ -563,42 +563,49 @@ public class SolrEngine extends AbstractEngine {
      */
     private static List<Map<String, Object>> parseFacetResponse(
             Object facets, List<String> groupByCols, int depth) {
-        if (facets == null || groupByCols == null || depth >= groupByCols.size()) {
-            return Collections.emptyList();
-        }
-        NestableJsonFacet nestable;
+        /* solrj 对 /query 的响应中 facets 是普通 Map（非 NestableJsonFacet），
+         * 旧实现 instanceof 判断永假导致永远返回空列表 */
+        return parseFacetsFromMap(facets, groupByCols, depth);
+    }
+
+    /**
+     * 以裸 Map/NamedList 结构递归解析 json.facet 分组结果。
+     */
+    private static List<Map<String, Object>> parseFacetsFromMap(
+            Object facetsNode, List<String> groupByCols, int depth) {
+        List<Map<String, Object>> result = new ArrayList<>();
         String col = groupByCols.get(depth);
-        if (depth == 0 && facets instanceof NestableJsonFacet nf0) {
-            nestable = nf0;
-        } else if (facets instanceof NestableJsonFacet nf) {
-            nestable = nf;
-        } else {
-            return Collections.emptyList();
+        Object colFacet = child(facetsNode, col);
+        if (colFacet == null) {
+            return result;
         }
-        BucketBasedJsonFacet bucketBased = nestable.getBucketBasedFacets(col);
-        if (bucketBased == null) {
-            return Collections.emptyList();
+        Object bucketsObj = child(colFacet, "buckets");
+        if (!(bucketsObj instanceof List)) {
+            return result;
         }
-        List<BucketJsonFacet> buckets = bucketBased.getBuckets();
-        if (CollectionUtils.isEmpty(buckets)) {
-            return Collections.emptyList();
-        }
-        List<Map<String, Object>> result = new ArrayList<>(buckets.size());
         boolean isLeaf = depth == groupByCols.size() - 1;
-        for (BucketJsonFacet bucket : buckets) {
+        for (Object b : (List<?>) bucketsObj) {
             Map<String, Object> row = new LinkedHashMap<>();
-            row.put(col, bucket.getVal());
+            row.put(col, child(b, "val"));
             if (isLeaf) {
-                row.put("count", bucket.getCount());
-            } else {
-                List<Map<String, Object>> children = parseFacetResponse(bucket, groupByCols, depth + 1);
-                if (CollectionUtils.isNotEmpty(children)) {
-                    row.put("children", children);
-                }
+                row.put("count", child(b, "count"));
+            } else if (depth + 1 < groupByCols.size()) {
+                row.put("children", parseFacetsFromMap(b, groupByCols, depth + 1));
             }
             result.add(row);
         }
         return result;
+    }
+
+    /** 兼容 Map 与 NamedList 两种结构的取子节点 */
+    private static Object child(Object node, String key) {
+        if (node instanceof Map) {
+            return ((Map<?, ?>) node).get(key);
+        }
+        if (node instanceof org.apache.solr.common.util.NamedList) {
+            return ((org.apache.solr.common.util.NamedList<?>) node).get(key);
+        }
+        return null;
     }
 
     @Override
@@ -956,6 +963,15 @@ public class SolrEngine extends AbstractEngine {
             return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
         }
         return escape(str);
+    }
+
+    /** 获取Client */
+    /**
+     * 获取 DDL 管理器入口（与 meta() 同模式）。
+     * 将集合映射为 TableDef、schema 字段映射为 ColumnDef。
+     */
+    public com.chua.datasource.support.ddl.DslManager ddl() {
+        return new com.chua.solr.support.ddl.SolrDdlManager(getClient());
     }
 
     /** 获取Client */

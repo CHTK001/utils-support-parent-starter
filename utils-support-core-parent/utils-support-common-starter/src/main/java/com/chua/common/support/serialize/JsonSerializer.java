@@ -15,6 +15,8 @@ import java.lang.reflect.Type;
 @Spi("json")
 public class JsonSerializer<T extends Serializable> implements Serializer<T> {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 类型
      */

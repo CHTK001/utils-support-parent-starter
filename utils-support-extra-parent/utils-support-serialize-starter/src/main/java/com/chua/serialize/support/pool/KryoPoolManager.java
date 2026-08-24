@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  */
 public class KryoPoolManager<T extends Serializable> {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 全局管理器缓存，按实体类类型缓存管理器实例

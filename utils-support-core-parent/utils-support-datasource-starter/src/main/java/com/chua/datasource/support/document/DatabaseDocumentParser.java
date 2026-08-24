@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.sql.*;
 import java.util.*;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,7 +43,7 @@ public class DatabaseDocumentParser implements DocumentParser {
 
         if (driverClass != null && !driverClass.isBlank()) {
             try {
-                Class.forName(driverClass);
+                ReflectUtils.forName(driverClass);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("JDBC driver not found: " + driverClass, e);
             }
