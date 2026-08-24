@@ -96,6 +96,7 @@ utils-support-parent-starter/
 │   ├── deeplearning-arcface-starter          # ArcFace 人脸识别
 │   ├── deeplearning-tesseract-starter        # OCR 文字识别
 │   ├── deeplearning-speech-starter           # 语音识别
+│   ├── deeplearning-agentscope-starter       # AgentScope Agent 框架
 │   └── deeplearning-langchain4j-starter      # LangChain4j
 │
 ├── derive-parent/                            # 衍生扩展
@@ -504,6 +505,79 @@ String result = factory.get("""
 ```
 
 > 各模块更多示例请查看对应子模块 README。
+
+### 10. 分布式集群 — ClusterServer / Scatter
+
+基于 Scatter 对等网络的分布式集群，提供服务发现、负载均衡、故障剔除、HTTP/TCP 反向代理全链路。节点自动组网，无需中心化注册中心。
+
+```java
+// 启动集群节点（自动注册服务 + 开启 HTTP/TCP 代理入口）
+ClusterServer server = ClusterServer.builder()
+    .nodeId("node-a")
+    .host("0.0.0.0")
+    .port(8080)
+    .scatterId("order")                          // 业务分组
+    .seeds("192.168.1.11:19002")                 // 种子节点（可选）
+    .servicePaths(List.of("/api"))
+    .addServer("/api", "127.0.0.1", 8081, "http") // 注册后端服务
+    .build();
+
+server.start();
+```
+
+多台机器部署相同服务后，Scatter 自动发现、心跳剔除故障节点、按权重分发流量。
+
+**Spring Boot 零配置接入：**
+
+```yaml
+# application.yml — 只需已有配置即可
+spring:
+  application:
+    name: order-service   # 自动映射为 scatterId
+server:
+  port: 8080              # 自动作为集群端口
+```
+
+```java
+// Spring Boot 客户端通过 ClusterManager 路由
+@Autowired
+private ClusterServer clusterServer;
+
+public void call() {
+    Discovery target = clusterServer.manager()
+        .route("/api", "order-service", "http");
+    // 使用 target.getHost() + target.getPort() 发起请求
+}
+```
+
+| 特性 | 说明 |
+|------|------|
+| 服务发现 | Seed 引导 / 子网广播 / 网关模式，30s gossip 同步 |
+| 负载均衡 | weight（动态衰减）/ round / random |
+| 故障剔除 | 心跳连续失败 N 次自动摘除 |
+| 双协议代理 | HTTP 反向代理 + TCP 原生代理 |
+| 弹性扩缩 | 节点动态上下线，客户端自动感知 |
+
+> 详细文档：[集群服务器使用说明](docs/集群服务器使用说明.html)
+
+### 11. 懒加载过期列表 — LazyExpiringList
+
+支持懒加载、TTL 自动过期回收、堆内/堆外双后端、容量保护与生命周期回调的高性能列表。
+
+```java
+try (LazyExpiringList<String> list = LazyExpiringList.<String>builder()
+        .loader(() -> loadDataFromSource())     // 懒加载器
+        .ttlMillis(60_000)                      // TTL 60 秒
+        .maxCapacity(10_000)                    // 容量保护
+        .offHeap(true)                          // 堆外存储（绕过 GC）
+        .lifecycleListener(e -> log.info("事件: {}", e.getType()))
+        .build()) {
+
+    list.size();       // 首次访问触发懒加载
+    list.get(0);       // 后续访问直接读取
+    list.evict();      // 手动释放，下次访问重新加载
+}
+```
 
 ---
 
