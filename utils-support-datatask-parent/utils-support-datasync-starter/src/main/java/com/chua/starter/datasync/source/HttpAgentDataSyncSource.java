@@ -1,11 +1,19 @@
 package com.chua.starter.datasync.source;
 
+import com.chua.common.support.network.client.ClientRequest;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.ReactiveHttpClient;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
 import reactor.core.publisher.Flux;
+
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * HTTP Agent 数据同步 Source，从远程 Agent 拉取数据。
+ *
+ * <p>通过 HTTP GET 请求调用 Agent 接口获取数据，支持 JSON 响应解析。
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,13 +28,16 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     private final String agentId;
     /** 代理服务地址 */
     private final String agentUrl;
+    /** HTTP 客户端（懒加载） */
+    private volatile ReactiveHttpClient httpClient;
 
     /**
      * 创建 HttpAgentDataSyncSource 实例
+     *
      * @param sourceId sourceId
-     * @param String String
-     * @param String String
-     * @param String String
+     * @param inputId  inputId
+     * @param agentId  agentId
+     * @param agentUrl agentUrl
      */
     public HttpAgentDataSyncSource(String sourceId, String inputId, String agentId, String agentUrl) {
         this.sourceId = sourceId;
@@ -36,26 +47,77 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     }
 
     @Override
-    /** SourceId */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** InputId */
     public String inputId() {
         return inputId;
     }
 
     @Override
-    /** 读取 */
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
-        // TODO[@L53]: 从远程 Agent 拉取数据
-        return Flux.empty();
+        ReactiveHttpClient client = getHttpClient();
+        ClientRequest request = ClientRequest.of(agentUrl);
+        params.forEach(request::addParam);
+        try {
+            ClientResponse response = client.execute(request);
+            if (!response.isSuccess() || response.getBody() == null) {
+                return Flux.empty();
+            }
+            return Flux.fromIterable(parseJsonResponse(response.getBodyString()));
+        } catch (Exception e) {
+            throw new RuntimeException("调用 Agent 失败: " + agentUrl, e);
+        }
+    }
+
+    /**
+     * 解析 JSON 响应，支持数组或单对象。
+     */
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> parseJsonResponse(String body) {
+        List<Map<String, Object>> rows = new java.util.ArrayList<>();
+        body = body.trim();
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            Object obj = mapper.readValue(body, Object.class);
+            if (obj instanceof List<?> list) {
+                for (Object item : list) {
+                    if (item instanceof Map<?, ?> map) {
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        map.forEach((k, v) -> row.put(String.valueOf(k), v));
+                        rows.add(row);
+                    }
+                }
+            } else if (obj instanceof Map<?, ?> map) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                map.forEach((k, v) -> row.put(String.valueOf(k), v));
+                rows.add(row);
+            }
+        } catch (Exception e) {
+            rows.add(Map.of("raw", body));
+        }
+        return rows;
+    }
+
+    private ReactiveHttpClient getHttpClient() {
+        if (httpClient == null) {
+            synchronized (this) {
+                if (httpClient == null) {
+                    httpClient = ReactiveHttpClient.of();
+                }
+            }
+        }
+        return httpClient;
     }
 
     @Override
-    /** 关闭 */
     public void close() {
+        ReactiveHttpClient client = httpClient;
+        if (client != null) {
+            client.close();
+            httpClient = null;
+        }
     }
 }

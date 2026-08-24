@@ -104,6 +104,78 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
+     * 将数据库列值转换为 int（子类通用工具）。
+     *
+     * <p>兼容 Number、可解析的字符串；无法转换时返回 0。</p>
+     *
+     * @param value 原始列值
+     * @return int 值
+     */
+    protected static int asInt(Object value) {
+        if (value instanceof Number n) {
+            return n.intValue();
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return Integer.parseInt(s.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 将数据库列值转换为 long（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return long 值
+     */
+    protected static long asLong(Object value) {
+        if (value instanceof Number n) {
+            return n.longValue();
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return Long.parseLong(s.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return 0L;
+    }
+
+    /**
+     * 将数据库列值转换为 double（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return double 值
+     */
+    protected static double asDouble(Object value) {
+        if (value instanceof Number n) {
+            return n.doubleValue();
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return Double.parseDouble(s.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return 0.0d;
+    }
+
+    /**
+     * 将数据库列值转换为非空字符串（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return 字符串形式；null 转为空串
+     */
+    protected static String asStr(Object value) {
+        return value == null ? "" : value.toString();
+    }
+
+    /**
      * 将原始记录按天聚合，每天一条 AiUsage 记录。
      *
      * @param records 原始用量记录列表

@@ -23,18 +23,9 @@ public class SinchVoiceCall implements VoiceCall {
     @Override
     /** 调用 */
     public CallResponse call(CallRequest request) throws Exception {
-        // TODO[@L26]: 使用 Sinch SDK 发起语音呼叫
-        // SinchClient sinch = SinchClientBuilder.create()
-        //         .applicationKey(appKey)
-        //         .applicationSecret(appSecret)
-        //         .build();
-        // CallingApi api = sinch.calling();
-        // var callRequest = api.calloutTextToSpeech()
-        //         .setTo(request.getTo())
-        //         .setMessage(request.getMessage());
-        // var result = callRequest.execute();
-        // return CallResponse.success(result.getCallId());
-        throw new UnsupportedOperationException("Sinch 语音呼叫尚未实现");
+        // Sinch SDK 未引入依赖，暂不支持语音呼叫。
+        // 引入 com.sinch:sinch-sdk 后可通过 SinchClientBuilder 创建客户端调用 CallingApi。
+        throw new UnsupportedOperationException("Sinch 语音呼叫尚未实现，请引入 sinch-sdk 依赖后实现");
     }
 
     @Override

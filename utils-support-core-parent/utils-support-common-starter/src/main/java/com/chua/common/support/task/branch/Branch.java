@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  * <p><strong>管线改造对照</strong>（以人脸检测路由为例）：</p>
  *
  * <pre>{@code
- * // Before：嵌套 if-else + try-catch，错误策略散落
+ * // Before：嵌套 if-else + try-catch
  * List<PredictRectangle> boxes;
  * if (animeDetector != null) {
  *     try {
@@ -34,43 +34,45 @@ import java.util.function.Predicate;
  * // After：线性组装，无一层缩进
  * List<PredictRectangle> boxes = Branch.ofBytes(imageData)
  *         .when(d -> animeDetector != null, d -> animeDetector.detect(d))
- *         .otherwise(d -> detector.detect(d))
+ *         .otherwise(d -> detector.detect(d))          // 组内输入始终是 byte[]
  *         .recover(e -> Collections.emptyList())
  *         .get();
  * }</pre>
  *
  * <h2>语义契约</h2>
  * <ol>
- *   <li><strong>惰性</strong>：{@code of/when/otherwise/recover/onError/protect} 仅记录阶段，
- *       不产生任何执行；调用终端 {@link #get()} 或 {@link #afterBranch()} 时才折叠求值。</li>
- *   <li><strong>条件组</strong>：{@code when} 开启新组、{@code elseIf} 追加、{@code otherwise}
- *       收尾；求值时按序取第一个命中的分支执行，组内其余分支跳过。
- *       {@code elseIf}/{@code otherwise} 未跟随任何 {@code when} 时抛出
- *       {@link IllegalStateException} 快速失败。</li>
- *   <li><strong>null 免疫</strong>：除 {@link #whenNull(UnaryOperator)} 外，任何谓词与动作
- *       都不会收到 null 入参——当前值为 null 时整组跳过并透传，用户 lambda 从根上避免 NPE。</li>
+ *   <li><strong>惰性</strong>：所有登记方法仅记录阶段，不产生任何执行；
+ *       调用终端 {@link #get()} 或 {@link #afterBranch()} 时才折叠求值。</li>
+ *   <li><strong>条件组</strong>：{@code when}/内置判断开启一个组并返回
+ *       {@link WhenGroup} 视图；组内 {@code elseIf} 的谓词与后续分支一样接收
+ *       <em>组的原始输入类型 T</em>（而非上一分支的输出），按序首中胜；
+ *       以 {@code otherwise} 收尾（等价 else）或 {@code end()} 省略 else 后回到主线。
+ *       未跟随任何 {@code when} 的 {@code elseIf}/{@code otherwise} 不可能存在
+ *       （它们只存在于 WhenGroup 上）。</li>
+ *   <li><strong>null 免疫</strong>：除 {@link #whenNull(Function)} 外，任何谓词与动作
+ *       都不会收到 null 入参——当前值为 null 时整组跳过并透传。</li>
  *   <li><strong>异常双通道</strong>：{@link #recover(Function)} 与 {@link #onError(Consumer)}
- *       的作用域均为"自注册点之后的步骤，直至再次注册覆盖"。前者以返回值续接后续链，
+ *       作用于自注册点之后的步骤直至再次覆盖。前者以返回值续接后续链，
  *       后者仅消费异常并终止链，结果取异常前最近一次成功值。</li>
- *   <li><strong>熔断保护</strong>：{@link #protect(String)} 使后续步骤经由
- *       {@link CircuitBreakerFlow} 执行；熔开或执行失败时进入 recover/onError 流程，
- *       避免"依赖故障后每请求都抛异常"的重复开销。注意经熔断器执行的失败异常会被
- *       包装为 {@link RuntimeException}（原始异常保留在 cause 中）。</li>
- *   <li><strong>规范强制</strong>：未设置任何条件分支即调用 {@link #get()} /
- *       {@link #afterBranch()} 抛出 {@link IllegalStateException}，防止拿分支工具当透传管道用。</li>
+ *   <li><strong>熔断保护</strong>：{@link #protect(String)} 使后续步骤经
+ *       {@link CircuitBreakerFlow} 执行；熔开或失败时进入 recover/onError 流程，
+ *       避免"依赖故障后每请求都抛异常"。经熔断器执行的失败异常会被包装为
+ *       {@link RuntimeException}（cause 保留原始异常）。</li>
+ *   <li><strong>规范强制</strong>：未设置任何条件分支即调用终端抛出
+ *       {@link IllegalStateException}。</li>
  * </ol>
  *
- * <p><strong>线程与复用</strong>：实例为流式构建器，链式组装须在单线程内完成；
- * 组装完成后 {@link #get()} 可重复调用（动作自身具备幂等性时结果幂等）。</p>
+ * <p><strong>线程与复用</strong>：实例为流式构建器，组装须在单线程内完成；
+ * 组装完成后 {@link #get()} 可重复调用。</p>
  *
- * @param <T> 链上流转值的类型
+ * @param <T> 当前链上流转值的类型
  * @author CH
  * @since 4.0.0.42
  */
 public final class Branch<T> {
 
     /**
-     * 条件分支：谓词 + 动作；nullAware 标记该分支允许接收 null 入参（仅 whenNull 使用）。
+     * 条件分支：谓词 + 动作；nullAware 标记允许 null 入参（仅 whenNull 使用）。
      * 内部统一以 Object 签名存储，类型安全由公开泛型门面保证。
      */
     private record Case(Predicate<Object> condition, Function<Object, Object> action, boolean nullAware) {
@@ -79,14 +81,10 @@ public final class Branch<T> {
     /**
      * 条件组：按序首中胜；otherwise 以恒真条件追加并封组。
      */
-    @SuppressWarnings("unchecked")
     private static final class Group {
 
         /** 组内候选分支。 */
         final List<Case> cases = new ArrayList<>();
-
-        /** 是否已被 otherwise 封组。 */
-        boolean sealed;
     }
 
     /** 阶段抽象。 */
@@ -150,105 +148,36 @@ public final class Branch<T> {
     /* ---------------- 条件组 ---------------- */
 
     /**
-     * 开启条件组并加入首个分支；动作可产出新类型，链类型随之切换。
+     * 开启条件组并加入首个分支，返回组视图以续写 elseIf/otherwise/end。
      *
      * <p>当前值为 null 时整组跳过（见类注释 null 免疫契约），谓词不会被调用。</p>
      *
      * @param condition 触发条件
-     * @param action    命中后的动作（入参为当前值）
+     * @param action    命中后的动作
      * @param <R>       动作产出类型
-     * @return 类型切换后的分支链
+     * @return 条件组视图
      */
     @SuppressWarnings("unchecked")
-    public <R> Branch<R> when(Predicate<T> condition, Function<? super T, ? extends R> action) {
+    public <R> WhenGroup<T, R> when(Predicate<T> condition, Function<? super T, ? extends R> action) {
         openGroup = new Group();
         stages.add(new GroupStage(openGroup));
-        openGroup.cases.add(new Case((Predicate<Object>) condition,
-                (Function<Object, Object>) action, false));
-        hasCondition = true;
-        return (Branch<R>) this;
+        addCase(condition, action, false);
+        return (WhenGroup<T, R>) new WhenGroup<>(this);
     }
-
-    /**
-     * 向当前开放组追加分支；未跟随任何 {@code when} 时快速失败。
-     *
-     * @param condition 触发条件
-     * @param action    命中后的动作
-     * @param <R>       动作产出类型
-     * @return 类型切换后的分支链
-     */
-    @SuppressWarnings("unchecked")
-    public <R> Branch<R> elseIf(Predicate<T> condition, Function<? super T, ? extends R> action) {
-        requireOpenGroup("elseIf");
-        openGroup.cases.add(new Case((Predicate<Object>) condition,
-                (Function<Object, Object>) action, false));
-        hasCondition = true;
-        return (Branch<R>) this;
-    }
-
-    /**
-     * 以恒真分支收尾当前组（等价 else）；未跟随任何 {@code when} 时快速失败。
-     *
-     * @param action 兜底动作
-     * @param <R>    动作产出类型
-     * @return 类型切换后的分支链
-     */
-    @SuppressWarnings("unchecked")
-    public <R> Branch<R> otherwise(Function<? super T, ? extends R> action) {
-        requireOpenGroup("otherwise");
-        if (openGroup.sealed) {
-            throw new IllegalStateException("otherwise 之后不可继续追加 otherwise");
-        }
-        openGroup.cases.add(new Case(v -> true, (Function<Object, Object>) action, false));
-        openGroup.sealed = true;
-        openGroup = null;
-        hasCondition = true;
-        return (Branch<R>) this;
-    }
-
-    /**
-     * 针对字节数组的条件动作：当前值非 {@code byte[]} 时整组跳过，
-     * 谓词与动作均直接收到强类型的字节数组，无需调用侧转换。
-     *
-     * @param condition 触发条件（入参为字节数组）
-     * @param action    命中后的动作
-     * @param <R>       动作产出类型
-     * @return 类型切换后的分支链
-     */
-    @SuppressWarnings("unchecked")
-    public <R> Branch<R> whenBytes(Predicate<byte[]> condition,
-                                   Function<? super byte[], ? extends R> action) {
-        return when(v -> v instanceof byte[] b && condition.test(b),
-                v -> action.apply((byte[]) v));
-    }
-
-    /**
-     * 无条件执行针对字节数组的动作；当前值非 {@code byte[]} 时透传原值。
-     *
-     * @param action 动作
-     * @param <R>    动作产出类型
-     * @return 类型切换后的分支链
-     */
-    public <R> Branch<R> mapBytes(Function<? super byte[], ? extends R> action) {
-        return when(v -> true, v -> action.apply((byte[]) v));
-    }
-
-    /* ---------------- 内置判断 ---------------- */
 
     /**
      * 当前值为 null 时执行（唯一允许动作入参为 null 的入口）。
      *
      * @param action 动作，入参为 null
      * @param <R>    动作产出类型
-     * @return 类型切换后的分支链
+     * @return 条件组视图
      */
     @SuppressWarnings("unchecked")
-    public <R> Branch<R> whenNull(Function<? super T, ? extends R> action) {
+    public <R> WhenGroup<T, R> whenNull(Function<? super T, ? extends R> action) {
         openGroup = new Group();
         stages.add(new GroupStage(openGroup));
-        openGroup.cases.add(new Case(v -> true, (Function<Object, Object>) action, true));
-        hasCondition = true;
-        return (Branch<R>) this;
+        addRawCase(v -> true, action, true);
+        return (WhenGroup<T, R>) new WhenGroup<>(this);
     }
 
     /**
@@ -256,9 +185,9 @@ public final class Branch<T> {
      *
      * @param action 命中后的动作
      * @param <R>    动作产出类型
-     * @return 类型切换后的分支链
+     * @return 条件组视图
      */
-    public <R> Branch<R> whenNone(Function<? super T, ? extends R> action) {
+    public <R> WhenGroup<T, R> whenNone(Function<? super T, ? extends R> action) {
         return when(Branch::isNone, action);
     }
 
@@ -267,9 +196,9 @@ public final class Branch<T> {
      *
      * @param action 命中后的动作
      * @param <R>    动作产出类型
-     * @return 类型切换后的分支链
+     * @return 条件组视图
      */
-    public <R> Branch<R> whenZero(Function<? super T, ? extends R> action) {
+    public <R> WhenGroup<T, R> whenZero(Function<? super T, ? extends R> action) {
         return when(Branch::isZeroOrNone, action);
     }
 
@@ -278,9 +207,9 @@ public final class Branch<T> {
      *
      * @param action 命中后的动作
      * @param <R>    动作产出类型
-     * @return 类型切换后的分支链
+     * @return 条件组视图
      */
-    public <R> Branch<R> whenOne(Function<? super T, ? extends R> action) {
+    public <R> WhenGroup<T, R> whenOne(Function<? super T, ? extends R> action) {
         return when(v -> sizeOf(v) == 1 || isNumberEquals(v, 1d), action);
     }
 
@@ -289,9 +218,9 @@ public final class Branch<T> {
      *
      * @param action 命中后的动作
      * @param <R>    动作产出类型
-     * @return 类型切换后的分支链
+     * @return 条件组视图
      */
-    public <R> Branch<R> whenTrue(Function<? super T, ? extends R> action) {
+    public <R> WhenGroup<T, R> whenTrue(Function<? super T, ? extends R> action) {
         return when(v -> v instanceof Boolean b && b, action);
     }
 
@@ -404,6 +333,24 @@ public final class Branch<T> {
         return of(get());
     }
 
+    /* ---------------- 内部：阶段登记 ---------------- */
+
+    /**
+     * 向开放组追加常规分支。
+     */
+    @SuppressWarnings("unchecked")
+    private void addCase(Predicate<?> condition, Function<?, ?> action, boolean nullAware) {
+        openGroup.cases.add(new Case((Predicate<Object>) condition,
+                (Function<Object, Object>) action, nullAware));
+    }
+
+    /**
+     * 向开放组追加内部签名分支（whenNull 用）。
+     */
+    private void addRawCase(Predicate<Object> condition, Function<?, ?> action, boolean nullAware) {
+        openGroup.cases.add(new Case(condition, (Function<Object, Object>) action, nullAware));
+    }
+
     /* ---------------- 内部求值 ---------------- */
 
     /**
@@ -467,20 +414,6 @@ public final class Branch<T> {
     }
 
     /* ---------------- 工具方法 ---------------- */
-
-    /**
-     * 校验存在开放的条件组。
-     *
-     * @param op 操作名（错误信息用）
-     */
-    private void requireOpenGroup(String op) {
-        if (openGroup == null) {
-            throw new IllegalStateException(op + " 必须紧跟 when/elseIf 使用");
-        }
-        if (openGroup.sealed) {
-            throw new IllegalStateException("条件组已被 otherwise 封闭，不可再追加 " + op);
-        }
-    }
 
     /**
      * 判定值是否为"空"：集合 / Map / 字符串 / 数组长度为 0。
@@ -548,5 +481,102 @@ public final class Branch<T> {
             return n.doubleValue() == 0d;
         }
         return isNone(v);
+    }
+
+    /**
+     * 条件组视图：组内分支共享同一输入类型 T，任一分支命中后产出 R。
+     * 通过 {@link #elseIf} 续加分支，{@link #otherwise} 收尾或 {@link #end}
+     * 省略 else 后回到主线 {@link Branch}{@code <R>}。
+     *
+     * <p>亦可在组上直接注册 recover/onError/protect，作用域覆盖本组及其后步骤，
+     * 注册后仍停留在组视图内。</p>
+     *
+     * @param <T> 组输入类型
+     * @param <R> 组产出类型
+     */
+    public static final class WhenGroup<T, R> {
+
+        /** 宿主链（裸类型操作内部结构）。 */
+        private final Branch<R> owner;
+
+        private WhenGroup(Branch<R> owner) {
+            this.owner = owner;
+        }
+
+        /**
+         * 追加分支；谓词与动作的入参均为组的原始输入类型 T。
+         *
+         * @param condition 触发条件
+         * @param action    命中后的动作
+         * @return 本组视图
+         */
+        @SuppressWarnings("unchecked")
+        public WhenGroup<T, R> elseIf(Predicate<T> condition, Function<? super T, ? extends R> action) {
+            owner.addCase(condition, action, false);
+            return this;
+        }
+
+        /**
+         * 以恒真分支收尾（等价 else），回到主线。
+         *
+         * @param action 兜底动作
+         * @return 主线
+         */
+        @SuppressWarnings("unchecked")
+        public Branch<R> otherwise(Function<? super T, ? extends R> action) {
+            owner.addCase(v -> true, action, false);
+            return owner;
+        }
+
+        /**
+         * 省略 else，直接回到主线；组内无命中时透传原值。
+         *
+         * @return 主线
+         */
+        public Branch<R> end() {
+            return owner;
+        }
+
+        /**
+         * 在组上下文注册异常恢复（覆盖本组及其后步骤）。
+         *
+         * @param fallback 兜底函数
+         * @return 本组视图
+         */
+        public WhenGroup<T, R> recover(Function<Throwable, R> fallback) {
+            owner.stages.add(new RecoverStage((Function<Throwable, Object>) fallback));
+            return this;
+        }
+
+        /**
+         * 在组上下文注册异常出口（覆盖本组及其后步骤）。
+         *
+         * @param handler 异常消费者
+         * @return 本组视图
+         */
+        public WhenGroup<T, R> onError(Consumer<Throwable> handler) {
+            owner.stages.add(new OnErrorStage(handler));
+            return this;
+        }
+
+        /**
+         * 在组上下文挂接熔断保护（覆盖本组及其后步骤）。
+         *
+         * @param breakerName 熔断器名称
+         * @return 本组视图
+         */
+        public WhenGroup<T, R> protect(String breakerName) {
+            owner.stages.add(new ProtectStage(CircuitBreakerFlow.of(breakerName)));
+            return this;
+        }
+
+        /**
+         * 立即求值整条链（含本组）。
+         *
+         * @return 最终值
+         */
+        public R get() {
+            return owner.get();
+        }
     }
 }

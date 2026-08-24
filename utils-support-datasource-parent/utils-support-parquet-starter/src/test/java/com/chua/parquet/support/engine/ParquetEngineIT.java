@@ -34,7 +34,7 @@ class ParquetEngineIT {
                     rec(2, "Bob", 85.0),
                     rec(3, "Cathy", 78.2));
 
-            engine.store("precs", data);
+            engine.store("p_record", data);
 
             /* 查询回来 */
             List<PRecord> result = engine.query(PRecord.class)
