@@ -271,7 +271,12 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
         }
         // 后处理：去重（中心点距离过滤 + 嵌套框过滤）
         // YOLOv8 v1.4_n 在动漫图上有大量嵌套/偏移预测，标准 NMS IOU 无法完全去重
-        log.debug("[anime-face] pre-filter count={}, names={}, probs={}", names.size(), probs.size(), rects.size());
+        System.out.println("[DBG] pre-filter count=" + names.size());
+        for(int i=0;i<names.size();i++){
+            Rectangle r = rects.get(i);
+            System.out.printf("[DBG]   pre[%d] conf=%.4f norm=[%.4f,%.4f,%.4f,%.4f]%n",
+                i, probs.get(i), r.getX(), r.getY(), r.getWidth(), r.getHeight());
+        }
         java.util.List<Integer> finalKeep = new java.util.ArrayList<>();
         boolean[] suppressed = new boolean[names.size()];
         for (int i = 0; i < names.size(); i++) {
@@ -322,7 +327,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
                 finalBoxes.add(rects.get(idx));
             }
         }
-        log.debug("[anime-face] post-filter count={}", finalNames.size());
+        System.out.println("[DBG] post-filter count=" + finalNames.size());
         return new DetectedObjects(finalNames, finalProbs, finalBoxes);
     }
 
