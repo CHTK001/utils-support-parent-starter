@@ -173,6 +173,11 @@
             </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-sqlite-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-datasync-agent-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>

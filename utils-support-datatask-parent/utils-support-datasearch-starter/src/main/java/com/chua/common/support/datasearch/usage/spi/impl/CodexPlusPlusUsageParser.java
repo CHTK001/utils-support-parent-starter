@@ -3,12 +3,12 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.sqlite.support.engine.SqliteReactorEngine;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.*;
+import java.util.Map;
 
 /**
  * Codex++ 用量解析器 — 从本地 SQLite 数据库解析会话用量。
@@ -30,7 +30,7 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
                     + "WHERE tokens_used > 0 ORDER BY created_at_ms ASC";
 
     /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     * 响应式流式入口：通过 SqliteReactorEngine 流出会话记录。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -38,31 +38,17 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
             log.debug("[codex++] 数据库文件不存在: {}", DB_PATH);
             return Flux.empty();
         }
-        return Flux.<AiUsage>create(sink -> {
-            long count = 0L;
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
-                 PreparedStatement stmt = conn.prepareStatement(SQL_THREADS);
-                 ResultSet rs = stmt.executeQuery()) {
-                while (rs.next() && !sink.isCancelled()) {
-                    long startTime = rs.getLong(1);
-                    String model = rs.getString(2);
-                    String provider = rs.getString(3);
-                    int tokensUsed = rs.getInt(4);
-                    sink.next(AiUsage.builder()
-                            .provider(provider)
-                            .model(model)
-                            .totalTokens(tokensUsed)
-                            .startTime(startTime > 0 ? startTime : null)
-                            .build());
-                    count++;
-                }
-                sink.complete();
-                log.info("[codex++] 流式解析完成，共 {} 条会话记录", count);
-            } catch (SQLException e) {
-                log.warn("[codex++] 解析失败: {}", e.getMessage(), e);
-                sink.complete();
-            }
-        }).subscribeOn(Schedulers.boundedElastic());
+        SqliteReactorEngine engine = new SqliteReactorEngine()
+                .addDataSource("codex", DB_PATH.toString());
+        return engine.query(SQL_THREADS)
+                .map(row -> AiUsage.builder()
+                        .provider(asStr(row.get("model_provider")))
+                        .model(asStr(row.get("model")))
+                        .totalTokens(asInt(row.get("tokens_used")))
+                        .startTime(asLong(row.get("created_at_ms")) > 0
+                                ? asLong(row.get("created_at_ms")) : null)
+                        .build())
+                .doOnComplete(() -> log.info("[codex++] 流式解析完成"));
     }
 
     /**

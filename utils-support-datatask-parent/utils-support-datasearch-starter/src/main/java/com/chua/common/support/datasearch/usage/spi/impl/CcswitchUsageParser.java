@@ -3,13 +3,13 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.sqlite.support.engine.SqliteReactorEngine;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.*;
+import java.util.Map;
 
 /**
  * CC Switch usage parser.
@@ -52,7 +52,7 @@ public class CcswitchUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 响应式流式入口：逐行流出请求日志，内存占用与日志总量无关。
+     * 响应式流式入口：通过 SqliteReactorEngine 流出请求日志。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -60,46 +60,30 @@ public class CcswitchUsageParser extends BaseUsageParser {
             log.debug("[ccswitch] database not found: {} (CC Switch not installed)", DB_PATH);
             return Flux.empty();
         }
-        return Flux.<AiUsage>create(sink -> {
-            long count = 0L;
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
-                 PreparedStatement stmt = conn.prepareStatement(SQL_REQUEST_LOGS);
-                 ResultSet rs = stmt.executeQuery()) {
-                while (rs.next() && !sink.isCancelled()) {
-                    sink.next(toAiUsage(rs));
-                    count++;
-                }
-                sink.complete();
-                log.info("[ccswitch] streamed {} request log records", count);
-            } catch (SQLException e) {
-                log.warn("[ccswitch] parse failed: {}", e.getMessage(), e);
-                sink.complete();
-            }
-        }).subscribeOn(Schedulers.boundedElastic());
+        SqliteReactorEngine engine = new SqliteReactorEngine()
+                .addDataSource("ccswitch", DB_PATH.toString());
+        return engine.query(SQL_REQUEST_LOGS)
+                .map(this::toAiUsage)
+                .doOnComplete(() -> log.info("[ccswitch] stream complete"));
     }
 
-    private AiUsage toAiUsage(ResultSet rs) throws SQLException {
-        String requestId = rs.getString(1);
-        String appType = rs.getString(2);
-        String model = rs.getString(3);
-        int inputTokens = rs.getInt(4);
-        int outputTokens = rs.getInt(5);
-        int cacheRead = rs.getInt(6);
-        int cacheCreation = rs.getInt(7);
-        double costUsd = parseCost(rs.getString(8));
-        long durationMs = rs.getLong(9);
-        long firstTokenMs = rs.getLong(10);
-        int statusCode = rs.getInt(11);
-        String sessionId = rs.getString(12);
-        long createdAtSeconds = rs.getLong(13);
+    private AiUsage toAiUsage(Map<String, Object> row) {
+        int statusCode = asInt(row.get("status_code"));
+        double costUsd = asDouble(row.get("total_cost_usd"));
+        long createdAtSeconds = asLong(row.get("created_at"));
+        long durationMs = asLong(row.get("duration_ms"));
+        long firstTokenMs = asLong(row.get("first_token_ms"));
+        int cacheRead = asInt(row.get("cache_read_tokens"));
+
+        String appType = asStr(row.get("app_type"));
 
         return AiUsage.builder()
                 .provider(PROVIDER_CC_SWITCH)
-                .model(model)
-                .requestId(firstNonBlank(requestId, sessionId))
-                .inputTokens(inputTokens)
-                .outputTokens(outputTokens)
-                .totalTokens(inputTokens + outputTokens)
+                .model(asStr(row.get("model")))
+                .requestId(firstNonBlank(asStr(row.get("request_id")), asStr(row.get("session_id"))))
+                .inputTokens(asInt(row.get("input_tokens")))
+                .outputTokens(asInt(row.get("output_tokens")))
+                .totalTokens(asInt(row.get("input_tokens")) + asInt(row.get("output_tokens")))
                 .cacheTokens(cacheRead > 0 ? cacheRead : null)
                 .totalCost(costUsd > 0 ? BigDecimal.valueOf(costUsd) : null)
                 .currency("USD")
@@ -107,29 +91,7 @@ public class CcswitchUsageParser extends BaseUsageParser {
                         ? createdAtSeconds * EPOCH_SECONDS_TO_MILLIS : null)
                 .durationMillis(durationMs > 0 ? durationMs : null)
                 .firstTokenLatencyMillis(firstTokenMs > 0 ? firstTokenMs : null)
-                .finishReason(finishReason(appType, statusCode))
+                .finishReason(statusCode == HTTP_OK ? appType + ":stop" : appType + ":http-" + statusCode)
                 .build();
-    }
-
-    /**
-     * Parses a TEXT cost column into a double value.
-     *
-     * @param raw raw cost string such as {@code "0.0123"}
-     * @return parsed value, or 0 when blank or malformed
-     */
-    private double parseCost(String raw) {
-        if (raw == null || raw.isBlank()) {
-            return 0.0d;
-        }
-        try {
-            return Double.parseDouble(raw);
-        } catch (NumberFormatException e) {
-            return 0.0d;
-        }
-    }
-
-    private String finishReason(String appType, int statusCode) {
-        String app = appType == null || appType.isBlank() ? "unknown" : appType;
-        return statusCode == HTTP_OK ? app + ":stop" : app + ":http-" + statusCode;
     }
 }

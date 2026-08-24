@@ -29,6 +29,7 @@ import java.io.Serializable;
  */
 @Data
 public class RpcResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 远程调用是否执行成功
      *

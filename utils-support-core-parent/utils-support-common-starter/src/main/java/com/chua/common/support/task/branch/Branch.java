@@ -9,12 +9,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 /**
  * 轻量惰性分支工具 —— 以流式链替代 if-else / try-catch。
  *
- * <p><strong>定位</strong>：单类、零依赖引擎、惰性求值；用于整理管线代码中散落的
+ * <p><strong>定位</strong>：单类、零引擎依赖、惰性求值；用于整理管线代码中散落的
  * 条件判断与异常兜底，使主流程线性可读。</p>
  *
  * <p><strong>管线改造对照</strong>（以人脸检测路由为例）：</p>
@@ -25,25 +24,17 @@ import java.util.function.UnaryOperator;
  * if (animeDetector != null) {
  *     try {
  *         boxes = animeDetector.detect(imageData);
- *         if (boxes == null || boxes.isEmpty()) {
- *             boxes = detector.detect(imageData);
- *         }
  *     } catch (Exception e) {
- *         log.warn("anime fail", e);
- *         boxes = Collections.emptyList();
+ *         boxes = detector.detect(imageData);
  *     }
  * } else {
- *     try {
- *         boxes = detector.detect(imageData);
- *     } catch (Exception e) {
- *         boxes = Collections.emptyList();
- *     }
+ *     boxes = detector.detect(imageData);
  * }
  *
  * // After：线性组装，无一层缩进
- * List<PredictRectangle> boxes = Branch.of(imageData)
+ * List<PredictRectangle> boxes = Branch.ofBytes(imageData)
  *         .when(d -> animeDetector != null, d -> animeDetector.detect(d))
- *         .elseIf(d -> detector != null, d -> detector.detect(d))
+ *         .otherwise(d -> detector.detect(d))
  *         .recover(e -> Collections.emptyList())
  *         .get();
  * }</pre>
@@ -57,13 +48,14 @@ import java.util.function.UnaryOperator;
  *       {@code elseIf}/{@code otherwise} 未跟随任何 {@code when} 时抛出
  *       {@link IllegalStateException} 快速失败。</li>
  *   <li><strong>null 免疫</strong>：除 {@link #whenNull(UnaryOperator)} 外，任何谓词与动作
- *       都不会收到 null 入参——当前值为 null 时整组跳过并透传。因此用户 lambda 从根上避免 NPE。</li>
- *   <li><strong>异常双通道</strong>：{@link #recover(Function)} 捕获此前未兜底步骤的异常，
- *       以返回值续接后续链；{@link #onError(Consumer)} 同样捕获但仅消费异常、链立即终止，
- *       结果取异常前最近一次成功值。二者作用域均为"自上一个同类注册之后"。</li>
+ *       都不会收到 null 入参——当前值为 null 时整组跳过并透传，用户 lambda 从根上避免 NPE。</li>
+ *   <li><strong>异常双通道</strong>：{@link #recover(Function)} 与 {@link #onError(Consumer)}
+ *       的作用域均为"自注册点之后的步骤，直至再次注册覆盖"。前者以返回值续接后续链，
+ *       后者仅消费异常并终止链，结果取异常前最近一次成功值。</li>
  *   <li><strong>熔断保护</strong>：{@link #protect(String)} 使后续步骤经由
- *       {@link CircuitBreakerFlow} 执行；熔开时不再调用底层逻辑，直接落入 recover/onError，
- *       避免"依赖故障后每请求都抛异常"的开销。</li>
+ *       {@link CircuitBreakerFlow} 执行；熔开或执行失败时进入 recover/onError 流程，
+ *       避免"依赖故障后每请求都抛异常"的重复开销。注意经熔断器执行的失败异常会被
+ *       包装为 {@link RuntimeException}（原始异常保留在 cause 中）。</li>
  *   <li><strong>规范强制</strong>：未设置任何条件分支即调用 {@link #get()} /
  *       {@link #afterBranch()} 抛出 {@link IllegalStateException}，防止拿分支工具当透传管道用。</li>
  * </ol>
@@ -79,94 +71,57 @@ public final class Branch<T> {
 
     /**
      * 条件分支：谓词 + 动作；nullAware 标记该分支允许接收 null 入参（仅 whenNull 使用）。
+     * 内部统一以 Object 签名存储，类型安全由公开泛型门面保证。
      */
-    private static final class Case<T> {
-
-        /** 触发条件（nullAware 时忽略）。 */
-        final Predicate<T> condition;
-
-        /** 命中后执行的动作。 */
-        final UnaryOperator<T> action;
-
-        /** 是否允许 null 入参。 */
-        final boolean nullAware;
-
-        Case(Predicate<T> condition, UnaryOperator<T> action, boolean nullAware) {
-            this.condition = condition;
-            this.action = action;
-            this.nullAware = nullAware;
-        }
+    private record Case(Predicate<Object> condition, Function<Object, Object> action, boolean nullAware) {
     }
 
     /**
      * 条件组：按序首中胜；otherwise 以恒真条件追加并封组。
      */
-    private static final class Group<T> {
+    @SuppressWarnings("unchecked")
+    private static final class Group {
 
         /** 组内候选分支。 */
-        final List<Case<T>> cases = new ArrayList<>();
+        final List<Case> cases = new ArrayList<>();
 
         /** 是否已被 otherwise 封组。 */
         boolean sealed;
     }
 
     /** 阶段抽象。 */
-    private interface Stage<T> {
+    private interface Stage {
     }
 
     /** 条件组阶段。 */
-    private static final class GroupStage<T> implements Stage<T> {
-
-        final Group<T> group;
-
-        GroupStage(Group<T> group) {
-            this.group = group;
-        }
+    private record GroupStage(Group group) implements Stage {
     }
 
     /** 异常恢复注册阶段。 */
-    private static final class RecoverStage<T> implements Stage<T> {
-
-        final Function<Throwable, T> fallback;
-
-        RecoverStage(Function<Throwable, T> fallback) {
-            this.fallback = fallback;
-        }
+    private record RecoverStage(Function<Throwable, Object> fallback) implements Stage {
     }
 
     /** 异常终止注册阶段。 */
-    private static final class OnErrorStage<T> implements Stage<T> {
-
-        final Consumer<Throwable> handler;
-
-        OnErrorStage(Consumer<Throwable> handler) {
-            this.handler = handler;
-        }
+    private record OnErrorStage(Consumer<Throwable> handler) implements Stage {
     }
 
     /** 熔断保护切换阶段。 */
-    private static final class ProtectStage<T> implements Stage<T> {
-
-        final CircuitBreakerFlow flow;
-
-        ProtectStage(CircuitBreakerFlow flow) {
-            this.flow = flow;
-        }
+    private record ProtectStage(CircuitBreakerFlow flow) implements Stage {
     }
 
     /** 初始种子。 */
-    private final T seed;
+    private final Object seed;
 
     /** 已登记的阶段序列。 */
-    private final List<Stage<T>> stages = new ArrayList<>();
+    private final List<Stage> stages = new ArrayList<>();
 
     /** 当前未封组的条件组；null 表示无开放组。 */
-    private Group<T> openGroup;
+    private Group openGroup;
 
     /** 是否已设置过任意条件分支（规范校验依据）。 */
     private boolean hasCondition;
 
-    private Branch(T seed) {
+    private Branch(Object seed) {
         this.seed = seed;
     }
 
@@ -177,27 +132,41 @@ public final class Branch<T> {
      * @param <T>  值类型
      * @return 分支链
      */
+    @SuppressWarnings("unchecked")
     public static <T> Branch<T> of(T seed) {
-        return new Branch<>(seed);
+        return (Branch<T>) new Branch(seed);
+    }
+
+    /**
+     * 图像管线常用入口：以字节数组起链。
+     *
+     * @param data 图像等二进制数据，可为 null
+     * @return 字节数组分支链
+     */
+    public static Branch<byte[]> ofBytes(byte[] data) {
+        return of(data);
     }
 
     /* ---------------- 条件组 ---------------- */
 
     /**
-     * 开启条件组并加入首个分支。
+     * 开启条件组并加入首个分支；动作可产出新类型，链类型随之切换。
      *
      * <p>当前值为 null 时整组跳过（见类注释 null 免疫契约），谓词不会被调用。</p>
      *
      * @param condition 触发条件
-     * @param action    命中后的动作
-     * @return 本链
+     * @param action    命中后的动作（入参为当前值）
+     * @param <R>       动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> when(Predicate<T> condition, UnaryOperator<T> action) {
-        openGroup = new Group<>();
-        stages.add(new GroupStage<>(openGroup));
-        openGroup.cases.add(new Case<>(condition, action, false));
+    @SuppressWarnings("unchecked")
+    public <R> Branch<R> when(Predicate<T> condition, Function<? super T, ? extends R> action) {
+        openGroup = new Group();
+        stages.add(new GroupStage(openGroup));
+        openGroup.cases.add(new Case((Predicate<Object>) condition,
+                (Function<Object, Object>) action, false));
         hasCondition = true;
-        return this;
+        return (Branch<R>) this;
     }
 
     /**
@@ -205,31 +174,63 @@ public final class Branch<T> {
      *
      * @param condition 触发条件
      * @param action    命中后的动作
-     * @return 本链
+     * @param <R>       动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> elseIf(Predicate<T> condition, UnaryOperator<T> action) {
+    @SuppressWarnings("unchecked")
+    public <R> Branch<R> elseIf(Predicate<T> condition, Function<? super T, ? extends R> action) {
         requireOpenGroup("elseIf");
-        openGroup.cases.add(new Case<>(condition, action, false));
+        openGroup.cases.add(new Case((Predicate<Object>) condition,
+                (Function<Object, Object>) action, false));
         hasCondition = true;
-        return this;
+        return (Branch<R>) this;
     }
 
     /**
      * 以恒真分支收尾当前组（等价 else）；未跟随任何 {@code when} 时快速失败。
      *
      * @param action 兜底动作
-     * @return 本链
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> otherwise(UnaryOperator<T> action) {
+    @SuppressWarnings("unchecked")
+    public <R> Branch<R> otherwise(Function<? super T, ? extends R> action) {
         requireOpenGroup("otherwise");
         if (openGroup.sealed) {
-            throw new IllegalStateException("otherwise 之后不可继续追加 otherwise/elseIf");
+            throw new IllegalStateException("otherwise 之后不可继续追加 otherwise");
         }
-        openGroup.cases.add(new Case<>(v -> true, action, false));
+        openGroup.cases.add(new Case(v -> true, (Function<Object, Object>) action, false));
         openGroup.sealed = true;
         openGroup = null;
         hasCondition = true;
-        return this;
+        return (Branch<R>) this;
+    }
+
+    /**
+     * 针对字节数组的条件动作：当前值非 {@code byte[]} 时整组跳过，
+     * 谓词与动作均直接收到强类型的字节数组，无需调用侧转换。
+     *
+     * @param condition 触发条件（入参为字节数组）
+     * @param action    命中后的动作
+     * @param <R>       动作产出类型
+     * @return 类型切换后的分支链
+     */
+    @SuppressWarnings("unchecked")
+    public <R> Branch<R> whenBytes(Predicate<byte[]> condition,
+                                   Function<? super byte[], ? extends R> action) {
+        return when(v -> v instanceof byte[] b && condition.test(b),
+                v -> action.apply((byte[]) v));
+    }
+
+    /**
+     * 无条件执行针对字节数组的动作；当前值非 {@code byte[]} 时透传原值。
+     *
+     * @param action 动作
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
+     */
+    public <R> Branch<R> mapBytes(Function<? super byte[], ? extends R> action) {
+        return when(v -> true, v -> action.apply((byte[]) v));
     }
 
     /* ---------------- 内置判断 ---------------- */
@@ -238,23 +239,26 @@ public final class Branch<T> {
      * 当前值为 null 时执行（唯一允许动作入参为 null 的入口）。
      *
      * @param action 动作，入参为 null
-     * @return 本链
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> whenNull(UnaryOperator<T> action) {
-        openGroup = new Group<>();
-        stages.add(new GroupStage<>(openGroup));
-        openGroup.cases.add(new Case<>(v -> true, action, true));
+    @SuppressWarnings("unchecked")
+    public <R> Branch<R> whenNull(Function<? super T, ? extends R> action) {
+        openGroup = new Group();
+        stages.add(new GroupStage(openGroup));
+        openGroup.cases.add(new Case(v -> true, (Function<Object, Object>) action, true));
         hasCondition = true;
-        return this;
+        return (Branch<R>) this;
     }
 
     /**
      * 当前值为空集合 / 空 Map / 空字符串 / 空数组时执行；其余类型视为不命中。
      *
      * @param action 命中后的动作
-     * @return 本链
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> whenNone(UnaryOperator<T> action) {
+    public <R> Branch<R> whenNone(Function<? super T, ? extends R> action) {
         return when(Branch::isNone, action);
     }
 
@@ -262,9 +266,10 @@ public final class Branch<T> {
      * 元素个数为 0 或数值为 0 时执行；其余类型视为不命中。
      *
      * @param action 命中后的动作
-     * @return 本链
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> whenZero(UnaryOperator<T> action) {
+    public <R> Branch<R> whenZero(Function<? super T, ? extends R> action) {
         return when(Branch::isZeroOrNone, action);
     }
 
@@ -272,9 +277,10 @@ public final class Branch<T> {
      * 元素个数为 1 或数值为 1 时执行；其余类型视为不命中。
      *
      * @param action 命中后的动作
-     * @return 本链
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> whenOne(UnaryOperator<T> action) {
+    public <R> Branch<R> whenOne(Function<? super T, ? extends R> action) {
         return when(v -> sizeOf(v) == 1 || isNumberEquals(v, 1d), action);
     }
 
@@ -282,9 +288,10 @@ public final class Branch<T> {
      * 当前值为 Boolean.TRUE 时执行；其余类型视为不命中。
      *
      * @param action 命中后的动作
-     * @return 本链
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> whenTrue(UnaryOperator<T> action) {
+    public <R> Branch<R> whenTrue(Function<? super T, ? extends R> action) {
         return when(v -> v instanceof Boolean b && b, action);
     }
 
@@ -294,11 +301,13 @@ public final class Branch<T> {
      * 注册异常恢复：此后步骤抛出的异常交由 fallback 生成兜底值并续接后续链。
      *
      * @param fallback 兜底函数，入参为捕获到的异常
-     * @return 本链
+     * @param <R>      兜底值类型
+     * @return 类型切换后的分支链
      */
-    public Branch<T> recover(Function<Throwable, T> fallback) {
-        stages.add(new RecoverStage<>(fallback));
-        return this;
+    @SuppressWarnings("unchecked")
+    public <R> Branch<R> recover(Function<Throwable, R> fallback) {
+        stages.add(new RecoverStage((Function<Throwable, Object>) fallback));
+        return (Branch<R>) this;
     }
 
     /**
@@ -309,7 +318,7 @@ public final class Branch<T> {
      * @return 本链
      */
     public Branch<T> onError(Consumer<Throwable> handler) {
-        stages.add(new OnErrorStage<>(handler));
+        stages.add(new OnErrorStage(handler));
         return this;
     }
 
@@ -323,7 +332,7 @@ public final class Branch<T> {
      * @return 本链
      */
     public Branch<T> protect(String breakerName) {
-        stages.add(new ProtectStage<>(CircuitBreakerFlow.of(breakerName)));
+        stages.add(new ProtectStage(CircuitBreakerFlow.of(breakerName)));
         return this;
     }
 
@@ -342,7 +351,7 @@ public final class Branch<T> {
                 .failureThreshold(failureThreshold)
                 .successThreshold(successThreshold)
                 .waitDuration(waitDurationMs);
-        stages.add(new ProtectStage<>(flow));
+        stages.add(new ProtectStage(flow));
         return this;
     }
 
@@ -353,43 +362,36 @@ public final class Branch<T> {
      *
      * @return 链上最终值（可能为 null）
      */
+    @SuppressWarnings("unchecked")
     public T get() {
         if (!hasCondition) {
             throw new IllegalStateException(
                     "Branch 缺少条件分支：至少设置一个 when/elseIf/otherwise 后才能 get()");
         }
-        T current = seed;
-        T lastGood = seed;
-        Function<Throwable, T> recover = null;
+        Object current = seed;
+        Object lastGood = seed;
+        Function<Throwable, Object> recover = null;
         Consumer<Throwable> onError = null;
         CircuitBreakerFlow breaker = null;
-        boolean terminated = false;
 
-        for (Stage<T> stage : stages) {
-            if (stage instanceof RecoverStage<T> r) {
-                recover = r.fallback;
-            } else if (stage instanceof OnErrorStage<T> o) {
-                onError = o.handler;
-            } else if (stage instanceof ProtectStage<T> p) {
-                breaker = p.flow;
-            } else if (stage instanceof GroupStage<T> g) {
-                EvalResult<T> er = evalGroup(g.group, current, breaker, recover, onError);
-                if (er.terminated) {
-                    terminated = true;
-                    break;
+        for (Stage stage : stages) {
+            if (stage instanceof RecoverStage r) {
+                recover = r.fallback();
+            } else if (stage instanceof OnErrorStage o) {
+                onError = o.handler();
+            } else if (stage instanceof ProtectStage p) {
+                breaker = p.flow();
+            } else if (stage instanceof GroupStage g) {
+                Object before = current;
+                try {
+                    current = evalGroup(g.group(), current, breaker, recover, onError);
+                    lastGood = current;
+                } catch (TerminatedSignal signal) {
+                    return (T) lastGood;
                 }
-                if (er.changed) {
-                    current = er.value;
-                    lastGood = er.value;
-                    recover = null;
-                    onError = null;
-                }
-            }
-            if (terminated) {
-                break;
             }
         }
-        return terminated ? lastGood : current;
+        return (T) current;
     }
 
     /**
@@ -405,85 +407,64 @@ public final class Branch<T> {
     /* ---------------- 内部求值 ---------------- */
 
     /**
-     * 单次组求值结果。
+     * 求值一个条件组，返回产出值。
+     * 若被 onError 终止则抛出 {@link TerminatedSignal}（由 get() 统一捕获）。
      */
-    private record EvalResult<T>(T value, boolean changed, boolean terminated) {
-
-        static <T> EvalResult<T> unchanged() {
-            return new EvalResult<>(null, false, false);
-        }
-    }
-
-    /**
-     * 求值一个条件组。
-     */
-    private EvalResult<T> evalGroup(Group<T> group, T current,
-                                    CircuitBreakerFlow breaker,
-                                    Function<Throwable, T> recover,
-                                    Consumer<Throwable> onError) {
+    private Object evalGroup(Group group, Object current,
+                             CircuitBreakerFlow breaker,
+                             Function<Throwable, Object> recover,
+                             Consumer<Throwable> onError) {
+        List<Case> cases = group.cases;
         // null 值：仅 nullAware 分支可介入，其余整组跳过
         if (current == null) {
-            for (Case<T> c : group.cases) {
-                if (!c.nullAware) {
+            for (Case c : cases) {
+                if (!c.nullAware()) {
                     continue;
                 }
-                T out = runProtected(() -> c.action.apply(null), breaker, recover, onError);
-                if (out == SKIP_SENTINEL) {
-                    return EvalResult.unchanged();
-                }
-                @SuppressWarnings("unchecked")
-                T value = (T) out;
-                return new EvalResult<>(value, true, TERMINATED.get());
+                return runProtected(() -> c.action().apply(null), breaker, recover, onError);
             }
-            return EvalResult.unchanged();
+            return current;
         }
-        // 非 null：按序首中胜
-        for (Case<T> c : group.cases) {
-            if (c.nullAware || !c.condition.test(current)) {
+        // 非 null：按序首中胜（nullAware 分支仅在值为 null 时有意义，此处跳过）
+        for (Case c : cases) {
+            if (c.nullAware() || !c.condition().test(current)) {
                 continue;
             }
-            T out = runProtected(() -> c.action.apply(current), breaker, recover, onError);
-            if (out == SKIP_SENTINEL) {
-                return EvalResult.unchanged();
-            }
-            @SuppressWarnings("unchecked")
-            T value = (T) out;
-            return new EvalResult<>(value, true, TERMINATED.get());
+            return runProtected(() -> c.action().apply(current), breaker, recover, onError);
         }
-        return EvalResult.unchanged();
+        return current;
     }
 
     /**
-     * 经熔断器执行动作并套接异常处理；返回 SKIP_SENTINEL 表示链已被 onError 终止。
+     * 经熔断器执行动作并套接异常处理；
+     * 被 onError 终止时抛出 {@link TerminatedSignal}。
      */
-    private T runProtected(java.util.concurrent.Callable<T> action,
-                           CircuitBreakerFlow breaker,
-                           Function<Throwable, T> recover,
-                           Consumer<Throwable> onError) {
+    private Object runProtected(java.util.concurrent.Callable<Object> action,
+                                CircuitBreakerFlow breaker,
+                                Function<Throwable, Object> recover,
+                                Consumer<Throwable> onError) {
         try {
-            return breaker != null ? breaker.execute(action::call) : action.call();
-        } catch (Throwable t) {
+            return breaker != null ? breaker.execute(action) : action.call();
+        } catch (RuntimeException | Error t) {
             if (recover != null) {
-                try {
-                    return recover.apply(t);
-                } catch (Throwable nested) {
-                    throw t;
-                }
+                return recover.apply(t);
             }
             if (onError != null) {
                 onError.accept(t);
-                TERMINATED.set(true);
-                return SKIP_SENTINEL;
+                throw new TerminatedSignal();
             }
             throw t;
+        } catch (Exception e) {
+            // 理论不可达：动作 lambda 与熔断器均不抛受检异常
+            throw new IllegalStateException(e);
         }
     }
 
-    /** onError 终止标记（线程级，避免跨链污染）。 */
-    private static final ThreadLocal<Boolean> TERMINATED = ThreadLocal.withInitial(() -> Boolean.FALSE);
-
-    /** 动作被跳过/链终止时的哨兵值。 */
-    private static final Object SKIP_SENTINEL = new Object();
+    /**
+     * onError 终止链的内部信号（不会逃逸出 get()）。
+     */
+    private static final class TerminatedSignal extends Error {
+    }
 
     /* ---------------- 工具方法 ---------------- */
 
@@ -548,15 +529,12 @@ public final class Branch<T> {
     /**
      * 判定数值是否等于指定值。
      *
-     * @param v     待判定值
+     * @param v      待判定值
      * @param target 目标值
      * @return 相等返回 true
      */
     private static boolean isNumberEquals(Object v, double target) {
-        if (v instanceof Number n) {
-            return n.doubleValue() == target;
-        }
-        return false;
+        return v instanceof Number n && n.doubleValue() == target;
     }
 
     /**

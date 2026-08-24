@@ -78,18 +78,20 @@ class SipTunnelStream {
     /**
      * 建立数据平面连接（携带签名握手）。
      *
-     * @param host      数据平面地址
-     * @param port      数据平面端口
-     * @param channelId 通道标识
-     * @param role      角色（visitor / provider）
-     * @param token     认证令牌
-     * @param encrypt   是否启用端到端加密（两侧需一致）
+     * @param host        数据平面地址
+     * @param port        数据平面端口
+     * @param channelId   通道标识
+     * @param role        角色（visitor / provider）
+     * @param sharedToken 共享令牌（流加密密钥派生源，与服务端 encryptKey 一致）
+     * @param sessionToken 会话令牌（CONNECT 握手签名用）
+     * @param encrypt     是否启用流加密（两侧需一致）
      * @throws IOException IO 异常
      */
-    SipTunnelStream(String host, int port, String channelId, String role, String token, boolean encrypt) throws IOException {
+    SipTunnelStream(String host, int port, String channelId, String role,
+                    String sharedToken, String sessionToken, boolean encrypt) throws IOException {
         this.channelId = channelId;
         this.encrypt = encrypt;
-        this.aesKey = encrypt ? AesGcmUtils.deriveKey(token) : null;
+        this.aesKey = encrypt ? AesGcmUtils.deriveKey(sharedToken) : null;
         this.socket = new Socket();
         socket.setTcpNoDelay(true);
         socket.connect(new java.net.InetSocketAddress(host, port), 5000);
@@ -102,7 +104,7 @@ class SipTunnelStream {
         }
         this.out = rawOut;
         this.socketIn = rawIn;
-        String signature = HMacUtils.hmacSha256Hex(token, channelId + role);
+        String signature = HMacUtils.hmacSha256Hex(sessionToken, channelId + role);
         out.write((SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR
                 + channelId + SipProtocol.SEPARATOR + role + SipProtocol.SEPARATOR + signature + "\n")
                 .getBytes(StandardCharsets.UTF_8));

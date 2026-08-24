@@ -189,12 +189,46 @@ public abstract class AbstractPricingProvider implements PricingProvider {
             if (rendered != null && !rendered.isEmpty()) {
                 log.debug("[{}] 普通抓取无有效表格，使用渲染器重试: {}", name(), url);
                 collectPagePricing(rendered, currency, result);
+                // 主页面无表格时跟随渲染后的 iframe 子页面（部分文档站正文在 iframe 内）
+                if (result.isEmpty()) {
+                    for (String iframeUrl : extractIframeUrls(rendered)) {
+                        String iframeHtml = renderViaSpi(iframeUrl);
+                        if (iframeHtml != null && !iframeHtml.isEmpty()) {
+                            collectPagePricing(iframeHtml, currency, result);
+                            if (!result.isEmpty()) {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
         if (!result.isEmpty()) {
             return new ArrayList<>(result.values());
         }
         return readClasspathPricing();
+    }
+
+    /**
+     * 提取渲染后页面中的 HTTP(S) iframe 地址。
+     *
+     * @param html 页面 HTML
+     * @return iframe 地址列表（最多 3 个）
+     */
+    private List<String> extractIframeUrls(String html) {
+        List<String> urls = new ArrayList<>();
+        try {
+            Document doc = Jsoup.parse(html);
+            for (Element frame : doc.select("iframe[src]")) {
+                String src = frame.attr("src");
+                if (src.startsWith("http") && urls.size() < 3) {
+                    urls.add(src);
+                }
+            }
+        } catch (Exception e) {
+            log.debug("[{}] 提取 iframe 失败: {}", name(), e.getMessage());
+        }
+        return urls;
     }
 
     /**

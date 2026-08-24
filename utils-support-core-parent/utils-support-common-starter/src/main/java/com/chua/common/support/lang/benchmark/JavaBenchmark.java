@@ -219,12 +219,10 @@ public class JavaBenchmark implements Benchmark {
             throw new IllegalStateException("请先执行 run() 获取压测结果");
         }
         DocumentProvider provider = DocumentProvider.create("benchmark-html");
-        if (provider instanceof BenchmarkHtmlProvider htmlProvider) {
-            File out = new File(reportPath);
-            htmlProvider.export(result.toDocumentData(), out, null);
-            return out;
-        }
-        throw new IllegalStateException("未找到 benchmark-html 报告提供者");
+        BenchmarkHtmlProvider htmlProvider = (BenchmarkHtmlProvider) provider;
+        File out = new File(reportPath);
+        htmlProvider.export(result.toDocumentData(), out, null);
+        return out;
     }
 
     @Override

@@ -142,7 +142,12 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
 
             nameList.add(label);
             probList.add((double) score);
-            boxList.add(new Rectangle(x1, y1, w, h));
+            // 归一化到 [0,1] 供 DJL drawBoundingBoxes 使用
+            boxList.add(new Rectangle(
+                    x1 / width,
+                    y1 / height,
+                    w / width,
+                    h / height));
         }
 
         if (nameList.isEmpty()) {
