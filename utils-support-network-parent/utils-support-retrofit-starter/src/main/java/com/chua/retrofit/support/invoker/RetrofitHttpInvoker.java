@@ -5,6 +5,7 @@ import com.chua.common.support.network.invoker.Invoker;
 import com.chua.common.support.network.invoker.annotations.RemoteService;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import retrofit2.Retrofit;
@@ -95,7 +96,7 @@ public class RetrofitHttpInvoker implements Invoker {
         // 优先尝试 Spring 类级注解
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {
-                Class<?> cl = Class.forName(annClass);
+                Class<?> cl = ReflectUtils.forName(annClass);
                 Annotation ann = clazz.getAnnotation(cl.asSubclass(Annotation.class));
                 if (ann != null) {
                     String v = extractAnnotationValue(ann);

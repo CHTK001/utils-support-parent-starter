@@ -19,6 +19,7 @@ import com.chua.spider.support.model.SpiderSite;
 import com.chua.spider.support.parser.AutoParser;
 import com.chua.spider.support.pipeline.ConsolePipeline;
 import com.chua.spider.support.scheduler.FifoScheduler;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -670,7 +671,7 @@ public class DefaultSpider implements Spider {
         public <T> Builder as(Class<T> targetClass, Consumer<T> consumer) {
             if (targetClass != null && consumer != null) {
                 try {
-                    Class.forName("org.jsoup.Jsoup");
+                    ReflectUtils.forName("org.jsoup.Jsoup");
                     this.pipelines.add(SpiderMappingPipeline.of(targetClass, consumer));
                 } catch (ClassNotFoundException e) {
                     log.warn("[spider] jsoup 不在类路径，无法使用 POJO 映射");
@@ -691,7 +692,7 @@ public class DefaultSpider implements Spider {
                                String aiApiKey, Consumer<T> consumer) {
             if (targetClass != null && consumer != null) {
                 try {
-                    Class.forName("org.jsoup.Jsoup");
+                    ReflectUtils.forName("org.jsoup.Jsoup");
                     this.pipelines.add(SpiderMappingPipeline.of(
                             targetClass, consumer, aiProvider, aiApiKey));
                 } catch (ClassNotFoundException e) {
