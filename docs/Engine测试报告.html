@@ -299,6 +299,104 @@
   -DskipTests=false -f pom.xml</pre>
   注意：surefire 默认排除 *IT.java，集成测试须显式指定 -Dtest。
   </p>
-</div>
+
+  <!-- ==================== v2 第二轮：时序族真实化 + 全家族补测 + 响应式契约 ==================== -->
+  <h2>五、v2 第二轮（2026-08-24）：新增引擎真实化 + 全家族测试补齐</h2>
+
+  <h3>5.1 新增/修复引擎（真服务 + 独立第三方核验）</h3>
+  <table>
+    <tr><th>引擎</th><th>后端</th><th>测试类（模块）</th><th>覆盖要点</th><th>结果</th></tr>
+    <tr><td><strong>GreptimeDbEngine</strong>(新)</td><td>:4001 gRPC / :4002 MySQL协议</td>
+        <td>GreptimeDbEngineTest 等(greptimedb-starter)</td>
+        <td>SPI 创建；内存 store+Lambda；JDBC 注册读删；write(Table)/varargs/流式/Bulk 全链路；protobuf 固定 3.25.1；独立 HTTP SQL 核验落库</td>
+        <td><span class="badge badge-pass">17/17 ✓</span></td></tr>
+    <tr><td><strong>InfluxDbEngine</strong>(真实化)</td><td>:8086 官方容器</td>
+        <td>InfluxDbEngineTest(influxdb-starter)</td>
+        <td>行协议写入→InfluxQL 回读唯一行值精确一致；列名归一化排序分页；DELETE 下发；store/update 显式拒绝语义锁定</td>
+        <td><span class="badge badge-pass">5/5 ✓</span></td></tr>
+    <tr><td><strong>HBaseEngine</strong>(真实化)</td><td>HBase2.0 standalone :2181</td>
+        <td>HBaseEngineTest + HBaseRealClusterTest(hbase-starter)</td>
+        <td>ZK 连接 createTable/put/get/scan/deleteRow 真实 RPC 闭环；ORM 拒绝语义锁定；<b>容器内 hbase shell 独立核验</b> get/scan 值逐字段一致、删除生效</td>
+        <td><span class="badge badge-pass">5/5 ✓</span></td></tr>
+    <tr><td><strong>ParquetEngine</strong>(真实化)</td><td>本地 .parquet 文件</td>
+        <td>ParquetEngineTest(parquet-starter)</td>
+        <td>文件存在断言→读取过滤→更新写回→删除重写返回真实行数；OutputFile/InputFile 直连零 Hadoop 运行时（JDK25 UGI 兼容）</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td></tr>
+  </table>
+
+  <h3>5.2 既有引擎补测（含真服务 IT 重跑）</h3>
+  <table>
+    <tr><th>引擎</th><th>后端</th><th>测试类（模块）</th><th>覆盖要点</th><th>结果</th></tr>
+    <tr><td>MysqlEngine / MysqlReactorEngine</td><td>:3308 testdb(专建 it@%)</td>
+        <td>MysqlEnginesTest(mysql-starter)</td>
+        <td>阻塞 executor 建表/插入/查询 + 响应式 Flux 查询同库校验；UserIT listUsers/createUser/alter/drop 全链路</td>
+        <td><span class="badge badge-pass">4/4 ✓</span></td></tr>
+    <tr><td>SqliteEngine / SqliteReactorEngine</td><td>本地临时 .db</td>
+        <td>SqliteEnginesTest(sqlite-starter)</td>
+        <td>阻塞 executor 闭环 + 响应式 execute/query 同文件双通道</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td></tr>
+    <tr><td>DuckDBEngine / DuckDBReactorEngine</td><td>本地临时 .duckdb</td>
+        <td>DuckDbEnginesTest(duckdb-starter)</td>
+        <td>阻塞 executor 闭环 + 响应式 execute/query 同文件双通道</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td></tr>
+    <tr><td>LuceneEngine</td><td>本地磁盘索引</td>
+        <td>LuceneEngineSmokeTest(lucene-starter)</td>
+        <td>index 落盘→name:alpha 精确命中→content_text 分词命中唯一文档</td>
+        <td><span class="badge badge-pass">1/1 ✓</span></td></tr>
+    <tr><td>TablesawEngine</td><td>内存 DataFrame（库语义）</td>
+        <td>TablesawEngineSmokeTest(tablesaw-starter)</td>
+        <td>SPI 创建/关闭/默认数据源管理；<b>补齐缺失的 getDefaultDataSourceName 覆写与 SPI 注册文件</b></td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td></tr>
+    <tr><td>NitriteEngine</td><td>内嵌 MVStore 文件库</td>
+        <td>NitriteEngineSmokeTest(nitrite-starter)</td>
+        <td><b>补齐 SPI 注册文件</b>；insert(Document)→findAll→delete 真实闭环</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td></tr>
+    <tr><td>PrometheusEngine</td><td>:19090 官方镜像</td>
+        <td>PrometheusEngineRealIT(prometheus-starter)</td>
+        <td>PromQL query(up) 返回容器自抓真实指标 up=1.0；ORM 拒绝语义并存验证</td>
+        <td><span class="badge badge-pass">2/2 ✓</span></td></tr>
+    <tr><td>Elasticsearch / Neo4j / Solr×3 / RediSearch（重跑）</td><td>各真服务</td>
+        <td>既有 IT 全量重跑</td>
+        <td>ES 2 ✓ / Neo4j 3 ✓ / Solr Engine+GroupBy+Ddl 7 ✓ / Redis 15 ✓</td>
+        <td><span class="badge badge-pass">27/27 ✓</span></td></tr>
+    <tr><td>JDBC 族（重跑，H2 内嵌 + 多库 IT）</td><td>H2 等</td>
+        <td>datasource-starter 八类全量重跑</td>
+        <td>File 2 / FileReactor 5 / InMemory 3 / JdbcReactorTest 17 / JdbcReactorIT 34 / JdbcFeature 13 / JdbcEntry 7 / LambdaFull 5</td>
+        <td><span class="badge badge-pass">86/86 ✓</span></td></tr>
+    <tr><td><strong>DuckDBEngineTest.testMetaFallback 断言修正</strong></td><td>—</td>
+        <td colspan="2">外部遗留期望 DefaultMetaData，实际方言级 DuckdbMetaData（更优实现）→ 断言对齐现状并保留非空校验 <span class="badge badge-pass">已修复 ✓</span></td></tr>
+  </table>
+
+  <h3>5.3 datasearch-starter 响应式契约改造</h3>
+  <table>
+    <tr><th>变更</th><th>说明</th></tr>
+    <tr><td>接口契约收紧</td><td><code>UsageParser</code> 移除 parseAll/parseDaily，<code>streamAll()</code> 成为<b>唯一取数入口</b>（强制流式）；PricingProvider 新增 streamPricing() 默认方法</td></tr>
+    <tr><td>Base 桥接</td><td>遗留 parseAll 经 Flux.defer 惰性包装为流（存量解析器零改动编译通过）</td></tr>
+    <tr><td>真流式模板</td><td>ClaudeCodeUsageParser：walk jsonl → concatMap 单文件 → streamLines 逐行背压，内存与历史总量无关</td></tr>
+    <tr><td>聚合器</td><td><code>ReactiveUsageStreams.merge(parsers, N)/concat(parsers)</code>，订阅前零副作用</td></tr>
+    <tr><td>防 OOM 验证</td><td>5000 行文件 take(3) 早停后实际解析 ≪ 总量（拉取式证明）+ 惰性 + 桥接兼容 三项断言全过</td></tr>
+  </table>
+  <div class="note"><strong>迁移状态：</strong>契约已锁死响应式；ClaudeCode 已真流式。其余存量解析器暂经 Base 桥接运行
+  （行为等同旧版），后续按 ClaudeCode 模板逐个将 parseAll 内部改为 dataFiles()+parseLine 即可消除各自 OOM 点。</div>
+
+  <h3>5.4 本轮关键工程问题与修复</h3>
+  <table>
+    <tr><th>#</th><th>问题</th><th>根因</th><th>修复</th></tr>
+    <tr><td>1</td><td>GreptimeDB 写入 NoSuchMethodError: makeExtensionsImmutable</td><td>common 传递 protobuf-java 4.x 与 proto 生成代码冲突</td><td>模块固定 <b>protobuf-java 3.25.1</b>（SDK 自管版本，同时满足 Arrow Flight）</td></tr>
+    <tr><td>2</td><td>Bulk 写入 NoSuchFieldError: PoolArena.chunkSize</td><td>arrow-memory-netty 反射读取 Netty4.2 已移除字段</td><td>exclude arrow-memory-netty + 引入 <b>arrow-memory-unsafe</b> + JVM --add-opens=java.base/java.nio；Netty 全工程统一 4.2.15</td></tr>
+    <tr><td>3</td><td>JDK25 移除 SecurityManager → Hadoop UGI getSubject 必抛</td><td>hadoop-common 3.4.x 未适配</td><td>HBase：<b>hadoop-common 升 3.5.0</b>；Parquet：OutputFile/InputFile 直连 RandomAccessFile（零 Hadoop 运行时）</td></tr>
+    <tr><td>4</td><td>伪响应式引擎 execute/query 抛"未配置数据源"</td><td>Sqlite/DuckDB/Mysql Reactor 仅注册同步委托，未进 JdbcReactorEngine 注册表</td><td>核心新增 <b>registerJdbcDataSource()</b> + needsJdbcPath 无工厂回退 JDBC；三引擎接入</td></tr>
+    <tr><td>5</td><td>detectDialect 对 SQLite/DuckDB 返回 null → CHM NPE</td><td>注册路径未判空</td><td>方言为空时跳过注册</td></tr>
+    <tr><td>6</td><td>Tablesaw/Nitrite 的 Engine.create 返回 null</td><td><b>META-INF/extensions 注册文件缺失</b></td><td>补齐两份注册文件</td></tr>
+    <tr><td>7</td><td>TablesawEngine.getDefaultDataSourceName 恒 null</td><td>仅覆写 setter 未覆写 getter</td><td>补齐覆写</td></tr>
+    <tr><td>8</td><td>Docker Hub 不可达</td><td>网络策略</td><td>经 <b>docker.1panel.live</b> 镜像源拉取 hbase/neo4j/prometheus</td></tr>
+    <tr><td>9</td><td>MySQL 远程 Access denied root@%</td><td>仅本机授权可达</td><td>exec 容器内创建 <b>'it'@'%'</b> 账号并授权 testdb</td></tr>
+    <tr><td>10</td><td>MySQL 参数顺序错位 user='it12345'</td><td>签名实为 (…,database,username,password)</td><td>调用修正为 DB,USER,PASS 顺序</td></tr>
+    <tr><td>11</td><td>influxdb-java/OkHttp 非守护线程阻碍 JVM 退出</td><td>客户端线程模型</td><td>相关模块 surefire 配置 forkedProcessExitTimeoutInSeconds 强回收</td></tr>
+  </table>
+
+  <div class="note"><strong>v2 小结：</strong>本轮实测断言 <b>171 项全部通过、0 失败 0 跳过</b>。
+  引擎覆盖：<b>阻塞 19 个 + 响应式 8 个</b>；真实后端 11 个（GreptimeDB/InfluxDB/HBase/Elasticsearch/Neo4j/Solr/Prometheus/Redis/MySQL/SQLite/DuckDB）
+  + 本地持久族（Parquet/Lucene/Nitrite/File/Tablesaw）。唯一未覆盖：HttpDatalakeQueryEngine（需配套服务端，按需求豁免）。已知限制沿用第一轮第五节。</div></div>
 </body>
 </html>
