@@ -123,6 +123,9 @@ public class AioHttpServer extends AbstractServer {
     /** 虚拟线程 worker 池:执行 handler 链,阻塞不占用平台线程 */
     private ExecutorService executor;
 
+    /** 响应式模式:true=handler 内联在 IOCP 回调线程执行(零跳转,要求非阻塞) */
+    private volatile boolean reactiveMode;
+
     /** SSL 上下文(配置了 selfSigned/KeyStore/PEM 时非 null,每连接派生 SSLEngine) */
     private SSLContext sslContext;
 
@@ -160,6 +163,7 @@ public class AioHttpServer extends AbstractServer {
             // SSL/TLS:selfSigned/KeyStore/PEM 统一经 SslUtils 构建,
             // 每连接派生 SSLEngine,握手在独立虚拟线程以阻塞 Future 方式驱动
             ServerSetting.SslConfig ssl = setting.getSsl();
+            reactiveMode = setting.isReactor() || Boolean.getBoolean("aio.http.reactive");
             sslContext = SslUtils.autoSsl(ssl);
             if (sslContext != null) {
                 // 禁用 TLS1.3 服务端 NewSessionTicket:票据记录会在握手后以应用数据
@@ -308,8 +312,8 @@ public class AioHttpServer extends AbstractServer {
             }
         }
         try {
-            state.channel.read(buf, setting.getReadTimeout(), TimeUnit.MILLISECONDS,
-                    state, readHandler);
+            // 极限优化:无超时读(定时异步读在 Windows 需挂内核等待对象)
+            state.channel.read(buf, state, readHandler);
         } catch (Throwable t) {
             closeConn(state);
         }
@@ -382,7 +386,12 @@ public class AioHttpServer extends AbstractServer {
      */
     private void dispatchToWorker(ConnState state) {
         try {
-            executor.submit(() -> processRequest(state));
+            if (reactiveMode) {
+                // 响应式模式:零跳转,IOCP 回调线程内联执行(handler 须非阻塞)
+                processRequest(state);
+            } else {
+                executor.submit(() -> processRequest(state));
+            }
         } catch (Throwable t) {
             // executor 已关闭等极端场景
             closeConn(state);
@@ -408,6 +417,8 @@ public class AioHttpServer extends AbstractServer {
             // 流式直写钩子(纯非阻塞):SSE 分片按序入待写队列,TLS 在队内加密,
             // 写权空闲则踢异步续写链;分片间 FIFO 保序
             response.setStreamWriter(bytes -> {
+                // 标记 SSE 流式期:写链排空时不按 HTTP 收尾(见 continueWrite)
+                state.sseActive = true;
                 enqueueWrite(state, java.nio.ByteBuffer.wrap(bytes), null);
                 if (!state.closed.get() && state.writing.compareAndSet(false, true)) {
                     continueWrite(state);
@@ -423,6 +434,10 @@ public class AioHttpServer extends AbstractServer {
             } finally {
                 // 幂等(sent 标志):触发 asyncWriter 把报文交给待写队列
                 response.complete();
+            }
+            if (state.sseActive && response.isEnded()) {
+                // SSE 全部分片已入队(sseClose 置 ended):写链排空后安全断开送 EOF
+                state.sseEnd = true;
             }
             state.keepAlive = shouldKeepAlive(state.request, response);
             state.request.resetForNextRequest();
@@ -468,6 +483,18 @@ public class AioHttpServer extends AbstractServer {
     private void enqueueWrite(ConnState state, ByteBuffer header, ByteBuffer body) {
         synchronized (state.writeQueue) {
             if (state.tls == null) {
+                if (body != null && body.hasRemaining()) {
+                    // 极限优化:小响应头体合并为单缓冲,一次 overlap 写完成
+                    int total = header.remaining() + body.remaining();
+                    if (total <= 65536) {
+                        // 堆分配(TLAB 近乎免费);JDK 写出时自会拷贝到 native
+                        ByteBuffer combined = ByteBuffer.allocate(total);
+                        combined.put(header).put(body);
+                        combined.flip();
+                        state.writeQueue.add(combined);
+                        return;
+                    }
+                }
                 state.writeQueue.add(header);
                 if (body != null && body.hasRemaining()) {
                     state.writeQueue.add(body);
@@ -523,6 +550,13 @@ public class AioHttpServer extends AbstractServer {
             }
         }
         if (head == null) {
+            if (state.sseActive) {
+                // SSE 流式期:不按 HTTP 收尾;sseClose 后(零分块已写出)断开送 EOF
+                if (state.sseEnd) {
+                    closeConn(state);
+                }
+                return;
+            }
             finishResponseCycle(state);
             return;
         }
@@ -978,10 +1012,15 @@ public class AioHttpServer extends AbstractServer {
             while (in.hasRemaining()) {
                 switch (stage) {
                     case LEN0 -> {
-                        int b = in.get() & 0xFF;
-                        opcode = b & 0x0F;
-                        boolean masked = (b & 0x80) != 0;
-                        long l = b & 0x7F;
+                        // 字节1=FIN|RSV|opcode,字节2=MASK|len7;两字节齐才消费
+                        if (in.remaining() < 2) {
+                            return true;
+                        }
+                        int b1 = in.get() & 0xFF;
+                        opcode = b1 & 0x0F;
+                        int b2 = in.get() & 0xFF;
+                        boolean masked = (b2 & 0x80) != 0;
+                        long l = b2 & 0x7F;
                         if (l == 126) {
                             stage = Stage.LEN16;
                             extLeft = 2;
@@ -1383,6 +1422,12 @@ public class AioHttpServer extends AbstractServer {
 
         /** WS 升级完成后的帧协议模式 */
         volatile boolean wsMode;
+
+        /** SSE 流式进行中(写链排空不收尾) */
+        volatile boolean sseActive;
+
+        /** SSE 已关闭(零分块已入队,可安全断开送 EOF) */
+        volatile boolean sseEnd;
 
         /** WS 连接发送器 */
         volatile AioWsConnection wsConn;

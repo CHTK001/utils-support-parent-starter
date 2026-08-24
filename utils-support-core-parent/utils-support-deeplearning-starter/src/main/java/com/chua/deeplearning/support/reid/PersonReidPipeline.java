@@ -4,6 +4,11 @@ import com.chua.deeplearning.support.feature.FeatureExtractor;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.image.ImageDetector;
 
+import com.chua.common.support.vector.Vector;
+import com.chua.common.support.vector.VectorStorage;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +40,11 @@ public class PersonReidPipeline {
     private final ImageDetector detector;
 
     /**
+     * 向量入库设施（可选；注入后启用持久化 enroll/search）
+     */
+    private final VectorStorage storage;
+
+    /**
      * 构造 ReID 管线。
      *
      * @param extractor 特征提取模型（如 clip-image-feature、resnet50-feature 等）
@@ -50,8 +60,36 @@ public class PersonReidPipeline {
      * @param detector  行人检测模型（可为 null）
      */
     public PersonReidPipeline(FeatureExtractor extractor, ImageDetector detector) {
+        this(extractor, detector, null);
+    }
+
+    /**
+     * 构造 ReID 管线（带向量入库能力）。
+     *
+     * @param extractor 特征提取模型
+     * @param detector  行人检测模型（可为 null）
+     * @param storage   向量库；为 null 时使用本地文件库
+     */
+    public PersonReidPipeline(FeatureExtractor extractor, ImageDetector detector,
+            VectorStorage storage) {
         this.extractor = extractor;
         this.detector = detector;
+        this.storage = storage != null ? storage : defaultStorage();
+    }
+
+    /**
+     * 默认文件向量库（512 维，与 ReID 特征一致）。
+     *
+     * @return 存储实例
+     */
+    private static VectorStorage defaultStorage() {
+        try {
+            Path dir = Path.of(System.getProperty("java.io.tmpdir"), "chua-reid");
+            Files.createDirectories(dir);
+            return com.chua.deeplearning.support.audio.FileVectorStorage.create(512, dir);
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("ReID library dir create failed", e);
+        }
     }
 
     /**
@@ -177,5 +215,31 @@ public class PersonReidPipeline {
             sum += a[i] * b[i];
         }
         return sum;
+    }
+
+    /**
+     * 入库：行人图 → 特征 → 向量库落盘。
+     *
+     * @param id 行人标识
+     * @param imageData 行人图片
+     * @throws IllegalStateException 入库失败
+     */
+    public void enroll(String id, byte[] imageData) {
+        float[] feature = extract(imageData);
+        if (!storage.add(id, feature)) {
+            throw new IllegalStateException("person feature enroll failed: " + id);
+        }
+    }
+
+    /**
+     * 检索：待测行人图与库内特征比对，返回 TopK。
+     *
+     * @param imageData 待测图片
+     * @param topK 返回条数
+     * @return 匹配列表（按相似度降序）
+     */
+    public List<Vector> searchFromStorage(byte[] imageData, int topK) {
+        float[] feature = extract(imageData);
+        return storage.search(feature, topK);
     }
 }

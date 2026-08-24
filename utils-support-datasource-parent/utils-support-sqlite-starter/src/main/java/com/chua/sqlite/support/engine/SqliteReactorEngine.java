@@ -33,6 +33,8 @@ public class SqliteReactorEngine extends JdbcReactorEngine {
      */
     public SqliteReactorEngine addDataSource(String name, String filePath) {
         delegate.addDataSource(name, filePath);
+        // 注册纯 JDBC 数据源（SQLite 无 R2DBC 驱动），execute/query 走 JDBC 路径
+        registerJdbcDataSource(name, "jdbc:sqlite:" + filePath, null, null);
         return this;
     }
 }

@@ -2,30 +2,33 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
-import com.chua.common.support.lang.json.Json;
-import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * VSCode GitHub Copilot usage parser.
+ * VSCode Copilot usage parser.
  *
- * <p>Copilot usage data is managed by GitHub server side.
- * Local {@code ~/.vscode-server/.../github.copilot-chat/} only stores
- * agent configuration, not token usage records.</p>
+ * <p>GitHub Copilot CLI stores per-request usage in a local SQLite database at
+ * {@code ~/.copilot/session-store.db}, table {@code assistant_usage_events}:</p>
  *
- * <p>To get Copilot usage:
- * <ul>
- *   <li>Individual: https://github.com/settings/copilot</li>
- *   <li>Enterprise: GitHub Admin portal → Copilot settings</li>
- * </ul></p>
+ * <pre>{@code
+ * CREATE TABLE assistant_usage_events (
+ *   id, session_id, turn_index, agent_id, model,
+ *   input_tokens, output_tokens, cache_read_tokens,
+ *   cache_write_tokens, reasoning_tokens, total_nano_aiu,
+ *   duration_ms, time_to_first_token_ms, finish_reason, ...
+ * )
+ * }</pre>
+ *
+ * <p>Rows only appear after successful GitHub authentication
+ * (fine-grained PAT via {@code GH_TOKEN} or OAuth login). The VSCode IDE
+ * extension itself keeps usage server-side; only the CLI persists locally.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,66 +36,85 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi("vscode")
 public class VscodeUsageParser extends BaseUsageParser {
 
-    private static final Path COPILOT_DIR = Path.of(
-            System.getProperty("user.home"), "AppData", "Roaming", "Code",
-            "User", "globalStorage", "github.copilot-chat");
+    private static final Path DB_PATH = Path.of(
+            System.getProperty("user.home"), ".copilot", "session-store.db");
 
+    private static final String SQL_USAGE_EVENTS =
+            "SELECT created_at, model, input_tokens, output_tokens, "
+                    + "cache_read_tokens, cache_write_tokens, reasoning_tokens, "
+                    + "duration_ms, time_to_first_token_ms, finish_reason, session_id "
+                    + "FROM assistant_usage_events "
+                    + "WHERE input_tokens > 0 OR output_tokens > 0 "
+                    + "ORDER BY created_at ASC";
+
+    /**
+     * Returns the SPI name for VSCode Copilot.
+     *
+     * @return {@code "vscode"}
+     */
     @Override
     public String name() {
         return "vscode";
     }
 
+    /**
+     * Parses all usage events from the Copilot CLI session store.
+     *
+     * @return list of AiUsage records, one per billed API request
+     */
     @Override
     public List<AiUsage> parseAll() {
-        if (!Files.isDirectory(COPILOT_DIR)) {
-            log.debug("[vscode] VSCode Copilot not installed");
+        if (!Files.exists(DB_PATH)) {
+            log.debug("[vscode] session store not found: {} (Copilot CLI not installed/authenticated)", DB_PATH);
             return List.of();
         }
-        AtomicInteger fileCount = new AtomicInteger(0);
-        try (var stream = Files.walk(COPILOT_DIR)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".jsonl"))
-                    .forEach(file -> {
-                        fileCount.incrementAndGet();
-                        try {
-                            parseJsonlFile(file);
-                        } catch (IOException e) {
-                            log.debug("[vscode] read failed {}: {}", file.getFileName(), e.getMessage());
-                        }
-                    });
-        } catch (IOException e) {
-            log.warn("[vscode] walk failed: {}", e.getMessage(), e);
+        List<AiUsage> result = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+             PreparedStatement stmt = conn.prepareStatement(SQL_USAGE_EVENTS);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                result.add(toAiUsage(rs));
+            }
+            log.info("[vscode] parsed {} usage events", result.size());
+        } catch (SQLException e) {
+            log.warn("[vscode] parse failed: {}", e.getMessage(), e);
         }
-        if (fileCount.get() == 0) {
-            log.debug("[vscode] No JSONL files found in Copilot storage");
-        }
-        return List.of();
+        return result;
     }
 
-    private void parseJsonlFile(Path file) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.isBlank()) continue;
-                try {
-                    JsonNode node = Json.parse(line);
-                    if ("assistant".equals(node.get("type").toStringValue())) {
-                        JsonNode msg = node.get("message");
-                        if ("assistant".equals(msg.get("role").toStringValue())) {
-                            JsonNode usage = msg.get("usage");
-                            if (!usage.isMissingValue()) {
-                                int inputTokens = usage.get("input_tokens").toIntValue(-1);
-                                int outputTokens = usage.get("output_tokens").toIntValue(-1);
-                                if (inputTokens > 0 || outputTokens > 0) {
-                                    log.debug("[vscode] Found usage in Copilot JSONL: in={}, out={}", inputTokens, outputTokens);
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    log.debug("[vscode] parse failed: {}", e.getMessage());
-                }
-            }
-        }
+    /**
+     * Converts one assistant_usage_events row into an AiUsage record.
+     *
+     * @param rs result set positioned on the row to convert
+     * @return populated AiUsage record
+     * @throws SQLException if column access fails
+     */
+    private AiUsage toAiUsage(ResultSet rs) throws SQLException {
+                long startTime = parseInstantToMillis(rs.getString(1));
+        String model = rs.getString(2);
+        int inputTokens = rs.getInt(3);
+        int outputTokens = rs.getInt(4);
+        int cacheRead = rs.getInt(5);
+        int cacheWrite = rs.getInt(6);
+        int reasoning = rs.getInt(7);
+        long duration = rs.getLong(8);
+        long ttft = rs.getLong(9);
+        String finishReason = rs.getString(10);
+        String sessionId = rs.getString(11);
+
+        return AiUsage.builder()
+                .provider("copilot")
+                .model(model)
+                .requestId(sessionId)
+                .inputTokens(inputTokens)
+                .outputTokens(outputTokens)
+                .totalTokens(inputTokens + outputTokens)
+                .reasoningTokens(reasoning > 0 ? reasoning : null)
+                .cacheTokens(cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null))
+                .startTime(startTime > 0 ? startTime : null)
+                .durationMillis(duration > 0 ? duration : null)
+                .firstTokenLatencyMillis(ttft > 0 ? ttft : null)
+                .finishReason(finishReason)
+                .build();
     }
 }

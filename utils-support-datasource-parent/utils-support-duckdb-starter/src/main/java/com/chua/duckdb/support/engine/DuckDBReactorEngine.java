@@ -37,6 +37,8 @@ public class DuckDBReactorEngine extends JdbcReactorEngine {
      */
     public DuckDBReactorEngine addDataSource(String name, String jdbcUrl) {
         ((DuckDBEngine) delegate).addDataSource(name, jdbcUrl);
+        // 注册纯 JDBC 数据源（DuckDB 无 R2DBC 驱动），execute/query 走 JDBC 路径
+        registerJdbcDataSource(name, jdbcUrl, null, null);
         return this;
     }
 }

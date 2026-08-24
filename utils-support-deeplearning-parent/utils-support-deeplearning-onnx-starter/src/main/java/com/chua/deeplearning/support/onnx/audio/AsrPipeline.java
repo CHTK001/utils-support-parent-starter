@@ -2,10 +2,6 @@ package com.chua.deeplearning.support.onnx.audio;
 
 import lombok.extern.slf4j.Slf4j;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,17 +15,20 @@ import java.util.List;
  *   <li>必选-1 音频解码：任意 WAV/PCM → 16kHz 单声道 float[]</li>
  *   <li>必选-2 引擎推理：moonshine / whisper / paraformer（AudioClient SPI）逐段转写</li>
  *   <li>必选-3 结果拼接：多段文本按时间序合并</li>
- *   <li>可选-A 能量 VAD 切分：静音检测切段，长音频必备，短音频可关</li>
-     *   <li>可选-B 降噪预处理：DFSMN 单麦近场降噪（48k 模型，内部自动重采样），嘈杂场景建议开启</li>
- *   <li>可选-C 后处理：去多余空白、首字母大写（英文）</li>
+ *   <li>可选-A 能量 VAD 切分：静音检测切段，长音频必备，短音频可关；
+ *       相邻语音段间隙小于 0.6s 自动合并以保持整句上下文</li>
+ *   <li>可选-B 降噪预处理：DFSMN 单麦近场降噪（48k 模型，内部自动重采样），
+ *       嘈杂场景建议开启</li>
+ *   <li>可选-C 后处理：压缩空白、英文句首大写</li>
  * </ul>
  *
  * <p>用法：</p>
+ *
  * <pre>{@code
  *   String text = AsrPipeline.builder()
- *           .engine("moonshine")      // 必选：引擎 id
- *           .vad(true)                // 可选：默认 false
- *           .postProcess(true)        // 可选：默认 true
+ *           .engine("moonshine")          // 必选：引擎 id
+ *           .vad(true)                    // 可选：默认 false
+ *           .postProcess(true)            // 可选：默认 true
  *           .build()
  *           .transcribe(Path.of("a.wav"));
  * }</pre>
@@ -60,13 +59,44 @@ public final class AsrPipeline {
      */
     private static final float DEFAULT_MAX_SEG = 28F;
 
+    /**
+     * 引擎 id（必选）
+     */
     private final String engineId;
+
+    /**
+     * 识别语言（可选，whisper 类多语言引擎建议显式指定）
+     */
     private final String language;
+
+    /**
+     * 是否启用能量 VAD 切分（可选）
+     */
     private final boolean vad;
+
+    /**
+     * 是否启用 DFSMN 降噪（可选）
+     */
     private final boolean denoise;
+
+    /**
+     * 是否启用文本后处理（可选，默认开）
+     */
     private final boolean postProcess;
+
+    /**
+     * VAD 静音 RMS 门限
+     */
     private final float silenceRms;
+
+    /**
+     * 最短有效语音段（秒）
+     */
     private final float minSegSec;
+
+    /**
+     * 最大段长（秒）
+     */
     private final float maxSegSec;
 
     private AsrPipeline(Builder b) {
@@ -77,7 +107,7 @@ public final class AsrPipeline {
         this.postProcess = b.postProcess;
         this.silenceRms = b.silenceRms;
         this.minSegSec = b.minSegSec;
-        this.maxSegSec = b.maxSec;
+        this.maxSegSec = b.maxSegSec;
     }
 
     /**
@@ -91,7 +121,7 @@ public final class AsrPipeline {
     }
 
     /**
-     * 执行管线：解码 → (降噪) → (VAD 切分) → 引擎转写 → 拼接 → (后处理)。
+     * 执行管线：解码 → 降噪 → VAD 切分 → 引擎转写 → 拼接 → 后处理。
      *
      * @param wavPath 输入音频
      * @return 全文转写结果；无语音时返回空串
@@ -99,17 +129,14 @@ public final class AsrPipeline {
      */
     public String transcribe(Path wavPath) throws Exception {
         long t0 = System.currentTimeMillis();
-        // 必选-1：解码重采样
-        float[] samples = loadMono16k(wavPath);
-        log.info("[AsrPipeline] 解码完成: {} 采样 ({}, {}s)", samples.length, wavPath.getFileName(),
-                String.format("%.1f", samples.length / (float) TARGET_SR));
+        float[] samples = AudioUtils.loadMono16k(wavPath);
+        log.info("[AsrPipeline] 解码完成: {} 采样 ({}, {}s)", samples.length,
+                wavPath.getFileName(), String.format("%.1f", samples.length / (float) TARGET_SR));
 
-        // 可选-B：降噪占位
         if (denoise) {
             samples = denoise(samples);
         }
 
-        // 可选-A：VAD 切分；关闭则整段单块（内部仍按 maxSeg 强制切块）
         List<float[]> segments;
         if (vad) {
             segments = splitByEnergy(samples);
@@ -117,7 +144,6 @@ public final class AsrPipeline {
             segments = new ArrayList<>(forceSplit(samples));
         }
 
-        // 必选-2：逐段引擎推理
         List<String> parts = new ArrayList<>(segments.size());
         try (com.chua.common.support.ai.audio.AudioClient client =
                      com.chua.common.support.ai.audio.AudioClient.create(engineId, "")) {
@@ -125,7 +151,8 @@ public final class AsrPipeline {
                 client.language(language);
             }
             for (int i = 0; i < segments.size(); i++) {
-                Path tmp = toTempWav(segments.get(i));
+                Path tmp = AudioUtils.writeTempWav(
+                        "asr-pipeline-", segments.get(i), TARGET_SR);
                 try {
                     String part = client.transcribe(tmp);
                     if (part != null && !part.isBlank()) {
@@ -138,7 +165,6 @@ public final class AsrPipeline {
             }
         }
 
-        // 必选-3 + 可选-C：拼接与后处理
         String text = String.join(" ", parts);
         if (postProcess) {
             text = postProcess(text);
@@ -147,11 +173,21 @@ public final class AsrPipeline {
         return text;
     }
 
-    /** 可选-A：能量 VAD 切分（RMS 门限 + 迟滞合并） */
+    /**
+     * 可选-A：能量 VAD 切分。
+     *
+     * <p>RMS 门限判定有声帧；短于最小时长的片段丢弃；相邻语音段间隙小于
+     * 0.6 秒时自动合并为完整语句；超过最大段长强制二次切分。</p>
+     *
+     * @param s 16kHz 单声道采样
+     * @return 语音段列表
+     */
     List<float[]> splitByEnergy(float[] s) {
         int frame = (int) (0.03F * TARGET_SR);
         int minSeg = (int) (minSegSec * TARGET_SR);
         int maxSeg = (int) (maxSegSec * TARGET_SR);
+        int mergeGap = (int) (0.6F * TARGET_SR);
+
         List<int[]> voiced = new ArrayList<>();
         int start = -1;
         for (int i = 0; i + frame <= s.length; i += frame) {
@@ -168,20 +204,17 @@ public final class AsrPipeline {
         if (start >= 0) {
             voiced.add(new int[]{start, Math.min(s.length, start + maxSeg)});
         }
-        if (start >= 0) {
-            voiced.add(new int[]{start, Math.min(s.length, start + maxSeg)});
-        }
-        // 合并短停顿（<0.6s）的相邻段，保持完整语句上下文（对 moonshine 类模型尤为关键）
+
+        // 合并短停顿的相邻段，保持完整语句上下文（对 moonshine 类模型尤为关键）
         List<int[]> merged = new ArrayList<>(voiced.size());
         for (int[] r : voiced) {
-            int gap = (int) (0.6F * TARGET_SR);
-            if (!merged.isEmpty() && r[0] - merged.get(merged.size() - 1)[1] < gap) {
-                int[] last = merged.get(merged.size() - 1);
-                last[1] = r[1];
+            if (!merged.isEmpty() && r[0] - merged.get(merged.size() - 1)[1] < mergeGap) {
+                merged.get(merged.size() - 1)[1] = r[1];
             } else {
                 merged.add(new int[]{r[0], r[1]});
             }
         }
+
         if (merged.isEmpty()) {
             return List.of(s);
         }
@@ -197,7 +230,12 @@ public final class AsrPipeline {
         return out;
     }
 
-    /** 关闭 VAD 时按最大段长强制切块 */
+    /**
+     * 关闭 VAD 时按最大段长强制切块。
+     *
+     * @param s 16kHz 单声道采样
+     * @return 分块列表
+     */
     private List<float[]> forceSplit(float[] s) {
         int maxSeg = (int) (maxSegSec * TARGET_SR);
         if (s.length <= maxSeg) {
@@ -213,7 +251,14 @@ public final class AsrPipeline {
         return out;
     }
 
-    /** 计算帧 RMS */
+    /**
+     * 计算帧 RMS 能量。
+     *
+     * @param s 采样
+     * @param off 起始偏移
+     * @param len 帧长
+     * @return RMS 值
+     */
     private static float rms(float[] s, int off, int len) {
         double sum = 0;
         for (int i = off; i < off + len; i++) {
@@ -224,30 +269,22 @@ public final class AsrPipeline {
 
     /**
      * 可选-B：真实降噪（DFSMN 单麦近场模型）。
-     * <p>管线内部为 16k float，先上采样至 48k 转 WAV 字节送 DFSMN，
-     * 再将增强结果解码回 16k float。</p>
+     *
+     * <p>管线内部为 16k float：先上采样至 48k 封装 WAV 送 DFSMN，
+     * 再将增强结果解码回 16k float；失败时回退原始音频。</p>
+     *
+     * @param s 16kHz 采样
+     * @return 增强后采样
      */
     private float[] denoise(float[] s) {
         try {
-            // 16k → 48k 上采样（3 倍线性插值）
-            float[] up = new float[s.length * 3];
-            for (int i = 0; i < up.length; i++) {
-                double pos = i / 3.0;
-                int lo = (int) pos;
-                int hi = Math.min(lo + 1, s.length - 1);
-                float frac = (float) (pos - lo);
-                up[i] = s[lo] * (1 - frac) + s[hi] * frac;
-            }
-            byte[] wavIn = toWavBytes(up);
+            float[] up = AudioUtils.resample(s, TARGET_SR, 48000);
+            byte[] wavIn = AudioUtils.toWavBytes(up, 48000);
             byte[] wavOut = com.chua.deeplearning.support.onnx.audio.denoise.DfsmnAnsTranslator
                     .getInstance().translate(wavIn);
-            // 解码回 16k float
             float[] enhanced48k = com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder
                     .decodeToFloat(wavOut, 48000);
-            float[] down = new float[enhanced48k.length / 3];
-            for (int i = 0; i < down.length; i++) {
-                down[i] = enhanced48k[i * 3];
-            }
+            float[] down = AudioUtils.resample(enhanced48k, 48000, TARGET_SR);
             log.info("[AsrPipeline] DFSMN 降噪完成: {} → {} 采样", s.length, down.length);
             return down;
         } catch (Exception e) {
@@ -256,25 +293,12 @@ public final class AsrPipeline {
         }
     }
 
-    /** float[] → 48k 16bit 单声道 WAV 字节 */
-    private static byte[] toWavBytes(float[] samples) throws Exception {
-        try (var baos = new java.io.ByteArrayOutputStream()) {
-            for (float v : samples) {
-                int x = Math.round(Math.max(-1F, Math.min(1F, v)) * 32767F);
-                baos.write(x & 0xFF);
-                baos.write((x >> 8) & 0xFF);
-            }
-            byte[] pcm = baos.toByteArray();
-            byte[] header = com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder
-                    .buildWavHeader(pcm.length, 48000, 1, 16);
-            byte[] out = new byte[header.length + pcm.length];
-            System.arraycopy(header, 0, out, 0, header.length);
-            System.arraycopy(pcm, 0, out, header.length, pcm.length);
-            return out;
-        }
-    }
-
-    /** 可选-C：压缩空白 + 英文句首大写 */
+    /**
+     * 可选-C：压缩连续空白并大写英文句首字符。
+     *
+     * @param text 原始文本
+     * @return 后处理文本
+     */
     static String postProcess(String text) {
         String t = text.replaceAll("\\s+", " ").trim();
         if (!t.isEmpty() && Character.isLetter(t.charAt(0))) {
@@ -283,83 +307,50 @@ public final class AsrPipeline {
         return t;
     }
 
-    /** float[] → 16kHz 单声道临时 WAV */
-    private static Path toTempWav(float[] samples) throws Exception {
-        Path tmp = Files.createTempFile("asr-pipeline-", ".wav");
-        tmp.toFile().deleteOnExit();
-        try (var baos = new java.io.ByteArrayOutputStream()) {
-            for (float v : samples) {
-                int x = Math.round(Math.max(-1F, Math.min(1F, v)) * 32767F);
-                baos.write(x & 0xFF);
-                baos.write((x >> 8) & 0xFF);
-            }
-            AudioFormat fmt = new AudioFormat(TARGET_SR, 16, 1, true, false);
-            try (AudioInputStream ais = new AudioInputStream(
-                    new java.io.ByteArrayInputStream(baos.toByteArray()), fmt, samples.length)) {
-                AudioSystem.write(ais, javax.sound.sampled.AudioFileFormat.Type.WAVE, tmp.toFile());
-            }
-        }
-        return tmp;
-    }
-
-    /** 必选-1：任意音频 → 16kHz 单声道采样（复用各 translator 的解码逻辑） */
-    static float[] loadMono16k(Path path) throws Exception {
-        try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
-            AudioFormat fmt = in.getFormat();
-            byte[] bytes;
-            try (var baos = new java.io.ByteArrayOutputStream()) {
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    baos.write(buf, 0, n);
-                }
-                bytes = baos.toByteArray();
-            }
-            int bps = fmt.getSampleSizeInBits() / 8;
-            int channels = fmt.getChannels();
-            int total = bytes.length / Math.max(1, bps);
-            int monoLen = total / channels;
-            float[] mono = new float[Math.max(1, monoLen)];
-            for (int i = 0; i < monoLen; i++) {
-                float sum = 0F;
-                for (int c = 0; c < channels; c++) {
-                    int off = (i * channels + c) * bps;
-                    int lo = bytes[off] & 0xFF;
-                    int hi = bytes[off + 1];
-                    short v = (short) ((hi << 8) | lo);
-                    sum += v / 32768.0F;
-                }
-                mono[i] = sum / channels;
-            }
-            if (Math.abs(fmt.getSampleRate() - TARGET_SR) < 1F) {
-                return mono;
-            }
-            int newLen = (int) Math.round(mono.length * (double) TARGET_SR / fmt.getSampleRate());
-            float[] out = new float[newLen];
-            for (int i = 0; i < newLen; i++) {
-                double pos = i * fmt.getSampleRate() / (double) TARGET_SR;
-                int lo = (int) pos;
-                int hi = Math.min(lo + 1, mono.length - 1);
-                float frac = (float) (pos - lo);
-                out[i] = mono[lo] * (1 - frac) + mono[hi] * frac;
-            }
-            return out;
-        }
-    }
-
     /**
      * 构建器。
      */
     public static final class Builder {
 
+        /**
+         * 引擎 id（必选）
+         */
         private final String engineId;
+
+        /**
+         * 识别语言（可选）
+         */
         private String language;
+
+        /**
+         * 启用能量 VAD 切分
+         */
         private boolean vad;
+
+        /**
+         * 启用 DFSMN 降噪
+         */
         private boolean denoise;
+
+        /**
+         * 启用文本后处理（默认 true）
+         */
         private boolean postProcess = true;
+
+        /**
+         * 静音 RMS 门限（默认 0.01）
+         */
         private float silenceRms = DEFAULT_SILENCE_RMS;
+
+        /**
+         * 最短语音段秒数（默认 0.4）
+         */
         private float minSegSec = DEFAULT_MIN_SEG;
-        private float maxSec = DEFAULT_MAX_SEG;
+
+        /**
+         * 最大段长秒数（默认 28）
+         */
+        private float maxSegSec = DEFAULT_MAX_SEG;
 
         private Builder(String engineId) {
             if (engineId == null || engineId.isBlank()) {
@@ -368,49 +359,88 @@ public final class AsrPipeline {
             this.engineId = engineId;
         }
 
-        /** 可选：识别语言（zh/en 等；whisper 类多语言引擎建议显式指定） */
+        /**
+         * 可选：识别语言（zh/en 等；whisper 类多语言引擎建议显式指定）。
+         *
+         * @param language 语言代码
+         * @return 构建器
+         */
         public Builder language(String language) {
             this.language = language;
             return this;
         }
 
-        /** 可选-A：启用能量 VAD 切分（长音频建议开启） */
+        /**
+         * 可选-A：启用能量 VAD 切分（长音频建议开启）。
+         *
+         * @param enable 是否启用
+         * @return 构建器
+         */
         public Builder vad(boolean enable) {
             this.vad = enable;
             return this;
         }
 
-        /** 可选-B：启用 DFSMN 降噪（真实实现，内部 16k↔48k 重采样） */
+        /**
+         * 可选-B：启用 DFSMN 降噪（真实实现，内部 16k↔48k 重采样）。
+         *
+         * @param enable 是否启用
+         * @return 构建器
+         */
         public Builder denoise(boolean enable) {
             this.denoise = enable;
             return this;
         }
 
-        /** 可选-C：启用文本后处理（默认开） */
+        /**
+         * 可选-C：启用文本后处理（默认开）。
+         *
+         * @param enable 是否启用
+         * @return 构建器
+         */
         public Builder postProcess(boolean enable) {
             this.postProcess = enable;
             return this;
         }
 
-        /** VAD 静音 RMS 门限 */
+        /**
+         * 设置 VAD 静音 RMS 门限。
+         *
+         * @param threshold 门限值
+         * @return 构建器
+         */
         public Builder silenceRms(float threshold) {
             this.silenceRms = threshold;
             return this;
         }
 
-        /** 最短有效语音段秒数 */
+        /**
+         * 设置最短有效语音段秒数。
+         *
+         * @param sec 秒数
+         * @return 构建器
+         */
         public Builder minSegment(float sec) {
             this.minSegSec = sec;
             return this;
         }
 
-        /** 最大段长秒数 */
+        /**
+         * 设置最大段长秒数。
+         *
+         * @param sec 秒数
+         * @return 构建器
+         */
         public Builder maxSegment(float sec) {
-            this.maxSec = sec;
+            this.maxSegSec = sec;
             return this;
         }
 
-        /** 构建管线实例 */
+        /**
+         * 构建管线实例。
+         *
+         * @return 管线实例
+         */
         public AsrPipeline build() {
             return new AsrPipeline(this);
         }

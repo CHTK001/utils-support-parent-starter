@@ -1,5 +1,6 @@
 package com.chua.solr.support.engine;
 
+import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -84,7 +85,7 @@ class SolrEngineIT {
 
             var created = search.create(idx)
                     .shards(1)
-                    .replicas(0)
+                    .replicas(1)
                     .execute();
             assertNotNull(created);
 

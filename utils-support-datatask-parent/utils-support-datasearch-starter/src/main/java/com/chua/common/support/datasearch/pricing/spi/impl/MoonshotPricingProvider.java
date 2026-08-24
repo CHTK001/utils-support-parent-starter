@@ -3,19 +3,15 @@ package com.chua.common.support.datasearch.pricing.spi.impl;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.datasearch.pricing.spi.AbstractPricingProvider;
 import com.chua.common.support.spi.annotations.Spi;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 月之暗面 Moonshot 系列模型定价提供者。
  *
  * <p>包含 Kimi 等模型定价。</p>
+ *
+ * <p>开放平台定价页为动态渲染，普通抓取失败时回退到 classpath 内置 JSON。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -26,53 +22,13 @@ public class MoonshotPricingProvider extends AbstractPricingProvider {
     /** Pricing_url */
     private static final String PRICING_URL = "https://platform.moonshot.cn/docs/pricing";
 
+    /**
+     * 从官方定价页抓取在线定价数据。
+     *
+     * @return 模型定价列表，页面不可达或无有效表格时回退内置 JSON
+     */
     @Override
-    /** FetchOnlinePricing */
     public List<ModelDefinition> fetchOnlinePricing() {
-        String html = fetchUrl(PRICING_URL);
-        if (html == null || html.isEmpty()) {
-            return readClasspathPricing();
-        }
-        try {
-            Document doc = Jsoup.parse(html);
-            Elements rows = doc.select("table tbody tr");
-            if (rows.isEmpty()) {
-                return readClasspathPricing();
-            }
-            List<ModelDefinition> result = new ArrayList<>();
-            for (Element row : rows) {
-                Elements cols = row.select("td");
-                if (cols.size() < 3) {
-                    continue;
-                }
-                String model = cols.get(0).text().trim();
-                String inputPriceStr = cols.get(1).text().replace("\u5143", "").replace("$", "").trim();
-                String outputPriceStr = cols.get(2).text().replace("\u5143", "").replace("$", "").trim();
-                if (model.isEmpty()) {
-                    continue;
-                }
-                try {
-                    BigDecimal inputPrice = new BigDecimal(inputPriceStr);
-                    BigDecimal outputPrice = new BigDecimal(outputPriceStr);
-                    result.add(ModelDefinition.builder()
-                            .id(model)
-                            .name(model)
-                            .provider("moonshot")
-                            .capabilities(List.of("chat"))
-                            .inputUnitPrice(inputPrice)
-                            .outputUnitPrice(outputPrice)
-                            .currency("CNY")
-                            .build());
-                } catch (NumberFormatException ignored) {
-                    // 跳过无效行
-                }
-            }
-            if (!result.isEmpty()) {
-                return result;
-            }
-        } catch (Exception e) {
-            log.debug("[moonshot] 解析定价页面失败: {}", e.getMessage());
-        }
-        return readClasspathPricing();
+        return scrapeTablePricing(PRICING_URL, "CNY");
     }
 }

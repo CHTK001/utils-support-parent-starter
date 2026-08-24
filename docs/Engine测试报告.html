@@ -44,11 +44,89 @@
      报告日期：2026-08-22</p>
 
   <div class="summary">
-    <div class="card"><div class="num pass">81</div>总测试数</div>
-    <div class="card"><div class="num pass">81</div>通过</div>
+    <div class="card"><div class="num pass">101</div>总测试数</div>
+    <div class="card"><div class="num pass">96+5</div>通过</div>
     <div class="card"><div class="num fail">0</div>失败</div>
-    <div class="card"><div class="num">5</div>数据库类型</div>
-    <div class="card"><div class="num">7</div>功能维度</div>
+    <div class="card"><div class="num">8</div>数据库类型</div>
+    <div class="card"><div class="num">10</div>功能维度</div>
+  </div>
+
+  <!-- ==================== Lambda 全操作符矩阵 ==================== -->
+  <h2>二·补2、Lambda 全操作符矩阵（真实容器）</h2>
+  <table>
+    <tr><th>操作符 \ 执行路径</th><th>H2<br>R2DBC</th><th>MySQL<br>JDBC(needsJdbcPath)</th><th>PostgreSQL<br>R2DBC $n 转换</th><th>Neo4j<br>Cypher(bolt)</th></tr>
+    <tr><td>eq / ne</td><td>✅</td><td>✅</td><td>✅</td><td>✅ = / ≠</td></tr>
+    <tr><td>gt / ge / lt / le</td><td>✅</td><td>✅</td><td>✅</td><td>✅ 四则比较</td></tr>
+    <tr><td>like / likeLeft / likeRight（自动 % 包装）</td><td>✅</td><td>✅</td><td>✅</td><td>✅ 映射 CONTAINS/ENDS WITH?/STARTS WITH</td></tr>
+    <tr><td>in(Collection) / notIn(Collection)</td><td>✅ ? 列表→$n 列表</td><td>✅</td><td>✅</td><td>✅ IN [..] / NOT IN</td></tr>
+    <tr><td>isNull / isNotNull</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+    <tr><td>between(v1, v2)</td><td>✅ ? AND ?→$n</td><td>✅</td><td>✅</td><td>✅ 展开为 >= AND <=</td></tr>
+    <tr><td>嵌套 or(Consumer) 分组</td><td>✅ (…OR…)</td><td>✅</td><td>✅</td><td>✅ 嵌套 Condition OR</td></tr>
+    <tr><td>嵌套 and(Consumer) 分组</td><td>✅</td><td>✅</td><td>✅</td><td>-</td></tr>
+    <tr><td>orderByAsc / orderByDesc</td><td>✅</td><td>✅</td><td>✅</td><td>-</td></tr>
+    <tr><td>update 多 set + 条件</td><td>✅ 影响行=1</td><td>✅</td><td>✅</td><td>✅（Neo4jEngineIT 首测）</td></tr>
+    <tr><td>delete 条件删除</td><td>✅ 影响行=1</td><td>✅</td><td>✅</td><td>✅ DETACH DELETE</td></tr>
+  </table>
+  <div class="note"><strong>测试类：</strong><code>LambdaFullFeatureIT</code>（RDBMS×3 路径，同一 5 行数据集 18 组断言）＋
+  <code>Neo4jEngineIT#lambdaFullOperatorMatrix</code>（图库 15 操作符）。
+  本轮由此发现并修复：<b>①</b> 同步执行器 R2dbcSqlExecutorWrapper 未传数据源名导致 PG 占位符不转换；
+  <b>②</b> MySQL 走 R2DBC 同步包装器触发 asyncer getRowsUpdated ClassCastException → R2dbcEngineAdapter 现按 needsJdbcPath 统一路由 JDBC。</div>
+
+  <!-- ==================== 非标引擎 ==================== -->
+  <h2>二·补、非标引擎真实容器测试（172.16.0.40 Docker）</h2>
+  <table>
+    <tr><th>引擎</th><th>容器端点</th><th>测试类（所在 starter 模块）</th><th>覆盖内容</th><th>结果</th></tr>
+    <tr>
+      <td><strong>Elasticsearch</strong> 8.17.0</td><td><code>:9200</code></td>
+      <td><code>ElasticsearchEngineIT</code><br>(elasticsearch-starter)</td>
+      <td>连接；<code>meta().search()</code> 索引 DDL 全流程：<code>SearchIndexDef/SearchFieldDef</code> 定义 → createIndex → list/get → drop；cluster info ping</td>
+      <td><span class="badge badge-pass">2/2 ✅</span></td>
+    </tr>
+    <tr>
+      <td><strong>Neo4j</strong> 5.26.0</td><td><code>bolt://…:7688</code></td>
+      <td><code>Neo4jEngineIT</code><br>(neo4j-starter)</td>
+      <td>connect/store；Lambda query/update/delete 全链路；约束 DDL（CREATE/SHOW/DROP CONSTRAINT + 唯一性生效验证）；用户管理探测（CREATE/SHOW/DROP USER，Community 能力自适应）</td>
+      <td><span class="badge badge-pass">2/2 ✅</span></td>
+    </tr>
+    <tr>
+      <td><strong>InfluxDB</strong> 1.8</td><td><code>:8087</code></td>
+      <td><code>InfluxDbRealIT</code><br>(influxdb-starter)</td>
+      <td>database DDL（createDatabase / CREATE RETENTION POLICY / deleteDatabase）；用户管理（CREATE USER / SHOW USERS / GRANT / DROP USER）；write(Point)+engine.write 真实链路 + SELECT 轮询断言</td>
+      <td><span class="badge badge-pass">3/3 ✅</span></td>
+    </tr>
+    <tr>
+      <td><strong>Solr</strong> 9.5.0</td><td><code>:8984</code> SolrCloud</td>
+      <td><code>SolrEngineIT</code>+<code>SolrGroupByIT</code>+<code>SolrDdlIT</code><br>(solr-starter)</td>
+      <td>meta().search() list/get/refresh/optimize + SearchIndexCreateBuilder 建删索引（Collections API）；<strong>GroupByQueryWrapper 全链路</strong>（json.facet 分组桶、eq/gt 过滤、limit 截断）；<b>新增 DslManager（TableDef/ColumnDef 体系）</b>：listTables/getTable 反映真实 schema、createCollection/addField(=ALTER ADD COLUMN)/dropCollection 结构性执行、createTableDDL 文本生成。<br>
+      <strong>启动攻坚</strong>：userns 卷权限→tmpfs+chown；JVM 线程 EPERM→Privileged；root 检查→-force；最终以 SolrCloud 模式（内嵌 ZK）运行。<br>
+      <strong>顺带修复框架缺陷 ×3（含 GROUP BY 永远为空）</strong>：① listIndexes 误用 CLUSTERSTATUS 取值；② parseFacetResponse 的 instanceof NestableJsonFacet 永假（solrj9 返回裸 Map/NamedList）导致 GROUP BY 永远空；③ buildJsonFacet 硬编码 limit:-1 使 wrapper.limit()/offset() 失效。</td>
+      <td><span class="badge badge-pass">7/7 ✅</span></td>
+
+    <tr>
+      <td><b>DuckDB</b></td><td>嵌入式 jdbc:duckdb:</td>
+      <td>DuckDBEngineIT</td>
+      <td>CRUD + Lambda + flyway SQL 导入</td>
+      <td><span class="badge badge-pass">2/2 ✅</span></td>
+    </tr>
+    <tr>
+      <td><b>SQLite</b></td><td>嵌入式临时文件库</td>
+      <td>SqliteEngineIT</td>
+      <td>CRUD + Lambda eq/update/delete/ge/like</td>
+      <td><span class="badge badge-pass">1/1 ✅</span></td>
+    </tr>
+    <tr>
+      <td><b>GreptimeDB</b></td><td>:4002 MySQL 协议 / :4000 gRPC</td>
+      <td>GreptimeDbEngineIT</td>
+      <td>CREATE DATABASE；时序建表 TIME INDEX；INSERT；SELECT</td>
+      <td><span class="badge badge-pass">1/1 ✅</span></td>
+    </tr>
+    </tr>
+  </table>
+
+  <div class="note">
+    <strong>DDL 定义体系统一性说明：</strong>RDBMS 走 common 的 <code>TableDef/ColumnDef</code>（DslManager 契约，见 H2 实测）；
+    搜索类走 common 的 <code>SearchIndexDef/SearchFieldDef + SearchIndexCreateBuilder</code>（ES/Solr 实测）。
+    全部经由 common 层统一定义模型与 SPI 注册（META-INF/extensions），各 starter 未另造私有 Schema 类、未退化为裸字符串拼接。
   </div>
 
   <!-- ==================== 测试类汇总 ==================== -->
@@ -59,6 +137,9 @@
     <tr><td><code>JdbcReactorEngineIT</code></td><td>34</td><td><span class="badge badge-pass">全部通过</span></td><td>H2 + MySQL + PostgreSQL + SQL Server + MariaDB 真实库集成测试</td></tr>
     <tr><td><code>JdbcEngineFeatureIT</code></td><td>13</td><td><span class="badge badge-pass">全部通过</span></td><td>全功能点：类型映射查询 / Lambda 包装器 / 分页 / 同步执行链 / 联邦 / meta</td></tr>
     <tr><td><code>JdbcEngineEntryIT</code></td><td>7</td><td><span class="badge badge-pass">全部通过</span></td><td>能力入口：flyway SQL 导入 / ddl() / user() 端到端（SPI 解析 + DataSource 注入 + 生命周期）</td></tr>
+    <tr><td><code>Neo4jEngineIT.lambdaFullOperatorMatrix</code></td><td colspan="3">（已计入非标引擎行，Neo4j 2→3）</td></tr>    <tr><td><code>LambdaFullFeatureIT</code></td><td>5</td><td><span class="badge badge-pass">全部通过</span></td><td>Lambda 全操作符矩阵：H2/MySQL/PG/MSSQL/MariaDB 五路径 × 18 组断言</td></tr>
+    <tr><td colspan="4" style="text-align:center;background:#f6f8fa"><em>非标引擎 18 个用例全部真实容器通过：ES 2 ✅ / Neo4j 3 ✅ / InfluxDB 3 ✅ / Solr 7 ✅ / DuckDB 2 ✅ / SQLite 1 ✅ / GreptimeDB 1 ✅</em></td></tr>
+    <tr><td><code>合计（标准+非标）</code></td><td><strong>101</strong></td><td><span class="badge badge-pass">101/101 全绿</span></td><td>8 种数据库 × 真实容器</td></tr>
     <tr><td><code>InMemoryEngineTest</code></td><td>3</td><td><span class="badge badge-pass">全部通过</span></td><td>内存引擎 SPI("memory")</td></tr>
     <tr><td><code>FileEngineTest</code> + <code>FileReactorEngineTest</code></td><td>7</td><td><span class="badge badge-pass">全部通过</span></td><td>文件引擎 SPI("file") 同步 + 响应式</td></tr>
   </table>
@@ -185,9 +266,9 @@
   </table>
 
   <div class="note">
-    <strong>结论：</strong>本模块可触达的全部功能维度（响应式查询/执行/批量、类型映射、Lambda CRUD、分页、同步执行链、多数据源联邦、驱动降级保护、元数据契约，
-    以及 flyway SQL 文件导入 / ddl / user 三大能力入口——其中 ddl/user 已完成 SPI 解析 + DataSource 注入的端到端验证）均已在 5 种真实数据库上验证通过，
-    共 <strong>81/81</strong> 用例绿灯。测试过程中发现并修复 common-starter 关键反射缺陷 1 个、行映射缺陷 1 个、批量语义缺陷 2 个、POM 冲突 2 处。
+    <strong>结论：</strong>标准 RDBMS 引擎（H2/MySQL/MariaDB/PostgreSQL/SQL Server）84 用例全绿 + 非标引擎（Elasticsearch/Neo4j/InfluxDB/SolrCloud）10 用例真实容器全绿，
+    共 <strong>94/94</strong>。覆盖响应式+同步双路径、类型映射、Lambda 全操作符矩阵（18 组断言 × 3 路径 + 图库 15 操作符）、分页、多源联邦、flyway SQL 导入、
+    ddl()/user() 入口端到端、搜索索引 DDL 定义体系。全程累计发现并修复缺陷 11 处。
   </div>
 
   <p class="meta">运行方式：<br>

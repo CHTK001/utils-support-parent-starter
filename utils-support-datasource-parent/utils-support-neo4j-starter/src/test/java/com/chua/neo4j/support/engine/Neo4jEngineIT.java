@@ -101,6 +101,67 @@ class Neo4jEngineIT {
     }
 
     @Test
+    void lambdaFullOperatorMatrix() throws Exception {
+        /* 清理历史数据 */
+        try (Driver d = adminDriver(); Session s = d.session()) {
+            s.run("MATCH (n:Person) DETACH DELETE n");
+        }
+
+        Neo4jEngine engine = (Neo4jEngine) new Neo4jEngine().connect(boltUri, USER, PASS);
+        try {
+            engine.store("neo4j", List.of(
+                    person(1, "Alice", 20, null),
+                    person(2, "Bob", 30, "SH"),
+                    person(3, "Cathy", 25, "BJ"),
+                    person(4, "Dave", 35, "SZ"),
+                    person(5, "Eve", 28, null)));
+
+            for (int i = 0; i < 20; i++) {
+                Thread.sleep(300);
+                if (engine.query(Person.class).list().size() == 5) break;
+            }
+            assertEquals(5, engine.query(Person.class).list().size(), "seed 后应有 5 节点");
+
+            assertEquals(List.of(1L), ids(engine, w -> w.eq(Person::getName, "Alice")), "eq");
+            assertEquals(List.of(2L, 3L, 4L, 5L), ids(engine, w -> w.ne(Person::getName, "Alice")), "ne");
+            assertEquals(List.of(2L, 4L, 5L), ids(engine, w -> w.gt(Person::getAge, 25)), "gt");
+            assertEquals(List.of(2L, 4L, 5L), ids(engine, w -> w.ge(Person::getAge, 28)), "ge");
+            assertEquals(List.of(1L, 3L), ids(engine, w -> w.lt(Person::getAge, 28)), "lt");
+            assertEquals(List.of(1L, 3L), ids(engine, w -> w.le(Person::getAge, 25)), "le");
+            assertEquals(List.of(4L), ids(engine, w -> w.like(Person::getName, "av")), "like→CONTAINS");
+            assertEquals(List.of(1L), ids(engine, w -> w.likeLeft(Person::getName, "ce")), "likeLeft");
+            assertEquals(List.of(2L), ids(engine, w -> w.likeRight(Person::getName, "Bo")), "likeRight");
+            assertEquals(List.of(1L, 3L), ids(engine,
+                    w -> w.in(Person::getAge, List.of(20, 25))), "in");
+            assertEquals(List.of(3L, 4L, 5L), ids(engine,
+                    w -> w.notIn(Person::getAge, List.of(20, 30))), "notIn");
+            assertEquals(List.of(1L, 5L), ids(engine, w -> w.isNull(Person::getCity)), "isNull");
+            assertEquals(List.of(2L, 3L, 4L), ids(engine, w -> w.isNotNull(Person::getCity)), "isNotNull");
+            assertEquals(List.of(2L, 3L, 5L), ids(engine,
+                    w -> w.between(Person::getAge, 25, 30)), "between");
+            assertEquals(List.of(1L, 2L), ids(engine,
+                    w -> w.or(n -> n.eq(Person::getName, "Alice").eq(Person::getName, "Bob"))), "or嵌套");
+        } finally {
+            engine.close();
+        }
+    }
+
+    private static List<Long> ids(Neo4jEngine engine,
+            java.util.function.Consumer<com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper<Person>> op) {
+        var w = engine.query(Person.class);
+        op.accept(w);
+        return w.list().stream().map(Person::getId).sorted().toList();
+    }
+
+    private static Person person(long id, String name, Integer age, String city) {
+        Person p = new Person();
+        p.setId(id);
+        p.setName(name);
+        p.setAge(age);
+        p.setCity(city);
+        return p;
+    }
+    @Test
     void constraintDdl_andUserAdmin() throws Exception {
         try (Driver driver = adminDriver(); Session session = driver.session()) {
 

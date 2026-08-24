@@ -4,6 +4,7 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.HttpClientFactory;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.CollectionUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -58,6 +59,12 @@ public abstract class AbstractPricingProvider implements PricingProvider {
      * 模型 ID 最大长度，超出视为无效行
      */
     private static final int MAX_MODEL_ID_LENGTH = 128;
+
+    /**
+     * 默认浏览器 User-Agent
+     */
+    private static final String DEFAULT_USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 
     /** 日志 */
     protected static final Logger log = LoggerFactory.getLogger(AbstractPricingProvider.class);
@@ -160,10 +167,12 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     /**
      * 从指定定价页面的 HTML 表格抓取模型定价。
      *
-     * <p>按表头语义自动识别列：模型名称列（模型/产品/名称/model 等）、输入单价列（输入/input）、
-     * 输出单价列（输出/output）。多列匹配时优先选择"未命中缓存"的输入单价列。
-     * 价格合并在同一单元格内的布局（如"输入：0.5元输出：2元"）按标签提取。
-     * 无法识别表头的表格跳过；页面不可达或无有效数据时回退到 {@link #readClasspathPricing()}。</p>
+     * <p>先以普通 HTTP 抓取并按表头语义解析；若无有效结果且 classpath 中存在
+     * {@link PricingPageRenderer} 实现（如 utils-support-playwright-starter），
+     * 则借助无头浏览器渲染页面后再次解析。价格合并在同一单元格内的布局
+     * （如"输入：0.5元输出：2元"）按标签提取；单元格货币符号与目标币种矛盾的行
+     * （如同页混排的海外 $ 报价）自动过滤。无法识别表头的表格跳过；
+     * 两轮均无有效数据时回退到 {@link #readClasspathPricing()}。</p>
      *
      * @param url 定价页面地址
      * @param currency 币种（如 CNY/USD）
@@ -171,22 +180,58 @@ public abstract class AbstractPricingProvider implements PricingProvider {
      */
     protected List<ModelDefinition> scrapeTablePricing(String url, String currency) {
         String html = fetchUrl(url);
-        if (html == null || html.isEmpty()) {
-            return readClasspathPricing();
+        Map<String, ModelDefinition> result = new LinkedHashMap<>();
+        if (html != null && !html.isEmpty()) {
+            collectPagePricing(html, currency, result);
         }
+        if (result.isEmpty()) {
+            String rendered = renderViaSpi(url);
+            if (rendered != null && !rendered.isEmpty()) {
+                log.debug("[{}] 普通抓取无有效表格，使用渲染器重试: {}", name(), url);
+                collectPagePricing(rendered, currency, result);
+            }
+        }
+        if (!result.isEmpty()) {
+            return new ArrayList<>(result.values());
+        }
+        return readClasspathPricing();
+    }
+
+    /**
+     * 通过可选的 {@link PricingPageRenderer} SPI 渲染页面。
+     *
+     * @param url 页面地址
+     * @return 渲染后的 HTML，无渲染器或渲染失败返回 null
+     */
+    private String renderViaSpi(String url) {
+        try {
+            PricingPageRenderer renderer = ServiceProvider.of(PricingPageRenderer.class).getExtension("playwright");
+            if (renderer == null) {
+                return null;
+            }
+            return renderer.render(url);
+        } catch (Exception e) {
+            log.debug("[{}] 渲染器调用失败: {}", name(), e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 解析整页 HTML 中的全部定价表格并按模型 ID 去重收集。
+     *
+     * @param html 页面 HTML
+     * @param currency 币种
+     * @param result 收集结果
+     */
+    private void collectPagePricing(String html, String currency, Map<String, ModelDefinition> result) {
         try {
             Document doc = Jsoup.parse(html);
-            Map<String, ModelDefinition> result = new LinkedHashMap<>();
             for (Element table : doc.select("table")) {
                 collectTablePricing(table, currency, result);
-            }
-            if (!result.isEmpty()) {
-                return new ArrayList<>(result.values());
             }
         } catch (Exception e) {
             log.debug("[{}] 解析定价页面失败: {}", name(), e.getMessage());
         }
-        return readClasspathPricing();
     }
 
     /**
@@ -219,20 +264,25 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     /**
      * 查找表格的表头行。
      *
+     * <p>优先取 {@code thead} 内首行，其次取含 {@code th} 的首行；
+     * 均不存在时（部分文档站用纯 {@code td} 渲染表头）回退到首行，
+     * 是否有效由 {@link #detectColumns(List)} 的语义识别兜底校验。</p>
+     *
      * @param table 表格元素
-     * @return 表头行元素，无法识别时返回 null
+     * @return 表头行元素，表格无行时返回 null
      */
     private Element findHeaderRow(Element table) {
         Elements theadRows = table.select("thead > tr");
         if (!theadRows.isEmpty()) {
             return theadRows.first();
         }
-        for (Element row : table.select("tr")) {
+        Elements rows = table.select("tr");
+        for (Element row : rows) {
             if (!row.select("th").isEmpty()) {
                 return row;
             }
         }
-        return null;
+        return rows.isEmpty() ? null : rows.first();
     }
 
     /**
@@ -317,8 +367,14 @@ public abstract class AbstractPricingProvider implements PricingProvider {
         BigDecimal inputPrice;
         BigDecimal outputPrice;
         if (inputCol >= 0 && cells.size() > inputCol) {
-            inputPrice = parsePrice(cells.get(inputCol).text());
-            outputPrice = (outputCol >= 0 && cells.size() > outputCol) ? parsePrice(cells.get(outputCol).text()) : null;
+            String inputText = cells.get(inputCol).text();
+            String outputText = (outputCol >= 0 && cells.size() > outputCol) ? cells.get(outputCol).text() : null;
+            // 币种一致性校验：单元格符号与目标币种矛盾时跳过该行（如 CNY 页面混入的 $ 报价）
+            if (isContradictingCurrency(inputText, currency) || isContradictingCurrency(outputText, currency)) {
+                return null;
+            }
+            inputPrice = parsePrice(inputText);
+            outputPrice = parsePrice(outputText);
         } else {
             // 无独立输入/输出列的布局（价格合并在单元格内）：按"输入/输出"标签提取
             StringBuilder merged = new StringBuilder();
@@ -344,6 +400,30 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     }
 
     /**
+     * 判断单元格文本携带的货币符号是否与目标币种矛盾。
+     *
+     * <p>用于过滤同页混排的多币种报价（如中文页附带的 $ 海外价）。</p>
+     *
+     * @param text 单元格原始文本
+     * @param currency 目标币种（如 CNY/USD）
+     * @return true 表示符号与目标币种矛盾，应跳过该行
+     */
+    private boolean isContradictingCurrency(String text, String currency) {
+        if (text == null || text.isEmpty()) {
+            return false;
+        }
+        boolean dollar = Pattern.compile("\\$\\s*[0-9]").matcher(text).find();
+        boolean yuan = text.contains("￥") || text.contains("\u00A5") || text.contains("元");
+        if ("CNY".equalsIgnoreCase(currency)) {
+            return dollar;
+        }
+        if ("USD".equalsIgnoreCase(currency)) {
+            return yuan;
+        }
+        return false;
+    }
+
+    /**
      * 解析单元格文本中的单价数值。
      *
      * @param text 单元格文本
@@ -354,7 +434,7 @@ public abstract class AbstractPricingProvider implements PricingProvider {
             return null;
         }
         String cleaned = text.replace("元", "").replace("$", "").replace("￥", "")
-                .replace(",", "").trim();
+                .replace("\u00A5", "").replace(",", "").trim();
         if (cleaned.isEmpty()) {
             return null;
         }
@@ -385,12 +465,16 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     /**
      * 获取 HTTP 页面内容。
      *
+     * <p>携带浏览器 User-Agent 以规避部分站点的默认客户端拦截。</p>
+     *
      * @param url 页面地址
      * @return HTML 字符串，请求失败返回 null
      */
     protected String fetchUrl(String url) {
         try {
-            return HttpClientFactory.of(url).get().getBodyString();
+            return HttpClientFactory.of(url)
+                    .header("User-Agent", DEFAULT_USER_AGENT)
+                    .get().getBodyString();
         } catch (Exception e) {
             log.debug("[{}] 请求页面失败: url={}, msg={}", name(), url, e.getMessage());
             return null;
