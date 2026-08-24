@@ -106,6 +106,23 @@ public class OpenClawUsageParser extends BaseUsageParser {
         return files;
     }
 
+    /**
+     * Locates the usage block of a model.completed event.
+     *
+     * <p>OpenClaw nests it under {@code data.usage}; older schemas may carry
+     * it at the top level, so both positions are checked.</p>
+     *
+     * @param node parsed trajectory line
+     * @return the usage block, or a missing node when absent
+     */
+    private JsonNode readUsage(JsonNode node) {
+        JsonNode data = node.get("data");
+        if (!data.isMissingValue() && !data.get("usage").isMissingValue()) {
+            return data.get("usage");
+        }
+        return node.get("usage");
+    }
+
     private Optional<AiUsage> parseLine(String line) {
         if (line.isBlank()) {
             return Optional.empty();
@@ -115,7 +132,7 @@ public class OpenClawUsageParser extends BaseUsageParser {
             if (!"model.completed".equals(node.get("type").toStringValue())) {
                 return Optional.empty();
             }
-            JsonNode usage = node.get("usage");
+            JsonNode usage = readUsage(node);
             if (usage.isMissingValue()) {
                 return Optional.empty();
             }
