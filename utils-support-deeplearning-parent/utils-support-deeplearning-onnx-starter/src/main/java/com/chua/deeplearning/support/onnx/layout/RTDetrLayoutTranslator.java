@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * RT-DETR v2 文档版面检测 Translator（DocLayNet 17 类）。
@@ -36,6 +37,16 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
 
     public RTDetrLayoutTranslator() {}
     public RTDetrLayoutTranslator(float threshold) { this.scoreThreshold = threshold; }
+
+    /**
+     * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public RTDetrLayoutTranslator(DetectionConfiguration configuration) {
+        this(configuration == null ? 0.5f
+                : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, 0.5f));
+    }
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {

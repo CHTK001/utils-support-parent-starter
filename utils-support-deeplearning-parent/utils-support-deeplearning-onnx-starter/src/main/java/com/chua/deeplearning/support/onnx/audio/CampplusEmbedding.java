@@ -10,6 +10,8 @@ import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -111,15 +113,15 @@ public class CampplusEmbedding {
     public float[] extract(float[] samples) {
         double[][] feat80 = computeFbank80(samples);
 
-        // CMVN: per-utterance mean/variance normalization
-        normalizeCmvn(feat80);
-
-        // LFR stacking: window=7 shift=6 -> dim=560
-        float[][] x = applyLfr(feat80);
-
-        // Inference
-        long[] shape = {1, x.length, x[0].length};
-        float[] flat = flatten(x);
+        // CAM++ takes raw fbank [1, T, 80] directly (no LFR/CMVN)
+        long[] shape = {1, feat80.length, FEATURE_DIM};
+        float[] flat = new float[feat80.length * FEATURE_DIM];
+        int pos = 0;
+        for (double[] row : feat80) {
+            for (double v : row) {
+                flat[pos++] = (float) v;
+            }
+        }
         try (OnnxTensor t = OnnxTensor.createTensor(ortEnv,
                 FloatBuffer.wrap(flat), shape);
              OrtSession.Result r = session.run(Map.of(inputName, t))) {
@@ -225,15 +227,6 @@ public class CampplusEmbedding {
         return filters;
     }
 
-    /** 应用 CMVN：x = (x + neg_mean) * inv_stddev */
-    private void normalizeCmvn(double[][] feat) {
-        for (double[] row : feat) {
-            for (int d = 0; d < row.length; d++) {
-                row[d] = (row[d] + 0) * 1;
-            }
-        }
-    }
-
     /** Radix-2 迭代 FFT */
     private static void fftRadix2(double[] frameSamples, double[] re, double[] im) {
         int n = FFT_N;
@@ -271,32 +264,6 @@ public class CampplusEmbedding {
         }
     }
 
-    /** LFR 帧堆叠 window=7 shift=6 → dim=560 */
-    private float[][] applyLfr(double[][] feat80) {
-        int T = feat80.length;
-        int padded = T + ((lfrShift - T % lfrShift) % lfrShift);
-        List<double[]> list = new ArrayList<>(padded);
-        for (int i = 0; i < T; i++) list.add(feat80[i]);
-        while (list.size() < padded) list.add(feat80[T - 1]);
-
-        int outFrames = 0;
-        for (int i = 0; i + lfrWindowSize() <= padded; i += lfrShift()) outFrames++;
-
-        float[][] out = new float[outFrames][];
-        for (int oi = 0, i = 0; i + lfrWindowSize() <= padded; i += lfrShift(), oi++) {
-            float[] sf = new float[lfrWindowSize() * FEATURE_DIM];
-            for (int w = 0; w < lfrWindowSize(); w++) {
-                double[] src = list.get(i + w);
-                for (int d = 0; d < FEATURE_DIM; d++) sf[w * FEATURE_DIM + d] = (float) src[d];
-            }
-            out[oi] = sf;
-        }
-        return out;
-    }
-
-    private int lfrWindowSize() { return 7; }
-    private int lfrShift() { return 6; }
-
     private static float[] toFloatArray(ai.onnxruntime.OnnxTensor t) {
         FloatBuffer fb = t.getFloatBuffer();
         float[] arr = new float[fb.remaining()];
@@ -326,7 +293,20 @@ public class CampplusEmbedding {
         }
     }
 
-    /**
+        /** 将 double 矩阵拍平并转为 float 数组。 */
+    private static float[] flatten(double[][] mat) {
+        int rows = mat.length;
+        int cols = rows > 0 ? mat[0].length : 0;
+        float[] out = new float[rows * cols];
+        for (int r = 0; r < rows; r++) {
+            for (int col = 0; col < cols; col++) {
+                out[r * cols + col] = (float) mat[r][col];
+            }
+        }
+        return out;
+    }
+
+/**
      * 二维数组展平为一维。
      */
     private static float[] flatten(float[][] mat) {
