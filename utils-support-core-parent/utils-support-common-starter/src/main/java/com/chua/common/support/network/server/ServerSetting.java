@@ -291,6 +291,25 @@ public class ServerSetting {
     private boolean tcpNoDelay = true;
 
     /**
+     * 是否启用流加密（AES-256-GCM 帧式端到端加密）。
+     *
+     * <p>开启后 {@link JdkTcpServer} 流式协议模式会在连接建立时自动将
+     * 输入输出流包装为解密/加密流，处理器无感知；帧式（NIO 拼帧）协议不支持。
+     * 需与客户端侧共享同一 {@link #encryptKey}。</p>
+     */
+    @Builder.Default
+    /** 加密是否启用 */
+    private boolean encrypt = false;
+
+    /**
+     * 流加密密钥短语（与客户端共享；AES-256 密钥由其 SHA-256 派生）。
+     *
+     * <p>{@link #encrypt} 为 true 时必须提供，未提供时服务端启动告警并按未加密处理。</p>
+     */
+    /** 加密密钥短语 */
+    private String encryptKey;
+
+    /**
      * SO_REUSEADDR
      */
     @Builder.Default

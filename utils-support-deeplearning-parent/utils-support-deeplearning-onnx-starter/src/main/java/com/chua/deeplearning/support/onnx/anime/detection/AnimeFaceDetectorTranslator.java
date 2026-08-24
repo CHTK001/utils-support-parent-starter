@@ -44,22 +44,17 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * 置信度阈值。
      */
-    private static final float CONF_THRESHOLD = 0.5f;
+    private static final float CONF_THRESHOLD = 0.45f;
 
     /**
      * NMS IOU 阈值。
      */
-    private static final float IOU_THRESHOLD = 0.5f;
+    private static final float IOU_THRESHOLD = 0.45f;
 
     /**
      * Top-K。
      */
-    private static final int TOP_K = 20;
-
-    /**
-     * 最小人脸尺寸（像素），过滤边缘假阳性。
-     */
-    private static final float MIN_FACE_RATIO = 0.08f;
+    private static final int TOP_K = 100;
 
     /**
      * letterbox 缩放比例与填充。
@@ -132,12 +127,9 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
         // 兼容 [1,5,8400] / [5,8400] / [1,8400,5] 布局，统一为 [numDets, numChannels]
         int dim = shape.length;
         if (dim == 3) {
-            // [B,C,N]：C 小（类别维 5）；或 [B,N,C]：C 大（检测框维）
-            if (!(shape[1] == 5 || shape[1] == 6 || shape[1] < shape[2])) {
-                // [B,N,C]（C 大）→ 需转置，改用 NCH 步长直接读
-                return processNch(dim, shape, data);
-            }
-            // [B,C,N] → 步长 C * (N stride)
+            // [B,C,N]：C 小（通道维 5/6）。内存为通道优先（C-contiguous），必须按 ch*N+i 步长读，
+            // 不能按 i*C+ch 读（会串通道导致坐标/conf 全错）
+            return processNch(dim, shape, data);
         }
         int numDets;
         int numChannels;
@@ -223,8 +215,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
             for (int cc = 4; cc < numChannels && offset + cc < data.length; cc++) {
                 conf = Math.max(conf, data[offset + cc]);
             }
-            // YOLOv8 onnx 输出原始 logit，需做 sigmoid 转为概率
-            conf = 1f / (1f + (float) Math.exp(-conf));
+            // 模型 ONNX 已含 sigmoid，输出为概率，无需再变换
             if (conf < CONF_THRESHOLD) {
                 continue;
             }
@@ -241,7 +232,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
 
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
-        List<Rectangle> rects = new ArrayList<>();
+        List<BoundingBox> rects = new ArrayList<>();
         int topK = Math.min(keep.length, TOP_K);
         for (int i = 0; i < topK; i++) {
             float[] b = boxes.get(keep[i]);
@@ -253,82 +244,12 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
             if (x2 <= x1 || y2 <= y1) {
                 continue;
             }
-            // 过滤过小的人脸（<8% 图片宽度或高度）
-            float faceW = (x2 - x1) / imageWidth;
-            float faceH = (y2 - y1) / imageHeight;
-            if (faceW < MIN_FACE_RATIO || faceH < MIN_FACE_RATIO) {
-                continue;
-            }
-            // 过滤贴边的框（可能是 letterbox 填充区的假阳性）
-            float margin = 0.02f;
-            if (x1 / imageWidth < margin || y1 / imageHeight < margin) {
-                continue;
-            }
             names.add(FACE_LABEL);
             probs.add((double) scores.get(keep[i]));
             rects.add(new Rectangle(x1 / imageWidth, y1 / imageHeight,
                     (x2 - x1) / imageWidth, (y2 - y1) / imageHeight));
         }
-        // 后处理：去重（中心点距离过滤 + 嵌套框过滤）
-        // YOLOv8 v1.4_n 在动漫图上有大量嵌套/偏移预测，标准 NMS IOU 无法完全去重
-        System.out.println("[DBG] pre-filter count=" + names.size());
-        for(int i=0;i<names.size();i++){
-            Rectangle r = rects.get(i);
-            System.out.printf("[DBG]   pre[%d] conf=%.4f norm=[%.4f,%.4f,%.4f,%.4f]%n",
-                i, probs.get(i), r.getX(), r.getY(), r.getWidth(), r.getHeight());
-        }
-        java.util.List<Integer> finalKeep = new java.util.ArrayList<>();
-        boolean[] suppressed = new boolean[names.size()];
-        for (int i = 0; i < names.size(); i++) {
-            if (suppressed[i]) continue;
-            finalKeep.add(i);
-            Rectangle ri = rects.get(i);
-            double cxI = ri.getX() + ri.getWidth() / 2.0;
-            double cyI = ri.getY() + ri.getHeight() / 2.0;
-            double diagI = Math.sqrt(ri.getWidth() * ri.getWidth() + ri.getHeight() * ri.getHeight());
-            for (int j = i + 1; j < names.size(); j++) {
-                if (suppressed[j]) continue;
-                Rectangle rj = rects.get(j);
-                // 中心距离小于对角线 25% 视为重复
-                double cxJ = rj.getX() + rj.getWidth() / 2.0;
-                double cyJ = rj.getY() + rj.getHeight() / 2.0;
-                double dist = Math.sqrt((cxI - cxJ) * (cxI - cxJ) + (cyI - cyJ) * (cyI - cyJ));
-                double diagJ = Math.sqrt(rj.getWidth() * rj.getWidth() + rj.getHeight() * rj.getHeight());
-                if (dist < Math.max(diagI, diagJ) * 0.25) {
-                    suppressed[probs.get(j) >= probs.get(i) ? j : i] = true;
-                    if (probs.get(j) >= probs.get(i)) { cxI = cxJ; cyI = cyJ; diagI = diagJ; }
-                    continue;
-                }
-                // 嵌套过滤：小框被大框完全包含则移除小的
-                double ix1 = Math.max(ri.getX(), rj.getX());
-                double iy1 = Math.max(ri.getY(), rj.getY());
-                double ix2 = Math.min(ri.getX() + ri.getWidth(), rj.getX() + rj.getWidth());
-                double iy2 = Math.min(ri.getY() + ri.getHeight(), rj.getY() + rj.getHeight());
-                double inter = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
-                double areaI = ri.getWidth() * ri.getHeight();
-                double areaJ = rj.getWidth() * rj.getHeight();
-                if (areaI > 0 && inter / areaI > 0.8) {
-                    suppressed[i] = true;
-                    finalKeep.remove(Integer.valueOf(i));
-                    break;
-                }
-                if (areaJ > 0 && inter / areaJ > 0.95 && areaI > areaJ) {
-                    suppressed[j] = true;
-                }
-            }
-        }
-        List<String> finalNames = new ArrayList<>(finalKeep.size());
-        List<Double> finalProbs = new ArrayList<>(finalKeep.size());
-        List<BoundingBox> finalBoxes = new ArrayList<>(finalKeep.size());
-        for (int idx : finalKeep) {
-            if (!suppressed[idx]) {
-                finalNames.add(names.get(idx));
-                finalProbs.add(probs.get(idx));
-                finalBoxes.add(rects.get(idx));
-            }
-        }
-        System.out.println("[DBG] post-filter count=" + finalNames.size());
-        return new DetectedObjects(finalNames, finalProbs, finalBoxes);
+        return new DetectedObjects(names, probs, rects);
     }
 
     /**

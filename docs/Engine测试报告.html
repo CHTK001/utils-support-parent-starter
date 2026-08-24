@@ -41,7 +41,7 @@
   <h1>Engine 引擎集成测试报告</h1>
   <p class="meta">模块：<code>utils-support-datasource-starter</code> &nbsp;|&nbsp; 版本：4.0.0.42 &nbsp;|&nbsp;
      测试环境：Windows 10 + JDK 25（Amazon Corretto）+ 远程 Docker（172.16.0.40:2375）&nbsp;|&nbsp;
-     报告日期：2026-08-22</p>
+     报告日期：2026-08-22&nbsp;|&nbsp; <b style="color:#0969da">v2 追加：2026-08-24 时序族真实化 + 全家族补测 + 响应式契约</b></p>
 
   <div class="summary">
     <div class="card"><div class="num pass">101</div>总测试数</div>
@@ -50,6 +50,8 @@
     <div class="card"><div class="num">8</div>数据库类型</div>
     <div class="card"><div class="num">10</div>功能维度</div>
   </div>
+    <div class="card"><div class="num pass">171</div>v2 实测断言</div>
+    <div class="card"><div class="num pass">19+8</div>引擎实现</div>
 
   <!-- ==================== Lambda 全操作符矩阵 ==================== -->
   <h2>二·补2、Lambda 全操作符矩阵（真实容器）</h2>
@@ -120,6 +122,13 @@
       <td>CREATE DATABASE；时序建表 TIME INDEX；INSERT；SELECT</td>
       <td><span class="badge badge-pass">1/1 ✅</span></td>
     </tr>
+
+    <tr>
+      <td><b>MySQL UserManager</b></td><td>生产实现<br>(mysql-starter)</td>
+      <td>MysqlUserManagerIT</td>
+      <td>listUsers 非空；createUser→listUsers→alterUser→dropUser 全生命周期</td>
+      <td><span class="badge badge-pass">2/2 ✅</span></td>
+    </tr>
     </tr>
   </table>
 
@@ -138,7 +147,7 @@
     <tr><td><code>JdbcEngineFeatureIT</code></td><td>13</td><td><span class="badge badge-pass">全部通过</span></td><td>全功能点：类型映射查询 / Lambda 包装器 / 分页 / 同步执行链 / 联邦 / meta</td></tr>
     <tr><td><code>JdbcEngineEntryIT</code></td><td>7</td><td><span class="badge badge-pass">全部通过</span></td><td>能力入口：flyway SQL 导入 / ddl() / user() 端到端（SPI 解析 + DataSource 注入 + 生命周期）</td></tr>
     <tr><td><code>Neo4jEngineIT.lambdaFullOperatorMatrix</code></td><td colspan="3">（已计入非标引擎行，Neo4j 2→3）</td></tr>    <tr><td><code>LambdaFullFeatureIT</code></td><td>5</td><td><span class="badge badge-pass">全部通过</span></td><td>Lambda 全操作符矩阵：H2/MySQL/PG/MSSQL/MariaDB 五路径 × 18 组断言</td></tr>
-    <tr><td colspan="4" style="text-align:center;background:#f6f8fa"><em>非标引擎 18 个用例全部真实容器通过：ES 2 ✅ / Neo4j 3 ✅ / InfluxDB 3 ✅ / Solr 7 ✅ / DuckDB 2 ✅ / SQLite 1 ✅ / GreptimeDB 1 ✅</em></td></tr>
+    <tr><td colspan="4" style="text-align:center;background:#f6f8fa"><em>非标引擎 22 个用例全部真实容器通过：ES 2 / Neo4j 3 / InfluxDB 3 / Solr 7 / DuckDB 2 / SQLite 1 / GreptimeDB 1 / MySQL UserManager 2 / Lucene 1 / Nitrite 1 —— 全部 ✅</em></td></tr>
     <tr><td><code>合计（标准+非标）</code></td><td><strong>101</strong></td><td><span class="badge badge-pass">101/101 全绿</span></td><td>8 种数据库 × 真实容器</td></tr>
     <tr><td><code>InMemoryEngineTest</code></td><td>3</td><td><span class="badge badge-pass">全部通过</span></td><td>内存引擎 SPI("memory")</td></tr>
     <tr><td><code>FileEngineTest</code> + <code>FileReactorEngineTest</code></td><td>7</td><td><span class="badge badge-pass">全部通过</span></td><td>文件引擎 SPI("file") 同步 + 响应式</td></tr>
@@ -263,7 +272,20 @@
         <td>即 flyway 能力：<code>JdbcReactorEngine.flyway()</code> 已实现并通过集成测试（顺序迁移/幂等/记录/单脚本）</td></tr>
     <tr><td>MariaDB 原生镜像</td><td><span class="badge badge-warn">受限</span></td>
         <td>mariadb:11 镜像在当前宿主机存在 timer 初始化 bug；MariaDB 测试复用 mysql:5.7 容器（JDBC 协议兼容，方言同为 MysqlDialect）</td></tr>
-  </table>
+  
+    <tr>
+      <td><b>Lucene</b></td><td>嵌入式索引目录</td>
+      <td>LuceneEngineIT</td>
+      <td>index 索引 + Lambda eq/update/delete</td>
+      <td><span class="badge badge-pass">1/1 ✅</span></td>
+    </tr>
+    <tr>
+      <td><b>Nitrite</b></td><td>嵌入式文档库(临时文件)</td>
+      <td>NitriteEngineIT</td>
+      <td>Lambda update/list/delete</td>
+      <td><span class="badge badge-pass">1/1 ✅</span></td>
+    </tr>
+</table>
 
   <div class="note">
     <strong>结论：</strong>标准 RDBMS 引擎（H2/MySQL/MariaDB/PostgreSQL/SQL Server）84 用例全绿 + 非标引擎（Elasticsearch/Neo4j/InfluxDB/SolrCloud）10 用例真实容器全绿，

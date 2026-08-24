@@ -37,9 +37,47 @@ public class ClusterAutoConfiguration {
     @Autowired
     private ClusterProperties clusterProperties;
 
+    @Autowired
+    private org.springframework.core.env.Environment environment;
+
+    /**
+     * 零配置增强：未显式配置时自动从 Spring 环境推导。
+     * <ul>
+     *   <li>host 未配置(仍为默认 127.0.0.1) → NetUtils 自动探测本机局域网 IP</li>
+     *   <li>scatterId 未配置(仍为 "default") → 取 spring.application.name</li>
+     *   <li>nodeId 未配置 → ip:port 保证同机多实例唯一</li>
+     * </ul>
+     */
+    private void autoDetect() {
+        // 1. host: Spring server.address > chua.cluster.host > NetUtils 探测
+        String springHost = environment.getProperty("server.address");
+        if ("127.0.0.1".equals(clusterProperties.getHost()) && springHost != null && !springHost.isBlank()) {
+            clusterProperties.setHost(springHost);
+        }
+        if ("127.0.0.1".equals(clusterProperties.getHost())) {
+            clusterProperties.setHost(
+                    com.chua.common.support.network.net.NetUtils.getLocalHost());
+        }
+
+        // 2. scatterId: spring.application.name > chua.cluster.scatter-id
+        if ("default".equals(clusterProperties.getScatterId())) {
+            String appName = environment.getProperty("spring.application.name");
+            if (appName != null && !appName.isBlank()) {
+                clusterProperties.setScatterId(appName);
+            }
+        }
+
+        // 3. nodeId: ip:port（保证同机多实例唯一）
+        if (clusterProperties.getNodeId() == null || clusterProperties.getNodeId().isBlank()) {
+            clusterProperties.setNodeId(
+                    clusterProperties.getHost() + ":" + clusterProperties.getPort());
+        }
+    }
+
     @Bean
     @ConditionalOnMissingBean
     public ClusterServer clusterServer() throws Exception {
+        autoDetect();
         ClusterProperties props = clusterProperties;
 
         // 构建 ClusterSetting

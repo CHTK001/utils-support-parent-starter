@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -118,7 +119,7 @@ public class SenseVoiceTranslator {
         this.session = ortEnv.createSession(modelPath.toString(), opts);
 
         loadVocab(tokensPath);
-        readMetadata();
+        initHardcodedMetadata();
 
         this.prepared = true;
     }
@@ -160,32 +161,24 @@ public class SenseVoiceTranslator {
         }
     }
 
-    /** 从模型元数据读取全部运行参数 */
-    private void readMetadata() {
-        Map<String, String> meta = new HashMap<>();
-        session.getMetadata().getCustomMetadataMap().forEach(meta::put);
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        this.negMean = parseFloatArray(meta.get("neg_mean"), mapper);
-        this.invStddev = parseFloatArray(meta.get("inv_stddev"), mapper);
-
-        this.lfrWindowSize = intOrDefault(meta, "lfr_window_size", 7);
-        this.lfrWindowShift = intOrDefault(meta, "lfr_window_shift", 6);
-        this.blankId = intOrDefault(meta, "blank_id", BLANK_ID);
-        this.withItnId = intOrDefault(meta, "with_itn", 14);
-
-        this.langIds = new HashMap<>();
-        for (String lang : new String[]{"auto", "zh", "en", "ja", "ko", "yue"}) {
-            String v = meta.get("lang_" + lang);
-            if (v != null) {
-                try {
-                    this.langIds.put(lang, Integer.parseInt(v));
-                } catch (NumberFormatException ignore) {
-                    // 忽略非法键
-                }
-            }
-        }
+    /**
+     * Init hardcoded metadata.
+     */
+    private void initHardcodedMetadata() {
+        this.lfrWindowSize = 7;
+        this.lfrWindowShift = 6;
+        this.blankId = 0;
+        this.withItnId = 14;
+        Map<String, Integer> langMap = new HashMap<>();
+        langMap.put("auto", 0);
+        langMap.put("zh", 3);
+        langMap.put("en", 4);
+        langMap.put("ja", 11);
+        langMap.put("ko", 12);
+        langMap.put("yue", 7);
+        this.langIds = langMap;
+        this.negMean = new float[] {-8.311879f,-8.600912f,-9.615928f,-10.43595f,-11.21292f,-11.88333f,-12.36243f,-12.63706f};
+        this.invStddev = new float[] {0.155775f,0.154484f,0.1527379f,0.1518718f,0.1506028f,0.1489256f,0.147067f,0.1447061f};
     }
 
     /** 解析逗号分隔浮点数组 */
@@ -340,7 +333,7 @@ public class SenseVoiceTranslator {
         }
 
         // mel 滤波器组（HTK 刻度，0~8000Hz）
-        double[][] melFilters = buildKaldiMelFilters(sampleRate(), nFreq);
+        double[][] melFilters = buildKaldiMelFilters(SAMPLE_RATE, nFreq);
 
         double[][] feat = new double[frames][FEATURE_DIM];
         double[] re = new double[FFT_N];

@@ -22,11 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class MysqlUserManagerIT {
 
     private static final String HOST = "172.16.0.40";
-    private static final String URL = "jdbc:mysql://" + HOST + ":3306/report?useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String URL = "jdbc:mysql://" + HOST + ":3308/testdb?useSSL=false&allowPublicKeyRetrieval=true";
 
     @BeforeAll
     static void assumeReachable() {
-        Assumptions.assumeTrue(reachable(HOST, 3306), "MySQL 不可达，跳过");
+        Assumptions.assumeTrue(reachable(HOST, 3308), "MySQL 不可达，跳过");
     }
 
     private static boolean reachable(String host, int port) {
@@ -40,10 +40,10 @@ class MysqlUserManagerIT {
 
     private static DataSource mysqlDs() {
         return new DataSource() {
-            @Override public Connection getConnection() throws Exception {
-                return java.sql.DriverManager.getConnection(URL, "root", "root@");
+            @Override public Connection getConnection() throws java.sql.SQLException {
+                return java.sql.DriverManager.getConnection(URL, "root", "root");
             }
-            @Override public Connection getConnection(String u, String p) throws Exception { return getConnection(); }
+            @Override public Connection getConnection(String u, String p) throws java.sql.SQLException { return getConnection(); }
             @Override public <T> T unwrap(Class<T> c) { return null; }
             @Override public boolean isWrapperFor(Class<?> c) { return false; }
             @Override public PrintWriter getLogWriter() { return null; }

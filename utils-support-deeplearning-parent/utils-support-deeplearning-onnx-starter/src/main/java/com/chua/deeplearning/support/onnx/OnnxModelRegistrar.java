@@ -362,6 +362,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // preprocess+encode+uncached+cached 四模型 int8 约 118MB），词表 32768
         // 由 MoonshineAudioClient 直接加载（sherpa-onnx 四阶段贪心解码）。
         reg("moonshine-base", null, byte[].class, String.class, Object.class, "nlp/audio/moonshine/preprocess.onnx");
+        // 语音识别(SenseVoice-small)：阿里 FunAudioLLM 多语言 ASR（中/英/日/韩/粤），含 ITN 数字归一化
+        // 模型权重在 utils-support-models-onnx-sensevoice jar 中（audio/asr/sensevoice-small/，int8 约 228MB）
+        // 由 SenseVoiceAudioClient 直接加载（fbank+LFR+CMVN+CTC），无需注册 translator 类。
+        reg("sensevoice", null, byte[].class, String.class, Object.class, "audio/asr/sensevoice-small/model.int8.onnx");
         // 情感分析(RoBERTa-go-emotions)：28 种细粒度情感分类（如"兴奋"、"悲伤"、"愤怒"等）；适用细粒度情感分析、用户评论分析
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话

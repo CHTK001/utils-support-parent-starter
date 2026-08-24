@@ -1,4 +1,4 @@
-﻿package com.chua.mysql.support.engine;
+package com.chua.mysql.support.engine;
 
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,8 +26,8 @@ class MysqlEnginesTest {
 
     private static final String HOST = "172.16.0.40";
     private static final int PORT = 3308;
-    private static final String USER = "root";
-    private static final String PASS = "root";
+    private static final String USER = "it";
+    private static final String PASS = "it12345";
     private static final String DB = "testdb";
 
     /**
@@ -54,7 +54,7 @@ class MysqlEnginesTest {
     @Order(1)
     void blocking_engine_roundtrip() {
         MysqlEngine e = new MysqlEngine();
-        e.addDataSource("m", HOST, PORT, USER, PASS, DB);
+        e.addDataSource("m", HOST, PORT, DB, USER, PASS);
 
         var ex = e.getExecutor();
         assertNotNull(ex);
@@ -74,7 +74,7 @@ class MysqlEnginesTest {
     @Order(2)
     void reactive_engine_query() {
         MysqlReactorEngine e = new MysqlReactorEngine();
-        e.addDataSource("r", HOST, PORT, USER, PASS, DB);
+        e.addDataSource("r", HOST, PORT, DB, USER, PASS);
 
         StepVerifier.create(e.query("SELECT id, name FROM it_mysql_engine"))
                 .expectNextCount(1)

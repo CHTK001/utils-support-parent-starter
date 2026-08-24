@@ -10,3 +10,6 @@ moonshine-base=com.chua.deeplearning.support.onnx.audio.moonshine.MoonshineAudio
 moonshine-tiny=com.chua.deeplearning.support.onnx.audio.moonshine.MoonshineAudioClient
 moonshine-onnx=com.chua.deeplearning.support.onnx.audio.moonshine.MoonshineAudioClient
 onnx=com.chua.deeplearning.support.onnx.OnnxAudioClient
+sensevoice=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
+sensevoice-small=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
+sense-voice=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
