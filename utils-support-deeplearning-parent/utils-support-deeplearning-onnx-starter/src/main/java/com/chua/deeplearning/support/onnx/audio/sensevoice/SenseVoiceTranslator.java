@@ -336,7 +336,7 @@ public class SenseVoiceTranslator {
         double[] window = new double[frameLen];
         for (int j = 0; j < frameLen; j++) {
             window[j] = Math.pow(
-                    0.5 - 0.5 * Math.cos(2.0 * Math.PI * j / frameLength), 0.85);
+                    0.5 - 0.5 * Math.cos(2.0 * Math.PI * j / frameLen), 0.85);
         }
 
         // mel 滤波器组（HTK 刻度，0~8000Hz）
@@ -398,7 +398,7 @@ public class SenseVoiceTranslator {
         // Kaldi 用 floor((N+1)*hz/sr)
         int[] binPts = new int[FEATURE_DIM + 2];
         for (int b = 0; b < FEATURE_DIM + 2; b++) {
-            binPts[b] = (int) Math.floor((FFT_N + 1.0) * melToHertz(melPoints[b]) / sampleRate);
+            binPts[b] = (int) Math.floor((FFT_N + 1.0) * melToHertz(melPoints[b]) / SAMPLE_RATE);
         }
         for (int b = 0; b < FEATURE_DIM; b++) {
             int left = binPts[b];
@@ -529,6 +529,21 @@ public class SenseVoiceTranslator {
             }
             return out;
         }
+    }
+
+    /** 二维数组展平为一维 */
+    private static float[] flatten(float[][] mat) {
+        int total = 0;
+        for (float[] row : mat) {
+            total += row.length;
+        }
+        float[] out = new float[total];
+        int pos = 0;
+        for (float[] row : mat) {
+            System.arraycopy(row, 0, out, pos, row.length);
+            pos += row.length;
+        }
+        return out;
     }
 
     /** 张量转一维数组 */
