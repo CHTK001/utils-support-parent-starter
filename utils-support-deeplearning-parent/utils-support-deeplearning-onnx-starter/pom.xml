@@ -193,7 +193,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -304,7 +303,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-insightface-scrfd</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -345,7 +343,14 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-minimind</artifactId>
+            <artifactId>utils-support-models-onnx-moonshine</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- 嵌入式中文对话模型（Gemma-3-270M，uint8 ONNX ~437MB），供 Gemma3TranslatorTest 冒烟验证 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-gemma-3-270m</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -377,7 +382,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-anime-face</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -420,7 +424,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-duguang-ocr</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
