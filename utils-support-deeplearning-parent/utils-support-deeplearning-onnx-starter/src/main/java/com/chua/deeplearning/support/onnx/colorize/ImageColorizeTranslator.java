@@ -52,7 +52,11 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
             gray = gray.toType(DataType.FLOAT32, false);
         }
         gray = gray.div(255.0f);
-        gray = gray.transpose(2, 0, 1).repeat(0, 3).expandDims(0);
+        gray = gray.transpose(2, 0, 1);
+        // 复制三通道（Rust 引擎未实现 repeat，改用 concat 拼接）
+        gray = ai.djl.ndarray.NDArrays.concat(
+                new NDList(gray, gray, gray), 0).get(0);
+        gray = gray.expandDims(0);
 
         log.debug("[ImageColorize] Input: gray={}", gray.getShape());
         return new NDList(gray);
@@ -63,6 +67,7 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         long[] shape = output.getShape().getShape();
+        log.info("[ImageColorize] Output raw shape={} dtype={}", java.util.Arrays.toString(shape), output.getDataType());
 
         if (shape.length == 4) {
             output = output.squeeze(0);
