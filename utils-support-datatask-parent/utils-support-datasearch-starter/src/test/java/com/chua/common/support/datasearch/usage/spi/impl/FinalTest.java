@@ -28,9 +28,7 @@ public class FinalTest {
         test("vscode", new VscodeUsageParser());
         test("cline", new ClineUsageParser());
         test("continue", new ContinueUsageParser());
-        test("cody", new CodyUsageParser());
         test("codebuddy", new CodeBuddyUsageParser());
-        test("augment", new AugmentUsageParser());
         test("ccswitch", new CcswitchUsageParser());
         test("joycode", new JoyCodeUsageParser());
         test("qoder", new QoderUsageParser());

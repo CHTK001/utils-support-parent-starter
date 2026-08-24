@@ -44,7 +44,19 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * 置信度阈值。
      */
-    private static final float CONF_THRESHOLD = 0.45f;
+    /** 置信度阈值（默认 0.5），可经 DetectionConfiguration 覆盖。 */
+        /**
+     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public AnimeFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        if (configuration != null) {
+            this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
+        }
+    }
+
+private float confThreshold = 0.45f;
 
     /**
      * NMS IOU 阈值。
@@ -216,7 +228,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
                 conf = Math.max(conf, data[offset + cc]);
             }
             // 模型 ONNX 已含 sigmoid，输出为概率，无需再变换
-            if (conf < CONF_THRESHOLD) {
+            if (conf < confThreshold) {
                 continue;
             }
             boxes.add(new float[]{cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2});

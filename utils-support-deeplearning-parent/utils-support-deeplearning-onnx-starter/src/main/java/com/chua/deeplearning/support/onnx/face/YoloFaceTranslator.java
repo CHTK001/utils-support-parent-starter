@@ -43,7 +43,19 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
      * 置信度阈值。
      */
-    private static final float CONF_THRESHOLD = 0.85f;
+    /** 置信度阈值（默认 0.85），可经 DetectionConfiguration 覆盖。 */
+        /**
+     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public YoloFaceTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        if (configuration != null) {
+            this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
+        }
+    }
+
+private float confThreshold = 0.85f;
 
     /**
      * NMS IOU 阈值。
@@ -190,7 +202,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
             }
             // YOLOv8 onnx 输出原始 logit，需做 sigmoid 转为概率
             conf = 1f / (1f + (float) Math.exp(-conf));
-            if (conf < CONF_THRESHOLD) {
+            if (conf < confThreshold) {
                 continue;
             }
             boxes.add(new float[]{cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2});

@@ -1016,11 +1016,33 @@ public class FacePipeline {
      * @return 框列表
      */
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
+        // 动漫检测前置路由：配置了动漫检测器时优先使用（整图一次前向），
+        // 位于裁剪/活体等下游阶段之前；无检出或异常时回落常规检测器
+        if (animeDetector != null) {
+            try {
+                List<PredictRectangle> animeBoxes = animeDetector.detect(imageData);
+                if (animeBoxes != null && !animeBoxes.isEmpty()) {
+                    return filterBoxes(animeBoxes);
+                }
+            } catch (Exception e) {
+                log.debug("[face-pipeline] 动漫检测失败，回落常规检测器: {}", e.getMessage());
+            }
+        }
         List<PredictRectangle> boxes = detector.detect(imageData);
         if (boxes == null || boxes.isEmpty()) {
             return List.of();
         }
         // 置信度 + 面积阈值过滤
+        return filterBoxes(boxes);
+    }
+
+    /**
+     * 置信度 + 最小面积过滤。
+     *
+     * @param boxes 原始检测框
+     * @return 过滤后的框列表
+     */
+    private List<PredictRectangle> filterBoxes(List<PredictRectangle> boxes) {
         return boxes.stream()
                 .filter(b -> b.confidence() >= minConfidence || minConfidence == 0f)
                 .filter(b -> (b.width() * b.height()) >= minFaceArea || minFaceArea == 0f)
