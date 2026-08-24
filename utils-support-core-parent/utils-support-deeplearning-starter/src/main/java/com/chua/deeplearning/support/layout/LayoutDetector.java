@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.layout;
 
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.PredictRectangle;
 import com.chua.deeplearning.support.translator.ITranslator;
@@ -156,11 +157,7 @@ public interface LayoutDetector {
  */
 class DefaultLayoutDetector implements LayoutDetector {
 
-    /**
-     * 默认检测阈值。
-     */
-    private static final float DEFAULT_THRESHOLD = 0.5f;
-
+    
     /**
      * 默认运行设备（CPU）。
      */
@@ -186,7 +183,7 @@ class DefaultLayoutDetector implements LayoutDetector {
     /**
      * 检测阈值。
      */
-    private float threshold = DEFAULT_THRESHOLD;
+    private Float threshold;
 
     /**
      * 模型路径。
@@ -247,7 +244,7 @@ class DefaultLayoutDetector implements LayoutDetector {
     @SuppressWarnings("unchecked")
     /** Detect */
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
-        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
+        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -268,7 +265,7 @@ class DefaultLayoutDetector implements LayoutDetector {
     @SuppressWarnings("unchecked")
     /** 解析 */
     public String parse(byte[] imageData) {
-        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);
+        ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

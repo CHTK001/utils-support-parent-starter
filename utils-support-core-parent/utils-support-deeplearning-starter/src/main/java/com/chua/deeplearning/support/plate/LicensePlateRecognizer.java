@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.plate;
 
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.translator.ITranslator;
@@ -142,11 +143,7 @@ public interface LicensePlateRecognizer {
  */
 class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
 
-    /**
-     * 默认识别阈值。
-     */
-    private static final float DEFAULT_THRESHOLD = 0.5f;
-
+    
     /**
      * 默认运行设备（CPU）。
      */
@@ -172,7 +169,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     /**
      * 识别阈值。
      */
-    private float threshold = DEFAULT_THRESHOLD;
+    private Float threshold;
 
     /**
      * 模型路径。
@@ -236,7 +233,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     /** RecognizeDetail */
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
-                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
@@ -248,7 +245,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     /** RecognizePlate */
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
-                (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

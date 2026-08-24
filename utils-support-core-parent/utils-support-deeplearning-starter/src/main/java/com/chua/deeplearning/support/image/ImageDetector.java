@@ -140,15 +140,7 @@ class DefaultImageDetector implements ImageDetector {
      */
     private static final String DEFAULT_DEVICE = "cpu";
 
-    /**
-     * 运行参数键：置信度阈值。
-     */
-    private static final String OPTION_THRESHOLD = "threshold";
 
-    /**
-     * 运行参数键：NMS IOU 阈值。
-     */
-    private static final String OPTION_IOU_THRESHOLD = "iouThreshold";
 
     /**
      * 识别引擎。
@@ -270,13 +262,6 @@ class DefaultImageDetector implements ImageDetector {
      * @return 运行参数（可能为空 Map）
      */
     private java.util.Map<String, Object> detectOptions() {
-        java.util.Map<String, Object> options = new java.util.LinkedHashMap<>();
-        if (threshold != null) {
-            options.put(OPTION_THRESHOLD, threshold);
-        }
-        if (nms != null) {
-            options.put(OPTION_IOU_THRESHOLD, nms);
-        }
-        return options;
+        return com.chua.deeplearning.support.engine.DetectOptions.of(threshold, nms);
     }
 }
