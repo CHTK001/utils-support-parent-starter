@@ -70,9 +70,14 @@ class SipTunnelStream {
     private final Socket socket;
 
     /**
-     * 输出流
+     * 输出流（加密开启时为加密流）
      */
     private final OutputStream out;
+
+    /**
+     * 输入流（加密开启时为解密流）
+     */
+    private final InputStream socketIn;
 
     /**
      * 是否启用端到端加密（AES-256-GCM）
@@ -108,11 +113,19 @@ class SipTunnelStream {
     SipTunnelStream(String host, int port, String channelId, String role, String token, boolean encrypt) throws IOException {
         this.channelId = channelId;
         this.encrypt = encrypt;
-        this.aesKey = encrypt ? deriveKey(token) : null;
+        this.aesKey = encrypt ? AesGcmUtils.deriveKey(token) : null;
         this.socket = new Socket();
         socket.setTcpNoDelay(true);
         socket.connect(new java.net.InetSocketAddress(host, port), 5000);
-        this.out = socket.getOutputStream();
+        OutputStream rawOut = socket.getOutputStream();
+        InputStream rawIn = socket.getInputStream();
+        if (encrypt) {
+            // 加密包装必须先于握手行：服务端从连接首字节即开始解密
+            rawOut = AesGcmUtils.encrypting(rawOut, aesKey);
+            rawIn = AesGcmUtils.decrypting(rawIn, aesKey);
+        }
+        this.out = rawOut;
+        this.socketIn = rawIn;
         String signature = HMacUtils.hmacSha256Hex(token, channelId + role);
         out.write((SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR
                 + channelId + SipProtocol.SEPARATOR + role + SipProtocol.SEPARATOR + signature + "\n")
@@ -193,7 +206,7 @@ class SipTunnelStream {
     void startRead(Consumer<byte[]> consumer) {
         ThreadUtils.startVirtualThread("sip-data-stream-" + channelId, () -> {
             try {
-                InputStream in = socket.getInputStream();
+                InputStream in = socketIn;
                 if (!encrypt) {
                     readRaw(in, consumer);
                 } else {

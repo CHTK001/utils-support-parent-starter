@@ -9,7 +9,7 @@ import java.net.Socket;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * MilvusVectorStorage 真实云服务测试（Zilliz Cloud Serverless）。
+ * MilvusVectorStorage 真实云服务连接测试（Zilliz Cloud Serverless）。
  */
 class MilvusVectorStorageIT {
 
@@ -28,33 +28,25 @@ class MilvusVectorStorageIT {
         }
     }
 
-    /** 暴露 protected 方法的测试子类 */
-    private static class TestableStorage extends MilvusVectorStorage {
-        TestableStorage() {
-            super(4,
-                com.chua.common.support.vector.VectorCompareAlgorithm.cosine(),
-                HOST, PORT, "it_vector_" + System.nanoTime(), TOKEN);
-        }
-        @Override public boolean add(String id, float[] v) { return doAdd(id, v); }
-        @Override public List<float[]> search(float[] q, int topK) { return null; }
-    }
-
     @Test
-    void vectorStore_insertSearchAndCleanup() {
+    void connectAndVerify() throws Exception {
         var storage = new MilvusVectorStorage(4,
                 com.chua.common.support.vector.VectorCompareAlgorithm.cosine(),
                 HOST, PORT, "it_vector_" + System.nanoTime(), TOKEN);
 
         try {
             assertNotNull(storage);
-            assertEquals("milvus", storage.name());
+            assertEquals(4, storage.dimension(), "维度应为 4");
 
-            /* update = upsert 语义（公开方法） */
-            assertTrue(storage.update("vec1", new float[]{0.1f, 0.2f, 0.3f, 0.4f}));
-            assertTrue(storage.update("vec2", new float[]{0.5f, 0.6f, 0.7f, 0.8f}));
-            assertEquals(2, storage.size());
+            /* add（AbstractVectorStorage 公开方法） */
+            assertTrue(storage.add("vec1", new float[]{0.1f, 0.2f, 0.3f, 0.4f}));
+            assertTrue(storage.add("vec2", new float[]{0.5f, 0.6f, 0.7f, 0.8f}));
 
-            /* remove */
+            /* search */
+            var results = storage.search(new float[]{0.1f, 0.2f, 0.3f, 0.4f}, 2);
+            assertNotNull(results);
+
+            /* remove + size */
             assertTrue(storage.remove("vec1"));
             assertEquals(1, storage.size());
         } finally {

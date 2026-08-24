@@ -42,6 +42,16 @@ public class PlaywrightFetcher implements SpiderFetcher {
     private static final Duration NAV_TIMEOUT = Duration.ofSeconds(60);
 
     /**
+     * 动态渲染稳定等待上限
+     */
+    private static final Duration STABILIZE_TIMEOUT = Duration.ofSeconds(15);
+
+    /**
+     * 动态渲染稳定轮询间隔
+     */
+    private static final long STABILIZE_POLL_MILLIS = 1500L;
+
+    /**
      * Playwright 实例
      */
     private final Playwright playwright;
@@ -93,14 +103,25 @@ public class PlaywrightFetcher implements SpiderFetcher {
             page.navigate(request.getUrl());
             page.waitForLoadState(LoadState.NETWORKIDLE);
 
-            // 额外等待动态渲染
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            // 动态渲染稳定度轮询：内容长度连续两次采样不变即认为渲染完成，
+            // 最长等待 STABILIZE_TIMEOUT，避免异步接口慢加载导致内容缺失
+            String html;
+            long stabilizeDeadline = System.currentTimeMillis() + STABILIZE_TIMEOUT.toMillis();
+            int lastLen = -1;
+            while (true) {
+                html = page.content();
+                int len = html.length();
+                if (len == lastLen || System.currentTimeMillis() > stabilizeDeadline) {
+                    break;
+                }
+                lastLen = len;
+                try {
+                    Thread.sleep(STABILIZE_POLL_MILLIS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
-
-            String html = page.content();
             long elapsed = System.currentTimeMillis() - startTime;
 
             builder.statusCode(200)

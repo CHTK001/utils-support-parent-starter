@@ -430,6 +430,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("dfsmn-ans", "com.chua.deeplearning.support.onnx.audio.denoise.DfsmnAnsTranslator", byte[].class, byte[].class, com.chua.deeplearning.support.speech.SpeechEnhancer.class, "audio/denoise/dfsmn_ans/model.onnx");
         // 印章检测（SDT Seal inspection，YOLO 640）：检测 4 类印章（公章/个人章/审核章/其他）。
         // 模型打包在 utils-support-models-onnx-seal-inspection jar 中（vision/detection/seal/）。
+// D-FINE-L 实时目标检测（Objects365 预训练 -> COCO 80 类对齐，57.3 AP，int8 量化嵌入式）
+        reg("dfine-l-obj2coco", "com.chua.deeplearning.support.onnx.detr.DFineTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/dfine_l_obj2coco/model_quantized.onnx");
         reg("seal-inspection", "com.chua.deeplearning.support.onnx.yolo.SealInspectionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/seal/model.onnx");
         // MMS-TTS-English（VITS）：英文语音合成，输入文本输出 WAV 音频；适用英文朗读、语音播报。
         // 模型打包在 utils-support-models-onnx-mms-tts-eng jar 中（audio/tts/mms-tts-eng/），
