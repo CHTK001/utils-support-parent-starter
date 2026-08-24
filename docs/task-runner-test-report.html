@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>TaskRunner 测试报告 — task-runner-test-report</title>
+<style>
+  body { font-family: "Microsoft YaHei", "Segoe UI", sans-serif; margin: 24px; color: #222; background: #fafafa; }
+  h1 { border-bottom: 2px solid #2b6cb0; padding-bottom: 8px; }
+  .meta { background: #eef4fb; padding: 12px 16px; border-radius: 6px; margin-bottom: 18px; line-height: 1.7; }
+  table { border-collapse: collapse; width: 100%; background: #fff; }
+  th, td { border: 1px solid #cbd5e0; padding: 8px 12px; text-align: left; font-size: 14px; }
+  th { background: #2b6cb0; color: #fff; }
+  tr:nth-child(even) { background: #f5f8fc; }
+  .pass { color: #1a7f37; font-weight: bold; }
+  .fail { color: #c0392b; font-weight: bold; }
+  code { background: #eee; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  pre { background: #272822; color: #f8f8f2; padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .summary { display: inline-block; margin: 10px 18px 18px 0; padding: 10px 18px; border-radius: 6px; background: #e6f4ea; border: 1px solid #b7dfc2; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<h1>TaskRunner 单元自检报告</h1>
+
+<div class="meta">
+  <strong>模块</strong>：utils-support-common-starter / <code>com.chua.common.support.task.taskrunner</code><br>
+  <strong>验证载体</strong>：utils-support-example-starter / <code>com.chua.example.taskrunner.TaskRunnerExample</code><br>
+  <strong>执行方式</strong>：<code>java --enable-preview -cp ... com.chua.example.taskrunner.TaskRunnerExample [--type=...]</code><br>
+  <strong>运行环境</strong>：JDK 25（结构化并发 preview）· Windows x86_64 · 2026-08-25<br>
+  <strong>结果判定</strong>：退出码 0 = 全部通过；任一场景失败输出 [FAIL] 并以退出码 1 结束
+</div>
+
+<div class="summary"><span class="pass">通过 16 / 16 场景</span></div>
+<div class="summary">出口覆盖：executeSync / execute / executeReactor / watch</div>
+<div class="summary">策略覆盖：allSuccess · anySuccess · successAtLeast · failAtLeast · successRate</div>
+
+<table>
+  <tr>
+    <th>#</th><th>场景</th><th>验证要点</th><th>结果</th>
+  </tr>
+  <tr><td>1</td><td>serialChainAndDataDependency</td><td>afterNode 拓扑序执行；dependsNode 前置结果注入（a=1 → b=11 → c=111）</td><td class="pass">PASS</td></tr>
+  <tr><td>2</td><td>duplicateIdRejected</td><td>重复节点 ID 构建期拒绝（IllegalStateException: 已注册）</td><td class="pass">PASS</td></tr>
+  <tr><td>3</td><td>cycleDetectionRejected</td><td>p→q→r→p 环检测拒绝并指明环内节点</td><td class="pass">PASS</td></tr>
+  <tr><td>4</td><td>parallelTopLevelOverlap</td><td>最外层无依赖任务并行 fork，双闩锁证明时间重叠</td><td class="pass">PASS</td></tr>
+  <tr><td>5</td><td>allSuccessFailFastSkipsDownstream</td><td>allSuccess 任一失败整体判败；下游 afterNode 级联 SKIPPED</td><td class="pass">PASS</td></tr>
+  <tr><td>6</td><td>anySuccessEarlyExitCancelsRest</td><td>首个成功即取消其余阻塞任务（实测 ~1ms 内返回），整体成功</td><td class="pass">PASS</td></tr>
+  <tr><td>7</td><td>successRateThresholds</td><td>successRate(0.8)：4/5 达标通过、3/5 不达标判败</td><td class="pass">PASS</td></tr>
+  <tr><td>8</td><td>thresholdPolicies</td><td>successAtLeast(2) 边界通过；failAtLeast(2) 失败数达阈值判败</td><td class="pass">PASS</td></tr>
+  <tr><td>9</td><td>perTaskTimeoutIsolated</td><td>单任务 timeout(120ms) 判 FAILED，同层健康任务不受影响</td><td class="pass">PASS</td></tr>
+  <tr><td>10</td><td>globalRetryRecoversFlakyTask</td><td>全局 retry(5)：瞬时故障第 3 次尝试恢复，指数退避生效</td><td class="pass">PASS</td></tr>
+  <tr><td>11</td><td>circuitBreakerFallbackDegradation</td><td>failureThreshold(2)+circuitBreaker+fallback：首跑降级成功；二跑熔断打开仍返回降级值</td><td class="pass">PASS</td></tr>
+  <tr><td>12</td><td>asyncExecutionCompletes</td><td>execute(input) 虚拟线程异步执行，CompletableFuture 回填并透传输入</td><td class="pass">PASS</td></tr>
+  <tr><td>13</td><td>reactiveExecutionEmitsResult</td><td>executeReactor() Mono 惰性订阅发出 RunResult</td><td class="pass">PASS</td></tr>
+  <tr><td>14</td><td>watchStreamCarriesLifecycleEvents</td><td>watch() 缓冲回放：RUN_STARTED 起点、NODE_COMPLETED 在列、RUN_COMPLETED 收尾</td><td class="pass">PASS</td></tr>
+  <tr><td>15</td><td>preconditionsEnforced</td><td>未设置 policy / 未注册 task 时三个执行入口均拒绝并给出指引消息</td><td class="pass">PASS</td></tr>
+  <tr><td>16</td><td>parameterValidation</td><td>空名称/负重试/零时长/非法阈值(n&lt;1, rate∉(0,1])/空依赖数组均抛 IllegalArgumentException</td><td class="pass">PASS</td></tr>
+</table>
+
+<h2>分组运行示例</h2>
+<pre>--type=serial       场景 1-3
+--type=parallel     场景 4-5
+--type=policy       场景 6-8
+--type=reliability  场景 9-11
+--type=reactive     场景 12-14
+（默认 all 运行全部 16 个场景）</pre>
+
+<h2>核心 API 形态</h2>
+<pre>var runner = TaskRunner.of("demo")
+        .timeout(Duration.ofSeconds(10))          // 全局默认单任务超时
+        .retry(3)                                  // 全局默认重试次数
+        .policy(CompletionPolicy.successRate(0.8)) // 必填完成策略
+        .task("a", ctx -&gt; fetchA())
+        .task("b", ctx -&gt; merge(ctx))
+            .afterNode("a")                        // 控制流依赖
+            .dependsNode("a")                      // 数据依赖（前置结果非 null 校验）
+            .failureThreshold(3).waitDuration(10_000)
+            .circuitBreaker()                      // 熔断开关（委托 CircuitBreakerFlow）
+            .fallback(ctx -&gt; cachedValue());       // 降级兜底
+
+runner.executeSync(input);   // 同步
+runner.execute(input);       // 异步 CompletableFuture&lt;RunResult&gt;
+runner.executeReactor();     // Mono&lt;RunResult&gt;
+runner.watch();              // Flux&lt;RunnerEvent&gt;</pre>
+
+<h2>实现要点备注</h2>
+<ul>
+  <li>调度引擎：<code>StructuredRunnerProvider</code>（@Spi("structured")）— Kahn 拓扑分层 + Java 25 <code>StructuredTaskScope.open(Joiner.allUntil(...))</code> 层内并行，达到策略目标或不可能达标时提前取消剩余 fork。</li>
+  <li>单节点链路（外→内）：熔断(CircuitBreakerFlow) → 超时(嵌套 scope withTimeout) → 重试(指数退避 200ms→2s 封顶) → 数据依赖校验 → 业务函数 → fallback 兜底。</li>
+  <li>被提前取消/级联跳过的节点记为 SKIPPED 且不计入完成策略分母。</li>
+  <li>熔断状态按节点 ID 跨多次 run 持久（InMemoryCircuitBreakerProvider 缓存）。</li>
+</ul>
+
+</body>
+</html>

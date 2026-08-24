@@ -163,7 +163,8 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
             }
         }
 
-        var passed = policy.evaluate(successCount.get(), failedCount.get(), total);
+        var executedTotal = successCount.get() + failedCount.get();
+        var passed = policy.evaluate(successCount.get(), failedCount.get(), executedTotal);
         return new LayerOutcome(passed, results);
     }
 
