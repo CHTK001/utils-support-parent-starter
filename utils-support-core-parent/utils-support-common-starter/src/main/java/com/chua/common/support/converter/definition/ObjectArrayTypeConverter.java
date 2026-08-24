@@ -111,7 +111,7 @@ public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
             return (T) Array.newInstance(newType, 0);
         }
 
-        List tpl = new LinkedList();
+List<Object> tpl = new LinkedList<>();
         Class<?> actualType = ClassUtils.getActualType(newType);
         if (value instanceof Collection) {
             ((Collection<?>) value).forEach(it -> {

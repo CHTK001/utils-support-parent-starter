@@ -47,6 +47,8 @@ import java.util.concurrent.atomic.LongAdder;
 @Slf4j
 public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
 
+    private static final long serialVersionUID = 1L;
+
     /** 序列化器，将对象与字节数组互转 */
     private final Serializer<E> serializer;
 
