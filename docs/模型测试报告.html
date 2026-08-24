@@ -890,13 +890,22 @@ a { color: var(--accent); }
 <td>YOLOv5 车牌检测（证书失败）</td>
 </tr>
 <tr>
+<td>yolo11-plate-detect</td>
+<td>嵌入式</td>
+<td>37.8MB(v1s)</td>
+<td>~0.5s</td>
+<td>-</td>
+<td>✅ 通过（⭐推荐）</td>
+<td>YOLOv11 车牌检测（morsetechlab），内嵌 resources/vision/detection/yolo11_plate/，DJL Translator，5 测试图全部检出；替代 yolov5-plate-detect（2026-08-24）</td>
+</tr>
+<tr>
 <td>yolov5-plate-detect</td>
 <td>嵌入式</td>
 <td>3.7MB</td>
 <td>~1.2s</td>
 <td>-</td>
 <td>✅ 通过</td>
-<td>嵌入式车牌检测（ORT原生+OpenCV，已修复）</td>
+<td>已移除注册，由 yolo11-plate-detect 替代</td>
 </tr>
 <tr>
 <td>yolov5-plate-recognize</td>
@@ -918,6 +927,24 @@ a { color: var(--accent); }
 </tr>
 </tbody>
 </table>
+<hr>
+<h2 id="multi-detect-20260824">附：多模型检测综合实测（2026-08-24）</h2>
+<p>ImageDetector 统一入口批量验证（example-starter <code>MultiModelDetectExample</code>，标注图输出 <code>D:/images/output/{model-id}/</code>），7 模型 / 15 图、634+目标全部检出：</p>
+<table>
+<thead>
+<tr><th>模型ID</th><th>能力</th><th>测试图 → 检出数</th><th>结果</th></tr>
+</thead>
+<tbody>
+<tr><td>insightface-scrfd</td><td>人脸检测</td><td>1people <strong>1</strong> / 3people <strong>3</strong> / selfie <strong>243</strong></td><td>✅</td></tr>
+<tr><td>anime-face-detector</td><td>动漫脸检测（输出标签 anime_face）</td><td>anime.webp <strong>27</strong> / face1 <strong>39</strong> / face2 <strong>41</strong></td><td>✅</td></tr>
+<tr><td>doc-layout-yolo</td><td>文档版面</td><td>paper-real-full <strong>49</strong> / document <strong>3</strong> / table <strong>9</strong></td><td>✅</td></tr>
+<tr><td>paddleocrv6-det</td><td>PP-OCRv6 文字检测</td><td>ticket_new <strong>22</strong> / freetxt <strong>7</strong></td><td>✅</td></tr>
+<tr><td>duguang-det-small</td><td>读光 DBNet 文字检测</td><td>ticket <strong>20</strong> / chTable <strong>69</strong></td><td>✅</td></tr>
+<tr><td>yolov8s</td><td>COCO 80 类（自动下载 42.8MB，hf-mirror）</td><td>1people <strong>40</strong> / more car plate <strong>63</strong></td><td>✅</td></tr>
+<tr><td>yolov10n</td><td>通用检测（自动下载 9MB）</td><td>3peoplebeauty <strong>7</strong></td><td>✅</td></tr>
+</tbody>
+</table>
+<p><strong>根因修复：</strong>paddleocrv6-tiny / insightface-scrfd / anime-face / duguang-ocr 四个模型 jar 此前为 <code>test</code> 作用域、未进运行时 classpath，误报“资源缺失”；已改 <code>compile</code> 并重新安装 onnx-starter 后全部通过。另注意：java 直连 huggingface.co 仍 PKIX 证书失败，hf-mirror.com 镜像下载正常。</p>
 <hr>
 <h2 id="9-ocr">9. OCR/文字识别</h2>
 <table>
