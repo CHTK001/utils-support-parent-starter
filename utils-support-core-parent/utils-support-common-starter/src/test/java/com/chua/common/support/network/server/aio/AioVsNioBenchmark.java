@@ -104,9 +104,10 @@ class AioVsNioBenchmark {
 
             double rps = latencies.size() * 1000.0 / elapsedMillis;
             double avgLatency = avgOf(latencies);
-            log.info("[BENCH] type={} connections={} requests={} elapsedMs={} rps={} avgLatencyMs={} errors={}",
+            // 测试环境无 SLF4J 绑定,直接走 stdout 保证结果可见
+            System.out.printf("[BENCH] type=%s connections=%d requests=%d elapsedMs=%d rps=%.0f avgLatencyMs=%.2f errors=%d%n",
                     type, connections, totalRequests, elapsedMillis,
-                    String.format("%.0f", rps), String.format("%.2f", avgLatency), errors.get());
+                    rps, avgLatency, errors.get());
         } finally {
             server.stop();
         }

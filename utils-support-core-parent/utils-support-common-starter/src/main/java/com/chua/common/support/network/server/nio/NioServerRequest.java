@@ -448,15 +448,27 @@ public class NioServerRequest implements ServerRequest {
         if (remoteAddress instanceof InetSocketAddress inet) {
             return inet.getHostString();
         }
-        try { SocketAddress sa = channel != null ? channel.getRemoteAddress() : null; if (sa instanceof InetSocketAddress addr) return addr.getHostString(); }
-        catch (IOException ignored) {} return "unknown";
+        try {
+            SocketAddress sa = channel != null ? channel.getRemoteAddress() : null;
+            if (sa instanceof InetSocketAddress addr) {
+                return addr.getHostString();
+            }
+        } catch (IOException ignored) {
+        }
+        return "unknown";
     }
     @Override public int getRemotePort() {
         if (remoteAddress instanceof InetSocketAddress inet) {
             return inet.getPort();
         }
-        try { SocketAddress sa = channel != null ? channel.getRemoteAddress() : null; if (sa instanceof InetSocketAddress addr) return addr.getPort(); }
-        catch (IOException ignored) {} return 0;
+        try {
+            SocketAddress sa = channel != null ? channel.getRemoteAddress() : null;
+            if (sa instanceof InetSocketAddress addr) {
+                return addr.getPort();
+            }
+        } catch (IOException ignored) {
+        }
+        return 0;
     }
     @Override public Map<String, Object> getAttributes() { return attributes; }
     @Override public Object getAttribute(String name) { return attributes.get(name); }

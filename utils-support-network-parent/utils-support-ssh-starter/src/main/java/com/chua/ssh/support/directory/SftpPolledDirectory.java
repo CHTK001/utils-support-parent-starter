@@ -37,11 +37,6 @@ import java.util.List;
 public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry> {
 
     /**
-     * 日志实例
-     */
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SftpPolledDirectory.class);
-
-    /**
      * 主机地址
      */
     private final String host;

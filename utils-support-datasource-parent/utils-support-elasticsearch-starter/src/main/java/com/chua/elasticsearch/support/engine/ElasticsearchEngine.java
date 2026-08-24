@@ -126,7 +126,22 @@ public class ElasticsearchEngine implements Engine {
     @Override
     /** Store */
     public <T> Engine store(String name, List<T> data) {
-        log.info("[elasticsearch-datasource] 引擎暂不支持 store 操作: name={}, size={}", name, data == null ? 0 : data.size());
+        if (client == null) {
+            throw new IllegalStateException("请先 addDataSource 配置 Elasticsearch 客户端");
+        }
+        if (data == null || data.isEmpty()) {
+            return this;
+        }
+        try {
+            client.bulk(builder -> {
+                for (T entity : data) {
+                    builder.operations(op -> op.index(io -> io.index(name).document(entity)));
+                }
+                return builder;
+            });
+        } catch (Exception e) {
+            throw new RuntimeException("Elasticsearch 批量索引失败: index=" + name, e);
+        }
         return this;
     }
 

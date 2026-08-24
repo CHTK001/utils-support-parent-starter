@@ -42,12 +42,8 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Getter
+@Slf4j
 public class SshClient implements AutoCloseable {
-
-    /**
-     * 日志实例
-     */
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SshClient.class);
 
     /**
      * 主机地址
@@ -294,10 +290,6 @@ public class SshClient implements AutoCloseable {
     @Getter
     public static class ForwardOperation {
         /**
-         * 日志实例
-         */
-        private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ForwardOperation.class);
-        /**
          * 客户端实例
          */
         private final SshClient client;
@@ -483,10 +475,6 @@ public class SshClient implements AutoCloseable {
 
     @Getter
     public static class TerminalOperation {
-        /**
-         * 日志实例
-         */
-        private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TerminalOperation.class);
         /**
          * 客户端实例
          */
