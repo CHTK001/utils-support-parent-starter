@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.face;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
@@ -221,7 +222,7 @@ class DefaultFaceDetector implements FaceDetector {
     /**
      * 置信度阈值
      */
-    private float threshold = FaceDetector.DEFAULT_THRESHOLD;
+    private Float threshold;
 
     /**
      * NMS IOU 阈值
@@ -295,7 +296,7 @@ class DefaultFaceDetector implements FaceDetector {
     /** Detect */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
-                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }

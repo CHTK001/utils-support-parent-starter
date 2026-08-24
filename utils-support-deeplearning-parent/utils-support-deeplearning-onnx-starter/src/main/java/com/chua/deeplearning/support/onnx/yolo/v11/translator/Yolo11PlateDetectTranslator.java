@@ -102,10 +102,12 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
      * @param configuration 检测配置（可空）
      */
     public Yolo11PlateDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
-        this.confThreshold = configuration.optFloat(
-                com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, DEFAULT_CONF_THRESHOLD);
-        this.iouThreshold = configuration.optFloat(
-                com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD, DEFAULT_IOU_THRESHOLD);
+        this.confThreshold = configuration == null ? DEFAULT_CONF_THRESHOLD
+                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD,
+                        DEFAULT_CONF_THRESHOLD);
+        this.iouThreshold = configuration == null ? DEFAULT_IOU_THRESHOLD
+                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD,
+                        DEFAULT_IOU_THRESHOLD);
     }
 
 

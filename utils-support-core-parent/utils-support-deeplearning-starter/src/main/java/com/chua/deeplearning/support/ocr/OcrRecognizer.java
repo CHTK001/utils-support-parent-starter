@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.ocr;
 
 import com.chua.deeplearning.support.config.ModelSetting;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.engine.DetectOptions;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 
@@ -129,6 +130,16 @@ public interface OcrRecognizer {
      * @return 识别结果详情列表
      */
     List<OcrResult> recognizeDetail(byte[] imageData);
+
+    /**
+     * 设置置信度阈值（null 表示使用模型默认值）。
+     *
+     * @param threshold 阈值
+     * @return this
+     */
+    default OcrRecognizer threshold(float threshold) {
+        return this;
+    }
 }
 
 /**
@@ -152,6 +163,11 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     /**
      * 识别引擎。
      */
+    /**
+     * 置信度阈值（null 表示使用模型默认值）。
+     */
+    private Float threshold;
+
     private final IdentificationEngine engine;
 
     /**
@@ -204,6 +220,13 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
+    /** Threshold */
+    public OcrRecognizer threshold(float threshold) {
+        this.threshold = threshold;
+        return this;
+    }
+
+    @Override
     /** Lang */
     public OcrRecognizer lang(String lang) {
         this.lang = lang;
@@ -238,7 +261,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
         // 优先走 String 路径（单行 rec 模型返回纯文本）
         try {
             ITranslator<byte[], String> t =
-                    (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
+                    (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
             if (t != null) {
                 String s = t.translate(imageData);
                 if (s != null) {
@@ -266,7 +289,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     /** RecognizeDetail */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<OcrResult>> t =
-                (ITranslator<byte[], List<OcrResult>>) engine.get(modelName, ITranslator.class);
+                (ITranslator<byte[], List<OcrResult>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
