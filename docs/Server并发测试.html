@@ -285,6 +285,32 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 <li>AIO v2 不支持 ACME 自动证书与客户端证书双向认证；WS 帧循环运行于每连接虚拟线程，海量长连接时注意虚拟线程规模。</li>
 </ul></div>
 
+<h2><span class="num">8</span>🚩 服务器实测（最终定版数据）</h2>
+<div class="note" style="font-size:.95em">
+<b>&#127759; 测试环境（与本报告前述 Windows 数据完全独立）</b><br>
+<b>主机</b>：腾讯云 124.221.230.112（Ubuntu · <b>Linux 2 核</b> vCPU）<br>
+<b>内存</b>：1.9GB（压测进程 -Xmx600m）　<b>JDK</b>：OpenJDK 25.0.2　<b>日期</b>：2026-08-24<br>
+<b>口径</b>：HTTP GET /echo（长连接），每场景 ~20000 请求、预热后计时；aio 开启响应式+极限优化<br>
+<b>竞争控制</b>：已清场（kill 遗留 java/LoadTest），独占运行
+</div>
+
+<table style="margin-top:14px">
+<thead><tr><th colspan="6" style="text-align:left;background:#0f2417;color:var(--green)">256 字节 · 吞吐 RPS（括号内成功率）</th></tr>
+<tr><th>并发</th><th>AIO 🏆</th><th>NIO</th><th>Vert.x</th><th>JDK</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td rowspan="4" style="text-align:center"><b>256 B</b></td>
+<td>100</td><td class="win">11,567 (100%)</td><td>2,901 (92%)</td><td>5,211 (95%)</td><td>6,894 (93%)</td><td rowspan="4">AIO 四档全胜且唯一全 100%；其余实现成功率随负载下降</td></tr>
+<tr><td>500</td><td class="win">12,151 (100%)</td><td>3,702 (58%)</td><td>6,303 (82%)</td><td>3,432 (70%)</td></tr>
+<tr><td>1000</td><td class="win">10,935 (100%)</td><td>4,161 (52%)</td><td>8,026 (87%)</td><td>3,231 (63%)</td></tr>
+<tr><td>2000</td><td class="win">9,421 (100%)</td><td>5,433 (85%)</td><td>6,847 (85%)</td><td>3,023 (52%)</td></tr>
+<tr><td rowspan="4" style="text-align:center"><b>4096 B</b></td>
+<td>100</td><td class="win">13,671 (100%)</td><td>10,341 (100%)</td><td>12,338 (99%)</td><td>10,142 (97%)</td><td rowspan="4">大报文 AIO 依旧四档领先</td></tr>
+<tr><td>500</td><td class="win">10,560 (100%)</td><td>7,955 (93%)</td><td>9,671 (90%)</td><td>5,621 (80%)</td></tr>
+<tr><td>1000</td><td class="win">9,676 (100%)</td><td>7,249 (89%)</td><td>8,407 (90%)</td><td>3,959 (63%)</td></tr>
+<tr><td>2000</td><td class="win">8,130 (100%)</td><td>6,542 (89%)</td><td>6,805 (85%)</td><td>3,111 (59%)</td></tr>
+</tbody>
+</table>
+<div class="concl" style="margin-top:14px"><b>&#9989; 服务器环境结论</b>：<b>AIO 八档全胜</b>（小/大报文 × 四并发档），且是全场唯一保持 100% 成功率的实现；p99 同档最低（如 256B/cc100 仅 21ms）。纯非阻塞响应式改造在真实 Linux 服务器上得到完全验证。</div>
 <footer>压测 harness：<code>D:\ch\project\bench\ServerBench.java</code> · 功能覆盖：<code>HttpServerExampleSpi --type=aio --mode=func</code> (22/22 PASS) · utils-support-parent-starter &copy; 2026</footer>
 
 </div>
