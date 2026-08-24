@@ -3,13 +3,13 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * CC Switch usage parser.
@@ -18,18 +18,7 @@ import java.util.List;
  * for Claude Code / Codex / Gemini CLI providers. It keeps a SQLite database
  * at {@code ~/.cc-switch/cc-switch.db} whose {@code proxy_request_logs}
  * table records every routed request (proxy interception or CLI session
- * import) with full token, cost and latency detail:</p>
- *
- * <pre>{@code
- * CREATE TABLE proxy_request_logs (
- *   request_id TEXT, provider_id TEXT, app_type TEXT,
- *   model TEXT, input_tokens INTEGER, output_tokens INTEGER,
- *   cache_read_tokens INTEGER, cache_creation_tokens INTEGER,
- *   total_cost_usd TEXT, latency_ms INTEGER, first_token_ms INTEGER,
- *   duration_ms INTEGER, status_code INTEGER, session_id TEXT,
- *   created_at INTEGER,            -- epoch seconds
- *   data_source TEXT, ... )
- * }</pre>
+ * import) with full token, cost and latency detail.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -53,54 +42,42 @@ public class CcswitchUsageParser extends BaseUsageParser {
     private static final int HTTP_OK = 200;
 
     /**
-     * Returns the SPI name for CC Switch.
+     * 返回 SPI 名称。
      *
      * @return {@code "ccswitch"}
      */
     @Override
-    /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
-     */
-    @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
-                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
-    }
     public String name() {
         return "ccswitch";
     }
 
     /**
-     * Parses all request logs from the CC Switch SQLite database.
-     *
-     * @return list of AiUsage records, one per logged API request
+     * 响应式流式入口：逐行流出请求日志，内存占用与日志总量无关。
      */
-    private List<AiUsage> parseAll() {
+    @Override
+    public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
             log.debug("[ccswitch] database not found: {} (CC Switch not installed)", DB_PATH);
-            return List.of();
+            return Flux.empty();
         }
-        List<AiUsage> result = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
-             PreparedStatement stmt = conn.prepareStatement(SQL_REQUEST_LOGS);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                result.add(toAiUsage(rs));
+        return Flux.<AiUsage>create(sink -> {
+            long count = 0L;
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+                 PreparedStatement stmt = conn.prepareStatement(SQL_REQUEST_LOGS);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next() && !sink.isCancelled()) {
+                    sink.next(toAiUsage(rs));
+                    count++;
+                }
+                sink.complete();
+                log.info("[ccswitch] streamed {} request log records", count);
+            } catch (SQLException e) {
+                log.warn("[ccswitch] parse failed: {}", e.getMessage(), e);
+                sink.complete();
             }
-            log.info("[ccswitch] parsed {} request log records", result.size());
-        } catch (SQLException e) {
-            log.warn("[ccswitch] parse failed: {}", e.getMessage(), e);
-        }
-        return result;
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    /**
-     * Converts one proxy_request_logs row into an AiUsage record.
-     *
-     * @param rs result set positioned on the row to convert
-     * @return populated AiUsage record
-     * @throws SQLException if column access fails
-     */
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {
         String requestId = rs.getString(1);
         String appType = rs.getString(2);
@@ -151,13 +128,6 @@ public class CcswitchUsageParser extends BaseUsageParser {
         }
     }
 
-    /**
-     * Builds a traceable finish reason combining app type and HTTP status.
-     *
-     * @param appType   target application such as claude / codex / gemini
-     * @param statusCode HTTP status code of the routed request
-     * @reason reason string such as {@code "claude:200"} or {@code "claude:error-500"}
-     */
     private String finishReason(String appType, int statusCode) {
         String app = appType == null || appType.isBlank() ? "unknown" : appType;
         return statusCode == HTTP_OK ? app + ":stop" : app + ":http-" + statusCode;

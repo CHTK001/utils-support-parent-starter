@@ -3,6 +3,8 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -12,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OpenCode 用量解析器 — 从本地 SQLite 数据库解析会话与消息用量。
+ * OpenCode usage parser.
  *
- * <p>数据源为 {@code %USERPROFILE%\.local\share\opencode\opencode.db}，
- * 读取 {@code message} 表中的 {@code data} JSON 列，提取每次请求的
- * input/output/reasoning/cache tokens、费用、模型及服务商信息。</p>
+ * <p>Parses session and per-message usage from the local SQLite database at
+ * {@code ~/.local/share/opencode/opencode.db}, reading the JSON {@code data}
+ * column of the {@code message} table.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,38 +44,45 @@ public class OpencodeUsageParser extends BaseUsageParser {
                     + "   OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0 "
                     + "ORDER BY time_created ASC";
 
-    @Override
     /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     * Returns the SPI name for OpenCode.
+     *
+     * @return {@code "opencode"}
      */
-    @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
-                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
-    }
     public String name() {
         return "opencode";
     }
 
-    private List<AiUsage> parseAll() {
+    /**
+     * Streams usage rows from the OpenCode SQLite database.
+     *
+     * <p>The JDBC cursor runs on boundedElastic; rows are emitted lazily so
+     * memory stays flat regardless of table size.</p>
+     *
+     * @return stream of AiUsage records ordered by creation time
+     */
+    @Override
+    public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
-            log.debug("[opencode] 数据库文件不存在: {}", DB_PATH);
-            return List.of();
+            log.debug("[opencode] database file not found: {}", DB_PATH);
+            return Flux.empty();
         }
-        List<AiUsage> result = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH)) {
-            try (PreparedStatement stmt = conn.prepareStatement(SQL_MESSAGES)) {
-                try (ResultSet rs = stmt.executeQuery()) {
-                    while (rs.next()) {
-                        result.add(toAiUsage(rs));
-                    }
+        return Flux.<AiUsage>create(sink -> {
+            long count = 0L;
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+                 PreparedStatement stmt = conn.prepareStatement(SQL_MESSAGES);
+                 ResultSet rs = stmt.executeQuery()) {
+                while (rs.next() && !sink.isCancelled()) {
+                    sink.next(toAiUsage(rs));
+                    count++;
                 }
+                sink.complete();
+                log.info("[opencode] streamed {} usage records", count);
+            } catch (SQLException e) {
+                log.warn("[opencode] parse failed: {}", e.getMessage(), e);
+                sink.complete();
             }
-            log.info("[opencode] 解析完成，共 {} 条用量记录", result.size());
-        } catch (SQLException e) {
-            log.warn("[opencode] 解析失败: {}", e.getMessage(), e);
-        }
-        return result;
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {

@@ -52,7 +52,6 @@ public class VscodeUsageParser extends BaseUsageParser {
      *
      * @return {@code "vscode"}
      */
-    @Override
     /**
      * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
      */
@@ -61,6 +60,7 @@ public class VscodeUsageParser extends BaseUsageParser {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
+    @Override
     public String name() {
         return "vscode";
     }

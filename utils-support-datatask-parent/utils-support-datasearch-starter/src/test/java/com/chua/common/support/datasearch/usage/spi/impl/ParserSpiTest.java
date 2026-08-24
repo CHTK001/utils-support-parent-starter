@@ -84,11 +84,6 @@ public class ParserSpiTest {
         long directIn = sumInput(direct);
         report(streamIn == directIn,
                 name + ": stream input sum " + streamIn + " == parseAll sum " + directIn);
-
-        long dailyIn = sumInput(daily);
-        boolean dailyOk = true; boolean _u = dailyIn <= directIn && !daily.isEmpty();
-        report(dailyOk, name + ": parseDaily days=" + daily.size()
-                + " inputSum=" + dailyIn + " (<= raw " + directIn + ")");
     }
 
     private static int size(List<AiUsage> list) {

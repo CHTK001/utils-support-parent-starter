@@ -34,7 +34,9 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         return "claude-code";
     }
 
-    @Override
+    /**
+     * 遗留实现（不再属于契约）：全量装载。请优先使用 {@link #streamAll()}。
+     */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
             log.debug("[claude-code] projects dir not found: {}", PROJECTS_DIR);

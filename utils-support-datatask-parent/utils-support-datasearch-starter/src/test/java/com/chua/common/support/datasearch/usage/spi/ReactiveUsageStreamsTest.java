@@ -37,11 +37,6 @@ class ReactiveUsageStreamsTest {
             return "temp";
         }
 
-        /** 旧契约桥接：不应被调用（streamAll 已走流式路径） */
-        @Override
-        public List<AiUsage> parseAll() {
-            throw new UnsupportedOperationException("应走流式路径");
-        }
 
         /** 新契约：逐行惰性流式 */
         @Override
@@ -93,14 +88,16 @@ class ReactiveUsageStreamsTest {
             }
 
             @Override
-            public List<AiUsage> parseAll() {
-                calls.incrementAndGet();
-                return List.of(Mockito.mock(AiUsage.class), Mockito.mock(AiUsage.class));
+            public Flux<AiUsage> streamAll() {
+                return Flux.defer(() -> {
+                    calls.incrementAndGet();
+                    return Flux.just(Mockito.mock(AiUsage.class), Mockito.mock(AiUsage.class));
+                });
             }
         };
 
         var flux = ReactiveUsageStreams.concat(List.of(lazy));
-        assertEquals(0, calls.get(), "concat 应惰性，订阅前不得触发");
+        assertEquals(0, calls.get(), "streamAll 应惰性，订阅前不得触发");
 
         StepVerifier.create(flux).expectNextCount(2).verifyComplete();
         assertEquals(1, calls.get());
@@ -119,13 +116,15 @@ class ReactiveUsageStreamsTest {
             }
 
             @Override
-            public List<AiUsage> parseAll() {
-                calls.incrementAndGet();
-                return List.of(Mockito.mock(AiUsage.class));
+            public Flux<AiUsage> streamAll() {
+                return Flux.defer(() -> {
+                    calls.incrementAndGet();
+                    return Flux.just(Mockito.mock(AiUsage.class));
+                });
             }
         };
 
-        assertEquals(0, calls.get(), "桥接应惰性，订阅前不得触发");
+        assertEquals(0, calls.get(), "streamAll 应惰性，订阅前不得触发");
         StepVerifier.create(legacy.streamAll()).expectNextCount(1).verifyComplete();
         assertEquals(1, calls.get());
     }
