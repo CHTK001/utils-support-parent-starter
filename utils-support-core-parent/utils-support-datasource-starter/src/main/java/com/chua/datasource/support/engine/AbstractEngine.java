@@ -11,6 +11,8 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrappe
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.datasource.support.meta.DefaultMetaData;
+import com.chua.datasource.support.ddl.DslManager;
+import com.chua.datasource.support.user.UserManager;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
@@ -483,5 +485,29 @@ public abstract class AbstractEngine implements Engine {
             sb.append(Character.toLowerCase(c));
         }
         return sb.toString();
+    }
+
+    /* ==================== 能力入口（与 meta() 同模式） ==================== */
+
+    /**
+     * 获取 DDL 管理器入口（与 meta() 同模式）。
+     * <p>默认实现抛出 UnsupportedOperationException，由具备
+     * DDL 管理能力的引擎子类或 SPI 环境覆盖。</p>
+     *
+     * @return DdlManager 实例
+     */
+    public DslManager ddl() {
+        throw new UnsupportedOperationException("当前引擎不支持 DDL 管理");
+    }
+
+    /**
+     * 获取用户管理器入口（与 meta() 同模式）。
+     * <p>默认实现抛出 UnsupportedOperationException，由具备
+     * 用户管理能力的引擎子类或 SPI 环境覆盖。</p>
+     *
+     * @return UserManager 实例
+     */
+    public UserManager user() {
+        throw new UnsupportedOperationException("当前引擎不支持用户管理");
     }
 }

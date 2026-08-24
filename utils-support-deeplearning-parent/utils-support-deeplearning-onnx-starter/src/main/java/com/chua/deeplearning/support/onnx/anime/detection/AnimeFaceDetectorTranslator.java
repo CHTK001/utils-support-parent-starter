@@ -44,17 +44,17 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * 置信度阈值。
      */
-    private static final float CONF_THRESHOLD = 0.25f;
+    private static final float CONF_THRESHOLD = 0.5f;
 
     /**
      * NMS IOU 阈值。
      */
-    private static final float IOU_THRESHOLD = 0.45f;
+    private static final float IOU_THRESHOLD = 0.6f;
 
     /**
      * Top-K。
      */
-    private static final int TOP_K = 300;
+    private static final int TOP_K = 30;
 
     /**
      * letterbox 缩放比例与填充。

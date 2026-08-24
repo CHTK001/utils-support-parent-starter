@@ -27,5 +27,25 @@
             <version>1.14.4</version>
         </dependency>
 
+        <!--
+            parquet 系将 Hadoop 标记为 provided；本引擎做本地文件读写，
+            显式引入 hadoop-common 提供 org.apache.hadoop.fs.Path / Configuration。
+        -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+
+            <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

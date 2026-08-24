@@ -6,12 +6,15 @@ import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Codex++ 用量解析器 — 从 Codex 本地 SQLite + 配置解析用量
+ * Codex++ 用量解析器 — 从本地 SQLite 数据库解析会话用量。
  *
- * <p>数据源: %USERPROFILE%/.codex/</p>
+ * <p>数据源为 {@code %USERPROFILE%\.codex\state_5.sqlite} 中的 {@code threads} 表。
+ * 该表按会话（thread）聚合 tokens_used，但不区分输入/输出缓存粒度。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,24 +22,46 @@ import java.util.List;
 @Spi("codex++")
 public class CodexPlusPlusUsageParser extends BaseUsageParser {
 
-    /** Data_dir */
-    private static final Path DATA_DIR = Path.of(System.getProperty("user.home"), ".codex");
+    private static final Path DB_PATH = Path.of(
+            System.getProperty("user.home"), ".codex", "state_5.sqlite");
+
+    private static final String SQL_THREADS =
+            "SELECT created_at_ms, model, model_provider, tokens_used FROM threads "
+                    + "WHERE tokens_used > 0 ORDER BY created_at_ms ASC";
 
     @Override
-    /** Name */
     public String name() {
         return "codex++";
     }
 
     @Override
-    /** 解析All */
     public List<AiUsage> parseAll() {
-        if (!Files.isDirectory(DATA_DIR)) {
-            log.debug("[codex++] 数据目录不存在: {}", DATA_DIR);
+        if (!Files.exists(DB_PATH)) {
+            log.debug("[codex++] 数据库文件不存在: {}", DB_PATH);
             return List.of();
         }
-        // TODO: 解析 .codex/logs_2.sqlite 中的用量数据
-        log.debug("[codex++] 数据目录存在，待实现 SQLite 解析逻辑");
-        return List.of();
+        List<AiUsage> result = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH)) {
+            try (PreparedStatement stmt = conn.prepareStatement(SQL_THREADS)) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        long startTime = rs.getLong(1);
+                        String model = rs.getString(2);
+                        String provider = rs.getString(3);
+                        int tokensUsed = rs.getInt(4);
+                        result.add(AiUsage.builder()
+                                .provider(provider)
+                                .model(model)
+                                .totalTokens(tokensUsed)
+                                .startTime(startTime > 0 ? startTime : null)
+                                .build());
+                    }
+                }
+            }
+            log.info("[codex++] 解析完成，共 {} 条会话记录", result.size());
+        } catch (SQLException e) {
+            log.warn("[codex++] 解析失败: {}", e.getMessage(), e);
+        }
+        return result;
     }
 }

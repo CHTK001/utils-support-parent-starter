@@ -40,14 +40,24 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
     private static final int INPUT_SIZE = 640;
 
     /**
-     * 置信度阈值。
+     * 默认置信度阈值。
      */
-    private static final float CONF_THRESHOLD = 0.25f;
+    private static final float DEFAULT_CONF_THRESHOLD = 0.25f;
 
     /**
-     * IOU 阈值。
+     * 默认 IOU 阈值。
      */
-    private static final float IOU_THRESHOLD = 0.45f;
+    private static final float DEFAULT_IOU_THRESHOLD = 0.45f;
+
+    /**
+     * 置信度阈值（可通过 DetectionConfiguration.systemOption("threshold") 覆盖）。
+     */
+    private final float confThreshold;
+
+    /**
+     * IOU 阈值（可通过 DetectionConfiguration.systemOption("iouThreshold") 覆盖）。
+     */
+    private final float iouThreshold;
 
     /**
      * 类别名。
@@ -78,6 +88,51 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
      * letterbox 垂直填充。
      */
     private int padY;
+
+    public Yolo11PlateDetectTranslator() {
+        this(null);
+    }
+
+    /**
+     * 创建 Translator（支持运行参数覆盖阈值）。
+     *
+     * <p>支持的键：{@code threshold}（置信度，默认 0.25）、{@code iouThreshold}（默认 0.45），
+     * 未提供的键使用内置准确默认值。</p>
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public Yolo11PlateDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        java.util.Map<String, Object> opts =
+                configuration == null ? null : configuration.systemOption();
+        this.confThreshold = readFloat(opts, "threshold", DEFAULT_CONF_THRESHOLD);
+        this.iouThreshold = readFloat(opts, "iouThreshold", DEFAULT_IOU_THRESHOLD);
+    }
+
+    /**
+     * 读取浮点参数。
+     *
+     * @param opts 参数表（可空）
+     * @param key  键
+     * @param def  默认值
+     * @return 参数值或默认值
+     */
+    private static float readFloat(java.util.Map<String, Object> opts, String key, float def) {
+        if (opts == null) {
+            return def;
+        }
+        Object v = opts.get(key);
+        if (v instanceof Number num) {
+            return num.floatValue();
+        }
+        if (v instanceof String s && !s.isBlank()) {
+            try {
+                return Float.parseFloat(s.trim());
+            } catch (NumberFormatException ignored) {
+                return def;
+            }
+        }
+        return def;
+    }
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
@@ -122,7 +177,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
             float w = val(data, i, 2, transposed, numBoxes, features);
             float h = val(data, i, 3, transposed, numBoxes, features);
             float conf = val(data, i, 4, transposed, numBoxes, features);
-            if (conf < CONF_THRESHOLD) {
+            if (conf < confThreshold) {
                 continue;
             }
             // letterbox 坐标 → 原图像素 → 归一化（DJL Rectangle 使用 0~1）
@@ -139,7 +194,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
             probs.add((double) conf);
         }
 
-        List<Integer> keep = NMSUtils.nms(new ArrayList<>(boxes), probs, IOU_THRESHOLD);
+        List<Integer> keep = NMSUtils.nms(new ArrayList<>(boxes), probs, iouThreshold);
         List<String> finalNames = new ArrayList<>(keep.size());
         List<Double> finalProbs = new ArrayList<>(keep.size());
         List<BoundingBox> finalBoxes = new ArrayList<>(keep.size());

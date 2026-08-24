@@ -4,19 +4,19 @@ import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
 
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OpenCode 用量解析器 — 从本地存储目录解析
+ * OpenCode 用量解析器 — 从本地 SQLite 数据库解析会话与消息用量。
  *
- * <p>数据源: %USERPROFILE%\.local\share\opencode\
- * <ul>
- *   <li>项目位于 Git 仓库时: &lt;project-slug&gt;/storage/</li>
- *   <li>非 Git 仓库: global/storage/</li>
- * </ul>
- * </p>
+ * <p>数据源为 {@code %USERPROFILE%\.local\share\opencode\opencode.db}，
+ * 读取 {@code message} 表中的 {@code data} JSON 列，提取每次请求的
+ * input/output/reasoning/cache tokens、费用、模型及服务商信息。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,25 +24,76 @@ import java.util.List;
 @Spi("opencode")
 public class OpencodeUsageParser extends BaseUsageParser {
 
-    /** Data_dir */
-    private static final Path DATA_DIR = Path.of(
-            System.getProperty("user.home"), ".local", "share", "opencode");
+    private static final Path DB_PATH = Path.of(
+            System.getProperty("user.home"), ".local", "share", "opencode", "opencode.db");
+
+    private static final String SQL_MESSAGES =
+            "SELECT time_created, "
+                    + "CAST(json_extract(data, '$.providerID') AS TEXT), "
+                    + "CAST(json_extract(data, '$.modelID') AS TEXT), "
+                    + "CAST(json_extract(data, '$.tokens.input') AS INTEGER), "
+                    + "CAST(json_extract(data, '$.tokens.output') AS INTEGER), "
+                    + "CAST(json_extract(data, '$.tokens.reasoning') AS INTEGER), "
+                    + "CAST(json_extract(data, '$.tokens.cache.read') AS INTEGER), "
+                    + "CAST(json_extract(data, '$.tokens.cache.write') AS INTEGER), "
+                    + "CAST(json_extract(data, '$.cost') AS REAL) "
+                    + "FROM message "
+                    + "WHERE CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
+                    + "   OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0 "
+                    + "ORDER BY time_created ASC";
 
     @Override
-    /** Name */
     public String name() {
         return "opencode";
     }
 
     @Override
-    /** 解析All */
     public List<AiUsage> parseAll() {
-        if (!Files.isDirectory(DATA_DIR)) {
-            log.debug("[opencode] 数据目录不存在: {}", DATA_DIR);
+        if (!Files.exists(DB_PATH)) {
+            log.debug("[opencode] 数据库文件不存在: {}", DB_PATH);
             return List.of();
         }
-        // TODO: 解析 project/<slug>/storage/ 或 global/storage/ 中的会话数据
-        log.debug("[opencode] 数据目录存在，待实现解析逻辑");
-        return List.of();
+        List<AiUsage> result = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH)) {
+            try (PreparedStatement stmt = conn.prepareStatement(SQL_MESSAGES)) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(toAiUsage(rs));
+                    }
+                }
+            }
+            log.info("[opencode] 解析完成，共 {} 条用量记录", result.size());
+        } catch (SQLException e) {
+            log.warn("[opencode] 解析失败: {}", e.getMessage(), e);
+        }
+        return result;
+    }
+
+    private AiUsage toAiUsage(ResultSet rs) throws SQLException {
+        long startTime = rs.getLong(1);
+        String provider = rs.getString(2);
+        String model = rs.getString(3);
+        int inputTokens = rs.getInt(4);
+        int outputTokens = rs.getInt(5);
+        int reasoningTokens = rs.getInt(6);
+        int cacheRead = rs.getInt(7);
+        int cacheWrite = rs.getInt(8);
+        double costDouble = rs.getDouble(9);
+
+        int totalTokens = inputTokens + outputTokens;
+        BigDecimal totalCost = BigDecimal.valueOf(costDouble);
+
+        return AiUsage.builder()
+                .provider(provider)
+                .model(model)
+                .inputTokens(inputTokens)
+                .outputTokens(outputTokens)
+                .totalTokens(totalTokens)
+                .reasoningTokens(reasoningTokens > 0 ? reasoningTokens : null)
+                .cacheTokens(cacheRead > 0 ? cacheRead : null)
+                .totalCost(totalCost.compareTo(BigDecimal.ZERO) > 0 ? totalCost : null)
+                .currency("USD")
+                .startTime(startTime > 0 ? startTime : null)
+                .build();
     }
 }

@@ -71,6 +71,46 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
+     * 创建 YoloV8sTranslator 实例（支持运行参数覆盖阈值）。
+     *
+     * <p>支持的键：{@code threshold}（置信度，默认 0.25）、{@code iouThreshold}（默认 0.45），
+     * 未提供的键使用内置准确默认值。</p>
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public YoloV8sTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this(readFloat(configuration, "threshold", DEFAULT_THRESHOLD),
+                readFloat(configuration, "iouThreshold", DEFAULT_NMS_THRESHOLD), CLASSES);
+    }
+
+    /**
+     * 读取浮点参数。
+     *
+     * @param configuration 检测配置（可空）
+     * @param key           键
+     * @param def           默认值
+     * @return 参数值或默认值
+     */
+    private static float readFloat(com.chua.deeplearning.support.ai.DetectionConfiguration configuration,
+                                   String key, float def) {
+        if (configuration == null || configuration.systemOption() == null) {
+            return def;
+        }
+        Object v = configuration.systemOption().get(key);
+        if (v instanceof Number num) {
+            return num.floatValue();
+        }
+        if (v instanceof String s && !s.isBlank()) {
+            try {
+                return Float.parseFloat(s.trim());
+            } catch (NumberFormatException ignored) {
+                return def;
+            }
+        }
+        return def;
+    }
+
+    /**
      * 创建 YoloV8sTranslator 实例
      * @param threshold threshold
      * @param float float

@@ -45,13 +45,14 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDManager manager = ctx.getNDManager();
 
-        // 灰度图像预处理：确保为灰度 -> 归一化 [0, 1] -> [1, 1, H, W]
+        // 预处理：确保为灰度 -> 归一化 [0, 1] -> 复制三通道 -> [1, 3, H, W]
+        // （嵌入式 DeOldify ONNX 的输入为 NCHW 3 通道）
         NDArray gray = input.toNDArray(manager, Image.Flag.GRAYSCALE);
         if (!DataType.FLOAT32.equals(gray.getDataType())) {
             gray = gray.toType(DataType.FLOAT32, false);
         }
         gray = gray.div(255.0f);
-        gray = gray.transpose(2, 0, 1).expandDims(0);
+        gray = gray.transpose(2, 0, 1).repeat(0, 3).expandDims(0);
 
         log.debug("[ImageColorize] Input: gray={}", gray.getShape());
         return new NDList(gray);

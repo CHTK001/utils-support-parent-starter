@@ -11,7 +11,7 @@ import java.nio.ByteOrder;
  * @author CH
  * @since 4.0.0.42
  */
-class WavDecoder {
+public class WavDecoder {
 
     /**
      * 默认采样率（纯 PCM 假定值）。
@@ -25,7 +25,7 @@ class WavDecoder {
      * @param targetSampleRate 目标采样率
      * @return float 单声道样本
      */
-    static float[] decodeToFloat(byte[] data, int targetSampleRate) {
+    public static float[] decodeToFloat(byte[] data, int targetSampleRate) {
         if (DfsmnAnsTranslator.isWav(data)) {
             return decodeWav(data, targetSampleRate);
         }
@@ -139,7 +139,7 @@ class WavDecoder {
      * @param bitsPerSample 位深
      * @return 44 字节 WAV 头
      */
-    static byte[] buildWavHeader(int dataSize, int sampleRate, int channels, int bitsPerSample) {
+    public static byte[] buildWavHeader(int dataSize, int sampleRate, int channels, int bitsPerSample) {
         int byteRate = sampleRate * channels * bitsPerSample / 8;
         int blockAlign = channels * bitsPerSample / 8;
         ByteBuffer bb = ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN);

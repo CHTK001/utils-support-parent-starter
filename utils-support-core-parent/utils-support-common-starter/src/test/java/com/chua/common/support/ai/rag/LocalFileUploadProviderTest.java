@@ -31,9 +31,7 @@ class LocalFileUploadProviderTest {
         if (provider != null) {
             provider.delete("test-doc");
         }
-        if (tempDir != null) deleteRecursively(tempDir.toFile() {
-            );
-        }
+        if (tempDir != null) deleteRecursively(tempDir.toFile());
     }
 
     @Test

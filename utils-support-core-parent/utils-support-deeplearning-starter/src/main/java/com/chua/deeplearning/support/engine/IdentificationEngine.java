@@ -40,6 +40,23 @@ public interface IdentificationEngine {
     <T> T get(String name, Class<T> target);
 
     /**
+     * 按名称获取模型实例并注入运行参数。
+     *
+     * <p>参数仅在模型 Translator 首次实例化前生效，各 Translator 自行声明支持的键
+     * （如 {@code threshold}、{@code iouThreshold}、{@code candidates}）与默认值；
+     * 未注入时使用各模型自身的准确默认值。</p>
+     *
+     * @param name    模型名称
+     * @param target  目标类型
+     * @param options 运行参数键值对（可空）
+     * @param <T>     泛型
+     * @return 模型实例
+     */
+    default <T> T get(String name, Class<T> target, java.util.Map<String, Object> options) {
+        return get(name, target);
+    }
+
+    /**
      * 按目标类型获取模型实例。
      *
      * @param target 目标类型

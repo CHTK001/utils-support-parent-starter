@@ -66,6 +66,8 @@ public class WhisperTranslator {
     /** 分词器 */
     /** Tokenizer */
     private WhisperTokenizer tokenizer;
+    /** 识别语言（zh/en 等；显式指定后在提示中加入语言 token，解决非英文输出乱码） */
+    private String language;
     /** ONNX 运行时环境 */
     /** ORTENV */
     private OrtEnvironment ortEnv;
@@ -198,7 +200,7 @@ public class WhisperTranslator {
         try {
             float[][] mel = melExtractor.extract(audio);
             log.info("[Whisper] mel shape={}x{}", mel.length, mel[0].length);
-            return doTranscribe(mel);
+                    return doTranscribe(mel);
         } catch (Throwable t) {
             log.error("[Whisper] mel/encoder failed: {}", t.getMessage(), t);
             throw t;
@@ -220,7 +222,7 @@ public class WhisperTranslator {
             ai.onnxruntime.OnnxValue encVal = r.get(0);
             OnnxTensor encOut = (OnnxTensor) encVal;
             encoderHidden = encOut.getFloatBuffer().array();
-            long[] shape = encOut.getInfo().getShape();
+                        long[] shape = encOut.getInfo().getShape();
             log.info("[Whisper] encoder hidden shape={}x{}x{}", shape[0], shape[1], shape[2]);
         }
 
@@ -229,10 +231,25 @@ public class WhisperTranslator {
         return tokenizer.decode(generated);
     }
 
+
+    /** 设置识别语言（zh/en 等） */
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
     /** Greedy解码（非自回归模式：每次扩展输入序列重新推理） */
     private int[] greedyDecode(float[] encoderHidden) {
         List<Integer> tokens = new ArrayList<>();
         tokens.add(WhisperTokenizer.SOT);
+        // 显式语言时使用官方提示布局：[SOT, <|lang|>, TRANSCRIBE, NOTIMESTAMPS]
+        if (language != null && !language.isBlank()) {
+            String langToken = "<|" + language.trim().toLowerCase() + "|>";
+            int langId = tokenizer.tokenToId(langToken);
+            if (langId > 0) {
+                tokens.add(langId);
+                tokens.add(WhisperTokenizer.TRANSCRIBE);
+            }
+        }
         tokens.add(WhisperTokenizer.NOTIMESTAMPS);
 
         int maxNew = 100;

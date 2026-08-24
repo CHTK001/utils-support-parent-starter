@@ -23,7 +23,7 @@ public class SinchVoiceCall implements VoiceCall {
     @Override
     /** 调用 */
     public CallResponse call(CallRequest request) throws Exception {
-        // TODO: 使用 Sinch SDK 发起语音呼叫
+        // TODO[@L26]: 使用 Sinch SDK 发起语音呼叫
         // SinchClient sinch = SinchClientBuilder.create()
         //         .applicationKey(appKey)
         //         .applicationSecret(appSecret)

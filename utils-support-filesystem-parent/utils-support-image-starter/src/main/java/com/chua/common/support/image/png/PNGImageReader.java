@@ -1469,7 +1469,7 @@ public class PNGImageReader extends ImageReader {
 
                 pixelStream.readFully(curr, 0, bytesPerRow);
             } catch (java.util.zip.ZipException ze) {
-                // TODO - throw a more meaningful exception
+                // TODO[@L1472] - throw a more meaningful exception
                 throw ze;
             }
 

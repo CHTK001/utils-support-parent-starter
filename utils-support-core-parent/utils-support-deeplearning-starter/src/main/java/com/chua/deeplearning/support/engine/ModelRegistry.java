@@ -819,11 +819,23 @@ public final class ModelRegistry {
      * @return ITranslator
      */
     public static ITranslator<Object, Object> createTranslator(String modelId, Path modelPath) {
+        return createTranslator(modelId, modelPath, null);
+    }
+
+    /**
+     * 创建懒加载 Translator（可携带运行参数）。
+     *
+     * @param modelId  模型标识
+     * @param modelPath 模型路径（可空，懒解析）
+     * @param options  运行参数（threshold/iouThreshold/inputSize/candidates 等，可空）
+     * @return 懒加载 Translator
+     */
+    public static ITranslator<Object, Object> createTranslator(String modelId, Path modelPath, Map<String, Object> options) {
         Entry entry = REGISTRY.get(modelId);
         if (entry == null) {
             throw new IllegalStateException("Model not registered: " + modelId);
         }
-        return new LazyDjlTranslator(modelId, modelPath, entry.translatorClassName());
+        return new LazyDjlTranslator(modelId, modelPath, entry.translatorClassName(), options);
     }
 
     /**
@@ -864,7 +876,7 @@ public final class ModelRegistry {
     /**
      * 懒加载 DJL Translator：首次推理时才实例化模型。
      */
-    private static final class LazyDjlTranslator implements ITranslator<Object, Object>, AutoCloseable {
+    private static final class LazyDjlTranslator implements ITranslator<Object, Object>, AutoCloseable, DetectionConfigurable {
 
         /** 模型ID */
         private final String modelId;
@@ -872,6 +884,8 @@ public final class ModelRegistry {
         private final Path modelPath;
         /** Translatorclass名称 */
         private final String translatorClassName;
+        /** 运行参数（threshold 等，首次实例化前可注入） */
+        private volatile Map<String, Object> options;
         /** delegate */
         private volatile ITranslator<Object, Object> delegate;
 
@@ -882,9 +896,41 @@ public final class ModelRegistry {
          * @param String String
          */
         private LazyDjlTranslator(String modelId, Path modelPath, String translatorClassName) {
+            this(modelId, modelPath, translatorClassName, null);
+        }
+
+        /**
+         * 创建 LazyDjlTranslator 实例（携带运行参数）。
+         *
+         * @param modelId modelId
+         * @param modelPath modelPath
+         * @param translatorClassName translatorClassName
+         * @param options 运行参数（可空）
+         */
+        private LazyDjlTranslator(String modelId, Path modelPath, String translatorClassName, Map<String, Object> options) {
             this.modelId = modelId;
             this.modelPath = modelPath;
             this.translatorClassName = translatorClassName;
+            this.options = options;
+        }
+
+        /**
+         * 注入运行参数（仅首次实例化前生效）。
+         *
+         * @param options 参数键值对
+         */
+        @Override
+        public void configure(Map<String, Object> options) {
+            if (options == null || options.isEmpty()) {
+                return;
+            }
+            synchronized (this) {
+                if (delegate != null) {
+                    log.warn("[deeplearning-engine] 模型 {} 已初始化，运行参数注入被忽略: {}", modelId, options.keySet());
+                    return;
+                }
+                this.options = options == null ? null : new java.util.LinkedHashMap<>(options);
+            }
         }
 
         /** Ensure */
@@ -896,7 +942,7 @@ public final class ModelRegistry {
                         if (path == null || !Files.exists(path)) {
                             path = resolveModelPath(modelId);
                         }
-                        Object translator = newTranslatorInstance(translatorClassName);
+                        Object translator = newTranslatorInstance(translatorClassName, options);
                         if (translator instanceof ITranslator<?, ?> itranslator) {
                             // 原生 ITranslator：直接包装，不经过 DJL
                             delegate = new ITranslatorDelegate(modelId, path, itranslator);
@@ -949,8 +995,40 @@ public final class ModelRegistry {
     @SuppressWarnings("unchecked")
     /** NewTranslatorInstance */
     private static Object newTranslatorInstance(String translatorClassName) {
+        return newTranslatorInstance(translatorClassName, null);
+    }
+
+    /**
+     * 实例化 Translator：options 非空时优先带参构造
+     * （{@code ctor(DetectionConfiguration)} → {@code ctor(Map)}），均不可用则回退无参默认值。
+     *
+     * @param translatorClassName Translator 类名
+     * @param options 运行参数（可空）
+     * @return Translator 实例
+     */
+    private static Object newTranslatorInstance(String translatorClassName, Map<String, Object> options) {
         try {
             Class<?> translatorClass = Class.forName(translatorClassName);
+            if (options != null && !options.isEmpty()) {
+                try {
+                    java.lang.reflect.Constructor<?> cfgCtor =
+                            translatorClass.getDeclaredConstructor(com.chua.deeplearning.support.ai.DetectionConfiguration.class);
+                    com.chua.deeplearning.support.ai.DetectionConfiguration cfg =
+                            new com.chua.deeplearning.support.ai.DetectionConfiguration.DetectionConfigurationBuilder()
+                                    .systemOption(new java.util.LinkedHashMap<>(options))
+                                    .build();
+                    return cfgCtor.newInstance(cfg);
+                } catch (ReflectiveOperationException noCfgCtor) {
+                    try {
+                        java.lang.reflect.Constructor<?> mapCtor =
+                                translatorClass.getDeclaredConstructor(java.util.Map.class);
+                        return mapCtor.newInstance(new java.util.LinkedHashMap<>(options));
+                    } catch (ReflectiveOperationException noMapCtor) {
+                        log.warn("[deeplearning-engine] Translator {} 不支持运行参数注入（缺少 DetectionConfiguration/Map 构造），使用默认值: {}",
+                                translatorClassName, options.keySet());
+                    }
+                }
+            }
             try {
                 // 优先标准反射：JDK 17+ MethodHandle 受模块访问限制，ReflectUtils.instantiate 可能静默返回 null
                 return translatorClass.getDeclaredConstructor().newInstance();
