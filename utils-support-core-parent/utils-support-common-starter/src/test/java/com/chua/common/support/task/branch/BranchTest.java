@@ -134,7 +134,7 @@ class BranchTest {
     @Test
     void exceptionEscapesWithoutHandler() {
         assertDoesNotThrow(() -> Branch.of(1).when(v -> true, v -> 2).get());
-        Branch<String> bomb = Branch.of("x")
+        Branch<Object> bomb = Branch.of("x")
                 .when(v -> true, v -> {
                     throw new IllegalArgumentException("no-handler");
                 })
@@ -158,7 +158,7 @@ class BranchTest {
         String first = Branch.of("in")
                 .recover(e -> "fallback-1")
                 .protect(uniqueName, 1, 1, 60_000L)
-                .when(v -> true, v -> {
+                .<String>when(v -> true, v -> {
                     underlying.incrementAndGet();
                     throw new RuntimeException("down");
                 })
@@ -184,14 +184,14 @@ class BranchTest {
         // 前段：recover 覆盖风险步骤并生效
         List<String> first = Branch.of("seed")
                 .<List<String>>recover(e -> List.of("r1"))
-                .when(v -> true, v -> {
+                .<List<String>>when(v -> true, v -> {
                     throw new IllegalStateException("s1");
                 })
                 .get();
         assertEquals(List.of("r1"), first);
 
         // 后段：afterBranch 后作用域清零，无 recover 时异常穿透
-        Branch<String> boom = Branch.of("x")
+        Branch<Object> boom = Branch.of("x")
                 .when(v -> true, v -> {
                     throw new IllegalStateException("s2");
                 })

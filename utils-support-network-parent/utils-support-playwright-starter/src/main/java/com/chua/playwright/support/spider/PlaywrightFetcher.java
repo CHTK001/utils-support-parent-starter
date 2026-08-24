@@ -99,12 +99,13 @@ public class PlaywrightFetcher implements SpiderFetcher {
             page.navigate(request.getUrl());
             page.waitForLoadState(LoadState.NETWORKIDLE);
 
-            // 动态渲染稳定度轮询：内容长度连续两次采样不变即认为渲染完成，
+            // 动态渲染稳定度轮询：滚动触发懒加载，内容长度连续两次采样不变即认为完成，
             // 最长等待 STABILIZE_TIMEOUT，避免异步接口慢加载导致内容缺失
             String html;
             long stabilizeDeadline = System.currentTimeMillis() + STABILIZE_TIMEOUT.toMillis();
             int lastLen = -1;
             while (true) {
+                page.mouse().wheel(0, 1500);
                 html = page.content();
                 int len = html.length();
                 if (len == lastLen || System.currentTimeMillis() > stabilizeDeadline) {
@@ -118,6 +119,8 @@ public class PlaywrightFetcher implements SpiderFetcher {
                     break;
                 }
             }
+            // 回滚到页首，确保后续截图/解析行为一致
+            page.mouse().wheel(0, -100000);
             long elapsed = System.currentTimeMillis() - startTime;
 
             builder.statusCode(200)

@@ -145,6 +145,32 @@ public final class Branch<T> {
         return of(data);
     }
 
+    /**
+     * 针对字节数组的条件动作：当前值非 {@code byte[]} 时整组跳过，
+     * 谓词与动作均直接收到强类型的字节数组，无需调用侧转换。
+     *
+     * @param condition 触发条件（入参为字节数组）
+     * @param action    命中后的动作
+     * @param <R>       动作产出类型
+     * @return 类型切换后的分支链
+     */
+    public <R> Branch<R> whenBytes(Predicate<byte[]> condition,
+                                   Function<? super byte[], ? extends R> action) {
+        return when(v -> v instanceof byte[] b && condition.test(b),
+                v -> action.apply((byte[]) v));
+    }
+
+    /**
+     * 无条件执行针对字节数组的动作；当前值非 {@code byte[]} 时透传原值。
+     *
+     * @param action 动作
+     * @param <R>    动作产出类型
+     * @return 类型切换后的分支链
+     */
+    public <R> Branch<R> mapBytes(Function<? super byte[], ? extends R> action) {
+        return when(v -> true, v -> action.apply((byte[]) v));
+    }
+
     /* ---------------- 条件组 ---------------- */
 
     /**
@@ -342,6 +368,7 @@ public final class Branch<T> {
     private void addCase(Predicate<?> condition, Function<?, ?> action, boolean nullAware) {
         openGroup.cases.add(new Case((Predicate<Object>) condition,
                 (Function<Object, Object>) action, nullAware));
+        hasCondition = true;
     }
 
     /**
@@ -349,6 +376,7 @@ public final class Branch<T> {
      */
     private void addRawCase(Predicate<Object> condition, Function<?, ?> action, boolean nullAware) {
         openGroup.cases.add(new Case(condition, (Function<Object, Object>) action, nullAware));
+        hasCondition = true;
     }
 
     /* ---------------- 内部求值 ---------------- */
