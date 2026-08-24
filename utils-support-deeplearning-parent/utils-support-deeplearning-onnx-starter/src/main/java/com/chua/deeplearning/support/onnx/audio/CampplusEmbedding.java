@@ -66,7 +66,7 @@ public class CampplusEmbedding {
         this.session = session;
         this.ortEnv = env;
         this.inputName = session.getInputNames().iterator().next();
-        this.melFilters = buildKaldiMelFilters();
+        this.melFilters = buildKaldiMelFilters(FFT_N / 2 + 1);
         log.info("[Campplus] model loaded, input={}", inputName);
     }
 
@@ -325,4 +325,20 @@ public class CampplusEmbedding {
             try { session.close(); } catch (Exception ignore) {}
         }
     }
-}
+
+    /**
+     * 二维数组展平为一维。
+     */
+    private static float[] flatten(float[][] mat) {
+        int total = 0;
+        for (float[] row : mat) total += row.length;
+        float[] out = new float[total];
+        int pos = 0;
+        for (float[] row : mat) {
+            System.arraycopy(row, 0, out, pos, row.length);
+            pos += row.length;
+        }
+        return out;
+    }
+
+    }

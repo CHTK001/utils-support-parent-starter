@@ -108,12 +108,13 @@ public final class TaskGraph {
             }
         }
 
-        var currentLayer = new ArrayList<String>();
+        var initial = new ArrayList<String>();
         inDegree.forEach((id, degree) -> {
             if (degree == 0) {
-                currentLayer.add(id);
+                initial.add(id);
             }
         });
+        var currentLayer = initial;
 
         var layers = new ArrayList<List<TaskDefinition>>();
         var resolved = 0;
