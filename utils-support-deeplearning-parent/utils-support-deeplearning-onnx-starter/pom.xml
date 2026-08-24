@@ -343,12 +343,6 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-moonshine</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-yolov8n-pose</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -480,11 +474,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-whisper</artifactId>
-            <version>4.0.0.42</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-moonshine</artifactId>
             <version>4.0.0.42</version>
         </dependency>
     </dependencies>
