@@ -1,6 +1,8 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.utils.ClassUtils;
 import io.r2dbc.spi.ConnectionFactory;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,6 +45,8 @@ class JdbcReactorEngineTest {
 
     @Test
     void testDialectDetection_mysql() {
+        // 驱动已迁至 mysql-starter，classpath 无该驱动时自动跳过
+        Assumptions.assumeTrue(ClassUtils.isPresent("io.asyncer.r2dbc.mysql.MySqlConnectionFactoryProvider"), "缺少 r2dbc-mysql 驱动，跳过");
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", "jdbc:mysql://localhost:3306/mydb", "user", "pwd");
         assertNotNull(engine.getDialect("mysql"));
@@ -51,6 +55,8 @@ class JdbcReactorEngineTest {
 
     @Test
     void testDialectDetection_postgresql() {
+        // 驱动已迁至 postgresql-starter，classpath 无该驱动时自动跳过
+        Assumptions.assumeTrue(ClassUtils.isPresent("io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider"), "缺少 r2dbc-postgresql 驱动，跳过");
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("pg", "jdbc:postgresql://localhost:5432/mydb", "user", "pwd");
         assertNotNull(engine.getDialect("pg"));
@@ -59,6 +65,8 @@ class JdbcReactorEngineTest {
 
     @Test
     void testDialectDetection_sqlserver() {
+        // 驱动已迁至 sqlserver-starter，classpath 无该驱动时自动跳过
+        Assumptions.assumeTrue(ClassUtils.isPresent("io.r2dbc.mssql.MssqlConnectionFactoryProvider"), "缺少 r2dbc-mssql 驱动，跳过");
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("sqlserver", "jdbc:sqlserver://localhost:1433;databaseName=mydb", "user", "pwd");
         assertNotNull(engine.getDialect("sqlserver"));
@@ -86,6 +94,8 @@ class JdbcReactorEngineTest {
 
     @Test
     void testJdbcUrlConversion_mysql() {
+        // 驱动已迁至 mysql-starter，classpath 无该驱动时自动跳过
+        Assumptions.assumeTrue(ClassUtils.isPresent("io.asyncer.r2dbc.mysql.MySqlConnectionFactoryProvider"), "缺少 r2dbc-mysql 驱动，跳过");
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("mysql", "jdbc:mysql://localhost:3306/mydb", "user", "pwd");
         assertNotNull(engine.getR2dbcFactory("mysql"));
@@ -94,6 +104,8 @@ class JdbcReactorEngineTest {
 
     @Test
     void testJdbcUrlConversion_postgresql() {
+        // 驱动已迁至 postgresql-starter，classpath 无该驱动时自动跳过
+        Assumptions.assumeTrue(ClassUtils.isPresent("io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider"), "缺少 r2dbc-postgresql 驱动，跳过");
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("pg", "jdbc:postgresql://localhost:5432/mydb", "user", "pwd");
         assertNotNull(engine.getR2dbcFactory("pg"));
@@ -102,6 +114,8 @@ class JdbcReactorEngineTest {
 
     @Test
     void testJdbcUrlConversion_sqlserver() {
+        // 驱动已迁至 sqlserver-starter，classpath 无该驱动时自动跳过
+        Assumptions.assumeTrue(ClassUtils.isPresent("io.r2dbc.mssql.MssqlConnectionFactoryProvider"), "缺少 r2dbc-mssql 驱动，跳过");
         JdbcReactorEngine engine = new JdbcReactorEngine();
         engine.addDataSource("sqlserver", "jdbc:sqlserver://localhost:1433;databaseName=mydb", "user", "pwd");
         assertNotNull(engine.getR2dbcFactory("sqlserver"));
