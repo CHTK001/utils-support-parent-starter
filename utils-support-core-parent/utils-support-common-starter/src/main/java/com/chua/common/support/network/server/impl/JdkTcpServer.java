@@ -85,6 +85,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     private static final ThreadLocal<byte[]> THREAD_LOCAL_BUFFER =
             ThreadLocal.withInitial(() -> new byte[8192]);
 
+    /** 加密密钥（null 表示未启用加密） */
+    private volatile SecretKeySpec encryptKeySpec;
+
     /**
      * 服务器通道
      */
@@ -129,6 +132,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
      * 帧式处理器（{@link TcpServer} 接口）
      */
     private volatile TcpServerHandler frameHandler;
+
+    /**
+     * 流加密密钥（doStart 时由 encryptKey 派生缓存；null 表示未启用加密，连接路径零开销）
+     */
+    private volatile SecretKeySpec encryptKeySpec;
 
     /**
      * 流式处理器表（兼容既有 API）

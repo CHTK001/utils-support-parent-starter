@@ -30,12 +30,19 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
                     + "WHERE tokens_used > 0 ORDER BY created_at_ms ASC";
 
     @Override
+    /**
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
     public String name() {
         return "codex++";
     }
 
-    @Override
-    public List<AiUsage> parseAll() {
+    private List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
             log.debug("[codex++] 数据库文件不存在: {}", DB_PATH);
             return List.of();

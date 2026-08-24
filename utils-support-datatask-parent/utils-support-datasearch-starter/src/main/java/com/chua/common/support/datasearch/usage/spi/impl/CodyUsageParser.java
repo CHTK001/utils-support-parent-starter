@@ -35,12 +35,19 @@ public class CodyUsageParser extends BaseUsageParser {
     private static final Path CODY_DIR = Path.of(System.getProperty("user.home"), ".cody");
 
     @Override
+    /**
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
     public String name() {
         return "cody";
     }
 
-    @Override
-    public List<AiUsage> parseAll() {
+    private List<AiUsage> parseAll() {
         if (!Files.isDirectory(CODY_DIR)) {
             log.debug("[cody] Cody not installed");
             return List.of();

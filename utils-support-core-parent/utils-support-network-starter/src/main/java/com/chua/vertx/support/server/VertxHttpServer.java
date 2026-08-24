@@ -219,9 +219,9 @@ public class VertxHttpServer extends AbstractServer {
 
         rootRoute.handler(BodyHandler.create()
                 .setBodyLimit((int) setting.getMaxRequestSize())
-                // 关闭文件上传处理管线:大多数请求(含 GET 无 body)不涉及上传,
-                // 每请求省去 file upload 解析开销,提升吞吐
-                .setHandleFileUploads(false));
+                // 启用文件上传处理:仅当出现 multipart 分件时才落盘,
+                // 普通请求(GET/JSON 等)零额外开销;禁用将导致 getFiles() 恒为空
+                .setHandleFileUploads(true));
 
         // 虚拟线程池:handler 提交到虚拟线程并行执行,事件循环专注 I/O 多路复用
         virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
@@ -735,6 +735,9 @@ public class VertxHttpServer extends AbstractServer {
         /** 获取Files */
         public List<FormFile> getFiles() {
             List<io.vertx.ext.web.FileUpload> uploads = ctx.fileUploads();
+            System.err.println("[VF] ct=" + ctx.request().getHeader("Content-Type")
+                    + " uploads=" + (uploads == null ? "null" : uploads.size())
+                    + " bodyLen=" + (ctx.body() == null ? -1 : ctx.body().length()));
             if (uploads == null || uploads.isEmpty()) {
                 return java.util.Collections.emptyList();
             }
