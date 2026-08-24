@@ -129,6 +129,11 @@
             <version>1.11.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -204,7 +209,12 @@
                         <artifactId>junit-platform-launcher</artifactId>
                         <version>1.10.2</version>
                     </dependency>
-                </dependencies>
+                    <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
+    </dependencies>
             </plugin>
         </plugins>
     </build>
