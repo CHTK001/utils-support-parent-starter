@@ -38,7 +38,9 @@ public final class ObjectContextConfigLoader {
     private static final String[] CONFIG_LOCATIONS = {
             "application.yml",
             "application.yaml",
-            "application.properties"
+            "application.properties",
+            "application.json",
+            "application.jsonl"
     };
 
     /**

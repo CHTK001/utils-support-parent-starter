@@ -124,6 +124,10 @@ public class SipServer extends AbstractServer implements TcpServer {
         setting.setHost(config.getHost());
         setting.setPort(config.getPort());
         setting.setProtocol("tcp");
+        setting.setEncrypt(config.isEncrypt());
+        if (config.isEncrypt()) {
+            setting.setEncryptKey(config.getToken());
+        }
         return setting;
     }
 

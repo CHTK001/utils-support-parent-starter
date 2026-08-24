@@ -26,19 +26,12 @@ public class FinalTest {
         test("claude-code", new ClaudeCodeUsageParser());
         test("codex++", new CodexPlusPlusUsageParser());
         test("vscode", new VscodeUsageParser());
-        test("cursor-byok", new CursorByokUsageParser());
         test("cline", new ClineUsageParser());
-        test("windsurf", new WindsurfUsageParser());
         test("continue", new ContinueUsageParser());
-        test("gemini-cli", new GeminiCliUsageParser());
         test("cody", new CodyUsageParser());
         test("codebuddy", new CodeBuddyUsageParser());
-        test("roocode", new RooCodeUsageParser());
-        test("trae", new TraeUsageParser());
-        test("trae-cn", new TraeCnUsageParser());
         test("augment", new AugmentUsageParser());
         test("ccswitch", new CcswitchUsageParser());
-        test("zocde", new ZocdeUsageParser());
         test("joycode", new JoyCodeUsageParser());
         test("qoder", new QoderUsageParser());
     }

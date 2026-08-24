@@ -440,9 +440,14 @@ public class JdbcReactorEngine implements ReactorEngine {
      * @param password 密码，可为 null
      */
     protected void registerJdbcDataSource(String name, String jdbcUrl, String username, String password) {
-        jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
+        DataSource ds = createJdbcDataSource(jdbcUrl, username, password);
+        jdbcDataSources.put(name, ds);
         jdbcUrls.put(name, jdbcUrl);
-        dialects.put(name, detectDialect(jdbcUrl));
+        // SQLite/DuckDB 等无已知方言时允许为空，执行路径仅依赖 DataSource
+        com.chua.common.support.lang.datasource.dialect.Dialect d = detectDialect(jdbcUrl);
+        if (d != null) {
+            dialects.put(name, d);
+        }
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
@@ -663,9 +668,16 @@ public class JdbcReactorEngine implements ReactorEngine {
      */
     private boolean needsJdbcPath(String name) {
         String url = jdbcUrls.get(name);
-        return url != null && (url.startsWith(JDBC_PREFIX_SQLSERVER)
+        if (url == null) {
+            return false;
+        }
+        if (url.startsWith(JDBC_PREFIX_SQLSERVER)
                 || url.startsWith(JDBC_PREFIX_MYSQL)
-                || url.startsWith(JDBC_PREFIX_MARIADB));
+                || url.startsWith(JDBC_PREFIX_MARIADB)) {
+            return true;
+        }
+        /* 已注册纯 JDBC 数据源且无对应 R2DBC 工厂（如 SQLite/DuckDB）时走 JDBC */
+        return !r2dbcFactories.containsKey(name);
     }
 
     private Flux<Map<String, Object>> queryViaR2dbc(String name, String sql, Object... params) {

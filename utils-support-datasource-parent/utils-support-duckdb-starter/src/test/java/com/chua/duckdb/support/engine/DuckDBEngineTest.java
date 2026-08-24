@@ -134,7 +134,9 @@ class DuckDBEngineTest {
      */
     @Test
     void testMetaFallback() {
-        assertInstanceOf(DefaultMetaData.class, engine.meta());
+        // DuckDB 提供方言级元数据实现（DuckdbMetaData），优于通用 DefaultMetaData 兜底
+        assertInstanceOf(com.chua.common.support.lang.datasource.meta.MetaData.class, engine.meta());
+        assertNotNull(engine.meta());
     }
 
     /**
