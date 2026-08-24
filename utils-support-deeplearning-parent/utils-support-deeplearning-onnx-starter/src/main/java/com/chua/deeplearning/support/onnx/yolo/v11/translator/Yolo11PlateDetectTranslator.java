@@ -102,37 +102,12 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
      * @param configuration 检测配置（可空）
      */
     public Yolo11PlateDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
-        java.util.Map<String, Object> opts =
-                configuration == null ? null : configuration.systemOption();
-        this.confThreshold = readFloat(opts, "threshold", DEFAULT_CONF_THRESHOLD);
-        this.iouThreshold = readFloat(opts, "iouThreshold", DEFAULT_IOU_THRESHOLD);
+        this.confThreshold = configuration.optFloat(
+                com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, DEFAULT_CONF_THRESHOLD);
+        this.iouThreshold = configuration.optFloat(
+                com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD, DEFAULT_IOU_THRESHOLD);
     }
 
-    /**
-     * 读取浮点参数。
-     *
-     * @param opts 参数表（可空）
-     * @param key  键
-     * @param def  默认值
-     * @return 参数值或默认值
-     */
-    private static float readFloat(java.util.Map<String, Object> opts, String key, float def) {
-        if (opts == null) {
-            return def;
-        }
-        Object v = opts.get(key);
-        if (v instanceof Number num) {
-            return num.floatValue();
-        }
-        if (v instanceof String s && !s.isBlank()) {
-            try {
-                return Float.parseFloat(s.trim());
-            } catch (NumberFormatException ignored) {
-                return def;
-            }
-        }
-        return def;
-    }
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
