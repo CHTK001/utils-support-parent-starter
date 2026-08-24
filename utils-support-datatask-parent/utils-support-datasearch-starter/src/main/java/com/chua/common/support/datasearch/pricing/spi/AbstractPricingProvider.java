@@ -4,7 +4,6 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.HttpClientFactory;
-import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.CollectionUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -167,12 +166,11 @@ public abstract class AbstractPricingProvider implements PricingProvider {
     /**
      * 从指定定价页面的 HTML 表格抓取模型定价。
      *
-     * <p>先以普通 HTTP 抓取并按表头语义解析；若无有效结果且 classpath 中存在
-     * {@link PricingPageRenderer} 实现（如 utils-support-playwright-starter），
-     * 则借助无头浏览器渲染页面后再次解析。价格合并在同一单元格内的布局
-     * （如"输入：0.5元输出：2元"）按标签提取；单元格货币符号与目标币种矛盾的行
-     * （如同页混排的海外 $ 报价）自动过滤。无法识别表头的表格跳过；
-     * 两轮均无有效数据时回退到 {@link #readClasspathPricing()}。</p>
+     * <p>按表头语义自动识别列：模型名称列（模型/产品/名称/model 等）、输入单价列（输入/input）、
+     * 输出单价列（输出/output）。多列匹配时优先选择"未命中缓存"的输入单价列。
+     * 价格合并在同一单元格内的布局（如"输入：0.5元输出：2元"）按标签提取；
+     * 单元格货币符号与目标币种矛盾的行（如同页混排的海外 $ 报价）自动过滤。
+     * 无法识别表头的表格跳过；页面不可达或无有效数据时回退到 {@link #readClasspathPricing()}。</p>
      *
      * @param url 定价页面地址
      * @param currency 币种（如 CNY/USD）
@@ -184,94 +182,10 @@ public abstract class AbstractPricingProvider implements PricingProvider {
         if (html != null && !html.isEmpty()) {
             collectPagePricing(html, currency, result);
         }
-        if (result.isEmpty()) {
-            String rendered = renderViaSpi(url);
-            if (rendered != null && !rendered.isEmpty()) {
-                log.debug("[{}] 普通抓取无有效表格，使用渲染器重试: {}", name(), url);
-                collectPagePricing(rendered, currency, result);
-                // 主页面无表格时跟随渲染后的 iframe 子页面（部分文档站正文在 iframe 内）
-                if (result.isEmpty()) {
-                    for (String iframeUrl : extractIframeUrls(rendered)) {
-                        String iframeHtml = renderViaSpi(iframeUrl);
-                        if (iframeHtml != null && !iframeHtml.isEmpty()) {
-                            collectPagePricing(iframeHtml, currency, result);
-                            if (!result.isEmpty()) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         if (!result.isEmpty()) {
             return new ArrayList<>(result.values());
         }
         return readClasspathPricing();
-    }
-
-    /**
-     * 提取渲染后页面中的 HTTP(S) iframe 地址。
-     *
-     * @param html 页面 HTML
-     * @return iframe 地址列表（最多 3 个）
-     */
-    private List<String> extractIframeUrls(String html) {
-        List<String> urls = new ArrayList<>();
-        try {
-            Document doc = Jsoup.parse(html);
-            for (Element frame : doc.select("iframe[src]")) {
-                String src = frame.attr("src");
-                if (src.startsWith("http") && urls.size() < 3) {
-                    urls.add(src);
-                }
-            }
-        } catch (Exception e) {
-            log.debug("[{}] 提取 iframe 失败: {}", name(), e.getMessage());
-        }
-        return urls;
-    }
-
-    /**
-     * 共享渲染器缓存（跨实例复用同一浏览器进程）
-     */
-    private static volatile PricingPageRenderer cachedRenderer;
-
-    /**
-     * 渲染器是否已解析（含解析失败的情况，避免重复扫描）
-     */
-    private static volatile boolean rendererResolved;
-
-    /**
-     * 通过可选的 {@link PricingPageRenderer} SPI 渲染页面。
-     *
-     * <p>渲染器全局只解析一次并复用，避免每个提供者各起一个浏览器进程。</p>
-     *
-     * @param url 页面地址
-     * @return 渲染后的 HTML，无渲染器或渲染失败返回 null
-     */
-    private String renderViaSpi(String url) {
-        if (!rendererResolved) {
-            synchronized (AbstractPricingProvider.class) {
-                if (!rendererResolved) {
-                    try {
-                        cachedRenderer = ServiceProvider.of(PricingPageRenderer.class).getExtension("playwright");
-                    } catch (Throwable t) {
-                        log.debug("[{}] 渲染器初始化失败: {}", name(), t.getMessage());
-                        cachedRenderer = null;
-                    }
-                    rendererResolved = true;
-                }
-            }
-        }
-        if (cachedRenderer == null) {
-            return null;
-        }
-        try {
-            return cachedRenderer.render(url);
-        } catch (Exception e) {
-            log.debug("[{}] 渲染器调用失败: {}", name(), e.getMessage());
-            return null;
-        }
     }
 
     /**

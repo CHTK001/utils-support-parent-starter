@@ -1,5 +1,6 @@
 package com.chua.spring.support.objects.register.impl;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.FrameworkBeanDefinition;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
@@ -119,7 +120,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
             return Collections.emptyList();
         }
         try {
-            Class<?> type = Class.forName(typeName);
+            Class<?> type = ReflectUtils.forName(typeName);
             Map<String, ?> beans = ctx.getBeansOfType(type);
             List<BeanDefinition> result = new ArrayList<>(beans.size());
             for (Map.Entry<String, ?> entry : beans.entrySet()) {

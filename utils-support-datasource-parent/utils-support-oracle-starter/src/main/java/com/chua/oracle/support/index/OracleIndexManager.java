@@ -54,12 +54,15 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     @Override
     public List<String> listIndexes(String table) {
         List<String> list = new ArrayList<>();
+        String upperTable = table.toUpperCase();
         try (Connection c = dataSource.getConnection();
-             Statement s = c.createStatement();
-             ResultSet rs = s.executeQuery(
-                     "SELECT index_name FROM user_indexes WHERE table_name = '" + table.toUpperCase() + "'")) {
-            while (rs.next()) {
-                list.add(rs.getString("index_name"));
+             java.sql.PreparedStatement ps = c.prepareStatement(
+                     "SELECT index_name FROM user_indexes WHERE table_name = ?")) {
+            ps.setString(1, upperTable);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(rs.getString("index_name"));
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

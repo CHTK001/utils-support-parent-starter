@@ -149,7 +149,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     /** Try设置Lod */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
-            Class<?> pp = Class.forName("ai.djl.paddlepaddle.engine.PpNDArray");
+            Class<?> pp = ReflectUtils.forName("ai.djl.paddlepaddle.engine.PpNDArray");
             if (pp.isInstance(ndArray)) {
                 long[][] lod = new long[1][2];
                 lod[0][0] = begin;

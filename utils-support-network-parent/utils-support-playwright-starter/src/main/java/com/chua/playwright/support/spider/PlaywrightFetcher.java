@@ -38,14 +38,9 @@ public class PlaywrightFetcher implements SpiderFetcher {
     private static final Duration NAV_TIMEOUT = Duration.ofSeconds(60);
 
     /**
-     * 动态渲染稳定等待上限
+     * 加载 超时时间
      */
-    private static final Duration STABILIZE_TIMEOUT = Duration.ofSeconds(15);
-
-    /**
-     * 动态渲染稳定轮询间隔
-     */
-    private static final long STABILIZE_POLL_MILLIS = 1500L;
+    private static final Duration LOAD_TIMEOUT = Duration.ofSeconds(30);
 
     /**
      * Playwright 实例
@@ -88,7 +83,7 @@ public class PlaywrightFetcher implements SpiderFetcher {
                         .setViewportSize(1280, 720))) {
 
             context.setDefaultNavigationTimeout(NAV_TIMEOUT.toMillis());
-            context.setDefaultTimeout(NAV_TIMEOUT.toMillis());
+            context.setDefaultTimeout(LOAD_TIMEOUT.toMillis());
 
             Page page = context.newPage();
 
@@ -99,28 +94,14 @@ public class PlaywrightFetcher implements SpiderFetcher {
             page.navigate(request.getUrl());
             page.waitForLoadState(LoadState.NETWORKIDLE);
 
-            // 动态渲染稳定度轮询：滚动触发懒加载，内容长度连续两次采样不变即认为完成，
-            // 最长等待 STABILIZE_TIMEOUT，避免异步接口慢加载导致内容缺失
-            String html;
-            long stabilizeDeadline = System.currentTimeMillis() + STABILIZE_TIMEOUT.toMillis();
-            int lastLen = -1;
-            while (true) {
-                page.mouse().wheel(0, 1500);
-                html = page.content();
-                int len = html.length();
-                if (len == lastLen || System.currentTimeMillis() > stabilizeDeadline) {
-                    break;
-                }
-                lastLen = len;
-                try {
-                    Thread.sleep(STABILIZE_POLL_MILLIS);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
+            // 额外等待动态渲染
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-            // 回滚到页首，确保后续截图/解析行为一致
-            page.mouse().wheel(0, -100000);
+
+            String html = page.content();
             long elapsed = System.currentTimeMillis() - startTime;
 
             builder.statusCode(200)

@@ -526,9 +526,10 @@ public class SqliteStorage implements ApmStorage {
      * @throws SQLException 查询失败
      */
     private long count(Connection conn, String table) throws SQLException {
-        try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + table)) {
-            return rs.next() ? rs.getLong(1) : 0L;
+        try (java.sql.PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM " + table)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getLong(1) : 0L;
+            }
         }
     }
 

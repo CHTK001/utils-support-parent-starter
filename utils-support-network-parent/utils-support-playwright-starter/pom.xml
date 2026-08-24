@@ -27,12 +27,6 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- DataSearch 定价 SPI（浏览器渲染版定价提供者） -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-datasearch-starter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.microsoft.playwright</groupId>
             <artifactId>playwright</artifactId>

@@ -463,6 +463,7 @@ public class GreptimeDbEngine extends AbstractEngine {
             throw new IllegalStateException("DELETE 必须携带 WHERE 条件（时序库删除需命中 tag/time 列）");
         }
         String table = getTableName(sql.entityClass());
+        // 豁免：表名由实体类名派生(getTableName)，WHERE 由框架 LambdaQueryWrapper 解析生成，params 经 jdbc().update() 参数化传递
         String deleteSql = "DELETE FROM " + table + " WHERE " + normalizeColumns(where, sql.entityClass());
         try {
             // 返回服务端报告的真实影响行数

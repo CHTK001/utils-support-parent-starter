@@ -64,7 +64,8 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
             for (int y = 0; y < INPUT_SIZE; y++)
                 for (int x = 0; x < INPUT_SIZE; x++) {
                     int rgb = resized.getRGB(x, y);
-                    chw[idx++] = (((rgb >> (16 - 8 * c)) & 0xff) / 255.0f - MEAN[c]) / STD[c];
+                    // 仅 /255 缩放（preprocessor_config.json: do_normalize=false）
+                    chw[idx++] = ((rgb >> (16 - 8 * c)) & 0xff) / 255.0f;
                 }
 
         NDArray images = manager.create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));

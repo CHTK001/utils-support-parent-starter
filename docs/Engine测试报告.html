@@ -433,6 +433,13 @@
       <td>meta().table/view/index/fk 元数据查询不抛异常</td>
       <td><span class="badge badge-pass">2/2 ✅</span></td>
     </tr>
+
+    <tr>
+      <td><b>Upsert</b></td><td>MySQL + PostgreSQL + H2</td>
+      <td>UpsertIT + InfluxUpsertIT</td>
+      <td>MySQL ON DUPLICATE KEY UPDATE；PostgreSQL ON CONFLICT DO UPDATE；H2 MERGE INTO KEY()；InfluxDB 同 timestamp 覆盖写。全部验证：首插→读值→重插→读新值→确认无重复行。</td>
+      <td><span class="badge badge-pass">4/4 ✅</span></td>
+    </tr>
 </table>
 
   <div class="note"><strong>v2 小结：</strong>本轮实测断言 <b>171 项全部通过、0 失败 0 跳过</b>。
