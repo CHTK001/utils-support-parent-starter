@@ -57,6 +57,14 @@ public class JoyCodeUsageParser extends BaseUsageParser {
      * @return {@code "joycode"}
      */
     @Override
+    /**
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
     public String name() {
         return "joycode";
     }
@@ -66,8 +74,7 @@ public class JoyCodeUsageParser extends BaseUsageParser {
      *
      * @return list of estimated AiUsage records (estimated = true)
      */
-    @Override
-    public List<AiUsage> parseAll() {
+    private List<AiUsage> parseAll() {
         if (!Files.isDirectory(JOYCODE_LOG_DIR)) {
             log.debug("[joycode] log dir not found: {}", JOYCODE_LOG_DIR);
             return List.of();

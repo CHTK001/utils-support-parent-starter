@@ -57,6 +57,14 @@ public class ContinueUsageParser extends BaseUsageParser {
      * @return {@code "continue"}
      */
     @Override
+    /**
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
     public String name() {
         return "continue";
     }
@@ -66,8 +74,7 @@ public class ContinueUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per session with usage data
      */
-    @Override
-    public List<AiUsage> parseAll() {
+    private List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             log.debug("[continue] sessions dir not found: {}", SESSIONS_DIR);
             return List.of();

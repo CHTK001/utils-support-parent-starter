@@ -72,7 +72,7 @@ public class SenseVoiceTranslator {
             "<|zh|>", "<|en|>", "<|yue|>", "<|ja|>", "<|ko|>", "<|nospeech|>",
             "<|NEUTRAL|>", "<|HAPPY|>", "<|SAD|>", "<|ANGRY|>", "<|Speech|>",
             "<|BREATH|>", "<|COUGH|>", "<|Sneeze|>", "<|Laughter|>",
-            "<|withitn|>", "<|woitn|>", "<|startofcontext|>", "<|endofcontext|>",
+            "<|withitn|>", "<|woitn|>", "<|BGM|>", "<|startofcontext|>", "<|endofcontext|>",
             "<s>", "</s>", "<unk>");
 
     private OrtEnvironment ortEnv;
@@ -220,7 +220,7 @@ public class SenseVoiceTranslator {
         if (!prepared) {
             throw new IllegalStateException("请先调用 prepare()");
         }
-        float[] samples = loadAudio(audioPath);
+                float[] samples = loadAudio(audioPath);
 
         // Step1: kaldi fbank 80 维
         double[][] feat80 = computeFbank(samples);
@@ -322,7 +322,7 @@ public class SenseVoiceTranslator {
     private double[][] computeFbank(float[] samples) {
         int frameLen = 400;
         int frameShift = 160;
-        int nFreq = frameLen / 2 + 1;
+        int nFreq = FFT_N / 2 + 1;
         int frames = (samples.length - frameLen) / frameShift + 1;
 
         // Povey 窗：(0.5 - 0.5·cos(2πn/N))^0.85

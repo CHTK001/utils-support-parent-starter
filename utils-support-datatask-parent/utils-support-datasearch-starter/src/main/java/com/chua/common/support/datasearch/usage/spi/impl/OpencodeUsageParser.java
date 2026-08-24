@@ -43,12 +43,19 @@ public class OpencodeUsageParser extends BaseUsageParser {
                     + "ORDER BY time_created ASC";
 
     @Override
+    /**
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
     public String name() {
         return "opencode";
     }
 
-    @Override
-    public List<AiUsage> parseAll() {
+    private List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
             log.debug("[opencode] 数据库文件不存在: {}", DB_PATH);
             return List.of();

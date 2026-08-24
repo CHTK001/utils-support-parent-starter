@@ -53,6 +53,14 @@ public class VscodeUsageParser extends BaseUsageParser {
      * @return {@code "vscode"}
      */
     @Override
+    /**
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
     public String name() {
         return "vscode";
     }
@@ -62,8 +70,7 @@ public class VscodeUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per billed API request
      */
-    @Override
-    public List<AiUsage> parseAll() {
+    private List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
             log.debug("[vscode] session store not found: {} (Copilot CLI not installed/authenticated)", DB_PATH);
             return List.of();

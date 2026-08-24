@@ -66,6 +66,14 @@ public class QoderUsageParser extends BaseUsageParser {
      * @return {@code "qoder"}
      */
     @Override
+    /**
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
     public String name() {
         return "qoder";
     }
@@ -75,8 +83,7 @@ public class QoderUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per assistant response
      */
-    @Override
-    public List<AiUsage> parseAll() {
+    private List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
             log.debug("[qoder] projects dir not found: {} (Qoder CLI not installed)", PROJECTS_DIR);
             return List.of();
