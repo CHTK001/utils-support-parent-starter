@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * 读光 OCR 文字检测（DBNet 行检测，ORT 原生 + OpenCV）。
@@ -40,6 +41,14 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
      * 概率图二值化阈值。
      */
     private static final float THRESHOLD = 0.2f;
+
+    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
 
     /**
      * 检测模型固定输入边长。
@@ -76,7 +85,22 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
     /** 源图像高度 */
     private int srcHeight;
 
-    /**
+        /**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public DuguangDetTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this();
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
+/**
      * 默认使用 small 检测模型。
      */
     public DuguangDetTranslator() {
@@ -241,7 +265,7 @@ public class DuguangDetTranslator implements ITranslator<byte[], List<PredictRec
         byte[] binData = new byte[mapH * mapW];
         for (int y = 0; y < mapH; y++) {
             for (int x = 0; x < mapW; x++) {
-                binData[y * mapW + x] = (probs[y][x] >= THRESHOLD) ? (byte) 255 : (byte) 0;
+                binData[y * mapW + x] = (probs[y][x] >= effThreshold(THRESHOLD)) ? (byte) 255 : (byte) 0;
             }
         }
         binary.put(0, 0, binData);

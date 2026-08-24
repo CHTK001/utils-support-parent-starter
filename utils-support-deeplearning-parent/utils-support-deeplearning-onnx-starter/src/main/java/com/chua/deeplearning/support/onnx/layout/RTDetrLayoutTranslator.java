@@ -46,6 +46,10 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
 
     private float scoreThreshold = 0.5f;
 
+    /** 原图宽高（processInput 时记录）。 */
+    private int srcWidth;
+    private int srcHeight;
+
     public RTDetrLayoutTranslator() {}
 
     public RTDetrLayoutTranslator(float threshold) {
@@ -56,8 +60,8 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         int origW = input.getWidth();
-        int origH = input.getHeight();
-
+        this.srcWidth = origW;        int origH = input.getHeight();
+        this.srcHeight = origH;
         // Letterbox：等比缩放到 640×640 并居中填充
         float scale = Math.min((float) INPUT_SIZE / origW, (float) INPUT_SIZE / origH);
         int newW = Math.round(origW * scale);
@@ -144,10 +148,10 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
             probList.add((double) score);
             // 归一化到 [0,1] 供 DJL drawBoundingBoxes 使用
             boxList.add(new Rectangle(
-                    x1 / width,
-                    y1 / height,
-                    w / width,
-                    h / height));
+                    x1 / Math.max(1, srcWidth),
+                    y1 / Math.max(1, srcHeight),
+                    w / Math.max(1, srcWidth),
+                    h / Math.max(1, srcHeight)));
         }
 
         if (nameList.isEmpty()) {
