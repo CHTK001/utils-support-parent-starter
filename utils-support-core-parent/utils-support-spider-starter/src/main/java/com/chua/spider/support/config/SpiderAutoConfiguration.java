@@ -38,8 +38,8 @@ public class SpiderAutoConfiguration {
      * 代理节点连通性测试器。
      */
     @Bean
-    public SpiderProxyTester spiderProxyTester(SpiderProxyPoolStore poolStore) {
-        return new SpiderProxyTester(poolStore);
+    public SpiderProxyProbe SpiderProxyProbe(SpiderProxyPoolStore poolStore) {
+        return new SpiderProxyProbe(poolStore);
     }
 
     /**
@@ -98,7 +98,7 @@ public class SpiderAutoConfiguration {
      * @param runner runner
      */
     public SpiderProxyPoolController spiderProxyPoolController(
-            SpiderProxyPoolStore poolStore, SpiderProxyTester poolTester) {
+            SpiderProxyPoolStore poolStore, SpiderProxyProbe poolTester) {
         return new SpiderProxyPoolController(poolStore, poolTester);
     }
 

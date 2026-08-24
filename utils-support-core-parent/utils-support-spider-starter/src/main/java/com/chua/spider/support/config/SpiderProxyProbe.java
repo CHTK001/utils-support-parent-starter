@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class SpiderProxyTester {
+public class SpiderProxyProbe {
 
     /**
      * 测试超时（秒）
@@ -146,3 +146,4 @@ public class SpiderProxyTester {
         }
     }
 }
+
