@@ -122,23 +122,12 @@ public abstract class AbstractRunnerProvider {
                 } catch (Exception e) {
                     last = e;
                     if (attempt < times - 1) {
-                        ThreadUtils.sleepMillisecondsQuietly(def_backoff(attempt));
+                        ThreadUtils.sleepMillisecondsQuietly(TaskDefinition.backoffMillis(attempt));
                     }
                 }
             }
             throw last;
         };
-    }
-
-    /**
-     * 退避间隔计算委托。
-     *
-     * @param attempt 失败序号
-     * @return 退避毫秒数
-     */
-    private long def_backoff(int attempt) {
-        var scaled = 200L << Math.min(attempt, 4);
-        return Math.min(scaled, 2_000L);
     }
 
     /**
@@ -187,13 +176,15 @@ public abstract class AbstractRunnerProvider {
     /**
      * 解包运行时包装异常，尽量还原业务原始异常。
      *
+     * <p>仅对"裸 RuntimeException 且携带原因"的包装（如熔断器抛出的
+     * {@code new RuntimeException(msg, cause)}）逐层解包，其余原样返回。</p>
+     *
      * @param t 待解包异常
      * @return 解包后的异常
      */
     protected Throwable unwrap(Throwable t) {
-        if (t instanceof RuntimeException runtime && runtime.getCause() != null
-                && "java.lang.RuntimeException".equals(t.getClass().getSuperclass().getName())) {
-            return unwrap(runtime.getCause());
+        if (t.getClass() == RuntimeException.class && t.getCause() != null) {
+            return unwrap(t.getCause());
         }
         return t;
     }
