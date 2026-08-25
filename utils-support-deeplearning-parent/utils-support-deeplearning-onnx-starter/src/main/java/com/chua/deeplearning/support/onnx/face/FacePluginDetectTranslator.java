@@ -12,6 +12,7 @@ import ai.djl.translate.TranslatorContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * FacePlugin SSD face detection Translator.
@@ -60,7 +61,30 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     /** Image_std */
     private static final float IMAGE_STD = 128.0f;
 
-    /** 创建 FacePluginDetectTranslator 实例 */
+    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
+
+        /**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public FacePluginDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this();
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
+/** 创建 FacePluginDetectTranslator 实例 */
     public FacePluginDetectTranslator() {
     }
 
@@ -103,7 +127,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
             float expBg = (float) Math.exp(bg - maxVal);
             float expFg = (float) Math.exp(fg - maxVal);
             float faceScore = expFg / (expBg + expFg);
-            if (faceScore < CONFIDENCE_THRESHOLD) continue;
+            if (faceScore < effThreshold(CONFIDENCE_THRESHOLD)) continue;
 
             float priorCx = priors[i * 4 + 0];
             float priorCy = priors[i * 4 + 1];

@@ -75,7 +75,12 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
      * @return 阈值
      */
     protected float getThreshold() {
-        return thresholdOverride > 0 ? thresholdOverride : THRESHOLD;
+        return effectiveThreshold(THRESHOLD);
+    }
+
+    /** 取生效阈值（外部覆盖优先）。 */
+    protected float effectiveThreshold(float modelDefault) {
+        return thresholdOverride > 0 ? thresholdOverride : modelDefault;
     }
 
     /** 模型文件路径 */
@@ -391,4 +396,11 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         session = null;
         ortEnv = null;
     }
+    /** 子类注入外部阈值覆盖。 */
+    protected void applyThresholdOverride(float value) {
+        if (value > 0) {
+            this.thresholdOverride = value;
+        }
+    }
+
 }

@@ -15,6 +15,7 @@ import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * YOLOv8n-pose 姿态估计 — 检测人体 17 个关键点（骨骼点）。
@@ -61,6 +62,14 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
             "left_wrist", "right_wrist", "left_hip", "right_hip",
             "left_knee", "right_knee", "left_ankle", "right_ankle"
     };
+
+    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
 
     /** ONNX 运行时环境 */
     /** ORTENV */
@@ -199,7 +208,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
             float w = data[2][i];
             float h = data[3][i];
             float cls = data[4][i];
-            if (cls < CONF_THRESHOLD) continue;
+            if (cls < effThreshold(CONF_THRESHOLD)) continue;
 
             float x1 = (cx - w / 2) * scaleX;
             float y1 = (cy - h / 2) * scaleY;
@@ -255,4 +264,19 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         try { if (session != null) session.close(); } catch (Exception ignore) {}
         session = null; ortEnv = null;
     }
+    /**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public YoloV8nPoseTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
+
 }
