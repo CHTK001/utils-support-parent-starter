@@ -732,9 +732,9 @@
       "translator": "lu2net.Lu2NetTranslator",
       "capability": "其他",
       "path": "models/onnx/lu2net/lu2net.onnx",
-      "status": "issue",
+      "status": "verified",
       "date": "2026-08-25",
-      "notes": "模型加载成功但推理失败 ORT_INVALID_ARGUMENT：input 期望 4 维实得 5 维（Lu2NetTranslator.processInput 维度 bug，待修复）"
+      "notes": "已修复 Lu2NetTranslator 维度 bug（去 expandDims + Java2D 320x320 对齐）；1people→163.5KB / 3people→192KB 抠图输出，耗时 ~716ms"
     },
     {
       "id": "matting",
