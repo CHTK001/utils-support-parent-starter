@@ -79,4 +79,24 @@ public class ModelDefinition {
     @Builder.Default
     /** Currency */
     private String currency = "USD";
+
+    /**
+     * 智能指数（如 Artificial Analysis Intelligence Index）
+     */
+    private BigDecimal intelligenceIndex;
+
+    /**
+     * 输出速度（Token/秒，中位数）
+     */
+    private BigDecimal outputSpeedTokensPerSecond;
+
+    /**
+     * 延迟（秒，首 Token 中位耗时）
+     */
+    private BigDecimal latencyFirstTokenSeconds;
+
+    /**
+     * 图标地址
+     */
+    private String iconUrl;
 }
