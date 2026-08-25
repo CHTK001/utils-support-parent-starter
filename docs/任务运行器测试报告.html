@@ -111,8 +111,8 @@ runner.clearEvents();        // 重置事件窗口</pre>
 
 <h2>六、实现要点备注</h2>
 <ul>
-  <li>调度引擎：<code>StructuredRunnerProvider</code>（@Spi("structured")）— Kahn 拓扑分层 + Java 25 <code>StructuredTaskScope.open(Joiner.allUntil(...))</code> 层内并行，达标或不可能达标时提前取消剩余 fork。Provider 无共享可变状态，可支撑并发 run。</li>
-  <li>单节点链路（外→内）：熔断(CircuitBreakerFlow) → 超时(嵌套 scope withTimeout) → 重试(指数退避 200ms→2s 封顶) → 数据依赖校验 → 业务函数 → fallback 兜底（Error 因果链不降级）。</li>
+  <li>调度引擎：<code>StructuredRunnerProvider</code>（@Spi("structured")）— Java 25 <code>StructuredTaskScope.open(Joiner.allUntil(...))</code> 全图一次性 fork，节点经 CompletableFuture 等待前置就绪即执行（dataflow 就绪即跑，无层间屏障）；达标或不可能达标时提前取消剩余 fork。Provider 无共享可变状态，可支撑并发 run。</li>
+  <li>单节点链路（外→内）：熔断(CircuitBreakerFlow) → 超时(嵌套 scope withTimeout 约束整个序列) → 预算感知重试(指数退避 200ms→2s 封顶；剩余时限不足以容纳下一次尝试即放弃) → 数据依赖校验 → 业务函数 → fallback 兜底（Error 因果链不降级）。</li>
   <li>被提前取消/级联跳过的节点记 SKIPPED，不计入完成策略分母；fork 体含中断检查点，取消后不再写回收集表。</li>
   <li>null 返回值以内部哨兵存储：任务成功返回 null 不再误伤下游 dependsNode。</li>
   <li>异步出口 <code>future.cancel(true)</code> 向虚拟线程传播中断，作用域随之取消整图。</li>
