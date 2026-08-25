@@ -30,6 +30,11 @@ class SipMuxStream {
     private volatile Consumer<byte[]> dataConsumer;
 
     /**
+     * 消费者挂载前到达的数据缓冲
+     */
+    private final java.util.List<byte[]> pendingData = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
+
+    /**
      * 对端关闭回调
      */
     private volatile Runnable peerCloseCallback;
@@ -87,6 +92,14 @@ class SipMuxStream {
      */
     void startRead(Consumer<byte[]> consumer) {
         this.dataConsumer = consumer;
+        java.util.List<byte[]> early;
+        synchronized (pendingData) {
+            early = new java.util.ArrayList<>(pendingData);
+            pendingData.clear();
+        }
+        for (byte[] data : early) {
+            consumer.accept(data);
+        }
     }
 
     /**

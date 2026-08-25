@@ -78,6 +78,21 @@ public class SipClient {
     private volatile boolean encryptData;
 
     /**
+     * 数据面多路复用开关（单条连接承载同角色全部隧道，两侧需一致）
+     */
+    private volatile boolean muxData;
+
+    /**
+     * visitor 角色复用连接
+     */
+    private volatile SipMuxConnection muxVisitorConn;
+
+    /**
+     * provider 角色复用连接
+     */
+    private volatile SipMuxConnection muxProviderConn;
+
+    /**
      * 信令连接
      */
     private volatile Socket signalSocket;
@@ -181,6 +196,20 @@ public class SipClient {
      */
     public SipClient encrypt(boolean encryptData) {
         this.encryptData = encryptData;
+        return this;
+    }
+
+    /**
+     * 设置数据面多路复用开关（单条连接承载同角色全部隧道，两侧需一致）。
+     *
+     * <p>开启后每条隧道不再独立拨号，而是复用同角色的共享数据连接（帧式按 channelId 分发），
+     * 显著降低隧道建立延迟与连接数。默认关闭。</p>
+     *
+     * @param muxData true 开启多路复用
+     * @return 当前客户端实例，支持链式调用
+     */
+    public SipClient mux(boolean muxData) {
+        this.muxData = muxData;
         return this;
     }
 
@@ -376,6 +405,7 @@ public class SipClient {
         String requestId = parts.length > 1 ? parts[1] : "";
         String channelId = parts.length > 2 ? parts[2] : "";
         CompletableFuture<SipTunnelSession> future = pendingTunnels.remove(requestId);
+        log.info("SIP OPENED 处理: requestId={}, ch={}, futureFound={}", requestId, channelId, future != null);
         if (future == null) {
             return;
         }
@@ -445,6 +475,16 @@ public class SipClient {
      */
     private void connectDataStream(SipTunnelSession session, String role) {
         try {
+            if (muxData) {
+                SipMuxConnection conn = muxConnection(role, session.getChannelId());
+                SipMuxStream stream = new SipMuxStream(session.getChannelId(), conn);
+                stream.startRead(session::dispatchBytes);
+                stream.attach(session::dispatchBytes, session::dispatchClose);
+                conn.attach(stream);
+                session.attachMuxStream(stream);
+                log.debug("SIP mux 数据通道已挂载: channel={}, role={}", session.getChannelId(), role);
+                return;
+            }
             SipTunnelStream stream = new SipTunnelStream(serverHost, serverPort,
                     session.getChannelId(), role, token, sessionToken, encryptData);
             session.attachStream(stream);
@@ -453,6 +493,30 @@ public class SipClient {
             log.warn("SIP 数据平面连接失败: channel={}, role={}", session.getChannelId(), role);
             session.dispatchClose();
         }
+    }
+
+    /**
+     * 获取（或建立）指定角色的多路复用连接。
+     *
+     * @param role           角色
+     * @param firstChannelId 首个通道标识（用于握手）
+     * @return 复用连接
+     * @throws IOException 建立失败
+     */
+    private SipMuxConnection muxConnection(String role, String firstChannelId) throws IOException {
+        SipMuxConnection existing = "visitor".equals(role) ? muxVisitorConn : muxProviderConn;
+        if (existing != null && !existing.isClosed()) {
+            return existing;
+        }
+        SipMuxConnection created = SipMuxConnection.open(this, serverHost, serverPort, role,
+                token, sessionToken, firstChannelId, encryptData);
+        if ("visitor".equals(role)) {
+            muxVisitorConn = created;
+        } else {
+            muxProviderConn = created;
+        }
+        log.info("SIP mux 连接已建立: role={}, channel={}", role, firstChannelId);
+        return created;
     }
 
     /**
@@ -700,6 +764,14 @@ public class SipClient {
                 signalSocket.close();
             }
         } catch (IOException ignored) {
+        }
+        SipMuxConnection mv = muxVisitorConn;
+        if (mv != null) {
+            mv.close();
+        }
+        SipMuxConnection mp = muxProviderConn;
+        if (mp != null) {
+            mp.close();
         }
         for (SipTunnelSession session : openTunnels.values()) {
             session.dispatchClose();
