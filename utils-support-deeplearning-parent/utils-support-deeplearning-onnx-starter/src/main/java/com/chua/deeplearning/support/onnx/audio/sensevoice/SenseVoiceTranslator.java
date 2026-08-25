@@ -376,12 +376,10 @@ public class SenseVoiceTranslator {
         for (int f = 0; f < frames; f++) {
             int off = f * frameShift;
 
-            // 预加重 + 去直流 + 加窗
+            // Kaldi ProcessWindow 顺序：拷贝 → 去直流 → 预加重(流式) → 加窗
             double[] frame = new double[frameLen];
-            frame[0] = samples[off];
-            for (int j = 1; j < frameLen; j++) {
-                float cur = off + j < samples.length ? samples[off + j] : 0F;
-                frame[j] = cur - 0.97F * samples[off + j - 1];
+            for (int j = 0; j < frameLen; j++) {
+                frame[j] = off + j < samples.length ? samples[off + j] : 0F;
             }
             double mean = 0;
             for (double v : frame) {
@@ -389,7 +387,21 @@ public class SenseVoiceTranslator {
             }
             mean /= frameLen;
             for (int j = 0; j < frameLen; j++) {
-                frame[j] = (frame[j] - mean) * window[j];
+                frame[j] -= mean;
+            }
+            if (frameLen > 0) {
+                // 预加重引用处理前的原始相邻样本（temp 技巧），末点用全局前一样本
+                double temp = frame[0];
+                double prevRaw = off > 0 ? samples[off - 1] : 0D;
+                for (int j = 0; j + 1 < frameLen; j++) {
+                    double next = frame[j + 1];
+                    frame[j] = temp - 0.97F * next;
+                    temp = next;
+                }
+                frame[frameLen - 1] = temp - 0.97F * prevRaw;
+            }
+            for (int j = 0; j < frameLen; j++) {
+                frame[j] *= window[j];
             }
 
             // FFT（radix-2，N=512 ≥ 400 补零）
@@ -464,7 +476,10 @@ public class SenseVoiceTranslator {
      */
     private float[][] applyLfr(double[][] feat80) {
         int total = feat80.length;
-        int padded = total + ((lfrWindowShift - total % lfrWindowShift) % lfrWindowShift);
+        // funasr LFR 公式：T' = ceil((T-window)/shift)+1；尾部复制最后一帧补齐 (T'-1)*shift+window-T
+        int outFrames = total <= lfrWindowSize ? 1
+                : (int) Math.ceil((double) (total - lfrWindowSize) / lfrWindowShift) + 1;
+        int padded = (outFrames - 1) * lfrWindowShift + lfrWindowSize;
         // 尾部复制最后一帧补齐
         List<double[]> list = new ArrayList<>(padded);
         for (int i = 0; i < total; i++) {
@@ -472,10 +487,6 @@ public class SenseVoiceTranslator {
         }
         for (int i = total; i < padded; i++) {
             list.add(feat80[total - 1]);
-        }
-        int outFrames = 0;
-        for (int i = 0; i + lfrWindowSize <= padded; i += lfrWindowShift) {
-            outFrames++;
         }
         float[][] out = new float[outFrames][];
         for (int oi = 0, i = 0; i + lfrWindowSize <= padded; i += lfrWindowShift, oi++) {
