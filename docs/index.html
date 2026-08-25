@@ -1,10 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>utils-support-parent-starter 文档中心</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.min.css">
 <style>
 :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
     --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; }
@@ -13,6 +12,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 .header { background:var(--card); border-bottom:1px solid var(--border); padding:32px 48px; }
 .header h1 { font-size:1.6em; color:#f0f6fc; margin-bottom:6px; }
 .header p { color:var(--muted); font-size:0.92em; }
+.header .stats { margin-top:12px; display:flex; gap:16px; flex-wrap:wrap; }
+.header .stats span { font-size:0.78em; color:var(--muted); border:1px solid var(--border); border-radius:12px; padding:3px 10px; }
 .section-title { padding:24px 48px 8px; font-size:0.75em; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:600; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; padding:12px 48px 32px; }
 .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px; text-decoration:none; color:inherit; transition:border-color .2s,transform .15s,box-shadow .2s; display:block; }
@@ -34,45 +35,17 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 <div class="header">
     <h1>utils-support-parent-starter 文档中心</h1>
     <p>模块化 Java 工具包集合 · SPI 插件化架构 · JDK 25</p>
+    <div class="stats">
+        <span>📄 收录文档 19 篇</span>
+        <span>📊 性能基准 2 篇</span>
+        <span>🧪 测试报告 10 篇</span>
+        <span>💡 示例文档 6 篇</span>
+        <span>📖 使用文档 1 篇</span>
+    </div>
 </div>
 
-<div class="section-title">📖 使用文档</div>
+<div class="section-title">📊 性能与基准测试</div>
 <div class="grid">
-    <a class="card" href="TUI与桌面通知测试报告.html">
-        <div class="card-icon">&#128187;</div>
-        <h2>TUI 终端仪表盘 &amp; 桌面通知</h2>
-        <p>Terminal UI 仪表盘渲染测试（ANSI颜色/进度条/面板/Dashboard），WindowsDesktopNotifier 桌面通知测试，含 bug 修复记录。</p>
-        <span class="tag tag-green">tui/</span>
-        <span class="tag tag-orange">桌面通知</span>
-    </a>
-    <a class="card" href="CRUD全功能测试报告.html">
-        <div class="card-icon">&#128202;</div>
-        <h2>CRUD API 全功能测试</h2>
-        <p>17 个 Controller 全部 CRUD 接口测试，88/88 通过，含修复记录和测试脚本说明。</p>
-        <span class="tag tag-blue">API 测试</span>
-        <span class="tag tag-green">88/88 通过</span>
-    </a>
-    <a class="card" href="Example体系测试报告.html">
-        <div class="card-icon">&#9889;</div>
-        <h2>Example 体系测试报告</h2>
-        <p>18 个 XxExample 批量实测：Pipeline 全系、并发工具、Flow 流式、DuckDB CRUD、9 种序列化基准，179+ 断言通过。</p>
-        <span class="tag tag-green">18 Example</span>
-        <span class="tag tag-blue">JDK 25</span>
-    </a>
-    <a class="card" href="集群服务器使用说明.html">
-        <div class="card-icon">&#9881;</div>
-        <h2>集群服务器 ClusterServer</h2>
-        <p>一行代码启动无中心化集群节点，基于 Scatter 对等网格自动发现与路由。</p>
-        <span class="tag tag-blue">核心模块</span>
-        <span class="tag tag-green">Seed / Gateway</span>
-    </a>
-    <a class="card" href="模型测试报告.html">
-        <div class="card-icon">&#128200;</div>
-        <h2>模型测试报告</h2>
-        <p>188 个 ONNX/GGUF 模型全量测试结果，含耗时、通过率与详细诊断。</p>
-        <span class="tag tag-green">188 模型</span>
-        <span class="tag tag-purple">ONNX / GGUF</span>
-    </a>
     <a class="card" href="server压测报告.html">
         <div class="card-icon">&#9889;</div>
         <h2>Server 压测报告</h2>
@@ -89,7 +62,81 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
     </a>
 </div>
 
-<div class="section-title">💡 示例文档</div>
+<div class="section-title">🧪 功能测试报告</div>
+<div class="grid">
+    <a class="card" href="CRUD全功能测试报告.html">
+        <div class="card-icon">&#128202;</div>
+        <h2>CRUD API 全功能测试</h2>
+        <p>17 个 Controller 全部 CRUD 接口测试，88/88 通过，含修复记录和测试脚本说明。</p>
+        <span class="tag tag-blue">API 测试</span>
+        <span class="tag tag-green">88/88 通过</span>
+    </a>
+    <a class="card" href="Engine测试报告.html">
+        <div class="card-icon">&#9881;</div>
+        <h2>Engine 数据源引擎测试</h2>
+        <p>JdbcEngine / ReactorEngine / InMemory / File 多引擎实现的功能与一致性验证。</p>
+        <span class="tag tag-blue">数据源</span>
+        <span class="tag tag-green">多引擎</span>
+    </a>
+    <a class="card" href="Example体系测试报告.html">
+        <div class="card-icon">&#9889;</div>
+        <h2>Example 体系测试报告</h2>
+        <p>18 个 XxExample 批量实测：Pipeline 全系、并发工具、Flow 流式、DuckDB CRUD、9 种序列化基准，179+ 断言通过。</p>
+        <span class="tag tag-green">18 Example</span>
+        <span class="tag tag-blue">JDK 25</span>
+    </a>
+    <a class="card" href="Example迁移测试报告.html">
+        <div class="card-icon">&#128230;</div>
+        <h2>Example 迁移测试报告</h2>
+        <p>示例工程向 example-starter 归位迁移后的批量回归验证结果。</p>
+        <span class="tag tag-orange">迁移</span>
+        <span class="tag tag-green">回归验证</span>
+    </a>
+    <a class="card" href="模型测试报告.html">
+        <div class="card-icon">&#128200;</div>
+        <h2>模型测试报告</h2>
+        <p>188 个 ONNX/GGUF 模型全量测试结果，含耗时、通过率与详细诊断。</p>
+        <span class="tag tag-green">188 模型</span>
+        <span class="tag tag-purple">ONNX / GGUF</span>
+    </a>
+    <a class="card" href="人脸识别测试报告.html">
+        <div class="card-icon">&#128100;</div>
+        <h2>人脸识别测试报告</h2>
+        <p>检测 / 特征提取 / 活体 / 人脸修复全链路模型的批量精度与耗时验证。</p>
+        <span class="tag tag-purple">face/</span>
+        <span class="tag tag-green">全链路</span>
+    </a>
+    <a class="card" href="TableViewParser测试报告.html">
+        <div class="card-icon">&#128202;</div>
+        <h2>TableViewParser 测试报告</h2>
+        <p>表格视图解析器的解析正确性与边界场景验证。</p>
+        <span class="tag tag-blue">解析器</span>
+        <span class="tag tag-green">边界覆盖</span>
+    </a>
+    <a class="card" href="任务运行器测试报告.html">
+        <div class="card-icon">&#128640;</div>
+        <h2>任务运行器测试报告</h2>
+        <p>TaskRunner 调度策略、失败重试、完成策略等功能矩阵验证。</p>
+        <span class="tag tag-orange">task/</span>
+        <span class="tag tag-green">调度</span>
+    </a>
+    <a class="card" href="TUI与桌面通知测试报告.html">
+        <div class="card-icon">&#128187;</div>
+        <h2>TUI 终端仪表盘 &amp; 桌面通知</h2>
+        <p>Terminal UI 仪表盘渲染测试（ANSI颜色/进度条/面板/Dashboard），WindowsDesktopNotifier 桌面通知测试，含 bug 修复记录。</p>
+        <span class="tag tag-green">tui/</span>
+        <span class="tag tag-orange">桌面通知</span>
+    </a>
+    <a class="card" href="文件存储服务测试报告.html">
+        <div class="card-icon">&#128190;</div>
+        <h2>文件存储服务测试报告</h2>
+        <p>FileStorage 多实现（本地/OSS/S3 等）上传下载、分片、目录操作的接口级验证。</p>
+        <span class="tag tag-blue">filesystem/</span>
+        <span class="tag tag-green">多实现</span>
+    </a>
+</div>
+
+<div class="section-title">💡 示例文档 · AI 与语音</div>
 <div class="grid">
     <a class="card" href="示例-大模型对话.html">
         <div class="card-icon">&#128172;</div>
@@ -105,6 +152,13 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
         <span class="tag tag-green">离线</span>
         <span class="tag tag-blue">BGE · MiniLM</span>
     </a>
+    <a class="card" href="示例-视觉AI.html">
+        <div class="card-icon">&#128065;</div>
+        <h2>视觉 AI</h2>
+        <p>YOLO-World 开放词汇检测、RemBG 抠图、深度估计、图像描述。</p>
+        <span class="tag tag-purple">CV</span>
+        <span class="tag tag-blue">YOLO · RMBG</span>
+    </a>
     <a class="card" href="示例-语音识别STT.html">
         <div class="card-icon">&#127908;</div>
         <h2>语音识别 STT</h2>
@@ -119,13 +173,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
         <span class="tag tag-green">轻量</span>
         <span class="tag tag-orange">声音克隆</span>
     </a>
-    <a class="card" href="示例-视觉AI.html">
-        <div class="card-icon">&#128065;</div>
-        <h2>视觉 AI</h2>
-        <p>YOLO-World 开放词汇检测、RemBG 抠图、深度估计、图像描述。</p>
-        <span class="tag tag-purple">CV</span>
-        <span class="tag tag-blue">YOLO · RMBG</span>
-    </a>
     <a class="card" href="示例-RAG检索增强生成.html">
         <div class="card-icon">&#128203;</div>
         <h2>RAG 检索增强生成</h2>
@@ -133,138 +180,16 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
         <span class="tag tag-orange">rag/</span>
         <span class="tag tag-green">PDF · DOCX · 向量库</span>
     </a>
-    <a class="card" href="示例-人脸检测与识别.html">
-        <div class="card-icon">&#128100;</div>
-        <h2>人脸检测与识别</h2>
-        <p>ScrFD/RetinaFace 检测、InsightFace 特征提取、活体检测、人脸修复超分、完整人脸全链路。</p>
-        <span class="tag tag-orange">face/</span>
-        <span class="tag tag-green">检测 · 识别 · 活体</span>
-    </a>
-    <a class="card" href="示例-图像处理.html">
-        <div class="card-icon">&#127912;</div>
-        <h2>图像处理</h2>
-        <p>30+ 滤镜、水印、LaMa 图像修复、清晰度检测，SPI 插件化注册，JDK/Rust 双实现对比。</p>
-        <span class="tag tag-blue">image/</span>
-        <span class="tag tag-purple">滤镜 · inpainting</span>
-    </a>
-    <a class="card" href="示例-网络协议.html">
-        <div class="card-icon">&#128268;</div>
-        <h2>网络协议与代理</h2>
-        <p>Netty/Vert.x/NIO HTTP 服务器、SOCKS5/TCP 代理、MQTT、RPC、Scatter 集群、SIP 信令。</p>
-        <span class="tag tag-orange">network/</span>
-        <span class="tag tag-red">HTTP · Proxy · RPC</span>
-    </a>
-    <a class="card" href="示例-Pipeline管道引擎.html">
-        <div class="card-icon">&#128202;</div>
-        <h2>Pipeline 管道引擎</h2>
-        <p>串行/并行/分支/重试/WAL持久化/人脸编排等10+管道模式，SPI 热插拔节点。</p>
-        <span class="tag tag-green">pipeline/</span>
-        <span class="tag tag-blue">SPI 插件化</span>
-    </a>
-    <a class="card" href="示例-ONNX推理.html">
-        <div class="card-icon">&#9729;</div>
-        <h2>ONNX 推理</h2>
-        <p>Seq2Seq翻译、车牌识别、VisDrone小目标检测、深度估计、图像描述，CPU/GPU双加速。</p>
-        <span class="tag tag-purple">onnx/</span>
-        <span class="tag tag-green">NLP · CV · Audio</span>
-    </a>
-    <a class="card" href="示例-OCR文字识别.html">
-        <div class="card-icon">&#128221;</div>
-        <h2>OCR 文字识别</h2>
-        <p>PaddleOCR v6全套方案：方向角校正、批量处理、质量门控、多角度优化。</p>
-        <span class="tag tag-blue">ocr/</span>
-        <span class="tag tag-orange">PaddleOCR</span>
-    </a>
-    <a class="card" href="示例-版面分析.html">
-        <div class="card-icon">&#128455;</div>
-        <h2>版面分析与文档</h2>
-        <p>DocLayout-YOLO版面分析、PDF/Word/Excel提取、Markdown转换、文档结构化处理。</p>
-        <span class="tag tag-green">layout/</span>
-        <span class="tag tag-purple">PDF · DOCX</span>
-    </a>
-    <a class="card" href="示例-图像分割.html">
-        <div class="card-icon">&#128170;</div>
-        <h2>图像分割</h2>
-        <p>SAM、DepthAnything、SegAny 分割模型；开放词汇分割；边缘检测分割。</p>
-        <span class="tag tag-orange">segmentation/</span>
-        <span class="tag tag-blue">SAM</span>
-    </a>
-    <a class="card" href="示例-音视频处理.html">
-        <div class="card-icon">&#127909;</div>
-        <h2>音视频处理</h2>
-        <p>FFmpeg H264/H265/H266编解码、屏幕录制、JavaCV处理、Rust Bridge高性能方案。</p>
-        <span class="tag tag-red">media/</span>
-        <span class="tag tag-green">FFmpeg · Rust</span>
-    </a>
-    <a class="card" href="示例-数据湖.html">
-        <div class="card-icon">&#128203;</div>
-        <h2>数据湖 Datalake</h2>
-        <p>分布式数据湖：集成示例、SQL查询、Server模式、数据Sink、订阅推送、Pipeline引擎。</p>
-        <span class="tag tag-blue">datalake/</span>
-        <span class="tag tag-purple">分布式</span>
-    </a>
-    <a class="card" href="示例-流式处理.html">
-        <div class="card-icon">&#128162;</div>
-        <h2>流式处理 Flow</h2>
-        <p>OffsetFlow偏移流、ThreadFlow线程流，支持背压控制和断点续传。</p>
-        <span class="tag tag-green">flow/</span>
-        <span class="tag tag-orange">流式</span>
-    </a>
-    <a class="card" href="示例-文件搜索.html">
-        <div class="card-icon">&#128269;</div>
-        <h2>文件搜索</h2>
-        <p>FastFileSearch原生Rust加速，比JDK Stream快10-50倍，全文检索示例。</p>
-        <span class="tag tag-purple">filesearch/</span>
-        <span class="tag tag-blue">Rust 加速</span>
-    </a>
-    <a class="card" href="示例-并发工具.html">
-        <div class="card-icon">&#128640;</div>
-        <h2>并发工具</h2>
-        <p>LockFreeQueue无锁队列、PersistentLockFreeQueue持久化、ShmQueue共享内存、LazyExpiringList。</p>
-        <span class="tag tag-orange">concurrent/</span>
-        <span class="tag tag-green">高性能</span>
-    </a>
-    <a class="card" href="示例-SPI插件化.html">
-        <div class="card-icon">&#129717;</div>
-        <h2>SPI 插件化</h2>
-        <p>@Spi注解、服务注册发现、动态路由、JSON/序列化Provider，项目核心机制。</p>
-        <span class="tag tag-blue">spi/</span>
-        <span class="tag tag-purple">核心机制</span>
-    </a>
-    <a class="card" href="示例-TUI终端界面.html">
-        <div class="card-icon">&#128187;</div>
-        <h2>TUI 终端界面</h2>
-        <p>Terminal UI仪表盘：CPU/内存/磁盘监控、Htop风格进程查看、自定义Widget开发。</p>
-        <span class="tag tag-green">tui/</span>
-        <span class="tag tag-orange">终端</span>
-    </a>
-    <a class="card" href="示例-任务分发.html">
-        <div class="card-icon">&#128200;</div>
-        <h2>任务分发</h2>
-        <p>分布式任务调度、节点发现、路由策略（轮询/随机/一致性哈希）、故障转移。</p>
-        <span class="tag tag-purple">taskdistribution/</span>
-        <span class="tag tag-blue">分布式</span>
-    </a>
-    <a class="card" href="示例-向量存储.html">
-        <div class="card-icon">&#128042;</div>
-        <h2>向量存储</h2>
-        <p>jvector本地库、Milvus分布式、Faiss相似度搜索，余弦/欧氏/IP比较算法。</p>
-        <span class="tag tag-blue">vector/</span>
-        <span class="tag tag-green">RAG基础</span>
-    </a>
-    <a class="card" href="示例-内网穿透.html">
-        <div class="card-icon">&#127760;</div>
-        <h2>内网穿透 Ngrok</h2>
-        <p>Ngrok客户端封装、HTTP/TCP/SSH隧道、内网服务暴露到公网。</p>
-        <span class="tag tag-orange">ngrok/</span>
-        <span class="tag tag-red">网络</span>
-    </a>
-    <a class="card" href="示例-特征提取与重识别.html">
-        <div class="card-icon">&#128179;</div>
-        <h2>特征提取与ReID</h2>
-        <p>行人重识别、特征向量比对、DeepSORT多目标跟踪、跨摄像头人员追踪。</p>
-        <span class="tag tag-purple">recognition/</span>
-        <span class="tag tag-blue">ReID</span>
+</div>
+
+<div class="section-title">📖 使用文档</div>
+<div class="grid">
+    <a class="card" href="集群服务器使用说明.html">
+        <div class="card-icon">&#9881;</div>
+        <h2>集群服务器 ClusterServer</h2>
+        <p>一行代码启动无中心化集群节点，基于 Scatter 对等网格自动发现与路由。</p>
+        <span class="tag tag-blue">核心模块</span>
+        <span class="tag tag-green">Seed / Gateway</span>
     </a>
 </div>
 
@@ -279,13 +204,12 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
     <a class="card" href="https://github.com/CHTK001/utils-support-parent-starter" target="_blank">
         <div class="card-icon">&#128187;</div>
         <h2>GitHub 仓库</h2>
-        <p>国际版仓库镜像，Star & Fork 支持。</p>
+        <p>国际版仓库镜像，Star &amp; Fork 支持。</p>
         <span class="tag tag-blue">GitHub</span>
     </a>
 </div>
 
 <div class="footer">utils-support-parent-starter &copy; 2026 &middot; Apache License 2.0 &middot; JDK 25</div>
 
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
 </body>
 </html>
