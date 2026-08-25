@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>FileStorage 测试报告</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #fafafa;
+    color: #18181b;
+    padding: 48px 24px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
+  .meta { margin-top: 6px; font-size: 13px; color: #71717a; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-top: 28px; }
+  .card { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 18px 20px; }
+  .card .label { font-size: 12px; color: #71717a; }
+  .card .value { font-size: 30px; font-weight: 650; letter-spacing: -0.03em; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; }
+  th { text-align: left; font-size: 12px; font-weight: 500; color: #71717a; padding: 10px 14px; border-bottom: 1px solid #e4e4e7; background: #fcfcfc; }
+  td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid #f4f4f5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr.pass:hover td, tr.fail:hover td { background: #f4f4f5; }
+  .group-row td { background: #fcfcfc; font-weight: 600; font-size: 13px; color: #18181b; padding: 11px 14px; }
+  .group-count { font-weight: 400; color: #a1a1aa; margin-left: 8px; font-family: ui-monospace, monospace; font-size: 12px; }
+  .status { display: inline-flex; width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+  .status.pass { background: #16a34a; }
+  .status.fail { background: #dc2626; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  .detail { color: #52525b; max-width: 420px; word-break: break-all; }
+  .ms { color: #a1a1aa; white-space: nowrap; }
+  tr.fail td:nth-child(3), tr.fail td:nth-child(4) { color: #b91c1c; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
+  .badge.ok { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge.bad { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .footer { margin-top: 28px; font-size: 12px; color: #a1a1aa; }
+  .section-title { margin-top: 36px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  @media print { body { background: #fff; padding: 12px; } .card { border-color: #d4d4d8; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FileStorage 文件存储服务 · 功能测试报告</h1>
+  <div class="meta">被测对象：FileStorageServerFilter（spring-support-filesystem-starter）&nbsp;&nbsp;·&nbsp;&nbsp;服务地址：http://127.0.0.1:18080&nbsp;&nbsp;·&nbsp;&nbsp;存储桶：local&nbsp;&nbsp;·&nbsp;&nbsp;报告生成：2026-08-25 19:50:32</div>
+
+  <div class="cards">
+    <div class="card"><div class="label">通过率</div><div class="value" style="color: #16a34a;">100%</div></div>
+    <div class="card"><div class="label">用例总数</div><div class="value">35</div></div>
+    <div class="card"><div class="label">通过</div><div class="value" style="color:#16a34a;">35</div></div>
+    <div class="card"><div class="label">失败</div><div class="value" style="color:#dc2626;">0</div></div>
+    <div class="card"><div class="label">总耗时</div><div class="value">0.32s</div></div>
+  </div>
+
+  <div class="section-title">用例明细</div>
+  <table>
+    <thead><tr><th style="width:90px">编号</th><th style="width:44px">结果</th><th style="width:300px">用例</th><th>断言详情</th><th style="width:80px">耗时</th></tr></thead>
+    <tbody>
+<tr class="group-row"><td colspan="6">基础CRUD <span class="group-count">7/7</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">基础CRUD-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T01 PUT 上传到根目录（返回 SUCCESS JSON）</td>
+  <td class="mono detail">OK; OK; OK</td>
+  <td class="mono ms">121 ms</td>
+</tr><tr class="pass">
+  <td class="mono">基础CRUD-T02</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T02 PUT 上传自动创建子目录</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">3 ms</td>
+</tr><tr class="pass">
+  <td class="mono">基础CRUD-T03</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T03 GET 根目录对象内容一致</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">3 ms</td>
+</tr><tr class="pass">
+  <td class="mono">基础CRUD-T04</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T04 GET 子目录对象内容一致</td>
+  <td class="mono detail">OK 字节序列一致(5B)</td>
+  <td class="mono ms">19 ms</td>
+</tr><tr class="pass">
+  <td class="mono">基础CRUD-T05</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T05 DELETE 删除成功</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">基础CRUD-T06</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T06 删除后 GET 返回 404</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">4 ms</td>
+</tr><tr class="pass">
+  <td class="mono">基础CRUD-T07</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T07 DELETE 幂等（重复删除仍 200）</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">1 ms</td>
+</tr><tr class="group-row"><td colspan="6">目录浏览 <span class="group-count">6/6</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">目录浏览-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T08 GET 桶根目录列表（directory/lastModified 字段）</td>
+  <td class="mono detail">OK; OK; OK; OK; OK</td>
+  <td class="mono ms">3 ms</td>
+</tr><tr class="pass">
+  <td class="mono">目录浏览-T02</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T09 GET 一级子目录回退为列表</td>
+  <td class="mono detail">OK; OK; OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">目录浏览-T03</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T10 GET 多级子目录列表</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">目录浏览-T04</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T11 尾斜杠显式目录访问</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">目录浏览-T05</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T12 目录内文件出现在父级列表</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">目录浏览-T06</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T13 不存在的目录（无尾斜杠）返回 404</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">1 ms</td>
+</tr><tr class="group-row"><td colspan="6">预览与下载 <span class="group-count">5/5</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">预览与下载-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T14 默认内联预览（openPreview → inline）</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">19 ms</td>
+</tr><tr class="pass">
+  <td class="mono">预览与下载-T02</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T15 download=true 强制附件（openDownload → attachment）</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">预览与下载-T03</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T16 Content-Type 按扩展名推断（json）</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">4 ms</td>
+</tr><tr class="pass">
+  <td class="mono">预览与下载-T04</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T17 Content-Type 推断（png 二进制）</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">4 ms</td>
+</tr><tr class="pass">
+  <td class="mono">预览与下载-T05</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T18 Accept-Ranges 头声明支持分段</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="group-row"><td colspan="6">Range分段 <span class="group-count">4/4</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">Range分段-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T19 Range bytes=3-7 返回 206 与分片</td>
+  <td class="mono detail">OK; OK; OK</td>
+  <td class="mono ms">9 ms</td>
+</tr><tr class="pass">
+  <td class="mono">Range分段-T02</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T20 Range 后缀 bytes=-4（最后 N 字节）</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">Range分段-T03</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T21 无 Range 返回全量 200</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">3 ms</td>
+</tr><tr class="pass">
+  <td class="mono">Range分段-T04</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T22 子目录对象的 Range 分段</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="group-row"><td colspan="6">存在性检查 <span class="group-count">2/2</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">存在性检查-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T23 HEAD 存在的对象返回 200</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">存在性检查-T02</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T24 HEAD 不存在的对象返回 404</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="group-row"><td colspan="6">水印 <span class="group-count">/</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">水印-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T25 openWatermark 附加 X-Watermark 响应头</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="group-row"><td colspan="6">安全防护 <span class="group-count">5/5</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">安全防护-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T26 路径穿越（..%2F）被拒绝 400</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">5 ms</td>
+</tr><tr class="pass">
+  <td class="mono">安全防护-T02</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T27 含冒号的非法 Key 被拒绝 400</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">1 ms</td>
+</tr><tr class="pass">
+  <td class="mono">安全防护-T03</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T28 空 body 上传被拒绝 400</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">安全防护-T04</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T29 未注册 bucket 放行（默认 404 且无水印头）</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">2 ms</td>
+</tr><tr class="pass">
+  <td class="mono">安全防护-T05</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T30 不支持的 HTTP 方法返回 405</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">1 ms</td>
+</tr><tr class="group-row"><td colspan="6">边界场景 <span class="group-count">5/5</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
+  <td class="mono">边界场景-T01</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T31 中文文件名上传与下载（URL 编码）</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">8 ms</td>
+</tr><tr class="pass">
+  <td class="mono">边界场景-T02</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T32 空格文件名上传与下载</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">5 ms</td>
+</tr><tr class="pass">
+  <td class="mono">边界场景-T03</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T33 1MB 大文件上传下载一致性</td>
+  <td class="mono detail">OK 1MB 内容抽样一致</td>
+  <td class="mono ms">41 ms</td>
+</tr><tr class="pass">
+  <td class="mono">边界场景-T04</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T34 列表 count 与实际条目一致</td>
+  <td class="mono detail">OK; OK</td>
+  <td class="mono ms">10 ms</td>
+</tr><tr class="pass">
+  <td class="mono">边界场景-T05</td>
+  <td><span class="status pass">&#10003;</span></td>
+  <td>T35 清理测试数据后确认删除</td>
+  <td class="mono detail">OK</td>
+  <td class="mono ms">23 ms</td>
+</tr>
+    </tbody>
+  </table>
+
+  <div class="footer">FileStorageServerFilter 能力矩阵：上传/下载/删除 · 路径式目录浏览 · 内联预览与附件下载 · Content-Type 推断 · Range 分段（区间/后缀）· HEAD 存在性 · X-Watermark 水印 · 路径穿越防护 · 方法白名单 · 中文与空格文件名 · 大文件一致性。本报告由自动化脚本生成。</div>
+</div>
+</body>
+</html>
