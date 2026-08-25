@@ -119,4 +119,6 @@ public final class PricingSyncer {
                 log.warn("[PricingSyncer] 加载厂商[{}]定价失败: {}", entry.getKey(), e.getMessage());
             }
         }
-        return result
+        return result;
+    }
+}
