@@ -347,7 +347,9 @@
       "translator": "audio.denoise.DfsmnAnsTranslator",
       "capability": "语音",
       "path": "audio/denoise/dfsmn_ans/model.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "语音增强 PASS：TTS 合成 wav 100KB → 增强后 605KB，1.4s，classpath 自动解压"
     },
     {
       "id": "dino-v2",
@@ -1432,7 +1434,9 @@
       "translator": "null",
       "capability": "语音",
       "path": "audio/tts/vits-icefall-zh/model.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "中文 TTS 合成 PASS：\"今天天气很好...\" SSB0005 说话人 → 100908B WAV，8.7s"
     },
     {
       "id": "waifu2x",
@@ -1453,7 +1457,9 @@
       "translator": "null",
       "capability": "语音",
       "path": "audio/asr/whisper-tiny/config.json",
-      "status": "pending"
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "ASR 管线通：音频解析/mel 80x3000/encoder 正常，13.6s；但默认英文模式对中文音频仅输出 [foreign language]——WhisperTranslator 需暴露 language/task 配置后复测"
     },
     {
       "id": "xlm-roberta-language-detection",
