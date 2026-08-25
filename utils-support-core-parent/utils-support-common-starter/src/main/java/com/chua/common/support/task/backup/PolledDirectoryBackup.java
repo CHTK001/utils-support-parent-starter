@@ -86,14 +86,18 @@ public class PolledDirectoryBackup implements BackupStrategy {
         this.transformer = transformer;
     }
 
+    /**
+     * 策略类型标识：polled。
+     */
     @Override
-    /** Type */
     public String type() {
         return TYPE;
     }
 
+    /**
+     * 执行轮询目录备份：转换已处理文件并写入备份目录。
+     */
     @Override
-    /** 执行 */
     public BackupResult execute(BackupConfig config) {
         long start = System.currentTimeMillis();
         try {

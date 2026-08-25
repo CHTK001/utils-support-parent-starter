@@ -20,23 +20,29 @@ public class DirectoryBackup implements BackupStrategy {
      * 类型
      */
     private static final String TYPE = "directory";
-    /** Delegate */
+    /** 全量备份委托实现 */
     private final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
+    /**
+     * 策略类型标识：directory。
+     */
     @Override
-    /** Type */
     public String type() {
         return TYPE;
     }
 
+    /**
+     * 执行全量备份，委托给 {@link DefaultDailyBackupStrategy}。
+     */
     @Override
-    /** 执行 */
     public BackupResult execute(BackupConfig config) {
         return delegate.execute(config);
     }
 
+    /**
+     * 执行增量备份：仅拷贝修改时间晚于 lastBackupTime 的文件。
+     */
     @Override
-    /** 执行Incremental */
     public BackupResult executeIncremental(BackupConfig config, long lastBackupTime) {
         long start = System.currentTimeMillis();
         try {
@@ -76,8 +82,8 @@ public class DirectoryBackup implements BackupStrategy {
         Files.createDirectories(target);
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
+            /** 拷贝修改时间晚于增量的文件 */
             @Override
-            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     // 仅拷贝修改时间晚于 since 的文件
