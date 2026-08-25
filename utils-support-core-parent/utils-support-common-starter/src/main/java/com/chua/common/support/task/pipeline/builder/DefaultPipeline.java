@@ -170,14 +170,14 @@ public class DefaultPipeline implements Pipeline {
         this.flowTree = buildFlowTree();
     }
 
+    /** 返回流水线唯一 ID。 */
     @Override
-    /** 获取Id */
     public String getId() {
         return id;
     }
 
+    /** 执行整条流水线：创建新上下文后进入主循环。 */
     @Override
-    /** 执行 */
     public <T> PipelineContext<T> execute(T input) {
         PipelineContext<T> ctx = new PipelineContext<>(id, input);
         if (startNodeId != null) {
@@ -239,8 +239,8 @@ public class DefaultPipeline implements Pipeline {
         return executeWith(ctx);
     }
 
+    /** 从 WAL 断点恢复执行；无 WAL 数据时等同 execute。 */
     @Override
-    /** 恢复 */
     public <T> PipelineContext<T> resume(T input) {
         // WAL 恢复：尝试从 WAL 回放恢复上下文
         if (pipelineWal != null) {
@@ -262,8 +262,8 @@ public class DefaultPipeline implements Pipeline {
         return execute(input);
     }
 
+    /** 强制终止流水线并销毁 WAL 持久化数据。 */
     @Override
-    /** 停止 */
     public void stop() {
         // 终止执行 + 销毁 WAL
         if (pipelineWal != null) {
@@ -795,17 +795,17 @@ public class DefaultPipeline implements Pipeline {
     private transient int lastTreeLineCount = 0;
     /** treeLineCounter */
     private transient int treeLineCounter = 0;
-    /** countingTreeLines */
+    /** 是否处于树行计数模式（drawTree 原地刷新用） */
     private transient boolean countingTreeLines = false;
 
+    /** 以纯文本模式打印节点拓扑树。 */
     @Override
-    /** PrintTree */
     public void printTree(List<String> history) {
         printTree(history, false);
     }
 
+    /** 以可选 ANSI 颜色模式打印节点拓扑树，已执行节点打勾标记。 */
     @Override
-    /** PrintTree */
     public void printTree(List<String> history, boolean colorEnabled) {
         Set<String> executed = history != null ? new HashSet<>(history) : Collections.emptySet();
         String pipelineLabel = colorEnabled ? colorize(id, ANSI_BOLD + ANSI_CYAN, true) : id;
@@ -911,8 +911,8 @@ public class DefaultPipeline implements Pipeline {
         }
     }
 
+    /** 返回流水线 ID 与节点拓扑摘要。 */
     @Override
-    /** ToString */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Pipeline{id='").append(id).append("', nodes=[");
