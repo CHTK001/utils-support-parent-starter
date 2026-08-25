@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * D-FINE 实时目标检测 Translator（COCO 80 类）。
@@ -36,6 +37,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
 
     /** COCO 80 类标准类别名 */
     private static final String[] COCO_LABELS = {
+
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
             "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
             "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra",
@@ -49,6 +51,14 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
             "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
             "hair drier", "toothbrush"
     };
+
+    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
 
     private int width;
     private int height;
@@ -117,7 +127,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
                     best = c;
                 }
             }
-            if (bestScore < SCORE_THRESHOLD) {
+            if (bestScore < effThreshold(SCORE_THRESHOLD)) {
                 continue;
             }
             float cx = boxArr[q * 4];
@@ -155,4 +165,19 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
     public Batchifier getBatchifier() {
         return null;
     }
+    /**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public DFineTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
+
 }
