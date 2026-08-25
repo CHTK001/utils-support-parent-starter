@@ -54,8 +54,8 @@ public class LoggingListener implements PipelineListener {
         this.errorLevel = errorLevel;
     }
 
+    /** 节点进入时按节点级别输出进入日志。 */
     @Override
-    /** BeforeNode */
     public void beforeNode(PipelineContext<?> context) {
         if (LOGGER.isLoggable(nodeLevel)) {
             LOGGER.log(nodeLevel, "[Pipeline:{0}] >> Enter node: {1}",
@@ -63,8 +63,8 @@ public class LoggingListener implements PipelineListener {
         }
     }
 
+    /** 节点离开时按节点级别输出离开日志。 */
     @Override
-    /** AfterNode */
     public void afterNode(PipelineContext<?> context) {
         if (LOGGER.isLoggable(nodeLevel)) {
             LOGGER.log(nodeLevel, "[Pipeline:{0}] << Leave node: {1}",
@@ -72,8 +72,8 @@ public class LoggingListener implements PipelineListener {
         }
     }
 
+    /** 节点异常时按错误级别输出日志；默认返回 null 终止流水线（可覆写定制恢复路径）。 */
     @Override
-    /** On记录错误 */
     public String onError(PipelineContext<?> context, Throwable e) {
         LOGGER.log(errorLevel, "[Pipeline:" + context.getPipelineId()
                 + "] !! Error at node: " + context.getCurrentNodeId(), e);
@@ -81,8 +81,8 @@ public class LoggingListener implements PipelineListener {
         return null;
     }
 
+    /** 流水线完成时按完成级别输出历史轨迹。 */
     @Override
-    /** OnComplete */
     public void onComplete(PipelineContext<?> context) {
         if (LOGGER.isLoggable(completeLevel)) {
             LOGGER.log(completeLevel, "[Pipeline:{0}] == Completed. History: {1}",
