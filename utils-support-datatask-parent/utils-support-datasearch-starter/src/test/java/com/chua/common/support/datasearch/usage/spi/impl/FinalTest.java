@@ -34,6 +34,7 @@ public class FinalTest {
         test("qoder", new QoderUsageParser());
         test("openclaw", new OpenClawUsageParser());
         test("kilo", new KiloUsageParser());
+        test("goose", new GooseUsageParser());
     }
 
     /**

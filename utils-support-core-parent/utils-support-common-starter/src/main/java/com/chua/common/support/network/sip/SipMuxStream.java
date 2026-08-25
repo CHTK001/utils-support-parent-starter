@@ -30,14 +30,14 @@ class SipMuxStream {
     private volatile Consumer<byte[]> dataConsumer;
 
     /**
-     * 消费者挂载前到达的数据缓冲
-     */
-    private final java.util.List<byte[]> pendingData = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
-
-    /**
      * 对端关闭回调
      */
     private volatile Runnable peerCloseCallback;
+
+    /**
+     * 消费者挂载前到达的数据缓冲
+     */
+    private final java.util.List<byte[]> pendingData = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
 
     /**
      * 是否已关闭
@@ -61,7 +61,7 @@ class SipMuxStream {
     /**
      * 挂载数据与关闭回调。
      *
-     * @param data  数据消费者
+     * @param data    数据消费者
      * @param onClose 对端关闭/通道关闭回调
      */
     void attach(Consumer<byte[]> data, Runnable onClose) {
@@ -86,7 +86,7 @@ class SipMuxStream {
     }
 
     /**
-     * 启动读取（复用连接读循环统一分发，此处仅挂载消费者）。
+     * 启动读取（挂载消费者并重放缓冲）。
      *
      * @param consumer 数据消费者
      */
@@ -123,12 +123,22 @@ class SipMuxStream {
     }
 
     /**
-     * 分发对端数据（由共享连接读循环调用）。
+     * 分发对端数据（由共享连接读循环调用；消费者未挂载时缓冲）。
      *
      * @param data 数据
      */
     void dispatch(byte[] data) {
         Consumer<byte[]> consumer = dataConsumer;
+        if (consumer == null) {
+            synchronized (pendingData) {
+                if (dataConsumer == null) {
+                    if (pendingData.size() < 256) {
+                        pendingData.add(data);
+                    }
+                    return;
+                }
+            }
+        }
         if (!closed && consumer != null) {
             consumer.accept(data);
         }

@@ -224,10 +224,11 @@ class SipMuxConnection {
                     throw new IOException("SIP mux 帧长度非法: " + len);
                 }
                 byte[] frame = readFully(len);
-                String channelId = uuidString(frame);
+                String channelId = uuidString(java.util.Arrays.copyOfRange(frame, 0, CH_LEN));
                 byte[] payload = new byte[len - CH_LEN];
                 System.arraycopy(frame, CH_LEN, payload, 0, payload.length);
                 SipMuxStream stream = streams.get(channelId);
+
                 if (stream == null) {
                     // stream 未 attach：缓冲早期帧（关闭标记记入 earlyClosed），attach 时补发
                     if (payload.length == 0) {
