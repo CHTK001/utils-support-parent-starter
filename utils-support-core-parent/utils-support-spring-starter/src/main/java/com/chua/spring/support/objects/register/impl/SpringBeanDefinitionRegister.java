@@ -119,17 +119,19 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
         if (ctx == null) {
             return Collections.emptyList();
         }
-        try {
-            Class<?> type = ReflectUtils.forName(typeName);
-            Map<String, ?> beans = ctx.getBeansOfType(type);
-            List<BeanDefinition> result = new ArrayList<>(beans.size());
-            for (Map.Entry<String, ?> entry : beans.entrySet()) {
-                result.add(new FrameworkBeanDefinition(entry.getKey(), type, entry.getValue()));
-            }
-            return result;
-        } catch (ClassNotFoundException e) {
+        Class<?> type = ReflectUtils.forName(typeName);
+        if (type == null) {
             return Collections.emptyList();
         }
+        Map<String, ?> beans = ctx.getBeansOfType(type);
+        if (beans == null || beans.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<BeanDefinition> result = new ArrayList<>(beans.size());
+        for (Map.Entry<String, ?> entry : beans.entrySet()) {
+            result.add(new FrameworkBeanDefinition(entry.getKey(), type, entry.getValue()));
+        }
+        return result;
     }
 
     @Override

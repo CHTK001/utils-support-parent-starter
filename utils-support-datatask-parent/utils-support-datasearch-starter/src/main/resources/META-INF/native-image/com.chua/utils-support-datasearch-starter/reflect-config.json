@@ -62,53 +62,8 @@
     "allDeclaredFields": true,
     "allPublicFields": true
   },
-    {
-    "name": "com.chua.common.support.datasearch.pricing.spi.impl.AmazonModelMetricsProvider",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
   {
-    "name": "com.chua.common.support.datasearch.pricing.spi.impl.DeepSeekModelMetricsProvider",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "com.chua.common.support.datasearch.pricing.spi.impl.OpenRouterModelMetricsProvider",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "com.chua.common.support.datasearch.pricing.spi.impl.TogetherAiModelMetricsProvider",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "com.chua.common.support.datasearch.pricing.spi.impl.XiaomiModelMetricsProvider",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "com.chua.common.support.datasearch.pricing.spi.impl.ZaiModelMetricsProvider",
+    "name": "com.chua.common.support.datasearch.pricing.spi.impl.ArtificialAnalysisModelMetricsProvider",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,

@@ -617,8 +617,9 @@ public class AioHttpServer extends AbstractServer {
             synchronized (state.writeQueue) {
                 ByteBuffer head = state.writeQueue.peek();
                 if (head != null && !head.hasRemaining()) {
-                    // 当前块已全部写出,移除交由 continueWrite 取下一块
+                    // 当前块已全部写出,移除;非直接缓冲归还合并池复用
                     state.writeQueue.poll();
+                    releaseCombined(head);
                 }
                 // 未写完的块保留在队首,continueWrite 会原地重发剩余部分
             }
