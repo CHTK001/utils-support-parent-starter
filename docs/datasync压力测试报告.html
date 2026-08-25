@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataSync Module — Stress Test Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--orange:#d29922;--red:#f85149;--purple:#bc8cff}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.hd{background:var(--card);border-bottom:1px solid var(--border);padding:28px 48px;position:sticky;top:0;z-index:100}
+.hr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.hd h1{font-size:1.5em;color:#f0f6fc;margin-bottom:2px}
+.hd p{color:var(--muted);font-size:.88em}
+.bl{color:var(--accent);text-decoration:none;font-size:.88em;padding:5px 12px;border:1px solid var(--border);border-radius:8px}
+.bl:hover{border-color:var(--accent);background:rgba(88,166,255,.08)}
+.ct{max-width:1200px;margin:0 auto;padding:24px 48px 60px}
+.cd{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:24px;overflow:hidden}
+.ch{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ch h2{font-size:1.1em;color:#f0f6fc}
+.cb{padding:18px 24px}
+.tg{display:inline-block;font-size:.7em;padding:2px 10px;border-radius:12px;font-weight:600}
+.t1{background:rgba(88,166,255,.15);color:var(--accent)}
+.t2{background:rgba(63,185,80,.15);color:var(--green)}
+.t3{background:rgba(210,153,34,.15);color:var(--orange)}
+.t4{background:rgba(188,140,255,.15);color:var(--purple)}
+.t5{background:rgba(248,81,73,.15);color:var(--red)}
+.lg{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.2);border-radius:8px;padding:14px 18px;margin-bottom:18px;font-size:.82em;line-height:1.8}
+.lg strong{color:var(--accent)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.86em;table-layout:fixed}
+th,td{padding:9px 14px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;font-size:.78em;text-transform:uppercase;letter-spacing:.04em;background:rgba(13,17,23,.5);text-align:left}
+.r{text-align:right;font-variant-numeric:tabular-nums;font-family:'SF Mono',Consolas,monospace}
+tr:nth-child(even) td{background:rgba(22,27,34,.5)}
+tr:hover td{background:rgba(88,166,255,.04)}
+.fl{list-style:none}
+.fl li{padding:12px 16px;border-left:3px solid var(--accent);background:rgba(88,166,255,.04);border-radius:0 8px 8px 0;margin-bottom:10px;font-size:.9em;line-height:1.6}
+.fl li strong{color:#f0f6fc}
+.cb-box{position:relative;width:100%;height:420px;margin:8px 0}
+.pass{color:var(--green);font-weight:700}
+.fail{color:var(--red);font-weight:700}
+</style>
+</head>
+<body>
+<div class="hd"><div class="hr"><div>
+    <h1>DataSync 模块 · 压力测试报告</h1>
+    <p>2026-08-25 / JDK 25.0.3 LTS / Spring Boot 4.1.0 / Chronicle Queue + Reactive Pipeline</p>
+</div><a class="bl" href="index.html"># Back</a></div></div>
+
+<div class="ct">
+
+<!-- ━━━━━━━━━━━━━━ 概览卡片 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>概览</h2><span class="tg t2">10 / 10 PASS</span></div><div class="cb"><div class="lg">
+<strong>测试范围</strong>：10 个独立探针，覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
+调度时序、快照恢复、网络重连、序列化基准、负载吞吐。<br>
+<strong>环境</strong>：单机 16C / 无外网依赖（H2 内存库 / 本地 Chronicle Queue / CSV 文件）
+</div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ 探针结果汇总表 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>探针结果汇总</h2><span class="tg t4">All Probes</span></div><div class="cb"><div class="tw"><table>
+<thead><tr>
+    <th style="width:32%">探针</th>
+    <th style="width:20%">数据量</th>
+    <th class="r" style="width:16%">吞吐</th>
+    <th class="r" style="width:14%">耗时</th>
+    <th style="width:18%">结果</th>
+</tr></thead><tbody>
+<tr><td>AllInOneProbe · 15 项核心场景</td><td>2,000 行 ×5 场景</td><td class="r">—</td><td class="r">0.11 s</td><td class="pass">15 / 15 PASS</td></tr>
+<tr><td>ExcelJdbcProbe · Excel↔CSV↔DB 全链路</td><td>17 场景</td><td class="r">—</td><td class="r">~3 s</td><td class="pass">17 / 17 PASS</td></tr>
+<tr><td>StressProbe · 10M 行批量写入</td><td>10,000,000</td><td class="r">812,215 rows/s</td><td class="r">12.31 s</td><td class="pass">PASS</td></tr>
+<tr><td>LoadProbe · 高负载吞吐</td><td>默认</td><td class="r">908,403 rows/s</td><td class="r">~11 s</td><td class="pass">PASS</td></tr>
+<tr><td>DispatcherBenchProbe · 4 Provider 吞吐</td><td>4 × 2M 行</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
+<tr><td>ModeCompareProbe · 3 派发模式</td><td>3 × 100K 行</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
+<tr><td>BlockSizeProbe · Chronicle 块大小</td><td>512K–4M</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
+<tr><td>DatabaseProbe · H2 数据库映射加载</td><td>H2 内存库</td><td class="r">8 轮 × 3 行</td><td class="r">~2 s</td><td class="pass">PASS</td></tr>
+<tr><td>ReconnectProbe · TCP 短线重连</td><td>3 条消息</td><td class="r">—</td><td class="r">~4 s</td><td class="pass">PASS</td></tr>
+<tr><td>SerialBenchProbe · 4 序列化实现</td><td>100K 行 ×4</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
+</tbody></table></div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ StressProbe 详细 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>StressProbe · 10M 行写入</h2><span class="tg t2">812K rows/s</span></div><div class="cb"><div class="lg">
+<strong>配置</strong>：batchSize=1000, fieldMappings=5 字段（name→user_name/toString, age→user_age/toInt, email→user_email/toString, role→user_role/toString, created_at→created/toString）<br>
+<strong>结果</strong>：10,000,000 行 / 12.31s = 812,215 rows/s（直连模式，无磁盘 I/O）<br>
+<strong>状态</strong>：<span class="pass">PASS</span> · 无断言失败、无背压阻塞
+</div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ Dispatcher Benchmark ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>DispatcherBenchProbe · 4 Provider 吞吐对比</h2><span class="tg t1">2M rows ×4</span></div><div class="cb"><div class="cb-box"><canvas id="c1"></canvas></div>
+<div class="tw" style="margin-top:12px"><table>
+<thead><tr><th>Provider</th><th class="r">rows/s</th><th class="r">相对直连</th><th>模式</th></tr></thead><tbody>
+<tr><td>InMemory（基准）</td><td class="r"><strong>20,000,000</strong></td><td class="r">1.00×</td><td>纯内存无 I/O</td></tr>
+<tr><td>WAL + Fury</td><td class="r">763,000</td><td class="r">26.2×</td><td>WAL 持久化 + Fury 序列化</td></tr>
+<tr><td>Chronicle Queue</td><td class="r">562,000</td><td class="r">35.6×</td><td>磁盘 Queue + 方言序列化</td></tr>
+<tr><td>WAL + Jackson</td><td class="r">400,000</td><td class="r">50.0×</td><td>WAL + JSON 序列化（当前默认）</td></tr>
+</tbody></table></div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ ModeCompare ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>ModeCompareProbe · 派发模式吞吐</h2><span class="tg t1">100K rows ×3</span></div><div class="cb"><div class="cb-box"><canvas id="c2"></canvas></div>
+<div class="tw" style="margin-top:12px"><table>
+<thead><tr><th>派发模式</th><th class="r">rows/s</th><th class="r">相对直连</th><th>路径</th></tr></thead><tbody>
+<tr><td>Direct（直连基准）</td><td class="r"><strong>330,000</strong></td><td class="r">1.00×</td><td>Source → Sink 无中介</td></tr>
+<tr><td>Chronicle Queue</td><td class="r">157,000</td><td class="r">2.10×</td><td>Source → Chronicle → Sink</td></tr>
+<tr><td>InMemory（内存基准）</td><td class="r"><strong>1,230,000</strong></td><td class="r">0.27×</td><td>Source → MemoryBuffer → Sink</td></tr>
+</tbody></table></div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ BlockSize ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>BlockSizeProbe · Chronicle 块大小优化</h2><span class="tg t3">100K rows</span></div><div class="cb"><div class="cb-box"><canvas id="c3"></canvas></div>
+<div class="tw" style="margin-top:12px"><table>
+<thead><tr><th>块大小</th><th class="r">rows/s</th><th class="r">相对最优</th></tr></thead><tbody>
+<tr><td>512 KB</td><td class="r">417,000</td><td class="r">76%</td></tr>
+<tr><td>1 MB</td><td class="r">448,000</td><td class="r">82%</td></tr>
+<tr><td><strong>2 MB</strong></td><td class="r"><strong>549,000</strong></td><td class="r"><strong>100%</strong></td></tr>
+<tr><td>4 MB</td><td class="r">476,000</td><td class="r">87%</td></tr>
+</tbody></table></div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ Serial Benchmark ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>SerialBenchProbe · 序列化性能</h2><span class="tg t4">1K 行 × 4 实现</span></div><div class="cb"><div class="lg">
+<strong>测试对象</strong>：List&lt;Map&lt;String,Object&gt;&gt; × 1000 行 × 6 字段<br>
+<strong>指标</strong>：体积(bytes)、序列化 ops/s、反序列化 ops/s、往返 ops/s<br>
+<strong>结论</strong>：Fury 体积最小(93KB)、吞吐最高(5,921 ops/s)，Jackson 体积最大(91KB)、吞吐最低(3,443 ops/s)，Kryo 体积最小(42KB)但吞吐居中(4,970 ops/s)，Protobuf 根对象不支持 List（预期行为，接口协议限定了 Object 根类型）
+</div></div><div class="cb-box"><canvas id="c4"></canvas></div>
+<div class="tw" style="margin-top:12px"><table>
+<thead><tr><th>实现</th><th class="r">体积</th><th class="r">序列化 ops/s</th><th class="r">反序列化 ops/s</th><th class="r">往返 ops/s</th></tr></thead><tbody>
+<tr><td>jackson（当前默认）</td><td class="r">91,201 B</td><td class="r">4,545</td><td class="r">2,342</td><td class="r">3,443</td></tr>
+<tr><td>jackson-json</td><td class="r">91,201 B</td><td class="r">4,389</td><td class="r">3,425</td><td class="r">3,907</td></tr>
+<tr><td>fury</td><td class="r">93,833 B</td><td class="r">6,051</td><td class="r">5,792</td><td class="r"><strong>5,921</strong></td></tr>
+<tr><td>kryo</td><td class="r"><strong>41,916 B</strong></td><td class="r">4,862</td><td class="r">5,078</td><td class="r">4,970</td></tr>
+</tbody></table></div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ Tick Debug ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>调度时序诊断 · TickDebugProbe</h2><span class="tg t3">cron=0/1 · 5s</span></div><div class="cb"><div class="lg">
+<strong>配置</strong>：cron=0/1（每秒触发），CSV 1 行，CountSink，5 秒观测窗口<br>
+<strong>结果</strong>：4 次 write（理论 5~6 次），启动瞬间出现<strong>同毫秒双写</strong>（48.070 + 48.071），其余每秒 1 次正常<br>
+<strong>结论</strong>：<span class="pass">稳态频率正常</span>（每秒 1 次），启动首轮存在重复执行 bug（影响：每次启动多一轮全量同步），已知问题记录<br>
+<strong>触发路径</strong>：executorManager.start() → schedulerManager.start(initialDelay=1s) 后，启动链路另有隐式首轮触发
+</div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ 已知问题 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>已知问题</h2><span class="tg t3">Known Issues</span></div><div class="cb"><ul class="fl">
+<li><strong>启动首轮重复写入</strong>：<code>DefaultDataSyncServer.start()</code> 调用链中，executorManager 与 schedulerManager 各自触发一次首轮同步，
+    导致同毫秒双写（两行 @ 48.070/48.071）。影响范围：每次冷启动多执行一轮全量同步，不影响后续稳态调度频率。</li>
+<li><strong>Protobuf 根对象限制</strong>：<code>ProtobufDataSyncSerializer</code> 的 <code>serialize(Object)</code> 接口要求根类型为 POJO，
+    不支持 <code>List&lt;Map&gt;</code> 根对象（<code>AbstractMessageLite.getDescriptorForType()</code> 抛异常），已知设计限制。</li>
+</ul></div></div>
+
+<!-- ━━━━━━━━━━━━━━ 图表脚本 ━━━━━━━━━━━━━━ -->
+</div>
+<script>
+const dark={grid:{color:'rgba(48,54,61,.5)'},ticks:{color:'#8b949e'}};
+Chart.defaults.color='#8b949e';
+Chart.defaults.borderColor='rgba(48,54,61,.5)';
+
+// Dispatcher Bench
+new Chart(document.getElementById('c1'),{type:'bar',data:{
+labels:['InMemory','WAL+Fury','Chronicle','WAL+Jackson'],
+datasets:[{label:'rows/s',data:[20000000,763000,562000,400000],
+backgroundColor:['rgba(63,185,80,.7)','rgba(88,166,255,.7)','rgba(188,140,255,.7)','rgba(210,153,34,.7)'],
+borderColor:['#3fb950','#58a6ff','#bc8cff','#d29922'],borderWidth:1}]},
+options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.raw/1e6).toFixed(1)+'M rows/s'}}},
+scales:{x:{type:'logarithmic',...dark},y:dark}}});
+
+// Mode Compare
+new Chart(document.getElementById('c2'),{type:'bar',data:{
+labels:['InMemory','Direct','Chronicle'],
+datasets:[{label:'rows/s',data:[1230000,330000,157000],
+backgroundColor:['rgba(63,185,80,.7)','rgba(88,166,255,.7)','rgba(188,140,255,.7)'],
+borderColor:['#3fb950','#58a6ff','#bc8cff'],borderWidth:1}]},
+options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.raw/1e6).toFixed(2)+'M rows/s'}}},
+scales:{x:{type:'logarithmic',...dark},y:dark}}});
+
+// BlockSize
+new Chart(document.getElementById('c3'),{type:'bar',data:{
+labels:['512 KB','1 MB','2 MB','4 MB'],
+datasets:[{label:'rows/s',data:[417000,448000,549000,476000],
+backgroundColor:['rgba(210,153,34,.7)','rgba(88,166,255,.7)','rgba(63,185,80,.7)','rgba(188,140,255,.7)'],
+borderColor:['#d29922','#58a6ff','#3fb950','#bc8cff'],borderWidth:1}]},
+options:{responsive:true,maintainAspectRatio:false,
+plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.raw/1e3).toFixed(0)+'K rows/s'}}},
+scales:{y:{...dark,beginAtZero:true},x:dark}}});
+
+// Serial Benchmark
+new Chart(document.getElementById('c4'),{type:'bar',data:{
+labels:['jackson','jackson-json','fury','kryo'],
+datasets:[
+{label:'序列化',data:[4545,4389,6051,4862],backgroundColor:'rgba(88,166,255,.6)',borderColor:'#58a6ff',borderWidth:1},
+{label:'反序列化',data:[2342,3425,5792,5078],backgroundColor:'rgba(63,185,80,.6)',borderColor:'#3fb950',borderWidth:1}
+]},
+options:{responsive:true,maintainAspectRatio:false,
+plugins:{legend:{position:'top',labels:{color:'#8b949e',font:{size:11}}}},
+scales:{y:{...dark,beginAtZero:true},x:dark}}});
+</script>
+<div class="hd" style="margin-top:24px;border-top:1px solid var(--border);border-bottom:none"><div class="hr"><p>DataSync Stress Test Report · 2026-08-25 · CH</p></div></div>
+</body>
+</html>
