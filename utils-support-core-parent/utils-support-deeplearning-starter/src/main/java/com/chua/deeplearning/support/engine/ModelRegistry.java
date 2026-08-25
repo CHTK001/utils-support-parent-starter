@@ -1009,6 +1009,10 @@ public final class ModelRegistry {
     private static Object newTranslatorInstance(String translatorClassName, Map<String, Object> options) {
         try {
             Class<?> translatorClass = ReflectUtils.forName(translatorClassName);
+            if (translatorClass == null) {
+                // 新版 ReflectUtils.forName 吞掉 CNFE 返回 null；此处转译以维持原异常路径
+                throw new ClassNotFoundException(translatorClassName);
+            }
             if (options != null && !options.isEmpty()) {
                 try {
                     java.lang.reflect.Constructor<?> cfgCtor =

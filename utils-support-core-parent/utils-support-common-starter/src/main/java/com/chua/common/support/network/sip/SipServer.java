@@ -420,7 +420,11 @@ public class SipServer extends AbstractServer implements TcpServer {
         String token = parts.length > 1 ? parts[1] : "";
         String requestId = parts.length > 2 ? parts[2] : "";
         String serviceName = parts.length > 3 ? parts[3] : "";
+        // 路由：精确服务名优先，未命中回落到通配服务（"*"，动态目标中继）
         String providerId = tunnelServices.get(serviceName);
+        if (providerId == null) {
+            providerId = tunnelServices.get(SipProtocol.WILDCARD_SERVICE);
+        }
         if (providerId == null || providerId.equals(clientId)) {
             send(clientId, SipProtocol.line(SipProtocol.PREFIX_ERROR, requestId, "service not found: " + serviceName));
             return;

@@ -85,6 +85,8 @@ public abstract class AbstractRunnerProvider {
      * 为未启用熔断的节点追加统一的降级兜底：执行异常且定义了 fallback 时，
      * 以降级返回值作为成功结果。
      *
+     * <p>Error 及其包装因果链上的 Error 不走降级，原样向上传播。</p>
+     *
      * @param def     节点定义
      * @param context 运行上下文
      * @param inner   内层执行链
@@ -98,10 +100,30 @@ public abstract class AbstractRunnerProvider {
         return () -> {
             try {
                 return inner.call();
-            } catch (Throwable t) {
+            } catch (Exception e) {
+                if (containsError(e)) {
+                    throw e;
+                }
                 return def.getFallback().apply(context);
             }
         };
+    }
+
+    /**
+     * 判断异常因果链上是否携带 Error。
+     *
+     * @param t 待检查异常
+     * @return true 表示链上存在 Error（如 OOM/StackOverflow）
+     */
+    private static boolean containsError(Throwable t) {
+        var current = t;
+        while (current != null) {
+            if (current instanceof Error) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     /**

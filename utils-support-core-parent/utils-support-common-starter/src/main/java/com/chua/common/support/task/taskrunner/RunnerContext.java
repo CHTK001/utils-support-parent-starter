@@ -23,12 +23,17 @@ import java.util.concurrent.ConcurrentMap;
 public final class RunnerContext {
 
     /**
+     * null 结果哨兵：允许任务成功但返回 null，同时保证 hasResult 语义正确
+     */
+    private static final Object NULL_VALUE = new Object();
+
+    /**
      * 初始输入，可能为 null
      */
     private final Object input;
 
     /**
-     * 节点结果存储：nodeId -> 返回值
+     * 节点结果存储：nodeId -> 返回值（null 结果以哨兵存储）
      */
     private final ConcurrentMap<String, Object> results = new ConcurrentHashMap<>();
 
@@ -61,22 +66,22 @@ public final class RunnerContext {
      * 写入节点执行结果（由调度器调用，业务代码一般无需直接使用）。
      *
      * @param nodeId 节点 ID，不为 null
-     * @param value  执行结果值
+     * @param value  执行结果值，允许为 null（以内部哨兵记录）
      */
     public void putResult(String nodeId, Object value) {
         Objects.requireNonNull(nodeId, "nodeId must not be null");
-        results.put(nodeId, value);
+        results.put(nodeId, value == null ? NULL_VALUE : value);
     }
 
     /**
      * 读取指定节点的执行结果原始值。
      *
      * @param nodeId 节点 ID，不为 null
-     * @return 结果值；节点未执行成功时为 null
+     * @return 结果值；节点未执行或执行结果本身为 null 时返回 null
      */
     public Object get(String nodeId) {
         Objects.requireNonNull(nodeId, "nodeId must not be null");
-        return results.get(nodeId);
+        return unwrap(results.get(nodeId));
     }
 
     /**
@@ -85,14 +90,14 @@ public final class RunnerContext {
      * @param nodeId 节点 ID，不为 null
      * @param type   期望类型，不为 null
      * @param <T>    期望类型
-     * @return 类型化结果；节点未执行成功时为 null
+     * @return 类型化结果；节点未执行或结果为 null 时返回 null
      * @throws IllegalStateException 当实际类型与期望不一致时
      */
     @SuppressWarnings("unchecked")
     public <T> T get(String nodeId, Class<T> type) {
         Objects.requireNonNull(nodeId, "nodeId must not be null");
         Objects.requireNonNull(type, "type must not be null");
-        var value = results.get(nodeId);
+        var value = unwrap(results.get(nodeId));
         if (value == null) {
             return null;
         }
@@ -105,17 +110,17 @@ public final class RunnerContext {
     }
 
     /**
-     * 判断指定节点是否存在有效结果（非 null）。
+     * 判断指定节点是否已有执行结果记录。
      *
-     * <p>{@code dependsNode} 数据依赖即基于此判定：前置节点无有效结果时本节点判失败。</p>
+     * <p>{@code dependsNode} 数据依赖基于此判定：前置节点执行成功即视为有结果，
+     * 即使其返回值为 null。</p>
      *
      * @param nodeId 节点 ID，不为 null
-     * @return true 表示存在非 null 结果
+     * @return true 表示该节点已成功执行并写入结果
      */
     public boolean hasResult(String nodeId) {
         Objects.requireNonNull(nodeId, "nodeId must not be null");
-        var value = results.get(nodeId);
-        return value != null;
+        return results.containsKey(nodeId);
     }
 
     /**
@@ -149,5 +154,15 @@ public final class RunnerContext {
     public Object removeAttribute(String key) {
         Objects.requireNonNull(key, "key must not be null");
         return attributes.remove(key);
+    }
+
+    /**
+     * 解包内部 null 哨兵。
+     *
+     * @param stored 存储值
+     * @return 业务原始值
+     */
+    private static Object unwrap(Object stored) {
+        return stored == NULL_VALUE ? null : stored;
     }
 }

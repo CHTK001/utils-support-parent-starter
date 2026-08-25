@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.face;
 
+import com.chua.common.support.task.branch.Branch;
 import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -27,6 +28,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1016,30 +1018,34 @@ public class FacePipeline {
      * @return 框列表
      */
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
-        // 双检测器合并：常规模型检真人、动漫模型检动漫脸，混合图两者互补；
-        // 结果合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 labelName 判断。
-        List<PredictRectangle> merged = new ArrayList<>();
-        try {
-            List<PredictRectangle> boxes = detector.detect(imageData);
-            if (boxes != null) {
-                merged.addAll(boxes);
-            }
-        } catch (Exception e) {
-            log.debug("[face-pipeline] 常规检测失败: {}", e.getMessage());
+        // 双检测器互补：常规模型检真人、动漫模型检动漫脸；各自异常经 Branch 降级为空，
+        // 合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 labelName 判断。
+        List<PredictRectangle> regular = Branch.ofBytes(imageData)
+                .when(v -> true, detector::detect)
+                .recover(e -> {
+                    log.debug("[face-pipeline] 常规检测失败: {}", e.getMessage());
+                    return Collections.emptyList();
+                })
+                .get();
+
+        if (animeDetector == null) {
+            return filterBoxes(crossNms(regular));
         }
-        if (animeDetector != null) {
-            try {
-                List<PredictRectangle> animeBoxes = animeDetector.detect(imageData);
-                if (animeBoxes != null) {
-                    merged.addAll(animeBoxes);
-                }
-            } catch (Exception e) {
-                log.debug("[face-pipeline] 动漫检测失败: {}", e.getMessage());
-            }
-        }
-        if (merged.isEmpty()) {
+
+        List<PredictRectangle> anime = Branch.ofBytes(imageData)
+                .when(v -> true, animeDetector::detect)
+                .recover(e -> {
+                    log.debug("[face-pipeline] 动漫检测失败: {}", e.getMessage());
+                    return Collections.emptyList();
+                })
+                .get();
+
+        if (regular.isEmpty() && anime.isEmpty()) {
             return List.of();
         }
+        List<PredictRectangle> merged = new ArrayList<>(regular.size() + anime.size());
+        merged.addAll(regular);
+        merged.addAll(anime);
         return filterBoxes(crossNms(merged));
     }
 

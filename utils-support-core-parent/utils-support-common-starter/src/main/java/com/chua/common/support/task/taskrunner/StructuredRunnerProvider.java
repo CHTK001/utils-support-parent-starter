@@ -33,12 +33,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StructuredRunnerProvider extends AbstractRunnerProvider implements RunnerProvider {
 
     /**
-     * 节点耗时暂存表：fork 体写入，结果汇总阶段读取后移除。
-     */
-    private final Map<String, Long> nodeDurations = new ConcurrentHashMap<>();
-
-    /**
      * 同步执行整个拓扑图。
+     *
+     * <p>本方法无共享可变状态，Provider 实例可安全支撑并发的多次 run。</p>
      *
      * @param graph   已校验的任务拓扑图
      * @param context 运行上下文
@@ -81,12 +78,12 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
                     .forEach(r -> {
                         unavailable.add(r.id());
                         emit(options, RunnerEvent.nodeLevel(RunnerEvent.Type.NODE_FAILED,
-                                r.id(), String.valueOf(r.error()), 0));
+                                r.id(), String.valueOf(r.error()), System.currentTimeMillis()));
                     });
             outcome.results.stream()
                     .filter(r -> r.status() == TaskResult.Status.SUCCESS)
                     .forEach(r -> emit(options, RunnerEvent.nodeLevel(RunnerEvent.Type.NODE_COMPLETED,
-                            r.id(), null, 0)));
+                            r.id(), null, System.currentTimeMillis())));
 
             if (firstError == null && !outcome.passed) {
                 firstError = outcome.results.stream()
@@ -110,7 +107,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
                     allResults.add(TaskResult.skipped(id));
                     unavailable.add(id);
                     emit(options, RunnerEvent.nodeLevel(RunnerEvent.Type.NODE_SKIPPED,
-                            id, "整体已判败", 0));
+                            id, "整体已判败", System.currentTimeMillis()));
                 }
             }
         }
@@ -145,12 +142,15 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
         var values = new ConcurrentHashMap<String, Object>();
         var errors = new ConcurrentHashMap<String, Throwable>();
 
+        // 执行局部耗时表：随本次 run 创建，Provider 实例保持无状态（并发 run 隔离）
+        var nodeDurations = new ConcurrentHashMap<String, Long>();
+
         try (var scope = StructuredTaskScope.open(
                 StructuredTaskScope.Joiner.<Object>allUntil(subtask -> isEarlyExit(successCount.get(), failedCount.get(), successTarget, failLimit)),
                 cf -> cf.withThreadFactory(Thread.ofVirtual().name("task-runner-node", 0).factory()))) {
 
             for (var def : defs) {
-                scope.fork(() -> runForked(def, context, options, values, errors, successCount, failedCount));
+                scope.fork(() -> runForked(def, context, options, values, errors, successCount, failedCount, nodeDurations));
             }
             scope.join();
         } catch (InterruptedException e) {
@@ -161,9 +161,11 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
         var results = new ArrayList<TaskResult>(total);
         for (var def : defs) {
             if (values.containsKey(def.getId())) {
-                results.add(TaskResult.success(def.getId(), values.get(def.getId()), nodeDurations.remove(def.getId())));
+                results.add(TaskResult.success(def.getId(), values.get(def.getId()),
+                        nodeDurations.getOrDefault(def.getId(), 0L)));
             } else if (errors.containsKey(def.getId())) {
-                results.add(TaskResult.failed(def.getId(), errors.get(def.getId()), nodeDurations.remove(def.getId())));
+                results.add(TaskResult.failed(def.getId(), errors.get(def.getId()),
+                        nodeDurations.getOrDefault(def.getId(), 0L)));
             } else {
                 results.add(TaskResult.skipped(def.getId()));
                 emit(options, RunnerEvent.nodeLevel(RunnerEvent.Type.NODE_SKIPPED,
@@ -179,22 +181,33 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
     /**
      * 单个 fork 子任务体：记录开始事件、执行节点链、维护计数与耗时。
      *
-     * @param def          节点定义
-     * @param context      运行上下文
-     * @param options      执行参数
-     * @param values       成功值收集表（nodeId -> 结果）
-     * @param errors       失败原因收集表（nodeId -> 异常）
-     * @param successCount 成功计数器
-     * @param failedCount  失败计数器
+     * <p>入口处含协作式中断检查点：任务已被提前取消时不再执行，
+     * 避免取消后仍向收集表写入造成竞态。</p>
+     *
+     * @param def           节点定义
+     * @param context       运行上下文
+     * @param options       执行参数
+     * @param values        成功值收集表（nodeId -> 结果）
+     * @param errors        失败原因收集表（nodeId -> 异常）
+     * @param successCount  成功计数器
+     * @param failedCount   失败计数器
+     * @param nodeDurations 本次执行的耗时收集表（nodeId -> 毫秒）
      * @return 恒为 null（结果经收集表传递）
      */
     private Object runForked(TaskDefinition def, RunnerContext context, ExecutionOptions options,
                              Map<String, Object> values, Map<String, Throwable> errors,
-                             AtomicInteger successCount, AtomicInteger failedCount) {
+                             AtomicInteger successCount, AtomicInteger failedCount,
+                             Map<String, Long> nodeDurations) {
+        if (Thread.currentThread().isInterrupted()) {
+            return null;
+        }
         emit(options, RunnerEvent.nodeLevel(RunnerEvent.Type.NODE_STARTED,
                 def.getId(), null, System.currentTimeMillis()));
         var result = executeNode(def, context, options);
         nodeDurations.put(def.getId(), result.duration());
+        if (Thread.currentThread().isInterrupted() && result.status() == TaskResult.Status.SUCCESS) {
+            return null;
+        }
         if (result.status() == TaskResult.Status.SUCCESS) {
             values.put(def.getId(), result.data());
             successCount.incrementAndGet();

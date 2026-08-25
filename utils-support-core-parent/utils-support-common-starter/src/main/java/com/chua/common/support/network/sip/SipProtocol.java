@@ -78,6 +78,12 @@ public interface SipProtocol {
     String PREFIX_CONNECT = "CONNECT";
 
     /**
+     * 通配服务名：provider 以此注册时表示"动态目标中继"模式，
+     * visitor 请求的 serviceName 即为目标 host:port，由 provider 现场拨号
+     */
+    String WILDCARD_SERVICE = "*";
+
+    /**
      * 字段分隔符
      */
     String SEPARATOR = "|";
