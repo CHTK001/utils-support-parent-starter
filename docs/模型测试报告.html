@@ -947,6 +947,28 @@ a { color: var(--accent); }
 </table>
 <p><strong>根因修复：</strong>paddleocrv6-tiny / insightface-scrfd / anime-face / duguang-ocr 四个模型 jar 此前为 <code>test</code> 作用域、未进运行时 classpath，误报“资源缺失”；已改 <code>compile</code> 并重新安装 onnx-starter 后全部通过。另注意：java 直连 huggingface.co 仍 PKIX 证书失败，hf-mirror.com 镜像下载正常。</p>
 <hr>
+<h2 id="threshold-20260825">附：外部阈值透传全链路（2026-08-25）</h2>
+<p>所有检测/识别门面统一支持外部置信度阈值覆盖，未设置时保留各模型内置默认值。调用链：<code>门面.threshold(f)</code> → <code>DetectOptions</code> → 引擎 <code>get(name, cls, options)</code> → <code>DetectionConfigurable.configure()</code> → Translator 的 <code>(DetectionConfiguration)</code> 构造（或 Map 构造兜底）。</p>
+<table>
+<thead>
+<tr><th>类别</th><th>Translator（默认阈值）</th><th>接入方式</th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="6">检测/版面</td><td>yolo11-plate-detect (0.25)、yolov8s / yolov10n / doc-layout-yolo (0.2)、yolov8s-world、owlv2、grounding-dino</td><td>cfg 构造 / 原生支持</td></tr>
+<tr><td>insightface-scrfd (0.45)、anime-face (0.45)、retinaface、tina-face、ultraface</td><td>cfg 构造 / Map 构造</td></tr>
+<tr><td>YOLOv8 系：barcode / fire-smoke / ppe / seal / table（基类 0.25）</td><td>抽象基类 cfg 构造，子类委托</td></tr>
+<tr><td>YoloTranslator 系：facemask / reflective-clothes / safety-helmet (0.05)、visdrone (0.10)、fire-smoke2 / seal-inspect（Map）</td><td>cfg 构造 / Map 构造</td></tr>
+<tr><td>d-fine (0.5)、rt-detr-layout (0.5)、yolov2-coco ×2 (0.3)、yolo11-odd (0.25)、yolo26-obb (0.25)</td><td>cfg 构造</td></tr>
+<tr><td>face-plugin-detect (0.6)、yolov8n-pose (0.3)、fastsam 分割 (0.3)</td><td>cfg 构造（sentinel 覆盖模式）</td></tr>
+<tr><td rowspan="2">OCR/识别</td><td>paddleocrv6-det tiny (DB 0.3) / medium (0.25)、duguang-det (0.2)——二值化阈值可覆盖</td><td>cfg 构造 + effectiveThreshold</td></tr>
+<tr><td>crnn-plate-rec、yolov5-plate-rec——纯序列解码，无置信度阈值语义</td><td>N/A（设计如此）</td></tr>
+<tr><td>分割特例</td><td>clipseg-zero-shot——外部 threshold 为概率语义（0,1），内部换算为 logits 边界；默认 logits&gt;0（即 0.5）</td><td>cfg 构造</td></tr>
+<tr><td rowspan="2">暂缓说明</td><td>c3d-action（按类阈值数组 PRE_NMS_THRESH）、cl-tagger（top-k 截断，无单值阈值）、age-race-gender / donut（回归/序列输出无过滤）</td><td>N/A（阈值语义不适用）</td></tr>
+<tr><td>liveness / image-classifier 门面已支持 threshold 字段透传，translator 按分数排序取 top-1，无需额外接线</td><td>—</td></tr>
+</tbody>
+</table>
+<p><strong>实测验证：</strong>doc-layout-yolo 默认 61 目标 → <code>--threshold=0.8</code> 后 50（document.webp 3→1）；insightface-scrfd 默认 243 → <code>0.6</code> 后 166、<code>0.9</code> 全滤；yolov8s-world <code>0.5</code> 过滤 cup(0.37) 误检仅剩 person；车牌管线 5/5 回归通过。</p>
+<hr>
 <h2 id="9-ocr">9. OCR/文字识别</h2>
 <table>
 <thead>

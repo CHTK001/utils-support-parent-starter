@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * CLIPSeg 零样本语义分割 Translator
@@ -62,6 +63,24 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     /** 分词器 */
     /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
+
+    /** 外部掩码概率阈值（区间 (0,1)，null 表示未配置时以 logits>0 为界）。 */
+    private Float probThreshold;
+
+    /**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public CLIPSegZeroShotSegmentationTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        this();
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0 && t < 1) {
+                this.probThreshold = t;
+            }
+        }
+    }
 
     /** 创建 CLIPSegZeroShotSegmentationTranslator 实例 */
     public CLIPSegZeroShotSegmentationTranslator() {
@@ -131,7 +150,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
 
         // logits: [1, 1, 352, 352] -> sigmoid -> threshold -> uint8 mask
         NDArray mask = logits.squeeze(0).squeeze(0); // [H, W]
-        mask = mask.gt(0f).toType(DataType.UINT8, false);
+        mask = mask.gt(probThreshold == null ? 0f
+                : (float) Math.log(probThreshold / (1 - probThreshold)))
+                .toType(DataType.UINT8, false);
         mask = mask.mul(255);
 
         return ImageFactory.getInstance().fromNDArray(mask);
