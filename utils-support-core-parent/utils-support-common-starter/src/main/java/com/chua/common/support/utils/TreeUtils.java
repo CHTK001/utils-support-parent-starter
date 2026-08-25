@@ -52,7 +52,8 @@ import java.util.function.Predicate;
  * <ul>
  *   <li>路径/父链/兄弟类方法对<strong>目标节点按引用（==）定位</strong>；
  *       按 ID 定位请先使用 {@link #findById}</li>
- *   <li>传入的树结构若存在环，遍历类方法行为未定义（可能死循环）——
+ *   <li>全部遍历均为显式栈迭代实现，不受树深限制；
+ *       但传入含环结构时行为未定义（可能死循环）——
  *       请保证数据无环，{@link #build} 已内置环检测</li>
  *   <li>children 访问器返回 null 时一律按空列表处理</li>
  * </ul>
@@ -211,18 +212,18 @@ public final class TreeUtils {
     }
 
     /**
-     * DFS 递归查找。
+     * DFS 迭代查找（显式栈，不受树深限制）。
      */
     private static <T> T findDfs(T node, Predicate<? super T> matcher,
                                  Function<T, List<T>> childrenGetter) {
-        if (matcher.test(node)) {
-            return node;
-        }
-        for (var child : childrenOf(node, childrenGetter)) {
-            var hit = findDfs(child, matcher, childrenGetter);
-            if (hit != null) {
-                return hit;
+        Deque<T> stack = new ArrayDeque<>();
+        stack.push(node);
+        while (!stack.isEmpty()) {
+            var current = stack.pop();
+            if (matcher.test(current)) {
+                return current;
             }
+            pushReversed(stack, childrenOf(current, childrenGetter));
         }
         return null;
     }
