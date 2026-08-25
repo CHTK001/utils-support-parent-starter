@@ -80,7 +80,7 @@ public class KiloUsageParser extends BaseUsageParser {
 
         return AiUsage.builder()
                 .provider(PROVIDER_KILO)
-                .model(asStr(row.get("model")))
+                .model(extractModelId(asStr(row.get("model"))))
                 .requestId(asStr(row.get("id")))
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
@@ -91,6 +91,35 @@ public class KiloUsageParser extends BaseUsageParser {
                 .currency("USD")
                 .startTime(startTime > 0 ? startTime : null)
                 .build();
+    }
+
+    /**
+     * Extracts the plain model identifier from the session model column.
+     *
+     * <p>Kilo stores the model as a JSON object such as
+     * {@code {"id":"cohere/north-mini-code:free","providerID":"kilo"}} —
+     * only its {@code id} field is used; plain strings pass through.</p>
+     *
+     * @param raw raw model column value
+     * @return model identifier such as {@code cohere/north-mini-code:free}
+     */
+    private String extractModelId(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "unknown";
+        }
+        String trimmed = raw.trim();
+        if (!trimmed.startsWith("{")) {
+            return trimmed;
+        }
+        try {
+            com.chua.common.support.lang.json.JsonNode node =
+                    com.chua.common.support.lang.json.Json.parse(trimmed);
+            String id = node.get("id").toStringValue();
+            return id.isBlank() ? "unknown" : id;
+        } catch (Exception e) {
+            log.debug("[kilo] model json parse failed: {}", e.getMessage());
+            return "unknown";
+        }
     }
 
     /**

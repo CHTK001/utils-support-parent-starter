@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>TableViewParser 无边框模式 测试报告</title>
+<style>
+  body { font-family: "Microsoft YaHei", sans-serif; margin: 32px; color: #222; background: #fafafa; }
+  h1 { border-bottom: 2px solid #4a7; padding-bottom: 8px; }
+  h2 { margin-top: 28px; }
+  table { border-collapse: collapse; width: 100%; background: #fff; }
+  th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; font-size: 14px; }
+  th { background: #eef7ef; }
+  .pass { color: #1a7f37; font-weight: bold; }
+  code, pre { background: #f0f0f0; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; }
+  pre { padding: 12px; overflow-x: auto; }
+  .meta { color: #666; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>TableViewParser 无边框模式 测试报告</h1>
+<p class="meta">模块：utils-support-common-starter · 包：<code>com.chua.common.support.lang.view</code> ·
+验证入口：<code>com.chua.example.lang.TableViewParserExample</code> · 执行日期：2026-08-24</p>
+
+<h2>一、功能说明</h2>
+<p><code>TableViewParser</code> 新增实例属性 <code>borderless</code>（默认 <code>false</code>，行为完全兼容），
+通过链式方法 <code>setBorderless(boolean)</code> 开启后，表格渲染不绘制任何框线字符（<code>┌ ─ ├ │</code> 等），
+仅按列宽以空格对齐，行尾不含多余空白；适用于日志输出与窄屏终端。</p>
+<pre>new TableViewParser().setBorderless(true).render(data)
+
+Key  Value          &lt;- 表头与数据行仅空格对齐
+foo  123            &lt;- 无任何框线字符
+bar  456</pre>
+<p><b>覆盖路径</b>：Map 两列、List&lt;Map&gt; 动态列、POJO 列表、简单类型单列四条渲染链路均生效；
+空数据仍返回占位文本 <code>(empty)</code>。</p>
+
+<h2>二、测试场景与结果</h2>
+<table>
+<tr><th>#</th><th>场景</th><th>断言内容</th><th>结果</th></tr>
+<tr><td>1</td><td>框线模式回归 - 竖线分隔符</td><td>默认渲染包含 <code>│</code></td><td class="pass">PASS</td></tr>
+<tr><td>2</td><td>框线模式回归 - 顶线底线</td><td>包含 <code>┌</code> 与 <code>└</code></td><td class="pass">PASS</td></tr>
+<tr><td>3</td><td>无边框 - 字符排查</td><td>输出不含 9 个框线字符中的任意一个</td><td class="pass">PASS</td></tr>
+<tr><td>4</td><td>无边框 - 表头精确对齐</td><td>首行等于 <code>Key  Value</code></td><td class="pass">PASS</td></tr>
+<tr><td>5</td><td>无边框 - 数据行对齐</td><td>包含 <code>\nfoo  123</code></td><td class="pass">PASS</td></tr>
+<tr><td>6</td><td>List&lt;Map&gt; 动态列 - 行尾空白</td><td>所有行满足 <code>line == line.stripTrailing()</code> 且无框线字符</td><td class="pass">PASS</td></tr>
+<tr><td>7</td><td>简单类型单列</td><td>输出恰为 <code>#\na\nb</code></td><td class="pass">PASS</td></tr>
+<tr><td>8</td><td>空数据占位</td><td>返回 <code>(empty)</code></td><td class="pass">PASS</td></tr>
+</table>
+
+<h2>三、执行方式与结果汇总</h2>
+<pre># 编译
+mvn compile -pl utils-support-core-parent/utils-support-common-starter
+mvn compile -pl utils-support-extra-parent/utils-support-example-starter
+
+# 运行自检
+java com.chua.example.lang.TableViewParserExample</pre>
+<table>
+<tr><th>指标</th><th>数值</th></tr>
+<tr><td>场景总数</td><td>8</td></tr>
+<tr><td>通过 / 失败</td><td><span class="pass">8 通过</span> / 0 失败</td></tr>
+<tr><td>退出码</td><td>0（System.exit(0)，符合 Example 体系规范）</td></tr>
+<tr><td>编译验证</td><td>common-starter 与 example-starter 全模块 mvn compile 均通过</td></tr>
+</table>
+
+<h2>四、实现要点备查</h2>
+<ul>
+<li>属性为实例字段并配套链式 setter，SPI 注册路径行为零变化；</li>
+<li>私有渲染方法由 static 调整为实例方法以读取状态，纯绘制辅助（<code>hLine/appendRow/padRow</code>）保持 static；</li>
+<li>新增 <code>renderWithoutBorder/plainRow</code> 私有辅助，行尾统一 <code>stripTrailing()</code>。</li>
+</ul>
+
+</body>
+</html>

@@ -1,134 +1,59 @@
 package com.chua.common.support.datasearch.conversation.spi.impl;
 
 import com.chua.common.support.datasearch.conversation.ConversationMessage;
-import com.chua.common.support.datasearch.conversation.spi.ConversationParser;
+import com.chua.common.support.datasearch.conversation.spi.AbstractJsonlConversationParser;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Claude Code conversation parser.
  *
  * <p>Claude Code persists every session as a JSONL transcript under
- * {@code ~/.claude/projects/<encoded-path>/<sessionId>.jsonl}. Each line is
- * one event; user and assistant events carry the chat content:</p>
- *
- * <pre>{@code
- * {
- *   "type": "assistant",
- *   "timestamp": "2026-07-09T23:58:42.000Z",
- *   "sessionId": "...",
- *   "cwd": "...",
- *   "message": {
- *     "id": "msg_...",
- *     "role": "assistant",
- *     "model": "deepseek-v4-flash",
- *     "content": [
- *       { "type": "text", "text": "..." },
- *       { "type": "tool_use", "name": "Read", ... }
- *     ]
- *   }
- * }
- * }</pre>
- *
- * <p>Text blocks are emitted with full content; thinking / tool_use /
- * tool_result blocks are emitted as type markers with empty content.</p>
+ * {@code ~/.claude/projects/<encoded-path>/<sessionId>.jsonl}; user and
+ * assistant events carry the chat content. Text blocks are emitted with
+ * full content; thinking / tool_use / tool_result blocks are emitted as
+ * type markers with empty content.</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Spi("claude-code")
-public class ClaudeCodeConversationParser implements ConversationParser {
-
-    private static final Logger log = LoggerFactory.getLogger(ClaudeCodeConversationParser.class);
+public class ClaudeCodeConversationParser extends AbstractJsonlConversationParser {
 
     private static final Path PROJECTS_DIR = Path.of(
             System.getProperty("user.home"), ".claude", "projects");
 
     /**
-     * 返回 SPI 名称。
+     * 返回会话文件根目录。
      *
-     * @return {@code "claude-code"}
+     * @return {@code ~/.claude/projects}
      */
     @Override
-    public String name() {
-        return "claude-code";
+    protected Path rootDir() {
+        return PROJECTS_DIR;
     }
 
     /**
-     * 流式解析全部会话消息：逐文件、逐行惰性拉取。
+     * 返回会话文件后缀。
      *
-     * <p>磁盘读取与行解析都发生在订阅线程（boundedElastic）上，
-     * 不做逐行调度跳转；解析为纯 CPU 操作，开销极低。</p>
+     * @return {@code ".jsonl"}
      */
     @Override
-    public Flux<ConversationMessage> streamMessages() {
-        List<Path> files = listTranscripts();
-        if (files.isEmpty()) {
-            log.debug("[claude-code] no transcripts under {}", PROJECTS_DIR);
-            return Flux.empty();
-        }
-        log.info("[claude-code] streaming from {} transcript files", files.size());
-        return Flux.fromIterable(files)
-                .subscribeOn(Schedulers.boundedElastic())
-                .flatMap(this::streamFile, 4);
+    protected String fileSuffix() {
+        return ".jsonl";
     }
 
-    private Flux<ConversationMessage> streamFile(Path file) {
-        return Flux.using(
-                        () -> Files.newBufferedReader(file),
-                        reader -> Flux.fromStream(reader.lines())
-                                .map(this::parseLineSafe)
-                                .flatMapIterable(l -> l),
-                        reader -> {
-                            try {
-                                reader.close();
-                            } catch (Exception ignored) {
-                                // 忽略关闭异常
-                            }
-                        })
-                .onErrorResume(e -> {
-                    log.debug("[claude-code] read failed {}: {}", file.getFileName(), e.getMessage());
-                    return Flux.empty();
-                });
-    }
-
-    private List<ConversationMessage> parseLineSafe(String line) {
-        try {
-            return parseLine(line);
-        } catch (Exception e) {
-            log.debug("[claude-code] parse failed: {}", e.getMessage());
-            return List.of();
-        }
-    }
-
-    private List<Path> listTranscripts() {
-        if (!Files.isDirectory(PROJECTS_DIR)) {
-            return List.of();
-        }
-        try (var stream = Files.walk(PROJECTS_DIR)) {
-            return stream.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
-                    .toList();
-        } catch (IOException e) {
-            log.warn("[claude-code] walk failed: {}", e.getMessage(), e);
-            return List.of();
-        }
-    }
-
-    private List<ConversationMessage> parseLine(String line) {
+    /**
+     * 解析单行事件为零或多条消息记录。
+     */
+    @Override
+    protected List<ConversationMessage> parseLine(String line) {
         if (line.isBlank()) {
             return List.of();
         }
@@ -160,10 +85,6 @@ public class ClaudeCodeConversationParser implements ConversationParser {
         }
     }
 
-    /**
-     * 展开消息 content：字符串视为单个 text 块；数组按块展开，
-     * text 块携带正文，其余块仅保留类型标记（内容置空）。
-     */
     private List<ConversationMessage> messagesFromContent(JsonNode content,
             String sessionId, String messageId, String role, String model,
             Long timestamp, String cwd) {
@@ -182,7 +103,7 @@ public class ClaudeCodeConversationParser implements ConversationParser {
                         .cwd(cwd)
                         .build();
 
-        List<ConversationMessage> result = new java.util.ArrayList<>();
+        List<ConversationMessage> result = new ArrayList<>();
         if (!content.isArray()) {
             result.add(base.apply("text").toBuilder().content(content.toStringValue()).build());
             return result;
