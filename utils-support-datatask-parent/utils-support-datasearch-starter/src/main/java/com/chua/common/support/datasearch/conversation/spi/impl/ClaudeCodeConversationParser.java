@@ -30,6 +30,16 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
             System.getProperty("user.home"), ".claude", "projects");
 
     /**
+     * 返回 SPI 名称。
+     *
+     * @return {@code "claude-code"}
+     */
+    @Override
+    public String name() {
+        return "claude-code";
+    }
+
+    /**
      * 返回会话文件根目录。
      *
      * @return {@code ~/.claude/projects}
