@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -46,8 +47,9 @@ import java.util.function.Function;
  * }</pre>
  *
  * <p>约束：{@code policy(...)} 为必填项，未设置时任何执行入口都会抛出
- * {@link IllegalStateException}。同一 runner 可多次执行；事件流跨执行累积，
- * 以 RUN_STARTED 事件分界。</p>
+ * {@link IllegalStateException}。同一 runner 可多次执行；事件流为有界缓冲
+ * （4096 条，溢出丢最旧），跨执行累积并以 RUN_STARTED 分界，
+ * 长期复用时可调用 {@link #clearEvents()} 重置。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -95,10 +97,44 @@ public class TaskRunner {
     private String providerName = DEFAULT_PROVIDER;
 
     /**
-     * 事件流：unicast 单播，watch() 订阅消费，跨执行累积
+     * 事件缓冲容量上限，超出后丢弃最旧事件
      */
-    private final Sinks.Many<RunnerEvent> eventSink =
-            Sinks.many().unicast().onBackpressureBuffer();
+    private static final int EVENT_BUFFER_SIZE = 4096;
+
+    /**
+     * 事件流：unicast 单播 + 有界缓冲（溢出丢最旧），watch() 订阅消费
+     */
+    private volatile Sinks.Many<RunnerEvent> eventSink = newSink();
+
+    /**
+     * 事件流替换锁：clearEvents 与 bridgeEvent 的互斥
+     */
+    private final Object sinkLock = new Object();
+
+    /**
+     * 拓扑结构版本号：task() 注册时递增
+     */
+    private volatile int structureVersion;
+
+    /**
+     * 已缓存拓扑图对应的版本号
+     */
+    private volatile int cachedGraphVersion = -1;
+
+    /**
+     * 拓扑图缓存（定义不可变时避免重复构建校验）
+     */
+    private volatile TaskGraph cachedGraph;
+
+    /**
+     * 创建新的事件 sink。
+     *
+     * @return 有界单播 sink
+     */
+    private static Sinks.Many<RunnerEvent> newSink() {
+        return Sinks.many().unicast()
+                .onBackpressureBuffer(new ArrayBlockingQueue<RunnerEvent>(EVENT_BUFFER_SIZE));
+    }
 
     /**
      * 私有构造，统一经 {@link #of(String)} 创建。
@@ -202,26 +238,37 @@ public class TaskRunner {
         }
         var def = new TaskDefinition(this, id, action);
         definitions.put(id, def);
+        structureVersion++;
         return def;
     }
 
     /**
      * 异步执行整个拓扑图。
      *
-     * <p>整个 DAG 在独立虚拟线程上运行，当前线程不阻塞。</p>
+     * <p>整个 DAG 在独立虚拟线程上运行，当前线程不阻塞。
+     * 调用 {@code future.cancel(true)} 会中断执行线程，
+     * 结构化并发作用域随之取消全部在途子任务。</p>
      *
      * @param input 初始输入，可为 null
-     * @return 整体结果 Future
+     * @return 整体结果 Future；cancel 后以 CancellationException 结束
      * @throws IllegalStateException 当未设置策略或未注册任务时
      */
     public CompletableFuture<RunResult> execute(Object input) {
         var prepared = prepare(input);
         var future = new CompletableFuture<RunResult>();
-        Thread.ofVirtual().name("task-runner-" + name).start(() -> {
+        var worker = Thread.ofVirtual().name("task-runner-" + name).start(() -> {
             try {
                 future.complete(resolveProvider().run(prepared.graph(), prepared.context(), prepared.options()));
             } catch (Throwable t) {
-                future.completeExceptionally(t);
+                if (!future.isCancelled()) {
+                    future.completeExceptionally(t);
+                }
+            }
+        });
+        // cancel(true) 时向执行线程传播中断（作用域 join 抛 InterruptedException 终止整图）
+        future.whenComplete((result, error) -> {
+            if (future.isCancelled()) {
+                worker.interrupt();
             }
         });
         return future;
@@ -242,25 +289,37 @@ public class TaskRunner {
     /**
      * 响应式执行整个拓扑图。
      *
+     * <p>完全惰性：参数校验与执行均推迟到订阅时刻。</p>
+     *
      * @param input 初始输入，可为 null
-     * @return 整体结果 Mono（惰性，订阅时触发执行）
-     * @throws IllegalStateException 当未设置策略或未注册任务时
+     * @return 整体结果 Mono（订阅时校验并触发执行）
      */
     public Mono<RunResult> executeReactor(Object input) {
-        prepare(input);
-        return Mono.fromFuture(() -> execute(input));
+        return Mono.defer(() -> Mono.fromFuture(() -> execute(input)));
     }
 
     /**
      * 订阅运行事件流。
      *
-     * <p>unicast 单播语义：仅支持一个订阅者，事件跨执行累积，
-     * 以 RUN_STARTED 事件分界不同批次。</p>
+     * <p>unicast 单播语义：同一时刻仅支持一个活跃订阅者。缓冲容量 4096，
+     * 溢出时丢弃最旧事件；长期复用的 runner 可调用 {@link #clearEvents()}
+     * 释放历史事件并重置订阅窗口。</p>
      *
-     * @return 事件 Flux
+     * @return 当前事件 Flux
      */
     public Flux<RunnerEvent> watch() {
         return eventSink.asFlux();
+    }
+
+    /**
+     * 清空事件流：丢弃已缓冲事件并开启新的订阅窗口。
+     *
+     * <p>旧的 Flux 引用不再接收新事件；建议在两次 run 之间调用以防缓冲增长。</p>
+     */
+    public void clearEvents() {
+        synchronized (sinkLock) {
+            eventSink = newSink();
+        }
     }
 
     /**
@@ -278,7 +337,7 @@ public class TaskRunner {
         if (definitions.isEmpty()) {
             throw new IllegalStateException("未注册任何任务节点，请先调用 task(...)");
         }
-        var graph = TaskGraph.of(name, definitions.values());
+        var graph = resolveGraph();
         var context = new RunnerContext(input);
 
         var merged = new ArrayList<RunnerListener>(listeners.size() + 1);
@@ -289,24 +348,52 @@ public class TaskRunner {
     }
 
     /**
+     * 解析拓扑图：结构未变化时复用缓存，避免重复校验与分层计算。
+     *
+     * @return 拓扑图实例
+     */
+    private TaskGraph resolveGraph() {
+        var version = structureVersion;
+        var cached = cachedGraph;
+        if (cached != null && cachedGraphVersion == version) {
+            return cached;
+        }
+        var built = TaskGraph.of(name, definitions.values());
+        cachedGraph = built;
+        cachedGraphVersion = version;
+        return built;
+    }
+
+    /**
      * 将监听器事件桥接到响应式事件流。
+     *
+     * <p>缓冲满时静默丢弃（有界策略），不阻塞执行线程。</p>
      *
      * @param event 待发布事件
      */
     private void bridgeEvent(RunnerEvent event) {
-        synchronized (eventSink) {
+        synchronized (sinkLock) {
             eventSink.tryEmitNext(event);
         }
     }
 
     /**
-     * 解析执行引擎：优先 SPI 查找，缺失时兜底默认实现。
+     * 解析执行引擎：默认实现名允许 SPI 缺失时兜底；
+     * 显式指定的其他名称找不到实现则立即报错，禁止静默降级。
      *
      * @return 执行引擎实例
+     * @throws IllegalArgumentException 当指定名称未注册且不是默认名时
      */
     private RunnerProvider resolveProvider() {
         var resolved = ServiceProvider.of(RunnerProvider.class).getExtension(providerName);
-        return resolved != null ? resolved : new StructuredRunnerProvider();
+        if (resolved != null) {
+            return resolved;
+        }
+        if (DEFAULT_PROVIDER.equals(providerName)) {
+            return new StructuredRunnerProvider();
+        }
+        throw new IllegalArgumentException(
+                "未知的 RunnerProvider 实现: " + providerName + "（当前可用: " + DEFAULT_PROVIDER + "）");
     }
 
     /**
