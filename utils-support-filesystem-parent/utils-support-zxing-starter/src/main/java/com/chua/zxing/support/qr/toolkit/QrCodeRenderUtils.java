@@ -265,7 +265,6 @@ public class QrCodeRenderUtils {
         // 背景图缩放
         for (int index = 0, len = bgImgOptions.getGifDecoder().getFrameCount(); index < len; index++) {
             BufferedImage bgImg = bgImgOptions.getGifDecoder().getFrame(index);
-            // fixme 当背景图为png时，最终透明的地方会是黑色，这里兼容处理成白色
             BufferedImage temp = new BufferedImage(bgW, bgH, BufferedImage.TYPE_INT_RGB);
             temp.getGraphics().setColor(Color.WHITE);
             temp.getGraphics().fillRect(0, 0, bgW, bgH);

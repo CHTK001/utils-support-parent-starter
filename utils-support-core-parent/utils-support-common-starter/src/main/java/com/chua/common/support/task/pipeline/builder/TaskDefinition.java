@@ -510,14 +510,14 @@ public class TaskDefinition {
     public TaskDefinition params(Map<String, Object> params) {
         PipelineNode original = this.handler;
         this.handler = new PipelineNode() {
+            /** 委托原处理器执行节点逻辑。 */
             @Override
-            /** 执行 */
             public String execute(com.chua.common.support.task.pipeline.core.PipelineContext<?> context) {
                 return original.execute(context);
             }
 
+            /** 返回任务注册的参数表。 */
             @Override
-            /** 获取Params */
             public Map<String, Object> getParams() {
                 return params;
             }

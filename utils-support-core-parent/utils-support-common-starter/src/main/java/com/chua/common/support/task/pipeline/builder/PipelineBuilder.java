@@ -517,7 +517,6 @@ public class PipelineBuilder {
     public PipelineBuilder onStart(Consumer<PipelineContext<?>> onStart) {
         this.listeners.add(new PipelineListener() {
             @Override
-            /** On开始 */
             public void onStart(PipelineContext<?> ctx) {
                 onStart.accept(ctx);
             }
@@ -536,7 +535,6 @@ public class PipelineBuilder {
     public PipelineBuilder onComplete(Consumer<PipelineContext<?>> onComplete) {
         this.listeners.add(new PipelineListener() {
             @Override
-            /** OnComplete */
             public void onComplete(PipelineContext<?> ctx) {
                 onComplete.accept(ctx);
             }
@@ -589,7 +587,6 @@ public class PipelineBuilder {
     public PipelineBuilder onDraw(Consumer<PipelineContext<?>> onDraw) {
         this.listeners.add(new PipelineListener() {
             @Override
-            /** OnDraw */
             public void onDraw(PipelineContext<?> ctx) {
                 onDraw.accept(ctx);
             }
