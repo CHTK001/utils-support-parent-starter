@@ -61,7 +61,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     /** Keystore路径 */
     private String keystorePath;
     /** Keystore密码 */
-    private String keystorePassword = "changeit";
+    private String keystorePassword = "";
 
     /** Temp目录 */
     private Path tempDir;
