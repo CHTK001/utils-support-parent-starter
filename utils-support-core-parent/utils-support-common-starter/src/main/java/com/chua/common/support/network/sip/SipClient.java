@@ -339,6 +339,7 @@ public class SipClient {
      */
     private void handleSignal(String line) {
         try {
+            log.info("SIP RECV: {}", line);
             if (line.startsWith(SipProtocol.PREFIX_SERVICE_OK + SipProtocol.SEPARATOR)) {
                 log.debug("SIP 服务注册成功: {}", line.substring(SipProtocol.PREFIX_SERVICE_OK.length() + 1));
             } else if (line.startsWith(SipProtocol.PREFIX_OPENED + SipProtocol.SEPARATOR)) {
@@ -430,6 +431,7 @@ public class SipClient {
         String[] parts = line.split("\\|", 3);
         String channelId = parts.length > 2 ? parts[2].trim() : "";
         SipTunnelSession session = openTunnels.remove(channelId);
+        log.info("SIP CLOSE 处理: channel={}, sessionFound={}", channelId, session != null);
         if (session != null) {
             session.dispatchClose();
         }
