@@ -111,6 +111,30 @@ public class AioHttpServer extends AbstractServer {
      */
     private static final int MIN_SO_RCVBUF = 16384;
 
+    /** 合并缓冲池:复用直接内存,消除每响应分配 */
+    private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> COMBINE_POOL =
+            new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    private static ByteBuffer acquireCombined(int size) {
+        ByteBuffer b = COMBINE_POOL.poll();
+        if (b == null || b.capacity() < size) {
+            b = ByteBuffer.allocate(size);
+        } else {
+            b.clear();
+        }
+        return b;
+    }
+
+    private static void releaseCombined(ByteBuffer b) {
+        if (b != null && b.capacity() >= COMBINE_THRESHOLD && COMBINE_POOL.size() < 64) {
+            b.clear();
+            COMBINE_POOL.offer(b);
+        }
+    }
+
+    /** 合并写阈值 */
+    private static final int COMBINE_THRESHOLD = 65536;
+
     /** 监听通道 */
     private AsynchronousServerSocketChannel serverChannel;
 
@@ -120,8 +144,6 @@ public class AioHttpServer extends AbstractServer {
      */
     private AsynchronousChannelGroup group;
 
-    /** 虚拟线程 worker 池:执行 handler 链,阻塞不占用平台线程 */
-    private ExecutorService executor;
 
 
     /** SSL 上下文(配置了 selfSigned/KeyStore/PEM 时非 null,每连接派生 SSLEngine) */
@@ -189,7 +211,6 @@ public class AioHttpServer extends AbstractServer {
             InetSocketAddress bound = (InetSocketAddress) serverChannel.getLocalAddress();
             setting.setPort(bound.getPort());
 
-            executor = Executors.newVirtualThreadPerTaskExecutor();
 
             // 挂起 ACCEPT_DEPTH 个重叠 accept,completed 回调内立即补位,
             // 保证接纳流水线永不中断
@@ -476,7 +497,7 @@ public class AioHttpServer extends AbstractServer {
                     int total = header.remaining() + body.remaining();
                     if (total <= 65536) {
                         // 堆分配(TLAB 近乎免费);JDK 写出时自会拷贝到 native
-                        ByteBuffer combined = ByteBuffer.allocate(total);
+                        ByteBuffer combined = acquireCombined(total);
                         combined.put(header).put(body);
                         combined.flip();
                         state.writeQueue.add(combined);
@@ -963,7 +984,7 @@ public class AioHttpServer extends AbstractServer {
                     case 0x1, 0x2 -> {
                         WebSocketProtocol.Frame frame =
                                 new WebSocketProtocol.Frame(opcode, payload);
-                        executor.submit(() -> dispatchWsMessage(frame, state.wsConn));
+                        dispatchWsMessage(frame, state.wsConn);
                     }
                     default -> { }
                 }
@@ -1369,9 +1390,6 @@ public class AioHttpServer extends AbstractServer {
     @Override
     /** Do停止 */
     protected void doStop() {
-        if (executor != null) {
-            executor.shutdownNow();
-        }
         if (group != null) {
             try {
                 group.shutdownNow();
