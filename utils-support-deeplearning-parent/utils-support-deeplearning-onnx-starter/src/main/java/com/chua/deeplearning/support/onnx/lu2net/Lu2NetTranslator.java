@@ -17,7 +17,19 @@ public class Lu2NetTranslator implements Translator<Image, Image> {
     /** 处理Input */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
-        NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
+        // U²-Net 类模型要求尺寸对齐，统一缩放到 320x320
+        // （DJL Image.resize 在部分版本为 no-op，NDArray.resize 在 rust 引擎未实现，故用 Java2D）
+        java.awt.image.BufferedImage src = (java.awt.image.BufferedImage) input.getWrappedImage();
+        java.awt.image.BufferedImage scaled = new java.awt.image.BufferedImage(
+                320, 320, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics2D graphics = scaled.createGraphics();
+        try {
+            graphics.drawImage(src, 0, 0, 320, 320, null);
+        } finally {
+            graphics.dispose();
+        }
+        Image resized = ImageFactory.getInstance().fromImage(scaled);
+        NDArray array = resized.toNDArray(manager, Image.Flag.COLOR);
         // normalize to [0,1]
         array = array.toType(DataType.FLOAT32, false).div(255.0f);
         // NHWC to NCHW（batch 维由 pipeline 的 Batchifier 统一添加，此处不手动 expandDims）
