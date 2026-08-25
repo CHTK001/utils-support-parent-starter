@@ -25,7 +25,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
             return null;
         }
         try {
-            PricingProvider pricingProvider = ServiceProvider.of(PricingProvider.class).getExtension(provider);
+            PricingProvider pricingProvider = ServiceProvider.of(ModelMetricsProvider.class).getExtension(provider);
             if (pricingProvider == null) {
                 return null;
             }

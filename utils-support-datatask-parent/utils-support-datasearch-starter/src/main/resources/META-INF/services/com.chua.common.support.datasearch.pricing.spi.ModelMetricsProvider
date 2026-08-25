@@ -1,0 +1,7 @@
+com.chua.common.support.datasearch.pricing.spi.impl.AmazonModelMetricsProvider
+com.chua.common.support.datasearch.pricing.spi.impl.DeepSeekModelMetricsProvider
+com.chua.common.support.datasearch.pricing.spi.impl.OpenRouterModelMetricsProvider
+com.chua.common.support.datasearch.pricing.spi.impl.TogetherAiModelMetricsProvider
+com.chua.common.support.datasearch.pricing.spi.impl.XiaomiModelMetricsProvider
+com.chua.common.support.datasearch.pricing.spi.impl.ZaiModelMetricsProvider
+com.chua.common.support.datasearch.pricing.spi.impl.ArtificialAnalysisModelMetricsProvider

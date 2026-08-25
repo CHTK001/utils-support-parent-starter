@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
-public abstract class AbstractPricingProvider implements PricingProvider {
+public abstract class AbstractModelMetricsProvider implements ModelMetricsProvider {
 
     /**
      * 本地缓存键前缀
@@ -66,20 +66,20 @@ public abstract class AbstractPricingProvider implements PricingProvider {
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 
     /** 日志 */
-    protected static final Logger log = LoggerFactory.getLogger(AbstractPricingProvider.class);
+    protected static final Logger log = LoggerFactory.getLogger(AbstractModelMetricsProvider.class);
 
     /** 配置saveORloader */
     private ConfigSaveOrLoader configSaveOrLoader;
 
-    /** 创建 AbstractPricingProvider 实例 */
-    protected AbstractPricingProvider() {
+    /** 创建 AbstractModelMetricsProvider 实例 */
+    protected AbstractModelMetricsProvider() {
     }
 
     /**
-     * 创建 AbstractPricingProvider 实例
+     * 创建 AbstractModelMetricsProvider 实例
      * @param configSaveOrLoader configSaveOrLoader
      */
-    protected AbstractPricingProvider(ConfigSaveOrLoader configSaveOrLoader) {
+    protected AbstractModelMetricsProvider(ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
     }
 
@@ -95,7 +95,7 @@ public abstract class AbstractPricingProvider implements PricingProvider {
 
     @Override
     /** 获取Pricing */
-    public List<ModelDefinition> getPricing() {
+    public List<ModelDefinition> getMetrics() {
         if (configSaveOrLoader == null) {
             return Collections.emptyList();
         }

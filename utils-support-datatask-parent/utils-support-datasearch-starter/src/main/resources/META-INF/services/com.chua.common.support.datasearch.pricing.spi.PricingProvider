@@ -1,6 +1,0 @@
-com.chua.common.support.datasearch.pricing.spi.impl.AmazonPricingProvider
-com.chua.common.support.datasearch.pricing.spi.impl.DeepSeekPricingProvider
-com.chua.common.support.datasearch.pricing.spi.impl.TogetherAiPricingProvider
-com.chua.common.support.datasearch.pricing.spi.impl.XiaomiPricingProvider
-com.chua.common.support.datasearch.pricing.spi.impl.ZaiPricingProvider
-com.chua.common.support.datasearch.pricing.spi.impl.OpenRouterPricingProvider

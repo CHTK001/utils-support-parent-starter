@@ -122,6 +122,15 @@ public class SipTunnelService {
                         bridgeToLocal(session, name);
                     }
                 });
+            } else {
+                // 拒绝目标：主动关闭会话，让 visitor 侧快速感知而非挂起超时
+                ThreadUtils.startVirtualThread("sip-service-reject-" + serviceName, () -> {
+                    SipTunnelSession session = client.tunnelSession(channelId);
+                    if (session != null) {
+                        log.warn("SIP 隧道目标被拒绝，关闭会话: {}", name);
+                        session.close();
+                    }
+                });
             }
         });
         client.connect().registerTunnel(serviceName);
