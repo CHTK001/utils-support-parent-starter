@@ -382,42 +382,92 @@ public final class TaskDefinition {
         }
     }
 
+    /**
+     * 获取节点 ID。
+     *
+     * @return 注册时声明的节点 ID
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * 获取任务执行函数。
+     *
+     * @return 注册时传入的业务函数
+     */
     public Function<RunnerContext, Object> getAction() {
         return action;
     }
 
+    /**
+     * 获取控制流依赖的前置节点 ID 列表。
+     *
+     * @return 不可变快照，保持注册顺序
+     */
     public List<String> getDependencies() {
         return List.copyOf(dependencies);
     }
 
+    /**
+     * 获取数据依赖的前置节点 ID 集合。
+     *
+     * @return 不可变快照，执行前会校验这些节点的结果非 null
+     */
     public Set<String> getDataDependencies() {
         return Set.copyOf(dataDependencies);
     }
 
+    /**
+     * 判断是否配置了降级兜底函数。
+     *
+     * @return true 表示失败时可走 fallback
+     */
     public boolean hasFallback() {
         return fallback != null;
     }
 
+    /**
+     * 获取降级兜底函数。
+     *
+     * @return 降级函数；未配置时为 null
+     */
     public Function<RunnerContext, Object> getFallback() {
         return fallback;
     }
 
+    /**
+     * 判断是否启用熔断保护。
+     *
+     * @return true 表示已调用 circuitBreaker() 启用
+     */
     public boolean isCircuitBreakerEnabled() {
         return circuitBreakerEnabled;
     }
 
+    /**
+     * 获取生效的熔断失败阈值。
+     *
+     * @return 显式设置值；未设置时返回默认值 5
+     */
     public int getFailureThreshold() {
         return failureThreshold >= 1 ? failureThreshold : 5;
     }
 
+    /**
+     * 获取生效的半开恢复成功阈值。
+     *
+     * @return 显式设置值；未设置时返回默认值 2
+     */
     public int getSuccessThreshold() {
         return successThreshold >= 1 ? successThreshold : 2;
     }
 
+    /**
+     * 获取生效的熔断半开等待毫秒数。
+     *
+     * @return 显式设置值；未设置时返回默认值 60000ms
+     */
     public long getWaitDuration() {
         return waitDurationMs > 0 ? waitDurationMs : 60_000L;
     }

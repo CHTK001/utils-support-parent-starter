@@ -15,7 +15,7 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -35,6 +35,36 @@ public class AioHttpProxyServer extends AbstractServer {
     private AsynchronousChannelGroup group;
     /** 活跃连接数 */
     private final AtomicInteger activeConnections = new AtomicInteger();
+
+    /** 后端空闲连接池(target -> 空闲通道列表,复用避免每次 connect) */
+    private final java.util.concurrent.ConcurrentHashMap<String,
+            ArrayDeque<AsynchronousSocketChannel>> BACKEND_POOL =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** 从池中取或新建后端连接 */
+    private void acquireBackend(String hostKey, InetSocketAddress addr,
+                                java.util.function.Consumer<AsynchronousSocketChannel> onDone,
+                                java.util.function.Consumer<Throwable> onError) {
+        var q = BACKEND_POOL.get(hostKey);
+        if (q != null) {
+            AsynchronousSocketChannel ch;
+            while ((ch = q.poll()) != null) {
+                if (ch.isOpen()) { onDone.accept(ch); return; }
+                closeQuietly(ch);
+            }
+        }
+        connectAsync(addr, onDone, onError);
+    }
+
+    /** 用完归还到池(仅健康时) */
+    private void returnBackend(String hostKey, AsynchronousSocketChannel ch) {
+        if (ch != null && ch.isOpen()) {
+            BACKEND_POOL.computeIfAbsent(hostKey, k -> new ArrayDeque<>())
+                    .offer(ch);
+        } else {
+            closeQuietly(ch);
+        }
+    }
 
     public AioHttpProxyServer(ServerSetting setting) {
         super(setting);
