@@ -16,22 +16,29 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractAsyncProvider implements AsyncProvider {
 
+    /**
+     * 异步执行带返回值的任务，委托给 {@link #doSupply(Supplier)}。
+     */
     @Override
-    /** Supply */
     public <T> CompletableFuture<T> supply(Supplier<T> supplier) {
         return doSupply(supplier);
     }
 
+    /**
+     * 异步执行无返回值任务，委托给 {@link #doRun(Runnable)}。
+     */
     @Override
-    /** 运行 */
     public CompletableFuture<Void> run(Runnable runnable) {
         return doRun(runnable);
     }
 
+    /**
+     * 批量异步执行并聚合全部结果：并发提交所有任务，
+     * 全部完成后按提交顺序返回结果列表。
+     */
     @Override
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    /** SupplyAll */
     public final <T> CompletableFuture<List<T>> supplyAll(Supplier<T>... suppliers) {
         List<CompletableFuture<T>> futures = new ArrayList<>(suppliers.length);
         for (Supplier<T> s : suppliers) {
@@ -41,14 +48,28 @@ public abstract class AbstractAsyncProvider implements AsyncProvider {
                 .thenApply(v -> futures.stream().map(CompletableFuture::join).toList());
     }
 
+    /**
+     * 列表版批量异步执行，委托给数组版本。
+     */
     @Override
-    /** SupplyAll */
     public <T> CompletableFuture<List<T>> supplyAll(List<Supplier<T>> suppliers) {
         return supplyAll(suppliers.toArray(new Supplier[0]));
     }
 
-    /** DoSupply */
+    /**
+     * 异步执行带返回值任务的核心逻辑，由具体实现提供。
+     *
+     * @param supplier 业务逻辑
+     * @param <T>      返回值类型
+     * @return 异步结果
+     */
     protected abstract <T> CompletableFuture<T> doSupply(Supplier<T> supplier);
-    /** Do运行 */
+
+    /**
+     * 异步执行无返回值任务的核心逻辑，由具体实现提供。
+     *
+     * @param runnable 业务逻辑
+     * @return 异步结果
+     */
     protected abstract CompletableFuture<Void> doRun(Runnable runnable);
 }

@@ -46,8 +46,10 @@ public class JdkAsyncProvider extends AbstractAsyncProvider {
         return CompletableFuture.supplyAsync(supplier, VIRTUAL_EXECUTOR);
     }
 
+    /**
+     * 基于共享虚拟线程执行器运行任务。
+     */
     @Override
-    /** Do运行 */
     protected CompletableFuture<Void> doRun(Runnable runnable) {
         return CompletableFuture.runAsync(runnable, VIRTUAL_EXECUTOR);
     }

@@ -49,14 +49,18 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     /** Date_fmt */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * 策略类型标识：daily。
+     */
     @Override
-    /** Type */
     public String type() {
         return TYPE;
     }
 
+    /**
+     * 执行按天备份：拷贝当天文件 → 压缩昨日备份 → 清理过期备份。
+     */
     @Override
-    /** 执行 */
     public BackupResult execute(BackupConfig config) {
         long start = System.currentTimeMillis();
         try {
@@ -94,8 +98,10 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         }
     }
 
+    /**
+     * 清理超过保留天数的历史备份（ZIP 与当天目录），返回清理数量。
+     */
     @Override
-    /** CleanExpired */
     public int cleanExpired(BackupConfig config) {
         int count = 0;
         Path archiveDir = config.getBackupDir().resolve(ARCHIVE_DIR);
@@ -138,8 +144,10 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         return count;
     }
 
+    /**
+     * 列出归档目录中的全部 ZIP 备份，按日期倒序。
+     */
     @Override
-    /** ListBackups */
     public List<Path> listBackups(BackupConfig config) {
         List<Path> backups = new ArrayList<>();
         Path archiveDir = config.getBackupDir().resolve(ARCHIVE_DIR);
@@ -148,7 +156,8 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
                 stream.filter(p -> p.toString().endsWith(".zip"))
                         .sorted(Comparator.reverseOrder())
                         .forEach(backups::add);
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.warn("列出备份失败: {}", archiveDir, e);
             }
         }
         return backups;

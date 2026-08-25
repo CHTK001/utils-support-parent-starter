@@ -33,8 +33,10 @@ public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
         this.supplier = Objects.requireNonNull(supplier, "supplier 不能为空");
     }
 
+    /**
+     * 通过供应商创建实例。
+     */
     @Override
-    /** 创建 */
     protected T create() {
         return supplier.get();
     }
