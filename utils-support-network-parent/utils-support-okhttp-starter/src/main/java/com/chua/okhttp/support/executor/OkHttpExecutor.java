@@ -47,12 +47,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
     @Override
     /** 是否Available */
     public boolean isAvailable() {
-        try {
-            ReflectUtils.forName("okhttp3.OkHttpClient");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
+        return ReflectUtils.forName("okhttp3.OkHttpClient") != null;
     }
 
     @Override
