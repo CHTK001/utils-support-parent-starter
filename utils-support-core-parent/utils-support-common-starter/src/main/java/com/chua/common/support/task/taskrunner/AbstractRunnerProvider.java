@@ -61,8 +61,8 @@ public abstract class AbstractRunnerProvider {
             return def.getAction().apply(context);
         };
 
-        Callable<Object> retried = wrapRetry(core, def.resolveRetry(options.defaultRetry()));
-        var effectiveTimeout = def.resolveTimeout(options.defaultTimeout());
+        Callable<Object> retried = wrapRetry(core, def.resolveRetry(options.globalRetry()));
+        var effectiveTimeout = def.resolveTimeout(options.globalTimeout());
         Callable<Object> timed = effectiveTimeout != null
                 ? wrapTimeout(retried, effectiveTimeout)
                 : retried;
