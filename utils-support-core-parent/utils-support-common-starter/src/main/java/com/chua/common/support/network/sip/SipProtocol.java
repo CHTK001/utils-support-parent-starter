@@ -78,11 +78,6 @@ public interface SipProtocol {
     String PREFIX_CONNECT = "CONNECT";
 
     /**
-     * 数据平面连接握手前缀（CONNECT|channelId|role|token）
-     */
-    String PREFIX_CONNECT = "CONNECT";
-
-    /**
      * 多路复用数据面握手前缀（MUXCONN|首个channelId|role|token），
      * 单条连接承载同角色全部隧道：帧格式 [4B 长度][16B channelId][payload]，空 payload 为通道关闭标记
      */
