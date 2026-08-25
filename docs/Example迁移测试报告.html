@@ -104,5 +104,18 @@ mvn compile -pl utils-support-extra-parent/utils-support-example-starter</pre>
 </table>
 <p class="meta">命名终态：26 个 SPI 适配器 100% 存在同名主 Example；260 文件全部以 Example/ExampleSpi 结尾、类名一致。</p>
 
+<h2>七、既有缺陷专项排查（2026-08-26 追加）</h2>
+<p>对驱动暴露的 6 个 Spi 场景失败完成根因定位与修复：</p>
+<table>
+<tr><th>场景</th><th>根因</th><th>处置</th></tr>
+<tr><td>NioHttpServerExampleSpi SSE 断言</td><td><b>断言错误</b>：期望 <code>data:event-1</code> 漏了 SSE 标准的冒号后空格；生产端 NioServerResponse.sseEvent 实现正确</td><td class="pass">已修复 ✓ 实跑 PASS</td></tr>
+<tr><td>HttpProxyExampleSpi 代理 404</td><td><b>生产框架 Bug</b>：ServerFilterManager.getMergedReactiveFilters() 重构后丢失静态过滤器合并——addFilter 注册的同步过滤器从不进链</td><td class="pass">已修复（补 wrapStatic 适配合并）✓ 实跑 PASS</td></tr>
+<tr><td>HttpServerExampleSpi multipart files=0</td><td>example-starter 缺 utils-support-multipart-starter 依赖致 @Spi("fileupload") 解析器缺席；补依赖后解析器可达（探针证实），<b>仍 files=0</b> —— 默认 server 实现的请求类 getFiles 路径待续查</td><td class="warn">依赖已修，残余待查</td></tr>
+<tr><td>NettyHttpServerExampleSpi SPI 切换</td><td>断言针对<b>已移除</b>的 netty 实现（network-starter 注册文件注释佐证"Netty 移除"）；已改为对现存 type("jdk")→JdkHttpServer 断言 ✓；但后续 FUNC-02 POST 体回显在 jdk 实现下失败，待查</td><td class="warn">部分修复</td></tr>
+<tr><td>SyncExample http 协议往返</td><td>同代理 404 同源（静态过滤器未入链）</td><td class="pass">随框架修复通过 ✓</td></tr>
+<tr><td>SyncExample websocket 连接失败</td><td>WebSocket 连接建立阶段失败，独立问题待查</td><td class="warn">待查</td></tr>
+<tr><td>ModuleLoader 大量 DEBUG 导出失败刷屏</td><td>JDK25 下 implAddExports 不可达属预期降级路径（有 catch），仅日志噪音非故障</td><td class="pass">确认无害</td></tr>
+</table>
+
 </body>
 </html>
