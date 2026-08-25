@@ -75,6 +75,7 @@ class SipMuxStream {
      * @param payload 负载
      */
     void send(byte[] payload) {
+        System.err.println("[TRACE] muxStream.send ch=" + channelId + " len=" + payload.length + " closed=" + closed);
         if (!closed) {
             try {
                 connection.sendFrame(channelId, payload);
@@ -128,6 +129,7 @@ class SipMuxStream {
      * @param data 数据
      */
     void dispatch(byte[] data) {
+        System.err.println("[TRACE] muxStream.dispatch ch=" + channelId + " len=" + data.length + " consumer=" + (dataConsumer != null) + " closed=" + closed);
         Consumer<byte[]> consumer = dataConsumer;
         if (consumer == null) {
             synchronized (pendingData) {
