@@ -555,7 +555,6 @@ public class PipelineBuilder {
     public PipelineBuilder onNextStep(java.util.function.BiConsumer<PipelineContext<?>, String[]> onNextStep) {
         this.listeners.add(new PipelineListener() {
             @Override
-            /** AfterNode */
             public void afterNode(PipelineContext<?> ctx) {
                 onNextStep.accept(ctx, new String[]{ctx.getCurrentNodeId(), ctx.getNextNodeId()});
             }
@@ -631,7 +630,6 @@ public class PipelineBuilder {
     public PipelineBuilder onError(BiFunction<PipelineContext<?>, Throwable, String> onError) {
         this.listeners.add(new PipelineListener() {
             @Override
-            /** On记录错误 */
             public String onError(PipelineContext<?> ctx, Throwable e) {
                 return onError.apply(ctx, e);
             }
