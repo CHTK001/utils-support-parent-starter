@@ -89,5 +89,20 @@ mvn compile -pl utils-support-extra-parent/utils-support-example-starter</pre>
 <li>ShmQueueExample：native 库缺失时输出 <code>[SKIP] native-unavailable</code> 正常退出，不算失败。</li>
 </ul>
 
+<h2>六、SPI 配对补全（2026-08-25 追加）</h2>
+<p>体系命名全检发现 15 个 <code>*ExampleSpi</code> 缺少同名主 Example（[强制]）。已按零破坏原则补齐：
+类名与 META-INF/extensions 注册表一律不动，为每个 Spi 新建同名主 Example——
+原自含 main 的 3 个（TcpRpc/TcpProxy/Sync）逻辑迁入主 Example、原 main 改一行委托；
+其余 12 个新建驱动型入口（参数解析 → ServiceProvider/直接调用 Spi.run → [PASS]/[FAIL]）。
+另修复 Socks5ProxyExample 的 4 处受检异常未处理编译错误。</p>
+<table>
+<tr><th>批次</th><th>文件</th><th>实跑结果</th></tr>
+<tr><td>lang</td><td>JsonProviderExample / ProtobufSerializerExample / ForySerializerExample（驱动型）</td><td class="pass">EXIT=0 ×3</td></tr>
+<tr><td>network·驱动型</td><td>ScatterDiscovery / Socks5Proxy / ScatterCluster / YunxiaoClient(默认SKIP remote) / MqttServer</td><td class="pass">EXIT=0（mqtt/scatter/yunxiao 实测，其余 javac✓）</td></tr>
+<tr><td>network·迁移型</td><td>TcpRpcExample / TcpProxyExample / SyncExample（Spi.main 已改委托）</td><td class="warn">Sync 暴露 http/websocket 两协议既有失败（旧类对照复现，非本次引入）</td></tr>
+<tr><td>network·巨型</td><td>HttpServer(1341行Spi) / NioHttpServer(917) / HttpProxy(492) / NettyHttpServer(379)</td><td class="warn">驱动正确上报 4 个 Spi 既有场景失败：testMultipartUpload / testSseStreaming / testProxyHttpPath / testSpiSwitch——遗留债务待专项排查</td></tr>
+</table>
+<p class="meta">命名终态：26 个 SPI 适配器 100% 存在同名主 Example；260 文件全部以 Example/ExampleSpi 结尾、类名一致。</p>
+
 </body>
 </html>
