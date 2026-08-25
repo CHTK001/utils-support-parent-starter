@@ -39,7 +39,7 @@ import java.util.Map;
 @Getter
 @SuppressWarnings("rawtypes")
 @Spi("redis")
-public class RedisClient implements KvEngine {
+public class RedisClient implements KvEngine, java.lang.AutoCloseable {
 
     /**
      * 默认 Redis 连接地址
@@ -97,6 +97,13 @@ public class RedisClient implements KvEngine {
      */
     public RedisClient(RedisReactorEngine engine) {
         this.engine = engine;
+    }
+
+    /**
+     * 创建构建器。
+     */
+    public static Builder builder() {
+        return new Builder();
     }
 
     // ==================== KvEngine 同步接口实现 ====================
@@ -397,5 +404,49 @@ public class RedisClient implements KvEngine {
     public void close() {
         engine.close();
         log.info("RedisClient 已关闭");
+    }
+
+    /**
+     * RedisClient 构建器。
+     */
+    public static class Builder {
+        private String host = "127.0.0.1";
+        private int port = 6379;
+        private String password = "";
+        private int database = 0;
+        private long timeoutMs = 5000;
+
+        public Builder host(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder database(int database) {
+            this.database = database;
+            return this;
+        }
+
+        public Builder timeout(long timeoutMs) {
+            this.timeoutMs = timeoutMs;
+            return this;
+        }
+
+        public RedisClient build() {
+            String url = "redis://" + host + ":" + port + "/" + database;
+            String pwd = (password == null || password.isEmpty()) ? null : password;
+            RedisClient client = new RedisClient(url, pwd);
+            client.engine.setTimeout(java.time.Duration.ofMillis(timeoutMs));
+            return client;
+        }
     }
 }
