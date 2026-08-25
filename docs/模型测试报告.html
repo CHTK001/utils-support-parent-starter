@@ -3196,9 +3196,9 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </html>
 <hr>
 <!-- coverage:start -->
-<h2 id="model-coverage">附：模型测试覆盖总览（206 个注册模型，更新于 2026-08-25）</h2>
+<h2 id="model-coverage">附：模型测试覆盖总览（209 个注册模型，更新于 2026-08-25）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 15　🧪 冒烟通过（无正样本） 5　🐞 发现缺陷 0　📄 已有记录 157　⬜ 未测试 29</p>
+<p>状态统计：✅ 实测通过 25　🧪 冒烟通过（无正样本） 6　🐞 发现缺陷 0　📄 已有记录 149　⬜ 未测试 29</p>
 <p>待测试清单（29）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-person`、`yolov2-coco-v2`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -3219,11 +3219,16 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>pp-word-extractor</code></td><td>⬜ 未测试</td><td>ocr.extractor.PpWordExtractorTranslator</td><td></td></tr>
 <tr><td><code>svtr-extractor</code></td><td>⬜ 未测试</td><td>ocr.extractor.SvtrExtractorTranslator</td><td></td></tr>
 </tbody></table>
-<h3>人脸（28）</h3>
+<h3>人脸（29）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>anime-face-detector</code></td><td>✅ 实测通过</td><td>anime.detection.AnimeFaceDetectorTranslator</td><td>anime.webp→27；face1.webp→39；face2.webp→41</td></tr>
+<tr><td><code>face-liveness-minifasnet</code></td><td>✅ 实测通过</td><td>(规划)liveness.MiniFASNetTranslator</td><td>官方pth对照→ONNX 与原版 PyTorch 输出逐位一致(live=0.0003/replay=0.9946)；随机噪声图→replay=0.99 符合预期</td></tr>
 <tr><td><code>face-mask-detector</code></td><td>✅ 实测通过</td><td>yolo.FaceMaskDetectorTranslator</td><td>1people.png→2；3peoplebeauty.jpg→3（默认阈值 0.05，阈值验证 {'0.5': '5→1'}）</td></tr>
+<tr><td><code>insightface-3d68</code></td><td>✅ 实测通过</td><td>insightface.InsightFace3d68Translator</td><td>lena人脸crop→1103点(x,y,z)归一化坐标分布合理</td></tr>
 <tr><td><code>insightface-scrfd</code></td><td>✅ 实测通过</td><td>face.ScrfdFaceDetectorTranslator</td><td>1people.png→1；3peoplebeauty.jpg→3；largest_selfie.jpg→243（默认阈值 0.45，阈值验证 {'0.6': 166, '0.9': 0}）</td></tr>
+<tr><td><code>retinaface-r34</code></td><td>✅ 实测通过</td><td>face.OnnxRetinaFaceTranslator</td><td>lena.jpg→1 face score=1.000</td></tr>
+<tr><td><code>face-liveness-flrgb</code></td><td>🧪 冒烟通过（无正样本）</td><td>liveness.FlRgbLivenessTranslator</td><td></td></tr>
+<tr><td><code>face-liveness-flxc</code></td><td>🧪 冒烟通过（无正样本）</td><td>liveness.FlXcLivenessTranslator</td><td></td></tr>
 <tr><td><code>yolo-face-detector</code></td><td>🧪 冒烟通过（无正样本）</td><td>face.YoloFaceTranslator</td><td>1people.png→5；3peoplebeauty.jpg→3；largest_selfie.jpg→0（默认阈值 0.85，阈值验证 {'0.25': '5/3/0', '0.45': '5/3/0'}）</td></tr>
 <tr><td><code>ada-face</code></td><td>📄 已有记录</td><td>face.AdaFaceTranslator</td><td></td></tr>
 <tr><td><code>age-gender-onnx</code></td><td>📄 已有记录</td><td>agegender.AgeRaceGenderTranslator</td><td></td></tr>
@@ -3233,18 +3238,14 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>arc-face</code></td><td>📄 已有记录</td><td>face.ArcFaceTranslator</td><td></td></tr>
 <tr><td><code>codeformer</code></td><td>📄 已有记录</td><td>face.CodeFormerTranslator</td><td></td></tr>
 <tr><td><code>emotion-ferplus</code></td><td>📄 已有记录</td><td>emotion.EmotionFerplusTranslator</td><td></td></tr>
-<tr><td><code>face-liveness-flrgb</code></td><td>📄 已有记录</td><td>liveness.FlRgbLivenessTranslator</td><td></td></tr>
-<tr><td><code>face-liveness-flxc</code></td><td>📄 已有记录</td><td>liveness.FlXcLivenessTranslator</td><td></td></tr>
 <tr><td><code>faceplugin-face-detect-slim</code></td><td>📄 已有记录</td><td>face.FacePluginDetectTranslator</td><td></td></tr>
 <tr><td><code>faceplugin-face-feature</code></td><td>📄 已有记录</td><td>face.FacePluginFeatureTranslator</td><td></td></tr>
 <tr><td><code>faceplugin-face-landmark</code></td><td>📄 已有记录</td><td>face.FacePluginLandmarkTranslator</td><td></td></tr>
 <tr><td><code>fer-plus</code></td><td>📄 已有记录</td><td>classification.EfficientNetLite0ClassificationTranslator</td><td></td></tr>
-<tr><td><code>insightface-3d68</code></td><td>📄 已有记录</td><td>insightface.InsightFace3d68Translator</td><td></td></tr>
 <tr><td><code>insightface-adaface</code></td><td>📄 已有记录</td><td>insightface.InsightFaceAdaFaceTranslator</td><td></td></tr>
 <tr><td><code>insightface-genderage</code></td><td>📄 已有记录</td><td>insightface.InsightFaceGenderAgeTranslator</td><td></td></tr>
 <tr><td><code>insightface-landmark-2d106</code></td><td>📄 已有记录</td><td>insightface.InsightFaceLandmarkTranslator</td><td></td></tr>
 <tr><td><code>r50-face-feature</code></td><td>📄 已有记录</td><td>face.R50FaceFeatureTranslator</td><td></td></tr>
-<tr><td><code>retinaface-r34</code></td><td>📄 已有记录</td><td>face.OnnxRetinaFaceTranslator</td><td></td></tr>
 <tr><td><code>scrfd-face-detector</code></td><td>📄 已有记录</td><td>face.ScrfdFaceDetectorTranslator</td><td></td></tr>
 <tr><td><code>tinaface</code></td><td>📄 已有记录</td><td>face.TinaFaceTranslator</td><td></td></tr>
 <tr><td><code>yolo-face-emotion</code></td><td>📄 已有记录</td><td>emotion.EmotionFerplusTranslator</td><td></td></tr>
@@ -3252,7 +3253,9 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </tbody></table>
 <h3>其他（30）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>image-colorize</code></td><td>✅ 实测通过</td><td>colorize.ImageColorizeTranslator</td><td>lena灰度上色→R-G差=26 R-B差=33</td></tr>
 <tr><td><code>lu2net</code></td><td>✅ 实测通过</td><td>lu2net.Lu2NetTranslator</td><td></td></tr>
+<tr><td><code>minimind</code></td><td>✅ 实测通过</td><td>text.minimind.MiniMindTranslator</td><td>数值一致性→diff=2.19e-05 next-token 序列一致</td></tr>
 <tr><td><code>safety-helmet</code></td><td>✅ 实测通过</td><td>yolo.SafetyHelmetDetectorTranslator</td><td>1people.png→2；more car plate.webp→0（默认阈值 0.05）</td></tr>
 <tr><td><code>reflective-clothes</code></td><td>🧪 冒烟通过（无正样本）</td><td>yolo.ReflectiveClothesDetectorTranslator</td><td></td></tr>
 <tr><td><code>anime-gan-v2-hayao</code></td><td>📄 已有记录</td><td>animegan.AnimeGanV2Translator</td><td></td></tr>
@@ -3264,9 +3267,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>donut</code></td><td>📄 已有记录</td><td>donut.DonutTranslator</td><td></td></tr>
 <tr><td><code>fire-smoke</code></td><td>📄 已有记录</td><td>yolo.FireSmokeDetectorTranslator</td><td></td></tr>
 <tr><td><code>gpt2</code></td><td>📄 已有记录</td><td>text.gpt2.Gpt2Translator</td><td></td></tr>
-<tr><td><code>image-colorize</code></td><td>📄 已有记录</td><td>colorize.ImageColorizeTranslator</td><td></td></tr>
 <tr><td><code>image-to-line-drawing</code></td><td>📄 已有记录</td><td>linedrawing.ImageToLineDrawingTranslator</td><td></td></tr>
-<tr><td><code>minimind</code></td><td>📄 已有记录</td><td>text.minimind.MiniMindTranslator</td><td></td></tr>
 <tr><td><code>nima</code></td><td>📄 已有记录</td><td>assessment.NimaTranslator</td><td></td></tr>
 <tr><td><code>osnet-reid</code></td><td>📄 已有记录</td><td>reid.OsnetReidTranslator</td><td></td></tr>
 <tr><td><code>real-web-photo</code></td><td>📄 已有记录</td><td>realwebphoto.RealWebPhotoTranslator</td><td></td></tr>
@@ -3282,6 +3283,11 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>vggt-output</code></td><td>📄 已有记录</td><td>vggt.VggtOutputTranslator</td><td></td></tr>
 <tr><td><code>anime-gan-v3-ghibli</code></td><td>⬜ 未测试</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
 <tr><td><code>anime-gan-v3-shinkai</code></td><td>⬜ 未测试</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
+</tbody></table>
+<h3>内容审核（2）</h3>
+<table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>nsfw-classify-int8</code></td><td>✅ 实测通过</td><td>(规划)vit.NsfwClassifyTranslator</td><td>lena.jpg→normal=0.9912；messi.jpg→normal=0.9999</td></tr>
+<tr><td><code>nude-detector</code></td><td>✅ 实测通过</td><td>(规划)yolo.v8.NudeDetectorTranslator</td><td>lena.jpg→FACE_FEMALE conf=0.848 位置精确 敏感部位零误报</td></tr>
 </tbody></table>
 <h3>图像分类（25）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -3380,15 +3386,15 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </tbody></table>
 <h3>自然语言（31）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>bge-large-zh-embedding</code></td><td>✅ 实测通过</td><td>embedding.bge.BgeEmbeddingClient</td><td>语义聚类→相似对 cos=0.936 > 无关对 0.236/0.243</td></tr>
+<tr><td><code>bge-small-embedding</code></td><td>✅ 实测通过</td><td>clip.ClipTextFeatureTranslator</td><td>语义聚类→相似对 cos=0.856 > 无关对 0.374/0.379</td></tr>
+<tr><td><code>minilm-fp32-embedding</code></td><td>✅ 实测通过</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td>语义聚类→相似对 cos=0.858 > 无关对 0.559/0.533</td></tr>
 <tr><td><code>minilm-embedding</code></td><td>🧪 冒烟通过（无正样本）</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td></td></tr>
-<tr><td><code>minilm-fp32-embedding</code></td><td>🧪 冒烟通过（无正样本）</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td></td></tr>
 <tr><td><code>all-MiniLM-L6-v2-embedding</code></td><td>📄 已有记录</td><td>clip.ClipTextFeatureTranslator</td><td></td></tr>
 <tr><td><code>bert-squad</code></td><td>📄 已有记录</td><td>text.BertSquadTranslator</td><td></td></tr>
 <tr><td><code>bge-base-en-embedding</code></td><td>📄 已有记录</td><td>embedding.bge.BgeTextFeatureTranslator</td><td></td></tr>
 <tr><td><code>bge-base-zh-embedding</code></td><td>📄 已有记录</td><td>embedding.bge.BgeTextFeatureTranslator</td><td></td></tr>
-<tr><td><code>bge-large-zh-embedding</code></td><td>📄 已有记录</td><td>embedding.bge.BgeEmbeddingClient</td><td></td></tr>
 <tr><td><code>bge-m3-embedding</code></td><td>📄 已有记录</td><td>clip.ClipTextFeatureTranslator</td><td></td></tr>
-<tr><td><code>bge-small-embedding</code></td><td>📄 已有记录</td><td>clip.ClipTextFeatureTranslator</td><td></td></tr>
 <tr><td><code>bge-small-en-embedding</code></td><td>📄 已有记录</td><td>embedding.bge.BgeEmbeddingClient</td><td></td></tr>
 <tr><td><code>bge-small-zh-embedding</code></td><td>📄 已有记录</td><td>clip.ClipTextFeatureTranslator</td><td></td></tr>
 <tr><td><code>dino-v2-base-embedding</code></td><td>📄 已有记录</td><td>dinov2.DinoV2Translator</td><td></td></tr>
