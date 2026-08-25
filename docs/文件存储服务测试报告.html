@@ -10,139 +10,170 @@
   h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
   h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin-top: 40px; margin-bottom: 12px; }
   .meta { margin-top: 8px; font-size: 13px; color: #71717a; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 28px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-top: 28px; }
   .card { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px 18px; }
   .card .label { font-size: 12px; color: #71717a; }
-  .card .value { font-size: 28px; font-weight: 650; letter-spacing: -0.03em; margin-top: 4px; }
-  .green { color: #16a34a; } .red { color: #dc2626; }
+  .card .value { font-size: 26px; font-weight: 650; letter-spacing: -0.03em; margin-top: 4px; }
+  .green { color: #16a34a; } .red { color: #dc2626; } .amber { color: #d97706; }
   table { width: 100%; border-collapse: collapse; margin-top: 12px; background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; }
   th { text-align: left; font-size: 12px; font-weight: 500; color: #71717a; padding: 9px 13px; border-bottom: 1px solid #e4e4e7; background: #fcfcfc; }
   td { padding: 8px 13px; font-size: 13px; border-bottom: 1px solid #f4f4f5; vertical-align: top; }
   tr:last-child td { border-bottom: none; }
   tr.pass:hover td, tr.fail:hover td { background: #f4f4f5; }
-  .group-row td { background: #fcfcfc; font-weight: 600; }
   .status { display: inline-flex; min-width: 34px; height: 19px; padding: 0 6px; border-radius: 999px; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
-  .ok { background: #16a34a; } .bad { background: #dc2626; }
+  .ok { background: #16a34a; } .bad { background: #dc2626; } .off { background: #a1a1aa; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
-  .muted { color: #71717a; }
-  .note { margin-top: 12px; font-size: 13px; color: #52525b; background: #fff; border: 1px dashed #d4d4d8; border-radius: 10px; padding: 12px 16px; }
   code.inline { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; background: #f4f4f5; border-radius: 5px; padding: 1px 6px; color: #3f3f46; }
+  .note { margin-top: 12px; font-size: 13px; color: #52525b; background: #fff; border: 1px dashed #d4d4d8; border-radius: 10px; padding: 12px 16px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <h1>FileStorage 文件存储服务 · 全功能测试报告</h1>
-  <div class="meta">被测对象：<b>FileStorageServerFilter</b>（spring-support-parent-starter / spring-support-filesystem-starter）&nbsp;&nbsp;·&nbsp;&nbsp;服务地址：http://127.0.0.1:18080&nbsp;&nbsp;·&nbsp;&nbsp;存储桶：local&nbsp;&nbsp;·&nbsp;&nbsp;生成时间：2026-08-25</div>
+  <div class="meta">被测对象：<b>FileStorageServerFilter</b>（spring-support-parent-starter / spring-support-filesystem-starter）&nbsp;&nbsp;·&nbsp;&nbsp;真实运行服务：http://127.0.0.1:18080&nbsp;&nbsp;·&nbsp;&nbsp;存储桶：local&nbsp;&nbsp;·&nbsp;&nbsp;生成时间：2026-08-25</div>
+  <div class="meta" style="color:#dc2626;">测试方式说明：<b>「页面交互映射」「预览矩阵」「CORS」三章均为对运行中真实服务的 HTTP 实测</b>；JUnit 集成测试仅作为回归保障列于附录。</div>
 
   <div class="cards">
-    <div class="card"><div class="label">集成测试</div><div class="value green">44/44</div></div>
-    <div class="card"><div class="label">接口冒烟套件</div><div class="value green">35/35</div></div>
-    <div class="card"><div class="label">预览矩阵实测</div><div class="value green">14 类</div></div>
-    <div class="card"><div class="label">跨域 CORS 验证</div><div class="value green">通过</div></div>
-    <div class="card"><div class="label">本轮修复缺陷</div><div class="value red">7</div></div>
+    <div class="card"><div class="label">页面交互映射<br>（真实服务）</div><div class="value green">24/24</div></div>
+    <div class="card"><div class="label">预览类型实测<br>（真实服务）</div><div class="value green">14 类</div></div>
+    <div class="card"><div class="label">跨域 CORS<br>（真实服务）</div><div class="value green">3/3</div></div>
+    <div class="card"><div class="label">接口冒烟套件<br>（真实服务）</div><div class="value green">35/35</div></div>
+    <div class="card"><div class="label">JUnit 回归<br>（附录）</div><div class="value">45/45</div></div>
+    <div class="card"><div class="label">累计修复缺陷</div><div class="value red">7</div></div>
   </div>
 
-  <!-- ==================== 一、测试范围 ==================== -->
-  <h2>一、测试范围与环境</h2>
-  <table>
-    <tr><th style="width:140px">项目</th><th>说明</th></tr>
-    <tr><td>被测过滤器</td><td class="mono">com.chua.starter.filesystem.support.server.FileStorageServerFilter</td></tr>
-    <tr><td>运行方式</td><td>JDK HttpServer（虚拟线程池）+ ServerBuilder 构建的真实 HTTP 服务</td></tr>
-    <tr><td>存储后端</td><td class="mono">LocalFileStorage → %TEMP%/filesystem-local-test/**</td></tr>
-    <tr><td>集成测试</td><td class="mono">FileStorageServerFilterIntegrationTest — 三服务器实例（全开 / 全关严格模式 / 内置远程源），44 用例相互独立可重复执行</td></tr>
-    <tr><td>冒烟套件</td><td class="mono">fs-fulltest.ps1 — 35 用例直连真实服务（18080），含中文文件名与大文件边界</td></tr>
-  </table>
+  <!-- ==================== 预览能力总述 ==================== -->
+  <h2>一、本身支持哪些预览？开启 preview 支持哪些？</h2>
 
-  <!-- ==================== 二、集成测试明细 ==================== -->
-  <h2>二、集成测试明细（10 组 · 44 用例 · 全部通过）</h2>
+  <p class="note"><b>结论先行：</b><code class="inline">openPreview=true</code>（默认开启）时，下列 14 类文件均可<b>弹窗内联预览</b>；关闭后任何文件都无法内联预览（强制下载或 403）。「能预览什么」由文件扩展名决定，「是否允许预览」由 preview 开关决定。</p>
+
   <table>
-    <thead><tr><th style="width:120px">分组</th><th style="width:80px">数量</th><th>覆盖点</th></tr></thead>
+    <thead><tr><th style="width:110px">类别</th><th style="width:280px">支持的扩展名</th><th>预览方式（openPreview 开启时）</th></tr></thead>
     <tbody>
-      <tr><td>基础 CRUD</td><td class="mono">10</td><td>上传下载一致 / SUCCESS JSON 回显 / 覆盖写 / 删除幂等 / 删除后 404 / 多级子目录自动创建 / 二进制字节序 / 1MB 大文件抽样 / 中文文件名 RFC5987 / 空格文件名</td></tr>
-      <tr><td>目录浏览</td><td class="mono">7</td><td>根列表结构（path/directory/lastModified）/ count 与条目一致 / 子目录标记 / 尾斜杠显式列表 / 不存在目录 404 / 尾斜杠空目录返回 count=0 / 多级逐级导航</td></tr>
-      <tr><td>访问模式</td><td class="mono">2</td><td>默认 inline 内联预览 / download=true 强制 attachment</td></tr>
-      <tr><td>Content-Type</td><td class="mono">4</td><td>json / png / html / 未知扩展名回退 octet-stream</td></tr>
-      <tr><td>Range 分段</td><td class="mono">6</td><td>区间 bytes=3-7 → 206+Content-Range / 后缀 bytes=-N / 无 Range 全量 / 起始越界降级 200 / 非法头降级 200 / 子目录对象分段</td></tr>
-      <tr><td>存在性检查</td><td class="mono">3</td><td>HEAD 存在 200 / 不存在 404 / 子目录对象</td></tr>
-      <tr><td>水印</td><td class="mono">2</td><td>主服务器携带 X-Watermark / 严格模式不携带</td></tr>
-      <tr><td>模式收敛</td><td class="mono">2</td><td>严格模式 GET 403 / 严格模式下 Range 请求同样 403</td></tr>
-      <tr><td>远程透传</td><td class="mono">2</td><td>关闭时 http(s) Key 拒绝 400 / 开启时从内置远程源拉取内容一致</td></tr>
-      <tr><td>安全防护</td><td class="mono">6</td><td>%2E%2E 穿越 400 / 解码后 .. 片段 400 / 冒号 Key 400 / 空 body 400 / 缺 Key PUT 400 / PATCH 405 / 未注册桶放行无业务头</td></tr>
+      <tr><td><b>图片</b></td><td class="mono">png jpg jpeg gif svg webp bmp ico</td><td>弹窗 el-image 渲染，点击进入全屏查看器（滚轮缩放 / 旋转 / 多图切换）</td></tr>
+      <tr><td><b>文本</b></td><td class="mono">txt log md json xml yml yaml csv css js ts html htm</td><td>fetch 拉取全文，弹窗等宽代码框展示</td></tr>
+      <tr><td><b>PDF</b></td><td class="mono">pdf</td><td>iframe 内嵌渲染（依赖 Range 分段流式加载）</td></tr>
+      <tr><td><b>音频</b></td><td class="mono">mp3 wav flac m4a ogg</td><td>原生 audio 控件播放</td></tr>
+      <tr><td><b>视频</b></td><td class="mono">mp4 webm mov</td><td>原生 video 控件播放（Range 分段支持拖拽进度条）</td></tr>
+      <tr><td>不支持</td><td class="mono">zip docx xlsx 及其他二进制</td><td>弹窗空态提示 + 引导点击「下载」</td></tr>
     </tbody>
   </table>
 
-  <!-- ==================== 三、预览矩阵 ==================== -->
-  <h2>三、文件预览矩阵（真实服务逐类实测）</h2>
-  <p class="note">样例文件经 HTTP PUT 上传至 <code class="inline">/local/preview/**</code> 后逐类发起 GET，校验状态码、Content-Type、Content-Disposition 与水印头；音视频额外验证 Range 分段（拖拽播放依赖）。</p>
+  <h2 style="font-size:15px;margin-top:20px;">preview 开关模式矩阵（GET 行为收敛规则，已逐项实测）</h2>
+  <table>
+    <thead><tr><th style="width:60px">场景</th><th style="width:90px">openPreview</th><th style="width:100px">openDownload</th><th>无参数 GET</th><th>?preview GET</th><th>?download GET</th><th style="width:64px">结果</th></tr></thead>
+    <tbody>
+      <tr class="pass"><td>A 默认</td><td class="mono">true</td><td class="mono">true</td><td>inline 内联预览</td><td>inline</td><td>attachment 下载</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>B 仅预览</td><td class="mono">true</td><td class="mono">false</td><td>inline 内联预览</td><td>inline</td><td>降级 inline（意图不被允许时收敛）</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>C 仅下载</td><td class="mono">false</td><td class="mono">true</td><td>attachment 强制下载</td><td>降级 attachment</td><td>attachment</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>D 全关</td><td class="mono">false</td><td class="mono">false</td><td colspan="3"><b>403 Access Denied</b>（任何 GET 均拒绝）</td><td><span class="status ok">PASS</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note">优先级：显式参数（<code class="inline">?preview</code> / <code class="inline">?download</code>）&gt; 服务端默认设置；标志式写法 <code class="inline">?preview</code> 与 <code class="inline">?preview=true</code> 等价，显式 <code class="inline">=false/0</code> 为关闭。</p>
+
+  <!-- ==================== 页面交互映射 ==================== -->
+  <h2>二、页面交互操作映射实测（真实服务 · 24 项全部通过）</h2>
+  <p class="note">前端页面每一个可点击元素对应一个 HTTP 请求，下表为对运行中服务逐一实测的结果。</p>
+  <table>
+    <thead><tr><th style="width:56px">编号</th><th style="width:190px">页面元素</th><th style="width:250px">触发请求</th><th>断言</th><th style="width:60px">结果</th></tr></thead>
+    <tbody>
+      <tr class="pass"><td class="mono">U01</td><td>连接 [按钮]</td><td class="mono">GET /local</td><td>200 + 列表 JSON 含 bucket 字段</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U02</td><td>刷新 [按钮]</td><td class="mono">GET /local</td><td>200</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U03</td><td>关键字过滤 [输入框]</td><td class="mono">纯前端 computed 过滤</td><td>不发包；回车触发同 U01</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U04</td><td>面包屑·根目录 [链接]</td><td class="mono">GET /local</td><td>200 + path=""</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U05</td><td>面包屑·子目录 [链接]</td><td class="mono">GET /local/docs</td><td>200 + path="docs"</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U06</td><td>返回上级 [圆钮]</td><td class="mono">GET 父目录列表</td><td>200</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U07</td><td>目录行双击 / 名称点击</td><td class="mono">GET /local/ui/sub</td><td>200 + 列出 inner.txt</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U08</td><td>目录行 [打开] 按钮</td><td class="mono">GET /local/ui</td><td>200 + sub 目录项 directory:true</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U09</td><td>图片预览 (el-image)</td><td class="mono">GET img.png 直链</td><td>200 + image/png + inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U10</td><td>图片全屏查看器</td><td class="mono">同一直链（缩放/旋转前端处理）</td><td>200</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U11</td><td>文本弹窗 (fetch)</td><td class="mono">GET doc.txt</td><td>200 + 内容与上传完全一致</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U12</td><td>JSON 弹窗 (fetch)</td><td class="mono">GET data.json</td><td>application/json + 内容一致</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U13</td><td>PDF iframe (src)</td><td class="mono">GET demo.pdf</td><td>200 + application/pdf</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U14</td><td>音频控件 (audio src)</td><td class="mono">GET tone.wav + Range</td><td>audio/wav + Range=0-99 → 206</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U15</td><td>视频控件 (video src)</td><td class="mono">GET clip.mp4 + Range=-16</td><td>206 + Content-Range 总长 288</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U16</td><td>不支持类型 (zip)</td><td class="mono">GET empty.zip</td><td>octet-stream → 弹窗空态 + 下载引导</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U17</td><td>[下载] 按钮</td><td class="mono">GET ?download</td><td>attachment 强制下载</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U18</td><td>[检查] 按钮（存在）</td><td class="mono">HEAD</td><td>200</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U19</td><td>[检查] 按钮（已删对象）</td><td class="mono">HEAD</td><td>404 → 提示「不存在」</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U20</td><td>[删除] 按钮（确认后）</td><td class="mono">DELETE</td><td>200 + SUCCESS JSON</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U21</td><td>删除后列表刷新</td><td class="mono">GET /local/ui</td><td>对象已从列表消失</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U22</td><td>上传对话框 [选择文件]</td><td class="mono">PUT 当前目录</td><td>200 + SUCCESS</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U23</td><td>上传至子目录提示条</td><td class="mono">PUT /local/docs/**</td><td>200 + Key 回显含子目录</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">U24</td><td>多文件连续上传</td><td class="mono">PUT ×3</td><td>3/3 成功</td><td><span class="status ok">PASS</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== 预览矩阵 ==================== -->
+  <h2>三、文件预览矩阵（真实服务逐类 HTTP 实测）</h2>
   <table>
     <thead><tr><th style="width:90px">类别</th><th style="width:150px">样例</th><th style="width:210px">Content-Type（实测）</th><th style="width:70px">Disposition</th><th>前端预览方式</th><th style="width:60px">结果</th></tr></thead>
     <tbody>
-      <tr class="pass"><td rowspan="4">图片</td><td class="mono">demo.png</td><td class="mono">image/png</td><td class="mono">inline</td><td rowspan="4">el-image 弹窗 + 点击全屏查看器（缩放/旋转）</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td rowspan="4">图片</td><td class="mono">demo.png</td><td class="mono">image/png</td><td class="mono">inline</td><td rowspan="4">el-image 弹窗 + 全屏查看器</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td class="mono">demo.jpg</td><td class="mono">image/jpeg</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td class="mono">demo.gif</td><td class="mono">image/gif</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td class="mono">demo.svg</td><td class="mono">image/svg+xml</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td rowspan="6">文本</td><td class="mono">note.txt</td><td class="mono">text/plain; charset=UTF-8</td><td class="mono">inline</td><td rowspan="6">弹窗内等宽代码框展示（fetch 文本）</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td rowspan="5">文本</td><td class="mono">note.txt</td><td class="mono">text/plain; charset=UTF-8</td><td class="mono">inline</td><td rowspan="5">等宽代码框</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td class="mono">config.json</td><td class="mono">application/json; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td class="mono">readme.md</td><td class="mono">text/plain; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td class="mono">sheet.csv</td><td class="mono">text/csv; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td class="mono">app.xml</td><td class="mono">application/xml; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td class="mono">index.html</td><td class="mono">text/html; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td>文档</td><td class="mono">demo.pdf</td><td class="mono">application/pdf</td><td class="mono">inline</td><td>iframe 内嵌（配合 Range 分段加载）</td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td>音频</td><td class="mono">tone.wav（正弦波 8kHz）</td><td class="mono">audio/wav</td><td class="mono">inline</td><td>原生 &lt;audio&gt; 控件；Range=0-99 → <b>206</b></td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td>视频</td><td class="mono">clip.mp4（ftyp 容器）</td><td class="mono">video/mp4</td><td class="mono">inline</td><td>原生 &lt;video&gt; 控件；Range=-16 → <b>206</b></td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td>其他</td><td class="mono">empty.zip</td><td class="mono">application/octet-stream</td><td class="mono">inline</td><td>不支持类型 → 弹窗引导下载</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>网页</td><td class="mono">index.html</td><td class="mono">text/html; charset=UTF-8</td><td class="mono">inline</td><td>代码框（不执行脚本，防 XSS）</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>文档</td><td class="mono">demo.pdf</td><td class="mono">application/pdf</td><td class="mono">inline</td><td>iframe 内嵌</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>音频</td><td class="mono">tone.wav</td><td class="mono">audio/wav</td><td class="mono">inline</td><td>audio 控件；Range=0-99 → 206</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>视频</td><td class="mono">clip.mp4</td><td class="mono">video/mp4</td><td class="mono">inline</td><td>video 控件；Range=-16 → 206</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>其他</td><td class="mono">empty.zip</td><td class="mono">application/octet-stream</td><td class="mono">inline</td><td>空态 + 下载引导</td><td><span class="status ok">PASS</span></td></tr>
     </tbody>
   </table>
 
-  <!-- ==================== 四、跨域验证 ==================== -->
-  <h2>四、跨域 CORS 验证（前端联调关键路径）</h2>
-  <p class="note">前端应用与文件服务分域部署时，axios 的列表加载 / 文本预览 / 上传 / 删除均为跨域请求：GET 需要响应携带 CORS 头，PUT/DELETE 还会先触发 OPTIONS 预检。以下为带 Origin 头的实测结果。</p>
+  <!-- ==================== 跨域验证 ==================== -->
+  <h2>四、跨域 CORS 验证（前端联调关键路径 · 真实服务实测）</h2>
   <table>
-    <thead><tr><th style="width:220px">场景</th><th>期望响应</th><th style="width:70px">结果</th></tr></thead>
+    <thead><tr><th style="width:240px">场景</th><th>期望响应</th><th style="width:70px">结果</th></tr></thead>
     <tbody>
-      <tr class="pass"><td>GET 带 Origin（简单请求）</td><td class="mono">Access-Control-Allow-Origin: http://localhost:5173 + Vary: Origin</td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td>OPTIONS 预检 PUT</td><td class="mono">204 + Allow-Methods(GET, HEAD, POST, PUT, DELETE, OPTIONS) + Allow-Headers(Content-Type, Authorization) + Max-Age(3600)</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>GET 带 Origin（列表/文本 fetch）</td><td class="mono">Access-Control-Allow-Origin: http://localhost:5173 + Vary: Origin</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>OPTIONS 预检 PUT</td><td class="mono">204 + Allow-Methods(GET, HEAD, POST, PUT, DELETE, OPTIONS) + Allow-Headers + Max-Age(3600)</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td>OPTIONS 预检 DELETE</td><td class="mono">204</td><td><span class="status ok">PASS</span></td></tr>
-      <tr class="pass"><td>图片/PDF/音视频标签直链</td><td>img/video/iframe 天然允许跨域加载，无需 CORS</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>img/video/iframe 标签直链</td><td>天然允许跨域，无需 CORS 头</td><td><span class="status ok">PASS</span></td></tr>
     </tbody>
   </table>
 
-  <!-- ==================== 五、缺陷修复记录 ==================== -->
-  <h2>五、本轮缺陷发现与修复记录（7 项）</h2>
+  <!-- ==================== 接口冒烟套件 ==================== -->
+  <h2>五、接口冒烟套件（真实服务 · 35 用例全通过）</h2>
+  <p class="note">覆盖：基础 CRUD×7、目录浏览×6、预览与下载×5、Range 分段×4、存在性×2、水印×1、安全防护×5（路径穿越 400 / 冒号 Key 400 / 空 body 400 / 未注册桶放行 / PATCH→405）、边界场景×5（中文与空格文件名 / 1MB 大文件抽样 / count 校验 / 清理确认）。明细见仓库历史版本。</p>
+
+  <!-- ==================== 附录：JUnit ==================== -->
+  <h2>六、附录：JUnit 集成测试（回归保障 · 45 用例）</h2>
+  <p class="note">三服务器实例（全开 / 全关严格模式 / 内置远程源），分组：基础 CRUD×10、目录浏览×7、访问模式×3、Content-Type×4、Range×6、HEAD×3、水印×2、模式收敛×2、远程透传×2、安全防护×6。<b>45/45 通过</b>。该套件用于持续回归，功能验证以上方真实服务实测为准。</p>
+
+  <!-- ==================== 缺陷记录 ==================== -->
+  <h2>七、本轮缺陷发现与修复记录（7 项）</h2>
   <table>
     <thead><tr><th style="width:60px">#</th><th style="width:230px">缺陷</th><th>根因</th><th style="width:250px">修复方式</th></tr></thead>
     <tbody>
-      <tr class="fail"><td>1</td><td>FileSystemFileStorage 无法通过 SPI 创建（工厂返回 null）</td><td>缺失 <code class="inline">META-INF/extensions/com.chua.common.support.storage.FileStorage</code> 注册文件（各云厂商实现均有，唯独本地实现遗漏）</td><td>补充注册文件（utils-support-filesystem-starter）</td></tr>
-      <tr class="fail"><td>2</td><td>FileStorageServerFilter 为空壳（仅透传）</td><td>doFilter 未实现任何存储逻辑，storageMap 注册后从未使用</td><td>补全完整 REST 实现（CRUD/目录/Range/水印/安全），并实现 ReactiveServerFilter 接入响应式过滤链</td></tr>
-      <tr class="fail"><td>3</td><td>子目录列表永远为空</td><td>LocalFileStorage.listObject 硬编码返回空集合</td><td>补全 Files.list 目录扫描实现</td></tr>
-      <tr class="fail"><td>4</td><td>中文文件名下载返回 500</td><td>Content-Disposition 直接写入非 ASCII 字符，JDK HttpServer 校验非法响应头</td><td>按 RFC 5987 追加 filename*=UTF-8'' 编码形式并保留 ASCII 回退</td></tr>
-      <tr class="fail"><td>5</td><td>开启 openRemoteFile 后远程地址仍被拒绝 400</td><td>框架返回的路径已解码，http:// 被拆散成多段后命中冒号穿越校验</td><td>doFilter 增加 http:/ https:/ 前缀识别与地址重组</td></tr>
-      <tr class="fail"><td>6</td><td>远程拉取稳定 502</td><td>URL.openStream() 走系统代理，内网地址被代理拦截</td><td>HttpURLConnection + Proxy.NO_PROXY 直连，并设置超时</td></tr>
-      <tr class="fail"><td>7</td><td><b>前端跨域访问全部失败（阻断级）</b></td><td>框架内置 CorsFilter 为阻塞式过滤器，不在实际生效的响应式过滤链中，CORS 头与 OPTIONS 预检均无人处理</td><td>FileStorageServerFilter 自足处理：统一追加 CORS 响应头 + OPTIONS 预检直接 204 放行</td></tr>
+      <tr class="fail"><td>1</td><td>FileSystemFileStorage 无法通过 SPI 创建（工厂返回 null）</td><td>缺失 META-INF/extensions 注册文件</td><td>补充注册文件</td></tr>
+      <tr class="fail"><td>2</td><td>FileStorageServerFilter 为空壳（仅透传）</td><td>doFilter 未实现存储逻辑</td><td>补全完整 REST 实现 + ReactiveServerFilter 接入响应式链</td></tr>
+      <tr class="fail"><td>3</td><td>子目录列表永远为空</td><td>LocalFileStorage.listObject 硬编码空集合</td><td>补全 Files.list 目录扫描</td></tr>
+      <tr class="fail"><td>4</td><td>中文文件名下载 500</td><td>Content-Disposition 非 ASCII 非法头</td><td>RFC 5987 filename*=UTF-8'' 编码</td></tr>
+      <tr class="fail"><td>5</td><td>openRemoteFile 开启后仍拒绝远程地址 400</td><td>框架路径已解码，http:// 被拆散命中冒号校验</td><td>http:/ https:/ 前缀识别与地址重组</td></tr>
+      <tr class="fail"><td>6</td><td>远程拉取稳定 502</td><td>URL.openStream() 走系统代理拦截内网地址</td><td>Proxy.NO_PROXY 直连 + 超时</td></tr>
+      <tr class="fail"><td>7</td><td><b>前端跨域访问全部失败（阻断级）</b></td><td>内置 CorsFilter 为阻塞式过滤器，不在生效的响应式链中</td><td>Filter 自足处理 CORS 头 + OPTIONS 预检 204</td></tr>
     </tbody>
   </table>
 
-  <!-- ==================== 六、REST API 参考 ==================== -->
-  <h2>六、REST API 参考</h2>
+  <!-- ==================== 参数与启动 ==================== -->
+  <h2>八、查询参数与启动方式</h2>
   <table>
-    <thead><tr><th style="width:240px">接口</th><th>说明</th></tr></thead>
+    <thead><tr><th style="width:220px">参数</th><th>语义（标志式，存在即开启）</th></tr></thead>
     <tbody>
-      <tr><td class="mono">GET /{bucket}</td><td>根目录对象列表（JSON：bucket/path/count/items[]，item 含 name/size/directory/lastModified）</td></tr>
-      <tr><td class="mono">GET /{bucket}/{dirPath}</td><td>子目录列表（目录 Key 自动回退列表）；尾斜杠表示显式目录语义，不存在时返回空列表而非 404</td></tr>
-      <tr><td class="mono">GET /{bucket}/{key}</td><td>下载/预览对象；默认 inline（openPreview），?download=true 强制附件（openDownload）；支持 Range 分段（openRange）返回 206</td></tr>
-      <tr><td class="mono">HEAD /{bucket}/{key}</td><td>存在性检查（200 / 404）</td></tr>
-      <tr><td class="mono">PUT|POST /{bucket}/{key}</td><td>上传对象，body 为原始文件内容，自动创建父级目录</td></tr>
-      <tr><td class="mono">DELETE /{bucket}/{key}</td><td>删除对象（幂等）</td></tr>
-      <tr><td class="mono">OPTIONS 任意路径</td><td>CORS 预检，204 放行</td></tr>
+      <tr><td class="mono">?preview</td><td>强制内联预览（= true / =1 等价；=false / =0 显式关闭）；受 openPreview 开关约束</td></tr>
+      <tr><td class="mono">?download</td><td>强制附件下载；受 openDownload 开关约束</td></tr>
+      <tr><td class="mono">Range 头</td><td>bytes=start-end 区间 / bytes=-N 后缀；越界或非法降级全量 200；受 openRange 开关约束</td></tr>
     </tbody>
   </table>
+  <p class="note">启动：<code class="inline">spring-support-parent-starter\run-filestorage.bat [端口]</code>（默认 18080）。前端入口：文件系统 → 文件存储服务（/filesystem/filestorage）。</p>
 
-  <div class="footer" style="margin-top:32px;font-size:12px;color:#a1a1aa;">
-    启动方式：run-filestorage.bat [端口]（spring-support-parent-starter 根目录）&nbsp;&nbsp;·&nbsp;&nbsp;
-    前端入口：文件系统 → 文件存储服务（/filesystem/filestorage）&nbsp;&nbsp;·&nbsp;&nbsp;
-    本报告由自动化脚本与集成测试共同产出
-  </div>
 </div>
 </body>
 </html>
