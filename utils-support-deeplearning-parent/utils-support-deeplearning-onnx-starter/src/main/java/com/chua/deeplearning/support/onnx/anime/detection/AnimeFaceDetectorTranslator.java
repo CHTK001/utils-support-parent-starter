@@ -56,6 +56,13 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
         }
     }
 
+    /**
+     * 无参构造：使用默认阈值（SPI/反射实例化要求）。
+     */
+    public AnimeFaceDetectorTranslator() {
+        this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
+    }
+
 private float confThreshold = 0.45f;
 
     /**
