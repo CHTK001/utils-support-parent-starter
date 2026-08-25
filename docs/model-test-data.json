@@ -314,7 +314,19 @@
       "translator": "detr.DFineTranslator",
       "capability": "目标检测",
       "path": "vision/detection/dfine_l_obj2coco/model_quantized.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 2,
+        "more car plate.webp": 0
+      },
+      "threshold": {
+        "default": 0.5,
+        "tested": {
+          "0.9": "2→1"
+        }
+      },
+      "notes": "模型已解压至 example-starter/models/onnx/dfine-l-obj2coco.onnx/model.onnx"
     },
     {
       "id": "dfsmn-ans",

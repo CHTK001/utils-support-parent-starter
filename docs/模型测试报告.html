@@ -3198,8 +3198,8 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（206 个注册模型，更新于 2026-08-25）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 12　🧪 冒烟通过（无正样本） 2　📄 已有记录 158　⬜ 未测试 34</p>
-<p>待测试清单（34）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfine-l-obj2coco`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-3-270m`、`gemma-4-e2b`、`human-seg`、`lu2net`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`minilm-fp32-embedding`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-detector`、`yolo-face-person`、`yolov2-coco-v2`</p>
+<p>状态统计：✅ 实测通过 13　🧪 冒烟通过（无正样本） 2　📄 已有记录 158　⬜ 未测试 33</p>
+<p>待测试清单（33）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-3-270m`、`gemma-4-e2b`、`human-seg`、`lu2net`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`minilm-fp32-embedding`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-detector`、`yolo-face-person`、`yolov2-coco-v2`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
@@ -3363,6 +3363,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </tbody></table>
 <h3>目标检测（14）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>dfine-l-obj2coco</code></td><td>✅ 实测通过</td><td>detr.DFineTranslator</td><td>1people.png→2；more car plate.webp→0（默认阈值 0.5，阈值验证 {'0.9': '2→1'}）</td></tr>
 <tr><td><code>yolov10n</code></td><td>✅ 实测通过</td><td>yolo.v10.translator.YoloV10DetectTranslator</td><td>3peoplebeauty.jpg→7</td></tr>
 <tr><td><code>yolov8s</code></td><td>✅ 实测通过</td><td>yolo.v8.translator.YoloV8sTranslator</td><td>1people.png→40；more car plate.webp→63</td></tr>
 <tr><td><code>yolov8s-world</code></td><td>✅ 实测通过</td><td>yoloworld.YoloWorldDetectorTranslator</td><td>1people.png→2；more car plate.webp→0；fire.webp→0（阈值验证 {'0.5': '过滤 cup 误检'}）</td></tr>
@@ -3375,7 +3376,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>yolov2-coco</code></td><td>📄 已有记录</td><td>yolo.v2.translator.Yolov2CocoTranslator</td><td></td></tr>
 <tr><td><code>yolov8l-world</code></td><td>📄 已有记录</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
 <tr><td><code>yolov8m-world</code></td><td>📄 已有记录</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
-<tr><td><code>dfine-l-obj2coco</code></td><td>⬜ 未测试</td><td>detr.DFineTranslator</td><td></td></tr>
 <tr><td><code>yolov2-coco-v2</code></td><td>⬜ 未测试</td><td>yolo.v2.Yolov2CocoTranslator</td><td></td></tr>
 </tbody></table>
 <h3>自然语言（31）</h3>
