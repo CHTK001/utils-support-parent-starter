@@ -1,7 +1,7 @@
 package com.chua.common.support.datasearch.pricing.spi.impl;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
-import com.chua.common.support.datasearch.pricing.spi.AbstractPricingProvider;
+import com.chua.common.support.datasearch.pricing.spi.AbstractModelMetricsProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import org.jsoup.Jsoup;
 
@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * @since 4.0.0.42
  */
 @Spi("deepseek")
-public class DeepSeekPricingProvider extends AbstractPricingProvider {
+public class DeepSeekModelMetricsProvider extends AbstractModelMetricsProvider {
 
     /** Pricing_url */
     private static final String PRICING_URL = "https://api-docs.deepseek.com/quick_start/pricing/";

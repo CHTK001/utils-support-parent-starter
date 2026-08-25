@@ -25,15 +25,14 @@ public interface ModelMetricsProvider {
     /**
      * 获取模型指标列表。
      *
-     * <p>优先读取本地缓存，无缓存时返回空列表；
-     * 通过 {@link #syncFromOnline()} 在线同步填充。</p>
+     * <p>优先从本地文件缓存加载，本地无文件时返回空列表。</p>
      *
      * @return 模型指标列表
      */
     List<ModelDefinition> getMetrics();
 
     /**
-     * 从线上同步指标数据并持久化到本地。
+     * 从线上 API 同步指标数据并持久化到本地文件。
      */
     void syncFromOnline();
 }

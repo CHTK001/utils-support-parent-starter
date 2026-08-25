@@ -156,6 +156,20 @@ public final class TaskGraph {
     }
 
     /**
+     * 输出按拓扑分层展平后的建议执行顺序（同层保持注册顺序）。
+     *
+     * <p>分层过程同时承担环检测职责；调用方无需再单独校验环路。</p>
+     *
+     * @return 拓扑序节点定义列表
+     * @throws IllegalStateException 当存在循环依赖时
+     */
+    public List<TaskDefinition> definitionsInExecutionOrder() {
+        var flattened = new ArrayList<TaskDefinition>(definitions.size());
+        layeredTopology().forEach(flattened::addAll);
+        return List.copyOf(flattened);
+    }
+
+    /**
      * 获取运行名称。
      *
      * @return 运行名称

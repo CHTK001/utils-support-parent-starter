@@ -14,7 +14,8 @@ import java.util.concurrent.StructuredTaskScope;
  * <ol>
  *   <li><strong>熔断降级</strong>：{@link CircuitBreakerFlow} 保护，拒绝或失败时走 fallback</li>
  *   <li><strong>超时</strong>：嵌套结构化并发作用域 + withTimeout 约束整个重试序列</li>
- *   <li><strong>重试</strong>：指数退避（200ms 起步、封顶 2s），仅对 Exception 重试</li>
+ *   <li><strong>重试</strong>：指数退避（200ms 起步、封顶 2s），仅对 Exception 重试；
+ *       配置时限时预算感知——剩余预算不足以完成下一次尝试即提前放弃</li>
  * </ol>
  *
  * <p>同时提供数据依赖校验与事件发布辅助方法。</p>
@@ -61,11 +62,12 @@ public abstract class AbstractRunnerProvider {
             return def.getAction().apply(context);
         };
 
-        Callable<Object> retried = wrapRetry(core, def.resolveRetry(options.globalRetry()));
         var effectiveTimeout = def.resolveTimeout(options.globalTimeout());
+        Callable<Object> resilient = wrapResilience(core,
+                def.resolveRetry(options.globalRetry()), effectiveTimeout);
         Callable<Object> timed = effectiveTimeout != null
-                ? wrapTimeout(retried, effectiveTimeout)
-                : retried;
+                ? wrapTimeout(resilient, effectiveTimeout)
+                : resilient;
 
         if (!def.isCircuitBreakerEnabled()) {
             return applyFallbackOnFailure(def, context, timed);
@@ -129,27 +131,47 @@ public abstract class AbstractRunnerProvider {
     /**
      * 重试包装：共 attempts 次尝试，失败间隔按指数退避。
      *
+     * <p>预算感知：配置了 timeout 时维护整体截止时间，
+     * 剩余预算不足以容纳"下一次退避 + 最小执行窗"时提前放弃重试，
+     * 避免注定超时的无效尝试。</p>
+     *
      * @param core     核心逻辑
      * @param attempts 总尝试次数，必须 ≥ 1
+     * @param timeout  整体时限，null 表示不限时
      * @return 包装后的执行链
      */
-    private Callable<Object> wrapRetry(Callable<Object> core, int attempts) {
+    private Callable<Object> wrapResilience(Callable<Object> core, int attempts, java.time.Duration timeout) {
         var times = Math.max(attempts, 1);
         return () -> {
+            var deadlineMs = timeout == null
+                    ? Long.MAX_VALUE
+                    : System.currentTimeMillis() + timeout.toMillis();
             Exception last = null;
             for (var attempt = 0; attempt < times; attempt++) {
                 try {
                     return core.call();
                 } catch (Exception e) {
                     last = e;
-                    if (attempt < times - 1) {
-                        ThreadUtils.sleepMillisecondsQuietly(TaskDefinition.backoffMillis(attempt));
+                    if (attempt >= times - 1) {
+                        break;
                     }
+                    var backoff = TaskDefinition.backoffMillis(attempt);
+                    var remaining = deadlineMs - System.currentTimeMillis();
+                    // 剩余预算不足以覆盖退避 + 最小执行窗（50ms），放弃重试
+                    if (remaining <= backoff + MIN_EXECUTE_WINDOW_MS) {
+                        break;
+                    }
+                    ThreadUtils.sleepMillisecondsQuietly(Math.min(backoff, Math.max(0L, remaining)));
                 }
             }
             throw last;
         };
     }
+
+    /**
+     * 判定放弃重试的最小剩余执行窗毫秒数。
+     */
+    private static final long MIN_EXECUTE_WINDOW_MS = 50L;
 
     /**
      * 超时包装：嵌套结构化并发作用域施加整体时限。

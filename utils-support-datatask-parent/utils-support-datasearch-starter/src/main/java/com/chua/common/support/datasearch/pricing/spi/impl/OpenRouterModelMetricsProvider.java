@@ -1,7 +1,7 @@
 package com.chua.common.support.datasearch.pricing.spi.impl;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
-import com.chua.common.support.datasearch.pricing.spi.AbstractPricingProvider;
+import com.chua.common.support.datasearch.pricing.spi.AbstractModelMetricsProvider;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,7 +22,7 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Spi("openrouter")
-public class OpenRouterPricingProvider extends AbstractPricingProvider {
+public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider {
 
     /** Models_api */
     private static final String MODELS_API = "https://openrouter.ai/api/v1/models";
