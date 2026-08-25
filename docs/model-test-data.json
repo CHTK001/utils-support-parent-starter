@@ -4,7 +4,8 @@
   "legend": {
     "verified": "本轮综合实测通过（含检出数）",
     "documented": "报告历史章节已有记录",
-    "pending": "尚未测试"
+    "pending": "尚未测试",
+    "smoke": "冒烟通过：加载/推理正常但测试图无正样本"
   },
   "total": 206,
   "models": [
@@ -1087,7 +1088,9 @@
       "translator": "yolo.ReflectiveClothesDetectorTranslator",
       "capability": "其他",
       "path": "vision/reflective-clothes/yolov8n/model.onnx",
-      "status": "documented"
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "模型加载与推理正常；测试图无反光衣正样本，0 检出属预期"
     },
     {
       "id": "resnet50-feature",
@@ -1129,7 +1132,19 @@
       "translator": "layout.RTDetrLayoutTranslator",
       "capability": "文档分析",
       "path": "vision/layout/rtdetr/model.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "paper-real-full.png": 43,
+        "document.webp": 6
+      },
+      "threshold": {
+        "default": 0.5,
+        "tested": {
+          "0.9": "49→0"
+        }
+      },
+      "notes": "模型已从 models jar 解压至 example-starter/models/onnx/rtdetr-layout.onnx/"
     },
     {
       "id": "safety-helmet",
@@ -1165,7 +1180,9 @@
       "translator": "yolo.SealInspectionTranslator",
       "capability": "目标检测",
       "path": "vision/detection/seal/model.onnx",
-      "status": "pending"
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "模型加载与推理正常；测试图无印章正样本，0 检出属预期"
     },
     {
       "id": "sensevoice",
