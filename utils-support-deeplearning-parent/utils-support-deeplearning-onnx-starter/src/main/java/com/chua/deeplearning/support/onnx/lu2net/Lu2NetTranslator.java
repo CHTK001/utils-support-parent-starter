@@ -20,8 +20,8 @@ public class Lu2NetTranslator implements Translator<Image, Image> {
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
         // normalize to [0,1]
         array = array.toType(DataType.FLOAT32, false).div(255.0f);
-        // NHWC to NCHW, assume input shape [1, 3, H, W]
-        array = array.transpose(2, 0, 1).expandDims(0);
+        // NHWC to NCHW（batch 维由 pipeline 的 Batchifier 统一添加，此处不手动 expandDims）
+        array = array.transpose(2, 0, 1);
         return new NDList(array);
     }
 

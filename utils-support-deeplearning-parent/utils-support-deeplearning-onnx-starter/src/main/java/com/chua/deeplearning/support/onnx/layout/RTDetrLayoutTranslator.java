@@ -54,19 +54,11 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
         imgWidth = input.getWidth();
         imgHeight = input.getHeight();
 
-        // letterbox 等比缩放
-        float scale = Math.min((float) INPUT_SIZE / imgWidth, (float) INPUT_SIZE / imgHeight);
-        int newW = Math.round(imgWidth * scale);
-        int newH = Math.round(imgHeight * scale);
-        int padL = (INPUT_SIZE - newW) / 2;
-        int padT = (INPUT_SIZE - newH) / 2;
-
+        // 直接拉伸到 640×640（preprocessor_config.json: do_pad=false）
         BufferedImage wrapped = (BufferedImage) input.getWrappedImage();
         var resized = new BufferedImage(INPUT_SIZE, INPUT_SIZE, BufferedImage.TYPE_INT_RGB);
         var g2d = resized.createGraphics();
-        g2d.setColor(java.awt.Color.WHITE);
-        g2d.fillRect(0, 0, INPUT_SIZE, INPUT_SIZE);
-        g2d.drawImage(wrapped, padL, padT, newW, newH, null);
+        g2d.drawImage(wrapped, 0, 0, INPUT_SIZE, INPUT_SIZE, null);
         g2d.dispose();
 
         float[] chw = new float[3 * INPUT_SIZE * INPUT_SIZE];
