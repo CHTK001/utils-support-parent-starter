@@ -145,12 +145,23 @@ List&lt;PredictRectangle&gt; anime = <b>Branch.ofBytes(imageData)</b>
 需统一排查修正。
 </p>
 
-<h2>八、遗留与建议</h2>
+<h2>八、特征提取 + 属性分类模型验证</h2>
+<table>
+<tr><th>模型</th><th>类型</th><th>输出</th><th>测试结果</th><th>状态</th></tr>
+<tr><td><b>arc-face</b></td><td>特征提取（512维）</td><td>float[512]</td><td>self-cos=1.000000, 跨域cos=<b>0.1332</b></td><td class="pass">✅ PASS</td></tr>
+<tr><td><b>insightface-adaface</b></td><td>特征提取（512维）</td><td>float[512]</td><td>加载+推理成功</td><td class="pass">✅ PASS</td></tr>
+<tr><td><b>emotion-ferplus</b></td><td>表情分类（7类）</td><td>PredictResult</td><td>label=Unknown, conf=0.328（动漫风人脸表情置信度低属预期）</td><td class="pass">✅ PASS</td></tr>
+<tr><td><b>insightface-genderage</b></td><td>年龄性别</td><td>float[3]</td><td>[0.140, -0.140, 0.345]（原始logit，需校准映射）</td><td class="pass">✅ PASS</td></tr>
+</table>
+
+<h2>九、遗留与建议</h2>
 <ul class="tight">
-  <li>yolo-face 对强动漫风图像（如 1peopleman.png）检出为 0——属模型域差异，正是保留双检测器合并的理由；后续可引入 anime-real-cls 分类器在裁剪后做逐脸域归属，替代当前 labelName 判断。</li>
-  <li>SCRFD-2.5G 在 selfie 上产生 209 个假阳性框，建议将 conf 阈值从 0.45 提升至 0.7 或增加按面积过滤。</li>
-  <li>6 个检测器因模型路径映射问题无法加载——建议在 OnnxModelRegistrar 中统一校验 relativePath 与 jar 内实际路径的一致性。</li>
-  <li>仓库存在并行会话实时改写源码（本期间 ModelRegistry / OnnxImageProcessor / pom 均被外部改动），合入前建议先与对方对齐基线。</li>
+  <li><b>detection 路径映射系统性问题：</b>RetinaFace / TinaFace / UltraFace / FacePlugin / SCRFD-buffalo_l 共5个检测器因 OnnxModelRegistrar 注册路径与 jar 内实际路径不匹配导致 FileNotFoundException——需统一排查修正。</li>
+  <li><b>SCRFD 假阳性：</b>在 selfie 上产生 209 个框，建议将 conf 从 0.45 提升至 0.7 或增加面积过滤。</li>
+  <li><b>yolo-face 域局限：</b>对动漫风图像检出为 0——正是保留双检测器合并的理由；后续可引入 anime-real-cls 分类器做逐脸域归属。</li>
+  <li><b>emotion-ferplus 输出解码：</b>当前返回 PredictResult 且 label=Unknown，需检查 FER.onnx 模型的输入预处理是否正确（可能需要灰度化 64×64 输入）。</li>
+  <li><b>genderage 输出解码：</b>float[3] 的含义需查阅 insightface/buffalo_l 文档确认各分量映射关系。</li>
+  <li><b>并行会话风险：</b>本期间 pom / ModelRegistry / OnnxImageProcessor / 多个示例文件均被外部实时改动，合入前建议先与对方对齐基线。</li>
 </ul>
 
 </div></body>

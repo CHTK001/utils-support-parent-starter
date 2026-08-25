@@ -2,6 +2,8 @@ package com.chua.common.support.network.server.filter;
 
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.handler.ServerHandler;
+import com.chua.common.support.network.server.request.ServerRequest;
+import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -255,14 +259,54 @@ public class ServerFilterManager {
     }
 
     /**
-     * 获取合并后的响应式过滤器列表，按 order 升序排列。
+     * 获取合并后（静态 + 响应式）的过滤器列表，按 order 升序排列。
      *
-     * @return 合并并排序后的响应式过滤器列表
+     * <p>静态 {@link ServerFilter} 会通过 {@link #wrapStatic(ServerFilter)} 适配为
+     * 响应式过滤器后一并参与链路，保证 {@code addFilter} 注册的同步过滤器生效。</p>
+     *
+     * @return 合并后的响应式过滤器列表
      */
     public List<ReactiveServerFilter> getMergedReactiveFilters() {
-        List<ReactiveServerFilter> result = new ArrayList<>(reactiveFilters);
+        List<ReactiveServerFilter> result = new ArrayList<>(reactiveFilters.size() + staticFilters.size());
+        for (ServerFilter filter : staticFilters) {
+            if (filter != null) {
+                result.add(wrapStatic(filter));
+            }
+        }
+        result.addAll(reactiveFilters);
         result.sort(Comparator.comparingInt(ReactiveServerFilter::getOrder));
         return result;
+    }
+
+    /**
+     * 将同步过滤器包装为响应式过滤器。
+     *
+     * <p>包装后在同步 {@code doFilter} 内部调用 {@code chain.doFilter(...)}，
+     * 并将完成信号包装为 {@link CompletableFuture#completedStage(Object)}；
+     * 同步过滤器抛出的异常经失败阶段向上传播。</p>
+     *
+     * @param filter 待包装的同步过滤器
+     * @return 响应式过滤器实例
+     */
+    private static ReactiveServerFilter wrapStatic(ServerFilter filter) {
+        return new ReactiveServerFilter() {
+            @Override
+            public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
+                try {
+                    filter.doFilter(request, response, chain::doFilter);
+                    return CompletableFuture.completedStage(null);
+                } catch (Exception e) {
+                    CompletableFuture<Void> failed = new CompletableFuture<>();
+                    failed.completeExceptionally(e);
+                    return failed;
+                }
+            }
+
+            @Override
+            public int getOrder() {
+                return filter.getOrder();
+            }
+        };
     }
 
     // ==================== 清空与替换 ====================

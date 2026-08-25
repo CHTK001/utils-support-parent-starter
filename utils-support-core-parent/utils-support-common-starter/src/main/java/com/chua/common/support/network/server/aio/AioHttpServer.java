@@ -123,8 +123,6 @@ public class AioHttpServer extends AbstractServer {
     /** 虚拟线程 worker 池:执行 handler 链,阻塞不占用平台线程 */
     private ExecutorService executor;
 
-    /** 响应式模式:true=handler 内联在 IOCP 回调线程执行(零跳转,要求非阻塞) */
-    private volatile boolean reactiveMode;
 
     /** SSL 上下文(配置了 selfSigned/KeyStore/PEM 时非 null,每连接派生 SSLEngine) */
     private SSLContext sslContext;
@@ -163,7 +161,6 @@ public class AioHttpServer extends AbstractServer {
             // SSL/TLS:selfSigned/KeyStore/PEM 统一经 SslUtils 构建,
             // 每连接派生 SSLEngine,握手在独立虚拟线程以阻塞 Future 方式驱动
             ServerSetting.SslConfig ssl = setting.getSsl();
-            reactiveMode = setting.isReactor() || Boolean.getBoolean("aio.http.reactive");
             sslContext = SslUtils.autoSsl(ssl);
             if (sslContext != null) {
                 // 禁用 TLS1.3 服务端 NewSessionTicket:票据记录会在握手后以应用数据
@@ -385,17 +382,8 @@ public class AioHttpServer extends AbstractServer {
      * @param state 连接状态
      */
     private void dispatchToWorker(ConnState state) {
-        try {
-            if (reactiveMode) {
-                // 响应式模式:零跳转,IOCP 回调线程内联执行(handler 须非阻塞)
-                processRequest(state);
-            } else {
-                executor.submit(() -> processRequest(state));
-            }
-        } catch (Throwable t) {
-            // executor 已关闭等极端场景
-            closeConn(state);
-        }
+        // 纯响应式:IOCP 回调线程内联执行(handler 契约要求非阻塞)
+        processRequest(state);
     }
 
     /**
