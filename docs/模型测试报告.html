@@ -3198,8 +3198,8 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（206 个注册模型，更新于 2026-08-25）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 14　🧪 冒烟通过（无正样本） 4　🐞 发现缺陷 0　📄 已有记录 157　⬜ 未测试 31</p>
-<p>待测试清单（31）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-3-270m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-detector`、`yolo-face-person`、`yolov2-coco-v2`</p>
+<p>状态统计：✅ 实测通过 15　🧪 冒烟通过（无正样本） 5　🐞 发现缺陷 0　📄 已有记录 157　⬜ 未测试 29</p>
+<p>待测试清单（29）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-person`、`yolov2-coco-v2`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
@@ -3224,6 +3224,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>anime-face-detector</code></td><td>✅ 实测通过</td><td>anime.detection.AnimeFaceDetectorTranslator</td><td>anime.webp→27；face1.webp→39；face2.webp→41</td></tr>
 <tr><td><code>face-mask-detector</code></td><td>✅ 实测通过</td><td>yolo.FaceMaskDetectorTranslator</td><td>1people.png→2；3peoplebeauty.jpg→3（默认阈值 0.05，阈值验证 {'0.5': '5→1'}）</td></tr>
 <tr><td><code>insightface-scrfd</code></td><td>✅ 实测通过</td><td>face.ScrfdFaceDetectorTranslator</td><td>1people.png→1；3peoplebeauty.jpg→3；largest_selfie.jpg→243（默认阈值 0.45，阈值验证 {'0.6': 166, '0.9': 0}）</td></tr>
+<tr><td><code>yolo-face-detector</code></td><td>🧪 冒烟通过（无正样本）</td><td>face.YoloFaceTranslator</td><td>1people.png→5；3peoplebeauty.jpg→3；largest_selfie.jpg→0（默认阈值 0.85，阈值验证 {'0.25': '5/3/0', '0.45': '5/3/0'}）</td></tr>
 <tr><td><code>ada-face</code></td><td>📄 已有记录</td><td>face.AdaFaceTranslator</td><td></td></tr>
 <tr><td><code>age-gender-onnx</code></td><td>📄 已有记录</td><td>agegender.AgeRaceGenderTranslator</td><td></td></tr>
 <tr><td><code>age-race-gender</code></td><td>📄 已有记录</td><td>agegender.AgeRaceGenderTranslator</td><td></td></tr>
@@ -3247,7 +3248,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>scrfd-face-detector</code></td><td>📄 已有记录</td><td>face.ScrfdFaceDetectorTranslator</td><td></td></tr>
 <tr><td><code>tinaface</code></td><td>📄 已有记录</td><td>face.TinaFaceTranslator</td><td></td></tr>
 <tr><td><code>yolo-face-emotion</code></td><td>📄 已有记录</td><td>emotion.EmotionFerplusTranslator</td><td></td></tr>
-<tr><td><code>yolo-face-detector</code></td><td>⬜ 未测试</td><td>face.YoloFaceTranslator</td><td></td></tr>
 <tr><td><code>yolo-face-person</code></td><td>⬜ 未测试</td><td>face.ScrfdFaceDetectorTranslator</td><td></td></tr>
 </tbody></table>
 <h3>其他（30）</h3>
@@ -3329,10 +3329,10 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </tbody></table>
 <h3>大语言模型(LLM)（6）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>gemma-3-270m</code></td><td>✅ 实测通过</td><td>text.gemma3.Gemma3Translator</td><td></td></tr>
 <tr><td><code>qwen2-0.5b</code></td><td>📄 已有记录</td><td>llama.translator.Qwen2ChatTranslator</td><td></td></tr>
 <tr><td><code>qwen2-0.5b-onnx</code></td><td>📄 已有记录</td><td>text.qwen.OnnxQwenTranslator</td><td></td></tr>
 <tr><td><code>qwen2-1.5b</code></td><td>📄 已有记录</td><td>llama.translator.Qwen2ChatTranslator</td><td></td></tr>
-<tr><td><code>gemma-3-270m</code></td><td>⬜ 未测试</td><td>text.gemma3.Gemma3Translator</td><td></td></tr>
 <tr><td><code>gemma-4-e2b</code></td><td>⬜ 未测试</td><td>llama.translator.Gemma4Translator</td><td></td></tr>
 <tr><td><code>minicpm5</code></td><td>⬜ 未测试</td><td>llama.translator.MiniCpm5Translator</td><td></td></tr>
 </tbody></table>
