@@ -206,8 +206,8 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         Files.createDirectories(zipFile.getParent());
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
+                /** 将单个文件以相对路径写入 ZIP 条目 */
                 @Override
-                /** VisitFile */
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String entryName = source.relativize(file).toString().replace("\\", "/");
                     zos.putNextEntry(new ZipEntry(entryName));
@@ -227,15 +227,15 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
             return;
         }
         Files.walkFileTree(dir, new SimpleFileVisitor<>() {
+            /** 删除单个文件 */
             @Override
-            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
+            /** 目录内文件删尽后删除目录本身 */
             @Override
-            /** PostVisitDirectory */
             public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
                 Files.delete(d);
                 return FileVisitResult.CONTINUE;
