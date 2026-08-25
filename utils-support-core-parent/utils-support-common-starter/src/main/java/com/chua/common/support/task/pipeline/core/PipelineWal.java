@@ -3,6 +3,7 @@ package com.chua.common.support.task.pipeline.core;
 import com.chua.common.support.lang.json.JacksonJsonProvider;
 import com.chua.common.support.wal.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,6 +57,7 @@ import java.util.*;
  * @see WalFactory
  * @see WalConfig
  */
+@Slf4j
 public class PipelineWal implements AutoCloseable {
 
     /**
@@ -330,8 +332,9 @@ public class PipelineWal implements AutoCloseable {
         if (opened && walLog != null) {
             try {
                 walLog.close();
-            } catch (IOException ignored) {
-                // 关闭时忽略 IO 异常
+            } catch (IOException e) {
+                // 关闭失败不影响主流程，但必须留痕以便排查句柄泄漏
+                log.warn("关闭 WAL 日志失败, pipelineId={}", pipelineId, e);
             }
             opened = false;
         }
@@ -353,12 +356,13 @@ public class PipelineWal implements AutoCloseable {
                         .forEach(p -> {
                             try {
                                 Files.deleteIfExists(p);
-                            } catch (IOException ignored) {
+                            } catch (IOException e) {
+                                log.warn("删除 WAL 文件失败: {}", p, e);
                             }
                         });
             }
-        } catch (IOException ignored) {
-            // 销毁时忽略 IO 异常
+        } catch (IOException e) {
+            log.warn("遍历 WAL 目录失败, pipelineId={}", pipelineId, e);
         }
     }
 
@@ -391,7 +395,11 @@ public class PipelineWal implements AutoCloseable {
 
     // ==================== 内部方法 ====================
 
-    /** Ensure打开 */
+    /**
+     * 确保 WAL 已打开，未打开时执行懒加载打开。
+     *
+     * @throws IOException 打开失败
+     */
     private void ensureOpen() throws IOException {
         if (!opened) {
             open();
@@ -400,6 +408,9 @@ public class PipelineWal implements AutoCloseable {
 
     /**
      * 序列化对象为字节数组。
+     *
+     * <p>序列化失败会记录警告并返回空数组——调用方写入的将是无效记录，
+     * 恢复侧需容忍空 payload（见 {@link #deserializeObject}）。</p>
      */
     private byte[] serializeObject(Object obj) {
         if (obj == null) {
@@ -407,39 +418,47 @@ public class PipelineWal implements AutoCloseable {
         }
         try {
             String json = MAPPER.writeValueAsString(obj);
-            return json.getBytes("UTF-8");
+            return json.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception e) {
-            // 序列化失败时返回空数组
+            log.warn("WAL 序列化失败, pipelineId={}, type={}", pipelineId,
+                    obj.getClass().getName(), e);
             return new byte[0];
         }
     }
 
     /**
      * 从字节数组反序列化对象。
+     *
+     * <p>反序列化失败记录警告并返回 null，由调用方决定降级策略。</p>
      */
     private Object deserializeObject(byte[] payload) {
         if (payload == null || payload.length == 0) {
             return null;
         }
         try {
-            String json = new String(payload, "UTF-8");
+            String json = new String(payload, java.nio.charset.StandardCharsets.UTF_8);
             return MAPPER.readValue(json, Object.class);
         } catch (Exception e) {
+            log.warn("WAL 反序列化失败, pipelineId={}, payloadBytes={}", pipelineId, payload.length, e);
             return null;
         }
     }
 
     /**
      * 反序列化上下文快照。
+     *
+     * <p>快照损坏时记录警告并返回 null——恢复流程将回退到最近的有效检查点。</p>
      */
     private ContextSnapshot deserializeSnapshot(byte[] payload) {
         if (payload == null || payload.length == 0) {
             return null;
         }
         try {
-            String json = new String(payload, "UTF-8");
+            String json = new String(payload, java.nio.charset.StandardCharsets.UTF_8);
             return MAPPER.readValue(json, ContextSnapshot.class);
         } catch (Exception e) {
+            log.warn("WAL 快照反序列化失败, pipelineId={}, payloadBytes={}",
+                    pipelineId, payload.length, e);
             return null;
         }
     }

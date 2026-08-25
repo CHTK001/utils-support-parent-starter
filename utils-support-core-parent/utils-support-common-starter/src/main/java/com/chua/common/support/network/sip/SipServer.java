@@ -263,11 +263,113 @@ public class SipServer extends AbstractServer implements TcpServer {
             if (firstLine.startsWith(SipProtocol.PREFIX_AUTH + SipProtocol.SEPARATOR)) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
                 handleSignalConnection(reader, out, firstLine);
+            } else if (firstLine.startsWith(SipProtocol.PREFIX_MUXCONN + SipProtocol.SEPARATOR)) {
+                handleMuxConnection(in, out, firstLine);
             } else if (firstLine.startsWith(SipProtocol.PREFIX_CONNECT + SipProtocol.SEPARATOR)) {
                 handleDataConnection(in, out, firstLine);
             }
         } catch (IOException e) {
             log.debug("SIP 连接处理异常: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 处理多路复用数据面连接：验签后注册到连接表，读循环内按 channelId 解帧路由。
+     *
+     * @param in        输入流
+     * @param out       输出流
+     * @param firstLine 握手行（MUXCONN|首个channelId|role|signature）
+     * @throws IOException IO 异常
+     */
+    private void handleMuxConnection(InputStream in, OutputStream out, String firstLine) throws IOException {
+        String[] parts = firstLine.split("\\|", 4);
+        if (parts.length < 4) {
+            return;
+        }
+        String channelId = parts[1];
+        String role = parts[2];
+        String signature = parts[3];
+        TunnelChannel channel = tunnelChannels.get(channelId);
+        if (channel == null) {
+            log.warn("SIP mux 握手通道不存在: channelId={}", channelId);
+            return;
+        }
+        SignalConnection a = registry.get(channel.aId());
+        SignalConnection b = registry.get(channel.bId());
+        String expectedA = a != null ? HMacUtils.hmacSha256Hex(a.token(), channelId + role) : null;
+        String expectedB = b != null ? HMacUtils.hmacSha256Hex(b.token(), channelId + role) : null;
+        boolean verified = signature.equals(expectedA) || signature.equals(expectedB);
+        if (!verified) {
+            log.warn("SIP mux 握手签名校验失败: channelId={}, role={}", channelId, role);
+            return;
+        }
+        String clientId = signature.equals(expectedA) ? channel.aId() : channel.bId();
+        String key = clientId + "|" + role;
+        MuxServerConn conn = new MuxServerConn(key, clientId, role, in, out);
+        muxConns.put(key, conn);
+        muxFlushPending(conn);
+        log.info("SIP mux 连接接入: key={}, 首通道={}", key, channelId);
+        conn.readLoop();
+        muxConns.remove(key, conn);
+        conn.notifyPeerChannelsClosed();
+    }
+
+    /**
+     * mux 帧路由：按通道两端将帧转发给对端复用连接；对端未注册时暂存。
+     *
+     * @param from      来源连接
+     * @param channelId 通道标识
+     * @param payload   负载（空数组为通道关闭标记）
+     */
+    private void muxRoute(MuxServerConn from, String channelId, byte[] payload) {
+        TunnelChannel channel = tunnelChannels.get(channelId);
+        if (channel == null) {
+            return;
+        }
+        boolean fromVisitor = "visitor".equals(from.role);
+        String peerKey = (fromVisitor ? channel.bId() : channel.aId()) + "|" + (fromVisitor ? "provider" : "visitor");
+        from.channels.add(channelId);
+        if (payload.length == 0) {
+            muxPending.remove(channelId + "|" + peerKey);
+            MuxServerConn peer = muxConns.get(peerKey);
+            if (peer != null) {
+                peer.sendFrame(channelId, payload);
+            }
+            return;
+        }
+        MuxServerConn peer = muxConns.get(peerKey);
+        if (peer != null) {
+            peer.sendFrame(channelId, payload);
+            return;
+        }
+        List<byte[]> pending = muxPending.computeIfAbsent(channelId + "|" + peerKey,
+                k -> java.util.Collections.synchronizedList(new ArrayList<>()));
+        synchronized (pending) {
+            if (pending.size() < 256) {
+                pending.add(payload);
+            }
+        }
+    }
+
+    /**
+     * 冲刷暂存帧：新复用连接注册后，补发等它的一切帧。
+     *
+     * @param conn 新注册的连接
+     */
+    private void muxFlushPending(MuxServerConn conn) {
+        for (Map.Entry<String, List<byte[]>> entry : muxPending.entrySet()) {
+            if (!entry.getKey().endsWith("|" + conn.key)) {
+                continue;
+            }
+            List<byte[]> list = entry.getValue();
+            synchronized (list) {
+                for (byte[] payload : list) {
+                    String channelId = entry.getKey().substring(0, entry.getKey().indexOf('|'));
+                    conn.sendFrame(channelId, payload);
+                }
+                list.clear();
+            }
+            muxPending.remove(entry.getKey(), list);
         }
     }
 
@@ -683,6 +785,165 @@ public class SipServer extends AbstractServer implements TcpServer {
     /**
      * 单条隧道的数据桥接器：负责访问方与提供方两条数据连接的裸字节流双向转发。
      */
+    /**
+     * 多路复用服务端连接：单条连接承载同角色全部通道的帧收发。
+     */
+    private final class MuxServerConn {
+
+        /**
+         * 连接键（clientId|role）
+         */
+        private final String key;
+
+        /**
+         * 客户端标识
+         */
+        private final String clientId;
+
+        /**
+         * 角色（visitor / provider）
+         */
+        private final String role;
+
+        /**
+         * 输入流
+         */
+        private final InputStream in;
+
+        /**
+         * 输出流
+         */
+        private final OutputStream out;
+
+        /**
+         * 本连接承载过的通道
+         */
+        private final java.util.Set<String> channels = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+        private MuxServerConn(String key, String clientId, String role, InputStream in, OutputStream out) {
+            this.key = key;
+            this.clientId = clientId;
+            this.role = role;
+            this.in = in;
+            this.out = out;
+        }
+
+        /**
+         * 读循环：解帧并交给路由。
+         */
+        void readLoop() {
+            try {
+                while (running) {
+                    byte[] header = readFullyN(in, 4);
+                    int len = ByteBuffer.wrap(header).getInt();
+                    if (len < 16 || len > 16 + 64 * 1024) {
+                        throw new IOException("SIP mux 帧长度非法: " + len);
+                    }
+                    byte[] frame = readFullyN(in, len);
+                    String channelId = uuidString(java.util.Arrays.copyOfRange(frame, 0, 16));
+                    byte[] payload = new byte[len - 16];
+                    System.arraycopy(frame, 16, payload, 0, payload.length);
+                    muxRoute(this, channelId, payload);
+                }
+            } catch (IOException e) {
+                log.debug("SIP mux 连接读取结束: key={}, {}", key, e.getMessage());
+            }
+        }
+
+        /**
+         * 发送一帧。
+         *
+         * @param channelId 通道标识
+         * @param payload   负载（空为关闭标记）
+         */
+        void sendFrame(String channelId, byte[] payload) {
+            try {
+                byte[] ch = uuidBytes(channelId);
+                ByteBuffer buffer = ByteBuffer.allocate(4 + 16 + payload.length);
+                buffer.putInt(16 + payload.length);
+                buffer.put(ch);
+                buffer.put(payload);
+                synchronized (out) {
+                    out.write(buffer.array());
+                    out.flush();
+                }
+            } catch (IOException e) {
+                log.debug("SIP mux 帧发送失败: key={}, {}", key, e.getMessage());
+            }
+        }
+
+        /**
+         * 连接退出时：对本连接承载的全部通道，向对端发送关闭标记并清理暂存。
+         */
+        void notifyPeerChannelsClosed() {
+            for (String ch : channels) {
+                TunnelChannel channel = tunnelChannels.get(ch);
+                if (channel == null) {
+                    continue;
+                }
+                boolean fromVisitor = "visitor".equals(role);
+                String peerKey = (fromVisitor ? channel.bId() : channel.aId()) + "|" + (fromVisitor ? "provider" : "visitor");
+                muxPending.remove(ch + "|" + peerKey);
+                MuxServerConn peer = muxConns.get(peerKey);
+                if (peer != null && peer != this) {
+                    peer.sendFrame(ch, new byte[0]);
+                }
+            }
+            channels.clear();
+        }
+    }
+
+    /**
+     * 阻塞读满指定长度。
+     *
+     * @param in 输入流
+     * @param n  期望长度
+     * @return 数据
+     * @throws IOException 流结束
+     */
+    private static byte[] readFullyN(InputStream in, int n) throws IOException {
+        byte[] data = new byte[n];
+        int offset = 0;
+        while (offset < n) {
+            int read = in.read(data, offset, n - offset);
+            if (read == -1) {
+                throw new IOException("SIP mux 连接已关闭");
+            }
+            offset += read;
+        }
+        return data;
+    }
+
+    /**
+     * UUID 字符串转 16 字节。
+     *
+     * @param uuid UUID 字符串
+     * @return 16 字节
+     */
+    private static byte[] uuidBytes(String uuid) {
+        String hex = uuid.replace("-", "");
+        byte[] data = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            data[i] = (byte) Integer.parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+        }
+        return data;
+    }
+
+    /**
+     * 16 字节转 UUID 字符串。
+     *
+     * @param data 16 字节
+     * @return UUID 字符串
+     */
+    private static String uuidString(byte[] data) {
+        StringBuilder hex = new StringBuilder();
+        for (byte b : data) {
+            hex.append(String.format("%02x", b));
+        }
+        String s = hex.toString();
+        return s.substring(0, 8) + "-" + s.substring(8, 12) + "-" + s.substring(12, 16)
+                + "-" + s.substring(16, 20) + "-" + s.substring(20);
+    }
     private static final class DataChannel {
 
         /**

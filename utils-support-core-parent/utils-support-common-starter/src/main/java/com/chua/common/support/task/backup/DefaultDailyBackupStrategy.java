@@ -1,5 +1,7 @@
 package com.chua.common.support.task.backup;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -35,6 +37,7 @@ import java.util.zip.ZipOutputStream;
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class DefaultDailyBackupStrategy implements BackupStrategy {
 
     /**
@@ -162,8 +165,10 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         Files.createDirectories(target);
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
+            /**
+             * 拷贝单个文件：命中过滤规则后复制到目标目录，失败仅告警并跳过。
+             */
             @Override
-            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     String fileName = file.getFileName().toString();
@@ -177,7 +182,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
                     Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
                     copied.add(dest);
                 } catch (IOException e) {
-                    // 跳过无法复制的文件
+                    log.warn("备份跳过无法复制的文件: {}", file, e);
                 }
                 return FileVisitResult.CONTINUE;
             }

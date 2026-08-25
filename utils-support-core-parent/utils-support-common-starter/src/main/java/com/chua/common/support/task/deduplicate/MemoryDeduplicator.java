@@ -5,14 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
  * 内存去重器，基于 ConcurrentHashMap 实现。
  * <p>
  * 按 key 判重，支持 TTL 自动过期清理，默认 5 分钟。
+ * 实现 {@link AutoCloseable}：不再使用时必须调用 {@link #close()}
+ * 释放内部清理线程，防止线程泄漏。
  * </p>
  *
  * @author CH
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @SpiDefault
-public class MemoryDeduplicator implements Deduplicator {
+public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
 
     /**
      * 默认 TTL，5 分钟
@@ -37,7 +38,7 @@ public class MemoryDeduplicator implements Deduplicator {
     /** processed */
     private final Map<String, Long> processed;
     /** Cleanup执行器 */
-    private final ScheduledExecutorService cleanupExecutor;
+    private final ScheduledThreadPoolExecutor cleanupExecutor;
 
     /**
      * 构造去重器，使用默认 TTL 5 分钟。
@@ -54,7 +55,8 @@ public class MemoryDeduplicator implements Deduplicator {
     public MemoryDeduplicator(long ttlMs) {
         this.ttlMs = ttlMs;
         this.processed = new ConcurrentHashMap<>();
-        this.cleanupExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+        // P3C 1.6：显式构造线程池（核心 1、无上限队列、命名守护线程），禁用工厂方法
+        this.cleanupExecutor = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r, "deduplicator-cleanup");
             t.setDaemon(true);
             return t;
@@ -63,28 +65,52 @@ public class MemoryDeduplicator implements Deduplicator {
                 CLEANUP_INTERVAL_MS, CLEANUP_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * 判断 key 是否已处理过。
+     *
+     * @param key 去重 key
+     * @return true 表示已处理（重复）
+     */
     @Override
-    /** 是否Duplicate */
     public boolean isDuplicate(String key) {
         return processed.containsKey(key);
     }
 
+    /**
+     * 标记 key 为已处理。
+     *
+     * @param key 去重 key
+     */
     @Override
-    /** 标记Processed */
     public void markProcessed(String key) {
         processed.put(key, System.currentTimeMillis());
     }
 
+    /**
+     * 清空所有处理记录。
+     */
     @Override
-    /** Clear */
     public void clear() {
         processed.clear();
     }
 
+    /**
+     * 获取当前记录数。
+     *
+     * @return 记录数
+     */
     @Override
-    /** 获取大小 */
     public int size() {
         return processed.size();
+    }
+
+    /**
+     * 释放清理线程：未关闭的实例在长时间运行环境中会造成线程泄漏。
+     */
+    @Override
+    public void close() {
+        cleanupExecutor.shutdownNow();
+        log.debug("MemoryDeduplicator closed, remaining keys={}", processed.size());
     }
 
     /**
