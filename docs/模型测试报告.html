@@ -3196,10 +3196,10 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </html>
 <hr>
 <!-- coverage:start -->
-<h2 id="model-coverage">附：模型测试覆盖总览（209 个注册模型，更新于 2026-08-25）</h2>
+<h2 id="model-coverage">附：模型测试覆盖总览（209 个注册模型，更新于 2026-08-26）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 25　🧪 冒烟通过（无正样本） 6　🐞 发现缺陷 0　📄 已有记录 149　⬜ 未测试 29</p>
-<p>待测试清单（29）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-person`、`yolov2-coco-v2`</p>
+<p>状态统计：✅ 实测通过 26　🧪 冒烟通过（无正样本） 6　🐞 发现缺陷 0　📄 已有记录 149　⬜ 未测试 28</p>
+<p>待测试清单（28）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-person`、`yolov2-coco-v2`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
@@ -3386,6 +3386,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </tbody></table>
 <h3>自然语言（31）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>bart-zh-seq2seq</code></td><td>✅ 实测通过</td><td>seq2seq.BartZhSeq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>bge-large-zh-embedding</code></td><td>✅ 实测通过</td><td>embedding.bge.BgeEmbeddingClient</td><td>语义聚类→相似对 cos=0.936 > 无关对 0.236/0.243</td></tr>
 <tr><td><code>bge-small-embedding</code></td><td>✅ 实测通过</td><td>clip.ClipTextFeatureTranslator</td><td>语义聚类→相似对 cos=0.856 > 无关对 0.374/0.379</td></tr>
 <tr><td><code>minilm-fp32-embedding</code></td><td>✅ 实测通过</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td>语义聚类→相似对 cos=0.858 > 无关对 0.559/0.533</td></tr>
@@ -3413,7 +3414,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>t5-base-seq2seq</code></td><td>📄 已有记录</td><td>seq2seq.T5BaseSeq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>t5-seq2seq</code></td><td>📄 已有记录</td><td>seq2seq.T5Seq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>xlm-roberta-language-detection</code></td><td>📄 已有记录</td><td>classification.XlmRobertaLanguageDetectionTranslator</td><td></td></tr>
-<tr><td><code>bart-zh-seq2seq</code></td><td>⬜ 未测试</td><td>seq2seq.BartZhSeq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>bitnet-embedding</code></td><td>⬜ 未测试</td><td>llama.translator.BitnetEmbeddingTranslator</td><td></td></tr>
 <tr><td><code>embeddinggemma-300m</code></td><td>⬜ 未测试</td><td>llama.translator.EmbeddingGemmaTranslator</td><td></td></tr>
 <tr><td><code>otzaria-embedding</code></td><td>⬜ 未测试</td><td>llama.translator.OtzariaEmbeddingTranslator</td><td></td></tr>
