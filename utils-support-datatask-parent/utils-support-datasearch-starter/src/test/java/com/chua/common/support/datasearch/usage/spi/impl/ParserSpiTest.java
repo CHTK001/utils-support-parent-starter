@@ -27,7 +27,7 @@ public class ParserSpiTest {
 
     private static final String[] ALL_NAMES = {
             "opencode", "claude-code", "codex++", "vscode", "cline", "continue",
-            "codebuddy", "ccswitch", "joycode", "qoder", "openclaw"};
+            "codebuddy", "ccswitch", "joycode", "qoder", "openclaw", "kilo"};
 
     private static int failures = 0;
 

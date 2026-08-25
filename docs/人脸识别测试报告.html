@@ -68,13 +68,22 @@
 <tr><th>#</th><th>场景</th><th>输入</th><th>期望</th><th>实际</th><th>结论</th></tr>
 <tr><td>A1</td><td>入库真人</td><td>1peopleman.png (474×560)</td><td>enroll = true</td><td>true</td><td class="pass">PASS</td></tr>
 <tr><td>A2</td><td>入库动漫</td><td>anime_face1.png (400×500)</td><td>enroll = true</td><td>true</td><td class="pass">PASS</td></tr>
-<tr><td>A3</td><td>真人同图回查</td><td>1peopleman.png</td><td>top1 = man-01</td><td>top1 = man-01</td><td class="pass">PASS</td></tr>
-<tr><td>A4</td><td>动漫同图回查</td><td>anime_face1.png</td><td>top1 = anime-01</td><td>top1 = anime-01</td><td class="pass">PASS</td></tr>
-<tr><td>A5</td><td>跨样本不串域</td><td>anime_face2.png</td><td>top1 ≠ man-01</td><td>top1 = anime-01</td><td class="pass">PASS</td></tr>
-<tr><td>A6</td><td>跨域隔离</td><td>largest_selfie.jpg</td><td>top1 ≠ anime-01</td><td>top1 = man-01</td><td class="pass">PASS</td></tr>
+<tr><td>A3</td><td>真人同图回查</td><td>1peopleman.png</td><td>top1 = man-01</td><td>top1 = man-01（d=0.0000）</td><td class="pass">PASS</td></tr>
+<tr><td>A4</td><td>动漫同图回查</td><td>anime_face1.png</td><td>top1 = anime-01</td><td>top1 = anime-01（d=0.0000）</td><td class="pass">PASS</td></tr>
+<tr><td>A5</td><td>跨样本不串域</td><td>anime_face2.png</td><td>top1 ≠ man-01</td><td>top1 = anime-01（d=0.0207；man-01 d=0.9835）</td><td class="pass">PASS</td></tr>
+<tr><td>A6</td><td>跨域隔离</td><td>largest_selfie.jpg</td><td>top1 ≠ anime-01</td><td>top1 = man-01（14 张脸均正确归入真人域）</td><td class="pass">PASS</td></tr>
 <tr><td>A7</td><td>多脸场景最大脸检测+标注落盘</td><td>anime.jpg (860×573)</td><td>检出并保存标注图</td><td>187×199 @ [153,14] → face-branch\anime.jpg</td><td class="pass">PASS</td></tr>
 </table>
-<p style="font-size:13px;color:var(--mut)">A5/A6 为域隔离软定位用例：仅约束“不得命中对方域 id”，命中同域任一 id 均视为通过。</p>
+<p style="font-size:13px;color:var(--mut)">A5/A6 为域隔离软定位用例：仅约束"不得命中对方域 id"，命中同域任一 id 均视为通过。d = 余弦距离，0 表示完全一致。</p>
+
+<h2>三-B、检索相似度明细</h2>
+<table>
+<tr><th>查询图</th><th>检出人脸</th><th>top1 候选</th><th>余弦距离</th><th>top2 候选</th><th>余弦距离</th></tr>
+<tr><td>1peopleman.png</td><td>1</td><td>man-01</td><td>0.0000</td><td>anime-01</td><td>0.9730</td></tr>
+<tr><td>anime_face1.png</td><td>1</td><td>anime-01</td><td>0.0000</td><td>man-01</td><td>0.9730</td></tr>
+<tr><td>anime_face2.png</td><td>1</td><td>anime-01</td><td>0.0207</td><td>man-01</td><td>0.9835</td></tr>
+<tr><td>largest_selfie.jpg</td><td>14</td><td colspan="4" style="font-size:12.5px">14 张脸逐个检索，全部 man-01 距离 &lt; anime-01 距离（真人域正确归类）；距离分布 [0.8735, 1.0513]</td></tr>
+</table>
 
 <h2>四、检测可视化样张</h2>
 <p>anime.jpg 最大脸标注结果（红框 + 置信度），文件：<code>D:\images\output\face-branch\anime.jpg</code></p>
