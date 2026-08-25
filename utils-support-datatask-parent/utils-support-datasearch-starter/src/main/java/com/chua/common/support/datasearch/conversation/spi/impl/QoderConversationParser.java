@@ -28,6 +28,16 @@ public class QoderConversationParser extends AbstractJsonlConversationParser {
             System.getProperty("user.home"), ".qoder", "projects");
 
     /**
+     * 返回 SPI 名称。
+     *
+     * @return {@code "qoder"}
+     */
+    @Override
+    public String name() {
+        return "qoder";
+    }
+
+    /**
      * 返回会话文件根目录。
      *
      * @return {@code ~/.qoder/projects}

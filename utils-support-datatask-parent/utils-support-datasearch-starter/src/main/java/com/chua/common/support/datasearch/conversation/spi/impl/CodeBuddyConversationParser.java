@@ -40,6 +40,16 @@ public class CodeBuddyConversationParser extends AbstractJsonlConversationParser
             System.getProperty("user.home"), ".codebuddycn", "projects");
 
     /**
+     * 返回 SPI 名称。
+     *
+     * @return {@code "codebuddy"}
+     */
+    @Override
+    public String name() {
+        return "codebuddy";
+    }
+
+    /**
      * 返回会话文件根目录（国际版）。
      *
      * @return {@code ~/.codebuddy/projects}
