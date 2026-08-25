@@ -85,7 +85,12 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
         List<Map<String, Object>> rows = new ArrayList<>();
         content = content.trim();
         if (content.startsWith("[")) {
-            Object obj = new com.fasterxml.jackson.databind.ObjectMapper().readValue(content, Object.class);
+            Object obj;
+            try {
+                obj = new com.fasterxml.jackson.databind.ObjectMapper().readValue(content, Object.class);
+            } catch (Exception e) {
+                return rows;
+            }
             if (obj instanceof List<?> list) {
                 for (Object item : list) {
                     if (item instanceof Map<?, ?> map) {
@@ -96,7 +101,12 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
                 }
             }
         } else if (content.startsWith("{")) {
-            Object obj = new com.fasterxml.jackson.databind.ObjectMapper().readValue(content, Object.class);
+            Object obj;
+            try {
+                obj = new com.fasterxml.jackson.databind.ObjectMapper().readValue(content, Object.class);
+            } catch (Exception e) {
+                return rows;
+            }
             if (obj instanceof Map<?, ?> map) {
                 Map<String, Object> row = new LinkedHashMap<>();
                 map.forEach((k, v) -> row.put(String.valueOf(k), v));

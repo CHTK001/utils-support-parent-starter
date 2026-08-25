@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx.audio.sensevoice;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -120,8 +121,40 @@ public class SenseVoiceTranslator {
 
         loadVocab(tokensPath);
         initHardcodedMetadata();
+        applyModelMetadata(session);
 
         this.prepared = true;
+    }
+
+    /**
+     * 从 ONNX 模型自定义元数据读取完整 CMVN（neg_mean / inv_stddev，560 维）
+     * 及 LFR 参数，覆盖硬编码占位值。
+     *
+     * @param session 已创建的 ORT 会话
+     */
+    private void applyModelMetadata(OrtSession session) throws OrtException {
+        Map<String, String> meta = session.getMetadata().getCustomMetadata();
+        if (meta == null || meta.isEmpty()) {
+            return;
+        }
+        com.fasterxml.jackson.databind.ObjectMapper mapper =
+                new com.fasterxml.jackson.databind.ObjectMapper();
+        float[] nm = parseFloatArray(meta.get("neg_mean"), mapper);
+        float[] is = parseFloatArray(meta.get("inv_stddev"), mapper);
+        if (nm.length > 0) {
+            this.negMean = nm;
+        }
+        if (is.length > 0) {
+            this.invStddev = is;
+        }
+        int ws = intOrDefault(meta, "lfr_window_size", lfrWindowSize);
+        int sh = intOrDefault(meta, "lfr_window_shift", lfrWindowShift);
+        if (ws > 0) {
+            this.lfrWindowSize = ws;
+        }
+        if (sh > 0) {
+            this.lfrWindowShift = sh;
+        }
     }
 
     /** 是否已初始化 */
@@ -177,8 +210,9 @@ public class SenseVoiceTranslator {
         langMap.put("ko", 12);
         langMap.put("yue", 7);
         this.langIds = langMap;
-        this.negMean = new float[] {-8.311879f,-8.600912f,-9.615928f,-10.43595f,-11.21292f,-11.88333f,-12.36243f,-12.63706f};
-        this.invStddev = new float[] {0.155775f,0.154484f,0.1527379f,0.1518718f,0.1506028f,0.1489256f,0.147067f,0.1447061f};
+        // CMVN 不在此硬编码——完整 560 维 neg_mean/inv_stddev 由 applyModelMetadata 从模型元数据读取
+        this.negMean = new float[0];
+        this.invStddev = new float[0];
     }
 
     /** 解析逗号分隔浮点数组 */
