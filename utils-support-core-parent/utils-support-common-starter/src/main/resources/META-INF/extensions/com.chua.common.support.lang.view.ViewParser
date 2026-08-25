@@ -4,5 +4,6 @@ kv=com.chua.common.support.lang.view.KeyValueViewParser
 card=com.chua.common.support.lang.view.CardViewParser
 tree=com.chua.common.support.lang.view.TreeViewParser
 md=com.chua.common.support.lang.view.MarkdownTableViewParser
+plain=com.chua.common.support.lang.view.PlainTableViewParser
 json=com.chua.common.support.lang.view.JsonViewParser
 barchart=com.chua.common.support.lang.view.BarChartViewParser
