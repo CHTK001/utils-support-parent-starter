@@ -51,7 +51,7 @@ public class AudioRecognitionExample {
 
         // Test2: SenseVoice 中文识别
         total++;
-        var svWav = Path.of("C:/Users/Administrator/AppData/Local/Temp/opencode/sensevoice/test_wavs/zh.wav");
+        var svWav = Path.of("C:/Users/Administrator/AppData/Local/Temp/opencode/sensevoice/zh.wav");
         var r2 = Files.exists(svWav)
                 ? runAsr("sensevoice", "zh", svWav, false, false) : "";
         boolean ok2 = r2 != null && !r2.isBlank() && r2.contains("时间");
