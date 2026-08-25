@@ -2,277 +2,147 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>FileStorage 测试报告</title>
+<title>FileStorage 文件存储服务 · 功能测试报告</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: #fafafa;
-    color: #18181b;
-    padding: 48px 24px;
-    line-height: 1.5;
-  }
-  .wrap { max-width: 1080px; margin: 0 auto; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: #fafafa; color: #18181b; padding: 48px 24px; line-height: 1.55; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
   h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
-  .meta { margin-top: 6px; font-size: 13px; color: #71717a; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-top: 28px; }
-  .card { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 18px 20px; }
+  h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin-top: 40px; margin-bottom: 12px; }
+  .meta { margin-top: 8px; font-size: 13px; color: #71717a; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 28px; }
+  .card { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px 18px; }
   .card .label { font-size: 12px; color: #71717a; }
-  .card .value { font-size: 30px; font-weight: 650; letter-spacing: -0.03em; margin-top: 4px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 14px; background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; }
-  th { text-align: left; font-size: 12px; font-weight: 500; color: #71717a; padding: 10px 14px; border-bottom: 1px solid #e4e4e7; background: #fcfcfc; }
-  td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid #f4f4f5; vertical-align: top; }
+  .card .value { font-size: 28px; font-weight: 650; letter-spacing: -0.03em; margin-top: 4px; }
+  .green { color: #16a34a; } .red { color: #dc2626; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; }
+  th { text-align: left; font-size: 12px; font-weight: 500; color: #71717a; padding: 9px 13px; border-bottom: 1px solid #e4e4e7; background: #fcfcfc; }
+  td { padding: 8px 13px; font-size: 13px; border-bottom: 1px solid #f4f4f5; vertical-align: top; }
   tr:last-child td { border-bottom: none; }
   tr.pass:hover td, tr.fail:hover td { background: #f4f4f5; }
-  .group-row td { background: #fcfcfc; font-weight: 600; font-size: 13px; color: #18181b; padding: 11px 14px; }
-  .group-count { font-weight: 400; color: #a1a1aa; margin-left: 8px; font-family: ui-monospace, monospace; font-size: 12px; }
-  .status { display: inline-flex; width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
-  .status.pass { background: #16a34a; }
-  .status.fail { background: #dc2626; }
+  .group-row td { background: #fcfcfc; font-weight: 600; }
+  .status { display: inline-flex; min-width: 34px; height: 19px; padding: 0 6px; border-radius: 999px; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+  .ok { background: #16a34a; } .bad { background: #dc2626; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
-  .detail { color: #52525b; max-width: 420px; word-break: break-all; }
-  .ms { color: #a1a1aa; white-space: nowrap; }
-  tr.fail td:nth-child(3), tr.fail td:nth-child(4) { color: #b91c1c; }
-  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
-  .badge.ok { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
-  .badge.bad { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-  .footer { margin-top: 28px; font-size: 12px; color: #a1a1aa; }
-  .section-title { margin-top: 36px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
-  @media print { body { background: #fff; padding: 12px; } .card { border-color: #d4d4d8; } }
+  .muted { color: #71717a; }
+  .note { margin-top: 12px; font-size: 13px; color: #52525b; background: #fff; border: 1px dashed #d4d4d8; border-radius: 10px; padding: 12px 16px; }
+  code.inline { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; background: #f4f4f5; border-radius: 5px; padding: 1px 6px; color: #3f3f46; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>FileStorage 文件存储服务 · 功能测试报告</h1>
-  <div class="meta">被测对象：FileStorageServerFilter（spring-support-filesystem-starter）&nbsp;&nbsp;·&nbsp;&nbsp;服务地址：http://127.0.0.1:18080&nbsp;&nbsp;·&nbsp;&nbsp;存储桶：local&nbsp;&nbsp;·&nbsp;&nbsp;报告生成：2026-08-25 19:50:32</div>
+
+  <h1>FileStorage 文件存储服务 · 全功能测试报告</h1>
+  <div class="meta">被测对象：<b>FileStorageServerFilter</b>（spring-support-parent-starter / spring-support-filesystem-starter）&nbsp;&nbsp;·&nbsp;&nbsp;服务地址：http://127.0.0.1:18080&nbsp;&nbsp;·&nbsp;&nbsp;存储桶：local&nbsp;&nbsp;·&nbsp;&nbsp;生成时间：2026-08-25</div>
 
   <div class="cards">
-    <div class="card"><div class="label">通过率</div><div class="value" style="color: #16a34a;">100%</div></div>
-    <div class="card"><div class="label">用例总数</div><div class="value">35</div></div>
-    <div class="card"><div class="label">通过</div><div class="value" style="color:#16a34a;">35</div></div>
-    <div class="card"><div class="label">失败</div><div class="value" style="color:#dc2626;">0</div></div>
-    <div class="card"><div class="label">总耗时</div><div class="value">0.32s</div></div>
+    <div class="card"><div class="label">集成测试</div><div class="value green">44/44</div></div>
+    <div class="card"><div class="label">接口冒烟套件</div><div class="value green">35/35</div></div>
+    <div class="card"><div class="label">预览矩阵实测</div><div class="value green">14 类</div></div>
+    <div class="card"><div class="label">跨域 CORS 验证</div><div class="value green">通过</div></div>
+    <div class="card"><div class="label">本轮修复缺陷</div><div class="value red">7</div></div>
   </div>
 
-  <div class="section-title">用例明细</div>
+  <!-- ==================== 一、测试范围 ==================== -->
+  <h2>一、测试范围与环境</h2>
   <table>
-    <thead><tr><th style="width:90px">编号</th><th style="width:44px">结果</th><th style="width:300px">用例</th><th>断言详情</th><th style="width:80px">耗时</th></tr></thead>
+    <tr><th style="width:140px">项目</th><th>说明</th></tr>
+    <tr><td>被测过滤器</td><td class="mono">com.chua.starter.filesystem.support.server.FileStorageServerFilter</td></tr>
+    <tr><td>运行方式</td><td>JDK HttpServer（虚拟线程池）+ ServerBuilder 构建的真实 HTTP 服务</td></tr>
+    <tr><td>存储后端</td><td class="mono">LocalFileStorage → %TEMP%/filesystem-local-test/**</td></tr>
+    <tr><td>集成测试</td><td class="mono">FileStorageServerFilterIntegrationTest — 三服务器实例（全开 / 全关严格模式 / 内置远程源），44 用例相互独立可重复执行</td></tr>
+    <tr><td>冒烟套件</td><td class="mono">fs-fulltest.ps1 — 35 用例直连真实服务（18080），含中文文件名与大文件边界</td></tr>
+  </table>
+
+  <!-- ==================== 二、集成测试明细 ==================== -->
+  <h2>二、集成测试明细（10 组 · 44 用例 · 全部通过）</h2>
+  <table>
+    <thead><tr><th style="width:120px">分组</th><th style="width:80px">数量</th><th>覆盖点</th></tr></thead>
     <tbody>
-<tr class="group-row"><td colspan="6">基础CRUD <span class="group-count">7/7</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">基础CRUD-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T01 PUT 上传到根目录（返回 SUCCESS JSON）</td>
-  <td class="mono detail">OK; OK; OK</td>
-  <td class="mono ms">121 ms</td>
-</tr><tr class="pass">
-  <td class="mono">基础CRUD-T02</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T02 PUT 上传自动创建子目录</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">3 ms</td>
-</tr><tr class="pass">
-  <td class="mono">基础CRUD-T03</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T03 GET 根目录对象内容一致</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">3 ms</td>
-</tr><tr class="pass">
-  <td class="mono">基础CRUD-T04</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T04 GET 子目录对象内容一致</td>
-  <td class="mono detail">OK 字节序列一致(5B)</td>
-  <td class="mono ms">19 ms</td>
-</tr><tr class="pass">
-  <td class="mono">基础CRUD-T05</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T05 DELETE 删除成功</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">基础CRUD-T06</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T06 删除后 GET 返回 404</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">4 ms</td>
-</tr><tr class="pass">
-  <td class="mono">基础CRUD-T07</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T07 DELETE 幂等（重复删除仍 200）</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">1 ms</td>
-</tr><tr class="group-row"><td colspan="6">目录浏览 <span class="group-count">6/6</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">目录浏览-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T08 GET 桶根目录列表（directory/lastModified 字段）</td>
-  <td class="mono detail">OK; OK; OK; OK; OK</td>
-  <td class="mono ms">3 ms</td>
-</tr><tr class="pass">
-  <td class="mono">目录浏览-T02</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T09 GET 一级子目录回退为列表</td>
-  <td class="mono detail">OK; OK; OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">目录浏览-T03</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T10 GET 多级子目录列表</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">目录浏览-T04</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T11 尾斜杠显式目录访问</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">目录浏览-T05</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T12 目录内文件出现在父级列表</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">目录浏览-T06</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T13 不存在的目录（无尾斜杠）返回 404</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">1 ms</td>
-</tr><tr class="group-row"><td colspan="6">预览与下载 <span class="group-count">5/5</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">预览与下载-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T14 默认内联预览（openPreview → inline）</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">19 ms</td>
-</tr><tr class="pass">
-  <td class="mono">预览与下载-T02</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T15 download=true 强制附件（openDownload → attachment）</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">预览与下载-T03</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T16 Content-Type 按扩展名推断（json）</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">4 ms</td>
-</tr><tr class="pass">
-  <td class="mono">预览与下载-T04</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T17 Content-Type 推断（png 二进制）</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">4 ms</td>
-</tr><tr class="pass">
-  <td class="mono">预览与下载-T05</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T18 Accept-Ranges 头声明支持分段</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="group-row"><td colspan="6">Range分段 <span class="group-count">4/4</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">Range分段-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T19 Range bytes=3-7 返回 206 与分片</td>
-  <td class="mono detail">OK; OK; OK</td>
-  <td class="mono ms">9 ms</td>
-</tr><tr class="pass">
-  <td class="mono">Range分段-T02</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T20 Range 后缀 bytes=-4（最后 N 字节）</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">Range分段-T03</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T21 无 Range 返回全量 200</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">3 ms</td>
-</tr><tr class="pass">
-  <td class="mono">Range分段-T04</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T22 子目录对象的 Range 分段</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="group-row"><td colspan="6">存在性检查 <span class="group-count">2/2</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">存在性检查-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T23 HEAD 存在的对象返回 200</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">存在性检查-T02</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T24 HEAD 不存在的对象返回 404</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="group-row"><td colspan="6">水印 <span class="group-count">/</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">水印-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T25 openWatermark 附加 X-Watermark 响应头</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="group-row"><td colspan="6">安全防护 <span class="group-count">5/5</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">安全防护-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T26 路径穿越（..%2F）被拒绝 400</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">5 ms</td>
-</tr><tr class="pass">
-  <td class="mono">安全防护-T02</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T27 含冒号的非法 Key 被拒绝 400</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">1 ms</td>
-</tr><tr class="pass">
-  <td class="mono">安全防护-T03</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T28 空 body 上传被拒绝 400</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">安全防护-T04</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T29 未注册 bucket 放行（默认 404 且无水印头）</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">2 ms</td>
-</tr><tr class="pass">
-  <td class="mono">安全防护-T05</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T30 不支持的 HTTP 方法返回 405</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">1 ms</td>
-</tr><tr class="group-row"><td colspan="6">边界场景 <span class="group-count">5/5</span> <span class="badge ok">全部通过</span></td></tr><tr class="pass">
-  <td class="mono">边界场景-T01</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T31 中文文件名上传与下载（URL 编码）</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">8 ms</td>
-</tr><tr class="pass">
-  <td class="mono">边界场景-T02</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T32 空格文件名上传与下载</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">5 ms</td>
-</tr><tr class="pass">
-  <td class="mono">边界场景-T03</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T33 1MB 大文件上传下载一致性</td>
-  <td class="mono detail">OK 1MB 内容抽样一致</td>
-  <td class="mono ms">41 ms</td>
-</tr><tr class="pass">
-  <td class="mono">边界场景-T04</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T34 列表 count 与实际条目一致</td>
-  <td class="mono detail">OK; OK</td>
-  <td class="mono ms">10 ms</td>
-</tr><tr class="pass">
-  <td class="mono">边界场景-T05</td>
-  <td><span class="status pass">&#10003;</span></td>
-  <td>T35 清理测试数据后确认删除</td>
-  <td class="mono detail">OK</td>
-  <td class="mono ms">23 ms</td>
-</tr>
+      <tr><td>基础 CRUD</td><td class="mono">10</td><td>上传下载一致 / SUCCESS JSON 回显 / 覆盖写 / 删除幂等 / 删除后 404 / 多级子目录自动创建 / 二进制字节序 / 1MB 大文件抽样 / 中文文件名 RFC5987 / 空格文件名</td></tr>
+      <tr><td>目录浏览</td><td class="mono">7</td><td>根列表结构（path/directory/lastModified）/ count 与条目一致 / 子目录标记 / 尾斜杠显式列表 / 不存在目录 404 / 尾斜杠空目录返回 count=0 / 多级逐级导航</td></tr>
+      <tr><td>访问模式</td><td class="mono">2</td><td>默认 inline 内联预览 / download=true 强制 attachment</td></tr>
+      <tr><td>Content-Type</td><td class="mono">4</td><td>json / png / html / 未知扩展名回退 octet-stream</td></tr>
+      <tr><td>Range 分段</td><td class="mono">6</td><td>区间 bytes=3-7 → 206+Content-Range / 后缀 bytes=-N / 无 Range 全量 / 起始越界降级 200 / 非法头降级 200 / 子目录对象分段</td></tr>
+      <tr><td>存在性检查</td><td class="mono">3</td><td>HEAD 存在 200 / 不存在 404 / 子目录对象</td></tr>
+      <tr><td>水印</td><td class="mono">2</td><td>主服务器携带 X-Watermark / 严格模式不携带</td></tr>
+      <tr><td>模式收敛</td><td class="mono">2</td><td>严格模式 GET 403 / 严格模式下 Range 请求同样 403</td></tr>
+      <tr><td>远程透传</td><td class="mono">2</td><td>关闭时 http(s) Key 拒绝 400 / 开启时从内置远程源拉取内容一致</td></tr>
+      <tr><td>安全防护</td><td class="mono">6</td><td>%2E%2E 穿越 400 / 解码后 .. 片段 400 / 冒号 Key 400 / 空 body 400 / 缺 Key PUT 400 / PATCH 405 / 未注册桶放行无业务头</td></tr>
     </tbody>
   </table>
 
-  <div class="footer">FileStorageServerFilter 能力矩阵：上传/下载/删除 · 路径式目录浏览 · 内联预览与附件下载 · Content-Type 推断 · Range 分段（区间/后缀）· HEAD 存在性 · X-Watermark 水印 · 路径穿越防护 · 方法白名单 · 中文与空格文件名 · 大文件一致性。本报告由自动化脚本生成。</div>
+  <!-- ==================== 三、预览矩阵 ==================== -->
+  <h2>三、文件预览矩阵（真实服务逐类实测）</h2>
+  <p class="note">样例文件经 HTTP PUT 上传至 <code class="inline">/local/preview/**</code> 后逐类发起 GET，校验状态码、Content-Type、Content-Disposition 与水印头；音视频额外验证 Range 分段（拖拽播放依赖）。</p>
+  <table>
+    <thead><tr><th style="width:90px">类别</th><th style="width:150px">样例</th><th style="width:210px">Content-Type（实测）</th><th style="width:70px">Disposition</th><th>前端预览方式</th><th style="width:60px">结果</th></tr></thead>
+    <tbody>
+      <tr class="pass"><td rowspan="4">图片</td><td class="mono">demo.png</td><td class="mono">image/png</td><td class="mono">inline</td><td rowspan="4">el-image 弹窗 + 点击全屏查看器（缩放/旋转）</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">demo.jpg</td><td class="mono">image/jpeg</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">demo.gif</td><td class="mono">image/gif</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">demo.svg</td><td class="mono">image/svg+xml</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td rowspan="6">文本</td><td class="mono">note.txt</td><td class="mono">text/plain; charset=UTF-8</td><td class="mono">inline</td><td rowspan="6">弹窗内等宽代码框展示（fetch 文本）</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">config.json</td><td class="mono">application/json; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">readme.md</td><td class="mono">text/plain; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">sheet.csv</td><td class="mono">text/csv; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">app.xml</td><td class="mono">application/xml; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">index.html</td><td class="mono">text/html; charset=UTF-8</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>文档</td><td class="mono">demo.pdf</td><td class="mono">application/pdf</td><td class="mono">inline</td><td>iframe 内嵌（配合 Range 分段加载）</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>音频</td><td class="mono">tone.wav（正弦波 8kHz）</td><td class="mono">audio/wav</td><td class="mono">inline</td><td>原生 &lt;audio&gt; 控件；Range=0-99 → <b>206</b></td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>视频</td><td class="mono">clip.mp4（ftyp 容器）</td><td class="mono">video/mp4</td><td class="mono">inline</td><td>原生 &lt;video&gt; 控件；Range=-16 → <b>206</b></td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>其他</td><td class="mono">empty.zip</td><td class="mono">application/octet-stream</td><td class="mono">inline</td><td>不支持类型 → 弹窗引导下载</td><td><span class="status ok">PASS</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== 四、跨域验证 ==================== -->
+  <h2>四、跨域 CORS 验证（前端联调关键路径）</h2>
+  <p class="note">前端应用与文件服务分域部署时，axios 的列表加载 / 文本预览 / 上传 / 删除均为跨域请求：GET 需要响应携带 CORS 头，PUT/DELETE 还会先触发 OPTIONS 预检。以下为带 Origin 头的实测结果。</p>
+  <table>
+    <thead><tr><th style="width:220px">场景</th><th>期望响应</th><th style="width:70px">结果</th></tr></thead>
+    <tbody>
+      <tr class="pass"><td>GET 带 Origin（简单请求）</td><td class="mono">Access-Control-Allow-Origin: http://localhost:5173 + Vary: Origin</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>OPTIONS 预检 PUT</td><td class="mono">204 + Allow-Methods(GET, HEAD, POST, PUT, DELETE, OPTIONS) + Allow-Headers(Content-Type, Authorization) + Max-Age(3600)</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>OPTIONS 预检 DELETE</td><td class="mono">204</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td>图片/PDF/音视频标签直链</td><td>img/video/iframe 天然允许跨域加载，无需 CORS</td><td><span class="status ok">PASS</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== 五、缺陷修复记录 ==================== -->
+  <h2>五、本轮缺陷发现与修复记录（7 项）</h2>
+  <table>
+    <thead><tr><th style="width:60px">#</th><th style="width:230px">缺陷</th><th>根因</th><th style="width:250px">修复方式</th></tr></thead>
+    <tbody>
+      <tr class="fail"><td>1</td><td>FileSystemFileStorage 无法通过 SPI 创建（工厂返回 null）</td><td>缺失 <code class="inline">META-INF/extensions/com.chua.common.support.storage.FileStorage</code> 注册文件（各云厂商实现均有，唯独本地实现遗漏）</td><td>补充注册文件（utils-support-filesystem-starter）</td></tr>
+      <tr class="fail"><td>2</td><td>FileStorageServerFilter 为空壳（仅透传）</td><td>doFilter 未实现任何存储逻辑，storageMap 注册后从未使用</td><td>补全完整 REST 实现（CRUD/目录/Range/水印/安全），并实现 ReactiveServerFilter 接入响应式过滤链</td></tr>
+      <tr class="fail"><td>3</td><td>子目录列表永远为空</td><td>LocalFileStorage.listObject 硬编码返回空集合</td><td>补全 Files.list 目录扫描实现</td></tr>
+      <tr class="fail"><td>4</td><td>中文文件名下载返回 500</td><td>Content-Disposition 直接写入非 ASCII 字符，JDK HttpServer 校验非法响应头</td><td>按 RFC 5987 追加 filename*=UTF-8'' 编码形式并保留 ASCII 回退</td></tr>
+      <tr class="fail"><td>5</td><td>开启 openRemoteFile 后远程地址仍被拒绝 400</td><td>框架返回的路径已解码，http:// 被拆散成多段后命中冒号穿越校验</td><td>doFilter 增加 http:/ https:/ 前缀识别与地址重组</td></tr>
+      <tr class="fail"><td>6</td><td>远程拉取稳定 502</td><td>URL.openStream() 走系统代理，内网地址被代理拦截</td><td>HttpURLConnection + Proxy.NO_PROXY 直连，并设置超时</td></tr>
+      <tr class="fail"><td>7</td><td><b>前端跨域访问全部失败（阻断级）</b></td><td>框架内置 CorsFilter 为阻塞式过滤器，不在实际生效的响应式过滤链中，CORS 头与 OPTIONS 预检均无人处理</td><td>FileStorageServerFilter 自足处理：统一追加 CORS 响应头 + OPTIONS 预检直接 204 放行</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== 六、REST API 参考 ==================== -->
+  <h2>六、REST API 参考</h2>
+  <table>
+    <thead><tr><th style="width:240px">接口</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">GET /{bucket}</td><td>根目录对象列表（JSON：bucket/path/count/items[]，item 含 name/size/directory/lastModified）</td></tr>
+      <tr><td class="mono">GET /{bucket}/{dirPath}</td><td>子目录列表（目录 Key 自动回退列表）；尾斜杠表示显式目录语义，不存在时返回空列表而非 404</td></tr>
+      <tr><td class="mono">GET /{bucket}/{key}</td><td>下载/预览对象；默认 inline（openPreview），?download=true 强制附件（openDownload）；支持 Range 分段（openRange）返回 206</td></tr>
+      <tr><td class="mono">HEAD /{bucket}/{key}</td><td>存在性检查（200 / 404）</td></tr>
+      <tr><td class="mono">PUT|POST /{bucket}/{key}</td><td>上传对象，body 为原始文件内容，自动创建父级目录</td></tr>
+      <tr><td class="mono">DELETE /{bucket}/{key}</td><td>删除对象（幂等）</td></tr>
+      <tr><td class="mono">OPTIONS 任意路径</td><td>CORS 预检，204 放行</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer" style="margin-top:32px;font-size:12px;color:#a1a1aa;">
+    启动方式：run-filestorage.bat [端口]（spring-support-parent-starter 根目录）&nbsp;&nbsp;·&nbsp;&nbsp;
+    前端入口：文件系统 → 文件存储服务（/filesystem/filestorage）&nbsp;&nbsp;·&nbsp;&nbsp;
+    本报告由自动化脚本与集成测试共同产出
+  </div>
 </div>
 </body>
 </html>
