@@ -2,7 +2,7 @@ package com.chua.common.support.datasearch.pricing;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
-import com.chua.common.support.datasearch.pricing.spi.PricingProvider;
+import com.chua.common.support.datasearch.pricing.spi.ModelMetricsProvider;
 import com.chua.common.support.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +51,12 @@ public final class PricingSyncer {
         if (loader == null) {
             return 0;
         }
-        Map<String, PricingProvider> providers = ServiceProvider.of(PricingProvider.class).list();
+        Map<String, ModelMetricsProvider> providers = ServiceProvider.of(ModelMetricsProvider.class).list();
         if (providers == null || providers.isEmpty()) {
             return 0;
         }
         int total = 0;
-        for (Map.Entry<String, PricingProvider> entry : providers.entrySet()) {
+        for (Map.Entry<String, ModelMetricsProvider> entry : providers.entrySet()) {
             try {
                 entry.getValue().syncFromOnline();
                 total++;
@@ -82,9 +82,9 @@ public final class PricingSyncer {
         int total = 0;
         for (String name : names) {
             try {
-                PricingProvider provider = ServiceProvider.of(PricingProvider.class).getNewExtension(name);
+                ModelMetricsProvider provider = ServiceProvider.of(ModelMetricsProvider.class).getNewExtension(name);
                 if (provider == null) {
-                    provider = ServiceProvider.of(PricingProvider.class).getExtension(name);
+                    provider = ServiceProvider.of(ModelMetricsProvider.class).getExtension(name);
                 }
                 if (provider != null) {
                     provider.syncFromOnline();
@@ -107,18 +107,16 @@ public final class PricingSyncer {
         if (loader == null) {
             return Collections.emptyList();
         }
-        Map<String, PricingProvider> providers = ServiceProvider.of(PricingProvider.class).list();
+        Map<String, ModelMetricsProvider> providers = ServiceProvider.of(ModelMetricsProvider.class).list();
         if (providers == null || providers.isEmpty()) {
             return Collections.emptyList();
         }
         List<ModelDefinition> result = new ArrayList<>();
-        for (Map.Entry<String, PricingProvider> entry : providers.entrySet()) {
+        for (Map.Entry<String, ModelMetricsProvider> entry : providers.entrySet()) {
             try {
-                result.addAll(entry.getValue().getPricing());
+                result.addAll(entry.getValue().getMetrics());
             } catch (Exception e) {
                 log.warn("[PricingSyncer] 加载厂商[{}]定价失败: {}", entry.getKey(), e.getMessage());
             }
         }
-        return result;
-    }
-}
+        return result
