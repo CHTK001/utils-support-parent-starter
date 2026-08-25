@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiOrder;
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.common.support.utils.NativeUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -41,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Spi("image-processor")
 @SpiOrder(100)
+@Slf4j
 public class RustImageProcessor implements ImageProcessor {
 
     /**
@@ -99,9 +101,9 @@ public class RustImageProcessor implements ImageProcessor {
                 // v0.1 库可能没有此函数，回退到 malloc 版
             }
             LOADED.set(true);
-            System.out.println("[RustImageProcessor] 原生库加载成功" + (useSharedBuffer ? "（共享内存模式）" : "（malloc 模式）"));
+            log.info("[RustImageProcessor] 原生库加载成功{}（{}模式）", useSharedBuffer ? "，共享内存" : "", useSharedBuffer ? "共享内存" : "malloc");
         } catch (Throwable e) {
-            System.err.println("[RustImageProcessor] 原生库加载失败，回退到 AWT: " + e.getMessage());
+            log.warn("[RustImageProcessor] 原生库加载失败，回退到 AWT: {}", e.getMessage());
         }
     }
 
