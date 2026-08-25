@@ -847,7 +847,9 @@
       "translator": "null",
       "capability": "语音",
       "path": "audio/tts/mms-tts-eng/model_quantized.onnx",
-      "status": "documented"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "英文 TTS PASS：TextToAudioClientExample onnx provider 合成 34860B WAV"
     },
     {
       "id": "mobile-bert-zero-shot-classification",
@@ -1252,7 +1254,9 @@
       "translator": "null",
       "capability": "语音",
       "path": "audio/asr/sensevoice-small/model.int8.onnx",
-      "status": "pending"
+      "status": "issue",
+      "date": "2026-08-25",
+      "notes": "SenseVoiceAudioClient(provider=sensevoice) 加载正常、7.4s 推理；但对有效中文语音(TTS 合成 8k/16k 均试)仅输出无关 token \"<|EMO_UNKNOWN|>The.\"——前端 DSP(Kaldi fbank/LFR/CMVN)实现完整，疑 decode 或 language-token 问题待排查"
     },
     {
       "id": "siglip-zero-shot-classification",
@@ -1580,7 +1584,9 @@
       "translator": "yolo.v2.Yolov2CocoTranslator",
       "capability": "目标检测",
       "path": "null",
-      "status": "pending"
+      "status": "issue",
+      "date": "2026-08-25",
+      "notes": "注册残缺：relativePath=null 且与 yolov2-coco 重复注册同一 translator，无法定位模型资源"
     },
     {
       "id": "yolov5-plate-recognize",

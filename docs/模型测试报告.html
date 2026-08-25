@@ -3198,8 +3198,8 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（209 个注册模型，更新于 2026-08-26）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 28　🧪 冒烟通过（无正样本） 7　🐞 发现缺陷 0　📄 已有记录 149　⬜ 未测试 25</p>
-<p>待测试清单（25）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`yolo-face-person`、`yolov2-coco-v2`</p>
+<p>状态统计：✅ 实测通过 29　🧪 冒烟通过（无正样本） 7　🐞 发现缺陷 2　📄 已有记录 148　⬜ 未测试 23</p>
+<p>待测试清单（23）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`svtr-extractor`、`yolo-face-person`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
@@ -3374,6 +3374,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>yolov8s</code></td><td>✅ 实测通过</td><td>yolo.v8.translator.YoloV8sTranslator</td><td>1people.png→40；more car plate.webp→63</td></tr>
 <tr><td><code>yolov8s-world</code></td><td>✅ 实测通过</td><td>yoloworld.YoloWorldDetectorTranslator</td><td>1people.png→2；more car plate.webp→0；fire.webp→0（阈值验证 {'0.5': '过滤 cup 误检'}）</td></tr>
 <tr><td><code>seal-inspection</code></td><td>🧪 冒烟通过（无正样本）</td><td>yolo.SealInspectionTranslator</td><td></td></tr>
+<tr><td><code>yolov2-coco-v2</code></td><td>🐞 发现缺陷</td><td>yolo.v2.Yolov2CocoTranslator</td><td></td></tr>
 <tr><td><code>grounding-dino</code></td><td>📄 已有记录</td><td>dino.GroundingDinoTranslator</td><td></td></tr>
 <tr><td><code>yolo11-odd</code></td><td>📄 已有记录</td><td>yolo.v11.translator.Yolo11OddTranslator</td><td></td></tr>
 <tr><td><code>yolo26-obb</code></td><td>📄 已有记录</td><td>yolo.v26.translator.Yolo26ObbTranslator</td><td></td></tr>
@@ -3382,7 +3383,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>yolov2-coco</code></td><td>📄 已有记录</td><td>yolo.v2.translator.Yolov2CocoTranslator</td><td></td></tr>
 <tr><td><code>yolov8l-world</code></td><td>📄 已有记录</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
 <tr><td><code>yolov8m-world</code></td><td>📄 已有记录</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
-<tr><td><code>yolov2-coco-v2</code></td><td>⬜ 未测试</td><td>yolo.v2.Yolov2CocoTranslator</td><td></td></tr>
 </tbody></table>
 <h3>自然语言（31）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -3432,12 +3432,12 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <h3>语音（7）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>dfsmn-ans</code></td><td>✅ 实测通过</td><td>audio.denoise.DfsmnAnsTranslator</td><td></td></tr>
+<tr><td><code>mms-tts-eng</code></td><td>✅ 实测通过</td><td>null</td><td></td></tr>
 <tr><td><code>vits-icefall-zh</code></td><td>✅ 实测通过</td><td>null</td><td></td></tr>
 <tr><td><code>whisper-tiny</code></td><td>🧪 冒烟通过（无正样本）</td><td>null</td><td></td></tr>
-<tr><td><code>mms-tts-eng</code></td><td>📄 已有记录</td><td>null</td><td></td></tr>
+<tr><td><code>sensevoice</code></td><td>🐞 发现缺陷</td><td>null</td><td></td></tr>
 <tr><td><code>pocket-tts</code></td><td>📄 已有记录</td><td>null</td><td></td></tr>
 <tr><td><code>neutts-2e</code></td><td>⬜ 未测试</td><td>llama.translator.NeuTts2eTranslator</td><td></td></tr>
-<tr><td><code>sensevoice</code></td><td>⬜ 未测试</td><td>null</td><td></td></tr>
 </tbody></table>
 <h3>超分辨率/增强（9）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
