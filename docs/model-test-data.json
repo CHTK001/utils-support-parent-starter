@@ -210,7 +210,8 @@
       "translator": "action.C3DActionDetectionTranslator",
       "capability": "视觉理解",
       "path": "vision/action/c3d/model.onnx",
-      "status": "pending"
+      "status": "pending",
+      "notes": "需要视频输入（smoking.mp4 等），本地无测试视频暂缓"
     },
     {
       "id": "card-correction-detector",
@@ -586,7 +587,9 @@
       "translator": "text.gemma3.Gemma3Translator",
       "capability": "大语言模型(LLM)",
       "path": "models/gemma-3-270m/model.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "Gemma3Example ALL PASS：416MB ONNX 对话生成正常（270M 小模型输出质量有限属预期）"
     },
     {
       "id": "gemma-4-e2b",
@@ -1432,7 +1435,21 @@
       "translator": "face.YoloFaceTranslator",
       "capability": "人脸",
       "path": "face/detection/yolo11n-face.onnx",
-      "status": "pending"
+      "status": "smoke",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 5,
+        "3peoplebeauty.jpg": 3,
+        "largest_selfie.jpg": 0
+      },
+      "threshold": {
+        "default": 0.85,
+        "tested": {
+          "0.25": "5/3/0",
+          "0.45": "5/3/0"
+        }
+      },
+      "notes": "中大型人脸可用(3people 3/3)；默认阈值 0.85 过高致 0 检出需调低使用；1people 单人检出多框疑似 NMS 去重不足；large_selfie 小脸全漏（模型能力边界）"
     },
     {
       "id": "yolo-face-emotion",
