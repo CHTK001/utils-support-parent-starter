@@ -341,6 +341,8 @@ public class SipServer extends AbstractServer implements TcpServer {
         boolean fromVisitor = "visitor".equals(from.role);
         String peerKey = (fromVisitor ? channel.bId() : channel.aId()) + "|" + (fromVisitor ? "provider" : "visitor");
         from.channels.add(channelId);
+
+        // 通道关闭标记
         if (payload.length == 0) {
             muxPending.remove(channelId + "|" + peerKey);
             MuxServerConn peer = muxConns.get(peerKey);
@@ -349,22 +351,32 @@ public class SipServer extends AbstractServer implements TcpServer {
             }
             return;
         }
+
+        // 对端连接已注册即可发送：对端客户端的 earlyFrames 会缓冲 attach 前的帧
         MuxServerConn peer = muxConns.get(peerKey);
         if (peer != null) {
             peer.sendFrame(channelId, payload);
             return;
         }
+
+        // 对端连接未注册：缓冲完整帧，注册时冲刷
+        byte[] ch = uuidBytes(channelId);
+        ByteBuffer buffer = ByteBuffer.allocate(4 + 16 + payload.length);
+        buffer.putInt(16 + payload.length);
+        buffer.put(ch);
+        buffer.put(payload);
+        byte[] fullFrame = buffer.array();
         List<byte[]> pending = muxPending.computeIfAbsent(channelId + "|" + peerKey,
                 k -> java.util.Collections.synchronizedList(new ArrayList<>()));
         synchronized (pending) {
             if (pending.size() < 256) {
-                pending.add(payload);
+                pending.add(fullFrame);
             }
         }
     }
 
     /**
-     * 冲刷暂存帧：新复用连接注册后，补发等它的一切帧。
+     * 冲刷暂存帧：对端复用连接注册后补发（对端客户端 earlyFrames 会缓冲至流挂载）。
      *
      * @param conn 新注册的连接
      */
@@ -373,17 +385,24 @@ public class SipServer extends AbstractServer implements TcpServer {
             if (!entry.getKey().endsWith("|" + conn.key)) {
                 continue;
             }
+            String channelId = entry.getKey().substring(0, entry.getKey().indexOf('|'));
             List<byte[]> list = entry.getValue();
             synchronized (list) {
-                for (byte[] payload : list) {
-                    String channelId = entry.getKey().substring(0, entry.getKey().indexOf('|'));
-                    conn.sendFrame(channelId, payload);
+                for (byte[] fullFrame : list) {
+                    conn.sendRaw(fullFrame);
                 }
                 list.clear();
             }
             muxPending.remove(entry.getKey(), list);
         }
     }
+
+    /**
+     * 冲刷暂存帧：新复用连接注册后，补发等它的一切帧。
+     *
+     * @param conn 新注册的连接
+     */
+
 
     /**
      * 逐字节读取首行（遇换行停止），不预读缓冲后续字节，保证数据平面业务字节不被吞掉。
@@ -860,6 +879,7 @@ public class SipServer extends AbstractServer implements TcpServer {
                     String channelId = uuidString(java.util.Arrays.copyOfRange(frame, 0, 16));
                     byte[] payload = new byte[len - 16];
                     System.arraycopy(frame, 16, payload, 0, payload.length);
+                    log.info("SIP mux recv: key={}, ch={}, payload={}", key, channelId, payload.length);
                     muxRoute(this, channelId, payload);
                 }
             } catch (IOException e) {
@@ -873,6 +893,21 @@ public class SipServer extends AbstractServer implements TcpServer {
          * @param channelId 通道标识
          * @param payload   负载（空为关闭标记）
          */
+        /**
+         * 直接写出完整帧（含长度头与 channelId）。
+         *
+         * @param fullFrame 完整帧
+         */
+        void sendRaw(byte[] fullFrame) {
+            try {
+                synchronized (out) {
+                    out.write(fullFrame);
+                    out.flush();
+                }
+            } catch (IOException e) {
+                log.debug("SIP mux 帧发送失败: key={}, {}", key, e.getMessage());
+            }
+        }
         void sendFrame(String channelId, byte[] payload) {
             try {
                 byte[] ch = uuidBytes(channelId);

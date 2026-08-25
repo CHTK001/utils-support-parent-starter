@@ -60,6 +60,16 @@ public class SipTunnelSession {
     private volatile SipTunnelStream dataStream;
 
     /**
+     * 多路复用虚拟流（mux 模式下替代 dataStream）
+     */
+    private volatile SipMuxStream muxStream;
+
+    /**
+     * 早期数据缓冲（bytesListeners 注册前到达的数据，注册时补发）
+     */
+    private final List<byte[]> earlyData = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
+
+    /**
      * 创建隧道会话。
      *
      * @param client      关联的 SIP 客户端
@@ -105,6 +115,15 @@ public class SipTunnelSession {
      * @param data 字节数据
      */
     public void sendBytes(byte[] data) {
+        SipMuxStream mux = muxStream;
+        if (mux != null) {
+            if (!mux.isClosed()) {
+                mux.send(data);
+            } else {
+                log.debug("SIP sendBytes skipped(mux closed): channel={}", channelId);
+            }
+            return;
+        }
         SipTunnelStream stream = dataStream;
         if (stream != null && !stream.isClosed()) {
             try {
@@ -136,6 +155,15 @@ public class SipTunnelSession {
      */
     public SipTunnelSession onBytes(Consumer<byte[]> listener) {
         bytesListeners.add(listener);
+        synchronized (earlyData) {
+            for (byte[] data : earlyData) {
+                try {
+                    listener.accept(data);
+                } catch (Exception ignored) {
+                }
+            }
+            earlyData.clear();
+        }
         return this;
     }
 
@@ -166,11 +194,24 @@ public class SipTunnelSession {
     }
 
     /**
+     * 挂载多路复用虚拟流。
+     *
+     * @param stream 虚拟流
+     */
+    void attachMuxStream(SipMuxStream stream) {
+        this.muxStream = stream;
+    }
+
+    /**
      * 是否已启用数据平面。
      *
      * @return true 表示已启用
      */
     public boolean isStreamActive() {
+        SipMuxStream mux = muxStream;
+        if (mux != null) {
+            return !mux.isClosed();
+        }
         return dataStream != null && !dataStream.isClosed();
     }
 
@@ -178,6 +219,10 @@ public class SipTunnelSession {
      * 关闭通道。
      */
     public void close() {
+        SipMuxStream mux = muxStream;
+        if (mux != null) {
+            mux.close();
+        }
         SipTunnelStream stream = dataStream;
         if (stream != null) {
             stream.close();
@@ -231,6 +276,14 @@ public class SipTunnelSession {
      * @param data 原始字节数据
      */
     void dispatchBytes(byte[] data) {
+        synchronized (earlyData) {
+            if (bytesListeners.isEmpty()) {
+                if (earlyData.size() < 256) {
+                    earlyData.add(data);
+                }
+                return;
+            }
+        }
         if (!open) {
             return;
         }

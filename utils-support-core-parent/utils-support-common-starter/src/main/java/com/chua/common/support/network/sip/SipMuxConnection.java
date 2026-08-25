@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -69,6 +70,16 @@ class SipMuxConnection {
     private final Map<String, SipMuxStream> streams = new ConcurrentHashMap<>();
 
     /**
+     * 早期帧缓冲（stream 尚未 attach 时到达的帧，attach 后补发）
+     */
+    private final Map<String, List<byte[]>> earlyFrames = new ConcurrentHashMap<>();
+
+    /**
+     * attach 前已关闭的通道
+     */
+    private final java.util.Set<String> earlyClosed = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /**
      * 是否已关闭
      */
     private volatile boolean closed;
@@ -120,12 +131,21 @@ class SipMuxConnection {
     }
 
     /**
-     * 挂载虚拟流。
+     * 挂载虚拟流（并补发早期帧）。
      *
      * @param stream 虚拟流
      */
     void attach(SipMuxStream stream) {
         streams.put(stream.channelId(), stream);
+        List<byte[]> early = earlyFrames.remove(stream.channelId());
+        if (early != null) {
+            for (byte[] payload : early) {
+                stream.dispatch(payload);
+            }
+        }
+        if (earlyClosed.remove(stream.channelId())) {
+            stream.peerClosed();
+        }
     }
 
     /**
@@ -136,6 +156,7 @@ class SipMuxConnection {
      * @throws IOException IO 异常
      */
     void sendFrame(String channelId, byte[] payload) throws IOException {
+        log.info("SIP mux send: role={}, ch={}, payload={}", role, channelId, payload.length);
         synchronized (out) {
             byte[] ch = uuidBytes(channelId);
             ByteBuffer buffer = ByteBuffer.allocate(4 + CH_LEN + payload.length);
@@ -208,6 +229,19 @@ class SipMuxConnection {
                 System.arraycopy(frame, CH_LEN, payload, 0, payload.length);
                 SipMuxStream stream = streams.get(channelId);
                 if (stream == null) {
+                    // stream 未 attach：缓冲早期帧（关闭标记记入 earlyClosed），attach 时补发
+                    if (payload.length == 0) {
+                        earlyClosed.add(channelId);
+                    } else {
+                        List<byte[]> early = earlyFrames.computeIfAbsent(channelId,
+                                k -> java.util.Collections.synchronizedList(new java.util.ArrayList<>()));
+                        synchronized (early) {
+                            if (early.size() < 256) {
+                                early.add(payload);
+                            }
+                        }
+                        log.info("SIP mux 早期帧缓冲: role={}, ch={}, payload={}", role, channelId, payload.length);
+                    }
                     continue;
                 }
                 if (payload.length == 0) {

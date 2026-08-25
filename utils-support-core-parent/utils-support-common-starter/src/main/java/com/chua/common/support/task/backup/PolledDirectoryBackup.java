@@ -1,5 +1,7 @@
 package com.chua.common.support.task.backup;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -35,6 +37,7 @@ import java.util.List;
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class PolledDirectoryBackup implements BackupStrategy {
 
     /**
@@ -140,8 +143,8 @@ public class PolledDirectoryBackup implements BackupStrategy {
         Files.createDirectories(backupSubDir);
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
+            /** 转换并备份单个已处理文件，失败仅告警并跳过 */
             @Override
-            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     String fileName = file.getFileName().toString();
@@ -166,7 +169,8 @@ public class PolledDirectoryBackup implements BackupStrategy {
                     Files.writeString(backupFile, insertRecord);
                     backedUp.add(backupFile);
 
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.warn("轮询备份跳过文件: {}", file, e);
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -175,15 +179,19 @@ public class PolledDirectoryBackup implements BackupStrategy {
         return backedUp;
     }
 
+    /**
+     * 清理过期备份，委托给 {@link DefaultDailyBackupStrategy}。
+     */
     @Override
-    /** CleanExpired */
     public int cleanExpired(BackupConfig config) {
         DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
         return delegate.cleanExpired(config);
     }
 
+    /**
+     * 列出全部备份文件，委托给 {@link DefaultDailyBackupStrategy}。
+     */
     @Override
-    /** ListBackups */
     public List<Path> listBackups(BackupConfig config) {
         DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
         return delegate.listBackups(config);

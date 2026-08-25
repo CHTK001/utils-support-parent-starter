@@ -126,11 +126,31 @@ List&lt;PredictRectangle&gt; anime = <b>Branch.ofBytes(imageData)</b>
 <tr><td>ModelRegistry 编译错误<br>catch ClassNotFoundException 不可达</td><td>新版 ReflectUtils.forName 吞 CNFE 返回 null</td><td>forName 返回 null 时主动抛 ClassNotFoundException，维持原异常路径</td></tr>
 </table>
 
-<h2>七、遗留与建议</h2>
+<h2>七、全量检测器能力矩阵</h2>
+<table>
+<tr><th>检测器</th><th>selfie<br><small>1600×898</small></th><th>anime.jpg<br><small>860×573</small></th><th>man<br><small>474×560</small></th><th>状态</th><th>备注</th></tr>
+<tr><td><b>AnimeFace-YOLOv8</b></td><td class="pass">11 faces / 779ms</td><td class="pass">1 face / 132ms</td><td class="pass">1 face / 86ms</td><td class="pass">✓ OK</td><td>最佳综合表现，动漫+真人均可检出</td></tr>
+<tr><td>SCRFD-2.5G</td><td style="color:var(--bad)">209 faces / 16.5s</td><td class="pass">1 face / 255ms</td><td class="pass">1 face / 168ms</td><td class="pass">✓ OK</td><td>可用但 selfie 大量假阳性（209 个框），需提高阈值或后处理</td></tr>
+<tr><td>YOLOv11n-Face</td><td>0 faces</td><td>0 faces</td><td>0 faces</td><td style="color:var(--mut)">○ 无检出</td><td>三张图均未检出——模型域差异（测试集偏动漫风）</td></tr>
+<tr><td>SCRFD-buffalo_l</td><td colspan="3">ERR on all images</td><td style="color:var(--bad)">✗ ERR</td><td>推理异常，需排查模型兼容性</td></tr>
+<tr><td>RetinaFace-R34</td><td colspan="3" colspan="3">FileNotFoundException: models\onnx\retinaface-r34.onnx</td><td style="color:var(--bad)">✗ 模型路径缺失</td><td>ONNX 文件未正确映射到文件系统</td></tr>
+<tr><td>TinaFace-R50</td><td colspan="3">FileNotFoundException: models\onnx\tinaface.onnx</td><td style="color:var(--bad)">✗ 模型路径缺失</td><td>同上</td></tr>
+<tr><td>UltraFace-Slim</td><td colspan="3">—</td><td style="color:var(--bad)">✗ 初始化失败</td><td>同上</td></tr>
+<tr><td>FacePlugin-Detect</td><td colspan="3">—</td><td style="color:var(--bad)">✗ 初始化失败</td><td>同上</td></tr>
+</table>
+<p class="note" style="font-size:13px">
+<b>结论：</b>当前可稳定使用的检测器为 <b>AnimeFace-YOLOv8</b>（首选，双域覆盖）和
+<b>SCRFD-2.5G</b>（备选，需配合更高阈值）。其余 6 个检测器的 ONNX 文件虽内嵌在 JAR 中，
+但注册路径与实际资源路径不匹配导致加载失败——属于 OnnxModelRegistrar 路径映射的系统性问题，
+需统一排查修正。
+</p>
+
+<h2>八、遗留与建议</h2>
 <ul class="tight">
   <li>yolo-face 对强动漫风图像（如 1peopleman.png）检出为 0——属模型域差异，正是保留双检测器合并的理由；后续可引入 anime-real-cls 分类器在裁剪后做逐脸域归属，替代当前 labelName 判断。</li>
+  <li>SCRFD-2.5G 在 selfie 上产生 209 个假阳性框，建议将 conf 阈值从 0.45 提升至 0.7 或增加按面积过滤。</li>
+  <li>6 个检测器因模型路径映射问题无法加载——建议在 OnnxModelRegistrar 中统一校验 relativePath 与 jar 内实际路径的一致性。</li>
   <li>仓库存在并行会话实时改写源码（本期间 ModelRegistry / OnnxImageProcessor / pom 均被外部改动），合入前建议先与对方对齐基线。</li>
-  <li>当前相似度未打印具体分值，后续可在 FaceIdentifyHit 中补充 score 字段输出，便于报告量化。</li>
 </ul>
 
 </div></body>
