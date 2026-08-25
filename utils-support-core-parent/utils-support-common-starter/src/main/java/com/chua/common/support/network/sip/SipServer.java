@@ -72,6 +72,16 @@ public class SipServer extends AbstractServer implements TcpServer {
     private final Map<String, TunnelChannel> tunnelChannels = new ConcurrentHashMap<>();
 
     /**
+     * 多路复用连接表（clientId|role -> 连接）
+     */
+    private final Map<String, MuxServerConn> muxConns = new ConcurrentHashMap<>();
+
+    /**
+     * 多路复用待转发帧（channelId|peerKey -> 帧列表，对端连接未注册时暂存）
+     */
+    private final Map<String, List<byte[]>> muxPending = new ConcurrentHashMap<>();
+
+    /**
      * 数据通道桥接表（channelId -> 桥接器）
      */
     private final Map<String, DataChannel> dataChannels = new ConcurrentHashMap<>();
