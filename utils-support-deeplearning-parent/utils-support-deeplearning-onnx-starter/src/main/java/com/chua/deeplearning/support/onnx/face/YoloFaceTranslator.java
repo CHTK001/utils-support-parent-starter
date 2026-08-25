@@ -55,6 +55,13 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         }
     }
 
+    /**
+     * 无参构造：使用默认阈值（SPI/反射实例化要求）。
+     */
+    public YoloFaceTranslator() {
+        this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
+    }
+
 private float confThreshold = 0.85f;
 
     /**
