@@ -124,6 +124,8 @@
       <tr class="pass"><td>音频</td><td class="mono">tone.wav</td><td class="mono">audio/wav</td><td class="mono">inline</td><td>audio 控件；Range=0-99 → 206</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td>视频</td><td class="mono">clip.mp4</td><td class="mono">video/mp4</td><td class="mono">inline</td><td>video 控件；Range=-16 → 206</td><td><span class="status ok">PASS</span></td></tr>
       <tr class="pass"><td>其他</td><td class="mono">empty.zip</td><td class="mono">application/octet-stream</td><td class="mono">inline</td><td>空态 + 下载引导</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td rowspan="2">Office</td><td class="mono">demo.xlsx</td><td class="mono">text/html;charset=UTF-8（SPI 预览）</td><td class="mono">inline</td><td rowspan="2">Univer/LuckyExcel CDN iframe</td><td><span class="status ok">PASS</span></td></tr>
+      <tr class="pass"><td class="mono">demo.docx</td><td class="mono">text/html;charset=UTF-8（SPI 预览）</td><td class="mono">inline</td><td><span class="status ok">PASS</span></td></tr>
     </tbody>
   </table>
 
@@ -148,7 +150,7 @@
   <p class="note">三服务器实例（全开 / 全关严格模式 / 内置远程源），分组：基础 CRUD×10、目录浏览×7、访问模式×3、Content-Type×4、Range×6、HEAD×3、水印×2、模式收敛×2、远程透传×2、安全防护×6。<b>45/45 通过</b>。该套件用于持续回归，功能验证以上方真实服务实测为准。</p>
 
   <!-- ==================== 缺陷记录 ==================== -->
-  <h2>七、本轮缺陷发现与修复记录（7 项）</h2>
+  <h2>七、本轮缺陷发现与修复记录（8 项）</h2>
   <table>
     <thead><tr><th style="width:60px">#</th><th style="width:230px">缺陷</th><th>根因</th><th style="width:250px">修复方式</th></tr></thead>
     <tbody>
@@ -159,6 +161,7 @@
       <tr class="fail"><td>5</td><td>openRemoteFile 开启后仍拒绝远程地址 400</td><td>框架路径已解码，http:// 被拆散命中冒号校验</td><td>http:/ https:/ 前缀识别与地址重组</td></tr>
       <tr class="fail"><td>6</td><td>远程拉取稳定 502</td><td>URL.openStream() 走系统代理拦截内网地址</td><td>Proxy.NO_PROXY 直连 + 超时</td></tr>
       <tr class="fail"><td>7</td><td><b>前端跨域访问全部失败（阻断级）</b></td><td>内置 CorsFilter 为阻塞式过滤器，不在生效的响应式链中</td><td>Filter 自足处理 CORS 头 + OPTIONS 预检 204</td></tr>
+      <tr class="fail"><td>8</td><td>SPI 预览 xlsx/docx 失败（返回原始字节）</td><td>commons-compress 为 filestorage-starter 的传递依赖，未显式引入导致运行时缺失</td><td>显式声明 commons-compress 1.28.0 + 重建 fs-args.txt 恢复模块输出目录</td></tr>
     </tbody>
   </table>
 
