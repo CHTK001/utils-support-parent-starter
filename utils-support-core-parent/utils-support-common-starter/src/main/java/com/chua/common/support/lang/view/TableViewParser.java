@@ -35,11 +35,39 @@ import java.util.stream.Collectors;
  * └───────┴───────────┘
  * }</pre>
  *
+ * <p>通过 {@code setBorderless(true)} 可切换为无边框模式，仅按列宽对齐，
+ * 不绘制任何框线字符：</p>
+ *
+ * <pre>{@code
+ * Name   Value
+ * foo    123
+ * bar    456
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */
 @Spi("table")
 public class TableViewParser implements ViewParser {
+
+    /**
+     * 是否以无边框模式渲染：true 时不绘制框线字符，仅按列宽以空格对齐
+     */
+    private boolean borderless;
+
+    /**
+     * 设置是否以无边框模式渲染。
+     *
+     * <p>无边框模式下不绘制任何框线字符（{@code ┌ ─ ├ │} 等），仅按列宽以空格对齐，
+     * 适用于日志输出、Markdown 代码块或窄屏终端等不适合框线的场景。</p>
+     *
+     * @param borderless true 表示无边框模式，false 表示默认框线模式
+     * @return 当前实例（支持链式调用）
+     */
+    public TableViewParser setBorderless(boolean borderless) {
+        this.borderless = borderless;
+        return this;
+    }
 
     /**
      * 空数据占位文本
@@ -130,7 +158,7 @@ public class TableViewParser implements ViewParser {
      * @param map 数据源
      * @return 两列表格字符串
      */
-    private static String renderMap(Map<Object, Object> map) {
+    private String renderMap(Map<Object, Object> map) {
         List<String[]> rows = new ArrayList<>();
         rows.add(new String[]{KEY_COLUMN, VALUE_COLUMN});
         for (var entry : map.entrySet()) {
@@ -148,7 +176,7 @@ public class TableViewParser implements ViewParser {
      * @param data Map 列表
      * @return 多列表格字符串
      */
-    private static String renderMapRows(List<Map<String, Object>> data) {
+    private String renderMapRows(List<Map<String, Object>> data) {
         Set<String> allKeys = new LinkedHashSet<>();
         for (var row : data) {
             allKeys.addAll(row.keySet());
@@ -173,7 +201,7 @@ public class TableViewParser implements ViewParser {
      * @param data Bean 列表
      * @return 多列表格字符串
      */
-    private static String renderBeanRows(List<Object> data) {
+    private String renderBeanRows(List<Object> data) {
         if (data.isEmpty()) {
             return EMPTY_PLACEHOLDER;
         }
@@ -207,7 +235,7 @@ public class TableViewParser implements ViewParser {
      * @param data 简单类型元素列表
      * @return 单列表格字符串
      */
-    private static String renderSimpleList(List<Object> data) {
+    private String renderSimpleList(List<Object> data) {
         List<String[]> rows = new ArrayList<>();
         rows.add(new String[]{INDEX_COLUMN});
         for (int i = 0; i < data.size(); i++) {
@@ -217,12 +245,12 @@ public class TableViewParser implements ViewParser {
     }
 
     /**
-     * 计算每列最大宽度并绘制带框线的表格。
+     * 计算每列最大宽度并绘制表格。
      *
      * @param rows 二维行集合（第一行是表头）
      * @return 表格字符串
      */
-    private static String formatTable(List<String[]> rows) {
+    private String formatTable(List<String[]> rows) {
         if (rows.isEmpty()) {
             return "";
         }
@@ -241,6 +269,9 @@ public class TableViewParser implements ViewParser {
         for (int i = 0; i < colCount; i++) {
             widths[i] += 2;
         }
+        if (borderless) {
+            return renderWithoutBorder(rows, widths, colCount);
+        }
         StringBuilder sb = new StringBuilder();
         // 顶线
         sb.append(hLine(widths, '┌', '┬', '┐')).append('\n');
@@ -255,6 +286,45 @@ public class TableViewParser implements ViewParser {
         // 底线
         sb.append(hLine(widths, '└', '┴', '┘'));
         return sb.toString();
+    }
+
+    /**
+     * 以无边框模式渲染表格：不绘制任何框线字符，仅按列宽对齐。
+     *
+     * @param rows     二维行集合（第一行是表头）
+     * @param widths   各列宽度（含内边距）
+     * @param colCount 列数
+     * @return 无框线表格字符串，行尾不含多余空白
+     */
+    private static String renderWithoutBorder(List<String[]> rows, int[] widths, int colCount) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(plainRow(rows.get(0), widths));
+        for (int i = 1; i < rows.size(); i++) {
+            sb.append('\n').append(plainRow(padRow(rows.get(i), colCount), widths));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 拼接无边框模式的单行文本：单元格左对齐补齐列宽，去除行尾多余空白。
+     *
+     * @param row    当前行单元格数组
+     * @param widths 各列宽度（含内边距）
+     * @return 行文本
+     */
+    private static String plainRow(String[] row, int[] widths) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < widths.length; i++) {
+            String cell = i < row.length ? row[i] : "";
+            if (i > 0) {
+                sb.append(' ');
+            }
+            sb.append(cell);
+            for (int j = cell.length() + 1; j < widths[i]; j++) {
+                sb.append(' ');
+            }
+        }
+        return sb.toString().stripTrailing();
     }
 
     /**

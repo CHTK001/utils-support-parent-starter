@@ -259,14 +259,15 @@ public final class Branch<T> {
     /**
      * 注册异常恢复：此后步骤抛出的异常交由 fallback 生成兜底值并续接后续链。
      *
+     * <p>兜底值类型与链类型一致——recover 只处理异常，不改变流经值的类型；
+     * 值的类型切换仅由条件动作（when/otherwise 等）完成。</p>
+     *
      * @param fallback 兜底函数，入参为捕获到的异常
-     * @param <R>      兜底值类型
-     * @return 类型切换后的分支链
+     * @return 本链
      */
-    @SuppressWarnings("unchecked")
-    public <R> Branch<R> recover(Function<Throwable, R> fallback) {
+    public Branch<T> recover(Function<Throwable, T> fallback) {
         stages.add(new RecoverStage((Function<Throwable, Object>) fallback));
-        return (Branch<R>) this;
+        return this;
     }
 
     /**

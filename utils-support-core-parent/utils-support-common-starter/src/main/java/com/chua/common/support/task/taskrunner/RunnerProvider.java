@@ -34,13 +34,13 @@ public interface RunnerProvider {
     /**
      * 执行参数 — 门面收集的运行配置快照。
      *
-     * @param policy         完成策略，必填
-     * @param defaultTimeout 全局默认单任务超时，null 表示不限时
-     * @param defaultRetry   全局默认重试次数
-     * @param listeners      事件监听器列表，可能包含门面的内部桥接监听器
+     * @param policy       完成策略，必填
+     * @param globalTimeout 全局默认单任务超时（可被节点级覆盖），null 表示不限时
+     * @param globalRetry  全局默认重试次数（可被节点级覆盖）
+     * @param listeners    事件监听器列表，可能包含门面的内部桥接监听器
      */
-    record ExecutionOptions(CompletionPolicy policy, Duration defaultTimeout,
-                            int defaultRetry, List<RunnerListener> listeners) {
+    record ExecutionOptions(CompletionPolicy policy, Duration globalTimeout,
+                            int globalRetry, List<RunnerListener> listeners) {
 
         /**
          * 构造校验：policy 必填，listeners 允许为 null（按空列表处理）。

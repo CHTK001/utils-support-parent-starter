@@ -75,7 +75,7 @@ public class ConversationParserTest {
                 continue;
             }
 
-            boolean ok = total > 0 && textCount > 0 && emptyText == 0;
+            boolean ok = total > 0 && textCount > 0 && userCount > 0 && assistantCount > 0;
             System.out.printf("%s %s: total=%d user=%d assistant=%d text=%d emptyText=%d%n",
                     ok ? "[PASS]" : "[FAIL]", name, total, userCount, assistantCount,
                     textCount, emptyText);

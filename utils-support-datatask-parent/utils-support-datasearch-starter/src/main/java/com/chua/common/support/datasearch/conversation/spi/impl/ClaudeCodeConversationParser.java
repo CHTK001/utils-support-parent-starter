@@ -69,6 +69,9 @@ public class ClaudeCodeConversationParser implements ConversationParser {
 
     /**
      * 流式解析全部会话消息：逐文件、逐行惰性拉取。
+     *
+     * <p>磁盘读取与行解析都发生在订阅线程（boundedElastic）上，
+     * 不做逐行调度跳转；解析为纯 CPU 操作，开销极低。</p>
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
@@ -79,6 +82,7 @@ public class ClaudeCodeConversationParser implements ConversationParser {
         }
         log.info("[claude-code] streaming from {} transcript files", files.size());
         return Flux.fromIterable(files)
+                .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(this::streamFile, 4);
     }
 
@@ -86,9 +90,8 @@ public class ClaudeCodeConversationParser implements ConversationParser {
         return Flux.using(
                         () -> Files.newBufferedReader(file),
                         reader -> Flux.fromStream(reader.lines())
-                                .flatMap(line -> Mono.fromCallable(() -> parseLine(line))
-                                        .subscribeOn(Schedulers.boundedElastic())
-                                        .flatMapMany(Flux::fromIterable), 8),
+                                .map(this::parseLineSafe)
+                                .flatMapIterable(l -> l),
                         reader -> {
                             try {
                                 reader.close();
@@ -100,6 +103,15 @@ public class ClaudeCodeConversationParser implements ConversationParser {
                     log.debug("[claude-code] read failed {}: {}", file.getFileName(), e.getMessage());
                     return Flux.empty();
                 });
+    }
+
+    private List<ConversationMessage> parseLineSafe(String line) {
+        try {
+            return parseLine(line);
+        } catch (Exception e) {
+            log.debug("[claude-code] parse failed: {}", e.getMessage());
+            return List.of();
+        }
     }
 
     private List<Path> listTranscripts() {
