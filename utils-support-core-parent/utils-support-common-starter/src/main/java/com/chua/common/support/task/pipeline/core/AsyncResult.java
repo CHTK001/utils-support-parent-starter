@@ -250,8 +250,8 @@ public class AsyncResult {
         return error;
     }
 
+    /** 返回含 nodeId 与状态的调试字符串。 */
     @Override
-    /** ToString */
     public String toString() {
         return "AsyncResult{" +
                 "nodeId='" + nodeId + '\'' +

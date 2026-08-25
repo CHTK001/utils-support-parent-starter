@@ -181,8 +181,8 @@ public class ParallelNode implements PipelineNode {
         return id;
     }
 
+    /** 节点类型：parallel。 */
     @Override
-    /** 获取Type */
     public String getType() {
         return "parallel";
     }
@@ -314,8 +314,8 @@ public class ParallelNode implements PipelineNode {
         this.env = env != null ? env : Collections.emptyMap();
     }
 
+    /** 返回节点环境变量表。 */
     @Override
-    /** 获取Env */
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
     }

@@ -112,8 +112,8 @@ public class PipelineException extends RuntimeException {
         return sb.toString();
     }
 
+    /** 返回标准异常描述（类名 + 消息）。 */
     @Override
-    /** ToString */
     public String toString() {
         String s = getClass().getName();
         String message = getLocalizedMessage();
