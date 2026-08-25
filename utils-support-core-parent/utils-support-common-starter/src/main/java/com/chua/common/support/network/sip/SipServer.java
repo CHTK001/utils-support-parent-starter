@@ -556,11 +556,14 @@ public class SipServer extends AbstractServer implements TcpServer {
         if (channel == null) {
             return;
         }
-        if (registry.containsKey(channel.aId())) {
-            send(channel.aId(), SipProtocol.line(SipProtocol.PREFIX_CLOSE, channelId));
+        // CLOSE 行携带对端会话 token（客户端按 CLOSE|token|channelId 三字段解析）
+        SignalConnection a = registry.get(channel.aId());
+        if (a != null) {
+            send(channel.aId(), SipProtocol.line(SipProtocol.PREFIX_CLOSE, a.token(), channelId));
         }
-        if (registry.containsKey(channel.bId())) {
-            send(channel.bId(), SipProtocol.line(SipProtocol.PREFIX_CLOSE, channelId));
+        SignalConnection b = registry.get(channel.bId());
+        if (b != null) {
+            send(channel.bId(), SipProtocol.line(SipProtocol.PREFIX_CLOSE, b.token(), channelId));
         }
     }
 

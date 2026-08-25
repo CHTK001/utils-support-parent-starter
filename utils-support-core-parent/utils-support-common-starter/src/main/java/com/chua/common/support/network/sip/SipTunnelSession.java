@@ -142,11 +142,16 @@ public class SipTunnelSession {
     /**
      * 注册关闭监听器。
      *
+     * <p>若会话在注册前已关闭（如对端秒拒场景），立即补偿回调，避免监听器永远收不到关闭事件。</p>
+     *
      * @param listener 关闭监听器，参数为通道标识
      * @return 当前会话，支持链式调用
      */
     public SipTunnelSession onClose(Consumer<String> listener) {
         closeListeners.add(listener);
+        if (!open) {
+            listener.accept(channelId);
+        }
         return this;
     }
 
