@@ -137,10 +137,9 @@ public final class OnnxImageProcessor {
                 fillChwBgr(img, chw, w, h, mean, scale);
                 return;
             }
-            if (type == BufferedImage.TYPE_INT_RGB || type == BufferedImage.TYPE_INT_ARGB
-                    || type == BufferedImage.TYPE_4BYTE_ABGR || type == BufferedImage.TYPE_4BYTE_ABGR_PRE) {
-                fillChwArgb(img, chw, w, h, mean, scale,
-                        type == BufferedImage.TYPE_INT_ARGB || type == BufferedImage.TYPE_4BYTE_ABGR_PRE);
+            // 仅 INT 缓冲走 int 直读；4BYTE_ABGR 为字节缓冲，落入通用 getRGB 路径
+            if (type == BufferedImage.TYPE_INT_RGB || type == BufferedImage.TYPE_INT_ARGB) {
+                fillChwArgb(img, chw, w, h, mean, scale, type == BufferedImage.TYPE_INT_ARGB);
                 return;
             }
         }

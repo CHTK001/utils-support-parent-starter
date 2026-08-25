@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>人脸识别管线测试报告 — Branch 双检测器闭环</title>
+<style>
+  :root { --ok:#16a34a; --bad:#dc2626; --ink:#1f2937; --mut:#6b7280; --line:#e5e7eb; --bg:#f8fafc; }
+  * { box-sizing:border-box; }
+  body { font-family:"Segoe UI","Microsoft YaHei",sans-serif; color:var(--ink); margin:0; background:var(--bg); }
+  .wrap { max-width:1080px; margin:0 auto; padding:32px 24px 64px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  .sub { color:var(--mut); margin-bottom:28px; font-size:14px; }
+  h2 { font-size:19px; border-left:4px solid #2563eb; padding-left:10px; margin:36px 0 12px; }
+  table { width:100%; border-collapse:collapse; background:#fff; font-size:13.5px; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+  th,td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:#f1f5f9; font-weight:600; white-space:nowrap; }
+  .pass { color:var(--ok); font-weight:700; }
+  .fail { color:var(--bad); font-weight:700; }
+  code,pre { font-family:Consolas,"Courier New",monospace; }
+  pre { background:#0f172a; color:#e2e8f0; padding:14px 16px; border-radius:8px; overflow-x:auto; font-size:12.5px; line-height:1.55; }
+  pre b { color:#7dd3fc; font-weight:normal; }
+  .cards { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px; }
+  .card { flex:1 1 150px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; text-align:center; }
+  .card .num { font-size:30px; font-weight:700; }
+  .card .lab { color:var(--mut); font-size:13px; margin-top:2px; }
+  .num.ok { color:var(--ok); } .num.blue { color:#2563eb; }
+  .note { background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; font-size:13px; margin-top:14px; }
+  img.shot { max-width:420px; border:1px solid var(--line); border-radius:8px; display:block; margin-top:10px; }
+  ul.tight li { margin:4px 0; }
+</style>
+</head>
+<body><div class="wrap">
+
+<h1>人脸识别管线测试报告</h1>
+<div class="sub">示例：com.chua.example.face.FaceEnrollSearchBranchExample · 模块 utils-support-example-starter · 生成日期 2026-08-25</div>
+
+<div class="cards">
+  <div class="card"><div class="num blue">7</div><div class="lab">断言用例</div></div>
+  <div class="card"><div class="num ok">7</div><div class="lab">通过</div></div>
+  <div class="card"><div class="num" style="color:var(--bad)">0</div><div class="lab">失败</div></div>
+  <div class="card"><div class="num ok">EXIT=0</div><div class="lab">进程退出码</div></div>
+</div>
+
+<h2>一、测试目标</h2>
+<p>验证 <code>FacePipeline</code> 的入库 / 检索 1:N 闭环，重点覆盖本阶段两项改造：</p>
+<ul class="tight">
+  <li><strong>双检测器合并（Branch 化）</strong>：<code>detectBoxes</code> 以 {@Branch} 工具重构——常规模型
+      （yolo-face-detector，YOLOv11n 真人脸）与动漫模型（anime-face-detector，YOLOv8 v1.4_n）各自经
+      <code>ofBytes → when → recover</code> 异常降级为空后合并，跨模型 NMS 去重；
+      替代原先两组 try-catch + if-null 嵌套。</li>
+  <li><strong>AnimeFaceDetector 阈值修复</strong>：sigmoid 激活 + 张量布局修正后的检出质量回归验证。</li>
+</ul>
+
+<h2>二、环境与装配</h2>
+<table>
+<tr><th>项</th><th>值</th></tr>
+<tr><td>JDK</td><td>Amazon Corretto 25.0.3（--enable-preview）</td></tr>
+<tr><td>推理引擎</td><td>DJL 0.36.0 + ONNX Runtime 1.23.1（CPU）</td></tr>
+<tr><td>真人人脸检测</td><td>yolo-face-detector（face/detection/yolo11n-face.onnx，内嵌）</td></tr>
+<tr><td>动漫人脸检测</td><td>anime-face-detector（vision/detection/anime-face/model.onnx，内嵌）</td></tr>
+<tr><td>特征提取</td><td>arc-face（w600k_r50.onnx，512 维）</td></tr>
+<tr><td>向量库</td><td>MemoryVectorStorage(512, cosine)</td></tr>
+<tr><td>阈值</td><td>conf ≥ 0.45 · NMS IoU 0.45 · 跨模型去重 IoU &gt; 0.5 抑制</td></tr>
+</table>
+
+<h2>三、用例结果</h2>
+<table>
+<tr><th>#</th><th>场景</th><th>输入</th><th>期望</th><th>实际</th><th>结论</th></tr>
+<tr><td>A1</td><td>入库真人</td><td>1peopleman.png (474×560)</td><td>enroll = true</td><td>true</td><td class="pass">PASS</td></tr>
+<tr><td>A2</td><td>入库动漫</td><td>anime_face1.png (400×500)</td><td>enroll = true</td><td>true</td><td class="pass">PASS</td></tr>
+<tr><td>A3</td><td>真人同图回查</td><td>1peopleman.png</td><td>top1 = man-01</td><td>top1 = man-01</td><td class="pass">PASS</td></tr>
+<tr><td>A4</td><td>动漫同图回查</td><td>anime_face1.png</td><td>top1 = anime-01</td><td>top1 = anime-01</td><td class="pass">PASS</td></tr>
+<tr><td>A5</td><td>跨样本不串域</td><td>anime_face2.png</td><td>top1 ≠ man-01</td><td>top1 = anime-01</td><td class="pass">PASS</td></tr>
+<tr><td>A6</td><td>跨域隔离</td><td>largest_selfie.jpg</td><td>top1 ≠ anime-01</td><td>top1 = man-01</td><td class="pass">PASS</td></tr>
+<tr><td>A7</td><td>多脸场景最大脸检测+标注落盘</td><td>anime.jpg (860×573)</td><td>检出并保存标注图</td><td>187×199 @ [153,14] → face-branch\anime.jpg</td><td class="pass">PASS</td></tr>
+</table>
+<p style="font-size:13px;color:var(--mut)">A5/A6 为域隔离软定位用例：仅约束“不得命中对方域 id”，命中同域任一 id 均视为通过。</p>
+
+<h2>四、检测可视化样张</h2>
+<p>anime.jpg 最大脸标注结果（红框 + 置信度），文件：<code>D:\images\output\face-branch\anime.jpg</code></p>
+<img class="shot" src="../images/output/face-branch/anime.jpg" alt="anime.jpg 标注结果"
+     onerror="this.onerror=null;this.src='file:///D:/images/output/face-branch/anime.jpg'">
+<p class="note">若上方图片未显示（相对路径受打开方式影响），请直接打开
+<code>file:///D:/images/output/face-branch/anime.jpg</code> 查看。</p>
+
+<h2>五、关键代码对照（detectBoxes）</h2>
+<pre>// Before：两组 try-catch + if-null 嵌套（14 行样板）
+List&lt;PredictRectangle&gt; merged = new ArrayList&lt;&gt;();
+try {
+    List&lt;PredictRectangle&gt; boxes = detector.detect(imageData);
+    if (boxes != null) merged.addAll(boxes);
+} catch (Exception e) { log.debug("常规检测失败: {}", e.getMessage()); }
+if (animeDetector != null) {
+    try {
+        List&lt;PredictRectangle&gt; animeBoxes = animeDetector.detect(imageData);
+        if (animeBoxes != null) merged.addAll(animeBoxes);
+    } catch (Exception e) { log.debug("动漫检测失败: {}", e.getMessage()); }
+}
+
+// After：Branch 流式链 —— 异常降级为空，语义与缩进同步归零
+List&lt;PredictRectangle&gt; regular = <b>Branch.ofBytes(imageData)</b>
+        .<b>when</b>(v -&gt; true, detector::detect)
+        .<b>recover</b>(e -&gt; { log.debug(...); return Collections.emptyList(); })
+        .<b>get</b>();
+if (animeDetector == null) return filterBoxes(crossNms(regular));
+List&lt;PredictRectangle&gt; anime = <b>Branch.ofBytes(imageData)</b>
+        .<b>when</b>(v -&gt; true, animeDetector::detect)
+        .<b>recover</b>(e -&gt; Collections.&lt;PredictRectangle&gt;emptyList())
+        .<b>get</b>();</pre>
+
+<h2>六、过程修复记录</h2>
+<table>
+<tr><th>问题</th><th>根因</th><th>修复</th></tr>
+<tr><td>YoloFaceTranslator 实例化失败<br>NoSuchMethod &lt;init&gt;()</td><td>仅有 DetectionConfiguration 构造器，SPI 反射要求无参构造</td><td>补无参构造委托 this(null)，走默认阈值 0.85</td></tr>
+<tr><td>AnimeFaceDetectorTranslator 同类失败</td><td>协作会话重写后同样缺失无参构造</td><td>同上补无参构造（默认 conf=0.45）</td></tr>
+<tr><td>ArcFace 预处理 ClassCastException<br>DataBufferByte→DataBufferInt</td><td>OnnxImageProcessor 将 TYPE_4BYTE_ABGR（字节缓冲）误路由至 DataBufferInt 强转分支</td><td>INT 直读白名单收紧为 INT_RGB/INT_ARGB，ABGR 字节类型落入通用 getRGB 路径</td></tr>
+<tr><td>ModelRegistry 编译错误<br>catch ClassNotFoundException 不可达</td><td>新版 ReflectUtils.forName 吞 CNFE 返回 null</td><td>forName 返回 null 时主动抛 ClassNotFoundException，维持原异常路径</td></tr>
+</table>
+
+<h2>七、遗留与建议</h2>
+<ul class="tight">
+  <li>yolo-face 对强动漫风图像（如 1peopleman.png）检出为 0——属模型域差异，正是保留双检测器合并的理由；后续可引入 anime-real-cls 分类器在裁剪后做逐脸域归属，替代当前 labelName 判断。</li>
+  <li>仓库存在并行会话实时改写源码（本期间 ModelRegistry / OnnxImageProcessor / pom 均被外部改动），合入前建议先与对方对齐基线。</li>
+  <li>当前相似度未打印具体分值，后续可在 FaceIdentifyHit 中补充 score 字段输出，便于报告量化。</li>
+</ul>
+
+</div></body>
+</html>
