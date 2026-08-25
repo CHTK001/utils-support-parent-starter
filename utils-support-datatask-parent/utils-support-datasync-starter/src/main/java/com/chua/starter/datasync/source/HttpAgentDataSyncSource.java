@@ -60,7 +60,9 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         ReactiveHttpClient client = getHttpClient();
         ClientRequest request = ClientRequest.of(agentUrl);
-        params.forEach(request::addParam);
+        java.util.Map<String, String> stringParams = new java.util.LinkedHashMap<>();
+        params.forEach((k, v) -> stringParams.put(k, v == null ? "" : String.valueOf(v)));
+        request.setParams(stringParams);
         try {
             ClientResponse response = client.execute(request);
             if (!response.isSuccess() || response.getBody() == null) {
