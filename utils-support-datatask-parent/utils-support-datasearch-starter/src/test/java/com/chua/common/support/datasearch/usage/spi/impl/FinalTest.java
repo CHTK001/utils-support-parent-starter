@@ -35,6 +35,7 @@ public class FinalTest {
         test("openclaw", new OpenClawUsageParser());
         test("kilo", new KiloUsageParser());
         test("goose", new GooseUsageParser());
+        test("crush", new CrushUsageParser());
     }
 
     /**

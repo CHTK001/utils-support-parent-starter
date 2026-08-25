@@ -52,7 +52,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     private static final int NUM_ANCHORS = 2;
     /** 分数阈值 */
     /** Score_threshold */
-    private static final float SCORE_THRESHOLD = 0.45f;
+    private static final float SCORE_THRESHOLD = 0.70f;
     /** NMS 阈值 */
     /** Nms_threshold */
     private static final double NMS_THRESHOLD = 0.40d;
