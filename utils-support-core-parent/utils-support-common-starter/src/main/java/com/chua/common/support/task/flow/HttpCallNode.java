@@ -26,7 +26,6 @@ package com.chua.common.support.task.flow;
 public interface HttpCallNode extends FlowNode {
 
     @Override
-    /** Type */
     default String type() {
         return "httpCall";
     }
