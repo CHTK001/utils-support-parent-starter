@@ -3198,8 +3198,8 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（206 个注册模型，更新于 2026-08-25）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 13　🧪 冒烟通过（无正样本） 2　📄 已有记录 158　⬜ 未测试 33</p>
-<p>待测试清单（33）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-3-270m`、`gemma-4-e2b`、`human-seg`、`lu2net`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`minilm-fp32-embedding`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-detector`、`yolo-face-person`、`yolov2-coco-v2`</p>
+<p>状态统计：✅ 实测通过 13　🧪 冒烟通过（无正样本） 4　🐞 发现缺陷 1　📄 已有记录 157　⬜ 未测试 31</p>
+<p>待测试清单（31）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`anime-seg`、`bart-zh-seq2seq`、`bitnet-embedding`、`c3d-action-detection`、`cloth-seg`、`cn-clip-image`、`dfsmn-ans`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-3-270m`、`gemma-4-e2b`、`human-seg`、`matting-isnet`、`matting-u2net`、`matting-u2netp`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`sensevoice`、`svtr-extractor`、`vits-icefall-zh`、`whisper-tiny`、`yolo-face-detector`、`yolo-face-person`、`yolov2-coco-v2`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
@@ -3254,6 +3254,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>safety-helmet</code></td><td>✅ 实测通过</td><td>yolo.SafetyHelmetDetectorTranslator</td><td>1people.png→2；more car plate.webp→0（默认阈值 0.05）</td></tr>
 <tr><td><code>reflective-clothes</code></td><td>🧪 冒烟通过（无正样本）</td><td>yolo.ReflectiveClothesDetectorTranslator</td><td></td></tr>
+<tr><td><code>lu2net</code></td><td>🐞 发现缺陷</td><td>lu2net.Lu2NetTranslator</td><td></td></tr>
 <tr><td><code>anime-gan-v2-hayao</code></td><td>📄 已有记录</td><td>animegan.AnimeGanV2Translator</td><td></td></tr>
 <tr><td><code>anime-gan-v2-paprika</code></td><td>📄 已有记录</td><td>animegan.AnimeGanV2Translator</td><td></td></tr>
 <tr><td><code>anime-gan-v2-shinkai</code></td><td>📄 已有记录</td><td>animegan.AnimeGanV2Translator</td><td></td></tr>
@@ -3281,7 +3282,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>vggt-output</code></td><td>📄 已有记录</td><td>vggt.VggtOutputTranslator</td><td></td></tr>
 <tr><td><code>anime-gan-v3-ghibli</code></td><td>⬜ 未测试</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
 <tr><td><code>anime-gan-v3-shinkai</code></td><td>⬜ 未测试</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
-<tr><td><code>lu2net</code></td><td>⬜ 未测试</td><td>lu2net.Lu2NetTranslator</td><td></td></tr>
 </tbody></table>
 <h3>图像分类（25）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -3380,6 +3380,8 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 </tbody></table>
 <h3>自然语言（31）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>minilm-embedding</code></td><td>🧪 冒烟通过（无正样本）</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td></td></tr>
+<tr><td><code>minilm-fp32-embedding</code></td><td>🧪 冒烟通过（无正样本）</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td></td></tr>
 <tr><td><code>all-MiniLM-L6-v2-embedding</code></td><td>📄 已有记录</td><td>clip.ClipTextFeatureTranslator</td><td></td></tr>
 <tr><td><code>bert-squad</code></td><td>📄 已有记录</td><td>text.BertSquadTranslator</td><td></td></tr>
 <tr><td><code>bge-base-en-embedding</code></td><td>📄 已有记录</td><td>embedding.bge.BgeTextFeatureTranslator</td><td></td></tr>
@@ -3395,7 +3397,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>dino-v2-small-embedding-fp16</code></td><td>📄 已有记录</td><td>dinov2.DinoV2Translator</td><td></td></tr>
 <tr><td><code>distil-bert-sentiment</code></td><td>📄 已有记录</td><td>classification.DistilBertSentimentTranslator</td><td></td></tr>
 <tr><td><code>granite-embedding</code></td><td>📄 已有记录</td><td>clip.ClipTextFeatureTranslator</td><td></td></tr>
-<tr><td><code>minilm-embedding</code></td><td>📄 已有记录</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td></td></tr>
 <tr><td><code>mobile-bert-zero-shot-classification</code></td><td>📄 已有记录</td><td>text.MobileBertZeroShotClassificationTranslator</td><td></td></tr>
 <tr><td><code>mt5-base-seq2seq</code></td><td>📄 已有记录</td><td>seq2seq.Mt5BaseSeq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>mt5-seq2seq</code></td><td>📄 已有记录</td><td>seq2seq.Mt5Seq2SeqOrtTranslator</td><td></td></tr>
@@ -3409,7 +3410,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>bart-zh-seq2seq</code></td><td>⬜ 未测试</td><td>seq2seq.BartZhSeq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>bitnet-embedding</code></td><td>⬜ 未测试</td><td>llama.translator.BitnetEmbeddingTranslator</td><td></td></tr>
 <tr><td><code>embeddinggemma-300m</code></td><td>⬜ 未测试</td><td>llama.translator.EmbeddingGemmaTranslator</td><td></td></tr>
-<tr><td><code>minilm-fp32-embedding</code></td><td>⬜ 未测试</td><td>embedding.minilm.MiniLMEmbeddingTranslator</td><td></td></tr>
 <tr><td><code>otzaria-embedding</code></td><td>⬜ 未测试</td><td>llama.translator.OtzariaEmbeddingTranslator</td><td></td></tr>
 </tbody></table>
 <h3>视觉理解（8）</h3>

@@ -5,7 +5,8 @@
     "verified": "本轮综合实测通过（含检出数）",
     "documented": "报告历史章节已有记录",
     "pending": "尚未测试",
-    "smoke": "冒烟通过：加载/推理正常但测试图无正样本"
+    "smoke": "冒烟通过：加载/推理正常但测试图无正样本",
+    "issue": "测试发现问题：加载/推理存在缺陷待修复"
   },
   "total": 206,
   "models": [
@@ -731,7 +732,9 @@
       "translator": "lu2net.Lu2NetTranslator",
       "capability": "其他",
       "path": "models/onnx/lu2net/lu2net.onnx",
-      "status": "pending"
+      "status": "issue",
+      "date": "2026-08-25",
+      "notes": "模型加载成功但推理失败 ORT_INVALID_ARGUMENT：input 期望 4 维实得 5 维（Lu2NetTranslator.processInput 维度 bug，待修复）"
     },
     {
       "id": "matting",
@@ -780,14 +783,18 @@
       "translator": "embedding.minilm.MiniLMEmbeddingTranslator",
       "capability": "自然语言",
       "path": "nlp/embedding/minilm/model_quantized.onnx",
-      "status": "documented"
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "同 minilm-fp32-embedding：provider 路径 int8 版 ALL PASS"
     },
     {
       "id": "minilm-fp32-embedding",
       "translator": "embedding.minilm.MiniLMEmbeddingTranslator",
       "capability": "自然语言",
       "path": "nlp/embedding/minilm-fp32/model.onnx",
-      "status": "pending"
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "能力验证通过：EmbeddingClient(minilm provider) fp32 384 维 norm=1.0；相似度区分正常(0.66/0.02)、int8/fp32 一致性 0.9947。但 onnx 注册表该 id 直接加载会 ClassCastException（MiniLMEmbeddingTranslator 为独立 OrtSession 封装，非 DJL Translator 契约）"
     },
     {
       "id": "minimind",
