@@ -104,4 +104,8 @@ public class OpencodeConversationParser implements ConversationParser {
             return Json.parse("{}");
         }
     }
+
+    private static String asStr(Object value) {
+        return value == null ? "" : value.toString();
+    }
 }

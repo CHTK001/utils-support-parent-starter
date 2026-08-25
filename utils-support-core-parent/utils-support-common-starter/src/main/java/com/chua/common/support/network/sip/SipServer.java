@@ -17,10 +17,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -75,6 +77,16 @@ public class SipServer extends AbstractServer implements TcpServer {
      * 数据通道桥接表（channelId -> 桥接器）
      */
     private final Map<String, DataChannel> dataChannels = new ConcurrentHashMap<>();
+
+    /**
+     * 多路复用连接表（clientId|role -> 连接）
+     */
+    private final Map<String, MuxServerConn> muxConns = new ConcurrentHashMap<>();
+
+    /**
+     * 多路复用待转发帧（channelId|peerKey -> 帧列表，对端连接未注册时暂存）
+     */
+    private final Map<String, List<byte[]>> muxPending = new ConcurrentHashMap<>();
 
     /**
      * 客户端连接回调列表
@@ -819,6 +831,11 @@ public class SipServer extends AbstractServer implements TcpServer {
          * 本连接承载过的通道
          */
         private final java.util.Set<String> channels = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+        /**
+         * 是否仍在运行
+         */
+        private volatile boolean running = true;
 
         private MuxServerConn(String key, String clientId, String role, InputStream in, OutputStream out) {
             this.key = key;

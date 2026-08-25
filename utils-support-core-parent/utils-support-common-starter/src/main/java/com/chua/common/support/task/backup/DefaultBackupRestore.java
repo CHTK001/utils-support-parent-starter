@@ -1,5 +1,7 @@
 package com.chua.common.support.task.backup;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
@@ -27,15 +29,18 @@ import java.util.zip.ZipInputStream;
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class DefaultBackupRestore implements BackupRestore {
 
-    /** Archive_dir */
+    /** 历史备份压缩包目录名 */
     private static final String ARCHIVE_DIR = "archive";
-    /** Date_fmt */
+    /** 备份日期目录/压缩包的日期格式 */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * 恢复入口：配置了日期则按日期恢复，否则恢复最新备份。
+     */
     @Override
-    /** Restore */
     public RestoreResult restore(RestoreConfig config) {
         if (config.getDate() != null && !config.getDate().isBlank()) {
             LocalDate date = LocalDate.parse(config.getDate(), DATE_FMT);
@@ -44,8 +49,10 @@ public class DefaultBackupRestore implements BackupRestore {
         return restoreLatest(config);
     }
 
+    /**
+     * 恢复最新一次备份：取可用日期列表中最新的一天。
+     */
     @Override
-    /** RestoreLatest */
     public RestoreResult restoreLatest(RestoreConfig config) {
         List<LocalDate> dates = listAvailableDates(config.getBackupDir());
         if (dates.isEmpty()) {
@@ -54,8 +61,10 @@ public class DefaultBackupRestore implements BackupRestore {
         return restoreByDate(config, dates.get(0));
     }
 
+    /**
+     * 按指定日期恢复：优先原始目录，回退 ZIP 压缩包。
+     */
     @Override
-    /** RestoreByDate */
     public RestoreResult restoreByDate(RestoreConfig config, LocalDate date) {
         long start = System.currentTimeMillis();
         String dateStr = date.format(DATE_FMT);
@@ -85,8 +94,10 @@ public class DefaultBackupRestore implements BackupRestore {
         }
     }
 
+    /**
+     * 列出备份目录下全部可用日期（原始目录 + ZIP 压缩包，去重升序）。
+     */
     @Override
-    /** ListAvailableDates */
     public List<LocalDate> listAvailableDates(Path backupDir) {
         List<LocalDate> dates = new ArrayList<>();
 
@@ -99,9 +110,11 @@ public class DefaultBackupRestore implements BackupRestore {
                             try {
                                 dates.add(LocalDate.parse(p.getFileName().toString(), DATE_FMT));
                             } catch (Exception ignored) {
+                                // 目录名非日期格式，跳过
                             }
                         });
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.warn("扫描备份目录失败: {}", backupDir, e);
             }
         }
 
@@ -118,9 +131,11 @@ public class DefaultBackupRestore implements BackupRestore {
                                     dates.add(d);
                                 }
                             } catch (Exception ignored) {
+                                // 文件名非日期格式，跳过
                             }
                         });
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.warn("扫描压缩包目录失败: {}", archiveDir, e);
             }
         }
 
@@ -134,8 +149,10 @@ public class DefaultBackupRestore implements BackupRestore {
     private List<Path> restoreFromDirectory(Path source, RestoreConfig config) throws IOException {
         List<Path> restored = new ArrayList<>();
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
+            /**
+             * 恢复单个文件：命中过滤规则后复制到目标目录，失败仅告警并跳过。
+             */
             @Override
-            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     String fileName = file.getFileName().toString();
@@ -148,7 +165,8 @@ public class DefaultBackupRestore implements BackupRestore {
                         Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
                         restored.add(target);
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.warn("恢复跳过无法复制的文件: {}", file, e);
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -187,28 +205,32 @@ public class DefaultBackupRestore implements BackupRestore {
         return restored;
     }
 
-    /** Calc总计获取大小 */
+    /**
+     * 计算文件列表的总大小（字节）；无法读取的文件按 0 计。
+     */
     private long calcTotalSize(List<Path> files) {
         return files.stream()
                 .mapToLong(p -> { try { return Files.size(p); } catch (Exception e) { return 0; } })
                 .sum();
     }
 
-    /** 删除Directory */
+    /**
+     * 递归删除目录及其全部内容。
+     */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;
         }
         Files.walkFileTree(dir, new SimpleFileVisitor<>() {
+            /** 删除单个文件 */
             @Override
-            /** VisitFile */
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
+            /** 目录内文件删尽后删除目录本身 */
             @Override
-            /** PostVisitDirectory */
             public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
                 Files.delete(d);
                 return FileVisitResult.CONTINUE;
@@ -216,7 +238,9 @@ public class DefaultBackupRestore implements BackupRestore {
         });
     }
 
-    /** MatchPattern */
+    /**
+     * 判断文件名是否命中 Glob 模式；模式为空视为全部命中。
+     */
     private boolean matchPattern(String fileName, String pattern) {
         if (pattern == null || pattern.isBlank()) {
             return true;

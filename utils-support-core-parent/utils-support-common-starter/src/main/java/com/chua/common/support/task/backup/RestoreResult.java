@@ -19,9 +19,6 @@ import java.util.List;
 public class RestoreResult {
 
     /** 是否成功 */
-    /**
-     * 是否成功
-     */
     private boolean success;
 
     /** 恢复目标目录 */
@@ -29,28 +26,32 @@ public class RestoreResult {
 
     /** 恢复的文件列表 */
     @Builder.Default
-    /** Files */
     private List<Path> files = List.of();
 
     /** 恢复的文件总数 */
     @Builder.Default
-    /** 文件数量 */
     private int fileCount = 0;
 
     /** 恢复的总大小（字节） */
     @Builder.Default
-    /** 总数尺寸 */
     private long totalSize = 0;
 
     /** 耗时（毫秒） */
     @Builder.Default
-    /** 持续时间毫秒 */
     private long durationMillis = 0;
 
     /** 错误信息 */
     private String errorMessage;
 
-    /** Success */
+    /**
+     * 创建成功结果。
+     *
+     * @param target   恢复目标目录
+     * @param files    恢复的文件列表
+     * @param size     恢复的总大小（字节）
+     * @param duration 耗时毫秒
+     * @return 成功结果
+     */
     public static RestoreResult success(Path target, List<Path> files, long size, long duration) {
         return RestoreResult.builder()
                 .success(true)
@@ -62,7 +63,12 @@ public class RestoreResult {
                 .build();
     }
 
-    /** Failure */
+    /**
+     * 创建失败结果。
+     *
+     * @param errorMessage 失败原因
+     * @return 失败结果
+     */
     public static RestoreResult failure(String errorMessage) {
         return RestoreResult.builder()
                 .success(false)

@@ -14,11 +14,13 @@ package com.chua.common.support.task.loader;
  */
 public abstract class AbstractLoaderProvider<T> implements Loader<T> {
 
-    /** instance */
+    /** 缓存的实例，volatile 保证双重检查锁定的可见性 */
     private volatile T instance;
 
+    /**
+     * 获取实例：首次调用触发懒加载，后续调用直接返回缓存。
+     */
     @Override
-    /** 获取 */
     public T get() {
         T result = instance;
         if (result == null) {
@@ -33,16 +35,20 @@ public abstract class AbstractLoaderProvider<T> implements Loader<T> {
         return result;
     }
 
+    /**
+     * 重置缓存实例：下次 {@link #get()} 将重新创建。
+     */
     @Override
-    /** 重置 */
     public void reset() {
         synchronized (this) {
             instance = null;
         }
     }
 
+    /**
+     * 判断实例是否已加载。
+     */
     @Override
-    /** 是否Loaded */
     public boolean isLoaded() {
         return instance != null;
     }

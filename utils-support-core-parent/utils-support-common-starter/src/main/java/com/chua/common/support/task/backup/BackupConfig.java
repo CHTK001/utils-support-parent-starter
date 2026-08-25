@@ -45,7 +45,6 @@ public class BackupConfig {
      * <p>超过此天数的历史备份将被清理。默认 30 天。
      */
     @Builder.Default
-    /** Retentiondays */
     private int retentionDays = 30;
 
     /**
@@ -54,7 +53,6 @@ public class BackupConfig {
      * <p>超过当天的备份自动压缩为 ZIP。默认开启。
      */
     @Builder.Default
-    /** Compressarchives */
     private boolean compressArchives = true;
 
     /**
@@ -63,7 +61,6 @@ public class BackupConfig {
      * <p>Glob 模式，如 "*.json"、"*.txt"。为空则备份所有文件。
      */
     @Builder.Default
-    /** Include模式 */
     private String includePattern = "";
 
     /**
@@ -72,6 +69,5 @@ public class BackupConfig {
      * <p>Glob 模式，如 "*.tmp"、".git"。为空则不排除。
      */
     @Builder.Default
-    /** Exclude模式 */
     private String excludePattern = "";
 }
