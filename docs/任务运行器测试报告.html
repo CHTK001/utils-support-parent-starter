@@ -32,7 +32,7 @@
   <strong>本版变更</strong>：修复 P0 缺陷 5 项（Provider 状态隔离 / 事件时间戳 / fallback 吞 Error / 异步取消 / 事件缓冲无界）+ P1 三项（null 结果哨兵、provider 显式报错、reactor 全惰性）
 </div>
 
-<div class="summary"><span class="pass">通过 16 / 16 场景</span></div>
+<div class="summary"><span class="pass">通过 17 / 17 场景</span></div>
 <div class="summary">出口：executeSync · execute · executeReactor · watch</div>
 <div class="summary">策略：allSuccess · anySuccess · successAtLeast · failAtLeast · successRate</div>
 
@@ -52,10 +52,11 @@
   <tr><td>10</td><td>globalRetryRecoversFlakyTask</td><td>retry(5)：第 3 次尝试恢复，200/400ms 指数退避</td><td class="pass">PASS</td><td>605</td></tr>
   <tr><td>11</td><td>circuitBreakerFallbackDegradation</td><td>熔断打开后仍返回降级值，跨 run 状态持久</td><td class="pass">PASS</td><td>11</td></tr>
   <tr><td>12</td><td>asyncExecutionCompletes</td><td>execute() 异步回填 + 输入透传</td><td class="pass">PASS</td><td>&lt;1</td></tr>
-  <tr><td>13</td><td>reactiveExecutionEmitsResult</td><td>executeReactor() Mono 订阅触发执行</td><td class="pass">PASS</td><td>55</td></tr>
-  <tr><td>14</td><td>watchStreamCarriesLifecycleEvents</td><td>事件缓冲回放：RUN_STARTED 起点 / RUN_COMPLETED 收尾</td><td class="pass">PASS</td><td>3</td></tr>
-  <tr><td>15</td><td>preconditionsEnforced</td><td>未设策略 / 未注册任务时三入口均拒绝</td><td class="pass">PASS</td><td>&lt;1</td></tr>
-  <tr><td>16</td><td>parameterValidation</td><td>空名称/负重试/零时长/非法阈值/空依赖数组 → IAE</td><td class="pass">PASS</td><td>2</td></tr>
+  <tr><td>13</td><td>asyncCancelPropagatesInterruption</td><td>future.cancel(true) 中断执行线程，阻塞任务收到中断信号</td><td class="pass">PASS</td><td>1</td></tr>
+  <tr><td>14</td><td>reactiveExecutionEmitsResult</td><td>executeReactor() Mono 订阅触发执行</td><td class="pass">PASS</td><td>62</td></tr>
+  <tr><td>15</td><td>watchStreamCarriesLifecycleEvents</td><td>事件缓冲回放：RUN_STARTED 起点 / RUN_COMPLETED 收尾</td><td class="pass">PASS</td><td>5</td></tr>
+  <tr><td>16</td><td>preconditionsEnforced</td><td>未设策略 / 未注册任务时三入口均拒绝</td><td class="pass">PASS</td><td>&lt;1</td></tr>
+  <tr><td>17</td><td>parameterValidation</td><td>空名称/负重试/零时长/非法阈值/空依赖数组 → IAE</td><td class="pass">PASS</td><td>2</td></tr>
 </table>
 
 <h2>二、覆盖率说明</h2>
@@ -66,7 +67,7 @@
   <tr><td>边界值</td><td>#7（阈值恰好达标）#8（n=total）</td><td class="pass">已覆盖</td></tr>
   <tr><td>异常输入 / 失败传播</td><td>#3 #5 #9 #15 #16</td><td class="pass">已覆盖</td></tr>
   <tr><td>多前驱汇聚 / 数据依赖</td><td>#1（dependsNode）</td><td class="pass">已覆盖</td></tr>
-  <tr><td>并发</td><td>#4 #6（并行 + 提前取消竞态路径）</td><td class="pass">已覆盖</td></tr>
+  <tr><td>并发</td><td>#4 #6（并行 + 提前取消竞态路径）#13（运行时取消传播）</td><td class="pass">已覆盖</td></tr>
   <tr><td>可靠性（超时/重试/熔断降级）</td><td>#9 #10 #11</td><td class="pass">已覆盖</td></tr>
   <tr><td>响应式 / 事件流</td><td>#13 #14</td><td class="pass">已覆盖</td></tr>
   <tr><td>资源清理</td><td>结构化作用域 close 保证取消全部在途任务（#6 验证取消语义）</td><td class="pass">已覆盖</td></tr>
@@ -85,8 +86,8 @@
 --type=parallel     场景 4-5
 --type=policy       场景 6-8
 --type=reliability  场景 9-11
---type=reactive     场景 12-14
-（默认 all 运行全部 16 个场景）</pre>
+--type=reactive     场景 12-15
+（默认 all 运行全部 17 个场景）</pre>
 
 <h2>五、核心 API 形态</h2>
 <pre>var runner = TaskRunner.of("demo")
