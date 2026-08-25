@@ -130,8 +130,8 @@ public class SubPipelineResult {
         return pipelineId;
     }
 
+    /** 返回含子流水线执行信息的调试字符串。 */
     @Override
-    /** ToString */
     public String toString() {
         return "SubPipelineResult{" +
                 "nodeId='" + nodeId + '\'' +

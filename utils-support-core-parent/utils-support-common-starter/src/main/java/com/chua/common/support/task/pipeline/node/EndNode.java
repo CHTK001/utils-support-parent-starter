@@ -38,14 +38,14 @@ public class EndNode implements PipelineNode {
         return id;
     }
 
+    /** 节点类型：end。 */
     @Override
-    /** 获取Type */
     public String getType() {
         return "end";
     }
 
+    /** 进入终止节点：置 EXIT 动作结束流水线。 */
     @Override
-    /** 执行 */
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
         context.setAction(Action.EXIT);

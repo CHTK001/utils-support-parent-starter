@@ -156,8 +156,8 @@ public class ForkResult {
         return branches.containsKey(branchName);
     }
 
+    /** 返回含各分支结果的调试字符串。 */
     @Override
-    /** ToString */
     public String toString() {
         return "ForkResult{" +
                 "nodeId='" + nodeId + '\'' +
