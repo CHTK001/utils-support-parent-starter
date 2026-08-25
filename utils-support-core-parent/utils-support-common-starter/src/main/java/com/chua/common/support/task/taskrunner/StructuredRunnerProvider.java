@@ -37,6 +37,14 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
      */
     private final Map<String, Long> nodeDurations = new ConcurrentHashMap<>();
 
+    /**
+     * 同步执行整个拓扑图。
+     *
+     * @param graph   已校验的任务拓扑图
+     * @param context 运行上下文
+     * @param options 执行参数
+     * @return 整体运行结果，失败时携带首个错误与 SKIPPED 明细
+     */
     @Override
     public RunResult run(TaskGraph graph, RunnerContext context, ExecutionOptions options) {
         var started = System.currentTimeMillis();
@@ -120,10 +128,10 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
     /**
      * 执行一个拓扑层的并行批次并按策略评估。
      *
-     * @param defs    本层节点定义
+     * @param defs    本层节点定义，非空
      * @param context 运行上下文
      * @param options 执行参数
-     * @return 层执行结果
+     * @return 层执行结果（含各节点明细与达标判定）
      */
     private LayerOutcome executeLayer(List<TaskDefinition> defs, RunnerContext context,
                                       ExecutionOptions options) {
@@ -170,6 +178,15 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
 
     /**
      * 单个 fork 子任务体：记录开始事件、执行节点链、维护计数与耗时。
+     *
+     * @param def          节点定义
+     * @param context      运行上下文
+     * @param options      执行参数
+     * @param values       成功值收集表（nodeId -> 结果）
+     * @param errors       失败原因收集表（nodeId -> 异常）
+     * @param successCount 成功计数器
+     * @param failedCount  失败计数器
+     * @return 恒为 null（结果经收集表传递）
      */
     private Object runForked(TaskDefinition def, RunnerContext context, ExecutionOptions options,
                              Map<String, Object> values, Map<String, Throwable> errors,
