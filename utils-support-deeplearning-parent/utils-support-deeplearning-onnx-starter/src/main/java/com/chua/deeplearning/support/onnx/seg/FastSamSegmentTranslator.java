@@ -18,6 +18,7 @@ import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * FastSAM-s 分割 Translator（YOLOv8-seg 架构，单模型自动分割）。
@@ -63,6 +64,14 @@ public class FastSamSegmentTranslator {
     /** 模型文件路径 */
     /** Model_file */
     private static final String MODEL_FILE = "fastsam_s.onnx";
+
+    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    private float thresholdOverride = -1f;
+
+    /** 取生效阈值。 */
+    private float effThreshold(float def) {
+        return thresholdOverride > 0 ? thresholdOverride : def;
+    }
 
     /** ONNX 运行时环境 */
     /** ORTENV */
@@ -165,7 +174,7 @@ public class FastSamSegmentTranslator {
         int detIdx = 0;
         for (int i = 0; i < numPreds; i++) {
             float conf = detections[i * 37 + 4];
-            if (conf <= CONF_THRESHOLD) continue;
+            if (conf <= effThreshold(CONF_THRESHOLD)) continue;
             float cx = detections[i * 37] / INPUT_SIZE * srcWidth;
             float cy = detections[i * 37 + 1] / INPUT_SIZE * srcHeight;
             float w = detections[i * 37 + 2] / INPUT_SIZE * srcWidth;
@@ -282,4 +291,19 @@ public class FastSamSegmentTranslator {
         session = null;
         ortEnv = null;
     }
+    /**
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
+    public FastSamSegmentTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+        if (null != configuration) {
+            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            if (t > 0) {
+                this.thresholdOverride = t;
+            }
+        }
+    }
+
+
 }
