@@ -8,9 +8,10 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
 
 /**
- * DataSearch 模型定价提供者实现。
+ * DataSearch 模型定价桥接实现。
  *
- * <p>通过 ServiceProvider 加载各厂商 PricingProvider 实现。</p>
+ * <p>通过 ServiceProvider 加载各数据源的 {@link ModelMetricsProvider} 实现，
+ * 将其指标列表适配为 AI 对话侧的 ModelPricingProvider 查询。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,15 +26,16 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
             return null;
         }
         try {
-            PricingProvider pricingProvider = ServiceProvider.of(ModelMetricsProvider.class).getExtension(provider);
-            if (pricingProvider == null) {
+            ModelMetricsProvider metricsProvider =
+                    ServiceProvider.of(ModelMetricsProvider.class).getExtension(provider);
+            if (metricsProvider == null) {
                 return null;
             }
-            List<ModelDefinition> pricing = pricingProvider.getPricing();
-            if (pricing == null || pricing.isEmpty()) {
+            List<ModelDefinition> metrics = metricsProvider.getMetrics();
+            if (metrics == null || metrics.isEmpty()) {
                 return null;
             }
-            for (ModelDefinition md : pricing) {
+            for (ModelDefinition md : metrics) {
                 if (model.equals(md.getId())) {
                     return md;
                 }
