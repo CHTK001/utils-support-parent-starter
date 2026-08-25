@@ -23,7 +23,6 @@ package com.chua.common.support.task.flow;
 public interface ConditionNode extends FlowNode {
 
     @Override
-    /** Type */
     default String type() {
         return "condition";
     }
@@ -39,9 +38,11 @@ public interface ConditionNode extends FlowNode {
      */
     boolean test(FlowContext context);
 
+    /**
+     * 条件节点无默认执行动作：判断逻辑由引擎按 {@link #test(FlowContext)} 结果路由。
+     */
     @Override
-    /** 执行 */
     default void execute(FlowContext context) {
-        // 条件节点不做默认执行，判断由引擎按 test 结果调度
+        // 条件节点不做默认执行，判断逻辑按 test 契约处理
     }
 }

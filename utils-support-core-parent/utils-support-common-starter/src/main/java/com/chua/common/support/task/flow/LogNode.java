@@ -17,7 +17,6 @@ package com.chua.common.support.task.flow;
 public interface LogNode extends FlowNode {
 
     @Override
-    /** Type */
     default String type() {
         return "log";
     }
