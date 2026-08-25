@@ -311,6 +311,15 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </tbody>
 </table>
 <div class="concl" style="margin-top:14px"><b>&#9989; 服务器环境结论</b>：<b>AIO 八档全胜</b>（小/大报文 × 四并发档），且是全场唯一保持 100% 成功率的实现；p99 同档最低（如 256B/cc100 仅 21ms）。纯非阻塞响应式改造在真实 Linux 服务器上得到完全验证。</div>
+<h2><span class="num">8.5</span>全实现代理对决（Windows 同窗交错）</h2>
+<table style="margin-top:14px">
+<thead><tr><th>代理场景</th><th>JDK(BIO)</th><th>Vert.x</th><th>AIO</th><th>直连基线</th><th>最优</th></tr></thead>
+<tbody>
+<tr><td>TCP 隧道 frames/s</td><td class="win">376,470</td><td>162,025</td><td>22,980</td><td>77,108(无代理)</td><td>BIO 模型最优</td></tr>
+<tr><td>HTTP 转发 RPS</td><td class="win">14,814</td><td>1,214</td><td>1,948</td><td>5,555(直连)</td><td>JDK 阻塞模型</td></tr>
+</tbody>
+</table>
+<div class="note"><b>&#128161;</b> 字节搬运场景（纯转发）BIO 阻塞模型最优——无完成通知开销，内核流水线充分并行。AIO 的价值在海量连接接入层而非字节代理层。</div>
 <footer>压测 harness：<code>D:\ch\project\bench\ServerBench.java</code> · 功能覆盖：<code>HttpServerExampleSpi --type=aio --mode=func</code> (22/22 PASS) · utils-support-parent-starter &copy; 2026</footer>
 
 </div>
