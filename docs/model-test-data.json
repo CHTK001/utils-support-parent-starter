@@ -505,7 +505,18 @@
       "translator": "yolo.FaceMaskDetectorTranslator",
       "capability": "人脸",
       "path": "vision/face-mask-detector/yolov8/model.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 2,
+        "3peoplebeauty.jpg": 3
+      },
+      "threshold": {
+        "default": 0.05,
+        "tested": {
+          "0.5": "5→1"
+        }
+      }
     },
     {
       "id": "faceplugin-face-detect-slim",
@@ -1125,7 +1136,15 @@
       "translator": "yolo.SafetyHelmetDetectorTranslator",
       "capability": "其他",
       "path": "vision/safety-helmet/yolov8/model.onnx",
-      "status": "documented"
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 2,
+        "more car plate.webp": 0
+      },
+      "threshold": {
+        "default": 0.05
+      }
     },
     {
       "id": "sam-encoder",
