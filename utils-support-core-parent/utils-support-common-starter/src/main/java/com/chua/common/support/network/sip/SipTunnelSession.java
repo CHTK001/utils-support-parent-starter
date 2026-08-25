@@ -60,6 +60,11 @@ public class SipTunnelSession {
     private volatile SipTunnelStream dataStream;
 
     /**
+     * 多路复用虚拟流（mux 模式下替代 dataStream）
+     */
+    private volatile SipMuxStream muxStream;
+
+    /**
      * 创建隧道会话。
      *
      * @param client      关联的 SIP 客户端
@@ -100,11 +105,20 @@ public class SipTunnelSession {
     }
 
     /**
-     * 向通道对端发送二进制数据（走 frp 数据平面裸字节流）。
+     * 向通道对端发送二进制数据（走数据面）。
      *
      * @param data 字节数据
      */
     public void sendBytes(byte[] data) {
+        SipMuxStream mux = muxStream;
+        if (mux != null) {
+            if (!mux.isClosed()) {
+                mux.send(data);
+            } else {
+                log.debug("SIP sendBytes skipped(mux closed): channel={}", channelId);
+            }
+            return;
+        }
         SipTunnelStream stream = dataStream;
         if (stream != null && !stream.isClosed()) {
             try {
@@ -166,11 +180,24 @@ public class SipTunnelSession {
     }
 
     /**
+     * 挂载多路复用虚拟流。
+     *
+     * @param stream 虚拟流
+     */
+    void attachMuxStream(SipMuxStream stream) {
+        this.muxStream = stream;
+    }
+
+    /**
      * 是否已启用数据平面。
      *
      * @return true 表示已启用
      */
     public boolean isStreamActive() {
+        SipMuxStream mux = muxStream;
+        if (mux != null) {
+            return !mux.isClosed();
+        }
         return dataStream != null && !dataStream.isClosed();
     }
 
@@ -178,6 +205,10 @@ public class SipTunnelSession {
      * 关闭通道。
      */
     public void close() {
+        SipMuxStream mux = muxStream;
+        if (mux != null) {
+            mux.close();
+        }
         SipTunnelStream stream = dataStream;
         if (stream != null) {
             stream.close();
