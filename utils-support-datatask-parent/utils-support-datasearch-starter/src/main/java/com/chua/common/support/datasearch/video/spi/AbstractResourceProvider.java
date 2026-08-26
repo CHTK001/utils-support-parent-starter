@@ -13,6 +13,7 @@ public abstract class AbstractResourceProvider implements ResourceProvider {
 
     /** 创建 AbstractResourceProvider 实例 */
     public AbstractResourceProvider() {
+        this.videoSource = new VideoSource();
     }
 
     /**

@@ -345,6 +345,13 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
         unetSession = openSession(base.resolve("unet").resolve("model.onnx"), useGpu);
         vaeSession = openSession(base.resolve("vae_decoder").resolve("model.onnx"), useGpu);
         log.info("[Small SD v0][编排] 三个会话已打开 ({})", useGpu ? "GPU" : "CPU");
+        try {
+            log.info("[Small SD v0][编排] TE 输入: {}", textEncoderSession.getInputNames());
+            log.info("[Small SD v0][编排] UNet 输入: {}", unetSession.getInputNames());
+            log.info("[Small SD v0][编排] VAE 输入: {}", vaeSession.getInputNames());
+        } catch (Exception e) {
+            log.debug("[Small SD v0][编排] 输入信息枚举失败: {}", e.getMessage());
+        }
     }
 
     /**
@@ -554,26 +561,18 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private float[] predictNoise(float[] latent, long t, float[] emb) throws OrtException {
         int latentH = height / 8;
         int latentW = width / 8;
-        float[][][][] sample = new float[1][LATENT_CHANNELS][latentH][latentW];
-        int idx = 0;
-        for (int c = 0; c < LATENT_CHANNELS; c++) {
-            for (int h = 0; h < latentH; h++) {
-                for (int w = 0; w < latentW; w++) {
-                    sample[0][c][h][w] = latent[idx++];
-                }
-            }
-        }
-        float[][][][] hidden = new float[1][1][MAX_SEQUENCE_LENGTH][emb.length / MAX_SEQUENCE_LENGTH];
-        int dim = emb.length / MAX_SEQUENCE_LENGTH;
-        for (int i = 0; i < MAX_SEQUENCE_LENGTH; i++) {
-            System.arraycopy(emb, i * dim, hidden[0][0][i], 0, dim);
-        }
-
-        try (OnnxTensor x = OnnxTensor.createTensor(env, sample);
-             OnnxTensor tF = OnnxTensor.createTensor(env, new float[]{(float) t});
-             OnnxTensor e = OnnxTensor.createTensor(env, hidden);
+        // 该导出为全 FP16 UNet：sample/timestep/hidden 全部转半精度
+        float[] flatSample = new float[latent.length];
+        System.arraycopy(latent, 0, flatSample, 0, latent.length);
+        try (OnnxTensor x = OnnxTensor.createTensor(env, toHalfBuffer(flatSample),
+                     new long[]{1, LATENT_CHANNELS, latentH, latentW}, ai.onnxruntime.OnnxJavaType.FLOAT16);
+             OnnxTensor tT = OnnxTensor.createTensor(env, toHalfBuffer(new float[]{(float) t}),
+                     new long[]{1}, ai.onnxruntime.OnnxJavaType.FLOAT16);
+             OnnxTensor e = OnnxTensor.createTensor(env, toHalfBuffer(emb),
+                     new long[]{1, MAX_SEQUENCE_LENGTH, emb.length / MAX_SEQUENCE_LENGTH},
+                     ai.onnxruntime.OnnxJavaType.FLOAT16);
              OrtSession.Result r = unetSession.run(java.util.Map.of(
-                     "sample", x, "timestep", tF, "encoder_hidden_states", e))) {
+                     "sample", x, "timestep", tT, "encoder_hidden_states", e))) {
             float[][][][] out = (float[][][][]) r.get(0).getValue();
             float[] flat = new float[LATENT_CHANNELS * latentH * latentW];
             int k = 0;
@@ -585,26 +584,24 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 }
             }
             return flat;
-        } catch (OrtException ex) {
-            // FLOAT32 时间步不被接受时回退 INT64 重试一次
-            try (OnnxTensor x = OnnxTensor.createTensor(env, sample);
-                 OnnxTensor tI = OnnxTensor.createTensor(env, new long[]{t});
-                 OnnxTensor e = OnnxTensor.createTensor(env, hidden);
-                 OrtSession.Result r = unetSession.run(java.util.Map.of(
-                         "sample", x, "timestep", tI, "encoder_hidden_states", e))) {
-                float[][][][] out = (float[][][][]) r.get(0).getValue();
-                float[] flat = new float[LATENT_CHANNELS * latentH * latentW];
-                int k = 0;
-                for (int c = 0; c < LATENT_CHANNELS; c++) {
-                    for (int h = 0; h < latentH; h++) {
-                        for (int w = 0; w < latentW; w++) {
-                            flat[k++] = out[0][c][h][w];
-                        }
-                    }
-                }
-                return flat;
-            }
         }
+    }
+
+    /**
+     * float 数组转半精度 DirectBuffer。
+     *
+     * @param data 原始数据
+     * @return 半精度缓冲
+     */
+    private static java.nio.ShortBuffer toHalfBuffer(float[] data) {
+        java.nio.ShortBuffer buf = java.nio.ByteBuffer.allocateDirect(data.length * 2)
+                .order(java.nio.ByteOrder.nativeOrder())
+                .asShortBuffer();
+        for (float v : data) {
+            buf.put(floatToHalf(v));
+        }
+        buf.flip();
+        return buf;
     }
 
     /**
@@ -645,6 +642,26 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             }
             return rgb;
         }
+    }
+
+    /**
+     * float 转 half bits（IEEE 754 半精度）。
+     *
+     * @param f 单精度值
+     * @return 半精度位模式
+     */
+    private static short floatToHalf(float f) {
+        int bits = Float.floatToIntBits(f);
+        int sign = (bits >>> 16) & 0x8000;
+        int exp = ((bits >> 23) & 0xFF) - 112;
+        int man = bits & 0x7FFFFF;
+        if (exp <= 0) {
+            return (short) sign;
+        }
+        if (exp >= 31) {
+            return (short) (sign | 0x7C00);
+        }
+        return (short) (sign | (exp << 10) | (man >> 13));
     }
 
     /**
