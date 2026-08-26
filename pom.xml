@@ -14,8 +14,7 @@
            <module>utils-support-deeplearning-parent</module>
            <module>utils-support-cloud-parent</module>
           <module>utils-support-datalake-parent</module>
-          <module>utils-support-middleware-parent</module>
-          <module>utils-support-gateway-parent</module>
+           <module>utils-support-middleware-parent</module>
             <module>utils-support-extra-parent</module>
             <module>utils-support-runtime-parent</module>
         </modules>

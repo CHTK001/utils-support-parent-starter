@@ -208,31 +208,22 @@ public class SshClient implements AutoCloseable {
         public ExecResult execute() {
             try {
                 var channel = client.getSession().createExecChannel(command);
-                // MINA SSHD 3.x: createExecChannel 仅创建通道不自动打开,
-                // 必须显式 open 后才能获取 inverted 流(否则为 null)
+                // MINA SSHD 标准用法: 先绑定输出流再打开通道,
+                // exec 通道的 inverted 流在部分版本下不可用, 统一使用显式流收集输出
+                var stdoutBuf = new java.io.ByteArrayOutputStream();
+                var stderrBuf = new java.io.ByteArrayOutputStream();
+                channel.setOut(stdoutBuf);
+                channel.setErr(stderrBuf);
+
                 channel.open().verify(EXEC_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-                StringBuilder stdout = new StringBuilder();
-                StringBuilder stderr = new StringBuilder();
-
-                try (InputStream in = channel.getInvertedOut();
-                     InputStream err = channel.getInvertedErr()) {
-                    byte[] buf = new byte[8192];
-                    int len;
-                    while ((len = in.read(buf)) != -1) {
-                        stdout.append(new String(buf, 0, len, StandardCharsets.UTF_8));
-                    }
-                    while ((len = err.read(buf)) != -1) {
-                        stderr.append(new String(buf, 0, len, StandardCharsets.UTF_8));
-                    }
-                }
-
-                // 等待远端命令退出以取得准确退出码(EOF 时通道即将关闭, 短暂等待即可)
+                // 等待远端命令退出以取得准确退出码
                 channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.CLOSED),
                         EXEC_EXIT_WAIT_MILLIS);
                 Integer status = channel.getExitStatus();
                 int exitCode = status == null ? -1 : status;
                 channel.close();
-                return new ExecResult(exitCode, stdout.toString(), stderr.toString());
+                return new ExecResult(exitCode, stdoutBuf.toString(StandardCharsets.UTF_8),
+                        stderrBuf.toString(StandardCharsets.UTF_8));
             } catch (Exception e) {
                 throw new SshClientException("SSH 命令执行失败: " + command, e);
             }
