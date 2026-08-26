@@ -2,6 +2,7 @@ package com.chua.common.support.task.timer;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -51,6 +52,9 @@ public class TimerTask {
 
     /** 任务节点（双向链表，Object 持有 HashedWheelTimer.TaskNode 以避免循环依赖） */
     volatile Object node;
+
+    /** 在途执行的 Future（提交到任务执行器后写入，cancel 时用于中断执行线程） */
+    private volatile Future<?> runningFuture;
 
     /**
      * 创建单次到期任务。
@@ -104,12 +108,26 @@ public class TimerTask {
     }
 
     /**
-     * 取消任务。
+     * 取消任务：标记取消并中断在途执行（业务体需响应中断方可真正停止）。
      *
      * @return 之前是否已取消
      */
     public boolean cancel() {
-        return cancelled.compareAndSet(false, true);
+        var previous = cancelled.compareAndSet(false, true);
+        var inFlight = runningFuture;
+        if (inFlight != null) {
+            inFlight.cancel(true);
+        }
+        return previous;
+    }
+
+    /**
+     * 绑定在途执行的 Future（仅供时间轮提交任务时调用）。
+     *
+     * @param future 执行器返回的 Future
+     */
+    void setRunningFuture(Future<?> future) {
+        this.runningFuture = future;
     }
 
     /**

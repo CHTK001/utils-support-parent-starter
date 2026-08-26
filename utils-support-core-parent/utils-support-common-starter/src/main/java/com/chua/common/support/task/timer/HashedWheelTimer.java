@@ -5,14 +5,28 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 哈希时间轮实现（Hashed Wheel Timer）。
  *
- * <p>基于环形槽位数组 + 双向链表，每个槽处理到期任务。tick 线程每 {@code tickDuration} 扫一个槽，
- * 到期任务在主线程异步回调。</p>
+ * <p>基于环形槽位数组 + 双向链表，tick 线程按<strong>绝对时间轴</strong>推进
+ * （任务耗时不会造成周期漂移，落后时连续补扫），到期任务提交到独立虚拟线程执行器并发运行。</p>
+ *
+ * <p>并发语义：</p>
+ * <ul>
+ *   <li><strong>分槽锁</strong> — 每槽独立 {@link ReentrantLock}，注册/取消/扫描互不阻塞</li>
+ *   <li><strong>任务并发执行</strong> — 不同任务可能同时运行，无顺序保证；
+ *       慢任务不阻塞轮子推进</li>
+ *   <li><strong>cancel 可中断在途执行</strong> — 通过 Future.cancel(true) 向业务线程发送中断，
+ *       业务体需响应中断方可真正停止</li>
+ *   <li><strong>单任务故障隔离</strong> — 任何 Throwable 都在提交侧兜底记录，不影响时间轮存活</li>
+ * </ul>
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,7 +50,7 @@ public class HashedWheelTimer implements Timer {
     private final Slot[] wheel;
 
     /**
-     * 当前 tick 指针
+     * 当前 tick 指针（绝对时间轴推进）
      */
     private volatile long currentTick;
 
@@ -51,9 +65,9 @@ public class HashedWheelTimer implements Timer {
     private volatile Thread tickThread;
 
     /**
-     * 槽位锁（粗粒度，工程阶段简单实现）
+     * 到期任务执行器（虚拟线程 per task，慢任务互不阻塞）
      */
-    private final ReentrantLock lock = new ReentrantLock();
+    private final ExecutorService taskExecutor;
 
     /**
      * 构造。
@@ -75,6 +89,8 @@ public class HashedWheelTimer implements Timer {
         for (int i = 0; i < slots; i++) {
             wheel[i] = new Slot();
         }
+        this.taskExecutor = Executors.newThreadPerTaskExecutor(
+                Thread.ofVirtual().name("wheel-task-", 0).factory());
         this.running = true;
         startTickThread();
     }
@@ -86,13 +102,8 @@ public class HashedWheelTimer implements Timer {
         }
         long delay = task.getDeadline() - System.currentTimeMillis();
         int index = (int) ((currentTick + computeSlotOffset(delay)) % slots);
-        lock.lock();
-        try {
-            wheel[index].add(task);
-            task.slotIndex = index;
-        } finally {
-            lock.unlock();
-        }
+        wheel[index].add(task);
+        task.slotIndex = index;
         return true;
     }
 
@@ -139,12 +150,7 @@ public class HashedWheelTimer implements Timer {
         if (slot < 0 || slot >= slots) {
             return false;
         }
-        lock.lock();
-        try {
-            wheel[slot].remove(task);
-        } finally {
-            lock.unlock();
-        }
+        wheel[slot].remove(task);
         return true;
     }
 
@@ -153,6 +159,9 @@ public class HashedWheelTimer implements Timer {
         return currentTick;
     }
 
+    /**
+     * 获取当前在轮任务总数（各槽原子计数的即时加和，弱一致快照）。
+     */
     @Override
     public int getTaskCount() {
         int sum = 0;
@@ -175,45 +184,44 @@ public class HashedWheelTimer implements Timer {
         if (worker != null) {
             worker.interrupt();
         }
+        // 中断全部在途任务并停止接收新任务
+        taskExecutor.shutdownNow();
     }
 
     /**
      * 启动 tick 循环线程。
      *
-     * <p>单个任务抛出的任何 Throwable（含 Error）都在循环内兜底记录，
-     * 保证任务故障不会终止整个时间轮。</p>
+     * <p>tick 按<strong>绝对时间轴</strong>推进：以启动时刻为基准计算每个 tick 的
+     * 理论唤醒点，任务耗时不会造成漂移；若落后则连续补扫追赶。
+     * 到期任务先做周期重排（时间轴优先，不丢拍），再提交执行器并发运行。</p>
      */
     private void startTickThread() {
         Thread t = new Thread(() -> {
+            long startNanos = System.nanoTime();
             while (running) {
+                long targetNanos = startNanos + (currentTick + 1) * tickMillis * 1_000_000L;
+                long waitMillis = (targetNanos - System.nanoTime()) / 1_000_000L;
                 try {
-                    Thread.sleep(tickMillis);
-                    int idx = (int) (currentTick % slots);
-                    List<TimerTask> due = new ArrayList<>();
-                    lock.lock();
-                    try {
-                        due.addAll(wheel[idx].drain());
-                    } finally {
-                        lock.unlock();
+                    if (waitMillis > 0) {
+                        Thread.sleep(waitMillis);
                     }
+                    int idx = (int) (currentTick % slots);
+                    List<TimerTask> due = wheel[idx].drain();
                     for (TimerTask tt : due) {
-                        try {
-                            tt.run();
-                            // 周期任务复用同一实例推进 deadline 后重排：
-                            // cancel 标记随实例传播，取消立即对后续轮次生效
-                            if (!tt.isCancelled() && tt.getPeriod() > 0) {
-                                tt.advanceDeadline();
-                                schedule(tt);
-                            }
-                        } catch (Throwable taskFailure) {
-                            // 单任务故障（含 Error）不得杀死时间轮
-                            log.error("[HashedWheelTimer] 任务执行失败: {}", tt.getName(), taskFailure);
+                        // 周期重排在提交执行前完成：fixed-rate 语义，不因执行慢而丢拍
+                        if (!tt.isCancelled() && tt.getPeriod() > 0) {
+                            tt.advanceDeadline();
+                            schedule(tt);
                         }
+                        submitTask(tt);
                     }
                     currentTick++;
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Throwable tickFailure) {
+                    // tick 循环最终防线：任何非中断异常仅记录，循环继续
+                    safeLogError("tick-loop", tickFailure);
                 }
             }
         }, "hashed-wheel-tick");
@@ -223,7 +231,47 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-     * 槽位：持有 Task 的双向链表。
+     * 提交到期任务到执行器：任何 Throwable 都在包装层兜底记录，
+     * 保证单任务故障不影响时间轮与其他任务。
+     *
+     * <p>使用手工构造的 {@link FutureTask}：<strong>先绑定 future 再入队</strong>，
+     * 消除"任务已启动但 cancel 读不到 future"的竞态窗口。</p>
+     */
+    private void submitTask(TimerTask task) {
+        var futureTask = new FutureTask<Void>(() -> {
+            if (task.isCancelled()) {
+                return;
+            }
+            try {
+                task.run();
+            } catch (Throwable failure) {
+                safeLogError(task.getName(), failure);
+            }
+        }, null);
+        task.setRunningFuture(futureTask);
+        try {
+            taskExecutor.execute(futureTask);
+        } catch (Throwable rejection) {
+            // 关闭瞬间提交被拒绝：降级记录，不影响时间轮
+            safeLogError(task.getName(), rejection);
+        }
+    }
+
+    /**
+     * 安全错误记录：SLF4J 输出失败时降级 stderr，
+     * 确保日志系统自身的故障不会反噬时间轮线程。
+     */
+    private static void safeLogError(String taskName, Throwable failure) {
+        try {
+            log.error("[HashedWheelTimer] 任务执行失败: {}", taskName, failure);
+        } catch (Throwable loggingFailure) {
+            System.err.println("[HashedWheelTimer] 任务执行失败(日志系统不可用): "
+                    + taskName + " -> " + failure);
+        }
+    }
+
+    /**
+     * 槽位：持有 Task 的双向链表，独立槽锁保护（分槽细粒度并发）。
      */
     static class Slot {
 
@@ -233,9 +281,9 @@ public class HashedWheelTimer implements Timer {
         private TaskNode head;
 
         /**
-         * 槽内任务计数
+         * 槽内任务计数（原子读，支持无锁统计）
          */
-        private int size;
+        private final AtomicInteger size = new AtomicInteger();
 
         /**
          * 尾指针
@@ -243,13 +291,19 @@ public class HashedWheelTimer implements Timer {
         private TaskNode tail;
 
         /**
+         * 槽内互斥锁
+         */
+        private final ReentrantLock lock = new ReentrantLock();
+
+        /**
          * 添加任务到槽尾。
          *
          * @param task 任务
          */
         void add(TimerTask task) {
-            TaskNode node = new TaskNode(task);
-            withLock(() -> {
+            lock.lock();
+            try {
+                TaskNode node = new TaskNode(task);
                 node.prev = tail;
                 if (tail != null) {
                     tail.next = node;
@@ -258,8 +312,10 @@ public class HashedWheelTimer implements Timer {
                 }
                 tail = node;
                 task.node = node;
-                size++;
-            });
+                size.incrementAndGet();
+            } finally {
+                lock.unlock();
+            }
         }
 
         /**
@@ -268,7 +324,8 @@ public class HashedWheelTimer implements Timer {
          * @param task 任务
          */
         void remove(TimerTask task) {
-            withLock(() -> {
+            lock.lock();
+            try {
                 TaskNode n = (TaskNode) task.node;
                 if (n == null) {
                     return;
@@ -284,8 +341,10 @@ public class HashedWheelTimer implements Timer {
                     tail = n.prev;
                 }
                 task.node = null;
-                size--;
-            });
+                size.decrementAndGet();
+            } finally {
+                lock.unlock();
+            }
         }
 
         /**
@@ -295,7 +354,8 @@ public class HashedWheelTimer implements Timer {
          */
         List<TimerTask> drain() {
             List<TimerTask> out = new ArrayList<>();
-            withLock(() -> {
+            lock.lock();
+            try {
                 TaskNode cur = head;
                 while (cur != null) {
                     out.add(cur.taskFromWheel);
@@ -303,27 +363,20 @@ public class HashedWheelTimer implements Timer {
                 }
                 head = null;
                 tail = null;
-                size = 0;
-            });
+                size.set(0);
+            } finally {
+                lock.unlock();
+            }
             return out;
         }
 
         /**
-         * 槽内任务数。
+         * 槽内任务数（原子快照）。
          *
          * @return 数量
          */
         int size() {
-            return size;
-        }
-
-        /**
-         * 带锁执行（当前简易实现：直接执行，外部已由 lock 保护）。
-         *
-         * @param r 逻辑
-         */
-        private void withLock(Runnable r) {
-            r.run();
+            return size.get();
         }
     }
 
