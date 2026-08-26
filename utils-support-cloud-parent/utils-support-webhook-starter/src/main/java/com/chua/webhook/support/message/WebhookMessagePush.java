@@ -54,13 +54,13 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
- * public class WebhookPush implements MessagePush {
+ * public class WebhookMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class WebhookPush implements MessagePush {
+public class WebhookMessagePush implements MessagePush {
 
     /**
      * 推送文本格式（钉钉/企业微信通用）
