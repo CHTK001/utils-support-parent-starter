@@ -1149,6 +1149,11 @@
                 <version>3.11.0</version>
             </dependency>
             <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-aiplatform</artifactId>
+                <version>3.96.0</version>
+            </dependency>
+            <dependency>
                 <groupId>com.googlecode.aviator</groupId>
                 <artifactId>aviator</artifactId>
                 <version>5.4.3</version>

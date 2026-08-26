@@ -175,15 +175,19 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
             /**
-             * 拷贝单个文件：命中过滤规则后复制到目标目录，失败仅告警并跳过。
+             * 拷贝单个文件：include 为空表示全部包含，exclude 命中才排除；
+             * 失败仅告警并跳过。
              */
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
                     String fileName = file.getFileName().toString();
-                    // 过滤检查
-                    if (!matchPattern(fileName, config.getIncludePattern())
-                            || matchPattern(fileName, config.getExcludePattern())) {
+                    // 过滤检查：include 空=全包含；exclude 空=不排除
+                    String includePattern = config.getIncludePattern();
+                    String excludePattern = config.getExcludePattern();
+                    boolean included = isBlank(includePattern) || matchPattern(fileName, includePattern);
+                    boolean excluded = !isBlank(excludePattern) && matchPattern(fileName, excludePattern);
+                    if (!included || excluded) {
                         return FileVisitResult.CONTINUE;
                     }
                     Path dest = target.resolve(source.relativize(file));
@@ -194,6 +198,13 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
                     log.warn("备份跳过无法复制的文件: {}", file, e);
                 }
                 return FileVisitResult.CONTINUE;
+            }
+
+            /**
+             * 判断字符串是否为空白（null/空串/纯空格）。
+             */
+            private boolean isBlank(String s) {
+                return s == null || s.isBlank();
             }
         });
         return copied;

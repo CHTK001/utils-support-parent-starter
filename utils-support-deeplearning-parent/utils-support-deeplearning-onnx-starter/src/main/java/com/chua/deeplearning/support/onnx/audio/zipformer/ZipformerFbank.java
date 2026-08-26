@@ -59,9 +59,10 @@ public class ZipformerFbank {
 
         for (int t = 0; t < numFrames; t++) {
             int offset = t * FRAME_SHIFT;
-            System.arraycopy(samples, offset, frame, 0, FRAME_LENGTH);
+            for (int i = 0; i < FRAME_LENGTH; i++) {
+                frame[i] = samples[offset + i];
+            }
 
-            frame[0] -= 0;
             for (int i = FRAME_LENGTH - 1; i >= 1; i--) {
                 frame[i] -= PREEMPH * frame[i - 1];
             }
