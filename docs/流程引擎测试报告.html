@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>流程引擎测试报告 — Flow</title>
+<style>
+  body { font-family:"Microsoft YaHei",sans-serif; margin:24px; color:#222; background:#fafafa; }
+  h1 { border-bottom:2px solid #2b6cb0; padding-bottom:8px; }
+  .meta { background:#eef4fb; padding:12px 16px; border-radius:6px; margin-bottom:16px; line-height:1.7; }
+  table { border-collapse:collapse; width:100%; background:#fff; }
+  th,td { border:1px solid #cbd5e0; padding:7px 10px; font-size:14px; text-align:left; }
+  th { background:#2b6cb0; color:#fff; }
+  tr:nth-child(even){ background:#f5f8fc; }
+  .pass { color:#1a7f37; font-weight:bold; }
+  code { background:#eee; padding:1px 5px; border-radius:3px; font-size:13px; }
+</style>
+</head>
+<body>
+<h1>流程引擎（Flow）Example 级验证报告</h1>
+<div class="meta">
+  <strong>模块</strong>：utils-support-common-starter / <code>com.chua.common.support.task.flow</code> + <code>com.chua.flow.support</code><br>
+  <strong>验证载体</strong>：example-starter / flow 包四个既有 Example<br>
+  <strong>执行日期</strong>：2026-08-25 · JDK 25 · Windows x86_64<br>
+  <strong>结果判定</strong>：各 Example 退出码 0 = 全部内部断言通过
+</div>
+<div class="summary"><span class="pass">4 / 4 Example 全部通过（EXIT=0）</span></div>
+
+<h2>Example 级验证矩阵</h2>
+<table>
+  <tr><th>#</th><th>Example</th><th>覆盖能力</th><th>结果</th></tr>
+  <tr><td>1</td><td><code>FlowExample</code></td><td>基础链路：start→transform→end 构建、JSON 导出/解析重建、节点执行</td><td class="pass">PASS (EXIT=0)</td></tr>
+  <tr><td>2</td><td><code>FlowCompleteExample</code></td><td>完整功能面：全节点类型编排与完成态校验</td><td class="pass">PASS (EXIT=0)</td></tr>
+  <tr><td>3</td><td><code>FlowEchoNodeExample</code></td><td>自定义 Echo 节点注册与回显语义</td><td class="pass">PASS (EXIT=0)</td></tr>
+  <tr><td>4</td><td><code>FlowTraceExample</code></td><td>D1 验证器：全程 traceId(MDC) 注入、FlowSnapshotStore 快照持久化、执行轨迹还原</td><td class="pass">PASS (EXIT=0)</td></tr>
+</table>
+
+<h2>说明</h2>
+<ul>
+  <li>四个 Example 内部各自包含多组断言，任一断言失败即以退出码 1 结束——本次全部 EXIT=0。</li>
+  <li>FlowTraceExample 额外验证了 MemoryFlowSnapshotStore 的按执行号取回与轨迹状态比对。</li>
+  <li>本报告为 Example 级验证；细粒度场景拆分可参考各 Example 源码内注释。</li>
+</ul>
+
+<h2>运行方式</h2>
+<pre>java --enable-preview -cp &lt;modules&gt; com.chua.example.flow.FlowTraceExample
+（其余三个同理：FlowExample / FlowCompleteExample / FlowEchoNodeExample）</pre>
+</body>
+</html>
