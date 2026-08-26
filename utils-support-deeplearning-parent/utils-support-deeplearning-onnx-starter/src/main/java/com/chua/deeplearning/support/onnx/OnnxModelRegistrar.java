@@ -250,7 +250,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 目标检测(YOLOv2-COCO)：YOLOv2 经典 COCO 80 类检测，轻量级；适用通用物体检测
         reg("yolov2-coco", "com.chua.deeplearning.support.onnx.yolo.v2.translator.Yolov2CocoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v2/yolov2-coco-9.onnx");
         // 旋转目标检测(YOLOv26-OBB)：YOLOv26 旋转框检测，最新版；适用高精度旋转物体检测
-        reg("yolo26-obb", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx", "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx", false, null);
+        reg("yolo26-obb", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx", "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx"), false, "model.onnx");
         // 目标检测(YOLOv8s)：YOLOv8s 标准 COCO 80 类检测，速度和精度平衡；适用通用物体检测
         reg("yolov8s", "com.chua.deeplearning.support.onnx.yolo.v8.translator.YoloV8sTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v8/yolov8s.onnx", "https://huggingface.co/lquint/yolov8s-onnx/resolve/main/onnx/model.onnx", false, "yolov8s.onnx");
         // 深度估计(DepthAnything v2)：从单张图片估计深度图，v2 版精度更高、细节更丰富；适用背景虚化、3D 场景理解
@@ -266,7 +267,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // SAM 图像编码器(SAM ViT-H)：SAM 的图像编码器，提取图像特征（256维），需配合 SAM 解码器使用；适用 SAM 分割流水线
         reg("sam-encoder", "com.chua.deeplearning.support.onnx.seg.SamImageEncoderTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/seg/sam_vit_h/encoder.onnx", "https://huggingface.co/vietanhdev/segment-anything-onnx-models/resolve/main/sam_vit_h_4b8939.zip", true, "encoder.onnx");
         // 开放词汇检测(GroundingDINO)：用任意文本描述检测图像中的物体，比 OWLv2 更准确；适用零样本检测、开放词汇目标检测
-        reg("grounding-dino", "com.chua.deeplearning.support.onnx.dino.GroundingDinoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx", false, null);
+        reg("grounding-dino", "com.chua.deeplearning.support.onnx.dino.GroundingDinoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx"), false, "model.onnx");
         // 文本摘要(T5-small)：英文摘要/生成/翻译，多任务 seq2seq；modelscope 下载
         // 注意：T5 为 encoder-decoder 自回归多文件模型（encoder/decoder/decoder_with_past + tokenizer），
         // 由 T5Seq2SeqOrtTranslator 按"嵌入/缓存/modelscope 下载"自行组装，注册不设 downloadUrl 避免单文件预下载。
@@ -347,9 +349,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 目标检测(YOLOv26n)：YOLOv26 通用检测，最新版；适用通用物体检测
         reg("yolo26n", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx", "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv10m)：YOLOv10m 通用 COCO 检测，精度较高；适用通用物体检测
-        reg("yolov10m", "com.chua.deeplearning.support.onnx.yolo.v10.translator.YoloV10DetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v10/yolov10m.onnx", "https://huggingface.co/onnx-community/yolov10m/resolve/main/onnx/model.onnx", false, null);
+        reg("yolov10m", "com.chua.deeplearning.support.onnx.yolo.v10.translator.YoloV10DetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v10/yolov10m.onnx", "https://huggingface.co/onnx-community/yolov10m/resolve/main/onnx/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/yolov10m/resolve/main/onnx/model.onnx"), false, "model.onnx");
         // 目标检测(YOLOv10n)：YOLOv10n 超轻量通用 COCO 检测；适用边缘设备通用检测
-        reg("yolov10n", "com.chua.deeplearning.support.onnx.yolo.v10.translator.YoloV10DetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v10/yolov10n.onnx", "https://huggingface.co/onnx-community/yolov10n/resolve/main/onnx/model.onnx", false, null);
+        reg("yolov10n", "com.chua.deeplearning.support.onnx.yolo.v10.translator.YoloV10DetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v10/yolov10n.onnx", "https://huggingface.co/onnx-community/yolov10n/resolve/main/onnx/model.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/yolov10n/resolve/main/onnx/model.onnx"), false, "model.onnx");
         // 标签分类(WD-SwinV2-Tagger)：为动漫图片打标签（如"长发"、"微笑"、"猫耳"等），基于 SwinV2；适用二次元图片标签、Danbooru 标签
         reg("wd-tagger-swinv2", "com.chua.deeplearning.support.onnx.classification.ClTaggerTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/wd-swinv2-tagger-v3/model.onnx", "https://huggingface.co/SmilingWolf/wd-swinv2-tagger-v3/resolve/main/model.onnx", false, null);
         // 情绪识别(YOLOv11-face)：YOLOv11n 人脸情绪识别（开心、难过、生气等）；适用人脸情绪分析

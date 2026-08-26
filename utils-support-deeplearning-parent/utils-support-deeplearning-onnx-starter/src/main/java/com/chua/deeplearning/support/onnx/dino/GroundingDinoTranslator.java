@@ -485,6 +485,21 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         if (Files.exists(file)) {
             return file;
         }
+        // classpath 内嵌资源回退（如 tokenizer 等配套文件）
+        String cpResource = "vision/detection/grounding-dino-tiny/" + name;
+        try (java.io.InputStream is = getClass().getClassLoader()
+                .getResourceAsStream(cpResource)) {
+            if (is != null) {
+                Files.createDirectories(root);
+                java.nio.file.Files.copy(is, file,
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                log.info("Grounding DINO 从 classpath 恢复配套文件: {} -> {}",
+                        cpResource, file);
+                return file;
+            }
+        } catch (Exception ignore) {
+            // 回退失败，继续抛出原异常
+        }
         throw new IOException("          Grounding DINO            : " + file);
     }
 
