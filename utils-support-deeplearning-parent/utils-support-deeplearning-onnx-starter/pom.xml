@@ -57,11 +57,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.microsoft.onnxruntime</groupId>
-            <artifactId>onnxruntime_gpu</artifactId>
-            <version>1.20.1</version>
-        </dependency>
-        <dependency>
             <groupId>ai.djl</groupId>
             <artifactId>api</artifactId>
             <version>0.36.0</version>
