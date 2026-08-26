@@ -1,12 +1,14 @@
 package com.chua.crypto.support.launch;
 
+import java.security.SecureRandom;
+import java.util.Arrays;
+
 /**
- * 密钥内存分片（抗 heap dump 简单扫描）
+ * 密钥内存分片（抗 heap dump 特征扫描）
  *
  * <p>将主密钥拆为 N 片：前 N-1 片为安全随机数，末片为主密钥与前述各片的异或，
- * 满足"全部片段拼合才可还原"。分片后堆中不再存在连续 32 字节的完整密钥，
+ * 满足"全部片段拼合才可还原"。分片后堆中不存在连续 32 字节的完整密钥，
  * 使 jmap/heapdump 后的密钥特征扫描失效；每次使用时临时拼合、用后即清零。
- * 对抗性说明：仅提高提取成本，无法对抗可完整控制运行时的高级对手。
  *
  * @author CH
  * @since 2026-08-26
@@ -25,7 +27,7 @@ public final class KeyShard {
     }
 
     /**
-     * 拆分密钥
+     * 拆分密钥（入参数组被清零）
      *
      * @param key 主密钥
      * @return 分片数组
@@ -33,7 +35,7 @@ public final class KeyShard {
     public static byte[][] shard(byte[] key) {
         byte[][] shards = new byte[SHARDS][key.length];
         for (int i = 0; i < SHARDS - 1; i++) {
-            new java.security.SecureRandom().nextBytes(shards[i]);
+            RANDOM.nextBytes(shards[i]);
         }
         byte[] last = shards[SHARDS - 1];
         System.arraycopy(key, 0, last, 0, key.length);
@@ -69,7 +71,7 @@ public final class KeyShard {
      */
     public static void wipe(byte[][] shards) {
         for (byte[] shard : shards) {
-            java.util.Arrays.fill(shard, (byte) 0);
+            Arrays.fill(shard, (byte) 0);
         }
     }
 
@@ -80,7 +82,12 @@ public final class KeyShard {
      */
     public static void wipe(byte[] data) {
         if (data != null) {
-            java.util.Arrays.fill(data, (byte) 0);
+            Arrays.fill(data, (byte) 0);
         }
     }
+
+    /**
+     * 安全随机源
+     */
+    private static final SecureRandom RANDOM = new SecureRandom();
 }

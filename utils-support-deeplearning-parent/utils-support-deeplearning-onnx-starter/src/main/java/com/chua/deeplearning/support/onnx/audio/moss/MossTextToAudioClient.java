@@ -128,7 +128,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
         try {
             long t0 = System.currentTimeMillis();
             String voice = setting.getVoice() != null ? setting.getVoice() : "Junhao";
-            byte[] wav = translator.synthesize(target, voice, 80);
+            byte[] wav = translator.synthesizeText(target, voice);
             log.info("[MossTTS] synthesize {}ms, {} bytes",
                     System.currentTimeMillis() - t0, wav.length);
             return wav;

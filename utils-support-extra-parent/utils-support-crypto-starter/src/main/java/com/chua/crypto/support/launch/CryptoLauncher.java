@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -24,22 +23,22 @@ import java.util.jar.JarFile;
  *
  * <p>启动流程：
  * <ol>
- *   <li>定位自身加密包文件（CodeSource）</li>
- *   <li>解封主密钥：优先 {@code -Dchua.crypto.dongle=} 加密狗载体；
- *       否则解封包内 {@code META-INF/chua-crypto.key} 封装块
- *       （策略以块内标志为准：SERVER_BOUND 自动采集本机指纹；CUSTOM 需提供口令）</li>
- *   <li>将 {@code BOOT-INF/lib/*.jar} 依赖包整体解密到进程私有临时目录并注册关闭钩子清理</li>
- *   <li>构建 {@link EncryptedAppClassLoader}（类/资源透明解密），调用原始主类</li>
+ *   <li>反注入自检（{@link SelfDefense#install()}）</li>
+ *   <li>按优先级获取主密钥：校验服务器 → 私钥文件/加密狗 → 包内密钥封装块</li>
+ *   <li>解密应用类与依赖包到进程私有临时目录（默认模式，退出自动清理）；
+ *       或 {@code -Dchua.crypto.lazy=true} 启用惰性解密类加载器</li>
+ *   <li>调用原始主类</li>
  * </ol>
  *
- * <p>启动参数：
- * <pre>
- * java -jar app-secure.jar                                  # SERVER_BOUND 默认策略，本机直接运行
- * java -Dchua.crypto.pin=xxx -jar app-secure.jar            # CUSTOM 口令策略 / 加密狗口令
- * CHUA_CRYPTO_PIN=xxx java -jar app-secure.jar              # 环境变量等价形式
- * java -Dchua.crypto.server-id=node1 -jar app-secure.jar    # 容灾迁移固定指纹
- * java -Dchua.crypto.dongle=E:/key.dongle -jar ...          # U 盘加密狗启动
- * </pre>
+ * <p>密钥来源配置（均支持 -D 系统属性与环境变量）：
+ * <table border="1">
+ *   <tr><th>形式</th><th>-D 属性</th><th>环境变量</th></tr>
+ *   <tr><td>字符串口令(pepper)</td><td>chua.crypto.pin</td><td>CHUA_CRYPTO_PIN</td></tr>
+ *   <tr><td>主机指纹固定值</td><td>chua.crypto.server-id</td><td>CHUA_CRYPTO_SERVER_ID</td></tr>
+ *   <tr><td>私钥文件</td><td>chua.crypto.key-file</td><td>CHUA_CRYPTO_KEY_FILE</td></tr>
+ *   <tr><td>U 盘加密狗</td><td>chua.crypto.dongle</td><td>CHUA_CRYPTO_DONGLE</td></tr>
+ *   <tr><td>校验服务器</td><td>chua.crypto.license-url / app-id</td><td>CHUA_CRYPTO_LICENSE_URL / CHUA_CRYPTO_APP_ID</td></tr>
+ * </table>
  *
  * @author CH
  * @since 2026-08-26
@@ -82,19 +81,54 @@ public final class CryptoLauncher {
     public static final String PROP_DONGLE = "chua.crypto.dongle";
 
     /**
-     * 外置密钥通道：stdin 读取 Base64 主密钥开关
+     * 加密狗路径环境变量
      */
-    public static final String PROP_KEY_FROM_STDIN = "chua.crypto.key-from-stdin";
+    public static final String ENV_DONGLE = "CHUA_CRYPTO_DONGLE";
 
     /**
-     * 外置密钥通道：环境变量注入 Base64 主密钥
+     * 私钥文件系统属性
      */
-    public static final String ENV_KEY_B64 = "CHUA_CRYPTO_KEY_B64";
+    public static final String PROP_KEY_FILE = "chua.crypto.key-file";
+
+    /**
+     * 私钥文件环境变量
+     */
+    public static final String ENV_KEY_FILE = "CHUA_CRYPTO_KEY_FILE";
+
+    /**
+     * 校验服务器地址系统属性
+     */
+    public static final String PROP_LICENSE_URL = "chua.crypto.license-url";
+
+    /**
+     * 校验服务器地址环境变量
+     */
+    public static final String ENV_LICENSE_URL = "CHUA_CRYPTO_LICENSE_URL";
+
+    /**
+     * 应用标识系统属性
+     */
+    public static final String PROP_APP_ID = "chua.crypto.app-id";
+
+    /**
+     * 应用标识环境变量
+     */
+    public static final String ENV_APP_ID = "CHUA_CRYPTO_APP_ID";
+
+    /**
+     * 惰性加载开关（默认关闭：解密装载模式对 Spring 组件扫描等完全兼容）
+     */
+    public static final String PROP_LAZY = "chua.crypto.lazy";
 
     /**
      * FatJar 依赖目录前缀
      */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
+
+    /**
+     * FatJar 应用类根前缀
+     */
+    private static final String BOOT_CLASSES_PREFIX = "BOOT-INF/classes/";
 
     /**
      * 私有构造
@@ -112,7 +146,6 @@ public final class CryptoLauncher {
             launch(args);
         } catch (Throwable t) {
             System.err.println("[chua-crypto] 程序包启动失败: " + t.getMessage());
-            t.printStackTrace();
             System.exit(1);
         }
     }
@@ -132,7 +165,7 @@ public final class CryptoLauncher {
             if (originalMain == null || originalMain.isBlank()) {
                 throw new IllegalStateException("缺少清单属性 " + ATTR_ORIGINAL_MAIN + "，请确认已由 chua-crypto 打包");
             }
-            // 兼容旧版打包产物：若记录的是 Boot 加载器则回退 Start-Class
+            // 兼容：若记录的是 Boot 加载器则回退 Start-Class
             if (originalMain.startsWith("org.springframework.boot.loader.")) {
                 String startClass = attrs.getValue("Start-Class");
                 if (startClass != null && !startClass.isBlank()) {
@@ -141,9 +174,12 @@ public final class CryptoLauncher {
             }
 
             byte[] master = resolveMaster(jar);
+            Path tempDir = Files.createTempDirectory("chua-crypto-run");
+            registerCleanup(tempDir);
 
-            URLClassLoader libsLoader = buildLibsLoader(jar, self, master);
-            EncryptedAppClassLoader appLoader = new EncryptedAppClassLoader(self, master, libsLoader);
+            URLClassLoader appLoader = Boolean.parseBoolean(System.getProperty(PROP_LAZY, "false"))
+                    ? buildLazyLoader(self, master)
+                    : buildExtractedLoader(jar, master, tempDir);
             KeyShard.wipe(master);
 
             Thread.currentThread().setContextClassLoader(appLoader);
@@ -159,10 +195,9 @@ public final class CryptoLauncher {
     /**
      * 解封主密钥，优先级：
      * <ol>
-     *   <li>stdin 外置密钥（{@code -Dchua.crypto.key-from-stdin=true}，读取一行 Base64 主密钥，
-     *       供外部/native 密钥提供方管道注入，口令不进入进程参数与环境）</li>
-     *   <li>环境变量 {@code CHUA_CRYPTO_KEY_B64}</li>
-     *   <li>加密狗载体（{@code -Dchua.crypto.dongle=}）</li>
+     *   <li>校验服务器：POST 本机指纹 → 校验注册合法性 → 下发注册的私钥封装块</li>
+     *   <li>加密狗载体（CHKD）</li>
+     *   <li>私钥文件（CHKF/CHKD 自动识别）</li>
      *   <li>包内密钥封装块（策略以块内标志为准）</li>
      * </ol>
      *
@@ -171,70 +206,139 @@ public final class CryptoLauncher {
      * @throws IOException 读取失败
      */
     private static byte[] resolveMaster(JarFile jar) throws IOException {
-        byte[] external = readExternalKey();
-        if (external != null) {
-            return external;
-        }
-
         char[] pin = readSecret();
         String serverId = firstNonBlank(System.getProperty(PROP_SERVER_ID), System.getenv(ENV_SERVER_ID));
 
-        String donglePath = System.getProperty(PROP_DONGLE);
-        if (donglePath != null && !donglePath.isBlank()) {
-            Path dongle = Path.of(donglePath.trim());
-            if (!Files.exists(dongle)) {
-                throw new IllegalStateException("加密狗未找到: " + donglePath);
+        String licenseUrl = firstNonBlank(System.getProperty(PROP_LICENSE_URL), System.getenv(ENV_LICENSE_URL));
+        if (licenseUrl != null) {
+            String appId = firstNonBlank(System.getProperty(PROP_APP_ID), System.getenv(ENV_APP_ID));
+            if (appId == null) {
+                appId = mainAttributes(jar).getValue(ATTR_ORIGINAL_MAIN);
             }
-            return PayloadCipher.unwrapMaster(PayloadCipher.MAGIC_DONGLE,
-                    Files.readAllBytes(dongle), pin, serverId);
+            byte[] blob = LicenseKeyClient.fetch(licenseUrl, appId, PayloadCipher.fingerprint(serverId));
+            return PayloadCipher.unwrapMaster(PayloadCipher.MAGIC_KEY_BLOB, blob,
+                    pin == null ? new char[0] : pin, serverId);
+        }
+
+        String donglePath = firstNonBlank(System.getProperty(PROP_DONGLE), System.getenv(ENV_DONGLE));
+        if (donglePath != null) {
+            return loadCarrierBlob(Path.of(donglePath.trim()), "加密狗", pin, serverId);
+        }
+
+        String keyFilePath = firstNonBlank(System.getProperty(PROP_KEY_FILE), System.getenv(ENV_KEY_FILE));
+        if (keyFilePath != null) {
+            return loadCarrierBlob(Path.of(keyFilePath.trim()), "私钥文件", pin, serverId);
         }
 
         JarEntry blobEntry = jar.getJarEntry(KEY_BLOB_ENTRY);
         if (blobEntry == null) {
-            throw new IllegalStateException("包内缺少密钥块 " + KEY_BLOB_ENTRY);
+            throw new IllegalStateException("包内缺少密钥块 " + KEY_BLOB_ENTRY
+                    + "：请配置校验服务器/私钥文件/加密狗等密钥来源");
         }
         return PayloadCipher.unwrapMaster(PayloadCipher.MAGIC_KEY_BLOB,
                 readAll(jar.getInputStream(blobEntry)), pin, serverId);
     }
 
     /**
-     * 读取外置主密钥（Base64 32 字节）
+     * 加载外置载体封装块（加密狗/私钥文件，魔数自动识别 CHKF/CHKD）
      *
-     * @return 主密钥；未启用外置通道时返回 null
-     * @throws IOException stdin 读取失败
+     * @param file      载体文件
+     * @param desc      描述（用于错误消息）
+     * @param pin       口令
+     * @param serverId  固定服务器标识
+     * @return 主密钥
+     * @throws IOException 读取失败
      */
-    private static byte[] readExternalKey() throws IOException {
-        boolean fromStdin = Boolean.parseBoolean(System.getProperty(PROP_KEY_FROM_STDIN, "false"));
-        String base64 = fromStdin
-                ? new String(System.in.readNBytes(64), java.nio.charset.StandardCharsets.UTF_8).trim()
-                : System.getenv(ENV_KEY_B64);
-        if (base64 == null || base64.isBlank()) {
-            return null;
+    private static byte[] loadCarrierBlob(Path file, String desc, char[] pin, String serverId) throws IOException {
+        if (!Files.exists(file)) {
+            throw new IllegalStateException(desc + "未找到: " + file);
         }
-        byte[] master = Base64.getDecoder().decode(base64);
-        if (master.length != 32) {
-            KeyShard.wipe(master);
-            throw new IllegalStateException("外置主密钥长度非法（期望 32 字节 Base64）");
+        byte[] blob = Files.readAllBytes(file);
+        IllegalStateException last = null;
+        for (byte[] magic : new byte[][]{PayloadCipher.MAGIC_KEY_BLOB, PayloadCipher.MAGIC_DONGLE}) {
+            try {
+                return PayloadCipher.unwrapMaster(magic, blob, pin, serverId);
+            } catch (IllegalStateException e) {
+                last = e;
+            }
         }
-        return master;
+        throw last;
     }
 
     /**
-     * 解密依赖包到进程私有临时目录并构建加载器
+     * 默认模式：应用类与资源、依赖包整体解密到临时目录，构建标准类加载器。
      *
-     * @param jar    加密程序包
-     * @param self   包文件
-     * @param master 主密钥
-     * @return 依赖加载器
+     * @param jar     加密程序包
+     * @param master  主密钥
+     * @param tempDir 进程私有临时根目录
+     * @return 应用类加载器
      * @throws IOException 解密写出失败
      */
-    private static URLClassLoader buildLibsLoader(JarFile jar, File self, byte[] master) throws IOException {
+    private static URLClassLoader buildExtractedLoader(JarFile jar, byte[] master, Path tempDir)
+            throws IOException {
+        List<URL> urls = new ArrayList<>();
+        Path classesDir = Files.createDirectories(tempDir.resolve("classes"));
+        for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
+            JarEntry entry = entries.nextElement();
+            String name = entry.getName();
+            if (entry.isDirectory() || !name.startsWith(BOOT_CLASSES_PREFIX) || name.endsWith("/")) {
+                continue;
+            }
+            byte[] raw = readAll(jar.getInputStream(entry));
+            byte[] bytes = PayloadCipher.isEncryptedEntry(raw)
+                    ? PayloadCipher.decryptEntry(master, raw) : raw;
+            Path target = classesDir.resolve(name.substring(BOOT_CLASSES_PREFIX.length()));
+            Files.createDirectories(target.getParent());
+            Files.write(target, bytes);
+        }
+        urls.add(classesDir.toUri().toURL());
+
+        Path libsDir = Files.createDirectories(tempDir.resolve("libs"));
+        for (JarEntry entry : collectLibEntries(jar)) {
+            byte[] bytes = decryptEntryBytes(jar, entry, master);
+            Path libFile = Files.createTempFile(libsDir, "", "-" + fileName(entry));
+            Files.write(libFile, bytes);
+            urls.add(libFile.toUri().toURL());
+        }
+        return new URLClassLoader(urls.toArray(new URL[0]), CryptoLauncher.class.getClassLoader());
+    }
+
+    /**
+     * 惰性模式：应用 class 经 {@link EncryptedAppClassLoader} 按需解密，不落盘。
+     *
+     * @param self   包文件
+     * @param master 主密钥
+     * @return 惰性加载器
+     * @throws IOException 解密失败
+     */
+    private static URLClassLoader buildLazyLoader(File self, byte[] master) throws IOException {
         Path libsDir = Files.createTempDirectory("chua-crypto-libs");
         registerCleanup(libsDir);
 
         List<URL> urls = new ArrayList<>();
+        try (JarFile jar = new JarFile(self)) {
+            for (JarEntry entry : collectLibEntries(jar)) {
+                byte[] bytes = decryptEntryBytes(jar, entry, master);
+                Path libFile = Files.createTempFile(libsDir, "", "-" + fileName(entry));
+                Files.write(libFile, bytes);
+                urls.add(libFile.toUri().toURL());
+            }
+        }
+        URLClassLoader libsLoader = new URLClassLoader(urls.toArray(new URL[0]),
+                CryptoLauncher.class.getClassLoader());
+        return new EncryptedAppClassLoader(self, master.clone(), libsLoader);
+    }
+
+    /**
+     * 收集 FatJar 依赖条目并按名称排序
+     *
+     * @param jar 加密程序包
+     * @return 依赖条目列表
+     */
+    private static List<JarEntry> collectLibEntries(JarFile jar) {
         List<JarEntry> libs = new ArrayList<>();
-        for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
+        Enumeration<JarEntry> entries = jar.entries();
+        while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
             String name = entry.getName();
             if (!entry.isDirectory() && name.startsWith(BOOT_LIB_PREFIX) && name.endsWith(".jar")) {
@@ -242,22 +346,35 @@ public final class CryptoLauncher {
             }
         }
         libs.sort(Comparator.comparing(JarEntry::getName));
-        for (JarEntry entry : libs) {
-            byte[] raw = readAll(jar.getInputStream(entry));
-            byte[] bytes = PayloadCipher.isEncryptedEntry(raw)
-                    ? PayloadCipher.decryptEntry(master, raw) : raw;
-            String fileName = Path.of(entry.getName()).getFileName().toString();
-            // createTempFile 生成 <随机>-<原名> 形态，保留 .jar 后缀语义
-            Path libFile = Files.createTempFile(libsDir, "", "-" + fileName);
-            Files.write(libFile, bytes);
-            urls.add(libFile.toUri().toURL());
-        }
-        urls.add(self.toURI().toURL());
-        return new URLClassLoader(urls.toArray(new URL[0]), CryptoLauncher.class.getClassLoader());
+        return libs;
     }
 
     /**
-     * 注册 JVM 关闭钩子：递归删除临时依赖目录
+     * 解密条目（未加密则原样返回）
+     *
+     * @param jar   程序包
+     * @param entry 条目
+     * @param master 主密钥
+     * @return 明文字节
+     * @throws IOException 读取失败
+     */
+    private static byte[] decryptEntryBytes(JarFile jar, JarEntry entry, byte[] master) throws IOException {
+        byte[] raw = readAll(jar.getInputStream(entry));
+        return PayloadCipher.isEncryptedEntry(raw) ? PayloadCipher.decryptEntry(master, raw) : raw;
+    }
+
+    /**
+     * 取条目文件名
+     *
+     * @param entry 条目
+     * @return 文件名
+     */
+    private static String fileName(JarEntry entry) {
+        return Path.of(entry.getName()).getFileName().toString();
+    }
+
+    /**
+     * 注册 JVM 关闭钩子：递归删除临时目录
      *
      * @param dir 临时目录
      */
@@ -268,7 +385,7 @@ public final class CryptoLauncher {
             } catch (IOException ignored) {
                 // 退出期清理失败可忽略
             }
-        }, "chua-crypto-libs-cleaner"));
+        }, "chua-crypto-cleaner"));
     }
 
     /**

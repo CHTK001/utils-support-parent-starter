@@ -21,6 +21,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *   <li>保存新的 ClassLoader 供下次热重载使用</li>
  * </ol></p>
  *
+ * <p>线程安全说明：{@link #createInstance()} 使用 {@code synchronized} 保护热重载流程，
+ * 避免多线程并发检测变更和编译导致的 ClassLoader 泄漏。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  * @see ScriptDefinition
@@ -33,6 +36,11 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
      * 脚本类加载器引用，热重载时替换
      */
     private final AtomicReference<ClassLoader> scriptClassLoader = new AtomicReference<>();
+
+    /**
+     * 热重载锁，保护 createInstance() 中的变更检测 → 销毁 → 编译流程
+     */
+    private final Object hotReloadLock = new Object();
 
     /**
      * 脚本标记器，负责脚本编译和对象创建
@@ -109,41 +117,54 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
-    /** 创建Instance */
+    /**
+     * 创建脚本对象实例（线程安全）。
+     *
+     * <p>使用 {@code synchronized} 保护热重载流程，避免多线程并发检测变更和编译
+     * 导致 ClassLoader 泄漏或重复创建。</p>
+     *
+     * <p>热重载时，先断开旧实例引用再编译新实例，确保旧实例及其关联的类可被 GC 回收。</p>
+     */
     public Object createInstance() {
         if (listener == null || scriptMarker == null) {
             return null;
         }
 
-        // 检测脚本源码是否变化，变化则销毁旧 ClassLoader
-        if (listener.isChange()) {
-            destroyScriptClassLoader();
-        }
-
-        // 获取当前 ClassLoader，首次使用时取默认类加载器
-        ClassLoader current = scriptClassLoader.get();
-        if (current == null) {
-            current = ClassUtils.getDefaultClassLoader();
-        }
-
-        // 调用脚本标记器编译并创建对象
-        Object instance = scriptMarker.createObject(listener, current, new Object[0]);
-        if (instance != null) {
-            // 缓存实例，供 getBean() 复用
-            this.scriptInstance = instance;
-            // 更新 Bean 类型，若标记器未返回类型则使用实例类
-            Class<?> type = scriptMarker.getType();
-            if (type == null) {
-                type = instance.getClass();
+        synchronized (hotReloadLock) {
+            // 检测脚本源码是否变化，变化则销毁旧 ClassLoader 并断开旧实例引用
+            if (listener.isChange()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("[ScriptDefinition] 检测到脚本源码变更，执行热重载: name={}", getName());
+                }
+                destroyScriptClassLoader();
+                this.scriptInstance = null;
             }
-            setBeanClass(type);
-            // 保存脚本标记器产生的 ClassLoader
-            ClassLoader newClassLoader = scriptMarker.getScriptClassLoader();
-            if (newClassLoader != null) {
-                setScriptClassLoader(newClassLoader);
+
+            // 获取当前 ClassLoader，首次使用时取默认类加载器
+            ClassLoader current = scriptClassLoader.get();
+            if (current == null) {
+                current = ClassUtils.getDefaultClassLoader();
             }
+
+            // 调用脚本标记器编译并创建对象
+            Object instance = scriptMarker.createObject(listener, current, new Object[0]);
+            if (instance != null) {
+                // 缓存实例，供 getBean() 复用
+                this.scriptInstance = instance;
+                // 更新 Bean 类型，若标记器未返回类型则使用实例类
+                Class<?> type = scriptMarker.getType();
+                if (type == null) {
+                    type = instance.getClass();
+                }
+                setBeanClass(type);
+                // 保存脚本标记器产生的 ClassLoader
+                ClassLoader newClassLoader = scriptMarker.getScriptClassLoader();
+                if (newClassLoader != null) {
+                    setScriptClassLoader(newClassLoader);
+                }
+            }
+            return instance;
         }
-        return instance;
     }
 
     @Override
@@ -219,18 +240,57 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
      * <p>热重载时调用，释放旧 ClassLoader 占用的 Metaspace 内存。
      * 如果 ClassLoader 实现了 {@link AutoCloseable}，优先调用 close()；
      * 否则回退到 {@link ClassUtils#unregisterClassLoader(ClassLoader)}。</p>
+     *
+     * <p>异常安全保证：即使 close() 失败，也会兜底调用
+     * {@link ClassUtils#unregisterClassLoader(ClassLoader)} 尝试从全局注册表移除，
+     * 避免 ClassLoader 成为孤儿对象。</p>
      */
     public void destroyScriptClassLoader() {
         ClassLoader classLoader = this.scriptClassLoader.getAndSet(null);
-        if (classLoader != null) {
+        if (classLoader == null) {
+            return;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[ScriptDefinition] 销毁脚本类加载器: name={}, type={}, hash={}",
+                    getName(), classLoader.getClass().getName(), System.identityHashCode(classLoader));
+        }
+        // 新增：销毁前清理 Groovy 内部缓存（sourceCache、ClassInfo 反射缓存）
+        clearGroovyCache(classLoader);
+        try {
+            if (classLoader instanceof AutoCloseable autoCloseable) {
+                autoCloseable.close();
+            } else {
+                ClassUtils.unregisterClassLoader(classLoader);
+            }
+        } catch (Exception e) {
+            log.error("[ScriptDefinition] 销毁脚本类加载器失败: {}", classLoader, e);
+            // 兜底：即使 close() 失败，也尝试从全局注册表移除，
+            // 避免 ClassLoader 成为孤儿对象（既不在 scriptClassLoader 中，也不在注册表中）
             try {
-                if (classLoader instanceof AutoCloseable autoCloseable) {
-                    autoCloseable.close();
-                } else {
-                    ClassUtils.unregisterClassLoader(classLoader);
-                }
+                ClassUtils.unregisterClassLoader(classLoader);
+            } catch (Exception ignored) {
+                // 移除失败时静默忽略，避免二次异常
+            }
+        }
+    }
+
+    /**
+     * 清理 GroovyClassLoader 的内部缓存。
+     *
+     * <p>通过反射调用 {@code GroovyClassLoader.clearCache()} 方法，
+     * 在 close() 之前释放 sourceCache 和 ClassInfo 反射缓存，
+     * 帮助 Metaspace 内存回收。仅当 ClassLoader 是 GroovyClassLoader 实例时执行。</p>
+     */
+    private void clearGroovyCache(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return;
+        }
+        // 通过类名判断是否为 GroovyClassLoader，避免直接依赖 Groovy 类
+        if ("groovy.lang.GroovyClassLoader".equals(classLoader.getClass().getName())) {
+            try {
+                classLoader.getClass().getMethod("clearCache").invoke(classLoader);
             } catch (Exception e) {
-                log.error("[ScriptDefinition] 销毁脚本类加载器失败: {}", classLoader, e);
+                // clearCache 调用失败时静默忽略，不影响后续 close() 流程
             }
         }
     }

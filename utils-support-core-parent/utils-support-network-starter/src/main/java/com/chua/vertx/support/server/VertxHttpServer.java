@@ -53,6 +53,8 @@ public class VertxHttpServer extends AbstractServer {
     private io.vertx.core.http.HttpServer server;
     /** 虚拟线程池:handler 执行 */
     private java.util.concurrent.ExecutorService virtualThreadExecutor;
+    /** WebSocket 主题处理器映射 */
+    private final Map<String, java.util.List<com.chua.common.support.network.server.handler.ServerHandler>> wsTopicHandlers = new java.util.concurrent.ConcurrentHashMap<>();
     /** 基准测试模式:跳过虚拟线程,直接在 Event Loop 执行 */
     private final boolean benchmarkMode = "true".equals(System.getProperty("bench.fast"));
     /** Reactive */
@@ -228,6 +230,17 @@ public class VertxHttpServer extends AbstractServer {
         virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
         rootRoute.handler(ctx -> {
+            // WebSocket 升级检测：切到 Vert.x 原生 WebSocket，按 topic\nbody 路由
+            String upg = ctx.request().getHeader("Upgrade");
+            if (upg != null && "websocket".equalsIgnoreCase(upg)) {
+                ctx.request().toWebSocket().onSuccess(ws -> {
+                    ws.textMessageHandler(msg -> dispatchWsMessage(ws, msg.toString()));
+                }).onFailure(err -> {
+                    log.warn("WebSocket 升级失败: {}", err.getMessage());
+                    ctx.vertx().runOnContext(v -> ctx.response().setStatusCode(500).end());
+                });
+                return;
+            }
             VertxServerRequest request = new VertxServerRequest(ctx);
             // 暴露底层 RoutingContext，供 WebSocket 反向代理等 Filter 完成升级
             request.setAttribute(ServerAttribute.VERTX_ROUTING_CONTEXT, ctx);
@@ -283,6 +296,166 @@ public class VertxHttpServer extends AbstractServer {
 
     /** Do处理 */
     private void doHandle(VertxServerRequest request, VertxServerResponse response) {
+        // WebSocket 升级检测
+        String upgrade = request.getHeader("Upgrade");
+        if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
+            handleWebSocketUpgrade(request, response);
+            return;
+        }
+        try {
+            handleRequest(request, response);
+        } catch (Exception e) {
+            log.warn("过滤器链执行异常: {}", e.getMessage(), e);
+            if (!response.isEnded()) {
+                response.sendError(500, "Internal Server Error");
+            }
+        }
+    }
+
+    /**
+     * WebSocket 升级处理：切换到 Vert.x 原生 WebSocket，
+     * 按 "topic\nbody" 约定路由消息到已注册的主题处理器。
+     */
+    private void handleWebSocketUpgrade(VertxServerRequest request, VertxServerResponse response) {
+        var routingCtx = request.getAttribute(com.chua.common.support.network.server.ServerAttribute.VERTX_ROUTING_CONTEXT);
+        if (routingCtx instanceof io.vertx.ext.web.RoutingContext rc) {
+            rc.request().toWebSocket().onSuccess(ws -> {
+                ws.textMessageHandler(msg -> {
+                    dispatchWsMessage(ws, msg.toString());
+                });
+            }).onFailure(err -> {
+                log.warn("WebSocket 升级失败: {}", err.getMessage());
+                response.sendError(500, "WebSocket upgrade failed");
+            });
+        } else {
+            response.sendError(426, "Upgrade Required");
+        }
+    }
+
+    /** 按 topic\nbody 分发 WS 消息。 */
+    private void dispatchWsMessage(io.vertx.core.http.ServerWebSocket ws, String text) {
+        String topic = "default";
+        String body = text;
+        int idx = text.indexOf('\n');
+        if (idx > 0) {
+            topic = text.substring(0, idx).trim();
+            body = text.substring(idx + 1);
+        }
+        List<com.chua.common.support.network.server.handler.ServerHandler> handlers = wsTopicHandlers.get(topic);
+        if (handlers == null) handlers = wsTopicHandlers.get("default");
+        if (handlers == null) return;
+        for (var handler : handlers) {
+            try {
+                var wsReq = new VertxWsRequest(topic, body);
+                var wsResp = new VertxWsResponse(ws);
+                handler.handle(wsReq, wsResp);
+                if (wsResp.getResult() != null) {
+                    ws.writeTextMessage(wsResp.getResult().toString());
+                }
+            } catch (Exception e) {
+                log.warn("WS handler 异常: {}", e.getMessage());
+            }
+        }
+    }
+
+    /** 订阅 WebSocket 主题。 */
+    public VertxHttpServer onSubscribe(String topic, com.chua.common.support.network.server.handler.ServerHandler handler) {
+        wsTopicHandlers.computeIfAbsent(topic, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(handler);
+        return this;
+    }
+
+    /** WebSocket 消息请求（与 NioHttpServer.WsServerRequest 行为一致）。 */
+    private static final class VertxWsRequest implements com.chua.common.support.network.server.request.ServerRequest {
+        /** Topic */
+        private final String topic;
+        /** 请求体 */
+        private final String body;
+        /** attributes */
+        private final Map<String, Object> attributes = new java.util.concurrent.ConcurrentHashMap<>();
+
+        VertxWsRequest(String topic, String body) {
+            this.topic = topic;
+            this.body = body;
+        }
+
+        @Override public String getUri() { return "/ws/" + topic; }
+        @Override public String getPath() { return "/ws/" + topic; }
+        @Override public HttpMethod getMethod() { return HttpMethod.POST; }
+        @Override public String getHeader(String name) { return null; }
+        @Override public HttpHeader getHeaders() { return HttpHeader.create(); }
+        @Override public Map<String, String> getParams() { return java.util.Collections.emptyMap(); }
+        @Override public String getParam(String name) { return null; }
+        @Override public String getContentType() { return "text/plain"; }
+        @Override public long getContentLength() { return body != null ? body.getBytes(StandardCharsets.UTF_8).length : -1; }
+        @Override public byte[] getBody() { return body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0]; }
+        @Override public String getBodyString() { return body; }
+        @Override public InputStream getInputStream() { return new java.io.ByteArrayInputStream(getBody()); }
+        @Override public String getRemoteAddress() { return "127.0.0.1"; }
+        @Override public int getRemotePort() { return 0; }
+        @Override public Map<String, Object> getAttributes() { return attributes; }
+        @Override public Object getAttribute(String name) { return attributes.get(name); }
+        @Override public void setAttribute(String name, Object value) { attributes.put(name, value); }
+    }
+
+    /** WebSocket 消息响应（持有 Vert.x ServerWebSocket 引用用于回写）。 */
+    private static final class VertxWsResponse implements com.chua.common.support.network.server.response.ServerResponse {
+        /** WebSocket 连接 */
+        private final io.vertx.core.http.ServerWebSocket ws;
+        /** 状态 */
+        private int status = 200;
+        /** Ended */
+        private boolean ended;
+        /** Committed */
+        private boolean committed;
+        /** 结果 */
+        private Object result;
+
+        VertxWsResponse(io.vertx.core.http.ServerWebSocket ws) {
+            this.ws = ws;
+        }
+
+        @Override public int getStatus() { return status; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setStatus(int statusCode) { this.status = statusCode; return this; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(byte[] body) { this.result = body; return this; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(String body) { this.result = body; return this; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setHeader(String name, String value) { return this; }
+        @Override public String getHeader(String name) { return null; }
+        @Override public HttpHeader getHeaders() { return HttpHeader.create(); }
+        @Override public String getContentType() { return null; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setContentType(String contentType) { return this; }
+        @Override public byte[] getBody() { return result instanceof byte[] b ? b : null; }
+        @Override public OutputStream getOutputStream() { return new java.io.ByteArrayOutputStream(); }
+        @Override public com.chua.common.support.network.server.response.ServerResponse sendRedirect(String location) { return this; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse sendError(int code, String message) {
+            this.status = code;
+            this.result = message;
+            this.ended = true;
+            return this;
+        }
+        @Override public void flush() { }
+        @Override public boolean isCommitted() { return committed; }
+        @Override public boolean isEnded() { return ended; }
+        @Override public void end() { this.ended = true; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse reset() {
+            if (!committed) {
+                status = 200;
+                result = null;
+                ended = false;
+            }
+            return this;
+        }
+        @Override public void writeRaw(byte[] bytes) {
+            ws.writeBinaryMessage(io.vertx.core.buffer.Buffer.buffer(bytes));
+        }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setResult(Object result) { this.result = result; return this; }
+        @Override public Object getResult() { return result; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse sse() { return this; }
+        @Override public void sseEvent(String event, String data) { }
+        @Override public void sseClose() { }
+    }
+
+    /** Do处理 */
+    private void doHandleOriginal(VertxServerRequest request, VertxServerResponse response) {
         try {
             handleRequest(request, response);
         } catch (Exception e) {

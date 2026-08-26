@@ -65,17 +65,30 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
         List<VideoInfoResult> results = new ArrayList<>();
 
         try {
-            // 发送请求
-            String responseBody = HttpClientFactory.of(BILIBILI_SEARCH_API)
-                    .query("keyword", keyword)
-                    .query("search_type", ObjectUtils.defaultIfNull(getSearchType(videoSearch), "1"))
-                    .query("page", String.valueOf(videoSearch.getPage()))
-                    .query("order", ObjectUtils.defaultIfNull(videoSearch.getOrder(), "totalrank"))
-                    .query("platform", "pc")
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+            // 构建请求（使用原生 HttpClient，绕过框架层 Cookie/编码差异）
+            String encodedKeyword = java.net.URLEncoder.encode(keyword, java.nio.charset.StandardCharsets.UTF_8);
+            String searchType = ObjectUtils.defaultIfNull(getSearchType(videoSearch), "1");
+            String apiUrl = BILIBILI_SEARCH_API
+                    + "?keyword=" + encodedKeyword
+                    + "&search_type=" + searchType
+                    + "&page=" + videoSearch.getPage()
+                    + "&order=" + ObjectUtils.defaultIfNull(videoSearch.getOrder(), "totalrank")
+                    + "&platform=pc";
+
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
+                    .build();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(apiUrl))
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
                     .header("Referer", "https://www.bilibili.com/")
-                    .get()
-                    .getBodyString();
+                    .header("Cookie", "buvid3=" + java.util.UUID.randomUUID() + "infoc")
+                    .timeout(java.time.Duration.ofSeconds(15))
+                    .GET()
+                    .build();
+            java.net.http.HttpResponse<String> httpResponse =
+                    client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            String responseBody = httpResponse.body();
 
             // 解析响应
             if (responseBody != null) {

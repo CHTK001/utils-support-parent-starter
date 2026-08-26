@@ -26,8 +26,8 @@ class MysqlEnginesTest {
 
     private static final String HOST = "172.16.0.40";
     private static final int PORT = 3308;
-    private static final String USER = "it";
-    private static final String PASS = "it12345";
+    private static final String USER = "root";
+    private static final String PASS = "root";
     private static final String DB = "testdb";
 
     /**

@@ -120,23 +120,42 @@ chua:
 
 ### 5. 程序包加密（SpringBoot FatJar / 可执行 Jar）
 
-将可运行程序与其依赖包整体加密为自保护发行包：
+#### 5.1 完整流程示例
 
-```java
-Crypto crypto = Crypto.create()
-        .keyPolicy(KeyPolicy.SERVER_BOUND)   // 或 CUSTOM + secret(...)
-        .build();
+**第一步：准备打包机 classpath**（`pack-cp.txt`，一行一个或分号分隔）：
 
-JarEncryptor.create()
-        .source("app.jar")                   // SpringBoot FatJar 或普通可执行 Jar
-        .output("app-secure.jar")
-        .crypto(crypto)
-        .encryptConfig(true)                 // 包内 application/bootstrap 配置随包加密
-        .exclude("BOOT-INF/classes/static/") // 可选：明文保留前缀
-        .execute();
+```
+utils-support-crypto-starter-4.0.0.42.jar      本模块
+utils-support-common-starter-4.0.0.42.jar      common 基础包
+asm-9.9.1.jar / asm-commons-9.9.1.jar          混淆用
+guava-33.4.8-jre.jar / javassist-3.30.2-GA.jar / slf4j-api-2.0.5.jar
 ```
 
-打包动作：
+**第二步：一条命令加密**（在打包机上执行）：
+
+```bash
+java -cp "<pack-cp.txt 内容>" com.chua.crypto.support.pack.CryptoPackCli \
+     --source app.jar \
+     --output app-secure.jar \
+     --policy SERVER_BOUND            # 或 CUSTOM --pin xxx
+```
+
+可选参数：`--encrypt-config`(默认开) `--no-obfuscate` `--rename-privates` `--server-id node1`
+
+**第三步：发行运行**（目标机器无需任何额外文件）：
+
+```bash
+java -jar app-secure.jar                              # SERVER_BOUND：仅授权机器可运行
+java -Dchua.crypto.pin=xxx -jar app-secure.jar        # CUSTOM 口令策略
+CHUA_CRYPTO_PIN=xxx java -jar app-secure.jar          # 环境变量等价
+java -Dchua.crypto.dongle=E:/key.dongle -jar ...      # U 盘加密狗启动
+java -Dchua.crypto.server-id=node1 -jar app-secure.jar  # 容灾迁移固定指纹
+derive-key | java -Dchua.crypto.key-from-stdin=true -jar app-secure.jar   # 外部密钥管道
+```
+
+发行脚本建议追加 `-XX:+DisableAttachMechanism -Dchua.crypto.guard=strict`。
+
+#### 5.2 打包动作明细
 - `*.class` 全部逐条目 CHKJ(AES-256-GCM) 加密；
 - `BOOT-INF/lib/*.jar` **依赖包**整体加密（重复打包安全，已加密条目透传）；
 - 主密钥以 CHKF 封装块内嵌 `META-INF/chua-crypto.key`（策略/口令/指纹体系完全复用）；

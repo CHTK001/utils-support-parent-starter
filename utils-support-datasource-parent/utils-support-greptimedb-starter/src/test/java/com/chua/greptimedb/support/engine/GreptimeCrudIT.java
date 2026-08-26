@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * GreptimeDB 完整增删改查值校验（使用 public 库，唯一表名）。
+ * <p>注意：{@code value} 为 GreptimeDB 保留字，列名使用 {@code val}。</p>
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GreptimeCrudIT {
@@ -38,7 +39,7 @@ class GreptimeCrudIT {
     @Test @Order(1)
     void createTable() {
         assertDoesNotThrow(() -> engine.getExecutor().execute(
-                "CREATE TABLE " + TABLE + " (sensor STRING, value DOUBLE, ts TIMESTAMP, TIME INDEX(ts))"));
+                "CREATE TABLE " + TABLE + " (sensor STRING, val DOUBLE, ts TIMESTAMP, TIME INDEX(ts))"));
     }
 
     @Test @Order(2)
@@ -64,7 +65,7 @@ class GreptimeCrudIT {
                 "INSERT INTO " + TABLE + " VALUES ('s1', 99.9, 1700000000000)");
         Thread.sleep(500);
         var rows = engine.getExecutor()
-                .query("SELECT value FROM " + TABLE + " WHERE value = 99.9");
+                .query("SELECT val FROM " + TABLE + " WHERE val = 99.9");
         assertFalse(rows.isEmpty(), "upsert 后应读到新值 99.9");
     }
 }

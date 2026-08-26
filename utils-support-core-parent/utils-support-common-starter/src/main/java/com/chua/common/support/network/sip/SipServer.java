@@ -122,7 +122,8 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     public SipServer(SipConfig config) {
         super(serverSetting(config));
-        this.token = config.getToken();
+        this.token = resolveToken(config);
+        this.rateLimiter = new SipRateLimiter(config.getMinFrameIntervalNs(), config.getMaxAuthPerIpPerMin());
     }
 
     /**
@@ -131,7 +132,27 @@ public class SipServer extends AbstractServer implements TcpServer {
      * @param config SIP 配置
      * @return 服务器配置
      */
-    private static ServerSetting serverSetting(SipConfig config) {
+        /**
+     * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
+     */
+    private static String resolveToken(SipConfig config) {
+        String file = config.getTokenFile();
+        if (file != null && !file.isEmpty()) {
+            try {
+                String content = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(file)),
+                        java.nio.charset.StandardCharsets.UTF_8).trim();
+                if (!content.isEmpty()) {
+                    log.info("SIP token 从文件加载: {}", file);
+                    return content;
+                }
+            } catch (Exception e) {
+                log.warn("SIP token 文件读取失败: {} ({})", file, e.getMessage());
+            }
+        }
+        return config.getToken();
+    }
+
+private static ServerSetting serverSetting(SipConfig config) {
         ServerSetting setting = ServerSetting.defaults();
         setting.setHost(config.getHost());
         setting.setPort(config.getPort());
@@ -477,9 +498,11 @@ public class SipServer extends AbstractServer implements TcpServer {
 
         String line;
         while (running && (line = reader.readLine()) != null) {
+            if (!rateLimiter.allowFrame(clientId)) { log.debug("SIP 帧限速: client={}", clientId); continue; }
             handleSignal(clientId, line);
         }
-        onSignalClosed(clientId);
+                rateLimiter.releaseConnection(clientId);
+onSignalClosed(clientId);
     }
 
     /**
@@ -864,7 +887,13 @@ public class SipServer extends AbstractServer implements TcpServer {
         /**
          * 是否仍在运行
          */
-        private volatile boolean running = true;
+        
+
+    /**
+     * 速率限制器（认证 + 帧速率）
+     */
+    private final SipRateLimiter rateLimiter;
+private volatile boolean running = true;
 
         private MuxServerConn(String key, String clientId, String role, InputStream in, OutputStream out) {
             this.key = key;
