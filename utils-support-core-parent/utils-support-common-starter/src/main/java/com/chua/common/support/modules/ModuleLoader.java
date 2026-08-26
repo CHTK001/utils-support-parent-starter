@@ -69,7 +69,7 @@ public class ModuleLoader {
                     exportModule(source, modulesArray, unnamedModule, addExports, addOpens);
                 }
             } catch (Exception e) {
-                log.debug("全量导出失败", e);
+                log.trace("全量导出失败", e);
             }
         }
     }
@@ -124,7 +124,7 @@ public class ModuleLoader {
                 addExports.invoke(source, pkg, unnamed);
             }
         } catch (Exception e) {
-            log.debug("导出包 {} 失败: {}", pkg, e.getMessage());
+            log.trace("导出包 {} 失败: {}", pkg, e.getMessage());
         }
     }
 
@@ -149,7 +149,7 @@ public class ModuleLoader {
                 addOpens.invoke(source, pkg, unnamed);
             }
         } catch (Exception e) {
-            log.debug("开放包 {} 失败: {}", pkg, e.getMessage());
+            log.trace("开放包 {} 失败: {}", pkg, e.getMessage());
         }
     }
 
@@ -263,7 +263,7 @@ public class ModuleLoader {
         try {
             addExports.invoke(source, pkg, unnamed);
         } catch (Exception e) {
-            log.debug("导出包 {} 到未命名模块失败: {}", pkg, e.getMessage());
+            log.trace("导出包 {} 到未命名模块失败: {}", pkg, e.getMessage());
         }
     }
 
@@ -282,7 +282,7 @@ public class ModuleLoader {
             addExports.invoke(source, pkg, target);
             addOpens.invoke(source, pkg, target);
         } catch (Exception e) {
-            log.debug("对模块 {} 导出/开放包 {} 失败: {}", target, pkg, e.getMessage());
+            log.trace("对模块 {} 导出/开放包 {} 失败: {}", target, pkg, e.getMessage());
         }
     }
 
@@ -300,7 +300,7 @@ public class ModuleLoader {
                 fallbackExportModule(source, modulesArray, unnamedModule);
             }
         } catch (Exception e) {
-            log.debug("降级全量导出失败", e);
+            log.trace("降级全量导出失败", e);
         }
     }
 
@@ -343,7 +343,7 @@ public class ModuleLoader {
                 source.addOpens(pkg, unnamed);
             }
         } catch (Exception e) {
-            log.debug("降级导出包 {} 失败: {}", pkg, e.getMessage());
+            log.trace("降级导出包 {} 失败: {}", pkg, e.getMessage());
         }
     }
 
@@ -376,9 +376,9 @@ public class ModuleLoader {
                                 "implAddExports", String.class, Module.class);
                         implAddExportsMethod.setAccessible(true);
                     } catch (NoSuchMethodException e) {
-                        log.debug("未找到 implAddExports 方法", e);
+                        log.trace("未找到 implAddExports 方法", e);
                     } catch (RuntimeException e) {
-                        log.debug("无法获取 implAddExports 方法", e);
+                        log.trace("无法获取 implAddExports 方法", e);
                     }
                 }
             }
@@ -403,9 +403,9 @@ public class ModuleLoader {
                                 "implAddOpens", String.class, Module.class);
                         implAddOpensMethod.setAccessible(true);
                     } catch (NoSuchMethodException e) {
-                        log.debug("未找到 implAddOpens 方法", e);
+                        log.trace("未找到 implAddOpens 方法", e);
                     } catch (RuntimeException e) {
-                        log.debug("无法获取 implAddOpens 方法", e);
+                        log.trace("无法获取 implAddOpens 方法", e);
                     }
                 }
             }
@@ -426,8 +426,9 @@ public class ModuleLoader {
             }
             return ClassLoader.getSystemClassLoader().getUnnamedModule();
         } catch (Exception e) {
-            log.debug("获取未命名模块失败", e);
+            log.trace("获取未命名模块失败", e);
             return null;
         }
     }
 }
+

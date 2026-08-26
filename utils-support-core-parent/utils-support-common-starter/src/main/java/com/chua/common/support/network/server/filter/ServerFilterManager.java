@@ -8,6 +8,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class ServerFilterManager {
      * 合并后的过滤器列表缓存。
      */
     private volatile List<ServerFilter> mergedCache;
+    private volatile List<ReactiveServerFilter> mergedReactiveCache;
 
     /**
      * 缓存失效标记。
@@ -244,6 +246,7 @@ public class ServerFilterManager {
     public void addReactiveFilter(ReactiveServerFilter filter) {
         if (filter != null && !reactiveFilters.contains(filter)) {
             reactiveFilters.add(filter);
+            dirty = true;
         }
     }
 
@@ -255,6 +258,7 @@ public class ServerFilterManager {
     public void removeReactiveFilter(ReactiveServerFilter filter) {
         if (filter != null) {
             reactiveFilters.remove(filter);
+            dirty = true;
         }
     }
 
@@ -264,9 +268,16 @@ public class ServerFilterManager {
      * <p>静态 {@link ServerFilter} 会通过 {@link #wrapStatic(ServerFilter)} 适配为
      * 响应式过滤器后一并参与链路，保证 {@code addFilter} 注册的同步过滤器生效。</p>
      *
+     * <p>结果按 {@code dirty} 标记缓存：{@link #addFilter}/{@link #removeFilter}
+     * 以及动态过滤器增删都会置 dirty 为 {@code true}；下次读取后重新构建并复位。</p>
+     *
      * @return 合并后的响应式过滤器列表
      */
     public List<ReactiveServerFilter> getMergedReactiveFilters() {
+        List<ReactiveServerFilter> cached = mergedReactiveCache;
+        if (!dirty && cached != null) {
+            return cached;
+        }
         List<ReactiveServerFilter> result = new ArrayList<>(reactiveFilters.size() + staticFilters.size());
         for (ServerFilter filter : staticFilters) {
             if (filter != null) {
@@ -275,7 +286,9 @@ public class ServerFilterManager {
         }
         result.addAll(reactiveFilters);
         result.sort(Comparator.comparingInt(ReactiveServerFilter::getOrder));
-        return result;
+        mergedReactiveCache = Collections.unmodifiableList(new ArrayList<>(result));
+        dirty = false;
+        return mergedReactiveCache;
     }
 
     /**
