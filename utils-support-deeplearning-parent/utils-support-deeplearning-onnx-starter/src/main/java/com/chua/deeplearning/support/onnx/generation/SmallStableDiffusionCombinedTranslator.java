@@ -198,6 +198,73 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
+     * 配置构造：从 {@link com.chua.deeplearning.support.ai.DetectionConfiguration} 的
+     * systemOption 读取参数（键：width/height/steps/guidance/seed/negative/device/unetDevice），
+     * 未提供的键回退到系统属性 small.sd.* 与 deeplearning.device。
+     *
+     * @param config 检测/推理配置
+     */
+    public SmallStableDiffusionCombinedTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration config) {
+        this(optInt(config, "width", Integer.getInteger("small.sd.width", 512)),
+                optInt(config, "height", Integer.getInteger("small.sd.height", 512)),
+                optInt(config, "steps", Integer.getInteger("small.sd.steps", 20)),
+                optDbl(config, "guidance", Double.parseDouble(System.getProperty("small.sd.guidance", "7.5"))));
+        this.negative = optStr(config, "negative", System.getProperty("small.sd.negative", ""));
+        this.deviceSetting = optStr(config, "device", System.getProperty("deeplearning.device"));
+        this.unetDeviceSetting = optStr(config, "unetDevice", System.getProperty("small.sd.unetDevice"));
+        Long s = optLng(config, "seed", Long.getLong("small.sd.seed"));
+        if (s != null) {
+            this.random.setSeed(s);
+        }
+    }
+
+    /**
+     * 从配置读取整数（缺失回退默认）。
+     */
+    private static int optInt(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, int def) {
+        if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
+            return def;
+        }
+        return c.optFloat(k, def) == def && !(c.systemOption().get(k) instanceof Number)
+                ? def : Math.round(c.optFloat(k, def));
+    }
+
+    /**
+     * 从配置读取浮点（缺失回退默认）。
+     */
+    private static double optDbl(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, double def) {
+        if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
+            return def;
+        }
+        return c.optFloat(k, (float) def);
+    }
+
+    /**
+     * 从配置读取字符串（缺失回退默认）。
+     */
+    private static String optStr(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, String def) {
+        if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
+            return def;
+        }
+        return String.valueOf(c.systemOption().get(k));
+    }
+
+    /**
+     * 从配置读取长整数（缺失回退默认）。
+     */
+    private static Long optLng(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, Long def) {
+        if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
+            return def;
+        }
+        Object v = c.systemOption().get(k);
+        try {
+            return Long.parseLong(String.valueOf(v).trim());
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+    /**
      * 全参构造。
      *
      * @param width             宽度
@@ -359,7 +426,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             boolean wantGpu = !forceCpu && !gpuBlocked
                     && DeviceSelector.resolve(deviceSetting()).equals("gpu");
             try {
-                openSessions(base, wantGpu);
+                boolean unetGpu = wantGpu && !"cpu".equalsIgnoreCase(
+                        unetDeviceSetting == null ? "" : unetDeviceSetting.trim());
+                openSessions(base, wantGpu, unetGpu && !unetOnCpu);
                 deviceUsed = wantGpu ? "gpu" : "cpu";
                 if (wantGpu) {
                     log.info("[Small SD v0][编排] 设备: GPU (CUDA EP)");
@@ -397,9 +466,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private void openSessions(Path base, boolean useGpu) throws OrtException, IOException {
         textEncoderSession = openSession(base.resolve("text_encoder").resolve("model.onnx"), useGpu);
         textEncoderOutput = pickTextEncoderOutput(textEncoderSession);
-        unetSession = openSession(base.resolve("unet").resolve("model.onnx"), useGpu);
+        unetSession = openSession(base.resolve("unet").resolve("model.onnx"), unetUseGpu);
         vaeSession = openSession(base.resolve("vae_decoder").resolve("model.onnx"), useGpu);
-        log.info("[Small SD v0][编排] 三个会话已打开 ({})", useGpu ? "GPU" : "CPU");
+        log.info("[Small SD v0][编排] 会话已打开: TE/VAE={}，UNet={}", useGpu ? "GPU" : "CPU", unetUseGpu ? "GPU" : "CPU");
         try {
             log.info("[Small SD v0][编排] TE 输入: {}", textEncoderSession.getInputNames());
             log.info("[Small SD v0][编排] UNet 输入: {}", unetSession.getInputNames());

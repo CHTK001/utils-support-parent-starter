@@ -77,7 +77,7 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .timeout(Duration.ofSeconds(20))
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                    .header("User-Agent", "Mozilla/5.0")
                     .GET()
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -86,6 +86,8 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
 
             List<VideoInfoResult> results = new ArrayList<>();
             Matcher matcher = RESULT_ROW.matcher(html);
+            System.out.println("DEBUG-MATCHES: " + matcher.results().count());
+            matcher.reset();
             while (matcher.find() && results.size() < 10) {
                 String href = matcher.group(1);
                 String title = matcher.group(2).replaceAll("</?mark>", "").trim();
