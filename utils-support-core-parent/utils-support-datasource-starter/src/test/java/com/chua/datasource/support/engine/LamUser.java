@@ -1,6 +1,9 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.datasource.support.annotation.TableName;
+
 /** Lambda 全操作符测试实体（表名 = lamuser） */
+@TableName("lamuser")
 public class LamUser {
     private Integer id;
     private String name;

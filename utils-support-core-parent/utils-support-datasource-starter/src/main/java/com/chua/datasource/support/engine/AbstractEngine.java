@@ -14,6 +14,7 @@ import com.chua.datasource.support.meta.DefaultMetaData;
 import com.chua.datasource.support.ddl.DslManager;
 import com.chua.datasource.support.user.UserManager;
 import com.chua.common.support.lang.datasource.page.Page;
+import com.chua.datasource.support.annotation.TableName;
 import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
@@ -470,12 +471,30 @@ public abstract class AbstractEngine implements Engine {
 
     /**
      * 将实体类名称转为表名（驼峰转下划线）。
+     * <p>实体类标注 {@link TableName} 时优先使用注解值。</p>
      *
      * @param entityClass 实体类
      * @param <T>         实体类型
      * @return 表名
      */
     protected <T> String getTableName(Class<T> entityClass) {
+        return resolveTableName(entityClass);
+    }
+
+    /**
+     * 解析实体类对应的表名。
+     * <p>优先读取 {@link TableName} 注解；未标注时将驼峰命名
+     * 转换为下划线命名（如 MyUser → my_user）。</p>
+     *
+     * @param entityClass 实体类
+     * @param <T>         实体类型
+     * @return 表名
+     */
+    public static <T> String resolveTableName(Class<T> entityClass) {
+        TableName annotation = entityClass.getAnnotation(TableName.class);
+        if (annotation != null && !annotation.value().isEmpty()) {
+            return annotation.value();
+        }
         String simpleName = entityClass.getSimpleName();
         StringBuilder sb = new StringBuilder();
         for (char c : simpleName.toCharArray()) {

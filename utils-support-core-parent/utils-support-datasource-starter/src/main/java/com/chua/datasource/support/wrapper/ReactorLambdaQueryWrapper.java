@@ -160,7 +160,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      */
     private List<T> doList() {
         QuerySql<T> sql = buildSql();
-        String tableName = entityClass.getSimpleName().toLowerCase();
+        String tableName = com.chua.datasource.support.engine.AbstractEngine.resolveTableName(entityClass);
         StringBuilder fullSql = new StringBuilder("SELECT ");
         if (sql.hasSelect()) {
             fullSql.append(String.join(", ", sql.selectColumns()));
