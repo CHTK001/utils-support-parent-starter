@@ -53,10 +53,10 @@ class InMemoryCrudIT {
             List<Mem> byName = engine.query(Mem.class).like(Mem::getName, "li").list();
             assertEquals(1, byName.size(), "LIKE %li% 应只命中 Alice");
 
-            /* NOTE: InMemoryEngine 不支持 orderBy（内存引擎限制），排序仅在 RDBMS 路径验证 */
-
-            /* NOTE: InMemoryEngine 不支持 in/notIn/between/isNotNull/嵌套条件
-               （内存引擎仅支持 eq/ne/gt/ge/lt/le/like），高级操作符在 RDBMS 路径验证 */
+            /* MemoryWhereParser 支持全部操作符（eq/ne/gt/ge/lt/le/like/in/notIn/between/isNull/isNotNull/or/括号嵌套），
+             * orderBy 由 AbstractEngine.executeQuery 在内存排序，page 分页同样支持。
+             * 本测试仅覆盖常用子集；完整操作符矩阵由 MemorySqlExample（example-starter）和
+             * LambdaFullFeatureIT（JDBC/R2DBC 路径）分别覆盖。 */
 
             /* ===== UPDATE → 读回校验新值 ===== */
             int u = engine.update(Mem.class)
