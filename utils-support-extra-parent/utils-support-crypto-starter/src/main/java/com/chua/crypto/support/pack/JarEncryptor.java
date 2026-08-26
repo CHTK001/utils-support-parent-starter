@@ -111,6 +111,21 @@ public class JarEncryptor {
     private boolean encryptConfig;
 
     /**
+     * 是否对应用 class 做混淆处理（剥离调试信息）
+     */
+    private boolean obfuscate;
+
+    /**
+     * 混淆时是否重命名私有成员（需自行评估反射兼容性）
+     */
+    private boolean renamePrivates;
+
+    /**
+     * 源包是否为 SpringBoot 布局（execute 期间判定）
+     */
+    private boolean springBootLayout;
+
+    /**
      * 明文保留前缀排除列表
      */
     private final List<String> excludes = new ArrayList<>();
@@ -197,6 +212,28 @@ public class JarEncryptor {
     }
 
     /**
+     * 开启应用 class 混淆（剥离调试信息：源文件名/行号表/局部变量表）
+     *
+     * @param obfuscate true 表示启用
+     * @return 当前对象
+     */
+    public JarEncryptor obfuscate(boolean obfuscate) {
+        this.obfuscate = obfuscate;
+        return this;
+    }
+
+    /**
+     * 混淆时进一步重命名私有成员（反射框架如 MyBatis/Jackson 依赖私有字段名时会失效，谨慎开启）
+     *
+     * @param renamePrivates true 表示启用
+     * @return 当前对象
+     */
+    public JarEncryptor renamePrivates(boolean renamePrivates) {
+        this.renamePrivates = renamePrivates;
+        return this;
+    }
+
+    /**
      * 追加明文保留排除项（条目路径前缀匹配）
      *
      * @param prefixes 前缀列表（如 BOOT-INF/classes/static/）
@@ -214,6 +251,7 @@ public class JarEncryptor {
      */
     public Path execute() {
         validate();
+        springBootLayout = isSpringBootLayout();
         try (JarFile input = new JarFile(source.toFile(), false)) {
             Manifest manifest = patchManifest(input.getManifest());
             byte[] keyBlob = buildKeyBlob();
@@ -306,6 +344,32 @@ public class JarEncryptor {
     }
 
     /**
+     * 判断源包是否为 SpringBoot 布局（存在 BOOT-INF/classes）
+     *
+     * @return true 表示 SpringBoot 布局
+     */
+    private boolean isSpringBootLayout() {
+        try (JarFile jar = new JarFile(source.toFile())) {
+            return jar.getEntry("BOOT-INF/classes/") != null;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * 判断条目是否为应用自身 class（混淆作用域：排除引导器与依赖包）
+     *
+     * @param name 条目名
+     * @return true 表示应用 class
+     */
+    private boolean isAppClass(String name) {
+        if (!name.endsWith(".class") || name.startsWith(LAUNCH_PACKAGE)) {
+            return false;
+        }
+        return springBootLayout ? name.startsWith("BOOT-INF/classes/") : !name.startsWith(BOOT_LIB_PREFIX);
+    }
+
+    /**
      * 改写清单：Main-Class 替换为引导器，原主类写入专属属性
      *
      * @param original 原清单
@@ -369,7 +433,21 @@ public class JarEncryptor {
             writeEntry(out, name, raw);
             return;
         }
+        if (obfuscate && isAppClass(name) && !springBootLayoutExcluded(name)) {
+            raw = ClassObfuscator.obfuscate(raw, renamePrivates);
+        }
         writeEntry(out, name, DataCipher.encryptTagged(crypto.material().copyKey(), raw));
+    }
+
+    /**
+     * 混淆排除判断（当前保留扩展位：目录级排除）
+     *
+     * @param name 条目名
+     * @return true 表示跳过混淆
+     */
+    private boolean springBootLayoutExcluded(String name) {
+        return excludes.stream().anyMatch(prefix ->
+                name.startsWith(prefix) && name.endsWith(".class"));
     }
 
     /**

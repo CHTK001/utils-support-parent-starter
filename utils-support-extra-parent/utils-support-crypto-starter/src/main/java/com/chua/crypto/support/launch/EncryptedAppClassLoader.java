@@ -49,9 +49,9 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     private final JarFile jar;
 
     /**
-     * 主密钥
+     * 主密钥分片（堆中不存完整密钥，抗 heap dump 特征扫描）
      */
-    private final byte[] master;
+    private final byte[][] masterShards;
 
     /**
      * 解密资源 URL 处理器
@@ -62,14 +62,14 @@ public class EncryptedAppClassLoader extends URLClassLoader {
      * 构造类加载器
      *
      * @param jarFile 加密后的可执行 jar
-     * @param master  主密钥（32 字节）
+     * @param master  主密钥（32 字节，构造后即分片并清零入参）
      * @param parent  父加载器（依赖包加载器）
      * @throws IOException jar 打开失败
      */
     public EncryptedAppClassLoader(File jarFile, byte[] master, ClassLoader parent) throws IOException {
         super(new URL[0], parent);
         this.jar = new JarFile(jarFile);
-        this.master = master.clone();
+        this.masterShards = KeyShard.shard(master);
     }
 
     /**
@@ -139,7 +139,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     }
 
     /**
-     * 读取条目字节并按需解密
+     * 读取条目字节并按需解密（密钥临时拼合、用后清零）
      *
      * @param entry 条目
      * @return 明文字节
@@ -147,7 +147,15 @@ public class EncryptedAppClassLoader extends URLClassLoader {
      */
     private byte[] entryBytes(JarEntry entry) throws IOException {
         byte[] raw = readAll(jar.getInputStream(entry));
-        return PayloadCipher.isEncryptedEntry(raw) ? PayloadCipher.decryptEntry(master, raw) : raw;
+        if (!PayloadCipher.isEncryptedEntry(raw)) {
+            return raw;
+        }
+        byte[] master = KeyShard.join(masterShards);
+        try {
+            return PayloadCipher.decryptEntry(master, raw);
+        } finally {
+            KeyShard.wipe(master);
+        }
     }
 
     /**
@@ -274,7 +282,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
             super.close();
         } finally {
             jar.close();
-            java.util.Arrays.fill(master, (byte) 0);
+            KeyShard.wipe(masterShards);
         }
     }
 

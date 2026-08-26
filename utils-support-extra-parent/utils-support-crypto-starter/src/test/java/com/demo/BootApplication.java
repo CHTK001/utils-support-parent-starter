@@ -20,6 +20,17 @@ public class BootApplication {
      * @return 固定标识
      */
     public String greet() {
-        return "boot-ok";
+        return join("boot", "-ok");
+    }
+
+    /**
+     * 私有辅助方法（用于私有成员重命名测试）
+     *
+     * @param left  左段
+     * @param right 右段
+     * @return 拼接结果
+     */
+    private String join(String left, String right) {
+        return left + right;
     }
 }
