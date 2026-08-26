@@ -58,6 +58,30 @@ public class SipConfig {
     private boolean encrypt = false;
 
     /**
+     * 最大并发连接数（超过后拒绝新 AUTH）。0 表示不限制。
+     */
+    @Builder.Default
+    private int maxConnections = 0;
+
+    /**
+     * 单连接最小帧间隔（纳秒），用于帧速率限制。0 表示不限制。
+     * 默认 100µs ≈ 10000 frames/s/conn。
+     */
+    @Builder.Default
+    private long minFrameIntervalNs = 100000L;
+
+    /**
+     * 单源 IP 每分钟最大 AUTH 次数（用于防爆破），0 表示不限制。
+     */
+    @Builder.Default
+    private int maxAuthPerIpPerMin = 0;
+
+    /**
+     * token 文件路径（用于 --token-file，文件权限建议 600）。
+     */
+    private String tokenFile;
+
+    /**
      * 创建一份独立的默认配置。
      *
      * @return 新的默认配置实例

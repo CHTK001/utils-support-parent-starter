@@ -118,6 +118,11 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
     private volatile ZooModel<NDList, NDList> unetModel;
 
     /**
+     * 权重基准目录（prepare 阶段确定，供分词器定位使用）
+     */
+    private volatile Path weightBaseDir;
+
+    /**
      * VAE 解码推理模型（懒加载）
      */
     private volatile ZooModel<NDList, Image> vaeModel;
@@ -198,6 +203,7 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
         Path vaePath = ensureFile(basePath.resolve("vae_decoder").resolve("model.onnx"),
                 HF_BASE + "/vae_decoder/model.onnx");
         ensureTokenizer(basePath);
+        this.weightBaseDir = basePath;
 
         if (unetModel == null) {
             synchronized (this) {
@@ -417,17 +423,23 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
     }
 
     /**
-     * 定位 tokenizer.json（基准目录或注册表路径）。
+     * 定位 tokenizer.json（优先权重基准目录，其次注册表配置路径）。
      *
      * @return tokenizer 路径
      * @throws IOException 找不到文件
      */
     private Path locateTokenizer() throws IOException {
+        Path base = weightBaseDir;
+        if (base != null && Files.exists(base.resolve("tokenizer.json"))) {
+            return base.resolve("tokenizer.json");
+        }
         Path configured = com.chua.deeplearning.support.engine.ModelRegistry
                 .resolveConfiguredPath("vision/detection/small-sd/tokenizer.json");
         if (configured != null) {
             return configured;
         }
+        throw new IOException("未找到 tokenizer.json（预期位于 small-sd 权重根目录: " + base + "）");
+    }
         throw new IOException("未找到 tokenizer.json（预期位于 small-sd 权重根目录）");
     }
 

@@ -132,6 +132,13 @@ public final class CryptoLauncher {
             if (originalMain == null || originalMain.isBlank()) {
                 throw new IllegalStateException("缺少清单属性 " + ATTR_ORIGINAL_MAIN + "，请确认已由 chua-crypto 打包");
             }
+            // 兼容旧版打包产物：若记录的是 Boot 加载器则回退 Start-Class
+            if (originalMain.startsWith("org.springframework.boot.loader.")) {
+                String startClass = attrs.getValue("Start-Class");
+                if (startClass != null && !startClass.isBlank()) {
+                    originalMain = startClass;
+                }
+            }
 
             byte[] master = resolveMaster(jar);
 
