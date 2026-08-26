@@ -3,21 +3,24 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.sqlite.support.engine.SqliteReactorEngine;
-import reactor.core.publisher.Flux;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * OpenCode usage parser.
+ * OpenCode 用量解析器 — 从本地 SQLite 数据库解析会话与消息用量
  *
- * <p>Parses session and per-message usage from the local SQLite database at
- * {@code ~/.local/share/opencode/opencode.db}, reading the JSON {@code data}
- * column of the {@code message} table through {@link SqliteReactorEngine}.</p>
+ * <p>数据源: {@code %USERPROFILE%\.local\share\opencode\opencode.db}
+ *
+ * <p>解析 {@code message} 表中的 {@code data} JSON 列，提取每次请求的
+ * input/output/reasoning/cache tokens、费用、模型及服务商信息，
+ * 映射为标准的 {@link AiUsage} 记录。
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,65 +28,75 @@ import java.util.Map;
 @Spi("opencode")
 public class OpencodeUsageParser extends BaseUsageParser {
 
+    private static final Logger log = LoggerFactory.getLogger(OpencodeUsageParser.class);
+
+    /** DB path */
     private static final Path DB_PATH = Path.of(
             System.getProperty("user.home"), ".local", "share", "opencode", "opencode.db");
 
+    /** SQL: 从 message 表按 token 用量筛选并返回每条请求的用量字段 */
     private static final String SQL_MESSAGES =
-            "SELECT time_created AS time_created, "
-                    + "json_extract(data, '$.providerID') AS provider_id, "
-                    + "json_extract(data, '$.modelID') AS model_id, "
-                    + "json_extract(data, '$.tokens.input') AS input_tokens, "
-                    + "json_extract(data, '$.tokens.output') AS output_tokens, "
-                    + "json_extract(data, '$.tokens.reasoning') AS reasoning_tokens, "
-                    + "json_extract(data, '$.tokens.cache.read') AS cache_read_tokens, "
-                    + "json_extract(data, '$.tokens.cache.write') AS cache_write_tokens, "
-                    + "json_extract(data, '$.cost') AS cost "
-                    + "FROM message "
-                    + "WHERE json_extract(data, '$.tokens.input') > 0 "
-                    + "   OR json_extract(data, '$.tokens.output') > 0 "
-                    + "ORDER BY time_created ASC";
+            "SELECT time_created, "
+            + "CAST(json_extract(data, '$.providerID') AS TEXT), "
+            + "CAST(json_extract(data, '$.modelID') AS TEXT), "
+            + "CAST(json_extract(data, '$.tokens.input') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.output') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.reasoning') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.cache.read') AS INTEGER), "
+            + "CAST(json_extract(data, '$.tokens.cache.write') AS INTEGER), "
+            + "CAST(json_extract(data, '$.cost') AS REAL) "
+            + "FROM message "
+            + "WHERE CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
+            + "   OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0 "
+            + "ORDER BY time_created ASC";
 
-    /**
-     * Returns the SPI name for OpenCode.
-     *
-     * @return {@code "opencode"}
-     */
+    @Override
     public String name() {
         return "opencode";
     }
 
-    /**
-     * Streams usage rows from the OpenCode SQLite database.
-     */
     @Override
-    public Flux<AiUsage> streamAll() {
+    public List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
-            log.debug("[opencode] database file not found: {}", DB_PATH);
-            return Flux.empty();
+            log.debug("[opencode] 数据库文件不存在: {}", DB_PATH);
+            return List.of();
         }
-        SqliteReactorEngine engine = new SqliteReactorEngine()
-                .addDataSource("opencode", DB_PATH.toString());
-        return engine.query(SQL_MESSAGES)
-                .map(this::toAiUsage)
-                .doOnComplete(() -> log.info("[opencode] stream complete"));
+        List<AiUsage> result = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH)) {
+            try (PreparedStatement stmt = conn.prepareStatement(SQL_MESSAGES)) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(toAiUsage(rs));
+                    }
+                }
+            }
+            log.info("[opencode] 解析完成，共 {} 条用量记录", result.size());
+        } catch (SQLException e) {
+            log.warn("[opencode] 解析失败: {}", e.getMessage(), e);
+        }
+        return result;
     }
 
-    private AiUsage toAiUsage(Map<String, Object> row) {
-        long startTime = asLong(row.get("time_created"));
-        int inputTokens = asInt(row.get("input_tokens"));
-        int outputTokens = asInt(row.get("output_tokens"));
-        int reasoningTokens = asInt(row.get("reasoning_tokens"));
-        int cacheRead = asInt(row.get("cache_read_tokens"));
-        double costDouble = asDouble(row.get("cost"));
+    private AiUsage toAiUsage(ResultSet rs) throws SQLException {
+        long startTime = rs.getLong(1);
+        String provider = rs.getString(2);
+        String model = rs.getString(3);
+        int inputTokens = rs.getInt(4);
+        int outputTokens = rs.getInt(5);
+        int reasoningTokens = rs.getInt(6);
+        int cacheRead = rs.getInt(7);
+        int cacheWrite = rs.getInt(8);
+        double costDouble = rs.getDouble(9);
 
+        int totalTokens = inputTokens + outputTokens;
         BigDecimal totalCost = BigDecimal.valueOf(costDouble);
 
         return AiUsage.builder()
-                .provider(asStr(row.get("provider_id")))
-                .model(asStr(row.get("model_id")))
+                .provider(provider)
+                .model(model)
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
-                .totalTokens(inputTokens + outputTokens)
+                .totalTokens(totalTokens)
                 .reasoningTokens(reasoningTokens > 0 ? reasoningTokens : null)
                 .cacheTokens(cacheRead > 0 ? cacheRead : null)
                 .totalCost(totalCost.compareTo(BigDecimal.ZERO) > 0 ? totalCost : null)
