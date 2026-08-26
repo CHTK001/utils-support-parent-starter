@@ -107,8 +107,8 @@ public class DefaultPipelineEngine implements PipelineEngine {
                     continue;
                 }
                 try {
-                    dispatcher.publish(type, envelope);
-                    envelope.addTrace("[Sink] published to topic=" + type);
+                    target.write(envelope, sinkCfg);
+                    envelope.addTrace("[Sink] written to type=" + type);
                     envelope.setState(PipelineState.SINK_OK);
                 } catch (Exception e) {
                     envelope.addTrace("[Sink][ERROR] " + e.getMessage());
