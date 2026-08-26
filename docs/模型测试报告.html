@@ -3198,7 +3198,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（208 个注册模型，更新于 2026-08-26）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 35　🧪 冒烟通过（无正样本） 8　🐞 发现缺陷 0　📄 已有记录 148　⬜ 未测试 17</p>
+<p>状态统计：✅ 实测通过 36　🧪 冒烟通过（无正样本） 7　🐞 发现缺陷 0　📄 已有记录 148　⬜ 未测试 17</p>
 <p>待测试清单（17）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`bitnet-embedding`、`c3d-action-detection`、`cn-clip-image`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`svtr-extractor`、`yolo-face-person`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -3345,11 +3345,11 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <h3>抠图/分割（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>anime-seg</code></td><td>✅ 实测通过</td><td>matting.translator.IsnetSegTranslator</td><td></td></tr>
+<tr><td><code>cloth-seg</code></td><td>✅ 实测通过</td><td>matting.translator.ClothSegTranslator</td><td></td></tr>
 <tr><td><code>human-seg</code></td><td>✅ 实测通过</td><td>matting.translator.U2netSegTranslator</td><td></td></tr>
 <tr><td><code>matting-isnet</code></td><td>✅ 实测通过</td><td>matting.translator.IsnetSegTranslator</td><td></td></tr>
 <tr><td><code>matting-u2net</code></td><td>✅ 实测通过</td><td>matting.translator.U2netSegTranslator</td><td></td></tr>
 <tr><td><code>matting-u2netp</code></td><td>✅ 实测通过</td><td>matting.translator.U2netSegTranslator</td><td></td></tr>
-<tr><td><code>cloth-seg</code></td><td>🧪 冒烟通过（无正样本）</td><td>matting.translator.ClothSegTranslator</td><td></td></tr>
 <tr><td><code>clipseg-zero-shot</code></td><td>📄 已有记录</td><td>seg.CLIPSegZeroShotSegmentationTranslator</td><td></td></tr>
 <tr><td><code>edgesam</code></td><td>📄 已有记录</td><td>seg.EdgeSamSegmentTranslator</td><td></td></tr>
 <tr><td><code>efficientsam</code></td><td>📄 已有记录</td><td>seg.EfficientSamSegmentTranslator</td><td></td></tr>
