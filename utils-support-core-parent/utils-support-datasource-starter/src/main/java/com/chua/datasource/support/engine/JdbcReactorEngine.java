@@ -731,14 +731,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                         .map(list -> list.stream().mapToLong(Long::longValue).sum()),
                 conn -> Mono.empty())
                 .map(l -> l.intValue())
-                .defaultIfEmpty(0)
-                .onErrorResume(ClassCastException.class, e -> {
-                    DataSource ds = jdbcDataSources.get(name);
-                    if (ds != null) {
-                        return executeViaJdbc(ds, sql, params);
-                    }
-                    return Mono.error(e);
-                });
+                .defaultIfEmpty(0);
     }
 
     /**
