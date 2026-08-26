@@ -51,29 +51,29 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
- * public class TencentSmsPush implements MessagePush {
+ * public class TencentSmsMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class TencentSmsPush implements MessagePush {
+public class TencentSmsMessagePush implements MessagePush {
 
     /** 消息环境 */
     private final MessageEnvironment environment;
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 TencentSmsPush 实例 */
-    public TencentSmsPush() {
+    /** 创建 TencentSmsMessagePush 实例 */
+    public TencentSmsMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 TencentSmsPush 实例
+     * 创建 TencentSmsMessagePush 实例
      * @param environment environment
      */
-    public TencentSmsPush(MessageEnvironment environment) {
+    public TencentSmsMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 

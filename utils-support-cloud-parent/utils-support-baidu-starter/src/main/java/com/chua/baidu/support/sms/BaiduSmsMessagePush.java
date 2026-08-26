@@ -54,13 +54,13 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
- * public class BaiduSmsPush implements MessagePush {
+ * public class BaiduSmsMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class BaiduSmsPush implements MessagePush {
+public class BaiduSmsMessagePush implements MessagePush {
 
     /**
      * 百度云 SMS API 地址
@@ -72,16 +72,16 @@ public class BaiduSmsPush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 BaiduSmsPush 实例 */
-    public BaiduSmsPush() {
+    /** 创建 BaiduSmsMessagePush 实例 */
+    public BaiduSmsMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 BaiduSmsPush 实例
+     * 创建 BaiduSmsMessagePush 实例
      * @param environment environment
      */
-    public BaiduSmsPush(MessageEnvironment environment) {
+    public BaiduSmsMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 

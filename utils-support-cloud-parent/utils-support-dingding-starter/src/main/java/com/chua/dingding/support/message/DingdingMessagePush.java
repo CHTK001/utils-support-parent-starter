@@ -51,28 +51,28 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
- * public class DingdingPush implements MessagePush {
+ * public class DingdingMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
-public class DingdingPush implements MessagePush {
+public class DingdingMessagePush implements MessagePush {
 
     /** 消息环境 */
     private final MessageEnvironment environment;
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 DingdingPush 实例 */
-    public DingdingPush() {
+    /** 创建 DingdingMessagePush 实例 */
+    public DingdingMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 DingdingPush 实例
+     * 创建 DingdingMessagePush 实例
      * @param environment environment
      */
-    public DingdingPush(MessageEnvironment environment) {
+    public DingdingMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 

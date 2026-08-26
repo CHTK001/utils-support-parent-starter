@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <h3>架构</h3>
  * <pre>
- *   DesktopPush (MessagePush)
+ *   DesktopMessagePush (MessagePush)
  *       → NativeDesktopNotifier (SPI 自动发现)
  *           ├── WindowsDesktopNotifier (PowerShell)
  *           ├── MacOsDesktopNotifier (osascript)
@@ -50,28 +50,28 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
- * public class DesktopPush implements MessagePush {
+ * public class DesktopMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
-public class DesktopPush implements MessagePush {
+public class DesktopMessagePush implements MessagePush {
 
     /** 环境 */
     private final MessageEnvironment environment;
     /** templates */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 DesktopPush 实例 */
-    public DesktopPush() {
+    /** 创建 DesktopMessagePush 实例 */
+    public DesktopMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 DesktopPush 实例
+     * 创建 DesktopMessagePush 实例
      * @param environment environment
      */
-    public DesktopPush(MessageEnvironment environment) {
+    public DesktopMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 

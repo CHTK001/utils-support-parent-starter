@@ -49,29 +49,29 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
- * public class AlibabaSmsPush implements MessagePush {
+ * public class AlibabaSmsMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class AlibabaSmsPush implements MessagePush {
+public class AlibabaSmsMessagePush implements MessagePush {
 
     /** 消息环境 */
     private final MessageEnvironment environment;
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 AlibabaSmsPush 实例 */
-    public AlibabaSmsPush() {
+    /** 创建 AlibabaSmsMessagePush 实例 */
+    public AlibabaSmsMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 AlibabaSmsPush 实例
+     * 创建 AlibabaSmsMessagePush 实例
      * @param environment environment
      */
-    public AlibabaSmsPush(MessageEnvironment environment) {
+    public AlibabaSmsMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
