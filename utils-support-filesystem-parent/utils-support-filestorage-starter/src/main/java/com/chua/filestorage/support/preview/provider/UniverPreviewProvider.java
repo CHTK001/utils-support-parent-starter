@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.Set;
 
 /**
- * Univer Office 预览提供器，支持 xlsx / xls / docx / doc / pptx / ppt 六种格式的在线预览。
+ * Univer Office 预览提供器，支持 Excel / Word / PowerPoint 及其模板格式的在线预览。
  * <p>SPI 类型：{@code preview-univer}。表格走 LuckyExcel，文档走 Univer importDOCXToSnapshotAsync。</p>
  *
  * @author CH
@@ -20,7 +20,28 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     /**
      * 支持的 Office 扩展名（小写）
      */
-    private static final Set<String> SUPPORTED_EXTS = Set.of("xlsx", "xls", "docx", "doc", "pptx", "ppt");
+    private static final Set<String> SUPPORTED_EXTS = Set.of(
+            // Excel
+            "xlsx", "xls", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml",
+            // Word
+            "docx", "doc", "dotx", "dotm",
+            // PowerPoint
+            "pptx", "ppt", "potx", "potm"
+    );
+
+    /**
+     * 表格类扩展名（需要 LuckyExcel 解析）
+     */
+    private static final Set<String> SHEET_EXTS = Set.of(
+            "xlsx", "xls", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml"
+    );
+
+    /**
+     * 文档类扩展名
+     */
+    private static final Set<String> DOC_EXTS = Set.of(
+            "docx", "doc", "dotx", "dotm"
+    );
 
     /**
      * @param ext  文件扩展名
@@ -42,8 +63,8 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
         String type = ext.toLowerCase();
-        boolean isSheet = "xlsx".equals(type) || "xls".equals(type);
-        boolean isDoc = "docx".equals(type) || "doc".equals(type);
+        boolean isSheet = SHEET_EXTS.contains(type);
+        boolean isDoc = DOC_EXTS.contains(type);
 
         String html = "<div id=\"app\" style=\"height:100vh;width:100%\"></div>";
         String css = "html,body,#app{margin:0;padding:0;height:100%;width:100%;overflow:hidden}";
