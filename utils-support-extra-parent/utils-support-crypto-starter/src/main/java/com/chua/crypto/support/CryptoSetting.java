@@ -50,11 +50,6 @@ public class CryptoSetting {
     private String keyFile;
 
     /**
-     * 加密狗文件路径（storeType=DONGLE 时必填），通常为 U 盘挂载路径下的密钥封装文件
-     */
-    private String donglePath;
-
-    /**
      * 自定义口令（CUSTOM 策略必填；SERVER_BOUND 策略可选，作为 pepper 叠加），使用后可安全擦除
      */
     private char[] secret;

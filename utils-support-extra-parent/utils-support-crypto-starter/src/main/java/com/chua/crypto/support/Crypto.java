@@ -17,7 +17,7 @@ import java.util.List;
  * 系统加密门面（链式 API）
  *
  * <p>一站式完成：密钥策略设置（自定义/绑定服务器）、生命周期设置（一次性读取即销毁/持久）、
- * 密钥载体选择（密钥文件/内存/U 盘加密狗）、数据加解密、配置文件整体或单值加密。
+ * 密钥载体选择（密钥文件/内存）、数据加解密、配置文件整体或单值加密。
  * 同时适配普通 Java、SpringBoot、FatJar 等运行形态（相对路径自动按 工作目录 → Jar 目录 → 用户目录 解析）。
  *
  * <h2>使用示例</h2>
@@ -35,12 +35,6 @@ import java.util.List;
  *         .secret("my-passphrase".toCharArray())
  *         .lifecycle(KeyLifecycle.ONE_TIME)
  *         .keyFile("security/once.key")
- *         .build();
- *
- * // 3. U 盘加密狗（生成见 DongleSecretKeyStore#generate）
- * Crypto dongleCrypto = Crypto.create()
- *         .dongle("E:/chua-crypto.dongle")
- *         .secret("dongle-pin".toCharArray())
  *         .build();
  *
  * // 4. 配置文件随系统一起加密
@@ -116,7 +110,6 @@ public class Crypto implements AutoCloseable {
         setting.setLifecycle(source.getLifecycle());
         setting.setStoreType(source.getStoreType());
         setting.setKeyFile(source.getKeyFile());
-        setting.setDonglePath(source.getDonglePath());
         setting.setServerId(source.getServerId());
         setting.setAlgorithm(source.getAlgorithm());
         setting.setEncryptConfigFiles(source.isEncryptConfigFiles());
@@ -164,18 +157,6 @@ public class Crypto implements AutoCloseable {
     public Crypto keyFile(String keyFile) {
         setting.setStoreType(KeyStoreType.FILE);
         setting.setKeyFile(keyFile);
-        return this;
-    }
-
-    /**
-     * 设置 U 盘加密狗路径并切换为加密狗载体
-     *
-     * @param donglePath 加密狗封装文件路径
-     * @return 当前对象
-     */
-    public Crypto dongle(String donglePath) {
-        setting.setStoreType(KeyStoreType.DONGLE);
-        setting.setDonglePath(donglePath);
         return this;
     }
 
@@ -294,7 +275,7 @@ public class Crypto implements AutoCloseable {
      * 初始化核心流程：
      * <ol>
      *   <li>参数校验（口令/载体/生命周期组合）</li>
-     *   <li>MEMORY：直接生成随机主密钥；DONGLE：必须已预置；FILE：缺失时自动引导生成</li>
+     *   <li>MEMORY：直接生成随机主密钥；FILE：缺失时自动引导生成</li>
      *   <li>统一经载体 load 完成校验（ONE_TIME 在此步销毁落盘副本）</li>
      * </ol>
      */
@@ -331,14 +312,6 @@ public class Crypto implements AutoCloseable {
      * 参数合法性校验
      */
     private void validate() {
-        if (setting.getStoreType() == KeyStoreType.DONGLE) {
-            if (setting.getDonglePath() == null || setting.getDonglePath().isBlank()) {
-                throw new CryptoException("加密狗载体要求先调用 dongle(path) 指定封装文件");
-            }
-            if (setting.getLifecycle() == KeyLifecycle.ONE_TIME) {
-                throw new CryptoException("加密狗为物理持久载体，不支持一次性生命周期");
-            }
-        }
         if (setting.getKeyPolicy() == KeyPolicy.CUSTOM
                 && (setting.getSecret() == null || setting.getSecret().length == 0)) {
             throw new CryptoException("CUSTOM 密钥策略要求通过 secret(...) 提供口令");
@@ -349,15 +322,11 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 载体缺失时的引导策略：密钥文件自动生成并写入；加密狗缺失则直接报错
+     * 载体缺失时的引导策略：密钥文件自动生成并写入
      *
      * @param store 密钥载体
      */
     private void ensureBootstrap(SecretKeyStore store) {
-        if (setting.getStoreType() == KeyStoreType.DONGLE) {
-            throw new CryptoException("加密狗未找到，请插入 U 盘或检查路径: "
-                    + setting.getDonglePath());
-        }
         SecretKeyMaterial fresh = SecretKeyMaterial.generate();
         store.save(fresh, setting);
         fresh.close();
@@ -541,7 +510,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 获取当前主密钥材料（用于导出加密狗等高级场景）
+     * 获取当前主密钥材料（用于密钥备份/迁移等高级场景）
      *
      * @return 密钥材料
      */

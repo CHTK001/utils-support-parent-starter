@@ -273,8 +273,14 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                     // GPU fp16 数值异常（NaN）检测：降级 CPU 重跑整条流水线
                     if (Float.isNaN(epsCond[0]) || Float.isInfinite(epsCond[0])) {
                         if (!forceCpu && "gpu".equals(deviceUsed)) {
-                            log.warn("[Small SD v0][编排] GPU 输出 NaN（fp16 数值异常），降级 CPU 重跑");
+                            log.warn("[Small SD v0][编排] GPU 输出 NaN（fp16 数值异常），降级 CPU 重跑，"
+                                    + "并记住该偏好（删除 {} 可恢复 GPU 尝试）", gpuBlockFlag());
                             forceCpu = true;
+                            try {
+                                Files.createFile(gpuBlockFlag());
+                            } catch (IOException ignored) {
+                                // 标记文件创建失败不影响降级
+                            }
                             closeSessions();
                             return translate(input);
                         }
@@ -328,7 +334,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             ensureFile(base.resolve("vae_decoder").resolve("model.onnx"), HF_BASE + "/vae_decoder/model.onnx");
             ensureTokenizer(base);
 
-            boolean wantGpu = !forceCpu && DeviceSelector.resolve(deviceSetting()).equals("gpu");
+            boolean gpuBlocked = Files.exists(gpuBlockFlag());
+            boolean wantGpu = !forceCpu && !gpuBlocked
+                    && DeviceSelector.resolve(deviceSetting()).equals("gpu");
             try {
                 openSessions(base, wantGpu);
                 deviceUsed = wantGpu ? "gpu" : "cpu";
@@ -439,6 +447,17 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 "chua-dl-models", "download");
         Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd");
         return configured != null ? configured : cacheRoot;
+    }
+
+    /**
+     * GPU 数值异常记忆标记文件（存在则跳过 GPU 尝试）。
+     *
+     * @return 标记路径
+     */
+    private static Path gpuBlockFlag() {
+        return java.nio.file.Paths.get(
+                System.getProperty("java.io.tmpdir"),
+                "chua-dl-models", "small-sd-gpu-blocked.flag");
     }
 
     /**

@@ -24,7 +24,7 @@ import java.util.jar.JarFile;
  * <p>启动流程：
  * <ol>
  *   <li>反注入自检（{@link SelfDefense#install()}）</li>
- *   <li>按优先级获取主密钥：校验服务器 → 私钥文件/加密狗 → 包内密钥封装块</li>
+ *   <li>按优先级获取主密钥：校验服务器 → 私钥文件 → 包内密钥封装块</li>
  *   <li>解密应用类与依赖包到进程私有临时目录（默认模式，退出自动清理）；
  *       或 {@code -Dchua.crypto.lazy=true} 启用惰性解密类加载器</li>
  *   <li>调用原始主类</li>
@@ -36,7 +36,6 @@ import java.util.jar.JarFile;
  *   <tr><td>字符串口令(pepper)</td><td>chua.crypto.pin</td><td>CHUA_CRYPTO_PIN</td></tr>
  *   <tr><td>主机指纹固定值</td><td>chua.crypto.server-id</td><td>CHUA_CRYPTO_SERVER_ID</td></tr>
  *   <tr><td>私钥文件</td><td>chua.crypto.key-file</td><td>CHUA_CRYPTO_KEY_FILE</td></tr>
- *   <tr><td>U 盘加密狗</td><td>chua.crypto.dongle</td><td>CHUA_CRYPTO_DONGLE</td></tr>
  *   <tr><td>校验服务器</td><td>chua.crypto.license-url / app-id</td><td>CHUA_CRYPTO_LICENSE_URL / CHUA_CRYPTO_APP_ID</td></tr>
  * </table>
  *
@@ -74,16 +73,6 @@ public final class CryptoLauncher {
      * 固定服务器标识环境变量
      */
     public static final String ENV_SERVER_ID = "CHUA_CRYPTO_SERVER_ID";
-
-    /**
-     * 加密狗路径系统属性
-     */
-    public static final String PROP_DONGLE = "chua.crypto.dongle";
-
-    /**
-     * 加密狗路径环境变量
-     */
-    public static final String ENV_DONGLE = "CHUA_CRYPTO_DONGLE";
 
     /**
      * 私钥文件系统属性
@@ -196,8 +185,7 @@ public final class CryptoLauncher {
      * 解封主密钥，优先级：
      * <ol>
      *   <li>校验服务器：POST 本机指纹 → 校验注册合法性 → 下发注册的私钥封装块</li>
-     *   <li>加密狗载体（CHKD）</li>
-     *   <li>私钥文件（CHKF/CHKD 自动识别）</li>
+     *   <li>私钥文件（CHKF）</li>
      *   <li>包内密钥封装块（策略以块内标志为准）</li>
      * </ol>
      *
@@ -220,11 +208,6 @@ public final class CryptoLauncher {
                     pin == null ? new char[0] : pin, serverId);
         }
 
-        String donglePath = firstNonBlank(System.getProperty(PROP_DONGLE), System.getenv(ENV_DONGLE));
-        if (donglePath != null) {
-            return loadCarrierBlob(Path.of(donglePath.trim()), "加密狗", pin, serverId);
-        }
-
         String keyFilePath = firstNonBlank(System.getProperty(PROP_KEY_FILE), System.getenv(ENV_KEY_FILE));
         if (keyFilePath != null) {
             return loadCarrierBlob(Path.of(keyFilePath.trim()), "私钥文件", pin, serverId);
@@ -233,14 +216,14 @@ public final class CryptoLauncher {
         JarEntry blobEntry = jar.getJarEntry(KEY_BLOB_ENTRY);
         if (blobEntry == null) {
             throw new IllegalStateException("包内缺少密钥块 " + KEY_BLOB_ENTRY
-                    + "：请配置校验服务器/私钥文件/加密狗等密钥来源");
+                    + "：请配置校验服务器/私钥文件等密钥来源");
         }
         return PayloadCipher.unwrapMaster(PayloadCipher.MAGIC_KEY_BLOB,
                 readAll(jar.getInputStream(blobEntry)), pin, serverId);
     }
 
     /**
-     * 加载外置载体封装块（加密狗/私钥文件，魔数自动识别 CHKF/CHKD）
+     * 加载外置私钥文件封装块（CHKF）
      *
      * @param file      载体文件
      * @param desc      描述（用于错误消息）
@@ -254,15 +237,7 @@ public final class CryptoLauncher {
             throw new IllegalStateException(desc + "未找到: " + file);
         }
         byte[] blob = Files.readAllBytes(file);
-        IllegalStateException last = null;
-        for (byte[] magic : new byte[][]{PayloadCipher.MAGIC_KEY_BLOB, PayloadCipher.MAGIC_DONGLE}) {
-            try {
-                return PayloadCipher.unwrapMaster(magic, blob, pin, serverId);
-            } catch (IllegalStateException e) {
-                last = e;
-            }
-        }
-        throw last;
+        return PayloadCipher.unwrapMaster(PayloadCipher.MAGIC_KEY_BLOB, blob, pin, serverId);
     }
 
     /**
