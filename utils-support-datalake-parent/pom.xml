@@ -18,6 +18,9 @@
         <module>utils-support-datalake-subscribe-starter</module>
         <module>utils-support-datalake-sink-starter</module>
         <module>utils-support-datalake-query-starter</module>
+        <module>utils-support-datalake-mqtt-starter</module>
+        <module>utils-support-datalake-webhook-starter</module>
+        <module>utils-support-datalake-cdc-starter</module>
     </modules>
 </project>
 

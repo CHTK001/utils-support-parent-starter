@@ -118,6 +118,9 @@ public class SshClient implements AutoCloseable {
     public SshClient connect() {
         try {
             sshClient = org.apache.sshd.client.SshClient.setUpDefaultClient();
+            // MINA 默认 ForwardingFilter 为 RejectAllForwardingFilter, 会静默拒绝服务端下发的
+            // forwarded-tcpip 通道, 导致反向隧道(-R)注册成功但数据面不通; 此处显式放行
+            sshClient.setForwardingFilter(org.apache.sshd.server.forward.AcceptAllForwardingFilter.INSTANCE);
             sshClient.start();
 
             session = sshClient.connect(username, host, port)
