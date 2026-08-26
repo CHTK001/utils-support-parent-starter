@@ -13,3 +13,11 @@ com.chua.filestorage.support.preview.provider.SvgPreviewProvider
 com.chua.filestorage.support.preview.provider.CadPreviewProvider
 com.chua.filestorage.support.preview.provider.FontPreviewProvider
 com.chua.filestorage.support.preview.provider.XMindPreviewProvider
+com.chua.filestorage.support.preview.provider.EpubPreviewProvider
+com.chua.filestorage.support.preview.provider.RtfPreviewProvider
+com.chua.filestorage.support.preview.provider.EmailPreviewProvider
+com.chua.filestorage.support.preview.provider.CalendarPreviewProvider
+com.chua.filestorage.support.preview.provider.VCardPreviewProvider
+com.chua.filestorage.support.preview.provider.FbxPreviewProvider
+com.chua.filestorage.support.preview.provider.BlenderPreviewProvider
+com.chua.filestorage.support.preview.provider.ShapefilePreviewProvider
