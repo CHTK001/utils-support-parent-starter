@@ -398,6 +398,69 @@ public class FileEngine extends AbstractEngine {
         return rows;
     }
 
+    // ==================== 原生 SQL（AST → 行引用 + 自动持久化） ====================
+
+    /**
+     * 执行原生 SELECT：SQL 编译为 AST 后在表行引用上求值。
+     *
+     * @param sql    SELECT 语句（支持 WHERE/ORDER BY/LIMIT/COUNT(*)）
+     * @param params ? 绑定参数
+     * @return 结果行
+     */
+    public List<Map<String, Object>> querySql(String sql, Object... params) {
+        Objects.requireNonNull(sql, "sql must not be null");
+        String table = extractTable(sql);
+        List<?> rows = dataStores.getOrDefault(table, Collections.emptyList());
+        return new MemorySqlParser().executeQuery(sql, rows, params);
+    }
+
+    /**
+     * 执行原生 DML：INSERT / UPDATE / DELETE 作用于表行引用，
+     * 影响行数大于零时按 autoPersist 配置自动写回源文件。
+     *
+     * @param sql    DML 语句
+     * @param params ? 绑定参数
+     * @return 影响行数
+     */
+    public int executeSql(String sql, Object... params) {
+        Objects.requireNonNull(sql, "sql must not be null");
+        var plan = new MemorySqlParser().parseDml(sql);
+        List<Object> plist = Arrays.asList(params == null ? new Object[0] : params);
+        List<Object> rows = resolveMutableRows(plan.table());
+        int affected = MemorySqlAst.executeDml(plan, plist, () -> rows);
+        if (affected > 0) {
+            TableMeta meta = resolveMeta(plan.table());
+            if (meta != null && meta.autoPersist) {
+                save(plan.table());
+            }
+        }
+        return affected;
+    }
+
+    /** 解析目标表的可变行引用，未加载的表直接拒绝 */
+    private List<Object> resolveMutableRows(String table) {
+        List<?> rows = dataStores.get(table);
+        if (rows == null && defaultDataSourceName != null && table.equals(defaultDataSourceName)) {
+            rows = dataStores.get("default");
+        }
+        if (rows == null) {
+            throw new IllegalStateException("表未加载，请先 load: " + table);
+        }
+        @SuppressWarnings("unchecked")
+        List<Object> mutable = (List<Object>) rows;
+        return mutable;
+    }
+
+    /** 提取 FROM 表名供 SQL 定位数据 */
+    private static String extractTable(String sql) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("(?i)FROM\\s+([\\w]+)").matcher(sql);
+        if (!m.find()) {
+            throw new IllegalArgumentException("缺少 FROM 子句: " + sql);
+        }
+        return m.group(1);
+    }
+
     // ==================== 内部方法 ====================
 
     /** NormalizeEmptyStrings */
