@@ -33,6 +33,13 @@ final class MemorySqlAst {
          * @param p   参数提供器
          * @return 布真
          */
+        /**
+         * 对行求值。
+         *
+         * @param row 行对象（Map 或 bean）
+         * @param p   参数游标
+         * @return 布真结果
+         */
         abstract boolean eval(Object row, ParamProvider p);
     }
 
@@ -42,6 +49,13 @@ final class MemorySqlAst {
         private final Node left;
         private final Node right;
 
+        /**
+         * 构造二元节点。
+         *
+         * @param op    运算符（AND/OR/= /!=/<>/</<=/>/>=）
+         * @param left  左子树
+         * @param right 右子树
+         */
         BinaryNode(String op, Node left, Node right) {
             this.op = op.toUpperCase(Locale.ROOT);
             this.left = left;
@@ -87,6 +101,11 @@ final class MemorySqlAst {
     static final class NotNode extends Node {
         private final Node child;
 
+        /**
+         * 构造取反节点。
+         *
+         * @param child 子谓词
+         */
         NotNode(Node child) {
             this.child = child;
         }
@@ -101,10 +120,20 @@ final class MemorySqlAst {
     static final class ColumnNode extends Node {
         private final String name;
 
+        /**
+         * 构造列引用。
+         *
+         * @param name 列名
+         */
         ColumnNode(String name) {
             this.name = name;
         }
 
+        /**
+         * 获取列名。
+         *
+         * @return 列名
+         */
         String name() {
             return name;
         }
@@ -119,6 +148,11 @@ final class MemorySqlAst {
     static final class LiteralNode extends Node {
         private final Object value;
 
+        /**
+         * 构造字面量节点。
+         *
+         * @param value 字面值或 ParamMarker 占位
+         */
         LiteralNode(Object value) {
             this.value = value;
         }
@@ -128,11 +162,23 @@ final class MemorySqlAst {
             return Boolean.TRUE.equals(value);
         }
 
+        /**
+         * 获取内部原始值。
+         *
+         * @return 原始值（可能为 ParamMarker）
+         */
         Object value() {
             return value;
         }
 
-        static Object unwrap(Object v, ParamProvider p) {
+        /**
+     * 解析字面量或参数占位为实际值。
+     *
+     * @param v 待解析对象（LiteralNode / ParamMarker / 原始值）
+     * @param p 参数游标，null 时占位返回 null
+     * @return 解析后的值
+     */
+    static Object unwrap(Object v, ParamProvider p) {
             if (v instanceof ParamMarker) {
                 return p == null ? null : p.next();
             }
@@ -148,6 +194,12 @@ final class MemorySqlAst {
         private final ColumnNode col;
         private final boolean notNull;
 
+        /**
+         * 构造空值判断节点。
+         *
+         * @param col     目标列
+         * @param notNull true 表示 IS NOT NULL
+         */
         IsNullNode(ColumnNode col, boolean notNull) {
             this.col = col;
             this.notNull = notNull;
@@ -166,6 +218,13 @@ final class MemorySqlAst {
         private final Object lo;
         private final Object hi;
 
+        /**
+         * 构造闭区间判断节点。
+         *
+         * @param col 目标列
+         * @param lo  下界（可为占位）
+         * @param hi  上界（可为占位）
+         */
         BetweenNode(ColumnNode col, Object lo, Object hi) {
             this.col = col;
             this.lo = lo;
@@ -188,6 +247,12 @@ final class MemorySqlAst {
         private final ColumnNode col;
         private final List<Object> values;
 
+        /**
+         * 构造 IN 列表节点。
+         *
+         * @param col    目标列
+         * @param values 候选值集合（元素可为占位）
+         */
         InNode(ColumnNode col, List<Object> values) {
             this.col = col;
             this.values = values;
@@ -214,6 +279,12 @@ final class MemorySqlAst {
         private final ColumnNode col;
         private final String pattern;
 
+        /**
+         * 构造 LIKE 节点。
+         *
+         * @param col     目标列
+         * @param pattern 模式串，仅支持 % 通配（前缀/后缀/包含）
+         */
         LikeNode(ColumnNode col, String pattern) {
             this.col = col;
             this.pattern = pattern;
@@ -244,9 +315,19 @@ final class MemorySqlAst {
 
     /** ORDER BY 项 */
     static final class OrderItem {
+
+        /** 排序列名 */
         final String column;
+
+        /** 是否降序 */
         final boolean desc;
 
+        /**
+         * 构造排序项。
+         *
+         * @param column 列名
+         * @param desc   是否降序
+         */
         OrderItem(String column, boolean desc) {
             this.column = column;
             this.desc = desc;
@@ -259,25 +340,59 @@ final class MemorySqlAst {
 
     /** 参数绑定提供器 */
     interface ParamProvider {
+
+        /**
+         * 消费下一个绑定参数。
+         *
+         * @return 参数值，耗尽返回 null
+         */
         Object next();
     }
 
     /** SELECT 语句：FROM 表行引用 + WHERE 树 + 投影/排序/截断 */
     static final class SelectStmt {
+
+        /** 是否为 COUNT(*) 聚合 */
         boolean countStar;
+
+        /** 是否 SELECT ALL */
         boolean selectAll;
+
+        /** 投影列清单 */
         final List<String> selectColumns = new ArrayList<>();
+
+        /** FROM 表名 */
         String table;
+
+        /** WHERE 表达式树根节点，null 表示无条件 */
         Node where;
+
+        /** 排序项列表 */
         final List<OrderItem> orderBys = new ArrayList<>();
+
+        /** 返回上限，默认整型最大值表示不限 */
         int limit = Integer.MAX_VALUE;
+
+        /** 偏移量，默认 0 */
         int offset;
+
+        /** 绑定后的参数列表 */
         private List<Object> boundParams;
 
+        /**
+         * 绑定 ? 参数列表。
+         *
+         * @param params 参数值集合，null 视为空集
+         */
         void bind(List<Object> params) {
             this.boundParams = params == null ? List.of() : params;
         }
 
+        /**
+         * 创建独立的按序参数游标（每行求值需新建以保证绑定值一致）。
+         *
+         * @return 游标提供器
+         */
         ParamProvider provider() {
             return new ParamProvider() {
                 private int idx;
@@ -327,6 +442,11 @@ final class MemorySqlAst {
             return projected;
         }
 
+        /**
+         * 依据 orderBys 构建多列比较器（null 值排最前）。
+         *
+         * @return 行比较器
+         */
         private Comparator<Object> buildComparator() {
             return (a, b) -> {
                 for (OrderItem ob : orderBys) {
@@ -350,6 +470,12 @@ final class MemorySqlAst {
             };
         }
 
+        /**
+         * 对单行执行列投影。
+         *
+         * @param row 行对象
+         * @return 投影后的有序映射
+         */
         private Map<String, Object> project(Object row) {
             Map<String, Object> out = new LinkedHashMap<>();
             if (selectAll) {
@@ -393,7 +519,11 @@ final class MemorySqlAst {
 
     /** INSERT 计划 */
     static final class InsertPlan extends DmlPlan {
+
+        /** 显式列清单，未指定时由首行推断 */
         final List<String> columns = new ArrayList<>();
+
+        /** 各待插入行的值集合 */
         final List<List<Object>> rows = new ArrayList<>();
 
         /**
@@ -417,6 +547,8 @@ final class MemorySqlAst {
 
     /** UPDATE 计划 */
     static final class UpdatePlan extends DmlPlan {
+
+        /** SET 赋值映射（保持语句顺序） */
         final Map<String, Object> sets = new LinkedHashMap<>();
 
         /**
@@ -556,6 +688,14 @@ final class MemorySqlAst {
 
     /* ==================== 工具 ==================== */
 
+    /**
+     * 将表达式节点作为值求值（列引用取行值，字面量解析占位）。
+     *
+     * @param n   表达式节点
+     * @param row 行对象
+     * @param p   参数游标
+     * @return 求值结果
+     */
     static Object value(Node n, Object row, ParamProvider p) {
         if (n instanceof ColumnNode) {
             return RowAccessor.value(row, ((ColumnNode) n).name());
@@ -567,6 +707,13 @@ final class MemorySqlAst {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    /**
+     * 通用比较：数值按 double 比较，可比对象直接比较，否则退化字符串比较。
+     *
+     * @param a 左值
+     * @param b 右值
+     * @return 比较结果
+     */
     static int compare(Object a, Object b) {
         if (a instanceof Number && b instanceof Number) {
             double da = ((Number) a).doubleValue();

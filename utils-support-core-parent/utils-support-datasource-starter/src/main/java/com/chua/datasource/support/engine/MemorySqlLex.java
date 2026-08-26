@@ -20,17 +20,36 @@ final class MemorySqlLex {
      * 将 SQL 切分为 token：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
      */
     static final class TokenStream {
+
+        /** token 序列 */
         private final List<String> tokens;
+
+        /** 当前读取位置 */
         private int pos;
 
+        /**
+         * 构造词法流并完成全量切分。
+         *
+         * @param sql 原始 SQL 文本
+         */
         TokenStream(String sql) {
             this.tokens = tokenize(sql);
         }
 
+        /**
+         * 是否已读到末尾。
+         *
+         * @return true 表示无剩余 token
+         */
         boolean eof() {
             return pos >= tokens.size();
         }
 
+        /**
+         * 预览当前 token（不消费）。
+         *
+         * @return 当前 token
+         */
         String peek() {
             if (eof()) {
                 throw new IllegalArgumentException("意外的语句结尾");
@@ -38,6 +57,11 @@ final class MemorySqlLex {
             return tokens.get(pos);
         }
 
+        /**
+         * 消费并返回当前 token。
+         *
+         * @return 当前 token
+         */
         String next() {
             if (eof()) {
                 throw new IllegalArgumentException("意外的语句结尾");
@@ -45,6 +69,12 @@ final class MemorySqlLex {
             return tokens.get(pos++);
         }
 
+        /**
+         * 将 SQL 切分为 token：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
+         *
+         * @param sql 原始文本
+         * @return token 列表
+         */
         private static List<String> tokenize(String sql) {
             java.util.List<String> out = new java.util.ArrayList<>();
             int i = 0;
@@ -187,6 +217,7 @@ final class MemorySqlLex {
          * @param value  值
          * @return 是否写入成功
          */
+        @SuppressWarnings("unchecked")
         static boolean setValue(Object row, String column, Object value) {
             if (row instanceof Map) {
                 Map<Object, Object> m = (Map<Object, Object>) (Map<?, ?>) row;
@@ -212,6 +243,12 @@ final class MemorySqlLex {
             }
         }
 
+        /**
+         * 依据值类型推断 setter 形参类型。
+         *
+         * @param v 值
+         * @return 对应的基本类型或运行时类型
+         */
         private static Class<?> guessType(Object v) {
             if (v == null) {
                 return Object.class;
@@ -251,6 +288,12 @@ final class MemorySqlLex {
             }
         }
 
+        /**
+         * 由列名推导 getter 方法名。
+         *
+         * @param column 列名
+         * @return getter 名
+         */
         private static String getterName(String column) {
             if (column.startsWith("is") && column.length() > 2) {
                 return column;

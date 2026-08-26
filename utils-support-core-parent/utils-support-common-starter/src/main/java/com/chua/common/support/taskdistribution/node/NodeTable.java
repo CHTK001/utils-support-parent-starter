@@ -7,9 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -98,6 +100,9 @@ public class NodeTable {
         meta.setLastHeartbeat(System.currentTimeMillis());
         meta.setOnline(true);
         NodeMeta old = nodes.put(meta.getNodeId(), meta);
+        if (!registrationOrder.contains(meta.getNodeId())) {
+            registrationOrder.add(meta.getNodeId());
+        }
         if (old == null) {
             log.info("节点注册: {}", meta.getNodeId());
         } else {
@@ -112,6 +117,7 @@ public class NodeTable {
      */
     public void unregister(String nodeId) {
         NodeMeta removed = nodes.remove(nodeId);
+        registrationOrder.remove(nodeId);
         if (removed != null) {
             log.info("节点注销: {}", nodeId);
         }
@@ -173,6 +179,9 @@ public class NodeTable {
                     }
                     return true;
                 })
+                // 按注册顺序稳定输出，保证 FIRST/LAST 策略语义确定
+                .sorted(Comparator.comparingInt(
+                        meta -> registrationOrder.indexOf(meta.getNodeId())))
                 .collect(Collectors.toList());
     }
 

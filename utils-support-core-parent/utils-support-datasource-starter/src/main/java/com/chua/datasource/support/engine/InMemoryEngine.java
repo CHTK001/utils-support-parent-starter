@@ -49,7 +49,11 @@ public class InMemoryEngine extends AbstractEngine {
         return this;
     }
 
-    /** Index */
+    /**
+     * 为当前全部已存表构建二级索引，加速后续等值条件查询。
+     *
+     * @return 当前引擎实例
+     */
     public InMemoryEngine index() {
         for (Map.Entry<String, List<?>> e : dataStores.entrySet()) {
             buildIndex(e.getKey(), e.getValue());
@@ -148,10 +152,29 @@ public class InMemoryEngine extends AbstractEngine {
         var plan = new MemorySqlParser().parseDml(sql);
         return MemorySqlAst.executeDml(plan,
                 java.util.Arrays.asList(params == null ? new Object[0] : params),
-                () -> dataStores.computeIfAbsent(plan.table(), k -> new ArrayList<>()));
+                () -> mutableRowsFor(plan.table()));
     }
 
-    /** 提取 FROM 表名供 SELECT 定位数据 */
+    /**
+     * 获取指定表的可变行引用，表不存在时创建空表挂载。
+     *
+     * @param table 表名
+     * @return 可变行引用列表
+     */
+    private List<Object> mutableRowsFor(String table) {
+        dataStores.computeIfAbsent(table, k -> new ArrayList<>());
+        @SuppressWarnings("unchecked")
+        List<Object> rows = (List<Object>) dataStores.get(table);
+        return rows;
+    }
+
+    /**
+     * 提取 FROM 子句后的表名，供 SELECT 定位数据。
+     *
+     * @param sql SELECT 语句
+     * @return 表名
+     * @throws IllegalArgumentException 缺少 FROM 子句时抛出
+     */
     private static String extractTable(String sql) {
         java.util.regex.Matcher m = java.util.regex.Pattern
                 .compile("(?i)FROM\\s+([\\w]+)").matcher(sql);
