@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>分支处理测试报告 — Branch</title>
+<style>
+  body { font-family:"Microsoft YaHei",sans-serif; margin:24px; color:#222; background:#fafafa; }
+  h1 { border-bottom:2px solid #2b6cb0; padding-bottom:8px; }
+  .meta { background:#eef4fb; padding:12px 16px; border-radius:6px; margin-bottom:16px; line-height:1.7; }
+  table { border-collapse:collapse; width:100%; background:#fff; }
+  th,td { border:1px solid #cbd5e0; padding:7px 10px; font-size:14px; text-align:left; }
+  th { background:#2b6cb0; color:#fff; }
+  tr:nth-child(even){ background:#f5f8fc; }
+  .pass { color:#1a7f37; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1>分支处理（Branch）单元自检报告</h1>
+<div class="meta">
+  <strong>模块</strong>：utils-support-common-starter / <code>com.chua.common.support.task.branch.Branch</code><br>
+  <strong>验证载体</strong>：example-starter / <code>com.chua.example.taskbranch.BranchExample</code><br>
+  <strong>执行日期</strong>：2026-08-25 · JDK 25 · Windows x86_64<br>
+  <strong>结果判定</strong>：退出码 0 = 全部通过
+</div>
+<div class="summary"><span class="pass">通过 15 / 15 场景</span></div>
+
+<h2>场景明细</h2>
+<table>
+  <tr><th>#</th><th>场景</th><th>验证要点</th><th>结果</th></tr>
+  <tr><td>1</td><td>惰性求值</td><td>终端操作前动作不执行</td><td class="pass">PASS</td></tr>
+  <tr><td>2</td><td>when 命中/未命中</td><td>条件命中执行动作、未命中跳过</td><td class="pass">PASS</td></tr>
+  <tr><td>3</td><td>条件组首中胜</td><td>组内多 when 仅首个命中生效</td><td class="pass">PASS</td></tr>
+  <tr><td>4</td><td>end 无命中透传</td><td>全部未命中时 end 透传原始输入</td><td class="pass">PASS</td></tr>
+  <tr><td>5</td><td>组内谓词固定原始类型</td><td>组内谓词始终接收原始输入而非上游结果</td><td class="pass">PASS</td></tr>
+  <tr><td>6</td><td>null 免疫</td><td>输入为 null 时谓词不被调用</td><td class="pass">PASS</td></tr>
+  <tr><td>7</td><td>whenNull 拦截</td><td>null 输入被 whenNull 分支拦截处理</td><td class="pass">PASS</td></tr>
+  <tr><td>8</td><td>内置谓词判定</td><td>非空/正数等内置谓词语义正确</td><td class="pass">PASS</td></tr>
+  <tr><td>9</td><td>recover 兜底续链</td><td>异常恢复后链路继续</td><td class="pass">PASS</td></tr>
+  <tr><td>10</td><td>onError 终止取最近成功</td><td>onError 终止并返回最近成功值</td><td class="pass">PASS</td></tr>
+  <tr><td>11</td><td>无兜底时异常逃逸</td><td>未注册处理器时异常向上传播</td><td class="pass">PASS</td></tr>
+  <tr><td>12</td><td>缺少条件分支快速失败</td><td>无可用分支时快速失败语义</td><td class="pass">PASS</td></tr>
+  <tr><td>13</td><td>protect 熔开路由兜底</td><td>熔断打开时路由到兜底分支</td><td class="pass">PASS</td></tr>
+  <tr><td>14</td><td>afterBranch 重置作用域</td><td>afterBranch 后作用域重置且结果透传</td><td class="pass">PASS</td></tr>
+  <tr><td>15</td><td>顺序 when 独立生效</td><td>多个顺序 when 各自独立判定互不干扰</td><td class="pass">PASS</td></tr>
+</table>
+
+<h2>运行方式</h2>
+<pre>java --enable-preview -cp &lt;modules&gt; com.chua.example.taskbranch.BranchExample</pre>
+</body>
+</html>

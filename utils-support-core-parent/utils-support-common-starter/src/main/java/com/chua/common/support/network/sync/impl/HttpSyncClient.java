@@ -162,7 +162,9 @@ public class HttpSyncClient implements SyncClient {
             throw new IllegalStateException("客户端未连接");
         }
         try {
-            String body = java.net.URLEncoder.encode(topic, "UTF-8") + "=" + java.net.URLEncoder.encode(message.toString(), "UTF-8");
+            String body = "clientId=" + java.net.URLEncoder.encode(clientId, "UTF-8")
+                    + "&" + java.net.URLEncoder.encode(topic, "UTF-8")
+                    + "=" + java.net.URLEncoder.encode(message.toString(), "UTF-8");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + "/api/sync/send"))
                     .header("Content-Type", "application/x-www-form-urlencoded")

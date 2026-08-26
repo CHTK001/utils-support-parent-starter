@@ -478,6 +478,118 @@ public class ClassUtils {
             } catch (Exception ignored) {
             }
         }
+
+    /**
+     * 精确清理指定的 ClassLoader 实例（从全局注册表移除并释放资源）。
+     *
+     * <p>与 {@link #unregisterClassLoader(ClassLoader)} 功能相同，但语义更明确：
+     * 强调「精确清理单个 ClassLoader」而非「注销」。适用于热重载场景中
+     * 主动清理旧 ClassLoader 的场景。</p>
+     *
+     * @param classLoader 待清理的 ClassLoader，null 时不处理
+     * @return true 表示成功清理，false 表示 ClassLoader 不在注册表中或为 null
+     */
+    public static boolean clearClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return false;
+        }
+        boolean found = REGISTERED_CLASS_LOADERS.removeIf(ref -> {
+            ClassLoader cl = ref.get();
+            return cl != null && cl == classLoader;
+        });
+        if (!found) {
+            return false;
+        }
+        try {
+            if (classLoader instanceof AutoCloseable) {
+                ((AutoCloseable) classLoader).close();
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            if (classLoader instanceof URLClassLoader) {
+                ((URLClassLoader) classLoader).close();
+            }
+        } catch (Exception ignored) {
+        }
+        return true;
+    }
+
+    /**
+     * 清理所有满足条件的已注册 ClassLoader。
+     *
+     * @param predicate 过滤条件，返回 true 表示需要清理；null 时等同于 {@link #clearAllClassLoaders()}
+     * @return 实际清理的 ClassLoader 数量
+     */
+    public static int clearClassLoaders(Predicate<ClassLoader> predicate) {
+        if (predicate == null) {
+            return clearAllClassLoaders();
+        }
+        int count = 0;
+        java.util.Iterator<java.lang.ref.WeakReference<ClassLoader>> it = REGISTERED_CLASS_LOADERS.iterator();
+        while (it.hasNext()) {
+            java.lang.ref.WeakReference<ClassLoader> ref = it.next();
+            ClassLoader cl = ref.get();
+            if (cl == null) {
+                it.remove();
+                continue;
+            }
+            if (predicate.test(cl)) {
+                try {
+                    unregisterClassLoader(cl);
+                    count++;
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 判断指定的 ClassLoader 是否已注册到全局弱引用集合中。
+     *
+     * @param classLoader 待检查的 ClassLoader，null 时返回 false
+     * @return true 表示该 ClassLoader 已注册
+     */
+    public static boolean isRegisteredClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            return false;
+        }
+        java.util.Iterator<java.lang.ref.WeakReference<ClassLoader>> it = REGISTERED_CLASS_LOADERS.iterator();
+        while (it.hasNext()) {
+            java.lang.ref.WeakReference<ClassLoader> ref = it.next();
+            ClassLoader cl = ref.get();
+            if (cl == null) {
+                it.remove();
+                continue;
+            }
+            if (cl == classLoader) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取当前已注册的存活 ClassLoader 数量。
+     *
+     * @return 当前已注册的存活 ClassLoader 数量
+     */
+    public static int getRegisteredClassLoaderCount() {
+        int count = 0;
+        java.util.Iterator<java.lang.ref.WeakReference<ClassLoader>> it = REGISTERED_CLASS_LOADERS.iterator();
+        while (it.hasNext()) {
+            java.lang.ref.WeakReference<ClassLoader> ref = it.next();
+            ClassLoader cl = ref.get();
+            if (cl == null) {
+                it.remove();
+                continue;
+            }
+            count++;
+        }
+        return count;
+    }
         return count;
     }
 
