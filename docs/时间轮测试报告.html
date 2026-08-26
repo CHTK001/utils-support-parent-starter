@@ -19,29 +19,33 @@
 </head>
 <body>
 
-<h1>时间轮（HashedWheelTimer）单元自检报告</h1>
+<h1>时间轮（HashedWheelTimer）单元自检报告 — v2</h1>
 
 <div class="meta">
   <strong>模块</strong>：utils-support-common-starter / <code>com.chua.common.support.task.timer</code><br>
   <strong>验证载体</strong>：utils-support-example-starter / <code>com.chua.example.timer.TimeWheelExample</code><br>
   <strong>执行方式</strong>：<code>java --enable-preview -cp ... com.chua.example.timer.TimeWheelExample</code><br>
   <strong>执行日期</strong>：2026-08-25 · JDK 25 · Windows x86_64 · 时间轮配置 64 槽 / 50ms tick<br>
+  <strong>v2 升级</strong>：绝对时间轴 fixed-rate tick · 虚拟线程执行器并发运行任务 · 分槽细粒度锁 · 原子计数 · FutureTask 先绑定消除 cancel 竞态 · 双层日志故障兜底<br>
   <strong>结果判定</strong>：退出码 0 = 全部通过；任一场景失败输出 [FAIL] 并以退出码 1 结束
 </div>
 
-<div class="summary"><span class="pass">通过 7 / 7 场景</span></div>
-<div class="summary">本轮修复缺陷 3 处：周期任务取消失效 · Error 杀死时间轮 · shutdown 延迟/静默拒绝</div>
+<div class="summary"><span class="pass">通过 10 / 10 场景</span></div>
+<div class="summary">累计修复缺陷 4 处（周期取消失效 / Error 杀轮 / 关闭静默拒绝 / slotDistance 公式）+ v2 四项能力升级</div>
 
 <h2>一、场景明细与真实耗时</h2>
 <table>
   <tr><th>#</th><th>场景</th><th>验证要点</th><th>结果</th><th>耗时(ms)</th></tr>
-  <tr><td>1</td><td>singleShotFiresOnTime</td><td>100ms 单次延迟任务按时触发（观察窗 2s）</td><td class="pass">PASS</td><td>643</td></tr>
-  <tr><td>2</td><td>multipleTasksAllFire</td><td>60/120/240ms 三任务并发注册全部触发 3/3</td><td class="pass">PASS</td><td>325</td></tr>
-  <tr><td>3</td><td>periodicFiresThenCancelStops</td><td>固定周期(50+100ms)触发 ≥3 次；cancel 后计数精确停止（6→6）</td><td class="pass">PASS</td><td>1006</td></tr>
-  <tr><td>4</td><td>cancelPreventsExecution</td><td>调度后立即取消 → 观察窗内零执行且 isCancelled=true</td><td class="pass">PASS</td><td>516</td></tr>
-  <tr><td>5</td><td>taskExceptionDoesNotKillWheel</td><td>任务抛 RuntimeException 被兜底记录，后续新任务照常触发且 isRunning=true</td><td class="pass">PASS</td><td>184</td></tr>
-  <tr><td>6</td><td>shutdownStopsScheduling</td><td>shutdown 后 isRunning 立即 false；schedule 返回 null 拒绝新任务（中断立即生效）</td><td class="pass">PASS</td><td>3</td></tr>
-  <tr><td>7</td><td>tickCountProgresses</td><td>300ms 内 tick 计数 0→5 递增推进</td><td class="pass">PASS</td><td>307</td></tr>
+  <tr><td>1</td><td>singleShotFiresOnTime</td><td>100ms 单次延迟任务按时触发（观察窗 2s）</td><td class="pass">PASS</td><td>1372</td></tr>
+  <tr><td>2</td><td>multipleTasksAllFire</td><td>60/120/240ms 三任务并发注册全部触发 3/3</td><td class="pass">PASS</td><td>305</td></tr>
+  <tr><td>3</td><td>periodicFiresThenCancelStops</td><td>固定周期(50+100ms)触发 ≥3 次；cancel 后计数精确停止（6→6）</td><td class="pass">PASS</td><td>1022</td></tr>
+  <tr><td>4</td><td>cancelPreventsExecution</td><td>调度后立即取消 → 观察窗内零执行且 isCancelled=true</td><td class="pass">PASS</td><td>536</td></tr>
+  <tr><td>5</td><td>taskExceptionDoesNotKillWheel</td><td>任务抛 RuntimeException 被兜底记录，后续新任务照常触发且 isRunning=true</td><td class="pass">PASS</td><td>175</td></tr>
+  <tr><td>6</td><td>shutdownStopsScheduling</td><td>shutdown 后 isRunning 立即 false；schedule 返回 null 拒绝新任务（中断立即生效）</td><td class="pass">PASS</td><td>4</td></tr>
+  <tr><td>7</td><td>tickCountProgresses</td><td>300ms 内 tick 计数 0→5 递增推进</td><td class="pass">PASS</td><td>305</td></tr>
+  <tr><td>8</td><td>slowTaskDoesNotBlockWheel</td><td><strong>v2 执行器隔离</strong>：400ms 慢任务运行期间，其后短任务 164ms 独立触发（窗口 350ms）</td><td class="pass">PASS</td><td>164</td></tr>
+  <tr><td>9</td><td>cancelInterruptsRunningTask</td><td><strong>v2 可中断执行</strong>：cancel(true) 经 FutureTask 中断在途业务线程，202ms 收到中断信号</td><td class="pass">PASS</td><td>202</td></tr>
+  <tr><td>10</td><td>taskCountMatchesScheduled</td><td><strong>v2 原子计数</strong>：注册 5 个未到期任务 getTaskCount=5，触发后归零</td><td class="pass">PASS</td><td>906</td></tr>
 </table>
 
 <h2>二、覆盖率说明</h2>
@@ -49,37 +53,41 @@
 <table>
   <tr><th>能力维度</th><th>覆盖场景</th><th>状态</th></tr>
   <tr><td>正常路径</td><td>#1 #2 #7</td><td class="pass">已覆盖</td></tr>
-  <tr><td>边界条件</td><td>#4（到期前取消）#6（shutdown 后拒绝）</td><td class="pass">已覆盖</td></tr>
+  <tr><td>边界条件</td><td>#4（到期前取消）#6（shutdown 后拒绝）#10（计数归零）</td><td class="pass">已覆盖</td></tr>
   <tr><td>异常输入</td><td>#5（业务异常隔离）</td><td class="pass">已覆盖</td></tr>
-  <tr><td>并发</td><td>#2 #3（tick 线程 vs 主线程 cancel/schedule 竞态）</td><td class="pass">已覆盖</td></tr>
-  <tr><td>资源清理</td><td>#6（shutdown 中断 + daemon 线程不阻塞 JVM）</td><td class="pass">已覆盖</td></tr>
+  <tr><td>并发</td><td>#2 #3 #9（tick 线程 / 执行器线程 / 主线程 cancel 三方竞态）</td><td class="pass">已覆盖</td></tr>
+  <tr><td>调度隔离</td><td>#8（慢任务不阻塞轮子推进与短任务触发）</td><td class="pass">已覆盖</td></tr>
+  <tr><td>资源清理</td><td>#6（shutdown 中断 tick + shutdownNow 中断全部在途任务 + daemon 不阻塞 JVM）</td><td class="pass">已覆盖</td></tr>
 </table>
 
-<h2>三、本轮修复的源码缺陷</h2>
+<h2>三、累计修复的源码缺陷</h2>
 <table>
   <tr><th>#</th><th>缺陷</th><th>修复</th></tr>
-  <tr><td>1</td><td><strong>周期任务取消失效</strong>：重排每次 new 新实例，cancel 只标记旧引用，轮内活跃的新实例继续无限循环</td><td>重排复用同一 TimerTask 实例（新增包级 <code>advanceDeadline()</code> 推进 volatile deadline），取消状态随实例传播</td></tr>
-  <tr><td>2</td><td><strong>Error 杀死时间轮</strong>：TimerTask.run 只捕获 Exception，Error 穿透终止 tick 线程，全部后续任务永不执行</td><td>tick 循环对单任务执行增加 Throwable 兜底 log.error</td></tr>
+  <tr><td>1</td><td><strong>周期任务取消失效</strong>：重排每次 new 新实例，cancel 只标记旧引用，轮内活跃的新实例继续无限循环</td><td>重排复用同一 TimerTask 实例（包级 <code>advanceDeadline()</code> 推进 volatile deadline），取消状态随实例传播</td></tr>
+  <tr><td>2</td><td><strong>Error 杀死时间轮</strong>：TimerTask.run 只捕获 Exception，Error 穿透终止 tick 线程，全部后续任务永不执行</td><td>提交侧 Throwable 兜底 + 双层安全日志（SLF4J 失败降级 stderr）</td></tr>
   <tr><td>3</td><td><strong>关闭延迟 + 静默拒绝</strong>：shutdown 仅置位不中断（最长延迟一个 tick）；schedule(Runnable) 在关闭后被静默丢弃仍返回非 null 句柄</td><td>持有 tickThread 引用并在 shutdown 时 interrupt 立即退出；工厂方法调度失败返回 null（接口 Javadoc 同步）</td></tr>
+  <tr><td>4</td><td><strong>slotDistance 公式缺陷</strong>：<code>delay/tick+1</code> 多余保守量使首触必迟一拍；执行漂移后 delay≤0 归零挂回当前槽，周期任务等整圈(≈3.2s)才再次扫描</td><td>改 ceil 向上取整精确落位；delay≤0 取最小偏移 1 下个 tick 补触发</td></tr>
+  <tr><td>5</td><td><strong>cancel 竞态</strong>：runningFuture 在 submit 之后赋值，虚拟线程可能先于赋值启动，cancel 读到 null 导致中断丢失</td><td>手工构造 FutureTask：<strong>先绑定 future 再入队</strong>，窗口归零</td></tr>
 </table>
 
-<h2>四、已知边界（设计取舍，已文档化）</h2>
+<h2>四、v2 并发语义说明</h2>
 <ul>
-  <li><strong>fixed-delay 语义</strong>：tick 线程 sleep(tick) 与任务串行执行，任务耗时累积造成周期漂移（非严格 fixed-rate）。</li>
-  <li><strong>执行中不可中断</strong>：cancel/shutdown 对正在执行的 任务体不强制打断（协作式），仅阻止后续触发。</li>
-  <li><strong>getTaskCount 弱一致</strong>：size 为普通 int 读，统计值为近似值。</li>
-  <li>槽位锁为粗粒度单锁（工程阶段取舍），高并发注册可考虑分槽锁优化。</li>
+  <li><strong>fixed-rate tick</strong>：tick 线程按启动时刻为基准的绝对时间轴推进，任务耗时/系统抖动不会累积漂移，落后时连续补扫追赶。</li>
+  <li><strong>任务并发执行</strong>：到期任务提交至虚拟线程执行器并发运行，慢任务不再阻塞轮子推进；不同任务无顺序保证。</li>
+  <li><strong>cancel 可中断</strong>：经 FutureTask.cancel(true) 向业务线程发送中断，业务体响应中断即可即时退出（协作式）。</li>
+  <li><strong>分槽锁</strong>：注册/取消/扫描仅竞争所属槽的独立 ReentrantLock，高并发注册互不阻塞。</li>
+  <li><strong>日志故障隔离</strong>：SLF4J 输出异常时降级 stderr，绝不因日志系统故障反噬时间轮线程。</li>
 </ul>
 
 <h2>五、核心 API 形态</h2>
 <pre>Timer wheel = Timer.newTimer(64, 50, TimeUnit.MILLISECONDS);
 
 wheel.schedule(() -> doWork(), 100, TimeUnit.MILLISECONDS);          // 单次
-TimerTask p = wheel.scheduleAtFixedRate(() -> beat(),                // 固定周期
+TimerTask p = wheel.scheduleAtFixedRate(() -> beat(),                // 固定周期（fixed-rate）
         50, 100, TimeUnit.MILLISECONDS);                              // 已关闭时返回 null
-wheel.cancel(p);                                                      // 取消（对周期任务立即生效）
+wheel.cancel(p);                                                      // 取消并中断在途执行
 wheel.getTickCount(); wheel.getTaskCount(); wheel.isRunning();
-wheel.shutdown();                                                     // 中断 tick 线程立即停止</pre>
+wheel.shutdown();                                                     // 中断 tick + 全部在途任务</pre>
 
 </body>
 </html>
