@@ -81,6 +81,7 @@ tr:hover td{background:rgba(88,166,255,.04)}
 <tr><td>SerialBenchProbe · 4 序列化实现</td><td>100K 行 ×4</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
 <tr><td>DatalakeAllInOneProbe · 13 项全链路</td><td>13 场景</td><td class="r">—</td><td class="r">~0.3 s</td><td class="pass">13 / 13 PASS</td></tr>
 <tr><td>DatalakePipelineBenchProbe · 管线吞吐</td><td>10K/100K ×2</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
+<tr><td>DatalakeRemoteToLocalProbe · 远程→本地全链路</td><td>50 行 CSV</td><td class="r">50 ×4 Sink</td><td class="r">~2 s</td><td class="pass">5 / 5 PASS</td></tr>
 </tbody></table></div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ StressProbe 详细 ━━━━━━━━━━━━━━ -->
@@ -163,6 +164,13 @@ tr:hover td{background:rgba(88,166,255,.04)}
 <tr><td>100,000</td><td>单 Sink (log)</td><td class="r">150.3 s</td><td class="r">665 ops/s</td><td class="pass">PASS</td></tr>
 <tr><td>10,000</td><td>多 Sink (3)</td><td class="r">24.5 s</td><td class="r">408 ops/s</td><td class="pass">PASS</td></tr>
 </tbody></table></div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ Datalake 远程→本地全链路 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>Datalake 远程→本地全链路</h2><span class="tg t2">5/5 PASS</span></div><div class="cb"><div class="lg">
+<strong>链路</strong>：CSV 源（50行）→ DataSync 调度 → DatalakeExecutorManager → DatalakeReactorExecutor（Map→DataEnvelope）→ PipelineEngine → 4 Sink 同时分发<br>
+<strong>验证</strong>：Source 注册 + Server 启停 + 手动触发 + 4 Sink 各收50条 + 数据内容（首条 user_1 / 末条 user_50）+ Server 停止<br>
+<strong>Bug 修复</strong>：<code>DefaultPipelineEngine</code> 原实现查找到 sink 后调用 <code>dispatcher.publish()</code> 而非 <code>target.write()</code>，导致数据进入 Chronicle 但无人消费。已修复为直接调用 sink.write()
+</div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ 已知问题 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>已知问题</h2><span class="tg t3">Known Issues</span></div><div class="cb"><ul class="fl">
