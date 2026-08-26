@@ -290,7 +290,7 @@
   <div class="note">
     <strong>结论：</strong>标准 RDBMS 引擎（H2/MySQL/MariaDB/PostgreSQL/SQL Server）84 用例全绿 + 非标引擎（Elasticsearch/Neo4j/InfluxDB/SolrCloud）10 用例真实容器全绿，
     共 <strong>94/94</strong>。覆盖响应式+同步双路径、类型映射、Lambda 全操作符矩阵（18 组断言 × 3 路径 + 图库 15 操作符）、分页、多源联邦、flyway SQL 导入、
-    ddl()/user() 入口端到端、搜索索引 DDL 定义体系。全程累计发现并修复缺陷 17 处。
+    ddl()/user() 入口端到端、搜索索引 DDL 定义体系。全程累计发现并修复缺陷 17 处（含 ReflectUtils 反射、Solr GROUP BY 三连、PG 占位符转换等关键缺陷）。
     另有 HBase(Docker 网络配置) 与 Milvus(镜像拉取超时) 两项因基础设施阻塞暂跳过，测试代码已就绪。
   </div>
 
@@ -439,6 +439,19 @@
       <td>UpsertIT + InfluxUpsertIT</td>
       <td>MySQL ON DUPLICATE KEY UPDATE；PostgreSQL ON CONFLICT DO UPDATE；H2 MERGE INTO KEY()；InfluxDB 同 timestamp 覆盖写。全部验证：首插→读值→重插→读新值→确认无重复行。</td>
       <td><span class="badge badge-pass">4/4 ✅</span></td>
+    </tr>
+
+    <tr>
+      <td><b>TimeSeriesEngine 接口</b></td><td>InfluxDB 实现</td>
+      <td>InfluxTimeSeriesEngineIT</td>
+      <td>新增时序专用接口：ping、DDL(createDatabase/dropDatabase)、writeBatch、queryRange、queryByTag、aggregate、deleteRange、用户管理(createUser/listUsers/grant/dropUser)。适配器 InfluxTimeSeriesAdapter 桥接 InfluxDB Java SDK。</td>
+      <td><span class="badge badge-pass">5/5 ✅</span></td>
+    </tr>
+    <tr>
+      <td><b>ReactorFileSystem 响应式文件系统</b></td><td>本地文件系统</td>
+      <td>ReactorFileSystemTest</td>
+      <td>新增响应式文件接口：readString/readBytes/readLines/writeString/writeBytes/appendBytes/delete/size/exists。智能路由：小文件(&lt;1MB)→Files.* 阻塞；大文件(≥1MB)→AsynchronousFileChannel 真异步。</td>
+      <td><span class="badge badge-pass">8/8 ✅</span></td>
     </tr>
 </table>
 
