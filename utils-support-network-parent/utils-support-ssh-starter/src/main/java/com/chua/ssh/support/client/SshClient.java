@@ -74,6 +74,11 @@ public class SshClient implements AutoCloseable {
      */
     private final int sessionTimeout;
 
+    /** exec 通道打开超时（秒） */
+    private static final long EXEC_OPEN_TIMEOUT_SECONDS = 10L;
+    /** exec 通道退出码等待（毫秒） */
+    private static final long EXEC_EXIT_WAIT_MILLIS = 30_000L;
+
     /**
      * ssh Client
      */
@@ -203,6 +208,9 @@ public class SshClient implements AutoCloseable {
         public ExecResult execute() {
             try {
                 var channel = client.getSession().createExecChannel(command);
+                // MINA SSHD 3.x: createExecChannel 仅创建通道不自动打开,
+                // 必须显式 open 后才能获取 inverted 流(否则为 null)
+                channel.open().verify(EXEC_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
                 StringBuilder stdout = new StringBuilder();
                 StringBuilder stderr = new StringBuilder();
 
@@ -218,7 +226,11 @@ public class SshClient implements AutoCloseable {
                     }
                 }
 
-                int exitCode = channel.getExitStatus();
+                // 等待远端命令退出以取得准确退出码(EOF 时通道即将关闭, 短暂等待即可)
+                channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.CLOSED),
+                        EXEC_EXIT_WAIT_MILLIS);
+                Integer status = channel.getExitStatus();
+                int exitCode = status == null ? -1 : status;
                 channel.close();
                 return new ExecResult(exitCode, stdout.toString(), stderr.toString());
             } catch (Exception e) {

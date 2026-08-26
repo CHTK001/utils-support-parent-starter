@@ -22,7 +22,7 @@ import java.util.Arrays;
  * <ol>
  *   <li><b>KEK 派生</b> — 依据密钥策略派生密钥加密密钥(KEK)：
  *       CUSTOM 策略由口令 PBKDF2 派生；SERVER_BOUND 策略由服务器指纹 PBKDF2 派生（口令可选叠加为 pepper）</li>
- *   <li><b>密钥封装/解封</b> — 主密钥永远以 AES-GCM 密文形态存在于载体（密钥文件/加密狗），明文仅存于内存</li>
+ *   <li><b>密钥封装/解封</b> — 主密钥永远以 AES-GCM 密文形态存在于载体（密钥文件/打包内嵌块），明文仅存于内存</li>
  *   <li><b>完整性校验</b> — HmacSHA256 防篡改，比较采用常量时间算法防时序侧信道</li>
  * </ol>
  *

@@ -592,8 +592,6 @@ public class ClassUtils {
         }
         return count;
     }
-        return count;
-    }
 
     /**
      * 当指定类名存在并可解析时，执行回调函数。

@@ -1,5 +1,7 @@
 package com.chua.deeplearning.support.onnx.audio;
 
+import com.chua.common.support.converter.Converter;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.deeplearning.support.audio.FileVectorStorage;
@@ -123,20 +125,87 @@ public class VoiceprintPipeline implements AutoCloseable {
      * 按 SPI 提供方名称创建向量存储（memory/jvector/milvus...）。
      *
      * <pre>{@code
-     * pipeline.storage("milvus", milvusConfig);   // 外部向量数据库
-     * pipeline.storage("jvector", null);          // 本地磁盘 ANN 索引
+     * pipeline.storage("memory", null);                          // 内存库（无必填）
+     * pipeline.storage("jvector", null);                         // 本地磁盘 ANN 索引（无必填）
+     * pipeline.storage("milvus", Map.of(                         // 外部向量数据库
+     *         "host", "127.0.0.1", "port", 19530,
+     *         "collection", "voiceprint"));                      // token 可选
      * }</pre>
      *
-     * @param provider SPI 名称（见 META-INF/extensions/...VectorStorageProvider）
-     * @param config   提供方所需配置对象，无配置传 null
+     * <p><b>必填校验</b>：MILVUS 必须提供 host / port / collection（缺失立即抛出，
+     * 避免运行期才失败）；MEMORY / JVECTOR 无必填项。</p>
+     *
+     * @param provider 存储类型（memory / jvector / milvus）
+     * @param config   提供方配置：Map（键 host / port / token / collection），无配置传 null
      * @return this
      */
     public VoiceprintPipeline storage(String provider, Object config) {
-        VectorStorage s = com.chua.common.support.vector.VectorStorage
-                .create(provider, 192,
-                        com.chua.common.support.vector.VectorCompareAlgorithm.cosine(),
-                        config);
-        return storage(s);
+        String host = null;
+        Integer port = null;
+        String token = null;
+        String collection = null;
+        if (config != null) {
+            if (!(config instanceof java.util.Map<?, ?> map)) {
+                throw new IllegalArgumentException("config 需为 Map<String,Object>（键: host/port/token/collection）: "
+                        + config.getClass().getName());
+            }
+            host = trimOrNull(map.get("host"));
+            port = Converter.convertIfNecessary(map.get("port"), Integer.class, null);
+            token = trimOrNull(map.get("token"));
+            collection = trimOrNull(map.get("collection"));
+        }
+
+        // 必填校验：外部向量库缺配置时快速失败
+        String type = StringUtils.isBlank(provider) ? "" : provider.trim().toUpperCase();
+        if ("MILVUS".equals(type)) {
+            java.util.List<String> missing = new java.util.ArrayList<>();
+            if (StringUtils.isBlank(host)) {
+                missing.add("host");
+            }
+            if (port == null) {
+                missing.add("port");
+            }
+            if (StringUtils.isBlank(collection)) {
+                missing.add("collection");
+            }
+            if (!missing.isEmpty()) {
+                throw new IllegalArgumentException(
+                        provider + " 缺少必填配置: " + missing + "（config 可用键: host/port/token/collection）");
+            }
+        }
+
+        var builder = com.chua.common.support.vector.VectorStorageBuilder
+                .newBuilder()
+                .type(provider)
+                .dimension(192)
+                .algorithm(com.chua.common.support.vector.VectorCompareAlgorithm.cosine());
+        if (!StringUtils.isBlank(host)) {
+            builder.host(host);
+        }
+        if (port != null) {
+            builder.port(port);
+        }
+        if (!StringUtils.isBlank(token)) {
+            builder.token(token);
+        }
+        if (!StringUtils.isBlank(collection)) {
+            builder.collection(collection);
+        }
+        return storage(builder.build());
+    }
+
+    /**
+     * 对象转去除首尾空白的字符串。
+     *
+     * @param v 原值
+     * @return 字符串；null/空白返回 null
+     */
+    private static String trimOrNull(Object v) {
+        if (v == null) {
+            return null;
+        }
+        String s = String.valueOf(v).trim();
+        return s.isEmpty() ? null : s;
     }
 
     /**

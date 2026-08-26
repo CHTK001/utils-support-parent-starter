@@ -12,7 +12,6 @@
 | 数据加密 | AES-256-GCM 认证加密，每次随机 IV，Base64 输入输出 |
 | 配置文件加密（链式） | 支持整文件加密（`#!CHKF-CONFIG:1` 标记）与单值加密（`ENC(...)` 包裹），可保留 `*.bak` 明文备份 |
 | 密钥文件 | 默认 `{user.home}/.chua/crypto/master.key`；相对路径按 工作目录 → Jar 目录(FatJar) → 用户目录 解析 |
-| U 盘加密狗 | 支持生成（`generate`）与解析（作为载体加载），"物理持有即授权"；预留可移动介质扫描 |
 | SpringBoot | 自动装配 `Crypto` Bean；启动期透明解密已加密配置文件与 `ENC(...)` 配置值 |
 | **程序包加密** | **对 SpringBoot FatJar / 可执行 Jar 整体加密：类文件逐条目加密、依赖包(BOOT-INF/lib/*.jar)整体加密、配置文件随包加密；注入零依赖引导器，运行期透明解密加载** |
 
@@ -69,27 +68,13 @@ crypto.encryptValue("p@ssw0rd");   // -> ENC(...)
 crypto.decryptValue("ENC(hR2Pf9x...)"); // -> p@ssw0rd
 ```
 
-### 3. U 盘加密狗（生成与解析）
+### 3. 私钥文件（无密码启动）
 
 ```java
-// 生成加密狗（写入 U 盘根目录）
-DongleSecretKeyStore.generate(Path.of("E:/chua-crypto.dongle"), "pin".toCharArray());
-
-// 以加密狗为载体（拔盘即不可用）
-Crypto crypto = Crypto.create()
-        .dongle("E:/chua-crypto.dongle")
-        .secret("pin".toCharArray())
-        .build();
-
-// 将当前应用主密钥导出为加密狗副本（备份/迁移）
-DongleSecretKeyStore.exportTo(Path.of("E:/copy.dongle"), crypto.material(), "pin".toCharArray());
-
-// 扫描候选可移动介质上的默认加密狗
-Path found = DongleSecretKeyStore.findDefaultDongle();
+// SERVER_BOUND 打包后，从包内提取注册用的私钥封装块（或经校验服务器下发）
+// 目标机器运行：凭私钥文件即可，无需口令
+java -Dchua.crypto.key-file=/secure/key.bin -jar app-secure.jar
 ```
-
-> 加密狗为物理持久载体：不支持一次性生命周期；口令错误或文件被篡改会因 GCM/HMAC 校验失败被拒绝。
-
 ### 4. SpringBoot
 
 引入依赖后自动生效，业务代码直接注入：
@@ -107,7 +92,7 @@ chua:
     enabled: true                  # 是否启用（默认 true）
     key-policy: SERVER_BOUND       # CUSTOM / SERVER_BOUND
     lifecycle: PERSISTENT          # ONE_TIME / PERSISTENT
-    store-type: FILE               # FILE / MEMORY / DONGLE
+    store-type: FILE               # FILE / MEMORY
     key-file: security/master.key
     secret: ${CHUA_CRYPTO_SECRET}  # 建议环境变量注入，勿提交仓库
     server-id: node-prod-01        # 可选：固定指纹（容灾迁移）
@@ -148,7 +133,6 @@ java -cp "<pack-cp.txt 内容>" com.chua.crypto.support.pack.CryptoPackCli \
 java -jar app-secure.jar                              # SERVER_BOUND：仅授权机器可运行
 java -Dchua.crypto.pin=xxx -jar app-secure.jar        # CUSTOM 口令策略
 CHUA_CRYPTO_PIN=xxx java -jar app-secure.jar          # 环境变量等价
-java -Dchua.crypto.dongle=E:/key.dongle -jar ...      # U 盘加密狗启动
 java -Dchua.crypto.server-id=node1 -jar app-secure.jar  # 容灾迁移固定指纹
 derive-key | java -Dchua.crypto.key-from-stdin=true -jar app-secure.jar   # 外部密钥管道
 ```
@@ -167,7 +151,6 @@ derive-key | java -Dchua.crypto.key-from-stdin=true -jar app-secure.jar   # 外�
 java -jar app-secure.jar                                  # SERVER_BOUND：仅打包机可直接运行
 java -Dchua.crypto.pin=xxx -jar app-secure.jar            # CUSTOM 口令策略
 CHUA_CRYPTO_PIN=xxx java -jar app-secure.jar              # 环境变量等价形式
-java -Dchua.crypto.dongle=E:/key.dongle -jar ...          # U 盘加密狗启动（拔盘即失效）
 java -Dchua.crypto.server-id=node1 -jar app-secure.jar    # 容灾迁移固定指纹
 ```
 
@@ -177,7 +160,7 @@ java -Dchua.crypto.server-id=node1 -jar app-secure.jar    # 容灾迁移固定�
 ## 密钥载体二进制格式
 
 ```
-[魔数4B CHKF/CHKD][版本1B][策略标志1B][密钥ID8B][盐16B][IV12B][封装主密钥N字节][HMAC-SHA256 32B]
+[魔数4B CHKF][版本1B][策略标志1B][密钥ID8B][盐16B][IV12B][封装主密钥N字节][HMAC-SHA256 32B]
 ```
 
 - 主密钥 256 位，PBKDF2-HmacSHA256(21 万次迭代) 派生 KEK 封装，HMAC 常量时间比对防时序攻击；

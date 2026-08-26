@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  *       运行期由引导类加载器透明解密，磁盘始终密文</li>
  *   <li>主密钥 — 以 CHKF 封装块内嵌至 {@code META-INF/chua.crypto.key}：
  *       SERVER_BOUND 策略下密钥与打包机绑定，程序拷贝到其他服务器无法启动；
- *       CUSTOM 策略下需口令启动；亦可在启动时改用 U 盘加密狗解封</li>
+ *       CUSTOM 策略下需口令启动；亦可在启动时改用私钥文件解封</li>
  *   <li>引导器 — 注入零依赖的 {@code launch} 包并接管 Manifest Main-Class，
  *       原 Main-Class 记录于 {@code Chua-Original-Main-Class}</li>
  * </ul>
@@ -136,7 +136,7 @@ public class JarEncryptor {
     private boolean springBootLayout;
 
     /**
-     * 是否内嵌密钥封装块（默认 true；关闭后包必须依赖 校验服务器/私钥文件/加密狗/管道 获取密钥）
+     * 是否内嵌密钥封装块（默认 true；关闭后包必须依赖 校验服务器/私钥文件/管道 获取密钥）
      */
     private boolean embedKeyBlob = true;
 
@@ -263,7 +263,7 @@ public class JarEncryptor {
      * 是否内嵌密钥封装块（默认 true）
      *
      * @param embedKeyBlob false 表示不内嵌，运行期必须提供外部密钥来源
-     *                     （校验服务器/私钥文件/加密狗/stdin 管道）
+     *                     （校验服务器/私钥文件）
      * @return 当前对象
      */
     public JarEncryptor embedKeyBlob(boolean embedKeyBlob) {

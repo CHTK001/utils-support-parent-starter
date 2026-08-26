@@ -21,7 +21,7 @@ import java.util.List;
  *     enabled: true                  # 是否启用
  *     key-policy: SERVER_BOUND       # 密钥策略：CUSTOM / SERVER_BOUND
  *     lifecycle: PERSISTENT          # 生命周期：ONE_TIME / PERSISTENT
- *     store-type: FILE               # 载体：FILE / MEMORY / DONGLE
+ *     store-type: FILE               # 载体：FILE / MEMORY
  *     key-file: security/master.key  # 密钥文件路径
  *     secret: ${CHUA_CRYPTO_SECRET}  # 自定义口令（建议环境变量注入）
  *     encrypt-config-files: true     # 配置文件是否一起解密装载
@@ -51,7 +51,7 @@ public class CryptoProperties {
     private KeyLifecycle lifecycle = KeyLifecycle.PERSISTENT;
 
     /**
-     * 密钥载体类型：密钥文件/内存/U 盘加密狗
+     * 密钥载体类型：密钥文件/内存
      */
     private KeyStoreType storeType = KeyStoreType.FILE;
 
@@ -59,11 +59,6 @@ public class CryptoProperties {
      * 密钥文件路径（支持 FatJar 相对路径解析）
      */
     private String keyFile;
-
-    /**
-     * 加密狗封装文件路径
-     */
-    private String donglePath;
 
     /**
      * 自定义口令（建议经环境变量或启动参数注入，勿提交到代码库）
@@ -106,7 +101,6 @@ public class CryptoProperties {
         setting.setLifecycle(lifecycle);
         setting.setStoreType(storeType);
         setting.setKeyFile(keyFile);
-        setting.setDonglePath(donglePath);
         setting.setServerId(serverId);
         setting.setAlgorithm(algorithm);
         setting.setEncryptConfigFiles(encryptConfigFiles);
