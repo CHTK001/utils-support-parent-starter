@@ -1,0 +1,1722 @@
+{
+  "generatedAt": "2026-08-26",
+  "source": "ModelRegistry.discoverAll() 全量注册模型",
+  "legend": {
+    "verified": "本轮综合实测通过（含检出数）",
+    "documented": "报告历史章节已有记录",
+    "pending": "尚未测试",
+    "smoke": "冒烟通过：加载/推理正常但测试图无正样本",
+    "issue": "测试发现问题：加载/推理存在缺陷待修复"
+  },
+  "total": 208,
+  "models": [
+    {
+      "id": "ada-face",
+      "translator": "face.AdaFaceTranslator",
+      "capability": "人脸",
+      "path": "face/recognition/adaface/adaface_ir101_webface12m.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "age-gender-onnx",
+      "translator": "agegender.AgeRaceGenderTranslator",
+      "capability": "人脸",
+      "path": "face/attribute/age_gender/age-gender-vit.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "age-race-gender",
+      "translator": "agegender.AgeRaceGenderTranslator",
+      "capability": "人脸",
+      "path": "face/attribute/age_gender/AgeRaceGenderNet_v1.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "all-MiniLM-L6-v2-embedding",
+      "translator": "clip.ClipTextFeatureTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/all-MiniLM-L6-v2/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "animals-10-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/animals-10/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-face-detector",
+      "translator": "anime.detection.AnimeFaceDetectorTranslator",
+      "capability": "人脸",
+      "path": "vision/detection/anime-face/model.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "anime.webp": 27,
+        "face1.webp": 39,
+        "face2.webp": 41
+      }
+    },
+    {
+      "id": "anime-face-yolov8",
+      "translator": "anime.detection.AnimeFaceDetectorTranslator",
+      "capability": "人脸",
+      "path": "vision/detection/anime-face/yolov8_animeface.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-gan-v2-face-portrait",
+      "translator": "animegan.AnimeGanV2NchwTranslator",
+      "capability": "人脸",
+      "path": "vision/style_transfer/animegan2/face_portrait_v2.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-gan-v2-hayao",
+      "translator": "animegan.AnimeGanV2Translator",
+      "capability": "其他",
+      "path": "vision/style_transfer/animegan2/hayao.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-gan-v2-paprika",
+      "translator": "animegan.AnimeGanV2Translator",
+      "capability": "其他",
+      "path": "vision/style_transfer/animegan2/paprika.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-gan-v2-shinkai",
+      "translator": "animegan.AnimeGanV2Translator",
+      "capability": "其他",
+      "path": "vision/style_transfer/animegan2/shinkai.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-gan-v3",
+      "translator": "animegan.AnimeGanV3Translator",
+      "capability": "其他",
+      "path": "models/onnx/animegan/AnimeGANv3_Hayao_36.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-gan-v3-ghibli",
+      "translator": "animegan.AnimeGanV3Translator",
+      "capability": "其他",
+      "path": "models/onnx/animegan/AnimeGANv3_large_Ghibli_c1_e299.onnx",
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "已修复 AnimeGanV3Translator 全黑输出（整型 div 截断→先转 FLOAT32；NDImageUtils.resize→Java2D）。新增 AnimeGanExample 图生图入口；1people 风格迁移 332KB/216 色阶 3.5s"
+    },
+    {
+      "id": "anime-gan-v3-shinkai",
+      "translator": "animegan.AnimeGanV3Translator",
+      "capability": "其他",
+      "path": "models/onnx/animegan/AnimeGANv3_Shinkai_37.onnx",
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "同上修复后通过：314KB/143 色阶"
+    },
+    {
+      "id": "anime-real-cls",
+      "translator": "classification.AnimeRealClsTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/anime/anime_real_cls/mobilenetv3_v1.4_dist/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "anime-seg",
+      "translator": "matting.translator.IsnetSegTranslator",
+      "capability": "抠图/分割",
+      "path": "seg/anime/anime.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg isnet-anime.onnx(168MB)；推理通过 384KB PNG / 7.2s（动漫图效果更佳）；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
+    },
+    {
+      "id": "arc-face",
+      "translator": "face.ArcFaceTranslator",
+      "capability": "人脸",
+      "path": "face/swap/common/buffalo_l/w600k_r50.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "bart-zh-seq2seq",
+      "translator": "seq2seq.BartZhSeq2SeqOrtTranslator",
+      "capability": "自然语言",
+      "path": "nlp/seq2seq/bart-zh/encoder_model_int8.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "BART-large-chinese int8 三件套(encoder196MB/decoder295MB/past271MB)加载正常；中文新闻摘要生成 14.9s 输出合理"
+    },
+    {
+      "id": "bert-squad",
+      "translator": "text.BertSquadTranslator",
+      "capability": "自然语言",
+      "path": "nlp/generation/bert-squad/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "bge-base-en-embedding",
+      "translator": "embedding.bge.BgeTextFeatureTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/bge-base-en-v1.5/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "bge-base-zh-embedding",
+      "translator": "embedding.bge.BgeTextFeatureTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/bge-base-zh-v1.5/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "bge-large-zh-embedding",
+      "translator": "embedding.bge.BgeEmbeddingClient",
+      "capability": "自然语言",
+      "path": "nlp/embedding/bge-large-zh-v1.5/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "语义聚类": "相似对 cos=0.936 > 无关对 0.236/0.243"
+      },
+      "notes": "Python 端复验(int8 量化版 model_quantized.onnx)：中文相似句对聚类正常，CLS pooling + L2 norm"
+    },
+    {
+      "id": "bge-m3-embedding",
+      "translator": "clip.ClipTextFeatureTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/bge-m3/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "bge-small-embedding",
+      "translator": "clip.ClipTextFeatureTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/bge-small-en-v1.5/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "语义聚类": "相似对 cos=0.856 > 无关对 0.374/0.379"
+      },
+      "notes": "Python 端复验(fp32 model.onnx)：英文相似句对聚类正常"
+    },
+    {
+      "id": "bge-small-en-embedding",
+      "translator": "embedding.bge.BgeEmbeddingClient",
+      "capability": "自然语言",
+      "path": "nlp/embedding/bge-small-en-v1.5/onnx/model_fp16.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "bge-small-zh-embedding",
+      "translator": "clip.ClipTextFeatureTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/bge-small-zh-v1.5/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "bitnet-embedding",
+      "translator": "llama.translator.BitnetEmbeddingTranslator",
+      "capability": "自然语言",
+      "path": "../llama/bitnet-embeddings-0.6b-bf16-i2_s.gguf",
+      "status": "pending",
+      "notes": "依赖 llama native binding，同 embeddinggemma"
+    },
+    {
+      "id": "c3d-action-detection",
+      "translator": "action.C3DActionDetectionTranslator",
+      "capability": "视觉理解",
+      "path": "vision/action/c3d/model.onnx",
+      "status": "na",
+      "notes": "CPU 推理过慢，按决策放弃"
+    },
+    {
+      "id": "card-correction-detector",
+      "translator": "classification.CardCorrectionTranslator",
+      "capability": "图像分类",
+      "path": "cv/card_correction/card_detection.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "cifar10-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/cifar10/resnet18.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "clip-image-feature",
+      "translator": "feature.ClipImageFeatureTranslator",
+      "capability": "图像分类",
+      "path": "vision/enhancement/CLIP-ViT-B-32-IMAGE/CLIP-ViT-B-32-IMAGE.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "clip-text-feature",
+      "translator": "clip.ClipTextFeatureTranslator",
+      "capability": "图像分类",
+      "path": "vision/enhancement/CLIP-ViT-B-32-TEXT/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "clip-vit-zero-shot",
+      "translator": "classification.SiglipZeroShotClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/zeroshot/clip-vit-base-patch32/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "clipseg-zero-shot",
+      "translator": "seg.CLIPSegZeroShotSegmentationTranslator",
+      "capability": "抠图/分割",
+      "path": "vision/seg/clipseg-rd64-refined/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "cloth-seg",
+      "translator": "matting.translator.ClothSegTranslator",
+      "capability": "抠图/分割",
+      "path": "seg/cloth/cloth.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg u2net_cloth_seg.onnx(168MB)；复测通过 384KB PNG / 11.1s（此前失败系系统 commit 内存被占满致 JVM 启动 malloc 失败）；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
+    },
+    {
+      "id": "cn-clip-image",
+      "translator": "clip.CnClipImageFeatureTranslator",
+      "capability": "图像分类",
+      "path": "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.img.b1.fp32.onnx",
+      "status": "na",
+      "notes": "repo 改为 external-data 拆分格式(vit-b-16.img.b32.fp32.onnx + 328MB extra_file)，下载截断无可用模型"
+    },
+    {
+      "id": "cn-clip-text",
+      "translator": "clip.CnClipTextFeatureTranslator",
+      "capability": "图像分类",
+      "path": "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.txt.fp32.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "codeformer",
+      "translator": "face.CodeFormerTranslator",
+      "capability": "人脸",
+      "path": "face/restoration/codeformer/codeformer.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "common-action",
+      "translator": "action.CommonActionTranslator",
+      "capability": "视觉理解",
+      "path": "vision/action/common/action.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "crnn-plate-rec",
+      "translator": "plate.translator.CrnnPlateRecTranslator",
+      "capability": "车牌",
+      "path": "vision/detection/license/license-plate-finetune-v1x.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "deepfake-detector",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/deepfake-detector/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "depth-anything",
+      "translator": "depth.DepthAnythingOrtTranslator",
+      "capability": "视觉理解",
+      "path": "vision/depth/depth-anything-v2/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "dfine-l-obj2coco",
+      "translator": "detr.DFineTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/dfine_l_obj2coco/model_quantized.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 2,
+        "more car plate.webp": 0
+      },
+      "threshold": {
+        "default": 0.5,
+        "tested": {
+          "0.9": "2→1"
+        }
+      },
+      "notes": "模型已解压至 example-starter/models/onnx/dfine-l-obj2coco.onnx/model.onnx"
+    },
+    {
+      "id": "dfsmn-ans",
+      "translator": "audio.denoise.DfsmnAnsTranslator",
+      "capability": "语音",
+      "path": "audio/denoise/dfsmn_ans/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "语音增强 PASS：TTS 合成 wav 100KB → 增强后 605KB，1.4s，classpath 自动解压"
+    },
+    {
+      "id": "dino-v2",
+      "translator": "dinov2.DinoV2Translator",
+      "capability": "其他",
+      "path": "vision/feature/dinov2-small/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "dino-v2-base-embedding",
+      "translator": "dinov2.DinoV2Translator",
+      "capability": "自然语言",
+      "path": "vision/feature/dinov2-base/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "dino-v2-large-embedding",
+      "translator": "dinov2.DinoV2Translator",
+      "capability": "自然语言",
+      "path": "vision/feature/dinov2-large/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "dino-v2-small-embedding",
+      "translator": "dinov2.DinoV2Translator",
+      "capability": "自然语言",
+      "path": "vision/feature/dinov2-small/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "dino-v2-small-embedding-fp16",
+      "translator": "dinov2.DinoV2Translator",
+      "capability": "自然语言",
+      "path": "vision/feature/dinov2-small/onnx/model_fp16.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "dinov3-feature",
+      "translator": "dinov2.DinoV2Translator",
+      "capability": "其他",
+      "path": "vision/feature/dinov3-vits16/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "distil-bert-sentiment",
+      "translator": "classification.DistilBertSentimentTranslator",
+      "capability": "自然语言",
+      "path": "nlp/classification/distilbert-sst2/model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "doc-layout-yolo",
+      "translator": "yolo.v10.translator.DocLayoutYoloTranslator",
+      "capability": "文档分析",
+      "path": "vision/detection/doclayout-yolo/model.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "paper-real-full.png": 49,
+        "document.webp": 3,
+        "table.png": 9
+      },
+      "threshold": {
+        "default": 0.2,
+        "tested": {
+          "0.8": "61→50"
+        }
+      }
+    },
+    {
+      "id": "doc-orientation",
+      "translator": "ocr.direction.DocOrientationTranslator",
+      "capability": "OCR",
+      "path": "ocr/direction/doc_ori/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "donut",
+      "translator": "donut.DonutTranslator",
+      "capability": "其他",
+      "path": "vision/donut/donut.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "duguang-det-large",
+      "translator": "ocr.duguang.DuguangDetTranslator",
+      "capability": "OCR",
+      "path": "ocr/duguang/large/det_512.onnx",
+      "status": "pending",
+      "notes": "读光 large 版检测，需从 ModelScope 下载"
+    },
+    {
+      "id": "duguang-det-small",
+      "translator": "ocr.duguang.DuguangDetTranslator",
+      "capability": "OCR",
+      "path": "ocr/duguang/small/det_512.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "ticket.jpg": 20,
+        "chTable.png": 69
+      }
+    },
+    {
+      "id": "duguang-ocr-large",
+      "translator": "ocr.duguang.DuguangOcrTranslator",
+      "capability": "OCR",
+      "path": "ocr/duguang/large/det_512.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "duguang-ocr-small",
+      "translator": "ocr.duguang.DuguangOcrTranslator",
+      "capability": "OCR",
+      "path": "ocr/duguang/small/det_512.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "edgesam",
+      "translator": "seg.EdgeSamSegmentTranslator",
+      "capability": "抠图/分割",
+      "path": "vision/seg/edge-sam/onnx/edge_sam_encoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "efficient-net-lite0-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/efficientnet/efficientnet-lite0-11.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "efficient-net-lite4-classification",
+      "translator": "classification.EfficientNetLite4ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/efficientnet/efficientnet-lite4-11.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "efficientnet-b1-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/efficientnet/efficientnet-lite4-11.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "efficientsam",
+      "translator": "seg.EfficientSamSegmentTranslator",
+      "capability": "抠图/分割",
+      "path": "vision/seg/efficient-sam/onnx/efficientsam_ti_encoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "embeddinggemma-300m",
+      "translator": "llama.translator.EmbeddingGemmaTranslator",
+      "capability": "自然语言",
+      "path": "../llama/embeddinggemma-300m-qat-Q8_0.gguf",
+      "status": "pending",
+      "notes": "下载成功(313MB)但 de.kherud.llama native 无法加载任何 GGUF（qwen2 同样失败）——绑定库版本问题"
+    },
+    {
+      "id": "emotion-ferplus",
+      "translator": "emotion.EmotionFerplusTranslator",
+      "capability": "人脸",
+      "path": "face/expression/FER/FER.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "face-liveness-flrgb",
+      "translator": "liveness.FlRgbLivenessTranslator",
+      "capability": "人脸",
+      "path": "face/liveness/flrgb/model.onnx",
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "冒烟通过：[1,3,112,112] 加载推理正常输出 [1,2]，无正样本图未做活体语义验证"
+    },
+    {
+      "id": "face-liveness-flxc",
+      "translator": "liveness.FlXcLivenessTranslator",
+      "capability": "人脸",
+      "path": "face/liveness/flxc/model.onnx",
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "冒烟通过：[1,12,112,112] 加载推理正常输出 [1,2]；需炫彩多帧输入无法用普通图片验证"
+    },
+    {
+      "id": "face-mask-detector",
+      "translator": "yolo.FaceMaskDetectorTranslator",
+      "capability": "人脸",
+      "path": "vision/face-mask-detector/yolov8/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 2,
+        "3peoplebeauty.jpg": 3
+      },
+      "threshold": {
+        "default": 0.05,
+        "tested": {
+          "0.5": "5→1"
+        }
+      }
+    },
+    {
+      "id": "faceplugin-face-detect-slim",
+      "translator": "face.FacePluginDetectTranslator",
+      "capability": "人脸",
+      "path": "models/onnx/face/detection/faceplugin/face_detect_slim.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "faceplugin-face-feature",
+      "translator": "face.FacePluginFeatureTranslator",
+      "capability": "人脸",
+      "path": "models/onnx/face/feature/faceplugin/face_feature.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "faceplugin-face-landmark",
+      "translator": "face.FacePluginLandmarkTranslator",
+      "capability": "人脸",
+      "path": "models/onnx/face/landmark/faceplugin/face_landmark.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "fastsam",
+      "translator": "seg.FastSamSegmentTranslator",
+      "capability": "抠图/分割",
+      "path": "vision/seg/fastsam/onnx/fastsam_s.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "fer-plus",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "人脸",
+      "path": "face/expression/FER/FER.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "fire-smoke",
+      "translator": "yolo.FireSmokeDetectorTranslator",
+      "capability": "其他",
+      "path": "vision/fire-smoke/yolov8n/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "food-101-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/food101/vit-base.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "gemma-3-270m",
+      "translator": "text.gemma3.Gemma3Translator",
+      "capability": "大语言模型(LLM)",
+      "path": "models/gemma-3-270m/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "Gemma3Example ALL PASS：416MB ONNX 对话生成正常（270M 小模型输出质量有限属预期）"
+    },
+    {
+      "id": "gemma-4-e2b",
+      "translator": "llama.translator.Gemma4Translator",
+      "capability": "大语言模型(LLM)",
+      "path": "../llama/gemma-4-E2B_q4_0-it.gguf",
+      "status": "pending",
+      "notes": "依赖 llama native binding，同上"
+    },
+    {
+      "id": "gpt2",
+      "translator": "text.gpt2.Gpt2Translator",
+      "capability": "其他",
+      "path": "nlp/generation/gpt2/decoder_with_past_model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "granite-embedding",
+      "translator": "clip.ClipTextFeatureTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/granite-embedding-small/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "grounding-dino",
+      "translator": "dino.GroundingDinoTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/grounding-dino-tiny/model.onnx",
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "已修复：完整导出版需5输入，补 token_type_ids/pixel_mask；tokenizer.json 手工补齐。685MB 零样本检测 1people→1 框"
+    },
+    {
+      "id": "hand-pose",
+      "translator": "reid.HandPoseTranslator",
+      "capability": "视觉理解",
+      "path": "vision/handpose/handpose_estimation_mediapipe_2023feb.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "human-seg",
+      "translator": "matting.translator.U2netSegTranslator",
+      "capability": "抠图/分割",
+      "path": "seg/human/human.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg u2net_human_seg.onnx(167.8MB)；人像分割 308KB PNG / 4.6s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
+    },
+    {
+      "id": "image-colorize",
+      "translator": "colorize.ImageColorizeTranslator",
+      "capability": "其他",
+      "path": "vision/colorization/deoldify/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "lena灰度上色": "R-G差=26 R-B差=33"
+      },
+      "notes": "Python 端复验(fp16 版)：输入 0-255 fp16 不归一化，输出通道显著分化即有效着色；建议 Java 侧 LAB 融合原亮度通道"
+    },
+    {
+      "id": "image-text-super-resolution",
+      "translator": "resolution.ImageTextSuperResolutionTranslator",
+      "capability": "超分辨率/增强",
+      "path": "nlp/general/models/textbsr_traced_model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "image-to-line-drawing",
+      "translator": "linedrawing.ImageToLineDrawingTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/image-to-line-drawing-onnx/image-to-line-drawing-onnx.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "insightface-3d68",
+      "translator": "insightface.InsightFace3d68Translator",
+      "capability": "人脸",
+      "path": "models/onnx/face/landmark/3d68/1k3d68.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "lena人脸crop": "1103点(x,y,z)归一化坐标分布合理"
+      },
+      "notes": "Python 端复验：192 输入，坐标范围 [-0.9,0.9] 含深度 z；需配合人脸检测+对齐使用"
+    },
+    {
+      "id": "insightface-adaface",
+      "translator": "insightface.InsightFaceAdaFaceTranslator",
+      "capability": "人脸",
+      "path": "models/onnx/face/recognition/adaface/adaface.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "insightface-genderage",
+      "translator": "insightface.InsightFaceGenderAgeTranslator",
+      "capability": "人脸",
+      "path": "models/onnx/face/attribute/genderage/genderage.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "insightface-landmark-2d106",
+      "translator": "insightface.InsightFaceLandmarkTranslator",
+      "capability": "人脸",
+      "path": "models/onnx/face/landmark/2d106/2d106det.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "insightface-scrfd",
+      "translator": "face.ScrfdFaceDetectorTranslator",
+      "capability": "人脸",
+      "path": "models/onnx/face/detection/scrfd/scrfd.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "1people.png": 1,
+        "3peoplebeauty.jpg": 3,
+        "largest_selfie.jpg": 243
+      },
+      "threshold": {
+        "default": 0.45,
+        "tested": {
+          "0.6": 166,
+          "0.9": 0
+        }
+      }
+    },
+    {
+      "id": "lama-inpainting",
+      "translator": "inpainting.LamaInpaintingTranslator",
+      "capability": "图像编辑",
+      "path": "vision/inpainting/lama/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "lcm-lora-unet",
+      "translator": "generation.LcmLoraUnetTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/lcm/lora/unet.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "lcm-lora-vae-decoder",
+      "translator": "generation.LcmLoraVaeDecoderTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/lcm/lora/vae_decoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "lcm-lora-vae-encoder",
+      "translator": "generation.LcmLoraVaeEncoderTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/lcm/lora/vae_encoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "lu2net",
+      "translator": "lu2net.Lu2NetTranslator",
+      "capability": "其他",
+      "path": "models/onnx/lu2net/lu2net.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "已修复 Lu2NetTranslator 维度 bug（去 expandDims + Java2D 320x320 对齐）；1people→163.5KB / 3people→192KB 抠图输出，耗时 ~716ms"
+    },
+    {
+      "id": "matting",
+      "translator": "matting.translator.MattingTranslator",
+      "capability": "抠图/分割",
+      "path": "vision/enhancement/seg_unet_sdk/u2net.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "matting-isnet",
+      "translator": "matting.translator.IsnetSegTranslator",
+      "capability": "抠图/分割",
+      "path": "seg/isnet/isnet.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg isnet-general-use.onnx(170MB)；抠图 384KB PNG / 7.9s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
+    },
+    {
+      "id": "matting-u2net",
+      "translator": "matting.translator.U2netSegTranslator",
+      "capability": "抠图/分割",
+      "path": "seg/u2net/u2net.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg u2net.onnx(167.8MB)；抠图 303KB PNG / 3.3s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
+    },
+    {
+      "id": "matting-u2netp",
+      "translator": "matting.translator.U2netSegTranslator",
+      "capability": "抠图/分割",
+      "path": "seg/u2netp/u2netp.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg u2netp.onnx(4.4MB)→models/onnx/seg/u2netp/；1people 抠图 277KB PNG / 2.2s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
+    },
+    {
+      "id": "midas-depth",
+      "translator": "depth.MidasDepthTranslator",
+      "capability": "视觉理解",
+      "path": "vision/depth/midas/midas.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "minicpm5",
+      "translator": "llama.translator.MiniCpm5Translator",
+      "capability": "大语言模型(LLM)",
+      "path": "../llama/MiniCPM5-1B-Claude-Opus-Fable5-V2-Thinking-Q8_0.gguf",
+      "status": "pending",
+      "notes": "依赖 llama native binding，同上"
+    },
+    {
+      "id": "minilm-embedding",
+      "translator": "embedding.minilm.MiniLMEmbeddingTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/minilm/model_quantized.onnx",
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "同 minilm-fp32-embedding：provider 路径 int8 版 ALL PASS"
+    },
+    {
+      "id": "minilm-fp32-embedding",
+      "translator": "embedding.minilm.MiniLMEmbeddingTranslator",
+      "capability": "自然语言",
+      "path": "nlp/embedding/minilm-fp32/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "能力验证通过：EmbeddingClient(minilm provider) fp32 384 维 norm=1.0；相似度区分正常(0.66/0.02)、int8/fp32 一致性 0.9947。但 onnx 注册表该 id 直接加载会 ClassCastException（MiniLMEmbeddingTranslator 为独立 OrtSession 封装，非 DJL Translator 契约）；Python 端复验 PASS(BertTokenizerFast 编码)",
+      "results": {
+        "语义聚类": "相似对 cos=0.858 > 无关对 0.559/0.533"
+      }
+    },
+    {
+      "id": "minimind",
+      "translator": "text.minimind.MiniMindTranslator",
+      "capability": "其他",
+      "path": "models/minimind/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "数值一致性": "diff=2.19e-05 next-token 序列一致"
+      },
+      "notes": "config.json 已修正为官方 LlamaForCausalLM(hidden=512/8层/KV2头)；权重为官方 safetensors 自转 ONNX fp32"
+    },
+    {
+      "id": "mms-tts-eng",
+      "translator": "null",
+      "capability": "语音",
+      "path": "audio/tts/mms-tts-eng/model_quantized.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "英文 TTS PASS：TextToAudioClientExample onnx provider 合成 34860B WAV"
+    },
+    {
+      "id": "mobile-bert-zero-shot-classification",
+      "translator": "text.MobileBertZeroShotClassificationTranslator",
+      "capability": "自然语言",
+      "path": "nlp/classification/mobilebert-mnli/onnx/model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mobile-clip-image-feature",
+      "translator": "feature.MobileClipImageFeatureTranslator",
+      "capability": "图像分类",
+      "path": "vision/zeroshot/mobileclip_s0/onnx/vision_model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mobileclip-s0-vision",
+      "translator": "feature.MobileClipImageFeatureTranslator",
+      "capability": "图像分类",
+      "path": "vision/zeroshot/mobileclip_s0/onnx/vision_model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mobileclip-zero-shot",
+      "translator": "classification.SiglipZeroShotClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/zeroshot/mobileclip_s0/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mobilenetv2-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/mobilenetv2/mobilenet_v2_1.0_224.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mobilenetv3-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/mobilenetv3/mobilenetv3_small.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mobilenetv4-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/mobilenetv4/mobilenetv4_conv_small.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "modnet",
+      "translator": "matting.translator.DjlMattingTranslator",
+      "capability": "抠图/分割",
+      "path": "vision/matting/modnet/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mt5-base-seq2seq",
+      "translator": "seq2seq.Mt5BaseSeq2SeqOrtTranslator",
+      "capability": "自然语言",
+      "path": "nlp/seq2seq/mt5-base/encoder_model_fp16.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mt5-seq2seq",
+      "translator": "seq2seq.Mt5Seq2SeqOrtTranslator",
+      "capability": "自然语言",
+      "path": "nlp/seq2seq/mt5-small/encoder_model_fp16.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "mt5-zh-seq2seq",
+      "translator": "seq2seq.Mt5ZhSeq2SeqOrtTranslator",
+      "capability": "自然语言",
+      "path": "nlp/seq2seq/mt5-zh/encoder_model_int8.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "naf-net",
+      "translator": "resolution.NafNetTranslator",
+      "capability": "超分辨率/增强",
+      "path": "vision/enhancement/nafnet/nafnet_deblur_gopro.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "neutts-2e",
+      "translator": "llama.translator.NeuTts2eTranslator",
+      "capability": "语音",
+      "path": "../llama/neutts-2e-Q4_0.gguf",
+      "status": "pending",
+      "notes": "gated(auto)需HF token + gguf 加载链路不通"
+    },
+    {
+      "id": "nima",
+      "translator": "assessment.NimaTranslator",
+      "capability": "其他",
+      "path": "vision/assessment/nima/nima.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "nomos2",
+      "translator": "nomos2.Nomos2Translator",
+      "capability": "超分辨率/增强",
+      "path": "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "onnx-gfpgan",
+      "translator": "resolution.GfpganFaceSuperResolutionTranslator",
+      "capability": "超分辨率/增强",
+      "path": "face/restoration/gfpgan/GFPGANv1.3_clean.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "onnx-parsenet",
+      "translator": "face.OnnxFaceSegTranslator",
+      "capability": "抠图/分割",
+      "path": "face/segmentation/parsenet/parsenet.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "opus-mt-en-zh",
+      "translator": "nlp.translation.OpusMtEnZhTranslationTranslator",
+      "capability": "自然语言",
+      "path": "nlp/translation/opus_mt_en_zh/encoder_model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "opus-mt-zh-en",
+      "translator": "nlp.translation.OpusMtZhEnTranslationTranslator",
+      "capability": "自然语言",
+      "path": "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "osnet-reid",
+      "translator": "reid.OsnetReidTranslator",
+      "capability": "其他",
+      "path": "vision/reid/osnet_ain_multisource.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "otzaria-embedding",
+      "translator": "llama.translator.OtzariaEmbeddingTranslator",
+      "capability": "自然语言",
+      "path": "../llama/Otzaria-Embedding-V1-Flash-0.6B-Q8_0.gguf",
+      "status": "pending",
+      "notes": "gated(manual)需HF审批 + gguf 加载链路不通"
+    },
+    {
+      "id": "owlv2-zero-shot-detector",
+      "translator": "owlv2.Owlv2ZeroShotDetectorTranslator",
+      "capability": "图像分类",
+      "path": "vision/detection/owlv2_base_patch16/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "paddle-ocr-recognition",
+      "translator": "ocr.paddleocr.PaddleOcrRecognitionTranslator",
+      "capability": "OCR",
+      "path": "ocr/ppocrv5-server-rec.onnx",
+      "status": "na",
+      "notes": "PP-OCRv5 系按决策不再追踪"
+    },
+    {
+      "id": "paddleocrv6-det",
+      "translator": "ocr.extractor.PpOcrDetTranslator",
+      "capability": "OCR",
+      "path": "ocr/PP-OCRv6/tiny/det_infer/inference.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "ticket_new.png": 22,
+        "freetxt.png": 7
+      }
+    },
+    {
+      "id": "paddleocrv6-medium-det",
+      "translator": "ocr.extractor.PpOcrDetMediumTranslator",
+      "capability": "OCR",
+      "path": "ocr/PP-OCRv6/medium/det_infer/inference.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "paddleocrv6-medium-rec",
+      "translator": "ocr.extractor.PpWordExtractorMediumTranslator",
+      "capability": "OCR",
+      "path": "ocr/PP-OCRv6/medium/rec_infer/inference.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "paddleocrv6-rec",
+      "translator": "ocr.extractor.PpWordExtractorTranslator",
+      "capability": "OCR",
+      "path": "ocr/PP-OCRv6/tiny/rec_infer/inference.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "plant-classification",
+      "translator": "classification.EfficientNetLite0ClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/plant/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "pocket-tts",
+      "translator": "null",
+      "capability": "语音",
+      "path": "audio/tts/pocket-tts/config.json",
+      "status": "documented"
+    },
+    {
+      "id": "pp-doc-layout",
+      "translator": "ocr.layout.PpDocLayoutTranslator",
+      "capability": "文档分析",
+      "path": "vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "pp-ocr-rec",
+      "translator": "ocr.PpOcrRecTranslator",
+      "capability": "OCR",
+      "path": "ocr/ch_PP-OCRv4_rec_infer.onnx",
+      "status": "pending",
+      "notes": "PP-OCRv4 rec 不在本地 jar，RapidOCR 下载 URL 需进一步确认"
+    },
+    {
+      "id": "pp-structure-v2",
+      "translator": "ocr.paddlestructure.PpStructureV2Translator",
+      "capability": "OCR",
+      "path": "ocr/table_structure/pp_structure_v2/inference.onnx",
+      "status": "pending",
+      "notes": "PP-OCRv4 表格结构识别，需下载"
+    },
+    {
+      "id": "pp-word-extractor",
+      "translator": "ocr.extractor.PpWordExtractorTranslator",
+      "capability": "OCR",
+      "path": "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx",
+      "status": "na",
+      "notes": "PP-OCRv5 系按决策不再追踪"
+    },
+    {
+      "id": "pp-word-rotate",
+      "translator": "ocr.direction.PpWordRotateTranslator",
+      "capability": "OCR",
+      "path": "ocr/direction/ppocr_cls/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "qwen2-0.5b",
+      "translator": "llama.translator.Qwen2ChatTranslator",
+      "capability": "大语言模型(LLM)",
+      "path": "../llama/qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "status": "documented"
+    },
+    {
+      "id": "qwen2-0.5b-onnx",
+      "translator": "text.qwen.OnnxQwenTranslator",
+      "capability": "大语言模型(LLM)",
+      "path": "models/qwen2.5-0.5b-instruct/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "qwen2-1.5b",
+      "translator": "llama.translator.Qwen2ChatTranslator",
+      "capability": "大语言模型(LLM)",
+      "path": "../llama/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "status": "documented"
+    },
+    {
+      "id": "r50-face-feature",
+      "translator": "face.R50FaceFeatureTranslator",
+      "capability": "人脸",
+      "path": "face/recognition/face_feature_sdk/face_feature_r50.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "real-esrgan",
+      "translator": "resolution.RealEsrganTranslator",
+      "capability": "超分辨率/增强",
+      "path": "vision/enhancement/esrgan/realesrgan_x4plus.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "real-text-image-super-resolution",
+      "translator": "resolution.RealTextImageSuperResolutionTranslator",
+      "capability": "超分辨率/增强",
+      "path": "nlp/general/models/textbsr_traced_model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "real-web-photo",
+      "translator": "realwebphoto.RealWebPhotoTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "reflective-clothes",
+      "translator": "yolo.ReflectiveClothesDetectorTranslator",
+      "capability": "其他",
+      "path": "vision/reflective-clothes/yolov8n/model.onnx",
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "模型加载与推理正常；测试图无反光衣正样本，0 检出属预期"
+    },
+    {
+      "id": "resnet50-feature",
+      "translator": "feature.ClipImageFeatureTranslator",
+      "capability": "其他",
+      "path": "vision/feature/resnet50/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "retinaface-r34",
+      "translator": "face.OnnxRetinaFaceTranslator",
+      "capability": "人脸",
+      "path": "face/detection/retinaface/retinaface_r34.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "lena.jpg": "1 face score=1.000"
+      },
+      "notes": "Python 端复验：权重已重新导出修复(旧文件外部数据合并污染)，真实图像端到端检出与 torch 基准一致(diff<=2e-5)；预处理 RGB/255 减均值 R123 G117 B104"
+    },
+    {
+      "id": "rmbg14",
+      "translator": "matting.translator.Rmbg20Translator",
+      "capability": "抠图/分割",
+      "path": "vision/enhancement/RMBG-1.4/onnx/model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "rmbg20",
+      "translator": "matting.translator.Rmbg20Translator",
+      "capability": "抠图/分割",
+      "path": "vision/enhancement/RMBG-2.0/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "roberta-go-emotions",
+      "translator": "classification.DistilBertSentimentTranslator",
+      "capability": "自然语言",
+      "path": "nlp/classification/roberta-go-emotions/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "rtdetr-layout",
+      "translator": "layout.RTDetrLayoutTranslator",
+      "capability": "文档分析",
+      "path": "vision/layout/rtdetr/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "paper-real-full.png": 43,
+        "document.webp": 6
+      },
+      "threshold": {
+        "default": 0.5,
+        "tested": {
+          "0.9": "49→0"
+        }
+      },
+      "notes": "模型已从 models jar 解压至 example-starter/models/onnx/rtdetr-layout.onnx/"
+    },
+    {
+      "id": "safety-helmet",
+      "translator": "yolo.SafetyHelmetDetectorTranslator",
+      "capability": "其他",
+      "path": "vision/safety-helmet/yolov8/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 2,
+        "more car plate.webp": 0
+      },
+      "threshold": {
+        "default": 0.05
+      }
+    },
+    {
+      "id": "sam-encoder",
+      "translator": "seg.SamImageEncoderTranslator",
+      "capability": "抠图/分割",
+      "path": "vision/seg/sam_vit_h/encoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "scrfd-face-detector",
+      "translator": "face.ScrfdFaceDetectorTranslator",
+      "capability": "人脸",
+      "path": "face/detection/scrfd/2.5g_bnkps.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "seal-inspection",
+      "translator": "yolo.SealInspectionTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/seal/model.onnx",
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "模型加载与推理正常；测试图无印章正样本，0 检出属预期"
+    },
+    {
+      "id": "sensevoice",
+      "translator": "null",
+      "capability": "语音",
+      "path": "audio/asr/sensevoice-small/model.int8.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "已修复三处缺陷并验证：①CMVN 从 ONNX 元数据读取完整560维 neg_mean/inv_stddev(原硬编码8维)②Kaldi 窗口顺序(去直流→预加重→加窗)③LFR padding 公式。SAPI 中文语音『今天天气很好，我们一起去公园散步。』逐字正确含标点。注：vits 机械合成音被判 BGM 属音频源边界"
+    },
+    {
+      "id": "siglip-zero-shot-classification",
+      "translator": "classification.SiglipZeroShotClassificationTranslator",
+      "capability": "图像分类",
+      "path": "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "small-sd-text-encoder",
+      "translator": "generation.SmallSdTextEncoderTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/small-sd/text_encoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "small-sd-unet",
+      "translator": "generation.SmallSdUnetTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/small-sd/unet.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "small-sd-vae-decoder",
+      "translator": "generation.SmallSdVaeDecoderTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/small-sd/vae_decoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "small-stable-diffusion-combined",
+      "translator": "generation.SmallStableDiffusionCombinedTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/small-sd/combined.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "smol-docling-combined",
+      "translator": "smoldocling.SmolDoclingCombinedTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/smoldocling/vision_encoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "smol-docling-decoder",
+      "translator": "smoldocling.SmolDoclingDecoderTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/smoldocling/decoder_model_merged.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "smol-docling-embed",
+      "translator": "smoldocling.SmolDoclingEmbedTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/smoldocling/embed_tokens.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "smol-docling-vision",
+      "translator": "smoldocling.SmolDoclingVisionTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/smoldocling/vision_encoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "svtr-extractor",
+      "translator": "ocr.extractor.SvtrExtractorTranslator",
+      "capability": "OCR",
+      "path": "ocr/recognition/PP-OCRv5_mobile_rec_infer/PP-OCRv5_mobile_rec_infer.onnx",
+      "status": "na",
+      "notes": "PP-OCRv5 系按决策不再追踪"
+    },
+    {
+      "id": "swinir",
+      "translator": "resolution.SwinIrTranslator",
+      "capability": "超分辨率/增强",
+      "path": "vision/enhancement/swinir/swinir_denoising_color_25.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "t5-base-seq2seq",
+      "translator": "seq2seq.T5BaseSeq2SeqOrtTranslator",
+      "capability": "自然语言",
+      "path": "nlp/seq2seq/t5-base/encoder_model_int8.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "t5-seq2seq",
+      "translator": "seq2seq.T5Seq2SeqOrtTranslator",
+      "capability": "自然语言",
+      "path": "nlp/seq2seq/t5-small/encoder_model_int8.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "table-struct",
+      "translator": "ocr.table.TableStructTranslator",
+      "capability": "OCR",
+      "path": "ocr/table_structure/pp_structure_v2/inference.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "taesd-decoder",
+      "translator": "generation.TaesdDecoderTranslator",
+      "capability": "图像生成",
+      "path": "vision/detection/taesd/decoder.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "text-bsr",
+      "translator": "resolution.TextBsrTranslator",
+      "capability": "超分辨率/增强",
+      "path": "vision/text_restore/textbsr/textbsr.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "tinaface",
+      "translator": "face.TinaFaceTranslator",
+      "capability": "人脸",
+      "path": "face/detection/tinaface/tinaface_r50.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vgg-age-recognition",
+      "translator": "age.VggAgeRecognitionTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/age/vgg_ilsvrc_16_age_imdb_wiki.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vgg-gender-recognition",
+      "translator": "gender.VggGenderRecognitionTranslator",
+      "capability": "其他",
+      "path": "vision/enhancement/gender/vgg_ilsvrc_16_gender_imdb_wiki.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vggt",
+      "translator": "vggt.VggtTranslator",
+      "capability": "其他",
+      "path": "vision/vggt/vggt.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vggt-combined",
+      "translator": "vggt.VggtCombinedTranslator",
+      "capability": "其他",
+      "path": "vision/vggt/vggt_combined.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vggt-output",
+      "translator": "vggt.VggtOutputTranslator",
+      "capability": "其他",
+      "path": "vision/vggt/vggt_output.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "visdrone-small-detector",
+      "translator": "yolo.VisDroneSmallDetectorTranslator",
+      "capability": "图像生成",
+      "path": "vision/visdrone/damoyolo_visdrone.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vit-gpt2-captioning",
+      "translator": "image.captioning.VitGpt2CaptioningTranslator",
+      "capability": "视觉理解",
+      "path": "vision/captioning/vit-gpt2/decoder_model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vit-pose",
+      "translator": "pose.VitPoseTranslator",
+      "capability": "视觉理解",
+      "path": "vision/pose/vitpose-base-simple/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "vits-icefall-zh",
+      "translator": "null",
+      "capability": "语音",
+      "path": "audio/tts/vits-icefall-zh/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "中文 TTS 合成 PASS：\"今天天气很好...\" SSB0005 说话人 → 100908B WAV，8.7s"
+    },
+    {
+      "id": "waifu2x",
+      "translator": "resolution.Waifu2xTranslator",
+      "capability": "超分辨率/增强",
+      "path": "vision/enhancement/waifu2x/waifu2x_noise.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "wd-tagger-swinv2",
+      "translator": "classification.ClTaggerTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/wd-swinv2-tagger-v3/model.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "whisper-tiny",
+      "translator": "null",
+      "capability": "语音",
+      "path": "audio/asr/whisper-tiny/config.json",
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "language 传递通路已打通（AudioClientExample --lang=zh）；tiny 模型强制中文后对该音频输出空，中文 ASR 建议 sensevoice"
+    },
+    {
+      "id": "xlm-roberta-language-detection",
+      "translator": "classification.XlmRobertaLanguageDetectionTranslator",
+      "capability": "自然语言",
+      "path": "nlp/classification/xlm-roberta-language-detection/model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "yolo-cls",
+      "translator": "yolo.cls.YoloClsTranslator",
+      "capability": "图像分类",
+      "path": "vision/classification/yolov12n-cls.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "yolo-face-detector",
+      "translator": "face.YoloFaceTranslator",
+      "capability": "人脸",
+      "path": "face/detection/yolo11n-face.onnx",
+      "status": "smoke",
+      "date": "2026-08-25",
+      "results": {
+        "1people.png": 5,
+        "3peoplebeauty.jpg": 3,
+        "largest_selfie.jpg": 0
+      },
+      "threshold": {
+        "default": 0.45,
+        "tested": {
+          "0.25": "5/3/0",
+          "0.45": "5/2/0"
+        }
+      },
+      "notes": "已修：NMS IoU 0.9→0.45、默认置信度 0.85→0.45；1people 单人仍 5 框属模型假阳性（yolo11n-face 能力边界），selfie 小脸漏检同因；人脸检测建议 insightface-scrfd"
+    },
+    {
+      "id": "yolo-face-emotion",
+      "translator": "emotion.EmotionFerplusTranslator",
+      "capability": "人脸",
+      "path": "face/expression/yolo11-face-emotion.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "yolo-face-person",
+      "translator": "face.ScrfdFaceDetectorTranslator",
+      "capability": "人脸",
+      "path": "face/detection/yolo-face-person.onnx",
+      "status": "na",
+      "notes": "注册已删除（repo 无 ONNX 仅 .pt，URL 失效）"
+    },
+    {
+      "id": "yolo11-odd",
+      "translator": "yolo.v11.translator.Yolo11OddTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/obb/yolo11n-obb.onnx",
+      "status": "smoke",
+      "date": "2026-08-26",
+      "notes": "推理正常输出 ObbResult；注册 URL 失效已手工缓存(yolo11n-obb 替代源未找到，当前文件来自手工源)；OBB 输出类型需专用消费端"
+    },
+    {
+      "id": "yolo11-plate-detect",
+      "translator": "yolo.v11.translator.Yolo11PlateDetectTranslator",
+      "capability": "车牌",
+      "path": "vision/detection/yolo11_plate/yolo11_plate_detect.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "more car plate.webp": 1,
+        "2car plate.webp": 2,
+        "car plate1.webp": 1,
+        "car plate2.webp": 1,
+        "car plate3.webp": 1
+      },
+      "threshold": {
+        "default": 0.25
+      }
+    },
+    {
+      "id": "yolo26-obb",
+      "translator": "yolo.v26.translator.Yolo26ObbTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/v26/yolo26n.onnx",
+      "status": "smoke",
+      "date": "2026-08-26",
+      "notes": "同 yolo26n（同一 onnx 文件）"
+    },
+    {
+      "id": "yolo26n",
+      "translator": "yolo.v26.translator.Yolo26ObbTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/v26/yolo26n.onnx",
+      "status": "smoke",
+      "date": "2026-08-26",
+      "notes": "加载/推理正常，输出 ObbResult 旋转框类型；DOTA 航拍域模型对日常图空框属预期"
+    },
+    {
+      "id": "yolov10m",
+      "translator": "yolo.v10.translator.YoloV10DetectTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/v10/yolov10m.onnx",
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "自动下载(58MB, hf-mirror 缓存)；1people→3 框，比 n 版更精准"
+    },
+    {
+      "id": "yolov10n",
+      "translator": "yolo.v10.translator.YoloV10DetectTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/v10/yolov10n.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "3peoplebeauty.jpg": 7
+      }
+    },
+    {
+      "id": "yolov2-coco",
+      "translator": "yolo.v2.translator.Yolov2CocoTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/v2/yolov2-coco-9.onnx",
+      "status": "pending",
+      "notes": "无下载 URL，无本地资源，上古 COCO 模型"
+    },
+    {
+      "id": "yolov5-plate-recognize",
+      "translator": "yolo.plate.translator.Yolo5PlateRecTranslator",
+      "capability": "车牌",
+      "path": "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "yolov8l-world",
+      "translator": "yoloworld.YoloWorldDetectorTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/yoloworld/yolov8l-world.onnx",
+      "status": "na",
+      "notes": "同 yolov8m-world"
+    },
+    {
+      "id": "yolov8m-world",
+      "translator": "yoloworld.YoloWorldDetectorTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/yoloworld/yolov8m-world.onnx",
+      "status": "na",
+      "notes": "repo 失效(404/Invalid credentials)；开放词汇能力已由 yolov8s-world verified 覆盖"
+    },
+    {
+      "id": "yolov8n-pose",
+      "translator": "pose.YoloV8nPoseTranslator",
+      "capability": "视觉理解",
+      "path": "vision/pose/yolov8n/onnx/model_quantized.onnx",
+      "status": "documented"
+    },
+    {
+      "id": "yolov8s",
+      "translator": "yolo.v8.translator.YoloV8sTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/v8/yolov8s.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "1people.png": 40,
+        "more car plate.webp": 63
+      }
+    },
+    {
+      "id": "yolov8s-world",
+      "translator": "yoloworld.YoloWorldDetectorTranslator",
+      "capability": "目标检测",
+      "path": "vision/detection/yoloworld/yolov8s-worldv2.onnx",
+      "status": "verified",
+      "date": "2026-08-24",
+      "results": {
+        "1people.png": 2,
+        "more car plate.webp": 0,
+        "fire.webp": 0
+      },
+      "threshold": {
+        "default": null,
+        "tested": {
+          "0.5": "过滤 cup 误检"
+        }
+      }
+    },
+    {
+      "id": "nude-detector",
+      "translator": "(规划)yolo.v8.NudeDetectorTranslator",
+      "capability": "内容审核",
+      "path": "vision/nude-detector/yolov8n/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "lena.jpg": "FACE_FEMALE conf=0.848 位置精确 敏感部位零误报"
+      },
+      "notes": "YOLOv8n@320 NudeNet 18 类；预处理 letterbox /255 RGB，conf>=0.25 IoU 0.45；模块 utils-support-models-onnx-nude-detector(de01c4d)"
+    },
+    {
+      "id": "nsfw-classify-int8",
+      "translator": "(规划)vit.NsfwClassifyTranslator",
+      "capability": "内容审核",
+      "path": "vision/nsfw/vit-int8/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "lena.jpg": "normal=0.9912",
+        "messi.jpg": "normal=0.9999"
+      },
+      "notes": "ViT-base@224 int8(q8/QDQ 格式, int8 QOperator 版 ConvInteger CPU EP 不支持)；预处理 (x/255-0.5)/0.5 RGB； Falconsai 权重 onnx-community 转换版；模块 925e2af"
+    },
+    {
+      "id": "face-liveness-minifasnet",
+      "translator": "(规划)liveness.MiniFASNetTranslator",
+      "capability": "人脸",
+      "path": "face/liveness/minifasnet/model.onnx",
+      "status": "verified",
+      "date": "2026-08-25",
+      "results": {
+        "官方pth对照": "ONNX 与原版 PyTorch 输出逐位一致(live=0.0003/replay=0.9946)",
+        "随机噪声图": "replay=0.99 符合预期"
+      },
+      "notes": "MiniFASNetV2 80x80 BGR /255，人脸中心扩 2.7x 边距裁剪；live=1-(p_print+p_replay)；平滑数码图判 replay 属模型特性非缺陷；模块 de3f8e5"
+    }
+  ]
+}
