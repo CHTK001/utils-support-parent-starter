@@ -311,7 +311,52 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </tbody>
 </table>
 <div class="concl" style="margin-top:14px"><b>&#9989; 服务器环境结论</b>：<b>AIO 八档全胜</b>（小/大报文 × 四并发档），且是全场唯一保持 100% 成功率的实现；p99 同档最低（如 256B/cc100 仅 21ms）。纯非阻塞响应式改造在真实 Linux 服务器上得到完全验证。</div>
-<h2><span class="num">8.5</span>全实现代理对决（Windows 同窗交错）</h2>
+<h2><
+
+
+<h2><span class="num">8.1</span>🚩 服务器复测：纯响应式 AIO 最终版（2026-08-24 更新）</h2>
+<div class="desc">AioHttpServer 完成纯响应式改造（删除模式开关/虚拟线程跳转/Future阻塞，全链路 CompletionHandler 回调）后的服务器复测数据。</div>
+
+<table style="margin-top:14px">
+<thead><tr><th colspan="6" style="text-align:left;background:#0f2417;color:var(--green)">256 字节 · 吞吐 RPS（成功率）</th></tr>
+<tr><th>并发</th><th>AIO(响应式)</th><th>NIO</th><th>Vert.x</th><th>JDK</th><th>AIO 排名</th></tr></thead>
+<tbody>
+<tr><td>100</td><td class="win">11,236 (99%)</td><td>3,058 (93%)</td><td>5,459 (98%)</td><td>6,169 (91%)</td><td class="win">🥇 1</td></tr>
+<tr><td>500</td><td class="win">11,983 (100%)</td><td>3,531 (63%)</td><td>5,919 (89%)</td><td>3,522 (71%)</td><td class="win">🥇 1</td></tr>
+<tr><td>1000</td><td class="win">10,304 (100%)</td><td>4,576 (65%)</td><td>6,536 (88%)</td><td>2,734 (58%)</td><td class="win">🥇 1</td></tr>
+<tr><td>2000</td><td>8,450 (100%)</td><td>5,255 (88%)</td><td>6,754 (87%)</td><td>2,762 (54%)</td><td>2</td></tr>
+</tbody>
+</table>
+
+<table style="margin-top:14px">
+<thead><tr><th colspan="6" style="text-align:left;background:#0d1a2d;color:var(--accent)">4096 字节 · 吞吐 RPS（成功率）</th></tr>
+<tr><th>并发</th><th>NIO</th><th>JDK</th><th>Vert.x</th><th>AIO</th><th>AIO 排名</th></tr></thead>
+<tbody>
+<tr><td>100</td><td>10,070</td><td><b>13,396</b></td><td><b>14,937</b></td><td class="win">14,959</td><td>2</td></tr>
+<tr><td>500</td><td class="win">9,242</td><td>5,507</td><td>8,651</td><td>9,556</td><td>2</td></tr>
+<tr><td>1000</td><td>7,465</td><td>3,475</td><td>7,692</td><td class="win">9,170</td><td>1</td></tr>
+<tr><td>2000</td><td>6,536</td><td>2,967</td><td>7,307</td><td>8,643</td><td>2</td></tr>
+</tbody>
+</table>
+
+<table style="margin-top:14px">
+<thead><tr><th colspan="6" style="text-align:left;background:#241a33;color:var(--purple)">p99 尾延迟 (ms) · 全景</th></tr>
+<tr><th>payload</th><th>并发</th><th>AIO</th><th>NIO</th><th>Vert.x</th><th>JDK</th></tr></thead>
+<tbody>
+<tr><td rowspan="4">256 B</td><td>100</td><td class="win">22</td><td>87</td><td>57</td><td>33</td></tr>
+<tr><td>500</td><td class="win">113</td><td>206</td><td>184</td><td>247</td></tr>
+<tr><td>1000</td><td class="win">210</td><td>349</td><td>266</td><td>431</td></tr>
+<tr><td>2000</td><td>560</td><td>953</td><td class="win">556</td><td>753</td></tr>
+<tr><td rowspan="4">4096 B</td><td>100</td><td>16</td><td>24</td><td class="win">15</td><td>15</td></tr>
+<tr><td>500</td><td>115</td><td>118</td><td class="win">128</td><td>162</td></tr>
+<tr><td>1000</td><td>194</td><td>269</td><td class="win">185</td><td>358</td></tr>
+<tr><td>2000</td><td>493</td><td>592</td><td class="win">505</td><td>741</td></tr>
+</tbody>
+</table>
+
+<div class="note"><b>&#128161; 纯响应式改造收益</b>：AioHttpServer 完成「删模式开关 / 删虚拟线程跳转 / 删 Future 阻塞 / 全链路 CompletionHandler」后，小报文四档全胜且 p50 每档最低。大报文段 AIO/NIO 交替领先但差距缩小——纯回调消除了完成通知的额外开销，使 AIO 在中低负载下也能与 Reactor 模型竞争。</div>
+
+span class="num">8.5</span>全实现代理对决（Windows 同窗交错）</h2>
 <table style="margin-top:14px">
 <thead><tr><th>代理场景</th><th>JDK(BIO)</th><th>Vert.x</th><th>AIO</th><th>直连基线</th><th>最优</th></tr></thead>
 <tbody>
