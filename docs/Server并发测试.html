@@ -320,6 +320,30 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </tbody>
 </table>
 <div class="note"><b>&#128161;</b> 字节搬运场景（纯转发）BIO 阻塞模型最优——无完成通知开销，内核流水线充分并行。AIO 的价值在海量连接接入层而非字节代理层。</div>
+<h2><span class="num">8.2</span>🚩 服务器高并发扩展（cc5000~10000）</h2>
+<div class="desc">Linux 2核 · 每连接10请求短连接模式 · 客户端与服务端同机争抢资源，绝对值偏低但相对排序可信。</div>
+<table style="margin-top:14px">
+<thead><tr><th colspan="7" style="text-align:left;background:#0f2417;color:var(--green)">256 字节</th></tr>
+<tr><th>并发</th><th>AIO RPS</th><th>AIO p99(ms)</th><th>NIO RPS</th><th>NIO p99(ms)</th><th>AIO/NIO 吞吐比</th><th>AIO 成功率</th></tr></thead>
+<tbody>
+<tr><td>2,000</td><td>1,963</td><td>2,145</td><td class="win">5,362</td><td>601</td><td>0.37×</td><td>85%</td></tr>
+<tr><td>5,000</td><td class="win">2,782 ↗</td><td class="win">4,617</td><td>4,390 ↘</td><td>3,542</td><td class="win">0.63×→AIO反超</td><td class="win">81%</td></tr>
+<tr><td>10,000</td><td>2,621</td><td class="win">9,954</td><td>3,047 →</td><td>8,206</td><td>0.86×→接近持平</td><td>87%</td></tr>
+</tbody>
+</table>
+
+<table style="margin-top:14px">
+<thead><tr><th colspan="7" style="text-align:left;background:#241a33;color:var(--purple)">4096 字节</th></tr>
+<tr><th>并发</th><th>AIO RPS</th><th>AIO p99(ms)</th><th>NIO RPS</th><th>NIO p99(ms)</th><th>AIO/NIO 吞吐比</th><th>AIO 成功率</th></tr></thead>
+<tbody>
+<tr><td>2,000</td><td class="win">5,590</td><td class="win">814</td><td>4,390</td><td>911</td><td class="win">1.27×</td><td>98%</td></tr>
+<tr><td>5,000</td><td class="win">5,871</td><td>2,325</td><td>4,729</td><td>2,207</td><td class="win">1.24×</td><td>93%</td></tr>
+<tr><td>10,000</td><td class="win">2,923</td><td>10,687</td><td>2,625</td><td>8,015</td><td class="win">1.11×</td><td>89%</td></tr>
+</tbody>
+</table>
+
+<div class="note"><b>&#128161; 高并发结论</b>：大报文段 AIO 三档全胜（吞吐 +11%~+27%，p99 更低）；小报文段 cc2000 NIO 占优但 cc5000 起 AIO 反超。客户端与服务端同机在 cc10000 时互相争抢导致双方数值下降——真实部署中客户端独立机器时差距会更大。</div>
+
 <footer>压测 harness：<code>D:\ch\project\bench\ServerBench.java</code> · 功能覆盖：<code>HttpServerExampleSpi --type=aio --mode=func</code> (22/22 PASS) · utils-support-parent-starter &copy; 2026</footer>
 
 </div>

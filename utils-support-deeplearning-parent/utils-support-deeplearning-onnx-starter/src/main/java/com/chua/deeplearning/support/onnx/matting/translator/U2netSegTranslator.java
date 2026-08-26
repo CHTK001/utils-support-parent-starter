@@ -17,7 +17,7 @@ import java.awt.image.WritableRaster;
 public final class U2netSegTranslator implements Translator<Image, Image> {
 
     private static final int SIZE = 320;
-    private static final MattingTranslator.MattingMode DEFAULT_MODE = MattingTranslator.MattingMode.RGB_BLACK_BG;
+    private static final MattingTranslator.MattingMode DEFAULT_MODE = MattingTranslator.MattingMode.RGBA;
 
     private final MattingTranslator.MattingMode mode;
     private int width, height;
@@ -31,7 +31,6 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         width = input.getWidth();
         height = input.getHeight();
         originalImage = toBufferedImage(input);
-        System.out.println("[DEBUG] U2netSegTranslator: input=" + width + "x" + height + " target=" + SIZE);
         BufferedImage resized = resizeTo(input, SIZE, SIZE);
         float[] data = new float[3 * SIZE * SIZE];
         int idx = 0;
@@ -45,7 +44,6 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
             }
         }
         NDArray arr = ctx.getNDManager().create(data, new Shape(1, 3, SIZE, SIZE));
-        System.out.println("[DEBUG] U2netSegTranslator: created shape=" + arr.getShape());
         return new NDList(arr);
     }
 
