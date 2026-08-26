@@ -10,6 +10,8 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -61,18 +63,27 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
         }
 
         //           NDArray (HWC       )
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        // rust 引擎未实现 NDArray.resize，先用 Java2D 缩放到目标尺寸
+        java.awt.image.BufferedImage src = (java.awt.image.BufferedImage) input.getWrappedImage();
+        java.awt.image.BufferedImage scaled = new java.awt.image.BufferedImage(
+                INPUT_SIZE, INPUT_SIZE, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = scaled.createGraphics();
+        try {
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            graphics.drawImage(src, 0, 0, INPUT_SIZE, INPUT_SIZE, null);
+        } finally {
+            graphics.dispose();
+        }
+        Image resized = ImageFactory.getInstance().fromImage(scaled);
+        NDArray array = resized.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         if (log.isDebugEnabled()) {
             log.debug("Step 1 -                : {}", array.getShape());
         }
 
-        //                             512x512
-        array = NDImageUtils.resize(array, INPUT_SIZE, INPUT_SIZE, Image.Interpolation.BICUBIC);
-        if (log.isDebugEnabled()) {
-            log.debug("Step 2 -           512x512          : {}", array.getShape());
-        }
-
-        //                       [-1, 1]
+        //                             [-1, 1]
+        // 先转 float32：整型数组 div 会截断为 0，导致输入全 -1
+        array = array.toType(DataType.FLOAT32, false);
         array = array.div(255.0f).mul(2.0f).sub(1.0f);
         if (log.isDebugEnabled()) {
             log.debug("Step 3 -                   : {}", array.getShape());
@@ -172,18 +183,24 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
         //             
         Image result = ImageFactory.getInstance().fromNDArray(output);
 
-        //                      
+        //                       （Java2D 缩放，rust 引擎未实现 NDArray.resize）
         if (result.getWidth() != originalWidth || result.getHeight() != originalHeight) {
             if (log.isDebugEnabled()) {
                 log.debug("                      {}x{}     {}x{}", result.getWidth(), result.getHeight(), originalWidth, originalHeight);
             }
-            NDArray resizedArray = NDImageUtils.resize(
-                    result.toNDArray(ctx.getNDManager()),
-                    originalWidth,
-                    originalHeight,
-                    Image.Interpolation.BICUBIC
-           );
-            result = ImageFactory.getInstance().fromNDArray(resizedArray);
+            java.awt.image.BufferedImage outBi =
+                    (java.awt.image.BufferedImage) result.getWrappedImage();
+            java.awt.image.BufferedImage scaledBack = new java.awt.image.BufferedImage(
+                    originalWidth, originalHeight, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            Graphics2D backGraphics = scaledBack.createGraphics();
+            try {
+                backGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                backGraphics.drawImage(outBi, 0, 0, originalWidth, originalHeight, null);
+            } finally {
+                backGraphics.dispose();
+            }
+            result = ImageFactory.getInstance().fromImage(scaledBack);
         }
 
         if (log.isDebugEnabled()) {
