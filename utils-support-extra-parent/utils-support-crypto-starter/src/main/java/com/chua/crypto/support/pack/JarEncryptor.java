@@ -116,6 +116,11 @@ public class JarEncryptor {
     private boolean encryptConfig;
 
     /**
+     * 是否加密依赖包(BOOT-INF/lib/*.jar)，默认加密；关闭后依赖包明文保留
+     */
+    private boolean encryptLibs = true;
+
+    /**
      * 是否对应用 class 做混淆处理（剥离调试信息）
      */
     private boolean obfuscate;
@@ -129,6 +134,11 @@ public class JarEncryptor {
      * 源包是否为 SpringBoot 布局（execute 期间判定）
      */
     private boolean springBootLayout;
+
+    /**
+     * 是否内嵌密钥封装块（默认 true；关闭后包必须依赖 校验服务器/私钥文件/加密狗/管道 获取密钥）
+     */
+    private boolean embedKeyBlob = true;
 
     /**
      * 明文保留前缀排除列表
@@ -217,6 +227,17 @@ public class JarEncryptor {
     }
 
     /**
+     * 设置依赖包是否加密（默认 true）
+     *
+     * @param encryptLibs false 表示 BOOT-INF/lib/*.jar 明文保留
+     * @return 当前对象
+     */
+    public JarEncryptor encryptLibs(boolean encryptLibs) {
+        this.encryptLibs = encryptLibs;
+        return this;
+    }
+
+    /**
      * 开启应用 class 混淆（剥离调试信息：源文件名/行号表/局部变量表）
      *
      * @param obfuscate true 表示启用
@@ -235,6 +256,18 @@ public class JarEncryptor {
      */
     public JarEncryptor renamePrivates(boolean renamePrivates) {
         this.renamePrivates = renamePrivates;
+        return this;
+    }
+
+    /**
+     * 是否内嵌密钥封装块（默认 true）
+     *
+     * @param embedKeyBlob false 表示不内嵌，运行期必须提供外部密钥来源
+     *                     （校验服务器/私钥文件/加密狗/stdin 管道）
+     * @return 当前对象
+     */
+    public JarEncryptor embedKeyBlob(boolean embedKeyBlob) {
+        this.embedKeyBlob = embedKeyBlob;
         return this;
     }
 
@@ -259,12 +292,13 @@ public class JarEncryptor {
         springBootLayout = isSpringBootLayout();
         try (JarFile input = new JarFile(source.toFile(), false)) {
             Manifest manifest = patchManifest(input.getManifest());
-            byte[] keyBlob = buildKeyBlob();
 
             Files.createDirectories(output.toAbsolutePath().getParent());
             try (JarOutputStream out = new JarOutputStream(Files.newOutputStream(output))) {
                 writeEntry(out, "META-INF/MANIFEST.MF", toManifestBytes(manifest));
-                writeEntry(out, KEY_BLOB_ENTRY, keyBlob);
+                if (embedKeyBlob) {
+                    writeEntry(out, KEY_BLOB_ENTRY, buildKeyBlob());
+                }
                 injectLaunchPayload(out);
                 for (java.util.Enumeration<JarEntry> entries = input.entries(); entries.hasMoreElements(); ) {
                     copyEntry(out, input, entries.nextElement());
@@ -289,13 +323,14 @@ public class JarEncryptor {
                 com.chua.crypto.support.launch.EncryptedAppClassLoader.class,
                 com.chua.crypto.support.launch.PayloadCipher.class,
                 com.chua.crypto.support.launch.KeyShard.class,
+                com.chua.crypto.support.launch.LicenseKeyClient.class,
                 com.chua.crypto.support.launch.SelfDefense.class)) {
             writeClassHierarchy(out, classLoader, type);
         }
     }
 
     /**
-     * 递归写入类及其全部声明内部类的字节
+     * 递归写入类及其全部声明内部类的字节（载荷自身剥离调试信息）
      *
      * @param out         目标流
      * @param classLoader 类路径资源加载器
@@ -308,7 +343,11 @@ public class JarEncryptor {
             if (in == null) {
                 throw new IOException("引导器载荷缺失: " + resource);
             }
-            writeEntry(out, resource, readAll(in));
+            byte[] bytes = readAll(in);
+            if (obfuscate) {
+                bytes = ClassObfuscator.stripDebug(bytes);
+            }
+            writeEntry(out, resource, bytes);
         }
         for (Class<?> inner : type.getDeclaredClasses()) {
             writeClassHierarchy(out, classLoader, inner);
@@ -482,7 +521,7 @@ public class JarEncryptor {
             }
         }
         boolean isClass = name.endsWith(".class");
-        boolean isLibJar = name.startsWith(BOOT_LIB_PREFIX) && name.endsWith(".jar");
+        boolean isLibJar = encryptLibs && name.startsWith(BOOT_LIB_PREFIX) && name.endsWith(".jar");
         boolean isConfig = encryptConfig && CONFIG_ENTRY
                 .matcher(lastSegment(name))
                 .matches();

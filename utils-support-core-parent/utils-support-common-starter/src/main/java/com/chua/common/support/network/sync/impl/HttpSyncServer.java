@@ -176,6 +176,11 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         messageQueues.computeIfAbsent(topic, k -> new java.util.LinkedList<>()).add(payload);
+        // 广播通知监听器：与 TcpSyncServer.publish 行为一致——publish 后所有订阅方应感知
+        // pull 模型客户端通过 /api/sync/pull 拉取，push 监听器（演示与回环测试）通过 onMessage 即时感知
+        for (String clientId : clients.keySet()) {
+            notifyListener(l -> l.onMessage(clientId, topic, message));
+        }
     }
 
     @Override

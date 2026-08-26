@@ -10,24 +10,24 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLStreamHandler;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * 加密程序包类加载器
+ * 加密程序包自定义类加载器（惰性模式）
  *
- * <p>从加密后的 FatJar/Jar 中加载类与资源：
+ * <p>从加密包内按需解密类与资源，密文不落盘：
  * <ul>
- *   <li>类条目 — 惰性读取，命中 {@code CHKJ} 魔数时透明解密后 defineClass</li>
- *   <li>资源条目 — 经 {@link #findResource(String)}/{@link #findResources(String)}
- *       返回解密流 URL（自定义 URLStreamHandler，不污染全局工厂），
- *       因此配置文件等敏感资源在磁盘保持密文、在应用侧自动明文</li>
- *   <li>依赖包 — 由父加载器（已解密到临时目录的 lib jar）按标准双亲委派提供</li>
+ *   <li>类条目 — 惰性读取，命中 {@code CHKJ} 魔数透明解密后 defineClass</li>
+ *   <li>资源条目 — 经 {@link #findResource} 返回解密流 URL（私有协议处理器）</li>
+ *   <li>主密钥以分片形态持有（{@link KeyShard}），堆中无完整密钥</li>
  * </ul>
+ *
+ * <p>注意：目录式资源枚举（Spring 组件扫描）在惰性模式下受限，
+ * 默认启动采用"解密装载"模式；本加载器经 {@code -Dchua.crypto.lazy=true} 启用。
  *
  * @author CH
  * @since 2026-08-26
@@ -49,7 +49,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     private final JarFile jar;
 
     /**
-     * 主密钥分片（堆中不存完整密钥，抗 heap dump 特征扫描）
+     * 主密钥分片（堆中不存完整密钥）
      */
     private final byte[][] masterShards;
 
@@ -72,9 +72,6 @@ public class EncryptedAppClassLoader extends URLClassLoader {
         this.masterShards = KeyShard.shard(master);
     }
 
-    /**
-     * 查找并定义类：支持根路径与 BOOT-INF/classes 双前缀，命中 CHKJ 密文自动解密
-     */
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         String path = name.replace('.', '/').concat(".class");
@@ -94,9 +91,6 @@ public class EncryptedAppClassLoader extends URLClassLoader {
         throw new ClassNotFoundException(name);
     }
 
-    /**
-     * 查找资源：返回透明解密的流 URL
-     */
     @Override
     public URL findResource(String name) {
         if (name == null || name.endsWith("/")) {
@@ -111,13 +105,11 @@ public class EncryptedAppClassLoader extends URLClassLoader {
         return null;
     }
 
-    /**
-     * 枚举资源：当前实现返回单元素枚举（同一名称在包内唯一）
-     */
     @Override
     public Enumeration<URL> findResources(String name) {
         URL url = findResource(name);
-        return url != null ? Collections.enumeration(Collections.singletonList(url)) : Collections.emptyEnumeration();
+        return url != null ? Collections.enumeration(Collections.singletonList(url))
+                : Collections.emptyEnumeration();
     }
 
     /**
@@ -159,7 +151,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     }
 
     /**
-     * 定义包（若尚未定义），使清单属性与注解可见
+     * 定义包（若尚未定义）
      *
      * @param className 类全名
      */
@@ -220,12 +212,6 @@ public class EncryptedAppClassLoader extends URLClassLoader {
      */
     private class Handler extends URLStreamHandler {
 
-        /**
-         * 打开解密连接
-         *
-         * @param u 资源 URL
-         * @return 连接
-         */
         @Override
         protected URLConnection openConnection(URL u) {
             return new ChkURLConnection(u);
@@ -237,28 +223,15 @@ public class EncryptedAppClassLoader extends URLClassLoader {
      */
     private class ChkURLConnection extends URLConnection {
 
-        /**
-         * 构造连接
-         *
-         * @param url 资源 URL
-         */
         protected ChkURLConnection(URL url) {
             super(url);
         }
 
-        /**
-         * 无需预连接动作
-         */
         @Override
         public void connect() {
             // 惰性读取，无需实现
         }
 
-        /**
-         * 返回解密后的条目流
-         *
-         * @return 明文流
-         */
         @Override
         public InputStream getInputStream() {
             String encoded = getURL().getPath();
@@ -271,11 +244,6 @@ public class EncryptedAppClassLoader extends URLClassLoader {
         }
     }
 
-    /**
-     * 关闭加载器并释放底层 JarFile 句柄
-     *
-     * @throws IOException 关闭失败
-     */
     @Override
     public void close() throws IOException {
         try {
@@ -284,26 +252,5 @@ public class EncryptedAppClassLoader extends URLClassLoader {
             jar.close();
             KeyShard.wipe(masterShards);
         }
-    }
-
-    /**
-     * 供诊断使用：列出包内全部条目名（只读快照）
-     *
-     * @return 条目名映射（名称→是否加密）
-     */
-    public Map<String, Boolean> snapshotEntries() {
-        Map<String, Boolean> entries = new LinkedHashMap<>();
-        Enumeration<JarEntry> all = jar.entries();
-        while (all.hasMoreElements()) {
-            JarEntry e = all.nextElement();
-            boolean encrypted;
-            try {
-                encrypted = PayloadCipher.isEncryptedEntry(readAll(jar.getInputStream(e)));
-            } catch (Exception ex) {
-                encrypted = false;
-            }
-            entries.put(e.getName(), encrypted);
-        }
-        return entries;
     }
 }

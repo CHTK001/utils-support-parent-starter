@@ -7,16 +7,20 @@ import com.chua.common.support.task.script.ScriptProvider;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Groovy 脚本执行提供器，基于 GroovyShell 动态加载并执行脚本文件。
+ *
  * <p>SPI 类型：{@code groovy}。context 中的 Map 条目会逐个暴露为 Groovy 绑定变量。</p>
+ *
+ * <p>优化说明：
+ * <ul>
+ *   <li>复用 {@link GroovyShell} 实例，避免每次执行创建新 Shell 导致的 ClassLoader 泄漏</li>
+ *   <li>卸载脚本时主动清理 Shell 内部的 GroovyClassLoader 缓存</li>
+ * </ul></p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -28,6 +32,11 @@ public class GroovyScriptProvider implements ScriptProvider {
      * 脚本路径 -> FileScriptListener 缓存
      */
     private final Map<Path, Listener> listenerCache = new ConcurrentHashMap<>();
+
+    /**
+     * 脚本路径 -> GroovyShell 缓存，复用 Shell 避免每次创建新 ClassLoader
+     */
+    private final Map<Path, GroovyShell> shellCache = new ConcurrentHashMap<>();
 
     /**
      * @return 引擎名称 {@code groovy}
@@ -57,6 +66,9 @@ public class GroovyScriptProvider implements ScriptProvider {
     /**
      * 执行脚本：context 中的 Map 条目会逐个暴露为 Groovy 绑定变量（{@code context} 也作为变量注入）。
      *
+     * <p>复用已有的 {@link GroovyShell} 实例，避免每次执行创建新 Shell 导致的 ClassLoader 泄漏。
+     * Shell 的 Binding 是可变的，每次执行前更新绑定变量。</p>
+     *
      * @param scriptPath 脚本路径
      * @param context    绑定上下文（可为 Map 或其他对象）
      * @return 脚本求值结果
@@ -69,29 +81,44 @@ public class GroovyScriptProvider implements ScriptProvider {
             throw new IllegalStateException("脚本源码为空: " + scriptPath);
         }
 
-        Binding binding = new Binding();
-        if (context != null) {
-            binding.setProperty("context", context);
-            if (context instanceof Map) {
-                for (Map.Entry<?, ?> entry : ((Map<?, ?>) context).entrySet()) {
-                    if (entry.getKey() instanceof String) {
-                        binding.setProperty((String) entry.getKey(), entry.getValue());
-                    }
+        // 复用 Shell（内部复用 ClassLoader）
+        GroovyShell shell = shellCache.computeIfAbsent(scriptPath, k -> {
+            Binding binding = new Binding();
+            return new GroovyShell(binding);
+        });
+
+        // 更新绑定变量（Shell 的 Binding 是可变的）
+        Binding binding = shell.getContext();
+        binding.setVariable("context", context);
+        if (context instanceof Map) {
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) context).entrySet()) {
+                if (entry.getKey() instanceof String key) {
+                    binding.setVariable(key, entry.getValue());
                 }
             }
         }
 
-        GroovyShell shell = new GroovyShell(binding);
         return shell.evaluate(source);
     }
 
     /**
-     * 卸载脚本（移除监听器缓存）。
+     * 卸载脚本（移除监听器和 Shell 缓存）。
+     *
+     * <p>卸载时主动清理 Shell 内部 GroovyClassLoader 的缓存，
+     * 释放 sourceCache 和 ClassInfo 反射缓存，帮助 Metaspace 内存回收。</p>
      *
      * @param scriptPath 脚本路径
      */
     @Override
     public void unloadScript(Path scriptPath) {
+        GroovyShell shell = shellCache.remove(scriptPath);
+        if (shell != null) {
+            try {
+                shell.getClassLoader().clearCache();
+            } catch (Exception ignored) {
+                // 清理失败时静默忽略
+            }
+        }
         listenerCache.remove(scriptPath);
     }
 

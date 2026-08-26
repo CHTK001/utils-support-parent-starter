@@ -439,6 +439,15 @@ public class JdbcReactorEngine implements ReactorEngine {
         DataSource ds = createJdbcDataSource(jdbcUrl, username, password);
         jdbcDataSources.put(name, ds);
         jdbcUrls.put(name, jdbcUrl);
+        /* 尽力注册 R2DBC 连接工厂，使 query() 响应式路径可用；
+         * 无对应 R2DBC 驱动的协议（SQLite/DuckDB/Oracle 等）静默跳过，
+         * 执行时由 needsJdbcPath 自动路由到 JDBC。 */
+        try {
+            r2dbcFactories.put(name, buildConnectionFactory(
+                    convertJdbcToR2dbc(jdbcUrl), username, password));
+        } catch (Exception ignoreUnsupportedProtocol) {
+            // 该协议无 R2DBC 驱动，仅保留 JDBC 路径
+        }
         // SQLite/DuckDB 等无已知方言时允许为空，执行路径仅依赖 DataSource
         com.chua.common.support.lang.datasource.dialect.Dialect d = detectDialect(jdbcUrl);
         if (d != null) {
@@ -598,9 +607,17 @@ public class JdbcReactorEngine implements ReactorEngine {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
         }
         /* SELECT 是幂等只读操作，安全走 R2DBC；连接失败时降级 JDBC 重试 */
+        /* 无 R2DBC 连接工厂的引擎（SQLite/DuckDB 等）直接走 JDBC：
+         * 工厂缺失在 queryViaR2dbc 内为同步抛出，onErrorResume 无法捕获 */
+        if (!r2dbcFactories.containsKey(defaultDataSourceName)) {
+            DataSource ds0 = jdbcDataSources.get(defaultDataSourceName);
+            if (ds0 != null) {
+                return queryViaJdbc(ds0, sql, params);
+            }
+        }
+        /* SELECT 属于只读操作，R2DBC 失败时降级 JDBC 重试 */
         return queryViaR2dbc(defaultDataSourceName, sql, params)
-                .onErrorResume(e -> !(e instanceof IllegalStateException) &&
-                        jdbcDataSources.containsKey(defaultDataSourceName),
+                .onErrorResume(e -> jdbcDataSources.containsKey(defaultDataSourceName),
                         e -> queryViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, params));
     }
 
@@ -612,9 +629,14 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
         }
+        if (!r2dbcFactories.containsKey(defaultDataSourceName)) {
+            DataSource ds0 = jdbcDataSources.get(defaultDataSourceName);
+            if (ds0 != null) {
+                return queryTypedViaJdbc(ds0, sql, rowType, params);
+            }
+        }
         return queryTypedViaR2dbc(defaultDataSourceName, sql, rowType, params)
-                .onErrorResume(e -> !(e instanceof IllegalStateException) &&
-                        jdbcDataSources.containsKey(defaultDataSourceName),
+                .onErrorResume(e -> jdbcDataSources.containsKey(defaultDataSourceName),
                         e -> queryTypedViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, rowType, params));
     }
 

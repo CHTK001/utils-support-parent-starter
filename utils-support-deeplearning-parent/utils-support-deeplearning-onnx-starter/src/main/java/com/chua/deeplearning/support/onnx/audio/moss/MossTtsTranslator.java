@@ -163,7 +163,7 @@ public class MossTtsTranslator implements AutoCloseable {
      *
      * @param text      待合成文本
      * @param voice     内置音色名（如 Junhao/Zhiming/Xiaoyu）
-     * @param maxFrames 最大生成帧数（约 93.75 fps）
+     * @param maxFrames 最大生成帧数（约 12.5 fps）
      * @return WAV 字节流（48 kHz 单声道 PCM16）
      * @throws Exception 推理异常
      */
@@ -179,6 +179,144 @@ public class MossTtsTranslator implements AutoCloseable {
             pcm = decodeAudio(audioTokens);
         }
         return AudioUtils.toWavBytes(pcm, 48000);
+    }
+
+    /** 句末标点（在此处切分并保留标点）。 */
+    private static final String SENTENCE_END = "。！？!?；;\n";
+    /** 句内标点（超长句的次级切分点）。 */
+    private static final String CLAUSE_SPLIT = "，,、：:—…";
+    /** 分段间静音秒数。 */
+    private static final float PAUSE_SECONDS = 0.32f;
+    /** 单段字符上限（超出则按句内标点二次切分）。 */
+    private static final int MAX_CHUNK_CHARS = 55;
+
+    /**
+     * 长文本合成入口：按标点分句逐段合成，段间插入短停顿后拼接。
+     *
+     * <p>与官方运行时的 voice-clone 文本分块策略一致，
+     * 规避单次自回归生成的帧数上限与长句韵律劣化。</p>
+     *
+     * @param text  待合成文本（任意长度）
+     * @param voice 内置音色名
+     * @return WAV 字节流（48 kHz 单声道 PCM16）
+     * @throws Exception 推理异常
+     */
+    public byte[] synthesizeText(String text, String voice) throws Exception {
+        List<String> chunks = splitChunks(text);
+        if (chunks.isEmpty()) {
+            throw new IllegalStateException("文本无有效内容");
+        }
+
+        List<float[]> segments = new ArrayList<>();
+        int totalSamples = 0;
+        int pauseSamples = Math.round(48000 * PAUSE_SECONDS);
+
+        for (int i = 0; i < chunks.size(); i++) {
+            String chunk = chunks.get(i);
+            int frames = Math.min(maxNewFramesLimit, 40 + chunk.length() * 8);
+            byte[] wav = synthesize(chunk, voice, frames);
+            float[] pcm = readPcm(wav);
+            segments.add(pcm);
+            totalSamples += pcm.length;
+            if (i < chunks.size() - 1) {
+                segments.add(new float[pauseSamples]);
+                totalSamples += pauseSamples;
+            }
+            logChunk(i + 1, chunks.size(), chunk, pcm.length);
+        }
+
+        float[] all = new float[totalSamples];
+        int offset = 0;
+        for (float[] seg : segments) {
+            System.arraycopy(seg, 0, all, offset, seg.length);
+            offset += seg.length;
+        }
+        return AudioUtils.toWavBytes(all, 48000);
+    }
+
+    private void logChunk(int index, int total, String chunk, int samples) {
+        System.out.printf("[MossTTS] 段 %d/%d (%d字, %.2fs): %s%n",
+                index, total, chunk.length(), samples / 48000.0,
+                chunk.length() > 20 ? chunk.substring(0, 20) + "…" : chunk);
+    }
+
+    /** 从 WAV 字节流读取单声道 PCM float。 */
+    private float[] readPcm(byte[] wav) throws Exception {
+        Path temp = Files.createTempFile("moss-chunk-", ".wav");
+        try {
+            Files.write(temp, wav);
+            return rawPcm(temp);
+        } finally {
+            Files.deleteIfExists(temp);
+        }
+    }
+
+    /** 直接解码 WAV 为 48k 原样 PCM（不重采样）。 */
+    private float[] rawPcm(Path path) throws Exception {
+        try (var ais = javax.sound.sampled.AudioSystem.getAudioInputStream(path.toFile())) {
+            var fmt = ais.getFormat();
+            byte[] bytes = ais.readAllBytes();
+            int bytesPer = fmt.getSampleSizeInBits() / 8;
+            int n = bytes.length / bytesPer;
+            float[] out = new float[n];
+            for (int i = 0; i < n; i++) {
+                int idx = i * bytesPer;
+                int lo = bytes[idx] & 0xFF;
+                int hi = bytes[idx + 1];
+                short v = (short) ((hi << 8) | lo);
+                out[i] = v / 32768f;
+            }
+            return out;
+        }
+    }
+
+    /** 按句末标点切分，超长句再按句内标点二次切分并合并碎段。 */
+    private List<String> splitChunks(String text) {
+        List<String> sentences = splitBy(text, SENTENCE_END);
+        List<String> chunks = new ArrayList<>();
+        for (String sentence : sentences) {
+            if (sentence.length() <= MAX_CHUNK_CHARS) {
+                appendNonEmpty(chunks, sentence);
+            } else {
+                List<String> clauses = splitBy(sentence, CLAUSE_SPLIT);
+                StringBuilder buf = new StringBuilder();
+                for (String clause : clauses) {
+                    if (buf.length() + clause.length() > MAX_CHUNK_CHARS
+                            && buf.length() > 0) {
+                        appendNonEmpty(chunks, buf.toString());
+                        buf.setLength(0);
+                    }
+                    buf.append(clause);
+                }
+                appendNonEmpty(chunks, buf.toString());
+            }
+        }
+        return chunks;
+    }
+
+    private void appendNonEmpty(List<String> list, String s) {
+        String trimmed = s.trim();
+        if (!trimmed.isEmpty()) {
+            list.add(trimmed);
+        }
+    }
+
+    /** 在给定标点集合的每个字符之后切分（保留标点在前段尾部）。 */
+    private List<String> splitBy(String text, String delims) {
+        List<String> parts = new ArrayList<>();
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            buf.append(c);
+            if (delims.indexOf(c) >= 0) {
+                parts.add(buf.toString());
+                buf.setLength(0);
+            }
+        }
+        if (buf.length() > 0) {
+            parts.add(buf.toString());
+        }
+        return parts;
     }
 
     /**

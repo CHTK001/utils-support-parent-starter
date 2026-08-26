@@ -1,54 +1,54 @@
 package com.chua.deeplearning.support.onnx.generation;
 
-import ai.djl.modality.cv.Image;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.Shape;
-import ai.djl.repository.zoo.Criteria;
-import ai.djl.repository.zoo.ZooModel;
-import ai.djl.translate.Translator;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
+import ai.onnxruntime.OrtSession;
+import com.chua.deeplearning.support.engine.DeviceSelector;
+import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Random;
+import java.util.Set;
 
 /**
- * Small Stable Diffusion v0 文生图全流程编排（文本编码 → DDIM 去噪 → VAE 解码）。
+ * Small Stable Diffusion v0 文生图全流程编排（文本编码 → CFG 引导 DDIM 去噪 → VAE 解码）。
  *
- * <p>注册表主模型为<b>文本编码器</b> ONNX；UNet 与 VAE 解码器由本类在首次推理时
- * 通过 DJL {@link Criteria} 加载并真实执行会话。三个模型文件与 tokenizer.json
- * 缺失时自动从 HuggingFace 下载（自动尝试 hf-mirror.com 国内镜像）。</p>
+ * <p><b>原生 ORT 实现</b>：三个阶段均通过 ai.onnxruntime 原生会话执行，
+ * 不经过 DJL 模型包装——规避该导出版本文本编码器输出 uint32 张量、
+ * DJL NDArray 不支持的问题；文本编码阶段仅请求 fp32 输出。</p>
  *
- * <p>流程：
- * <ol>
- *   <li>CLIP tokenizer 编码正向/空负向提示词 → [2,77] token 对</li>
- *   <li>文本编码器一次前向得到条件/无条件嵌入 [2,77,768]</li>
- *   <li>DDIM 确定性采样（scaled_linear β ∈ [0.00085, 0.012]，1000 训练步），
- *       每步分别前向无条件/条件分支并按 guidance 融合</li>
- *   <li>VAE 解码 latent（÷0.18215）→ 512×512 图像</li>
- * </ol>
+ * <p>设备策略：跟随 {@link DeviceSelector}——auto 模式探测到可用 GPU 时
+ * 各会话启用 CUDA EP，任一会话初始化失败自动整体降级 CPU（粘性）。
+ * 权重与 tokenizer.json 缺失时自动下载（hf-mirror.com 镜像优先）。</p>
  *
- * <p>设备策略：跟随 {@link com.chua.deeplearning.support.engine.DeviceSelector}——
- * auto 模式探测到可用 GPU 时走 CUDA EP，加载失败自动降级 CPU。
- *
- * <p>可调参数（系统属性）：{@code small.sd.steps}（默认 20）、
- * {@code small.sd.guidance}（默认 7.5）、{@code small.sd.seed}（默认随机）、
- * {@code deeplearning.device}（auto/cpu/gpu）。
+ * <p>采样：DDIM η=0（scaled_linear β ∈ [0.00085, 0.012]，1000 训练步）；
+ * CFG 默认 7.5。可调系统属性：{@code small.sd.steps}、{@code small.sd.guidance}、
+ * {@code small.sd.seed}、{@code small.sd.width}、{@code small.sd.height}、
+ * {@code deeplearning.device}。</p>
  *
  * <p>权重来源：{@code subpixel/small-stable-diffusion-v0-onnx-ort-web}
- * （OFA-Sys/small-stable-diffusion-v0 的 ONNX 转换，fp32 约 3GB；
- * UNet 含外部数据文件 weights.pb，已一并下载）。
+ * （OFA-Sys/small-stable-diffusion-v0 的 ONNX 转换；UNet 权重外置 weights.pb）。
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class SmallStableDiffusionCombinedTranslator implements Translator<String, Image> {
+public class SmallStableDiffusionCombinedTranslator implements ITranslator<Object, Object>, AutoCloseable {
+
+    /**
+     * 模型标识（与注册表一致）
+     */
+    public static final String MODEL_ID = "small-stable-diffusion-combined";
 
     /**
      * CLIP 序列长度
@@ -64,6 +64,11 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
      * latent 通道数
      */
     private static final int LATENT_CHANNELS = 4;
+
+    /**
+     * VAE 缩放因子
+     */
+    private static final float VAE_SCALE_FACTOR = 0.18215f;
 
     /**
      * 训练总扩散步数
@@ -83,12 +88,12 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
             "https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/main/tokenizer.json";
 
     /**
-     * 默认图像宽度
+     * 图像宽度
      */
     private final int width;
 
     /**
-     * 默认图像高度
+     * 图像高度
      */
     private final int height;
 
@@ -113,22 +118,52 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
     private final double[] alphasCumprod;
 
     /**
-     * UNet 推理模型（懒加载）
+     * ORT 环境
      */
-    private volatile ZooModel<NDList, NDList> unetModel;
+    private final OrtEnvironment env = OrtEnvironment.getEnvironment();
 
     /**
-     * 权重基准目录（prepare 阶段确定，供分词器定位使用）
+     * 初始化锁
      */
-    private volatile Path weightBaseDir;
+    private final Object lock = new Object();
 
     /**
-     * VAE 解码推理模型（懒加载）
+     * 是否已初始化
      */
-    private volatile ZooModel<NDList, Image> vaeModel;
+    private volatile boolean initialized;
 
     /**
-     * 使用默认参数构造。
+     * GPU 失败后强制 CPU（粘性）
+     */
+    private volatile boolean forceCpu;
+
+    /**
+     * 文本编码会话
+     */
+    private OrtSession textEncoderSession;
+
+    /**
+     * 文本编码输出名（fp32 的 hidden state）
+     */
+    private String textEncoderOutput;
+
+    /**
+     * UNet 会话
+     */
+    private OrtSession unetSession;
+
+    /**
+     * VAE 解码会话
+     */
+    private OrtSession vaeSession;
+
+    /**
+     * 分词器（懒加载）
+     */
+    private volatile ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
+
+    /**
+     * 默认构造（512×512，20 步，引导 7.5）。
      */
     public SmallStableDiffusionCombinedTranslator() {
         this(512, 512,
@@ -139,10 +174,10 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
     /**
      * 全参构造。
      *
-     * @param width             输出宽度（8 的倍数）
-     * @param height            输出高度（8 的倍数）
-     * @param numInferenceSteps 去噪步数
-     * @param guidanceScale     CFG 引导系数（≤1 时禁用引导）
+     * @param width             宽度
+     * @param height            高度
+     * @param numInferenceSteps 步数
+     * @param guidanceScale     CFG 引导系数
      */
     public SmallStableDiffusionCombinedTranslator(int width, int height,
                                                   int numInferenceSteps, double guidanceScale) {
@@ -153,14 +188,12 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
         Long seed = Long.getLong("small.sd.seed");
         this.random = seed != null ? new Random(seed) : new Random();
         this.alphasCumprod = buildAlphasCumprod();
-        log.info("[Small SD v0][编排] 参数: {}x{}, 步数={}, 引导={}", width, height,
-                this.numInferenceSteps, this.guidanceScale);
+        log.info("[Small SD v0][编排] 参数: {}x{}, 步数={}, 引导={}",
+                width, height, this.numInferenceSteps, this.guidanceScale);
     }
 
     /**
-     * 构建 scaled_linear β 调度的 α̅ 表。
-     *
-     * <p>β_t = linspace(√0.00085, √0.012, 1000)²，α̅_t = Π(1-β)，与 diffusers 默认一致。</p>
+     * 构建 scaled_linear β 调度的 α̅ 表（与 diffusers 默认一致）。
      *
      * @return α̅ 数组
      */
@@ -184,388 +217,486 @@ public class SmallStableDiffusionCombinedTranslator implements Translator<String
     }
 
     /**
-     * 加载 UNet / VAE 解码模型并确保权重文件就绪。
+     * 翻译器名称。
      *
-     * @param ctx 推理上下文
-     * @throws IOException 模型准备失败
+     * @return 模型标识
      */
     @Override
-    public void prepare(ai.djl.translate.TranslatorContext ctx) throws IOException {
-        // 主模型即文本编码器；其所在目录的父目录作为权重基准目录
-        Path basePath = resolveBaseDir(ctx);
-        log.info("[Small SD v0][编排] 权重目录: {}", basePath);
-
-        Path unetPath = ensureFile(basePath.resolve("unet").resolve("model.onnx"),
-                HF_BASE + "/unet/model.onnx");
-        // UNet ONNX 引用的外部数据文件（>2GB 导出拆分），必须与 model.onnx 同目录
-        ensureFile(basePath.resolve("unet").resolve("weights.pb"),
-                HF_BASE + "/unet/weights.pb");
-        Path vaePath = ensureFile(basePath.resolve("vae_decoder").resolve("model.onnx"),
-                HF_BASE + "/vae_decoder/model.onnx");
-        ensureTokenizer(basePath);
-        this.weightBaseDir = basePath;
-
-        if (unetModel == null) {
-            synchronized (this) {
-                if (unetModel == null) {
-                    unetModel = loadWithDeviceFallback(
-                            unetPath, new SmallSdUnetTranslator(width, height),
-                            NDList.class, NDList.class);
-                    log.info("[Small SD v0][编排] UNet 已加载");
-                }
-            }
-        }
-        if (vaeModel == null) {
-            synchronized (this) {
-                if (vaeModel == null) {
-                    vaeModel = loadWithDeviceFallback(
-                            vaePath, new SmallSdVaeDecoderTranslator(width, height),
-                            NDList.class, Image.class);
-                    log.info("[Small SD v0][编排] VAE 解码器已加载");
-                }
-            }
-        }
+    public String name() {
+        return MODEL_ID;
     }
 
     /**
-     * 解析权重基准目录。
+     * 全流程执行：分词 → 文本编码 → DDIM 去噪 → VAE 解码 → PNG 字节。
      *
-     * <p>优先取主模型（文本编码器）文件所在目录的父目录；不可用时回退到注册表解析路径。</p>
-     *
-     * @param ctx 推理上下文
-     * @return 基准目录
-     * @throws IOException 目录无法确定
+     * @param input 提示词（String）
+     * @return PNG 图像字节数组
      */
-    private Path resolveBaseDir(ai.djl.translate.TranslatorContext ctx) throws IOException {
+    @Override
+    public Object translate(Object input) {
         try {
-            Path modelPath = ctx.getModel().getModelPath();
-            if (modelPath != null && Files.exists(modelPath)) {
-                Path dir = Files.isRegularFile(modelPath)
-                        ? modelPath.getParent().getParent()
-                        : modelPath.getParent();
-                if (dir != null && Files.isDirectory(dir)) {
-                    return dir;
+            ensureInitialized();
+            String prompt = input instanceof String s ? s : String.valueOf(input);
+            long[][] idsPair = tokenizePair(prompt);
+
+            float[] condEmb = runTextEncoder(idsPair[1]);
+            float[] uncondEmb = runTextEncoder(idsPair[0]);
+
+            int latentH = height / 8;
+            int latentW = width / 8;
+            float[] latent = new float[LATENT_CHANNELS * latentH * latentW];
+            for (int i = 0; i < latent.length; i++) {
+                latent[i] = (float) random.nextGaussian();
+            }
+
+            long[] timesteps = new long[numInferenceSteps];
+            int denom = Math.max(1, numInferenceSteps - 1);
+            for (int i = 0; i < numInferenceSteps; i++) {
+                timesteps[i] = Math.round((TRAIN_TIMESTEPS - 1) * (1.0d - (double) i / denom));
+            }
+
+            for (int i = 0; i < numInferenceSteps; i++) {
+                long t = timesteps[i];
+                long tPrev = i + 1 < numInferenceSteps ? timesteps[i + 1] : 0L;
+                float[] epsUncond = predictNoise(latent, t, uncondEmb);
+                float[] epsCond = predictNoise(latent, t, condEmb);
+                for (int k = 0; k < latent.length; k++) {
+                    float eps = epsUncond[k] + (float) guidanceScale * (epsCond[k] - epsUncond[k]);
+                    double acpT = alphasCumprod[(int) t];
+                    double acpPrev = alphasCumprod[(int) tPrev];
+                    float predX0 = (float) ((latent[k] - eps * Math.sqrt(Math.max(0d, 1d - acpT))) / Math.sqrt(acpT));
+                    latent[k] = (float) (predX0 * Math.sqrt(acpPrev)
+                            + eps * Math.sqrt(Math.max(0d, 1d - acpPrev)));
+                }
+                if (log.isDebugEnabled() && (i % 5 == 0 || i == numInferenceSteps - 1)) {
+                    log.debug("[Small SD v0][编排] 去噪 {}/{} t={} -> t'={}", i + 1, numInferenceSteps, t, tPrev);
                 }
             }
-        } catch (Exception e) {
-            log.debug("[Small SD v0][编排] 主模型路径不可用: {}", e.getMessage());
+
+            return encodePng(decodeVae(latent));
+        } catch (OrtException | IOException e) {
+            throw new RuntimeException("Small SD 推理失败: " + e.getMessage(), e);
         }
-        Path fallback = com.chua.deeplearning.support.engine.ModelRegistry
-                .resolveConfiguredPath("vision/detection/small-sd");
-        if (fallback != null) {
-            return fallback;
-        }
-        throw new IOException("无法定位 small-sd 权重目录，请确认模型已下载或配置 "
-                + "deeplearning.model.root-dir");
     }
 
     /**
-     * 确保目标文件存在，缺失时从远程下载（自动切换 hf-mirror.com 镜像）。
+     * 懒加载：确保权重就绪并打开三个会话（GPU 失败整体降级 CPU）。
      *
-     * @param target 本地目标路径
-     * @param remote 远程地址
-     * @return 就绪的本地文件
-     * @throws IOException 下载失败且本地缺失
+     * @throws OrtException 会话异常
+     * @throws IOException  权重缺失
      */
-    private Path ensureFile(Path target, String remote) throws IOException {
+    private void ensureInitialized() throws OrtException, IOException {
+        if (initialized) {
+            return;
+        }
+        synchronized (lock) {
+            if (initialized) {
+                return;
+            }
+            Path base = resolveBaseDir();
+            Path tePath = base.resolve("text_encoder").resolve("model.onnx");
+            // 主模型文件可能以扁平缓存形态存在（registry 下载产物），迁移为结构化布局
+            migrateFlatPrimary(base, tePath);
+            ensureFile(tePath, HF_BASE + "/text_encoder/model.onnx");
+            ensureFile(base.resolve("unet").resolve("model.onnx"), HF_BASE + "/unet/model.onnx");
+            // UNet ONNX 引用的外部数据文件（>2GB 导出拆分），必须同目录
+            ensureFile(base.resolve("unet").resolve("weights.pb"), HF_BASE + "/unet/weights.pb");
+            ensureFile(base.resolve("vae_decoder").resolve("model.onnx"), HF_BASE + "/vae_decoder/model.onnx");
+            ensureTokenizer(base);
+
+            boolean wantGpu = !forceCpu && DeviceSelector.resolve(deviceSetting()).equals("gpu");
+            try {
+                openSessions(base, wantGpu);
+                if (wantGpu) {
+                    log.info("[Small SD v0][编排] 设备: GPU (CUDA EP)");
+                }
+            } catch (OrtException | UnsatisfiedLinkError e) {
+                if (!wantGpu) {
+                    throw e;
+                }
+                log.warn("[Small SD v0][编排] GPU 会话创建失败，自动降级 CPU: {}", e.getMessage());
+                forceCpu = true;
+                closeSessions();
+                openSessions(base, false);
+            }
+            initialized = true;
+        }
+    }
+
+    /**
+     * 当前生效的设备设置来源。
+     *
+     * @return 设备设置字符串
+     */
+    private String deviceSetting() {
+        return System.getProperty("deeplearning.device");
+    }
+
+    /**
+     * 打开三个会话。
+     *
+     * @param base   权重目录
+     * @param useGpu 是否启用 CUDA EP
+     * @throws OrtException 会话创建失败
+     */
+    private void openSessions(Path base, boolean useGpu) throws OrtException, IOException {
+        textEncoderSession = openSession(base.resolve("text_encoder").resolve("model.onnx"), useGpu);
+        textEncoderOutput = pickTextEncoderOutput(textEncoderSession);
+        unetSession = openSession(base.resolve("unet").resolve("model.onnx"), useGpu);
+        vaeSession = openSession(base.resolve("vae_decoder").resolve("model.onnx"), useGpu);
+        log.info("[Small SD v0][编排] 三个会话已打开 ({})", useGpu ? "GPU" : "CPU");
+    }
+
+    /**
+     * 创建单个会话。
+     *
+     * @param path   ONNX 路径
+     * @param useGpu 是否 CUDA
+     * @return 会话
+     * @throws OrtException 创建失败
+     */
+    private OrtSession openSession(Path path, boolean useGpu) throws OrtException {
+        OrtSession.SessionOptions opt = new OrtSession.SessionOptions();
+        if (useGpu) {
+            opt.addCUDA(0);
+        }
+        return env.createSession(path.toString(), opt);
+    }
+
+    /**
+     * 选择文本编码器的 fp32 输出（避开 uint32 类型的附加输出）。
+     *
+     * @param session 文本编码会话
+     * @return 输出名
+     */
+    private String pickTextEncoderOutput(OrtSession session) {
+        Set<String> names = session.getOutputNames();
+        for (String n : names) {
+            if (n.toLowerCase().contains("hidden")) {
+                return n;
+            }
+        }
+        return names.iterator().next();
+    }
+
+    /**
+     * 迁移 registry 扁平缓存产物到结构化布局（幂等）。
+     *
+     * @param base   权重基准目录
+     * @param tePath 文本编码器目标路径
+     * @throws IOException 移动失败
+     */
+    private void migrateFlatPrimary(Path base, Path tePath) throws IOException {
+        Path flat = base.resolve(MODEL_ID).resolve("model.onnx");
+        if (Files.exists(flat) && !Files.exists(tePath)) {
+            Files.createDirectories(tePath.getParent());
+            Files.move(flat, tePath, StandardCopyOption.REPLACE_EXISTING);
+            log.info("[Small SD v0][编排] 已迁移主模型缓存: {} -> {}", flat, tePath);
+        }
+    }
+
+    /**
+     * 解析权重基准目录（registry 缓存根或配置路径）。
+     *
+     * @return 基准目录
+     */
+    private Path resolveBaseDir() {
+        Path cacheRoot = java.nio.file.Paths.get(
+                System.getProperty("java.io.tmpdir"),
+                "chua-dl-models", "download");
+        Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd");
+        return configured != null ? configured : cacheRoot;
+    }
+
+    /**
+     * 确保目标文件存在，缺失时下载（镜像优先，带超时）。
+     *
+     * @param target 目标路径
+     * @param remote 远程地址
+     * @throws IOException 失败
+     */
+    private void ensureFile(Path target, String remote) throws IOException {
         if (Files.exists(target) && Files.size(target) > 0) {
-            return target;
+            return;
         }
         Files.createDirectories(target.getParent());
         String mirror = remote.replace("huggingface.co", "hf-mirror.com");
         Exception last = null;
-        for (String url : new String[]{remote, mirror}) {
+        for (String url : new String[]{mirror, remote}) {
             try {
                 log.info("[Small SD v0][编排] 下载权重: {} -> {}", url, target);
                 Path tmp = target.resolveSibling(target.getFileName() + ".part");
-                try (var in = new URL(url).openStream()) {
+                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                conn.setConnectTimeout(15_000);
+                conn.setReadTimeout(180_000);
+                conn.setInstanceFollowRedirects(true);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+                int code = conn.getResponseCode();
+                if (code != 200) {
+                    conn.disconnect();
+                    throw new IOException("HTTP " + code);
+                }
+                try (var in = conn.getInputStream()) {
                     Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+                } finally {
+                    conn.disconnect();
                 }
                 Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
-                return target;
+                return;
             } catch (Exception e) {
                 last = e;
                 log.warn("[Small SD v0][编排] 下载失败（{}）: {}", url, e.getMessage());
             }
         }
-        throw new IOException("权重文件缺失且下载失败: " + target + "（可手动从 " + remote + " 下载放置）", last);
+        throw new IOException("权重缺失且下载失败: " + target, last);
     }
 
     /**
      * 确保 tokenizer.json 就绪。
      *
-     * @param basePath 权重基准目录
-     * @throws IOException 下载失败且本地缺失
+     * @param base 基准目录
+     * @throws IOException 失败
      */
-    private void ensureTokenizer(Path basePath) throws IOException {
-        if (Files.exists(basePath.resolve("tokenizer.json"))) {
+    private void ensureTokenizer(Path base) throws IOException {
+        if (Files.exists(base.resolve("tokenizer.json"))) {
             return;
         }
-        ensureFile(basePath.resolve("tokenizer.json"), TOKENIZER_URL);
+        ensureFile(base.resolve("tokenizer.json"), TOKENIZER_URL);
     }
 
     /**
-     * 按全局设备策略加载模型：auto 探测可用 GPU 时走 CUDA EP，失败自动降级 CPU。
+     * 编码正/空负提示词对。
      *
-     * @param path       ONNX 路径
-     * @param translator 配套 Translator
-     * @param inputType  输入类型
-     * @param outputType 输出类型
-     * @param <I>        输入泛型
-     * @param <O>        输出泛型
-     * @return ZooModel
-     * @throws IOException 加载失败（含降级后仍失败）
-     */
-    private static <I, O> ZooModel<I, O> loadWithDeviceFallback(Path path, Translator<I, O> translator,
-                                                                Class<I> inputType, Class<O> outputType)
-            throws IOException {
-        boolean wantGpu = com.chua.deeplearning.support.engine.DeviceSelector.resolve(null).equals("gpu");
-        try {
-            return buildCriteria(path, translator, inputType, outputType,
-                    wantGpu ? ai.djl.Device.gpu() : ai.djl.Device.cpu());
-        } catch (IOException e) {
-            if (!wantGpu) {
-                throw e;
-            }
-            log.warn("[Small SD v0][编排] GPU 加载失败，自动降级 CPU: {}", e.getMessage());
-            return buildCriteria(path, translator, inputType, outputType, ai.djl.Device.cpu());
-        }
-    }
-
-    /**
-     * 构建并加载指定设备的 Criteria。
-     *
-     * @param path       ONNX 路径
-     * @param translator 配套 Translator
-     * @param inputType  输入类型
-     * @param outputType 输出类型
-     * @param device     目标设备
-     * @param <I>        输入泛型
-     * @param <O>        输出泛型
-     * @return ZooModel
-     * @throws IOException 加载失败
-     */
-    private static <I, O> ZooModel<I, O> buildCriteria(Path path, Translator<I, O> translator,
-                                                       Class<I> inputType, Class<O> outputType,
-                                                       ai.djl.Device device) throws IOException {
-        Criteria<I, O> criteria = Criteria.builder()
-                .setTypes(inputType, outputType)
-                .optModelPath(path)
-                .optEngine("OnnxRuntime")
-                .optDevice(device)
-                .optTranslator(translator)
-                .build();
-        return loadQuietly(criteria);
-    }
-
-    /**
-     * 加载 Criteria 并将受检异常统一转译为 IOException。
-     *
-     * @param criteria DJL Criteria
-     * @param <I>      输入类型
-     * @param <O>      输出类型
-     * @return ZooModel
-     * @throws IOException 加载失败
-     */
-    private static <I, O> ZooModel<I, O> loadQuietly(Criteria<I, O> criteria) throws IOException {
-        try {
-            return criteria.loadModel();
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IOException("模型加载失败: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 文本编码阶段输入：同时编码正向与空负向提示词并堆叠为 batch=2。
-     *
-     * @param ctx    推理上下文
      * @param prompt 正向提示词
-     * @return input_ids [2,77]
-     */
-    @Override
-    public NDList processInput(ai.djl.translate.TranslatorContext ctx, String prompt) throws Exception {
-        var manager = ctx.getNDManager();
-        long[] condIds = tokenize(prompt);
-        long[] uncondIds = tokenize("");
-
-        var ids = manager.create(new long[][]{condIds, uncondIds});
-        ids.setName("input_ids");
-        return new NDList(ids);
-    }
-
-    /**
-     * 单条提示词定长分词（截断/填充到 77）。
-     *
-     * @param text 提示词
-     * @return 定长 token ID 数组
+     * @return [无条件ids, 条件ids]
      * @throws IOException 分词失败
      */
+    private long[][] tokenizePair(String prompt) throws IOException {
+        return new long[][]{tokenize(""), tokenize(prompt)};
+    }
+
+    /**
+     * 定长分词（截断/填充到 77）。
+     *
+     * @param text 文本
+     * @return token ids
+     * @throws IOException 失败
+     */
     private long[] tokenize(String text) throws IOException {
-        Path tokenizerPath = locateTokenizer();
-        try (var tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
-                .optTokenizerPath(tokenizerPath)
-                .optTruncation(true)
-                .build()) {
-            var encoding = tokenizer.encode(text == null ? "" : text);
-            long[] ids = encoding.getIds();
-            if (ids.length > MAX_SEQUENCE_LENGTH) {
-                long[] clipped = new long[MAX_SEQUENCE_LENGTH];
-                System.arraycopy(ids, 0, clipped, 0, MAX_SEQUENCE_LENGTH);
-                return clipped;
+        if (tokenizer == null) {
+            synchronized (lock) {
+                if (tokenizer == null) {
+                    Path p = weightDir().resolve("tokenizer.json");
+                    tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
+                            .optTokenizerPath(p)
+                            .optTruncation(true)
+                            .build();
+                }
             }
-            long[] padded = new long[MAX_SEQUENCE_LENGTH];
-            System.arraycopy(ids, 0, padded, 0, ids.length);
-            java.util.Arrays.fill(padded, ids.length, MAX_SEQUENCE_LENGTH, PAD_TOKEN_ID);
-            return padded;
         }
+        long[] ids = tokenizer.encode(text == null ? "" : text).getIds();
+        long[] fixed = new long[MAX_SEQUENCE_LENGTH];
+        System.arraycopy(ids, 0, fixed, 0, Math.min(ids.length, MAX_SEQUENCE_LENGTH));
+        java.util.Arrays.fill(fixed, Math.min(ids.length, MAX_SEQUENCE_LENGTH), MAX_SEQUENCE_LENGTH, PAD_TOKEN_ID);
+        return fixed;
     }
 
     /**
-     * 定位 tokenizer.json（优先权重基准目录，其次注册表配置路径）。
+     * 权重目录（延迟定位）。
      *
-     * @return tokenizer 路径
-     * @throws IOException 找不到文件
+     * @return 目录
      */
-    private Path locateTokenizer() throws IOException {
-        Path base = weightBaseDir;
-        if (base != null && Files.exists(base.resolve("tokenizer.json"))) {
-            return base.resolve("tokenizer.json");
-        }
-        Path configured = com.chua.deeplearning.support.engine.ModelRegistry
-                .resolveConfiguredPath("vision/detection/small-sd/tokenizer.json");
+    private Path weightDir() {
+        Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd/tokenizer.json");
         if (configured != null) {
-            return configured;
+            return configured.getParent();
         }
-        throw new IOException("未找到 tokenizer.json（预期位于 small-sd 权重根目录: " + base + "）");
-    }
-        throw new IOException("未找到 tokenizer.json（预期位于 small-sd 权重根目录）");
+        return resolveBaseDir();
     }
 
     /**
-     * 去噪与解码阶段：文本嵌入 → CFG 引导 DDIM 循环 → VAE 出图。
+     * 文本编码前向（仅请求 fp32 hidden state 输出）。
      *
-     * @param ctx        推理上下文
-     * @param embeddings 文本编码输出 [2,77,768]（0=无条件, 1=条件）
-     * @return 生成图像
+     * @param ids token ids（长度 77）
+     * @return 嵌入 [77*768]
+     * @throws OrtException 推理失败
      */
-    @Override
-    public Image processOutput(ai.djl.translate.TranslatorContext ctx, NDList embeddings) throws Exception {
-        var manager = ctx.getNDManager();
-        NDArray allEmb = embeddings.singletonOrThrow();
+    private float[] runTextEncoder(long[] ids) throws OrtException {
+        int[][] ids32 = new int[1][ids.length];
+        for (int i = 0; i < ids.length; i++) {
+            ids32[0][i] = (int) ids[i];
+        }
+        try (OnnxTensor t = OnnxTensor.createTensor(env, ids32);
+             OrtSession.Result result = textEncoderSession.run(
+                     java.util.Map.of("input_ids", t),
+                     Set.of(textEncoderOutput))) {
+            float[][][] out = (float[][][]) result.get(0).getValue();
+            float[] flat = new float[out[0].length * out[0][0].length];
+            int k = 0;
+            for (float[] row : out[0]) {
+                for (float v : row) {
+                    flat[k++] = v;
+                }
+            }
+            return flat;
+        }
+    }
 
-        // batch=2 沿轴 0 拆分：0=无条件（空提示词），1=条件（正向提示词）。
-        // 通过堆内存拷贝拆分，避免依赖特定 DJL 版本的切片 API。
-        float[] all = allEmb.toFloatArray();
-        int perBatch = all.length / 2;
-        float[] uncondArr = new float[perBatch];
-        float[] condArr = new float[perBatch];
-        System.arraycopy(all, 0, uncondArr, 0, perBatch);
-        System.arraycopy(all, perBatch, condArr, 0, perBatch);
-        Shape embShape = new Shape(1, MAX_SEQUENCE_LENGTH, perBatch / MAX_SEQUENCE_LENGTH);
-        NDArray uncondEmb = manager.create(uncondArr, embShape);
-        NDArray condEmb = manager.create(condArr, embShape);
-
-        // 初始噪声 latent [1,4,H/8,W/8]
+    /**
+     * 单次 UNet 噪声预测。
+     *
+     * @param latent 当前 latent
+     * @param t      时间步
+     * @param emb    文本嵌入
+     * @return 噪声预测
+     * @throws OrtException 推理失败
+     */
+    private float[] predictNoise(float[] latent, long t, float[] emb) throws OrtException {
         int latentH = height / 8;
         int latentW = width / 8;
-        float[] noise = new float[LATENT_CHANNELS * latentH * latentW];
-        for (int i = 0; i < noise.length; i++) {
-            noise[i] = (float) random.nextGaussian();
-        }
-        NDArray latent = manager.create(noise, new Shape(1, LATENT_CHANNELS, latentH, latentW));
-
-        // 均匀时间步：999 → 0（两端包含，与 diffusers linspace 一致）
-        long[] timestepArr = new long[numInferenceSteps];
-        int denom = Math.max(1, numInferenceSteps - 1);
-        for (int i = 0; i < numInferenceSteps; i++) {
-            timestepArr[i] = Math.round((TRAIN_TIMESTEPS - 1) * (1.0d - (double) i / denom));
-        }
-
-        for (int i = 0; i < numInferenceSteps; i++) {
-            long t = timestepArr[i];
-            long tPrev = i + 1 < numInferenceSteps ? timestepArr[i + 1] : 0L;
-
-            NDArray epsUncond = predictNoise(manager, latent, t, uncondEmb);
-            NDArray epsCond = predictNoise(manager, latent, t, condEmb);
-            NDArray eps = epsUncond.add(epsCond.sub(epsUncond).mul(guidanceScale));
-
-            // DDIM 确定性更新（η=0）
-            double acpT = alphasCumprod[(int) t];
-            double acpPrev = alphasCumprod[(int) tPrev];
-            NDArray predX0 = latent.sub(eps.mul((float) Math.sqrt(Math.max(0d, 1d - acpT))))
-                    .div((float) Math.sqrt(acpT));
-            latent = predX0.mul((float) Math.sqrt(acpPrev))
-                    .add(eps.mul((float) Math.sqrt(Math.max(0d, 1d - acpPrev))));
-
-            if (log.isDebugEnabled() && (i % 5 == 0 || i == numInferenceSteps - 1)) {
-                log.debug("[Small SD v0][编排] 去噪 {}/{} t={} -> t'={}", i + 1, numInferenceSteps, t, tPrev);
-            }
-        }
-
-        // VAE 解码（translator 内部处理 ÷0.18215 与反归一化）
-        try (var predictor = vaeModel.newPredictor()) {
-            return predictor.predict(new NDList(latent));
-        }
-    }
-
-    /**
-     * 单次 UNet 前向预测噪声。
-     *
-     * <p>时间步优先以 FLOAT32 传入（diffusers 官方 ONNX 导出约定），
-     * 模型要求 INT64 时自动回退重试。</p>
-     *
-     * @param manager    NDManager
-     * @param latent     当前 latent [1,4,H/8,W/8]
-     * @param timestep   时间步
-     * @param textEmbeds 文本嵌入 [1,77,768]
-     * @return 噪声预测 [1,4,H/8,W/8]
-     * @throws Exception 推理失败
-     */
-    private NDArray predictNoise(NDManager manager, NDArray latent,
-                                 long timestep, NDArray textEmbeds) throws Exception {
-        NDArray tFloat = manager.create(new float[]{(float) timestep});
-        NDArray tInt = manager.create(new long[]{timestep});
-        for (NDArray t : new NDArray[]{tFloat, tInt}) {
-            NDList input = new NDList(latent.duplicate(), t.duplicate(), textEmbeds.duplicate());
-            try (var predictor = unetModel.newPredictor()) {
-                NDList out = predictor.predict(input);
-                return out.singletonOrThrow();
-            } catch (Exception e) {
-                if (t == tInt) {
-                    throw e;
+        float[][][][] sample = new float[1][LATENT_CHANNELS][latentH][latentW];
+        int idx = 0;
+        for (int c = 0; c < LATENT_CHANNELS; c++) {
+            for (int h = 0; h < latentH; h++) {
+                for (int w = 0; w < latentW; w++) {
+                    sample[0][c][h][w] = latent[idx++];
                 }
-                log.info("[Small SD v0][编排] timestep=FLOAT32 不被接受，回退 INT64: {}", e.getMessage());
-            } finally {
-                input.close();
             }
         }
-        throw new IllegalStateException("UNet 前向失败");
+        float[][][][] hidden = new float[1][1][MAX_SEQUENCE_LENGTH][emb.length / MAX_SEQUENCE_LENGTH];
+        int dim = emb.length / MAX_SEQUENCE_LENGTH;
+        for (int i = 0; i < MAX_SEQUENCE_LENGTH; i++) {
+            System.arraycopy(emb, i * dim, hidden[0][0][i], 0, dim);
+        }
+
+        try (OnnxTensor x = OnnxTensor.createTensor(env, sample);
+             OnnxTensor tF = OnnxTensor.createTensor(env, new float[]{(float) t});
+             OnnxTensor e = OnnxTensor.createTensor(env, hidden);
+             OrtSession.Result r = unetSession.run(java.util.Map.of(
+                     "sample", x, "timestep", tF, "encoder_hidden_states", e))) {
+            float[][][][] out = (float[][][][]) r.get(0).getValue();
+            float[] flat = new float[LATENT_CHANNELS * latentH * latentW];
+            int k = 0;
+            for (int c = 0; c < LATENT_CHANNELS; c++) {
+                for (int h = 0; h < latentH; h++) {
+                    for (int w = 0; w < latentW; w++) {
+                        flat[k++] = out[0][c][h][w];
+                    }
+                }
+            }
+            return flat;
+        } catch (OrtException ex) {
+            // FLOAT32 时间步不被接受时回退 INT64 重试一次
+            try (OnnxTensor x = OnnxTensor.createTensor(env, sample);
+                 OnnxTensor tI = OnnxTensor.createTensor(env, new long[]{t});
+                 OnnxTensor e = OnnxTensor.createTensor(env, hidden);
+                 OrtSession.Result r = unetSession.run(java.util.Map.of(
+                         "sample", x, "timestep", tI, "encoder_hidden_states", e))) {
+                float[][][][] out = (float[][][][]) r.get(0).getValue();
+                float[] flat = new float[LATENT_CHANNELS * latentH * latentW];
+                int k = 0;
+                for (int c = 0; c < LATENT_CHANNELS; c++) {
+                    for (int h = 0; h < latentH; h++) {
+                        for (int w = 0; w < latentW; w++) {
+                            flat[k++] = out[0][c][h][w];
+                        }
+                    }
+                }
+                return flat;
+            }
+        }
     }
 
     /**
-     * 释放子模型资源。
-     */
-    public void close() {
-        closeQuietly(unetModel);
-        closeQuietly(vaeModel);
-        unetModel = null;
-        vaeModel = null;
-    }
-
-    /**
-     * 静默关闭可关闭对象。
+     * VAE 解码 latent 为 RGB 像素。
      *
-     * @param closeable 目标
+     * @param latent 最终 latent
+     * @return RGB 像素（行优先）
+     * @throws OrtException 推理失败
      */
-    private static void closeQuietly(AutoCloseable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (Exception ignored) {
-                // 忽略关闭异常
+    private int[] decodeVae(float[] latent) throws OrtException {
+        int latentH = height / 8;
+        int latentW = width / 8;
+        float[][][][] sample = new float[1][LATENT_CHANNELS][latentH][latentW];
+        int idx = 0;
+        for (int c = 0; c < LATENT_CHANNELS; c++) {
+            for (int h = 0; h < latentH; h++) {
+                for (int w = 0; w < latentW; w++) {
+                    sample[0][c][h][w] = latent[idx++] / VAE_SCALE_FACTOR;
+                }
             }
         }
+        try (OnnxTensor t = OnnxTensor.createTensor(env, sample);
+             OrtSession.Result r = vaeSession.run(java.util.Map.of("latent_sample", t))) {
+            float[][][][] out = (float[][][][]) r.get(0).getValue();
+            int imgH = out[0][0].length;
+            int imgW = out[0][0][0].length;
+            int[] rgb = new int[imgH * imgW];
+            for (int h = 0; h < imgH; h++) {
+                for (int w = 0; w < imgW; w++) {
+                    float rr = out[0][0][h][w];
+                    float gg = out[0][1][h][w];
+                    float bb = out[0][2][h][w];
+                    int ri = clamp255((rr + 1f) * 127.5f);
+                    int gi = clamp255((gg + 1f) * 127.5f);
+                    int bi = clamp255((bb + 1f) * 127.5f);
+                    rgb[h * imgW + w] = (ri << 16) | (gi << 8) | bi;
+                }
+            }
+            return rgb;
+        }
+    }
+
+    /**
+     * 数值截断到 [0,255]。
+     *
+     * @param v 原值
+     * @return 整数像素值
+     */
+    private static int clamp255(float v) {
+        return Math.max(0, Math.min(255, Math.round(v)));
+    }
+
+    /**
+     * 像素编码为 PNG 字节。
+     *
+     * @param rgb 行优先像素
+     * @return PNG bytes
+     * @throws IOException 编码失败
+     */
+    private byte[] encodePng(int[] rgb) throws IOException {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        image.setRGB(0, 0, width, height, rgb, 0, width);
+        try (var bos = new java.io.ByteArrayOutputStream()) {
+            ImageIO.write(image, "png", bos);
+            return bos.toByteArray();
+        }
+    }
+
+    /**
+     * 关闭全部会话。
+     */
+    @Override
+    public void close() {
+        closeSessions();
+    }
+
+    /**
+     * 关闭会话（静默）。
+     */
+    private void closeSessions() {
+        for (OrtSession s : new OrtSession[]{textEncoderSession, unetSession, vaeSession}) {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (Exception ignored) {
+                    // 忽略
+                }
+            }
+        }
+        textEncoderSession = null;
+        unetSession = null;
+        vaeSession = null;
+        initialized = false;
     }
 }
