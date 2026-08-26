@@ -11,7 +11,6 @@ package com.chua.crypto.support;
  *   <li>{@link #PERSISTENT} — 持久：载体长期保留，可反复加载解密，适用于长期数据加密</li>
  * </ul>
  *
- * <p>注意：加密狗(U盘)为物理持久载体，不支持 {@link #ONE_TIME}。
  *
  * @author CH
  * @since 2026-08-26

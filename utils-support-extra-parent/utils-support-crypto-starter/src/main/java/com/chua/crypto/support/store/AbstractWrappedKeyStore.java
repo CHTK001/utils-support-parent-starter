@@ -11,6 +11,9 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Set;
 
 /**
  * 封装型密钥载体抽象基类
@@ -29,7 +32,7 @@ import java.nio.file.StandardCopyOption;
 public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
 
     /**
-     * 获取载体魔数（密钥文件 CHKF / 加密狗 CHKD）
+     * 获取载体魔数（密钥文件 CHKF）
      *
      * @return 4 字节魔数
      */
@@ -44,7 +47,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
     protected abstract Path carrierPath(CryptoSetting setting);
 
     /**
-     * 载体是否允许被销毁擦除（物理介质如加密狗返回 false）
+     * 载体是否允许被销毁擦除（预留扩展位，当前恒为 true）
      *
      * @return true 表示允许擦除删除
      */
@@ -62,10 +65,26 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
             KeyFileResolver.ensureParent(target);
             byte[] out = KeyBlobCodec.encode(magic(), material, setting);
             writeAtomically(target, out);
+            restrictPermissions(target);
         } catch (CryptoException e) {
             throw e;
         } catch (Exception e) {
             throw new CryptoException("密钥载体写入失败: " + target.getFileName(), e);
+        }
+    }
+
+    /**
+     * 收紧载体文件权限：POSIX 文件系统设为仅属主读写；NTFS 等不支持 POSIX 权限的
+     * 文件系统跳过（依赖目录 ACL），失败不影响写入结果
+     *
+     * @param target 载体文件
+     */
+    private static void restrictPermissions(Path target) {
+        try {
+            Set<PosixFilePermission> ownerOnly = PosixFilePermissions.fromString("rw-------");
+            Files.setPosixFilePermissions(target, ownerOnly);
+        } catch (UnsupportedOperationException | IOException ignored) {
+            // Windows/FAT 等无 POSIX 权限语义的文件系统，依赖部署目录 ACL
         }
     }
 

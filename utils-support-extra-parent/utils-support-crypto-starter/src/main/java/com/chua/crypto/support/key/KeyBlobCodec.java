@@ -10,13 +10,13 @@ import java.util.Arrays;
 /**
  * 密钥封装体编解码器（统一二进制格式）
  *
- * <p>所有密钥载体（密钥文件、U 盘加密狗、程序化打包内嵌密钥块）共用同一封装格式：
+ * <p>所有密钥载体（密钥文件、打包内嵌密钥块）共用同一封装格式：
  * <pre>
  * [魔数4B][版本1B][策略标志1B][密钥ID8B][盐16B][IV12B][封装主密钥N字节][HMAC-SHA256 32B]
  * </pre>
  *
  * <p>主密钥以 KEK(AES-256-GCM) 封装，明文永不落盘；尾部 HMAC 覆盖除自身外全部字节防篡改。
- * 文件载体、加密狗载体与本模块打包器({@code pack.JarEncryptor})均委托本类完成编解码。
+ * 文件载体与本模块打包器({@code pack.JarEncryptor})均委托本类完成编解码。
  *
  * @author CH
  * @since 2026-08-26
@@ -73,7 +73,7 @@ public final class KeyBlobCodec {
     /**
      * 将主密钥材料按当前策略封装为二进制密文块
      *
-     * @param magic    4 字节魔数（如 CHKF/CHKD）
+     * @param magic    4 字节魔数（如 CHKF）
      * @param material 主密钥材料
      * @param setting  加密配置（策略/口令/服务器标识）
      * @return 封装后的完整二进制块

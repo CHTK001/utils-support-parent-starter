@@ -12,7 +12,6 @@ import com.chua.crypto.support.key.SecretKeyMaterial;
  * <p>内置实现：
  * <ul>
  *   <li>{@link FileSecretKeyStore}（别名 {@code file}）— 本地密钥文件</li>
- *   <li>{@link DongleSecretKeyStore}（别名 {@code dongle}）— U 盘加密狗文件</li>
  * </ul>
  *
  * <p>实现通过 {@code META-INF/extensions/com.chua.crypto.support.store.SecretKeyStore} 注册，

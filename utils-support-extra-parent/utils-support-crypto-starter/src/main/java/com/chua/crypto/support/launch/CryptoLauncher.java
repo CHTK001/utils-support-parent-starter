@@ -164,6 +164,7 @@ public final class CryptoLauncher {
 
             byte[] master = resolveMaster(jar);
             Path tempDir = Files.createTempDirectory("chua-crypto-run");
+            harden(tempDir);
             registerCleanup(tempDir);
 
             URLClassLoader appLoader = Boolean.parseBoolean(System.getProperty(PROP_LAZY, "false"))
@@ -178,6 +179,24 @@ public final class CryptoLauncher {
             } catch (InvocationTargetException e) {
                 throw e.getCause() != null ? e.getCause() : e;
             }
+        }
+    }
+
+    /**
+     * 收紧目录权限（best-effort）：POSIX 文件系统设为仅属主读写执行；
+     * 不支持 POSIX 语义的文件系统跳过，依赖部署环境 ACL
+     *
+     * @param dir 目标目录
+     */
+    private static void harden(Path dir) {
+        try {
+            java.nio.file.attribute.PosixFilePermission[] perms = {
+                    java.nio.file.attribute.PosixFilePermission.OWNER_READ,
+                    java.nio.file.attribute.PosixFilePermission.OWNER_WRITE,
+                    java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE};
+            Files.setPosixFilePermissions(dir, new java.util.HashSet<>(java.util.Arrays.asList(perms)));
+        } catch (UnsupportedOperationException | IOException ignored) {
+            // Windows/FAT 等无 POSIX 权限语义的文件系统
         }
     }
 

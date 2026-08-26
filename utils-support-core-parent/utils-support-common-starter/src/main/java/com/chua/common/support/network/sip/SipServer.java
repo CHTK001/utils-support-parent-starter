@@ -103,10 +103,19 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     private final String token;
 
+
+
     /**
      * 底层 TCP 服务器（流式模式，一连接一虚拟线程）
      */
     private JdkTcpServer tcpServer;
+
+    /**
+     * 连接级限流器（认证限流 + 帧率限制）
+     */
+    private final SipRateLimiter rateLimiter;
+
+    private volatile boolean running = true;
 
     /**
      * 使用默认配置创建 SIP 服务器。
@@ -887,13 +896,7 @@ onSignalClosed(clientId);
         /**
          * 是否仍在运行
          */
-        
-
-    /**
-     * 速率限制器（认证 + 帧速率）
-     */
-    private final SipRateLimiter rateLimiter;
-private volatile boolean running = true;
+        private volatile boolean running = true;
 
         private MuxServerConn(String key, String clientId, String role, InputStream in, OutputStream out) {
             this.key = key;
