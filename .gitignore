@@ -180,3 +180,8 @@ dependency-reduced-pom.xml
 *.stdout
 std_probe2*
 模型测试报告.md
+
+*.gguf
+
+**/models/**/*.gguf
+*.gguf
