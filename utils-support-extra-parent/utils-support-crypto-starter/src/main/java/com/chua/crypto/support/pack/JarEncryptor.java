@@ -65,6 +65,11 @@ public class JarEncryptor {
     public static final String ATTR_ORIGINAL_MAIN = CryptoLauncher.ATTR_ORIGINAL_MAIN;
 
     /**
+     * SpringBoot 真实主类属性名
+     */
+    public static final String START_CLASS_ATTR = "Start-Class";
+
+    /**
      * 引导器主类名
      */
     private static final String LAUNCHER_CLASS = CryptoLauncher.class.getName();
@@ -282,7 +287,9 @@ public class JarEncryptor {
         ClassLoader classLoader = JarEncryptor.class.getClassLoader();
         for (Class<?> type : List.of(CryptoLauncher.class,
                 com.chua.crypto.support.launch.EncryptedAppClassLoader.class,
-                com.chua.crypto.support.launch.PayloadCipher.class)) {
+                com.chua.crypto.support.launch.PayloadCipher.class,
+                com.chua.crypto.support.launch.KeyShard.class,
+                com.chua.crypto.support.launch.SelfDefense.class)) {
             writeClassHierarchy(out, classLoader, type);
         }
     }
@@ -383,6 +390,13 @@ public class JarEncryptor {
         Manifest patched = new Manifest(original);
         Attributes attrs = patched.getMainAttributes();
         String originalMain = attrs.getValue(Attributes.Name.MAIN_CLASS);
+        // SpringBoot 发行包的 Main-Class 是加载器(JarLauncher)，真实主类在 Start-Class
+        if (originalMain != null && originalMain.startsWith("org.springframework.boot.loader.")) {
+            String startClass = attrs.getValue(START_CLASS_ATTR);
+            if (startClass != null && !startClass.isBlank()) {
+                originalMain = startClass;
+            }
+        }
         attrs.putValue(ATTR_ORIGINAL_MAIN, originalMain);
         attrs.putValue("Main-Class", LAUNCHER_CLASS);
         attrs.putValue("Chua-Crypto-Pack", "1");
