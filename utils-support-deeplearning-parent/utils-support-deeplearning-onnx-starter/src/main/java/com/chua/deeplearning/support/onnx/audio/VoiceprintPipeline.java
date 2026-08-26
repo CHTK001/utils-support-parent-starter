@@ -16,6 +16,10 @@ import java.util.List;
  *
  * <p>配置、入库、检索一气呵成：</p>
  *
+ * <p><b>模型零配置</b>：声纹模型 CAM++（26MB）内嵌于
+ * utils-support-models-onnx-sensevoice jar，首次调用自动解压到缓存目录，
+ * 无需手动下载；{@code vectorDb} 仅决定<b>向量存储后端</b>。</p>
+ *
  * <pre>{@code
  * List<VoiceprintPipeline.Match> hits = VoiceprintPipeline.create()
  *         .storageDir(Path.of("D:/voiceprints"))   // 可选：持久化目录
@@ -125,9 +129,9 @@ public class VoiceprintPipeline implements AutoCloseable {
      * 按 SPI 提供方名称创建向量存储（memory/jvector/milvus...）。
      *
      * <pre>{@code
-     * pipeline.storage("memory", null);                          // 内存库（无必填）
-     * pipeline.storage("jvector", null);                         // 本地磁盘 ANN 索引（无必填）
-     * pipeline.storage("milvus", Map.of(                         // 外部向量数据库
+     * pipeline.vectorDb("memory", null);                          // 内存库（无必填）
+     * pipeline.vectorDb("jvector", null);                         // 本地磁盘 ANN 索引（无必填）
+     * pipeline.vectorDb("milvus", Map.of(                         // 外部向量数据库
      *         "host", "127.0.0.1", "port", 19530,
      *         "collection", "voiceprint"));                      // token 可选
      * }</pre>
@@ -191,7 +195,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         if (!StringUtils.isBlank(collection)) {
             builder.collection(collection);
         }
-        return storage(builder.build());
+        return vectorDb(builder.build());
     }
 
     /**

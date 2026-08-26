@@ -171,7 +171,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * 默认构造（512×512，20 步，引导 7.5）。
      */
     public SmallStableDiffusionCombinedTranslator() {
-        this(512, 512,
+        this(Integer.getInteger("small.sd.width", 512),
+                Integer.getInteger("small.sd.height", 512),
                 Integer.getInteger("small.sd.steps", 20),
                 Double.parseDouble(System.getProperty("small.sd.guidance", "7.5")));
     }
