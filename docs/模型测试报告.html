@@ -3198,8 +3198,8 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（208 个注册模型，更新于 2026-08-26）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 36　🧪 冒烟通过（无正样本） 7　🐞 发现缺陷 0　📄 已有记录 148　⬜ 未测试 17</p>
-<p>待测试清单（17）：`anime-gan-v3-ghibli`、`anime-gan-v3-shinkai`、`bitnet-embedding`、`c3d-action-detection`、`cn-clip-image`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`paddle-ocr-recognition`、`pp-ocr-rec`、`pp-structure-v2`、`pp-word-extractor`、`svtr-extractor`、`yolo-face-person`</p>
+<p>状态统计：✅ 实测通过 38　🧪 冒烟通过（无正样本） 7　🐞 发现缺陷 0　📄 已有记录 148　🚫 不再追踪 5　⬜ 未测试 10</p>
+<p>待测试清单（10）：`bitnet-embedding`、`cn-clip-image`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`pp-ocr-rec`、`pp-structure-v2`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
@@ -3212,12 +3212,12 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>paddleocrv6-rec</code></td><td>📄 已有记录</td><td>ocr.extractor.PpWordExtractorTranslator</td><td></td></tr>
 <tr><td><code>pp-word-rotate</code></td><td>📄 已有记录</td><td>ocr.direction.PpWordRotateTranslator</td><td></td></tr>
 <tr><td><code>table-struct</code></td><td>📄 已有记录</td><td>ocr.table.TableStructTranslator</td><td></td></tr>
+<tr><td><code>paddle-ocr-recognition</code></td><td>🚫 不再追踪</td><td>ocr.paddleocr.PaddleOcrRecognitionTranslator</td><td></td></tr>
+<tr><td><code>pp-word-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.PpWordExtractorTranslator</td><td></td></tr>
+<tr><td><code>svtr-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.SvtrExtractorTranslator</td><td></td></tr>
 <tr><td><code>duguang-det-large</code></td><td>⬜ 未测试</td><td>ocr.duguang.DuguangDetTranslator</td><td></td></tr>
-<tr><td><code>paddle-ocr-recognition</code></td><td>⬜ 未测试</td><td>ocr.paddleocr.PaddleOcrRecognitionTranslator</td><td></td></tr>
 <tr><td><code>pp-ocr-rec</code></td><td>⬜ 未测试</td><td>ocr.PpOcrRecTranslator</td><td></td></tr>
 <tr><td><code>pp-structure-v2</code></td><td>⬜ 未测试</td><td>ocr.paddlestructure.PpStructureV2Translator</td><td></td></tr>
-<tr><td><code>pp-word-extractor</code></td><td>⬜ 未测试</td><td>ocr.extractor.PpWordExtractorTranslator</td><td></td></tr>
-<tr><td><code>svtr-extractor</code></td><td>⬜ 未测试</td><td>ocr.extractor.SvtrExtractorTranslator</td><td></td></tr>
 </tbody></table>
 <h3>人脸（29）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -3249,10 +3249,12 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>scrfd-face-detector</code></td><td>📄 已有记录</td><td>face.ScrfdFaceDetectorTranslator</td><td></td></tr>
 <tr><td><code>tinaface</code></td><td>📄 已有记录</td><td>face.TinaFaceTranslator</td><td></td></tr>
 <tr><td><code>yolo-face-emotion</code></td><td>📄 已有记录</td><td>emotion.EmotionFerplusTranslator</td><td></td></tr>
-<tr><td><code>yolo-face-person</code></td><td>⬜ 未测试</td><td>face.ScrfdFaceDetectorTranslator</td><td></td></tr>
+<tr><td><code>yolo-face-person</code></td><td>🚫 不再追踪</td><td>face.ScrfdFaceDetectorTranslator</td><td></td></tr>
 </tbody></table>
 <h3>其他（30）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>anime-gan-v3-ghibli</code></td><td>✅ 实测通过</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
+<tr><td><code>anime-gan-v3-shinkai</code></td><td>✅ 实测通过</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
 <tr><td><code>image-colorize</code></td><td>✅ 实测通过</td><td>colorize.ImageColorizeTranslator</td><td>lena灰度上色→R-G差=26 R-B差=33</td></tr>
 <tr><td><code>lu2net</code></td><td>✅ 实测通过</td><td>lu2net.Lu2NetTranslator</td><td></td></tr>
 <tr><td><code>minimind</code></td><td>✅ 实测通过</td><td>text.minimind.MiniMindTranslator</td><td>数值一致性→diff=2.19e-05 next-token 序列一致</td></tr>
@@ -3281,8 +3283,6 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>vggt</code></td><td>📄 已有记录</td><td>vggt.VggtTranslator</td><td></td></tr>
 <tr><td><code>vggt-combined</code></td><td>📄 已有记录</td><td>vggt.VggtCombinedTranslator</td><td></td></tr>
 <tr><td><code>vggt-output</code></td><td>📄 已有记录</td><td>vggt.VggtOutputTranslator</td><td></td></tr>
-<tr><td><code>anime-gan-v3-ghibli</code></td><td>⬜ 未测试</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
-<tr><td><code>anime-gan-v3-shinkai</code></td><td>⬜ 未测试</td><td>animegan.AnimeGanV3Translator</td><td></td></tr>
 </tbody></table>
 <h3>内容审核（2）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -3426,7 +3426,7 @@ NLP：gpt2、bert-squad、distil-bert、xlm-roberta、bart/t5 系列
 <tr><td><code>vit-gpt2-captioning</code></td><td>📄 已有记录</td><td>image.captioning.VitGpt2CaptioningTranslator</td><td></td></tr>
 <tr><td><code>vit-pose</code></td><td>📄 已有记录</td><td>pose.VitPoseTranslator</td><td></td></tr>
 <tr><td><code>yolov8n-pose</code></td><td>📄 已有记录</td><td>pose.YoloV8nPoseTranslator</td><td></td></tr>
-<tr><td><code>c3d-action-detection</code></td><td>⬜ 未测试</td><td>action.C3DActionDetectionTranslator</td><td></td></tr>
+<tr><td><code>c3d-action-detection</code></td><td>🚫 不再追踪</td><td>action.C3DActionDetectionTranslator</td><td></td></tr>
 </tbody></table>
 <h3>语音（7）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
