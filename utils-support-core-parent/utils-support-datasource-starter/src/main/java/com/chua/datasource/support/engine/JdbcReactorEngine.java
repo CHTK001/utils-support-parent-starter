@@ -141,12 +141,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         /* 检测是否为 R2DBC URL */
         if (jdbcUrl.startsWith(R2DBC_PREFIX)) {
             r2dbcFactories.put(name, buildConnectionFactory(jdbcUrl, username, password));
-        } else if (jdbcUrl.startsWith(JDBC_PREFIX_MARIADB)) {
-            /* MariaDB 无可用 R2DBC 驱动，仅创建 JDBC DataSource */
-            jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
-            jdbcUrls.put(name, jdbcUrl);
         } else {
-            /* JDBC URL → R2DBC URL 转换 */
+            /* JDBC URL → R2DBC URL 转换（MariaDB 走官方 r2dbc-mariadb，需运行时提供驱动） */
             String r2dbcUrl = convertJdbcToR2dbc(jdbcUrl);
             r2dbcFactories.put(name, buildConnectionFactory(r2dbcUrl, username, password));
             jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
@@ -601,13 +597,11 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
         }
-        if (needsJdbcPath(defaultDataSourceName)) {
-            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
-            if (ds != null) {
-                return queryViaJdbc(ds, sql, params);
-            }
-        }
-        return queryViaR2dbc(defaultDataSourceName, sql, params);
+        /* SELECT 是幂等只读操作，安全走 R2DBC；连接失败时降级 JDBC 重试 */
+        return queryViaR2dbc(defaultDataSourceName, sql, params)
+                .onErrorResume(e -> !(e instanceof IllegalStateException) &&
+                        jdbcDataSources.containsKey(defaultDataSourceName),
+                        e -> queryViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, params));
     }
 
     @Override
@@ -618,13 +612,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
         }
-        if (needsJdbcPath(defaultDataSourceName)) {
-            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
-            if (ds != null) {
-                return queryTypedViaJdbc(ds, sql, rowType, params);
-            }
-        }
-        return queryTypedViaR2dbc(defaultDataSourceName, sql, rowType, params);
+        return queryTypedViaR2dbc(defaultDataSourceName, sql, rowType, params)
+                .onErrorResume(e -> !(e instanceof IllegalStateException) &&
+                        jdbcDataSources.containsKey(defaultDataSourceName),
+                        e -> queryTypedViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, rowType, params));
     }
 
     @Override
@@ -635,6 +626,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Mono.error(new IllegalStateException("未配置数据源，无法执行语句"));
         }
+        /* 写操作保留 needsJdbcPath 路由：避免 R2DBC getRowsUpdated CCE 导致双重执行 */
         if (needsJdbcPath(defaultDataSourceName)) {
             DataSource ds = jdbcDataSources.get(defaultDataSourceName);
             if (ds != null) {
@@ -664,17 +656,21 @@ public class JdbcReactorEngine implements ReactorEngine {
     /* ==================== R2DBC 执行路径（单数据源） ==================== */
 
     /**
-     * 判断数据源是否需要走 JDBC 路径（无可用 R2DBC 驱动或驱动有已知 bug）。
+     * 判断数据源是否需要走 JDBC 路径。
+     *
+     * <p>MySQL / SQL Server / MariaDB 均已启用原生 R2DBC 路径：
+     * <ul>
+     *   <li>MySQL — asyncer r2dbc-mysql；批量 getRowsUpdated 的兼容问题由
+     *       {@code safeGetRowsUpdated} + 异常降级处理，单条执行走 R2DBC</li>
+     *   <li>SQL Server — r2dbc-mssql；占位符已转换为 {@code @P0/@P1} 风格</li>
+     *   <li>MariaDB — 官方 org.mariadb:r2dbc-mariadb（需运行时提供）</li>
+     * </ul>
+     * 仅保留「注册了纯 JDBC 数据源且无对应 R2DBC 工厂」（SQLite/DuckDB 等）的判断。</p>
      */
     private boolean needsJdbcPath(String name) {
         String url = jdbcUrls.get(name);
         if (url == null) {
             return false;
-        }
-        if (url.startsWith(JDBC_PREFIX_SQLSERVER)
-                || url.startsWith(JDBC_PREFIX_MYSQL)
-                || url.startsWith(JDBC_PREFIX_MARIADB)) {
-            return true;
         }
         /* 已注册纯 JDBC 数据源且无对应 R2DBC 工厂（如 SQLite/DuckDB）时走 JDBC */
         return !r2dbcFactories.containsKey(name);
@@ -711,9 +707,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (factory == null) {
             throw new IllegalStateException("数据源 '" + name + "' 未配置");
         }
-        /* DDL（CREATE/DROP/ALTER）或 SQL Server/MariaDB（无可用 R2DBC 驱动）：若配置了 JDBC 数据源则走 JDBC 路径 */
-        if (isDdl(sql) || jdbcUrls.get(name) != null && (jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)
-                || jdbcUrls.get(name).startsWith(JDBC_PREFIX_MARIADB))) {
+        /* 多语句 DDL（CREATE/DROP/ALTER 等）经 R2DBC 单 Statement 执行易失败：
+         * 若配置了 JDBC 数据源则降级走 JDBC，保证 DDL 兼容性 */
+        if (isDdl(sql)) {
             DataSource ds = jdbcDataSources.get(name);
             if (ds != null) {
                 return executeViaJdbc(ds, sql, params);
@@ -731,12 +727,20 @@ public class JdbcReactorEngine implements ReactorEngine {
                         .map(list -> list.stream().mapToLong(Long::longValue).sum()),
                 conn -> Mono.empty())
                 .map(l -> l.intValue())
-                .defaultIfEmpty(0);
+                .defaultIfEmpty(0)
+                .onErrorResume(ClassCastException.class, e -> {
+                    DataSource ds = jdbcDataSources.get(name);
+                    if (ds != null) {
+                        return executeViaJdbc(ds, sql, params);
+                    }
+                    return Mono.error(e);
+                });
     }
 
     /**
-     * 安全获取 rowsUpdated：H2 多语句批量执行时非 DML Result 会抛出异常，MySQL 驱动的
-     * getRowsUpdated() 内部 MonoReduce 对 Integer/Long 不兼容，统一 catch 返回 empty。
+     * 安全获取 rowsUpdated：H2 多语句批量执行时非 DML Result 会抛出异常，MySQL/MariaDB
+     * 驱动可能在结果处理阶段抛出 ClassCastException。此处对「订阅期」异常同样吞掉——
+     * 此时语句本身往往已执行成功，若向上抛会触发上层「降级重放」导致非幂等语句双写。
      *
      * @param result R2DBC Result 对象
      * @return 受影响行数流
@@ -744,7 +748,11 @@ public class JdbcReactorEngine implements ReactorEngine {
     private static Flux<Long> safeGetRowsUpdated(io.r2dbc.spi.Result result) {
         try {
             return Flux.from(result.getRowsUpdated())
-                    .map(v -> v instanceof Number n ? n.longValue() : 0L);
+                    .map(v -> v instanceof Number n ? n.longValue() : 0L)
+                    .onErrorResume(e -> {
+                        logger.warn("rowsUpdated 读取失败（语句可能已成功执行）: {}", e.getMessage());
+                        return Flux.empty();
+                    });
         } catch (Exception e) {
             return Flux.empty();
         }
@@ -786,18 +794,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (batchParams == null || batchParams.isEmpty()) {
             return Flux.empty();
         }
-        /* SQL Server/MySQL/MariaDB 走 JDBC 路径：r2dbc-mssql 不支持参数绑定；asyncer r2dbc-mysql 的
-         * 批量操作存在 ClassCastException 且部分执行后回滚不彻底，会导致降级到 JDBC 时主键冲突；
-         * MariaDB 无可用 R2DBC 驱动 */
-        if (jdbcUrls.get(name) != null && (jdbcUrls.get(name).startsWith(JDBC_PREFIX_SQLSERVER)
-                || jdbcUrls.get(name).startsWith(JDBC_PREFIX_MYSQL)
-                || jdbcUrls.get(name).startsWith(JDBC_PREFIX_MARIADB))) {
-            DataSource ds = jdbcDataSources.get(name);
-            if (ds != null) {
-                return batchViaJdbc(ds, sql, batchParams);
-            }
-        }
-         /* 每批次单独创建 Statement 并执行，通过 safeGetRowsUpdated 兼容各驱动差异 */
+        /* 每批次单独创建 Statement 并执行，通过 safeGetRowsUpdated 兼容各驱动差异；
+         * 驱动层异常（ClassCastException 等）由 onErrorResume 统一降级到 JDBC 路径 */
         return Flux.from(Mono.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.fromIterable(batchParams)
@@ -950,7 +948,8 @@ public class JdbcReactorEngine implements ReactorEngine {
 
     /**
      * 将 SQL 中的 ? 占位符转换为当前方言对应的格式。
-     * PostgreSQL r2dbc 驱动使用 $1, $2 风格；其他驱动保持 ?。
+     * PostgreSQL r2dbc 驱动使用 $1, $2 风格；SQL Server r2dbc-mssql 使用 @P0, @P1 风格；
+     * 其他驱动保持 ?。
      */
     private static String convertPlaceholders(String sql, String jdbcUrl) {
         if (sql == null || !sql.contains("?")) {
@@ -959,6 +958,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (jdbcUrl != null && jdbcUrl.toLowerCase().startsWith("jdbc:postgresql:")) {
             return convertQuestionMarksToDollars(sql);
         }
+        if (jdbcUrl != null && (jdbcUrl.toLowerCase().startsWith("jdbc:sqlserver:")
+                || jdbcUrl.toLowerCase().startsWith("jdbc:mssql:"))) {
+            return convertQuestionMarksToAtP(sql);
+        }
         return sql;
     }
 
@@ -966,12 +969,34 @@ public class JdbcReactorEngine implements ReactorEngine {
      * 将 SQL 中的 ? 替换为 $1, $2, ...（PostgreSQL R2DBC 参数格式）。
      */
     private static String convertQuestionMarksToDollars(String sql) {
+        return replaceQuestionMarks(sql, "$");
+    }
+
+    /**
+     * 将 SQL 中的 ? 替换为 @P0, @P1, ...（SQL Server r2dbc-mssql 参数格式）。
+     */
+    private static String convertQuestionMarksToAtP(String sql) {
+        return replaceQuestionMarks(sql, "@P", 0);
+    }
+
+    /**
+     * 按 {@code prefix + 序号} 替换 SQL 中的 ? 占位符，序号默认从 1 开始。
+     *
+     * @param sql    原始 SQL
+     * @param prefix 占位符前缀（如 "$"、"@P"）
+     * @return 替换后的 SQL
+     */
+    private static String replaceQuestionMarks(String sql, String prefix) {
+        return replaceQuestionMarks(sql, prefix, 1);
+    }
+
+    private static String replaceQuestionMarks(String sql, String prefix, int startIndex) {
         StringBuilder sb = new StringBuilder(sql.length() + 16);
-        int paramIndex = 1;
+        int paramIndex = startIndex;
         for (int i = 0; i < sql.length(); i++) {
             char c = sql.charAt(i);
             if (c == '?' && (i == 0 || sql.charAt(i - 1) != '\\')) {
-                sb.append('$').append(paramIndex++);
+                sb.append(prefix).append(paramIndex++);
             } else {
                 sb.append(c);
             }
