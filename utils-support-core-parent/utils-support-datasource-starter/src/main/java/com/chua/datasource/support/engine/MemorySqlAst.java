@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import com.chua.datasource.support.engine.MemorySqlLex.RowAccessor;
 
 /**
  * SQL AST 节点与执行计划定义。
@@ -132,11 +133,11 @@ final class MemorySqlAst {
         }
 
         static Object unwrap(Object v, ParamProvider p) {
-            if (v instanceof ParamMarker && p != null) {
-                return p.next();
+            if (v instanceof ParamMarker) {
+                return p == null ? null : p.next();
             }
             if (v instanceof LiteralNode) {
-                return ((LiteralNode) v).value();
+                return unwrap(((LiteralNode) v).value, p);
             }
             return v;
         }
@@ -252,6 +253,10 @@ final class MemorySqlAst {
         }
     }
 
+    /** 参数占位标记 */
+    static final class ParamMarker {
+    }
+
     /** 参数绑定提供器 */
     interface ParamProvider {
         Object next();
@@ -291,12 +296,12 @@ final class MemorySqlAst {
          * @return 结果行
          */
         public List<Map<String, Object>> evaluate(List<?> rows) {
-            ParamProvider p = provider();
             List<?> filtered = rows;
             if (where != null) {
                 List<Object> out = new ArrayList<>();
                 for (Object r : rows) {
-                    if (where.eval(r, p)) {
+                    /* 参数绑定值不随行变化：每行求值需重置参数游标 */
+                    if (where.eval(r, provider())) {
                         out.add(r);
                     }
                 }
@@ -310,7 +315,7 @@ final class MemorySqlAst {
             }
             if (countStar) {
                 Map<String, Object> m = new LinkedHashMap<>();
-                m.put("cnt", Math.max(0, filtered.size() - Math.min(offset, filtered.size())));
+                m.put("cnt", filtered.size());
                 return List.of(m);
             }
             List<Map<String, Object>> projected = new ArrayList<>();
@@ -435,7 +440,7 @@ final class MemorySqlAst {
             return RowAccessor.value(row, ((ColumnNode) n).name());
         }
         if (n instanceof LiteralNode) {
-            return LiteralNode.unwrap(n, p);
+            return LiteralNode.unwrap(((LiteralNode) n).value, p);
         }
         throw new IllegalArgumentException("无法作为值求值: " + n.getClass().getSimpleName());
     }
