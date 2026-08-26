@@ -62,7 +62,7 @@ public class VoiceprintPipeline implements AutoCloseable {
      * 默认构造：文件持久化向量库。
      */
     public VoiceprintPipeline() {
-        this(FileVectorStorage.create(192, defaultDirectory()), 5, 0);
+        this(FileVectorStorage.create(192, defaultDirectory()), null, 5, 0);
     }
 
     /**
@@ -71,7 +71,7 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @param storage 向量存储
      */
     public VoiceprintPipeline(VectorStorage storage) {
-        this(storage, 5, 0);
+        this(storage, null, 5, 0);
     }
 
     private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder,

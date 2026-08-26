@@ -86,8 +86,13 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
 
             List<VideoInfoResult> results = new ArrayList<>();
             Matcher matcher = RESULT_ROW.matcher(html);
-            System.out.println("DEBUG-MATCHES: " + matcher.results().count());
+            System.out.println("DEBUG-contains-td: " + html.contains("<td class=" + (char)34 + "result-title" + (char)34 + ">"));
+                        System.out.println("DEBUG-html-len: " + html.length());
             matcher.reset();
+            int tIdx = html.indexOf("result-title");
+            if (tIdx > 0) {
+                System.out.println("DEBUG-SNIPPET: [" + html.substring(Math.max(0, tIdx - 30), Math.min(html.length(), tIdx + 100)) + "]");
+            }
             while (matcher.find() && results.size() < 10) {
                 String href = matcher.group(1);
                 String title = matcher.group(2).replaceAll("</?mark>", "").trim();
