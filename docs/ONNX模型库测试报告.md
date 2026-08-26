@@ -87,8 +87,29 @@
 | wespeaker | feats [1,T,80] kaldi fbank (25ms/10ms) | PCM×32768 后提特征 | — | 输出 256 维嵌入，L2 norm |
 | flrgb 活体 | [1,3,112,112] | — | RGB | 2 类输出 |
 | flxc 活体 | [1,12,112,112] 多帧序列 | — | — | 需炫彩摄像头 |
+| gfpgan v1.3_clean | [1,3,512,512] (x/255-0.5)/0.5 | /255 | RGB | 输出归一化 -1~1，+1再×127.5 解码为 uint8；支持多尺度 out_rgbs 中间层 |
+| codeformer | [1,3,512,512] (x-127.5)/127.5 | /255-0.5 | RGB | w=0.5 默认合成强度，输出 0~1 float |
 
-## 六、遗留事项（待拍板）
+## 六、人脸修复模型专项测试（2026-08-26）
+
+### GFPGAN v1.3_clean
+| 测试项 | 结果 |
+|---|---|
+| ORT CPU EP 加载 | ✅ 通过，无 DOUBLE 类型报错 |
+| 输入 [1,3,512,512] 推理 | ✅ 通过，输出 shape [1,3,512,512] |
+| Lena 人脸 crop 端到端 | ✅ 通过，输出范围 -1.16~1.29，有效人脸修复 |
+| ONNX 结构校验 | ✅ onnx.checker 通过 |
+| 模块入库路径 | `face/restoration/gfpgan/GFPGANv1.3_clean.onnx`（346MB） |
+
+### CodeFormer
+| 测试项 | 结果 |
+|---|---|
+| ORT CPU EP 加载 | ✅ 通过 |
+| 输入 [1,3,512,512] 推理 | ✅ 通过 |
+| Lena 人脸端到端 | ✅ 通过，有效人脸修复输出 |
+| 模块入库路径 | `face/restoration/codeformer/codeformer.onnx`（376MB） |
+
+## 七、遗留事项（待拍板）
 
 | 项 | 现状 | 建议 |
 |---|---|---|
