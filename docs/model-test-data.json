@@ -126,7 +126,9 @@
       "translator": "matting.translator.IsnetSegTranslator",
       "capability": "抠图/分割",
       "path": "seg/anime/anime.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg isnet-anime.onnx(168MB)；推理通过 384KB PNG / 7.2s（动漫图效果更佳）"
     },
     {
       "id": "arc-face",
@@ -272,7 +274,9 @@
       "translator": "matting.translator.ClothSegTranslator",
       "capability": "抠图/分割",
       "path": "seg/cloth/cloth.onnx",
-      "status": "pending"
+      "status": "smoke",
+      "date": "2026-08-25",
+      "notes": "模型已就位(models/onnx/seg/cloth/cloth.onnx, 168MB, 文件头校验正常)；验证时系统 commit 内存被并行进程占满致 JVM 启动 malloc 失败，待空闲复测"
     },
     {
       "id": "cn-clip-image",
@@ -649,7 +653,9 @@
       "translator": "matting.translator.U2netSegTranslator",
       "capability": "抠图/分割",
       "path": "seg/human/human.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg u2net_human_seg.onnx(167.8MB)；人像分割 308KB PNG / 4.6s"
     },
     {
       "id": "image-colorize",
@@ -779,21 +785,27 @@
       "translator": "matting.translator.IsnetSegTranslator",
       "capability": "抠图/分割",
       "path": "seg/isnet/isnet.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg isnet-general-use.onnx(170MB)；抠图 384KB PNG / 7.9s"
     },
     {
       "id": "matting-u2net",
       "translator": "matting.translator.U2netSegTranslator",
       "capability": "抠图/分割",
       "path": "seg/u2net/u2net.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg u2net.onnx(167.8MB)；抠图 303KB PNG / 3.3s"
     },
     {
       "id": "matting-u2netp",
       "translator": "matting.translator.U2netSegTranslator",
       "capability": "抠图/分割",
       "path": "seg/u2netp/u2netp.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-25",
+      "notes": "rembg u2netp.onnx(4.4MB)→models/onnx/seg/u2netp/；1people 抠图 277KB PNG / 2.2s"
     },
     {
       "id": "midas-depth",
@@ -1513,7 +1525,7 @@
       "capability": "人脸",
       "path": "face/detection/yolo-face-person.onnx",
       "status": "pending",
-      "notes": "模型资源 face/detection/yolo-face-person.onnx 不在本地 jar，需下载"
+      "notes": "注册的下载 URL 已失效（repo 无 model.onnx，仅 .pt 权重）；需另寻 ONNX 源或转换"
     },
     {
       "id": "yolo11-odd",
