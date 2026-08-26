@@ -202,7 +202,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
                 feed.putAll(states);
 
                 try (OrtSession.Result result = encoderSession.run(feed)) {
-                    float[][] encOut = (float[][]) result.get("encoder_out").get().getValue();
+                    float[][][] rawEnc = (float[][][]) result.get("encoder_out").get().getValue();
+                    float[][] encOut = rawEnc[0];
                     Collections.addAll(outputs, encOut);
 
                     states.clear();
