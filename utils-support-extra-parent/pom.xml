@@ -18,6 +18,7 @@
         <module>utils-support-appimage-starter</module>
         <module>utils-support-ast-starter</module>
         <module>utils-support-captcha-starter</module>
+        <module>utils-support-crypto-starter</module>
         <module>utils-support-desktop-starter</module>
         <module>utils-support-enhance-starter</module>
         <module>utils-support-jdk15on-starter</module>

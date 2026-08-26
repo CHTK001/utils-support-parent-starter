@@ -1,79 +1,48 @@
 package com.chua.deeplearning.support.onnx.audio;
 
-import com.chua.deeplearning.support.onnx.audio.moss.MossTtsTranslator;
-import com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceTranslator;
-import com.chua.deeplearning.support.onnx.audio.tts.VitsTtsTranslator;
-import com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerStreamingTranslator;
+import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.TextToAudioClient;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 完整语音回路：文本 → TTS → 音频 → ASR → 文本。
+ * 完整语音回路示例：文本 → TextToAudioClient → WAV → AudioClient → 文本。
  *
- * <p>串联本模块全部已实现引擎，支持任意 TTS × ASR 组合并输出回环报告：
- * <ul>
- *   <li>TTS：vits-icefall-zh（8 kHz 内嵌）/ MOSS-TTS-Nano（48 kHz downloadUrl）</li>
- *   <li>ASR：SenseVoice-small（多语言内嵌）/ Zipformer 双语流式</li>
- * </ul>
+ * <p>全部基于项目标准客户端 API 构建，TTS 与 ASR 通过 SPI 名称自由组合：
  *
- * <p>外部模型目录默认指向本地缓存，可通过系统属性覆盖：
- * {@code speech.loop.moss.dir}、{@code speech.loop.codec.dir}、
- * {@code speech.loop.zipformer.dir}、{@code speech.loop.sensevoice.dir}。
+ * <pre>{@code
+ * try (SpeechLoop loop = new SpeechLoop()) {
+ *     LoopResult r = loop.roundTrip("今天天气很好。", "moss-tts-nano", "zipformer");
+ *     System.out.println(r);
+ * }
+ * }</pre>
  *
  * @author chua
  * @since 4.0.0.42
  */
 public final class SpeechLoop implements AutoCloseable {
 
-    private Path mossDir = Path.of(
-            System.getProperty("speech.loop.moss.dir",
-                    "C:/Users/Administrator/AppData/Local/Temp/opencode/moss-tts"));
-    private Path codecDir = Path.of(
-            System.getProperty("speech.loop.codec.dir",
-                    "C:/Users/Administrator/AppData/Local/Temp/opencode/moss-tokenizer"));
-    private Path zipformerDir = Path.of(
-            System.getProperty("speech.loop.zipformer.dir",
-                    "C:/Users/Administrator/AppData/Local/Temp/opencode/zh-zipformer"));
-    private Path sensevoiceDir = Path.of(
-            System.getProperty("speech.loop.sensevoice.dir",
-                    "C:/Users/Administrator/AppData/Local/Temp/opencode/sensevoice"));
-
-    /** TTS 引擎枚举。 */
-    public enum TtsEngine {
-        /** VITS 中文（AISHELL3，8 kHz，jar 内嵌）。 */
-        VITS_ZH,
-        /** MOSS-TTS-Nano 多语言（48 kHz）。 */
-        MOSS_NANO
-    }
-
-    /** ASR 引擎枚举。 */
-    public enum AsrEngine {
-        /** SenseVoice-small 多语言（含标点与 ITN）。 */
-        SENSEVOICE,
-        /** Zipformer 中英双语流式。 */
-        ZIPFORMER
-    }
-
     /** 单次回环结果报告。 */
     public static final class LoopResult {
         private final String inputText;
         private final String outputText;
-        private final TtsEngine ttsEngine;
-        private final AsrEngine asrEngine;
+        private final String ttsModel;
+        private final String asrModel;
         private final int wavBytes;
         private final long ttsMillis;
         private final long asrMillis;
         private final double matchRatio;
 
         LoopResult(String inputText, String outputText,
-                   TtsEngine ttsEngine, AsrEngine asrEngine,
+                   String ttsModel, String asrModel,
                    int wavBytes, long ttsMillis, long asrMillis) {
             this.inputText = inputText;
             this.outputText = outputText;
-            this.ttsEngine = ttsEngine;
-            this.asrEngine = asrEngine;
+            this.ttsModel = ttsModel;
+            this.asrModel = asrModel;
             this.wavBytes = wavBytes;
             this.ttsMillis = ttsMillis;
             this.asrMillis = asrMillis;
@@ -94,151 +63,49 @@ public final class SpeechLoop implements AutoCloseable {
             return String.format(
                     "[回路 %s→%s] 输入:%s | 输出:%s | WAV:%dKB | "
                             + "TTS:%dms | ASR:%dms | 匹配率:%.0f%%",
-                    ttsEngine, asrEngine, inputText, outputText,
+                    ttsModel, asrModel, inputText, outputText,
                     wavBytes / 1024, ttsMillis, asrMillis, matchRatio * 100);
         }
     }
 
-    private VitsTtsTranslator vits;
-    private MossTtsTranslator moss;
-    private SenseVoiceTranslator sensevoice;
-    private ZipformerStreamingTranslator zipformer;
-    private boolean sensevoiceReady;
-
     /**
-     * 设置 MOSS-TTS 与 Audio Tokenizer 目录。
+     * 执行一次完整回环。
      *
-     * @param ttsDir   MOSS-TTS 目录
-     * @param codecDir Audio Tokenizer 目录
-     * @return this
-     */
-    public SpeechLoop mossDirs(Path ttsDir, Path codecDir) {
-        this.mossDir = ttsDir;
-        this.codecDir = codecDir;
-        return this;
-    }
-
-    /**
-     * 设置 Zipformer 模型目录。
-     *
-     * @param dir 模型目录
-     * @return this
-     */
-    public SpeechLoop zipformerDir(Path dir) {
-        this.zipformerDir = dir;
-        return this;
-    }
-
-    /**
-     * 设置 SenseVoice 模型目录。
-     *
-     * @param dir 模型目录
-     * @return this
-     */
-    public SpeechLoop sensevoiceDir(Path dir) {
-        this.sensevoiceDir = dir;
-        return this;
-    }
-
-    /**
-     * 文本转语音。
-     *
-     * @param text   待合成文本
-     * @param engine TTS 引擎
-     * @return WAV 字节流
-     * @throws Exception 合成异常
-     */
-    public byte[] speak(String text, TtsEngine engine) throws Exception {
-        if (engine == TtsEngine.VITS_ZH) {
-            if (vits == null) {
-                vits = new VitsTtsTranslator();
-            }
-            return vits.synthesize(text, 0);
-        }
-        if (moss == null) {
-            moss = new MossTtsTranslator();
-            moss.prepare(mossDir, codecDir);
-        }
-        return moss.synthesize(text, "Junhao", 80);
-    }
-
-    /**
-     * 语音转文本。
-     *
-     * @param wav    WAV 字节流
-     * @param engine ASR 引擎
-     * @return 识别文本
-     * @throws Exception 识别异常
-     */
-    public String listen(byte[] wav, AsrEngine engine) throws Exception {
-        Path temp = Files.createTempFile("speech-loop-", ".wav");
-        try {
-            Files.write(temp, wav);
-            return listen(temp, engine);
-        } finally {
-            Files.deleteIfExists(temp);
-        }
-    }
-
-    /**
-     * 语音转文本（文件路径入口）。
-     *
-     * @param wavPath WAV 路径
-     * @param engine  ASR 引擎
-     * @return 识别文本
-     * @throws Exception 识别异常
-     */
-    public String listen(Path wavPath, AsrEngine engine) throws Exception {
-        if (engine == AsrEngine.ZIPFORMER) {
-            if (zipformer == null) {
-                zipformer = new ZipformerStreamingTranslator();
-                zipformer.prepare(zipformerDir);
-            }
-            return zipformer.transcribe(wavPath);
-        }
-        if (!sensevoiceReady) {
-            sensevoice = new SenseVoiceTranslator();
-            sensevoice.prepare(sensevoiceDir);
-            sensevoiceReady = true;
-        }
-        return sensevoice.transcribe(wavPath, "zh");
-    }
-
-    /**
-     * 执行一次完整回环：文本 → TTS → ASR → 文本。
-     *
-     * @param text 输入文本
-     * @param tts  TTS 引擎
-     * @param asr  ASR 引擎
+     * @param text     输入文本
+     * @param ttsModel TTS SPI 名称（vits-icefall-zh / moss-tts-nano）
+     * @param asrModel ASR SPI 名称（sensevoice-small / zipformer / paraformer-zh-small）
      * @return 回环报告
      * @throws Exception 管线异常
      */
-    public LoopResult roundTrip(String text, TtsEngine tts, AsrEngine asr) throws Exception {
+    public LoopResult roundTrip(String text, String ttsModel, String asrModel) throws Exception {
         long t0 = System.currentTimeMillis();
-        byte[] wav = speak(text, tts);
+        byte[] wav;
+        try (TextToAudioClient tts = TextToAudioClient.create(ttsModel, ttsModel)) {
+            wav = tts.synthesize(text);
+        }
         long ttsMs = System.currentTimeMillis() - t0;
 
         t0 = System.currentTimeMillis();
-        String heard = listen(wav, asr);
+        String heard;
+        try (AudioClient asr = AudioClient.create(asrModel, asrModel)) {
+            heard = asr.audio(wav).transcribe();
+        }
         long asrMs = System.currentTimeMillis() - t0;
 
-        return new LoopResult(text, heard, tts, asr, wav.length, ttsMs, asrMs);
+        return new LoopResult(text, heard, ttsModel, asrModel,
+                wav.length, ttsMs, asrMs);
     }
 
     /**
-     * 批量跑全部组合。
+     * 批量跑全部默认组合。
      *
      * @param text 输入文本
      * @return 全部组合的报告列表
      * @throws Exception 管线异常
      */
     public List<LoopResult> roundTripAll(String text) throws Exception {
-        List<LoopResult> results = new java.util.ArrayList<>();
-        for (TtsEngine tts : TtsEngine.values()) {
-            for (AsrEngine asr : AsrEngine.values()) {
-                results.add(roundTrip(text, tts, asr));
-            }
-        }
+        List<LoopResult> results = new ArrayList<>();
+        results.add(roundTrip(text, "moss-tts-nano", "zipformer"));
         return results;
     }
 
@@ -280,37 +147,21 @@ public final class SpeechLoop implements AutoCloseable {
 
     @Override
     public void close() {
-        if (moss != null) {
-            moss.close();
-        }
-        if (zipformer != null) {
-            zipformer.close();
-        }
-        if (vits != null) {
-            vits.close();
-        }
+        // 客户端均在 try-with-resources 中自管理生命周期
     }
 
     /**
-     * CLI 入口：java SpeechLoop "文本" [tts] [asr]。
+     * CLI 入口：java SpeechLoop "文本" [ttsModel] [asrModel]。
      *
-     * @param args 文本 [tts=vits|moss] [asr=sv|zip]，缺省跑全部组合
+     * @param args 文本 [tts] [asr]
      * @throws Exception 管线异常
      */
     public static void main(String[] args) throws Exception {
         String text = args.length > 0 ? args[0] : "你好，这是语音回路测试。";
+        String tts = args.length > 1 ? args[1] : "moss-tts-nano";
+        String asr = args.length > 2 ? args[2] : "zipformer";
         try (SpeechLoop loop = new SpeechLoop()) {
-            if (args.length >= 3) {
-                TtsEngine tts = "moss".equalsIgnoreCase(args[1])
-                        ? TtsEngine.MOSS_NANO : TtsEngine.VITS_ZH;
-                AsrEngine asr = "zip".equalsIgnoreCase(args[2])
-                        ? AsrEngine.ZIPFORMER : AsrEngine.SENSEVOICE;
-                System.out.println(loop.roundTrip(text, tts, asr));
-            } else {
-                for (LoopResult result : loop.roundTripAll(text)) {
-                    System.out.println(result);
-                }
-            }
+            System.out.println(loop.roundTrip(text, tts, asr));
         }
     }
 }
