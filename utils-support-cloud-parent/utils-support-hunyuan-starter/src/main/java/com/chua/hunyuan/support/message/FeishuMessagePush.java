@@ -49,29 +49,29 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
- * public class FeishuPush implements MessagePush {
+ * public class FeishuMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class FeishuPush implements MessagePush {
+public class FeishuMessagePush implements MessagePush {
 
     /** 消息环境 */
     private final MessageEnvironment environment;
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 FeishuPush 实例 */
-    public FeishuPush() {
+    /** 创建 FeishuMessagePush 实例 */
+    public FeishuMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 FeishuPush 实例
+     * 创建 FeishuMessagePush 实例
      * @param environment environment
      */
-    public FeishuPush(MessageEnvironment environment) {
+    public FeishuMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 

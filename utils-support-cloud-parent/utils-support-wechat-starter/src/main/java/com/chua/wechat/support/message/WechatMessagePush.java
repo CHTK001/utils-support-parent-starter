@@ -63,13 +63,13 @@ import java.util.concurrent.ConcurrentMap;
         }
 )
 /**
- * public class WechatPush implements MessagePush {
+ * public class WechatMessagePush implements MessagePush {
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class WechatPush implements MessagePush {
+public class WechatMessagePush implements MessagePush {
 
     /**
      * 微信 access_token 获取地址
@@ -126,16 +126,16 @@ public class WechatPush implements MessagePush {
     private record TokenCache(String token, long expireAt) {
     }
 
-    /** 创建 WechatPush 实例 */
-    public WechatPush() {
+    /** 创建 WechatMessagePush 实例 */
+    public WechatMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 WechatPush 实例
+     * 创建 WechatMessagePush 实例
      * @param environment environment
      */
-    public WechatPush(MessageEnvironment environment) {
+    public WechatMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
