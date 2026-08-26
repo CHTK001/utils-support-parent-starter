@@ -8,7 +8,7 @@
     "smoke": "冒烟通过：加载/推理正常但测试图无正样本",
     "issue": "测试发现问题：加载/推理存在缺陷待修复"
   },
-  "total": 209,
+  "total": 208,
   "models": [
     {
       "id": "ada-face",
@@ -1463,7 +1463,7 @@
       "path": "audio/asr/whisper-tiny/config.json",
       "status": "smoke",
       "date": "2026-08-25",
-      "notes": "ASR 管线通：音频解析/mel 80x3000/encoder 正常，13.6s；但默认英文模式对中文音频仅输出 [foreign language]——WhisperTranslator 需暴露 language/task 配置后复测"
+      "notes": "language 传递通路已打通（AudioClientExample --lang=zh）；tiny 模型强制中文后对该音频输出空，中文 ASR 建议 sensevoice"
     },
     {
       "id": "xlm-roberta-language-detection",
@@ -1492,13 +1492,13 @@
         "largest_selfie.jpg": 0
       },
       "threshold": {
-        "default": 0.85,
+        "default": 0.45,
         "tested": {
           "0.25": "5/3/0",
-          "0.45": "5/3/0"
+          "0.45": "5/2/0"
         }
       },
-      "notes": "中大型人脸可用(3people 3/3)；默认阈值 0.85 过高致 0 检出需调低使用；1people 单人检出多框疑似 NMS 去重不足；large_selfie 小脸全漏（模型能力边界）"
+      "notes": "已修：NMS IoU 0.9→0.45、默认置信度 0.85→0.45；1people 单人仍 5 框属模型假阳性（yolo11n-face 能力边界），selfie 小脸漏检同因；人脸检测建议 insightface-scrfd"
     },
     {
       "id": "yolo-face-emotion",
@@ -1578,15 +1578,6 @@
       "capability": "目标检测",
       "path": "vision/detection/v2/yolov2-coco-9.onnx",
       "status": "documented"
-    },
-    {
-      "id": "yolov2-coco-v2",
-      "translator": "yolo.v2.Yolov2CocoTranslator",
-      "capability": "目标检测",
-      "path": "null",
-      "status": "issue",
-      "date": "2026-08-25",
-      "notes": "注册残缺：relativePath=null 且与 yolov2-coco 重复注册同一 translator，无法定位模型资源"
     },
     {
       "id": "yolov5-plate-recognize",
