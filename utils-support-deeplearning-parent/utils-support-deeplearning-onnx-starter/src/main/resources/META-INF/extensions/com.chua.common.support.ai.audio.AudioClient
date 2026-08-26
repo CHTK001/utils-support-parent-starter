@@ -9,3 +9,6 @@ onnx=com.chua.deeplearning.support.onnx.OnnxAudioClient
 sensevoice=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
 sensevoice-small=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
 sense-voice=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
+zipformer=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient
+zipformer-zh-en=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient
+zipformer-streaming=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient

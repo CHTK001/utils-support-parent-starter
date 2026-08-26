@@ -1,1 +1,3 @@
 onnx=com.chua.deeplearning.support.onnx.OnnxTextToAudioClient
+moss-tts-nano=com.chua.deeplearning.support.onnx.audio.moss.MossTextToAudioClient
+moss-tts=com.chua.deeplearning.support.onnx.audio.moss.MossTextToAudioClient
