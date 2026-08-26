@@ -6,7 +6,10 @@ import com.chua.common.support.network.server.filter.ServerFilterConfig;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
-import java.nio.file.Path;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * 校验服务器下发过滤器（{@link ServerFilter} 体系实现）
@@ -16,26 +19,19 @@ import java.nio.file.Path;
  *
  * <h2>配置参数（init）</h2>
  * <ul>
- *   <li>{@code license.registry} — 注册表文件路径，默认 {@code licenses.txt}，
- *       格式每行 {@code fingerprintHex=base64(私钥封装块)}</li>
+ *   <li>{@code license.registry} — 注册表文件路径，默认 {@code licenses.txt}</li>
+ *   <li>{@code license.secret} — 响应签名密钥；配置后响应格式为
+ *       {@code v1.base64(块).base64(HmacSHA256(secret,块))}，
+ *       客户端须以相同 {@code chua.crypto.license-secret} 校验（生产必须配置）</li>
  * </ul>
- *
- * <p>协议（与 {@code launch.LicenseKeyClient} 对应）：
- * <pre>
- * POST /license  Body: {"appId":"..","fingerprint":"hex"}
- *   已注册 → 200 + 私钥封装块(application/octet-stream)
- *   未注册 → 403
- * </pre>
  *
  * <p>使用示例：
  * <pre>{@code
- * // 注册：为指定指纹签发私钥文件
- * LicenseRegistry registry = LicenseRegistry.load(Path.of("licenses.txt"));
+ * LicenseRegistry registry = FileLicenseRegistry.load(Path.of("licenses.txt"));
  * registry.register(fingerprint, keyBlob);
  *
- * // 启动校验服务
  * Server server = ServerBuilder.create().type("jdk").host("0.0.0.0").port(8641).build();
- * server.addFilter(new LicenseServerFilter(registry));
+ * server.addFilter(new LicenseServerFilter(registry, "prod-secret".toCharArray()));
  * server.start();
  * }</pre>
  *
@@ -50,12 +46,22 @@ public class LicenseServerFilter implements ServerFilter {
     private static final String DEFAULT_REGISTRY = "licenses.txt";
 
     /**
+     * 签名响应版本前缀（与 launch.LicenseKeyClient 对应）
+     */
+    private static final String SIGNED_PREFIX = "v1.";
+
+    /**
      * 注册表
      */
     private LicenseRegistry registry;
 
     /**
-     * 默认构造：init 时从 {@code license.registry} 参数或默认路径 licenses.txt 加载
+     * 响应签名密钥（为空则不下发签名）
+     */
+    private char[] secret;
+
+    /**
+     * 默认构造：init 时从参数/默认路径加载注册表
      */
     public LicenseServerFilter() {
     }
@@ -70,15 +76,32 @@ public class LicenseServerFilter implements ServerFilter {
     }
 
     /**
-     * 初始化：未注入注册表时按配置路径加载
+     * 全参构造：注册表 + 响应签名密钥（生产推荐）
+     *
+     * @param registry       已加载的注册表
+     * @param responseSecret 响应签名密钥（客户端 chua.crypto.license-secret 须一致）
+     */
+    public LicenseServerFilter(LicenseRegistry registry, char[] responseSecret) {
+        this.registry = registry;
+        this.secret = responseSecret == null ? null : responseSecret.clone();
+    }
+
+    /**
+     * 初始化：未注入注册表时按配置路径加载；读取签名密钥
      */
     @Override
     public void init(ServerFilterConfig config) throws Exception {
-        if (registry != null) {
-            return;
+        if (registry == null) {
+            String path = config == null ? null : config.getInitParameter("license.registry");
+            this.registry = FileLicenseRegistry.load(
+                    Path.of(path == null || path.isBlank() ? DEFAULT_REGISTRY : path.trim()));
         }
-        String path = config == null ? null : config.getInitParameter("license.registry");
-        this.registry = LicenseRegistry.load(Path.of(path == null || path.isBlank() ? DEFAULT_REGISTRY : path.trim()));
+        if (secret == null && config != null) {
+            String s = config.getInitParameter("license.secret");
+            if (s != null && !s.isBlank()) {
+                this.secret = s.trim().toCharArray();
+            }
+        }
     }
 
     /**
@@ -97,7 +120,12 @@ public class LicenseServerFilter implements ServerFilter {
             response.setStatus(403).end();
             return;
         }
-        response.setContentType("application/octet-stream").setBody(blob).end();
+        byte[] payload = secret == null || secret.length == 0
+                ? blob
+                : (SIGNED_PREFIX + Base64.getEncoder().encodeToString(blob)
+                        + "." + Base64.getEncoder().encodeToString(hmac(blob)))
+                .getBytes(StandardCharsets.UTF_8);
+        response.setContentType("application/octet-stream").setBody(payload).end();
     }
 
     /**
@@ -117,9 +145,25 @@ public class LicenseServerFilter implements ServerFilter {
     }
 
     /**
-     * 从 JSON 请求体提取字段值（演示级简化解析）
+     * 计算响应签名 HmacSHA256(secret, blob)
      *
-     * @param json  请求体
+     * @param blob 私钥封装块
+     * @return 摘要
+     */
+    private byte[] hmac(byte[] blob) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(new String(secret).getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            return mac.doFinal(blob);
+        } catch (Exception e) {
+            throw new IllegalStateException("响应签名计算失败", e);
+        }
+    }
+
+    /**
+     * 从 JSON 请求体提取指纹字段（严格匹配 64 位十六进制，防注入）
+     *
+     * @param json 请求体
      * @param field 字段名
      * @return 值或 null
      */
@@ -127,13 +171,9 @@ public class LicenseServerFilter implements ServerFilter {
         if (json == null) {
             return null;
         }
-        int k = json.indexOf("\"" + field + "\"");
-        if (k < 0) {
-            return null;
-        }
-        int colon = json.indexOf(':', k);
-        int q1 = json.indexOf('"', colon);
-        int q2 = q1 < 0 ? -1 : json.indexOf('"', q1 + 1);
-        return q1 < 0 || q2 < 0 ? null : json.substring(q1 + 1, q2);
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("\"" + field + "\"\\s*:\\s*\"([0-9a-fA-F]{64})\"")
+                .matcher(json);
+        return m.find() ? m.group(1) : null;
     }
 }

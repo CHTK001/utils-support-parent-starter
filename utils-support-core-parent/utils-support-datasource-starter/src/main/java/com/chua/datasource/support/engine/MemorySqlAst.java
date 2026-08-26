@@ -433,6 +433,127 @@ final class MemorySqlAst {
     static final class DeletePlan extends DmlPlan {
     }
 
+    /* ==================== 共享 DML 执行器 ==================== */
+
+    /**
+     * DML 统一执行入口：绑定参数后对目标表行引用应用变更。
+     *
+     * @param plan          解析得到的 DML 计划
+     * @param params        ? 绑定参数
+     * @param tableResolver 表行引用解析器（惰性调用一次；内存引擎可在此建空表）
+     * @return 影响行数
+     */
+    public static int executeDml(DmlPlan plan, List<Object> params, java.util.function.Supplier<List<Object>> tableResolver) {
+        java.util.Objects.requireNonNull(plan, "plan must not be null");
+        List<Object> safeParams = params == null ? List.of() : params;
+        bindPlanParams(plan, rowProvider(safeParams));
+        List<Object> rows = tableResolver.get();
+        if (plan instanceof InsertPlan ins) {
+            return applyInsert(ins, rows);
+        }
+        if (plan instanceof UpdatePlan upd) {
+            return applyUpdate(upd, rows, safeParams);
+        }
+        return applyDelete((DeletePlan) plan, rows, safeParams);
+    }
+
+
+    /**
+     * 将解析期收集的 INSERT / UPDATE SET 参数占位按序绑定。
+     *
+     * @param plan     DML 计划
+     * @param provider 共享参数游标
+     */
+    public static void bindPlanParams(DmlPlan plan, ParamProvider provider) {
+        if (plan instanceof InsertPlan ins) {
+            for (List<Object> row : ins.rows()) {
+                row.replaceAll(v -> v instanceof ParamMarker ? provider.next() : v);
+            }
+        } else if (plan instanceof UpdatePlan upd) {
+            upd.sets().replaceAll((k, v) -> v instanceof ParamMarker ? provider.next() : v);
+        }
+    }
+
+    /**
+     * 构造独立的按序参数游标（供单行 WHERE 求值使用）。
+     *
+     * @param params 绑定参数
+     * @return 游标提供器
+     */
+    public static ParamProvider rowProvider(List<Object> params) {
+        java.util.concurrent.atomic.AtomicInteger idx = new java.util.concurrent.atomic.AtomicInteger();
+        return () -> idx.get() < params.size() ? params.get(idx.getAndIncrement()) : null;
+    }
+
+    /**
+     * 对行引用列表应用 INSERT 计划。
+     *
+     * @param plan 插入计划
+     * @param rows 目标行引用
+     * @return 影响行数
+     */
+    public static int applyInsert(InsertPlan plan, List<Object> rows) {
+        for (List<Object> values : plan.rows()) {
+            LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
+            List<String> cols = !plan.columns().isEmpty() ? plan.columns()
+                    : (rows.isEmpty()
+                            ? List.of()
+                            : new ArrayList<>(RowAccessor.allColumns(rows.get(0)).keySet()));
+            if (cols.isEmpty()) {
+                throw new IllegalStateException("无法推断插入列，请显式指定列清单");
+            }
+            if (cols.size() != values.size()) {
+                throw new IllegalArgumentException(
+                        "列数与值数不匹配: " + cols.size() + " vs " + values.size());
+            }
+            for (int i = 0; i < values.size(); i++) {
+                rowMap.put(cols.get(i), values.get(i));
+            }
+            rows.add(rowMap);
+        }
+        return plan.rows().size();
+    }
+
+    /**
+     * 对行引用列表应用 UPDATE 计划。
+     *
+     * @param plan   更新计划
+     * @param rows   目标行引用
+     * @param params 绑定参数（WHERE 占位逐行重置消费）
+     * @return 影响行数
+     */
+    public static int applyUpdate(UpdatePlan plan, List<Object> rows, List<Object> params) {
+        int affected = 0;
+        for (Object row : rows) {
+            /* 每行重置参数游标：绑定值不随行变化 */
+            if (plan.where() != null && !plan.where().eval(row, rowProvider(params))) {
+                continue;
+            }
+            boolean touched = false;
+            for (Map.Entry<String, Object> e : plan.sets().entrySet()) {
+                touched |= RowAccessor.setValue(row, e.getKey(), e.getValue());
+            }
+            if (touched) {
+                affected++;
+            }
+        }
+        return affected;
+    }
+
+    /**
+     * 对行引用列表应用 DELETE 计划。
+     *
+     * @param plan   删除计划
+     * @param rows   目标行引用
+     * @param params 绑定参数
+     * @return 影响行数
+     */
+    public static int applyDelete(DeletePlan plan, List<Object> rows, List<Object> params) {
+        int before = rows.size();
+        rows.removeIf(row -> plan.where() == null || plan.where().eval(row, rowProvider(params)));
+        return before - rows.size();
+    }
+
     /* ==================== 工具 ==================== */
 
     static Object value(Node n, Object row, ParamProvider p) {

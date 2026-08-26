@@ -105,6 +105,16 @@ public final class CryptoLauncher {
     public static final String ENV_APP_ID = "CHUA_CRYPTO_APP_ID";
 
     /**
+     * 校验服务器响应签名密钥系统属性（生产必须配置）
+     */
+    public static final String PROP_LICENSE_SECRET = "chua.crypto.license-secret";
+
+    /**
+     * 校验服务器响应签名密钥环境变量
+     */
+    public static final String ENV_LICENSE_SECRET = "CHUA_CRYPTO_LICENSE_SECRET";
+
+    /**
      * 惰性加载开关（默认关闭：解密装载模式对 Spring 组件扫描等完全兼容）
      */
     public static final String PROP_LAZY = "chua.crypto.lazy";
@@ -222,7 +232,10 @@ public final class CryptoLauncher {
             if (appId == null) {
                 appId = mainAttributes(jar).getValue(ATTR_ORIGINAL_MAIN);
             }
-            byte[] blob = LicenseKeyClient.fetch(licenseUrl, appId, PayloadCipher.fingerprint(serverId));
+                        String licSecret = firstNonBlank(System.getProperty(PROP_LICENSE_SECRET), System.getenv(ENV_LICENSE_SECRET));
+            byte[] blob = LicenseKeyClient.fetch(licenseUrl, appId,
+                    PayloadCipher.fingerprint(serverId),
+                    licSecret == null ? null : licSecret.toCharArray());
             return PayloadCipher.unwrapMaster(PayloadCipher.MAGIC_KEY_BLOB, blob,
                     pin == null ? new char[0] : pin, serverId);
         }

@@ -110,7 +110,7 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @param s 向量存储（维度须为 192）
      * @return this
      */
-    public VoiceprintPipeline storage(VectorStorage s) {
+    public VoiceprintPipeline vectorDb(VectorStorage s) {
         if (s.dimension() != 192) {
             throw new IllegalArgumentException("向量库维度须为 192，当前: " + s.dimension());
         }
@@ -139,7 +139,7 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @param config   提供方配置：Map（键 host / port / token / collection），无配置传 null
      * @return this
      */
-    public VoiceprintPipeline storage(String provider, Object config) {
+    public VoiceprintPipeline vectorDb(String provider, Object config) {
         String host = null;
         Integer port = null;
         String token = null;

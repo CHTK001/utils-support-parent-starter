@@ -144,22 +144,11 @@ public class InMemoryEngine extends AbstractEngine {
      * @return 影响行数
      */
     public int executeSql(String sql, Object... params) {
-        DmlPlan plan = new MemorySqlParser().parseDml(sql);
-        List<Object> plist = java.util.Arrays.asList(params == null ? new Object[0] : params);
-        java.util.concurrent.atomic.AtomicInteger cursor = new java.util.concurrent.atomic.AtomicInteger();
-        MemorySqlAst.ParamProvider shared = () ->
-                cursor.get() < plist.size() ? plist.get(cursor.getAndIncrement()) : null;
-        /* INSERT / UPDATE SET 的占位在计划上静态绑定（按 SQL 出现顺序先消费） */
-        bindPlanParams(plan, shared);
-        @SuppressWarnings("unchecked")
-        List<Object> rows = (List<Object>) dataStores.computeIfAbsent(plan.table(), k -> new ArrayList<>());
-        if (plan instanceof InsertPlan) {
-            return applyInsert((InsertPlan) plan, rows);
-        }
-        if (plan instanceof UpdatePlan) {
-            return applyUpdate((UpdatePlan) plan, rows, plist);
-        }
-        return applyDelete((DeletePlan) plan, rows, plist);
+        Objects.requireNonNull(sql, "sql must not be null");
+        var plan = new MemorySqlParser().parseDml(sql);
+        return MemorySqlAst.executeDml(plan,
+                java.util.Arrays.asList(params == null ? new Object[0] : params),
+                () -> dataStores.computeIfAbsent(plan.table(), k -> new ArrayList<>()));
     }
 
     /** 提取 FROM 表名供 SELECT 定位数据 */
@@ -170,71 +159,6 @@ public class InMemoryEngine extends AbstractEngine {
             throw new IllegalArgumentException("缺少 FROM 子句: " + sql);
         }
         return m.group(1);
-    }
-
-    /** 将解析期收集的 INSERT/SET 占位按序绑定（WHERE 占位延迟到求值期由共享 provider 消费） */
-    private static void bindPlanParams(DmlPlan plan, MemorySqlAst.ParamProvider provider) {
-        if (plan instanceof InsertPlan) {
-            InsertPlan ins = (InsertPlan) plan;
-            for (List<Object> row : ins.rows()) {
-                row.replaceAll(v -> v instanceof MemorySqlAst.ParamMarker ? provider.next() : v);
-            }
-        } else if (plan instanceof UpdatePlan) {
-            ((UpdatePlan) plan).sets()
-                    .replaceAll((k, v) -> v instanceof MemorySqlAst.ParamMarker ? provider.next() : v);
-        }
-    }
-
-    private static int applyInsert(InsertPlan plan, List<Object> rows) {
-        for (List<Object> values : plan.rows()) {
-            LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
-            List<String> cols = !plan.columns().isEmpty() ? plan.columns()
-                    : (rows.isEmpty()
-                            ? List.of()
-                            : new ArrayList<>(MemorySqlLex.RowAccessor.allColumns(rows.get(0)).keySet()));
-            if (cols.isEmpty()) {
-                throw new IllegalStateException("无法推断插入列，请显式指定列清单");
-            }
-            if (cols.size() != values.size()) {
-                throw new IllegalArgumentException(
-                        "列数与值数不匹配: " + cols.size() + " vs " + values.size());
-            }
-            for (int i = 0; i < values.size(); i++) {
-                rowMap.put(cols.get(i), values.get(i));
-            }
-            rows.add(rowMap);
-        }
-        return plan.rows().size();
-    }
-
-    private static int applyUpdate(UpdatePlan plan, List<Object> rows, List<Object> params) {
-        int affected = 0;
-        for (Object row : rows) {
-            /* 每行重置参数游标：绑定值不随行变化 */
-            if (plan.where() != null && !plan.where().eval(row, rowProvider(params))) {
-                continue;
-            }
-            boolean touched = false;
-            for (Map.Entry<String, Object> e : plan.sets().entrySet()) {
-                touched |= MemorySqlLex.RowAccessor.setValue(row, e.getKey(), e.getValue());
-            }
-            if (touched) {
-                affected++;
-            }
-        }
-        return affected;
-    }
-
-    private static int applyDelete(DeletePlan plan, List<Object> rows, List<Object> params) {
-        int before = rows.size();
-        rows.removeIf(row -> plan.where() == null || plan.where().eval(row, rowProvider(params)));
-        return before - rows.size();
-    }
-
-    /** 构造独立的按序参数游标（供单行 WHERE 求值使用） */
-    private static MemorySqlAst.ParamProvider rowProvider(List<Object> params) {
-        java.util.concurrent.atomic.AtomicInteger idx = new java.util.concurrent.atomic.AtomicInteger();
-        return () -> idx.get() < params.size() ? params.get(idx.getAndIncrement()) : null;
     }
 
     @SuppressWarnings("unchecked")
