@@ -46,6 +46,11 @@ public class HashedWheelTimer implements Timer {
     private volatile boolean running;
 
     /**
+     * tick 工作线程引用（用于 shutdown 时中断睡眠立即退出）
+     */
+    private volatile Thread tickThread;
+
+    /**
      * 槽位锁（粗粒度，工程阶段简单实现）
      */
     private final ReentrantLock lock = new ReentrantLock();
@@ -80,8 +85,7 @@ public class HashedWheelTimer implements Timer {
             return false;
         }
         long delay = task.getDeadline() - System.currentTimeMillis();
-        long slotDistance = delay <= 0 ? 0 : (delay / tickMillis + 1);
-        int index = (int) ((currentTick + slotDistance) % slots);
+        int index = (int) ((currentTick + computeSlotOffset(delay)) % slots);
         lock.lock();
         try {
             wheel[index].add(task);
@@ -92,13 +96,27 @@ public class HashedWheelTimer implements Timer {
         return true;
     }
 
+    /**
+     * 计算目标槽位偏移。
+     *
+     * <p>规则：delay &le; 0（已到期）取 1 —— 挂到最近的下一槽尽快补触发，
+     * 而非等完整一圈；否则按 ceil(delay / tickMillis) 向上取整精确落位。</p>
+     */
+    private int computeSlotOffset(long delayMillis) {
+        if (delayMillis <= 0) {
+            return 1;
+        }
+        long offset = (delayMillis + tickMillis - 1) / tickMillis;
+        return (int) Math.min(offset, Integer.MAX_VALUE);
+    }
+
     @Override
     public TimerTask schedule(Runnable task, long delay, TimeUnit timeUnit) {
         long deadline = System.currentTimeMillis() + timeUnit.toMillis(delay);
         TimerTask wrapped = new TimerTask(UUID.randomUUID().toString(), "delay-" + delay + timeUnit,
                 task, deadline);
-        schedule(wrapped);
-        return wrapped;
+        // 时间轮已关闭时拒绝调度，返回 null 由调用方感知
+        return schedule(wrapped) ? wrapped : null;
     }
 
     @Override
@@ -108,8 +126,7 @@ public class HashedWheelTimer implements Timer {
         long deadline = System.currentTimeMillis() + delay;
         TimerTask wrapped = new TimerTask(UUID.randomUUID().toString(), "periodic-" + period + timeUnit,
                 task, deadline, periodMs);
-        schedule(wrapped);
-        return wrapped;
+        return schedule(wrapped) ? wrapped : null;
     }
 
     @Override
@@ -153,10 +170,18 @@ public class HashedWheelTimer implements Timer {
     @Override
     public void shutdown() {
         running = false;
+        // 中断 tick 线程的睡眠，使关闭立即生效而非等待下一个 tick
+        var worker = tickThread;
+        if (worker != null) {
+            worker.interrupt();
+        }
     }
 
     /**
      * 启动 tick 循环线程。
+     *
+     * <p>单个任务抛出的任何 Throwable（含 Error）都在循环内兜底记录，
+     * 保证任务故障不会终止整个时间轮。</p>
      */
     private void startTickThread() {
         Thread t = new Thread(() -> {
@@ -172,12 +197,17 @@ public class HashedWheelTimer implements Timer {
                         lock.unlock();
                     }
                     for (TimerTask tt : due) {
-                        tt.run();
-                        if (tt.getPeriod() > 0 && !tt.isCancelled()) {
-                            long next = tt.getDeadline() + tt.getPeriod();
-                            TimerTask nextTask = new TimerTask(
-                                    tt.getId(), tt.getName(), tt.getTask(), next, tt.getPeriod());
-                            schedule(nextTask);
+                        try {
+                            tt.run();
+                            // 周期任务复用同一实例推进 deadline 后重排：
+                            // cancel 标记随实例传播，取消立即对后续轮次生效
+                            if (!tt.isCancelled() && tt.getPeriod() > 0) {
+                                tt.advanceDeadline();
+                                schedule(tt);
+                            }
+                        } catch (Throwable taskFailure) {
+                            // 单任务故障（含 Error）不得杀死时间轮
+                            log.error("[HashedWheelTimer] 任务执行失败: {}", tt.getName(), taskFailure);
                         }
                     }
                     currentTick++;
@@ -188,6 +218,7 @@ public class HashedWheelTimer implements Timer {
             }
         }, "hashed-wheel-tick");
         t.setDaemon(true);
+        tickThread = t;
         t.start();
     }
 

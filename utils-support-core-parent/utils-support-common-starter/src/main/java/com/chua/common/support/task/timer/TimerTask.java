@@ -34,8 +34,8 @@ public class TimerTask {
     /** 任务名称（用于日志） */
     private final String name;
 
-    /** 到期时间戳（毫秒） */
-    private final long deadline;
+    /** 到期时间戳（毫秒）；周期任务重排时由时间轮推进 */
+    private volatile long deadline;
 
     /** 重复周期（毫秒），-1 表示单次任务 */
     private final long period;
@@ -186,6 +186,13 @@ public class TimerTask {
      */
     public long getPeriod() {
         return period;
+    }
+
+    /**
+     * 推进到期时间到下一周期（仅供时间轮重排使用，业务代码勿调）。
+     */
+    void advanceDeadline() {
+        deadline += period;
     }
 
     /**
