@@ -437,7 +437,13 @@ public class FileEngine extends AbstractEngine {
         return affected;
     }
 
-    /** 解析目标表的可变行引用，未加载的表直接拒绝 */
+    /**
+     * 解析目标表的可变行引用，未加载的表直接拒绝。
+     *
+     * @param table 表名
+     * @return 可变行引用列表
+     * @throws IllegalStateException 表未通过 load 加载时抛出
+     */
     private List<Object> resolveMutableRows(String table) {
         List<?> rows = dataStores.get(table);
         if (rows == null && defaultDataSourceName != null && table.equals(defaultDataSourceName)) {
@@ -451,7 +457,13 @@ public class FileEngine extends AbstractEngine {
         return mutable;
     }
 
-    /** 提取 FROM 表名供 SQL 定位数据 */
+    /**
+     * 提取 FROM 子句后的表名，供原生 SQL 定位数据。
+     *
+     * @param sql SELECT 或 DML 语句
+     * @return 表名
+     * @throws IllegalArgumentException 缺少 FROM 子句时抛出
+     */
     private static String extractTable(String sql) {
         java.util.regex.Matcher m = java.util.regex.Pattern
                 .compile("(?i)FROM\\s+([\\w]+)").matcher(sql);

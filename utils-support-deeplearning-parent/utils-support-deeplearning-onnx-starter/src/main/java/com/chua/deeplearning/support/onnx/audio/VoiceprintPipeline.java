@@ -1,7 +1,5 @@
 package com.chua.deeplearning.support.onnx.audio;
 
-import com.chua.common.support.converter.Converter;
-import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.deeplearning.support.audio.FileVectorStorage;
@@ -12,26 +10,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 声纹识别管线（CAM++ 神经模型，192 维嵌入）——全链式 API。
+ * 声纹识别管线（CAM++ 神经模型，192 维嵌入）。
  *
- * <p>配置、入库、检索一气呵成：</p>
- *
- * <p><b>模型零配置</b>：声纹模型 CAM++（26MB）内嵌于
- * utils-support-models-onnx-sensevoice jar，首次调用自动解压到缓存目录，
- * 无需手动下载；{@code vectorDb} 仅决定<b>向量存储后端</b>。</p>
+ * <p>与 {@code FacePipeline}/{@code ImageSearcher} 同构的 Builder API：</p>
  *
  * <pre>{@code
- * List<VoiceprintPipeline.Match> hits = VoiceprintPipeline.create()
- *         .storageDir(Path.of("D:/voiceprints"))   // 可选：持久化目录
- *         .topK(3)                                  // 可选：返回条数，默认 5
- *         .threshold(0.80)                          // 可选：相似度门槛
- *         .enroll("alice", Path.of("alice.wav"))    // 入库（可连多个）
- *         .enroll("bob", Path.of("bob.wav"))
- *         .search(Path.of("query.wav"));            // 检索
+ * VoiceprintPipeline vp = VoiceprintPipeline.builder()
+ *         .vectorStorage("milvus", Map.of(          // 向量库（可选，默认文件落盘）
+ *                 "host", "127.0.0.1", "port", 19530,
+ *                 "collection", "voiceprint"))
+ *         .topK(3)
+ *         .threshold(0.80)
+ *         .build();
+ *
+ * vp.enroll("alice", Path.of("alice.wav"))
+ *   .enroll("bob", Path.of("bob.wav"));
+ * List<Match> hits = vp.search(Path.of("query.wav"));
  * }</pre>
  *
- * <p>旧签名保持兼容：{@link #search(Path, int)} 与
- * {@code enroll} 的原参数顺序重载仍可用。</p>
+ * <p><b>模型零配置</b>：声纹模型 CAM++（26MB）内嵌于
+ * utils-support-models-onnx-sensevoice jar，首次调用自动解压到缓存目录；
+ * vectorStorage 仅决定<b>向量存储后端</b>。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -39,13 +38,10 @@ import java.util.List;
 @Slf4j
 public class VoiceprintPipeline implements AutoCloseable {
 
-    /** 默认 TopK。 */
-    private static final int DEFAULT_TOP_K = 5;
-
     /**
      * 向量入库设施。
      */
-    private VectorStorage storage;
+    private final VectorStorage storage;
 
     /**
      * CAM++ 神经声纹提取器
@@ -53,199 +49,60 @@ public class VoiceprintPipeline implements AutoCloseable {
     private final CampplusEmbedding campplus;
 
     /**
-     * 持久化目录（链式配置项）
+     * 检索条数
      */
-    private Path storageDir;
+    private final int topK;
 
     /**
-     * 检索条数（链式配置项）
+     * 相似度门槛；&lt;=0 表示不过滤
      */
-    private int topK = DEFAULT_TOP_K;
+    private final double threshold;
 
     /**
-     * 相似度门槛，低于该值的结果被过滤；&lt;=0 表示不过滤（链式配置项）
-     */
-    private double threshold;
-
-    /**
-     * 默认构造：文件持久化向量库 + CAM++ 神经声纹。
+     * 默认构造：文件持久化向量库。
      */
     public VoiceprintPipeline() {
-        this(defaultDirectory());
+        this(FileVectorStorage.create(192, defaultDirectory()), 5, 0);
     }
 
     /**
-     * 指定持久化目录构造。
+     * 指定向量库构造（维度须为 192）。
      *
-     * @param dir 声纹库目录
-     */
-    public VoiceprintPipeline(Path dir) {
-        this.storageDir = dir;
-        this.storage = FileVectorStorage.create(192, dir);
-        this.campplus = CampplusEmbedding.load();
-        log.info("[Voiceprint] init: CAM++ neural backend, dim=192, dir={}", dir);
-    }
-
-    /**
-     * 指定向量库构造。
-     *
-     * @param storage 向量存储（维度须为 192）
+     * @param storage 向量存储
      */
     public VoiceprintPipeline(VectorStorage storage) {
+        this(storage, 5, 0);
+    }
+
+    private VoiceprintPipeline(VectorStorage storage, int topK, double threshold) {
+        if (storage.dimension() != 192) {
+            throw new IllegalArgumentException(
+                    "向量库维度须为 192，当前: " + storage.dimension());
+        }
         this.storage = storage;
         this.campplus = CampplusEmbedding.load();
-        log.info("[Voiceprint] init: CAM++ neural backend, dim=192, external storage");
+        this.topK = topK;
+        this.threshold = threshold;
+        log.info("[Voiceprint] init: CAM++ neural backend, dim=192, topK={}, threshold={}",
+                topK, threshold);
     }
 
     /**
-     * 创建声纹管线实例（链式起点）。
+     * 创建 Builder（与 FacePipeline/ImageSearcher 风格一致）。
+     *
+     * @return Builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * 创建默认管线实例（文件持久化）。
      *
      * @return 管线实例
      */
     public static VoiceprintPipeline create() {
-        return new VoiceprintPipeline();
-    }
-
-    /**
-     * 注入自定义向量存储（Milvus/JVector/Redis 等任意实现）。
-     *
-     * <p>须在首次入库/检索前调用；注入后 {@link #storageDir(Path)} 失效。</p>
-     *
-     * @param s 向量存储（维度须为 192）
-     * @return this
-     */
-    public VoiceprintPipeline vectorDb(VectorStorage s) {
-        if (s.dimension() != 192) {
-            throw new IllegalArgumentException("向量库维度须为 192，当前: " + s.dimension());
-        }
-        if (storage != null && storage.size() > 0) {
-            throw new IllegalStateException("已有数据，不允许再切换向量存储");
-        }
-        this.storage = s;
-        return this;
-    }
-
-    /**
-     * 按 SPI 提供方名称创建向量存储（memory/jvector/milvus...）。
-     *
-     * <pre>{@code
-     * pipeline.vectorDb("memory", null);                          // 内存库（无必填）
-     * pipeline.vectorDb("jvector", null);                         // 本地磁盘 ANN 索引（无必填）
-     * pipeline.vectorDb("milvus", Map.of(                         // 外部向量数据库
-     *         "host", "127.0.0.1", "port", 19530,
-     *         "collection", "voiceprint"));                      // token 可选
-     * }</pre>
-     *
-     * <p><b>必填校验</b>：MILVUS 必须提供 host / port / collection（缺失立即抛出，
-     * 避免运行期才失败）；MEMORY / JVECTOR 无必填项。</p>
-     *
-     * @param provider 存储类型（memory / jvector / milvus）
-     * @param config   提供方配置：Map（键 host / port / token / collection），无配置传 null
-     * @return this
-     */
-    public VoiceprintPipeline vectorDb(String provider, Object config) {
-        String host = null;
-        Integer port = null;
-        String token = null;
-        String collection = null;
-        if (config != null) {
-            if (!(config instanceof java.util.Map<?, ?> map)) {
-                throw new IllegalArgumentException("config 需为 Map<String,Object>（键: host/port/token/collection）: "
-                        + config.getClass().getName());
-            }
-            host = trimOrNull(map.get("host"));
-            port = Converter.convertIfNecessary(map.get("port"), Integer.class, null);
-            token = trimOrNull(map.get("token"));
-            collection = trimOrNull(map.get("collection"));
-        }
-
-        // 必填校验：外部向量库缺配置时快速失败
-        String type = StringUtils.isBlank(provider) ? "" : provider.trim().toUpperCase();
-        if ("MILVUS".equals(type)) {
-            java.util.List<String> missing = new java.util.ArrayList<>();
-            if (StringUtils.isBlank(host)) {
-                missing.add("host");
-            }
-            if (port == null) {
-                missing.add("port");
-            }
-            if (StringUtils.isBlank(collection)) {
-                missing.add("collection");
-            }
-            if (!missing.isEmpty()) {
-                throw new IllegalArgumentException(
-                        provider + " 缺少必填配置: " + missing + "（config 可用键: host/port/token/collection）");
-            }
-        }
-
-        var builder = com.chua.common.support.vector.VectorStorageBuilder
-                .newBuilder()
-                .type(provider)
-                .dimension(192)
-                .algorithm(com.chua.common.support.vector.VectorCompareAlgorithm.cosine());
-        if (!StringUtils.isBlank(host)) {
-            builder.host(host);
-        }
-        if (port != null) {
-            builder.port(port);
-        }
-        if (!StringUtils.isBlank(token)) {
-            builder.token(token);
-        }
-        if (!StringUtils.isBlank(collection)) {
-            builder.collection(collection);
-        }
-        return vectorDb(builder.build());
-    }
-
-    /**
-     * 对象转去除首尾空白的字符串。
-     *
-     * @param v 原值
-     * @return 字符串；null/空白返回 null
-     */
-    private static String trimOrNull(Object v) {
-        if (v == null) {
-            return null;
-        }
-        String s = String.valueOf(v).trim();
-        return s.isEmpty() ? null : s;
-    }
-
-    /**
-     * 配置声纹库持久化目录（须在首次入库/检索前调用）。
-     *
-     * @param dir 目录路径
-     * @return this
-     */
-    public VoiceprintPipeline storageDir(Path dir) {
-        if (storage.size() > 0) {
-            throw new IllegalStateException("已有数据，不允许再切换存储目录");
-        }
-        this.storageDir = dir;
-        return this;
-    }
-
-    /**
-     * 配置检索返回条数。
-     *
-     * @param k TopK
-     * @return this
-     */
-    public VoiceprintPipeline topK(int k) {
-        this.topK = Math.max(1, k);
-        return this;
-    }
-
-    /**
-     * 配置相似度门槛：低于该值的匹配被过滤（1:1 验证场景建议 0.80）。
-     *
-     * @param t 余弦相似度阈值 [-1,1]；&lt;=0 关闭过滤
-     * @return this
-     */
-    public VoiceprintPipeline threshold(double t) {
-        this.threshold = t;
-        return this;
+        return builder().build();
     }
 
     /**
@@ -267,7 +124,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     /**
-     * 检索：使用已配置的 topK 与 threshold。
+     * 检索：使用构建时配置的 topK 与 threshold。
      *
      * @param samplePath 待测音频
      * @return 按相似度降序的匹配列表
@@ -278,7 +135,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     /**
-     * 检索：显式指定条数（threshold 仍然生效）。
+     * 检索：显式指定条数（threshold 仍生效）。
      *
      * @param samplePath 待测音频
      * @param k 返回条数
@@ -328,6 +185,159 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @param similarity 余弦相似度 [-1,1]
      */
     public record Match(String speakerId, double similarity) {
+    }
+
+    /**
+     * 管线构建器：配置向量库、TopK、相似度门槛后 build()。
+     */
+    public static final class Builder {
+
+        private VectorStorage vectorStorage;
+        private Path storageDir;
+        private int topK = 5;
+        private double threshold;
+
+        /**
+         * 注入自定义向量存储实例。
+         *
+         * @param s 向量存储
+         * @return this
+         */
+        public Builder vectorStorage(VectorStorage s) {
+            this.vectorStorage = s;
+            return this;
+        }
+
+        /**
+         * 按 SPI 提供方名称创建向量存储（memory/jvector/milvus...）。
+         *
+         * <pre>{@code
+         * builder.vectorStorage("memory", null);
+         * builder.vectorStorage("milvus", Map.of(
+         *         "host", "127.0.0.1", "port", 19530,
+         *         "collection", "voiceprint"));
+         * }</pre>
+         *
+         * <p>MILVUS 必须提供 host/port/collection，缺失立即抛出。</p>
+         *
+         * @param provider 存储类型
+         * @param config   配置 Map（键 host/port/token/collection），可 null
+         * @return this
+         */
+        public Builder vectorStorage(String provider, Object config) {
+            String host = null;
+            Integer port = null;
+            String token = null;
+            String collection = null;
+            if (config != null) {
+                if (!(config instanceof java.util.Map<?, ?> map)) {
+                    throw new IllegalArgumentException(
+                            "config 需为 Map<String,Object>: "
+                                    + config.getClass().getName());
+                }
+                host = trimOrNull(map.get("host"));
+                port = com.chua.common.support.utils.Converter
+                        .convertIfNecessary(map.get("port"), Integer.class, null);
+                token = trimOrNull(map.get("token"));
+                collection = trimOrNull(map.get("collection"));
+            }
+            if ("MILVUS".equalsIgnoreCase(provider)) {
+                java.util.List<String> missing = new ArrayList<>();
+                if (host == null) {
+                    missing.add("host");
+                }
+                if (port == null) {
+                    missing.add("port");
+                }
+                if (collection == null) {
+                    missing.add("collection");
+                }
+                if (!missing.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            provider + " 缺少必填配置: " + missing);
+                }
+            }
+            var b = com.chua.common.support.vector.VectorStorageBuilder
+                    .newBuilder()
+                    .type(provider)
+                    .dimension(192)
+                    .algorithm(com.chua.common.support.vector.VectorCompareAlgorithm.cosine());
+            if (host != null) {
+                b.host(host);
+            }
+            if (port != null) {
+                b.port(port);
+            }
+            if (token != null) {
+                b.token(token);
+            }
+            if (collection != null) {
+                b.collection(collection);
+            }
+            this.vectorStorage = b.build();
+            return this;
+        }
+
+        /**
+         * 文件持久化目录（未注入 vectorStorage 时生效）。
+         *
+         * @param dir 目录
+         * @return this
+         */
+        public Builder storageDir(Path dir) {
+            this.storageDir = dir;
+            return this;
+        }
+
+        /**
+         * 检索返回条数。
+         *
+         * @param k TopK
+         * @return this
+         */
+        public Builder topK(int k) {
+            this.topK = Math.max(1, k);
+            return this;
+        }
+
+        /**
+         * 相似度门槛：低于过滤；&lt;=0 不过滤。
+         *
+         * @param t 阈值
+         * @return this
+         */
+        public Builder threshold(double t) {
+            this.threshold = t;
+            return this;
+        }
+
+        /**
+         * 构建管线。
+         *
+         * @return 管线实例
+         */
+        public VoiceprintPipeline build() {
+            VectorStorage s = vectorStorage;
+            if (s == null) {
+                s = FileVectorStorage.create(192,
+                        storageDir != null ? storageDir : defaultDirectory());
+            }
+            return new VoiceprintPipeline(s, topK, threshold);
+        }
+    }
+
+    /**
+     * 对象转去除首尾空白的字符串。
+     *
+     * @param v 原值
+     * @return 字符串；null/空白返回 null
+     */
+    private static String trimOrNull(Object v) {
+        if (v == null) {
+            return null;
+        }
+        String s = String.valueOf(v).trim();
+        return s.isEmpty() ? null : s;
     }
 
     /**

@@ -118,6 +118,26 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private final double[] alphasCumprod;
 
     /**
+     * 负面提示词
+     */
+    private volatile String negative = System.getProperty("small.sd.negative", "");
+
+    /**
+     * 设备设置（auto/cpu/gpu），来自配置或系统属性
+     */
+    private String deviceSetting = System.getProperty("deeplearning.device");
+
+    /**
+     * UNet 独立设备设置（NaN 时可单独落 CPU，TE/VAE 保持 GPU）
+     */
+    private String unetDeviceSetting = System.getProperty("small.sd.unetDevice");
+
+    /**
+     * UNet 是否已强制运行于 CPU
+     */
+    private volatile boolean unetOnCpu;
+
+    /**
      * ORT 环境
      */
     private final OrtEnvironment env = OrtEnvironment.getEnvironment();

@@ -47,21 +47,23 @@ class LicenseKeyClientTest {
     }
 
     /**
-     * 无签名响应解析（兼容形态）
+     * 无签名响应解析：客户端未配置签名时兼容；已配置签名则拒绝无签名响应
      */
     @Test
     void parseUnsignedResponse() {
         byte[] blob = {1, 2, 3};
         byte[] body = Base64.getEncoder().encode(blob);
         assertArrayEquals(blob, LicenseKeyClient.parseResponse(body, null));
-        assertArrayEquals(blob, LicenseKeyClient.parseResponse(body, SECRET));
+        // 生产语义：客户端启用签名校验后，未签名的响应必须拒绝
+        assertThrows(IllegalStateException.class,
+                () -> LicenseKeyClient.parseResponse(body, SECRET));
     }
 
     /**
-     * 签名响应解析：正确 secret 通过，错误/缺失 secret 拒绝，篡改拒绝
+     * 签名响应解析：正确 secret 通过；缺失/错误 secret 拒绝；篡改拒绝
      */
     @Test
-    void parseSignedResponse() {
+    void parseSignedResponse() throws Exception {
         byte[] blob = "real-blob".getBytes();
         byte[] mac = hmac(SECRET, blob);
         String text = "v1." + Base64.getEncoder().encodeToString(blob)
@@ -69,7 +71,9 @@ class LicenseKeyClientTest {
         byte[] body = text.getBytes();
 
         assertArrayEquals(blob, LicenseKeyClient.parseResponse(body, SECRET));
-        assertArrayEquals(blob, LicenseKeyClient.parseResponse(body, null)); // 服务端未签名场景由服务端保证
+        // 签名响应 + 未配置 secret → 拒绝（无法校验完整性）
+        assertThrows(IllegalStateException.class,
+                () -> LicenseKeyClient.parseResponse(body, null));
 
         assertThrows(IllegalStateException.class,
                 () -> LicenseKeyClient.parseResponse(body, "bad".toCharArray()));

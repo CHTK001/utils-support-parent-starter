@@ -68,7 +68,7 @@ class LicenseServerFilterTest {
         try {
             HttpClient client = HttpClient.newHttpClient();
 
-            HttpResponse<byte[]> ok = client.send(post(port, "fingerprint-ok"),
+            HttpResponse<byte[]> ok = client.send(post(port, "f".repeat(64)),
                     HttpResponse.BodyHandlers.ofByteArray());
             assertEquals(200, ok.statusCode());
             assertArrayEquals(blob, ok.body());
@@ -98,7 +98,7 @@ class LicenseServerFilterTest {
         int port = server.getPort();
         try {
             HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<byte[]> resp = client.send(post(port, "fingerprint-ok"),
+            HttpResponse<byte[]> resp = client.send(post(port, "f".repeat(64)),
                     HttpResponse.BodyHandlers.ofByteArray());
             assertEquals(200, resp.statusCode());
 
@@ -127,7 +127,7 @@ class LicenseServerFilterTest {
     private Server startServer(byte[] blob, char[] secret) throws Exception {
         Path file = tempDir.resolve("lic-" + System.nanoTime() + ".txt");
         LicenseRegistry registry = FileLicenseRegistry.load(file);
-        registry.register("fingerprint-ok", blob);
+        registry.register("f".repeat(64), blob);
 
         Server server = ServerBuilder.create()
                 .type("jdk")

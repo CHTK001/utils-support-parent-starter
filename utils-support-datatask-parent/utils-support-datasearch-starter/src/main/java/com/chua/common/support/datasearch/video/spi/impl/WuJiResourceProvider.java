@@ -82,6 +82,7 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String html = response.body();
+            System.out.println("DEBUG: status=" + response.statusCode() + " htmlLen=" + html.length());
 
             List<VideoInfoResult> results = new ArrayList<>();
             Matcher matcher = RESULT_ROW.matcher(html);

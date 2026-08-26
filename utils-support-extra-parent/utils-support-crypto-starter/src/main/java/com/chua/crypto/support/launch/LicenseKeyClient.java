@@ -133,7 +133,7 @@ public final class LicenseKeyClient {
      * @param secret 签名密钥（可空）
      * @return 封装块字节
      */
-    static byte[] parseResponse(byte[] body, char[] secret) {
+    public static byte[] parseResponse(byte[] body, char[] secret) {
         if (body == null || body.length == 0) {
             throw new IllegalStateException("校验服务器响应为空");
         }
