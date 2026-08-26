@@ -49,6 +49,7 @@ public class MossTtsTranslator implements AutoCloseable {
     private OrtSession decodeSession;
     private OrtSession localFrameSession;
     private OrtSession codecSession;
+    private OrtSession codecEncodeSession;
 
     private MossSentencePieceBpe tokenizer = new MossSentencePieceBpe();
 
@@ -91,6 +92,11 @@ public class MossTtsTranslator implements AutoCloseable {
         codecSession = env.createSession(
                 codecDir.resolve("moss_audio_tokenizer_decode_full.onnx").toString(),
                 new OrtSession.SessionOptions());
+        Path encodeModel = codecDir.resolve("moss_audio_tokenizer_encode.onnx");
+        if (Files.exists(encodeModel)) {
+            codecEncodeSession = env.createSession(encodeModel.toString(),
+                    new OrtSession.SessionOptions());
+        }
     }
 
     private void loadConfig(JsonNode manifest) {
@@ -159,6 +165,104 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
+     * 声音克隆合成：以参考音频的音色朗读文本。
+     *
+     * <p>参考音频经 Audio Tokenizer 编码为提示码序列，
+     * 替代内置音色的 manifest 提示码，其余管线不变。</p>
+     *
+     * @param text      待合成文本（长文本自动分句）
+     * @param refWav    参考音频（任意采样率，建议 5~10 秒干净人声）
+     * @param maxFrames 单段最大帧数
+     * @return WAV 字节流（48 kHz）
+     * @throws Exception 推理异常
+     */
+    public byte[] synthesizeWithReference(String text, Path refWav, int maxFrames)
+            throws Exception {
+        if (codecEncodeSession == null) {
+            throw new IllegalStateException("编码器未加载：codec 目录缺少 "
+                    + "moss_audio_tokenizer_encode.onnx");
+        }
+        List<int[]> promptCodes = encodeReference(refWav);
+        List<String> chunks = splitChunks(text);
+        return synthesizeChunks(chunks, promptCodes);
+    }
+
+    /**
+     * 参考音频 → 提示码。任意采样率/声道统一转为 48kHz 双声道。
+     */
+    private List<int[]> encodeReference(Path refWav) throws Exception {
+        float[][] stereo = loadStereo48k(refWav);
+        int n = stereo[0].length;
+        try (OnnxTensor wav = OnnxTensor.createTensor(env,
+                        FloatBuffer.wrap(stereoFlat(stereo)), new long[]{1, 2, n});
+             OnnxTensor lens = OnnxTensor.createTensor(env,
+                     IntBuffer.wrap(new int[]{n}), new long[]{1});
+             OrtSession.Result result = codecEncodeSession.run(Map.of(
+                     "waveform", wav,
+                     "input_lengths", lens))) {
+            int[][][] raw = (int[][][]) ((OnnxTensor) result.get("audio_codes").get())
+                    .getValue();
+            int frames = raw[0].length;
+            List<int[]> codes = new ArrayList<>(frames);
+            for (int t = 0; t < frames; t++) {
+                int[] row = new int[nVq];
+                for (int q = 0; q < nVq; q++) {
+                    row[q] = raw[0][t][q];
+                }
+                codes.add(row);
+            }
+            System.out.println("[MossTTS] 克隆参考: " + frames + " 帧 ("
+                    + String.format("%.1f", n / 48000.0) + "s)");
+            return codes;
+        }
+    }
+
+    private static float[] stereoFlat(float[][] stereo) {
+        int n = stereo[0].length;
+        float[] flat = new float[2 * n];
+        System.arraycopy(stereo[0], 0, flat, 0, n);
+        System.arraycopy(stereo[1], 0, flat, n, n);
+        return flat;
+    }
+
+    /** 任意 WAV → 48k 双声道 float[2][N]。 */
+    private float[][] loadStereo48k(Path path) throws Exception {
+        try (var ais = javax.sound.sampled.AudioSystem.getAudioInputStream(path.toFile())) {
+            var fmt = ais.getFormat();
+            byte[] bytes = ais.readAllBytes();
+            int bytesPer = fmt.getSampleSizeInBits() / 8;
+            int ch = fmt.getChannels();
+            int total = bytes.length / (bytesPer * ch);
+            float[] mono = new float[total];
+            for (int i = 0; i < total; i++) {
+                float sum = 0;
+                for (int c = 0; c < ch; c++) {
+                    int idx = (i * ch + c) * bytesPer;
+                    int v = (short) (((bytes[idx + 1]) << 8) | (bytes[idx] & 0xFF));
+                    sum += v / 32768f;
+                }
+                mono[i] = sum / ch;
+            }
+            float[] at48 = fmt.getSampleRate() == 48000f
+                    ? mono : resampleLinear(mono, fmt.getSampleRate(), 48000f);
+            return new float[][]{at48, at48.clone()};
+        }
+    }
+
+    private static float[] resampleLinear(float[] in, float srcRate, float dstRate) {
+        long newLenLong = (long) in.length * (long) dstRate / (long) srcRate;
+        int newLen = (int) Math.min(newLenLong, Integer.MAX_VALUE - 1);
+        float[] out = new float[Math.max(1, newLen)];
+        for (int i = 0; i < out.length; i++) {
+            float pos = i * srcRate / dstRate;
+            int lo = (int) pos;
+            int hi = Math.min(lo + 1, in.length - 1);
+            out[i] = in[lo] + (in[hi] - in[lo]) * (pos - lo);
+        }
+        return out;
+    }
+
+    /**
      * 合成语音。
      *
      * @param text      待合成文本
@@ -181,20 +285,8 @@ public class MossTtsTranslator implements AutoCloseable {
         return AudioUtils.toWavBytes(pcm, 48000);
     }
 
-    /** 句末标点（在此处切分并保留标点）。 */
-    private static final String SENTENCE_END = "。！？!?；;\n";
-    /** 句内标点（超长句的次级切分点）。 */
-    private static final String CLAUSE_SPLIT = "，,、：:—…";
-    /** 分段间静音秒数。 */
-    private static final float PAUSE_SECONDS = 0.32f;
-    /** 单段字符上限（超出则按句内标点二次切分）。 */
-    private static final int MAX_CHUNK_CHARS = 55;
-
     /**
      * 长文本合成入口：按标点分句逐段合成，段间插入短停顿后拼接。
-     *
-     * <p>与官方运行时的 voice-clone 文本分块策略一致，
-     * 规避单次自回归生成的帧数上限与长句韵律劣化。</p>
      *
      * @param text  待合成文本（任意长度）
      * @param voice 内置音色名
@@ -202,7 +294,12 @@ public class MossTtsTranslator implements AutoCloseable {
      * @throws Exception 推理异常
      */
     public byte[] synthesizeText(String text, String voice) throws Exception {
-        List<String> chunks = splitChunks(text);
+        return synthesizeChunks(splitChunks(text), selectVoicePrompt(voice));
+    }
+
+    /** 分段循环合成的公共实现（克隆与内置音色共用）。 */
+    private byte[] synthesizeChunks(List<String> chunks, List<int[]> promptCodes)
+            throws Exception {
         if (chunks.isEmpty()) {
             throw new IllegalStateException("文本无有效内容");
         }
@@ -214,8 +311,15 @@ public class MossTtsTranslator implements AutoCloseable {
         for (int i = 0; i < chunks.size(); i++) {
             String chunk = chunks.get(i);
             int frames = Math.min(maxNewFramesLimit, 40 + chunk.length() * 8);
-            byte[] wav = synthesize(chunk, voice, frames);
-            float[] pcm = readPcm(wav);
+            int[] textTokens = tokenizer.encode(chunk);
+            int[][] inputIds = buildInputRows(promptCodes, textTokens);
+
+            float[] pcm;
+            try (PrefillState state = runPrefill(inputIds)) {
+                List<int[]> audioTokens =
+                        generateFrames(state, Math.min(frames, maxNewFramesLimit));
+                pcm = decodeAudio(audioTokens);
+            }
             segments.add(pcm);
             totalSamples += pcm.length;
             if (i < chunks.size() - 1) {
@@ -234,40 +338,19 @@ public class MossTtsTranslator implements AutoCloseable {
         return AudioUtils.toWavBytes(all, 48000);
     }
 
+    /** 句末标点（在此处切分并保留标点）。 */
+    private static final String SENTENCE_END = "。！？!?；;\n";
+    /** 句内标点（超长句的次级切分点）。 */
+    private static final String CLAUSE_SPLIT = "，,、：:—…";
+    /** 分段间静音秒数。 */
+    private static final float PAUSE_SECONDS = 0.32f;
+    /** 单段字符上限（超出则按句内标点二次切分）。 */
+    private static final int MAX_CHUNK_CHARS = 55;
+
     private void logChunk(int index, int total, String chunk, int samples) {
         System.out.printf("[MossTTS] 段 %d/%d (%d字, %.2fs): %s%n",
                 index, total, chunk.length(), samples / 48000.0,
                 chunk.length() > 20 ? chunk.substring(0, 20) + "…" : chunk);
-    }
-
-    /** 从 WAV 字节流读取单声道 PCM float。 */
-    private float[] readPcm(byte[] wav) throws Exception {
-        Path temp = Files.createTempFile("moss-chunk-", ".wav");
-        try {
-            Files.write(temp, wav);
-            return rawPcm(temp);
-        } finally {
-            Files.deleteIfExists(temp);
-        }
-    }
-
-    /** 直接解码 WAV 为 48k 原样 PCM（不重采样）。 */
-    private float[] rawPcm(Path path) throws Exception {
-        try (var ais = javax.sound.sampled.AudioSystem.getAudioInputStream(path.toFile())) {
-            var fmt = ais.getFormat();
-            byte[] bytes = ais.readAllBytes();
-            int bytesPer = fmt.getSampleSizeInBits() / 8;
-            int n = bytes.length / bytesPer;
-            float[] out = new float[n];
-            for (int i = 0; i < n; i++) {
-                int idx = i * bytesPer;
-                int lo = bytes[idx] & 0xFF;
-                int hi = bytes[idx + 1];
-                short v = (short) ((hi << 8) | lo);
-                out[i] = v / 32768f;
-            }
-            return out;
-        }
     }
 
     /** 按句末标点切分，超长句再按句内标点二次切分并合并碎段。 */
