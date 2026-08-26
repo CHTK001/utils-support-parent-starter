@@ -32,6 +32,25 @@ public abstract class BaseUsageParser implements UsageParser {
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
+     * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
+     * 直接覆写 streamAll() 的子类不受影响。
+     */
+    @Override
+    public Flux<AiUsage> streamAll() {
+        return Flux.defer(() -> Flux.fromIterable(parseAll()));
+    }
+
+    /**
+     * 阻塞式全量装载（可选覆写）：供未直接实现 streamAll 的存量子类使用。
+     *
+     * @return 原始 AiUsage 记录列表
+     */
+    protected List<AiUsage> parseAll() {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " 必须实现 parseAll() 或 streamAll()");
+    }
+
+    /**
      * 按行惰性读取文本文件（内存占用与总量无关）。
      *
      * @param file 文本文件

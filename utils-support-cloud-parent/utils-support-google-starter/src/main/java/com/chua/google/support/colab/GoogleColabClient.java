@@ -143,7 +143,7 @@ public class GoogleColabClient implements AutoCloseable {
      */
     public List<RuntimeInfo> listRuntimes() {
         List<RuntimeInfo> result = new ArrayList<>();
-        for (NotebookRuntime runtime : client.listNotebookRuntimes(parent).iterateAllElements()) {
+        for (NotebookRuntime runtime : client.listNotebookRuntimes(parent).iterateAll()) {
             result.add(RuntimeInfo.builder()
                     .name(runtime.getName())
                     .id(extractId(runtime.getName()))
@@ -206,7 +206,7 @@ public class GoogleColabClient implements AutoCloseable {
      */
     public List<TemplateInfo> listRuntimeTemplates() {
         List<TemplateInfo> result = new ArrayList<>();
-        for (NotebookRuntimeTemplate template : client.listNotebookRuntimeTemplates(parent).iterateAllElements()) {
+        for (NotebookRuntimeTemplate template : client.listNotebookRuntimeTemplates(parent).iterateAll()) {
             result.add(TemplateInfo.builder()
                     .name(template.getName())
                     .id(extractId(template.getName()))
@@ -268,7 +268,7 @@ public class GoogleColabClient implements AutoCloseable {
      */
     public List<ExecutionInfo> listExecutions() {
         List<ExecutionInfo> result = new ArrayList<>();
-        for (NotebookExecutionJob job : client.listNotebookExecutionJobs(parent).iterateAllElements()) {
+        for (NotebookExecutionJob job : client.listNotebookExecutionJobs(parent).iterateAll()) {
             result.add(toExecutionInfo(job));
         }
         return result;
@@ -312,11 +312,11 @@ public class GoogleColabClient implements AutoCloseable {
      * @return 是否终态
      */
     private boolean isTerminal(String state) {
-        return JobState.SUCCEEDED.name().equals(state)
-                || JobState.FAILED.name().equals(state)
-                || JobState.CANCELLED.name().equals(state)
-                || JobState.EXPIRED.name().equals(state)
-                || JobState.PARTIALLY_SUCCEEDED.name().equals(state);
+        return JobState.JOB_STATE_SUCCEEDED.name().equals(state)
+                || JobState.JOB_STATE_FAILED.name().equals(state)
+                || JobState.JOB_STATE_CANCELLED.name().equals(state)
+                || JobState.JOB_STATE_EXPIRED.name().equals(state)
+                || JobState.JOB_STATE_PARTIALLY_SUCCEEDED.name().equals(state);
     }
 
     private ExecutionInfo toExecutionInfo(NotebookExecutionJob job) {

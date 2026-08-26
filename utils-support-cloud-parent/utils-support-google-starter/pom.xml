@@ -10,7 +10,7 @@
     </parent>
     <artifactId>utils-support-google-starter</artifactId>
     <name>Utils Support Google Starter</name>
-    <description>谷歌云集成模块：Cloud Storage、Cloud Vision、Gemini 大模型</description>
+    <description>谷歌云集成模块：Cloud Storage、Cloud Vision、Gemini 大模型、Colab Enterprise</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -24,6 +24,10 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-vision</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-aiplatform</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.genai</groupId>

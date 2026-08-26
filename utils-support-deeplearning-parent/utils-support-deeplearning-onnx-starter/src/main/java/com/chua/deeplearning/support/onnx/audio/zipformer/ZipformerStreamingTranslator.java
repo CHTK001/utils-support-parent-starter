@@ -4,7 +4,9 @@ import com.chua.deeplearning.support.onnx.audio.AudioUtils;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
+import ai.onnxruntime.TensorInfo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +42,6 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     private static final int NUM_MELS = 80;
     private static final int CONTEXT_SIZE = 2;
     private static final int BLANK_ID = 0;
-    private static final int SAMPLE_RATE = 16000;
 
     private final OrtEnvironment env = OrtEnvironment.getEnvironment();
     private OrtSession encoderSession;
@@ -48,15 +49,15 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     private OrtSession joinerSession;
     private Map<String, OnnxTensor> initialStates;
     private List<String> inputNames;
-    private Map<Integer, String> vocab = new HashMap<>();
+    private final Map<Integer, String> vocab = new HashMap<>();
 
     /**
      * 从模型目录加载。
      *
      * @param modelDir 模型目录
-     * @throws IOException IO 异常
+     * @throws Exception 加载异常
      */
-    public void prepare(Path modelDir) throws IOException {
+    public void prepare(Path modelDir) throws Exception {
         Path encoderPath = resolveModel(modelDir, "encoder");
         Path decoderPath = resolveModel(modelDir, "decoder");
         Path joinerPath = resolveModel(modelDir, "joiner");
@@ -82,13 +83,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     private void loadVocab(Path modelDir) throws IOException {
         Path tokensFile = modelDir.resolve("tokens.txt");
         if (!Files.exists(tokensFile)) {
-            try (InputStream is = getClass().getResourceAsStream("/audio/asr/zipformer-zh-en/tokens.txt")) {
-                if (is == null) {
-                    throw new IOException("未找到 tokens.txt 于 " + modelDir);
-                }
-                readTokens(is);
-            }
-            return;
+            throw new IOException("未找到 tokens.txt 于 " + modelDir);
         }
         try (InputStream is = Files.newInputStream(tokensFile)) {
             readTokens(is);
@@ -96,7 +91,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     }
 
     private void readTokens(InputStream is) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.trim().split("\\s+", 2);
@@ -111,11 +107,8 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         }
     }
 
-    private void buildInitialStates() {
-        inputNames = new ArrayList<>();
-        for (var info : encoderSession.getInputInfo().entrySet()) {
-            inputNames.add(info.getKey());
-        }
+    private void buildInitialStates() throws OrtException {
+        inputNames = new ArrayList<>(encoderSession.getInputInfo().keySet());
         Collections.sort(inputNames);
 
         initialStates = new LinkedHashMap<>();
@@ -123,27 +116,38 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
             if ("x".equals(name)) {
                 continue;
             }
-            var nodeInfo = encoderSession.getInputInfo().get(name).getInfo();
-            long[] dims;
-            if (nodeInfo instanceof ai.onnxruntime.TensorInfo tensorInfo) {
-                long[] shape = tensorInfo.getShape();
-                dims = new long[shape.length];
-                for (int i = 0; i < shape.length; i++) {
-                    dims[i] = shape[i] > 0 ? shape[i] : 1L;
-                }
-            } else {
+            var info = encoderSession.getInputInfo().get(name).getInfo();
+            if (!(info instanceof TensorInfo tensorInfo)) {
                 continue;
             }
-            if (name.startsWith("cached_len_")) {
-                initialStates.put(name, OnnxTensor.createTensor(env,
-                        new long[(int) dims[0]][(int) dims[1]]));
-            } else {
-                initialStates.put(name, createZeroTensor(name, dims));
+            long[] shape = tensorInfo.getShape();
+            long[] dims = new long[shape.length];
+            for (int i = 0; i < shape.length; i++) {
+                dims[i] = shape[i] > 0 ? shape[i] : 1L;
             }
+            OnnxTensor tensor;
+            if (name.startsWith("cached_len_")) {
+                tensor = createZeroLongTensor(dims);
+            } else {
+                tensor = createZeroFloatTensor(name, dims);
+            }
+            initialStates.put(name, tensor);
         }
     }
 
-    private OnnxTensor createZeroTensor(String name, long[] dims) {
+    private OnnxTensor createZeroLongTensor(long[] dims) throws OrtException {
+        Object arr;
+        if (dims.length == 2) {
+            arr = new long[(int) dims[0]][(int) dims[1]];
+        } else if (dims.length == 1) {
+            arr = new long[(int) dims[0]];
+        } else {
+            throw new IllegalStateException("不支持的状态维度: " + dims.length);
+        }
+        return OnnxTensor.createTensor(env, arr);
+    }
+
+    private OnnxTensor createZeroFloatTensor(String name, long[] dims) throws OrtException {
         switch (dims.length) {
             case 2:
                 return OnnxTensor.createTensor(env, new float[(int) dims[0]][(int) dims[1]]);
@@ -151,11 +155,11 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
                 return OnnxTensor.createTensor(env,
                         new float[(int) dims[0]][(int) dims[1]][(int) dims[2]]);
             case 4:
-                float[][][][] t4 = new float[(int) dims[0]][(int) dims[1]]
-                        [(int) dims[2]][(int) dims[3]];
-                return OnnxTensor.createTensor(env, t4);
+                return OnnxTensor.createTensor(env,
+                        new float[(int) dims[0]][(int) dims[1]]
+                                [(int) dims[2]][(int) dims[3]]);
             default:
-                throw new IllegalStateException("不支持的维度: " + name);
+                throw new IllegalStateException("不支持的状态维度: " + name);
         }
     }
 
@@ -164,6 +168,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
      *
      * @param wavPath WAV 文件路径
      * @return 识别文本
+     * @throws Exception 推理异常
      */
     public String transcribe(Path wavPath) throws Exception {
         float[] samples = AudioUtils.loadMono16k(wavPath);
@@ -172,7 +177,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         return greedyDecode(encoderOut);
     }
 
-    private float[][] runEncoder(float[][] features) {
+    private float[][] runEncoder(float[][] features) throws OrtException {
         int totalFrames = features.length;
         int numChunks = Math.max(1, (totalFrames + DECODE_CHUNK_LEN - 1) / DECODE_CHUNK_LEN);
 
@@ -192,19 +197,20 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
                 }
 
                 Map<String, OnnxTensor> feed = new HashMap<>();
-                feed.put("x", OnnxTensor.createTensor(env, new float[][][]{chunk}));
+                feed.put("x", OnnxTensor.createTensor(env,
+                        new float[][][]{chunk}));
                 feed.putAll(states);
 
                 try (OrtSession.Result result = encoderSession.run(feed)) {
-                    float[][][] rawOut = (float[][][]) result.get(0).getValue();
-                    float[][] encOut = rawOut[0];
-                    for (float[] frame : encOut) {
-                        outputs.add(frame);
-                    }
+                    float[][][] rawEnc = (float[][][]) result.get("encoder_out").get().getValue();
+                    float[][] encOut = rawEnc[0];
+                    Collections.addAll(outputs, encOut);
 
                     states.clear();
-                    for (int k = 1; k < inputNames.size(); k++) {
-                        String inName = inputNames.get(k);
+                    for (String inName : inputNames) {
+                        if ("x".equals(inName)) {
+                            continue;
+                        }
                         String outName = "new_" + inName;
                         var optionalValue = result.get(outName);
                         if (optionalValue.isPresent()) {
@@ -228,25 +234,6 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         return outputs.toArray(new float[0][]);
     }
 
-    private OnnxTensor copyToTensor(Object value) {
-        if (value instanceof long[][] longs) {
-            return OnnxTensor.createTensor(env, longs);
-        }
-        if (value instanceof long[] longs) {
-            return OnnxTensor.createTensor(env, longs);
-        }
-        if (value instanceof float[][] floats) {
-            return OnnxTensor.createTensor(env, floats);
-        }
-        if (value instanceof float[][][] floats3) {
-            return OnnxTensor.createTensor(env, floats3);
-        }
-        if (value instanceof float[][][][] floats4) {
-            return OnnxTensor.createTensor(env, floats4);
-        }
-        return null;
-    }
-
     private void closeStates(Map<String, OnnxTensor> states) {
         for (OnnxTensor t : states.values()) {
             if (t != null) {
@@ -256,56 +243,64 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         states.clear();
     }
 
-    private String greedyDecode(float[][] encoderOut) {
-        List<Integer> emitted = new ArrayList<>();
+    private OnnxTensor copyToTensor(Object value) throws OrtException {
+        if (value instanceof long[] flatLongs) {
+            return OnnxTensor.createTensor(env, flatLongs);
+        }
+        if (value instanceof long[][] matLongs) {
+            return OnnxTensor.createTensor(env, matLongs);
+        }
+        if (value instanceof float[] flatFloats) {
+            return OnnxTensor.createTensor(env, flatFloats);
+        }
+        if (value instanceof float[][] matFloats) {
+            return OnnxTensor.createTensor(env, matFloats);
+        }
+        if (value instanceof float[][][] cubeFloats) {
+            return OnnxTensor.createTensor(env, cubeFloats);
+        }
+        if (value instanceof float[][][][] quadFloats) {
+            return OnnxTensor.createTensor(env, quadFloats);
+        }
+        return null;
+    }
+
+    private String greedyDecode(float[][] encoderOut) throws OrtException {
+        StringBuilder sb = new StringBuilder();
         long[] context = {-1L, BLANK_ID};
 
         float[] decoderOut = runDecoder(context);
-        try {
-            for (float[] frame : encoderOut) {
-                float[] logit = runJoiner(frame, decoderOut);
-                int nextToken = argmax(logit);
-                if (nextToken == BLANK_ID) {
-                    continue;
-                }
-                emitted.add(nextToken);
-                context[0] = context[1];
-                context[1] = nextToken;
-                decoderOut = runDecoder(context);
+        for (float[] frame : encoderOut) {
+            float[] logit = runJoiner(frame, decoderOut);
+            int nextToken = argmax(logit);
+            if (nextToken == BLANK_ID) {
+                continue;
             }
-        } finally {
-            // decoderOut 由 runDecoder 返回, 无需额外释放
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for (int token : emitted) {
-            if (token > CONTEXT_SIZE) {
-                sb.append(vocab.getOrDefault(token, ""));
+            context[0] = context[1];
+            context[1] = nextToken;
+            decoderOut = runDecoder(context);
+            if (nextToken > CONTEXT_SIZE) {
+                sb.append(vocab.getOrDefault(nextToken, ""));
             }
         }
         return sb.toString();
     }
 
-    private float[] runDecoder(long[] y) {
+    private float[] runDecoder(long[] y) throws OrtException {
         try (OnnxTensor tensor = OnnxTensor.createTensor(env, new long[][]{y});
-             OrtSession.Result result = decoderSession.run(Collections.singletonMap("y", tensor))) {
+             OrtSession.Result result =
+                     decoderSession.run(Collections.singletonMap("y", tensor))) {
             return ((float[][]) result.get(0).getValue())[0];
-        } catch (Exception e) {
-            throw new RuntimeException("解码器推理失败", e);
         }
     }
 
-    private float[] runJoiner(float[] encFrame, float[] decOut) {
-        try (OnnxTensor encTensor = OnnxTensor.createTensor(env,
-                     new float[][]{encFrame});
-             OnnxTensor decTensor = OnnxTensor.createTensor(env,
-                     new float[][]{decOut});
+    private float[] runJoiner(float[] encFrame, float[] decOut) throws OrtException {
+        try (OnnxTensor encTensor = OnnxTensor.createTensor(env, new float[][]{encFrame});
+             OnnxTensor decTensor = OnnxTensor.createTensor(env, new float[][]{decOut});
              OrtSession.Result result = joinerSession.run(Map.of(
                      "encoder_out", encTensor,
                      "decoder_out", decTensor))) {
             return ((float[][]) result.get(0).getValue())[0];
-        } catch (Exception e) {
-            throw new RuntimeException("joiner 推理失败", e);
         }
     }
 
@@ -324,13 +319,25 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     @Override
     public void close() {
         if (encoderSession != null) {
-            encoderSession.close();
+            try {
+                encoderSession.close();
+            } catch (OrtException ignored) {
+                // 忽略关闭异常
+            }
         }
         if (decoderSession != null) {
-            decoderSession.close();
+            try {
+                decoderSession.close();
+            } catch (OrtException ignored) {
+                // 忽略关闭异常
+            }
         }
         if (joinerSession != null) {
-            joinerSession.close();
+            try {
+                joinerSession.close();
+            } catch (OrtException ignored) {
+                // 忽略关闭异常
+            }
         }
     }
 }
