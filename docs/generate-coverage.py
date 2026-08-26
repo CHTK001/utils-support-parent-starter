@@ -27,9 +27,10 @@ STATUS_LABEL = {
     'smoke': '🧪 冒烟通过（无正样本）',
     'documented': '📄 已有记录',
     'issue': '🐞 发现缺陷',
+    'na': '🚫 不再追踪',
     'pending': '⬜ 未测试',
 }
-STATUS_ORDER = ['verified', 'smoke', 'issue', 'documented', 'pending']
+STATUS_ORDER = ['verified', 'smoke', 'issue', 'documented', 'na', 'pending']
 
 
 def load_data():

@@ -105,14 +105,18 @@
       "translator": "animegan.AnimeGanV3Translator",
       "capability": "其他",
       "path": "models/onnx/animegan/AnimeGANv3_large_Ghibli_c1_e299.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "已修复 AnimeGanV3Translator 全黑输出（整型 div 截断→先转 FLOAT32；NDImageUtils.resize→Java2D）。新增 AnimeGanExample 图生图入口；1people 风格迁移 332KB/216 色阶 3.5s"
     },
     {
       "id": "anime-gan-v3-shinkai",
       "translator": "animegan.AnimeGanV3Translator",
       "capability": "其他",
       "path": "models/onnx/animegan/AnimeGANv3_Shinkai_37.onnx",
-      "status": "pending"
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "同上修复后通过：314KB/143 色阶"
     },
     {
       "id": "anime-real-cls",
@@ -224,8 +228,8 @@
       "translator": "action.C3DActionDetectionTranslator",
       "capability": "视觉理解",
       "path": "vision/action/c3d/model.onnx",
-      "status": "pending",
-      "notes": "需要视频输入（smoking.mp4 等），本地无测试视频暂缓"
+      "status": "na",
+      "notes": "CPU 推理过慢，按决策放弃"
     },
     {
       "id": "card-correction-detector",
@@ -1022,7 +1026,8 @@
       "translator": "ocr.paddleocr.PaddleOcrRecognitionTranslator",
       "capability": "OCR",
       "path": "ocr/ppocrv5-server-rec.onnx",
-      "status": "pending"
+      "status": "na",
+      "notes": "PP-OCRv5 系按决策不再追踪"
     },
     {
       "id": "paddleocrv6-det",
@@ -1097,7 +1102,8 @@
       "translator": "ocr.extractor.PpWordExtractorTranslator",
       "capability": "OCR",
       "path": "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx",
-      "status": "pending"
+      "status": "na",
+      "notes": "PP-OCRv5 系按决策不再追踪"
     },
     {
       "id": "pp-word-rotate",
@@ -1338,7 +1344,8 @@
       "translator": "ocr.extractor.SvtrExtractorTranslator",
       "capability": "OCR",
       "path": "ocr/recognition/PP-OCRv5_mobile_rec_infer/PP-OCRv5_mobile_rec_infer.onnx",
-      "status": "pending"
+      "status": "na",
+      "notes": "PP-OCRv5 系按决策不再追踪"
     },
     {
       "id": "swinir",
@@ -1524,8 +1531,8 @@
       "translator": "face.ScrfdFaceDetectorTranslator",
       "capability": "人脸",
       "path": "face/detection/yolo-face-person.onnx",
-      "status": "pending",
-      "notes": "注册的下载 URL 已失效（repo 无 model.onnx，仅 .pt 权重）；需另寻 ONNX 源或转换"
+      "status": "na",
+      "notes": "注册已删除（repo 无 ONNX 仅 .pt，URL 失效）"
     },
     {
       "id": "yolo11-odd",
