@@ -173,6 +173,76 @@ final class MemorySqlLex {
             return out;
         }
 
+        /**
+         * 向行写入列值（Map 忽略大小写覆盖；bean 走 setter）。
+         *
+         * @param row    行对象
+         * @param column 列名
+         * @param value  值
+         * @return 是否写入成功
+         */
+        static boolean setValue(Object row, String column, Object value) {
+            if (row instanceof Map) {
+                Map<Object, Object> m = (Map<Object, Object>) (Map<?, ?>) row;
+                for (Map.Entry<?, ?> e : ((Map<?, ?>) row).entrySet()) {
+                    if (String.valueOf(e.getKey()).equalsIgnoreCase(column)) {
+                        m.put(e.getKey(), value);
+                        return true;
+                    }
+                }
+                m.put(column, value);
+                return true;
+            }
+            try {
+                Method setter = row.getClass().getMethod(
+                        "set" + Character.toUpperCase(column.charAt(0)) + column.substring(1),
+                        guessType(value));
+                setter.invoke(row, value);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        private static Class<?> guessType(Object v) {
+            if (v == null) {
+                return Object.class;
+            }
+            if (v instanceof Integer) {
+                return int.class;
+            }
+            if (v instanceof Long) {
+                return long.class;
+            }
+            if (v instanceof Double) {
+                return double.class;
+            }
+            if (v instanceof Boolean) {
+                return boolean.class;
+            }
+            return v.getClass();
+        }
+
+        /**
+         * Map 行转 bean 实例（反射 setter 注入）。
+         *
+         * @param row     结果行
+         * @param rowType 目标类型
+         * @param <T>     类型
+         * @return 实例
+         */
+        static <T> T toBean(Map<String, Object> row, Class<T> rowType) {
+            try {
+                T instance = rowType.getDeclaredConstructor().newInstance();
+                for (Map.Entry<String, Object> e : row.entrySet()) {
+                    setValue(instance, e.getKey(), e.getValue());
+                }
+                return instance;
+            } catch (Exception ex) {
+                throw new IllegalStateException("Map 转 bean 失败: " + rowType.getName(), ex);
+            }
+        }
+
         private static String getterName(String column) {
             if (column.startsWith("is") && column.length() > 2) {
                 return column;

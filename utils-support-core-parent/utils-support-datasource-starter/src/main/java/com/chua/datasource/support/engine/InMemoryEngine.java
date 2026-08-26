@@ -7,6 +7,10 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.datasource.support.engine.MemorySqlAst.DeletePlan;
+import com.chua.datasource.support.engine.MemorySqlAst.DmlPlan;
+import com.chua.datasource.support.engine.MemorySqlAst.InsertPlan;
+import com.chua.datasource.support.engine.MemorySqlAst.UpdatePlan;
 import com.chua.datasource.support.wrapper.EngineDeleteWrapper;
 import com.chua.datasource.support.wrapper.EngineQueryWrapper;
 import com.chua.datasource.support.wrapper.EngineUpdateWrapper;
@@ -15,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -116,6 +121,120 @@ public class InMemoryEngine extends AbstractEngine {
     /** 执行New查询 */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz) {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * 执行原生 SELECT：SQL 编译为 AST 后在表行引用上求值。
+     *
+     * @param sql    SELECT 语句（支持 WHERE/ORDER BY/LIMIT/COUNT(*)）
+     * @param params ? 绑定参数
+     * @return 结果行
+     */
+    public List<Map<String, Object>> querySql(String sql, Object... params) {
+        String table = extractTable(sql);
+        List<?> rows = dataStores.getOrDefault(table, Collections.emptyList());
+        return new MemorySqlParser().executeQuery(sql, rows, params);
+    }
+
+    /**
+     * 执行原生 DML：INSERT / UPDATE / DELETE 直接作用于表行引用。
+     *
+     * @param sql    DML 语句
+     * @param params ? 绑定参数
+     * @return 影响行数
+     */
+    public int executeSql(String sql, Object... params) {
+        DmlPlan plan = new MemorySqlParser().parseDml(sql);
+        List<Object> plist = java.util.Arrays.asList(params == null ? new Object[0] : params);
+        java.util.concurrent.atomic.AtomicInteger cursor = new java.util.concurrent.atomic.AtomicInteger();
+        MemorySqlAst.ParamProvider shared = () ->
+                cursor.get() < plist.size() ? plist.get(cursor.getAndIncrement()) : null;
+        /* INSERT / UPDATE SET 的占位在计划上静态绑定（按 SQL 出现顺序先消费） */
+        bindPlanParams(plan, shared);
+        @SuppressWarnings("unchecked")
+        List<Object> rows = (List<Object>) dataStores.computeIfAbsent(plan.table(), k -> new ArrayList<>());
+        if (plan instanceof InsertPlan) {
+            return applyInsert((InsertPlan) plan, rows);
+        }
+        if (plan instanceof UpdatePlan) {
+            return applyUpdate((UpdatePlan) plan, rows, plist);
+        }
+        return applyDelete((DeletePlan) plan, rows, plist);
+    }
+
+    /** 提取 FROM 表名供 SELECT 定位数据 */
+    private static String extractTable(String sql) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("(?i)FROM\\s+([\\w]+)").matcher(sql);
+        if (!m.find()) {
+            throw new IllegalArgumentException("缺少 FROM 子句: " + sql);
+        }
+        return m.group(1);
+    }
+
+    /** 将解析期收集的 INSERT/SET 占位按序绑定（WHERE 占位延迟到求值期由共享 provider 消费） */
+    private static void bindPlanParams(DmlPlan plan, MemorySqlAst.ParamProvider provider) {
+        if (plan instanceof InsertPlan) {
+            InsertPlan ins = (InsertPlan) plan;
+            for (List<Object> row : ins.rows()) {
+                row.replaceAll(v -> v instanceof MemorySqlAst.ParamMarker ? provider.next() : v);
+            }
+        } else if (plan instanceof UpdatePlan) {
+            ((UpdatePlan) plan).sets()
+                    .replaceAll((k, v) -> v instanceof MemorySqlAst.ParamMarker ? provider.next() : v);
+        }
+    }
+
+    private static int applyInsert(InsertPlan plan, List<Object> rows) {
+        for (List<Object> values : plan.rows()) {
+            LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
+            List<String> cols = !plan.columns().isEmpty() ? plan.columns()
+                    : (rows.isEmpty()
+                            ? List.of()
+                            : new ArrayList<>(MemorySqlLex.RowAccessor.allColumns(rows.get(0)).keySet()));
+            if (cols.isEmpty()) {
+                throw new IllegalStateException("无法推断插入列，请显式指定列清单");
+            }
+            if (cols.size() != values.size()) {
+                throw new IllegalArgumentException(
+                        "列数与值数不匹配: " + cols.size() + " vs " + values.size());
+            }
+            for (int i = 0; i < values.size(); i++) {
+                rowMap.put(cols.get(i), values.get(i));
+            }
+            rows.add(rowMap);
+        }
+        return plan.rows().size();
+    }
+
+    private static int applyUpdate(UpdatePlan plan, List<Object> rows, List<Object> params) {
+        int affected = 0;
+        for (Object row : rows) {
+            /* 每行重置参数游标：绑定值不随行变化 */
+            if (plan.where() != null && !plan.where().eval(row, rowProvider(params))) {
+                continue;
+            }
+            boolean touched = false;
+            for (Map.Entry<String, Object> e : plan.sets().entrySet()) {
+                touched |= MemorySqlLex.RowAccessor.setValue(row, e.getKey(), e.getValue());
+            }
+            if (touched) {
+                affected++;
+            }
+        }
+        return affected;
+    }
+
+    private static int applyDelete(DeletePlan plan, List<Object> rows, List<Object> params) {
+        int before = rows.size();
+        rows.removeIf(row -> plan.where() == null || plan.where().eval(row, rowProvider(params)));
+        return before - rows.size();
+    }
+
+    /** 构造独立的按序参数游标（供单行 WHERE 求值使用） */
+    private static MemorySqlAst.ParamProvider rowProvider(List<Object> params) {
+        java.util.concurrent.atomic.AtomicInteger idx = new java.util.concurrent.atomic.AtomicInteger();
+        return () -> idx.get() < params.size() ? params.get(idx.getAndIncrement()) : null;
     }
 
     @SuppressWarnings("unchecked")
