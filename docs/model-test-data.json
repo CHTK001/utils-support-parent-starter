@@ -1254,9 +1254,9 @@
       "translator": "null",
       "capability": "语音",
       "path": "audio/asr/sensevoice-small/model.int8.onnx",
-      "status": "issue",
+      "status": "verified",
       "date": "2026-08-25",
-      "notes": "SenseVoiceAudioClient(provider=sensevoice) 加载正常、7.4s 推理；但对有效中文语音(TTS 合成 8k/16k 均试)仅输出无关 token \"<|EMO_UNKNOWN|>The.\"——前端 DSP(Kaldi fbank/LFR/CMVN)实现完整，疑 decode 或 language-token 问题待排查"
+      "notes": "已修复三处缺陷并验证：①CMVN 从 ONNX 元数据读取完整560维 neg_mean/inv_stddev(原硬编码8维)②Kaldi 窗口顺序(去直流→预加重→加窗)③LFR padding 公式。SAPI 中文语音『今天天气很好，我们一起去公园散步。』逐字正确含标点。注：vits 机械合成音被判 BGM 属音频源边界"
     },
     {
       "id": "siglip-zero-shot-classification",
