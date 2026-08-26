@@ -99,7 +99,23 @@ public class JsonFileSystem implements FileSystem {
                     }
                     return result;
                 }
-                // 首行为表头
+                if (raw.get(0) instanceof Map) {
+                    /* 对象数组形态：[{"k":v,...},...]，每个元素即一行 */
+                    for (Object item : raw) {
+                        Map<String, Object> map = new LinkedHashMap<>((Map<String, Object>) item);
+                        result.add(map);
+                        if (callback != null) {
+                            callback.onBody(map);
+                        }
+                    }
+                    if (callback != null) {
+                        callback.onComplete(result.size());
+                    }
+                    result = applyFilter(result);
+                    result = applyRowMapping(result);
+                    return result;
+                }
+                // 二维数组形态：[[header,...],[val,...],...]，首行为表头
                 List<Object> headerRow = (List<Object>) raw.get(0);
                 List<String> headers = new ArrayList<>();
                 for (Object h : headerRow) {
@@ -127,11 +143,14 @@ public class JsonFileSystem implements FileSystem {
                     callback.onComplete(result.size());
                 }
             } catch (Exception e) {
+                /* 解析失败必须可观测，禁止静默返回空集 */
+                org.slf4j.LoggerFactory.getLogger(JsonFileSystem.class)
+                        .warn("JSON 文件解析失败: {}", file.getName(), e);
                 if (callback != null) {
                     callback.onComplete(EMPTY_RESULT_ROW_COUNT);
                 }
             }
-            // 应用行过滤 + 行数据转换
+            // 应用过滤 + 行映射转换
             result = applyFilter(result);
             result = applyRowMapping(result);
             return result;
