@@ -138,6 +138,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private volatile boolean forceCpu;
 
     /**
+     * 当前实际使用的设备："gpu" / "cpu"
+     */
+    private volatile String deviceUsed;
+
+    /**
      * 文本编码会话
      */
     private OrtSession textEncoderSession;
@@ -265,6 +270,16 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 if (i == 0) {
                     log.info("[Small SD v0][STAGE] step0 eps[min={}, max={}] / [{}]",
                             fmin(epsCond), fmax(epsCond), fmaxAbs(epsCond));
+                    // GPU fp16 数值异常（NaN）检测：降级 CPU 重跑整条流水线
+                    if (Float.isNaN(epsCond[0]) || Float.isInfinite(epsCond[0])) {
+                        if (!forceCpu && "gpu".equals(deviceUsed)) {
+                            log.warn("[Small SD v0][编排] GPU 输出 NaN（fp16 数值异常），降级 CPU 重跑");
+                            forceCpu = true;
+                            closeSessions();
+                            return translate(input);
+                        }
+                        throw new RuntimeException("UNet 输出 NaN（CPU 仍异常）");
+                    }
                 }
                 for (int k = 0; k < latent.length; k++) {
                     float eps = epsUncond[k] + (float) guidanceScale * (epsCond[k] - epsUncond[k]);
@@ -316,6 +331,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             boolean wantGpu = !forceCpu && DeviceSelector.resolve(deviceSetting()).equals("gpu");
             try {
                 openSessions(base, wantGpu);
+                deviceUsed = wantGpu ? "gpu" : "cpu";
                 if (wantGpu) {
                     log.info("[Small SD v0][编排] 设备: GPU (CUDA EP)");
                 }
@@ -327,6 +343,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 forceCpu = true;
                 closeSessions();
                 openSessions(base, false);
+                deviceUsed = "cpu";
             }
             initialized = true;
         }

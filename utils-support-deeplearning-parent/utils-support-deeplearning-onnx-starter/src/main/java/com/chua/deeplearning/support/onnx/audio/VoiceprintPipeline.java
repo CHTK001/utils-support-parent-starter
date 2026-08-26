@@ -31,7 +31,7 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Slf4j
-public class VoiceprintPipeline {
+public class VoiceprintPipeline implements AutoCloseable {
 
     /** 默认 TopK。 */
     private static final int DEFAULT_TOP_K = 5;
@@ -39,7 +39,7 @@ public class VoiceprintPipeline {
     /**
      * 向量入库设施。
      */
-    private final VectorStorage storage;
+    private VectorStorage storage;
 
     /**
      * CAM++ 神经声纹提取器
@@ -98,6 +98,45 @@ public class VoiceprintPipeline {
      */
     public static VoiceprintPipeline create() {
         return new VoiceprintPipeline();
+    }
+
+    /**
+     * 注入自定义向量存储（Milvus/JVector/Redis 等任意实现）。
+     *
+     * <p>须在首次入库/检索前调用；注入后 {@link #storageDir(Path)} 失效。</p>
+     *
+     * @param s 向量存储（维度须为 192）
+     * @return this
+     */
+    public VoiceprintPipeline storage(VectorStorage s) {
+        if (s.dimension() != 192) {
+            throw new IllegalArgumentException("向量库维度须为 192，当前: " + s.dimension());
+        }
+        if (storage != null && storage.size() > 0) {
+            throw new IllegalStateException("已有数据，不允许再切换向量存储");
+        }
+        this.storage = s;
+        return this;
+    }
+
+    /**
+     * 按 SPI 提供方名称创建向量存储（memory/jvector/milvus...）。
+     *
+     * <pre>{@code
+     * pipeline.storage("milvus", milvusConfig);   // 外部向量数据库
+     * pipeline.storage("jvector", null);          // 本地磁盘 ANN 索引
+     * }</pre>
+     *
+     * @param provider SPI 名称（见 META-INF/extensions/...VectorStorageProvider）
+     * @param config   提供方所需配置对象，无配置传 null
+     * @return this
+     */
+    public VoiceprintPipeline storage(String provider, Object config) {
+        VectorStorage s = com.chua.common.support.vector.VectorStorage
+                .create(provider, 192,
+                        com.chua.common.support.vector.VectorCompareAlgorithm.cosine(),
+                        config);
+        return storage(s);
     }
 
     /**
@@ -195,6 +234,18 @@ public class VoiceprintPipeline {
      */
     public int size() {
         return storage.size();
+    }
+
+    /**
+     * 释放底层向量库连接（Milvus 等外部存储需要）。
+     */
+    @Override
+    public void close() {
+        try {
+            storage.close();
+        } catch (Exception e) {
+            log.warn("[Voiceprint] close storage failed: {}", e.getMessage());
+        }
     }
 
     /**
