@@ -643,7 +643,9 @@
       "translator": "dino.GroundingDinoTranslator",
       "capability": "目标检测",
       "path": "vision/detection/grounding-dino-tiny/model.onnx",
-      "status": "documented"
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "已修复：完整导出版需5输入，补 token_type_ids/pixel_mask；tokenizer.json 手工补齐。685MB 零样本检测 1people→1 框"
     },
     {
       "id": "hand-pose",
@@ -1539,7 +1541,9 @@
       "translator": "yolo.v11.translator.Yolo11OddTranslator",
       "capability": "目标检测",
       "path": "vision/detection/obb/yolo11n-obb.onnx",
-      "status": "documented"
+      "status": "smoke",
+      "date": "2026-08-26",
+      "notes": "推理正常输出 ObbResult；注册 URL 失效已手工缓存(yolo11n-obb 替代源未找到，当前文件来自手工源)；OBB 输出类型需专用消费端"
     },
     {
       "id": "yolo11-plate-detect",
@@ -1564,21 +1568,27 @@
       "translator": "yolo.v26.translator.Yolo26ObbTranslator",
       "capability": "目标检测",
       "path": "vision/detection/v26/yolo26n.onnx",
-      "status": "documented"
+      "status": "smoke",
+      "date": "2026-08-26",
+      "notes": "同 yolo26n（同一 onnx 文件）"
     },
     {
       "id": "yolo26n",
       "translator": "yolo.v26.translator.Yolo26ObbTranslator",
       "capability": "目标检测",
       "path": "vision/detection/v26/yolo26n.onnx",
-      "status": "documented"
+      "status": "smoke",
+      "date": "2026-08-26",
+      "notes": "加载/推理正常，输出 ObbResult 旋转框类型；DOTA 航拍域模型对日常图空框属预期"
     },
     {
       "id": "yolov10m",
       "translator": "yolo.v10.translator.YoloV10DetectTranslator",
       "capability": "目标检测",
       "path": "vision/detection/v10/yolov10m.onnx",
-      "status": "documented"
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "自动下载(58MB, hf-mirror 缓存)；1people→3 框，比 n 版更精准"
     },
     {
       "id": "yolov10n",
@@ -1596,7 +1606,8 @@
       "translator": "yolo.v2.translator.Yolov2CocoTranslator",
       "capability": "目标检测",
       "path": "vision/detection/v2/yolov2-coco-9.onnx",
-      "status": "documented"
+      "status": "pending",
+      "notes": "无下载 URL 且本地无资源，待定"
     },
     {
       "id": "yolov5-plate-recognize",
@@ -1610,14 +1621,16 @@
       "translator": "yoloworld.YoloWorldDetectorTranslator",
       "capability": "目标检测",
       "path": "vision/detection/yoloworld/yolov8l-world.onnx",
-      "status": "documented"
+      "status": "na",
+      "notes": "同 yolov8m-world"
     },
     {
       "id": "yolov8m-world",
       "translator": "yoloworld.YoloWorldDetectorTranslator",
       "capability": "目标检测",
       "path": "vision/detection/yoloworld/yolov8m-world.onnx",
-      "status": "documented"
+      "status": "na",
+      "notes": "repo 失效(404/Invalid credentials)；开放词汇能力已由 yolov8s-world verified 覆盖"
     },
     {
       "id": "yolov8n-pose",
