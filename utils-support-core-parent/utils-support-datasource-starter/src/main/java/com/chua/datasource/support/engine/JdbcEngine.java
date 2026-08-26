@@ -65,7 +65,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             return result;
         }
 
-        String tableName = clazz.getSimpleName().toLowerCase();
+        String tableName = resolveTableName(clazz);
         StringBuilder fullSql = new StringBuilder("SELECT * FROM ");
         fullSql.append(tableName);
         if (where != null && !where.trim().isEmpty()) {
@@ -257,14 +257,15 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 将实体类简单名转为小写表名，与 {@link #executeNewQuery} 的表名策略一致。
+     * 将实体类解析为表名，优先读取 {@link com.chua.datasource.support.annotation.TableName}
+     * 注解，未标注时驼峰转下划线，与 {@link #executeNewQuery} 的表名策略一致。
      *
      * @param entityClass 实体类
      * @param <T>         实体类型
-     * @return 小写表名
+     * @return 表名
      */
     private static <T> String entityTableName(Class<T> entityClass) {
-        return entityClass.getSimpleName().toLowerCase();
+        return resolveTableName(entityClass);
     }
 
     /**

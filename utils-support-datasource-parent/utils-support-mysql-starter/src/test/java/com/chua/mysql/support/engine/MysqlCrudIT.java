@@ -1,5 +1,6 @@
 package com.chua.mysql.support.engine;
 
+import com.chua.datasource.support.annotation.TableName;
 import org.junit.jupiter.api.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -16,6 +17,7 @@ class MysqlCrudIT {
     static final String TABLE = "mysql_engine_crud";
     static MysqlEngine engine;
 
+    @TableName(TABLE)
     public static class MU {
         private int id;
         private String name;
@@ -30,18 +32,18 @@ class MysqlCrudIT {
 
     @BeforeAll
     static void setupAll() throws Exception {
-        Assumptions.assumeTrue(reachable(HOST, 3306), "MySQL 不可达");
+        Assumptions.assumeTrue(reachable(HOST, 3308), "MySQL 不可达");
         /* 用原始 JDBC 建表和插入，确保数据存在 */
         try (var conn = java.sql.DriverManager.getConnection(
-                "jdbc:mysql://" + HOST + ":3306/report?useSSL=false&allowPublicKeyRetrieval=true",
-                "root", "root@")) {
+                "jdbc:mysql://" + HOST + ":3308/testdb?useSSL=false&allowPublicKeyRetrieval=true",
+                "root", "root")) {
             var st = conn.createStatement();
             st.execute("DROP TABLE IF EXISTS " + TABLE);
             st.execute("CREATE TABLE " + TABLE + " (id INT PRIMARY KEY, name VARCHAR(20), age INT)");
             st.execute("INSERT INTO " + TABLE + " VALUES (1,'Alice',20),(2,'Bob',30),(3,'Cathy',25)");
         }
         engine = new MysqlEngine();
-        engine.addDataSource("mysql", HOST, 3306, "report", "root", "root@");
+        engine.addDataSource("mysql", HOST, 3308, "testdb", "root", "root");
     }
 
     @AfterAll

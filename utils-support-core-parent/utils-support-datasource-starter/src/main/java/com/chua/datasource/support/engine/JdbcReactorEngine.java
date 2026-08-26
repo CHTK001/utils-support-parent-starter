@@ -672,6 +672,14 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (url == null) {
             return false;
         }
+        String lowerUrl = url.toLowerCase();
+        /* 已知 R2DBC 驱动缺陷的协议强制 JDBC：
+         * MySQL(asyncer getRowsUpdated CCE) / SQL Server(占位符 @P0) / MariaDB */
+        if (lowerUrl.startsWith("jdbc:mysql:")
+                || lowerUrl.startsWith("jdbc:mariadb:")
+                || lowerUrl.startsWith("jdbc:sqlserver:")) {
+            return true;
+        }
         /* 已注册纯 JDBC 数据源且无对应 R2DBC 工厂（如 SQLite/DuckDB）时走 JDBC */
         return !r2dbcFactories.containsKey(name);
     }

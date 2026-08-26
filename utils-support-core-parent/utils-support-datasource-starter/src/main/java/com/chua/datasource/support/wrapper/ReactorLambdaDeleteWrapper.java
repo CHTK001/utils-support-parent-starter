@@ -74,7 +74,7 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
      */
     private int doRemove() {
         DeleteSql<T> sql = buildSql();
-        String tableName = entityClass.getSimpleName().toLowerCase();
+        String tableName = com.chua.datasource.support.engine.AbstractEngine.resolveTableName(entityClass);
         StringBuilder fullSql = new StringBuilder("DELETE FROM ").append(tableName);
         if (sql.hasWhere()) {
             fullSql.append(" WHERE ").append(sql.whereClause());
