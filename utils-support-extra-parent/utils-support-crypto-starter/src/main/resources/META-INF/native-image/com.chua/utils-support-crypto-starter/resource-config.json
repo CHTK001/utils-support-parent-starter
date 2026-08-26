@@ -1,0 +1,8 @@
+{
+  "bundles": [],
+  "resources": {
+    "includes": [
+      {"pattern": "META-INF/extensions/com\\.chua\\.crypto\\.support\\.store\\.SecretKeyStore"}
+    ]
+  }
+}

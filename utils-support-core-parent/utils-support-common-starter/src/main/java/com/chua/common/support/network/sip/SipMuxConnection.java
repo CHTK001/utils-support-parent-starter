@@ -138,6 +138,7 @@ class SipMuxConnection {
     void attach(SipMuxStream stream) {
         streams.put(stream.channelId(), stream);
         List<byte[]> early = earlyFrames.remove(stream.channelId());
+        if (early != null && !early.isEmpty()) SipMetrics.get().onMuxFlush(early.size());
         if (early != null) {
             for (byte[] payload : early) {
                 stream.dispatch(payload);
@@ -178,6 +179,7 @@ class SipMuxConnection {
         if (stream != null) {
             stream.markClosed();
         }
+        SipMetrics.get().onMuxCloseMarker();
         try {
             sendFrame(channelId, new byte[0]);
         } catch (IOException e) {

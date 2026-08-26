@@ -23,7 +23,8 @@ public class ConversationParserTest {
      * @param args optional provider names to sample; defaults to claude-code
      */
     public static void main(String[] args) {
-        String[] names = {"claude-code", "qoder", "codebuddy", "cline", "continue", "opencode", "kilo"};
+        String[] names = args.length > 0 ? args : new String[] {"claude-code", "qoder", "codebuddy",
+                "cline", "continue", "opencode", "kilo", "zcode", "goose", "crush", "gemini-cli"};
         int failures = 0;
 
         for (String name : names) {

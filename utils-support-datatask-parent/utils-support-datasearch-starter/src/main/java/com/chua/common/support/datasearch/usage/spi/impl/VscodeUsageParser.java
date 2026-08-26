@@ -70,7 +70,7 @@ public class VscodeUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per billed API request
      */
-    private List<AiUsage> parseAll() {
+    @Override protected List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
             log.debug("[vscode] session store not found: {} (Copilot CLI not installed/authenticated)", DB_PATH);
             return List.of();

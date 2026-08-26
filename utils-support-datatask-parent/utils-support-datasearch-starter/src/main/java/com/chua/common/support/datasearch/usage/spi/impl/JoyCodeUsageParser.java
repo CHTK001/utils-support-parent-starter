@@ -74,7 +74,7 @@ public class JoyCodeUsageParser extends BaseUsageParser {
      *
      * @return list of estimated AiUsage records (estimated = true)
      */
-    private List<AiUsage> parseAll() {
+    @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(JOYCODE_LOG_DIR)) {
             log.debug("[joycode] log dir not found: {}", JOYCODE_LOG_DIR);
             return List.of();

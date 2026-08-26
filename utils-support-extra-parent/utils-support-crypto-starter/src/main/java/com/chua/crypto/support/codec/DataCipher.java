@@ -19,10 +19,18 @@ import java.util.Base64;
  * <p>每次加密均生成独立随机 IV；字符串 API 输出/输入为标准 Base64。
  * GCM 自带完整性校验：密文被篡改或密钥不匹配时解密直接失败。
  *
+ * <p>{@link #encryptTagged(byte[], byte[])} 系列在密文头部追加 4 字节魔数 {@code CHKJ}，
+ * 用于程序包加密场景（FatJar 内的 class/依赖 jar/配置条目），运行期引导器按魔数识别并透明解密。
+ *
  * @author CH
  * @since 2026-08-26
  */
 public final class DataCipher {
+
+    /**
+     * 程序包加密条目魔数：Chua Key Jar
+     */
+    public static final byte[] MAGIC_TAGGED = {'C', 'H', 'K', 'J'};
 
     /**
      * 密文格式版本号
@@ -48,6 +56,64 @@ public final class DataCipher {
      * 私有构造
      */
     private DataCipher() {
+    }
+
+    /**
+     * 加密字节并附加 CHKJ 魔数标记（程序包条目格式）
+     *
+     * @param key       主密钥（32 字节）
+     * @param plaintext 明文
+     * @return [CHKJ][版本][IV][密文]
+     */
+    public static byte[] encryptTagged(byte[] key, byte[] plaintext) {
+        byte[] body = encrypt(key, plaintext);
+        byte[] out = new byte[MAGIC_TAGGED.length + body.length];
+        System.arraycopy(MAGIC_TAGGED, 0, out, 0, MAGIC_TAGGED.length);
+        System.arraycopy(body, 0, out, MAGIC_TAGGED.length, body.length);
+        return out;
+    }
+
+    /**
+     * 解密带 CHKJ 魔数标记的密文（程序包条目格式）
+     *
+     * @param key       主密钥
+     * @param encrypted [CHKJ][版本][IV][密文]
+     * @return 明文
+     */
+    public static byte[] decryptTagged(byte[] key, byte[] encrypted) {
+        if (encrypted == null || !startsWith(encrypted, MAGIC_TAGGED)) {
+            throw new CryptoException("密文缺少 CHKJ 标记");
+        }
+        return decrypt(key, Arrays.copyOfRange(encrypted, MAGIC_TAGGED.length, encrypted.length));
+    }
+
+    /**
+     * 判断数据是否为带 CHKJ 标记的密文
+     *
+     * @param data 数据
+     * @return true 表示已加密
+     */
+    public static boolean isTagged(byte[] data) {
+        return startsWith(data, MAGIC_TAGGED);
+    }
+
+    /**
+     * 前缀匹配
+     *
+     * @param data  数据
+     * @param magic 前缀
+     * @return true 表示匹配
+     */
+    private static boolean startsWith(byte[] data, byte[] magic) {
+        if (data == null || data.length < magic.length) {
+            return false;
+        }
+        for (int i = 0; i < magic.length; i++) {
+            if (data[i] != magic[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

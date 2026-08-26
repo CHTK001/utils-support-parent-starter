@@ -52,7 +52,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     /**
-     * 构造翻译器。
+     * 构造翻译器（设备跟随全局设置）。
      *
      * @param modelName     模型名称
      * @param modelPath     模型路径
@@ -60,8 +60,22 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
      * @param djlTranslator DJL Translator
      */
     public DjlModelTranslator(String modelName, Path modelPath, String engineName, Translator<?, ?> djlTranslator) {
+        this(modelName, modelPath, engineName, null, djlTranslator);
+    }
+
+    /**
+     * 构造翻译器（指定设备设置）。
+     *
+     * @param modelName      模型名称
+     * @param modelPath      模型路径
+     * @param engineName     引擎名称
+     * @param deviceSetting  设备设置：auto / cpu / gpu / cuda，可为 null
+     * @param djlTranslator  DJL Translator
+     */
+    public DjlModelTranslator(String modelName, Path modelPath, String engineName,
+                              String deviceSetting, Translator<?, ?> djlTranslator) {
         this.modelName = modelName;
-        this.factory = new DjlModelFactory(modelName, modelPath, engineName, () -> djlTranslator);
+        this.factory = new DjlModelFactory(modelName, modelPath, engineName, deviceSetting, () -> djlTranslator);
         this.imageInput = isImageInput(djlTranslator);
         if (imageInput) {
             log.info("[deeplearning-engine] DJL 模型 {} 输入类型为 Image，启用 byte[] 自动转换", modelName);

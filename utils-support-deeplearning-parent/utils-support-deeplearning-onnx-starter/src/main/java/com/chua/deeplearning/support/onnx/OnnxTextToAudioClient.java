@@ -49,7 +49,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Spi("onnx")
+@Spi({"onnx", "vits", "vits-icefall-zh", "pocket-tts", "mms-tts"})
 @Slf4j
 public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
 

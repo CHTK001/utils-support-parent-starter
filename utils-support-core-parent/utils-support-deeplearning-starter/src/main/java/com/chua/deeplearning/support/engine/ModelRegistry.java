@@ -943,13 +943,16 @@ public final class ModelRegistry {
                             path = resolveModelPath(modelId);
                         }
                         Object translator = newTranslatorInstance(translatorClassName, options);
+                        // options 中可注入 per-model 设备设置：device=auto|cpu|gpu|cuda
+                        String deviceSetting = (options != null && options.get("device") != null)
+                                ? String.valueOf(options.get("device")) : null;
                         if (translator instanceof ITranslator<?, ?> itranslator) {
                             // 原生 ITranslator：直接包装，不经过 DJL
                             delegate = new ITranslatorDelegate(modelId, path, itranslator);
                         } else {
                             Translator<?, ?> djlTranslator = (Translator<?, ?>) translator;
                             String engine = DjlModelFactory.resolveEngine(path);
-                            delegate = new DjlModelTranslator(modelId, path, engine, djlTranslator);
+                            delegate = new DjlModelTranslator(modelId, path, engine, deviceSetting, djlTranslator);
                         }
                     }
                 }

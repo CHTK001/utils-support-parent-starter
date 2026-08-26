@@ -128,13 +128,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 图像生成(LCM-LoRA VAE Encoder)：VAE 编码器，将图像编码为潜变量；适用图像编辑、图像变化
         reg("lcm-lora-vae-encoder", "com.chua.deeplearning.support.onnx.generation.LcmLoraVaeEncoderTranslator", ai.djl.modality.cv.Image.class, ai.djl.ndarray.NDList.class, Object.class, "vision/detection/lcm/lora/vae_encoder.onnx");
         // 文本编码器(Small-SD)：小型 Stable Diffusion 文本编码器，将文本提示编码为条件向量；适用轻量级文生图
-        reg("small-sd-text-encoder", "com.chua.deeplearning.support.onnx.generation.SmallSdTextEncoderTranslator", String.class, ai.djl.ndarray.NDList.class, Object.class, "vision/detection/small-sd/text_encoder.onnx");
-        // 图像生成(Small-SD UNet)：小型 Stable Diffusion 的 UNet 去噪网络；适用轻量级文生图
-        reg("small-sd-unet", "com.chua.deeplearning.support.onnx.generation.SmallSdUnetTranslator", ai.djl.ndarray.NDList.class, ai.djl.ndarray.NDList.class, Object.class, "vision/detection/small-sd/unet.onnx");
+        // 权重：subpixel/small-stable-diffusion-v0-onnx-ort-web（OFA-Sys/small-stable-diffusion-v0 的 ONNX 转换）
+        reg("small-sd-text-encoder", "com.chua.deeplearning.support.onnx.generation.SmallSdTextEncoderTranslator", String.class, ai.djl.ndarray.NDList.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/text_encoder/model.onnx", false, null);
+        // 图像生成(Small-SD UNet)：小型 Stable Diffusion 的 UNet 去噪网络；注意需将 unet/weights.pb（外部权重）手动放置到同目录
+        reg("small-sd-unet", "com.chua.deeplearning.support.onnx.generation.SmallSdUnetTranslator", ai.djl.ndarray.NDList.class, ai.djl.ndarray.NDList.class, Object.class, "vision/detection/small-sd/unet/model.onnx",
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/unet/model.onnx", false, null);
         // 图像生成(Small-SD VAE Decoder)：小型 SD 的 VAE 解码器，将潜变量解码为图像；适用轻量级文生图后处理
-        reg("small-sd-vae-decoder", "com.chua.deeplearning.support.onnx.generation.SmallSdVaeDecoderTranslator", ai.djl.ndarray.NDList.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/small-sd/vae_decoder.onnx");
-        // 文本到图像生成(Small-SD Combined)：小型 Stable Diffusion 全流程合并版，输入文本直接输出图像；适用轻量级离线文生图
-        reg("small-stable-diffusion-combined", "com.chua.deeplearning.support.onnx.generation.SmallStableDiffusionCombinedTranslator", String.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/small-sd/combined.onnx");
+        reg("small-sd-vae-decoder", "com.chua.deeplearning.support.onnx.generation.SmallSdVaeDecoderTranslator", ai.djl.ndarray.NDList.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/small-sd/vae_decoder/model.onnx",
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/vae_decoder/model.onnx", false, null);
+        // 文本到图像生成(Small-SD Combined 全流程编排)：文本编码 → CFG 引导 DDIM 去噪 → VAE 解码；
+        // 主模型为文本编码器，UNet/VAE/tokenizer.json 由编排器自动下载（fp32 约 3GB，含 UNet 外部权重 weights.pb）
+        reg("small-stable-diffusion-combined", "com.chua.deeplearning.support.onnx.generation.SmallStableDiffusionCombinedTranslator", String.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
+                "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/text_encoder/model.onnx", false, null);
         // 图像生成(TAESD Decoder)：微型 VAE 解码器，极轻量级，用于快速解码潜变量；适用快速图像预览
         reg("taesd-decoder", "com.chua.deeplearning.support.onnx.generation.TaesdDecoderTranslator", ai.djl.ndarray.NDList.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/taesd/decoder.onnx");
         // 素描转换(ImageToLineDrawing)：将照片转换为线条素描风格；适用艺术创作、素描特效

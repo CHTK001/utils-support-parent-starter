@@ -121,4 +121,12 @@ public class GooseConversationParser implements ConversationParser {
             return Json.parse("[]");
         }
     }
+
+
+    private static String firstNonBlank(String value, String fallback) {
+        if (value != null && !value.isBlank()) {
+            return value;
+        }
+        return fallback;
+    }
 }

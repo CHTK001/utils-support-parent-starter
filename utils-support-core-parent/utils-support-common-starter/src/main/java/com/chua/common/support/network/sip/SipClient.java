@@ -508,6 +508,7 @@ public class SipClient {
         if (existing != null && !existing.isClosed()) {
             return existing;
         }
+        SipMetrics.get().onClientConnect();
         SipMuxConnection created = SipMuxConnection.open(this, serverHost, serverPort, role,
                 token, sessionToken, firstChannelId, encryptData);
         if ("visitor".equals(role)) {
@@ -766,6 +767,7 @@ public class SipClient {
         } catch (IOException ignored) {
         }
         SipMuxConnection mv = muxVisitorConn;
+        SipMetrics.get().onClientDisconnect();
         if (mv != null) {
             mv.close();
         }

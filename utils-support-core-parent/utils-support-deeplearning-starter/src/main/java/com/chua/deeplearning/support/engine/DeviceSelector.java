@@ -33,10 +33,12 @@ public final class DeviceSelector {
     public static final String PROP = "deeplearning.device";
 
     /**
-     * onnxruntime_gpu 构件的 Maven 坐标资源路径（classpath 存在性检测依据）
+     * onnxruntime_gpu 独有原生库（CPU 版构件不含 CUDA/TensorRT provider）
      */
-    private static final String ORT_GPU_MARKER =
-            "META-INF/maven/com.microsoft.onnxruntime/onnxruntime_gpu/pom.properties";
+    private static final String[] ORT_GPU_MARKERS = {
+            "ai/onnxruntime/native/win-x64/onnxruntime_providers_cuda.dll",
+            "ai/onnxruntime/native/linux-x64/libonnxruntime_providers_cuda.so",
+    };
 
     /**
      * nvidia-smi 探测超时（秒）
@@ -154,6 +156,9 @@ public final class DeviceSelector {
     /**
      * 检测 classpath 是否为 onnxruntime_gpu 构件。
      *
+     * <p>判定依据：GPU 版构件独带的 CUDA/TensorRT provider 原生库
+     * （CPU 版构件不含，API 类则两个构件都有、不可作标记）。</p>
+     *
      * @return true 表示存在 GPU 版构件
      */
     private static boolean hasOrtGpuArtifact() {
@@ -161,6 +166,11 @@ public final class DeviceSelector {
         if (loader == null) {
             loader = DeviceSelector.class.getClassLoader();
         }
-        return loader.getResource(ORT_GPU_MARKER) != null;
+        for (String marker : ORT_GPU_MARKERS) {
+            if (loader.getResource(marker) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 }
