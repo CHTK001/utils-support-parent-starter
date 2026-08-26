@@ -83,16 +83,16 @@ public class WebhookMessagePush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 WebhookPush 实例 */
-    public WebhookPush() {
+    /** 创建 WebhookMessagePush 实例 */
+    public WebhookMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 WebhookPush 实例
+     * 创建 WebhookMessagePush 实例
      * @param environment environment
      */
-    public WebhookPush(MessageEnvironment environment) {
+    public WebhookMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
