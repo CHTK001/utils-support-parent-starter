@@ -525,7 +525,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @throws IOException 分词失败
      */
     private long[][] tokenizePair(String prompt) throws IOException {
-        return new long[][]{tokenize(""), tokenize(prompt)};
+        String negative = System.getProperty("small.sd.negative", "");
+        return new long[][]{tokenize(negative), tokenize(prompt)};
     }
 
     /**

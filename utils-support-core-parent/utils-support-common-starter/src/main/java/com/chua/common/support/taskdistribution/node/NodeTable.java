@@ -33,6 +33,12 @@ public class NodeTable {
     private final Map<String, NodeMeta> nodes = new ConcurrentHashMap<>();
 
     /**
+     * 节点注册顺序表 — FIRST/LAST 分发策略依赖稳定的注册顺序，
+     * ConcurrentHashMap 本身无序，故以写时复制的有序列表补充记录。
+     */
+    private final List<String> registrationOrder = new CopyOnWriteArrayList<>();
+
+    /**
      * 轮询计数器
      */
     private final AtomicInteger roundRobinCounter = new AtomicInteger(0);
