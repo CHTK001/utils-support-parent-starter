@@ -54,8 +54,8 @@ tr:hover td{background:rgba(88,166,255,.04)}
 
 <!-- ━━━━━━━━━━━━━━ 概览卡片 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>概览</h2><span class="tg t2">10 / 10 PASS</span></div><div class="cb"><div class="lg">
-<strong>测试范围</strong>：10 个独立探针，覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
-调度时序、快照恢复、网络重连、序列化基准、负载吞吐。<br>
+<strong>测试范围</strong>：12 个独立探针（10 datasync + 2 datalake），覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
+调度时序、快照恢复、网络重连、序列化基准、负载吞吐、Datalake 管线全链路。<br>
 <strong>压力测试</strong>：10M 行 @ 812K rows/s (PASS) / 100M 行 @ 555K rows/s (PARTIAL, 调度超频重放)<br>
 <strong>环境</strong>：单机 16C / JDK 25.0.3 / 4G 堆 / 无外网依赖（H2 内存库 / 本地 Chronicle Queue / CSV 文件）
 </div></div></div>
@@ -79,6 +79,8 @@ tr:hover td{background:rgba(88,166,255,.04)}
 <tr><td>DatabaseProbe · H2 数据库映射加载</td><td>H2 内存库</td><td class="r">8 轮 × 3 行</td><td class="r">~2 s</td><td class="pass">PASS</td></tr>
 <tr><td>ReconnectProbe · TCP 短线重连</td><td>3 条消息</td><td class="r">—</td><td class="r">~4 s</td><td class="pass">PASS</td></tr>
 <tr><td>SerialBenchProbe · 4 序列化实现</td><td>100K 行 ×4</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
+<tr><td>DatalakeAllInOneProbe · 13 项全链路</td><td>13 场景</td><td class="r">—</td><td class="r">~0.3 s</td><td class="pass">13 / 13 PASS</td></tr>
+<tr><td>DatalakePipelineBenchProbe · 管线吞吐</td><td>10K/100K ×2</td><td class="r">见下表</td><td class="r">—</td><td class="pass">PASS</td></tr>
 </tbody></table></div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ StressProbe 详细 ━━━━━━━━━━━━━━ -->
@@ -144,6 +146,23 @@ tr:hover td{background:rgba(88,166,255,.04)}
 <strong>结论</strong>：<span class="pass">稳态频率正常</span>（每秒 1 次），启动首轮存在重复执行 bug（影响：每次启动多一轮全量同步），已知问题记录<br>
 <strong>触发路径</strong>：executorManager.start() → schedulerManager.start(initialDelay=1s) 后，启动链路另有隐式首轮触发
 </div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ Datalake 全链路 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>Datalake 全链路验证</h2><span class="tg t2">13/13 PASS</span></div><div class="cb"><div class="lg">
+<strong>验证范围</strong>：PipelineManager CRUD (4) + 4 Sink 写入 (4) + SinkManager 生命周期 (1) + PipelineEngine 单/多 Sink (2) + DataEnvelope trace/isLog (2)<br>
+<strong>环境</strong>：Chronicle Queue dispatcher + DefaultPipelineEngine (Filter→Parser→Sink 阶段) + LogSink/StatisticSink/RealTimeSink/JdbcSink
+</div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ Datalake Pipeline Bench ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>Datalake PipelineEngine 吞吐基准</h2><span class="tg t1">10K/100K</span></div><div class="cb"><div class="lg">
+<strong>瓶颈</strong>：Chronicle Queue 写入（单 Sink 12K ops/s → 100K 降至 665 ops/s），多 Sink ×3 队列写入 ~30x 降速<br>
+<strong>结论</strong>：PipelineEngine 本身轻量（纯路由分发），瓶颈在 Chronicle 磁盘 I/O；生产环境建议 InMemory dispatcher 或 WAL+Fury 替代
+</div></div><div class="tw" style="margin-top:12px"><table>
+<thead><tr><th>数据量</th><th>管线</th><th class="r">耗时</th><th class="r">吞吐</th><th>结果</th></tr></thead><tbody>
+<tr><td>10,000</td><td>单 Sink (log)</td><td class="r">806 ms</td><td class="r">12,407 ops/s</td><td class="pass">PASS</td></tr>
+<tr><td>100,000</td><td>单 Sink (log)</td><td class="r">150.3 s</td><td class="r">665 ops/s</td><td class="pass">PASS</td></tr>
+<tr><td>10,000</td><td>多 Sink (3)</td><td class="r">24.5 s</td><td class="r">408 ops/s</td><td class="pass">PASS</td></tr>
+</tbody></table></div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ 已知问题 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>已知问题</h2><span class="tg t3">Known Issues</span></div><div class="cb"><ul class="fl">
