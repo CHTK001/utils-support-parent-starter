@@ -130,10 +130,14 @@ final class MemorySqlLex {
             }
             try {
                 Method getter = row.getClass().getMethod(getterName(column));
+                /* 行实现类可能为包私有：跨包反射需显式放开可访问性 */
+                getter.setAccessible(true);
                 return getter.invoke(row);
             } catch (Exception e) {
                 try {
-                    Method getter = row.getClass().getMethod("get" + Character.toUpperCase(column.charAt(0)) + column.substring(1));
+                    Method getter = row.getClass().getMethod(
+                            "get" + Character.toUpperCase(column.charAt(0)) + column.substring(1));
+                    getter.setAccessible(true);
                     return getter.invoke(row);
                 } catch (Exception ex) {
                     return null;
@@ -161,6 +165,8 @@ final class MemorySqlLex {
                 }
                 String n = m.getName();
                 try {
+                    /* 行实现类可能为包私有：跨包反射需显式放开可访问性 */
+                    m.setAccessible(true);
                     if (n.startsWith("get") && n.length() > 3) {
                         out.put(Character.toLowerCase(n.charAt(3)) + n.substring(4), m.invoke(row));
                     } else if (n.startsWith("is") && n.length() > 2) {
@@ -197,6 +203,8 @@ final class MemorySqlLex {
                 Method setter = row.getClass().getMethod(
                         "set" + Character.toUpperCase(column.charAt(0)) + column.substring(1),
                         guessType(value));
+                /* 行实现类可能为包私有：跨包反射需显式放开可访问性 */
+                setter.setAccessible(true);
                 setter.invoke(row, value);
                 return true;
             } catch (Exception e) {
