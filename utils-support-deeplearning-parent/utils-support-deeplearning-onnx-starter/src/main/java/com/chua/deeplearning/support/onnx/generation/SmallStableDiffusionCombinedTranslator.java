@@ -241,6 +241,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
             float[] condEmb = runTextEncoder(idsPair[1]);
             float[] uncondEmb = runTextEncoder(idsPair[0]);
+            log.info("[Small SD v0][STAGE] 文本编码完成 emb[min={}, max={}]", fmin(condEmb), fmax(condEmb));
 
             int latentH = height / 8;
             int latentW = width / 8;
@@ -255,11 +256,16 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 timesteps[i] = Math.round((TRAIN_TIMESTEPS - 1) * (1.0d - (double) i / denom));
             }
 
+            log.info("[Small SD v0][STAGE] UNet 去噪开始");
             for (int i = 0; i < numInferenceSteps; i++) {
                 long t = timesteps[i];
                 long tPrev = i + 1 < numInferenceSteps ? timesteps[i + 1] : 0L;
                 float[] epsUncond = predictNoise(latent, t, uncondEmb);
                 float[] epsCond = predictNoise(latent, t, condEmb);
+                if (i == 0) {
+                    log.info("[Small SD v0][STAGE] step0 eps[min={}, max={}] / [{}]",
+                            fmin(epsCond), fmax(epsCond), fmaxAbs(epsCond));
+                }
                 for (int k = 0; k < latent.length; k++) {
                     float eps = epsUncond[k] + (float) guidanceScale * (epsCond[k] - epsUncond[k]);
                     double acpT = alphasCumprod[(int) t];
@@ -272,6 +278,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                     log.debug("[Small SD v0][编排] 去噪 {}/{} t={} -> t'={}", i + 1, numInferenceSteps, t, tPrev);
                 }
             }
+
+            log.info("[Small SD v0][STAGE] 去噪完成 latent[min={}, max={}, nan={}]",
+                    fmin(latent), fmax(latent), hasNaN(latent));
 
             return encodePng(decodeVae(latent));
         } catch (OrtException | IOException e) {
@@ -614,29 +623,54 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private int[] decodeVae(float[] latent) throws OrtException {
         int latentH = height / 8;
         int latentW = width / 8;
-        float[][][][] sample = new float[1][LATENT_CHANNELS][latentH][latentW];
-        int idx = 0;
-        for (int c = 0; c < LATENT_CHANNELS; c++) {
-            for (int h = 0; h < latentH; h++) {
-                for (int w = 0; w < latentW; w++) {
-                    sample[0][c][h][w] = latent[idx++] / VAE_SCALE_FACTOR;
-                }
-            }
+        // 该导出为全 FP16 VAE：输入转半精度
+        float[] scaled = new float[latent.length];
+        for (int i = 0; i < latent.length; i++) {
+            scaled[i] = latent[i] / VAE_SCALE_FACTOR;
         }
-        try (OnnxTensor t = OnnxTensor.createTensor(env, sample);
+        try (OnnxTensor t = OnnxTensor.createTensor(env, toHalfBuffer(scaled),
+                     new long[]{1, LATENT_CHANNELS, latentH, latentW}, ai.onnxruntime.OnnxJavaType.FLOAT16);
              OrtSession.Result r = vaeSession.run(java.util.Map.of("latent_sample", t))) {
-            float[][][][] out = (float[][][][]) r.get(0).getValue();
-            int imgH = out[0][0].length;
-            int imgW = out[0][0][0].length;
+            Object raw = r.get(0).getValue();
+            int imgH = height;
+            int imgW = width;
+            float[] rr = null, gg = null, bb = null;
+            if (raw instanceof float[][][][] out) {
+                imgH = out[0][0].length;
+                imgW = out[0][0][0].length;
+                rr = new float[imgH * imgW];
+                gg = new float[imgH * imgW];
+                bb = new float[imgH * imgW];
+                for (int h = 0; h < imgH; h++) {
+                    for (int w = 0; w < imgW; w++) {
+                        rr[h * imgW + w] = out[0][0][h][w];
+                        gg[h * imgW + w] = out[0][1][h][w];
+                        bb[h * imgW + w] = out[0][2][h][w];
+                    }
+                }
+            } else if (raw instanceof short[][][][] out16) {
+                // 半精度位模式返回时的兜底转换
+                imgH = out16[0][0].length;
+                imgW = out16[0][0][0].length;
+                rr = new float[imgH * imgW];
+                gg = new float[imgH * imgW];
+                bb = new float[imgH * imgW];
+                for (int h = 0; h < imgH; h++) {
+                    for (int w = 0; w < imgW; w++) {
+                        rr[h * imgW + w] = halfToFloat(out16[0][0][h][w]);
+                        gg[h * imgW + w] = halfToFloat(out16[0][1][h][w]);
+                        bb[h * imgW + w] = halfToFloat(out16[0][2][h][w]);
+                    }
+                }
+            } else {
+                throw new IllegalStateException("VAE 输出类型不支持: " + (raw == null ? "null" : raw.getClass()));
+            }
             int[] rgb = new int[imgH * imgW];
             for (int h = 0; h < imgH; h++) {
                 for (int w = 0; w < imgW; w++) {
-                    float rr = out[0][0][h][w];
-                    float gg = out[0][1][h][w];
-                    float bb = out[0][2][h][w];
-                    int ri = clamp255((rr + 1f) * 127.5f);
-                    int gi = clamp255((gg + 1f) * 127.5f);
-                    int bi = clamp255((bb + 1f) * 127.5f);
+                    int ri = clamp255((rr[h * imgW + w] + 1f) * 127.5f);
+                    int gi = clamp255((gg[h * imgW + w] + 1f) * 127.5f);
+                    int bi = clamp255((bb[h * imgW + w] + 1f) * 127.5f);
                     rgb[h * imgW + w] = (ri << 16) | (gi << 8) | bi;
                 }
             }
@@ -645,7 +679,28 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * float 转 half bits（IEEE 754 半精度）。
+     * 半精度位模式转 float。
+     *
+     * @param h 半精度位模式
+     * @return 单精度值
+     */
+    private static float halfToFloat(short h) {
+        int sign = (h & 0x8000) << 16;
+        int exp = (h & 0x7C00) >> 10;
+        int man = h & 0x03FF;
+        int bits;
+        if (exp == 0) {
+            bits = sign;
+        } else if (exp == 0x1F) {
+            bits = sign | 0x7F800000 | (man << 13);
+        } else {
+            bits = sign | ((exp - 15 + 127) << 23) | (man << 13);
+        }
+        return Float.intBitsToFloat(bits);
+    }
+
+    /**
+     * float 数组转 half bits（IEEE 754 半精度）。
      *
      * @param f 单精度值
      * @return 半精度位模式
@@ -672,6 +727,51 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      */
     private static int clamp255(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
+    }
+
+    /**
+     * 数组最小值（含 NaN 检测输出）。
+     */
+    private static float fmin(float[] a) {
+        float m = Float.POSITIVE_INFINITY;
+        for (float v : a) {
+            m = Math.min(m, v);
+        }
+        return m;
+    }
+
+    /**
+     * 数组最大值。
+     */
+    private static float fmax(float[] a) {
+        float m = Float.NEGATIVE_INFINITY;
+        for (float v : a) {
+            m = Math.max(m, v);
+        }
+        return m;
+    }
+
+    /**
+     * 数组绝对值最大值。
+     */
+    private static float fmaxAbs(float[] a) {
+        float m = 0f;
+        for (float v : a) {
+            m = Math.max(m, Math.abs(v));
+        }
+        return m;
+    }
+
+    /**
+     * 是否包含 NaN/Infinity。
+     */
+    private static boolean hasNaN(float[] a) {
+        for (float v : a) {
+            if (Float.isNaN(v) || Float.isInfinite(v)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

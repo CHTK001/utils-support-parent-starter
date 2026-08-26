@@ -63,6 +63,11 @@ public class MossTextToAudioClient implements TextToAudioClient {
     private boolean prepared;
 
     /**
+     * 克隆参考音频（设置后优先于内置音色）。
+     */
+    private java.nio.file.Path referencePath;
+
+    /**
      * 构造客户端。
      *
      * @param setting 配置
@@ -118,6 +123,31 @@ public class MossTextToAudioClient implements TextToAudioClient {
         return this;
     }
 
+    /**
+     * 设置克隆参考音频（优先于 voice）。
+     *
+     * @param refPath 参考音频 WAV 路径（建议 5~10 秒干净人声）
+     * @return this
+     */
+    public MossTextToAudioClient reference(java.nio.file.Path refPath) {
+        this.referencePath = refPath;
+        return this;
+    }
+
+    /**
+     * 设置克隆参考音频字节。
+     *
+     * @param wavBytes 参考音频 WAV 字节
+     * @return this
+     */
+    public MossTextToAudioClient reference(byte[] wavBytes) throws IOException {
+        Path temp = Files.createTempFile("moss-ref-", ".wav");
+        Files.write(temp, wavBytes);
+        temp.toFile().deleteOnExit();
+        this.referencePath = temp;
+        return this;
+    }
+
     @Override
     public byte[] synthesize(String text) {
         String target = text != null ? text : setting.getText();
@@ -127,8 +157,13 @@ public class MossTextToAudioClient implements TextToAudioClient {
         ensurePrepared();
         try {
             long t0 = System.currentTimeMillis();
-            String voice = setting.getVoice() != null ? setting.getVoice() : "Junhao";
-            byte[] wav = translator.synthesizeText(target, voice);
+            byte[] wav;
+            if (referencePath != null) {
+                wav = translator.synthesizeWithReference(target, referencePath, 80);
+            } else {
+                String voice = setting.getVoice() != null ? setting.getVoice() : "Junhao";
+                wav = translator.synthesizeText(target, voice);
+            }
             log.info("[MossTTS] synthesize {}ms, {} bytes",
                     System.currentTimeMillis() - t0, wav.length);
             return wav;
