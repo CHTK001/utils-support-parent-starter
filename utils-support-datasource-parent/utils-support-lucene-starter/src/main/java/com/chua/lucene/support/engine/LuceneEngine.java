@@ -17,6 +17,8 @@ import com.chua.datasource.support.engine.MemoryWhereParser;
 import com.chua.lucene.support.converter.EntityDocumentConverter;
 import lombok.extern.slf4j.Slf4j;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.document.IntPoint;
