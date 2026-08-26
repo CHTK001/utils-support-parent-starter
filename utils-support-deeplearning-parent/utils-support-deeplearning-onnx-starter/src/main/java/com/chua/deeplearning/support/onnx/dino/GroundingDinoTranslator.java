@@ -184,7 +184,18 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         NDArray pixelValues = array.sub(mean).div(std).expandDims(0);
         pixelValues.setName("pixel_values");
 
-        return new NDList(inputIds, pixelValues, attentionMask);
+        // 完整导出版本需要 token_type_ids 与 pixel_mask
+        int seqLen = batchedIds[0].length;
+        long[][] tokenType = new long[1][seqLen];
+        NDArray tokenTypeIds = manager.create(tokenType);
+        tokenTypeIds.setName("token_type_ids");
+
+        long[] maskShape = {1, pixelValues.getShape().get(2), pixelValues.getShape().get(3)};
+        NDArray pixelMask = manager.ones(new ai.djl.ndarray.types.Shape(maskShape),
+                ai.djl.ndarray.types.DataType.INT64);
+        pixelMask.setName("pixel_mask");
+
+        return new NDList(inputIds, pixelValues, attentionMask, tokenTypeIds, pixelMask);
     }
 
     @Override
