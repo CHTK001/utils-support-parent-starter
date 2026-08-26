@@ -291,7 +291,8 @@ public class ParaformerTranslator {
             if (Math.abs(sampleRate - SAMPLE_RATE) < 1.0f) {
                 return mono;
             }
-            int newLen = (int) Math.round(mono.length * SAMPLE_RATE / sampleRate);
+            long newLenLong = (long) mono.length * (long) SAMPLE_RATE / (long) sampleRate;
+            int newLen = (int) Math.min(newLenLong, Integer.MAX_VALUE - 1);
             float[] resampled = new float[newLen];
             for (int i = 0; i < newLen; i++) {
                 float srcPos = i * sampleRate / SAMPLE_RATE;

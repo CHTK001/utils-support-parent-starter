@@ -127,6 +127,7 @@ public class ParquetEngine extends AbstractEngine {
                 throw new IllegalArgumentException("空列表无法推断实体类型");
             }
             writeAll(name, clazz, data);
+            super.store(name, data);  /* 同时写入内存缓存确保 Lambda 查询可见 */
             return this;
         } catch (IOException e) {
             throw new IllegalStateException("Parquet 写入失败: " + name, e);

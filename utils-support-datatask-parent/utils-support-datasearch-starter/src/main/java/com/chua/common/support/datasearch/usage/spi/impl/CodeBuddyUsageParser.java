@@ -88,7 +88,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per completed assistant response
      */
-    private List<AiUsage> parseAll() {
+    @Override protected List<AiUsage> parseAll() {
         List<AiUsage> result = new ArrayList<>();
         AtomicInteger fileCount = new AtomicInteger(0);
         for (Path projectsDir : new Path[] {PROJECTS_DIR_INTL, PROJECTS_DIR_CN}) {

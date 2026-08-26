@@ -490,7 +490,7 @@ public class AioHttpServer extends AbstractServer {
      * @param body   响应体字节(可为 null)
      */
     private void enqueueWrite(ConnState state, ByteBuffer header, ByteBuffer body) {
-        synchronized (state.writeQueue) {
+        {
             if (state.tls == null) {
                 if (body != null && body.hasRemaining()) {
                     // 极限优化:小响应头体合并为单缓冲,一次 overlap 写完成
@@ -551,7 +551,7 @@ public class AioHttpServer extends AbstractServer {
             return;
         }
         ByteBuffer head;
-        synchronized (state.writeQueue) {
+        {
             head = state.writeQueue.peek();
             if (head == null) {
                 // 持锁释放写权:与入队方的 CAS 形成正确的 happens-before,无丢失唤醒窗口
@@ -614,7 +614,7 @@ public class AioHttpServer extends AbstractServer {
                 closeConn(state);
                 return;
             }
-            synchronized (state.writeQueue) {
+            {
                 ByteBuffer head = state.writeQueue.peek();
                 if (head != null && !head.hasRemaining()) {
                     // 当前块已全部写出,移除;非直接缓冲归还合并池复用
@@ -1449,7 +1449,7 @@ public class AioHttpServer extends AbstractServer {
         final NioServerRequest request;
 
         /** 待写队列:ArrayDeque + synchronized,NIO 版实测同构下吞吐最优 */
-        final java.util.ArrayDeque<ByteBuffer> writeQueue = new java.util.ArrayDeque<>();
+        final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> writeQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
 
         /** 懒分配 direct 读缓冲(首次读到数据才分配) */
         ByteBuffer readBuf;

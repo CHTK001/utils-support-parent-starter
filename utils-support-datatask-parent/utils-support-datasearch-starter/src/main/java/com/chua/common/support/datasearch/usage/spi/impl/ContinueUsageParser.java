@@ -74,7 +74,7 @@ public class ContinueUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per session with usage data
      */
-    private List<AiUsage> parseAll() {
+    @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             log.debug("[continue] sessions dir not found: {}", SESSIONS_DIR);
             return List.of();

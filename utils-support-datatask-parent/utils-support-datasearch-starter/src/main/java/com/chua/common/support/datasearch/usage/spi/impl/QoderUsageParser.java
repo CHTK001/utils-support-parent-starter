@@ -83,7 +83,7 @@ public class QoderUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per assistant response
      */
-    private List<AiUsage> parseAll() {
+    @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
             log.debug("[qoder] projects dir not found: {} (Qoder CLI not installed)", PROJECTS_DIR);
             return List.of();

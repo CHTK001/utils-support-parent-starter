@@ -72,7 +72,7 @@ public class ClineUsageParser extends BaseUsageParser {
      *
      * @return list of AiUsage records, one per completed session
      */
-    private List<AiUsage> parseAll() {
+    @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             log.debug("[cline] sessions dir not found: {}", SESSIONS_DIR);
             return List.of();

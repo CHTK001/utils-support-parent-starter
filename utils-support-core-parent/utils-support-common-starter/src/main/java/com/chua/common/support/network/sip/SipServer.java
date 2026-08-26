@@ -319,10 +319,12 @@ public class SipServer extends AbstractServer implements TcpServer {
         String key = clientId + "|" + role;
         MuxServerConn conn = new MuxServerConn(key, clientId, role, in, out);
         muxConns.put(key, conn);
+            SipMetrics.get().onClientConnect();
         muxFlushPending(conn);
         log.info("SIP mux 连接接入: key={}, 首通道={}", key, channelId);
         conn.readLoop();
         muxConns.remove(key, conn);
+            SipMetrics.get().onClientDisconnect();
         conn.notifyPeerChannelsClosed();
     }
 
@@ -459,6 +461,8 @@ public class SipServer extends AbstractServer implements TcpServer {
         PrintWriter writer = new PrintWriter(out, true, StandardCharsets.UTF_8);
         SignalConnection conn = new SignalConnection(clientId, host, port, sessionToken, writer);
         SignalConnection previous = registry.put(clientId, conn);
+        SipMetrics.get().onClientConnect();
+        if (previous == null) SipMetrics.get().onAuthAccept();
         if (previous != null) {
             // 同一 clientId 重复接入：踢掉旧连接，防止注册表互相覆盖导致隧道串线
             log.warn("SIP 客户端重复接入，踢掉旧连接: clientId={}", clientId);
@@ -467,6 +471,7 @@ public class SipServer extends AbstractServer implements TcpServer {
             disconnectTunnelsOf(clientId);
         }
         writeLine(out, SipProtocol.line(SipProtocol.PREFIX_TOKEN, sessionToken));
+            SipMetrics.get().onAuthAccept();
         notifyConnectListeners(clientId);
         log.info("SIP 客户端认证接入: {} @ {}:{}", clientId, host, port);
 
@@ -561,6 +566,7 @@ public class SipServer extends AbstractServer implements TcpServer {
         }
         if (providerId == null || providerId.equals(clientId)) {
             send(clientId, SipProtocol.line(SipProtocol.PREFIX_ERROR, requestId, "service not found: " + serviceName));
+            SipMetrics.get().incError("open.service_not_found");
             return;
         }
         SignalConnection provider = registry.get(providerId);
@@ -570,6 +576,7 @@ public class SipServer extends AbstractServer implements TcpServer {
         }
         String channelId = UUID.randomUUID().toString();
         tunnelChannels.put(channelId, new TunnelChannel(clientId, providerId));
+            SipMetrics.get().onTunnelOpen();
         dataChannels.computeIfAbsent(channelId, DataChannel::new);
         provider.send(SipProtocol.line(SipProtocol.PREFIX_TUNNEL_OPEN, provider.token(), channelId, serviceName));
         send(clientId, SipProtocol.line(SipProtocol.PREFIX_OPENED, requestId, channelId));
@@ -636,6 +643,7 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     private void onSignalClosed(String clientId) {
         SignalConnection conn = registry.remove(clientId);
+            SipMetrics.get().onClientDisconnect();
         if (conn == null) {
             return;
         }
@@ -683,6 +691,7 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     private void closeChannel(String channelId) {
         TunnelChannel channel = tunnelChannels.remove(channelId);
+            SipMetrics.get().onTunnelClose(channel == null ? "unknown" : "normal");
         DataChannel dataChannel = dataChannels.remove(channelId);
         if (dataChannel != null) {
             dataChannel.close();

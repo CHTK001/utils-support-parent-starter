@@ -170,4 +170,12 @@ public class CrushConversationParser implements ConversationParser {
     private static String asStr(Object value) {
         return value == null ? "" : value.toString();
     }
+
+
+    private static String firstNonBlank(String value, String fallback) {
+        if (value != null && !value.isBlank()) {
+            return value;
+        }
+        return fallback;
+    }
 }
