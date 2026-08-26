@@ -12,3 +12,5 @@ sense-voice=com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioC
 zipformer=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient
 zipformer-zh-en=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient
 zipformer-streaming=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient
+zipformer-en=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerEnAudioClient
+zipformer-en-offline=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerEnAudioClient

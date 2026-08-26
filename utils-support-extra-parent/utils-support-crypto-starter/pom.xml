@@ -20,6 +20,17 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- 打包期字节码混淆（仅构建机使用；运行期引导器零依赖不受影响） -->
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>9.9.1</version>
+        </dependency>
+
         <!-- 可选：SpringBoot 支持（自动装配 + 加密配置文件装载），普通 Java/FatJar 运行时不引入也可用 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

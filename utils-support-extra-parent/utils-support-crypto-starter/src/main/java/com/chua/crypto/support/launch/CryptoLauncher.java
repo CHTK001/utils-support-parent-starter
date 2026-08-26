@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -81,6 +82,16 @@ public final class CryptoLauncher {
     public static final String PROP_DONGLE = "chua.crypto.dongle";
 
     /**
+     * 外置密钥通道：stdin 读取 Base64 主密钥开关
+     */
+    public static final String PROP_KEY_FROM_STDIN = "chua.crypto.key-from-stdin";
+
+    /**
+     * 外置密钥通道：环境变量注入 Base64 主密钥
+     */
+    public static final String ENV_KEY_B64 = "CHUA_CRYPTO_KEY_B64";
+
+    /**
      * FatJar 依赖目录前缀
      */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
@@ -113,6 +124,7 @@ public final class CryptoLauncher {
      * @throws Throwable 启动失败
      */
     static void launch(String[] args) throws Throwable {
+        SelfDefense.install();
         File self = locateSelfJar();
         try (JarFile jar = new JarFile(self)) {
             Attributes attrs = mainAttributes(jar);
@@ -125,6 +137,7 @@ public final class CryptoLauncher {
 
             URLClassLoader libsLoader = buildLibsLoader(jar, self, master);
             EncryptedAppClassLoader appLoader = new EncryptedAppClassLoader(self, master, libsLoader);
+            KeyShard.wipe(master);
 
             Thread.currentThread().setContextClassLoader(appLoader);
             Class<?> mainClass = Class.forName(originalMain, true, appLoader);
@@ -137,14 +150,25 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 解封主密钥：加密狗优先，其次包内封装块。
-     * 策略以封装块标志为准，口令/服务器标识来自系统属性与环境变量。
+     * 解封主密钥，优先级：
+     * <ol>
+     *   <li>stdin 外置密钥（{@code -Dchua.crypto.key-from-stdin=true}，读取一行 Base64 主密钥，
+     *       供外部/native 密钥提供方管道注入，口令不进入进程参数与环境）</li>
+     *   <li>环境变量 {@code CHUA_CRYPTO_KEY_B64}</li>
+     *   <li>加密狗载体（{@code -Dchua.crypto.dongle=}）</li>
+     *   <li>包内密钥封装块（策略以块内标志为准）</li>
+     * </ol>
      *
      * @param jar 加密程序包
      * @return 32 字节主密钥
      * @throws IOException 读取失败
      */
     private static byte[] resolveMaster(JarFile jar) throws IOException {
+        byte[] external = readExternalKey();
+        if (external != null) {
+            return external;
+        }
+
         char[] pin = readSecret();
         String serverId = firstNonBlank(System.getProperty(PROP_SERVER_ID), System.getenv(ENV_SERVER_ID));
 
@@ -164,6 +188,28 @@ public final class CryptoLauncher {
         }
         return PayloadCipher.unwrapMaster(PayloadCipher.MAGIC_KEY_BLOB,
                 readAll(jar.getInputStream(blobEntry)), pin, serverId);
+    }
+
+    /**
+     * 读取外置主密钥（Base64 32 字节）
+     *
+     * @return 主密钥；未启用外置通道时返回 null
+     * @throws IOException stdin 读取失败
+     */
+    private static byte[] readExternalKey() throws IOException {
+        boolean fromStdin = Boolean.parseBoolean(System.getProperty(PROP_KEY_FROM_STDIN, "false"));
+        String base64 = fromStdin
+                ? new String(System.in.readNBytes(64), java.nio.charset.StandardCharsets.UTF_8).trim()
+                : System.getenv(ENV_KEY_B64);
+        if (base64 == null || base64.isBlank()) {
+            return null;
+        }
+        byte[] master = Base64.getDecoder().decode(base64);
+        if (master.length != 32) {
+            KeyShard.wipe(master);
+            throw new IllegalStateException("外置主密钥长度非法（期望 32 字节 Base64）");
+        }
+        return master;
     }
 
     /**
