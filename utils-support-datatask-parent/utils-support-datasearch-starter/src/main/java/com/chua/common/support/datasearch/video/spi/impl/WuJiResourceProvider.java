@@ -16,14 +16,11 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * 无极网盘资源提供器
+ * 无极网盘资源提供器 — 解析 xcili.net 搜索结果。
  *
- * <p>通过解析 {@code https://xcili.net} 的搜索结果页面，
- * 将资源列表转换为 {@link VideoInfoResult} 集合。</p>
+ * <p>使用字符串分段提取（非正则），逐行解析搜索结果表。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -31,31 +28,16 @@ import java.util.regex.Pattern;
 @Spi("wuji")
 public class WuJiResourceProvider extends AbstractResourceProvider {
 
-    /** 匹配搜索结果行：result-title 链接（含 mark 标签）+ result-meta 大小/日期 */
-    private static final Pattern RESULT_ROW = Pattern.compile(
-            "<td class=\"result-title\"><a href=\"([^\"]+)\">(.*?)</a></td>"
-            + "\\s*<td[^>]*class=\"result-meta\"\\s*>"
-            + "([\\d.]+)\\s*([A-Z]+)",
-            Pattern.DOTALL);
+    private static final String MARKER = "<td class=\"result-title\"";
 
-    /**
-     * 创建 WuJiResourceProvider 实例
-     */
     public WuJiResourceProvider() {
         super();
     }
 
-    /**
-     * 创建 WuJiResourceProvider 实例
-     * @param videoSource videoSource
-     */
     public WuJiResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
-    /**
-     * 获取搜索地址模板
-     */
     protected String getUrl() {
         if (videoSource != null && StringUtils.hasText(videoSource.getVideoSourceUrl())) {
             return videoSource.getVideoSourceUrl();
@@ -65,6 +47,7 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
 
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+        List<VideoInfoResult> results = new ArrayList<>();
         try {
             String keyword = java.net.URLEncoder.encode(
                     videoSearch.getKeyword(), java.nio.charset.StandardCharsets.UTF_8);
@@ -80,29 +63,48 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
                     .header("User-Agent", "Mozilla/5.0")
                     .GET()
                     .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String html = response.body();
-            System.out.println("DEBUG: status=" + response.statusCode() + " htmlLen=" + html.length());
+            HttpResponse<String> resp = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String html = resp.body();
 
-            List<VideoInfoResult> results = new ArrayList<>();
-            Matcher matcher = RESULT_ROW.matcher(html);
-            System.out.println("DEBUG-contains-td: " + html.contains("<td class=" + (char)34 + "result-title" + (char)34 + ">"));
-                        System.out.println("DEBUG-html-len: " + html.length());
-            matcher.reset();
-            int tIdx = html.indexOf("result-title");
-            if (tIdx > 0) {
-                System.out.println("DEBUG-SNIPPET: [" + html.substring(Math.max(0, tIdx - 30), Math.min(html.length(), tIdx + 100)) + "]");
-            }
-            while (matcher.find() && results.size() < 10) {
-                String href = matcher.group(1);
-                String title = matcher.group(2).replaceAll("</?mark>", "").trim();
-                String size = matcher.group(3) + " " + matcher.group(4);
+            /* 按 result-title 标记分段提取 */
+            int pos = 0;
+            while (results.size() < 10) {
+                int tIdx = html.indexOf(MARKER, pos);
+                if (tIdx < 0) {
+                    break;
+                }
+                /* 提取标题 */
+                int aStart = html.indexOf("<a href=\"", tIdx);
+                if (aStart < 0 || aStart > tIdx + 200) { break; }
+                int hrefStart = aStart + 9;
+                int hrefEnd = html.indexOf("\"", hrefStart);
+                if (hrefEnd < 0) { break; }
+                String href = html.substring(hrefStart, hrefEnd);
+
+                int textStart = html.indexOf(">", hrefEnd) + 1;
+                int textEnd = html.indexOf("</a>", textStart);
+                if (textStart <= hrefEnd || textEnd < textStart) { break; }
+                String title = html.substring(textStart, textEnd)
+                        .replaceAll("</?mark>", "").trim();
+
+                /* 提取大小 */
+                String size = "";
+                int metaIdx = html.indexOf("result-meta", textEnd);
+                if (metaIdx > 0 && metaIdx < textEnd + 500) {
+                    int divStart = html.indexOf("<div>", metaIdx);
+                    int divEnd = html.indexOf("</div>", divStart);
+                    if (divStart > 0 && divEnd > divStart) {
+                        size = html.substring(divStart + 5, divEnd).trim();
+                    }
+                }
 
                 VideoInfoResult info = new VideoInfoResult();
                 info.setVideoName(title);
                 info.setVideoAliasName(title);
                 info.setVideoDescription("Size: " + size + " | Detail: https://xcili.net" + href);
                 results.add(info);
+
+                pos = textEnd;
             }
 
             if (results.isEmpty()) {
