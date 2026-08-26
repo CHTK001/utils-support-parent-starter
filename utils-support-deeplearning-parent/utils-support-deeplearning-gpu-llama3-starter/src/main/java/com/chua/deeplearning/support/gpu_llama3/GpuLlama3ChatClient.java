@@ -18,7 +18,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@sPi("gpu-llama3")
+@Spi("gpu-llama3")
 public class GpuLlama3ChatClient extends AbstractLocalChatClient {
 
     /**
