@@ -41,10 +41,11 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     private static final int INPUT_SIZE = 640;
 
     /**
-     * 置信度阈值。
+     * 置信度阈值（默认 0.45），可经 DetectionConfiguration 覆盖。
      */
-    /** 置信度阈值（默认 0.85），可经 DetectionConfiguration 覆盖。 */
-        /**
+    private float confThreshold = 0.45f;
+
+    /**
      * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
      *
      * @param configuration 检测配置（可空）
@@ -62,12 +63,10 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
     }
 
-private float confThreshold = 0.85f;
-
     /**
      * NMS IOU 阈值。
      */
-    private static final float IOU_THRESHOLD = 0.9f;
+    private static final float IOU_THRESHOLD = 0.45f;
 
     /**
      * Top-K。

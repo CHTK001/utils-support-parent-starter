@@ -243,8 +243,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("yolo11-odd", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11OddTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/obb/yolo11n-obb.onnx", "https://huggingface.co/onnx-community/yolo11n-obb/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv2-COCO)：YOLOv2 经典 COCO 80 类检测，轻量级；适用通用物体检测
         reg("yolov2-coco", "com.chua.deeplearning.support.onnx.yolo.v2.translator.Yolov2CocoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v2/yolov2-coco-9.onnx");
-        // 目标检测(YOLOv2-COCO v2)：YOLOv2 变体版；适用通用物体检测
-        reg("yolov2-coco-v2", "com.chua.deeplearning.support.onnx.yolo.v2.Yolov2CocoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, null);
         // 旋转目标检测(YOLOv26-OBB)：YOLOv26 旋转框检测，最新版；适用高精度旋转物体检测
         reg("yolo26-obb", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx", "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 目标检测(YOLOv8s)：YOLOv8s 标准 COCO 80 类检测，速度和精度平衡；适用通用物体检测
