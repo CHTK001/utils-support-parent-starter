@@ -157,6 +157,13 @@ public class SshServer extends AbstractServer {
     protected void doStart() {
         try {
             sshd = org.apache.sshd.server.SshServer.setUpDefaultServer();
+            // MINA 服务端必须配置主机密钥, 否则 checkConfig 抛 HostKeyProvider not set;
+            // 未指定持久化路径时每次启动内存生成
+            org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider keyProvider =
+                    new org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider();
+            keyProvider.setAlgorithm("RSA");
+            keyProvider.setKeySize(2048);
+            sshd.setKeyPairProvider(keyProvider);
             sshd.setHost(setting.getHost());
             sshd.setPort(setting.getPort());
             sshd.setPasswordAuthenticator((username, password, session) -> {

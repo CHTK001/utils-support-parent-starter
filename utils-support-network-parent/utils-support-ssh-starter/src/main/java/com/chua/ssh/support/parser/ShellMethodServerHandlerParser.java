@@ -65,7 +65,8 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
                 if (ann == null) {
                     continue;
                 }
-                Class<?> clazz = md.getBean().getClass();
+                // 跳过已被类级别处理过的 bean，避免重复注册与 invoke 工厂方法异常
+                Class<?> clazz = md.getParentBeanDefinition().getBean().getClass();
                 if (!processedClasses.add(clazz.getName())) {
                     continue;
                 }
