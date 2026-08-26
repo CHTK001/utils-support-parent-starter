@@ -113,11 +113,22 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     }
 
     /**
-     * 原子持久化：临时文件 + 原子移动（失败回退普通移动）
+     * 原子持久化：临时文件 + 原子移动（失败回退普通移动），IO 失败转为运行时异常
+     */
+    private void persist() {
+        try {
+            persistInternal();
+        } catch (IOException e) {
+            throw new com.chua.crypto.support.CryptoException("注册表写入失败", e);
+        }
+    }
+
+    /**
+     * 实际落盘
      *
      * @throws IOException 写入失败
      */
-    private void persist() throws IOException {
+    private void persistInternal() throws IOException {
         StringBuilder sb = new StringBuilder();
         store.forEach((fp, blob) -> sb.append(fp).append('=').append(blob).append(System.lineSeparator()));
         Files.createDirectories(file.getParent());
