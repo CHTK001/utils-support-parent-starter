@@ -274,9 +274,9 @@
       "translator": "matting.translator.ClothSegTranslator",
       "capability": "抠图/分割",
       "path": "seg/cloth/cloth.onnx",
-      "status": "smoke",
+      "status": "verified",
       "date": "2026-08-25",
-      "notes": "模型已就位(models/onnx/seg/cloth/cloth.onnx, 168MB, 文件头校验正常)；验证时系统 commit 内存被并行进程占满致 JVM 启动 malloc 失败，待空闲复测"
+      "notes": "rembg u2net_cloth_seg.onnx(168MB)；复测通过 384KB PNG / 11.1s（此前失败系系统 commit 内存被占满致 JVM 启动 malloc 失败）"
     },
     {
       "id": "cn-clip-image",
