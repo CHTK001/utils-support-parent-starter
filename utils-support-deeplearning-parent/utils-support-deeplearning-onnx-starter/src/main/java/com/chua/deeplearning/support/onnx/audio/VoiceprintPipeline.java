@@ -6,6 +6,7 @@ import com.chua.deeplearning.support.audio.FileVectorStorage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,6 @@ public class VoiceprintPipeline implements AutoCloseable {
      * CAM++ 神经声纹提取器
      */
     private final CampplusEmbedding campplus;
-
     /**
      * 检索条数
      */
@@ -74,14 +74,11 @@ public class VoiceprintPipeline implements AutoCloseable {
         this(storage, 5, 0);
     }
 
-    private VoiceprintPipeline(VectorStorage storage, int topK, double threshold) {
-        if (storage.dimension() != 192) {
-            throw new IllegalArgumentException(
-                    "向量库维度须为 192，当前: " + storage.dimension());
-        }
-        this.storage = storage;
-        this.campplus = CampplusEmbedding.load();
-        this.topK = topK;
+    private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder,
+                               int topK, double threshold) {
+        this.storage = Objects.requireNonNull(storage, "vectorStorage");
+        this.campplus = embedder != null ? embedder : CampplusEmbedding.load();
+        this.topK = Math.max(1, topK);
         this.threshold = threshold;
         log.info("[Voiceprint] init: CAM++ neural backend, dim=192, topK={}, threshold={}",
                 topK, threshold);
@@ -114,13 +111,34 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @throws Exception 提取或落库失败
      */
     public VoiceprintPipeline enroll(String speakerId, Path samplePath) throws Exception {
+        return enroll(speakerId, extract(samplePath));
+    }
+
+    /**
+     * 提取声纹特征（低阶入口，与 FacePipeline.extractFeature 对位）。
+     *
+     * @param samplePath 音频路径
+     * @return 192 维特征
+     * @throws Exception 提取失败
+     */
+    public float[] extract(Path samplePath) throws Exception {
         float[] samples = AudioUtils.loadMono16k(samplePath);
-        float[] fp = campplus.extract(samples);
-        if (!storage.add(speakerId, fp)) {
-            throw new IllegalStateException("声纹入库失败: " + speakerId);
+        return campplus.extract(samples);
+    }
+
+    /**
+     * 入库：直接注册特征向量（与 FacePipeline.enroll(id, feature, ...) 对位）。
+     *
+     * @param speakerId 说话人标识
+     * @param feature 192 维特征
+     * @return 是否成功
+     */
+    public boolean enroll(String speakerId, float[] feature) {
+        boolean ok = storage.add(speakerId, feature);
+        if (ok) {
+            log.info("[Voiceprint] enrolled {}: dim={}", speakerId, feature.length);
         }
-        log.info("[Voiceprint] enrolled {}: dim={}", speakerId, fp.length);
-        return this;
+        return ok;
     }
 
     /**
@@ -188,9 +206,26 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     /**
-     * 管线构建器：配置向量库、TopK、相似度门槛后 build()。
+     * 管线构建器：配置提取器、向量库、TopK、相似度门槛后 build()。
      */
     public static final class Builder {
+
+        private CampplusEmbedding embedder;
+        private VectorStorage vectorStorage;
+        private Path storageDir;
+        private int topK = 5;
+        private double threshold;
+
+        /**
+         * 设置声纹特征提取器（默认自动加载内嵌 CAM++）。
+         *
+         * @param e 提取器
+         * @return this
+         */
+        public Builder embedder(CampplusEmbedding e) {
+            this.embedder = e;
+            return this;
+        }
 
         private VectorStorage vectorStorage;
         private Path storageDir;
@@ -322,7 +357,16 @@ public class VoiceprintPipeline implements AutoCloseable {
                 s = FileVectorStorage.create(192,
                         storageDir != null ? storageDir : defaultDirectory());
             }
-            return new VoiceprintPipeline(s, topK, threshold);
+            return new VoiceprintPipeline(s, embedder, topK, threshold);
+        }
+
+        /**
+         * 向量库访问器。
+         *
+         * @return 已配置向量库（build 前可为 null）
+         */
+        public VectorStorage vectorStorage() {
+            return vectorStorage;
         }
     }
 
