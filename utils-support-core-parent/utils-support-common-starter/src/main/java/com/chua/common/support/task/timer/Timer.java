@@ -109,7 +109,7 @@ public interface Timer {
      * @param task       任务逻辑
      * @param delay      延迟时长
      * @param timeUnit   时间单位
-     * @return 创建的 TimerTask 实例
+     * @return 创建的 TimerTask 实例；时间轮已关闭（调度被拒绝）时返回 null
      */
     TimerTask schedule(Runnable task, long delay, TimeUnit timeUnit);
 
@@ -122,7 +122,7 @@ public interface Timer {
      * @param initialDelay 首次执行前的延迟
      * @param period       执行间隔
      * @param timeUnit     时间单位
-     * @return 创建的 TimerTask 实例
+     * @return 创建的 TimerTask 实例；时间轮已关闭（调度被拒绝）时返回 null
      */
     TimerTask scheduleAtFixedRate(Runnable task, long initialDelay, long period, TimeUnit timeUnit);
 
