@@ -11,3 +11,4 @@ com.chua.filestorage.support.preview.provider.OpenDocumentPreviewProvider
 com.chua.filestorage.support.preview.provider.HtmlPreviewProvider
 com.chua.filestorage.support.preview.provider.SvgPreviewProvider
 com.chua.filestorage.support.preview.provider.CadPreviewProvider
+com.chua.filestorage.support.preview.provider.FontPreviewProvider
