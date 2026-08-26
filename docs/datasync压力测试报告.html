@@ -47,15 +47,15 @@ tr:hover td{background:rgba(88,166,255,.04)}
 <body>
 <div class="hd"><div class="hr"><div>
     <h1>DataSync 模块 · 压力测试报告</h1>
-    <p>2026-08-25 / JDK 25.0.3 LTS / Spring Boot 4.1.0 / Chronicle Queue + Reactive Pipeline</p>
+    <p>2026-08-26 / JDK 25.0.3 LTS / Spring Boot 4.1.0 / Chronicle Queue + Reactive Pipeline + 被动推送适配器</p>
 </div><a class="bl" href="index.html"># Back</a></div></div>
 
 <div class="ct">
 
 <!-- ━━━━━━━━━━━━━━ 概览卡片 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>概览</h2><span class="tg t2">10 / 10 PASS</span></div><div class="cb"><div class="lg">
-<strong>测试范围</strong>：12 个独立探针（10 datasync + 2 datalake），覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
-调度时序、快照恢复、网络重连、序列化基准、负载吞吐、Datalake 管线全链路。<br>
+<strong>测试范围</strong>：13 个独立探针（10 datasync + 2 datalake + 1 inbound adapter），覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
+调度时序、快照恢复、网络重连、序列化基准、负载吞吐、Datalake 管线全链路、被动推送入站适配器。<br>
 <strong>压力测试</strong>：10M 行 @ 812K rows/s (PASS) / 100M 行 @ 555K rows/s (PARTIAL, 调度超频重放)<br>
 <strong>环境</strong>：单机 16C / JDK 25.0.3 / 4G 堆 / 无外网依赖（H2 内存库 / 本地 Chronicle Queue / CSV 文件）
 </div></div></div>
@@ -237,6 +237,50 @@ options:{responsive:true,maintainAspectRatio:false,
 plugins:{legend:{position:'top',labels:{color:'#8b949e',font:{size:11}}}},
 scales:{y:{...dark,beginAtZero:true},x:dark}}});
 </script>
-<div class="hd" style="margin-top:24px;border-top:1px solid var(--border);border-bottom:none"><div class="hr"><p>DataSync Stress Test Report · 2026-08-25 · CH</p></div></div>
+<!-- ━━━━━━━━━━━━━━ 被动推送适配器 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>InboundAdapterProbe · 被动推送入站适配器</h2><span class="tg t2">12 / 12 PASS</span></div><div class="cb"><div class="tw"><table>
+<thead><tr>
+    <th>测试项</th>
+    <th style="width:20%">说明</th>
+    <th>结果</th>
+</tr></thead><tbody>
+<tr><td>T01</td><td>MqttInboundAdapter Builder — 无 pipelineEngine 应抛异常</td><td class="pass">PASS</td></tr>
+<tr><td>T02</td><td>WebhookInboundAdapter Builder — 无 pipelineEngine 应抛异常</td><td class="pass">PASS</td></tr>
+<tr><td>T03</td><td>MysqlCdcListener Builder — 无 pipelineEngine 应抛异常</td><td class="pass">PASS</td></tr>
+<tr><td>T04</td><td>MQTT 适配器构建成功</td><td class="pass">PASS</td></tr>
+<tr><td>T05</td><td>MQTT start/stop（Broker 不可用优雅降级）</td><td class="pass">PASS</td></tr>
+<tr><td>T06</td><td>Webhook 适配器构建成功</td><td class="pass">PASS</td></tr>
+<tr><td>T07</td><td>Webhook POST 单条推送 → MockSink 收到完整数据</td><td class="pass">PASS</td></tr>
+<tr><td>T08</td><td>Webhook POST 批量推送（3 条）→ MockSink 收到 3 条</td><td class="pass">PASS</td></tr>
+<tr><td>T09</td><td>CDC 适配器构建成功</td><td class="pass">PASS</td></tr>
+<tr><td>T10</td><td>CDC start/stop（MySQL 不可用优雅降级）</td><td class="pass">PASS</td></tr>
+<tr><td>T11</td><td>全链路：Webhook → PipelineEngine → MockSink 数据完整性</td><td class="pass">PASS</td></tr>
+<tr><td>T12</td><td>多次推送（5 条）计数器正确累积</td><td class="pass">PASS</td></tr>
+</tbody></table></div><div class="cb" style="margin-top:12px">
+<strong>架构</strong>：外部 Source → Inbound Adapter → DataEnvelope → PipelineEngine → Sinks<br>
+<strong>MQTT</strong>：Eclipse Paho v5，订阅主题 → JSON Map → DataEnvelope<br>
+<strong>Webhook</strong>：JDK HttpServer，POST /api/datalake/webhook/{pipelineId} 单条 + /batch 批量<br>
+<strong>CDC</strong>：mysql-binlog-connector-java，INSERT/UPDATE/DELETE 事件 → DataEnvelope
+</div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ 已知问题 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>已知问题与优化方向</h2><span class="tg t5">Known Issues</span></div><div class="cb"><div class="lg">
+<ul class="fl">
+<li><strong>[P0] 调度启动重复执行</strong>：schedulerManager.start() 与 executorManager.start() 触发首轮同步，同一毫秒出现双写。修复方案：区分首次启动与稳态触发。</li>
+<li><strong>[P0] 100M 压力测试 OOM</strong>：100M 行 × 5 字段 ≈ 30GB 瞬时 Map 对象 > 4G 堆。需流式处理（Iterator）或列式存储。</li>
+<li><strong>[P1] PipelineState 枚举不完整</strong>：当前含 FILTERED/PARSED/CLEANED/STANDARDIZED/SINK_OK/SINK_FAIL，缺 TRANSFORMED、VALIDATED 等中间态。</li>
+<li><strong>[P2] DispatcherProvider 默认使用 Chronicle</strong>：可通过配置切换为 InMemory 或 WAL+Jackson。</li>
+<li><strong>[P2] 主动推送能力待实现</strong>：SubscriberManager → AccessSink 的实时推送链路尚未完整打通（目前仅 MockSink + StatisticSink 支持访问模式）。</li>
+</ul>
+</div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ 附录 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>附录 · 模块引用</h2><span class="tg t1">Modules</span></div><div class="cb"><div class="lg">
+<strong>datasync 模块</strong>：executorManager / syncDataSchedulerManager / dispatcherProvider / pipelineEngine<br>
+<strong>datalake 模块</strong>：PipelineManager / SinkManager / SubscriberManager / DataEnvelope / PipelineState<br>
+<strong>被动推送适配</strong>：MqttInboundAdapter / WebhookInboundAdapter / MysqlCdcListener（独立 starter 模块）
+</div></div></div>
+
+<div class="hd" style="margin-top:24px;border-top:1px solid var(--border);border-bottom:none"><div class="hr"><p>DataSync Stress Test Report · 2026-08-26 · CH</p></div></div>
 </body>
 </html>

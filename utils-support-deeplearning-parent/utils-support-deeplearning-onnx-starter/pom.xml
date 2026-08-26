@@ -471,6 +471,16 @@
             <artifactId>utils-support-models-onnx-whisper</artifactId>
             <version>4.0.0.42</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-gfpgan</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-codeformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
 
