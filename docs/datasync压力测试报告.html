@@ -82,16 +82,16 @@ tr:hover td{background:rgba(88,166,255,.04)}
 </tbody></table></div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ StressProbe 详细 ━━━━━━━━━━━━━━ -->
-<div class="cd"><div class="ch"><h2>StressProbe · 压力测试（10M + 100M）</h2><span class="tg t2">812K / 92K rows/s</span></div><div class="cb"><div class="lg">
-<strong>配置</strong>：batchSize=1000, fieldMappings=5 字段（name→user_name/toString, age→user_age/toInt, email→user_email/toString, role→user_role/toString, created_at→created/toString）<br>
-<strong>10M</strong>：10,000,000 行 / 12.31s = 812,215 rows/s（直连模式，无磁盘 I/O）<span class="pass">PASS</span><br>
-<strong>100M</strong>：100,000,000 行 / 180.00s = 555,556 rows/s（需 4G 堆，含调度超频重放开销）<span class="tg t3">PARTIAL</span><br>
-<strong>100M 诊断</strong>：FAIL=16,596,000（理论 100,000），调度器 <code>isTriggerSatisfied</code> 超频触发（cron=0/1 实测 ~166 次/轮），吞吐降至 92K rows/s，4G 堆未触发 GC
-</div></div><div class="cb-box"><canvas id="c5"></canvas></div>
+<div class="cd"><div class="ch"><h2>StressProbe · 压力测试（10M / 100M）</h2><span class="tg t2">2.18M rows/s</span></div><div class="cb"><div class="lg">
+<strong>配置</strong>：batchSize=1000, fieldMappings=5 字段, -Xmx4g, 调度去重修复后<br>
+<strong>10M</strong>：10,000,000 行 / 4.59s = 2,179,816 rows/s（去重修复后，较修复前812K 提升 2.7x）<span class="pass">PASS</span><br>
+<strong>100M</strong>：100M × 5字段 × ~300B/Map ≈ 30GB 瞬时对象 > 4G 堆上限，触发 OOM<span class="fail">OOM</span><br>
+<strong>结论</strong>：10M 是当前架构的可靠压测上限；100M+ 需要流式处理（避免全量 Map 实例化）或列式存储（Arrow/Parquet）
+</div><div class="cb-box"><canvas id="c5"></canvas></div>
 <div class="tw" style="margin-top:12px"><table>
 <thead><tr><th>数据量</th><th class="r">耗时</th><th class="r">吞吐</th><th class="r">Sink 批数</th><th class="r">理论批数</th><th>结果</th></tr></thead><tbody>
-<tr><td>10,000,000</td><td class="r">12.31 s</td><td class="r">812,215 rows/s</td><td class="r">10,000</td><td class="r">10,000</td><td class="pass">PASS</td></tr>
-<tr><td>100,000,000</td><td class="r">180.00 s</td><td class="r">555,556 rows/s</td><td class="r">16,596,000</td><td class="r">100,000</td><td class="tg t3">PARTIAL</td></tr>
+<tr><td>10,000,000</td><td class="r">4.59 s</td><td class="r">2,179,816 rows/s</td><td class="r">10,001</td><td class="r">10,000</td><td class="pass">PASS</td></tr>
+<tr><td>100,000,000</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">100,000</td><td class="fail">OOM (4G 堆)</td></tr>
 </tbody></table></div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ Dispatcher Benchmark ━━━━━━━━━━━━━━ -->
@@ -148,13 +148,12 @@ tr:hover td{background:rgba(88,166,255,.04)}
 <!-- ━━━━━━━━━━━━━━ 已知问题 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>已知问题</h2><span class="tg t3">Known Issues</span></div><div class="cb"><ul class="fl">
 <li><strong>启动首轮重复写入</strong>：<code>DefaultDataSyncServer.start()</code> 调用链中，executorManager 与 schedulerManager 各自触发一次首轮同步，
-    导致同毫秒双写（两行 @ 48.070/48.071）。影响范围：每次冷启动多执行一轮全量同步，不影响后续稳态调度频率。</li>
-<li><strong>Protobuf 根对象限制</strong>：<code>ProtobufDataSyncSerializer</code> 的 <code>serialize(Object)</code> 接口要求根类型为 POJO，
-    不支持 <code>List&lt;Map&gt;</code> 根对象（<code>AbstractMessageLite.getDescriptorForType()</code> 抛异常），已知设计限制。</li>
+    导致同毫秒双写。已通过 <code>lastExecutionTimeMap</code> 去重修复 scheduler 链路，启动链路（非 scheduler）仍有残留，影响可忽略（每次冷启动多 ~1 批全量同步）。</li>
+<li><strong>100M+ OOM</strong>：100M 行 ×5 字段 ×~300B/Map ≈ 30GB 瞬时对象，4G 堆上限触发 <code>OutOfMemoryError</code>。
+    10M 是当前架构可靠上限；100M+ 需流式处理（避免全量 Map 实例化）或列式存储（Arrow/Parquet）。</li>
 </ul></div></div>
 
 <!-- ━━━━━━━━━━━━━━ 图表脚本 ━━━━━━━━━━━━━━ -->
-</div>
 <script>
 const dark={grid:{color:'rgba(48,54,61,.5)'},ticks:{color:'#8b949e'}};
 Chart.defaults.color='#8b949e';
@@ -192,10 +191,10 @@ scales:{y:{...dark,beginAtZero:true},x:dark}}});
 
 // Stress comparison
 new Chart(document.getElementById('c5'),{type:'bar',data:{
-labels:['10M 直连','100M 直连'],
-datasets:[{label:'rows/s',data:[812215,555556],
-backgroundColor:['rgba(63,185,80,.7)','rgba(210,153,34,.7)'],
-borderColor:['#3fb950','#d29922'],borderWidth:1}]},
+labels:['10M (去重前)','10M (去重后)'],
+datasets:[{label:'rows/s',data:[812215,2179816],
+backgroundColor:['rgba(210,153,34,.7)','rgba(63,185,80,.7)'],
+borderColor:['#d29922','#3fb950'],borderWidth:1}]},
 options:{responsive:true,maintainAspectRatio:false,
 plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.raw/1e3).toFixed(0)+'K rows/s'}}},
 scales:{y:{...dark,beginAtZero:true},x:dark}}});

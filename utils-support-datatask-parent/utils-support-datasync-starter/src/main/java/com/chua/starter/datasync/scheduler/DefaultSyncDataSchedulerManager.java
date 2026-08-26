@@ -98,6 +98,11 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     private final Map<String, Trigger> triggerCache = new ConcurrentHashMap<>();
 
     /**
+     * 每个映射的上次执行时间（用于去重，防止同一 cron 区间内重复触发）
+     */
+    private final Map<String, LocalDateTime> lastExecutionTimeMap = new ConcurrentHashMap<>();
+
+    /**
      * 失败重试计数器（mappingId -> 连续失败次数），用于熔断退避
      */
     private final Map<String, AtomicInteger> retryCounters = new ConcurrentHashMap<>();
@@ -250,6 +255,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     public void removeMapping(String mappingId) {
         dataSyncServer.mappingManager().removeMapping(mappingId);
         triggerCache.remove(mappingId);
+        lastExecutionTimeMap.remove(mappingId);
     }
 
     @Override
@@ -284,6 +290,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     public void stop() {
         scheduler.shutdown();
         subscribedSinkKeys.clear();
+        lastExecutionTimeMap.clear();
         log.info("SyncDataSchedulerManager 已停止");
     }
 
@@ -313,6 +320,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 if (!isTriggerSatisfied(mapping)) {
                     continue;
                 }
+                // 记录执行时间（用于 isTriggerSatisfied 去重）
+                lastExecutionTimeMap.put(mapping.mappingId(), java.time.LocalDateTime.now());
                 executeMapping(mapping);
             }
         } catch (Exception e) {
@@ -356,7 +365,15 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         java.time.LocalDateTime checkFrom = now.minusSeconds(1);
         try {
             java.time.LocalDateTime nextFire = trigger.nextExecutionTime(checkFrom);
-            return nextFire != null && !nextFire.isAfter(now);
+            if (nextFire == null || nextFire.isAfter(now)) {
+                return false;
+            }
+            // 去重：若上次执行时间 >= nextFire，说明本轮 cron 区间已触发过，跳过
+            java.time.LocalDateTime lastExec = lastExecutionTimeMap.get(mapping.mappingId());
+            if (lastExec != null && !lastExec.isBefore(nextFire)) {
+                return false;
+            }
+            return true;
         } catch (Exception e) {
             log.warn("触发器执行异常: mappingId={}", mapping.mappingId(), e);
             return false;
