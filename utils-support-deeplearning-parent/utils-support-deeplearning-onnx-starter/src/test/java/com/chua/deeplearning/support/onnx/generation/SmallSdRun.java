@@ -92,6 +92,12 @@ public final class SmallSdRun {
         long start = System.currentTimeMillis();
         ITranslator<Object, Object> translator = AbstractIdentificationEngine.getInstance()
                 .get("small-stable-diffusion-combined", ITranslator.class);
+        if (translator == null) {
+            System.err.println("translator is null! registered models: "
+                    + com.chua.deeplearning.support.engine.ModelRegistry.getAll().stream()
+                    .map(e -> e.modelId()).toList());
+            return;
+        }
         Object result = translator.translate(prompt);
 
         Path out = Path.of(opt.getOrDefault("out", "out.png"));
