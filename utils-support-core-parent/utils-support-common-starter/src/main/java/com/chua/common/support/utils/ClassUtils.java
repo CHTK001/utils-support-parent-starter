@@ -478,6 +478,8 @@ public class ClassUtils {
             } catch (Exception ignored) {
             }
         }
+        return count;
+    }
 
     /**
      * 精确清理指定的 ClassLoader 实例（从全局注册表移除并释放资源）。

@@ -40,14 +40,9 @@ public final class PayloadCipher {
     public static final byte[] MAGIC_ENTRY = {'C', 'H', 'K', 'J'};
 
     /**
-     * 密钥文件魔数：CHKF（打包内嵌密钥块）
+     * 密钥封装块魔数：CHKF
      */
     public static final byte[] MAGIC_KEY_BLOB = {'C', 'H', 'K', 'F'};
-
-    /**
-     * 加密狗魔数：CHKD
-     */
-    public static final byte[] MAGIC_DONGLE = {'C', 'H', 'K', 'D'};
 
     /**
      * 格式版本
@@ -126,7 +121,7 @@ public final class PayloadCipher {
     }
 
     /**
-     * 从密钥封装块解封主密钥（兼容 CHKF 内嵌块与 CHKD 加密狗文件）
+     * 从密钥封装块解封主密钥（CHKF 格式，与打包内嵌块/私钥文件一致）
      *
      * @param expectedMagic 期望魔数
      * @param blob          封装块字节
