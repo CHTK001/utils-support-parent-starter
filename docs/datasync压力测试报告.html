@@ -56,7 +56,8 @@ tr:hover td{background:rgba(88,166,255,.04)}
 <div class="cd"><div class="ch"><h2>概览</h2><span class="tg t2">10 / 10 PASS</span></div><div class="cb"><div class="lg">
 <strong>测试范围</strong>：10 个独立探针，覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
 调度时序、快照恢复、网络重连、序列化基准、负载吞吐。<br>
-<strong>环境</strong>：单机 16C / 无外网依赖（H2 内存库 / 本地 Chronicle Queue / CSV 文件）
+<strong>压力测试</strong>：10M 行 @ 812K rows/s (PASS) / 100M 行 @ 555K rows/s (PARTIAL, 调度超频重放)<br>
+<strong>环境</strong>：单机 16C / JDK 25.0.3 / 4G 堆 / 无外网依赖（H2 内存库 / 本地 Chronicle Queue / CSV 文件）
 </div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ 探针结果汇总表 ━━━━━━━━━━━━━━ -->
@@ -81,11 +82,17 @@ tr:hover td{background:rgba(88,166,255,.04)}
 </tbody></table></div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ StressProbe 详细 ━━━━━━━━━━━━━━ -->
-<div class="cd"><div class="ch"><h2>StressProbe · 10M 行写入</h2><span class="tg t2">812K rows/s</span></div><div class="cb"><div class="lg">
+<div class="cd"><div class="ch"><h2>StressProbe · 压力测试（10M + 100M）</h2><span class="tg t2">812K / 92K rows/s</span></div><div class="cb"><div class="lg">
 <strong>配置</strong>：batchSize=1000, fieldMappings=5 字段（name→user_name/toString, age→user_age/toInt, email→user_email/toString, role→user_role/toString, created_at→created/toString）<br>
-<strong>结果</strong>：10,000,000 行 / 12.31s = 812,215 rows/s（直连模式，无磁盘 I/O）<br>
-<strong>状态</strong>：<span class="pass">PASS</span> · 无断言失败、无背压阻塞
-</div></div></div>
+<strong>10M</strong>：10,000,000 行 / 12.31s = 812,215 rows/s（直连模式，无磁盘 I/O）<span class="pass">PASS</span><br>
+<strong>100M</strong>：100,000,000 行 / 180.00s = 555,556 rows/s（需 4G 堆，含调度超频重放开销）<span class="tg t3">PARTIAL</span><br>
+<strong>100M 诊断</strong>：FAIL=16,596,000（理论 100,000），调度器 <code>isTriggerSatisfied</code> 超频触发（cron=0/1 实测 ~166 次/轮），吞吐降至 92K rows/s，4G 堆未触发 GC
+</div></div><div class="cb-box"><canvas id="c5"></canvas></div>
+<div class="tw" style="margin-top:12px"><table>
+<thead><tr><th>数据量</th><th class="r">耗时</th><th class="r">吞吐</th><th class="r">Sink 批数</th><th class="r">理论批数</th><th>结果</th></tr></thead><tbody>
+<tr><td>10,000,000</td><td class="r">12.31 s</td><td class="r">812,215 rows/s</td><td class="r">10,000</td><td class="r">10,000</td><td class="pass">PASS</td></tr>
+<tr><td>100,000,000</td><td class="r">180.00 s</td><td class="r">555,556 rows/s</td><td class="r">16,596,000</td><td class="r">100,000</td><td class="tg t3">PARTIAL</td></tr>
+</tbody></table></div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ Dispatcher Benchmark ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>DispatcherBenchProbe · 4 Provider 吞吐对比</h2><span class="tg t1">2M rows ×4</span></div><div class="cb"><div class="cb-box"><canvas id="c1"></canvas></div>
@@ -179,6 +186,16 @@ labels:['512 KB','1 MB','2 MB','4 MB'],
 datasets:[{label:'rows/s',data:[417000,448000,549000,476000],
 backgroundColor:['rgba(210,153,34,.7)','rgba(88,166,255,.7)','rgba(63,185,80,.7)','rgba(188,140,255,.7)'],
 borderColor:['#d29922','#58a6ff','#3fb950','#bc8cff'],borderWidth:1}]},
+options:{responsive:true,maintainAspectRatio:false,
+plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.raw/1e3).toFixed(0)+'K rows/s'}}},
+scales:{y:{...dark,beginAtZero:true},x:dark}}});
+
+// Stress comparison
+new Chart(document.getElementById('c5'),{type:'bar',data:{
+labels:['10M 直连','100M 直连'],
+datasets:[{label:'rows/s',data:[812215,555556],
+backgroundColor:['rgba(63,185,80,.7)','rgba(210,153,34,.7)'],
+borderColor:['#3fb950','#d29922'],borderWidth:1}]},
 options:{responsive:true,maintainAspectRatio:false,
 plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.raw/1e3).toFixed(0)+'K rows/s'}}},
 scales:{y:{...dark,beginAtZero:true},x:dark}}});
