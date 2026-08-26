@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-25",
+  "generatedAt": "2026-08-26",
   "source": "ModelRegistry.discoverAll() 全量注册模型",
   "legend": {
     "verified": "本轮综合实测通过（含检出数）",
@@ -128,7 +128,7 @@
       "path": "seg/anime/anime.onnx",
       "status": "verified",
       "date": "2026-08-25",
-      "notes": "rembg isnet-anime.onnx(168MB)；推理通过 384KB PNG / 7.2s（动漫图效果更佳）"
+      "notes": "rembg isnet-anime.onnx(168MB)；推理通过 384KB PNG / 7.2s（动漫图效果更佳）；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
     },
     {
       "id": "arc-face",
@@ -276,7 +276,7 @@
       "path": "seg/cloth/cloth.onnx",
       "status": "verified",
       "date": "2026-08-25",
-      "notes": "rembg u2net_cloth_seg.onnx(168MB)；复测通过 384KB PNG / 11.1s（此前失败系系统 commit 内存被占满致 JVM 启动 malloc 失败）"
+      "notes": "rembg u2net_cloth_seg.onnx(168MB)；复测通过 384KB PNG / 11.1s（此前失败系系统 commit 内存被占满致 JVM 启动 malloc 失败）；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
     },
     {
       "id": "cn-clip-image",
@@ -655,7 +655,7 @@
       "path": "seg/human/human.onnx",
       "status": "verified",
       "date": "2026-08-25",
-      "notes": "rembg u2net_human_seg.onnx(167.8MB)；人像分割 308KB PNG / 4.6s"
+      "notes": "rembg u2net_human_seg.onnx(167.8MB)；人像分割 308KB PNG / 4.6s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
     },
     {
       "id": "image-colorize",
@@ -787,7 +787,7 @@
       "path": "seg/isnet/isnet.onnx",
       "status": "verified",
       "date": "2026-08-25",
-      "notes": "rembg isnet-general-use.onnx(170MB)；抠图 384KB PNG / 7.9s"
+      "notes": "rembg isnet-general-use.onnx(170MB)；抠图 384KB PNG / 7.9s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
     },
     {
       "id": "matting-u2net",
@@ -796,7 +796,7 @@
       "path": "seg/u2net/u2net.onnx",
       "status": "verified",
       "date": "2026-08-25",
-      "notes": "rembg u2net.onnx(167.8MB)；抠图 303KB PNG / 3.3s"
+      "notes": "rembg u2net.onnx(167.8MB)；抠图 303KB PNG / 3.3s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
     },
     {
       "id": "matting-u2netp",
@@ -805,7 +805,7 @@
       "path": "seg/u2netp/u2netp.onnx",
       "status": "verified",
       "date": "2026-08-25",
-      "notes": "rembg u2netp.onnx(4.4MB)→models/onnx/seg/u2netp/；1people 抠图 277KB PNG / 2.2s"
+      "notes": "rembg u2netp.onnx(4.4MB)→models/onnx/seg/u2netp/；1people 抠图 277KB PNG / 2.2s；黑盒 D:/images 全量 65/66 张输出 RGBA 透明背景 PNG"
     },
     {
       "id": "midas-depth",
