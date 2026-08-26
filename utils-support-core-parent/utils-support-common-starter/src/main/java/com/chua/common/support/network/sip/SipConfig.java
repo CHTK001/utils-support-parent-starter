@@ -82,6 +82,12 @@ public class SipConfig {
     private String tokenFile;
 
     /**
+     * 数据面流式压缩开关（基于 SipStreamCompressor SPI，默认 GZIP）。
+     */
+    @Builder.Default
+    private boolean compress = false;
+
+    /**
      * 创建一份独立的默认配置。
      *
      * @return 新的默认配置实例

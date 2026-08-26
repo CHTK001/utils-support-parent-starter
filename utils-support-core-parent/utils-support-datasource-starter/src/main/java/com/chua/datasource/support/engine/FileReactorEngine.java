@@ -118,22 +118,28 @@ public class FileReactorEngine implements ReactorEngine {
 
     @Override
     public Flux<Map<String, Object>> query(String sql, Object... params) {
-        return Flux.error(new UnsupportedOperationException("FileReactorEngine 不支持原生 SQL"));
+        return Flux.defer(() -> Flux.fromIterable(delegate.querySql(sql, params)));
     }
 
     @Override
     public <T> Flux<T> query(String sql, Class<T> rowType, Object... params) {
-        return Flux.error(new UnsupportedOperationException("FileReactorEngine 不支持原生 SQL"));
+        return Flux.defer(() -> {
+            var out = new java.util.ArrayList<T>();
+            for (var row : delegate.querySql(sql, params)) {
+                out.add(MemorySqlLex.RowAccessor.toBean(row, rowType));
+            }
+            return Flux.fromIterable(out);
+        });
     }
 
     @Override
     public Mono<Integer> execute(String sql, Object... params) {
-        return Mono.error(new UnsupportedOperationException("FileReactorEngine 不支持原生 SQL"));
+        return Mono.fromSupplier(() -> delegate.executeSql(sql, params));
     }
 
     @Override
     public Flux<Integer> batch(String sql, List<Object[]> batchParams) {
-        return Flux.error(new UnsupportedOperationException("FileReactorEngine 不支持原生 SQL"));
+        return Flux.fromIterable(batchParams).map(bp -> delegate.executeSql(sql, bp));
     }
 
     /**
