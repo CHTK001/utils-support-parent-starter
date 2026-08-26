@@ -440,7 +440,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 log.warn("[Small SD v0][编排] GPU 会话创建失败，自动降级 CPU: {}", e.getMessage());
                 forceCpu = true;
                 closeSessions();
-                openSessions(base, false);
+                openSessions(base, false, false);
                 deviceUsed = "cpu";
             }
             initialized = true;

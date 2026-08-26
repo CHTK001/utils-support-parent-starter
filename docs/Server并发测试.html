@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Server 实现类并发 / 吞吐基准测试</title>
+<title>Server 实现类并�?/ 吞吐基准测试</title>
 <style>
 :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
   --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; --gold:#e3b341; }
@@ -79,13 +79,13 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 <body>
 
 <header>
-  <h1>&#128202; Server 实现类并发 / 吞吐基准测试</h1>
-  <div class="sub">AioHttpServer vs NioHttpServer vs VertxHttpServer vs JdkHttpServer &middot; 四实现横向压测 + 综合排名</div>
+  <h1>&#128202; Server 实现类并�?/ 吞吐基准测试</h1>
+  <div class="sub">AioHttpServer vs NioHttpServer vs VertxHttpServer vs JdkHttpServer &middot; 四实现横向压�?+ 综合排名</div>
   <div class="chips">
-    <span class="chip g">&#9989; 成功率 100%（32/32 场景零失败）</span>
+    <span class="chip g">&#9989; 成功�?100%�?2/32 场景零失败）</span>
     <span class="chip">&#128197; 2026-08-24 · CPU&lt;35% 空闲窗口</span>
-    <span class="chip">JDK 25.0.3 · 虚拟线程 · 12 核</span>
-    <span class="chip">GET /echo · 失败自动重试一次</span>
+    <span class="chip">JDK 25.0.3 · 虚拟线程 · 12 �?/span>
+    <span class="chip">GET /echo · 失败自动重试一�?/span>
   </div>
 </header>
 
@@ -94,12 +94,12 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 <h2><span class="num">总览</span>关键指标</h2>
 <div class="kpis">
   <div class="kpi g"><div class="v">100.00%</div><div class="l">全场成功率：32 个场景零失败（失败自动重试一次机制）</div></div>
-  <div class="kpi gold"><div class="v">&#129351; NIO 综合第一</div><div class="l">8 档中 6 冠，大报文 cc500 达 23,121 RPS</div></div>
-  <div class="kpi p"><div class="v">&#128200; AIO 最强扩展</div><div class="l">唯一随并发增长的实现（256B：7.1k &rarr; 11.0k），cc2000 尾延迟 766ms 全场最低</div></div>
-  <div class="kpi r"><div class="v">JDK 高并发崩塌</div><div class="l">两档 cc100 第一（25.3k / 26.1k），但 cc1000 起跌至 ~2k / ~5k</div></div>
+  <div class="kpi gold"><div class="v">&#129351; NIO 综合第一</div><div class="l">8 档中 6 冠，大报�?cc500 �?23,121 RPS</div></div>
+  <div class="kpi p"><div class="v">&#128200; AIO 最强扩�?/div><div class="l">唯一随并发增长的实现�?56B�?.1k &rarr; 11.0k），cc2000 尾延�?766ms 全场最�?/div></div>
+  <div class="kpi r"><div class="v">JDK 高并发崩�?/div><div class="l">两档 cc100 第一�?5.3k / 26.1k），�?cc1000 起跌�?~2k / ~5k</div></div>
 </div>
 
-<div class="note"><b>&#9888;&#65039; 口径与环境</b>：每场景约 20000 请求、预热 200 次、自适应请求数；<b>请求失败自动重试一次</b>（消除 keep-alive 连接复用竞态），重试后仍失败才计错误 —— 本轮全部场景成功率 100%。四实现在同一空闲窗口背靠背采集，横向可比。繁忙共享机上曾观测到所有实现成功率跌至 17%~50%（HTTP 503 为框架内置 <code>maxConcurrency</code> 限流的主动甩负载）。</div><h2><span class="num">1</span>综合排名 <span class="hint">名次按各档 RPS 计（1=冠军）</span></h2>
+<div class="note"><b>&#9888;&#65039; 口径与环�?/b>：每场景�?20000 请求、预�?200 次、自适应请求数；<b>请求失败自动重试一�?/b>（消�?keep-alive 连接复用竞态），重试后仍失败才计错�?—�?本轮全部场景成功�?100%。四实现在同一空闲窗口背靠背采集，横向可比。繁忙共享机上曾观测到所有实现成功率跌至 17%~50%（HTTP 503 为框架内�?<code>maxConcurrency</code> 限流的主动甩负载）�?/div><h2><span class="num">1</span>综合排名 <span class="hint">名次按各�?RPS 计（1=冠军�?/span></h2>
 
 <table>
 <thead><tr><th>实现</th><th>256B<br>cc100</th><th>256B<br>cc500</th><th>256B<br>cc1000</th><th>256B<br>cc2000</th><th>4096B<br>cc100</th><th>4096B<br>cc500</th><th>4096B<br>cc1000</th><th>4096B<br>cc2000</th><th>总分<br>(越低越好)</th><th>平均 RPS</th></tr></thead>
@@ -110,7 +110,7 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 <tr><td style="color:var(--red);font-weight:700">JdkHttpServer</td><td class="win">1</td><td>3</td><td>3*</td><td>4</td><td class="win">1</td><td>4</td><td>4</td><td>4</td><td>26</td><td>10,746</td></tr>
 </tbody>
 </table>
-<div class="note" style="margin-top:8px">&#129351;&#129352;&#129353; 综合 podium：<b>NIO</b> &gt; <b>Vert.x</b> &gt; <b>AIO</b>（Vert.x 与 AIO 同为 22 分，Vert.x 凭平均吞吐 11,195 vs 11,019 险胜）。* jdk 的 cc500/1000 名次波动大（1,981~4,802），属其调度器在中等并发的抖动区。</div>
+<div class="note" style="margin-top:8px">&#129351;&#129352;&#129353; 综合 podium�?b>NIO</b> &gt; <b>Vert.x</b> &gt; <b>AIO</b>（Vert.x �?AIO 同为 22 分，Vert.x 凭平均吞�?11,195 vs 11,019 险胜）�? jdk �?cc500/1000 名次波动大（1,981~4,802），属其调度器在中等并发的抖动区�?/div>
 
 <div class="chart-block">
   <div class="chart-title">报文 256 字节 · 吞吐对比</div>
@@ -168,7 +168,7 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
   </div>
 </div>
 
-<h2><span class="num">2</span>p99 尾延迟汇总 (ms) <span class="hint">每格 = 实现 @ 该场景；<span style="color:var(--green)">绿色全场最低</span></span></h2>
+<h2><span class="num">2</span>p99 尾延迟汇�?(ms) <span class="hint">每格 = 实现 @ 该场景；<span style="color:var(--green)">绿色全场最�?/span></span></h2>
 <table>
 <thead><tr><th>payload</th><th>并发</th><th>NIO</th><th>AIO</th><th>Vert.x</th><th>JDK</th></tr></thead>
 <tbody>
@@ -182,10 +182,10 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 <tr><td>2000</td><td>757</td><td>758</td><td class="win">718</td><td>972</td></tr>
 </tbody>
 </table>
-<h2><span class="num">3</span>逐场景明细（成功率全部 100.00%）</h2>
+<h2><span class="num">3</span>逐场景明细（成功率全�?100.00%�?/h2>
 
 <table>
-<thead><tr><th colspan="6" style="text-align:left;background:#0f2417;color:var(--green)">NioHttpServer — 综合 &#129351;</th></tr>
+<thead><tr><th colspan="6" style="text-align:left;background:#0f2417;color:var(--green)">NioHttpServer �?综合 &#129351;</th></tr>
 <tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p99(ms)</th><th>耗时(ms)</th></tr></thead>
 <tbody>
 <tr><td>256</td><td>100 / 500 / 1000 / 2000</td><td class="win">23,283 / 13,055 / 13,236 / 11,217</td><td>2 / 16 / 28 / 55</td><td>19 / 372 / 793 / 927</td><td>859 / 1,532 / 1,511 / 1,783</td></tr>
@@ -194,7 +194,7 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </table>
 
 <table>
-<thead><tr><th colspan="6" style="text-align:left;background:#0d1a2d;color:var(--accent)">VertxHttpServer — 综合 &#129352;</th></tr>
+<thead><tr><th colspan="6" style="text-align:left;background:#0d1a2d;color:var(--accent)">VertxHttpServer �?综合 &#129352;</th></tr>
 <tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p99(ms)</th><th>耗时(ms)</th></tr></thead>
 <tbody>
 <tr><td>256</td><td>100 / 500 / 1000 / 2000</td><td>11,211 / 8,651 / 8,003 / 9,828</td><td>7 / 48 / 98 / 130</td><td>26 / 178 / 581 / 897</td><td>1,784 / 2,312 / 2,499 / 2,035</td></tr>
@@ -203,7 +203,7 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </table>
 
 <table>
-<thead><tr><th colspan="6" style="text-align:left;background:#241a33;color:var(--purple)">AioHttpServer — 综合 &#129353; · 唯一随并发增长</th></tr>
+<thead><tr><th colspan="6" style="text-align:left;background:#241a33;color:var(--purple)">AioHttpServer �?综合 &#129353; · 唯一随并发增�?/th></tr>
 <tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p99(ms)</th><th>耗时(ms)</th></tr></thead>
 <tbody>
 <tr><td>256</td><td>100 &rarr; 2000 <b style="color:var(--purple)">单调上升 &#8599;</b></td><td>7,052 &rarr; 8,673 &rarr; 10,588 &rarr; 10,953</td><td>9 / 24 / 29 / 54</td><td>42 / 663 / 1,291 / 766</td><td>2,836 / 2,306 / 1,889 / 1,826</td></tr>
@@ -212,7 +212,7 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </table>
 
 <table>
-<thead><tr><th colspan="6" style="text-align:left;background:#2a1214;color:var(--red)">JdkHttpServer — 低并发爆发 / 高并发崩塌</th></tr>
+<thead><tr><th colspan="6" style="text-align:left;background:#2a1214;color:var(--red)">JdkHttpServer �?低并发爆�?/ 高并发崩�?/th></tr>
 <tr><th>payload</th><th>并发</th><th>RPS</th><th>p50(ms)</th><th>p99(ms)</th><th>耗时(ms)</th></tr></thead>
 <tbody>
 <tr><td>256</td><td>100 / 500 / 1000 / 2000</td><td><b style="color:var(--green)">25,284</b> / 4,802 / 1,981 / 4,358</td><td>2 / 44 / 464 / 351</td><td>11 / 550 / 1,333 / 1,124</td><td>791 / 4,165 / 10,094 / 4,589</td></tr>
@@ -220,38 +220,48 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </tbody>
 </table>
 
-<h2><span class="num">4</span>AIO 功能覆盖：HttpServerExample 22/22 全部通过</h2>
-<div class="ok"><b>&#9989; AioHttpServer v2 能力实测</b>（<code>--type=aio --mode=func</code>，22 项断言全过）：
-<ul>
-<li><b>SSL/TLS</b>：每连接 SSLEngine，握手在专属虚拟线程以 Future 阻塞驱动；数据面 unwrap 内联于 proactor 读回调、wrap 在响应入队时同步完成。修复要点：握手缓冲区写/读模式显式 flip/compact（否则解析到空缓冲垃圾字节）、TLS1.3 server flight 分片续写、禁用 NewSessionTicket 防票据明文污染 HTTP 解析器。</li>
-<li><b>WebSocket (RFC 6455)</b>：升级握手后切换帧协议；支持 <code>@OnMessage</code> 注解与 <code>onSubscribe(topic, handler)</code> 订阅、ping/pong、close 回显、publish 广播；TLS 连接下帧收发自动加解密。</li>
-<li><b>SSE 流式推送</b>：为 NioServerResponse 新增 <code>streamWriter</code> 直写钩子，SSE 事件经 TLS 感知阻塞写输出（此前 channel=null 被静默丢弃导致 EOF）。</li>
-<li>其余 19 项（方法矩阵/状态码/Keep-Alive/大报文/Header 大小写/限流 503/RemoteAddress 等）回归通过。</li>
-</ul></div>
-
-<h2><span class="num">4.5</span>最新复测：AIO 响应式 + 极限优化（2026-08-24 追加）</h2>
-<div class="desc">AioHttpServer 完成纯非阻塞改造（TLS 握手状态机 / WS 增量解码 / SSE 入队化）后追加：</div>
+<h2><span class="num">4</span>���ܸ��ǣ���ʵ�� HttpServerExample ȫ����</h2>
 <table>
-<thead><tr><th>优化项</th><th>说明</th><th>效果</th></tr></thead>
+<thead><tr><th>ʵ��</th><th>FUNC ����</th><th>���</th><th>WebSocket</th><th>HTTPS</th><th>����503</th><th>multipart</th></tr></thead>
 <tbody>
-<tr><td><b>响应式模式</b></td><td>非阻塞 handler 内联 IOCP 回调线程执行，消除每请求 2 次虚拟线程调度跳转（<code>setting.setReactor(true)</code> 或 <code>-Daio.http.reactive=true</code>）</td><td>cc500 小报文 +33%，p50 35ms→29ms；cc2000 首测反超 NIO（10,604 vs 6,343）</td></tr>
-<tr><td><b>头体合并单次写</b></td><td>≤64KB 响应合并为单缓冲一次 overlap 写（堆分配，TLAB 近零成本）</td><td>省一次内核往返；4096B/cc500 历史最佳 14,620</td></tr>
-<tr><td><b>无超时读</b></td><td>热路径 read 去掉超时参数（Windows 定时异步读需挂内核等待对象）</td><td>p50 首次进入个位数稳定区（3~8ms），同窗口始终 ≤ NIO 一半</td></tr>
+<tr><td>AioHttpServer</td><td>24</td><td class="win">24/0 &#9989;</td><td>&#9989;</td><td>&#9989;</td><td>&#9989;</td><td>&#9989;</td></tr>
+<tr><td>NioHttpServer</td><td>24</td><td class="win">24/0 &#9989;</td><td>&#9989;</td><td>&#9989;</td><td>&#9989;</td><td>&#9989;</td></tr>
+<tr><td>VertxHttpServer</td><td>24</td><td class="win">24/0 &#9989;</td><td>&#9989; <span class="hint">����</span></td><td>&#9989;</td><td>&#9989;</td><td>&#9989;</td></tr>
+<tr><td>JdkHttpServer</td><td>23</td><td>23/0 &#9989;</td><td>&#8212;</td><td>&#9989;</td><td>&#9989;</td><td>&#9989;</td></tr>
 </tbody>
 </table>
-<div class="note">同窗口 NIO-vs-AIO 复测两轮结论：①较空闲窗口小报文低并发 NIO 快、高并发 AIO 反超；②负载回升窗口 <b>AIO 全档领先且 p50 仅 NIO 一半</b>。两实现峰值已同量级（15~20k 档）；最终排名建议 Linux 独占机复测定案。</div>
-<h2><span class="num">5</span>连接规模扩展性 <span class="hint">AIO 理论优势的验证场 · 每连接仅 5 请求的长连接压测</span></h2>
-<div class="desc">前面的吞吐口径是「少连接 × 高 RPS」(最高 2000 连接)，未进入 AIO 主场。本节将并发<b>长连接</b>数拉到 2k / 5k / 10k —— 越过 NIO Selector 的舒适区后攻守易势：</div>
+<div class="note">JDK ��ԭ�� WebSocket ������ 23 �FUNC-22 ��������������� WebSocket��FUNC-22���� 24 ���֤��<code>AioFuncMain &lt;type&gt; func</code>����ʵ��ͬ���ڸ����ȫ�̣�AIO/NIO/Vert.x 24/0��JDK 23/0����</div>
+<div class="ok"><b>&#9989; AioHttpServer v2 能力实测</b>�?code>--type=aio --mode=func</code>�?2 项断言全过）：
+<ul>
+<li><b>SSL/TLS</b>：每连接 SSLEngine，握手在专属虚拟线程�?Future 阻塞驱动；数据面 unwrap 内联�?proactor 读回调、wrap 在响应入队时同步完成。修复要点：握手缓冲区写/读模式显�?flip/compact（否则解析到空缓冲垃圾字节）、TLS1.3 server flight 分片续写、禁�?NewSessionTicket 防票据明文污�?HTTP 解析器�?/li>
+<li><b>WebSocket (RFC 6455)</b>：升级握手后切换帧协议；支持 <code>@OnMessage</code> 注解�?<code>onSubscribe(topic, handler)</code> 订阅、ping/pong、close 回显、publish 广播；TLS 连接下帧收发自动加解密�?/li>
+<li><b>SSE 流式推�?/b>：为 NioServerResponse 新增 <code>streamWriter</code> 直写钩子，SSE 事件�?TLS 感知阻塞写输出（此前 channel=null 被静默丢弃导�?EOF）�?/li>
+<li>其余 19 项（方法矩阵/状态码/Keep-Alive/大报�?Header 大小�?限流 503/RemoteAddress 等）回归通过�?/li>
+<li><b>VertxHttpServer WebSocket ����</b>��������������rootRoute �������&rarr;<code>ctx.request().toWebSocket()</code>&rarr;<code>textMessageHandler</code> �� topic/body ·�ɣ����� <code>onSubscribe(topic, handler)</code> �� <code>VertxWsRequest/VertxWsResponse</code> �ڲ��࣬�� AIO/NIO ��Ϊ���롣FUNC-22 ������ vertx-http ��֧��</li></ul></div>
+
+<h2><span class="num">4.5</span>最新复测：AIO 响应�?+ 极限优化�?026-08-24 追加�?/h2>
+<div class="desc">AioHttpServer 完成纯非阻塞改造（TLS 握手状态机 / WS 增量解码 / SSE 入队化）后追加：</div>
+<table>
+<thead><tr><th>优化�?/th><th>说明</th><th>效果</th></tr></thead>
+<tbody>
+<tr><td><b>响应式模�?/b></td><td>非阻�?handler 内联 IOCP 回调线程执行，消除每请求 2 次虚拟线程调度跳转（<code>setting.setReactor(true)</code> �?<code>-Daio.http.reactive=true</code>�?/td><td>cc500 小报�?+33%，p50 35ms�?9ms；cc2000 首测反超 NIO�?0,604 vs 6,343�?/td></tr>
+<tr><td><b>头体合并单次�?/b></td><td>�?4KB 响应合并为单缓冲一�?overlap 写（堆分配，TLAB 近零成本�?/td><td>省一次内核往返；4096B/cc500 历史最�?14,620</td></tr>
+<tr><td><b>无超时读</b></td><td>热路�?read 去掉超时参数（Windows 定时异步读需挂内核等待对象）</td><td>p50 首次进入个位数稳定区�?~8ms），同窗口始�?�?NIO 一�?/td></tr>
+</tbody>
+</table>
+<div class="note">同窗�?NIO-vs-AIO 复测两轮结论：①较空闲窗口小报文低并�?NIO 快、高并发 AIO 反超；②负载回升窗口 <b>AIO 全档领先�?p50 �?NIO 一�?/b>。两实现峰值已同量级（15~20k 档）；最终排名建�?Linux 独占机复测定案�?/div>
+<h2><span class="num">5</span>连接规模扩展�?<span class="hint">AIO 理论优势的验证场 · 每连接仅 5 请求的长连接压测</span></h2>
+<div class="desc">前面的吞吐口径是「少连接 × �?RPS�?最�?2000 连接)，未进入 AIO 主场。本节将并发<b>长连�?/b>数拉�?2k / 5k / 10k —�?越过 NIO Selector 的舒适区后攻守易势：</div>
 
 <div class="chart-block">
-  <div class="chart-title">吞吐随并发连接数变化（256B · 每连接 5 请求）</div>
+  <div class="chart-title">吞吐随并发连接数变化�?56B · 每连�?5 请求�?/div>
   <div class="grp"><div class="grp-t">2,000 连接</div>
     <div class="bar-row"><span class="bar-name">aio</span><div class="bar-track"><div class="bar aio" style="width:64.5%"><span>4,442 RPS</span></div></div></div>
     <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:56.3%"><span>3,876 RPS</span></div></div></div>
   </div>
   <div class="grp"><div class="grp-t">5,000 连接</div>
-    <div class="bar-row"><span class="bar-name">aio</span><div class="bar-track"><div class="bar aio" style="width:77.2%"><span>5,310 RPS ↗</span></div></div></div>
-    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:45%"><span>3,094 RPS ↘</span></div></div></div>
+    <div class="bar-row"><span class="bar-name">aio</span><div class="bar-track"><div class="bar aio" style="width:77.2%"><span>5,310 RPS �?/span></div></div></div>
+    <div class="bar-row"><span class="bar-name">nio</span><div class="bar-track"><div class="bar nio" style="width:45%"><span>3,094 RPS �?/span></div></div></div>
   </div>
   <div class="grp"><div class="grp-t">10,000 连接</div>
     <div class="bar-row"><span class="bar-name">aio</span><div class="bar-track"><div class="bar aio" style="width:100%"><span>6,882 RPS ↗↗ (+101%)</span></div></div></div>
@@ -268,29 +278,29 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </tbody>
 </table>
 
-<div class="note"><b>&#128161; 结论</b>：交叉点位于 <b>~2k~5k 连接</b>之间。越过之后 NIO 吞吐停滞、尾延迟飙至 9.4s（Windows Selector 每 64 连接一个辅助线程、select 开销随连接数线性增长的固有退化）；AIO 则单调上升且 p99 仅 5.0s —— <b>IOCP 完成端口在海量连接下的理论优势得到实证</b>。「少连接高吞吐选 NIO，海量长连接选 AIO」。</div>
+<div class="note"><b>&#128161; 结论</b>：交叉点位于 <b>~2k~5k 连接</b>之间。越过之�?NIO 吞吐停滞、尾延迟飙至 9.4s（Windows Selector �?64 连接一个辅助线程、select 开销随连接数线性增长的固有退化）；AIO 则单调上升且 p99 �?5.0s —�?<b>IOCP 完成端口在海量连接下的理论优势得到实�?/b>。「少连接高吞吐�?NIO，海量长连接�?AIO」�?/div>
 
 <h2><span class="num">6</span>结论与选型建议</h2>
 <div class="concl"><b>&#9989; 选型结论</b>
 <ul>
-<li><b>综合首选 NioHttpServer</b>：8 档 6 冠、平均吞吐最高（18.5k），纯 JDK 零依赖；小报文低并发（cc100 23.3k）与大报文中高并发均领跑。</li>
-<li><b>持续高并发负载选 AIO</b>：请求吞吐维度上它是唯一随并发<b>单调上升</b>的实现（256B：7.1k&rarr;11.0k），且 cc2000 小报文尾延迟全场最低（766ms）；<b>连接规模维度优势更显著</b>——10k 长连接下吞吐达 NIO 的 2 倍（见 §5）。现已具备 SSL/TLS 与 WebSocket 完整能力。</li>
-<li><b>可预期性优先选 Vert.x</b>：各档表现平稳（p99 中高并发段多项最优），综合第二。</li>
-<li><b>JdkHttpServer 仅适合突发短促流量</b>：cc100 两度夺冠但 cc1000 起崩塌至 ~2k-5k，长稳场景不推荐。</li>
-<li><b>Windows 注意</b>：NIO 的 eventLoop 被钳制为 2（WindowsSelectorImpl 限制），Linux/epoll 下预计更高；AIO 在 Windows 底层为真 IOCP，优势场景恰在此平台。</li>
+<li><b>综合首�?NioHttpServer</b>�? �?6 冠、平均吞吐最高（18.5k），�?JDK 零依赖；小报文低并发（cc100 23.3k）与大报文中高并发均领跑�?/li>
+<li><b>持续高并发负载�?AIO</b>：请求吞吐维度上它是唯一随并�?b>单调上升</b>的实现（256B�?.1k&rarr;11.0k），�?cc2000 小报文尾延迟全场最低（766ms）；<b>连接规模维度优势更显�?/b>—�?0k 长连接下吞吐�?NIO �?2 倍（�?§5）。现已具�?SSL/TLS �?WebSocket 完整能力�?/li>
+<li><b>可预期性优先�?Vert.x</b>：各档表现平稳（p99 中高并发段多项最优），综合第二�?/li>
+<li><b>JdkHttpServer 仅适合突发短促流量</b>：cc100 两度夺冠�?cc1000 起崩塌至 ~2k-5k，长稳场景不推荐�?/li>
+<li><b>Windows 注意</b>：NIO �?eventLoop 被钳制为 2（WindowsSelectorImpl 限制），Linux/epoll 下预计更高；AIO �?Windows 底层为真 IOCP，优势场景恰在此平台�?/li>
 </ul></div>
 <div class="warn"><b>&#9888;&#65039; 限制说明</b>
 <ul>
-<li>共享开发机存在 run-to-run 方差，绝对值仅供参考；同窗口内四实现的相对排序是本报告结论依据。</li>
-<li>AIO v2 不支持 ACME 自动证书与客户端证书双向认证；WS 帧循环运行于每连接虚拟线程，海量长连接时注意虚拟线程规模。</li>
+<li>共享开发机存在 run-to-run 方差，绝对值仅供参考；同窗口内四实现的相对排序是本报告结论依据�?/li>
+<li>AIO v2 不支�?ACME 自动证书与客户端证书双向认证；WS 帧循环运行于每连接虚拟线程，海量长连接时注意虚拟线程规模�?/li>
 </ul></div>
 
 <h2><span class="num">8</span>🚩 服务器实测（最终定版数据）</h2>
 <div class="note" style="font-size:.95em">
-<b>&#127759; 测试环境（与本报告前述 Windows 数据完全独立）</b><br>
-<b>主机</b>：腾讯云 124.221.230.112（Ubuntu · <b>Linux 2 核</b> vCPU）<br>
-<b>内存</b>：1.9GB（压测进程 -Xmx600m）　<b>JDK</b>：OpenJDK 25.0.2　<b>日期</b>：2026-08-24<br>
-<b>口径</b>：HTTP GET /echo（长连接），每场景 ~20000 请求、预热后计时；aio 开启响应式+极限优化<br>
+<b>&#127759; 测试环境（与本报告前�?Windows 数据完全独立�?/b><br>
+<b>主机</b>：腾讯云 124.221.230.112（Ubuntu · <b>Linux 2 �?/b> vCPU�?br>
+<b>内存</b>�?.9GB（压测进�?-Xmx600m）　<b>JDK</b>：OpenJDK 25.0.2　<b>日期</b>�?026-08-24<br>
+<b>口径</b>：HTTP GET /echo（长连接），每场�?~20000 请求、预热后计时；aio 开启响应式+极限优化<br>
 <b>竞争控制</b>：已清场（kill 遗留 java/LoadTest），独占运行
 </div>
 
@@ -299,27 +309,27 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 <tr><th>并发</th><th>AIO 🏆</th><th>NIO</th><th>Vert.x</th><th>JDK</th><th>说明</th></tr></thead>
 <tbody>
 <tr><td rowspan="4" style="text-align:center"><b>256 B</b></td>
-<td>100</td><td class="win">11,567 (100%)</td><td>2,901 (92%)</td><td>5,211 (95%)</td><td>6,894 (93%)</td><td rowspan="4">AIO 四档全胜且唯一全 100%；其余实现成功率随负载下降</td></tr>
+<td>100</td><td class="win">11,567 (100%)</td><td>2,901 (92%)</td><td>5,211 (95%)</td><td>6,894 (93%)</td><td rowspan="4">AIO 四档全胜且唯一�?100%；其余实现成功率随负载下�?/td></tr>
 <tr><td>500</td><td class="win">12,151 (100%)</td><td>3,702 (58%)</td><td>6,303 (82%)</td><td>3,432 (70%)</td></tr>
 <tr><td>1000</td><td class="win">10,935 (100%)</td><td>4,161 (52%)</td><td>8,026 (87%)</td><td>3,231 (63%)</td></tr>
 <tr><td>2000</td><td class="win">9,421 (100%)</td><td>5,433 (85%)</td><td>6,847 (85%)</td><td>3,023 (52%)</td></tr>
 <tr><td rowspan="4" style="text-align:center"><b>4096 B</b></td>
-<td>100</td><td class="win">13,671 (100%)</td><td>10,341 (100%)</td><td>12,338 (99%)</td><td>10,142 (97%)</td><td rowspan="4">大报文 AIO 依旧四档领先</td></tr>
+<td>100</td><td class="win">13,671 (100%)</td><td>10,341 (100%)</td><td>12,338 (99%)</td><td>10,142 (97%)</td><td rowspan="4">大报�?AIO 依旧四档领先</td></tr>
 <tr><td>500</td><td class="win">10,560 (100%)</td><td>7,955 (93%)</td><td>9,671 (90%)</td><td>5,621 (80%)</td></tr>
 <tr><td>1000</td><td class="win">9,676 (100%)</td><td>7,249 (89%)</td><td>8,407 (90%)</td><td>3,959 (63%)</td></tr>
 <tr><td>2000</td><td class="win">8,130 (100%)</td><td>6,542 (89%)</td><td>6,805 (85%)</td><td>3,111 (59%)</td></tr>
 </tbody>
 </table>
-<div class="concl" style="margin-top:14px"><b>&#9989; 服务器环境结论</b>：<b>AIO 八档全胜</b>（小/大报文 × 四并发档），且是全场唯一保持 100% 成功率的实现；p99 同档最低（如 256B/cc100 仅 21ms）。纯非阻塞响应式改造在真实 Linux 服务器上得到完全验证。</div>
+<div class="concl" style="margin-top:14px"><b>&#9989; 服务器环境结�?/b>�?b>AIO 八档全胜</b>（小/大报�?× 四并发档），且是全场唯一保持 100% 成功率的实现；p99 同档最低（�?256B/cc100 �?21ms）。纯非阻塞响应式改造在真实 Linux 服务器上得到完全验证�?/div>
 <h2><
 
 
-<h2><span class="num">8.1</span>🚩 服务器复测：纯响应式 AIO 最终版（2026-08-24 更新）</h2>
-<div class="desc">AioHttpServer 完成纯响应式改造（删除模式开关/虚拟线程跳转/Future阻塞，全链路 CompletionHandler 回调）后的服务器复测数据。</div>
+<h2><span class="num">8.1</span>🚩 服务器复测：纯响应式 AIO 最终版�?026-08-24 更新�?/h2>
+<div class="desc">AioHttpServer 完成纯响应式改造（删除模式开�?虚拟线程跳转/Future阻塞，全链路 CompletionHandler 回调）后的服务器复测数据�?/div>
 
 <table style="margin-top:14px">
-<thead><tr><th colspan="6" style="text-align:left;background:#0f2417;color:var(--green)">256 字节 · 吞吐 RPS（成功率）</th></tr>
-<tr><th>并发</th><th>AIO(响应式)</th><th>NIO</th><th>Vert.x</th><th>JDK</th><th>AIO 排名</th></tr></thead>
+<thead><tr><th colspan="6" style="text-align:left;background:#0f2417;color:var(--green)">256 字节 · 吞吐 RPS（成功率�?/th></tr>
+<tr><th>并发</th><th>AIO(响应�?</th><th>NIO</th><th>Vert.x</th><th>JDK</th><th>AIO 排名</th></tr></thead>
 <tbody>
 <tr><td>100</td><td class="win">11,236 (99%)</td><td>3,058 (93%)</td><td>5,459 (98%)</td><td>6,169 (91%)</td><td class="win">🥇 1</td></tr>
 <tr><td>500</td><td class="win">11,983 (100%)</td><td>3,531 (63%)</td><td>5,919 (89%)</td><td>3,522 (71%)</td><td class="win">🥇 1</td></tr>
@@ -329,7 +339,7 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </table>
 
 <table style="margin-top:14px">
-<thead><tr><th colspan="6" style="text-align:left;background:#0d1a2d;color:var(--accent)">4096 字节 · 吞吐 RPS（成功率）</th></tr>
+<thead><tr><th colspan="6" style="text-align:left;background:#0d1a2d;color:var(--accent)">4096 字节 · 吞吐 RPS（成功率�?/th></tr>
 <tr><th>并发</th><th>NIO</th><th>JDK</th><th>Vert.x</th><th>AIO</th><th>AIO 排名</th></tr></thead>
 <tbody>
 <tr><td>100</td><td>10,070</td><td><b>13,396</b></td><td><b>14,937</b></td><td class="win">14,959</td><td>2</td></tr>
@@ -340,7 +350,7 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </table>
 
 <table style="margin-top:14px">
-<thead><tr><th colspan="6" style="text-align:left;background:#241a33;color:var(--purple)">p99 尾延迟 (ms) · 全景</th></tr>
+<thead><tr><th colspan="6" style="text-align:left;background:#241a33;color:var(--purple)">p99 尾延�?(ms) · 全景</th></tr>
 <tr><th>payload</th><th>并发</th><th>AIO</th><th>NIO</th><th>Vert.x</th><th>JDK</th></tr></thead>
 <tbody>
 <tr><td rowspan="4">256 B</td><td>100</td><td class="win">22</td><td>87</td><td>57</td><td>33</td></tr>
@@ -354,32 +364,32 @@ footer { text-align:center; color:var(--muted); font-size:.78em; margin-top:48px
 </tbody>
 </table>
 
-<div class="note"><b>&#128161; 纯响应式改造收益</b>：AioHttpServer 完成「删模式开关 / 删虚拟线程跳转 / 删 Future 阻塞 / 全链路 CompletionHandler」后，小报文四档全胜且 p50 每档最低。大报文段 AIO/NIO 交替领先但差距缩小——纯回调消除了完成通知的额外开销，使 AIO 在中低负载下也能与 Reactor 模型竞争。</div>
+<div class="note"><b>&#128161; 纯响应式改造收�?/b>：AioHttpServer 完成「删模式开�?/ 删虚拟线程跳�?/ �?Future 阻塞 / 全链�?CompletionHandler」后，小报文四档全胜�?p50 每档最低。大报文�?AIO/NIO 交替领先但差距缩小——纯回调消除了完成通知的额外开销，使 AIO 在中低负载下也能�?Reactor 模型竞争�?/div>
 
-span class="num">8.5</span>全实现代理对决（Windows 同窗交错）</h2>
+span class="num">8.5</span>全实现代理对决（Windows 同窗交错�?/h2>
 <table style="margin-top:14px">
-<thead><tr><th>代理场景</th><th>JDK(BIO)</th><th>Vert.x</th><th>AIO</th><th>直连基线</th><th>最优</th></tr></thead>
+<thead><tr><th>代理场景</th><th>JDK(BIO)</th><th>Vert.x</th><th>AIO</th><th>直连基线</th><th>最�?/th></tr></thead>
 <tbody>
-<tr><td>TCP 隧道 frames/s</td><td class="win">376,470</td><td>162,025</td><td>22,980</td><td>77,108(无代理)</td><td>BIO 模型最优</td></tr>
+<tr><td>TCP 隧道 frames/s</td><td class="win">376,470</td><td>162,025</td><td>22,980</td><td>77,108(无代�?</td><td>BIO 模型最�?/td></tr>
 <tr><td>HTTP 转发 RPS</td><td class="win">14,814</td><td>1,214</td><td>1,948</td><td>5,555(直连)</td><td>JDK 阻塞模型</td></tr>
 </tbody>
 </table>
-<div class="note"><b>&#128161;</b> 字节搬运场景（纯转发）BIO 阻塞模型最优——无完成通知开销，内核流水线充分并行。AIO 的价值在海量连接接入层而非字节代理层。</div>
-<h2><span class="num">8.2</span>🚩 服务器高并发扩展（cc5000~10000）</h2>
-<div class="desc">Linux 2核 · 每连接10请求短连接模式 · 客户端与服务端同机争抢资源，绝对值偏低但相对排序可信。</div>
+<div class="note"><b>&#128161;</b> 字节搬运场景（纯转发）BIO 阻塞模型最优——无完成通知开销，内核流水线充分并行。AIO 的价值在海量连接接入层而非字节代理层�?/div>
+<h2><span class="num">8.2</span>🚩 服务器高并发扩展（cc5000~10000�?/h2>
+<div class="desc">Linux 2�?· 每连�?0请求短连接模�?· 客户端与服务端同机争抢资源，绝对值偏低但相对排序可信�?/div>
 <table style="margin-top:14px">
 <thead><tr><th colspan="7" style="text-align:left;background:#0f2417;color:var(--green)">256 字节</th></tr>
-<tr><th>并发</th><th>AIO RPS</th><th>AIO p99(ms)</th><th>NIO RPS</th><th>NIO p99(ms)</th><th>AIO/NIO 吞吐比</th><th>AIO 成功率</th></tr></thead>
+<tr><th>并发</th><th>AIO RPS</th><th>AIO p99(ms)</th><th>NIO RPS</th><th>NIO p99(ms)</th><th>AIO/NIO 吞吐�?/th><th>AIO 成功�?/th></tr></thead>
 <tbody>
 <tr><td>2,000</td><td>1,963</td><td>2,145</td><td class="win">5,362</td><td>601</td><td>0.37×</td><td>85%</td></tr>
-<tr><td>5,000</td><td class="win">2,782 ↗</td><td class="win">4,617</td><td>4,390 ↘</td><td>3,542</td><td class="win">0.63×→AIO反超</td><td class="win">81%</td></tr>
-<tr><td>10,000</td><td>2,621</td><td class="win">9,954</td><td>3,047 →</td><td>8,206</td><td>0.86×→接近持平</td><td>87%</td></tr>
+<tr><td>5,000</td><td class="win">2,782 �?/td><td class="win">4,617</td><td>4,390 �?/td><td>3,542</td><td class="win">0.63×→AIO反超</td><td class="win">81%</td></tr>
+<tr><td>10,000</td><td>2,621</td><td class="win">9,954</td><td>3,047 �?/td><td>8,206</td><td>0.86×→接近持�?/td><td>87%</td></tr>
 </tbody>
 </table>
 
 <table style="margin-top:14px">
 <thead><tr><th colspan="7" style="text-align:left;background:#241a33;color:var(--purple)">4096 字节</th></tr>
-<tr><th>并发</th><th>AIO RPS</th><th>AIO p99(ms)</th><th>NIO RPS</th><th>NIO p99(ms)</th><th>AIO/NIO 吞吐比</th><th>AIO 成功率</th></tr></thead>
+<tr><th>并发</th><th>AIO RPS</th><th>AIO p99(ms)</th><th>NIO RPS</th><th>NIO p99(ms)</th><th>AIO/NIO 吞吐�?/th><th>AIO 成功�?/th></tr></thead>
 <tbody>
 <tr><td>2,000</td><td class="win">5,590</td><td class="win">814</td><td>4,390</td><td>911</td><td class="win">1.27×</td><td>98%</td></tr>
 <tr><td>5,000</td><td class="win">5,871</td><td>2,325</td><td>4,729</td><td>2,207</td><td class="win">1.24×</td><td>93%</td></tr>
@@ -387,9 +397,9 @@ span class="num">8.5</span>全实现代理对决（Windows 同窗交错）</h2>
 </tbody>
 </table>
 
-<div class="note"><b>&#128161; 高并发结论</b>：大报文段 AIO 三档全胜（吞吐 +11%~+27%，p99 更低）；小报文段 cc2000 NIO 占优但 cc5000 起 AIO 反超。客户端与服务端同机在 cc10000 时互相争抢导致双方数值下降——真实部署中客户端独立机器时差距会更大。</div>
+<div class="note"><b>&#128161; 高并发结�?/b>：大报文�?AIO 三档全胜（吞�?+11%~+27%，p99 更低）；小报文段 cc2000 NIO 占优�?cc5000 �?AIO 反超。客户端与服务端同机�?cc10000 时互相争抢导致双方数值下降——真实部署中客户端独立机器时差距会更大�?/div>
 
-<footer>压测 harness：<code>D:\ch\project\bench\ServerBench.java</code> · 功能覆盖：<code>HttpServerExampleSpi --type=aio --mode=func</code> (22/22 PASS) · utils-support-parent-starter &copy; 2026</footer>
+<footer>压测 harness�?code>D:\ch\project\bench\ServerBench.java</code> · 功能覆盖�?code>HttpServerExampleSpi --type=aio --mode=func</code> (22/22 PASS) · utils-support-parent-starter &copy; 2026</footer>
 
 </div>
 </body>
