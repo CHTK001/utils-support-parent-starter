@@ -459,11 +459,12 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     /**
      * 打开三个会话。
      *
-     * @param base   权重目录
-     * @param useGpu 是否启用 CUDA EP
+     * @param base      权重目录
+     * @param useGpu    TE/VAE 是否 CUDA
+     * @param unetUseGpu UNet 是否 CUDA（可独立落 CPU）
      * @throws OrtException 会话创建失败
      */
-    private void openSessions(Path base, boolean useGpu) throws OrtException, IOException {
+    private void openSessions(Path base, boolean useGpu, boolean unetUseGpu) throws OrtException, IOException {
         textEncoderSession = openSession(base.resolve("text_encoder").resolve("model.onnx"), useGpu);
         textEncoderOutput = pickTextEncoderOutput(textEncoderSession);
         unetSession = openSession(base.resolve("unet").resolve("model.onnx"), unetUseGpu);

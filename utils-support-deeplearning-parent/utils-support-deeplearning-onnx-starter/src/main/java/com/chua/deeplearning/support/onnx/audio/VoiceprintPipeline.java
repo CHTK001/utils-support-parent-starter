@@ -227,11 +227,6 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
-        private VectorStorage vectorStorage;
-        private Path storageDir;
-        private int topK = 5;
-        private double threshold;
-
         /**
          * 注入自定义向量存储实例。
          *
@@ -271,7 +266,7 @@ public class VoiceprintPipeline implements AutoCloseable {
                                     + config.getClass().getName());
                 }
                 host = trimOrNull(map.get("host"));
-                port = com.chua.common.support.utils.Converter
+                port = com.chua.common.support.converter.Converter
                         .convertIfNecessary(map.get("port"), Integer.class, null);
                 token = trimOrNull(map.get("token"));
                 collection = trimOrNull(map.get("collection"));
