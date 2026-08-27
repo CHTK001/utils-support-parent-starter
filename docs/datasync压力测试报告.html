@@ -296,6 +296,37 @@ scales:{y:{...dark,beginAtZero:true},x:dark}}});
 <strong>性能</strong>：500 envelope 顺序执行 26ms（19,230 ops/s），无dispatcher 瓶颈
 </div></div></div>
 
+<!-- ━━━━━━━━━━━━━━ 性能基准 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>DatalakePerfProbe · 性能基准测试</h2><span class="tg t1">18 项指标</span></div><div class="cb"><div class="tw"><table>
+<thead><tr><th>#</th><th>场景</th><th>数据量</th><th class="r">耗时(ms)</th><th class="r">吞吐(ops/s)</th><th>详情</th><th>状态</th></tr></thead><tbody>
+<tr><td>1</td><td>顺序 1K log</td><td class="r">1,000</td><td class="r">250.9</td><td class="r">3,986</td><td>JVM 冷启动</td><td class="fail">OK</td></tr>
+<tr><td>2</td><td>顺序 10K log</td><td class="r">10,000</td><td class="r">50.0</td><td class="r">200,060</td><td>—</td><td class="pass">FAST</td></tr>
+<tr><td>3</td><td>顺序 100K log</td><td class="r">100,000</td><td class="r">500.5</td><td class="r">199,802</td><td>—</td><td class="pass">FAST</td></tr>
+<tr><td>4</td><td>顺序 1M log</td><td class="r">1,000,000</td><td class="r">1,895.8</td><td class="r">527,474</td><td>—</td><td class="pass">FAST</td></tr>
+<tr><td>5</td><td>顺序 100K 3-sink</td><td class="r">100,000</td><td class="r">173.8</td><td class="r">575,324</td><td>log+stat+rt</td><td class="pass">FAST</td></tr>
+<tr><td>6</td><td>顺序 1M 3-sink</td><td class="r">1,000,000</td><td class="r">906.9</td><td class="r">1,102,697</td><td>3x Sink</td><td class="pass">FAST</td></tr>
+<tr><td>7</td><td>延迟分布 p50/p95/p99</td><td class="r">100,000</td><td class="r">74.8</td><td class="r">1,337,306</td><td class="r">p50=0.5μs p95=1.2μs p99=2.2μs max=2512μs</td><td class="pass">OK</td></tr>
+<tr><td>8</td><td>Engine vs Direct</td><td class="r">100,000</td><td class="r">59.6</td><td class="r">1,677,340</td><td class="r">直连=14.4M 额外开销=756%</td><td class="fail">WARN</td></tr>
+<tr><td>9</td><td>Webhook HTTP 5K</td><td class="r">5,000</td><td class="r">4,198.3</td><td class="r">1,191</td><td>HTTP POST</td><td class="pass">OK</td></tr>
+<tr><td>10</td><td>Webhook HTTP 50K</td><td class="r">50,000</td><td class="r">20,052.3</td><td class="r">2,493</td><td>HTTP POST</td><td class="pass">FAST</td></tr>
+<tr><td>11</td><td>Webhook HTTP 100K</td><td class="r">100,000</td><td class="r">27,586.7</td><td class="r">3,625</td><td>HTTP POST</td><td class="pass">FAST</td></tr>
+<tr><td>12</td><td>16线程并发 100K</td><td class="r">100,000</td><td class="r">83.4</td><td class="r">1,198,990</td><td>16 threads</td><td class="pass">OK</td></tr>
+<tr><td>13</td><td>32线程并发 100K</td><td class="r">100,000</td><td class="r">43.4</td><td class="r">2,305,088</td><td>32 threads</td><td class="pass">OK</td></tr>
+<tr><td>14</td><td>64线程并发 100K</td><td class="r">100,000</td><td class="r">38.4</td><td class="r">2,601,829</td><td>64 threads</td><td class="pass">OK</td></tr>
+<tr><td>15</td><td>1管线并发 100K</td><td class="r">100,000</td><td class="r">57.8</td><td class="r">1,728,830</td><td>1 pipeline</td><td class="pass">OK</td></tr>
+<tr><td>16</td><td>10管线并发 100K</td><td class="r">100,000</td><td class="r">54.0</td><td class="r">1,851,341</td><td>10 pipelines</td><td class="pass">OK</td></tr>
+<tr><td>17</td><td>50管线并发 100K</td><td class="r">100,000</td><td class="r">33.7</td><td class="r">2,971,230</td><td>50 pipelines</td><td class="pass">OK</td></tr>
+<tr><td>18</td><td>With Dispatcher</td><td class="r">100,000</td><td class="r">82.7</td><td class="r">1,209,419</td><td class="r">NoDisp=919K WithDisp=1.2M 比例=76%</td><td class="fail">WARN</td></tr>
+</tbody></table></div><div class="cb" style="margin-top:12px">
+<strong>总耗时</strong>：57.14 秒<br>
+<strong>瓶颈分析</strong>：<br>
+· PipelineEngine 额外开销 756%（JSON 解析 + DSL 路由 + trace 追加）<br>
+· Dispatcher（Chronicle）增加 76% 开销<br>
+· Webhook HTTP 吞吐 1.2K~3.6K req/s（JDK HttpServer 单线程）<br>
+· 多线程并发可扩展至 2.6M ops/s（64线程）<br>
+· 多管线扩展线性良好（1→50 管线：1.7M→3.0M ops/s）
+</div></div></div>
+
 <!-- ━━━━━━━━━━━━━━ 已知问题 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>已知问题与优化方向</h2><span class="tg t5">Known Issues</span></div><div class="cb"><div class="lg">
 <ul class="fl">
