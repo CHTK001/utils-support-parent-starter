@@ -17,22 +17,20 @@ import java.util.Objects;
  *
  * <pre>{@code
  * VoiceprintPipeline vp = VoiceprintPipeline.builder()
- *         .embedder(CampplusEmbedding.load())                  // 可选，默认自动加载内嵌 CAM++
- *         .vectorStorage("milvus", Map.of(                     // 向量库（可选，默认文件落盘）
- *                 "host", "127.0.0.1", "port", 19530,
- *                 "collection", "voiceprint"))
- *         .topK(3)
- *         .threshold(0.80)
+ *         .embedder(CampplusEmbedding.load())                  // 内嵌自动解压
+ *         .vectorStorage(VectorStorageBuilder.newBuilder()     // 或默认文件落盘
+ *                 .dimension(192)
+ *                 .algorithm(VectorCompareAlgorithm.cosine())
+ *                 .build())
  *         .build();
  *
  * vp.enroll("alice", Path.of("alice.wav"))
  *   .enroll("bob", Path.of("bob.wav"));
- * List<Match> hits = vp.search(Path.of("query.wav"));
+ *
+ * List<Match> hits = vp.search(query, 5, 0.80);  // topK/threshold 调用时指定
  * }</pre>
  *
- * <p><b>模型零配置</b>：声纹模型 CAM++（26MB）内嵌于
- * utils-support-models-onnx-sensevoice jar，首次调用自动解压到缓存目录；
- * {@code vectorStorage} 仅决定<b>向量存储后端</b>。</p>
+ * <p><b>模型零配置</b>：CAM++（26MB）内嵌于 sensevoice jar，首次调用自动解压。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -40,16 +38,21 @@ import java.util.Objects;
 @Slf4j
 public class VoiceprintPipeline implements AutoCloseable {
 
+    /**
+     * 向量存储后端（192 维，cosine）。
+     */
     private final VectorStorage storage;
-    private final CampplusEmbedding campplus;
-    private final int topK;
-    private final double threshold;
 
     /**
-     * 默认构造：文件持久化向量库。
+     * CAM++ 神经声纹特征提取器。
+     */
+    private final CampplusEmbedding campplus;
+
+    /**
+     * 默认构造：文件持久化向量库 + 内嵌 CAM++。
      */
     public VoiceprintPipeline() {
-        this(FileVectorStorage.create(192, defaultDirectory()), null, 5, 0);
+        this(FileVectorStorage.create(192, defaultDirectory()), null);
     }
 
     /**
@@ -58,17 +61,14 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @param storage 向量存储
      */
     public VoiceprintPipeline(VectorStorage storage) {
-        this(storage, null, 5, 0);
+        this(storage, null);
     }
 
-    private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder,
-                               int topK, double threshold) {
+    private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder) {
         this.storage = Objects.requireNonNull(storage, "vectorStorage");
         this.campplus = embedder != null ? embedder : CampplusEmbedding.load();
-        this.topK = Math.max(1, topK);
-        this.threshold = threshold;
-        log.info("[Voiceprint] init: CAM++ neural, dim=192, topK={}, threshold={}",
-                topK, threshold);
+        log.info("[Voiceprint] init: CAM++ neural, dim=192, storage={}",
+                storage.getClass().getSimpleName());
     }
 
     /** 创建 Builder。 */
@@ -76,7 +76,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         return new Builder();
     }
 
-    /** 创建默认管线实例。 */
+    /** 创建默认管线实例（文件持久化）。 */
     public static VoiceprintPipeline create() {
         return builder().build();
     }
@@ -119,20 +119,16 @@ public class VoiceprintPipeline implements AutoCloseable {
         return this;
     }
 
-    /** 检索：使用构建时配置的 topK 与 threshold。 */
-    public List<Match> search(Path samplePath) throws Exception {
-        return search(samplePath, topK);
-    }
-
     /**
-     * 检索：显式指定条数。
+     * 检索：topK 与 threshold 调用时指定（与 search(feature,k,threshold) 对位）。
      *
      * @param samplePath 待测音频
      * @param k          返回条数
+     * @param threshold  相似度门槛，&lt;=0 不过滤
      * @return 按相似度降序的匹配列表
      * @throws Exception 提取或检索失败
      */
-    public List<Match> search(Path samplePath, int k) throws Exception {
+    public List<Match> search(Path samplePath, int k, double threshold) throws Exception {
         float[] probe = extract(samplePath);
         List<Vector> hits = storage.search(probe, k);
         List<Match> matches = new ArrayList<>(hits.size());
@@ -161,7 +157,12 @@ public class VoiceprintPipeline implements AutoCloseable {
         }
     }
 
-    /** 匹配结果。 */
+    /**
+     * 匹配结果。
+     *
+     * @param speakerId  说话人标识
+     * @param similarity 余弦相似度 [-1,1]
+     */
     public record Match(String speakerId, double similarity) {
     }
 
@@ -178,11 +179,14 @@ public class VoiceprintPipeline implements AutoCloseable {
      */
     public static final class Builder {
 
+        /** 声纹特征提取器（默认自动加载内嵌 CAM++）。 */
         private CampplusEmbedding embedder;
+
+        /** 向量存储后端（默认 FileVectorStorage）。 */
         private VectorStorage vectorStorage;
+
+        /** 持久化目录（未注入 vectorStorage 时生效）。 */
         private Path storageDir;
-        private int topK = 5;
-        private double threshold;
 
         /** 设置声纹特征提取器（默认自动加载内嵌 CAM++）。 */
         public Builder embedder(CampplusEmbedding e) {
@@ -198,7 +202,6 @@ public class VoiceprintPipeline implements AutoCloseable {
 
         /**
          * 按 SPI 名称创建向量存储（memory/jvector/milvus...）。
-         *
          * <p>MILVUS 必须提供 host/port/collection。</p>
          */
         public Builder vectorStorage(String provider, Object config) {
@@ -261,18 +264,6 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
-        /** 检索返回条数。 */
-        public Builder topK(int k) {
-            this.topK = Math.max(1, k);
-            return this;
-        }
-
-        /** 相似度门槛：低于过滤；&lt;=0 不过滤。 */
-        public Builder threshold(double t) {
-            this.threshold = t;
-            return this;
-        }
-
         /** 构建管线。 */
         public VoiceprintPipeline build() {
             VectorStorage s = vectorStorage;
@@ -280,14 +271,16 @@ public class VoiceprintPipeline implements AutoCloseable {
                 s = FileVectorStorage.create(192,
                         storageDir != null ? storageDir : defaultDirectory());
             }
-            return new VoiceprintPipeline(s, embedder, topK, threshold);
+            return new VoiceprintPipeline(s, embedder);
         }
 
+        /** 获取已配置向量库。 */
         public VectorStorage vectorStorage() {
             return vectorStorage;
         }
     }
 
+    /** 对象转去除首尾空白的字符串。 */
     private static String trimOrNull(Object v) {
         if (v == null) {
             return null;

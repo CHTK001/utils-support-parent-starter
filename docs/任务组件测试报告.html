@@ -57,7 +57,7 @@
 <h2>四、Backup 往返（BackupRoundTripExample，3 场景）</h2>
 <table>
   <tr><th>#</th><th>场景</th><th>验证要点</th><th>结果</th></tr>
-  <tr><td>12</td><td>dailyBackupExecutes</td><td>按天备份 success、fileCount=2、archive 目录建立（<strong>依赖本版过滤缺陷修复</strong>）</td><td class="pass">PASS</td></tr>
+  <tr><td>12</td><td>dailyBackupExecutes</td>      <td>按天备份 success、fileCount=2、archive 目录建立（默认空 pattern 包含全部文件）</td><td class="pass">PASS</td></tr>
   <tr><td>13</td><td>restoreLatestMatchesSource</td><td>恢复最新备份到目标目录，a.txt/b.json 内容逐字节一致</td><td class="pass">PASS</td></tr>
   <tr><td>14</td><td>listAndCleanExpired</td><td>listBackups 清单 2 项；cleanExpired 清理过期 ZIP 且保留当日（cleaned≥1）</td><td class="pass">PASS</td></tr>
 </table>

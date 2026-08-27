@@ -746,7 +746,7 @@ public class CollectionUtils {
      * @return 包含数组元素的 List，数组为 null 返回空列表
      */
     public static <T> List<T> newArrayList(T... elements) {
-        return null == elements ? Collections.emptyList() : Arrays.asList(elements);
+        return null == elements ? new ArrayList<>() : new ArrayList<>(Arrays.asList(elements));
     }
 
     /**
