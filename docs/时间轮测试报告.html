@@ -19,19 +19,18 @@
 </head>
 <body>
 
-<h1>时间轮（HashedWheelTimer）单元自检报告 — v2</h1>
+<h1>时间轮（HashedWheelTimer）单元自检报告</h1>
 
 <div class="meta">
   <strong>模块</strong>：utils-support-common-starter / <code>com.chua.common.support.task.timer</code><br>
   <strong>验证载体</strong>：utils-support-example-starter / <code>com.chua.example.timer.TimeWheelExample</code><br>
   <strong>执行方式</strong>：<code>java --enable-preview -cp ... com.chua.example.timer.TimeWheelExample</code><br>
   <strong>执行日期</strong>：2026-08-25 · JDK 25 · Windows x86_64 · 时间轮配置 64 槽 / 50ms tick<br>
-  <strong>v2 升级</strong>：绝对时间轴 fixed-rate tick · 虚拟线程执行器并发运行任务 · 分槽细粒度锁 · 原子计数 · FutureTask 先绑定消除 cancel 竞态 · 双层日志故障兜底<br>
+  <strong>时间轮能力</strong>：绝对时间轴 fixed-rate · 虚拟线程执行器并发 · 分槽锁 · 原子计数 · 在途中断 · FutureTask 先绑定<br>
   <strong>结果判定</strong>：退出码 0 = 全部通过；任一场景失败输出 [FAIL] 并以退出码 1 结束
 </div>
 
 <div class="summary"><span class="pass">通过 10 / 10 场景</span></div>
-<div class="summary">累计修复缺陷 4 处（周期取消失效 / Error 杀轮 / 关闭静默拒绝 / slotDistance 公式）+ v2 四项能力升级</div>
 
 <h2>一、场景明细与真实耗时</h2>
 <table>
@@ -43,9 +42,9 @@
   <tr><td>5</td><td>taskExceptionDoesNotKillWheel</td><td>任务抛 RuntimeException 被兜底记录，后续新任务照常触发且 isRunning=true</td><td class="pass">PASS</td><td>175</td></tr>
   <tr><td>6</td><td>shutdownStopsScheduling</td><td>shutdown 后 isRunning 立即 false；schedule 返回 null 拒绝新任务（中断立即生效）</td><td class="pass">PASS</td><td>4</td></tr>
   <tr><td>7</td><td>tickCountProgresses</td><td>300ms 内 tick 计数 0→5 递增推进</td><td class="pass">PASS</td><td>305</td></tr>
-  <tr><td>8</td><td>slowTaskDoesNotBlockWheel</td><td><strong>v2 执行器隔离</strong>：400ms 慢任务运行期间，其后短任务 164ms 独立触发（窗口 350ms）</td><td class="pass">PASS</td><td>164</td></tr>
-  <tr><td>9</td><td>cancelInterruptsRunningTask</td><td><strong>v2 可中断执行</strong>：cancel(true) 经 FutureTask 中断在途业务线程，202ms 收到中断信号</td><td class="pass">PASS</td><td>202</td></tr>
-  <tr><td>10</td><td>taskCountMatchesScheduled</td><td><strong>v2 原子计数</strong>：注册 5 个未到期任务 getTaskCount=5，触发后归零</td><td class="pass">PASS</td><td>906</td></tr>
+  <tr><td>8</td><td>slowTaskDoesNotBlockWheel</td><td>执行器隔离：400ms 慢任务运行期间，其后短任务 164ms 独立触发（窗口 350ms）</td><td class="pass">PASS</td><td>164</td></tr>
+  <tr><td>9</td><td>cancelInterruptsRunningTask</td><td>cancel(true) 经 FutureTask 中断在途业务线程，201ms 收到中断信号</td><td class="pass">PASS</td><td>201</td></tr>
+  <tr><td>10</td><td>taskCountMatchesScheduled</td><td>注册 5 个未到期任务 getTaskCount=5，触发后归零</td><td class="pass">PASS</td><td>906</td></tr>
 </table>
 
 <h2>二、覆盖率说明</h2>
