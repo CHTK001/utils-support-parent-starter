@@ -1,5 +1,6 @@
 package com.chua.common.support.network.ftp;
 
+import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.ssl.SslUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -104,12 +105,18 @@ public class FtpsServer extends FtpServer {
      */
     private SSLContext initSslContext(FtpConfig config) {
         try {
-            SSLContext ctx;
+            var sslConfig = new ServerSetting.SslConfig();
             if (config.getCertPath() != null && config.getKeyPath() != null) {
-                ctx = SslUtils.createSslContext(config.getCertPath(), config.getKeyPath(), config.getKeyPassword(), false);
+                sslConfig.setCertPath(config.getCertPath());
+                sslConfig.setKeyPath(config.getKeyPath());
+                sslConfig.setKeyPassword(config.getKeyPassword());
+            } else {
+                sslConfig.setSelfSignedAuto(true);
+            }
+            SSLContext ctx = SslUtils.createSslContext(sslConfig);
+            if (config.getCertPath() != null) {
                 log.info("FTPS 使用指定证书: {}", config.getCertPath());
             } else {
-                ctx = SslUtils.createSslContext(null, null, null, true);
                 log.info("FTPS 使用自签名证书");
             }
             return ctx;
@@ -144,12 +151,13 @@ public class FtpsServer extends FtpServer {
     private void acceptLoop() {
         while (!sslServerSocket.isClosed()) {
             try {
-                var socket = sslServerSocket.accept();
-                getVirtualExecutor().submit(() -> handleControlConnection(socket));
+                var socket = (Socket) sslServerSocket.accept();
+                getVirtualExecutor().submit(() -> handleControlConnection((Socket) socket));
             } catch (IOException e) {
                 if (!sslServerSocket.isClosed()) {
                     log.debug("FTPS 接受连接异常: {}", e.getMessage());
                 }
+            }
             }
         }
     }
@@ -159,7 +167,7 @@ public class FtpsServer extends FtpServer {
      *
      * @param socket SSL Socket
      */
-    private void handleControlConnection(javax.net.ssl.SSLSocket socket) {
+    private void handleControlConnection(Socket socket) {
         FtpSession session = null;
         try {
             socket.setSoTimeout(getFtpConfig().getControlTimeout() * 1000);

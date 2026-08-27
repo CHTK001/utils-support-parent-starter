@@ -447,9 +447,10 @@ class FtpCommandHandler {
             session.reply(CODE_FILE_UNAVAILABLE, "File not found: " + argument);
             return true;
         }
-        // 保存重命名源路径到会话属性
-        session.getControlSocket().setSoTimeout(session.getConfig().getControlTimeout() * 1000);
-        // 使用会话属性存储 RNFR 路径
+        try {
+            session.getControlSocket().setSoTimeout(session.getConfig().getControlTimeout() * 1000);
+        } catch (java.net.SocketException ignored) {
+        }
         session.setAttribute("RNFR_PATH", resolved.toString());
         session.reply(CODE_FILE_ACTION_PENDING, "File found, ready for rename.");
         return true;

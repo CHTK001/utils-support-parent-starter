@@ -3,7 +3,7 @@ package com.chua.common.support.network.ftp;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Consumer;
@@ -73,7 +73,7 @@ class FtpDataChannel {
         // 尝试随机端口
         serverSocket = new ServerSocket();
         serverSocket.setReuseAddress(true);
-        serverSocket.bind(new InetAddress[]{InetAddress.getByName(serverIp)}, 0, 50);
+        serverSocket.bind(new InetSocketAddress(serverIp, 0), 50);
         int port = serverSocket.getLocalPort();
         // 格式化：227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
         String ipStr = serverIp.replace('.', ',');
