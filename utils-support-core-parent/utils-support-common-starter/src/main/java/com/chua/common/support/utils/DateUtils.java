@@ -1045,16 +1045,12 @@ public class DateUtils {
     }
 
     /**
-     * <p>                                                                        </ p>
-     * <p>
+     * 按指定单格式解析日期时间字符串。
      *
-     *                                                    ParseException   </ p>
-     *
-     *
-     * @param str                      null
-     * @return the result
-     * @throws IllegalArgumentException                                        null
-     * @throws ParseException
+     * @param str          日期时间字符串
+     * @param parsePattern 单个日期格式，如 "yyyy-MM-dd HH:mm:ss"
+     * @return 解析后的 Date
+     * @throws ParseException 格式不匹配时抛出
      */
     public static Date parseDate(String str, final String parsePattern) throws ParseException {
         return parseDateWithLeniency(str, new String[]{parsePattern}, true);
@@ -1191,18 +1187,14 @@ public class DateUtils {
     }
 
     /**
-     * <p>                                                                        </ p>
-     * <p>
+     * 以宽松模式解析日期时间字符串，支持多格式候选。
      *
-     *                                           ParseException   </ p>
-     *
-     * @param str                                null
-     * @param parsePatterns                                           SimpleDateFormat         null
-     * @param loc the loc
-     * @return Date
-     * @throws IllegalArgumentException                                        null
+     * @param str          日期时间字符串
+     * @param parsePatterns 候选日期格式数组
+     * @param loc           地区设置（Locale），影响月份名等解析
+     * @return 解析后的 Date，无法解析返回 null
+     * @throws IllegalArgumentException 若 str 或 parsePatterns 为 null
      * @throws ParseException
-     * @see Calendar
      */
     public static Date parseDateWithLeniency(String str, String[] parsePatterns, Locale loc) throws ParseException {
         for (String dateFormat : parsePatterns) {
@@ -2739,15 +2731,13 @@ public class DateUtils {
         return seconds + "      ";
     }
     /**
+     * 向日期添加指定天数，支持 Date / LocalDate / LocalDateTime。
      *
-     * [CH] 2025-01-01 v1.0.0
-     *
-     * @param date                 Date   LocalDate   LocalDateTime
-     * @param days the days
-     * @param <T> the <T>
-     * @return the result
+     * @param date 基准日期，为 null 时返回 null
+     * @param days 偏移天数，正数向后，负数向前
+     * @param <T>  日期类型
+     * @return 偏移后的日期对象
      */
-@SuppressWarnings("unchecked")
     public static <T> T plusDay(T date, int days) {
         if (date == null) {
             return null;
@@ -2774,13 +2764,12 @@ public class DateUtils {
     }
 
     /**
+     * 向日期添加指定小时数，支持 Date / LocalDateTime / LocalTime。
      *
-     * [CH] 2025-01-01 v1.0.0
-     *
-     * @param date                  Date   LocalDateTime
-     * @param hours the hours
-     * @param <T> the <T>
-     * @return the result
+     * @param date  基准日期，为 null 时返回 null
+     * @param hours 偏移小时数，正数向后，负数向前
+     * @param <T>   日期类型
+     * @return 偏移后的日期对象
      */
     public static <T> T plusHour(T date, int hours) {
         if (date == null) {
@@ -2808,13 +2797,12 @@ public class DateUtils {
     }
 
     /**
+     * 向日期添加指定分钟数，支持 Date / LocalDateTime / LocalTime。
      *
-     * [CH] 2025-01-01 v1.0.0
-     *
-     * @param date                    Date   LocalDateTime   LocalTime
-     * @param minutes the minutes
-     * @param <T> the <T>
-     * @return the result
+     * @param date    基准日期，为 null 时返回 null
+     * @param minutes 偏移分钟数，正数向后，负数向前
+     * @param <T>     日期类型
+     * @return 偏移后的日期对象
      */
     public static <T> T plusMinute(T date, int minutes) {
         if (date == null) {
@@ -2843,13 +2831,14 @@ public class DateUtils {
 
 
     /**
+     * 判断给定日期是否落在指定日期区间内。
      *
-     * [CH] 2025-01-01 v1.0.0
+     * <p>支持 Date / LocalDate / LocalDateTime / 字符串等可解析类型。</p>
      *
-     * @param date                                        Date/LocalDate/LocalDateTime/LocalTime
-     * @param startDate                                      Date/LocalDate/LocalDateTime/LocalTime
-     * @param endDate                                        Date/LocalDate/LocalDateTime/LocalTime
-     * @return true                                   false
+     * @param date      待判断的日期
+     * @param startDate 区间起始日期
+     * @param endDate   区间结束日期
+     * @return 日期在区间内返回 true
      */
     public static boolean inDateRange(Object date, Object startDate, Object endDate) {
         if (date == null || startDate == null || endDate == null) {

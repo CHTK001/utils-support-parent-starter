@@ -50,6 +50,7 @@
                         <exclude>**/network/sip/SipServer.java</exclude>
                         <exclude>**/network/sip/SipClient.java</exclude>
                         <exclude>**/network/sip/SipConfig.java</exclude>
+                        <exclude>**/objects/inject/impl/JsrBeanDefinitionServiceInjector.java</exclude>
                     </excludes>
                     <annotationProcessorPaths>
                         <path>

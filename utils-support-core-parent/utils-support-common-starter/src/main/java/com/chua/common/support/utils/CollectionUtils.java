@@ -49,13 +49,11 @@ public class CollectionUtils {
     }
 
     /**
-     *                         {@code null}                                                                  <br>
-     *                {@link Collections#emptySet()}
+     * 将 null 的 Set 替换为空 Set，避免空指针。
      *
-     * @param <T>
-     * @param set                            null
-     * @return                   null
-     * @since 4.6.3
+     * @param set 待检查的 Set，可能为 null
+     * @param <T> 元素类型
+     * @return 非空 Set，null 时返回空 Set
      */
     @Nonnull
     public static <T> Set<T> emptyIfNull(@Nullable Set<T> set) {
@@ -63,13 +61,11 @@ public class CollectionUtils {
     }
 
     /**
-     *                         {@code null}                                                                  <br>
-     *                {@link Collections#emptyList()}
+     * 将 null 的 List 替换为空 List，避免空指针。
      *
-     * @param <T>
-     * @param list                            null
-     * @return                   null
-     * @since 4.6.3
+     * @param list 待检查的 List，可能为 null
+     * @param <T>  元素类型
+     * @return 非空 List，null 时返回空 List
      */
     @Nonnull
     public static <T> List<T> emptyIfNull(@Nullable List<T> list) {
@@ -77,15 +73,14 @@ public class CollectionUtils {
     }
 
     /**
-     *                                                                               -1
+     * 从集合中按多个索引批量获取元素，支持负数索引（从末尾计数）。
      *
-     * @param <T>
-     * @param collection
-     * @param indexes
-     * @return
-     * @since 4.0.6
+     * @param collection 源集合
+     * @param indexes    要获取的元素索引数组
+     * @param <T>        元素类型
+     * @return 对应索引的元素列表
      */
-@SuppressWarnings({"unchecked", "all"})
+    @SuppressWarnings({"unchecked", "all"})
     public static <T> List<T> getAny(Collection<T> collection, int... indexes) {
         final int size = collection.size();
         final ArrayList<T> result = new ArrayList<>();
@@ -107,17 +102,6 @@ public class CollectionUtils {
         }
         return result;
     }
-
-    /**
-     *                                                          <br>
-     *
-     *
-     * @param <T>
-     * @param collection
-     * @param matcher
-     * @return
-     * @since 5.2.5
-     */
 
     /**
      * 从集合中随机选取一个元素（使用 {@link SecureRandom}）。
@@ -492,12 +476,11 @@ public class CollectionUtils {
     }
 
     /**
-     *          List                        List
+     * 将 List 转为不可修改视图，null 时返回 null。
      *
-     * @param list List
-     * @param <T>
-     * @return             List
-     * @since 5.2.6
+     * @param list 源列表
+     * @param <T>  元素类型
+     * @return 不可修改的列表，null 时返回 null
      */
     public static <T> List<T> unmodifiable(List<T> list) {
         if (null == list) {
@@ -507,13 +490,12 @@ public class CollectionUtils {
     }
 
     /**
-     *          List
+     * 对 List 分页，逐页调用消费者回调。
      *
-     * @param <T>
-     * @param list
-     * @param pageSize
-     * @param pageListConsumer
-     * @since 5.7.10
+     * @param list               源列表
+     * @param pageSize           每页大小
+     * @param pageListConsumer   每页数据的消费回调
+     * @param <T>                元素类型
      */
     public static <T> void page(List<T> list, int pageSize, Consumer<List<T>> pageListConsumer) {
         if (isEmpty(list) || pageSize <= 0) {
@@ -563,16 +545,14 @@ public class CollectionUtils {
     }
 
     /**
-     *                      <br>
-     *             {@link List#subList(int, int)}
+     * 截取 List 子列表，支持指定步长（start/end 均支持负数索引）。
      *
-     * @param <T>
-     * @param list
-     * @param start
-     * @param end
-     * @param step
-     * @return                                                                   List
-     * @since 4.0.6
+     * @param list  源列表
+     * @param start 起始索引（含），负数从末尾计数
+     * @param end   结束索引（不含），负数从末尾计数
+     * @param step  步长，必须大于等于 1
+     * @param <T>   元素类型
+     * @return 截取后的不可变子列表
      */
     public static <T> List<T> sub(List<T> list, int start, int end, int step) {
         if (list == null) {
@@ -618,12 +598,12 @@ public class CollectionUtils {
 
 
     /**
-     *                   number
+     * 从列表中随机选取指定数量的不重复元素。
      *
-     * @param elementList
-     * @param number
-     * @param <T>
-     * @return 1
+     * @param elementList 源列表
+     * @param number      要选取的元素个数，必须大于 0
+     * @param <T>         元素类型
+     * @return 随机选取的元素列表，source 为空或 number 无效时返回空列表
      */
     public static <T> List<T> getRandomElement(List<T> elementList, int number) {
         if (CollectionUtils.isEmpty(elementList) || number < 1) {
@@ -860,11 +840,11 @@ public class CollectionUtils {
     }
 
     /**
-     *                         1
+     * 判断字符串是否存在于目标集合中（精确匹配）。
      *
-     * @param source
-     * @param target       1
-     * @return                         1
+     * @param source 待查找的字符串
+     * @param target 目标集合
+     * @return 存在返回 true
      */
     public static boolean contains(String source, Collection<String> target) {
         if(StringUtils.isEmpty(source)) {
@@ -880,11 +860,11 @@ public class CollectionUtils {
         return false;
     }
     /**
-     *                         1
+     * 判断字符串是否存在于目标集合中（忽略大小写）。
      *
-     * @param source
-     * @param target       1
-     * @return                         1
+     * @param target 目标集合
+     * @param source 待查找的字符串
+     * @return 存在返回 true
      */
     public static boolean containsIgnoreCase(Collection<String> target, String source) {
         if(StringUtils.isEmpty(source)) {
@@ -900,11 +880,11 @@ public class CollectionUtils {
         return false;
     }
     /**
+     * 判断目标集合是否包含所有源字符串（忽略大小写）。
      *
-     *
-     * @param source
-     * @param target       1
-     * @return                         1
+     * @param target 目标集合
+     * @param source 待查找的字符串数组
+     * @return 全部包含返回 true
      */
     public static boolean containsAllIgnoreCase(Collection<String> target, String... source) {
         if(ArrayUtils.isEmpty(source)) {
@@ -922,11 +902,11 @@ public class CollectionUtils {
         return true;
     }
     /**
+     * 判断目标集合中是否有元素不在源列表中（即检查是否存在差异）。
      *
-     *
-     * @param source
-     * @param target       1
-     * @return
+     * @param source 源列表
+     * @param target 目标集合
+     * @return 存在不在 source 中的 target 元素时返回 true
      */
     public static boolean notContains(List<String> source, Collection<String> target) {
         for (String s : target) {
@@ -937,11 +917,11 @@ public class CollectionUtils {
         return false;
     }
     /**
-     *                         1
+     * 判断 List 中是否包含目标集合中的任意元素。
      *
-     * @param source
-     * @param target       1
-     * @return                         1
+     * @param source 源列表
+     * @param target 目标集合
+     * @return 存在交集返回 true
      */
     public static boolean contains(List<String> source, Collection<String> target) {
         for (String s : target) {
@@ -953,11 +933,11 @@ public class CollectionUtils {
     }
 
     /**
-     *                         1
+     * 判断 Set 中是否包含目标集合中的任意元素。
      *
-     * @param source
-     * @param target       1
-     * @return                         1
+     * @param source 源 Set
+     * @param target 目标集合
+     * @return 存在交集返回 true
      */
     public static boolean contains(Set<String> source, Collection<String> target) {
         for (String s : target) {
@@ -968,11 +948,11 @@ public class CollectionUtils {
         return false;
     }
     /**
-     *                         1
+     * 判断 Set 中是否包含逗号分隔字符串中的任意元素。
      *
-     * @param source
-     * @param target       1
-     * @return                         1
+     * @param source  源 Set
+     * @param target  逗号分隔的待查找字符串
+     * @return 存在交集返回 true
      */
     public static boolean contains(Set<String> source, String target) {
         for (String s : target.split(SYMBOL_COMMA)) {
@@ -1207,24 +1187,13 @@ public class CollectionUtils {
 
 
     /**
-     *                                                                                                             ":"   "="
-     *                                                       IllegalArgumentException
+     * 将参数数组解析为 Map，支持 ":" 或 "=" 分隔的键值对格式。
      *
-     * <p>
-     * (               )
-     * ["a","b"] ==> {a=b}
-     * [" a "," b "] ==> {a=b}
-     * ["a=b"] ==>{a=b}
-     * ["a:b"] ==>{a=b}
-     * ["a=b","c","d"] ==>{a=b,c=d}
-     * ["a","a:b"] ==>{a="a:b"}
-     * ["a","a,b"] ==>{a="a,b"}
-     * </p>
+     * <p>自动处理空格、多值分割等情况。</p>
      *
-     * @param parameters
-     * @return Map
+     * @param parameters 参数字符串数组
+     * @return 解析后的 Map
      */
-
     public static Map<String, String> convertParameters(String[] parameters) {
         if (ArrayUtils.isEmpty(parameters)) {
             return new HashMap<>(DEFAULT_SIZE);
@@ -1261,12 +1230,12 @@ public class CollectionUtils {
     }
 
     /**
-     *                                              Map
-     *       pairs                                                                           [pkey1, pvalue1, pkey2, pvalue2, ...]
-     *                                        IllegalArgumentException
+     * 将交替排列的键值对字符串数组转为 Map（[key1, val1, key2, val2, ...]）。
      *
-     * @param pairs
-     * @return Map
+     * <p>数组长度必须为偶数，否则抛出 {@link IllegalArgumentException}。</p>
+     *
+     * @param pairs 键值对字符串数组
+     * @return 转换后的 Map
      */
     public static Map<String, String> toStringMap(String... pairs) {
         Map<String, String> parameters = new HashMap<>(pairs.length);
@@ -1289,12 +1258,12 @@ public class CollectionUtils {
     }
 
     /**
+     * 获取 Map 的所有 key 并返回不可变列表，null 时返回空列表。
      *
-     *
-     * @param temp                                        null
-     * @param <K>
-     * @param <V>
-     * @return
+     * @param temp 源 Map
+     * @param <K>  key 类型
+     * @param <V>  value 类型
+     * @return 不可变的 key 列表
      */
     public static <K, V> Collection<? extends K> keySet(Map<K, V> temp) {
         //
@@ -1313,29 +1282,27 @@ public class CollectionUtils {
         return Collections.unmodifiableList(keys);
     }
     /**
+     * 对列表中每个元素应用函数，返回第一个非 null 结果。
      *
-     *
-     *                                              null               null
-     *
-     * @param s
-     * @param function
-     * @param <T>
-     * @param <R>
-     * @return                                        null                                                null
+     * @param s        源列表
+     * @param function 转换函数
+     * @param <T>      元素类型
+     * @param <R>      返回值类型
+     * @return 第一个非 null 转换结果，不存在则返回 null
      */
-    public static <T, R>R firstValidate(List<T> s, Function<T, R> function) {
+    public static <T, R> R firstValidate(List<T> s, Function<T, R> function) {
         T t = firstValidate(s);
         return null == t ? null : function.apply(t);
     }
 
     /**
+     * 获取列表中第一个非 null 且非空的元素。
      *
-     *
-     * @param s
-     * @return                                                                                  null
-     * @param <T>
+     * @param s 源列表
+     * @param <T> 元素类型
+     * @return 第一个有效元素，不存在则返回 null
      */
-    public static <T>T firstValidate(List<T> s) {
+    public static <T> T firstValidate(List<T> s) {
         //
         if(isEmpty(s)) {
             return null;
@@ -1353,9 +1320,11 @@ public class CollectionUtils {
     }
 
     /**
-     *       List
+     * 将可变参数数组转为 List。
      *
-     * @since 3.5.4
+     * @param t 元素数组
+     * @param <T> 元素类型
+     * @return 包含元素的 List，null 时返回空列表
      */
     @SafeVarargs
     public static <T> List<T> toList(T... t) {
@@ -1366,19 +1335,16 @@ public class CollectionUtils {
     }
 
     /**
-     *                Jdk1.8   ConcurrentHashMap         bug
-     * https://bugs.openjdk.java.net/browse/JDK-8161372
+     *  JDK 8 ConcurrentHashMap#computeIfAbsent 的性能修复版本。
      *
-     *  A temporary workaround for Java 8 ConcurrentHashMap#computeIfAbsent specific performance issue: JDK-8161372.</br>
-     *  @see <a href="https://bugs.openjdk.java.net/browse/JDK-8161372">https://bugs.openjdk.java.net/browse/JDK-8161372</a>
+     * <p>规避 JDK-8161372 bug：在多线程并发场景下避免死循环。</p>
      *
-     * @param concurrentHashMap ConcurrentHashMap                         ConcurrentHashMap
-     * @param key               key
-     * @param mappingFunction   function
-     * @param <K>               k
-     * @param <V>               v
-     * @return V
-     * @since 3.4.0
+     * @param concurrentHashMap 并发 Map
+     * @param key               键
+     * @param mappingFunction   映射函数
+     * @param <K>               key 类型
+     * @param <V>               value 类型
+     * @return 映射结果
      */
     public static <K, V> V computeIfAbsent(Map<K, V> concurrentHashMap, K key, Function<? super K, ? extends V> mappingFunction) {
         Objects.requireNonNull(mappingFunction);
@@ -1443,10 +1409,11 @@ public class CollectionUtils {
     }
 
     /**
-     *                 N
-     * @param originalList
-     * @param step
-     * @return                                                     N
+     * 将列表按指定步长分组为子列表。
+     *
+     * @param originalList 源列表
+     * @param step         每组元素个数，必须能整除列表长度
+     * @return 分组后的列表集合
      */
     public static List<List<Integer>> generateGroupList(List<Integer> originalList, int step) {
         //                                   groupSize
