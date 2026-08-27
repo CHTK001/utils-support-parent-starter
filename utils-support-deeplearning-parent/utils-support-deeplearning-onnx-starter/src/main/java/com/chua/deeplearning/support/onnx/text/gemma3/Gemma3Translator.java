@@ -7,6 +7,7 @@ import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.OrtSession.SessionOptions;
 import com.chua.common.support.utils.NativeLoader;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.function.Function;
 
 /**
  * Gemma-3-270M 中文通用语言模型 Translator。
@@ -80,6 +84,13 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
 
     private final String modelId;
     private final boolean useGpu;
+
+    /** 采样温度（>0 时启用温度采样；0 = 纯贪心） */
+    private final float temperature;
+    /** 重复惩罚系数（>=1，1 = 不惩罚） */
+    private final float repeatPenalty;
+    /** top-k 采样候选数（>0 启用，0 = 不限制） */
+    private final int topK;
 
     private HuggingFaceTokenizer tokenizer;
     private OrtEnvironment ortEnv;

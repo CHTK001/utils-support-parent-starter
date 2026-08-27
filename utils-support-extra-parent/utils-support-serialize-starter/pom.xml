@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -11,7 +11,7 @@
     </parent>
     <artifactId>utils-support-serialize-starter</artifactId>
     <name>Utils Support Serialize Starter</name>
-    <description>轻量高可用序列化模块：Kryo、JSON、Java原生序列化</description>
+    <description>杞婚噺楂樺彲鐢ㄥ簭鍒楀寲妯″潡锛欿ryo銆丣SON銆丣ava鍘熺敓搴忓垪鍖?/description>
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

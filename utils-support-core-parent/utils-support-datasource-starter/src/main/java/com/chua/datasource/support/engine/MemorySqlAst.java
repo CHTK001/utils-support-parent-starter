@@ -584,7 +584,10 @@ final class MemorySqlAst {
             return applyInsert(ins, rows);
         }
         if (plan instanceof UpdatePlan upd) {
-            return applyUpdate(upd, rows, safeParams);
+            /* SET 子句已消费前 N 个参数，WHERE 从 N 开始 */
+            int setCount = upd.sets().size();
+            List<Object> whereParams = safeParams.subList(setCount, safeParams.size());
+            return applyUpdate(upd, rows, whereParams);
         }
         return applyDelete((DeletePlan) plan, rows, safeParams);
     }
