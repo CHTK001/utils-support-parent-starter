@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -88,6 +90,11 @@ class FtpSession {
      * 会话是否关闭
      */
     private volatile boolean closed;
+
+    /**
+     * 会话属性表（用于存储临时数据，如 RNFR 路径）
+     */
+    private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /**
      * 并发连接计数器
@@ -322,4 +329,34 @@ class FtpSession {
      * 获取控制连接 Socket。
      */
     Socket getControlSocket() { return controlSocket; }
+
+    /**
+     * 设置会话属性。
+     *
+     * @param key   属性键
+     * @param value 属性值
+     */
+    void setAttribute(String key, Object value) {
+        attributes.put(key, value);
+    }
+
+    /**
+     * 获取会话属性。
+     *
+     * @param key 属性键
+     * @return 属性值，不存在返回 null
+     */
+    Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    /**
+     * 移除会话属性。
+     *
+     * @param key 属性键
+     * @return 移除的属性值
+     */
+    Object removeAttribute(String key) {
+        return attributes.remove(key);
+    }
 }
