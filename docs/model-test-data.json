@@ -440,8 +440,9 @@
       "translator": "ocr.duguang.DuguangDetTranslator",
       "capability": "OCR",
       "path": "ocr/duguang/large/det_512.onnx",
-      "status": "pending",
-      "notes": "阿里读光 DBNet 文字检测大模型（large 版精度更高）。ModelScope 上有资源（iic/read_daochutou_det_large），需手动下载到 models/ocr/duguang/large/。与 duguang-det-small 共用 DuguangDetTranslator，只是模型参数不同。"
+      "status": "verified",
+      "notes": "ticket_new→20 框，freetxt→7 框（与 small 版一致 27 目标）；jar 已内嵌无需下载；detect 单独测试 + OCR 管线（det+ocr+doc-orientation）均通过",
+      "date": "2026-08-26"
     },
     {
       "id": "duguang-det-small",
@@ -460,7 +461,9 @@
       "translator": "ocr.duguang.DuguangOcrTranslator",
       "capability": "OCR",
       "path": "ocr/duguang/large/det_512.onnx",
-      "status": "documented"
+      "status": "verified",
+      "date": "2026-08-26",
+      "notes": "duguang-det-large + duguang-ocr-large + doc-orientation 管线通过；ticket_new 识别 20 文本块（B1/Z31C014941/九江/南昌/D6262/39.5元 等），6.4s"
     },
     {
       "id": "duguang-ocr-small",
