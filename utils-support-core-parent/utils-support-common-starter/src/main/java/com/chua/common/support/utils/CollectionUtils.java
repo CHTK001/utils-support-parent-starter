@@ -1475,13 +1475,13 @@ public class CollectionUtils {
     }
 
     /**
+     * 将 List 中每个元素通过函数转换为字符串后打印到日志。
      *
-     *
-     * @param list
-     * @param function
-     * @param <T>
+     * @param list     源列表，为空时直接返回
+     * @param function 元素到字符串的转换函数
+     * @param <T>      元素类型
      */
-    public static <T>void print(List<T> list, Function<T, String> function) {
+    public static <T> void print(List<T> list, Function<T, String> function) {
         if(isEmpty(list) || null == function) {
             log.info("list is empty");
             return;
@@ -1495,14 +1495,13 @@ public class CollectionUtils {
     }
 
     /**
-     *       List                                    "      X         "
-     * [CH] 2025-01-01 v1.0.0
+     * 以表格格式打印 List，最多显示 maxLines 行，超出显示省略信息。
      *
-     * @param title
-     * @param list
-     * @param maxLines                                               "      X   "
-     * @param function
-     * @param <T>
+     * @param title    标题
+     * @param list     源列表
+     * @param maxLines 最大显示行数
+     * @param function 元素到字符串的转换函数
+     * @param <T>      元素类型
      */
     public static <T> void printTableFormat(String title, List<T> list, int maxLines, Function<T, String> function) {
         if (isEmpty(list) || null == function) {
@@ -1534,15 +1533,12 @@ public class CollectionUtils {
     }
 
     /**
-     *       List                                    "      X         "
-     * [CH] 2025-01-01 v1.0.0
+     * 以表格格式打印 List，默认最多显示 5 行。
      *
-     *                   5
-     *
-     * @param title
-     * @param list
-     * @param function
-     * @param <T>
+     * @param title    标题
+     * @param list     源列表
+     * @param function 元素到字符串的转换函数
+     * @param <T>      元素类型
      */
     public static <T> void printTableFormat(String title, List<T> list, Function<T, String> function) {
         printTableFormat(title, list, 5, function);

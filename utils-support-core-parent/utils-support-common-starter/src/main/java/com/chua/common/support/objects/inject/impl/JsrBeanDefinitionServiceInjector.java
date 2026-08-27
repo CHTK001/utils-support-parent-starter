@@ -167,7 +167,7 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
     private <T> T getAnnotationAttribute(Annotation annotation, String attributeName, T defaultValue) {
         try {
             Method method = annotation.annotationType().getMethod(attributeName);
-            return (T) ReflectUtils.invoke(annotation, method.getName(), method.getReturnType(), method.getParameterTypes());
+            return (T) ReflectUtils.invoke(annotation, method.getName(), method.getReturnType(), (Object[]) method.getParameterTypes());
         } catch (Exception e) {
             return defaultValue;
         }

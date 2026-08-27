@@ -265,12 +265,12 @@ public class DateUtils {
     }
 
     /**
+     * 将两个 Date 之间的时间差（绝对值）按指定单位换算。
      *
-     *
-     * @param date the date
-     * @param date1       1
-     * @param dateUnit    dateUnit
-     * @return long
+     * @param date      第一个日期
+     * @param date1     第二个日期
+     * @param dateUnit  时间单位，决定返回值的时间粒度
+     * @return 两日期之间的时间单位数（绝对值）
      */
     public static long between(Date date, Date date1, DateUnit dateUnit) {
         return Math.abs(date.getTime() - date1.getTime()) / dateUnit.getMillis();
@@ -576,28 +576,22 @@ public class DateUtils {
     }
 
     /**
+     * 将 ZonedDateTime 按指定格式字符串转换为日期字符串。
      *
-     * <p>
-     * DateHelper.format(new Date()) =
-     * </p>
-     *
-     * @param zonedDateTime the zonedDateTime
-     * @param pattern the pattern
-     * @return the result
+     * @param zonedDateTime 带时区的时间对象
+     * @param pattern       日期格式字符串，如 "yyyy-MM-dd HH:mm:ss"
+     * @return 格式化后的字符串
      */
     public static String format(ZonedDateTime zonedDateTime, String pattern) throws ParseException {
         return format(zonedDateTime, DateTimeFormatter.ofPattern(pattern));
     }
 
     /**
+     * 将 ZonedDateTime 按指定 {@link DateTimeFormatter} 转换为日期字符串。
      *
-     * <p>
-     * DateHelper.format(new Date()) =
-     * </p>
-     *
-     * @param zonedDateTime the zonedDateTime
-     * @param df the df
-     * @return the result
+     * @param zonedDateTime 带时区的时间对象
+     * @param df            日期时间格式化器
+     * @return 格式化后的字符串
      */
     public static String format(ZonedDateTime zonedDateTime, DateTimeFormatter df) throws ParseException {
         return zonedDateTime.format(df);
@@ -717,27 +711,21 @@ public class DateUtils {
     }
 
     /**
+     * 将毫秒时间戳格式化为默认格式的日期字符串（yyyy-MM-dd HH:mm:ss）。
      *
-     * <p>
-     * DateHelper.format(1111) =
-     * </p>
-     *
-     * @param time the time
-     * @return the result
+     * @param time 毫秒时间戳
+     * @return 格式化后的日期字符串
      */
     public static String format(long time) {
         return format(time, DateFormatConstant.YYYY_MM_DD_HH_MM_SS);
     }
 
     /**
+     * 将毫秒时间戳按指定格式转换为日期字符串。
      *
-     * <p>
-     * DateHelper.format(1111, "yyyy-MM-dd") =
-     * </p>
-     *
-     * @param time the time
-     * @param pattern the pattern
-     * @return the result
+     * @param time    毫秒时间戳
+     * @param pattern 日期格式，如 "yyyy-MM-dd"
+     * @return 格式化后的字符串
      */
     public static String format(long time, String pattern) {
         DateFormat df = createDefaultDateFormat(pattern);
@@ -745,11 +733,11 @@ public class DateUtils {
     }
 
     /**
+     * 将毫秒时间戳按给定 {@link DateFormat} 转换为日期字符串。
      *
-     *
-     * @param time the time
-     * @param dateFormat the dateFormat
-     * @return the result
+     * @param time         毫秒时间戳
+     * @param dateFormat   日期格式对象，为 null 时使用默认格式
+     * @return 格式化后的字符串
      */
     public static String format(long time, DateFormat dateFormat) {
         DateFormat df = null == dateFormat ? createDefaultDateFormat(DateFormatConstant.YYYY_MM_DD_HH_MM_SS) : dateFormat;
@@ -951,16 +939,11 @@ public class DateUtils {
     }
 
     /**
-     * <p>                                                                        </ p>
-     * <p>
+     * 以宽松模式从候选格式列表中解析日期字符串，返回 Calendar。
      *
-     *                                                    ParseException   </ p>
-     *
-     *
-     * @param str                      null
-     * @return the result
-     * @throws IllegalArgumentException                                        null
-     * @throws ParseException
+     * @param str 日期时间字符串
+     * @return 解析后的 Calendar
+     * @throws ParseException 解析失败时抛出
      */
     public static Calendar parseCalendar(String str) throws ParseException {
         Calendar calendar = getInstance();
@@ -969,33 +952,23 @@ public class DateUtils {
     }
 
     /**
-     * <p>                                                                        </ p>
-     * <p>
+     * 按多个候选日期格式解析字符串，首个匹配成功则返回，解析失败时抛出 {@link ParseException}。
      *
-     *                                                    ParseException   </ p>
-     *
-     *
-     * @param str                                null
-     * @param parsePatterns                                           SimpleDateFormat         null
-     * @return the result
-     * @throws IllegalArgumentException                                        null
-     * @throws ParseException
+     * @param str             日期时间字符串
+     * @param parsePatterns   候选日期格式数组，如 {"yyyy-MM-dd", "yyyyMMdd"}
+     * @return 解析后的 Date
+     * @throws ParseException 所有格式均无法匹配时抛出
      */
     public static Date parseDate(String str, String[] parsePatterns) throws ParseException {
         return parseDateWithLeniency(str, parsePatterns, true);
     }
 
     /**
-     * <p>                                                                        </ p>
-     * <p>
+     * 自动推断格式解析日期时间字符串。支持数字时间戳（长度 > 10）及常见日期格式。
      *
-     *                                                    ParseException   </ p>
-     *
-     *
-     * @param str                      null
-     * @return the result
-     * @throws IllegalArgumentException                                        null
-     * @throws ParseException
+     * @param str 日期时间字符串
+     * @return 解析后的 Date，可能为 null
+     * @throws IllegalArgumentException 若 str 为 null 或空字符串
      */
     public static Date parseDate(String str) throws ParseException {
         if(StringUtils.isNullOrEmpty(str)) {
