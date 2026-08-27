@@ -1,295 +1,128 @@
 package com.chua.common.support.datasearch.video.spi.impl;
 
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
-import com.chua.common.support.network.client.HttpClientFactory;
-import com.chua.common.support.datasearch.video.model.PanResource;
-import com.chua.common.support.datasearch.video.model.PanType;
-import com.chua.common.support.datasearch.video.model.VideoDownload;
 import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.model.VideoSource;
 import com.chua.common.support.datasearch.video.spi.AbstractResourceProvider;
-import com.chua.common.support.datasearch.video.spi.DownloadLinkProvider;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 /**
- * PanSou 网盘资源提供者实现
- * 基于 PanSou API 进行网盘资源搜索
+ * PanSou 网盘资源搜索提供器
+ *
+ * <p>通过 PanSou API（https://so.252035.xyz）聚合搜索百度网盘、阿里云盘、
+ * 夸克网盘等多种网盘资源。PanSou 是一个开源的网盘资源搜索 API 服务，
+ * 支持多频道并发搜索和智能排序。</p>
+ *
+ * <p>PanSou 可自部署，需要在 VideoSource 中配置 API 地址，
+ * 或者使用默认公共实例。</p>
  *
  * @author CH
- * @version 1.0
  * @since 4.0.0.42
+ * @see <a href="https://github.com/fish2018/pansou">PanSou 项目</a>
  */
 @Spi("pansou")
 public class PanSouResourceProvider extends AbstractResourceProvider {
 
-    /** 日志记录器 */
-    private static final Logger log = LoggerFactory.getLogger(PanSouResourceProvider.class);
-    /** JSON 对象映射器 */
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String DEFAULT_API_URL = "http://localhost:8888";
 
-    /**
-     * 网盘链接正则表达式模式
-     */
-    private static final Pattern BAIDU_PATTERN = Pattern.compile("(https?://pan\\.baidu\\.com/s/[A-Za-z0-9_-]+)");
-    /** 阿里云盘链接匹配正则 */
-    private static final Pattern ALIYUN_PATTERN = Pattern.compile("(https?://www\\.aliyundrive\\.com/s/[A-Za-z0-9_-]+)");
-    /** 夸克网盘链接匹配正则 */
-    private static final Pattern QUARK_PATTERN = Pattern.compile("(https?://pan\\.quark\\.cn/s/[A-Za-z0-9_-]+)");
-    /** 天翼云盘链接匹配正则 */
-    private static final Pattern TIANYI_PATTERN = Pattern.compile("(https?://cloud\\.189\\.cn/t/[A-Za-z0-9_-]+)");
-    /** 磁力链接匹配正则 */
-    private static final Pattern MAGNET_PATTERN = Pattern.compile("(magnet:\\?xt=urn:[a-z0-9]+:[a-z0-9]{32,40})");
-
-    /** 创建 PanSouResourceProvider 实例 */
     public PanSouResourceProvider() {
         super();
     }
 
-    /**
-     * 创建 PanSouResourceProvider 实例
-     * @param videoSource videoSource
-     */
     public PanSouResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
     @Override
-    /** 搜索Resource */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
             return ReturnPageResult.error("关键词不能为空");
         }
-
-        log.info("使用PanSou搜索网盘资源: {}", keyword);
-        List<VideoInfoResult> results = new ArrayList<>();
+        String apiUrl = StringUtils.defaultString(
+                videoSource != null ? videoSource.getVideoSourceUrl() : null,
+                DEFAULT_API_URL);
 
         try {
-            // 构建搜索请求
-            List<PanResource> panResources = searchPanResources(videoSearch);
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(15))
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .build();
 
-            // 转换为VideoInfo对象
-            for (PanResource panResource : panResources) {
-                VideoInfoResult videoInfo = convertToVideoInfo(panResource);
-                if (videoInfo != null) {
-                    results.add(videoInfo);
-                }
+            String jsonBody = String.format(
+                    "{\"kw\":\"%s\",\"res\":\"results\"}",
+                    keyword.replace("\\", "\\\\").replace("\"", "\\\""));
 
-                // 限制结果数量
-                if (results.size() >= videoSource.getVideoSourceMaxResource()) {
-                    break;
-                }
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl + "/api/search"))
+                    .timeout(Duration.ofSeconds(20))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> resp = client.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonNode root = com.chua.common.support.lang.json.Json.parse(resp.body());
+
+            JsonNode resultsNode = root.get("results");
+            if (resultsNode.isMissingValue() || !resultsNode.isArray() || resultsNode.size() == 0) {
+                return ReturnPageResult.empty();
             }
 
-            if (results.isEmpty()) {
-                return ReturnPageResult.error("未找到相关网盘资源");
+            var results = new ArrayList<VideoInfoResult>();
+            int limit = Math.min(resultsNode.size(), 10);
+            for (int i = 0; i < limit; i++) {
+                JsonNode item = resultsNode.get(i);
+                results.add(mapToVideoInfo(item));
             }
 
-            log.info("PanSou搜索完成，找到{}个资源", results.size());
-            int size = results.size();
             return ReturnPageResult.of(PageResult.<VideoInfoResult>builder()
                     .data(results)
                     .pageNo(videoSearch.getPage())
-                    .pageSize(videoSearch.getPageSize())
-                    .total(size)
-                    .totalPages(videoSearch.getPageSize() > 0 ? (size + videoSearch.getPageSize() - 1) / videoSearch.getPageSize() : 0)
+                    .pageSize(results.size())
+                    .total(results.size())
+                    .totalPages(1)
                     .build());
-
         } catch (Exception e) {
-            log.error("PanSou资源搜索失败", e);
-            return ReturnPageResult.error("网盘资源搜索失败: " + e.getMessage());
+            return ReturnPageResult.error("PanSou 搜索失败: " + e.getMessage());
         }
     }
 
-    /**
-     * 搜索网盘资源
-     *
-     * @param videoSearch 搜索关键词
-     * @return 网盘资源列表
-     * @throws Exception 搜索异常
-     */
-    private List<PanResource> searchPanResources(VideoSearch videoSearch) throws Exception {
-        List<PanResource> resources = new ArrayList<>();
+    private VideoInfoResult mapToVideoInfo(JsonNode item) {
+        VideoInfoResult info = new VideoInfoResult();
+        info.setVideoTitle(item.get("title").toStringValue());
+        info.setVideoAliasName(item.get("title").toStringValue());
+        info.setVideoName(item.get("title").toStringValue());
 
-        // 构建请求并发送
-        String responseBody = HttpClientFactory.of(videoSource.getVideoSourceUrl())
-                .query("kw", videoSearch.getKeyword())
-                .query("page", "1")
-                .query("size", String.valueOf(videoSearch.getPageSize()))
-                .header("User-Agent", videoSource.getVideoSourceUserAgent())
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .get()
-                .getBodyString();
-
-        // 解析响应
-        if (responseBody != null) {
-            JsonNode rootNode = objectMapper.readTree(responseBody);
-
-            // 检查响应状态
-            if (rootNode.has("code") && rootNode.get("code").asInt() == 200) {
-                JsonNode dataNode = rootNode.path("data");
-                JsonNode resultsNode = dataNode.path("results");
-
-                // 解析搜索结果
-                if (resultsNode.isArray()) {
-                    for (JsonNode resultNode : resultsNode) {
-                        PanResource resource = parseResourceFromJson(resultNode);
-                        if (resource != null) {
-                            resources.add(resource);
-                        }
-                    }
-                }
-            } else {
-                String message = rootNode.path("message").asText("未知错误");
-                throw new RuntimeException("PanSou API返回错误: " + message);
-            }
+        String content = item.get("content").toStringValue();
+        JsonNode links = item.get("links");
+        if (links != null && links.isArray() && links.size() > 0) {
+            JsonNode firstLink = links.get(0);
+            String linkType = firstLink.get("type").toStringValue();
+            String linkUrl = firstLink.get("url").toStringValue();
+            String password = firstLink.get("password").toStringValue();
+            info.setVideoUrl(linkUrl);
+            info.setVideoDescription(String.format("[%s] %s  密码: %s\n%s", linkType, linkUrl, password, content));
+        } else {
+            info.setVideoDescription(content);
         }
 
-        return resources;
-    }
-
-    /**
-     * 从JSON节点解析网盘资源
-     *
-     * @param jsonNode JSON节点
-     * @return 网盘资源对象
-     */
-    private PanResource parseResourceFromJson(JsonNode jsonNode) {
-        try {
-            String title = jsonNode.path("title").asText();
-            String url = jsonNode.path("url").asText();
-            String typeCode = jsonNode.path("type").asText();
-            String size = jsonNode.path("size").asText();
-            String source = jsonNode.path("source").asText();
-            String description = jsonNode.path("description").asText();
-            double score = jsonNode.path("score").asDouble(0.0);
-            String timeStr = jsonNode.path("time").asText();
-
-            // 确定网盘类型
-            PanType panType = determinePanType(url, typeCode);
-
-            // 创建资源对象
-            PanResource resource = new PanResource(title, url, panType, size, source);
-            resource.setDescription(description);
-            resource.setScore(score);
-
-            // 解析时间
-            if (StringUtils.hasText(timeStr)) {
-                try {
-                    LocalDateTime publishTime = LocalDateTime.parse(timeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                    resource.setPublishTime(publishTime);
-                } catch (Exception e) {
-                    log.debug("时间解析失败: {}", timeStr);
-                }
-            }
-
-            return resource;
-
-        } catch (Exception e) {
-            log.warn("解析网盘资源失败", e);
-            return null;
-        }
-    }
-
-    /**
-     * 确定网盘类型
-     *
-     * @param url      资源链接
-     * @param typeCode 类型代码
-     * @return 网盘类型
-     */
-    private PanType determinePanType(String url, String typeCode) {
-        // 优先使用API返回的类型代码
-        if (StringUtils.hasText(typeCode)) {
-            PanType type = PanType.fromCode(typeCode);
-            if (type != PanType.OTHERS) {
-                return type;
-            }
+        JsonNode images = item.get("images");
+        if (images != null && images.isArray() && images.size() > 0) {
+            info.setVideoCover(images.get(0).toStringValue());
         }
 
-        // 根据URL模式判断
-        if (StringUtils.hasText(url)) {
-            if (BAIDU_PATTERN.matcher(url).find()) {
-                return PanType.BAIDU;
-            } else if (ALIYUN_PATTERN.matcher(url).find()) {
-                return PanType.ALIYUN;
-            } else if (QUARK_PATTERN.matcher(url).find()) {
-                return PanType.QUARK;
-            } else if (TIANYI_PATTERN.matcher(url).find()) {
-                return PanType.TIANYI;
-            } else if (MAGNET_PATTERN.matcher(url).find()) {
-                return PanType.MAGNET;
-            }
-        }
+        info.setVideoPlatform("PanSou");
 
-        return PanType.OTHERS;
-    }
-
-    /**
-     * 将网盘资源转换为VideoInfo对象
-     *
-     * @param panResource 网盘资源
-     * @return VideoInfo对象
-     */
-    private VideoInfoResult convertToVideoInfo(PanResource panResource) {
-        if (panResource == null || !StringUtils.hasText(panResource.getTitle())) {
-            return null;
-        }
-
-        VideoInfoResult videoInfo = new VideoInfoResult();
-        videoInfo.setVideoName(panResource.getTitle());
-        videoInfo.setVideoTitle(panResource.getTitle());
-        videoInfo.setVideoAliasName(panResource.getTitle());
-        videoInfo.setVideoUrl(panResource.getUrl());
-        videoInfo.setVideoPlatform(panResource.getPanType().getName());
-        videoInfo.setVideoDescription(panResource.getDescription());
-        videoInfo.setVideoSize(panResource.getSize());
-        videoInfo.setVideoAuthor(panResource.getSource());
-        List<VideoDownload> downloadList = createDownloadList(panResource);
-        videoInfo.setDownloadList(downloadList);
-
-        // 设置评分
-        if (panResource.getScore() != null) {
-            videoInfo.setVideoScore(Converter.convertIfNecessary(panResource.getScore(), java.math.BigDecimal.class));
-        }
-
-        // 设置发布时间
-        if (panResource.getPublishTime() != null) {
-            videoInfo.setVideoPublishDate(panResource.getPublishTime());
-        }
-
-        return videoInfo;
-    }
-
-    /** 创建DownloadList */
-    private List<VideoDownload> createDownloadList(PanResource panResource) {
-        List<VideoDownload> downloadList = new ArrayList<>();
-
-        VideoDownload download = new VideoDownload();
-        download.setVideoDownloadUrl(panResource.getUrl());
-        download.setVideoDownloadName(panResource.getTitle());
-        download.setVideoDownloadType(panResource.getPanType().getName());
-        download.setVideoDownloadQuality("普通");
-        download.setVideoDownloadPlatform(panResource.getPanType().getName());
-        download.setVideoDownloadSize(panResource.getSize());
-        download.setVideoDownloadStatus((byte) 1);
-        downloadList.add(download);
-        return downloadList;
+        return info;
     }
 }
-

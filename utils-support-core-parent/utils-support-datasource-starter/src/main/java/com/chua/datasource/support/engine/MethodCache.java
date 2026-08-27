@@ -28,14 +28,34 @@ final class MethodCache {
     /** 获取Value */
     static Object getValue(Object obj, String field) {
         MethodHandle mh = getter(obj.getClass(), field);
-        if (mh == null) {
-            return null;
+        if (mh != null) {
+            try {
+                return mh.invoke(obj);
+            } catch (Throwable ignored) {
+                // MethodHandle 调用失败，降级到直接反射
+            }
         }
+        /* 降级：MethodHandle 跨模块受限时直接反射 */
         try {
-            return mh.invoke(obj);
-        } catch (Throwable ignored) {
-            return null;
+            String camel = toCamelCase(field);
+            String getterName = "get" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+            for (var m : obj.getClass().getMethods()) {
+                if (m.getParameterCount() == 0
+                        && (m.getName().equals(getterName) || m.getName().equals(field))) {
+                    m.setAccessible(true);
+                    return m.invoke(obj);
+                }
+            }
+            String isGetter = "is" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+            for (var m : obj.getClass().getMethods()) {
+                if (m.getParameterCount() == 0 && m.getName().equals(isGetter)) {
+                    m.setAccessible(true);
+                    return m.invoke(obj);
+                }
+            }
+        } catch (Exception ignored) {
         }
+        return null;
     }
 
     /** 设置Value */
@@ -71,12 +91,14 @@ final class MethodCache {
             for (var m : clazz.getMethods()) {
                 if (m.getParameterCount() == 0
                         && (m.getName().equals(getter) || m.getName().equals(field))) {
+                    m.setAccessible(true);
                     return MethodHandles.lookup().unreflect(m).asType(mt);
                 }
             }
             String isGetter = "is" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
             for (var m : clazz.getMethods()) {
                 if (m.getParameterCount() == 0 && m.getName().equals(isGetter)) {
+                    m.setAccessible(true);
                     return MethodHandles.lookup().unreflect(m).asType(mt);
                 }
             }

@@ -192,8 +192,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("doc-layout-yolo", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutYoloTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/doclayout-yolo/model.onnx");
         // OCR文字识别(PP-OCRv5 Server)：PaddleOCR 文字识别完整版；适用端到端 OCR
         reg("paddle-ocr-recognition", "com.chua.deeplearning.support.onnx.ocr.paddleocr.PaddleOcrRecognitionTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/ppocrv5-server-rec.onnx");
-        // 表格结构识别(PP-Structure v2)：识别表格结构，输出表格行列信息；适用表格识别、Excel 还原
-        reg("pp-structure-v2", "com.chua.deeplearning.support.onnx.ocr.paddlestructure.PpStructureV2Translator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "ocr/table_structure/pp_structure_v2/inference.onnx");
         // OCR文字识别(PP-OCRv4 Mobile)：PP-OCRv4 移动端版文字识别，轻量级；适用移动端 OCR
         reg("pp-ocr-rec", "com.chua.deeplearning.support.onnx.ocr.PpOcrRecTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/ch_PP-OCRv4_rec_infer.onnx");
         // 表格结构识别(TableStruct)：表格结构识别，与 PP-Structure 类似；适用表格文档解析
