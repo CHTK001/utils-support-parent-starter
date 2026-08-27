@@ -45,6 +45,34 @@
         </plugins>
       </build>
     </profile>
+    <!-- ONNX Runtime 执行引擎切换（cpu/gpu 互斥，配合 -P!cpu,gpu 或 -P!gpu,cpu）：
+         - 默认 cpu：onnxruntime 1.21.1（CPU 版）
+         - gpu：onnxruntime_gpu 1.27.0（内置 CPU+CUDA+TensorRT EP；启用 CUDA 需本机 CUDA 12
+           运行时 cudart/cublas/cudnn9，见 utils-support-models-parent/libs/cuda；
+           运行期由 DetectionConfiguration.useGpu(true) 触发 addCUDA()）。 -->
+    <profile>
+      <id>cpu</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.microsoft.onnxruntime</groupId>
+          <artifactId>onnxruntime</artifactId>
+          <version>1.21.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>gpu</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.microsoft.onnxruntime</groupId>
+          <artifactId>onnxruntime_gpu</artifactId>
+          <version>1.27.0</version>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
   <dependencies>
         <dependency>
@@ -65,6 +93,12 @@
             <groupId>ai.djl.onnxruntime</groupId>
             <artifactId>onnxruntime-engine</artifactId>
             <version>0.36.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.microsoft.onnxruntime</groupId>
+                    <artifactId>onnxruntime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ai.djl.huggingface</groupId>

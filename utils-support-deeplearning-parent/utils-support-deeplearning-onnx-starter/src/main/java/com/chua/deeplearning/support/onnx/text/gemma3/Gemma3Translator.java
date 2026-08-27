@@ -111,8 +111,41 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
      * @param useGpu  是否启用 CUDA 执行提供程序
      */
     public Gemma3Translator(String modelId, boolean useGpu) {
+        this(modelId, useGpu, 0f, 1.2f, 40);
+    }
+
+    /**
+     * 构造翻译器（完整参数）。
+     *
+     * @param modelId       模型标识
+     * @param useGpu        是否启用 CUDA 执行提供程序
+     * @param temperature   采样温度（&gt;0 启用温度采样，0 = 纯贪心）
+     * @param repeatPenalty 重复惩罚系数（&gt;=1，1 = 不惩罚）
+     * @param topK          top-k 采样候选数（&gt;0 启用）
+     */
+    public Gemma3Translator(String modelId, boolean useGpu, float temperature, float repeatPenalty, int topK) {
         this.modelId = modelId;
         this.useGpu = useGpu;
+        this.temperature = temperature;
+        this.repeatPenalty = repeatPenalty;
+        this.topK = topK;
+    }
+
+    /**
+     * 基于 {@link DetectionConfiguration} 构造翻译器。
+     * <p>读取 {@code deviceIsGpu()} 决定是否启用 CUDA，并从 {@code systemOption()} 读取
+     * {@code temperature} / {@code repeatPenalty} / {@code topK} 采样参数。</p>
+     *
+     * @param configuration 推理配置，可空
+     */
+    public Gemma3Translator(DetectionConfiguration configuration) {
+        this(
+                configuration == null ? DEFAULT_MODEL_ID : configuration.loadModelName() != null ? configuration.loadModelName() : DEFAULT_MODEL_ID,
+                configuration != null && configuration.deviceIsGpu(),
+                configuration == null ? 0f : configuration.optFloat("temperature", 0f),
+                configuration == null ? 1.2f : configuration.optFloat("repeatPenalty", 1.2f),
+                configuration == null ? 40 : (int) configuration.optFloat("topK", 40f)
+        );
     }
 
     @Override
@@ -173,7 +206,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             try (OrtSession.Result result = session.run(inputs)) {
                 float[][][] logits = (float[][][]) result.get(0).getValue();
                 int last = logits[0].length - 1;
-                int next = argmax(logits[0][last]);
+                int next = nextToken(logits[0][last], tokens, promptLen);
 
                 if (next == EOS_TOKEN_ID || next == END_OF_TURN_TOKEN_ID) {
                     break;
@@ -192,6 +225,91 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         log.info("[Gemma3] 生成 {} tokens 耗时 {}ms", stepCount, elapsed);
         log.debug("[Gemma3] 回复: {}", text);
         return text;
+    }
+
+    /**
+     * 从 logits 选择下一个 token。
+     * <p>应用重复惩罚（对已生成 token 降权）后，按采样策略选择：
+     * temperature&gt;0 时做温度 + top-k 采样，否则纯贪心。</p>
+     *
+     * @param logits    最后一个位置 logits（词表大小）
+     * @param tokens    当前完整 token 序列（含 prompt 与已生成）
+     * @param promptLen prompt 长度，仅对 prompt 之后的生成 token 施加重复惩罚
+     * @return 选中的 token id
+     */
+    private int nextToken(float[] logits, List<Long> tokens, int promptLen) {
+        float[] scores = logits.clone();
+        if (repeatPenalty > 1f) {
+            // 对已生成的 token 施加重复惩罚（跳过 prompt，避免抑制关键词）
+            for (int i = promptLen; i < tokens.size(); i++) {
+                int id = tokens.get(i).intValue();
+                if (id < 0 || id >= scores.length) {
+                    continue;
+                }
+                if (scores[id] > 0) {
+                    scores[id] /= repeatPenalty;
+                } else {
+                    scores[id] *= repeatPenalty;
+                }
+            }
+        }
+
+        if (temperature > 0f) {
+            return sample(scores, temperature, topK);
+        }
+        return argmax(scores);
+    }
+
+    /**
+     * 温度 + top-k 采样。
+     *
+     * @param scores 已施加惩罚的 logits
+     * @param temp   温度（&gt;0）
+     * @param k      top-k 候选数（&gt;0）
+     * @return 采样得到的 token id
+     */
+    private int sample(float[] scores, float temp, int k) {
+        // softmax(score / temp)
+        float max = Float.NEGATIVE_INFINITY;
+        for (float s : scores) {
+            if (s > max) {
+                max = s;
+            }
+        }
+        double sum = 0.0;
+        double[] probs = new double[scores.length];
+        for (int i = 0; i < scores.length; i++) {
+            probs[i] = Math.exp((scores[i] - max) / temp);
+            sum += probs[i];
+        }
+        // top-k 截断（保留概率最大的 k 个，其余置 0）
+        if (k > 0 && k < scores.length) {
+            int[] order = java.util.stream.IntStream.range(0, scores.length)
+                    .boxed()
+                    .sorted((a, b) -> Double.compare(probs[b], probs[a]))
+                    .mapToInt(Integer::intValue)
+                    .toArray();
+            double kept = 0.0;
+            for (int i = 0; i < k; i++) {
+                kept += probs[order[i]];
+            }
+            for (int i = k; i < order.length; i++) {
+                probs[order[i]] = 0.0;
+            }
+            if (kept > 0.0) {
+                sum = kept;
+            }
+        }
+        // 归一化后按概率抽样
+        double r = new Random().nextDouble() * sum;
+        double cumulative = 0.0;
+        for (int i = 0; i < scores.length; i++) {
+            cumulative += probs[i];
+            if (r < cumulative) {
+                return i;
+            }
+        }
+        return argmax(scores);
     }
 
     private static int argmax(float[] logits) {
