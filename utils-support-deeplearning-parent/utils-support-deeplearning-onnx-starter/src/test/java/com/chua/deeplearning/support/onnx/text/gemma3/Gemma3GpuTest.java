@@ -57,12 +57,31 @@ class Gemma3GpuTest {
     @Test
     void gpuInferenceNoDegenerateLoop() throws Exception {
         Assumptions.assumeTrue(Boolean.getBoolean("gemma.it"), "未开启 -Dgemma.it=true，跳过");
+        Assumptions.assumeTrue(cudaProviderAvailable(), "当前 classpath 无 CUDA provider（需 -Pgpu 引入 onnxruntime_gpu），跳过 GPU 测试");
         try (Gemma3Translator t = new Gemma3Translator(samplingConfig(true))) {
             String reply = t.chat("用一句话介绍你自己");
             assertNotNull(reply);
             assertFalse(reply.isBlank(), "回复不应为空");
             assertFalse(hasLongRepeat(reply), "回复不应陷入重复循环: " + reply);
         }
+    }
+
+    /**
+     * 检测当前环境是否加载了 CUDA 执行提供程序。
+     *
+     * @return true 表示 CUDA provider 可用
+     */
+    private static boolean cudaProviderAvailable() {
+        try {
+            for (ai.onnxruntime.OrtProvider p :
+                    ai.onnxruntime.OrtEnvironment.getEnvironment().getAvailableProviders()) {
+                if (p.name().toUpperCase().contains("CUDA")) {
+                    return true;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     /**
