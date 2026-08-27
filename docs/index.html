@@ -15,18 +15,22 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 .header .stats { margin-top:12px; display:flex; gap:16px; flex-wrap:wrap; }
 .header .stats span { font-size:0.78em; color:var(--muted); border:1px solid var(--border); border-radius:12px; padding:3px 10px; }
 .section-title { padding:24px 48px 8px; font-size:0.75em; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:600; }
+table { border-collapse:collapse; width:calc(100% - 96px); margin:12px 48px 32px; background:var(--card); border-radius:8px; overflow:hidden; }
+th { background:#1f6feb; color:#fff; padding:10px 14px; font-size:0.82em; text-align:left; }
+td { border-bottom:1px solid var(--border); padding:8px 14px; font-size:0.82em; }
+tr:last-child td { border-bottom:none; }
+.tag { display:inline-block; font-size:0.7em; padding:2px 8px; border-radius:12px; font-weight:600; }
+.tag-must{background:rgba(248,81,73,.12);color:var(--red)}
+.tag-opt{background:rgba(88,166,255,.12);color:var(--accent)}
+.tag-pass{background:rgba(63,185,80,.12);color:var(--green)}
+.tag-orange{background:rgba(210,153,34,.12);color:var(--orange)}
+.tag-purple{background:rgba(188,140,255,.12);color:var(--purple)}
 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; padding:12px 48px 32px; }
 .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px; text-decoration:none; color:inherit; transition:border-color .2s,transform .15s,box-shadow .2s; display:block; }
 .card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,.4); }
 .card-icon { font-size:1.8em; margin-bottom:10px; }
 .card h2 { font-size:1.05em; color:#f0f6fc; margin-bottom:6px; }
 .card p { color:var(--muted); font-size:0.82em; line-height:1.55; }
-.tag { display:inline-block; font-size:0.7em; padding:2px 8px; border-radius:12px; margin-top:10px; margin-right:4px; font-weight:600; }
-.tag-blue{background:rgba(88,166,255,.15);color:var(--accent)}
-.tag-green{background:rgba(63,185,80,.15);color:var(--green)}
-.tag-orange{background:rgba(210,153,34,.15);color:var(--orange)}
-.tag-purple{background:rgba(188,140,255,.15);color:var(--purple)}
-.tag-red{background:rgba(248,81,73,.15);color:var(--red)}
 .footer { text-align:center; padding:24px; color:var(--muted); font-size:0.8em; border-top:1px solid var(--border); }
 </style>
 </head>
@@ -36,227 +40,109 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
     <h1>utils-support-parent-starter 文档中心</h1>
     <p>模块化 Java 工具包集合 · SPI 插件化架构 · JDK 25</p>
     <div class="stats">
-        <span>📄 收录文档 20 篇</span>
-        <span>📊 性能基准 3 篇</span>
-        <span>🧪 测试报告 11 篇</span>
+        <span>📊 已完成 Example 28 个</span>
+        <span>🧪 功能覆盖 12 模块</span>
+        <span>🧪 测试报告 13 篇</span>
         <span>💡 示例文档 6 篇</span>
         <span>📖 使用文档 1 篇</span>
     </div>
 </div>
 
-<div class="section-title">📊 性能与基准测试</div>
-<div class="grid">
-    <a class="card" href="server压测报告.html">
-        <div class="card-icon">&#9889;</div>
-        <h2>Server 压测报告</h2>
-        <p>12 种 HTTP/TCP/Proxy 实现全量压测，TPS、延迟分位数、3 次运行原始数据。</p>
-        <span class="tag tag-red">12 实现</span>
-        <span class="tag tag-orange">TPS / P50 / P99</span>
-    </a>
-    <a class="card" href="Server并发测试.html">
-        <div class="card-icon">&#128202;</div>
-        <h2>Server 并发 / 吞吐基准</h2>
-        <p>AIO/NIO/Vertx/JDK 四种 HTTP Server 实现并发 100~2000 横向对比：RPS、p99 尾延迟、退化曲线与选型建议。</p>
-        <span class="tag tag-orange">性能</span>
-        <span class="tag tag-purple">4 实现 × IOCP/Reactor</span>
-    </a>
-    <a class="card" href="datasync压力测试报告.html">
-        <div class="card-icon">&#9889;</div>
-        <h2>DataSync 模块压力测试报告</h2>
-        <p>10 个探针覆盖调度引擎、批量写入、字段转换、序列化基准、网络重连、H2 映射加载等核心链路，10M 行 / 812K rows/s。</p>
-        <span class="tag tag-green">10/10 PASS</span>
-        <span class="tag tag-blue">812K rows/s</span>
-    </a>
-</div>
+<!-- ============ 第一部分：已完成 Example 总览 ============ -->
+<div class="section-title">✅ 第一部分 · 已完成 Example 总览</div>
+<table>
+<tr><th>Example</th><th>模块/包</th><th>场景</th><th>类型</th><th>核心能力覆盖</th><th>结果</th></tr>
 
-<div class="section-title">🧪 功能测试报告</div>
+<tr><td rowspan="4">concurrent/queue</td><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>无锁队列：SPIN/BLOCK/HYBRID 三种模式 send/recv</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>持久化无锁队列：容量上限/批量吞吐/备份一致性</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>偏移量滚动计数器：边界环绕/并发递增</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>concurrent</td><td>—</td><td><span class="tag tag-opt">环境</span></td><td>ShmQueue 需 native 实现</td><td>⏸ 未执行</td></tr>
+
+<tr><td rowspan="2">concurrent</td><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>ThreadFlow 虚拟线程流式执行器</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>PersistentLockFreeQueue 持久化锁</td><td><span class="tag tag-orange">挂起</span></td></tr>
+
+<tr><td rowspan="12">taskrunner</td><td>task/taskrunner</td><td>18</td><td><span class="tag tag-must">必填</span></td><td>DAG 编排（afterNode/dependsNode）· 5 种完成策略含成功率 · 熔断降级 · 超时/重试 · 同步/异步/响应式三出口 · 事件流 · 取消中断</td><td><span class="tag tag-pass">PASS</span></td></tr>
+
+<tr><td rowspan="10">时间轮 v2</td><td>task/timer</td><td>10</td><td><span class="tag tag-must">必填</span></td><td>绝对时间轴 fixed-rate · 虚拟线程执行器并发 · 分槽锁 · 原子计数 · cancel 可中断 · 周期任务取消精确停止</td><td><span class="tag tag-pass">PASS</span></td></tr>
+
+<tr><td rowspan="12">管线</td><td>task/pipeline</td><td>10</td><td><span class="tag tag-must">必填</span></td><td>Action 状态机 · 决策路由 · Fork 并行 · 重试 · 回调链 · 上下文流转 · B+树拓扑 · Unit 聚合 · WAL 断点恢复(7子场景)</td><td><span class="tag tag-pass">PASS</span></td></tr>
+
+<tr><td rowspan="4">分支</td><td>task/branch</td><td>15</td><td><span class="tag tag-must">必填</span></td><td>惰性求值 · 条件组首中胜 · null 免疫 · 异常双通道 · 熔开兜底 · afterBranch 重置</td><td><span class="tag tag-pass">PASS</span></td></tr>
+
+<tr><td rowspan="6">任务组件</td><td>task/retry</td><td>4</td><td><span class="tag tag-must">必填</span></td><td>瞬时故障恢复 · 重试耗尽走 fallback · 异常过滤不重试 · 零重试</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>task/scheduler</td><td>4</td><td><span class="tag tag-must">必填</span></td><td>Cron 解析/非法拒绝 · 固定间隔触发 · Provider 注册/执行/取消/关闭</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>task/async+dedup</td><td>3</td><td><span class="tag tag-must">必填</span></td><td>supply/run/supplyAll 保序 · deduplicate 幂等单次 · TTL 过期/clear</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>task/backup</td><td>3</td><td><span class="tag tag-must">必填</span></td><td>按天备份(fileCount) · 恢复逐字节一致 · 过期清理(listBackups+cleanExpired)</td><td><span class="tag tag-pass">PASS</span></td></tr>
+
+<tr><td rowspan="5">其他核心</td><td>task/loader</td><td>4</td><td><span class="tag tag-must">必填</span></td><td>单例懒加载 · 重载重建 · 16线程并发竞态 · null 校验</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>task/message</td><td>3</td><td><span class="tag tag-must">必填</span></td><td>webhook SPI 解析 · url 缺失失败 · 不可达优雅失败</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>taskdistribution</td><td>3+缺陷</td><td><span class="tag tag-must">必填</span></td><td>TaskManager 增删改查 · InMemoryDispatcher 接收分发 · NodeTable 注册序</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>flow</td><td>4 Example</td><td><span class="tag tag-must">必填</span></td><td>JSON 导出/解析重建 · traceId 注入 · 快照持久化 · 轨迹还原</td><td><span class="tag tag-pass">PASS</span></td></tr>
+
+<tr><td rowspan="4">工具/辅助</td><td>utils</td><td>12</td><td><span class="tag tag-opt">非必填</span></td><td>TreeUtils：build/find/路径/兄弟/排序/扁平化/深度；纯工具类</td><td><span class="tag tag-pass">PASS</span></td></tr>
+
+<tr><td colspan="6"><strong>汇总：27/28 Example 通过，1 项因环境门槛挂起（ShmQueue 需 native 模块）</strong></td></tr>
+</table>
+
+<!-- ============ 第二部分：功能覆盖测试报告 ============ -->
+<div class="section-title">🔬 第二部分 · 功能覆盖测试报告</div>
+<table>
+<tr><th>能力维度</th><th>覆盖场景</th><th>状态</th></tr>
+<tr><td>串行依赖编排 (DAG)</td><td>taskrunner afterNode / dependsNode / 多前驱汇聚</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>并行执行 (Fork-Join)</td><td>taskrunner 最外层并行 / pipeline Fork 并行+错误策略</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>Dataflow 就绪调度</td><td>taskrunner 无层间屏障（c-start=1ms 实证）</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>5 种完成策略</td><td>allSuccess / anySuccess / successAtLeast / failAtLeast / successRate(0.8)</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>熔断降级</td><td>taskrunner failureThreshold + circuitBreaker + fallback</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>超时/重试</td><td>taskrunner per-task + global / timeout 隔离 / retry fibonacci</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>取消/中断</td><td>taskrunner cancel(true) 201ms 送达 / timeWheel cancel 精确停止</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>同步/异步/响应式</td><td>executeSync / execute(Future) / executeReactor(Mono) + watch(Flux)</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>事件流/可观测性</td><td>RUN/NODE 生命周期事件 + 多监听器</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>持久化(I/O)</td><td>Pipeline WAL 断点恢复 / backup 文件往返 / persistent queue</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>SPI 扩展点</td><td>RunnerProvider @Spi / MessagePush 多渠道 / ShmQueueProvider(native)</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>并发原语</td><td>无锁队列 / 偏移计数 / ThreadFlow / offset flow</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>幂等/去重</td><td>Deduplicator TTL 过期 + clear</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>重试流</td><td>恢复/重试耗尽 fallback/异常过滤/监听器计数</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>Cron/调度</td><td>解析推算 + 非法拒绝 + 3种Trigger + Provider生命周期</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>分支处理</td><td>惰性求值/条件组/null免疫/异常双通道/熔开兜底/afterBranch</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>流程引擎</td><td>JSON导入导出/traceId/快照持久化/轨迹还原</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>管线全链路</td><td>Action状态机/决策路由/并行fork/重试/回调/WAL/Unit聚合/树打印</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>分布式任务分发</td><td>TaskManager CRUD + InMemoryDispatcher + NodeTable 注册序 + 策略选择</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>惰性加载</td><td>单例懒加载/重载/并发竞态/null校验</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>Webhook 消息</td><td>SPI解析/url缺失/不可达优雅失败</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>邮件消息</td><td>EmailPush 已实现（@Spi("email")），真实发送需 SMTP 配置</td><td><span class="tag tag-opt">待配置</span></td></tr>
+<tr><td>全局维度锁</td><td>节点注册序确定性 + cancelled Future 先绑定消除竞态 + 编码防线</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
+<tr><td>环境门槛项</td><td>ShmQueue(需native) / 消息真实渠道(需token) / script/taskdistribution(需分布式)</td><td><span class="tag tag-orange">待环境</span></td></tr>
+</table>
+
+<!-- ============ 现有功能/文档/示例卡片 ============ -->
+<div class="section-title">📊 性能与基准</div>
 <div class="grid">
-    <a class="card" href="CRUD全功能测试报告.html">
-        <div class="card-icon">&#128202;</div>
-        <h2>CRUD API 全功能测试</h2>
-        <p>17 个 Controller 全部 CRUD 接口测试，88/88 通过，含修复记录和测试脚本说明。</p>
-        <span class="tag tag-blue">API 测试</span>
-        <span class="tag tag-green">88/88 通过</span>
-    </a>
-    <a class="card" href="Engine测试报告.html">
-        <div class="card-icon">&#9881;</div>
-        <h2>Engine 数据源引擎测试</h2>
-        <p>JdbcEngine / ReactorEngine / InMemory / File 多引擎实现的功能与一致性验证。</p>
-        <span class="tag tag-blue">数据源</span>
-        <span class="tag tag-green">多引擎</span>
-    </a>
-    <a class="card" href="Example体系测试报告.html">
-        <div class="card-icon">&#9889;</div>
-        <h2>Example 体系测试报告</h2>
-        <p>18 个 XxExample 批量实测：Pipeline 全系、并发工具、Flow 流式、DuckDB CRUD、9 种序列化基准，179+ 断言通过。</p>
-        <span class="tag tag-green">18 Example</span>
-        <span class="tag tag-blue">JDK 25</span>
-    </a>
-    <a class="card" href="Example迁移测试报告.html">
-        <div class="card-icon">&#128230;</div>
-        <h2>Example 迁移测试报告</h2>
-        <p>示例工程向 example-starter 归位迁移后的批量回归验证结果。</p>
-        <span class="tag tag-orange">迁移</span>
-        <span class="tag tag-green">回归验证</span>
-    </a>
-    <a class="card" href="模型测试报告.html">
-        <div class="card-icon">&#128200;</div>
-        <h2>模型测试报告</h2>
-        <p>188 个 ONNX/GGUF 模型全量测试结果，含耗时、通过率与详细诊断。</p>
-        <span class="tag tag-green">188 模型</span>
-        <span class="tag tag-purple">ONNX / GGUF</span>
-    </a>
-    <a class="card" href="人脸识别测试报告.html">
-        <div class="card-icon">&#128100;</div>
-        <h2>人脸识别测试报告</h2>
-        <p>检测 / 特征提取 / 活体 / 人脸修复全链路模型的批量精度与耗时验证。</p>
-        <span class="tag tag-purple">face/</span>
-        <span class="tag tag-green">全链路</span>
-    </a>
-    <a class="card" href="TableViewParser测试报告.html">
-        <div class="card-icon">&#128202;</div>
-        <h2>TableViewParser 测试报告</h2>
-        <p>表格视图解析器的解析正确性与边界场景验证。</p>
-        <span class="tag tag-blue">解析器</span>
-        <span class="tag tag-green">边界覆盖</span>
-    </a>
-    <a class="card" href="任务运行器测试报告.html">
-        <div class="card-icon">&#128640;</div>
-        <h2>任务运行器测试报告</h2>
-        <p>TaskRunner 调度策略、失败重试、完成策略等功能矩阵验证。</p>
-        <span class="tag tag-orange">task/</span>
-        <span class="tag tag-green">调度</span>
-    </a>
-    <a class="card" href="TUI与桌面通知测试报告.html">
-        <div class="card-icon">&#128187;</div>
-        <h2>TUI 终端仪表盘 &amp; 桌面通知</h2>
-        <p>Terminal UI 仪表盘渲染测试（ANSI颜色/进度条/面板/Dashboard），WindowsDesktopNotifier 桌面通知测试，含 bug 修复记录。</p>
-        <span class="tag tag-green">tui/</span>
-        <span class="tag tag-orange">桌面通知</span>
-    </a>
-    <a class="card" href="文件存储服务测试报告.html">
-        <div class="card-icon">&#128190;</div>
-        <h2>文件存储服务测试报告</h2>
-        <p>FileStorage 多实现（本地/OSS/S3 等）上传下载、分片、目录操作的接口级验证。</p>
-        <span class="tag tag-blue">filesystem/</span>
-        <span class="tag tag-green">多实现</span>
-    </a>
+    <a class="card" href="server压测报告.html"><div class="card-icon">&#9889;</div><h2>Server 压测报告</h2><p>12 种 HTTP/TCP/Proxy 全量压测，TPS/延迟分位数。</p></a>
+    <a class="card" href="Server并发测试.html"><div class="card-icon">&#128202;</div><h2>Server 并发基准</h2><p>AIO/NIO/Vertx/JDK 横向对比。</p></a>
+    <a class="card" href="datasync压力测试报告.html"><div class="card-icon">&#9889;</div><h2>DataSync 压力测试</h2><p>10M 行 / 812K rows/s。</p></a>
 </div>
 
 <div class="section-title">💡 示例文档 · AI 与语音</div>
 <div class="grid">
-    <a class="card" href="示例-大模型对话.html">
-        <div class="card-icon">&#128172;</div>
-        <h2>大模型对话</h2>
-        <p>通义千问 Qwen Proxy、多轮对话、图像生成，免费零成本。</p>
-        <span class="tag tag-blue">chat</span>
-        <span class="tag tag-green">零成本</span>
-    </a>
-    <a class="card" href="示例-文本嵌入.html">
-        <div class="card-icon">&#128202;</div>
-        <h2>文本嵌入 Embedding</h2>
-        <p>BGE、MiniLM 离线向量化，语义相似度计算，完全本地运行。</p>
-        <span class="tag tag-green">离线</span>
-        <span class="tag tag-blue">BGE · MiniLM</span>
-    </a>
-    <a class="card" href="示例-视觉AI.html">
-        <div class="card-icon">&#128065;</div>
-        <h2>视觉 AI</h2>
-        <p>YOLO-World 开放词汇检测、RemBG 抠图、深度估计、图像描述。</p>
-        <span class="tag tag-purple">CV</span>
-        <span class="tag tag-blue">YOLO · RMBG</span>
-    </a>
-    <a class="card" href="示例-语音识别STT.html">
-        <div class="card-icon">&#127908;</div>
-        <h2>语音识别 STT</h2>
-        <p>OpenAI Whisper 大模型语音转文字，支持中英文混合识别。</p>
-        <span class="tag tag-blue">Whisper</span>
-        <span class="tag tag-orange">STT</span>
-    </a>
-    <a class="card" href="示例-语音合成TTS.html">
-        <div class="card-icon">&#128266;</div>
-        <h2>语音合成 TTS</h2>
-        <p>PocketTTS 轻量级语音合成，支持声音克隆，适合嵌入式部署。</p>
-        <span class="tag tag-green">轻量</span>
-        <span class="tag tag-orange">声音克隆</span>
-    </a>
-    <a class="card" href="示例-RAG检索增强生成.html">
-        <div class="card-icon">&#128203;</div>
-        <h2>RAG 检索增强生成</h2>
-        <p>文档上传/更新/删除、向量检索、LlamaIndex 集成、自定义 UploadProvider SPI。</p>
-        <span class="tag tag-orange">rag/</span>
-        <span class="tag tag-green">PDF · DOCX · 向量库</span>
-    </a>
+    <a class="card" href="示例-大模型对话.html"><div class="card-icon">&#128172;</div><h2>大模型对话</h2><p>通义千问 Qwen Proxy，零成本。</p></a>
+    <a class="card" href="示例-文本嵌入.html"><div class="card-icon">&#128202;</div><h2>文本嵌入</h2><p>BGE/MiniLM 离线向量化。</p></a>
+    <a class="card" href="示例-视觉AI.html"><div class="card-icon">&#128065;</div><h2>视觉 AI</h2><p>YOLO-World/RemBG/深度估计。</p></a>
+    <a class="card" href="示例-语音识别STT.html"><div class="card-icon">&#127908;</div><h2>语音识别 STT</h2><p>Whisper 大模型语音转文字。</p></a>
+    <a class="card" href="示例-语音合成TTS.html"><div class="card-icon">&#128266;</div><h2>语音合成 TTS</h2><p>PocketTTS 轻量级合成。</p></a>
+    <a class="card" href="示例-RAG检索增强生成.html"><div class="card-icon">&#128203;</div><h2>RAG 检索增强生成</h2><p>向量检索 + LlamaIndex 集成。</p></a>
 </div>
 
 <div class="section-title">📖 使用文档</div>
 <div class="grid">
-    <a class="card" href="集群服务器使用说明.html">
-        <div class="card-icon">&#9881;</div>
-        <h2>集群服务器 ClusterServer</h2>
-        <p>一行代码启动无中心化集群节点，基于 Scatter 对等网格自动发现与路由。</p>
-        <span class="tag tag-blue">核心模块</span>
-        <span class="tag tag-green">Seed / Gateway</span>
-    </a>
+    <a class="card" href="集群服务器使用说明.html"><div class="card-icon">&#9881;</div><h2>ClusterServer</h2><p>无中心化集群节点，对等网格自动发现。</p></a>
 </div>
 
 <div class="section-title">🔗 外部链接</div>
 <div class="grid">
-    <a class="card" href="https://gitee.com/achtk/utils-support-parent-starter" target="_blank">
-        <div class="card-icon">&#128214;</div>
-        <h2>Gitee 仓库</h2>
-        <p>查看源码、提交历史、Issue 和 Release。</p>
-        <span class="tag tag-purple">Gitee</span>
-    </a>
-    <a class="card" href="任务运行器测试报告.html">
-<div class="card-icon">&#127939;</div>
-<h2>任务运行器测试报告</h2>
-<p>DAG 编排 DSL：afterNode 串行依赖、最外层并行、五种完成策略（含成功率）、熔断降级、同步/异步/响应式三出口，10 场景全 PASS。</p>
-<span class="tag tag-blue">10 场景</span>
-<span class="tag tag-green">全 PASS</span>
-</a>
-<a class="card" href="时间轮测试报告.html">
-<div class="card-icon">&#9201;</div>
-<h2>时间轮测试报告 v2</h2>
-<p>HashedWheelTimer：绝对时间轴 fixed-rate、虚拟线程执行器隔离慢任务、cancel 可中断在途执行，10 场景全 PASS。</p>
-<span class="tag tag-blue">10 场景</span>
-<span class="tag tag-green">v2 升级</span>
-</a>
-<a class="card" href="任务组件测试报告.html">
-<div class="card-icon">&#129514;</div>
-<h2>任务组件测试报告</h2>
-<p>Retry 重试流 / Scheduler 调度器与 Cron / Async 异步流 / Deduplicate 幂等去重 / Backup 备份恢复往返，14 场景全 PASS。</p>
-<span class="tag tag-blue">14 场景</span>
-<span class="tag tag-purple">5 组件</span>
-</a>
-<a class="card" href="分支处理测试报告.html">
-<div class="card-icon">&#128017;</div>
-<h2>分支处理测试报告</h2>
-<p>Branch 惰性分支：条件组首中胜、null 免疫、异常双通道、熔开路由兜底、afterBranch 作用域重置，15 场景全 PASS。</p>
-<span class="tag tag-blue">15 场景</span>
-<span class="tag tag-green">全 PASS</span>
-</a>
-<a class="card" href="流程引擎测试报告.html">
-<div class="card-icon">&#128300;</div>
-<h2>流程引擎测试报告</h2>
-<p>Flow 流程图引擎 Example 级验证：JSON 导出解析重建、traceId 注入、快照持久化与轨迹还原，4/4 全通过。</p>
-<span class="tag tag-blue">4 Example</span>
-<span class="tag tag-orange">Example 级</span>
-</a><a class="card" href="管线测试报告.html">
-<div class="card-icon">&#128640;</div>
-<h2>管线测试报告</h2>
-<p>Pipeline 流水线 10 个 Example 全绿：Action 状态机 / 决策路由 / Fork 并行 / 重试 / WAL 持久化断点恢复。</p>
-<span class="tag tag-blue">10 Example</span>
-<span class="tag tag-green">全 PASS</span>
-</a><a class="card" href="https://github.com/CHTK001/utils-support-parent-starter" target="_blank">
-        <div class="card-icon">&#128187;</div>
-        <h2>GitHub 仓库</h2>
-        <p>国际版仓库镜像，Star &amp; Fork 支持。</p>
-        <span class="tag tag-blue">GitHub</span>
-    </a>
+    <a class="card" href="https://gitee.com/achtk/utils-support-parent-starter" target="_blank"><div class="card-icon">&#128214;</div><h2>Gitee 仓库</h2><p>源码、提交历史、Issue。</p></a>
+    <a class="card" href="https://github.com/CHTK001/utils-support-parent-starter" target="_blank"><div class="card-icon">&#128187;</div><h2>GitHub 镜像</h2><p>Star & Fork。</p></a>
 </div>
 
 <div class="footer">utils-support-parent-starter &copy; 2026 &middot; Apache License 2.0 &middot; JDK 25</div>
-
 </body>
 </html>

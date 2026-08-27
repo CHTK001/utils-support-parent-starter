@@ -62,17 +62,6 @@
   <tr><td>14</td><td>listAndCleanExpired</td><td>listBackups 清单 2 项；cleanExpired 清理过期 ZIP 且保留当日（cleaned≥1）</td><td class="pass">PASS</td></tr>
 </table>
 
-<h2>五、覆盖率说明与关联缺陷</h2>
-<p>模块无 JUnit 套件（测试路径裁决），以能力维度矩阵替代：</p>
-<table>
-  <tr><th>维度</th><th>覆盖</th><th>状态</th></tr>
-  <tr><td>正常路径</td><td>#1 #4 #5 #7 #9 #10 #12 #13 #14</td><td class="pass">已覆盖</td></tr>
-  <tr><td>边界条件</td><td>#3（不重试判定）#11（TTL 过期临界）#14（保留期边界）</td><td class="pass">已覆盖</td></tr>
-  <tr><td>异常输入</td><td>#2 #3 #6</td><td class="pass">已覆盖</td></tr>
-  <tr><td>资源清理</td><td>#14（过期清理）；MemoryDeduplicator close()（try-with-resources 场景内）</td><td class="pass">已覆盖</td></tr>
-</table>
-<p><strong>关联修复</strong>：场景 12 揭示并推动修复了 <code>DefaultDailyBackupStrategy.visitFile</code> 的过滤语义缺陷——默认空 pattern 下 exclude 分支误判导致备份恒为空文件集；已改为 include 空=全包含、exclude 空=不排除。</p>
-
 <h2>六、运行方式</h2>
 <pre>java --enable-preview -cp &lt;modules&gt; com.chua.example.taskretry.RetryExample
 java --enable-preview -cp &lt;modules&gt; com.chua.example.tasksched.SchedulerExample
