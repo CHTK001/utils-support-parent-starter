@@ -9,6 +9,9 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * FTPS 服务器（FTP over SSL/TLS），继承 FtpServer 增加传输层加密能力。
@@ -152,12 +155,11 @@ public class FtpsServer extends FtpServer {
         while (!sslServerSocket.isClosed()) {
             try {
                 var socket = (Socket) sslServerSocket.accept();
-                getVirtualExecutor().submit(() -> handleControlConnection((Socket) socket));
+                getVirtualExecutor().submit(() -> handleControlConnection(socket));
             } catch (IOException e) {
                 if (!sslServerSocket.isClosed()) {
                     log.debug("FTPS 接受连接异常: {}", e.getMessage());
                 }
-            }
             }
         }
     }
