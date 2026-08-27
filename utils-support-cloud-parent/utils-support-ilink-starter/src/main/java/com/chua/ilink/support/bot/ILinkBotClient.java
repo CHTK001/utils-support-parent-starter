@@ -15,6 +15,7 @@ import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.http.HttpMethod;
+import static com.chua.common.support.utils.MapUtils.getString;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -109,8 +110,8 @@ public class ILinkBotClient implements BotClient {
         try {
             // Step 1: 获取登录二维码 URL
             Map<String, Object> qrResponse = apiGet("/api/bot/qrcode");
-            String qrUrl = extractString(qrResponse, "url");
-            String qrKey = extractString(qrResponse, "key");
+            String qrUrl = getString(qrResponse, "url");
+            String qrKey = getString(qrResponse, "key");
             if (qrUrl == null || qrUrl.isEmpty()) {
                 log.error("[ILink] 获取二维码失败");
                 return null;
@@ -125,7 +126,7 @@ public class ILinkBotClient implements BotClient {
             for (int i = 0; i < maxAttempts; i++) {
                 Thread.sleep(3000);
                 Map<String, Object> status = apiGet("/api/bot/qrcode/status?key=" + qrKey);
-                String state = extractString(status, "state");
+                String state = getString(status, "state");
                 if ("scanned".equals(state)) {
                     if (qrcodeListener != null) { qrcodeListener.scanned(); }
                     log.info("[ILink] 已扫码，等待确认...");
@@ -140,10 +141,10 @@ public class ILinkBotClient implements BotClient {
 
             // Step 3: 获取登录凭证
             Map<String, Object> loginResult = apiPost("/api/bot/login", Map.of("key", qrKey));
-            this.token = extractString(loginResult, "token");
-            this.botId = extractString(loginResult, "botId");
+            this.token = getString(loginResult, "token");
+            this.botId = getString(loginResult, "botId");
 
-            String userId = extractString(loginResult, "userId");
+            String userId = getString(loginResult, "userId");
             if (qrcodeListener != null) { qrcodeListener.confirmed(token, botId, userId); }
 
             running.set(true);
@@ -353,8 +354,8 @@ public class ILinkBotClient implements BotClient {
             if (ctx != null) { body.fluentPut("contextToken", ctx); }
             Map<String, Object> resp = apiPost("/api/bot/send/text", Json.fromJson(
                     body.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
-            boolean ok = "0".equals(extractString(resp, "errCode"));
-            return ok ? BotSendResult.ok("0") : BotSendResult.fail(-1, extractString(resp, "errMsg"));
+            boolean ok = "0".equals(getString(resp, "errCode"));
+            return ok ? BotSendResult.ok("0") : BotSendResult.fail(-1, getString(resp, "errMsg"));
         } catch (Exception e) {
             return BotSendResult.fail(-1, e.getMessage());
         }
@@ -401,8 +402,8 @@ public class ILinkBotClient implements BotClient {
                 if (!(item instanceof Map)) { continue; }
                 @SuppressWarnings("unchecked")
                 Map<String, Object> msg = (Map<String, Object>) item;
-                String fromUser = str(msg, "fromUserId");
-                String ctxToken = str(msg, "contextToken");
+                String fromUser = getString(msg, "fromUserId");
+                String ctxToken = getString(msg, "contextToken");
                 if (ctxToken != null) { contextTokens.put(fromUser, ctxToken); }
                 String textContent = extractNestedText(msg);
                 result.add(BotInboundMessage.builder()
@@ -441,23 +442,11 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 提取嵌套字段值。
-     *
-     * @param map 数据映射
-     * @param key 键名
-     * @return 字符串值或 null
-     */
-    private static String str(Map<String, Object> map, String key) {
-        Object v = map.get(key);
-        return v == null ? null : v.toString();
-    }
-
-    /**
      * 发送 POST 请求并解析 JSON 响应。
      *
      * @param path API 路径
      * @param body 请求体对象
-     * @return 响应映射
+     * @return 响应映射，解析失败返回空 Map
      */
     private Map<String, Object> apiPost(String path, Object body) {
         ClientRequest request = ClientRequest.of(baseUrl + path, HttpMethod.POST)
@@ -468,14 +457,14 @@ public class ILinkBotClient implements BotClient {
         request.setBody(Json.toJson(body));
         HttpClient client = HttpClientFactory.getClient();
         ClientResponse response = client.execute(request);
-        return parseJson(response.getBodyString());
+        return safeParse(response.getBodyString());
     }
 
     /**
      * 发送 GET 请求并解析 JSON 响应。
      *
      * @param pathAndQuery 带查询参数的路径
-     * @return 响应映射
+     * @return 响应映射，解析失败返回空 Map
      */
     private Map<String, Object> apiGet(String pathAndQuery) {
         ClientRequest request = ClientRequest.of(baseUrl + pathAndQuery, HttpMethod.GET);
@@ -484,35 +473,21 @@ public class ILinkBotClient implements BotClient {
         }
         HttpClient client = HttpClientFactory.getClient();
         ClientResponse response = client.execute(request);
-        return parseJson(response.getBodyString());
+        return safeParse(response.getBodyString());
     }
 
     /**
-     * 解析 JSON 响应为映射。
+     * 安全解析 JSON 为 Map，失败时返回空 Map。
      *
      * @param body JSON 字符串
-     * @return 映射
+     * @return 解析结果，异常时返回 {@link Map#of()}
      */
-    private static Map<String, Object> parseJson(String body) {
+    private static Map<String, Object> safeParse(String body) {
         try {
-            return Json.fromJson(body,
-                    new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { });
+            return Json.fromJson(body);
         } catch (Exception e) {
             return Map.of();
         }
-    }
-
-    /**
-     * 从映射中提取字符串值。
-     *
-     * @param map 数据映射
-     * @param key 键名
-     * @return 字符串值或 null
-     */
-    private static String extractString(Map<String, Object> map, String key) {
-        if (map == null || !map.containsKey(key)) { return null; }
-        Object v = map.get(key);
-        return v == null ? null : v.toString();
     }
 
     /**

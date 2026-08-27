@@ -27,7 +27,6 @@
         <module>utils-support-deeplearning-opencv-starter</module>
         <module>utils-support-deeplearning-safetensors-starter</module>
         <module>utils-support-deeplearning-3d-starter</module>
-        <module>utils-support-deeplearning-llama-starter</module>
         <module>utils-support-deeplearning-gpu-llama3-starter</module>
         <module>utils-support-deeplearning-needle-starter</module>
         <!-- utils-support-deeplearning-arcsoft-starter 依赖商业闭源 SDK (com.arcsoft.face:arcsoft-sdk-face)，
