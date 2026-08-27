@@ -61,12 +61,26 @@ final class MethodCache {
     /** 设置Value */
     static void setValue(Object obj, String field, Object value) {
         MethodHandle mh = setter(obj.getClass(), field);
-        if (mh == null) {
-            return;
+        if (mh != null) {
+            try {
+                mh.invoke(obj, value);
+                return;
+            } catch (Throwable ignored) {
+                // MethodHandle 调用失败，降级到直接反射
+            }
         }
+        /* 降级：MethodHandle 跨模块受限时直接反射 */
         try {
-            mh.invoke(obj, value);
-        } catch (Throwable ignored) {
+            String camel = toCamelCase(field);
+            String setterName = "set" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+            for (var m : obj.getClass().getMethods()) {
+                if (m.getParameterCount() == 1 && m.getName().equals(setterName)) {
+                    m.setAccessible(true);
+                    m.invoke(obj, value);
+                    return;
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 
