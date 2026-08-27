@@ -120,11 +120,11 @@ public class CollectionUtils {
      */
 
     /**
+     * 从集合中随机选取一个元素（使用 {@link SecureRandom}）。
      *
-     *
-     * @param source
-     * @param <T>
-     * @return
+     * @param source 源集合，可能为 null
+     * @param <T>    元素类型
+     * @return 随机选中的元素，集合为空或 null 返回 null
      */
     public static <T> T getRandom(final Collection<T> source) {
         if (isEmpty(source)) {
@@ -136,11 +136,12 @@ public class CollectionUtils {
     }
 
     /**
-     *          List         n   list,
+     * 将 List 平均分配为指定数量的子列表（前几个列表多一个元素）。
      *
-     * @param source
-     * @param limit
-     * @return
+     * @param source 源列表
+     * @param limit  每组最大元素数
+     * @param <T>    元素类型
+     * @return 分组后的列表集合
      */
     public static <T> List<List<T>> averageAssign(List<T> source, int limit) {
         if (null == source || source.isEmpty()) {
@@ -448,14 +449,13 @@ public class CollectionUtils {
     // ------------------------------------------------------------------------------------------------- sort
 
     /**
-     *          List
+     * 对 List 进行分页，返回指定页码的数据子集。
      *
-     * @param <T>
-     * @param pageNo                                       {@link PageUtils#getFirstPageNo()}         0
-     * @param pageSize
-     * @param list
-     * @return
-     * @since 4.1.20
+     * @param pageNo   页码（从 1 开始）
+     * @param pageSize 每页大小
+     * @param list     源列表
+     * @param <T>      元素类型
+     * @return 指定页的元素列表，越界返回空列表
      */
     public static <T> List<T> page(int pageNo, int pageSize, List<T> list) {
         if (isEmpty(list)) {
@@ -535,12 +535,12 @@ public class CollectionUtils {
     }
 
     /**
+     * 对集合按给定 Comparator 排序后返回新 List。
      *
-     *
-     * @param <T>
-     * @param collection
-     * @param comparator
-     * @return treeSet
+     * @param collection 源集合
+     * @param comparator 比较器
+     * @param <T>        元素类型
+     * @return 排序后的 List
      */
     public static <T> List<T> sort(Collection<T> collection, Comparator<? super T> comparator) {
         List<T> list = new ArrayList<>(collection);
@@ -550,13 +550,13 @@ public class CollectionUtils {
 
 
     /**
+     * 截取 List 的子列表（start 包含，end 不包含，支持负数索引）。
      *
-     *
-     * @param <T>
-     * @param list
-     * @param start
-     * @param end
-     * @return                                                                   List
+     * @param list  源列表
+     * @param start 起始索引（负数从末尾计数）
+     * @param end   结束索引（负数从末尾计数）
+     * @param <T>   元素类型
+     * @return 截取后的不可变子列表
      */
     public static <T> List<T> sub(List<T> list, int start, int end) {
         return sub(list, start, end, 1);
@@ -803,17 +803,14 @@ public class CollectionUtils {
 
 
     /**
-     *                                                 1                           2
+     * 计算 coll1 与 coll2 的差集，返回仅在 coll1 中的元素列表。
      *
-     * <pre>
-     *     subtractToList([1,2,3,4],[2,3,4,5]) -    [1]
-     * </pre>
+     * <p>示例：subtractToList([1,2,3,4], [2,3,4,5]) → [1]</p>
      *
-     * @param coll1       1
-     * @param coll2       2
-     * @param <T>
-     * @return
-     * @since 5.3.5
+     * @param coll1 被减集合
+     * @param coll2 减集合
+     * @param <T>   元素类型
+     * @return 差集列表
      */
     public static <T> List<T> subtractToList(Collection<T> coll1, Collection<T> coll2) {
 
@@ -837,13 +834,12 @@ public class CollectionUtils {
 
 
     /**
-     *             List
+     * 将 Collection 转为指定类型的 List（LinkedList 或 ArrayList）。
      *
-     * @param <T>
-     * @param isLinked               LinkedList
-     * @param collection
-     * @return List
-     * @since 4.1.2
+     * @param isLinked   是否使用 LinkedList
+     * @param collection 源集合，为 null 时返回空 List
+     * @param <T>        元素类型
+     * @return 转换后的 List
      */
     public static <T> List<T> list(boolean isLinked, Collection<T> collection) {
         if (null == collection) {
@@ -853,12 +849,11 @@ public class CollectionUtils {
     }
 
     /**
-     *                List
+     * 创建指定类型的空 List（LinkedList 或 ArrayList）。
      *
-     * @param <T>
-     * @param isLinked             LinkedList
-     * @return List
-     * @since 4.1.2
+     * @param isLinked 是否使用 LinkedList
+     * @param <T>      元素类型
+     * @return 空 List
      */
     public static <T> List<T> list(boolean isLinked) {
         return isLinked ? new LinkedList<>() : new ArrayList<>();

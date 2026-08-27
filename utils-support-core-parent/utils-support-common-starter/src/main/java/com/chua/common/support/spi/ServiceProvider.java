@@ -8,6 +8,7 @@ import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.spi.autowire.ServiceAutowire;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.spi.resolver.ServiceResolver;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 
 import javax.annotation.Nonnull;
@@ -708,7 +709,7 @@ public interface ServiceProvider<T> {
         try {
             Method available = instance.getClass().getMethod("available");
             if (available.getReturnType() == boolean.class) {
-                return (boolean) available.invoke(instance);
+                return (boolean) ReflectUtils.invoke(instance, "available", boolean.class);
             }
         } catch (Exception ignored) {
             // 无 available() 方法的实例视为可用

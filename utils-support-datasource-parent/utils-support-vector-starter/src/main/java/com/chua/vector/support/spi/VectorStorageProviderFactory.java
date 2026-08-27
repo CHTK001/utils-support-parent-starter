@@ -166,7 +166,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBackend(String name) {
-        List<RuntimeDetector> detectors = ServiceProvider.of(RuntimeDetector.class).collect();
+        List<RuntimeDetector> detectors = new ArrayList<>(ServiceProvider.of(RuntimeDetector.class).collect());
         for (RuntimeDetector d : detectors) {
             if (name.equals(d.name()) && d.isAvailable()) {
                 return switch (name) {

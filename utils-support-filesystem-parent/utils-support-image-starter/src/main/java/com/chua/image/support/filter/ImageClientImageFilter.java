@@ -57,7 +57,9 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
     /**
      * 璁剧疆 AI 鍥惧儚鐢熸垚瀹㈡埛绔?(瑕嗙洊鐖剁被浠ユ敮鎸侀摼寮忚皟鐢?
      *
-     * @param imageClient AI 瀹㈡埛绔疄渚?     * @return 褰撳墠婊ら暅瀹炰緥
+     *
+     * @param imageClient AI 瀹㈡埛绔疄渚?
+     * @return 褰撳墠婊ら暅瀹炰緥
      */
     @Override
     public ImageClientImageFilter imageClient(ImageClient imageClient) {
@@ -93,7 +95,9 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
      *
      * <p>璋冪敤娉ㄥ叆鐨?{@link ImageClient}, 灏嗘簮鍥惧儚浣滀负鍙傝€冨浘,
      * 缁撳悎 prompt 鍜?imageStrength 璋冪敤 {@code referenceImage(src).prompt(...).imageStrength(...).generate()}銆?     *
-     * @param src 婧愬浘鍍?     * @param dst 鐩爣鍥惧儚 (鏈护闀滃拷鐣? 濮嬬粓鍒涘缓鏂板浘鍍?
+     *
+     * @param src 婧愬浘鍍?
+     * @param dst 鐩爣鍥惧儚 (鏈护闀滃拷鐣? 濮嬬粓鍒涘缓鏂板浘鍍?
      * @return AI 鐢熸垚鐨勬柊鍥惧儚
      */
     @Override

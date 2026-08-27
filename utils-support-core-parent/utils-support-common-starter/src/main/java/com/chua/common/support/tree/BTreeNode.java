@@ -22,6 +22,23 @@ class BTreeNode<K, V> {
     List<BTreeNode<K, V>> children = new ArrayList<>();
     boolean leaf;
 
+    /**
+     * 设置初始容量以避免频繁扩容。
+     *
+     * @param initialCapacity 初始容量
+     */
+    void setInitialCapacity(int initialCapacity) {
+        if (keys instanceof ArrayList) {
+            ((ArrayList<?>) keys).ensureCapacity(initialCapacity);
+        }
+        if (values instanceof ArrayList) {
+            ((ArrayList<?>) values).ensureCapacity(initialCapacity);
+        }
+        if (children instanceof ArrayList) {
+            ((ArrayList<?>) children).ensureCapacity(initialCapacity + 1);
+        }
+    }
+
     BTreeNode(boolean leaf) {
         this.leaf = leaf;
     }

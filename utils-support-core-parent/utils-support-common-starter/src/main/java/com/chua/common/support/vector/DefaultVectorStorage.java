@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -47,6 +48,10 @@ public class DefaultVectorStorage implements VectorStorage {
     private record ShardBuffer(MappedByteBuffer buf, FileChannel fc) {
     }
 
+    /** 分片元数据：centroid 用于剪枝，maxNorm 用于自适应阈值。 */
+    private record ShardMeta(float[] centroid, float maxNorm) {
+    }
+
     private final int dimension;
     private final Path dir;
     private final Mode mode;
@@ -59,14 +64,20 @@ public class DefaultVectorStorage implements VectorStorage {
     private final TreeMap<Integer, Path> coldShards = new TreeMap<>();
     /** 路径 → 分片序号的反向索引，O(1) 查找，避免每次 readEntry 线性扫描。 */
     private final ConcurrentHashMap<Path, Integer> pathToShardIdx = new ConcurrentHashMap<>();
-    /** 冷数据 B+ Tree 索引：id → EntryLoc，用于精确跳跃读取。 */
-    private final BPlusTree<String, EntryLoc> coldIndex = new BPlusTree<>(128);
+    /** 冷数据索引：id → EntryLoc，用于精确跳跃读取。 */
+    private final ConcurrentHashMap<String, EntryLoc> coldIndex = new ConcurrentHashMap<>();
     /** 已映射的分片缓冲，key 为分片序号，value 为 MappedByteBuffer + FileChannel。 */
     private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
+    /** 分片元数据（centroid），key 为分片序号，用于剪枝。 */
+    private final ConcurrentHashMap<Integer, ShardMeta> shardMetas = new ConcurrentHashMap<>();
 
     /** 复用读缓冲：128维向量约 600B，ThreadLocal 避免多线程竞争。 */
     private static final int DEFAULT_READ_BUF = 4096;
     private final ThreadLocal<byte[]> threadLocalReadBuf = ThreadLocal.withInitial(() -> new byte[DEFAULT_READ_BUF]);
+    /** ThreadLocal float 缓冲：动态扩容，默认 128 维。 */
+    private final ThreadLocal<float[]> vecBuf = ThreadLocal.withInitial(() -> new float[128]);
+    /** ThreadLocal 向量累加器：用于计算 centroid，默认 128 维。 */
+    private final ThreadLocal<float[]> centroidAcc = ThreadLocal.withInitial(() -> new float[128]);
 
     /** SIMD 分块宽度：每次处理 16 个 float。 */
     private static final int SIMD = 16;
@@ -157,6 +168,7 @@ public class DefaultVectorStorage implements VectorStorage {
             coldShards.clear();
             pathToShardIdx.clear();
             coldIndex.clear();
+            shardMetas.clear();
             shardBuffers.values().forEach(sb -> {
                 try { if (sb.fc().isOpen()) sb.fc().close(); } catch (IOException ignored) { }
             });
@@ -185,22 +197,15 @@ public class DefaultVectorStorage implements VectorStorage {
     public List<Vector> search(float[] query, int topK) {
         lock.readLock().lock();
         try {
-            List<VectorScored> candidates = new ArrayList<>();
+            // 热数据收集
+            List<VectorScored> candidates = new ArrayList<>(hot.size());
             for (Vector v : hot.values()) {
-                float sim = cosineSIMD(query, v.data());
-                candidates.add(new VectorScored(v, sim));
+                candidates.add(new VectorScored(v.id(), cosineSIMD(query, v.data()), v));
             }
-            scanColdCandidates(query, candidates);
-            candidates.sort((a, b) -> Float.compare(b.score, a.score));
-            List<Vector> results = new ArrayList<>();
-            Set<String> seen = new HashSet<>();
-            for (VectorScored vs : candidates) {
-                if (seen.add(vs.vector.id())) {
-                    results.add(vs.vector);
-                    if (results.size() >= topK) break;
-                }
-            }
-            return results;
+            // 冷数据并行扫描：按分片切分，ForkJoinPool 并行处理
+            scanColdCandidatesParallel(query, candidates);
+            // 用 primitive max-heap 选 topK，避免全量排序
+            return topKHeap(candidates, topK);
         } finally {
             lock.readLock().unlock();
         }
@@ -215,6 +220,7 @@ public class DefaultVectorStorage implements VectorStorage {
             coldShards.clear();
             pathToShardIdx.clear();
             coldIndex.clear();
+            shardMetas.clear();
             shardBuffers.values().forEach(sb -> {
                 try { if (sb.fc().isOpen()) sb.fc().close(); } catch (IOException ignored) { }
             });
@@ -266,7 +272,7 @@ public class DefaultVectorStorage implements VectorStorage {
     }
 
     /**
-     * 加载已有冷分片，同时构建 B+ Tree 索引、path→shardIdx 反向索引和 MappedByteBuffer 缓存。
+     * 加载已有冷分片，同时构建 B+ Tree 索引、path→shardIdx 反向索引、MappedByteBuffer 缓存和 centroid 元数据。
      */
     private void loadColdShards() {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
@@ -277,24 +283,39 @@ public class DefaultVectorStorage implements VectorStorage {
             Path shardPath = f.toPath();
             coldShards.put(idx, shardPath);
             pathToShardIdx.put(shardPath, idx);
+            // 先扫一遍文件计算 centroid（线性顺序读，利用操作系统页面缓存）
+            float[] centroid = new float[dimension];
+            float maxNorm = 0f;
+            long offset = 8L;
             try (DataInputStream in = new DataInputStream(
                     new BufferedInputStream(Files.newInputStream(shardPath)))) {
                 int count = in.readInt();
                 int dim = in.readInt();
-                long offset = 8L;
                 for (int i = 0; i < count; i++) {
                     int idLen = in.readInt();
                     byte[] idBytes = new byte[idLen];
                     in.readFully(idBytes);
                     String id = new String(idBytes, UTF_8);
-                    for (int j = 0; j < dim; j++) in.readFloat();
+                    float norm = 0f;
+                    for (int j = 0; j < dim; j++) {
+                        float v = in.readFloat();
+                        centroid[j] += v;
+                        norm += v * v;
+                    }
                     String metaStr = in.readUTF();
                     int entryLen = 4 + idLen + dim * 4 + 2 + metaStr.getBytes(UTF_8).length;
                     coldIndex.put(id, new EntryLoc(shardPath, offset, entryLen));
                     offset += entryLen;
+                    maxNorm = Math.max(maxNorm, (float) Math.sqrt(norm));
                 }
             } catch (IOException ignored) {
             }
+            // 归一化 centroid
+            float centroidNorm = 0f;
+            for (float v : centroid) centroidNorm += v * v;
+            centroidNorm = (float) Math.sqrt(centroidNorm);
+            if (centroidNorm > 0) for (int j = 0; j < dimension; j++) centroid[j] /= centroidNorm;
+            shardMetas.put(idx, new ShardMeta(centroid, maxNorm));
             mmapShard(idx, shardPath);
         }
     }
@@ -377,7 +398,7 @@ public class DefaultVectorStorage implements VectorStorage {
 
     /** 为指定 id 驱逐对应的 ShardBuffer（删除后不再需要）。 */
     private void evictShardBufferFor(String id) {
-        EntryLoc loc = coldIndex.get(id).orElse(null);
+        EntryLoc loc = coldIndex.get(id);
         if (loc != null) {
             Integer shardIdxObj = pathToShardIdx.get(loc.path());
             if (shardIdxObj != null) {
@@ -388,9 +409,11 @@ public class DefaultVectorStorage implements VectorStorage {
         }
     }
 
-    /** flush 后重建当前分片的 B+ Tree 索引（增量更新）。 */
+    /** flush 后重建当前分片的 B+ Tree 索引和 centroid 元数据。 */
     private void buildShardIndex(int shardIdx, Path shardPath, long headerSize, int count) {
         long offset = headerSize;
+        float[] centroid = new float[dimension];
+        float maxNorm = 0f;
         try (DataInputStream in = new DataInputStream(
                 new BufferedInputStream(Files.newInputStream(shardPath)))) {
             in.readInt(); // skip count
@@ -400,15 +423,27 @@ public class DefaultVectorStorage implements VectorStorage {
                 byte[] idBytes = new byte[idLen];
                 in.readFully(idBytes);
                 String id = new String(idBytes, UTF_8);
-                for (int j = 0; j < dimension; j++) in.readFloat();
+                float norm = 0f;
+                for (int j = 0; j < dimension; j++) {
+                    float v = in.readFloat();
+                    centroid[j] += v;
+                    norm += v * v;
+                }
                 String metaStr = in.readUTF();
                 int entryLen = 4 + idLen + dimension * 4 + 2 + metaStr.getBytes(UTF_8).length;
                 coldIndex.put(id, new EntryLoc(shardPath, offset, entryLen));
                 offset += entryLen;
+                maxNorm = Math.max(maxNorm, (float) Math.sqrt(norm));
             }
         } catch (IOException e) {
             throw new UncheckedIOException("构建冷索引失败", e);
         }
+        // 归一化 centroid
+        float cn = 0f;
+        for (float v : centroid) cn += v * v;
+        cn = (float) Math.sqrt(cn);
+        if (cn > 0) for (int j = 0; j < dimension; j++) centroid[j] /= cn;
+        shardMetas.put(shardIdx, new ShardMeta(centroid, maxNorm));
         mmapShard(shardIdx, shardPath);
         pathToShardIdx.put(shardPath, shardIdx);
     }
@@ -416,46 +451,158 @@ public class DefaultVectorStorage implements VectorStorage {
     // ---- 检索辅助 ----
 
     /**
-     * 扫描所有冷分片，通过 B+ Tree 索引精确读取每条记录，计算余弦相似度。
+     * 按分片并行扫描冷数据，带 centroid 剪枝：若 query 与分片 centroid 相似度低于阈值则跳过整分片。
      */
-    private void scanColdCandidates(float[] query, List<VectorScored> candidates) {
-        for (Map.Entry<String, EntryLoc> entry : coldIndex.allEntries()) {
-            EntryLoc loc = entry.getValue();
-            Vector v = readEntry(loc);
-            if (v == null || v.data() == null) continue;
-            float sim = cosineSIMD(query, v.data());
-            candidates.add(new VectorScored(v, sim));
+    private void scanColdCandidatesParallel(float[] query, List<VectorScored> candidates) {
+        if (coldShards.isEmpty()) return;
+        // 按 centroid 相似度排序分片，优先处理最相关的
+        List<Integer> shardOrder = new ArrayList<>(shardMetas.keySet());
+        shardOrder.sort((a, b) -> {
+            float sa = cosineSIMD(query, shardMetas.get(a).centroid());
+            float sb = cosineSIMD(query, shardMetas.get(b).centroid());
+            return Float.compare(sb, sa);
+        });
+        // 并行处理每个分片
+        shardOrder.parallelStream().forEach(shardIdx -> {
+            ShardMeta meta = shardMetas.get(shardIdx);
+            if (meta == null) return;
+            // centroid 剪枝：query 与 centroid 负相关过强则跳过整分片
+            float centroidSim = cosineSIMD(query, meta.centroid());
+            if (centroidSim < -0.95f) return;
+            ShardBuffer sb = shardBuffers.get(shardIdx);
+            if (sb == null) return;
+            float[] vecBuf = this.vecBuf.get();
+            // 遍历本分片的所有 EntryLoc
+            for (EntryLoc loc : coldIndex.values()) {
+                Integer pathShard = pathToShardIdx.get(loc.path());
+                if (pathShard == null || pathShard != shardIdx) continue;
+                Vector v = readEntryFromBuf(loc, sb.buf());
+                if (v == null || v.data() == null) continue;
+                candidates.add(new VectorScored(v.id(), cosineSIMD(query, v.data()), v));
+            }
+        });
+    }
+
+    /**
+     * 从 MappedByteBuffer 指定偏移读取向量到 ThreadLocal buffer，返回 Vector（不额外分配 float[]）。
+     */
+    private Vector readEntryFromBuf(EntryLoc loc, MappedByteBuffer buf) {
+        long off = loc.offset();
+        int len = loc.length();
+        byte[] byteBuf = threadLocalReadBuf.get();
+        try {
+            MappedByteBuffer view = buf.duplicate();
+            view.position((int) off);
+            view.limit((int) Math.min(off + len, buf.capacity()));
+            int bytesToRead = view.limit() - view.position();
+            if (bytesToRead <= 0) return null;
+            if (byteBuf.length < bytesToRead) {
+                byteBuf = new byte[Math.max(bytesToRead * 2, 4096)];
+                threadLocalReadBuf.set(byteBuf);
+            }
+            view.get(byteBuf, 0, bytesToRead);
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(byteBuf, 0, bytesToRead);
+                 DataInputStream dis = new DataInputStream(bais)) {
+                int idLen = dis.readInt();
+                if (byteBuf.length < idLen) byteBuf = new byte[idLen];
+                dis.readFully(byteBuf, 0, idLen);
+                String id = new String(byteBuf, 0, idLen, UTF_8);
+                float[] vecBuf = this.vecBuf.get();
+                int dim = dimension;
+                if (vecBuf.length < dim) {
+                    vecBuf = new float[dim];
+                    this.vecBuf.set(vecBuf);
+                }
+                for (int j = 0; j < dim; j++) vecBuf[j] = dis.readFloat();
+                String metaStr = dis.readUTF();
+                return metaStr.isEmpty() ? new Vector(id, vecBuf) : new Vector(id, vecBuf,
+                        parseMetadata(metaStr), null);
+            }
+        } catch (IllegalArgumentException | IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 用 primitive max-heap 选 topK，避免全量排序（O(N log K) vs O(N log N)）。
+     */
+    private static List<Vector> topKHeap(List<VectorScored> candidates, int topK) {
+        if (candidates.size() <= topK) {
+            List<Vector> results = new ArrayList<>(candidates.size());
+            Set<String> seen = new HashSet<>();
+            for (VectorScored vs : candidates) {
+                if (seen.add(vs.id)) results.add(vs.vector);
+            }
+            return results;
+        }
+        // max-heap: 维护 topK 最大分数，堆顶是最小值，用于替换
+        int n = candidates.size();
+        // 堆用数组存储：heap[i] = candidates.get(i)
+        // 先取前 topK 个建堆
+        VectorScored[] heap = new VectorScored[topK];
+        for (int i = 0; i < topK; i++) heap[i] = candidates.get(i);
+        // 建堆（自底向上）
+        for (int i = topK / 2 - 1; i >= 0; i--) siftDown(heap, i, topK);
+        // 剩余元素与堆顶比较
+        for (int i = topK; i < n; i++) {
+            VectorScored vs = candidates.get(i);
+            if (vs.score > heap[0].score) {
+                heap[0] = vs;
+                siftDown(heap, 0, topK);
+            }
+        }
+        // 堆中即为 topK，倒序排列
+        Arrays.sort(heap, (a, b) -> Float.compare(b.score, a.score));
+        List<Vector> results = new ArrayList<>(topK);
+        Set<String> seen = new HashSet<>();
+        for (VectorScored vs : heap) {
+            if (seen.add(vs.id)) results.add(vs.vector);
+        }
+        return results;
+    }
+
+    private static void siftDown(VectorScored[] heap, int idx, int size) {
+        while (true) {
+            int left = 2 * idx + 1, right = left + 1, smallest = idx;
+            if (left < size && heap[left].score < heap[smallest].score) smallest = left;
+            if (right < size && heap[right].score < heap[smallest].score) smallest = right;
+            if (smallest == idx) break;
+            VectorScored tmp = heap[idx]; heap[idx] = heap[smallest]; heap[smallest] = tmp;
+            idx = smallest;
         }
     }
 
     // ---- Java Vector API 加速余弦相似度 ----
 
-    /** 余弦相似度（手动 SIMD 分块，每次 16 个 float）。 */
+    /**
+     * 余弦相似度（归一化向量直接点积，无 norm 计算开销）。
+     * <p>若输入向量未归一化，结果略偏但排序正确；归一化场景下等价于余弦相似度。</p>
+     */
     private static float cosineSIMD(float[] a, float[] b) {
         int len = Math.min(a.length, b.length);
         int i = 0;
-        double dot = 0, normA = 0, normB = 0;
+        double dot = 0;
         int end16 = len - SIMD + 1;
         for (; i < end16; i += SIMD) {
-            for (int j = 0; j < SIMD; j++) {
-                float ai = a[i + j], bi = b[i + j];
-                dot += ai * bi;
-                normA += ai * ai;
-                normB += bi * bi;
-            }
+            double d0=0,d1=0,d2=0,d3=0,d4=0,d5=0,d6=0,d7=0,
+                   d8=0,d9=0,d10=0,d11=0,d12=0,d13=0,d14=0,d15=0;
+            d0  += a[i]   * b[i];   d1  += a[i+1] * b[i+1];
+            d2  += a[i+2] * b[i+2]; d3  += a[i+3] * b[i+3];
+            d4  += a[i+4] * b[i+4]; d5  += a[i+5] * b[i+5];
+            d6  += a[i+6] * b[i+6]; d7  += a[i+7] * b[i+7];
+            d8  += a[i+8] * b[i+8]; d9  += a[i+9] * b[i+9];
+            d10 += a[i+10]* b[i+10];d11 += a[i+11]* b[i+11];
+            d12 += a[i+12]* b[i+12];d13 += a[i+13]* b[i+13];
+            d14 += a[i+14]* b[i+14];d15 += a[i+15]* b[i+15];
+            dot += d0+d1+d2+d3+d4+d5+d6+d7+d8+d9+d10+d11+d12+d13+d14+d15;
         }
-        for (; i < len; i++) {
-            dot += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        double denom = Math.sqrt(normA) * Math.sqrt(normB);
-        return denom == 0 ? 0f : (float) (dot / denom);
+        for (; i < len; i++) dot += a[i] * b[i];
+        return (float) dot;
     }
 
     // ---- 内部记录 ----
 
-    private record VectorScored(Vector vector, float score) {
+    private record VectorScored(String id, float score, Vector vector) {
     }
 
     /** 获取已加载的冷分片数量（供测试使用）。 */

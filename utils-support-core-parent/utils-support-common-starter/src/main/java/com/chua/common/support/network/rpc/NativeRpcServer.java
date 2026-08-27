@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.impl.JdkTcpServer;
 import com.chua.common.support.network.tcp.TcpServer;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -206,7 +207,7 @@ public class NativeRpcServer implements RpcServer {
                 return response;
             }
             java.lang.reflect.Method method = resolveMethod(service, request);
-            Object result = method.invoke(service, request.getArgs());
+            Object result = ReflectUtils.invoke(service, request.getMethod(), Object.class, method.getParameterTypes(), request.getArgs());
             response.setSuccess(true);
             response.setResult(result);
         } catch (Exception e) {

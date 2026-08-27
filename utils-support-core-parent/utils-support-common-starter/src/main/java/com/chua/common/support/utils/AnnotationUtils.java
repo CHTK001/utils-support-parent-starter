@@ -6,21 +6,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 娉ㄨВ宸ュ叿绫? *
+ * 注解工具类
+ *
  * @author CH
  * @since 4.0.0.42
  */
 public class AnnotationUtils {
 
     /**
-     * 鑾峰彇娉ㄨВ灞炴€?     *
-     * @param clazz 绫?     * @param annotationClass 娉ㄨВ绫?     * @return 娉ㄨВ灞炴€ф槧灏?     */
-    /**
-     * 获取AnnotationAttributes
-     * @param clazz clazz
-     * @param Class Class
-     * @param Annotation Annotation
-     * @param annotationClass annotationClass
+     * 获取注解属性
+     *
+     * @param clazz           类
+     * @param annotationClass 注解类
+     * @return 注解属性映射
      */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = new HashMap<>();

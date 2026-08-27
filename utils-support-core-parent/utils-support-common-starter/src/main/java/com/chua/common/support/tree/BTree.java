@@ -39,6 +39,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         }
         this.order = order;
         this.root = new BTreeNode<>(true);
+        this.root.setInitialCapacity(order);
         this.size = 0;
     }
 
@@ -203,7 +204,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             node.children = newChildren;
             return new NodeUpdate<>(false, key, null, null);
         }
-        return splitNode(node, newKeys, newValues);
+        return splitNode(node);
     }
 
     /**
@@ -221,40 +222,40 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             node.values.set(i, value);
             return new NodeUpdate<>(false, key, old, null);
         }
-        List<K> newKeys = new ArrayList<>(node.keys);
-        List<V> newValues = new ArrayList<>(node.values);
-        newKeys.add(i, key);
-        newValues.add(i, value);
-        if (newKeys.size() <= order - 1) {
-            node.keys = newKeys;
-            node.values = newValues;
+        // 直接原地插入，避免不必要的 ArrayList 拷贝
+        node.keys.add(i, key);
+        node.values.add(i, value);
+        if (node.keys.size() <= order - 1) {
             return new NodeUpdate<>(false, key, null, null);
         }
-        return splitNode(node, newKeys, newValues);
+        return splitNode(node);
     }
 
     /**
      * 分裂节点：中间键提升，左右两半分别保留。
      *
-     * @param node   待分裂节点
-     * @param keys   已合并新键值后的完整 keys 列表
-     * @param values 已合并新键值后的完整 values 列表
+     * @param node 待分裂节点
      * @return 分裂结果
      */
-    private NodeUpdate<K, V> splitNode(BTreeNode<K, V> node, List<K> keys, List<V> values) {
-        int mid = keys.size() / 2;
-        K midKey = keys.get(mid);
-        V midValue = values.get(mid);
+    private NodeUpdate<K, V> splitNode(BTreeNode<K, V> node) {
+        int n = node.keys.size();
+        int mid = n / 2; // 左半 keys[0..mid-1]，右半 keys[mid+1..n-1]
+        K midKey = node.keys.get(mid);
+        V midValue = node.values.get(mid);
         BTreeNode<K, V> right = new BTreeNode<>(node.leaf);
-        // 左半：[0, mid)，右半：[mid+1, size)
-        node.keys = keysLeft(keys, mid);
-        node.values = valuesLeft(values, mid);
-        right.keys = keysRight(keys, mid);
-        right.values = valuesRight(values, mid);
+        // 拷贝右半部分
+        for (int j = mid + 1; j < n; j++) {
+            right.keys.add(node.keys.get(j));
+            right.values.add(node.values.get(j));
+            if (!node.leaf) {
+                right.children.add(node.children.get(j));
+            }
+        }
+        // 截断左半部分
+        node.keys.subList(mid, n).clear();
+        node.values.subList(mid, n).clear();
         if (!node.leaf) {
-            // children 应有 keys.size()+1 个，分裂点在 mid+1
-            node.children = childrenLeft(node.children, mid);
-            right.children = childrenRight(node.children, mid);
+            node.children.subList(mid + 1, n + 1).clear();
         }
         return new NodeUpdate<>(true, midKey, midValue, right);
     }

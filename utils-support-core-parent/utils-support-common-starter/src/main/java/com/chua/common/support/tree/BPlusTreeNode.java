@@ -27,6 +27,23 @@ class BPlusTreeNode<K, V> {
     /** 叶子节点之间的链表后继指针；内部节点为 null */
     BPlusTreeNode<K, V> next;
 
+    /**
+     * 设置初始容量以避免频繁扩容。
+     *
+     * @param initialCapacity 初始容量
+     */
+    void setInitialCapacity(int initialCapacity) {
+        if (keys instanceof ArrayList) {
+            ((ArrayList<?>) keys).ensureCapacity(initialCapacity);
+        }
+        if (values instanceof ArrayList) {
+            ((ArrayList<?>) values).ensureCapacity(initialCapacity);
+        }
+        if (children instanceof ArrayList) {
+            ((ArrayList<?>) children).ensureCapacity(initialCapacity + 1);
+        }
+    }
+
     BPlusTreeNode(boolean leaf) {
         this.leaf = leaf;
     }
