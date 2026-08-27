@@ -1,5 +1,10 @@
 package com.chua.vector.support.spi;
 
+import static com.chua.common.support.reflection.ReflectUtils.forName;
+import static com.chua.common.support.reflection.ReflectUtils.invoke;
+import static com.chua.common.support.reflection.ReflectUtils.invokeStatic;
+
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
 import com.chua.common.support.vector.VectorStorage;
@@ -19,22 +24,6 @@ import lombok.extern.slf4j.Slf4j;
  *   <li>backend=AUTO（默认）：尝试 cuVS，失败自动降级到 jvector</li>
  * </ul>
  * </p>
- *
- * <pre>{@code
- * // 使用方式一：链式构建（自动检测）
- * VectorStorage storage = VectorStorageProvider.of("vector")
- *         .dimension(768).algorithm("cosine")
- *         .properties(new VectorStorageProperties()
- *                 .setIndexType(VectorStorageProperties.CuvsIndexType.CAGRA))
- *         .build();
- *
- * // 使用方式二：强制指定 CPU fallback
- * VectorStorage storage = VectorStorageProvider.of("vector")
- *         .dimension(768)
- *         .properties(new VectorStorageProperties()
- *                 .setBackend(VectorStorageProperties.Backend.JVECTOR))
- *         .build();
- * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -68,7 +57,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
             };
         } catch (Throwable t) {
             if (backend == VectorStorageProperties.Backend.CUVS) {
-                log.warn("[vector-starter] cuVS creation failed ({})，falling back to jvector CPU",
+                log.warn("[vector-starter] cuVS creation failed ({}), falling back to jvector CPU",
                         t.getMessage());
                 return new JvectorVectorStorageDelegate(dimension, algorithm, props);
             }
@@ -76,6 +65,12 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
         }
     }
 
+    /**
+     * 转换属性对象，null 或类型不匹配时返回默认配置。
+     *
+     * @param properties 原始属性对象
+     * @return 向量存储配置属性
+     */
     private static VectorStorageProperties toProperties(Object properties) {
         if (properties instanceof VectorStorageProperties props) {
             return props;
@@ -84,20 +79,31 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 尝试检测 cuVS GPU 环境是否可用。
+     * 尝试检测 cuVS GPU 环境是否可用（通过反射加载 com.nvidia.cuvs.CuVSResources）。
+     *
+     * @return 可用的后端类型，cuVS 不可用时返回 JVECTOR
      */
     private static VectorStorageProperties.Backend detectBackend() {
         try {
-            com.nvidia.cuvs.CuVSResources resources = com.nvidia.cuvs.CuVSResources.create();
+            Class<?> resourcesClass = forName("com.nvidia.cuvs.CuVSResources");
+            if (resourcesClass == null) {
+                log.info("[vector-starter] com.nvidia.cuvs classes not found in classpath, using jvector CPU");
+                return VectorStorageProperties.Backend.JVECTOR;
+            }
+            Object resources = invokeStatic(resourcesClass, "create", Object.class);
             try {
-                int deviceId = resources.deviceId();
+                int deviceId = (int) invoke(resources, "deviceId", int.class);
                 log.info("[vector-starter] cuVS GPU detected, device: {}", deviceId);
                 return VectorStorageProperties.Backend.CUVS;
             } finally {
-                resources.close();
+                try {
+                    invoke(resources, "close", Object.class);
+                } catch (Throwable ignored) {
+                    log.debug("[vector-starter] Failed to close CuVSResources during detection", ignored);
+                }
             }
         } catch (Throwable t) {
-            log.info("[vector-starter] cuVS not available ({}：{}），using jvector CPU fallback",
+            log.info("[vector-starter] cuVS unavailable ({}: {}), using jvector CPU fallback",
                     t.getClass().getSimpleName(), t.getMessage());
             return VectorStorageProperties.Backend.JVECTOR;
         }
