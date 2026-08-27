@@ -74,7 +74,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
         Object[] args = resolveArgs(method, beanProvider, typeProvider);
         try {
             ClassUtils.setAccessible(method);
-            method.invoke(instance, args);
+            ReflectUtils.invoke(instance, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (Exception e) {
             log.error("方法注入失败: {}.{}", instance.getClass().getName(), method.getName(), e);
         }

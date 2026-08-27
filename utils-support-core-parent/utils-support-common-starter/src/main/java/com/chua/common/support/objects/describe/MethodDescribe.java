@@ -1,5 +1,7 @@
 package com.chua.common.support.objects.describe;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.reflect.Method;
 
 /**
@@ -88,7 +90,7 @@ public class MethodDescribe {
         if (target == null) {
             throw new IllegalStateException("No target object provided");
         }
-        return method.invoke(target, args);
+        return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
     }
 
     /**
@@ -100,6 +102,6 @@ public class MethodDescribe {
      * @throws Exception 反射调用异常
      */
     public Object invoke(Object target, Object... args) throws Exception {
-        return method.invoke(target, args);
+        return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
     }
 }

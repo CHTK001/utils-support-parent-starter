@@ -2,6 +2,7 @@ package com.chua.common.support.objects.inject.impl;
 
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.inject.BeanDefinitionServiceInjector;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.extern.slf4j.Slf4j;
@@ -166,7 +167,7 @@ public class JsrBeanDefinitionServiceInjector implements BeanDefinitionServiceIn
     private <T> T getAnnotationAttribute(Annotation annotation, String attributeName, T defaultValue) {
         try {
             Method method = annotation.annotationType().getMethod(attributeName);
-            return (T) method.invoke(annotation);
+            return (T) ReflectUtils.invoke(annotation, method.getName(), method.getReturnType(), method.getParameterTypes());
         } catch (Exception e) {
             return defaultValue;
         }

@@ -1,5 +1,6 @@
 package com.chua.duckdb.support.engine;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -10,7 +11,6 @@ import com.chua.datasource.support.engine.JdbcEngine;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -221,7 +221,7 @@ public class DuckDBEngine extends JdbcEngine {
          */
         @SuppressWarnings("unchecked")
         private static Connection proxyCloseIgnored(Connection target) {
-            return (Connection) Proxy.newProxyInstance(
+            return (Connection) ReflectUtils.newProxy(
                     Connection.class.getClassLoader(),
                     new Class<?>[]{Connection.class},
                     (proxy, method, args) -> {

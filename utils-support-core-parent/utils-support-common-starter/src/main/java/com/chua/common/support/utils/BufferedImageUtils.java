@@ -482,18 +482,16 @@ public class BufferedImageUtils {
     /**
      * 裁剪图片。
      *
-     * @param image  源图片
-     * @param x      起始横坐标
-     * @param y      起始纵坐标
-     * @param width  裁剪宽度
-     * @param height 裁剪高度
+     * @param options 裁剪选项，包含源图片、起始坐标和尺寸
      * @return 裁剪后的图片
      */
-    public static BufferedImage cropImage(BufferedImage image, int x, int y, int width, int height) {
-        if (image == null) {
+    public static BufferedImage cropImage(CropImageOptions options) {
+        if (options == null || options.image() == null) {
             return null;
         }
-        return image.getSubimage(x, y, Math.min(width, image.getWidth() - x), Math.min(height, image.getHeight() - y));
+        return options.image().getSubimage(options.x(), options.y(),
+                Math.min(options.width(), options.image().getWidth() - options.x()),
+                Math.min(options.height(), options.image().getHeight() - options.y()));
     }
 
     /**
@@ -631,26 +629,22 @@ public class BufferedImageUtils {
     /**
      * 为图片添加文字水印。
      *
-     * @param image   源图片
-     * @param text    水印文字
-     * @param color   文字颜色
-     * @param font    字体（null 则使用默认 32 号无衬线字体）
-     * @param x       水印横坐标
-     * @param y       水印纵坐标
-     * @param alpha   透明度（0-1，0 完全透明，1 完全不透明）
+     * @param options 水印选项，包含源图片、文字、颜色、字体、坐标和透明度
      * @return 添加水印后的图片
      */
-    public static BufferedImage addTextWatermark(BufferedImage image, String text, Color color, Font font, int x, int y, float alpha) {
-        if (image == null || text == null || text.isEmpty()) {
-            return image;
+    public static BufferedImage addTextWatermark(TextWatermarkOptions options) {
+        if (options == null || options.image() == null || options.text() == null || options.text().isEmpty()) {
+            return options != null ? options.image() : null;
         }
+        BufferedImage image = options.image();
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = result.createGraphics();
         g.drawImage(image, 0, 0, null);
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0, Math.min(1, alpha))));
-        g.setColor(color != null ? color : Color.GRAY);
-        g.setFont(font != null ? font : new Font("SansSerif", Font.PLAIN, 32));
-        g.drawString(text, x, y);
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                Math.max(0, Math.min(1, options.alpha()))));
+        g.setColor(options.color() != null ? options.color() : Color.GRAY);
+        g.setFont(options.font() != null ? options.font() : new Font("SansSerif", Font.PLAIN, 32));
+        g.drawString(options.text(), options.x(), options.y());
         g.dispose();
         return result;
     }
@@ -670,7 +664,8 @@ public class BufferedImageUtils {
         Font font = new Font("SansSerif", Font.PLAIN, fontSize);
         int x = (image.getWidth() - text.length() * fontSize / 2) / 2;
         int y = image.getHeight() - fontSize;
-        return addTextWatermark(image, text, Color.GRAY, font, x, y, 0.5f);
+        TextWatermarkOptions options = new TextWatermarkOptions(image, text, Color.GRAY, font, x, y, 0.5f);
+        return addTextWatermark(options);
     }
 
     /**
@@ -818,11 +813,11 @@ public class BufferedImageUtils {
     }
 
     /** 获取SubImage */
-    public static BufferedImage getSubImage(BufferedImage bufferedImage, int x, int y, int width, int height) {
-        if (bufferedImage == null) {
+    public static BufferedImage getSubImage(SubImageOptions options) {
+        if (options == null || options.bufferedImage() == null) {
             return null;
         }
-        return bufferedImage.getSubimage(x, y, width, height);
+        return options.bufferedImage().getSubimage(options.x(), options.y(), options.width(), options.height());
     }
 
     /** Rotate */
@@ -926,12 +921,16 @@ public class BufferedImageUtils {
     }
 
     /** 获取Rgb */
-    public static int[] getRgb(BufferedImage image, int x, int y, int width, int height, int[] pixels) {
+    public static int[] getRgb(RgbOptions options) {
+        if (options == null || options.image() == null) {
+            return null;
+        }
+        BufferedImage image = options.image();
         int type = image.getType();
         if (type == BufferedImage.TYPE_INT_ARGB || type == BufferedImage.TYPE_INT_RGB) {
-            return (int[]) image.getRaster().getDataElements(x, y, width, height, pixels);
+            return (int[]) image.getRaster().getDataElements(options.x(), options.y(), options.width(), options.height(), options.pixels());
         }
-        return image.getRGB(x, y, width, height, pixels, 0, width);
+        return image.getRGB(options.x(), options.y(), options.width(), options.height(), options.pixels(), 0, options.width());
     }
 
     /** 写入ToFile */

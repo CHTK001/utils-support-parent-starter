@@ -21,8 +21,12 @@ import java.util.Optional;
  */
 public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
-    private final int order;
-    BPlusTreeNode<K, V> root;
+    /** 每个节点最多存储的键数量（即阶数减 1） */
+    private final int maxKeys;
+    /** 每个内部节点最多拥有的子节点数量（即阶数） */
+    private final int maxChildren;
+    private BPlusTreeNode<K, V> root;
+    /** 当前存储条目数量 */
     private int size;
 
     /**
@@ -35,7 +39,8 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         if (order < 3) {
             throw new IllegalArgumentException("B+ tree order must be >= 3, got: " + order);
         }
-        this.order = order;
+        this.maxKeys = order - 1;
+        this.maxChildren = order;
         this.root = new BPlusTreeNode<>(true);
         this.size = 0;
     }
@@ -60,13 +65,6 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return get(key).isPresent();
     }
 
-    /**
-     * 递归精确查找键对应的值。
-     *
-     * @param node 当前节点
-     * @param key  查询键
-     * @return 结果包装
-     */
     private Optional<V> findByKey(BPlusTreeNode<K, V> node, K key) {
         int i = 0;
         while (i < node.keys.size() && node.keys.get(i).compareTo(key) < 0) {
@@ -93,14 +91,6 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return result;
     }
 
-    /**
-     * 递归定位到叶子节点并收集区间内所有条目。
-     *
-     * @param node   当前节点
-     * @param from   下界（含）
-     * @param to     上界（不含）
-     * @param result 结果收集列表
-     */
     private void locateLeaf(BPlusTreeNode<K, V> node, K from, K to, List<Map.Entry<K, V>> result) {
         if (node.leaf) {
             for (int i = 0; i < node.keys.size(); i++) {
@@ -119,7 +109,9 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             if (j > 0 && node.keys.get(j - 1).compareTo(to) >= 0) {
                 break;
             }
-            locateLeaf(node.children.get(j), from, to, result);
+            if (j < node.children.size()) {
+                locateLeaf(node.children.get(j), from, to, result);
+            }
         }
     }
 
@@ -130,29 +122,21 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         if (key == null) {
             return Optional.empty();
         }
-        SplitResult<K, V> result = insert(root, key, value);
-        if (result.split != null) {
+        NodeUpdate<K, V> update = insert(root, key, value);
+        if (update.needsSplit) {
             BPlusTreeNode<K, V> newRoot = new BPlusTreeNode<>(false);
-            newRoot.keys.add(result.midKey);
+            newRoot.keys.add(update.promotedKey);
             newRoot.children.add(root);
-            newRoot.children.add(result.split);
+            newRoot.children.add(update.rightChild);
             root = newRoot;
         }
-        if (result.oldValue == null && get(key).isPresent()) {
+        if (update.oldValue == null) {
             size++;
         }
-        return result.oldValue != null ? Optional.of(result.oldValue) : Optional.empty();
+        return update.oldValue != null ? Optional.of(update.oldValue) : Optional.empty();
     }
 
-    /**
-     * 递归插入键值对，返回分裂结果。
-     *
-     * @param node  当前节点
-     * @param key   键
-     * @param value 值
-     * @return 分裂结果
-     */
-    private SplitResult<K, V> insert(BPlusTreeNode<K, V> node, K key, V value) {
+    private NodeUpdate<K, V> insert(BPlusTreeNode<K, V> node, K key, V value) {
         int i = 0;
         while (i < node.keys.size() && node.keys.get(i).compareTo(key) < 0) {
             i++;
@@ -161,64 +145,83 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             if (i < node.keys.size() && Objects.equals(node.keys.get(i), key)) {
                 V old = node.values.get(i);
                 node.values.set(i, value);
-                return new SplitResult<>(null, key, old);
+                return new NodeUpdate<>(false, null, null, old);
             }
-            node.keys.add(i, key);
-            node.values.add(i, value);
-            if (!node.isFull(order)) {
-                return new SplitResult<>(null, key, null);
+            List<K> newKeys = new ArrayList<>(node.keys);
+            List<V> newValues = new ArrayList<>(node.values);
+            newKeys.add(i, key);
+            newValues.add(i, value);
+
+            if (newKeys.size() <= maxKeys) {
+                node.keys = newKeys;
+                node.values = newValues;
+                return new NodeUpdate<>(false, null, null, null);
             }
-            return splitLeaf(node);
+            return splitLeaf(node, newKeys, newValues);
         }
-        SplitResult<K, V> sub = insert(node.children.get(i), key, value);
-        if (sub.split == null) {
+
+        NodeUpdate<K, V> sub = insert(node.children.get(i), key, value);
+        if (!sub.needsSplit) {
             return sub;
         }
-        node.keys.add(i, sub.midKey);
-        node.children.add(i + 1, sub.split);
-        if (!node.isFull(order)) {
-            return new SplitResult<>(null, key, null);
+        List<K> newKeys = new ArrayList<>(node.keys);
+        List<BPlusTreeNode<K, V>> newChildren = new ArrayList<>(node.children);
+        if (i < newKeys.size()) {
+            newKeys.set(i, sub.promotedKey);
+        } else {
+            newKeys.add(sub.promotedKey);
         }
-        return splitInternal(node);
+        newChildren.add(i + 1, sub.rightChild);
+
+        if (newKeys.size() <= maxKeys) {
+            node.keys = newKeys;
+            node.children = newChildren;
+            return new NodeUpdate<>(false, null, null, null);
+        }
+        return splitInternal(node, newKeys, newChildren);
     }
 
-    /**
-     * 分裂叶子节点：左半留原位，右半新建，返回中间键和右半节点。
-     *
-     * @param node 待分裂的叶子节点
-     * @return 分裂结果
-     */
-    private SplitResult<K, V> splitLeaf(BPlusTreeNode<K, V> node) {
-        int mid = node.keys.size() / 2;
+    private NodeUpdate<K, V> splitLeaf(BPlusTreeNode<K, V> node, List<K> keys, List<V> values) {
+        int mid = (keys.size() + 1) / 2;
+        K promoteKey = keys.get(mid - 1);
+        // Left child: keys[0..mid-2]
+        List<K> leftKeys = keys.subList(0, mid - 1);
+        List<V> leftValues = values.subList(0, mid - 1);
+        // Right child: keys[mid-1..end] (promoted key included for B+ tree)
+        List<K> rightKeys = new ArrayList<>(keys.subList(mid - 1, keys.size()));
+        List<V> rightValues = new ArrayList<>(values.subList(mid - 1, values.size()));
+
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(true);
+        right.keys = rightKeys;
+        right.values = rightValues;
         right.next = node.next;
-        node.next = right;
-        for (int i = mid; i < node.keys.size(); i++) {
-            right.keys.add(node.keys.remove(mid));
-            right.values.add(node.values.remove(mid));
-        }
-        K midKey = right.keys.get(0);
-        return new SplitResult<>(right, midKey, null);
+
+        // Update current (left) node
+        node.keys = new ArrayList<>(leftKeys);
+        node.values = new ArrayList<>(leftValues);
+
+        return new NodeUpdate<>(true, promoteKey, right, null);
     }
 
-    /**
-     * 分裂内部节点：中间键提升，左右两半分别保留。
-     *
-     * @param node 待分裂的内部节点
-     * @return 分裂结果
-     */
-    private SplitResult<K, V> splitInternal(BPlusTreeNode<K, V> node) {
-        int mid = node.keys.size() / 2;
-        K promote = node.keys.get(mid);
+    private NodeUpdate<K, V> splitInternal(BPlusTreeNode<K, V> node, List<K> keys, List<BPlusTreeNode<K, V>> children) {
+        int mid = keys.size() / 2;
+        K promoteKey = keys.get(mid);
+        // Left: keys[0..mid-1], children[0..mid]
+        List<K> leftKeys = new ArrayList<>(keys.subList(0, mid));
+        List<BPlusTreeNode<K, V>> leftChildren = new ArrayList<>(children.subList(0, mid + 1));
+        // Right: keys[mid+1..end], children[mid+1..end]
+        List<K> rightKeys = new ArrayList<>(keys.subList(mid + 1, keys.size()));
+        List<BPlusTreeNode<K, V>> rightChildren = new ArrayList<>(children.subList(mid + 1, children.size()));
+
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(false);
-        for (int i = mid + 1; i < node.keys.size(); i++) {
-            right.keys.add(node.keys.remove(mid + 1));
-        }
-        for (int i = mid + 1; i < node.children.size(); i++) {
-            right.children.add(node.children.remove(mid + 1));
-        }
-        node.keys.remove(mid);
-        return new SplitResult<>(right, promote, null);
+        right.keys = rightKeys;
+        right.children = rightChildren;
+
+        // Update current (left) node
+        node.keys = leftKeys;
+        node.children = leftChildren;
+
+        return new NodeUpdate<>(true, promoteKey, right, null);
     }
 
     // ==================== remove ====================
@@ -243,12 +246,6 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return oldValue;
     }
 
-    /**
-     * 递归删除键（简化版：先查后删，不做合并借位优化）。
-     *
-     * @param node 当前节点
-     * @param key  待删除键
-     */
     private void delete(BPlusTreeNode<K, V> node, K key) {
         int i = 0;
         while (i < node.keys.size() && node.keys.get(i).compareTo(key) < 0) {
@@ -292,34 +289,45 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return BinaryTreeConverter.bPlusToBinary(this);
     }
 
-    /**
-     * 内部分裂结果记录。
-     *
-     * @param <K>    键类型
-     * @param <V>    值类型
-     * @param split  分裂产生的右半节点
-     * @param midKey 提升的中间键
-     * @param oldValue 被替换的旧值（更新操作时非空）
-     */
-    private record SplitResult<K, V>(
-            BPlusTreeNode<K, V> split,
-            K midKey,
-            V oldValue
-    ) {
-    }
-
     @Override
     public String toString() {
-        return "BPlusTree{order=" + order + ", size=" + size + ", height=" + height() + "}";
+        return "BPlusTree{maxKeys=" + maxKeys + ", size=" + size + "}";
     }
 
-    private int height() {
-        int h = 0;
+    /** 供 BinaryTreeConverter 使用，获取根节点。 */
+    BPlusTreeNode<K, V> getRoot() { return root; }
+
+    /**
+     * 收集树中全部有序条目（沿叶子链表遍历）。
+     * <p>用于外部扫描所有索引条目，如向量存储的冷数据检索。</p>
+     */
+    public List<Map.Entry<K, V>> allEntries() {
+        List<Map.Entry<K, V>> result = new ArrayList<>();
         BPlusTreeNode<K, V> cur = root;
-        while (cur != null && !cur.leaf) {
-            h++;
-            cur = cur.children.get(0);
+        while (cur != null && !cur.leaf) cur = cur.children.get(0);
+        while (cur != null) {
+            for (int i = 0; i < cur.keys.size(); i++) {
+                result.add(Map.entry(cur.keys.get(i), cur.values.get(i)));
+            }
+            cur = cur.next;
         }
-        return h + 1;
+        return result;
+    }
+
+    /**
+     * 节点更新结果。
+     */
+    private static class NodeUpdate<K, V> {
+        final boolean needsSplit;
+        final K promotedKey;
+        final BPlusTreeNode<K, V> rightChild;
+        final V oldValue;
+
+        NodeUpdate(boolean needsSplit, K promotedKey, BPlusTreeNode<K, V> rightChild, V oldValue) {
+            this.needsSplit = needsSplit;
+            this.promotedKey = promotedKey;
+            this.rightChild = rightChild;
+            this.oldValue = oldValue;
+        }
     }
 }

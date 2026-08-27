@@ -2,6 +2,7 @@ package com.chua.common.support.proxy.asm;
 
 import com.chua.common.support.proxy.ProxyFactory;
 import com.chua.common.support.proxy.intercept.MethodIntercept;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.SneakyThrows;
@@ -47,7 +48,8 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
                         MethodIntercept<T> intercept) {
         // 使用 JDK 动态代理作为 ASM 实现的回退
         if (target.isInterface()) {
-            java.lang.reflect.Proxy.newProxyInstance(classLoader, new Class<?>[]{target},
+            return ReflectUtils.newProxy(
+                new Class<?>[]{target},
                 (proxy, method, args) -> intercept.invoke(proxy, method, args, (T) proxy));
         }
 

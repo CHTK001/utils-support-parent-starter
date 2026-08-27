@@ -85,7 +85,8 @@ public final class ImageUtils {
      * @return [3, size, size] float 像素
      */
     public static float[] toTensor(Image image, int size) {
-        return toTensor(image, size, null, null, false);
+        TensorOptions options = new TensorOptions(image, size, null, null, false);
+        return toTensor(options);
     }
 
     /**
@@ -98,55 +99,54 @@ public final class ImageUtils {
      * @return [3, size, size] float 像素
      */
     public static float[] toTensorCenterCrop(Image image, int size, float[] mean, float[] std) {
-        return toTensor(image, size, mean, std, true);
+        TensorOptions options = new TensorOptions(image, size, mean, std, true);
+        return toTensor(options);
     }
 
     /**
      * 将 DJL Image 转 CHW 归一化像素。
      *
-     * @param image      DJL 图像
-     * @param size       目标尺寸
-     * @param mean       均值（可为 null）
-     * @param std        标准差（可为 null）
-     * @param centerCrop true 短边缩放+中心裁剪；false 直接拉伸
+     * @param options 张量转换选项，包含图像、尺寸、均值、标准差和裁剪策略
      * @return [3, size, size] float 像素
      */
-    public static float[] toTensor(Image image, int size, float[] mean, float[] std, boolean centerCrop) {
+    public static float[] toTensor(TensorOptions options) {
         load();
-        BufferedImage buffered = (BufferedImage) image.getWrappedImage();
+        BufferedImage buffered = (BufferedImage) options.image().getWrappedImage();
         if (buffered == null) {
-            throw new IllegalStateException("无法获取图像像素: " + image.getClass().getName());
+            throw new IllegalStateException("无法获取图像像素: " + options.image().getClass().getName());
         }
         Mat img = toMat(buffered);
         try {
             int w = img.cols();
             int h = img.rows();
             Mat resized;
-            if (centerCrop) {
-                float percent = (float) size / Math.min(w, h);
+            if (options.centerCrop()) {
+                float percent = (float) options.size() / Math.min(w, h);
                 int rw = Math.round(w * percent);
                 int rh = Math.round(h * percent);
                 resized = new Mat();
                 Imgproc.resize(img, resized, new Size(rw, rh), 0, 0, Imgproc.INTER_CUBIC);
-                int x0 = (rw - size) / 2;
-                int y0 = (rh - size) / 2;
-                resized = new Mat(resized, new Rect(x0, y0, size, size));
+                int x0 = (rw - options.size()) / 2;
+                int y0 = (rh - options.size()) / 2;
+                resized = new Mat(resized, new Rect(x0, y0, options.size(), options.size()));
             } else {
                 resized = new Mat();
-                Imgproc.resize(img, resized, new Size(size, size), 0, 0, Imgproc.INTER_CUBIC);
+                Imgproc.resize(img, resized, new Size(options.size(), options.size()), 0, 0, Imgproc.INTER_CUBIC);
             }
             try {
-                float[] pixels = new float[3 * size * size];
-                for (int y = 0; y < size; y++) {
-                    for (int x = 0; x < size; x++) {
+                float[] pixels = new float[3 * options.size() * options.size()];
+                float[] mean = options.mean();
+                float[] std = options.std();
+                for (int y = 0; y < options.size(); y++) {
+                    for (int x = 0; x < options.size(); x++) {
                         double[] bgr = resized.get(y, x);
                         float b = (float) bgr[0] / 255.0f;
                         float g = (float) bgr[1] / 255.0f;
                         float r = (float) bgr[2] / 255.0f;
-                        int idx = y * size + x;
+                        int idx = y * options.size() + x;
                         pixels[idx] = mean == null ? r : (r - mean[0]) / std[0];
-                        pixels[size * size + idx] = mean == null ? g : (g - mean[1]) / std[1];
-                        pixels[2 * size * size + idx] = mean == null ? b : (b - mean[2]) / std[2];
+                        pixels[options.size() * options.size() + idx] = mean == null ? g : (g - mean[1]) / std[1];
+                        pixels[2 * options.size() * options.size() + idx] = mean == null ? b : (b - mean[2]) / std[2];
                     }
                 }
                 return pixels;
@@ -284,19 +284,15 @@ public final class ImageUtils {
     /**
      * 按像素矩形裁剪（返回新 Mat，调用方负责 release）。
      *
-     * @param src    源 Mat（BGR）
-     * @param x      左边界
-     * @param y      上边界
-     * @param width  宽度
-     * @param height 高度
+     * @param options 裁剪选项，包含源 Mat 和像素坐标尺寸
      * @return 裁剪后的新 Mat
      */
-    public static Mat crop(Mat src, int x, int y, int width, int height) {
+    public static Mat crop(Mat src, ImageCropOptions options) {
         load();
-        int left = clamp(x, 0, src.cols() - 1);
-        int top = clamp(y, 0, src.rows() - 1);
-        int w = Math.max(1, Math.min(width, src.cols() - left));
-        int h = Math.max(1, Math.min(height, src.rows() - top));
+        int left = clamp(options.x(), 0, src.cols() - 1);
+        int top = clamp(options.y(), 0, src.rows() - 1);
+        int w = Math.max(1, Math.min(options.width(), src.cols() - left));
+        int h = Math.max(1, Math.min(options.height(), src.rows() - top));
         return new Mat(src, new Rect(left, top, w, h));
     }
 
@@ -306,23 +302,19 @@ public final class ImageUtils {
      * <p>优先委托 {@link ImageProcessor} SPI 代理（Rust &gt; OpenCV &gt; AWT），
      * 代理执行失败时回退到本地 OpenCV 实现。</p>
      *
-     * @param imageData 图像字节
-     * @param x         左边界
-     * @param y         上边界
-     * @param width     宽度
-     * @param height    高度
+     * @param options 裁剪选项，包含图像字节和像素坐标尺寸
      * @return 裁剪后 PNG 字节
      */
-    public static byte[] crop(byte[] imageData, int x, int y, int width, int height) {
+    public static byte[] crop(ImageCropOptions options) {
         try {
             Map<String, Object> params = new HashMap<>(4);
-            params.put("x", x);
-            params.put("y", y);
-            params.put("width", width);
-            params.put("height", height);
-            return processor().process(imageData, "crop", params);
+            params.put("x", options.x());
+            params.put("y", options.y());
+            params.put("width", options.width());
+            params.put("height", options.height());
+            return processor().process(options.imageData(), "crop", params);
         } catch (Exception e) {
-            return cropLocal(imageData, x, y, width, height);
+            return cropLocal(options.imageData(), options.x(), options.y(), options.width(), options.height());
         }
     }
 
@@ -341,7 +333,8 @@ public final class ImageUtils {
         if (src == null || src.empty()) {
             return imageData;
         }
-        Mat sub = crop(src, x, y, width, height);
+        ImageCropOptions options = new ImageCropOptions(null, x, y, width, height);
+        Mat sub = crop(src, options);
         try {
             return encode(sub);
         } finally {
@@ -353,36 +346,33 @@ public final class ImageUtils {
     /**
      * 按检测框裁剪（宽高 &lt;= 1.5 视为归一化坐标，否则按像素）。
      *
-     * @param imageData 图像字节
-     * @param x         左边界
-     * @param y         上边界
-     * @param width     宽度
-     * @param height    高度
+     * @param options 裁剪选项，包含图像字节和坐标（归一化或像素）
      * @return 裁剪后 PNG 字节
      */
-    public static byte[] cropNormalizedOrPixel(byte[] imageData, float x, float y, float width, float height) {
-        Mat src = decode(imageData);
+    public static byte[] cropNormalizedOrPixel(NormalizedCropOptions options) {
+        Mat src = decode(options.imageData());
         if (src == null || src.empty()) {
-            return imageData;
+            return options.imageData();
         }
         try {
             int imgW = src.cols();
             int imgH = src.rows();
-            boolean normalized = width <= 1.5f && height <= 1.5f && x <= 1.5f && y <= 1.5f;
+            boolean normalized = options.width() <= 1.5f && options.height() <= 1.5f
+                    && options.x() <= 1.5f && options.y() <= 1.5f;
             int left;
             int top;
             int w;
             int h;
             if (normalized) {
-                left = clamp(Math.round(x * imgW), 0, imgW - 1);
-                top = clamp(Math.round(y * imgH), 0, imgH - 1);
-                w = Math.max(1, Math.round(width * imgW));
-                h = Math.max(1, Math.round(height * imgH));
+                left = clamp(Math.round(options.x() * imgW), 0, imgW - 1);
+                top = clamp(Math.round(options.y() * imgH), 0, imgH - 1);
+                w = Math.max(1, Math.round(options.width() * imgW));
+                h = Math.max(1, Math.round(options.height() * imgH));
             } else {
-                left = clamp(Math.round(x), 0, imgW - 1);
-                top = clamp(Math.round(y), 0, imgH - 1);
-                w = Math.max(1, Math.round(width));
-                h = Math.max(1, Math.round(height));
+                left = clamp(Math.round(options.x()), 0, imgW - 1);
+                top = clamp(Math.round(options.y()), 0, imgH - 1);
+                w = Math.max(1, Math.round(options.width()));
+                h = Math.max(1, Math.round(options.height()));
             }
             w = Math.min(w, imgW - left);
             h = Math.min(h, imgH - top);
@@ -473,33 +463,28 @@ public final class ImageUtils {
      * <p>与整块 deskew 的区别：旋转中心为旋转矩形中心、输出尺寸等于 rw x rh，
      * 避免中心错位与多余背景，提升大角度文字的识别率。</p>
      *
-     * @param imageData 原图字节
-     * @param cx        旋转矩形中心 x
-     * @param cy        旋转矩形中心 y
-     * @param rw        旋转矩形宽度（长边）
-     * @param rh        旋转矩形高度（短边）
-     * @param angle     旋转角度（度）
+     * @param options 裁剪选项，包含原图字节和旋转矩形参数
      * @return 扶正后 rw x rh 的 PNG 字节；处理失败返回原图
      */
-    public static byte[] cropRotated(byte[] imageData, double cx, double cy, double rw, double rh, double angle) {
-        Mat src = decode(imageData);
+    public static byte[] cropRotated(RotatedCropOptions options) {
+        Mat src = decode(options.imageData());
         if (src == null || src.empty()) {
-            return imageData;
+            return options.imageData();
         }
         try {
-            Point center = new Point(cx, cy);
-            Mat rot = Imgproc.getRotationMatrix2D(center, angle, 1.0);
+            Point center = new Point(options.cx(), options.cy());
+            Mat rot = Imgproc.getRotationMatrix2D(center, options.angle(), 1.0);
             Mat rotated = new Mat();
             try {
                 Imgproc.warpAffine(src, rotated, rot, src.size(), Imgproc.INTER_CUBIC,
                         Core.BORDER_CONSTANT, new Scalar(255, 255, 255));
                 if (rotated.empty()) {
-                    return imageData;
+                    return options.imageData();
                 }
-                int x = clamp((int) Math.round(cx - rw / 2), 0, rotated.cols() - 1);
-                int y = clamp((int) Math.round(cy - rh / 2), 0, rotated.rows() - 1);
-                int w = Math.max(1, Math.min((int) Math.round(rw), rotated.cols() - x));
-                int h = Math.max(1, Math.min((int) Math.round(rh), rotated.rows() - y));
+                int x = clamp((int) Math.round(options.cx() - options.rw() / 2), 0, rotated.cols() - 1);
+                int y = clamp((int) Math.round(options.cy() - options.rh() / 2), 0, rotated.rows() - 1);
+                int w = Math.max(1, Math.min((int) Math.round(options.rw()), rotated.cols() - x));
+                int h = Math.max(1, Math.min((int) Math.round(options.rh()), rotated.rows() - y));
                 Mat sub = new Mat(rotated, new Rect(x, y, w, h));
                 try {
                     return encode(sub);
@@ -511,7 +496,7 @@ public final class ImageUtils {
                 rot.release();
             }
         } catch (Exception e) {
-            return imageData;
+            return options.imageData();
         } finally {
             src.release();
         }

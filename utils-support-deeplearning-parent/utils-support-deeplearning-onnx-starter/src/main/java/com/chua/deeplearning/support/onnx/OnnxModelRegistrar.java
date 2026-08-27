@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.engine.ModelRegistrar;
 import com.chua.deeplearning.support.engine.ModelRegistry;
+import com.chua.deeplearning.support.model.HardwareConfig;
 
 import java.util.List;
 
@@ -67,6 +68,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("cn-clip-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.img.b1.fp32.onnx", "https://hf-mirror.com/gficcg/clip_cn_vit-onnx/resolve/main/clip_cn_vit-b-16/vit-b-16.img.b1.fp32.onnx", false, null);
         // 中文CLIP文本特征(CN-CLIP)：提取中文 CLIP 的文本特征向量，与图像特征比对；适用中文图文检索、文本到图像匹配
         reg("cn-clip-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.txt.fp32.onnx", "https://hf-mirror.com/gficcg/clip_cn_vit-onnx/resolve/main/clip_cn_vit-b-16/vit-b-16.txt.fp32.onnx", false, null);
+        // 中文CLIP-RN50图像特征(CN-CLIP)：提取中文 CLIP RN50 的图像特征向量（1024维），与文本特征比对；适用中文图文检索、跨模态匹配
+        reg("cn-clip-rn50-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp32.onnx", null, false, null);
         // 语言检测(XLM-RoBERTa)：检测文本的语言种类（如中文、英文、日文等），多语言；适用文本预处理、多语言路由
         reg("xlm-roberta-language-detection", "com.chua.deeplearning.support.onnx.classification.XlmRobertaLanguageDetectionTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/xlm-roberta-language-detection/model_quantized.onnx");
         // CLIP文本特征(CLIP-ViT-B-32)：提取英文 CLIP 文本特征向量（512维），与 CLIP 图像特征比对；适用英文图文检索、跨模态搜索
@@ -369,12 +372,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
         // 中文通用语言模型(Gemma-3-270M)：原版 262144 完整词表（含中文），uint8 ONNX，中文对话/文本生成，完全离线；嵌入式模型
-        reg("gemma-3-270m", "com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator", String.class, String.class, Object.class, "models/gemma-3-270m/model.onnx");
-        // 本地大模型(Qwen2.5-0.5B-Instruct ONNX int8)：轻量中文大模型对话（int8 单文件 ~488MB），downloadUrl 自动下载；适用低内存/快速本地对话
-        String qwen05Url = "https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
-        reg("qwen2-0.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
-                "models/qwen2.5-0.5b-instruct/model.onnx",
-                qwen05Url, java.util.List.of(qwen05Url), false, "model.onnx");
+        reg("gemma-3-270m", "com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator", String.class, String.class, Object.class, "models/gemma-3-270m/model.onnx",
+                null, null, false, null,
+                HardwareConfig.builder().device("cpu").recommended(true).description("嵌入式中文对话，无需下载").build()); 
+        // 本地大模型(Qwen2.5-1.5B-Instruct ONNX int8)：中文大模型对话（int8 单文件 ~1.5GB），downloadUrl 自动下载；适用本地对话（GPU 需 ≥2GB 显存）
+        String qwenUrl = "https://huggingface.co/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
+        reg("qwen2-1.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
+                "models/qwen2.5-1.5b-instruct/model.onnx",
+                qwenUrl, java.util.List.of(qwenUrl), false, "model.onnx",
+                HardwareConfig.builder().device("gpu").minVramMb(2048).recommended(true).description("中文大模型对话 int8 1.5GB").build());
         // 图像分类(MobileNetV4)：MobileNetV4 1000 类 ImageNet 分类，最新版更快更准；适用移动端通用分类
         reg("mobilenetv4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/mobilenetv4/mobilenetv4_conv_small.onnx", "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main/onnx/model.onnx", false, null);
         // 深度伪造检测(DeepFake Detector)：检测图片/视频是否为深度伪造；适用反欺诈、虚假内容检测
@@ -581,6 +587,32 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         if (ModelRegistry.get(modelId) == null) {
             ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
                     relativePath, downloadUrl, downloadMirrors, compress, downloadFileName);
+        }
+    }
+
+    /**
+     * Reg
+     * @param modelId modelId
+     * @param translatorClassName translatorClassName
+     * @param inputType inputType
+     * @param outputType outputType
+     * @param capability capability
+     * @param relativePath relativePath
+     * @param downloadUrl downloadUrl
+     * @param downloadMirrors downloadMirrors
+     * @param compress compress
+     * @param downloadFileName downloadFileName
+     * @param hardwareConfig hardwareConfig
+     */
+    private static void reg(String modelId, String translatorClassName,
+                            Class<?> inputType, Class<?> outputType,
+                            Class<?> capability, String relativePath,
+                            String downloadUrl, java.util.List<String> downloadMirrors,
+                            boolean compress, String downloadFileName,
+                            com.chua.deeplearning.support.model.HardwareConfig hardwareConfig) {
+        if (ModelRegistry.get(modelId) == null) {
+            ModelRegistry.register(modelId, translatorClassName, inputType, outputType, capability,
+                    relativePath, downloadUrl, downloadMirrors, compress, downloadFileName, hardwareConfig);
         }
     }
 }

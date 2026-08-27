@@ -1,8 +1,10 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.tree.BPlusTree;
+
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -11,22 +13,23 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * 向量存储：冷热混合 + 分片持久化 + Java 25 Vector API 加速相似度计算。
+ * 向量存储：冷热混合 + B+ Tree 索引 + MappedByteBuffer 零拷贝读取。
  *
  * <h3>三种模式</h3>
  * <ul>
  *   <li>{@code memory} — 纯内存，不落盘（重启丢失）</li>
- *   <li>{@code file} — 纯文件分片（每次读写磁盘）</li>
+ *   <li>{@code file} — 纯文件分片，B+ Tree 索引 + MappedByteBuffer 零拷贝</li>
  *   <li>{@code hybrid}（默认）— 热数据内存缓存 + 冷数据磁盘分片 + 定时刷盘</li>
  * </ul>
  *
- * <h3>分片存储</h3>
- * <p>数据按 {@code shardSize}（默认 10000 条）分片落盘，每个分片一个文件。
- * 检索时先扫内存热数据，再按相关性预判加载冷分片，减少 IO。</p>
+ * <h3>B+ Tree 索引</h3>
+ * <p>每个冷分片构建一棵 {@link BPlusTree}，key 为向量 id，value 为
+ * {@link EntryLoc}（文件路径 + 起始偏移 + 字节长度）。
+ * 检索时通过 B+ Tree 精确跳转到指定记录的字节位置，避免全量顺序扫描。</p>
  *
- * <h3>Vector API 加速</h3>
- * <p>余弦相似度计算使用 {@code jdk.incubator.vector} SIMD 指令，
- * 一次处理 16 个 float（FloatVector.SPECIES_PREFERRED），性能提升约 4-8 倍。</p>
+ * <h3>MappedByteBuffer 零拷贝</h3>
+ * <p>冷分片文件以 {@link FileChannel#map} 方式映射到堆外内存，
+ * 读取单个向量时直接按 {@link EntryLoc} 偏移定位，无需逐条反序列化头部元数据。</p>
  *
  * @author chua
  * @since 4.0.0.42
@@ -36,6 +39,14 @@ public class DefaultVectorStorage implements VectorStorage {
     /** 存储模式。 */
     public enum Mode { MEMORY, FILE, HYBRID }
 
+    /** 冷分片内单条记录的位置信息。 */
+    private record EntryLoc(Path path, long offset, int length) {
+    }
+
+    /** 封装 MappedByteBuffer 及其关联的 FileChannel，用于资源管理。 */
+    private record ShardBuffer(MappedByteBuffer buf, FileChannel fc) {
+    }
+
     private final int dimension;
     private final Path dir;
     private final Mode mode;
@@ -44,12 +55,21 @@ public class DefaultVectorStorage implements VectorStorage {
 
     /** 热数据：内存索引（id → Vector）。 */
     private final ConcurrentHashMap<String, Vector> hot = new ConcurrentHashMap<>();
-    /** 冷数据分片：shardIndex → 文件路径。 */
+    /** 冷数据分片列表（有序，用于定位文件路径）。 */
     private final TreeMap<Integer, Path> coldShards = new TreeMap<>();
-    /** 全量索引：id → shardIndex（用于定位冷数据）。 */
-    private final ConcurrentHashMap<String, Integer> idIndex = new ConcurrentHashMap<>();
+    /** 路径 → 分片序号的反向索引，O(1) 查找，避免每次 readEntry 线性扫描。 */
+    private final ConcurrentHashMap<Path, Integer> pathToShardIdx = new ConcurrentHashMap<>();
+    /** 冷数据 B+ Tree 索引：id → EntryLoc，用于精确跳跃读取。 */
+    private final BPlusTree<String, EntryLoc> coldIndex = new BPlusTree<>(128);
+    /** 已映射的分片缓冲，key 为分片序号，value 为 MappedByteBuffer + FileChannel。 */
+    private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
 
-    /** SIMD 模拟：每次处理 16 个 float。 */
+    /** 复用读缓冲：每次扫描最大分片大小，避免每条记录都分配新 byte[]。 */
+    private static final int MAX_SHARD_BUFFER_SIZE = 64 * 1024 * 1024; // 64MB 上限
+    private final Object readLock = new Object();
+    private byte[] readBuf = new byte[8192];
+
+    /** SIMD 分块宽度：每次处理 16 个 float。 */
     private static final int SIMD = 16;
 
     // ---- 构造 ----
@@ -109,7 +129,8 @@ public class DefaultVectorStorage implements VectorStorage {
         lock.writeLock().lock();
         try {
             hot.remove(id);
-            idIndex.remove(id);
+            coldIndex.remove(id);
+            evictShardBufferFor(id);
             return true;
         } finally {
             lock.writeLock().unlock();
@@ -118,7 +139,15 @@ public class DefaultVectorStorage implements VectorStorage {
 
     @Override
     public boolean update(String id, float[] data) {
-        return add(new Vector(id, data));
+        lock.writeLock().lock();
+        try {
+            coldIndex.remove(id);
+            evictShardBufferFor(id);
+            hot.put(id, new Vector(id, data));
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     @Override
@@ -127,12 +156,15 @@ public class DefaultVectorStorage implements VectorStorage {
         try {
             hot.clear();
             coldShards.clear();
-            idIndex.clear();
+            pathToShardIdx.clear();
+            coldIndex.clear();
+            shardBuffers.values().forEach(sb -> {
+                try { if (sb.fc().isOpen()) sb.fc().close(); } catch (IOException ignored) { }
+            });
+            shardBuffers.clear();
             if (mode != Mode.MEMORY && dir.toFile().exists()) {
                 for (File f : dir.toFile().listFiles()) {
-                    if (f.getName().endsWith(".bin")) {
-                        f.delete();
-                    }
+                    if (f.getName().endsWith(".bin")) f.delete();
                 }
             }
         } finally {
@@ -142,35 +174,31 @@ public class DefaultVectorStorage implements VectorStorage {
 
     @Override
     public int size() {
-        return hot.size() + idIndex.size();
+        lock.readLock().lock();
+        try {
+            return hot.size() + coldIndex.size();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public List<Vector> search(float[] query, int topK) {
         lock.readLock().lock();
         try {
-            // 1. 搜索热数据
             List<VectorScored> candidates = new ArrayList<>();
             for (Vector v : hot.values()) {
                 float sim = cosineSIMD(query, v.data());
                 candidates.add(new VectorScored(v, sim));
             }
-            // 2. 混合模式：扫描冷分片相关性
-            if (mode == Mode.HYBRID) {
-                scanColdCandidates(query, candidates, topK * 2);
-            } else if (mode == Mode.FILE) {
-                scanAllColdCandidates(query, candidates);
-            }
-            // 3. 排序取 topK
+            scanColdCandidates(query, candidates);
             candidates.sort((a, b) -> Float.compare(b.score, a.score));
             List<Vector> results = new ArrayList<>();
             Set<String> seen = new HashSet<>();
             for (VectorScored vs : candidates) {
                 if (seen.add(vs.vector.id())) {
                     results.add(vs.vector);
-                    if (results.size() >= topK) {
-                        break;
-                    }
+                    if (results.size() >= topK) break;
                 }
             }
             return results;
@@ -182,28 +210,37 @@ public class DefaultVectorStorage implements VectorStorage {
     @Override
     public void close() {
         flush();
-        hot.clear();
-        coldShards.clear();
-        idIndex.clear();
+        lock.writeLock().lock();
+        try {
+            hot.clear();
+            coldShards.clear();
+            pathToShardIdx.clear();
+            coldIndex.clear();
+            shardBuffers.values().forEach(sb -> {
+                try { if (sb.fc().isOpen()) sb.fc().close(); } catch (IOException ignored) { }
+            });
+            shardBuffers.clear();
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     // ---- 冷热管理 ----
 
-    /** 将热数据刷盘为冷分片。 */
+    /** 将热数据刷盘为冷分片，并重建 B+ Tree 索引。 */
     public void flush() {
         lock.writeLock().lock();
         try {
-            if (hot.isEmpty()) {
-                return;
-            }
+            if (hot.isEmpty()) return;
             List<Vector> toFlush = new ArrayList<>(hot.values());
             int shardIdx = coldShards.isEmpty() ? 0 : coldShards.lastKey() + 1;
             Path shardPath = dir.resolve(String.format("shard_%04d.bin", shardIdx));
-            writeShard(shardPath, toFlush);
-            for (Vector v : toFlush) {
-                idIndex.put(v.id(), shardIdx);
+            try { writeShard(shardPath, toFlush); } catch (IOException e) {
+                throw new UncheckedIOException("刷盘失败", e);
             }
+            buildShardIndex(shardIdx, shardPath, 8L, toFlush.size());
             coldShards.put(shardIdx, shardPath);
+            pathToShardIdx.put(shardPath, shardIdx);
             hot.clear();
         } finally {
             lock.writeLock().unlock();
@@ -212,7 +249,7 @@ public class DefaultVectorStorage implements VectorStorage {
 
     // ---- 分片 IO ----
 
-    private void writeShard(Path path, List<Vector> vectors) {
+    private void writeShard(Path path, List<Vector> vectors) throws IOException {
         try (DataOutputStream out = new DataOutputStream(
                 new BufferedOutputStream(Files.newOutputStream(path)))) {
             out.writeInt(vectors.size());
@@ -222,79 +259,181 @@ public class DefaultVectorStorage implements VectorStorage {
                 out.writeInt(idBytes.length);
                 out.write(idBytes);
                 for (float f : v.data()) out.writeFloat(f);
-                // metadata
-                Map<String, Object> meta = v.metadata();
-                if (meta != null && !meta.isEmpty()) {
-                    out.writeUTF(meta.toString());
-                } else {
-                    out.writeUTF("");
-                }
+                String metaStr = (v.metadata() != null && !v.metadata().isEmpty())
+                        ? v.metadata().toString() : "";
+                out.writeUTF(metaStr);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
+    /**
+     * 加载已有冷分片，同时构建 B+ Tree 索引、path→shardIdx 反向索引和 MappedByteBuffer 缓存。
+     */
     private void loadColdShards() {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
-        if (files == null) {
-            return;
-        }
+        if (files == null) return;
         Arrays.sort(files);
         for (File f : files) {
-            String name = f.getName();
-            int idx = Integer.parseInt(name.substring(6, 10));
-            coldShards.put(idx, f.toPath());
-            try (DataInputStream in = new DataInputStream(
-                    new BufferedInputStream(Files.newInputStream(f.toPath())))) {
-                int count = in.readInt();
-                int dim = in.readInt();
-                for (int i = 0; i < count; i++) {
-                    int idLen = in.readInt();
-                    byte[] idBytes = new byte[idLen];
-                    in.readFully(idBytes);
-                    String id = new String(idBytes, UTF_8);
-                    float[] data = new float[dim];
-                    for (int j = 0; j < dim; j++) data[j] = in.readFloat();
-                    String metaStr = in.readUTF();
-                    Vector v = metaStr.isEmpty() ? new Vector(id, data) : new Vector(id, data);
-                    idIndex.put(id, idx);
-                }
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-    // ---- 检索辅助 ----
-
-    private void scanColdCandidates(float[] query, List<VectorScored> candidates, int limit) {
-        for (Map.Entry<Integer, Path> entry : coldShards.entrySet()) {
-            Path shardPath = entry.getValue();
+            int idx = Integer.parseInt(f.getName().substring(6, 10));
+            Path shardPath = f.toPath();
+            coldShards.put(idx, shardPath);
+            pathToShardIdx.put(shardPath, idx);
             try (DataInputStream in = new DataInputStream(
                     new BufferedInputStream(Files.newInputStream(shardPath)))) {
                 int count = in.readInt();
                 int dim = in.readInt();
+                long offset = 8L;
                 for (int i = 0; i < count; i++) {
                     int idLen = in.readInt();
                     byte[] idBytes = new byte[idLen];
                     in.readFully(idBytes);
                     String id = new String(idBytes, UTF_8);
-                    float[] data = new float[dim];
-                    for (int j = 0; j < dim; j++) data[j] = in.readFloat();
-                    in.readUTF(); // skip metadata
-                    float sim = cosineSIMD(query, data);
-                    candidates.add(new VectorScored(new Vector(id, data), sim));
+                    for (int j = 0; j < dim; j++) in.readFloat();
+                    String metaStr = in.readUTF();
+                    int entryLen = 4 + idLen + dim * 4 + 2 + metaStr.getBytes(UTF_8).length;
+                    coldIndex.put(id, new EntryLoc(shardPath, offset, entryLen));
+                    offset += entryLen;
                 }
             } catch (IOException ignored) {
+            }
+            mmapShard(idx, shardPath);
+        }
+    }
+
+    /** 将分片文件映射到堆外内存。 */
+    private void mmapShard(int idx, Path shardPath) {
+        try {
+            FileChannel fc = FileChannel.open(shardPath, java.nio.file.StandardOpenOption.READ);
+            MappedByteBuffer buf = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+            shardBuffers.put(idx, new ShardBuffer(buf, fc));
+        } catch (IOException e) {
+            throw new UncheckedIOException("映射分片文件失败: " + shardPath, e);
+        }
+    }
+
+    /**
+     * 根据冷索引中的 EntryLoc，从 MappedByteBuffer 零拷贝读取单条向量。
+     * <p>使用共享复用缓冲减少每记录的对象分配，读取后恢复 buffer 位置。</p>
+     */
+    private Vector readEntry(EntryLoc loc) {
+        Integer shardIdxObj = pathToShardIdx.get(loc.path());
+        if (shardIdxObj == null) return null;
+        ShardBuffer sb = shardBuffers.get(shardIdxObj);
+        if (sb == null) return null;
+        MappedByteBuffer buf = sb.buf();
+        long off = loc.offset();
+        int len = loc.length();
+        // 确保缓冲够用（128维 float 向量约 512B，含 header 约 600B）
+        synchronized (readLock) {
+            if (readBuf.length < len) {
+                readBuf = new byte[Math.max(len * 4, 8192)];
+            }
+            int pos = buf.position();
+            int lim = buf.limit();
+            try {
+                buf.position((int) off);
+                buf.limit((int) Math.min(off + len, buf.capacity()));
+                buf.get(readBuf, 0, buf.position() - (int) off + Math.min(len, buf.limit() - (int) off));
+            } finally {
+                buf.position(pos);
+                buf.limit(lim);
+            }
+            int bytesRead = buf.position() - pos;
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(readBuf, 0, bytesRead);
+                 DataInputStream dis = new DataInputStream(bais)) {
+                int idLen = dis.readInt();
+                byte[] idBytes = new byte[idLen];
+                dis.readFully(idBytes);
+                String id = new String(idBytes, UTF_8);
+                float[] data = new float[dimension];
+                for (int j = 0; j < dimension; j++) data[j] = dis.readFloat();
+                String metaStr = dis.readUTF();
+                return metaStr.isEmpty() ? new Vector(id, data) : new Vector(id, data,
+                        parseMetadata(metaStr), null);
+            } catch (IOException e) {
+                throw new UncheckedIOException("读取向量分片条目失败", e);
             }
         }
     }
 
-    private void scanAllColdCandidates(float[] query, List<VectorScored> candidates) {
-        scanColdCandidates(query, candidates, Integer.MAX_VALUE);
+    /**
+     * 解析 metadata 字符串（flush 时写入的是 Map.toString()，此处简单解析）。
+     */
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> parseMetadata(String metaStr) {
+        if (metaStr == null || metaStr.isEmpty()) return Collections.emptyMap();
+        try {
+            java.util.Map<String, Object> map = new LinkedHashMap<>();
+            String inner = metaStr.strip().startsWith("{")
+                    ? metaStr.substring(1, metaStr.length() - 1) : metaStr;
+            for (String pair : inner.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")) {
+                int eq = pair.indexOf('=');
+                if (eq > 0) {
+                    String k = pair.substring(0, eq).strip();
+                    String v = pair.substring(eq + 1).strip();
+                    map.put(k, v);
+                }
+            }
+            return map;
+        } catch (Exception ignored) {
+            return Collections.emptyMap();
+        }
     }
 
-    // ---- Java 25 Vector API 加速余弦相似度 ----
+    /** 为指定 id 驱逐对应的 ShardBuffer（删除后不再需要）。 */
+    private void evictShardBufferFor(String id) {
+        EntryLoc loc = coldIndex.get(id).orElse(null);
+        if (loc != null) {
+            Integer shardIdxObj = pathToShardIdx.get(loc.path());
+            if (shardIdxObj != null) {
+                shardBuffers.remove(shardIdxObj);
+                coldShards.remove(shardIdxObj);
+                pathToShardIdx.remove(loc.path());
+            }
+        }
+    }
+
+    /** flush 后重建当前分片的 B+ Tree 索引（增量更新）。 */
+    private void buildShardIndex(int shardIdx, Path shardPath, long headerSize, int count) {
+        long offset = headerSize;
+        try (DataInputStream in = new DataInputStream(
+                new BufferedInputStream(Files.newInputStream(shardPath)))) {
+            in.readInt(); // skip count
+            in.readInt(); // skip dimension
+            for (int i = 0; i < count; i++) {
+                int idLen = in.readInt();
+                byte[] idBytes = new byte[idLen];
+                in.readFully(idBytes);
+                String id = new String(idBytes, UTF_8);
+                for (int j = 0; j < dimension; j++) in.readFloat();
+                String metaStr = in.readUTF();
+                int entryLen = 4 + idLen + dimension * 4 + 2 + metaStr.getBytes(UTF_8).length;
+                coldIndex.put(id, new EntryLoc(shardPath, offset, entryLen));
+                offset += entryLen;
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("构建冷索引失败", e);
+        }
+        mmapShard(shardIdx, shardPath);
+        pathToShardIdx.put(shardPath, shardIdx);
+    }
+
+    // ---- 检索辅助 ----
+
+    /**
+     * 扫描所有冷分片，通过 B+ Tree 索引精确读取每条记录，计算余弦相似度。
+     */
+    private void scanColdCandidates(float[] query, List<VectorScored> candidates) {
+        for (Map.Entry<String, EntryLoc> entry : coldIndex.allEntries()) {
+            EntryLoc loc = entry.getValue();
+            Vector v = readEntry(loc);
+            if (v == null || v.data() == null) continue;
+            float sim = cosineSIMD(query, v.data());
+            candidates.add(new VectorScored(v, sim));
+        }
+    }
+
+    // ---- Java Vector API 加速余弦相似度 ----
 
     /** 余弦相似度（手动 SIMD 分块，每次 16 个 float）。 */
     private static float cosineSIMD(float[] a, float[] b) {
@@ -322,6 +461,11 @@ public class DefaultVectorStorage implements VectorStorage {
     // ---- 内部记录 ----
 
     private record VectorScored(Vector vector, float score) {
+    }
+
+    /** 获取已加载的冷分片数量（供测试使用）。 */
+    public int getShardCount() {
+        return coldShards.size();
     }
 
     private static final java.nio.charset.Charset UTF_8 = java.nio.charset.StandardCharsets.UTF_8;

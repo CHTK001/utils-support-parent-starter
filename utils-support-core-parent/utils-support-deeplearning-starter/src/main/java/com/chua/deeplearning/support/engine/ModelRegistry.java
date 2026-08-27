@@ -188,14 +188,24 @@ public final class ModelRegistry {
      * @param downloadUrl         远程下载地址，空表示不下载
      * @param downloadMirrors     备用下载地址列表（主地址失败时依次尝试），可为 null
      * @param compress            下载文件是否为压缩包
-      * @author CH
-     * @param downloadFileName    压缩包内目标文件名（compress=true 时生效）
-     */
+      * @param downloadFileName    压缩包内目标文件名（compress=true 时生效）
+      * @param hardwareConfig      硬件配置（设备/显存上限/推荐标记），可为 null
+      */
     public record Entry(String modelId, String translatorClassName,
                         Class<?> inputType, Class<?> outputType,
                         Class<?> capabilityInterface, String relativePath,
                         String downloadUrl, List<String> downloadMirrors,
-                        boolean compress, String downloadFileName) {
+                        boolean compress, String downloadFileName,
+                        com.chua.deeplearning.support.model.HardwareConfig hardwareConfig) {
+
+        /**
+         * 是否作为对应能力类型的推荐模型（便捷方法）。
+         *
+         * @return true 表示推荐
+         */
+        public boolean isRecommended() {
+            return hardwareConfig != null && hardwareConfig.recommended();
+        }
     }
 
     /**
@@ -211,7 +221,7 @@ public final class ModelRegistry {
     public static void register(String modelId, String translatorClassName,
                                 Class<?> inputType, Class<?> outputType,
                                 Class<?> capabilityInterface, String relativePath) {
-        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, false, null));
+        REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath, null, null, false, null, null));
         log.debug("[deeplearning-engine] ModelRegistry register: {} -> {}", modelId, translatorClassName);
     }
 
@@ -255,9 +265,34 @@ public final class ModelRegistry {
                                 Class<?> capabilityInterface, String relativePath,
                                 String downloadUrl, List<String> downloadMirrors,
                                 boolean compress, String downloadFileName) {
+        register(modelId, translatorClassName, inputType, outputType, capabilityInterface, relativePath,
+                downloadUrl, downloadMirrors, compress, downloadFileName, null);
+    }
+
+    /**
+     * 按类名注册模型（含远程下载信息与备用镜像地址、硬件配置）。
+     *
+     * @param modelId             模型标识
+     * @param translatorClassName Translator 全限定类名
+     * @param inputType           输入类型
+     * @param outputType          输出类型
+     * @param capabilityInterface 能力接口
+     * @param relativePath        相对路径或 classpath 路径
+     * @param downloadUrl         远程下载地址
+     * @param downloadMirrors     备用下载地址列表（主地址失败时依次尝试），可为 null
+     * @param compress            是否压缩包
+     * @param downloadFileName    压缩包内目标文件名
+     * @param hardwareConfig      硬件配置（设备/显存上限/推荐标记），可为 null
+     */
+    public static void register(String modelId, String translatorClassName,
+                                Class<?> inputType, Class<?> outputType,
+                                Class<?> capabilityInterface, String relativePath,
+                                String downloadUrl, List<String> downloadMirrors,
+                                boolean compress, String downloadFileName,
+                                com.chua.deeplearning.support.model.HardwareConfig hardwareConfig) {
         List<String> mirrors = resolveMirrors(downloadUrl, downloadMirrors);
         REGISTRY.put(modelId, new Entry(modelId, translatorClassName, inputType, outputType, capabilityInterface,
-                relativePath, downloadUrl, mirrors, compress, downloadFileName));
+                relativePath, downloadUrl, mirrors, compress, downloadFileName, hardwareConfig));
         log.debug("[deeplearning-engine] ModelRegistry register: {} -> {} (downloadUrl={}, mirrors={})",
                 modelId, translatorClassName, downloadUrl, mirrors);
     }
@@ -859,7 +894,7 @@ public final class ModelRegistry {
                         }
                         String className = line.contains("=") ? line.substring(line.indexOf('=') + 1).trim() : line;
                         try {
-                            Class.forName(className, true, loader);
+                            ReflectUtils.forName(className, loader);
                             count++;
                         } catch (Throwable ex) {
                             log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className, ex.getMessage());

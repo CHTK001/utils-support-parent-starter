@@ -47,10 +47,10 @@ public class JvectorVectorStorageDelegate extends AbstractVectorStorage {
                                                               VectorCompareAlgorithm algorithm,
                                                               VectorStorageProperties props) {
         JVectorStorageProperties jprops = new JVectorStorageProperties();
-        jprops.setMode(toJvectorMode(props.getJvectorMode()));
-        jprops.setGraphM(props.getJvectorGraphM());
-        jprops.setGraphEfConstruction(props.getJvectorEfConstruction());
-        jprops.setIndexPath(props.getJvectorIndexPath());
+        jprops.setMode(toJvectorMode(props.jvectorMode()));
+        jprops.setGraphM(props.jvectorGraphM());
+        jprops.setGraphEfConstruction(props.jvectorEfConstruction());
+        jprops.setIndexPath(props.jvectorIndexPath());
         return new JVectorVectorStorage(dimension, algorithm, jprops);
     }
 

@@ -3,7 +3,6 @@ package com.chua.common.support.tree;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * 二叉树节点 — 用于 B+/B 树与二叉树之间的相互转换。
@@ -21,11 +20,16 @@ import java.util.Optional;
  */
 public class TreeNode<K, V> {
 
-    public K key;
-    public V value;
-    public TreeNode<K, V> left;
-    public TreeNode<K, V> right;
-    public List<TreeNode<K, V>> children;
+    /** 键，可为 null（空节点占位） */
+    K key;
+    /** 值 */
+    V value;
+    /** 左子节点（左孩子-右兄弟表示法的第一个子节点） */
+    TreeNode<K, V> left;
+    /** 右兄弟节点或右斜链的下一个节点 */
+    TreeNode<K, V> right;
+    /** 子节点列表，用于 B+ 树内部节点的多叉表示 */
+    List<TreeNode<K, V>> children;
 
     public TreeNode() {
         this.children = new ArrayList<>();

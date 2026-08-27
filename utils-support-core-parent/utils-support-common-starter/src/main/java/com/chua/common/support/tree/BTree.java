@@ -22,7 +22,9 @@ import java.util.Optional;
 public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     private final int order;
+    /** 树根节点 */
     BTreeNode<K, V> root;
+    /** 当前存储条目数量 */
     private int size;
 
     /**
@@ -135,7 +137,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             newRoot.children.add(result.split);
             root = newRoot;
         }
-        if (result.promotedValue == null && get(key).isPresent()) {
+        if (result.promotedValue == null && containsKey(key)) {
             size++;
         }
         return result.promotedValue == null ? Optional.empty() : Optional.of(result.promotedValue);
@@ -191,19 +193,53 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         K midKey = node.keys.get(mid);
         V midValue = node.values.get(mid);
         BTreeNode<K, V> right = new BTreeNode<>(node.leaf);
-        for (int i = mid + 1; i < node.keys.size(); i++) {
-            right.keys.add(node.keys.remove(mid + 1));
-            right.values.add(node.values.remove(mid + 1));
-            if (!node.leaf) {
-                right.children.add(node.children.remove(mid + 1));
-            }
-        }
-        node.keys.remove(mid);
-        node.values.remove(mid);
+        // 使用 subList 一次性分配，避免循环 remove 导致索引错乱
+        List<K> leftKeys = keysLeft(node.keys, mid);
+        List<V> leftValues = valuesLeft(node.values, mid);
+        List<K> rightKeys = keysRight(node.keys, mid);
+        List<V> rightValues = valuesRight(node.values, mid);
+        node.keys = leftKeys;
+        node.values = leftValues;
+        right.keys = rightKeys;
+        right.values = rightValues;
         if (!node.leaf) {
-            node.children.remove(mid + 1);
+            // 内部节点：children 有 keys.size()+1 个，分裂点在 mid+1
+            List<BTreeNode<K, V>> leftChildren = childrenLeft(node.children, mid);
+            List<BTreeNode<K, V>> rightChildren = childrenRight(node.children, mid);
+            node.children = leftChildren;
+            right.children = rightChildren;
         }
         return new SplitResultInternal<>(right, midKey, midValue);
+    }
+
+    /** 左半 keys：[0, mid) */
+    private static <K> List<K> keysLeft(List<K> keys, int mid) {
+        return new ArrayList<>(keys.subList(0, mid));
+    }
+
+    /** 右半 keys：[mid+1, size) */
+    private static <K> List<K> keysRight(List<K> keys, int mid) {
+        return new ArrayList<>(keys.subList(mid + 1, keys.size()));
+    }
+
+    /** 左半 values：[0, mid) */
+    private static <V> List<V> valuesLeft(List<V> values, int mid) {
+        return new ArrayList<>(values.subList(0, mid));
+    }
+
+    /** 右半 values：[mid+1, size) */
+    private static <V> List<V> valuesRight(List<V> values, int mid) {
+        return new ArrayList<>(values.subList(mid + 1, values.size()));
+    }
+
+    /** 左半 children：[0, mid+1)（含左子树末尾指针） */
+    private static <T> List<T> childrenLeft(List<T> children, int mid) {
+        return new ArrayList<>(children.subList(0, mid + 1));
+    }
+
+    /** 右半 children：[mid+1, size)（promoted key 右侧的子树） */
+    private static <T> List<T> childrenRight(List<T> children, int mid) {
+        return new ArrayList<>(children.subList(mid + 1, children.size()));
     }
 
     // ==================== remove ====================
@@ -247,7 +283,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             if (!node.children.get(i).keys.isEmpty()) {
                 K pred = findPredecessor(node.children.get(i));
                 node.keys.set(i, pred);
-                node.values.set(i, node.values.get(i));
                 delete(node.children.get(i), pred);
             } else {
                 K succ = findSuccessor(node.children.get(i + 1));
@@ -266,6 +301,12 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
      * @param node 左子节点
      * @return 前驱键
      */
+    /**
+     * 查找前驱（沿左子树向右下走到叶子，取最后一个键）。
+     *
+     * @param node 左子节点，须非空
+     * @return 前驱键（左子树中的最大键）
+     */
     private K findPredecessor(BTreeNode<K, V> node) {
         while (!node.leaf) {
             node = node.children.get(node.keys.size() - 1);
@@ -278,6 +319,12 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
      *
      * @param node 右子节点
      * @return 后继键
+     */
+    /**
+     * 查找后继（沿右子树向左下走到叶子，取第一个键）。
+     *
+     * @param node 右子节点，须非空
+     * @return 后继键（右子树中的最小键）
      */
     private K findSuccessor(BTreeNode<K, V> node) {
         while (!node.leaf) {
@@ -327,4 +374,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     public String toString() {
         return "BTree{order=" + order + ", size=" + size + "}";
     }
+
+    /** 供 BinaryTreeConverter 使用，获取根节点。 */
+    BTreeNode<K, V> getRoot() { return root; }
 }

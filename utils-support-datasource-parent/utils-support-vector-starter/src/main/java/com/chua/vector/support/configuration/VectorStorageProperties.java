@@ -13,12 +13,23 @@ import java.io.Serializable;
  * 或绑定到 Spring Boot {@code application.yml}。</p>
  *
  * <pre>{@code
+ * // 自动检测（推荐）：有 GPU 用 cuVS，无 GPU 降级到 jvector
+ * VectorStorage storage = VectorStorageProvider.of("vector")
+ *         .dimension(768).algorithm("cosine")
+ *         .properties(new VectorStorageProperties())
+ *         .build();
+ *
+ * // 强制使用 CPU（无 GPU 环境或禁用 GPU）
  * VectorStorage storage = VectorStorageProvider.of("vector")
  *         .dimension(768)
- *         .algorithm("cosine")
+ *         .properties(new VectorStorageProperties().forceCpu(true))
+ *         .build();
+ *
+ * // 强制使用 GPU（无 GPU 时抛出异常而非降级）
+ * VectorStorage storage = VectorStorageProvider.of("vector")
  *         .properties(new VectorStorageProperties()
- *                 .setIndexType(CuvsIndexType.CAGRA)
- *                 .setGraphDegree(64))
+ *                 .forceCpu(false)
+ *                 .requireGpu(true))
  *         .build();
  * }</pre>
  *
@@ -27,15 +38,30 @@ import java.io.Serializable;
  */
 @Data
 @NoArgsConstructor
-@Accessors(chain = true)
+@Accessors(chain = true, fluent = true)
 public class VectorStorageProperties implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    // ---- 后端选择 ----
+
     /**
      * 后端类型：cuvs / jvector / auto（自动检测，优先 GPU）。
+     * <p>通常通过 {@link #forceCpu} 和 {@link #requireGpu} 控制，显式设置此字段可强制指定后端。</p>
      */
     private Backend backend = Backend.AUTO;
+
+    /**
+     * 是否强制使用 CPU（jvector）。
+     * <p>true 时跳过 GPU 检测，直接使用 jvector；false 时自动检测 GPU。</p>
+     */
+    private boolean forceCpu = false;
+
+    /**
+     * 是否要求 GPU 必须可用。
+     * <p>true 时若 GPU 不可用则直接抛异常（不降级）；false 时自动降级到 CPU。</p>
+     */
+    private boolean requireGpu = false;
 
     // ---- cuVS GPU 参数 ----
 
@@ -92,7 +118,7 @@ public class VectorStorageProperties implements Serializable {
     private String jvectorIndexPath = "./vector-index";
 
     /**
-     * 后端枚举。
+     * 后端类型枚举。
      */
     public enum Backend {
         /**

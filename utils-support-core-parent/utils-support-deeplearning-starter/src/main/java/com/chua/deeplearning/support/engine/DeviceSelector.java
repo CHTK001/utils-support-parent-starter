@@ -118,10 +118,101 @@ public final class DeviceSelector {
     }
 
     /**
+     * NVIDIA GPU 探测结果缓存：null=未探测
+     */
+    private static final AtomicReference<GpuInfo> GPU_INFO = new AtomicReference<>();
+
+    /**
+     * NVIDIA GPU 基本信息（型号与显存）。
+     *
+     * @param name          显卡型号，如 "NVIDIA GeForce GTX 1650"
+     * @param totalVramMb   总显存（MB），未知为 -1
+     */
+    public record GpuInfo(String name, long totalVramMb) {
+    }
+
+    /**
      * 清除缓存，下次探测重新执行。
      */
     public static void refresh() {
         DETECTED.set(null);
+        GPU_INFO.set(null);
+    }
+
+    /**
+     * 探测本机 NVIDIA GPU 型号与总显存。
+     *
+     * @return GPU 信息；无 NVIDIA GPU 或探测失败返回 null
+     */
+    public static GpuInfo detectGpu() {
+        if (!isGpuUsable()) {
+            return null;
+        }
+        GpuInfo cached = GPU_INFO.get();
+        if (cached != null) {
+            return cached;
+        }
+        synchronized (DeviceSelector.class) {
+            cached = GPU_INFO.get();
+            if (cached != null) {
+                return cached;
+            }
+            for (String[] cmd : new String[][]{
+                    {"nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"},
+                    {"nvidia-smi.exe", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"}}) {
+                try {
+                    Process process = new ProcessBuilder(cmd)
+                            .redirectErrorStream(true)
+                            .start();
+                    if (!process.waitFor(DETECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                        process.destroyForcibly();
+                        continue;
+                    }
+                    if (process.exitValue() == 0) {
+                        String output = new String(process.getInputStream().readAllBytes()).trim();
+                        if (!output.isEmpty()) {
+                            String[] parts = output.split(",");
+                            String name = parts.length > 0 ? parts[0].trim() : "Unknown GPU";
+                            long vramMb = -1;
+                            if (parts.length > 1) {
+                                try {
+                                    vramMb = Long.parseLong(parts[1].trim().replaceAll("[^0-9]", ""));
+                                } catch (NumberFormatException ignored) {
+                                }
+                            }
+                            GpuInfo info = new GpuInfo(name, vramMb);
+                            GPU_INFO.set(info);
+                            log.info("[deeplearning-engine] GPU 探测: {} (显存 {} MB)", name, vramMb);
+                            return info;
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // 命令不存在或执行失败，尝试下一种写法
+                }
+            }
+            GPU_INFO.set(new GpuInfo("Unknown GPU", -1));
+            return GPU_INFO.get();
+        }
+    }
+
+    /**
+     * 获取本机 GPU 总显存（MB）。
+     *
+     * @return 显存大小（MB）；无 GPU 或探测失败返回 -1
+     */
+    public static long gpuTotalVramMb() {
+        GpuInfo info = detectGpu();
+        return info == null ? -1 : info.totalVramMb();
+    }
+
+    /**
+     * 获取本机 GPU 型号名称。
+     *
+     * @return 型号名；无 GPU 返回 null
+     */
+    public static String gpuName() {
+        GpuInfo info = detectGpu();
+        return info == null ? null : info.name();
     }
 
     /**
