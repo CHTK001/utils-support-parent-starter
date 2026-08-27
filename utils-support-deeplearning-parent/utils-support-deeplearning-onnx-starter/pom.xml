@@ -515,6 +515,13 @@
             <artifactId>utils-support-models-onnx-codeformer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 嵌入式中文对话模型（Gemma-3-270M，uint8 ONNX，~519MB），供 Gemma3GpuTest 使用 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-gemma-3-270m</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
 

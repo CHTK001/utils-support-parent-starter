@@ -1,8 +1,6 @@
 package com.chua.vector.support.storage;
 
 import com.chua.common.support.reflection.ReflectUtils;
-
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
@@ -313,15 +311,27 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
          */
         private Object cuvsDistanceType() throws Exception {
             VectorCompareAlgorithm algo = getAlgorithm();
-            Class<?> distanceTypeClass = forName("com.nvidia.cuvs.CuvsDistanceType");
+            Class<?> distanceTypeClass = ReflectUtils.forName("com.nvidia.cuvs.CuvsDistanceType");
+            Object[] constants = (Object[]) ReflectUtils.invoke(null, "values", Object[].class, distanceTypeClass);
             if (algo == null) {
-                return ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+                return findEnumByName(constants, "L2Expanded");
             }
-            return switch (algo.name().toUpperCase()) {
-                case "COSINE" -> ReflectUtils.getField(null, "CosineExpanded", distanceTypeClass);
-                case "DOT", "DOT_PRODUCT", "IP" -> ReflectUtils.getField(null, "InnerProduct", distanceTypeClass);
-                default -> ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+            String target = switch (algo.name().toUpperCase()) {
+                case "COSINE" -> "CosineExpanded";
+                case "DOT", "DOT_PRODUCT", "IP" -> "InnerProduct";
+                default -> "L2Expanded";
             };
+            return findEnumByName(constants, target);
+        }
+
+        @SuppressWarnings("unchecked")
+        private static Object findEnumByName(Object[] constants, String name) {
+            for (Object c : constants) {
+                if (name.equals(ReflectUtils.invoke(c, "name", String.class))) {
+                    return c;
+                }
+            }
+            throw new IllegalArgumentException("Unknown cuVS distance type: " + name);
         }
 
         @Override
@@ -490,15 +500,27 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
 
         private Object cuvsDistanceType() throws Exception {
             VectorCompareAlgorithm algo = getAlgorithm();
-            Class<?> distanceTypeClass = forName("com.nvidia.cuvs.CuvsDistanceType");
+            Class<?> distanceTypeClass = ReflectUtils.forName("com.nvidia.cuvs.CuvsDistanceType");
+            Object[] constants = (Object[]) ReflectUtils.invoke(null, "values", Object[].class, distanceTypeClass);
             if (algo == null) {
-                return ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+                return findEnumByName(constants, "L2Expanded");
             }
-            return switch (algo.name().toUpperCase()) {
-                case "COSINE" -> ReflectUtils.getField(null, "CosineExpanded", distanceTypeClass);
-                case "DOT", "DOT_PRODUCT", "IP" -> ReflectUtils.getField(null, "InnerProduct", distanceTypeClass);
-                default -> ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+            String target = switch (algo.name().toUpperCase()) {
+                case "COSINE" -> "CosineExpanded";
+                case "DOT", "DOT_PRODUCT", "IP" -> "InnerProduct";
+                default -> "L2Expanded";
             };
+            return findEnumByName(constants, target);
+        }
+
+        @SuppressWarnings("unchecked")
+        private static Object findEnumByName(Object[] constants, String name) {
+            for (Object c : constants) {
+                if (name.equals(ReflectUtils.invoke(c, "name", String.class))) {
+                    return c;
+                }
+            }
+            throw new IllegalArgumentException("Unknown cuVS distance type: " + name);
         }
 
         @Override
