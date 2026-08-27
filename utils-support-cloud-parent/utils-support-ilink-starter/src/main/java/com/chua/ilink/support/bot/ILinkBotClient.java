@@ -17,6 +17,7 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.http.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -432,19 +433,28 @@ public class ILinkBotClient implements BotClient {
             body.fluentPut("get_updates_buf", getUpdatesBuf);
             Map<String, Object> resp = apiPost("/ilink/bot/getupdates", Json.fromJson(
                     body.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
-            int ret = intVal(resp, "ret", -1);
-            if (ret == -14) {
+            // 兼容两种字段：成功返回 ret=0，错误返回 errcode（如 -14 会话过期）
+            int ret = intVal(resp, "ret", 0);
+            int errcode = intVal(resp, "errcode", 0);
+            log.info("[ILink] getupdates 响应: {}", resp);
+            if (ret == -14 || errcode == -14) {
                 // 会话过期
+                log.warn("[ILink] 会话过期 (-14)，停止轮询");
                 running.set(false);
                 return result;
             }
-            if (ret != 0) {
+            if (ret != 0 && errcode != 0) {
+                log.warn("[ILink] getupdates 返回错误 ret={} errcode={}", ret, errcode);
                 return result;
             }
             String nextBuf = getString(resp, "get_updates_buf");
             if (nextBuf != null) { getUpdatesBuf = nextBuf; }
             var items = resp.get("messages");
-            if (!(items instanceof List<?> list)) { return result; }
+            if (!(items instanceof List<?> list)) {
+                log.debug("[ILink] getupdates 响应无 messages: {}", resp);
+                return result;
+            }
+            log.info("[ILink] getupdates 返回 {} 条消息", list.size());
             for (var item : list) {
                 if (!(item instanceof Map)) { continue; }
                 @SuppressWarnings("unchecked")
@@ -453,6 +463,7 @@ public class ILinkBotClient implements BotClient {
                 String ctxToken = getString(msg, "contextToken");
                 if (ctxToken != null) { contextTokens.put(fromUser, ctxToken); }
                 String textContent = extractNestedText(msg);
+                log.info("[ILink] 收到消息 from={} content={}", fromUser, textContent);
                 result.add(BotInboundMessage.builder()
                         .msgId(String.valueOf(System.nanoTime()))
                         .type(BotInboundMessage.Type.TEXT)
@@ -463,7 +474,7 @@ public class ILinkBotClient implements BotClient {
                         .build());
             }
         } catch (Exception e) {
-            log.debug("[ILink] 轮询异常: {}", e.getMessage());
+            log.warn("[ILink] 轮询异常: {}", e.getMessage(), e);
         }
         return result;
     }
@@ -542,11 +553,11 @@ public class ILinkBotClient implements BotClient {
      * 生成 X-WECHAT-UIN：随机 uint32 → base64。
      */
     private static String wechatUin() {
+        // 协议：4 random bytes → uint32 十进制字符串 → base64
         int v = new Random().nextInt();
-        byte[] bytes = {
-                (byte) (v >> 24), (byte) (v >> 16), (byte) (v >> 8), (byte) v
-        };
-        return Base64.getEncoder().encodeToString(bytes);
+        long unsigned = Integer.toUnsignedLong(v);
+        String decimal = Long.toString(unsigned);
+        return Base64.getEncoder().encodeToString(decimal.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
