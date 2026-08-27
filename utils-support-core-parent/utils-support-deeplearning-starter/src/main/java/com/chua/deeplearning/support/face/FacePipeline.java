@@ -155,6 +155,16 @@ public class FacePipeline {
     private final ImageEnhancer restorer;
 
     /**
+     * 人脸分割器（ParseNet），用于生成软mask贴回，可为 null。
+     */
+    private final ImageEnhancer faceSeg;
+
+    /**
+     * 人脸管线回调，可为 null（测试时注入用于捕获中间图片）。
+     */
+    private FacePipelineCallback callback;
+
+    /**
      * 属性分类器，可为 null。
      */
     private final ImageClassifier attributeClassifier;
@@ -234,6 +244,7 @@ public class FacePipeline {
      * @param animeDetector       动漫检测器，可为 null
      * @param superResolution     超分器，可为 null
      * @param restorer            修复器，可为 null
+     * @param faceSeg             人脸分割器，可为 null
      * @param attributeClassifier 属性分类器，可为 null
      * @param emotionClassifier   表情分类器，可为 null
      * @param landmarkExtractor   关键点提取器，可为 null
@@ -250,6 +261,7 @@ public class FacePipeline {
                         FaceDetector animeDetector,
                         ImageEnhancer superResolution,
                         ImageEnhancer restorer,
+                        ImageEnhancer faceSeg,
                         ImageClassifier attributeClassifier,
                         ImageClassifier emotionClassifier,
                         FeatureExtractor landmarkExtractor,
@@ -269,6 +281,7 @@ public class FacePipeline {
         this.animeDetector = animeDetector;
         this.superResolution = superResolution;
         this.restorer = restorer;
+        this.faceSeg = faceSeg;
         this.attributeClassifier = attributeClassifier;
         this.emotionClassifier = emotionClassifier;
         this.landmarkExtractor = landmarkExtractor;
@@ -335,6 +348,11 @@ public class FacePipeline {
          * 图像修复增强器
          */
         private ImageEnhancer restorer;
+
+        /**
+         * 人脸分割增强器（ParseNet）
+         */
+        private ImageEnhancer faceSeg;
 
         /**
          * 属性分类器
@@ -540,6 +558,28 @@ public class FacePipeline {
         }
 
         /**
+         * 设置人脸分割器（用于贴回时生成软mask）。
+         *
+         * @param enhancer 分割器
+         * @return this
+         */
+        public Builder faceSeg(ImageEnhancer enhancer) {
+            this.faceSeg = enhancer;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建人脸分割器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder faceSeg(String modelId) {
+            this.faceSeg = ImageEnhancer.create(modelId);
+            return this;
+        }
+
+        /**
          * 设置属性分类器。
          *
          * @param classifier 分类器
@@ -722,7 +762,7 @@ public class FacePipeline {
          */
         public FacePipeline build() {
             return new FacePipeline(detector, liveness, featureExtractor, vectorStorage,
-                    animeDetector, superResolution, restorer,
+                    animeDetector, superResolution, restorer, faceSeg,
                     attributeClassifier, emotionClassifier, landmarkExtractor,
                     qualityAssessor, deepfakeClassifier,
                     topK, requireLive, livenessThreshold,
@@ -1311,6 +1351,232 @@ public class FacePipeline {
     }
 
     /**
+     * 设置人脸管线回调（用于测试时捕获中间图片）。
+     *
+     * @param callback 回调实例
+     */
+    public void setCallback(FacePipelineCallback callback) {
+        this.callback = callback;
+    }
+
+    /**
+     * 完整人脸修复管线：检测 → 5点对齐 → 修复 → 分割mask → 逆仿射贴回。
+     *
+     * <p>AIAS face_restoration_sdk 同款流程：对场景图中每张人脸执行
+     * 5点仿射对齐到 FFHQ 512×512 标准位置，然后运行修复模型（GFPGAN/CodeFormer），
+     * 再通过 ParseNet 生成软mask，最后逆仿射贴回原图并用 mask 融合背景。</p>
+     *
+     * @param imageData 场景图
+     * @return 修复后的完整场景图，无人脸或无修复模型时原样返回
+     */
+    public byte[] restoreWithAlign(byte[] imageData) {
+        return restoreWithAlign(imageData, null);
+    }
+
+    /**
+     * 完整人脸修复管线（带回调）。
+     *
+     * @param imageData 场景图
+     * @param callback  回调，可为 null
+     * @return 修复后的完整场景图
+     */
+    public byte[] restoreWithAlign(byte[] imageData, FacePipelineCallback callback) {
+        long t0 = System.currentTimeMillis();
+        FacePipelineCallback cb = callback != null ? callback : this.callback;
+
+        // 1. 检测人脸（含5点关键点）
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (boxes.isEmpty()) {
+            return imageData;
+        }
+        if (cb != null) {
+            cb.onDetect(imageData, boxes);
+        }
+
+        // 解码原图
+        ImageUtils.load();
+        Mat src = ImageUtils.decode(imageData);
+        if (src == null || src.empty()) {
+            return imageData;
+        }
+
+        int faceCount = 0;
+        Mat result = src.clone();
+
+        for (int i = 0; i < boxes.size(); i++) {
+            PredictRectangle box = boxes.get(i);
+            List<float[]> kps = box.keypoints();
+
+            // 需要5个关键点才能做仿射对齐
+            if (kps == null || kps.size() < 5) {
+                log.debug("[face-pipeline] #{} 关键点不足({})，跳过对齐修复", i,
+                        kps == null ? 0 : kps.size());
+                continue;
+            }
+
+            // 2.5点仿射对齐到 FFHQ 512×512 标准位置
+            Mat affine = null;
+            Mat aligned = null;
+            try {
+                affine = ImageUtils.estimateFaceAffine512(kps);
+                aligned = new Mat();
+                org.opencv.imgproc.Imgproc.warpAffine(src, aligned, affine,
+                        new Size(512, 512),
+                        org.opencv.imgproc.Imgproc.INTER_CUBIC,
+                        org.opencv.core.Core.BORDER_REPLICATE,
+                        new Scalar(135, 133, 132));
+            } catch (Exception e) {
+                log.warn("[face-pipeline] #{} 5点对齐失败: {}", i, e.getMessage());
+                continue;
+            }
+
+            if (cb != null) {
+                byte[] alignedBytes = ImageUtils.encode(aligned);
+                cb.onAlign(i, box, alignedBytes);
+            }
+
+            // 3. 修复（GFPGAN 或 CodeFormer）
+            if (restorer == null) {
+                log.debug("[face-pipeline] #{} 未配置修复模型，跳过修复", i);
+                aligned.release();
+                affine.release();
+                continue;
+            }
+            byte[] alignedBytes = ImageUtils.encode(aligned);
+            byte[] restoredBytes;
+            try {
+                restoredBytes = restorer.enhance(alignedBytes);
+            } catch (Exception e) {
+                log.warn("[face-pipeline] #{} 修复失败: {}", i, e.getMessage());
+                aligned.release();
+                affine.release();
+                continue;
+            }
+
+            if (cb != null) {
+                cb.onRestore(i, restoredBytes);
+            }
+
+            // 4. 分割软mask（ParseNet）
+            Mat softMask = null;
+            if (faceSeg != null) {
+                try {
+                    byte[] maskBytes = faceSeg.enhance(restoredBytes);
+                    softMask = ImageUtils.decode(maskBytes);
+                    if (softMask != null && softMask.channels() > 1) {
+                        Mat gray = new Mat();
+                        org.opencv.imgproc.Imgproc.cvtColor(softMask, gray,
+                                org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY);
+                        softMask.release();
+                        softMask = gray;
+                    }
+                } catch (Exception e) {
+                    log.warn("[face-pipeline] #{} 分割失败: {}", i, e.getMessage());
+                }
+            }
+
+            if (cb != null && softMask != null) {
+                byte[] maskBytes = ImageUtils.encode(softMask);
+                cb.onMask(i, maskBytes);
+            }
+
+            // 5. 逆仿射贴回原图 + mask 融合
+            Mat restoredMat = ImageUtils.decode(restoredBytes);
+            Mat pasted;
+            if (softMask != null) {
+                pasted = ImageUtils.pasteFace(result, restoredMat, softMask, affine);
+            } else {
+                // 无mask时直接逆仿射贴回
+                pasted = pasteFaceSimple(result, restoredMat, affine);
+            }
+
+            if (cb != null) {
+                byte[] pastedBytes = ImageUtils.encode(pasted);
+                cb.onPaste(i, pastedBytes);
+            }
+
+            // 更新结果
+            result.release();
+            result = pasted;
+
+            // 释放资源
+            aligned.release();
+            affine.release();
+            restoredMat.release();
+            if (softMask != null) {
+                softMask.release();
+            }
+            faceCount++;
+        }
+
+        byte[] output = ImageUtils.encode(result);
+        src.release();
+        result.release();
+
+        if (cb != null) {
+            cb.onComplete(imageData, output, faceCount, System.currentTimeMillis() - t0);
+        }
+
+        log.info("[face-pipeline] restoreWithAlign 完成: {}张人脸, 耗时{}ms",
+                faceCount, System.currentTimeMillis() - t0);
+        return output;
+    }
+
+    /**
+     * 无mask的简单逆仿射贴回。
+     *
+     * @param background  原图
+     * @param restoredFace 修复后的对齐人脸
+     * @param affine       对齐仿射矩阵
+     * @return 贴回后的图
+     */
+    private static Mat pasteFaceSimple(Mat background, Mat restoredFace, Mat affine) {
+        Mat inverseAffine = new Mat();
+        org.opencv.imgproc.Imgproc.invertAffineTransform(affine, inverseAffine);
+        Mat invRestored = new Mat();
+        org.opencv.imgproc.Imgproc.warpAffine(restoredFace, invRestored, inverseAffine,
+                new Size(background.cols(), background.rows()),
+                org.opencv.imgproc.Imgproc.INTER_LINEAR,
+                org.opencv.core.Core.BORDER_CONSTANT, new Scalar(0, 0, 0));
+        // 用简易阈值mask融合（人脸区域覆盖，边缘渐变）
+        Mat mask = new Mat();
+        org.opencv.imgproc.Imgproc.warpAffine(
+                Mat.ones(restoredFace.size(), org.opencv.core.CvType.CV_32FC1),
+                mask, inverseAffine, new Size(background.cols(), background.rows()),
+                org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        Mat bgF = new Mat();
+        Mat reF = new Mat();
+        background.convertTo(bgF, org.opencv.core.CvType.CV_32FC3);
+        invRestored.convertTo(reF, org.opencv.core.CvType.CV_32FC3);
+        Mat mask3 = new Mat();
+        java.util.List<Mat> channels = java.util.List.of(mask, mask, mask);
+        org.opencv.core.Core.merge(channels, mask3);
+        Mat oneMinus = new Mat();
+        Mat ones = new Mat(bgF.size(), org.opencv.core.CvType.CV_32FC3, Scalar.all(1.0));
+        org.opencv.core.Core.subtract(ones, mask3, oneMinus);
+        Mat a = new Mat();
+        Mat b = new Mat();
+        org.opencv.core.Core.multiply(mask3, reF, a);
+        org.opencv.core.Core.multiply(oneMinus, bgF, b);
+        Mat sum = new Mat();
+        org.opencv.core.Core.add(a, b, sum);
+        Mat result = new Mat();
+        sum.convertTo(result, org.opencv.core.CvType.CV_8UC3);
+        inverseAffine.release();
+        invRestored.release();
+        mask.release();
+        bgF.release();
+        reF.release();
+        mask3.release();
+        ones.release();
+        oneMinus.release();
+        a.release();
+        b.release();
+        sum.release();
+        return result;
+    }
+
+    /**
      * 人脸属性分析（辅助能力）。
      *
      * @param imageData 图片
@@ -1746,6 +2012,15 @@ public class FacePipeline {
      */
     public VectorStorage vectorStorage() {
         return vectorStorage;
+    }
+
+    /**
+     * 人脸分割器。
+     *
+     * @return ImageEnhancer 或 null
+     */
+    public ImageEnhancer faceSeg() {
+        return faceSeg;
     }
 
     /** LivenessResult */

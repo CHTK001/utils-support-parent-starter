@@ -153,15 +153,16 @@ public class ILinkBotClient implements BotClient {
                     if (qrcodeListener != null) { qrcodeListener.scanned(); }
                     log.info("[ILink] 已扫码，等待确认...");
                 } else if ("confirmed".equals(state)) {
-                    // confirmed 响应直接携带凭证
-                    this.token = getString(status, "botToken");
-                    this.botId = getString(status, "botId");
-                    String userId = getString(status, "userId");
+                    // confirmed 响应携带凭证（实测字段：ilink_bot_id / ilink_user_id / bot_token）
+                    log.info("[ILink] confirmed 响应: {}", status);
+                    this.token = firstNonBlank(status, "bot_token", "botToken");
+                    this.botId = firstNonBlank(status, "ilink_bot_id", "bot_id", "botId");
+                    String userId = firstNonBlank(status, "ilink_user_id", "user_id", "userId");
                     if (qrcodeListener != null) {
                         qrcodeListener.confirmed(token, botId, userId);
                     }
                     running.set(true);
-                    log.info("[ILink] 登录成功 botId={}", botId);
+                    log.info("[ILink] 登录成功 botId={} token={}", botId, token != null);
                     return botId;
                 } else if ("expired".equals(state)) {
                     if (qrcodeListener != null) { qrcodeListener.expired(); }
@@ -250,10 +251,14 @@ public class ILinkBotClient implements BotClient {
 
     @Override
     public ILinkBotClient start() {
-        String id = loginWithQR();
-        if (id != null) {
-            startPolling();
+        // 已有 token（登录后配置/手动导入）则直接用 token 启动消息轮询，不再扫码
+        if (token == null || token.isEmpty()) {
+            String id = loginWithQR();
+            if (id == null) {
+                return this;
+            }
         }
+        startPolling();
         return this;
     }
 
@@ -585,6 +590,22 @@ public class ILinkBotClient implements BotClient {
         } catch (Exception e) {
             return defaultVal;
         }
+    }
+
+    /**
+     * 从映射中提取第一个非空字符串值（兼容 snake_case 与驼峰字段名）。
+     */
+    private static String firstNonBlank(Map<String, Object> map, String... keys) {
+        if (map == null) {
+            return null;
+        }
+        for (String key : keys) {
+            Object v = map.get(key);
+            if (v != null && !v.toString().isBlank()) {
+                return v.toString();
+            }
+        }
+        return null;
     }
 
     /**
