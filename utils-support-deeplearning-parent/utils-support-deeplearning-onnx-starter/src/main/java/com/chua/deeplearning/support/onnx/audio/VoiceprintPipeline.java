@@ -7,26 +7,35 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * 声纹识别管线（CAM++ 神经模型，192 维嵌入）。
  *
- * <p>与 {@code FacePipeline}/{@code ImageSearcher} 同构的链式 API：</p>
- *
+ * <p>创建路径与 FacePipeline 同构：</p>
  * <pre>{@code
  * // 构建管线
  * VoiceprintPipeline vp = VoiceprintPipeline.builder()
  *         .embedder(CampplusEmbedding.load())
+ *         .max(100)             // 检索结果上限（与 topK 取 min）
  *         .build();
  *
- * // 链式入库（带 id + 标签）
- * vp.id("alice").label("女声").enroll(Path.of("alice.wav"));
- * vp.id("bob").label("男声").enroll(Path.of("bob.wav"));
+ * // 链式入库
+ * vp.createEnroll()
+ *   .id("alice")
+ *   .label("女声")
+ *   .audio(aliceWav)
+ *   .execute();
  *
- * // 链式检索（设置参数后 search）
- * List<Match> hits = vp.topK(5).threshold(0.80).search(queryWav);
+ * // 链式检索
+ * List<Match> hits = vp.createSearch()
+ *   .topK(5)
+ *   .threshold(0.80)
+ *   .query(queryWav)
+ *   .execute();
  * }</pre>
  *
  * <p><b>模型零配置</b>：CAM++（26MB）内嵌于 sensevoice jar，首次调用自动解压。</p>
@@ -37,39 +46,21 @@ import java.util.Objects;
 @Slf4j
 public class VoiceprintPipeline implements AutoCloseable {
 
-    /**
-     * 向量存储后端（192 维，cosine）。
-     */
+    /** 向量存储后端（192 维，cosine）。 */
     private final VectorStorage storage;
 
-    /**
-     * CAM++ 神经声纹特征提取器。
-     */
+    /** CAM++ 神经声纹特征提取器。 */
     private final CampplusEmbedding campplus;
 
-    /** ---- 链式检索参数 ---- */
-    private int searchTopK = 5;
-    private double searchThreshold;
+    /** 检索结果上限（与 search 的 topK 取 min）。 */
+    private final int maxResults;
 
-    /** ---- 链式入库参数 ---- */
-    private String currentId;
-    private String currentLabel;
-
-    /** 默认构造：文件持久化向量库 + 内嵌 CAM++。 */
-    public VoiceprintPipeline() {
-        this(FileVectorStorage.create(192, defaultDirectory()), null);
-    }
-
-    /** 指定向量库构造（维度须为 192）。 */
-    public VoiceprintPipeline(VectorStorage storage) {
-        this(storage, null);
-    }
-
-    private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder) {
+    private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder, int maxResults) {
         this.storage = Objects.requireNonNull(storage, "vectorStorage");
         this.campplus = embedder != null ? embedder : CampplusEmbedding.load();
-        log.info("[Voiceprint] init: CAM++ neural, dim=192, storage={}",
-                storage.getClass().getSimpleName());
+        this.maxResults = Math.max(1, maxResults);
+        log.info("[Voiceprint] init: CAM++ neural, dim=192, maxResults={}, storage={}",
+                maxResults, storage.getClass().getSimpleName());
     }
 
     /** 创建 Builder。 */
@@ -82,83 +73,29 @@ public class VoiceprintPipeline implements AutoCloseable {
         return builder().build();
     }
 
-    // ==================== 链式检索配置 ====================
-
-    /** 设置检索返回条数（链式调用）。 */
-    public VoiceprintPipeline topK(int k) {
-        this.searchTopK = Math.max(1, k);
-        return this;
+    /** 创建链式入库操作。 */
+    public EnrollConfig createEnroll() {
+        return new EnrollConfig(this);
     }
 
-    /** 设置相似度门槛：低于过滤，&lt;=0 不过滤（链式调用）。 */
-    public VoiceprintPipeline threshold(double t) {
-        this.searchThreshold = t;
-        return this;
+    /** 创建链式检索操作。 */
+    public SearchConfig createSearch() {
+        return new SearchConfig(this);
     }
 
-    /** 设置当前入库说话人 ID（链式调用）。 */
-    public VoiceprintPipeline id(String speakerId) {
-        this.currentId = speakerId;
-        return this;
-    }
-
-    /** 设置当前入库标签/备注（链式调用）。 */
-    public VoiceprintPipeline label(String label) {
-        this.currentLabel = label;
-        return this;
-    }
-
-    // ==================== 核心 API ====================
-
-    /**
-     * 提取声纹特征。
-     *
-     * @param samplePath 音频路径
-     * @return 192 维特征
-     * @throws Exception 提取失败
-     */
-    public float[] extract(Path samplePath) throws Exception {
+    /** 提取声纹特征。 */
+    float[] extract(Path samplePath) throws Exception {
         return campplus.extract(AudioUtils.loadMono16k(samplePath));
     }
 
-    /**
-     * 入库：用当前 id/label 注册说话人声纹。
-     *
-     * @param samplePath 参考音频
-     * @return this
-     * @throws Exception 提取或落库失败
-     */
-    public VoiceprintPipeline enroll(Path samplePath) throws Exception {
-        if (currentId == null) {
-            throw new IllegalStateException("未设置说话人 id，请先调用 id()");
-        }
-        float[] feature = extract(samplePath);
-        if (!storage.add(currentId, feature)) {
-            throw new IllegalStateException("声纹入库失败: " + currentId);
-        }
-        log.info("[Voiceprint] enrolled {} (label={}): dim={}", currentId, currentLabel, feature.length);
-        return this;
+    /** 向量存储。 */
+    VectorStorage storage() {
+        return storage;
     }
 
-    /**
-     * 检索：用当前 topK / threshold 查找最近邻。
-     *
-     * @param samplePath 待测音频
-     * @return 按相似度降序的匹配列表
-     * @throws Exception 提取或检索失败
-     */
-    public List<Match> search(Path samplePath) throws Exception {
-        float[] probe = extract(samplePath);
-        List<Vector> hits = storage.search(probe, searchTopK);
-        List<Match> matches = new ArrayList<>(hits.size());
-        for (Vector v : hits) {
-            double sim = AudioUtils.cosine(probe, v.data());
-            if (searchThreshold > 0 && sim < searchThreshold) {
-                continue;
-            }
-            matches.add(new Match(v.id(), sim));
-        }
-        return matches;
+    /** 检索上限。 */
+    int maxResults() {
+        return maxResults;
     }
 
     /** 已注册声纹数量。 */
@@ -166,7 +103,6 @@ public class VoiceprintPipeline implements AutoCloseable {
         return storage.size();
     }
 
-    /** 释放底层向量库连接。 */
     @Override
     public void close() {
         try {
@@ -176,13 +112,100 @@ public class VoiceprintPipeline implements AutoCloseable {
         }
     }
 
-    /**
-     * 匹配结果。
-     *
-     * @param speakerId  说话人标识
-     * @param similarity 余弦相似度 [-1,1]
-     */
-    public record Match(String speakerId, double similarity) {
+    // ==================== 入库链 ====================
+
+    /** 入库配置器：id → label → audio → execute。 */
+    public static final class EnrollConfig {
+        private final VoiceprintPipeline parent;
+        private String id;
+        private String label;
+        private Path audioPath;
+
+        EnrollConfig(VoiceprintPipeline parent) {
+            this.parent = parent;
+        }
+
+        public EnrollConfig id(String speakerId) {
+            this.id = speakerId;
+            return this;
+        }
+
+        public EnrollConfig label(String label) {
+            this.label = label;
+            return this;
+        }
+
+        public EnrollConfig audio(Path audioPath) {
+            this.audioPath = audioPath;
+            return this;
+        }
+
+        /** 执行入库并返回管线实例（可继续链式）。 */
+        public VoiceprintPipeline execute() throws Exception {
+            if (id == null || audioPath == null) {
+                throw new IllegalStateException("id 和 audio 均为必填");
+            }
+            float[] feature = parent.extract(audioPath);
+            Map<String, Object> metadata = new HashMap<>();
+            if (label != null) {
+                metadata.put("label", label);
+            }
+            parent.storage.add(new Vector(id, feature, metadata));
+            log.info("[Voiceprint] enrolled {} (label={}): dim={}", id, label, feature.length);
+            return parent;
+        }
+    }
+
+    // ==================== 检索链 ====================
+
+    /** 检索配置器：topK → threshold → query → execute。 */
+    public static final class SearchConfig {
+        private final VoiceprintPipeline parent;
+        private int topK = 5;
+        private double threshold;
+        private Path queryPath;
+
+        SearchConfig(VoiceprintPipeline parent) {
+            this.parent = parent;
+        }
+
+        public SearchConfig topK(int k) {
+            this.topK = Math.max(1, k);
+            return this;
+        }
+
+        public SearchConfig threshold(double t) {
+            this.threshold = t;
+            return this;
+        }
+
+        public SearchConfig query(Path queryPath) {
+            this.queryPath = queryPath;
+            return this;
+        }
+
+        /** 执行检索，返回匹配结果。 */
+        public List<Match> execute() throws Exception {
+            if (queryPath == null) {
+                throw new IllegalStateException("query 为必填");
+            }
+            int effectiveK = Math.min(topK, parent.maxResults);
+            float[] probe = parent.extract(queryPath);
+            List<Vector> hits = parent.storage().search(probe, effectiveK);
+            List<Match> matches = new ArrayList<>(hits.size());
+            for (Vector v : hits) {
+                double sim = AudioUtils.cosine(probe, v.data());
+                if (threshold > 0 && sim < threshold) {
+                    continue;
+                }
+                matches.add(new Match(v.id(), sim, v.metadata()));
+            }
+            return matches;
+        }
+    }
+
+    /** 匹配结果。 */
+    public record Match(String speakerId, double similarity, Map<String, Object> metadata) {
     }
 
     /** 声纹库默认持久化目录。 */
@@ -193,33 +216,23 @@ public class VoiceprintPipeline implements AutoCloseable {
         return base.resolve("chua-voiceprints");
     }
 
-    /**
-     * 管线构建器。
-     */
+    /** 管线构建器。 */
     public static final class Builder {
-
-        /** 声纹特征提取器（默认自动加载内嵌 CAM++）。 */
         private CampplusEmbedding embedder;
-
-        /** 向量存储后端（默认 FileVectorStorage）。 */
         private VectorStorage vectorStorage;
-
-        /** 持久化目录（未注入 vectorStorage 时生效）。 */
         private Path storageDir;
+        private int maxResults = 100;
 
-        /** 设置声纹特征提取器（默认自动加载内嵌 CAM++）。 */
         public Builder embedder(CampplusEmbedding e) {
             this.embedder = e;
             return this;
         }
 
-        /** 注入向量存储实例。 */
         public Builder vectorStorage(VectorStorage s) {
             this.vectorStorage = s;
             return this;
         }
 
-        /** 按 SPI 名称创建向量存储（memory/jvector/milvus...）。 */
         public Builder vectorStorage(String provider, Object config) {
             String host = null;
             Integer port = null;
@@ -227,8 +240,7 @@ public class VoiceprintPipeline implements AutoCloseable {
             String collection = null;
             if (config != null) {
                 if (!(config instanceof java.util.Map<?, ?> map)) {
-                    throw new IllegalArgumentException(
-                            "config 需为 Map<String,Object>: " + config.getClass().getName());
+                    throw new IllegalArgumentException("config 需为 Map<String,Object>");
                 }
                 host = trimOrNull(map.get("host"));
                 Object portVal = map.get("port");
@@ -253,10 +265,8 @@ public class VoiceprintPipeline implements AutoCloseable {
                     throw new IllegalArgumentException(provider + " 缺少必填配置: " + missing);
                 }
             }
-            var b = com.chua.common.support.vector.VectorStorageBuilder
-                    .newBuilder()
-                    .type(provider)
-                    .dimension(192)
+            var b = com.chua.common.support.vector.VectorStorageBuilder.newBuilder()
+                    .type(provider).dimension(192)
                     .algorithm(com.chua.common.support.vector.VectorCompareAlgorithm.cosine());
             if (host != null) {
                 b.host(host);
@@ -274,20 +284,24 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
-        /** 文件持久化目录（未注入 vectorStorage 时生效）。 */
         public Builder storageDir(Path dir) {
             this.storageDir = dir;
             return this;
         }
 
-        /** 构建管线。 */
+        /** 检索结果上限（与 search 的 topK 取 min）。 */
+        public Builder max(int maxResults) {
+            this.maxResults = Math.max(1, maxResults);
+            return this;
+        }
+
         public VoiceprintPipeline build() {
             VectorStorage s = vectorStorage;
             if (s == null) {
                 s = FileVectorStorage.create(192,
                         storageDir != null ? storageDir : defaultDirectory());
             }
-            return new VoiceprintPipeline(s, embedder);
+            return new VoiceprintPipeline(s, embedder, maxResults);
         }
     }
 
