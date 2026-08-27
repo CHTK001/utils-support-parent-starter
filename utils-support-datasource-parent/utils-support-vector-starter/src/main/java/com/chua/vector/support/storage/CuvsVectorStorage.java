@@ -1,5 +1,8 @@
 package com.chua.vector.support.storage;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.vector.AbstractVectorStorage;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
@@ -11,11 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * NVIDIA cuVS GPU 向量存储实现。
+ * NVIDIA cuVS GPU 向量存储实现（反射调用，无需编译期 cuvs-java 依赖）。
  *
- * <p>支持 CAGRA、BruteForce、HNSW 三种索引策略。
- * 无 CUDA 环境时由 {@link com.chua.vector.support.spi.VectorStorageProviderFactory}
- * 自动降级到 jvector CPU 实现。</p>
+ * <p>运行时通过 {@link ReflectUtils} 反射调用 {@code com.nvidia.cuvs.*} 类。
+ * 如果 cuVS native 库不可用，search 时自动降级到 CPU 暴力搜索。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -26,6 +28,13 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     private final VectorStorageProperties properties;
     private final IndexStrategy delegate;
 
+    /**
+     * 构造 cuVS 向量存储。
+     *
+     * @param dimension  向量维度
+     * @param algorithm  比较算法
+     * @param properties 存储配置属性
+     */
     public CuvsVectorStorage(int dimension, VectorCompareAlgorithm algorithm,
                               VectorStorageProperties properties) {
         super(dimension, algorithm);
@@ -33,6 +42,11 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         this.delegate = createStrategy();
     }
 
+    /**
+     * 根据索引类型创建对应的策略实例。
+     *
+     * @return 索引策略实例
+     */
     private IndexStrategy createStrategy() {
         return switch (properties.getIndexType()) {
             case BRUTE_FORCE -> new BruteForceStrategy();
@@ -76,6 +90,9 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         return delegate.update(id, vector);
     }
 
+    /**
+     * 内部策略接口，统一 add/search/close 等操作。
+     */
     private interface IndexStrategy {
         boolean add(String id, float[] vector);
         List<Vector> search(float[] query, int topK);
@@ -135,6 +152,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
 
         @Override
         public void close() {
+            // BruteForce 无 native 资源，无需关闭
         }
 
         @Override
@@ -157,10 +175,11 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         }
     }
 
-    // ==================== CAGRA 策略（GPU 加速） ====================
+    // ==================== CAGRA 策略（GPU 加速，反射调用） ====================
 
     private class CagraStrategy implements IndexStrategy {
-        private com.nvidia.cuvs.CagraIndex index;
+        private Object index;
+        private Object resources;
         private final List<float[]> rawVectors = new ArrayList<>();
         private final Map<String, Integer> idToOrd = new java.util.HashMap<>();
         private volatile boolean indexBuilt = false;
@@ -182,13 +201,15 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         public List<Vector> search(float[] query, int topK) {
             ensureIndexBuilt();
             if (index == null) {
-                return List.of();
+                return fallbackSearch(query, topK);
             }
             try {
-                com.nvidia.cuvs.CagraQuery queryObj = new com.nvidia.cuvs.CagraQuery(
+                Class<?> queryClass = forName("com.nvidia.cuvs.CagraQuery");
+                Object queryObj = invokeStatic(queryClass, "newQuery", Object.class,
                         new float[][]{query}, topK, properties.getSearchEf());
-                com.nvidia.cuvs.SearchResults results = index.search(queryObj);
-                List<Map<Integer, Float>> hits = results.getResults();
+                Object results = invoke(index, "search", Object.class, queryClass, queryObj);
+                @SuppressWarnings("unchecked")
+                List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
                 List<Vector> list = new ArrayList<>();
                 if (!hits.isEmpty()) {
                     Map<Integer, Float> hit = hits.get(0);
@@ -207,11 +228,18 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 }
                 return list;
             } catch (Throwable t) {
-                log.error("[vector-starter] CAGRA search failed, falling back to CPU brute-force", t);
+                log.warn("[vector-starter] CAGRA search failed, falling back to CPU: {}", t.getMessage());
                 return fallbackSearch(query, topK);
             }
         }
 
+        /**
+         * CPU 降级搜索，当 GPU 索引不可用时执行。
+         *
+         * @param query 查询向量
+         * @param topK  返回数量
+         * @return 排序后的向量列表
+         */
         private List<Vector> fallbackSearch(float[] query, int topK) {
             if (rawVectors.isEmpty()) {
                 return List.of();
@@ -229,34 +257,71 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             return all.subList(0, Math.min(topK, all.size()));
         }
 
+        /**
+         * 确保 GPU 索引已构建（线程安全，单例缓存）。
+         */
         private synchronized void ensureIndexBuilt() {
             if (indexBuilt || index != null || rawVectors.isEmpty() || building) {
                 return;
             }
             building = true;
             try {
-                com.nvidia.cuvs.CuVSResources resources = com.nvidia.cuvs.CuVSResources.create();
-                try {
-                    com.nvidia.cuvs.CagraIndexParams params =
-                            new com.nvidia.cuvs.CagraIndexParams.Builder()
-                                    .withGraphDegree(properties.getGraphDegree())
-                                    .withIntermediateGraphDegree(properties.getIntermediateGraphDegree())
-                                    .withMetric(toCuvsDistance())
-                                    .build();
-                    index = com.nvidia.cuvs.CagraIndex.newBuilder(resources)
-                            .withDataset(rawVectors.toArray(new float[0][]))
-                            .withIndexParams(params)
-                            .build();
-                    indexBuilt = true;
-                } finally {
-                    resources.close();
-                }
+                Class<?> resourcesClass = forName("com.nvidia.cuvs.CuVSResources");
+                resources = invokeStatic(resourcesClass, "create", Object.class);
+                int deviceId = (int) invoke(resources, "deviceId", int.class);
+                log.info("[vector-starter] cuVS CAGRA using device: {}", deviceId);
+
+                Object params = invokeStatic(forName("com.nvidia.cuvs.CagraIndexParams"), "builder", Object.class);
+                Class<?> paramsClass = params.getClass();
+                invoke(params, "withGraphDegree", Object.class, (long) properties.getGraphDegree());
+                invoke(params, "withIntermediateGraphDegree", Object.class, (long) properties.getIntermediateGraphDegree());
+                invoke(params, "withMetric", Object.class, cuvsDistanceType());
+
+                index = invokeStatic(forName("com.nvidia.cuvs.CagraIndex"), "newBuilder",
+                        Object.class, resourcesClass, resources);
+                Class<?> builderClass = index.getClass();
+                invoke(index, "withDataset", Object.class, rawVectors.toArray(new float[0][]));
+                invoke(index, "withIndexParams", Object.class, forName("com.nvidia.cuvs.CagraIndexParams"), params);
+                invoke(index, "build", Object.class);
+                indexBuilt = true;
             } catch (Throwable t) {
-                log.warn("[vector-starter] CAGRA index build failed, will retry on next search: {}",
-                        t.getMessage());
+                log.warn("[vector-starter] CAGRA index build failed, will retry: {}", t.getMessage());
+                releaseResources();
             } finally {
                 building = false;
             }
+        }
+
+        /**
+         * 释放 GPU 资源。
+         */
+        private void releaseResources() {
+            if (resources != null) {
+                try {
+                    invoke(resources, "close", Object.class);
+                } catch (Throwable ignored) {
+                    log.debug("[vector-starter] Failed to close CuVSResources", ignored);
+                }
+                resources = null;
+            }
+        }
+
+        /**
+         * 根据算法映射 cuVS 距离类型。
+         *
+         * @return cuVS 距离类型枚举值
+         */
+        private Object cuvsDistanceType() throws Exception {
+            VectorCompareAlgorithm algo = getAlgorithm();
+            Class<?> distanceTypeClass = forName("com.nvidia.cuvs.CuvsDistanceType");
+            if (algo == null) {
+                return ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+            }
+            return switch (algo.name().toUpperCase()) {
+                case "COSINE" -> ReflectUtils.getField(null, "CosineExpanded", distanceTypeClass);
+                case "DOT", "DOT_PRODUCT", "IP" -> ReflectUtils.getField(null, "InnerProduct", distanceTypeClass);
+                default -> ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+            };
         }
 
         @Override
@@ -269,24 +334,20 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             rawVectors.clear();
             idToOrd.clear();
             indexBuilt = false;
-            if (index != null) {
-                try {
-                    index.close();
-                } catch (Exception ignored) {
-                }
-                index = null;
-            }
+            close();
         }
 
         @Override
         public void close() {
             if (index != null) {
                 try {
-                    index.close();
-                } catch (Exception ignored) {
+                    invoke(index, "close", Object.class);
+                } catch (Throwable ignored) {
+                    log.debug("[vector-starter] Failed to close CagraIndex", ignored);
                 }
                 index = null;
             }
+            releaseResources();
         }
 
         @Override
@@ -311,10 +372,11 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         }
     }
 
-    // ==================== HNSW 策略（GPU 加速） ====================
+    // ==================== HNSW 策略（GPU 加速，反射调用） ====================
 
     private class HnswStrategy implements IndexStrategy {
-        private com.nvidia.cuvs.HnswIndex index;
+        private Object index;
+        private Object resources;
         private final List<float[]> rawVectors = new ArrayList<>();
         private final Map<String, Integer> idToOrd = new java.util.HashMap<>();
         private volatile boolean indexBuilt = false;
@@ -336,13 +398,15 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         public List<Vector> search(float[] query, int topK) {
             ensureIndexBuilt();
             if (index == null) {
-                return List.of();
+                return fallbackSearch(query, topK);
             }
             try {
-                com.nvidia.cuvs.HnswQuery queryObj = new com.nvidia.cuvs.HnswQuery(
+                Class<?> queryClass = forName("com.nvidia.cuvs.HnswQuery");
+                Object queryObj = invokeStatic(queryClass, "newQuery", Object.class,
                         new float[][]{query}, topK, properties.getSearchEf());
-                com.nvidia.cuvs.SearchResults results = index.search(queryObj);
-                List<Map<Integer, Float>> hits = results.getResults();
+                Object results = invoke(index, "search", Object.class, queryClass, queryObj);
+                @SuppressWarnings("unchecked")
+                List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
                 List<Vector> list = new ArrayList<>();
                 if (!hits.isEmpty()) {
                     Map<Integer, Float> hit = hits.get(0);
@@ -361,7 +425,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 }
                 return list;
             } catch (Throwable t) {
-                log.error("[vector-starter] HNSW search failed, falling back to CPU", t);
+                log.warn("[vector-starter] HNSW search failed, falling back to CPU: {}", t.getMessage());
                 return fallbackSearch(query, topK);
             }
         }
@@ -389,27 +453,52 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             }
             building = true;
             try {
-                com.nvidia.cuvs.CuVSResources resources = com.nvidia.cuvs.CuVSResources.create();
-                try {
-                    com.nvidia.cuvs.HnswIndexParams params =
-                            new com.nvidia.cuvs.HnswIndexParams.Builder()
-                                    .withM(properties.getGraphDegree())
-                                    .withEfConstruction(properties.getSearchEf())
-                                    .withMetric(toCuvsDistance())
-                                    .build();
-                    index = com.nvidia.cuvs.HnswIndex.newBuilder(resources)
-                            .withDataset(rawVectors.toArray(new float[0][]))
-                            .withIndexParams(params)
-                            .build();
-                    indexBuilt = true;
-                } finally {
-                    resources.close();
-                }
+                Class<?> resourcesClass = forName("com.nvidia.cuvs.CuVSResources");
+                resources = invokeStatic(resourcesClass, "create", Object.class);
+
+                Object params = invokeStatic(forName("com.nvidia.cuvs.HnswIndexParams"), "builder", Object.class);
+                Class<?> paramsClass = params.getClass();
+                invoke(params, "withM", Object.class, properties.getGraphDegree());
+                invoke(params, "withEfConstruction", Object.class, properties.getSearchEf());
+                invoke(params, "withMetric", Object.class, cuvsDistanceType());
+
+                index = invokeStatic(forName("com.nvidia.cuvs.HnswIndex"), "newBuilder",
+                        Object.class, resourcesClass, resources);
+                Class<?> builderClass = index.getClass();
+                invoke(index, "withDataset", Object.class, rawVectors.toArray(new float[0][]));
+                invoke(index, "withIndexParams", Object.class, forName("com.nvidia.cuvs.HnswIndexParams"), params);
+                invoke(index, "build", Object.class);
+                indexBuilt = true;
             } catch (Throwable t) {
                 log.warn("[vector-starter] HNSW index build failed, will retry: {}", t.getMessage());
+                releaseResources();
             } finally {
                 building = false;
             }
+        }
+
+        private void releaseResources() {
+            if (resources != null) {
+                try {
+                    invoke(resources, "close", Object.class);
+                } catch (Throwable ignored) {
+                    log.debug("[vector-starter] Failed to close CuVSResources", ignored);
+                }
+                resources = null;
+            }
+        }
+
+        private Object cuvsDistanceType() throws Exception {
+            VectorCompareAlgorithm algo = getAlgorithm();
+            Class<?> distanceTypeClass = forName("com.nvidia.cuvs.CuvsDistanceType");
+            if (algo == null) {
+                return ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+            }
+            return switch (algo.name().toUpperCase()) {
+                case "COSINE" -> ReflectUtils.getField(null, "CosineExpanded", distanceTypeClass);
+                case "DOT", "DOT_PRODUCT", "IP" -> ReflectUtils.getField(null, "InnerProduct", distanceTypeClass);
+                default -> ReflectUtils.getField(null, "L2Expanded", distanceTypeClass);
+            };
         }
 
         @Override
@@ -422,24 +511,20 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             rawVectors.clear();
             idToOrd.clear();
             indexBuilt = false;
-            if (index != null) {
-                try {
-                    index.close();
-                } catch (Exception ignored) {
-                }
-                index = null;
-            }
+            close();
         }
 
         @Override
         public void close() {
             if (index != null) {
                 try {
-                    index.close();
-                } catch (Exception ignored) {
+                    invoke(index, "close", Object.class);
+                } catch (Throwable ignored) {
+                    log.debug("[vector-starter] Failed to close HnswIndex", ignored);
                 }
                 index = null;
             }
+            releaseResources();
         }
 
         @Override
@@ -462,19 +547,5 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             indexBuilt = false;
             return true;
         }
-    }
-
-    // ==================== 工具方法 ====================
-
-    private static com.nvidia.cuvs.CuvsDistanceType toCuvsDistance() {
-        VectorCompareAlgorithm algo = getAlgorithm();
-        if (algo == null) {
-            return com.nvidia.cuvs.CuvsDistanceType.L2Expanded;
-        }
-        return switch (algo.name().toUpperCase()) {
-            case "COSINE" -> com.nvidia.cuvs.CuvsDistanceType.CosineExpanded;
-            case "DOT", "DOT_PRODUCT", "IP" -> com.nvidia.cuvs.CuvsDistanceType.InnerProduct;
-            default -> com.nvidia.cuvs.CuvsDistanceType.L2Expanded;
-        };
     }
 }

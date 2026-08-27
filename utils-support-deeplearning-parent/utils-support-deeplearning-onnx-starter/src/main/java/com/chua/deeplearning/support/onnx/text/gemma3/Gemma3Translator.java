@@ -453,17 +453,19 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         // 同时关闭 BFCArena：lm_head 量化 MatMul 的 ~135MB 临时缓冲在 BFC arena 下分配失败。
         opts.setCPUArenaAllocator(false);
         if (useGpu) {
-            // CUDA provider：限制 GPU 内存上限（防 4GB 显存 OOM），并关闭 BFC arena
-            // （gemma 大词表 lm_head 临时缓冲在 BFC arena 下易分配失败），减少碎片化。
+            // CUDA provider：默认图优化 + 默认 arena 策略（gemma 大词表 lm_head 临时缓冲较大，
+            // 不宜过度收紧内存限制否则碎片导致 OOM）。gpu_mem_limit 可选，经 -Dgemma.gpuMemLimit=MB 设置。
             try {
                 ai.onnxruntime.providers.OrtCUDAProviderOptions cuda =
                         new ai.onnxruntime.providers.OrtCUDAProviderOptions();
-                cuda.add("arena_extend_strategy", "kSameAsRequested");
-                long gpuMemLimit = Long.getLong("gemma.gpuMemLimit", 3072L) * 1024L * 1024L;
-                cuda.add("gpu_mem_limit", String.valueOf(gpuMemLimit));
+                long gpuMemLimit = Long.getLong("gemma.gpuMemLimit", 0L) * 1024L * 1024L;
+                if (gpuMemLimit > 0L) {
+                    cuda.add("gpu_mem_limit", String.valueOf(gpuMemLimit));
+                    log.info("[Gemma3] CUDA provider 已配置 (gpu_mem_limit={}MB)", gpuMemLimit / (1024L * 1024L));
+                } else {
+                    log.info("[Gemma3] CUDA provider 使用默认配置（未设 gpu_mem_limit）");
+                }
                 opts.addCUDA(cuda);
-                log.info("[Gemma3] CUDA provider 已配置 (arena_extend_strategy=kSameAsRequested, gpu_mem_limit={}MB)",
-                        gpuMemLimit / (1024L * 1024L));
             } catch (Exception providerEx) {
                 log.warn("[Gemma3] CUDA provider 参数配置失败，回退默认 addCUDA(): {}", providerEx.getMessage());
                 opts.addCUDA();
