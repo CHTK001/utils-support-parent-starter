@@ -119,11 +119,11 @@
 | ~~wespeaker 语义验证~~ | 已用 YESNO 真人语料补测通过（2026-08-26） | 已关闭 |
 <hr>
 <!-- coverage:start -->
-<h2 id="model-coverage">附：模型测试覆盖总览（208 个注册模型，更新于 2026-08-27）</h2>
+<h2 id="model-coverage">附：模型测试覆盖总览（201 个注册模型，更新于 2026-08-27）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 40　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 140　🚫 不再追踪 9　⬜ 未测试 9</p>
-<p>待测试清单（9）：`bitnet-embedding`、`cn-clip-image`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`pp-structure-v2`</p>
-<h3>OCR（16）</h3>
+<p>状态统计：✅ 实测通过 40　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 140　🚫 不再追踪 9　⬜ 未测试 2</p>
+<p>待测试清单（2）：`cn-clip-image`、`duguang-det-large`</p>
+<h3>OCR（15）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
 <tr><td><code>paddleocrv6-det</code></td><td>✅ 实测通过</td><td>ocr.extractor.PpOcrDetTranslator</td><td>ticket_new.png→22；freetxt.png→7</td></tr>
@@ -140,7 +140,6 @@
 <tr><td><code>pp-word-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.PpWordExtractorTranslator</td><td></td></tr>
 <tr><td><code>svtr-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.SvtrExtractorTranslator</td><td></td></tr>
 <tr><td><code>duguang-det-large</code></td><td>⬜ 未测试</td><td>ocr.duguang.DuguangDetTranslator</td><td></td></tr>
-<tr><td><code>pp-structure-v2</code></td><td>⬜ 未测试</td><td>ocr.paddlestructure.PpStructureV2Translator</td><td></td></tr>
 </tbody></table>
 <h3>人脸（29）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -256,14 +255,12 @@
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>lama-inpainting</code></td><td>📄 已有记录</td><td>inpainting.LamaInpaintingTranslator</td><td></td></tr>
 </tbody></table>
-<h3>大语言模型(LLM)（6）</h3>
+<h3>大语言模型(LLM)（4）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>gemma-3-270m</code></td><td>✅ 实测通过</td><td>text.gemma3.Gemma3Translator</td><td></td></tr>
 <tr><td><code>qwen2-0.5b</code></td><td>📄 已有记录</td><td>llama.translator.Qwen2ChatTranslator</td><td></td></tr>
 <tr><td><code>qwen2-0.5b-onnx</code></td><td>📄 已有记录</td><td>text.qwen.OnnxQwenTranslator</td><td></td></tr>
 <tr><td><code>qwen2-1.5b</code></td><td>📄 已有记录</td><td>llama.translator.Qwen2ChatTranslator</td><td></td></tr>
-<tr><td><code>gemma-4-e2b</code></td><td>⬜ 未测试</td><td>llama.translator.Gemma4Translator</td><td></td></tr>
-<tr><td><code>minicpm5</code></td><td>⬜ 未测试</td><td>llama.translator.MiniCpm5Translator</td><td></td></tr>
 </tbody></table>
 <h3>抠图/分割（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -306,7 +303,7 @@
 <tr><td><code>yolov8l-world</code></td><td>🚫 不再追踪</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
 <tr><td><code>yolov8m-world</code></td><td>🚫 不再追踪</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
 </tbody></table>
-<h3>自然语言（31）</h3>
+<h3>自然语言（28）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>bart-zh-seq2seq</code></td><td>✅ 实测通过</td><td>seq2seq.BartZhSeq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>bge-large-zh-embedding</code></td><td>✅ 实测通过</td><td>embedding.bge.BgeEmbeddingClient</td><td>语义聚类→相似对 cos=0.936 > 无关对 0.236/0.243</td></tr>
@@ -336,9 +333,6 @@
 <tr><td><code>t5-base-seq2seq</code></td><td>📄 已有记录</td><td>seq2seq.T5BaseSeq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>t5-seq2seq</code></td><td>📄 已有记录</td><td>seq2seq.T5Seq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>xlm-roberta-language-detection</code></td><td>📄 已有记录</td><td>classification.XlmRobertaLanguageDetectionTranslator</td><td></td></tr>
-<tr><td><code>bitnet-embedding</code></td><td>⬜ 未测试</td><td>llama.translator.BitnetEmbeddingTranslator</td><td></td></tr>
-<tr><td><code>embeddinggemma-300m</code></td><td>⬜ 未测试</td><td>llama.translator.EmbeddingGemmaTranslator</td><td></td></tr>
-<tr><td><code>otzaria-embedding</code></td><td>⬜ 未测试</td><td>llama.translator.OtzariaEmbeddingTranslator</td><td></td></tr>
 </tbody></table>
 <h3>视觉理解（8）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -351,7 +345,7 @@
 <tr><td><code>yolov8n-pose</code></td><td>📄 已有记录</td><td>pose.YoloV8nPoseTranslator</td><td></td></tr>
 <tr><td><code>c3d-action-detection</code></td><td>🚫 不再追踪</td><td>action.C3DActionDetectionTranslator</td><td></td></tr>
 </tbody></table>
-<h3>语音（7）</h3>
+<h3>语音（6）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>dfsmn-ans</code></td><td>✅ 实测通过</td><td>audio.denoise.DfsmnAnsTranslator</td><td></td></tr>
 <tr><td><code>mms-tts-eng</code></td><td>✅ 实测通过</td><td>null</td><td></td></tr>
@@ -359,7 +353,6 @@
 <tr><td><code>vits-icefall-zh</code></td><td>✅ 实测通过</td><td>null</td><td></td></tr>
 <tr><td><code>whisper-tiny</code></td><td>🧪 冒烟通过（无正样本）</td><td>null</td><td></td></tr>
 <tr><td><code>pocket-tts</code></td><td>📄 已有记录</td><td>null</td><td></td></tr>
-<tr><td><code>neutts-2e</code></td><td>⬜ 未测试</td><td>llama.translator.NeuTts2eTranslator</td><td></td></tr>
 </tbody></table>
 <h3>超分辨率/增强（9）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>

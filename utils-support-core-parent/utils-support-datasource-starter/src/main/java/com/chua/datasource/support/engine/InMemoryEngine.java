@@ -191,15 +191,17 @@ public class InMemoryEngine extends AbstractEngine {
             return data;
         }
         List<Condition> conditions = wrapper.getConditions();
+        List<T> result;
         if (conditions.isEmpty()) {
-            return data;
+            result = data;
+        } else {
+            List<T> candidates = tryIndexLookup(wrapper.getEntityClass(), conditions, data);
+            if (candidates.isEmpty()) {
+                return candidates;
+            }
+            Predicate<T> predicate = buildPredicate(conditions);
+            result = candidates.stream().filter(predicate).toList();
         }
-        List<T> candidates = tryIndexLookup(wrapper.getEntityClass(), conditions, data);
-        if (candidates.isEmpty()) {
-            return candidates;
-        }
-        Predicate<T> predicate = buildPredicate(conditions);
-        List<T> result = candidates.stream().filter(predicate).toList();
         List<String> orderBys = wrapper.getOrderBys();
         if (!orderBys.isEmpty()) {
             result = new ArrayList<>(result);

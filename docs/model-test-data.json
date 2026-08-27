@@ -8,7 +8,7 @@
     "smoke": "冒烟通过：加载/推理正常但测试图无正样本",
     "issue": "测试发现问题：加载/推理存在缺陷待修复"
   },
-  "total": 208,
+  "total": 201,
   "models": [
     {
       "id": "ada-face",
@@ -215,14 +215,6 @@
       "capability": "自然语言",
       "path": "nlp/embedding/bge-small-zh-v1.5/model.onnx",
       "status": "documented"
-    },
-    {
-      "id": "bitnet-embedding",
-      "translator": "llama.translator.BitnetEmbeddingTranslator",
-      "capability": "自然语言",
-      "path": "../llama/bitnet-embeddings-0.6b-bf16-i2_s.gguf",
-      "status": "pending",
-      "notes": "依赖 llama native binding，同 embeddinggemma"
     },
     {
       "id": "c3d-action-detection",
@@ -513,14 +505,6 @@
       "status": "documented"
     },
     {
-      "id": "embeddinggemma-300m",
-      "translator": "llama.translator.EmbeddingGemmaTranslator",
-      "capability": "自然语言",
-      "path": "../llama/embeddinggemma-300m-qat-Q8_0.gguf",
-      "status": "pending",
-      "notes": "下载成功(313MB)但 de.kherud.llama native 无法加载任何 GGUF（qwen2 同样失败）——绑定库版本问题"
-    },
-    {
       "id": "emotion-ferplus",
       "translator": "emotion.EmotionFerplusTranslator",
       "capability": "人脸",
@@ -620,14 +604,6 @@
       "status": "verified",
       "date": "2026-08-25",
       "notes": "Gemma3Example ALL PASS：416MB ONNX 对话生成正常（270M 小模型输出质量有限属预期）"
-    },
-    {
-      "id": "gemma-4-e2b",
-      "translator": "llama.translator.Gemma4Translator",
-      "capability": "大语言模型(LLM)",
-      "path": "../llama/gemma-4-E2B_q4_0-it.gguf",
-      "status": "pending",
-      "notes": "依赖 llama native binding，同上"
     },
     {
       "id": "gpt2",
@@ -826,14 +802,6 @@
       "status": "documented"
     },
     {
-      "id": "minicpm5",
-      "translator": "llama.translator.MiniCpm5Translator",
-      "capability": "大语言模型(LLM)",
-      "path": "../llama/MiniCPM5-1B-Claude-Opus-Fable5-V2-Thinking-Q8_0.gguf",
-      "status": "pending",
-      "notes": "依赖 llama native binding，同上"
-    },
-    {
       "id": "minilm-embedding",
       "translator": "embedding.minilm.MiniLMEmbeddingTranslator",
       "capability": "自然语言",
@@ -960,14 +928,6 @@
       "status": "documented"
     },
     {
-      "id": "neutts-2e",
-      "translator": "llama.translator.NeuTts2eTranslator",
-      "capability": "语音",
-      "path": "../llama/neutts-2e-Q4_0.gguf",
-      "status": "pending",
-      "notes": "gated(auto)需HF token + gguf 加载链路不通"
-    },
-    {
       "id": "nima",
       "translator": "assessment.NimaTranslator",
       "capability": "其他",
@@ -1015,14 +975,6 @@
       "capability": "其他",
       "path": "vision/reid/osnet_ain_multisource.onnx",
       "status": "documented"
-    },
-    {
-      "id": "otzaria-embedding",
-      "translator": "llama.translator.OtzariaEmbeddingTranslator",
-      "capability": "自然语言",
-      "path": "../llama/Otzaria-Embedding-V1-Flash-0.6B-Q8_0.gguf",
-      "status": "pending",
-      "notes": "gated(manual)需HF审批 + gguf 加载链路不通"
     },
     {
       "id": "owlv2-zero-shot-detector",
@@ -1100,14 +1052,6 @@
       "path": "ocr/ch_PP-OCRv4_rec_infer.onnx",
       "status": "na",
       "notes": "PP-OCRv4 rec 已由 PP-OCRv6 tiny rec (4.3MB) 覆盖，无需额外模型"
-    },
-    {
-      "id": "pp-structure-v2",
-      "translator": "ocr.paddlestructure.PpStructureV2Translator",
-      "capability": "OCR",
-      "path": "ocr/table_structure/pp_structure_v2/inference.onnx",
-      "status": "pending",
-      "notes": "PaddleOCR PP-StructureV2 表格结构识别——检测表格行列结构、提取单元格内容。从 PaddleOCR 官方 releases 下载 onnx 到 models/ocr/table_structure/pp_structure_v2/。与 PpStructureV2Translator 配套。"
     },
     {
       "id": "pp-word-extractor",
