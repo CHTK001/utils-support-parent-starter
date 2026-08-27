@@ -27,6 +27,9 @@ public class DefaultPipelineManager implements PipelineManager {
     @Override
     /** 获取Pipeline */
     public String getPipeline(String pipelineId) {
+        if (pipelineId == null) {
+            return null;
+        }
         return store.get(pipelineId);
     }
 
@@ -39,6 +42,9 @@ public class DefaultPipelineManager implements PipelineManager {
     @Override
     /** PipelineIds */
     public Iterable<String> pipelineIds() {
+        if (store == null) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableSet(store.keySet());
     }
 }

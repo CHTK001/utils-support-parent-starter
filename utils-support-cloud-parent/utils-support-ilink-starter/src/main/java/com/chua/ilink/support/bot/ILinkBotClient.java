@@ -15,13 +15,13 @@ import com.chua.common.support.network.client.ClientResponse;
 import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.http.HttpMethod;
-import static com.chua.common.support.utils.MapUtils.getString;
-import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,11 +30,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 微信 iLink Bot 客户端。
  *
- * <p>基于 ilinkai.weixin.qq.com 的 Bot API，
+ * <p>基于 {@code https://ilinkai.weixin.qq.com} 的 Bot API，
  * 支持扫码登录、长轮询接收消息、文本/媒体发送。</p>
  *
- * <p>登录流程：{@code loginWithQR()} 获取二维码 → 用户微信扫码确认 → 获得 token/botId。
- * 登录成功后通过长轮询接收消息，使用 contextToken 回复。</p>
+ * <p>登录流程：{@code loginWithQR()} 获取二维码（bot_type=3）→ 用户微信扫码确认 →
+ * 获得 botToken / botId。登录成功后通过长轮询接收消息，使用 context_token 回复。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -61,7 +61,7 @@ public class ILinkBotClient implements BotClient {
     private long connectTimeoutMillis = 10_000L;
 
     /** 读取超时（毫秒）*/
-    private long readTimeoutMillis = 35_000L;
+    private long readTimeoutMillis = 40_000L;
 
     /** 运行标志 */
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -75,14 +75,17 @@ public class ILinkBotClient implements BotClient {
     /** 二维码监听器 */
     private volatile QrcodeListener qrcodeListener;
 
-    /** contextToken 缓存：userId → contextToken */
+    /** context_token 缓存：userId → contextToken */
     private final Map<String, String> contextTokens = new ConcurrentHashMap<>();
+
+    /** getupdates 游标（会话内的消息拉取续接标记） */
+    private volatile String getUpdatesBuf = "";
 
     /** Bot ID（登录成功后赋值）*/
     private volatile String botId;
 
     /** HTTP 客户端 */
-    private HttpClient httpClient = HttpClientFactory.getClient();
+    private final HttpClient httpClient = HttpClientFactory.getClient();
 
     /**
      * 创建 ILinkBotClient
@@ -104,54 +107,70 @@ public class ILinkBotClient implements BotClient {
     /**
      * 扫码登录并启动消息轮询。
      *
+     * <p>基于 iLink 官方协议：
+     * <ol>
+     *   <li>{@code GET /ilink/bot/get_bot_qrcode?bot_type=3} 获取二维码；</li>
+     *   <li>长轮询 {@code GET /ilink/bot/get_qrcode_status?qrcode=xxx} 等待用户扫码确认
+     *   （单次最长约 35s，状态机 wait → scanned → confirmed / expired）；</li>
+     *   <li>confirmed 响应直接携带 botToken / botId，无需额外登录接口。</li>
+     * </ol></p>
+     *
      * @return botId，登录失败返回 null
      */
     public String loginWithQR() {
         try {
-            // Step 1: 获取登录二维码 URL
-            Map<String, Object> qrResponse = apiGet("/api/bot/qrcode");
-            String qrUrl = getString(qrResponse, "url");
-            String qrKey = getString(qrResponse, "key");
-            if (qrUrl == null || qrUrl.isEmpty()) {
-                log.error("[ILink] 获取二维码失败");
+            // Step 1: 获取登录二维码
+            Map<String, Object> qrResponse = apiGet("/ilink/bot/get_bot_qrcode?bot_type=3");
+            int ret = intVal(qrResponse, "ret", -1);
+            String qrCode = getString(qrResponse, "qrcode");
+            String qrImgUrl = getString(qrResponse, "qrcode_img_content");
+            if (ret != 0 || qrCode == null || qrCode.isEmpty()) {
+                log.error("[ILink] 获取二维码失败 ret={} err={}",
+                        ret, getString(qrResponse, "err_msg"));
+                if (qrcodeListener != null) {
+                    qrcodeListener.error("获取二维码失败", null);
+                }
                 return null;
             }
             if (qrcodeListener != null) {
-                qrcodeListener.newQrcode(qrUrl, qrKey);
+                qrcodeListener.newQrcode(qrImgUrl, qrCode);
             }
             log.info("[ILink] 二维码已生成，等待扫描...");
 
-            // Step 2: 轮询等待扫码确认
-            int maxAttempts = 60;
+            // Step 2: 长轮询扫码确认（每次最多阻塞 ~35s，最多约 3 分钟）
+            int maxAttempts = 6;
             for (int i = 0; i < maxAttempts; i++) {
-                Thread.sleep(3000);
-                Map<String, Object> status = apiGet("/api/bot/qrcode/status?key=" + qrKey);
-                String state = getString(status, "state");
+                Map<String, Object> status = apiGet(
+                        "/ilink/bot/get_qrcode_status?qrcode=" + qrCode);
+                int sret = intVal(status, "ret", -1);
+                if (sret != 0) {
+                    log.warn("[ILink] 轮询状态异常 ret={}", sret);
+                    sleepQuietly(2000);
+                    continue;
+                }
+                String state = getString(status, "status");
                 if ("scanned".equals(state)) {
                     if (qrcodeListener != null) { qrcodeListener.scanned(); }
                     log.info("[ILink] 已扫码，等待确认...");
                 } else if ("confirmed".equals(state)) {
-                    break;
+                    // confirmed 响应直接携带凭证
+                    this.token = getString(status, "botToken");
+                    this.botId = getString(status, "botId");
+                    String userId = getString(status, "userId");
+                    if (qrcodeListener != null) {
+                        qrcodeListener.confirmed(token, botId, userId);
+                    }
+                    running.set(true);
+                    log.info("[ILink] 登录成功 botId={}", botId);
+                    return botId;
                 } else if ("expired".equals(state)) {
                     if (qrcodeListener != null) { qrcodeListener.expired(); }
                     log.warn("[ILink] 二维码已过期");
                     return null;
                 }
+                // "wait"：继续长轮询
             }
-
-            // Step 3: 获取登录凭证
-            Map<String, Object> loginResult = apiPost("/api/bot/login", Map.of("key", qrKey));
-            this.token = getString(loginResult, "token");
-            this.botId = getString(loginResult, "botId");
-
-            String userId = getString(loginResult, "userId");
-            if (qrcodeListener != null) { qrcodeListener.confirmed(token, botId, userId); }
-
-            running.set(true);
-            log.info("[ILink] 登录成功 botId={}", botId);
-            return botId;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            log.warn("[ILink] 扫码超时未确认");
             return null;
         } catch (Exception e) {
             log.error("[ILink] 登录异常", e);
@@ -341,7 +360,10 @@ public class ILinkBotClient implements BotClient {
     // ==================== 私有方法 ====================
 
     /**
-     * 发送带 contextToken 的文本消息到指定用户。
+     * 发送带 context_token 的文本消息到指定用户。
+     *
+     * <p>iLink 协议要求 POST /ilink/bot/sendmessage，
+     * 请求头需携带 bot_token 与 X-WECHAT-UIN。</p>
      *
      * @param toUser 目标用户
      * @param body   请求体 JSON
@@ -352,10 +374,11 @@ public class ILinkBotClient implements BotClient {
             body.fluentPut("toUserId", toUser);
             String ctx = contextTokens.get(toUser);
             if (ctx != null) { body.fluentPut("contextToken", ctx); }
-            Map<String, Object> resp = apiPost("/api/bot/send/text", Json.fromJson(
+            Map<String, Object> resp = apiPost("/ilink/bot/sendmessage", Json.fromJson(
                     body.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
-            boolean ok = "0".equals(getString(resp, "errCode"));
-            return ok ? BotSendResult.ok("0") : BotSendResult.fail(-1, getString(resp, "errMsg"));
+            int ret = intVal(resp, "ret", -1);
+            boolean ok = ret == 0;
+            return ok ? BotSendResult.ok("0") : BotSendResult.fail(-1, getString(resp, "errmsg"));
         } catch (Exception e) {
             return BotSendResult.fail(-1, e.getMessage());
         }
@@ -391,14 +414,33 @@ public class ILinkBotClient implements BotClient {
     /**
      * 长轮询获取新消息。
      *
+     * <p>iLink 协议要求 POST /ilink/bot/getupdates，
+     * 请求体携带 base_info 与 get_updates_buf 游标。</p>
+     *
      * @return 入站消息列表
      */
     private List<BotInboundMessage> pollMessages() {
         List<BotInboundMessage> result = new ArrayList<>();
         try {
-            Map<String, Object> resp = apiGet("/api/bot/getupdates?timeout=25000");
-            var items = (List<?>) resp.getOrDefault("messages", List.of());
-            for (var item : items) {
+            JsonObject body = new JsonObject();
+            body.fluentPut("base_info", new JsonObject().fluentPut("channel_version", "2.0.0"));
+            body.fluentPut("get_updates_buf", getUpdatesBuf);
+            Map<String, Object> resp = apiPost("/ilink/bot/getupdates", Json.fromJson(
+                    body.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
+            int ret = intVal(resp, "ret", -1);
+            if (ret == -14) {
+                // 会话过期
+                running.set(false);
+                return result;
+            }
+            if (ret != 0) {
+                return result;
+            }
+            String nextBuf = getString(resp, "get_updates_buf");
+            if (nextBuf != null) { getUpdatesBuf = nextBuf; }
+            var items = resp.get("messages");
+            if (!(items instanceof List<?> list)) { return result; }
+            for (var item : list) {
                 if (!(item instanceof Map)) { continue; }
                 @SuppressWarnings("unchecked")
                 Map<String, Object> msg = (Map<String, Object>) item;
@@ -407,13 +449,13 @@ public class ILinkBotClient implements BotClient {
                 if (ctxToken != null) { contextTokens.put(fromUser, ctxToken); }
                 String textContent = extractNestedText(msg);
                 result.add(BotInboundMessage.builder()
-        .msgId(String.valueOf(System.nanoTime()))
-        .type(BotInboundMessage.Type.TEXT)
-        .content(textContent)
-        .fromUser(fromUser)
-        .toUser(botId)
-        .createTime(System.currentTimeMillis())
-        .build());
+                        .msgId(String.valueOf(System.nanoTime()))
+                        .type(BotInboundMessage.Type.TEXT)
+                        .content(textContent)
+                        .fromUser(fromUser)
+                        .toUser(botId)
+                        .createTime(System.currentTimeMillis())
+                        .build());
             }
         } catch (Exception e) {
             log.debug("[ILink] 轮询异常: {}", e.getMessage());
@@ -444,6 +486,8 @@ public class ILinkBotClient implements BotClient {
     /**
      * 发送 POST 请求并解析 JSON 响应。
      *
+     * <p>携带 iLink 协议要求的鉴权头（ilink_bot_token + X-WECHAT-UIN）。</p>
+     *
      * @param path API 路径
      * @param body 请求体对象
      * @return 响应映射，解析失败返回空 Map
@@ -451,12 +495,9 @@ public class ILinkBotClient implements BotClient {
     private Map<String, Object> apiPost(String path, Object body) {
         ClientRequest request = ClientRequest.of(baseUrl + path, HttpMethod.POST)
                 .header("Content-Type", "application/json");
-        if (token != null && !token.isEmpty()) {
-            request.header("Authorization", "Bearer " + token);
-        }
+        applyAuthHeaders(request);
         request.setBody(Json.toJson(body));
-        HttpClient client = HttpClientFactory.getClient();
-        ClientResponse response = client.execute(request);
+        ClientResponse response = httpClient.execute(request);
         return safeParse(response.getBodyString());
     }
 
@@ -471,9 +512,34 @@ public class ILinkBotClient implements BotClient {
         if (token != null && !token.isEmpty()) {
             request.header("Authorization", "Bearer " + token);
         }
-        HttpClient client = HttpClientFactory.getClient();
-        ClientResponse response = client.execute(request);
+        ClientResponse response = httpClient.execute(request);
         return safeParse(response.getBodyString());
+    }
+
+    /**
+     * 为业务 POST 请求附加 iLink 协议鉴权头。
+     *
+     * <p>仅当已登录（token 非空）时附加 bot_token 鉴权；X-WECHAT-UIN 每次随机生成。</p>
+     */
+    private void applyAuthHeaders(ClientRequest request) {
+        request.setConnectTimeout(connectTimeoutMillis);
+        request.setReadTimeout(readTimeoutMillis);
+        if (token != null && !token.isEmpty()) {
+            request.header("AuthorizationType", "ilink_bot_token");
+            request.header("Authorization", "Bearer " + token);
+        }
+        request.header("X-WECHAT-UIN", wechatUin());
+    }
+
+    /**
+     * 生成 X-WECHAT-UIN：随机 uint32 → base64。
+     */
+    private static String wechatUin() {
+        int v = new Random().nextInt();
+        byte[] bytes = {
+                (byte) (v >> 24), (byte) (v >> 16), (byte) (v >> 8), (byte) v
+        };
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     /**
@@ -487,6 +553,35 @@ public class ILinkBotClient implements BotClient {
             return Json.fromJson(body);
         } catch (Exception e) {
             return Map.of();
+        }
+    }
+
+    /**
+     * 从映射中提取字符串值。
+     */
+    private static String getString(Map<String, Object> map, String key) {
+        if (map == null || !map.containsKey(key)) {
+            return null;
+        }
+        Object v = map.get(key);
+        return v == null ? null : v.toString();
+    }
+
+    /**
+     * 从映射中提取 int 值，缺省返回 defaultVal。
+     */
+    private static int intVal(Map<String, Object> map, String key, int defaultVal) {
+        if (map == null || !map.containsKey(key)) {
+            return defaultVal;
+        }
+        Object v = map.get(key);
+        if (v instanceof Number n) {
+            return n.intValue();
+        }
+        try {
+            return Integer.parseInt(v.toString());
+        } catch (Exception e) {
+            return defaultVal;
         }
     }
 
