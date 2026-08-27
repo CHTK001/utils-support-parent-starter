@@ -3,6 +3,7 @@ package com.chua.deeplearning.support.onnx.audio;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.common.support.vector.DefaultVectorStorage;
+import com.chua.deeplearning.support.speech.SpeechEnhancer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -15,12 +16,14 @@ import java.util.Objects;
 /**
  * 声纹识别管线（CAM++ 神经模型，192 维嵌入）。
  *
- * <p>创建路径与 FacePipeline 同构：</p>
+ * <p>创建路径与 FacePipeline 同构（统一 String modelId provider 模式）：</p>
  * <pre>{@code
  * // 构建管线
  * VoiceprintPipeline vp = VoiceprintPipeline.builder()
  *         .embedder(CampplusEmbedding.load())
- *         .max(100)             // 检索结果上限（与 topK 取 min）
+ *         .max(100)                  // 检索结果上限（与 topK 取 min）
+ *         .denoise("dfsmn-ans")      // ○ 按模型 ID 降噪（SpeechEnhancer）
+ *         .vad("energy")             // ○ 按类型 VAD 切分（energy/silero...）
  *         .build();
  *
  * // 链式入库
@@ -55,12 +58,23 @@ public class VoiceprintPipeline implements AutoCloseable {
     /** 检索结果上限（与 search 的 topK 取 min）。 */
     private final int maxResults;
 
-    private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder, int maxResults) {
+    /** 降噪增强器（null 表示不降噪）。 */
+    private final SpeechEnhancer denoiseEnhancer;
+
+    /** VAD 类型（null 表示不做 VAD）。 */
+    private final String vadType;
+
+    private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder, int maxResults,
+                               SpeechEnhancer denoiseEnhancer, String vadType) {
         this.storage = Objects.requireNonNull(storage, "vectorStorage");
         this.campplus = embedder != null ? embedder : CampplusEmbedding.load();
         this.maxResults = Math.max(1, maxResults);
-        log.info("[Voiceprint] init: CAM++ neural, dim=192, maxResults={}, storage={}",
-                maxResults, storage.getClass().getSimpleName());
+        this.denoiseEnhancer = denoiseEnhancer;
+        this.vadType = vadType;
+        log.info("[Voiceprint] init: CAM++ neural, dim=192, maxResults={}, storage={}, denoise={}, vad={}",
+                maxResults, storage.getClass().getSimpleName(),
+                denoiseEnhancer != null ? denoiseEnhancer.getClass().getSimpleName() : "off",
+                vadType != null ? vadType : "off");
     }
 
     /** 创建 Builder。 */
@@ -83,9 +97,119 @@ public class VoiceprintPipeline implements AutoCloseable {
         return new SearchConfig(this);
     }
 
-    /** 提取声纹特征。 */
+    /** 提取声纹特征（可选降噪 + VAD 预处理）。 */
     float[] extract(Path samplePath) throws Exception {
-        return campplus.extract(AudioUtils.loadMono16k(samplePath));
+        float[] samples = AudioUtils.loadMono16k(samplePath);
+        if (denoiseEnhancer != null) {
+            samples = denoise(samples);
+        }
+        if (vadType != null) {
+            List<float[]> segments = splitByVad(samples, vadType);
+            if (!segments.isEmpty()) {
+                float[] longest = segments.get(0);
+                for (float[] seg : segments) {
+                    if (seg.length > longest.length) {
+                        longest = seg;
+                    }
+                }
+                samples = longest;
+            }
+        }
+        return campplus.extract(samples);
+    }
+
+    /**
+     * 降噪预处理（委托给 SpeechEnhancer）。
+     *
+     * @param s 16kHz 采样
+     * @return 增强后采样
+     */
+    private float[] denoise(float[] s) {
+        try {
+            float[] up = AudioUtils.resample(s, 16000, 48000);
+            byte[] wavIn = AudioUtils.toWavBytes(up, 48000);
+            byte[] wavOut = denoiseEnhancer.enhance(wavIn);
+            float[] enhanced48k = com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder
+                    .decodeToFloat(wavOut, 48000);
+            float[] down = AudioUtils.resample(enhanced48k, 48000, 16000);
+            log.info("[Voiceprint] 降噪完成: {} → {} 采样", s.length, down.length);
+            return down;
+        } catch (Exception e) {
+            log.warn("[Voiceprint] 降噪失败，回退原始音频: {}", e.getMessage());
+            return s;
+        }
+    }
+
+    /**
+     * 按类型创建 VAD 切分。
+     *
+     * @param s    16kHz 采样
+     * @param type VAD 类型（"energy" / "silero" 等）
+     * @return 语音段列表
+     */
+    private static List<float[]> splitByVad(float[] s, String type) {
+        return switch (type.toLowerCase()) {
+            case "energy" -> splitByEnergy(s, 0.01f, 0.4f, 28f);
+            default -> List.of(s);
+        };
+    }
+
+    /**
+     * 能量 VAD 切分（通用实现，可复用于 AsrPipeline）。
+     *
+     * @param s           16kHz 单声道采样
+     * @param silenceRms  静音 RMS 门限
+     * @param minSegSec   最短语音段秒数
+     * @param maxSegSec   最大段长秒数
+     * @return 语音段列表
+     */
+    static List<float[]> splitByEnergy(float[] s, float silenceRms, float minSegSec, float maxSegSec) {
+        int frame = (int) (0.03F * 16000);
+        int minSeg = (int) (minSegSec * 16000);
+        int maxSeg = (int) (maxSegSec * 16000);
+        int mergeGap = (int) (0.6F * 16000);
+        List<int[]> voiced = new ArrayList<>();
+        int start = -1;
+        for (int i = 0; i + frame <= s.length; i += frame) {
+            boolean loud = rms(s, i, frame) >= silenceRms;
+            if (loud && start < 0) {
+                start = i;
+            } else if (!loud && start >= 0 && i - start >= minSeg) {
+                voiced.add(new int[]{start, i});
+                start = -1;
+            } else if (!loud) {
+                start = -1;
+            }
+        }
+        if (start >= 0) {
+            voiced.add(new int[]{start, Math.min(s.length, start + maxSeg)});
+        }
+        List<int[]> merged = new ArrayList<>();
+        for (int[] r : voiced) {
+            if (!merged.isEmpty() && r[0] - merged.get(merged.size() - 1)[1] < mergeGap) {
+                merged.get(merged.size() - 1)[1] = r[1];
+            } else {
+                merged.add(r);
+            }
+        }
+        if (merged.isEmpty()) {
+            return List.of(s);
+        }
+        List<float[]> out = new ArrayList<>(merged.size());
+        for (int[] r : merged) {
+            float[] seg = new float[Math.min(r[1], s.length) - r[0]];
+            System.arraycopy(s, r[0], seg, 0, seg.length);
+            out.add(seg);
+        }
+        return out;
+    }
+
+    private static float rms(float[] s, int off, int len) {
+        double sum = 0;
+        for (int i = off; i < off + len; i++) {
+            sum += s[i] * s[i];
+        }
+        return (float) Math.sqrt(sum / len);
     }
 
     /** 向量存储。 */
@@ -222,6 +346,8 @@ public class VoiceprintPipeline implements AutoCloseable {
         private VectorStorage vectorStorage;
         private Path storageDir;
         private int maxResults = 100;
+        private SpeechEnhancer denoiseEnhancer;
+        private String vadType;
 
         public Builder embedder(CampplusEmbedding e) {
             this.embedder = e;
@@ -295,13 +421,45 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
+        /**
+         * 设置降噪模型 ID（null 表示不降噪）。
+         *
+         * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
+         * <pre>{@code
+         * .denoise("dfsmn-ans")  // DFSMN 单麦近场降噪
+         * }</pre>
+         *
+         * @param modelId 模型 ID（对应 {@link SpeechEnhancer} 注册表）
+         * @return this
+         */
+        public Builder denoise(String modelId) {
+            this.denoiseEnhancer = modelId != null ? SpeechEnhancer.create(modelId) : null;
+            return this;
+        }
+
+        /**
+         * 设置 VAD 类型（null 表示不做 VAD）。
+         *
+         * <p>统一 provider 模式（与 FacePipeline 一致），按类型字符串选择切分策略：
+         * <pre>{@code
+         * .vad("energy")   // 能量 VAD（默认参数）
+         * }</pre>
+         *
+         * @param type VAD 类型（"energy" 等）
+         * @return this
+         */
+        public Builder vad(String type) {
+            this.vadType = type;
+            return this;
+        }
+
         public VoiceprintPipeline build() {
             VectorStorage s = vectorStorage;
             if (s == null) {
                 s = DefaultVectorStorage.create(192,
                         storageDir != null ? storageDir : defaultDirectory());
             }
-            return new VoiceprintPipeline(s, embedder, maxResults);
+            return new VoiceprintPipeline(s, embedder, maxResults, denoiseEnhancer, vadType);
         }
     }
 

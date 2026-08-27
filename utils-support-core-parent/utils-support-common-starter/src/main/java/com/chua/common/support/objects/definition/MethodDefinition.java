@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.definition;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -81,7 +82,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
             throw new IllegalStateException("Bean 实例不存在: " + getName());
         }
         ClassUtils.setAccessible(method);
-        return method.invoke(target, args);
+        return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
     }
 
     @Override

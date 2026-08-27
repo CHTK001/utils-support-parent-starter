@@ -18,9 +18,13 @@ import java.util.Objects;
 class BPlusTreeNode<K, V> {
 
     final boolean leaf;
-    final List<K> keys = new ArrayList<>();
-    final List<V> values = new ArrayList<>();
-    final List<BPlusTreeNode<K, V>> children = new ArrayList<>();
+    /** 当前节点所有键，有序排列 */
+    List<K> keys = new ArrayList<>();
+    /** 与 keys 一一对应的值 */
+    List<V> values = new ArrayList<>();
+    /** 内部节点的子节点列表（叶子节点为空） */
+    List<BPlusTreeNode<K, V>> children = new ArrayList<>();
+    /** 叶子节点之间的链表后继指针；内部节点为 null */
     BPlusTreeNode<K, V> next;
 
     BPlusTreeNode(boolean leaf) {
@@ -45,4 +49,13 @@ class BPlusTreeNode<K, V> {
     boolean isEmpty() {
         return keys.isEmpty() && children.isEmpty();
     }
+
+    List<K> getKeys() { return keys; }
+    List<V> getValues() { return values; }
+    List<BPlusTreeNode<K, V>> getChildren() { return children; }
+    BPlusTreeNode<K, V> getNext() { return next; }
+    void setNext(BPlusTreeNode<K, V> next) { this.next = next; }
+    void setKeys(List<K> keys) { this.keys = keys; }
+    void setValues(List<V> values) { this.values = values; }
+    void setChildren(List<BPlusTreeNode<K, V>> children) { this.children = children; }
 }

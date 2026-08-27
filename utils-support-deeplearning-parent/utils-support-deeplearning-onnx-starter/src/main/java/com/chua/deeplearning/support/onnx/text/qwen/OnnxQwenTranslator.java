@@ -5,7 +5,6 @@ import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.OrtSession.SessionOptions;
 import com.chua.deeplearning.support.engine.ModelRegistry;
-import com.chua.deeplearning.support.onnx.text.minimind.MiniMindTokenizer;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,21 +30,33 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     private final boolean useGpu;
     private static final int MAX_NEW_TOKENS = 128;
 
-    private MiniMindTokenizer tokenizer;
+    private final float temperature;
+    private final float repeatPenalty;
+    private final int topK;
+
+    private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
     private OrtEnvironment ortEnv;
     private OrtSession session;
+    private int eosTokenId = -1;
     private volatile boolean initialized;
     private int kvDim = 128;
     /** 隐藏层数（从模型输入动态解析，0.5B=24 / 1.5B=28） */
     private int nLayers = 24;
 
     public OnnxQwenTranslator() {
-        this("qwen2-0.5b-onnx", false);
+        this("qwen2-1.5b-onnx", false);
     }
 
     public OnnxQwenTranslator(String modelId, boolean useGpu) {
+        this(modelId, useGpu, 0.7f, 1.2f, 40);
+    }
+
+    public OnnxQwenTranslator(String modelId, boolean useGpu, float temperature, float repeatPenalty, int topK) {
         this.modelId = modelId;
         this.useGpu = useGpu;
+        this.temperature = temperature;
+        this.repeatPenalty = repeatPenalty;
+        this.topK = topK;
     }
 
     /**
@@ -119,8 +130,15 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         if (tokPath == null || !Files.exists(tokPath)) {
             throw new IllegalStateException("tokenizer.json 不存在: " + tokPath);
         }
-        tokenizer = MiniMindTokenizer.load(tokPath);
-        log.info("[QwenOnnx] tokenizer loaded, vocab={}", tokenizer.vocabSize());
+        tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
+                .optTokenizerPath(tokPath)
+                .optMaxLength(8192)
+                .build();
+        eosTokenId = resolveTokenId("<|im_end|>");
+        if (eosTokenId < 0) {
+            eosTokenId = resolveTokenId("<|endoftext|>");
+        }
+        log.info("[QwenOnnx] tokenizer loaded (DJL), eos={}", eosTokenId);
 
         // 检查外部权重：单文件模型（内嵌权重）无 .data；骨架模型（如 fp16）引用 <model>.data 需一并下载。
         // 通用策略：若同目录存在 <model名>.data 引用但文件缺失，则提示用户补充（多文件模型不宜自动猜 URL）。
@@ -174,10 +192,15 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         String chat = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
                 + "<|im_start|>user\n" + (userPrompt == null ? "" : userPrompt) + "<|im_end|>\n"
                 + "<|im_start|>assistant\n";
-        int[] ids = tokenizer.encode(chat);
+        long[] ids = tokenizer.encode(chat).getIds();
         StringBuilder out = new StringBuilder();
+        java.util.List<Long> tokens = new java.util.ArrayList<>();
+        for (long id : ids) {
+            tokens.add(id);
+        }
+        int promptLen = ids.length;
 
-        long[] inputIds = toLong(ids);
+        long[] inputIds = ids;
         long[] attMask = ones(ids.length);
         long[] posIds = range(ids.length);
 
@@ -200,19 +223,25 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             try (OrtSession.Result result = session.run(inputs)) {
                 float[][][] logits = (float[][][]) result.get(0).getValue();
                 int last = logits[0].length - 1;
-                int next = argmax(logits[0][last]);
+                int next = nextToken(logits[0][last], tokens, promptLen);
 
                 if (isEos(next)) {
                     for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
                     break;
                 }
-                String tokText = tokenizer.decode(new int[]{next});
+                String tokText = tokenizer.decode(new long[]{next});
                 if (tokText.contains("<|im_end|>") || tokText.contains("<|endoftext|>")) {
                     for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
                     break;
                 }
                 out.append(tokText);
+                tokens.add((long) next);
                 generated++;
+
+                if (isDegenerate(tokens, promptLen)) {
+                    log.info("[QwenOnnx] 检测到退化重复，提前终止 step={}", generated);
+                    break;
+                }
 
                 // 收集 present -> 新 past（仅在被裁剪前）
                 // position_ids：新 token 的位置 = 当前已处理总长度（0-indexed）
@@ -255,20 +284,44 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     }
 
     private boolean isEos(int id) {
-        Integer imEnd = tokenizer.addedTokenId("<|im_end|>");
-        if (imEnd != null && imEnd >= 0 && id == imEnd) {
-            return true;
-        }
-        Integer eot = tokenizer.addedTokenId("<|endoftext|>");
-        return eot != null && eot >= 0 && id == eot;
+        return eosTokenId >= 0 && id == eosTokenId;
     }
 
-    private static long[] toLong(int[] arr) {
-        long[] r = new long[arr.length];
-        for (int i = 0; i < arr.length; i++) {
-            r[i] = arr[i];
+    /**
+     * 检测已生成片段是否陷入退化解（重复/循环），用于提前终止。
+     */
+    private static boolean isDegenerate(java.util.List<Long> tokens, int promptLen) {
+        int gen = tokens.size() - promptLen;
+        if (gen < 8) {
+            return false;
         }
-        return r;
+        int start = tokens.size() - Math.min(gen, 16);
+        int window = tokens.size() - start;
+        for (int p = 2; p <= window / 2; p++) {
+            if (window % p != 0) {
+                continue;
+            }
+            boolean repeat = true;
+            for (int i = start + p; i < tokens.size(); i++) {
+                if (!tokens.get(i).equals(tokens.get(i - p))) {
+                    repeat = false;
+                    break;
+                }
+            }
+            if (repeat) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int resolveTokenId(String token) {
+        try {
+            long[] ids = tokenizer.encode(token).getIds();
+            return ids != null && ids.length == 1 ? (int) ids[0] : -1;
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     private static long[] ones(int n) {
@@ -285,6 +338,68 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             r[i] = i;
         }
         return r;
+    }
+
+    private int nextToken(float[] logits, java.util.List<Long> tokens, int promptLen) {
+        float[] scores = logits.clone();
+        if (repeatPenalty > 1f) {
+            for (int i = promptLen; i < tokens.size(); i++) {
+                int id = tokens.get(i).intValue();
+                if (id < 0 || id >= scores.length) {
+                    continue;
+                }
+                if (scores[id] > 0) {
+                    scores[id] /= repeatPenalty;
+                } else {
+                    scores[id] *= repeatPenalty;
+                }
+            }
+        }
+        if (temperature > 0f) {
+            return sample(scores, temperature, topK);
+        }
+        return argmax(scores);
+    }
+
+    private int sample(float[] scores, float temp, int k) {
+        float max = Float.NEGATIVE_INFINITY;
+        for (float s : scores) {
+            if (s > max) {
+                max = s;
+            }
+        }
+        double sum = 0.0;
+        double[] probs = new double[scores.length];
+        for (int i = 0; i < scores.length; i++) {
+            probs[i] = Math.exp((scores[i] - max) / temp);
+            sum += probs[i];
+        }
+        if (k > 0 && k < scores.length) {
+            int[] order = java.util.stream.IntStream.range(0, scores.length)
+                    .boxed()
+                    .sorted((a, b) -> Double.compare(probs[b], probs[a]))
+                    .mapToInt(Integer::intValue)
+                    .toArray();
+            double kept = 0.0;
+            for (int i = 0; i < k; i++) {
+                kept += probs[order[i]];
+            }
+            for (int i = k; i < order.length; i++) {
+                probs[order[i]] = 0.0;
+            }
+            if (kept > 0.0) {
+                sum = kept;
+            }
+        }
+        double r = new java.util.Random().nextDouble() * sum;
+        double cumulative = 0.0;
+        for (int i = 0; i < scores.length; i++) {
+            cumulative += probs[i];
+            if (r < cumulative) {
+                return i;
+            }
+        }
+        return argmax(scores);
     }
 
     private static int argmax(float[] logits) {

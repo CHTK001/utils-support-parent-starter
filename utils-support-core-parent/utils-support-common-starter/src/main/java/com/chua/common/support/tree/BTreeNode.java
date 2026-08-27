@@ -17,9 +17,9 @@ import java.util.Optional;
  */
 class BTreeNode<K, V> {
 
-    final List<K> keys = new ArrayList<>();
-    final List<V> values = new ArrayList<>();
-    final List<BTreeNode<K, V>> children = new ArrayList<>();
+    List<K> keys = new ArrayList<>();
+    List<V> values = new ArrayList<>();
+    List<BTreeNode<K, V>> children = new ArrayList<>();
     boolean leaf;
 
     BTreeNode(boolean leaf) {
@@ -44,4 +44,13 @@ class BTreeNode<K, V> {
     boolean isEmpty() {
         return keys.isEmpty();
     }
+
+    List<K> getKeys() { return keys; }
+    List<V> getValues() { return values; }
+    List<BTreeNode<K, V>> getChildren() { return children; }
+    boolean isLeaf() { return leaf; }
+    void setLeaf(boolean leaf) { this.leaf = leaf; }
+    void setKeys(List<K> keys) { this.keys = keys; }
+    void setValues(List<V> values) { this.values = values; }
+    void setChildren(List<BTreeNode<K, V>> children) { this.children = children; }
 }

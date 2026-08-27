@@ -3,6 +3,7 @@ package com.chua.common.support.config.loader;
 import com.chua.common.support.config.center.ConfigListener;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.objects.annotation.ConfigValue;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -252,7 +253,7 @@ public class ConfigValueBindingManager implements ConfigListener {
             Method method = binding.getMethod();
             ClassUtils.setAccessible(method);
             Object convertedValue = convertValue(value, binding.getTargetType());
-            method.invoke(binding.getBean(), convertedValue);
+            ReflectUtils.invoke(binding.getBean(), method.getName(), method.getReturnType(), method.getParameterTypes(), convertedValue);
             binding.setCurrentValue(convertedValue);
         } catch (Exception e) {
             log.error("注入方法配置值失败: {}", binding, e);
@@ -428,7 +429,8 @@ public class ConfigValueBindingManager implements ConfigListener {
                 return;
             }
             ClassUtils.setAccessible(callback);
-            callback.invoke(binding.getBean(), binding.getConfigKey(), oldValue, newValue);
+            ReflectUtils.invoke(binding.getBean(), callback.getName(), callback.getReturnType(), callback.getParameterTypes(),
+                binding.getConfigKey(), oldValue, newValue);
         } catch (Exception e) {
             log.error("调用回调方法失败: {}.{}", binding.getBeanName(), callbackName, e);
         }

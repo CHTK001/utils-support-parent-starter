@@ -19,8 +19,8 @@ import java.nio.file.Path;
  */
 class FaceSuperResolutionSmokeTest {
 
-    private static final String TEST_IMAGE = "Z:/temp/opencode/nudedetector/testimg/lena.jpg";
-    private static final String OUT_DIR = "Z:/temp/opencode/nudedetector/testimg";
+    private static final String TEST_IMAGE = "D:/images/3peoplebeauty.jpg";
+    private static final String OUT_DIR = "D:/images/output";
 
     @BeforeEach
     void setUp() throws Exception {

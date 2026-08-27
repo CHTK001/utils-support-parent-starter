@@ -1,10 +1,11 @@
 package com.chua.mysql.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.engine.DataSourceOptions;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.network.tunnel.Tunnel;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.dialect.MysqlDialect;
 import com.chua.datasource.support.engine.JdbcEngine;
 import com.zaxxer.hikari.HikariDataSource;
@@ -21,7 +22,7 @@ import javax.sql.DataSource;
  * 使用示例：
  * <pre>{@code
  * MysqlEngine engine = new MysqlEngine();
- * engine.addDataSource("default", "localhost", 3306, "mydb", "root", "password");
+ * engine.addDataSource(new DataSourceOptions("default", "localhost", 3306, "mydb", "root", "password", null));
  * List<User> users = engine.query(User.class).list();
  * }</pre>
  * </p>
@@ -47,16 +48,26 @@ public class MysqlEngine extends JdbcEngine {
      * @return 当前引擎实例
      */
     public Engine addDataSource(String name, String host, int port, String database, String username, String password) {
-        return addDataSource(name, host, port, database, username, password, null);
+        DataSourceOptions options = new DataSourceOptions(name, host, port, database, username, password, null);
+        return addDataSource(options);
     }
 
-    /** 添加DataSource */
-    public Engine addDataSource(String name, String host, int port, String database, String username, String password, Tunnel tunnel) {
+    /**
+     * 添加一个 MySQL 数据源（支持隧道穿透）。
+     *
+     * @param options 数据源选项，包含连接信息和可选隧道
+     * @return 当前引擎实例
+     */
+    public Engine addDataSource(DataSourceOptions options) {
+        if (options == null) {
+            throw new IllegalArgumentException("options must not be null");
+        }
         HikariDataSource ds = new HikariDataSource();
         final int[] tunnelPortCapture = {0};
-        int targetPort = port;
-        String targetHost = host;
+        int targetPort = options.port();
+        String targetHost = options.host();
 
+        Tunnel tunnel = options.tunnel();
         if (tunnel != null) {
             int tunnelPort = tunnel.open();
             if (tunnelPort > 0) {
@@ -66,12 +77,12 @@ public class MysqlEngine extends JdbcEngine {
             }
         }
 
-        ds.setJdbcUrl("jdbc:mysql://" + targetHost + ":" + targetPort + "/" + database + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
-        ds.setUsername(username);
-        ds.setPassword(password);
+        ds.setJdbcUrl("jdbc:mysql://" + targetHost + ":" + targetPort + "/" + options.database() + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
+        ds.setUsername(options.username());
+        ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);
-        return addDataSource(name, new EngineDataSource<HikariDataSource>() {
-            @Override public String name() { return name; }
+        return addDataSource(options.name(), new EngineDataSource<HikariDataSource>() {
+            @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
             @Override public EngineDataSource<HikariDataSource> setSource(Object source) { return this; }
             @Override public Dialect getDialect() { return new MysqlDialect(); }

@@ -20,61 +20,13 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
 
 
 /**
+ * 集合工具类，提供 List、Set、Map 等集合的常用操作方法。
  *
- *
- *
- * <pre>
- * //
- * List<Order> orders = Arrays.asList(
- *     new Order("ORDER-20240101-00001", "                  ", 2, 110.0, "2025-10-01"),
- *     new Order("ORDER-20240101-00002", "                  ", 3, 120.0, "2025-10-01"),
- *     ...
- * );
- *
- * //       1         CollectionUtils
- * CollectionUtils.printTableFormat(
- *     "            :",
- *     orders,
- *     5,  //             5
- *     order -> String.format(
- *         "         : %s,       : %s,       : %d,       :   %.1f,       : %s",
- *         order.getOrderNo(), order.getProduct(), order.getQty(),
- *         order.getPrice(), order.getDate()
- *     )
- * );
- *
- * //       2         ListOption
- * ListOption<Order> listOption = new ListOption<>(orders);
- * listOption.printTableFormat(
- *     "            :",
- *     5,  //             5
- *     order -> String.format(
- *         "         : %s,       : %s,       : %d,       :   %.1f,       : %s",
- *         order.getOrderNo(), order.getProduct(), order.getQty(),
- *         order.getPrice(), order.getDate()
- *     )
- * );
- *
- * //       3               5
- * CollectionUtils.printTableFormat(
- *     "            :",
- *     orders,
- *     order -> String.format("         : %s,       : %s", order.getOrderNo(), order.getProduct())
- * );
- * </pre>
- *
- *
- * <pre>
- * [2025-11-01 16:16:38] [INFO ] [] [main] [com.chua.example:205] -             :
- * [2025-11-01 16:16:38] [INFO ] [] [main] [com.chua.example:209] -                     : ORDER-20240101-00001,       :                   ,       : 2,       :   110.0,       : 2025-10-01
- * [2025-11-01 16:16:38] [INFO ] [] [main] [com.chua.example:209] -                     : ORDER-20240101-00002,       :                   ,       : 3,       :   120.0,       : 2025-10-01
- * [2025-11-01 16:16:38] [INFO ] [] [main] [com.chua.example:209] -                     : ORDER-20240101-00003,       :             ,       : 4,       :   130.0,       : 2025-10-01
- * [2025-11-01 16:16:38] [INFO ] [] [main] [com.chua.example:209] -                     : ORDER-20240101-00004,       : 4K         ,       : 5,       :   140.0,       : 2025-10-01
- * [2025-11-01 16:16:38] [INFO ] [] [main] [com.chua.example:209] -                     : ORDER-20240101-00005,       :                   ,       : 1,       :   150.0,       : 2025-10-01
- * [2025-11-01 16:16:38] [INFO ] [] [main] [com.chua.example:214] -            ...        5
- * </pre>
+ * <p>包含空值检查、遍历、聚合、分组、排序、打印格式化等功能，
+ * 部分方法参考 Google Guava 实现。</p>
  *
  * @author CH
+ * @since 4.0.0.50
  */
 @Slf4j
 public class CollectionUtils {

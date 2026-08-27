@@ -123,4 +123,26 @@ public final class DeeplearningModels {
         }
         return Collections.unmodifiableList(ids);
     }
+
+    /**
+     * 按当前服务器硬件配置挑选指定引擎的推荐模型。
+     *
+     * <p>规则：优先取该引擎内 {@code recommended=true} 且硬件配置（显存）满足当前设备的模型；
+     * 无推荐条目时退化为列表第一个；{@code auto} 设备策略下自动探测本机 GPU。</p>
+     *
+     * @param engine        引擎名称（如 "onnx"）
+     * @param deviceSetting 设备设置：auto / cpu / gpu / cuda，可为 null（走系统属性，缺省 auto）
+     * @return 推荐模型 ID；无可用模型返回 null
+     */
+    public static String recommended(String engine, String deviceSetting) {
+        if (engine == null || engine.isBlank()) {
+            return null;
+        }
+        List<String> ids = modelIds(engine);
+        if (ids.isEmpty()) {
+            return null;
+        }
+        String selected = com.chua.deeplearning.support.engine.ModelSelector.selectRecommended(ids, deviceSetting);
+        return selected != null ? selected : ids.get(0);
+    }
 }

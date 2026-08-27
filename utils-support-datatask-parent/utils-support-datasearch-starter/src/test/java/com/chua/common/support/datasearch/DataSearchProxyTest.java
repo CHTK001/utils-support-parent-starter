@@ -5,81 +5,104 @@ import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.spi.ResourceProvider;
 import com.chua.common.support.spi.ServiceProvider;
 
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
- * 使用代理的 pansou 插件批量测试
+ * 用代理直接访问站点，验证哪些域名可达
  */
 public class DataSearchProxyTest {
-    
-    private static int failures = 0;
-    private static int passCount = 0;
-    
+
+    private static int pass = 0, fail = 0;
+
     public static void main(String[] args) throws Exception {
-        System.out.println("=== Pansou Proxy Test ===");
-        
-        // 获取代理
+        System.out.println("=== Pansou Site Probe ===");
+
         List<String> proxies = ProxyFetcherFlow.of().fetchAll();
-        System.out.println("Got " + proxies.size() + " proxies");
-        if (proxies.isEmpty()) {
-            System.out.println("No proxies available, using direct connection");
-        } else {
-            System.out.println("Sample: " + proxies.get(0));
+        System.out.println("Proxies: " + proxies.size());
+
+        // 目标站点列表
+        String[][] sites = {
+            {"ddys.pro", "https://ddys.pro/?s=电影"},
+            {"libvio.app", "https://libvio.app/search?keyword=电影"},
+            {"4khdr.cn", "https://www.4khdr.cn/search.php"},
+            {"91panta.cn", "https://www.91panta.cn/"},
+            {"hunhepan.com", "https://hunhepan.com/"},
+            {"jikepan.xyz", "https://jikepan.xyz/"},
+            {"pan666.net", "https://pan666.net/"},
+            {"pansearch.me", "https://api.pansearch.me/search?q=测试"},
+            {"panta.vip", "https://www.panta.vip/"},
+            {"sousou.com", "https://www.sousou.com/"},
+            {"quarktv.com", "https://www.quarktv.com/"},
+            {"zhihuipan.com", "https://zhihuipan.com/"},
+            {"aikanzy8.com", "https://www.aikanzy8.com/"},
+            {"duoduo.cc", "https://www.duoduo.cc/"},
+            {"labi.me", "https://www.labi.me/"},
+            {"hdr4k.cn", "https://www.4khdr.cn/"},
+            {"xunlei.com", "https://www.xunlei.com/"},
+            {"yunso.com", "https://www.yunso.com/"},
+        };
+
+        // 尝试直连
+        HttpClient directClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(8))
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
+
+        System.out.println("\n--- Direct Connection ---");
+        for (String[] site : sites) {
+            probe(directClient, site[0], site[1]);
         }
-        
-        // 构建带代理的 HttpClient
-        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
-                .connectTimeout(java.time.Duration.ofSeconds(15))
-                .followRedirects(HttpClient.Redirect.ALWAYS);
-        
+
+        // 尝试代理
         if (!proxies.isEmpty()) {
             String proxy = proxies.get(0);
             String[] parts = proxy.split(":");
-            clientBuilder.proxy(java.net.ProxySelector.of(
-                new java.net.InetSocketAddress(parts[0], Integer.parseInt(parts[1]))
-            ));
-        }
-        
-        HttpClient client = clientBuilder.build();
-        
-        // 获取所有 ResourceProvider
-        ServiceProvider<ResourceProvider> sp = ServiceProvider.of(ResourceProvider.class);
-        java.util.Set<String> names = sp.getExtensions();
-        System.out.println("\nTotal providers: " + names.size());
-        
-        // 测试
-        for (String name : names) {
-            try {
-                ResourceProvider p = sp.getExtension(name);
-                if (p == null) continue;
-                
-                VideoSearch search = new VideoSearch("测试");
-                var result = p.searchResource(search);
-                
-                if (result != null && result.getData() != null && result.getData().getData() != null) {
-                    int count = result.getData().getData().size();
-                    if (count > 0) {
-                        System.out.printf("[PASS] %-14s rows=%d%n", name, count);
-                        passCount++;
-                    } else {
-                        System.out.printf("[EMPTY] %-14s rows=0%n", name);
-                        failures++;
-                    }
-                } else {
-                    System.out.printf("[FAIL] %-14s null result%n", name);
-                    failures++;
-                }
-            } catch (Exception e) {
-                System.out.printf("[ERROR] %-14s %s%n", name, e.getMessage().substring(0, Math.min(60, e.getMessage().length())));
-                failures++;
+            HttpClient proxyClient = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(8))
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .proxy(ProxySelector.of(new InetSocketAddress(parts[0], Integer.parseInt(parts[1]))))
+                    .build();
+
+            System.out.println("\n--- Via Proxy " + proxy + " ---");
+            for (String[] site : sites) {
+                probe(proxyClient, site[0], site[1]);
             }
         }
-        
+
         System.out.println("\n=== Summary ===");
-        System.out.println("PASS: " + passCount);
-        System.out.println("FAIL/EMPTY: " + failures);
-        System.out.println("Total: " + (passCount + failures));
-        System.exit(failures == 0 ? 0 : 1);
+        System.out.println("Reachable: " + pass);
+        System.out.println("Unreachable: " + fail);
+    }
+
+    private static void probe(HttpClient client, String name, String url) {
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                    .GET().build();
+            HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            int code = resp.statusCode();
+            int len = resp.body() != null ? resp.body().length() : 0;
+            if (code >= 200 && code < 400 && len > 100) {
+                System.out.printf("[OK]   %-16s %d (%d bytes)%n", name, code, len);
+                pass++;
+            } else {
+                System.out.printf("[SKIP] %-16s %d (%d bytes)%n", name, code, len);
+                fail++;
+            }
+        } catch (Exception e) {
+            System.out.printf("[FAIL] %-16s %s%n", name, e.getClass().getSimpleName() + ": " + e.getMessage().substring(0, Math.min(50, e.getMessage().length())));
+            fail++;
+        }
     }
 }

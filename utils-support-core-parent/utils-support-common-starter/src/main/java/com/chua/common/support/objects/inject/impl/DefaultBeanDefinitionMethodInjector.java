@@ -3,6 +3,7 @@ package com.chua.common.support.objects.inject.impl;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.inject.BeanDefinitionMethodInjector;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,7 @@ public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethod
         }
         try {
             ClassUtils.setAccessible(method);
-            method.invoke(instance, args);
+            ReflectUtils.invoke(instance, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (Exception e) {
             log.error("方法注入失败: {}.{}", instance.getClass().getName(), method.getName(), e);
         }

@@ -1,12 +1,12 @@
 package com.chua.common.support.proxy;
 
 import com.chua.common.support.proxy.intercept.MethodIntercept;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ArrayUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 
 /**
@@ -65,7 +65,7 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
     @Override
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
             MethodIntercept<T> intercept) {
-        return (T) Proxy.newProxyInstance(classLoader,
+        return (T) ReflectUtils.newProxy(classLoader,
                 ArrayUtils.mergeOfDistince(interfaces, target),
                 new JdkInvocationHandler<>(intercept));
     }

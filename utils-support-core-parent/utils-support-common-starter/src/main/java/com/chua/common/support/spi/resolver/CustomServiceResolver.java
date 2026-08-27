@@ -1,5 +1,6 @@
 package com.chua.common.support.spi.resolver;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.definition.ServiceDefinition;
 import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.StringUtils;
@@ -130,15 +131,7 @@ public class CustomServiceResolver implements ServiceResolver {
         }
         String alias = aliasAndClassName[0];
         String className = aliasAndClassName[1];
-        Class<?> tmp;
-        try {
-            tmp = Class.forName(className, false, classLoader);
-        } catch (Throwable e) {
-            if (log.isTraceEnabled()) {
-                log.trace("类 {} 加载失败：{}", className, type.getTypeName());
-            }
-            return null;
-        }
+        Class<?> tmp = ReflectUtils.forName(className, classLoader);
         return buildDefinition(type, CustomServiceResolver.class, null, tmp, StringUtils.defaultString(alias, tmp.getSimpleName().replace(type.getSimpleName(), "")), url);
     }
 

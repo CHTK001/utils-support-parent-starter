@@ -2,11 +2,12 @@ package com.chua.calcite.support.datasource;
 
 import com.chua.datasource.support.datasource.DataScheme;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -57,7 +58,7 @@ public final class EngineAwareDataSource implements DataSource {
 
     /** WrapConnection */
     private Connection wrapConnection(Connection conn) {
-        return (Connection) Proxy.newProxyInstance(
+        return (Connection) ReflectUtils.newProxy(
                 Connection.class.getClassLoader(),
                 new Class[]{Connection.class},
                 new ConnectionHandler(conn, updateExecutor)
@@ -99,7 +100,7 @@ public final class EngineAwareDataSource implements DataSource {
 
         /** WrapStatement */
         private Statement wrapStatement(Statement st) {
-            return (Statement) Proxy.newProxyInstance(
+            return (Statement) ReflectUtils.newProxy(
                     Statement.class.getClassLoader(),
                     new Class[]{Statement.class},
                     (proxy, method, args) -> {
@@ -128,7 +129,7 @@ public final class EngineAwareDataSource implements DataSource {
 
         /** Fixed更新PreparedStatement */
         private Object fixedUpdatePreparedStatement(int rows) {
-            return Proxy.newProxyInstance(
+            return ReflectUtils.newProxy(
                     java.sql.PreparedStatement.class.getClassLoader(),
                     new Class[]{java.sql.PreparedStatement.class},
                     (proxy, method, args) -> {

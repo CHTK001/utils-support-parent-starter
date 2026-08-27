@@ -2,6 +2,7 @@ package com.chua.common.support.spi.definition;
 
 import com.chua.common.support.spi.annotations.*;
 import com.chua.common.support.lang.reflect.AnnotationUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.*;
 
 import java.net.URL;
@@ -152,9 +153,7 @@ public class ServiceDefinitionUtils {
 
         String[] value = spiCondition.value();
         for (String s : value) {
-            try {
-                Class.forName(s);
-            } catch (ClassNotFoundException e) {
+            if (ReflectUtils.forName(s) == null) {
                 return false;
             }
         }

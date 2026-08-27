@@ -25,7 +25,7 @@ import java.util.List;
 @Spi("quarktv")
 public class QuarktvResourceProvider extends AbstractResourceProvider {
 
-    private static final String API_URL = "https://www.quarktv.com/api/search";
+    private static final String SEARCH_URL = "https://www.quarktv.com/?s=";
 
     public QuarktvResourceProvider() { super(); }
     public QuarktvResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
@@ -39,7 +39,7 @@ public class QuarktvResourceProvider extends AbstractResourceProvider {
                     .connectTimeout(Duration.ofSeconds(10))
                     .followRedirects(HttpClient.Redirect.NORMAL).build();
 
-            String url = API_URL + "?keyword=" + java.net.URLEncoder.encode(kw, "UTF-8");
+            String url = SEARCH_URL + java.net.URLEncoder.encode(kw, "UTF-8");
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .timeout(Duration.ofSeconds(15))
@@ -48,7 +48,7 @@ public class QuarktvResourceProvider extends AbstractResourceProvider {
 
             HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
             List<VideoInfoResult> results = new ArrayList<>();
-            parseQuarktvJson(resp.body(), results);
+            parseHtml(resp.body(), results);
             
             if (results.isEmpty()) return ReturnPageResult.empty();
             return ReturnPageResult.of(PageResult.<VideoInfoResult>builder()
@@ -58,23 +58,20 @@ public class QuarktvResourceProvider extends AbstractResourceProvider {
         }
     }
 
-    private void parseQuarktvJson(String json, List<VideoInfoResult> results) {
-        try {
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(json);
-            com.fasterxml.jackson.databind.JsonNode data = root.path("data");
+    private void parseHtml(String html, List<VideoInfoResult> results) {
+        java.util.regex.Pattern titlePat = java.util.regex.Pattern.compile("<a[^>]+href=\"([^\"]+)\"[^>]*>\\s*([^<]{2,})\\s*</a>");
+        java.util.regex.Matcher m = titlePat.matcher(html);
+        int idx = 0;
+        while (m.find() && idx++ < 10) {
+            String link = m.group(1);
+            String title = m.group(2).trim();
+            if (title.length() < 3) continue;
             
-            int idx = 0;
-            for (com.fasterxml.jackson.databind.JsonNode item : data) {
-                if (idx++ >= 10) break;
-                
-                VideoInfoResult v = new VideoInfoResult();
-                v.setVideoName(item.path("title").asText(""));
-                v.setVideoPlatform("quarktv");
-                v.setVideoDescription("夸克链接: " + item.path("link").asText("") + 
-                                     "\n密码: " + item.path("password").asText(""));
-                results.add(v);
-            }
-        } catch (Exception e) { /* ignore */ }
+            VideoInfoResult v = new VideoInfoResult();
+            v.setVideoName(title);
+            v.setVideoPlatform("quarktv");
+            v.setVideoDescription("链接: " + link);
+            results.add(v);
+        }
     }
 }

@@ -2,6 +2,8 @@ package com.chua.deeplearning.support.onnx.audio;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.chua.deeplearning.support.speech.SpeechEnhancer;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -27,7 +29,8 @@ import java.util.List;
  * <pre>{@code
  *   String text = AsrPipeline.builder()
  *           .engine("moonshine")          // 必选：引擎 id
- *           .vad(true)                    // 可选：默认 false
+ *           .vad("energy")                // 可选：VAD 类型（默认 null）
+ *           .denoise("dfsmn-ans")         // 可选：降噪模型 ID（默认 null）
  *           .postProcess(true)            // 可选：默认 true
  *           .build()
  *           .transcribe(Path.of("a.wav"));
@@ -70,14 +73,14 @@ public final class AsrPipeline {
     private final String language;
 
     /**
-     * 是否启用能量 VAD 切分（可选）
+     * VAD 类型（null 表示不做 VAD）。
      */
-    private final boolean vad;
+    private final String vadType;
 
     /**
-     * 是否启用 DFSMN 降噪（可选）
+     * 降噪增强器（null 表示不降噪）。
      */
-    private final boolean denoise;
+    private final SpeechEnhancer denoiseEnhancer;
 
     /**
      * 是否启用文本后处理（可选，默认开）
@@ -102,8 +105,8 @@ public final class AsrPipeline {
     private AsrPipeline(Builder b) {
         this.engineId = b.engineId;
         this.language = b.language;
-        this.vad = b.vad;
-        this.denoise = b.denoise;
+        this.vadType = b.vadType;
+        this.denoiseEnhancer = b.denoiseEnhancer;
         this.postProcess = b.postProcess;
         this.silenceRms = b.silenceRms;
         this.minSegSec = b.minSegSec;
@@ -133,13 +136,13 @@ public final class AsrPipeline {
         log.info("[AsrPipeline] 解码完成: {} 采样 ({}, {}s)", samples.length,
                 wavPath.getFileName(), String.format("%.1f", samples.length / (float) TARGET_SR));
 
-        if (denoise) {
+        if (denoiseEnhancer != null) {
             samples = denoise(samples);
         }
 
         List<float[]> segments;
-        if (vad) {
-            segments = splitByEnergy(samples);
+        if (vadType != null) {
+            segments = splitByVad(samples, vadType);
         } else {
             segments = new ArrayList<>(forceSplit(samples));
         }
@@ -174,15 +177,32 @@ public final class AsrPipeline {
     }
 
     /**
-     * 可选-A：能量 VAD 切分。
+     * 可选-A：按类型 VAD 切分。
+     *
+     * @param s    16kHz 单声道采样
+     * @param type VAD 类型（"energy" / "silero" 等）
+     * @return 语音段列表
+     */
+    private List<float[]> splitByVad(float[] s, String type) {
+        return switch (type.toLowerCase()) {
+            case "energy" -> splitByEnergy(s, silenceRms, minSegSec, maxSegSec);
+            default -> List.of(s);
+        };
+    }
+
+    /**
+     * 能量 VAD 切分（静态通用实现）。
      *
      * <p>RMS 门限判定有声帧；短于最小时长的片段丢弃；相邻语音段间隙小于
      * 0.6 秒时自动合并为完整语句；超过最大段长强制二次切分。</p>
      *
-     * @param s 16kHz 单声道采样
+     * @param s           16kHz 单声道采样
+     * @param silenceRms  静音 RMS 门限
+     * @param minSegSec   最短语音段秒数
+     * @param maxSegSec   最大段长秒数
      * @return 语音段列表
      */
-    List<float[]> splitByEnergy(float[] s) {
+    static List<float[]> splitByEnergy(float[] s, float silenceRms, float minSegSec, float maxSegSec) {
         int frame = (int) (0.03F * TARGET_SR);
         int minSeg = (int) (minSegSec * TARGET_SR);
         int maxSeg = (int) (maxSegSec * TARGET_SR);
@@ -268,9 +288,9 @@ public final class AsrPipeline {
     }
 
     /**
-     * 可选-B：真实降噪（DFSMN 单麦近场模型）。
+     * 可选-B：降噪预处理（委托给 SpeechEnhancer）。
      *
-     * <p>管线内部为 16k float：先上采样至 48k 封装 WAV 送 DFSMN，
+     * <p>管线内部为 16k float：先上采样至 48k 封装 WAV 送增强器，
      * 再将增强结果解码回 16k float；失败时回退原始音频。</p>
      *
      * @param s 16kHz 采样
@@ -280,12 +300,11 @@ public final class AsrPipeline {
         try {
             float[] up = AudioUtils.resample(s, TARGET_SR, 48000);
             byte[] wavIn = AudioUtils.toWavBytes(up, 48000);
-            byte[] wavOut = com.chua.deeplearning.support.onnx.audio.denoise.DfsmnAnsTranslator
-                    .getInstance().translate(wavIn);
+            byte[] wavOut = denoiseEnhancer.enhance(wavIn);
             float[] enhanced48k = com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder
                     .decodeToFloat(wavOut, 48000);
             float[] down = AudioUtils.resample(enhanced48k, 48000, TARGET_SR);
-            log.info("[AsrPipeline] DFSMN 降噪完成: {} → {} 采样", s.length, down.length);
+            log.info("[AsrPipeline] 降噪完成: {} → {} 采样", s.length, down.length);
             return down;
         } catch (Exception e) {
             log.warn("[AsrPipeline] 降噪失败，回退原始音频: {}", e.getMessage());
@@ -323,14 +342,14 @@ public final class AsrPipeline {
         private String language;
 
         /**
-         * 启用能量 VAD 切分
+         * VAD 类型（null 表示不做 VAD）
          */
-        private boolean vad;
+        private String vadType;
 
         /**
-         * 启用 DFSMN 降噪
+         * 降噪增强器（null 表示不降噪）
          */
-        private boolean denoise;
+        private SpeechEnhancer denoiseEnhancer;
 
         /**
          * 启用文本后处理（默认 true）
@@ -373,22 +392,32 @@ public final class AsrPipeline {
         /**
          * 可选-A：启用能量 VAD 切分（长音频建议开启）。
          *
-         * @param enable 是否启用
+         * <p>统一 provider 模式（与 FacePipeline 一致），按类型字符串选择切分策略：
+         * <pre>{@code
+         * .vad("energy")   // 能量 VAD（默认参数）
+         * }</pre>
+         *
+         * @param type VAD 类型（"energy" 等），null 关闭
          * @return 构建器
          */
-        public Builder vad(boolean enable) {
-            this.vad = enable;
+        public Builder vad(String type) {
+            this.vadType = type;
             return this;
         }
 
         /**
-         * 可选-B：启用 DFSMN 降噪（真实实现，内部 16k↔48k 重采样）。
+         * 可选-B：降噪模型 ID（嘈杂场景建议开启）。
          *
-         * @param enable 是否启用
+         * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
+         * <pre>{@code
+         * .denoise("dfsmn-ans")  // DFSMN 单麦近场降噪
+         * }</pre>
+         *
+         * @param modelId 模型 ID（对应 {@link SpeechEnhancer} 注册表），null 关闭
          * @return 构建器
          */
-        public Builder denoise(boolean enable) {
-            this.denoise = enable;
+        public Builder denoise(String modelId) {
+            this.denoiseEnhancer = modelId != null ? SpeechEnhancer.create(modelId) : null;
             return this;
         }
 

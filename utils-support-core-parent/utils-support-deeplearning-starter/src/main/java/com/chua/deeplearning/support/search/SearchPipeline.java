@@ -16,7 +16,7 @@ import java.util.Objects;
  *
  * <p>基于 {@link Pipeline} 通用管线框架编排，取代手写顺序调用。
  * {@link com.chua.deeplearning.support.face.FaceSearcher}、
- * {@link com.chua.deeplearning.support.image.ImageSearcher} 均委托本管线完成检索。</p>
+ * {@link com.chua.deeplearning.support.image.ImagePipeline} 均委托本管线完成检索。</p>
  *
  * @author CH
  * @since 4.0.0.42

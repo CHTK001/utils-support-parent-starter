@@ -114,7 +114,7 @@ public final class BinaryTreeConverter {
      */
     private static <K extends Comparable<K>, V> List<Entry<K, V>> collectEntries(BPlusTree<K, V> tree) {
         List<Entry<K, V>> result = new ArrayList<>();
-        BPlusTreeNode<K, V> cur = tree.root;
+        BPlusTreeNode<K, V> cur = tree.getRoot();
         while (cur != null && !cur.leaf) {
             cur = cur.children.get(0);
         }

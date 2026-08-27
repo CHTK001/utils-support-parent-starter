@@ -1,6 +1,7 @@
 package com.chua.clickhouse.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.engine.DataSourceOptions;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.network.tunnel.Tunnel;
@@ -18,7 +19,7 @@ import com.zaxxer.hikari.HikariDataSource;
  * <p>使用示例：
  * <pre>{@code
  * ClickHouseEngine engine = new ClickHouseEngine();
- * engine.addDataSource("default", "localhost", 8123, "default", "default", "");
+ * engine.addDataSource(new DataSourceOptions("default", "localhost", 8123, "default", "default", "", null));
  * List<User> users = engine.query(User.class).list();
  * }</pre>
  * </p>
@@ -43,28 +44,27 @@ public class ClickHouseEngine extends JdbcEngine {
      * @return 当前引擎实例
      */
     public Engine addDataSource(String name, String host, int port, String database, String username, String password) {
-        return addDataSource(name, host, port, database, username, password, null);
+        DataSourceOptions options = new DataSourceOptions(name, host, port, database, username, password, null);
+        return addDataSource(options);
     }
 
     /**
      * 添加一个 ClickHouse 数据源（支持隧道穿透）。
      *
-     * @param name     数据源名称
-     * @param host     主机地址
-     * @param port     端口号（HTTP 端口，默认 8123）
-     * @param database 数据库名
-     * @param username 用户名
-     * @param password 密码
-     * @param tunnel   隧道（可为 null 表示直连）
+     * @param options 数据源选项，包含连接信息和可选隧道
      * @return 当前引擎实例
      */
-    public Engine addDataSource(String name, String host, int port, String database, String username, String password, Tunnel tunnel) {
+    public Engine addDataSource(DataSourceOptions options) {
+        if (options == null) {
+            throw new IllegalArgumentException("options must not be null");
+        }
         HikariDataSource ds = new HikariDataSource();
         final int[] tunnelPortCapture = {0};
-        int targetPort = port;
-        String targetHost = host;
+        int targetPort = options.port();
+        String targetHost = options.host();
 
         // 存在隧道时改走本地回环地址与隧道端口
+        Tunnel tunnel = options.tunnel();
         if (tunnel != null) {
             int tunnelPort = tunnel.open();
             if (tunnelPort > 0) {
@@ -74,12 +74,12 @@ public class ClickHouseEngine extends JdbcEngine {
             }
         }
 
-        ds.setJdbcUrl("jdbc:clickhouse://" + targetHost + ":" + targetPort + "/" + database);
-        ds.setUsername(username);
-        ds.setPassword(password);
+        ds.setJdbcUrl("jdbc:clickhouse://" + targetHost + ":" + targetPort + "/" + options.database());
+        ds.setUsername(options.username());
+        ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);
-        return addDataSource(name, new EngineDataSource<HikariDataSource>() {
-            @Override public String name() { return name; }
+        return addDataSource(options.name(), new EngineDataSource<HikariDataSource>() {
+            @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
             @Override public EngineDataSource<HikariDataSource> setSource(Object source) { return this; }
             @Override public Dialect getDialect() { return new ClickHouseDialect(); }

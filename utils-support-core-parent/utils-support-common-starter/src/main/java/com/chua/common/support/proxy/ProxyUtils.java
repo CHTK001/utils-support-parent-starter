@@ -1,9 +1,9 @@
 package com.chua.common.support.proxy;
 
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 
 /**
  * 代理工具类，提供创建 JDK 动态代理实例的便捷静态方法。
@@ -55,7 +55,7 @@ public class ProxyUtils {
      */
 @SuppressWarnings("unchecked")
     public static <T> T newProxy(Class<T> type, ClassLoader classLoader, DelegateMethodIntercept<T> handler) {
-        return (T) Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, handler);
+        return (T) ReflectUtils.newProxy(classLoader, new Class<?>[]{type}, handler);
     }
 
     /**
@@ -72,6 +72,6 @@ public class ProxyUtils {
      * @return 代理实例
      */
     public static <T> T proxy(Class<T> type, ClassLoader classLoader, InvocationHandler handler) {
-        return (T) Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, handler);
+        return (T) ReflectUtils.newProxy(classLoader, new Class<?>[]{type}, handler);
     }
 }

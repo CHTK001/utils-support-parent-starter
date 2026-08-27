@@ -25,7 +25,7 @@ import java.util.List;
 @Spi("sousou")
 public class SousouResourceProvider extends AbstractResourceProvider {
 
-    private static final String API_URL = "https://www.sousou.com/web/search";
+    private static final String API_URL = "https://www.panso.vip/search";
 
     public SousouResourceProvider() { super(); }
     public SousouResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }

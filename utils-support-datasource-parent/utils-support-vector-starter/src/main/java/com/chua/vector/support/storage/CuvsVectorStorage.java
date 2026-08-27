@@ -49,7 +49,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
      * @return 索引策略实例
      */
     private IndexStrategy createStrategy() {
-        return switch (properties.getIndexType()) {
+        return switch (properties.indexType()) {
             case BRUTE_FORCE -> new BruteForceStrategy();
             case HNSW -> new HnswStrategy();
             case CAGRA -> new CagraStrategy();
@@ -127,7 +127,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 return List.of();
             }
             var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
-            int fetchK = topK * properties.getBruteForceFetchFactor();
+            int fetchK = topK * properties.bruteForceFetchFactor();
             List<Vector> all = new ArrayList<>();
             for (Map.Entry<String, Integer> entry : idToOrd.entrySet()) {
                 float dist = algo.compare(query, vectors.get(entry.getValue()));
@@ -204,9 +204,8 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 return fallbackSearch(query, topK);
             }
             try {
-                // 使用字符串类名重载避免泛型捕获问题
                 Object queryObj = invokeStatic("com.nvidia.cuvs.CagraQuery", "newQuery",
-                        Object.class, new float[][]{query}, topK, properties.getSearchEf());
+                        Object.class, new float[][]{query}, topK, properties.searchEf());
                 Object results = invoke(index, "search", Object.class,
                         forName("com.nvidia.cuvs.CagraQuery"), queryObj);
                 @SuppressWarnings("unchecked")
@@ -267,19 +266,20 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             }
             building = true;
             try {
-                // 使用字符串类名重载避免泛型捕获
                 resources = invokeStatic("com.nvidia.cuvs.CuVSResources", "create", Object.class);
                 int deviceId = (int) invoke(resources, "deviceId", int.class);
                 log.info("[vector-starter] cuVS CAGRA using device: {}", deviceId);
 
                 Object params = invokeStatic("com.nvidia.cuvs.CagraIndexParams", "builder", Object.class);
-                invoke(params, "withGraphDegree", Object.class, (long) properties.getGraphDegree());
-                invoke(params, "withIntermediateGraphDegree", Object.class, (long) properties.getIntermediateGraphDegree());
+                invoke(params, "withGraphDegree", Object.class, (long) properties.graphDegree());
+                invoke(params, "withIntermediateGraphDegree", Object.class,
+                        (long) properties.intermediateGraphDegree());
                 invoke(params, "withMetric", Object.class, cuvsDistanceType());
 
                 index = invokeStatic("com.nvidia.cuvs.CagraIndex", "newBuilder",
                         Object.class, forName("com.nvidia.cuvs.CuVSResources"), resources);
-                invoke(index, "withDataset", Object.class, new Object[]{rawVectors.toArray(new float[0][])});
+                invoke(index, "withDataset", Object.class,
+                        new Object[]{rawVectors.toArray(new float[0][])});
                 invoke(index, "withIndexParams", Object.class,
                         forName("com.nvidia.cuvs.CagraIndexParams"), params);
                 invoke(index, "build", Object.class);
@@ -415,7 +415,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             }
             try {
                 Object queryObj = invokeStatic("com.nvidia.cuvs.HnswQuery", "newQuery",
-                        Object.class, new float[][]{query}, topK, properties.getSearchEf());
+                        Object.class, new float[][]{query}, topK, properties.searchEf());
                 Object results = invoke(index, "search", Object.class,
                         forName("com.nvidia.cuvs.HnswQuery"), queryObj);
                 @SuppressWarnings("unchecked")
@@ -469,13 +469,14 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 resources = invokeStatic("com.nvidia.cuvs.CuVSResources", "create", Object.class);
 
                 Object params = invokeStatic("com.nvidia.cuvs.HnswIndexParams", "builder", Object.class);
-                invoke(params, "withM", Object.class, properties.getGraphDegree());
-                invoke(params, "withEfConstruction", Object.class, properties.getSearchEf());
+                invoke(params, "withM", Object.class, properties.graphDegree());
+                invoke(params, "withEfConstruction", Object.class, properties.searchEf());
                 invoke(params, "withMetric", Object.class, cuvsDistanceType());
 
                 index = invokeStatic("com.nvidia.cuvs.HnswIndex", "newBuilder",
                         Object.class, forName("com.nvidia.cuvs.CuVSResources"), resources);
-                invoke(index, "withDataset", Object.class, new Object[]{rawVectors.toArray(new float[0][])});
+                invoke(index, "withDataset", Object.class,
+                        new Object[]{rawVectors.toArray(new float[0][])});
                 invoke(index, "withIndexParams", Object.class,
                         forName("com.nvidia.cuvs.HnswIndexParams"), params);
                 invoke(index, "build", Object.class);
