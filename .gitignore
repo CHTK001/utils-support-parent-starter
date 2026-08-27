@@ -185,3 +185,11 @@ std_probe2*
 
 **/models/**/*.gguf
 *.gguf
+
+# 运行时探针/临时诊断文件
+Utf8Probe.java
+hs_err_pid*.log
+replay_pid*.log
+*.class
+stash.diff
+.out/
