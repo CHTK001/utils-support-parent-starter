@@ -59,17 +59,7 @@
   <tr><td>资源清理</td><td>#6（shutdown 中断 tick + shutdownNow 中断全部在途任务 + daemon 不阻塞 JVM）</td><td class="pass">已覆盖</td></tr>
 </table>
 
-<h2>三、累计修复的源码缺陷</h2>
-<table>
-  <tr><th>#</th><th>缺陷</th><th>修复</th></tr>
-  <tr><td>1</td><td><strong>周期任务取消失效</strong>：重排每次 new 新实例，cancel 只标记旧引用，轮内活跃的新实例继续无限循环</td><td>重排复用同一 TimerTask 实例（包级 <code>advanceDeadline()</code> 推进 volatile deadline），取消状态随实例传播</td></tr>
-  <tr><td>2</td><td><strong>Error 杀死时间轮</strong>：TimerTask.run 只捕获 Exception，Error 穿透终止 tick 线程，全部后续任务永不执行</td><td>提交侧 Throwable 兜底 + 双层安全日志（SLF4J 失败降级 stderr）</td></tr>
-  <tr><td>3</td><td><strong>关闭延迟 + 静默拒绝</strong>：shutdown 仅置位不中断（最长延迟一个 tick）；schedule(Runnable) 在关闭后被静默丢弃仍返回非 null 句柄</td><td>持有 tickThread 引用并在 shutdown 时 interrupt 立即退出；工厂方法调度失败返回 null（接口 Javadoc 同步）</td></tr>
-  <tr><td>4</td><td><strong>slotDistance 公式缺陷</strong>：<code>delay/tick+1</code> 多余保守量使首触必迟一拍；执行漂移后 delay≤0 归零挂回当前槽，周期任务等整圈(≈3.2s)才再次扫描</td><td>改 ceil 向上取整精确落位；delay≤0 取最小偏移 1 下个 tick 补触发</td></tr>
-  <tr><td>5</td><td><strong>cancel 竞态</strong>：runningFuture 在 submit 之后赋值，虚拟线程可能先于赋值启动，cancel 读到 null 导致中断丢失</td><td>手工构造 FutureTask：<strong>先绑定 future 再入队</strong>，窗口归零</td></tr>
-</table>
-
-<h2>四、v2 并发语义说明</h2>
+<h2>四、并发语义说明</h2>
 <ul>
   <li><strong>fixed-rate tick</strong>：tick 线程按启动时刻为基准的绝对时间轴推进，任务耗时/系统抖动不会累积漂移，落后时连续补扫追赶。</li>
   <li><strong>任务并发执行</strong>：到期任务提交至虚拟线程执行器并发运行，慢任务不再阻塞轮子推进；不同任务无顺序保证。</li>
