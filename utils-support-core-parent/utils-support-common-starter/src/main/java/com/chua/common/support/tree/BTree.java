@@ -123,123 +123,140 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     // ==================== put ====================
 
+    /**
+     * 分裂节点的内部结果包装。
+     */
+    private static class NodeUpdate<K, V> {
+        final boolean needsSplit;
+        final K promotedKey;
+        final V promotedValue;
+        final BTreeNode<K, V> rightChild;
+
+        NodeUpdate(boolean needsSplit, K promotedKey, V promotedValue, BTreeNode<K, V> rightChild) {
+            this.needsSplit = needsSplit;
+            this.promotedKey = promotedKey;
+            this.promotedValue = promotedValue;
+            this.rightChild = rightChild;
+        }
+    }
+
     @Override
     public Optional<V> put(K key, V value) {
         if (key == null) {
             return Optional.empty();
         }
-        SplitResultInternal<K, V> result = insert(root, key, value);
-        if (result.split != null) {
+        boolean existed = containsKey(key);
+        NodeUpdate<K, V> update = insertInternal(root, key, value);
+        if (update.needsSplit) {
             BTreeNode<K, V> newRoot = new BTreeNode<>(false);
-            newRoot.keys.add(result.promotedKey);
-            newRoot.values.add(result.promotedValue);
+            newRoot.keys.add(update.promotedKey);
+            newRoot.values.add(update.promotedValue);
             newRoot.children.add(root);
-            newRoot.children.add(result.split);
+            newRoot.children.add(update.rightChild);
             root = newRoot;
         }
-        if (result.promotedValue == null && containsKey(key)) {
+        if (!existed) {
             size++;
         }
-        return result.promotedValue == null ? Optional.empty() : Optional.of(result.promotedValue);
+        return existed ? Optional.of(update.promotedValue) : Optional.empty();
     }
 
     /**
-     * 递归插入键值对，返回提升键结果。
+     * 递归插入键值对（统一处理叶子和内部节点）。
      *
      * @param node  当前节点
      * @param key   键
      * @param value 值
-     * @return 提升键结果
+     * @return 插入结果
      */
-    private SplitResultInternal<K, V> insert(BTreeNode<K, V> node, K key, V value) {
+    private NodeUpdate<K, V> insertInternal(BTreeNode<K, V> node, K key, V value) {
         int i = 0;
         while (i < node.keys.size() && node.keys.get(i).compareTo(key) < 0) {
             i++;
         }
         if (node.leaf) {
-            if (i < node.keys.size() && Objects.equals(node.keys.get(i), key)) {
-                V old = node.values.get(i);
-                node.values.set(i, value);
-                return new SplitResultInternal<>(null, key, old);
-            }
-            node.keys.add(i, key);
-            node.values.add(i, value);
-            if (!node.isFull(order)) {
-                return new SplitResultInternal<>(null, key, null);
-            }
-            return splitNode(node);
+            return insertLeaf(node, i, key, value);
         }
-        SplitResultInternal<K, V> sub = insert(node.children.get(i), key, value);
-        if (sub.split == null) {
+        NodeUpdate<K, V> sub = insertInternal(node.children.get(i), key, value);
+        if (!sub.needsSplit) {
             return sub;
         }
-        node.keys.add(i, sub.promotedKey);
-        node.values.add(i, sub.promotedValue);
-        node.children.add(i + 1, sub.split);
-        if (!node.isFull(order)) {
-            return new SplitResultInternal<>(null, key, null);
+        // Merge current keys with promoted key and child
+        List<K> newKeys = new ArrayList<>(node.keys);
+        List<V> newValues = new ArrayList<>(node.values);
+        List<BTreeNode<K, V>> newChildren = new ArrayList<>(node.children);
+        if (i < newKeys.size()) {
+            newKeys.set(i, sub.promotedKey);
+            if (sub.promotedValue != null) {
+                newValues.set(i, sub.promotedValue);
+            } else {
+                newValues.add(i, null);
+            }
+        } else {
+            newKeys.add(sub.promotedKey);
+            newValues.add(sub.promotedValue);
         }
-        return splitNode(node);
+        newChildren.add(i + 1, sub.rightChild);
+        if (newKeys.size() <= order - 1) {
+            node.keys = newKeys;
+            node.values = newValues;
+            node.children = newChildren;
+            return new NodeUpdate<>(false, key, null, null);
+        }
+        return splitNode(node, newKeys, newValues);
+    }
+
+    /**
+     * 叶子节点插入逻辑。
+     *
+     * @param node  叶子节点
+     * @param i     待插入位置
+     * @param key   键
+     * @param value 值
+     * @return 插入结果
+     */
+    private NodeUpdate<K, V> insertLeaf(BTreeNode<K, V> node, int i, K key, V value) {
+        if (i < node.keys.size() && Objects.equals(node.keys.get(i), key)) {
+            V old = node.values.get(i);
+            node.values.set(i, value);
+            return new NodeUpdate<>(false, key, old, null);
+        }
+        List<K> newKeys = new ArrayList<>(node.keys);
+        List<V> newValues = new ArrayList<>(node.values);
+        newKeys.add(i, key);
+        newValues.add(i, value);
+        if (newKeys.size() <= order - 1) {
+            node.keys = newKeys;
+            node.values = newValues;
+            return new NodeUpdate<>(false, key, null, null);
+        }
+        return splitNode(node, newKeys, newValues);
     }
 
     /**
      * 分裂节点：中间键提升，左右两半分别保留。
      *
-     * @param node 待分裂节点
-     * @return 提升键结果
+     * @param node   待分裂节点
+     * @param keys   已合并新键值后的完整 keys 列表
+     * @param values 已合并新键值后的完整 values 列表
+     * @return 分裂结果
      */
-    private SplitResultInternal<K, V> splitNode(BTreeNode<K, V> node) {
-        int mid = node.keys.size() / 2;
-        K midKey = node.keys.get(mid);
-        V midValue = node.values.get(mid);
+    private NodeUpdate<K, V> splitNode(BTreeNode<K, V> node, List<K> keys, List<V> values) {
+        int mid = keys.size() / 2;
+        K midKey = keys.get(mid);
+        V midValue = values.get(mid);
         BTreeNode<K, V> right = new BTreeNode<>(node.leaf);
-        // 使用 subList 一次性分配，避免循环 remove 导致索引错乱
-        List<K> leftKeys = keysLeft(node.keys, mid);
-        List<V> leftValues = valuesLeft(node.values, mid);
-        List<K> rightKeys = keysRight(node.keys, mid);
-        List<V> rightValues = valuesRight(node.values, mid);
-        node.keys = leftKeys;
-        node.values = leftValues;
-        right.keys = rightKeys;
-        right.values = rightValues;
+        // 左半：[0, mid)，右半：[mid+1, size)
+        node.keys = keysLeft(keys, mid);
+        node.values = valuesLeft(values, mid);
+        right.keys = keysRight(keys, mid);
+        right.values = valuesRight(values, mid);
         if (!node.leaf) {
-            // 内部节点：children 有 keys.size()+1 个，分裂点在 mid+1
-            List<BTreeNode<K, V>> leftChildren = childrenLeft(node.children, mid);
-            List<BTreeNode<K, V>> rightChildren = childrenRight(node.children, mid);
-            node.children = leftChildren;
-            right.children = rightChildren;
+            // children 应有 keys.size()+1 个，分裂点在 mid+1
+            node.children = childrenLeft(node.children, mid);
+            right.children = childrenRight(node.children, mid);
         }
-        return new SplitResultInternal<>(right, midKey, midValue);
-    }
-
-    /** 左半 keys：[0, mid) */
-    private static <K> List<K> keysLeft(List<K> keys, int mid) {
-        return new ArrayList<>(keys.subList(0, mid));
-    }
-
-    /** 右半 keys：[mid+1, size) */
-    private static <K> List<K> keysRight(List<K> keys, int mid) {
-        return new ArrayList<>(keys.subList(mid + 1, keys.size()));
-    }
-
-    /** 左半 values：[0, mid) */
-    private static <V> List<V> valuesLeft(List<V> values, int mid) {
-        return new ArrayList<>(values.subList(0, mid));
-    }
-
-    /** 右半 values：[mid+1, size) */
-    private static <V> List<V> valuesRight(List<V> values, int mid) {
-        return new ArrayList<>(values.subList(mid + 1, values.size()));
-    }
-
-    /** 左半 children：[0, mid+1)（含左子树末尾指针） */
-    private static <T> List<T> childrenLeft(List<T> children, int mid) {
-        return new ArrayList<>(children.subList(0, mid + 1));
-    }
-
-    /** 右半 children：[mid+1, size)（promoted key 右侧的子树） */
-    private static <T> List<T> childrenRight(List<T> children, int mid) {
-        return new ArrayList<>(children.subList(mid + 1, children.size()));
+        return new NodeUpdate<>(true, midKey, midValue, right);
     }
 
     // ==================== remove ====================
@@ -287,7 +304,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             } else {
                 K succ = findSuccessor(node.children.get(i + 1));
                 node.keys.set(i, succ);
-                node.values.set(i, node.values.get(i));
                 delete(node.children.get(i + 1), succ);
             }
             return;
@@ -295,12 +311,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         delete(node.children.get(i), key);
     }
 
-    /**
-     * 查找前驱（左子树最大键）。
-     *
-     * @param node 左子节点
-     * @return 前驱键
-     */
     /**
      * 查找前驱（沿左子树向右下走到叶子，取最后一个键）。
      *
@@ -315,12 +325,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     }
 
     /**
-     * 查找后继（右子树最小键）。
-     *
-     * @param node 右子节点
-     * @return 后继键
-     */
-    /**
      * 查找后继（沿右子树向左下走到叶子，取第一个键）。
      *
      * @param node 右子节点，须非空
@@ -331,6 +335,32 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             node = node.children.get(0);
         }
         return node.keys.get(0);
+    }
+
+    // ==================== helpers ====================
+
+    private static <K> List<K> keysLeft(List<K> keys, int mid) {
+        return new ArrayList<>(keys.subList(0, mid));
+    }
+
+    private static <K> List<K> keysRight(List<K> keys, int mid) {
+        return new ArrayList<>(keys.subList(mid + 1, keys.size()));
+    }
+
+    private static <V> List<V> valuesLeft(List<V> values, int mid) {
+        return new ArrayList<>(values.subList(0, mid));
+    }
+
+    private static <V> List<V> valuesRight(List<V> values, int mid) {
+        return new ArrayList<>(values.subList(mid + 1, values.size()));
+    }
+
+    private static <T> List<T> childrenLeft(List<T> children, int mid) {
+        return new ArrayList<>(children.subList(0, mid + 1));
+    }
+
+    private static <T> List<T> childrenRight(List<T> children, int mid) {
+        return new ArrayList<>(children.subList(mid + 1, children.size()));
     }
 
     @Override
@@ -352,22 +382,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public TreeNode<K, V> toBinaryTree() {
         return BinaryTreeConverter.bTreeToBinary(this);
-    }
-
-    /**
-     * 内部提升键结果记录。
-     *
-     * @param <K>            键类型
-     * @param <V>            值类型
-     * @param split          分裂产生的右半节点
-     * @param promotedKey    提升的键
-     * @param promotedValue  提升的键对应的值
-     */
-    private record SplitResultInternal<K, V>(
-            BTreeNode<K, V> split,
-            K promotedKey,
-            V promotedValue
-    ) {
     }
 
     @Override

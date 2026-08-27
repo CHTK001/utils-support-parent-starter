@@ -64,10 +64,9 @@ public class DefaultVectorStorage implements VectorStorage {
     /** 已映射的分片缓冲，key 为分片序号，value 为 MappedByteBuffer + FileChannel。 */
     private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
 
-    /** 复用读缓冲：每次扫描最大分片大小，避免每条记录都分配新 byte[]。 */
-    private static final int MAX_SHARD_BUFFER_SIZE = 64 * 1024 * 1024; // 64MB 上限
-    private final Object readLock = new Object();
-    private byte[] readBuf = new byte[8192];
+    /** 复用读缓冲：128维向量约 600B，ThreadLocal 避免多线程竞争。 */
+    private static final int DEFAULT_READ_BUF = 4096;
+    private final ThreadLocal<byte[]> threadLocalReadBuf = ThreadLocal.withInitial(() -> new byte[DEFAULT_READ_BUF]);
 
     /** SIMD 分块宽度：每次处理 16 个 float。 */
     private static final int SIMD = 16;
@@ -312,8 +311,8 @@ public class DefaultVectorStorage implements VectorStorage {
     }
 
     /**
-     * 根据冷索引中的 EntryLoc，从 MappedByteBuffer 零拷贝读取单条向量。
-     * <p>使用共享复用缓冲减少每记录的对象分配，读取后恢复 buffer 位置。</p>
+     * 根据冷索引中的 EntryLoc，从 MappedByteBuffer 精确偏移读取单条向量。
+     * 使用 duplicate() 创建独立视图，position/limit 操作互不干扰原 buffer。
      */
     private Vector readEntry(EntryLoc loc) {
         Integer shardIdxObj = pathToShardIdx.get(loc.path());
@@ -323,23 +322,19 @@ public class DefaultVectorStorage implements VectorStorage {
         MappedByteBuffer buf = sb.buf();
         long off = loc.offset();
         int len = loc.length();
-        // 确保缓冲够用（128维 float 向量约 512B，含 header 约 600B）
-        synchronized (readLock) {
-            if (readBuf.length < len) {
-                readBuf = new byte[Math.max(len * 4, 8192)];
+        try {
+            MappedByteBuffer view = buf.duplicate();
+            view.position((int) off);
+            view.limit((int) Math.min(off + len, buf.capacity()));
+            int bytesToRead = view.limit() - view.position();
+            if (bytesToRead <= 0) return null;
+            byte[] localBuf = threadLocalReadBuf.get();
+            if (localBuf.length < bytesToRead) {
+                localBuf = new byte[Math.max(bytesToRead * 2, 4096)];
+                threadLocalReadBuf.set(localBuf);
             }
-            int pos = buf.position();
-            int lim = buf.limit();
-            try {
-                buf.position((int) off);
-                buf.limit((int) Math.min(off + len, buf.capacity()));
-                buf.get(readBuf, 0, buf.position() - (int) off + Math.min(len, buf.limit() - (int) off));
-            } finally {
-                buf.position(pos);
-                buf.limit(lim);
-            }
-            int bytesRead = buf.position() - pos;
-            try (ByteArrayInputStream bais = new ByteArrayInputStream(readBuf, 0, bytesRead);
+            view.get(localBuf, 0, bytesToRead);
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(localBuf, 0, bytesToRead);
                  DataInputStream dis = new DataInputStream(bais)) {
                 int idLen = dis.readInt();
                 byte[] idBytes = new byte[idLen];
@@ -350,9 +345,9 @@ public class DefaultVectorStorage implements VectorStorage {
                 String metaStr = dis.readUTF();
                 return metaStr.isEmpty() ? new Vector(id, data) : new Vector(id, data,
                         parseMetadata(metaStr), null);
-            } catch (IOException e) {
-                throw new UncheckedIOException("读取向量分片条目失败", e);
             }
+        } catch (IllegalArgumentException | IOException e) {
+            return null;
         }
     }
 

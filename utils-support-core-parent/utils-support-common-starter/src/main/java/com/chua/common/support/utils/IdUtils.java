@@ -18,7 +18,22 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 工具类。
+ * ID 工具类，提供多种分布式唯一 ID 生成策略。
+ *
+ * <p>支持的 ID 生成方式：
+ * <ul>
+ *   <li>{@link #createUuid()} / {@link #createSimpleUuid()} — UUID（带分隔符 / 无分隔符）</li>
+ *   <li>{@link #createUuidv7()} — UUIDv7，时间有序，符合 RFC 9562</li>
+ *   <li>{@link #createSnowflakeId()} — 雪花算法 Long 型 ID</li>
+ *   <li>{@link #createKafkaSequenceId()} — Kafka 自增序列 ID</li>
+ *   <li>{@link #createMacSequenceId()} — 基于 MAC 地址的自增序列 ID</li>
+ *   <li>{@link #createTimeId()} / {@link #createTimeId(int)} — 时间戳组合 ID</li>
+ *   <li>{@link #createDailySequenceId()} — 日期自增序列 ID（格式：前缀+yyyyMMdd+9位序列）</li>
+ *   <li>{@link #getId(Object)} — 基于对象字段值的 MD5 唯一标识</li>
+ *   <li>{@link #createMd5(String)} — 通用 MD5 计算</li>
+ * </ul>
+ *
+ * <p>也提供设备编码生成（{@link #createDeviceCode()}）与对象数据比对功能（{@link #isSameData(Object, Object)}）。
  *
  * @author CH
  * @since 4.0.0.42
