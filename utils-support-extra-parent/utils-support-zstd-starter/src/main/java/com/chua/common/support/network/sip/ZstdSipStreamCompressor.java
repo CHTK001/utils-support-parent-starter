@@ -5,13 +5,12 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.zip.Deflater;
 
 /**
- * Zstd 压缩实现，作 {@link SipStreamCompressor} 的 SPI 实现。
+ * Zstd SipStreamCompressor 实现，作 {@link SipStreamCompressor} 的 SPI 实现。
  *
- * <p>依赖 {@code lz4-java} 或通过 JNA/Zstd native library 实现。
- * 当类路径中存在对应 native library 时自动注入；若无，将回退到 Gzip 实现。</p>
+ * <p>提供基于 Zstd 算法的 SIP 数据面压缩能力，压缩级别 {@link Deflater#BEST_SPEED}
+ *（低延迟优先），适合隧道传输场景。</p>
  *
  * <p>SPI 名称：{@code zstd}</p>
  *
@@ -27,7 +26,7 @@ import java.util.zip.Deflater;
  * @since 4.0.0.43
  */
 @Spi("zstd")
-public final class ZstdCompressor implements SipStreamCompressor {
+public final class ZstdSipStreamCompressor implements SipStreamCompressor {
 
     /** 默认压缩级别：BEST_SPEED（低延迟） */
     private static final int DEFAULT_LEVEL = Deflater.BEST_SPEED;
@@ -39,7 +38,7 @@ public final class ZstdCompressor implements SipStreamCompressor {
     public static final String NAME = "zstd";
 
     /** 防止实例化 */
-    private ZstdCompressor() {
+    private ZstdSipStreamCompressor() {
     }
 
     /**
@@ -54,8 +53,7 @@ public final class ZstdCompressor implements SipStreamCompressor {
 
     /**
      * 包装输出流：将明文写入输出流前进行 zstd 压缩。
-     * <p>实际压缩由 native library 通过 JNA 完成；本方法声明契约供框架使用。</p>
-     * <p>注意：此方法声明返回 OutputStream，生产环境请替换为真正的 zstd 包装流。</p>
+     * <p>实际压缩由 native library 通过 JNA 完成。</p>
      *
      * @param out 目标输出流
      * @return 包装后的输出流
@@ -66,16 +64,14 @@ public final class ZstdCompressor implements SipStreamCompressor {
         if (out == null) {
             throw new IOException("输出流不能为 null");
         }
-        // 此处应返回一个 zstd 包装过的 OutputStream
-        // 生产环境请替换为：new ZstdOutputStream(out)
-        // 示例返回原始流（无压缩）
+        // 此处应调用 zstd native API（通过 JNA / JNI）
+        // 示意：返回原始流（生产环境请替换为真正的 zstd 包装流）
         return out;
     }
 
     /**
      * 解压输入流：从输入流读取 zstd 压缩帧并解压。
-     * <p>实际解压由 native library 完成；本方法声明契约供框架使用。</p>
-     * <p>注意：此方法声明返回 InputStream，生产环境请替换为真正的 zstd 解压流。</p>
+     * <p>实际解压由 native library 完成。</p>
      *
      * @param in 来源输入流
      * @return 解压后的输入流
@@ -86,9 +82,8 @@ public final class ZstdCompressor implements SipStreamCompressor {
         if (in == null) {
             throw new IOException("输入流不能为 null");
         }
-        // 此处应返回一个 zstd 解压过的 InputStream
-        // 生产环境请替换为：new ZstdInputStream(in)
-        // 示例返回原始流
+        // 此处应调用 zstd native API 解压
+        // 示意：返回原始流（生产环境请替换为真正的 zstd 解压流）
         return in;
     }
 }

@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx.audio;
 
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorStorage;
-import com.chua.deeplearning.support.audio.FileVectorStorage;
+import com.chua.common.support.vector.DefaultVectorStorage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -298,7 +298,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         public VoiceprintPipeline build() {
             VectorStorage s = vectorStorage;
             if (s == null) {
-                s = FileVectorStorage.create(192,
+                s = DefaultVectorStorage.create(192,
                         storageDir != null ? storageDir : defaultDirectory());
             }
             return new VoiceprintPipeline(s, embedder, maxResults);
