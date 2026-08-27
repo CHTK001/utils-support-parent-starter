@@ -1,10 +1,11 @@
-﻿package com.chua.vector.support.spi;
+package com.chua.vector.support.spi;
 
-import static com.chua.common.support.reflection.ReflectUtils.forName;
 import static com.chua.common.support.reflection.ReflectUtils.invoke;
 import static com.chua.common.support.reflection.ReflectUtils.invokeStatic;
 
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.vector.RuntimeDetector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.common.support.vector.VectorStorageProvider;
@@ -13,15 +14,17 @@ import com.chua.vector.support.storage.CuvsVectorStorage;
 import com.chua.vector.support.storage.JvectorVectorStorageDelegate;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 /**
- * 向量存储 SPI 工厂，自动根据运行环境选择 cuVS GPU 或 jvector CPU 后端。
+ * 向量存储 SPI 工厂，通过 {@link RuntimeDetector} SPI 自动选择最优后端。
  *
- * <p>检测逻辑：
- * <ul>
- *   <li>显式指定 backend=CUVS：尝试创建 cuVS 资源，失败则降级到 jvector</li>
- *   <li>显式指定 backend=JVECTOR：直接使用 jvector</li>
- *   <li>backend=AUTO（默认）：尝试 cuVS，失败自动降级到 jvector</li>
- * </ul>
+ * <p>检测流程：
+ * <ol>
+ *   <li>收集所有已注册的 {@link RuntimeDetector}（cuvs、jvector、memory 等）</li>
+ *   <li>按优先级降序排列，依次检查 {@link RuntimeDetector#isAvailable()}</li>
+ *   <li>选择第一个可用的后端，未指定时自动降级</li>
+ * </ol>
  * </p>
  *
  * @author CH
@@ -42,7 +45,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
         VectorStorageProperties.Backend backend = props.getBackend();
 
         if (backend == VectorStorageProperties.Backend.AUTO) {
-            backend = detectBackend();
+            backend = selectBestBackend();
             props.setBackend(backend);
         }
 
@@ -65,46 +68,36 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 转换属性对象，null 或类型不匹配时返回默认配置。
+     * 通过 RuntimeDetector SPI 选择最优后端。
      *
-     * @param properties 原始属性对象
-     * @return 向量存储配置属性
+     * @return 选中的后端类型
      */
+    @SuppressWarnings("unchecked")
+    private static VectorStorageProperties.Backend selectBestBackend() {
+        List<RuntimeDetector> detectors = ServiceProvider.of(RuntimeDetector.class).collect();
+        if (detectors.isEmpty()) {
+            log.info("[vector-starter] No RuntimeDetector found, using jvector CPU");
+            return VectorStorageProperties.Backend.JVECTOR;
+        }
+        detectors.sort((a, b) -> Integer.compare(b.priority(), a.priority()));
+        for (RuntimeDetector detector : detectors) {
+            if (detector.isAvailable()) {
+                log.info("[vector-starter] Selected backend: {} (priority: {})", detector.name(), detector.priority());
+                return switch (detector.name()) {
+                    case "cuvs" -> VectorStorageProperties.Backend.CUVS;
+                    case "jvector" -> VectorStorageProperties.Backend.JVECTOR;
+                    default -> VectorStorageProperties.Backend.JVECTOR;
+                };
+            }
+        }
+        log.info("[vector-starter] No backend available, using jvector CPU");
+        return VectorStorageProperties.Backend.JVECTOR;
+    }
+
     private static VectorStorageProperties toProperties(Object properties) {
         if (properties instanceof VectorStorageProperties props) {
             return props;
         }
         return new VectorStorageProperties();
-    }
-
-    /**
-     * 尝试检测 cuVS GPU 环境是否可用（通过反射加载 com.nvidia.cuvs.CuVSResources）。
-     *
-     * @return 可用的后端类型，cuVS 不可用时返回 JVECTOR
-     */
-    private static VectorStorageProperties.Backend detectBackend() {
-        try {
-            Class<?> resourcesClass = forName("com.nvidia.cuvs.CuVSResources");
-            if (resourcesClass == null) {
-                log.info("[vector-starter] com.nvidia.cuvs classes not found in classpath, using jvector CPU");
-                return VectorStorageProperties.Backend.JVECTOR;
-            }
-            Object resources = invokeStatic(resourcesClass, "create", Object.class);
-            try {
-                int deviceId = (int) invoke(resources, "deviceId", int.class);
-                log.info("[vector-starter] cuVS GPU detected, device: {}", deviceId);
-                return VectorStorageProperties.Backend.CUVS;
-            } finally {
-                try {
-                    invoke(resources, "close", Object.class);
-                } catch (Throwable ignored) {
-                    log.debug("[vector-starter] Failed to close CuVSResources during detection", ignored);
-                }
-            }
-        } catch (Throwable t) {
-            log.info("[vector-starter] cuVS unavailable ({}: {}), using jvector CPU fallback",
-                    t.getClass().getSimpleName(), t.getMessage());
-            return VectorStorageProperties.Backend.JVECTOR;
-        }
     }
 }
