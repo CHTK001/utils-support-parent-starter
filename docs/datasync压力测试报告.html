@@ -54,8 +54,8 @@ tr:hover td{background:rgba(88,166,255,.04)}
 
 <!-- ━━━━━━━━━━━━━━ 概览卡片 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>概览</h2><span class="tg t2">10 / 10 PASS</span></div><div class="cb"><div class="lg">
-<strong>测试范围</strong>：14 个独立探针（10 datasync + 3 datalake + 1 inbound adapter），覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
-调度时序、快照恢复、网络重连、序列化基准、负载吞吐、Datalake 管线全链路、被动推送入站适配器、进阶场景（Null安全/状态流转/并发/生命周期）。<br>
+<strong>测试范围</strong>：15 个独立探针（10 datasync + 4 datalake），覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
+调度时序、快照恢复、网络重连、序列化基准、负载吞吐、Datalake 管线全链路、被动推送入站适配器、进阶场景、订阅器/容错、深度边界+高并发。<br>
 <strong>压力测试</strong>：10M 行 @ 812K rows/s (PASS) / 100M 行 @ 555K rows/s (PARTIAL, 调度超频重放)<br>
 <strong>环境</strong>：单机 16C / JDK 25.0.3 / 4G 堆 / 无外网依赖（H2 内存库 / 本地 Chronicle Queue / CSV 文件）
 </div></div></div>
@@ -314,6 +314,6 @@ scales:{y:{...dark,beginAtZero:true},x:dark}}});
 <strong>被动推送适配</strong>：MqttInboundAdapter / WebhookInboundAdapter / MysqlCdcListener（独立 starter 模块）
 </div></div></div>
 
-<div class="hd" style="margin-top:24px;border-top:1px solid var(--border);border-bottom:none"><div class="hr"><p>DataSync Stress Test Report · 2026-08-26 · CH</p></div></div>
+<div class="hd" style="margin-top:24px;border-top:1px solid var(--border);border-bottom:none"><div class="hr"><p>DataSync Stress Test Report · 2026-08-27 · CH · InboundAdapterProbe 12 + AdvancedProbe 20 + SubscriberProbe 20 + DeepProbe 20 + AllInOneProbe 13 ≈ 64 项覆盖</p></div></div>
 </body>
 </html>
