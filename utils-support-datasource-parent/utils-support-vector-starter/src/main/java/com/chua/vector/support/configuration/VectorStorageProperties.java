@@ -1,0 +1,147 @@
+package com.chua.vector.support.configuration;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+
+/**
+ * 向量存储统一配置属性，支持 cuVS (GPU) 和 jvector (CPU) 双后端。
+ *
+ * <p>通过 {@link com.chua.common.support.vector.VectorStorageProvider} 链式构建器传入，
+ * 或绑定到 Spring Boot {@code application.yml}。</p>
+ *
+ * <pre>{@code
+ * VectorStorage storage = VectorStorageProvider.of("vector")
+ *         .dimension(768)
+ *         .algorithm("cosine")
+ *         .properties(new VectorStorageProperties()
+ *                 .setIndexType(CuvsIndexType.CAGRA)
+ *                 .setGraphDegree(64))
+ *         .build();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Data
+@NoArgsConstructor
+@Accessors(chain = true)
+public class VectorStorageProperties implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 后端类型：cuvs / jvector / auto（自动检测，优先 GPU）。
+     */
+    private Backend backend = Backend.AUTO;
+
+    // ---- cuVS GPU 参数 ----
+
+    /**
+     * CUDA 设备 ID，默认 0。
+     */
+    private int deviceId = 0;
+
+    /**
+     * cuVS 索引类型，默认 CAGRA。
+     */
+    private CuvsIndexType indexType = CuvsIndexType.CAGRA;
+
+    /**
+     * CAGRA/HNSW 图度（output graph degree），默认 64。
+     */
+    private int graphDegree = 64;
+
+    /**
+     * CAGRA 中间图度（intermediate graph degree），默认 128。
+     */
+    private int intermediateGraphDegree = 128;
+
+    /**
+     * 搜索时的 exploration factor（搜索广度），默认 100。
+     */
+    private int searchEf = 100;
+
+    /**
+     * BruteForce 模式下额外取候选倍数（内部使用，搜索时多取）。
+     */
+    private int bruteForceFetchFactor = 3;
+
+    // ---- jvector CPU 参数 ----
+
+    /**
+     * jvector 存储模式，默认 MEMORY。
+     */
+    private JvectorMode jvectorMode = JvectorMode.MEMORY;
+
+    /**
+     * jvector 图最大度数 M，默认 32。
+     */
+    private int jvectorGraphM = 32;
+
+    /**
+     * jvector 建图时搜索深度 efConstruction，默认 100。
+     */
+    private int jvectorEfConstruction = 100;
+
+    /**
+     * jvector 磁盘索引路径（ON_DISK / LARGER_THAN_MEMORY 模式）。
+     */
+    private String jvectorIndexPath = "./vector-index";
+
+    /**
+     * 后端枚举。
+     */
+    public enum Backend {
+        /**
+         * 使用 NVIDIA cuVS GPU 加速。
+         */
+        CUVS,
+        /**
+         * 使用 jvector CPU 实现。
+         */
+        JVECTOR,
+        /**
+         * 自动检测：有 cuVS native 库则用 GPU，否则用 jvector。
+         */
+        AUTO
+    }
+
+    /**
+     * cuVS 支持的索引类型。
+     */
+    public enum CuvsIndexType {
+        /**
+         * CAGRA：GPU 图索引，召回率和吞吐平衡最佳（推荐）。
+         */
+        CAGRA,
+        /**
+         * BruteForce：精确暴力搜索，适合小数据集或验证基准。
+         */
+        BRUTE_FORCE,
+        /**
+         * HNSW：GPU 加速的 HNSW 图索引。
+         */
+        HNSW
+    }
+
+    /**
+     * jvector 存储模式。
+     */
+    public enum JvectorMode {
+        /**
+         * 纯内存图，适合小数据集或测试。
+         */
+        MEMORY,
+        /**
+         * 磁盘持久化图，内存中保留上层图。
+         */
+        ON_DISK,
+        /**
+         * 超内存模式，PQ 压缩向量驻留内存。
+         */
+        LARGER_THAN_MEMORY
+    }
+}

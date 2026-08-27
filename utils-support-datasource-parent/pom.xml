@@ -37,6 +37,7 @@
     <module>utils-support-solr-starter</module>
     <module>utils-support-debezium-starter</module>
     <module>utils-support-nitrite-starter</module>
+    <module>utils-support-vector-starter</module>
     </modules>
     <properties>
         <nitrite.version>4.4.3</nitrite.version>

@@ -213,6 +213,11 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
                 }
                 tokens.add((long) next);
                 stepCount++;
+                // 早停：检测到已生成片段出现重复周期（如连续重复或循环）时终止，避免无谓计算
+                if (isDegenerate(tokens, promptLen)) {
+                    log.info("[Gemma3] 检测到重复循环，提前终止（已生成 {} tokens）", stepCount);
+                    break;
+                }
             }
         }
 
@@ -322,6 +327,41 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             }
         }
         return best;
+    }
+
+    /**
+     * 检测已生成片段是否陷入退化解（重复/循环），用于提前终止。
+     * <p>策略：取最近生成的若干 token，检测是否存在长度 ≥2 的重复周期
+     * （如 A A A...、AB AB AB...、ABC ABC... 等典型循环模式）。</p>
+     *
+     * @param tokens    完整 token 序列（含 prompt 与已生成）
+     * @param promptLen prompt 长度
+     * @return true 表示已陷入重复，应终止生成
+     */
+    private static boolean isDegenerate(List<Long> tokens, int promptLen) {
+        int gen = tokens.size() - promptLen;
+        if (gen < 8) {
+            return false;
+        }
+        int start = tokens.size() - Math.min(gen, 16);
+        int window = tokens.size() - start;
+        // 检测周期 p（2..window/2）：窗口尾部是否由该周期重复构成
+        for (int p = 2; p <= window / 2; p++) {
+            if (window % p != 0) {
+                continue;
+            }
+            boolean repeat = true;
+            for (int i = start + p; i < tokens.size(); i++) {
+                if (!tokens.get(i).equals(tokens.get(i - p))) {
+                    repeat = false;
+                    break;
+                }
+            }
+            if (repeat) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static long[] toLongArray(List<Long> list) {
