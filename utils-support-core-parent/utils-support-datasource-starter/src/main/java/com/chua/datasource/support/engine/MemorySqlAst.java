@@ -578,15 +578,23 @@ final class MemorySqlAst {
     public static int executeDml(DmlPlan plan, List<Object> params, java.util.function.Supplier<List<Object>> tableResolver) {
         java.util.Objects.requireNonNull(plan, "plan must not be null");
         List<Object> safeParams = params == null ? List.of() : params;
+        /* SET ? 占位计数必须在 bindPlanParams 之前（绑定会替换占位符） */
+        int setParamCount = 0;
+        if (plan instanceof UpdatePlan upd) {
+            for (Object v : upd.sets().values()) {
+                if (v instanceof ParamMarker) {
+                    setParamCount++;
+                }
+            }
+        }
         bindPlanParams(plan, rowProvider(safeParams));
         List<Object> rows = tableResolver.get();
         if (plan instanceof InsertPlan ins) {
             return applyInsert(ins, rows);
         }
         if (plan instanceof UpdatePlan upd) {
-            /* SET 子句已消费前 N 个参数，WHERE 从 N 开始 */
-            int setCount = upd.sets().size();
-            List<Object> whereParams = safeParams.subList(setCount, safeParams.size());
+            List<Object> whereParams = setParamCount >= safeParams.size()
+                    ? List.of() : safeParams.subList(setParamCount, safeParams.size());
             return applyUpdate(upd, rows, whereParams);
         }
         return applyDelete((DeletePlan) plan, rows, safeParams);

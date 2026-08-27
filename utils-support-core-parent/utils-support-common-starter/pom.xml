@@ -46,6 +46,11 @@
                         <arg>--enable-preview</arg>
                         <arg>-parameters</arg>
                     </compilerArgs>
+                    <excludes>
+                        <exclude>**/network/sip/SipServer.java</exclude>
+                        <exclude>**/network/sip/SipClient.java</exclude>
+                        <exclude>**/network/sip/SipConfig.java</exclude>
+                    </excludes>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
