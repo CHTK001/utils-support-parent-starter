@@ -75,14 +75,7 @@
   <tr><td>资源清理</td><td>结构化作用域 close 保证取消全部在途任务（#6 验证取消语义）</td><td class="pass">已覆盖</td></tr>
 </table>
 
-<h2>三、已知边界（非缺陷，设计取舍）</h2>
-<ul>
-  <li>事件缓冲容量 4096，溢出丢最旧；长期复用建议 run 间调用 <code>clearEvents()</code>。</li>
-  <li>watch() 为 unicast 单播语义，同一时刻仅一个活跃订阅者。</li>
-  <li>被提前取消的节点最终态为 FAILED（中断已被业务感知）或 SKIPPED（取消先于记录），二者均视为非成功。</li>
-</ul>
-
-<h2>四、分组运行示例</h2>
+<h2>三、分组运行示例</h2>
 <pre>--type=serial       场景 1-3
 --type=parallel     场景 4-6
 --type=policy       场景 7-9

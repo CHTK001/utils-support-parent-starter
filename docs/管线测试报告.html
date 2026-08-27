@@ -55,12 +55,6 @@
   <tr><td>可观测性</td><td>#8(树拓扑打印) #3(回调事件流)</td><td class="pass">已覆盖</td></tr>
 </table>
 
-<h2>三、已知边界</h2>
-<ul>
-  <li>WAL 示例使用临时目录存储，正常完成保留 WAL 文件供审计，stop 场景销毁。</li>
-  <li>决策路由依赖业务返回的节点 ID，ID 不存在时由引擎按异常处理。</li>
-</ul>
-
 <h2>四、运行方式</h2>
 <pre>java --enable-preview -cp &lt;modules&gt; com.chua.example.pipeline.PipelineBasicExample
 （其余九个同理：PipelineAction/PipelineCallback/PipelineContext/PipelineDecision/
