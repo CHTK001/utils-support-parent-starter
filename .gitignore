@@ -193,3 +193,6 @@ replay_pid*.log
 *.class
 stash.diff
 .out/
+
+# JVM 转储/临时输出
+out_tmp_check/
