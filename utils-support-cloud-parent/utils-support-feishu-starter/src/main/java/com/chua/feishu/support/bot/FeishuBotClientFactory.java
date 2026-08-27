@@ -2,6 +2,7 @@ package com.chua.feishu.support.bot;
 
 import com.chua.common.support.ai.bot.BotClient;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
+import com.chua.common.support.spi.annotations.Spi;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("feishu")
 public class FeishuBotClientFactory implements BotClient.Factory {
 
     @Override

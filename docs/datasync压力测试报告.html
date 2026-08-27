@@ -54,8 +54,8 @@ tr:hover td{background:rgba(88,166,255,.04)}
 
 <!-- ━━━━━━━━━━━━━━ 概览卡片 ━━━━━━━━━━━━━━ -->
 <div class="cd"><div class="ch"><h2>概览</h2><span class="tg t2">10 / 10 PASS</span></div><div class="cb"><div class="lg">
-<strong>测试范围</strong>：13 个独立探针（10 datasync + 2 datalake + 1 inbound adapter），覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
-调度时序、快照恢复、网络重连、序列化基准、负载吞吐、Datalake 管线全链路、被动推送入站适配器。<br>
+<strong>测试范围</strong>：14 个独立探针（10 datasync + 3 datalake + 1 inbound adapter），覆盖调度引擎、文件解析、字段转换、批处理、背压控制、
+调度时序、快照恢复、网络重连、序列化基准、负载吞吐、Datalake 管线全链路、被动推送入站适配器、进阶场景（Null安全/状态流转/并发/生命周期）。<br>
 <strong>压力测试</strong>：10M 行 @ 812K rows/s (PASS) / 100M 行 @ 555K rows/s (PARTIAL, 调度超频重放)<br>
 <strong>环境</strong>：单机 16C / JDK 25.0.3 / 4G 堆 / 无外网依赖（H2 内存库 / 本地 Chronicle Queue / CSV 文件）
 </div></div></div>
@@ -261,6 +261,39 @@ scales:{y:{...dark,beginAtZero:true},x:dark}}});
 <strong>MQTT</strong>：Eclipse Paho v5，订阅主题 → JSON Map → DataEnvelope<br>
 <strong>Webhook</strong>：JDK HttpServer，POST /api/datalake/webhook/{pipelineId} 单条 + /batch 批量<br>
 <strong>CDC</strong>：mysql-binlog-connector-java，INSERT/UPDATE/DELETE 事件 → DataEnvelope
+</div></div></div>
+
+<!-- ━━━━━━━━━━━━━━ 进阶探测 ━━━━━━━━━━━━━━ -->
+<div class="cd"><div class="ch"><h2>DatalakeAdvancedProbe · 管线进阶场景</h2><span class="tg t2">20 / 20 PASS</span></div><div class="cb"><div class="tw"><table>
+<thead><tr>
+    <th>类别</th>
+    <th>测试项</th>
+    <th>说明</th>
+    <th>结果</th>
+</tr></thead><tbody>
+<tr><td rowspan="5">Null/缺失安全</td><td>A01</td><td>null envelope → 不崩溃</td><td class="pass">PASS</td></tr>
+<tr><td>A02</td><td>null pipelineId → 不崩溃（修复 DefaultPipelineManager.getPipeline() 空指针）</td><td class="pass">PASS</td></tr>
+<tr><td>A03</td><td>未注册 pipelineId → 状态不变</td><td class="pass">PASS</td></tr>
+<tr><td>A04</td><td>缺少 default stage → 状态不变</td><td class="pass">PASS</td></tr>
+<tr><td>A05</td><td>空 sink 列表 → 状态不变</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="4">Sink 状态流转</td><td>A06</td><td>单 Sink 成功 → SINK_OK + trace</td><td class="pass">PASS</td></tr>
+<tr><td>A07</td><td>多 Sink（log+statistic）全部成功 → SINK_OK</td><td class="pass">PASS</td></tr>
+<tr><td>A08</td><td>Sink 抛出异常 → SINK_FAIL + trace 含 ERROR</td><td class="pass">PASS</td></tr>
+<tr><td>A09</td><td>未注册 Sink type → 状态不变（日志 warn）</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="4">DataEnvelope 属性</td><td>A10</td><td>traceId 正确传递</td><td class="pass">PASS</td></tr>
+<tr><td>A11</td><td>timestamp &gt; 0</td><td class="pass">PASS</td></tr>
+<tr><td>A12</td><td>trace 列表含 [Sink]</td><td class="pass">PASS</td></tr>
+<tr><td>A13</td><td>isLog() 与 topics 匹配</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="2">并发执行</td><td>A14</td><td>100 envelope 并发 → 同一管线</td><td class="pass">PASS</td></tr>
+<tr><td>A15</td><td>50 envelope 并发 → 5 条不同管线</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="3">管线生命周期</td><td>A16</td><td>删除管线后 → 状态不变</td><td class="pass">PASS</td></tr>
+<tr><td>A17</td><td>执行中新增管线 → 可被路由</td><td class="pass">PASS</td></tr>
+<tr><td>A18</td><td>重复注册覆盖旧配置</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="2">配置传递 + 压测</td><td>A19</td><td>Sink config 参数（table/db）正确传递</td><td class="pass">PASS</td></tr>
+<tr><td>A20</td><td>500 envelope 压测（26ms, 19K ops/s）</td><td class="pass">PASS</td></tr>
+</tbody></table></div><div class="cb" style="margin-top:12px">
+<strong>Bug 修复</strong>：<code>DefaultPipelineManager.getPipeline(null)</code> 触发 ConcurrentHashMap NPE，已修复为返回 null<br>
+<strong>性能</strong>：500 envelope 顺序执行 26ms（19,230 ops/s），无dispatcher 瓶颈
 </div></div></div>
 
 <!-- ━━━━━━━━━━━━━━ 已知问题 ━━━━━━━━━━━━━━ -->
