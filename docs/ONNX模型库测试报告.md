@@ -121,14 +121,15 @@
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（201 个注册模型，更新于 2026-08-27）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 40　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 140　🚫 不再追踪 9　⬜ 未测试 2</p>
-<p>待测试清单（2）：`cn-clip-image`、`duguang-det-large`</p>
+<p>状态统计：✅ 实测通过 42　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 139　🚫 不再追踪 9　⬜ 未测试 1</p>
+<p>待测试清单（1）：`cn-clip-image`</p>
 <h3>OCR（15）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
+<tr><td><code>duguang-det-large</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td></td></tr>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
+<tr><td><code>duguang-ocr-large</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangOcrTranslator</td><td></td></tr>
 <tr><td><code>paddleocrv6-det</code></td><td>✅ 实测通过</td><td>ocr.extractor.PpOcrDetTranslator</td><td>ticket_new.png→22；freetxt.png→7</td></tr>
 <tr><td><code>doc-orientation</code></td><td>📄 已有记录</td><td>ocr.direction.DocOrientationTranslator</td><td></td></tr>
-<tr><td><code>duguang-ocr-large</code></td><td>📄 已有记录</td><td>ocr.duguang.DuguangOcrTranslator</td><td></td></tr>
 <tr><td><code>duguang-ocr-small</code></td><td>📄 已有记录</td><td>ocr.duguang.DuguangOcrTranslator</td><td></td></tr>
 <tr><td><code>paddleocrv6-medium-det</code></td><td>📄 已有记录</td><td>ocr.extractor.PpOcrDetMediumTranslator</td><td></td></tr>
 <tr><td><code>paddleocrv6-medium-rec</code></td><td>📄 已有记录</td><td>ocr.extractor.PpWordExtractorMediumTranslator</td><td></td></tr>
@@ -139,7 +140,6 @@
 <tr><td><code>pp-ocr-rec</code></td><td>🚫 不再追踪</td><td>ocr.PpOcrRecTranslator</td><td></td></tr>
 <tr><td><code>pp-word-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.PpWordExtractorTranslator</td><td></td></tr>
 <tr><td><code>svtr-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.SvtrExtractorTranslator</td><td></td></tr>
-<tr><td><code>duguang-det-large</code></td><td>⬜ 未测试</td><td>ocr.duguang.DuguangDetTranslator</td><td></td></tr>
 </tbody></table>
 <h3>人脸（29）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
