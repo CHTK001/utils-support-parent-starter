@@ -14,6 +14,7 @@ import com.chua.vector.support.storage.CuvsVectorStorage;
 import com.chua.vector.support.storage.JvectorVectorStorageDelegate;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -140,7 +141,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBestBackend(VectorStorageProperties props) {
-        List<RuntimeDetector> detectors = ServiceProvider.of(RuntimeDetector.class).collect();
+        List<RuntimeDetector> detectors = new ArrayList<>(ServiceProvider.of(RuntimeDetector.class).collect());
         if (detectors.isEmpty()) {
             log.info("[vector-starter] No RuntimeDetector found, using jvector CPU");
             return VectorStorageProperties.Backend.JVECTOR;

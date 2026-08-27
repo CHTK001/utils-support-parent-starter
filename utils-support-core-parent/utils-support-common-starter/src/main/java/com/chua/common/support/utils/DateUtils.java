@@ -45,7 +45,7 @@ import static java.util.Calendar.getInstance;
  * 部分方法参考 Apache Commons Lang 实现。
  *
  * @author CH
- * @version 1.0.0
+ * @version 4.0.0.42
  * @since 2020/12/21
  */
 @Slf4j
@@ -243,20 +243,22 @@ public class DateUtils {
     private static final int INDEX_NOT_FOUND = -1;
 
     /**
+     * 将 ISO-8601 时长字符串（如 "PT5H30M"）解析为 {@link Duration}。
      *
-     *
-     * @param time the time
-     * @return the result
+     * @param time ISO-8601 时长格式字符串，不含前缀
+     * @return 解析后的 Duration
+     * @throws java.time.format.DateTimeParseException 格式不正确时抛出
      */
     public static Duration toDuration(String time) {
         return Duration.parse("PT" + time);
     }
 
     /**
+     * 将 ISO-8601 周期字符串（如 "P30D"）解析为 {@link Period}。
      *
-     *
-     * @param time the time
-     * @return the result
+     * @param time ISO-8601 周期格式字符串，不含前缀
+     * @return 解析后的 Period
+     * @throws java.time.format.DateTimeParseException 格式不正确时抛出
      */
     public static Period toPeriod(String time) {
         return Period.parse("P" + time);
@@ -274,9 +276,9 @@ public class DateUtils {
         return Math.abs(date.getTime() - date1.getTime()) / dateUnit.getMillis();
     }
     /**
+     * 判断当前是否处于白天时段（6:00 ~ 18:00）。
      *
-     *
-     * @return boolean
+     * @return 当前小时在 6~18 之间返回 true
      */
     public static boolean isDay() {
         Calendar calendar = Calendar.getInstance();
@@ -287,12 +289,11 @@ public class DateUtils {
 
 
     /**
-     *       {date1}         {date2}
+     * 判断 date1 是否在 date2 之后。
      *
-     * @param date1 the date1
-     * @param date2 the date2
-     * @return {date1}   {date2}            true
-     * @see NullPointerException
+     * @param date1 待比较日期
+     * @param date2 比较基准日期
+     * @return date1 在 date2 之后返回 true；任一参数为 null 返回 false
      */
     public Boolean after(Date date1, Date date2) {
         if (null == date1 || null == date2) {
@@ -304,12 +305,11 @@ public class DateUtils {
     }
 
     /**
-     *       {date1}         {date2}
+     * 判断 date1 是否在 date2 之前。
      *
-     * @param date1 the date1
-     * @param date2 the date2
-     * @return {date1}   {date2}            true
-     * @see NullPointerException
+     * @param date1 待比较日期
+     * @param date2 比较基准日期
+     * @return date1 在 date2 之前返回 true；任一参数为 null 返回 false
      */
     public Boolean before(Date date1, Date date2) {
         if (null == date1 || null == date2) {
@@ -321,12 +321,11 @@ public class DateUtils {
     }
 
     /**
-     *       {date1}, {date2}
+     * 判断两个 Date 是否相等。
      *
-     * @param date1 the date1
-     * @param date2 the date2
-     * @return {date1}, {date2}                  true
-     * @see NullPointerException
+     * @param date1 待比较日期
+     * @param date2 比较基准日期
+     * @return 两日期相等返回 true；任一参数为 null 返回 false
      */
     public Boolean equal(Date date1, Date date2) {
         if (null == date1 || null == date2) {
@@ -338,11 +337,11 @@ public class DateUtils {
     }
 
     /**
-     *       {date}   {beforeOrAfter}
+     * 获取指定日期之前或之后的日期。
      *
-     * @param date the date
-     * @param beforeOrAfter < 0    n   , > 0    n
-     * @return    {beforeOrAfter}
+     * @param date 基准日期，为 null 时使用当前时间
+     * @param beforeOrAfter 偏移天数，负数表示之前，正数表示之后
+     * @return 偏移后的日期
      */
     public Date getDayOfBeforeOrAfter(Date date, int beforeOrAfter) {
         if (null == date) {
@@ -364,10 +363,10 @@ public class DateUtils {
     }
 
     /**
-     *       {date}
+     * 获取指定日期对应月份的第一天。
      *
-     * @param date the date
-     * @return the result
+     * @param date 基准日期，为 null 时使用当前时间
+     * @return 该月第一天的 Date（时间设为 00:00:00）
      */
     public Date getFirstDayOfMonth(Date date) {
         if (null == date) {
@@ -384,10 +383,10 @@ public class DateUtils {
     }
 
     /**
-     *       {date}
+     * 获取指定日期对应星期的第一天（周一）。
      *
-     * @param date the date
-     * @return the result
+     * @param date 基准日期，为 null 时使用当前时间
+     * @return 该周第一天的 Date（时间设为 00:00:00）
      */
     public Date getFirstDayOfWeek(Date date) {
         if (null == date) {
@@ -404,10 +403,10 @@ public class DateUtils {
     }
 
     /**
-     * {date}
+     * 获取指定日期当天的起始时刻（00:00:00.000）。
      *
-     * @param date the date
-     * @return the result
+     * @param date 基准日期，为 null 时返回 null
+     * @return 当天起始时刻的 Date
      */
     public Date getFirstTimeOfDay(Date date) {
         if (null == date) {
@@ -426,10 +425,10 @@ public class DateUtils {
     }
 
     /**
-     *       {date}
+     * 获取指定日期对应月份的最后一天的结束时刻（23:59:59）。
      *
-     * @param date the date
-     * @return the result
+     * @param date 基准日期，为 null 时使用当前时间
+     * @return 该月最后一天的 Date（时间设为 23:59:59）
      */
     public Date getLastDayOfMonth(Date date) {
         if (null == date) {
@@ -447,10 +446,10 @@ public class DateUtils {
     }
 
     /**
-     *       {date}
+     * 获取指定日期对应星期的最后一天（周日）的结束时刻（23:59:59.999）。
      *
-     * @param date the date
-     * @return the result
+     * @param date 基准日期，为 null 时使用当前时间
+     * @return 该周最后一天的 Date
      */
     public Date getLastDayOfWeek(Date date) {
         if (null == date) {
@@ -467,10 +466,10 @@ public class DateUtils {
     }
 
     /**
-     * {date}
+     * 获取指定日期当天的结束时刻（23:59:59.999）。
      *
-     * @param date the date
-     * @return the result
+     * @param date 基准日期，为 null 时返回 null
+     * @return 当天结束时刻的 Date
      */
     public Date getLastTimeOfDay(Date date) {
         if (null == date) {
@@ -488,9 +487,9 @@ public class DateUtils {
     }
 
     /**
+     * 获取当前星期（0=周日，1=周一，...，6=周六）。
      *
-     *
-     * @return 1:      , 2:
+     * @return 当前星期的整数表示
      */
     public int getWeek() {
         Date today = new Date();
@@ -500,9 +499,10 @@ public class DateUtils {
     }
 
     /**
+     * 获取指定日期的星期（0=周日，1=周一，...，6=周六）。
      *
-     *
-     * @return 1:      , 2:
+     * @param date 基准日期
+     * @return 星期的整数表示
      */
     public int getWeek(Date date) {
         Calendar c = getInstance();
@@ -511,11 +511,11 @@ public class DateUtils {
     }
 
     /**
-     *                                        (               )
+     * 获取两个日期之间的所有日期（含起止），按时间升序排列。
      *
-     * @param before the before
-     * @param after the after
-     * @return the result
+     * @param before 起始日期
+     * @param after  结束日期
+     * @return 包含起止日期的日期列表
      */
     public static List<Date> asRange(Date before, Date after) {
         List<Date> result = new ArrayList<>();
@@ -536,40 +536,39 @@ public class DateUtils {
     }
 
     /**
+     * 获取当前时间的毫秒时间戳。
      *
-     *
-     * @return the result
+     * @return 当前毫秒时间戳
      */
     public static long current() {
         return System.currentTimeMillis();
     }
 
     /**
+     * 获取当前时间格式化字符串（格式：yyyy-MM-dd HH:mm:ss）。
      *
-     *
-     * @return the result
+     * @return 当前时间字符串
      */
     public static String currentString() {
         return format(current(), DateFormatConstant.YYYY_MM_DD_HH_MM_SS);
     }
 
     /**
+     * 获取当前日期字符串（格式：yyyy-MM-dd）。
      *
-     *
-     * @return the result
+     * @return 当前日期字符串
      */
     public static String currentDateString() {
         return format(current(), DateFormatConstant.YYYY_MM_DD);
     }
 
     /**
+     * 将字符串按指定格式解析为 Date。
      *
-     * <p>
-     * DateHelper.format(new Date()) =
-     * </p>
-     *
-     * @param str the str
-     * @return the result
+     * @param str     日期时间字符串
+     * @param pattern 日期格式，如 "yyyy-MM-dd HH:mm:ss"
+     * @return 解析后的 Date
+     * @throws ParseException 解析失败时抛出
      */
     public static Date format(String str, String pattern) throws ParseException {
         DateFormat df = new SimpleDateFormat(pattern);
@@ -605,16 +604,10 @@ public class DateUtils {
     }
 
     /**
+     * 将 TemporalAccessor 转为格式化字符串，根据类型自动选用默认格式。
      *
-     * <br />                 yyyy-MM-dd HH:mm:ss
-     * {@link #format(Date, String)}
-     * <pre>
-     *   DateHelper.format(new Date()) =           2020-05-23 17:06:30
-     * </pre>
-     *
-     * @param date the date
-     * @return the result
-     * @see #format(Date, String)
+     * @param date LocalDateTime/LocalDate/LocalTime，其他类型返回 null
+     * @return 格式化后的字符串
      */
     public static String format(TemporalAccessor date) {
         if (date instanceof LocalDateTime) {

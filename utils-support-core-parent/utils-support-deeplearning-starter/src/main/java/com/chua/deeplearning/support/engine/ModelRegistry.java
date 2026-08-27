@@ -162,6 +162,11 @@ public final class ModelRegistry {
     private static final String ONNX_EXTRA_FILE_SUFFIX = ".extra_file";
 
     /**
+     * ONNX 外部权重后缀（多文件模型：model.onnx + model.onnx_data）
+     */
+    private static final String ONNX_DATA_SUFFIX = "_data";
+
+    /**
      * Safetensors 索引文件后缀
      */
     private static final String SAFETENSORS_INDEX_SUFFIX = ".index.json";
@@ -652,15 +657,30 @@ public final class ModelRegistry {
      */
     private static Path finishDownload(String modelId, Entry entry, String baseUrl, Path target, Path downloadDir) {
         try {
-            // ONNX .onnx 可能附带同名 .extra_file（权重张量），自动下载
+            // ONNX .onnx 可能附带同名权重文件：优先下载标准命名的 .onnx_data（多文件导出），
+            // 其次兼容遗留的 .extra_file 命名
             if (target.toString().toLowerCase().endsWith(MODEL_SUFFIXES[0])) {
-                Path extraFile = target.resolveSibling(target.getFileName() + ONNX_EXTRA_FILE_SUFFIX);
-                if (!Files.exists(extraFile) || Files.size(extraFile) == 0) {
-                    String extraUrl = baseUrl + ONNX_EXTRA_FILE_SUFFIX;
+                String fileName = target.getFileName().toString();
+                String[] extraSuffixes = {
+                        fileName + ONNX_DATA_SUFFIX,          // model.onnx -> model.onnx_data
+                        fileName.substring(0, fileName.length() - MODEL_SUFFIXES[0].length()) + ONNX_DATA_SUFFIX + ".onnx", // model.onnx_data（兜底）
+                        fileName + ONNX_EXTRA_FILE_SUFFIX,     // model.onnx.extra_file（兼容）
+                };
+                for (String extraName : extraSuffixes) {
+                    Path extraFile = target.resolveSibling(extraName);
+                    if (Files.exists(extraFile) && Files.size(extraFile) > 0) {
+                        log.info("[deeplearning-engine] ONNX 附加文件已存在: {}", extraFile);
+                        continue;
+                    }
+                    String extraUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1) + extraName;
                     try {
                         log.info("[deeplearning-engine] 开始下载 ONNX 附加文件: {} -> {}", modelId, extraUrl);
                         downloader.download(extraUrl, extraFile);
-                        log.info("[deeplearning-engine] ONNX 附加文件下载完成: {} -> {}", modelId, extraFile);
+                        if (Files.exists(extraFile) && Files.size(extraFile) > 0) {
+                            log.info("[deeplearning-engine] ONNX 附加文件下载完成: {} -> {}", modelId, extraFile);
+                        } else {
+                            log.warn("[deeplearning-engine] ONNX 附加文件为空，继续尝试: {}", extraUrl);
+                        }
                     } catch (Exception e) {
                         log.warn("[deeplearning-engine] 下载 ONNX 附加文件失败（部分模型不需要）: {} -> {}: {}", modelId, extraUrl, e.getMessage());
                     }
