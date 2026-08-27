@@ -78,7 +78,12 @@ public class DefaultPipelineEngine implements PipelineEngine {
             return;
         }
 
-        PipelineConfig config = Json.fromJson(dslJson, PipelineConfig.class);
+        PipelineConfig config = null;
+        try {
+            config = Json.fromJson(dslJson, PipelineConfig.class);
+        } catch (Exception e) {
+            log.warn("[datalake-pipeline] 管线 DSL 解析失败: pipelineId={}, error={}", pipelineId, e.getMessage());
+        }
         if (config == null) {
             return;
         }

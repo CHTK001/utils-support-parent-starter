@@ -509,6 +509,8 @@ public class ILinkBotClient implements BotClient {
      */
     private Map<String, Object> apiGet(String pathAndQuery) {
         ClientRequest request = ClientRequest.of(baseUrl + pathAndQuery, HttpMethod.GET);
+        request.setConnectTimeout(connectTimeoutMillis);
+        request.setReadTimeout(readTimeoutMillis);
         if (token != null && !token.isEmpty()) {
             request.header("Authorization", "Bearer " + token);
         }
