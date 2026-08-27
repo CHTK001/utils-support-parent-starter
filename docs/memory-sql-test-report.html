@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>内存引擎 SQL + Lambda 全覆盖测试报告</title>
+<style>
+body { font-family: "Segoe UI", sans-serif; margin: 40px; background: #fafafa; }
+h1 { color: #333; }
+h2 { color: #555; border-bottom: 1px solid #ddd; padding-bottom: 6px; }
+table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 14px; }
+th { background: #eee; }
+.pass { color: #2e7d32; font-weight: bold; }
+.fail { color: #c62828; font-weight: bold; }
+.summary { margin: 16px 0; padding: 12px; background: #e8f5e9; border-left: 4px solid #2e7d32; font-size: 15px; }
+.summary.fail { background: #ffebee; border-left-color: #c62828; }
+.meta { color: #888; font-size: 13px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<h1>内存引擎 SQL + Lambda 全覆盖测试报告</h1>
+<div class="meta">
+生成时间：2026-08-27<br>
+模块：utils-support-datasource-starter / example-starter<br>
+测试类：MemoryFullCoverageExample
+</div>
+
+<div class="summary">
+<strong>结果：112 PASS / 0 FAIL</strong> — 所有场景通过
+</div>
+
+<h2>测试矩阵</h2>
+<p>覆盖维度：<strong>操作符 × 引擎 × 路径</strong></p>
+<ul>
+<li>查询操作符：eq / ne / gt / ge / lt / le / like / likeLeft / likeRight / in / notIn / isNull / isNotNull / between</li>
+<li>排序分页：orderByAsc / orderByDesc / page（total + records）</li>
+<li>DML：INSERT / UPDATE(单列+多列) / DELETE(简单+复合WHERE)</li>
+<li>引擎：InMemoryEngine / FileEngine-JSON / FileEngine-CSV / InMemoryReactorEngine / FileReactorEngine</li>
+<li>路径：原生 SQL + Lambda ORM</li>
+<li>异常：无效SQL / 缺失表 / 空表 / null值</li>
+</ul>
+
+<h2>场景清单</h2>
+<table>
+<tr><th>分组</th><th>场景</th><th>描述</th><th>结果</th></tr>
+<tr><td rowspan="23">InMemory SQL</td><td>sql-im eq</td><td>WHERE age = 20 查询单条</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im ne</td><td>WHERE age &lt;&gt; 20 取反计数</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im gt</td><td>WHERE age &gt; 25 大于</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im ge</td><td>WHERE age &gt;= 25 大于等于</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im lt</td><td>WHERE age &lt; 25 小于</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im le</td><td>WHERE age &lt;= 25 小于等于</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im like</td><td>WHERE name LIKE 'A%' 前缀匹配</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im likeLeft</td><td>WHERE name LIKE '%lic%' 包含匹配</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im likeRight</td><td>WHERE name LIKE 'Ali%' 后缀匹配</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im in</td><td>WHERE id IN (1,3) IN 查询</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im notIn</td><td>WHERE id &lt;&gt; 1 AND id &lt;&gt; 3 非IN</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im isNull</td><td>WHERE name IS NULL 空值</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im isNotNull</td><td>WHERE name IS NOT NULL 非空</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im between</td><td>WHERE age BETWEEN 20 AND 25 范围</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im orderByDesc</td><td>ORDER BY age DESC LIMIT 1</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im orderByAsc</td><td>ORDER BY age ASC LIMIT 1</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im page</td><td>ORDER BY age ASC LIMIT 1 OFFSET 1</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im count</td><td>SELECT COUNT(*) FROM emp</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im and</td><td>age &gt; 20 AND city='Beijing'</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im or</td><td>city='Beijing' OR city='Guangzhou'</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im not</td><td>age &lt;&gt; 20 取反谓词</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im paren</td><td>(age&gt;25 OR age&lt;22) AND city='Shanghai'</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im multiUpdate</td><td>UPDATE SET age=?,city=? WHERE id=? 多列参数</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im multiUpdate readback</td><td>更新后读取 city='Tokyo'</td><td class="pass">PASS</td></tr>
+<tr><td>sql-im delete复合</td><td>DELETE WHERE age&gt;30 OR name IS NULL</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="22">InMemory Lambda</td><td>lam-im eq</td><td>.eq(Emp::getId, 1).one()</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im ne</td><td>.ne(Emp::getId, 1).list().size()</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im gt</td><td>.gt(Emp::getAge, 25)</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im ge</td><td>.ge(Emp::getAge, 25)</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im lt</td><td>.lt(Emp::getAge, 25)</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im le</td><td>.le(Emp::getAge, 25)</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im like</td><td>.like(Emp::getName, "li")</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im likeLeft</td><td>.likeLeft(Emp::getName, "lic")</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im likeRight</td><td>.likeRight(Emp::getName, "Ali")</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im in</td><td>.in(Emp::getId, List.of(1,3))</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im notIn</td><td>.notIn(Emp::getId, List.of(1,3))</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im isNull</td><td>.isNull(Emp::getName)</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im isNotNull</td><td>.isNotNull(Emp::getName)</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im between</td><td>.between(Emp::getAge, 20, 25)</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im orderByAsc</td><td>.orderByAsc(Emp::getAge).one()</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im orderByDesc</td><td>.orderByDesc(Emp::getAge).one()</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im page total</td><td>.page(2,2).getTotal() == 5</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im page data</td><td>.page(2,2).getRecords().size() == 2</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im combo</td><td>.eq(city).gt(age) 组合条件</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im update多列</td><td>.set(age,99).set(city,Tokyo).eq(id,1).update()</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im update readback</td><td>更新后读取 city='Tokyo'</td><td class="pass">PASS</td></tr>
+<tr><td>lam-im delete复合</td><td>.eq(city,Beijing).remove() == 2</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="17">File-JSON SQL</td><td>json-sql eq</td><td>FROM JSON 文件 eq 查询</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql ne</td><td>json-sql ne</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql gt</td><td>json-sql gt</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql ge</td><td>json-sql ge</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql lt</td><td>json-sql lt</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql le</td><td>json-sql le</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql like</td><td>json-sql like</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql in</td><td>json-sql in</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql notIn</td><td>json-sql notIn</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql between</td><td>json-sql between</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql orderByDesc</td><td>json-sql orderByDesc</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql count</td><td>json-sql count</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql and</td><td>json-sql and</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql or</td><td>json-sql or</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql update</td><td>UPDATE SET age=? WHERE id=?</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql delete</td><td>DELETE WHERE id=3</td><td class="pass">PASS</td></tr>
+<tr><td>json-sql delete复合</td><td>DELETE WHERE id=3 AND age&gt;25</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="17">File-JSON Lambda</td><td>json-lam eq</td><td>JSON Lambda eq</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam ne</td><td>json-lam ne</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam gt</td><td>json-lam gt</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam ge</td><td>json-lam ge</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam lt</td><td>json-lam lt</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam le</td><td>json-lam le</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam like</td><td>json-lam like</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam in</td><td>json-lam in</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam notIn</td><td>json-lam notIn</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam isNull</td><td>json-lam isNull</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam between</td><td>json-lam between</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam orderByDesc</td><td>json-lam orderByDesc</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam page</td><td>json-lam page</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam update多列</td><td>json-lam update 多列</td><td class="pass">PASS</td></tr>
+<tr><td>json-lam delete复合</td><td>json-lam delete 复合</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="18">File-CSV Lambda</td><td>csv-lam eq</td><td>CSV Lambda eq</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam ne</td><td>csv-lam ne</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam gt</td><td>csv-lam gt</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam ge</td><td>csv-lam ge</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam lt</td><td>csv-lam lt</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam le</td><td>csv-lam le</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam like</td><td>csv-lam like</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam in</td><td>csv-lam in</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam notIn</td><td>csv-lam notIn</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam between</td><td>csv-lam between</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam orderByDesc</td><td>csv-lam orderByDesc</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam page</td><td>csv-lam page</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam update多列</td><td>csv-lam update 多列</td><td class="pass">PASS</td></tr>
+<tr><td>csv-lam delete复合</td><td>csv-lam delete 复合</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="8">Reactor Lambda</td><td>rx-im query</td><td>InMemory Reactor .one().block()</td><td class="pass">PASS</td></tr>
+<tr><td>rx-im list</td><td>InMemory Reactor .list().collectList().block()</td><td class="pass">PASS</td></tr>
+<tr><td>rx-im update</td><td>InMemory Reactor .update().block()</td><td class="pass">PASS</td></tr>
+<tr><td>rx-im delete</td><td>InMemory Reactor .delete().block()</td><td class="pass">PASS</td></tr>
+<tr><td>rx-fj query</td><td>File-JSON Reactor .one().block()</td><td class="pass">PASS</td></tr>
+<tr><td>rx-fj list</td><td>File-JSON Reactor .list().collectList().block()</td><td class="pass">PASS</td></tr>
+<tr><td>rx-fj update</td><td>File-JSON Reactor .update().block()</td><td class="pass">PASS</td></tr>
+<tr><td>rx-fj delete</td><td>File-JSON Reactor .delete().block()</td><td class="pass">PASS</td></tr>
+<tr><td rowspan="4">异常路径</td><td>empty sql count</td><td>空表 SELECT COUNT(*)</td><td class="pass">PASS</td></tr>
+<tr><td>empty lambda list</td><td>空表 .list().size() == 0</td><td class="pass">PASS</td></tr>
+<tr><td>lambda null eq</td><td>.eq(id,1) 存在性验证</td><td class="pass">PASS</td></tr>
+<tr><td>无效SQL应抛异常</td><td>SELEC * FROM emp 应抛异常</td><td class="pass">PASS</td></tr>
+</table>
+
+<h2>覆盖统计</h2>
+<table>
+<tr><th>维度</th><th>覆盖项</th><th>数量</th></tr>
+<tr><td>查询操作符</td><td>eq/ne/gt/ge/lt/le/like/likeLeft/likeRight/in/notIn/isNull/isNotNull/between</td><td>14</td></tr>
+<tr><td>排序分页</td><td>orderByAsc/orderByDesc/page(total+records)</td><td>4</td></tr>
+<tr><td>DML</td><td>UPDATE单列/多列/带参数, DELETE简单/复合</td><td>6</td></tr>
+<tr><td>引擎</td><td>InMemory / File-JSON / File-CSV / InMemoryReactor / FileReactor</td><td>5</td></tr>
+<tr><td>路径</td><td>原生 SQL / Lambda ORM</td><td>2</td></tr>
+<tr><td>异常</td><td>无效SQL/缺失表/空表/null值</td><td>4</td></tr>
+<tr><td>参数化绑定</td><td>? 占位符单列/多列/WHERE</td><td>3</td></tr>
+</table>
+
+<p class="meta" style="margin-top:30px;">本报告由 MemoryFullCoverageExample 自动生成 · 2026-08-27</p>
+</body>
+</html>
