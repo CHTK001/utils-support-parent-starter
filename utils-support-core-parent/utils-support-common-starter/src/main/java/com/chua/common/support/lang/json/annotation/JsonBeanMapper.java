@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.json.annotation;
 
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Field;
@@ -235,7 +236,7 @@ public final class JsonBeanMapper {
         if (getter != null) {
             try {
                 ClassUtils.setAccessible(getter);
-                return getter.invoke(bean);
+                return ReflectUtils.invoke(bean, getter.getName(), getter.getReturnType());
             } catch (Exception ignore) {
             }
         }
@@ -259,7 +260,7 @@ public final class JsonBeanMapper {
         if (setter != null) {
             try {
                 ClassUtils.setAccessible(setter);
-                setter.invoke(bean, Converter.convertIfNecessary(value, setter.getParameterTypes()[0]));
+                ReflectUtils.invoke(bean, setter.getName(), void.class, setter.getParameterTypes(), Converter.convertIfNecessary(value, setter.getParameterTypes()[0]));
                 return;
             } catch (Exception ignore) {
             }

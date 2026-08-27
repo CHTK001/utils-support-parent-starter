@@ -419,7 +419,12 @@ public class NioServerRequest implements ServerRequest {
         try { return HttpMethod.valueOf(method.toUpperCase()); } catch (IllegalArgumentException e) { return HttpMethod.OPTIONS; }
     }
     @Override public String getHeader(String name) { return headers.get(name.toLowerCase()); }
-    @Override public HttpHeader getHeaders() { HttpHeader h = HttpHeader.create(); headers.forEach(h::add); return h; }
+    @Override
+    public HttpHeader getHeaders() {
+        HttpHeader h = HttpHeader.create();
+        headers.forEach(h::add);
+        return h;
+    }
     @Override public Map<String, String> getParams() {
         if (queryString == null || queryString.isEmpty()) {
             return Map.of();
@@ -537,8 +542,13 @@ public class NioServerRequest implements ServerRequest {
      * 仅清空已解析字段并将状态机归位。</p>
      */
     public void resetForNextRequest() {
-        method = null; uri = null; path = null; queryString = null;
-        httpVersion = "HTTP/1.1"; headers.clear(); body = null;
+        method = null;
+        uri = null;
+        path = null;
+        queryString = null;
+        httpVersion = "HTTP/1.1";
+        headers.clear();
+        body = null;
         attributes.clear();
         // 重置状态机(保留缓冲中未消费的数据,供 Keep-Alive 下一条请求复用)
         parseState = ParseState.REQUEST_LINE;

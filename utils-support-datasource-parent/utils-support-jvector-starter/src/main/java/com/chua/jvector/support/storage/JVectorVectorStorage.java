@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
@@ -235,26 +236,82 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (vectors.isEmpty()) {
                 return List.of();
             }
-            if (graph == null) {
-                buildGraph();
-            }
-            // 必须使用 jvector 内置精确分数（与建图时的 VectorSimilarityFunction 一致）；
-            // 自定义负分数会导致 rc.9 的 search 返回 0 结果。
-            var queryVec = VTS.createFloatVector(query);
-            var rav = new ListRandomAccessVectorValues(vectors, dimension);
-            SearchScoreProvider ssp = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
-            try (var searcher = new GraphSearcher(graph)) {
-                var result = searcher.search(ssp, topK, Bits.ALL);
-                var list = new ArrayList<Vector>();
-                for (var n : result.getNodes()) {
-                    var id = idOf(n.node);
-                    float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
-                    list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
+            // 先尝试图搜索；若图未构建或构建/搜索异常，降级为暴力线性扫描。
+            // 原因：jvector rc.9 的 GraphSearcher 在 JDK 25 下因 incubator vector
+            // 模块不可读会导致 ForkJoin 线程挂起。
+            try {
+                if (graph == null) {
+                    buildGraph();
                 }
-                return list;
+                var queryVec = VTS.createFloatVector(query);
+                var rav = new ListRandomAccessVectorValues(vectors, dimension);
+                SearchScoreProvider ssp = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
+                try (var searcher = new GraphSearcher(graph)) {
+                    var result = searcher.search(ssp, topK, Bits.ALL);
+                    var list = new ArrayList<Vector>();
+                    for (var n : result.getNodes()) {
+                        var id = idOf(n.node);
+                        float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
+                        list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
+                    }
+                    return list;
+                }
             } catch (Exception e) {
-                throw new RuntimeException("搜索失败", e);
+                if (graph != null) {
+                    try { graph.close(); } catch (Exception ignored) {}
+                    graph = null;
+                }
+                System.err.println("[jvector] 图搜索失败，降级为暴力扫描: " + e.getMessage());
             }
+            return bruteForceSearch(query, topK);
+        }
+
+        /**
+         * 暴力线性扫描计算余弦相似度，作为 jvector graph search 不可用时的回退。
+         */
+        private List<Vector> bruteForceSearch(float[] query, int topK) {
+            int n = vectors.size();
+            int k = Math.min(topK, n);
+            String[] topIds = new String[k];
+            float[] topScores = new float[k];
+            Arrays.fill(topScores, Float.NEGATIVE_INFINITY);
+
+            double qNorm = 0, qDot = 0;
+            for (float f : query) { qNorm += f * f; }
+            qNorm = Math.sqrt(qNorm);
+            if (qNorm == 0) return List.of();
+
+            for (int i = 0; i < n; i++) {
+                float[] vec = rawVectors.get(i);
+                double dot = 0, vNorm = 0;
+                for (int d = 0; d < dimension; d++) {
+                    dot += (double) query[d] * vec[d];
+                    vNorm += (double) vec[d] * vec[d];
+                }
+                vNorm = Math.sqrt(vNorm);
+                if (vNorm == 0) continue;
+                float sim = (float) (dot / (qNorm * vNorm));
+                // 插入排序保持 topK 降序
+                int pos = k - 1;
+                while (pos >= 0 && topScores[pos] < sim) {
+                    topIds[pos + 1] = topIds[pos];
+                    topScores[pos + 1] = topScores[pos];
+                    pos--;
+                }
+                topIds[pos + 1] = idOf(i);
+                topScores[pos + 1] = sim;
+                if (k < topIds.length) { /* no-op, array fixed size */ }
+            }
+
+            var result = new ArrayList<Vector>();
+            for (int i = 0; i < k; i++) {
+                if (topIds[i] == null) break;
+                int idx = ordinalOf(topIds[i]);
+                if (idx < 0 || idx >= rawVectors.size()) continue;
+                result.add(new Vector(topIds[i], rawVectors.get(idx),
+                        Map.of("score", (double) topScores[i])));
+            }
+            return result;
         }
 
         @Override

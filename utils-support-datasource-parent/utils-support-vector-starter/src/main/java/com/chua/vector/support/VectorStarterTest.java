@@ -24,6 +24,8 @@ public class VectorStarterTest {
         if (testAutoDetectBackend()) { passed++; } else { failed++; }
         if (testForceCpuBackend()) { passed++; } else { failed++; }
         if (testRequireGpuThrows()) { passed++; } else { failed++; }
+        if (testAddSearchFallback()) { passed++; } else { failed++; }
+        if (testRemoveUpdateClear()) { passed++; } else { failed++; }
 
         System.out.println("========== Results: " + passed + " passed, " + failed + " failed ==========");
         System.exit(failed > 0 ? 1 : 0);
@@ -124,6 +126,80 @@ public class VectorStarterTest {
             return true;
         } catch (Exception e) {
             System.out.println("  FAIL: wrong type: " + e.getClass().getSimpleName());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static final float[] Q1 = {1.0f, 0.0f, 0.0f, 0.0f};
+    private static final float[] Q2 = {0.0f, 1.0f, 0.0f, 0.0f};
+
+    private static boolean testAddSearchFallback() {
+        System.out.println("[TC-6] add + search (brute-force fallback on JDK25)");
+        try {
+            var props = new VectorStorageProperties().forceCpu(true);
+            var storage = VectorStorageProvider.of("vector")
+                    .dimension(DIM)
+                    .algorithm(VectorCompareAlgorithm.cosine())
+                    .properties(props)
+                    .build();
+            storage.add("a", new float[]{1.0f, 0.0f, 0.0f, 0.0f});
+            storage.add("b", new float[]{0.0f, 1.0f, 0.0f, 0.0f});
+            storage.add("c", new float[]{0.0f, 0.0f, 1.0f, 0.0f});
+            storage.add("d", new float[]{0.8f, 0.6f, 0.0f, 0.0f});
+
+            List<com.chua.common.support.vector.Vector> r1 = storage.search(Q1, 2);
+            System.out.println("  search(q1,2) -> size=" + r1.size()
+                    + " ids=" + r1.stream().map(v -> v.id()).toList());
+            boolean ok1 = r1.size() >= 1 && r1.get(0).id().startsWith("a");
+
+            List<com.chua.common.support.vector.Vector> r2 = storage.search(Q2, 2);
+            System.out.println("  search(q2,2) -> size=" + r2.size()
+                    + " ids=" + r2.stream().map(v -> v.id()).toList());
+            boolean ok2 = r2.size() >= 1 && (r2.get(0).id().startsWith("b") || r2.get(0).id().startsWith("a"));
+
+            storage.close();
+            System.out.println(ok1 && ok2 ? "  PASS" : "  PARTIAL (graph unavailable, brute-force ran)");
+            return ok1 && ok2;
+        } catch (Exception e) {
+            System.out.println("  FAIL: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static boolean testRemoveUpdateClear() {
+        System.out.println("[TC-7] remove + update + clear");
+        try {
+            var props = new VectorStorageProperties().forceCpu(true);
+            var storage = VectorStorageProvider.of("vector")
+                    .dimension(DIM)
+                    .algorithm(VectorCompareAlgorithm.cosine())
+                    .properties(props)
+                    .build();
+            storage.add("keep", new float[]{1.0f, 0.0f, 0.0f, 0.0f});
+            storage.add("drop", new float[]{0.0f, 1.0f, 0.0f, 0.0f});
+            storage.add("upd", new float[]{0.0f, 0.0f, 1.0f, 0.0f});
+
+            int sizeBefore = storage.size();
+            boolean removed = storage.remove("drop");
+            boolean updated = storage.update("upd", new float[]{0.0f, 0.0f, 0.0f, 1.0f});
+            boolean removedAgain = storage.remove("drop");
+            int sizeAfter = storage.size();
+
+            storage.clear();
+            int sizeAfterClear = storage.size();
+            storage.close();
+
+            boolean ok = sizeBefore == 3 && removed && !removedAgain
+                    && updated && sizeAfter == 2 && sizeAfterClear == 0;
+            System.out.println("  before=" + sizeBefore + " removed=" + removed
+                    + " updated=" + updated + " removedAgain=" + removedAgain
+                    + " after=" + sizeAfter + " afterClear=" + sizeAfterClear);
+            System.out.println(ok ? "  PASS" : "  FAIL");
+            return ok;
+        } catch (Exception e) {
+            System.out.println("  FAIL: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

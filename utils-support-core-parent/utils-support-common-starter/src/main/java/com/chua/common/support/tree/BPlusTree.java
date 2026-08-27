@@ -42,6 +42,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         this.maxKeys = order - 1;
         this.maxChildren = order;
         this.root = new BPlusTreeNode<>(true);
+        this.root.setInitialCapacity(order);
         this.size = 0;
     }
 
@@ -147,80 +148,72 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
                 node.values.set(i, value);
                 return new NodeUpdate<>(false, null, null, old);
             }
-            List<K> newKeys = new ArrayList<>(node.keys);
-            List<V> newValues = new ArrayList<>(node.values);
-            newKeys.add(i, key);
-            newValues.add(i, value);
-
-            if (newKeys.size() <= maxKeys) {
-                node.keys = newKeys;
-                node.values = newValues;
+            // 直接原地修改，避免不必要的 ArrayList 拷贝
+            node.keys.add(i, key);
+            node.values.add(i, value);
+            if (node.keys.size() <= maxKeys) {
                 return new NodeUpdate<>(false, null, null, null);
             }
-            return splitLeaf(node, newKeys, newValues);
+            return splitLeaf(node);
         }
 
         NodeUpdate<K, V> sub = insert(node.children.get(i), key, value);
         if (!sub.needsSplit) {
             return sub;
         }
-        List<K> newKeys = new ArrayList<>(node.keys);
-        List<BPlusTreeNode<K, V>> newChildren = new ArrayList<>(node.children);
-        if (i < newKeys.size()) {
-            newKeys.set(i, sub.promotedKey);
+        // 直接原地修改，避免不必要的 ArrayList 拷贝
+        if (i < node.keys.size()) {
+            node.keys.set(i, sub.promotedKey);
         } else {
-            newKeys.add(sub.promotedKey);
+            node.keys.add(sub.promotedKey);
         }
-        newChildren.add(i + 1, sub.rightChild);
-
-        if (newKeys.size() <= maxKeys) {
-            node.keys = newKeys;
-            node.children = newChildren;
+        node.children.add(i + 1, sub.rightChild);
+        if (node.keys.size() <= maxKeys) {
             return new NodeUpdate<>(false, null, null, null);
         }
-        return splitInternal(node, newKeys, newChildren);
+        return splitInternal(node);
     }
 
-    private NodeUpdate<K, V> splitLeaf(BPlusTreeNode<K, V> node, List<K> keys, List<V> values) {
-        int mid = (keys.size() + 1) / 2;
-        K promoteKey = keys.get(mid - 1);
-        // Left child: keys[0..mid-2]
-        List<K> leftKeys = keys.subList(0, mid - 1);
-        List<V> leftValues = values.subList(0, mid - 1);
-        // Right child: keys[mid-1..end] (promoted key included for B+ tree)
-        List<K> rightKeys = new ArrayList<>(keys.subList(mid - 1, keys.size()));
-        List<V> rightValues = new ArrayList<>(values.subList(mid - 1, values.size()));
-
+    private NodeUpdate<K, V> splitLeaf(BPlusTreeNode<K, V> node) {
+        int n = node.keys.size();
+        int mid = n / 2; // 左半 keys[0..mid-1]，右半 keys[mid..n-1]
+        K promoteKey = node.keys.get(mid - 1);
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(true);
-        right.keys = rightKeys;
-        right.values = rightValues;
         right.next = node.next;
-
-        // Update current (left) node
-        node.keys = new ArrayList<>(leftKeys);
-        node.values = new ArrayList<>(leftValues);
-
+        // 拷贝右半部分（包含 promoted key）
+        for (int j = mid - 1; j < n; j++) {
+            right.keys.add(node.keys.get(j));
+            right.values.add(node.values.get(j));
+        }
+        // 截断左半部分（只保留 [0, mid-1)）
+        node.keys.subList(mid - 1, n).clear();
+        node.values.subList(mid - 1, n).clear();
         return new NodeUpdate<>(true, promoteKey, right, null);
     }
 
-    private NodeUpdate<K, V> splitInternal(BPlusTreeNode<K, V> node, List<K> keys, List<BPlusTreeNode<K, V>> children) {
-        int mid = keys.size() / 2;
-        K promoteKey = keys.get(mid);
-        // Left: keys[0..mid-1], children[0..mid]
-        List<K> leftKeys = new ArrayList<>(keys.subList(0, mid));
-        List<BPlusTreeNode<K, V>> leftChildren = new ArrayList<>(children.subList(0, mid + 1));
-        // Right: keys[mid+1..end], children[mid+1..end]
-        List<K> rightKeys = new ArrayList<>(keys.subList(mid + 1, keys.size()));
-        List<BPlusTreeNode<K, V>> rightChildren = new ArrayList<>(children.subList(mid + 1, children.size()));
-
+    private NodeUpdate<K, V> splitInternal(BPlusTreeNode<K, V> node) {
+        int mid = node.keys.size() / 2;
+        K promoteKey = node.keys.get(mid);
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(false);
-        right.keys = rightKeys;
-        right.children = rightChildren;
-
-        // Update current (left) node
-        node.keys = leftKeys;
-        node.children = leftChildren;
-
+        // 从 mid+1 开始，每次移除 index mid+1 处的元素（每次移除后元素左移，位置不变）
+        while (node.keys.size() > mid + 1) {
+            right.keys.add(node.keys.remove(mid + 1));
+            if (mid + 1 < node.children.size()) {
+                right.children.add(node.children.remove(mid + 1));
+            }
+        }
+        // 移除 promoted key 及其对应的子节点（该子节点被移到 right）
+        node.keys.remove(mid);
+        if (!node.children.isEmpty()) {
+            node.children.remove(mid);
+        }
+        // 修复：internal node 必须保持 children.size() == keys.size() + 1
+        // 上面删除了一个 key 和一个 child，数量差保持不变，不需要额外处理
+        // 但需要确保 non-empty 时 invariant 成立：
+        // 若 children 为空则 keys 也应为空（根节点特殊情况），否则补一个哨兵 child
+        if (node.children.isEmpty() && !node.keys.isEmpty()) {
+            node.children.add(new BPlusTreeNode<>(true));
+        }
         return new NodeUpdate<>(true, promoteKey, right, null);
     }
 

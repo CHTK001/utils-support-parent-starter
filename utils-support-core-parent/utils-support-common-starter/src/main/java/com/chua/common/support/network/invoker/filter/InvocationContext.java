@@ -52,7 +52,12 @@ public class InvocationContext implements ServerRequest, ServerResponse {
 
     @Override public String getUri() { return path; }
     @Override public String getHeader(String name) { return headers.get(name); }
-    @Override public HttpHeader getHeaders() { HttpHeader h = HttpHeader.create(); headers.forEach(h::add); return h; }
+    @Override
+    public HttpHeader getHeaders() {
+        HttpHeader h = HttpHeader.create();
+        headers.forEach(h::add);
+        return h;
+    }
     @Override public Map<String, String> getParams() { return queryParams; }
     @Override public String getParam(String name) { return queryParams.get(name); }
     @Override public String getContentType() { return headers.get("Content-Type"); }
@@ -82,7 +87,13 @@ public class InvocationContext implements ServerRequest, ServerResponse {
     @Override public boolean isCommitted() { return ended; }
     @Override public boolean isEnded() { return ended; }
     @Override public ServerResponse setResult(Object result) { this.result = result; return this; }
-    @Override public ServerResponse reset() { headers.clear(); queryParams.clear(); body = null; return this; }
+    @Override
+    public ServerResponse reset() {
+        headers.clear();
+        queryParams.clear();
+        body = null;
+        return this;
+    }
     @Override public void end() { this.ended = true; }
     @Override public void writeRaw(byte[] bytes) {}
 }

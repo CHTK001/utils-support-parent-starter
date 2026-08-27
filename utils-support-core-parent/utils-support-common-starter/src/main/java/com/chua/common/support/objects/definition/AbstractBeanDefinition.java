@@ -1,6 +1,7 @@
 package com.chua.common.support.objects.definition;
 
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.objects.inject.BeanDefinitionConfigInjector;
@@ -651,7 +652,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         try {
             Method setter = instance.getClass().getMethod(setterName, field.getType());
             ClassUtils.setAccessible(setter);
-            setter.invoke(instance, value);
+            ReflectUtils.invoke(instance, setterName, void.class, setter.getParameterTypes(), value);
             return;
         } catch (NoSuchMethodException ignored) {
             // 没有 setter，回退到直接设字段
@@ -716,7 +717,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
                             }
                             try {
                                 ClassUtils.setAccessible(method);
-                                method.invoke(instance, args);
+                                ReflectUtils.invoke(instance, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
                             } catch (Exception e) {
                                 log.warn("配置方法注入失败: {}.{}", instance.getClass().getSimpleName(), method.getName(), e);
                             }

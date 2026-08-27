@@ -202,7 +202,10 @@ public final class StructuredConcurrencyFlow {
 
     /** 提交 */
     public StructuredConcurrencyFlow submit(Runnable task) {
-        tasks.add(() -> { task.run(); return null; });
+        tasks.add(() -> {
+            task.run();
+            return null;
+        });
         return this;
     }
 

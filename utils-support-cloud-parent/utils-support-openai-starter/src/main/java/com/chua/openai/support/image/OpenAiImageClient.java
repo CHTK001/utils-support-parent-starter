@@ -103,13 +103,23 @@ public class OpenAiImageClient implements ImageClient {
 
     @Override
     /** Model */
-    public ImageClient model(String model) { this.model = model; return this; }
+    public ImageClient model(String model) {
+        this.model = model;
+        return this;
+    }
     @Override
     /** 获取大小 */
-    public ImageClient size(int width, int height) { this.width = width; this.height = height; return this; }
+    public ImageClient size(int width, int height) {
+        this.width = width;
+        this.height = height;
+        return this;
+    }
     @Override
     /** Prompt */
-    public ImageClient prompt(String prompt) { this.prompt = prompt; return this; }
+    public ImageClient prompt(String prompt) {
+        this.prompt = prompt;
+        return this;
+    }
     @Override
     /** Quality */
     public ImageClient quality(String quality) { this.quality = quality; return this; }
