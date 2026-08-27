@@ -121,8 +121,8 @@
 <!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（208 个注册模型，更新于 2026-08-27）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 40　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 140　🚫 不再追踪 8　⬜ 未测试 10</p>
-<p>待测试清单（10）：`bitnet-embedding`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`pp-ocr-rec`、`pp-structure-v2`、`yolov2-coco`</p>
+<p>状态统计：✅ 实测通过 40　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 140　🚫 不再追踪 9　⬜ 未测试 9</p>
+<p>待测试清单（9）：`bitnet-embedding`、`cn-clip-image`、`duguang-det-large`、`embeddinggemma-300m`、`gemma-4-e2b`、`minicpm5`、`neutts-2e`、`otzaria-embedding`、`pp-structure-v2`</p>
 <h3>OCR（16）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>duguang-det-small</code></td><td>✅ 实测通过</td><td>ocr.duguang.DuguangDetTranslator</td><td>ticket.jpg→20；chTable.png→69</td></tr>
@@ -136,10 +136,10 @@
 <tr><td><code>pp-word-rotate</code></td><td>📄 已有记录</td><td>ocr.direction.PpWordRotateTranslator</td><td></td></tr>
 <tr><td><code>table-struct</code></td><td>📄 已有记录</td><td>ocr.table.TableStructTranslator</td><td></td></tr>
 <tr><td><code>paddle-ocr-recognition</code></td><td>🚫 不再追踪</td><td>ocr.paddleocr.PaddleOcrRecognitionTranslator</td><td></td></tr>
+<tr><td><code>pp-ocr-rec</code></td><td>🚫 不再追踪</td><td>ocr.PpOcrRecTranslator</td><td></td></tr>
 <tr><td><code>pp-word-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.PpWordExtractorTranslator</td><td></td></tr>
 <tr><td><code>svtr-extractor</code></td><td>🚫 不再追踪</td><td>ocr.extractor.SvtrExtractorTranslator</td><td></td></tr>
 <tr><td><code>duguang-det-large</code></td><td>⬜ 未测试</td><td>ocr.duguang.DuguangDetTranslator</td><td></td></tr>
-<tr><td><code>pp-ocr-rec</code></td><td>⬜ 未测试</td><td>ocr.PpOcrRecTranslator</td><td></td></tr>
 <tr><td><code>pp-structure-v2</code></td><td>⬜ 未测试</td><td>ocr.paddlestructure.PpStructureV2Translator</td><td></td></tr>
 </tbody></table>
 <h3>人脸（29）</h3>
@@ -238,7 +238,7 @@
 <tr><td><code>siglip-zero-shot-classification</code></td><td>📄 已有记录</td><td>classification.SiglipZeroShotClassificationTranslator</td><td></td></tr>
 <tr><td><code>wd-tagger-swinv2</code></td><td>📄 已有记录</td><td>classification.ClTaggerTranslator</td><td></td></tr>
 <tr><td><code>yolo-cls</code></td><td>📄 已有记录</td><td>yolo.cls.YoloClsTranslator</td><td></td></tr>
-<tr><td><code>cn-clip-image</code></td><td>🚫 不再追踪</td><td>clip.CnClipImageFeatureTranslator</td><td></td></tr>
+<tr><td><code>cn-clip-image</code></td><td>⬜ 未测试</td><td>clip.CnClipImageFeatureTranslator</td><td></td></tr>
 </tbody></table>
 <h3>图像生成（9）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -302,9 +302,9 @@
 <tr><td><code>yolo11-odd</code></td><td>🧪 冒烟通过（无正样本）</td><td>yolo.v11.translator.Yolo11OddTranslator</td><td></td></tr>
 <tr><td><code>yolo26-obb</code></td><td>🧪 冒烟通过（无正样本）</td><td>yolo.v26.translator.Yolo26ObbTranslator</td><td></td></tr>
 <tr><td><code>yolo26n</code></td><td>🧪 冒烟通过（无正样本）</td><td>yolo.v26.translator.Yolo26ObbTranslator</td><td></td></tr>
+<tr><td><code>yolov2-coco</code></td><td>🚫 不再追踪</td><td>yolo.v2.translator.Yolov2CocoTranslator</td><td></td></tr>
 <tr><td><code>yolov8l-world</code></td><td>🚫 不再追踪</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
 <tr><td><code>yolov8m-world</code></td><td>🚫 不再追踪</td><td>yoloworld.YoloWorldDetectorTranslator</td><td></td></tr>
-<tr><td><code>yolov2-coco</code></td><td>⬜ 未测试</td><td>yolo.v2.translator.Yolov2CocoTranslator</td><td></td></tr>
 </tbody></table>
 <h3>自然语言（31）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>

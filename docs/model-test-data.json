@@ -288,8 +288,8 @@
       "translator": "clip.CnClipImageFeatureTranslator",
       "capability": "图像分类",
       "path": "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.img.b1.fp32.onnx",
-      "status": "na",
-      "notes": "repo 改为 external-data 拆分格式(vit-b-16.img.b32.fp32.onnx + 328MB extra_file)，下载截断无可用模型"
+      "status": "pending",
+      "notes": "OFA-Sys/Chinese-CLIP 图像特征提取（图文相似度、跨模态检索）。官方仓库支持 ONNX 部署（deployment.md）。注册 URL 指向的 gficcg/clip_cn_vit-onnx 已改为 external-data 格式不可用。需从 OFA-Sys 官方 HF 仓库导出 ONNX 或从 ModelScope 下载预转换版本，放到 models/vision/zeroshot/cn-clip-vit-b-16/。"
     },
     {
       "id": "cn-clip-text",
@@ -449,7 +449,7 @@
       "capability": "OCR",
       "path": "ocr/duguang/large/det_512.onnx",
       "status": "pending",
-      "notes": "读光 large 版检测，需从 ModelScope 下载"
+      "notes": "阿里读光 DBNet 文字检测大模型（large 版精度更高）。ModelScope 上有资源（iic/read_daochutou_det_large），需手动下载到 models/ocr/duguang/large/。与 duguang-det-small 共用 DuguangDetTranslator，只是模型参数不同。"
     },
     {
       "id": "duguang-det-small",
@@ -1098,8 +1098,8 @@
       "translator": "ocr.PpOcrRecTranslator",
       "capability": "OCR",
       "path": "ocr/ch_PP-OCRv4_rec_infer.onnx",
-      "status": "pending",
-      "notes": "PP-OCRv4 rec 不在本地 jar，RapidOCR 下载 URL 需进一步确认"
+      "status": "na",
+      "notes": "PP-OCRv4 rec 已由 PP-OCRv6 tiny rec (4.3MB) 覆盖，无需额外模型"
     },
     {
       "id": "pp-structure-v2",
@@ -1107,7 +1107,7 @@
       "capability": "OCR",
       "path": "ocr/table_structure/pp_structure_v2/inference.onnx",
       "status": "pending",
-      "notes": "PP-OCRv4 表格结构识别，需下载"
+      "notes": "PaddleOCR PP-StructureV2 表格结构识别——检测表格行列结构、提取单元格内容。从 PaddleOCR 官方 releases 下载 onnx 到 models/ocr/table_structure/pp_structure_v2/。与 PpStructureV2Translator 配套。"
     },
     {
       "id": "pp-word-extractor",
@@ -1616,8 +1616,8 @@
       "translator": "yolo.v2.translator.Yolov2CocoTranslator",
       "capability": "目标检测",
       "path": "vision/detection/v2/yolov2-coco-9.onnx",
-      "status": "pending",
-      "notes": "无下载 URL，无本地资源，上古 COCO 模型"
+      "status": "na",
+      "notes": "注册已从 OnnxModelRegistrar 删除（无 URL、无本地资源，上古 YOLOv2 架构）"
     },
     {
       "id": "yolov5-plate-recognize",
