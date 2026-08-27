@@ -104,31 +104,25 @@ public class IdUtils {
     }
 
     /**
-     * UUID
-     * <p>
-     * b17f24ff026d40949c85a24f4f375d42
-     * </p>
+     * 生成无分隔符 UUID（32位十六进制字符串）。
      *
-     * @return UUID
+     * @return 无分隔符 UUID，如 "b17f24ff026d40949c85a24f4f375d42"
      */
     public static String simpleUuid() {
         return createSimpleUuid();
     }
 
     /**
-     * UUID
-     * <p>
-     * {@code createUlid()}
-     * </p>
+     * 生成无分隔符 UUID（别名方法）。
      *
-     * @return UUID
+     * @return 无分隔符 UUID
      */
     public static String fastUuid() {
         return createSimpleUuid();
     }
 
     /**
-     * 生成基于时间戳的唯一 ID 字符串
+     * 生成基于时间戳的唯一 ID 字符串（别名方法）。
      *
      * @return 时间 ID 字符串
      */
@@ -137,23 +131,16 @@ public class IdUtils {
     }
 
     /**
-     * UUID
-     * <p>
-     * a5c8a5e8-df2b-4706-bea4-08d0939410e3
-     * </p>
+     * 生成带分隔符的标准 UUID 字符串。
      *
-     * @return UUID
+     * @return UUID 字符串，如 "a5c8a5e8-df2b-4706-bea4-08d0939410e3"
      */
     public static String uuid() {
         return createUuid();
     }
 
     /**
-     * UUIDv7：时间有序 UUID（RFC 9562）
-     * <p>
-     * 将 Unix 毫秒时间戳编码进 UUID 前 48 位，具有单调递增、可排序、带时间语义的特点。
-     * 格式：{time_ms:48}{ver:4}{rand_a:12}{var:2}{rand_b:62}
-     * </p>
+     * 生成 UUIDv7（时间有序 UUID，RFC 9562）。
      *
      * @return UUIDv7 字符串
      */
@@ -189,12 +176,9 @@ public class IdUtils {
     }
 
     /**
-     * UUID
-     * <p>
-     * a5c8a5e8-df2b-4706-bea4-08d0939410e3
-     * </p>
+     * 生成带分隔符的标准 UUID 字符串（别名方法）。
      *
-     * @return UUID
+     * @return UUID 字符串
      */
     public static String createUuid() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -223,7 +207,7 @@ public class IdUtils {
     }
 
     /**
-     * MD5
+     * 计算字符串的 MD5 哈希值，返回小写十六进制字符串。
      *
      * @param value 待计算 MD5 的字符串
      * @return MD5 十六进制字符串，计算失败返回 null
@@ -237,12 +221,9 @@ public class IdUtils {
     }
 
     /**
-     * UUID
-     * <p>
-     * b17f24ff026d40949c85a24f4f375d42
-     * </p>
+     * 生成无分隔符 UUID（32位十六进制字符串）。
      *
-     * @return UUID
+     * @return 无分隔符 UUID
      */
     public static String createSimpleUuid() {
         return createUuid().replace("-", "");
