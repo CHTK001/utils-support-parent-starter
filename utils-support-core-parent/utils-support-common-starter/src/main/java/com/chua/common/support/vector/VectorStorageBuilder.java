@@ -50,6 +50,11 @@ public class VectorStorageBuilder {
     private String collection = "vector_store";
 
     /**
+     * cuVS/jvector 向量存储配置属性，仅 VECTOR 类型生效。
+     */
+    private Object vectorProperties;
+
+    /**
      * 创建构建器实例。
      *
      * @return 构建器
@@ -61,7 +66,7 @@ public class VectorStorageBuilder {
     /**
      * 设置存储类型。
      *
-     * @param type 存储类型（MEMORY / MILVUS / JVECTOR）
+     * @param type 存储类型（MEMORY / MILVUS / JVECTOR / VECTOR）
      * @return this
      */
     public VectorStorageBuilder type(String type) {
@@ -152,6 +157,17 @@ public class VectorStorageBuilder {
     }
 
     /**
+     * 设置向量存储配置属性（cuVS/jvector），仅 VECTOR 类型生效。
+     *
+     * @param properties 配置对象（如 {@code VectorStorageProperties}）
+     * @return this
+     */
+    public VectorStorageBuilder properties(Object properties) {
+        this.vectorProperties = properties;
+        return this;
+    }
+
+    /**
      * 构建向量存储实例。
      *
      * @return 向量存储实例
@@ -178,6 +194,7 @@ public class VectorStorageBuilder {
                     throw new RuntimeException("MILVUS 模块未加载: " + e.getMessage());
                 }
             }
+            case "VECTOR" -> VectorStorageProvider.create("vector", dimension, algo, vectorProperties);
             default -> throw new IllegalArgumentException("不支持的向量存储类型: " + type);
         };
     }

@@ -21,11 +21,13 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasource-starter</artifactId>
         </dependency>
-        <!-- cuVS Java API (Panama FFM bindings) -->
+        <!-- cuVS Java API (Panama FFM bindings)，需从源码构建后 install 到本地仓库 -->
+        <!-- 安装方式：conda install -c rapidsai libcuvs && cd cuvs/java && ./build.sh -->
         <dependency>
             <groupId>com.nvidia</groupId>
             <artifactId>cuvs-java</artifactId>
             <version>${cuvs.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!-- jvector CPU fallback，复用已有模块 -->
         <dependency>
