@@ -83,6 +83,11 @@ public class SipClient {
     private volatile boolean muxData;
 
     /**
+     * 数据平面模式（relay 中继 / direct 直连）
+     */
+    private volatile String dataPlaneMode = SipConfig.MODE_RELAY;
+
+    /**
      * visitor 角色复用连接
      */
     private volatile SipMuxConnection muxVisitorConn;
@@ -210,6 +215,20 @@ public class SipClient {
      */
     public SipClient mux(boolean muxData) {
         this.muxData = muxData;
+        return this;
+    }
+
+    /**
+     * 设置数据平面模式（relay 中继 / direct 直连）。
+     *
+     * <p>直连模式下，visitor 尝试直接连接到 provider，数据不走服务器中转；
+     * 直连失败时自动回退到中继模式。</p>
+     *
+     * @param dataPlaneMode 模式（"relay" 或 "direct"）
+     * @return 当前客户端实例，支持链式调用
+     */
+    public SipClient dataPlaneMode(String dataPlaneMode) {
+        this.dataPlaneMode = dataPlaneMode != null ? dataPlaneMode : SipConfig.MODE_RELAY;
         return this;
     }
 
@@ -398,20 +417,26 @@ public class SipClient {
     /**
      * 处理隧道开启成功（作为访问方收到通道标识）。
      *
-     * @param line 报文内容（OPENED|requestId|channelId）
+     * @param line 报文内容（OPENED|requestId|channelId|providerAddr）
      */
     private void handleOpened(String line) {
-        String[] parts = line.split("\\|", 3);
+        String[] parts = line.split("\\|", 4);
         String requestId = parts.length > 1 ? parts[1] : "";
         String channelId = parts.length > 2 ? parts[2] : "";
+        String providerAddr = parts.length > 3 ? parts[3] : "";
         CompletableFuture<SipTunnelSession> future = pendingTunnels.remove(requestId);
-        log.info("SIP OPENED 处理: requestId={}, ch={}, futureFound={}", requestId, channelId, future != null);
+        log.info("SIP OPENED 处理: requestId={}, ch={}, providerAddr={}, futureFound={}", requestId, channelId, providerAddr, future != null);
         if (future == null) {
             return;
         }
         SipTunnelSession session = new SipTunnelSession(this, channelId, "");
         openTunnels.put(channelId, session);
-        connectDataStream(session, "visitor");
+        // auto/direct 模式：尝试直接连接 provider
+        if ((SipConfig.MODE_DIRECT.equals(dataPlaneMode) || SipConfig.MODE_AUTO.equals(dataPlaneMode)) && !providerAddr.isEmpty()) {
+            connectDirectStream(session, providerAddr, "visitor");
+        } else {
+            connectDataStream(session, "visitor");
+        }
         future.complete(session);
     }
 
@@ -474,6 +499,18 @@ public class SipClient {
      * @param role    连接角色（visitor / provider）
      */
     private void connectDataStream(SipTunnelSession session, String role) {
+        connectDataStreamTo(session, role, serverHost, serverPort);
+    }
+
+    /**
+     * 建立数据平面连接并绑定到会话（直连模式：连接到指定地址）。
+     *
+     * @param session 隧道会话
+     * @param role    连接角色（visitor / provider）
+     * @param host    目标主机地址
+     * @param port    目标端口
+     */
+    private void connectDataStreamTo(SipTunnelSession session, String role, String host, int port) {
         try {
             if (muxData) {
                 SipMuxConnection conn = muxConnection(role, session.getChannelId());
@@ -485,13 +522,52 @@ public class SipClient {
                 log.debug("SIP mux 数据通道已挂载: channel={}, role={}", session.getChannelId(), role);
                 return;
             }
-            SipTunnelStream stream = new SipTunnelStream(serverHost, serverPort,
+            SipTunnelStream stream = new SipTunnelStream(host, port,
                     session.getChannelId(), role, token, sessionToken, encryptData);
             session.attachStream(stream);
-            log.debug("SIP 数据平面连接已建立: channel={}, role={}", session.getChannelId(), role);
+            log.debug("SIP 数据平面连接已建立: channel={}, role={}, host={}:{}", session.getChannelId(), role, host, port);
         } catch (Exception e) {
+            // auto 模式：直连失败自动回退到中继，不关闭会话
+            if (SipConfig.MODE_AUTO.equals(dataPlaneMode)) {
+                log.warn("SIP auto 模式直连失败，回退到中继: {} ({})", host + ":" + port, e.getMessage());
+                connectDataStream(session, role);
+                return;
+            }
             log.warn("SIP 数据平面连接失败: channel={}, role={}", session.getChannelId(), role);
             session.dispatchClose();
+        }
+    }
+
+    /**
+     * 直连模式：尝试直接连接到 provider，失败时回退到中继。
+     *
+     * @param session 隧道会话
+     * @param providerAddr provider 地址（host:port）
+     * @param role     连接角色
+     */
+    private void connectDirectStream(SipTunnelSession session, String providerAddr, String role) {
+        int colon = providerAddr.lastIndexOf(':');
+        if (colon <= 0) {
+            log.warn("SIP 直连模式地址格式非法: {}", providerAddr);
+            connectDataStream(session, role);
+            return;
+        }
+        String host = providerAddr.substring(0, colon);
+        int port;
+        try {
+            port = Integer.parseInt(providerAddr.substring(colon + 1).trim());
+        } catch (NumberFormatException e) {
+            log.warn("SIP 直连模式端口解析失败: {}", providerAddr);
+            connectDataStream(session, role);
+            return;
+        }
+        log.info("SIP 尝试直连: {} -> {} (回退中继)", role, providerAddr);
+        try {
+            connectDataStreamTo(session, role, host, port);
+            log.info("SIP 直连成功: {} <-> {}", role, providerAddr);
+        } catch (Exception e) {
+            log.warn("SIP 直连失败，回退到中继: {} ({})", providerAddr, e.getMessage());
+            connectDataStream(session, role);
         }
     }
 
