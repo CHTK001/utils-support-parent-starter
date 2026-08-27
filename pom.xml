@@ -85,6 +85,7 @@
         <io.gitee.dengwenjie.seeta.sdk.platform.version>1.2.2</io.gitee.dengwenjie.seeta.sdk.platform.version>
         <jsr305.version>3.0.2</jsr305.version>
         <parquet.avro.version>1.15.2</parquet.avro.version>
+        <cuvs.version>24.10.0</cuvs.version>
     </properties>
     <dependencies>
         <dependency>
