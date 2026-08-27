@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.rate.provider;
 
 import com.chua.common.support.concurrent.rate.RateLimiterProvider;
+import com.chua.common.support.spi.annotations.Spi;
 import com.google.common.util.concurrent.RateLimiter;
 
 import java.util.concurrent.TimeUnit;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 2026/07/24
  */
+@Spi("rate")
 public class GuavaRateLimiterProvider implements RateLimiterProvider {
 
     /** 名称 */

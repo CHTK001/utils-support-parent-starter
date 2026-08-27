@@ -25,10 +25,10 @@ public class GetFreeProxyFetcher implements ProxyFetcher {
     private static final String URL = "https://getfreeproxy.com/";
 
     /**
-     * 匹配表格行中 IP 和端口的正则
+     * 匹配代理 IP 和端口（支持 HTML 表格和 JSON 格式）
      */
     private static final Pattern PATTERN = Pattern.compile(
-            "<td>\\s*(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\s*</td>\\s*<td>\\s*(\\d{2,5})\\s*</td>");
+            "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})[\":\\s]*(\\d{2,5})");
 
     @Override
     /** FetchProxies */

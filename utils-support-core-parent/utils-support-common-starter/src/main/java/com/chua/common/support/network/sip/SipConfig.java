@@ -1,5 +1,7 @@
 package com.chua.common.support.network.sip;
 
+import com.chua.common.support.spi.annotations.Spi;
+
 /**
  * SIP 传输配置。
  *
