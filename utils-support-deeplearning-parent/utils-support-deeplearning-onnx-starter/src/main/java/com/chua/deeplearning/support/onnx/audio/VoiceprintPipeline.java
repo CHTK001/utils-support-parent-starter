@@ -13,21 +13,20 @@ import java.util.Objects;
 /**
  * 声纹识别管线（CAM++ 神经模型，192 维嵌入）。
  *
- * <p>与 {@code FacePipeline}/{@code ImageSearcher} 同构的 Builder API：</p>
+ * <p>与 {@code FacePipeline}/{@code ImageSearcher} 同构的链式 API：</p>
  *
  * <pre>{@code
+ * // 构建管线
  * VoiceprintPipeline vp = VoiceprintPipeline.builder()
- *         .embedder(CampplusEmbedding.load())                  // 内嵌自动解压
- *         .vectorStorage(VectorStorageBuilder.newBuilder()     // 或默认文件落盘
- *                 .dimension(192)
- *                 .algorithm(VectorCompareAlgorithm.cosine())
- *                 .build())
+ *         .embedder(CampplusEmbedding.load())
  *         .build();
  *
- * vp.enroll("alice", Path.of("alice.wav"))
- *   .enroll("bob", Path.of("bob.wav"));
+ * // 链式入库（带 id + 标签）
+ * vp.id("alice").label("女声").enroll(Path.of("alice.wav"));
+ * vp.id("bob").label("男声").enroll(Path.of("bob.wav"));
  *
- * List<Match> hits = vp.search(query, 5, 0.80);  // topK/threshold 调用时指定
+ * // 链式检索（设置参数后 search）
+ * List<Match> hits = vp.topK(5).threshold(0.80).search(queryWav);
  * }</pre>
  *
  * <p><b>模型零配置</b>：CAM++（26MB）内嵌于 sensevoice jar，首次调用自动解压。</p>
@@ -48,18 +47,20 @@ public class VoiceprintPipeline implements AutoCloseable {
      */
     private final CampplusEmbedding campplus;
 
-    /**
-     * 默认构造：文件持久化向量库 + 内嵌 CAM++。
-     */
+    /** ---- 链式检索参数 ---- */
+    private int searchTopK = 5;
+    private double searchThreshold;
+
+    /** ---- 链式入库参数 ---- */
+    private String currentId;
+    private String currentLabel;
+
+    /** 默认构造：文件持久化向量库 + 内嵌 CAM++。 */
     public VoiceprintPipeline() {
         this(FileVectorStorage.create(192, defaultDirectory()), null);
     }
 
-    /**
-     * 指定向量库构造（维度须为 192）。
-     *
-     * @param storage 向量存储
-     */
+    /** 指定向量库构造（维度须为 192）。 */
     public VoiceprintPipeline(VectorStorage storage) {
         this(storage, null);
     }
@@ -81,8 +82,36 @@ public class VoiceprintPipeline implements AutoCloseable {
         return builder().build();
     }
 
+    // ==================== 链式检索配置 ====================
+
+    /** 设置检索返回条数（链式调用）。 */
+    public VoiceprintPipeline topK(int k) {
+        this.searchTopK = Math.max(1, k);
+        return this;
+    }
+
+    /** 设置相似度门槛：低于过滤，&lt;=0 不过滤（链式调用）。 */
+    public VoiceprintPipeline threshold(double t) {
+        this.searchThreshold = t;
+        return this;
+    }
+
+    /** 设置当前入库说话人 ID（链式调用）。 */
+    public VoiceprintPipeline id(String speakerId) {
+        this.currentId = speakerId;
+        return this;
+    }
+
+    /** 设置当前入库标签/备注（链式调用）。 */
+    public VoiceprintPipeline label(String label) {
+        this.currentLabel = label;
+        return this;
+    }
+
+    // ==================== 核心 API ====================
+
     /**
-     * 提取声纹特征（低阶入口，与 FacePipeline.extractFeature 对位）。
+     * 提取声纹特征。
      *
      * @param samplePath 音频路径
      * @return 192 维特征
@@ -93,48 +122,38 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     /**
-     * 入库：注册说话人声纹（重复 id 覆盖旧声纹）。
+     * 入库：用当前 id/label 注册说话人声纹。
      *
-     * @param speakerId  说话人标识
      * @param samplePath 参考音频
      * @return this
      * @throws Exception 提取或落库失败
      */
-    public VoiceprintPipeline enroll(String speakerId, Path samplePath) throws Exception {
-        return enroll(speakerId, extract(samplePath));
-    }
-
-    /**
-     * 入库：直接注册特征向量。
-     *
-     * @param speakerId 说话人标识
-     * @param feature   192 维特征
-     * @return this
-     */
-    public VoiceprintPipeline enroll(String speakerId, float[] feature) {
-        if (!storage.add(speakerId, feature)) {
-            throw new IllegalStateException("声纹入库失败: " + speakerId);
+    public VoiceprintPipeline enroll(Path samplePath) throws Exception {
+        if (currentId == null) {
+            throw new IllegalStateException("未设置说话人 id，请先调用 id()");
         }
-        log.info("[Voiceprint] enrolled {}: dim={}", speakerId, feature.length);
+        float[] feature = extract(samplePath);
+        if (!storage.add(currentId, feature)) {
+            throw new IllegalStateException("声纹入库失败: " + currentId);
+        }
+        log.info("[Voiceprint] enrolled {} (label={}): dim={}", currentId, currentLabel, feature.length);
         return this;
     }
 
     /**
-     * 检索：topK 与 threshold 调用时指定（与 search(feature,k,threshold) 对位）。
+     * 检索：用当前 topK / threshold 查找最近邻。
      *
      * @param samplePath 待测音频
-     * @param k          返回条数
-     * @param threshold  相似度门槛，&lt;=0 不过滤
      * @return 按相似度降序的匹配列表
      * @throws Exception 提取或检索失败
      */
-    public List<Match> search(Path samplePath, int k, double threshold) throws Exception {
+    public List<Match> search(Path samplePath) throws Exception {
         float[] probe = extract(samplePath);
-        List<Vector> hits = storage.search(probe, k);
+        List<Vector> hits = storage.search(probe, searchTopK);
         List<Match> matches = new ArrayList<>(hits.size());
         for (Vector v : hits) {
             double sim = AudioUtils.cosine(probe, v.data());
-            if (threshold > 0 && sim < threshold) {
+            if (searchThreshold > 0 && sim < searchThreshold) {
                 continue;
             }
             matches.add(new Match(v.id(), sim));
@@ -175,7 +194,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     /**
-     * 管线构建器：与 FacePipeline/ImageSearcher 同构。
+     * 管线构建器。
      */
     public static final class Builder {
 
@@ -200,10 +219,7 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
-        /**
-         * 按 SPI 名称创建向量存储（memory/jvector/milvus...）。
-         * <p>MILVUS 必须提供 host/port/collection。</p>
-         */
+        /** 按 SPI 名称创建向量存储（memory/jvector/milvus...）。 */
         public Builder vectorStorage(String provider, Object config) {
             String host = null;
             Integer port = null;
@@ -273,14 +289,8 @@ public class VoiceprintPipeline implements AutoCloseable {
             }
             return new VoiceprintPipeline(s, embedder);
         }
-
-        /** 获取已配置向量库。 */
-        public VectorStorage vectorStorage() {
-            return vectorStorage;
-        }
     }
 
-    /** 对象转去除首尾空白的字符串。 */
     private static String trimOrNull(Object v) {
         if (v == null) {
             return null;
