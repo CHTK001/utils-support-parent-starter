@@ -196,24 +196,16 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         int mid = node.keys.size() / 2;
         K promoteKey = node.keys.get(mid);
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(false);
-        // 从 mid+1 开始，每次移除 index mid+1 处的元素（每次移除后元素左移，位置不变）
+        // 将 mid+1 及之后的 key/child 移到 right（移除时每次操作 mid+1 位置，元素左移保持下标不变）
         while (node.keys.size() > mid + 1) {
             right.keys.add(node.keys.remove(mid + 1));
-            if (mid + 1 < node.children.size()) {
-                right.children.add(node.children.remove(mid + 1));
-            }
+            right.children.add(node.children.remove(mid + 1));
         }
-        // 移除 promoted key 及其对应的子节点（该子节点被移到 right）
+        // promoteKey 对应的子节点是 children[mid+1]（已被移到 right），
+        // 从 left 移除 promoteKey 和它右侧的第一个 child（即 children[mid+1]）
         node.keys.remove(mid);
-        if (!node.children.isEmpty()) {
-            node.children.remove(mid);
-        }
-        // 修复：internal node 必须保持 children.size() == keys.size() + 1
-        // 上面删除了一个 key 和一个 child，数量差保持不变，不需要额外处理
-        // 但需要确保 non-empty 时 invariant 成立：
-        // 若 children 为空则 keys 也应为空（根节点特殊情况），否则补一个哨兵 child
-        if (node.children.isEmpty() && !node.keys.isEmpty()) {
-            node.children.add(new BPlusTreeNode<>(true));
+        if (mid + 1 < node.children.size()) {
+            node.children.remove(mid + 1);
         }
         return new NodeUpdate<>(true, promoteKey, right, null);
     }
