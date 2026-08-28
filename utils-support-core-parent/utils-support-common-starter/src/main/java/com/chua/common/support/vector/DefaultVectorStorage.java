@@ -70,6 +70,8 @@ public class DefaultVectorStorage implements VectorStorage {
     private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
     /** 分片元数据（centroid），key 为分片序号，用于剪枝。 */
     private final ConcurrentHashMap<Integer, ShardMeta> shardMetas = new ConcurrentHashMap<>();
+    /** 分片序号 → 该分片的 EntryLoc 列表，用于并行扫描时只遍历本分片条目。 */
+    private final ConcurrentHashMap<Integer, List<EntryLoc>> shardToEntries = new ConcurrentHashMap<>();
 
     /** 复用读缓冲：128维向量约 600B，ThreadLocal 避免多线程竞争。 */
     private static final int DEFAULT_READ_BUF = 4096;
@@ -198,7 +200,7 @@ public class DefaultVectorStorage implements VectorStorage {
         lock.readLock().lock();
         try {
             // 热数据收集
-            List<VectorScored> candidates = new ArrayList<>(hot.size());
+            List<VectorScored> candidates = Collections.synchronizedList(new ArrayList<>(hot.size()));
             for (Vector v : hot.values()) {
                 candidates.add(new VectorScored(v.id(), cosineSIMD(query, v.data()), v));
             }
@@ -307,6 +309,8 @@ public class DefaultVectorStorage implements VectorStorage {
                     coldIndex.put(id, new EntryLoc(shardPath, offset, entryLen));
                     offset += entryLen;
                     maxNorm = Math.max(maxNorm, (float) Math.sqrt(norm));
+                    List<EntryLoc> entries = shardToEntries.computeIfAbsent(idx, k -> new ArrayList<>());
+                    entries.add(new EntryLoc(shardPath, offset - entryLen, entryLen));
                 }
             } catch (IOException ignored) {
             }
@@ -455,30 +459,27 @@ public class DefaultVectorStorage implements VectorStorage {
      */
     private void scanColdCandidatesParallel(float[] query, List<VectorScored> candidates) {
         if (coldShards.isEmpty()) return;
-        // 按 centroid 相似度排序分片，优先处理最相关的
         List<Integer> shardOrder = new ArrayList<>(shardMetas.keySet());
         shardOrder.sort((a, b) -> {
             float sa = cosineSIMD(query, shardMetas.get(a).centroid());
             float sb = cosineSIMD(query, shardMetas.get(b).centroid());
             return Float.compare(sb, sa);
         });
-        // 并行处理每个分片
         shardOrder.parallelStream().forEach(shardIdx -> {
             ShardMeta meta = shardMetas.get(shardIdx);
             if (meta == null) return;
-            // centroid 剪枝：query 与 centroid 负相关过强则跳过整分片
             float centroidSim = cosineSIMD(query, meta.centroid());
             if (centroidSim < -0.95f) return;
             ShardBuffer sb = shardBuffers.get(shardIdx);
             if (sb == null) return;
-            float[] vecBuf = this.vecBuf.get();
-            // 遍历本分片的所有 EntryLoc
-            for (EntryLoc loc : coldIndex.values()) {
-                Integer pathShard = pathToShardIdx.get(loc.path());
-                if (pathShard == null || pathShard != shardIdx) continue;
+            List<EntryLoc> locs = shardToEntries.get(shardIdx);
+            if (locs == null) return;
+            for (EntryLoc loc : locs) {
                 Vector v = readEntryFromBuf(loc, sb.buf());
                 if (v == null || v.data() == null) continue;
-                candidates.add(new VectorScored(v.id(), cosineSIMD(query, v.data()), v));
+                synchronized (candidates) {
+                    candidates.add(new VectorScored(v.id(), cosineSIMD(query, v.data()), v));
+                }
             }
         });
     }

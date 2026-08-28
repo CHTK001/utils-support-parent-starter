@@ -107,6 +107,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("r50-face-feature", "com.chua.deeplearning.support.onnx.face.R50FaceFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "face/recognition/face_feature_sdk/face_feature_r50.onnx", "https://huggingface.co/onnx-community/arcface/resolve/main/onnx/model.onnx", false, null);
         // 人脸检测(SCRFD)：快速高精度人脸检测，输出人脸框+关键点（5点）；适用人脸检测、face crop 前置
         reg("scrfd-face-detector", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "face/detection/scrfd/2.5g_bnkps.onnx", "https://huggingface.co/RuteNL/SCRFD-face-detection-ONNX/resolve/main/2.5g_bnkps.onnx", false, null);
+        // 人脸检测(OpenCV UltraFace)：超轻量人脸检测（~1MB），适合嵌入式/移动端；适用快速人脸检测
+        reg("opencv-face", "com.chua.deeplearning.support.onnx.face.UltraFaceTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.face.FaceDetector.class, "face/detection/ultraface/ultraface.onnx");
         // 人脸检测(InsightFace SCRFD)：buffalo_l 标准 SCRFD-10g，640 输入，人脸框+5 点关键点；适用检测+对齐+识别前置
         reg("insightface-scrfd", "com.chua.deeplearning.support.onnx.face.ScrfdFaceDetectorTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "models/onnx/face/detection/scrfd/scrfd.onnx");
         // 人脸检测(RetinaFace R34)：ResNet34 骨干，输出人脸框+5 点关键点；适用人脸检测/对齐
@@ -152,6 +154,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("face-liveness-flrgb", "com.chua.deeplearning.support.onnx.liveness.FlRgbLivenessTranslator", ai.djl.modality.cv.Image.class, Float.class, com.chua.deeplearning.support.liveness.LivenessDetector.class, "face/liveness/flrgb/model.onnx");
         // 活体检测(FLXC)：ModelScope 官方炫彩活体模型，12通道多帧序列，对3D面具/头模攻击鲁棒；模型内嵌 jar（utils-support-models-onnx-face-liveness-flxc）
         reg("face-liveness-flxc", "com.chua.deeplearning.support.onnx.liveness.FlXcLivenessTranslator", ai.djl.modality.cv.Image.class, Float.class, com.chua.deeplearning.support.liveness.LivenessDetector.class, "face/liveness/flxc/model.onnx");
+        // 活体检测(人脸反欺诈)：通用人脸活体检测别名，指向 FLRGB 模型；适用 FaceIdentify 等场景
+        reg("face-anti-spoof", "com.chua.deeplearning.support.onnx.liveness.FlRgbLivenessTranslator", ai.djl.modality.cv.Image.class, Float.class, com.chua.deeplearning.support.liveness.LivenessDetector.class, "face/liveness/flrgb/model.onnx");
         // 抠图(U2Net)：通用前景抠图，输出 alpha 通道（RGBA）；适用证件照处理、背景替换、电商抠图
         reg("matting", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/seg_unet_sdk/u2net.onnx", "https://huggingface.co/onnx-community/u2net/resolve/main/onnx/model.onnx", false, null);
         // 抠图(MODNet)：人像抠图/前景分割（~25MB），嵌入式 jar 版，来自 ModelScope；适用人像抠图、视频会议背景替换
@@ -212,6 +216,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 人脸超分(GFPGAN)：人脸修复/增强，修复模糊、低分辨率人脸；适用老照片修复、人脸增强
         // 人脸修复(GFPGAN v1.3 clean)：重写 forward 规避 double 域，onnxruntime 可运行、无偏色；适用人脸修复/贴回
         reg("onnx-gfpgan", "com.chua.deeplearning.support.onnx.resolution.GfpganFaceSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "face/restoration/gfpgan/GFPGANv1.3_clean.onnx");
+        // 人脸超分(GFPGAN 别名)：指向 GFPGAN v1.3 clean，用于 ImagePipeline.superResolution() 等场景
+        reg("gfpgan-face-super-resolution", "com.chua.deeplearning.support.onnx.resolution.GfpganFaceSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "face/restoration/gfpgan/GFPGANv1.3_clean.onnx");
         // 文字超分(TextBSR)：针对文字图片的超分辨率，增强文字清晰度；适用 OCR 预处理、文檔增强
         reg("image-text-super-resolution", "com.chua.deeplearning.support.onnx.resolution.ImageTextSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "nlp/general/models/textbsr_traced_model.onnx");
         // 图像去模糊(NAFNet)：去除运动模糊/对焦模糊，恢复清晰图像；适用照片修复、监控图像增强
@@ -413,6 +419,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("card-correction-detector", "com.chua.deeplearning.support.onnx.classification.CardCorrectionTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "cv/card_correction/card_detection.onnx");
         // 车牌检测(YOLOv11)：YOLOv11 架构的车牌检测（morsetechlab），内嵌模型，更高精度
         reg("yolo11-plate-detect", "com.chua.deeplearning.support.onnx.yolo.v11.translator.Yolo11PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolo11_plate/yolo11_plate_detect.onnx");
+        // 车牌检测(YOLOv5)：YOLOv5 架构的车牌检测，适用于 PlateNumberPipeline 等场景
+        reg("yolo5-plate-detect", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateDetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/yolov5_plate/yolov5_plate_detect.onnx");
         // 车牌识别(YOLOv5)：YOLOv5 车牌字符识别，配合检测使用；适用完整车牌识别流水线
         reg("yolov5-plate-recognize", "com.chua.deeplearning.support.onnx.yolo.plate.translator.Yolo5PlateRecTranslator", byte[].class, com.chua.deeplearning.support.plate.PlateResult.class, com.chua.deeplearning.support.plate.LicensePlateRecognizer.class, "vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx");
         // OCR检测(PP-OCRv6-tiny)：PaddleOCR v6 超轻量文字检测；适用移动端 OCR
