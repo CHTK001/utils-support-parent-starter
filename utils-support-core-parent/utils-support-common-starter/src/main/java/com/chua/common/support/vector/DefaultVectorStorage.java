@@ -57,6 +57,7 @@ public class DefaultVectorStorage implements VectorStorage {
     private final Mode mode;
     private final int shardSize;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final VectorCompareAlgorithm algorithm;
 
     /** 热数据：内存索引（id → Vector）。 */
     private final ConcurrentHashMap<String, Vector> hot = new ConcurrentHashMap<>();
@@ -86,31 +87,48 @@ public class DefaultVectorStorage implements VectorStorage {
 
     // ---- 构造 ----
 
-    private DefaultVectorStorage(int dimension, Path dir, Mode mode, int shardSize) {
+    private DefaultVectorStorage(int dimension, Path dir, Mode mode, int shardSize, VectorCompareAlgorithm algorithm) {
         this.dimension = dimension;
         this.dir = dir;
         this.mode = mode;
         this.shardSize = shardSize;
+        this.algorithm = algorithm != null ? algorithm : VectorCompareAlgorithm.cosine();
         if (mode != Mode.MEMORY) {
             dir.toFile().mkdirs();
             loadColdShards();
         }
     }
 
-    /** 创建 DefaultVectorStorage。 */
+    /** 创建 DefaultVectorStorage（默认余弦相似度）。 */
     public static DefaultVectorStorage create(int dimension, Mode mode) {
         Path dir = Path.of(System.getProperty("java.io.tmpdir"), "default-vectors");
-        return new DefaultVectorStorage(dimension, dir, mode, 10000);
+        return new DefaultVectorStorage(dimension, dir, mode, 10000, null);
     }
 
-    /** 创建 DefaultVectorStorage（指定目录）。 */
+    /** 创建 DefaultVectorStorage（指定目录，默认余弦相似度）。 */
     public static DefaultVectorStorage create(int dimension, Path dir) {
-        return new DefaultVectorStorage(dimension, dir, Mode.HYBRID, 10000);
+        return new DefaultVectorStorage(dimension, dir, Mode.HYBRID, 10000, null);
+    }
+
+    /** 创建 DefaultVectorStorage（指定算法）。 */
+    public static DefaultVectorStorage create(int dimension, Mode mode, VectorCompareAlgorithm algorithm) {
+        Path dir = Path.of(System.getProperty("java.io.tmpdir"), "default-vectors");
+        return new DefaultVectorStorage(dimension, dir, mode, 10000, algorithm);
+    }
+
+    /** 创建 DefaultVectorStorage（指定目录和算法）。 */
+    public static DefaultVectorStorage create(int dimension, Path dir, VectorCompareAlgorithm algorithm) {
+        return new DefaultVectorStorage(dimension, dir, Mode.HYBRID, 10000, algorithm);
     }
 
     /** 自定义构建器。 */
     public static Builder builder() {
         return new Builder();
+    }
+
+    /** 获取当前使用的比较算法。 */
+    public VectorCompareAlgorithm getAlgorithm() {
+        return algorithm;
     }
 
     // ---- VectorStorage 接口实现 ----
@@ -202,7 +220,7 @@ public class DefaultVectorStorage implements VectorStorage {
             // 热数据收集
             List<VectorScored> candidates = Collections.synchronizedList(new ArrayList<>(hot.size()));
             for (Vector v : hot.values()) {
-                candidates.add(new VectorScored(v.id(), cosineSIMD(query, v.data()), v));
+                candidates.add(new VectorScored(v.id(), -algorithm.compare(query, v.data()), v));
             }
             // 冷数据并行扫描：按分片切分，ForkJoinPool 并行处理
             scanColdCandidatesParallel(query, candidates);
@@ -461,15 +479,15 @@ public class DefaultVectorStorage implements VectorStorage {
         if (coldShards.isEmpty()) return;
         List<Integer> shardOrder = new ArrayList<>(shardMetas.keySet());
         shardOrder.sort((a, b) -> {
-            float sa = cosineSIMD(query, shardMetas.get(a).centroid());
-            float sb = cosineSIMD(query, shardMetas.get(b).centroid());
+            float sa = algorithm.compare(query, shardMetas.get(a).centroid());
+            float sb = algorithm.compare(query, shardMetas.get(b).centroid());
             return Float.compare(sb, sa);
         });
         shardOrder.parallelStream().forEach(shardIdx -> {
             ShardMeta meta = shardMetas.get(shardIdx);
             if (meta == null) return;
-            float centroidSim = cosineSIMD(query, meta.centroid());
-            if (centroidSim < -0.95f) return;
+            float centroidSim = algorithm.compare(query, meta.centroid());
+            if (centroidSim > 0.5f) return;
             ShardBuffer sb = shardBuffers.get(shardIdx);
             if (sb == null) return;
             List<EntryLoc> locs = shardToEntries.get(shardIdx);
@@ -478,7 +496,7 @@ public class DefaultVectorStorage implements VectorStorage {
                 Vector v = readEntryFromBuf(loc, sb.buf());
                 if (v == null || v.data() == null) continue;
                 synchronized (candidates) {
-                    candidates.add(new VectorScored(v.id(), cosineSIMD(query, v.data()), v));
+                    candidates.add(new VectorScored(v.id(), -algorithm.compare(query, v.data()), v));
                 }
             }
         });
@@ -620,6 +638,8 @@ public class DefaultVectorStorage implements VectorStorage {
         private Path dir;
         private Mode mode = Mode.HYBRID;
         private int shardSize = 10000;
+        private VectorCompareAlgorithm algorithm;
+        private VectorCompareAlgorithm algorithm;
 
         public Builder dimension(int d) {
             this.dimension = d;
@@ -641,12 +661,17 @@ public class DefaultVectorStorage implements VectorStorage {
             return this;
         }
 
+        public Builder algorithm(VectorCompareAlgorithm algorithm) {
+            this.algorithm = algorithm;
+            return this;
+        }
+
         public DefaultVectorStorage build() {
             if (dimension <= 0) {
                 throw new IllegalArgumentException("dimension 须 > 0");
             }
             Path d = dir != null ? dir : Path.of(System.getProperty("java.io.tmpdir"), "default-vectors");
-            return new DefaultVectorStorage(dimension, d, mode, shardSize);
+            return new DefaultVectorStorage(dimension, d, mode, shardSize, algorithm);
         }
     }
 }

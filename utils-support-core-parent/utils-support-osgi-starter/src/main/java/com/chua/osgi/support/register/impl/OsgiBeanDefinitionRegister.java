@@ -107,12 +107,15 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
                 return null;
             }
             Class<?> type = ReflectUtils.forName(parts[1]);
+            if (type == null) {
+                return null;
+            }
             Object instance = launcher.getService(type);
             if (instance == null) {
                 return null;
             }
             return new FrameworkBeanDefinition(beanName, type, instance);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             log.debug("[osgi-impl] OSGi 服务类型不存在: {}", beanName, e);
             return null;
         }
@@ -130,6 +133,9 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
         }
         try {
             Class<?> type = ReflectUtils.forName(typeName);
+            if (type == null) {
+                return Collections.emptyList();
+            }
             List<?> services = launcher.getServices(type);
             if (services == null || services.isEmpty()) {
                 return Collections.emptyList();
@@ -140,7 +146,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
                 result.add(new FrameworkBeanDefinition(name, type, svc));
             }
             return result;
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             return Collections.emptyList();
         }
     }
