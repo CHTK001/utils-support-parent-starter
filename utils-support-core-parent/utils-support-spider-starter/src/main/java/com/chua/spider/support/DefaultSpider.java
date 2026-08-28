@@ -673,7 +673,7 @@ public class DefaultSpider implements Spider {
                 try {
                     ReflectUtils.forName("org.jsoup.Jsoup");
                     this.pipelines.add(SpiderMappingPipeline.of(targetClass, consumer));
-                } catch (ClassNotFoundException e) {
+                } catch (Exception e) {
                     log.warn("[spider] jsoup 不在类路径，无法使用 POJO 映射");
                 }
             }
@@ -689,13 +689,13 @@ public class DefaultSpider implements Spider {
          * @param consumer consumer
          */
         public <T> Builder as(Class<T> targetClass, String aiProvider,
-                               String aiApiKey, Consumer<T> consumer) {
+                                String aiApiKey, Consumer<T> consumer) {
             if (targetClass != null && consumer != null) {
                 try {
                     ReflectUtils.forName("org.jsoup.Jsoup");
                     this.pipelines.add(SpiderMappingPipeline.of(
                             targetClass, consumer, aiProvider, aiApiKey));
-                } catch (ClassNotFoundException e) {
+                } catch (Exception e) {
                     log.warn("[spider] jsoup 不在类路径，无法使用 POJO 映射");
                 }
             }

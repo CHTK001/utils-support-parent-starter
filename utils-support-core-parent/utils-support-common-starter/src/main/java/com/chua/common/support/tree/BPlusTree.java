@@ -181,32 +181,32 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         K promoteKey = node.keys.get(mid - 1);
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(true);
         right.next = node.next;
-        // 拷贝右半部分（包含 promoted key）
-        for (int j = mid - 1; j < n; j++) {
+        // 拷贝右半部分（keys[mid..n-1]）
+        for (int j = mid; j < n; j++) {
             right.keys.add(node.keys.get(j));
             right.values.add(node.values.get(j));
         }
-        // 截断左半部分（只保留 [0, mid-1)）
-        node.keys.subList(mid - 1, n).clear();
-        node.values.subList(mid - 1, n).clear();
+        // 左半保留 keys[0..mid-1]（含 promoted key），不做截断
         return new NodeUpdate<>(true, promoteKey, right, null);
     }
 
     private NodeUpdate<K, V> splitInternal(BPlusTreeNode<K, V> node) {
-        int mid = node.keys.size() / 2;
+        int n = node.keys.size();
+        int mid = n / 2;
         K promoteKey = node.keys.get(mid);
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(false);
-        // 将 mid+1 及之后的 key/child 移到 right（移除时每次操作 mid+1 位置，元素左移保持下标不变）
-        while (node.keys.size() > mid + 1) {
-            right.keys.add(node.keys.remove(mid + 1));
-            right.children.add(node.children.remove(mid + 1));
+        // left 保留 keys[0..mid-1]，children[0..mid]（mid+1 个 child）
+        // right 获得 keys[mid+1..n-1]，children[mid+1..n-1]（n-mid 个 child）
+        // 验证：left: children=mid+1, keys=mid → children=keys+1 ✓
+        //       right: children=n-mid, keys=n-mid-1 → children=keys+1 ✓
+        for (int j = mid + 1; j < n; j++) {
+            right.keys.add(node.keys.get(j));
         }
-        // promoteKey 对应的子节点是 children[mid+1]（已被移到 right），
-        // 从 left 移除 promoteKey 和它右侧的第一个 child（即 children[mid+1]）
-        node.keys.remove(mid);
-        if (mid + 1 < node.children.size()) {
-            node.children.remove(mid + 1);
+        for (int j = mid + 1; j <= n; j++) {
+            right.children.add(node.children.get(j));
         }
+        node.keys.subList(mid, n).clear();
+        node.children.subList(mid + 1, n + 1).clear();
         return new NodeUpdate<>(true, promoteKey, right, null);
     }
 

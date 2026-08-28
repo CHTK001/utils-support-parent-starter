@@ -1,7 +1,5 @@
 package com.chua.deeplearning.support.onnx.assessment;
-}
 import com.chua.deeplearning.support.utils.TensorOptions;
-package com.chua.deeplearning.support.onnx.assessment;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
