@@ -1,4 +1,7 @@
 package com.chua.deeplearning.support.onnx.assessment;
+}
+import com.chua.deeplearning.support.utils.TensorOptions;
+package com.chua.deeplearning.support.onnx.assessment;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.ndarray.NDArray;
@@ -52,7 +55,7 @@ public class NimaTranslator implements Translator<Image, float[]> {
     /** 处理Input */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：resize 224 + ImageNet 归一化 + CHW → float[] → create() 喂入 djl-onnx
-        float[] pixels = ImageUtils.toTensor(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false);
+        float[] pixels = ImageUtils.toTensor(new TensorOptions(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false));
         NDArray array = ctx.getNDManager().create(pixels, new Shape(1, 3, IMAGE_SIZE, IMAGE_SIZE));
         array.setName("input");
         return new NDList(array);

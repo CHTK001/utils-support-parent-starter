@@ -1,4 +1,6 @@
 package com.chua.deeplearning.support.onnx.dinov2;
+
+import com.chua.deeplearning.support.utils.ImageCropOptions;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.djl.modality.cv.Image;
@@ -103,7 +105,7 @@ public class DinoV2Translator implements Translator<Image, float[]> {
             Mat resized = ImageUtils.resize(img, rw, rh, Imgproc.INTER_CUBIC);
             int x0 = (rw - IMAGE_SIZE) / 2;
             int y0 = (rh - IMAGE_SIZE) / 2;
-            Mat crop = ImageUtils.crop(resized, x0, y0, IMAGE_SIZE, IMAGE_SIZE);
+            Mat crop = ImageUtils.crop(resized, new ImageCropOptions(null, x0, y0, IMAGE_SIZE, IMAGE_SIZE));
 
             float[] pixels = new float[3 * IMAGE_SIZE * IMAGE_SIZE];
             for (int y = 0; y < IMAGE_SIZE; y++) {
@@ -153,5 +155,3 @@ public class DinoV2Translator implements Translator<Image, float[]> {
         return null;
     }
 }
-
-

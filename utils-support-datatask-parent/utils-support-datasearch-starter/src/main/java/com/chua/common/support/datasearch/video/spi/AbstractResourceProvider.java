@@ -1,5 +1,8 @@
 package com.chua.common.support.datasearch.video.spi;
 
+import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
+import com.chua.common.support.datasearch.video.model.VideoInfoResult;
+import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.model.VideoSource;
 /**
  * @author CH
@@ -22,5 +25,16 @@ public abstract class AbstractResourceProvider implements ResourceProvider {
      */
     public AbstractResourceProvider(VideoSource videoSource) {
         this.videoSource = videoSource;
+    }
+
+    /** 检查 provider 是否被封，如被封则提前返回 */
+    protected ReturnPageResult<VideoInfoResult> checkBlocked(String providerName) {
+        if (VideoProviderRegistry.isBlocked(providerName)) {
+            VideoProviderRegistry.BlockReason reason = VideoProviderRegistry.getBlockReason(providerName);
+            return ReturnPageResult.error(
+                "provider [" + providerName + "] 已标记为 " + (reason != null ? reason.label() : "blocked")
+                + "，跳过执行");
+        }
+        return null;
     }
 }

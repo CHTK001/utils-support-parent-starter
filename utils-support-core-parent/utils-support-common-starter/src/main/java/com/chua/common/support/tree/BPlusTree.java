@@ -162,6 +162,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             return sub;
         }
         // 直接原地修改，避免不必要的 ArrayList 拷贝
+        // 子节点分裂后，更新 keys[i] 或追加 promotedKey，然后插入 rightChild
         if (i < node.keys.size()) {
             node.keys.set(i, sub.promotedKey);
         } else {

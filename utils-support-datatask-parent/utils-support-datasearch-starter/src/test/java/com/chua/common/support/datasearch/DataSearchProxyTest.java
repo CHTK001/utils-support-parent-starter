@@ -2,32 +2,35 @@ package com.chua.common.support.datasearch;
 
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.spi.ResourceProvider;
+import com.chua.common.support.datasearch.video.spi.VideoProviderRegistry;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * 批量测试所有 pansou 插件，标记被封站点
+ * Pansou plugin test with blocked provider registry
  */
 public class DataSearchProxyTest {
-    
-    private static final Set<String> BLOCKED_PROVIDERS = ConcurrentHashMap.newKeySet();
+
     private static final Set<String> PASS_PROVIDERS = ConcurrentHashMap.newKeySet();
-    
+
     public static void main(String[] args) throws Exception {
-        System.out.println("=== Pansou Plugin Test ===");
-        
-        // 获取所有 ResourceProvider
+        System.out.println("=== Pansou Blocked Provider Test ===");
+
+        // 初始化已封禁列表（从 JSON）
+        VideoProviderRegistry.initBlockedResources();
+        System.out.println("Loaded blocked providers: " + VideoProviderRegistry.getBlockedNames().size());
+
         ServiceProvider<ResourceProvider> sp = ServiceProvider.of(ResourceProvider.class);
         java.util.Set<String> names = sp.getExtensions();
-        System.out.println("Total: " + names.size());
-        
+        System.out.println("Total providers: " + names.size());
+
         // 过滤视频类 provider
         List<String> videoNames = new ArrayList<>();
         for (String name : names) {
             String lower = name.toLowerCase();
-            if (lower.contains("bili") || lower.contains("douban") || lower.contains("wanou") 
+            if (lower.contains("bili") || lower.contains("douban") || lower.contains("wanou")
                 || lower.contains("wuji") || lower.contains("quark") || lower.contains("czzy")
                 || lower.contains("pan") || lower.contains("jike") || lower.contains("hunhe")
                 || lower.contains("shandian") || lower.contains("labi") || lower.contains("duoduo")
@@ -52,69 +55,77 @@ public class DataSearchProxyTest {
             }
         }
         System.out.println("Video providers: " + videoNames.size());
-        
-        // 并发测试
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        List<Future<Boolean>> futures = new ArrayList<>();
-        
+
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        CountDownLatch latch = new CountDownLatch(videoNames.size());
+
         for (String name : videoNames) {
-            ResourceProvider p = sp.getExtension(name);
-            if (p == null) continue;
-            
-            futures.add(executor.submit(() -> {
+            final String n = name;
+            executor.submit(() -> {
                 try {
+                    ResourceProvider p = sp.getExtension(n);
+                    if (p == null) { latch.countDown(); return; }
+
+                    // 检查是否被封
+                    if (VideoProviderRegistry.isBlocked(n)) {
+                        System.out.printf("[BLOCKED] %-14s (already marked)%n", n);
+                        latch.countDown();
+                        return;
+                    }
+
                     VideoSearch search = new VideoSearch("电影");
                     var result = p.searchResource(search);
-                    
-                    if (result != null && result.getData() != null 
-                        && result.getData().getData() != null 
+
+                    if (result != null && result.getData() != null
+                        && result.getData().getData() != null
                         && !result.getData().getData().isEmpty()) {
-                        System.out.printf("[PASS] %-14s rows=%d%n", name, 
-                            result.getData().getData().size());
-                        PASS_PROVIDERS.add(name);
-                        return true;
+                        PASS_PROVIDERS.add(n);
+                        System.out.printf("[PASS] %-14s rows=%d%n", n, result.getData().getData().size());
                     } else {
-                        // 检查是否被封
                         String msg = result != null ? result.getMessage() : "";
-                        if (msg != null && (msg.contains("403") || msg.contains("block") 
-                            || msg.contains("forbidden"))) {
-                            System.out.printf("[BLOCKED] %-14s%n", name);
-                            BLOCKED_PROVIDERS.add(name);
+                        if (msg != null && (msg.contains("403") || msg.contains("timeout"))) {
+                            VideoProviderRegistry.block(n,
+                                msg.contains("403") ? VideoProviderRegistry.BlockReason.BLOCKED
+                                    : VideoProviderRegistry.BlockReason.TIMEOUT,
+                                msg);
+                            System.out.printf("[BLOCKED] %-14s (%s)%n", n,
+                                msg.contains("403") ? "403" : "timeout");
                         } else {
-                            System.out.printf("[EMPTY] %-14s rows=0%n", name);
+                            // 持续返回空也标记
+                            VideoProviderRegistry.block(n, VideoProviderRegistry.BlockReason.RATE_LIMITED);
+                            System.out.printf("[EMPTY] %-14s -> marked RATE_LIMITED%n", n);
                         }
-                        return false;
                     }
                 } catch (Exception e) {
-                    System.out.printf("[ERROR] %-14s %s%n", name, 
-                        e.getMessage() != null ? e.getMessage().substring(0, Math.min(30, e.getMessage().length())) : "");
-                    return false;
+                    String emsg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+                    if (emsg.contains("403") || emsg.contains("timeout")) {
+                        VideoProviderRegistry.block(n,
+                            emsg.contains("403") ? VideoProviderRegistry.BlockReason.BLOCKED
+                                : VideoProviderRegistry.BlockReason.TIMEOUT,
+                            e.getMessage());
+                    }
+                    System.out.printf("[ERROR] %-14s %s%n", n,
+                        e.getMessage() != null ? e.getMessage().substring(0, Math.min(25, e.getMessage().length())) : "");
+                } finally {
+                    latch.countDown();
                 }
-            }));
+            });
         }
-        
-        // 等待所有任务完成
+
+        latch.await(90, TimeUnit.SECONDS);
         executor.shutdown();
-        executor.awaitTermination(120, TimeUnit.SECONDS);
-        
-        // 统计结果
-        int passCount = 0;
-        int emptyCount = 0;
-        for (Future<Boolean> f : futures) {
-            try {
-                if (f.get()) passCount++;
-                else emptyCount++;
-            } catch (Exception e) { emptyCount++; }
-        }
-        
+
         System.out.println("\n=== Summary ===");
-        System.out.println("PASS: " + passCount);
-        System.out.println("EMPTY: " + (videoNames.size() - passCount - BLOCKED_PROVIDERS.size()));
-        System.out.println("BLOCKED: " + BLOCKED_PROVIDERS.size());
-        
-        if (!BLOCKED_PROVIDERS.isEmpty()) {
-            System.out.println("\nBlocked providers:");
-            BLOCKED_PROVIDERS.forEach(System.out::println);
-        }
+        System.out.println("PASS:     " + PASS_PROVIDERS.size());
+        System.out.println("BLOCKED:  " + VideoProviderRegistry.getBlockedNames().size());
+        System.out.println("Total:    " + videoNames.size());
+
+        System.out.println("\nWorking providers:");
+        for (String n : PASS_PROVIDERS) System.out.printf("  %s%n", n);
+
+        System.out.println("\nBlocked providers:");
+        VideoProviderRegistry.getBlockedNames().stream().sorted()
+            .forEach(n -> System.out.printf("  %s (%s)%n", n,
+                VideoProviderRegistry.getBlockReason(n) != null ? VideoProviderRegistry.getBlockReason(n).label() : "unknown"));
     }
 }

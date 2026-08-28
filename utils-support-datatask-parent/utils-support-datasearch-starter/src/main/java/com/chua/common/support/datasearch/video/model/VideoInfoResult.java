@@ -87,6 +87,10 @@ public class VideoInfoResult {
     private String downloadUrls;
     /** Tags */
     private String tags;
+    /** 是否被封 (true=该站点已封/过期，无需重试) */
+    private boolean blocked;
+    /** 被封原因 */
+    private String blockReason;
 
     /** 创建 VideoInfoResult 实例 */
     public VideoInfoResult() {}
