@@ -104,13 +104,6 @@ public class SipServer extends AbstractServer implements TcpServer {
     private final String token;
 
     /**
-     * 数据平面模式（relay 中继 / direct 直连）
-     */
-    private final String dataPlaneMode;
-
-
-
-    /**
      * 底层 TCP 服务器（流式模式，一连接一虚拟线程）
      */
     private JdkTcpServer tcpServer;
@@ -137,7 +130,6 @@ public class SipServer extends AbstractServer implements TcpServer {
     public SipServer(SipConfig config) {
         super(serverSetting(config));
         this.token = resolveToken(config);
-        this.dataPlaneMode = config.getDataPlaneMode() != null ? config.getDataPlaneMode() : SipConfig.MODE_RELAY;
         this.rateLimiter = new SipRateLimiter(config.getMinFrameIntervalNs(), config.getMaxAuthPerIpPerMin());
     }
 
@@ -226,17 +218,7 @@ private static ServerSetting serverSetting(SipConfig config) {
                 .host(setting.getHost())
                 .port(setting.getPort())
                 .token(token)
-                .dataPlaneMode(dataPlaneMode)
                 .build();
-    }
-
-    /**
-     * 获取数据平面模式。
-     *
-     * @return 模式（relay 或 direct）
-     */
-    public String getDataPlaneMode() {
-        return dataPlaneMode;
     }
 
     /**
@@ -626,19 +608,14 @@ onSignalClosed(clientId);
         tunnelChannels.put(channelId, new TunnelChannel(clientId, providerId));
             SipMetrics.get().onTunnelOpen();
         dataChannels.computeIfAbsent(channelId, DataChannel::new);
-        // 直连模式：返回 provider 的网络地址，让 visitor 直接连接
-        if (SipConfig.MODE_DIRECT.equals(dataPlaneMode)) {
-            SignalConnection providerConn = registry.get(providerId);
-            String providerAddr = providerConn != null
-                    ? providerConn.host() + ":" + providerConn.port()
-                    : "unknown";
-            send(clientId, SipProtocol.line(SipProtocol.PREFIX_OPENED, requestId, channelId, providerAddr));
-            log.info("SIP 隧道建立(直连): {} <-> {} via {}, provider={}", clientId, providerId, channelId, providerAddr);
-        } else {
-            send(clientId, SipProtocol.line(SipProtocol.PREFIX_OPENED, requestId, channelId));
-            log.info("SIP 隧道建立(中继): {} <-> {} via {}", clientId, providerId, channelId);
-        }
+        // 始终返回 provider 地址，客户端自行决定直连还是中继
+        SignalConnection providerConn = registry.get(providerId);
+        String providerAddr = providerConn != null
+                ? providerConn.host() + ":" + providerConn.port()
+                : "";
+        send(clientId, SipProtocol.line(SipProtocol.PREFIX_OPENED, requestId, channelId, providerAddr));
         provider.send(SipProtocol.line(SipProtocol.PREFIX_TUNNEL_OPEN, provider.token(), channelId, serviceName));
+        log.info("SIP 隧道建立: {} <-> {} via {}, provider={}", clientId, providerId, channelId, providerAddr);
     }
 
     /**
