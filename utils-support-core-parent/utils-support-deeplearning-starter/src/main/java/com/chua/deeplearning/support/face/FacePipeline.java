@@ -155,6 +155,16 @@ public class FacePipeline {
     private final ImageEnhancer restorer;
 
     /**
+     * 人脸分割器（ParseNet），用于生成软mask贴回，可为 null。
+     */
+    private final ImageEnhancer faceSeg;
+
+    /**
+     * 人脸管线回调，可为 null（测试时注入用于捕获中间图片）。
+     */
+    private FacePipelineCallback callback;
+
+    /**
      * 属性分类器，可为 null。
      */
     private final ImageClassifier attributeClassifier;
@@ -234,6 +244,7 @@ public class FacePipeline {
      * @param animeDetector       动漫检测器，可为 null
      * @param superResolution     超分器，可为 null
      * @param restorer            修复器，可为 null
+     * @param faceSeg             人脸分割器，可为 null
      * @param attributeClassifier 属性分类器，可为 null
      * @param emotionClassifier   表情分类器，可为 null
      * @param landmarkExtractor   关键点提取器，可为 null
@@ -250,6 +261,7 @@ public class FacePipeline {
                         FaceDetector animeDetector,
                         ImageEnhancer superResolution,
                         ImageEnhancer restorer,
+                        ImageEnhancer faceSeg,
                         ImageClassifier attributeClassifier,
                         ImageClassifier emotionClassifier,
                         FeatureExtractor landmarkExtractor,
@@ -269,6 +281,7 @@ public class FacePipeline {
         this.animeDetector = animeDetector;
         this.superResolution = superResolution;
         this.restorer = restorer;
+        this.faceSeg = faceSeg;
         this.attributeClassifier = attributeClassifier;
         this.emotionClassifier = emotionClassifier;
         this.landmarkExtractor = landmarkExtractor;
@@ -335,6 +348,11 @@ public class FacePipeline {
          * 图像修复增强器
          */
         private ImageEnhancer restorer;
+
+        /**
+         * 人脸分割增强器（ParseNet）
+         */
+        private ImageEnhancer faceSeg;
 
         /**
          * 属性分类器
@@ -540,6 +558,28 @@ public class FacePipeline {
         }
 
         /**
+         * 设置人脸分割器（用于贴回时生成软mask）。
+         *
+         * @param enhancer 分割器
+         * @return this
+         */
+        public Builder faceSeg(ImageEnhancer enhancer) {
+            this.faceSeg = enhancer;
+            return this;
+        }
+
+        /**
+         * 按模型 ID 创建人脸分割器。
+         *
+         * @param modelId 模型 ID
+         * @return this
+         */
+        public Builder faceSeg(String modelId) {
+            this.faceSeg = ImageEnhancer.create(modelId);
+            return this;
+        }
+
+        /**
          * 设置属性分类器。
          *
          * @param classifier 分类器
@@ -722,7 +762,7 @@ public class FacePipeline {
          */
         public FacePipeline build() {
             return new FacePipeline(detector, liveness, featureExtractor, vectorStorage,
-                    animeDetector, superResolution, restorer,
+                    animeDetector, superResolution, restorer, faceSeg,
                     attributeClassifier, emotionClassifier, landmarkExtractor,
                     qualityAssessor, deepfakeClassifier,
                     topK, requireLive, livenessThreshold,
@@ -1018,6 +1058,17 @@ public class FacePipeline {
      * @return 框列表
      */
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
+        List<PredictRectangle> boxes = detectBoxesInner(imageData);
+        if (callback != null) {
+            callback.onDetect(imageData, boxes);
+        }
+        return boxes;
+    }
+
+    /**
+     * 检测框内部实现。
+     */
+    private List<PredictRectangle> detectBoxesInner(byte[] imageData) {
         // 双检测器互补：常规模型检真人、动漫模型检动漫脸；各自异常经 Branch 降级为空，
         // 合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 labelName 判断。
         List<PredictRectangle> regular = Branch.ofBytes(imageData)
@@ -1145,6 +1196,9 @@ public class FacePipeline {
         fc.advance();
         runSingle(fc, identifyPipeline);
         byte[] aligned = fc.currentAlignedFace() != null ? fc.currentAlignedFace() : fc.currentFace();
+        if (callback != null && aligned != null) {
+            callback.onAlign(0, fc.currentBox(), aligned);
+        }
         return new FaceAlignResult(
                 fc.currentBox(),
                 fc.currentFace(),
@@ -1307,7 +1361,140 @@ public class FacePipeline {
         if (restorer == null) {
             return imageData;
         }
-        return restorer.enhance(imageData);
+        byte[] result = restorer.enhance(imageData);
+        if (callback != null) {
+            callback.onRestore(0, result);
+        }
+        return result;
+    }
+
+    /**
+     * 人脸超分（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 超分后图片，未配置超分模型时原样返回
+     */
+    public byte[] superResolution(byte[] imageData) {
+        if (superResolution == null) {
+            return imageData;
+        }
+        byte[] result = superResolution.enhance(imageData);
+        if (callback != null) {
+            callback.onRestore(0, result);
+        }
+        return result;
+    }
+
+    /**
+     * 设置人脸管线回调（用于测试时捕获中间图片）。
+     *
+     * @param callback 回调实例
+     */
+    public void setCallback(FacePipelineCallback callback) {
+        this.callback = callback;
+    }
+
+    /**
+     * 人脸修复管线：检测 → 人脸裁剪 + 5点对齐 → 修复。
+     *
+     * <p>对场景图中每张检出的人脸执行：5点仿射对齐到 FFHQ 512×512 标准位置，
+     * 然后运行修复模型（GFPGAN/CodeFormer），返回各张人脸的对齐图与修复图。
+     * 修复结果不贴回原图，调用方自行决定后续处理。</p>
+     *
+     * @param imageData 场景图
+     * @return 修复结果列表（每张人脸：框、对齐图、修复图），无人脸或无修复模型时返回空列表
+     */
+    public List<FaceRestoreResult> restoreWithAlign(byte[] imageData) {
+        return restoreWithAlign(imageData, null);
+    }
+
+    /**
+     * 人脸修复管线（带回调）。
+     *
+     * @param imageData 场景图
+     * @param callback  回调，可为 null
+     * @return 修复结果列表
+     */
+    public List<FaceRestoreResult> restoreWithAlign(byte[] imageData, FacePipelineCallback callback) {
+        long t0 = System.currentTimeMillis();
+        FacePipelineCallback cb = callback != null ? callback : this.callback;
+
+        // 1. 检测人脸（含5点关键点）
+        List<PredictRectangle> boxes = detectBoxes(imageData);
+        if (cb != null) {
+            cb.onDetect(imageData, boxes);
+        }
+        if (boxes.isEmpty()) {
+            return List.of();
+        }
+
+        // 解码原图
+        ImageUtils.load();
+        Mat src = ImageUtils.decode(imageData);
+        if (src == null || src.empty()) {
+            return List.of();
+        }
+
+        List<FaceRestoreResult> results = new ArrayList<>();
+
+        for (int i = 0; i < boxes.size(); i++) {
+            PredictRectangle box = boxes.get(i);
+            List<float[]> kps = box.keypoints();
+
+            // 需要5个关键点才能做仿射对齐
+            if (kps == null || kps.size() < 5) {
+                log.debug("[face-pipeline] #{} 关键点不足({})，跳过对齐修复", i,
+                        kps == null ? 0 : kps.size());
+                continue;
+            }
+
+            // 2.5点仿射对齐到 FFHQ 512×512 标准位置
+            Mat aligned = null;
+            try {
+                Mat affine = ImageUtils.estimateFaceAffine512(kps);
+                aligned = new Mat();
+                org.opencv.imgproc.Imgproc.warpAffine(src, aligned, affine,
+                        new Size(512, 512),
+                        org.opencv.imgproc.Imgproc.INTER_CUBIC,
+                        org.opencv.core.Core.BORDER_REPLICATE,
+                        new Scalar(135, 133, 132));
+                affine.release();
+            } catch (Exception e) {
+                log.warn("[face-pipeline] #{} 5点对齐失败: {}", i, e.getMessage());
+                continue;
+            }
+
+            byte[] alignedBytes = ImageUtils.encode(aligned);
+            if (cb != null) {
+                cb.onAlign(i, box, alignedBytes);
+            }
+
+            // 3. 修复（GFPGAN 或 CodeFormer）
+            byte[] restoredBytes;
+            if (restorer == null) {
+                log.debug("[face-pipeline] #{} 未配置修复模型，返回对齐图", i);
+                restoredBytes = alignedBytes;
+            } else {
+                try {
+                    restoredBytes = restorer.enhance(alignedBytes);
+                } catch (Exception e) {
+                    log.warn("[face-pipeline] #{} 修复失败: {}", i, e.getMessage());
+                    restoredBytes = alignedBytes;
+                }
+            }
+
+            if (cb != null) {
+                cb.onRestore(i, restoredBytes);
+            }
+
+            results.add(new FaceRestoreResult(box, alignedBytes, restoredBytes));
+            aligned.release();
+        }
+
+        src.release();
+        log.info("[face-pipeline] restoreWithAlign 完成: {}张人脸, 耗时{}ms",
+                results.size(), System.currentTimeMillis() - t0);
+        return results;
     }
 
     /**
@@ -1656,7 +1843,7 @@ public class FacePipeline {
                 src.release();
                 return null;
             }
-            Mat sub = ImageUtils.crop(src, newX1, newY1, cw, ch);
+            Mat sub = ImageUtils.crop(src, new com.chua.deeplearning.support.utils.ImageCropOptions(null, newX1, newY1, cw, ch));
             byte[] result = ImageUtils.encode(sub);
             sub.release();
             src.release();
@@ -1746,6 +1933,15 @@ public class FacePipeline {
      */
     public VectorStorage vectorStorage() {
         return vectorStorage;
+    }
+
+    /**
+     * 人脸分割器。
+     *
+     * @return ImageEnhancer 或 null
+     */
+    public ImageEnhancer faceSeg() {
+        return faceSeg;
     }
 
     /** LivenessResult */

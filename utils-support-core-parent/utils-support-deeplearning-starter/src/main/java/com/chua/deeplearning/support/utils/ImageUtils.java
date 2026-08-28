@@ -104,6 +104,20 @@ public final class ImageUtils {
     }
 
     /**
+     * 将 DJL Image 直接 resize 到目标尺寸，转 CHW 归一化像素（RGB，mean/std）。
+     *
+     * @param image DJL 图像
+     * @param size  目标尺寸
+     * @param mean  均值（可为 null）
+     * @param std   标准差（可为 null）
+     * @return [3, size, size] float 像素
+     */
+    public static float[] toTensorResize(Image image, int size, float[] mean, float[] std) {
+        TensorOptions options = new TensorOptions(image, size, mean, std, false);
+        return toTensor(options);
+    }
+
+    /**
      * 将 DJL Image 转 CHW 归一化像素。
      *
      * @param options 张量转换选项，包含图像、尺寸、均值、标准差和裁剪策略

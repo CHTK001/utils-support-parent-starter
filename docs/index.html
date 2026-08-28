@@ -3,146 +3,817 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>utils-support-parent-starter 文档中心</title>
+<title>utils-support-example-starter 文档中心</title>
 <style>
 :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
     --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
 .header { background:var(--card); border-bottom:1px solid var(--border); padding:32px 48px; }
 .header h1 { font-size:1.6em; color:#f0f6fc; margin-bottom:6px; }
 .header p { color:var(--muted); font-size:0.92em; }
 .header .stats { margin-top:12px; display:flex; gap:16px; flex-wrap:wrap; }
 .header .stats span { font-size:0.78em; color:var(--muted); border:1px solid var(--border); border-radius:12px; padding:3px 10px; }
-.section-title { padding:24px 48px 8px; font-size:0.75em; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:600; }
-table { border-collapse:collapse; width:calc(100% - 96px); margin:12px 48px 32px; background:var(--card); border-radius:8px; overflow:hidden; }
+.section-title { padding:28px 48px 8px; font-size:0.75em; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:600; }
+.content { padding:12px 48px 32px; max-width:1200px; }
+.content p, .content li { font-size:0.85em; color:var(--text); line-height:1.7; margin-bottom:8px; }
+.content h2 { font-size:1.15em; color:#f0f6fc; margin:28px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.content h3 { font-size:1em; color:#f0f6fc; margin:20px 0 8px; }
+.content h4 { font-size:0.88em; color:var(--accent); margin:14px 0 6px; }
+.content ul, .content ol { padding-left:20px; margin-bottom:12px; }
+.content li { margin-bottom:4px; }
+pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 18px; overflow-x:auto; font-size:0.8em; line-height:1.5; margin:10px 0 18px; }
+code { font-family:'JetBrains Mono','Fira Code','Consolas',monospace; }
+:not(pre) > code { background:rgba(88,166,255,.12); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:0.85em; }
+table { border-collapse:collapse; width:100%; margin:10px 0 18px; background:var(--card); border-radius:8px; overflow:hidden; }
 th { background:#1f6feb; color:#fff; padding:10px 14px; font-size:0.82em; text-align:left; }
 td { border-bottom:1px solid var(--border); padding:8px 14px; font-size:0.82em; }
 tr:last-child td { border-bottom:none; }
 .tag { display:inline-block; font-size:0.7em; padding:2px 8px; border-radius:12px; font-weight:600; }
-.tag-must{background:rgba(248,81,73,.12);color:var(--red)}
-.tag-opt{background:rgba(88,166,255,.12);color:var(--accent)}
 .tag-pass{background:rgba(63,185,80,.12);color:var(--green)}
+.tag-opt{background:rgba(88,166,255,.12);color:var(--accent)}
 .tag-orange{background:rgba(210,153,34,.12);color:var(--orange)}
 .tag-purple{background:rgba(188,140,255,.12);color:var(--purple)}
-.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; padding:12px 48px 32px; }
-.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px; text-decoration:none; color:inherit; transition:border-color .2s,transform .15s,box-shadow .2s; display:block; }
-.card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,.4); }
-.card-icon { font-size:1.8em; margin-bottom:10px; }
-.card h2 { font-size:1.05em; color:#f0f6fc; margin-bottom:6px; }
-.card p { color:var(--muted); font-size:0.82em; line-height:1.55; }
+.tag-red{background:rgba(248,81,73,.12);color:var(--red)}
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; margin:12px 0 24px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; transition:border-color .2s,transform .15s; }
+.card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.card-icon { font-size:1.4em; margin-bottom:6px; }
+.card h4 { font-size:0.95em; color:#f0f6fc; margin-bottom:4px; }
+.card p { color:var(--muted); font-size:0.78em; line-height:1.5; }
+.callout { border-left:3px solid var(--accent); background:rgba(88,166,255,.06); padding:12px 16px; border-radius:6px; margin:10px 0 16px; font-size:0.85em; }
+.callout-warn { border-left-color:var(--orange); background:rgba(210,153,34,.08); }
+.callout-green { border-left-color:var(--green); background:rgba(63,185,80,.06); }
+.callout-red { border-left-color:var(--red); background:rgba(248,81,73,.06); }
+.anchor { color:var(--accent); text-decoration:none; font-size:0.78em; margin-left:6px; opacity:0; transition:opacity .2s; }
+h2:hover .anchor, h3:hover .anchor { opacity:1; }
+.toc { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin-bottom:24px; }
+.toc h3 { margin:0 0 10px; font-size:0.9em; color:var(--muted); }
+.toc a { display:block; font-size:0.82em; color:var(--accent); text-decoration:none; padding:3px 0; }
+.toc a:hover { text-decoration:underline; }
+.toc .l2 { padding-left:16px; }
 .footer { text-align:center; padding:24px; color:var(--muted); font-size:0.8em; border-top:1px solid var(--border); }
 </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>utils-support-parent-starter 文档中心</h1>
-    <p>模块化 Java 工具包集合 · SPI 插件化架构 · JDK 25</p>
+    <h1>utils-support-example-starter 文档中心</h1>
+    <p>Example 体系 · SPI 插件化架构 · 全场景自检 · 基准测试 · JDK 25</p>
     <div class="stats">
-        <span>📊 已完成 Example 28 个</span>
-        <span>🧪 功能覆盖 12 模块</span>
-        <span>🧪 测试报告 13 篇</span>
-        <span>💡 示例文档 6 篇</span>
-        <span>📖 使用文档 1 篇</span>
+        <span>100+ Example 类</span>
+        <span>50 个子包</span>
+        <span>7 个 Benchmark</span>
+        <span>29 个 SPI 注册</span>
+        <span>12 功能领域</span>
     </div>
 </div>
 
-<!-- ============ 第一部分：已完成 Example 总览 ============ -->
-<div class="section-title">✅ 第一部分 · 已完成 Example 总览</div>
+<div class="content">
+
+<!-- ========== 目录 ========== -->
+<div class="toc">
+<h3>目录</h3>
+<a href="#overview">一、项目概述</a>
+<a href="#quickstart">二、快速开始</a>
+<a href="#l2-quickstart-maven" class="l2">2.1 Maven 依赖</a>
+<a href="#l2-quickstart-runner" class="l2">2.2 运行方式</a>
+<a href="#config">三、配置说明</a>
+<a href="#l2-config-pom" class="l2">3.1 pom.xml 关键配置</a>
+<a href="#l2-config-jvm" class="l2">3.2 JVM 参数</a>
+<a href="#l2-config-log" class="l2">3.3 日志配置</a>
+<a href="#l2-config-spi" class="l2">3.4 SPI 注册机制</a>
+<a href="#examples">四、使用场景示例</a>
+<a href="#l2-ex-utils" class="l2">4.1 工具类</a>
+<a href="#l2-ex-network" class="l2">4.2 网络通信</a>
+<a href="#l2-ex-ssh" class="l2">4.3 SSH/SFTP</a>
+<a href="#l2-ex-task" class="l2">4.4 任务编排</a>
+<a href="#l2-ex-timer" class="l2">4.5 时间轮</a>
+<a href="#l2-ex-pipeline" class="l2">4.6 管线</a>
+<a href="#l2-ex-concurrent" class="l2">4.7 并发</a>
+<a href="#l2-ex-ai" class="l2">4.8 AI/深度学习</a>
+<a href="#l2-ex-onnx" class="l2">4.9 ONNX 推理</a>
+<a href="#l2-ex-datasource" class="l2">4.10 数据源</a>
+<a href="#l2-ex-tui" class="l2">4.11 TUI 终端界面</a>
+<a href="#l2-ex-spi" class="l2">4.12 SPI 扩展</a>
+<a href="#testing">五、测试说明</a>
+<a href="#l2-test-selfcheck" class="l2">5.1 自检模式</a>
+<a href="#l2-test-coverage" class="l2">5.2 覆盖矩阵</a>
+<a href="#benchmark">六、压测说明</a>
+<a href="#l2-bm-tools" class="l2">6.1 工具类基准</a>
+<a href="#l2-bm-network" class="l2">6.2 网络压测</a>
+<a href="#l2-bm-serialization" class="l2">6.3 序列化基准</a>
+<a href="#l2-bm-tts" class="l2">6.4 TTS 基准</a>
+<a href="#l2-bm-image" class="l2">6.5 图像处理基准</a>
+<a href="#build">七、构建与运行脚本</a>
+<a href="#faq">八、常见问题</a>
+</div>
+
+<!-- ========== 一、项目概述 ========== -->
+<h2 id="overview">一、项目概述 <a class="anchor" href="#overview">#</a></h2>
+<p><code>utils-support-example-starter</code> 是 <code>utils-support-parent-starter</code> 生态下的统一示例模块，涵盖 <strong>100+ Example 类</strong>、<strong>50 个子包</strong>，覆盖工具类、网络通信、SSH/SFTP、任务编排、时间轮、管线、并发、AI 推理、数据源、TUI 终端、SPI 扩展等 12 个功能领域。</p>
+
+<p>每个 Example 类采用 <strong>全场景自检</strong> 模式：内部实现完整功能验证，通过 <code>--type=xxx</code> 参数选择性地运行特定场景组，输出 <code>[PASS]/[FAIL]</code> 标记并以退出码 0/1 结束。Benchmark 类使用 <code>System.nanoTime()</code> 精确计时，输出 <code>ops/s</code> 表格。</p>
+
+<div class="callout">
+<strong>架构特点：</strong>SPI 插件化 + 统一入口 <code>ExampleRunner</code> + 独立 <code>main()</code> 双运行模式。所有示例无 Spring Boot 依赖（部分 Web 示例除外），轻量级可独立运行。
+</div>
+
+<!-- ========== 二、快速开始 ========== -->
+<h2 id="quickstart">二、快速开始 <a class="anchor" href="#quickstart">#</a></h2>
+
+<h3 id="l2-quickstart-maven">2.1 Maven 依赖</h3>
+<pre>&lt;dependency&gt;
+    &lt;groupId&gt;com.chua&lt;/groupId&gt;
+    &lt;artifactId&gt;utils-support-example-starter&lt;/artifactId&gt;
+    &lt;version&gt;4.0.0.42&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+
+<h3 id="l2-quickstart-runner">2.2 运行方式</h3>
+<h4>方式一：ExampleRunner 交互式运行</h4>
+<pre># Maven 运行
+mvn -pl utils-support-extra-parent/utils-support-example-starter \
+    exec:java -Dexec.mainClass="com.chua.example.runner.ExampleRunner"
+
+# 直接 Java 运行
+java --enable-preview -cp target/classes com.chua.example.runner.ExampleRunner</pre>
+
+<h4>方式二：指定 SPI Example</h4>
+<pre># 运行 HttpServer 示例（默认 JDK 实现）
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server
+
+# 运行 NIO 实现的 HttpServer
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --type=nio
+
+# 运行压测模式
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --type=nio --mode=perf</pre>
+
+<h4>方式三：直接运行 Example 类</h4>
+<pre># 工具类
+java --enable-preview -cp target/classes com.chua.example.utils.TreeUtilsExample
+java --enable-preview -cp target/classes com.chua.example.utils.BeanUtilsBenchmarkExample
+
+# SSH
+java --enable-preview -cp target/classes com.chua.example.ssh.SshSftpClientExample
+
+# 任务编排
+java --enable-preview -cp target/classes com.chua.example.taskrunner.TaskRunnerExample
+java --enable-preview -cp target/classes com.chua.example.taskrunner.TaskRunnerExample --type=serial
+java --enable-preview -cp target/classes com.chua.example.taskrunner.TaskRunnerExample --type=parallel
+java --enable-preview -cp target/classes com.chua.example.taskrunner.TaskRunnerExample --type=policy
+java --enable-preview -cp target/classes com.chua.example.taskrunner.TaskRunnerExample --type=reliability
+java --enable-preview -cp target/classes com.chua.example.taskrunner.TaskRunnerExample --type=reactive</pre>
+
+<h4>方式四：使用运行脚本</h4>
+<pre># 进入 example-starter 目录
+cd utils-support-extra-parent/utils-support-example-starter
+
+# 运行测试
+run-test.bat
+
+# 运行扫描
+run_cscan.cmd</pre>
+
+<div class="callout callout-warn">
+<strong>注意：</strong>JDK 25 需要 <code>--enable-preview</code> 参数。部分示例（如 ShmQueue）需要 native 模块支持，未安装时会跳过。
+</div>
+
+<!-- ========== 三、配置说明 ========== -->
+<h2 id="config">三、配置说明 <a class="anchor" href="#config">#</a></h2>
+
+<h3 id="l2-config-pom">3.1 pom.xml 关键配置</h3>
+<p>父模块：<code>utils-support-extra-parent:4.0.0.42</code>，Java 版本 release 25（启用 preview）。</p>
+<pre>&lt;!-- 核心编译插件 --&gt;
+&lt;plugin&gt;
+    &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+    &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
+    &lt;configuration&gt;
+        &lt;mainClass&gt;com.chua.example.runner.ExampleRunner&lt;/mainClass&gt;
+        &lt;arguments&gt;&lt;argument&gt;${exec.args}&lt;/argument&gt;&lt;/arguments&gt;
+        &lt;jvmArgs&gt;&lt;jvmArg&gt;--enable-preview&lt;/jvmArg&gt;&lt;/jvmArgs&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;</pre>
+
+<p><strong>核心依赖表：</strong></p>
 <table>
-<tr><th>Example</th><th>模块/包</th><th>场景</th><th>类型</th><th>核心能力覆盖</th><th>结果</th></tr>
-
-<tr><td rowspan="4">concurrent/queue</td><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>无锁队列：SPIN/BLOCK/HYBRID 三种模式 send/recv</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>持久化无锁队列：容量上限/批量吞吐/备份一致性</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>偏移量滚动计数器：边界环绕/并发递增</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>concurrent</td><td>—</td><td><span class="tag tag-opt">环境</span></td><td>ShmQueue 需 native 实现</td><td>⏸ 未执行</td></tr>
-
-<tr><td rowspan="2">concurrent</td><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>ThreadFlow 虚拟线程流式执行器</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>concurrent</td><td>1</td><td><span class="tag tag-must">必填</span></td><td>PersistentLockFreeQueue 持久化锁</td><td><span class="tag tag-orange">挂起</span></td></tr>
-
-<tr><td rowspan="12">taskrunner</td><td>task/taskrunner</td><td>18</td><td><span class="tag tag-must">必填</span></td><td>DAG 编排（afterNode/dependsNode）· 5 种完成策略含成功率 · 熔断降级 · 超时/重试 · 同步/异步/响应式三出口 · 事件流 · 取消中断</td><td><span class="tag tag-pass">PASS</span></td></tr>
-
-<tr><td rowspan="10">时间轮 v2</td><td>task/timer</td><td>10</td><td><span class="tag tag-must">必填</span></td><td>绝对时间轴 fixed-rate · 虚拟线程执行器并发 · 分槽锁 · 原子计数 · cancel 可中断 · 周期任务取消精确停止</td><td><span class="tag tag-pass">PASS</span></td></tr>
-
-<tr><td rowspan="12">管线</td><td>task/pipeline</td><td>10</td><td><span class="tag tag-must">必填</span></td><td>Action 状态机 · 决策路由 · Fork 并行 · 重试 · 回调链 · 上下文流转 · B+树拓扑 · Unit 聚合 · WAL 断点恢复(7子场景)</td><td><span class="tag tag-pass">PASS</span></td></tr>
-
-<tr><td rowspan="4">分支</td><td>task/branch</td><td>15</td><td><span class="tag tag-must">必填</span></td><td>惰性求值 · 条件组首中胜 · null 免疫 · 异常双通道 · 熔开兜底 · afterBranch 重置</td><td><span class="tag tag-pass">PASS</span></td></tr>
-
-<tr><td rowspan="6">任务组件</td><td>task/retry</td><td>4</td><td><span class="tag tag-must">必填</span></td><td>瞬时故障恢复 · 重试耗尽走 fallback · 异常过滤不重试 · 零重试</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>task/scheduler</td><td>4</td><td><span class="tag tag-must">必填</span></td><td>Cron 解析/非法拒绝 · 固定间隔触发 · Provider 注册/执行/取消/关闭</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>task/async+dedup</td><td>3</td><td><span class="tag tag-must">必填</span></td><td>supply/run/supplyAll 保序 · deduplicate 幂等单次 · TTL 过期/clear</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>task/backup</td><td>3</td><td><span class="tag tag-must">必填</span></td><td>按天备份(fileCount) · 恢复逐字节一致 · 过期清理(listBackups+cleanExpired)</td><td><span class="tag tag-pass">PASS</span></td></tr>
-
-<tr><td rowspan="5">其他核心</td><td>task/loader</td><td>4</td><td><span class="tag tag-must">必填</span></td><td>单例懒加载 · 重载重建 · 16线程并发竞态 · null 校验</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>task/message</td><td>3</td><td><span class="tag tag-must">必填</span></td><td>webhook SPI 解析 · url 缺失失败 · 不可达优雅失败</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>taskdistribution</td><td>3+缺陷</td><td><span class="tag tag-must">必填</span></td><td>TaskManager 增删改查 · InMemoryDispatcher 接收分发 · NodeTable 注册序</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr><td>flow</td><td>4 Example</td><td><span class="tag tag-must">必填</span></td><td>JSON 导出/解析重建 · traceId 注入 · 快照持久化 · 轨迹还原</td><td><span class="tag tag-pass">PASS</span></td></tr>
-
-<tr><td rowspan="4">工具/辅助</td><td>utils</td><td>12</td><td><span class="tag tag-opt">非必填</span></td><td>TreeUtils：build/find/路径/兄弟/排序/扁平化/深度；纯工具类</td><td><span class="tag tag-pass">PASS</span></td></tr>
-
-<tr><td colspan="6"><strong>汇总：27/28 Example 通过，1 项因环境门槛挂起（ShmQueue 需 native 模块）</strong></td></tr>
+<tr><th>类别</th><th>依赖（Starter）</th></tr>
+<tr><td>公共</td><td>utils-support-common-starter</td></tr>
+<tr><td>序列化</td><td>gson, fory, protobuf, fastjson, fastjson2:2.0.57</td></tr>
+<tr><td>网络</td><td>network-starter, kcp-starter, tshark-starter</td></tr>
+<tr><td>深度学习</td><td>onnx-starter, opencv-starter, native-image (Rust)</td></tr>
+<tr><td>AI 模型</td><td>gemma-3-270m, image-colorize, safety-helmet, fire-smoke, face-mask-detector, seal-inspection, dfine-l, rtdetr-layout, llama3-gpu</td></tr>
+<tr><td>SSH/Docker</td><td>ssh-starter, docker-starter, winrm-starter</td></tr>
+<tr><td>FFmpeg</td><td>ffmpeg-starter, javacv-starter, rust-starter, native-video-codec</td></tr>
+<tr><td>文件系统</td><td>filesystem-starter, filesearch-starter, filestorage-starter</td></tr>
+<tr><td>数据库</td><td>nitrite, neo4j, sqlite, mysql, lucene, duckdb, redis, hbase, influxdb, parquet, solr, tablesaw, elasticsearch</td></tr>
+<tr><td>向量存储</td><td>jvector-starter, milvus-starter</td></tr>
+<tr><td>消息</td><td>mqtt-starter</td></tr>
+<tr><td>监控</td><td>prometheus-starter, syslog-starter, oshi-core</td></tr>
+<tr><td>RPC</td><td>json/dubbo/sofa RPC starter + grpc</td></tr>
+<tr><td>Web 容器</td><td>tomcat-starter, undertow-starter</td></tr>
 </table>
 
-<!-- ============ 第二部分：功能覆盖测试报告 ============ -->
-<div class="section-title">🔬 第二部分 · 功能覆盖测试报告</div>
+<h3 id="l2-config-jvm">3.2 JVM 参数</h3>
+<pre># 基本参数
+--enable-preview
+-Xms256m -Xmx512m
+-Dfile.encoding=UTF-8
+
+# 日志级别
+-Dlogging.level.com.chua=DEBUG
+
+# 模型路径（ONNX）
+-Donnx.model.path=/path/to/models
+
+# 模型提供商（LLM/Embedding）
+-Dprovider=siliconflow
+-Dmodel=Qwen/Qwen2.5-7B-Instruct
+
+# MCP 开关
+-Dmcp.external.enabled=true
+-Dmcp.memory.enabled=true</pre>
+
+<h3 id="l2-config-log">3.3 日志配置</h3>
+<p><code>src/main/resources/logback.xml</code>：</p>
+<pre>&lt;configuration&gt;
+    &lt;appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{HH:mm:ss.SSS} %-5level %logger{20} - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+    &lt;logger name="com.chua" level="DEBUG"/&gt;
+    &lt;logger name="net.openhft" level="INFO"/&gt;
+    &lt;root level="INFO"&gt;
+        &lt;appender-ref ref="STDOUT"/&gt;
+    &lt;/root&gt;
+&lt;/configuration&gt;</pre>
+
+<h3 id="l2-config-spi">3.4 SPI 注册机制</h3>
+<p>SPI 文件位于 <code>src/main/resources/META-INF/extensions/com.chua.example.spi.Example</code>，注册了 29 个 Example SPI 实现：</p>
+<pre>com.chua.example.network.http.HttpServerExampleSpi
+com.chua.example.network.http.NioHttpServerExampleSpi
+com.chua.example.lang.serialize.SerializationBenchmarkExample
+com.chua.example.image.ImageProcessorSpiExampleSpi
+com.chua.example.pipeline.PipelineLinearExampleSpi
+com.chua.example.pipeline.PipelineForkExampleSpi
+com.chua.example.pipeline.PipelineDecisionExampleSpi
+com.chua.example.pipeline.PipelineCallbackExampleSpi
+com.chua.example.pipeline.PipelineRetryExampleSpi
+com.chua.example.pipeline.PipelineContextExampleSpi
+com.chua.example.pipeline.PipelineBPlusTreeExampleSpi
+com.chua.example.pipeline.PipelineUnitExampleSpi
+com.chua.example.pipeline.PipelineWALExampleSpi
+com.chua.example.pipeline.PipelineAllExampleSpi
+com.chua.example.pipeline.PipelineTreePrintExampleSpi
+com.chua.example.utils.JsonProviderExampleSpi
+com.chua.example.reflection.ProtobufSerializerExampleSpi
+...</pre>
+
+<div class="callout">
+<strong>SPI 规则：</strong>实现 <code>com.chua.example.spi.Example</code> 接口（<code>name()</code>, <code>module()</code>, <code>description()</code>, <code>run(Map)</code>）。注册后可通过 <code>ExampleRunner --example=xxx</code> 自动发现和运行。
+</div>
+
+<!-- ========== 四、使用场景示例 ========== -->
+<h2 id="examples">四、使用场景示例 <a class="anchor" href="#examples">#</a></h2>
+
+<!-- 4.1 工具类 -->
+<h3 id="l2-ex-utils">4.1 工具类 <a class="anchor" href="#l2-ex-utils">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#127800;</div><h4>TreeUtilsExample</h4><p>树构建/查找/路径/排序/扁平化/深度，12 场景自检</p></div>
+<div class="card"><div class="card-icon">&#128203;</div><h4>CommonUtilsExample</h4><p>字符串/集合/类型转换/反射工具一站式演示</p></div>
+<div class="card"><div class="card-icon">&#9889;</div><h4>BeanUtilsBenchmarkExample</h4><p>属性复制/对象转Map 吞吐基准 (10万次迭代)</p></div>
+<div class="card"><div class="card-icon">&#128273;</div><h4>IdUtilsBenchmarkExample</h4><p>ID 生成吞吐基准 (内容寻址/部分采样)</p></div>
+</div>
+
+<h4>TreeUtils 使用示例</h4>
+<pre>// 构建树
+List&lt;Node&gt; flat = sampleFlat(); // [{id:1,pid:null}, {id:2,pid:1}, ...]
+List&lt;Node&gt; tree = TreeUtils.build(flat, Node::id, Node::parentId, Node::setChildren);
+
+// 查找
+Node found = TreeUtils.findById(tree, "4");               // 按 ID 查找
+Node cond = TreeUtils.findFirst(tree, n -> n.id.contains("5")); // 条件查找
+
+// 路径
+List&lt;Node&gt; chain = TreeUtils.getParentChain(tree, "4");   // 父链 [1→2→4]
+List&lt;Node&gt; path = TreeUtils.getPath(tree, "4");           // 完整路径
+
+// 子节点
+List&lt;Node&gt; direct = TreeUtils.getDirectChildren(tree, "2"); // 直接子节点
+List&lt;Node&gt; all = TreeUtils.getAllChildren(tree, "2");       // 全部后代
+
+// 排序 & 扁平化
+TreeUtils.sortTree(tree, Comparator.comparing(Node::id));
+List&lt;Node&gt; flatBack = TreeUtils.flatten(tree);            // 前序扁平化
+
+// 深度
+int depth = TreeUtils.getDepth(tree, "6");                 // 节点深度</pre>
+
+<!-- 4.2 网络通信 -->
+<h3 id="l2-ex-network">4.2 网络通信 <a class="anchor" href="#l2-ex-network">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#127760;</div><h4>HttpServerExample</h4><p>JDK/NIO/Vertx/Armeria 等 12 种实现，22 功能测试 + 压测</p></div>
+<div class="card"><div class="card-icon">&#9889;</div><h4>HttpServerBenchmarkExample</h4><p>全子类一键式压测，含 HTML 报告生成</p></div>
+<div class="card"><div class="card-icon">&#128268;</div><h4>NioHttpServerExample</h4><p>NIO/Reactor 模式 HTTP 服务端示例</p></div>
+<div class="card"><div class="card-icon">&#8644;</div><h4>AioVsNioBenchmarkExample</h4><p>NIO(Reactor) vs AIO(IOCP) 传输层对比</p></div>
+</div>
+
+<h4>HttpServer 功能测试 (22 项)</h4>
+<pre># 启动 HttpServer (SPI)
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server
+
+# 指定实现类型
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --type=jdk
+
+# NIO 实现
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --type=nio
+
+# 功能覆盖：GET/echo、POST JSON、multipart、PUT/DELETE/PATCH、
+# HEAD/OPTIONS、自定义Header、状态码(201/204/302/400/404/500)、
+# Keep-Alive、1MB大报文、HTTPS、并发限流503、WebSocket、SSE流</pre>
+
+<h4>HttpServer 压测</h4>
+<pre># 直接运行 Benchmark
+java --enable-preview -cp target/classes \
+    com.chua.example.network.http.HttpServerBenchmarkExample
+
+# 通过 ExampleRunner 运行压测
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --mode=perf
+
+# 自定义参数
+java --enable-preview -cp target/classes \
+    com.chua.example.network.http.HttpServerBenchmarkExample \
+    --servers=jdk,nio,vertx-http,http \
+    --concurrency=100,500,1000,2000 \
+    --delays=0,1000,3000,5000 \
+    --payload=128 \
+    --report=target/http-server-benchmark.html</pre>
+
+<!-- 4.3 SSH/SFTP -->
+<h3 id="l2-ex-ssh">4.3 SSH/SFTP <a class="anchor" href="#l2-ex-ssh">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#128421;</div><h4>SshSftpClientExample</h4><p>SSH exec/shell + SFTP 文件操作全链路测试</p></div>
+<div class="card"><div class="card-icon">&#128188;</div><h4>SshServerExample</h4><p>SSH 服务端/ShellMethod 测试</p></div>
+<div class="card"><div class="card-icon">&#128279;</div><h4>SshAdvancedExample</h4><p>SSH 高级功能（隧道/转发/代理）</p></div>
+</div>
+
+<pre>// SshClient Builder 模式
+SshClient ssh = SshClient.builder()
+    .host("172.16.0.40")
+    .port(2222)
+    .username("admin")
+    .password("admin123")
+    .connectTimeout(10)
+    .sessionTimeout(15)
+    .build();
+
+// exec 命令
+String who = ssh.exec().command("whoami").executeAndGetOutput().trim();
+var result = ssh.exec().command("uname -sr").execute();
+int exitCode = result.exitCode();
+
+// 交互式 shell
+var shell = ssh.shell().connect();
+shell.send("echo HELLO");
+shell.send("exit");
+String output = shell.readAll();
+
+// SFTP 文件操作
+SftpClient sftp = sftpClient.connect();
+sftp.upload(localFile, remotePath);
+var stat = sftp.stat(remotePath);
+boolean exists = sftp.ls(remoteDir).stream().anyMatch(f -> f.name().equals("test.txt"));
+sftp.download(remotePath, downloadFile);
+sftp.mkdir(remoteDir);
+sftp.rename(oldPath, newPath);
+sftp.rm(filePath);
+sftp.rmdir(dirPath);</pre>
+
+<!-- 4.4 任务编排 -->
+<h3 id="l2-ex-task">4.4 任务编排 (TaskRunner) <a class="anchor" href="#l2-ex-task">#</a></h3>
+<div class="card" style="margin-bottom:12px;"><div class="card-icon">&#128203;</div><h4>TaskRunnerExample</h4><p>轻量级 DAG 任务编排全场景自检，覆盖串行/并行/完成策略/可靠性/响应式五大场景组，776 行代码，18 个测试场景。</p></div>
+
+<h4>串行依赖</h4>
+<pre>TaskRunner runner = TaskRunner.newRunner();
+runner.addNode("A", () -> "A done")
+      .addNode("B", () -> "B done")
+      .addNode("C", () -> "C done");
+
+// afterNode: 串行链 A → B → C
+runner.addNode("A", () -> "A1")
+      .afterNode("B", () -> "B1")
+      .afterNode("C", () -> "C1");
+
+// dependsNode: 数据依赖 (A,B → C)
+runner2.addNode("A", () -> "A")
+       .addNode("B", () -> "B")
+       .addNode("C", () -> "C")
+       .dependsNode("C", "A", "B"); // C 等待 A,B 完成
+
+// 执行
+RunResult result = runner.execute();</pre>
+
+<h4>完成策略</h4>
+<pre>// allSuccess: 全成功 -> PASS，任一失败快速取消下游
+runner.completionPolicy(CompletionPolicy.allSuccess());
+
+// anySuccess: 任一成功即提前退出并取消剩余
+runner.completionPolicy(CompletionPolicy.anySuccess());
+
+// 成功率策略
+runner.completionPolicy(CompletionPolicy.successRate(0.8));  // 80% 成功即通过
+runner.completionPolicy(CompletionPolicy.successAtLeast(2)); // 至少 2 个成功
+runner.completionPolicy(CompletionPolicy.failAtLeast(2));    // 最多容忍 2 个失败</pre>
+
+<h4>可靠性与熔断</h4>
+<pre>// 单任务超时隔离
+runner.addNode("slow", () -> {
+    Thread.sleep(5000);
+    return "done";
+}).timeout(Duration.ofSeconds(1)); // 超时自动取消
+
+// 全局重试
+runner.globalRetry(3); // 失败自动重试 3 次
+    // 配合 RetryListener 监听重试次数
+
+// 熔断降级
+runner.failureThreshold(2)        // 连续 2 次失败触发熔断
+      .circuitBreaker(true)       // 启用熔断器
+      .fallback(task -> "降级结果"); // 熔断后走降级</pre>
+
+<h4>异步与响应式</h4>
+<pre>// 异步执行
+CompletableFuture&lt;RunResult&gt; future = runner.execute();
+
+// 取消传播
+future.cancel(true); // 传播中断到正在执行的任务
+
+// 响应式 Mono
+Mono&lt;RunResult&gt; mono = runner.executeReactor();
+mono.subscribe(result -> System.out.println("结果: " + result));
+
+// 事件流
+runner.watch().subscribe(event -> {
+    switch (event.eventType()) {
+        case RUN_STARTED -> log.info("运行开始");
+        case NODE_STARTED -> log.info("节点 {} 开始", event.nodeId());
+        case NODE_SUCCESS -> log.info("节点 {} 成功", event.nodeId());
+        case NODE_FAILED  -> log.info("节点 {} 失败", event.nodeId());
+        case RUN_COMPLETED -> log.info("运行完成");
+    }
+});</pre>
+
+<!-- 4.5 时间轮 -->
+<h3 id="l2-ex-timer">4.5 时间轮 <a class="anchor" href="#l2-ex-timer">#</a></h3>
+<div class="card" style="margin-bottom:12px;"><div class="card-icon">&#9200;</div><h4>TimeWheelExample</h4><p>时间轮 v2 实现，覆盖绝对时间轴 fixed-rate、虚拟线程执行器、分槽锁、原子计数、cancel 精确停止等 10 场景。</p></div>
+<pre>TimeWheel timer = TimeWheel.newTimer();
+
+// 一次性任务
+timer.schedule(task -> System.out.println("执行"), 5, TimeUnit.SECONDS);
+
+// 固定速率周期任务
+ScheduledTask<?> t = timer.scheduleAtFixedRate(
+    task -> System.out.println("心跳"),
+    0, 1, TimeUnit.SECONDS);
+
+// 取消
+t.cancel();
+
+// 虚拟线程执行器（默认）
+timer = TimeWheel.newTimer(Executors.newVirtualThreadPerTaskExecutor());</pre>
+
+<!-- 4.6 管线 -->
+<h3 id="l2-ex-pipeline">4.6 管线 <a class="anchor" href="#l2-ex-pipeline">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#128736;</div><h4>Pipeline 线性</h4><p>Action 状态机线性执行</p></div>
+<div class="card"><div class="card-icon">&#128268;</div><h4>Pipeline 决策路由</h4><p>条件分支路由</p></div>
+<div class="card"><div class="card-icon">&#128257;</div><h4>Pipeline Fork 并行</h4><p>并行 Fork 带错误策略</p></div>
+<div class="card"><div class="card-icon">&#128260;</div><h4>Pipeline 回调链</h4><p>链式回调组合</p></div>
+<div class="card"><div class="card-icon">&#128260;</div><h4>Pipeline 重试</h4><p>重试策略</p></div>
+<div class="card"><div class="card-icon">&#128203;</div><h4>Pipeline WAL</h4><p>WAL 断点恢复 (7 子场景)</p></div>
+</div>
+
+<!-- 4.7 并发 -->
+<h3 id="l2-ex-concurrent">4.7 并发 <a class="anchor" href="#l2-ex-concurrent">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#128176;</div><h4>无锁队列</h4><p>SPIN/BLOCK/HYBRID 三模式 send/recv</p></div>
+<div class="card"><div class="card-icon">&#128190;</div><h4>持久化无锁队列</h4><p>容量上限/批量吞吐/备份一致性</p></div>
+<div class="card"><div class="card-icon">&#128200;</div><h4>偏移量计数器</h4><p>边界环绕/并发递增</p></div>
+<div class="card"><div class="card-icon">&#128421;</div><h4>ThreadFlow</h4><p>虚拟线程流式执行器</p></div>
+</div>
+
+<!-- 4.8 AI/深度学习 -->
+<h3 id="l2-ex-ai">4.8 AI/深度学习 <a class="anchor" href="#l2-ex-ai">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#128172;</div><h4>大模型对话</h4><p>通义千问 Qwen Proxy 对话</p></div>
+<div class="card"><div class="card-icon">&#128202;</div><h4>文本嵌入</h4><p>BGE/MiniLM 离线向量化</p></div>
+<div class="card"><div class="card-icon">&#128065;</div><h4>视觉 AI</h4><p>YOLO-World/RemBG/深度估计</p></div>
+<div class="card"><div class="card-icon">&#127908;</div><h4>语音识别 STT</h4><p>Whisper 语音转文字</p></div>
+<div class="card"><div class="card-icon">&#128266;</div><h4>语音合成 TTS</h4><p>PocketTTS 轻量合成</p></div>
+<div class="card"><div class="card-icon">&#128203;</div><h4>RAG 检索增强</h4><p>向量检索 + LlamaIndex</p></div>
+</div>
+
+<!-- 4.9 ONNX 推理 -->
+<h3 id="l2-ex-onnx">4.9 ONNX 推理 <a class="anchor" href="#l2-ex-onnx">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#128300;</div><h4>CardCorrectionExample</h4><p>读光卡证检测矫正</p></div>
+<div class="card"><div class="card-icon">&#128100;</div><h4>FaceEnrollSearchExample</h4><p>人脸注册搜索</p></div>
+<div class="card"><div class="card-icon">&#128200;</div><h4>PersonReidExample</h4><p>行人重识别</p></div>
+<div class="card"><div class="card-icon">&#127908;</div><h4>TtsBenchmarkExample</h4><p>TTS 引擎 RTF + 内存基准</p></div>
+</div>
+
+<!-- 4.10 数据源 -->
+<h3 id="l2-ex-datasource">4.10 数据源 <a class="anchor" href="#l2-ex-datasource">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#128451;</div><h4>向量存储</h4><p>JVector MEMORY/ON_DISK/LTM + Milvus</p></div>
+<div class="card"><div class="card-icon">&#128194;</div><h4>文件搜索/存储</h4><p>本地文件搜索与统一存储</p></div>
+<div class="card"><div class="card-icon">&#128200;</div><h4>数据同步</h4><p>DataSync 增量/全量同步</p></div>
+</div>
+
+<h4>向量存储使用示例</h4>
+<pre>// 内存模式
+VectorStorage storage = VectorStorage.builder()
+    .dimension(768)
+    .algorithm(VectorAlgorithm.EUCLIDEAN)
+    .build();
+
+storage.add("doc-1", new float[]{0.1f, 0.2f, ...});
+storage.add("doc-2", new float[]{0.3f, 0.4f, ...});
+
+// 搜索
+List&lt;SearchResult&gt; results = storage.search(new float[]{0.15f, 0.25f, ...}, 5);
+
+// 磁盘模式
+VectorStorage diskStorage = VectorStorage.builder()
+    .mode(StorageMode.ON_DISK)
+    .dimension(768)
+    .algorithm(VectorAlgorithm.COSINE)
+    .properties(Map.of("storePath", "/data/vectors"))
+    .build();
+
+// Milvus 模式
+VectorStorage milvus = VectorStorage.builder()
+    .mode(StorageMode.MILVUS)
+    .properties(Map.of("host", "localhost", "port", 19530))
+    .build();</pre>
+
+<!-- 4.11 TUI 终端界面 -->
+<h3 id="l2-ex-tui">4.11 TUI 终端界面 <a class="anchor" href="#l2-ex-tui">#</a></h3>
+<div class="grid">
+<div class="card"><div class="card-icon">&#128187;</div><h4>TuiLauncherExample</h4><p>终端 UI 启动器</p></div>
+<div class="card"><div class="card-icon">&#128202;</div><h4>TuiDashboardExample</h4><p>终端仪表盘</p></div>
+</div>
+
+<!-- 4.12 SPI 扩展 -->
+<h3 id="l2-ex-spi">4.12 SPI 扩展 <a class="anchor" href="#l2-ex-spi">#</a></h3>
+<pre>// 实现 Example SPI 接口
+@Slf4j
+public class MyCustomExample implements Example {
+    @Override public String name() { return "my-custom"; }
+    @Override public String module() { return "custom"; }
+    @Override public String description() { return "自定义示例"; }
+    @Override
+    public void run(Map&lt;String, String&gt; args) {
+        log.info("[PASS] 自定义示例运行成功");
+    }
+}
+
+// 注册：在 META-INF/extensions/com.chua.example.spi.Example 中添加
+// com.chua.example.custom.MyCustomExample
+
+// 运行
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=my-custom</pre>
+
+<!-- ========== 五、测试说明 ========== -->
+<h2 id="testing">五、测试说明 <a class="anchor" href="#testing">#</a></h2>
+
+<h3 id="l2-test-selfcheck">5.1 自检模式</h3>
+<p>每个 Example 类内置完整功能自检，输出 <code>[PASS]</code> / <code>[FAIL]</code> 标记，以退出码 0（全 PASS）或 1（有 FAIL）结束。</p>
+
+<pre>// 自检输出示例（TaskRunnerExample）
+14:30:01.123 INFO  - [PASS] serialChainAndDataDependency
+14:30:01.234 INFO  - [PASS] duplicateIdRejected
+14:30:01.345 INFO  - [PASS] cycleDetectionRejected
+14:30:01.456 INFO  - [PASS] parallelTopLevelOverlap
+14:30:01.567 INFO  - [PASS] anySuccessEarlyExitCancelsRest
+14:30:01.678 INFO  - [PASS] perTaskTimeoutIsolated
+14:30:01.789 INFO  - [PASS] globalRetryRecoversFlakyTask
+14:30:01.890 INFO  - [PASS] asyncExecutionCompletes
+14:30:01.901 INFO  - [PASS] [PASS] TaskRunner 全部场景通过</pre>
+
+<h4>运行全部示例进行批量验证：</h4>
+<pre># 方式一：通过 ExampleRunner 自动运行已注册 SPI
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner
+
+# 方式二：使用测试脚本
+cd utils-support-extra-parent/utils-support-example-starter
+run-test.bat</pre>
+
+<h3 id="l2-test-coverage">5.2 覆盖矩阵</h3>
+<p>每个 Example 类使用 <code>单元测试覆盖矩阵.md</code> 和 <code>单元测试能力矩阵.md</code> 记录覆盖情况。</p>
+
+<h4>当前 Example 体系覆盖统计：</h4>
 <table>
-<tr><th>能力维度</th><th>覆盖场景</th><th>状态</th></tr>
-<tr><td>串行依赖编排 (DAG)</td><td>taskrunner afterNode / dependsNode / 多前驱汇聚</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>并行执行 (Fork-Join)</td><td>taskrunner 最外层并行 / pipeline Fork 并行+错误策略</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>Dataflow 就绪调度</td><td>taskrunner 无层间屏障（c-start=1ms 实证）</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>5 种完成策略</td><td>allSuccess / anySuccess / successAtLeast / failAtLeast / successRate(0.8)</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>熔断降级</td><td>taskrunner failureThreshold + circuitBreaker + fallback</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>超时/重试</td><td>taskrunner per-task + global / timeout 隔离 / retry fibonacci</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>取消/中断</td><td>taskrunner cancel(true) 201ms 送达 / timeWheel cancel 精确停止</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>同步/异步/响应式</td><td>executeSync / execute(Future) / executeReactor(Mono) + watch(Flux)</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>事件流/可观测性</td><td>RUN/NODE 生命周期事件 + 多监听器</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>持久化(I/O)</td><td>Pipeline WAL 断点恢复 / backup 文件往返 / persistent queue</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>SPI 扩展点</td><td>RunnerProvider @Spi / MessagePush 多渠道 / ShmQueueProvider(native)</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>并发原语</td><td>无锁队列 / 偏移计数 / ThreadFlow / offset flow</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>幂等/去重</td><td>Deduplicator TTL 过期 + clear</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>重试流</td><td>恢复/重试耗尽 fallback/异常过滤/监听器计数</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>Cron/调度</td><td>解析推算 + 非法拒绝 + 3种Trigger + Provider生命周期</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>分支处理</td><td>惰性求值/条件组/null免疫/异常双通道/熔开兜底/afterBranch</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>流程引擎</td><td>JSON导入导出/traceId/快照持久化/轨迹还原</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>管线全链路</td><td>Action状态机/决策路由/并行fork/重试/回调/WAL/Unit聚合/树打印</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>分布式任务分发</td><td>TaskManager CRUD + InMemoryDispatcher + NodeTable 注册序 + 策略选择</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>惰性加载</td><td>单例懒加载/重载/并发竞态/null校验</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>Webhook 消息</td><td>SPI解析/url缺失/不可达优雅失败</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>邮件消息</td><td>EmailPush 已实现（@Spi("email")），真实发送需 SMTP 配置</td><td><span class="tag tag-opt">待配置</span></td></tr>
-<tr><td>全局维度锁</td><td>节点注册序确定性 + cancelled Future 先绑定消除竞态 + 编码防线</td><td><span class="tag tag-pass">已覆盖</span></td></tr>
-<tr><td>环境门槛项</td><td>ShmQueue(需native) / 消息真实渠道(需token) / script/taskdistribution(需分布式)</td><td><span class="tag tag-orange">待环境</span></td></tr>
+<tr><th>领域</th><th>Example 数</th><th>场景数</th><th>状态</th></tr>
+<tr><td>任务编排 (TaskRunner)</td><td>1</td><td>18</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>时间轮 v2</td><td>1</td><td>10</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>管线 (Pipeline)</td><td>12</td><td>10</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>分支处理</td><td>1</td><td>15</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>任务组件 (重试/调度/异步/备份)</td><td>4</td><td>14</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>并发 (无锁队列/ThreadFlow)</td><td>4</td><td>5</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>任务分发 (TaskDistribution)</td><td>1</td><td>3+</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>流程引擎 (Flow)</td><td>4</td><td>4</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>缓存/加载 (Loader)</td><td>1</td><td>4</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>消息 (Webhook)</td><td>1</td><td>3</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>工具类 (TreeUtils)</td><td>1</td><td>12</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>网络 (HttpServer)</td><td>2</td><td>22</td><td><span class="tag tag-pass">PASS</span></td></tr>
 </table>
 
-<!-- ============ 现有功能/文档/示例卡片 ============ -->
-<div class="section-title">📊 性能与基准</div>
-<div class="grid">
-    <a class="card" href="server压测报告.html"><div class="card-icon">&#9889;</div><h2>Server 压测报告</h2><p>12 种 HTTP/TCP/Proxy 全量压测，TPS/延迟分位数。</p></a>
-    <a class="card" href="Server并发测试.html"><div class="card-icon">&#128202;</div><h2>Server 并发基准</h2><p>AIO/NIO/Vertx/JDK 横向对比。</p></a>
-    <a class="card" href="datasync压力测试报告.html"><div class="card-icon">&#9889;</div><h2>DataSync 压力测试</h2><p>10M 行 / 812K rows/s。</p></a>
+<div class="callout callout-warn">
+<strong>环境门槛项：</strong>ShmQueue（需 native 模块）、消息真实渠道（需 token/配置）、期待环境就绪后补全。
 </div>
 
-<div class="section-title">💡 示例文档 · AI 与语音</div>
-<div class="grid">
-    <a class="card" href="示例-大模型对话.html"><div class="card-icon">&#128172;</div><h2>大模型对话</h2><p>通义千问 Qwen Proxy，零成本。</p></a>
-    <a class="card" href="示例-文本嵌入.html"><div class="card-icon">&#128202;</div><h2>文本嵌入</h2><p>BGE/MiniLM 离线向量化。</p></a>
-    <a class="card" href="示例-视觉AI.html"><div class="card-icon">&#128065;</div><h2>视觉 AI</h2><p>YOLO-World/RemBG/深度估计。</p></a>
-    <a class="card" href="示例-语音识别STT.html"><div class="card-icon">&#127908;</div><h2>语音识别 STT</h2><p>Whisper 大模型语音转文字。</p></a>
-    <a class="card" href="示例-语音合成TTS.html"><div class="card-icon">&#128266;</div><h2>语音合成 TTS</h2><p>PocketTTS 轻量级合成。</p></a>
-    <a class="card" href="示例-RAG检索增强生成.html"><div class="card-icon">&#128203;</div><h2>RAG 检索增强生成</h2><p>向量检索 + LlamaIndex 集成。</p></a>
+<!-- ========== 六、压测说明 ========== -->
+<h2 id="benchmark">六、压测说明 <a class="anchor" href="#benchmark">#</a></h2>
+<p>Benchmark 类统一使用 <code>System.nanoTime()</code> 精确计时 + 预热（默认 1,000 次）+ 格式化表格输出。所有 Benchmark 支持 <code>--iterations=N</code> 调整轮次。</p>
+
+<h3 id="l2-bm-tools">6.1 工具类基准</h3>
+<h4>BeanUtilsBenchmarkExample</h4>
+<pre>java --enable-preview -cp target/classes \
+    com.chua.example.utils.BeanUtilsBenchmarkExample
+
+java --enable-preview -cp target/classes \
+    com.chua.example.utils.BeanUtilsBenchmarkExample --iterations=500000
+
+# 输出示例：
+[PERF] ===== BeanUtils 基准（迭代 100000 次）=====
+[PERF] 场景                                  耗时(ms)       ops/s          us/call     迭代
+[PERF] copyProperties(src,target)                 12      8,333,333          0.120   100000
+[PERF] copyProperties(src,Target.class)           18      5,555,556          0.180   100000
+[PERF] objectToMap(src)                            9     11,111,111          0.090   100000</pre>
+
+<h4>IdUtilsBenchmarkExample</h4>
+<pre>java --enable-preview -cp target/classes \
+    com.chua.example.utils.IdUtilsBenchmarkExample --iterations=500000
+
+# 输出示例：
+[PERF] ===== IdUtils 基准（迭代 500000 次）=====
+[PERF] 场景                          耗时(ms)       ops/s          us/call     迭代
+[PERF] getId(person)                        15     33,333,333          0.030   500000
+[PERF] getPartialId(person,0.6)             20     25,000,000          0.040   500000</pre>
+
+<h3 id="l2-bm-network">6.2 网络压测</h3>
+<h4>HttpServerBenchmarkExample（全子类一键式压测）</h4>
+<pre># 完整压测，输出 HTML 报告
+java --enable-preview -cp target/classes \
+    com.chua.example.network.http.HttpServerBenchmarkExample \
+    --servers=jdk,nio,vertx-http,http \
+    --concurrency=100,500,1000,2000 \
+    --delays=0,1000,3000,5000 \
+    --payload=128 \
+    --report=target/http-server-benchmark.html
+
+# 通过 ExampleRunner 运行
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --mode=perf
+
+# Sweep 模式（扫描全量并发等级）
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --mode=sweep
+
+# 对比所有服务端
+java --enable-preview -cp target/classes \
+    com.chua.example.runner.ExampleRunner --example=http-server --mode=all-servers</pre>
+
+<h4>AioVsNioBenchmarkExample（传输层对比）</h4>
+<pre>java --enable-preview -cp target/classes \
+    com.chua.example.network.nio.AioVsNioBenchmarkExample
+
+# NIO(Reactor) vs AIO(IOCP) 对比
+# 覆盖不同并发等级下的 RPS / 延迟分位数 / 内存占用</pre>
+
+<h3 id="l2-bm-serialization">6.3 序列化基准</h3>
+<h4>SerializationBenchmarkExample（全部序列化实现）</h4>
+<pre>java --enable-preview -cp target/classes \
+    com.chua.example.lang.serialize.SerializationBenchmarkExample
+
+# 覆盖实现：Jackson / Gson / Fastjson / Fastjson2 /
+# Fury / Protobuf / Smile / Java / JsonSerializer
+# 指标：序列化吞吐 + 反序列化吞吐 + 体积</pre>
+
+<h3 id="l2-bm-tts">6.4 TTS 基准</h3>
+<h4>TtsBenchmarkExample</h4>
+<pre>java --enable-preview -cp target/classes \
+    com.chua.example.onnx.TtsBenchmarkExample
+
+# 指标：RTF（实时因子）+ 内存占用
+# 评估 TTS 引擎的实时性和资源消耗</pre>
+
+<h3 id="l2-bm-image">6.5 图像处理基准</h3>
+<h4>ImageProcessorBenchmarkExample</h4>
+<pre>java --enable-preview -cp target/classes \
+    com.chua.example.image.ImageProcessorBenchmarkExample
+
+# 10 种图像操作：JDK vs Rust 实现对比
+# 覆盖：缩放/旋转/裁剪/滤镜/灰度/格式转换等</pre>
+
+<div class="callout callout-green">
+<strong>压测报告：</strong>详细测试报告可查看 <a href="server压测报告.html" style="color:var(--accent);">Server 压测报告</a>、<a href="Server并发测试.html" style="color:var(--accent);">Server 并发基准</a>、<a href="datasync压力测试报告.html" style="color:var(--accent);">DataSync 压力测试</a>。
 </div>
 
-<div class="section-title">📖 使用文档</div>
-<div class="grid">
-    <a class="card" href="集群服务器使用说明.html"><div class="card-icon">&#9881;</div><h2>ClusterServer</h2><p>无中心化集群节点，对等网格自动发现。</p></a>
+<!-- ========== 七、构建与运行脚本 ========== -->
+<h2 id="build">七、构建与运行脚本 <a class="anchor" href="#build">#</a></h2>
+
+<h3>构建</h3>
+<pre># 完整构建
+mvn clean install -pl utils-support-extra-parent/utils-support-example-starter
+
+# 跳过测试构建
+mvn clean install -pl utils-support-extra-parent/utils-support-example-starter -DskipTests
+
+# 构建 fat jar
+cd utils-support-extra-parent/utils-support-example-starter
+build-fat-jar.bat</pre>
+
+<h3>运行脚本一览</h3>
+<table>
+<tr><th>脚本</th><th>说明</th></tr>
+<tr><td>run-test.bat</td><td>运行测试</td></tr>
+<tr><td>run_cscan.cmd</td><td>代码扫描</td></tr>
+<tr><td>run_seed.cmd</td><td>种子数据</td></tr>
+<tr><td>run_mesh_direct.bat</td><td>Mesh 直接模式</td></tr>
+<tr><td>run_peer_mesh_direct.bat</td><td>Peer Mesh 直接模式</td></tr>
+<tr><td>run_mesh_direct.ps1</td><td>Mesh 直接模式 (PowerShell)</td></tr>
+<tr><td>run_mesh_foreground.ps1</td><td>Mesh 前台运行</td></tr>
+<tr><td>build-fat-jar.bat</td><td>构建 fat jar 包</td></tr>
+</table>
+
+<h3>Maven 常用命令</h3>
+<pre># 运行特定 Example
+mvn -pl utils-support-extra-parent/utils-support-example-starter exec:java \
+    -Dexec.mainClass=com.chua.example.taskrunner.TaskRunnerExample
+
+# 带参数运行
+mvn -pl utils-support-extra-parent/utils-support-example-starter exec:java \
+    -Dexec.mainClass=com.chua.example.taskrunner.TaskRunnerExample \
+    -Dexec.args="--type=serial"
+
+# ExampleRunner 运行
+mvn -pl utils-support-extra-parent/utils-support-example-starter exec:java \
+    -Dexec.mainClass=com.chua.example.runner.ExampleRunner \
+    -Dexec.args="--example=http-server --type=nio --mode=perf"</pre>
+
+<!-- ========== 八、常见问题 ========== -->
+<h2 id="faq">八、常见问题 <a class="anchor" href="#faq">#</a></h2>
+
+<div class="callout callout-warn">
+<strong>Q: 运行时报 ClassNotFoundException？</strong><br>
+确保先完成 <code>mvn compile</code> 或 <code>mvn install</code>。某些依赖（如 native 模块、特定模型）可能未包含在默认 classpath 中，使用 fat jar 或完整构建可以解决。
 </div>
 
-<div class="section-title">🔗 外部链接</div>
-<div class="grid">
-    <a class="card" href="https://gitee.com/achtk/utils-support-parent-starter" target="_blank"><div class="card-icon">&#128214;</div><h2>Gitee 仓库</h2><p>源码、提交历史、Issue。</p></a>
-    <a class="card" href="https://github.com/CHTK001/utils-support-parent-starter" target="_blank"><div class="card-icon">&#128187;</div><h2>GitHub 镜像</h2><p>Star & Fork。</p></a>
+<div class="callout callout-warn">
+<strong>Q: --enable-preview 错误？</strong><br>
+项目使用 Java 25 preview 特性，必须添加 <code>--enable-preview</code> JVM 参数。使用 Maven 时已在 pom.xml 中自动配置；直接 <code>java</code> 运行时需手动添加。
 </div>
 
-<div class="footer">utils-support-parent-starter &copy; 2026 &middot; Apache License 2.0 &middot; JDK 25</div>
+<div class="callout callout-warn">
+<strong>Q: 某些 Example 编译失败/被排除？</strong><br>
+pom.xml 的 <code>exec-maven-plugin</code> 中 <code>&lt;exclude&gt;</code> 列表排除了 15 个旧示例（如 FlowTraceExample, HttpClientExample 等），确保新增 Example 时也需更新排除列表。
+</div>
+
+<div class="callout callout-warn">
+<strong>Q: ONNX 模型路径配置？</strong><br>
+通过 <code>-Donnx.model.path=/path/to/models</code> 系统属性或 <code>ONNX_MODEL_PATH</code> 环境变量指定模型权重路径。模型文件从 <code>utils-support-models-parent</code> 模块获取。
+</div>
+
+<div class="callout callout-warn">
+<strong>Q: ShmQueue 测试跳过？</strong><br>
+ShmQueue 需要 <code>utils-support-native-parent</code> 中的 native 实现。如需使用，先构建 native 模块并将对应的 native 库（dll/so）加入 java.library.path。
+</div>
+
+<div class="callout callout-green">
+<strong>Q: 如何添加新的 Example？</strong><br>
+1. 在对应子包下创建 Java 类，实现 <code>main()</code> 方法<br>
+2. 如需 SPI 注册，实现 <code>com.chua.example.spi.Example</code> 接口<br>
+3. 在 <code>META-INF/extensions/com.chua.example.spi.Example</code> 中注册 SPI<br>
+4. 更新 pom.xml 排除列表（如需要）<br>
+5. Example 类遵循 <code>[PASS]/[FAIL]</code> 输出约定 + 退出码 0/1
+</div>
+
+</div> <!-- /content -->
+
+<div class="footer">
+utils-support-example-starter &copy; 2026 &middot; Apache License 2.0 &middot; JDK 25
+</div>
+
 </body>
 </html>

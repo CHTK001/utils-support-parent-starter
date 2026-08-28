@@ -99,7 +99,12 @@
 | 输入 [1,3,512,512] 推理 | ✅ 通过，输出 shape [1,3,512,512] |
 | Lena 人脸 crop 端到端 | ✅ 通过，输出范围 -1.16~1.29，有效人脸修复 |
 | ONNX 结构校验 | ✅ onnx.checker 通过 |
+| **.pth vs ONNX 数值一致性** | ✅ SSIM=0.994 PSNR=47.5dB mean_diff=0.66/255 |
+| ONNX 推理耗时 | ~1100ms（单线程 ORT CPU） |
 | 模块入库路径 | `face/restoration/gfpgan/GFPGANv1.3_clean.onnx`（346MB） |
+| 导出方式 | `torch.onnx.export(legacy, opset=18)` + shape_inference + DOUBLE type 清零 |
+
+> **导出技术说明**：原生 `torch.onnx.export(legacy)` 会将 Python float 标量（如 `eps=1e-8`、`2**0.5`）注册为 `DOUBLE` initializer，导致 ORT CPU EP 报 `Conv NOT_IMPLEMENTED`。修复方案：导出后批量将 initializer/Constant 节点的 DOUBLE 属性转为 FLOAT，再运行 `shape_inference` 并清零所有 value_info 的类型标注。
 
 ### CodeFormer
 | 测试项 | 结果 |
