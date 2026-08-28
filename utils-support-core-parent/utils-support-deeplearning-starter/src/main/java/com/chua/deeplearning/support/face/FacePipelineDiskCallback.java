@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 人脸管线磁盘回调：自动将各阶段中间图片落盘，供人工/脚本查看真实流程效果。
  *
- * <p>各阶段图片输出到指定目录：对齐人脸、修复人脸、分割mask、贴回结果。</p>
+ * <p>各阶段图片输出到指定目录：对齐人脸、修复人脸。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -50,22 +50,6 @@ public class FacePipelineDiskCallback implements FacePipelineCallback {
     @Override
     public void onRestore(int faceIndex, byte[] restored) {
         write(restored, "restore_" + faceIndex + ".png");
-    }
-
-    @Override
-    public void onMask(int faceIndex, byte[] mask) {
-        write(mask, "mask_" + faceIndex + ".png");
-    }
-
-    @Override
-    public void onPaste(int faceIndex, byte[] pasted) {
-        write(pasted, "pasted_" + faceIndex + ".png");
-    }
-
-    @Override
-    public void onComplete(byte[] imageData, byte[] result, int faceCount, long elapsedMs) {
-        log.info("[face-callback] 完成 {} 张人脸，耗时 {}ms", faceCount, elapsedMs);
-        write(result, "result.png");
     }
 
     /**
