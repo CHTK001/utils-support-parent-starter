@@ -2,6 +2,7 @@ package com.chua.common.support.network.sip;
 
 import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
 import com.chua.common.support.network.crypto.AesGcmUtils;
+import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,11 +82,6 @@ public class SipClient {
      * 数据面多路复用开关（单条连接承载同角色全部隧道，两侧需一致）
      */
     private volatile boolean muxData;
-
-    /**
-     * 数据平面模式（relay 中继 / direct 直连）
-     */
-    private volatile String dataPlaneMode = SipConfig.MODE_RELAY;
 
     /**
      * visitor 角色复用连接
@@ -215,20 +211,6 @@ public class SipClient {
      */
     public SipClient mux(boolean muxData) {
         this.muxData = muxData;
-        return this;
-    }
-
-    /**
-     * 设置数据平面模式（relay 中继 / direct 直连）。
-     *
-     * <p>直连模式下，visitor 尝试直接连接到 provider，数据不走服务器中转；
-     * 直连失败时自动回退到中继模式。</p>
-     *
-     * @param dataPlaneMode 模式（"relay" 或 "direct"）
-     * @return 当前客户端实例，支持链式调用
-     */
-    public SipClient dataPlaneMode(String dataPlaneMode) {
-        this.dataPlaneMode = dataPlaneMode != null ? dataPlaneMode : SipConfig.MODE_RELAY;
         return this;
     }
 
@@ -431,8 +413,8 @@ public class SipClient {
         }
         SipTunnelSession session = new SipTunnelSession(this, channelId, "");
         openTunnels.put(channelId, session);
-        // auto/direct 模式：尝试直接连接 provider
-        if ((SipConfig.MODE_DIRECT.equals(dataPlaneMode) || SipConfig.MODE_AUTO.equals(dataPlaneMode)) && !providerAddr.isEmpty()) {
+        // 双模式：始终尝试直连 provider，无地址或失败时自动回退到服务器中继
+        if (!providerAddr.isEmpty()) {
             connectDirectStream(session, providerAddr, "visitor");
         } else {
             connectDataStream(session, "visitor");
@@ -505,6 +487,8 @@ public class SipClient {
     /**
      * 建立数据平面连接并绑定到会话（直连模式：连接到指定地址）。
      *
+     * <p>双模式支持：直连失败时自动回退到服务器中继，不关闭会话。</p>
+     *
      * @param session 隧道会话
      * @param role    连接角色（visitor / provider）
      * @param host    目标主机地址
@@ -527,13 +511,7 @@ public class SipClient {
             session.attachStream(stream);
             log.debug("SIP 数据平面连接已建立: channel={}, role={}, host={}:{}", session.getChannelId(), role, host, port);
         } catch (Exception e) {
-            // auto 模式：直连失败自动回退到中继，不关闭会话
-            if (SipConfig.MODE_AUTO.equals(dataPlaneMode)) {
-                log.warn("SIP auto 模式直连失败，回退到中继: {} ({})", host + ":" + port, e.getMessage());
-                connectDataStream(session, role);
-                return;
-            }
-            log.warn("SIP 数据平面连接失败: channel={}, role={}", session.getChannelId(), role);
+            log.warn("SIP 数据平面连接失败: channel={}, role={}, host={}:{}", session.getChannelId(), role, host, port);
             session.dispatchClose();
         }
     }
@@ -548,7 +526,7 @@ public class SipClient {
     private void connectDirectStream(SipTunnelSession session, String providerAddr, String role) {
         int colon = providerAddr.lastIndexOf(':');
         if (colon <= 0) {
-            log.warn("SIP 直连模式地址格式非法: {}", providerAddr);
+            log.warn("SIP 直连地址格式非法: {}", providerAddr);
             connectDataStream(session, role);
             return;
         }
@@ -557,16 +535,16 @@ public class SipClient {
         try {
             port = Integer.parseInt(providerAddr.substring(colon + 1).trim());
         } catch (NumberFormatException e) {
-            log.warn("SIP 直连模式端口解析失败: {}", providerAddr);
+            log.warn("SIP 直连端口解析失败: {}", providerAddr);
             connectDataStream(session, role);
             return;
         }
-        log.info("SIP 尝试直连: {} -> {} (回退中继)", role, providerAddr);
+        log.info("SIP 尝试直连: {} -> {}:{}", role, host, port);
         try {
             connectDataStreamTo(session, role, host, port);
-            log.info("SIP 直连成功: {} <-> {}", role, providerAddr);
+            log.info("SIP 直连成功: {} <-> {}:{}", role, host, port);
         } catch (Exception e) {
-            log.warn("SIP 直连失败，回退到中继: {} ({})", providerAddr, e.getMessage());
+            log.warn("SIP 直连失败，回退到中继: {}:{} ({})", host, port, e.getMessage());
             connectDataStream(session, role);
         }
     }
@@ -671,6 +649,35 @@ public class SipClient {
      */
     public TunnelDsl tunnel(String serviceName) {
         return new TunnelDsl(serviceName);
+    }
+
+    /**
+     * 启动 SOCKS5 代理，让三方软件通过 SOCKS5 协议访问隧道服务。
+     *
+     * <p>三方软件（浏览器、SSH、数据库客户端、FTP 客户端等）只需配置一个 SOCKS5 代理地址，
+     * 连接目标域名时自动路由到对应的 SIP 隧道服务，无需为每个服务单独开端口映射。</p>
+     *
+     * <p>路由规则：SOCKS5 请求的目标主机名即为隧道服务名称。</p>
+     *
+     * <pre>{@code
+     * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460")
+     *         .token("xxx")
+     *         .socks5(1080);
+     * // 浏览器配置 SOCKS5 代理 localhost:1080
+     * // 访问 "mariadb" → 自动路由到 tunnel "mariadb" 服务
+     * }</pre>
+     *
+     * @param port 本地 SOCKS5 代理端口
+     * @return SOCKS5 代理实例
+     */
+    public SipSocks5Proxy socks5(int port) {
+        var setting = ServerSetting.defaults();
+        setting.setPort(port);
+        setting.setHost("127.0.0.1");
+        var proxy = new SipSocks5Proxy(setting, this);
+        proxy.start();
+        log.info("SIP SOCKS5 代理已启动: 127.0.0.1:{} -> 所有隧道服务", port);
+        return proxy;
     }
 
     /**

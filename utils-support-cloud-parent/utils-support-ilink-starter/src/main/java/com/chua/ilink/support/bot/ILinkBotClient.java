@@ -449,9 +449,11 @@ public class ILinkBotClient implements BotClient {
             }
             String nextBuf = getString(resp, "get_updates_buf");
             if (nextBuf != null) { getUpdatesBuf = nextBuf; }
-            var items = resp.get("messages");
-            if (!(items instanceof List<?> list)) {
-                log.debug("[ILink] getupdates 响应无 messages: {}", resp);
+            // 消息列表字段为 msgs（兼容 messages）
+            Object itemsObj = resp.get("msgs");
+            if (itemsObj == null) { itemsObj = resp.get("messages"); }
+            if (!(itemsObj instanceof List<?> list)) {
+                log.debug("[ILink] getupdates 响应无 msgs: {}", resp);
                 return result;
             }
             log.info("[ILink] getupdates 返回 {} 条消息", list.size());
@@ -459,8 +461,9 @@ public class ILinkBotClient implements BotClient {
                 if (!(item instanceof Map)) { continue; }
                 @SuppressWarnings("unchecked")
                 Map<String, Object> msg = (Map<String, Object>) item;
-                String fromUser = getString(msg, "fromUserId");
-                String ctxToken = getString(msg, "contextToken");
+                // 字段为 snake_case：from_user_id / context_token
+                String fromUser = firstNonBlank(msg, "from_user_id", "fromUserId");
+                String ctxToken = firstNonBlank(msg, "context_token", "contextToken");
                 if (ctxToken != null) { contextTokens.put(fromUser, ctxToken); }
                 String textContent = extractNestedText(msg);
                 log.info("[ILink] 收到消息 from={} content={}", fromUser, textContent);
