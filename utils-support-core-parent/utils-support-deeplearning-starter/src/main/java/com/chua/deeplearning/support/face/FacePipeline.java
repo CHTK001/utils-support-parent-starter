@@ -1395,48 +1395,47 @@ public class FacePipeline {
     }
 
     /**
-     * 完整人脸修复管线：检测 → 5点对齐 → 修复 → 分割mask → 逆仿射贴回。
+     * 人脸修复管线：检测 → 人脸裁剪 + 5点对齐 → 修复。
      *
-     * <p>AIAS face_restoration_sdk 同款流程：对场景图中每张人脸执行
-     * 5点仿射对齐到 FFHQ 512×512 标准位置，然后运行修复模型（GFPGAN/CodeFormer），
-     * 再通过 ParseNet 生成软mask，最后逆仿射贴回原图并用 mask 融合背景。</p>
+     * <p>对场景图中每张检出的人脸执行：5点仿射对齐到 FFHQ 512×512 标准位置，
+     * 然后运行修复模型（GFPGAN/CodeFormer），返回各张人脸的对齐图与修复图。
+     * 修复结果不贴回原图，调用方自行决定后续处理。</p>
      *
      * @param imageData 场景图
-     * @return 修复后的完整场景图，无人脸或无修复模型时原样返回
+     * @return 修复结果列表（每张人脸：框、对齐图、修复图），无人脸或无修复模型时返回空列表
      */
-    public byte[] restoreWithAlign(byte[] imageData) {
+    public List<FaceRestoreResult> restoreWithAlign(byte[] imageData) {
         return restoreWithAlign(imageData, null);
     }
 
     /**
-     * 完整人脸修复管线（带回调）。
+     * 人脸修复管线（带回调）。
      *
      * @param imageData 场景图
      * @param callback  回调，可为 null
-     * @return 修复后的完整场景图
+     * @return 修复结果列表
      */
-    public byte[] restoreWithAlign(byte[] imageData, FacePipelineCallback callback) {
+    public List<FaceRestoreResult> restoreWithAlign(byte[] imageData, FacePipelineCallback callback) {
         long t0 = System.currentTimeMillis();
         FacePipelineCallback cb = callback != null ? callback : this.callback;
 
         // 1. 检测人脸（含5点关键点）
         List<PredictRectangle> boxes = detectBoxes(imageData);
-        if (boxes.isEmpty()) {
-            return imageData;
-        }
         if (cb != null) {
             cb.onDetect(imageData, boxes);
+        }
+        if (boxes.isEmpty()) {
+            return List.of();
         }
 
         // 解码原图
         ImageUtils.load();
         Mat src = ImageUtils.decode(imageData);
         if (src == null || src.empty()) {
-            return imageData;
+            return List.of();
         }
 
-        int faceCount = 0;
-        Mat result = src.clone();
+        List<FaceRestoreResult> results = new ArrayList<>();
 
         for (int i = 0; i < boxes.size(); i++) {
             PredictRectangle box = boxes.get(i);
@@ -1450,165 +1449,52 @@ public class FacePipeline {
             }
 
             // 2.5点仿射对齐到 FFHQ 512×512 标准位置
-            Mat affine = null;
             Mat aligned = null;
             try {
-                affine = ImageUtils.estimateFaceAffine512(kps);
+                Mat affine = ImageUtils.estimateFaceAffine512(kps);
                 aligned = new Mat();
                 org.opencv.imgproc.Imgproc.warpAffine(src, aligned, affine,
                         new Size(512, 512),
                         org.opencv.imgproc.Imgproc.INTER_CUBIC,
                         org.opencv.core.Core.BORDER_REPLICATE,
                         new Scalar(135, 133, 132));
+                affine.release();
             } catch (Exception e) {
                 log.warn("[face-pipeline] #{} 5点对齐失败: {}", i, e.getMessage());
                 continue;
             }
 
+            byte[] alignedBytes = ImageUtils.encode(aligned);
             if (cb != null) {
-                byte[] alignedBytes = ImageUtils.encode(aligned);
                 cb.onAlign(i, box, alignedBytes);
             }
 
             // 3. 修复（GFPGAN 或 CodeFormer）
-            if (restorer == null) {
-                log.debug("[face-pipeline] #{} 未配置修复模型，跳过修复", i);
-                aligned.release();
-                affine.release();
-                continue;
-            }
-            byte[] alignedBytes = ImageUtils.encode(aligned);
             byte[] restoredBytes;
-            try {
-                restoredBytes = restorer.enhance(alignedBytes);
-            } catch (Exception e) {
-                log.warn("[face-pipeline] #{} 修复失败: {}", i, e.getMessage());
-                aligned.release();
-                affine.release();
-                continue;
+            if (restorer == null) {
+                log.debug("[face-pipeline] #{} 未配置修复模型，返回对齐图", i);
+                restoredBytes = alignedBytes;
+            } else {
+                try {
+                    restoredBytes = restorer.enhance(alignedBytes);
+                } catch (Exception e) {
+                    log.warn("[face-pipeline] #{} 修复失败: {}", i, e.getMessage());
+                    restoredBytes = alignedBytes;
+                }
             }
 
             if (cb != null) {
                 cb.onRestore(i, restoredBytes);
             }
 
-            // 4. 分割软mask（ParseNet）
-            Mat softMask = null;
-            if (faceSeg != null) {
-                try {
-                    byte[] maskBytes = faceSeg.enhance(restoredBytes);
-                    softMask = ImageUtils.decode(maskBytes);
-                    if (softMask != null && softMask.channels() > 1) {
-                        Mat gray = new Mat();
-                        org.opencv.imgproc.Imgproc.cvtColor(softMask, gray,
-                                org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY);
-                        softMask.release();
-                        softMask = gray;
-                    }
-                } catch (Exception e) {
-                    log.warn("[face-pipeline] #{} 分割失败: {}", i, e.getMessage());
-                }
-            }
-
-            if (cb != null && softMask != null) {
-                byte[] maskBytes = ImageUtils.encode(softMask);
-                cb.onMask(i, maskBytes);
-            }
-
-            // 5. 逆仿射贴回原图 + mask 融合
-            Mat restoredMat = ImageUtils.decode(restoredBytes);
-            Mat pasted;
-            if (softMask != null) {
-                pasted = ImageUtils.pasteFace(result, restoredMat, softMask, affine);
-            } else {
-                // 无mask时直接逆仿射贴回
-                pasted = pasteFaceSimple(result, restoredMat, affine);
-            }
-
-            if (cb != null) {
-                byte[] pastedBytes = ImageUtils.encode(pasted);
-                cb.onPaste(i, pastedBytes);
-            }
-
-            // 更新结果
-            result.release();
-            result = pasted;
-
-            // 释放资源
+            results.add(new FaceRestoreResult(box, alignedBytes, restoredBytes));
             aligned.release();
-            affine.release();
-            restoredMat.release();
-            if (softMask != null) {
-                softMask.release();
-            }
-            faceCount++;
         }
 
-        byte[] output = ImageUtils.encode(result);
         src.release();
-        result.release();
-
-        if (cb != null) {
-            cb.onComplete(imageData, output, faceCount, System.currentTimeMillis() - t0);
-        }
-
         log.info("[face-pipeline] restoreWithAlign 完成: {}张人脸, 耗时{}ms",
-                faceCount, System.currentTimeMillis() - t0);
-        return output;
-    }
-
-    /**
-     * 无mask的简单逆仿射贴回。
-     *
-     * @param background  原图
-     * @param restoredFace 修复后的对齐人脸
-     * @param affine       对齐仿射矩阵
-     * @return 贴回后的图
-     */
-    private static Mat pasteFaceSimple(Mat background, Mat restoredFace, Mat affine) {
-        Mat inverseAffine = new Mat();
-        org.opencv.imgproc.Imgproc.invertAffineTransform(affine, inverseAffine);
-        Mat invRestored = new Mat();
-        org.opencv.imgproc.Imgproc.warpAffine(restoredFace, invRestored, inverseAffine,
-                new Size(background.cols(), background.rows()),
-                org.opencv.imgproc.Imgproc.INTER_LINEAR,
-                org.opencv.core.Core.BORDER_CONSTANT, new Scalar(0, 0, 0));
-        // 用简易阈值mask融合（人脸区域覆盖，边缘渐变）
-        Mat mask = new Mat();
-        org.opencv.imgproc.Imgproc.warpAffine(
-                Mat.ones(restoredFace.size(), org.opencv.core.CvType.CV_32FC1),
-                mask, inverseAffine, new Size(background.cols(), background.rows()),
-                org.opencv.imgproc.Imgproc.INTER_LINEAR);
-        Mat bgF = new Mat();
-        Mat reF = new Mat();
-        background.convertTo(bgF, org.opencv.core.CvType.CV_32FC3);
-        invRestored.convertTo(reF, org.opencv.core.CvType.CV_32FC3);
-        Mat mask3 = new Mat();
-        java.util.List<Mat> channels = java.util.List.of(mask, mask, mask);
-        org.opencv.core.Core.merge(channels, mask3);
-        Mat oneMinus = new Mat();
-        Mat ones = new Mat(bgF.size(), org.opencv.core.CvType.CV_32FC3, Scalar.all(1.0));
-        org.opencv.core.Core.subtract(ones, mask3, oneMinus);
-        Mat a = new Mat();
-        Mat b = new Mat();
-        org.opencv.core.Core.multiply(mask3, reF, a);
-        org.opencv.core.Core.multiply(oneMinus, bgF, b);
-        Mat sum = new Mat();
-        org.opencv.core.Core.add(a, b, sum);
-        Mat result = new Mat();
-        sum.convertTo(result, org.opencv.core.CvType.CV_8UC3);
-        inverseAffine.release();
-        invRestored.release();
-        mask.release();
-        bgF.release();
-        reF.release();
-        mask3.release();
-        ones.release();
-        oneMinus.release();
-        a.release();
-        b.release();
-        sum.release();
-        return result;
+                results.size(), System.currentTimeMillis() - t0);
+        return results;
     }
 
     /**

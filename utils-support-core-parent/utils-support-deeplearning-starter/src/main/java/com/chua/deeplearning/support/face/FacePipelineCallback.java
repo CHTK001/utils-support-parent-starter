@@ -41,33 +41,4 @@ public interface FacePipelineCallback {
      */
     default void onRestore(int faceIndex, byte[] restored) {
     }
-
-    /**
-     * 人脸分割mask生成回调。
-     *
-     * @param faceIndex 人脸索引
-     * @param mask      分割mask（512×512灰度）
-     */
-    default void onMask(int faceIndex, byte[] mask) {
-    }
-
-    /**
-     * 人脸贴回原图完成回调。
-     *
-     * @param faceIndex 人脸索引
-     * @param pasted    贴回后的完整场景图
-     */
-    default void onPaste(int faceIndex, byte[] pasted) {
-    }
-
-    /**
-     * 管线执行完成回调。
-     *
-     * @param imageData 原始场景图
-     * @param result    最终结果图
-     * @param faceCount 处理的人脸数
-     * @param elapsedMs 耗时毫秒
-     */
-    default void onComplete(byte[] imageData, byte[] result, int faceCount, long elapsedMs) {
-    }
 }
