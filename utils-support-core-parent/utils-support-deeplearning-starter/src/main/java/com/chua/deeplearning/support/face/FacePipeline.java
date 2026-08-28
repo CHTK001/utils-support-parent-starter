@@ -1922,7 +1922,7 @@ public class FacePipeline {
                 src.release();
                 return null;
             }
-            Mat sub = ImageUtils.crop(src, newX1, newY1, cw, ch);
+            Mat sub = ImageUtils.crop(src, new com.chua.deeplearning.support.utils.ImageCropOptions(null, newX1, newY1, cw, ch));
             byte[] result = ImageUtils.encode(sub);
             sub.release();
             src.release();
