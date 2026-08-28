@@ -1058,6 +1058,17 @@ public class FacePipeline {
      * @return 框列表
      */
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
+        List<PredictRectangle> boxes = detectBoxesInner(imageData);
+        if (callback != null) {
+            callback.onDetect(imageData, boxes);
+        }
+        return boxes;
+    }
+
+    /**
+     * 检测框内部实现。
+     */
+    private List<PredictRectangle> detectBoxesInner(byte[] imageData) {
         // 双检测器互补：常规模型检真人、动漫模型检动漫脸；各自异常经 Branch 降级为空，
         // 合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 labelName 判断。
         List<PredictRectangle> regular = Branch.ofBytes(imageData)
@@ -1185,6 +1196,9 @@ public class FacePipeline {
         fc.advance();
         runSingle(fc, identifyPipeline);
         byte[] aligned = fc.currentAlignedFace() != null ? fc.currentAlignedFace() : fc.currentFace();
+        if (callback != null && aligned != null) {
+            callback.onAlign(0, fc.currentBox(), aligned);
+        }
         return new FaceAlignResult(
                 fc.currentBox(),
                 fc.currentFace(),
@@ -1347,7 +1361,28 @@ public class FacePipeline {
         if (restorer == null) {
             return imageData;
         }
-        return restorer.enhance(imageData);
+        byte[] result = restorer.enhance(imageData);
+        if (callback != null) {
+            callback.onRestore(0, result);
+        }
+        return result;
+    }
+
+    /**
+     * 人脸超分（辅助能力）。
+     *
+     * @param imageData 图片
+     * @return 超分后图片，未配置超分模型时原样返回
+     */
+    public byte[] superResolution(byte[] imageData) {
+        if (superResolution == null) {
+            return imageData;
+        }
+        byte[] result = superResolution.enhance(imageData);
+        if (callback != null) {
+            callback.onRestore(0, result);
+        }
+        return result;
     }
 
     /**
