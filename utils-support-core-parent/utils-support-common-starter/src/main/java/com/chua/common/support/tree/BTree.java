@@ -183,6 +183,8 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             return sub;
         }
         // Merge current keys with promoted key and child
+        // B树分裂语义：promotedKey 替换 keys[i]（分隔键更新），
+        // 同时 children[i] 被替换为 split 后的 leftChild（原 node）和 rightChild
         List<K> newKeys = new ArrayList<>(node.keys);
         List<V> newValues = new ArrayList<>(node.values);
         List<BTreeNode<K, V>> newChildren = new ArrayList<>(node.children);
@@ -194,9 +196,14 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
                 newValues.add(i, null);
             }
         } else {
+            // i == keys.size()，没有旧键可替换，直接追加
             newKeys.add(sub.promotedKey);
             newValues.add(sub.promotedValue);
         }
+        // children[i] 被左子树和右子树取代：先移除旧 child，再插入左右两个
+        // 注意：sub 返回的 node 本身已被 splitNode 修改为左子树，无需额外处理
+        newChildren.remove(i);
+        newChildren.add(i, node);
         newChildren.add(i + 1, sub.rightChild);
         if (newKeys.size() <= order - 1) {
             node.keys = newKeys;

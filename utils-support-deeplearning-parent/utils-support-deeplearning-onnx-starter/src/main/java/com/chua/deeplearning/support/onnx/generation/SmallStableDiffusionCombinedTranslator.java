@@ -79,7 +79,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * 权重仓库基础地址（HuggingFace）
      */
     private static final String HF_BASE =
-            "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main";
+            "https://huggingface.co/nmkd/stable-diffusion-1.5-onnx/resolve/main";
 
     /**
      * CLIP tokenizer.json 来源（各 OpenAI CLIP 变体共享同一 BPE 词表）
@@ -533,11 +533,20 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @return 基准目录
      */
     private Path resolveBaseDir() {
-        Path cacheRoot = java.nio.file.Paths.get(
-                System.getProperty("java.io.tmpdir"),
-                "chua-dl-models", "download");
         Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd");
-        return configured != null ? configured : cacheRoot;
+        if (configured != null) {
+            return configured;
+        }
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        long free = java.nio.file.Paths.get(tmpDir).toFile().getFreeSpace();
+        if (free < 5L * 1024 * 1024 * 1024) {
+            Path dDrive = java.nio.file.Paths.get("D:\\chua-dl-models\\small-sd");
+            if (dDrive.toFile().getFreeSpace() > 5L * 1024 * 1024 * 1024) {
+                log.info("[Small SD][编排] C盘空间不足，改用 D:\\chua-dl-models\\small-sd");
+                return dDrive;
+            }
+        }
+        return java.nio.file.Paths.get(tmpDir, "chua-dl-models", "download");
     }
 
     /**

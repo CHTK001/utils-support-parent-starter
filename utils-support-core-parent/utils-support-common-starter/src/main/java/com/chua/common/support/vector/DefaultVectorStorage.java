@@ -639,7 +639,6 @@ public class DefaultVectorStorage implements VectorStorage {
         private Mode mode = Mode.HYBRID;
         private int shardSize = 10000;
         private VectorCompareAlgorithm algorithm;
-        private VectorCompareAlgorithm algorithm;
 
         public Builder dimension(int d) {
             this.dimension = d;
