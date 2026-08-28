@@ -36,5 +36,6 @@
         <module>utils-support-tui-starter</module>
         <module>utils-support-video-processor-starter</module>
         <module>utils-support-example-starter</module>
+        <module>utils-support-playwright-starter</module>
     </modules>
 </project>
