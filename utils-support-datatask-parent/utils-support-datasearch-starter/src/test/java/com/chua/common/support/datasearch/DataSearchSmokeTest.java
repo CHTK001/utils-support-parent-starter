@@ -7,6 +7,7 @@ import com.chua.common.support.datasearch.region.spi.RegionProvider;
 import com.chua.common.support.datasearch.software.spi.SoftwareProvider;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.spi.ResourceProvider;
+import com.chua.common.support.datasearch.video.spi.VideoProviderRegistry;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
@@ -34,6 +35,9 @@ public class DataSearchSmokeTest {
     public static void main(String[] args) {
         String filter = args.length > 0 ? args[0].toLowerCase() : "";
 
+        VideoProviderRegistry.initBlockedResources();
+        System.out.println("[INIT] loaded blocked providers: " + VideoProviderRegistry.getBlockedNames().size());
+
         forEach(ExpressProvider.class, filter, (name, p) ->
                 report(name, () -> size(p.query("SF0000000000001"))));
         forEach(HolidayProvider.class, filter, (name, p) ->
@@ -49,6 +53,12 @@ public class DataSearchSmokeTest {
                 }));
         forEach(ResourceProvider.class, filter, (name, p) ->
                 report(name, () -> {
+                    if (VideoProviderRegistry.isBlocked(name)) {
+                        System.out.printf("[BLOCKED] %-14s (reason: %s)%n", name,
+                                VideoProviderRegistry.getBlockReason(name) != null
+                                        ? VideoProviderRegistry.getBlockReason(name).label() : "unknown");
+                        return -1;
+                    }
                     var r = p.searchResource(new VideoSearch("流浪地球"));
                     if (r == null || r.getData() == null || r.getData().getData() == null) {
                         return 0;
@@ -97,8 +107,13 @@ public class DataSearchSmokeTest {
     private static void report(String name, SizeSupplier supplier) {
         try {
             int n = supplier.get();
-            String status = n > 0 ? "[PASS]" : "[EMPTY]";
-            if (n <= 0) {
+            String status;
+            if (n == -1) {
+                return; // BLOCKED, skip
+            } else if (n > 0) {
+                status = "[PASS]";
+            } else {
+                status = "[EMPTY]";
                 failures++;
             }
             System.out.printf("%s %-14s rows=%d%n", status, name, n);
