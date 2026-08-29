@@ -42,7 +42,6 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         this.maxKeys = order - 1;
         this.maxChildren = order;
         this.root = new BPlusTreeNode<>(true);
-        this.root.setInitialCapacity(order);
         this.size = 0;
     }
 

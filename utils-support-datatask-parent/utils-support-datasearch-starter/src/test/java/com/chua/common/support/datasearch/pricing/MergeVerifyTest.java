@@ -35,24 +35,42 @@ public class MergeVerifyTest {
             }
         }
 
-        // 2) 合并逻辑验证(反射调用 private merge:AA 为基础,OpenRouter 补齐能力)
+        // 2) 合并逻辑验证(反射调用 private merge:AA 官方价为基础,OpenRouter 补齐能力)
         List<ModelDefinition> aaList = new ArtificialAnalysisModelMetricsProvider().fetchOnlinePricing();
-        ModelDefinition aaGpt5 = find(aaList, "gpt-5-mini");
-        ModelDefinition orGpt5 = find(orList, "gpt-5-mini");
-        System.out.println("== AA gpt-5-mini: in=" + aaGpt5.getInputUnitPrice() + " out=" + aaGpt5.getOutputUnitPrice()
-                + " cacheHit=" + aaGpt5.getCacheHitPrice() + " ctx=" + aaGpt5.getContextWindowTokens()
-                + " icon=" + aaGpt5.getIconUrl());
-        System.out.println("== OR gpt-5-mini: imgIn=" + orGpt5.getImageInput() + " webSearch=" + orGpt5.getWebSearch()
-                + " searchPrice=" + orGpt5.getWebSearchPrice());
+        mergeAndPrint(aaList, orList, "deepseek-v4-flash");
+        mergeAndPrint(aaList, orList, "gpt-5-mini");
+    }
+
+    /**
+     * 合并单个模型并打印:验证官方价(AA)优先 + OpenRouter 补能力。
+     *
+     * @param aaList AA 抓取结果
+     * @param orList OpenRouter 抓取结果
+     * @param id     模型 id
+     */
+    private static void mergeAndPrint(List<ModelDefinition> aaList, List<ModelDefinition> orList, String id)
+            throws Exception {
+        ModelDefinition aa = find(aaList, id);
+        ModelDefinition or = find(orList, id);
+        if (aa == null || or == null) {
+            System.out.println("== " + id + " 缺少数据源: aa=" + (aa != null) + " or=" + (or != null));
+            return;
+        }
+        System.out.println("== AA " + id + ": in=" + aa.getInputUnitPrice() + " out=" + aa.getOutputUnitPrice()
+                + " cacheHit=" + aa.getCacheHitPrice() + " ctx=" + aa.getContextWindowTokens()
+                + " imgIn=" + aa.getImageInput() + " webSearch=" + aa.getWebSearch());
+        System.out.println("== OR " + id + ": in=" + or.getInputUnitPrice() + " out=" + or.getOutputUnitPrice()
+                + " cacheHit=" + or.getCacheHitPrice() + " imgIn=" + or.getImageInput()
+                + " webSearch=" + or.getWebSearch() + " searchPrice=" + or.getWebSearchPrice());
 
         DataSearchModelPricingProvider bridge = new DataSearchModelPricingProvider();
         Method merge = DataSearchModelPricingProvider.class.getDeclaredMethod(
                 "merge", ModelDefinition.class, ModelDefinition.class);
         merge.setAccessible(true);
-        ModelDefinition merged = (ModelDefinition) merge.invoke(bridge, (Object) null, aaGpt5);
-        merged = (ModelDefinition) merge.invoke(bridge, merged, orGpt5);
-        System.out.printf("== MERGED gpt-5-mini: in=%-9s out=%-9s cacheHit=%-9s ctx=%-9s imgIn=%-5s webSearch=%-5s searchPrice=%-9s icon=%s%n",
-                merged.getInputUnitPrice(), merged.getOutputUnitPrice(),
+        ModelDefinition merged = (ModelDefinition) merge.invoke(bridge, (Object) null, aa);
+        merged = (ModelDefinition) merge.invoke(bridge, merged, or);
+        System.out.printf("== MERGED %-16s: in=%-9s out=%-9s cacheHit=%-9s ctx=%-9s imgIn=%-5s webSearch=%-5s searchPrice=%-9s icon=%s%n",
+                id, merged.getInputUnitPrice(), merged.getOutputUnitPrice(),
                 merged.getCacheHitPrice(), merged.getContextWindowTokens(),
                 merged.getImageInput(), merged.getWebSearch(), merged.getWebSearchPrice(),
                 merged.getIconUrl());

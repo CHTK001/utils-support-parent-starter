@@ -151,6 +151,16 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-chinese-clip-RN50</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-chinese-clip-vit-h-14</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-doclayout-yolo</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -205,6 +215,24 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-yolo-face</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 音频模型：wespeaker 说话人嵌入（512维，25MB） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-wespeaker</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 音频模型：CAM++ 声纹嵌入（192维，27MB） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-campplus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 音频模型：wav2vec2-base 音频指纹（384维，360MB） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-wav2vec2-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

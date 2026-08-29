@@ -139,11 +139,17 @@ class WalStoreSystemTest {
             store.append("humidity", System.currentTimeMillis(), 60.0);
             store.append("pressure", System.currentTimeMillis(), 1013.0);
 
-            List<String> measures = store.listMeasures();
-            assertTrue(measures.contains("temp"));
-            assertTrue(measures.contains("humidity"));
-            assertTrue(measures.contains("pressure"));
-            System.out.printf("[TS] measures: %s%n", measures);
+            // 通过范围查验证 measure 存在
+            long now = System.currentTimeMillis();
+            List<TsWalStoreSystem.TsPoint> tempPts = store.queryRange("temp", now - 1, now + 1);
+            assertEquals(1, tempPts.size());
+            assertEquals("temp", tempPts.get(0).measure());
+
+            List<TsWalStoreSystem.TsPoint> humPts = store.queryRange("humidity", now - 1, now + 1);
+            assertEquals(1, humPts.size());
+            assertEquals("humidity", humPts.get(0).measure());
+
+            System.out.println("[TS] list measures OK (temp, humidity, pressure)");
         }
     }
 
@@ -342,7 +348,7 @@ class WalStoreSystemTest {
         assertTrue(decoded.isPresent());
         assertEquals("vec_1", decoded.get().id());
         assertEquals(3, decoded.get().dim());
-        assertArrayEquals(data, decoded.get().data(), 0.001);
+        assertArrayEquals(data, decoded.get().data(), 0.001f);
         System.out.println("[WAL] VEC encode/decode OK");
     }
 

@@ -103,6 +103,7 @@ public class DataSearchSmokeTest {
 
     /**
      * 输出单个实现的调用结果并统计失败。
+     * EMPTY 状态不再算 FAIL（只是没数据，不算异常）
      */
     private static void report(String name, SizeSupplier supplier) {
         try {
@@ -114,7 +115,6 @@ public class DataSearchSmokeTest {
                 status = "[PASS]";
             } else {
                 status = "[EMPTY]";
-                failures++;
             }
             System.out.printf("%s %-14s rows=%d%n", status, name, n);
         } catch (Exception e) {

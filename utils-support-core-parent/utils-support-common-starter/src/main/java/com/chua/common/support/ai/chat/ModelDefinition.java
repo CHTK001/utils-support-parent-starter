@@ -181,6 +181,38 @@ public class ModelDefinition {
     private BigDecimal webSearchPrice;
 
     /**
+     * 端到端响应时间（秒，中位数）
+     *
+     * <p>从请求发出到收到完整响应的总耗时中位数。
+     * 来自数据源的 {@code medianEndToEndResponseTimeSeconds} 字段（Artificial Analysis）。</p>
+     */
+    private BigDecimal endToEndResponseTimeSeconds;
+
+    /**
+     * 推理 Token 单价（USD / 百万 Token）
+     *
+     * <p>推理模型内部思考（CoT）消耗 token 的单价，独立于输出价。
+     * 来自数据源的 {@code pricing.internal_reasoning} 字段（OpenRouter）。</p>
+     */
+    private BigDecimal internalReasoningPrice;
+
+    /**
+     * 输出模态列表
+     *
+     * <p>模型支持的输出类型，如 text / image / audio。
+     * 来自数据源的 {@code architecture.output_modalities} 字段（OpenRouter）。</p>
+     */
+    private List<String> outputModalities;
+
+    /**
+     * 是否已废弃
+     *
+     * <p>模型是否已被官方标记为废弃/下线。
+     * 来自数据源的 {@code deprecated} 字段（Artificial Analysis）。</p>
+     */
+    private Boolean deprecated;
+
+    /**
      * 图标地址
      */
     private String iconUrl;

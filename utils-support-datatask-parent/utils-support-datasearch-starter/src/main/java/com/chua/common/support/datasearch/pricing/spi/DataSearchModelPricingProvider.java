@@ -6,6 +6,8 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -38,8 +40,14 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
             if (providers == null || providers.isEmpty()) {
                 return null;
             }
+            // 官方价格源(artificialanalysis)优先:官方牌价先占位,其余源(openrouter)仅补齐缺失字段
+            List<Map.Entry<String, ModelMetricsProvider>> ordered =
+                    new ArrayList<>(providers.entrySet());
+            ordered.sort(Comparator.comparing(
+                    e -> "artificialanalysis".equals(e.getKey()) ? 0 : 1));
             ModelDefinition merged = null;
-            for (ModelMetricsProvider metricsProvider : providers.values()) {
+            for (Map.Entry<String, ModelMetricsProvider> entry : ordered) {
+                ModelMetricsProvider metricsProvider = entry.getValue();
                 List<ModelDefinition> metrics = metricsProvider.getMetrics();
                 if (metrics == null || metrics.isEmpty()) {
                     continue;
@@ -92,6 +100,10 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         fillIfNull(target::getImageInput, src.getImageInput(), target::setImageInput);
         fillIfNull(target::getWebSearch, src.getWebSearch(), target::setWebSearch);
         fillIfNull(target::getFunctionCalling, src.getFunctionCalling(), target::setFunctionCalling);
+        fillIfNull(target::getEndToEndResponseTimeSeconds, src.getEndToEndResponseTimeSeconds(), target::setEndToEndResponseTimeSeconds);
+        fillIfNull(target::getInternalReasoningPrice, src.getInternalReasoningPrice(), target::setInternalReasoningPrice);
+        fillIfNull(target::getOutputModalities, src.getOutputModalities(), target::setOutputModalities);
+        fillIfNull(target::getDeprecated, src.getDeprecated(), target::setDeprecated);
         if (target.getCapabilities() == null && src.getCapabilities() != null) {
             target.setCapabilities(src.getCapabilities());
         }
