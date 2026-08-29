@@ -123,6 +123,7 @@ public class SipClient {
     private volatile boolean connected;
 
     /**
+<<<<<<< Updated upstream
      * 是否主动关闭（关闭后不再自动重连）
      */
     private volatile boolean manualClosed;
@@ -151,6 +152,16 @@ public class SipClient {
      * 重连成功回调列表（服务/端口代理可在重连后重新绑定本地资源）
      */
     private final List<Runnable> reconnectListeners = new CopyOnWriteArrayList<>();
+=======
+     * 服务器主机（从 URL 解析，用于连接数据平面）
+     */
+    private volatile String serverHost;
+
+    /**
+     * 服务器数据平面端口
+     */
+    private volatile int serverDataPort;
+>>>>>>> Stashed changes
 
     /**
      * 创建 SIP 客户端。
@@ -194,9 +205,34 @@ public class SipClient {
      * @param encryptData true 开启加密
      * @return 当前客户端实例，支持链式调用
      */
+<<<<<<< Updated upstream
     public SipClient encrypt(boolean encryptData) {
         this.encryptData = encryptData;
         return this;
+=======
+    private static SipClient create(String transport, String url) {
+        SyncServer server = ServiceProvider.of(SyncServer.class).getNewExtension(transport, ServerSetting.defaults());
+        if (!(server instanceof SyncProtocol protocol)) {
+            throw new IllegalStateException("传输 [" + transport + "] 不支持 SyncProtocol，请确认依赖是否齐全");
+        }
+        SyncClient syncClient = protocol.createClient(url);
+        SipClient client = new SipClient(transport, syncClient);
+        client.serverHost = parseHost(url);
+        return client;
+    }
+
+    /**
+     * 从服务地址解析主机名。
+     *
+     * @param url 服务地址，如 tcp://127.0.0.1:19460
+     * @return 主机名
+     */
+    private static String parseHost(String url) {
+        int schemeEnd = url.indexOf("://");
+        String rest = schemeEnd >= 0 ? url.substring(schemeEnd + 3) : url;
+        int colon = rest.lastIndexOf(':');
+        return colon >= 0 ? rest.substring(0, colon) : rest;
+>>>>>>> Stashed changes
     }
 
     /**
@@ -787,4 +823,275 @@ public class SipClient {
     public void close() {
         disconnect();
     }
+<<<<<<< Updated upstream
 }
+=======
+
+    /**
+     * 处理服务端下发的信令消息。
+     *
+     * @param topic   消息主题
+     * @param message 消息内容
+     */
+    private void handleSipMessage(String topic, Object message) {
+        String payload = message != null ? message.toString() : "";
+        switch (topic) {
+            case SipProtocol.CMD_REGISTERED -> log.debug("SIP 注册成功: {}", payload);
+            case SipProtocol.CMD_FOUND -> handleFound(payload);
+            case SipProtocol.CMD_NOTFOUND -> handleNotFound(payload);
+            case SipProtocol.CMD_MSG -> handleIncomingMsg(payload);
+            case SipProtocol.CMD_RESP -> handleIncomingResp(payload);
+            case SipProtocol.CMD_PUSH -> handleIncomingPush(payload);
+            case SipProtocol.CMD_TUNNEL_REGISTERED -> log.debug("SIP 隧道服务注册成功: {}", payload);
+            case SipProtocol.CMD_TUNNEL_OPEN -> handleTunnelOpenRequest(payload);
+            case SipProtocol.CMD_TUNNEL_OPENED -> handleTunnelOpened(payload);
+            case SipProtocol.CMD_TUNNEL_ERROR -> handleTunnelError(payload);
+            case SipProtocol.CMD_TUNNEL_DATA -> handleTunnelData(payload);
+            case SipProtocol.CMD_TUNNEL_CLOSE -> handleTunnelClose(payload);
+            default -> log.debug("忽略未知 SIP 信令: {}", topic);
+        }
+    }
+
+    /**
+     * 处理隧道开启请求（作为服务提供方收到访问方的隧道请求）。
+     *
+     * @param payload 报文内容（channelId|serviceName）
+     */
+    private void handleTunnelOpenRequest(String payload) {
+        String[] parts = payload.split("\\|", 2);
+        String channelId = parts[0];
+        String serviceName = parts.length > 1 ? parts[1] : "";
+        SipTunnelSession session = new SipTunnelSession(this, channelId, serviceName);
+        openTunnels.put(channelId, session);
+        for (BiConsumer<String, String> listener : tunnelOpenListeners) {
+            try {
+                listener.accept(channelId, serviceName);
+            } catch (Exception e) {
+                log.error("SIP 隧道开启监听器异常", e);
+            }
+        }
+    }
+
+    /**
+     * 处理隧道开启成功（作为访问方收到通道标识）。
+     *
+     * @param payload 报文内容（requestId|channelId|dataPort）
+     */
+    private void handleTunnelOpened(String payload) {
+        String[] parts = payload.split("\\|", 3);
+        if (parts.length < 2) {
+            return;
+        }
+        String requestId = parts[0];
+        String channelId = parts[1];
+        int dataPort = parts.length > 2 ? parsePort(parts[2]) : 0;
+        if (dataPort > 0) {
+            serverDataPort = dataPort;
+        }
+        CompletableFuture<SipTunnelSession> future = pendingTunnels.remove(requestId);
+        if (future == null) {
+            return;
+        }
+        SipTunnelSession session = new SipTunnelSession(this, channelId, "");
+        openTunnels.put(channelId, session);
+        if (serverDataPort > 0) {
+            attachDataStream(session, SipTunnelStream.ROLE_VISITOR);
+        }
+        future.complete(session);
+    }
+
+    /**
+     * 解析端口号。
+     *
+     * @param text 端口字符串
+     * @return 端口号，解析失败返回 0
+     */
+    private int parsePort(String text) {
+        try {
+            return Integer.parseInt(text.trim());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    /**
+     * 为会话建立数据平面连接并桥接字节流。
+     *
+     * <p>数据平面连接建立后，{@link SipTunnelSession#sendBytes} 将优先使用
+     * 独立连接发送（原生二进制帧）；若连接失败则回退到原 Base64 行协议。</p>
+     *
+     * @param session 隧道会话
+     * @param role    连接角色（visitor / provider）
+     */
+    private void attachDataStream(SipTunnelSession session, String role) {
+        if (serverHost == null || serverDataPort <= 0) {
+            return;
+        }
+        try {
+            SipTunnelStream stream = new SipTunnelStream(serverHost, serverDataPort,
+                    session.getChannelId(), role);
+            session.attachStream(stream);
+            stream.startRead(bytes -> session.dispatchBytes(bytes));
+            log.debug("SIP 数据平面连接已建立: channel={}, role={}", session.getChannelId(), role);
+        } catch (Exception e) {
+            log.warn("SIP 数据平面连接失败（回退 Base64 行协议）: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 处理隧道开启失败。
+     *
+     * @param payload 报文内容（requestId|reason）
+     */
+    private void handleTunnelError(String payload) {
+        int separatorIndex = payload.indexOf(SipProtocol.SEPARATOR);
+        if (separatorIndex <= 0) {
+            return;
+        }
+        String requestId = payload.substring(0, separatorIndex);
+        String reason = payload.substring(separatorIndex + 1);
+        CompletableFuture<SipTunnelSession> future = pendingTunnels.remove(requestId);
+        if (future != null) {
+            future.completeExceptionally(new IllegalArgumentException(reason));
+        }
+    }
+
+    /**
+     * 处理隧道数据帧，路由到对应会话。
+     *
+     * @param payload 报文内容（channelId|data）
+     */
+    private void handleTunnelData(String payload) {
+        String[] parts = payload.split("\\|", 2);
+        String channelId = parts[0];
+        String data = parts.length > 1 ? parts[1] : "";
+        SipTunnelSession session = openTunnels.get(channelId);
+        if (session != null) {
+            session.dispatchData(data);
+        }
+    }
+
+    /**
+     * 处理隧道关闭。
+     *
+     * @param payload 报文内容（channelId）
+     */
+    private void handleTunnelClose(String payload) {
+        String channelId = payload.trim();
+        SipTunnelSession session = openTunnels.remove(channelId);
+        if (session != null) {
+            session.dispatchClose();
+        }
+    }
+
+    /**
+     * 处理查询结果（requestId|peerId:host:port）。
+     *
+     * @param payload 报文内容
+     */
+    private void handleFound(String payload) {
+        int separatorIndex = payload.indexOf(SipProtocol.SEPARATOR);
+        if (separatorIndex <= 0) {
+            return;
+        }
+        String requestId = payload.substring(0, separatorIndex);
+        String address = payload.substring(separatorIndex + 1);
+        CompletableFuture<String> future = pendingFinds.remove(requestId);
+        if (future != null) {
+            future.complete(address);
+        }
+    }
+
+    /**
+     * 处理查无此人（requestId|peerId）。
+     *
+     * @param payload 报文内容
+     */
+    private void handleNotFound(String payload) {
+        int separatorIndex = payload.indexOf(SipProtocol.SEPARATOR);
+        if (separatorIndex <= 0) {
+            return;
+        }
+        String requestId = payload.substring(0, separatorIndex);
+        String peerId = payload.substring(separatorIndex + 1);
+        CompletableFuture<String> future = pendingFinds.remove(requestId);
+        if (future != null) {
+            future.completeExceptionally(new IllegalArgumentException("对端不存在: " + peerId));
+        }
+    }
+
+    /**
+     * 处理收到的转发消息（fromId|content）。
+     *
+     * @param payload 报文内容
+     */
+    private void handleIncomingMsg(String payload) {
+        String[] parts = payload.split("\\|", 2);
+        String fromId = parts[0];
+        String content = parts.length > 1 ? parts[1] : "";
+        for (BiConsumer<String, String> listener : messageListeners) {
+            try {
+                listener.accept(fromId, content);
+            } catch (Exception e) {
+                log.error("SIP 消息监听器异常", e);
+            }
+        }
+    }
+
+    /**
+     * 处理收到的响应（fromId|requestId|content）。
+     *
+     * @param payload 报文内容
+     */
+    private void handleIncomingResp(String payload) {
+        String[] parts = payload.split("\\|", 3);
+        String fromId = parts[0];
+        String requestId = parts.length > 1 ? parts[1] : "";
+        String content = parts.length > 2 ? parts[2] : "";
+        for (SipResponseListener listener : responseListeners) {
+            try {
+                listener.onResponse(fromId, requestId, content);
+            } catch (Exception e) {
+                log.error("SIP 响应监听器异常", e);
+            }
+        }
+    }
+
+    /**
+     * 处理服务器主动推送的消息（topic|message）。
+     *
+     * @param payload 报文内容
+     */
+    private void handleIncomingPush(String payload) {
+        String[] parts = payload.split("\\|", 2);
+        String topic = parts[0];
+        String message = parts.length > 1 ? parts[1] : "";
+        for (BiConsumer<String, String> listener : pushListeners) {
+            try {
+                listener.accept(topic, message);
+            } catch (Exception e) {
+                log.error("SIP 推送监听器异常", e);
+            }
+        }
+    }
+
+    /**
+     * SIP 响应监听器。
+     *
+ * @author CH
+     * @since 4.0.0.42
+     */
+    @FunctionalInterface
+    public interface SipResponseListener {
+
+        /**
+         * 收到对端响应。
+         *
+         * @param fromId    响应来源客户端标识
+         * @param requestId 对应请求标识
+         * @param content   响应内容
+         */
+        void onResponse(String fromId, String requestId, String content);
+    }
+}
+>>>>>>> Stashed changes
