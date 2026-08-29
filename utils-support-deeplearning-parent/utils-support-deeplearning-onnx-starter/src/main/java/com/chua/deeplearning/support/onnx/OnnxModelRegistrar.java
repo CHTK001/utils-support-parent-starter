@@ -186,15 +186,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
-        reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
-        // 文档方向分类(PP-LCNet_x1_0_doc_ori)：4 类（0°/90°/180°/270°），整图方向检测；适用文档矫正、旋转自动修正
-        reg("doc-orientation", "com.chua.deeplearning.support.onnx.ocr.direction.DocOrientationTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/doc_ori/model.onnx",
-                "https://huggingface.co/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx/resolve/main/model.onnx",
-                List.of(
-                        "https://hf-mirror.com/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx/resolve/main/model.onnx",
-                        "https://huggingface.co/ningpp/PP-LCNet_x1_0_doc_ori-ONNX/resolve/main/model.onnx"
-                ),
-                false, "model.onnx");
+#DISABLED#         reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
         reg("pp-word-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx");
         // OCR文字识别(SVTR)：SVTR 架构轻量级文字识别，速度更快；适用快速 OCR
@@ -647,5 +639,4 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         }
     }
 }
-
 

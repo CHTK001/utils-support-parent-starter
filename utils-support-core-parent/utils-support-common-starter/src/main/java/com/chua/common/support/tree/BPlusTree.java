@@ -26,7 +26,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     private int size;
     /** 最后一次插入的键，用于顺序插入加速 */
     private K lastKey;
-    /** 最后插入的节点引用，用于顺序插入时直接追加到右端 */
+    /** 最后插入的叶子节点引用，用于顺序插入时直接追加 */
     private BPlusTreeNode<K, V> tail;
 
     public BPlusTree(int order) {
@@ -112,7 +112,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             tail.values.add(value);
             size++;
             lastKey = key;
-            return NO_UPDATE;
+            return Optional.empty();
         }
         NodeUpdate<K, V> update = insert(root, key, value);
         if (update.needsSplit) {
@@ -121,12 +121,11 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             newRoot.children.add(root);
             newRoot.children.add(update.rightChild);
             root = newRoot;
-            // 分裂后重建 tail 引用
             rebuildTail();
         }
         size++;
         lastKey = key;
-        return NO_UPDATE;
+        return Optional.empty();
     }
 
     /** 分裂后重新定位 tail 为最右叶子节点 */
@@ -145,11 +144,11 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         if (node.leaf) {
             if (i < n && Objects.equals(keys.get(i), key)) {
                 node.values.set(i, value);
-            return noUpdate();
+                return NodeUpdate.noSplit();
             }
             keys.add(i, key);
             node.values.add(i, value);
-            if (keys.size() <= maxKeys) return NO_UPDATE;
+            if (keys.size() <= maxKeys) return NodeUpdate.noSplit();
             return splitLeaf(node);
         }
         List<BPlusTreeNode<K, V>> children = node.children;
@@ -161,7 +160,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             node.keys.add(sub.promotedKey);
         }
         node.children.add(i + 1, sub.rightChild);
-        if (node.keys.size() <= maxKeys) return NO_UPDATE;
+        if (node.keys.size() <= maxKeys) return NodeUpdate.noSplit();
         return splitInternal(node);
     }
 
@@ -241,7 +240,6 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     public String toString() { return "BPlusTree{maxKeys=" + maxKeys + ", size=" + size + "}"; }
 
     BPlusTreeNode<K, V> getRoot() { return root; }
-    BPlusTreeNode<K, V> getTail() { return tail; }
 
     public List<Map.Entry<K, V>> allEntries() {
         List<Map.Entry<K, V>> result = new ArrayList<>(size);
@@ -258,10 +256,9 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     /**
      * 节点更新结果。
-     * 使用静态共享实例避免高频分配。
      */
     private static class NodeUpdate<K, V> {
-        boolean needsSplit;
+        final boolean needsSplit;
         final K promotedKey;
         final BPlusTreeNode<K, V> rightChild;
 
@@ -271,13 +268,12 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             this.rightChild = rightChild;
         }
 
-        static <K, V> NodeUpdate<K, V> noSplit() { return new NodeUpdate<>(false, null, null); }
-        static <K, V> NodeUpdate<K, V> split(K k, BPlusTreeNode<K, V> r) { return new NodeUpdate<>(true, k, r); }
+        static <K, V> NodeUpdate<K, V> noSplit() {
+            return new NodeUpdate<>(false, null, null);
+        }
+
+        static <K, V> NodeUpdate<K, V> split(K k, BPlusTreeNode<K, V> r) {
+            return new NodeUpdate<>(true, k, r);
+        }
     }
-
-    @SuppressWarnings("unchecked")
-    private static final NodeUpdate<?, ?> NO_UPDATE = NodeUpdate.noSplit();
-
-    @SuppressWarnings("unchecked")
-    private static <K, V> NodeUpdate<K, V> noUpdate() { return (NodeUpdate<K, V>) NO_UPDATE; }
 }
