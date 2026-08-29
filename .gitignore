@@ -196,3 +196,5 @@ stash.diff
 
 # JVM 转储/临时输出
 out_tmp_check/
+
+utils-support-models-parent/

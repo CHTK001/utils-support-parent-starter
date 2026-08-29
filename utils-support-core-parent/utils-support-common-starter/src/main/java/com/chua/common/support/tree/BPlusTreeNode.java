@@ -27,44 +27,22 @@ class BPlusTreeNode<K, V> {
     /** 叶子节点之间的链表后继指针；内部节点为 null */
     BPlusTreeNode<K, V> next;
 
-    /**
-     * 设置初始容量以避免频繁扩容。
-     *
-     * @param initialCapacity 初始容量
-     */
-    void setInitialCapacity(int initialCapacity) {
-        if (keys instanceof ArrayList) {
-            ((ArrayList<?>) keys).ensureCapacity(initialCapacity);
-        }
-        if (values instanceof ArrayList) {
-            ((ArrayList<?>) values).ensureCapacity(initialCapacity);
-        }
-        if (children instanceof ArrayList) {
-            ((ArrayList<?>) children).ensureCapacity(initialCapacity + 1);
-        }
-    }
-
     BPlusTreeNode(boolean leaf) {
+        this(leaf, 16);
+    }
+
+    BPlusTreeNode(boolean leaf, int capacity) {
         this.leaf = leaf;
+        if (keys instanceof ArrayList) ((ArrayList<?>) keys).ensureCapacity(capacity);
+        if (values instanceof ArrayList) ((ArrayList<?>) values).ensureCapacity(capacity);
+        if (children instanceof ArrayList) ((ArrayList<?>) children).ensureCapacity(capacity + 1);
     }
 
     /**
-     * 判断节点是否已满（不能继续插入）。
-     *
-     * @param order B+ 树阶数
-     * @return 是否已满
+     * 返回 keys 的当前容量（用于拷贝时预估新节点大小）。
      */
-    boolean isFull(int order) {
-        return leaf ? keys.size() >= order - 1 : children.size() >= order;
-    }
-
-    /**
-     * 判断节点是否为空。
-     *
-     * @return 是否空
-     */
-    boolean isEmpty() {
-        return keys.isEmpty() && children.isEmpty();
+    int keysCapacity() {
+        return keys instanceof ArrayList ? ((ArrayList<?>) keys).size() : keys.size();
     }
 
     List<K> getKeys() { return keys; }
