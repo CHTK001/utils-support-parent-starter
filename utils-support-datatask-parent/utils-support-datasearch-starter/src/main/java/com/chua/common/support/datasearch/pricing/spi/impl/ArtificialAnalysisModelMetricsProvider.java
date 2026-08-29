@@ -43,14 +43,23 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     /** 图标地址前缀（相对路径补全用） */
     private static final String LOGO_BASE = "https://artificialanalysis.ai";
 
+    /**
+     * 图片识别推断：模型名含 vision/vl/omni/multimodal，或以「数字+v」结尾（如 glm-4-5v）
+     */
+    private static final Pattern IMAGE_INPUT_PATTERN = Pattern.compile(
+            "vision|multimodal|(^|-)vl($|-)|omni|[0-9]v($|-)");
+
     /** 记录锚点：转义形态的 \"model\":{\"slug\":\"xxx\" */
     private static final Pattern ANCHOR =
             Pattern.compile("\\\\\"model\\\\\":\\{\\\\\"slug\\\\\":\\\\\\\"");
 
-    /** 目录条目：{\"slug\":\"x\",\"name\":\"y\",...,\"creator\":{\"name\":\"z\",\"logo\":\"/img/logos/x.svg\"}} */
     private static final Pattern CATALOG_ENTRY = Pattern.compile(
-            "\\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\\[]*?)"
-                    + "\"creator\":\\{\"id\":\"[^\"]*\",\"name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
+            "\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\[]*?)",
+                    "\"creator\":{\\"id\":\"[^\"]*\","name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
+
+    /** 图片输入能力推断：slug 含 image/clip/vit 等关键词 */
+    private static final Pattern IMAGE_INPUT_PATTERN = Pattern.compile(
+            "image|clip|vit|vision|multimodal", Pattern.CASE_INSENSITIVE);
 
     /**
      * 从排行榜抓取全量模型指标与价格。
@@ -121,10 +130,16 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             BigDecimal context = num(win, "contextWindowTokens\\\\\\\":");
             BigDecimal speed = num(win, "medianOutputTokensPerSecond\\\\\\\":");
             BigDecimal ttft = num(win, "medianTimeToFirstTokenSeconds\\\\\\\":");
+            BigDecimal e2e = num(win, "medianEndToEndResponseTimeSeconds\\\\\\\":");
             Boolean reasoning = null;
             String r = group1(win, "reasoningModel\\\\\\\":(true|false)");
             if (r != null) {
                 reasoning = Boolean.parseBoolean(r);
+            }
+            Boolean deprecated = null;
+            String dp = group1(win, "deprecated\\\\\\\":(true|false)");
+            if (dp != null) {
+                deprecated = Boolean.parseBoolean(dp);
             }
             Boolean functionCalling = null;
             String fc = group1(win, "functionCalling\\\\\\\":(true|false)");
@@ -150,11 +165,19 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     : (logoPath.startsWith("http") ? logoPath
                     : (logoPath.startsWith("/") ? LOGO_BASE + logoPath : LOGO_BASE + "/img/logos/" + logoPath));
 
+            // 能力标签：基础 chat + 推断出的多维能力
+            List<String> capabilities = new ArrayList<>(4);
+            capabilities.add("chat");
+            if (Boolean.TRUE.equals(reasoning)) { capabilities.add("reasoning"); }
+            if (webSearch) { capabilities.add("web_search"); }
+            if (imageInput) { capabilities.add("image_input"); }
+            if (Boolean.TRUE.equals(functionCalling)) { capabilities.add("function_calling"); }
+
             dedup.put(slug, ModelDefinition.builder()
                     .id(slug)
                     .name(displayName)
                     .provider(creatorName)
-                    .capabilities(List.of("chat"))
+                    .capabilities(capabilities)
                     .description("Artificial Analysis")
                     .inputUnitPrice(in)
                     .outputUnitPrice(out)
@@ -162,10 +185,15 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     .cacheWritePrice(cacheWrite)
                     .contextWindowTokens(context == null ? null : context.longValue())
                     .reasoning(reasoning)
+                    .webSearch(webSearch)
+                    .imageInput(imageInput)
+                    .functionCalling(functionCalling)
                     .currency("USD")
                     .intelligenceIndex(intelligence)
                     .outputSpeedTokensPerSecond(speed)
                     .latencyFirstTokenSeconds(ttft)
+                    .endToEndResponseTimeSeconds(e2e)
+                    .deprecated(deprecated)
                     .iconUrl(iconUrl)
                     .build());
         }

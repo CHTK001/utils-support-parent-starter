@@ -110,7 +110,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
                 }
             }
         }
-        NDArray images = ctx.getNDManager().create(chw, new Shape(c, h, w)).expandDims(0);
+        NDArray images = ctx.getNDManager().create(chw, new Shape(1, c, h, w));
         images.setName("images");
         return new NDList(images);
     }

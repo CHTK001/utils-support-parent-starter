@@ -2,6 +2,7 @@ package com.chua.common.support.tree;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,7 +28,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     public BTree(int order) {
         if (order < 3) throw new IllegalArgumentException("B tree order must be >= 3, got: " + order);
         this.order = order;
-        // 预分配容量
         this.root = new BTreeNode<>(true, order * 4);
         this.size = 0;
     }
@@ -40,24 +40,35 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public Optional<V> get(K key) {
         if (key == null) return Optional.empty();
-        // 迭代查找，避免递归栈开销
+        // 迭代查找，避免递归栈开销；内部使用二分搜索
         BTreeNode<K, V> node = root;
         while (true) {
             List<K> keys = node.keys;
-            int i = 0;
-            int n = keys.size();
-            while (i < n && keys.get(i).compareTo(key) < 0) i++;
-            if (i < n && Objects.equals(keys.get(i), key)) {
+            int i = binarySearch(keys, key);
+            if (i >= 0 && Objects.equals(keys.get(i), key)) {
                 return Optional.of(node.values.get(i));
             }
             if (node.leaf) return Optional.empty();
-            node = node.children.get(i);
+            node = node.children.get(-i - 1);
         }
     }
 
     @Override
     public boolean containsKey(K key) {
         return get(key).isPresent();
+    }
+
+    /** 二分查找：命中返回索引，未命中返回 -(插入点+1) */
+    private static <K extends Comparable<K>> int binarySearch(List<K> keys, K key) {
+        int lo = 0, hi = keys.size() - 1;
+        while (lo <= hi) {
+            int mid = (lo + hi) >>> 1;
+            int c = keys.get(mid).compareTo(key);
+            if (c < 0) lo = mid + 1;
+            else if (c > 0) hi = mid - 1;
+            else return mid;
+        }
+        return -(lo + 1);
     }
 
     // ==================== range ====================
@@ -72,22 +83,53 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     }
 
     private void collectRange(BTreeNode<K, V> node, K from, K to, List<Map.Entry<K, V>> result) {
-        // 收集当前节点在范围内的键
         List<K> keys = node.keys;
         List<V> values = node.values;
         int n = keys.size();
+        // 收集当前节点在 [from, to) 范围内的键
         for (int i = 0; i < n; i++) {
             K k = keys.get(i);
-            if (k.compareTo(from) >= 0 && k.compareTo(to) < 0) {
-                result.add(Map.entry(k, values.get(i)));
-            }
+            if (k.compareTo(from) < 0) continue;
+            if (k.compareTo(to) >= 0) break;
+            result.add(Map.entry(k, values.get(i)));
         }
         if (node.leaf) return;
-        // 遍历所有子节点
         List<BTreeNode<K, V>> children = node.children;
-        for (BTreeNode<K, V> child : children) {
-            collectRange(child, from, to, result);
+        // B树中键可同时存在于内部节点和子节点，必须避免重复：
+        // child[i] 的所有键均 < keys[i]；child[i+1] 的所有键均 > keys[i]
+        // - 若 keys[i] >= from，则 child[i] 中所有键 >= keys[i] 的边界已被覆盖（可能含重复），跳过
+        //   反之若 keys[i] < from，child[i] 中的键可能仍在 [from, to) 内，需递归
+        // - 若 keys[i] >= to，则 child[i+1] 中所有键 > keys[i] >= to，全超出范围，跳过
+        //   反之若 keys[i] < to，child[i+1] 中可能有 [from, to) 的键，需递归
+        // firstChild = 第一个 keys[i] >= from 的位置（该位置及之后的 child 均需检查）
+        // lastChild  = 第一个 keys[i] >= to 的位置（该位置及之后全部跳过）
+        int firstChild = binarySearchGE(keys, from);
+        int lastChild = binarySearchGE(keys, to);
+        for (int i = firstChild; i < lastChild && i < children.size(); i++) {
+            collectRange(children.get(i), from, to, result);
         }
+    }
+
+    /** 二分找第一个 >= key 的位置 */
+    private static <K extends Comparable<K>> int binarySearchGE(List<K> keys, K key) {
+        int lo = 0, hi = keys.size();
+        while (lo < hi) {
+            int mid = (lo + hi) >>> 1;
+            if (keys.get(mid).compareTo(key) < 0) lo = mid + 1;
+            else hi = mid;
+        }
+        return lo;
+    }
+
+    /** 二分找第一个 > key 的位置 */
+    private static <K extends Comparable<K>> int binarySearchGT(List<K> keys, K key) {
+        int lo = 0, hi = keys.size();
+        while (lo < hi) {
+            int mid = (lo + hi) >>> 1;
+            if (keys.get(mid).compareTo(key) <= 0) lo = mid + 1;
+            else hi = mid;
+        }
+        return lo;
     }
 
     // ==================== put ====================
@@ -109,23 +151,19 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return existed ? Optional.of(get(key).get()) : Optional.empty();
     }
 
-    /**
-     * 分裂插入：返回 null 表示无需分裂，否则返回分裂结果。
-     * 分裂后 node 本身变为左半部分。
-     */
     private SplitResult<K, V> splitInsert(BTreeNode<K, V> node, K key, V value) {
         List<K> keys = node.keys;
         List<V> values = node.values;
-        int i = 0;
-        int n = keys.size();
-        while (i < n && keys.get(i).compareTo(key) < 0) i++;
+        // 用二分查找确定插入位置
+        int i = binarySearch(keys, key);
+        if (i >= 0) {
+            // 键已存在，直接更新
+            values.set(i, value);
+            return null;
+        }
+        i = -i - 1; // 转换插入点
 
         if (node.leaf) {
-            // 叶子节点：直接插入
-            if (i < n && Objects.equals(keys.get(i), key)) {
-                values.set(i, value);
-                return null;
-            }
             keys.add(i, key);
             values.add(i, value);
             if (keys.size() < order) return null;
@@ -137,7 +175,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         SplitResult<K, V> sub = splitInsert(children.get(i), key, value);
         if (sub == null) return null;
 
-        // 子节点分裂，promotedKey 插入 keys[i]，children[i] 替换为 left 和 right
+        // 子节点分裂，将 promotedKey 插入 keys[i]，children[i] 替换为 left 和 right
         keys.add(i, sub.promotedKey);
         values.add(i, sub.promotedValue);
         children.remove(i);
@@ -151,7 +189,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     /**
      * 分裂节点：中间键提升，左右两半分别保留。
      */
-    private SplitResult doSplit(BTreeNode<K, V> node) {
+    private SplitResult<K, V> doSplit(BTreeNode<K, V> node) {
         List<K> keys = node.keys;
         List<V> values = node.values;
         int n = keys.size();
@@ -175,7 +213,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         keys.subList(mid, n).clear();
         values.subList(mid, n).clear();
 
-        return new SplitResult(promoteKey, promoteValue, node, right);
+        return new SplitResult<>(promoteKey, promoteValue, node, right);
     }
 
     // ==================== remove ====================
@@ -193,17 +231,15 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     private void delete(BTreeNode<K, V> node, K key) {
         List<K> keys = node.keys;
-        int i = 0;
-        int n = keys.size();
-        while (i < n && keys.get(i).compareTo(key) < 0) i++;
+        int i = binarySearch(keys, key);
         if (node.leaf) {
-            if (i < n && Objects.equals(keys.get(i), key)) {
+            if (i >= 0 && Objects.equals(keys.get(i), key)) {
                 keys.remove(i);
                 node.values.remove(i);
             }
             return;
         }
-        if (i < n && Objects.equals(keys.get(i), key)) {
+        if (i >= 0 && Objects.equals(keys.get(i), key)) {
             BTreeNode<K, V> leftChild = node.children.get(i);
             if (!leftChild.keys.isEmpty()) {
                 K pred = findPredecessor(leftChild);
@@ -216,11 +252,13 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             }
             return;
         }
-        delete(node.children.get(i), key);
+        // key 不在当前节点，在子树中
+        int ins = -i - 1;
+        delete(node.children.get(ins), key);
     }
 
     private K findPredecessor(BTreeNode<K, V> node) {
-        while (!node.leaf) node = node.children.get(node.keys.size() - 1);
+        while (!node.leaf) node = node.children.get(node.keys.size());
         return node.keys.get(node.keys.size() - 1);
     }
 

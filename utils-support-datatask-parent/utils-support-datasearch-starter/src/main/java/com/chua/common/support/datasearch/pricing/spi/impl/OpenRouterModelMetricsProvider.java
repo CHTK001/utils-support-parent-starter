@@ -86,9 +86,11 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
             BigDecimal cacheWrite = perMillion(pricing.path("input_cache_write"));
             BigDecimal image = perImage(pricing.path("image"));
             BigDecimal webSearch = perImage(pricing.path("web_search"));
+            BigDecimal internalReasoning = perMillion(pricing.path("internal_reasoning"));
 
             boolean imageInput = containsModality(architecture, "image");
             boolean webSearchSupport = webSearch != null;
+            List<String> outputModalities = modalities(architecture.path("output_modalities"));
 
             long contextLength = item.path("context_length").asLong(0L);
             BigDecimal intelligence = number(benchmarks.path("intelligence_index"));
@@ -104,6 +106,8 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
                     .cacheWritePrice(cacheWrite)
                     .imagePrice(image)
                     .webSearchPrice(webSearch)
+                    .internalReasoningPrice(internalReasoning)
+                    .outputModalities(outputModalities)
                     .imageInput(imageInput ? Boolean.TRUE : null)
                     .webSearch(webSearchSupport ? Boolean.TRUE : null)
                     .contextWindowTokens(contextLength > 0 ? contextLength : null)
@@ -155,6 +159,23 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /**
+     * 读取模态数组为字符串列表。
+     *
+     * @param node 模态数组节点
+     * @return 模态列表；非数组时返回空列表
+     */
+    private List<String> modalities(JsonNode node) {
+        List<String> result = new ArrayList<>();
+        if (node == null || !node.isArray()) {
+            return result;
+        }
+        for (JsonNode m : node) {
+            result.add(m.asText());
+        }
+        return result;
     }
 
     /**

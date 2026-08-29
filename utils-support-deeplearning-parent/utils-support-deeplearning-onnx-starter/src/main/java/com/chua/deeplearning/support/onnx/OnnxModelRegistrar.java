@@ -74,6 +74,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("cn-clip-vit-l-14-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-l-14/vit-l-14.txt.fp32.onnx");
         // 中文CLIP-RN50图像特征(CN-CLIP)：提取中文 CLIP RN50 的图像特征向量（1024维），与文本特征比对；适用中文图文检索、跨模态匹配
         reg("cn-clip-rn50-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp32.onnx", null, false, null);
+        // 中文CLIP-ViT-H/14图像特征(CN-CLIP)：提取中文 CLIP ViT-H/14 的图像特征向量（1024维，最准模型），与文本特征比对；适用高精度中文图文检索、跨模态匹配
+        reg("cn-clip-vit-h-14-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-h-14/vit-h-14.img.b1.fp32.onnx", null, false, null);
         // 语言检测(XLM-RoBERTa)：检测文本的语言种类（如中文、英文、日文等），多语言；适用文本预处理、多语言路由
         reg("xlm-roberta-language-detection", "com.chua.deeplearning.support.onnx.classification.XlmRobertaLanguageDetectionTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/xlm-roberta-language-detection/model_quantized.onnx");
         // CLIP文本特征(CLIP-ViT-B-32)：提取英文 CLIP 文本特征向量（512维），与 CLIP 图像特征比对；适用英文图文检索、跨模态搜索

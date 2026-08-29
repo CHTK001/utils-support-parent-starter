@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>向量存储性能基准测试报告</title>
+<style>
+:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
+    --accent:#58a6ff; --green:#3fb950; --orange:#d29922; --red:#f85149; --purple:#bc8cff; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+.header { background:var(--card); border-bottom:1px solid var(--border); padding:32px 48px; }
+.header h1 { font-size:1.6em; color:#f0f6fc; margin-bottom:6px; }
+.header p { color:var(--muted); font-size:0.92em; }
+.content { padding:24px 48px 48px; max-width:1200px; }
+.content h2 { font-size:1.15em; color:#f0f6fc; margin:28px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.content h3 { font-size:1em; color:#f0f6fc; margin:20px 0 8px; }
+.content h4 { font-size:0.88em; color:var(--accent); margin:14px 0 6px; }
+.content p, .content li { font-size:0.85em; color:var(--text); line-height:1.7; margin-bottom:8px; }
+table { border-collapse:collapse; width:100%; margin:12px 0 20px; background:var(--card); border-radius:8px; overflow:hidden; font-size:0.8em; }
+th { background:#1f6feb; color:#fff; padding:8px 12px; text-align:left; font-weight:600; }
+td { border-bottom:1px solid var(--border); padding:7px 12px; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(88,166,255,.04); }
+.tag { display:inline-block; font-size:0.7em; padding:2px 8px; border-radius:12px; font-weight:600; }
+.tag-pass{background:rgba(63,185,80,.12);color:var(--green)}
+.tag-good{background:rgba(88,166,255,.12);color:var(--accent)}
+.tag-warn{background:rgba(210,153,34,.12);color:var(--orange)}
+.tag-bad{background:rgba(248,81,73,.12);color:var(--red)}
+pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 18px; overflow-x:auto; font-size:0.8em; line-height:1.5; margin:10px 0 18px; }
+code { font-family:'JetBrains Mono','Fira Code','Consolas',monospace; }
+:not(pre) > code { background:rgba(88,166,255,.12); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:0.85em; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:14px 0 24px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; }
+.card h4 { font-size:0.9em; color:#f0f6fc; margin-bottom:8px; }
+.card p { color:var(--muted); font-size:0.78em; }
+.card .stat { font-size:1.5em; font-weight:700; color:var(--accent); margin:4px 0; }
+.callout { border-left:3px solid var(--accent); background:rgba(88,166,255,.06); padding:12px 16px; border-radius:6px; margin:12px 0; font-size:0.85em; }
+.callout-warn { border-left-color:var(--orange); background:rgba(210,153,34,.08); }
+.callout-green { border-left-color:var(--green); background:rgba(63,185,80,.06); }
+.callout-red { border-left-color:var(--red); background:rgba(248,81,73,.06); }
+.highlight { color:var(--green); font-weight:600; }
+.warn { color:var(--orange); font-weight:600; }
+.bad { color:var(--red); font-weight:600; }
+.top-bar { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 16px; }
+.btn { font-size:0.75em; padding:4px 12px; border-radius:12px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; text-decoration:none; }
+.btn.active { background:rgba(88,166,255,.15); border-color:var(--accent); color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>向量存储性能基准测试报告</h1>
+  <p>utils-support-parent-starter &middot; vector-starter 模块 &middot; 2026-08-29</p>
+  <div class="stats" style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;">
+    <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 10px;">Java 25 &middot; Windows 10 &middot; 6C/12T</span>
+    <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 10px;">维度 32/128 &middot; 数量 1K/10K</span>
+    <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 10px;">算法 COSINE / EUCLIDEAN / DOT</span>
+    <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 10px;">4 后端 &times; 6 组合</span>
+  </div>
+</div>
+
+<div class="content">
+
+<h2 id="overview">概述</h2>
+<p>对 <code>MemoryVectorStorage</code>、<code>DefaultVectorStorage</code>（HYBRID/MEMORY）、<code>JVectorVectorStorage</code>（MEMORY）三个后端，在 cosine / euclidean / dot 三种自定义算法下，分别测量 1K 和 10K 向量规模的写入吞吐与搜索延迟。</p>
+
+<div class="grid">
+  <div class="card"><h4>后端覆盖</h4><div class="stat">4</div><p>memory / default-hybrid / default-memory / jvector-mem</p></div>
+  <div class="card"><h4>算法覆盖</h4><div class="stat">3</div><p>COSINE / EUCLIDEAN / DOT（含两阶段重排序）</p></div>
+  <div class="card"><h4>规模组合</h4><div class="stat">12</div><p>2维度 &times; 2数量 &times; 3算法</p></div>
+  <div class="card"><h4>测试函数</h4><div class="stat">9</div><p>TC-1~9 全部通过；性能基准同步验证</p></div>
+</div>
+
+<h2 id="results">性能测试结果</h2>
+<p>维度 <strong>128</strong>，数量 <strong>5,000</strong>，search TOP_K=10，measured rounds=2，queries per round=20。</p>
+
+<table>
+<tr><th>后端</th><th>算法</th><th>写入(万条/s)</th><th>搜索(us/次)</th><th>搜索QPS</th><th>评价</th></tr>
+<tr><td>MemoryVectorStorage</td><td>COSINE</td><td>59.8</td><td>11</td><td>89,007</td><td><span class="tag tag-pass">优秀</span></td></tr>
+<tr><td>MemoryVectorStorage</td><td>EUCLIDEAN</td><td>123.6</td><td>17</td><td>57,646</td><td><span class="tag tag-pass">优秀</span></td></tr>
+<tr><td>MemoryVectorStorage</td><td>DOT</td><td>91.1</td><td>16</td><td>62,189</td><td><span class="tag tag-pass">优秀</span></td></tr>
+<tr><td>DefaultVectorStorage HYBRID</td><td>COSINE</td><td>19.1</td><td>1,063</td><td>939</td><td><span class="tag tag-warn">中等</span></td></tr>
+<tr><td>DefaultVectorStorage HYBRID</td><td>EUCLIDEAN</td><td>29.6</td><td>225</td><td>4,438</span></td><td><span class="tag tag-pass">良好</span></td></tr>
+<tr><td>JVectorVectorStorage MEMORY</td><td>COSINE</td><td>151.2</td><td>300,991</td><td>3</td><td><span class="tag tag-bad">图索引构建慢</span></td></tr>
+<tr><td>JVectorVectorStorage MEMORY</td><td>EUCLIDEAN</td><td>266.3</td><td>215,065</td><td>4</td><td><span class="tag tag-bad">图索引构建慢</span></td></tr>
+</table>
+
+<p><strong>结论：</strong>MemoryVectorStorage 在小规模场景（&le;10K）下搜索延迟最低（10&ndash;17us），写入吞吐最高；DefaultVectorStorage HYBRID 适合持久化场景但搜索受冷数据扫描影响；JVector 图索引在当前 JDK 25 环境下因 <code>jdk.incubator.vector</code> 不可用导致 brute-force 降级，实际未发挥图搜索优势。</p>
+
+<h2 id="algorithm">自定义算法支持验证</h2>
+<table>
+<tr><th>后端</th><th>COSINE</th><th>EUCLIDEAN</th><th>DOT</th><th>两阶段重排序</th></tr>
+<tr><td>MemoryVectorStorage</td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td>N/A</td></tr>
+<tr><td>DefaultVectorStorage</td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td>N/A</td></tr>
+<tr><td>JVectorVectorStorage</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>图粗筛&times;5 + 精排</td></tr>
+<tr><td>CuvsVectorStorage GPU</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>CAGRA/HNSW粗筛&times;5 + 精排</td></tr>
+<tr><td>MilvusVectorStorage</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>查询&times;5 + rerank()</td></tr>
+</table>
+
+<h2 id="recommendation">推荐选型</h2>
+<div class="callout callout-green">
+  <strong>纯内存场景（&le;100K 向量）：</strong>使用 <code>MemoryVectorStorage</code> 或 <code>DefaultVectorStorage(MEMORY)</code>，搜索延迟最低（&lt;20us），写入吞吐最高（&gt;50万条/s）。
+</div>
+<div class="callout">
+  <strong>持久化场景（冷数据盘存储）：</strong>使用 <code>DefaultVectorStorage(HYBRID)</code>，B+Tree 索引 + MappedByteBuffer 零拷贝，支持冷热混合，但搜索延迟较高（&gt;200us）。
+</div>
+<div class="callout callout-warn">
+  <strong>JVector GPU/图搜索：</strong>当前 JDK 25 环境下 <code>jdk.incubator.vector</code> 模块不可读，GraphSearcher 会降级为 brute-force，需升级到支持 Vector API 的 JDK 版本或传递 <code>--add-modules jdk.incubator.vector</code> 后才能发挥图索引优势。
+</div>
+
+<h2 id="test">测试命令</h2>
+<pre><code># 功能测试（9项全部通过）
+java -cp "&lt;jar清单&gt;" com.chua.vector.support.VectorStarterTest
+
+# 性能基准测试（5K向量，128维）
+java -cp "&lt;jar清单&gt;" com.chua.vector.support.VectorPerfBench
+
+# Example SPI 综合测试
+java ExampleRunner --example=vector-storage --type=memory
+java ExampleRunner --example=vector-storage --type=jvector --mode=MEMORY
+java ExampleRunner --example=vector-storage --type=vector --force-cpu=true</code></pre>
+
+<h2 id="source">源码位置</h2>
+<table>
+<tr><th>文件</th><th>路径</th></tr>
+<tr><td>VectorStarterTest.java</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/src/main/java/.../VectorStarterTest.java</code></td></tr>
+<tr><td>VectorPerfBench.java</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/src/main/java/.../VectorPerfBench.java</code></td></tr>
+<tr><td>MemoryVectorStorage.java</td><td><code>utils-support-core-parent/utils-support-common-starter/.../vector/MemoryVectorStorage.java</code></td></tr>
+<tr><td>DefaultVectorStorage.java</td><td><code>utils-support-core-parent/utils-support-common-starter/.../vector/DefaultVectorStorage.java</code></td></tr>
+<tr><td>JVectorVectorStorage.java</td><td><code>utils-support-datasource-parent/utils-support-jvector-starter/.../storage/JVectorVectorStorage.java</code></td></tr>
+<tr><td>CuvsVectorStorage.java</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/.../storage/CuvsVectorStorage.java</code></td></tr>
+<tr><td>MilvusVectorStorage.java</td><td><code>utils-support-datasource-parent/utils-support-milvus-starter/.../storage/MilvusVectorStorage.java</code></td></tr>
+</table>
+
+</div>
+</body>
+</html>

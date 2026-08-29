@@ -88,6 +88,25 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
 
     // ==================== DDL/DML ====================
 
+    public List<ColumnDef> getSchema(String tableName) throws IOException {
+        Path f = config.baseDir().resolve("_schemas").resolve(tableName + ".json");
+        if (!Files.exists(f)) return Collections.emptyList();
+        String json = Files.readString(f);
+        Map<String, Object> schema = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> cols = (List<Map<String, Object>>) schema.get("columns");
+        if (cols == null) return Collections.emptyList();
+        List<ColumnDef> result = new ArrayList<>(cols.size());
+        for (Map<String, Object> col : cols) {
+            result.add(new ColumnDef(
+                    (String) col.get("name"),
+                    (String) col.get("type"),
+                    Boolean.TRUE.equals(col.get("nullable"))
+            ));
+        }
+        return result;
+    }
+
     public void createTable(String tableName, List<ColumnDef> columns) throws IOException {
         Path f = config.baseDir().resolve("_schemas").resolve(tableName + ".json");
         Map<String, Object> schema = new LinkedHashMap<>();

@@ -69,7 +69,8 @@ public final class YoloWorldInferenceTest {
             } catch (Exception e) {
                 String msg = e.getMessage();
                 if (msg != null && (msg.contains("download") || msg.contains("超时") || msg.contains("401")
-                        || msg.contains("Connection") || msg.contains("Network"))) {
+                        || msg.contains("Connection") || msg.contains("Network") || msg.contains("not found"))
+                        || isFileNotFoundException(e)) {
                     System.out.println("  [SKIP] " + tier + " needs download ("
                             + msg.substring(0, Math.min(80, msg.length())) + ")");
                     skipped++;
@@ -89,6 +90,15 @@ public final class YoloWorldInferenceTest {
         if (failed > 0) System.exit(1);
     }
 
+
+    private static boolean isFileNotFoundException(Exception e) {
+        Throwable t = e;
+        while (t != null) {
+            if (t instanceof java.io.FileNotFoundException) return true;
+            t = t.getCause();
+        }
+        return false;
+    }
     private static void validateResults(List<DetectionInfo> results, String tier) {
         for (DetectionInfo d : results) {
             if (d.x() < 0 || d.y() < 0 || d.width() <= 0 || d.height() <= 0)
