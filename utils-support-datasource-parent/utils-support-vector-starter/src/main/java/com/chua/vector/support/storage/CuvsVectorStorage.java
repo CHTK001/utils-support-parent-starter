@@ -205,28 +205,24 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             }
             try {
                 Object queryObj = invokeStatic("com.nvidia.cuvs.CagraQuery", "newQuery",
-                        Object.class, new float[][]{query}, topK, properties.searchEf());
+                        Object.class, new float[][]{query}, topK * 5, properties.searchEf());
                 Object results = invoke(index, "search", Object.class,
                         forName("com.nvidia.cuvs.CagraQuery"), queryObj);
                 @SuppressWarnings("unchecked")
                 List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
-                List<Vector> list = new ArrayList<>();
+                List<Vector> candidates = new ArrayList<>();
                 if (!hits.isEmpty()) {
                     Map<Integer, Float> hit = hits.get(0);
                     for (Map.Entry<Integer, Float> e : hit.entrySet()) {
                         int ord = e.getKey();
                         if (ord < rawVectors.size()) {
-                            String id = idToOrd.entrySet().stream()
-                                    .filter(en -> en.getValue() == ord)
-                                    .findFirst()
-                                    .map(Map.Entry::getKey)
-                                    .orElse(String.valueOf(ord));
-                            list.add(new Vector(id, rawVectors.get(ord),
-                                    Map.of("score", (double) e.getValue())));
+                            String id = findIdByOrd(ord, idToOrd);
+                            candidates.add(new Vector(id, rawVectors.get(ord),
+                                    Map.of("score", (double) e.getValue(), "origOrd", ord)));
                         }
                     }
                 }
-                return list;
+                return reRank(candidates, query, topK);
             } catch (Throwable t) {
                 log.warn("[vector-starter] CAGRA search failed, falling back to CPU: {}", t.getMessage());
                 return fallbackSearch(query, topK);
@@ -415,28 +411,24 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             }
             try {
                 Object queryObj = invokeStatic("com.nvidia.cuvs.HnswQuery", "newQuery",
-                        Object.class, new float[][]{query}, topK, properties.searchEf());
+                        Object.class, new float[][]{query}, topK * 5, properties.searchEf());
                 Object results = invoke(index, "search", Object.class,
                         forName("com.nvidia.cuvs.HnswQuery"), queryObj);
                 @SuppressWarnings("unchecked")
                 List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
-                List<Vector> list = new ArrayList<>();
+                List<Vector> candidates = new ArrayList<>();
                 if (!hits.isEmpty()) {
                     Map<Integer, Float> hit = hits.get(0);
                     for (Map.Entry<Integer, Float> e : hit.entrySet()) {
                         int ord = e.getKey();
                         if (ord < rawVectors.size()) {
-                            String id = idToOrd.entrySet().stream()
-                                    .filter(en -> en.getValue() == ord)
-                                    .findFirst()
-                                    .map(Map.Entry::getKey)
-                                    .orElse(String.valueOf(ord));
-                            list.add(new Vector(id, rawVectors.get(ord),
-                                    Map.of("score", (double) e.getValue())));
+                            String id = findIdByOrd(ord, idToOrd);
+                            candidates.add(new Vector(id, rawVectors.get(ord),
+                                    Map.of("score", (double) e.getValue(), "origOrd", ord)));
                         }
                     }
                 }
-                return list;
+                return reRank(candidates, query, topK);
             } catch (Throwable t) {
                 log.warn("[vector-starter] HNSW search failed, falling back to CPU: {}", t.getMessage());
                 return fallbackSearch(query, topK);
@@ -572,5 +564,27 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             indexBuilt = false;
             return true;
         }
+    }
+
+    /**
+     * 两阶段重排序：先用 cuVS 原生算法粗筛 topK×5，再用自定义算法精排取 topK。
+     */
+    private List<Vector> reRank(List<Vector> candidates, float[] query, int topK) {
+        var algo = getAlgorithm();
+        if (algo == null || candidates.size() <= topK) {
+            return candidates.subList(0, Math.min(topK, candidates.size()));
+        }
+        candidates.sort((a, b) -> Double.compare(
+                algo.compare(query, a.data()),
+                algo.compare(query, b.data())));
+        return candidates.subList(0, topK);
+    }
+
+    private static String findIdByOrd(int ord, Map<String, Integer> idToOrd) {
+        return idToOrd.entrySet().stream()
+                .filter(e -> e.getValue() == ord)
+                .findFirst()
+                .map(Map.Entry::getKey)
+                .orElse(String.valueOf(ord));
     }
 }

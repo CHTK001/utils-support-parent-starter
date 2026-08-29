@@ -31,7 +31,7 @@ import java.nio.file.Path;
  * @since 4.0.0.42
  */
 @Slf4j
-public class VitH14OnnxTranslator implements ITranslator<Image, float[]> {
+public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCloseable {
 
     /** 模型名称 */
     private static final String NAME = "vit-h-14";

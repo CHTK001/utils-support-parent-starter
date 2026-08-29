@@ -1,11 +1,7 @@
 package com.chua.common.support.tree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * B 树节点（数据存储在内部节点，允许节点存储键值对）。
@@ -22,44 +18,15 @@ class BTreeNode<K, V> {
     List<BTreeNode<K, V>> children = new ArrayList<>();
     boolean leaf;
 
-    /**
-     * 设置初始容量以避免频繁扩容。
-     *
-     * @param initialCapacity 初始容量
-     */
-    void setInitialCapacity(int initialCapacity) {
-        if (keys instanceof ArrayList) {
-            ((ArrayList<?>) keys).ensureCapacity(initialCapacity);
-        }
-        if (values instanceof ArrayList) {
-            ((ArrayList<?>) values).ensureCapacity(initialCapacity);
-        }
-        if (children instanceof ArrayList) {
-            ((ArrayList<?>) children).ensureCapacity(initialCapacity + 1);
-        }
-    }
-
     BTreeNode(boolean leaf) {
+        this(leaf, 16);
+    }
+
+    BTreeNode(boolean leaf, int capacity) {
         this.leaf = leaf;
-    }
-
-    /**
-     * 判断节点是否已满。
-     *
-     * @param order B 树阶数
-     * @return 是否已满
-     */
-    boolean isFull(int order) {
-        return keys.size() >= order - 1;
-    }
-
-    /**
-     * 判断节点是否为空。
-     *
-     * @return 是否空
-     */
-    boolean isEmpty() {
-        return keys.isEmpty();
+        if (keys instanceof ArrayList) ((ArrayList<?>) keys).ensureCapacity(capacity);
+        if (values instanceof ArrayList) ((ArrayList<?>) values).ensureCapacity(capacity);
+        if (children instanceof ArrayList) ((ArrayList<?>) children).ensureCapacity(capacity + 1);
     }
 
     List<K> getKeys() { return keys; }

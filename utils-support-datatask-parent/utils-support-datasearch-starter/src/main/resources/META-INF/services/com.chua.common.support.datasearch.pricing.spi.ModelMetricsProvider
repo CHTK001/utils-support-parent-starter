@@ -1,1 +1,2 @@
 com.chua.common.support.datasearch.pricing.spi.impl.ArtificialAnalysisModelMetricsProvider
+com.chua.common.support.datasearch.pricing.spi.impl.OpenRouterModelMetricsProvider

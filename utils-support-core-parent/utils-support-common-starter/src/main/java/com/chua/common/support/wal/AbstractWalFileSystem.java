@@ -113,7 +113,7 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     }
 
     @Override
-    public void close() { walLog.close(); }
+    public void close() throws IOException { walLog.close(); }
 
     // ==================== 子类扩展点 ====================
 

@@ -15,10 +15,9 @@
            <module>utils-support-cloud-parent</module>
           <module>utils-support-datalake-parent</module>
            <module>utils-support-middleware-parent</module>
-            <module>utils-support-extra-parent</module>
-            <module>utils-support-runtime-parent</module>
-            <module>utils-support-models-parent</module>
-        </modules>
+             <module>utils-support-extra-parent</module>
+             <module>utils-support-runtime-parent</module>
+         </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
