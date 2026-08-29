@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-cloud-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-modelscope-starter</artifactId>
+    <name>Utils Support ModelScope Starter</name>
+    <description>ModelScope（魔搭）AI 服务集成：OpenAI 兼容 chat、inference 图像/语音、Hub 模型下载/上传（SPI provider="modelscope"）</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- openai-java 用于 ModelScope OpenAI 兼容的 chat/completions -->
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.16</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

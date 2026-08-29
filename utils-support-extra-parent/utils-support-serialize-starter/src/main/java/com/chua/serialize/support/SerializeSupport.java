@@ -45,7 +45,6 @@ public class SerializeSupport {
      * @return 返回配置好的 SerializerFlow 对象
      */
     public static <T extends Serializable> SerializerFlow createFlow(Class<T> clazz) {
-        private static final long serialVersionUID = 1L;
         AutoSerializer<T> autoSerializer = new AutoSerializer<>(clazz);
         return new SerializerFlow(PROVIDER, autoSerializer);
     }

@@ -49,6 +49,9 @@
                     </compilerArgs>
                     <excludes>
                         <exclude>**/objects/inject/impl/JsrBeanDefinitionServiceInjector.java</exclude>
+                        <exclude>**/vector/VectorMath.java</exclude>
+                        <exclude>**/vector/VectorIOBench.java</exclude>
+                        <exclude>**/vector/VectorStorageBench.java</exclude>
                     </excludes>
                     <annotationProcessorPaths>
                         <path>

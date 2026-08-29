@@ -77,12 +77,6 @@ MODEL_REGISTRY = {
         {"id": "flux1-dev",     "ms": "AI-ModelScope/FLUX.1-dev"},
         {"id": "kolors",        "ms": "AI-ModelScope/Kolors"},
         {"id": "florence2-base","ms": "iic/Florence-2-base"},
-        # ── Mage-Flow (microsoft/Mage) ──
-        {"id": "mage-flow-turbo", "hf": "microsoft/Mage-Flow-Turbo", "source": "huggingface", "runner": "mage_flow"},
-        {"id": "mage-flow",       "hf": "microsoft/Mage-Flow",        "source": "huggingface", "runner": "mage_flow"},
-        {"id": "mage-flow-base",  "hf": "microsoft/Mage-Flow-Base",   "source": "huggingface", "runner": "mage_flow"},
-        # ── Mage-Flow 远程服务 (HTTP) ──
-        {"id": "mage-remote", "local": True, "url": "", "runner": "mage_remote"},
     ],
     # ── 文生音频 (TTS) ──
     "tts": [
@@ -311,10 +305,6 @@ def _create_runner(model_name: str, model_type: str, model_root: Path, entry: di
         return OvisOcrRunner(model_name, model_type, model_root, entry)
     if entry.get("runner") == "unlimited_ocr":
         return UnlimitedOcrRunner(model_name, model_type, model_root, entry)
-    if entry.get("runner") == "mage_flow":
-        return MageFlowRunner(model_name, model_type, model_root, entry)
-    if entry.get("runner") == "mage_remote":
-        return MageRemoteRunner(model_name, model_type, model_root, entry)
     if entry.get("local") and model_type in ("detection", "face_detection", "ocr"):
         return LocalVisionRunner(model_name, model_type, model_root, entry)
     if entry.get("local") and model_type == "vlm":
@@ -751,79 +741,6 @@ class ImageGenRunner(BaseRunner):
         import base64, io
         buf = io.BytesIO()
         result.save(buf, format="PNG")
-        return base64.b64encode(buf.getvalue()).decode()
-
-
-class MageRemoteRunner(BaseRunner):
-    """调用远程 mage_flow.service FastAPI 服务（部署在带 GPU 的服务器）"""
-    def _load(self):
-        import os
-        import requests
-        self._url = self.entry.get("url") or os.environ.get("MAGEFLOW_REMOTE_URL")
-        if not self._url:
-            raise RuntimeError("mage_remote 需要在 entry 设置 url 或环境变量 MAGEFLOW_REMOTE_URL")
-        self._session = requests.Session()
-        self._loaded = True
-
-    def run(self, inputs: dict, params: dict) -> str:
-        if not self._loaded:
-            self._load()
-        req = {
-            "prompt": inputs.get("prompt", ""),
-            "height": int(params.get("height", 1024)),
-            "width": int(params.get("width", 1024)),
-            "steps": int(params.get("steps", 4)),
-            "cfg": float(params.get("cfg", 1.0)),
-            "seed": int(params.get("seed", 42)),
-            "negative_prompt": inputs.get("negative_prompt") or params.get("negative_prompt") or " ",
-        }
-        url = self._url.rstrip("/") + "/infer"
-        log.info(f"[MageRemote] POST {url} steps={req['steps']} cfg={req['cfg']} {req['width']}x{req['height']}")
-        r = self._session.post(url, json=req, timeout=600)
-        r.raise_for_status()
-        return r.json()["image"]
-
-
-class MageFlowRunner(BaseRunner):
-    """Mage-Flow 文生图 (microsoft/Mage) — 4B 原生分辨率，支持 Turbo/Base/RL"""
-    def _load(self):
-        try:
-            from mage_flow import MageFlowPipeline
-            from mage_flow.models.modules._attn_backend import set_attn_backend
-        except ImportError as e:
-            raise RuntimeError(
-                "Mage-Flow 需要安装 mage-flow: pip install mage-flow "
-                "(或从 https://github.com/microsoft/Mage 源码 pip install -e .)"
-            ) from e
-        set_attn_backend("sdpa")
-        model_dir = self._auto_download()
-        device = self._device_str()
-        log.info(f"[MageFlow] 加载 {model_dir} device={device}")
-        self._model = MageFlowPipeline.from_pretrained(str(model_dir), device=device)
-        self._loaded = True
-
-    def run(self, inputs: dict, params: dict) -> str:
-        if not self._loaded:
-            self._apply_gpu(params)
-            self._load()
-        prompt = inputs.get("prompt", "")
-        neg = inputs.get("negative_prompt") or params.get("negative_prompt") or " "
-        height = int(params.get("height", 1024))
-        width = int(params.get("width", 1024))
-        steps = int(params.get("steps", 4))
-        cfg = float(params.get("cfg", 1.0))
-        seed = int(params.get("seed", 42))
-        log.info(f"[MageFlow] prompt={prompt!r} steps={steps} cfg={cfg} {height}x{width} seed={seed}")
-        imgs = self._model.generate(
-            [prompt],
-            neg_prompts=[neg],
-            seeds=[seed],
-            steps=steps, cfg=cfg,
-            heights=[height], widths=[width],
-        )
-        import base64, io
-        buf = io.BytesIO()
-        imgs[0].save(buf, format="PNG")
         return base64.b64encode(buf.getvalue()).decode()
 
 

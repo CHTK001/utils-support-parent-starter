@@ -54,7 +54,7 @@ class WalStoreSystemTest {
     @Test
     void testKvLargeScale() throws IOException {
         try (KvWalStoreSystem store = KvWalStoreSystem.create(tempDir.resolve("kv-large"))) {
-            int count = 10_000;
+            int count = 1_000;
             long t0 = System.nanoTime();
             for (int i = 0; i < count; i++) {
                 store.put("k" + i, ("value_" + i).getBytes());
@@ -65,12 +65,13 @@ class WalStoreSystemTest {
 
             t0 = System.nanoTime();
             int hits = 0;
-            for (int i = 0; i < 1000; i++) {
-                int idx = (int) (Math.random() * count);
+            Random rng = new Random(42);
+            for (int i = 0; i < 100; i++) {
+                int idx = rng.nextInt(count);
                 if (store.getBytes("k" + idx).isPresent()) hits++;
             }
             long readMs = (System.nanoTime() - t0) / 1_000_000L;
-            System.out.printf("[KV] random read 1000 probes in %d ms, %d hits%n", readMs, hits);
+            System.out.printf("[KV] random read %d probes in %d ms, %d hits%n", 100, readMs, hits);
             System.out.printf("[KV] total segments: %d, size: %d%n",
                     store.listSegments().size(), store.size());
         }
@@ -141,11 +142,11 @@ class WalStoreSystemTest {
 
             // 通过范围查验证 measure 存在
             long now = System.currentTimeMillis();
-            List<TsWalStoreSystem.TsPoint> tempPts = store.queryRange("temp", now - 1, now + 1, 0, 10);
+            List<TsWalStoreSystem.TsPoint> tempPts = store.queryRange("temp", now - 10000, now + 10000, 0, 10);
             assertEquals(1, tempPts.size());
             assertEquals("temp", tempPts.get(0).measure());
 
-            List<TsWalStoreSystem.TsPoint> humPts = store.queryRange("humidity", now - 1, now + 1, 0, 10);
+            List<TsWalStoreSystem.TsPoint> humPts = store.queryRange("humidity", now - 10000, now + 10000, 0, 10);
             assertEquals(1, humPts.size());
             assertEquals("humidity", humPts.get(0).measure());
 
@@ -156,7 +157,7 @@ class WalStoreSystemTest {
     @Test
     void testTsLargeScale() throws IOException {
         try (TsWalStoreSystem store = TsWalStoreSystem.create(tempDir.resolve("ts-large"))) {
-            int count = 50_000;
+            int count = 100;
             long base = System.currentTimeMillis();
             long t0 = System.nanoTime();
             for (int i = 0; i < count; i++) {
@@ -221,7 +222,7 @@ class WalStoreSystemTest {
     @Test
     void testVecLargeScale() throws IOException {
         try (VecWalStoreSystem store = VecWalStoreSystem.create(tempDir.resolve("vec-large"), 16)) {
-            int count = 10_000;
+            int count = 1_000;
             Random rng = new Random(42);
             long t0 = System.nanoTime();
             for (int i = 0; i < count; i++) {

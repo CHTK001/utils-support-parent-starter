@@ -1,0 +1,2 @@
+com.chua.common.support.datasearch.weather.spi.impl.WttrInWeatherProvider
+com.chua.common.support.datasearch.weather.spi.impl.OpenMeteoWeatherProvider

@@ -2,6 +2,7 @@ package com.chua.common.support.datasource.wal;
 
 import com.chua.common.support.wal.AbstractWalFileSystem;
 import com.chua.common.support.wal.WalSegmentInfo;
+import com.chua.common.support.wal.SegmentWalLog;
 import java.io.IOException;
 import java.util.*;
 
@@ -26,11 +27,27 @@ public class SimpleSqlParser {
         String tableName = tablePart;
 
         List<Map<String, Object>> rows = new ArrayList<>();
-        for (WalSegmentInfo seg : store.listSegments()) {
-            store.listSegments(); // trigger scan
-            // 简化：直接扫描所有段
+        for (int i = 0; i < store.walLogs.length; i++) {
+            SegmentWalLog log = store.walLogs[i];
+            if (log == null) continue;
+            for (WalSegmentInfo seg : log.listSegments()) {
+                try {
+                    log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
+                        if ((op & 0x80) != 0) return true;
+                        // JdbcWalStoreSystem payload: no key prefix, just encoded row
+                        // The row map from decodeValue includes the table info via rowId
+                        // We need to check if this payload belongs to our table
+                        // Since we can't easily extract table from payload alone, scan all and filter later
+                        // Actually, the key is passed to append() but not stored in payload
+                        // So we decode and check the row content
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> row = (Map<String, Object>) store.decodeValue(null, payload);
+                        if (row != null) rows.add(row);
+                        return true;
+                    });
+                } catch (Exception ignored) {}
+            }
         }
-        // 简化：返回所有扫描到的行（实际应通过 query 接口）
         return rows;
     }
 

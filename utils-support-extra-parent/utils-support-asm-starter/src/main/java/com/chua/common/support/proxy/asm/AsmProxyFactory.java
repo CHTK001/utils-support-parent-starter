@@ -49,6 +49,7 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
         // 使用 JDK 动态代理作为 ASM 实现的回退
         if (target.isInterface()) {
             return ReflectUtils.newProxy(
+                target.getClassLoader(),
                 new Class<?>[]{target},
                 (proxy, method, args) -> intercept.invoke(proxy, method, args, (T) proxy));
         }

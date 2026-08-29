@@ -46,6 +46,18 @@ public class ILinkBotClient implements BotClient {
     /** iLink Bot API 基础地址 */
     private static final String DEFAULT_BASE_URL = "https://ilinkai.weixin.qq.com";
 
+    /** iLink 应用标识（官方 openclaw-weixin package.json ilink_appid） */
+    private static final String ILINK_APP_ID = "bot";
+
+    /** iLink 应用客户端版本（0x00MMNNPP：major<<16 | minor<<8 | patch），2.4.6 -> 132102 */
+    private static final int ILINK_APP_CLIENT_VERSION = 132102;
+
+    /** 渠道版本（openclaw-weixin 包版本） */
+    private static final String CHANNEL_VERSION = "2.4.6";
+
+    /** 默认 bot 代理标识 */
+    private static final String DEFAULT_BOT_AGENT = "OpenClaw";
+
     /** API 基础地址 */
     private String baseUrl = DEFAULT_BASE_URL;
 
@@ -150,7 +162,7 @@ public class ILinkBotClient implements BotClient {
                     continue;
                 }
                 String state = getString(status, "status");
-                if ("scanned".equals(state)) {
+                if ("scaned".equals(state)) {
                     if (qrcodeListener != null) { qrcodeListener.scanned(); }
                     log.info("[ILink] 已扫码，等待确认...");
                 } else if ("confirmed".equals(state)) {
@@ -369,19 +381,39 @@ public class ILinkBotClient implements BotClient {
      * 发送带 context_token 的文本消息到指定用户。
      *
      * <p>iLink 协议要求 POST /ilink/bot/sendmessage，
-     * 请求头需携带 bot_token 与 X-WECHAT-UIN。</p>
+     * 请求头需携带 bot_token 与 X-WECHAT-UIN，
+     * 请求体为 {@code {"msg": {...}, "base_info": {...}}} 包裹结构。</p>
      *
      * @param toUser 目标用户
-     * @param body   请求体 JSON
+     * @param body   文本内容
      * @return 发送结果
      */
-    private BotSendResult sendWithToken(String toUser, JsonObject body) {
+    private BotSendResult sendWithToken(String toUser, String content) {
         try {
-            body.fluentPut("toUserId", toUser);
+            JsonObject msg = new JsonObject();
+            msg.fluentPut("from_user_id", "");
+            msg.fluentPut("to_user_id", toUser);
+            msg.fluentPut("client_id", "openclaw-weixin-" + System.nanoTime());
+            msg.fluentPut("message_type", 2);       // MessageType.BOT
+            msg.fluentPut("message_state", 2);      // MessageState.FINISH
             String ctx = contextTokens.get(toUser);
-            if (ctx != null) { body.fluentPut("contextToken", ctx); }
+            if (ctx != null) {
+                msg.fluentPut("context_token", ctx);
+            }
+            JsonObject item = new JsonObject();
+            item.fluentPut("type", 1);              // MessageItemType.TEXT
+            item.fluentPut("text_item", new JsonObject().fluentPut("text", content));
+            msg.fluentPut("item_list", new com.chua.common.support.lang.json.JsonArray().fluent(item));
+
+            JsonObject baseInfo = new JsonObject();
+            baseInfo.fluentPut("channel_version", CHANNEL_VERSION);
+            baseInfo.fluentPut("bot_agent", DEFAULT_BOT_AGENT);
+            JsonObject req = new JsonObject();
+            req.fluentPut("msg", msg);
+            req.fluentPut("base_info", baseInfo);
+
             Map<String, Object> resp = apiPost("/ilink/bot/sendmessage", Json.fromJson(
-                    body.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
+                    req.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
             int ret = intVal(resp, "ret", -1);
             boolean ok = ret == 0;
             return ok ? BotSendResult.ok("0") : BotSendResult.fail(-1, getString(resp, "errmsg"));
@@ -394,15 +426,10 @@ public class ILinkBotClient implements BotClient {
      * 构建文本消息体。
      *
      * @param content 文本内容
-     * @return JSON 对象
+     * @return 文本内容字符串
      */
-    private JsonObject buildTextBody(String content) {
-        JsonObject text = new JsonObject();
-        text.fluentPut("content", content);
-        JsonObject body = new JsonObject();
-        body.fluentPut("msgtype", "text");
-        body.fluentPut("text", text);
-        return body;
+    private String buildTextBody(String content) {
+        return content;
     }
 
     /**
@@ -429,7 +456,8 @@ public class ILinkBotClient implements BotClient {
         List<BotInboundMessage> result = new ArrayList<>();
         try {
             JsonObject body = new JsonObject();
-            body.fluentPut("base_info", new JsonObject().fluentPut("channel_version", "2.0.0"));
+            body.fluentPut("base_info", new JsonObject().fluentPut("channel_version", CHANNEL_VERSION)
+                    .fluentPut("bot_agent", DEFAULT_BOT_AGENT));
             body.fluentPut("get_updates_buf", getUpdatesBuf);
             Map<String, Object> resp = apiPost("/ilink/bot/getupdates", Json.fromJson(
                     body.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
@@ -438,13 +466,19 @@ public class ILinkBotClient implements BotClient {
             int errcode = intVal(resp, "errcode", 0);
             log.info("[ILink] getupdates 响应: {}", resp);
             if (ret == -14 || errcode == -14) {
-                // 会话过期
-                log.warn("[ILink] 会话过期 (-14)，停止轮询");
+                // 会话过期：token 失效，需重新扫码
+                log.warn("[ILink] 会话过期 (-14)，停止轮询，需重新扫码绑定");
                 running.set(false);
+                if (qrcodeListener != null) { qrcodeListener.error("会话过期，请重新扫码绑定", null); }
                 return result;
             }
-            if (ret != 0 && errcode != 0) {
-                log.warn("[ILink] getupdates 返回错误 ret={} errcode={}", ret, errcode);
+            if (ret != 0 || errcode != 0) {
+                // ret=-1 表示 token 无效（认证失败），同样需重新扫码；不再无限空转
+                log.warn("[ILink] getupdates 返回错误 ret={} errcode={} errmsg={}，停止轮询", ret, errcode, getString(resp, "errmsg"));
+                if (ret == -1) {
+                    running.set(false);
+                    if (qrcodeListener != null) { qrcodeListener.error("Bot 凭证已失效，请重新扫码绑定", null); }
+                }
                 return result;
             }
             String nextBuf = getString(resp, "get_updates_buf");
@@ -530,6 +564,7 @@ public class ILinkBotClient implements BotClient {
         ClientRequest request = ClientRequest.of(baseUrl + pathAndQuery, HttpMethod.GET);
         request.setConnectTimeout(connectTimeoutMillis);
         request.setReadTimeout(readTimeoutMillis);
+        applyCommonHeaders(request);
         if (token != null && !token.isEmpty()) {
             request.header("Authorization", "Bearer " + token);
         }
@@ -545,11 +580,20 @@ public class ILinkBotClient implements BotClient {
     private void applyAuthHeaders(ClientRequest request) {
         request.setConnectTimeout(connectTimeoutMillis);
         request.setReadTimeout(readTimeoutMillis);
+        applyCommonHeaders(request);
         if (token != null && !token.isEmpty()) {
             request.header("AuthorizationType", "ilink_bot_token");
             request.header("Authorization", "Bearer " + token);
         }
         request.header("X-WECHAT-UIN", wechatUin());
+    }
+
+    /**
+     * 附加 iLink 应用标识头（官方 openclaw-weixin 协议要求）。
+     */
+    private static void applyCommonHeaders(ClientRequest request) {
+        request.header("iLink-App-Id", ILINK_APP_ID);
+        request.header("iLink-App-ClientVersion", String.valueOf(ILINK_APP_CLIENT_VERSION));
     }
 
     /**

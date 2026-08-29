@@ -11,8 +11,9 @@
           <module>utils-support-datatask-parent</module>
           <module>utils-support-datasource-parent</module>
           <module>utils-support-network-parent</module>
-           <module>utils-support-deeplearning-parent</module>
-           <module>utils-support-cloud-parent</module>
+            <module>utils-support-deeplearning-parent</module>
+            <module>utils-support-models-parent</module>
+            <module>utils-support-cloud-parent</module>
           <module>utils-support-datalake-parent</module>
            <module>utils-support-middleware-parent</module>
              <module>utils-support-extra-parent</module>

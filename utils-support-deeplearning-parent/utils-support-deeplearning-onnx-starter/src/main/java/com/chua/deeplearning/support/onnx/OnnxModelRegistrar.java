@@ -73,7 +73,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 中文CLIP文本特征(CN-CLIP ViT-L/14)：提取中文 CLIP 的文本特征向量（768维，高精度），与图像特征比对；适用中文图文检索、跨模态匹配
         reg("cn-clip-vit-l-14-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-l-14/vit-l-14.txt.fp16.onnx");
         // 中文CLIP-RN50图像特征(CN-CLIP)：提取中文 CLIP RN50 的图像特征向量（1024维），与文本特征比对；适用中文图文检索、跨模态匹配
-        reg("cn-clip-rn50-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp32.onnx", null, false, null);
+        reg("cn-clip-rn50-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp16.onnx");
+        // 中文CLIP-RN50文本特征(CN-CLIP)：提取中文 CLIP RN50 的文本特征向量（1024维），与图像特征比对；适用中文图文检索、跨模态匹配
+        reg("cn-clip-rn50-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-rn50/rn50.txt.fp16.onnx");
         // 中文CLIP-ViT-H/14图像特征(CN-CLIP)：提取中文 CLIP ViT-H/14 的图像特征向量（1024维，最准模型），与文本特征比对；适用高精度中文图文检索、跨模态匹配
         reg("cn-clip-vit-h-14-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-h-14/vit-h-14.img.b1.fp32.onnx", null, false, null);
         // 语言检测(XLM-RoBERTa)：检测文本的语言种类（如中文、英文、日文等），多语言；适用文本预处理、多语言路由
@@ -186,7 +188,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
-#DISABLED#         reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
+        // #DISABLED# pp-word-rotate 已禁用（模型未随 jar 分发，避免注册后加载失败）
+        // reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
         reg("pp-word-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx");
         // OCR文字识别(SVTR)：SVTR 架构轻量级文字识别，速度更快；适用快速 OCR
