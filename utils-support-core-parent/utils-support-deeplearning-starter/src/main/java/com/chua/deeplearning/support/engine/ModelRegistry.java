@@ -846,7 +846,7 @@ public final class ModelRegistry {
     private static Path extractClasspathResource(String resourcePath, URL url) throws IOException {
         Path target = extractRoot.resolve(resourcePath);
         Files.createDirectories(target.getParent());
-        if (Files.exists(target) && Files.size(target) > 0) {
+        if (Files.exists(target) && Files.size(target) > 0 && isUpToDate(target, url)) {
             return target;
         }
         try (InputStream in = url.openStream()) {
@@ -864,6 +864,32 @@ public final class ModelRegistry {
         }
         log.info("[deeplearning-engine] classpath 模型已解压: {} -> {}", resourcePath, target);
         return target;
+    }
+
+    /**
+     * 校验已解压的缓存文件是否与 classpath 资源一致（按大小比对，避免模型 jar 更新后继续使用旧缓存）。
+     *
+     * <p>jar: 资源通过 {@link URL#openConnection()} 获取 {@code Content-Length}；
+     * file: 资源直接比对文件大小。大小未知时保守返回 false，触发重新解压。</p>
+     *
+     * @param target 缓存文件
+     * @param url    classpath 资源 URL
+     * @return true 表示缓存与资源一致
+     */
+    private static boolean isUpToDate(Path target, URL url) {
+        try {
+            long remote;
+            if ("file".equalsIgnoreCase(url.getProtocol())) {
+                Path src = Paths.get(url.toURI());
+                remote = Files.size(src);
+            } else {
+                remote = url.openConnection().getContentLengthLong();
+            }
+            return remote > 0 && remote == Files.size(target);
+        } catch (Exception ex) {
+            log.debug("[deeplearning-engine] classpath 模型缓存校验失败: {}", ex.getMessage());
+            return false;
+        }
     }
 
     /**

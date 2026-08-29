@@ -94,19 +94,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             result.add(Map.entry(k, values.get(i)));
         }
         if (node.leaf) return;
-        List<BTreeNode<K, V>> children = node.children;
-        // B树中键可同时存在于内部节点和子节点，必须避免重复：
-        // child[i] 的所有键均 < keys[i]；child[i+1] 的所有键均 > keys[i]
-        // - 若 keys[i] >= from，则 child[i] 中所有键 >= keys[i] 的边界已被覆盖（可能含重复），跳过
-        //   反之若 keys[i] < from，child[i] 中的键可能仍在 [from, to) 内，需递归
-        // - 若 keys[i] >= to，则 child[i+1] 中所有键 > keys[i] >= to，全超出范围，跳过
-        //   反之若 keys[i] < to，child[i+1] 中可能有 [from, to) 的键，需递归
-        // firstChild = 第一个 keys[i] >= from 的位置（该位置及之后的 child 均需检查）
-        // lastChild  = 第一个 keys[i] >= to 的位置（该位置及之后全部跳过）
-        int firstChild = binarySearchGE(keys, from);
-        int lastChild = binarySearchGE(keys, to);
-        for (int i = firstChild; i < lastChild && i < children.size(); i++) {
-            collectRange(children.get(i), from, to, result);
+        // B树中键可同时存在于内部节点和子节点，统一访问所有子节点，最后去重
+        for (BTreeNode<K, V> child : node.children) {
+            collectRange(child, from, to, result);
         }
     }
 

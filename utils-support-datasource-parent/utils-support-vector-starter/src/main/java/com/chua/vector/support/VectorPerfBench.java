@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.Random;
 
 /**
- * 向量存储性能基准测试（精简版 — 快速出结果）。
+ * 向量存储性能基准测试（精简版）。
  */
 public class VectorPerfBench {
 
@@ -29,7 +29,6 @@ public class VectorPerfBench {
         System.out.println(" 向量存储性能基准测试");
         System.out.println(" 维度=" + DIM + " 数量=" + COUNT + " 目录=" + benchDir);
         System.out.println("============================================================\n");
-
         runAll();
         deleteRecursively(benchDir);
         System.out.println("\n测试目录已清理: " + benchDir);
@@ -37,22 +36,17 @@ public class VectorPerfBench {
 
     private static void runAll() {
         printf("\n【MemoryVectorStorage】\n");
-        bench("memory-cosine",     () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.cosine()).build());
-        bench("memory-euclidean",  () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.euclidean()).build());
-        bench("memory-dot",        () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.dotProduct()).build());
+        bench("memory-cosine",      () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.cosine()).build());
+        bench("memory-euclidean",   () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.euclidean()).build());
+        bench("memory-dot",         () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.dotProduct()).build());
 
         printf("\n【DefaultVectorStorage HYBRID】\n");
         bench("default-hyb-cosine", () -> DefaultVectorStorage.builder()
-                .dimension(DIM).dir(resolve("default-hyb-cos")).mode(DefaultVectorStorage.Mode.HYBRID)
+                .dimension(DIM).dir(resolve("dh-cos")).mode(DefaultVectorStorage.Mode.HYBRID)
                 .shardSize(FLUSH_BATCH).algorithm(VectorCompareAlgorithm.cosine()).build());
         bench("default-hyb-eucl",   () -> DefaultVectorStorage.builder()
-                .dimension(DIM).dir(resolve("default-hyb-euc")).mode(DefaultVectorStorage.Mode.HYBRID)
+                .dimension(DIM).dir(resolve("dh-euc")).mode(DefaultVectorStorage.Mode.HYBRID)
                 .shardSize(FLUSH_BATCH).algorithm(VectorCompareAlgorithm.euclidean()).build());
-
-        printf("\n【DefaultVectorStorage MEMORY】\n");
-        bench("default-mem-cosine", () -> DefaultVectorStorage.builder()
-                .dimension(DIM).mode(DefaultVectorStorage.Mode.MEMORY)
-                .algorithm(VectorCompareAlgorithm.cosine()).build());
 
         printf("\n【JVectorVectorStorage MEMORY】\n");
         bench("jvector-mem-cosine", () -> {
@@ -69,45 +63,54 @@ public class VectorPerfBench {
 
     private static void bench(String name, StorageFactory factory) {
         try {
-            float[] query = randomVector(DIM);
-            // 预热
-            for (int r = 0; r < 1; r++) {
-                VectorStorage s = factory.create();
-                for (int i = 0; i < COUNT / 5; i++) s.add("id_" + i, randomVector(DIM));
-                s.search(query, TOP_K);
-                if (s instanceof DefaultVectorStorage ds) ds.flush();
-                s.close();
+            VectorStorage storage = factory.create();
+            try {
+                float[] query = randomVector(DIM);
+                // 预热
+                for (int r = 0; r < 1; r++) {
+                    VectorStorage ws = factory.create();
+                    for (int i = 0; i < COUNT / 5; i++) ws.add("id_" + i, randomVector(DIM));
+                    ws.search(query, TOP_K);
+                    safeFlush(ws);
+                    ws.close();
+                }
+                // 写入
+                long writeNs = 0;
+                for (int round = 0; round < MEASURE_ROUNDS; round++) {
+                    VectorStorage s = factory.create();
+                    long t0 = System.nanoTime();
+                    for (int i = 0; i < COUNT; i++) s.add("id_" + i, randomVector(DIM));
+                    safeFlush(s);
+                    writeNs += System.nanoTime() - t0;
+                    s.close();
+                }
+                long avgWriteNs = writeNs / MEASURE_ROUNDS;
+                double writeWps = COUNT * 1_000_000.0 / avgWriteNs;
+                // 搜索
+                long searchNs = 0;
+                for (int round = 0; round < MEASURE_ROUNDS; round++) {
+                    VectorStorage s = factory.create();
+                    for (int i = 0; i < COUNT; i++) s.add("id_" + i, randomVector(DIM));
+                    safeFlush(s);
+                    long t0 = System.nanoTime();
+                    for (int q = 0; q < QS; q++) s.search(randomVector(DIM), TOP_K);
+                    searchNs += System.nanoTime() - t0;
+                    s.close();
+                }
+                long avgSearchNs = searchNs / (MEASURE_ROUNDS * QS);
+                double searchQps = 1_000_000_000.0 / avgSearchNs;
+                System.out.printf("  %-22s 写入=%.1f万条/s  搜索=%dus/次  QPS=%,d\n",
+                        name, writeWps, avgSearchNs / 1000, (long) searchQps);
+            } finally {
+                storage.close();
             }
-            // 写入
-            long writeNs = 0;
-            for (int round = 0; round < MEASURE_ROUNDS; round++) {
-                VectorStorage s = factory.create();
-                long t0 = System.nanoTime();
-                for (int i = 0; i < COUNT; i++) s.add("id_" + i, randomVector(DIM));
-                try { if (s instanceof DefaultVectorStorage ds) ds.flush(); } catch (Exception ignored) {}
-                writeNs += System.nanoTime() - t0;
-                s.close();
-            }
-            long avgWriteNs = writeNs / MEASURE_ROUNDS;
-            double writeWps = COUNT * 1_000_000.0 / avgWriteNs;
-            // 搜索
-            long searchNs = 0;
-            for (int round = 0; round < MEASURE_ROUNDS; round++) {
-                VectorStorage s = factory.create();
-                for (int i = 0; i < COUNT; i++) s.add("id_" + i, randomVector(DIM));
-                try { if (s instanceof DefaultVectorStorage ds) ds.flush(); } catch (Exception ignored) {}
-                long t0 = System.nanoTime();
-                for (int q = 0; q < QS; q++) s.search(randomVector(DIM), TOP_K);
-                searchNs += System.nanoTime() - t0;
-                s.close();
-            }
-            long avgSearchNs = searchNs / (MEASURE_ROUNDS * QS);
-            double searchQps = 1_000_000_000.0 / avgSearchNs;
-            System.out.printf("  %-22s 写入=%.1f万条/s  搜索=%dus/次  QPS=%,d\n",
-                    name, writeWps, avgSearchNs / 1000, (long) searchQps);
         } catch (Exception e) {
             System.out.printf("  %-22s ERROR: %s\n", name, e.getMessage());
         }
+    }
+
+    private static void safeFlush(VectorStorage s) {
+        try { if (s instanceof DefaultVectorStorage ds) ds.flush(); } catch (Exception ignored) {}
     }
 
     private static float[] randomVector(int dim) {

@@ -43,19 +43,14 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     /** 图标地址前缀（相对路径补全用） */
     private static final String LOGO_BASE = "https://artificialanalysis.ai";
 
-    /**
-     * 图片识别推断：模型名含 vision/vl/omni/multimodal，或以「数字+v」结尾（如 glm-4-5v）
-     */
-    private static final Pattern IMAGE_INPUT_PATTERN = Pattern.compile(
-            "vision|multimodal|(^|-)vl($|-)|omni|[0-9]v($|-)");
-
     /** 记录锚点：转义形态的 \"model\":{\"slug\":\"xxx\" */
     private static final Pattern ANCHOR =
             Pattern.compile("\\\\\"model\\\\\":\\{\\\\\"slug\\\\\":\\\\\\\"");
 
+    /** 目录条目：{"slug":"x","name":"y",...,"creator":{"id":"...","name":"z","logo":"/img/logos/x.svg"}} */
     private static final Pattern CATALOG_ENTRY = Pattern.compile(
-            "\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\[]*?)",
-                    "\"creator\":{\\"id\":\"[^\"]*\","name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
+            "\\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\\[]*?)"
+                    + "\"creator\":\\{\"id\":\"[^\"]*\",\"name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
 
     /** 图片输入能力推断：slug 含 image/clip/vit 等关键词 */
     private static final Pattern IMAGE_INPUT_PATTERN = Pattern.compile(
