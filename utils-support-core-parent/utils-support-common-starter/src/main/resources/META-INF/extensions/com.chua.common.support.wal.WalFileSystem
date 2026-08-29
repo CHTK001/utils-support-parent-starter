@@ -1,0 +1,4 @@
+wal-kv=com.chua.common.support.wal.KvWalFileSystem
+wal-ts=com.chua.common.support.wal.TsWalFileSystem
+wal-vec=com.chua.common.support.wal.VecWalFileSystem
+wal-filesearch=com.chua.common.support.wal.FileSearchWalFileSystem

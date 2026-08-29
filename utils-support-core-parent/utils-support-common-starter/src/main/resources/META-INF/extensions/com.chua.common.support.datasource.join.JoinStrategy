@@ -1,0 +1,2 @@
+none=com.chua.common.support.datasource.join.NoJoinStrategy
+inner=com.chua.common.support.datasource.join.InnerJoinStrategy

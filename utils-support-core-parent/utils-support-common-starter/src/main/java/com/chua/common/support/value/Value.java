@@ -7,6 +7,9 @@ import com.chua.common.support.utils.ObjectUtils;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 值包装接口，提供统一的值访问和类型转换能力。
@@ -17,6 +20,7 @@ import java.util.Optional;
  *   <li><b>默认值</b>：所有 {@code asXXX(defaultValue)} 方法在值为 null 时返回指定的默认值</li>
  *   <li><b>空值安全</b>：{@link #of(Object)} 工厂方法在值 null 时返回 {@link NullValue} 单例，避免空指针</li>
  *   <li><b>异常承载</b>：{@link #getThrowable()} 支持携带转换过程中产生的异常信息</li>
+ *   <li><b>函数式增强</b>：{@link #orElse}, {@link #orElseGet}, {@link #orElseThrow}, {@link #map}, {@link #flatMap}, {@link #ifPresent} 提供安全的链式操作，避免空指针</li>
  * </ul>
  * </p>
  *
@@ -261,5 +265,75 @@ public interface Value<T> extends Serializable {
      */
     default BigDecimal asBigDecimalOrZero() {
         return asBigDecimal(BigDecimal.ZERO);
+    }
+
+    /**
+     * 如果当前值不为 null，则返回该值；否则返回 {@code other}。
+     *
+     * @param other 备用值
+     * @return 值或备用值
+     */
+    default T orElse(T other) {
+        return getValue() != null ? getValue() : other;
+    }
+
+    /**
+     * 如果当前值不为 null，则返回该值；否则返回 {@code other} 提供的值。
+     *
+     * @param other 备用值提供者
+     * @return 值或备用值
+     */
+    default T orElseGet(Supplier<? extends T> other) {
+        return getValue() != null ? getValue() : other.get();
+    }
+
+    /**
+     * 如果当前值不为 null，则返回该值；否则抛出指定异常。
+     *
+     * @param exceptionSupplier 异常提供者
+     * @param <X>             异常类型
+     * @return 值
+     * @throws X 如果值为 null
+     */
+    default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
+        if (getValue() != null) {
+            return getValue();
+        }
+        throw exceptionSupplier.get();
+    }
+
+    /**
+     * 如果当前值不为 null，则将其转换为新的 {@link Value}。
+     *
+     * @param mapper 转换函数
+     * @param <R>    转换后的值类型
+     * @return 转换后的 Value
+     */
+    default <R> Value<R> map(Function<? super T, ? extends R> mapper) {
+        T v = getValue();
+        return v != null ? Value.of(mapper.apply(v)) : (Value<R>) NullValue.INSTANCE;
+    }
+
+    /**
+     * 如果当前值不为 null，则将其转换为新的 {@link Value}。
+     *
+     * @param mapper 转换函数，返回一个新的 Value
+     * @param <R>    转换后的值类型
+     * @return 转换后的 Value
+     */
+    default <R> Value<R> flatMap(Function<? super T, ? extends Value<? extends R>> mapper) {
+        T v = getValue();
+        return v != null ? mapper.apply(v) : (Value<R>) NullValue.INSTANCE;
+    }
+
+    /**
+     * 如果当前值不为 null，则执行指定的消费行为。
+     *
+     * @param consumer 消费行为
+     */
+    default void ifPresent(Consumer<? super T> consumer) {
+        if (getValue() != null) {
+            consumer.accept(getValue());
+        }
     }
 }
