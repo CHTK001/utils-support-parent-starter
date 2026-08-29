@@ -68,7 +68,72 @@ public class SipConfig {
     private String tokenFile;
 
     /**
+<<<<<<< Updated upstream
      * 创建默认配置。
+=======
+     * 默认 KCP 监听端口
+     */
+    public static final int DEFAULT_KCP_PORT = 19461;
+
+    /**
+     * 默认数据平面监听端口
+     */
+    public static final int DEFAULT_DATA_PORT = 19462;
+
+    /**
+     * 监听主机
+     */
+    @Builder.Default
+    /** 主机 */
+    private String host = "0.0.0.0";
+
+    /**
+     * 是否启用 TCP 传输
+     */
+    @Builder.Default
+    /** TCP是否启用 */
+    private boolean tcpEnabled = true;
+
+    /**
+     * TCP 监听端口
+     */
+    @Builder.Default
+    /** TCP端口 */
+    private int tcpPort = DEFAULT_TCP_PORT;
+
+    /**
+     * 是否启用 KCP 传输
+     */
+    @Builder.Default
+    /** KCP是否启用 */
+    private boolean kcpEnabled = true;
+
+    /**
+     * KCP 监听端口
+     */
+    @Builder.Default
+    /** KCP端口 */
+    private int kcpPort = DEFAULT_KCP_PORT;
+
+    /**
+     * 是否启用 frp 数据平面
+     */
+    @Builder.Default
+    /** 数据平面是否启用 */
+    private boolean dataPlaneEnabled = true;
+
+    /**
+     * 数据平面监听端口
+     */
+    @Builder.Default
+    /** 数据平面端口 */
+    private int dataPort = DEFAULT_DATA_PORT;
+
+    /**
+     * 创建一份独立的默认配置。
+     *
+     * @return 新的默认配置实例
+>>>>>>> Stashed changes
      */
     public static SipConfig defaults() {
         return builder().build();

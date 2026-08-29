@@ -115,7 +115,19 @@ public class SipServer extends AbstractServer implements TcpServer {
      */
     private final SipRateLimiter rateLimiter;
 
+<<<<<<< Updated upstream
     private volatile boolean running = true;
+=======
+    /**
+     * frp 数据平面（独立端口承载隧道数据）
+     */
+    private SipDataPlane dataPlane;
+
+    /**
+     * 是否正在运行
+     */
+    private volatile boolean running;
+>>>>>>> Stashed changes
 
     /**
      * 使用默认配置创建 SIP 服务器。
@@ -141,8 +153,40 @@ public class SipServer extends AbstractServer implements TcpServer {
      * @param config SIP 配置
      * @return 服务器配置
      */
+<<<<<<< Updated upstream
         /**
      * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
+=======
+    public SipServer start() {
+        if (running) {
+            return this;
+        }
+        if (config.isTcpEnabled()) {
+            startTransport("tcp", config.getTcpPort());
+        }
+        if (config.isKcpEnabled()) {
+            startTransport("kcp", config.getKcpPort());
+        }
+        if (config.isDataPlaneEnabled()) {
+            try {
+                dataPlane = new SipDataPlane(config.getHost(), config.getDataPort(), this::handleDataPlaneClosed);
+                dataPlane.start();
+            } catch (Exception e) {
+                log.warn("SIP 数据平面启动失败: {}", e.getMessage());
+            }
+        }
+        running = true;
+        log.info("SIP 服务器启动完成: tcp={}, kcp={}, dataPlane={}",
+                config.isTcpEnabled(), config.isKcpEnabled(), config.isDataPlaneEnabled());
+        return this;
+    }
+
+    /**
+     * 启动指定类型的传输。
+     *
+     * @param type 传输类型（tcp / kcp）
+     * @param port 监听端口
+>>>>>>> Stashed changes
      */
     private static String resolveToken(SipConfig config) {
         String file = config.getTokenFile();
@@ -203,7 +247,16 @@ private static ServerSetting serverSetting(SipConfig config) {
         for (DataChannel channel : dataChannels.values()) {
             channel.close();
         }
+<<<<<<< Updated upstream
         dataChannels.clear();
+=======
+        if (dataPlane != null) {
+            try {
+                dataPlane.stop();
+            } catch (Exception ignored) {
+            }
+        }
+>>>>>>> Stashed changes
         registry.clear();
         sessionTokens.clear();
         tunnelServices.clear();
@@ -365,7 +418,49 @@ private static ServerSetting serverSetting(SipConfig config) {
      * @param channelId 通道标识
      * @param payload   负载（空数组为通道关闭标记）
      */
+<<<<<<< Updated upstream
     private void muxRoute(MuxServerConn from, String channelId, byte[] payload) {
+=======
+    private void handleTunnelOpen(SyncServer transport, String clientId, String payload) {
+        String[] parts = payload.split("\\|", 2);
+        String requestId = parts[0];
+        String serviceName = parts.length > 1 ? parts[1] : "";
+        String providerId = tunnelServices.get(serviceName);
+        if (providerId == null || providerId.equals(clientId)) {
+            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR,
+                    requestId + SipProtocol.SEPARATOR + "service not found: " + serviceName);
+            return;
+        }
+        SipPeer provider = registry.get(providerId);
+        if (provider == null) {
+            transport.send(clientId, SipProtocol.CMD_TUNNEL_ERROR,
+                    requestId + SipProtocol.SEPARATOR + "provider offline: " + serviceName);
+            return;
+        }
+        String channelId = UUID.randomUUID().toString();
+        tunnelChannels.put(channelId, new TunnelChannel(clientId, providerId));
+        if (dataPlane != null) {
+            dataPlane.createChannel(channelId);
+        }
+        provider.transport().send(providerId, SipProtocol.CMD_TUNNEL_OPEN,
+                channelId + SipProtocol.SEPARATOR + serviceName + SipProtocol.SEPARATOR + config.getDataPort());
+        transport.send(clientId, SipProtocol.CMD_TUNNEL_OPENED,
+                requestId + SipProtocol.SEPARATOR + channelId + SipProtocol.SEPARATOR + config.getDataPort());
+        log.info("SIP 隧道建立: {} <-> {} via {}", clientId, providerId, channelId);
+    }
+
+    /**
+     * 处理隧道数据帧，转发给通道对端。
+     *
+     * @param transport 来源传输实例
+     * @param clientId  发送方客户端标识
+     * @param payload   报文内容（channelId|data）
+     */
+    private void handleTunnelData(SyncServer transport, String clientId, String payload) {
+        String[] parts = payload.split("\\|", 2);
+        String channelId = parts[0];
+        String data = parts.length > 1 ? parts[1] : "";
+>>>>>>> Stashed changes
         TunnelChannel channel = tunnelChannels.get(channelId);
         if (channel == null) {
             return;
@@ -740,6 +835,13 @@ onSignalClosed(clientId);
         if (b != null) {
             send(channel.bId(), SipProtocol.line(SipProtocol.PREFIX_CLOSE, b.token(), channelId));
         }
+<<<<<<< Updated upstream
+=======
+        if (dataPlane != null) {
+            dataPlane.closeChannel(channelId);
+        }
+        log.info("SIP 隧道关闭: {} ({})", channelId, clientId);
+>>>>>>> Stashed changes
     }
 
     /**
@@ -829,7 +931,59 @@ onSignalClosed(clientId);
      * @param token    会话令牌
      * @param writer   输出
      */
+<<<<<<< Updated upstream
     private record SignalConnection(String clientId, String host, int port, String token, PrintWriter writer) {
+=======
+    private void cleanupTunnels(String clientId) {
+        // 移除该客户端提供的隧道服务，避免成为陈旧服务
+        tunnelServices.entrySet().removeIf(entry -> entry.getValue().equals(clientId));
+        // 关闭该客户端参与的所有隧道通道，并通知对端
+        List<String> closedChannels = new ArrayList<>();
+        for (Map.Entry<String, TunnelChannel> entry : tunnelChannels.entrySet()) {
+            TunnelChannel channel = entry.getValue();
+            String peerId = channel.targetOf(clientId);
+            if (peerId != null) {
+                SipPeer peer = registry.get(peerId);
+                if (peer != null) {
+                    peer.transport().send(peerId, SipProtocol.CMD_TUNNEL_CLOSE, entry.getKey());
+                }
+                if (dataPlane != null) {
+                    dataPlane.closeChannel(entry.getKey());
+                }
+                closedChannels.add(entry.getKey());
+            }
+        }
+        closedChannels.forEach(tunnelChannels::remove);
+    }
+
+    /**
+     * 数据平面通道关闭回调：通知信令层清理隧道路由。
+     *
+     * @param channelId 通道标识
+     * @param reason    关闭原因
+     */
+    private void handleDataPlaneClosed(String channelId, String reason) {
+        TunnelChannel channel = tunnelChannels.remove(channelId);
+        if (channel == null) {
+            return;
+        }
+        SipPeer visitor = registry.get(channel.aId());
+        if (visitor != null) {
+            visitor.transport().send(channel.aId(), SipProtocol.CMD_TUNNEL_CLOSE, channelId);
+        }
+        SipPeer provider = registry.get(channel.bId());
+        if (provider != null) {
+            provider.transport().send(channel.bId(), SipProtocol.CMD_TUNNEL_CLOSE, channelId);
+        }
+    }
+
+    /**
+     * 传输层事件监听器，将各传输（TCP/KCP）的信令统一交给 {@link SipServer} 处理。
+     *
+     * @since 4.0.0.42
+     */
+    private final class SipTransportListener implements SyncServerListener {
+>>>>>>> Stashed changes
 
         /**
          * 发送信令行；写入失败时返回 false（连接已断）。
