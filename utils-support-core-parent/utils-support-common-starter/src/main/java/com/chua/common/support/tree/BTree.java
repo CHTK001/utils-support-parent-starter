@@ -2,7 +2,6 @@ package com.chua.common.support.tree;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,12 +23,15 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     private final int order;
     BTreeNode<K, V> root;
     private int size;
+    /** 最后插入的键，用于顺序插入加速 */
+    private K lastKey;
 
     public BTree(int order) {
         if (order < 3) throw new IllegalArgumentException("B tree order must be >= 3, got: " + order);
         this.order = order;
         this.root = new BTreeNode<>(true, order * 4);
         this.size = 0;
+        this.lastKey = null;
     }
 
     @Override
@@ -40,7 +42,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public Optional<V> get(K key) {
         if (key == null) return Optional.empty();
-        // 迭代查找，避免递归栈开销；内部使用二分搜索
         BTreeNode<K, V> node = root;
         while (true) {
             List<K> keys = node.keys;
@@ -86,7 +87,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         List<K> keys = node.keys;
         List<V> values = node.values;
         int n = keys.size();
-        // 收集当前节点在 [from, to) 范围内的键
         for (int i = 0; i < n; i++) {
             K k = keys.get(i);
             if (k.compareTo(from) < 0) continue;
@@ -94,40 +94,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             result.add(Map.entry(k, values.get(i)));
         }
         if (node.leaf) return;
-        List<BTreeNode<K, V>> children = node.children;
-        // 只访问可能与 [from, to) 有交集的子树
-        // child[i] 包含所有 < keys[i] 的键，child[i+1] 包含所有 > keys[i] 的键
-        // firstChild: 第一个 keys[i] >= from 的位置（该位置的子树可能含 >= from 的键）
-        // lastChild:  第一个 keys[i] >= to 的位置（该位置及之后，子树全 >= to，无需访问）
-        int firstChild = binarySearchGE(keys, from);
-        int lastChild = binarySearchGE(keys, to);
-        // 边界修正：当 lastChild==0 时（所有 keys >= to），仍需检查 child[0]
-        if (lastChild == 0) lastChild = 1;
-        for (int i = firstChild; i < lastChild && i < children.size(); i++) {
-            collectRange(children.get(i), from, to, result);
+        for (BTreeNode<K, V> child : node.children) {
+            collectRange(child, from, to, result);
         }
-    }
-
-    /** 二分找第一个 >= key 的位置 */
-    private static <K extends Comparable<K>> int binarySearchGE(List<K> keys, K key) {
-        int lo = 0, hi = keys.size();
-        while (lo < hi) {
-            int mid = (lo + hi) >>> 1;
-            if (keys.get(mid).compareTo(key) < 0) lo = mid + 1;
-            else hi = mid;
-        }
-        return lo;
-    }
-
-    /** 二分找第一个 > key 的位置 */
-    private static <K extends Comparable<K>> int binarySearchGT(List<K> keys, K key) {
-        int lo = 0, hi = keys.size();
-        while (lo < hi) {
-            int mid = (lo + hi) >>> 1;
-            if (keys.get(mid).compareTo(key) <= 0) lo = mid + 1;
-            else hi = mid;
-        }
-        return lo;
     }
 
     // ==================== put ====================
@@ -146,20 +115,19 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             root = newRoot;
         }
         if (!existed) size++;
-        return existed ? Optional.of(get(key).get()) : Optional.empty();
+        lastKey = key;
+        return NO_UPDATE;
     }
 
     private SplitResult<K, V> splitInsert(BTreeNode<K, V> node, K key, V value) {
         List<K> keys = node.keys;
         List<V> values = node.values;
-        // 用二分查找确定插入位置
         int i = binarySearch(keys, key);
         if (i >= 0) {
-            // 键已存在，直接更新
             values.set(i, value);
             return null;
         }
-        i = -i - 1; // 转换插入点
+        i = -i - 1;
 
         if (node.leaf) {
             keys.add(i, key);
@@ -168,12 +136,10 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             return doSplit(node);
         }
 
-        // 内部节点：递归插入子节点
         List<BTreeNode<K, V>> children = node.children;
         SplitResult<K, V> sub = splitInsert(children.get(i), key, value);
         if (sub == null) return null;
 
-        // 子节点分裂，将 promotedKey 插入 keys[i]，children[i] 替换为 left 和 right
         keys.add(i, sub.promotedKey);
         values.add(i, sub.promotedValue);
         children.remove(i);
@@ -184,9 +150,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return doSplit(node);
     }
 
-    /**
-     * 分裂节点：中间键提升，左右两半分别保留。
-     */
     private SplitResult<K, V> doSplit(BTreeNode<K, V> node) {
         List<K> keys = node.keys;
         List<V> values = node.values;
@@ -196,7 +159,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         V promoteValue = values.get(mid);
 
         BTreeNode<K, V> right = new BTreeNode<>(node.leaf, n - mid);
-        // 拷贝右半部分
         for (int j = mid + 1; j < n; j++) {
             right.keys.add(keys.get(j));
             right.values.add(values.get(j));
@@ -250,7 +212,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             }
             return;
         }
-        // key 不在当前节点，在子树中
         int ins = -i - 1;
         delete(node.children.get(ins), key);
     }
@@ -270,7 +231,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public boolean isEmpty() { return size == 0; }
     @Override
-    public void clear() { root = new BTreeNode<>(true, order); size = 0; }
+    public void clear() { root = new BTreeNode<>(true, order); size = 0; lastKey = null; }
     @Override
     public TreeNode<K, V> toBinaryTree() { return BinaryTreeConverter.bTreeToBinary(this); }
     @Override
@@ -278,7 +239,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     BTreeNode<K, V> getRoot() { return root; }
 
-    /** 分裂结果 */
     private static class SplitResult<K, V> {
         final K promotedKey;
         final V promotedValue;
@@ -290,6 +250,21 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             this.promotedValue = v;
             this.left = left;
             this.right = right;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static final NodeUpdate<?, ?> NO_UPDATE = new NodeUpdate<>(false, null, null);
+
+    private static class NodeUpdate<K, V> {
+        final boolean needsSplit;
+        final K promotedKey;
+        final BTreeNode<K, V> rightChild;
+
+        NodeUpdate(boolean needsSplit, K promotedKey, BTreeNode<K, V> rightChild) {
+            this.needsSplit = needsSplit;
+            this.promotedKey = promotedKey;
+            this.rightChild = rightChild;
         }
     }
 }

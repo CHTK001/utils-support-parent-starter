@@ -143,31 +143,18 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     @SuppressWarnings("unchecked")
     private DataSource getDataSource() {
         Engine engine = this.engine;
-        DataSource ds = null;
-        if (engine.getDefaultDataSourceName() != null) {
-            var dsObj = engine.getDataSource(engine.getDefaultDataSourceName());
-            if (dsObj != null) {
-                ds = (DataSource) dsObj.getSource();
-            }
+        var dsObj = engine.getDataSource();
+        if (dsObj == null) {
+            throw new IllegalStateException("SQLite 搜索引擎未配置数据源");
         }
-        if (ds == null && !engine.getDataSources().isEmpty()) {
-            var first = engine.getDataSources().values().iterator().next();
-            if (first != null) {
-                ds = (DataSource) first.getSource();
-            }
-        }
-        return ds;
+        return (DataSource) dsObj.getSource();
     }
 
     /**
      * 获取 JDBC 连接。
      */
     private Connection getJdbcConnection() throws SQLException {
-        DataSource ds = getDataSource();
-        if (ds == null) {
-            throw new IllegalStateException("SQLite 搜索引擎未配置数据源");
-        }
-        return ds.getConnection();
+        return getDataSource().getConnection();
     }
 
     /**
