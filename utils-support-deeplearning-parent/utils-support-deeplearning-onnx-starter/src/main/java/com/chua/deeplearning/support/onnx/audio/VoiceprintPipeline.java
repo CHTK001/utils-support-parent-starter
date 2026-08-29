@@ -52,8 +52,11 @@ public class VoiceprintPipeline implements AutoCloseable {
     /** 向量存储后端（192 维，cosine）。 */
     private final VectorStorage storage;
 
-    /** CAM++ 神经声纹特征提取器。 */
+    /** CAM++ 神经声纹特征提取器（传统方式）。 */
     private final CampplusEmbedding campplus;
+
+    /** 声纹嵌入翻译器（ModelRegistry 方式）。 */
+    private final com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> embedderTranslator;
 
     /** 检索结果上限（与 search 的 topK 取 min）。 */
     private final int maxResults;
@@ -68,11 +71,27 @@ public class VoiceprintPipeline implements AutoCloseable {
                                SpeechEnhancer denoiseEnhancer, String vadType) {
         this.storage = Objects.requireNonNull(storage, "vectorStorage");
         this.campplus = embedder != null ? embedder : CampplusEmbedding.load();
+        this.embedderTranslator = null;
         this.maxResults = Math.max(1, maxResults);
         this.denoiseEnhancer = denoiseEnhancer;
         this.vadType = vadType;
         log.info("[Voiceprint] init: CAM++ neural, dim=192, maxResults={}, storage={}, denoise={}, vad={}",
                 maxResults, storage.getClass().getSimpleName(),
+                denoiseEnhancer != null ? denoiseEnhancer.getClass().getSimpleName() : "off",
+                vadType != null ? vadType : "off");
+    }
+
+    private VoiceprintPipeline(VectorStorage storage,
+                               com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> translator,
+                               int maxResults, SpeechEnhancer denoiseEnhancer, String vadType) {
+        this.storage = Objects.requireNonNull(storage, "vectorStorage");
+        this.campplus = null;
+        this.embedderTranslator = translator;
+        this.maxResults = Math.max(1, maxResults);
+        this.denoiseEnhancer = denoiseEnhancer;
+        this.vadType = vadType;
+        log.info("[Voiceprint] init: translator={}, dim=192, maxResults={}, storage={}, denoise={}, vad={}",
+                translator.name(), maxResults, storage.getClass().getSimpleName(),
                 denoiseEnhancer != null ? denoiseEnhancer.getClass().getSimpleName() : "off",
                 vadType != null ? vadType : "off");
     }
@@ -114,6 +133,11 @@ public class VoiceprintPipeline implements AutoCloseable {
                 }
                 samples = longest;
             }
+        }
+        if (embedderTranslator != null) {
+            // ModelRegistry 方式：将 float[] 转为 WAV 字节后传给翻译器
+            byte[] wavBytes = AudioUtils.toWavBytes(samples, 16000);
+            return embedderTranslator.translate(wavBytes);
         }
         return campplus.extract(samples);
     }
@@ -343,6 +367,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     /** 管线构建器。 */
     public static final class Builder {
         private CampplusEmbedding embedder;
+        private com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> translator;
         private VectorStorage vectorStorage;
         private Path storageDir;
         private int maxResults = 100;
@@ -351,6 +376,31 @@ public class VoiceprintPipeline implements AutoCloseable {
 
         public Builder embedder(CampplusEmbedding e) {
             this.embedder = e;
+            return this;
+        }
+
+        /**
+         * 设置声纹嵌入模型 ID（从 ModelRegistry 加载）。
+         *
+         * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
+         * <pre>{@code
+         * .model("campplus-voiceprint")   // CAM++ 192维声纹
+         * .model("wespeaker-resnet34")    // Wespeaker 512维说话人嵌入
+         * }</pre>
+         *
+         * @param modelId 模型 ID（对应 AudioFingerprinter 注册表）
+         * @return this
+         */
+        public Builder model(String modelId) {
+            if (modelId == null || modelId.isBlank()) {
+                return this;
+            }
+            this.translator = com.chua.deeplearning.support.engine.AbstractIdentificationEngine.getInstance()
+                    .get(modelId, com.chua.deeplearning.support.translator.ITranslator.class);
+            if (this.translator == null) {
+                throw new IllegalArgumentException("声纹模型未注册: " + modelId);
+            }
+            log.info("[Voiceprint] 使用 ModelRegistry 加载模型: {}", modelId);
             return this;
         }
 
@@ -458,6 +508,9 @@ public class VoiceprintPipeline implements AutoCloseable {
             if (s == null) {
                 s = DefaultVectorStorage.create(192,
                         storageDir != null ? storageDir : defaultDirectory());
+            }
+            if (translator != null) {
+                return new VoiceprintPipeline(s, translator, maxResults, denoiseEnhancer, vadType);
             }
             return new VoiceprintPipeline(s, embedder, maxResults, denoiseEnhancer, vadType);
         }
