@@ -27,11 +27,12 @@ public class MergeVerifyTest {
         System.out.println("== openrouter total: " + orList.size());
         for (ModelDefinition md : orList) {
             if ("deepseek-v4-flash".equals(md.getId()) || "glm-5.3-flash".equals(md.getId())
-                    || "gpt-5-mini".equals(md.getId())) {
-                System.out.printf("OR %-18s in=%-9s out=%-9s cacheHit=%-9s image=%-10s search=%-9s imgIn=%-5s webSearch=%s%n",
+                    || "gpt-5-mini".equals(md.getId()) || "gemini-3.7-flash".equals(md.getId())) {
+                System.out.printf("OR %-18s in=%-9s out=%-9s cacheHit=%-9s image=%-10s search=%-9s imgIn=%-5s webSearch=%-5s reasoning=%-9s outMods=%s%n",
                         md.getId(), md.getInputUnitPrice(), md.getOutputUnitPrice(),
                         md.getCacheHitPrice(), md.getImagePrice(), md.getWebSearchPrice(),
-                        md.getImageInput(), md.getWebSearch());
+                        md.getImageInput(), md.getWebSearch(),
+                        md.getInternalReasoningPrice(), md.getOutputModalities());
             }
         }
 
@@ -39,6 +40,7 @@ public class MergeVerifyTest {
         List<ModelDefinition> aaList = new ArtificialAnalysisModelMetricsProvider().fetchOnlinePricing();
         mergeAndPrint(aaList, orList, "deepseek-v4-flash");
         mergeAndPrint(aaList, orList, "gpt-5-mini");
+        mergeAndPrint(aaList, orList, "gemini-3.7-flash");
     }
 
     /**
