@@ -226,8 +226,8 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         if (!released) {
             release();
         }
-        // 多取 3 倍候选，供自定义算法二次过滤
-        int fetchK = topK * 3;
+        // 多取 5 倍候选，供自定义算法二次过滤
+        int fetchK = topK * 5;
         SearchReq req = SearchReq.builder()
                 .collectionName(collectionName)
                 .data(List.of(new FloatVec(query)))

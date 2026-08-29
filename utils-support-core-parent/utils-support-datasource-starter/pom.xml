@@ -98,5 +98,12 @@
             <version>3.4.1</version>
             <scope>test</scope>
         </dependency>
+        <!-- SQL 解析器 -->
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>5.3</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
