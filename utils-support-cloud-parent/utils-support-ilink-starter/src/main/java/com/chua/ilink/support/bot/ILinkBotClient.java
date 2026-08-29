@@ -414,9 +414,17 @@ public class ILinkBotClient implements BotClient {
 
             Map<String, Object> resp = apiPost("/ilink/bot/sendmessage", Json.fromJson(
                     req.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
-            int ret = intVal(resp, "ret", -1);
-            boolean ok = ret == 0;
-            return ok ? BotSendResult.ok("0") : BotSendResult.fail(-1, getString(resp, "errmsg"));
+            // 成功响应仅携带 message_id（无 ret）；sendmessage 与 getupdates 判定规则不同
+            boolean ok = resp.containsKey("message_id");
+            if (ok) {
+                log.info("[ILink] sendmessage 发送成功 to={} message_id={}", toUser, resp.get("message_id"));
+            } else {
+                int ret = intVal(resp, "ret", -1);
+                log.warn("[ILink] sendmessage 发送失败 to={} ret={} errcode={} errmsg={} resp={}",
+                        toUser, ret, resp.get("errcode"), getString(resp, "errmsg"), resp);
+            }
+            return ok ? BotSendResult.ok(String.valueOf(resp.get("message_id")))
+                    : BotSendResult.fail(-1, getString(resp, "errmsg"));
         } catch (Exception e) {
             return BotSendResult.fail(-1, e.getMessage());
         }

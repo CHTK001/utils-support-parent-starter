@@ -127,7 +127,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                 builder.GET();
                 break;
             case DELETE:
-                builder.DELETE();
+                builder.method("DELETE", bodyPublisher(request));
                 break;
             case POST:
                 builder.POST(bodyPublisher(request));
@@ -243,7 +243,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
 
             switch (request.getMethod()) {
                 case GET:      builder.GET(); break;
-                case DELETE:   builder.DELETE(); break;
+                case DELETE:   builder.method("DELETE", bodyPublisher(request)); break;
                 case POST:     builder.POST(bodyPublisher(request)); break;
                 case PUT:      builder.PUT(bodyPublisher(request)); break;
                 case PATCH:    builder.method("PATCH", bodyPublisher(request)); break;

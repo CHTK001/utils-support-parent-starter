@@ -78,6 +78,26 @@ public interface Engine {
 
     String version();
 
+    /**
+     * 将当前页面渲染为 PDF。
+     * 使用 Chrome DevTools Protocol 的 Page.printToPdf 接口。
+     *
+     * @param pageHandle 页面句柄
+     * @param options    PDF 配置选项（margin, format, pageRanges 等），可为 null
+     * @return PDF 文件的 base64 编码字符串
+     */
+    String printPageToPdf(long pageHandle, Map<String, Object> options);
+
+    /**
+     * 将指定的 HTML 内容渲染为 PNG 图片。
+     * 通过 data: URI 加载 HTML 到页面，然后截图生成 PNG。
+     *
+     * @param pageHandle 页面句柄
+     * @param html       HTML 内容字符串
+     * @return PNG 图片的 base64 编码字符串
+     */
+    String convertHtmlToPng(long pageHandle, String html);
+
     class ResponseData {
         public final int status;
         public final String url;
