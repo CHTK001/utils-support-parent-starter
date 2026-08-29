@@ -514,8 +514,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
                 com.chua.deeplearning.support.image.ImageDetector.class,
                 "vision/detection/yoloworld/yolov8s-worldv2.onnx",
-                "https://huggingface.co/onnx-community/YOLOWorld-s/resolve/main/onnx/model.onnx",
-                java.util.List.of("https://hf-mirror.com/onnx-community/YOLOWorld-s/resolve/main/onnx/model.onnx"),
+                "https://huggingface.co/Instemic/yolo-world-onnx/resolve/main/yolov8s-worldv2.onnx",
+                java.util.List.of("https://hf-mirror.com/Instemic/yolo-world-onnx/resolve/main/yolov8s-worldv2.onnx"),
                 false, "model.onnx");
         // YOLO-World Medium：开放词表检测，精度与速度平衡；模型 ~70MB
         reg("yolov8m-world", "com.chua.deeplearning.support.onnx.yoloworld.YoloWorldDetectorTranslator",
@@ -530,8 +530,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,
                 com.chua.deeplearning.support.image.ImageDetector.class,
                 "vision/detection/yoloworld/yolov8l-world.onnx",
-                "https://huggingface.co/onnx-community/YOLOWorld-l/resolve/main/onnx/model.onnx",
-                java.util.List.of("https://hf-mirror.com/onnx-community/YOLOWorld-l/resolve/main/onnx/model.onnx"),
+                "https://huggingface.co/Instemic/yolo-world-onnx/resolve/main/yolov8l-worldv2.onnx",
+                java.util.List.of("https://hf-mirror.com/Instemic/yolo-world-onnx/resolve/main/yolov8l-worldv2.onnx"),
                 false, "model.onnx");
         // ==================== 图像描述 Image Captioning ====================
         // ViT-GPT2：图像内容文字描述。encoder 打包在 utils-support-models-onnx-vit-gpt2-captioning jar，
