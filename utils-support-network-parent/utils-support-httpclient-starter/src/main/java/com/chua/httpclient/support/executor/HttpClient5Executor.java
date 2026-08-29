@@ -52,7 +52,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
         try {
             ReflectUtils.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
             return true;
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             return false;
         }
     }
