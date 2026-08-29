@@ -121,11 +121,19 @@ public class GifDecoder {
             if (metadata == null) {
                 return 10;
             }
-            if (metadata.getNativeMetadataFormatName() == null) {
+            String nativeFormat = null;
+            try {
+                nativeFormat = (String) metadata.getClass()
+                        .getMethod("getNativeMetadataFormatName").invoke(metadata);
+            } catch (Exception ignored) {
+                // Java 25+: getNativeMetadataFormatName removed
+                nativeFormat = "javax_imageio_gif_image_1.0";
+            }
+            if (nativeFormat == null) {
                 return 10;
             }
 
-            Object node = metadata.getAsTree(metadata.getNativeMetadataFormatName());
+            Object node = metadata.getAsTree(nativeFormat);
             if (!(node instanceof IIOMetadataNode iieNode)) {
                 return 10;
             }

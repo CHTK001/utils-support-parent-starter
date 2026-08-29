@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
+import com.chua.common.support.utils.RgbOptions;
 
 
 /**
@@ -118,8 +119,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     protected void initial(BufferedImage image) {
         width = image.getWidth();
         height = image.getHeight();
-        int[] input = new int[width * height];
-        com.chua.common.support.utils.BufferedImageUtils.getRgb(image, 0, 0, width, height, input);
+        int[] input = com.chua.common.support.utils.BufferedImageUtils.getRgb(new com.chua.common.support.utils.RgbOptions(image, 0, 0, width, height, null));
         int size = width * height;
         rArr = new byte[size];
         gArr = new byte[size];
