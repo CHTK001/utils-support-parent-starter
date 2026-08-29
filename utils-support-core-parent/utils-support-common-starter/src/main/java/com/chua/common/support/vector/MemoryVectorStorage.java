@@ -129,7 +129,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
                         mergeMetadata(v, score), v.content()));
             }
             results.sort(Comparator.comparingDouble(
-                    v -> ((Number) v.metadata().get("score")).doubleValue()));
+                    (Vector v) -> ((Number) v.metadata().get("score")).doubleValue()).reversed());
             return results.subList(0, Math.min(topK, results.size()));
         } finally {
             rwLock.readLock().unlock();

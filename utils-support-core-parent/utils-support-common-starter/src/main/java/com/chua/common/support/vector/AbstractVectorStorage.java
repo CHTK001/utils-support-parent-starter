@@ -115,8 +115,8 @@ public abstract class AbstractVectorStorage implements VectorStorage {
             return results.size() > topK ? results.subList(0, topK) : results;
         }
         results.sort((a, b) -> Float.compare(
-                algo.compare(a.data(), query),
-                algo.compare(b.data(), query)));
+                algo.compare(b.data(), query),
+                algo.compare(a.data(), query)));
         return results.size() > topK ? results.subList(0, topK) : results;
     }
 

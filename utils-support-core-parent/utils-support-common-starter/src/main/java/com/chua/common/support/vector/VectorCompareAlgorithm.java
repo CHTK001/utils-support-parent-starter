@@ -21,18 +21,18 @@ public interface VectorCompareAlgorithm {
     String name();
 
     /**
-     * 比较两个向量的距离或相似度。
-     * <p>返回值越小表示越相似（距离越小）。</p>
+     * 比较两个向量的相似度。
+     * <p>返回值越大表示越相似（符合人类直觉）。</p>
      *
      * @param a 向量 a
      * @param b 向量 b
-     * @return 距离值，越小越相似
+     * @return 相似度，越大越相似
      */
     float compare(float[] a, float[] b);
 
     /**
-     * 创建欧几里得距离算法（向量化）。
-     * <p>在支持 AVX-512 / AVX2 / NEON 的硬件上使用 Java Vector API 加速。</p>
+     * 创建欧几里得距离算法。
+     * <p>返回相似度 = -欧氏距离，越大越相似；完全相同时为 0。</p>
      */
     static VectorCompareAlgorithm euclidean() {
         return new VectorCompareAlgorithm() {
@@ -40,14 +40,14 @@ public interface VectorCompareAlgorithm {
             public String name() { return "EUCLIDEAN"; }
             @Override
             public float compare(float[] a, float[] b) {
-                return VectorMath.euclidean(a, b);
+                return -VectorMath.euclidean(a, b);
             }
         };
     }
 
     /**
-     * 创建余弦相似度算法（向量化）。
-     * <p>返回 1 - cos(θ)，值越接近 0 表示越相似。</p>
+     * 创建余弦相似度算法。
+     * <p>返回 cos(θ) ∈ [-1,1]，越大越相似；完全相同时为 1。</p>
      */
     static VectorCompareAlgorithm cosine() {
         return new VectorCompareAlgorithm() {
@@ -55,14 +55,14 @@ public interface VectorCompareAlgorithm {
             public String name() { return "COSINE"; }
             @Override
             public float compare(float[] a, float[] b) {
-                return VectorMath.cosine(a, b);
+                return 1f - VectorMath.cosine(a, b);
             }
         };
     }
 
     /**
-     * 创建点积距离算法（向量化）。
-     * <p>返回负点积，值越小表示越相似。</p>
+     * 创建点积算法。
+     * <p>返回点积，越大越相似。</p>
      */
     static VectorCompareAlgorithm dotProduct() {
         return new VectorCompareAlgorithm() {
@@ -70,7 +70,7 @@ public interface VectorCompareAlgorithm {
             public String name() { return "DOT"; }
             @Override
             public float compare(float[] a, float[] b) {
-                return -VectorMath.dot(a, b);
+                return VectorMath.dot(a, b);
             }
         };
     }
