@@ -129,123 +129,37 @@
             <version>${opencv.version}</version>
         </dependency>
         <!-- PP-DocLayoutV3 鏂囨。鐗堥潰鍒嗘瀽妯″瀷锛圖ETR锛?5 绫伙紝800 杈撳叆锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-ppdoclayoutv3</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
         <!-- Chinese-CLIP 中文图文特征模型（RN50/ViT-B/16/ViT-L/14，img+txt 独立模块） -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-rn50-image</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-rn50-text</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-vit-b-16-image</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-vit-b-16-text</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-vit-l-14-image</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-vit-l-14-text</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-chinese-clip-vit-h-14</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-<dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-doclayout-yolo</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
+        
+        
+        
+        
+        
+        
+
         <!-- 鐑熺伀妫€娴?/ 涓汉闃叉姢瑁呭锛堝畨鍏ㄥ附锛夋娴嬫ā鍨嬶紙YOLOv8n锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-fire-smoke</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
         <!-- C3D 瑙嗛鍔ㄤ綔妫€娴嬫ā鍨嬶紙ResNetC3D锛? 绫诲姩浣滐紝~95MB锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-action-c3d</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
         <!-- DFSMN 璇煶闄嶅櫔妯″瀷锛堝崟楹?48k锛孭SM锛孧odelScope speech_dfsmn_ans锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-dfsmn-ans</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
         <!-- 鍗扮珷妫€娴嬫ā鍨嬶紙SDT Seal inspection锛孻OLO 640锛? 绫伙紝鏉ヨ嚜 ModelScope锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-seal-inspection</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-safety-helmet</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
+        
         <!-- 鍙嶅厜琛ｆ娴嬫ā鍨嬶紙YOLOv8n锛? 绫伙細safe/unsafe锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-reflective-clothes</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
         <!-- 浜鸿劯妫€娴嬫ā鍨嬶紙SCRFD / UltraFace / YOLOv11n-Face锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-scrfd-face</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-ultra-face</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-yolo-face</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
+        
+        
         <!-- 闊抽妯″瀷锛歸espeaker 璇磋瘽浜哄祵鍏ワ紙512缁达紝25MB锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-wespeaker</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
         <!-- 闊抽妯″瀷锛欳AM++ 澹扮汗宓屽叆锛?92缁达紝27MB锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-campplus</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
         <!-- 闊抽妯″瀷锛歸av2vec2-base 闊抽鎸囩汗锛?84缁达紝360MB锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-wav2vec2-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
@@ -284,309 +198,63 @@
             <scope>test</scope>
         </dependency>
         <!-- 娴嬭瘯鐢ㄤ緥鏁版嵁锛氱敱娴嬭瘯鏈熷湪 test classpath 瑙ｆ瀽浣跨敤 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-ppocr-cls</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-doc-orientation</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-textbsr</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-paddleocrv6-medium</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-paraformer-zh-small</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-yolov5-plate</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-card-correction</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-fer</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-efficientnet</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         <!-- 浠ヤ笅涓変釜 test 渚濊禆鐨?model jar 鏈瀯寤哄埌鏈湴浠撳簱锛屼复鏃剁Щ闄や互鎭㈠缂栬瘧
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-minilm-int8</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-minilm-fp32</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
+        
         -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-mms-tts-eng</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-pocket-tts</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-vits-icefall-zh</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-vit-gpt2-captioning</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-bge-small-zh</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
+        
+        
+        
+        
         <!-- bge-large-zh model jar 鏈瀯寤哄埌鏈湴浠撳簱锛屼复鏃剁Щ闄や互鎭㈠缂栬瘧
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-bge-large-zh</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
         -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-insightface-scrfd</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-mt5-zh</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-bart-zh</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
+        
+        
         <!-- 娉細utils-support-models-onnx-randeng-t5-77m 鏋勪欢浠庢湭閮ㄧ讲鍒颁换浣曞彲杈句粨搴撲笖鍏ㄤ粨闆朵唬鐮佸紩鐢紝宸茬Щ闄よ姝讳緷璧?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-insightface-landmark</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-insightface-adaface</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-insightface-genderage</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-insightface-3d68</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-yolov8n-pose</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-dinov2-small</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-mobileclip-s0</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-modnet</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-anime-face</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-face-liveness</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-face-liveness-flxc</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         <!-- 鍙ｇ僵妫€娴嬫ā鍨嬶紙YOLOv8锛? 绫伙細cloth/surgical锛屽彲鐢绘锛?-->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-face-mask-detector</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-bge-small-en</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-opus-mt-zh-en</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-opus-mt-en-zh</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-duguang-ocr</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-faceplugin-detect-slim</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-faceplugin-landmark</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-faceplugin-feature</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-animegan-hayao</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-animegan-shinkai</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-animegan-ghibli</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-lu2net</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-arcface</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-visdrone</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-yoloworld-s</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-whisper</artifactId>
-            <version>4.0.0.42</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-gfpgan</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-codeformer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         <!-- 宓屽叆寮忎腑鏂囧璇濇ā鍨嬶紙Gemma-3-270M锛寀int8 ONNX锛寏519MB锛夛紝渚?Gemma3GpuTest 浣跨敤 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-gemma-3-270m</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
     </dependencies>
 </project>
