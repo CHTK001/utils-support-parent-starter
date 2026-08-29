@@ -50,7 +50,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
                     .fsyncBatchSize(config.flushBatchSize())
                     .fsyncBatchIntervalMs(config.flushIntervalMs())
                     .maxSegmentBytes(config.segmentBytes())
-                    .maxRecordsPerSegment(0)
+                    .maxRecordsPerSegment(100_000)
                     .build();
             walLogs[i] = (SegmentWalLog) WalFactory.open(shardCfg);
         }

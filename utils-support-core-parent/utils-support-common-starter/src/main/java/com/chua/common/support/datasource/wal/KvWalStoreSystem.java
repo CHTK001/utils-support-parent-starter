@@ -32,7 +32,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
             WalConfig c = WalConfig.builder().walDir(walDir).namespace(config.namespace()+"-"+i)
                     .impl(WalConfig.WalImpl.SEGMENT).syncOnWrite(false)
                     .fsyncBatchSize(config.flushBatchSize()).fsyncBatchIntervalMs(config.flushIntervalMs())
-                    .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(0).build();
+                    .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(100_000).build();
             walLogs[i] = (SegmentWalLog) WalFactory.open(c);
         }
     }
