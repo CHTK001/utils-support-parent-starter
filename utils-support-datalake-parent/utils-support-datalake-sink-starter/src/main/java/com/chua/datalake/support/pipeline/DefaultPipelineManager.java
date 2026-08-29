@@ -1,6 +1,7 @@
 package com.chua.datalake.support.pipeline;
 
 import com.chua.common.support.lang.json.Json;
+import com.chua.datalake.support.engine.DefaultPipelineEngine;
 import com.chua.datalake.support.spi.pipeline.PipelineConfig;
 import com.chua.datalake.support.spi.pipeline.PipelineManager;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +85,23 @@ public class DefaultPipelineManager implements PipelineManager {
     private final Map<String, PipelineConfig> compiledCache = new ConcurrentHashMap<>();
 
     /**
+     * 关联的管线执行引擎。
+     *
+     * <p>当管线配置被重新保存时，通知引擎失效对应的 Sink 编译缓存，
+     * 确保新配置立即生效。</p>
+     */
+    private DefaultPipelineEngine engine;
+
+    /**
+     * 设置关联的执行引擎，用于配置变更时的缓存失效通知。
+     *
+     * @param engine 执行引擎实例
+     */
+    public void setEngine(DefaultPipelineEngine engine) {
+        this.engine = engine;
+    }
+
+    /**
      * 保存或更新一条管线配置。
      *
      * <p>此方法是"编译触发点"：每次调用都会将 JSON 反序列化为 PipelineConfig，
@@ -104,6 +122,10 @@ public class DefaultPipelineManager implements PipelineManager {
             }
         } catch (Exception e) {
             log.warn("[pipeline-mgr] 编译管线 DSL 失败: pipelineId={}, error={}", pipelineId, e.getMessage());
+        }
+        // 通知引擎失效对应管线的 Sink 编译缓存，确保重新保存后新配置生效
+        if (engine != null) {
+            engine.invalidatePipelineSinkCache(pipelineId);
         }
     }
 

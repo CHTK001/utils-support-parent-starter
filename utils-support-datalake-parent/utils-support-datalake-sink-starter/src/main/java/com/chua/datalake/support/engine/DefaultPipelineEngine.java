@@ -305,6 +305,17 @@ public class DefaultPipelineEngine implements PipelineEngine {
     }
 
     /**
+     * 使指定管线的 Sink 编译缓存失效。
+     *
+     * <p>在管线配置被重新保存后调用，确保下次执行时使用新配置。</p>
+     *
+     * @param pipelineId 管线 ID
+     */
+    public void invalidatePipelineSinkCache(String pipelineId) {
+        sinkCompileCache.remove(pipelineId);
+    }
+
+    /**
      * 编译后的单个 Sink 配置。
      *
      * <p>将"运行时查找"转化为"编译时绑定"：</p>
