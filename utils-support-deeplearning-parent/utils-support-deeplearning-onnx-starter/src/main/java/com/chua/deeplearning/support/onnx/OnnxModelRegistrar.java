@@ -69,7 +69,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 中文CLIP文本特征(CN-CLIP ViT-B/16)：提取中文 CLIP 的文本特征向量，与图像特征比对；适用中文图文检索、文本到图像匹配
         reg("cn-clip-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.txt.fp16.onnx");
         // 中文CLIP图像特征(CN-CLIP ViT-L/14)：提取中文 CLIP 的图像特征向量（768维，高精度），与中文文本特征比对；适用中文图文检索、跨模态匹配
-        reg("cn-clip-vit-l-14-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-l-14/vit-l-14.img.dyn.fp16.onnx");
+        reg("cn-clip-vit-l-14-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-l-14/vit-l-14.img.dyn.fp32.onnx", "https://hf-mirror.com/gficcg/clip_cn_vit-onnx/resolve/main/clip_cn_vit-l-14/vit-l-14.img.dyn.fp32.onnx", false, null);
         // 中文CLIP文本特征(CN-CLIP ViT-L/14)：提取中文 CLIP 的文本特征向量（768维，高精度），与图像特征比对；适用中文图文检索、跨模态匹配
         reg("cn-clip-vit-l-14-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-l-14/vit-l-14.txt.fp16.onnx");
         // 中文CLIP-RN50图像特征(CN-CLIP)：提取中文 CLIP RN50 的图像特征向量（1024维），与文本特征比对；适用中文图文检索、跨模态匹配

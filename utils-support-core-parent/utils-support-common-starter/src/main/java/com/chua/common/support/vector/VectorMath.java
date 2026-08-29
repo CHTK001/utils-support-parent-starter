@@ -1,16 +1,15 @@
 package com.chua.common.support.vector;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 /**
- * 向量距离计算工具类。
+ * Vector distance computation tool.
  *
- * <p>优先使用 Java Vector API（JEP 448）进行 SIMD 加速；
- * 在 Vector API 不可用时自动回退到标量实现。</p>
+ * <p>Uses Java Vector API (JEP 448) for SIMD acceleration when available;
+ * falls back to scalar implementation otherwise.</p>
  *
- * <p>Vector API 需要在编译和运行时通过 {@code --add-modules jdk.incubator.vector}
- * 启用，以获取最佳性能。不加该参数时仍可正常运行（标量路径）。</p>
+ * <p>The Vector API requires --add-modules jdk.incubator.vector at compile and runtime
+ * for best performance. Without it, the scalar path runs automatically.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,17 +35,17 @@ public final class VectorMath {
         return HANDLER.cosine(a, b);
     }
 
-    /** 是否启用了 Vector API 加速 */
+    /** Whether Vector API acceleration is active */
     public static boolean isVectorized() {
         return HANDLER.name().equals("vector");
     }
 
-    /** Vector API 使用的 SIMD 宽度（字节），标量时为 0 */
+    /** SIMD width in bytes; 0 for scalar */
     public static int vectorByteSize() {
         return HANDLER.vectorByteSize();
     }
 
-    /** 每个向量处理的 float 元素数，标量时为 1 */
+    /** Lanes per vector; 1 for scalar */
     public static int lanes() {
         return HANDLER.lanes();
     }
@@ -103,12 +102,12 @@ public final class VectorMath {
         }
     }
 
-    // ==================== Vector API implementation ====================
+    // ==================== Vector API via reflection ====================
 
     private static final class VectorApiHandler implements VectorHandler {
-        private final int lanes;
-        private final int byteSize;
-        // Reflection-based to avoid compile-time dependency on jdk.incubator.vector
+        private static final int LANES = 16;
+        private static final int BYTE_SIZE = 64;
+
         private final Method speciesOf;
         private final Method speciesLoopBound;
         private final Method speciesZero;
@@ -117,13 +116,13 @@ public final class VectorMath {
         private final Method vectorMul;
         private final Method vectorSub;
         private final Method vectorReduce;
+        private final Object opAdd;
 
         VectorApiHandler() {
             try {
                 Class<?> speciesClass = Class.forName("jdk.incubator.vector.VectorSpecies");
                 Class<?> vectorClass = Class.forName("jdk.incubator.vector.Vector");
                 Class<?> opClass = Class.forName("jdk.incubator.vector.VectorOperators");
-
                 speciesOf = speciesClass.getMethod("of", Class.class, Class.forName("jdk.incubator.vector.VectorShape"));
                 speciesLoopBound = speciesClass.getMethod("loopBound", int.class);
                 speciesZero = speciesClass.getMethod("zero");
@@ -131,18 +130,16 @@ public final class VectorMath {
                 vectorAdd = vectorClass.getMethod("add", vectorClass);
                 vectorMul = vectorClass.getMethod("mul", vectorClass);
                 vectorSub = vectorClass.getMethod("sub", vectorClass);
-                vectorReduce = vectorClass.getMethod("reduceLanes", opClass.getDeclaredField("ADD").get(null).getClass());
+                vectorReduce = vectorClass.getMethod("reduceLanes", Class.forName("jdk.incubator.vector.VectorOperators$Associative"));
+                opAdd = opClass.getDeclaredField("ADD").get(null);
             } catch (Throwable t) {
-                // Fallback to scalar if reflection fails
                 throw new RuntimeException("Vector API not available", t);
             }
-            this.lanes = 16;  // 512-bit / 4 bytes per float
-            this.byteSize = 64;
         }
 
         @Override public String name() { return "vector"; }
-        @Override public int vectorByteSize() { return byteSize; }
-        @Override public int lanes() { return lanes; }
+        @Override public int vectorByteSize() { return BYTE_SIZE; }
+        @Override public int lanes() { return LANES; }
 
         private Object species() {
             try {
@@ -154,19 +151,25 @@ public final class VectorMath {
             }
         }
 
+        private float reduce(Object acc) {
+            try {
+                return ((Number) vectorReduce.invoke(acc, opAdd)).floatValue();
+            } catch (Throwable t) {
+                throw new RuntimeException(t);
+            }
+        }
+
         @Override
         public float dot(float[] a, float[] b) {
             Object sp = species();
             if (sp == null) return ScalarHandler.INSTANCE.dot(a, b);
             int n = (int) speciesLoopBound.invoke(sp, a.length);
             Object acc = speciesZero.invoke(sp);
-            int laneCount = lanes();
-            for (int i = 0; i < n; i += laneCount) {
-                Object va = speciesFromArray.invoke(null, sp, a, i);
-                Object vb = speciesFromArray.invoke(null, sp, b, i);
-                acc = vectorAdd.invoke(vectorMul.invoke(va, vb), acc);
+            for (int i = 0; i < n; i += LANES) {
+                acc = vectorAdd.invoke(vectorMul.invoke(speciesFromArray.invoke(null, sp, a, i),
+                                                        speciesFromArray.invoke(null, sp, b, i)), acc);
             }
-            float sum = (float) vectorReduce.invoke(acc, opAdd());
+            float sum = reduce(acc);
             for (int i = n; i < a.length; i++) sum += a[i] * b[i];
             return sum;
         }
@@ -177,14 +180,13 @@ public final class VectorMath {
             if (sp == null) return ScalarHandler.INSTANCE.euclidean(a, b);
             int n = (int) speciesLoopBound.invoke(sp, a.length);
             Object acc = speciesZero.invoke(sp);
-            int laneCount = lanes();
-            for (int i = 0; i < n; i += laneCount) {
+            for (int i = 0; i < n; i += LANES) {
                 Object va = speciesFromArray.invoke(null, sp, a, i);
                 Object vb = speciesFromArray.invoke(null, sp, b, i);
                 Object diff = vectorSub.invoke(va, vb);
                 acc = vectorAdd.invoke(vectorMul.invoke(diff, diff), acc);
             }
-            float sum = (float) vectorReduce.invoke(acc, opAdd());
+            float sum = reduce(acc);
             for (int i = n; i < a.length; i++) {
                 float d = a[i] - b[i];
                 sum += d * d;
@@ -200,8 +202,7 @@ public final class VectorMath {
             Object accDot = speciesZero.invoke(sp);
             Object accA = speciesZero.invoke(sp);
             Object accB = speciesZero.invoke(sp);
-            int laneCount = lanes();
-            for (int i = 0; i < n; i += laneCount) {
+            for (int i = 0; i < n; i += LANES) {
                 Object va = speciesFromArray.invoke(null, sp, a, i);
                 Object vb = speciesFromArray.invoke(null, sp, b, i);
                 Object prod = vectorMul.invoke(va, vb);
@@ -209,9 +210,9 @@ public final class VectorMath {
                 accA = vectorAdd.invoke(vectorMul.invoke(va, va), accA);
                 accB = vectorAdd.invoke(vectorMul.invoke(vb, vb), accB);
             }
-            float dot = (float) vectorReduce.invoke(accDot, opAdd());
-            float na = (float) Math.sqrt(vectorReduce.invoke(accA, opAdd()));
-            float nb = (float) Math.sqrt(vectorReduce.invoke(accB, opAdd()));
+            float dot = reduce(accDot);
+            float na = (float) Math.sqrt(reduce(accA));
+            float nb = (float) Math.sqrt(reduce(accB));
             for (int i = n; i < a.length; i++) {
                 dot += a[i] * b[i];
                 na += a[i] * a[i];
@@ -221,14 +222,6 @@ public final class VectorMath {
             nb = (float) Math.sqrt(nb);
             if (na == 0f || nb == 0f) return 1f;
             return 1f - dot / (na * nb);
-        }
-
-        private Object opAdd() {
-            try {
-                return Class.forName("jdk.incubator.vector.VectorOperators").getDeclaredField("ADD").get(null);
-            } catch (Throwable t) {
-                return null;
-            }
         }
     }
 
