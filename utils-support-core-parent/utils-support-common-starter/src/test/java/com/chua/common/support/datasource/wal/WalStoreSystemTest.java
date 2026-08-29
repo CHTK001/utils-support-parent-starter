@@ -141,11 +141,11 @@ class WalStoreSystemTest {
 
             // 通过范围查验证 measure 存在
             long now = System.currentTimeMillis();
-            List<TsWalStoreSystem.TsPoint> tempPts = store.queryRange("temp", now - 1, now + 1);
+            List<TsWalStoreSystem.TsPoint> tempPts = store.queryRange("temp", now - 1, now + 1, 0, 10);
             assertEquals(1, tempPts.size());
             assertEquals("temp", tempPts.get(0).measure());
 
-            List<TsWalStoreSystem.TsPoint> humPts = store.queryRange("humidity", now - 1, now + 1);
+            List<TsWalStoreSystem.TsPoint> humPts = store.queryRange("humidity", now - 1, now + 1, 0, 10);
             assertEquals(1, humPts.size());
             assertEquals("humidity", humPts.get(0).measure());
 

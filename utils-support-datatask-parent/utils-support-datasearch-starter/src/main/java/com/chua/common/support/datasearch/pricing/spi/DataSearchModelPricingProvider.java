@@ -97,8 +97,8 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         fillIfNull(target::getContextWindowTokens, src.getContextWindowTokens(), target::setContextWindowTokens);
         fillIfNull(target::getActiveParams, src.getActiveParams(), target::setActiveParams);
         fillIfNull(target::getReasoning, src.getReasoning(), target::setReasoning);
-        fillIfNull(target::getImageInput, src.getImageInput(), target::setImageInput);
-        fillIfNull(target::getWebSearch, src.getWebSearch(), target::setWebSearch);
+        mergeBoolean(target::getImageInput, src.getImageInput(), target::setImageInput);
+        mergeBoolean(target::getWebSearch, src.getWebSearch(), target::setWebSearch);
         fillIfNull(target::getFunctionCalling, src.getFunctionCalling(), target::setFunctionCalling);
         fillIfNull(target::getEndToEndResponseTimeSeconds, src.getEndToEndResponseTimeSeconds(), target::setEndToEndResponseTimeSeconds);
         fillIfNull(target::getInternalReasoningPrice, src.getInternalReasoningPrice(), target::setInternalReasoningPrice);
@@ -128,6 +128,27 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         }
         T current = targetGetter.get();
         if (current == null) {
+            targetSetter.accept(sourceValue);
+        }
+    }
+
+    /**
+     * 合并能力布尔字段:目标为 null 或为 false 而源为 true 时,用源的 true 覆盖。
+     *
+     * <p>数据源对不支持的能力可能填 false（按名推断），而另一数据源有明确 true
+     * （如 OpenRouter 的 input_modalities），此时需用 true 覆盖，避免丢失能力标记。</p>
+     *
+     * @param targetGetter 目标取值
+     * @param sourceValue  源值
+     * @param targetSetter 目标赋值
+     */
+    private void mergeBoolean(java.util.function.Supplier<Boolean> targetGetter, Boolean sourceValue,
+                              java.util.function.Consumer<Boolean> targetSetter) {
+        if (sourceValue == null) {
+            return;
+        }
+        Boolean current = targetGetter.get();
+        if (current == null || (!current && sourceValue)) {
             targetSetter.accept(sourceValue);
         }
     }

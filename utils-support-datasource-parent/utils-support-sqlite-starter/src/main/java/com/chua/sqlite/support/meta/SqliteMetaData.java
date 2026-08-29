@@ -92,11 +92,11 @@ public class SqliteMetaData extends AbstractMetaData {
 
     @Override
     public MetaSearch search() {
-        throw new UnsupportedOperationException("SQLite 暂不支持搜索引擎索引操作");
+        return new SqliteMetaSearch(this, engine);
     }
 
     @Override
     public MetaSearch search(String indexName) {
-        throw new UnsupportedOperationException("SQLite 暂不支持搜索引擎索引操作");
+        return new SqliteMetaSearch(this, engine);
     }
 }

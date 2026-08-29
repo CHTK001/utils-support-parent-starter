@@ -58,10 +58,13 @@ public class MergeVerifyTest {
         }
         System.out.println("== AA " + id + ": in=" + aa.getInputUnitPrice() + " out=" + aa.getOutputUnitPrice()
                 + " cacheHit=" + aa.getCacheHitPrice() + " ctx=" + aa.getContextWindowTokens()
+                + " e2e=" + aa.getEndToEndResponseTimeSeconds() + " deprecated=" + aa.getDeprecated()
                 + " imgIn=" + aa.getImageInput() + " webSearch=" + aa.getWebSearch());
         System.out.println("== OR " + id + ": in=" + or.getInputUnitPrice() + " out=" + or.getOutputUnitPrice()
                 + " cacheHit=" + or.getCacheHitPrice() + " imgIn=" + or.getImageInput()
-                + " webSearch=" + or.getWebSearch() + " searchPrice=" + or.getWebSearchPrice());
+                + " webSearch=" + or.getWebSearch() + " searchPrice=" + or.getWebSearchPrice()
+                + " reasoningPrice=" + or.getInternalReasoningPrice()
+                + " outMods=" + or.getOutputModalities());
 
         DataSearchModelPricingProvider bridge = new DataSearchModelPricingProvider();
         Method merge = DataSearchModelPricingProvider.class.getDeclaredMethod(
@@ -69,11 +72,12 @@ public class MergeVerifyTest {
         merge.setAccessible(true);
         ModelDefinition merged = (ModelDefinition) merge.invoke(bridge, (Object) null, aa);
         merged = (ModelDefinition) merge.invoke(bridge, merged, or);
-        System.out.printf("== MERGED %-16s: in=%-9s out=%-9s cacheHit=%-9s ctx=%-9s imgIn=%-5s webSearch=%-5s searchPrice=%-9s icon=%s%n",
+        System.out.printf("== MERGED %-16s: in=%-9s out=%-9s cacheHit=%-9s ctx=%-9s e2e=%-8s deprecated=%-5s imgIn=%-5s webSearch=%-5s searchPrice=%-9s reasoningPrice=%-9s outMods=%s%n",
                 id, merged.getInputUnitPrice(), merged.getOutputUnitPrice(),
                 merged.getCacheHitPrice(), merged.getContextWindowTokens(),
+                merged.getEndToEndResponseTimeSeconds(), merged.getDeprecated(),
                 merged.getImageInput(), merged.getWebSearch(), merged.getWebSearchPrice(),
-                merged.getIconUrl());
+                merged.getInternalReasoningPrice(), merged.getOutputModalities());
     }
 
     /**
