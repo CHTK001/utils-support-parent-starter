@@ -26,9 +26,72 @@ public class VectorStarterTest {
         if (testRequireGpuThrows()) { passed++; } else { failed++; }
         if (testAddSearchFallback()) { passed++; } else { failed++; }
         if (testRemoveUpdateClear()) { passed++; } else { failed++; }
+        if (testEuclideanAlgorithm()) { passed++; } else { failed++; }
+        if (testDotProductAlgorithm()) { passed++; } else { failed++; }
 
         System.out.println("========== Results: " + passed + " passed, " + failed + " failed ==========");
         System.exit(failed > 0 ? 1 : 0);
+    }
+
+    private static boolean testEuclideanAlgorithm() {
+        System.out.println("[TC-8] euclidean algorithm → jvector two-stage rerank");
+        try {
+            var props = new VectorStorageProperties().forceCpu(true);
+            var storage = VectorStorageProvider.of("vector")
+                    .dimension(DIM)
+                    .algorithm(VectorCompareAlgorithm.euclidean())
+                    .properties(props)
+                    .build();
+            // a=(1,0,0,0), b=(0,1,0,0), c=(0,0,1,0), d=(0.1,0.1,0,0)
+            // query=(0.9,0.9,0,0): euclidean dist to d=sqrt(0.64)=0.8, to a=sqrt(0.02)=0.14, to b=sqrt(0.02)=0.14
+            // euclidean: closest are a,b (same dist), then d
+            storage.add("a", new float[]{1.0f, 0.0f, 0.0f, 0.0f});
+            storage.add("b", new float[]{0.0f, 1.0f, 0.0f, 0.0f});
+            storage.add("c", new float[]{0.0f, 0.0f, 1.0f, 0.0f});
+            storage.add("d", new float[]{0.1f, 0.1f, 0.0f, 0.0f});
+            float[] q = {0.9f, 0.9f, 0.0f, 0.0f};
+            List<com.chua.common.support.vector.Vector> r = storage.search(q, 2);
+            System.out.println("  search(euclidean,q,2) -> ids=" + r.stream().map(v -> v.id()).toList());
+            storage.close();
+            boolean ok = r.size() >= 1;
+            System.out.println(ok ? "  PASS" : "  FAIL");
+            return ok;
+        } catch (Exception e) {
+            System.out.println("  FAIL: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static boolean testDotProductAlgorithm() {
+        System.out.println("[TC-9] dot product algorithm → jvector two-stage rerank");
+        try {
+            var props = new VectorStorageProperties().forceCpu(true);
+            var storage = VectorStorageProvider.of("vector")
+                    .dimension(DIM)
+                    .algorithm(VectorCompareAlgorithm.dotProduct())
+                    .properties(props)
+                    .build();
+            // dot product: larger dot = more similar (distance = -dot)
+            // a=(1,0,0,0), b=(0,1,0,0), c=(0.9,0.1,0,0), d=(0.1,0.9,0,0)
+            // query=(1,0,0,0): dot(a)=1.0, dot(b)=0, dot(c)=0.9, dot(d)=0.1
+            // euclidean: closest are a,b (same dist), then d
+            storage.add("a", new float[]{1.0f, 0.0f, 0.0f, 0.0f});
+            storage.add("b", new float[]{0.0f, 1.0f, 0.0f, 0.0f});
+            storage.add("c", new float[]{0.9f, 0.1f, 0.0f, 0.0f});
+            storage.add("d", new float[]{0.1f, 0.9f, 0.0f, 0.0f});
+            float[] q = {1.0f, 0.0f, 0.0f, 0.0f};
+            List<com.chua.common.support.vector.Vector> r = storage.search(q, 2);
+            System.out.println("  search(dot,q,2) -> ids=" + r.stream().map(v -> v.id()).toList());
+            storage.close();
+            boolean ok = r.size() >= 1 && r.get(0).id().equals("a");
+            System.out.println(ok ? "  PASS" : "  FAIL");
+            return ok;
+        } catch (Exception e) {
+            System.out.println("  FAIL: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private static boolean testSpiRegistration() {

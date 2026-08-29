@@ -122,8 +122,7 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
     /**
      * 关闭 WAL 文件系统，释放资源（不删除文件）。
      */
-    @Override
-    void close();
+    void close() throws java.io.IOException;
 
     /**
      * 批量条目（用于 appendBatch）。

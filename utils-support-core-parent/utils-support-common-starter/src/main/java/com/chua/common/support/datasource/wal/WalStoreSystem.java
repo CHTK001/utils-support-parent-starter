@@ -139,5 +139,5 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
     enum StoreType { KV, TS, VEC, JDBC }
 
     @Override
-    void close();
+    void close() throws java.io.IOException;
 }

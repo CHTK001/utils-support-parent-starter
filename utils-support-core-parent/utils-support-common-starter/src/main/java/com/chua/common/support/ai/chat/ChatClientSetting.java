@@ -129,4 +129,12 @@ public class ChatClientSetting {
      * </ul>
      */
     private String proxy;
+
+    /**
+     * 自定义 HTTP 请求头
+     *
+     * <p>每次请求都会携带这些额外的 HTTP 头，用于服务商要求的自定义认证头、
+     * 路由头等场景。优先级高于 SDK 默认头。
+     */
+    private Map<String, String> extraHeaders;
 }

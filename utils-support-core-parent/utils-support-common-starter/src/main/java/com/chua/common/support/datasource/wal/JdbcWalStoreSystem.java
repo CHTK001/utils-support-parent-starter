@@ -1,110 +1,108 @@
 package com.chua.common.support.datasource.wal;
 
 import com.chua.common.support.wal.*;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * JDBC 文件存储引擎。
  */
-@Slf4j
-public class JdbcWalStoreSystem extends AbstractWalStoreSystem<String> {
+public class JdbcWalStoreSystem implements WalStoreSystem<String> {
 
-    private static final byte OP_JDBC = 0x04;
+    private final WalStoreConfig config;
     private String joinStrategyName;
+    private final SegmentWalLog[] walLogs;
+    private final Map<String, AtomicLong> rowIdCounters = new ConcurrentHashMap<>();
+    private final AtomicLong totalRecords = new AtomicLong(0);
+    private volatile boolean closed = false;
 
     public JdbcWalStoreSystem(WalStoreConfig config, String joinStrategyName) throws IOException {
-        super(config);
+        this.config = config;
         this.joinStrategyName = joinStrategyName != null ? joinStrategyName : "none";
+        this.walLogs = new SegmentWalLog[config.shardCount()];
+        Path walDir = config.baseDir().resolve("_wal");
+        Files.createDirectories(walDir);
         Files.createDirectories(config.baseDir().resolve("_schemas"));
-    }
-
-    @Override
-    protected byte opType() { return OP_JDBC; }
-
-    @Override
-    protected String decodeKey(byte[] payload) {
-        if (payload == null || payload.length < 4) return null;
-        int colCount = ByteBuffer.wrap(payload).getInt();
-        if (colCount <= 0) return null;
-        ByteBuffer bb = ByteBuffer.wrap(payload);
-        bb.getInt(); // skip colCount
-        int nameLen = bb.getInt();
-        if (nameLen <= 0 || nameLen > bb.remaining()) return null;
-        byte[] nameBytes = new byte[nameLen];
-        bb.get(nameBytes);
-        return new String(nameBytes, StandardCharsets.UTF_8);
-    }
-
-    @Override
-    protected Object decodeValue(String rowId, byte[] payload) {
-        if (payload == null || payload.length < 4) return null;
-        ByteBuffer bb = ByteBuffer.wrap(payload);
-        int colCount = bb.getInt();
-        Map<String, Object> row = new LinkedHashMap<>();
-        for (int i = 0; i < colCount; i++) {
-            if (bb.remaining() < 4) break;
-            int nameLen = bb.getInt();
-            if (nameLen <= 0 || nameLen > bb.remaining()) break;
-            byte[] nb = new byte[nameLen]; bb.get(nb);
-            String colName = new String(nb, StandardCharsets.UTF_8);
-            if (bb.remaining() < 4) break;
-            int valLen = bb.getInt();
-            byte[] vb = valLen > 0 ? new byte[valLen] : new byte[0];
-            if (valLen > 0) bb.get(vb);
-            row.put(colName, parseJsonValue(vb));
+        for (int i = 0; i < config.shardCount(); i++) {
+            WalConfig c = WalConfig.builder().walDir(walDir).namespace(config.namespace()+"-"+i)
+                    .impl(WalConfig.WalImpl.SEGMENT).syncOnWrite(false)
+                    .fsyncBatchSize(config.flushBatchSize()).fsyncBatchIntervalMs(config.flushIntervalMs())
+                    .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(0).build();
+            walLogs[i] = (SegmentWalLog) WalFactory.open(c);
         }
-        return row;
+    }
+
+    @Override public String type() { return "jdbc"; }
+    @Override public Path baseDir() { return config.baseDir(); }
+    @Override public int shardCount() { return config.shardCount(); }
+    @Override public StoreType storeType() { return StoreType.JDBC; }
+
+    @Override
+    public long append(String key, byte[] payload) throws IOException {
+        if (closed) throw new IllegalStateException("closed");
+        int idx = Math.abs(key.hashCode()) % config.shardCount();
+        long lsn = walLogs[idx].append((byte) 0x04, payload == null ? new byte[0] : payload.clone());
+        totalRecords.incrementAndGet();
+        return lsn;
     }
 
     @Override
-    public int shardCount() { return config.shardCount(); }
+    public Optional<byte[]> get(String key) throws IOException { return Optional.empty(); }
+    @Override public boolean contains(String key) { return false; }
+    @Override
+    public List<Map.Entry<String, byte[]>> range(String from, String to) throws IOException { return Collections.emptyList(); }
+    @Override
+    public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException { return Collections.emptyList(); }
+    @Override
+    public boolean delete(String key) throws IOException { return false; }
+    @Override
+    public void rebuildIndex() throws IOException {}
+    @Override
+    public void compact() throws IOException {
+        for (SegmentWalLog log : walLogs) {
+            try { log.purgeCheckpointed(1); } catch (Exception e) {}
+        }
+    }
+    @Override
+    public int size() { return (int) totalRecords.get(); }
+    @Override
+    public List<WalSegmentInfo> listSegments() throws IOException {
+        List<WalSegmentInfo> all = new ArrayList<>();
+        for (SegmentWalLog log : walLogs) all.addAll(log.listSegments());
+        return all;
+    }
+    @Override
+    public void close() throws IOException {
+        closed = true;
+        for (SegmentWalLog log : walLogs) { try { log.close(); } catch (IOException ignored) {} }
+    }
+    @Override
+    public void appendBatch(List<WalStoreSystem.WalAppendItem<String>> items) throws IOException {
+        for (WalStoreSystem.WalAppendItem<String> item : items) append(item.key(), item.payload());
+    }
 
-    // ==================== DDL ====================
+    // ==================== DDL/DML ====================
 
     public void createTable(String tableName, List<ColumnDef> columns) throws IOException {
-        Path schemaFile = config.baseDir().resolve("_schemas").resolve(tableName + ".json");
+        Path f = config.baseDir().resolve("_schemas").resolve(tableName + ".json");
         Map<String, Object> schema = new LinkedHashMap<>();
         schema.put("name", tableName);
         schema.put("columns", columns);
-        Files.writeString(schemaFile, com.chua.common.support.lang.json.Json.toJson(schema));
-        log.info("[jdbc-store] created table: {}", tableName);
+        Files.writeString(f, com.chua.common.support.lang.json.Json.toJson(schema));
     }
-
-    public List<ColumnDef> getSchema(String tableName) throws IOException {
-        Path schemaFile = config.baseDir().resolve("_schemas").resolve(tableName + ".json");
-        if (!Files.exists(schemaFile)) return Collections.emptyList();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> schema = com.chua.common.support.lang.json.Json.fromJson(
-                Files.readString(schemaFile), Map.class);
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cols = (List<Map<String, Object>>) schema.get("columns");
-        if (cols == null) return Collections.emptyList();
-        List<ColumnDef> result = new ArrayList<>();
-        for (Map<String, Object> c : cols) {
-            result.add(new ColumnDef((String) c.get("name"), (String) c.get("type"),
-                    Boolean.TRUE.equals(c.get("nullable"))));
-        }
-        return result;
-    }
-
-    public record ColumnDef(String name, String type, boolean nullable) {}
-
-    // ==================== DML ====================
 
     public long insert(String table, Map<String, Object> row) throws IOException {
-        String rowId = generateRowId(table);
+        String rowId = table + "_" + rowIdCounters.computeIfAbsent(table, k -> new AtomicLong(0)).incrementAndGet();
         return insertWithId(table, rowId, row);
     }
 
     public long insertWithId(String table, String rowId, Map<String, Object> row) throws IOException {
-        return append(rowId, encodeJdbcPayload(row));
+        return append(rowId, encodeRow(row));
     }
 
     public int update(String table, String rowId, Map<String, Object> updates) throws IOException {
@@ -112,13 +110,6 @@ public class JdbcWalStoreSystem extends AbstractWalStoreSystem<String> {
         insertWithId(table, rowId, updates);
         return 1;
     }
-
-    @Override
-    public boolean delete(String rowId) throws IOException {
-        return super.delete(rowId);
-    }
-
-    // ==================== SQL 查询 ====================
 
     public List<Map<String, Object>> query(String sql, Object... params) throws IOException {
         return new SimpleSqlParser(this).parseSelect(sql, params);
@@ -128,28 +119,17 @@ public class JdbcWalStoreSystem extends AbstractWalStoreSystem<String> {
         return new SimpleSqlParser(this).parseDml(sql, params);
     }
 
-    public void setJoinStrategy(String strategyName) {
-        this.joinStrategyName = strategyName;
-        log.info("[jdbc-store] join strategy set to: {}", strategyName);
-    }
-
+    public void setJoinStrategy(String name) { this.joinStrategyName = name; }
     public String joinStrategy() { return joinStrategyName; }
 
-    // ==================== 内部工具 ====================
+    // ==================== 内部 ====================
 
-    private final Map<String, AtomicLong> rowId_counters = new ConcurrentHashMap<>();
-
-    private String generateRowId(String table) {
-        return table + "_" + rowId_counters
-                .computeIfAbsent(table, k -> new AtomicLong(0)).incrementAndGet();
-    }
-
-    private byte[] encodeJdbcPayload(Map<String, Object> row) {
-        ByteBuffer bb = ByteBuffer.allocate(1024);
+    private byte[] encodeRow(Map<String, Object> row) {
+        ByteBuffer bb = ByteBuffer.allocate(256);
         bb.putInt(row.size());
         for (Map.Entry<String, Object> e : row.entrySet()) {
             byte[] nb = e.getKey().getBytes(StandardCharsets.UTF_8);
-            byte[] vb = serializeValue(e.getValue());
+            byte[] vb = String.valueOf(e.getValue()).getBytes(StandardCharsets.UTF_8);
             bb.putInt(nb.length); bb.put(nb);
             bb.putInt(vb.length); bb.put(vb);
         }
@@ -158,34 +138,44 @@ public class JdbcWalStoreSystem extends AbstractWalStoreSystem<String> {
         return result;
     }
 
-    private byte[] serializeValue(Object value) {
-        if (value == null) return new byte[0];
-        if (value instanceof String s) return s.getBytes(StandardCharsets.UTF_8);
-        return String.valueOf(value).getBytes(StandardCharsets.UTF_8);
+    @SuppressWarnings("unchecked")
+    public Object decodeValue(String rowId, byte[] payload) {
+        if (payload == null || payload.length < 4) return null;
+        ByteBuffer bb = ByteBuffer.wrap(payload);
+        int colCount = bb.getInt();
+        Map<String, Object> row = new LinkedHashMap<>();
+        for (int i = 0; i < colCount; i++) {
+            if (bb.remaining() < 4) break;
+            int nl = bb.getInt();
+            if (nl <= 0 || nl > bb.remaining()) break;
+            byte[] nb = new byte[nl]; bb.get(nb);
+            String colName = new String(nb, StandardCharsets.UTF_8);
+            if (bb.remaining() < 4) break;
+            int vl = bb.getInt();
+            byte[] vb = vl > 0 ? new byte[vl] : new byte[0];
+            if (vl > 0) bb.get(vb);
+            row.put(colName, parseVal(vb));
+        }
+        return row;
     }
 
-    private Object parseJsonValue(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) return null;
-        String s = new String(bytes, StandardCharsets.UTF_8);
-        try {
-            if (s.contains(".")) return Double.parseDouble(s);
-            return Long.parseLong(s);
-        } catch (NumberFormatException ignored) {}
+    private Object parseVal(byte[] b) {
+        if (b.length == 0) return null;
+        String s = new String(b, StandardCharsets.UTF_8);
+        try { if (s.contains(".")) return Double.parseDouble(s); return Long.parseLong(s); }
+        catch (NumberFormatException ignored) {}
         try { return com.chua.common.support.lang.json.Json.fromJson(s, Object.class); }
         catch (Exception ignored) {}
         return s;
     }
 
-    @Override
-    public StoreType storeType() { return StoreType.JDBC; }
+    public record ColumnDef(String name, String type, boolean nullable) {}
 
     public static JdbcWalStoreSystem create(Path baseDir) throws IOException {
         return create(baseDir, "default", "none");
     }
 
-    public static JdbcWalStoreSystem create(Path baseDir, String namespace, String joinStrategy)
-            throws IOException {
-        WalStoreConfig config = new WalStoreEnvDetector().detect(baseDir, namespace);
-        return new JdbcWalStoreSystem(config, joinStrategy);
+    public static JdbcWalStoreSystem create(Path baseDir, String namespace, String joinStrategy) throws IOException {
+        return new JdbcWalStoreSystem(new WalStoreEnvDetector().detect(baseDir, namespace), joinStrategy);
     }
 }

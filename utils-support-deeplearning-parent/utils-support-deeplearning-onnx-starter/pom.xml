@@ -122,6 +122,22 @@
             <artifactId>utils-support-models-onnx-ppdoclayoutv3</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Chinese-CLIP 中文图文特征模型（RN50 1024 维 + ViT-B/16 512 维 + ViT-L/14 768 维） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-chinese-clip-RN50</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-cn-clip-vit-b-16</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-cn-clip-vit-l-14</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-doclayout-yolo</artifactId>

@@ -33,6 +33,8 @@ public class FinalTest {
         test("joycode", new JoyCodeUsageParser());
         test("qoder", new QoderUsageParser());
         test("openclaw", new OpenClawUsageParser());
+        test("atomcode", new AtomCodeUsageParser());
+        test("command-code", new CommandCodeUsageParser());
         test("kilo", new KiloUsageParser());
         test("goose", new GooseUsageParser());
         test("crush", new CrushUsageParser());

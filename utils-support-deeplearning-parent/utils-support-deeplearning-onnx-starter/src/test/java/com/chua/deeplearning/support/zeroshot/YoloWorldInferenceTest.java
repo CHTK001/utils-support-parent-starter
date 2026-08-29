@@ -3,7 +3,6 @@ package com.chua.deeplearning.support.zeroshot;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
-import com.chua.deeplearning.support.onnx.OnnxModelRegistrar;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -12,14 +11,6 @@ import java.util.List;
 
 /**
  * YOLO-World 三档端到端推理测试。
- *
- * <p>测试覆盖：
- * <ul>
- *   <li>yolov8s-world (~40MB，本地模型) — 必须通过</li>
- *   <li>yolov8m-world (~70MB，自动下载) — 尝试通过</li>
- *   <li>yolov8l-world (~130MB，自动下载) — 尝试通过</li>
- * </ul>
- * </p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -32,13 +23,17 @@ public final class YoloWorldInferenceTest {
     private static final float THRESHOLD = 0.25f;
     private static final int IMG_SIZE = 224;
 
+    /** 强制加载 OnnxModelRegistrar（触发静态注册块） */
+    static {
+        try {
+            Class.forName("com.chua.deeplearning.support.onnx.OnnxModelRegistrar");
+        } catch (ClassNotFoundException ignored) { }
+    }
+
     public static void main(String[] args) throws Exception {
         boolean all = args.length > 0 && "--all".equals(args[0]);
         String[] targets = all ? TIERS : new String[]{"yolov8s-world"};
 
-        // 强制注册所有模型
-        OnnxModelRegistrar registrar = new OnnxModelRegistrar();
-        registrar.register(ModelRegistry.getInstance());
         System.out.println("[INFO] Registered detectors: " +
                 ModelRegistry.getModelIdsByCapability(ImageDetector.class).size());
 
@@ -79,7 +74,7 @@ public final class YoloWorldInferenceTest {
                             + msg.substring(0, Math.min(80, msg.length())) + ")");
                     skipped++;
                 } else {
-                    System.out.println("  [FAIL] " + tier + ": " + e.getMessage());
+                    System.out.println("  [FAIL] " + tier + ": " + (msg != null ? msg.substring(0, Math.min(120, msg.length())) : e.getClass().getSimpleName()));
                     failed++;
                 }
             }
@@ -112,7 +107,7 @@ public final class YoloWorldInferenceTest {
             for (int x = 60; x < 160; x++)
                 img.setRGB(x, y, 0x0066FF);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        javax.imageio.ImageIO.write(img, "JPEG", baos);
+        javax.imageio.ImageIO.write(img, "PNG", baos);
         return baos.toByteArray();
     }
 }

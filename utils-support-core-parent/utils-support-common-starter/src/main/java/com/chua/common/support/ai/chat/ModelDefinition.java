@@ -96,6 +96,91 @@ public class ModelDefinition {
     private BigDecimal latencyFirstTokenSeconds;
 
     /**
+     * 上下文窗口大小（Token 数）
+     *
+     * <p>模型支持的最大上下文长度，如 262144 表示 256K tokens。
+     * 来自数据源的 {@code contextWindowTokens} 字段。</p>
+     */
+    private Long contextWindowTokens;
+
+    /**
+     * 缓存命中输入价（USD / 百万 Token）
+     *
+     * <p>提示词缓存命中（cache read）时的输入单价，通常为正常输入价的一半。
+     * 来自数据源的 {@code cacheHitPrice} 字段。</p>
+     */
+    private BigDecimal cacheHitPrice;
+
+    /**
+     * 缓存写入价（USD / 百万 Token）
+     *
+     * <p>提示词缓存写入（cache write）的单价，部分模型不提供写入价，此时为 null。
+     * 来自数据源的 {@code cacheWritePrice} 字段。</p>
+     */
+    private BigDecimal cacheWritePrice;
+
+    /**
+     * 模型活跃参数量（十亿，B）
+     *
+     * <p>MoE 等模型为激活参数量而非总参数量，如 104 表示约 104B 活跃参数。
+     * 来自数据源的 {@code activeParams} 字段。</p>
+     */
+    private BigDecimal activeParams;
+
+    /**
+     * 是否支持推理（思考）模式
+     *
+     * <p>推理模型在生成最终回复前会进行内部思考（Chain of Thought）。
+     * 来自数据源的 {@code reasoningModel} 字段。</p>
+     */
+    private Boolean reasoning;
+
+    /**
+     * 思考等级
+     *
+     * <p>推理模型的思考强度档位，如 max / high / medium / low，
+     * 不同档位影响推理深度与耗时。来自数据源的 {@code effort.slug} 字段。</p>
+     */
+    private String reasoningEffort;
+
+    /**
+     * 是否支持联网查询（内置搜索/在线检索）
+     *
+     * <p>数据源通常无显式字段，按模型名规律（search/online 等）推断，可被人工配置覆盖。</p>
+     */
+    private Boolean webSearch;
+
+    /**
+     * 是否支持图片识别（视觉输入）
+     *
+     * <p>数据源通常无显式字段，按模型名规律（vision、-v 结尾等）推断，可被人工配置覆盖。</p>
+     */
+    private Boolean imageInput;
+
+    /**
+     * 是否支持函数调用（工具调用）
+     *
+     * <p>来自数据源的 {@code features.functionCalling} 字段。</p>
+     */
+    private Boolean functionCalling;
+
+    /**
+     * 图片输入单价（USD / 张）
+     *
+     * <p>按图片张数计费的输入价格，多模态模型的图片输入费用。
+     * 来自数据源的 {@code pricing.image} 字段（OpenRouter）。</p>
+     */
+    private BigDecimal imagePrice;
+
+    /**
+     * 网络检索单价（USD / 次）
+     *
+     * <p>每次联网检索（web search / browse）的固定费用。
+     * 来自数据源的 {@code pricing.web_search} 字段（OpenRouter）。</p>
+     */
+    private BigDecimal webSearchPrice;
+
+    /**
      * 图标地址
      */
     private String iconUrl;

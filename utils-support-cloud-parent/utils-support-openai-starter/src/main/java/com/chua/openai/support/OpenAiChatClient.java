@@ -155,6 +155,11 @@ public class OpenAiChatClient implements ChatClient {
     private Map<String, Object> extraBody = new HashMap<>();
 
     /**
+     * 自定义 HTTP 请求头
+     */
+    private Map<String, String> extraHeaders;
+
+    /**
      * 是否启用深度思考
      */
     private boolean thinking;
@@ -358,6 +363,13 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
+    /** ExtraHeaders */
+    public ChatClient extraHeaders(Map<String, String> headers) {
+        this.extraHeaders = headers;
+        return this;
+    }
+
+    @Override
     /** Thinking */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
@@ -521,6 +533,14 @@ public class OpenAiChatClient implements ChatClient {
             String proxyStr = setting.getProxy();
             if (proxyStr != null && !proxyStr.isBlank()) {
                 clientBuilder.proxy(resolveProxy(proxyStr));
+            }
+            // 配置自定义请求头
+            Map<String, String> headers = this.extraHeaders != null ? this.extraHeaders
+                    : (setting.getExtraHeaders() != null ? setting.getExtraHeaders() : null);
+            if (headers != null) {
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    clientBuilder.putHeader(entry.getKey(), entry.getValue());
+                }
             }
             client = clientBuilder.build();
 

@@ -406,6 +406,19 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     }
 
     /**
+     * 设置自定义 HTTP 请求头
+     *
+     * <p>每次请求都会携带这些额外的 HTTP 头，用于服务商要求的自定义认证头、
+     * 路由头等场景。优先级高于 SDK 默认头。
+     *
+     * @param headers 自定义请求头键值映射
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient extraHeaders(Map<String, String> headers) {
+        return this;
+    }
+
+    /**
      * 添加文件附件
      *
      * <p>上传文件作为当前对话的附件，供多模态模型解析。

@@ -64,10 +64,14 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("efficient-net-lite4-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite4ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/efficientnet/efficientnet-lite4-11.onnx");
         // 零样本分类(SigLIP)：无需训练，任意文本类别列表即可分类（如"猫/狗/鸟"），基于 SigLIP 视觉语言模型；适用动态类别、开放词汇分类
         reg("siglip-zero-shot-classification", "com.chua.deeplearning.support.onnx.classification.SiglipZeroShotClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx");
-        // 中文CLIP图像特征(CN-CLIP)：提取中文 CLIP 的图像特征向量（512维），与中文文本特征比对；适用中文图文检索、跨模态匹配
-        reg("cn-clip-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.img.b1.fp32.onnx", "https://hf-mirror.com/gficcg/clip_cn_vit-onnx/resolve/main/clip_cn_vit-b-16/vit-b-16.img.b1.fp32.onnx", false, null);
-        // 中文CLIP文本特征(CN-CLIP)：提取中文 CLIP 的文本特征向量，与图像特征比对；适用中文图文检索、文本到图像匹配
-        reg("cn-clip-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.txt.fp32.onnx", "https://hf-mirror.com/gficcg/clip_cn_vit-onnx/resolve/main/clip_cn_vit-b-16/vit-b-16.txt.fp32.onnx", false, null);
+        // 中文CLIP图像特征(CN-CLIP ViT-B/16)：提取中文 CLIP 的图像特征向量（512维），与中文文本特征比对；适用中文图文检索、跨模态匹配
+        reg("cn-clip-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.img.dyn.fp32.onnx");
+        // 中文CLIP文本特征(CN-CLIP ViT-B/16)：提取中文 CLIP 的文本特征向量，与图像特征比对；适用中文图文检索、文本到图像匹配
+        reg("cn-clip-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.txt.fp32.onnx");
+        // 中文CLIP图像特征(CN-CLIP ViT-L/14)：提取中文 CLIP 的图像特征向量（768维，高精度），与中文文本特征比对；适用中文图文检索、跨模态匹配
+        reg("cn-clip-vit-l-14-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-vit-l-14/vit-l-14.img.dyn.fp32.onnx");
+        // 中文CLIP文本特征(CN-CLIP ViT-L/14)：提取中文 CLIP 的文本特征向量（768维，高精度），与图像特征比对；适用中文图文检索、跨模态匹配
+        reg("cn-clip-vit-l-14-text", "com.chua.deeplearning.support.onnx.clip.CnClipTextFeatureTranslator", String.class, float[].class, Object.class, "vision/zeroshot/cn-clip-vit-l-14/vit-l-14.txt.fp32.onnx");
         // 中文CLIP-RN50图像特征(CN-CLIP)：提取中文 CLIP RN50 的图像特征向量（1024维），与文本特征比对；适用中文图文检索、跨模态匹配
         reg("cn-clip-rn50-image", "com.chua.deeplearning.support.onnx.clip.CnClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/zeroshot/cn-clip-rn50/rn50.img.b1.fp32.onnx", null, false, null);
         // 语言检测(XLM-RoBERTa)：检测文本的语言种类（如中文、英文、日文等），多语言；适用文本预处理、多语言路由
@@ -541,6 +545,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "https://modelscope.cn/models/Xenova/vit-gpt2-image-captioning/resolve/master/onnx/decoder_model_quantized.onnx",
                 java.util.List.of("https://huggingface.co/Xenova/vit-gpt2-image-captioning/resolve/main/onnx/decoder_model_quantized.onnx"),
                 false, null);
+        // ==================== ViT-H-14 图像特征 ====================
+        // ViT-H-14 (Chinese-CLIP)：提取图像特征向量（1024维），与文本特征比对；适用图文检索、图像匹配
+        reg("vit-h-14-image", "com.chua.deeplearning.support.onnx.vision.clip.VitH14OnnxTranslator",
+                ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class,
+                "vision/clip/vit-h-14/vit-h-14.onnx");
+        // ==================== ViT-H-14 文本特征 ====================
+        // ViT-H-14 Text (Chinese-CLIP)：提取中文文本特征向量（1024维），与图像特征比对；适用中文图文检索
+        reg("vit-h-14-text", "com.chua.deeplearning.support.onnx.vision.clip.VitH14TextTranslator",
+                String.class, float[].class, Object.class,
+                "vision/clip/vit-h-14/text_encoder.onnx");
     }
 
     /**

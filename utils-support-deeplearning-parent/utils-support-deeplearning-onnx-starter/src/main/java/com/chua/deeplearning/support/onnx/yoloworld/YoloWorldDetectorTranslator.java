@@ -95,12 +95,13 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         BufferedImage resized = letterbox(original, inputSize, inputSize);
         ai.djl.modality.cv.Image djlImg = ai.djl.modality.cv.ImageFactory.getInstance().fromImage(resized);
         NDArray array = djlImg.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        array = array.toType(DataType.FLOAT32, false).div(255.0f);
+        array = array.toType(DataType.FLOAT32, false);
         Shape shape = array.getShape();
         int h = Math.toIntExact(shape.get(0)), w = Math.toIntExact(shape.get(1)), c = Math.toIntExact(shape.get(2));
         float[] hw = array.toFloatArray();
         float[] chw = new float[h * w * c];
         int plane = h * w;
+        for (int i = 0; i < hw.length; i++) hw[i] *= 1.0f/255.0f;
         for (int hi = 0; hi < h; hi++) {
             for (int wi = 0; wi < w; wi++) {
                 int hwIdx = hi * w + wi;

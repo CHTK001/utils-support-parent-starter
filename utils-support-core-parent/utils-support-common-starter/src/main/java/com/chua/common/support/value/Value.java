@@ -6,10 +6,15 @@ import com.chua.common.support.utils.ObjectUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * 值包装接口，提供统一的值访问和类型转换能力。
@@ -283,6 +288,7 @@ public interface Value<T> extends Serializable {
      * @param other 备用值提供者
      * @return 值或备用值
      */
+    @SuppressWarnings("NullAway")
     default T orElseGet(Supplier<? extends T> other) {
         return getValue() != null ? getValue() : other.get();
     }
@@ -309,9 +315,10 @@ public interface Value<T> extends Serializable {
      * @param <R>    转换后的值类型
      * @return 转换后的 Value
      */
+    @SuppressWarnings({"unchecked", "NullAway"})
     default <R> Value<R> map(Function<? super T, ? extends R> mapper) {
         T v = getValue();
-        return v != null ? Value.of(mapper.apply(v)) : (Value<R>) NullValue.INSTANCE;
+        return v != null ? Value.of((R) mapper.apply(v)) : (Value<R>) NullValue.INSTANCE;
     }
 
     /**
@@ -321,9 +328,17 @@ public interface Value<T> extends Serializable {
      * @param <R>    转换后的值类型
      * @return 转换后的 Value
      */
+    @SuppressWarnings({"all", "unchecked", "NullAway"})
     default <R> Value<R> flatMap(Function<? super T, ? extends Value<? extends R>> mapper) {
         T v = getValue();
-        return v != null ? mapper.apply(v) : (Value<R>) NullValue.INSTANCE;
+        if (v == null) {
+            return (Value<R>) NullValue.INSTANCE;
+        }
+        Value<? extends R> result = mapper.apply(v);
+        if (result == null) {
+            return (Value<R>) NullValue.INSTANCE;
+        }
+        return (Value<R>) result;
     }
 
     /**
