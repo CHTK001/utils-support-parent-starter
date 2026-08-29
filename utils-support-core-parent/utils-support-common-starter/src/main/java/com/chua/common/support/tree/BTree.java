@@ -116,7 +116,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         }
         if (!existed) size++;
         lastKey = key;
-        return NO_UPDATE;
+        return existed ? Optional.of(get(key).get()) : Optional.empty();
     }
 
     private SplitResult<K, V> splitInsert(BTreeNode<K, V> node, K key, V value) {
@@ -250,21 +250,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             this.promotedValue = v;
             this.left = left;
             this.right = right;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static final NodeUpdate<?, ?> NO_UPDATE = new NodeUpdate<>(false, null, null);
-
-    private static class NodeUpdate<K, V> {
-        final boolean needsSplit;
-        final K promotedKey;
-        final BTreeNode<K, V> rightChild;
-
-        NodeUpdate(boolean needsSplit, K promotedKey, BTreeNode<K, V> rightChild) {
-            this.needsSplit = needsSplit;
-            this.promotedKey = promotedKey;
-            this.rightChild = rightChild;
         }
     }
 }

@@ -25,6 +25,7 @@ tr:hover td { background:rgba(88,166,255,.04); }
 .tag-pass{background:rgba(63,185,80,.12);color:var(--green)}
 .tag-warn{background:rgba(210,153,34,.12);color:var(--orange)}
 .tag-bad{background:rgba(248,81,73,.12);color:var(--red)}
+.tag-good{background:rgba(88,166,255,.12);color:var(--accent)}
 pre { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:14px 18px; overflow-x:auto; font-size:0.8em; line-height:1.5; margin:10px 0 18px; }
 code { font-family:'JetBrains Mono','Fira Code',monospace; }
 :not(pre)>code { background:rgba(88,166,255,.12); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:0.85em; }
@@ -45,42 +46,48 @@ code { font-family:'JetBrains Mono','Fira Code',monospace; }
   <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;">
     <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 10px;">Java 25 &middot; Windows 10 &middot; 6C/12T</span>
     <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 10px;">维度 128 &middot; 数量 5,000</span>
-    <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 10px;">topK=10 &middot; rounds=2 &middot; queries=20</span>
+    <span style="font-size:0.78em;color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:3px 12px;">--add-modules jdk.incubator.vector &lt;span style="color:var(--green)">ON&lt;/span></span>
   </div>
 </div>
 <div class="content">
 
 <h2 id="overview">概述</h2>
-<p>对 <code>MemoryVectorStorage</code>、<code>DefaultVectorStorage(HYBRID)</code>、<code>JVectorVectorStorage(MEMORY)</code> 三个后端，在 cosine / euclidean / dot 三种算法下测量写入吞吐与搜索延迟。</p>
+<p>对 <code>MemoryVectorStorage</code>、<code>DefaultVectorStorage(HYBRID)</code>、<code>JVectorVectorStorage(MEMORY)</code> 三个后端，在 cosine / euclidean / dot 三种算法下测量写入吞吐与搜索延迟。已启用 <code>--add-modules jdk.incubator.vector</code>，JVector 使用 <code>PanamaVectorizationProvider</code>（f32 species=256）。</p>
 
 <div class="grid">
   <div class="card"><h4>后端覆盖</h4><div class="stat">3</div><p>memory / default-hybrid / jvector-mem</p></div>
   <div class="card"><h4>算法覆盖</h4><div class="stat">3</div><p>COSINE / EUCLIDEAN / DOT</p></div>
-  <div class="card"><h4>测试用例</h4><div class="stat">9</div><p>功能测试 9/9 通过 + 性能基准 8 项</p></div>
-  <div class="card"><h4>两阶段重排序</h4><div class="stat">✅</div><p>jvector / cuVS-GPU / Milvus 均支持</p></div>
+  <div class="card"><h4>测试用例</h4><div class="stat">9</div><p>功能测试 9/9 通过 + 性能基准</p></div>
+  <div class="card"><h4>Vector API</h4><div class="stat" style="color:var(--green)">ON</div><p>PanamaVectorizationProvider, species=256</p></div>
 </div>
 
-<h2 id="results">性能测试结果（dim=128, n=5,000）</h2>
+<h2 id="results">性能测试结果（dim=128, n=5,000, topK=10, rounds=2, queries=20）</h2>
 <table>
 <tr><th>后端</th><th>算法</th><th>写入(万条/s)</th><th>搜索(us/次)</th><th>搜索QPS</th><th>评价</th></tr>
-<tr><td>MemoryVectorStorage</td><td>COSINE</td><td>36.8</td><td>11</td><td>90,686</td><td><span class="tag tag-pass">优秀</span></td></tr>
-<tr><td>MemoryVectorStorage</td><td>EUCLIDEAN</td><td>188.0</td><td>13</td><td>74,449</td><td><span class="tag tag-pass">优秀</span></td></tr>
-<tr><td>MemoryVectorStorage</td><td>DOT</td><td>158.4</td><td>17</td><td>56,698</td><td><span class="tag tag-pass">优秀</span></td></tr>
-<tr><td>DefaultVectorStorage HYBRID</td><td>COSINE</td><td>35.8</td><td>439</td><td>2,277</td><td><span class="tag tag-warn">中等</span></td></tr>
-<tr><td>DefaultVectorStorage HYBRID</td><td>EUCLIDEAN</td><td>53.2</td><td>259</td><td>3,859</td><td><span class="tag tag-pass">良好</span></td></tr>
-<tr><td>JVectorVectorStorage MEMORY</td><td>COSINE</td><td>268.8</td><td>293,105</td><td>3</td><td><span class="tag tag-bad">brute-force降级</span></td></tr>
-<tr><td>JVectorVectorStorage MEMORY</td><td>EUCLIDEAN</td><td>269.6</td><td>147,208</td><td>6</td><td><span class="tag tag-bad">brute-force降级</span></td></tr>
+<tr><td>MemoryVectorStorage</td><td>COSINE</td><td>142.4</td><td>10</td><td>92,549</td><td><span class="tag tag-pass">优秀</span></td></tr>
+<tr><td>MemoryVectorStorage</td><td>EUCLIDEAN</td><td>201.7</td><td>9</td><td>108,636</td><td><span class="tag tag-pass">优秀</span></td></tr>
+<tr><td>MemoryVectorStorage</td><td>DOT</td><td>189.2</td><td>13</td><td>72,087</td><td><span class="tag tag-pass">优秀</span></td></tr>
+<tr><td>DefaultVectorStorage HYBRID</td><td>COSINE</td><td>49.9</td><td>280</td><td>3,558</td><td><span class="tag tag-warn">中等</span></td></tr>
+<tr><td>DefaultVectorStorage HYBRID</td><td>EUCLIDEAN</td><td>71.9</td><td>198</td><td>5,049</td><td><span class="tag tag-pass">良好</span></td></tr>
+<tr><td>JVectorVectorStorage MEMORY</td><td>COSINE</td><td>129.0</td><td>113,105</td><td>8</td><td><span class="tag tag-warn">图索引(5K偏小)</span></td></tr>
+<tr><td>JVectorVectorStorage MEMORY</td><td>EUCLIDEAN</td><td>157.5</td><td>56,076</td><td>17</td><td><span class="tag tag-warn">图索引(5K偏小)</span></td></tr>
+</table>
+
+<h3>无 module vs 有 module 对比（euclidean, 5K）</h3>
+<table>
+<tr><th>后端</th><th>无 module (brute-force)</th><th>有 module (Panama)</th><th>提升</th></tr>
+<tr><td>JVector EUCLIDEAN</td><td>147,208us / QPS=6</td><td><strong>56,076us / QPS=17</strong></td><td><span class="tag tag-pass">2.6x 加速</span></td></tr>
 </table>
 
 <h2 id="analysis">分析</h2>
 <div class="callout callout-green">
-  <strong>MemoryVectorStorage：</strong>搜索延迟最低（10&ndash;17us），适合 &le;10万向量纯内存场景。euclidean 写入吞吐最高（188万条/s）。
+  <strong>MemoryVectorStorage：</strong>搜索延迟最低（9&ndash;13us），写入吞吐最高（201万条/s euclidean），适合 &le;10万向量纯内存场景。
 </div>
 <div class="callout">
-  <strong>DefaultVectorStorage HYBRID：</strong>写入吞吐接近 memory，但搜索受冷数据扫描影响（259&ndash;439us）。适合持久化+冷热混合场景。
+  <strong>DefaultVectorStorage HYBRID：</strong>写入吞吐接近 memory（50&ndash;72万条/s），搜索延迟 198&ndash;280us。适合持久化+冷热混合场景，冷数据量不大时表现良好。
 </div>
 <div class="callout callout-warn">
-  <strong>JVectorVectorStorage：</strong>当前 JDK 25 环境下 <code>jdk.incubator.vector</code> 不可读，GraphSearcher 降级为 brute-force，图索引优势未发挥。需传递 <code>--add-modules jdk.incubator.vector</code> 或升级 JDK 才能启用图搜索。
+  <strong>JVectorVectorStorage：</strong>启用 Panama Vector API 后图索引正常工作。5K 规模下图构建开销仍高于线性扫描（113ms vs 56ms），建议 100K+ 规模才能体现图索引优势。
 </div>
 
 <h2 id="func">功能测试</h2>
@@ -89,7 +96,7 @@ code { font-family:'JetBrains Mono','Fira Code',monospace; }
 <tr><td>TC-1~2</td><td>SPI 注册 + Factory name</td><td><span class="tag tag-pass">PASS</span></td></tr>
 <tr><td>TC-3~4</td><td>AUTO / forceCpu → jvector</td><td><span class="tag tag-pass">PASS</span></td></tr>
 <tr><td>TC-5</td><td>requireGpu=true 无 GPU 抛异常</td><td><span class="tag tag-pass">PASS</span></td></tr>
-<tr<tg>TC-6</td><td>add + search brute-force fallback</td><td><span class="tag tag-pass">PASS</span></td></tr>
+<tr><td>TC-6</td><td>add + search brute-force fallback</td><td><span class="tag tag-pass">PASS</span></td></tr>
 <tr><td>TC-7</td><td>remove + update + clear</td><td><span class="tag tag-pass">PASS</span></td></tr>
 <tr><td>TC-8</td><td>euclidean 算法 → jvector 两阶段重排序</td><td><span class="tag tag-pass">PASS</span></td></tr>
 <tr><td>TC-9</td><td>dot product 算法 → jvector 两阶段重排序</td><td><span class="tag tag-pass">PASS</span></td></tr>
@@ -97,20 +104,29 @@ code { font-family:'JetBrains Mono','Fira Code',monospace; }
 
 <h2 id="algo">自定义算法支持矩阵</h2>
 <table>
-<tr><th>后端</th><th>COSINE</th><th>EUCLIDEAN</th><th>DOT</th><th>自定义算法</th><th>两阶段重排序</th></tr>
-<tr><td>MemoryVectorStorage</td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td>完全支持</td><td>N/A</td></tr>
-<tr><td>DefaultVectorStorage</td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td>完全支持</td><td>N/A</td></tr>
-<tr><td>JVectorVectorStorage</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>图粗筛×5 + 精排</td><td>✅</td></tr>
-<tr><td>CuvsVectorStorage GPU</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>CAGRA/HNSW粗筛×5 + 精排</td><td>✅</td></tr>
-<tr><td>MilvusVectorStorage</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>查询×5 + rerank()</td><td>✅</td></tr>
+<tr><th>后端</th><th>COSINE</th><th>EUCLIDEAN</th><th>DOT</th><th>两阶段重排序</th></tr>
+<tr><td>MemoryVectorStorage</td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td>N/A</td></tr>
+<tr><td>DefaultVectorStorage</td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td><span class="tag tag-pass">完全</span></td><td>N/A</td></tr>
+<tr><td>JVectorVectorStorage</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>图粗筛×5 + 精排</td></tr>
+<tr><td>CuvsVectorStorage GPU</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>CAGRA/HNSW粗筛×5 + 精排</td></tr>
+<tr><td>MilvusVectorStorage</td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td><span class="tag tag-pass">两阶段</span></td><td>查询×5 + rerank()</td></tr>
 </table>
 
 <h2 id="run">运行方式</h2>
-<pre><code># 功能测试（9项）
-java -cp "&lt;jar清单&gt;" com.chua.vector.support.VectorStarterTest
+<pre><code># Windows — 功能测试
+start-vector-tests.bat VectorStarterTest
 
-# 性能基准测试（dim=128, n=5000）
-java -cp "&lt;jar清单&gt;" com.chua.vector.support.VectorPerfBench
+# Windows — 性能基准
+start-vector-perf.bat
+
+# Linux/macOS
+./start-vector-tests.sh VectorStarterTest
+./start-vector-tests.sh VectorPerfBench
+
+# 手动运行（JDK 25 需加 incubator vector 模块）
+java --add-modules jdk.incubator.vector \
+  -cp "&lt;jar清单&gt;" \
+  com.chua.vector.support.VectorStarterTest
 
 # Example SPI 综合测试
 java ExampleRunner --example=vector-storage --type=memory
@@ -122,6 +138,9 @@ java ExampleRunner --example=vector-storage --type=vector --force-cpu=true</code
 <tr><th>文件</th><th>路径</th></tr>
 <tr><td>VectorStarterTest.java</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/src/main/java/.../VectorStarterTest.java</code></td></tr>
 <tr><td>VectorPerfBench.java</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/src/main/java/.../VectorPerfBench.java</code></td></tr>
+<tr><td>start-vector-tests.bat</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/start-vector-tests.bat</code></td></tr>
+<tr><td>start-vector-perf.bat</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/start-vector-perf.bat</code></td></tr>
+<tr><td>start-vector-tests.sh</td><td><code>utils-support-datasource-parent/utils-support-vector-starter/start-vector-tests.sh</code></td></tr>
 <tr><td>MemoryVectorStorage</td><td><code>utils-support-core-parent/utils-support-common-starter/.../vector/MemoryVectorStorage.java</code></td></tr>
 <tr><td>DefaultVectorStorage</td><td><code>utils-support-core-parent/utils-support-common-starter/.../vector/DefaultVectorStorage.java</code></td></tr>
 <tr><td>JVectorVectorStorage</td><td><code>utils-support-datasource-parent/utils-support-jvector-starter/.../storage/JVectorVectorStorage.java</code></td></tr>
