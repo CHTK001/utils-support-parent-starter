@@ -32,24 +32,29 @@ public final class HuggingfaceConstants {
     public static final String PATH_API_MODEL = "/api/models/%s";
 
     /**
-     * 上传文件 API：POST /api/models/{repoId}/upload/{revision}
-     */
-    public static final String PATH_API_UPLOAD = "/api/models/%s/upload/%s";
-
-    /**
-     * 删除文件 API：DELETE /api/models/{repoId}/delete/{revision}/{path}
-     */
-    public static final String PATH_API_DELETE = "/api/models/%s/delete/%s/%s";
-
-    /**
      * 创建仓库 API：POST /api/repos/create
      */
     public static final String PATH_API_REPOS_CREATE = "/api/repos/create";
 
     /**
-     * 删除仓库 API：DELETE /api/repos/delete
+     * 删除仓库 API：DELETE /api/repos/delete（body: {name, organization, type}）
      */
     public static final String PATH_API_REPOS_DELETE = "/api/repos/delete";
+
+    /**
+     * 提交 API（NDJSON）：POST /api/{repoType}s/{repoId}/commit/{revision}
+     */
+    public static final String PATH_API_COMMIT = "/api/%ss/%s/commit/%s";
+
+    /**
+     * 预上传 API（判定 LFS/regular）：POST /api/{repoType}s/{repoId}/preupload/{revision}
+     */
+    public static final String PATH_API_PREUPLOAD = "/api/%ss/%s/preupload/%s";
+
+    /**
+     * LFS batch API：POST /{urlPrefix}{repoId}.git/info/lfs/objects/batch
+     */
+    public static final String PATH_API_LFS_BATCH = "/%s.git/info/lfs/objects/batch";
 
     /**
      * 上传超时（毫秒）：LFS 大文件可能很慢

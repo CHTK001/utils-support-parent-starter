@@ -233,6 +233,20 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     }
 
     /**
+     * 设置是否使用流式请求
+     *
+     * <p>流式（stream=true）逐帧推送内容，适合实时打字机效果；
+     * 非流式（stream=false）一次性返回完整结果，兼容性更好，
+     * 避免部分中转服务商流式长连接挂起。默认非流式。
+     *
+     * @param stream true 使用流式，false 使用非流式
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient stream(boolean stream) {
+        return this;
+    }
+
+    /**
      * 设置深度思考强度
      *
      * <p>独立于 {@link #thinking(boolean)}，用于控制思考模式的强度级别。

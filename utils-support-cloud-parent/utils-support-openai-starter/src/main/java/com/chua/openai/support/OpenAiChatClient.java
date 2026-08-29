@@ -20,9 +20,11 @@ import com.openai.models.ReasoningEffort;
 import com.openai.models.FunctionParameters;
 import com.openai.models.ResponseFormatJsonObject;
 import com.openai.models.ResponseFormatText;
+import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionFunctionTool;
+import com.openai.models.chat.completions.ChatCompletionMessage;
 import com.openai.models.chat.completions.ChatCompletionNamedToolChoice;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
@@ -168,6 +170,11 @@ public class OpenAiChatClient implements ChatClient {
      * 深度思考力度
      */
     private String thinkingEffort;
+
+    /**
+     * 是否使用流式请求（默认 false，非流式一次返回完整结果）
+     */
+    private boolean stream;
 
     /**
      * 是否启用智能搜索
@@ -384,6 +391,13 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
+    /** Stream */
+    public ChatClient stream(boolean stream) {
+        this.stream = stream;
+        return this;
+    }
+
+    @Override
     /** Smart搜索 */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
@@ -412,7 +426,8 @@ public class OpenAiChatClient implements ChatClient {
                 }
             }
         });
-        if (reasoning.length() > 0) {
+        // 仅当显式开启深度思考时才附带思维链，关闭思考时只返回正式回答
+        if (thinking && reasoning.length() > 0) {
             return reasoning.toString() + "\n---\n" + result.toString();
         }
         return result.toString();
@@ -551,55 +566,82 @@ public class OpenAiChatClient implements ChatClient {
 
             long startTime = System.currentTimeMillis();
 
-            // 进行流式请求
-            streamResponse = client.chat().completions().createStreaming(params);
-            Iterator<ChatCompletionChunk> it = streamResponse.stream().iterator();
-
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                     .model(model)
                     .provider("openai")
                     .startTime(startTime);
 
-            while (it.hasNext()) {
-                ChatCompletionChunk chunk = it.next();
-                List<ChatCompletionChunk.Choice> choices = chunk.choices();
-                if (choices != null && !choices.isEmpty()) {
-                    ChatCompletionChunk.Choice choice = choices.get(0);
+            if (stream) {
+                // 进行流式请求
+                streamResponse = client.chat().completions().createStreaming(params);
+                Iterator<ChatCompletionChunk> it = streamResponse.stream().iterator();
 
-                    // 检查是否完成
-                    Optional<ChatCompletionChunk.Choice.FinishReason> finishReason = choice.finishReason();
-                    if (finishReason.isPresent()
-                            && finishReason.get() == ChatCompletionChunk.Choice.FinishReason.STOP) {
-                        usageBuilder.finishReason("stop");
-                        // 记录用量信息
-                        if (chunk.usage().isPresent()) {
-                            CompletionUsage usage = chunk.usage().get();
-                            usageBuilder
-                                    .inputTokens((int) usage.promptTokens())
-                                    .outputTokens((int) usage.completionTokens())
-                                    .totalTokens((int) usage.totalTokens());
-                        }
-                        break;
-                    }
+                while (it.hasNext()) {
+                    ChatCompletionChunk chunk = it.next();
+                    List<ChatCompletionChunk.Choice> choices = chunk.choices();
+                    if (choices != null && !choices.isEmpty()) {
+                        ChatCompletionChunk.Choice choice = choices.get(0);
 
-                    // 提取内容片段
-                    ChatCompletionChunk.Choice.Delta delta = choice.delta();
-                    if (delta != null) {
-                        Optional<String> content = delta.content();
-                        String reasoning = extractReasoning(delta._additionalProperties());
-                        if (content.isPresent()) {
-                            consumer.accept(ChatResponse.builder()
-                                    .state(ChatResponse.State.STREAMING)
-                                    .content(content.get())
-                                    .reasoningContent(reasoning)
-                                    .build());
-                        } else if (reasoning != null) {
-                            consumer.accept(ChatResponse.builder()
-                                    .state(ChatResponse.State.STREAMING)
-                                    .reasoningContent(reasoning)
-                                    .build());
+                        // 检查是否完成
+                        Optional<ChatCompletionChunk.Choice.FinishReason> finishReason = choice.finishReason();
+                        if (finishReason.isPresent()
+                                && finishReason.get() == ChatCompletionChunk.Choice.FinishReason.STOP) {
+                            usageBuilder.finishReason("stop");
+                            // 记录用量信息
+                            if (chunk.usage().isPresent()) {
+                                CompletionUsage usage = chunk.usage().get();
+                                usageBuilder
+                                        .inputTokens((int) usage.promptTokens())
+                                        .outputTokens((int) usage.completionTokens())
+                                        .totalTokens((int) usage.totalTokens());
+                            }
+                            break;
+                        }
+
+                        // 提取内容片段
+                        ChatCompletionChunk.Choice.Delta delta = choice.delta();
+                        if (delta != null) {
+                            Optional<String> content = delta.content();
+                            String reasoning = extractReasoning(delta._additionalProperties());
+                            if (content.isPresent()) {
+                                consumer.accept(ChatResponse.builder()
+                                        .state(ChatResponse.State.STREAMING)
+                                        .content(content.get())
+                                        .reasoningContent(reasoning)
+                                        .build());
+                            } else if (reasoning != null) {
+                                consumer.accept(ChatResponse.builder()
+                                        .state(ChatResponse.State.STREAMING)
+                                        .reasoningContent(reasoning)
+                                        .build());
+                            }
                         }
                     }
+                }
+            } else {
+                // 非流式请求：一次返回完整结果，避免部分中转服务商流式长连接挂起
+                ChatCompletion completion = client.chat().completions().create(params);
+                if (completion.choices() != null && !completion.choices().isEmpty()) {
+                    ChatCompletion.Choice choice = completion.choices().get(0);
+                    ChatCompletionMessage message = choice.message();
+                    if (message != null) {
+                        String reasoning = extractReasoning(message._additionalProperties());
+                        message.content().ifPresent(content -> consumer.accept(ChatResponse.builder()
+                                .state(ChatResponse.State.STREAMING)
+                                .content(content)
+                                .reasoningContent(reasoning)
+                                .build()));
+                        if (choice.finishReason() != null) {
+                            usageBuilder.finishReason(choice.finishReason().toString());
+                        }
+                    }
+                }
+                if (completion.usage() != null) {
+                    CompletionUsage usage = completion.usage().get();
+                    usageBuilder
+                            .inputTokens((int) usage.promptTokens())
+                            .outputTokens((int) usage.completionTokens())
+                            .totalTokens((int) usage.totalTokens());
                 }
             }
 
