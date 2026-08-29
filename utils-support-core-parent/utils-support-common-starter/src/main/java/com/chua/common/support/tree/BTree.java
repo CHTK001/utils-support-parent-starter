@@ -251,7 +251,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         K midKey = node.keys.get(mid);
         V midValue = node.values.get(mid);
         // 右半节点：keys[mid+1..n-1]，children[mid+1..n]
-        // 注意：midKey 提升给父节点，不放入 right
         BTreeNode<K, V> right = new BTreeNode<>(node.leaf);
         for (int j = mid + 1; j < n; j++) {
             right.keys.add(node.keys.get(j));
@@ -260,8 +259,12 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
                 right.children.add(node.children.get(j));
             }
         }
+        // 如果 node 是内部节点，还需要把 children[mid+1..n] 中的最后一个 child
+        // （即 children[n]，对应 keys[n-1] 右侧的子树）也移到 right
+        if (!node.leaf && mid + 1 <= n) {
+            right.children.add(node.children.get(n));
+        }
         // 左半节点保留 keys[0..mid-1]，children[0..mid]
-        // 左半的 children[mid] 是对应 midKey 的左子树（由父节点在合并时处理）
         node.keys.subList(mid, n).clear();
         node.values.subList(mid, n).clear();
         if (!node.leaf) {
