@@ -27,6 +27,9 @@ import java.util.regex.Pattern;
  *
  * <p>两阶段抓取：先搜索列表，再逐条访问详情页提取网盘链接。
  * 支持的网盘：百度/夸克/阿里/迅雷/UC/115/123/PikPak/磁力/ed2k 等。</p>
+ *
+ * <p>数据源为海外站(666.666291.xyz)，请求经 {@link ProxyHttpClient}
+ * （内部通过 {@code ProxyFetcherFlow} 获取代理，获取失败自动无代理兜底）。</p>
  */
 @Spi("muou")
 public class MuouResourceProvider extends AbstractResourceProvider {
@@ -54,10 +57,8 @@ public class MuouResourceProvider extends AbstractResourceProvider {
         String kw = videoSearch.getKeyword();
         if (!StringUtils.hasText(kw)) return ReturnPageResult.error("关键词不能为空");
         try {
-            HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(8))
-                    .followRedirects(HttpClient.Redirect.NORMAL)
-                    .build();
+            // 海外站(666.666291.xyz),走代理客户端(ProxyFetcherFlow 获取代理,失败则无代理兜底)
+            HttpClient client = ProxyHttpClient.get();
 
             String url = String.format(SEARCH_URL, java.net.URLEncoder.encode(kw, "UTF-8"));
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
