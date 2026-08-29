@@ -183,27 +183,28 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             return sub;
         }
         // Merge current keys with promoted key and child
-        // B树分裂语义：promotedKey 替换 keys[i]（分隔键更新），
-        // 同时 children[i] 被替换为 split 后的 leftChild（原 node）和 rightChild
+        // B树分裂语义：promotedKey 插入 keys[i]（新增分隔键），
+        // children[i] 被替换为 split 后的左子树和右子树两个节点。
+        // 注意：必须先保存旧子节点引用，因为 splitNode 会原地修改它（变为左半），
+        // 如果用 node.children.get(i) 会得到已被修改的左半而非原始节点。
+        BTreeNode<K, V> oldChild = node.children.get(i);
         List<K> newKeys = new ArrayList<>(node.keys);
         List<V> newValues = new ArrayList<>(node.values);
         List<BTreeNode<K, V>> newChildren = new ArrayList<>(node.children);
         if (i < newKeys.size()) {
-            newKeys.set(i, sub.promotedKey);
+            newKeys.add(i, sub.promotedKey);
             if (sub.promotedValue != null) {
-                newValues.set(i, sub.promotedValue);
+                newValues.add(i, sub.promotedValue);
             } else {
                 newValues.add(i, null);
             }
         } else {
-            // i == keys.size()，没有旧键可替换，直接追加
             newKeys.add(sub.promotedKey);
             newValues.add(sub.promotedValue);
         }
-        // children[i] 被左子树和右子树取代：先移除旧 child，再插入左右两个
-        // 注意：sub 返回的 node 本身已被 splitNode 修改为左子树，无需额外处理
+        // children[i] 被左子树（oldChild，已被 splitNode 原地修改为左半）和右子树取代
         newChildren.remove(i);
-        newChildren.add(i, node);
+        newChildren.add(i, oldChild);
         newChildren.add(i + 1, sub.rightChild);
         if (newKeys.size() <= order - 1) {
             node.keys = newKeys;
@@ -241,7 +242,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     /**
      * 分裂节点：中间键提升，左右两半分别保留。
      *
-     * @param node 待分裂节点
+     * @param node 待分裂节点（原地修改为右半部分）
      * @return 分裂结果
      */
     private NodeUpdate<K, V> splitNode(BTreeNode<K, V> node) {
@@ -249,8 +250,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         int mid = n / 2; // 左半 keys[0..mid-1]，右半 keys[mid+1..n-1]
         K midKey = node.keys.get(mid);
         V midValue = node.values.get(mid);
+        // 右半节点：keys[mid+1..n-1]，children[mid+1..n]
+        // 注意：midKey 提升给父节点，不放入 right
         BTreeNode<K, V> right = new BTreeNode<>(node.leaf);
-        // 拷贝右半部分
         for (int j = mid + 1; j < n; j++) {
             right.keys.add(node.keys.get(j));
             right.values.add(node.values.get(j));
@@ -258,7 +260,8 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
                 right.children.add(node.children.get(j));
             }
         }
-        // 截断左半部分
+        // 左半节点保留 keys[0..mid-1]，children[0..mid]
+        // 左半的 children[mid] 是对应 midKey 的左子树（由父节点在合并时处理）
         node.keys.subList(mid, n).clear();
         node.values.subList(mid, n).clear();
         if (!node.leaf) {

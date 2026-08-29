@@ -66,7 +66,7 @@ public class PipelineDebugUtil {
 
     private static byte[] toBytes(Object data) {
         if (data instanceof byte[] b) return b;
-        if (data instanceof java.awt.image.BufferedImage bi) return ImageUtils.encode(bi);
+        if (data instanceof java.awt.image.BufferedImage bi) return ImageUtils.encode(ImageUtils.toMat(bi));
         return null;
     }
 }

@@ -81,6 +81,8 @@ public class AudioRecognitionPipeline {
     private final int minSegmentMs;
     /** 推理引擎实例 */
     private final IdentificationEngine engine;
+    /** 音频识别管线回调 */
+    private AudioRecognitionPipelineCallback callback;
 
     /**
      * 私有构造，通过 {@link Builder} 创建实例。
@@ -122,6 +124,9 @@ public class AudioRecognitionPipeline {
             List<SpeakerSegment> vadResult = performVad(audioData);
             ctx.setVadSegments(vadResult);
             log.info("[AudioPipeline] Step1 VAD 切分完成：{} 个语音片段", vadResult.size());
+            if (callback != null) {
+                callback.onVad(vadResult);
+            }
 
             if (vadResult.isEmpty()) {
                 ctx.setElapsedMs(System.currentTimeMillis() - t0);
@@ -132,12 +137,18 @@ public class AudioRecognitionPipeline {
             if (speakerEmbeddingModel != null) {
                 float[][] embeddings = extractSpeakerEmbeddings(audioData, vadResult);
                 ctx.setSpeakerEmbeddings(embeddings);
+                if (callback != null) {
+                    callback.onEmbedding(embeddings);
+                }
 
                 // Step 3: K-Means 聚类
                 String[] assignments = kMeansCluster(embeddings, vadResult.size());
                 ctx.setSpeakerAssignments(assignments);
                 log.info("[AudioPipeline] Step2/3 说话人聚类完成：{} 个说话人",
                         distinctAssignments(assignments).size());
+                if (callback != null) {
+                    callback.onCluster(assignments);
+                }
             } else {
                 // 无嵌入模型时，每个 VAD 片段单独分配一个说话人 ID
                 String[] assignments = new String[vadResult.size()];
@@ -152,6 +163,9 @@ public class AudioRecognitionPipeline {
                 String[] transcripts = transcribeSegments(audioData, vadResult);
                 ctx.setTranscripts(transcripts);
                 log.info("[AudioPipeline] Step4 ASR 转写完成：{} 个片段已转写", transcripts.length);
+                if (callback != null) {
+                    callback.onTranscribe(transcripts);
+                }
             }
 
             // Step 5: 合并连续同说话人片段
@@ -161,6 +175,9 @@ public class AudioRecognitionPipeline {
             ctx.setElapsedMs(System.currentTimeMillis() - t0);
             log.info("[AudioPipeline] 管线完成：共 {}ms，输出 {} 个最终片段",
                     ctx.getElapsedMs(), finalResult.size());
+            if (callback != null) {
+                callback.onComplete(finalResult, ctx.getElapsedMs());
+            }
             return finalResult;
 
         } catch (Exception e) {
@@ -182,6 +199,24 @@ public class AudioRecognitionPipeline {
         } catch (java.io.IOException e) {
             throw new RuntimeException("读取音频文件失败: " + path, e);
         }
+    }
+
+    /**
+     * 设置音频识别管线回调。
+     *
+     * @param callback 回调实例
+     */
+    public void setCallback(AudioRecognitionPipelineCallback callback) {
+        this.callback = callback;
+    }
+
+    /**
+     * 获取音频识别管线回调。
+     *
+     * @return 回调实例，可能为 null
+     */
+    public AudioRecognitionPipelineCallback callback() {
+        return this.callback;
     }
 
     // ==================== Step 1: VAD 时间切分 ====================

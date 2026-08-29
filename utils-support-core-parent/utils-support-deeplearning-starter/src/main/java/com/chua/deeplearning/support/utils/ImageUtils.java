@@ -358,6 +358,49 @@ public final class ImageUtils {
     }
 
     /**
+     * 按像素矩形裁剪（便捷方法）。
+     *
+     * @param imageData 图像字节
+     * @param x         左边界
+     * @param y         上边界
+     * @param width     宽度
+     * @param height    高度
+     * @return 裁剪后 PNG 字节
+     */
+    public static byte[] crop(byte[] imageData, int x, int y, int width, int height) {
+        return cropLocal(imageData, x, y, width, height);
+    }
+
+    /**
+     * 按归一化或像素坐标裁剪（便捷方法）。
+     *
+     * @param imageData 图像字节
+     * @param x         左边界（归一化 <=1.5 或像素）
+     * @param y         上边界
+     * @param width     宽度
+     * @param height    高度
+     * @return 裁剪后 PNG 字节
+     */
+    public static byte[] cropNormalizedOrPixel(byte[] imageData, float x, float y, float width, float height) {
+        return cropNormalizedOrPixel(new NormalizedCropOptions(imageData, x, y, width, height));
+    }
+
+    /**
+     * 按旋转矩形扶正裁剪（便捷方法）。
+     *
+     * @param imageData 图像字节
+     * @param cx        中心 x
+     * @param cy        中心 y
+     * @param rw        旋转矩形宽
+     * @param rh        旋转矩形高
+     * @param angle     旋转角度（度）
+     * @return 扶正后 PNG 字节
+     */
+    public static byte[] cropRotated(byte[] imageData, float cx, float cy, float rw, float rh, float angle) {
+        return cropRotated(new RotatedCropOptions(imageData, cx, cy, rw, rh, angle));
+    }
+
+    /**
      * 按检测框裁剪（宽高 &lt;= 1.5 视为归一化坐标，否则按像素）。
      *
      * @param options 裁剪选项，包含图像字节和坐标（归一化或像素）
@@ -452,7 +495,16 @@ public final class ImageUtils {
      * @param mat Mat
      * @return PNG 字节
      */
-    public static byte[] encode(Mat mat) {
+    public static byte[] encode(java.awt.image.BufferedImage bi) {
+        try {
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(bi, "png", baos);
+            return baos.toByteArray();
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+public static byte[] encode(Mat mat) {
         return encode(mat, ".png");
     }
 
