@@ -101,9 +101,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      */
     private StorageStrategy createStrategy() {
         return switch (properties.getMode()) {
-            case MEMORY -> new EagerMemoryStrategy(dimension(), similarity, properties);
-            case ON_DISK -> new DiskStrategy(dimension(), similarity, properties);
-            case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), similarity, properties);
+            case MEMORY -> new EagerMemoryStrategy(dimension(), similarity, properties, getAlgorithm());
+            case ON_DISK -> new DiskStrategy(dimension(), similarity, properties, getAlgorithm());
+            case LARGER_THAN_MEMORY -> new LargerThanMemoryStrategy(dimension(), similarity, properties, getAlgorithm());
         };
     }
 
@@ -192,6 +192,8 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final VectorSimilarityFunction similarity;
         /** 存储配置属性（含图参数） */
         private final JVectorStorageProperties properties;
+        /** 比较算法 */
+        private final VectorCompareAlgorithm algorithm;
         /** 内存图索引；构建前为 null */
         private ImmutableGraphIndex graph;
         /** 原始向量深拷贝（防御调用者后续修改） */
@@ -199,10 +201,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
 
-        EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity, JVectorStorageProperties properties) {
+        EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
+                            JVectorStorageProperties properties, VectorCompareAlgorithm algorithm) {
             this.dimension = dimension;
             this.similarity = similarity;
             this.properties = properties;
+            this.algorithm = algorithm;
         }
 
         @Override
@@ -236,9 +240,15 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (vectors.isEmpty()) {
                 return List.of();
             }
-            // 先尝试图搜索；若图未构建或构建/搜索异常，降级为暴力线性扫描。
-            // 原因：jvector rc.9 的 GraphSearcher 在 JDK 25 下因 incubator vector
-            // 模块不可读会导致 ForkJoin 线程挂起。
+            var algo = algorithm;
+            List<Vector> graphResults = graphSearch(query, topK * 5);
+            return algo != null ? reRank(graphResults, query, algo, topK) : graphResults;
+        }
+
+        private List<Vector> graphSearch(float[] query, int fetchK) {
+            if (vectors.isEmpty()) {
+                return List.of();
+            }
             try {
                 if (graph == null) {
                     buildGraph();
@@ -247,12 +257,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var rav = new ListRandomAccessVectorValues(vectors, dimension);
                 SearchScoreProvider ssp = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
                 try (var searcher = new GraphSearcher(graph)) {
-                    var result = searcher.search(ssp, topK, Bits.ALL);
+                    var result = searcher.search(ssp, fetchK, Bits.ALL);
                     var list = new ArrayList<Vector>();
                     for (var n : result.getNodes()) {
                         var id = idOf(n.node);
                         float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                         list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
+                        if (list.size() >= fetchK) break;
                     }
                     return list;
                 }
@@ -263,24 +274,62 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 }
                 System.err.println("[jvector] 图搜索失败，降级为暴力扫描: " + e.getMessage());
             }
-            return bruteForceSearch(query, topK);
+            return bruteForceSearch(query, fetchK);
+        }
+
+        private List<Vector> reRank(List<Vector> candidates, float[] query, VectorCompareAlgorithm algo, int topK) {
+            candidates.sort((a, b) -> Double.compare(
+                    algo.compare(query, a.data()),
+                    algo.compare(query, b.data())));
+            return candidates.subList(0, Math.min(topK, candidates.size()));
         }
 
         /**
-         * 暴力线性扫描计算余弦相似度，作为 jvector graph search 不可用时的回退。
+         * 暴力线性扫描，使用当前配置的算法计算距离并选出 topK。
          */
         private List<Vector> bruteForceSearch(float[] query, int topK) {
+            var algo = algorithm;
+            if (algo == null) {
+                return bruteForceCosine(query, topK);
+            }
+            int n = vectors.size();
+            int k = Math.min(topK, n);
+            String[] topIds = new String[k];
+            float[] topScores = new float[k];
+            Arrays.fill(topScores, Float.POSITIVE_INFINITY);
+            for (int i = 0; i < n; i++) {
+                float[] vec = rawVectors.get(i);
+                float dist = algo.compare(query, vec);
+                int pos = k - 1;
+                while (pos >= 0 && topScores[pos] > dist) {
+                    topIds[pos + 1] = topIds[pos];
+                    topScores[pos + 1] = topScores[pos];
+                    pos--;
+                }
+                topIds[pos + 1] = idOf(i);
+                topScores[pos + 1] = dist;
+            }
+            var result = new ArrayList<Vector>();
+            for (int i = 0; i < k; i++) {
+                if (topIds[i] == null) break;
+                int idx = ordinalOf(topIds[i]);
+                if (idx < 0 || idx >= rawVectors.size()) continue;
+                result.add(new Vector(topIds[i], rawVectors.get(idx),
+                        Map.of("score", (double) topScores[i])));
+            }
+            return result;
+        }
+
+        private List<Vector> bruteForceCosine(float[] query, int topK) {
             int n = vectors.size();
             int k = Math.min(topK, n);
             String[] topIds = new String[k];
             float[] topScores = new float[k];
             Arrays.fill(topScores, Float.NEGATIVE_INFINITY);
-
-            double qNorm = 0, qDot = 0;
+            double qNorm = 0;
             for (float f : query) { qNorm += f * f; }
             qNorm = Math.sqrt(qNorm);
             if (qNorm == 0) return List.of();
-
             for (int i = 0; i < n; i++) {
                 float[] vec = rawVectors.get(i);
                 double dot = 0, vNorm = 0;
@@ -291,7 +340,6 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 vNorm = Math.sqrt(vNorm);
                 if (vNorm == 0) continue;
                 float sim = (float) (dot / (qNorm * vNorm));
-                // 插入排序保持 topK 降序
                 int pos = k - 1;
                 while (pos >= 0 && topScores[pos] < sim) {
                     topIds[pos + 1] = topIds[pos];
@@ -300,9 +348,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 }
                 topIds[pos + 1] = idOf(i);
                 topScores[pos + 1] = sim;
-                if (k < topIds.length) { /* no-op, array fixed size */ }
             }
-
             var result = new ArrayList<Vector>();
             for (int i = 0; i < k; i++) {
                 if (topIds[i] == null) break;
@@ -424,12 +470,15 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final Path vectorDataPath;
         /** 向量是否被修改且未持久化 */
         private boolean vectorsDirty;
+        /** 比较算法 */
+        private final VectorCompareAlgorithm algorithm;
 
         DiskStrategy(int dimension, VectorSimilarityFunction similarity,
-                     JVectorStorageProperties properties) {
+                      JVectorStorageProperties properties, VectorCompareAlgorithm algorithm) {
             this.dimension = dimension;
             this.similarity = similarity;
             this.properties = properties;
+            this.algorithm = algorithm;
             this.indexPath = Paths.get(properties.getIndexPath());
             this.vectorDataPath = Paths.get(properties.getIndexPath() + ".vectors");
             this.vectorsDirty = false;
@@ -692,12 +741,15 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final List<float[]> rawVectors = new ArrayList<>();
         /** JVector 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
+        /** 比较算法 */
+        private final VectorCompareAlgorithm algorithm;
 
         LargerThanMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
-                                 JVectorStorageProperties properties) {
+                                 JVectorStorageProperties properties, VectorCompareAlgorithm algorithm) {
             this.dimension = dimension;
             this.similarity = similarity;
             this.properties = properties;
+            this.algorithm = algorithm;
             this.indexPath = Paths.get(properties.getIndexPath() + ".pq");
         }
 

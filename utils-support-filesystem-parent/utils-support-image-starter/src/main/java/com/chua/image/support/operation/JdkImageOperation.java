@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.chua.common.support.utils.SubImageOptions;
 
 
 /**
@@ -96,7 +97,7 @@ public class JdkImageOperation implements ImageOperation {
                         x, y, width, height, image.getWidth(), image.getHeight()));
             }
 
-            var croppedImage = BufferedImageUtils.getSubImage(image, x, y, width, height);
+            var croppedImage = BufferedImageUtils.getSubImage(new SubImageOptions(image, x, y, width, height));
 
             // 将BufferedImage转换回字节数组
             return BufferedImageUtils.toBufferedImageArray(croppedImage, format);

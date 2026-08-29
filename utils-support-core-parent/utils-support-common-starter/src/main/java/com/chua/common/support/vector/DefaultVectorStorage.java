@@ -220,7 +220,7 @@ public class DefaultVectorStorage implements VectorStorage {
             // 热数据收集
             List<VectorScored> candidates = Collections.synchronizedList(new ArrayList<>(hot.size()));
             for (Vector v : hot.values()) {
-                candidates.add(new VectorScored(v.id(), -algorithm.compare(query, v.data()), v));
+                candidates.add(new VectorScored(v.id(), algorithm.compare(query, v.data()), v));
             }
             // 冷数据并行扫描：按分片切分，ForkJoinPool 并行处理
             scanColdCandidatesParallel(query, candidates);
@@ -496,7 +496,7 @@ public class DefaultVectorStorage implements VectorStorage {
                 Vector v = readEntryFromBuf(loc, sb.buf());
                 if (v == null || v.data() == null) continue;
                 synchronized (candidates) {
-                    candidates.add(new VectorScored(v.id(), -algorithm.compare(query, v.data()), v));
+                    candidates.add(new VectorScored(v.id(), algorithm.compare(query, v.data()), v));
                 }
             }
         });

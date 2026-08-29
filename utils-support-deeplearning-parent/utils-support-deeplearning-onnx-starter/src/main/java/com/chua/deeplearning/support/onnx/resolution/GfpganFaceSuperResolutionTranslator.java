@@ -10,6 +10,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.ImageUtils;
+import com.chua.deeplearning.support.utils.TensorOptions;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -40,7 +41,7 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         // 与 PyTorch 版一致：直接 resize 到 512x512，不 center-crop
-        float[] pixels = ImageUtils.toTensorResize(input, INPUT_SIZE, MEAN, STD);
+        float[] pixels = ImageUtils.toTensor(new TensorOptions(input, INPUT_SIZE, MEAN, STD, false));
         NDArray array = manager.create(pixels, new Shape(3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
     }
