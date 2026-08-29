@@ -479,18 +479,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
                 java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
                 false, null);
-        // wav2vec2-base（384维嵌入，更轻量）：适合嵌入式/边缘设备，模型约 350MB。
+        // wav2vec2-base（384维嵌入，更轻量）：适合嵌入式/边缘设备，模型约 350MB，JAR 内嵌。
         reg("wav2vec2-base-fingerprint",
                 "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
                 byte[].class, float[].class,
                 com.chua.deeplearning.support.audio.AudioFingerprinter.class,
-                "audio/fingerprint/wav2vec2-base/model.onnx",
-                "https://huggingface.co/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx",
-                java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-base-960h-ONNX/resolve/main/model.onnx"),
-                false, null);
+                "audio/fingerprint/wav2vec2-base/model.onnx");
 
         // ==================== 说话人嵌入（Speaker Embedding） ====================
-        // wespeaker-resnet34（512维 x-vector）：专用于说话人验证的 ResNet34+LM 架构，
+        // wespeaker-resnet34-LM（512维 x-vector）：专用于说话人验证的 ResNet34+LM 架构，
         // 输入 16kHz 单声道 PCM/WAV，输出 512 维 L2 归一化嵌入向量。
         // 嵌入式 jar：utils-support-models-onnx-wespeaker（INT8 量化，~6.7MB）。
         // 配合 DefaultSpeakerDiarizer（VAD 时间切分）完成端到端说话人分离。
@@ -499,6 +496,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 byte[].class, float[].class,
                 com.chua.deeplearning.support.audio.AudioFingerprinter.class,
                 "audio/speaker/wespeaker-resnet34/model.onnx");
+
+        // CAM++ 声纹嵌入（192维）：阿里 DAMO 说话人验证模型，中文优化，
+        // 输入 16kHz 单声道 PCM/WAV，输出 192 维 L2 归一化嵌入向量。
+        // 嵌入式 jar：utils-support-models-onnx-sensevoice（~28MB）。
+        // 适用声纹识别、说话人验证、声纹入库检索。
+        reg("campplus-voiceprint",
+                "com.chua.deeplearning.support.onnx.audio.CampplusEmbeddingTranslator",
+                byte[].class, float[].class,
+                com.chua.deeplearning.support.audio.AudioFingerprinter.class,
+                "audio/speaker/campplus/campplus_zh_cn_common_200k.onnx");
 
         // ==================== 零样本检测 YOLO-World（嵌入式友好） ====================
         // YOLO-World Small：开放词表检测，文本提示（中/英文）→ 检测框+类别；模型 ~40MB，适合嵌入式/边缘部署
