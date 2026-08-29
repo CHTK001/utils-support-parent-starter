@@ -120,6 +120,8 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     protected abstract byte opType();
     protected abstract String decodeKey(byte[] payload);
 
+    public WalStoreConfig config() { return config; }
+
     protected Path getSegmentPath(int segmentNo) {
         return config.baseDir().resolve("_wal")
                 .resolve(String.format("%s-%06d.wal", config.namespace(), segmentNo));

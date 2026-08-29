@@ -37,6 +37,9 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     /** Leaderboard_url */
     private static final String LEADERBOARD_URL = "https://artificialanalysis.ai/zh/leaderboards/providers";
 
+    /** 模型排行榜页(含活跃参数量 activeParams) */
+    private static final String MODELS_URL = "https://artificialanalysis.ai/models";
+
     /** 图标地址前缀（相对路径补全用） */
     private static final String LOGO_BASE = "https://artificialanalysis.ai";
 
@@ -61,7 +64,26 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             return readClasspathPricing();
         }
         List<ModelDefinition> parsed = parseFlightData(html);
-        return parsed.isEmpty() ? readClasspathPricing() : parsed;
+        if (parsed.isEmpty()) {
+            return readClasspathPricing();
+        }
+        // 活跃参数量与思考等级仅模型排行榜页提供，按 slug 补充合并
+        String modelsHtml = fetchUrl(MODELS_URL);
+        if (modelsHtml != null && !modelsHtml.isEmpty()) {
+            Map<String, BigDecimal> params = parseActiveParams(modelsHtml);
+            Map<String, String> efforts = parseReasoningEfforts(modelsHtml);
+            for (ModelDefinition md : parsed) {
+                BigDecimal p = params.get(md.getId());
+                if (p != null) {
+                    md.setActiveParams(p);
+                }
+                String eff = efforts.get(md.getId());
+                if (eff != null) {
+                    md.setReasoningEffort(eff);
+                }
+            }
+        }
+        return parsed;
     }
 
     /**
@@ -94,16 +116,39 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             BigDecimal intelligence = num(win, "intelligenceIndex\\\\\\\":");
             BigDecimal in = num(win, "price1mInputTokens\\\\\\\":");
             BigDecimal out = num(win, "price1mOutputTokens\\\\\\\":");
+            BigDecimal cacheHit = num(win, "cacheHitPrice\\\\\\\":");
+            BigDecimal cacheWrite = num(win, "cacheWritePrice\\\\\\\":");
+            BigDecimal context = num(win, "contextWindowTokens\\\\\\\":");
             BigDecimal speed = num(win, "medianOutputTokensPerSecond\\\\\\\":");
             BigDecimal ttft = num(win, "medianTimeToFirstTokenSeconds\\\\\\\":");
+            Boolean reasoning = null;
+            String r = group1(win, "reasoningModel\\\\\\\":(true|false)");
+            if (r != null) {
+                reasoning = Boolean.parseBoolean(r);
+            }
+            Boolean functionCalling = null;
+            String fc = group1(win, "functionCalling\\\\\\\":(true|false)");
+            if (fc != null) {
+                functionCalling = Boolean.parseBoolean(fc);
+            }
             if (in == null && out == null && intelligence == null) { continue; }
+
+            // 联网查询/图片识别无显式字段，按模型名规律推断（可被人工配置覆盖）
+            boolean webSearch = slug.contains("search") || slug.contains("online");
+            boolean imageInput = IMAGE_INPUT_PATTERN.matcher(slug).find();
 
             String[] catInfo = catalog.get(slug);
             String displayName = catInfo != null ? catInfo[0] : slug;
             String creatorName = catInfo != null ? catInfo[1] : slug;
-            String logoPath = catInfo != null ? catInfo[2] : null;
+            // 模型记录内的 creator.logo(每个模型记录都有,无 id 字段),catalog 作兜底
+            String logoPath = group1(win, "logo\\\\\\\":\\\\\\\"([^\\\\]+)");
+            if (logoPath == null && catInfo != null) {
+                logoPath = catInfo[2];
+            }
+            // 模型记录内为纯文件名(deepseek_small.svg),catalog 内为 /img/logos/x.svg,统一补全
             String iconUrl = logoPath == null ? null
-                    : (logoPath.startsWith("http") ? logoPath : LOGO_BASE + logoPath);
+                    : (logoPath.startsWith("http") ? logoPath
+                    : (logoPath.startsWith("/") ? LOGO_BASE + logoPath : LOGO_BASE + "/img/logos/" + logoPath));
 
             dedup.put(slug, ModelDefinition.builder()
                     .id(slug)
@@ -113,6 +158,10 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     .description("Artificial Analysis")
                     .inputUnitPrice(in)
                     .outputUnitPrice(out)
+                    .cacheHitPrice(cacheHit)
+                    .cacheWritePrice(cacheWrite)
+                    .contextWindowTokens(context == null ? null : context.longValue())
+                    .reasoning(reasoning)
                     .currency("USD")
                     .intelligenceIndex(intelligence)
                     .outputSpeedTokensPerSecond(speed)
@@ -121,6 +170,49 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     .build());
         }
         return new ArrayList<>(dedup.values());
+    }
+
+    /**
+     * 从模型排行榜页解析活跃参数量（slug -> 十亿）。
+     *
+     * <p>providers 页不含参数量字段；models 页将活跃参数量放在结构化数据集
+     * {@code {"label":"...","activeParams":104,"passiveParams":2696,"detailsUrl":"/models/kimi-k3"}}
+     * 中（仅覆盖部分主流模型），slug 从 detailsUrl 提取。</p>
+     *
+     * @param html 模型页原始 HTML（含转义）
+     * @return slug -> activeParams(十亿)
+     */
+    private Map<String, BigDecimal> parseActiveParams(String html) {
+        Map<String, BigDecimal> result = new LinkedHashMap<>();
+        String esc = html.replace("\\\"", "\"");
+        Matcher m = Pattern.compile(
+                "\\{\"label\":\"[^\"]*\",\"activeParams\":(-?[0-9]+(?:\\.[0-9]+)?),\"passiveParams\":[0-9]+,\"detailsUrl\":\"/models/([^\"]+)\"")
+                .matcher(esc);
+        while (m.find()) {
+            result.putIfAbsent(m.group(2), new BigDecimal(m.group(1)));
+        }
+        return result;
+    }
+
+    /**
+     * 从模型排行榜页解析思考等级（slug -> effort）。
+     *
+     * <p>models 页每个推理模型记录带 {@code "effort":{"slug":"max","label":"max","level":60}},
+     * 提取其档位 slug（max / high / medium / low）；非推理模型无此字段，不收录。</p>
+     *
+     * @param html 模型页原始 HTML（含转义）
+     * @return slug -> 思考等级
+     */
+    private Map<String, String> parseReasoningEfforts(String html) {
+        Map<String, String> result = new LinkedHashMap<>();
+        String esc = html.replace("\\\"", "\"");
+        Matcher m = Pattern.compile(
+                "\"slug\":\"([^\"]+)\",\"name\":\"[^\"]*\"[^}]*?\"effort\":\\{\"slug\":\"([^\"]+)\"")
+                .matcher(esc);
+        while (m.find()) {
+            result.putIfAbsent(m.group(1), m.group(2));
+        }
+        return result;
     }
 
     /**

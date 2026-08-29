@@ -57,6 +57,12 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     }
 
     @Override
+    public Path baseDir() { return config.baseDir(); }
+
+    @Override
+    public String type() { return storeType().name().toLowerCase(); }
+
+    @Override
     public void close() throws IOException {
         if (closed) return;
         closed = true;
@@ -180,8 +186,19 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
 
     private byte[] readFromSegment(int segmentNo, long offset, int length) {
         if (segmentNo < 0 || segmentNo >= walLogs.length) return null;
-        try { return walLogs[segmentNo].readAt(segmentNo, offset, length); }
-        catch (IOException e) { return null; }
+        try {
+            java.nio.file.Path segFile = walLogs[segmentNo].listSegments().stream()
+                    .filter(s -> s.segmentNo() == segmentNo).findFirst()
+                    .map(WalSegmentInfo::path).orElse(null);
+            if (segFile == null) return null;
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(segFile.toFile());
+                 java.nio.channels.FileChannel ch = fis.getChannel()) {
+                if (offset + length > ch.size()) return null;
+                java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(length);
+                ch.read(buf, offset);
+                return buf.array();
+            }
+        } catch (IOException e) { return null; }
     }
 
     protected static boolean isTombstone(byte op) { return (op & AbstractWalFileSystem.OP_TOMBSTONE) != 0; }
@@ -200,7 +217,11 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
 
     @SuppressWarnings("unchecked")
     public static <K extends Comparable<K>> WalStoreSystem<K> create(
-            Class<? extends WalStoreSystem<K>> clazz, WalStoreConfig config) throws IOException {
-        return (WalStoreSystem<K>) clazz.getConstructor(WalStoreConfig.class).newInstance(config);
+            Class<? extends WalStoreSystem<K>> clazz, WalStoreConfig config) {
+        try {
+            return (WalStoreSystem<K>) clazz.getConstructor(WalStoreConfig.class).newInstance(config);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create store: " + clazz.getSimpleName(), e);
+        }
     }
 }

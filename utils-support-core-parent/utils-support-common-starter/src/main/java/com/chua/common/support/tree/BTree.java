@@ -70,15 +70,18 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     }
 
     private void collectRange(BTreeNode<K, V> node, K from, K to, List<Map.Entry<K, V>> result) {
+        // 收集当前节点所有在范围内的键
         for (int i = 0; i < node.keys.size(); i++) {
             K k = node.keys.get(i);
             if (k.compareTo(from) >= 0 && k.compareTo(to) < 0) {
                 result.add(Map.entry(k, node.values.get(i)));
             }
-            if (k.compareTo(to) >= 0 && !node.leaf) return;
-            if (!node.leaf) collectRange(node.children.get(i), from, to, result);
         }
-        if (!node.leaf) collectRange(node.children.get(node.keys.size()), from, to, result);
+        if (node.leaf) return;
+        // 遍历所有子节点（B树范围查询需要访问可能包含范围键的所有子树）
+        for (BTreeNode<K, V> child : node.children) {
+            collectRange(child, from, to, result);
+        }
     }
 
     @Override

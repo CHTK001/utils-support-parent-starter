@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-parent-starter</artifactId>
+        <version>4.0.0.42</version>
+    </parent>
+    <artifactId>utils-support-models-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Utils Support Models Parent</name>
+    <description>ONNX 模型包（音频/视觉等预训练模型 JAR 嵌入）</description>
+    <modules>
+        <module>utils-support-models-onnx-wespeaker</module>
+        <module>utils-support-models-onnx-campplus</module>
+        <module>utils-support-models-onnx-wav2vec2-base</module>
+    </modules>
+</project>

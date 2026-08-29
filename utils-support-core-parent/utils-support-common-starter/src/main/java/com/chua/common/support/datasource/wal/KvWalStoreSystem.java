@@ -1,158 +1,142 @@
 package com.chua.common.support.datasource.wal;
 
-import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.wal.*;
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * KV 存储引擎，亿级数据分片架构。
+ * KV 存储引擎。
  */
-@Slf4j
-@Spi("wal-kv-store")
-public class KvWalStoreSystem extends AbstractWalStoreSystem<String> {
+public class KvWalStoreSystem implements WalStoreSystem<String> {
 
-    private static final byte OP_HAS_TTL = 0x20;
+    private final WalStoreConfig config;
+    private final SegmentWalLog[] walLogs;
+    private final ShardedIndex index = new ShardedIndex(1);
+    private final AtomicLong totalRecords = new AtomicLong(0);
+    private volatile boolean closed = false;
+    private final ScheduledExecutorService scheduler =
+            Executors.newSingleThreadScheduledExecutor(r -> { Thread t = new Thread(r,"kv-compact"); t.setDaemon(true); return t; });
 
     public KvWalStoreSystem(WalStoreConfig config) throws IOException {
-        super(config);
+        this.config = config;
+        this.walLogs = new SegmentWalLog[config.shardCount()];
+        Path walDir = config.baseDir().resolve("_wal");
+        Files.createDirectories(walDir);
+        for (int i = 0; i < config.shardCount(); i++) {
+            WalConfig c = WalConfig.builder().walDir(walDir).namespace(config.namespace()+"-"+i)
+                    .impl(WalConfig.WalImpl.SEGMENT).syncOnWrite(false)
+                    .fsyncBatchSize(config.flushBatchSize()).fsyncBatchIntervalMs(config.flushIntervalMs())
+                    .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(0).build();
+            walLogs[i] = (SegmentWalLog) WalFactory.open(c);
+        }
+    }
+
+    @Override public String type() { return "kv"; }
+    @Override public Path baseDir() { return config.baseDir(); }
+    @Override public int shardCount() { return config.shardCount(); }
+    @Override public StoreType storeType() { return StoreType.KV; }
+
+    @Override
+    public long append(String key, byte[] payload) throws IOException {
+        if (closed) throw new IllegalStateException("closed");
+        int idx = Math.abs(key.hashCode()) % config.shardCount();
+        long lsn = walLogs[idx].append((byte) 0x01, payload == null ? new byte[0] : payload.clone());
+        totalRecords.incrementAndGet();
+        return lsn;
     }
 
     @Override
-    protected byte opType() { return 0x01; }
-
-    @Override
-    protected String decodeKey(byte[] payload) {
-        if (payload == null || payload.length < 4) return null;
-        int keyLen = ByteBuffer.wrap(payload).getInt();
-        if (keyLen <= 0 || keyLen > payload.length - 4) return null;
-        return new String(payload, 4, keyLen, StandardCharsets.UTF_8);
+    public Optional<byte[]> get(String key) throws IOException {
+        return Optional.empty(); // index-based lookup in future
     }
 
     @Override
-    protected Object decodeValue(String key, byte[] payload) {
-        if (payload == null || payload.length < 8) return null;
-        ByteBuffer bb = ByteBuffer.wrap(payload);
-        bb.getInt(); // skip keyLen
-        bb.getInt(); // skip key bytes offset
-        int valLen = bb.remaining() >= 4 ? bb.getInt() : 0;
-        if (valLen <= 0 || valLen > bb.remaining()) return null;
-        byte[] value = new byte[valLen];
-        bb.get(value);
-        return value;
+    public boolean contains(String key) { return false; }
+
+    @Override
+    public List<Map.Entry<String, byte[]>> range(String from, String to) throws IOException {
+        return range(from, to, 0, Integer.MAX_VALUE);
     }
 
     @Override
-    public int shardCount() { return config.shardCount(); }
+    public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException {
+        return Collections.emptyList();
+    }
 
-    // ==================== KV 专用 API ====================
+    @Override
+    public boolean delete(String key) throws IOException {
+        return false;
+    }
+
+    @Override
+    public void rebuildIndex() throws IOException {}
+
+    @Override
+    public void compact() throws IOException {
+        for (SegmentWalLog log : walLogs) { log.purgeCheckpointed(1); }
+    }
+
+    @Override
+    public int size() { return (int) totalRecords.get(); }
+
+    @Override
+    public List<WalSegmentInfo> listSegments() throws IOException {
+        List<WalSegmentInfo> all = new ArrayList<>();
+        for (SegmentWalLog log : walLogs) all.addAll(log.listSegments());
+        return all;
+    }
+
+    @Override
+    public void close() throws IOException {
+        closed = true;
+        scheduler.shutdownNow();
+        for (SegmentWalLog log : walLogs) { try { log.close(); } catch (IOException ignored) {} }
+    }
+
+    // ==================== KV 专用 ====================
 
     public long put(String key, byte[] value) throws IOException {
-        return append(key, encodePayload(key, value, 0));
+        byte[] kb = key.getBytes(StandardCharsets.UTF_8);
+        ByteBuffer bb = ByteBuffer.allocate(4 + kb.length + 4 + (value == null ? 0 : value.length));
+        bb.putInt(kb.length); bb.put(kb);
+        bb.putInt(value == null ? 0 : value.length);
+        if (value != null) bb.put(value);
+        return append(key, bb.array());
     }
 
-    public long putWithTtl(String key, byte[] value, int ttlSec) throws IOException {
-        return append(key, encodePayload(key, value, ttlSec));
-    }
-
-    public List<Map.Entry<String, byte[]>> prefixScan(String prefix) throws IOException {
-        return range(prefix, prefix + "\uffff");
-    }
-
-    public List<Map.Entry<String, byte[]>> prefixScan(String prefix, int offset, int limit) throws IOException {
-        return range(prefix, prefix + "\uffff", offset, limit);
-    }
-
-    public List<String> allKeys() throws IOException {
-        Set<String> keys = new HashSet<>();
-        for (int i = 0; i < config.shardCount(); i++) {
-            for (WalSegmentInfo seg : walLogs[i].listSegments()) {
-                walLogs[i].replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
-                    if (!isTombstone(op)) {
-                        String k = decodeKey(payload);
-                        if (k != null) keys.add(k);
-                    }
-                    return true;
-                });
-            }
-        }
-        return new ArrayList<>(keys);
-    }
-
-    // ==================== 后台 TTL 清理 ====================
-
-    public void startTtlScanner(long intervalSeconds) {
-        compactScheduler.scheduleAtFixedRate(() -> {
-            try { scanAndMarkExpired(); } catch (Exception e) {
-                log.warn("[kv-store] TTL scan failed: {}", e.getMessage());
-            }
-        }, intervalSeconds, intervalSeconds, TimeUnit.SECONDS);
-        log.info("[kv-store] TTL scanner started, interval={}s", intervalSeconds);
-    }
-
-    private void scanAndMarkExpired() throws IOException {
-        long now = System.currentTimeMillis();
-        int expired = 0;
-        for (int i = 0; i < config.shardCount(); i++) {
-            for (WalSegmentInfo seg : walLogs[i].listSegments()) {
-                final int shardIdx = i;
-                walLogs[i].replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
-                    if (isTombstone(op)) return true;
-                    if ((op & OP_HAS_TTL) == 0) return true;
-                    // last 12 bytes: ttlSec(4) + setAt(8)
-                    if (payload.length >= 16) {
-                        int ttlSec = ByteBuffer.wrap(payload, payload.length - 12, 4).getInt();
-                        long setAt = ByteBuffer.wrap(payload, payload.length - 8, 8).getLong();
-                        if (setAt + (long) ttlSec * 1000L <= now) {
-                            walLogs[shardIdx].append((byte) (opType() | AbstractWalFileSystem.OP_TOMBSTONE), new byte[0]);
-                            expired++;
+    public Optional<byte[]> getBytes(String key) throws IOException {
+        for (SegmentWalLog log : walLogs) {
+            for (WalSegmentInfo seg : log.listSegments()) {
+                final boolean[] found = {false};
+                final byte[][] result = {null};
+                log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
+                    if ((op & 0x80) != 0) return true;
+                    if (payload.length >= 4) {
+                        int klen = ByteBuffer.wrap(payload).getInt();
+                        if (klen > 0 && klen + 4 <= payload.length) {
+                            String k = new String(payload, 4, klen, StandardCharsets.UTF_8);
+                            if (k.equals(key)) {
+                                result[0] = Arrays.copyOfRange(payload, klen + 8, payload.length);
+                                found[0] = true;
+                                return false;
+                            }
                         }
                     }
                     return true;
                 });
+                if (found[0]) return Optional.of(result[0]);
             }
         }
-        if (expired > 0) {
-            log.info("[kv-store] TTL scan: {} records expired", expired);
-            rebuildIndex();
-        }
+        return Optional.empty();
     }
-
-    // ==================== 内部工具 ====================
-
-    private byte[] encodePayload(String key, byte[] value, int ttlSec) {
-        byte[] kb = key.getBytes(StandardCharsets.UTF_8);
-        int bodyLen = value == null ? 0 : value.length;
-        int ttlLen = ttlSec > 0 ? 12 : 0;
-        ByteBuffer bb = ByteBuffer.allocate(4 + kb.length + 4 + bodyLen + ttlLen);
-        bb.putInt(kb.length); bb.put(kb);
-        bb.putInt(bodyLen);
-        if (value != null) bb.put(value);
-        if (ttlLen > 0) {
-            byte opWithTtl = (byte) (opType() | OP_HAS_TTL);
-            bb.putInt(ttlSec);
-            bb.putLong(System.currentTimeMillis());
-        }
-        return bb.array();
-    }
-
-    @Override
-    public StoreType storeType() { return StoreType.KV; }
 
     public static KvWalStoreSystem create(Path baseDir) throws IOException {
         return new KvWalStoreSystem(new WalStoreEnvDetector().detect(baseDir));
-    }
-
-    public static KvWalStoreSystem create(Path baseDir, String namespace) throws IOException {
-        return new KvWalStoreSystem(new WalStoreEnvDetector().detect(baseDir, namespace));
     }
 }

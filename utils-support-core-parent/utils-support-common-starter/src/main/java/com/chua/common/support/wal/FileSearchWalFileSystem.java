@@ -88,7 +88,7 @@ public class FileSearchWalFileSystem implements WalFileSystem {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         delegate.close();
     }
 

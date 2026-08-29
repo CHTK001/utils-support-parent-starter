@@ -27,8 +27,8 @@ public class ParserSpiTest {
 
     private static final String[] ALL_NAMES = {
             "opencode", "claude-code", "codex++", "vscode", "cline", "continue",
-            "codebuddy", "ccswitch", "joycode", "qoder", "openclaw", "kilo",
-            "goose", "crush"};
+            "codebuddy", "ccswitch", "joycode", "qoder", "openclaw", "atomcode",
+            "command-code", "kilo", "goose", "crush"};
 
     private static int failures = 0;
 
@@ -48,6 +48,8 @@ public class ParserSpiTest {
         verifyBridgeAndDaily("qoder", new QoderUsageParser());
         verifyBridgeAndDaily("joycode", new JoyCodeUsageParser());
         verifyBridgeAndDaily("claude-code", new ClaudeCodeUsageParser());
+        verifyBridgeAndDaily("atomcode", new AtomCodeUsageParser());
+        verifyBridgeAndDaily("command-code", new CommandCodeUsageParser());
 
         System.out.println(failures == 0 ? "[PASS] all layers verified"
                 : "[FAIL] " + failures + " check(s) failed");
