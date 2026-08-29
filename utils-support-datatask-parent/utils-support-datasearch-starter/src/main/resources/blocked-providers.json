@@ -409,6 +409,11 @@
       "name": "CZZY",
       "reason": "RATE_LIMITED",
       "blockedAt": "2026-01-25"
+    },
+    {
+      "name": "GAOQING888",
+      "reason": "RATE_LIMITED",
+      "blockedAt": "2026-01-25"
     }
   ]
 }
