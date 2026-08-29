@@ -469,11 +469,30 @@ public boolean tRNS_present;
      * @param metadata metadata
      */
     public PNGMetadata(IIOMetadata metadata) {
-        super(metadata.isNativeFormat(),
-              metadata.getNativeMetadataFormatName(),
-              metadata.getNativeMetadataFormatClassName(),
-              metadata.getMetadataFormatNames(),
-              metadata.getStandardMetadataFormatInstance());
+        super(invokeBoolean(metadata, "isNativeFormat"),
+              invokeString(metadata, "getNativeMetadataFormatName"),
+              invokeString(metadata, "getNativeMetadataFormatClassName"),
+              null, null);
+    }
+
+    private static Boolean invokeBoolean(Object target, String methodName) {
+        try {
+            var method = target.getClass().getMethod(methodName);
+            method.setAccessible(true);
+            return (Boolean) method.invoke(target);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static String invokeString(Object target, String methodName) {
+        try {
+            var method = target.getClass().getMethod(methodName);
+            method.setAccessible(true);
+            return (String) method.invoke(target);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     /** 初始化 */
