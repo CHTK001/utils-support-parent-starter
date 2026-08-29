@@ -1,7 +1,6 @@
 package com.chua.common.support.tree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,19 +23,13 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     private final int maxChildren;
     private BPlusTreeNode<K, V> root;
     private int size;
-    /** 最后一次插入的键，用于顺序插入加速 */
-    private K lastKey;
-    /** 最后插入的叶子节点引用，用于顺序插入时直接追加 */
-    private BPlusTreeNode<K, V> tail;
 
     public BPlusTree(int order) {
         if (order < 3) throw new IllegalArgumentException("B+ tree order must be >= 3, got: " + order);
         this.maxKeys = order - 1;
         this.maxChildren = order;
         this.root = new BPlusTreeNode<>(true, order * 4);
-        this.tail = root;
         this.size = 0;
-        this.lastKey = null;
     }
 
     @Override
@@ -50,14 +43,14 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         BPlusTreeNode<K, V> node = root;
         while (true) {
             List<K> keys = node.keys;
-            int i = 0;
-            int n = keys.size();
-            while (i < n && keys.get(i).compareTo(key) < 0) i++;
+            int i = binarySearch(keys, key);
             if (node.leaf) {
-                return (i < n && Objects.equals(keys.get(i), key))
+                return (i >= 0 && Objects.equals(keys.get(i), key))
                     ? Optional.of(node.values.get(i)) : Optional.empty();
             }
-            node = node.children.get(i);
+            // B+ 树内部节点的键是其左侧子树的最大键
+            // 命中时向 child[i] 查找，未命中时向 child[-i-1] 查找
+            node = node.children.get(i >= 0 ? i : -i - 1);
         }
     }
 
@@ -66,11 +59,23 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return get(key).isPresent();
     }
 
+    /** 二分查找：命中返回索引，未命中返回 -(插入点+1) */
+    private static <K extends Comparable<K>> int binarySearch(List<K> keys, K key) {
+        int lo = 0, hi = keys.size() - 1;
+        while (lo <= hi) {
+            int mid = (lo + hi) >>> 1;
+            int c = keys.get(mid).compareTo(key);
+            if (c < 0) lo = mid + 1;
+            else if (c > 0) hi = mid - 1;
+            else return mid;
+        }
+        return -(lo + 1);
+    }
+
     // ==================== range ====================
 
     @Override
     public List<Map.Entry<K, V>> range(K from, K to) {
-        if (from == null || to == null) return Collections.emptyList();
         int estimatedSize = Math.min(size, (size / maxKeys) * 2);
         List<Map.Entry<K, V>> result = new ArrayList<>(estimatedSize);
         locateLeaf(root, from, to, result);
@@ -84,7 +89,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             int n = keys.size();
             for (int i = 0; i < n; i++) {
                 K k = keys.get(i);
-                if (k.compareTo(from) >= 0 && k.compareTo(to) < 0) {
+                if (gte(k, from) && lt(k, to)) {
                     result.add(Map.entry(k, values.get(i)));
                 }
             }
@@ -93,12 +98,26 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         int i = 0;
         List<K> keys = node.keys;
         int n = keys.size();
-        while (i < n && keys.get(i).compareTo(from) < 0) i++;
+        while (i < n && lt(keys.get(i), from)) i++;
         List<BPlusTreeNode<K, V>> children = node.children;
         for (int j = i; j <= n; j++) {
-            if (j > 0 && keys.get(j - 1).compareTo(to) >= 0) break;
+            if (j > 0 && !lt(keys.get(j - 1), to)) break;
             if (j < children.size()) locateLeaf(children.get(j), from, to, result);
         }
+    }
+
+    /**
+     * key >= bound，bound 为 null 表示 -∞（恒真）。
+     */
+    private boolean gte(K key, K bound) {
+        return bound == null || key.compareTo(bound) >= 0;
+    }
+
+    /**
+     * key < bound，bound 为 null 表示 +∞（恒真）。
+     */
+    private boolean lt(K key, K bound) {
+        return bound == null || key.compareTo(bound) < 0;
     }
 
     // ==================== put ====================
@@ -106,14 +125,6 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public Optional<V> put(K key, V value) {
         if (key == null) return Optional.empty();
-        // 顺序插入加速：若新键大于最后插入的键且 tail 未饱和，直接追加到 tail
-        if (lastKey != null && key.compareTo(lastKey) > 0 && tail.keys.size() < maxKeys) {
-            tail.keys.add(key);
-            tail.values.add(value);
-            size++;
-            lastKey = key;
-            return Optional.empty();
-        }
         NodeUpdate<K, V> update = insert(root, key, value);
         if (update.needsSplit) {
             BPlusTreeNode<K, V> newRoot = new BPlusTreeNode<>(false, maxChildren);
@@ -121,34 +132,26 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             newRoot.children.add(root);
             newRoot.children.add(update.rightChild);
             root = newRoot;
-            rebuildTail();
         }
-        size++;
-        lastKey = key;
-        return Optional.empty();
+        if (update.oldValue == null) size++;
+        return update.oldValue != null ? Optional.of(update.oldValue) : Optional.empty();
     }
 
-    /** 分裂后重新定位 tail 为最右叶子节点 */
-    private void rebuildTail() {
-        BPlusTreeNode<K, V> cur = root;
-        while (!cur.leaf) cur = cur.children.get(cur.children.size() - 1);
-        tail = cur;
-    }
-
-    /** 通用插入（随机键时使用） */
+    /** 通用插入：逐层二分定位叶子，追加键值对，处理分裂 */
     private NodeUpdate<K, V> insert(BPlusTreeNode<K, V> node, K key, V value) {
         List<K> keys = node.keys;
-        int i = 0;
-        int n = keys.size();
-        while (i < n && keys.get(i).compareTo(key) < 0) i++;
+        int i = binarySearch(keys, key);
+        if (i >= 0) {
+            // 键已存在，更新值
+            V old = node.values.get(i);
+            node.values.set(i, value);
+            return NodeUpdate.noSplit(old);
+        }
+        i = -i - 1;
         if (node.leaf) {
-            if (i < n && Objects.equals(keys.get(i), key)) {
-                node.values.set(i, value);
-                return NodeUpdate.noSplit();
-            }
             keys.add(i, key);
             node.values.add(i, value);
-            if (keys.size() <= maxKeys) return NodeUpdate.noSplit();
+            if (keys.size() <= maxKeys) return NodeUpdate.noSplit(null);
             return splitLeaf(node);
         }
         List<BPlusTreeNode<K, V>> children = node.children;
@@ -160,7 +163,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             node.keys.add(sub.promotedKey);
         }
         node.children.add(i + 1, sub.rightChild);
-        if (node.keys.size() <= maxKeys) return NodeUpdate.noSplit();
+        if (node.keys.size() <= maxKeys) return NodeUpdate.noSplit(null);
         return splitInternal(node);
     }
 
@@ -233,7 +236,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public boolean isEmpty() { return size == 0; }
     @Override
-    public void clear() { root = new BPlusTreeNode<>(true, maxChildren); tail = root; size = 0; lastKey = null; }
+    public void clear() { root = new BPlusTreeNode<>(true, maxChildren); size = 0; }
     @Override
     public TreeNode<K, V> toBinaryTree() { return BinaryTreeConverter.bPlusToBinary(this); }
     @Override
@@ -254,26 +257,20 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return result;
     }
 
-    /**
-     * 节点更新结果。
-     */
     private static class NodeUpdate<K, V> {
         final boolean needsSplit;
         final K promotedKey;
         final BPlusTreeNode<K, V> rightChild;
+        final V oldValue;
 
-        private NodeUpdate(boolean needsSplit, K promotedKey, BPlusTreeNode<K, V> rightChild) {
+        private NodeUpdate(boolean needsSplit, K promotedKey, BPlusTreeNode<K, V> rightChild, V oldValue) {
             this.needsSplit = needsSplit;
             this.promotedKey = promotedKey;
             this.rightChild = rightChild;
+            this.oldValue = oldValue;
         }
 
-        static <K, V> NodeUpdate<K, V> noSplit() {
-            return new NodeUpdate<>(false, null, null);
-        }
-
-        static <K, V> NodeUpdate<K, V> split(K k, BPlusTreeNode<K, V> r) {
-            return new NodeUpdate<>(true, k, r);
-        }
+        static <K, V> NodeUpdate<K, V> noSplit(V oldVal) { return new NodeUpdate<>(false, null, null, oldVal); }
+        static <K, V> NodeUpdate<K, V> split(K k, BPlusTreeNode<K, V> r) { return new NodeUpdate<>(true, k, r, null); }
     }
 }

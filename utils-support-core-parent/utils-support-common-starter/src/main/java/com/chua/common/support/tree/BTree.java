@@ -23,15 +23,12 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     private final int order;
     BTreeNode<K, V> root;
     private int size;
-    /** 最后插入的键，用于顺序插入加速 */
-    private K lastKey;
 
     public BTree(int order) {
         if (order < 3) throw new IllegalArgumentException("B tree order must be >= 3, got: " + order);
         this.order = order;
         this.root = new BTreeNode<>(true, order * 4);
         this.size = 0;
-        this.lastKey = null;
     }
 
     @Override
@@ -104,7 +101,6 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public Optional<V> put(K key, V value) {
         if (key == null) return Optional.empty();
-        boolean existed = containsKey(key);
         SplitResult<K, V> split = splitInsert(root, key, value);
         if (split != null) {
             BTreeNode<K, V> newRoot = new BTreeNode<>(false, order * 2);
@@ -114,9 +110,8 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             newRoot.children.add(split.right);
             root = newRoot;
         }
-        if (!existed) size++;
-        lastKey = key;
-        return existed ? Optional.of(get(key).get()) : Optional.empty();
+        size++;
+        return Optional.empty();
     }
 
     private SplitResult<K, V> splitInsert(BTreeNode<K, V> node, K key, V value) {
@@ -231,7 +226,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public boolean isEmpty() { return size == 0; }
     @Override
-    public void clear() { root = new BTreeNode<>(true, order); size = 0; lastKey = null; }
+    public void clear() { root = new BTreeNode<>(true, order); size = 0; }
     @Override
     public TreeNode<K, V> toBinaryTree() { return BinaryTreeConverter.bTreeToBinary(this); }
     @Override

@@ -16,7 +16,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
 
     private final WalStoreConfig config;
     private String joinStrategyName;
-    private final SegmentWalLog[] walLogs;
+    final SegmentWalLog[] walLogs;
     private final Map<String, AtomicLong> rowIdCounters = new ConcurrentHashMap<>();
     private final AtomicLong totalRecords = new AtomicLong(0);
     private volatile boolean closed = false;
@@ -144,6 +144,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
     // ==================== 内部 ====================
 
     private byte[] encodeRow(Map<String, Object> row) {
+        row = new LinkedHashMap<>(row);
         ByteBuffer bb = ByteBuffer.allocate(256);
         bb.putInt(row.size());
         for (Map.Entry<String, Object> e : row.entrySet()) {

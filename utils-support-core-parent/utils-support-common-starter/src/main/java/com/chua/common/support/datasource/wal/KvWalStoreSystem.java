@@ -71,7 +71,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     @Override
     public boolean delete(String key) throws IOException {
-        return false;
+        byte[] payload = KvWalFileSystem.encode(key, new byte[0]);
+        append(key, payload);
+        return true;
     }
 
     @Override
@@ -111,29 +113,26 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     }
 
     public Optional<byte[]> getBytes(String key) throws IOException {
+        final byte[][] result = {null};
         for (SegmentWalLog log : walLogs) {
             for (WalSegmentInfo seg : log.listSegments()) {
-                final boolean[] found = {false};
-                final byte[][] result = {null};
                 log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
                     if ((op & 0x80) != 0) return true;
-                    if (payload.length >= 4) {
+                    if (payload.length >= 8) {
                         int klen = ByteBuffer.wrap(payload).getInt();
-                        if (klen > 0 && klen + 4 <= payload.length) {
+                        if (klen > 0 && klen + 8 <= payload.length) {
                             String k = new String(payload, 4, klen, StandardCharsets.UTF_8);
+                            int vlen = ByteBuffer.wrap(payload, klen + 4, 4).getInt();
                             if (k.equals(key)) {
-                                result[0] = Arrays.copyOfRange(payload, klen + 8, payload.length);
-                                found[0] = true;
-                                return false;
+                                result[0] = Arrays.copyOfRange(payload, klen + 8, klen + 8 + vlen);
                             }
                         }
                     }
                     return true;
                 });
-                if (found[0]) return Optional.of(result[0]);
             }
         }
-        return Optional.empty();
+        return result[0] == null ? Optional.empty() : Optional.of(result[0]);
     }
 
     public static KvWalStoreSystem create(Path baseDir) throws IOException {

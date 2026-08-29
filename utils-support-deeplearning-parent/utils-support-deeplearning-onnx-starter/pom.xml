@@ -11,13 +11,14 @@
     </parent>
 <artifactId>utils-support-deeplearning-onnx-starter</artifactId>
   <name>Utils Support Deep Learning ONNX Starter</name>
-  <description>ONNX 推理引擎模块：YOLO 检测、图像分类等模型推理</description>
+  <description>ONNX 鎺ㄧ悊寮曟搸妯″潡锛歒OLO 妫€娴嬨€佸浘鍍忓垎绫荤瓑妯″瀷鎺ㄧ悊</description>
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
+          <fork>false</fork>
           <testExcludes>
             <testExclude>**/VitH14OnnxTranslatorTest.java</testExclude>
             <testExclude>**/AudioFullTest.java</testExclude>
@@ -56,11 +57,11 @@
         </plugins>
       </build>
     </profile>
-    <!-- ONNX Runtime 执行引擎切换（cpu/gpu 互斥，配合 -P!cpu,gpu 或 -P!gpu,cpu）：
-         - 默认 cpu：onnxruntime 1.21.1（CPU 版）
-         - gpu：onnxruntime_gpu 1.27.0（内置 CPU+CUDA+TensorRT EP；启用 CUDA 需本机 CUDA 12
-           运行时 cudart/cublas/cudnn9，见 utils-support-models-parent/libs/cuda；
-           运行期由 DetectionConfiguration.useGpu(true) 触发 addCUDA()）。 -->
+    <!-- ONNX Runtime 鎵ц寮曟搸鍒囨崲锛坈pu/gpu 浜掓枼锛岄厤鍚?-P!cpu,gpu 鎴?-P!gpu,cpu锛夛細
+         - 榛樿 cpu锛歰nnxruntime 1.21.1锛圕PU 鐗堬級
+         - gpu锛歰nnxruntime_gpu 1.27.0锛堝唴缃?CPU+CUDA+TensorRT EP锛涘惎鐢?CUDA 闇€鏈満 CUDA 12
+           杩愯鏃?cudart/cublas/cudnn9锛岃 utils-support-models-parent/libs/cuda锛?
+           杩愯鏈熺敱 DetectionConfiguration.useGpu(true) 瑙﹀彂 addCUDA()锛夈€?-->
     <profile>
       <id>cpu</id>
       <activation>
@@ -121,62 +122,78 @@
             <artifactId>okhttp</artifactId>
             <version>4.12.0</version>
         </dependency>
-        <!-- OpenCV 图像预处理（resize/cvtColor/normalize 等，替代 DJL NDArray） -->
+        <!-- OpenCV 鍥惧儚棰勫鐞嗭紙resize/cvtColor/normalize 绛夛紝鏇夸唬 DJL NDArray锛?-->
         <dependency>
             <groupId>org.openpnp</groupId>
             <artifactId>opencv</artifactId>
             <version>${opencv.version}</version>
         </dependency>
-        <!-- PP-DocLayoutV3 文档版面分析模型（DETR，25 类，800 输入） -->
+        <!-- PP-DocLayoutV3 鏂囨。鐗堥潰鍒嗘瀽妯″瀷锛圖ETR锛?5 绫伙紝800 杈撳叆锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-ppdoclayoutv3</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Chinese-CLIP 中文图文特征模型（RN50 1024 维 + ViT-B/16 512 维 + ViT-L/14 768 维） -->
+        <!-- Chinese-CLIP 中文图文特征模型（RN50/ViT-B/16/ViT-L/14，img+txt 独立模块） -->
         <dependency>
             <groupId>com.chua</groupId>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-vit-b-16</artifactId>
+            <artifactId>utils-support-models-onnx-cn-clip-rn50-image</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-models-onnx-cn-clip-vit-l-14</artifactId>
+            <artifactId>utils-support-models-onnx-cn-clip-rn50-text</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-cn-clip-vit-b-16-image</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-cn-clip-vit-b-16-text</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-cn-clip-vit-l-14-image</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-cn-clip-vit-l-14-text</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-chinese-clip-vit-h-14</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+<dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-doclayout-yolo</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 烟火检测 / 个人防护装备（安全帽）检测模型（YOLOv8n） -->
+        <!-- 鐑熺伀妫€娴?/ 涓汉闃叉姢瑁呭锛堝畨鍏ㄥ附锛夋娴嬫ā鍨嬶紙YOLOv8n锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-fire-smoke</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- C3D 视频动作检测模型（ResNetC3D，9 类动作，~95MB） -->
+        <!-- C3D 瑙嗛鍔ㄤ綔妫€娴嬫ā鍨嬶紙ResNetC3D锛? 绫诲姩浣滐紝~95MB锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-action-c3d</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- DFSMN 语音降噪模型（单麦 48k，PSM，ModelScope speech_dfsmn_ans） -->
+        <!-- DFSMN 璇煶闄嶅櫔妯″瀷锛堝崟楹?48k锛孭SM锛孧odelScope speech_dfsmn_ans锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-dfsmn-ans</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 印章检测模型（SDT Seal inspection，YOLO 640，4 类，来自 ModelScope） -->
+        <!-- 鍗扮珷妫€娴嬫ā鍨嬶紙SDT Seal inspection锛孻OLO 640锛? 绫伙紝鏉ヨ嚜 ModelScope锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-seal-inspection</artifactId>
@@ -188,14 +205,14 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- 反光衣检测模型（YOLOv8n，2 类：safe/unsafe） -->
+        <!-- 鍙嶅厜琛ｆ娴嬫ā鍨嬶紙YOLOv8n锛? 绫伙細safe/unsafe锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-reflective-clothes</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- 人脸检测模型（SCRFD / UltraFace / YOLOv11n-Face） -->
+        <!-- 浜鸿劯妫€娴嬫ā鍨嬶紙SCRFD / UltraFace / YOLOv11n-Face锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-scrfd-face</artifactId>
@@ -211,19 +228,19 @@
             <artifactId>utils-support-models-onnx-yolo-face</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 音频模型：wespeaker 说话人嵌入（512维，25MB） -->
+        <!-- 闊抽妯″瀷锛歸espeaker 璇磋瘽浜哄祵鍏ワ紙512缁达紝25MB锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-wespeaker</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 音频模型：CAM++ 声纹嵌入（192维，27MB） -->
+        <!-- 闊抽妯″瀷锛欳AM++ 澹扮汗宓屽叆锛?92缁达紝27MB锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-campplus</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 音频模型：wav2vec2-base 音频指纹（384维，360MB） -->
+        <!-- 闊抽妯″瀷锛歸av2vec2-base 闊抽鎸囩汗锛?84缁达紝360MB锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-wav2vec2-base</artifactId>
@@ -239,14 +256,14 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- 图像滤镜接口（provided：运行时由 image-starter 提供） -->
+        <!-- 鍥惧儚婊ら暅鎺ュ彛锛坧rovided锛氳繍琛屾椂鐢?image-starter 鎻愪緵锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-image-starter</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- 测试用 SLF4J 实现 -->
+        <!-- 娴嬭瘯鐢?SLF4J 瀹炵幇 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -266,7 +283,7 @@
             <version>3.26.3</version>
             <scope>test</scope>
         </dependency>
-        <!-- 测试用例数据：由测试期在 test classpath 解析使用 -->
+        <!-- 娴嬭瘯鐢ㄤ緥鏁版嵁锛氱敱娴嬭瘯鏈熷湪 test classpath 瑙ｆ瀽浣跨敤 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId>
@@ -325,7 +342,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- 以下三个 test 依赖的 model jar 未构建到本地仓库，临时移除以恢复编译
+        <!-- 浠ヤ笅涓変釜 test 渚濊禆鐨?model jar 鏈瀯寤哄埌鏈湴浠撳簱锛屼复鏃剁Щ闄や互鎭㈠缂栬瘧
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-minilm-int8</artifactId>
@@ -369,7 +386,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- bge-large-zh model jar 未构建到本地仓库，临时移除以恢复编译
+        <!-- bge-large-zh model jar 鏈瀯寤哄埌鏈湴浠撳簱锛屼复鏃剁Щ闄や互鎭㈠缂栬瘧
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-bge-large-zh</artifactId>
@@ -394,7 +411,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- 注：utils-support-models-onnx-randeng-t5-77m 构件从未部署到任何可达仓库且全仓零代码引用，已移除该死依赖 -->
+        <!-- 娉細utils-support-models-onnx-randeng-t5-77m 鏋勪欢浠庢湭閮ㄧ讲鍒颁换浣曞彲杈句粨搴撲笖鍏ㄤ粨闆朵唬鐮佸紩鐢紝宸茬Щ闄よ姝讳緷璧?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-insightface-landmark</artifactId>
@@ -460,7 +477,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- 口罩检测模型（YOLOv8，2 类：cloth/surgical，可画框） -->
+        <!-- 鍙ｇ僵妫€娴嬫ā鍨嬶紙YOLOv8锛? 绫伙細cloth/surgical锛屽彲鐢绘锛?-->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-face-mask-detector</artifactId>
@@ -564,7 +581,7 @@
             <artifactId>utils-support-models-onnx-codeformer</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- 嵌入式中文对话模型（Gemma-3-270M，uint8 ONNX，~519MB），供 Gemma3GpuTest 使用 -->
+        <!-- 宓屽叆寮忎腑鏂囧璇濇ā鍨嬶紙Gemma-3-270M锛寀int8 ONNX锛寏519MB锛夛紝渚?Gemma3GpuTest 浣跨敤 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-gemma-3-270m</artifactId>

@@ -36,9 +36,12 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
         int total = 4 + idBytes.length + 4 + dim * 4 + 4 + metaBytes.length;
         ByteBuffer bb = ByteBuffer.allocate(total);
         bb.putInt(idBytes.length); bb.put(idBytes);
-        bb.putInt(dim); bb.asFloatBuffer().put(data);
+        bb.putInt(dim);
+        for (float f : data) bb.putFloat(f);
         bb.putInt(metaBytes.length); bb.put(metaBytes);
-        return bb.array();
+        byte[] result = new byte[bb.position()];
+        bb.position(0); bb.get(result);
+        return result;
     }
 
     public static Optional<VecRecord> decode(byte[] payload) {

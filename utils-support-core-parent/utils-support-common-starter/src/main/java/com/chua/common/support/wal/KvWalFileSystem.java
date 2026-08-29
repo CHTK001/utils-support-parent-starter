@@ -36,7 +36,9 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
         bb.putInt(kb.length); bb.put(kb);
         bb.putInt(value == null ? 0 : value.length);
         if (value != null) bb.put(value);
-        return bb.array();
+        byte[] result = new byte[bb.position()];
+        bb.position(0); bb.get(result);
+        return result;
     }
 
     public static Optional<KvPair> decode(byte[] payload) {

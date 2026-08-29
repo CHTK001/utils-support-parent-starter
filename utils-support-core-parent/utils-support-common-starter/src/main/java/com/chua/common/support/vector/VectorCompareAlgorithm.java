@@ -9,7 +9,7 @@ package com.chua.common.support.vector;
  * </p>
  *
  * @author CH
- * @since 2024/12/12
+ * @since 4.0.0.42
  */
 public interface VectorCompareAlgorithm {
 
@@ -31,83 +31,46 @@ public interface VectorCompareAlgorithm {
     float compare(float[] a, float[] b);
 
     /**
-     * 创建欧几里得距离算法。
-     *
-     * @return 欧几里得距离算法实例
+     * 创建欧几里得距离算法（向量化）。
+     * <p>在支持 AVX-512 / AVX2 / NEON 的硬件上使用 Java Vector API 加速。</p>
      */
     static VectorCompareAlgorithm euclidean() {
         return new VectorCompareAlgorithm() {
             @Override
-            /** Name */
-            public String name() {
-                return "EUCLIDEAN";
-            }
-
+            public String name() { return "EUCLIDEAN"; }
             @Override
-            /** 比较 */
             public float compare(float[] a, float[] b) {
-                float sum = 0;
-                for (int i = 0; i < a.length; i++) {
-                    float d = a[i] - b[i];
-                    sum += d * d;
-                }
-                return (float) Math.sqrt(sum);
+                return VectorMath.euclidean(a, b);
             }
         };
     }
 
     /**
-     * 创建余弦相似度算法。
+     * 创建余弦相似度算法（向量化）。
      * <p>返回 1 - cos(θ)，值越接近 0 表示越相似。</p>
-     *
-     * @return 余弦相似度算法实例
      */
     static VectorCompareAlgorithm cosine() {
         return new VectorCompareAlgorithm() {
             @Override
-            /** Name */
-            public String name() {
-                return "COSINE";
-            }
-
+            public String name() { return "COSINE"; }
             @Override
-            /** 比较 */
             public float compare(float[] a, float[] b) {
-                float dot = 0;
-                float na = 0;
-                float nb = 0;
-                for (int i = 0; i < a.length; i++) {
-                    dot += a[i] * b[i];
-                    na += a[i] * a[i];
-                    nb += b[i] * b[i];
-                }
-                return 1 - dot / (float) (Math.sqrt(na) * Math.sqrt(nb));
+                return VectorMath.cosine(a, b);
             }
         };
     }
 
     /**
-     * 创建点积距离算法。
+     * 创建点积距离算法（向量化）。
      * <p>返回负点积，值越小表示越相似。</p>
-     *
-     * @return 点积距离算法实例
      */
     static VectorCompareAlgorithm dotProduct() {
         return new VectorCompareAlgorithm() {
             @Override
-            /** Name */
-            public String name() {
-                return "DOT";
-            }
-
+            public String name() { return "DOT"; }
             @Override
-            /** 比较 */
             public float compare(float[] a, float[] b) {
-                float dot = 0;
-                for (int i = 0; i < a.length; i++) {
-                    dot += a[i] * b[i];
-                }
-                return -dot;
+                return -VectorMath.dot(a, b);
             }
         };
     }
