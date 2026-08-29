@@ -532,20 +532,17 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      *
      * @return 基准目录
      */
+    private static final Path D_DRIVE_BASE = java.nio.file.Paths.get("D:\\chua-dl-models\\small-sd");
+
     private Path resolveBaseDir() {
         Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd");
         if (configured != null) {
             return configured;
         }
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        long free = java.nio.file.Paths.get(tmpDir).toFile().getFreeSpace();
-        if (free < 5L * 1024 * 1024 * 1024) {
-            Path dDrive = java.nio.file.Paths.get("D:\\chua-dl-models\\small-sd");
-            if (dDrive.toFile().getFreeSpace() > 5L * 1024 * 1024 * 1024) {
-                log.info("[Small SD][编排] C盘空间不足，改用 D:\\chua-dl-models\\small-sd");
-                return dDrive;
-            }
+        if (Files.exists(D_DRIVE_BASE.resolve("unet").resolve("weights.pb"))) {
+            return D_DRIVE_BASE;
         }
+        String tmpDir = System.getProperty("java.io.tmpdir");
         return java.nio.file.Paths.get(tmpDir, "chua-dl-models", "download");
     }
 
@@ -555,9 +552,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @return 标记路径
      */
     private static Path gpuBlockFlag() {
-        return java.nio.file.Paths.get(
-                System.getProperty("java.io.tmpdir"),
-                "chua-dl-models", "small-sd-gpu-blocked.flag");
+        return D_DRIVE_BASE.resolve("small-sd-gpu-blocked.flag");
     }
 
     /**

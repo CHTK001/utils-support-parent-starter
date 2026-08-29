@@ -181,12 +181,15 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         K promoteKey = node.keys.get(mid - 1);
         BPlusTreeNode<K, V> right = new BPlusTreeNode<>(true);
         right.next = node.next;
-        // 拷贝右半部分（keys[mid..n-1]）
+        // 拷贝右半部分（keys[mid..n-1]，不含 promoted key）
         for (int j = mid; j < n; j++) {
             right.keys.add(node.keys.get(j));
             right.values.add(node.values.get(j));
         }
-        // 左半保留 keys[0..mid-1]（含 promoted key），不做截断
+        // 截断左半部分：去掉 [mid..n)，只保留 [0, mid-1]
+        // promoteKey 已在 parent 中，left 保留 [0, mid-1] 不含 promoteKey
+        node.keys.subList(mid, n).clear();
+        node.values.subList(mid, n).clear();
         return new NodeUpdate<>(true, promoteKey, right, null);
     }
 

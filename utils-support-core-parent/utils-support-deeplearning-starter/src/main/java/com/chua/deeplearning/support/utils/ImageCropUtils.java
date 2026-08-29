@@ -28,7 +28,7 @@ public final class ImageCropUtils {
      * @return 裁剪图 PNG 字节
      */
     public static byte[] crop(byte[] imageData, int x, int y, int width, int height) {
-        return ImageUtils.crop(imageData, x, y, width, height);
+        return ImageUtils.crop(new ImageCropOptions(imageData, x, y, width, height));
     }
 
     /**

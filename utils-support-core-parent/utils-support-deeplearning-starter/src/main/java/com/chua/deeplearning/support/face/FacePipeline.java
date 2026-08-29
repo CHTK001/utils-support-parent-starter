@@ -1374,22 +1374,6 @@ public class FacePipeline {
      * @param imageData 图片
      * @return 超分后图片，未配置超分模型时原样返回
      */
-    public byte[] superResolution(byte[] imageData) {
-        if (superResolution == null) {
-            return imageData;
-        }
-        byte[] result = superResolution.enhance(imageData);
-        if (callback != null) {
-            callback.onRestore(0, result);
-        }
-        return result;
-    }
-
-    /**
-     * 设置人脸管线回调（用于测试时捕获中间图片）。
-     *
-     * @param callback 回调实例
-     */
     public void setCallback(FacePipelineCallback callback) {
         this.callback = callback;
     }

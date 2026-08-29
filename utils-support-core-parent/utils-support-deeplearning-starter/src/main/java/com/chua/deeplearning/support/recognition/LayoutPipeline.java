@@ -61,6 +61,11 @@ public class LayoutPipeline {
     private final Pipeline pipeline;
 
     /**
+     * 版面分析管线回调。
+     */
+    private LayoutPipelineCallback callback;
+
+    /**
      * 构造识别管线。
      *
      * @param model         模型名称
@@ -188,12 +193,19 @@ public class LayoutPipeline {
             return null;
         }
         byte[] prepared = imagePipeline == null ? imageData : imagePipeline.process(imageData);
+        if (callback != null && imagePipeline != null) {
+            callback.onPreprocess(imageData, prepared);
+        }
         ITranslator<Object, Object> translator =
                 (ITranslator<Object, Object>) engine.get(model, ITranslator.class);
         if (translator == null) {
             throw new IllegalStateException("模型未注册: " + model);
         }
-        return translator.translate(prepared);
+        Object result = translator.translate(prepared);
+        if (callback != null) {
+            callback.onRecognize(result);
+        }
+        return result;
     }
 
     /**
@@ -209,6 +221,24 @@ public class LayoutPipeline {
         ctx.setNextNodeId(NODE_PREPROCESS);
         pipeline.resume(ctx);
         return lc.results();
+    }
+
+    /**
+     * 设置版面分析管线回调。
+     *
+     * @param callback 回调实例
+     */
+    public void setCallback(LayoutPipelineCallback callback) {
+        this.callback = callback;
+    }
+
+    /**
+     * 获取版面分析管线回调。
+     *
+     * @return 回调实例，可能为 null
+     */
+    public LayoutPipelineCallback callback() {
+        return this.callback;
     }
 
     /**

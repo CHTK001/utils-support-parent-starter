@@ -82,6 +82,11 @@ public class PlateNumberPipeline {
     private final Pipeline pipeline;
 
     /**
+     * 车牌号识别管线回调。
+     */
+    private PlateNumberPipelineCallback callback;
+
+    /**
      * 构造识别管线。
      *
      * @param model         识别模型
@@ -175,6 +180,9 @@ public class PlateNumberPipeline {
                     PlateResult r = recognizeSingle(pc.currentCrop());
                     if (r != null) {
                         pc.addResult(r);
+                        if (callback != null) {
+                            callback.onRecognize(pc.currentBox(), r, pc.results().size(), -1);
+                        }
                     }
                     return null;
                 }).taskEnd()
@@ -229,6 +237,9 @@ public class PlateNumberPipeline {
         }
         Object boxes = detector.translate(imageData);
         List<PredictRectangle> rects = RecognitionSupport.toRectangles(boxes);
+        if (callback != null) {
+            callback.onDetect(imageData, rects);
+        }
         if (rects.isEmpty()) {
             return List.of();
         }
@@ -240,6 +251,24 @@ public class PlateNumberPipeline {
             pipeline.resume(ctx);
         }
         return pc.results();
+    }
+
+    /**
+     * 设置车牌号识别管线回调。
+     *
+     * @param callback 回调实例
+     */
+    public void setCallback(PlateNumberPipelineCallback callback) {
+        this.callback = callback;
+    }
+
+    /**
+     * 获取车牌号识别管线回调。
+     *
+     * @return 回调实例，可能为 null
+     */
+    public PlateNumberPipelineCallback callback() {
+        return this.callback;
     }
 
     /**
