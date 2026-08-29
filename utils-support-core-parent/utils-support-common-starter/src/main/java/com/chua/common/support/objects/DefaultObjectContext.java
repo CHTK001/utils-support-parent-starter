@@ -126,7 +126,6 @@ public class DefaultObjectContext implements ObjectContext {
             config = ObjectContextConfig.defaults();
         }
         this.config = config;
-        CONFIG_HOLDER.put(this, config);
 
         getRegistry(config.isSpiEnabled());
 
@@ -167,9 +166,6 @@ public class DefaultObjectContext implements ObjectContext {
     /** 设置Config */
     public void setConfig(ObjectContextConfig config) {
         this.config = config;
-        if (config != null) {
-            CONFIG_HOLDER.put(this, config);
-        }
     }
 
     @Override
@@ -178,7 +174,6 @@ public class DefaultObjectContext implements ObjectContext {
         if (config != null) {
             return config;
         }
-        config = CONFIG_HOLDER.get(this);
         if (config == null) {
             config = ObjectContextConfig.defaults();
         }
@@ -199,7 +194,6 @@ public class DefaultObjectContext implements ObjectContext {
                 if (registry == null) {
                     registry = new BeanDefinitionRegistry();
                     registry.initialize(spiEnabled);
-                    REGISTRY_HOLDER.put(this, registry);
                 }
             }
         }
@@ -563,13 +557,12 @@ public class DefaultObjectContext implements ObjectContext {
         }
         closed = true;
         try {
-            BeanDefinitionRegistry reg = REGISTRY_HOLDER.get(this);
+            BeanDefinitionRegistry reg = this.registry;
             if (reg != null) {
                 reg.close();
             }
         } finally {
-            REGISTRY_HOLDER.remove(this);
-            CONFIG_HOLDER.remove(this);
+            this.registry = null;
             this.config = null;
             eventPublisher.clear();
         }
