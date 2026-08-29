@@ -187,25 +187,23 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         // children[i] 被替换为 split 后的左子树和右子树两个节点。
         // 注意：必须先保存旧子节点引用，因为 splitNode 会原地修改它（变为左半），
         // 如果用 node.children.get(i) 会得到已被修改的左半而非原始节点。
+        // 正确顺序：先移除旧 child，插入 left 和 right，最后插入 promoted key（在 left 和 right 之间）。
         BTreeNode<K, V> oldChild = node.children.get(i);
         List<K> newKeys = new ArrayList<>(node.keys);
         List<V> newValues = new ArrayList<>(node.values);
         List<BTreeNode<K, V>> newChildren = new ArrayList<>(node.children);
-        if (i < newKeys.size()) {
-            newKeys.add(i, sub.promotedKey);
-            if (sub.promotedValue != null) {
-                newValues.add(i, sub.promotedValue);
-            } else {
-                newValues.add(i, null);
-            }
-        } else {
-            newKeys.add(sub.promotedKey);
-            newValues.add(sub.promotedValue);
-        }
-        // children[i] 被左子树（oldChild，已被 splitNode 原地修改为左半）和右子树取代
+        // 先移除旧 child
         newChildren.remove(i);
+        // 插入左子树和右子树
         newChildren.add(i, oldChild);
         newChildren.add(i + 1, sub.rightChild);
+        // 在 left 和 right 之间插入 promoted key
+        newKeys.add(i, sub.promotedKey);
+        if (sub.promotedValue != null) {
+            newValues.add(i, sub.promotedValue);
+        } else {
+            newValues.add(i, null);
+        }
         if (newKeys.size() <= order - 1) {
             node.keys = newKeys;
             node.values = newValues;
@@ -250,7 +248,8 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         int mid = n / 2; // 左半 keys[0..mid-1]，右半 keys[mid+1..n-1]
         K midKey = node.keys.get(mid);
         V midValue = node.values.get(mid);
-        // 右半节点：keys[mid+1..n-1]，children[mid+1..n]
+        // 右半节点：keys[mid+1..n-1]，children[mid+1..n]（共 n-mid 个 child）
+        // 注意：children 比 keys 多一个，所以 right 需要 children[mid+1..n]
         BTreeNode<K, V> right = new BTreeNode<>(node.leaf);
         for (int j = mid + 1; j < n; j++) {
             right.keys.add(node.keys.get(j));
@@ -259,8 +258,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
                 right.children.add(node.children.get(j));
             }
         }
-        // 如果 node 是内部节点，还需要把 children[mid+1..n] 中的最后一个 child
-        // （即 children[n]，对应 keys[n-1] 右侧的子树）也移到 right
+        // 最后一个 child（children[n]）也属于右半
         if (!node.leaf && mid + 1 <= n) {
             right.children.add(node.children.get(n));
         }

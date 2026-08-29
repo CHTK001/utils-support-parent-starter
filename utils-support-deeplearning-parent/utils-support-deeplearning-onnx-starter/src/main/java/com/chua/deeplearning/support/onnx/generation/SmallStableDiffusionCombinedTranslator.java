@@ -702,16 +702,14 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private float[] predictNoise(float[] latent, long t, float[] emb) throws OrtException {
         int latentH = height / 8;
         int latentW = width / 8;
-        // 该导出为全 FP16 UNet：sample/timestep/hidden 全部转半精度
         float[] flatSample = new float[latent.length];
         System.arraycopy(latent, 0, flatSample, 0, latent.length);
-        try (OnnxTensor x = OnnxTensor.createTensor(env, toHalfBuffer(flatSample),
-                     new long[]{1, LATENT_CHANNELS, latentH, latentW}, ai.onnxruntime.OnnxJavaType.FLOAT16);
-             OnnxTensor tT = OnnxTensor.createTensor(env, toHalfBuffer(new float[]{(float) t}),
-                     new long[]{1}, ai.onnxruntime.OnnxJavaType.FLOAT16);
-             OnnxTensor e = OnnxTensor.createTensor(env, toHalfBuffer(emb),
-                     new long[]{1, MAX_SEQUENCE_LENGTH, emb.length / MAX_SEQUENCE_LENGTH},
-                     ai.onnxruntime.OnnxJavaType.FLOAT16);
+        try (OnnxTensor x = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(flatSample),
+                     new long[]{1, LATENT_CHANNELS, latentH, latentW});
+             OnnxTensor tT = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(new float[]{(float) t}),
+                     new long[]{1});
+             OnnxTensor e = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(emb),
+                     new long[]{1, MAX_SEQUENCE_LENGTH, emb.length / MAX_SEQUENCE_LENGTH});
              OrtSession.Result r = unetSession.run(java.util.Map.of(
                      "sample", x, "timestep", tT, "encoder_hidden_states", e))) {
             float[][][][] out = (float[][][][]) r.get(0).getValue();
@@ -755,13 +753,12 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private int[] decodeVae(float[] latent) throws OrtException {
         int latentH = height / 8;
         int latentW = width / 8;
-        // 该导出为全 FP16 VAE：输入转半精度
         float[] scaled = new float[latent.length];
         for (int i = 0; i < latent.length; i++) {
             scaled[i] = latent[i] / VAE_SCALE_FACTOR;
         }
-        try (OnnxTensor t = OnnxTensor.createTensor(env, toHalfBuffer(scaled),
-                     new long[]{1, LATENT_CHANNELS, latentH, latentW}, ai.onnxruntime.OnnxJavaType.FLOAT16);
+        try (OnnxTensor t = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(scaled),
+                     new long[]{1, LATENT_CHANNELS, latentH, latentW});
              OrtSession.Result r = vaeSession.run(java.util.Map.of("latent_sample", t))) {
             Object raw = r.get(0).getValue();
             int imgH = height;
