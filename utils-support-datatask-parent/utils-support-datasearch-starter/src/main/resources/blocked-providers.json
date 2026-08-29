@@ -79,6 +79,9 @@
     {"name": "CILIZHU2", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"},
     {"name": "IKANTV", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"},
     {"name": "PANSEARCH", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"},
-    {"name": "HUNHEPAN", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"}
+    {"name": "HUNHEPAN", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"},
+    {"name": "GAOQING888", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"},
+    {"name": "HDMOLI", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"},
+    {"name": "CZZY", "reason": "RATE_LIMITED", "blockedAt": "2026-01-25"}
   ]
 }
