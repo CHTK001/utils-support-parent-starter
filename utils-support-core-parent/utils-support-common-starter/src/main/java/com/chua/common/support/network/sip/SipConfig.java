@@ -2,6 +2,7 @@ package com.chua.common.support.network.sip;
 
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 /**
  * SIP 传输配置。
@@ -14,8 +15,9 @@ import lombok.Builder;
  * @author CH
  * @since 4.0.0.43
  */
+ @Spi("sip-config")
 @Builder
-@Spi("sip-config")
+@NoArgsConstructor
 public class SipConfig {
 
     /** 默认端口 */
@@ -39,34 +41,34 @@ public class SipConfig {
     public static final String MODE_AUTO = "auto";
 
     /** 是否开启压缩，默认开启 */
-    private boolean compress = true;
+    private boolean compress;
 
     /** 是否开启加密，默认关闭 */
-    private boolean encrypt = false;
+    private boolean encrypt;
 
     /** 压缩器 SPI 名称，对应 {@link SipStreamCompressor} 的 SPI 标识 */
-    private String compressor = "gzip";
+    private String compressor;
 
     /** 加密器 SPI 名称，对应 {@link com.chua.common.support.network.sip.cipher.SipCipher} 的 SPI 标识 */
-    private String cipher = "aes-gcm";
+    private String cipher;
 
     /** 认证令牌 */
-    private String token = DEFAULT_TOKEN;
+    private String token;
 
     /** 监听主机 */
-    private String host = DEFAULT_HOST;
+    private String host;
 
     /** 监听端口 */
-    private int port = DEFAULT_PORT;
+    private int port;
 
     /** 数据平面模式：relay（中继）或 direct（直连），默认 relay */
-    private String dataPlaneMode = MODE_RELAY;
+    private String dataPlaneMode;
 
     /** 认证最小帧间隔（纳秒），用于限速 */
-    private long minFrameIntervalNs = 10_000_000L; // 10ms
+    private long minFrameIntervalNs; // 10ms
 
     /** 每分钟最大认证请求数（防暴力破解） */
-    private int maxAuthPerIpPerMin = 20;
+    private int maxAuthPerIpPerMin;
 
     /** Token 文件路径（可选，优先于 token 字段） */
     private String tokenFile;
@@ -85,38 +87,32 @@ public class SipConfig {
     /**
      * 是否启用 TCP 传输
      */
-    @Builder.Default
-    private boolean tcpEnabled = true;
+    private boolean tcpEnabled;
 
     /**
      * TCP 监听端口
      */
-    @Builder.Default
-    private int tcpPort = DEFAULT_TCP_PORT;
+    private int tcpPort;
 
     /**
      * 是否启用 KCP 传输
      */
-    @Builder.Default
-    private boolean kcpEnabled = true;
+    private boolean kcpEnabled;
 
     /**
      * KCP 监听端口
      */
-    @Builder.Default
-    private int kcpPort = DEFAULT_KCP_PORT;
+    private int kcpPort;
 
     /**
      * 是否启用 frp 数据平面
      */
-    @Builder.Default
-    private boolean dataPlaneEnabled = true;
+    private boolean dataPlaneEnabled;
 
     /**
      * 数据平面监听端口
      */
-    @Builder.Default
-    private int dataPort = DEFAULT_DATA_PORT;
+    private int dataPort;
 
     /**
      * 创建一份独立的默认配置。

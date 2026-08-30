@@ -13,6 +13,8 @@ import java.util.Objects;
  *   <li>钟状图算法 — 高斯（正态）分布概率密度函数（PDF）曲线采样</li>
  *   <li>线性回归 — 一元线性回归最小二乘拟合，返回斜率、截距、相关系数</li>
  *   <li>移动平均 — 简单移动平均（SMA），常用于时间序列平滑</li>
+ *   <li>激活函数 — Sigmoid 函数及其导数，适用于概率映射与神经网络反向传播</li>
+ *   <li>归一化与相似度 — L2 归一化、Min-Max 归一化、余弦相似度与余弦距离</li>
  * </ul>
  *
  * <p>所有方法均无副作用，输入数组不会被修改；空数组或长度为 0 的输入将返回合理的默认值（详见各方法 Javadoc）。
@@ -357,6 +359,222 @@ public class MathUtils {
             arr[i] = Objects.requireNonNullElse(num, 0).doubleValue();
         }
         return simpleMovingAverage(arr, window);
+    }
+
+    // ==================== Sigmoid 激活函数 ====================
+
+    /**
+     * Sigmoid 激活函数。
+     *
+     * <p>公式：σ(x) = 1 / (1 + e^(-x))
+     *
+     * <p>特性：
+     * <ul>
+     *   <li>输出范围 (0, 1)，可解释为概率</li>
+     *   <li>σ(0) = 0.5，关于 (0, 0.5) 中心对称</li>
+     *   <li>导数 σ'(x) = σ(x) · (1 - σ(x))，可直接复用计算结果</li>
+     * </ul>
+     *
+     * <p>对于极端值（x &lt; -709 或 x &gt; 709），直接返回边界值以避免浮点溢出。
+     *
+     * @param x 输入值
+     * @return σ(x) ∈ (0, 1)
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double sigmoid(double x) {
+        // 极端值保护：避免 Math.exp 溢出
+        if (x < -709.0) {
+            return 0.0;
+        }
+        if (x > 709.0) {
+            return 1.0;
+        }
+        return 1.0 / (1.0 + Math.exp(-x));
+    }
+
+    /**
+     * 对数组逐元素计算 Sigmoid。
+     *
+     * <p>返回新数组，不修改输入。
+     *
+     * @param values 输入数组
+     * @return 逐元素 sigmoid 结果
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double[] sigmoid(double[] values) {
+        if (values == null || values.length == 0) {
+            return new double[0];
+        }
+        double[] result = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = sigmoid(values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Sigmoid 的导数 σ'(x) = σ(x) · (1 - σ(x))。
+     *
+     * <p>常用于反向传播，已知 σ(x) 时可直接传入避免重复计算。
+     *
+     * @param x 输入值
+     * @return σ'(x) ∈ [0, 0.25]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double sigmoidDerivative(double x) {
+        double s = sigmoid(x);
+        return s * (1.0 - s);
+    }
+
+    /**
+     * Sigmoid 的导数，直接传入已计算的 σ(x) 值。
+     *
+     * <p>公式：σ'(x) = s · (1 - s)，其中 s = σ(x)。
+     * 适用于反向传播中已持有 σ(x) 结果的场景，避免重复计算。
+     *
+     * @param s 已计算的 σ(x) 值
+     * @return σ'(x) ∈ [0, 0.25]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double sigmoidDerivativeFromOutput(double s) {
+        return s * (1.0 - s);
+    }
+
+    // ==================== 归一化与余弦相似度 ====================
+
+    /**
+     * 向量 L2 归一化（单位化）。
+     *
+     * <p>公式：x̂ = x / ‖x‖₂，其中 ‖x‖₂ = √(Σxᵢ²)
+     *
+     * <p>归一化后向量的模长为 1（零向量返回原数组拷贝）。
+     *
+     * @param vector 输入向量
+     * @return L2 归一化后的向量（新数组，不修改输入）
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double[] normalize(double[] vector) {
+        if (vector == null || vector.length == 0) {
+            return new double[0];
+        }
+        double norm = l2Norm(vector);
+        if (norm == 0.0) {
+            return Arrays.copyOf(vector, vector.length);
+        }
+        double[] result = new double[vector.length];
+        for (int i = 0; i < vector.length; i++) {
+            result[i] = vector[i] / norm;
+        }
+        return result;
+    }
+
+    /**
+     * Min-Max 归一化，将值映射到 [0, 1] 区间。
+     *
+     * <p>公式：x̂ = (x - min) / (max - min)
+     *
+     * <p>当 max == min 时返回 0.0（避免除零）。
+     *
+     * @param value 输入值
+     * @param min   区间最小值
+     * @param max   区间最大值
+     * @return 归一化后的值 ∈ [0, 1]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double normalizeMinMax(double value, double min, double max) {
+        double range = max - min;
+        if (range == 0.0) {
+            return 0.0;
+        }
+        return (value - min) / range;
+    }
+
+    /**
+     * 计算向量的 L2 范数（欧几里得长度）。
+     *
+     * <p>公式：‖x‖₂ = √(Σxᵢ²)
+     *
+     * @param vector 输入向量
+     * @return L2 范数（≥ 0）
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double l2Norm(double[] vector) {
+        if (vector == null || vector.length == 0) {
+            return 0.0;
+        }
+        double sum = 0.0;
+        for (double v : vector) {
+            sum += v * v;
+        }
+        return Math.sqrt(sum);
+    }
+
+    /**
+     * 计算两个向量的余弦相似度。
+     *
+     * <p>公式：cos(θ) = (A · B) / (‖A‖₂ · ‖B‖₂)
+     *
+     * <p>返回值范围 [-1, 1]：
+     * <ul>
+     *   <li>1 — 完全相同方向</li>
+     *   <li>0 — 正交（无相关性）</li>
+     *   <li>-1 — 完全相反方向</li>
+     * </ul>
+     *
+     * <p>任一向量为空或为零向量时返回 0.0。
+     *
+     * @param a 向量 A
+     * @param b 向量 B（长度必须与 A 一致）
+     * @return 余弦相似度 ∈ [-1, 1]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double cosineSimilarity(double[] a, double[] b) {
+        if (a == null || b == null || a.length == 0 || a.length != b.length) {
+            return 0.0;
+        }
+        double dot = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
+        for (int i = 0; i < a.length; i++) {
+            dot += a[i] * b[i];
+            normA += a[i] * a[i];
+            normB += b[i] * b[i];
+        }
+        double denominator = Math.sqrt(normA) * Math.sqrt(normB);
+        if (denominator == 0.0) {
+            return 0.0;
+        }
+        return dot / denominator;
+    }
+
+    /**
+     * 计算两个向量的余弦距离。
+     *
+     * <p>公式：d = 1 - cos(θ)
+     *
+     * <p>返回值范围 [0, 2]：
+     * <ul>
+     *   <li>0 — 完全相同方向</li>
+     *   <li>1 — 正交</li>
+     *   <li>2 — 完全相反方向</li>
+     * </ul>
+     *
+     * @param a 向量 A
+     * @param b 向量 B（长度必须与 A 一致）
+     * @return 余弦距离 ∈ [0, 2]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double cosineDistance(double[] a, double[] b) {
+        return 1.0 - cosineSimilarity(a, b);
     }
 
     // ==================== 内部工具方法 ====================

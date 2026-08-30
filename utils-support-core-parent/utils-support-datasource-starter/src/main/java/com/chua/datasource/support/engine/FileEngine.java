@@ -1,21 +1,14 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.file.FileSystem;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.file.builder.ReadBuilder;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.file.builder.WriteBuilder;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.FileUtils;
-import com.chua.common.support.reflection.ReflectUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -510,8 +503,8 @@ public class FileEngine extends AbstractEngine {
         writer.finish();
     }
 
-    @SuppressWarnings("unchecked")
-    /** MapToEntity */
+        /** MapToEntity */
+@SuppressWarnings("unchecked")
     private <T> T mapToEntity(Map<String, Object> map, Class<T> clazz) {
         try {
             T instance = ReflectUtils.instantiate(clazz);

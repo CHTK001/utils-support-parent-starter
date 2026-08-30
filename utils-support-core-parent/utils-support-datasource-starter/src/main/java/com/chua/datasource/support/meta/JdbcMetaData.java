@@ -144,7 +144,7 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     protected DataSource getDataSource() {
         if (dataSource == null) {
             try {
-                DataSource temp = (DataSource) getJdbcConnection().getConnection();
+                DataSource temp = getJdbcConnection().unwrap(DataSource.class);
                 setDataSource(temp);
             } catch (Exception e) {
                 throw new IllegalStateException("无法获取 DataSource，请先调用 setDataSource()", e);
