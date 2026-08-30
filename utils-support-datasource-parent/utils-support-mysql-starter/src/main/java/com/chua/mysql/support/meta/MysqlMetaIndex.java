@@ -58,7 +58,6 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
                 String indexType = rs.getString("Index_type");
                 int position = rs.getInt("Seq_in_index");
                 String comment = rs.getString("Comment");
-                String visible = rs.getString("Visible");
                 boolean isUnique = "0".equals(nonUnique);
                 boolean isPrimary = "PRIMARY".equals(keyName);
                 IndexMetadata existing = result.stream()
@@ -74,11 +73,6 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
                     meta.setType(indexType);
                     meta.setComment(comment);
                     meta.setPosition(position);
-                    if ("YES".equalsIgnoreCase(visible)) {
-                        meta.setInvisible(false);
-                    } else if ("NO".equalsIgnoreCase(visible)) {
-                        meta.setInvisible(true);
-                    }
                     List<String> cols = new ArrayList<>();
                     cols.add(columnName);
                     meta.setColumns(cols);

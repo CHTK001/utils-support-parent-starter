@@ -43,7 +43,7 @@ public class MysqlCreateUserStep implements UserManager.CreateUserStep {
     public void execute() {
         try (var c = dataSource.getConnection();
              var s = c.createStatement()) {
-            s.execute("CREATE USER '" + username + "'@'" + host + "' IDENTIFIED BY '" + password + "'");
+            s.execute("CREATE USER IF NOT EXISTS '" + username + "'@'%' IDENTIFIED BY '" + password + "'");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -1,1 +1,1 @@
-mysql=com.chua.mysql.support.meta.MysqlMetaPermission
+mysql=com.chua.mysql.support.user.MysqlPermissionManager

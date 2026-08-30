@@ -169,7 +169,6 @@ class JdbcEngineDatabaseTest {
 
         userMgr.createUser(TEST_USER)
                 .withPassword("engine_test_pass")
-                .withHost("127.0.0.1")
                 .execute();
 
         var usersAfter = userMgr.listUsers();
@@ -192,6 +191,7 @@ class JdbcEngineDatabaseTest {
         // 授予测试库权限
         permMgr.grant("SELECT, INSERT, UPDATE, DELETE")
                 .toUser(TEST_USER)
+                .onDatabase(TEST_DB)
                 .execute();
 
         var perms = permMgr.listPermissions(TEST_USER);
