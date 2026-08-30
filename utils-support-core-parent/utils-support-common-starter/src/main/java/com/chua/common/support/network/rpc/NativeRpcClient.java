@@ -265,10 +265,9 @@ public class NativeRpcClient implements RpcClient {
                     return ((java.util.concurrent.Future<?>) result).get();
                 }
                 return result;
-            } catch (java.lang.reflect.InvocationTargetException e) {
-                // 服务端抛出的业务异常原样上抛，保持与远程调用一致
-                throw RpcException.business(e.getCause() != null ? e.getCause().toString() : e.toString());
             } catch (Exception e) {
+                // ReflectUtils.invoke 内部已吞掉 Throwable（调用失败返回 null），
+                // 此处仅处理 Future.get() 等本方法显式抛出的异常
                 throw RpcException.transport("Inline RPC invoke failed", e);
             }
         }
