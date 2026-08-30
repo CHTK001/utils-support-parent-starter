@@ -281,8 +281,8 @@ public final class JsonBeanMapper {
             String methodName = prefix + name;
             try {
                 Class<?> clazz = field.getDeclaringClass();
-                java.lang.reflect.Method method = clazz.getMethod(methodName);
-                if (method.getParameterCount() == 0 && field.getType().isAssignableFrom(method.getReturnType())) {
+                Object result = ReflectUtils.invoke(clazz, methodName, field.getType());
+                if (result != null && field.getType().isAssignableFrom(result.getClass())) {
                     return methodName;
                 }
             } catch (Exception ignore) {
@@ -300,7 +300,9 @@ public final class JsonBeanMapper {
     private static String findSetterName(Field field) {
         String name = capitalize(field.getName());
         try {
-            field.getDeclaringClass().getMethod("set" + name, field.getType());
+            Class<?> clazz = field.getDeclaringClass();
+            Class<?> setterParamType = field.getType();
+            ReflectUtils.findMethodHandle(clazz, "set" + name, void.class, setterParamType);
             return "set" + name;
         } catch (Exception e) {
             return null;

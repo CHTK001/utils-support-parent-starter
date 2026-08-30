@@ -141,7 +141,7 @@ public class JdkBeanCopier implements BeanCopier {
                 if (readMethod == null) {
                     continue;
                 }
-                Object value = readMethod.invoke(source);
+                Object value = ReflectUtils.invoke(source, readMethod.getName(), readMethod.getReturnType());
                 target.put(entry.getKey(), value);
             } catch (Exception ignored) {
             }

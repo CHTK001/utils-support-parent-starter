@@ -372,6 +372,7 @@ public class ModuleLoader {
             synchronized (METHOD_LOCK) {
                 if (implAddExportsMethod == null) {
                     try {
+                        // [反射豁免] JDK 模块系统内部私有方法，ReflectUtils 基于 MethodHandles.Lookup 无法访问 private 方法
                         implAddExportsMethod = Module.class.getDeclaredMethod(
                                 "implAddExports", String.class, Module.class);
                         implAddExportsMethod.setAccessible(true);
@@ -399,6 +400,7 @@ public class ModuleLoader {
             synchronized (METHOD_LOCK) {
                 if (implAddOpensMethod == null) {
                     try {
+                        // [反射豁免] JDK 模块系统内部私有方法，ReflectUtils 基于 MethodHandles.Lookup 无法访问 private 方法
                         implAddOpensMethod = Module.class.getDeclaredMethod(
                                 "implAddOpens", String.class, Module.class);
                         implAddOpensMethod.setAccessible(true);
