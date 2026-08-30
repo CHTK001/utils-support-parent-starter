@@ -2,6 +2,7 @@ package com.chua.mysql.support.engine;
 
 import com.chua.datasource.support.user.UserInfo;
 import org.junit.jupiter.api.*;
+import org.opentest4j.TestSkippedException;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ class JdbcEngineTraceTest {
             s.connect(new java.net.InetSocketAddress(HOST, PORT), 5000);
             s.close();
         } catch (Exception e) {
-            throw new SkippedException("MySQL unreachable");
+            throw new TestSkippedException("MySQL unreachable");
         }
     }
 

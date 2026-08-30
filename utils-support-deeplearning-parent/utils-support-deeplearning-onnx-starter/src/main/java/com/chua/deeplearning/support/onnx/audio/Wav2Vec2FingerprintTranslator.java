@@ -25,8 +25,9 @@ import java.util.Map;
  * <p>wav2vec2 是 Facebook AI 提出的自监督语音预训练模型，在本实现中作为<b>音频指纹提取器</b>使用：
  * <ul>
  *   <li><b>输入</b>：16kHz 单声道 PCM float 音频采样数组（长度不限）。</li>
- *   <li><b>输出</b>：模型的最后一层 hidden state，经全局平均池化（mean pooling）聚合为固定维度向量。</li>
- *   <li><b>维度</b>：取决于具体模型变体，common 为 768 维（base）或 1024 维（large）。</li>
+ *   <li><b>输出</b>：ASR head logits [batch, seq_len, vocab_size]，对时间维度做 mean pooling 后得到固定维度向量。</li>
+ *   <li><b>维度</b>：取决于模型变体。wav2vec2-base-960h ASR head 输出 32 维 vocab（英文字符+特殊 token）；
+ *       wav2vec2-zh 输出约 10k 维中文字符 vocab；backbone-only（无 LM head）模型输出 hidden_dim 维（768/1024）。</li>
  * </ul>
  * </p>
  *
@@ -34,9 +35,9 @@ import java.util.Map;
  * <pre>
  *   raw PCM (byte[]) → resample to 16kHz mono → float[] samples
  *       → ONNX encoder (wav2vec2 feature extractor + transformer layers)
- *       → last_hidden_state [batch, seq_len, hidden_dim]
+ *       → last_hidden_state [batch, seq_len, vocab_size]
  *       → mean pooling over time dimension
- *       → flatten → float[] fingerprint (hidden_dim)
+ *       → flatten → float[] fingerprint (vocab_size)
  * </pre>
  *
  * <h2>支持的模型格式</h2>
@@ -73,8 +74,8 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     private OrtEnvironment ortEnv;
     /** ONNX 模型推理会话 */
     private OrtSession session;
-    /** 模型隐藏层维度（来自 ONNX 模型结构推断） */
-    private int hiddenSize = 768;
+    /** 模型特征维度（来自 ONNX 模型结构推断，对 ASR head 而言 = vocab_size） */
+    private int hiddenSize = 32;
     /** 模型最大输入序列长度（采样点数） */
     private int maxInputLength = 480000;
     /** 是否已在本实例上完成初始化 */
@@ -164,10 +165,11 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     private void inferModelStructure() {
         try {
             String inputName = session.getInputNames().iterator().next();
-            // 构造 dummy 输入：batch=1, seq_len=maxInputLength, 全零
-            float[] dummyInput = new float[1 * maxInputLength];
+            // 构造 dummy 输入：batch=1, seq_len=16000（1 秒音频），全零
+            int probeSeq = 16000;
+            float[] dummyInput = new float[probeSeq];
             try (OnnxTensor inputTensor = OnnxTensor.createTensor(
-                    ortEnv, FloatBuffer.wrap(dummyInput), new long[]{1, maxInputLength});
+                    ortEnv, FloatBuffer.wrap(dummyInput), new long[]{1, probeSeq});
                  OrtSession.Result result = session.run(Map.of(inputName, inputTensor))) {
 
                 ai.onnxruntime.OnnxValue outVal = result.get(0);
