@@ -4,7 +4,6 @@ import com.chua.common.support.lang.datasource.meta.GrantBuilder;
 import com.chua.common.support.lang.datasource.meta.MetaPermission;
 import com.chua.common.support.lang.datasource.meta.RevokeBuilder;
 import com.chua.common.support.lang.datasource.meta.model.PermissionDef;
-import com.chua.datasource.support.user.DataSourceAware;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -19,12 +18,11 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public class MysqlMetaPermission implements MetaPermission, DataSourceAware {
+public class MysqlMetaPermission implements MetaPermission {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
-    @Override
-    public void setDataSource(DataSource dataSource) {
+    public MysqlMetaPermission(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -38,9 +36,8 @@ public class MysqlMetaPermission implements MetaPermission, DataSourceAware {
                              + " FROM information_schema.USER_PRIVILEGES"
                              + " WHERE TABLE_SCHEMA IS NULL")) {
             while (rs.next()) {
-                String grantee = rs.getString("GRANTEE");
                 result.add(PermissionDef.builder()
-                        .user(cleanUser(grantee))
+                        .user(stripQuote(rs.getString("GRANTEE")))
                         .privilegeType(rs.getString("PRIVILEGE_TYPE"))
                         .grantable("YES".equals(rs.getString("IS_GRANTABLE")))
                         .build());
@@ -83,20 +80,28 @@ public class MysqlMetaPermission implements MetaPermission, DataSourceAware {
         return new RevokeStep(dataSource, privileges);
     }
 
-    private static String cleanUser(String raw) {
+    private static String stripQuote(String raw) {
         if (raw == null || !raw.contains("@")) return raw;
         int at = raw.indexOf('@');
-        return raw.substring(1, at); // strip leading quote
+        String u = raw.substring(0, at);
+        return u.startsWith("'") ? u.substring(1) : u;
     }
 
-    // ==================== Grant / Revoke ====================
+    private static void execSql(DataSource ds, String sql) {
+        try (Connection conn = ds.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (Exception e) {
+            throw new RuntimeException("执行 SQL 失败: " + sql, e);
+        }
+    }
+
+    // ==================== Inner Steps ====================
 
     private static class GrantStep implements GrantBuilder {
         private final DataSource dataSource;
         private final String privileges;
         private String user = null;
-        private String table = "*.*";
-        private boolean grantOption = false;
 
         GrantStep(DataSource dataSource, String privileges) {
             this.dataSource = dataSource;
@@ -112,8 +117,8 @@ public class MysqlMetaPermission implements MetaPermission, DataSourceAware {
         @Override
         public boolean execute() {
             if (user == null) throw new IllegalStateException("必须指定 toUser()");
-            String sql = "GRANT " + privileges + " ON " + table + " TO '" + user + "'@'%'";
-            return exec(sql);
+            execSql(dataSource, "GRANT " + privileges + " ON *.* TO '" + user + "'@'%'");
+            return true;
         }
     }
 
@@ -136,16 +141,8 @@ public class MysqlMetaPermission implements MetaPermission, DataSourceAware {
         @Override
         public boolean execute() {
             if (user == null) throw new IllegalStateException("必须指定 fromUser()");
-            String sql = "REVOKE " + privileges + " ON *.* FROM '" + user + "'@'%'";
-            return exec(sql);
-        }
-    }
-
-    private static boolean exec(String sql) {
-        try (Connection conn = null; Statement stmt = null) {
-            return false;
-        } catch (Exception e) {
-            throw new RuntimeException("执行 SQL 失败: " + sql, e);
+            execSql(dataSource, "REVOKE " + privileges + " ON *.* FROM '" + user + "'@'%'");
+            return true;
         }
     }
 }

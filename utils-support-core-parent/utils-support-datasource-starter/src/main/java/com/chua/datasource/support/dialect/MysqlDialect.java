@@ -2,6 +2,8 @@ package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 
+import java.util.Properties;
+
 /**
  * MySQL 8.0+ 方言实现（兼容 5.7）。
  *
@@ -11,26 +13,39 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
 public class MysqlDialect extends AbstractDialect {
 
     /**
-     * 支持版本
+     * 构造默认 MySQL 方言。
      */
-    public static final String VERSION = "MySQL 8.0+ (兼容 5.7)";
+    public MysqlDialect() {
+    }
+
+    /**
+     * 从属性构建 MySQL 方言。
+     *
+     * @param properties 配置属性，支持 key: {@code driver}、{@code url}
+     */
+    public MysqlDialect(Properties properties) {
+        withProperties(properties);
+    }
 
     @Override
     /** Protocol */
     public String protocol() {
-        return "mysql";
+        return properties != null
+                ? properties.getProperty("protocol", "mysql")
+                : "mysql";
     }
 
     @Override
     /** Driver */
     public String driver() {
-        return "com.mysql.cj.jdbc.Driver";
+        String prop = properties != null ? properties.getProperty("driver") : null;
+        return prop != null ? prop : "com.mysql.cj.jdbc.Driver";
     }
 
     @Override
     /** Url */
     public String url() {
-        return "jdbc:mysql://<IP>:<PORT>/<DATABASE>?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai";
+        return properties != null ? properties.getProperty("url") : null;
     }
 
     @Override
@@ -176,13 +191,6 @@ public class MysqlDialect extends AbstractDialect {
                 + "WHERE ROUTINE_NAME = '" + escape(procedureName) + "'";
     }
 
-    /**
-     * 为查询 SQL 追加 schema 过滤条件。
-     *
-     * @param sql        SQL 构建器
-     * @param columnName schema 列名
-     * @param schema     schema 名称，null 或空时跳过
-     */
     private static void appendSchemaCondition(StringBuilder sql, String columnName, String schema) {
         if (schema != null && !schema.isEmpty()) {
             sql.append(" AND ").append(columnName).append(" = '").append(escape(schema)).append("'");

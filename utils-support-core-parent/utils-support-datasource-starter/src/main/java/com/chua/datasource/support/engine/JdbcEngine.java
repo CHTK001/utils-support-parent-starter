@@ -1,23 +1,18 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.ProcedureDefinition;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.TriggerDefinition;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.meta.MetaData;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.datasource.support.index.IndexManager;
+import com.chua.datasource.support.meta.JdbcMetaData;
+import com.chua.datasource.support.user.DataSourceAware;
+import com.chua.datasource.support.user.UserManager;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
@@ -178,9 +173,9 @@ public abstract class JdbcEngine extends AbstractEngine {
     /**
      * 获取元数据操作入口，按默认数据源的协议自动加载对应的 MetaData 实现。
      *
-     * <p>通过 SPI 按 {@link Dialect#protocol()} 协议名查找注册的 MetaData 实现类，
-     * 例如协议为 {@code "mysql"} 时自动加载 {@code MysqlMetaData}。
-     * 未找到对应实现时回退到 {@link com.chua.datasource.support.meta.DefaultMetaData}。</p>
+     * <p>优先尝试通过 SPI 按 {@link Dialect#protocol()} 协议名查找注册的 MetaData 实现类，
+     * 例如协议为 {@code "mysql"} 时加载 {@code MysqlMetaData}；
+     * 未找到对应实现时回退到 {@link JdbcMetaData}。</p>
      *
      * @return 元数据操作接口
      */
@@ -189,12 +184,28 @@ public abstract class JdbcEngine extends AbstractEngine {
         Dialect d = dialect();
         String protocol = d != null ? d.protocol() : null;
         if (protocol != null) {
-            MetaData md = ServiceProvider.of(MetaData.class).getNewExtension(protocol, this);
-            if (md != null) {
-                return md;
+            try {
+                MetaData md = ServiceProvider.of(MetaData.class).getNewExtension(protocol, this);
+                if (md instanceof JdbcMetaData jdbcMd) {
+                    jdbcMd.setDataSource(getJdbcDataSource());
+                }
+                if (md != null) return md;
+            } catch (Exception ignored) {
             }
         }
         return super.meta();
+    }
+
+    /**
+     * 获取默认数据源的 JDBC DataSource，失败返回 null。
+     */
+    protected javax.sql.DataSource getJdbcDataSource() {
+        try {
+            java.sql.Connection conn = getJdbcConnection();
+            return (javax.sql.DataSource) conn.unwrap(javax.sql.DataSource.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // ==================== 更新 / 删除（真实 JDBC 执行） ====================
@@ -493,5 +504,43 @@ public abstract class JdbcEngine extends AbstractEngine {
         }
         def.setStatus(getString(rs, "STATUS"));
         return def;
+    }
+
+    // ==================== SPI 能力入口 ====================
+
+    /**
+     * 获取用户管理器入口，通过 SPI 按当前方言协议加载实现。
+     */
+    public UserManager user() {
+        return resolveManager(UserManager.class);
+    }
+
+    /**
+     * 获取索引管理器入口，通过 SPI 按当前方言协议加载实现。
+     */
+    public IndexManager index() {
+        return resolveManager(IndexManager.class);
+    }
+
+    private String currentDialectProtocol() {
+        Dialect d = dialect();
+        return d != null ? d.protocol() : "unknown";
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T resolveManager(Class<T> clazz) {
+        try {
+            String type = currentDialectProtocol();
+            ServiceProvider<T> provider = ServiceProvider.of(clazz);
+            T ext = provider.getExtension(type);
+            if (ext == null) return null;
+            if (ext instanceof DataSourceAware aware) {
+                javax.sql.DataSource ds = getJdbcDataSource();
+                if (ds != null) aware.setDataSource(ds);
+            }
+            return ext;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

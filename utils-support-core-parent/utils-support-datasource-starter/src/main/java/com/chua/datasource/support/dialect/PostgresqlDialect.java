@@ -2,6 +2,8 @@ package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 
+import java.util.Properties;
+
 /**
  * PostgreSQL 14+ 方言实现（兼容 12/13）。
  *
@@ -10,27 +12,31 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
  */
 public class PostgresqlDialect extends AbstractDialect {
 
-    /**
-     * 支持版本
-     */
     public static final String VERSION = "PostgreSQL 14+ (兼容 12/13)";
 
+    public PostgresqlDialect() {
+    }
+
+    public PostgresqlDialect(Properties properties) {
+        withProperties(properties);
+    }
+
     @Override
-    /** Protocol */
     public String protocol() {
-        return "postgresql";
+        return properties != null
+                ? properties.getProperty("protocol", "postgresql")
+                : "postgresql";
     }
 
     @Override
-    /** Driver */
     public String driver() {
-        return "org.postgresql.Driver";
+        String prop = properties != null ? properties.getProperty("driver") : null;
+        return prop != null ? prop : "org.postgresql.Driver";
     }
 
     @Override
-    /** Url */
     public String url() {
-        return "jdbc:postgresql://<IP>:<PORT>/<DATABASE>";
+        return properties != null ? properties.getProperty("url") : null;
     }
 
     @Override
