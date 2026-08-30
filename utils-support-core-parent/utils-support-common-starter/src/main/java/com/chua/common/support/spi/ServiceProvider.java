@@ -724,7 +724,7 @@ public interface ServiceProvider<T> {
             return true;
         }
         try {
-Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.class, new Class<?>[0]);
+Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.class, new Class<?>[0], new Object[0], new Object[0]);
             if (Boolean.TRUE.equals(result)) {
                 return true;
             }

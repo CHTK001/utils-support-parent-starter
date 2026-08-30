@@ -127,7 +127,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
             String name = ann.annotationType().getName();
             if (NAMED_JAVAX.equals(name) || NAMED_JAKARTA.equals(name)) {
                 try {
-Object val = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0]);
+Object val = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new Object[0], new Object[0]);
                     if (val instanceof String s && !s.isEmpty()) {
                         return s;
                     }

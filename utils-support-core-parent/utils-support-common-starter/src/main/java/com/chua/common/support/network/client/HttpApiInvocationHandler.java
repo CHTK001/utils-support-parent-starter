@@ -465,7 +465,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      */
     private static String extractAnnotationValue(Annotation ann) {
         try {
-Object r = ReflectUtils.invoke(ann, ANN_ATTR_VALUE, Object.class, new Class<?>[0]);
+Object r = ReflectUtils.invoke(ann, ANN_ATTR_VALUE, Object.class, new Class<?>[0], new Object[0], new Object[0]);
             if (r instanceof String s) {
                 return s;
             }
@@ -486,7 +486,7 @@ Object r = ReflectUtils.invoke(ann, ANN_ATTR_VALUE, Object.class, new Class<?>[0
      */
     private static HttpMethod extractRequestMappingMethod(Annotation ann) {
         try {
-Object r = ReflectUtils.invoke(ann, ANN_ATTR_METHOD, Object.class, new Class<?>[0]);
+Object r = ReflectUtils.invoke(ann, ANN_ATTR_METHOD, Object.class, new Class<?>[0], new Object[0], new Object[0]);
             if (r instanceof Object[] a && a.length > 0) {
                 String name = a[0].toString();
                 int dot = name.lastIndexOf('.');
@@ -508,7 +508,7 @@ Object r = ReflectUtils.invoke(ann, ANN_ATTR_METHOD, Object.class, new Class<?>[
      */
     private static String getString(Annotation ann, String attr, String def) {
         try {
-Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0]);
+Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Object[0], new Object[0]);
             return r != null ? r.toString() : def;
         } catch (Exception e) {
             return def;
@@ -525,7 +525,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0]);
      */
     private static boolean getBoolean(Annotation ann, String attr, boolean def) {
         try {
-Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0]);
+Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Object[0], new Object[0]);
             return r instanceof Boolean b ? b : def;
         } catch (Exception e) {
             return def;

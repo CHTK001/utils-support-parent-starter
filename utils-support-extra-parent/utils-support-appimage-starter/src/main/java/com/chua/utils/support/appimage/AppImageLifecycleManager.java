@@ -2,6 +2,7 @@ package com.chua.utils.support.appimage;
 
 
 
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -32,7 +33,7 @@ public class AppImageLifecycleManager {
     public AppImageLifecycleManager() {
         this.processManager = new AppImageProcessManager();
         this.healthChecker = new AppImageHealthChecker();
-        this.scheduler = Executors.newScheduledThreadPool(2);
+        this.scheduler = ThreadUtils.newScheduledThreadPoolExecutor(2);
         this.instances = new ConcurrentHashMap<>();
     }
 

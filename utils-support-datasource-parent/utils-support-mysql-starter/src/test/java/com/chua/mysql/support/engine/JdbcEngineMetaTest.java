@@ -47,16 +47,17 @@ class JdbcEngineMetaTest {
         engine = new MysqlEngine();
         engine.addDataSource("admin", HOST, PORT, "mysql", ADMIN_USER, ADMIN_PASS);
         engine.setDefaultDataSourceName("admin");
-        // 清理历史
+        // 清理历史状态（数据库 + 所有测试用户）
         try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
                 "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
                 ADMIN_USER, ADMIN_PASS)) {
             conn.createStatement().execute("DROP DATABASE IF EXISTS `" + TEST_DB + "`");
+            conn.createStatement().execute("DROP DATABASE IF EXISTS `engine_perm_test_db`");
             java.sql.ResultSet rs = conn.createStatement().executeQuery(
-                    "SELECT host FROM mysql.user WHERE user = '" + TEST_USER + "'");
+                    "SELECT user, host FROM mysql.user WHERE user LIKE 'engine_%' OR user LIKE 'engine_meta_%'");
             while (rs.next()) {
                 conn.createStatement().execute(
-                        "DROP USER IF EXISTS '" + TEST_USER + "'@'" + rs.getString("host") + "'");
+                        "DROP USER IF EXISTS '" + rs.getString("user") + "'@'" + rs.getString("host") + "'");
             }
             rs.close();
         }
@@ -64,12 +65,18 @@ class JdbcEngineMetaTest {
 
     @AfterAll
     static void teardown() throws Exception {
-        // 清理测试库和测试用户
         try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
                 "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
                 ADMIN_USER, ADMIN_PASS)) {
             conn.createStatement().execute("DROP DATABASE IF EXISTS `" + TEST_DB + "`");
-            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'%'");
+            conn.createStatement().execute("DROP DATABASE IF EXISTS `engine_perm_test_db`");
+            java.sql.ResultSet rs = conn.createStatement().executeQuery(
+                    "SELECT user, host FROM mysql.user WHERE user LIKE 'engine_meta_%'");
+            while (rs.next()) {
+                conn.createStatement().execute(
+                        "DROP USER IF EXISTS '" + rs.getString("user") + "'@'" + rs.getString("host") + "'");
+            }
+            rs.close();
         } catch (Exception ignored) {}
         if (engine != null) {
             try { engine.close(); } catch (Exception ignored) {}
