@@ -35,6 +35,7 @@ import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.schema.impl.AbstractTableQueryable;
 
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -402,7 +403,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
                 Method getter = getterMap.get(columnNames.get(i));
                 if (getter != null) {
                     try {
-                        row[i] = getter.invoke(entity);
+                        row[i] = ReflectUtils.invoke(entity, getter.getName(), Object.class);
                     } catch (Exception ignored) {
                         row[i] = null;
                     }

@@ -188,7 +188,7 @@ public class SourceDataTable extends MutableDataTable {
                     continue;
                 }
                 Object value = row.get(cols.get(i));
-                setter.invoke(instance, convertValue(value, setter.getParameterTypes()[0]));
+                ReflectUtils.invoke(instance, setter.getName(), void.class, setter.getParameterTypes(), convertValue(value, setter.getParameterTypes()[0]));
             }
             return instance;
         } catch (Exception e) {
@@ -201,7 +201,7 @@ public class SourceDataTable extends MutableDataTable {
         Map<String, Object> row = new LinkedHashMap<>(getters.size());
         for (int i = 0; i < getters.size(); i++) {
             try {
-                row.put(getColumnNames().get(i), getters.get(i).invoke(entity));
+                row.put(getColumnNames().get(i), ReflectUtils.invoke(entity, getters.get(i).getName(), getters.get(i).getReturnType()));
             } catch (Exception e) {
                 row.put(getColumnNames().get(i), null);
             }

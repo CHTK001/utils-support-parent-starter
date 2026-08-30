@@ -831,7 +831,7 @@ public class ElasticsearchEngine implements Engine {
                 for (java.lang.reflect.Method method : entityClass.getMethods()) {
                     if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
                         Object converted = convertValue(entry.getValue(), method.getParameterTypes()[0]);
-                        method.invoke(instance, converted);
+                        ReflectUtils.invoke(instance, method.getName(), void.class, converted);
                         break;
                     }
                 }

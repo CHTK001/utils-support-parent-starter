@@ -131,7 +131,7 @@ public class Neo4jEngine implements Engine {
                         String fieldName = method.getName().substring(3);
                         fieldName = Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
                         try {
-                            Object value = method.invoke(entity);
+                            Object value = ReflectUtils.invoke(entity, method.getName(), Object.class);
                             props.put(fieldName, value);
                         } catch (Exception e) {
                             // ignore
@@ -882,7 +882,7 @@ public class Neo4jEngine implements Engine {
                         if (value == null && paramType.isPrimitive()) {
                             continue;
                         }
-                        method.invoke(instance, value);
+                        ReflectUtils.invoke(instance, method.getName(), void.class, value);
                         break;
                     }
                 }

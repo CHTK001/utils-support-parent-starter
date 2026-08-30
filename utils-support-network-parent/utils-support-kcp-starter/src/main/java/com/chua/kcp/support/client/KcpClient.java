@@ -1,5 +1,6 @@
 package com.chua.kcp.support.client;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
 import com.chua.common.support.objects.annotation.OnMessage;
@@ -502,9 +503,9 @@ public class KcpClient {
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             if (args == null || args.length == 0) {
-                method.invoke(bean);
+                ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
             } else {
-                method.invoke(bean, args);
+                ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
             }
         } catch (java.lang.reflect.InvocationTargetException e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;

@@ -6,6 +6,7 @@ import com.chua.common.support.network.invoker.annotations.RemoteService;
 import com.chua.common.support.network.rpc.RpcClient;
 import com.chua.common.support.network.rpc.RpcConsumerConfig;
 import com.chua.common.support.network.rpc.RpcRegistryConfig;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 
@@ -69,7 +70,7 @@ public class RpcInvoker implements Invoker {
     private static String resolveBaseUrl(Class<?> clazz) {
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {
-                Class<?> cl = Class.forName(annClass);
+                Class<?> cl = ReflectUtils.forName(annClass);
                 Annotation ann = clazz.getAnnotation(cl.asSubclass(Annotation.class));
                 if (ann != null) {
                     String v = extractAnnotationValue(ann);

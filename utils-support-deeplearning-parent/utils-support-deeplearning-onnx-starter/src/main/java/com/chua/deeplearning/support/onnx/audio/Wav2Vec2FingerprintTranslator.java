@@ -178,7 +178,6 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
                     // shape 通常为 [1, seq_len, hidden_size] 或 [1, hidden_size]
                     if (shape.length == 3) {
                         hiddenSize = (int) shape[2];
-                        maxInputLength = (int) shape[1];
                     } else if (shape.length == 2) {
                         hiddenSize = (int) shape[1];
                     }

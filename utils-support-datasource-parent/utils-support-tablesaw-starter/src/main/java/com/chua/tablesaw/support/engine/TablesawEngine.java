@@ -369,7 +369,7 @@ public class TablesawEngine implements Engine {
         try {
             Method writeReplace = column.getClass().getDeclaredMethod("writeReplace");
             writeReplace.setAccessible(true);
-            SerializedLambda lambda = (SerializedLambda) writeReplace.invoke(column);
+            SerializedLambda lambda = (SerializedLambda) ReflectUtils.invoke(column, "writeReplace", SerializedLambda.class);
             String name = lambda.getImplMethodName();
             if (name.startsWith("is")) {
                 name = name.substring(2);
@@ -737,7 +737,7 @@ public class TablesawEngine implements Engine {
                 }
                 Object value = getRowValue(row, col, setter.getParameterTypes()[0]);
                 if (value != null) {
-                    setter.invoke(instance, value);
+                    ReflectUtils.invoke(instance, setter.getName(), void.class, value);
                 }
             }
             return instance;
@@ -865,13 +865,13 @@ public class TablesawEngine implements Engine {
             String getter = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
             for (Method m : bean.getClass().getMethods()) {
                 if (m.getName().equals(getter) && m.getParameterCount() == 0) {
-                    return m.invoke(bean);
+                    return ReflectUtils.invoke(bean, m.getName(), Object.class);
                 }
             }
             String isGetter = "is" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
             for (Method m : bean.getClass().getMethods()) {
                 if (m.getName().equals(isGetter) && m.getParameterCount() == 0) {
-                    return m.invoke(bean);
+                    return ReflectUtils.invoke(bean, m.getName(), Object.class);
                 }
             }
         } catch (Exception e) {

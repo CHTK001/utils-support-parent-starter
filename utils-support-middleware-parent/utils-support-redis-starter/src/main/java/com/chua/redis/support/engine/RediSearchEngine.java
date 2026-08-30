@@ -17,6 +17,7 @@ import com.chua.redis.support.meta.RedisSearchMetaData;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.commands.ProtocolCommand;
+import com.chua.common.support.reflection.ReflectUtils;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.lang.reflect.Method;
@@ -65,7 +66,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
                                 && !method.getName().equals("getClass")) {
                             String propName = method.getName().substring(3);
                             String fieldName = Character.toLowerCase(propName.charAt(0)) + propName.substring(1);
-                            Object value = method.invoke(item);
+                            Object value = ReflectUtils.invoke(item, method.getName(), Object.class);
                             if (value != null) {
                                 hash.put(fieldName, value.toString());
                             }
@@ -73,7 +74,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
                                 && (method.getReturnType() == Boolean.class || method.getReturnType() == boolean.class)) {
                             String propName = method.getName().substring(2);
                             String fieldName = Character.toLowerCase(propName.charAt(0)) + propName.substring(1);
-                            Object value = method.invoke(item);
+                            Object value = ReflectUtils.invoke(item, method.getName(), Object.class);
                             if (value != null) {
                                 hash.put(fieldName, value.toString());
                             }

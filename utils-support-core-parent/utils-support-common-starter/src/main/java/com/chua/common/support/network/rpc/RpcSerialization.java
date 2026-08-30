@@ -1,6 +1,7 @@
 package com.chua.common.support.network.rpc;
 
 import com.chua.common.support.base.serialize.Serialization;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -156,7 +157,7 @@ public final class RpcSerialization {
                 continue;
             }
             try {
-                Class<?> implClass = Class.forName(supported[1]);
+                Class<?> implClass = ReflectUtils.forName(supported[1]);
                 Constructor<?> constructor = implClass.getDeclaredConstructor();
                 constructor.setAccessible(true);
                 return (Serialization) constructor.newInstance();

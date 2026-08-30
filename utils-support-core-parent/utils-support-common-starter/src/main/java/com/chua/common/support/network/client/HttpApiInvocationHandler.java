@@ -6,6 +6,7 @@ import com.chua.common.support.lang.placeholder.StringValuePropertyResolver;
 import com.chua.common.support.network.annotations.RequestMethod;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.invoker.annotations.RemoteService;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -257,7 +258,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         // 优先尝试 Spring 类级注解
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {
-                Class<?> cl = Class.forName(annClass);
+                Class<?> cl = ReflectUtils.forName(annClass);
                 Annotation ann = clazz.getAnnotation(cl.asSubclass(Annotation.class));
                 if (ann != null) {
                     String v = extractAnnotationValue(ann);
@@ -296,7 +297,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         // 遍历 Spring 方法注解，匹配首个命中
         for (Map.Entry<String, HttpMethod> entry : SPRING_METHOD_ANNOTATIONS.entrySet()) {
             try {
-                Class<?> annClass = Class.forName(entry.getKey());
+                Class<?> annClass = ReflectUtils.forName(entry.getKey());
                 Annotation ann = method.getAnnotation(annClass.asSubclass(Annotation.class));
                 if (ann != null) {
                     if (entry.getValue() != null) {
@@ -464,8 +465,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      */
     private static String extractAnnotationValue(Annotation ann) {
         try {
-            Method m = ann.getClass().getMethod(ANN_ATTR_VALUE);
-            Object r = m.invoke(ann);
+            Object r = ReflectUtils.invoke(ann, ANN_ATTR_VALUE, Object.class);
             if (r instanceof String s) {
                 return s;
             }
@@ -486,8 +486,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      */
     private static HttpMethod extractRequestMappingMethod(Annotation ann) {
         try {
-            Method m = ann.getClass().getMethod(ANN_ATTR_METHOD);
-            Object r = m.invoke(ann);
+            Object r = ReflectUtils.invoke(ann, ANN_ATTR_METHOD, Object.class);
             if (r instanceof Object[] a && a.length > 0) {
                 String name = a[0].toString();
                 int dot = name.lastIndexOf('.');
@@ -509,8 +508,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      */
     private static String getString(Annotation ann, String attr, String def) {
         try {
-            Method m = ann.getClass().getMethod(attr);
-            Object r = m.invoke(ann);
+            Object r = ReflectUtils.invoke(ann, attr, Object.class);
             return r != null ? r.toString() : def;
         } catch (Exception e) {
             return def;
@@ -527,8 +525,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      */
     private static boolean getBoolean(Annotation ann, String attr, boolean def) {
         try {
-            Method m = ann.getClass().getMethod(attr);
-            Object r = m.invoke(ann);
+            Object r = ReflectUtils.invoke(ann, attr, Object.class);
             return r instanceof Boolean b ? b : def;
         } catch (Exception e) {
             return def;
@@ -545,7 +542,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      */
     private ParamAnnotation resolveSpringParam(Parameter param, String className, AnnResolver resolver) {
         try {
-            Class<?> ac = Class.forName(className);
+            Class<?> ac = ReflectUtils.forName(className);
             Annotation ann = param.getAnnotation(ac.asSubclass(Annotation.class));
             if (ann != null) {
                 String n = getString(ann, ANN_ATTR_VALUE, "");

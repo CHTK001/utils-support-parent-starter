@@ -105,7 +105,7 @@ public class SolrEngine extends AbstractEngine {
                             && !method.getName().equals("getClass")) {
                         String prop = method.getName().substring(3);
                         String field = Character.toLowerCase(prop.charAt(0)) + prop.substring(1);
-                        Object value = method.invoke(item);
+                        Object value = ReflectUtils.invoke(item, method.getName(), Object.class);
                         if (value != null) {
                             doc.addField(field, value);
                             if (SolrFields.ID.equals(field)) {
@@ -206,7 +206,7 @@ public class SolrEngine extends AbstractEngine {
                     String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
                     for (var method : entityClass.getMethods()) {
                         if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
-                            method.invoke(instance, convertValue(value, method.getParameterTypes()[0]));
+                            ReflectUtils.invoke(instance, method.getName(), void.class, convertValue(value, method.getParameterTypes()[0]));
                             break;
                         }
                     }
@@ -775,7 +775,7 @@ public class SolrEngine extends AbstractEngine {
                     String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
                     for (var method : entityClass.getMethods()) {
                         if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
-                            method.invoke(instance, convertValue(value, method.getParameterTypes()[0]));
+                            ReflectUtils.invoke(instance, method.getName(), void.class, convertValue(value, method.getParameterTypes()[0]));
                             break;
                         }
                     }

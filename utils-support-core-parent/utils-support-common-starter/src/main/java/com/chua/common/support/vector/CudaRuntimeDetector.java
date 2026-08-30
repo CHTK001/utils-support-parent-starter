@@ -1,5 +1,6 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -97,7 +98,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
      */
     private static boolean isClassPresent(String className) {
         try {
-            Class.forName(className, false, CudaRuntimeDetector.class.getClassLoader());
+            ReflectUtils.forName(className, CudaRuntimeDetector.class.getClassLoader());
             return true;
         } catch (Throwable t) {
             return false;

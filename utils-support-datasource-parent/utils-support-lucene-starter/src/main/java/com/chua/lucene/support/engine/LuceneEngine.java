@@ -562,7 +562,7 @@ import java.util.concurrent.ConcurrentHashMap;
             for (var method : obj.getClass().getMethods()) {
                 if (method.getName().equals(getter) && method.getParameterCount() == 0) {
                     try {
-                        return method.invoke(obj);
+                        return ReflectUtils.invoke(obj, method.getName(), method.getReturnType());
                     } catch (Exception e) {
                         return null;
                     }
@@ -573,7 +573,7 @@ import java.util.concurrent.ConcurrentHashMap;
                 if (method.getName().equals(isGetter) && method.getParameterCount() == 0
                         && (method.getReturnType() == boolean.class || method.getReturnType() == Boolean.class)) {
                     try {
-                        return method.invoke(obj);
+                        return ReflectUtils.invoke(obj, method.getName(), method.getReturnType());
                     } catch (Exception e) {
                         return null;
                     }

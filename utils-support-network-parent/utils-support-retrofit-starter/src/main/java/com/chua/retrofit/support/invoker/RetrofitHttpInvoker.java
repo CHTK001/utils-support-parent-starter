@@ -138,8 +138,7 @@ public class RetrofitHttpInvoker implements Invoker {
      */
     private static String extractAnnotationValue(Annotation ann) {
         try {
-            java.lang.reflect.Method m = ann.getClass().getMethod("value");
-            Object r = m.invoke(ann);
+            Object r = ReflectUtils.invoke(ann, "value", Object.class);
             if (r instanceof String s) {
                 return s;
             }

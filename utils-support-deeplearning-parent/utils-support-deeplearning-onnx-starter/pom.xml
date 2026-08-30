@@ -75,7 +75,12 @@
           <artifactId>onnxruntime</artifactId>
           <version>1.21.1</version>
         </dependency>
-      </dependencies>
+              <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-clip-text-encoder</artifactId>
+            <version>4.0.0.42</version>
+        </dependency>
+    </dependencies>
     </profile>
     <profile>
       <id>gpu</id>
@@ -85,7 +90,12 @@
           <artifactId>onnxruntime_gpu</artifactId>
           <version>1.27.0</version>
         </dependency>
-      </dependencies>
+              <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-clip-text-encoder</artifactId>
+            <version>4.0.0.42</version>
+        </dependency>
+    </dependencies>
     </profile>
   </profiles>
   <dependencies>
@@ -275,6 +285,11 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-models-onnx-wav2vec2-base</artifactId>
             <version>${project.version}</version>
+        </dependency>
+            <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-clip-text-encoder</artifactId>
+            <version>4.0.0.42</version>
         </dependency>
     </dependencies>
 </project>

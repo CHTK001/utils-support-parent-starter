@@ -81,7 +81,7 @@ public final class EngineAwareDataSource implements DataSource {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             String name = method.getName();
             if ("createStatement".equals(name)) {
-                Statement st = (Statement) method.invoke(target, args);
+                Statement st = (Statement) ReflectUtils.invoke(target, method.getName(), Statement.class, method.getParameterTypes(), args);
                 return wrapStatement(st);
             }
             if ("prepareStatement".equals(name) && args != null && args.length >= 1 && args[0] instanceof String sql) {
@@ -92,7 +92,7 @@ public final class EngineAwareDataSource implements DataSource {
                 }
             }
             try {
-                return method.invoke(target, args);
+                return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
             } catch (java.lang.reflect.InvocationTargetException e) {
                 throw e.getCause() != null ? e.getCause() : e;
             }
@@ -119,7 +119,7 @@ public final class EngineAwareDataSource implements DataSource {
                             }
                         }
                         try {
-                            return method.invoke(st, args);
+                            return ReflectUtils.invoke(st, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
                         } catch (java.lang.reflect.InvocationTargetException e) {
                             throw e.getCause() != null ? e.getCause() : e;
                         }

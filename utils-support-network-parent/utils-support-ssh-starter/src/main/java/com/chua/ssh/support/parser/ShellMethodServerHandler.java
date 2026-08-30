@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.ssh.support.server.SshCommandResponse;
 
 import java.lang.reflect.Method;
@@ -94,16 +95,16 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         Object result;
         if (streaming) {
             Object[] invokeArgs = buildArgs(paramTypes, args, (SshCommandResponse) response);
-            method.invoke(bean, invokeArgs);
+            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), invokeArgs);
             return;
         }
 
         if (paramTypes.length == 1 && paramTypes[0] == String[].class) {
-            result = method.invoke(bean, new Object[]{args});
+            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), new Class[]{String[].class}, args);
         } else if (paramTypes.length == 0) {
-            result = method.invoke(bean);
+            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
         } else {
-            result = method.invoke(bean, new Object[]{args});
+            result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), new Class[]{String[].class}, args);
         }
 
         if (result != null) {

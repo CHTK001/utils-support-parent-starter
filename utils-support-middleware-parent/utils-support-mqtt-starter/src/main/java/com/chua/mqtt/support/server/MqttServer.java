@@ -1,5 +1,6 @@
 package com.chua.mqtt.support.server;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -288,7 +289,7 @@ public class MqttServer extends AbstractServer {
     /** Safe调用 */
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
-            method.invoke(bean, args);
+            ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (java.lang.reflect.InvocationTargetException e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;
             log.error("MQTT 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
@@ -309,7 +310,7 @@ public class MqttServer extends AbstractServer {
     /** 调用Method */
     private void invokeMethod(Object handler, Method method, Object... args) {
         try {
-            method.invoke(handler, args);
+            ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (java.lang.reflect.InvocationTargetException e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;
             log.error("MQTT 注解方法调用异常: {}.{}", handler.getClass().getSimpleName(), method.getName(), cause);
