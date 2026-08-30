@@ -79,6 +79,7 @@ class JdbcEngineMetaTest {
     // ==================== 辅助 ====================
 
     private void switchToTestDb() {
+        engine.createDatabase(TEST_DB);
         engine.addDataSource("testdb", HOST, PORT, TEST_DB, ADMIN_USER, ADMIN_PASS);
         engine.setDefaultDataSourceName("testdb");
     }
@@ -321,9 +322,8 @@ class JdbcEngineMetaTest {
 
         // grant 权限
         engine.meta().permission()
-                .toUser(permUser)
-                .onTable(permDb + ".t_test")
                 .grant("SELECT, INSERT")
+                .toUser(permUser)
                 .execute();
 
         // 验证 grant 生效（SHOW GRANTS）

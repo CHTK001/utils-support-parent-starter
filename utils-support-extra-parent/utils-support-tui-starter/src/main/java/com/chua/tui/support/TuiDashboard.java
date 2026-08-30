@@ -488,10 +488,10 @@ public class TuiDashboard {
         }
         try {
             if (method.getParameterCount() == 0) {
-                Object result = method.invoke(target);
+                Object result = ReflectUtils.invoke(target, method.getName(), method.getReturnType());
                 return result != null ? result.toString() : null;
             } else if (method.getParameterCount() == 1) {
-                Object result = method.invoke(target, "");
+                Object result = ReflectUtils.invoke(target, method.getName(), method.getReturnType(), Object.class, "");
                 return result != null ? result.toString() : null;
             }
         } catch (Exception e) {

@@ -71,7 +71,7 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
             if (hasAnyAnnotation(method, annotationNames)) {
                 try {
                     ClassUtils.setAccessible(method);
-                    method.invoke(bean);
+                    ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes());
                 } catch (Exception e) {
                     log.warn("调用 JSR 生命周期方法失败: {}", method.getName(), e);
                 }

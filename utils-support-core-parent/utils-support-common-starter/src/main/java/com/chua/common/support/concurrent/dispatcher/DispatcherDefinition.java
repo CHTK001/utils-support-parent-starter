@@ -67,7 +67,7 @@ public class DispatcherDefinition {
             }
             // 订阅者可能为 package-private/内部类，需放开访问权限（与 KcpClient.safeInvoke 一致）
             method.setAccessible(true);
-            method.invoke(subscriber, converted);
+            ReflectUtils.invoke(subscriber, method.getName(), method.getReturnType(), method.getParameterTypes(), converted);
         } catch (Exception e) {
             log.error("反射调用订阅方法失败，方法：{}", method.getName(), e);
         }
