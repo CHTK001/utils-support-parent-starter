@@ -19,7 +19,7 @@ public final class YoloWorldInferenceTest {
 
     private YoloWorldInferenceTest() { }
 
-    private static final String[] TIERS = {"yolov8s-world", "yolov8l-world"};
+    private static final String[] TIERS = {"yolov8s-world", "yolov8m-world", "yolov8l-world"};
     private static final float THRESHOLD = 0.25f;
     private static final int IMG_SIZE = 224;
 

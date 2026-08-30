@@ -24,11 +24,8 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
- * YOLO-World 零样本检测器（基于 ultralytics yolov8s-worldv2.onnx）
- * 支持 COCO-80 CLIP 文本特征，实现开放词汇检测。
- *
- * <p>输入：images [1,3,640,640] 和 txt_feats（可选），输出 output0 [1, 4+80, 8400]。
- * 前 4 通道为 bbox(cx,cy,w,h)，后 80 通道为分类 logits（ultralytics 导出时已含 sigmoid，可直接作为置信度使用）。</p>
+ * YOLO-World 闆舵牱鏈娴嬪櫒锛堝熀浜?ultralytics yolov8s-worldv2.onnx锛? * 鏀寔 COCO-80 CLIP 鏂囨湰鐗瑰緛锛屽疄鐜板紑鏀捐瘝姹囨娴嬨€? *
+ * <p>杈撳叆锛歩mages [1,3,640,640] 鍜?txt_feats锛堝彲閫夛級锛岃緭鍑?output0 [1, 4+80, 8400]銆? * 鍓?4 閫氶亾涓?bbox(cx,cy,w,h)锛屽悗 80 閫氶亾涓哄垎绫?logits锛坲ltralytics 瀵煎嚭鏃跺凡鍚?sigmoid锛屽彲鐩存帴浣滀负缃俊搴︿娇鐢級銆?/p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,7 +33,7 @@ import java.util.*;
 @Slf4j
 public class YoloWorldDetectorTranslator implements Translator<Image, DetectedObjects> {
 
-    /** COCO-80 标准类别（ultralytics 官方顺序），文本特征需与该顺序匹配 */
+    /** COCO-80 鏍囧噯绫诲埆锛坲ltralytics 瀹樻柟椤哄簭锛夛紝鏂囨湰鐗瑰緛闇€涓庤椤哄簭鍖归厤 */
     private static final String[] COCO_80 = {
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
             "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog",
@@ -67,7 +64,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     private int letterPadY;
     private float letterScale;
 
-    /** COCO-80 CLIP 文本嵌入 [1, 80, 512] */
+    /** COCO-80 CLIP 鏂囨湰宓屽叆 [1, 80, 512] */
     private NDArray txtFeats;
 
     public YoloWorldDetectorTranslator() { this(DetectionConfiguration.DEFAULT); }
@@ -83,9 +80,9 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         if (candidateFilter.isEmpty()) {
-            log.info("[YOLO-World] 类别: COCO-80 全类, threshold={}, iou={}", threshold, nmsThreshold);
+            log.info("[YOLO-World] 绫诲埆: COCO-80 鍏ㄧ被, threshold={}, iou={}", threshold, nmsThreshold);
         } else {
-            log.info("[YOLO-World] COCO-80 候选类别: {}, threshold={}, iou={}", candidateFilter, threshold, nmsThreshold);
+            log.info("[YOLO-World] COCO-80 鍊欓€夌被鍒? {}, threshold={}, iou={}", candidateFilter, threshold, nmsThreshold);
         }
         loadTextEmbeddings(ctx);
     }
@@ -98,7 +95,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
                 if (Files.exists(embPath)) {
                     txtFeats = loadNpy(embPath, ctx.getNDManager());
                     txtFeats.setName("txt_feats");
-                    log.info("[YOLO-World] 加载文本嵌入: {}", txtFeats.getShape());
+                    log.info("[YOLO-World] 鍔犺浇鏂囨湰宓屽叆: {}", txtFeats.getShape());
                     return;
                 }
             }
@@ -106,12 +103,12 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
             if (Files.exists(embPath)) {
                 txtFeats = loadNpy(embPath, ctx.getNDManager());
                 txtFeats.setName("txt_feats");
-                log.info("[YOLO-World] 加载文本嵌入: {} -> {}", embPath, txtFeats.getShape());
+                log.info("[YOLO-World] 鍔犺浇鏂囨湰宓屽叆: {} -> {}", embPath, txtFeats.getShape());
             } else {
-                log.warn("[YOLO-World] 未找到文本嵌入文件: {}", embPath);
+                log.warn("[YOLO-World] 鏈壘鍒版枃鏈祵鍏ユ枃浠? {}", embPath);
             }
         } catch (Exception e) {
-            log.error("[YOLO-World] 加载文本嵌入失败: {}", e.getMessage());
+            log.error("[YOLO-World] 鍔犺浇鏂囨湰宓屽叆澶辫触: {}", e.getMessage());
         }
     }
 
@@ -214,7 +211,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         if (txtFeats != null) {
             result.add(txtFeats);
         } else {
-            log.warn("[YOLO-World] 文本嵌入未加载，使用零向量");
+            log.warn("[YOLO-World] 鏂囨湰宓屽叆鏈姞杞斤紝浣跨敤闆跺悜閲?);
             NDArray zeros = ctx.getNDManager().zeros(new Shape(1, 80, 512));
             zeros.setName("txt_feats");
             result.add(zeros);
@@ -335,7 +332,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     private static Set<String> parseCandidates(String raw) {
         if (raw == null || raw.trim().isEmpty()) { return Collections.emptySet(); }
         Set<String> r = new HashSet<>();
-        for (String s : raw.split("[,，]")) {
+        for (String s : raw.split("[,锛宂")) {
             String t = s.trim().toLowerCase(Locale.ROOT);
             if (!t.isEmpty()) { r.add(t); }
         }
