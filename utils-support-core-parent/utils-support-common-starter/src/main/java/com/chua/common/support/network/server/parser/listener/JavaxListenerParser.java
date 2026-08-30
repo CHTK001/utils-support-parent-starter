@@ -108,7 +108,7 @@ public class JavaxListenerParser implements ListenerParser {
         for (String annClass : JAKARTA_ANNOTATIONS) {
             // ReflectUtils.forName 不抛 checked 异常（类不存在返回 null）
             Class<?> c = ReflectUtils.forName(annClass, method.getDeclaringClass().getClassLoader());
-            if (c != null && method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
+            if (c != null && method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) (Class<?>) c)) {
                 return extractEventName(annClass);
             }
         }
@@ -127,7 +127,7 @@ public class JavaxListenerParser implements ListenerParser {
         for (String annClass : annotations) {
             // ReflectUtils.forName 不抛 checked 异常（类不存在返回 null）
             Class<?> c = ReflectUtils.forName(annClass, classLoader);
-            if (c != null && method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
+            if (c != null && method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) (Class<?>) c)) {
                 return true;
             }
         }
