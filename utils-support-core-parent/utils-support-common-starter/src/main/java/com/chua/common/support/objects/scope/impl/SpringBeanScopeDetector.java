@@ -6,7 +6,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 /**
  * Spring 作用域检测器。
