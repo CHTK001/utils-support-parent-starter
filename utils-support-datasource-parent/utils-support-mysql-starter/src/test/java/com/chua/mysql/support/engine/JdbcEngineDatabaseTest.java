@@ -64,9 +64,15 @@ class JdbcEngineDatabaseTest {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(
                     "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
                     ADMIN_USER, ADMIN_PASS);
-            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'%'");
-            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'127.0.0.1'");
-            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'localhost'");
+            // 查询所有匹配的 host 并逐一删除
+            java.sql.ResultSet rs = conn.createStatement().executeQuery(
+                    "SELECT host FROM mysql.user WHERE user = '" + TEST_USER + "'");
+            while (rs.next()) {
+                String host = rs.getString("host");
+                conn.createStatement().execute(
+                        "DROP USER IF EXISTS '" + TEST_USER + "'@'" + host + "'");
+            }
+            rs.close();
             conn.close();
         } catch (Exception ignored) {}
     }

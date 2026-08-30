@@ -120,6 +120,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         private final DataSource dataSource;
         private final String privileges;
         private String user = null;
+        private String database = null;
 
         GrantAction(DataSource dataSource, String privileges) {
             this.dataSource = dataSource;
@@ -133,7 +134,10 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         }
 
         @Override
-        public GrantStep onDatabase(String database) { return this; }
+        public GrantStep onDatabase(String database) {
+            this.database = database;
+            return this;
+        }
 
         @Override
         public GrantStep onTable(String table) { return this; }
@@ -147,7 +151,8 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         @Override
         public void execute() {
             if (user == null) throw new IllegalStateException("必须指定 toUser()");
-            execSql(dataSource, "GRANT " + privileges + " ON *.* TO '" + user + "'@'%'");
+            String target = database != null ? "`" + database + "`.*" : "*.*";
+            execSql(dataSource, "GRANT " + privileges + " ON " + target + " TO '" + user + "'@'%'");
         }
     }
 

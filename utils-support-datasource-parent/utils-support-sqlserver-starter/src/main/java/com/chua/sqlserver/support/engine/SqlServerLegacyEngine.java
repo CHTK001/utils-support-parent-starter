@@ -10,19 +10,26 @@ import com.chua.datasource.support.dialect.SqlServerDialect;
 import com.chua.datasource.support.engine.JdbcEngine;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.util.Map;
+
 /**
  * SQL Server 老版本兼容引擎（SQL Server 2000/2005）。
  *
  * <p>使用 jTDS 驱动替代微软官方 mssql-jdbc，
  * 后者最低仅支持 SQL Server 2008 R2。jTDS 1.3.x 是社区维护最活跃的老版本兼容驱动。
  *
- * <p>注意：jTDS 不支持 SQL Server 2008 R2 的某些新特性（如 Always Encrypted、JSON 函数），
- * 仅用于老旧实例的兼容性接入。若目标为 2008 R2+，请使用 {@link SqlServerEngine}。
+ * <p>jTDS URL 参数通过 {@link DataSourceOptions#jtdsUrlParams()} 传入，默认使用
+ * {@code selectMethod=cursor}，不使用 NTLM 认证时 domain 不添加。
  *
  * <pre>{@code
+ * // 默认配置（selectMethod=cursor，无 domain）
  * SqlServerLegacyEngine engine = new SqlServerLegacyEngine();
  * engine.addDataSource("default", "localhost", 1433, "master", "sa", "password");
- * List<User> users = engine.query(User.class).list();
+ *
+ * // NTLM 域认证
+ * Map<String, String> params = Map.of("domain", "MYDOMAIN");
+ * DataSourceOptions opts = new DataSourceOptions("default", "localhost", 1433, "master", "DOMAIN\\sa", "password", null, params);
+ * engine.addDataSource(opts);
  * }</pre>
  *
  * @author CH
@@ -34,28 +41,16 @@ public class SqlServerLegacyEngine extends JdbcEngine {
     /** jTDS JDBC URL 前缀 */
     private static final String JTDS_URL_PREFIX = "jdbc:jtds:sqlserver://";
 
-    /**
-     * 添加一个 SQL Server 老版本（2000/2005）数据源，使用 jTDS 驱动。
-     *
-     * @param name     数据源名称
-     * @param host     主机地址
-     * @param port     端口号
-     * @param database 数据库名
-     * @param username 用户名
-     * @param password 密码
-     * @return 当前引擎实例
-     */
+    /** jTDS URL 默认参数：游标模式读取结果集 */
+    private static final String DEFAULT_JTDS_SELECT_METHOD = "cursor";
+    /** 默认最大连接数 */
+    private static final int DEFAULT_MAX_POOL_SIZE = 10;
+
     public Engine addDataSource(String name, String host, int port, String database, String username, String password) {
-        DataSourceOptions options = new DataSourceOptions(name, host, port, database, username, password, null);
+        DataSourceOptions options = new DataSourceOptions(name, host, port, database, username, password, null, null);
         return addDataSource(options);
     }
 
-    /**
-     * 添加一个 SQL Server 老版本数据源（支持隧道穿透）。
-     *
-     * @param options 数据源选项
-     * @return 当前引擎实例
-     */
     public Engine addDataSource(DataSourceOptions options) {
         if (options == null) {
             throw new IllegalArgumentException("options must not be null");
@@ -75,14 +70,26 @@ public class SqlServerLegacyEngine extends JdbcEngine {
             }
         }
 
-        // jTDS URL：jdbc:jtds:sqlserver://host:port/database;selectMethod=cursor;domain=user
-        String jdbcUrl = JTDS_URL_PREFIX + targetHost + ":" + targetPort + "/" + options.database()
-                + ";selectMethod=cursor;domain=" + options.username();
+        // jTDS URL 参数从 options.jtdsUrlParams() 读取，避免硬编码
+        Map<String, String> jtdsParams = options.jtdsUrlParams();
+        StringBuilder urlBuilder = new StringBuilder(JTDS_URL_PREFIX)
+                .append(targetHost).append(':').append(targetPort)
+                .append('/').append(options.database());
+        urlBuilder.append(";selectMethod=").append(jtdsParams.getOrDefault("selectMethod", DEFAULT_JTDS_SELECT_METHOD));
+        String domain = jtdsParams.get("domain");
+        if (domain != null && !domain.isEmpty()) {
+            urlBuilder.append(";domain=").append(domain);
+        }
+        for (Map.Entry<String, String> entry : jtdsParams.entrySet()) {
+            if (!"selectMethod".equals(entry.getKey()) && !"domain".equals(entry.getKey())) {
+                urlBuilder.append(';').append(entry.getKey()).append('=').append(entry.getValue());
+            }
+        }
 
-        ds.setJdbcUrl(jdbcUrl);
+        ds.setJdbcUrl(urlBuilder.toString());
         ds.setUsername(options.username());
         ds.setPassword(options.password());
-        ds.setMaximumPoolSize(10);
+        ds.setMaximumPoolSize(DEFAULT_MAX_POOL_SIZE);
 
         return addDataSource(options.name(), new EngineDataSource<HikariDataSource>() {
             @Override public String name() { return options.name(); }
