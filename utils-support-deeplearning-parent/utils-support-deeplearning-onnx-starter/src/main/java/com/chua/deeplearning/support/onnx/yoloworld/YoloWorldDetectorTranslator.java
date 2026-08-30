@@ -90,7 +90,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
+    public void prepare(TranslatorContext ctx) throws Exception {
         if (candidateFilter.isEmpty()) {
             log.info("[YOLO-World] Classes: COCO-80 full, threshold={}, iou={}", threshold, nmsThreshold);
         } else {
@@ -99,7 +99,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         loadTextEmbeddings(ctx);
     }
 
-    private void loadTextEmbeddings(@Nonnull TranslatorContext ctx) {
+    private void loadTextEmbeddings(TranslatorContext ctx) {
         try {
             Path modelRoot = ctx.getModel().getModelPath();
             if (modelRoot != null) {
@@ -199,10 +199,9 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    @Nonnull
-    public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
-        originalWidth = input.getWidth(null);
-        originalHeight = input.getHeight(null);
+    public NDList processInput(TranslatorContext ctx, Image input) {
+        originalWidth = input.getWidth();
+        originalHeight = input.getHeight();
         BufferedImage original = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = letterbox(original, inputSize, inputSize);
         ai.djl.modality.cv.Image djlImg = ai.djl.modality.cv.ImageFactory.getInstance().fromImage(resized);
@@ -238,7 +237,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
+    public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         Shape shape = output.getShape();
         int numClasses = (int) shape.get(1) - 4;
@@ -299,8 +298,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    // // @Nullable
-    public Batchifier getBatchifier() { return null; }
+    // // public Batchifier getBatchifier() { return null; }
 
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, double iouThreshold) {
         List<Integer> keep = new ArrayList<>();
