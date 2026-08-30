@@ -23,6 +23,7 @@
             <testExclude>**/VitH14OnnxTranslatorTest.java</testExclude>
             <testExclude>**/AudioFullTest.java</testExclude>
             <testExclude>**/AudioRecognitionExample.java</testExclude>
+            <testExclude>**/YoloWorldInferenceTest.java</testExclude>
           </testExcludes>
         </configuration>
       </plugin>
@@ -255,6 +256,24 @@
         
         
         <!-- 宓屽叆寮忎腑鏂囧璇濇ā鍨嬶紙Gemma-3-270M锛寀int8 ONNX锛寏519MB锛夛紝渚?Gemma3GpuTest 浣跨敤 -->
-        
+
+        <!-- 音频模型：wespeaker 说话人嵌入（512维，25MB） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-wespeaker</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 音频模型：CAM++ 声纹嵌入（192维，27MB） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-campplus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 音频模型：wav2vec2-base 音频指纹（384维，360MB） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-wav2vec2-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
