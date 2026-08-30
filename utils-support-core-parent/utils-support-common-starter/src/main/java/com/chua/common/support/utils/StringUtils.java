@@ -170,6 +170,26 @@ public class StringUtils {
     }
 
     /**
+     * 判断字符串是否"有值"（非 null 且非空白），与 {@link #isNotEmpty} 语义相同，
+     * 但方法名更贴近 Optional 的 isPresent 习惯用法。
+     *
+     * <pre>
+     * StringUtils.isPresent(null)   = false
+     * StringUtils.isPresent("")     = false
+     * StringUtils.isPresent(" ")    = false
+     * StringUtils.isPresent("abc")  = true
+     * </pre>
+     *
+     * @param str 待检查字符串
+     * @return 如果存在（非 null 且非空白）返回 {@code true}
+     * @see #isNotEmpty(CharSequence)
+     * @see #isNotBlank(CharSequence)
+     */
+    public static boolean isPresent(@Nullable CharSequence str) {
+        return isNotBlank(str);
+    }
+
+    /**
      * 判断字符串是否为空白（{@code null}、空串或仅包含空白字符）
      *
      * <pre>
