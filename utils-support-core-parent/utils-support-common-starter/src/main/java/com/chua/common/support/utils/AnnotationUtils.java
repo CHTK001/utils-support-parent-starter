@@ -28,7 +28,7 @@ public class AnnotationUtils {
         }
         for (Method method : annotationClass.getDeclaredMethods()) {
             try {
-                Object value = method.invoke(annotation);
+                Object value = ReflectUtils.invoke(annotation, method.getName(), Object.class);
                 attributes.put(method.getName(), value);
             } catch (Exception e) {
                 // ignore

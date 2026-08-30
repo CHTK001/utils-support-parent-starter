@@ -12,19 +12,13 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.deeplearning.support.onnx.clip.ClipTextFeatureTranslator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,13 +29,7 @@ import java.util.Map;
 /**
  * YOLO-World zero-shot detector with open-vocabulary support.
  * 
- * <p>Features:
- * <ul>
- *   <li>Default COCO-80 classes detection
- *   <li>Custom class support via "classes" parameter (comma-separated)
- *   <li>Confidence threshold via "threshold" parameter
- *   <li>NMS threshold via "iouThreshold" parameter
- * </ul>
+ * <p>Uses ClipTextFeatureTranslator to generate CLIP text embeddings at runtime.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -72,13 +60,8 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     private final double threshold;
     private final double nmsThreshold;
     private final int inputSize;
-
-    private int originalWidth;
-    private int originalHeight;
-    private int letterPadX;
-    private int letterPadY;
-    private float letterScale;
-    private NDArray txtFeats;
+    
+    private ClipTextFeatureTranslator clipTextTranslator;
 
     public YoloWorldDetectorTranslator() { this(null); }
 
@@ -91,59 +74,16 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
+        // Initialize CLIP text encoder
+        clipTextTranslator = new ClipTextFeatureTranslator();
+        TranslatorContext clipCtx = new TranslatorContext() {};
+        // Use a temporary model path for CLIP text encoder
+        clipTextTranslator.prepare(clipCtx);
+        
         if (customClasses.isEmpty()) {
             log.info("[YOLO-World] COCO-80 classes, threshold={}, iou={}", threshold, nmsThreshold);
         } else {
-            log.info("[YOLO-World] Custom classes: {}, count={}", customClasses, customClasses.size());
-        }
-        loadTextEmbeddings(ctx);
-    }
-
-    private void loadTextEmbeddings(TranslatorContext ctx) {
-        try {
-            // Try to load from classpath (embedded in model JAR)
-            String embResource = "/vision/detection/yoloworld/coco_80_clip_embeddings.npy";
-            java.io.InputStream is = getClass().getResourceAsStream(embResource);
-            if (is != null) {
-                java.io.File tempFile = java.io.File.createTempFile("clip_emb_", ".npy");
-                tempFile.deleteOnExit();
-                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile)) {
-                    byte[] buffer = new byte[8192];
-                    int len;
-                    while ((len = is.read(buffer)) > 0) {
-                        fos.write(buffer, 0, len);
-                    }
-                }
-                txtFeats = loadNpy(tempFile.toPath(), ctx.getNDManager());
-                txtFeats.setName("txt_feats");
-                log.info("[YOLO-World] Loaded embedded embeddings: {}", txtFeats.getShape());
-                return;
-            }
-            is.close();
-            
-            // Fallback to model path
-            Path modelRoot = ctx.getModel().getModelPath();
-            if (modelRoot != null) {
-                Path embPath = modelRoot.resolve("coco_80_clip_embeddings.npy");
-                if (Files.exists(embPath)) {
-                    txtFeats = loadNpy(embPath, ctx.getNDManager());
-                    txtFeats.setName("txt_feats");
-                    log.info("[YOLO-World] Loaded from model path: {}", embPath);
-                    return;
-                }
-            }
-            
-            // Final fallback to fixed path
-            Path embPath = Paths.get("D:/ch/project/coco_80_clip_embeddings.npy");
-            if (Files.exists(embPath)) {
-                txtFeats = loadNpy(embPath, ctx.getNDManager());
-                txtFeats.setName("txt_feats");
-                log.info("[YOLO-World] Loaded from: {}", embPath);
-            } else {
-                log.warn("[YOLO-World] Embeddings not found, using zero vector");
-            }
-        } catch (Exception e) {
-            log.error("[YOLO-World] Failed to load embeddings: {}", e.getMessage());
+            log.info("[YOLO-World] Custom classes: {}", customClasses);
         }
     }
 
@@ -157,63 +97,43 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return classes;
     }
 
-    private static NDArray loadNpy(Path path, NDManager manager) throws IOException {
-        FileInputStream fis = null;
-        DataInputStream dis = null;
-        try {
-            fis = new FileInputStream(path.toFile());
-            dis = new DataInputStream(fis);
-            byte[] magic = new byte[6];
-            dis.readFully(magic);
-            String magicStr = new String(magic, 0, 6, StandardCharsets.US_ASCII);
-            if (!magicStr.equals("\u0093NUMPY")) throw new IOException("Not a valid numpy file");
-            int major = dis.readUnsignedByte();
-            int minor = dis.readUnsignedByte();
-            int headerLen;
-            byte[] headerBytes;
-            if (major == 1) headerLen = dis.readUnsignedShort();
-            else if (major == 2 || major == 3) headerLen = major == 2 ? dis.readUnsignedShort() : readIntLE(dis);
-            else throw new IOException("Unsupported numpy version");
-            headerBytes = new byte[headerLen];
-            dis.readFully(headerBytes);
-            String header = new String(headerBytes, StandardCharsets.UTF_8);
-            boolean fortran = header.contains("'F_order'");
-            String dtypeStr = "";
-            int ds = header.indexOf("'descr'") + 9;
-            int de = header.indexOf("'", ds + 1);
-            dtypeStr = header.substring(ds + 1, de);
-            int ss = header.indexOf("'shape'") + 8;
-            int se = header.indexOf(")", ss);
-            String[] dims = header.substring(ss + 1, se).replaceAll("\\s", "").split(",");
-            int[] shape = new int[dims.length];
-            for (int i = 0; i < dims.length; i++) shape[i] = Integer.parseInt(dims[i].trim());
-            DataType dtype;
-            if (dtypeStr.equals("<f4") || dtypeStr.equals("|f4") || dtypeStr.equals(">f4")) dtype = DataType.FLOAT32;
-            else if (dtypeStr.equals("<f8") || dtypeStr.equals("|f8") || dtypeStr.equals(">f8")) dtype = DataType.FLOAT64;
-            else throw new IOException("Unsupported dtype: " + dtypeStr);
-            long total = 1;
-            for (int s : shape) total *= s;
-            NDArray arr;
-            if (dtype == DataType.FLOAT32) {
-                float[] data = new float[(int)total];
-                for (int i = 0; i < data.length; i++) data[i] = dis.readFloat();
-                arr = manager.create(data, new Shape((long[]) Arrays.stream(shape).mapToLong(i -> i).toArray()));
+    /**
+     * Generate CLIP text embeddings for the given classes.
+     */
+    private NDArray generateTextEmbeddings(TranslatorContext ctx, List<String> classes) {
+        NDManager manager = ctx.getNDManager();
+        int numClasses = classes.isEmpty() ? 80 : classes.size();
+        float[][] embeds = new float[numClasses][];
+        
+        for (int i = 0; i < numClasses; i++) {
+            String className = classes.isEmpty() ? COCO_80[i] : classes.get(i);
+            float[] emb = clipTextTranslator.translate(className);
+            if (emb != null) {
+                embeds[i] = emb;
             } else {
-                double[] data = new double[(int)total];
-                for (int i = 0; i < data.length; i++) data[i] = dis.readDouble();
-                arr = manager.create(data, new Shape((long[]) Arrays.stream(shape).mapToLong(i -> i).toArray())).toType(DataType.FLOAT32, false);
+                // Fallback to zero vector
+                embeds[i] = new float[512];
             }
-            return fortran ? arr.transpose() : arr;
-        } finally {
-            if (dis != null) { try { dis.close(); } catch (Exception ignore) {} }
-            if (fis != null) { try { fis.close(); } catch (Exception ignore) {} }
         }
-    }
-
-    private static int readIntLE(java.io.DataInput di) throws IOException {
-        byte[] b = new byte[4];
-        di.readFully(b);
-        return (b[3] & 0xff) << 24 | (b[2] & 0xff) << 16 | (b[1] & 0xff) << 8 | (b[0] & 0xff);
+        
+        // Normalize embeddings
+        for (int i = 0; i < embeds.length; i++) {
+            float norm = 0f;
+            for (float v : embeds[i]) norm += v * v;
+            norm = (float) Math.sqrt(norm);
+            if (norm > 0) {
+                for (int j = 0; j < embeds[i].length; j++) {
+                    embeds[i][j] /= norm;
+                }
+            }
+        }
+        
+        float[] flat = new float[numClasses * 512];
+        for (int i = 0; i < numClasses; i++) {
+            System.arraycopy(embeds[i], 0, flat, i * 512, 512);
+        }
+        
+        return manager.create(flat, new Shape(1, numClasses, 512));
     }
 
     @Override
@@ -239,17 +159,22 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         }
         NDArray images = ctx.getNDManager().create(chw, new Shape(1, c, h, w));
         images.setName("images");
-        NDList result = new NDList(images);
-        if (txtFeats != null) result.add(txtFeats);
-        else {
-            log.warn("[YOLO-World] Using zero vector for text features");
-            int nc = customClasses.isEmpty() ? 80 : customClasses.size();
-            NDArray zeros = ctx.getNDManager().zeros(new Shape(1, nc, 512));
-            zeros.setName("txt_feats");
-            result.add(zeros);
-        }
+        
+        // Generate CLIP text embeddings
+        List<String> classes = customClasses.isEmpty() ? 
+            Arrays.asList(COCO_80) : customClasses;
+        NDArray txtFeats = generateTextEmbeddings(ctx, classes);
+        txtFeats.setName("txt_feats");
+        
+        NDList result = new NDList(images, txtFeats);
         return result;
     }
+
+    private int originalWidth;
+    private int originalHeight;
+    private int letterPadX;
+    private int letterPadY;
+    private float letterScale;
 
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
