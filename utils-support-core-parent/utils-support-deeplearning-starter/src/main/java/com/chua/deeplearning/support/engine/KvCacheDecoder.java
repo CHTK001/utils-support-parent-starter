@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -219,10 +220,13 @@ public final class KvCacheDecoder implements AutoCloseable {
 
     /**
      * 创建空 fp16 张量（首步 past 占位）。
+     * <p>ORT Java API 对 FLOAT16 类型要求用 {@code ShortBuffer} 创建
+     * （每元素 2 字节 = 1 个 short），传 ByteBuffer 会在 OrtUtil.prepareBuffer
+     * 抛 HeapByteBuffer→ShortBuffer 强转异常。</p>
      */
     private OnnxTensor createEmptyFp16(long[] shape) throws OrtException {
-        int bytes = (int) (shape[0] * shape[1] * shape[2] * shape[3] * 2);
-        return OnnxTensor.createTensor(env, ByteBuffer.allocate(bytes), shape, OnnxJavaType.FLOAT16);
+        int elems = (int) (shape[0] * shape[1] * shape[2] * shape[3]);
+        return OnnxTensor.createTensor(env, ShortBuffer.allocate(elems), shape, OnnxJavaType.FLOAT16);
     }
 
     /**
@@ -255,13 +259,15 @@ public final class KvCacheDecoder implements AutoCloseable {
 
     /**
      * 复制 fp16 张量数据到新张量（避免 result 关闭后数据失效）。
+     * <p>FLOAT16 输出张量在 ORT Java API 中通过 {@code getValue()} 返回 ShortBuffer
+     * （每元素 2 字节 = 1 个 short），复制后同样以 ShortBuffer 重建张量。</p>
      */
     private OnnxTensor copyFp16(OnnxTensor src) throws OrtException {
         long[] shape = src.getInfo().getShape();
-        ByteBuffer buf = src.getByteBuffer().duplicate();
-        int bytes = buf.remaining();
-        ByteBuffer copy = ByteBuffer.allocate(bytes);
-        copy.put(buf).flip();
+        ShortBuffer buf = (ShortBuffer) src.getValue();
+        ShortBuffer copy = ShortBuffer.allocate(buf.remaining());
+        copy.put(buf.duplicate());
+        copy.flip();
         return OnnxTensor.createTensor(env, copy, shape, OnnxJavaType.FLOAT16);
     }
 }
