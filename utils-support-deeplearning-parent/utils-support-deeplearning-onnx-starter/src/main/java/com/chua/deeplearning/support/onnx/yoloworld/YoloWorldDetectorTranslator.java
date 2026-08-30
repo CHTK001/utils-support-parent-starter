@@ -74,11 +74,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
-        // Initialize CLIP text encoder
-        clipTextTranslator = new ClipTextFeatureTranslator();
-        TranslatorContext clipCtx = new TranslatorContext() {};
-        // Use a temporary model path for CLIP text encoder
-        clipTextTranslator.prepare(clipCtx);
+
         
         if (customClasses.isEmpty()) {
             log.info("[YOLO-World] COCO-80 classes, threshold={}, iou={}", threshold, nmsThreshold);
@@ -100,7 +96,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * Generate CLIP text embeddings for the given classes.
      */
-    private NDArray generateTextEmbeddings(TranslatorContext ctx, List<String> classes) {
+    private NDArray generateTextEmbeddings(TranslatorContext ctx, List<String> classes) throws Exception {
         NDManager manager = ctx.getNDManager();
         int numClasses = classes.isEmpty() ? 80 : classes.size();
         float[][] embeds = new float[numClasses][];
@@ -137,7 +133,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    public NDList processInput(TranslatorContext ctx, Image input) {
+    public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
         BufferedImage original = (BufferedImage) input.getWrappedImage();
