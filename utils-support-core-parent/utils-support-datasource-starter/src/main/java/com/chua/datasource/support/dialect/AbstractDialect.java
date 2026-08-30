@@ -23,7 +23,7 @@ public abstract class AbstractDialect implements Dialect {
      * 方言配置属性。
      * <p>支持通过此属性集覆盖 {@link #driver()}、{@link #url()} 等值。</p>
      */
-    private Properties properties;
+    protected Properties properties;
 
     @Override
     /** SupportsLimit */

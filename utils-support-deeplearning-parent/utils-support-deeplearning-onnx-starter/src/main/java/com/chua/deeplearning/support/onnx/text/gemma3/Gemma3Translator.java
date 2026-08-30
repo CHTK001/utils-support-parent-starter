@@ -9,6 +9,7 @@ import ai.onnxruntime.OrtSession.SessionOptions;
 import com.chua.common.support.env.CudaEnvironmentInstaller;
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import com.chua.deeplearning.support.engine.KvCacheDecoder;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
@@ -98,6 +99,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     private OrtEnvironment ortEnv;
     private OrtSession session;
     private volatile boolean initialized;
+
+    /** 是否为 KV cache 版模型（含 past_key_values/present 输入输出，如 transformers.js 导出） */
+    private boolean kvCacheModel;
 
     /**
      * 构造默认模型翻译器。
@@ -198,27 +202,49 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         int stepCount = 0;
         long start = System.currentTimeMillis();
 
-        while (stepCount < MAX_NEW_TOKENS) {
-            long[] ids = toLongArray(tokens);
-            Map<String, OnnxTensor> inputs = new HashMap<>();
-            inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(ids), new long[]{1, ids.length}));
-            inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
-            inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
-
-            try (OrtSession.Result result = session.run(inputs)) {
-                float[][][] logits = (float[][][]) result.get(0).getValue();
-                int last = logits[0].length - 1;
-                int next = nextToken(logits[0][last], tokens, promptLen);
-
-                if (next == EOS_TOKEN_ID || next == END_OF_TURN_TOKEN_ID) {
-                    break;
+        if (kvCacheModel) {
+            // KV cache 版（transformers.js 导出）：每步只传 1 个新 token + 上一步 present，
+            // 由公用 KvCacheDecoder 管理 past 生命周期，避免重复计算整个上下文
+            try (KvCacheDecoder decoder = KvCacheDecoder.of(ortEnv, session)) {
+                float[] lastLogits = decoder.step(toLongArray(tokens), ones(tokens.size()));
+                while (stepCount < MAX_NEW_TOKENS) {
+                    int next = nextToken(lastLogits, tokens, promptLen);
+                    if (next == EOS_TOKEN_ID || next == END_OF_TURN_TOKEN_ID) {
+                        break;
+                    }
+                    tokens.add((long) next);
+                    stepCount++;
+                    if (isDegenerate(tokens, promptLen)) {
+                        log.info("[Gemma3] 检测到重复循环，提前终止（已生成 {} tokens）", stepCount);
+                        break;
+                    }
+                    lastLogits = decoder.step(new long[]{next}, ones(decoder.totalSeqLen() + 1));
                 }
-                tokens.add((long) next);
-                stepCount++;
-                // 早停：检测到已生成片段出现重复周期（如连续重复或循环）时终止，避免无谓计算
-                if (isDegenerate(tokens, promptLen)) {
-                    log.info("[Gemma3] 检测到重复循环，提前终止（已生成 {} tokens）", stepCount);
-                    break;
+            }
+        } else {
+            // 朴素自回归（无 KV cache）：每步前向完整序列，取最后位置 logits
+            while (stepCount < MAX_NEW_TOKENS) {
+                long[] ids = toLongArray(tokens);
+                Map<String, OnnxTensor> inputs = new HashMap<>();
+                inputs.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(ids), new long[]{1, ids.length}));
+                inputs.put("attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(ones(ids.length)), new long[]{1, ids.length}));
+                inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
+
+                try (OrtSession.Result result = session.run(inputs)) {
+                    float[][][] logits = (float[][][]) result.get(0).getValue();
+                    int last = logits[0].length - 1;
+                    int next = nextToken(logits[0][last], tokens, promptLen);
+
+                    if (next == EOS_TOKEN_ID || next == END_OF_TURN_TOKEN_ID) {
+                        break;
+                    }
+                    tokens.add((long) next);
+                    stepCount++;
+                    // 早停：检测到已生成片段出现重复周期（如连续重复或循环）时终止，避免无谓计算
+                    if (isDegenerate(tokens, promptLen)) {
+                        log.info("[Gemma3] 检测到重复循环，提前终止（已生成 {} tokens）", stepCount);
+                        break;
+                    }
                 }
             }
         }
@@ -483,8 +509,11 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             }
         }
         session = ortEnv.createSession(modelPath.toString(), opts);
+        // 探测是否为 KV cache 版（transformers.js 导出含 past_key_values 输入）
+        kvCacheModel = KvCacheDecoder.isKvCacheModel(session);
         initialized = true;
-        log.info("[Gemma3] ORT session ready (gpu={}, vocab={}) model={}", useGpu, VOCAB_SIZE, modelPath);
+        log.info("[Gemma3] ORT session ready (gpu={}, vocab={}, kvCache={}) model={}",
+                useGpu, VOCAB_SIZE, kvCacheModel, modelPath);
     }
 
     @Override

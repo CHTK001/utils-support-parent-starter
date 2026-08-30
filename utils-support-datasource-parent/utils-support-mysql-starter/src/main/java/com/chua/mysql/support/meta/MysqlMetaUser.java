@@ -60,7 +60,7 @@ public class MysqlMetaUser implements MetaUser {
 
     @Override
     public boolean drop(String username) {
-        exec("DROP USER IF EXISTS '" + username + "'@'%'");
+        exec(dataSource, "DROP USER IF EXISTS '" + username + "'@'%'");
         return true;
     }
 
