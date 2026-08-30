@@ -13,6 +13,7 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
+import com.chua.common.support.utils.MathUtils;
 import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -197,7 +198,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return out;
     }
 
-    /** CosineSimilarity */
+    // 输入已 L2 归一化，余弦相似度 = 点积
     private static float cosineSimilarity(float[] a, float[] b) {
         float dot = 0f;
         int len = Math.min(a.length, b.length);

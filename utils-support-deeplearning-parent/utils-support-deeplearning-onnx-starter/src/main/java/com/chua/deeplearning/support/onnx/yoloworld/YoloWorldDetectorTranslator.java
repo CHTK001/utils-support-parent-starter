@@ -12,7 +12,6 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
-import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.Color;
@@ -27,18 +26,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * YOLO-World zero-shot detector based on ultralytics yolov8s-worldv2.onnx
- * Supports COCO-80 CLIP text features for open-vocabulary detection.
- *
- * <p>Input: images [1,3,640,640] and txt_feats, Output: output0 [1, 4+80, 8400]</p>
+ * YOLO-World zero-shot detector with open-vocabulary support.
+ * 
+ * <p>Features:
+ * <ul>
+ *   <li>Default COCO-80 classes detection
+ *   <li>Custom class support via "classes" parameter (comma-separated)
+ *   <li>Confidence threshold via "threshold" parameter
+ *   <li>NMS threshold via "iouThreshold" parameter
+ * </ul>
  *
  * @author CH
  * @since 4.0.0.42
@@ -46,7 +49,7 @@ import java.util.Set;
 @Slf4j
 public class YoloWorldDetectorTranslator implements Translator<Image, DetectedObjects> {
 
-    private static final String[] COCO_80 = {
+    public static final String[] COCO_80 = {
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
             "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog",
             "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
@@ -59,13 +62,13 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
             "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush"
     };
 
-    private static final double DEFAULT_THRESHOLD = 0.30;
-    private static final double FULL_IMAGE_NOISE_AREA_RATIO = 0.70;
-    private static final double FULL_IMAGE_NOISE_SCORE_LIMIT = 0.45;
-    private static final double DEFAULT_NMS_THRESHOLD = 0.50;
+    private static final double DEFAULT_THRESHOLD = 0.25;
+    private static final double NOISE_AREA_RATIO = 0.70;
+    private static final double NOISE_SCORE_LIMIT = 0.45;
+    private static final double DEFAULT_NMS_THRESHOLD = 0.45;
     private static final int DEFAULT_INPUT_SIZE = 640;
 
-    private final Set<String> candidateFilter;
+    private final List<String> customClasses;
     private final double threshold;
     private final double nmsThreshold;
     private final int inputSize;
@@ -75,26 +78,23 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     private int letterPadX;
     private int letterPadY;
     private float letterScale;
-
-    /** COCO-80 CLIP text embeddings [1, 80, 512] */
     private NDArray txtFeats;
 
-    public YoloWorldDetectorTranslator() { this(DetectionConfiguration.DEFAULT); }
+    public YoloWorldDetectorTranslator() { this(null); }
 
-    public YoloWorldDetectorTranslator(DetectionConfiguration configuration) {
-        DetectionConfiguration cfg = configuration == null ? DetectionConfiguration.DEFAULT : configuration;
-        this.threshold = readDouble(cfg.systemOption(), "threshold", DEFAULT_THRESHOLD);
-        this.nmsThreshold = readDouble(cfg.systemOption(), "iouThreshold", DEFAULT_NMS_THRESHOLD);
-        this.inputSize = readInt(cfg.systemOption(), "inputSize", DEFAULT_INPUT_SIZE);
-        this.candidateFilter = parseCandidates(readArgument(cfg.systemOption(), "candidates"));
+    public YoloWorldDetectorTranslator(Map<String, ?> config) {
+        this.threshold = readDouble(config, "threshold", DEFAULT_THRESHOLD);
+        this.nmsThreshold = readDouble(config, "iouThreshold", DEFAULT_NMS_THRESHOLD);
+        this.inputSize = readInt(config, "inputSize", DEFAULT_INPUT_SIZE);
+        this.customClasses = parseClasses(readArgument(config, "classes"));
     }
 
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
-        if (candidateFilter.isEmpty()) {
-            log.info("[YOLO-World] Classes: COCO-80 full, threshold={}, iou={}", threshold, nmsThreshold);
+        if (customClasses.isEmpty()) {
+            log.info("[YOLO-World] COCO-80 classes, threshold={}, iou={}", threshold, nmsThreshold);
         } else {
-            log.info("[YOLO-World] COCO-80 candidate classes: {}, threshold={}, iou={}", candidateFilter, threshold, nmsThreshold);
+            log.info("[YOLO-World] Custom classes: {}, count={}", customClasses, customClasses.size());
         }
         loadTextEmbeddings(ctx);
     }
@@ -107,7 +107,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
                 if (Files.exists(embPath)) {
                     txtFeats = loadNpy(embPath, ctx.getNDManager());
                     txtFeats.setName("txt_feats");
-                    log.info("[YOLO-World] Loaded text embeddings: {}", txtFeats.getShape());
+                    log.info("[YOLO-World] Loaded embeddings: {}", txtFeats.getShape());
                     return;
                 }
             }
@@ -115,13 +115,23 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
             if (Files.exists(embPath)) {
                 txtFeats = loadNpy(embPath, ctx.getNDManager());
                 txtFeats.setName("txt_feats");
-                log.info("[YOLO-World] Loaded text embeddings: {} -> {}", embPath, txtFeats.getShape());
+                log.info("[YOLO-World] Loaded from: {}", embPath);
             } else {
-                log.warn("[YOLO-World] Text embeddings file not found: {}", embPath);
+                log.warn("[YOLO-World] Embeddings not found: {}", embPath);
             }
         } catch (Exception e) {
-            log.error("[YOLO-World] Failed to load text embeddings: {}", e.getMessage());
+            log.error("[YOLO-World] Failed to load embeddings: {}", e.getMessage());
         }
+    }
+
+    private static List<String> parseClasses(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return Collections.emptyList();
+        List<String> classes = new ArrayList<>();
+        for (String s : raw.split("[,，]")) {
+            String t = s.trim();
+            if (!t.isEmpty()) classes.add(t.toLowerCase(Locale.ROOT));
+        }
+        return classes;
     }
 
     private static NDArray loadNpy(Path path, NDManager manager) throws IOException {
@@ -130,62 +140,47 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         try {
             fis = new FileInputStream(path.toFile());
             dis = new DataInputStream(fis);
-            byte[] magicBytes = new byte[6];
-            dis.readFully(magicBytes);
-            String magic = new String(magicBytes, 0, 6, StandardCharsets.US_ASCII);
-            if (!magic.equals("\u0093NUMPY")) {
-                throw new IOException("Not a valid numpy .npy file");
-            }
+            byte[] magic = new byte[6];
+            dis.readFully(magic);
+            String magicStr = new String(magic, 0, 6, StandardCharsets.US_ASCII);
+            if (!magicStr.equals("\u0093NUMPY")) throw new IOException("Not a valid numpy file");
             int major = dis.readUnsignedByte();
             int minor = dis.readUnsignedByte();
             int headerLen;
             byte[] headerBytes;
-            if (major == 1) {
-                headerLen = dis.readUnsignedShort();
-            } else if (major == 2 || major == 3) {
-                headerLen = major == 2 ? dis.readUnsignedShort() : readIntLE(dis);
-            } else {
-                throw new IOException("Unsupported numpy format version: " + major + "." + minor);
-            }
+            if (major == 1) headerLen = dis.readUnsignedShort();
+            else if (major == 2 || major == 3) headerLen = major == 2 ? dis.readUnsignedShort() : readIntLE(dis);
+            else throw new IOException("Unsupported numpy version");
             headerBytes = new byte[headerLen];
             dis.readFully(headerBytes);
             String header = new String(headerBytes, StandardCharsets.UTF_8);
             boolean fortran = header.contains("'F_order'");
             String dtypeStr = "";
-            int descrStart = header.indexOf("'descr'") + 9;
-            int descrEnd = header.indexOf("'", descrStart + 1);
-            dtypeStr = header.substring(descrStart + 1, descrEnd);
-            int shapeStart = header.indexOf("'shape'") + 8;
-            int shapeEnd = header.indexOf(")", shapeStart);
-            String[] dims = header.substring(shapeStart + 1, shapeEnd).replaceAll("\\s", "").split(",");
+            int ds = header.indexOf("'descr'") + 9;
+            int de = header.indexOf("'", ds + 1);
+            dtypeStr = header.substring(ds + 1, de);
+            int ss = header.indexOf("'shape'") + 8;
+            int se = header.indexOf(")", ss);
+            String[] dims = header.substring(ss + 1, se).replaceAll("\\s", "").split(",");
             int[] shape = new int[dims.length];
             for (int i = 0; i < dims.length; i++) shape[i] = Integer.parseInt(dims[i].trim());
-
             DataType dtype;
-            if (dtypeStr.equals("<f4") || dtypeStr.equals("|f4") || dtypeStr.equals(">f4")) {
-                dtype = DataType.FLOAT32;
-            } else if (dtypeStr.equals("<f8") || dtypeStr.equals("|f8") || dtypeStr.equals(">f8")) {
-                dtype = DataType.FLOAT64;
-            } else {
-                throw new IOException("Unsupported dtype: " + dtypeStr);
-            }
+            if (dtypeStr.equals("<f4") || dtypeStr.equals("|f4") || dtypeStr.equals(">f4")) dtype = DataType.FLOAT32;
+            else if (dtypeStr.equals("<f8") || dtypeStr.equals("|f8") || dtypeStr.equals(">f8")) dtype = DataType.FLOAT64;
+            else throw new IOException("Unsupported dtype: " + dtypeStr);
             long total = 1;
             for (int s : shape) total *= s;
             NDArray arr;
             if (dtype == DataType.FLOAT32) {
-                float[] data = new float[Math.toIntExact(total)];
+                float[] data = new float[(int)total];
                 for (int i = 0; i < data.length; i++) data[i] = dis.readFloat();
-                arr = manager.create(data, new Shape(new long[]{(long)shape[0], (long)shape[1], (long)shape[2]}));
+                arr = manager.create(data, new Shape((long[]) Arrays.stream(shape).mapToLong(i -> i).toArray()));
             } else {
-                double[] data = new double[Math.toIntExact(total)];
+                double[] data = new double[(int)total];
                 for (int i = 0; i < data.length; i++) data[i] = dis.readDouble();
-                arr = manager.create(data, new Shape(new long[]{(long)shape[0], (long)shape[1], (long)shape[2]})).toType(DataType.FLOAT32, false);
+                arr = manager.create(data, new Shape((long[]) Arrays.stream(shape).mapToLong(i -> i).toArray())).toType(DataType.FLOAT32, false);
             }
-            if (fortran) {
-                NDArray transposed = arr.transpose();
-                return transposed;
-            }
-            return arr;
+            return fortran ? arr.transpose() : arr;
         } finally {
             if (dis != null) { try { dis.close(); } catch (Exception ignore) {} }
             if (fis != null) { try { fis.close(); } catch (Exception ignore) {} }
@@ -216,20 +211,17 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         for (int hi = 0; hi < h; hi++) {
             for (int wi = 0; wi < w; wi++) {
                 int hwIdx = hi * w + wi;
-                for (int ci = 0; ci < c; ci++) {
-                    chw[ci * plane + hwIdx] = hw[hwIdx * c + ci];
-                }
+                for (int ci = 0; ci < c; ci++) chw[ci * plane + hwIdx] = hw[hwIdx * c + ci];
             }
         }
         NDArray images = ctx.getNDManager().create(chw, new Shape(1, c, h, w));
         images.setName("images");
-
         NDList result = new NDList(images);
-        if (txtFeats != null) {
-            result.add(txtFeats);
-        } else {
-            log.warn("[YOLO-World] Text embeddings not loaded, using zero vector");
-            NDArray zeros = ctx.getNDManager().zeros(new Shape(1, 80, 512));
+        if (txtFeats != null) result.add(txtFeats);
+        else {
+            log.warn("[YOLO-World] Using zero vector for text features");
+            int nc = customClasses.isEmpty() ? 80 : customClasses.size();
+            NDArray zeros = ctx.getNDManager().zeros(new Shape(1, nc, 512));
             zeros.setName("txt_feats");
             result.add(zeros);
         }
@@ -242,9 +234,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         Shape shape = output.getShape();
         int numClasses = (int) shape.get(1) - 4;
         int numAnchors = (int) shape.get(2);
-        if (numClasses != COCO_80.length) {
-            log.warn("[YOLO-World] unexpected numClasses {} expected {}", numClasses, COCO_80.length);
-        }
+        String[] labels = customClasses.isEmpty() ? COCO_80 : buildCustomLabels(numClasses);
         float[] data = output.toFloatArray();
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
@@ -252,76 +242,70 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         for (int i = 0; i < numAnchors; i++) {
             float bestLogit = Float.NEGATIVE_INFINITY;
             int bestClass = -1;
-            for (int cIdx = 0; cIdx < numClasses; cIdx++) {
-                float s = data[(4 + cIdx) * numAnchors + i];
-                if (s > bestLogit) { bestLogit = s; bestClass = cIdx; }
+            for (int c = 0; c < numClasses; c++) {
+                float s = data[(4 + c) * numAnchors + i];
+                if (s > bestLogit) { bestLogit = s; bestClass = c; }
             }
-            float score = bestLogit;
-            if (score < threshold || bestClass < 0) { continue; }
-            String label = COCO_80[bestClass % COCO_80.length];
-            if (!candidateFilter.isEmpty() && !candidateFilter.contains(label)) { continue; }
-            float cx = data[0 * numAnchors + i];
-            float cy = data[1 * numAnchors + i];
-            float bw = data[2 * numAnchors + i];
-            float bh = data[3 * numAnchors + i];
-            if (bw <= 0 || bh <= 0) { continue; }
-            float x1 = (cx - bw / 2 - letterPadX) / letterScale;
-            float y1 = (cy - bh / 2 - letterPadY) / letterScale;
-            float x2 = (cx + bw / 2 - letterPadX) / letterScale;
-            float y2 = (cy + bh / 2 - letterPadY) / letterScale;
+            if (bestLogit < threshold || bestClass < 0) continue;
+            String label = labels[bestClass % labels.length];
+            if (!customClasses.isEmpty() && !customClasses.contains(label.toLowerCase(Locale.ROOT))) continue;
+            float cx = data[0 * numAnchors + i], cy = data[1 * numAnchors + i];
+            float bw = data[2 * numAnchors + i], bh = data[3 * numAnchors + i];
+            if (bw <= 0 || bh <= 0) continue;
+            float x1 = (cx - bw/2 - letterPadX) / letterScale;
+            float y1 = (cy - bh/2 - letterPadY) / letterScale;
+            float x2 = (cx + bw/2 - letterPadX) / letterScale;
+            float y2 = (cy + bh/2 - letterPadY) / letterScale;
             x1 = Math.max(0, Math.min(originalWidth, x1));
             y1 = Math.max(0, Math.min(originalHeight, y1));
             x2 = Math.max(0, Math.min(originalWidth, x2));
             y2 = Math.max(0, Math.min(originalHeight, y2));
             float ww = x2 - x1, hh = y2 - y1;
-            if (ww <= 0 || hh <= 0) { continue; }
+            if (ww <= 0 || hh <= 0) continue;
             double areaRatio = (double) ww * hh / ((double) originalWidth * originalHeight);
-            if (score < FULL_IMAGE_NOISE_SCORE_LIMIT && areaRatio > FULL_IMAGE_NOISE_AREA_RATIO) {
-                continue;
-            }
-            boxes.add(new Rectangle((double)(x1 / originalWidth), (double)(y1 / originalHeight),
-                    (double)(ww / originalWidth), (double)(hh / originalHeight)));
+            if (bestLogit < NOISE_SCORE_LIMIT && areaRatio > NOISE_AREA_RATIO) continue;
+            boxes.add(new Rectangle(x1/originalWidth, y1/originalHeight, ww/originalWidth, hh/originalHeight));
             names.add(label);
-            probs.add((double) score);
+            probs.add((double) bestLogit);
         }
         List<Integer> keep = nms(boxes, probs, nmsThreshold);
-        List<String> finalNames = new ArrayList<>();
-        List<Double> finalProbs = new ArrayList<>();
-        List<BoundingBox> finalBoxes = new ArrayList<>();
-        for (int idx : keep) {
-            finalNames.add(names.get(idx));
-            finalProbs.add(probs.get(idx));
-            finalBoxes.add(boxes.get(idx));
-        }
-        log.info("[YOLO-World] parse {} -> keep {} boxes", names.size(), finalNames.size());
-        return new DetectedObjects(finalNames, finalProbs, finalBoxes);
+        List<String> fn = new ArrayList<>(), fp = new ArrayList<>();
+        List<BoundingBox> fb = new ArrayList<>();
+        for (int idx : keep) { fn.add(names.get(idx)); fp.add(probs.get(idx)); fb.add(boxes.get(idx)); }
+        log.info("[YOLO-World] {} -> {} boxes", names.size(), fn.size());
+        return new DetectedObjects(fn, fp, fb);
     }
 
-    public Batchifier getBatchifier() { return null; }
+    private String[] buildCustomLabels(int numClasses) {
+        String[] labels = new String[Math.max(numClasses, customClasses.size())];
+        for (int i = 0; i < customClasses.size(); i++) labels[i] = customClasses.get(i);
+        for (int i = customClasses.size(); i < labels.length; i++) labels[i] = "class_" + i;
+        return labels;
+    }
 
-    private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, double iouThreshold) {
+    @Override public Batchifier getBatchifier() { return null; }
+
+    private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, double iouTh) {
         List<Integer> keep = new ArrayList<>();
-        if (boxes.isEmpty()) { return keep; }
+        if (boxes.isEmpty()) return keep;
         List<Integer> order = new ArrayList<>();
-        for (int i = 0; i < scores.size(); i++) { order.add(i); }
+        for (int i = 0; i < scores.size(); i++) order.add(i);
         order.sort((a, b) -> Double.compare(scores.get(b), scores.get(a)));
         boolean[] suppressed = new boolean[boxes.size()];
         for (int idx : order) {
-            if (suppressed[idx]) { continue; }
+            if (suppressed[idx]) continue;
             keep.add(idx);
             Rectangle r1 = boxes.get(idx).getBounds();
-            double area1 = r1.getWidth() * r1.getHeight();
+            double a1 = r1.getWidth() * r1.getHeight();
             for (int j = 0; j < boxes.size(); j++) {
-                if (j == idx || suppressed[j]) { continue; }
+                if (j == idx || suppressed[j]) continue;
                 Rectangle r2 = boxes.get(j).getBounds();
-                double ix1 = Math.max(r1.getX(), r2.getX());
-                double iy1 = Math.max(r1.getY(), r2.getY());
+                double ix1 = Math.max(r1.getX(), r2.getX()), iy1 = Math.max(r1.getY(), r2.getY());
                 double ix2 = Math.min(r1.getX() + r1.getWidth(), r2.getX() + r2.getWidth());
                 double iy2 = Math.min(r1.getY() + r1.getHeight(), r2.getY() + r2.getHeight());
                 double inter = Math.max(0, ix2 - ix1) * Math.max(0, iy2 - iy1);
-                double area2 = r2.getWidth() * r2.getHeight();
-                double iou = inter / (area1 + area2 - inter + 1e-9);
-                if (iou > iouThreshold) { suppressed[j] = true; }
+                double a2 = r2.getWidth() * r2.getHeight();
+                if (inter / (a1 + a2 - inter + 1e-9) > iouTh) suppressed[j] = true;
             }
         }
         return keep;
@@ -336,40 +320,26 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.setColor(new Color(114, 114, 114));
         g.fillRect(0, 0, tw, th);
-        int padLeft = (tw - nw) / 2, padTop = (th - nh) / 2;
-        this.letterPadX = padLeft;
-        this.letterPadY = padTop;
-        this.letterScale = scale;
-        g.drawImage(src, padLeft, padTop, nw, nh, null);
+        int px = (tw - nw) / 2, py = (th - nh) / 2;
+        this.letterPadX = px; this.letterPadY = py; this.letterScale = scale;
+        g.drawImage(src, px, py, nw, nh, null);
         g.dispose();
         return padded;
     }
 
-    private static Set<String> parseCandidates(String raw) {
-        if (raw == null || raw.trim().isEmpty()) { return Collections.emptySet(); }
-        Set<String> r = new HashSet<>();
-        for (String s : raw.split("[,，]")) {
-            String t = s.trim().toLowerCase(Locale.ROOT);
-            if (!t.isEmpty()) { r.add(t); }
-        }
-        return r;
-    }
-
     private static String readArgument(Map<String, ?> args, String key) {
-        if (args == null || args.isEmpty()) { return null; }
+        if (args == null || args.isEmpty()) return null;
         Object v = args.get(key);
         return v == null ? null : String.valueOf(v);
     }
-
     private static double readDouble(Map<String, ?> args, String key, double d) {
         String v = readArgument(args, key);
-        if (v == null || v.trim().isEmpty()) { return d; }
+        if (v == null || v.trim().isEmpty()) return d;
         try { return Double.parseDouble(v.trim()); } catch (Exception e) { return d; }
     }
-
     private static int readInt(Map<String, ?> args, String key, int d) {
         String v = readArgument(args, key);
-        if (v == null || v.trim().isEmpty()) { return d; }
+        if (v == null || v.trim().isEmpty()) return d;
         try { return Integer.parseInt(v.trim()); } catch (Exception e) { return d; }
     }
 }

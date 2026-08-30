@@ -14,7 +14,7 @@ import java.util.Objects;
  *   <li>线性回归 — 一元线性回归最小二乘拟合，返回斜率、截距、相关系数</li>
  *   <li>移动平均 — 简单移动平均（SMA），常用于时间序列平滑</li>
  *   <li>激活函数 — Sigmoid 函数及其导数，适用于概率映射与神经网络反向传播</li>
- *   <li>归一化与相似度 — L2 归一化、Min-Max 归一化、余弦相似度与余弦距离</li>
+ *   <li>归一化与相似度 — L2 归一化、Min-Max 归一化、余弦相似度（float/double）、L2 余弦相似度与余弦距离</li>
  * </ul>
  *
  * <p>所有方法均无副作用，输入数组不会被修改；空数组或长度为 0 的输入将返回合理的默认值（详见各方法 Javadoc）。
@@ -517,7 +517,7 @@ public class MathUtils {
     }
 
     /**
-     * 计算两个向量的余弦相似度。
+     * 计算两个向量的余弦相似度（double 版本）。
      *
      * <p>公式：cos(θ) = (A · B) / (‖A‖₂ · ‖B‖₂)
      *
@@ -556,7 +556,120 @@ public class MathUtils {
     }
 
     /**
-     * 计算两个向量的余弦距离。
+     * 计算两个向量的余弦相似度（float 版本，适用于深度学习特征向量）。
+     *
+     * <p>公式：cos(θ) = (A · B) / (‖A‖₂ · ‖B‖₂)
+     *
+     * <p>返回值范围 [-1, 1]。维度不一致时抛出 {@link IllegalArgumentException}。
+     * 任一向量为空或为零向量时返回 0.0f。
+     *
+     * @param a 向量 A
+     * @param b 向量 B
+     * @return 余弦相似度 ∈ [-1, 1]
+     * @throws IllegalArgumentException 维度不匹配时抛出
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static float cosineSimilarity(float[] a, float[] b) {
+        if (a == null || b == null || a.length == 0) {
+            return 0.0f;
+        }
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("向量维度不匹配: " + a.length + " vs " + b.length);
+        }
+        float dot = 0.0f;
+        float normA = 0.0f;
+        float normB = 0.0f;
+        for (int i = 0; i < a.length; i++) {
+            dot += a[i] * b[i];
+            normA += a[i] * a[i];
+            normB += b[i] * b[i];
+        }
+        float denominator = (float) (Math.sqrt(normA) * Math.sqrt(normB));
+        if (denominator == 0.0f) {
+            return 0.0f;
+        }
+        return dot / denominator;
+    }
+
+    /**
+     * L2 归一化余弦相似度（float 版本）。
+     *
+     * <p>公式：cos(θ) = (A̅ · B̅)，其中 A̅、B̅ 分别为 A、B 的 L2 归一化向量。
+     * 适用于向量已归一化（模长 = 1）的场景，此时余弦相似度等于点积。
+     *
+     * <p>返回值范围 [-1, 1]。维度不一致时抛出 {@link IllegalArgumentException}。
+     * 零向量返回 0.0f。
+     *
+     * @param a 向量 A
+     * @param b 向量 B
+     * @return L2 归一化余弦相似度 ∈ [-1, 1]
+     * @throws IllegalArgumentException 维度不匹配时抛出
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static float l2CosineSimilarity(float[] a, float[] b) {
+        if (a == null || b == null || a.length == 0) {
+            return 0.0f;
+        }
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("向量维度不匹配: " + a.length + " vs " + b.length);
+        }
+        // 先对两个向量做 L2 归一化
+        float normA = 0.0f;
+        float normB = 0.0f;
+        for (int i = 0; i < a.length; i++) {
+            normA += a[i] * a[i];
+            normB += b[i] * b[i];
+        }
+        normA = (float) Math.sqrt(normA);
+        normB = (float) Math.sqrt(normB);
+        if (normA == 0.0f || normB == 0.0f) {
+            return 0.0f;
+        }
+        float dot = 0.0f;
+        for (int i = 0; i < a.length; i++) {
+            dot += (a[i] / normA) * (b[i] / normB);
+        }
+        return dot;
+    }
+
+    /**
+     * L2 归一化余弦相似度（double 版本）。
+     *
+     * <p>等价于 {@code cosineSimilarity(normalize(a), normalize(b))}，
+     * 适用于向量已归一化或需要精确归一化的场景。
+     *
+     * @param a 向量 A
+     * @param b 向量 B
+     * @return L2 归一化余弦相似度 ∈ [-1, 1]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double l2CosineSimilarity(double[] a, double[] b) {
+        if (a == null || b == null || a.length == 0 || a.length != b.length) {
+            return 0.0;
+        }
+        double normA = 0.0;
+        double normB = 0.0;
+        for (int i = 0; i < a.length; i++) {
+            normA += a[i] * a[i];
+            normB += b[i] * b[i];
+        }
+        normA = Math.sqrt(normA);
+        normB = Math.sqrt(normB);
+        if (normA == 0.0 || normB == 0.0) {
+            return 0.0;
+        }
+        double dot = 0.0;
+        for (int i = 0; i < a.length; i++) {
+            dot += (a[i] / normA) * (b[i] / normB);
+        }
+        return dot;
+    }
+
+    /**
+     * 计算两个向量的余弦距离（double 版本）。
      *
      * <p>公式：d = 1 - cos(θ)
      *
@@ -575,6 +688,19 @@ public class MathUtils {
      */
     public static double cosineDistance(double[] a, double[] b) {
         return 1.0 - cosineSimilarity(a, b);
+    }
+
+    /**
+     * 计算两个向量的余弦距离（float 版本）。
+     *
+     * @param a 向量 A
+     * @param b 向量 B
+     * @return 余弦距离 ∈ [0, 2]
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static float cosineDistance(float[] a, float[] b) {
+        return 1.0f - cosineSimilarity(a, b);
     }
 
     // ==================== 内部工具方法 ====================

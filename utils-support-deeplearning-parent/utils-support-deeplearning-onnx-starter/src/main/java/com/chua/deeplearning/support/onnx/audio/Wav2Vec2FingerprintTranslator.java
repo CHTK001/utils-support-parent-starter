@@ -207,11 +207,16 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
         if (Files.exists(abs)) {
             return abs;
         }
-        // classpath 路径
+        // classpath 路径（含 classpath: 前缀或裸相对路径）
+        String resource = pathStr;
         if (pathStr.startsWith("classpath:")) {
-            String resource = pathStr.substring("classpath:".length());
-            java.net.URL url = Wav2Vec2FingerprintTranslator.class.getClassLoader().getResource(resource);
-            if (url != null && "file".equals(url.getProtocol())) {
+            resource = pathStr.substring("classpath:".length());
+        }
+        java.net.URL url = Wav2Vec2FingerprintTranslator.class.getClassLoader().getResource(resource);
+        if (url != null && "file".equals(url.getProtocol())) {
+            try {
+                return Path.of(url.toURI());
+            } catch (java.net.URISyntaxException ue) {
                 return Path.of(url.getPath());
             }
         }

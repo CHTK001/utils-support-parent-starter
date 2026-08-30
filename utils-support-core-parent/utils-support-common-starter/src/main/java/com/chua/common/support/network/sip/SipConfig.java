@@ -1,8 +1,6 @@
 package com.chua.common.support.network.sip;
 
 import com.chua.common.support.spi.annotations.Spi;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 
 /**
  * SIP 传输配置。
@@ -16,8 +14,6 @@ import lombok.NoArgsConstructor;
  * @since 4.0.0.43
  */
  @Spi("sip-config")
-@Builder
-@NoArgsConstructor
 public class SipConfig {
 
     /** 默认端口 */

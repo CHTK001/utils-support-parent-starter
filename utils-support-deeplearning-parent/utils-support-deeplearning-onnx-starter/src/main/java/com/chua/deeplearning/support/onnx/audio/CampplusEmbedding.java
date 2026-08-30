@@ -81,18 +81,29 @@ public class CampplusEmbedding {
         try {
             Path cacheDir = Path.of(System.getProperty("java.io.tmpdir"),
                     "chua-models", "campplus");
-            if (!Files.isRegularFile(cacheDir.resolve("campplus_zh_cn_common_200k.onnx"))) {
-                Files.createDirectories(cacheDir);
-                NativeLoader.of("campplus-resources")
-                        .from(CampplusEmbedding.class.getClassLoader())
-                        .basePath("audio/speaker/")
-                        .toTarget(cacheDir)
-                        .glob("*.onnx")
-                        .withMd5(true)
-                        .extractOnly(true)
-                        .load();
-            }
             Path modelPath = cacheDir.resolve("campplus_zh_cn_common_200k.onnx");
+            if (!Files.isRegularFile(modelPath)) {
+                Files.createDirectories(cacheDir);
+                // 直接从 classpath 读取（兼容 jar 内嵌模型），无需 NativeLoader SPI
+                String[] candidates = {
+                        "audio/speaker/campplus_zh_cn_common_200k.onnx",
+                        "audio/speaker/campplus/model.onnx"
+                };
+                boolean copied = false;
+                for (String r : candidates) {
+                    try (var is = CampplusEmbedding.class.getClassLoader().getResourceAsStream(r)) {
+                        if (is != null) {
+                            Files.write(modelPath, is.readAllBytes());
+                            copied = true;
+                            break;
+                        }
+                    } catch (Exception ignore) {
+                    }
+                }
+                if (!copied) {
+                    throw new IllegalStateException("未在 classpath 找到 campplus 模型: " + java.util.Arrays.toString(candidates));
+                }
+            }
             OrtEnvironment env = OrtEnvironment.getEnvironment();
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
             opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));

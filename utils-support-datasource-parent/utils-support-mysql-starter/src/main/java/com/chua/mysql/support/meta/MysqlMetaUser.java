@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.meta.MetaUser;
 import com.chua.common.support.lang.datasource.meta.UserAlterBuilder;
 import com.chua.common.support.lang.datasource.meta.UserCreateBuilder;
 import com.chua.common.support.lang.datasource.meta.model.UserDef;
+import com.chua.common.support.utils.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -60,7 +61,7 @@ public class MysqlMetaUser implements MetaUser {
 
     @Override
     public boolean drop(String username) {
-        exec(dataSource, "DROP USER IF EXISTS '" + username + "'@'%'");
+        exec(dataSource, "DROP USER IF EXISTS '" + StringUtils.replace(username, "'", "''") + "'@'%'");
         return true;
     }
 
@@ -100,8 +101,9 @@ public class MysqlMetaUser implements MetaUser {
 
         @Override
         public boolean execute() {
-            exec(dataSource, "CREATE USER '" + username + "'@'" + host
-                    + "' IDENTIFIED BY '" + password + "'");
+            exec(dataSource, "CREATE USER '" + StringUtils.replace(username, "'", "''") + "'@'"
+                    + StringUtils.replace(host, "'", "''")
+                    + "' IDENTIFIED BY '" + StringUtils.replace(password, "'", "''") + "'");
             return true;
         }
     }
@@ -129,9 +131,9 @@ public class MysqlMetaUser implements MetaUser {
 
         @Override
         public boolean execute() {
-            StringBuilder sql = new StringBuilder("ALTER USER '" + username + "'@'%'");
+            StringBuilder sql = new StringBuilder("ALTER USER '" + StringUtils.replace(username, "'", "''") + "'@'%'");
             if (password != null) {
-                sql.append(" IDENTIFIED BY '" + password + "'");
+                sql.append(" IDENTIFIED BY '" + StringUtils.replace(password, "'", "''") + "'");
             }
             exec(dataSource, sql.toString());
             return true;

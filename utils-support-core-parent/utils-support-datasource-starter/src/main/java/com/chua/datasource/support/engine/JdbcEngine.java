@@ -9,6 +9,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.datasource.support.index.IndexManager;
 import com.chua.datasource.support.meta.JdbcMetaData;
 import com.chua.datasource.support.user.DataSourceAware;
@@ -542,5 +543,78 @@ public abstract class JdbcEngine extends AbstractEngine {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // ==================== 数据库管理 ====================
+
+    /**
+     * 创建数据库（如果不存在）。
+     * <p>使用当前默认数据源的连接执行 {@code CREATE DATABASE IF NOT EXISTS} 语句。</p>
+     * <p>此为基础实现，各数据库子类可重写以支持特定语法（如字符集、排序规则）。</p>
+     *
+     * @param dbName 数据库名称
+     * @return true 创建成功或已存在
+     */
+    public boolean createDatabase(String dbName) {
+        if (dbName == null || dbName.isBlank()) {
+            throw new IllegalArgumentException("数据库名不能为空");
+        }
+        String sql = "CREATE DATABASE IF NOT EXISTS `" + escapeIdentifier(dbName) + "`"
+                + " DEFAULT CHARACTER SET utf8mb4"
+                + " COLLATE utf8mb4_unicode_ci";
+        try (Connection conn = getJdbcConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("创建数据库失败: " + dbName, e);
+        }
+    }
+
+    /**
+     * 检查数据库是否存在。
+     *
+     * @param dbName 数据库名称
+     * @return true 存在
+     */
+    public boolean databaseExists(String dbName) {
+        if (dbName == null || dbName.isBlank()) return false;
+        try (Connection conn = getJdbcConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(
+                     "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA "
+                             + "WHERE SCHEMA_NAME = '" + escapeString(dbName) + "'")) {
+            return rs.next();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 列出所有数据库。
+     *
+     * @return 数据库名列表
+     */
+    public List<String> listDatabases() {
+        List<String> result = new ArrayList<>();
+        try (Connection conn = getJdbcConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SHOW DATABASES")) {
+            while (rs.next()) {
+                result.add(rs.getString(1));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("列出数据库失败", e);
+        }
+        return result;
+    }
+
+    private static String escapeIdentifier(String name) {
+        return "`" + StringUtils.replace(name, "`", "``") + "`";
+    }
+
+    private static String escapeString(String s) {
+        if (StringUtils.isEmpty(s)) return "";
+        return StringUtils.replace(s, "'", "''");
     }
 }
