@@ -362,6 +362,18 @@ public class ClassUtils {
     }
 
     /**
+     * 判断给定对象是否非空（非 {@code null}）。
+     *
+     * @param value 待检查的对象
+     * @param <T> 类型参数
+     * @return 如果 {@code value} 非 {@code null} 则返回 {@code true}
+     * @since 4.0.0.43
+     */
+    public static <T> boolean isPresent(T value) {
+        return value != null;
+    }
+
+    /**
      *                                        .
      *
      *                               
@@ -633,6 +645,28 @@ public class ClassUtils {
         if (null == aClass || !type.isAssignableFrom(aClass)) { return; }
 
         consumer.accept((T) forObject(aClass));
+    }
+
+    /**
+     * 判断给定的 {@link Class} 对象是否非空（非 {@code null}）。
+     *
+     * @param clazz 待检查的类对象
+     * @return 如果 {@code clazz} 非 {@code null} 则返回 {@code true}
+     * @since 4.0.0.43
+     */
+    public static boolean isPresent(Class<?> clazz) {
+        return clazz != null;
+    }
+
+    /**
+     * 判断给定的 {@link Class} 对象是否为空（为 {@code null}）。
+     *
+     * @param clazz 待检查的类对象
+     * @return 如果 {@code clazz} 为 {@code null} 则返回 {@code true}
+     * @since 4.0.0.43
+     */
+    public static boolean isEmpty(Class<?> clazz) {
+        return clazz == null;
     }
 
     /**
