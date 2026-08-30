@@ -5,6 +5,7 @@ import com.chua.datasync.agent.support.DataSyncAgentSink;
 import com.chua.datasync.agent.support.DataSyncAgentSource;
 import com.chua.datasync.agent.support.model.Direction;
 import com.chua.datasync.agent.support.model.Directional;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,7 +75,7 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
 
         super.start();
 
-        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        scheduler = ThreadUtils.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "metrics-push-" + agentId());
             t.setDaemon(true);
             return t;

@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayDeque;
@@ -15,7 +16,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -317,7 +317,7 @@ public class CrawlerServerFilter implements ServerFilter {
      * 启动过期记录清理任务，防止内存无界增长。
      */
     private void startCleanup() {
-        cleanupExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+        cleanupExecutor = ThreadUtils.newSingleThreadScheduledExecutor(r -> {
             Thread thread = new Thread(r, "crawler-filter-cleanup");
             thread.setDaemon(true);
             return thread;

@@ -1,6 +1,7 @@
 package com.chua.tui.support;
 
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.ThreadUtils;
 import com.github.ajalt.mordant.terminal.Terminal;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -116,7 +116,7 @@ public class TuiDashboard {
         renderAll();
 
         // 启动定时刷新
-        this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        this.scheduler = ThreadUtils.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "tui-dashboard-refresh");
             t.setDaemon(true);
             return t;

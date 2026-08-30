@@ -126,7 +126,7 @@ public class IpcInvoker implements Invoker {
 
     private static String extractAnnotationValue(Annotation ann) {
         try {
-Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0]);
+Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new Object[0], new Object[0]);
             if (r instanceof String s) {
                 return s;
             }
