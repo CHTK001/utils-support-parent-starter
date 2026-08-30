@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.recognition;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -199,8 +200,7 @@ public class DocumentParsePipeline {
         }
         // donut 输出 DonutResult（含 jsonText），通过反射避免子模块依赖
         try {
-            java.lang.reflect.Method m = result.getClass().getMethod("getJsonText");
-            Object text = m.invoke(result);
+            Object text = ReflectUtils.invoke(result, "getJsonText", Object.class);
             if (text != null) {
                 return text.toString();
             }

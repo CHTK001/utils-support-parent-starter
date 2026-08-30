@@ -1,5 +1,6 @@
 package com.chua.common.support.image.gif;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadataNode;
@@ -123,8 +124,7 @@ public class GifDecoder {
             }
             String nativeFormat = null;
             try {
-                nativeFormat = (String) metadata.getClass()
-                        .getMethod("getNativeMetadataFormatName").invoke(metadata);
+                nativeFormat = (String) ReflectUtils.invoke(metadata, "getNativeMetadataFormatName", Object.class);
             } catch (Exception ignored) {
                 // Java 25+: getNativeMetadataFormatName removed
                 nativeFormat = "javax_imageio_gif_image_1.0";

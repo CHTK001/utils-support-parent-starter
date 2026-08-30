@@ -2,6 +2,7 @@ package com.chua.common.support.objects.definition;
 
 import com.chua.common.support.lang.script.marker.ScriptMarker;
 import com.chua.common.support.lang.script.marker.listener.Listener;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -288,7 +289,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         // 通过类名判断是否为 GroovyClassLoader，避免直接依赖 Groovy 类
         if ("groovy.lang.GroovyClassLoader".equals(classLoader.getClass().getName())) {
             try {
-                classLoader.getClass().getMethod("clearCache").invoke(classLoader);
+                ReflectUtils.invoke(classLoader, "clearCache", void.class);
             } catch (Exception e) {
                 // clearCache 调用失败时静默忽略，不影响后续 close() 流程
             }

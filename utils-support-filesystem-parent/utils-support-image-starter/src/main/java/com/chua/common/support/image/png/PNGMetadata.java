@@ -1,5 +1,6 @@
 package com.chua.common.support.image.png;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import org.w3c.dom.Node;
 
 import javax.imageio.ImageTypeSpecifier;
@@ -477,9 +478,7 @@ public boolean tRNS_present;
 
     private static Boolean invokeBoolean(Object target, String methodName) {
         try {
-            var method = target.getClass().getMethod(methodName);
-            method.setAccessible(true);
-            return (Boolean) method.invoke(target);
+            return (Boolean) ReflectUtils.invoke(target, methodName, Object.class);
         } catch (Exception ignored) {
             return null;
         }
@@ -487,9 +486,7 @@ public boolean tRNS_present;
 
     private static String invokeString(Object target, String methodName) {
         try {
-            var method = target.getClass().getMethod(methodName);
-            method.setAccessible(true);
-            return (String) method.invoke(target);
+            return (String) ReflectUtils.invoke(target, methodName, Object.class);
         } catch (Exception ignored) {
             return null;
         }
