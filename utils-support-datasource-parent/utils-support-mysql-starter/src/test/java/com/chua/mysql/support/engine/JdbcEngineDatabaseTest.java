@@ -55,6 +55,20 @@ class JdbcEngineDatabaseTest {
         // 先连 mysql 系统库，以便创建测试库
         engine.addDataSource("admin", HOST, PORT, "mysql", ADMIN_USER, ADMIN_PASS);
         engine.setDefaultDataSourceName("admin");
+        // 清理上一次运行遗留的测试用户（所有 host）
+        cleanTestUser();
+    }
+
+    private void cleanTestUser() {
+        try {
+            java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                    "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
+                    ADMIN_USER, ADMIN_PASS);
+            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'%'");
+            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'127.0.0.1'");
+            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'localhost'");
+            conn.close();
+        } catch (Exception ignored) {}
     }
 
     @AfterEach
@@ -227,7 +241,18 @@ class JdbcEngineDatabaseTest {
         engine.setDefaultDataSourceName("admin");
         var userMgr = engine.user();
 
-        userMgr.dropUser(TEST_USER).execute();
+        // 删除所有 host 变体
+        try {
+            userMgr.dropUser(TEST_USER).execute();
+        } catch (Exception ignored) {}
+        try {
+            java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                    "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
+                    ADMIN_USER, ADMIN_PASS);
+            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'127.0.0.1'");
+            conn.createStatement().execute("DROP USER IF EXISTS '" + TEST_USER + "'@'localhost'");
+            conn.close();
+        } catch (Exception ignored) {}
 
         var usersAfter = userMgr.listUsers();
         assertFalse(usersAfter.stream().anyMatch(u -> TEST_USER.equals(u.getUser())),
