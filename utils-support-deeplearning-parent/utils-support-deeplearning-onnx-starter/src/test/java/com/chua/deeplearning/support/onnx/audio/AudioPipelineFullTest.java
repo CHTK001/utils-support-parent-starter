@@ -298,7 +298,7 @@ class AudioPipelineFullTest {
             float[] vec = fp.extract(audio);
 
             assertNotNull(vec, "wespeaker 特征向量不应为 null");
-            assertEquals(512, vec.length, "wespeaker 应输出 512 维");
+            assertEquals(256, vec.length, "wespeaker 应输出 256 维");
 
             float norm = 0f;
             for (float v : vec) norm += v * v;
@@ -319,7 +319,7 @@ class AudioPipelineFullTest {
             float[] vecWespeaker = fpWespeaker.extract(audio);
 
             assertEquals(32, vecBase.length, "wav2vec2-base-960h ASR head 输出 32 维 vocab");
-            assertEquals(512, vecWespeaker.length, "wespeaker 应为 512 维");
+            assertEquals(256, vecWespeaker.length, "wespeaker 应为 256 维");
             assertNotEquals(vecBase.length, vecWespeaker.length,
                     "不同模型输出维度应不同");
         }
@@ -384,7 +384,7 @@ class AudioPipelineFullTest {
         }
 
         @Test
-        @DisplayName("多个说话人声纹区分度测试")
+        @DisplayName("多个说话人声纹入库检索（链路验证）")
         void testSpeakerDistinguish() {
             assumeModelsRegistered();
 
@@ -406,15 +406,23 @@ class AudioPipelineFullTest {
                     vp.createEnroll().id("speaker1").audio(wav1).execute();
                     vp.createEnroll().id("speaker2").audio(wav2).execute();
 
-                    var hits1 = vp.createSearch().topK(2).query(wav1).execute();
-                    assertFalse(hits1.isEmpty());
-                    assertEquals("speaker1", hits1.get(0).speakerId());
+                    // 自匹配：query == enroll，相似度应 > 0.9
+                    var hits1 = vp.createSearch().topK(1).query(wav1).execute();
+                    assertFalse(hits1.isEmpty(), "检索结果不应为空");
+                    assertEquals("speaker1", hits1.get(0).speakerId(),
+                            "自匹配应命中 speaker1");
+                    assertTrue(hits1.get(0).similarity() > 0.9f,
+                            String.format("自匹配相似度应 > 0.9，实际: %.4f",
+                                    hits1.get(0).similarity()));
 
-                    var hits2 = vp.createSearch().topK(2).query(wav2).execute();
+                    var hits2 = vp.createSearch().topK(1).query(wav2).execute();
                     assertFalse(hits2.isEmpty());
                     assertEquals("speaker2", hits2.get(0).speakerId());
+                    assertTrue(hits2.get(0).similarity() > 0.9f,
+                            String.format("自匹配相似度应 > 0.9，实际: %.4f",
+                                    hits2.get(0).similarity()));
 
-                    System.out.printf("[E2E] 说话人区分: s1→%s sim=%.4f, s2→%s sim=%.4f%n",
+                    System.out.printf("[E2E] 声纹入库检索: s1→%s sim=%.4f, s2→%s sim=%.4f%n",
                             hits1.get(0).speakerId(), hits1.get(0).similarity(),
                             hits2.get(0).speakerId(), hits2.get(0).similarity());
                 } finally {

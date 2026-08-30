@@ -23,7 +23,9 @@ import java.util.Map;
  * <h2>模型说明</h2>
  * <p>wespeaker-resnet34 是专用于说话人验证的 ResNet34+LM 架构：
  * <ul>
- *   <li><b>输入</b>：16kHz 单声道 PCM float 音频采样数组。</li>
+ *   <li><b>输入</b>：16kHz 单声道 PCM float 音频，先经 Kaldi-style 80 维 fbank 特征提取（预加重 0.97 / 去直流 /
+ *       Povey 窗^0.85 / 512 点功率谱 / HTK-mel 0~8kHz / log）。</li>
+ *   <li><b>ONNX 期望</b>：rank=3 张量 [1, num_frames, 80]。</li>
  *   <li><b>输出</b>：512 维 L2 归一化嵌入向量（x-vector）。</li>
  *   <li><b>用途</b>：说话人验证、声纹识别、说话人分离。</li>
  * </ul>
@@ -38,17 +40,22 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     private OrtEnvironment ortEnv;
     private OrtSession session;
     private String modelPath;
+    private int targetSampleRate = 16000;
+    private volatile boolean prepared = false;
+
+    // fbank 提取参数（与 sherpa-onnx / kaldi-native-fbank 一致）
+    private static final int SAMPLE_RATE = 16000;
+    private static final int FFT_N = 512;
+    private static final int FRAME_LEN = 400;  // 25ms @ 16kHz
+    private static final int FRAME_SHIFT = 160; // 10ms @ 16kHz
+    private static final int FEATURE_DIM = 80;
 
     /**
      * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
-     *
-     * @param modelPath 模型路径
      */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
-    private int targetSampleRate = 16000;
-    private volatile boolean prepared = false;
 
     @Override
     public String name() {
@@ -64,7 +71,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
                 throw new IllegalArgumentException("Cannot decode audio data");
             }
 
-            // Truncate to max 30 seconds
+            // 截断到最长 30 秒
             int maxSamples = targetSampleRate * 30;
             if (pcm.length > maxSamples) {
                 float[] truncated = new float[maxSamples];
@@ -72,26 +79,29 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
                 pcm = truncated;
             }
 
-            // Create input tensor [1, samples]
-            long[] shape = {1, pcm.length};
-            OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv,
-                    FloatBuffer.wrap(pcm), shape);
+            // fbank 80 维特征 [T, 80]
+            double[][] feat = computeFbank80(pcm);
 
-            // Run inference
+            // 展平为 [1, T, 80] rank=3
+            long[] shape = {1, feat.length, FEATURE_DIM};
+            float[] flat = new float[feat.length * FEATURE_DIM];
+            int pos = 0;
+            for (double[] row : feat) {
+                for (double v : row) {
+                    flat[pos++] = (float) v;
+                }
+            }
+
             String inputName = session.getInputNames().iterator().next();
-            Map<String, OnnxTensor> inputs = new HashMap<>();
-            inputs.put(inputName, inputTensor);
+            try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flat), shape);
+                 OrtSession.Result results = session.run(Map.of(inputName, inputTensor))) {
 
-            try (OrtSession.Result results = session.run(inputs)) {
-                // Output shape: [1, 512]
                 float[][] output = (float[][]) results.get(0).getValue();
                 float[] embedding = output[0];
 
-                // L2 normalize
+                // L2 归一化
                 double norm = 0.0;
-                for (float v : embedding) {
-                    norm += v * v;
-                }
+                for (float v : embedding) norm += v * v;
                 norm = Math.sqrt(norm);
                 if (norm > 0) {
                     for (int i = 0; i < embedding.length; i++) {
@@ -152,7 +162,6 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
                         AudioFormat.Encoding.PCM_SIGNED,
                         targetSampleRate, 16, 1, 2, targetSampleRate, false);
                 ais = AudioSystem.getAudioInputStream(targetFmt, ais);
-                fmt = targetFmt;
             }
 
             byte[] allBytes = ais.readAllBytes();
@@ -168,6 +177,140 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
         } catch (Exception e) {
             log.warn("[WespeakerEmbedding] audio decode failed: {}", e.getMessage());
             return null;
+        }
+    }
+
+    /** Kaldi-style fbank 80 维特征提取 */
+    private double[][] computeFbank80(float[] samples) {
+        int nFreq = FFT_N / 2 + 1;
+        int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
+
+        // Povey 窗
+        double[] window = new double[FRAME_LEN];
+        for (int j = 0; j < FRAME_LEN; j++) {
+            window[j] = Math.pow(0.5 - 0.5 * Math.cos(2.0 * Math.PI * j / FRAME_LEN), 0.85);
+        }
+
+        // mel 滤波器
+        double[][] melFilters = buildKaldiMelFilters(nFreq);
+
+        double[][] feat = new double[frames][FEATURE_DIM];
+        double[] re = new double[FFT_N];
+        double[] im = new double[FFT_N];
+
+        for (int f = 0; f < frames; f++) {
+            int off = f * FRAME_SHIFT;
+            double[] frame = new double[FRAME_LEN];
+            // 预加重 + 去直流 + 加窗
+            double mean = 0;
+            for (int j = 0; j < FRAME_LEN; j++) {
+                int idx = off + j;
+                if (idx >= samples.length) break;
+                float cur = samples[idx];
+                frame[j] = (j == 0) ? cur : (cur - 0.97F * samples[idx - 1]);
+                mean += frame[j];
+            }
+            mean /= FRAME_LEN;
+            for (int j = 0; j < FRAME_LEN; j++) {
+                frame[j] = (frame[j] - mean) * window[j];
+            }
+
+            fftRadix2(frame, re, im);
+
+            for (int m = 0; m < FEATURE_DIM; m++) {
+                double energy = 0;
+                for (int k = 0; k < nFreq; k++) {
+                    double power = re[k] * re[k] + im[k] * im[k];
+                    energy += power * melFilters[k][m];
+                }
+                feat[f][m] = Math.log(Math.max(energy, 1e-30));
+            }
+        }
+        return feat;
+    }
+
+    private static double[][] buildKaldiMelFilters(int nFreq) {
+        double[][] filters = new double[nFreq][FEATURE_DIM];
+
+        double melLow = hzToMel(20.0);
+        double melHigh = hzToMel(Math.min(8000.0, SAMPLE_RATE / 2.0));
+        double[] melPoints = new double[FEATURE_DIM + 2];
+        for (int i = 0; i < melPoints.length; i++) {
+            melPoints[i] = melLow + (melHigh - melLow) * i / (FEATURE_DIM + 1);
+        }
+        double[] binPoints = new double[melPoints.length];
+        for (int i = 0; i < melPoints.length; i++) {
+            binPoints[i] = (FFT_N + 1) * melToHertz(melPoints[i]) / SAMPLE_RATE;
+        }
+
+        for (int m = 0; m < FEATURE_DIM; m++) {
+            int left = (int) Math.floor(binPoints[m]);
+            int center = (int) Math.floor(binPoints[m + 1]);
+            int right = (int) Math.floor(binPoints[m + 2]);
+            for (int k = left; k < center && k < nFreq; k++) {
+                if (k >= 0) {
+                    double w = (k - binPoints[m]) / (binPoints[m + 1] - binPoints[m]);
+                    if (w > 0) filters[k][m] = w;
+                }
+            }
+            for (int k = center; k < right && k < nFreq; k++) {
+                if (k >= 0) {
+                    double w = (binPoints[m + 2] - k) / (binPoints[m + 2] - binPoints[m + 1]);
+                    if (w > 0 && filters[k][m] < w) filters[k][m] = w;
+                }
+            }
+        }
+        return filters;
+    }
+
+    private static double hzToMel(double hz) {
+        return 2595.0 * Math.log10(1.0 + hz / 700.0);
+    }
+
+    private static double melToHertz(double mel) {
+        return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0);
+    }
+
+    private static void fftRadix2(double[] inRe, double[] outRe, double[] outIm) {
+        int n = inRe.length;
+        for (int i = 0; i < n; i++) {
+            outRe[i] = inRe[i];
+            outIm[i] = 0;
+        }
+        // 位反转
+        int j = 0;
+        for (int i = 1; i < n; i++) {
+            int bit = n >> 1;
+            for (; (j & bit) != 0; bit >>= 1) {
+                j ^= bit;
+            }
+            j ^= bit;
+            if (i < j) {
+                double tr = outRe[i]; outRe[i] = outRe[j]; outRe[j] = tr;
+                double ti = outIm[i]; outIm[i] = outIm[j]; outIm[j] = ti;
+            }
+        }
+        // 蝶形
+        for (int len = 2; len <= n; len <<= 1) {
+            double ang = -2 * Math.PI / len;
+            double wRe = Math.cos(ang);
+            double wIm = Math.sin(ang);
+            for (int i = 0; i < n; i += len) {
+                double curRe = 1, curIm = 0;
+                for (int k = 0; k < len / 2; k++) {
+                    int u = i + k;
+                    int v = i + k + len / 2;
+                    double tRe = curRe * outRe[v] - curIm * outIm[v];
+                    double tIm = curRe * outIm[v] + curIm * outRe[v];
+                    outRe[v] = outRe[u] - tRe;
+                    outIm[v] = outIm[u] - tIm;
+                    outRe[u] += tRe;
+                    outIm[u] += tIm;
+                    double nRe = curRe * wRe - curIm * wIm;
+                    curIm = curRe * wIm + curIm * wRe;
+                    curRe = nRe;
+                }
+            }
         }
     }
 }
