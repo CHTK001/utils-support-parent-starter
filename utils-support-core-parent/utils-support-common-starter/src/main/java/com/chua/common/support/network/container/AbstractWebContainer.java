@@ -204,7 +204,7 @@ public abstract class AbstractWebContainer implements WebContainer {
                     : new String[]{CONTEXT_PATH_ARG_PREFIX + contextPath};
             Thread thread = ThreadUtils.newThread(() -> {
                 try {
-                    ReflectUtils.invokeStatic(clazz, "main", void.class, (Object) args);
+                    ReflectUtils.invokeStatic(clazz, "main", void.class, new Class<?>[]{String[].class}, (Object) args);
                 } catch (Exception e) {
                     log.error("Main 类执行失败: {}", mainClass, e);
                 }

@@ -234,7 +234,7 @@ public final class JsonBeanMapper {
         String getter = findGetterName(field);
         if (getter != null) {
             try {
-                return ReflectUtils.invoke(bean, getter, Object.class);
+return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0]);
             } catch (Exception ignore) {
             }
         }
@@ -281,7 +281,7 @@ public final class JsonBeanMapper {
             String methodName = prefix + name;
             try {
                 Class<?> clazz = field.getDeclaringClass();
-                Object result = ReflectUtils.invoke(clazz, methodName, field.getType());
+Object result = ReflectUtils.invoke(clazz, methodName, field.getType(), new Class<?>[0]);
                 if (result != null && field.getType().isAssignableFrom(result.getClass())) {
                     return methodName;
                 }
