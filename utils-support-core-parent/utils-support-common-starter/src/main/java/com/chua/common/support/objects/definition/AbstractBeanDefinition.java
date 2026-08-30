@@ -650,9 +650,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private void setFieldOrSetter(Field field, Object instance, Object value) {
         String setterName = "set" + Character.toUpperCase(field.getName().charAt(0)) + field.getName().substring(1);
         try {
-            Method setter = instance.getClass().getMethod(setterName, field.getType());
-            ClassUtils.setAccessible(setter);
-            ReflectUtils.invoke(instance, setterName, void.class, setter.getParameterTypes(), value);
+            ReflectUtils.invoke(instance, setterName, void.class, field.getType(), value);
             return;
         } catch (NoSuchMethodException ignored) {
             // 没有 setter，回退到直接设字段

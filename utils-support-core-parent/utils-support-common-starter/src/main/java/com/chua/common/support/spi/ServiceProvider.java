@@ -13,7 +13,6 @@ import com.chua.common.support.utils.ClassUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -725,9 +724,9 @@ public interface ServiceProvider<T> {
             return true;
         }
         try {
-            Method available = instance.getClass().getMethod("available");
-            if (available.getReturnType() == boolean.class) {
-                return (boolean) ReflectUtils.invoke(instance, "available", boolean.class);
+            Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.class);
+            if (Boolean.TRUE.equals(result)) {
+                return true;
             }
         } catch (Exception ignored) {
             // 无 available() 方法的实例视为可用

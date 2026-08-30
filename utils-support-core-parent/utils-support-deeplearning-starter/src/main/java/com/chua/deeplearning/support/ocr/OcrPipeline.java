@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.ocr;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.task.pipeline.builder.PipelineBuilder;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -765,11 +766,9 @@ public class OcrPipeline {
             return new String[]{info.getName(), String.valueOf(info.getProbability())};
         }
         try {
-            java.lang.reflect.Method gm = r.getClass().getMethod("getName");
-            java.lang.reflect.Method pm = r.getClass().getMethod("getProbability");
-            Object v = gm.invoke(r);
-            Object p = pm.invoke(r);
-            return new String[]{v == null ? "0" : String.valueOf(v), p == null ? "0" : String.valueOf(p)};
+            Object name = ReflectUtils.invoke(r, "getName", Object.class);
+            double prob = (double) ReflectUtils.invoke(r, "getProbability", double.class);
+            return new String[]{name == null ? "0" : String.valueOf(name), String.valueOf(prob)};
         } catch (Exception e) {
             return new String[]{"0", "0"};
         }
