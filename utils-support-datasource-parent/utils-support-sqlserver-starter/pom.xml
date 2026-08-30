@@ -33,11 +33,19 @@
             <version>1.0.5.RELEASE</version>
             <scope>runtime</scope>
         </dependency>
+        <!-- SQL Server JDBC 驱动（SQL Server 2008 R2+）；版本由 datasource-parent 管理，可通过 mssql-jdbc.version 属性覆盖 -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>12.6.1.jre11</version>
+            <version>${mssql-jdbc.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <!-- jTDS：SQL Server 2000/2005 等老版本的兼容驱动，默认不引入，按需启用 -->
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <version>${jtds.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

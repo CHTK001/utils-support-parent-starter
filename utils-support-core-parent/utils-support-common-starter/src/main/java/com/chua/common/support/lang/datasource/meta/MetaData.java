@@ -131,6 +131,20 @@ public interface MetaData {
     MetaForeignKey fk(String fkName);
 
     /**
+     * 获取用户操作入口。
+     *
+     * @return 用户操作接口
+     */
+    MetaUser user();
+
+    /**
+     * 获取权限操作入口。
+     *
+     * @return 权限操作接口
+     */
+    MetaPermission permission();
+
+    /**
      * 获取搜索引擎索引操作入口。
      *
      * @return 搜索引擎索引操作接口

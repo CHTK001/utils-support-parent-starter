@@ -113,14 +113,14 @@ public class DefaultObjectContext implements ObjectContext {
 
     // ==================== 生命周期 ====================
 
-    @Override
-    /** 初始化 */
+        /** 初始化 */
+@Override
     public void init() {
         init(config != null ? config : ObjectContextConfig.defaults());
     }
 
-    @Override
-    /** 初始化 */
+        /** 初始化 */
+@Override
     public void init(ObjectContextConfig config) {
         if (config == null) {
             config = ObjectContextConfig.defaults();
@@ -162,14 +162,14 @@ public class DefaultObjectContext implements ObjectContext {
         abd.setEnvironment(getEnvironment());
     }
 
-    @Override
-    /** 设置Config */
+        /** 设置Config */
+@Override
     public void setConfig(ObjectContextConfig config) {
         this.config = config;
     }
 
-    @Override
-    /** 获取Config */
+        /** 获取Config */
+@Override
     public ObjectContextConfig getConfig() {
         if (config != null) {
             return config;
@@ -180,14 +180,14 @@ public class DefaultObjectContext implements ObjectContext {
         return config;
     }
 
-    @Override
-    /** 获取Registry */
+        /** 获取Registry */
+@Override
     public BeanDefinitionRegistry getRegistry() {
         return getRegistry(getConfig().isSpiEnabled());
     }
 
-    @Override
-    /** 获取Registry */
+        /** 获取Registry */
+@Override
     public BeanDefinitionRegistry getRegistry(boolean spiEnabled) {
         if (registry == null) {
             synchronized (this) {
@@ -202,8 +202,8 @@ public class DefaultObjectContext implements ObjectContext {
 
     // ==================== 事件发布 ====================
 
-    @Override
-    /** 发布 */
+        /** 发布 */
+@Override
     public int publish(Object event) {
         if (event == null) {
             return 0;
@@ -211,16 +211,16 @@ public class DefaultObjectContext implements ObjectContext {
         return eventPublisher.publish(event);
     }
 
-    @Override
-    /** 获取BeanProvider */
+        /** 获取BeanProvider */
+@Override
     public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
         return new DefaultObjectProvider<>(this, requiredType);
     }
 
     // ==================== Bean 注册/注销 ====================
 
-    @Override
-    /** 注册Bean */
+        /** 注册Bean */
+@Override
     public void registerBean(Object bean) {
         if (bean == null) {
             return;
@@ -287,8 +287,8 @@ public class DefaultObjectContext implements ObjectContext {
         }
     }
 
-    @Override
-    /** 注销Bean */
+        /** 注销Bean */
+@Override
     public boolean unregisterBean(Object bean) {
         if (bean == null) {
             return false;
@@ -312,8 +312,8 @@ public class DefaultObjectContext implements ObjectContext {
     // ==================== Bean 获取 ====================
 
     @SuppressWarnings("unchecked")
-    @Override
-    /** 获取Bean */
+        /** 获取Bean */
+@Override
     public <T> T getBean(String name, Class<T> type) {
         if (name == null || closed) {
             return null;
@@ -334,8 +334,8 @@ public class DefaultObjectContext implements ObjectContext {
         return (T) bean;
     }
 
-    @Override
-    /** 获取BeanOfType */
+        /** 获取BeanOfType */
+@Override
     public <T> T getBeanOfType(Class<T> type) {
         if (type == null || closed) {
             return null;
@@ -363,8 +363,8 @@ public class DefaultObjectContext implements ObjectContext {
         return null;
     }
 
-    @Override
-    /** 获取BeanOfTypeSafely */
+        /** 获取BeanOfTypeSafely */
+@Override
     public <T> T getBeanOfTypeSafely(Class<T> type) {
         try {
             return getBeanOfType(type);
@@ -373,8 +373,8 @@ public class DefaultObjectContext implements ObjectContext {
         }
     }
 
-    @Override
-    /** 获取BeanOfTypes */
+        /** 获取BeanOfTypes */
+@Override
     public <T> Map<String, T> getBeanOfTypes(Class<T> type) {
         if (type == null || closed || registry == null) {
             return Collections.emptyMap();
@@ -397,14 +397,14 @@ public class DefaultObjectContext implements ObjectContext {
         return result;
     }
 
-    @Override
-    /** 获取BeanOfTypeCollection */
+        /** 获取BeanOfTypeCollection */
+@Override
     public <T> Collection<T> getBeanOfTypeCollection(Class<T> type) {
         return getBeanOfTypes(type).values();
     }
 
-    @Override
-    /** 获取BeansWithAnnotation */
+        /** 获取BeansWithAnnotation */
+@Override
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed || registry == null) {
             return Collections.emptyMap();
@@ -427,8 +427,8 @@ public class DefaultObjectContext implements ObjectContext {
         return result;
     }
 
-    @Override
-    /** 获取MethodWithAnnotation */
+        /** 获取MethodWithAnnotation */
+@Override
     public List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed || registry == null) {
             return Collections.emptyList();
@@ -461,8 +461,8 @@ public class DefaultObjectContext implements ObjectContext {
         return result;
     }
 
-    @Override
-    /** Autowire */
+        /** Autowire */
+@Override
     public void autowire(Object bean) {
         if (bean == null) {
             return;
@@ -474,8 +474,8 @@ public class DefaultObjectContext implements ObjectContext {
         beanDefinition.injectAndAssemble(bean);
     }
 
-    @Override
-    /** ContainsBean */
+        /** ContainsBean */
+@Override
     public boolean containsBean(String name) {
         if (closed) {
             return false;
@@ -483,8 +483,8 @@ public class DefaultObjectContext implements ObjectContext {
         return name != null && registry.containsBean(name);
     }
 
-    @Override
-    /** 是否Singleton */
+        /** 是否Singleton */
+@Override
     public boolean isSingleton(String name) {
         if (closed || name == null) {
             return false;
@@ -493,8 +493,8 @@ public class DefaultObjectContext implements ObjectContext {
         return def != null && def.getScope() == BeanScope.SINGLETON;
     }
 
-    @Override
-    /** 获取BeanDefinitionNames */
+        /** 获取BeanDefinitionNames */
+@Override
     public Collection<String> getBeanDefinitionNames() {
         if (closed) {
             return Collections.emptyList();
@@ -502,8 +502,8 @@ public class DefaultObjectContext implements ObjectContext {
         return getRegistry(getConfig().isSpiEnabled()).getBeanDefinitionNames();
     }
 
-    @Override
-    /** 获取BeanDefinition计算数量 */
+        /** 获取BeanDefinition计算数量 */
+@Override
     public int getBeanDefinitionCount() {
         if (closed) {
             return 0;
@@ -511,8 +511,8 @@ public class DefaultObjectContext implements ObjectContext {
         return getRegistry(getConfig().isSpiEnabled()).getBeanDefinitionCount();
     }
 
-    @Override
-    /** 是否拥有BeanOfType */
+        /** 是否拥有BeanOfType */
+@Override
     public <T> boolean hasBeanOfType(Class<T> type) {
         if (type == null || closed) {
             return false;
@@ -520,8 +520,8 @@ public class DefaultObjectContext implements ObjectContext {
         return !registry.getBeanDefinitionOfType(type).isEmpty();
     }
 
-    @Override
-    /** 获取BeanNames */
+        /** 获取BeanNames */
+@Override
     public Collection<String> getBeanNames(Class<?> type) {
         if (type == null || closed) {
             return Collections.emptyList();
@@ -532,14 +532,14 @@ public class DefaultObjectContext implements ObjectContext {
                 .toList();
     }
 
-    @Override
-    /** 获取Environment */
+        /** 获取Environment */
+@Override
     public Environment getEnvironment() {
         return environment;
     }
 
-    @Override
-    /** 获取EventPublisher */
+        /** 获取EventPublisher */
+@Override
     public EventPublisher getEventPublisher() {
         return eventPublisher;
     }

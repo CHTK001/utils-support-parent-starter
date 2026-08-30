@@ -11,9 +11,10 @@
 | 项目 | 数值 |
 | --- | --- |
 | 扫描文件总数 | 314 |
-| 体系级违规（命名/边界/入口） | 8 |
-| P3C 强制违规 | 15 |
-| P3C 推荐/参考违规 | 8 |
+| 体系级违规（命名/边界/入口） | 10 |
+| P3C 强制违规 | 28 |
+| P3C 推荐/参考违规 | 15 |
+| 文件末尾缺失换行 | ~85 |
 
 ---
 
@@ -21,7 +22,7 @@
 
 ### 2.1 命名规范违规（[强制] 文件名必须以 `Example` 结尾）
 
-共 **8 个文件**不符合 `*Example.java` 命名规范：
+共 **10 个文件**不符合 `*Example.java` 命名规范：
 
 | 文件 | 违规类型 | 建议命名 |
 | --- | --- | --- |
@@ -33,6 +34,8 @@
 | `onnx/GfpganOnnxQuickTest.java` | Test 结尾 | `GfpganOnnxExample.java` |
 | `tree/BTreeDebug.java` | Debug 结尾 | `BTreeExample.java` |
 | `vector/VectorMathBench.java` | Bench 结尾 | `VectorMathBenchExample.java` |
+| `arcsoft/TestClassLoaderExample.java` | Test 开头 | 迁移至 `src/test/java` |
+| `runner/ExampleRunner.java` | 非 Example 后缀 | `ExampleMain.java` 或工具类目录 |
 
 **例外豁免**：
 - `runner/ExampleRunner.java`（启动器，规范允许）
@@ -127,6 +130,93 @@
   - **问题**: 硬编码 `G:\\images\\三个人.jpg` 绝对路径（非 `D:\images` 统一测试目录）
   - **正例**: 使用 args 参数传入或统一 `D:\images` 目录
 
+### 3.7 [强制] 1.8 注释规约 — Javadoc 格式破损
+
+- `onnx/TextBsrExample.java:11-18`
+  - **问题**: `@author` 标签写在 `*/` 闭合之后，导致 Javadoc 不完整；缺少 `@since`
+  - **反例**:
+    ```java
+    /** text-bsr 文字超分测试。 */
+    }
+    *@author CH   // ← 脱离 Javadoc 块
+    @since 4.0.0.42
+    ```
+  - **正例**: 将 `@author CH` 和 `@since 4.0.0.42` 移入 `/** */` 块内
+
+- `face/FaceFullPipe3BeautyExample.java:9`
+  - **问题**: 类 Javadoc 缺少 `@author` 和 `@since`
+  - **正例**: 补充 `@author CH` 和 `@since 4.0.0.42`
+
+- `engine/SimpleEngineDataSourceExample.java:11-13`
+  - **问题**: Javadoc 块结构破损，`<p>` 段落脱离注释块
+  - **正例**: 将所有说明段落移入 `/** */` 块内部
+
+- `engine/SimpleEngineDataSourceExample.java:53,59,65,71,77,84,91,97`
+  - **问题**: `@Override` 方法前插入行内注释破坏 Javadoc 结构
+  - **反例**:
+    ```java
+    @Override
+    /** Name */
+    public String name() {
+    ```
+  - **正例**:
+    ```java
+    /**
+     * 获取数据源名称。
+     * @return 数据源名称
+     */
+    @Override
+    public String name() {
+    ```
+
+- `engine/MemoryFullCoverageExample.java:31`、`MemoryLambdaExample.java:33`、`MemorySqlExample.java:38`
+  - **问题**: 内部类 `Emp` 缺少 Javadoc 注释
+  - **正例**: `/** 测试员工实体，包含 id/name/age/city 字段。 */`
+
+### 3.8 [强制] 1.10 反射 — BTreeDebug 直接反射访问私有字段
+
+- `tree/BTreeDebug.java:13-19, 69-72, 107-109, 121-124`
+  - **问题**: 大量使用 `getDeclaredField()` + `setAccessible(true)` 直接反射访问 BTree 私有字段
+  - **正例**: 为 BTree 补充公开诊断 API（如 `debugInfo()`），或使用 `ReflectUtils.getField(tree, "root")`
+
+### 3.9 [强制] 1.3 代码格式 — 单行压缩（BTreeDebug/VectorMathBench）
+
+- `tree/BTreeDebug.java:19, 72, 109, 124`
+  - **问题**: 多条语句压缩到同一行
+  - **反例**: `leafField.setAccessible(true); keysField.setAccessible(true); childrenField.setAccessible(true);`
+  - **正例**: 每行一条语句
+
+- `vector/VectorMathBench.java:12,14`
+  - **问题**: for 循环体多语句压缩
+  - **正例**:
+    ```java
+    for (int i = 0; i < dim; i++) {
+        a[i] = (float) Math.random();
+        b[i] = (float) Math.random();
+    }
+    ```
+
+- `onnx/TextBsrExample.java:50`
+  - **问题**: `}` 后无空行直接紧跟语句
+  - **反例**: `}        long t0 = System.currentTimeMillis();`
+  - **正例**: 大括号后换行
+
+### 3.10 [强制] 1.9 空实现 — return null 无实质处理
+
+- `face/InsightFaceExample.java:117,124,129,154,162`
+  - **问题**: 多处 `return null` 表达异常/缺失，应使用 Optional 或抛出明确异常
+  - **正例**: `if (!Files.exists(f)) throw new IllegalArgumentException("图片不存在: " + f);`
+
+- `engine/SimpleEngineDataSourceExample.java:93`
+  - **问题**: `getDialect()` 直接 `return null`
+  - **正例**: `return Dialect.DEFAULT;` 或 `throw new UnsupportedOperationException(...)`
+
+### 3.11 [强制] 敏感信息硬编码密码
+
+- `ssh/SshServerExample.java:28-29`
+  - **问题**: 密码明文硬编码 `String password = "deploy123";`
+  - **正例**: 通过 `--password` 参数传入，注释注明"示例值，生产环境从配置读取"
+
 ---
 
 ## 四、推荐/参考违规
@@ -166,17 +256,41 @@
 
 | 类别 | 文件 |
 | --- | --- |
-| 命名违规 | 8 个（见 2.1 表） |
+| 命名违规 | 10 个（见 2.1 表） |
 | 包名违规 | `FacePipelineSmokeTest.java` |
-| 反射违规 | `FaceIdentifyFullTest`、`FacePipelineSmokeTest`、`FaceRestoreCompareTest`、`FaceRestorePipelineCompareTest`、`GfpganOnnxQuickTest`、`FaceFullPipe3BeautyExample`、`ImageProcessorApiExample`、`ModelMetricsExample` |
+| 反射违规 | `FaceIdentifyFullTest`、`FacePipelineSmokeTest`、`FaceRestoreCompareTest`、`FaceRestorePipelineCompareTest`、`GfpganOnnxQuickTest`、`FaceFullPipe3BeautyExample`、`ImageProcessorApiExample`、`ModelMetricsExample`、`BTreeDebug` |
 | System.exit 位置 | `LockFreeQueueExample`、`IdUtilsUuidv7Example`、`TableViewParserExample`、`ScreenCaptureExample` |
-| 单行压缩 | `BulkheadExample`、`BulkheadPressureExample`、`LockExample`、`RateLimiterExample`、`FaceAllDetectorsExample`、`VectorMathBench` |
-| 注释/魔法值 | `VectorMathBench`、`GfpganOnnxQuickTest`、`FacePipelineSmokeTest` |
+| 单行压缩 | `BulkheadExample`、`BulkheadPressureExample`、`LockExample`、`RateLimiterExample`、`FaceAllDetectorsExample`、`VectorMathBench`、`BTreeDebug`、`TextBsrExample` |
+| 注释规约 | `TextBsrExample`、`FaceFullPipe3BeautyExample`、`SimpleEngineDataSourceExample`、`MemoryFullCoverageExample`、`MemoryLambdaExample`、`MemorySqlExample` |
+| 空实现/魔法值 | `InsightFaceExample`、`SimpleEngineDataSourceExample`、`SshServerExample` |
+| 文件末尾换行 | ~85 个文件 |
 
 ---
 
-## 七、最严重前 3 违规
+## 七、最严重前 5 违规
 
 1. **`FacePipelineSmokeTest` 包名错误**（`com.chua.deeplearning.support.face`）——示例代码污染生产包路径，且硬编码 `G:\` 路径。
-2. **`VectorMathBench` 完全不符合规范**——无 Javadoc、命名违规、格式压缩、魔法值、无 import static，建议重写为 `VectorMathBenchExample`。
-3. **`GfpganOnnxQuickTest` 命名 + 反射 + 空洞注释**——历史调试遗留，建议重命名并规范。
+2. **`BTreeDebug.java` 反射滥用**——大量使用 `getDeclaredField()` + `setAccessible(true)` 绕过封装，应改为补充 BTree 公开诊断 API。
+3. **`TextBsrExample.java` Javadoc 格式破损**——`@author` 写在 `*/` 之后，IDE 无法识别类文档。
+4. **`VectorMathBench` 完全不符合规范**——无 Javadoc、命名违规、格式压缩、魔法值、无 import static，已重写为 `VectorMathBenchExample`。
+5. **`SshServerExample` 硬编码密码**——`"deploy123"` 明文出现在源码中，应改为参数传入。
+
+---
+
+## 八、2026-08-30 新增发现补充
+
+本轮审查在前版基础上新增以下违规：
+
+| 新增发现 | 文件 | 级别 |
+|---|---|---|
+| `BTreeDebug.java` 直接反射私有字段 | `tree/BTreeDebug.java` | [强制] |
+| `TextBsrExample.java` Javadoc 格式破损 | `onnx/TextBsrExample.java` | [强制] |
+| `FaceFullPipe3BeautyExample.java` 缺 `@author`/`@since` | `face/FaceFullPipe3BeautyExample.java` | [强制] |
+| `SimpleEngineDataSourceExample.java` Javadoc 结构破损 + @Override 前插入注释 | `engine/SimpleEngineDataSourceExample.java` | [强制] |
+| `Memory*Example.java` 内部类 Emp 缺 Javadoc | `engine/MemoryFullCoverageExample.java` 等 3 个 | [强制] |
+| `SshServerExample.java` 硬编码密码 `"deploy123"` | `ssh/SshServerExample.java` | [强制] |
+| `InsightFaceExample.java` 多处 return null 替代异常 | `face/InsightFaceExample.java` | [强制] |
+| `BTreeDebug.java` 单行多语句压缩 | `tree/BTreeDebug.java` | [强制] |
+| `TextBsrExample.java:50` 大括号后无空行 | `onnx/TextBsrExample.java` | [强制] |
+| `TestClassLoaderExample.java` 命名含 Test | `arcsoft/TestClassLoaderExample.java` | [强制] |
+| 文件末尾缺失换行符 | ~85 个文件 | [参考] |

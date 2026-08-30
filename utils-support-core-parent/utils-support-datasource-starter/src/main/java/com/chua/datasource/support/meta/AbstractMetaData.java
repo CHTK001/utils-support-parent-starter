@@ -4,10 +4,12 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.lang.datasource.meta.MetaForeignKey;
 import com.chua.common.support.lang.datasource.meta.MetaIndex;
+import com.chua.common.support.lang.datasource.meta.MetaPermission;
 import com.chua.common.support.lang.datasource.meta.MetaProcedure;
 import com.chua.common.support.lang.datasource.meta.MetaSearch;
 import com.chua.common.support.lang.datasource.meta.MetaTable;
 import com.chua.common.support.lang.datasource.meta.MetaTrigger;
+import com.chua.common.support.lang.datasource.meta.MetaUser;
 import com.chua.common.support.lang.datasource.meta.MetaView;
 
 /**
@@ -93,6 +95,14 @@ public abstract class AbstractMetaData implements MetaData {
     @Override
     /** Fk */
     public abstract MetaForeignKey fk(String fkName);
+
+    @Override
+    /** User */
+    public abstract MetaUser user();
+
+    @Override
+    /** Permission */
+    public abstract MetaPermission permission();
 
     @Override
     /** 搜索 */

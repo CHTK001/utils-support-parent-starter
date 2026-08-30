@@ -7,7 +7,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcEngine;
 import com.chua.h2.support.cleanup.H2CleanupPlugin;
 import com.chua.h2.support.dialect.H2Dialect;
-import com.chua.h2.support.flyway.H2Flyway;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
@@ -23,11 +22,6 @@ import javax.sql.DataSource;
  * <pre>{@code
  * H2Engine engine = new H2Engine();
  * engine.addDataSource("default", "jdbc:h2:mem:testdb");
- *
- * // 迁移脚本（含 H2 DDL Normalizer）
- * engine.h2Flyway()
- *     .location("classpath:db/migration")
- *     .migrate();
  *
  * // 全文检索
  * engine.meta().search().create("product_idx")
@@ -82,30 +76,6 @@ public class H2Engine extends JdbcEngine {
             public String password() { return ds.getPassword(); }
         };
         return super.addDataSource(name, dataSource);
-    }
-
-    // ==================== Flylink 迁移（H2 DDL Normalizer） ====================
-
-    /**
-     * 获取 H2 迁移执行器。
-     * <p>
-     * 执行前自动将 MySQL/PostgreSQL 特有语法转换为 H2 兼容写法：
-     * <ul>
-     *   <li>{@code AUTO_INCREMENT} → {@code IDENTITY AUTOINCREMENT}</li>
-     * </ul>
-     * </p>
-     * <pre>{@code
-     * engine.h2Flyway()
-     *     .location("classpath:db/migration")
-     *     .migrate();
-     * }</pre>
-     *
-     * @return H2Flyway 实例
-     */
-    public H2Flyway h2Flyway() {
-        var dsObj = getDataSource();
-        if (dsObj == null) throw new IllegalStateException("H2 引擎未配置数据源，请先调用 addDataSource()");
-        return new H2Flyway((javax.sql.DataSource) dsObj.getSource());
     }
 
     // ==================== 测试清理插件 ====================

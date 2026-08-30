@@ -940,7 +940,7 @@ public final class ModelRegistry {
                         }
                         String className = line.contains("=") ? line.substring(line.indexOf('=') + 1).trim() : line;
                         try {
-                            ReflectUtils.forName(className, loader);
+                            Class.forName(className, true, loader);
                             count++;
                         } catch (Throwable ex) {
                             log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className, ex.getMessage());
@@ -1158,6 +1158,75 @@ public final class ModelRegistry {
         private ITranslatorDelegate(String modelId, Path modelPath, ITranslator<?, ?> translator) {
             this.modelId = modelId;
             this.translator = translator;
+            injectModelPath(translator, modelId, modelPath);
+        }
+
+        /**
+         * 若原生 Translator 提供 {@code setModelPath(String)} 方法，则通过反射注入
+         * Registry 中声明的相对路径（classpath 资源或下载缓存路径）。
+         *
+         * @param translator 原生 Translator 实例
+         * @param modelId    模型 ID（fallback：entry 路径为空时使用 modelId.suffix）
+         * @param modelPath  解析后的模型绝对路径
+         */
+        private static void injectModelPath(ITranslator<?, ?> translator, String modelId, Path modelPath) {
+            if (translator == null) {
+                return;
+            }
+            try {
+                java.lang.reflect.Method m = translator.getClass().getMethod("setModelPath", String.class);
+                String value = null;
+                Entry entry = REGISTRY.get(modelId);
+                if (entry != null && entry.relativePath() != null && !entry.relativePath().isBlank()) {
+                    // 1) 优先解析 entry.relativePath() 为文件系统绝对路径（classpath URL 转为 file path）
+                    value = resolveToAbsolutePathString(entry.relativePath());
+                }
+                if (value == null && modelPath != null) {
+                    value = modelPath.toString();
+                }
+                m.invoke(translator, value);
+            } catch (NoSuchMethodException ignored) {
+                // 该 translator 不接受 setModelPath 注入，跳过即可
+            } catch (Throwable ex) {
+                log.debug("[deeplearning-engine] injectModelPath failed for {}: {}", modelId, ex.getMessage());
+            }
+        }
+
+        /**
+         * 将 entry.relativePath() 解析为文件系统绝对路径字符串。
+         *
+         * <p>优先级：</p>
+         * <ol>
+         *   <li>如果传入参数已是绝对路径且存在 → 直接返回</li>
+         *   <li>classpath: 前缀 → 通过 getResource 解析为 file URL</li>
+         *   <li>裸相对路径 → 通过 getResource 解析为 file URL</li>
+         *   <li>否则返回原字符串（让 translator 内部再尝试）</li>
+         * </ol>
+         */
+        private static String resolveToAbsolutePathString(String configured) {
+            if (configured == null || configured.isBlank()) {
+                return null;
+            }
+            String rel = configured;
+            if (rel.startsWith("classpath:")) {
+                rel = rel.substring("classpath:".length());
+            }
+            try {
+                java.net.URL url = Thread.currentThread().getContextClassLoader().getResource(rel);
+                if (url == null) {
+                    url = ModelRegistry.class.getClassLoader().getResource(rel);
+                }
+                if (url != null && "file".equals(url.getProtocol())) {
+                    try {
+                        return java.nio.file.Paths.get(url.toURI()).toString();
+                    } catch (java.net.URISyntaxException ue) {
+                        return new java.io.File(url.getPath()).getAbsolutePath();
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+            // 兜底：原样返回（部分 translator 支持 classpath: 前缀或工作目录相对路径）
+            return configured;
         }
 
         @Override
