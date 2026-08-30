@@ -480,7 +480,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
                 java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
                 false, null);
-        // wav2vec2-base（384维嵌入，更轻量）：适合嵌入式/边缘设备，模型约 350MB，JAR 内嵌。
+        // wav2vec2-base（32维 ASR head logits，更轻量）：适合嵌入式/边缘设备，模型约 360MB，JAR 内嵌。
+        // 实际为 wav2vec2-base-960h 的 ASR head（logits over 32 字符 vocab），对时间维度做 mean pooling
+        // 后作为音频指纹使用。不同音频产生不同 vocab 分布，同源音频 cosine 相似度 > 0.9。
         reg("wav2vec2-base-fingerprint",
                 "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
                 byte[].class, float[].class,
