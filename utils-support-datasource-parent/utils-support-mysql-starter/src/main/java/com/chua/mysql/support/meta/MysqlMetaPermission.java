@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.meta.GrantBuilder;
 import com.chua.common.support.lang.datasource.meta.MetaPermission;
 import com.chua.common.support.lang.datasource.meta.RevokeBuilder;
 import com.chua.common.support.lang.datasource.meta.model.PermissionDef;
+import com.chua.common.support.utils.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -117,7 +118,7 @@ public class MysqlMetaPermission implements MetaPermission {
         @Override
         public boolean execute() {
             if (user == null) throw new IllegalStateException("必须指定 toUser()");
-            execSql(dataSource, "GRANT " + privileges + " ON *.* TO '" + user + "'@'%'");
+            execSql(dataSource, "GRANT " + privileges + " ON *.* TO '" + StringUtils.replace(user, "'", "''") + "'@'%'");
             return true;
         }
     }
@@ -141,7 +142,7 @@ public class MysqlMetaPermission implements MetaPermission {
         @Override
         public boolean execute() {
             if (user == null) throw new IllegalStateException("必须指定 fromUser()");
-            execSql(dataSource, "REVOKE " + privileges + " ON *.* FROM '" + user + "'@'%'");
+            execSql(dataSource, "REVOKE " + privileges + " ON *.* FROM '" + StringUtils.replace(user, "'", "''") + "'@'%'");
             return true;
         }
     }

@@ -8,24 +8,33 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Map;
 
 /**
  * file-viewer 静态资源过滤器。
  *
- * <p>从 classpath 读取 {@code file-viewer/} 资源并 Serve 到 {@code /file-viewer/} 路径。
- * 资源来自 {@code utils-support-resource-filestorage} 模块，通过 Maven 依赖注入。</p>
+ * <p>从 classpath 读取 {@code file-viewer/} 资源并 Serve 到路径。
+ * 支持带版本号的 URL（{@code /file-viewer/{version}/...}）和不带版本号的 URL（{@code /file-viewer/...}）。
+ * 大文件（WASM/Worker/字体）启用 immutable 缓存 + ETag，减少服务器交互。</p>
  *
- * <p>使用方式：将本过滤器注册到 {@link ServerFilterChain} 中，拦截 {@code /file-viewer/**} 路径。</p>
+ * <p>缓存策略：
+ * <ul>
+ *   <li>JS/CSS/WASM/字体：{@code Cache-Control: public, immutable, max-age=31536000}（1年永久缓存）
+ *       配合 ETag，内容变化后浏览器自动重新下载。</li>
+ *   <li>小文件（bcmap/json/svg 等）：{@code Cache-Control: public, max-age=86400}（24小时）。</li>
+ * </ul>
+ * </p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class FileViewerStaticFilter implements ServerFilter {
 
-    private static final String ASSET_PATH_PREFIX = "/file-viewer/";
+    /** 版本路径前缀：/file-viewer/{version}/ */
+    private static final String VERSION_PREFIX_PATTERN = "/file-viewer/[^/]+/";
 
-    /** MIME 类型映射，覆盖 WASM/Worker 等关键类型 */
+    /** MIME 类型映射 */
     private static final Map<String, String> MIME_TYPES;
     static {
         Map<String, String> m = new java.util.HashMap<>();
@@ -54,16 +63,35 @@ public class FileViewerStaticFilter implements ServerFilter {
         MIME_TYPES = java.util.Collections.unmodifiableMap(m);
     }
 
+    /** 需要 long-ttl + immutable 缓存的文件类型（WASM/Worker/字体/主 JS bundle） */
+    private static final java.util.Set<String> IMMUTABLE_EXTS;
+    static {
+        java.util.Set<String> s = new java.util.HashSet<>();
+        s.add("wasm"); s.add("js"); s.add("mjs");
+        s.add("woff"); s.add("woff2"); s.add("ttf"); s.add("otf"); s.add("eot");
+        IMMUTABLE_EXTS = java.util.Collections.unmodifiableSet(s);
+    }
+
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
-        if (path == null || !path.startsWith(ASSET_PATH_PREFIX)) {
+        if (path == null || !path.startsWith("/file-viewer")) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 去掉前缀，得到资源相对路径（如 vendor/pdf/pdf.worker.mjs）
-        String resourcePath = path.substring(ASSET_PATH_PREFIX.length());
+        // 兼容两种路径格式：
+        //  1. /file-viewer/{version}/vendor/...  （版本路径，新版本）
+        //  2. /file-viewer/vendor/...             （无前缀路径，老版本兼容）
+        String resourcePath;
+        if (path.matches(VERSION_PREFIX_PATTERN + ".*")) {
+            // 去掉 /file-viewer/{version}/
+            int secondSlash = path.indexOf('/', 14); // skip "/file-viewer/"
+            resourcePath = path.substring(secondSlash + 1);
+        } else {
+            resourcePath = path.substring("/file-viewer/".length());
+        }
+
         if (resourcePath.isEmpty() || resourcePath.contains("..")) {
             response.setStatus(400).end("Bad Request");
             return;
@@ -77,11 +105,42 @@ public class FileViewerStaticFilter implements ServerFilter {
             byte[] bytes = is.readAllBytes();
             String ext = getExt(resourcePath);
             String contentType = MIME_TYPES.getOrDefault(ext, "application/octet-stream");
+
+            // 计算 ETag（基于文件内容 MD5）
+            String etag = computeEtag(bytes);
+            String ifNoneMatch = request.getHeader("If-None-Match");
+            if (ifNoneMatch != null && ifNoneMatch.equals(etag)) {
+                response.setStatus(304)
+                        .setHeader("ETag", etag)
+                        .end();
+                return;
+            }
+
+            boolean immutable = IMMUTABLE_EXTS.contains(ext);
             response.setStatus(200)
                     .setContentType(contentType)
-                    .setHeader("Cache-Control", "public, max-age=86400")
+                    .setHeader("ETag", etag)
+                    .setHeader("Cache-Control", immutable
+                            ? "public, immutable, max-age=31536000"
+                            : "public, max-age=86400")
                     .setBody(bytes)
                     .end();
+        }
+    }
+
+    private static String computeEtag(byte[] bytes) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(bytes);
+            StringBuilder sb = new StringBuilder(34);
+            sb.append('"');
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            sb.append('"');
+            return sb.toString();
+        } catch (Exception e) {
+            return "\"fallback\"";
         }
     }
 

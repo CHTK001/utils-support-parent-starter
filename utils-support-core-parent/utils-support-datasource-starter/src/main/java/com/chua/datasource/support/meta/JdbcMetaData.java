@@ -139,18 +139,25 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-     * 获取当前 DataSource，未注入时抛出。
+     * 获取当前默认数据源的 JDBC DataSource。
+     * 优先从 EngineDataSource 接口获取，失败时回退到 Connection.unwrap。
      */
     protected DataSource getDataSource() {
-        if (dataSource == null) {
-            try {
-                DataSource temp = getJdbcConnection().unwrap(DataSource.class);
-                setDataSource(temp);
-            } catch (Exception e) {
-                throw new IllegalStateException("无法获取 DataSource，请先调用 setDataSource()", e);
+        if (dataSource != null) return dataSource;
+        try {
+            com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
+                    engine.getDataSource(engine.getDefaultDataSourceName());
+            if (eds != null && eds.getSource() instanceof DataSource ds) {
+                dataSource = ds;
+                return ds;
             }
+            // 回退：通过 Connection 获取
+            DataSource temp = getJdbcConnection().unwrap(DataSource.class);
+            setDataSource(temp);
+            return temp;
+        } catch (Exception e) {
+            throw new IllegalStateException("无法获取 DataSource，请先调用 setDataSource()", e);
         }
-        return dataSource;
     }
 
     /**

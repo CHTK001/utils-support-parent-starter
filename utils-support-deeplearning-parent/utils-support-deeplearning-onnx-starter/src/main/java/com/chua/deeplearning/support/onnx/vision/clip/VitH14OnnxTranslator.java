@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.vision.clip;
 
+import com.chua.common.support.utils.MathUtils;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import com.chua.common.support.utils.NativeLoader;
@@ -272,18 +273,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
      * @return 余弦相似度 [-1, 1]
      */
     public static float cosineSimilarity(float[] a, float[] b) {
-        if (a.length != b.length) {
-            throw new IllegalArgumentException("向量维度不匹配: " + a.length + " vs " + b.length);
-        }
-        float dot = 0.0f;
-        float normA = 0.0f;
-        float normB = 0.0f;
-        for (int i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        return dot / (float) (Math.sqrt(normA) * Math.sqrt(normB));
+        return MathUtils.cosineSimilarity(a, b);
     }
 
     @Override

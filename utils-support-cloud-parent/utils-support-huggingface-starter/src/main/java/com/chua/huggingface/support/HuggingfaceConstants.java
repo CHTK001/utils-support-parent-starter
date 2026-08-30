@@ -67,9 +67,9 @@ public final class HuggingfaceConstants {
     public static final long DOWNLOAD_TIMEOUT_MILLIS = 600_000L;
 
     /**
-     * 连接超时（毫秒）
+     * 连接超时（毫秒）：镜像/跨国网络连接可达 10s+，留足余量
      */
-    public static final long CONNECT_TIMEOUT_MILLIS = 15_000L;
+    public static final long CONNECT_TIMEOUT_MILLIS = 60_000L;
 
     private HuggingfaceConstants() {
     }

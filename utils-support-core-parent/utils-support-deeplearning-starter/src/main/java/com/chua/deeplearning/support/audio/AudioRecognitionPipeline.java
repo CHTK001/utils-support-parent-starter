@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.audio;
 
+import com.chua.common.support.utils.MathUtils;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
@@ -407,7 +408,7 @@ public class AudioRecognitionPipeline {
         int bestK = 0;
         float bestScore = -2f;
         for (int k = 0; k < centers.length; k++) {
-            float score = cosineSimilarity(vec, centers[k]);
+            float score = MathUtils.cosineSimilarity(vec, centers[k]);
             if (score > bestScore) {
                 bestScore = score;
                 bestK = k;
@@ -416,20 +417,6 @@ public class AudioRecognitionPipeline {
         return bestK;
     }
 
-    /**
-     * 计算两个向量的余弦相似度。
-     */
-    private static float cosineSimilarity(float[] a, float[] b) {
-        if (a.length != b.length) return 0f;
-        float dot = 0f, normA = 0f, normB = 0f;
-        for (int i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        if (normA < 1e-12f || normB < 1e-12f) return 0f;
-        return dot / (float) (Math.sqrt(normA) * Math.sqrt(normB));
-    }
 
     // ==================== Step 4: ASR 转写 ====================
 

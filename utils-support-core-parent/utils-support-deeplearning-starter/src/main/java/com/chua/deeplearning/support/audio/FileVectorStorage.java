@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.audio;
 
+import com.chua.common.support.utils.MathUtils;
 import com.chua.common.support.vector.Vector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
 import com.chua.common.support.vector.VectorStorage;
@@ -188,7 +189,7 @@ public class FileVectorStorage implements VectorStorage {
         try {
             List<Vector> scored = new ArrayList<>(store.size());
             for (Map.Entry<String, float[]> e : store.entrySet()) {
-                double score = cosine(query, e.getValue());
+                double score = MathUtils.cosineSimilarity(query, e.getValue());
                 Map<String, Object> meta = new HashMap<>();
                 meta.put("score", score);
                 scored.add(new Vector(e.getKey(), e.getValue(), meta));
@@ -230,19 +231,6 @@ public class FileVectorStorage implements VectorStorage {
         }
     }
 
-    /** 余弦相似度（双精度计算） */
-    private static double cosine(float[] a, float[] b) {
-        double dot = 0;
-        double na = 0;
-        double nb = 0;
-        for (int i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            na += a[i] * a[i];
-            nb += b[i] * b[i];
-        }
-        double den = Math.sqrt(na) * Math.sqrt(nb);
-        return den > 1e-12 ? dot / den : 0;
-    }
 
     /**
      * 关闭存储（写操作已实时落盘，此处仅标记）。

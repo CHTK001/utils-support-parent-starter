@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.face;
 
 import com.chua.common.support.task.branch.Branch;
+import com.chua.common.support.utils.MathUtils;
 import com.chua.common.support.task.pipeline.core.Action;
 import com.chua.common.support.task.pipeline.core.Pipeline;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
@@ -1247,7 +1248,7 @@ public class FacePipeline {
      * @return 相似度 0~1
      */
     public double compareFeature(float[] featureA, float[] featureB) {
-        return cosineSimilarity(featureA, featureB);
+        return MathUtils.cosineSimilarity(featureA, featureB);
     }
 
     /**
@@ -1264,7 +1265,7 @@ public class FacePipeline {
         if (a == null || b == null || a.feature() == null || b.feature() == null) {
             return null;
         }
-        double score = cosineSimilarity(a.feature(), b.feature());
+        double score = MathUtils.cosineSimilarity(a.feature(), b.feature());
         return new FaceCompareResult(score, score >= 0.5, a, b, System.currentTimeMillis() - t0);
     }
 
@@ -1858,30 +1859,6 @@ public class FacePipeline {
         return largest;
     }
 
-    /**
-     * 计算两个特征向量的余弦相似度。
-     *
-     * @param a 特征向量 A
-     * @param b 特征向量 B
-     * @return 余弦相似度，参数非法时返回 0
-     */
-    private static double cosineSimilarity(float[] a, float[] b) {
-        if (a == null || b == null || a.length == 0 || a.length != b.length) {
-            return 0d;
-        }
-        double dot = 0;
-        double normA = 0;
-        double normB = 0;
-        for (int i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            normA += a[i] * a[i];
-            normB += b[i] * b[i];
-        }
-        if (normA == 0 || normB == 0) {
-            return 0d;
-        }
-        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-    }
 
     /**
      * 检测器。

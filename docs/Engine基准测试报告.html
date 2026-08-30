@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engine 引擎基准测试报告</title>
+<style>
+  :root { --bg:#f6f8fa; --card:#fff; --border:#d0d7de; --green:#1a7f37; --green-bg:#dafbe1; --red:#cf222e; --red-bg:#ffebe9; --blue:#0969da; --muted:#57606a; }
+  *{box-sizing:border-box;} body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);margin:0;padding:2rem;} .container{max-width:1100px;margin:0 auto;} h1{border-bottom:2px solid var(--border);padding-bottom:.5rem;} h2{margin-top:2rem;} table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1rem 0;} th,td{padding:.55rem .8rem;text-align:left;border-bottom:1px solid var(--border);font-size:.92rem;} th{background:#eff2f5;} .badge{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.8rem;font-weight:600;} .badge-pass{background:var(--green-bg);color:var(--green);} .badge-warn{background:#fff8c5;color:#9a6700;} .badge-info{background:#ddf4ff;color:var(--blue);} code{background:#eff2f5;padding:.1rem .35rem;border-radius:4px;font-size:.85em;} pre{background:#161b22;color:#e6edf3;padding:1rem;border-radius:8px;overflow-x:auto;font-size:.85rem;} .note{border-left:4px solid var(--blue);background:#ddf4ff33;padding:.75rem 1rem;border-radius:0 6px 6px 0;margin:1rem 0;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Engine 引擎基准测试报告</h1>
+  <p class="meta">模块：<code>utils-support-datasource-starter</code> &nbsp;|&nbsp; 版本：4.0.0.43 &nbsp;|&nbsp;
+     测试环境：Windows 10 + JDK 25（Amazon Corretto）+ 远程 Docker（172.16.0.40）&nbsp;|&nbsp;
+     报告日期：2026-08-30</p>
+
+  <div class="summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1.5rem 0;">
+    <div class="card" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+      <div style="font-size:2rem;font-weight:700;color:var(--green);">4</div>数据库类型
+    </div>
+    <div class="card" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+      <div style="font-size:2rem;font-weight:700;color:var(--green);">2</div>测试场景（写入/点查）
+    </div>
+    <div class="card" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+      <div style="font-size:2rem;font-weight:700;color:var(--blue);">10万</div>写入条数
+    </div>
+    <div class="card" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+      <div style="font-size:2rem;font-weight:700;color:var(--blue);">100</div>查询轮次
+    </div>
+  </div>
+
+  <h2>一、引擎架构与路由策略</h2>
+  <table>
+    <tr><th>引擎</th><th>驱动</th><th>R2DBC</th><th>JDBC 路由</th><th>说明</th></tr>
+    <tr><td><strong>H2</strong></td><td>h2-2.x</td><td>✅ r2dbc-h2</td><td>R2DBC 直连</td><td>内嵌内存库，零配置，真正非阻塞</td></tr>
+    <tr><td><strong>MySQL</strong></td><td>mysql-connector-j</td><td>⚠️ r2dbc-mysql</td><td><b>强制 JDBC</b></td><td>r2dbc-mysql 的 getRowsUpdated 有 CCE 问题，已由 needsJdbcPath() 强制走 JDBC</td></tr>
+    <tr><td><strong>PostgreSQL</strong></td><td>postgresql-42.7.3</td><td>✅ r2dbc-postgresql</td><td>R2DBC 直连</td><td>官方 R2DBC 驱动，真正非阻塞</td></tr>
+    <tr><td><strong>SQL Server</strong></td><td>mssql-jdbc-12.6.1</td><td>⚠️ r2dbc-mssql</td><td><b>强制 JDBC</b></td><td>r2dbc-mssql 的 SimpleMssqlStatement 不支持参数绑定，已由 needsJdbcPath() 强制走 JDBC</td></tr>
+    <tr><td><strong>SQL Server (jTDS)</strong></td><td>jTDS-1.3.1</td><td>❌ 无</td><td><b>JDBC only</b></td><td>老版本 SQL Server 2000/2005 兼容驱动，伪响应式（boundedElastic）</td></tr>
+    <tr><td><strong>SQLite</strong></td><td>sqlite-jdbc</td><td>❌ 无</td><td><b>JDBC only</b></td><td>内嵌文件库，伪响应式</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>关键结论：</strong>MySQL 和 SQL Server 的 R2DBC 驱动存在已知缺陷（占位符绑定/批量更新），
+    核心引擎 <code>JdbcReactorEngine.needsJdbcPath()</code> 已强制将其路由到 JDBC 路径。
+    jTDS 等老版本驱动本身无 R2DBC 实现，只能走 JDBC 伪响应式。
+  </div>
+
+  <h2>二、基准测试代码</h2>
+  <pre>// EnginePerfBench.java — 测试类路径：example-starter/src/test/java/
+// 运行方式：mvn test -pl utils-support-extra-parent/utils-support-example-starter \
+//   -Dtest=EnginePerfBench -DfailIfNoTests=false
+
+@Test
+void h2_write_throughput() {
+    H2Engine engine = new H2Engine();
+    engine.addDataSource("default", "jdbc:h2:mem:bench;DB_CLOSE_DELAY=-1");
+    engine.execute("CREATE TABLE bench (id BIGINT PRIMARY KEY, name VARCHAR(64), val DOUBLE)");
+    long start = System.nanoTime();
+    for (int i = 0; i &lt; COUNT; i++) {
+        engine.execute("INSERT INTO bench(id, name, val) VALUES(?,?,?)", (long)i, "name_"+i, (double)i);
+    }
+    double ops = COUNT * 1e9 / (System.nanoTime() - start);
+    System.out.printf("[H2] 写入吞吐: %,d ops/s%n", (long)ops);
+}</pre>
+
+  <h2>三、测试结果（H2 可本地运行，其余需远程容器）</h2>
+  <table>
+    <tr><th>数据库</th><th>写入吞吐 (10万条)</th><th>点查 QPS (100轮)</th><th>延迟分布</th><th>状态</th></tr>
+    <tr><td><strong>H2</strong> (内存)</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-pass">可本地测试</span></td></tr>
+    <tr><td><strong>SQLite</strong> (文件)</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-pass">可本地测试</span></td></tr>
+    <tr><td><strong>MySQL</strong> 5.7</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-info">需 172.16.0.40:3308</span></td></tr>
+    <tr><td><strong>PostgreSQL</strong> 16</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-info">需 172.16.0.40:5433</span></td></tr>
+    <tr><td><strong>SQL Server</strong> 2019</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-info">需 172.16.0.40:1434</span></td></tr>
+    <tr><td><strong>SQL Server jTDS</strong> (Legacy)</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-warn">需手动验证</span></td></tr>
+  </table>
+
+  <div class="note">
+    <strong>说明：</strong>当前无远程容器运行时，基准测试数据待补充。
+    测试类已就绪，在拥有远程 Docker 环境的机器上运行即可产出实测数据。
+  </div>
+
+  <h2>四、SQL 自动降级机制</h2>
+  <pre>// JdbcReactorEngine.java:692-707
+private boolean needsJdbcPath(String name) {
+    String url = jdbcUrls.get(name);
+    if (url == null) return false;
+    String lowerUrl = url.toLowerCase();
+    // 已知 R2DBC 驱动缺陷的协议强制 JDBC
+    if (lowerUrl.startsWith("jdbc:mysql:")
+            || lowerUrl.startsWith("jdbc:mariadb:")
+            || lowerUrl.startsWith("jdbc:sqlserver:")) {
+        return true;  // ← 直接走 JDBC，不走 R2DBC
+    }
+    return !r2dbcFactories.containsKey(name);  // 无 R2DBC 工厂时也走 JDBC
+}</pre>
+
+  <table>
+    <tr><th>数据库</th><th>R2DBC 驱动状态</th><th>实际执行路径</th><th>是否自动降级</th></tr>
+    <tr><td>H2</td><td>✅ r2dbc-h2</td><td>R2DBC 直连</td><td>否（原生支持）</td></tr>
+    <tr><td>PostgreSQL</td><td>✅ r2dbc-postgresql</td><td>R2DBC 直连</td><td>否（原生支持）</td></tr>
+    <tr><td>MySQL</td><td>⚠️ r2dbc-mysql (有缺陷)</td><td><b>JDBC 强制</b></td><td>✅ 主动降级（规避 getRowsUpdated CCE）</td></tr>
+    <tr><td>SQL Server</td><td>⚠️ r2dbc-mssql (有缺陷)</td><td><b>JDBC 强制</b></td><td>✅ 主动降级（规避 SimpleMssqlStatement 参数绑定问题）</td></tr>
+    <tr><td>SQLite</td><td>❌ 无驱动</td><td><b>JDBC only</b></td><td>✅ 自然降级（无 R2DBC 工厂）</td></tr>
+    <tr><td>jTDS (Legacy)</td><td>❌ 无驱动</td><td><b>JDBC only</b></td><td>✅ 自然降级</td></tr>
+  </table>
+
+  <div class="note">
+    <strong>回答用户问题：</strong>SQL 会<strong>自动降级</strong>到 JDBC 路径。
+    MySQL 和 SQL Server 虽然注册了 R2DBC 连接工厂，但 <code>needsJdbcPath()</code> 会强制路由到 JDBC。
+    老版本 SQL Server（jTDS）没有 R2DBC 驱动，只能走 JDBC 伪响应式（boundedElastic 调度阻塞调用）。
+  </div>
+
+  <h2>五、SQL Server 多版本兼容</h2>
+  <table>
+    <tr><th>SQL Server 版本</th><th>推荐引擎</th><th>驱动</th><th>jTDS 兼容层</th></tr>
+    <tr><td>2000 / 2005</td><td><code> dServerLegacyEngine</code></td><td>jTDS 1.3.1</td><td>✅ 主选</td></tr>
+    <tr><td>2008 R2 ~ 2022</td><td><code> dServerEngine</code></td><td>mssql-jdbc 12.6.1</td><td>✅ 主选</td></tr>
+  </table>
+
+  <pre>// 使用示例
+// SQL Server 2008 R2+
+SqlServerEngine engine = new SqlServerEngine();
+engine.addDataSource("default", "localhost", 1433, "master", "sa", "pass");
+
+// SQL Server 2000/2005（jTDS 兼容层）
+ dServerLegacyEngine legacy = new dServerLegacyEngine();
+legacy.addDataSource("default", "localhost", 1433, "master", "sa", "pass");
+
+// 版本覆盖：在宿主应用 pom 中覆盖 mssql-jdbc 版本
+// &lt;properties&gt;
+//   &lt;mssql-jdbc.version&gt;11.2.3.jre8&lt;/mssql-jdbc.version&gt;
+// &lt;/properties&gt;</pre>
+
+  <h2>六、文件变更清单</h2>
+  <table>
+    <tr><th>文件</th><th>变更类型</th><th>说明</th></tr>
+    <tr><td><code>sqlserver-starter/ dServerLegacyEngine.java</code></td><td><span class="badge badge-pass">新增</span></td><td>jTDS 同步引擎，SPI 名 sqlserver-legacy</td></tr>
+    <tr><td><code>sqlserver-starter/pom.xml</code></td><td><span class="badge badge-pass">修改</span></td><td>mssql-jdbc 版本策略化；新增 jTDS provided 依赖</td></tr>
+    <tr><td><code>datasource-parent/pom.xml</code></td><td><span class="badge badge-pass">修改</span></td><td>新增 mssql-jdbc.version 和 jtds.version 属性</td></tr>
+    <tr><td><code>example-starter/pom.xml</code></td><td><span class="badge badge-pass">修改</span></td><td>新增 postgresql-starter 和 sqlserver-starter 测试依赖</td></tr>
+    <tr><td><code>example-starter/EnginePerfBench.java</code></td><td><span class="badge badge-pass">新增</span></td><td>四大引擎基准测试类</td></tr>
+  </table>
+
+  <p class="meta" style="margin-top:2rem;">报告生成时间：2026-08-30 11:10 CST</p>
+</div>
+</body>
+</html>

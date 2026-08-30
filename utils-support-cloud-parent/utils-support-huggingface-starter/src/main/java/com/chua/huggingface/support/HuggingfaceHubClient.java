@@ -510,22 +510,32 @@ public class HuggingfaceHubClient {
         if (uploadAction == null) {
             throw new RuntimeException("LFS batch 响应缺少 upload 动作: " + resp.getBodyString());
         }
-        String uploadUrl = (String) uploadAction.get("href");
-        // href 是 S3 预签名 URL（自带 X-Amz-* 鉴权），不能附加 Authorization 头，
-        // 否则 S3 报 "Only one auth mechanism allowed"；也不带自定义请求头（与 huggingface_hub 一致）
-        ClientResponse putResp = HttpClientFactory.of(uploadUrl)
-                .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
-                .readTimeout(HuggingfaceConstants.UPLOAD_TIMEOUT_MILLIS)
-                .body(content)
-                .put();
-        if (!putResp.isSuccess()) {
-            throw new RuntimeException("HuggingFace LFS PUT 失败: " + putResp.getStatusCode()
-                    + " - " + putResp.getBodyString());
+        // 镜像场景下 batch 响应的 multipart 完成 URL 可能指向不可达 host（如 hf-mirror.org），
+        // 对齐到当前 baseUrl；直接 S3 预签名 URL（含 X-Amz-* / 非本 Hub API 路径）不受影响
+        String uploadUrl = alignLfsHost((String) uploadAction.get("href"));
+        // multipart 分片上传（header 含 chunk_size + 分片 URL 00001..000NN）：大文件镜像站常用
+        Object headerObj = uploadAction.get("header");
+        if (headerObj instanceof Map<?, ?> header && header.get("chunk_size") != null) {
+            uploadMultipart(uploadUrl, oid, size, content, (Map<String, Object>) header);
+        } else {
+            // basic 直传：href 是 S3 预签名 URL（自带 X-Amz-* 鉴权），不能附加 Authorization 头，
+            // 否则 S3 报 "Only one auth mechanism allowed"；也不带自定义请求头（与 huggingface_hub 一致）
+            ClientResponse putResp = HttpClientFactory.of(uploadUrl)
+                    .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
+                    .readTimeout(HuggingfaceConstants.UPLOAD_TIMEOUT_MILLIS)
+                    .body(content)
+                    .put();
+            if (!putResp.isSuccess()) {
+                throw new RuntimeException("HuggingFace LFS PUT 失败: " + putResp.getStatusCode()
+                        + " - " + putResp.getBodyString());
+            }
         }
         // verify 步骤：把对象注册为可用，否则 commit 报 "LFS pointer pointed to a file that does not exist"
         Object verifyActionObj = actionsMap.get("verify");
         if (verifyActionObj != null) {
-            String verifyUrl = (String) ((Map<String, Object>) verifyActionObj).get("href");
+            // 镜像场景（hf-mirror.com）下 batch 响应可能返回 hf-mirror.org 等不可达 host，
+            // 需对齐到当前 baseUrl 的 host（S3 预签名 upload URL 除外，由 S3 直接可达）
+            String verifyUrl = alignLfsHost((String) ((Map<String, Object>) verifyActionObj).get("href"));
             ClientResponse verifyResp = HttpClientFactory.of(verifyUrl)
                     .header("Authorization", buildAuthHeader())
                     .header("Content-Type", "application/json")
@@ -540,6 +550,69 @@ public class HuggingfaceHubClient {
             }
         }
         log.debug("[hf-hub] LFS 上传完成: {}/{}", repoId, pathInRepo);
+    }
+
+    /**
+     * multipart 分片上传：按 chunk_size 切分文件，逐片 PUT 到 S3 分片 URL，
+     * 最后 PUT 完成 URL（complete_multipart）结束。
+     *
+     * @param completeUrl multipart 完成 URL
+     * @param oid         LFS oid（sha256）
+     * @param size        文件总大小
+     * @param content     完整文件内容
+     * @param header      batch 响应 header：含 chunk_size 与 00001..000NN 分片 URL
+     */
+    private void uploadMultipart(String completeUrl, String oid, long size, byte[] content,
+                                 Map<String, Object> header) {
+        int chunkSize = Integer.parseInt(String.valueOf(header.get("chunk_size")));
+        // 分片 URL：header 里 "00001".."000NN"（S3 预签名 UploadPart URL，不能附加自定义头）
+        List<String> partUrls = new ArrayList<>();
+        for (int i = 1; i * (long) chunkSize < size || (i == 1 && size == 0); i++) {
+            String key = String.format("%05d", i);
+            Object url = header.get(key);
+            if (url == null) {
+                break;
+            }
+            partUrls.add((String) url);
+        }
+        if (partUrls.isEmpty()) {
+            throw new RuntimeException("LFS multipart header 缺少分片 URL (00001..): " + header.keySet());
+        }
+        log.info("[hf-hub] LFS multipart 上传: {} bytes, {} parts x {}B", size, partUrls.size(), chunkSize);
+
+        int offset = 0;
+        for (int i = 0; i < partUrls.size(); i++) {
+            int len = (int) Math.min(chunkSize, content.length - offset);
+            byte[] part = new byte[len];
+            System.arraycopy(content, offset, part, 0, len);
+            offset += len;
+            // S3 预签名分片 URL：不带 Authorization/自定义头（与 huggingface_hub 一致）
+            ClientResponse partResp = HttpClientFactory.of(partUrls.get(i))
+                    .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
+                    .readTimeout(HuggingfaceConstants.UPLOAD_TIMEOUT_MILLIS)
+                    .body(part)
+                    .put();
+            if (!partResp.isSuccess()) {
+                throw new RuntimeException("LFS multipart 分片 " + (i + 1) + "/" + partUrls.size()
+                        + " PUT 失败: " + partResp.getStatusCode() + " - " + partResp.getBodyString());
+            }
+            log.debug("[hf-hub] multipart 分片 {}/{} 已上传", i + 1, partUrls.size());
+        }
+
+        // 完成 multipart：PUT oid/size 到完成 URL（镜像站 API 路径，带鉴权）
+        ClientResponse doneResp = HttpClientFactory.of(completeUrl)
+                .header("Authorization", buildAuthHeader())
+                .header("Content-Type", "application/json")
+                .json()
+                .body(Json.toJson(Map.of("oid", oid, "size", size)))
+                .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
+                .readTimeout(HuggingfaceConstants.UPLOAD_TIMEOUT_MILLIS)
+                .put();
+        if (!doneResp.isSuccess()) {
+            throw new RuntimeException("LFS multipart 完成失败: " + doneResp.getStatusCode()
+                    + " - " + doneResp.getBodyString());
+        }
+        log.info("[hf-hub] LFS multipart 上传完成: {} bytes", size);
     }
 
     /**
@@ -633,6 +706,42 @@ public class HuggingfaceHubClient {
             throw new RuntimeException("git push 失败: " + repoId);
         }
         log.info("[hf-hub] pushed {} -> {}", localRepoPath, repoId);
+    }
+
+    /**
+     * 将 LFS verify/commit 等 API URL 的 host 对齐到当前 baseUrl 的 host。
+     *
+     * <p>镜像场景（如 hf-mirror.com）下 batch 响应可能返回 hf-mirror.org 等不可达 host，
+     * 仅当 URL 属于本 Hub API（非 S3 预签名）时对齐。</p>
+     *
+     * @param url 原始 URL（可为 null）
+     * @return 对齐后的 URL
+     */
+    private String alignLfsHost(String url) {
+        if (url == null || url.isBlank()) {
+            return url;
+        }
+        try {
+            java.net.URI uri = java.net.URI.create(url);
+            String baseHost = java.net.URI.create(baseUrl).getHost();
+            String urlHost = uri.getHost();
+            if (baseHost == null || urlHost == null || baseHost.equals(urlHost)) {
+                return url;
+            }
+            // 仅对齐本 Hub API 路径（info/lfs、commit、preupload、multipart 完成等），
+            // 直接 S3 预签名 URL（cas-bridge.xethub.hf.co / *.s3 / *.cloudfront）不在此列
+            if (!url.contains("/info/lfs/") && !url.contains("/commit/") && !url.contains("/preupload/")
+                    && !url.contains("/api/")) {
+                return url;
+            }
+            String authority = uri.getAuthority();
+            int port = uri.getPort();
+            String newAuthority = port > 0 ? baseHost + ":" + port : baseHost;
+            return url.replaceFirst(java.util.regex.Pattern.quote(authority), newAuthority);
+        } catch (Exception e) {
+            log.debug("[hf-hub] LFS host 对齐失败，使用原始 URL: {}", e.getMessage());
+            return url;
+        }
     }
 
     /**

@@ -187,6 +187,48 @@ public class ArrayUtils {
     }
 
     /**
+     * float[] 转 double[]。
+     *
+     * <p>null 输入返回 null，空数组返回空数组。</p>
+     *
+     * @param value float 数组
+     * @return 对应的 double 数组，null 输入返回 null
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static double[] toDouble(float[] value) {
+        if (value == null) {
+            return null;
+        }
+        double[] result = new double[value.length];
+        for (int i = 0; i < value.length; i++) {
+            result[i] = value[i];
+        }
+        return result;
+    }
+
+    /**
+     * double[] 转 float[]。
+     *
+     * <p>null 输入返回 null，空数组返回空数组。</p>
+     *
+     * @param value double 数组
+     * @return 对应的 float 数组，null 输入返回 null
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static float[] toFloat(double[] value) {
+        if (value == null) {
+            return null;
+        }
+        float[] result = new float[value.length];
+        for (int i = 0; i < value.length; i++) {
+            result[i] = (float) value[i];
+        }
+        return result;
+    }
+
+    /**
      * byte[]
      *
      * @param value value

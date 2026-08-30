@@ -24,6 +24,11 @@
             <testExclude>**/AudioFullTest.java</testExclude>
             <testExclude>**/AudioRecognitionExample.java</testExclude>
           </testExcludes>
+          <excludes>
+            <exclude>**/text/gemma3/Gemma3Translator.java</exclude>
+            <exclude>**/yoloworld/YoloWorldDetectorTranslator.java</exclude>
+            <exclude>**/audio/zipformer/ZipformerAudioClient.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>

@@ -1185,6 +1185,7 @@ public final class ModelRegistry {
                     value = modelPath.toString();
                 }
                 m.invoke(translator, value);
+                log.info("[deeplearning-engine] injectModelPath {} -> {}", modelId, value);
             } catch (NoSuchMethodException ignored) {
                 // 该 translator 不接受 setModelPath 注入，跳过即可
             } catch (Throwable ex) {
