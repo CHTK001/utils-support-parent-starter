@@ -271,9 +271,9 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         List<Integer> keep = nms(boxes, probs, nmsThreshold);
         List<String> fn = new ArrayList<>(), fp = new ArrayList<>();
         List<BoundingBox> fb = new ArrayList<>();
-        for (int idx : keep) { fn.add(names.get(idx)); fp.add(probs.get(idx)); fb.add(boxes.get(idx)); }
+        for (int idx : keep) { fn.add(names.get(idx)); probs.add(probs.get(idx)); fb.add(boxes.get(idx)); }
         log.info("[YOLO-World] {} -> {} boxes", names.size(), fn.size());
-        return new DetectedObjects(fn, fp, fb);
+        return new DetectedObjects(fn, probs, fb);
     }
 
     private String[] buildCustomLabels(int numClasses) {
