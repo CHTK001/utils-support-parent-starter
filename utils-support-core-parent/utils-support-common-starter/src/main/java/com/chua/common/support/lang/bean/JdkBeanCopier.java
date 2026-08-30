@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.bean;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 
@@ -85,7 +86,7 @@ public class JdkBeanCopier implements BeanCopier {
                     continue;
                 }
 
-                Object value = readMethod.invoke(source);
+                Object value = ReflectUtils.invoke(source, readMethod.getName(), readMethod.getReturnType());
                 if (value != null) {
                     writeMethod.invoke(target, convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
                 }
