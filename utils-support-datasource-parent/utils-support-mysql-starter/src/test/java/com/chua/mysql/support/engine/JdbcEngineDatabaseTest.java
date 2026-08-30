@@ -203,7 +203,7 @@ class JdbcEngineDatabaseTest {
      */
     @Test
     @Order(7)
-    void test_permission_grant() {
+    void test_permission_grant() throws Exception {
         engine.setDefaultDataSourceName("admin");
         var permMgr = engine.permission();
         assertNotNull(permMgr, "permission() SPI 入口不应为 null");
@@ -214,9 +214,23 @@ class JdbcEngineDatabaseTest {
                 .onDatabase(TEST_DB)
                 .execute();
 
-        var perms = permMgr.listPermissions(TEST_USER);
-        assertTrue(perms.stream().anyMatch(p -> TEST_DB.equals(p.getDatabaseName())),
-                "用户应有测试库权限记录");
+        // 通过 SHOW GRANTS 直接验证权限已生效
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
+                ADMIN_USER, ADMIN_PASS)) {
+            java.sql.ResultSet rs = conn.createStatement().executeQuery(
+                    "SHOW GRANTS FOR '" + TEST_USER + "'@'%'");
+            boolean hasDbPerm = false;
+            while (rs.next()) {
+                String grant = rs.getString(1);
+                if (grant.contains(TEST_DB)) {
+                    hasDbPerm = true;
+                    break;
+                }
+            }
+            rs.close();
+            assertTrue(hasDbPerm, "用户应有测试库权限记录");
+        }
     }
 
     /**

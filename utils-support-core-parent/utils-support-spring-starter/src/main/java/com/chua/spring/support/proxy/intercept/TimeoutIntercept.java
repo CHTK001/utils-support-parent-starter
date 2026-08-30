@@ -9,6 +9,7 @@ import com.chua.common.support.proxy.intercept.MethodInvocation;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeoutException;
@@ -88,7 +89,7 @@ public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implemen
             Method fallbackMethod = ClassUtils.findMethod(target.getClass(), annotation.fallback(), proxyMethod.getParameterTypes());
             if (fallbackMethod != null) {
                 try {
-                    return fallbackMethod.invoke(target, proxyMethod.getArgs());
+                    return ReflectUtils.invoke(target, fallbackMethod.getName(), fallbackMethod.getReturnType(), fallbackMethod.getParameterTypes(), proxyMethod.getArgs());
                 } catch (Exception e) {
                     return null;
                 }

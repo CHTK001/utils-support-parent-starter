@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 /**
  * SQL 词法扫描与行访问工具。
  *
@@ -162,13 +164,13 @@ final class MemorySqlLex {
                 Method getter = row.getClass().getMethod(getterName(column));
                 /* 行实现类可能为包私有：跨包反射需显式放开可访问性 */
                 getter.setAccessible(true);
-                return getter.invoke(row);
+                return ReflectUtils.invoke(row, getter.getName(), getter.getReturnType());
             } catch (Exception e) {
                 try {
                     Method getter = row.getClass().getMethod(
                             "get" + Character.toUpperCase(column.charAt(0)) + column.substring(1));
                     getter.setAccessible(true);
-                    return getter.invoke(row);
+                    return ReflectUtils.invoke(row, getter.getName(), getter.getReturnType());
                 } catch (Exception ex) {
                     return null;
                 }
@@ -198,9 +200,9 @@ final class MemorySqlLex {
                     /* 行实现类可能为包私有：跨包反射需显式放开可访问性 */
                     m.setAccessible(true);
                     if (n.startsWith("get") && n.length() > 3) {
-                        out.put(Character.toLowerCase(n.charAt(3)) + n.substring(4), m.invoke(row));
+                        out.put(Character.toLowerCase(n.charAt(3)) + n.substring(4), ReflectUtils.invoke(row, m.getName(), m.getReturnType()));
                     } else if (n.startsWith("is") && n.length() > 2) {
-                        out.put(Character.toLowerCase(n.charAt(2)) + n.substring(3), m.invoke(row));
+                        out.put(Character.toLowerCase(n.charAt(2)) + n.substring(3), ReflectUtils.invoke(row, m.getName(), m.getReturnType()));
                     }
                 } catch (Exception ignored) {
                     // 单个属性读取失败不影响整体投影
@@ -236,7 +238,7 @@ final class MemorySqlLex {
                         guessType(value));
                 /* 行实现类可能为包私有：跨包反射需显式放开可访问性 */
                 setter.setAccessible(true);
-                setter.invoke(row, value);
+                ReflectUtils.invoke(row, setter.getName(), setter.getReturnType(), value);
                 return true;
             } catch (Exception e) {
                 return false;

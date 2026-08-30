@@ -1,6 +1,6 @@
 package com.chua.common.support.network.client;
 
-import java.lang.reflect.Proxy;
+import com.chua.common.support.reflection.ReflectUtils;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -61,7 +61,7 @@ public class HttpApiFactory {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
         }
         return (T) PROXY_CACHE.computeIfAbsent(apiClass, clazz ->
-                Proxy.newProxyInstance(
+                ReflectUtils.newProxy(
                         clazz.getClassLoader(),
                         new Class[]{clazz},
                         new HttpApiInvocationHandler(clazz)
@@ -80,7 +80,7 @@ public class HttpApiFactory {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
         }
-        return (T) Proxy.newProxyInstance(
+        return (T) ReflectUtils.newProxy(
                 apiClass.getClassLoader(),
                 new Class[]{apiClass},
                 new HttpApiInvocationHandler(apiClass)

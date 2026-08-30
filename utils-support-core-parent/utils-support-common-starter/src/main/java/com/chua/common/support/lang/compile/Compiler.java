@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.compile;
 
 import com.chua.common.support.constant.CommonConstant;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -117,7 +118,7 @@ public interface Compiler {
         
         try {
             // 首先尝试通过 Class.forName 查找是否已存在该类（通常用于缓存命中）
-            return Class.forName(className, true, getClass().getClassLoader());
+            return ReflectUtils.forName(className, getClass().getClassLoader());
         } catch (ClassNotFoundException e) {
             // 如果找不到类，检查代码是否以右大括号结尾，这是有效 Java 代码块的基本特征
             if (!code.endsWith(CommonConstant.SYMBOL_RIGHT_BIG_PARENTHESES)) {

@@ -2,6 +2,7 @@ package com.chua.common.support.objects;
 
 import com.chua.common.support.config.parser.ConfigParser;
 import com.chua.common.support.config.source.PropertySource;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -237,7 +238,7 @@ public final class ObjectContextConfigLoader {
             if (command != null && !command.isBlank()) {
                 String mainClassName = command.split("\\s+")[0];
                 if (mainClassName.contains(".") && !mainClassName.endsWith(".jar")) {
-                    Class<?> mainClass = Class.forName(mainClassName, false,
+                    Class<?> mainClass = ReflectUtils.forName(mainClassName,
                             Thread.currentThread().getContextClassLoader());
                     Package pkg = mainClass.getPackage();
                     if (pkg != null && pkg.getName() != null && !pkg.getName().isEmpty()) {

@@ -1,5 +1,7 @@
 package com.chua.common.support.constant;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.annotation.Annotation;
 
 /**
@@ -40,7 +42,7 @@ public interface ContextConstant {
      */
     private static Class<? extends Annotation> loadComponentAnnotation() {
         try {
-            return (Class<? extends Annotation>) Class.forName(COMPONENT_CLASS_NAME);
+            return (Class<? extends Annotation>) ReflectUtils.forName(COMPONENT_CLASS_NAME);
         } catch (ClassNotFoundException e) {
             return null;
         }

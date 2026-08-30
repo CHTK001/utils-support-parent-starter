@@ -2,6 +2,8 @@ package com.chua.common.support.network.server.parser.listener;
 
 import com.chua.common.support.network.annotations.ListenerParser;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,7 +90,7 @@ public class JavaxListenerParser implements ListenerParser {
     private String matchJavaxAnnotation(Method method) {
         for (String annClass : JAVAX_ANNOTATIONS) {
             try {
-                Class<?> c = Class.forName(annClass, false, method.getDeclaringClass().getClassLoader());
+                Class<?> c = ReflectUtils.forName(annClass, method.getDeclaringClass().getClassLoader());
                 if (method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
                     return extractEventName(annClass);
                 }
@@ -108,7 +110,7 @@ public class JavaxListenerParser implements ListenerParser {
     private String matchJakartaAnnotation(Method method) {
         for (String annClass : JAKARTA_ANNOTATIONS) {
             try {
-                Class<?> c = Class.forName(annClass, false, method.getDeclaringClass().getClassLoader());
+                Class<?> c = ReflectUtils.forName(annClass, method.getDeclaringClass().getClassLoader());
                 if (method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
                     return extractEventName(annClass);
                 }
@@ -130,7 +132,7 @@ public class JavaxListenerParser implements ListenerParser {
     private boolean hasAnyAnnotation(Method method, String[] annotations, ClassLoader classLoader) {
         for (String annClass : annotations) {
             try {
-                Class<?> c = Class.forName(annClass, false, classLoader);
+                Class<?> c = ReflectUtils.forName(annClass, classLoader);
                 if (method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
                     return true;
                 }

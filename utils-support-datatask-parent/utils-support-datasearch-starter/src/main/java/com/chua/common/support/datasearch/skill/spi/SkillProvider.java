@@ -57,4 +57,16 @@ public interface SkillProvider {
     default List<String> listAvailable() {
         return Collections.emptyList();
     }
+
+    /**
+     * 扫描本地 AI 编辑器/Agent 的技能目录，返回可导入的 Agent 技能定义。
+     *
+     * <p>离线 SkillProvider 通过此方法暴露本机已安装编辑器（Cursor、Claude Code、
+     * CodeBuddy 等）的 skills/rules 目录中的技能，供「从 Agent 导入」统一收集。</p>
+     *
+     * @return Agent 技能定义列表；不提供离线扫描的实现返回空列表
+     */
+    default List<SkillDefinition> listAgentSkills() {
+        return Collections.emptyList();
+    }
 }

@@ -16,6 +16,7 @@ import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.objects.annotation.OnOpen;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -524,7 +525,7 @@ public class KcpServer extends AbstractServer {
     /** Safe调用 */
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
-            method.invoke(bean, args);
+            ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (java.lang.reflect.InvocationTargetException e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;
             log.error("KCP 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);

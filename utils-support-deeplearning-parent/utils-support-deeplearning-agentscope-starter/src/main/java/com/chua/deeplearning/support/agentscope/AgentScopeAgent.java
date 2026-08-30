@@ -16,6 +16,7 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.memory.MemoryConfig;
 import com.chua.common.support.ai.skill.SkillManager;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.hook.Hook;
@@ -572,12 +573,8 @@ public class AgentScopeAgent implements Agent {
 
     static {
         try {
-            Class<?> hookClass = Class.forName("io.agentscope.core.shutdown.AgentScopeJvmShutdownHook");
-            java.lang.reflect.Field registeredField = hookClass.getDeclaredField("REGISTERED");
-            registeredField.setAccessible(true);
-            java.util.concurrent.atomic.AtomicBoolean registered =
-                    (java.util.concurrent.atomic.AtomicBoolean) registeredField.get(null);
-            registered.set(true);
+            Class<?> hookClass = ReflectUtils.forName("io.agentscope.core.shutdown.AgentScopeJvmShutdownHook");
+            Object registeredField = ReflectUtils.getField(hookClass, "REGISTERED");
         } catch (Throwable ignored) {
         }
     }

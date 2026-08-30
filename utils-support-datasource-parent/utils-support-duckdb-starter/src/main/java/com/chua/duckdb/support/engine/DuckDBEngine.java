@@ -230,7 +230,7 @@ public class DuckDBEngine extends JdbcEngine {
                             return null;
                         }
                         try {
-                            return method.invoke(target, args);
+                            return ReflectUtils.invoke(target, method.getName(), Object.class, args);
                         } catch (InvocationTargetException e) {
                             throw e.getCause();
                         }

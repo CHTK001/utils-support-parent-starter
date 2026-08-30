@@ -1,5 +1,6 @@
 package com.chua.common.support.network.container;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.Data;
@@ -197,7 +198,7 @@ public abstract class AbstractWebContainer implements WebContainer {
      */
     protected void doDeployMain(String mainClass, String contextPath) {
         try {
-            Class<?> clazz = Class.forName(mainClass);
+            Class<?> clazz = ReflectUtils.forName(mainClass);
             java.lang.reflect.Method mainMethod = clazz.getMethod("main", String[].class);
             String[] args = StringUtils.isEmpty(contextPath)
                     ? new String[0]

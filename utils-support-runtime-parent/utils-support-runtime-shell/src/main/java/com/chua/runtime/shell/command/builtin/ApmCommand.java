@@ -239,6 +239,9 @@ public class ApmCommand implements Command {
             } catch (NumberFormatException ignored) {
             }
         }
+        // instanceof 路由不可迁移至 ServiceProvider：上述 7 个 Handler 均为具体实现类（非可扩展 SPI 接口），
+        // 各自持有不同的数据结构（LogEntry/NetRecord/FileRecord/Span/TransmissionRecord/DependencyEdge/HandleRecord），
+        // 分发逻辑为业务固定的类型路由，故保留。
         if (handler instanceof LogHandler) {
             showLogs((LogHandler) handler, console, limit);
         } else if (handler instanceof NetHandler) {

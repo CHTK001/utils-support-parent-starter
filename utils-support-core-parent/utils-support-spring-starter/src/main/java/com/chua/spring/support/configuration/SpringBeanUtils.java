@@ -36,6 +36,8 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.util.ReflectionUtils;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -252,7 +254,7 @@ public class SpringBeanUtils {
             Method method = findMethod(requestMappingHandlerMapping.getClass(), "detectHandlerMethods", Object.class);
             if (method != null) {
                 method.setAccessible(true);
-                method.invoke(requestMappingHandlerMapping, controllerBeanName);
+                ReflectUtils.invoke(requestMappingHandlerMapping, method.getName(), method.getReturnType(), controllerBeanName);
             }
         } catch (Exception e) {
             throw new RuntimeException("注册控制器失败: " + controllerBeanName, e);
@@ -282,7 +284,7 @@ public class SpringBeanUtils {
                 Method createMappingMethod = findMethod(requestMappingHandlerMapping.getClass(), "getMappingForMethod", Method.class, Class.class);
                 if (createMappingMethod != null) {
                     createMappingMethod.setAccessible(true);
-                    Object requestMappingInfo = createMappingMethod.invoke(requestMappingHandlerMapping, method, targetClass);
+                    Object requestMappingInfo = ReflectUtils.invoke(requestMappingHandlerMapping, createMappingMethod.getName(), createMappingMethod.getReturnType(), method, targetClass);
                     if (requestMappingInfo != null && requestMappingInfo instanceof RequestMappingInfo) {
                         requestMappingHandlerMapping.unregisterMapping((RequestMappingInfo) requestMappingInfo);
                     }
@@ -449,7 +451,7 @@ public class SpringBeanUtils {
                 Method method = findMethod(DefaultSingletonBeanRegistry.class, "getSingletonMutex");
                 if (method != null) {
                     method.setAccessible(true);
-                    return method.invoke(autowireCapableBeanFactory);
+                    return ReflectUtils.invoke(autowireCapableBeanFactory, method.getName(), method.getReturnType());
                 }
             } catch (Throwable t2) {
                 // 忽略反射异常，继续降级处理

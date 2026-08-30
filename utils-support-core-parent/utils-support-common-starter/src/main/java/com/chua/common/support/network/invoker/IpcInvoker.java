@@ -18,7 +18,7 @@ import com.chua.common.support.utils.StringUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import com.chua.common.support.reflection.ReflectUtils;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,7 +66,7 @@ public class IpcInvoker implements Invoker {
             shared.addInjectRule(rule.target(), rule.callback());
         }
 
-        return Proxy.newProxyInstance(
+        return ReflectUtils.newProxy(
                 apiClass.getClassLoader(),
                 new Class<?>[]{apiClass},
                 new IpcInvocationHandler(normalizedBase, namespace, filters, shared)
@@ -79,7 +79,7 @@ public class IpcInvoker implements Invoker {
         };
         for (String annClass : classLevelAnnotations) {
             try {
-                Class<?> cl = Class.forName(annClass);
+                Class<?> cl = ReflectUtils.forName(annClass);
                 Annotation ann = clazz.getAnnotation(cl.asSubclass(Annotation.class));
                 if (ann != null) {
                     String v = extractAnnotationValue(ann);
@@ -126,8 +126,7 @@ public class IpcInvoker implements Invoker {
 
     private static String extractAnnotationValue(Annotation ann) {
         try {
-            java.lang.reflect.Method m = ann.getClass().getMethod("value");
-            Object r = m.invoke(ann);
+            Object r = ReflectUtils.invoke(ann, "value", Object.class);
             if (r instanceof String s) {
                 return s;
             }

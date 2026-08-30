@@ -36,46 +36,70 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     @Override
     public List<PermissionInfo> listPermissions() {
         List<PermissionInfo> result = new ArrayList<>();
-        try (Connection conn = dataSource.getConnection();
-             Statement stmt = conn.createStatement()) {
+        try (Connection conn = dataSource.getConnection()) {
             // Global privileges
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT GRANTEE, PRIVILEGE_TYPE, IS_GRANTABLE"
-                            + " FROM information_schema.USER_PRIVILEGES");
-            while (rs.next()) {
-                String grantee = rs.getString("GRANTEE");
-                result.add(new PermissionInfo(stripQuote(grantee), null,
-                        rs.getString("PRIVILEGE_TYPE"), null, null, null, null,
-                        "YES".equals(rs.getString("IS_GRANTABLE"))));
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(
+                         "SELECT GRANTEE, PRIVILEGE_TYPE, IS_GRANTABLE"
+                                 + " FROM information_schema.USER_PRIVILEGES")) {
+                while (rs.next()) {
+                    result.add(new PermissionInfo(stripQuote(rs.getString("GRANTEE")), null,
+                            rs.getString("PRIVILEGE_TYPE"), null, null, null, null,
+                            "YES".equals(rs.getString("IS_GRANTABLE"))));
+                }
             }
-            rs.close();
-            // Schema-level privileges
-            ResultSet rs2 = stmt.executeQuery(
-                    "SELECT GRANTEE, TABLE_SCHEMA, PRIVILEGE_TYPE, IS_GRANTABLE"
-                            + " FROM information_schema.SCHEMA_PRIVILEGES");
-            while (rs2.next()) {
-                result.add(new PermissionInfo(stripQuote(rs2.getString("GRANTEE")),
-                        rs2.getString("TABLE_SCHEMA"),
-                        rs2.getString("PRIVILEGE_TYPE"), null, null, null, null,
-                        "YES".equals(rs2.getString("IS_GRANTABLE"))));
+            // Collect users first
+            List<String[]> users = new ArrayList<>();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT User, Host FROM mysql.user")) {
+                while (rs.next()) {
+                    users.add(new String[]{rs.getString("User"), rs.getString("Host")});
+                }
             }
-            rs2.close();
-            // Table-level privileges
-            ResultSet rs3 = stmt.executeQuery(
-                    "SELECT GRANTEE, TABLE_SCHEMA, TABLE_NAME, PRIVILEGE_TYPE, IS_GRANTABLE"
-                            + " FROM information_schema.TABLE_PRIVILEGES");
-            while (rs3.next()) {
-                result.add(new PermissionInfo(stripQuote(rs3.getString("GRANTEE")),
-                        rs3.getString("TABLE_SCHEMA"),
-                        rs3.getString("PRIVILEGE_TYPE"),
-                        rs3.getString("TABLE_NAME"), null, null, null,
-                        "YES".equals(rs3.getString("IS_GRANTABLE"))));
+            // Query SHOW GRANTS for each user
+            for (String[] u : users) {
+                try (Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery("SHOW GRANTS FOR '"
+                             + u[0] + "'@'" + u[1] + "'")) {
+                    while (rs.next()) {
+                        String grantSql = rs.getString(1);
+                        String perms = parseGrantPrivileges(grantSql);
+                        String db = parseGrantDatabase(grantSql);
+                        if (perms != null && db != null) {
+                            result.add(new PermissionInfo(u[0], db, perms, null, null, null, null, false));
+                        }
+                    }
+                }
             }
-            rs3.close();
         } catch (Exception e) {
             throw new RuntimeException("列出 MySQL 权限失败", e);
         }
         return result;
+    }
+
+    private static String parseGrantPrivileges(String sql) {
+        if (sql == null) return null;
+        int on = sql.indexOf(" ON ");
+        int to = sql.indexOf(" TO ");
+        if (on < 0 || to < 0 || to <= on) return null;
+        // Privileges are between first space after "GRANT" and " ON"
+        int grantIdx = sql.indexOf("GRANT ");
+        if (grantIdx < 0) return null;
+        return sql.substring(grantIdx + 6, on).trim();
+    }
+
+    private static String parseGrantDatabase(String sql) {
+        if (sql == null) return null;
+        int on = sql.indexOf(" ON ");
+        int to = sql.indexOf(" TO ");
+        if (on < 0 || to < 0 || to <= on) return null;
+        String target = sql.substring(on + 4, to).trim();
+        // Remove backticks
+        target = target.replaceAll("`", "");
+        if ("*".equals(target) || "*.*".equals(target)) return null;
+        // Remove .* suffix
+        if (target.endsWith(".*")) target = target.substring(0, target.length() - 2);
+        return target;
     }
 
     @Override
@@ -105,9 +129,12 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         int at = clean.indexOf('@');
         if (at > 0) {
             String u = clean.substring(0, at);
-            // Remove trailing quote left from '@' stripping
-            return u.endsWith("'") ? u.substring(0, u.length() - 1) : u;
+            // Strip any trailing quote left behind
+            while (u.endsWith("'")) u = u.substring(0, u.length() - 1);
+            return u;
         }
+        // No @ sign — might be bare username from SHOW GRANTS
+        while (clean.endsWith("'")) clean = clean.substring(0, clean.length() - 1);
         return clean;
     }
 

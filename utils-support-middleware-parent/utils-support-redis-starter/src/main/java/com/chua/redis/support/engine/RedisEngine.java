@@ -261,7 +261,7 @@ public class RedisEngine {
                 String setterName = "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
                 for (Method method : entityClass.getMethods()) {
                     if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
-                        method.invoke(instance, convertValue(entry.getValue(), method.getParameterTypes()[0]));
+                        ReflectUtils.invoke(instance, method.getName(), void.class, convertValue(entry.getValue(), method.getParameterTypes()[0]));
                         break;
                     }
                 }

@@ -580,6 +580,8 @@ public class HuggingfaceHubClient {
         }
         log.info("[hf-hub] LFS multipart 上传: {} bytes, {} parts x {}B", size, partUrls.size(), chunkSize);
 
+        // 收集每个分片 PUT 响应的 ETag，完成 multipart 时需要
+        List<Map<String, Object>> parts = new ArrayList<>();
         int offset = 0;
         for (int i = 0; i < partUrls.size(); i++) {
             int len = (int) Math.min(chunkSize, content.length - offset);
@@ -596,15 +598,23 @@ public class HuggingfaceHubClient {
                 throw new RuntimeException("LFS multipart 分片 " + (i + 1) + "/" + partUrls.size()
                         + " PUT 失败: " + partResp.getStatusCode() + " - " + partResp.getBodyString());
             }
-            log.debug("[hf-hub] multipart 分片 {}/{} 已上传", i + 1, partUrls.size());
+            // ETag 响应头大小写不确定（S3 返回 "ETag"），做不区分大小写的取值
+            String etag = getHeaderIgnoreCase(partResp, "etag");
+            parts.add(Map.of("partNumber", i + 1, "etag", etag != null ? etag : ""));
+            log.debug("[hf-hub] multipart 分片 {}/{} 已上传 (etag={})", i + 1, partUrls.size(), etag);
         }
 
-        // 完成 multipart：POST oid/size 到完成 URL（官方 HF 与镜像站均用 POST 完成 multipart 上传）
+        // 完成 multipart：POST oid/size/parts（含各分片 ETag）到完成 URL
+        // （官方 HF 与镜像站均用 POST；缺 parts 或 partNumber 会返回 400）
+        Map<String, Object> doneBody = new LinkedHashMap<>();
+        doneBody.put("oid", oid);
+        doneBody.put("size", size);
+        doneBody.put("parts", parts);
         ClientResponse doneResp = HttpClientFactory.of(completeUrl)
                 .header("Authorization", buildAuthHeader())
                 .header("Content-Type", "application/json")
                 .json()
-                .body(Json.toJson(Map.of("oid", oid, "size", size)))
+                .body(Json.toJson(doneBody))
                 .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
                 .readTimeout(HuggingfaceConstants.UPLOAD_TIMEOUT_MILLIS)
                 .post();
@@ -613,6 +623,30 @@ public class HuggingfaceHubClient {
                     + " - " + doneResp.getBodyString());
         }
         log.info("[hf-hub] LFS multipart 上传完成: {} bytes", size);
+    }
+
+    /**
+     * 从响应头中不区分大小写地取值。
+     *
+     * @param resp      客户端响应
+     * @param headerName 头名（小写或任意大小写）
+     * @return 头值；不存在返回 null
+     */
+    private String getHeaderIgnoreCase(ClientResponse resp, String headerName) {
+        if (resp == null) {
+            return null;
+        }
+        String direct = resp.getHeader(headerName);
+        if (direct != null && !direct.isBlank()) {
+            return direct;
+        }
+        for (Map.Entry<String, String> entry : resp.getHeaders().toMap().entrySet()) {
+            if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(headerName)) {
+                String v = entry.getValue();
+                return v == null || v.isBlank() ? null : v;
+            }
+        }
+        return null;
     }
 
     /**

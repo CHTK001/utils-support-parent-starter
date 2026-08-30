@@ -1,5 +1,6 @@
 package com.chua.mqtt.support.client;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
 import com.chua.common.support.objects.annotation.OnMessage;
@@ -268,8 +269,8 @@ public class MqttClientWrapper implements AutoCloseable {
             } else if (method.isAnnotationPresent(OnError.class)) {
                 errorListeners.add(t -> {
                     try {
-                        method.setAccessible(true);
-                        method.invoke(handler, t);
+                method.setAccessible(true);
+                        ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), t);
                     } catch (Exception e) {
                         log.error("MQTT 客户端 @OnError 方法执行异常", e);
                     }
@@ -495,7 +496,7 @@ public class MqttClientWrapper implements AutoCloseable {
     /** 调用Method */
     private void invokeMethod(Object handler, Method method, Object... args) {
         try {
-            method.invoke(handler, args);
+            ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (Exception e) {
             log.error("注解方法调用异常: {}.{}", handler.getClass().getSimpleName(), method.getName(), e);
         }

@@ -1,5 +1,6 @@
 package com.chua.rsocket.support.server;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -374,7 +375,7 @@ public class RSocketServer extends AbstractServer {
                 if (method.isAnnotationPresent(annotationType)) {
                     method.setAccessible(true);
                     try {
-                        method.invoke(bean);
+                        ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes());
                     } catch (Exception e) {
                         log.error("调用 {} 方法异常: {}.{}",
                                 annotationType.getSimpleName(),
@@ -413,7 +414,7 @@ public class RSocketServer extends AbstractServer {
                         throw new IllegalArgumentException("不支持的请求参数类型: " + paramTypes[i].getName());
                     }
                 }
-                Object result = method.invoke(bean, args);
+                Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
                 if (result != null) {
                     response.setResult(result);
                 }
