@@ -96,13 +96,19 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     private static String stripQuote(String raw) {
-        if (raw == null || !raw.contains("@")) return raw;
+        if (raw == null) return raw;
         String clean = raw.trim();
+        // Remove surrounding quotes: 'user'@'host' -> user'@'host
         if (clean.startsWith("'") && clean.endsWith("'")) {
             clean = clean.substring(1, clean.length() - 1);
         }
         int at = clean.indexOf('@');
-        return at > 0 ? clean.substring(0, at) : clean;
+        if (at > 0) {
+            String u = clean.substring(0, at);
+            // Remove trailing quote left from '@' stripping
+            return u.endsWith("'") ? u.substring(0, u.length() - 1) : u;
+        }
+        return clean;
     }
 
     private static void execSql(DataSource ds, String sql) {

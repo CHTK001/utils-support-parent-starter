@@ -89,11 +89,7 @@ public final class YoloWorldInferenceTest {
         for (String tier : targets) {
             System.out.println("\n--- " + tier + " (custom: person,car,dog) ---");
             try {
-                Map<String, Object> config = new HashMap<>();
-                config.put("classes", "person,car,dog");
-                config.put("threshold", "0.3");
-                
-                ImageDetector detector = ImageDetector.create(tier, config)
+                ImageDetector detector = ImageDetector.create(tier)
                         .threshold(0.3f)
                         .nms(0.45f);
                 System.out.println("  [OK] Detector created with custom classes");

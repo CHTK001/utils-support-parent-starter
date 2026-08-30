@@ -599,7 +599,7 @@ public class HuggingfaceHubClient {
             log.debug("[hf-hub] multipart 分片 {}/{} 已上传", i + 1, partUrls.size());
         }
 
-        // 完成 multipart：PUT oid/size 到完成 URL（镜像站 API 路径，带鉴权）
+        // 完成 multipart：POST oid/size 到完成 URL（官方 HF 与镜像站均用 POST 完成 multipart 上传）
         ClientResponse doneResp = HttpClientFactory.of(completeUrl)
                 .header("Authorization", buildAuthHeader())
                 .header("Content-Type", "application/json")
@@ -607,7 +607,7 @@ public class HuggingfaceHubClient {
                 .body(Json.toJson(Map.of("oid", oid, "size", size)))
                 .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
                 .readTimeout(HuggingfaceConstants.UPLOAD_TIMEOUT_MILLIS)
-                .put();
+                .post();
         if (!doneResp.isSuccess()) {
             throw new RuntimeException("LFS multipart 完成失败: " + doneResp.getStatusCode()
                     + " - " + doneResp.getBodyString());
