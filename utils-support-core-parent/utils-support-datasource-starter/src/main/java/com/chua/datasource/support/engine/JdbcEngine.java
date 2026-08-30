@@ -567,9 +567,8 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (dbName == null || dbName.isBlank()) {
             throw new IllegalArgumentException("数据库名不能为空");
         }
-        String sql = "CREATE DATABASE IF NOT EXISTS `" + escapeIdentifier(dbName) + "`"
-                + " DEFAULT CHARACTER SET utf8mb4"
-                + " COLLATE utf8mb4_unicode_ci";
+        String sql = "CREATE DATABASE IF NOT EXISTS " + escapeIdentifier(dbName)
+                + " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
         try (Connection conn = getJdbcConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
