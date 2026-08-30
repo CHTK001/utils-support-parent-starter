@@ -8,6 +8,7 @@ import ai.onnxruntime.OrtSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -154,8 +155,21 @@ public final class KvCacheDecoder implements AutoCloseable {
         }
 
         try (OrtSession.Result result = session.run(inputs)) {
-            float[][][] logits = (float[][][]) result.get(0).getValue();
-            int last = logits[0].length - 1;
+            // it 版为 fp16 模型：输出 logits 是 FLOAT16，ORT 的 getValue() 在转 ShortBuffer 时
+            // 会抛 HeapByteBuffer cast 异常，因此直接从张量读原始字节并手动解码 half → float
+            OnnxTensor outTensor = (OnnxTensor) result.get(0);
+            long[] outShape = outTensor.getInfo().getShape();
+            int seq = (int) outShape[1];
+            int vocab = (int) outShape[2];
+            float[][][] logits = new float[1][seq][vocab];
+            ByteBuffer bb = outTensor.getByteBuffer().duplicate();
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            for (int s = 0; s < seq; s++) {
+                for (int v = 0; v < vocab; v++) {
+                    logits[0][s][v] = halfToFloat(bb.getShort());
+                }
+            }
+            int last = seq - 1;
             float[] lastLogits = logits[0][last];
 
             // 重建 past：从 present 复制 fp16 数据（result 关闭后张量不可用，故拷贝）
@@ -209,6 +223,34 @@ public final class KvCacheDecoder implements AutoCloseable {
     private OnnxTensor createEmptyFp16(long[] shape) throws OrtException {
         int bytes = (int) (shape[0] * shape[1] * shape[2] * shape[3] * 2);
         return OnnxTensor.createTensor(env, ByteBuffer.allocate(bytes), shape, OnnxJavaType.FLOAT16);
+    }
+
+    /**
+     * IEEE 754 half (fp16) 转 float。
+     *
+     * @param halfBits fp16 的 16 位原始值
+     * @return 转换后的 float
+     */
+    private static float halfToFloat(short halfBits) {
+        int h = halfBits & 0xFFFF;
+        int sign = (h >> 15) & 0x1;
+        int exp = (h >> 10) & 0x1F;
+        int mant = h & 0x3FF;
+        if (exp == 0) {
+            if (mant == 0) {
+                return sign == 0 ? 0.0f : -0.0f;
+            }
+            // 次正规数：2^-14 * mant/1024
+            float v = (float) mant / 1024.0f * (float) Math.pow(2, -14);
+            return sign == 0 ? v : -v;
+        }
+        if (exp == 0x1F) {
+            return mant == 0
+                    ? (sign == 0 ? Float.POSITIVE_INFINITY : Float.NEGATIVE_INFINITY)
+                    : Float.NaN;
+        }
+        float v = (1.0f + (float) mant / 1024.0f) * (float) Math.pow(2, exp - 15);
+        return sign == 0 ? v : -v;
     }
 
     /**

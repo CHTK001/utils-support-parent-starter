@@ -1185,9 +1185,9 @@ public final class ModelRegistry {
                 }
                 ReflectUtils.invoke(translator, "setModelPath", void.class, String.class, value);
                 log.info("[deeplearning-engine] injectModelPath {} -> {}", modelId, value);
-            } catch (NoSuchMethodException ignored) {
-                // 该 translator 不接受 setModelPath 注入，跳过即可
             } catch (Throwable ex) {
+                // ReflectUtils.invoke 不抛 checked 异常（无 setModelPath 时返回 null 或内部吞掉），
+                // 该 translator 不接受注入或注入失败时静默跳过
                 log.debug("[deeplearning-engine] injectModelPath failed for {}: {}", modelId, ex.getMessage());
             }
         }

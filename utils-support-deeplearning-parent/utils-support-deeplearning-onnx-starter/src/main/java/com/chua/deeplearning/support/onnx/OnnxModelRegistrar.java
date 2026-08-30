@@ -196,6 +196,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("svtr-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.SvtrExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_mobile_rec_infer/PP-OCRv5_mobile_rec_infer.onnx");
         // 版面分析(PP-DocLayoutV3)：PaddleOCR 官方文档版面分析（DETR，25 类区域），模型内嵌 jar（utils-support-models-onnx-ppdoclayoutv3）
         reg("pp-doc-layout", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/pp_doc_layoutv3/PP-DocLayoutV3.onnx");
+        // 版面分析(PP-DocLayout-L)：RT-DETR-L，23 类区域，640×640 输入，mAP 90.4% 最高精度；模型内嵌 jar（utils-support-models-onnx-ppdoclayout-l）
+        reg("pp-doc-layout-l", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutLTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/pp_doc_layout_l/PP-DocLayout-L.onnx");
+        // 版面分析(PP-DocLayout_plus-L)：RT-DETR-L，21 类区域，800×800 输入，mAP 83.2%；模型内嵌 jar（utils-support-models-onnx-ppdoclayout-plus-l）
+        reg("pp-doc-layout-plus-l", "com.chua.deeplearning.support.onnx.ocr.layout.PpDocLayoutLTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/pp_doc_layout_plus_l/PP-DocLayout_plus-L.onnx");
         // 版面分析(DocLayout-YOLO)：YOLOv10 文档版面检测（DocStructBench 10 类，含 title），模型内嵌 jar；适用试卷/文档版面分析
         reg("doc-layout-yolo", "com.chua.deeplearning.support.onnx.yolo.v10.translator.DocLayoutYoloTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.layout.LayoutDetector.class, "vision/detection/doclayout-yolo/model.onnx");
         // OCR文字识别(PP-OCRv5 Server)：PaddleOCR 文字识别完整版；适用端到端 OCR

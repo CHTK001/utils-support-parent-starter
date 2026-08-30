@@ -89,13 +89,10 @@ public class JavaxListenerParser implements ListenerParser {
      */
     private String matchJavaxAnnotation(Method method) {
         for (String annClass : JAVAX_ANNOTATIONS) {
-            try {
-                Class<?> c = ReflectUtils.forName(annClass, method.getDeclaringClass().getClassLoader());
-                if (method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
-                    return extractEventName(annClass);
-                }
-            } catch (ClassNotFoundException e) {
-                // javax.websocket 注解类不在 classpath 中，忽略
+            // ReflectUtils.forName 不抛 checked 异常（类不存在返回 null）
+            Class<?> c = ReflectUtils.forName(annClass, method.getDeclaringClass().getClassLoader());
+            if (c != null && method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
+                return extractEventName(annClass);
             }
         }
         return null;
@@ -109,13 +106,10 @@ public class JavaxListenerParser implements ListenerParser {
      */
     private String matchJakartaAnnotation(Method method) {
         for (String annClass : JAKARTA_ANNOTATIONS) {
-            try {
-                Class<?> c = ReflectUtils.forName(annClass, method.getDeclaringClass().getClassLoader());
-                if (method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
-                    return extractEventName(annClass);
-                }
-            } catch (ClassNotFoundException e) {
-                // jakarta.websocket 注解类不在 classpath 中，忽略
+            // ReflectUtils.forName 不抛 checked 异常（类不存在返回 null）
+            Class<?> c = ReflectUtils.forName(annClass, method.getDeclaringClass().getClassLoader());
+            if (c != null && method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
+                return extractEventName(annClass);
             }
         }
         return null;
@@ -131,13 +125,10 @@ public class JavaxListenerParser implements ListenerParser {
      */
     private boolean hasAnyAnnotation(Method method, String[] annotations, ClassLoader classLoader) {
         for (String annClass : annotations) {
-            try {
-                Class<?> c = ReflectUtils.forName(annClass, classLoader);
-                if (method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
-                    return true;
-                }
-            } catch (ClassNotFoundException e) {
-                // 注解类不在 classpath 中，忽略
+            // ReflectUtils.forName 不抛 checked 异常（类不存在返回 null）
+            Class<?> c = ReflectUtils.forName(annClass, classLoader);
+            if (c != null && method.isAnnotationPresent((Class<? extends java.lang.annotation.Annotation>) c)) {
+                return true;
             }
         }
         return false;
