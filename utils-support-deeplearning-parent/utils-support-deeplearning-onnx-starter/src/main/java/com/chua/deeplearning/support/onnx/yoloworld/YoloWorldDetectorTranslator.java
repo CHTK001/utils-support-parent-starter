@@ -297,8 +297,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return new DetectedObjects(finalNames, finalProbs, finalBoxes);
     }
 
-    @Override
-    // // public Batchifier getBatchifier() { return null; }
+    public Batchifier getBatchifier() { return null; }
 
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> scores, double iouThreshold) {
         List<Integer> keep = new ArrayList<>();
