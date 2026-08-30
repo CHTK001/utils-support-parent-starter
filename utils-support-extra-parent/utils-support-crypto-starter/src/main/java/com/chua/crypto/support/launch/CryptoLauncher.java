@@ -1,5 +1,6 @@
 package com.chua.crypto.support.launch;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -183,9 +184,9 @@ public final class CryptoLauncher {
             KeyShard.wipe(master);
 
             Thread.currentThread().setContextClassLoader(appLoader);
-            Class<?> mainClass = Class.forName(originalMain, true, appLoader);
+            Class<?> mainClass = ReflectUtils.forName(originalMain, appLoader);
             try {
-                mainClass.getMethod("main", String[].class).invoke(null, (Object) args);
+                ReflectUtils.invoke(null, "main", void.class, String[].class, args);
             } catch (InvocationTargetException e) {
                 throw e.getCause() != null ? e.getCause() : e;
             }
