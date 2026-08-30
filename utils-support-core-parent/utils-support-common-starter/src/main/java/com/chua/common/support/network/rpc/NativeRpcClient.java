@@ -10,6 +10,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -256,9 +257,9 @@ public class NativeRpcClient implements RpcClient {
          */
         private Object invokeLocal(Object localService, ProxyMethod pm) {
             try {
-                java.lang.reflect.Method method = pm.getMethod();
-                method.setAccessible(true);
-                Object result = method.invoke(localService, pm.getArgs());
+                java.lang.reflect.Method m = pm.getMethod();
+                m.setAccessible(true);
+                Object result = ReflectUtils.invoke(localService, m.getName(), Object.class, m.getParameterTypes(), pm.getArgs());
                 // 语义对齐：服务端通过 RpcServer 返回 Future 时也做同样解包
                 if (result instanceof java.util.concurrent.Future) {
                     return ((java.util.concurrent.Future<?>) result).get();

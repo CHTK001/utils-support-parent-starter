@@ -652,9 +652,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         try {
             ReflectUtils.invoke(instance, setterName, void.class, field.getType(), value);
             return;
-        } catch (NoSuchMethodException ignored) {
-            // 没有 setter，回退到直接设字段
         } catch (Exception e) {
+            // 没有 setter 或调用失败，回退到直接设字段
             log.warn("setter 调用失败，回退到字段注入: {}.{}", instance.getClass().getSimpleName(), setterName, e);
         }
         ClassUtils.setFieldValue(field, instance.getClass(), value, instance);

@@ -41,10 +41,6 @@ public interface ContextConstant {
      * @return Component 注解的 Class 对象，如果加载失败则返回 null
      */
     private static Class<? extends Annotation> loadComponentAnnotation() {
-        try {
-            return (Class<? extends Annotation>) ReflectUtils.forName(COMPONENT_CLASS_NAME);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
+        return (Class<? extends Annotation>) ReflectUtils.forName(COMPONENT_CLASS_NAME);
     }
 }

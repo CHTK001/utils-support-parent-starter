@@ -275,7 +275,7 @@ class AudioPipelineFullTest {
         float[] vecC = fp.extract(audioC);
 
         assertNotNull(vecA, "wav2vec2-base 特征向量不应为 null");
-        assertEquals(32, vecA.length, "wav2vec2-base-960h ASR head 输出 32 维 vocab");
+        assertEquals(768, vecA.length, "wav2vec2-base backbone 输出 768 维 hidden state");
         assertEquals(vecA.length, vecB.length, "同模型输出维度应一致");
         assertEquals(vecA.length, vecC.length, "同模型输出维度应一致");
 
@@ -318,7 +318,7 @@ class AudioPipelineFullTest {
             float[] vecBase = fpBase.extract(audio);
             float[] vecWespeaker = fpWespeaker.extract(audio);
 
-            assertEquals(32, vecBase.length, "wav2vec2-base-960h ASR head 输出 32 维 vocab");
+            assertEquals(768, vecBase.length, "wav2vec2-base backbone 输出 768 维 hidden state");
             assertEquals(256, vecWespeaker.length, "wespeaker 应为 256 维");
             assertNotEquals(vecBase.length, vecWespeaker.length,
                     "不同模型输出维度应不同");
@@ -348,7 +348,7 @@ class AudioPipelineFullTest {
                             .normalize(true);
                     float[] fingerprint = fp.extract(testWav);
                     assertNotNull(fingerprint, "音频指纹不应为 null");
-                    assertEquals(32, fingerprint.length, "wav2vec2-base-960h ASR head 输出 32 维 vocab");
+                    assertEquals(768, fingerprint.length, "wav2vec2-base backbone 输出 768 维 hidden state");
                     System.out.printf("[E2E] 音频指纹: %d 维向量已提取%n", fingerprint.length);
 
                     // 2. 声纹入库 + 检索

@@ -1,0 +1,13 @@
+com.chua.common.support.datasearch.skill.offline.CursorSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.ClaudeCodeSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.CodexSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.WindsurfSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.RooCodeSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.TraeSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.ClineSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.AugmentSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.ContinueSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.GeminiCliSkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.CodySkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.CodeBuddySkillOfflineProvider
+com.chua.common.support.datasearch.skill.offline.TraeCnSkillOfflineProvider

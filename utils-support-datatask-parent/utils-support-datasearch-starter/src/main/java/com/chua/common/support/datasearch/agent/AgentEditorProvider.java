@@ -2,7 +2,6 @@ package com.chua.common.support.datasearch.agent;
 
 import com.chua.common.support.ai.mcp.*;
 import com.chua.common.support.ai.skill.*;
-import com.chua.common.support.datasearch.skill.spi.SkillProvider;
 import com.chua.common.support.datasearch.music.model.MusicSearchResult;
 import com.chua.common.support.datasearch.music.model.MusicPlaylistDetail;
 import com.chua.common.support.datasearch.music.model.MusicTrackDetail;

@@ -378,10 +378,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx");
-        // 中文通用语言模型(Gemma-3-270M)：原版 262144 完整词表（含中文），uint8 ONNX，中文对话/文本生成，完全离线；嵌入式模型
-        reg("gemma-3-270m", "com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator", String.class, String.class, Object.class, "models/gemma-3-270m/model.onnx",
-                null, null, false, null,
-                HardwareConfig.builder().device("cpu").recommended(true).description("嵌入式中文对话，无需下载").build()); 
+        // 中文通用语言模型(Gemma-3-270M it)：原版 262144 完整词表（含中文），fp16 + KV-cache ONNX，
+        // 中文对话/文本生成；downloadUrl 自动下载（不再内嵌模型文件，tokenizer 仍从 models jar 抽取）。
+        // 文件位于仓库 gemma-3-270m-it/ 子目录（model_fp16.onnx + model_fp16.onnx_data 权重）
+        String gemmaItUrl = "https://huggingface.co/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx";
+        reg("gemma-3-270m", "com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator", String.class, String.class, Object.class,
+                null,
+                gemmaItUrl, java.util.List.of(gemmaItUrl, "https://hf-mirror.com/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx"),
+                false, "model_fp16.onnx",
+                HardwareConfig.builder().device("gpu").recommended(true)
+                        .description("Gemma-3-270M it 版（fp16 KV-cache），downloadUrl 自动下载（含 onnx_data 权重）").build());
         // 本地大模型(Qwen2.5-1.5B-Instruct ONNX int8)：中文大模型对话（int8 单文件 ~1.5GB），downloadUrl 自动下载；适用本地对话（GPU 需 ≥2GB 显存）
         String qwenUrl = "https://huggingface.co/onnx-community/Qwen2.5-1.5B-Instruct/resolve/main/onnx/model_quantized.onnx";
         reg("qwen2-1.5b-onnx", "com.chua.deeplearning.support.onnx.text.qwen.OnnxQwenTranslator", String.class, String.class, Object.class,
@@ -480,9 +486,11 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
                 java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
                 false, null);
-        // wav2vec2-base（32维 ASR head logits，更轻量）：适合嵌入式/边缘设备，模型约 360MB，JAR 内嵌。
-        // 实际为 wav2vec2-base-960h 的 ASR head（logits over 32 字符 vocab），对时间维度做 mean pooling
-        // 后作为音频指纹使用。不同音频产生不同 vocab 分布，同源音频 cosine 相似度 > 0.9。
+        // wav2vec2-base backbone（Wav2Vec2ForPreTraining，768维 hidden state）：正宗的 wav2vec2 预训练
+        // 主干模型，输出真正的 768 维语音表征（mean pooling over time）。适用于音频指纹匹配、相似
+        // 音频检索、声纹初筛。输入 16kHz 单声道 PCM/WAV，输出 768 维 float[]，同源音频 cosine 相似度 > 0.9。
+        // 模型约 90MB（INT4 量化版），JAR 内嵌。
+        // 来源：https://huggingface.co/onnx-community/wav2vec2-base-ONNX/resolve/main/onnx/model_q4.onnx
         reg("wav2vec2-base-fingerprint",
                 "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
                 byte[].class, float[].class,
