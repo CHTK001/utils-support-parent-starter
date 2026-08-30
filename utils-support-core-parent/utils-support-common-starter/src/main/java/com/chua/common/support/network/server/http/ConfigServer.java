@@ -237,7 +237,7 @@ public interface ConfigServer extends Server {
         }
 
         method.setAccessible(true);
-        return method.invoke(target, args);
+        return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
     }
 
     /** 解析StringParam */

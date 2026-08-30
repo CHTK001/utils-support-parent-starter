@@ -370,7 +370,7 @@ public class JdkWebSocketServer extends AbstractServer {
                         throw new IllegalArgumentException("Unsupported param: " + type.getName());
                     }
                 }
-                Object result = method.invoke(bean, args);
+                Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
                 if (result != null) {
                     response.setResult(result);
                 }
@@ -415,7 +415,7 @@ public class JdkWebSocketServer extends AbstractServer {
                 if (method.isAnnotationPresent(annotationType)) {
                     method.setAccessible(true);
                     try {
-                        method.invoke(bean);
+                        ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
                     } catch (Exception e) {
                         log.error("Invoke {} error: {}.{}", annotationType.getSimpleName(),
                                 bean.getClass().getSimpleName(), method.getName(), e);
