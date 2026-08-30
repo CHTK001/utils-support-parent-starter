@@ -175,11 +175,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
             if (dtype == DataType.FLOAT32) {
                 float[] data = new float[Math.toIntExact(total)];
                 for (int i = 0; i < data.length; i++) data[i] = dis.readFloat();
-                arr = manager.create(data, new Shape((long[]) java.util.Arrays.stream(shape).asLongArray()));
+                arr = manager.create(data, new Shape(new long[]{(long)shape[0], (long)shape[1], (long)shape[2]}));
             } else {
                 double[] data = new double[Math.toIntExact(total)];
                 for (int i = 0; i < data.length; i++) data[i] = dis.readDouble();
-                arr = manager.create(data, new Shape((long[]) java.util.Arrays.stream(shape).asLongArray())).toType(DataType.FLOAT32, false);
+                arr = manager.create(data, new Shape(new long[]{(long)shape[0], (long)shape[1], (long)shape[2]})).toType(DataType.FLOAT32, false);
             }
             if (fortran) {
                 NDArray transposed = arr.transpose();
