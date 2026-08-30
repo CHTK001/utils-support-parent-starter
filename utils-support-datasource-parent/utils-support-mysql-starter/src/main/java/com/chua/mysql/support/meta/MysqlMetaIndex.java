@@ -248,7 +248,6 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
             if (comment != null && !comment.isEmpty()) {
                 sb.append(" COMMENT '").append(escapeSql(comment)).append("'");
             }
-            sb.append(" VISIBILITY ").append(visible ? "VISIBLE" : "INVISIBLE");
             metaIndex.executeUpdate(sb.toString());
             return metaIndex.get(indexName);
         }

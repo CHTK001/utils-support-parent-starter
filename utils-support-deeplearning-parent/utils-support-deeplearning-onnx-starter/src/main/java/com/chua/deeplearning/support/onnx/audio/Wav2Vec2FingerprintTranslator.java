@@ -147,11 +147,6 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
             opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
             session = ortEnv.createSession(modelFile.toString(), opts);
 
-            // 从输入节点推断模型结构
-            String inputName = session.getInputNames().iterator().next();
-            try (OrtSession.Result dummy = session.run(new HashMap<>())) {
-                // 仅用于获取输入 shape 信息
-            }
             // 通过 dummy inference 推断 hidden size 和 max length
             inferModelStructure();
             prepared = true;
