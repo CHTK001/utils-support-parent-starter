@@ -2,6 +2,8 @@ package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 
+import java.util.Properties;
+
 /**
  * H2 2.x 方言实现。
  *
@@ -10,27 +12,31 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
  */
 public class H2Dialect extends AbstractDialect {
 
-    /**
-     * 支持版本
-     */
     public static final String VERSION = "H2 2.x";
 
+    public H2Dialect() {
+    }
+
+    public H2Dialect(Properties properties) {
+        withProperties(properties);
+    }
+
     @Override
-    /** Protocol */
     public String protocol() {
-        return "h2";
+        return properties != null
+                ? properties.getProperty("protocol", "h2")
+                : "h2";
     }
 
     @Override
-    /** Driver */
     public String driver() {
-        return "org.h2.Driver";
+        String prop = properties != null ? properties.getProperty("driver") : null;
+        return prop != null ? prop : "org.h2.Driver";
     }
 
     @Override
-    /** Url */
     public String url() {
-        return "jdbc:h2:<DATABASE>";
+        return properties != null ? properties.getProperty("url") : null;
     }
 
     @Override

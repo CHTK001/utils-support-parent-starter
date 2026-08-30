@@ -6,6 +6,7 @@ import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.OrtSession.SessionOptions;
+import com.chua.common.support.env.CudaEnvironmentInstaller;
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 import com.chua.deeplearning.support.engine.ModelRegistry;
@@ -453,6 +454,16 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         // 同时关闭 BFCArena：lm_head 量化 MatMul 的 ~135MB 临时缓冲在 BFC arena 下分配失败。
         opts.setCPUArenaAllocator(false);
         if (useGpu) {
+            // 根据 DetectionConfiguration(useGpu=true) 触发 CUDA 环境检测；
+            // 运行库缺失时异步执行 native-cuda 模块脚本安装，结果通过回调输出日志
+            try {
+                boolean cudaReady = CudaEnvironmentInstaller.ensureCudaRuntime();
+                if (!cudaReady) {
+                    log.warn("[Gemma3] CUDA 运行库未就绪，已触发异步安装；本次推理可能回退 CPU 或失败");
+                }
+            } catch (Throwable envEx) {
+                log.debug("[Gemma3] CUDA 环境检测跳过: {}", envEx.getMessage());
+            }
             // CUDA provider：默认图优化 + 默认 arena 策略（gemma 大词表 lm_head 临时缓冲较大，
             // 不宜过度收紧内存限制否则碎片导致 OOM）。gpu_mem_limit 可选，经 -Dgemma.gpuMemLimit=MB 设置。
             try {

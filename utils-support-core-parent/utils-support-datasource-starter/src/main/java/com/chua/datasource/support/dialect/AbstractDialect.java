@@ -3,6 +3,8 @@ package com.chua.datasource.support.dialect;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 
+import java.util.Properties;
+
 /**
  * 方言抽象基类。
  * <p>
@@ -16,6 +18,12 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
  * @since 4.0.0.42
  */
 public abstract class AbstractDialect implements Dialect {
+
+    /**
+     * 方言配置属性。
+     * <p>支持通过此属性集覆盖 {@link #driver()}、{@link #url()} 等值。</p>
+     */
+    private Properties properties;
 
     @Override
     /** SupportsLimit */
@@ -38,13 +46,38 @@ public abstract class AbstractDialect implements Dialect {
     @Override
     /** Driver */
     public String driver() {
-        return null;
+        return properties != null
+                ? properties.getProperty("driver", null)
+                : null;
     }
 
     @Override
     /** Url */
     public String url() {
-        return null;
+        return properties != null
+                ? properties.getProperty("url", null)
+                : null;
+    }
+
+    /**
+     * 设置方言配置属性。
+     * <p>调用后 {@link #driver()} 和 {@link #url()} 将优先返回属性中的值。</p>
+     *
+     * @param properties 属性集合
+     * @return this
+     */
+    public AbstractDialect withProperties(Properties properties) {
+        this.properties = properties;
+        return this;
+    }
+
+    /**
+     * 获取方言配置属性。
+     *
+     * @return 属性集合，未设置时返回 null
+     */
+    public Properties getProperties() {
+        return properties;
     }
 
     /**

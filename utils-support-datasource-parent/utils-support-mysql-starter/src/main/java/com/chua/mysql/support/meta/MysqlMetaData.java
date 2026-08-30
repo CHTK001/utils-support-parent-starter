@@ -3,30 +3,22 @@ package com.chua.mysql.support.meta;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.*;
-import com.chua.common.support.lang.datasource.meta.model.*;
-import com.chua.datasource.support.meta.AbstractMetaData;
+import com.chua.common.support.lang.datasource.meta.model.SearchIndexDef;
 import com.chua.common.support.spi.annotations.Spi;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.chua.datasource.support.meta.JdbcMetaData;
 
 /**
  * MySQL 元数据入口。
  * <p>
- * 通过 SPI 机制注册为 MySQL 引擎的元数据实现。
- * 提供表、视图、索引、触发器、存储过程、外键、用户、权限的元数据操作能力。
+ * 继承自 {@link JdbcMetaData}，复用方言提供的触发器/存储过程查询 SQL。
+ * 提供表、视图、索引、用户、权限的元数据操作能力。
  * </p>
  *
  * @author CH
  * @since 4.0.0.42
  */
-@spi("mysql")
-public class MysqlMetaData extends AbstractMetaData {
+@Spi("mysql")
+public class MysqlMetaData extends JdbcMetaData {
 
     public MysqlMetaData(Engine engine) {
         super(engine);
@@ -94,12 +86,12 @@ public class MysqlMetaData extends AbstractMetaData {
 
     @Override
     public MetaUser user() {
-        return new MysqlMetaUser(getJdbcDataSource());
+        return new MysqlMetaUser(getDataSource());
     }
 
     @Override
     public MetaPermission permission() {
-        return new MysqlMetaUser(getJdbcDataSource());
+        return new MysqlMetaPermission(getDataSource());
     }
 
     @Override
@@ -110,22 +102,5 @@ public class MysqlMetaData extends AbstractMetaData {
     @Override
     public MetaSearch search(String indexName) {
         throw new UnsupportedOperationException("MySQL 暂不支持搜索引擎元数据");
-    }
-
-    private DataSource getJdbcDataSource() {
-        try {
-            return getJdbcConnection().getConnection();
-        } catch (Exception e) {
-            throw new IllegalStateException("无法获取 JDBC 数据源", e);
-        }
-    }
-
-    protected Connection getJdbcConnection() throws Exception {
-        com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
-                engine.getDataSource(engine.getDefaultDataSourceName());
-        if (eds == null) throw new IllegalStateException("默认数据源未配置");
-        Object source = eds.getSource();
-        if (source instanceof DataSource ds) return ds.getConnection();
-        throw new IllegalStateException("数据源类型不支持 JDBC: " + source.getClass().getName());
     }
 }
