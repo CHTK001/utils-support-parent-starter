@@ -165,8 +165,8 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     private void inferModelStructure() {
         try {
             String inputName = session.getInputNames().iterator().next();
-            // 构造 dummy 输入：batch=1, seq_len=16000（1 秒音频），全零
-            int probeSeq = 16000;
+            // 构造 dummy 输入：batch=1, seq_len=160000（10 秒音频）
+            int probeSeq = 160000;
             float[] dummyInput = new float[probeSeq];
             try (OnnxTensor inputTensor = OnnxTensor.createTensor(
                     ortEnv, FloatBuffer.wrap(dummyInput), new long[]{1, probeSeq});
