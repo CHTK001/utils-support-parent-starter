@@ -200,7 +200,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     @Override
     @Nonnull
-    public NDList processInput(// @Nonnull TranslatorContext ctx, // @Nonnull Image input) {
+    public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         originalWidth = input.getWidth(null);
         originalHeight = input.getHeight(null);
         BufferedImage original = (BufferedImage) input.getWrappedImage();
@@ -238,7 +238,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    public DetectedObjects processOutput(// @Nonnull TranslatorContext ctx, // @Nonnull NDList list) {
+    public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         Shape shape = output.getShape();
         int numClasses = (int) shape.get(1) - 4;
