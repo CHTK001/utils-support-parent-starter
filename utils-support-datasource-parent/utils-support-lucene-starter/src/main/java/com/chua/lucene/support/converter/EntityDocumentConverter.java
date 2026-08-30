@@ -192,9 +192,12 @@ public final class EntityDocumentConverter {
             } else if (fieldType == LocalDate.class) {
                 field.set(entity, LocalDate.parse(valueStr));
             } else if (Number.class.isAssignableFrom(fieldType)) {
-                field.set(entity, ((Number) field.get(entity)).getClass()
-                        .getMethod("valueOf", String.class)
-                        .invoke(null, valueStr));
+                Object numValue = ((Number) field.get(entity));
+                Class<?> numClass = numValue.getClass();
+                Object converted = ReflectUtils.invokeStatic(numClass, "valueOf", fieldType, String.class, valueStr);
+                if (converted != null) {
+                    field.set(entity, converted);
+                }
             }
         } catch (Exception e) {
             // ignore

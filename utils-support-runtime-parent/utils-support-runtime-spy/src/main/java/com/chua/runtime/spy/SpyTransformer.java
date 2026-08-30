@@ -1,5 +1,6 @@
 package com.chua.runtime.spy;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.runtime.plugin.InterceptPoint;
 import com.chua.runtime.plugin.loader.PluginManager;
@@ -337,7 +338,7 @@ public class SpyTransformer implements ClassFileTransformer {
          */
         private static Class<?> loadClass(String type, ClassLoader loader) {
             try {
-                return Class.forName(type.replace('/', '.'), false, loader);
+                return ReflectUtils.forName(type.replace('/', '.'), loader);
             } catch (Throwable e) {
                 // 引用类型不可加载时，回退到最安全的上界
                 return Object.class;

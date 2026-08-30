@@ -1,5 +1,6 @@
 package com.chua.runtime.agent;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.spy.SpyBootstrap;
 import java.lang.instrument.Instrumentation;
@@ -125,14 +126,14 @@ public class RuntimeAgent {
             LOG.log(Level.WARNING, "追加 Agent JAR 到启动类加载器失败: " + agentPath, e);
         }
         try {
-            Class<?> c = Class.forName("com.chua.runtime.agent.Bootstrap", false,
+            Class<?> c = ReflectUtils.forName("com.chua.runtime.agent.Bootstrap",
                     ClassLoader.getSystemClassLoader());
             LOG.info("[RuntimeAgent] Bootstrap 可见 (system): " + c.getName() + " @ " + c.getClassLoader());
         } catch (Throwable e) {
             LOG.warning("[RuntimeAgent] Bootstrap 在系统类加载器不可见: " + e.getMessage());
         }
         try {
-            Class<?> c = Class.forName("com.chua.runtime.agent.Bootstrap", false, null);
+            Class<?> c = ReflectUtils.forName("com.chua.runtime.agent.Bootstrap");
             LOG.info("[RuntimeAgent] Bootstrap 可见 (bootstrap): " + c.getName() + " @ " + c.getClassLoader());
         } catch (Throwable e) {
             LOG.warning("[RuntimeAgent] Bootstrap 在启动类加载器不可见: " + e.getMessage());

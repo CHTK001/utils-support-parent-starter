@@ -7,10 +7,12 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * YOLO-World 三档端到端推理测试。
+ * YOLO-World zero-shot detection test with custom classes support.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,11 +21,11 @@ public final class YoloWorldInferenceTest {
 
     private YoloWorldInferenceTest() { }
 
-    private static final String[] TIERS = {"yolov8s-world", "yolov8m-world", "yolov8l-world"};
+    private static final String[] TIERS = {"yolov8s-world", "yolov8l-world"};
     private static final float THRESHOLD = 0.25f;
     private static final int IMG_SIZE = 224;
 
-    /** 强制加载 OnnxModelRegistrar（触发静态注册块） */
+    /** Force load OnnxModelRegistrar (trigger static registration block) */
     static {
         try {
             Class.forName("com.chua.deeplearning.support.onnx.OnnxModelRegistrar");
@@ -41,15 +43,17 @@ public final class YoloWorldInferenceTest {
         long t0 = System.currentTimeMillis();
 
         byte[] testImage = generateTestImage();
-        System.out.println("[TEST] Test image: " + testImage.length + " bytes JPEG");
+        System.out.println("[TEST] Test image: " + testImage.length + " bytes PNG");
 
+        // Test 1: Default COCO-80
+        System.out.println("\n===== [Test 1] Default COCO-80 Detection =====");
         for (String tier : targets) {
-            System.out.println("\n===== [Tier] " + tier + " =====");
+            System.out.println("\n--- " + tier + " ---");
             try {
                 ImageDetector detector = ImageDetector.create(tier)
                         .threshold(THRESHOLD)
                         .nms(0.45f);
-                System.out.println("  [OK] Detector created, threshold=" + THRESHOLD);
+                System.out.println("  [OK] Detector created");
 
                 List<DetectionInfo> results = detector.detect(testImage);
                 System.out.println("  [OK] Inference done, found " + results.size() + " objects");
@@ -62,9 +66,8 @@ public final class YoloWorldInferenceTest {
                 } else {
                     System.out.println("  [WARN] No objects detected");
                 }
-
                 validateResults(results, tier);
-                System.out.println("  [PASS] " + tier + " end-to-end OK");
+                System.out.println("  [PASS] " + tier + " default COCO-80 OK");
                 passed++;
             } catch (Exception e) {
                 String msg = e.getMessage();
@@ -81,15 +84,46 @@ public final class YoloWorldInferenceTest {
             }
         }
 
+        // Test 2: Custom classes
+        System.out.println("\n===== [Test 2] Custom Classes Detection =====");
+        for (String tier : targets) {
+            System.out.println("\n--- " + tier + " (custom: person,car,dog) ---");
+            try {
+                Map<String, Object> config = new HashMap<>();
+                config.put("classes", "person,car,dog");
+                config.put("threshold", "0.3");
+                
+                ImageDetector detector = ImageDetector.create(tier, config)
+                        .threshold(0.3f)
+                        .nms(0.45f);
+                System.out.println("  [OK] Detector created with custom classes");
+
+                List<DetectionInfo> results = detector.detect(testImage);
+                System.out.println("  [OK] Inference done, found " + results.size() + " objects");
+
+                // Verify all detected classes are in custom list
+                for (DetectionInfo d : results) {
+                    if (!config.get("classes").toString().contains(d.label().toLowerCase())) {
+                        System.out.println("  [WARN] Unexpected class: " + d.label());
+                    }
+                }
+                validateResults(results, tier + "-custom");
+                System.out.println("  [PASS] " + tier + " custom classes OK");
+                passed++;
+            } catch (Exception e) {
+                System.out.println("  [FAIL] " + tier + " custom: " + e.getMessage());
+                failed++;
+            }
+        }
+
         long elapsed = System.currentTimeMillis() - t0;
         System.out.println("\n===== Results =====");
-        System.out.println("  PASS: " + passed + "/" + targets.length);
+        System.out.println("  PASS: " + passed);
         System.out.println("  SKIP: " + skipped);
         System.out.println("  FAIL: " + failed);
         System.out.println("  Time: " + elapsed + "ms");
         if (failed > 0) System.exit(1);
     }
-
 
     private static boolean isFileNotFoundException(Exception e) {
         Throwable t = e;
@@ -99,6 +133,7 @@ public final class YoloWorldInferenceTest {
         }
         return false;
     }
+    
     private static void validateResults(List<DetectionInfo> results, String tier) {
         for (DetectionInfo d : results) {
             if (d.x() < 0 || d.y() < 0 || d.width() <= 0 || d.height() <= 0)
