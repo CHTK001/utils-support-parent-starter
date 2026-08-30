@@ -879,6 +879,50 @@ public class ClassUtils {
     }
 
     /**
+     * 安全版本 {@link #forName(String)}，类不存在时返回 {@link Void#CLASS} 而非 {@code null}。
+     *
+     * @param name 类名
+     * @return 解析到的 {@link Class}，找不到时返回 {@code void.class}
+     * @since 4.0.0.43
+     */
+    public static Class<?> forNameSafe(String name) {
+        if (null == name) { return void.class; }
+        Class<?> clazz = forName(name);
+        return clazz != null ? clazz : void.class;
+    }
+
+    /**
+     * 安全版本 {@link #forName(String, ClassLoader)}，类不存在时返回 {@link Void#CLASS} 而非 {@code null}。
+     *
+     * @param name        类名
+     * @param classLoader 类加载器
+     * @return 解析到的 {@link Class}，找不到时返回 {@code void.class}
+     * @since 4.0.0.43
+     */
+    public static Class<?> forNameSafe(String name, ClassLoader classLoader) {
+        if (null == name) { return void.class; }
+        Class<?> clazz = forName(name, classLoader);
+        return clazz != null ? clazz : void.class;
+    }
+
+    /**
+     * 解析类名并校验其是否兼容指定的返回类型，安全版本不返回 {@code null}。
+     *
+     * @param name       待解析的类名
+     * @param returnType 期望的返回类型
+     * @param <T>        泛型类型参数
+     * @return 如果解析成功且类型兼容，则返回对应 {@link Class}，否则返回 {@link Void#CLASS}
+     * @since 4.0.0.43
+     */
+    public static <T> Class<T> forNameSafe(String name, Class<T> returnType) {
+        Class<?> clazz = forName(name);
+        if (clazz == null || !returnType.isAssignableFrom(clazz)) {
+            return (Class<T>) void.class;
+        }
+        return (Class<T>) clazz;
+    }
+
+    /**
      * 根据基本类型名称解析对应的 {@link Class} 对象。
      *
      * @param name 基本类型名称，如 {@code int}、{@code boolean} 等
