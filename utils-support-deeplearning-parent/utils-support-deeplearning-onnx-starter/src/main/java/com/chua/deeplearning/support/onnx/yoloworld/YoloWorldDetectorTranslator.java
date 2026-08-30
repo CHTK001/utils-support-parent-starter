@@ -107,7 +107,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         
         for (int i = 0; i < numClasses; i++) {
             String className = classes.isEmpty() ? COCO_80[i] : classes.get(i);
-            float[] emb = clipTextTranslator.translate(className);
+            float[] emb = clipTextTranslator.translate(ctx, className);
             if (emb != null) {
                 embeds[i] = emb;
             } else {

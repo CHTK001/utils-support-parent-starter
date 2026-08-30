@@ -94,7 +94,7 @@ public final class EngineAwareDataSource implements DataSource {
             try {
                 return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
             } catch (java.lang.reflect.InvocationTargetException e) {
-                throw e.getCause() != null ? e.getCause() : e;
+                throw new RuntimeException(e.getCause() != null ? e.getCause() : e);
             }
         }
 
