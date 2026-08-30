@@ -213,11 +213,20 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
             resource = pathStr.substring("classpath:".length());
         }
         java.net.URL url = Wav2Vec2FingerprintTranslator.class.getClassLoader().getResource(resource);
-        if (url != null && "file".equals(url.getProtocol())) {
+        if (url != null) {
             try {
-                return Path.of(url.toURI());
-            } catch (java.net.URISyntaxException ue) {
-                return Path.of(url.getPath());
+                if ("file".equals(url.getProtocol())) {
+                    return Path.of(url.toURI());
+                }
+                // 嵌入式 JAR 资源：复制到临时目录后返回
+                Path tmp = Files.createTempFile("wav2vec2-", ".onnx");
+                tmp.toFile().deleteOnExit();
+                try (var in = url.openStream()) {
+                    Files.write(tmp, in.readAllBytes());
+                }
+                return tmp;
+            } catch (Exception ex) {
+                // 继续到兜底逻辑
             }
         }
         // 相对当前工作目录

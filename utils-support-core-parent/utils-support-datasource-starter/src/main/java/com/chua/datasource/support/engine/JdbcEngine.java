@@ -203,8 +203,15 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     protected javax.sql.DataSource getJdbcDataSource() {
         try {
+            com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
+                    getDataSource(getDefaultDataSourceName());
+            if (eds != null) {
+                Object source = eds.getSource();
+                if (source instanceof javax.sql.DataSource ds) return ds;
+            }
+            // 回退：通过 Connection.unwrap 获取
             java.sql.Connection conn = getJdbcConnection();
-            return (javax.sql.DataSource) conn.unwrap(javax.sql.DataSource.class);
+            return conn.unwrap(javax.sql.DataSource.class);
         } catch (Exception e) {
             return null;
         }
@@ -617,7 +624,8 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     private static String escapeIdentifier(String name) {
-        return "`" + StringUtils.replace(name, "`", "``") + "`";
+        // 调用方负责按需添加引用符，此处仅做安全转义
+        return StringUtils.replace(name, "`", "``");
     }
 
     private static String escapeString(String s) {
