@@ -259,15 +259,67 @@ public final class KvCacheDecoder implements AutoCloseable {
 
     /**
      * 复制 fp16 张量数据到新张量（避免 result 关闭后数据失效）。
-     * <p>FLOAT16 输出张量在 ORT Java API 中通过 {@code getValue()} 返回 ShortBuffer
-     * （每元素 2 字节 = 1 个 short），复制后同样以 ShortBuffer 重建张量。</p>
+     * <p>ORT Java API 对 FLOAT16 输出张量的 {@code getValue()} 返回 float 多维数组
+     * （自动转换），需转回 half 位模式后用 ShortBuffer 重建 FLOAT16 张量；
+     * 部分版本直接返回 ShortBuffer，也一并兼容。</p>
      */
     private OnnxTensor copyFp16(OnnxTensor src) throws OrtException {
         long[] shape = src.getInfo().getShape();
-        ShortBuffer buf = (ShortBuffer) src.getValue();
-        ShortBuffer copy = ShortBuffer.allocate(buf.remaining());
-        copy.put(buf.duplicate());
+        int elems = 1;
+        for (long d : shape) {
+            elems = (int) (elems * d);
+        }
+        ShortBuffer copy = ShortBuffer.allocate(elems);
+        Object value = src.getValue();
+        if (value instanceof float[][][][]) {
+            float[][][][] arr = (float[][][][]) value;
+            for (float[][][] a : arr) {
+                for (float[][] b : a) {
+                    for (float[] c : b) {
+                        for (float f : c) {
+                            copy.put(floatToHalf(f));
+                        }
+                    }
+                }
+            }
+        } else if (value instanceof ShortBuffer) {
+            copy.put(((ShortBuffer) value).duplicate());
+        } else {
+            throw new OrtException("不支持的 KV cache 张量类型: " + value.getClass().getName());
+        }
         copy.flip();
         return OnnxTensor.createTensor(env, copy, shape, OnnxJavaType.FLOAT16);
+    }
+
+    /**
+     * float 转 IEEE 754 half（fp16）位模式。
+     *
+     * @param f 32 位浮点值
+     * @return 16 位 half 原始值
+     */
+    private static short floatToHalf(float f) {
+        int bits = Float.floatToRawIntBits(f);
+        int sign = (bits >>> 16) & 0x8000;
+        int exp = (bits >>> 23) & 0xFF;
+        int mant = bits & 0x7FFFFF;
+        int halfExp = exp - 127 + 15;
+        if (exp == 0xFF) {
+            // inf / NaN
+            return (short) (sign | 0x7C00 | (mant == 0 ? 0 : 0x200));
+        }
+        if (halfExp >= 31) {
+            // 溢出 → inf
+            return (short) (sign | 0x7C00);
+        }
+        if (halfExp <= 0) {
+            // 次正规数/下溢
+            if (halfExp < -10) {
+                return (short) sign;
+            }
+            mant |= 0x800000;
+            int shift = 14 - halfExp;
+            return (short) (sign | (mant >> shift));
+        }
+        return (short) (sign | (halfExp << 10) | (mant >> 13));
     }
 }
