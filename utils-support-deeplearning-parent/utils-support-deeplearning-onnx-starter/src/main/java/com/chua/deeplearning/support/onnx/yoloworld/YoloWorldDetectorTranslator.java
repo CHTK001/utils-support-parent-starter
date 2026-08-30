@@ -105,7 +105,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
                 txtFeats.setName("txt_feats");
                 log.info("[YOLO-World] 鍔犺浇鏂囨湰宓屽叆: {} -> {}", embPath, txtFeats.getShape());
             } else {
-                log.warn("[YOLO-World] 鏈壘鍒版枃鏈祵鍏ユ枃浠? {}", embPath);
+                log.warn("[YOLO-World] 鏈壘鍒版枃鏈祵鍏ユ枃浠? {}", embPath)"
             }
         } catch (Exception e) {
             log.error("[YOLO-World] 鍔犺浇鏂囨湰宓屽叆澶辫触: {}", e.getMessage());
@@ -211,7 +211,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         if (txtFeats != null) {
             result.add(txtFeats);
         } else {
-            log.warn("[YOLO-World] 鏂囨湰宓屽叆鏈姞杞斤紝浣跨敤闆跺悜閲?);
+            log.warn("[YOLO-World] 鏂囨湰宓屽叆鏈姞杞斤紝浣跨敤闆跺悜閲量)"
             NDArray zeros = ctx.getNDManager().zeros(new Shape(1, 80, 512));
             zeros.setName("txt_feats");
             result.add(zeros);
@@ -226,7 +226,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         int numClasses = (int) shape.get(1) - 4;
         int numAnchors = (int) shape.get(2);
         if (numClasses != COCO_80.length) {
-            log.warn("[YOLO-World] unexpected numClasses {} expected {}", numClasses, COCO_80.length);
+            log.warn("[YOLO-World] unexpected numClasses {} expected {}", numClasses, COCO_80.length)"
         }
         float[] data = output.toFloatArray();
         List<String> names = new ArrayList<>();
