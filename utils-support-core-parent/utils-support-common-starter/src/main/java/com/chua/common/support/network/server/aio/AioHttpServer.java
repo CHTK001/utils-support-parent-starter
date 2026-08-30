@@ -1220,7 +1220,7 @@ public class AioHttpServer extends AbstractServer {
                         throw new IllegalArgumentException("Unsupported param: " + type.getName());
                     }
                 }
-                Object result = method.invoke(bean, args);
+                Object result = ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
                 if (result != null) {
                     response.setResult(result);
                 }
