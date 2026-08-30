@@ -185,11 +185,7 @@ public final class CryptoLauncher {
 
             Thread.currentThread().setContextClassLoader(appLoader);
             Class<?> mainClass = ReflectUtils.forName(originalMain, appLoader);
-            try {
-                ReflectUtils.invoke(null, "main", void.class, String[].class, args);
-            } catch (InvocationTargetException e) {
-                throw e.getCause() != null ? e.getCause() : e;
-            }
+            ReflectUtils.invoke(null, "main", void.class, String[].class, args);
         }
     }
 
