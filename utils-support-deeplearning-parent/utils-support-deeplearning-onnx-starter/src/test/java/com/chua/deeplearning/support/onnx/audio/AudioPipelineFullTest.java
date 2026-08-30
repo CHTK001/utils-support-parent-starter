@@ -258,33 +258,33 @@ class AudioPipelineFullTest {
     @DisplayName("端到端完整管线测试（需模型）")
     class EndToEndTests {
 
-        @Test
-        @DisplayName("wav2vec2-base 384维特征提取 + 余弦相似度")
-        void testWav2Vec2Base_fingerprint() {
-            assumeModelsRegistered();
+    @Test
+    @DisplayName("wav2vec2-base 特征提取 + 余弦相似度")
+    void testWav2Vec2Base_fingerprint() {
+        assumeModelsRegistered();
 
-            var fp = AudioFingerprinter.create("wav2vec2-base-fingerprint")
-                    .normalize(true);
+        var fp = AudioFingerprinter.create("wav2vec2-base-fingerprint")
+                .normalize(true);
 
-            byte[] audioA = generateSineWave(440.0, 2, SAMPLE_RATE);
-            byte[] audioB = generateSineWave(440.0, 2, SAMPLE_RATE);
-            byte[] audioC = generateSineWave(880.0, 2, SAMPLE_RATE);
+        byte[] audioA = generateSineWave(440.0, 2, SAMPLE_RATE);
+        byte[] audioB = generateSineWave(440.0, 2, SAMPLE_RATE);
+        byte[] audioC = generateSineWave(880.0, 2, SAMPLE_RATE);
 
-            float[] vecA = fp.extract(audioA);
-            float[] vecB = fp.extract(audioB);
-            float[] vecC = fp.extract(audioC);
+        float[] vecA = fp.extract(audioA);
+        float[] vecB = fp.extract(audioB);
+        float[] vecC = fp.extract(audioC);
 
-            assertNotNull(vecA, "wav2vec2-base 特征向量不应为 null");
-            assertEquals(384, vecA.length, "wav2vec2-base 应输出 384 维");
-            assertEquals(vecA.length, vecB.length, "同模型输出维度应一致");
-            assertEquals(vecA.length, vecC.length, "同模型输出维度应一致");
+        assertNotNull(vecA, "wav2vec2-base 特征向量不应为 null");
+        assertEquals(32, vecA.length, "wav2vec2-base-960h ASR head 输出 32 维 vocab");
+        assertEquals(vecA.length, vecB.length, "同模型输出维度应一致");
+        assertEquals(vecA.length, vecC.length, "同模型输出维度应一致");
 
-            float simAB = cosineSim(vecA, vecB);
-            float simAC = cosineSim(vecA, vecC);
-            System.out.printf("[wav2vec2-base] sim(A,A)=%.3f, sim(A,C)=%.3f%n", simAB, simAC);
-            assertTrue(simAB > 0.9f,
-                    String.format("同频相似度应 > 0.9，实际: %.3f", simAB));
-        }
+        float simAB = cosineSim(vecA, vecB);
+        float simAC = cosineSim(vecA, vecC);
+        System.out.printf("[wav2vec2-base] dim=%d, sim(A,A)=%.3f, sim(A,C)=%.3f%n", vecA.length, simAB, simAC);
+        assertTrue(simAB > 0.9f,
+                String.format("同频相似度应 > 0.9，实际: %.3f", simAB));
+    }
 
         @Test
         @DisplayName("wespeaker 512维说话人嵌入 + 归一化验证")
@@ -318,7 +318,7 @@ class AudioPipelineFullTest {
             float[] vecBase = fpBase.extract(audio);
             float[] vecWespeaker = fpWespeaker.extract(audio);
 
-            assertEquals(384, vecBase.length, "wav2vec2-base 应为 384 维");
+            assertEquals(32, vecBase.length, "wav2vec2-base-960h ASR head 输出 32 维 vocab");
             assertEquals(512, vecWespeaker.length, "wespeaker 应为 512 维");
             assertNotEquals(vecBase.length, vecWespeaker.length,
                     "不同模型输出维度应不同");
@@ -348,8 +348,8 @@ class AudioPipelineFullTest {
                             .normalize(true);
                     float[] fingerprint = fp.extract(testWav);
                     assertNotNull(fingerprint, "音频指纹不应为 null");
-                    assertEquals(384, fingerprint.length);
-                    System.out.printf("[E2E] 音频指纹: 384维向量已提取%n");
+                    assertEquals(32, fingerprint.length, "wav2vec2-base-960h ASR head 输出 32 维 vocab");
+                    System.out.printf("[E2E] 音频指纹: %d 维向量已提取%n", fingerprint.length);
 
                     // 2. 声纹入库 + 检索
                     VoiceprintPipeline vp = VoiceprintPipeline.create();

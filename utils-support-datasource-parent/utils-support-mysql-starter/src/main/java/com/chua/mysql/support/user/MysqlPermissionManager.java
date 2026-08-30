@@ -3,6 +3,7 @@ package com.chua.mysql.support.user;
 import com.chua.datasource.support.permission.PermissionInfo;
 import com.chua.datasource.support.permission.PermissionManager;
 import com.chua.datasource.support.user.DataSourceAware;
+import com.chua.common.support.spi.annotations.Spi;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi("mysql")
 public class MysqlPermissionManager implements PermissionManager, DataSourceAware {
 
     private DataSource dataSource;
@@ -38,13 +40,24 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
                      "SELECT GRANTEE, PRIVILEGE_TYPE, IS_GRANTABLE"
-                             + " FROM information_schema.USER_PRIVILEGES"
-                             + " WHERE TABLE_SCHEMA IS NULL")) {
+                             + " FROM information_schema.USER_PRIVILEGES")) {
             while (rs.next()) {
-                result.add(new PermissionInfo(stripQuote(rs.getString("GRANTEE")), null,
+                String grantee = rs.getString("GRANTEE");
+                result.add(new PermissionInfo(stripQuote(grantee), null,
                         rs.getString("PRIVILEGE_TYPE"), null, null, null, null,
                         "YES".equals(rs.getString("IS_GRANTABLE"))));
             }
+            // Also query schema-level privileges
+            ResultSet rs2 = stmt.executeQuery(
+                    "SELECT GRANTEE, TABLE_SCHEMA, PRIVILEGE_TYPE, IS_GRANTABLE"
+                            + " FROM information_schema.SCHEMA_PRIVILEGES");
+            while (rs2.next()) {
+                result.add(new PermissionInfo(stripQuote(rs2.getString("GRANTEE")),
+                        rs2.getString("TABLE_SCHEMA"),
+                        rs2.getString("PRIVILEGE_TYPE"), null, null, null, null,
+                        "YES".equals(rs2.getString("IS_GRANTABLE"))));
+            }
+            rs2.close();
         } catch (Exception e) {
             throw new RuntimeException("列出 MySQL 权限失败", e);
         }
@@ -104,10 +117,13 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
 
         @Override
         public GrantStep onDatabase(String database) { return this; }
+
         @Override
         public GrantStep onTable(String table) { return this; }
+
         @Override
         public GrantStep onColumn(String table, String column) { return this; }
+
         @Override
         public GrantStep withGrantOption(boolean grantable) { return this; }
 
