@@ -116,25 +116,26 @@ public interface Compiler {
         // 组合完整的类名：包名 + "." + 类名 + 后缀
         String className = (pkg != null && pkg.length() > 0 ? pkg + "." + cls : cls) + suffix;
         
+        // 首先尝试通过 Class.forName 查找是否已存在该类（通常用于缓存命中）。
+        // ReflectUtils.forName 不抛 checked 异常（加载失败返回 null），因此用判空替代 catch
+        Class<?> cachedClass = ReflectUtils.forName(className, getClass().getClassLoader());
+        if (cachedClass != null) {
+            return cachedClass;
+        }
+        // 找不到类，检查代码是否以右大括号结尾，这是有效 Java 代码块的基本特征
+        if (!code.endsWith(CommonConstant.SYMBOL_RIGHT_BIG_PARENTHESES)) {
+            throw new IllegalStateException("The java code not endsWith \"}\", code: \n" + code + "\n");
+        }
+        
+        // 调用子实现进行实际的动态编译操作
         try {
-            // 首先尝试通过 Class.forName 查找是否已存在该类（通常用于缓存命中）
-            return ReflectUtils.forName(className, getClass().getClassLoader());
-        } catch (ClassNotFoundException e) {
-            // 如果找不到类，检查代码是否以右大括号结尾，这是有效 Java 代码块的基本特征
-            if (!code.endsWith(CommonConstant.SYMBOL_RIGHT_BIG_PARENTHESES)) {
-                throw new IllegalStateException("The java code not endsWith \"}\", code: \n" + code + "\n");
-            }
-            
-            // 调用子实现进行实际的动态编译操作
-            try {
-                return doCompile(className, code);
-            } catch (RuntimeException t) {
-                // 直接抛出运行时异常
-                throw t;
-            } catch (Throwable t) {
-                // 捕获其他异常并包装为带有详细信息的 IllegalStateException
-                throw new IllegalStateException("Failed to compile class, cause: " + t.getMessage() + ", class: " + className + ", code: \n" + code);
-            }
+            return doCompile(className, code);
+        } catch (RuntimeException t) {
+            // 直接抛出运行时异常
+            throw t;
+        } catch (Throwable t) {
+            // 捕获其他异常并包装为带有详细信息的 IllegalStateException
+            throw new IllegalStateException("Failed to compile class, cause: " + t.getMessage() + ", class: " + className + ", code: \n" + code);
         }
     }
 
