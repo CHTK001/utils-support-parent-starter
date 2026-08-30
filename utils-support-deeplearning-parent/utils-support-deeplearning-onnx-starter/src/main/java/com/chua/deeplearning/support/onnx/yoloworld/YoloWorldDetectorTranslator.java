@@ -101,23 +101,46 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     private void loadTextEmbeddings(TranslatorContext ctx) {
         try {
+            // Try to load from classpath (embedded in model JAR)
+            String embResource = "/vision/detection/yoloworld/coco_80_clip_embeddings.npy";
+            java.io.InputStream is = getClass().getResourceAsStream(embResource);
+            if (is != null) {
+                java.io.File tempFile = java.io.File.createTempFile("clip_emb_", ".npy");
+                tempFile.deleteOnExit();
+                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile)) {
+                    byte[] buffer = new byte[8192];
+                    int len;
+                    while ((len = is.read(buffer)) > 0) {
+                        fos.write(buffer, 0, len);
+                    }
+                }
+                txtFeats = loadNpy(tempFile.toPath(), ctx.getNDManager());
+                txtFeats.setName("txt_feats");
+                log.info("[YOLO-World] Loaded embedded embeddings: {}", txtFeats.getShape());
+                return;
+            }
+            is.close();
+            
+            // Fallback to model path
             Path modelRoot = ctx.getModel().getModelPath();
             if (modelRoot != null) {
                 Path embPath = modelRoot.resolve("coco_80_clip_embeddings.npy");
                 if (Files.exists(embPath)) {
                     txtFeats = loadNpy(embPath, ctx.getNDManager());
                     txtFeats.setName("txt_feats");
-                    log.info("[YOLO-World] Loaded embeddings: {}", txtFeats.getShape());
+                    log.info("[YOLO-World] Loaded from model path: {}", embPath);
                     return;
                 }
             }
+            
+            // Final fallback to fixed path
             Path embPath = Paths.get("D:/ch/project/coco_80_clip_embeddings.npy");
             if (Files.exists(embPath)) {
                 txtFeats = loadNpy(embPath, ctx.getNDManager());
                 txtFeats.setName("txt_feats");
                 log.info("[YOLO-World] Loaded from: {}", embPath);
             } else {
-                log.warn("[YOLO-World] Embeddings not found: {}", embPath);
+                log.warn("[YOLO-World] Embeddings not found, using zero vector");
             }
         } catch (Exception e) {
             log.error("[YOLO-World] Failed to load embeddings: {}", e.getMessage());
