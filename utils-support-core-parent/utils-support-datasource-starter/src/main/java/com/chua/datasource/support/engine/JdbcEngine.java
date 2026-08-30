@@ -12,6 +12,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.datasource.support.index.IndexManager;
 import com.chua.datasource.support.meta.JdbcMetaData;
+import com.chua.datasource.support.permission.PermissionManager;
 import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.datasource.support.user.UserManager;
 
@@ -521,6 +522,13 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     public IndexManager index() {
         return resolveManager(IndexManager.class);
+    }
+
+    /**
+     * 获取权限管理器入口，通过 SPI 按当前方言协议加载实现。
+     */
+    public PermissionManager permission() {
+        return resolveManager(PermissionManager.class);
     }
 
     private String currentDialectProtocol() {
