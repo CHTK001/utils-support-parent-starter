@@ -92,7 +92,8 @@ public final class ReflectUtils {
                 int idx = it.lastIndexOf('@');
                 String clsName = it.substring(0, idx);
                 ClassLoader cl = idx >= 0 ? classLoader : Thread.currentThread().getContextClassLoader();
-                return cl != null ? Class.forName(clsName, false, cl) : Class.forName(clsName);
+                // initialize=true：触发静态块（SPI 注册器依赖类初始化执行 registerAll 等逻辑）
+                return cl != null ? Class.forName(clsName, true, cl) : Class.forName(clsName);
             } catch (ClassNotFoundException e) {
                 log.debug("[ReflectUtils] 类加载失败: {}", className);
                 return null;
