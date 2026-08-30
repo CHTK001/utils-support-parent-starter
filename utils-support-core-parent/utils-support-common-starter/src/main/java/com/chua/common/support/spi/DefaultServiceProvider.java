@@ -300,7 +300,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
                 try {
                     Method method = proxyMethod.getMethod();
                     ClassUtils.setAccessible(method);
-                    Object invoke = method.invoke(t, proxyMethod.getArgs());
+                    Object invoke = ReflectUtils.invoke(t, method.getName(), method.getReturnType(), method.getParameterTypes(), proxyMethod.getArgs());
                     if (null != invoke && !Proxy.isProxyClass(invoke.getClass())) {
                         return invoke;
                     }

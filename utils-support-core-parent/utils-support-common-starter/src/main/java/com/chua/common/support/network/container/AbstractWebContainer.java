@@ -198,14 +198,13 @@ public abstract class AbstractWebContainer implements WebContainer {
      */
     protected void doDeployMain(String mainClass, String contextPath) {
         try {
-            Class<?> clazz = ReflectUtils.forName(mainClass);
-            java.lang.reflect.Method mainMethod = clazz.getMethod("main", String[].class);
+             Class<?> clazz = ReflectUtils.forName(mainClass);
             String[] args = StringUtils.isEmpty(contextPath)
                     ? new String[0]
                     : new String[]{CONTEXT_PATH_ARG_PREFIX + contextPath};
             Thread thread = ThreadUtils.newThread(() -> {
                 try {
-                    mainMethod.invoke(null, (Object) args);
+                    ReflectUtils.invokeStatic(clazz, "main", void.class, String[].class, (Object) args);
                 } catch (Exception e) {
                     log.error("Main 类执行失败: {}", mainClass, e);
                 }
