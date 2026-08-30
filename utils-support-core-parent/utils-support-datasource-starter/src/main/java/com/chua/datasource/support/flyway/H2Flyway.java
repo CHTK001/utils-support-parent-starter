@@ -1,4 +1,4 @@
-package com.chua.h2.support.flyway;
+package com.chua.datasource.support.flyway;
 
 import javax.sql.DataSource;
 import java.io.IOException;

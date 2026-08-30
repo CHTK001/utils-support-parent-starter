@@ -72,8 +72,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         }
     }
 
-    // ==================== 写入 ====================
-
+    // ==================== 写入 =============
     @Override
     public long append(K key, byte[] payload) throws IOException {
         if (closed) throw new IllegalStateException("StoreSystem 已关闭");
@@ -84,8 +83,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         return lsn;
     }
 
-    // ==================== 点查 ====================
-
+    // ==================== 点查 =============
     @Override
     public Optional<byte[]> get(K key) throws IOException {
         if (closed) throw new IllegalStateException("StoreSystem 已关闭");
@@ -102,8 +100,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         return index.contains(key.toString());
     }
 
-    // ==================== 范围查 ====================
-
+    // ==================== 范围查 =============
     @Override
     public List<Map.Entry<K, byte[]>> range(K from, K to) throws IOException {
         return range(from, to, 0, Integer.MAX_VALUE);
@@ -121,8 +118,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         return result;
     }
 
-    // ==================== 删除 ====================
-
+    // ==================== 删除 =============
     @Override
     public boolean delete(K key) throws IOException {
         String keyStr = key.toString();
@@ -134,8 +130,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         return true;
     }
 
-    // ==================== 索引管理 ====================
-
+    // ==================== 索引管理 =============
     @Override
     public void rebuildIndex() throws IOException {
         log.info("[wal-store] rebuilding index for type={}", type());
@@ -164,8 +159,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         rebuildIndex();
     }
 
-    // ==================== 统计 ====================
-
+    // ==================== 统计 =============
     @Override
     public int size() { return (int) Math.max(0, totalRecords.get()); }
 
@@ -176,14 +170,12 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         return all;
     }
 
-    // ==================== 子类扩展点 ====================
-
+    // ==================== 子类扩展点 =============
     protected abstract byte opType();
     protected abstract String decodeKey(byte[] payload);
     protected abstract Object decodeValue(K key, byte[] payload);
 
-    // ==================== 内部工具 ====================
-
+    // ==================== 内部工具 =============
     private byte[] readFromSegment(int segmentNo, long offset, int length) {
         if (segmentNo < 0 || segmentNo >= walLogs.length) return null;
         try {
@@ -207,8 +199,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         return config.namespace() + "-" + String.format("%04d", shardIdx);
     }
 
-    // ==================== 工厂 ====================
-
+    // ==================== 工厂 =============
     public static <K extends Comparable<K>> WalStoreSystem<K> createAuto(
             Class<? extends WalStoreSystem<K>> clazz, Path baseDir) throws IOException {
         WalStoreEnvDetector detector = new WalStoreEnvDetector();

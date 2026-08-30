@@ -9,8 +9,13 @@
     </parent>
     <artifactId>utils-support-mysql-starter</artifactId>
     <name>MySQL Starter</name>
-    <description>MySQL 数据库适配：用户管理、索引管理、R2DBC 驱动</description>
+    <description>MySQL 数据库适配：用户管理、索引管理、R2DBC 驱动、Vector 向量存储（MySQL 8.0+）</description>
     <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasource-starter</artifactId>

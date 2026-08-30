@@ -635,6 +635,84 @@ public class FileUtils {
         return prefix + Joiner.on(SYMBOL_LEFT_SLASH).join(pathElements);
     }
 
+    /**
+     * 静默删除文件或目录（吞掉所有异常，常用于 finally 块的最佳努力清理）。
+     * 支持 java.io.File 和 java.nio.file.Path 两种入参；递归删除目录及其内容。
+     *
+     * @param target 待删除的文件或目录，允许为 null；为 null 时直接返回 true
+     * @return true 表示目标已不存在（删除成功或本来就不存在）；false 表示删除失败且文件仍存在
+     * @since 4.0.0.44
+     */
+    public static boolean deleteQuietly(File target) {
+        if (target == null) {
+            return true;
+        }
+        try {
+            if (!target.exists()) {
+                return true;
+            }
+            if (target.isDirectory()) {
+                File[] children = target.listFiles();
+                if (children != null) {
+                    for (File child : children) {
+                        deleteQuietly(child);
+                    }
+                }
+            }
+            return target.delete();
+        } catch (Throwable ignored) {
+            return !target.exists();
+        }
+    }
+
+    /**
+     * 静默删除文件或目录（Path 版本）。
+     * 仅删除最外层条目；如需递归请使用 {@link #deleteQuietly(File)}。
+     *
+     * @param target 待删除的路径，允许为 null；为 null 时直接返回 true
+     * @return true 表示目标已不存在；false 表示删除失败
+     * @since 4.0.0.44
+     */
+    public static boolean deleteQuietly(java.nio.file.Path target) {
+        if (target == null) {
+            return true;
+        }
+        try {
+            java.nio.file.Files.deleteIfExists(target);
+            return true;
+        } catch (Throwable ignored) {
+            return !java.nio.file.Files.exists(target);
+        }
+    }
+
+    /**
+     * 静默删除并把内部异常抛出（与 deleteQuietly 行为一致，但通过 Supplier 暴露被吞掉的异常）。
+     * 调用方可通过 supplier 记录或断言是否真的清理成功。
+     *
+     * @param target    待删除的路径，允许为 null
+     * @param errorSink 异常接收器，接收被吞掉的 Throwable；允许为 null 表示仍按静默处理
+     * @return true 表示目标已不存在
+     * @since 4.0.0.44
+     */
+    public static boolean deleteSilently(java.nio.file.Path target,
+                                         java.util.function.Consumer<Throwable> errorSink) {
+        if (target == null) {
+            return true;
+        }
+        try {
+            java.nio.file.Files.deleteIfExists(target);
+            return true;
+        } catch (Throwable t) {
+            if (errorSink != null) {
+                try {
+                    errorSink.accept(t);
+                } catch (Throwable ignoredSink) {
+                    // best-effort: sink failure does not change outcome
+                }
+            }
+            return !java.nio.file.Files.exists(target);
+        }
+    }
 }
 
 

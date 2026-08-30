@@ -45,6 +45,15 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     private OrtEnvironment ortEnv;
     private OrtSession session;
     private String modelPath;
+
+    /**
+     * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
+     *
+     * @param modelPath 模型路径
+     */
+    public void setModelPath(String modelPath) {
+        this.modelPath = modelPath;
+    }
     private double[][] melFilters;
     private volatile boolean prepared = false;
 
