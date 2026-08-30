@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 服务提供者接口，提供 SPI（Service Provider Interface）机制的核心功能。
@@ -665,22 +666,39 @@ public interface ServiceProvider<T> {
                 unique.add(t);
             }
         }
+        // 记录「实现类 → 失败方法名集合」，用于实现内部避让
+        Map<Class<?>, Set<String>> failedMethods = new ConcurrentHashMap<>();
         return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
             @Override
             /** 应用 */
             public Object apply(ProxyMethod proxyMethod) {
+                String methodName = proxyMethod.getMethodName();
                 Exception last = null;
                 for (T t : unique) {
+                    Class<?> implClass = t.getClass();
+                    // 实现内部避让：该方法已在此实现上失败过，直接跳过
+                    Set<String> failed = failedMethods.get(implClass);
+                    if (failed != null && failed.contains(methodName)) {
+                        continue;
+                    }
                     if (!isAvailable(t, proxyMethod)) {
                         continue;
                     }
                     try {
-                        Object result = proxyMethod.invoke(t);
+                        // 基于接口方法重建 ProxyMethod，避免 reload 副作用污染其他实现
+                        ProxyMethod fresh = ProxyMethod.builder()
+                                .method(proxyMethod.getMethod())
+                                .args(proxyMethod.getArgs())
+                                .build();
+                        Object result = fresh.invoke(t);
                         if (result != null) {
                             return result;
                         }
                     } catch (Exception e) {
                         last = e;
+                        // 记录失败的方法 + 实现，后续同方法调用自动避让
+                        failedMethods.computeIfAbsent(implClass, k -> ConcurrentHashMap.newKeySet())
+                                .add(methodName);
                     }
                 }
                 if (last != null) {
