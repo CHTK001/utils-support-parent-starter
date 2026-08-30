@@ -940,7 +940,7 @@ public final class ModelRegistry {
                         }
                         String className = line.contains("=") ? line.substring(line.indexOf('=') + 1).trim() : line;
                         try {
-                            Class.forName(className, true, loader);
+                            ReflectUtils.forName(className, loader);
                             count++;
                         } catch (Throwable ex) {
                             log.warn("[deeplearning-engine] ModelRegistrar load failed: {} -> {}", className, ex.getMessage());
@@ -1174,7 +1174,6 @@ public final class ModelRegistry {
                 return;
             }
             try {
-                java.lang.reflect.Method m = translator.getClass().getMethod("setModelPath", String.class);
                 String value = null;
                 Entry entry = REGISTRY.get(modelId);
                 if (entry != null && entry.relativePath() != null && !entry.relativePath().isBlank()) {
@@ -1184,7 +1183,7 @@ public final class ModelRegistry {
                 if (value == null && modelPath != null) {
                     value = modelPath.toString();
                 }
-                m.invoke(translator, value);
+                ReflectUtils.invoke(translator, "setModelPath", void.class, String.class, value);
                 log.info("[deeplearning-engine] injectModelPath {} -> {}", modelId, value);
             } catch (NoSuchMethodException ignored) {
                 // 该 translator 不接受 setModelPath 注入，跳过即可

@@ -24,7 +24,7 @@
                 <configuration>
                     <release>25</release>
                     <failOnError>false</failOnError>
-                    <fork>true</fork>
+                    <fork>false</fork>
                     <compilerArgs>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>

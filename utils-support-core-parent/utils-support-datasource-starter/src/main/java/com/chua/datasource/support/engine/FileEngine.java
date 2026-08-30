@@ -12,7 +12,6 @@ import com.chua.common.support.utils.FileUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -553,17 +552,10 @@ public class FileEngine extends AbstractEngine {
     private static Object getPropertyValue(Object bean, String field) {
         try {
             String getter = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-            for (Method m : bean.getClass().getMethods()) {
-                if (m.getName().equals(getter) && m.getParameterCount() == 0) {
-                    return m.invoke(bean);
-                }
-            }
+            Object result = ReflectUtils.invoke(bean, getter, Object.class);
+            if (result != null) return result;
             String isGetter = "is" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-            for (Method m : bean.getClass().getMethods()) {
-                if (m.getName().equals(isGetter) && m.getParameterCount() == 0) {
-                    return m.invoke(bean);
-                }
-            }
+            return ReflectUtils.invoke(bean, isGetter, Object.class);
         } catch (Exception ignored) {
         }
         return null;
@@ -593,12 +585,7 @@ public class FileEngine extends AbstractEngine {
             String setterName = "set"
                     + Character.toUpperCase(camelField.charAt(0))
                     + camelField.substring(1);
-            for (var method : obj.getClass().getMethods()) {
-                if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
-                    method.invoke(obj, convertValue(value, method.getParameterTypes()[0]));
-                    return;
-                }
-            }
+            ReflectUtils.invoke(obj, setterName, void.class, new Class<?>[]{Object.class}, convertValue(value, Object.class));
         } catch (Exception ignored) {
             // silent
         }

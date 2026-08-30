@@ -5,7 +5,6 @@ import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -232,11 +231,10 @@ public final class JsonBeanMapper {
      * @return 字段值
      */
     private static Object readField(Field field, Object bean) {
-        Method getter = findGetter(field);
+        String getter = findGetterName(field);
         if (getter != null) {
             try {
-                ClassUtils.setAccessible(getter);
-                return ReflectUtils.invoke(bean, getter.getName(), getter.getReturnType());
+                return ReflectUtils.invoke(bean, getter, Object.class);
             } catch (Exception ignore) {
             }
         }
@@ -256,11 +254,10 @@ public final class JsonBeanMapper {
      * @param value 值
      */
     private static void writeField(Field field, Object bean, Object value) {
-        Method setter = findSetter(field);
+        String setter = findSetterName(field);
         if (setter != null) {
             try {
-                ClassUtils.setAccessible(setter);
-                ReflectUtils.invoke(bean, setter.getName(), void.class, setter.getParameterTypes(), Converter.convertIfNecessary(value, setter.getParameterTypes()[0]));
+                ReflectUtils.invoke(bean, setter, void.class, new Class<?>[]{field.getType()}, Converter.convertIfNecessary(value, field.getType()));
                 return;
             } catch (Exception ignore) {
             }
@@ -273,18 +270,20 @@ public final class JsonBeanMapper {
     }
 
     /**
-     * 查找字段的 getter 方法。
+     * 查找字段的 getter 方法名（未找到返回 null）。
      *
      * @param field 字段
-     * @return getter 方法，不存在返回 null
+     * @return getter 方法名，不存在返回 null
      */
-    private static Method findGetter(Field field) {
+    private static String findGetterName(Field field) {
         String name = capitalize(field.getName());
         for (String prefix : new String[]{"get", "is"}) {
+            String methodName = prefix + name;
             try {
-                Method method = field.getDeclaringClass().getMethod(prefix + name);
+                Class<?> clazz = field.getDeclaringClass();
+                java.lang.reflect.Method method = clazz.getMethod(methodName);
                 if (method.getParameterCount() == 0 && field.getType().isAssignableFrom(method.getReturnType())) {
-                    return method;
+                    return methodName;
                 }
             } catch (Exception ignore) {
             }
@@ -293,15 +292,16 @@ public final class JsonBeanMapper {
     }
 
     /**
-     * 查找字段的 setter 方法。
+     * 查找字段的 setter 方法名（未找到返回 null）。
      *
      * @param field 字段
-     * @return setter 方法，不存在返回 null
+     * @return setter 方法名，不存在返回 null
      */
-    private static Method findSetter(Field field) {
+    private static String findSetterName(Field field) {
         String name = capitalize(field.getName());
         try {
-            return field.getDeclaringClass().getMethod("set" + name, field.getType());
+            field.getDeclaringClass().getMethod("set" + name, field.getType());
+            return "set" + name;
         } catch (Exception e) {
             return null;
         }

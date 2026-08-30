@@ -25,9 +25,14 @@ import java.util.Map;
  * <p>wav2vec2 是 Facebook AI 提出的自监督语音预训练模型，在本实现中作为<b>音频指纹提取器</b>使用：
  * <ul>
  *   <li><b>输入</b>：16kHz 单声道 PCM float 音频采样数组（长度不限）。</li>
- *   <li><b>输出</b>：ASR head logits [batch, seq_len, vocab_size]，对时间维度做 mean pooling 后得到固定维度向量。</li>
- *   <li><b>维度</b>：取决于模型变体。wav2vec2-base-960h ASR head 输出 32 维 vocab（英文字符+特殊 token）；
- *       wav2vec2-zh 输出约 10k 维中文字符 vocab；backbone-only（无 LM head）模型输出 hidden_dim 维（768/1024）。</li>
+ *   <li><b>输出</b>：last_hidden_state [batch, seq_len, hidden_size]，对时间维度做 mean pooling 后得到固定维度向量。</li>
+ *   <li><b>维度</b>：取决于模型变体：
+ *     <ul>
+ *       <li><b>backbone-only</b>（onnx-community/wav2vec2-base-ONNX，Wav2Vec2ForPreTraining）：768 维 hidden state — <b>推荐</b></li>
+ *       <li><b>ASR head</b>（wav2vec2-base-960h）：32 维 vocab logits（英文字符 + 特殊 token）</li>
+ *       <li><b>large / 中文 XLSR</b>：1024 维 hidden 或 ~10k 维中文 vocab</li>
+ *     </ul>
+ *   </li>
  * </ul>
  * </p>
  *
@@ -35,9 +40,9 @@ import java.util.Map;
  * <pre>
  *   raw PCM (byte[]) → resample to 16kHz mono → float[] samples
  *       → ONNX encoder (wav2vec2 feature extractor + transformer layers)
- *       → last_hidden_state [batch, seq_len, vocab_size]
+ *       → last_hidden_state [batch, seq_len, hidden_size]
  *       → mean pooling over time dimension
- *       → flatten → float[] fingerprint (vocab_size)
+ *       → flatten → float[] fingerprint (hidden_size)
  * </pre>
  *
  * <h2>支持的模型格式</h2>
@@ -74,8 +79,8 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     private OrtEnvironment ortEnv;
     /** ONNX 模型推理会话 */
     private OrtSession session;
-    /** 模型特征维度（来自 ONNX 模型结构推断，对 ASR head 而言 = vocab_size） */
-    private int hiddenSize = 32;
+    /** 模型特征维度（来自 ONNX 模型结构推断） */
+    private int hiddenSize = 768;
     /** 模型最大输入序列长度（采样点数） */
     private int maxInputLength = 480000;
     /** 是否已在本实例上完成初始化 */
