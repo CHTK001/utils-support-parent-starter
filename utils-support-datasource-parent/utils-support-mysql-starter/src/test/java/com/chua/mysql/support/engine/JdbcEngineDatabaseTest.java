@@ -194,7 +194,7 @@ class JdbcEngineDatabaseTest {
                 .toUser(TEST_USER)
                 .execute();
 
-        var perms = permMgr.listByUser(TEST_USER);
+        var perms = permMgr.listPermissions(TEST_USER);
         assertTrue(perms.stream().anyMatch(p -> TEST_DB.equals(p.getDatabaseName())),
                 "用户应有测试库权限记录");
     }
@@ -241,10 +241,14 @@ class JdbcEngineDatabaseTest {
     @Order(10)
     void test_drop_database() {
         engine.setDefaultDataSourceName("admin");
-        try (var conn = java.sql.DriverManager.getConnection(
-                "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
-                ADMIN_USER, ADMIN_PASS)) {
+        try {
+            java.sql.Connection conn = java.sql.DriverManager.getConnection(
+                    "jdbc:mysql://" + HOST + ":" + PORT + "/mysql?useSSL=false&allowPublicKeyRetrieval=true",
+                    ADMIN_USER, ADMIN_PASS);
             conn.createStatement().execute("DROP DATABASE IF EXISTS `" + TEST_DB + "`");
+            conn.close();
+        } catch (Exception e) {
+            // ignore cleanup failure
         }
         assertFalse(engine.databaseExists(TEST_DB), "测试库应已被删除");
     }
