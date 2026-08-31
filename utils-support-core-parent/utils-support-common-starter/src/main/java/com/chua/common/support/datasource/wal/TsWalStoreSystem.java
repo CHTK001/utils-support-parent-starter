@@ -80,25 +80,20 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
 
     // ==================== TS 专用 ====================
 
-    /** 可复用写缓冲，最大 ~256B（measure名最长128 + 头） */
-    private byte[] writeBuf = new byte[256];
-
     public long append(String measure, long ts, double value) throws IOException {
         byte[] kb = measure.getBytes(StandardCharsets.UTF_8);
-        int total = 4 + kb.length + 8 + 8;
-        if (writeBuf.length < total) writeBuf = new byte[total * 2];
-        ByteBuffer bb = ByteBuffer.wrap(writeBuf, 0, total);
+        byte[] payload = new byte[4 + kb.length + 8 + 8];
+        ByteBuffer bb = ByteBuffer.wrap(payload);
         bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value);
-        return walLogs[Math.abs(measure.hashCode()) % config.shardCount()].fastAppend((byte) 0x02, writeBuf, total);
+        return super.append(measure, payload);
     }
 
     public long appendWithTtl(String measure, long ts, double value, int ttlSec) throws IOException {
         byte[] kb = measure.getBytes(StandardCharsets.UTF_8);
-        int total = 4 + kb.length + 8 + 8 + 4;
-        if (writeBuf.length < total) writeBuf = new byte[total * 2];
-        ByteBuffer bb = ByteBuffer.wrap(writeBuf, 0, total);
+        byte[] payload = new byte[4 + kb.length + 8 + 8 + 4];
+        ByteBuffer bb = ByteBuffer.wrap(payload);
         bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value); bb.putInt(ttlSec);
-        return walLogs[Math.abs(measure.hashCode()) % config.shardCount()].fastAppend((byte) 0x02, writeBuf, total);
+        return super.append(measure, payload);
     }
 
     public List<TsPoint> queryRange(String measure, long fromTs, long toTs, int offset, int limit) throws IOException {
