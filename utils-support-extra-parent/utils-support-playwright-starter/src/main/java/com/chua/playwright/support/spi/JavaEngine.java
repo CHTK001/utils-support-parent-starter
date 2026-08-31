@@ -205,6 +205,8 @@ public class JavaEngine implements Engine {
     @Override public ApiResponseData apiRequest(String action, String url, Object body) { throw unimplemented(); }
     @Override public List<Object> batch(List<Map<String, Object>> commands, boolean stopOnError) { throw unimplemented(); }
     @Override public String version() { return "1.48.0-java"; }
+    @Override public String printPageToPdf(long pageHandle, Map<String, Object> options) { throw unimplemented(); }
+    @Override public String convertHtmlToPng(long pageHandle, String html) { throw unimplemented(); }
 
     private UnsupportedOperationException unimplemented() {
         return new UnsupportedOperationException("JavaEngine 暂未实现此方法，请安装 Rust native 库");
