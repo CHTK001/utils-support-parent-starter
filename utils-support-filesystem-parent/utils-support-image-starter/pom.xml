@@ -45,7 +45,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.github.lukas81298</groupId>
+            <groupId>com.github.gotson.nightmonkeys</groupId>
             <artifactId>imageio-heif</artifactId>
             <version>${imageio-heif.version}</version>
         </dependency>

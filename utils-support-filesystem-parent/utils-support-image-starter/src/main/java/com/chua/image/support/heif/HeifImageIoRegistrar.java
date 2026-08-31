@@ -1,9 +1,7 @@
 package com.chua.image.support.heif;
 
-import io.github.lukas81298.imageio.heif.HeifImageReader;
-import io.github.lukas81298.imageio.heif.HeifImageReaderSpi;
-import io.github.lukas81298.imageio.heif.HeifImageWriter;
-import io.github.lukas81298.imageio.heif.HeifImageWriterSpi;
+import com.github.gotson.nightmonkeys.heif.imageio.plugins.HeifImageReaderSpi;
+import com.github.gotson.nightmonkeys.heif.imageio.plugins.HeifImageWriterSpi;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>注册 {@link HeifImageReaderSpi} 和 {@link HeifImageWriterSpi} 到 {@link IIORegistry}，
  * 使 {@link ImageIO} 能够读取和写入 HEIC/HEIF 格式图片。</p>
  *
- * <p>依赖：{@code io.github.lukas81298:imageio-heif}</p>
+ * <p>依赖：{@code com.github.gotson.nightmonkeys:imageio-heif}</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -37,16 +35,8 @@ public final class HeifImageIoRegistrar {
         }
         try {
             IIORegistry registry = IIORegistry.getDefaultInstance();
-            registry.registerService(
-                    new HeifImageReaderSpi(),
-                    HeifImageReaderSpi.class,
-                    true
-            );
-            registry.registerService(
-                    new HeifImageWriterSpi(),
-                    HeifImageWriterSpi.class,
-                    true
-            );
+            registry.registerService(new HeifImageReaderSpi(), HeifImageReaderSpi.class, true);
+            registry.registerService(new HeifImageWriterSpi(), HeifImageWriterSpi.class, true);
             registered = true;
             log.info("[HeifImageIo] HEIC/HEIF ImageIO SPI 注册成功");
         } catch (Exception e) {
@@ -59,9 +49,8 @@ public final class HeifImageIoRegistrar {
      */
     public static boolean isAvailable() {
         try {
-            ImageIO.getImageReadersByFormatName("heic").hasNext();
-            ImageIO.getImageWritersByFormatName("heic").hasNext();
-            return true;
+            return ImageIO.getImageReadersByFormatName("heic").hasNext()
+                    && ImageIO.getImageWritersByFormatName("heic").hasNext();
         } catch (Exception e) {
             return false;
         }
