@@ -134,7 +134,36 @@ public class ChatClientSetting {
      * 自定义 HTTP 请求头
      *
      * <p>每次请求都会携带这些额外的 HTTP 头，用于服务商要求的自定义认证头、
-     * 路由头等场景。优先级高于 SDK 默认头。
+     * 路由头等场景。优先级高于 SDK 默认头。</p>
      */
     private Map<String, String> extraHeaders;
+
+    /**
+     * 是否使用 GPU（本地推理引擎专用：llama.cpp / onnxruntime / pytorch 等）
+     *
+     * <p>null 表示跟随 {@code deeplearning.device} 系统属性（默认 auto）。</p>
+     */
+    private Boolean useGpu;
+
+    /**
+     * 分配给 GPU 的层数（llama.cpp 专用；-1 = 全部层，0 = 纯 CPU）
+     *
+     * <p>仅当 {@link #useGpu} 为 true 时生效。</p>
+     */
+    private Integer gpuLayers;
+
+    /**
+     * 上下文窗口大小（llama.cpp / 多数本地推理引擎）
+     */
+    private Integer ctxSize;
+
+    /**
+     * Top-K 采样参数（llama.cpp 专用）
+     */
+    private Integer topK;
+
+    /**
+     * 推理线程数（llama.cpp 专用；null = 自动按 CPU 核心数）
+     */
+    private Integer threads;
 }
