@@ -37,7 +37,6 @@ import java.util.Set;
  * <ul>
  *   <li><b>WEBP</b> (.webp) — 由 {@code WebpConvertFileSystem} 处理</li>
  *   <li><b>RAW</b> (.cr2, .nef 等) — 由 Rust 转换器处理</li>
- *   <li><b>HEIC/HEIF</b> (.heic, .heif) — 由 Rust 转换器处理</li>
  * </ul>
  *
  * @author CH
