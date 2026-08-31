@@ -229,11 +229,7 @@ public class DuckDBEngine extends JdbcEngine {
                         if ("close".equals(method.getName()) && method.getParameterCount() == 0) {
                             return null;
                         }
-                        try {
-                            return ReflectUtils.invoke(target, method.getName(), Object.class, args);
-                        } catch (InvocationTargetException e) {
-                            throw e.getCause();
-                        }
+                        return ReflectUtils.invoke(target, method.getName(), Object.class, args);
                     });
         }
 

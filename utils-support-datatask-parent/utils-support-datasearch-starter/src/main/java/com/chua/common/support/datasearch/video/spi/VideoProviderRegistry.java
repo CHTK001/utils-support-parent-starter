@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.video.spi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.util.*;
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public final class VideoProviderRegistry {
 
     private static final ConcurrentHashMap<String, BlockReason> BLOCKED_PROVIDERS = new ConcurrentHashMap<>();
@@ -54,7 +56,7 @@ public final class VideoProviderRegistry {
         try {
             InputStream is = VideoProviderRegistry.class.getClassLoader()
                     .getResourceAsStream("blocked-providers.json");
-            if (is == null) { System.out.println("[Registry] blocked-providers.json NOT FOUND"); return; }
+            if (is == null) { log.warn("[Registry] blocked-providers.json NOT FOUND"); return; }
             byte[] bytes = is.readAllBytes();
             Root root = MAPPER.readValue(bytes, Root.class);
             if (root != null && root.blocked != null) {
@@ -67,7 +69,7 @@ public final class VideoProviderRegistry {
                 }
             }
         } catch (Exception e) {
-            System.out.println("[Registry] init failed: " + e.getMessage());
+            log.error("[Registry] init failed: {}", e.getMessage());
         }
     }
 

@@ -123,7 +123,7 @@ public class KryoPoolManager<T extends Serializable> {
         if (pool.size() < maxSize) {
             pool.addLast(serializer);
         } else {
-            System.out.println("[KryoPoolManager] Pool full, discarding serializer");
+            log.info("[KryoPoolManager] Pool full, discarding serializer");
         }
     }
 

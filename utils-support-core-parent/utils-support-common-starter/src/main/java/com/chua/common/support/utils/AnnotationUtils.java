@@ -605,4 +605,26 @@ public class AnnotationUtils {
         }
         return attributes;
     }
+
+    /**
+     * 从注解实例读取属性值（遍历注解接口声明的方法，反射调用取值）。
+     *
+     * @param annotation 注解实例
+     * @return 属性名 → 属性值 映射
+     */
+    public static Map<String, Object> getAnnotationAttributes(Annotation annotation) {
+        Map<String, Object> attributes = new HashMap<>();
+        if (annotation == null) {
+            return attributes;
+        }
+        for (Method method : annotation.annotationType().getDeclaredMethods()) {
+            try {
+                Object value = ReflectUtils.invoke(annotation, method.getName(), Object.class);
+                attributes.put(method.getName(), value);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return attributes;
+    }
 }

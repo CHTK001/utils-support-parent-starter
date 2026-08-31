@@ -291,19 +291,15 @@ public class MqttServer extends AbstractServer {
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
-        } catch (java.lang.reflect.InvocationTargetException e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
-            log.error("MQTT 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
+        } catch (Exception e) {
+            log.error("MQTT 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), e);
             for (Consumer<Throwable> listener : errorListeners) {
                 try {
-                    listener.accept(cause);
+                    listener.accept(e);
                 } catch (Exception ex) {
                     log.error("MQTT 错误监听器执行异常", ex);
                 }
             }
-            dispatchAnnotatedMethods(onErrorMethods, cause);
-        } catch (Exception e) {
-            log.error("MQTT 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), e);
             dispatchAnnotatedMethods(onErrorMethods, e);
         }
     }
@@ -312,8 +308,8 @@ public class MqttServer extends AbstractServer {
     private void invokeMethod(Object handler, Method method, Object... args) {
         try {
             ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
-        } catch (java.lang.reflect.InvocationTargetException e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
+        } catch (Exception e) {
+            Throwable cause = e;
             log.error("MQTT 注解方法调用异常: {}.{}", handler.getClass().getSimpleName(), method.getName(), cause);
             for (Consumer<Throwable> listener : errorListeners) {
                 try {
