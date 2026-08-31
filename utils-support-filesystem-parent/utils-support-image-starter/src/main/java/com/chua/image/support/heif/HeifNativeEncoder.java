@@ -60,9 +60,18 @@ public class HeifNativeEncoder {
 
     private static void writeBox(ByteArrayOutputStream out, String type, byte[] data) throws IOException {
         int size = 8 + data.length;
-        out.writeInt(size);
+        out.write(intToBytes(size));
         out.write(type.getBytes());
         out.write(data);
+    }
+
+    private static byte[] intToBytes(int value) {
+        return new byte[]{
+            (byte)((value >> 24) & 0xFF),
+            (byte)((value >> 16) & 0xFF),
+            (byte)((value >> 8) & 0xFF),
+            (byte)(value & 0xFF)
+        };
     }
 
     private static byte[] buildFtypBox(int idatSize) {
@@ -84,22 +93,20 @@ public class HeifNativeEncoder {
     }
 
     private static byte[] buildHinfBox(int w, int h) {
-        // hinf: version=0, flags=0, width, height
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(new byte[]{0, 0, 0, 0}); // version/flags
-        bos.writeInt(w);
-        bos.writeInt(h);
+        bos.write(intToBytes(w));
+        bos.write(intToBytes(h));
         bos.write(new byte[8]); // transform matrix (identity)
         bos.write(new byte[]{0, 0, 0, 1}); // item count
         return bos.toByteArray();
     }
 
     private static byte[] buildIspeBox(int w, int h) {
-        // ispe: version=0, flags=0, width, height, reserved
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(new byte[]{0, 0, 0, 0});
-        bos.writeInt(w);
-        bos.writeInt(h);
+        bos.write(intToBytes(w));
+        bos.write(intToBytes(h));
         bos.write(new byte[2]); // reserved
         return bos.toByteArray();
     }
@@ -136,9 +143,15 @@ public class HeifNativeEncoder {
     }
 
     private static void intToBytes(int value, byte[] bytes, int offset) {
-        bytes[offset] = (byte) ((value >> 24) & 0xFF);
-        bytes[offset + 1] = (byte) ((value >> 16) & 0xFF);
-        bytes[offset + 2] = (byte) ((value >> 8) & 0xFF);
-        bytes[offset + 3] = (byte) (value & 0xFF);
+        bytes[offset] = (byte)((value >> 24) & 0xFF);
+        bytes[offset + 1] = (byte)((value >> 16) & 0xFF);
+        bytes[offset + 2] = (byte)((value >> 8) & 0xFF);
+        bytes[offset + 3] = (byte)(value & 0xFF);
+    }
+
+    private static byte[] intToBytes(int value) {
+        byte[] b = new byte[4];
+        intToBytes(value, b, 0);
+        return b;
     }
 }
