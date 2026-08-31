@@ -29,7 +29,6 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <imageio.version>3.14.0</imageio.version>
-        <imageio-heif.version>0.6.3</imageio-heif.version>
         <imageio-jxl.version>0.6.3</imageio-jxl.version>
         <rust.skip>true</rust.skip>
     </properties>
@@ -43,11 +42,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.gotson.nightmonkeys</groupId>
-            <artifactId>imageio-heif</artifactId>
-            <version>${imageio-heif.version}</version>
         </dependency>
     </dependencies>
     <build>
