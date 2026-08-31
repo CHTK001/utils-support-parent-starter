@@ -43,6 +43,11 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.gotson.nightmonkeys</groupId>
+            <artifactId>imageio-heif</artifactId>
+            <version>1.1.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
