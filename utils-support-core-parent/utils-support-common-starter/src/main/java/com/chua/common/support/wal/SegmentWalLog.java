@@ -176,7 +176,13 @@ public class SegmentWalLog implements WalLog {
                 t.setDaemon(true);
                 return t;
             });
-            flushScheduler.scheduleAtFixedRate(this::force,
+            flushScheduler.scheduleAtFixedRate(() -> {
+                        try {
+                            force();
+                        } catch (IOException e) {
+                            throw new java.io.UncheckedIOException(e);
+                        }
+                    },
                     config.fsyncBatchIntervalMs(), config.fsyncBatchIntervalMs(), java.util.concurrent.TimeUnit.MILLISECONDS);
         }
     }

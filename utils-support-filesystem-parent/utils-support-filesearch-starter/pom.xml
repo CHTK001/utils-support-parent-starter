@@ -16,6 +16,11 @@
     <description>文件搜索引擎模块，基于 Rust 原生库 + Java 25 FFM</description>
     <dependencies>
         <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
