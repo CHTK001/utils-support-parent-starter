@@ -108,7 +108,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         def.setName(tableName);
         try (Connection conn = getConnection()) {
             DatabaseMetaData dbMeta = conn.getMetaData();
-            String catalog = dbMeta.getCatalog();
+            String catalog = metaData.getCatalog();
             String schema = metaData.getSchema();
             // columns
             List<ColumnDef> cols = readColumns(dbMeta, catalog, schema, tableName);
@@ -132,10 +132,16 @@ public class MysqlMetaTable extends AbstractMetaTable {
                                 new com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata();
                         idx.setName(idxName);
                         idx.setUnique(!rs.getBoolean("NON_UNIQUE"));
+                        java.util.List<String> idxCols = new java.util.ArrayList<>();
+                        idxCols.add(rs.getString("COLUMN_NAME"));
+                        idx.setColumns(idxCols);
                         idxs.add(idx);
                         lastIdx = idxName;
                     }
-                    idxs.get(idxs.size() - 1).addColumn(rs.getString("COLUMN_NAME"));
+                    com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata lastIdxObj = idxs.get(idxs.size() - 1);
+                    java.util.List<String> cols = new java.util.ArrayList<>(lastIdxObj.getColumns());
+                    cols.add(rs.getString("COLUMN_NAME"));
+                    lastIdxObj.setColumns(cols);
                 }
             }
             def.setIndexes(idxs);

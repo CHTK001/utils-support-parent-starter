@@ -190,12 +190,14 @@ public class SenseVoiceAudioClient implements AudioClient {
         try {
             Path target = resolveAudioPath();
             ensurePrepared();
-            String transcript = translator.transcribe(target, language);
+            SenseVoiceTranslator.RichResult rich = translator.transcribeRich(target, language);
             return AudioResponse.builder()
                     .taskId(taskId)
                     .status(AudioResponse.Status.SUCCESS)
-                    .transcript(transcript)
-                    .detectedLanguage(language != null ? language : "auto")
+                    .transcript(rich.text)
+                    .detectedLanguage(rich.language != null ? rich.language : (language != null ? language : "auto"))
+                    .emotion(rich.emotion)
+                    .events(rich.events)
                     .build();
         } catch (Exception e) {
             log.error("[SenseVoice] queryTask failed: {}", e.getMessage(), e);

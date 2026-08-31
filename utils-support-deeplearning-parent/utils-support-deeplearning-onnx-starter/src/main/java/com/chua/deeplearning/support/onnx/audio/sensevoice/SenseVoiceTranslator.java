@@ -243,7 +243,7 @@ public class SenseVoiceTranslator {
     }
 
     /**
-     * 转写音频文件。
+     * 转写音频文件（仅返回文本，不暴露 emotion / event 元数据）。
      *
      * @param audioPath 音频路径（16kHz 效果最佳）
      * @param language 语言代码（zh/en/ja/ko/yue/auto），null 或 auto 自动检测
@@ -251,10 +251,25 @@ public class SenseVoiceTranslator {
      * @throws Exception 推理失败
      */
     public String transcribe(Path audioPath, String language) throws Exception {
+        return transcribeRich(audioPath, language).text;
+    }
+
+    /**
+     * 转写音频文件并返回完整富文本结果（text + language + emotion + events）。
+     *
+     * <p>SenseVoice 的 CTC token 流中，特殊标记按出现顺序携带语种、情感、事件；
+     * 例如 {@code <|zh|><|NEUTRAL|><|Speech|>你好世界}。本方法解析这些前缀并剥离。</p>
+     *
+     * @param audioPath 音频路径（16kHz 效果最佳）
+     * @param language 语言代码（zh/en/ja/ko/yue/auto），null 或 auto 自动检测
+     * @return 富文本结果
+     * @throws Exception 推理失败
+     */
+    public RichResult transcribeRich(Path audioPath, String language) throws Exception {
         if (!prepared) {
             throw new IllegalStateException("请先调用 prepare()");
         }
-                float[] samples = loadAudio(audioPath);
+        float[] samples = loadAudio(audioPath);
 
         // Step1: kaldi fbank 80 维
         double[][] feat80 = computeFbank(samples);
@@ -291,9 +306,62 @@ public class SenseVoiceTranslator {
                 float[] buf = toFloatArray(logits);
                 int vocabSize = (int) logits.getInfo().getShape()[2];
                 List<Integer> ids = greedyCtc(buf, vocabSize);
-                return detokenize(ids);
+                return parseRich(ids);
             }
         }
+    }
+
+    /** CTC 解析后的富文本结果 */
+    public static class RichResult {
+        /** 转写文本（已剥离所有特殊 token） */
+        public final String text;
+        /** 检测到的语种（zh/en/ja/ko/yue/nospeech/auto） */
+        public final String language;
+        /** 情感（NEUTRAL/HAPPY/SAD/ANGRY/FEARFUL/DISGUSTED/SURPRISED/EMO_UNKNOWN） */
+        public final String emotion;
+        /** 事件标签（Speech/BGM/Laughter/...） */
+        public final List<String> events;
+
+        public RichResult(String text, String language, String emotion, List<String> events) {
+            this.text = text;
+            this.language = language;
+            this.emotion = emotion;
+            this.events = events == null ? List.of() : events;
+        }
+    }
+
+    /**
+     * 解析 CTC id 序列：抽取语种/情感/事件特殊 token，剩余拼接为文本。
+     */
+    private RichResult parseRich(List<Integer> ids) {
+        StringBuilder sb = new StringBuilder();
+        String lang = null;
+        String emo = null;
+        List<String> events = new java.util.ArrayList<>();
+        for (Integer id : ids) {
+            String tk = vocab.get(id);
+            if (tk == null) {
+                continue;
+            }
+            if (tk.startsWith("<|") && tk.endsWith("|>")) {
+                String inner = tk.substring(2, tk.length() - 2);
+                if (Set.of("zh", "en", "yue", "ja", "ko", "nospeech", "auto").contains(inner)) {
+                    lang = inner;
+                } else if (Set.of("NEUTRAL", "HAPPY", "SAD", "ANGRY",
+                        "FEARFUL", "DISGUSTED", "SURPRISED", "EMO_UNKNOWN").contains(inner)) {
+                    emo = inner;
+                } else if (Set.of("Speech", "BGM", "Laughter", "Applause", "Cry",
+                        "Sneeze", "Breath", "Cough", "withitn", "woitn",
+                        "startofcontext", "endofcontext").contains(inner)) {
+                    events.add(inner);
+                } else if (inner.equals("s") || inner.equals("/s") || inner.equals("unk")) {
+                    // skip
+                }
+                continue;
+            }
+            sb.append(tk.replace('▁', ' '));
+        }
+        return new RichResult(sb.toString().trim(), lang, emo, events);
     }
 
     /** 解析语言代码到模型 id；未知时回退 auto */
