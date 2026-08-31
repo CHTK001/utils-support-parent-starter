@@ -22,9 +22,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 将项目 {@link AgentDebugHook} / {@link AgentPlanHook} 桥接为 AgentScope {@link Hook}。
+ * 将项目 {@link com.chua.common.support.ai.agent.AgentDebugHook} / {@link com.chua.common.support.ai.agent.AgentPlanHook} 桥接为 AgentScope {@link Hook}。
  *
  * <p>识别 Harness PlanMode 工具名：plan_enter / plan_write / plan_exit。
+ * 同时自动追踪：执行轮次、工具调用次数、Token 用量累计、整体耗时。
  *
  * @author CH
  * @since 4.0.0.42
@@ -32,21 +33,32 @@ import java.util.Set;
 public class AgentHookAdapter implements Hook {
 
     /** 计划工具名称集合 */
-    /** Plan_tools */
     private static final Set<String> PLAN_TOOLS = Set.of(
             "plan_enter", "plan_write", "plan_exit");
 
-    /** 代理标识 */
-    /** AgentID */
+    /** Agent 标识 */
     private final String agentId;
     /** 调试钩子 */
-    private final AgentDebugHook debugHook;
-    /** 计划钩子 */
-    /** Plan钩子 */
-    private final AgentPlanHook planHook;
+    private final com.chua.common.support.ai.agent.AgentDebugHook debugHook;
+    /** 规划钩子 */
+    private final com.chua.common.support.ai.agent.AgentPlanHook planHook;
     /** 计划最大任务数 */
-    /** Plan最大值任务 */
     private final int planMaxTask;
+
+    /** Agent 启动时间（毫秒） */
+    private long startTime = System.currentTimeMillis();
+    /** 当前执行轮次（从 1 开始） */
+    private int iteration = 0;
+    /** 累计调用工具次数 */
+    private int toolCallCount = 0;
+    /** 累计输入 Token */
+    private long totalInputTokens = 0;
+    /** 累计输出 Token */
+    private long totalOutputTokens = 0;
+    /** 当前轮次工具调用次数 */
+    private int currentIterationToolCalls = 0;
+    /** 是否已开始首次 LLM 调用 */
+    private boolean callStarted = false;
 
     /**
      * 创建 AgentHookAdapter 实例
@@ -74,7 +86,6 @@ public class AgentHookAdapter implements Hook {
     }
 
     @Override
-    /** OnEvent */
     public <T extends HookEvent> Mono<T> onEvent(T event) {
         if (event == null) {
             return Mono.empty();
@@ -83,7 +94,7 @@ public class AgentHookAdapter implements Hook {
             String toolName = resolveToolName(event);
             String type = resolveType(event, toolName);
             String message = resolveMessage(event, toolName);
-            Map<String, Object> attrs = new HashMap<>(8);
+            Map<String, Object> attrs = new HashMap<>(16);
             attrs.put("eventClass", event.getClass().getSimpleName());
             if (toolName != null) {
                 attrs.put("toolName", toolName);
@@ -91,20 +102,56 @@ public class AgentHookAdapter implements Hook {
             if (planMaxTask > 0) {
                 attrs.put("planMaxTask", planMaxTask);
             }
+
+            long now = System.currentTimeMillis();
+            long elapsed = now - startTime;
+            attrs.put("elapsedMillis", elapsed);
+
+            if (event instanceof PreCallEvent) {
+                iteration++;
+                currentIterationToolCalls = 0;
+                callStarted = true;
+                attrs.put("iteration", iteration);
+            }
             if (event instanceof PreActingEvent preActing) {
+                currentIterationToolCalls++;
+                toolCallCount++;
+                attrs.put("toolCallCount", toolCallCount);
+                attrs.put("iteration", iteration);
                 ToolUseBlock use = preActing.getToolUse();
                 if (use != null && use.getInput() != null) {
                     attrs.put("toolInput", use.getInput());
                     maybeEnforcePlanMaxTask(preActing, use, attrs);
                 }
             }
+            if (event instanceof PostCallEvent postCall) {
+                totalInputTokens += extractInputTokens(postCall);
+                totalOutputTokens += extractOutputTokens(postCall);
+                long curTotal = totalInputTokens + totalOutputTokens;
+                attrs.put("totalInputTokens", totalInputTokens);
+                attrs.put("totalOutputTokens", totalOutputTokens);
+                attrs.put("totalTokens", curTotal);
+                attrs.put("iteration", iteration);
+                attrs.put("toolCallCount", toolCallCount);
+            }
+            if (event instanceof ErrorEvent) {
+                attrs.put("iteration", iteration);
+                attrs.put("toolCallCount", toolCallCount);
+                attrs.put("totalTokens", totalInputTokens + totalOutputTokens);
+            }
 
             AgentHookEvent hookEvent = AgentHookEvent.builder()
                     .type(type)
                     .agentId(agentId)
                     .message(message)
-                    .timestamp(System.currentTimeMillis())
+                    .timestamp(now)
                     .attributes(attrs)
+                    .iteration(iteration)
+                    .toolCallCount(toolCallCount)
+                    .totalInputTokens(totalInputTokens)
+                    .totalOutputTokens(totalOutputTokens)
+                    .totalTokens(totalInputTokens + totalOutputTokens)
+                    .elapsedMillis(elapsed)
                     .build();
 
             if (debugHook != null) {
@@ -114,9 +161,34 @@ public class AgentHookAdapter implements Hook {
                 planHook.onPlan(hookEvent);
             }
         } catch (Exception ignored) {
-            // Hook 回调失败不影响主流程
         }
         return Mono.just(event);
+    }
+
+    /** 从 PostCallEvent 中提取输入 Token 数 */
+    private long extractInputTokens(PostCallEvent postCall) {
+        try {
+            var msg = postCall.getFinalMessage();
+            if (msg != null && msg.getMetadata() != null) {
+                Object it = msg.getMetadata().get("inputTokens");
+                if (it instanceof Number n) return n.longValue();
+            }
+        } catch (Exception ignored) {
+        }
+        return 0L;
+    }
+
+    /** 从 PostCallEvent 中提取输出 Token 数 */
+    private long extractOutputTokens(PostCallEvent postCall) {
+        try {
+            var msg = postCall.getFinalMessage();
+            if (msg != null && msg.getMetadata() != null) {
+                Object ot = msg.getMetadata().get("outputTokens");
+                if (ot instanceof Number n) return n.longValue();
+            }
+        } catch (Exception ignored) {
+        }
+        return 0L;
     }
 
     /**
