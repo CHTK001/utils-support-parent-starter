@@ -85,7 +85,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         byte[] payload = new byte[4 + kb.length + 8 + 8];
         ByteBuffer bb = ByteBuffer.wrap(payload);
         bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value);
-        return super.append(measure, payload);
+        return append(measure, payload);
     }
 
     public long appendWithTtl(String measure, long ts, double value, int ttlSec) throws IOException {
@@ -93,7 +93,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         byte[] payload = new byte[4 + kb.length + 8 + 8 + 4];
         ByteBuffer bb = ByteBuffer.wrap(payload);
         bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value); bb.putInt(ttlSec);
-        return super.append(measure, payload);
+        return append(measure, payload);
     }
 
     public List<TsPoint> queryRange(String measure, long fromTs, long toTs, int offset, int limit) throws IOException {
