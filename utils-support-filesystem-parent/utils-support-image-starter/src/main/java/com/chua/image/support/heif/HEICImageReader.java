@@ -85,15 +85,10 @@ public class HEICImageReader extends ImageReader {
     }
 
     @Override
-    public void dispose() throws IOException {
-        this.input = null;
+    public void reset() {
+        super.reset();
         this.decoded = false;
         this.image = null;
-    }
-
-    @Override
-    public void close() throws IOException {
-        dispose();
     }
 
     private void ensureDecoded() throws IOException {

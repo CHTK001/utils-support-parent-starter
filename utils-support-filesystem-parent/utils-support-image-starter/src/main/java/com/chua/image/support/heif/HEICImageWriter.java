@@ -34,7 +34,7 @@ public class HEICImageWriter extends ImageWriter {
     @Override
     public void prepareWriteEmpty(IIOMetadata streamMetadata, ImageTypeSpecifier type,
                                    int minWidth, int minHeight, IIOMetadata imgMeta,
-                                   List<BufferedImage> thumbnails, ImageWriteParam param) throws IOException {
+                                   List<? extends BufferedImage> thumbnails, ImageWriteParam param) throws IOException {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -83,7 +83,9 @@ public class HEICImageWriter extends ImageWriter {
     }
 
     private static BufferedImage toBuffered(java.awt.image.RenderedImage img) {
-        BufferedImage bis = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        int w = img.getWidth(null);
+        int h = img.getHeight(null);
+        BufferedImage bis = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         bis.getGraphics().drawImage(img, 0, 0, null);
         return bis;
     }
