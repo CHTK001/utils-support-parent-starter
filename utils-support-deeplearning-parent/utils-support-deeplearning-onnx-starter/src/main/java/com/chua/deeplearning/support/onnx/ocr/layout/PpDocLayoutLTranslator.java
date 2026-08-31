@@ -36,7 +36,8 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 @Slf4j
-public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects> {
+public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects>,
+        com.chua.deeplearning.support.engine.DetectionConfigurable {
 
     /**
      * 默认输入尺寸（640）。
@@ -110,9 +111,9 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     );
 
     /**
-     * 配置的分值阈值。
+     * 配置的分值阈值（构造参数或 configure 注入）。
      */
-    private final Float configuredScoreThreshold;
+    private Float configuredScoreThreshold;
 
     /**
      * 动态分值阈值。
@@ -164,6 +165,27 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     public PpDocLayoutLTranslator(Map<String, ?> arguments) {
         this.configuredScoreThreshold = extractThreshold(arguments);
         this.scoreThreshold = 0.5f;
+    }
+
+    /**
+     * 注入运行参数（threshold 等）。
+     *
+     * <p>由 {@link com.chua.deeplearning.support.engine.AbstractIdentificationEngine#get(String, Class, Map)}
+     * 在门面调用时注入，覆盖模型默认阈值。</p>
+     *
+     * @param options 运行参数（threshold / scoreThreshold 等）
+     */
+    @Override
+    public void configure(Map<String, Object> options) {
+        if (options == null || options.isEmpty()) {
+            return;
+        }
+        Float threshold = extractThreshold(options);
+        if (threshold != null) {
+            this.configuredScoreThreshold = threshold;
+            this.scoreThreshold = threshold;
+            log.debug("[deeplearning-engine] PP-DocLayout 阈值更新为: {}", threshold);
+        }
     }
 
     /**

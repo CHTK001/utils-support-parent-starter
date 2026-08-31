@@ -56,10 +56,11 @@ public interface AnnotationDefinitionResolver {
         String name = narrowAnnotation.getName();
         for (AnnotationAliasMapping mapping : getAliasMappings()) {
             if (mapping.getNarrowName().equals(name)) {
-                try {
-                    return (Class<? extends Annotation>) ReflectUtils.forName(mapping.getWideName());
-                } catch (ClassNotFoundException ignored) {
+                Class<? extends Annotation> cls = (Class<? extends Annotation>) ReflectUtils.forName(mapping.getWideName());
+                if (cls != null) {
+                    return cls;
                 }
+                break;
             }
         }
         return narrowAnnotation;
