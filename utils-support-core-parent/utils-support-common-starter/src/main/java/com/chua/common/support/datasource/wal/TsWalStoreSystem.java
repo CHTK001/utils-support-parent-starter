@@ -41,7 +41,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
     public long append(String key, byte[] payload) throws IOException {
         if (closed) throw new IllegalStateException("closed");
         int idx = Math.abs(key.hashCode()) % config.shardCount();
-        long lsn = walLogs[idx].append((byte) 0x02, payload == null ? new byte[0] : payload.clone());
+        long lsn = walLogs[idx].append((byte) 0x02, payload == null ? new byte[0] : payload);
         totalRecords.incrementAndGet();
         return lsn;
     }
