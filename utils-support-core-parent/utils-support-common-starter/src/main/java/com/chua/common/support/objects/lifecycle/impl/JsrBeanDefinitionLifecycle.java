@@ -1,6 +1,7 @@
 package com.chua.common.support.objects.lifecycle.impl;
 
 import com.chua.common.support.objects.definition.BeanDefinition;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.lifecycle.BeanDefinitionLifecycle;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;

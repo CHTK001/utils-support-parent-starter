@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.offset;
 
 import com.chua.common.support.concurrent.offset.provider.FileOffsetStore;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
@@ -206,11 +207,7 @@ public final class OffsetFlow implements AutoCloseable {
 
     /** Sleep */
     private void sleep() {
-        try {
-            Thread.sleep(RETRY_DELAY_MS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        ThreadUtils.sleep(RETRY_DELAY_MS);
     }
 
     @Override

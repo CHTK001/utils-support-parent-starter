@@ -1,6 +1,7 @@
 package com.chua.common.support.network.sync.impl;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.SyncServerListener;
@@ -236,7 +237,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
                 }
             }
             try {
-                Thread.sleep(100);
+                ThreadUtils.sleep(100);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

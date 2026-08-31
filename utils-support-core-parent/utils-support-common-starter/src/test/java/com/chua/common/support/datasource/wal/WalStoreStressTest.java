@@ -30,7 +30,7 @@ class WalStoreStressTest {
 
     @Test
     void kvWrite100K() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-kv-100k");
+        Path dir = Path.of("D:/ch/temp/wal/wal-kv-100k");
         Files.createDirectories(dir);
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
             int count = 100_000;
@@ -48,7 +48,7 @@ class WalStoreStressTest {
 
     @Test
     void kvWrite1M() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-kv-1m");
+        Path dir = Path.of("D:/ch/temp/wal/wal-kv-1m");
         Files.createDirectories(dir);
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
             int count = 1_000_000;
@@ -66,7 +66,7 @@ class WalStoreStressTest {
 
     @Test
     void kvPointLookup() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-kv-lookup");
+        Path dir = Path.of("D:/ch/temp/wal/wal-kv-lookup");
         Files.createDirectories(dir);
         int count = 100_000;
         byte[] payload = "hello".getBytes(StandardCharsets.UTF_8);
@@ -96,7 +96,7 @@ class WalStoreStressTest {
 
     @Test
     void kvConcurrentWrite() throws IOException, InterruptedException, ExecutionException {
-        Path dir = Path.of("Z:/temp/wal-kv-conc");
+        Path dir = Path.of("D:/ch/temp/wal/wal-kv-conc");
         Files.createDirectories(dir);
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
             int threads = 8;
@@ -129,7 +129,7 @@ class WalStoreStressTest {
 
     @Test
     void kvDeleteAndRecovery() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-kv-del");
+        Path dir = Path.of("D:/ch/temp/wal/wal-kv-del");
         Files.createDirectories(dir);
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
             int count = 10_000;
@@ -154,7 +154,7 @@ class WalStoreStressTest {
 
     @Test
     void tsWrite100K() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-ts-100k");
+        Path dir = Path.of("D:/ch/temp/wal/wal-ts-100k");
         Files.createDirectories(dir);
         try (TsWalStoreSystem store = TsWalStoreSystem.create(dir)) {
             int count = 100_000;
@@ -172,7 +172,7 @@ class WalStoreStressTest {
 
     @Test
     void tsWrite1M_multiMeasure() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-ts-1m-multi");
+        Path dir = Path.of("D:/ch/temp/wal/wal-ts-1m-multi");
         Files.createDirectories(dir);
         try (TsWalStoreSystem store = TsWalStoreSystem.create(dir)) {
             String[] measures = {"cpu", "mem", "disk", "net", "gpu"};
@@ -195,7 +195,7 @@ class WalStoreStressTest {
 
     @Test
     void tsRangeQuery() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-ts-q");
+        Path dir = Path.of("D:/ch/temp/wal/wal-ts-q");
         Files.createDirectories(dir);
         int count = 100_000;
         long base = System.currentTimeMillis();
@@ -223,7 +223,7 @@ class WalStoreStressTest {
 
     @Test
     void tsAggregation() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-ts-aggr");
+        Path dir = Path.of("D:/ch/temp/wal/wal-ts-aggr");
         Files.createDirectories(dir);
         int count = 100_000;
         long base = System.currentTimeMillis();
@@ -250,7 +250,7 @@ class WalStoreStressTest {
 
     @Test
     void tsTtlWrite() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-ts-ttl");
+        Path dir = Path.of("D:/ch/temp/wal/wal-ts-ttl");
         Files.createDirectories(dir);
         try (TsWalStoreSystem store = TsWalStoreSystem.create(dir)) {
             int count = 100_000;
@@ -270,7 +270,7 @@ class WalStoreStressTest {
 
     @Test
     void vecWrite10K() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-vec-10k");
+        Path dir = Path.of("D:/ch/temp/wal/wal-vec-10k");
         Files.createDirectories(dir);
         try (VecWalStoreSystem store = VecWalStoreSystem.create(dir, 128)) {
             int count = 10_000;
@@ -294,7 +294,7 @@ class WalStoreStressTest {
 
     @Test
     void vecWrite100K() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-vec-100k");
+        Path dir = Path.of("D:/ch/temp/wal/wal-vec-100k");
         Files.createDirectories(dir);
         try (VecWalStoreSystem store = VecWalStoreSystem.create(dir, 64)) {
             int count = 100_000;
@@ -318,7 +318,7 @@ class WalStoreStressTest {
 
     @Test
     void vecSearch() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-vec-search");
+        Path dir = Path.of("D:/ch/temp/wal/wal-vec-search");
         Files.createDirectories(dir);
         int count = 10_000;
         int dim = 128;
@@ -357,7 +357,7 @@ class WalStoreStressTest {
 
     @Test
     void vecGetPoint() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-vec-get");
+        Path dir = Path.of("D:/ch/temp/wal/wal-vec-get");
         Files.createDirectories(dir);
         int count = 10_000;
         int dim = 64;
@@ -388,7 +388,7 @@ class WalStoreStressTest {
 
     @Test
     void jdbcWrite100K() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-jdbc-100k");
+        Path dir = Path.of("D:/ch/temp/wal/wal-jdbc-100k");
         Files.createDirectories(dir);
         try (JdbcWalStoreSystem store = JdbcWalStoreSystem.create(dir)) {
             List<JdbcWalStoreSystem.ColumnDef> cols = Arrays.asList(
@@ -420,7 +420,7 @@ class WalStoreStressTest {
 
     @Test
     void jdbcWrite1M() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-jdbc-1m");
+        Path dir = Path.of("D:/ch/temp/wal/wal-jdbc-1m");
         Files.createDirectories(dir);
         try (JdbcWalStoreSystem store = JdbcWalStoreSystem.create(dir)) {
             List<JdbcWalStoreSystem.ColumnDef> cols = Arrays.asList(
@@ -446,7 +446,7 @@ class WalStoreStressTest {
 
     @Test
     void jdbcQuery() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-jdbc-q");
+        Path dir = Path.of("D:/ch/temp/wal/wal-jdbc-q");
         Files.createDirectories(dir);
         int count = 100_000;
 
@@ -478,7 +478,7 @@ class WalStoreStressTest {
 
     @Test
     void jdbcUpdateDelete() throws IOException {
-        Path dir = Path.of("Z:/temp/wal-jdbc-upd");
+        Path dir = Path.of("D:/ch/temp/wal/wal-jdbc-upd");
         Files.createDirectories(dir);
         try (JdbcWalStoreSystem store = JdbcWalStoreSystem.create(dir)) {
             List<JdbcWalStoreSystem.ColumnDef> cols = Arrays.asList(

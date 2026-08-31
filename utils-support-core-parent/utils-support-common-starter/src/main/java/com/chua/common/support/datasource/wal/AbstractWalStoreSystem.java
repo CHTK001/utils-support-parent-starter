@@ -1,6 +1,7 @@
 package com.chua.common.support.datasource.wal;
 
 import com.chua.common.support.tree.BPlusTree;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.wal.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,10 +32,7 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         this.router = new ShardRouter(config.shardCount());
         this.index = new ShardedIndex(config.shardCount());
         this.walLogs = new SegmentWalLog[config.shardCount()];
-        this.compactScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "wal-store-compact");
-            t.setDaemon(true); return t;
-        });
+        this.compactScheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("wal-store-compact");
         open();
     }
 

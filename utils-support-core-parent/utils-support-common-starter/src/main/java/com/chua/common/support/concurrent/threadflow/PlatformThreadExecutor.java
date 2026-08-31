@@ -1,9 +1,9 @@
 package com.chua.common.support.concurrent.threadflow;
 
+import com.chua.common.support.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +31,7 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
      * @param TimeUnit TimeUnit
      */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
-        this(strategy, threshold, timeout, timeUnit, -1, Executors.newCachedThreadPool());
+        this(strategy, threshold, timeout, timeUnit, -1, ThreadUtils.newCachedThreadPool("platform-thread-executor"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
      */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent) {
-        this(strategy, threshold, timeout, timeUnit, maxConcurrent, Executors.newCachedThreadPool());
+        this(strategy, threshold, timeout, timeUnit, maxConcurrent, ThreadUtils.newCachedThreadPool("platform-thread-executor"));
     }
 
     /**

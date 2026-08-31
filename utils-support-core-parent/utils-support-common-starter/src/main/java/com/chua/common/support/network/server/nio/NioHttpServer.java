@@ -1,6 +1,8 @@
 package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.AbstractServer;
@@ -186,11 +188,7 @@ public class NioHttpServer extends AbstractServer {
             // 主线程跨线程 register 到 selectors[0] 与事件循环 select() 存在竞态,
             // 连续启停/快速启停时 OP_ACCEPT 可能不被感知(单 Selector 实验 0 失败证实);
             // 由事件循环线程自己注册 + select 同线程执行,彻底消除竞态
-            acceptorPool = Executors.newFixedThreadPool(eventLoops, r -> {
-                Thread t = new Thread(r, "nio-event-loop");
-                t.setDaemon(true);
-                return t;
-            });
+            acceptorPool = ThreadUtils.newDaemonFixedThreadPool(eventLoops, "nio-event-loop");
             for (int i = 0; i < eventLoops; i++) {
                 final int idx = i;
                 // execute + 最外层兜底:任何异常(含被 FutureTask 吞掉的)都记录完整堆栈,

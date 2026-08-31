@@ -614,7 +614,7 @@ public class Downloader {
             lastRefill = now;
 
             while (tokens < bytes) {
-                try { Thread.sleep(1); }
+                try { ThreadUtils.sleep(1); }
                 catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
                 now = System.currentTimeMillis();
                 elapsed = now - lastRefill;

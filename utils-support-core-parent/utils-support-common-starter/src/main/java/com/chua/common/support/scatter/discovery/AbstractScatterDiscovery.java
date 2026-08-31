@@ -4,6 +4,7 @@ import com.chua.common.support.network.discovery.AbstractServiceDiscovery;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterRemoteClient;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -113,12 +113,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         started = true;
         loadPersistedNodes();
         registerSelf();
-        discoveryExecutor = Executors.newSingleThreadScheduledExecutor(
-                r -> {
-                    Thread t = new Thread(r, "scatter-discovery");
-                    t.setDaemon(true);
-                    return t;
-                });
+        discoveryExecutor = ThreadUtils.newDaemonSingleThreadScheduledExecutor("scatter-discovery");
         discoveryExecutor.scheduleAtFixedRate(this::discoveryRound,
                 setting.getAutoDiscoveryIntervalMillis(),
                 setting.getAutoDiscoveryIntervalMillis(),

@@ -1,6 +1,7 @@
 package com.chua.common.support.objects.scope.impl;
 
 import com.chua.common.support.objects.definition.BeanScope;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.scope.BeanScopeDetector;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;

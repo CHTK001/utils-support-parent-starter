@@ -4,6 +4,7 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterResult;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.scatter.ScatterSetting;
 import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.protocol.ScatterFrame;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * seed 引导模式发现：仅与 seed 同步 hash + 新节点扩散 + 最小 nodeId 选举 + 全掉线降级。
@@ -44,12 +44,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     /** 已扩散过的新节点（去重） */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
     /** 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool） */
-    private static final ExecutorService DEGRADE_SYNC_EXECUTOR = Executors.newFixedThreadPool(
-            4, r -> {
-                Thread t = new Thread(r, "scatter-degrade-sync");
-                t.setDaemon(true);
-                return t;
-            });
+    private static final ExecutorService DEGRADE_SYNC_EXECUTOR = ThreadUtils.newDaemonFixedThreadPool(4, "scatter-degrade-sync");
 
     public SeedModeDiscovery(ScatterSetting setting) {
         super(setting);

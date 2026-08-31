@@ -10,6 +10,7 @@ import com.chua.common.support.objects.annotation.OnError;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.objects.annotation.OnOpen;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -124,8 +125,8 @@ public class MqttServer extends AbstractServer {
             serverSocket.bind(addr, Math.max(setting.getBacklog(), 2048));
             // 回填实际端口（port=0 时由系统分配）
             setting.setPort(serverSocket.getLocalPort());
-            bossPool = Executors.newVirtualThreadPerTaskExecutor();
-            workerPool = Executors.newVirtualThreadPerTaskExecutor();
+            bossPool = ThreadUtils.newVirtualThreadPerTaskExecutor();
+            workerPool = ThreadUtils.newVirtualThreadPerTaskExecutor();
             running = true;
 
             bossPool.submit(this::acceptLoop);

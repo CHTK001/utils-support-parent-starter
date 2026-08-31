@@ -219,7 +219,7 @@ public class HttpSyncClient implements SyncClient {
         heartbeatThread = ThreadUtils.newThread(() -> {
             while (connected) {
                 try {
-                    Thread.sleep(HEARTBEAT_INTERVAL * 1000L);
+                    ThreadUtils.sleep(HEARTBEAT_INTERVAL * 1000L);
                     if (!connected) {
                         break;
                     }
@@ -276,7 +276,7 @@ public class HttpSyncClient implements SyncClient {
                         attemptReconnect();
                     }
                     try {
-                        Thread.sleep(1000);
+                        ThreadUtils.sleep(1000);
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                         break;
@@ -299,7 +299,7 @@ public class HttpSyncClient implements SyncClient {
     /** 拉取Messages */
     private void pullMessages() throws Exception {
         if (subscriptions.isEmpty()) {
-            Thread.sleep(500);
+            ThreadUtils.sleep(500);
             return;
         }
         StringBuilder topics = new StringBuilder();
@@ -339,7 +339,7 @@ public class HttpSyncClient implements SyncClient {
             return;
         }
         try {
-            Thread.sleep(RECONNECT_INTERVAL);
+            ThreadUtils.sleep(RECONNECT_INTERVAL);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return;

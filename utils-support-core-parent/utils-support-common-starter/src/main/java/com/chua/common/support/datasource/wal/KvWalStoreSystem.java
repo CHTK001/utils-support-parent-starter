@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.wal.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,7 +22,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private final AtomicLong totalRecords = new AtomicLong(0);
     private volatile boolean closed = false;
     private final ScheduledExecutorService scheduler =
-            Executors.newSingleThreadScheduledExecutor(r -> { Thread t = new Thread(r,"kv-compact"); t.setDaemon(true); return t; });
+            ThreadUtils.newDaemonSingleThreadScheduledExecutor("kv-compact");
 
     public KvWalStoreSystem(WalStoreConfig config) throws IOException {
         this.config = config;

@@ -1,6 +1,7 @@
 package com.chua.common.support.sync;
 
 import com.chua.common.support.sync.executor.SinkExecutor;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -235,11 +236,7 @@ public class SyncFlow implements AutoCloseable {
      */
     private CountDownLatch startProducers() {
         CountDownLatch latch = new CountDownLatch(inputs.size());
-        producerExecutor = Executors.newFixedThreadPool(inputs.size(), runnable -> {
-            Thread thread = new Thread(runnable, "sync-flow-" + name + "-producer");
-            thread.setDaemon(true);
-            return thread;
-        });
+        producerExecutor = ThreadUtils.newDaemonFixedThreadPool(inputs.size(), "sync-flow-" + name + "-producer");
 
         for (Input input : inputs) {
             producerExecutor.submit(() -> {

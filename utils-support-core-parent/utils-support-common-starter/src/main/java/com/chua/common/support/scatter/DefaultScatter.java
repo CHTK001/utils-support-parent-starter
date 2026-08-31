@@ -2,6 +2,7 @@ package com.chua.common.support.scatter;
 
 import com.chua.common.support.scatter.discovery.AbstractScatterDiscovery;
 import com.chua.common.support.scatter.node.ScatterNodeServer;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,7 +39,7 @@ public class DefaultScatter implements Scatter {
         discovery.start();
         // 等待第一轮 discoveryRound 完成，确保本节点信息已写入本地 hash 表，
         // 其他节点连接时能立即查到本节点的服务条目
-        Thread.sleep(Math.min(setting.getAutoDiscoveryIntervalMillis(), 500L));
+        ThreadUtils.sleep(Math.min(setting.getAutoDiscoveryIntervalMillis(), 500L));
 
         log.info("Scatter 已启动: node={} protocol={} @ {}:{} mode={}",
                 setting.getNodeId(), setting.getProtocol(),

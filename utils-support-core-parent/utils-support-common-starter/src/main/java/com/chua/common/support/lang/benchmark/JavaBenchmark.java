@@ -4,6 +4,7 @@ import com.chua.common.support.lang.document.BenchmarkDocumentData;
 import com.chua.common.support.lang.document.BenchmarkHtmlProvider;
 import com.chua.common.support.lang.document.DocumentProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -17,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -95,7 +95,7 @@ public class JavaBenchmark implements Benchmark {
 
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
-                .executor(Executors.newVirtualThreadPerTaskExecutor())
+                .executor(ThreadUtils.newVirtualThreadPerTaskExecutor())
                 .build();
         URI uri = URI.create(targetUrl);
 
@@ -118,7 +118,7 @@ public class JavaBenchmark implements Benchmark {
         int perVus = Math.max(1, config.getIterationsPerVus());
         long totalTarget = (long) vus * perVus;
 
-        ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor();
+        ExecutorService pool = ThreadUtils.newVirtualThreadPerTaskExecutor();
         CountDownLatch ready = new CountDownLatch(vus);
         CountDownLatch start = new CountDownLatch(1);
         CountDownLatch done = new CountDownLatch(vus);

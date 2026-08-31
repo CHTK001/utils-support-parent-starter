@@ -3,6 +3,7 @@ package com.chua.common.support.network.server.filter;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -61,7 +62,7 @@ public class RequestTimeoutFilter implements ServerFilter {
      */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        ExecutorService executor = ThreadUtils.newSingleThreadExecutor();
         Future<?> future = null;
         try {
             future = executor.submit(() -> {

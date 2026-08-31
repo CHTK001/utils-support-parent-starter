@@ -1,6 +1,7 @@
 package com.chua.rsocket.support.server;
 
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
@@ -85,7 +86,7 @@ public class RSocketServer extends AbstractServer {
      * 虚拟线程执行器(异步派发 requestResponse/fireAndForget 业务,避免阻塞连接 event loop)
      */
     private final java.util.concurrent.ExecutorService bizExecutor =
-            java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
+            ThreadUtils.newVirtualThreadPerTaskExecutor();
 
     /**
      * 创建 RSocketServer 实例

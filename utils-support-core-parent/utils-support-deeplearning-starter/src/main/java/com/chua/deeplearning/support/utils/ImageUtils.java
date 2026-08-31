@@ -178,36 +178,69 @@ public final class ImageUtils {
      * @param image 图像
      * @return Mat
      */
+    /**
+     * BufferedImage → Mat（BGR）。
+     *
+     * <p>直接像素拷贝（避免 PNG 编解码往返），输出 CV_8UC3 BGR Mat，调用方负责 release。</p>
+     *
+     * @param image 图像
+     * @return Mat
+     */
     public static Mat toMat(BufferedImage image) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            javax.imageio.ImageIO.write(image, "png", baos);
-            MatOfByte mob = new MatOfByte(baos.toByteArray());
-            Mat mat = org.opencv.imgcodecs.Imgcodecs.imdecode(mob, org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
-            mob.release();
-            return mat;
-        } catch (Exception e) {
-            throw new IllegalStateException("图像转换失败", e);
+        load();
+        int w = image.getWidth();
+        int h = image.getHeight();
+        if (w <= 0 || h <= 0) {
+            throw new IllegalStateException("图像尺寸非法: " + w + "x" + h);
         }
+        Mat mat = new Mat(h, w, org.opencv.core.CvType.CV_8UC3);
+        byte[] bgrRow = new byte[w * 3];
+        int[] argbRow = new int[w];
+        for (int y = 0; y < h; y++) {
+            image.getRGB(0, y, w, 1, argbRow, 0, w);
+            for (int x = 0; x < w; x++) {
+                int argb = argbRow[x];
+                int i = x * 3;
+                bgrRow[i] = (byte) (argb & 0xFF);          // B
+                bgrRow[i + 1] = (byte) ((argb >> 8) & 0xFF);  // G
+                bgrRow[i + 2] = (byte) ((argb >> 16) & 0xFF); // R
+            }
+            mat.put(y, 0, bgrRow);
+        }
+        return mat;
     }
 
     /**
      * OpenCV Mat（BGR）→ BufferedImage。
+     *
+     * <p>直接像素拷贝（避免 PNG 编解码往返），输出 {@link BufferedImage#TYPE_INT_RGB}，
+     * 保证 getRGB 与 Mat BGR 值无损往返。</p>
      *
      * @param mat Mat（BGR）
      * @return BufferedImage
      */
     public static BufferedImage toBufferedImage(Mat mat) {
         load();
-        try {
-            MatOfByte mob = new MatOfByte();
-            org.opencv.imgcodecs.Imgcodecs.imencode(".png", mat, mob);
-            BufferedImage image = javax.imageio.ImageIO.read(new ByteArrayInputStream(mob.toArray()));
-            mob.release();
-            return image;
-        } catch (Exception e) {
-            throw new IllegalStateException("图像转换失败", e);
+        if (mat == null || mat.empty()) {
+            return null;
         }
+        int w = mat.cols();
+        int h = mat.rows();
+        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        byte[] bgrRow = new byte[w * 3];
+        int[] argbRow = new int[w];
+        for (int y = 0; y < h; y++) {
+            mat.get(y, 0, bgrRow);
+            for (int x = 0; x < w; x++) {
+                int i = x * 3;
+                argbRow[x] = 0xFF000000
+                        | ((bgrRow[i + 2] & 0xFF) << 16)   // R
+                        | ((bgrRow[i + 1] & 0xFF) << 8)    // G
+                        | (bgrRow[i] & 0xFF);              // B
+            }
+            image.setRGB(0, y, w, 1, argbRow, 0, w);
+        }
+        return image;
     }
 
     /**

@@ -5,6 +5,7 @@ import com.chua.git.support.exception.GitClientException;
 import com.chua.git.support.listener.GitFileListener;
 import com.chua.git.support.listener.GitProgressListener;
 import com.chua.git.support.model.PullResult;
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
@@ -162,7 +163,7 @@ public class FetchOperation {
         if (watchListener == null) {
             throw new GitClientException("监听器不能为空，请先调用 listener()");
         }
-        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        scheduler = ThreadUtils.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "git-watch-" + client.getRepository().getDirectory().getParent());
             t.setDaemon(true);
             return t;
