@@ -722,7 +722,6 @@ public class ClassUtils {
 
         return forName(name, getDefaultClassLoader());
     }
-
     /**
      *                                      Class                                           .
      *
@@ -774,13 +773,7 @@ public class ClassUtils {
      * @since 1.0
      */
     public static <T> Class<T> forName(String name, Class<T> returnType) {
-        Class<?> aClass = null;
-        try {
-            aClass = forName(name);
-        } catch (Exception e) {
-            return null;
-        }
-        return null == aClass || returnType.isAssignableFrom(aClass) ? (Class<T>) aClass : null;
+        return ReflectUtils.forName(name, returnType);
     }
 
     /**
@@ -858,20 +851,28 @@ public class ClassUtils {
             clToUse = getDefaultClassLoader();
         }
         try {
-            clazz = Class.forName(name, false, clToUse);
-            CLASS_NAME_CACHE.put(name, clazz);
-            return clazz;
-        } catch (ClassNotFoundException ex) {
+            // 底层统一走 ReflectUtils.forName（带缓存 + 调试日志）
+            clazz = ReflectUtils.forName(name, clToUse);
+            if (clazz != null) {
+                CLASS_NAME_CACHE.put(name, clazz);
+                return clazz;
+            }
+        } catch (Exception ex) {
+            // 忽略，继续尝试嵌套类解析
+        }
+        {
             int lastDotIndex = name.lastIndexOf(PACKAGE_SEPARATOR);
             if (lastDotIndex != -1) {
                 String nestedClassName =
                         name.substring(0, lastDotIndex) + NESTED_CLASS_SEPARATOR + name.substring(lastDotIndex + 1);
                 try {
-                    clazz = Class.forName(nestedClassName, false, clToUse);
-                    CLASS_NAME_CACHE.put(name, clazz);
-                    return clazz;
-                } catch (ClassNotFoundException ex2) {
-                    //                                null
+                    clazz = ReflectUtils.forName(nestedClassName, clToUse);
+                    if (clazz != null) {
+                        CLASS_NAME_CACHE.put(name, clazz);
+                        return clazz;
+                    }
+                } catch (Exception ex2) {
+                    // 忽略，返回 null
                 }
             }
             return null;

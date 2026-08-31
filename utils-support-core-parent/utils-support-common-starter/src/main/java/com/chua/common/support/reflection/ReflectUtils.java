@@ -101,6 +101,41 @@ public final class ReflectUtils {
         });
     }
 
+    /**
+     * 加载类并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
+     *
+     * @param className  全限定类名
+     * @param returnType 期望的返回类型
+     * @param <T>        泛型类型参数
+     * @return 类型兼容时返回对应 {@link Class}，加载失败或不兼容返回 {@code null}
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> forName(String className, Class<T> returnType) {
+        Class<?> aClass = forName(className);
+        if (aClass == null || !returnType.isAssignableFrom(aClass)) {
+            return null;
+        }
+        return (Class<T>) (Class<?>) aClass;
+    }
+
+    /**
+     * 加载类（指定 ClassLoader）并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
+     *
+     * @param className   全限定类名
+     * @param classLoader 类加载器
+     * @param returnType  期望的返回类型
+     * @param <T>         泛型类型参数
+     * @return 类型兼容时返回对应 {@link Class}，加载失败或不兼容返回 {@code null}
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> forName(String className, ClassLoader classLoader, Class<T> returnType) {
+        Class<?> aClass = forName(className, classLoader);
+        if (aClass == null || !returnType.isAssignableFrom(aClass)) {
+            return null;
+        }
+        return (Class<T>) (Class<?>) aClass;
+    }
+
     // ==================== 方法调用 ====================
 
     /**
