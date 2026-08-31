@@ -104,10 +104,6 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     // ==================== KV 专用 ====================
 
-    /** 可复用的写缓冲：最大 key=128B + value=512B + 2个int长度头 = ~644B，对齐到 1024 */
-    private static final int KV_WRITE_BUF_SIZE = 1024;
-    private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
-
     public long put(String key, byte[] value) throws IOException {
         byte[] kb = key.getBytes(StandardCharsets.UTF_8);
         int vlen = value == null ? 0 : value.length;
