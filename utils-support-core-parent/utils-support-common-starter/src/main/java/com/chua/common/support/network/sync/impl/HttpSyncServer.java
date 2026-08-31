@@ -236,12 +236,8 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
                     return queue.poll();
                 }
             }
-            try {
-                ThreadUtils.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
+            // ThreadUtils.sleep(long) 不抛 checked 异常，直接调用即可
+            ThreadUtils.sleep(100);
         }
         return null;
     }

@@ -5,6 +5,7 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.spider.support.SpiderPipeline;
 import com.chua.spider.support.model.SpiderResult;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 控制台输出管道。
@@ -17,6 +18,7 @@ import com.chua.spider.support.model.SpiderResult;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Spi("console")
 public class ConsolePipeline implements SpiderPipeline {
 
@@ -55,7 +57,7 @@ public class ConsolePipeline implements SpiderPipeline {
         }
 
         sb.append("═══════════════════════════════════════════\n");
-        System.out.println(sb);
+        log.info(sb.toString());
     }
 
     /**

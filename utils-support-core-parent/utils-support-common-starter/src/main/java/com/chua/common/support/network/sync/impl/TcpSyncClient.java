@@ -121,12 +121,7 @@ public class TcpSyncClient implements SyncClient {
     private void waitRegistered() {
         long deadline = System.currentTimeMillis() + 3000L;
         while (!registered && System.currentTimeMillis() < deadline) {
-            try {
-                ThreadUtils.sleep(10L);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
+            ThreadUtils.sleep(10L);
         }
     }
 

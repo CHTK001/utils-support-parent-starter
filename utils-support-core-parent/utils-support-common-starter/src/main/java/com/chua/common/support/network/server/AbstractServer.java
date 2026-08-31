@@ -345,12 +345,7 @@ public abstract class AbstractServer implements ConfigServer {
             log.info("服务器开始优雅关闭，等待活跃请求完成（最长 {}s）...", quietPeriod);
             long deadline = System.currentTimeMillis() + quietPeriod * 1000L;
             while (metrics.getActiveRequests() > 0 && System.currentTimeMillis() < deadline) {
-                try {
-                    ThreadUtils.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
+                ThreadUtils.sleep(100);
             }
             long remaining = metrics.getActiveRequests();
             if (remaining > 0) {

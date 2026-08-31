@@ -316,11 +316,7 @@ public class SipClient {
     private void scheduleReconnect() {
         ThreadUtils.startVirtualThread("sip-reconnect-" + clientId, () -> {
             while (!manualClosed && !connected) {
-                try {
-                    ThreadUtils.sleep(RECONNECT_INTERVAL_MS);
-                } catch (InterruptedException e) {
-                    return;
-                }
+                ThreadUtils.sleep(RECONNECT_INTERVAL_MS);
                 if (manualClosed || connected) {
                     return;
                 }

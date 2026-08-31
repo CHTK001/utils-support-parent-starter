@@ -11,6 +11,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.spi.annotations.SpiSupport;
 import com.chua.jrebel.support.service.JRebelLicenseService;
+import lombok.extern.slf4j.Slf4j;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.net.InetSocketAddress;
@@ -40,6 +41,7 @@ import java.util.UUID;
 @Spi("jrebel")
 @SpiDescribe("JRebel 许可证 HTTP 服务器")
 @SpiSupport("http")
+@Slf4j
 public class JRebelHttpServer extends AbstractServer {
 
     /**
@@ -234,11 +236,11 @@ licenseType=0
             httpServer.start();
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                System.out.println("JRebel HttpServer shutting down...");
+            log.info("JRebel HttpServer shutting down...");
                 stop();
             }));
 
-            System.out.println("JRebel HttpServer started on http://" + setting.getHost() + ":" + setting.getPort());
+            log.info("JRebel HttpServer started on http://{}:{}", setting.getHost(), setting.getPort());
         } catch (Exception e) {
             throw new RuntimeException("启动 JRebel HttpServer 失败", e);
         }
@@ -288,7 +290,7 @@ licenseType=0
     protected void doStop() {
         if (httpServer != null) {
             httpServer.stop(0);
-            System.out.println("JRebel HttpServer stopped");
+            log.info("JRebel HttpServer stopped");
         }
     }
 
