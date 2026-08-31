@@ -43,6 +43,11 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     protected String model;
 
     /**
+     * 客户端配置（用于在 chatSync 时向 translator 注入 device / useGpu / gpuLayers 等参数）
+     */
+    protected final ChatClientSetting setting;
+
+    /**
      * 构造本地对话客户端。
      *
      * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
@@ -52,6 +57,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();
         this.model = setting != null ? setting.getModel() : null;
+        this.setting = setting;
     }
 
     @Override
@@ -94,14 +100,73 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     /** ChatSync */
     public String chatSync(String prompt, long timeoutMillis) {
         String modelName = resolveModel();
+        Map<String, Object> options = resolveOptions();
         @SuppressWarnings("unchecked")
         ITranslator<Object, Object> translator =
-                (ITranslator<Object, Object>) identificationEngine.get(modelName, ITranslator.class);
+                (ITranslator<Object, Object>) identificationEngine.get(modelName, ITranslator.class, options);
         if (translator == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
         Object result = translator.translate(prompt);
         return result != null ? result.toString() : null;
+    }
+
+    /**
+     * 解析运行时参数（device / useGpu / gpuLayers / ctxSize / topK / temperature / topP /
+     * maxTokens / threads / nPredict）注入到 translator。
+     *
+     * <p>来源：{@link ChatClientSetting} 显式字段 + {@code deeplearning.device} 系统属性 + 硬编码默认。</p>
+     *
+     * <p>device 解析走 {@link DeviceSelector#resolve(String)}：auto/cpu/gpu/cuda → 归一化 cpu/gpu。
+     * useGpu 走设置或系统属性；其他字段为 null 时由 translator 用自己的默认值。</p>
+     *
+     * @return 配置 Map，可为空
+     */
+    protected Map<String, Object> resolveOptions() {
+        ChatClientSetting setting = this.setting;
+        Map<String, Object> opts = new LinkedHashMap<>();
+        if (setting == null) {
+            return opts;
+        }
+        // device 字段：优先 setting.deviceSetting，其次 system prop deeplearning.device
+        String deviceSetting = setting.getDeviceSetting();
+        if (deviceSetting == null || deviceSetting.isBlank()) {
+            deviceSetting = System.getProperty(DeviceSelector.PROP);
+        }
+        if (deviceSetting != null && !deviceSetting.isBlank()) {
+            opts.put("device", deviceSetting);
+        }
+        if (setting.getUseGpu() != null) {
+            opts.put("useGpu", setting.getUseGpu());
+        }
+        if (setting.getGpuLayers() != null) {
+            opts.put("gpuLayers", setting.getGpuLayers());
+        }
+        if (setting.getCtxSize() != null) {
+            opts.put("ctxSize", setting.getCtxSize());
+        }
+        if (setting.getTopK() != null) {
+            opts.put("topK", setting.getTopK());
+        }
+        if (setting.getThreads() != null) {
+            opts.put("threads", setting.getThreads());
+        }
+        if (setting.getTemperature() != null) {
+            opts.put("temperature", setting.getTemperature());
+        }
+        if (setting.getTopP() != null) {
+            opts.put("topP", setting.getTopP());
+        }
+        if (setting.getMaxTokens() != null) {
+            opts.put("nPredict", setting.getMaxTokens());
+        }
+        if (setting.getSeed() != null) {
+            opts.put("seed", setting.getSeed());
+        }
+        if (setting.getStop() != null && !setting.getStop().isEmpty()) {
+            opts.put("stop", setting.getStop());
+        }
+        return opts;
     }
 
     @Override
