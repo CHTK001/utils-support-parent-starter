@@ -111,38 +111,10 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     public long put(String key, byte[] value) throws IOException {
         byte[] kb = key.getBytes(StandardCharsets.UTF_8);
         int vlen = value == null ? 0 : value.length;
-        int total = 4 + kb.length + 4 + vlen;
-        // 自动扩容缓冲区（罕见但安全）
-        if (writeBuf.length < total) {
-            writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
-        }
-        ByteBuffer bb = ByteBuffer.wrap(writeBuf, 0, total);
-        bb.putInt(kb.length);
-        bb.put(kb);
-        bb.putInt(vlen);
-        if (value != null) bb.put(value);
-        return walLogs[Math.abs(key.hashCode()) % config.shardCount()].fastAppend((byte) 0x01, writeBuf, total);
-    }
-
-    /** 快速写入：调用方已预分配 key bytes，避免循环中重复创建字符串 */
-    public long putFast(byte[] key, byte[] value) throws IOException {
-        int vlen = value == null ? 0 : value.length;
-        int total = 4 + key.length + 4 + vlen;
-        if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
-        ByteBuffer bb = ByteBuffer.wrap(writeBuf, 0, total);
-        bb.putInt(key.length);
-        bb.put(key);
-        bb.putInt(vlen);
-        if (value != null) bb.put(value);
-        int idx = fnv1aHash(key) % config.shardCount();
-        if (idx < 0) idx += config.shardCount();
-        return walLogs[idx].fastAppend((byte) 0x01, writeBuf, total);
-    }
-
-    private static int fnv1aHash(byte[] data) {
-        int h = 0x811c9dc5;
-        for (byte b : data) h = (h ^ b) * 0x01000193;
-        return h;
+        byte[] payload = new byte[4 + kb.length + 4 + vlen];
+        ByteBuffer.wrap(payload).putInt(kb.length).put(kb).putInt(vlen);
+        if (value != null) System.arraycopy(value, 0, payload, 4 + kb.length + 4, vlen);
+        return append(key, payload);
     }
 
     public Optional<byte[]> getBytes(String key) throws IOException {

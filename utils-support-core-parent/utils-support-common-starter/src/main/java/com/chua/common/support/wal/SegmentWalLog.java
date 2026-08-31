@@ -733,54 +733,14 @@ public class SegmentWalLog implements WalLog {
         crc.update(op);
         crc.update(payload);
         long crcValue = crc.getValue();
-        byte[] body = new byte[WalConfig.RECORD_HEADER_BYTES + payload.length];
+        int total = WalConfig.RECORD_HEADER_BYTES + payload.length;
+        byte[] body = new byte[total];
         writeInt(body, 0, (int) crcValue);
         writeLong(body, WalConfig.CRC32_BYTES, lsn);
         body[WalConfig.CRC32_BYTES + WalConfig.LSN_BYTES] = op;
         writeInt(body, WalConfig.CRC32_BYTES + WalConfig.LSN_BYTES + WalConfig.OP_BYTES, payload.length);
         System.arraycopy(payload, 0, body, WalConfig.RECORD_HEADER_BYTES, payload.length);
         return body;
-    }
-
-    /**
-     * 快速追加：payload 已预先序列化好（不含 WAL 头部），
-     * 此方法仅计算 CRC 并写入 header + payload，复用内部缓冲区。
-     */
-    public long fastAppend(byte op, byte[] payload, int payloadLen) throws IOException {
-        ensureOpen();
-        if (payload == null) payloadLen = 0;
-        long lsn = currentLsn + 1;
-        int total = WalConfig.RECORD_HEADER_BYTES + payloadLen;
-
-        // 复用写缓冲区
-        byte[] buf = writeBuf;
-        if (buf == null || buf.length < total) {
-            buf = new byte[Math.max(total, 8192)];
-            writeBuf = buf;
-        }
-
-        crc.reset();
-        crc.update(op);
-        crc.update(payload, 0, payloadLen);
-        long crcValue = crc.getValue();
-        writeInt(buf, 0, (int) crcValue);
-        writeLong(buf, WalConfig.CRC32_BYTES, lsn);
-        buf[WalConfig.CRC32_BYTES + WalConfig.LSN_BYTES] = op;
-        writeInt(buf, WalConfig.CRC32_BYTES + WalConfig.LSN_BYTES + WalConfig.OP_BYTES, payloadLen);
-        if (payloadLen > 0) {
-            System.arraycopy(payload, 0, buf, WalConfig.RECORD_HEADER_BYTES, payloadLen);
-        }
-
-        if (needsRoll(total)) {
-            rollSegment();
-        }
-        activeOut.write(buf, 0, total);
-        activeWrittenBytes += total;
-        activeRecordCount++;
-        currentLsn = lsn;
-        pendingFsyncOps++;
-        maybeFsync();
-        return lsn;
     }
 
     /** Crc */
