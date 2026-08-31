@@ -333,7 +333,7 @@ public class AnnotationUtils {
         }
         try {
             return (Class<? extends Annotation>) ReflectUtils.forName(resolved);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             return annotationClass;
         }
     }

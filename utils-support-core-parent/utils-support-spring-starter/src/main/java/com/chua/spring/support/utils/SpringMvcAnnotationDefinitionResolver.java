@@ -112,18 +112,22 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
     @SuppressWarnings("unchecked")
     private void loadIfMappingAlias(String className, Class<?> requestMappingClass) {
         try {
-            Class<?> annClass = ReflectUtils.forName(className,
+            Class<?> rawClass = ReflectUtils.forName(className,
                     Thread.currentThread().getContextClassLoader());
-            if (!Annotation.class.isAssignableFrom(annClass) || !annClass.isAnnotation()) {
+            if (rawClass == null) {
+                return;
+            }
+            Class<? extends Annotation> annClass = (Class<? extends Annotation>) rawClass;
+            if (!annClass.isAnnotation()) {
                 return;
             }
             // 核心：通过反射检查元注解关系，不硬编码映射内容
-            Object mappingAnnotation = annClass.getAnnotation(requestMappingClass);
+            Object mappingAnnotation = annClass.getAnnotation((Class<? extends Annotation>) requestMappingClass);
             if (mappingAnnotation != null) {
-                aliasCache.put((Class<? extends Annotation>) annClass,
+                aliasCache.put(annClass,
                         requestMappingClass.getName());
             }
-        } catch (ClassNotFoundException ignored) {
+        } catch (Exception ignored) {
         }
     }
 }
