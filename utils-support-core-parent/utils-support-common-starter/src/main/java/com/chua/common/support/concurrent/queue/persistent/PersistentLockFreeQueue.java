@@ -487,7 +487,12 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         flushThread = new Thread(() -> {
             while (running) {
                 try {
-                    ThreadUtils.sleep(config.fsyncBatchIntervalMs());
+                    try {
+                        ThreadUtils.sleep(config.fsyncBatchIntervalMs());
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                     writeLock.lock();
                     try {
                         if (useMmap && mmapBuffer != null) {
