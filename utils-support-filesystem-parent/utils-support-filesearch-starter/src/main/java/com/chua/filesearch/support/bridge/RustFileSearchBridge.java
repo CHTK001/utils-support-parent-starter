@@ -1,5 +1,9 @@
 package com.chua.filesearch.support.bridge;
 
+import com.chua.common.support.utils.NativeLoader;
+import com.chua.common.support.utils.NativeUtils;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.function.Consumer;
 
 /**
@@ -17,13 +21,14 @@ import java.util.function.Consumer;
  *
  * @author CH
  */
+@Slf4j
 public final class RustFileSearchBridge {
 
     /** 本地库是否已成功加载 */
     private static volatile boolean loaded = false;
 
-    /** 尝试加载的库名称 */
-    private static final String LIBRARY_NAME = "file_search";
+    /** 加载锁 */
+    private static final Object LOAD_LOCK = new Object();
 
     /**
      * 私有构造，仅暴露静态方法。
@@ -68,11 +73,21 @@ public final class RustFileSearchBridge {
         if (loaded) {
             return;
         }
-        try {
-            System.loadLibrary(LIBRARY_NAME);
-            loaded = true;
-        } catch (UnsatisfiedLinkError e) {
-            loaded = false;
+        synchronized (LOAD_LOCK) {
+            if (loaded) {
+                return;
+            }
+            try {
+                NativeLoader.of("file-search")
+                        .toTarget(NativeUtils.tempRoot().resolve("file-search"))
+                        .glob("*file_search*")
+                        .load();
+                loaded = true;
+                log.info("Rust file search native library loaded successfully.");
+            } catch (Throwable e) {
+                log.error("Failed to load Rust file search native library: {}", e.getMessage(), e);
+                loaded = false;
+            }
         }
     }
 
