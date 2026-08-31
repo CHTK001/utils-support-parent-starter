@@ -41,8 +41,10 @@ import java.util.UUID;
 @Spi("jrebel")
 @SpiDescribe("JRebel 许可证 HTTP 服务器")
 @SpiSupport("http")
-@Slf4j
-public class JRebelHttpServer extends AbstractServer {
+    @Slf4j
+    public class JRebelHttpServer extends AbstractServer {
+
+    private static final String STATUS_SUCCESS = "SUCCESS";
 
     /**
      * 许可证服务
@@ -122,7 +124,7 @@ public class JRebelHttpServer extends AbstractServer {
         result.put("serverProtocolVersion", 2);
         result.put("serverGuid", "a]\\%Qq@Yq/4~}Z^sT");
         result.put("groupType", "managed");
-        result.put("statusCode", "SUCCESS");
+        result.put("statusCode", STATUS_SUCCESS);
         result.put("company", "JRebel");
         result.put("canGetLease", true);
         result.put("licenseType", 1);
@@ -162,7 +164,7 @@ public class JRebelHttpServer extends AbstractServer {
 
         Map<String, Object> result = new HashMap<>();
         result.put("guid", guid);
-        result.put("status", "SUCCESS");
+        result.put("status", STATUS_SUCCESS);
 
         response.setStatus(200)
                 .setContentType("application/json")

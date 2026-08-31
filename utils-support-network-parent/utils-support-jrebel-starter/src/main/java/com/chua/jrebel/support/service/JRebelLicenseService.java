@@ -29,6 +29,11 @@ public class JRebelLicenseService {
     private static final String SERVER_GUID = "a]\\%Qq@Yq/4~}Z^sT";
 
     /**
+     * 操作成功状态码
+     */
+    private static final String STATUS_SUCCESS = "SUCCESS";
+
+    /**
      * 默认许可证有效期（天）
      */
     private static final int DEFAULT_VALID_DAYS = 180;
@@ -93,7 +98,7 @@ public class JRebelLicenseService {
         response.put("serverProtocolVersion", 2);
         response.put("serverGuid", SERVER_GUID);
         response.put("groupType", "managed");
-        response.put("statusCode", "SUCCESS");
+        response.put("statusCode", STATUS_SUCCESS);
 
         response.put("id", 1);
         response.put("licenseType", 1);
@@ -134,7 +139,7 @@ public class JRebelLicenseService {
             response.put("serverProtocolVersion", 2);
             response.put("serverGuid", SERVER_GUID);
             response.put("groupType", "managed");
-            response.put("statusCode", "SUCCESS");
+            response.put("statusCode", STATUS_SUCCESS);
             response.put("company", licenseInfo.getUsername());
             response.put("canGetLease", true);
             response.put("licenseType", 1);
@@ -147,7 +152,7 @@ public class JRebelLicenseService {
             response.put("serverProtocolVersion", 2);
             response.put("serverGuid", SERVER_GUID);
             response.put("groupType", "managed");
-            response.put("statusCode", "SUCCESS");
+            response.put("statusCode", STATUS_SUCCESS);
             response.put("company", "JRebel");
             response.put("canGetLease", true);
             response.put("licenseType", 1);
@@ -171,7 +176,7 @@ public class JRebelLicenseService {
         response.put("serverProtocolVersion", 2);
         response.put("serverGuid", SERVER_GUID);
         response.put("groupType", "managed");
-        response.put("statusCode", "SUCCESS");
+        response.put("statusCode", STATUS_SUCCESS);
         response.put("company", "JRebel");
         response.put("canGetLease", true);
         response.put("licenseType", 1);

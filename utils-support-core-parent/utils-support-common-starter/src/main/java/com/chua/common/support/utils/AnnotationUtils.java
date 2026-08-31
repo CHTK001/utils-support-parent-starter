@@ -95,7 +95,7 @@ public class AnnotationUtils {
                             ALIAS_SOURCE_SET.add(mapping.getNarrowName());
                             ALIAS_SOURCE_SET.add(mapping.getWideName());
                         }
-                    } catch (ClassNotFoundException ignored) {
+                    } catch (Exception ignored) {
                     }
                 }
             }
@@ -285,7 +285,7 @@ public class AnnotationUtils {
                 if (isAnnotationPresent(clazz, (Class<? extends Annotation>) annClass)) {
                     return true;
                 }
-            } catch (ClassNotFoundException ignored) {
+            } catch (Exception ignored) {
             }
         }
         return false;
@@ -309,7 +309,7 @@ public class AnnotationUtils {
                 if (isAnnotationPresent(method, (Class<? extends Annotation>) annClass)) {
                     return true;
                 }
-            } catch (ClassNotFoundException ignored) {
+            } catch (Exception ignored) {
             }
         }
         return false;
@@ -376,7 +376,7 @@ public class AnnotationUtils {
         if (wide != null && !wide.equals(targetName)) {
             try {
                 set.add((Class<? extends Annotation>) ReflectUtils.forName(wide));
-            } catch (ClassNotFoundException ignored) {
+            } catch (Exception ignored) {
             }
         }
         // 反向：target 是宽注解，加入所有窄注解
@@ -384,7 +384,7 @@ public class AnnotationUtils {
             if (entry.getValue().equals(targetName) && !entry.getKey().equals(targetName)) {
                 try {
                     set.add((Class<? extends Annotation>) ReflectUtils.forName(entry.getKey().getName()));
-                } catch (ClassNotFoundException ignored) {
+                } catch (Exception ignored) {
                 }
             }
         }
