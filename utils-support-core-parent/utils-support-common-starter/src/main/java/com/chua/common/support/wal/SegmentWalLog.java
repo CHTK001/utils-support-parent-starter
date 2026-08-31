@@ -294,7 +294,7 @@ public class SegmentWalLog implements WalLog {
         if (needsRoll(body.length)) {
             rollSegment();
         }
-        activeChannel.write(ByteBuffer.wrap(body));
+        activeOut.write(body);
         activeWrittenBytes += body.length;
         activeRecordCount++;
         currentLsn = lsn;
