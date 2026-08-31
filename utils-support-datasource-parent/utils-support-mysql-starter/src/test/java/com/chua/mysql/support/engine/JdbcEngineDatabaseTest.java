@@ -27,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class JdbcEngineDatabaseTest {
 
-    // ---------- 从 .env / 环境变量加载，避免硬编码 ----------
-    private static final String HOST        = EnvLoader.get("ADMIN_HOST",        EnvLoader.Defaults.HOST);
-    private static final int    PORT        = EnvLoader.getInt("ADMIN_PORT",     EnvLoader.Defaults.PORT);
-    private static final String ADMIN_USER  = EnvLoader.get("ADMIN_USER",        EnvLoader.Defaults.ADMIN_USER);
-    private static final String ADMIN_PASS  = EnvLoader.get("ADMIN_PASS",        EnvLoader.Defaults.ADMIN_PASS);
+    // ---------- 从 .env.mysql 加载，避免硬编码 ----------
+    private static final String HOST        = EnvLoader.get("ADMIN_HOST",  EnvLoader.Defaults.HOST);
+    private static final int    PORT        = EnvLoader.getInt("ADMIN_PORT", EnvLoader.Defaults.PORT);
+    private static final String ADMIN_USER  = EnvLoader.get("ADMIN_USER",  EnvLoader.Defaults.ADMIN_USER);
+    private static final String ADMIN_PASS  = EnvLoader.get("ADMIN_PASS",  EnvLoader.Defaults.ADMIN_PASS);
     private static final String TEST_DB     = "jdbc_engine_test_db";
     private static final String TEST_USER   = "engine_test_user";
     private static final String TEST_TABLE  = "engine_test_table";
