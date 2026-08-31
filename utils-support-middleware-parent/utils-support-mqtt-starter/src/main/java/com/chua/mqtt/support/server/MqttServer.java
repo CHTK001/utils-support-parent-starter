@@ -309,16 +309,6 @@ public class MqttServer extends AbstractServer {
         try {
             ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (Exception e) {
-            Throwable cause = e;
-            log.error("MQTT 注解方法调用异常: {}.{}", handler.getClass().getSimpleName(), method.getName(), cause);
-            for (Consumer<Throwable> listener : errorListeners) {
-                try {
-                    listener.accept(cause);
-                } catch (Exception ex) {
-                    log.error("MQTT 错误监听器执行异常", ex);
-                }
-            }
-        } catch (Exception e) {
             log.error("MQTT 注解方法调用异常: {}.{}", handler.getClass().getSimpleName(), method.getName(), e);
             for (Consumer<Throwable> listener : errorListeners) {
                 try {
