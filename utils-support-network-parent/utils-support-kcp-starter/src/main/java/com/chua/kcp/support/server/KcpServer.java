@@ -1,6 +1,7 @@
 package com.chua.kcp.support.server;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.AbstractServer;
@@ -228,7 +229,7 @@ public class KcpServer extends AbstractServer {
 
         // 响应式:虚拟线程执行器 + boss 线程数(bossCore),Netty 4.2 MultiThreadIoEventLoopGroup
         // 虚拟线程处理 IO 就绪回调,天然适配高并发低阻塞;bossThreads 控制并发处理连接数
-        virtualExecutor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
+        virtualExecutor = ThreadUtils.newVirtualThreadPerTaskExecutor();
         eventLoopGroup = new io.netty.channel.MultiThreadIoEventLoopGroup(
                 setting.getBossThreads(),
                 virtualExecutor,

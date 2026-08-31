@@ -1,5 +1,7 @@
 package com.chua.common.support.concurrent.backoff;
 
+import com.chua.common.support.utils.ThreadUtils;
+
 
 /**
  * 避让器提供者 SPI 接口。
@@ -26,11 +28,9 @@ public interface BackoffProvider {
      * @param attempt 当前尝试次数（从 0 开始）
      */
     default void sleep(int attempt) {
-        try {
-            Thread.sleep(nextDelay(attempt));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // ThreadUtils.sleep(long) 不抛 checked 异常（内部吞掉 InterruptedException），
+        // 直接调用即可，避免 javac 不可达 catch 编译错误
+        ThreadUtils.sleep(nextDelay(attempt));
     }
 
     /**

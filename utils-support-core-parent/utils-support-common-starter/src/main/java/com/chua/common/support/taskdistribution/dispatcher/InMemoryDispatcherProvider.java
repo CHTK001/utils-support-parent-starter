@@ -249,7 +249,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         while (running) {
             try {
                 if (globallyPaused) {
-                    Thread.sleep(100);
+                    ThreadUtils.sleep(100);
                     continue;
                 }
 

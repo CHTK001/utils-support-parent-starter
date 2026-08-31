@@ -1,6 +1,7 @@
 package com.chua.common.support.network.sync.impl;
 
 import com.chua.common.support.network.sync.SyncClient;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
@@ -121,7 +122,7 @@ public class TcpSyncClient implements SyncClient {
         long deadline = System.currentTimeMillis() + 3000L;
         while (!registered && System.currentTimeMillis() < deadline) {
             try {
-                Thread.sleep(10L);
+                ThreadUtils.sleep(10L);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;

@@ -192,8 +192,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
                 ? configuredScoreThreshold
                 : resolveDefaultThreshold(ctx.getModel().getModelPath());
 
-        java.awt.image.BufferedImage resized = ImageUtils.resize(bufferedImage, inputSize, inputSize, scale);
-        float[] chw = toChwFloats(resized);
+        float[] chw = toChwFloatsOpenCv(bufferedImage, inputSize);
         NDArray image = ctx.getNDManager().create(chw, new Shape(1, 3, inputSize, inputSize));
         image.setName("image");
 
@@ -402,6 +401,46 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
         }
         variance /= pixels.length;
         return Math.sqrt(variance) < 3d;
+    }
+
+    /**
+     * 将 BufferedImage 经 OpenCV 缩放并转为 CHW 归一化 float 数组。
+     *
+     * <p>直接走 OpenCV Mat 缩放（INTER_CUBIC）并在 float 域提取像素，
+     * 避免 BufferedImage 往返的 8-bit 量化损失，与 python cv2.resize 路径一致。</p>
+     *
+     * @param buf  BufferedImage
+     * @param size 目标尺寸
+     * @return CHW 数组，长度 3 * size * size
+     */
+    private float[] toChwFloatsOpenCv(java.awt.image.BufferedImage buf, int size) {
+        org.opencv.core.Mat src = ImageUtils.toMat(buf);
+        try {
+            if (src.empty()) {
+                return toChwFloats(ImageUtils.resize(buf, size, size, scale));
+            }
+            org.opencv.core.Mat resized = new org.opencv.core.Mat();
+            org.opencv.imgproc.Imgproc.resize(src, resized,
+                    new org.opencv.core.Size(size, size), 0, 0, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+            try {
+                float[] chw = new float[3 * size * size];
+                int idx = 0;
+                for (int y = 0; y < size; y++) {
+                    for (int x = 0; x < size; x++) {
+                        double[] bgr = resized.get(y, x);
+                        chw[idx] = (float) bgr[2] / 255f;
+                        chw[idx + size * size] = (float) bgr[1] / 255f;
+                        chw[idx + 2 * size * size] = (float) bgr[0] / 255f;
+                        idx++;
+                    }
+                }
+                return chw;
+            } finally {
+                resized.release();
+            }
+        } finally {
+            src.release();
+        }
     }
 
     /**

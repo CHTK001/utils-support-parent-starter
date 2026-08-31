@@ -127,9 +127,14 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
         int imgH = 0;
         if (imageInput && input instanceof byte[] bytes) {
             try {
-                java.awt.image.BufferedImage buffered = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(bytes));
+                org.opencv.core.Mat decoded = ImageUtils.decode(bytes);
+                if (decoded == null || decoded.empty()) {
+                    throw new IllegalArgumentException("无法解码图像字节，OpenCV imdecode 返回空: " + modelName);
+                }
+                java.awt.image.BufferedImage buffered = ImageUtils.toBufferedImage(decoded);
+                decoded.release();
                 if (buffered == null) {
-                    throw new IllegalArgumentException("无法解码图像字节，ImageIO.read 返回 null: " + modelName);
+                    throw new IllegalArgumentException("无法解码图像字节，转 BufferedImage 返回 null: " + modelName);
                 }
                 ai.djl.modality.cv.Image img = new ai.djl.modality.cv.BufferedImageFactory().fromImage(buffered);
                 imgW = img.getWidth();

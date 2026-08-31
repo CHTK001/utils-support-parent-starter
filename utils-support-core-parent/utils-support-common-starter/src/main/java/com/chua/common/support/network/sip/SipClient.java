@@ -317,7 +317,7 @@ public class SipClient {
         ThreadUtils.startVirtualThread("sip-reconnect-" + clientId, () -> {
             while (!manualClosed && !connected) {
                 try {
-                    Thread.sleep(RECONNECT_INTERVAL_MS);
+                    ThreadUtils.sleep(RECONNECT_INTERVAL_MS);
                 } catch (InterruptedException e) {
                     return;
                 }

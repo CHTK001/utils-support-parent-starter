@@ -5,6 +5,7 @@ import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.impl.JdkTcpServer;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ThreadUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.net.NetServer;
@@ -74,7 +75,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                             Runtime.getRuntime().availableProcessors() * 4))
                     .setPreferNativeTransport(true);
             vertx = Vertx.vertx(opts);
-            workerPool = Executors.newVirtualThreadPerTaskExecutor();
+            workerPool = ThreadUtils.newVirtualThreadPerTaskExecutor();
 
             NetServerOptions options = new NetServerOptions()
                     .setHost(setting.getHost())

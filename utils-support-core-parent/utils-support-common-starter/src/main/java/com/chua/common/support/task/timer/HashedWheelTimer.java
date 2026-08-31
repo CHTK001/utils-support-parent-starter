@@ -1,5 +1,6 @@
 package com.chua.common.support.task.timer;
 
+import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -203,7 +204,7 @@ public class HashedWheelTimer implements Timer {
                 long waitMillis = (targetNanos - System.nanoTime()) / 1_000_000L;
                 try {
                     if (waitMillis > 0) {
-                        Thread.sleep(waitMillis);
+                        ThreadUtils.sleep(waitMillis);
                     }
                     int idx = (int) (currentTick % slots);
                     List<TimerTask> due = wheel[idx].drain();

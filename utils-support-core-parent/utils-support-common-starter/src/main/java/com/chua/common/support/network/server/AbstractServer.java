@@ -1,6 +1,7 @@
 package com.chua.common.support.network.server;
 
 import com.chua.common.support.network.annotations.ResponseConverter;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.filter.*;
 import com.chua.common.support.network.server.handler.ServerHandler;
@@ -345,7 +346,7 @@ public abstract class AbstractServer implements ConfigServer {
             long deadline = System.currentTimeMillis() + quietPeriod * 1000L;
             while (metrics.getActiveRequests() > 0 && System.currentTimeMillis() < deadline) {
                 try {
-                    Thread.sleep(100);
+                    ThreadUtils.sleep(100);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;

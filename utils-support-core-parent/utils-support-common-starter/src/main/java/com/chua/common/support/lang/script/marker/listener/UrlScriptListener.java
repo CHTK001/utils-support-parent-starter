@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -76,7 +75,7 @@ public class UrlScriptListener implements Listener {
     public UrlScriptListener(URL url, long periodMillis) {
         this.url = url;
         this.periodMillis = periodMillis;
-        this.scheduler = Executors.newSingleThreadScheduledExecutor(new UrlScriptThreadFactory());
+        this.scheduler = ThreadUtils.newSingleThreadScheduledExecutor(new UrlScriptThreadFactory());
         this.future = scheduler.scheduleAtFixedRate(
                 this::fetch, 0, periodMillis, TimeUnit.MILLISECONDS);
     }

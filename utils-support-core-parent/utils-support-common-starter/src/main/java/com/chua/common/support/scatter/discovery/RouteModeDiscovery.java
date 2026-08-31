@@ -4,6 +4,7 @@ import com.chua.common.support.scatter.ScatterContext;
 import com.chua.common.support.scatter.ScatterNode;
 import com.chua.common.support.scatter.ScatterSyncHelper;
 import com.chua.common.support.scatter.ScatterSetting;
+import com.chua.common.support.utils.ThreadUtils;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -30,12 +30,7 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     private static final int FULL_PROBE_INTERVAL_ROUNDS = 10;
     /** 并发同步线程池（固定大小，避免节点数过多时线程爆炸） */
     private static final int SYNC_POOL_SIZE = 8;
-    private static final ExecutorService syncExecutor = Executors.newFixedThreadPool(
-            SYNC_POOL_SIZE, r -> {
-                Thread t = new Thread(r, "scatter-sync");
-                t.setDaemon(true);
-                return t;
-            });
+    private static final ExecutorService syncExecutor = ThreadUtils.newDaemonFixedThreadPool(SYNC_POOL_SIZE, "scatter-sync");
 
     private long probeRound = 0;
     /** 每轮同步请求 ID 计数器 */

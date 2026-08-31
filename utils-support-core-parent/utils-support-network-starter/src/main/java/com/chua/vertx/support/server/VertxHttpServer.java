@@ -17,10 +17,10 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.ext.web.Router;
+import com.chua.common.support.utils.ThreadUtils;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
-import java.util.concurrent.Executors;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -227,7 +227,7 @@ public class VertxHttpServer extends AbstractServer {
                 .setHandleFileUploads(true));
 
         // 虚拟线程池:handler 提交到虚拟线程并行执行,事件循环专注 I/O 多路复用
-        virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
+        virtualThreadExecutor = ThreadUtils.newVirtualThreadPerTaskExecutor();
 
         rootRoute.handler(ctx -> {
             // WebSocket 升级检测：切到 Vert.x 原生 WebSocket，按 topic\nbody 路由

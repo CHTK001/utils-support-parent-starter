@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.queue.persistent;
 
 import com.chua.common.support.concurrent.queue.LockFreeQueue;
+import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.concurrent.queue.LockFreeQueueFlow;
 import com.chua.common.support.concurrent.queue.QueueType;
 import com.chua.common.support.wal.WalConfig;
@@ -486,7 +487,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         flushThread = new Thread(() -> {
             while (running) {
                 try {
-                    Thread.sleep(config.fsyncBatchIntervalMs());
+                    ThreadUtils.sleep(config.fsyncBatchIntervalMs());
                     writeLock.lock();
                     try {
                         if (useMmap && mmapBuffer != null) {
