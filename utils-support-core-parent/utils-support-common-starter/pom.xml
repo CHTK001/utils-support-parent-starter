@@ -49,14 +49,6 @@
                         <arg>-proc:full</arg>
                         <arg>-parameters</arg>
                     </compilerArgs>
-                    <excludes>
-                        <exclude>**/objects/inject/impl/JsrBeanDefinitionServiceInjector.java</exclude>
-                        <exclude>**/vector/VectorMath.java</exclude>
-                        <exclude>**/vector/VectorIOBench.java</exclude>
-                        <exclude>**/vector/VectorStorageBench.java</exclude>
-                        <exclude>**/utils/AnnotationUtils.java</exclude>
-                        <exclude>**/ai/agent/AgentContextCompressionService.java</exclude>
-                    </excludes>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
