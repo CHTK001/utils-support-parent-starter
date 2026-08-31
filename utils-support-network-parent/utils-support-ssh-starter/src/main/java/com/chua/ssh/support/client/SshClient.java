@@ -187,6 +187,16 @@ public class SshClient implements AutoCloseable {
      */
     public ForwardOperation forward() { return new ForwardOperation(this); }
 
+    /**
+     * 是否已建立有效连接（会话存在且未关闭）
+     *
+     * @return true 表示已连接
+     */
+    public boolean isConnected() {
+        ClientSession s = session;
+        return s != null && !s.isClosed();
+    }
+
     ClientSession getSession() { return session; }
 
     // ==================== ExecOperation ====================

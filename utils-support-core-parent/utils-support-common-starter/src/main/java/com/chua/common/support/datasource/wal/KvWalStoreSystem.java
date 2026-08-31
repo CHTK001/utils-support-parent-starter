@@ -33,7 +33,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
             WalConfig c = WalConfig.builder().walDir(walDir).namespace(config.namespace()+"-"+i)
                     .impl(WalConfig.WalImpl.SEGMENT).syncOnWrite(false)
                     .fsyncBatchSize(config.flushBatchSize()).fsyncBatchIntervalMs(config.flushIntervalMs())
-                    .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(100_000).build();
+                    .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(10_000_000).build();
             walLogs[i] = (SegmentWalLog) WalFactory.open(c);
         }
     }
@@ -46,7 +46,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     @Override
     public long append(String key, byte[] payload) throws IOException {
         if (closed) throw new IllegalStateException("closed");
-        int idx = Math.abs(key.hashCode()) % config.shardCount();
+        int idx = shardHash(key.getBytes(StandardCharsets.UTF_8)) % config.shardCount();
         long lsn = walLogs[idx].append((byte) 0x01, payload == null ? new byte[0] : payload);
         totalRecords.incrementAndGet();
         return lsn;
@@ -108,6 +108,13 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private static final int KV_WRITE_BUF_SIZE = 1024;
     private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
 
+    /** FNV-1a 一致性 hash，put 和 putFast 必须使用同一算法保证路由正确 */
+    private static int shardHash(byte[] data) {
+        int h = 0x811c9dc5;
+        for (byte b : data) h = (h ^ b) * 0x01000193;
+        return h & 0x7FFFFFFF;
+    }
+
     public long put(String key, byte[] value) throws IOException {
         byte[] kb = key.getBytes(StandardCharsets.UTF_8);
         int vlen = value == null ? 0 : value.length;
@@ -115,7 +122,8 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
         ByteBuffer.wrap(writeBuf, 0, total).putInt(kb.length).put(kb).putInt(vlen);
         if (value != null) System.arraycopy(value, 0, writeBuf, 4 + kb.length + 4, vlen);
-        return append(key, writeBuf);
+        int idx = shardHash(kb) % config.shardCount();
+        return walLogs[idx].append((byte) 0x01, writeBuf);
     }
 
     /** 快速写入：key bytes 已由调用方预分配，避免循环中重复创建字符串 */
@@ -125,15 +133,8 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
         ByteBuffer.wrap(writeBuf, 0, total).putInt(key.length).put(key).putInt(vlen);
         if (value != null) System.arraycopy(value, 0, writeBuf, 4 + key.length + 4, vlen);
-        int idx = fnv1aHash(key) % config.shardCount();
-        if (idx < 0) idx += config.shardCount();
+        int idx = shardHash(key) % config.shardCount();
         return walLogs[idx].append((byte) 0x01, writeBuf);
-    }
-
-    private static int fnv1aHash(byte[] data) {
-        int h = 0x811c9dc5;
-        for (byte b : data) h = (h ^ b) * 0x01000193;
-        return h;
     }
 
     public Optional<byte[]> getBytes(String key) throws IOException {
