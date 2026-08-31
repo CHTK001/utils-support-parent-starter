@@ -236,7 +236,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
         LlamaIterator it = model.generate(parameters).iterator();
         int tokens = 0;
         try {
-            while (it.hasNext() && tokens < MAX_TOKENS) {
+                while (it.hasNext() && tokens < nPredict) {
                 LlamaOutput out = it.next();
                 if (out == null || out.text == null) {
                     break;

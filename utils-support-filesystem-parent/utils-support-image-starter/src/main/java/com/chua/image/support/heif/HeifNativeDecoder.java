@@ -36,13 +36,21 @@ public class HeifNativeDecoder {
      * @return RGBA 字节数组，失败返回 null
      */
     public static byte[] decode(ImageInputStream input) throws IOException {
-        // 保存当前位置
-        long mark = input.getFilePointer();
-
-        // 检查文件头
+        // 读取文件头检查是否是 HEIF
         byte[] header = new byte[16];
         input.readFully(header);
-        input.seek(mark);
+        input.seek(0); // 重置到开头
+
+        // 验证 ftyp box
+        if (header.length < 12 || !"ftyp".equals(new String(header, 4, 4))) {
+            return null;
+        }
+        String brand = new String(header, 8, 4);
+        if (!brand.startsWith("heic") && !brand.startsWith("heix")
+                && !brand.startsWith("heim") && !brand.startsWith("hevc")
+                && !brand.startsWith("mif1") && !brand.startsWith("msf1")) {
+            return null;
+        }
 
         // 解析 box 获取尺寸信息
         parseBoxes(input);
