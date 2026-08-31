@@ -1,6 +1,7 @@
 package com.chua.image.support.heif;
 
 import javax.imageio.ImageReader;
+import javax.imageio.ImageReadParam;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
