@@ -71,9 +71,9 @@ public class SenseVoiceTranslator {
      */
     private static final Set<String> SPECIAL_TOKENS = Set.of(
             "<|zh|>", "<|en|>", "<|yue|>", "<|ja|>", "<|ko|>", "<|nospeech|>",
-            "<|NEUTRAL|>", "<|HAPPY|>", "<|SAD|>", "<|ANGRY|>", "<|Speech|>",
-            "<|BREATH|>", "<|COUGH|>", "<|Sneeze|>", "<|Laughter|>",
-            "<|withitn|>", "<|woitn|>", "<|BGM|>", "<|startofcontext|>", "<|endofcontext|>",
+            "<|NEUTRAL|>", "<|HAPPY|>", "<|SAD|>", "<|ANGRY|>", "<|SAD|>", "<|FEARFUL|>", "<|DISGUSTED|>", "<|SURPRISED|>",
+            "<|EMO_UNKNOWN|>", "<|Speech|>", "<|BGM|>", "<|Laughter|>", "<|Applause|>", "<|Cry|>", "<|Sneeze|>", "<|Breath|>", "<|Cough|>",
+            "<|withitn|>", "<|woitn|>", "<|startofcontext|>", "<|endofcontext|>",
             "<s>", "</s>", "<unk>");
 
     private OrtEnvironment ortEnv;
