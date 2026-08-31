@@ -83,7 +83,7 @@
         <dependency>
           <groupId>com.microsoft.onnxruntime</groupId>
           <artifactId>onnxruntime_gpu</artifactId>
-          <version>1.27.0</version>
+          <version>1.29.0</version>
         </dependency>
     </dependencies>
     </profile>
