@@ -276,5 +276,11 @@
             <artifactId>utils-support-models-onnx-wav2vec2-base</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 音频模型：SenseVoice-Small 多语言 ASR（中/英/日/韩/粤，178MB，int8 + tokens.txt） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-models-onnx-sensevoice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

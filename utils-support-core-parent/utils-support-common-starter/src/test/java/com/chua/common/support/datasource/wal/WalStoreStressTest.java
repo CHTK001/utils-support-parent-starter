@@ -78,6 +78,8 @@ class WalStoreStressTest {
 
         // 写入
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
+            byte[][] keys = new byte[count][];
+            for (int i = 0; i < count; i++) keys[i] = ("user:" + i).getBytes(StandardCharsets.UTF_8);
             for (int i = 0; i < count; i++) {
                 store.putFast(keys[i], payload);
             }
