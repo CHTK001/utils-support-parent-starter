@@ -113,6 +113,16 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         return append(key, payload);
     }
 
+    /** 快速写入：key bytes 已由调用方预分配，避免循环中重复创建字符串 */
+    public long putFast(byte[] key, byte[] value) throws IOException {
+        int vlen = value == null ? 0 : value.length;
+        byte[] payload = new byte[4 + key.length + 4 + vlen];
+        ByteBuffer.wrap(payload).putInt(key.length).put(key).putInt(vlen);
+        if (value != null) System.arraycopy(value, 0, payload, 4 + key.length + 4, vlen);
+        int idx = Math.abs(ByteBuffer.wrap(key).getInt() & 0x7FFFFFFF) % config.shardCount();
+        return walLogs[idx].append((byte) 0x01, payload);
+    }
+
     public Optional<byte[]> getBytes(String key) throws IOException {
         final byte[][] result = {null};
         for (SegmentWalLog log : walLogs) {

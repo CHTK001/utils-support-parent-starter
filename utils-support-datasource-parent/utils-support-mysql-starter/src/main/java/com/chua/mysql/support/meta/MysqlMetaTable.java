@@ -98,6 +98,66 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return executeUpdate("RENAME TABLE " + quote(tableName) + " TO " + quote(newName));
     }
 
+    /** 单查 */
+@Override
+    public TableDef get() {
+        if (tableName == null) {
+            throw new IllegalStateException("未指定表名");
+        }
+        TableDef def = new TableDef();
+        def.setName(tableName);
+        try (Connection conn = getConnection()) {
+            DatabaseMetaData dbMeta = conn.getMetaData();
+            String catalog = dbMeta.getCatalog();
+            String schema = metaData.getSchema();
+            // columns
+            List<ColumnDef> cols = readColumns(dbMeta, catalog, schema, tableName);
+            def.setColumns(cols);
+            // primary keys
+            List<String> pks = new ArrayList<>();
+            try (ResultSet rs = dbMeta.getPrimaryKeys(catalog, schema, tableName)) {
+                while (rs.next()) {
+                    pks.add(rs.getString("COLUMN_NAME"));
+                }
+            }
+            def.setPrimaryKeys(pks.toArray(new String[0]));
+            // indexes
+            List<com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata> idxs = new ArrayList<>();
+            try (ResultSet rs = dbMeta.getIndexInfo(catalog, schema, tableName, false, true)) {
+                String lastIdx = null;
+                while (rs.next()) {
+                    String idxName = rs.getString("INDEX_NAME");
+                    if (!idxName.equals(lastIdx)) {
+                        com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata idx =
+                                new com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata();
+                        idx.setName(idxName);
+                        idx.setUnique(!rs.getBoolean("NON_UNIQUE"));
+                        idxs.add(idx);
+                        lastIdx = idxName;
+                    }
+                    idxs.get(idxs.size() - 1).addColumn(rs.getString("COLUMN_NAME"));
+                }
+            }
+            def.setIndexes(idxs);
+            // table info from INFORMATION_SCHEMA
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(
+                         "SELECT TABLE_COMMENT, TABLE_TYPE, CREATE_TIME, UPDATE_TIME"
+                                 + " FROM INFORMATION_SCHEMA.TABLES"
+                                 + " WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = " + quote(tableName))) {
+                if (rs.next()) {
+                    def.setComment(rs.getString("TABLE_COMMENT"));
+                    def.setType(rs.getString("TABLE_TYPE"));
+                    def.setCreateTime(rs.getTimestamp("CREATE_TIME"));
+                    def.setUpdateTime(rs.getTimestamp("UPDATE_TIME"));
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("查询表详情失败: " + tableName, e);
+        }
+        return def;
+    }
+
     /** 读取Columns */
     protected List<ColumnDef> readColumns(DatabaseMetaData dbMeta, String catalog, String schema, String tableName) throws SQLException {
         List<ColumnDef> columns = new ArrayList<>();

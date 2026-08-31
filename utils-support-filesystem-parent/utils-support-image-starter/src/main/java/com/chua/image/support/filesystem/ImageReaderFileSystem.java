@@ -67,13 +67,7 @@ public class ImageReaderFileSystem extends AbstractReader {
      */
     private static Set<String> getSupportedExtensions() {
         var extensions = new HashSet<String>();
-        extensions.addAll(Set.of(".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tiff", ".tif", ".ico"));
-        
-        // 添加 Rust 支持的新格式
-        if (com.chua.image.support.bridge.RustImageBridge.isInitialized()) {
-            extensions.addAll(Set.of(".apng", ".heic", ".heif", ".cr2", ".nef", ".arw", ".raf", ".orf", ".rw2"));
-        }
-        
+        extensions.addAll(Set.of(".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tiff", ".tif", ".ico", ".heic", ".heif"));
         return Set.copyOf(extensions);
     }
 
