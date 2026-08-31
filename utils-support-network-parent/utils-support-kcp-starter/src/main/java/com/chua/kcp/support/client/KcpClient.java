@@ -507,8 +507,8 @@ public class KcpClient {
             } else {
                 ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
             }
-        } catch (java.lang.reflect.InvocationTargetException e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
+        } catch (Exception e) {
+            Throwable cause = e;
             log.error("KCP 客户端注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
             notifyError(cause);
             dispatchAnnotatedMethods(onErrorMethods, cause);

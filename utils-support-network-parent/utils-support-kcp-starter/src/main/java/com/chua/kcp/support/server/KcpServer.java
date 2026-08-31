@@ -527,8 +527,8 @@ public class KcpServer extends AbstractServer {
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
-        } catch (java.lang.reflect.InvocationTargetException e) {
-            Throwable cause = e.getCause() != null ? e.getCause() : e;
+        } catch (Exception e) {
+            Throwable cause = e;
             log.error("KCP 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
             notifyErrorListeners(cause);
         } catch (Exception e) {

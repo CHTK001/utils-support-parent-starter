@@ -3,6 +3,7 @@ package com.chua.serialize.support.kryo;
 import com.chua.common.support.serialize.Serializer;
 import com.chua.common.support.spi.annotations.Spi;
 import com.esotericsoftware.kryo.Kryo;
+import lombok.extern.slf4j.Slf4j;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  */
 @Spi("kryo")
+@Slf4j
 public class KryoSerializer<T extends Serializable> implements Serializer<T> {
     private static final long serialVersionUID = 1L;
 
@@ -63,7 +65,7 @@ public class KryoSerializer<T extends Serializable> implements Serializer<T> {
             kryo.setRegistrationRequired(false);
             kryo.setInstantiatorStrategy(new com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy());
             int id = POOL_COUNTER.incrementAndGet();
-            System.out.println("[KryoPool] Created Kryo instance #" + id + " for " + k.getName());
+            log.info("[KryoPool] Created Kryo instance #{} for {}", id, k.getName());
             return kryo;
         });
     }
@@ -125,7 +127,7 @@ public class KryoSerializer<T extends Serializable> implements Serializer<T> {
      */
     public static void clearPool() {
         KRYO_POOL.clear();
-        System.out.println("[KryoPool] All Kryo instances cleared");
+        log.info("[KryoPool] All Kryo instances cleared");
     }
 
     /**
