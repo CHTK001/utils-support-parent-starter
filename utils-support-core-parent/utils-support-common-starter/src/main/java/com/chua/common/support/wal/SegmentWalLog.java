@@ -157,10 +157,7 @@ public class SegmentWalLog implements WalLog {
     private byte[] writeBuf;
 
     /** 后台定期 fsync 线程，保障崩溃后数据不丢失 */
-    private final ScheduledExecutorService flushScheduler =
-            Runtime.getRuntime().availableProcessors() >= 2
-                    ? ThreadUtils.newDaemonSingleThreadScheduledExecutor("wal-flush-" + namespace)
-                    : null;
+    private ScheduledExecutorService flushScheduler;
     /**
      * 创建 SegmentWalLog 实例
      * @param config config
@@ -172,7 +169,13 @@ public class SegmentWalLog implements WalLog {
         this.checkpointFile = config.walDir().resolve(CHECKPOINT_FILE_NAME);
         Files.createDirectories(segmentsDir);
         open();
-        if (flushScheduler != null && config.fsyncBatchIntervalMs() > 0) {
+        if (Runtime.getRuntime().availableProcessors() >= 2 && config.fsyncBatchIntervalMs() > 0) {
+            final String ns = this.namespace;
+            flushScheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "wal-flush-" + ns);
+                t.setDaemon(true);
+                return t;
+            });
             flushScheduler.scheduleAtFixedRate(this::force,
                     config.fsyncBatchIntervalMs(), config.fsyncBatchIntervalMs(), java.util.concurrent.TimeUnit.MILLISECONDS);
         }
