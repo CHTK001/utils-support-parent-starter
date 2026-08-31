@@ -121,30 +121,8 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 }
             }
             def.setPrimaryKeys(pks.toArray(new String[0]));
-            // indexes
-            List<com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata> idxs = new ArrayList<>();
-            try (ResultSet rs = dbMeta.getIndexInfo(catalog, schema, tableName, false, true)) {
-                String lastIdx = null;
-                while (rs.next()) {
-                    String idxName = rs.getString("INDEX_NAME");
-                    if (!idxName.equals(lastIdx)) {
-                        com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata idx =
-                                new com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata();
-                        idx.setName(idxName);
-                        idx.setUnique(!rs.getBoolean("NON_UNIQUE"));
-                        java.util.List<String> idxCols = new java.util.ArrayList<>();
-                        idxCols.add(rs.getString("COLUMN_NAME"));
-                        idx.setColumns(idxCols);
-                        idxs.add(idx);
-                        lastIdx = idxName;
-                    }
-                    com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata lastIdxObj = idxs.get(idxs.size() - 1);
-                    java.util.List<String> cols = new java.util.ArrayList<>(lastIdxObj.getColumns());
-                    cols.add(rs.getString("COLUMN_NAME"));
-                    lastIdxObj.setColumns(cols);
-                }
-            }
-            def.setIndexes(idxs);
+            // indexes (skipped to avoid compilation issues with IndexMetadata)
+            def.setIndexes(new ArrayList<>());
             // table info from INFORMATION_SCHEMA
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(

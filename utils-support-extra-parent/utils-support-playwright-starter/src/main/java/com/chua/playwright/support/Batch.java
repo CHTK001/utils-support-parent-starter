@@ -95,7 +95,6 @@ public class Batch {
                 @SuppressWarnings("unchecked")
                 List<String> args = params != null ? (List<String>) params.get("args") : null;
                 long h = engine.launch(headless, execPath, args);
-                commands.get(commands.indexOf(params != null ? commands.stream().filter(c -> c.get("action").equals("launch")).findFirst().orElse(null)) ).put("handle", h);
                 return Collections.singletonMap("handle", h);
             case "newPage":
                 long ph = engine.newPage(handle);
