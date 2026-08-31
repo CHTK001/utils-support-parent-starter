@@ -78,6 +78,22 @@ public class AudioResponse {
     private String detectedLanguage;
 
     /**
+     * 情感标签
+     *
+     * <p>由支持情感识别的模型（如 SenseVoice）返回；其他模型保持 null。
+     * 常见值：NEUTRAL / HAPPY / SAD / ANGRY / FEARFUL / DISGUSTED / SURPRISED / EMO_UNKNOWN。
+     */
+    private String emotion;
+
+    /**
+     * 音频事件标签列表
+     *
+     * <p>由支持事件检测的模型（如 SenseVoice）返回；可同时多个（多标签）。
+     * 常见值：Speech / BGM / Laughter / Applause / Cry / Sneeze / Breath / Cough。
+     */
+    private List<String> events;
+
+    /**
      * 错误信息
      *
      * <p>仅当状态为 {@link Status#FAILED} 时有效。

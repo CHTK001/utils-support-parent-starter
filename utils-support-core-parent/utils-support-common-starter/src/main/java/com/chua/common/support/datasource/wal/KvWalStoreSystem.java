@@ -104,23 +104,29 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     // ==================== KV 专用 ====================
 
+    /** 可复用写缓冲，最大 key=128B + value=512B + 2个int长度头 = ~644B，对齐到 1024 */
+    private static final int KV_WRITE_BUF_SIZE = 1024;
+    private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
+
     public long put(String key, byte[] value) throws IOException {
         byte[] kb = key.getBytes(StandardCharsets.UTF_8);
         int vlen = value == null ? 0 : value.length;
-        byte[] payload = new byte[4 + kb.length + 4 + vlen];
-        ByteBuffer.wrap(payload).putInt(kb.length).put(kb).putInt(vlen);
-        if (value != null) System.arraycopy(value, 0, payload, 4 + kb.length + 4, vlen);
-        return append(key, payload);
+        int total = 4 + kb.length + 4 + vlen;
+        if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
+        ByteBuffer.wrap(writeBuf, 0, total).putInt(kb.length).put(kb).putInt(vlen);
+        if (value != null) System.arraycopy(value, 0, writeBuf, 4 + kb.length + 4, vlen);
+        return append(key, writeBuf);
     }
 
     /** 快速写入：key bytes 已由调用方预分配，避免循环中重复创建字符串 */
     public long putFast(byte[] key, byte[] value) throws IOException {
         int vlen = value == null ? 0 : value.length;
-        byte[] payload = new byte[4 + key.length + 4 + vlen];
-        ByteBuffer.wrap(payload).putInt(key.length).put(key).putInt(vlen);
-        if (value != null) System.arraycopy(value, 0, payload, 4 + key.length + 4, vlen);
+        int total = 4 + key.length + 4 + vlen;
+        if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
+        ByteBuffer.wrap(writeBuf, 0, total).putInt(key.length).put(key).putInt(vlen);
+        if (value != null) System.arraycopy(value, 0, writeBuf, 4 + key.length + 4, vlen);
         int idx = Math.abs(ByteBuffer.wrap(key).getInt() & 0x7FFFFFFF) % config.shardCount();
-        return walLogs[idx].append((byte) 0x01, payload);
+        return walLogs[idx].append((byte) 0x01, writeBuf);
     }
 
     public Optional<byte[]> getBytes(String key) throws IOException {
