@@ -62,6 +62,50 @@ public class MysqlMetaView extends AbstractMetaView {
         return executeUpdate("DROP VIEW IF EXISTS " + quote(viewName));
     }
 
+    @Override
+    /** 列表 */
+    public List<ViewDef> list() {
+        List<ViewDef> result = new ArrayList<>();
+        try (Connection conn = getConnection();
+             java.sql.Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(
+                     "SELECT TABLE_NAME, VIEW_DEFINITION"
+                             + " FROM INFORMATION_SCHEMA.VIEWS"
+                             + " WHERE TABLE_SCHEMA = DATABASE()")) {
+            while (rs.next()) {
+                ViewDef def = new ViewDef();
+                def.setName(rs.getString("TABLE_NAME"));
+                def.setDefinition(rs.getString("VIEW_DEFINITION"));
+                result.add(def);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("列表面视图失败", e);
+        }
+        return result;
+    }
+
+    @Override
+    /** 单查 */
+    public ViewDef get() {
+        if (viewName == null) {
+            throw new IllegalStateException("未指定视图名");
+        }
+        try (Connection conn = getConnection()) {
+            String definition = readViewDefinition(conn, null, viewName);
+            if (definition == null) {
+                return null;
+            }
+            ViewDef def = new ViewDef();
+            def.setName(viewName);
+            def.setDefinition(definition);
+            def.setCatalog(metaData.getCatalog());
+            def.setSchema(metaData.getSchema());
+            return def;
+        } catch (Exception e) {
+            throw new RuntimeException("查询视图失败: " + viewName, e);
+        }
+    }
+
     /** 读取ViewDefinition */
     protected String readViewDefinition(Connection conn, String schema, String viewName) throws Exception {
         String sql = "SHOW CREATE VIEW " + quote(schema != null ? schema + "." + viewName : viewName);
