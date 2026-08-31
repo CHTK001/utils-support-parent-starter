@@ -1,11 +1,15 @@
 package com.chua.deeplearning.support.audio;
 
+import com.chua.common.support.ai.audio.AudioClient;
 import com.chua.common.support.utils.MathUtils;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -430,16 +434,20 @@ public class AudioRecognitionPipeline {
     private String[] transcribeSegments(byte[] audioData, List<SpeakerSegment> vadSegments) {
         ITranslator<byte[], String> asrTranslator =
                 (ITranslator<byte[], String>) engine.get(asrModel, ITranslator.class);
-        if (asrTranslator == null) {
-            log.warn("[AudioPipeline] ASR 模型未注册: {}，跳过转写", asrModel);
-            return new String[vadSegments.size()];
-        }
-
         float[] pcm = DefaultSpeakerDiarizer.decodePcmWav(audioData);
         if (pcm == null) {
             pcm = DefaultSpeakerDiarizer.wavBytesToPcm(audioData);
         }
+        if (asrTranslator != null) {
+            // 旧路径：IdentificationEngine ITanslator（whisper/paraformer/moonshine 等）
+            return transcribeViaTranslator(asrTranslator, pcm, vadSegments);
+        }
+        // 新路径：AudioClient SPI（SenseVoice、zipformer 等实现 AudioClient 的模型）
+        return transcribeViaAudioClient(vadSegments, pcm);
+    }
 
+    private String[] transcribeViaTranslator(ITranslator<byte[], String> asrTranslator,
+                                              float[] pcm, List<SpeakerSegment> vadSegments) {
         String[] transcripts = new String[vadSegments.size()];
         for (int i = 0; i < vadSegments.size(); i++) {
             SpeakerSegment seg = vadSegments.get(i);
@@ -465,6 +473,55 @@ public class AudioRecognitionPipeline {
             }
         }
         return transcripts;
+    }
+
+    private String[] transcribeViaAudioClient(List<SpeakerSegment> vadSegments, float[] pcm) {
+        AudioClient client;
+        try {
+            client = AudioClient.create(asrModel, "");
+        } catch (Exception e) {
+            log.warn("[AudioPipeline] AudioClient 创建失败 {}: {}", asrModel, e.getMessage());
+            return new String[vadSegments.size()];
+        }
+        try {
+            String[] transcripts = new String[vadSegments.size()];
+            for (int i = 0; i < vadSegments.size(); i++) {
+                SpeakerSegment seg = vadSegments.get(i);
+                long startSample = seg.startTimeMs() * 16000L / 1000L;
+                long endSample = seg.endTimeMs() * 16000L / 1000L;
+                if (pcm == null || startSample >= pcm.length) {
+                    transcripts[i] = null;
+                    continue;
+                }
+                int len = (int) Math.min(endSample - startSample, pcm.length - startSample);
+                if (len <= 0) {
+                    transcripts[i] = null;
+                    continue;
+                }
+                try {
+                    byte[] segBytes = pcmToWavBytes(
+                            Arrays.copyOfRange(pcm, (int) startSample, (int) startSample + len), 16000);
+                    Path tmp = Files.createTempFile("asr-pipe-", ".wav");
+                    try {
+                        Files.write(tmp, segBytes);
+                        try {
+                            transcripts[i] = client.transcribe(tmp);
+                        } finally {
+                            Files.deleteIfExists(tmp);
+                        }
+                    } catch (Exception ex) {
+                        Files.deleteIfExists(tmp);
+                        throw ex;
+                    }
+                } catch (Exception e) {
+                    log.warn("[AudioPipeline] 片段 {} ASR 失败 {}: {}", i, asrModel, e.getMessage());
+                    transcripts[i] = null;
+                }
+            }
+            return transcripts;
+        } finally {
+            try { client.close(); } catch (IOException ignore) {}
+        }
     }
 
     // ==================== Step 5: 片段合并 ====================
@@ -611,8 +668,9 @@ public class AudioRecognitionPipeline {
         }
 
         /**
-         * 设置 ASR 语音识别模型 ID（如 "whisper-tiny"、"paraformer-zh-small"）。
-         * 不设置则不执行转写，最终片段的 transcript 字段为空。
+     * 设置 ASR 语音识别模型 ID（如 "whisper-tiny"、"paraformer-zh-small"、"sensevoice"）。
+     * 支持 IdentificationEngine 注册的 ITranslator（旧路径）和 AudioClient SPI（新路径）。
+     * 不设置则不执行转写，最终片段的 transcript 字段为空。
          */
         public Builder asrModel(String asrModel) {
             this.asrModel = asrModel;
