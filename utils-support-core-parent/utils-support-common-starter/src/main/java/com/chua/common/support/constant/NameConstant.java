@@ -119,4 +119,19 @@ public interface NameConstant {
     /** 重置 */
     String RESET = "RESET";
 
+    // ==================== HTTP 方法名 ====================
+
+    /** HTTP GET */
+    String GET = "GET";
+    /** HTTP POST */
+    String POST = "POST";
+    /** HTTP PUT */
+    String PUT = "PUT";
+    /** HTTP DELETE */
+    String DELETE_METHOD = "DELETE";
+    /** HTTP PATCH */
+    String PATCH = "PATCH";
+    /** HTTP HEAD */
+    String HEAD = "HEAD";
+
 }
