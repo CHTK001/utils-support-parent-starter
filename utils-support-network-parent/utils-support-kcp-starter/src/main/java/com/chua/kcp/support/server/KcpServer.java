@@ -528,10 +528,6 @@ public class KcpServer extends AbstractServer {
         try {
             ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (Exception e) {
-            Throwable cause = e;
-            log.error("KCP 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), cause);
-            notifyErrorListeners(cause);
-        } catch (Exception e) {
             log.error("KCP 注解方法调用异常: {}.{}", bean.getClass().getSimpleName(), method.getName(), e);
             notifyErrorListeners(e);
         }
