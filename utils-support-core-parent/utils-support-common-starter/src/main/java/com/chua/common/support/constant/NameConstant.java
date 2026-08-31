@@ -119,3 +119,4 @@ public interface NameConstant {
     /** 重置 */
     String RESET = "RESET";
 
+}
