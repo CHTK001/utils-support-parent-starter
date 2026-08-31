@@ -8,7 +8,6 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,8 +40,9 @@ public class HEICImageWriter extends ImageWriter {
     @Override
     public void write(IIOMetadata metadata, javax.imageio.IIOImage image, ImageWriteParam param) throws IOException {
         if (output == null) throw new IOException("Output not set");
-        BufferedImage img = image.getBufferedImage();
-        if (img == null) throw new IOException("No image data");
+        java.awt.image.RenderedImage ri = image.getRenderedImage();
+        if (!(ri instanceof BufferedImage)) throw new IOException("Only BufferedImage supported");
+        BufferedImage img = (BufferedImage) ri;
         try {
             HeifNativeEncoder.encode(img, output);
         } catch (Exception e) {
@@ -80,5 +80,4 @@ public class HEICImageWriter extends ImageWriter {
         return type != null && (type.getColorModel().getNumComponents() == 3 ||
                 type.getColorModel().getNumComponents() == 4);
     }
-
 }

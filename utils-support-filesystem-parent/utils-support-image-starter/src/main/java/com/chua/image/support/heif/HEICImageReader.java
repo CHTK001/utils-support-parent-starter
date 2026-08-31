@@ -34,7 +34,7 @@ public class HEICImageReader extends ImageReader {
     }
 
     @Override
-    public void setInput(Object obj) throws IOException {
+    public void setInput(Object obj) {
         setInput(obj, false, false);
     }
 
@@ -75,13 +75,6 @@ public class HEICImageReader extends ImageReader {
     public java.util.Iterator<ImageTypeSpecifier> getImageTypes(int index) throws IOException {
         ensureDecoded();
         return Arrays.asList(ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB)).iterator();
-    }
-
-    @Override
-    public void reset() {
-        super.reset();
-        this.decoded = false;
-        this.image = null;
     }
 
     @Override

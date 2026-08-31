@@ -28,10 +28,10 @@ public class VideoProcessorTest {
         testFileSourceUrl();
 
         System.out.println("\n===== 测试结果 =====");
-        System.out.println("  通过: " + passed);
-        System.out.println("  失败: " + failed);
-        System.out.println("  总计: " + (passed + failed));
-        if (failed > 0) {
+        System.out.println("  通过: " + passed.get());
+        System.out.println("  失败: " + failed.get());
+        System.out.println("  总计: " + (passed.get() + failed.get()));
+        if (failed.get() > 0) {
             System.exit(1);
         }
     }
@@ -62,8 +62,8 @@ public class VideoProcessorTest {
             assertTest("transcodeToHls missing input -> false", !result);
         } else {
             System.out.println("    [SKIP] native 库未加载，跳过原生调用（需先编译 Rust 动态库）");
-            passed++;
-            passed++;
+            passed.incrementAndGet();
+            passed.incrementAndGet();
         }
     }
 
@@ -116,10 +116,10 @@ public class VideoProcessorTest {
     private static void assertTest(String name, boolean condition) {
         if (condition) {
             System.out.println("  [PASS] " + name);
-            passed++;
+            passed.incrementAndGet();
         } else {
             System.out.println("  [FAIL] " + name);
-            failed++;
+            failed.incrementAndGet();
         }
     }
 }
