@@ -423,7 +423,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 /** DropColumn */
 @Override
         public TableAlterBuilder dropColumn(String columnName) {
-            sqls.add("DROP COLUMN IF EXISTS `" + columnName + "`");
+            sqls.add("DROP COLUMN `" + columnName + "`");
             return this;
         }
 

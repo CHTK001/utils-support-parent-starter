@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 分片 WAL 实现，支持按大小/记录数自动滚动分片、checkpoint 管理、范围回放。
@@ -154,6 +156,11 @@ public class SegmentWalLog implements WalLog {
     /** 可复用的写缓冲，最大单条记录大小（含头部），首次使用按需扩容 */
     private byte[] writeBuf;
 
+    /** 后台定期 fsync 线程，保障崩溃后数据不丢失 */
+    private final ScheduledExecutorService flushScheduler =
+            Runtime.getRuntime().availableProcessors() >= 2
+                    ? ThreadUtils.newDaemonSingleThreadScheduledExecutor("wal-flush-" + namespace)
+                    : null;
     /**
      * 创建 SegmentWalLog 实例
      * @param config config
@@ -165,6 +172,10 @@ public class SegmentWalLog implements WalLog {
         this.checkpointFile = config.walDir().resolve(CHECKPOINT_FILE_NAME);
         Files.createDirectories(segmentsDir);
         open();
+        if (flushScheduler != null && config.fsyncBatchIntervalMs() > 0) {
+            flushScheduler.scheduleAtFixedRate(this::force,
+                    config.fsyncBatchIntervalMs(), config.fsyncBatchIntervalMs(), java.util.concurrent.TimeUnit.MILLISECONDS);
+        }
     }
 
     /** 打开 */
@@ -693,6 +704,9 @@ public class SegmentWalLog implements WalLog {
             return;
         }
         closed = true;
+        if (flushScheduler != null) {
+            flushScheduler.shutdownNow();
+        }
         try {
             force();
         } catch (IOException ignored) {

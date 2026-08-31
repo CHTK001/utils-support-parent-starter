@@ -1183,7 +1183,7 @@ public final class ModelRegistry {
                 if (value == null && modelPath != null) {
                     value = modelPath.toString();
                 }
-                ReflectUtils.invoke(translator, "setModelPath", void.class, String.class, value);
+                ReflectUtils.invoke(translator, "setModelPath", void.class, new Class<?>[]{String.class}, value);
                 log.info("[deeplearning-engine] injectModelPath {} -> {}", modelId, value);
             } catch (Throwable ex) {
                 // ReflectUtils.invoke 不抛 checked 异常（无 setModelPath 时返回 null 或内部吞掉），

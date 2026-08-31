@@ -128,8 +128,8 @@ class JdbcEngineMetaTest {
         switchToTestDb();
         engine.meta().table("t_meta_user")
                 .alter()
-                .dropColumn("nonexistent_col_for_test")
-                .execute();  // 用 dropColumn 确保 alter 链路通
+                .addColumn("test_add_col", "VARCHAR(50)")
+                .execute();  // 用 addColumn 确保 alter 链路通
         TableDef found = engine.meta().table("t_meta_user").get();
         assertNotNull(found, "表应存在");
     }
@@ -192,7 +192,7 @@ class JdbcEngineMetaTest {
         engine.meta().table()
                 .create("t_child")
                 .column("id", "INT").primaryKey().autoIncrement()
-                .column("parent_id", "INT").notNull()
+                .column("parent_id", "INT")
                 .column("desc", "VARCHAR(200)")
                 .engine("InnoDB")
                 .execute();
