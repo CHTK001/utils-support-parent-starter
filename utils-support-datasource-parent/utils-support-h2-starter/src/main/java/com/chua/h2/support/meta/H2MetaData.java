@@ -3,10 +3,12 @@ package com.chua.h2.support.meta;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.meta.MetaForeignKey;
 import com.chua.common.support.lang.datasource.meta.MetaIndex;
+import com.chua.common.support.lang.datasource.meta.MetaPermission;
 import com.chua.common.support.lang.datasource.meta.MetaProcedure;
 import com.chua.common.support.lang.datasource.meta.MetaSearch;
 import com.chua.common.support.lang.datasource.meta.MetaTable;
 import com.chua.common.support.lang.datasource.meta.MetaTrigger;
+import com.chua.common.support.lang.datasource.meta.MetaUser;
 import com.chua.common.support.lang.datasource.meta.MetaView;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.JdbcMetaTable;
@@ -98,5 +100,15 @@ public class H2MetaData extends AbstractMetaData {
     @Override
     public MetaSearch search(String indexName) {
         return new H2MetaSearch(this, engine);
+    }
+
+    @Override
+    public MetaUser user() {
+        throw new UnsupportedOperationException("H2 暂不支持用户元数据操作");
+    }
+
+    @Override
+    public MetaPermission permission() {
+        throw new UnsupportedOperationException("H2 暂不支持权限元数据操作");
     }
 }

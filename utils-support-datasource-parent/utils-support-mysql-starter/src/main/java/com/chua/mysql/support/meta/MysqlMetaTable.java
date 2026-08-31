@@ -202,6 +202,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 ColumnDef c = columns.get(columns.size() - 1);
                 c.setPrimaryKey(true);
                 c.setNullable(false);
+                primaryKeys.add(c.getName());
             }
             return this;
         }
@@ -324,7 +325,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 sb.append("\n");
             }
             if (!primaryKeys.isEmpty()) {
-                sb.append("  PRIMARY KEY (");
+                sb.append("  ,PRIMARY KEY (");
                 sb.append(String.join(", ", primaryKeys.stream().map(metaTable::quote).toList()));
                 sb.append(")\n");
             }

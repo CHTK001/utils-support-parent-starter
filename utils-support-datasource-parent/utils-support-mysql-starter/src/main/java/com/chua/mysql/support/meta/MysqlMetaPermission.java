@@ -22,6 +22,8 @@ import java.util.List;
 public class MysqlMetaPermission implements MetaPermission {
 
     private final DataSource dataSource;
+    private String user;
+    private String table;
 
     public MysqlMetaPermission(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -58,11 +60,13 @@ public class MysqlMetaPermission implements MetaPermission {
 
     @Override
     public MetaPermission toUser(String username) {
+        this.user = username;
         return this;
     }
 
     @Override
     public MetaPermission onTable(String tableName) {
+        this.table = tableName;
         return this;
     }
 
@@ -73,12 +77,12 @@ public class MysqlMetaPermission implements MetaPermission {
 
     @Override
     public GrantBuilder grant(String privileges) {
-        return new GrantStep(dataSource, privileges);
+        return new GrantStep(dataSource, privileges, user);
     }
 
     @Override
     public RevokeBuilder revoke(String privileges) {
-        return new RevokeStep(dataSource, privileges);
+        return new RevokeStep(dataSource, privileges, user);
     }
 
     private static String stripQuote(String raw) {
@@ -104,9 +108,10 @@ public class MysqlMetaPermission implements MetaPermission {
         private final String privileges;
         private String user = null;
 
-        GrantStep(DataSource dataSource, String privileges) {
+        GrantStep(DataSource dataSource, String privileges, String user) {
             this.dataSource = dataSource;
             this.privileges = privileges;
+            this.user = user;
         }
 
         @Override
@@ -128,9 +133,10 @@ public class MysqlMetaPermission implements MetaPermission {
         private final String privileges;
         private String user = null;
 
-        RevokeStep(DataSource dataSource, String privileges) {
+        RevokeStep(DataSource dataSource, String privileges, String user) {
             this.dataSource = dataSource;
             this.privileges = privileges;
+            this.user = user;
         }
 
         @Override
@@ -141,7 +147,7 @@ public class MysqlMetaPermission implements MetaPermission {
 
         @Override
         public boolean execute() {
-            if (user == null) throw new IllegalStateException("必须指定 fromUser()");
+            if (user == null) throw new IllegalStateException("未指定 fromUser()");
             execSql(dataSource, "REVOKE " + privileges + " ON *.* FROM '" + StringUtils.replace(user, "'", "''") + "'@'%'");
             return true;
         }

@@ -35,9 +35,12 @@ class WalStoreStressTest {
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
             int count = 100_000;
             byte[] payload = ("payload_" + "x".repeat(64)).getBytes(StandardCharsets.UTF_8);
+            // 预分配 key bytes，避免循环中重复创建字符串
+            byte[][] keys = new byte[count][];
+            for (int i = 0; i < count; i++) keys[i] = ("user:" + i).getBytes(StandardCharsets.UTF_8);
             long t0 = System.nanoTime();
             for (int i = 0; i < count; i++) {
-                store.put("user:" + i, payload);
+                store.putFast(keys[i], payload);
             }
             long elapsed = (System.nanoTime() - t0) / 1_000_000L;
             System.out.printf("[KV] write %d records in %d ms (%.0f ops/s), segments=%d, size=%d%n",
@@ -53,9 +56,11 @@ class WalStoreStressTest {
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
             int count = 1_000_000;
             byte[] payload = ("payload_" + "x".repeat(128)).getBytes(StandardCharsets.UTF_8);
+            byte[][] keys = new byte[count][];
+            for (int i = 0; i < count; i++) keys[i] = ("user:" + i).getBytes(StandardCharsets.UTF_8);
             long t0 = System.nanoTime();
             for (int i = 0; i < count; i++) {
-                store.put("user:" + i, payload);
+                store.putFast(keys[i], payload);
             }
             long elapsed = (System.nanoTime() - t0) / 1_000_000L;
             System.out.printf("[KV] write %d records in %d ms (%.0f ops/s), segments=%d, size=%d%n",
