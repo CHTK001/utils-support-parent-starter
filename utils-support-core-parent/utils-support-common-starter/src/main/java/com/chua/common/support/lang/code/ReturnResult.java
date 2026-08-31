@@ -116,6 +116,17 @@ public class ReturnResult<T> implements Serializable {
     }
 
     /**
+     * 成功（携带数据）
+     *
+     * @param data 数据
+     * @param <T>  类型
+     * @return 结果
+     */
+    public static <T> ReturnResult<T> success(T data) {
+        return ok(data);
+    }
+
+    /**
      * 根据输入对象自动构造结果
      * <ul>
      *   <li>普通对象: 视为成功数据</li>

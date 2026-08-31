@@ -44,6 +44,11 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.lukas81298</groupId>
+            <artifactId>imageio-heif</artifactId>
+            <version>${imageio-heif.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

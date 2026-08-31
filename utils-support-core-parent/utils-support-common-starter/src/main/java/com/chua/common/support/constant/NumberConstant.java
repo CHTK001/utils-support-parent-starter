@@ -158,4 +158,10 @@ public interface NumberConstant {
      */
     double DOUBLE_ONE = 1.0;
 
+    /** 一千（int），NUMBER_1000 的别名 */
+    int ONE_THOUSAND = 1000;
+
+    /** 两千（int） */
+    int TWO_THOUSAND = 2000;
+
 }

@@ -19,12 +19,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-playwright</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>

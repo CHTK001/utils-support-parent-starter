@@ -1,6 +1,0 @@
-com.chua.deeplearning.support.onnx.audio.sensevoice.SenseVoiceAudioClient
-com.chua.deeplearning.support.onnx.audio.paraformer.ParaformerAudioClient
-com.chua.deeplearning.support.onnx.audio.whisper.WhisperAudioClient
-com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient
-com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerEnAudioClient
-com.chua.deeplearning.support.onnx.audio.moss.MossTextToAudioClient

@@ -1,14 +1,11 @@
 package com.chua.playwright.support;
 
-import com.chua.playwright.support.bridge.PlaywrightNative;
 import com.chua.playwright.support.spi.Engine;
 import com.chua.playwright.support.spi.JavaEngine;
-import com.chua.playwright.support.spi.NativeEngine;
 
 /**
- * 对应 playwright-java 的 {@code Playwright} 入口。<br>
- * 双模式：默认 Rust native（headless_chrome CDP 直连），
- * native 加载失败时自动回退到 {@code com.microsoft.playwright}。
+ * 对应 playwright-java 的 {@code Playwright} 入口。
+ * 使用 playwright-java（{@code com.microsoft.playwright}）作为底层引擎。
  */
 public class Playwright {
 
@@ -20,23 +17,15 @@ public class Playwright {
         if (ENGINE == null) {
             synchronized (Playwright.class) {
                 if (ENGINE == null) {
-                    if (PlaywrightNative.ensureLoaded()) {
-                        ENGINE = new NativeEngine();
-                    } else {
-                        ENGINE = new JavaEngine();
-                    }
+                    ENGINE = new JavaEngine();
                 }
             }
         }
         return ENGINE;
     }
 
-    /** 当前运行模式 */
-    public static boolean isNative() { return ENGINE instanceof NativeEngine; }
-    public static boolean isJava()    { return ENGINE instanceof JavaEngine; }
-
     public static Playwright create() {
-        getEngine(); // 触发初始化
+        getEngine();
         return new Playwright();
     }
 

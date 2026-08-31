@@ -12,10 +12,9 @@
     <artifactId>utils-support-extra-parent</artifactId>
     <packaging>pom</packaging>
     <name>Utils Support Extra Parent</name>
-    <description>扩展模块父模块：ASM、AST、验证码、AppImage 等</description>
+    <description>扩展模块父模块：ASM、AST、验证码等</description>
     <modules>
         <module>utils-support-asm-starter</module>
-        <module>utils-support-appimage-starter</module>
         <module>utils-support-ast-starter</module>
         <module>utils-support-captcha-starter</module>
         <module>utils-support-crypto-starter</module>
