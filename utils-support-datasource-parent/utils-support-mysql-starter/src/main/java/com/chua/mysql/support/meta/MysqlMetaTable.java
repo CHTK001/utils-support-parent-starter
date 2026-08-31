@@ -128,7 +128,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                  ResultSet rs = stmt.executeQuery(
                          "SELECT TABLE_COMMENT, TABLE_TYPE, CREATE_TIME, UPDATE_TIME"
                                  + " FROM INFORMATION_SCHEMA.TABLES"
-                                 + " WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = " + quote(tableName))) {
+                                  + " WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + tableName.replace("'", "''") + "'")) {
                 if (rs.next()) {
                     def.setComment(rs.getString("TABLE_COMMENT"));
                     def.setType(rs.getString("TABLE_TYPE"));
@@ -423,7 +423,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
                 /** DropColumn */
 @Override
         public TableAlterBuilder dropColumn(String columnName) {
-            sqls.add("DROP COLUMN `" + columnName + "`");
+            sqls.add("DROP COLUMN IF EXISTS `" + columnName + "`");
             return this;
         }
 
