@@ -423,7 +423,6 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
                 ThreadUtils.sleep(config.getIdleEvictionIntervalMillis());
                 evictIdleObjects();
             }
-            }
         }, "object-pool-eviction");
         evictionThread.setDaemon(true);
         evictionThread.start();
