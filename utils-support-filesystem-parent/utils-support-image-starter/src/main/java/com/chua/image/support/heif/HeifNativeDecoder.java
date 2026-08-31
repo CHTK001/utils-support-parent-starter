@@ -173,8 +173,10 @@ public class HeifNativeDecoder {
         long end = input.length();
         input.seek(start);
         int n;
-        while (input.getFilePointer() < end && (n = input.read(buf)) != -1) {
+        long pos = start;
+        while (pos < end && (n = input.read(buf)) != -1) {
             bos.write(buf, 0, n);
+            pos += n;
         }
         return bos.toByteArray();
     }
