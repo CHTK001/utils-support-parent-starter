@@ -70,12 +70,10 @@ public class HEICImageWriter extends ImageWriter {
         return null;
     }
 
-    @Override
     public Iterator<ImageTypeSpecifier> getImageTypes(int index) throws IOException {
         return null;
     }
 
-    @Override
     public boolean canEncodeImage(ImageTypeSpecifier type) {
         return type != null && (type.getColorModel().getNumComponents() == 3 ||
                 type.getColorModel().getNumComponents() == 4);
