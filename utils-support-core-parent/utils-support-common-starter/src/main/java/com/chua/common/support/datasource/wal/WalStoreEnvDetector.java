@@ -82,7 +82,7 @@ public class WalStoreEnvDetector implements RuntimeDetector {
 
         // 刷盘策略：SSD 更激进（批量大、间隔短）
         int flushBatch = ssd ? 2048 : 1024;
-        long flushIntervalMs = ssd ? 200L : 500L;
+        long flushIntervalMs = ssd ? 1000L : 5000L;
 
         log.info("[wal-store] auto-detected: shards={}, segmentMB={}, ssd={}, cores={}",
                 shardCount, segmentBytes / (1024 * 1024), ssd, cores);
