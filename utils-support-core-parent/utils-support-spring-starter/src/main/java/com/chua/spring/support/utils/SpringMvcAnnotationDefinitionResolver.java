@@ -1,5 +1,6 @@
 package com.chua.spring.support.utils;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.AnnotationDefinitionResolver;
 
 import java.lang.annotation.Annotation;
@@ -70,7 +71,7 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
             return;
         }
         try {
-            Class<?> requestMappingClass = Class.forName(
+            Class<?> requestMappingClass = ReflectUtils.forName(
                     "org.springframework.web.bind.annotation.RequestMapping");
 
             // 策略1：通过包目录扫描
@@ -111,7 +112,7 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
     @SuppressWarnings("unchecked")
     private void loadIfMappingAlias(String className, Class<?> requestMappingClass) {
         try {
-            Class<?> annClass = Class.forName(className, false,
+            Class<?> annClass = ReflectUtils.forName(className,
                     Thread.currentThread().getContextClassLoader());
             if (!Annotation.class.isAssignableFrom(annClass) || !annClass.isAnnotation()) {
                 return;

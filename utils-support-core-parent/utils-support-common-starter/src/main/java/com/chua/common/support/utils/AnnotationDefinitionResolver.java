@@ -1,5 +1,7 @@
 package com.chua.common.support.utils;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 
@@ -55,7 +57,7 @@ public interface AnnotationDefinitionResolver {
         for (AnnotationAliasMapping mapping : getAliasMappings()) {
             if (mapping.getNarrowName().equals(name)) {
                 try {
-                    return (Class<? extends Annotation>) Class.forName(mapping.getWideName());
+                    return (Class<? extends Annotation>) ReflectUtils.forName(mapping.getWideName());
                 } catch (ClassNotFoundException ignored) {
                 }
             }

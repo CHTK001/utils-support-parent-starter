@@ -217,9 +217,6 @@ public class HashedWheelTimer implements Timer {
                         submitTask(tt);
                     }
                     currentTick++;
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
                 } catch (Throwable tickFailure) {
                     // tick 循环最终防线：任何非中断异常仅记录，循环继续
                     safeLogError("tick-loop", tickFailure);

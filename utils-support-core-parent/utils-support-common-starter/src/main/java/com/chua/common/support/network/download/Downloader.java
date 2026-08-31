@@ -614,8 +614,7 @@ public class Downloader {
             lastRefill = now;
 
             while (tokens < bytes) {
-                try { ThreadUtils.sleep(1); }
-                catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
+                ThreadUtils.sleep(1);
                 now = System.currentTimeMillis();
                 elapsed = now - lastRefill;
                 tokens = Math.min(tokens + elapsed * bytesPerMs, bytesPerMs * 1000);

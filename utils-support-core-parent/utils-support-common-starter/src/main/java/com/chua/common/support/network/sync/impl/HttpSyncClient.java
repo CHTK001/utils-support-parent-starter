@@ -224,9 +224,6 @@ public class HttpSyncClient implements SyncClient {
                         break;
                     }
                     sendHeartbeat();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
                 } catch (Exception e) {
                     if (connected) {
                         notifyListeners(l -> l.onError("heartbeat", e));
@@ -275,12 +272,8 @@ public class HttpSyncClient implements SyncClient {
                         notifyListeners(l -> l.onError("pull", e));
                         attemptReconnect();
                     }
-                    try {
-                        ThreadUtils.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
+                    // ThreadUtils.sleep(long) 不抛 checked 异常，直接调用即可
+                    ThreadUtils.sleep(1000);
                 }
             }
         }, "http-sync-pull-" + clientId);
@@ -338,12 +331,7 @@ public class HttpSyncClient implements SyncClient {
         if (MAX_RECONNECT > 0 && reconnectCount.incrementAndGet() > MAX_RECONNECT) {
             return;
         }
-        try {
-            ThreadUtils.sleep(RECONNECT_INTERVAL);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return;
-        }
+        ThreadUtils.sleep(RECONNECT_INTERVAL);
         if (!connected) {
             return;
         }

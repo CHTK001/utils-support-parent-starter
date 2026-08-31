@@ -356,12 +356,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         if (MAX_RECONNECT > 0 && reconnectCount.incrementAndGet() > MAX_RECONNECT) {
             return;
         }
-        try {
-            ThreadUtils.sleep(RECONNECT_INTERVAL);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return;
-        }
+        ThreadUtils.sleep(RECONNECT_INTERVAL);
         if (!connected) {
             return;
         }

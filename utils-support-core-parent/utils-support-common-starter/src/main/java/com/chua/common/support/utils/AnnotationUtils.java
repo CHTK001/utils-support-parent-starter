@@ -86,8 +86,8 @@ public class AnnotationUtils {
             for (AnnotationDefinitionResolver resolver : provider.collect()) {
                 for (AnnotationDefinitionResolver.AnnotationAliasMapping mapping : resolver.getAliasMappings()) {
                     try {
-                        Class<?> wideClass = Class.forName(mapping.getWideName());
-                        Class<?> narrowClass = Class.forName(mapping.getNarrowName());
+                        Class<?> wideClass = ReflectUtils.forName(mapping.getWideName());
+                        Class<?> narrowClass = ReflectUtils.forName(mapping.getNarrowName());
                         if (Annotation.class.isAssignableFrom(wideClass) &&
                                 Annotation.class.isAssignableFrom(narrowClass)) {
                             ALIAS_NARROW_TO_WIDE.put((Class<? extends Annotation>) narrowClass,
@@ -281,7 +281,7 @@ public class AnnotationUtils {
         ensureAliasesLoaded();
         for (String alias : ALIAS_SOURCE_SET) {
             try {
-                Class<?> annClass = Class.forName(alias);
+                Class<?> annClass = ReflectUtils.forName(alias);
                 if (isAnnotationPresent(clazz, (Class<? extends Annotation>) annClass)) {
                     return true;
                 }
@@ -305,7 +305,7 @@ public class AnnotationUtils {
         ensureAliasesLoaded();
         for (String alias : ALIAS_SOURCE_SET) {
             try {
-                Class<?> annClass = Class.forName(alias);
+                Class<?> annClass = ReflectUtils.forName(alias);
                 if (isAnnotationPresent(method, (Class<? extends Annotation>) annClass)) {
                     return true;
                 }
@@ -332,7 +332,7 @@ public class AnnotationUtils {
             return annotationClass;
         }
         try {
-            return (Class<? extends Annotation>) Class.forName(resolved);
+            return (Class<? extends Annotation>) ReflectUtils.forName(resolved);
         } catch (ClassNotFoundException e) {
             return annotationClass;
         }
@@ -375,7 +375,7 @@ public class AnnotationUtils {
         String wide = ALIAS_NARROW_TO_WIDE.get(targetName);
         if (wide != null && !wide.equals(targetName)) {
             try {
-                set.add((Class<? extends Annotation>) Class.forName(wide));
+                set.add((Class<? extends Annotation>) ReflectUtils.forName(wide));
             } catch (ClassNotFoundException ignored) {
             }
         }
@@ -383,7 +383,7 @@ public class AnnotationUtils {
         for (Map.Entry<Class<? extends Annotation>, String> entry : ALIAS_NARROW_TO_WIDE.entrySet()) {
             if (entry.getValue().equals(targetName) && !entry.getKey().equals(targetName)) {
                 try {
-                    set.add((Class<? extends Annotation>) Class.forName(entry.getKey().getName()));
+                    set.add((Class<? extends Annotation>) ReflectUtils.forName(entry.getKey().getName()));
                 } catch (ClassNotFoundException ignored) {
                 }
             }

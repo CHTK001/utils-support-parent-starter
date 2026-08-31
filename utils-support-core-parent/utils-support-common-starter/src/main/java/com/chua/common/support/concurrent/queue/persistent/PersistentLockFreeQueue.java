@@ -487,12 +487,8 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
         flushThread = new Thread(() -> {
             while (running) {
                 try {
-                    try {
-                        ThreadUtils.sleep(config.fsyncBatchIntervalMs());
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
+                    // ThreadUtils.sleep(long) 内部吞掉 InterruptedException，不抛 checked 异常
+                    ThreadUtils.sleep(config.fsyncBatchIntervalMs());
                     writeLock.lock();
                     try {
                         if (useMmap && mmapBuffer != null) {
@@ -503,9 +499,6 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
                     } finally {
                         writeLock.unlock();
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
                 } catch (Exception e) {
                     log.warn("异步刷盘异常", e);
                 }
