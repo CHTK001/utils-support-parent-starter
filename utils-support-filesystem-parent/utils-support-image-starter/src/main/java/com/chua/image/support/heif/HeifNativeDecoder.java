@@ -74,7 +74,7 @@ public class HeifNativeDecoder {
             byte[] typeBytes = new byte[4];
             input.readFully(typeBytes);
             String type = new String(typeBytes);
-            if ("jpg ".equals(type) && size > 12) {
+            if ("idat".equals(type) && size > 8) {
                 int dataStart = (int) (pos + 8);
                 int dataLen = size - 8;
                 byte[] jpegData = new byte[dataLen];

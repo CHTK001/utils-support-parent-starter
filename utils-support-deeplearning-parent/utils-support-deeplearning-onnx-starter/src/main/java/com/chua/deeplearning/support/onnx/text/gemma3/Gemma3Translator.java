@@ -103,6 +103,13 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     /** 是否为 KV cache 版模型（含 past_key_values/present 输入输出，如 transformers.js 导出） */
     private boolean kvCacheModel;
 
+    /** 多轮对话历史（交替存储 user / assistant 文本） */
+    private final List<String> history = new ArrayList<>();
+
+    /** 多轮对话总结指令 */
+    private static final String SUMMARIZE_PROMPT =
+            "请用简洁的中文总结我们刚才的整个对话内容，说明用户询问了什么、你给出了什么答复。";
+
     /**
      * 构造默认模型翻译器。
      */
@@ -181,8 +188,73 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         // gemma-3 chat 模板（与 transformers apply_chat_template 一致）：
         // <bos><start_of_turn>user\n{content}<end_of_turn>\n<start_of_turn>model\n
         String prompt = "<bos><start_of_turn>user\n" + content + "<end_of_turn>\n<start_of_turn>model\n";
+        return generate(prompt);
+    }
 
-        Encoding enc = tokenizer.encode(prompt);
+    /**
+     * 多轮对话：携带全部历史拼接 chat 模板生成回复，并追加到历史。
+     *
+     * @param userPrompt 本轮用户输入
+     * @return 模型回复
+     * @throws Exception 推理异常
+     */
+    public String chatTurn(String userPrompt) throws Exception {
+        prepare();
+        String content = userPrompt == null ? "" : userPrompt.trim();
+        StringBuilder sb = new StringBuilder("<bos>");
+        // 历史轮次：user / assistant 交替
+        for (int i = 0; i + 1 < history.size(); i += 2) {
+            sb.append("<start_of_turn>user\n").append(history.get(i))
+                    .append("<end_of_turn>\n<start_of_turn>model\n")
+                    .append(history.get(i + 1)).append("<end_of_turn>\n");
+        }
+        sb.append("<start_of_turn>user\n").append(content).append("<end_of_turn>\n<start_of_turn>model\n");
+        String reply = generate(sb.toString());
+        history.add(content);
+        history.add(reply);
+        return reply;
+    }
+
+    /**
+     * 总结当前多轮对话：以总结指令收尾，复用同一生成链路。
+     *
+     * @return 对话总结
+     * @throws Exception 推理异常
+     */
+    public String summarize() throws Exception {
+        prepare();
+        if (history.isEmpty()) {
+            return "（暂无对话内容可总结）";
+        }
+        StringBuilder sb = new StringBuilder("<bos>");
+        for (int i = 0; i + 1 < history.size(); i += 2) {
+            sb.append("<start_of_turn>user\n").append(history.get(i))
+                    .append("<end_of_turn>\n<start_of_turn>model\n")
+                    .append(history.get(i + 1)).append("<end_of_turn>\n");
+        }
+        sb.append("<start_of_turn>user\n").append(SUMMARIZE_PROMPT).append("<end_of_turn>\n<start_of_turn>model\n");
+        return generate(sb.toString());
+    }
+
+    /**
+     * 清空多轮对话历史。
+     */
+    public void resetHistory() {
+        history.clear();
+    }
+
+    /**
+     * 多轮对话历史条目数（user+assistant 各计一条；偶数 = 完整轮次 ×2）。
+     */
+    public int historySize() {
+        return history.size();
+    }
+
+    /**
+     * 按完整 gemma-3 chat 模板执行生成（模板已含 {@code <bos>} 与 {@code <start_of_turn>} 收尾）。
+     */
+    private String generate(String fullPrompt) throws Exception {
+        Encoding enc = tokenizer.encode(fullPrompt);
         long[] promptIds = enc.getIds();
         if (promptIds.length == 0) {
             return "";
