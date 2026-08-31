@@ -79,6 +79,13 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
     Optional<byte[]> get(K key) throws java.io.IOException;
 
     /**
+     * 字符串键点查（KV 引擎便捷方法，等价于 get(key)）。
+     */
+    default Optional<byte[]> getBytes(String key) throws java.io.IOException {
+        return get(key);
+    }
+
+    /**
      * 判断 key 是否存在。
      */
     boolean contains(K key) throws java.io.IOException;
