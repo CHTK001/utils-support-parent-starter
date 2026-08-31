@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 浏览器自动化引擎 SPI。双模式：
- * <ul>
- *   <li>{@link NativeEngine} — JNI + headless_chrome（默认，性能优先）</li>
- *   <li>{@link JavaEngine} — playwright-java 回退</li>
- * </ul>
+ * 浏览器自动化引擎 SPI。使用 playwright-java（{@code com.microsoft.playwright}）作为底层引擎。
  */
 public interface Engine {
 

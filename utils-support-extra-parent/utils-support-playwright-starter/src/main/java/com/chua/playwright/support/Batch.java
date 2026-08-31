@@ -5,8 +5,7 @@ import com.chua.playwright.support.spi.Engine;
 import java.util.*;
 
 /**
- * 双模式批量命令构建器。一次 JNI 调用（native 模式）或一次循环（Java 模式）执行多条命令。
- * 方法返回int为命令索引，用于 {@link Result#handle(int)} 获取真实句柄。
+ * 批量命令构建器。逐条命令通过 {@link Engine} 顺序执行，模拟一次批量调用的语义。
  */
 public class Batch {
 
@@ -63,69 +62,73 @@ public class Batch {
         add(action, handle, params);
     }
 
-    public Result execute() {
-        Map<String, Object> params = new LinkedHashMap<>();
-        params.put("commands", commands);
-        params.put("stopOnError", stopOnError);
-        List<Object> rawData = engine.batch(commands, stopOnError);
-
-        // Extract REAL handles returned from Rust and store them
-        // Rust returns List of result maps, each may contain "handle" field
-        if (rawData instanceof List) {
-            List<?> results = (List<?>) rawData;
-            for (int i = 0; i < results.size() && i < commands.size(); i++) {
-                Object result = results.get(i);
-                if (result instanceof Map) {
-                    Map<?, ?> resultMap = (Map<?, ?>) result;
-                    if (resultMap.containsKey("handle")) {
-                        long handle = ((Number) resultMap.get("handle")).longValue();
-                        // Store the REAL handle returned by Rust for this command index
-                        commands.get(i).put("handle", handle);
-                    }
+    /**
+     * 逐条执行所有命令。
+     * 当 {@code stopOnError=true} 时，遇到异常立即停止并抛出。
+     */
+    public List<Object> execute() {
+        List<Object> results = new ArrayList<>();
+        for (int i = 0; i < commands.size(); i++) {
+            Map<String, Object> cmd = commands.get(i);
+            String action = (String) cmd.get("action");
+            Number handleNum = (Number) cmd.get("handle");
+            long handle = handleNum != null ? handleNum.longValue() : 0;
+            Map<String, Object> params = (Map<String, Object>) cmd.get("params");
+            try {
+                Object result = dispatch(action, handle, params);
+                results.add(result);
+            } catch (Exception e) {
+                if (stopOnError) {
+                    throw new RuntimeException("batch command [" + i + "] " + action + " failed", e);
                 }
+                results.add(Collections.singletonMap("error", e.getMessage()));
             }
         }
+        return results;
+    }
 
-        return new Result(names, rawData);
+    private Object dispatch(String action, long handle, Map<String, Object> params) {
+        switch (action) {
+            case "launch":
+                boolean headless = params != null && Boolean.TRUE.equals(params.get("headless"));
+                String execPath = params != null ? (String) params.get("executablePath") : null;
+                @SuppressWarnings("unchecked")
+                List<String> args = params != null ? (List<String>) params.get("args") : null;
+                long h = engine.launch(headless, execPath, args);
+                commands.get(commands.indexOf(params != null ? commands.stream().filter(c -> c.get("action").equals("launch")).findFirst().orElse(null)) ).put("handle", h);
+                return Collections.singletonMap("handle", h);
+            case "newPage":
+                long ph = engine.newPage(handle);
+                return Collections.singletonMap("handle", ph);
+            case "goto":
+                String url = params != null ? (String) params.get("url") : null;
+                Engine.ResponseData rd = engine.gotoPage(handle, url, params);
+                return rd != null ? Map.of("status", rd.status, "url", rd.url) : Map.of();
+            case "click":
+                engine.click(handle, (String) params.get("selector"), params);
+                return Map.of();
+            case "fill":
+                engine.fill(handle, (String) params.get("selector"), (String) params.get("value"));
+                return Map.of();
+            case "screenshot":
+                return engine.screenshot(handle, params);
+            case "evaluate":
+                return engine.evaluate(handle, (String) params.get("expression"), params != null ? params.get("arg") : null);
+            case "close":
+                engine.close(handle);
+                return Map.of();
+            default:
+                throw new UnsupportedOperationException("unsupported batch action: " + action);
+        }
     }
 
     private int add(String action, Integer handle, Map<String, Object> params) {
         Map<String, Object> cmd = new LinkedHashMap<>();
         cmd.put("action", action);
-        if (handle != null) cmd.put("handle", handle);
-        else cmd.put("handle", 0);  // placeholder - will be overwritten by execute()
+        cmd.put("handle", handle != null ? handle : 0);
         if (params != null) cmd.put("params", params);
         commands.add(cmd);
         names.add(action);
         return commands.size() - 1;
-    }
-
-    public static class Result {
-        private final List<String> names;
-        private final List<Object> data;
-
-        Result(List<String> names, List<Object> data) {
-            this.names = names;
-            this.data = data;
-        }
-
-        @SuppressWarnings("unchecked")
-        public long handle(int index) {
-            Map<String, Object> d = (Map<String, Object>) data.get(index);
-            return ((Number) d.get("handle")).longValue();
-        }
-
-        @SuppressWarnings("unchecked")
-        public String string(int index) {
-            Object o = data.get(index);
-            return o == null ? null : String.valueOf(o);
-        }
-
-        @SuppressWarnings("unchecked")
-        public Map<String, Object> map(int index) {
-            return (Map<String, Object>) data.get(index);
-        }
-
-        public int size() { return data.size(); }
     }
 }

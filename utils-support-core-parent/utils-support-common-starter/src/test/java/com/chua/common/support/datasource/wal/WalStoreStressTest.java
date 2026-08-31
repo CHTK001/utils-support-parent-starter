@@ -40,7 +40,7 @@ class WalStoreStressTest {
             for (int i = 0; i < count; i++) keys[i] = ("user:" + i).getBytes(StandardCharsets.UTF_8);
             long t0 = System.nanoTime();
             for (int i = 0; i < count; i++) {
-                store.put("user:" + i, payload);
+                store.putFast(keys[i], payload);
             }
             long elapsed = (System.nanoTime() - t0) / 1_000_000L;
             System.out.printf("[KV] write %d records in %d ms (%.0f ops/s), segments=%d, size=%d%n",
@@ -60,7 +60,7 @@ class WalStoreStressTest {
             for (int i = 0; i < count; i++) keys[i] = ("user:" + i).getBytes(StandardCharsets.UTF_8);
             long t0 = System.nanoTime();
             for (int i = 0; i < count; i++) {
-                store.put("user:" + i, payload);
+                store.putFast(keys[i], payload);
             }
             long elapsed = (System.nanoTime() - t0) / 1_000_000L;
             System.out.printf("[KV] write %d records in %d ms (%.0f ops/s), segments=%d, size=%d%n",
@@ -79,7 +79,7 @@ class WalStoreStressTest {
         // 写入
         try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
             for (int i = 0; i < count; i++) {
-                store.put("user:" + i, payload);
+                store.putFast(keys[i], payload);
             }
         }
 
