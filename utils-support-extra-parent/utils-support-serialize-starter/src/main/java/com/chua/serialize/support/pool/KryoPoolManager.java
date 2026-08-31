@@ -2,6 +2,7 @@ package com.chua.serialize.support.pool;
 
 import com.chua.common.support.serialize.Serializer;
 import com.chua.serialize.support.kryo.KryoSerializer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @param <T> 可序列化的目标类型
  * @author CH
  */
+@Slf4j
 public class KryoPoolManager<T extends Serializable> {
     private static final long serialVersionUID = 1L;
 
@@ -99,7 +101,7 @@ public class KryoPoolManager<T extends Serializable> {
             return serializer;
         }
         int created = totalCreated.incrementAndGet();
-        System.out.println("[KryoPoolManager] Creating new serializer (total created: " + created + ")");
+        log.info("[KryoPoolManager] Creating new serializer (total created: {})", created);
         KryoSerializer<T> newSerializer = new KryoSerializer<>(clazz);
         activeCount.incrementAndGet();
         return newSerializer;

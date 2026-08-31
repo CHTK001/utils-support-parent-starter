@@ -102,4 +102,20 @@ public interface NameConstant {
      */
     String FTP_URL_PREFIX = "ftp:";
 
-}
+
+    // ==================== 操作方法名（大写，用于方法名匹配） ====================
+
+    /** 新增 */
+    String SAVE = "SAVE";
+    String INSERT = "INSERT";
+    String ADD = "ADD";
+    /** 修改 */
+    String UPDATE = "UPDATE";
+    String MODIFY = "MODIFY";
+    /** 删除 */
+    String DELETE = "DELETE";
+    String DROP = "DROP";
+    String REMOVE = "REMOVE";
+    /** 重置 */
+    String RESET = "RESET";
+
