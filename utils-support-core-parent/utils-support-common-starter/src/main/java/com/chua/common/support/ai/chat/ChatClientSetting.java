@@ -166,4 +166,11 @@ public class ChatClientSetting {
      * 推理线程数（llama.cpp 专用；null = 自动按 CPU 核心数）
      */
     private Integer threads;
+
+    /**
+     * 设备设置（auto / cpu / gpu / cuda），仅本地推理引擎使用
+     *
+     * <p>优先级：显式设置 &gt; 系统属性 {@code deeplearning.device}。null 表示跟随系统属性。</p>
+     */
+    private String deviceSetting;
 }
