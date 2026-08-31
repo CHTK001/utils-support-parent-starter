@@ -13,11 +13,11 @@ public class VideoProcessorTest {
     /**
      * passed
      */
-    private static int passed = 0;
+    private static final java.util.concurrent.atomic.AtomicInteger passed = new java.util.concurrent.atomic.AtomicInteger(0);
     /**
      * failed
      */
-    private static int failed = 0;
+    private static final java.util.concurrent.atomic.AtomicInteger failed = new java.util.concurrent.atomic.AtomicInteger(0);
 
     /** Main */
     public static void main(String[] args) {
