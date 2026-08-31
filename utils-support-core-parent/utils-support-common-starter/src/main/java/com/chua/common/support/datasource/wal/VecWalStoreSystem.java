@@ -81,19 +81,15 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
 
     // ==================== VEC 专用 ====================
 
-    /** 可复用写缓冲，最大 ~2048B（id最长128 + dim头 + 128维float=512B） */
-    private byte[] writeBuf = new byte[2048];
-
     public long add(String id, float[] data) throws IOException {
         if (data == null || data.length != dimension)
             throw new IllegalArgumentException("维度不匹配: 期望 " + dimension + ", 实际 " + data.length);
         byte[] idBytes = id.getBytes(StandardCharsets.UTF_8);
-        int total = 4 + idBytes.length + 4 + dimension * 4;
-        if (writeBuf.length < total) writeBuf = new byte[total * 2];
-        ByteBuffer bb = ByteBuffer.wrap(writeBuf, 0, total);
+        byte[] payload = new byte[4 + idBytes.length + 4 + dimension * 4];
+        ByteBuffer bb = ByteBuffer.wrap(payload);
         bb.putInt(idBytes.length); bb.put(idBytes); bb.putInt(dimension);
         bb.asFloatBuffer().put(data);
-        return walLogs[Math.abs(id.hashCode()) % config.shardCount()].fastAppend((byte) 0x03, writeBuf, total);
+        return append(id, payload);
     }
 
     public Optional<float[]> getVector(String id) throws IOException {
