@@ -1,5 +1,6 @@
 package com.chua.image.support.heif;
 
+import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.ImageWriter;
 import javax.imageio.IIOException;
 import javax.imageio.ImageWriteParam;
@@ -7,6 +8,7 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * HEIC/HEIF 图像写入器（纯Java实现）。
@@ -17,7 +19,6 @@ import java.io.IOException;
 public class HEICImageWriter extends ImageWriter {
 
     private ImageOutputStream output;
-    private boolean writing = false;
 
     public HEICImageWriter(HEICImageWriterSpi spi) {
         super(spi);
@@ -26,14 +27,13 @@ public class HEICImageWriter extends ImageWriter {
     @Override
     public void setOutput(Object output) {
         this.output = (ImageOutputStream) output;
-        this.writing = false;
     }
 
     @Override
     public void prepareWriteEmpty(IIOMetadata streamMetadata,
                                    IIOMetadata imageMetadata,
                                    ImageWriteParam param) throws IOException {
-        throw new UnsupportedOperationException("Empty write not supported for HEIC");
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
@@ -41,7 +41,6 @@ public class HEICImageWriter extends ImageWriter {
         if (output == null) throw new IOException("Output not set");
         BufferedImage img = image.getImage();
         if (img == null) throw new IOException("No image data");
-
         try {
             HeifNativeEncoder.encode(img, output);
         } catch (Exception e) {
@@ -50,11 +49,8 @@ public class HEICImageWriter extends ImageWriter {
     }
 
     @Override
-    public void flush() {
-        if (output != null) {
-            try { output.flush(); } catch (IOException ignored) {}
-        }
-        this.writing = false;
+    public void flush() throws IOException {
+        if (output != null) output.flush();
     }
 
     @Override
@@ -63,11 +59,37 @@ public class HEICImageWriter extends ImageWriter {
             try { output.close(); } catch (IOException ignored) {}
             this.output = null;
         }
-        this.writing = false;
     }
 
     @Override
     public void close() throws IOException {
         dispose();
+    }
+
+    @Override
+    public IIOMetadata convertImageMetadata(IIOMetadata metadata, ImageTypeSpecifier type, ImageWriteParam param) {
+        return metadata;
+    }
+
+    @Override
+    public IIOMetadata convertStreamMetadata(IIOMetadata metadata, ImageWriteParam param) {
+        return metadata;
+    }
+
+    @Override
+    public Iterator<ImageTypeSpecifier> getImageTypes(int index) throws IOException {
+        return null;
+    }
+
+    @Override
+    public boolean canEncodeImage(ImageTypeSpecifier type) {
+        return type != null && (type.getColorModel().getNumComponents() == 3 ||
+                type.getColorModel().getNumComponents() == 4);
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.output = null;
     }
 }

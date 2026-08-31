@@ -36,6 +36,15 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
                     .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(10_000_000).build();
             walLogs[i] = (SegmentWalLog) WalFactory.open(c);
         }
+        // 引擎级统一 fsync 调度，避免每个 shard 各开一个线程
+        if (config.fsyncBatchIntervalMs() > 0) {
+            scheduler.scheduleAtFixedRate(this::fsyncAll,
+                    config.fsyncBatchIntervalMs(), config.fsyncBatchIntervalMs(), java.util.concurrent.TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void fsyncAll() {
+        for (SegmentWalLog log : walLogs) { try { log.sync(); } catch (IOException ignored) {} }
     }
 
     @Override public String type() { return "kv"; }
