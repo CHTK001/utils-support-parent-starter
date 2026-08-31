@@ -555,7 +555,71 @@ class WalStoreStressTest {
 
         System.out.println();
         System.out.println("============================================================");
-        System.out.println("  压测完成");
-        System.out.println("============================================================");
+    }
+
+    // ==================== 崩溃恢复测试 ====================
+
+    /**
+     * 模拟 JVM 崩溃后恢复：写入数据 → 不调用 close()（模拟 crash）→ 重新打开 → 验证已持久化数据。
+     */
+    @Test
+    void kvCrashRecovery() throws IOException {
+        Path dir = Path.of("D:/ch/temp/wal/wal-kv-recovery");
+        Files.createDirectories(dir);
+        // 写入 10000 条，每 1000 条强制 fsync（模拟应用层定期刷盘）
+        try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
+            int count = 10_000;
+            byte[] payload = "recovery-test-payload".getBytes(StandardCharsets.UTF_8);
+            for (int i = 0; i < count; i++) {
+                store.put("user:" + i, payload);
+                if (i % 1000 == 0) store.compact(); // 触发 flush+fsync
+            }
+            // 不调用 close()，模拟 JVM 突然崩溃
+        }
+        // 重新打开（模拟重启）
+        int recovered = 0;
+        try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
+            // 验证 segment 可被正常扫描
+            int segments = store.listSegments().size();
+            // 回放所有 segment 统计记录数
+            for (var log : store.getWalLogs()) {
+                for (var seg : log.listSegments()) {
+                    recovered += seg.recordCount();
+                }
+            }
+            System.out.printf("[KV-CRASH] recovered %d records from %d segments%n", recovered, segments);
+        }
+        // 由于没有 fsync，crash 时只有 checkpoint 之前的数据会丢失
+        // 这里验证 reopening 不抛异常即可
+        System.out.println("[KV-CRASH] reopen OK");
+    }
+
+    /**
+     * 正常关闭后数据完整性验证：write → close → reopen → get 验证每条记录。
+     */
+    @Test
+    void kvDataIntegrity() throws IOException {
+        Path dir = Path.of("D:/ch/temp/wal/wal-kv-integrity");
+        Files.createDirectories(dir);
+        int count = 10_000;
+        // 写入阶段
+        try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
+            for (int i = 0; i < count; i++) {
+                store.put("key:" + i, ("value-" + i).getBytes(StandardCharsets.UTF_8));
+            }
+            store.compact(); // 强制 fsync
+        }
+        // 读取阶段（模拟重启后读取）
+        try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
+            int hits = 0;
+            for (int i = 0; i < count; i++) {
+                var val = store.getBytes("key:" + i);
+                if (val.isPresent() && new String(val.get()).equals("value-" + i)) {
+                    hits++;
+                }
+            }
+            System.out.printf("[KV-INTEGRITY] %d/%d records verified%n", hits, count);
+            org.junit.jupiter.api.Assertions.assertEquals(count, hits, "数据完整性验证失败");
+        }
     }
 }

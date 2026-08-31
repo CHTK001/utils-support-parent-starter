@@ -125,8 +125,15 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
         ByteBuffer.wrap(writeBuf, 0, total).putInt(key.length).put(key).putInt(vlen);
         if (value != null) System.arraycopy(value, 0, writeBuf, 4 + key.length + 4, vlen);
-        int idx = Math.abs(ByteBuffer.wrap(key).getInt() & 0x7FFFFFFF) % config.shardCount();
+        int idx = fnv1aHash(key) % config.shardCount();
+        if (idx < 0) idx += config.shardCount();
         return walLogs[idx].append((byte) 0x01, writeBuf);
+    }
+
+    private static int fnv1aHash(byte[] data) {
+        int h = 0x811c9dc5;
+        for (byte b : data) h = (h ^ b) * 0x01000193;
+        return h;
     }
 
     public Optional<byte[]> getBytes(String key) throws IOException {
@@ -151,6 +158,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         }
         return result[0] == null ? Optional.empty() : Optional.of(result[0]);
     }
+
+    /** 供测试访问内部 walLogs，生产环境不应暴露 */
+    SegmentWalLog[] getWalLogs() { return walLogs; }
 
     public static KvWalStoreSystem create(Path baseDir) throws IOException {
         return new KvWalStoreSystem(new WalStoreEnvDetector().detect(baseDir));
