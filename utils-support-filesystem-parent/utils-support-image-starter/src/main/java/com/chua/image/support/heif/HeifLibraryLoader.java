@@ -2,7 +2,6 @@ package com.chua.image.support.heif;
 
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.common.support.utils.NativeUtils;
-import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 
@@ -17,7 +16,6 @@ import java.nio.file.Path;
  * @author CH
  * @since 4.0.0.42
  */
-@Slf4j
 public final class HeifLibraryLoader {
 
     private static final String LIBRARY_NAME = "chua_native_heif";
@@ -38,9 +36,9 @@ public final class HeifLibraryLoader {
                     .glob("chua_native_heif*")
                     .load();
             loaded = true;
-            log.info("[HeifLibraryLoader] HEIC native 库加载成功");
+            System.out.println("[HeifLibraryLoader] HEIC native 库加载成功");
         } catch (Throwable e) {
-            log.debug("[HeifLibraryLoader] HEIC native 库未找到或加载失败: {}", e.getMessage());
+            System.out.println("[HeifLibraryLoader] HEIC native 库未找到或加载失败: " + e.getMessage());
         }
     }
 

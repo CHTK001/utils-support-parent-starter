@@ -156,8 +156,6 @@ public class SegmentWalLog implements WalLog {
     /** 可复用的写缓冲，最大单条记录大小（含头部），首次使用按需扩容 */
     private byte[] writeBuf;
 
-    /** 后台定期 fsync 线程，保障崩溃后数据不丢失 */
-    private ScheduledExecutorService flushScheduler;
     /**
      * 创建 SegmentWalLog 实例
      * @param config config
@@ -169,22 +167,6 @@ public class SegmentWalLog implements WalLog {
         this.checkpointFile = config.walDir().resolve(CHECKPOINT_FILE_NAME);
         Files.createDirectories(segmentsDir);
         open();
-        if (Runtime.getRuntime().availableProcessors() >= 2 && config.fsyncBatchIntervalMs() > 0) {
-            final String ns = this.namespace;
-            flushScheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "wal-flush-" + ns);
-                t.setDaemon(true);
-                return t;
-            });
-            flushScheduler.scheduleAtFixedRate(() -> {
-                        try {
-                            force();
-                        } catch (IOException e) {
-                            throw new java.io.UncheckedIOException(e);
-                        }
-                    },
-                    config.fsyncBatchIntervalMs(), config.fsyncBatchIntervalMs(), java.util.concurrent.TimeUnit.MILLISECONDS);
-        }
     }
 
     /** 打开 */
@@ -713,9 +695,6 @@ public class SegmentWalLog implements WalLog {
             return;
         }
         closed = true;
-        if (flushScheduler != null) {
-            flushScheduler.shutdownNow();
-        }
         try {
             force();
         } catch (IOException ignored) {

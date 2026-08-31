@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.onnx.text.gemma3;
 
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 4.0.0.42
  */
 class Gemma3GpuTest {
+
+    static {
+        // 与实测入口 GemmaChatGpuMain 一致：先触发 SPI 注册表填充，
+        // 否则 resolveModelPath 无法命中下载缓存目录（gemma-3-270m 需 downloadUrl 注册项）
+        ModelRegistry.discoverAll();
+    }
 
     /** 生成配置：温度采样 + 重复惩罚 + top-k，用于验证无重复循环 */
     private static DetectionConfiguration samplingConfig(boolean useGpu) {
