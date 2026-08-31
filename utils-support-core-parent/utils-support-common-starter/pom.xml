@@ -24,7 +24,7 @@
                 <configuration>
                     <release>25</release>
                     <failOnError>false</failOnError>
-                    <fork>true</fork>
+                    <fork>false</fork>
                     <compilerArgs>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
@@ -46,6 +46,7 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
                         <arg>-J--enable-native-access=ALL-UNNAMED</arg>
                         <arg>--enable-preview</arg>
+                        <arg>-proc:full</arg>
                         <arg>-parameters</arg>
                     </compilerArgs>
                     <excludes>
@@ -53,6 +54,11 @@
                         <exclude>**/vector/VectorMath.java</exclude>
                         <exclude>**/vector/VectorIOBench.java</exclude>
                         <exclude>**/vector/VectorStorageBench.java</exclude>
+                        <exclude>**/task/pipeline/builder/DefaultPipeline.java</exclude>
+                        <exclude>**/task/pipeline/node/ForkNode.java</exclude>
+                        <exclude>**/task/pipeline/node/ParallelNode.java</exclude>
+                        <exclude>**/task/taskrunner/AbstractRunnerProvider.java</exclude>
+                        <exclude>**/task/taskrunner/StructuredRunnerProvider.java</exclude>
                     </excludes>
                     <annotationProcessorPaths>
                         <path>
