@@ -93,8 +93,10 @@ public final class EngineAwareDataSource implements DataSource {
             }
             try {
                 return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
-            } catch (java.lang.reflect.InvocationTargetException e) {
-                throw new RuntimeException(e.getCause() != null ? e.getCause() : e);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
 
@@ -120,8 +122,10 @@ public final class EngineAwareDataSource implements DataSource {
                         }
                         try {
                             return ReflectUtils.invoke(st, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
-                        } catch (java.lang.reflect.InvocationTargetException e) {
-                            throw new RuntimeException(e.getCause() != null ? e.getCause() : e);
+                        } catch (RuntimeException e) {
+                            throw e;
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
                     }
             );

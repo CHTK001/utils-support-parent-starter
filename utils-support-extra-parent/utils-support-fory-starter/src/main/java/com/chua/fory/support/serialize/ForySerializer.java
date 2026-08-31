@@ -2,6 +2,7 @@ package com.chua.fory.support.serialize;
 
 import com.chua.common.support.serialize.Serializer;
 import com.chua.common.support.spi.annotations.Spi;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fury.Fury;
 import org.apache.fury.config.Language;
 
@@ -27,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 4.0.0.42
  */
 @Spi({"fory", "fury"})
+@Slf4j
 public class ForySerializer<T extends Serializable> implements Serializer<T> {
     private static final long serialVersionUID = 1L;
 
@@ -76,7 +78,7 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
                     .requireClassRegistration(false)
                     .build();
             int id = POOL_COUNTER.incrementAndGet();
-            System.out.println("[ForyPool] Created Fury instance #" + id + " for " + k.getName());
+            log.info("[ForyPool] Created Fury instance #{} for {}", id, k.getName());
             return fury;
         });
     }
@@ -116,7 +118,7 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
      */
     public static void clearPool() {
         FURY_POOL.clear();
-        System.out.println("[ForyPool] All Fury instances cleared");
+        log.info("[ForyPool] All Fury instances cleared");
     }
 
     /**

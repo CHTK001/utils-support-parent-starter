@@ -7,6 +7,8 @@ import com.chua.common.support.ai.memory.MemoryEntry;
 import com.chua.common.support.ai.memory.MemoryManager;
 import com.chua.common.support.lang.json.Json;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +30,8 @@ import java.util.List;
  */
 @Slf4j
 public class AgentContextCompressionService implements AgentContextCompressionConsumer {
+
+    private static final Logger log = LoggerFactory.getLogger(AgentContextCompressionService.class);
 
     /** 基线快照类型标识 */
     private static final String BASELINE_TYPE = "context_baseline";
