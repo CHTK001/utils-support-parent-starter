@@ -8,6 +8,7 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,9 +32,9 @@ public class HEICImageWriter extends ImageWriter {
     }
 
     @Override
-    public void prepareWriteEmpty(IIOMetadata streamMetadata,
-                                   IIOMetadata imageMetadata,
-                                   ImageWriteParam param) throws IOException {
+    public void prepareWriteEmpty(IIOMetadata streamMetadata, ImageTypeSpecifier type,
+                                   int minWidth, int minHeight, IIOMetadata imgMeta,
+                                   List<BufferedImage> thumbnails, ImageWriteParam param) throws IOException {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -42,32 +43,12 @@ public class HEICImageWriter extends ImageWriter {
         if (output == null) throw new IOException("Output not set");
         java.awt.image.RenderedImage img = image.getRenderedImage();
         if (img == null) throw new IOException("No image data");
-        BufferedImage buffered = img instanceof BufferedImage ? (BufferedImage) img : null;
+        BufferedImage buffered = img instanceof BufferedImage ? (BufferedImage) img : toBuffered(img);
         try {
-            HeifNativeEncoder.encode(buffered != null ? buffered : toBuffered(img), output);
+            HeifNativeEncoder.encode(buffered, output);
         } catch (Exception e) {
             throw new IIOException("HEIC encode failed", e);
         }
-    }
-
-    @Override
-    public void flush() {
-        if (output != null) {
-            try { output.flush(); } catch (IOException ignored) {}
-        }
-    }
-
-    @Override
-    public void dispose() {
-        if (output != null) {
-            try { output.close(); } catch (IOException ignored) {}
-            this.output = null;
-        }
-    }
-
-    @Override
-    public void close() {
-        dispose();
     }
 
     @Override
@@ -101,8 +82,9 @@ public class HEICImageWriter extends ImageWriter {
                 type.getColorModel().getNumComponents() == 4);
     }
 
-    @Override
-    public void reset() {
-        this.output = null;
+    private static BufferedImage toBuffered(java.awt.image.RenderedImage img) {
+        BufferedImage bis = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        bis.getGraphics().drawImage(img, 0, 0, null);
+        return bis;
     }
 }
