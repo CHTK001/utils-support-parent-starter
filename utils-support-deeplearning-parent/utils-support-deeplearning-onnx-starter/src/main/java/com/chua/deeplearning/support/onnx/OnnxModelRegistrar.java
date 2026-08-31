@@ -380,8 +380,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 双模式：嵌入式 + downloadUrl 自动下载（内网/无外网时自动回落嵌入式副本）
         reg("sensevoice", null, byte[].class, String.class, Object.class,
                 "audio/asr/sensevoice-small/model.int8.onnx",
-                "https://huggingface.co/achtk/utils-support-sensevoice-onnx/resolve/main/model_quant.onnx",
-                false, "model.int8.onnx");
+                "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/asr/sensevoice-small/model.int8.onnx",
+                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/asr/sensevoice-small/model.int8.onnx"), false, null);
         // 情感分析(RoBERTa-go-emotions)：28 种细粒度情感分类（如"兴奋"、"悲伤"、"愤怒"等）；适用细粒度情感分析、用户评论分析
         reg("roberta-go-emotions", "com.chua.deeplearning.support.onnx.classification.DistilBertSentimentTranslator", String.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "nlp/classification/roberta-go-emotions/model.onnx", "https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx/resolve/main/model.onnx", false, null);
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
