@@ -9,6 +9,7 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * HEIC/HEIF 图像写入器（纯Java实现）。
@@ -49,12 +50,14 @@ public class HEICImageWriter extends ImageWriter {
     }
 
     @Override
-    public void flush() throws IOException {
-        if (output != null) output.flush();
+    public void flush() {
+        if (output != null) {
+            try { output.flush(); } catch (IOException ignored) {}
+        }
     }
 
     @Override
-    public void dispose() throws IOException {
+    public void dispose() {
         if (output != null) {
             try { output.close(); } catch (IOException ignored) {}
             this.output = null;
@@ -62,7 +65,7 @@ public class HEICImageWriter extends ImageWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         dispose();
     }
 
@@ -74,6 +77,16 @@ public class HEICImageWriter extends ImageWriter {
     @Override
     public IIOMetadata convertStreamMetadata(IIOMetadata metadata, ImageWriteParam param) {
         return metadata;
+    }
+
+    @Override
+    public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
+        return null;
+    }
+
+    @Override
+    public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier type, ImageWriteParam param) {
+        return null;
     }
 
     @Override
