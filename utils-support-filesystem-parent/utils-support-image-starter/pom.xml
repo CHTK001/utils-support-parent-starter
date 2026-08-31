@@ -74,9 +74,6 @@
                         <arg>--enable-preview</arg>
                         <arg>-parameters</arg>
                     </compilerArgs>
-                    <excludes>
-                        <exclude>**/png/PNGMetadata.java</exclude>
-                    </excludes>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
