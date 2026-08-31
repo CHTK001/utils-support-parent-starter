@@ -41,11 +41,10 @@ public class HEICImageWriter extends ImageWriter {
     @Override
     public void write(IIOMetadata metadata, javax.imageio.IIOImage image, ImageWriteParam param) throws IOException {
         if (output == null) throw new IOException("Output not set");
-        java.awt.image.RenderedImage img = image.getRenderedImage();
+        BufferedImage img = image.getBufferedImage();
         if (img == null) throw new IOException("No image data");
-        BufferedImage buffered = img instanceof BufferedImage ? (BufferedImage) img : toBuffered(img);
         try {
-            HeifNativeEncoder.encode(buffered, output);
+            HeifNativeEncoder.encode(img, output);
         } catch (Exception e) {
             throw new IIOException("HEIC encode failed", e);
         }
@@ -82,11 +81,4 @@ public class HEICImageWriter extends ImageWriter {
                 type.getColorModel().getNumComponents() == 4);
     }
 
-    private static BufferedImage toBuffered(java.awt.image.RenderedImage img) {
-        int w = img.getWidth(null);
-        int h = img.getHeight(null);
-        BufferedImage bis = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        bis.getGraphics().drawImage(img, 0, 0, null);
-        return bis;
-    }
 }
