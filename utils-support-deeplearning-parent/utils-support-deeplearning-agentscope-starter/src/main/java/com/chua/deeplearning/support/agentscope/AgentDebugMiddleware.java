@@ -48,25 +48,28 @@ public class AgentDebugMiddleware implements MiddlewareBase {
         totalInputTokens = 0;
         totalOutputTokens = 0;
         startTime = System.currentTimeMillis();
-        System.out.println("[Middleware] onAgent called"); System.out.println("[Middleware] onReasoning called"); System.out.println("[Middleware] onActing called"); return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
+        log.debug("[Middleware] onAgent called, onReasoning called, onActing called");
+        return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
     }
 
     @Override
     public Flux<AgentEvent> onReasoning(Agent agent, io.agentscope.core.middleware.ReasoningInput input,
-                                         Function<io.agentscope.core.middleware.ReasoningInput, Flux<AgentEvent>> next) {
+                                          Function<io.agentscope.core.middleware.ReasoningInput, Flux<AgentEvent>> next) {
         iteration++;
-        System.out.println("[Middleware] onAgent called"); System.out.println("[Middleware] onReasoning called"); System.out.println("[Middleware] onActing called"); return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
+        log.debug("[Middleware] onAgent called, onReasoning called, onActing called");
+        return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
     }
 
     @Override
     public Flux<AgentEvent> onActing(Agent agent, io.agentscope.core.middleware.ActingInput input,
-                                      Function<io.agentscope.core.middleware.ActingInput, Flux<AgentEvent>> next) {
-        System.out.println("[Middleware] onAgent called"); System.out.println("[Middleware] onReasoning called"); System.out.println("[Middleware] onActing called"); return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
+                                       Function<io.agentscope.core.middleware.ActingInput, Flux<AgentEvent>> next) {
+        log.debug("[Middleware] onAgent called, onReasoning called, onActing called");
+        return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
     }
 
     private void onEvent(AgentEvent event) {
-        System.out.println("[Middleware] onEvent: " + (event != null ? event.getType() : "null"));
-        System.out.println("[Middleware] onEvent: " + (event != null ? event.getType() : "null"));
+        log.debug("[Middleware] onEvent: {}", event != null ? event.getType() : "null");
+        log.debug("[Middleware] onEvent: {}", event != null ? event.getType() : "null");
         if (event == null) return;
         try {
             String type = event.getType().name();
@@ -108,7 +111,8 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                     .elapsedMillis(elapsed)
                     .build();
 
-            System.out.println("[Middleware] calling debugHook with type=" + hookEvent.getType()); if (debugHook != null) debugHook.onDebug(hookEvent);
+            log.debug("[Middleware] calling debugHook with type={}", hookEvent.getType());
+            if (debugHook != null) debugHook.onDebug(hookEvent);
             if (planHook != null && isPlanRelated(type, toolName)) planHook.onPlan(hookEvent);
         } catch (Exception e) {
             log.debug("[AgentDebugMiddleware] event processing error: {}", e.getMessage());
