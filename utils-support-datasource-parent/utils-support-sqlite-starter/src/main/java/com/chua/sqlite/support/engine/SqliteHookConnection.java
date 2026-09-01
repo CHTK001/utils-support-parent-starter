@@ -11,14 +11,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * SQLite update_hook 原生连接封装。
  *
  * <p>通过 Java FFM（Project Panama）绑定 {@code sqlite3_hook.dll}。
  * 写操作通过 {@link #exec(String)} 执行，变更事件在 exec() 返回后同步排空并推送到
- * {@link #changes()} 响应式流。支持多订阅者回放最近 1024 条事件。</p>
+ * {@link #changes()} 响应式流。支持多订阅者回放最近 2048 条事件。</p>
  *
  * @author CH
  * @since 4.0.0.43
@@ -27,7 +27,7 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     private static final Linker LINKER = Linker.nativeLinker();
     private static volatile SymbolLookup SYM_LOOKUP;
-    private static final int MAX_REPLAY = 1024;
+    private static final int MAX_REPLAY = 2048;
 
     private static volatile MethodHandle HOOK_OPEN_HANDLE;
     private static volatile MethodHandle HOOK_POLL_HANDLE;
@@ -38,10 +38,7 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     private final MemorySegment handle;
     private final Sinks.Many<SqliteChangeEvent> sink;
-    /** 最近 N 条事件用于重放 */
-    private final Deque<SqliteChangeEvent> eventBuffer = new ArrayDeque<>(MAX_REPLAY);
-    /** 全局事件序号 */
-    private final AtomicInteger seq = new AtomicInteger(0);
+    private final List<SqliteChangeEvent> allEvents = new CopyOnWriteArrayList<>();
 
     public static SqliteHookConnection open(String dbPath) {
         if (!loadLibrary()) return null;
@@ -53,11 +50,10 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private SqliteHookConnection(MemorySegment handle) {
         this.handle = handle;
         @SuppressWarnings("rawtypes")
-        Sinks.Many<?> raw = Sinks.many().multicast().onBackpressureBuffer(MAX_REPLAY);
+        Sinks.Many<?> raw = Sinks.many().multicast().directBestEffort();
         this.sink = (Sinks.Many<SqliteChangeEvent>) raw;
     }
 
@@ -119,54 +115,14 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     /**
      * 变更事件响应式流。
-     *
-     * <p>新订阅者会先收到最近 {@value MAX_REPLAY} 条历史事件（重放），
-     * 然后持续接收新事件。</p>
+     * 新订阅者先收到历史快照，然后持续接收新事件。
      */
     public Flux<SqliteChangeEvent> changes() {
-        return Flux.defer(() -> {
-            int lastSeq = seq.get();
-            // 重放历史事件
-            List<SqliteChangeEvent> replay = new ArrayList<>(eventBuffer);
-            // 创建独立订阅，避免共享 state
-            Sinks.Many<SqliteChangeEvent> subSink = Sinks.many().multicast().onBackpressureBuffer(MAX_REPLAY);
-            // 启动后台任务：将后续事件桥接到子 sink
-            int[] emittedAfterReplay = {0};
-            Runnable bridge = () -> {
-                while (true) {
-                    int currentSeq = seq.get();
-                    if (currentSeq > lastSeq + emittedAfterReplay[0]) {
-                        // 有新事件，从 buffer 中取
-                        int start = Math.max(0, currentSeq - MAX_REPLAY);
-                        for (int i = start; i < currentSeq; i++) {
-                            int idx = i - start;
-                            if (idx < replay.size()) {
-                                // 已在 replay 中，跳过
-                            }
-                        }
-                        // 直接取 buffer 尾部新事件
-                        int needed = currentSeq - lastSeq - emittedAfterReplay[0];
-                        for (int k = 0; k < needed; k++) {
-                            int bufIdx = eventBuffer.size() - needed + k;
-                            if (bufIdx >= 0 && bufIdx < eventBuffer.size()) {
-                                SqliteChangeEvent ev = eventBuffer.toArray(new SqliteChangeEvent[0])[bufIdx];
-                                subSink.tryEmitNext(ev);
-                            }
-                        }
-                        emittedAfterReplay[0] += needed;
-                    }
-                    try { Thread.sleep(10); } catch (InterruptedException ignored) { break; }
-                }
-            };
-            Thread bridgeThread = new Thread(bridge, "sqlite-hook-bridge");
-            bridgeThread.setDaemon(true);
-            bridgeThread.start();
-
-            // 发射重放 + 实时事件
-            Flux<SqliteChangeEvent> replayFlux = Flux.fromIterable(replay);
-            Flux<SqliteChangeEvent> liveFlux = subSink.asFlux();
-            return replayFlux.concatWith(liveFlux);
-        });
+        List<SqliteChangeEvent> snapshot = new ArrayList<>(allEvents);
+        return Flux.concat(
+                Flux.fromIterable(snapshot),
+                sink.asFlux().skip(snapshot.size())
+        );
     }
 
     @Override
@@ -190,13 +146,10 @@ public final class SqliteHookConnection implements AutoCloseable {
                 String json = bufSeg.getString(0, StandardCharsets.UTF_8);
                 SqliteChangeEvent event = parseEvent(json);
                 if (event != null) {
-                    int s = seq.incrementAndGet();
-                    // 加入缓冲区（限制大小）
-                    if (eventBuffer.size() >= MAX_REPLAY) {
-                        eventBuffer.pollFirst();
+                    allEvents.add(event);
+                    if (allEvents.size() > MAX_REPLAY) {
+                        allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
                     }
-                    eventBuffer.addLast(event);
-                    // 推送给所有订阅者
                     sink.tryEmitNext(event);
                 }
                 polled++;

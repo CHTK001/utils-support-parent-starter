@@ -652,11 +652,7 @@ public class AgentScopeAgent implements Agent {
             }
             i++;
         }
-        System.out.print(sb);
-    }
-
-    /**
-     * Print system prompts tree (debug(true)); router node only for leader+ROUTER.
+        log.info("\n{}", sb);
      */
     private void printSystemPromptsTree() {
         boolean leader = definition != null && definition.isLeader();
@@ -678,10 +674,7 @@ public class AgentScopeAgent implements Agent {
             sb.append("      prompt: ")
               .append(sub.getInstruction() != null ? sub.getInstruction() : "").append('\n');
         }
-        System.err.println("===TREE-BEGIN===");
-        System.err.println(sb);
-        System.err.println("===TREE-END===");
-        System.out.print(sb);
+        log.info("[AgentTree] begin\n{}\n[AgentTree] end", sb);
     }
     private void logArchitecture(int effectiveMaxIters) {
         String mainAgentId = definition != null && definition.getId() != null ? definition.getId() : "agent";

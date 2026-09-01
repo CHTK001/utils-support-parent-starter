@@ -13,6 +13,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import java.util.Random;
  * @author chua
  * @since 4.0.0.42
  */
+@Slf4j
 public class MossTtsTranslator implements AutoCloseable {
 
     private static final String DEFAULT_VOICE = "Junhao";
@@ -211,8 +213,7 @@ public class MossTtsTranslator implements AutoCloseable {
                 }
                 codes.add(row);
             }
-            System.out.println("[MossTTS] 克隆参考: " + frames + " 帧 ("
-                    + String.format("%.1f", n / 48000.0) + "s)");
+            log.info("[MossTTS] 克隆参考: {} 帧 ({:.1f}s)", frames, n / 48000.0);
             return codes;
         }
     }
@@ -348,7 +349,7 @@ public class MossTtsTranslator implements AutoCloseable {
     private static final int MAX_CHUNK_CHARS = 55;
 
     private void logChunk(int index, int total, String chunk, int samples) {
-        System.out.printf("[MossTTS] 段 %d/%d (%d字, %.2fs): %s%n",
+        log.info("[MossTTS] 段 {}/{} ({}字, {:.2fs}: {}",
                 index, total, chunk.length(), samples / 48000.0,
                 chunk.length() > 20 ? chunk.substring(0, 20) + "…" : chunk);
     }
@@ -418,7 +419,7 @@ public class MossTtsTranslator implements AutoCloseable {
         float[] pcm;
         try (PrefillState state = runPrefill(inputIds)) {
             List<int[]> audioTokens = generateFrames(state, cappedMaxFrames);
-            System.out.println("generated frames: " + audioTokens.size());
+            log.debug("generated frames: {}", audioTokens.size());
             pcm = decodeAudio(audioTokens);
         }
         return AudioUtils.toWavBytes(pcm, 48000);
