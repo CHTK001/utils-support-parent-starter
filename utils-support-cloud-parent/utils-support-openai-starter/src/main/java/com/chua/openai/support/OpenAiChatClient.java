@@ -29,6 +29,7 @@ import com.openai.models.chat.completions.ChatCompletionNamedToolChoice;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import com.openai.models.completions.CompletionUsage;
+import com.openai.models.completions.CompletionUsage.PromptTokensDetails;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -593,7 +594,8 @@ public class OpenAiChatClient implements ChatClient {
                                 usageBuilder
                                         .inputTokens((int) usage.promptTokens())
                                         .outputTokens((int) usage.completionTokens())
-                                        .totalTokens((int) usage.totalTokens());
+                                        .totalTokens((int) usage.totalTokens())
+                                        .cacheTokens(extractCacheTokens(usage));
                             }
                             break;
                         }
@@ -641,7 +643,8 @@ public class OpenAiChatClient implements ChatClient {
                     usageBuilder
                             .inputTokens((int) usage.promptTokens())
                             .outputTokens((int) usage.completionTokens())
-                            .totalTokens((int) usage.totalTokens());
+                            .totalTokens((int) usage.totalTokens())
+                            .cacheTokens(extractCacheTokens(usage));
                 }
             }
 
@@ -871,6 +874,29 @@ public class OpenAiChatClient implements ChatClient {
             }
         }
         return null;
+    }
+
+    /**
+     * 从 {@link CompletionUsage} 中提取缓存命中 Token 数。
+     *
+     * <p>OpenAI Prompt Caching 功能会在 {@code prompt_tokens_details.cached_tokens} 中返回缓存命中的 Token 数。
+     *
+     * @param usage 完成用量
+     * @return 缓存命中 Token 数，不可用时返回 0
+     */
+    private static int extractCacheTokens(CompletionUsage usage) {
+        if (usage == null) {
+            return 0;
+        }
+        try {
+            return usage.promptTokensDetails()
+                    .map(PromptTokensDetails::cachedTokens)
+                    .filter(java.util.Optional::isPresent)
+                    .map(opt -> opt.get().intValue())
+                    .orElse(0);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     @Override
