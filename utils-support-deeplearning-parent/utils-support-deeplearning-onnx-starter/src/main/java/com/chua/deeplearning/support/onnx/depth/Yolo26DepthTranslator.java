@@ -24,7 +24,7 @@ import java.nio.file.Path;
  * <p>基于 Ultralytics YOLO26 的 monocular depth estimation 模型：
  * <ul>
  *   <li><b>输入</b>：letterbox 768x768 RGB float32（除以 255 归一化到 [0,1]），NCHW [1,3,768,768]。</li>
- *   <li><b>输出</b>：深度图 [1,1,768,768]，值越大表示越近（disparity 风格，需做反色归一化展示）。</li>
+ *   <li><b>输出</b>：深度图 [1,1,768,768]，原始值为 metric depth（值越大越远），展示时转为 disparity（近处亮）。</li>
  *   <li><b>尺寸</b>：n/s/m/l/x 五档，同一 translator 通过 {@code setModelPath} 注入对应模型文件。</li>
  *   <li><b>用途</b>：单目深度估计、背景虚化、3D 场景理解。</li>
  * </ul>
@@ -126,12 +126,17 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
                 int h = depthMap[0].length;
                 int w = depthMap[0][0].length;
 
-                // 归一化（disparity：越大越近，转灰度时反色为近处亮）
+                // YOLO26-Depth 输出为 metric depth（值越大=越远），先转为 disparity（值越大=越近），
+                // 再线性归一化到灰度：近处亮、远处暗，与 depth-anything 滤镜展示方向一致
+                float[] disparity = new float[h * w];
                 float min = Float.MAX_VALUE, max = Float.MIN_VALUE;
                 for (int y = 0; y < h; y++) {
                     for (int x = 0; x < w; x++) {
-                        if (depthMap[0][y][x] < min) min = depthMap[0][y][x];
-                        if (depthMap[0][y][x] > max) max = depthMap[0][y][x];
+                        float v = depthMap[0][y][x];
+                        float d = v > 0.01f ? 1f / v : 0f;
+                        disparity[y * w + x] = d;
+                        if (d < min) min = d;
+                        if (d > max) max = d;
                     }
                 }
                 float range = max - min;
@@ -140,8 +145,8 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
                 BufferedImage depthImg = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
                 for (int y = 0; y < h; y++) {
                     for (int x = 0; x < w; x++) {
-                        float norm = (depthMap[0][y][x] - min) / range;
-                        int gray = (int) (255f - norm * 255f);
+                        float norm = (disparity[y * w + x] - min) / range;
+                        int gray = (int) (norm * 255f);
                         gray = Math.max(0, Math.min(255, gray));
                         int rgb = (gray << 16) | (gray << 8) | gray;
                         depthImg.setRGB(x, y, rgb);
