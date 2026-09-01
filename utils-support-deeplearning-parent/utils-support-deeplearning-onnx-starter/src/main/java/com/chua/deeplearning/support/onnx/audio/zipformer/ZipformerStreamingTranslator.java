@@ -174,17 +174,118 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     }
 
     /**
-     * 转写音频文件。
+     * 解码音频文件。
      *
      * @param wavPath WAV 文件路径
      * @return 识别文本
-     * @throws Exception 推理异常
+     * @throws Exception 异常
      */
     public String transcribe(Path wavPath) throws Exception {
         float[] samples = AudioUtils.loadMono16k(wavPath);
         float[][] features = new ZipformerFbank().extract(samples);
         float[][] encoderOut = runEncoder(features);
         return greedyDecode(encoderOut);
+    }
+
+    /**
+     * 实时流式输入音频样本（16kHz mono float）。
+     *
+     * <p>音频按 chunk 送入编码器，增量维护内部状态。
+     * 调用 {@link #getResult()} 可获取当前已识别的文本。</p>
+     *
+     * @param samples 音频样本数组（float 范围 [-1, 1]）
+     */
+    public void feedAudioSamples(float[] samples) throws OrtException, IOException {
+        if (samples == null || samples.length == 0) return;
+        // 首次调用时初始化流式状态
+        if (streamingStates.isEmpty()) {
+            streamingStates = new LinkedHashMap<>(initialStates);
+            streamingDecoderOut = runDecoder(streamingContext);
+        }
+        // fbank 特征提取
+        float[][] features = new ZipformerFbank().extract(samples);
+        // 分 chunk 送入编码器
+        processEncoderChunks(features);
+    }
+
+    /**
+     * 返回当前已识别的文本（可多次调用获取增量结果）。
+     *
+     * @return 累积识别文本
+     */
+    public String getResult() {
+        if (streamingEncoderOut.isEmpty()) return "";
+        try {
+            String result = greedyDecode(streamingEncoderOut.toArray(new float[0][]));
+            return result == null ? "" : result;
+        } catch (OrtException e) {
+            throw new RuntimeException("streaming decode failed", e);
+        }
+    }
+
+    /**
+     * 完成流式转录，释放流式状态，返回完整文本。
+     * 此后需重新调用 {@link #feedAudioSamples} 开始新的转录。
+     *
+     * @return 完整识别文本
+     */
+    public String complete() {
+        String result = getResult();
+        resetStreaming();
+        return result;
+    }
+
+    private void resetStreaming() {
+        streamingEncoderOut.clear();
+        closeStates(streamingStates);
+        streamingStates.clear();
+        streamingContext[0] = -1L;
+        streamingContext[1] = BLANK_ID;
+        streamingDecoderOut = null;
+    }
+
+    private void processEncoderChunks(float[][] features) throws OrtException {
+        int totalFrames = features.length;
+        int numChunks = Math.max(1, (totalFrames + DECODE_CHUNK_LEN - 1) / DECODE_CHUNK_LEN);
+
+        List<OnnxTensor> toClose = new ArrayList<>();
+        for (int ci = 0; ci < numChunks; ci++) {
+            int start = ci * DECODE_CHUNK_LEN;
+            int end = Math.min(totalFrames, start + CHUNK_SIZE);
+            int validLen = end - start;
+
+            float[][] chunk = new float[CHUNK_SIZE][NUM_MELS];
+            for (int i = 0; i < validLen; i++) {
+                chunk[i] = features[start + i];
+            }
+
+            Map<String, OnnxTensor> feed = new HashMap<>();
+            feed.put("x", OnnxTensor.createTensor(env, new float[][][]{chunk}));
+            feed.putAll(streamingStates);
+
+            try (OrtSession.Result result = encoderSession.run(feed)) {
+                float[][][] rawEnc = (float[][][]) result.get("encoder_out").get().getValue();
+                Collections.addAll(streamingEncoderOut, rawEnc[0]);
+
+                streamingStates.clear();
+                for (String inName : inputNames) {
+                    if ("x".equals(inName)) continue;
+                    String outName = "new_" + inName;
+                    var optionalValue = result.get(outName);
+                    if (optionalValue.isPresent()) {
+                        OnnxTensor src = (OnnxTensor) optionalValue.get();
+                        OnnxTensor tensor = copyToTensor(src.getValue());
+                        if (tensor != null) {
+                            streamingStates.put(inName, tensor);
+                            toClose.add(tensor);
+                        }
+                    }
+                }
+            }
+        }
+        for (OnnxTensor t : toClose) {
+            t.close();
+        }
     }
 
     private float[][] runEncoder(float[][] features) throws OrtException {

@@ -881,4 +881,14 @@ public class OpenAiChatClient implements ChatClient {
         }
         return probeStation.probe();
     }
+
+    @Override
+    public ChatClientSetting getSetting() {
+        return setting;
+    }
+
+    @Override
+    public String getModel() {
+        return model;
+    }
 }

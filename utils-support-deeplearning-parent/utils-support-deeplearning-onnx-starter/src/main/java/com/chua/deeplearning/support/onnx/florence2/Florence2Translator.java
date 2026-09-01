@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private OrtSession embedSession;
     private OrtSession decoderSession;
     private volatile boolean prepared;
-    
 
     @Override
     public String name() { return NAME; }
@@ -66,10 +64,6 @@ public class Florence2Translator implements ITranslator<Object[], String> {
 
         tokenizer = HuggingFaceTokenizer.builder().optTokenizerPath(tokenizerPath).optPadding(false).optMaxLength(128).build();
         ortEnv = OrtEnvironment.getEnvironment();
-
-        // 获取 boolean tensor 创建方法
-        boolTensorMethod = OnnxTensor.class.getDeclaredMethod("createTensor", OrtEnvironment.class, Object.class, long[].class);
-        boolTensorMethod.setAccessible(true);
 
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));
@@ -170,80 +164,88 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         }
 
         List<Long> generatedTokens = new ArrayList<>(tokens);
-        OnnxTensor[][] pastKV = null;
-        boolean firstStep = true;
 
         try {
-            for (int step = 0; step < MAX_NEW_TOKENS; step++) {
-                long[] currentIds = generatedTokens.stream().mapToLong(Long::longValue).toArray();
-                int currentLen = currentIds.length;
+            long[] currentIds = tokens.stream().mapToLong(Long::longValue).toArray();
+            OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(currentIds), new long[]{1, currentIds.length});
+            try (OrtSession.Result embedResult = embedSession.run(Map.of("input_ids", idsTensor))) {
+                OnnxTensor embedOut = (OnnxTensor) embedResult.get("inputs_embeds").get();
+                int embedSeqLen = (int) embedOut.getInfo().getShape()[1];
+                float[][] embeds = new float[embedSeqLen][HIDDEN_SIZE];
+                float[] embedFlat = embedOut.getFloatBuffer().array();
+                for (int i = 0; i < embedSeqLen; i++) System.arraycopy(embedFlat, i * HIDDEN_SIZE, embeds[i], 0, HIDDEN_SIZE);
 
-                OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(currentIds), new long[]{1, currentLen});
-                try (OrtSession.Result embedResult = embedSession.run(Map.of("input_ids", idsTensor))) {
-                    OnnxTensor embedOut = (OnnxTensor) embedResult.get("inputs_embeds").get();
-                    int embedSeqLen = (int) embedOut.getInfo().getShape()[1];
-                    float[][] embeds = new float[embedSeqLen][HIDDEN_SIZE];
-                    float[] embedFlat = embedOut.getFloatBuffer().array();
-                    for (int i = 0; i < embedSeqLen; i++) System.arraycopy(embedFlat, i * HIDDEN_SIZE, embeds[i], 0, HIDDEN_SIZE);
+                OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
+                OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
 
-                    OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
-                    OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
-                    
+                Map<String, OnnxTensor> decoderInputs = new HashMap<>();
+                decoderInputs.put("inputs_embeds", embedsTensor);
+                decoderInputs.put("encoder_hidden_states", encoderHiddenTensor);
+                decoderInputs.put("encoder_attention_mask", encoderMaskTensor);
 
-                    Map<String, OnnxTensor> decoderInputs = new HashMap<>();
-                    decoderInputs.put("inputs_embeds", embedsTensor);
-                    decoderInputs.put("encoder_hidden_states", encoderHiddenTensor);
-                    decoderInputs.put("encoder_attention_mask", encoderMaskTensor);
+                try (OrtSession.Result decodeResult = decoderSession.run(decoderInputs)) {
+                    OnnxTensor logitsTensor = (OnnxTensor) decodeResult.get("logits").get();
+                    float[] logits = logitsTensor.getFloatBuffer().array();
+                    int nextToken = argmax(logits, (embedSeqLen - 1) * VOCAB_SIZE, VOCAB_SIZE);
+                    if (nextToken == EOS_ID) { log.debug("[Florence-2] EOS at step 0"); }
+                    else { generatedTokens.add((long) nextToken); }
 
-                    if (pastKV != null) {
-                        for (int l = 0; l < NUM_LAYERS; l++) {
-                            decoderInputs.put("past_key_values." + l + ".decoder.key", pastKV[l][0]);
-                            decoderInputs.put("past_key_values." + l + ".decoder.value", pastKV[l][1]);
-                            decoderInputs.put("past_key_values." + l + ".encoder.key", pastKV[l][2]);
-                            decoderInputs.put("past_key_values." + l + ".encoder.value", pastKV[l][3]);
-                        }
-                    } else {
-                        for (int l = 0; l < NUM_LAYERS; l++) {
-                            long[] sDK = {1, NUM_HEADS, 0, HEAD_DIM};
-                            decoderInputs.put("past_key_values." + l + ".decoder.key",
-                                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(new float[0]), sDK));
-                            decoderInputs.put("past_key_values." + l + ".decoder.value",
-                                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(new float[0]), sDK));
-                            long[] sEK = {1, NUM_HEADS, seqLen, HEAD_DIM};
-                            float[] zeroE = new float[NUM_HEADS * seqLen * HEAD_DIM];
-                            decoderInputs.put("past_key_values." + l + ".encoder.key",
-                                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(zeroE), sEK));
-                            decoderInputs.put("past_key_values." + l + ".encoder.value",
-                                    OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(zeroE), sEK));
-                        }
+                    OnnxTensor[][] pastKV = new OnnxTensor[NUM_LAYERS][];
+                    for (int l = 0; l < NUM_LAYERS; l++) {
+                        pastKV[l] = new OnnxTensor[4];
+                        pastKV[l][0] = (OnnxTensor) decodeResult.get("present." + l + ".decoder.key").get();
+                        pastKV[l][1] = (OnnxTensor) decodeResult.get("present." + l + ".decoder.value").get();
+                        pastKV[l][2] = (OnnxTensor) decodeResult.get("present." + l + ".encoder.key").get();
+                        pastKV[l][3] = (OnnxTensor) decodeResult.get("present." + l + ".encoder.value").get();
                     }
 
+                    for (int step = 1; step < MAX_NEW_TOKENS; step++) {
+                        long[] stepIds = generatedTokens.stream().mapToLong(Long::longValue).toArray();
+                        OnnxTensor stepIdsTensor = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(stepIds), new long[]{1, stepIds.length});
+                        try (OrtSession.Result stepEmbedResult = embedSession.run(Map.of("input_ids", stepIdsTensor))) {
+                            OnnxTensor stepEmbedOut = (OnnxTensor) stepEmbedResult.get("inputs_embeds").get();
+                            int stepSeqLen = (int) stepEmbedOut.getInfo().getShape()[1];
+                            float[][] stepEmbeds = new float[stepSeqLen][HIDDEN_SIZE];
+                            float[] stepEmbedFlat = stepEmbedOut.getFloatBuffer().array();
+                            for (int i = 0; i < stepSeqLen; i++) System.arraycopy(stepEmbedFlat, i * HIDDEN_SIZE, stepEmbeds[i], 0, HIDDEN_SIZE);
 
-                    try (OrtSession.Result decodeResult = decoderSession.run(decoderInputs)) {
-                        OnnxTensor logitsTensor = (OnnxTensor) decodeResult.get("logits").get();
-                        float[] logits = logitsTensor.getFloatBuffer().array();
-                        int nextToken = argmax(logits, (embedSeqLen - 1) * VOCAB_SIZE, VOCAB_SIZE);
-                        if (nextToken == EOS_ID) { log.debug("[Florence-2] EOS at step {}", step); break; }
-                        generatedTokens.add((long) nextToken);
+                            OnnxTensor stepEmbedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(stepEmbeds)), new long[]{1, stepSeqLen, HIDDEN_SIZE});
+                            OnnxTensor stepEncoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
 
-                        OnnxTensor[][] newKV = new OnnxTensor[NUM_LAYERS][];
-                        for (int l = 0; l < NUM_LAYERS; l++) {
-                            newKV[l] = new OnnxTensor[4];
-                            newKV[l][0] = (OnnxTensor) decodeResult.get("present." + l + ".decoder.key").get();
-                            newKV[l][1] = (OnnxTensor) decodeResult.get("present." + l + ".decoder.value").get();
-                            newKV[l][2] = (OnnxTensor) decodeResult.get("present." + l + ".encoder.key").get();
-                            newKV[l][3] = (OnnxTensor) decodeResult.get("present." + l + ".encoder.value").get();
+                            Map<String, OnnxTensor> stepDecoderInputs = new HashMap<>();
+                            stepDecoderInputs.put("inputs_embeds", stepEmbedsTensor);
+                            stepDecoderInputs.put("encoder_hidden_states", stepEncoderHiddenTensor);
+                            stepDecoderInputs.put("encoder_attention_mask", encoderMaskTensor);
+                            stepDecoderInputs.put("use_cache_branch", OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(new float[]{1.0f}), new long[]{1}));
+
+                            for (int l = 0; l < NUM_LAYERS; l++) {
+                                stepDecoderInputs.put("past_key_values." + l + ".decoder.key", pastKV[l][0]);
+                                stepDecoderInputs.put("past_key_values." + l + ".decoder.value", pastKV[l][1]);
+                                stepDecoderInputs.put("past_key_values." + l + ".encoder.key", pastKV[l][2]);
+                                stepDecoderInputs.put("past_key_values." + l + ".encoder.value", pastKV[l][3]);
+                            }
+
+                            try (OrtSession.Result stepDecodeResult = decoderSession.run(stepDecoderInputs)) {
+                                OnnxTensor stepLogitsTensor = (OnnxTensor) stepDecodeResult.get("logits").get();
+                                float[] stepLogits = stepLogitsTensor.getFloatBuffer().array();
+                                int nextTok = argmax(stepLogits, (stepSeqLen - 1) * VOCAB_SIZE, VOCAB_SIZE);
+                                if (nextTok == EOS_ID) { log.debug("[Florence-2] EOS at step {}", step); break; }
+                                generatedTokens.add((long) nextTok);
+                                for (int l = 0; l < NUM_LAYERS; l++) {
+                                    pastKV[l][0] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.key").get();
+                                    pastKV[l][1] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.value").get();
+                                    pastKV[l][2] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.key").get();
+                                    pastKV[l][3] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.value").get();
+                                }
+                            }
+                            stepEmbedsTensor.close(); stepEncoderHiddenTensor.close(); stepIdsTensor.close();
                         }
-                        if (pastKV != null) for (OnnxTensor[] layer : pastKV) for (OnnxTensor t : layer) if (t != null) t.close();
-                        pastKV = newKV;
-                        firstStep = false;
                     }
                     embedsTensor.close(); encoderHiddenTensor.close(); idsTensor.close();
                 }
             }
         } finally {
             encoderMaskTensor.close();
-            if (pastKV != null) for (OnnxTensor[] layer : pastKV) for (OnnxTensor t : layer) if (t != null) t.close();
         }
 
         long[] finalIds = generatedTokens.stream().mapToLong(Long::longValue).toArray();
