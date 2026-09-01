@@ -1005,7 +1005,7 @@ KeyValue<String, Integer> kv = new KeyValue<>("name", 123);
 | `archive` | ZipFileSystem | common-starter | ZIP 压缩（别名） |
 | `tar` | TarFileSystem | common-starter | TAR 归档（含分卷） |
 | `zip4j` | Zip4jFileSystem | filesystem-starter | ZIP4J（密码+分卷） |
-| `7z` | SevenZFileSystem | filesystem-starter | 7Z 压缩 |
+| `7z` | SevenZFileSystem | filesystem-starter | 7Z 压缩（含分卷） |
 | `yaml` | YamlFileSystem | filesystem-starter | YAML 文件读写 |
 
 ### 分卷压缩支持
@@ -1017,6 +1017,67 @@ KeyValue<String, Integer> kv = new KeyValue<>("name", 123);
 | ZipFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.z01`, `.z02`, ... `.zip` |
 | Zip4jFileSystem | ✅ `splitSize(long)` | ✅ 原生支持 | `.z01`, `.z02`, ... `.zip` |
 | TarFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.tar.gz.01`, `.tar.gz.02`, ... `.tar.gz` |
+| SevenZFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.7z.001`, `.7z.002`, ... `.7z` |
+
+#### 分卷写入示例
+
+```java
+// ZIP 分卷
+FileSystem zip = FileSystem.create("zip");
+zip.write(new File("output.zip"))
+    .splitSize(1024 * 1024 * 100) // 100MB 每卷
+    .addFile("large-file.bin", new File("large-file.bin"))
+    .finish();
+// 生成: output.z01, output.z02, ..., output.zip
+
+// TAR.GZ 分卷
+FileSystem tar = FileSystem.create("tar");
+tar.write(new File("output.tar.gz"))
+    .gz()
+    .splitSize(1024 * 1024 * 100) // 100MB 每卷
+    .addFile("large-file.bin", new File("large-file.bin"))
+    .finish();
+// 生成: output.tar.gz.01, output.tar.gz.02, ..., output.tar.gz
+
+// 7Z 分卷
+FileSystem sevenZ = FileSystem.create("7z");
+sevenZ.write(new File("output.7z"))
+    .splitSize(1024 * 1024 * 100) // 100MB 每卷
+    .addFile("large-file.bin", new File("large-file.bin"))
+    .finish();
+// 生成: output.7z.001, output.7z.002, ..., output.7z
+
+// ZIP4J 分卷（支持密码保护）
+FileSystem zip4j = FileSystem.create("zip4j");
+zip4j.write(new File("output.zip"))
+    .password("mypassword")
+    .splitSize(1024 * 1024 * 100) // 100MB 每卷
+    .addFile("large-file.bin", new File("large-file.bin"))
+    .finish();
+```
+
+#### 分卷读取示例
+
+```java
+// ZIP 分卷读取
+FileSystem zip = FileSystem.create("zip");
+zip.read(new File("output.zip"))
+    .split() // 启用分卷模式
+    .extractAll(targetDir);
+
+// TAR.GZ 分卷读取
+FileSystem tar = FileSystem.create("tar");
+tar.read(new File("output.tar.gz"))
+    .gz()
+    .split() // 启用分卷模式
+    .extractAll(targetDir);
+
+// 7Z 分卷读取
+FileSystem sevenZ = FileSystem.create("7z");
+sevenZ.read(new File("output.7z"))
+    .split() // 启用分卷模式
+    .extractAll(targetDir);
+```
 
 ### 适用场景
 
