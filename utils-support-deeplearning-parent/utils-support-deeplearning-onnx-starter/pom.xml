@@ -72,8 +72,8 @@
       <dependencies>
         <dependency>
           <groupId>com.microsoft.onnxruntime</groupId>
-          <artifactId>onnxruntime</artifactId>
-          <version>1.23.1</version>
+       <artifactId>onnxruntime</artifactId>
+       <version>1.29.0</version>
         </dependency>
     </dependencies>
     </profile>

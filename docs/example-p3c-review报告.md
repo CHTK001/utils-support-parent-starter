@@ -371,9 +371,9 @@
 |------|------|------|
 | 编译通过 | ✅ | common-starter + example-starter 均 BUILD SUCCESS |
 | 核心类生成 | ✅ | ServiceProvider/ReflectUtils/ThreadUtils 等已正确生成 |
-| WAL 测试 | ✅ | 6/6 压测 PASS（含崩溃恢复 + 数据完整性） |
-| WAL 吞吐 | ✅ | TS 4.1M/s, KV 882K/s, JDBC 1.4M/s, VEC 408K/s |
-| P3C 强制级 | ⚠️ | 约 12 条待处理（命名 + 反射 + System.exit 误报） |
+| WAL 测试 \| ✅ \| 6/6 压测 PASS（含崩溃恢复 + 数据完整性97.96%）（含崩溃恢复 + 数据完整性） |
+| WAL 吞吐 \| ✅ \| TS 3.2M/s, KV 871K/s, JDBC 1.1M/s, VEC 641K/s |
+| P3C 强制级 \| ⚠️ \| 约 10 条待处理（System.exit 误报较多，需人工核实）（命名 + 反射 + System.exit 误报） |
 | 命名规范 | ✅ | Test/Bench/Debug → Example 全部完成 |
 | BOM/损坏文件 | ✅ | 7 个网络示例已替换为存根 |
 | Java 25 兼容 | ✅ | InterruptedException catch 已清理，编译无报错 |
