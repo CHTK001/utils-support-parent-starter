@@ -61,6 +61,12 @@
         </dependency>
 
         <!-- Apache SSHD OSGi bundle（SSH 远程管理，优先于 telnet） -->
+        <!-- 注意：必须先装 sshd-core，再装 sshd-osgi/sshd-sftp/sshd-scp -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+            <version>${sshd.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-osgi</artifactId>
