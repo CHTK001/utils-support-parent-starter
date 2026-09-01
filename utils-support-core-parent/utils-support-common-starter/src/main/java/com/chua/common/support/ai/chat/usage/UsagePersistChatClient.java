@@ -4,6 +4,7 @@ import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
+import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.lang.datasource.engine.Engine;
