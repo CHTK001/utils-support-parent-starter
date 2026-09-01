@@ -54,7 +54,7 @@ public class HttpProxyServer extends AbstractProxyServer {
 
     public HttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         this(setting, remote -> backend);
-        System.err.println("HttpProxyServer created, preferNonBlockingAccept=" + preferNonBlockingAccept);
+        log.debug("HttpProxyServer created, preferNonBlockingAccept={}", preferNonBlockingAccept);
     }
 
     private void initProxy() {
@@ -111,7 +111,7 @@ public class HttpProxyServer extends AbstractProxyServer {
 
     @Override
     protected void handleConnection(Socket clientSocket) {
-        System.err.println("handleConnection: " + clientSocket.getRemoteSocketAddress());
+        log.debug("handleConnection: {}", clientSocket.getRemoteSocketAddress());
         try (clientSocket) {
             clientSocket.setSoTimeout(readTimeoutMs);
             // BufferedInputStream 包装:readHeader 逐字节读但走内存缓冲,避免原生 read 系统调用开销

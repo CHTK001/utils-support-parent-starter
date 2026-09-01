@@ -2594,7 +2594,6 @@ public class NumberUtils {
         value = value - 65;
         int size = value / 26;
         int less = value % 26;
-        System.out.println();
 
         return StringUtils.repeat("A", size) + (char) (less + 65);
     }
