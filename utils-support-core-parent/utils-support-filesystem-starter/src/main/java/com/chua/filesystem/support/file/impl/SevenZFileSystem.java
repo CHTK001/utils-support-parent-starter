@@ -269,8 +269,22 @@ public class SevenZFileSystem implements FileSystem {
         /** 压缩级别（-1 表示默认，具体含义随方法而异） */
         private int compressionLevel = -1;
 
+        /** 分卷大小（字节），0 表示不分卷 */
+        private long splitSize = 0;
+
         SevenZWriteBuilder(File file) {
             super(file);
+        }
+
+        /**
+         * 设置分卷大小。
+         *
+         * @param size 每个分卷的最大字节数
+         * @return 当前构建器
+         */
+        public SevenZWriteBuilder splitSize(long size) {
+            this.splitSize = size;
+            return this;
         }
 
         /**
@@ -320,6 +334,17 @@ public class SevenZFileSystem implements FileSystem {
                 file.getParentFile().mkdirs();
             }
 
+            if (splitSize > 0) {
+                finishSplit();
+            } else {
+                finishNormal();
+            }
+        }
+
+        /**
+         * 普通模式完成写入。
+         */
+        private void finishNormal() {
             try (SevenZOutputFile szOut = createOutputFile()) {
                 for (EntryData ed : entries) {
                     SevenZArchiveEntry entry = new SevenZArchiveEntry();
@@ -342,6 +367,155 @@ public class SevenZFileSystem implements FileSystem {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+        }
+
+        /**
+         * 分卷模式完成写入。
+         * <p>先写入临时文件，然后根据 splitSize 分割成多个分卷文件。</p>
+         */
+        private void finishSplit() {
+            File tempFile = null;
+            try {
+                tempFile = File.createTempFile("7z-split-", ".7z", file.getParentFile());
+                try (SevenZOutputFile szOut = createOutputFile(tempFile)) {
+                    for (EntryData ed : entries) {
+                        SevenZArchiveEntry entry = new SevenZArchiveEntry();
+                        entry.setName(ed.getEntryName());
+                        if (ed.getBytes() != null) {
+                            entry.setSize(ed.getBytes().length);
+                        }
+                        szOut.putArchiveEntry(entry);
+
+                        if (ed.getSource() != null) {
+                            writeFile(szOut, ed.getSource());
+                        } else if (ed.getInputStream() != null) {
+                            writeStream(szOut, ed.getInputStream());
+                        } else if (ed.getBytes() != null) {
+                            szOut.write(ed.getBytes());
+                        }
+
+                        szOut.closeArchiveEntry();
+                    }
+                }
+
+                splitFile(tempFile, file, splitSize);
+
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } finally {
+                if (tempFile != null && tempFile.exists()) {
+                    tempFile.delete();
+                }
+            }
+        }
+
+        /**
+         * 将文件分割成多个分卷。
+         *
+         * @param sourceFile 源文件
+         * @param outputFile 输出文件名
+         * @param maxSize    每个分卷的最大字节数
+         * @throws IOException IO 异常
+         */
+        private void splitFile(File sourceFile, File outputFile, long maxSize) throws IOException {
+            String baseName = outputFile.getName();
+            String baseNameWithoutExt = baseName;
+            int lastDot = baseName.lastIndexOf('.');
+            if (lastDot > 0) {
+                baseNameWithoutExt = baseName.substring(0, lastDot);
+            }
+
+            long fileLength = sourceFile.length();
+            if (fileLength <= maxSize) {
+                copyFile(sourceFile, outputFile);
+                return;
+            }
+
+            try (FileInputStream fis = new FileInputStream(sourceFile)) {
+                byte[] buffer = new byte[8192];
+                int partNumber = 1;
+                long bytesWrittenInPart = 0;
+                long totalBytesRead = 0;
+                FileOutputStream currentFos = null;
+
+                try {
+                    int bytesRead;
+                    while ((bytesRead = fis.read(buffer)) != -1) {
+                        if (currentFos == null || bytesWrittenInPart >= maxSize) {
+                            if (currentFos != null) {
+                                currentFos.close();
+                                currentFos = null;
+                            }
+
+                            long bytesRemaining = fileLength - totalBytesRead;
+                            boolean isLastPart = bytesRemaining <= maxSize;
+
+                            File partFile;
+                            if (isLastPart) {
+                                partFile = outputFile;
+                            } else {
+                                String partExtension = String.format(".%03d", partNumber);
+                                partFile = new File(outputFile.getParent(),
+                                        baseNameWithoutExt + partExtension);
+                            }
+                            currentFos = new FileOutputStream(partFile);
+                            bytesWrittenInPart = 0;
+                        }
+
+                        currentFos.write(buffer, 0, bytesRead);
+                        bytesWrittenInPart += bytesRead;
+                        totalBytesRead += bytesRead;
+                    }
+                } finally {
+                    if (currentFos != null) {
+                        currentFos.close();
+                    }
+                }
+            }
+        }
+
+        /**
+         * 复制文件。
+         *
+         * @param source 源文件
+         * @param target 目标文件
+         * @throws IOException IO 异常
+         */
+        private void copyFile(File source, File target) throws IOException {
+            try (FileInputStream fis = new FileInputStream(source);
+                 FileOutputStream fos = new FileOutputStream(target)) {
+                byte[] buffer = new byte[8192];
+                int len;
+                while ((len = fis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+            }
+        }
+
+        /**
+         * 根据配置的压缩方法和级别创建 SevenZOutputFile。
+         */
+        private SevenZOutputFile createOutputFile() throws IOException {
+            return createOutputFile(file);
+        }
+
+        /**
+         * 根据配置的压缩方法和级别创建 SevenZOutputFile。
+         *
+         * @param outputFile 输出文件
+         * @return SevenZOutputFile 实例
+         * @throws IOException IO 异常
+         */
+        private SevenZOutputFile createOutputFile(File outputFile) throws IOException {
+            SevenZOutputFile szOut = new SevenZOutputFile(outputFile);
+            if (compressionMethod != null) {
+                szOut.setContentMethods(
+                        Collections.singletonList(
+                                compressionLevel >= 0
+                                        ? new SevenZMethodConfiguration(compressionMethod, compressionLevel)
+                                        : new SevenZMethodConfiguration(compressionMethod)));
+            }
+            return szOut;
         }
 
         /**

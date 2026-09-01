@@ -9,6 +9,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
@@ -28,6 +29,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult> {
 
     /**
@@ -113,7 +115,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         this.loaded = true;
-        System.out.println("[Yolo5PlateRec] ONNX loaded: " + modelPath.getFileName());
+        log.info("[Yolo5PlateRec] ONNX loaded: {}", modelPath.getFileName());
     }
 
     @Override

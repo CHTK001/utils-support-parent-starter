@@ -1,25 +1,21 @@
 package com.chua.deeplearning.support.onnx.florence2;
-
 import com.chua.deeplearning.support.image.UnderstandTask;
 import com.chua.deeplearning.support.image.UnderstandResult;
-import com.chua.deeplearning.support.onnx.VirtualClient;
+import com.chua.deeplearning.support.onnx.OnnxVirtualClient;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.imageio.ImageIO;
-
 public class Florence2EndToEndTest {
     public static void main(String[] args) throws Exception {
         Path testImage = Path.of(System.getProperty("java.io.tmpdir"), "florence2_test.png");
         byte[] imageData = generateTestImage();
         Files.write(testImage, imageData);
         System.out.println("Test image: " + testImage + " (" + imageData.length + " bytes)");
-
-        var client = VirtualClient.create();
-        UnderstandTask[] tasks = {UnderstandTask.CAPTION, UnderstandTask.OCR};
-        for (UnderstandTask task : tasks) {
+        var client = OnnxVirtualClient.create();
+        for (UnderstandTask task : new UnderstandTask[]{UnderstandTask.CAPTION, UnderstandTask.OCR}) {
             System.out.println("\n--- Task: " + task + " ---");
             long t0 = System.currentTimeMillis();
             try {
@@ -27,13 +23,10 @@ public class Florence2EndToEndTest {
                 long elapsed = System.currentTimeMillis() - t0;
                 System.out.println("Result: " + result.getText());
                 System.out.println("Time: " + elapsed + " ms");
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getMessage());
-            }
+            } catch (Exception e) { System.out.println("ERROR: " + e.getMessage()); }
         }
         System.out.println("\n=== Test Complete ===");
     }
-
     private static byte[] generateTestImage() throws Exception {
         BufferedImage img = new BufferedImage(400, 300, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = img.createGraphics();

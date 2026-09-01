@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.*;\nimport java.util.concurrent.atomic.AtomicLong;\nimport reactor.core.Disposable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -115,14 +115,22 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     /**
      * 变更事件响应式流。
-     * 新订阅者先收到历史快照，然后持续接收新事件。
+     * 新订阅者先收到历史快照（最多 MAX_REPLAY 条），然后持续接收新事件。
      */
     public Flux<SqliteChangeEvent> changes() {
+        // 原子性地获取快照和基准计数，避免竞态
+        int baseline = allEvents.size();
         List<SqliteChangeEvent> snapshot = new ArrayList<>(allEvents);
+        Sinks.Many<SqliteChangeEvent> liveSink = Sinks.many().multicast().directBestEffort();
+        Disposable bridge = sink.asFlux().skip(baseline).subscribe(
+                liveSink::tryEmitNext,
+                err -> liveSink.tryEmitError(err),
+                () -> liveSink.tryEmitComplete()
+        );
         return Flux.concat(
                 Flux.fromIterable(snapshot),
-                sink.asFlux().skip(snapshot.size())
-        );
+                liveSink.asFlux()
+        ).doFinally(signalType -> bridge.dispose());
     }
 
     @Override
@@ -206,3 +214,5 @@ public final class SqliteHookConnection implements AutoCloseable {
         catch (NumberFormatException e) { return 0L; }
     }
 }
+
+
