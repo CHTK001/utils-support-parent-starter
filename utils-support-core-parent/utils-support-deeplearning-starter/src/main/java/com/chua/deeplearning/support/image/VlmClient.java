@@ -5,7 +5,7 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface VlmClient {
 
     static VlmClient create(String name) {
-        return ServiceProvider.of(VlmClient.class).create(name);
+        return ServiceProvider.of(VlmClient.class).getNewExtension(name);
     }
 
     VlmClient model(String model);

@@ -23,7 +23,7 @@ public class OnnxVlmClient implements VlmClient {
         try {
             ModelRegistry.Entry entry = ModelRegistry.get(modelName);
             if (entry == null) throw new IllegalStateException("Model not registered: " + modelName);
-            ITranslator<?, ?> t = (ITranslator<?, ?>) Class.forName(entry.translatorClassName()).getDeclaredConstructor().newInstance();
+            ITranslator<Object[], String> t = (ITranslator<Object[], String>) Class.forName(entry.translatorClassName()).getDeclaredConstructor().newInstance();
             String result = t.translate(new Object[]{imageData, task.prompt()});
             return new UnderstandResult(task, result);
         } catch (Exception e) {

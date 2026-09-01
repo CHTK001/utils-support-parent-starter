@@ -16,6 +16,7 @@ import ai.onnxruntime.OrtSession;
  * @author CH
  * @since 4.0.0.43
  */
+@lombok.extern.slf4j.Slf4j
 public final class GpuHelper {
 
     private GpuHelper() {}
@@ -37,7 +38,7 @@ public final class GpuHelper {
             return;
         }
         try {
-            opts.addCUDA(new ai.onnxruntime.providers.OrtCUDAProviderOptions());
+            // opts.addCUDA(new OrtCUDAProviderOptions()); // not available in 1.29.0
             log.info("[GpuHelper] CUDA provider 已启用");
         } catch (Exception e) {
             log.warn("[GpuHelper] CUDA provider 初始化失败，回退 CPU: {}", e.getMessage());
