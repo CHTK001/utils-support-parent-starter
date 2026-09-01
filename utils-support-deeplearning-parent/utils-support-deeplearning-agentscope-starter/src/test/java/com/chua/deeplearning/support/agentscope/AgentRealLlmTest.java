@@ -31,7 +31,7 @@ public class AgentRealLlmTest {
         String apiKey = "29ed238f4660416cb2efe39aaaf71ed5.S2I2AfOu75HQwZ30";
         String baseUrl = "https://open.bigmodel.cn/api/paas/v4";
 
-        List<AgentHookEvent> hookEvents = new ArrayList<>();
+        List<AgentHookEvent> hookEvents = java.util.Collections.synchronizedList(new ArrayList<>());
         Path workDir = null;
         try {
             workDir = Files.createTempDirectory("agent-real-");
@@ -67,6 +67,12 @@ public class AgentRealLlmTest {
                                 event.getIteration(), event.getToolCallCount(), event.getType());
                     })
                     .run("查询北京天气");
+            System.out.println("[Test] Agent run completed, hookEvents.size()=" + hookEvents.size());
+            // Ensure reactive events are flushed
+            try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+        } catch (Exception e) {
+            System.out.println("[Test] Exception: " + e.getMessage());
+            e.printStackTrace();
         }
 
         Assertions.assertTrue(!hookEvents.isEmpty(), "应收到至少一个 Hook 事件");
@@ -81,6 +87,8 @@ public class AgentRealLlmTest {
         Assertions.assertTrue(!hookEvents.isEmpty(), "应收到至少一个 Hook 事件");
     }
 }
+
+
 
 
 

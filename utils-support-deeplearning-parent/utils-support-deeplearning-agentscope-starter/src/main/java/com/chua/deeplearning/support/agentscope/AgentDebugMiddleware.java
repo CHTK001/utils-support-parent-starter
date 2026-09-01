@@ -48,20 +48,20 @@ public class AgentDebugMiddleware implements MiddlewareBase {
         totalInputTokens = 0;
         totalOutputTokens = 0;
         startTime = System.currentTimeMillis();
-        return next.apply(input).doOnNext(this::onEvent);
+        System.out.println("[Middleware] onAgent called"); System.out.println("[Middleware] onReasoning called"); System.out.println("[Middleware] onActing called"); return next.apply(input).doOnNext(this::onEvent);
     }
 
     @Override
     public Flux<AgentEvent> onReasoning(Agent agent, io.agentscope.core.middleware.ReasoningInput input,
                                          Function<io.agentscope.core.middleware.ReasoningInput, Flux<AgentEvent>> next) {
         iteration++;
-        return next.apply(input).doOnNext(this::onEvent);
+        System.out.println("[Middleware] onAgent called"); System.out.println("[Middleware] onReasoning called"); System.out.println("[Middleware] onActing called"); return next.apply(input).doOnNext(this::onEvent);
     }
 
     @Override
     public Flux<AgentEvent> onActing(Agent agent, io.agentscope.core.middleware.ActingInput input,
                                       Function<io.agentscope.core.middleware.ActingInput, Flux<AgentEvent>> next) {
-        return next.apply(input).doOnNext(this::onEvent);
+        System.out.println("[Middleware] onAgent called"); System.out.println("[Middleware] onReasoning called"); System.out.println("[Middleware] onActing called"); return next.apply(input).doOnNext(this::onEvent);
     }
 
     private void onEvent(AgentEvent event) {
@@ -127,4 +127,5 @@ public class AgentDebugMiddleware implements MiddlewareBase {
 
     private static long safeLong(int v) { return v < 0 ? 0L : (long) v; }
 }
+
 

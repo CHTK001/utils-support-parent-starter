@@ -4,15 +4,16 @@ import com.chua.deeplearning.support.image.ImageUnderstander;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ONNX 图像理解门面（基于 Florence-2 等多模态模型）。
+ * 本地多模态理解客户端（基于 ONNX Runtime，如 Florence-2）。
  *
- * <p>实现 {@link ImageUnderstander} 接口，支持图像描述、OCR、物体检测等任务。</p>
+ * <p>实现 {@link ImageUnderstander} 接口，支持图像描述、OCR、物体检测等任务。
+ * 模型本地运行，无需云端 API。</p>
  *
  * <pre>{@code
- * String caption = OnnxImageUnderstander.create()
+ * String caption = VirtualClient.create()
  *     .understand(imageBytes, "<CAPTION>");
  *
- * String ocr = OnnxImageUnderstander.create()
+ * String ocr = VirtualClient.create()
  *     .understand(imageBytes, "<OCR>");
  * }</pre>
  *
@@ -20,13 +21,13 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
-public class OnnxImageUnderstander implements ImageUnderstander {
+public class VirtualClient implements ImageUnderstander {
 
     private String modelName = "florence2";
 
     /** 创建默认实例 */
-    public static OnnxImageUnderstander create() {
-        return new OnnxImageUnderstander();
+    public static VirtualClient create() {
+        return new VirtualClient();
     }
 
     @Override
@@ -47,7 +48,7 @@ public class OnnxImageUnderstander implements ImageUnderstander {
             var t = (com.chua.deeplearning.support.translator.ITranslator<Object[], String>) translator;
             return t.translate(new Object[]{imageData, taskPrompt});
         } catch (Exception e) {
-            log.error("[OnnxImageUnderstander] 推理失败: {}", e.getMessage(), e);
+            log.error("[VirtualClient] 推理失败: {}", e.getMessage(), e);
             throw new RuntimeException("图像理解失败: " + e.getMessage(), e);
         }
     }
