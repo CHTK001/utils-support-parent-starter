@@ -36,7 +36,7 @@ import java.util.UUID;
 public class ZipformerZhAudioClient implements AudioClient {
 
     private static final String HF_BASE =
-            "https://hf-mirror.com/csukuangfj/sherpa-onnx-streaming-zipformer-zh-14M/resolve/main/";
+            "https://huggingface.co/chtk/sherpa-onnx-zipformer-zh-14M/resolve/main/";
 
     private static final String[] MODEL_FILES = {
             "encoder-epoch-99-avg-1.onnx",
