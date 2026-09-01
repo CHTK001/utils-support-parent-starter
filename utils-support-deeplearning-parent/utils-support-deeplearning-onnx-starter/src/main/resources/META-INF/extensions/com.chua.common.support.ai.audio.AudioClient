@@ -14,3 +14,5 @@ zipformer-zh-en=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudi
 zipformer-streaming=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerAudioClient
 zipformer-en=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerEnAudioClient
 zipformer-en-offline=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerEnAudioClient
+zipformer-zh=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerZhAudioClient
+zipformer-zh-streaming=com.chua.deeplearning.support.onnx.audio.zipformer.ZipformerZhAudioClient
