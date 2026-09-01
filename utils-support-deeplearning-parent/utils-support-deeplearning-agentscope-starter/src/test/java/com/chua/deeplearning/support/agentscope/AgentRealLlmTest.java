@@ -28,8 +28,8 @@ public class AgentRealLlmTest {
 
     @Test
     public void testAgentRealLlm_toolCalling() {
-        String apiKey = "sk-CaAjBgv7OAHMTzBKW5fYxfJaUa1Aq3xPE5Oj9UEUPGJPFjAg";
-        String baseUrl = "https://apihub.agnes-ai.cn/v1";
+        String apiKey = "29ed238f4660416cb2efe39aaaf71ed5.S2I2AfOu75HQwZ30";
+        String baseUrl = "https://open.bigmodel.cn/api/paas/v4";
 
         List<AgentHookEvent> hookEvents = new ArrayList<>();
         Path workDir = null;
@@ -41,7 +41,7 @@ public class AgentRealLlmTest {
         }
 
         try (Agent agent = Agent.create("agentscope")) {
-            agent.chatClient(ChatClient.create("openai", apiKey, baseUrl).model("agnes-2.5-flash"))
+            agent.chatClient(ChatClient.create("openai", apiKey, baseUrl).model("glm-4"))
                     .debug(true)
                     .maxToolIterations(3)
                     .mode(AgentMode.SINGLE)
@@ -68,7 +68,7 @@ public class AgentRealLlmTest {
                     .run("查询北京天气");
         }
 
-        Assertions.assertFalse(hookEvents.isEmpty(), "应收到至少一个 Hook 事件");
+        Assertions.assertTrue(!hookEvents.isEmpty(), "应收到至少一个 Hook 事件");
         
         // 验证有 tool call 发生
         long toolCallEvents = hookEvents.stream()
@@ -77,7 +77,10 @@ public class AgentRealLlmTest {
         System.out.println("[SUMMARY] totalEvents=" + hookEvents.size() + " toolCallEvents=" + toolCallEvents);
         
         // 验证 skill 被调用（通过输出判断）
-        Assertions.assertFalse(hookEvents.isEmpty(), "应收到至少一个 Hook 事件");
+        Assertions.assertTrue(!hookEvents.isEmpty(), "应收到至少一个 Hook 事件");
     }
 }
+
+
+
 

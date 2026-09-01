@@ -14,10 +14,8 @@ public final class SqliteHookConnection implements AutoCloseable {
     private static volatile SymbolLookup SYM_LOOKUP;
 
     private static volatile MethodHandle HOOK_OPEN_HANDLE;
-    private static volatile MethodHandle HOOK_WAIT_HANDLE;
     private static volatile MethodHandle HOOK_POLL_HANDLE;
     private static volatile MethodHandle HOOK_EXEC_HANDLE;
-    private static volatile MethodHandle HOOK_FREE_HANDLE;
     private static volatile MethodHandle HOOK_CLOSE_HANDLE;
     private static volatile boolean LIBRARY_RESOLVED = false;
     private static volatile boolean LIBRARY_OK = false;
@@ -55,19 +53,15 @@ public final class SqliteHookConnection implements AutoCloseable {
             if (LIBRARY_RESOLVED) return LIBRARY_OK;
             try {
                 System.err.println("[sqlite-hook] Loading sqlite3_hook library...");
-                System.err.println("[sqlite-hook]   temp dir: " + System.getProperty("java.io.tmpdir"));
-                System.err.println("[sqlite-hook]   loaded paths: " + NativeUtils.getLoadedPaths());
                 NativeUtils.load("sqlite3_hook", null);
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
 
                 HOOK_OPEN_HANDLE  = bind("hook_open",   FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-                HOOK_WAIT_HANDLE  = bind("hook_wait",   FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-                HOOK_POLL_HANDLE  = bind("hook_poll",   FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
+                HOOK_POLL_HANDLE  = bind("hook_poll",   FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
                 HOOK_EXEC_HANDLE  = bind("hook_exec",   FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-                HOOK_FREE_HANDLE  = bind("hook_free",   FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
                 HOOK_CLOSE_HANDLE = bind("hook_close",  FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
 
-                System.err.println("[sqlite-hook] Library loaded. Symbols: open=" + HOOK_OPEN_HANDLE + " exec=" + HOOK_EXEC_HANDLE + " poll=" + HOOK_POLL_HANDLE);
+                System.err.println("[sqlite-hook] Library loaded. Symbols: open=" + HOOK_OPEN_HANDLE + " poll=" + HOOK_POLL_HANDLE + " exec=" + HOOK_EXEC_HANDLE);
                 LIBRARY_OK = true;
                 LIBRARY_RESOLVED = true;
                 return true;
@@ -119,12 +113,14 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     private void drainBufferSync() {
         int polled = 0;
+        MemorySegment bufSeg = null;
         try (var arena = Arena.ofConfined()) {
+            bufSeg = arena.allocateArray(ValueLayout.JAVA_BYTE, 512L);
             while (true) {
-                MemorySegment jsonSeg = (MemorySegment) HOOK_POLL_HANDLE.invoke(handle);
-                System.err.println("[sqlite-hook] hook_poll returned: " + jsonSeg);
-                if (jsonSeg == null || jsonSeg.equals(MemorySegment.NULL)) break;
-                String json = jsonSeg.getString(0, StandardCharsets.UTF_8);
+                int len = (int) HOOK_POLL_HANDLE.invoke(handle, bufSeg, (long)512);
+                System.err.println("[sqlite-hook] hook_poll returned len=" + len);
+                if (len <= 0) break;
+                String json = bufSeg.getString(0, StandardCharsets.UTF_8);
                 System.err.println("[sqlite-hook] poll event JSON: " + json);
                 SqliteChangeEvent event = parseEvent(json);
                 if (event != null) {
@@ -133,7 +129,6 @@ public final class SqliteHookConnection implements AutoCloseable {
                 } else {
                     System.err.println("[sqlite-hook] parse failed: " + json);
                 }
-                try { HOOK_FREE_HANDLE.invoke(jsonSeg); } catch (Throwable ignored) {}
                 polled++;
             }
         } catch (Throwable e) {

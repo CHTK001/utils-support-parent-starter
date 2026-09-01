@@ -463,6 +463,50 @@
     "metadata" : { },
     "timestamp" : "2026-09-01 14:09:32.598",
     "usage" : null
+  }, {
+    "id" : "7deec453-a95e-472b-a864-fe93f406e5c8",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 14:22:01.770",
+    "usage" : null
+  }, {
+    "id" : "3fdeb551-2b3d-4048-bed6-540f1010258c",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 14:23:10.011",
+    "usage" : null
+  }, {
+    "id" : "6c3e09e7-341b-400d-9498-79f7f551c531",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 14:29:59.309",
+    "usage" : null
+  }, {
+    "id" : "8f1fe061-18f5-4e70-abd3-1c6f488d684a",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 14:31:13.167",
+    "usage" : null
   } ],
   "reply_id" : "141e312c2a0f4f2eb0d63ba84ee3ce17",
   "cur_iter" : 0,
