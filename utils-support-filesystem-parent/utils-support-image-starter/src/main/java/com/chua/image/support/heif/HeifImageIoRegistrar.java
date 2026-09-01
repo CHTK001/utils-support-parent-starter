@@ -16,9 +16,9 @@ public final class HeifImageIoRegistrar {
     public static void register() {
         try {
             HeifLibraryLoader.load();
-            System.out.println("[HeifImageIo] SPI registered, native=" + HeifLibraryLoader.isLoaded());
+            log.info("[HeifImageIo] SPI registered, native={}", HeifLibraryLoader.isLoaded());
         } catch (Throwable e) {
-            System.out.println("[HeifImageIo] native not available: " + e.getMessage());
+            log.warn("[HeifImageIo] native not available: {}", e.getMessage());
         }
     }
 
