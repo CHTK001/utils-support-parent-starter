@@ -61,6 +61,7 @@ public class AgentRealLlmTest {
                         return SkillResult.success(result);
                     })
                     .debugHook(event -> {
+                        System.out.println("[TestHook] type=" + event.getType() + " iteration=" + event.getIteration());
                         hookEvents.add(event);
                         System.out.printf("[HOOK] iteration=%s toolCalls=%s type=%s%n",
                                 event.getIteration(), event.getToolCallCount(), event.getType());
@@ -80,6 +81,7 @@ public class AgentRealLlmTest {
         Assertions.assertTrue(!hookEvents.isEmpty(), "应收到至少一个 Hook 事件");
     }
 }
+
 
 
 
