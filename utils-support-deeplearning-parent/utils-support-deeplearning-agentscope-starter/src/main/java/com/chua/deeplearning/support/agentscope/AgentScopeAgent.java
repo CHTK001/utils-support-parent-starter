@@ -108,6 +108,9 @@ public class AgentScopeAgent implements Agent {
     /** MCP是否启用 */
     private boolean mcpEnabled = true;
 
+    /** 注册的技能列表（name → handler） */
+    private final Map<String, com.chua.common.support.ai.skill.SkillHandler> skills = new java.util.LinkedHashMap<>();
+
     /**
      * 每次 run 注册的 modelId 追踪，用于清理
      */
@@ -178,8 +181,10 @@ public class AgentScopeAgent implements Agent {
     }
 
     @Override
-    /** Skill */
     public Agent skill(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
+        if (name != null && handler != null) {
+            this.skills.put(name, handler);
+        }
         return this;
     }
 
@@ -543,6 +548,17 @@ public class AgentScopeAgent implements Agent {
             builder.enablePlanMode(true);
         }
 
+        // 注册技能为 Toolkit 工具
+        if (!skills.isEmpty()) {
+            io.agentscope.core.tool.Toolkit toolkit = new io.agentscope.core.tool.Toolkit();
+            for (Map.Entry<String, com.chua.common.support.ai.skill.SkillHandler> entry : skills.entrySet()) {
+                final String skillName = entry.getKey();
+                final com.chua.common.support.ai.skill.SkillHandler handler = entry.getValue();
+                toolkit.registerAgentTool(new SkillAgentTool(skillName, handler));
+            }
+            builder.tool(toolkit);
+        }
+
         if (effectiveDebugHook != null || effectivePlanHook != null || effectivePlanMaxTask > 0) {
             Hook hook = new AgentHookAdapter(
                     agentId, effectiveDebugHook, effectivePlanHook, effectivePlanMaxTask);
@@ -689,5 +705,54 @@ public class AgentScopeAgent implements Agent {
         log.info("[Agent] compression: {}, plan: {}, mcp: {}",
                 compressionConfig != null && compressionConfig.isEnabled() ? "ON" : "OFF",
                 planEnabled, mcpEnabled);
+    }
+
+    /**
+     * 将 SkillHandler 桥接为 AgentScope AgentTool。
+     */
+    private static class SkillAgentTool implements io.agentscope.core.tool.AgentTool {
+
+        private final String name;
+        private final com.chua.common.support.ai.skill.SkillHandler handler;
+
+        SkillAgentTool(String name, com.chua.common.support.ai.skill.SkillHandler handler) {
+            this.name = name;
+            this.handler = handler;
+        }
+
+        @Override
+        public String getName() { return name; }
+
+        @Override
+        public String getDescription() { return "Skill: " + name; }
+
+        @Override
+        public java.util.Map<String, Object> getParameters() {
+            return Map.of("type", "object", "properties", Map.of(), "required", List.of());
+        }
+
+        @Override
+        public reactor.core.publisher.Mono<io.agentscope.core.message.ToolResultBlock> callAsync(
+                io.agentscope.core.tool.ToolCallParam param) {
+            try {
+                Map<String, Object> input = param.getInput() != null
+                        ? new HashMap<>(param.getInput()) : Map.of();
+                com.chua.common.support.ai.skill.SkillResult result = handler.handle(input);
+                String text = result.isSuccess()
+                        ? String.valueOf(result.getContent())
+                        : "ERROR: " + result.getErrorMessage();
+                return reactor.core.publisher.Mono.just(
+                        io.agentscope.core.message.ToolResultBlock.builder()
+                                .toolUseId(param.getToolUse().getId())
+                                .content(text)
+                                .build());
+            } catch (Exception e) {
+                return reactor.core.publisher.Mono.just(
+                        io.agentscope.core.message.ToolResultBlock.builder()
+                                .toolUseId(param.getToolUse().getId())
+                                .content("ERROR: " + e.getMessage())
+                                .build());
+            }
+        }
     }
 }
