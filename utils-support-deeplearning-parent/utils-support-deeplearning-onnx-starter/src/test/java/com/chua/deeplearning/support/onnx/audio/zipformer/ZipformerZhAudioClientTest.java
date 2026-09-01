@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ public class ZipformerZhAudioClientTest {
     public void should_transcribe_real_chinese_speech() throws Exception {
         Path wav = extractResource(TEST_WAV_RESOURCE);
         try {
-            AudioClient client = AudioClient.create("zipformer-zh", "");
+            VirtualClient client = VirtualClient.create("zipformer-zh", "");
             String text = client.transcribe(wav);
             assertNotNull(text, "transcribe must not return null");
             System.out.println("[ZipformerZh E2E] text=\"" + text + "\"");
@@ -40,7 +40,7 @@ public class ZipformerZhAudioClientTest {
     @Test
     @DisplayName("Zipformer-zh SPI 解析验证")
     public void should_resolve_zipformer_zh_spi() {
-        AudioClient client = AudioClient.create("zipformer-zh", "");
+        VirtualClient client = VirtualClient.create("zipformer-zh", "");
         assertNotNull(client, "zipformer-zh SPI must resolve");
         System.out.println("[ZipformerZh SPI] resolved: " + client.getClass().getSimpleName());
     }
@@ -60,4 +60,5 @@ public class ZipformerZhAudioClientTest {
         }
     }
 }
+
 

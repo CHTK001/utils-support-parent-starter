@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.sensevoice;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ public class SenseVoiceRichResultTest {
     @DisplayName("SenseVoice queryTask 返回 emotion + language + events")
     public void should_populate_rich_fields() throws Exception {
         Path wav = makeSineWav(1.0D, 440.0D);
-        try (AudioClient client = AudioClient.create("sensevoice-small", "")) {
+        try (VirtualClient client = VirtualClient.create("sensevoice-small", "")) {
             client.audio(wav);
             String taskId = client.createTask(null);
             assertNotNull(taskId);
@@ -76,3 +76,4 @@ public class SenseVoiceRichResultTest {
         return tmp;
     }
 }
+

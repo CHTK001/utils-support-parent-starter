@@ -1,4 +1,4 @@
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.TextToAudioClient;
 import com.chua.deeplearning.support.onnx.audio.AsrPipeline;
 import com.chua.deeplearning.support.onnx.audio.VoiceprintPipeline;
@@ -131,3 +131,4 @@ public final class AudioFullTest {
                 String.valueOf(pass) + "/" + total);
     }
 }
+

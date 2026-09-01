@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.safetensors;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.spi.annotations.Spi;
@@ -12,7 +12,7 @@ import java.util.List;
  * SafeTensor 本地语音识别（ASR）客户端（HTTP 网关）。
  * <p>
  * 通过本地 SafeTensorService（localhost:8765）调度 ASR 模型（whisper、paraformer 等），
- * 统一以 {@link AudioClient} 对外提供语音转写能力。
+ * 统一以 {@link VirtualClient} 对外提供语音转写能力。
  * </p>
  *
  * @author CH
@@ -36,3 +36,4 @@ public class SafeTensorAudioClient extends AbstractLocalAudioClient {
         return SafeTensorModels.ofType("asr");
     }
 }
+

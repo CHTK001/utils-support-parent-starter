@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.deeplearning.support.onnx.audio.AudioUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Zipformer-zh 流式转录门面测试。
  *
- * <p>验证 {@code AudioClient} 流式 API（feedAudio/getResult/complete）
+ * <p>验证 {@code VirtualClient} 流式 API（feedAudio/getResult/complete）
  * 在真实中文语音上的表现。</p>
  */
 public class ZipformerZhStreamingFacadeTest {
@@ -29,7 +29,7 @@ public class ZipformerZhStreamingFacadeTest {
         Path wav = extractResource(TEST_WAV_RESOURCE);
         try {
             float[] samples = AudioUtils.loadMono16k(wav);
-            AudioClient client = AudioClient.create("zipformer-zh", "");
+            VirtualClient client = VirtualClient.create("zipformer-zh", "");
             // 一次性喂入全部样本，不中间调 getResult
             int chunkSize = 2560;
             for (int offset = 0; offset < samples.length; offset += chunkSize) {
@@ -65,3 +65,4 @@ public class ZipformerZhStreamingFacadeTest {
         }
     }
 }
+

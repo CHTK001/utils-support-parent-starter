@@ -16,7 +16,7 @@ import java.util.List;
  *
  * <p>同步转写示例：
  * <pre>{@code
- *   String text = AudioClient.create("whisper", "sk-xxx")
+ *   String text = VirtualClient.create("whisper", "sk-xxx")
  *       .model("whisper-1")
  *       .language("zh")
  *       .transcribe(Path.of("audio.wav"));
@@ -24,7 +24,7 @@ import java.util.List;
  *
  * <p>异步任务示例：
  * <pre>{@code
- *   String taskId = AudioClient.create("alibaba-asr", "sk-xxx")
+ *   String taskId = VirtualClient.create("alibaba-asr", "sk-xxx")
  *       .model("paraformer-v2")
  *       .createTask(Path.of("audio.wav"));
  *
@@ -38,17 +38,17 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClient> {
+public interface VirtualClient extends AutoCloseable, PooledObjectClient<VirtualClient> {
 
     /**
      * 创建指定 provider 的语音识别客户端
      *
      * @param provider AI 服务商名称，如 "openai"、"whisper"、"alibaba-asr" 等
      * @param apiKey   API 密钥
-     * @return AudioClient 实例
+     * @return VirtualClient 实例
      */
-    static AudioClient create(String provider, String apiKey) {
-        return ServiceProvider.of(AudioClient.class)
+    static VirtualClient create(String provider, String apiKey) {
+        return ServiceProvider.of(VirtualClient.class)
                 .getNewExtension(provider, AudioClientSetting.builder()
                         .provider(provider).appKey(apiKey).build());
     }
@@ -57,10 +57,10 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * 通过完整配置创建语音识别客户端
      *
      * @param setting 客户端配置，包含 provider、apiKey、baseUrl、model 等
-     * @return AudioClient 实例
+     * @return VirtualClient 实例
      */
-    static AudioClient create(AudioClientSetting setting) {
-        return ServiceProvider.of(AudioClient.class)
+    static VirtualClient create(AudioClientSetting setting) {
+        return ServiceProvider.of(VirtualClient.class)
                 .getNewExtension(setting.getProvider(), setting);
     }
 
@@ -70,10 +70,10 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param provider AI 服务商名称
      * @param apiKey   API 密钥
      * @param baseUrl  自定义 API 基地址
-     * @return AudioClient 实例
+     * @return VirtualClient 实例
      */
-    static AudioClient create(String provider, String apiKey, String baseUrl) {
-        return ServiceProvider.of(AudioClient.class)
+    static VirtualClient create(String provider, String apiKey, String baseUrl) {
+        return ServiceProvider.of(VirtualClient.class)
                 .getNewExtension(provider, AudioClientSetting.builder()
                         .provider(provider).appKey(apiKey).baseUrl(baseUrl).build());
     }
@@ -84,7 +84,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param provider 服务商名称
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient provider(String provider) {
+    default VirtualClient provider(String provider) {
         return this;
     }
 
@@ -94,7 +94,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param model 模型名称，如 "whisper-1"、"whisper-tiny"、"paraformer-v2" 等
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient model(String model) {
+    default VirtualClient model(String model) {
         return this;
     }
 
@@ -108,7 +108,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param language 语言代码
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient language(String language) {
+    default VirtualClient language(String language) {
         return this;
     }
 
@@ -121,7 +121,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param sampleRate 采样率（Hz）
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient sampleRate(Integer sampleRate) {
+    default VirtualClient sampleRate(Integer sampleRate) {
         return this;
     }
 
@@ -134,7 +134,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param format 音频格式
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient format(String format) {
+    default VirtualClient format(String format) {
         return this;
     }
 
@@ -147,7 +147,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param prompt 提示词
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient prompt(String prompt) {
+    default VirtualClient prompt(String prompt) {
         return this;
     }
 
@@ -160,7 +160,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param temperature 温度
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient temperature(Double temperature) {
+    default VirtualClient temperature(Double temperature) {
         return this;
     }
 
@@ -170,7 +170,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param seed 随机种子
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient seed(Long seed) {
+    default VirtualClient seed(Long seed) {
         return this;
     }
 
@@ -183,7 +183,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param audio 音频字节
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient audio(byte[] audio) {
+    default VirtualClient audio(byte[] audio) {
         return this;
     }
 
@@ -193,7 +193,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param input 音频输入流
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient audio(InputStream input) {
+    default VirtualClient audio(InputStream input) {
         return this;
     }
 
@@ -203,7 +203,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param path 音频文件路径
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient audio(Path path) {
+    default VirtualClient audio(Path path) {
         return this;
     }
 
@@ -216,7 +216,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * @param speakers 说话人数
      * @return 当前客户端实例，支持链式调用
      */
-    default AudioClient speakers(Integer speakers) {
+    default VirtualClient speakers(Integer speakers) {
         return this;
     }
 
@@ -248,7 +248,7 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
      * 不支持流式的客户端直接委托给 {@link #transcribe()}。
      *
      * <pre>{@code
-     *   AudioClient client = AudioClient.create("zipformer-zh", "");
+     *   VirtualClient client = VirtualClient.create("zipformer-zh", "");
      *   // 从麦克风逐片读入 16kHz float samples（每片约 2560 samples = 160ms）
      *   StringBuilder sb = new StringBuilder();
      *   while (hasMore) {
