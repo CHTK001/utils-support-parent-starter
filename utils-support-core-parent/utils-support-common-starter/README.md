@@ -993,12 +993,38 @@ KeyValue<String, Integer> kv = new KeyValue<>("name", 123);
 
 提供统一的文件系统抽象，支持本地文件、压缩包、远程文件等多种来源，支持流式检索、打包解包、链式过滤等操作。
 
+### 支持的文件系统类型
+
+| SPI Key | 实现类 | 模块 | 特性 |
+|---------|--------|------|------|
+| `csv` | CsvFileSystem | common-starter | CSV 文件读写 |
+| `json` | JsonFileSystem | common-starter | JSON 文件读写 |
+| `xml` | XmlFileSystem | common-starter | XML 文件读写 |
+| `txt` | TxtFileSystem | common-starter | 文本文件读写 |
+| `zip` | ZipFileSystem | common-starter | ZIP 压缩（含分卷） |
+| `archive` | ZipFileSystem | common-starter | ZIP 压缩（别名） |
+| `tar` | TarFileSystem | common-starter | TAR 归档（含分卷） |
+| `zip4j` | Zip4jFileSystem | filesystem-starter | ZIP4J（密码+分卷） |
+| `7z` | SevenZFileSystem | filesystem-starter | 7Z 压缩 |
+| `yaml` | YamlFileSystem | filesystem-starter | YAML 文件读写 |
+
+### 分卷压缩支持
+
+以下文件系统实现支持分卷压缩功能：
+
+| 实现类 | 写入分卷 | 读取分卷 | 分卷命名格式 |
+|--------|----------|----------|-------------|
+| ZipFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.z01`, `.z02`, ... `.zip` |
+| Zip4jFileSystem | ✅ `splitSize(long)` | ✅ 原生支持 | `.z01`, `.z02`, ... `.zip` |
+| TarFileSystem | ✅ `splitSize(long)` | ✅ `split()` | `.tar.gz.01`, `.tar.gz.02`, ... `.tar.gz` |
+
 ### 适用场景
 
 - 文件批量处理
 - 压缩包操作
 - 文件搜索与过滤
 - 跨文件系统操作
+- 大文件分卷压缩传输
 
 ### 使用示例
 
