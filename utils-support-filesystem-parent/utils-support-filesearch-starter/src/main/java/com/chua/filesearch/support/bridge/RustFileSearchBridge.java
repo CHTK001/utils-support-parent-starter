@@ -2,7 +2,6 @@ package com.chua.filesearch.support.bridge;
 
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.common.support.utils.NativeUtils;
-import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,20 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@Slf4j
 public final class RustFileSearchBridge {
 
     private static volatile boolean loaded = false;
-    private static final Object LOAD_LOCK = new Object();
+    private static final Object LOCK = new Object();
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public record FileResultData(String path, long size, long lastModified,
-                                 boolean isDirectory, String extension, int attributes,
-                                 long usnRecordId, long parentFileId, long allocatedSize) {}
+    public record FileResultData(
+            String path, long size, long lastModified, boolean isDirectory,
+            String extension, int attributes, long usnRecordId,
+            long parentFileId, long allocatedSize) {}
 
     public static synchronized void loadLibrary() {
         if (loaded) return;
-        synchronized (LOAD_LOCK) {
+        synchronized (LOCK) {
             if (loaded) return;
             try {
                 NativeLoader.of("file-search")
@@ -31,9 +30,9 @@ public final class RustFileSearchBridge {
                         .glob("*file_search*")
                         .load();
                 loaded = true;
-                log.info("Rust file search native library loaded.");
+                System.out.println("[filesearch] native library loaded");
             } catch (Throwable e) {
-                log.error("Failed to load Rust file search: {}", e.getMessage());
+                System.err.println("[filesearch] load failed: " + e.getMessage());
                 loaded = false;
             }
         }
@@ -41,47 +40,52 @@ public final class RustFileSearchBridge {
 
     public static boolean isLoaded() { return loaded; }
 
-    // ===== 新 JNI API：返回 JSON 字符串 =====
-    private static native String _searchByName(String rootPath, String namePattern, int maxResults);
-    private static native String _getTree(String rootPath, int maxDepth, int maxResults);
-    private static native String _getVersion();
-    private static native void _cancel();
+    // ===== JNI native ???????? Rust DLL ???????=====
+    // Rust: fn searchByName -> c_int   (returns count of matched files)
+    private static native int _jni_searchByName(String root, String pattern, int max, Consumer<FileResultData> cb);
+    private static native int _jni_getTree(String root, int depth, int max, Consumer<FileResultData> cb);
+    private static native String _jni_getVersion();
+    private static native void _jni_cancel();
+    // Direct JSON access (no callback)
+    private static native String _raw_searchByName(String root, String pattern, int max);
+    private static native String _raw_getTree(String root, int depth, int max);
 
-    // ===== 公共 API =====
+    // ===== ?? API =====
     public static String getVersion() {
         loadLibrary();
-        return _getVersion();
+        return _jni_getVersion();
     }
 
-    public static void cancel() { _cancel(); }
+    public static void cancel() { _jni_cancel(); }
 
     public static int searchByName(String rootPath, String namePattern, int maxResults,
                                     Consumer<FileResultData> callback) {
         loadLibrary();
-        String json = _searchByName(rootPath, namePattern, maxResults);
-        return applyResults(json, callback);
+        // Use JSON API for reliable results (callback would crash due to CString lifetime)
+        String json = _raw_searchByName(rootPath, namePattern, maxResults);
+        return applyJson(json, callback);
     }
 
     public static int getTree(String rootPath, int maxDepth, int maxResults,
                                Consumer<FileResultData> callback) {
         loadLibrary();
-        String json = _getTree(rootPath, maxDepth, maxResults);
-        return applyResults(json, callback);
+        String json = _raw_getTree(rootPath, maxDepth, maxResults);
+        return applyJson(json, callback);
     }
 
     public static int searchBySize(String rootPath, long minSize, long maxSize, int maxResults,
                                     Consumer<FileResultData> callback) {
         loadLibrary();
-        return -1; // not implemented
+        return -1;
     }
 
     public static int searchByPath(String rootDir, String pathPattern, int maxResults,
                                     Consumer<FileResultData> callback) {
         loadLibrary();
-        return -1; // not implemented
+        return -1;
     }
 
-    private static int applyResults(String json, Consumer<FileResultData> callback) {
+    private static int applyJson(String json, Consumer<FileResultData> callback) {
         if (json == null || json.isEmpty()) return -1;
         try {
             JsonNode root = MAPPER.readTree(json);
@@ -101,7 +105,7 @@ public final class RustFileSearchBridge {
             }
             return rc;
         } catch (Exception e) {
-            log.warn("Failed to parse filesearch result: {}", e.getMessage());
+            System.err.println("[filesearch] parse error: " + e.getMessage());
             return -1;
         }
     }

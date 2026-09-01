@@ -19,7 +19,7 @@ import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import io.agentscope.core.agent.RuntimeContext;
-import io.agentscope.core.hook.Hook;
+import io.agentscope.core.middleware.MiddlewareBase;
 import io.agentscope.core.message.Msg;
 import io.agentscope.core.message.MsgRole;
 import io.agentscope.core.message.TextBlock;
@@ -563,9 +563,9 @@ public class AgentScopeAgent implements Agent {
         }
 
         if (effectiveDebugHook != null || effectivePlanHook != null || effectivePlanMaxTask > 0) {
-            Hook hook = new AgentHookAdapter(
+            MiddlewareBase middleware = new AgentDebugMiddleware(
                     agentId, effectiveDebugHook, effectivePlanHook, effectivePlanMaxTask);
-            builder.hook(hook);
+            builder.middleware(middleware);
             if (effectivePlan && effectivePlanHook != null && effectivePlanMaxTask > 0) {
                 effectivePlanHook.onPlan(AgentHookEvent.builder()
                         .type("PLAN_CONFIG")
@@ -755,6 +755,7 @@ public class AgentScopeAgent implements Agent {
         }
     }
 }
+
 
 
 

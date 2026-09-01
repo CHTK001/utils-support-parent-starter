@@ -85,6 +85,53 @@ public class ZipformerZhAudioClient implements AudioClient {
         }
     }
 
+    // ==================== 流式转录门面实现 ====================
+
+    /** 流式转录状态是否已初始化（非 null 表示正在流式中） */
+    private boolean streamingActive = false;
+
+    @Override
+    public void feedAudio(float[] samples) {
+        if (samples == null || samples.length == 0) return;
+        ensurePrepared();
+        streamingActive = true;
+        try {
+            translator.feedAudioSamples(samples);
+        } catch (Exception e) {
+            streamingActive = false;
+            throw new RuntimeException("ZipformerZh feedAudio failed", e);
+        }
+    }
+
+    @Override
+    public String getResult() {
+        if (!streamingActive || translator == null) return null;
+        try {
+            return translator.getResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public String complete() {
+        if (!streamingActive) return transcribe();
+        streamingActive = false;
+        try {
+            return translator.complete();
+        } catch (Exception e) {
+            throw new RuntimeException("ZipformerZh complete failed", e);
+        }
+    }
+
+    @Override
+    public String streamingTranscribe(float[] samples) {
+        feedAudio(samples);
+        String result = getResult();
+        complete();
+        return result != null ? result : transcribe();
+    }
+
     @Override
     public String createTask(Path path) {
         return "zipformer-zh-" + UUID.randomUUID();
