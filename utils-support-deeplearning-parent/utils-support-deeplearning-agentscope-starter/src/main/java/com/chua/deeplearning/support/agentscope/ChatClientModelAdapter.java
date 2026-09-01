@@ -40,10 +40,35 @@ public class ChatClientModelAdapter implements Model {
 
     private final ChatClient chatClient;
     private final String modelName;
+    /** 复用 OpenAIClient 实例，避免每次调用新建连接 */
+    private volatile OpenAIClient openAiClient;
 
     public ChatClientModelAdapter(ChatClient chatClient, String modelName) {
         this.chatClient = chatClient;
         this.modelName = modelName != null ? modelName : "chat-client";
+    }
+
+    private OpenAIClient getOpenAiClient() {
+        if (openAiClient == null) {
+            synchronized (this) {
+                if (openAiClient == null) {
+                    String apiKey = chatClient.getApiKey();
+                    String baseUrl = chatClient.getBaseUrl();
+                    if (apiKey == null || apiKey.isBlank()) {
+                        apiKey = "";
+                    }
+                    if (baseUrl == null || baseUrl.isBlank()) {
+                        baseUrl = "https://api.openai.com/v1";
+                    }
+                    openAiClient = OpenAIOkHttpClient.builder()
+                            .apiKey(apiKey)
+                            .baseUrl(baseUrl)
+                            .timeout(Duration.ofSeconds(120))
+                            .build();
+                }
+            }
+        }
+        return openAiClient;
     }
 
     @Override
@@ -115,25 +140,10 @@ public class ChatClientModelAdapter implements Model {
     }
 
     private ChatResponse callWithTools(String prompt, List<ChatMessage> history, List<ToolSchema> tools, String systemPrompt) {
-        String apiKey = chatClient.getApiKey();
-        String baseUrl = chatClient.getBaseUrl();
         String modelId = chatClient.getModel();
-
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("无法获取 API Key，请确保 ChatClient 已正确配置");
-        }
-        if (baseUrl == null || baseUrl.isBlank()) {
-            baseUrl = "https://api.openai.com/v1";
-        }
         if (modelId == null || modelId.isBlank()) {
             modelId = "gpt-4o";
         }
-
-        OpenAIClient openAiClient = OpenAIOkHttpClient.builder()
-                .apiKey(apiKey)
-                .baseUrl(baseUrl)
-                .timeout(Duration.ofSeconds(120))
-                .build();
 
         ChatCompletionCreateParams.Builder paramsBuilder = ChatCompletionCreateParams.builder()
                 .model(modelId)
@@ -171,19 +181,15 @@ public class ChatClientModelAdapter implements Model {
         paramsBuilder.tools(toolDefs);
         paramsBuilder.toolChoice(ChatCompletionToolChoiceOption.ofAuto(ChatCompletionToolChoiceOption.Auto.AUTO));
 
-        System.out.println("[Adapter] Sending " + toolDefs.size() + " tools to model " + modelId);
-        ChatCompletion completion = openAiClient.chat().completions().create(paramsBuilder.build());
+        log.debug("[ChatClientModelAdapter] Sending {} tools to model {}", toolDefs.size(), modelId);
+        ChatCompletion completion = getOpenAiClient().chat().completions().create(paramsBuilder.build());
 
         var message = completion.choices().get(0).message();
-        System.out.println("[Adapter] finishReason=" + completion.choices().get(0).finishReason()
-                + " hasToolCalls=" + message.toolCalls().isPresent());
 
         if (message.toolCalls().isPresent() && !message.toolCalls().get().isEmpty()) {
             List<ContentBlock> blocks = new ArrayList<>();
-            System.out.println("[Adapter] Tool calls count: " + message.toolCalls().get().size());
             for (ChatCompletionMessageToolCall toolCall : message.toolCalls().get()) {
                 var fnCall = toolCall.asFunction();
-                System.out.println("[Adapter] Calling tool: " + fnCall.function().name() + " args=" + fnCall.function().arguments());
                 String callId = fnCall.id();
                 String toolName = fnCall.function().name();
                 String argumentsJson = fnCall.function().arguments();
@@ -262,8 +268,3 @@ public class ChatClientModelAdapter implements Model {
         }
     }
 }
-
-
-
-
-

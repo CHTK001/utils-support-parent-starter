@@ -8,16 +8,6 @@ import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
 
-/**
- * SQLite update_hook 原生连接封装。
- *
- * <p>通过 Java FFM（Project Panama）绑定 {@code sqlite3_hook.dll} / {@code libsqlite3_hook.so}。
- * 写操作通过 {@link #exec(String)} 执行，变更事件在 exec() 返回后同步排空并推送到
- * {@link #changes()} 响应式流。</p>
- *
- * @author CH
- * @since 4.0.0.43
- */
 public final class SqliteHookConnection implements AutoCloseable {
 
     private static final Linker LINKER = Linker.nativeLinker();
@@ -36,11 +26,17 @@ public final class SqliteHookConnection implements AutoCloseable {
     private final Sinks.Many<SqliteChangeEvent> sink;
 
     public static SqliteHookConnection open(String dbPath) {
-        if (!loadLibrary()) return null;
+        if (!loadLibrary()) {
+            System.err.println("[sqlite-hook] loadLibrary FAILED");
+            return null;
+        }
         try (var arena = Arena.ofConfined()) {
             MemorySegment h = (MemorySegment) HOOK_OPEN_HANDLE.invoke(arena.allocateFrom(dbPath, StandardCharsets.UTF_8));
+            System.err.println("[sqlite-hook] hook_open(" + dbPath + ") returned handle=" + h);
             return (h != null && !h.equals(MemorySegment.NULL)) ? new SqliteHookConnection(h) : null;
         } catch (Throwable e) {
+            System.err.println("[sqlite-hook] hook_open exception: " + e.getMessage());
+            e.printStackTrace(System.err);
             return null;
         }
     }
@@ -48,31 +44,36 @@ public final class SqliteHookConnection implements AutoCloseable {
     @SuppressWarnings("unchecked")
     private SqliteHookConnection(MemorySegment handle) {
         this.handle = handle;
-        /* multicast：多订阅者共享，backpressureBuffer 上限 1024 */
         @SuppressWarnings("rawtypes")
         Sinks.Many<?> raw = Sinks.many().multicast().onBackpressureBuffer(1024);
         this.sink = (Sinks.Many<SqliteChangeEvent>) raw;
     }
-
-    /* ==================== FFM 绑定 ==================== */
 
     private static boolean loadLibrary() {
         if (LIBRARY_RESOLVED) return LIBRARY_OK;
         synchronized (SqliteHookConnection.class) {
             if (LIBRARY_RESOLVED) return LIBRARY_OK;
             try {
+                System.err.println("[sqlite-hook] Loading sqlite3_hook library...");
+                System.err.println("[sqlite-hook]   temp dir: " + System.getProperty("java.io.tmpdir"));
+                System.err.println("[sqlite-hook]   loaded paths: " + NativeUtils.getLoadedPaths());
                 NativeUtils.load("sqlite3_hook", null);
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
+
                 HOOK_OPEN_HANDLE  = bind("hook_open",   FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
                 HOOK_WAIT_HANDLE  = bind("hook_wait",   FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
                 HOOK_POLL_HANDLE  = bind("hook_poll",   FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
                 HOOK_EXEC_HANDLE  = bind("hook_exec",   FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
                 HOOK_FREE_HANDLE  = bind("hook_free",   FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
                 HOOK_CLOSE_HANDLE = bind("hook_close",  FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
+
+                System.err.println("[sqlite-hook] Library loaded. Symbols: open=" + HOOK_OPEN_HANDLE + " exec=" + HOOK_EXEC_HANDLE + " poll=" + HOOK_POLL_HANDLE);
                 LIBRARY_OK = true;
                 LIBRARY_RESOLVED = true;
                 return true;
             } catch (Throwable e) {
+                System.err.println("[sqlite-hook] Failed to load library: " + e.getMessage());
+                e.printStackTrace(System.err);
                 LIBRARY_RESOLVED = true;
                 return false;
             }
@@ -85,30 +86,20 @@ public final class SqliteHookConnection implements AutoCloseable {
         return LINKER.downcallHandle(sym, desc);
     }
 
-    /* ==================== 公共 API ==================== */
-
-    /**
-     * 执行 SQL 并通过 update_hook 触发变更事件。
-     *
-     * <p>只有在 exec() 执行期间触发的 INSERT/UPDATE/DELETE 才会被 {@link #changes()} 捕获。</p>
-     *
-     * @param sql UTF-8 编码的 SQL 语句
-     * @return SQLite 错误码（0 = 成功）
-     */
     public int exec(String sql) {
+        System.err.println("[sqlite-hook] exec('" + sql + "') handle=" + handle);
         try (var arena = Arena.ofConfined()) {
             int rc = (int) HOOK_EXEC_HANDLE.invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
+            System.err.println("[sqlite-hook] exec returned rc=" + rc);
             drainBufferSync();
             return rc;
         } catch (Throwable e) {
+            System.err.println("[sqlite-hook] exec exception: " + e.getMessage());
+            e.printStackTrace(System.err);
             return -1;
         }
     }
 
-    /**
-     * 变更事件响应式流。
-     * 每次 {@link #exec()} 返回后同步排空事件并推送。
-     */
     public Flux<SqliteChangeEvent> changes() {
         return sink.asFlux();
     }
@@ -116,27 +107,40 @@ public final class SqliteHookConnection implements AutoCloseable {
     @Override
     public void close() {
         sink.tryEmitComplete();
-        try { HOOK_CLOSE_HANDLE.invoke(handle); } catch (Throwable ignored) {}
+        try {
+            System.err.println("[sqlite-hook] hook_close");
+            HOOK_CLOSE_HANDLE.invoke(handle);
+        } catch (Throwable ignored) {}
     }
 
     public boolean isOpen() {
         return handle != null && !handle.equals(MemorySegment.NULL);
     }
 
-    /* ==================== 内部辅助 ==================== */
-
-    /** 同步排空 ring buffer 中所有累积事件 */
     private void drainBufferSync() {
+        int polled = 0;
         try (var arena = Arena.ofConfined()) {
             while (true) {
                 MemorySegment jsonSeg = (MemorySegment) HOOK_POLL_HANDLE.invoke(handle);
+                System.err.println("[sqlite-hook] hook_poll returned: " + jsonSeg);
                 if (jsonSeg == null || jsonSeg.equals(MemorySegment.NULL)) break;
                 String json = jsonSeg.getString(0, StandardCharsets.UTF_8);
+                System.err.println("[sqlite-hook] poll event JSON: " + json);
                 SqliteChangeEvent event = parseEvent(json);
-                if (event != null) sink.tryEmitNext(event);
+                if (event != null) {
+                    sink.tryEmitNext(event);
+                    System.err.println("[sqlite-hook] emitted: " + event);
+                } else {
+                    System.err.println("[sqlite-hook] parse failed: " + json);
+                }
                 try { HOOK_FREE_HANDLE.invoke(jsonSeg); } catch (Throwable ignored) {}
+                polled++;
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable e) {
+            System.err.println("[sqlite-hook] drain error: " + e.getMessage());
+            e.printStackTrace(System.err);
+        }
+        System.err.println("[sqlite-hook] drainBufferSync: polled " + polled + " events");
     }
 
     static SqliteChangeEvent parseEvent(String json) {

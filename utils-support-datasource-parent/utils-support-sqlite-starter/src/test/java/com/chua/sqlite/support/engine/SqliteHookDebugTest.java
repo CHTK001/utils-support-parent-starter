@@ -1,57 +1,90 @@
 package com.chua.sqlite.support.engine;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import java.io.*;
+import java.nio.file.*;
+import reactor.test.StepVerifier;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.lang.reflect.Method;
+import static org.junit.jupiter.api.Assertions.*;
 
-class SqliteHookDebugTest {
+public class SqliteHookDebugTest {
 
-    @Test
-    void debug_hook_works() throws Exception {
-        Path db = Files.createTempFile("sqlite-debug", ".db");
-        db.toFile().deleteOnExit();
+    @BeforeEach
+    void setUp() throws Exception {
+        Files.deleteIfExists(Paths.get("test_hook_debug.db"));
+    }
 
-        SqliteHookConnection conn = SqliteHookConnection.open(db.toString());
-        System.out.println("[DEBUG] hook open: " + (conn != null));
-
-        if (conn == null) {
-            System.out.println("[DEBUG] FAILED: hook connection is null");
-            return;
-        }
-
-        Method drain = SqliteHookConnection.class.getDeclaredMethod("drainBufferSync");
-        drain.setAccessible(true);
-
-        int rc = conn.exec("CREATE TABLE t(x INTEGER PRIMARY KEY)");
-        System.out.println("[DEBUG] CREATE rc=" + rc);
-        drain.invoke(conn);
-
-        rc = conn.exec("INSERT INTO t(x) VALUES(1)");
-        System.out.println("[DEBUG] INSERT rc=" + rc);
-        Object result = drain.invoke(conn);
-        System.out.println("[DEBUG] drain after INSERT returned: " + result);
-
-        rc = conn.exec("UPDATE t SET x=2 WHERE x=1");
-        System.out.println("[DEBUG] UPDATE rc=" + rc);
-        drain.invoke(conn);
-
-        rc = conn.exec("DELETE FROM t WHERE x=2");
-        System.out.println("[DEBUG] DELETE rc=" + rc);
-        drain.invoke(conn);
-
-        conn.close();
-        System.out.println("[DEBUG] done");
+    @AfterEach
+    void tearDown() throws Exception {
+        Files.deleteIfExists(Paths.get("test_hook_debug.db"));
     }
 
     @Test
-    void debug_parse_event() throws Exception {
-        String json = "{\"type\":\"INSERT\",\"database\":\"main\",\"table\":\"t\",\"rowId\":1}";
-        SqliteChangeEvent event = SqliteHookConnection.parseEvent(json);
-        System.out.println("[DEBUG] parseEvent: " + event);
-        if (event != null) {
-            System.out.println("[DEBUG]   type=" + event.getType() + " table=" + event.getTable() + " rowId=" + event.getRowId());
+    void hook_exec_calls_callback() throws Exception {
+        try (SqliteHookConnection hook = SqliteHookConnection.open("test_hook_debug.db")) {
+            assertNotNull(hook);
+            assertTrue(hook.isOpen());
+
+            hook.exec("CREATE TABLE t(id INTEGER PRIMARY KEY, name TEXT)");
+
+            ByteArrayOutputStream errCapture = new ByteArrayOutputStream();
+            PrintStream origErr = System.err;
+            System.setErr(new PrintStream(errCapture, true));
+
+            int rc = hook.exec("INSERT INTO t(name) VALUES('hello')");
+            System.setErr(origErr);
+
+            String stderrOutput = errCapture.toString();
+            System.out.println("STDERR:\n" + stderrOutput);
+
+            assertEquals(0, rc);
+            assertTrue(stderrOutput.contains("[HOOK]"), "C callback not fired: " + stderrOutput);
+            assertTrue(stderrOutput.contains("INSERT"), "INSERT callback not found in: " + stderrOutput);
+        }
+    }
+
+    @Test
+    void poll_after_exec_returns_event() throws Exception {
+        try (SqliteHookConnection hook = SqliteHookConnection.open("test_hook_debug.db")) {
+            assertNotNull(hook);
+            hook.exec("CREATE TABLE t(id INTEGER PRIMARY KEY, name TEXT)");
+
+            ByteArrayOutputStream errCapture = new ByteArrayOutputStream();
+            PrintStream origErr = System.err;
+            System.setErr(new PrintStream(errCapture, true));
+
+            hook.exec("INSERT INTO t(name) VALUES('x')");
+            System.setErr(origErr);
+
+            System.out.println("STDERR: " + errCapture.toString());
+            assertNotNull(hook.changes());
+        }
+    }
+
+    @Test
+    void changes_emits_all_events() throws Exception {
+        try (SqliteHookConnection hook = SqliteHookConnection.open("test_hook_debug.db")) {
+            assertNotNull(hook);
+            hook.exec("CREATE TABLE t(id INTEGER PRIMARY KEY, name TEXT)");
+
+            ByteArrayOutputStream errCapture = new ByteArrayOutputStream();
+            PrintStream origErr = System.err;
+            System.setErr(new PrintStream(errCapture, true));
+
+            hook.exec("INSERT INTO t(name) VALUES('a')");
+            hook.exec("INSERT INTO t(name) VALUES('b')");
+            hook.exec("UPDATE t SET name='c' WHERE id=1");
+            hook.exec("DELETE FROM t WHERE id=2");
+            System.setErr(origErr);
+
+            System.out.println("STDERR: " + errCapture.toString());
+
+            StepVerifier.create(hook.changes())
+                    .expectNextMatches(e -> e.getType() == SqliteChangeEvent.Type.INSERT)
+                    .expectNextMatches(e -> e.getType() == SqliteChangeEvent.Type.INSERT)
+                    .expectNextMatches(e -> e.getType() == SqliteChangeEvent.Type.UPDATE)
+                    .expectNextMatches(e -> e.getType() == SqliteChangeEvent.Type.DELETE)
+                    .verifyComplete();
         }
     }
 }
