@@ -16,7 +16,6 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.mcp.McpManager;
 import com.chua.common.support.ai.memory.MemoryConfig;
 import com.chua.common.support.ai.skill.SkillManager;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.middleware.MiddlewareBase;
@@ -590,13 +589,6 @@ public class AgentScopeAgent implements Agent {
         return cfg.calculateDelayMillis(attempt);
     }
 
-    static {
-        try {
-            Class<?> hookClass = ReflectUtils.forName("io.agentscope.core.shutdown.AgentScopeJvmShutdownHook");
-            Object registeredField = ReflectUtils.getField(hookClass, "REGISTERED");
-        } catch (Throwable ignored) {
-        }
-    }
 
     /** 解析最大值Iters */
     private static int resolveMaxIters(int chainValue, int defValue) {
@@ -755,6 +747,7 @@ public class AgentScopeAgent implements Agent {
         }
     }
 }
+
 
 
 
