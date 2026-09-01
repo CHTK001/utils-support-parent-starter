@@ -1,5 +1,6 @@
 package com.chua.sqlite.support.engine;
 
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -10,8 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;\nimport java.util.concurrent.atomic.AtomicLong;\nimport reactor.core.Disposable;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import reactor.core.Disposable;
 
 /**
  * SQLite update_hook 原生连接封装。
@@ -38,7 +41,10 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     private final MemorySegment handle;
     private final Sinks.Many<SqliteChangeEvent> sink;
+    /** 所有事件列表，用于重放 */
     private final List<SqliteChangeEvent> allEvents = new CopyOnWriteArrayList<>();
+    /** 全局事件序号，每次 emitNext 后递增 */
+    private final AtomicInteger seq = new AtomicInteger(0);
 
     public static SqliteHookConnection open(String dbPath) {
         if (!loadLibrary()) return null;
@@ -115,15 +121,21 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     /**
      * 变更事件响应式流。
-     * 新订阅者先收到历史快照（最多 MAX_REPLAY 条），然后持续接收新事件。
+     * 新订阅者先收到历史快照，然后持续接收新事件。
      */
     public Flux<SqliteChangeEvent> changes() {
-        // 原子性地获取快照和基准计数，避免竞态
-        int baseline = allEvents.size();
+        // 原子性地记录当前最大序号，确保无竞态
+        int lastSeq = seq.get();
+        // 快照：所有发生在 lastSeq 之前的事件
         List<SqliteChangeEvent> snapshot = new ArrayList<>(allEvents);
         Sinks.Many<SqliteChangeEvent> liveSink = Sinks.many().multicast().directBestEffort();
-        Disposable bridge = sink.asFlux().skip(baseline).subscribe(
-                liveSink::tryEmitNext,
+        Disposable bridge = sink.asFlux().subscribe(
+                e -> {
+                    // 只转发序号大于 lastSeq 的事件（即本订阅之后的新事件）
+                    if (seq.get() > lastSeq) { System.err.println("[DEBUG] bridge forwarding seq=" + seq.get() + " lastSeq=" + lastSeq);
+                        liveSink.tryEmitNext(e);
+                    }
+                },
                 err -> liveSink.tryEmitError(err),
                 () -> liveSink.tryEmitComplete()
         );
@@ -158,6 +170,7 @@ public final class SqliteHookConnection implements AutoCloseable {
                     if (allEvents.size() > MAX_REPLAY) {
                         allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
                     }
+                    int s = seq.incrementAndGet(); System.err.println("[DEBUG] emit event seq=" + s + " allEvents.size=" + allEvents.size());
                     sink.tryEmitNext(event);
                 }
                 polled++;
@@ -214,6 +227,4 @@ public final class SqliteHookConnection implements AutoCloseable {
         catch (NumberFormatException e) { return 0L; }
     }
 }
-
-
 
