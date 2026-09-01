@@ -20,10 +20,11 @@ public class HeifNativeDecoder {
      * 解码 HEIC/HEIF 数据为 RGBA 字节数组。
      */
     public static byte[] decode(ImageInputStream input) throws IOException {
+        // 读取并验证文件头
         byte[] header = new byte[16];
         input.readFully(header);
-        input.seek(0);
 
+        // 验证 ftyp box
         if (header.length < 12 || !"ftyp".equals(new String(header, 4, 4))) {
             return null;
         }
@@ -33,8 +34,14 @@ public class HeifNativeDecoder {
                 || brand.startsWith("mif1") || brand.startsWith("msf1");
         if (!isHeif) return null;
 
+        // 重置到文件开头
+        input.seek(0);
+
+        // 解析 box 获取尺寸
         parseBoxes(input);
 
+        // 再次重置，提取 JPEG
+        input.seek(0);
         byte[] jpegData = extractJpegFromHeif(input, 0);
         if (jpegData != null && jpegData.length > 0) {
             return decodeJpegToRgba(jpegData);
@@ -81,6 +88,28 @@ public class HeifNativeDecoder {
                 input.seek(dataStart);
                 input.readFully(jpegData);
                 return jpegData;
+            }
+            // 递归进入 meta 容器查找 idat
+            if ("meta".equals(type) && size > 8) {
+                long metaEnd = pos + size;
+                long innerPos = pos + 8;
+                while (innerPos < metaEnd - 8) {
+                    input.seek(innerPos);
+                    int innerSize = input.readInt();
+                    byte[] innerTypeBytes = new byte[4];
+                    input.readFully(innerTypeBytes);
+                    String innerType = new String(innerTypeBytes);
+                    if ("idat".equals(innerType) && innerSize > 8) {
+                        input.seek(innerPos + 8);
+                        byte[] jpegData = new byte[innerSize - 8];
+                        input.readFully(jpegData);
+                        return jpegData;
+                    }
+                    if (innerSize <= 0) break;
+                    innerPos = innerPos + innerSize;
+                }
+                pos = metaEnd;
+                continue;
             }
             if (size <= 0) break;
             pos += size;

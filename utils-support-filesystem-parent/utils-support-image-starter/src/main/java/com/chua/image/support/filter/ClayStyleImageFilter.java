@@ -1,6 +1,7 @@
-package com.chua.image.support.filter;
+﻿package com.chua.image.support.filter;
 
 import com.chua.common.support.image.ImageProcessorUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -135,7 +136,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
         int height = src.getHeight();
 
         if (dst == null) {
-            dst = new BufferedImage(width, height, src.getType());
+            dst = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
         }
 
         // 第一步：表面平滑化
@@ -165,10 +166,10 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applySurfaceSmoothing(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 多次高斯模糊来模拟双边滤波效果
-        BufferedImage temp = new BufferedImage(width, height, src.getType());
+        BufferedImage temp = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 第一次模糊
         applyGaussianBlur(src, temp, smoothingStrength);
@@ -313,7 +314,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     private BufferedImage simplifyColors(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         double factor = 255.0 / (colorSimplificationLevel - 1);
 
@@ -349,7 +350,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     private BufferedImage adjustWarmTone(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -415,7 +416,7 @@ if (hsv[1] > 0.1) {
     private BufferedImage adjustContrastAndSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -453,7 +454,7 @@ if (hsv[1] > 0.1) {
     private BufferedImage addClayTexture(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {

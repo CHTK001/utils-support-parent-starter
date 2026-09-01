@@ -19,6 +19,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private final WalStoreConfig config;
     private final SegmentWalLog[] walLogs;
     private final ShardedIndex index = new ShardedIndex(1);
+    private final java.util.concurrent.ConcurrentHashMap<String, byte[]> memIndex = new java.util.concurrent.ConcurrentHashMap<>();
     private final AtomicLong totalRecords = new AtomicLong(0);
     private volatile boolean closed = false;
     private final ScheduledExecutorService scheduler =
@@ -36,7 +37,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
                     .maxSegmentBytes(config.segmentBytes()).maxRecordsPerSegment(10_000_000).build();
             walLogs[i] = (SegmentWalLog) WalFactory.open(c);
         }
-        // 引擎级统一 fsync 调度，避免每个 shard 各开一个线程
+        rebuildIndex();
         if (config.flushIntervalMs() > 0) {
             scheduler.scheduleAtFixedRate(this::fsyncAll,
                     config.flushIntervalMs(), config.flushIntervalMs(), java.util.concurrent.TimeUnit.MILLISECONDS);
@@ -83,15 +84,14 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     public boolean delete(String key) throws IOException {
         byte[] payload = KvWalFileSystem.encode(key, new byte[0]);
         append(key, payload);
+        memIndex.remove(key);
         return true;
     }
 
     @Override
-    public void rebuildIndex() throws IOException {}
-
-    @Override
     public void compact() throws IOException {
         for (SegmentWalLog log : walLogs) { log.purgeCheckpointed(1); }
+        rebuildIndex();
     }
 
     @Override
@@ -108,6 +108,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     public void close() throws IOException {
         closed = true;
         scheduler.shutdownNow();
+        try { scheduler.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
         for (SegmentWalLog log : walLogs) { try { log.close(); } catch (IOException ignored) {} }
     }
 
@@ -132,7 +133,11 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         ByteBuffer.wrap(writeBuf, 0, total).putInt(kb.length).put(kb).putInt(vlen);
         if (value != null) System.arraycopy(value, 0, writeBuf, 4 + kb.length + 4, vlen);
         int idx = shardHash(kb) % config.shardCount();
-        return walLogs[idx].append((byte) 0x01, writeBuf);
+        byte[] payload = Arrays.copyOf(writeBuf, total);
+        long lsn = walLogs[idx].append((byte) 0x01, payload);
+        memIndex.put(key, value == null ? new byte[0] : Arrays.copyOf(value, vlen));
+        totalRecords.incrementAndGet();
+        return lsn;
     }
 
     /** 快速写入：key bytes 已由调用方预分配，避免循环中重复创建字符串 */
@@ -143,30 +148,44 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         ByteBuffer.wrap(writeBuf, 0, total).putInt(key.length).put(key).putInt(vlen);
         if (value != null) System.arraycopy(value, 0, writeBuf, 4 + key.length + 4, vlen);
         int idx = shardHash(key) % config.shardCount();
-        return walLogs[idx].append((byte) 0x01, writeBuf);
+        byte[] payload = Arrays.copyOf(writeBuf, total);
+        long lsn = walLogs[idx].append((byte) 0x01, payload);
+        try { memIndex.put(new String(key, StandardCharsets.UTF_8), value == null ? new byte[0] : Arrays.copyOf(value, vlen)); } catch (Exception ignored) {}
+        totalRecords.incrementAndGet();
+        return lsn;
     }
 
     public Optional<byte[]> getBytes(String key) throws IOException {
-        final byte[][] result = {null};
+        byte[] v = memIndex.get(key);
+        return v == null ? Optional.empty() : Optional.of(v);
+    }
+
+    @Override
+    public void rebuildIndex() throws IOException {
+        memIndex.clear();
         for (SegmentWalLog log : walLogs) {
-            for (WalSegmentInfo seg : log.listSegments()) {
-                log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
-                    if ((op & 0x80) != 0) return true;
-                    if (payload.length >= 8) {
-                        int klen = ByteBuffer.wrap(payload).getInt();
-                        if (klen > 0 && klen + 8 <= payload.length) {
-                            String k = new String(payload, 4, klen, StandardCharsets.UTF_8);
-                            int vlen = ByteBuffer.wrap(payload, klen + 4, 4).getInt();
-                            if (k.equals(key)) {
-                                result[0] = Arrays.copyOfRange(payload, klen + 8, klen + 8 + vlen);
-                            }
-                        }
-                    }
+            try {
+                log.replay((lsn, op, payload) -> {
+                    if ((op & 0x80) != 0) { memIndex.remove(decodeKey(payload)); return true; }
+                    String k = decodeKey(payload);
+                    if (k != null) memIndex.put(k, extractValue(payload));
                     return true;
                 });
-            }
+            } catch (IOException ignored) {}
         }
-        return result[0] == null ? Optional.empty() : Optional.of(result[0]);
+    }
+
+    private static String decodeKey(byte[] payload) {
+        if (payload == null || payload.length < 8) return null;
+        int klen = ByteBuffer.wrap(payload).getInt();
+        if (klen <= 0 || klen + 8 > payload.length) return null;
+        return new String(payload, 4, klen, StandardCharsets.UTF_8);
+    }
+
+    private static byte[] extractValue(byte[] payload) {
+        int klen = ByteBuffer.wrap(payload).getInt();
+        int vlen = ByteBuffer.wrap(payload, klen + 4, 4).getInt();
+        return Arrays.copyOfRange(payload, klen + 8, klen + 8 + vlen);
     }
 
     /** 供测试访问内部 walLogs，生产环境不应暴露 */

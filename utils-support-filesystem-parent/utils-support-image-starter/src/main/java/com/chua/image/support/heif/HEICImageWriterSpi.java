@@ -38,10 +38,9 @@ public class HEICImageWriterSpi extends ImageWriterSpi {
 
     @Override
     public boolean canEncodeImage(ImageTypeSpecifier type) {
-        ColorModel cm = type.getColorModel();
-        if (cm == null) return false;
-        int numBands = type.getSampleModel().getNumBands();
-        return numBands >= 3 && numBands <= 4;
+        if (type == null) return false;
+        int bands = type.getSampleModel().getNumBands();
+        return bands >= 1 && bands <= 4;
     }
 
     @Override

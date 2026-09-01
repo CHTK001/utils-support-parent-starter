@@ -1,0 +1,49 @@
+{
+  "session_id" : "cd29ca18-ae34-4cac-9788-c2dc1482421e",
+  "summary" : "",
+  "context" : [ {
+    "id" : "c48c10e5-3111-4a22-95a0-7684adb8b07a",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "你好，请总结一下北京今天的天气并写入报告"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 08:36:28.760",
+    "usage" : null
+  }, {
+    "id" : "4ce897d5-5267-4cb4-90eb-9a30d0cb8840",
+    "name" : "hook-test-agent",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "任务完成，天气已查询，文件已写入"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 08:36:28.771",
+    "usage" : null
+  } ],
+  "reply_id" : "6eea41f40ac54cddacd8658553a0fcdc",
+  "cur_iter" : 0,
+  "shutdown_interrupted" : false,
+  "permission_context" : {
+    "mode" : "default",
+    "working_directories" : { },
+    "allow_rules" : { },
+    "deny_rules" : { },
+    "ask_rules" : { }
+  },
+  "tool_context" : {
+    "max_cache_files" : 100,
+    "max_cache_bytes" : 25000.0,
+    "activated_groups" : [ ]
+  },
+  "tasks_context" : {
+    "tasks" : [ ]
+  },
+  "plan_mode_context" : {
+    "plan_active" : false,
+    "current_plan_file" : null
+  }
+}
