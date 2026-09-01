@@ -199,6 +199,28 @@
     "metadata" : { },
     "timestamp" : "2026-09-01 09:56:30.493",
     "usage" : null
+  }, {
+    "id" : "c3bf064b-9ef3-4bd8-bbb8-2a9564404598",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 10:03:01.908",
+    "usage" : null
+  }, {
+    "id" : "a3adf2af-8019-4974-984d-158e965aad72",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 10:03:02.691",
+    "usage" : null
   } ],
   "reply_id" : "141e312c2a0f4f2eb0d63ba84ee3ce17",
   "cur_iter" : 0,
