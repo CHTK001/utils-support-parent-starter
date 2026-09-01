@@ -556,7 +556,7 @@ public class AgentScopeAgent implements Agent {
                 final com.chua.common.support.ai.skill.SkillHandler handler = entry.getValue();
                 toolkit.registerAgentTool(new SkillAgentTool(skillName, handler));
             }
-            builder.tool(toolkit);
+            builder.toolkit(toolkit);
         }
 
         if (effectiveDebugHook != null || effectivePlanHook != null || effectivePlanMaxTask > 0) {
@@ -742,16 +742,10 @@ public class AgentScopeAgent implements Agent {
                         ? String.valueOf(result.getContent())
                         : "ERROR: " + result.getErrorMessage();
                 return reactor.core.publisher.Mono.just(
-                        io.agentscope.core.message.ToolResultBlock.builder()
-                                .toolUseId(param.getToolUse().getId())
-                                .content(text)
-                                .build());
+                        io.agentscope.core.message.ToolResultBlock.text(text));
             } catch (Exception e) {
                 return reactor.core.publisher.Mono.just(
-                        io.agentscope.core.message.ToolResultBlock.builder()
-                                .toolUseId(param.getToolUse().getId())
-                                .content("ERROR: " + e.getMessage())
-                                .build());
+                        io.agentscope.core.message.ToolResultBlock.error(e.getMessage()));
             }
         }
     }
