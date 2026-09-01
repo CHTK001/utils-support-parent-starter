@@ -115,9 +115,9 @@ public class ChatClientModelAdapter implements Model {
     }
 
     private ChatResponse callWithTools(String prompt, List<ChatMessage> history, List<ToolSchema> tools, String systemPrompt) {
-        String apiKey = extractApiKey();
-        String baseUrl = extractBaseUrl();
-        String modelId = extractModelId();
+        String apiKey = chatClient.getApiKey();
+        String baseUrl = chatClient.getBaseUrl();
+        String modelId = chatClient.getModel();
 
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("无法获取 API Key，请确保 ChatClient 已正确配置");
@@ -205,48 +205,11 @@ public class ChatClientModelAdapter implements Model {
                 .build();
     }
 
-    private String extractApiKey() {
-        try {
-            java.lang.reflect.Field settingField = chatClient.getClass().getDeclaredField("setting");
-            settingField.setAccessible(true);
-            Object setting = settingField.get(chatClient);
-            if (setting != null) {
-                java.lang.reflect.Field appKeyField = setting.getClass().getDeclaredField("appKey");
-                appKeyField.setAccessible(true);
-                return (String) appKeyField.get(setting);
-            }
-        } catch (Exception e) {
-            log.debug("[ChatClientModelAdapter] Cannot get API Key via reflection: {}", e.getMessage());
-        }
-        return null;
-    }
+    // Uses ChatClient.getApiKey() — no reflection needed
 
-    private String extractBaseUrl() {
-        try {
-            java.lang.reflect.Field settingField = chatClient.getClass().getDeclaredField("setting");
-            settingField.setAccessible(true);
-            Object setting = settingField.get(chatClient);
-            if (setting != null) {
-                java.lang.reflect.Field baseUrlField = setting.getClass().getDeclaredField("baseUrl");
-                baseUrlField.setAccessible(true);
-                return (String) baseUrlField.get(setting);
-            }
-        } catch (Exception e) {
-            log.debug("[ChatClientModelAdapter] Cannot get Base URL via reflection: {}", e.getMessage());
-        }
-        return null;
-    }
+    // Uses ChatClient.getBaseUrl() — no reflection needed
 
-    private String extractModelId() {
-        try {
-            java.lang.reflect.Field modelField = chatClient.getClass().getDeclaredField("model");
-            modelField.setAccessible(true);
-            return (String) modelField.get(chatClient);
-        } catch (Exception e) {
-            log.debug("[ChatClientModelAdapter] Cannot get model ID via reflection: {}", e.getMessage());
-        }
-        return null;
-    }
+    // Uses ChatClient.getModel() — no reflection needed
 
     private String buildToolsPrompt(List<ToolSchema> tools) {
         if (tools == null || tools.isEmpty()) {
@@ -305,6 +268,7 @@ public class ChatClientModelAdapter implements Model {
         }
     }
 }
+
 
 
 

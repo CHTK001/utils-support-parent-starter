@@ -287,4 +287,14 @@ public class UsagePersistChatClient implements ChatClient {
             }
         });
     }
+
+    @Override
+    public ChatClientSetting getSetting() {
+        return delegate.getSetting();
+    }
+
+    @Override
+    public String getModel() {
+        return delegate.getModel();
+    }
 }

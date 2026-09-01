@@ -777,4 +777,40 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     default VideoGenerationSpec generateVideo() {
         return new VideoGenerationSpec(this);
     }
-}
+    /**
+     * 获取客户端配置
+     *
+     * @return ChatClientSetting 配置对象
+     */
+    default ChatClientSetting getSetting() {
+        return null;
+    }
+
+    /**
+     * 获取当前模型名称
+     *
+     * @return 模型名称，未设置时返回 null
+     */
+    default String getModel() {
+        return null;
+    }
+
+    /**
+     * 获取 API Key
+     *
+     * @return API 密钥
+     */
+    default String getApiKey() {
+        ChatClientSetting setting = getSetting();
+        return setting != null ? setting.getAppKey() : null;
+    }
+
+    /**
+     * 获取 API Base URL
+     *
+     * @return API 地址
+     */
+    default String getBaseUrl() {
+        ChatClientSetting setting = getSetting();
+        return setting != null ? setting.getBaseUrl() : null;
+    }
