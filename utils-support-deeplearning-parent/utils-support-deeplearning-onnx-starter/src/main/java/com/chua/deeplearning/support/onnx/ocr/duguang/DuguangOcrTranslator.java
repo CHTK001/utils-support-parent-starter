@@ -13,6 +13,7 @@ import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -44,6 +45,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>> {
 
     /**
@@ -167,7 +169,7 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
         this.recSession = ortEnv.createSession(recPath.toString(), opts);
         this.vocab = loadVocab();
         loaded = true;
-        System.out.println("[DuguangOCR-rec] ONNX loaded: " + recPath.getFileName() + " vocab=" + vocab.size());
+        log.info("[DuguangOCR-rec] ONNX loaded: {} vocab={}", recPath.getFileName(), vocab.size());
     }
 
     /**
@@ -368,8 +370,9 @@ public class DuguangOcrTranslator implements ITranslator<byte[], List<OcrResult>
                         texts[c] = decode(logits[c]);
                     }
                     if (Boolean.getBoolean("duguang.rec.debug")) {
-                        System.out.println("  [rec-debug] chunk0='" + (texts[0] == null ? "" : texts[0])
-                                + "' chunk1='" + (texts[1] == null ? "" : texts[1])
+                        log.debug("  [rec-debug] chunk0='{}' chunk1='{}'",
+                                texts[0] == null ? "" : texts[0],
+                                texts[1] == null ? "" : texts[1]);
                                 + "' chunk2='" + (texts[2] == null ? "" : texts[2]) + "'");
                     }
                 }

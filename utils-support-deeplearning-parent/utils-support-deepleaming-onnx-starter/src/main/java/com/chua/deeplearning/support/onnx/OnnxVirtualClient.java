@@ -1,10 +1,8 @@
 package com.chua.deeplearning.support.onnx;
-
 import com.chua.deeplearning.support.image.UnderstandResult;
 import com.chua.deeplearning.support.image.UnderstandTask;
 import com.chua.deeplearning.support.image.VirtualClient;
 import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 public class OnnxVirtualClient implements VirtualClient {
     private String modelName = "florence2";
