@@ -31,7 +31,7 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.image.ImageClient;
 import com.chua.common.support.ai.video.VideoClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.TextToAudioClient;
 import com.chua.common.support.ai.feature.FeatureClient;
 
@@ -192,7 +192,7 @@ public final class ModelCapabilities {
             Map.entry(ImageClient.class, TEXT_TO_IMAGE),
             Map.entry(VideoClient.class, TEXT_TO_VIDEO),
             Map.entry(EmbeddingClient.class, TEXT_EMBEDDING),
-            Map.entry(AudioClient.class, ASR),
+            Map.entry(VirtualClient.class, ASR),
             Map.entry(TextToAudioClient.class, TTS),
             Map.entry(FeatureClient.class, FEATURE),
             Map.entry(AudioFingerprinter.class, AUDIO_FINGERPRINT),
@@ -235,3 +235,4 @@ public final class ModelCapabilities {
         return List.copyOf(new java.util.LinkedHashSet<>(CAPABILITY_LABELS.values()));
     }
 }
+

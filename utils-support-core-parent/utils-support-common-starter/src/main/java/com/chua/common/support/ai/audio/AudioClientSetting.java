@@ -9,7 +9,7 @@ import java.nio.file.Path;
 /**
  * AI 语音识别（ASR）客户端配置
  *
- * <p>包含连接信息和识别参数的完整配置，与 {@link AudioClient} 配合使用。
+ * <p>包含连接信息和识别参数的完整配置，与 {@link VirtualClient} 配合使用。
  * 支持 builder 模式构建，也支持 SPI 自动注入。
  *
  * @author CH
@@ -22,7 +22,7 @@ public class AudioClientSetting {
     /**
      * AI 服务商名称
      *
-     * <p>用于 SPI 查找对应的 {@link AudioClient} 实现，
+     * <p>用于 SPI 查找对应的 {@link VirtualClient} 实现，
      * 如 "whisper"、"openai"、"alibaba-asr"、"local" 等。
      */
     private String provider;
@@ -123,3 +123,4 @@ public class AudioClientSetting {
      */
     private String proxy;
 }
+

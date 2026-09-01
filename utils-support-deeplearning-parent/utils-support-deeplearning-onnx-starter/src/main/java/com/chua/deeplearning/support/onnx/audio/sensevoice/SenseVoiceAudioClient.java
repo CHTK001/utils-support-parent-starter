@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.sensevoice;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.audio.AudioResponse;
 import com.chua.common.support.spi.annotations.Spi;
@@ -20,7 +20,7 @@ import java.util.UUID;
  *
  * <p>用法：</p>
  * <pre>{@code
- *   String text = AudioClient.create("sensevoice", "")
+ *   String text = VirtualClient.create("sensevoice", "")
  *       .transcribe(Path.of("audio.wav"));
  * }</pre>
  *
@@ -29,7 +29,7 @@ import java.util.UUID;
  */
 @Slf4j
 @Spi({"sensevoice", "sensevoice-small", "sense-voice"})
-public class SenseVoiceAudioClient implements AudioClient {
+public class SenseVoiceAudioClient implements VirtualClient {
 
     /**
      * 默认模型名
@@ -99,44 +99,44 @@ public class SenseVoiceAudioClient implements AudioClient {
     }
 
     @Override
-    public AudioClient model(String model) {
+    public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    public AudioClient language(String language) {
+    public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
-    public AudioClient sampleRate(Integer sampleRate) {
+    public VirtualClient sampleRate(Integer sampleRate) {
         return this;
     }
 
     @Override
-    public AudioClient format(String format) {
+    public VirtualClient format(String format) {
         return this;
     }
 
     @Override
-    public AudioClient prompt(String prompt) {
+    public VirtualClient prompt(String prompt) {
         return this;
     }
 
     @Override
-    public AudioClient temperature(Double temperature) {
+    public VirtualClient temperature(Double temperature) {
         return this;
     }
 
     @Override
-    public AudioClient seed(Long seed) {
+    public VirtualClient seed(Long seed) {
         return this;
     }
 
     @Override
-    public AudioClient audio(byte[] audio) {
+    public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
         this.audioInput = null;
@@ -144,7 +144,7 @@ public class SenseVoiceAudioClient implements AudioClient {
     }
 
     @Override
-    public AudioClient audio(InputStream input) {
+    public VirtualClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
         this.audio = null;
@@ -152,7 +152,7 @@ public class SenseVoiceAudioClient implements AudioClient {
     }
 
     @Override
-    public AudioClient audio(Path path) {
+    public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
         this.audioInput = null;
@@ -279,3 +279,4 @@ public class SenseVoiceAudioClient implements AudioClient {
         prepared = false;
     }
 }
+

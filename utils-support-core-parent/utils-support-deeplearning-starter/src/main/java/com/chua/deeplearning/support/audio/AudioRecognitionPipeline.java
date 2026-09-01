@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.audio;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.utils.MathUtils;
 import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
 import com.chua.deeplearning.support.engine.IdentificationEngine;
@@ -442,7 +442,7 @@ public class AudioRecognitionPipeline {
             // 旧路径：IdentificationEngine ITanslator（whisper/paraformer/moonshine 等）
             return transcribeViaTranslator(asrTranslator, pcm, vadSegments);
         }
-        // 新路径：AudioClient SPI（SenseVoice、zipformer 等实现 AudioClient 的模型）
+        // 新路径：VirtualClient SPI（SenseVoice、zipformer 等实现 VirtualClient 的模型）
         return transcribeViaAudioClient(vadSegments, pcm);
     }
 
@@ -476,11 +476,11 @@ public class AudioRecognitionPipeline {
     }
 
     private String[] transcribeViaAudioClient(List<SpeakerSegment> vadSegments, float[] pcm) {
-        AudioClient client;
+        VirtualClient client;
         try {
-            client = AudioClient.create(asrModel, "");
+            client = VirtualClient.create(asrModel, "");
         } catch (Exception e) {
-            log.warn("[AudioPipeline] AudioClient 创建失败 {}: {}", asrModel, e.getMessage());
+            log.warn("[AudioPipeline] VirtualClient 创建失败 {}: {}", asrModel, e.getMessage());
             return new String[vadSegments.size()];
         }
         try {
@@ -671,7 +671,7 @@ public class AudioRecognitionPipeline {
 
         /**
      * 设置 ASR 语音识别模型 ID（如 "whisper-tiny"、"paraformer-zh-small"、"sensevoice"）。
-     * 支持 IdentificationEngine 注册的 ITranslator（旧路径）和 AudioClient SPI（新路径）。
+     * 支持 IdentificationEngine 注册的 ITranslator（旧路径）和 VirtualClient SPI（新路径）。
      * 不设置则不执行转写，最终片段的 transcript 字段为空。
          */
         public Builder asrModel(String asrModel) {
@@ -704,3 +704,4 @@ public class AudioRecognitionPipeline {
         }
     }
 }
+

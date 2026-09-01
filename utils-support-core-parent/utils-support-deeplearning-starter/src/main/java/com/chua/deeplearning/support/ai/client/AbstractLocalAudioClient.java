@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.ai.client;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.audio.AudioResponse;
 import com.chua.common.support.ai.chat.ModelDefinition;
@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * 本地引擎语音识别（ASR）客户端抽象基类。
  * <p>
- * 统一实现 {@link AudioClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
+ * 统一实现 {@link VirtualClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
  * 已注册的 byte[]→String 翻译器执行语音转写，并提供该引擎的模型列表。
  * 子类只需指定引擎名称（如 "onnx"）。
  * </p>
@@ -25,7 +25,7 @@ import java.util.UUID;
  * @author CH
  * @since 4.0.0.42
  */
-public abstract class AbstractLocalAudioClient implements AudioClient {
+public abstract class AbstractLocalAudioClient implements VirtualClient {
 
     /**
      * 引擎名称（provider）
@@ -72,21 +72,21 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
 
     @Override
     /** Model */
-    public AudioClient model(String model) {
+    public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
     /** Language */
-    public AudioClient language(String language) {
+    public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
     /** Audio */
-    public AudioClient audio(Path path) {
+    public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
         return this;
@@ -94,7 +94,7 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
 
     @Override
     /** Audio */
-    public AudioClient audio(byte[] audio) {
+    public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
         return this;
@@ -102,7 +102,7 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
 
     @Override
     /** Audio */
-    public AudioClient audio(InputStream input) {
+    public VirtualClient audio(InputStream input) {
         try {
             this.audio = input != null ? input.readAllBytes() : null;
             this.audioPath = null;
@@ -204,3 +204,4 @@ public abstract class AbstractLocalAudioClient implements AudioClient {
         return DeeplearningModels.models(engine);
     }
 }
+

@@ -1,6 +1,8 @@
 package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageUnderstander;
+import com.chua.deeplearning.support.image.UnderstandResult;
+import com.chua.deeplearning.support.image.UnderstandTask;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -10,11 +12,12 @@ import lombok.extern.slf4j.Slf4j;
  * 模型本地运行，无需云端 API。</p>
  *
  * <pre>{@code
- * String caption = VirtualClient.create()
- *     .understand(imageBytes, "<CAPTION>");
+ * UnderstandResult result = VirtualClient.create()
+ *     .understand(imageBytes, UnderstandTask.CAPTION);
+ * String caption = result.getText();
  *
  * String ocr = VirtualClient.create()
- *     .understand(imageBytes, "<OCR>");
+ *     .understand(imageBytes, UnderstandTask.OCR).getText();
  * }</pre>
  *
  * @author CH
@@ -37,7 +40,7 @@ public class VirtualClient implements ImageUnderstander {
     }
 
     @Override
-    public String understand(byte[] imageData, String taskPrompt) {
+    public UnderstandResult understand(byte[] imageData, UnderstandTask task) {
         try {
             var translator = com.chua.deeplearning.support.engine.ModelRegistry
                     .getTranslator(modelName, com.chua.deeplearning.support.translator.ITranslator.class);
@@ -46,7 +49,8 @@ public class VirtualClient implements ImageUnderstander {
             }
             @SuppressWarnings("unchecked")
             var t = (com.chua.deeplearning.support.translator.ITranslator<Object[], String>) translator;
-            return t.translate(new Object[]{imageData, taskPrompt});
+            String result = t.translate(new Object[]{imageData, task.prompt()});
+            return new UnderstandResult(task, result);
         } catch (Exception e) {
             log.error("[VirtualClient] 推理失败: {}", e.getMessage(), e);
             throw new RuntimeException("图像理解失败: " + e.getMessage(), e);

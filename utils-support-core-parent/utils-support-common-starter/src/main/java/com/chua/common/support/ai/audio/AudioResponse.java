@@ -10,7 +10,7 @@ import java.util.List;
  * AI 语音识别任务响应
  *
  * <p>封装异步 ASR 任务的当前状态和结果数据。
- * 调用方通过 {@link AudioClient#queryTask(String)} 获取此对象以判断任务进度和获取转写文本。
+ * 调用方通过 {@link VirtualClient#queryTask(String)} 获取此对象以判断任务进度和获取转写文本。
  *
  * @author CH
  * @since 4.0.0.42
@@ -145,3 +145,4 @@ public class AudioResponse {
         private String speaker;
     }
 }
+

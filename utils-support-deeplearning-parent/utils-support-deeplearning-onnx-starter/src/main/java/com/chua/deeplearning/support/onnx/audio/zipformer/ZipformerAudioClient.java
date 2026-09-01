@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.audio.AudioResponse;
 
@@ -23,7 +23,7 @@ import java.util.UUID;
  * <p>通过 SPI 名称 {@code zipformer} / {@code zipformer-zh-en} 创建：
  *
  * <pre>{@code
- * AudioClient client = AudioClient.create("onnx", "zipformer");
+ * VirtualClient client = VirtualClient.create("onnx", "zipformer");
  * String text = client.audio(Path.of("test.wav")).transcribe();
  * }</pre>
  *
@@ -35,7 +35,7 @@ import java.util.UUID;
  */
 @Slf4j
 @Spi({"zipformer", "zipformer-zh-en", "zipformer-streaming"})
-public class ZipformerAudioClient implements AudioClient {
+public class ZipformerAudioClient implements VirtualClient {
 
     private static final String HF_MIRROR =
             "https://hf-mirror.com/csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/resolve/main/";
@@ -62,54 +62,54 @@ public class ZipformerAudioClient implements AudioClient {
     }
 
     @Override
-    public AudioClient model(String model) {
+    public VirtualClient model(String model) {
         return this;
     }
 
     @Override
-    public AudioClient language(String language) {
+    public VirtualClient language(String language) {
         return this;
     }
 
     @Override
-    public AudioClient sampleRate(Integer sampleRate) {
+    public VirtualClient sampleRate(Integer sampleRate) {
         return this;
     }
 
     @Override
-    public AudioClient format(String format) {
+    public VirtualClient format(String format) {
         return this;
     }
 
     @Override
-    public AudioClient prompt(String prompt) {
+    public VirtualClient prompt(String prompt) {
         return this;
     }
 
     @Override
-    public AudioClient temperature(Double temperature) {
+    public VirtualClient temperature(Double temperature) {
         return this;
     }
 
     @Override
-    public AudioClient seed(Long seed) {
+    public VirtualClient seed(Long seed) {
         return this;
     }
 
     @Override
-    public AudioClient audio(byte[] audio) {
+    public VirtualClient audio(byte[] audio) {
         setting.setAudio(audio);
         return this;
     }
 
     @Override
-    public AudioClient audio(InputStream input) {
+    public VirtualClient audio(InputStream input) {
         setting.setAudioInput(input);
         return this;
     }
 
     @Override
-    public AudioClient audio(Path path) {
+    public VirtualClient audio(Path path) {
         setting.setAudioPath(path);
         return this;
     }
@@ -237,3 +237,4 @@ public class ZipformerAudioClient implements AudioClient {
         prepared = false;
     }
 }
+

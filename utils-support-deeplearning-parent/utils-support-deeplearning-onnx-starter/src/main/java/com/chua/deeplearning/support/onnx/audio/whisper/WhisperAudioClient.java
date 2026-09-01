@@ -1,6 +1,6 @@
 package com.chua.deeplearning.support.onnx.audio.whisper;
 
-import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.common.support.ai.audio.VirtualClient;
 import com.chua.common.support.ai.audio.AudioClientSetting;
 import com.chua.common.support.ai.audio.AudioResponse;
 import com.chua.common.support.utils.NativeLoader;
@@ -20,7 +20,7 @@ import java.util.UUID;
  *
  * <p>用法：
  * <pre>{@code
- *   String text = AudioClient.create("whisper", "")
+ *   String text = VirtualClient.create("whisper", "")
  *       .model("whisper-tiny")
  *       .language("zh")
  *       .transcribe(Path.of("audio.wav"));
@@ -31,7 +31,7 @@ import java.util.UUID;
  */
 @Slf4j
 @Spi({"whisper", "whisper-tiny", "whisper-onnx"})
-public class WhisperAudioClient implements AudioClient {
+public class WhisperAudioClient implements VirtualClient {
 
     /**
      * 默认模型名
@@ -118,56 +118,56 @@ public class WhisperAudioClient implements AudioClient {
 
     @Override
     /** Model */
-    public AudioClient model(String model) {
+    public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
     /** Language */
-    public AudioClient language(String language) {
+    public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
     /** SampleRate */
-    public AudioClient sampleRate(Integer sampleRate) {
+    public VirtualClient sampleRate(Integer sampleRate) {
         this.overrideSampleRate = sampleRate;
         return this;
     }
 
     @Override
     /** 格式化 */
-    public AudioClient format(String format) {
+    public VirtualClient format(String format) {
         this.format = format;
         return this;
     }
 
     @Override
     /** Prompt */
-    public AudioClient prompt(String prompt) {
+    public VirtualClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
     /** Temperature */
-    public AudioClient temperature(Double temperature) {
+    public VirtualClient temperature(Double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
     /** Seed */
-    public AudioClient seed(Long seed) {
+    public VirtualClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
     @Override
     /** Audio */
-    public AudioClient audio(byte[] audio) {
+    public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
         this.audioInput = null;
@@ -176,7 +176,7 @@ public class WhisperAudioClient implements AudioClient {
 
     @Override
     /** Audio */
-    public AudioClient audio(InputStream input) {
+    public VirtualClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
         this.audio = null;
@@ -185,7 +185,7 @@ public class WhisperAudioClient implements AudioClient {
 
     @Override
     /** Audio */
-    public AudioClient audio(Path path) {
+    public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
         this.audioInput = null;

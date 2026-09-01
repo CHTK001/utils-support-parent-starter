@@ -15,7 +15,7 @@ import java.util.List;
  * <p><b>阶段构成</b>：</p>
  * <ul>
  *   <li>必选-1 音频解码：任意 WAV/PCM → 16kHz 单声道 float[]</li>
- *   <li>必选-2 引擎推理：moonshine / whisper / paraformer（AudioClient SPI）逐段转写</li>
+ *   <li>必选-2 引擎推理：moonshine / whisper / paraformer（VirtualClient SPI）逐段转写</li>
  *   <li>必选-3 结果拼接：多段文本按时间序合并</li>
  *   <li>可选-A 能量 VAD 切分：静音检测切段，长音频必备，短音频可关；
  *       相邻语音段间隙小于 0.6s 自动合并以保持整句上下文</li>
@@ -148,8 +148,8 @@ public final class AsrPipeline {
         }
 
         List<String> parts = new ArrayList<>(segments.size());
-        try (com.chua.common.support.ai.audio.AudioClient client =
-                     com.chua.common.support.ai.audio.AudioClient.create(engineId, "")) {
+        try (com.chua.common.support.ai.audio.VirtualClient client =
+                     com.chua.common.support.ai.audio.VirtualClient.create(engineId, "")) {
             if (language != null && !language.isBlank()) {
                 client.language(language);
             }
@@ -475,3 +475,4 @@ public final class AsrPipeline {
         }
     }
 }
+

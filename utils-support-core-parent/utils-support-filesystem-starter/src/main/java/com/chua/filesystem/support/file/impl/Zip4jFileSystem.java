@@ -145,7 +145,13 @@ public class Zip4jFileSystem implements FileSystem {
             }
         }
 
-        /** 打开Zip */
+        /**
+         * 打开 Zip 文件。
+         * <p>zip4j 原生支持分卷读取，无需特殊处理。
+         * 只需指向主 .zip 文件，zip4j 会自动检测并读取分卷。</p>
+         *
+         * @return ZipFile 实例
+         */
         private ZipFile openZip() {
             ZipFile zf = new ZipFile(file);
             if (password != null) {
@@ -175,9 +181,27 @@ public class Zip4jFileSystem implements FileSystem {
         private char[] password;
         /** Compression级别 */
         private CompressionLevel compressionLevel = CompressionLevel.NORMAL;
+        /** 分卷大小（字节），0 表示不分卷。最小 65536 字节（64KB） */
+        private long splitSize = 0;
 
         Zip4jWriteBuilder(File file) {
             super(file);
+        }
+
+        /**
+         * 设置分卷大小。
+         * <p>zip4j 最小分卷大小为 65536 字节（64KB）。设置后将创建分卷归档。</p>
+         *
+         * @param size 每个分卷的最大字节数（最小 65536）
+         * @return 当前构建器
+         */
+        public Zip4jWriteBuilder splitSize(long size) {
+            if (size < 65536) {
+                throw new UncheckedIOException(
+                    new IOException("Split size must be at least 65536 bytes (64KB)"));
+            }
+            this.splitSize = size;
+            return this;
         }
 
         /** 设置Password */
@@ -254,6 +278,10 @@ public class Zip4jFileSystem implements FileSystem {
             }
 
             try (ZipFile zipFile = new ZipFile(file)) {
+                if (password != null) {
+                    zipFile.setPassword(password);
+                }
+
                 for (EntryData ed : entries) {
                     ZipParameters params = new ZipParameters();
                     params.setCompressionLevel(compressionLevel);
@@ -262,7 +290,12 @@ public class Zip4jFileSystem implements FileSystem {
                     if (password != null) {
                         params.setEncryptFiles(true);
                         params.setEncryptionMethod(EncryptionMethod.AES);
-                        zipFile.setPassword(password);
+                    }
+
+                    // 设置分卷参数（仅对第一个条目生效）
+                    if (splitSize > 0) {
+                        params.setSplitArchive(true);
+                        params.setSplitLength(splitSize);
                     }
 
                     if (ed.getSource() != null) {

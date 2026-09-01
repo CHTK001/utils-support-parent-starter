@@ -42,7 +42,7 @@ import com.chua.common.support.spi.ServiceProvider;
  *
  *   // 第二步：对每个片段分别做 ASR 转写
  *   for (SpeakerSegment seg : segments) {
- *       String text = AudioClient.create("whisper", "")
+ *       String text = VirtualClient.create("whisper", "")
  *           .model("whisper-tiny")
  *           .transcribe(cropAudio(audioBytes, seg.startTimeMs(), seg.durationMs()));
  *       // 将文本回填到片段中
@@ -177,3 +177,4 @@ public interface SpeakerDiarizer {
      */
     List<SpeakerSegment> diarize(java.nio.file.Path path);
 }
+
