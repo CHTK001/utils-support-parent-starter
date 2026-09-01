@@ -80,8 +80,6 @@ public class SenseVoiceAudioClient implements AudioClient {
     private InputStream audioInput;
     /** 推理器 */
     private SenseVoiceTranslator translator;
-    /** 是否使用 GPU */
-    private boolean useGpu;
     /** 是否就绪 */
     private boolean prepared;
 
@@ -98,7 +96,6 @@ public class SenseVoiceAudioClient implements AudioClient {
         this.audioPath = setting.getAudioPath();
         this.audioInput = setting.getAudioInput();
         this.translator = new SenseVoiceTranslator();
-        this.useGpu = Boolean.getBoolean("sensevoice.gpu");
     }
 
     @Override
@@ -110,17 +107,6 @@ public class SenseVoiceAudioClient implements AudioClient {
     @Override
     public AudioClient language(String language) {
         this.language = language;
-        return this;
-    }
-
-    /**
-     * 设置是否使用 GPU (CUDA)。
-     * <pre>{@code
-     *   AudioClient.create("sensevoice", "").gpu(true)
-     * }</pre>
-     */
-    public AudioClient gpu(boolean useGpu) {
-        this.useGpu = useGpu;
         return this;
     }
 
@@ -244,7 +230,6 @@ public class SenseVoiceAudioClient implements AudioClient {
                         .load();
             }
             translator.prepare(modelDir);
-            translator.setGpu(useGpu);
             prepared = true;
         } catch (Exception e) {
             throw new RuntimeException("SenseVoice model prepare failed", e);

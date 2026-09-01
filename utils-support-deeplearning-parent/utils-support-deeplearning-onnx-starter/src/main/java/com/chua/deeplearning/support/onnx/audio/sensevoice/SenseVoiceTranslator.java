@@ -4,6 +4,7 @@ import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
+import com.chua.deeplearning.support.onnx.GpuHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -78,8 +79,6 @@ public class SenseVoiceTranslator {
 
     private OrtEnvironment ortEnv;
     private OrtSession session;
-    /** 是否使用 GPU (CUDA) */
-    private boolean useGpu;
     /** id → token 词表 */
     private Map<Integer, String> vocab;
     /** CMVN 减项 */
@@ -119,16 +118,7 @@ public class SenseVoiceTranslator {
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-        if (useGpu) {
-            try {
-                ai.onnxruntime.providers.OrtCUDAProviderOptions cudaOpts =
-                        new ai.onnxruntime.providers.OrtCUDAProviderOptions();
-                opts.addCUDA(cudaOpts);
-                System.out.println("[SenseVoice] GPU (CUDA) 模式已启用");
-            } catch (Exception e) {
-                System.err.println("[SenseVoice] CUDA provider 初始化失败，回退 CPU: " + e.getMessage());
-            }
-        }
+        GpuHelper.apply(opts);
         this.session = ortEnv.createSession(modelPath.toString(), opts);
 
         loadVocab(tokensPath);
@@ -172,18 +162,6 @@ public class SenseVoiceTranslator {
     /** 是否已初始化 */
     public boolean isPrepared() {
         return prepared;
-    }
-
-    /**
-     * 设置是否使用 GPU (CUDA)。
-     * 需在 {@link #prepare(Path)} 之前调用。
-     *
-     * @param useGpu true 启用 CUDA，false 使用 CPU
-     * @return this
-     */
-    public SenseVoiceTranslator setGpu(boolean useGpu) {
-        this.useGpu = useGpu;
-        return this;
     }
 
     /** 返回第一个存在的候选文件路径 */

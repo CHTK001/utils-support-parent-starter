@@ -23,6 +23,72 @@
     "metadata" : { },
     "timestamp" : "2026-09-01 08:36:28.771",
     "usage" : null
+  }, {
+    "id" : "470e423a-3ad6-48dc-832f-04cff86a2043",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "你好，请总结一下北京今天的天气并写入报告"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:05:03.359",
+    "usage" : null
+  }, {
+    "id" : "99d6292c-41e0-4a82-bd3b-20e9b27c85ef",
+    "name" : "hook-test-agent",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "任务完成，天气已查询，文件已写入"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:05:03.365",
+    "usage" : null
+  }, {
+    "id" : "021b3398-6e42-4217-bafa-5b2708ab1f87",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "你好，请总结一下北京今天的天气并写入报告"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:05:28.911",
+    "usage" : null
+  }, {
+    "id" : "a73532ce-1d4f-4543-aa11-d5fda71bbcd4",
+    "name" : "hook-test-agent",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "任务完成，天气已查询，文件已写入"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:05:28.923",
+    "usage" : null
+  }, {
+    "id" : "8b2eb664-9268-47e8-b037-726414620753",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "你好，请总结一下北京今天的天气并写入报告"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:06:11.189",
+    "usage" : null
+  }, {
+    "id" : "8242f459-69d8-46ed-9069-a4d8736287e0",
+    "name" : "hook-test-agent",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "任务完成，天气已查询，文件已写入"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:06:11.199",
+    "usage" : null
   } ],
   "reply_id" : "6eea41f40ac54cddacd8658553a0fcdc",
   "cur_iter" : 0,
