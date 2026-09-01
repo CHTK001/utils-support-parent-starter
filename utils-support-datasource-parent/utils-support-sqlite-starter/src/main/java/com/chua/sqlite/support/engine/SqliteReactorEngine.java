@@ -149,11 +149,7 @@ public class SqliteReactorEngine extends JdbcReactorEngine {
     private Mono<Integer> executeViaHook(String sql) {
         if (hookConnection == null) {
             /* hook 不可用时降级到 JDBC */
-            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
-            if (ds != null) {
-                return executeViaJdbc(ds, sql);
-            }
-            return Mono.error(new IllegalStateException("未配置数据源，无法执行语句"));
+            return super.execute(sql);
         }
         return Mono.fromCallable(() -> {
             int rc = hookConnection.exec(sql);
@@ -164,11 +160,7 @@ public class SqliteReactorEngine extends JdbcReactorEngine {
             return 1;
         }).onErrorResume(e -> {
             log.warn("[sqlite-reactor] hook 执行失败，降级到 JDBC: {}", e.getMessage());
-            DataSource ds = jdbcDataSources.get(defaultDataSourceName);
-            if (ds != null) {
-                return executeViaJdbc(ds, sql);
-            }
-            return Mono.error(e);
+            return super.execute(sql);
         });
     }
 

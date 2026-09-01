@@ -45,8 +45,8 @@ public final class SqliteHookConnection implements AutoCloseable {
     /** 原生库是否已加载 */
     private static volatile boolean LIBRARY_LOADED = false;
 
-    /** hook_open 返回的不透明句柄（MemoryAddress） */
-    private final MemoryAddress handle;
+    /** hook_open 返回的不透明句柄（MemorySegment，代表 native void*） */
+    private final MemorySegment handle;
     /** 事件发射器（多订阅者，安全释放） */
     private final Sinks.Many<SqliteChangeEvent> sink;
     /** 轮询守护线程 */
@@ -70,7 +70,7 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
         try (var arena = Arena.ofConfined()) {
             MemorySegment pathSeg = arena.allocateFrom(dbPath, StandardCharsets.UTF_8);
-            MemoryAddress h = (MemoryAddress) HOOK_OPEN_HANDLE.invoke(pathSeg);
+            MemorySegment h = (MemorySegment) HOOK_OPEN_HANDLE.invoke(pathSeg);
             if (h == null || h.equals(MemorySegment.NULL)) {
                 log.error("[sqlite-hook] hook_open 失败: dbPath={}", dbPath);
                 return null;
@@ -82,10 +82,12 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
     }
 
-    private SqliteHookConnection(MemoryAddress handle) {
+    private SqliteHookConnection(MemorySegment handle) {
         this.handle = handle;
         /* REPLAY：新订阅者仍能收到历史事件（缓冲区上限 1024）*/
-        this.sink = Sinks.many().replay().limit(1024).empty();
+        @SuppressWarnings("unchecked")
+        Sinks.Many<SqliteChangeEvent> s = (Sinks.Many<SqliteChangeEvent>) (Sinks.Many<?>) Sinks.many().replay().limit(1024);
+        this.sink = s;
         /* 守护轮询线程 */
         this.pollThread = new Thread(this::pollLoop, "sqlite-hook-poll");
         pollThread.setDaemon(true);
