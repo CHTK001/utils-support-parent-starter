@@ -175,15 +175,18 @@ public final class SqliteHookConnection implements AutoCloseable {
     /**
      * drain 守护线程主循环。
      *
-     * <p>持续调用 {@code hook_wait} 阻塞等待 pipe 信号（OS 层面挂起，无 CPU 轮询），
-     * 有事件时从 ring buffer 读取并推送到 sink。</p>
+     * <p>策略：
+     * <ol>
+     *   <li>ring buffer 有事件时立即 drain（poll + tryEmitNext），无订阅者时自动跳过</li>
+     *   <li>ring buffer 为空时调用 hook_wait(500ms) 阻塞等待，避免 busy loop</li>
+     * </ol>
+     * </p>
      */
     private void drainLoop() {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 try (var arena = Arena.ofConfined()) {
-                    /* 每次最多阻塞 2s；pipe 有效时 OS 立即唤醒，pipe 无效时 C 侧退化为 10ms 轮询 */
-                    MemorySegment jsonSeg = (MemorySegment) HOOK_WAIT_HANDLE.invoke(handle, 2000);
+                    MemorySegment jsonSeg = (MemorySegment) HOOK_WAIT_HANDLE.invoke(handle, 500);
                     if (jsonSeg != null && !jsonSeg.equals(MemorySegment.NULL)) {
                         String json = jsonSeg.getString(0, StandardCharsets.UTF_8);
                         SqliteChangeEvent event = parseEvent(json);
@@ -192,15 +195,33 @@ public final class SqliteHookConnection implements AutoCloseable {
                         }
                         HOOK_FREE_HANDLE.invoke(jsonSeg);
                     }
+                    /* 一次性排空所有累积事件 */
+                    drainBuffer();
                 } catch (Throwable e) {
                     if (!Thread.currentThread().isInterrupted()) {
-                        /* hook_wait 内部异常（如 pipe 关闭），静默忽略 */
+                        Thread.sleep(100);
                     }
                 }
             }
         } finally {
             sink.tryEmitComplete();
         }
+    }
+
+    /**
+     * 排空 ring buffer 中所有累积事件，避免事件丢失。
+     */
+    private void drainBuffer() {
+        try (var arena = Arena.ofConfined()) {
+            while (true) {
+                MemorySegment jsonSeg = (MemorySegment) HOOK_WAIT_HANDLE.invoke(handle, 0);
+                if (jsonSeg == null || jsonSeg.equals(MemorySegment.NULL)) break;
+                String json = jsonSeg.getString(0, StandardCharsets.UTF_8);
+                SqliteChangeEvent event = parseEvent(json);
+                if (event != null) sink.tryEmitNext(event);
+                try { HOOK_FREE_HANDLE.invoke(jsonSeg); } catch (Throwable ignored) {}
+            }
+        } catch (Throwable ignored) {}
     }
 
     /* ==================== JSON 解析 ==================== */
