@@ -10,7 +10,7 @@
     </parent>
     <artifactId>utils-support-sqlite-starter</artifactId>
     <name>Utils Support SQLite Starter</name>
-    <description>SQLite 数据库支持模块，提供 SqliteDialect 和 SqlitePolledDirectory</description>
+    <description>SQLite 数据库支持模块，提供 SqliteDialect、SqlitePolledDirectory 和真响应式 SqliteReactorEngine</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -22,6 +22,11 @@
             <artifactId>utils-support-datasource-starter</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-sqlite</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -39,5 +44,16 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
 

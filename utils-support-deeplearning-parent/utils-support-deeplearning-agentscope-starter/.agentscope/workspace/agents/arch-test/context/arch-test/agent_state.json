@@ -133,6 +133,72 @@
     "metadata" : { },
     "timestamp" : "2026-09-01 09:43:14.828",
     "usage" : null
+  }, {
+    "id" : "14748e85-f59e-4b2a-91d9-9d5f15ef87a8",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:53:49.576",
+    "usage" : null
+  }, {
+    "id" : "83fc2e11-e348-4385-9c22-3c5be0c5f529",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:53:51.160",
+    "usage" : null
+  }, {
+    "id" : "25fbb382-9fa7-45fc-bdc7-fc6990aed784",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:55:34.705",
+    "usage" : null
+  }, {
+    "id" : "f62fa704-7305-484a-8047-ad28b2496313",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:55:35.017",
+    "usage" : null
+  }, {
+    "id" : "4a49ca33-68af-4974-8a5b-f9055a9d986d",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:56:29.940",
+    "usage" : null
+  }, {
+    "id" : "21cd1608-09e2-482a-934b-451fcec43bfc",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 09:56:30.493",
+    "usage" : null
   } ],
   "reply_id" : "141e312c2a0f4f2eb0d63ba84ee3ce17",
   "cur_iter" : 0,
