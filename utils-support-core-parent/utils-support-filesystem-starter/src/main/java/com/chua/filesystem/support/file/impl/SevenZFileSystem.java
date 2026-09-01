@@ -11,10 +11,14 @@ import org.apache.commons.compress.archivers.sevenz.SevenZMethodConfiguration;
 import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
 
 import java.io.*;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.compress.utils.MultiReadOnlySeekableByteChannel;
 
 /**
  * 7z 压缩文件系统 SPI 实现。
@@ -48,14 +52,107 @@ public class SevenZFileSystem implements FileSystem {
 
     public static class SevenZReadBuilder extends ReadBuilder {
 
+        /** 是否启用分卷读取模式 */
+        private boolean splitMode = false;
+
         SevenZReadBuilder(File file) {
             super(file);
+        }
+
+        /**
+         * 启用分卷读取模式。
+         * <p>启用后将自动检测同目录下的分卷文件（.7z.001, .7z.002 等）并合并读取。</p>
+         *
+         * @return 当前构建器
+         */
+        public SevenZReadBuilder split() {
+            this.splitMode = true;
+            return this;
+        }
+
+        /**
+         * 查找同目录下的分卷文件。
+         *
+         * @return 分卷文件列表（按顺序排列）
+         */
+        private List<File> findSplitFiles() {
+            List<File> splitFiles = new ArrayList<>();
+            File parentDir = file.getParentFile();
+            if (parentDir == null || !parentDir.exists()) {
+                if (file.exists()) {
+                    splitFiles.add(file);
+                }
+                return splitFiles;
+            }
+
+            String baseName = file.getName();
+            String baseNameWithoutExt = baseName;
+            int lastDot = baseName.lastIndexOf('.');
+            if (lastDot > 0) {
+                baseNameWithoutExt = baseName.substring(0, lastDot);
+            }
+
+            // 查找 .7z.001, .7z.002, ... 等分卷文件
+            String prefix = baseNameWithoutExt + ".";
+            File[] files = parentDir.listFiles((dir, name) ->
+                    name.startsWith(prefix) &&
+                    name.length() >= prefix.length() + 1 &&
+                    !name.equals(baseName));
+
+            if (files != null) {
+                List<File> sortedFiles = new ArrayList<>();
+                for (File f : files) {
+                    String name = f.getName();
+                    String ext = name.substring(prefix.length());
+                    if (ext.matches("\\d+")) {
+                        sortedFiles.add(f);
+                    }
+                }
+                sortedFiles.sort((f1, f2) -> {
+                    String num1 = f1.getName().substring(prefix.length());
+                    String num2 = f2.getName().substring(prefix.length());
+                    return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
+                });
+                splitFiles.addAll(sortedFiles);
+            }
+
+            if (file.exists()) {
+                splitFiles.add(file);
+            }
+            return splitFiles;
+        }
+
+        /**
+         * 创建 SevenZFile，自动处理分卷模式。
+         *
+         * @return SevenZFile 实例
+         * @throws IOException IO 异常
+         */
+        private SevenZFile openSevenZFile() throws IOException {
+            if (!splitMode) {
+                return new SevenZFile(file);
+            }
+
+            List<File> splitFiles = findSplitFiles();
+            if (splitFiles.size() <= 1) {
+                return new SevenZFile(file);
+            }
+
+            // 使用 MultiReadOnlySeekableByteChannel 合并分卷文件
+            List<SeekableByteChannel> channels = new ArrayList<>();
+            for (File f : splitFiles) {
+                channels.add(Files.newByteChannel(f.toPath(), StandardOpenOption.READ));
+            }
+            MultiReadOnlySeekableByteChannel mergedChannel =
+                    MultiReadOnlySeekableByteChannel.forSeekableByteChannels(
+                            channels.toArray(new SeekableByteChannel[0]));
+            return new SevenZFile(mergedChannel);
         }
 
         /** ListEntries */
         public List<String> listEntries() {
             List<String> entries = new ArrayList<>();
-            try (SevenZFile szFile = new SevenZFile(file)) {
+            try (SevenZFile szFile = openSevenZFile()) {
                 SevenZArchiveEntry entry;
                 while ((entry = szFile.getNextEntry()) != null) {
                     entries.add(entry.getName());
@@ -78,7 +175,7 @@ public class SevenZFileSystem implements FileSystem {
 
         /** Extract */
         public void extract(File targetDir, String... entryNames) {
-            try (SevenZFile szFile = new SevenZFile(file)) {
+            try (SevenZFile szFile = openSevenZFile()) {
                 if (!targetDir.exists()) {
                     targetDir.mkdirs();
                 }
@@ -134,7 +231,7 @@ public class SevenZFileSystem implements FileSystem {
          * @throws UncheckedIOException 如果 IO 异常
          */
         public String readEntry(String entryName) {
-            try (SevenZFile szFile = new SevenZFile(file)) {
+            try (SevenZFile szFile = openSevenZFile()) {
                 SevenZArchiveEntry entry;
                 while ((entry = szFile.getNextEntry()) != null) {
                     if (entry.getName().equals(entryName)) {
