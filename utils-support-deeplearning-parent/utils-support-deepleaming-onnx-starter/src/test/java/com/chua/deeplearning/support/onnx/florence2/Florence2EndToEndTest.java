@@ -14,7 +14,7 @@ public class Florence2EndToEndTest {
         byte[] imageData = generateTestImage();
         Files.write(testImage, imageData);
         System.out.println("Test image: " + testImage + " (" + imageData.length + " bytes)");
-        var client = OnnxVirtualClient.create();
+        var client = new OnnxVirtualClient();
         for (UnderstandTask task : new UnderstandTask[]{UnderstandTask.CAPTION, UnderstandTask.OCR}) {
             System.out.println("\n--- Task: " + task + " ---");
             long t0 = System.currentTimeMillis();
