@@ -221,6 +221,94 @@
     "metadata" : { },
     "timestamp" : "2026-09-01 10:03:02.691",
     "usage" : null
+  }, {
+    "id" : "bf883f43-7916-4ae8-9e05-9b60e4a61cd6",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 12:53:02.046",
+    "usage" : null
+  }, {
+    "id" : "25d66a35-0a4e-40a4-b3c8-d7f54425f3d3",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 12:53:02.191",
+    "usage" : null
+  }, {
+    "id" : "e358aeb0-2b8a-4272-be4f-4b5ff9f3c423",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 12:53:34.731",
+    "usage" : null
+  }, {
+    "id" : "bb1bd600-9934-49ab-a849-378b46cdd1e8",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 12:53:35.192",
+    "usage" : null
+  }, {
+    "id" : "6e4d1e29-2645-4d20-996f-e4bbf808c57d",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 13:14:22.672",
+    "usage" : null
+  }, {
+    "id" : "399b31fd-4d67-4d70-a6e8-f9379f828671",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 13:14:22.980",
+    "usage" : null
+  }, {
+    "id" : "b2072ea9-b279-49bd-9478-d62825b65d38",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 13:15:45.690",
+    "usage" : null
+  }, {
+    "id" : "a197f729-f3ff-410c-b8e3-023c4f91e57a",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 13:15:46.161",
+    "usage" : null
   } ],
   "reply_id" : "141e312c2a0f4f2eb0d63ba84ee3ce17",
   "cur_iter" : 0,

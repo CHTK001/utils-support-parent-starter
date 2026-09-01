@@ -11,6 +11,7 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionFunctionTool;
 import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
+import com.openai.models.chat.completions.ChatCompletionTool;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
 import io.agentscope.core.message.ContentBlock;
 import io.agentscope.core.message.Msg;
@@ -49,9 +50,11 @@ public class ChatClientModelAdapter implements Model {
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         List<ChatMessage> history = new ArrayList<>();
         String prompt = "";
+        String systemPrompt = null;
 
         for (Msg msg : messages) {
             if (msg.getRole() == MsgRole.SYSTEM) {
+                systemPrompt = msg.getTextContent();
                 continue;
             }
             String text = msg.getTextContent();
@@ -83,13 +86,9 @@ public class ChatClientModelAdapter implements Model {
             }
         }
 
-        System.out.println("[Adapter] tools count=" + (tools == null ? "null" : tools.size()));
         if (tools != null && !tools.isEmpty()) {
-            log.info("[ChatClientModelAdapter] Calling with {} tools", tools.size());
             try {
-                ChatResponse toolResponse = callWithTools(prompt, history, tools);
-                log.info("[ChatClientModelAdapter] Tool response finishReason={}, contentBlocks={}", 
-                    toolResponse.getFinishReason(), toolResponse.getContent().size());
+                ChatResponse toolResponse = callWithTools(prompt, history, tools, systemPrompt);
                 return Flux.just(toolResponse);
             } catch (Exception e) {
                 log.warn("[ChatClientModelAdapter] Tool calling failed, fallback to text prompt: {}", e.getMessage());
@@ -115,12 +114,11 @@ public class ChatClientModelAdapter implements Model {
         return Flux.just(response);
     }
 
-    private ChatResponse callWithTools(String prompt, List<ChatMessage> history, List<ToolSchema> tools) {
+    private ChatResponse callWithTools(String prompt, List<ChatMessage> history, List<ToolSchema> tools, String systemPrompt) {
         String apiKey = extractApiKey();
         String baseUrl = extractBaseUrl();
         String modelId = extractModelId();
 
-        System.out.println("[Adapter] apiKey=" + (apiKey != null && !apiKey.isBlank() ? "yes" : "NO") + " baseUrl=" + baseUrl + " modelId=" + modelId);
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("无法获取 API Key，请确保 ChatClient 已正确配置");
         }
@@ -131,7 +129,6 @@ public class ChatClientModelAdapter implements Model {
             modelId = "gpt-4o";
         }
 
-        System.out.println("[Adapter] Building OpenAI client...");
         OpenAIClient openAiClient = OpenAIOkHttpClient.builder()
                 .apiKey(apiKey)
                 .baseUrl(baseUrl)
@@ -141,6 +138,9 @@ public class ChatClientModelAdapter implements Model {
         ChatCompletionCreateParams.Builder paramsBuilder = ChatCompletionCreateParams.builder()
                 .model(modelId)
                 .maxTokens(4096);
+        if (systemPrompt != null && !systemPrompt.isBlank()) {
+            paramsBuilder.addSystemMessage(systemPrompt);
+        }
 
         for (ChatMessage cm : history) {
             if ("user".equals(cm.getRole())) {
@@ -172,19 +172,18 @@ public class ChatClientModelAdapter implements Model {
         paramsBuilder.toolChoice(ChatCompletionToolChoiceOption.ofAuto(ChatCompletionToolChoiceOption.Auto.AUTO));
 
         System.out.println("[Adapter] Sending " + toolDefs.size() + " tools to model " + modelId);
-        log.info("[ChatClientModelAdapter] Sending {} tools to model {}", toolDefs.size(), modelId);
         ChatCompletion completion = openAiClient.chat().completions().create(paramsBuilder.build());
 
-        System.out.println("[Adapter] Got completion, id=" + completion.id());
         var message = completion.choices().get(0).message();
+        System.out.println("[Adapter] finishReason=" + completion.choices().get(0).finishReason()
+                + " hasToolCalls=" + message.toolCalls().isPresent());
 
-        System.out.println("[Adapter] finishReason=" + completion.choices().get(0).finishReason() + " toolCalls present=" + message.toolCalls().isPresent());
-        log.info("[ChatClientModelAdapter] Response finishReason={}, hasToolCalls={}", 
-            completion.choices().get(0).finishReason(), message.toolCalls().isPresent());
         if (message.toolCalls().isPresent() && !message.toolCalls().get().isEmpty()) {
             List<ContentBlock> blocks = new ArrayList<>();
+            System.out.println("[Adapter] Tool calls count: " + message.toolCalls().get().size());
             for (ChatCompletionMessageToolCall toolCall : message.toolCalls().get()) {
                 var fnCall = toolCall.asFunction();
+                System.out.println("[Adapter] Calling tool: " + fnCall.function().name() + " args=" + fnCall.function().arguments());
                 String callId = fnCall.id();
                 String toolName = fnCall.function().name();
                 String argumentsJson = fnCall.function().arguments();
@@ -306,16 +305,6 @@ public class ChatClientModelAdapter implements Model {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

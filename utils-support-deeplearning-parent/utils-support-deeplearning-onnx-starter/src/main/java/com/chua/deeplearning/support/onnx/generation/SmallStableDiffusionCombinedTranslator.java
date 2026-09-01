@@ -123,6 +123,12 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private volatile String negative = System.getProperty("small.sd.negative", "");
 
     /**
+     * LCM 少步模式（-Dsmall.sd.lcm=true）：guidance=1（跳过 uncond 分支，UNet 前向减半），
+     * 默认步数 4。适配 LCM Dreamshaper 等一致性蒸馏模型。
+     */
+    private static final boolean LCM_MODE = Boolean.getBoolean("small.sd.lcm");
+
+    /**
      * 设备设置（auto/cpu/gpu），来自配置或系统属性
      */
     private String deviceSetting = System.getProperty("deeplearning.device");
@@ -193,8 +199,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     public SmallStableDiffusionCombinedTranslator() {
         this(Integer.getInteger("small.sd.width", 512),
                 Integer.getInteger("small.sd.height", 512),
-                Integer.getInteger("small.sd.steps", 20),
-                Double.parseDouble(System.getProperty("small.sd.guidance", "7.5")));
+                Integer.getInteger("small.sd.steps", LCM_MODE ? 4 : 20),
+                Double.parseDouble(System.getProperty("small.sd.guidance", LCM_MODE ? "1.0" : "7.5")));
     }
 
     /**
@@ -207,8 +213,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     public SmallStableDiffusionCombinedTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration config) {
         this(optInt(config, "width", Integer.getInteger("small.sd.width", 512)),
                 optInt(config, "height", Integer.getInteger("small.sd.height", 512)),
-                optInt(config, "steps", Integer.getInteger("small.sd.steps", 20)),
-                optDbl(config, "guidance", Double.parseDouble(System.getProperty("small.sd.guidance", "7.5"))));
+                optInt(config, "steps", Integer.getInteger("small.sd.steps", LCM_MODE ? 4 : 20)),
+                optDbl(config, "guidance", Double.parseDouble(System.getProperty("small.sd.guidance", LCM_MODE ? "1.0" : "7.5"))));
         this.negative = optStr(config, "negative", System.getProperty("small.sd.negative", ""));
         this.deviceSetting = optStr(config, "device", System.getProperty("deeplearning.device"));
         this.unetDeviceSetting = optStr(config, "unetDevice", System.getProperty("small.sd.unetDevice"));
@@ -333,7 +339,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             long[][] idsPair = tokenizePair(prompt);
 
             float[] condEmb = runTextEncoder(idsPair[1]);
-            float[] uncondEmb = runTextEncoder(idsPair[0]);
+            // LCM 模式 guidance=1：无需无条件分支，跳过 uncond 文本编码
+            float[] uncondEmb = LCM_MODE ? null : runTextEncoder(idsPair[0]);
             log.info("[Small SD v0][STAGE] 文本编码完成 emb[min={}, max={}]", fmin(condEmb), fmax(condEmb));
 
             int latentH = height / 8;
@@ -353,7 +360,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             for (int i = 0; i < numInferenceSteps; i++) {
                 long t = timesteps[i];
                 long tPrev = i + 1 < numInferenceSteps ? timesteps[i + 1] : 0L;
-                float[] epsUncond = predictNoise(latent, t, uncondEmb);
+                // LCM 模式：guidance=1，跳过 uncond 分支（UNet 前向减半）
+                float[] epsUncond = LCM_MODE ? null : predictNoise(latent, t, uncondEmb);
                 float[] epsCond = predictNoise(latent, t, condEmb);
                 if (i == 0) {
                     log.info("[Small SD v0][STAGE] step0 eps[min={}, max={}] / [{}]",
@@ -376,7 +384,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                     }
                 }
                 for (int k = 0; k < latent.length; k++) {
-                    float eps = epsUncond[k] + (float) guidanceScale * (epsCond[k] - epsUncond[k]);
+                    // LCM 模式 guidance=1：直接用条件 eps；否则 CFG 插值
+                    float eps = LCM_MODE ? epsCond[k]
+                            : epsUncond[k] + (float) guidanceScale * (epsCond[k] - epsUncond[k]);
                     double acpT = alphasCumprod[(int) t];
                     double acpPrev = alphasCumprod[(int) tPrev];
                     float predX0 = (float) ((latent[k] - eps * Math.sqrt(Math.max(0d, 1d - acpT))) / Math.sqrt(acpT));

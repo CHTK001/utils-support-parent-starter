@@ -3,161 +3,88 @@ package com.chua.filesearch.support.bridge;
 import com.chua.common.support.utils.NativeLoader;
 import com.chua.common.support.utils.NativeUtils;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Rust 文件搜索本地库桥接（JNI）。
- *
- * <p>封装对 Rust 实现的文件搜索动态库（file_search）的加载与调用，
- * 提供按名称、按大小、按路径搜索与目录树遍历四类能力，
- * 搜索结果通过 {@link Consumer} 回调逐条返回。</p>
- *
- * <p><b>使用约定：</b></p>
- * <ol>
- *   <li>调用任何搜索方法前必须先调用 {@link #loadLibrary()} 加载本地库</li>
- *   <li>通过 {@link #isLoaded()} 判断加载是否成功，未加载时不应调用 native 方法</li>
- * </ol>
- *
- * @author CH
- */
 @Slf4j
 public final class RustFileSearchBridge {
 
-    /** 本地库是否已成功加载 */
     private static volatile boolean loaded = false;
-
-    /** 加载锁 */
     private static final Object LOAD_LOCK = new Object();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /**
-     * 私有构造，仅暴露静态方法。
-     */
-    private RustFileSearchBridge() {
-    }
+    public record FileResultData(String path, long size, long lastModified,
+                                 boolean isDirectory, String extension, int attributes,
+                                 long usnRecordId, long parentFileId, long allocatedSize) {}
 
-    /**
-     * 文件搜索结果数据载体
-     *
-     * @param path          文件完整路径
-     * @param size          文件大小（字节）
-     * @param lastModified  最后修改时间（epoch 毫秒）
-     * @param isDirectory   是否为目录
-     * @param extension     扩展名（不含点号，可为 null）
-     * @param attributes    Windows 文件属性位掩码
-     * @param usnRecordId   NTFS USN 记录 ID
-     * @param parentFileId  父目录文件 ID
-     * @param allocatedSize 分配大小（字节）
-     * @author CH
-     */
-    public record FileResultData(
-            String path,
-            long size,
-            long lastModified,
-            boolean isDirectory,
-            String extension,
-            int attributes,
-            long usnRecordId,
-            long parentFileId,
-            long allocatedSize
-    ) {
-    }
-
-    /**
-     * 加载本地搜索库。
-     *
-     * <p>重复调用安全；加载失败时静默降级，
-     * 可通过 {@link #isLoaded()} 查询结果。</p>
-     */
     public static synchronized void loadLibrary() {
-        if (loaded) {
-            return;
-        }
+        if (loaded) return;
         synchronized (LOAD_LOCK) {
-            if (loaded) {
-                return;
-            }
+            if (loaded) return;
             try {
                 NativeLoader.of("file-search")
                         .toTarget(NativeUtils.tempRoot().resolve("file-search"))
                         .glob("*file_search*")
                         .load();
                 loaded = true;
-                log.info("Rust file search native library loaded successfully.");
+                log.info("Rust file search native library loaded.");
             } catch (Throwable e) {
-                log.error("Failed to load Rust file search native library: {}", e.getMessage(), e);
+                log.error("Failed to load Rust file search: {}", e.getMessage());
                 loaded = false;
             }
         }
     }
 
-    /**
-     * 判断本地库是否已加载。
-     *
-     * @return 已加载返回 true
-     */
-    public static boolean isLoaded() {
-        return loaded;
+    public static boolean isLoaded() { return loaded; }
+
+    // JNI: 直接返回 JSON 字符串（不再用回调）
+    private static native String _searchByName(String rootPath, String namePattern, int maxResults);
+    private static native String _getTree(String rootPath, int maxDepth, int maxResults);
+    private static native String getVersion();
+
+    public static List<FileResultData> searchByName(String rootPath, String namePattern, int maxResults) {
+        loadLibrary();
+        String json = _searchByName(rootPath, namePattern, maxResults);
+        return parseResults(json);
     }
 
-    /**
-     * 获取本地库版本号。
-     *
-     * @return 版本字符串
-     */
-    public static native String getVersion();
+    public static List<FileResultData> getTree(String rootPath, int maxDepth, int maxResults) {
+        loadLibrary();
+        String json = _getTree(rootPath, maxDepth, maxResults);
+        return parseResults(json);
+    }
 
-    /**
-     * 取消当前正在执行的搜索任务。
-     */
-    public static native void cancel();
+    public static String getVersion() {
+        loadLibrary();
+        return _getVersion();
+    }
 
-    /**
-     * 按文件名模式搜索。
-     *
-     * @param rootPath   搜索根目录
-     * @param namePattern 文件名通配符（如 *.txt）
-     * @param maxResults  最大结果数
-     * @param callback    结果回调
-     * @return 错误码，负值表示失败
-     */
-    public static native int searchByName(String rootPath, String namePattern, int maxResults,
-                                          Consumer<FileResultData> callback);
+    private static native String _getVersion();
 
-    /**
-     * 按文件大小范围搜索。
-     *
-     * @param rootPath   搜索根目录
-     * @param minSize    最小字节
-     * @param maxSize    最大字节
-     * @param maxResults 最大结果数
-     * @param callback   结果回调
-     * @return 错误码，负值表示失败
-     */
-    public static native int searchBySize(String rootPath, long minSize, long maxSize, int maxResults,
-                                          Consumer<FileResultData> callback);
-
-    /**
-     * 遍历目录树。
-     *
-     * @param rootPath   根目录
-     * @param maxDepth   最大深度
-     * @param maxResults 最大结果数
-     * @param callback   结果回调
-     * @return 错误码，负值表示失败
-     */
-    public static native int getTree(String rootPath, int maxDepth, int maxResults,
-                                     Consumer<FileResultData> callback);
-
-    /**
-     * 按路径模式搜索。
-     *
-     * @param rootDir     搜索根目录
-     * @param pathPattern 路径通配符
-     * @param maxResults  最大结果数
-     * @param callback    结果回调
-     * @return 错误码，负值表示失败
-     */
-    public static native int searchByPath(String rootDir, String pathPattern, int maxResults,
-                                          Consumer<FileResultData> callback);
+    private static List<FileResultData> parseResults(String json) {
+        List<FileResultData> results = new ArrayList<>();
+        if (json == null || json.isEmpty()) return results;
+        try {
+            JsonNode root = MAPPER.readTree(json);
+            JsonNode arr = root.path("results");
+            if (arr.isArray()) {
+                for (JsonNode item : arr) {
+                    results.add(new FileResultData(
+                        item.path("path").asText(""),
+                        item.path("size").asLong(0),
+                        item.path("modified").asLong(0),
+                        false,
+                        item.path("ext").asText(""),
+                        0, 0, 0, 0
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse filesearch result: {}", e.getMessage());
+        }
+        return results;
+    }
 }

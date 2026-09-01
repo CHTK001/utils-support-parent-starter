@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -18,19 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Florence-2 多模态理解 Translator（ONNX Runtime）。
- * <p>
- * 输入：Object[]{byte[] imageData, String taskPrompt}
- * taskPrompt 示例：{@code "<CAPTION>"}、{@code "<OCR>"}、{@code "<OD>"}、{@code "<DETAILED_CAPTION>"}
- * </p>
- * <p>
- * 模型来源：onnx-community/Florence-2-base-ft（HuggingFace，MIT 协议）
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
- */
 @Slf4j
 public class Florence2Translator implements ITranslator<Object[], String> {
 
@@ -56,11 +44,10 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private OrtSession embedSession;
     private OrtSession decoderSession;
     private volatile boolean prepared;
+    
 
     @Override
-    public String name() {
-        return NAME;
-    }
+    public String name() { return NAME; }
 
     private synchronized void prepare() throws Exception {
         if (prepared) return;
@@ -74,17 +61,16 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         Path tokenizerPath = modelDir.resolve("tokenizer.json");
 
         if (!Files.exists(visionPath) || !Files.exists(decoderPath) || !Files.exists(tokenizerPath)) {
-            throw new IllegalStateException("Florence-2 model files missing: vision=" + visionPath
-                    + " decoder=" + decoderPath + " tokenizer=" + tokenizerPath);
+            throw new IllegalStateException("Florence-2 model files missing: " + visionPath + " " + decoderPath);
         }
 
-        tokenizer = HuggingFaceTokenizer.builder()
-                .optTokenizerPath(tokenizerPath)
-                .optPadding(false)
-                .optMaxLength(128)
-                .build();
-
+        tokenizer = HuggingFaceTokenizer.builder().optTokenizerPath(tokenizerPath).optPadding(false).optMaxLength(128).build();
         ortEnv = OrtEnvironment.getEnvironment();
+
+        // 获取 boolean tensor 创建方法
+        boolTensorMethod = OnnxTensor.class.getDeclaredMethod("createTensor", OrtEnvironment.class, Object.class, long[].class);
+        boolTensorMethod.setAccessible(true);
+
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));
         opts.setInterOpNumThreads(2);
@@ -93,8 +79,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         embedSession = ortEnv.createSession(embedPath.toString(), opts);
         decoderSession = ortEnv.createSession(decoderPath.toString(), opts);
 
-        log.info("[Florence-2] Model loaded: vision={} embed={} decoder={}",
-                visionPath, embedPath, decoderPath);
+        log.info("[Florence-2] Model loaded: vision={} embed={} decoder={}", visionPath, embedPath, decoderPath);
         prepared = true;
     }
 
@@ -104,44 +89,31 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             Path target = modelDir.resolve(f);
             if (Files.exists(target)) continue;
             try {
-                Files.copy(java.net.URI.create(base + f).toURL().openStream(),
-                        target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(java.net.URI.create(base + f).toURL().openStream(), target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 log.info("[Florence-2] Downloaded: {} ({}MB)", f, target.toFile().length() / 1024 / 1024);
-            } catch (Exception e) {
-                log.warn("[Florence-2] Download failed {}: {}", f, e.getMessage());
-            }
+            } catch (Exception e) { log.warn("[Florence-2] Download failed {}: {}", f, e.getMessage()); }
         }
         Path tokenizerPath = modelDir.resolve("tokenizer.json");
         if (!Files.exists(tokenizerPath)) {
             try {
-                java.net.URI uri = new java.net.URI(
-                        "https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/tokenizer.json");
-                Files.copy(uri.toURL().openStream(), tokenizerPath,
-                        java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception e) {
-                log.warn("[Florence-2] Tokenizer download failed: {}", e.getMessage());
-            }
+                java.net.URI uri = new java.net.URI("https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/tokenizer.json");
+                Files.copy(uri.toURL().openStream(), tokenizerPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception e) { log.warn("[Florence-2] Tokenizer download failed: {}", e.getMessage()); }
         }
     }
 
     @Override
     public String translate(Object[] input) {
         try {
-            if (input == null || input.length < 2) {
-                throw new IllegalArgumentException("Input: Object[]{byte[] image, String taskPrompt}");
-            }
+            if (input == null || input.length < 2) throw new IllegalArgumentException("Input: Object[]{byte[] image, String taskPrompt}");
             byte[] imageData = (byte[]) input[0];
             String taskPrompt = (String) input[1];
-            if (imageData == null || imageData.length == 0) {
-                throw new IllegalArgumentException("Image data is empty");
-            }
+            if (imageData == null || imageData.length == 0) throw new IllegalArgumentException("Image data is empty");
             prepare();
             float[] pixels = preprocessImage(imageData);
             float[][] encoderHidden = inferVision(pixels);
             return generate(encoderHidden, taskPrompt).trim();
-        } catch (Exception e) {
-            throw new RuntimeException("Florence-2 inference failed: " + e.getMessage(), e);
-        }
+        } catch (Exception e) { throw new RuntimeException("Florence-2 inference failed: " + e.getMessage(), e); }
     }
 
     private float[] preprocessImage(byte[] imageData) throws Exception {
@@ -216,7 +188,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
 
                     OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
                     OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
-                    OnnxTensor useCacheTensor = OnnxTensor.createTensor(ortEnv, new long[]{firstStep ? 0L : 1L});
+                    
 
                     Map<String, OnnxTensor> decoderInputs = new HashMap<>();
                     decoderInputs.put("inputs_embeds", embedsTensor);
@@ -245,7 +217,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                                     OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(zeroE), sEK));
                         }
                     }
-                    decoderInputs.put("use_cache_branch", useCacheTensor);
+
 
                     try (OrtSession.Result decodeResult = decoderSession.run(decoderInputs)) {
                         OnnxTensor logitsTensor = (OnnxTensor) decodeResult.get("logits").get();
@@ -266,7 +238,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                         pastKV = newKV;
                         firstStep = false;
                     }
-                    embedsTensor.close(); encoderHiddenTensor.close(); useCacheTensor.close(); idsTensor.close();
+                    embedsTensor.close(); encoderHiddenTensor.close(); idsTensor.close();
                 }
             }
         } finally {

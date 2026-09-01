@@ -51,6 +51,16 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     private List<String> inputNames;
     private final Map<Integer, String> vocab = new HashMap<>();
 
+    // ===== 流式状态 =====
+    /** 待解码的编码器输出帧 */
+    private final List<float[]> streamingEncoderOut = new ArrayList<>();
+    /** 当前编码器状态（跨 chunk 保持） */
+    private Map<String, OnnxTensor> streamingStates = new LinkedHashMap<>();
+    /** 当前解码器上下文 [-1, BLANK_ID] */
+    private final long[] streamingContext = {-1L, BLANK_ID};
+    /** 当前解码器输出 */
+    private float[] streamingDecoderOut;
+
     /**
      * 从模型目录加载。
      *

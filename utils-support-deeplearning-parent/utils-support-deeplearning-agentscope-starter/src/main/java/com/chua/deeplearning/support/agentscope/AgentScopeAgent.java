@@ -110,6 +110,7 @@ public class AgentScopeAgent implements Agent {
 
     /** 注册的技能列表（name → handler） */
     private final Map<String, com.chua.common.support.ai.skill.SkillHandler> skills = new java.util.LinkedHashMap<>();
+    private final Map<String, String> skillDescriptions = new java.util.LinkedHashMap<>();
 
     /**
      * 每次 run 注册的 modelId 追踪，用于清理
@@ -184,6 +185,7 @@ public class AgentScopeAgent implements Agent {
     public Agent skill(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
         if (name != null && handler != null) {
             this.skills.put(name, handler);
+            if (description != null) { this.skillDescriptions.put(name, description); }
         }
         return this;
     }
@@ -554,7 +556,8 @@ public class AgentScopeAgent implements Agent {
             for (Map.Entry<String, com.chua.common.support.ai.skill.SkillHandler> entry : skills.entrySet()) {
                 final String skillName = entry.getKey();
                 final com.chua.common.support.ai.skill.SkillHandler handler = entry.getValue();
-                toolkit.registerAgentTool(new SkillAgentTool(skillName, handler));
+                String desc = skillDescriptions.get(skillName);
+                toolkit.registerAgentTool(new SkillAgentTool(skillName, desc != null ? desc : "Skill: " + skillName, handler));
             }
             builder.toolkit(toolkit);
         }
@@ -713,18 +716,20 @@ public class AgentScopeAgent implements Agent {
     private static class SkillAgentTool implements io.agentscope.core.tool.AgentTool {
 
         private final String name;
-        private final com.chua.common.support.ai.skill.SkillHandler handler;
+        private final String description;
+          private final com.chua.common.support.ai.skill.SkillHandler handler;
 
-        SkillAgentTool(String name, com.chua.common.support.ai.skill.SkillHandler handler) {
+        SkillAgentTool(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
             this.name = name;
-            this.handler = handler;
+            this.description = description;
+              this.handler = handler;
         }
 
         @Override
         public String getName() { return name; }
 
         @Override
-        public String getDescription() { return "Skill: " + name; }
+        public String getDescription() { return description; }
 
         @Override
         public java.util.Map<String, Object> getParameters() {
@@ -750,3 +755,6 @@ public class AgentScopeAgent implements Agent {
         }
     }
 }
+
+
+
