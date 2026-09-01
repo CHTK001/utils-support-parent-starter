@@ -20,10 +20,6 @@ public class DetectionConfiguration {
     /** 运行参数键：NMS IOU 阈值 */
     public static final String KEY_IOU_THRESHOLD = "iouThreshold";
 
-    /** 默认配置实例 */
-    /** 默认 */
-    public static final DetectionConfiguration DEFAULT = new DetectionConfiguration();
-
     /** 是否使用 GPU */
     /** USEGPU */
     private boolean useGpu;
@@ -41,6 +37,17 @@ public class DetectionConfiguration {
 
     /** 系统级选项（appId、appKey 等） */
     private Map<String, Object> systemOption;
+
+    /** 默认配置实例 */
+    /** 默认 */
+    public static final DetectionConfiguration DEFAULT = new DetectionConfiguration();
+
+    /** 全局当前配置（静态单例，线程安全） */
+    private static volatile DetectionConfiguration current;
+
+    static {
+        current = DEFAULT;
+    }
 
     /**
      * 是否使用 GPU。
@@ -157,6 +164,26 @@ public class DetectionConfiguration {
         }
         Object v = systemOption.get("appKey");
         return v != null ? v.toString() : null;
+    }
+
+    /**
+     * 获取当前全局配置。
+     *
+     * @return 当前 DetectionConfiguration
+     */
+    public static DetectionConfiguration get() {
+        return current;
+    }
+
+    /**
+     * 设置全局配置。所有模型共享此配置，调用一次即可全局生效。
+     *
+     * @param config 全局配置
+     */
+    public static void set(DetectionConfiguration config) {
+        if (config != null) {
+            current = config;
+        }
     }
 
     /**
