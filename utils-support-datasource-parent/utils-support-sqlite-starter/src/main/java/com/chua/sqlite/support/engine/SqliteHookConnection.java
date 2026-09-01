@@ -132,8 +132,7 @@ public final class SqliteHookConnection implements AutoCloseable {
         Disposable bridge = sink.asFlux().subscribe(
                 e -> {
                     // 只转发序号大于 lastSeq 的事件（即本订阅之后的新事件）
-                    if (seq.get() > lastSeq) { System.err.println("[DEBUG] bridge forwarding seq=" + seq.get() + " lastSeq=" + lastSeq);
-                        liveSink.tryEmitNext(e);
+                    if (seq.get() > lastSeq) {                        liveSink.tryEmitNext(e);
                     }
                 },
                 err -> liveSink.tryEmitError(err),
@@ -170,8 +169,7 @@ public final class SqliteHookConnection implements AutoCloseable {
                     if (allEvents.size() > MAX_REPLAY) {
                         allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
                     }
-                    int s = seq.incrementAndGet(); System.err.println("[DEBUG] emit event seq=" + s + " allEvents.size=" + allEvents.size());
-                    sink.tryEmitNext(event);
+                    int s = seq.incrementAndGet();                    sink.tryEmitNext(event);
                 }
                 polled++;
             }
@@ -227,4 +225,5 @@ public final class SqliteHookConnection implements AutoCloseable {
         catch (NumberFormatException e) { return 0L; }
     }
 }
+
 
