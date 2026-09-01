@@ -62,12 +62,15 @@ class StringDisplayUtils {
         int totalLength = 0;
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\033') {
-                //       ANSI            
+                // skip ANSI escape sequence including 'm'
                 while (i < s.length() && s.charAt(i) != 'm') {
                     i++;
                 }
-                // i++;  //        'm'
-      
+                // i now points at 'm' or s.length(); advance past it
+                if (i < s.length()) {
+                    i++;
+                }
+                continue;
             }
             totalLength += getCharDisplayLength(s.charAt(i));
             if (totalLength > maxDisplayLength) {

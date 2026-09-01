@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 0.7.2
  */
-@lombok.EqualsAndHashCode
+@lombok.EqualsAndHashCode(exclude = "openChildren")
 public class ProgressBarWrappedSpliterator<T> implements Spliterator<T>, AutoCloseable {
 
     /**
