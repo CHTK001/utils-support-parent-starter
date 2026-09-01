@@ -116,9 +116,13 @@ class AgentMcpSkillTest {
      * 验证 wttr.in 天气查询可用。
      */
     @Test
-    void testWeatherSkill_only_queriesRealWttrIn() {
+    void testWeatherSkill_only_queriesRealWttrIn() throws Exception {
         String result = queryWeather("北京");
         System.out.println("[weather] " + result);
+        // 写入文件供查看
+        java.nio.file.Files.writeString(
+            java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "weather-result.txt"),
+            result, java.nio.charset.StandardCharsets.UTF_8);
         assertTrue(result.contains("北京"), "结果应包含城市名");
         assertTrue(result.contains("°C"), "结果应包含温度");
     }
