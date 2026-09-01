@@ -4,6 +4,7 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.common.support.utils.NativeUtils;
 
 import java.util.function.Consumer;
+import lombok.extern.slf4j.Slf4j;
 
 public final class RustFileSearchBridge {
 
@@ -25,9 +26,9 @@ public final class RustFileSearchBridge {
                         .glob("*file_search*")
                         .load();
                 loaded = true;
-                System.out.println("[filesearch] native library loaded");
+                log.info("[filesearch] native library loaded");
             } catch (Throwable e) {
-                System.err.println("[filesearch] load failed: " + e.getMessage());
+                log.warn("[filesearch] load failed: {}", e.getMessage());
                 loaded = false;
             }
         }
