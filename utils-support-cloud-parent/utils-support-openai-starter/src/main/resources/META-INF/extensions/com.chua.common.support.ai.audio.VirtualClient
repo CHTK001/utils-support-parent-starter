@@ -1,0 +1,6 @@
+openai=com.chua.openai.support.audio.OpenAiAudioClient
+openai-asr=com.chua.openai.support.audio.OpenAiAudioClient
+siliconflow=com.chua.openai.support.audio.OpenAiAudioClient
+sensetime=com.chua.openai.support.audio.OpenAiAudioClient
+github=com.chua.openai.support.audio.OpenAiAudioClient
+gitee=com.chua.openai.support.audio.OpenAiAudioClient

@@ -8,6 +8,15 @@ import com.chua.deeplearning.support.ai.client.DeeplearningModels;
 
 import java.util.List;
 
+/**
+ * Florence-2 视觉语言模型本地聊天客户端实现。
+ *
+ * <p>通过 {@link #models()} 暴露 Florence-2 支持的所有模型定义，
+ * 由 {@link com.chua.common.support.spi.ServiceProvider} 管理多实现路由。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Spi("florence2")
 public class Florence2ChatClient extends AbstractLocalChatClient {
 

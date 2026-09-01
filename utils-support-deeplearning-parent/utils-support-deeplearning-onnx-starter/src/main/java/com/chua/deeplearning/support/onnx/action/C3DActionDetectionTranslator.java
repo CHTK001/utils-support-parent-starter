@@ -18,6 +18,15 @@ import java.nio.LongBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+
+/**
+ * C3D 视频动作检测 ONNX 翻译器。
+ *
+ * <p>基于 C3D 卷积神经网络，对输入视频帧序列执行动作分类检测。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
