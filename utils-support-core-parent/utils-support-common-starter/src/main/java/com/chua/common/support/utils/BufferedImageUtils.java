@@ -36,6 +36,15 @@ import java.util.List;
 public class BufferedImageUtils {
 
     /**
+     * 安全获取图像类型，将 JDK 内置 TIFF 插件返回的 TYPE_CUSTOM(0) 替换为 TYPE_INT_RGB，
+     * 避免 new BufferedImage(w, h, 0) 抛出 IllegalArgumentException。
+     */
+    public static int safeType(BufferedImage src) {
+        int t = src.getType();
+        return t == BufferedImage.TYPE_CUSTOM ? BufferedImage.TYPE_INT_RGB : t;
+    }
+
+    /**
      * 默认 ASCII 字符集（从左到右由暗到亮，共 10 级）
      */
     private static final String DEFAULT_ASCII_CHARS = "@%#*+=-:. ";
@@ -858,7 +867,7 @@ public class BufferedImageUtils {
         }
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage dest = new BufferedImage(width, height, src.getType());
+        BufferedImage dest = new BufferedImage(width, height, safeType(src));
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int rgb = src.getRGB(x, y);
@@ -879,7 +888,7 @@ public class BufferedImageUtils {
         }
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage dest = new BufferedImage(width, height, src.getType());
+        BufferedImage dest = new BufferedImage(width, height, safeType(src));
         Graphics2D g = dest.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(src, 0, 0, null);

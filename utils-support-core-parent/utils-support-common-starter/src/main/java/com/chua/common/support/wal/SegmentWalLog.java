@@ -701,6 +701,7 @@ public class SegmentWalLog implements WalLog {
         }
         if (activeOut != null) {
             try {
+                activeOut.flush();
                 activeOut.close();
             } catch (IOException ignored) {
             }

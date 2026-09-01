@@ -1,6 +1,7 @@
-package com.chua.image.support.filter;
+﻿package com.chua.image.support.filter;
 
 import com.chua.common.support.image.ImageProcessorUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -122,7 +123,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
         int height = src.getHeight();
 
         if (dst == null) {
-            dst = new BufferedImage(width, height, src.getType());
+            dst = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
         }
 
         // 第一步：暖色调调整
@@ -157,7 +158,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applyWarmTone(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -187,7 +188,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     private BufferedImage enhanceSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -219,7 +220,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applySoftLight(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -250,7 +251,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     private BufferedImage adjustContrastAndBrightness(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -280,7 +281,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applySoftEdges(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 简单的高斯模糊核
         double[][] kernel = {
@@ -343,7 +344,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applyDreamyEffect(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {

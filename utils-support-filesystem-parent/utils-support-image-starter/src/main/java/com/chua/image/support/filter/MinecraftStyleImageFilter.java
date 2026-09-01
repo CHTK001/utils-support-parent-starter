@@ -1,6 +1,7 @@
-package com.chua.image.support.filter;
+﻿package com.chua.image.support.filter;
 
 import com.chua.common.support.image.ImageProcessorUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -127,7 +128,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
         int height = src.getHeight();
 
         if (dst == null) {
-            dst = new BufferedImage(width, height, src.getType());
+            dst = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
         }
 
         // 第一步：像素化处理
@@ -162,7 +163,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applyPixelation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y += pixelBlockSize) {
             for (int x = 0; x < width; x += pixelBlockSize) {
@@ -206,7 +207,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applyColorQuantization(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         int levels = colorQuantizationLevel;
         double factor = 255.0 / (levels - 1);
@@ -243,7 +244,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     private BufferedImage enhanceContrastAndSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -280,7 +281,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applySharpen(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 锐化卷积核
         double[][] kernel = {
@@ -337,7 +338,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     private BufferedImage applyBlockEffect(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 复制原图
         for (int y = 0; y < height; y++) {

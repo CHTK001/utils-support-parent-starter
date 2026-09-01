@@ -1,0 +1,49 @@
+{
+  "session_id" : "7a0c4931-48f7-4d8e-a7aa-cff1a6680cc9",
+  "summary" : "",
+  "context" : [ {
+    "id" : "b7717fdf-49ea-4ecc-b3b8-ba19a50d80c6",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "查一下北京天气，然后把结果写到 report.txt"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 08:34:41.889",
+    "usage" : null
+  }, {
+    "id" : "dc9753c3-3ca7-44ad-805f-c7f2573dc5e3",
+    "name" : "test-agent",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "我将按顺序执行：\n1. 调用 skill weather(city=\"北京\") 查询天气\n2. 调用 skill write_file(path=\"report.txt\", content=\"<天气结果>\") 写入文件\n请依次执行以上 skill 调用。\n"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 08:34:42.299",
+    "usage" : null
+  } ],
+  "reply_id" : "82ba205701da4f058b5b91ff7a869ddc",
+  "cur_iter" : 0,
+  "shutdown_interrupted" : false,
+  "permission_context" : {
+    "mode" : "default",
+    "working_directories" : { },
+    "allow_rules" : { },
+    "deny_rules" : { },
+    "ask_rules" : { }
+  },
+  "tool_context" : {
+    "max_cache_files" : 100,
+    "max_cache_bytes" : 25000.0,
+    "activated_groups" : [ ]
+  },
+  "tasks_context" : {
+    "tasks" : [ ]
+  },
+  "plan_mode_context" : {
+    "plan_active" : false,
+    "current_plan_file" : null
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "session_id" : "11464522-d532-419e-b51a-1eb16e76ca1d",
+  "summary" : "",
+  "context" : [ {
+    "id" : "7c044b0e-5aec-4aa2-b18d-c6dd6a7f06b3",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "测试"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 08:36:27.008",
+    "usage" : null
+  }, {
+    "id" : "f1815a30-5b8f-45f7-9d62-67e224555376",
+    "name" : "arch-test",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "done"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 08:36:27.232",
+    "usage" : null
+  } ],
+  "reply_id" : "141e312c2a0f4f2eb0d63ba84ee3ce17",
+  "cur_iter" : 0,
+  "shutdown_interrupted" : false,
+  "permission_context" : {
+    "mode" : "default",
+    "working_directories" : { },
+    "allow_rules" : { },
+    "deny_rules" : { },
+    "ask_rules" : { }
+  },
+  "tool_context" : {
+    "max_cache_files" : 100,
+    "max_cache_bytes" : 25000.0,
+    "activated_groups" : [ ]
+  },
+  "tasks_context" : {
+    "tasks" : [ ]
+  },
+  "plan_mode_context" : {
+    "plan_active" : false,
+    "current_plan_file" : null
+  }
+}

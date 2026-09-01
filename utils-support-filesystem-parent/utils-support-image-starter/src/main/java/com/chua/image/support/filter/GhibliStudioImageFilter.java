@@ -1,6 +1,7 @@
-package com.chua.image.support.filter;
+﻿package com.chua.image.support.filter;
 
 import com.chua.common.support.image.ImageProcessorUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -137,7 +138,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
         int height = src.getHeight();
 
         if (dst == null) {
-            dst = new BufferedImage(width, height, src.getType());
+            dst = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
         }
 
         // 第一步：色彩分层处理
@@ -176,7 +177,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage applyColorLayering(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -215,7 +216,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage enhanceWarmToneAndSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -262,7 +263,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage applyNaturalLighting(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 模拟从左上角来的自然光
         double centerX = width * 0.3;
@@ -302,7 +303,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage applySoftContrast(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -333,7 +334,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage applyArtisticEdges(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 艺术化边缘检测和处理
         for (int y = 1; y < height - 1; y++) {
@@ -431,7 +432,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage applyHandDrawnTexture(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -467,7 +468,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage applyColorHarmony(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -513,7 +514,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private BufferedImage applyDreamyAtmosphere(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         double centerX = width / 2.0;
         double centerY = height / 2.0;

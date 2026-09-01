@@ -1,6 +1,7 @@
-package com.chua.image.support.filter;
+﻿package com.chua.image.support.filter;
 
 import com.chua.common.support.image.ImageProcessorUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
 import lombok.Data;
@@ -121,7 +122,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
         int height = src.getHeight();
 
         if (dst == null) {
-            dst = new BufferedImage(width, height, src.getType());
+            dst = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
         }
 
         // 第一步：颜色校正和增强
@@ -151,7 +152,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     private BufferedImage performColorCorrection(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -183,7 +184,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     private BufferedImage adjustContrastAndBrightness(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -213,7 +214,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     private BufferedImage enhanceSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -246,7 +247,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     private BufferedImage applySharpen(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
-        BufferedImage result = new BufferedImage(width, height, src.getType());
+        BufferedImage result = new BufferedImage(width, height, BufferedImageUtils.safeType(src));
 
         // 锐化卷积核
         double[][] kernel = {
