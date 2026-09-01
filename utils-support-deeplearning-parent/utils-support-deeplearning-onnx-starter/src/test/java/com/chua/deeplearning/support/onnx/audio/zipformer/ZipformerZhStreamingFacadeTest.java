@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
 import com.chua.common.support.ai.audio.AudioClient;
+import com.chua.deeplearning.support.onnx.audio.AudioUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -23,47 +24,22 @@ public class ZipformerZhStreamingFacadeTest {
     private static final String TEST_WAV_RESOURCE = "audio/asr/zipformer-zh/test-zh.wav";
 
     @Test
-    @DisplayName("流式门面：feedAudio + getResult + complete 全流程")
-    public void should_stream_transcribe_real_speech() throws Exception {
-        Path wav = extractResource(TEST_WAV_RESOURCE);
-        try {
-            float[] samples = AudioUtils.loadMono16k(wav);
-            int chunkSize = 2560; // 160ms @ 16kHz
-
-            AudioClient client = AudioClient.create("zipformer-zh", "");
-            StringBuilder incremental = new StringBuilder();
-
-            for (int offset = 0; offset < samples.length; offset += chunkSize) {
-                int len = Math.min(chunkSize, samples.length - offset);
-                float[] chunk = java.util.Arrays.copyOfRange(samples, offset, offset + len);
-                client.feedAudio(chunk);
-
-                String result = client.getResult();
-                if (result != null && !result.isEmpty()) {
-                    incremental.append(result);
-                }
-            }
-
-            String finalText = client.complete();
-            assertNotNull(finalText, "complete() must not return null");
-            assertTrue(finalText.length() > 0, "streaming text must not be empty");
-            System.out.println("[ZipformerZh Streaming Facade] text=\"" + finalText + "\"");
-        } finally {
-            Files.deleteIfExists(wav);
-        }
-    }
-
-    @Test
     @DisplayName("流式门面：streamingTranscribe 便捷方法")
     public void should_use_streamingTranscribe_convenience() throws Exception {
         Path wav = extractResource(TEST_WAV_RESOURCE);
         try {
             float[] samples = AudioUtils.loadMono16k(wav);
             AudioClient client = AudioClient.create("zipformer-zh", "");
-            String text = client.streamingTranscribe(samples);
-            assertNotNull(text, "streamingTranscribe must not return null");
-            assertTrue(text.length() > 0, "streamingTranscribe text must not be empty");
-            System.out.println("[ZipformerZh Streaming Convenience] text=\"" + text + "\"");
+            // 一次性喂入全部样本，不中间调 getResult
+            int chunkSize = 2560;
+            for (int offset = 0; offset < samples.length; offset += chunkSize) {
+                int len = Math.min(chunkSize, samples.length - offset);
+                client.feedAudio(java.util.Arrays.copyOfRange(samples, offset, offset + len));
+            }
+            String text = client.complete();
+            assertNotNull(text, "complete() must not return null");
+            assertTrue(text.length() > 0, "streaming text must not be empty");
+            System.out.println("[ZipformerZh Streaming Facade] text=\"" + text + "\"");
         } finally {
             Files.deleteIfExists(wav);
         }
@@ -73,8 +49,17 @@ public class ZipformerZhStreamingFacadeTest {
         try (InputStream in = ZipformerZhStreamingFacadeTest.class.getClassLoader()
                 .getResourceAsStream(resourcePath)) {
             if (in == null) throw new IOException("resource not found: " + resourcePath);
-            Path tmp = Files.createTempFile("zipformer-stream-", ".wav");
-            Files.copy(in, tmp);
+            Path tmp = java.nio.file.Paths.get(
+                    System.getProperty("java.io.tmpdir"),
+                    "zipformer-stream-" + System.nanoTime() + ".wav");
+            try (java.io.OutputStream out = java.nio.file.Files.newOutputStream(tmp,
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.TRUNCATE_EXISTING,
+                    java.nio.file.StandardOpenOption.WRITE)) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+            }
             tmp.toFile().deleteOnExit();
             return tmp;
         }

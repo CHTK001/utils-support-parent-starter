@@ -248,7 +248,12 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         int totalFrames = features.length;
         int numChunks = Math.max(1, (totalFrames + DECODE_CHUNK_LEN - 1) / DECODE_CHUNK_LEN);
 
-        List<OnnxTensor> toClose = new ArrayList<>();
+        // 首次调用时初始化流式状态（深拷贝 initialStates）
+        if (streamingStates.isEmpty()) {
+            streamingStates = new LinkedHashMap<>(initialStates);
+            streamingDecoderOut = runDecoder(streamingContext);
+        }
+
         for (int ci = 0; ci < numChunks; ci++) {
             int start = ci * DECODE_CHUNK_LEN;
             int end = Math.min(totalFrames, start + CHUNK_SIZE);
@@ -263,11 +268,15 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
             feed.put("x", OnnxTensor.createTensor(env, new float[][][]{chunk}));
             feed.putAll(streamingStates);
 
+            // 保存上一轮状态引用，用于下一轮前释放
+            Map<String, OnnxTensor> oldStates = streamingStates;
+
             try (OrtSession.Result result = encoderSession.run(feed)) {
                 float[][][] rawEnc = (float[][][]) result.get("encoder_out").get().getValue();
                 Collections.addAll(streamingEncoderOut, rawEnc[0]);
 
-                streamingStates.clear();
+                // 构建新一轮状态
+                Map<String, OnnxTensor> newStates = new LinkedHashMap<>();
                 for (String inName : inputNames) {
                     if ("x".equals(inName)) continue;
                     String outName = "new_" + inName;
@@ -276,15 +285,15 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
                         OnnxTensor src = (OnnxTensor) optionalValue.get();
                         OnnxTensor tensor = copyToTensor(src.getValue());
                         if (tensor != null) {
-                            streamingStates.put(inName, tensor);
-                            toClose.add(tensor);
+                            newStates.put(inName, tensor);
                         }
                     }
                 }
+                streamingStates = newStates;
+            } finally {
+                // 释放上一轮状态（本轮 feed 不再引用它们）
+                closeStates(oldStates);
             }
-        }
-        for (OnnxTensor t : toClose) {
-            t.close();
         }
     }
 
