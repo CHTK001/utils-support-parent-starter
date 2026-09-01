@@ -1,12 +1,15 @@
 package com.chua.sqlite.support.engine;
 
-import com.chua.common.support.utils.NativeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
+import java.io.InputStream;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 /**
  * SQLite update_hook 原生连接封装。
@@ -56,7 +59,26 @@ public final class SqliteHookConnection implements AutoCloseable {
         synchronized (SqliteHookConnection.class) {
             if (LIBRARY_RESOLVED) return LIBRARY_OK;
             try {
-                NativeUtils.load("sqlite3_hook", null);
+                // 从 classpath 提取 native DLL 到临时目录
+                String platform = System.getProperty("os.name").toLowerCase().contains("win")
+                        ? "windows-x86_64" : "linux-x86_64";
+                String libName = "sqlite3_hook.dll";
+                String path = "/native/" + platform + "/" + libName;
+                InputStream is = SqliteHookConnection.class.getResourceAsStream(path);
+                if (is == null) {
+                    // 回退：尝试无平台目录
+                    is = SqliteHookConnection.class.getResourceAsStream("/native/" + libName);
+                }
+                if (is == null) {
+                    // 回退：System.loadLibrary
+                    System.loadLibrary("sqlite3_hook");
+                } else {
+                    Path tmp = Files.createTempFile("sqlite3_hook_", "_" + libName);
+                    Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
+                    tmp.toFile().deleteOnExit();
+                    System.load(tmp.toAbsolutePath().toString());
+                    is.close();
+                }
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
                 HOOK_OPEN_HANDLE = bind("hook_open", FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
                 HOOK_POLL_HANDLE = bind("hook_poll", FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));

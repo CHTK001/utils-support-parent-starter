@@ -434,7 +434,7 @@ public class AsyncLogWriter implements AutoCloseable {
                         StandardOpenOption.APPEND,
                         StandardOpenOption.CREATE);
             } catch (IOException e) {
-                System.err.println("[AsyncLogWriter] 打开日志文件失败: " + file + " - " + e.getMessage());
+                log.error("[AsyncLogWriter] 打开日志文件失败: file={} msg={}", file, e.getMessage(), e);
             }
         }
     }
@@ -458,7 +458,7 @@ public class AsyncLogWriter implements AutoCloseable {
             }
         } catch (IOException e) {
             // 批量追加失败，记录错误到 stderr 并关闭通道以便下次重开
-            System.err.println("[AsyncLogWriter] 日志写入失败: " + file + " - " + e.getMessage());
+            log.error("[AsyncLogWriter] 日志写入失败: file={} msg={}", file, e.getMessage(), e);
             closeChannelQuietly(ch);
             queueChannel = null;
         }
