@@ -331,6 +331,42 @@ class SpeakerDiarizerTest {
         }
     }
 
+    @Test
+    @DisplayName("门面测试: AudioRecognitionPipeline + SenseVoice ASR")
+    void testFacadeWithSenseVoice() throws Exception {
+        // 生成 1s 测试音频
+        int sr = 16000;
+        int n = sr;
+        float[] samples = new float[n];
+        for (int i = 0; i < n; i++) {
+            samples[i] = (float) (Math.sin(2 * Math.PI * 440 * i / sr) * 0.3);
+        }
+        byte[] wavBytes = pcmToWavBytes(samples, sr);
+        Path wavPath = Files.createTempFile("pipeline-sv-", ".wav");
+        Files.write(wavPath, wavBytes);
+        wavPath.toFile().deleteOnExit();
+
+        try {
+            // 门面: AudioRecognitionPipeline.builder().asrModel("sensevoice").build()
+            AudioRecognitionPipeline pipeline = AudioRecognitionPipeline.builder()
+                    .asrModel("sensevoice")
+                    .build();
+
+            List<SpeakerSegment> segments = pipeline.recognize(Files.readAllBytes(wavPath));
+            assertNotNull(segments);
+            System.out.println("[Facade Test] 门面管线识别完成，片段数: " + segments.size());
+            for (SpeakerSegment seg : segments) {
+                System.out.printf("[Facade Test]   %s  %.2fs-%.2fs  transcript=%s%n",
+                        seg.speakerId(),
+                        seg.startTimeMs() / 1000.0,
+                        seg.endTimeMs() / 1000.0,
+                        seg.transcript() != null ? seg.transcript() : "(无)");
+            }
+        } finally {
+            Files.deleteIfExists(wavPath);
+        }
+    }
+
     // ==================== 辅助方法 ====================
 
     /** 将 float 采样编码为 16-bit PCM WAV 字节 */
