@@ -41,7 +41,7 @@ import java.util.function.Consumer;
  * <h2>使用方式</h2>
  * <pre>{@code
  * KcpClient client = new KcpClient("kcp://127.0.0.1:19380");
- * client.subscribe("order/#", (topic, payload) -> System.out.println("收到: " + payload));
+ * client.subscribe("order/#", (topic, payload) -> log.info("收到: {}", payload));
  * client.connect();
  * client.send("greet", "hello");
  * client.close();
