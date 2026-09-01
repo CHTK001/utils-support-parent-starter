@@ -268,5 +268,6 @@
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-campplus</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wav2vec2-base</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
     </dependencies>
 </project>
