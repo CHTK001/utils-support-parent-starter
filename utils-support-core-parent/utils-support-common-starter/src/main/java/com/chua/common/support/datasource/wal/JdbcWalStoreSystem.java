@@ -180,12 +180,23 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
     }
 
     private Object parseVal(byte[] b) {
-        if (b.length == 0) return null;
+        if (b.length == 0) {
+            return null;
+        }
         String s = new String(b, StandardCharsets.UTF_8);
-        try { if (s.contains(".")) return Double.parseDouble(s); return Long.parseLong(s); }
-        catch (NumberFormatException ignored) {}
-        try { return com.chua.common.support.lang.json.Json.fromJson(s, Object.class); }
-        catch (Exception ignored) {}
+        try {
+            if (s.contains(".")) {
+                return Double.parseDouble(s);
+            }
+            return Long.parseLong(s);
+        } catch (NumberFormatException ignored) {
+            // fall through
+        }
+        try {
+            return com.chua.common.support.lang.json.Json.fromJson(s, Object.class);
+        } catch (Exception ignored) {
+            // fall through
+        }
         return s;
     }
 
