@@ -239,6 +239,76 @@ public interface AudioClient extends AutoCloseable, PooledObjectClient<AudioClie
         return transcribe((Path) null);
     }
 
+    // ==================== 流式转录门面 ====================
+
+    /**
+     * 流式转写：一次性传入完整音频样本，返回增量识别结果。
+     *
+     * <p>适用于麦克风实时输入场景，内部按 chunk 送入模型并累积输出。
+     * 不支持流式的客户端直接委托给 {@link #transcribe()}。
+     *
+     * <pre>{@code
+     *   AudioClient client = AudioClient.create("zipformer-zh", "");
+     *   // 从麦克风逐片读入 16kHz float samples（每片约 2560 samples = 160ms）
+     *   StringBuilder sb = new StringBuilder();
+     *   while (hasMore) {
+     *       float[] chunk = readMicrophoneChunk();
+     *       client.feedAudio(chunk);
+     *       String incremental = client.getResult();
+     *       if (incremental != null && !incremental.isEmpty()) {
+     *           sb.append(incremental);
+     *           System.out.println("[stream] " + sb);
+     *       }
+     *   }
+     *   String finalText = client.complete();
+     * }</pre>
+     *
+     * @param samples 音频样本数组（16kHz mono，float 范围 [-1, 1]）
+     */
+    default void feedAudio(float[] samples) {
+        // 不支持流式的客户端忽略此方法
+    }
+
+    /**
+     * 获取当前流式转录的增量文本。
+     *
+     * <p>可多次调用，每次返回自上次调用以来新增的识别文本（如有）。
+     * 流式模型会缓存增量，非流式模型返回 {@code null}。
+     *
+     * @return 增量文本，不支持流式时返回 {@code null}
+     */
+    default String getResult() {
+        return null;
+    }
+
+    /**
+     * 完成流式转录，释放状态，返回最终完整文本。
+     *
+     * <p>调用后需重新调用 {@link #feedAudio} 开始新的转录。
+     * 不支持流式的客户端直接委托给 {@link #transcribe()}。
+     *
+     * @return 最终完整识别文本
+     */
+    default String complete() {
+        return transcribe();
+    }
+
+    /**
+     * 一次性流式转写便捷方法。
+     *
+     * <p>内部自动管理 feed/getResult/complete 生命周期，
+     * 适用于已知完整音频片段但不需要增量回调的场景。
+     *
+     * @param samples 完整音频样本（16kHz mono，float [-1, 1]）
+     * @return 识别文本
+     */
+    default String streamingTranscribe(float[] samples) {
+        feedAudio(samples);
+        String result = getResult();
+        complete();
+        return result != null ? result : transcribe();
+    }
+
     /**
      * 创建语音识别任务（异步模式）
      *
