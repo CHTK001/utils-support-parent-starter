@@ -358,6 +358,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("resnet50-feature", "com.chua.deeplearning.support.onnx.feature.ClipImageFeatureTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/feature/resnet50/model.onnx", "https://modelscope.cn/models/Xenova/resnet-50/resolve/master/onnx/model.onnx", false, null);
         // 目标检测(YOLOv26n)：YOLOv26 通用检测，最新版；适用通用物体检测
         reg("yolo26n", "com.chua.deeplearning.support.onnx.yolo.v26.translator.Yolo26ObbTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/v26/yolo26n.onnx", "https://huggingface.co/onnx-community/yolo26n-ONNX/resolve/main/onnx/model.onnx", false, null);
+        // 深度估计(YOLO26-Depth)：YOLO26 单目深度估计，letterbox 768 输入，五档尺寸；适用背景虚化、3D 场景理解
+        reg("yolo26-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26n-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx",
+                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx"), false, null);
+        reg("yolo26n-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26n-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx",
+                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26n-depth.onnx"), false, null);
+        reg("yolo26s-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26s-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26s-depth.onnx",
+                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26s-depth.onnx"), false, null);
+        reg("yolo26m-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26m-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26m-depth.onnx",
+                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26m-depth.onnx"), false, null);
+        reg("yolo26l-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26l-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26l-depth.onnx",
+                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26l-depth.onnx"), false, null);
+        reg("yolo26x-depth", "com.chua.deeplearning.support.onnx.depth.Yolo26DepthTranslator", byte[].class, byte[].class, Object.class, "vision/detection/v26/yolo26x-depth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26x-depth.onnx",
+                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/v26/yolo26x-depth.onnx"), false, null);
         // 目标检测(YOLOv10m)：YOLOv10m 通用 COCO 检测，精度较高；适用通用物体检测
         reg("yolov10m", "com.chua.deeplearning.support.onnx.yolo.v10.translator.YoloV10DetectTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/v10/yolov10m.onnx", "https://huggingface.co/onnx-community/yolov10m/resolve/main/onnx/model.onnx",
                 java.util.List.of("https://hf-mirror.com/onnx-community/yolov10m/resolve/main/onnx/model.onnx"), false, "model.onnx");

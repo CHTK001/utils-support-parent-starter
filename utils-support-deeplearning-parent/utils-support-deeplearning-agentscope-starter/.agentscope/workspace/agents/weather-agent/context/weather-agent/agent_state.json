@@ -1,0 +1,49 @@
+{
+  "session_id" : "43571f14-1847-4449-8e59-2c178e8e07a2",
+  "summary" : "",
+  "context" : [ {
+    "id" : "fe21c65e-51d4-41ea-9ff1-236d63fc61d6",
+    "name" : null,
+    "role" : "USER",
+    "content" : [ {
+      "type" : "text",
+      "text" : "请查询北京今天的天气情况，并将结果整理成一份报告写入 weather_report.txt 文件。"
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 10:30:27.854",
+    "usage" : null
+  }, {
+    "id" : "58bfe499-989a-486d-9b46-fabc59fd7627",
+    "name" : "weather-agent",
+    "role" : "ASSISTANT",
+    "content" : [ {
+      "type" : "text",
+      "text" : "execute\ncurl -s \"http://api.weatherapi.com/v1/current.json?key=YOUR_API_KEY&q=Beijing\""
+    } ],
+    "metadata" : { },
+    "timestamp" : "2026-09-01 10:30:32.798",
+    "usage" : null
+  } ],
+  "reply_id" : "6a25ddce71ee495fa97b44f4e37db323",
+  "cur_iter" : 0,
+  "shutdown_interrupted" : false,
+  "permission_context" : {
+    "mode" : "default",
+    "working_directories" : { },
+    "allow_rules" : { },
+    "deny_rules" : { },
+    "ask_rules" : { }
+  },
+  "tool_context" : {
+    "max_cache_files" : 100,
+    "max_cache_bytes" : 25000.0,
+    "activated_groups" : [ ]
+  },
+  "tasks_context" : {
+    "tasks" : [ ]
+  },
+  "plan_mode_context" : {
+    "plan_active" : false,
+    "current_plan_file" : null
+  }
+}
