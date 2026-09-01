@@ -909,9 +909,10 @@ public class VertxHttpServer extends AbstractServer {
         /** 获取Files */
         public List<FormFile> getFiles() {
             List<io.vertx.ext.web.FileUpload> uploads = ctx.fileUploads();
-            System.err.println("[VF] ct=" + ctx.request().getHeader("Content-Type")
-                    + " uploads=" + (uploads == null ? "null" : uploads.size())
-                    + " bodyLen=" + (ctx.body() == null ? -1 : ctx.body().length()));
+            log.debug("[VF] ct={} uploads={} bodyLen={}",
+                    ctx.request().getHeader("Content-Type"),
+                    uploads == null ? "null" : uploads.size(),
+                    ctx.body() == null ? -1 : ctx.body().length());
             if (uploads == null || uploads.isEmpty()) {
                 return java.util.Collections.emptyList();
             }
