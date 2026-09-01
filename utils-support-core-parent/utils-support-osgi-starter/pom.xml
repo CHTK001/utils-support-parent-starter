@@ -19,6 +19,10 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <felix.version>7.0.5</felix.version>
+        <felix.gogo.runtime.version>1.1.6</felix.gogo.runtime.version>
+        <felix.gogo.shell.version>1.1.4</felix.gogo.shell.version>
+        <felix.gogo.command.version>1.1.2</felix.gogo.command.version>
+        <sshd.version>2.13.2</sshd.version>
     </properties>
     <dependencies>
         <dependency>
@@ -26,7 +30,7 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
@@ -37,6 +41,40 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.main</artifactId>
             <version>${felix.version}</version>
+        </dependency>
+
+        <!-- Gogo shell 套件（telnet 远程管理） -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.gogo.runtime</artifactId>
+            <version>${felix.gogo.runtime.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.gogo.command</artifactId>
+            <version>${felix.gogo.command.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.gogo.shell</artifactId>
+            <version>${felix.gogo.shell.version}</version>
+        </dependency>
+
+        <!-- Apache SSHD OSGi bundle（SSH 远程管理，优先于 telnet） -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-osgi</artifactId>
+            <version>${sshd.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-sftp</artifactId>
+            <version>${sshd.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-scp</artifactId>
+            <version>${sshd.version}</version>
         </dependency>
 
         <dependency>

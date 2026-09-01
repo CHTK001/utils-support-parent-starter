@@ -489,6 +489,14 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      */
     private OrtSession openSession(Path path, boolean useGpu) throws OrtException {
         OrtSession.SessionOptions opt = new OrtSession.SessionOptions();
+        // 显式开启全量图优化（算子融合/常量折叠，SD 大图收益明显）
+        opt.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
+        // intra-op 线程数（CPU 侧算子；GPU 下影响小，可用 -Dsmall.sd.intraop=N 覆盖）
+        int intraOp = Integer.getInteger("small.sd.intraop",
+                Math.min(4, Runtime.getRuntime().availableProcessors()));
+        opt.setIntraOpNumThreads(intraOp);
+        // 内存模式优化：复用中间缓冲，降低峰值显存/内存与分配开销
+        opt.setMemoryPatternOptimization(true);
         if (useGpu) {
             opt.addCUDA(0);
         }
