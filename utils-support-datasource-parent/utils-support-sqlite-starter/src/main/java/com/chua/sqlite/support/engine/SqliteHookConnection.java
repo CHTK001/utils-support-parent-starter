@@ -70,7 +70,8 @@ public final class SqliteHookConnection implements AutoCloseable {
             try {
                 String platform = System.getProperty("os.name").toLowerCase().contains("win")
                         ? "windows-x86_64" : "linux-x86_64";
-                String libName = "sqlite3_hook.dll";
+                String libName = System.getProperty("os.name").toLowerCase().contains("win")
+                        ? "sqlite3_hook.dll" : "libsqlite3_hook.so";
                 String path = "/native/" + platform + "/" + libName;
                 InputStream is = SqliteHookConnection.class.getResourceAsStream(path);
                 if (is == null) {
