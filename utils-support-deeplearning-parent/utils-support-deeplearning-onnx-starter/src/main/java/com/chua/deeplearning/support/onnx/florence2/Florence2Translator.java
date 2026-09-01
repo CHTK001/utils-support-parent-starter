@@ -130,9 +130,10 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     }
     private String generate(float[][] encoderHidden, String taskPrompt) throws Exception {
         int seqLen = ENCODER_SEQ_LEN;
-        long[] encMask = new long[seqLen];
-        java.util.Arrays.fill(encMask, 1L);
-        OnnxTensor encoderMaskTensor = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(encMask), new long[]{1, seqLen});
+        byte[] encMask = new byte[seqLen];
+        java.util.Arrays.fill(encMask, (byte) 1);
+        OnnxTensor encoderMaskTensor = OnnxTensor.createTensor(ortEnv,
+                java.nio.ByteBuffer.wrap(encMask), new long[]{1, seqLen});
         List<Long> tokens = new ArrayList<>();
         try { Encoding enc = tokenizer.encode(taskPrompt); for (long t : enc.getIds()) tokens.add(t); }
         catch (Exception e) { log.warn("[Florence-2] tokenizer failed: {}", e.getMessage()); for (char c : taskPrompt.toCharArray()) tokens.add((long) c); }
@@ -152,7 +153,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 decoderInputs.put("inputs_embeds", embedsTensor);
                 decoderInputs.put("encoder_hidden_states", encoderHiddenTensor);
                 decoderInputs.put("encoder_attention_mask", encoderMaskTensor);
-                decoderInputs.put("use_cache_branch", OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(new float[]{0.0f}), new long[]{1}));
+                decoderInputs.put("use_cache_branch", OnnxTensor.createTensor(ortEnv,
+                        java.nio.ByteBuffer.wrap(new byte[]{0}), new long[]{1}));
                 try (OrtSession.Result decodeResult = decoderSession.run(decoderInputs)) {
                     OnnxTensor logitsTensor = (OnnxTensor) decodeResult.get("logits").get();
                     float[] logits = logitsTensor.getFloatBuffer().array();
@@ -182,7 +184,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                             stepDecoderInputs.put("inputs_embeds", stepEmbedsTensor);
                             stepDecoderInputs.put("encoder_hidden_states", stepEncoderHiddenTensor);
                             stepDecoderInputs.put("encoder_attention_mask", encoderMaskTensor);
-                            stepDecoderInputs.put("use_cache_branch", OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(new float[]{1.0f}), new long[]{1}));
+                            stepDecoderInputs.put("use_cache_branch", OnnxTensor.createTensor(ortEnv,
+                                        java.nio.ByteBuffer.wrap(new byte[]{1}), new long[]{1}));
                             for (int l = 0; l < NUM_LAYERS; l++) {
                                 stepDecoderInputs.put("past_key_values." + l + ".decoder.key", pastKV[l][0]);
                                 stepDecoderInputs.put("past_key_values." + l + ".decoder.value", pastKV[l][1]);

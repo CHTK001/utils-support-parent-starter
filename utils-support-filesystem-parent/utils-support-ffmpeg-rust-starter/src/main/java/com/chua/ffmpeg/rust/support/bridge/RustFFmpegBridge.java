@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.function.Consumer;
 
 /**
- * RustFFmpegProcessor / VideoEncoder 与原生 cdylib 之间的轻量桥接。
+ * RustFFmpegProcessor / VideoEncoder ??? cdylib ????????
  *
- * <p>加载的动态库与 native-video-codec 和 native-crypto 使用的相同。</p>
+ * <p>??????? native-video-codec ? native-crypto ??????</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -18,14 +18,14 @@ import java.util.function.Consumer;
 @Slf4j
 public final class RustFFmpegBridge {
 
-    /** 创建 RustFFmpegBridge 实例 */
+    /** ?? RustFFmpegBridge ?? */
     private RustFFmpegBridge() {
     }
 
     /**
-     * 检查原生库是否已加载。
+     * ???????????
      *
-     * @return true 表示已加载
+     * @return true ?????
      */
     public static boolean isLoaded() {
         try {
@@ -37,9 +37,9 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * 获取原生库加载错误。
+     * ??????????
      *
-     * @return 加载异常，加载成功返回 null
+     * @return ??????????? null
      */
     public static Throwable getLoadError() {
         try {
@@ -51,22 +51,22 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * 获取原生库版本字符串。
+     * ???????????
      *
-     * @return 版本字符串
+     * @return ?????
      */
     public static String getVersion() {
         return "native-video-codec-" + NativeVideoCodec.getVersion();
     }
 
     /**
-     * H.264 编码一帧。
+     * H.264 ?????
      *
-     * @param bgr24 BGR24 格式像素数据
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @param fps 帧率
-     * @return 编码后的字节数组
+     * @param bgr24 BGR24 ??????
+     * @param width ????
+     * @param height ????
+     * @param fps ??
+     * @return ????????
      */
     public static byte[] h264Encode(byte[] bgr24, int width, int height, int fps) {
         long encoder = NativeVideoCodec.h264EncoderCreate(width, height, Math.max(1, fps), 23, 1, 1);
@@ -81,13 +81,13 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * H.265 编码一帧。
+     * H.265 ?????
      *
-     * @param bgr24 BGR24 格式像素数据
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @param fps 帧率
-     * @return 编码后的字节数组
+     * @param bgr24 BGR24 ??????
+     * @param width ????
+     * @param height ????
+     * @param fps ??
+     * @return ????????
      */
     public static byte[] h265Encode(byte[] bgr24, int width, int height, int fps) {
         long encoder = NativeVideoCodec.h265EncoderCreate(width, height, Math.max(1, fps), 23, 1, 1);
@@ -102,13 +102,13 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * H.266 编码一帧。
+     * H.266 ?????
      *
-     * @param bgr24 BGR24 格式像素数据
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @param fps 帧率
-     * @return 编码后的字节数组
+     * @param bgr24 BGR24 ??????
+     * @param width ????
+     * @param height ????
+     * @param fps ??
+     * @return ????????
      */
     public static byte[] h266Encode(byte[] bgr24, int width, int height, int fps) {
         long encoder = NativeVideoCodec.h266EncoderCreate(width, height, Math.max(1, fps), 23, 1, 1);
@@ -123,12 +123,12 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * H.264 解码一包数据。
+     * H.264 ???????
      *
-     * @param packet 编码数据包
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @return 解码后的字节数组
+     * @param packet ?????
+     * @param width ????
+     * @param height ????
+     * @return ????????
      */
     public static byte[] h264Decode(byte[] packet, int width, int height) {
         long decoder = NativeVideoCodec.h264DecoderCreate(width, height);
@@ -144,12 +144,12 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * H.265 解码一包数据。
+     * H.265 ???????
      *
-     * @param packet 编码数据包
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @return 解码后的字节数组
+     * @param packet ?????
+     * @param width ????
+     * @param height ????
+     * @return ????????
      */
     public static byte[] h265Decode(byte[] packet, int width, int height) {
         long decoder = NativeVideoCodec.h265DecoderCreate(width, height);
@@ -165,12 +165,12 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * H.266 解码一包数据。
+     * H.266 ???????
      *
-     * @param packet 编码数据包
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @return 解码后的字节数组
+     * @param packet ?????
+     * @param width ????
+     * @param height ????
+     * @return ????????
      */
     public static byte[] h266Decode(byte[] packet, int width, int height) {
         long decoder = NativeVideoCodec.h266DecoderCreate(width, height);
@@ -185,28 +185,28 @@ public final class RustFFmpegBridge {
         }
     }
 
-    // ==================== 推流/拉流桥接 ====================
+    // ==================== ??/???? ====================
 
     /**
-     * 检查 NativeFFmpeg 推流/拉流库是否已加载。
+     * ?? NativeFFmpeg ??/?????????
      *
-     * @return true 表示已加载
+     * @return true ?????
      */
     public static boolean isStreamLoaded() {
         return NativeFFmpeg.isLoaded();
     }
 
     /**
-     * RTMP 推流（无回调）。
+     * RTMP ????????
      *
-     * @param inputUrl   输入 URL 或文件路径
-     * @param streamUrl  推流地址
-     * @param videoCodec 视频编码器名称，null 使用默认
-     * @param audioCodec 音频编码器名称，null 使用默认
-     * @param width      视频宽度，0 使用源
-     * @param height     视频高度，0 使用源
-     * @param fps        帧率，0 使用源
-     * @return 0 表示成功
+     * @param inputUrl   ?? URL ?????
+     * @param streamUrl  ????
+     * @param videoCodec ????????null ????
+     * @param audioCodec ????????null ????
+     * @param width      ?????0 ???
+     * @param height     ?????0 ???
+     * @param fps        ???0 ???
+     * @return 0 ????
      */
     public static int pushStream(String inputUrl, String streamUrl,
                                   String videoCodec, String audioCodec,
@@ -218,17 +218,17 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * RTMP 推流（带帧通知回调）。
+     * RTMP ???????????
      *
-     * @param inputUrl   输入 URL 或文件路径
-     * @param streamUrl  推流地址
-     * @param videoCodec 视频编码器名称，null 使用默认
-     * @param audioCodec 音频编码器名称，null 使用默认
-     * @param width      视频宽度，0 使用源
-     * @param height     视频高度，0 使用源
-     * @param fps        帧率，0 使用源
-     * @param callback   帧通知回调
-     * @return 0 表示成功
+     * @param inputUrl   ?? URL ?????
+     * @param streamUrl  ????
+     * @param videoCodec ????????null ????
+     * @param audioCodec ????????null ????
+     * @param width      ?????0 ???
+     * @param height     ?????0 ???
+     * @param fps        ???0 ???
+     * @param callback   ?????
+     * @return 0 ????
      */
     public static int pushStreamWithCallback(String inputUrl, String streamUrl,
                                               String videoCodec, String audioCodec,
@@ -255,12 +255,12 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * RTMP 拉流保存（无回调）。
+     * RTMP ??????????
      *
-     * @param streamUrl  拉流地址
-     * @param outputPath 输出文件路径
-     * @param duration   拉流时长（秒），0 表示持续拉流
-     * @return 0 表示成功
+     * @param streamUrl  ????
+     * @param outputPath ??????
+     * @param duration   ????????0 ??????
+     * @return 0 ????
      */
     public static int pullStream(String streamUrl, String outputPath, double duration) {
         if (!NativeFFmpeg.isLoaded()) {
@@ -270,13 +270,13 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * RTMP 拉流保存（带帧通知回调）。
+     * RTMP ?????????????
      *
-     * @param streamUrl  拉流地址
-     * @param outputPath 输出文件路径
-     * @param duration   拉流时长（秒），0 表示持续拉流
-     * @param callback   帧通知回调
-     * @return 0 表示成功
+     * @param streamUrl  ????
+     * @param outputPath ??????
+     * @param duration   ????????0 ??????
+     * @param callback   ?????
+     * @return 0 ????
      */
     public static int pullStreamWithCallback(String streamUrl, String outputPath,
                                               double duration,
@@ -301,10 +301,10 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * 获取媒体文件时长。
+     * ?????????
      *
-     * @param inputUrl 输入 URL 或文件路径
-     * @return 时长（秒），失败返回 -1
+     * @param inputUrl ?? URL ?????
+     * @return ?????????? -1
      */
     public static double getStreamDuration(String inputUrl) {
         if (!NativeFFmpeg.isLoaded()) {
@@ -313,23 +313,23 @@ public final class RustFFmpegBridge {
         return NativeFFmpeg.getDuration(inputUrl);
     }
 
-    // ==================== 文件转码桥接 ====================
+    // ==================== ?????? ====================
 
     /**
-     * 通用文件转码。
+     * ???????
      *
-     * @param inputUrl    输入文件路径
-     * @param outputPath  输出文件路径
-     * @param videoCodec  视频编码器，null 使用默认
-     * @param audioCodec  音频编码器，null 使用默认
-     * @param width       视频宽度，0 使用源
-     * @param height      视频高度，0 使用源
-     * @param fps         帧率，0 使用源
-     * @param startTime   起始时间（秒），0 从头开始
-     * @param duration    持续时长（秒），0 到结尾
-     * @param removeVideo 是否移除视频流
-     * @param removeAudio 是否移除音频流
-     * @return 0 表示成功
+     * @param inputUrl    ??????
+     * @param outputPath  ??????
+     * @param videoCodec  ??????null ????
+     * @param audioCodec  ??????null ????
+     * @param width       ?????0 ???
+     * @param height      ?????0 ???
+     * @param fps         ???0 ???
+     * @param startTime   ????????0 ????
+     * @param duration    ????????0 ???
+     * @param removeVideo ???????
+     * @param removeAudio ???????
+     * @return 0 ????
      */
     public static int convertFile(String inputUrl, String outputPath,
                                    String videoCodec, String audioCodec,
@@ -344,12 +344,12 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * 截取单帧保存为图片。
+     * ??????????
      *
-     * @param inputUrl   输入文件路径
-     * @param timestampMs 时间戳（毫秒）
-     * @param outputPath  输出图片路径
-     * @return 0 表示成功
+     * @param inputUrl   ??????
+     * @param timestampMs ???????
+     * @param outputPath  ??????
+     * @return 0 ????
      */
     public static int captureFrame(String inputUrl, long timestampMs, String outputPath) {
         if (!NativeFFmpeg.isLoaded()) {
@@ -359,11 +359,11 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * 拼接多个媒体文件。
+     * ?????????
      *
-     * @param inputPaths 输入文件路径列表，以分号分隔
-     * @param outputPath 输出文件路径
-     * @return 0 表示成功
+     * @param inputPaths ??????????????
+     * @param outputPath ??????
+     * @return 0 ????
      */
     public static int concatFiles(String inputPaths, String outputPath) {
         if (!NativeFFmpeg.isLoaded()) {
@@ -373,10 +373,10 @@ public final class RustFFmpegBridge {
     }
 
     /**
-     * 获取媒体文件信息（JSON 格式）。
+     * ?????????JSON ????
      *
-     * @param inputUrl 输入 URL 或文件路径
-     * @return JSON 格式的媒体信息，失败返回 null
+     * @param inputUrl ?? URL ?????
+     * @return JSON ???????????? null
      */
     public static String getStreamMediaInfo(String inputUrl) {
         if (!NativeFFmpeg.isLoaded()) {
@@ -385,15 +385,15 @@ public final class RustFFmpegBridge {
         return NativeFFmpeg.getMediaInfo(inputUrl);
     }
 
-    // ==================== 视频旋转桥接 ====================
+    // ==================== ?????? ====================
 
     /**
-     * 视频旋转（90/180/270度）。
+     * ?????90/180/270???
      *
-     * @param inputUrl   输入文件路径
-     * @param outputPath 输出文件路径
-     * @param angle      旋转角度（90/180/270）
-     * @return 0 表示成功
+     * @param inputUrl   ??????
+     * @param outputPath ??????
+     * @param angle      ?????90/180/270?
+     * @return 0 ????
      */
     public static int rotate(String inputUrl, String outputPath, int angle) {
         if (!NativeFFmpeg.isLoaded()) {
@@ -402,17 +402,17 @@ public final class RustFFmpegBridge {
         return NativeFFmpeg.rotate(inputUrl, outputPath, angle);
     }
 
-    // ==================== 添加水印桥接 ====================
+    // ==================== ?????? ====================
 
     /**
-     * 添加图片水印。
+     * ???????
      *
-     * @param inputUrl      输入视频文件路径
-     * @param watermarkPath 水印图片文件路径
-     * @param outputPath    输出文件路径
-     * @param x             水印 X 坐标
-     * @param y             水印 Y 坐标
-     * @return 0 表示成功
+     * @param inputUrl      ????????
+     * @param watermarkPath ????????
+     * @param outputPath    ??????
+     * @param x             ?? X ??
+     * @param y             ?? Y ??
+     * @return 0 ????
      */
     public static int addWatermark(String inputUrl, String watermarkPath,
                                    String outputPath, int x, int y) {
@@ -422,16 +422,16 @@ public final class RustFFmpegBridge {
         return NativeFFmpeg.addWatermark(inputUrl, watermarkPath, outputPath, x, y);
     }
 
-    // ==================== 图片序列转视频桥接 ====================
+    // ==================== ????????? ====================
 
     /**
-     * 图片序列转视频。
+     * ????????
      *
-     * @param imageDir     图片目录路径
-     * @param outputPath   输出视频文件路径
-     * @param fps          帧率
-     * @param imagePattern 图片文件名匹配模式（如 "frame_%06d.jpg"）
-     * @return 0 表示成功
+     * @param imageDir     ??????
+     * @param outputPath   ????????
+     * @param fps          ??
+     * @param imagePattern ??????????? "frame_%06d.jpg"?
+     * @return 0 ????
      */
     public static int imagesToVideo(String imageDir, String outputPath,
                                     int fps, String imagePattern) {
@@ -441,3 +441,4 @@ public final class RustFFmpegBridge {
         return NativeFFmpeg.imagesToVideo(imageDir, outputPath, fps, imagePattern);
     }
 }
+
