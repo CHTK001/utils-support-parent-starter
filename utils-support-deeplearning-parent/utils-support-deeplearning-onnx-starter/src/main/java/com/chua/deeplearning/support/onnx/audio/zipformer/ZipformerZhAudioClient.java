@@ -133,7 +133,7 @@ public class ZipformerZhAudioClient implements AudioClient {
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer-zh.dir");
         if (prop != null && !prop.isBlank()) return Path.of(prop.trim());
-        Path dir = Path.of(cacheRoot(), CACHE_SUBDIR.trim("/"));
+        Path dir = Path.of(cacheRoot(), "audio/asr/zipformer-zh");
         Files.createDirectories(dir);
         return dir;
     }
@@ -161,9 +161,8 @@ public class ZipformerZhAudioClient implements AudioClient {
             Path tmp = Files.createTempFile(TMP_PREFIX, ".wav");
             if (setting.getAudio() != null) Files.write(tmp, setting.getAudio());
             else {
-                try (InputStream in = setting.getAudioInput()) {
-                    Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                }
+                InputStream in = setting.getAudioInput();
+                if (in != null) Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
             tmp.toFile().deleteOnExit();
             return tmp;

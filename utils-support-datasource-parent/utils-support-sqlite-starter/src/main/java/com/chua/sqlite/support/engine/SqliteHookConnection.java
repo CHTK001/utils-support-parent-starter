@@ -199,7 +199,7 @@ public final class SqliteHookConnection implements AutoCloseable {
                     drainBuffer();
                 } catch (Throwable e) {
                     if (!Thread.currentThread().isInterrupted()) {
-                        Thread.sleep(100);
+                        try { Thread.sleep(100); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
                     }
                 }
             }
