@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -10,7 +10,7 @@
     </parent>
     <artifactId>utils-support-deeplearning-agentscope-starter</artifactId>
     <name>AgentScope Agent Starter</name>
-    <description>基于 AgentScope 多智能体编排风格的 Agent 实现</description>
+    <description>AgentScope 实现，将项目通用 Agent 接入到 AgentScope Harness</description>
     <dependencies>
         <dependency>
             <groupId>io.agentscope</groupId>
@@ -33,12 +33,28 @@
             <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
-            <dependency>
+        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-openai-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Override slf4j to stable release (agentscope pulls 2.1.0-alpha1) -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.17</version>
+            </dependency>
+            <!-- Fix jackson version mismatch (jsr310 pulled 2.19.0, others are 2.21.4) -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>2.21.4</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
