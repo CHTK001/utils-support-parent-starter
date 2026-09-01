@@ -73,12 +73,36 @@ class AgentMcpSkillTest {
             }
             int tempC = parseJsonInt(json, "temp_C");
             int humidity = parseJsonInt(json, "humidity");
-            String weatherDesc = extractJsonValue(json, "weatherDesc");
-            String feelsLikeC = extractJsonValue(json, "FeelsLikeC");
-            return String.format("%s 当前 %s°C（体感%s°C） 湿度%d%% %s",
-                    city, tempC, feelsLikeC, humidity, weatherDesc);
+            String feelsLike = String.valueOf(parseJsonInt(json, "FeelsLikeC"));
+            // weatherDesc 是数组 {"value":"Smoky haze"}，取第一个 value
+            String weatherDesc = extractWeatherDesc(json);
+            return String.format("%s 当前 %d°C（体感%s°C） 湿度%d%% %s",
+                    city, tempC, feelsLike, humidity, weatherDesc);
         } catch (Exception e) {
             return "天气查询异常: " + e.getMessage();
+        }
+    }
+
+    /** 从 current_condition 中提取 weatherDesc 数组的第一个 value */
+    private static String extractWeatherDesc(String json) {
+        try {
+            int wi = json.indexOf("\"weatherDesc\"");
+            if (wi < 0) return "?";
+            int ai = json.indexOf('[', wi);
+            if (ai < 0) return "?";
+            int objStart = json.indexOf('{', ai);
+            if (objStart < 0) return "?";
+            int objEnd = json.indexOf('}', objStart);
+            if (objEnd < 0) return "?";
+            String obj = json.substring(objStart, objEnd + 1);
+            int vi = obj.indexOf("\"value\"");
+            if (vi < 0) return "?";
+            int ci2 = obj.indexOf(':', vi);
+            int si = obj.indexOf('"', ci2 + 1);
+            int ei = obj.indexOf('"', si + 1);
+            return obj.substring(si + 1, ei);
+        } catch (Exception e) {
+            return "?";
         }
     }
 
@@ -89,8 +113,11 @@ class AgentMcpSkillTest {
             int ci = json.indexOf(':', ki);
             if (ci < 0) return -1;
             int si = json.indexOf('"', ci + 1);
-            String val = json.substring(ci + 1, si).trim();
-            return Integer.parseInt(val.replace("\"", ""));
+            if (si < 0) return -1;
+            int ei = json.indexOf('"', si + 1);
+            if (ei < 0) return -1;
+            String val = json.substring(si + 1, ei).trim();
+            return Integer.parseInt(val);
         } catch (Exception e) {
             return -1;
         }
