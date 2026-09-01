@@ -256,7 +256,12 @@ public class CollectionUtils {
      * @return 如果对象是 List 则强转返回，否则返回空列表
      */
     public static List<Object> ifList(Object value) {
-        return value instanceof List<?> list ? list.stream().toList() : Collections.emptyList();
+        if (value instanceof List<?> rawList) {
+            @SuppressWarnings("unchecked")
+            List<Object> list = (List<Object>) (List<?>) rawList;
+            return list.stream().toList();
+        }
+        return Collections.emptyList();
     }
 
     /**

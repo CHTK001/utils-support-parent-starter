@@ -38,9 +38,9 @@ public final class GpuHelper {
         }
         try {
             opts.addCUDA(new ai.onnxruntime.providers.OrtCUDAProviderOptions());
-            System.out.println("[GpuHelper] CUDA provider 宸插惎鐢?);
+            log.info("[GpuHelper] CUDA provider 已启用");
         } catch (Exception e) {
-            System.err.println("[GpuHelper] CUDA provider 鍒濆鍖栧け璐ワ紝鍥為€€ CPU: " + e.getMessage());
+            log.warn("[GpuHelper] CUDA provider 初始化失败，回退 CPU: {}", e.getMessage());
         }
     }
 }
