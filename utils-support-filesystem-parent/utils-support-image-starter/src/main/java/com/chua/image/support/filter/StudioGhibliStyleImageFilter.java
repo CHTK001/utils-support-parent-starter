@@ -1,4 +1,4 @@
-﻿package com.chua.image.support.filter;
+package com.chua.image.support.filter;
 
 import com.chua.common.support.image.ImageProcessorUtils;
 import com.chua.common.support.utils.BufferedImageUtils;
