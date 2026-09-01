@@ -814,3 +814,4 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
         ChatClientSetting setting = getSetting();
         return setting != null ? setting.getBaseUrl() : null;
     }
+}
