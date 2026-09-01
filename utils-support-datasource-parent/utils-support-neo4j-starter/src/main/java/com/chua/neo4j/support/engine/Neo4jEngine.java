@@ -672,8 +672,7 @@ public class Neo4jEngine implements Engine {
             var result = session.run(cypher.toString(), params);
             return result.list(r -> mapToEntity(r.get("n").asMap(), entityClass));
         } catch (Exception e) {
-            System.err.println("[NEO4J QUERY ERROR] " + e.getMessage());
-            e.printStackTrace(System.err);
+            log.error("[NEO4J QUERY ERROR] {}", e.getMessage(), e);
             log.error("Neo4j 查询失败: {}", e.getMessage());
             return Collections.emptyList();
         }
