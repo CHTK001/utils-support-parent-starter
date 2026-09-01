@@ -26,6 +26,7 @@ code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:Consolas,m
 .flow .step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.85em;text-align:center}
 .flow .arrow{color:var(--accent);font-size:1.2em}
 .sub{color:var(--muted);font-size:.82em}
+.tag{display:inline-block;font-size:.72em;padding:2px 8px;border-radius:12px;margin-right:4px;font-weight:600;background:rgba(88,166,255,.15);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -148,6 +149,32 @@ boolean isAlice = !result.isEmpty()
 <tr><td>whisper-tiny 中文</td><td>tiny档多语言能力弱</td><td>可换medium/large档或使用SenseVoice替代</td></tr>
 <tr><td>声纹神经模型</td><td>CAM++ 已集成并验证</td><td>可换 wespeaker ResNet34 x-vector (512维) 提升精度</td></tr>
 </table>
+
+<h2>五、OpenAI 标准 STT（云服务）</h2>
+
+<div class="card">
+<h4>OpenAiAudioClient <span class="tag">OpenAI 标准</span> <span class="tag">SPI</span></h4>
+<p>基于 OpenAI 音频标准接口 <code>POST /v1/audio/transcriptions</code> 的 <code>VirtualClient</code> 实现，支持 OpenAI 兼容服务商（openai / openai-asr / siliconflow / sensetime / github / gitee）。</p>
+<pre><code>// 前置依赖：utils-support-openai-starter
+String text = VirtualClient.create("openai", "sk-xxx")
+    .model("whisper-1")       // whisper-1 / gpt-4o-transcribe / gpt-4o-mini-transcribe
+    .language("zh")           // 可选，ISO 639-1
+    .prompt("会议纪要用语")    // 可选，引导识别专有词汇
+    .transcribe(Path.of("audio.wav"));
+
+// 自定义地址 + 代理（对接 b.ai 等 OpenAI 兼容网关）
+String text = VirtualClient.create("openai", "sk-xxx", "https://api.b.ai/v1")
+    .model("whisper-1")
+    .transcribe(Path.of("audio.mp3"));</code></pre>
+</div>
+
+<div class="card">
+<h4>模型清单 <span class="tag">models()</span></h4>
+<p><code>VirtualClient</code> 通过 <code>models()</code> / <code>listModels()</code> 暴露标准 ASR 模型，供统一能力清单与前端筛选使用。</p>
+<pre><code>List&lt;ModelDefinition&gt; defs = VirtualClient.create("openai", "sk-xxx").models();
+List&lt;String&gt; ids = VirtualClient.create("openai", "sk-xxx").listModels();
+// whisper-1 / gpt-4o-transcribe / gpt-4o-mini-transcribe</code></pre>
+</div>
 
 </div>
 </body>

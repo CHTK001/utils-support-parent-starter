@@ -45,4 +45,40 @@ tts.voice("zh-CN-XiaoxiaoNeural")
    .speed(1.0f)
    .pitch(1.0f);
 tts.synthesize("你好，欢迎使用语音合成服务", "output.wav");
-System.out.println("语音已生成: output.wav");</code>
+System.out.println("语音已生成: output.wav");</code></pre>
+</div>
+
+<h2 id="openai">OpenAI 标准 TTS（云服务）</h2>
+<div class="card">
+    <h4>OpenAiTextToAudioClient <span class="tag tag-blue">OpenAI 标准</span> <span class="tag tag-purple">SPI</span></h4>
+    <p>基于 OpenAI 音频标准接口 <code>POST /v1/audio/speech</code> 的 <code>TextToAudioClient</code> 实现，支持 OpenAI 兼容服务商（openai / openai-tts / siliconflow / sensetime / github / gitee）。</p>
+<pre><code class="language-java">// 前置依赖：utils-support-openai-starter
+byte[] mp3 = TextToAudioClient.create("openai", "sk-xxx")
+    .model("tts-1")            // tts-1 / tts-1-hd / gpt-4o-mini-tts
+    .voice("alloy")            // alloy / echo / fable / onyx / nova / shimmer
+    .format("mp3")             // mp3 / opus / aac / flac / wav
+    .speed(1.0)
+    .synthesize("你好世界");
+
+// 自定义地址 + 代理（对接 b.ai 等 OpenAI 兼容网关）
+byte[] mp3 = TextToAudioClient.create("openai", "sk-xxx", "https://api.b.ai/v1")
+    .model("tts-1")
+    .voice("alloy")
+    .synthesize("你好世界");
+
+// 保存到文件
+Files.write(Path.of("output.mp3"), mp3);</code></pre>
+</div>
+
+<div class="card">
+    <h4>模型清单 <span class="tag tag-green">models()</span></h4>
+    <p><code>TextToAudioClient</code> 通过 <code>models()</code> / <code>listModels()</code> 暴露标准 TTS 模型，供统一能力清单与前端筛选使用。</p>
+<pre><code class="language-java">List&lt;ModelDefinition&gt; defs = TextToAudioClient.create("openai", "sk-xxx").models();
+List&lt;String&gt; ids = TextToAudioClient.create("openai", "sk-xxx").listModels();
+// tts-1 / tts-1-hd / gpt-4o-mini-tts</code></pre>
+</div>
+
+<div class="footer">文档中心 · 语音合成 TTS</div>
+</div>
+</body>
+</html>
