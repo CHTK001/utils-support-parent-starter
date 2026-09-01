@@ -113,6 +113,21 @@ public class AiUsage {
      */
     private Integer cacheTokens;
 
+    /**
+     * 缓存名称（Cache Name / Prompt Cache Key）
+     *
+     * <p>记录本次请求使用的提示词缓存标识，例如 OpenAI 自动生成的缓存前缀 ID
+     * （如 {@code evl-...}），或自定义的缓存键名。
+     *
+     * <p>用于追溯缓存命中率、分析缓存预热效果，以及排查缓存未命中问题。
+     * 不支持缓存或缓存未命中的请求该字段为 null。
+     *
+     * <p>与 {@link #cacheTokens} 配合使用：{@code cacheName != null && cacheTokens > 0}
+     * 表示本次请求命中了指定缓存；{@code cacheName != null && cacheTokens == 0}
+     * 表示请求触发了新缓存写入。
+     */
+    private String cacheName;
+
     // ==================== 费用信息 ====================
 
     /**

@@ -92,6 +92,11 @@ public class AiUsageRecord {
     private Integer cacheTokens;
 
     /**
+     * 缓存名称（Cache Name / Prompt Cache Key）
+     */
+    private String cacheName;
+
+    /**
      * 推理 Token 数
      */
     private Integer reasoningTokens;
@@ -180,6 +185,7 @@ public class AiUsageRecord {
         record.outputTokens = usage.getOutputTokens();
         record.totalTokens = usage.getTotalTokens();
         record.cacheTokens = usage.getCacheTokens();
+        record.cacheName = usage.getCacheName();
         record.reasoningTokens = usage.getReasoningTokens();
         record.inputCost = usage.getInputCost();
         record.outputCost = usage.getOutputCost();
@@ -252,6 +258,7 @@ public class AiUsageRecord {
                 .outputTokens(outputTokens)
                 .totalTokens(totalTokens)
                 .cacheTokens(cacheTokens)
+                .cacheName(cacheName)
                 .reasoningTokens(reasoningTokens)
                 .inputCost(inputCost)
                 .outputCost(outputCost)
@@ -414,6 +421,19 @@ public class AiUsageRecord {
          */
         public Builder cacheTokens(int cacheTokens) {
             record.cacheTokens = cacheTokens;
+            return this;
+        }
+
+        /**
+         * 设置缓存名称（Prompt Cache Key）
+         *
+         * <p>记录本次请求使用的提示词缓存标识，用于追溯缓存命中率和分析缓存效果。
+         *
+         * @param cacheName 缓存名称，如 OpenAI 生成的缓存前缀 ID
+         * @return Builder
+         */
+        public Builder cacheName(String cacheName) {
+            record.cacheName = cacheName;
             return this;
         }
 
