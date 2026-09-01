@@ -455,6 +455,9 @@ public class TarFileSystem implements FileSystem {
         /** GZIP 压缩级别（0~9，-1 为默认） */
         private int gzipLevel = Deflater.DEFAULT_COMPRESSION;
 
+        /** 分卷大小（字节），0 表示不分卷 */
+        private long splitSize = 0;
+
         TarWriteBuilder(File file) {
             super(file);
         }
@@ -478,6 +481,17 @@ public class TarFileSystem implements FileSystem {
         public TarWriteBuilder gz(int level) {
             this.gzipEnabled = true;
             this.gzipLevel = level;
+            return this;
+        }
+
+        /**
+         * 设置分卷大小。
+         *
+         * @param size 每个分卷的最大字节数
+         * @return 当前构建器
+         */
+        public TarWriteBuilder splitSize(long size) {
+            this.splitSize = size;
             return this;
         }
 
@@ -526,6 +540,17 @@ public class TarFileSystem implements FileSystem {
                 file.getParentFile().mkdirs();
             }
 
+            if (splitSize > 0) {
+                finishSplit();
+            } else {
+                finishNormal();
+            }
+        }
+
+        /**
+         * 普通模式完成写入。
+         */
+        private void finishNormal() {
             try (OutputStream fos = new FileOutputStream(file);
                  OutputStream bos = new BufferedOutputStream(fos);
                  OutputStream gzos = gzipEnabled ? new GZIPOutputStream(bos) {{
@@ -549,6 +574,133 @@ public class TarFileSystem implements FileSystem {
                 // try-with-resources 自动关闭：tos → gzos (或 bos) → bos → fos
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
+            }
+        }
+
+        /**
+         * 分卷模式完成写入。
+         * <p>先写入临时文件，然后根据 splitSize 分割成多个分卷文件。</p>
+         */
+        private void finishSplit() {
+            File tempFile = null;
+            try {
+                // 先写入临时文件
+                tempFile = File.createTempFile("tar-split-", ".tar", file.getParentFile());
+                try (OutputStream fos = new FileOutputStream(tempFile);
+                     OutputStream bos = new BufferedOutputStream(fos);
+                     OutputStream gzos = gzipEnabled ? new GZIPOutputStream(bos) {{
+                             def.setLevel(gzipLevel);
+                         }} : bos;
+                     TarOutputStream tos = new TarOutputStream(gzos)) {
+
+                    for (TarEntryData entryData : entries) {
+                        TarEntry entry = entryData.toTarEntry();
+                        if (entry == null) {
+                            continue;
+                        }
+                        tos.putNextEntry(entry);
+
+                        if (entryData.getSource() != null) {
+                            writeFile(tos, entryData.getSource());
+                        } else if (entryData.getBytes() != null) {
+                            tos.write(entryData.getBytes());
+                        }
+                    }
+                }
+
+                // 分割临时文件为多个分卷
+                splitFile(tempFile, file, splitSize, gzipEnabled);
+
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } finally {
+                if (tempFile != null && tempFile.exists()) {
+                    tempFile.delete();
+                }
+            }
+        }
+
+        /**
+         * 将文件分割成多个分卷。
+         *
+         * @param sourceFile  源文件
+         * @param outputFile  输出文件名
+         * @param maxSize     每个分卷的最大字节数
+         * @param isGzipped   是否为 GZIP 压缩文件
+         * @throws IOException IO 异常
+         */
+        private void splitFile(File sourceFile, File outputFile, long maxSize, boolean isGzipped) throws IOException {
+            String baseName = outputFile.getName();
+            String baseNameWithoutExt = baseName;
+            int lastDot = baseName.lastIndexOf('.');
+            if (lastDot > 0) {
+                baseNameWithoutExt = baseName.substring(0, lastDot);
+            }
+
+            long fileLength = sourceFile.length();
+            if (fileLength <= maxSize) {
+                copyFile(sourceFile, outputFile);
+                return;
+            }
+
+            try (FileInputStream fis = new FileInputStream(sourceFile)) {
+                byte[] buffer = new byte[8192];
+                int partNumber = 1;
+                long bytesWrittenInPart = 0;
+                long totalBytesRead = 0;
+                FileOutputStream currentFos = null;
+
+                try {
+                    int bytesRead;
+                    while ((bytesRead = fis.read(buffer)) != -1) {
+                        if (currentFos == null || bytesWrittenInPart >= maxSize) {
+                            if (currentFos != null) {
+                                currentFos.close();
+                                currentFos = null;
+                            }
+
+                            long bytesRemaining = fileLength - totalBytesRead;
+                            boolean isLastPart = bytesRemaining <= maxSize;
+
+                            File partFile;
+                            if (isLastPart) {
+                                partFile = outputFile;
+                            } else {
+                                String partExtension = String.format(".%02d", partNumber);
+                                partFile = new File(outputFile.getParent(),
+                                        baseNameWithoutExt + partExtension);
+                            }
+                            currentFos = new FileOutputStream(partFile);
+                            bytesWrittenInPart = 0;
+                        }
+
+                        currentFos.write(buffer, 0, bytesRead);
+                        bytesWrittenInPart += bytesRead;
+                        totalBytesRead += bytesRead;
+                    }
+                } finally {
+                    if (currentFos != null) {
+                        currentFos.close();
+                    }
+                }
+            }
+        }
+
+        /**
+         * 复制文件。
+         *
+         * @param source 源文件
+         * @param target 目标文件
+         * @throws IOException IO 异常
+         */
+        private void copyFile(File source, File target) throws IOException {
+            try (FileInputStream fis = new FileInputStream(source);
+                 FileOutputStream fos = new FileOutputStream(target)) {
+                byte[] buffer = new byte[8192];
+                int len;
+                while ((len = fis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
             }
         }
 

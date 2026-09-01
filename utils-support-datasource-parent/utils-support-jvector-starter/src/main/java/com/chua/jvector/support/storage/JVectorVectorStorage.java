@@ -272,7 +272,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     try { graph.close(); } catch (Exception ignored) {}
                     graph = null;
                 }
-                System.err.println("[jvector] 图搜索失败，降级为暴力扫描: " + e.getMessage());
+                log.warn("[jvector] 图搜索失败，降级为暴力扫描: {}", e.getMessage());
             }
             return bruteForceSearch(query, fetchK);
         }
