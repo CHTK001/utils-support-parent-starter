@@ -573,6 +573,14 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "https://modelscope.cn/models/Xenova/vit-gpt2-image-captioning/resolve/master/onnx/decoder_model_quantized.onnx",
                 java.util.List.of("https://huggingface.co/Xenova/vit-gpt2-image-captioning/resolve/main/onnx/decoder_model_quantized.onnx"),
                 false, null);
+        // ==================== Florence-2 多模态理解 ====================
+        // Florence-2：微软开源多模态理解模型，支持图像描述/OCR/物体检测等任务，3 个 ONNX 模型
+        reg("florence2", "com.chua.deeplearning.support.onnx.florence2.Florence2Translator",
+                Object[].class, String.class, Object.class,
+                "vision/florence2/decoder_model_merged.onnx",
+                "https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/onnx/decoder_model_merged.onnx",
+                java.util.List.of("https://hf-mirror.com/onnx-community/Florence-2-base-ft/resolve/main/onnx/decoder_model_merged.onnx"),
+                false, "decoder_model_merged.onnx");
         // ==================== ViT-H-14 图像特征 ====================
         // ViT-H-14 (Chinese-CLIP)：提取图像特征向量（1024维），与文本特征比对；适用图文检索、图像匹配
         reg("vit-h-14-image", "com.chua.deeplearning.support.onnx.vision.clip.VitH14OnnxTranslator",
