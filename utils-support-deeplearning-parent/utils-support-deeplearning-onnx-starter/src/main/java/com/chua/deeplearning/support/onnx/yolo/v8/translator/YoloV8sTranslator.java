@@ -13,6 +13,7 @@ import com.chua.deeplearning.support.utils.NMSUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * YOLOv8s COCO ͨ用Ŀ标检测 Translator。
@@ -20,6 +21,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
     /** 类别名称列表 */
@@ -99,7 +101,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
         this.classes = new ArrayList<>(classes);
-        System.out.println("YOLOv8s 初始化: input=" + INPUT_SIZE + ", threshold=" + threshold + ", nms=" + nmsThreshold + ", classes=" + classes.size());
+        log.info("YOLOv8s 初始化: input={}, threshold={}, nms={}, classes={}", INPUT_SIZE, threshold, nmsThreshold, classes.size());
     }
 
     @Override
@@ -140,7 +142,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
         int expectedFeatures = 4 + classes.size();
         if (numFeatures != expectedFeatures) {
-            System.out.println("Feature mismatch: actual=" + numFeatures + ", expected=" + expectedFeatures);
+            log.warn("Feature mismatch: actual={}, expected={}", numFeatures, expectedFeatures);
         }
 
         List<String> names = new ArrayList<>();
@@ -220,7 +222,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
             finalBoxes.add(boxes.get(idx));
         }
 
-        System.out.println("YOLOv8s done: " + boxes.size() + " boxes -> " + finalNames.size() + " (NMS)");
+        log.info("YOLOv8s done: {} boxes -> {} (NMS)", boxes.size(), finalNames.size());
         return new DetectedObjects(finalNames, finalProbs, finalBoxes);
     }
 
