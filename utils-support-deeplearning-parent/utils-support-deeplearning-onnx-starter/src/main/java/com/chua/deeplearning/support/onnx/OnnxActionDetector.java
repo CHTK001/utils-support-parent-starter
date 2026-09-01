@@ -5,6 +5,12 @@ import com.chua.deeplearning.support.model.ActionDetectionResult;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * ONNX C3D 动作检测客户端，基于预注册模型执行视频动作识别。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class OnnxActionDetector implements ActionDetector {
 
