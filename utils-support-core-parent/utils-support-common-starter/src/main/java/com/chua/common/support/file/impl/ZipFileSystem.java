@@ -249,8 +249,9 @@ public class ZipFileSystem implements FileSystem {
                     currentIndex++;
                     if (currentIndex < files.size()) {
                         currentStream = new FileInputStream(files.get(currentIndex));
-                        // 递归读取，确保不会因为文件边界返回 -1
-                        return read(b, off, len);
+                        // 递归读取，但先检查新文件是否能读取数据
+                        int result = currentStream.read(b, off, len);
+                        return result == -1 ? read(b, off, len) : result;
                     }
                     return -1;
                 }
@@ -348,59 +349,6 @@ public class ZipFileSystem implements FileSystem {
          * @param entryNames 要提取的条目名称
          */
         private void extractNormal(File targetDir, String... entryNames) {
-            try (ZipFile zipFile = new ZipFile(file, StandardCharsets.UTF_8)) {
-                if (!targetDir.exists()) {
-                    targetDir.mkdirs();
-                }
-
-                Enumeration<? extends ZipEntry> entries = zipFile.entries();
-                while (entries.hasMoreElements()) {
-                    ZipEntry entry = entries.nextElement();
-
-                    if (entryNames != null && entryNames.length > 0) {
-                        boolean matched = false;
-                        for (String name : entryNames) {
-                            if (entry.getName().equals(name) || entry.getName().startsWith(name + "/")) {
-                                matched = true;
-                                break;
-                            }
-                        }
-                        if (!matched) {
-                            continue;
-                        }
-                    }
-
-                    File outFile = new File(targetDir, entry.getName());
-                    if (!outFile.getCanonicalPath().startsWith(targetDir.getCanonicalPath())) {
-                        throw new IOException("ZIP entry outside target: " + entry.getName());
-                    }
-
-                    if (entry.isDirectory()) {
-                        outFile.mkdirs();
-                    } else {
-                        outFile.getParentFile().mkdirs();
-                        try (InputStream is = zipFile.getInputStream(entry);
-                             OutputStream os = new FileOutputStream(outFile)) {
-                            byte[] buffer = new byte[8192];
-                            int len;
-                            while ((len = is.read(buffer)) > 0) {
-                                os.write(buffer, 0, len);
-                            }
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
-        /**
-         * 将压缩包中指定一个或多个条目提取到目标目录。
-         *
-         * @param targetDir  目标目录
-         * @param entryNames 要提取的条目名称（不限数量）
-         */
-        public void extract(File targetDir, String... entryNames) {
             try (ZipFile zipFile = new ZipFile(file, StandardCharsets.UTF_8)) {
                 if (!targetDir.exists()) {
                     targetDir.mkdirs();
@@ -719,6 +667,7 @@ public class ZipFileSystem implements FileSystem {
                 byte[] buffer = new byte[8192];
                 int partNumber = 1;
                 long bytesWrittenInPart = 0;
+                long totalBytesRead = 0;
                 FileOutputStream currentFos = null;
 
                 try {
@@ -731,8 +680,8 @@ public class ZipFileSystem implements FileSystem {
                                 currentFos = null;
                             }
 
-                            // 计算剩余字节数
-                            long bytesRemaining = fileLength - fis.available();
+                            // 计算剩余字节数（使用累加计数器而非 fis.available()）
+                            long bytesRemaining = fileLength - totalBytesRead;
                             boolean isLastPart = bytesRemaining <= maxSize;
 
                             // 创建新分卷文件
@@ -751,6 +700,7 @@ public class ZipFileSystem implements FileSystem {
 
                         currentFos.write(buffer, 0, bytesRead);
                         bytesWrittenInPart += bytesRead;
+                        totalBytesRead += bytesRead;
                     }
                 } finally {
                     if (currentFos != null) {

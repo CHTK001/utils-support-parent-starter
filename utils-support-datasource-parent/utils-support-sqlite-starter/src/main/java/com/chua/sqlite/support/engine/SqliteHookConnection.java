@@ -113,11 +113,10 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     private void drainBufferSync() {
         int polled = 0;
-        MemorySegment bufSeg = null;
-        try (var arena = Arena.ofConfined()) {
-            bufSeg = arena.allocateArray(ValueLayout.JAVA_BYTE, 512L);
+        try (var scope = Arena.ofConfined()) {
+            MemorySegment bufSeg = scope.allocate(512);
             while (true) {
-                int len = (int) HOOK_POLL_HANDLE.invoke(handle, bufSeg, (long)512);
+                int len = (int) HOOK_POLL_HANDLE.invoke(handle, bufSeg, 512);
                 System.err.println("[sqlite-hook] hook_poll returned len=" + len);
                 if (len <= 0) break;
                 String json = bufSeg.getString(0, StandardCharsets.UTF_8);

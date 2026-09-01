@@ -65,6 +65,7 @@ public class AgentDebugMiddleware implements MiddlewareBase {
     }
 
     private void onEvent(AgentEvent event) {
+        System.out.println("[Middleware] onEvent: " + (event != null ? event.getType() : "null"));
         if (event == null) return;
         try {
             String type = event.getType().name();
@@ -126,3 +127,4 @@ public class AgentDebugMiddleware implements MiddlewareBase {
 
     private static long safeLong(int v) { return v < 0 ? 0L : (long) v; }
 }
+

@@ -1,33 +1,36 @@
 package com.chua.deeplearning.support.onnx;
 
-import com.chua.deeplearning.support.image.VlmUnderstanding;
+import com.chua.deeplearning.support.image.ImageUnderstander;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ONNX Florence-2 多模态理解门面类。
+ * ONNX 图像理解门面（基于 Florence-2 等多模态模型）。
  *
- * <p>实现 {@link VlmUnderstanding} 接口，委托给 {@code florence2} 模型的 ONNX Translator。</p>
+ * <p>实现 {@link ImageUnderstander} 接口，支持图像描述、OCR、物体检测等任务。</p>
  *
  * <pre>{@code
- * String result = OnnxFlorence2.create()
+ * String caption = OnnxImageUnderstander.create()
  *     .understand(imageBytes, "<CAPTION>");
+ *
+ * String ocr = OnnxImageUnderstander.create()
+ *     .understand(imageBytes, "<OCR>");
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class OnnxFlorence2 implements VlmUnderstanding {
+public class OnnxImageUnderstander implements ImageUnderstander {
 
     private String modelName = "florence2";
 
     /** 创建默认实例 */
-    public static OnnxFlorence2 create() {
-        return new OnnxFlorence2();
+    public static OnnxImageUnderstander create() {
+        return new OnnxImageUnderstander();
     }
 
     @Override
-    public VlmUnderstanding model(String model) {
+    public ImageUnderstander model(String model) {
         this.modelName = model;
         return this;
     }
@@ -38,14 +41,14 @@ public class OnnxFlorence2 implements VlmUnderstanding {
             var translator = com.chua.deeplearning.support.engine.ModelRegistry
                     .getTranslator(modelName, com.chua.deeplearning.support.translator.ITranslator.class);
             if (translator == null) {
-                throw new IllegalStateException("Florence-2 模型未注册: " + modelName);
+                throw new IllegalStateException("图像理解模型未注册: " + modelName);
             }
             @SuppressWarnings("unchecked")
             var t = (com.chua.deeplearning.support.translator.ITranslator<Object[], String>) translator;
             return t.translate(new Object[]{imageData, taskPrompt});
         } catch (Exception e) {
-            log.error("[OnnxFlorence2] 推理失败: {}", e.getMessage(), e);
-            throw new RuntimeException("Florence-2 推理失败: " + e.getMessage(), e);
+            log.error("[OnnxImageUnderstander] 推理失败: {}", e.getMessage(), e);
+            throw new RuntimeException("图像理解失败: " + e.getMessage(), e);
         }
     }
 }
