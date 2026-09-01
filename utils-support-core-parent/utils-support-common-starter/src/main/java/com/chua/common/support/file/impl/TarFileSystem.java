@@ -182,8 +182,9 @@ public class TarFileSystem implements FileSystem {
          */
         private InputStream createMergedInputStream() throws IOException {
             List<File> splitFiles = findSplitFiles();
-            if (splitFiles.isEmpty()) {
-                return new FileInputStream(file);
+            if (splitFiles.size() <= 1) {
+                // 没有找到分卷文件或只有主文件，直接返回主文件的输入流
+                return new BufferedInputStream(new FileInputStream(file));
             }
             return new MergedInputStream(splitFiles);
         }
@@ -197,6 +198,9 @@ public class TarFileSystem implements FileSystem {
             List<File> splitFiles = new ArrayList<>();
             File parentDir = file.getParentFile();
             if (parentDir == null || !parentDir.exists()) {
+                if (file.exists()) {
+                    splitFiles.add(file);
+                }
                 return splitFiles;
             }
 
@@ -215,6 +219,7 @@ public class TarFileSystem implements FileSystem {
                     !name.equals(baseName));
 
             if (files != null) {
+                // 按分卷编号排序
                 List<File> sortedFiles = new ArrayList<>();
                 for (File f : files) {
                     String name = f.getName();
@@ -223,11 +228,19 @@ public class TarFileSystem implements FileSystem {
                         sortedFiles.add(f);
                     }
                 }
+                // 按文件名中的数字排序
+                sortedFiles.sort((f1, f2) -> {
+                    String num1 = f1.getName().substring(prefix.length());
+                    String num2 = f2.getName().substring(prefix.length());
+                    return Integer.compare(Integer.parseInt(num1), Integer.parseInt(num2));
+                });
                 splitFiles.addAll(sortedFiles);
             }
 
-            // 最后添加主文件
-            splitFiles.add(file);
+            // 最后添加主文件（如果存在）
+            if (file.exists()) {
+                splitFiles.add(file);
+            }
             return splitFiles;
         }
 

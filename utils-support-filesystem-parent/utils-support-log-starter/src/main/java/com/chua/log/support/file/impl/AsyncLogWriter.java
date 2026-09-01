@@ -51,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class AsyncLogWriter implements AutoCloseable {
 
     /**
@@ -349,7 +350,7 @@ public class AsyncLogWriter implements AutoCloseable {
                 }
             } catch (RuntimeException e) {
                 // 单次刷盘异常不终止后台线程，记录后等待下次尝试
-                System.err.println("[AsyncLogWriter] 刷盘异常: " + file + " - " + e.getMessage());
+                log.warn("[AsyncLogWriter] 刷盘异常: file={} msg={}", file, e.getMessage(), e);
             }
         }
         // 退出前刷盘，避免数据丢失

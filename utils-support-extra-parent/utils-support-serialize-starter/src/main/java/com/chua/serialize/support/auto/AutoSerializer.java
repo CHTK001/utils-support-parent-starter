@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author CH
  */
 @Spi("auto")
+@Slf4j
 public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     private static final long serialVersionUID = 1L;
 
@@ -110,7 +111,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
                 }
                 return result;
             } catch (Exception e) {
-                System.err.println("[AutoSerializer] Serializer #" + idx + " failed: " + e.getMessage());
+                log.warn("[AutoSerializer] Serializer #{} failed: {}", idx, e.getMessage(), e);
             }
         }
         throw new RuntimeException("All serializers failed");
@@ -139,7 +140,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
                 }
                 return result;
             } catch (Exception e) {
-                System.err.println("[AutoSerializer] Deserialize with serializer #" + idx + " failed: " + e.getMessage());
+                log.warn("[AutoSerializer] Deserialize with serializer #{} failed: {}", idx, e.getMessage(), e);
             }
         }
         throw new RuntimeException("All deserializers failed");
