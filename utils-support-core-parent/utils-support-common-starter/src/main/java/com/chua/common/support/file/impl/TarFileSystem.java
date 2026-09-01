@@ -60,6 +60,20 @@ import java.util.zip.GZIPOutputStream;
  *
  * // 列出所有条目
  * List<String> entries = tar.read(new File("input.tar")).listEntries();
+ *
+ * // 分卷压缩写入（.tar.gz 分卷）
+ * tar.write(new File("output.tar.gz"))
+ *    .gz()
+ *    .splitSize(1024 * 1024 * 100) // 100MB 分卷
+ *    .addFile("large-file.bin", new File("large-file.bin"))
+ *    .finish();
+ * // Creates: output.tar.gz.01, output.tar.gz.02, ...
+ *
+ * // 分卷压缩读取（自动检测分卷文件）
+ * tar.read(new File("output.tar.gz"))
+ *    .gz()
+ *    .split() // 启用分卷读取模式
+ *    .extractAll(targetDir);
  * }</pre>
  *
  * @author CH
@@ -116,8 +130,22 @@ public class TarFileSystem implements FileSystem {
         /** 是否启用 GZIP 解包 */
         private boolean gzipEnabled;
 
+        /** 是否启用分卷读取模式 */
+        private boolean splitMode = false;
+
         TarReadBuilder(File file) {
             super(file);
+        }
+
+        /**
+         * 启用分卷读取模式。
+         * <p>启用后将自动检测同目录下的分卷文件并合并读取。</p>
+         *
+         * @return 当前构建器
+         */
+        public TarReadBuilder split() {
+            this.splitMode = true;
+            return this;
         }
 
         /**
@@ -128,6 +156,139 @@ public class TarFileSystem implements FileSystem {
         public TarReadBuilder gz() {
             this.gzipEnabled = true;
             return this;
+        }
+
+        /**
+         * 创建输入流，自动判断是否使用 GZIP 解包。
+         */
+        private InputStream openInput() throws IOException {
+            InputStream is;
+            if (splitMode) {
+                is = createMergedInputStream();
+            } else {
+                is = new BufferedInputStream(new FileInputStream(file));
+            }
+            if (gzipEnabled) {
+                return new GZIPInputStream(is);
+            }
+            return is;
+        }
+
+        /**
+         * 创建合并的输入流，用于分卷读取。
+         *
+         * @return 合并后的输入流
+         * @throws IOException IO 异常
+         */
+        private InputStream createMergedInputStream() throws IOException {
+            List<File> splitFiles = findSplitFiles();
+            if (splitFiles.isEmpty()) {
+                return new FileInputStream(file);
+            }
+            return new MergedInputStream(splitFiles);
+        }
+
+        /**
+         * 查找同目录下的分卷文件。
+         *
+         * @return 分卷文件列表（按顺序排列）
+         */
+        private List<File> findSplitFiles() {
+            List<File> splitFiles = new ArrayList<>();
+            File parentDir = file.getParentFile();
+            if (parentDir == null || !parentDir.exists()) {
+                return splitFiles;
+            }
+
+            String baseName = file.getName();
+            String baseNameWithoutExt = baseName;
+            int lastDot = baseName.lastIndexOf('.');
+            if (lastDot > 0) {
+                baseNameWithoutExt = baseName.substring(0, lastDot);
+            }
+
+            // 查找 .tar.gz.01, .tar.gz.02, ... 等分卷文件
+            String prefix = baseNameWithoutExt + ".";
+            File[] files = parentDir.listFiles((dir, name) ->
+                    name.startsWith(prefix) &&
+                    name.length() >= prefix.length() + 1 &&
+                    !name.equals(baseName));
+
+            if (files != null) {
+                List<File> sortedFiles = new ArrayList<>();
+                for (File f : files) {
+                    String name = f.getName();
+                    String ext = name.substring(prefix.length());
+                    if (ext.matches("\\d+")) {
+                        sortedFiles.add(f);
+                    }
+                }
+                splitFiles.addAll(sortedFiles);
+            }
+
+            // 最后添加主文件
+            splitFiles.add(file);
+            return splitFiles;
+        }
+
+        /**
+         * 合并多个分卷文件的输入流。
+         */
+        private static class MergedInputStream extends InputStream {
+            private final List<File> files;
+            private int currentIndex = 0;
+            private FileInputStream currentStream;
+
+            MergedInputStream(List<File> files) throws FileNotFoundException {
+                this.files = files;
+                if (!files.isEmpty()) {
+                    this.currentStream = new FileInputStream(files.get(0));
+                }
+            }
+
+            @Override
+            public int read() throws IOException {
+                if (currentStream == null) {
+                    return -1;
+                }
+                int b = currentStream.read();
+                if (b == -1) {
+                    currentStream.close();
+                    currentIndex++;
+                    if (currentIndex < files.size()) {
+                        currentStream = new FileInputStream(files.get(currentIndex));
+                        return currentStream.read();
+                    }
+                    return -1;
+                }
+                return b;
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                if (currentStream == null) {
+                    return -1;
+                }
+                int bytesRead = currentStream.read(b, off, len);
+                if (bytesRead == -1) {
+                    currentStream.close();
+                    currentIndex++;
+                    if (currentIndex < files.size()) {
+                        currentStream = new FileInputStream(files.get(currentIndex));
+                        int result = currentStream.read(b, off, len);
+                        return result == -1 ? read(b, off, len) : result;
+                    }
+                    return -1;
+                }
+                return bytesRead;
+            }
+
+            @Override
+            public void close() throws IOException {
+                if (currentStream != null) {
+                    currentStream.close();
+                }
+            }
         }
 
         /**

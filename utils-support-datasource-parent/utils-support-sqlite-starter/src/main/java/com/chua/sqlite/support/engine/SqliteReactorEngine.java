@@ -2,11 +2,9 @@ package com.chua.sqlite.support.engine;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcReactorEngine;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.sql.DataSource;
 import java.util.regex.Pattern;
 
 /**
@@ -14,10 +12,10 @@ import java.util.regex.Pattern;
  *
  * <p>通过 FFM（Project Panama）绑定 {@code sqlite3_hook.dll} 动态库，
  * 利用 {@code sqlite3_update_hook} 实时捕获 INSERT/UPDATE/DELETE 变更事件，
- * 以 {@link Sinks.Many} 推送到 {@link #changes()} 响应式流。</p>
+ * 以 {@link reactor.core.publisher.Sinks.Many} 推送到 {@link #changes()} 响应式流。</p>
  *
  * <ul>
- *   <li>写操作（INSERT/UPDATE/DELETE）→ 经 hook 连接执行，触发真实更新回调</li>
+ *   <li>写操作（INSERT/UPDATE/DELETE）→ 经 hook 连接执行，变更事件同步推送</li>
  *   <li>读操作（SELECT）→ 走 HikariCP 连接池 JDBC 路径，支持并发读</li>
  *   <li>变更事件 → {@link #changes()} 返回 replay Flux，支持多订阅者</li>
  * </ul>
@@ -26,9 +24,9 @@ import java.util.regex.Pattern;
  * SqliteReactorEngine engine = new SqliteReactorEngine();
  * engine.addDataSource("default", "data/mydb.sqlite");
  *
- * // 变更监听（真响应式）
+ * // 变更监听（真响应式，需先订阅再写）
  * engine.changes().subscribe(e ->
- *     log.info("{} on '{}'", e.getType(), e.getTable()));
+ *     System.out.println(e.getType() + " on " + e.getTable()));
  *
  * // 写操作自动触发事件
  * engine.execute("INSERT INTO users(name) VALUES('张三')").block();
@@ -40,43 +38,29 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.43
  */
-@Slf4j
-@Spi("sqlite")
+@ Spi("sqlite")
 public class SqliteReactorEngine extends JdbcReactorEngine {
 
-    /** 匹配写操作的 SQL 前缀（忽略大小写和前置空白） */
     private static final Pattern WRITE_PATTERN = Pattern.compile(
             "^\\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TRUNCATE)\\s",
             Pattern.CASE_INSENSITIVE);
 
-    /** SQLite update_hook 原生连接，负责写操作与变更事件推送 */
     private SqliteHookConnection hookConnection;
 
     /**
      * 添加一个 SQLite 数据源。
-     *
-     * <p>同时初始化 JDBC 连接池（用于读）和 hook 连接（用于写 + 变更推送）。</p>
      *
      * @param name     数据源名称
      * @param filePath SQLite 数据库文件路径
      * @return 当前引擎实例
      */
     public SqliteReactorEngine addDataSource(String name, String filePath) {
-        /* 委托给同步引擎管理连接池（读路径） */
         SqliteEngine delegate = new SqliteEngine();
         delegate.addDataSource(name, filePath);
         this.delegate = delegate;
 
-        /* 注册纯 JDBC 数据源供读操作使用 */
         registerJdbcDataSource(name, "jdbc:sqlite:" + filePath, null, null);
-
-        /* 打开 hook 连接（写路径 + 变更事件） */
         this.hookConnection = SqliteHookConnection.open(filePath);
-        if (hookConnection != null) {
-            log.info("[sqlite-reactor] hook 连接已打开: {}", filePath);
-        } else {
-            log.warn("[sqlite-reactor] hook 连接打开失败，降级为纯 JDBC 模式: {}", filePath);
-        }
         return this;
     }
 
@@ -132,52 +116,30 @@ public class SqliteReactorEngine extends JdbcReactorEngine {
         }
         return Flux.fromIterable(batchParams)
                 .flatMap(paramArray -> executeViaHook(formatBatchSql(sql, paramArray)))
-                .onErrorResume(e -> {
-                    log.warn("[sqlite-reactor] batch hook 执行失败，降级到 JDBC: {}", e.getMessage());
-                    return super.batch(sql, batchParams);
-                });
+                .onErrorResume(e -> super.batch(sql, batchParams));
     }
 
     /* ==================== 内部实现 ==================== */
 
-    /**
-     * 通过 hook 连接执行写 SQL。
-     *
-     * <p>使用 {@code Mono.fromCallable} 包装阻塞 FFM 调用，
-     * 由 Reactor 调度到 boundedElastic 线程执行。</p>
-     */
     private Mono<Integer> executeViaHook(String sql) {
         if (hookConnection == null) {
-            /* hook 不可用时降级到 JDBC */
             return super.execute(sql);
         }
-        return Mono.fromCallable(() -> {
+        try {
             int rc = hookConnection.exec(sql);
-            if (rc != 0) {
-                throw new IllegalStateException("SQLite hook_exec 失败, rc=" + rc + ", sql=" + sql);
-            }
-            /* hook_exec 不返回受影响行数，通过 hook 事件推断（简化处理返回 1）*/
-            return 1;
-        }).onErrorResume(e -> {
-            log.warn("[sqlite-reactor] hook 执行失败，降级到 JDBC: {}", e.getMessage());
+            return (rc == 0) ? Mono.just(1) : Mono.error(
+                    new IllegalStateException("SQLite hook_exec failed, rc=" + rc));
+        } catch (Throwable e) {
             return super.execute(sql);
-        });
+        }
     }
 
-    /**
-     * 判断 SQL 是否为写操作。
-     */
     private static boolean isWriteOperation(String sql) {
         return sql != null && WRITE_PATTERN.matcher(sql).find();
     }
 
-    /**
-     * 将批量参数单个 SQL 格式化，供 hook_exec 逐条执行。
-     */
     private static String formatBatchSql(String sql, Object[] params) {
-        if (params == null || params.length == 0) {
-            return sql;
-        }
+        if (params == null || params.length == 0) return sql;
         StringBuilder sb = new StringBuilder(sql.length() + params.length * 16);
         int pi = 0;
         for (int i = 0; i < sql.length(); i++) {
@@ -198,8 +160,7 @@ public class SqliteReactorEngine extends JdbcReactorEngine {
 
     private static String quoteLiteral(Object v) {
         if (v == null) return "NULL";
-        if (v instanceof Number) return v.toString();
-        if (v instanceof Boolean) return v.toString();
+        if (v instanceof Number || v instanceof Boolean) return v.toString();
         String s = v.toString().replace("'", "''");
         return "'" + s + "'";
     }

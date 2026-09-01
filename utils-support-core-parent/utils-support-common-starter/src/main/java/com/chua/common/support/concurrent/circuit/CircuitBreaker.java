@@ -3,6 +3,7 @@ package com.chua.common.support.concurrent.circuit;
 import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.ServiceProvider;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 
 import java.util.Map;
@@ -59,6 +60,7 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class CircuitBreaker {
 
     /**
@@ -155,8 +157,7 @@ public class CircuitBreaker {
         try {
             return evaluateNode(tree);
         } catch (RuntimeException e) {
-            System.err.println("[CircuitBreaker] evaluate failed for expression '" + expression
-                    + "': " + e.getMessage());
+            log.error("[CircuitBreaker] evaluate failed for expression '{}': {}", expression, e.getMessage(), e);
             return false;
         }
     }

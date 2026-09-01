@@ -23,6 +23,7 @@ class SqliteReactiveChangesTest {
 
     /**
      * hook 连接打开时，INSERT/UPDATE/DELETE 变更能被实时捕获并推送到 Flux。
+     * 注意：需先订阅 changes()，再执行写操作。
      */
     @Test
     void hook_changes_emits_events() throws Exception {
@@ -33,10 +34,9 @@ class SqliteReactiveChangesTest {
         engine.addDataSource("default", db.toString());
 
         try {
-            /* 建表 */
             engine.execute("CREATE TABLE users(id INTEGER PRIMARY KEY, name TEXT)").block();
 
-            /* 订阅变更流 */
+            /* 先订阅，再写 */
             List<SqliteChangeEvent> received = new ArrayList<>();
             CountDownLatch latch = new CountDownLatch(3);
             engine.changes().subscribe(e -> {
@@ -44,18 +44,16 @@ class SqliteReactiveChangesTest {
                 latch.countDown();
             });
 
-            /* 触发写操作 */
             engine.execute("INSERT INTO users(name) VALUES('Alice')").block();
             engine.execute("UPDATE users SET name='Alice2' WHERE id=1").block();
             engine.execute("DELETE FROM users WHERE id=1").block();
 
-            /* 验证事件 */
             assertTrue(latch.await(5, TimeUnit.SECONDS), "变更事件未在超时内收到");
             assertEquals(3, received.size());
-            assertEquals(SqliteChangeEvent.Type.INSERT,  received.get(0).getType());
-            assertEquals("users",                        received.get(0).getTable());
-            assertEquals(SqliteChangeEvent.Type.UPDATE,  received.get(1).getType());
-            assertEquals(SqliteChangeEvent.Type.DELETE,  received.get(2).getType());
+            assertEquals(SqliteChangeEvent.Type.INSERT, received.get(0).getType());
+            assertEquals("users", received.get(0).getTable());
+            assertEquals(SqliteChangeEvent.Type.UPDATE, received.get(1).getType());
+            assertEquals(SqliteChangeEvent.Type.DELETE, received.get(2).getType());
         } finally {
             engine.close();
         }
@@ -63,6 +61,7 @@ class SqliteReactiveChangesTest {
 
     /**
      * 多个订阅者都能收到同一批变更事件（replay 语义）。
+     * 先写入触发事件存入 sink，后订阅者也能通过 replay 收到。
      */
     @Test
     void changes_multiSubscriber_replays() throws Exception {
@@ -75,13 +74,13 @@ class SqliteReactiveChangesTest {
         try {
             engine.execute("CREATE TABLE t(x INTEGER PRIMARY KEY)").block();
 
-            AtomicInteger sub1 = new AtomicInteger(0);
-            AtomicInteger sub2 = new AtomicInteger(0);
-
             /* 先写入三条 */
             engine.execute("INSERT INTO t(x) VALUES(1)").block();
             engine.execute("INSERT INTO t(x) VALUES(2)").block();
             engine.execute("INSERT INTO t(x) VALUES(3)").block();
+
+            AtomicInteger sub1 = new AtomicInteger(0);
+            AtomicInteger sub2 = new AtomicInteger(0);
 
             /* 延迟订阅（replay 应补发之前的 3 条） */
             engine.changes().subscribe(e -> sub1.incrementAndGet());
@@ -90,7 +89,7 @@ class SqliteReactiveChangesTest {
             /* 再写入一条 */
             engine.execute("INSERT INTO t(x) VALUES(4)").block();
 
-            Thread.sleep(200); /* 等待 poll 线程消费 */
+            Thread.sleep(300);
             assertEquals(4, sub1.get(), "订阅者1 应收到 4 条（3 replay + 1 新）");
             assertEquals(4, sub2.get(), "订阅者2 应收到 4 条（3 replay + 1 新）");
         } finally {
