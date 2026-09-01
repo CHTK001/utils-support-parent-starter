@@ -205,12 +205,6 @@ public class ChatClientModelAdapter implements Model {
                 .build();
     }
 
-    // Uses ChatClient.getApiKey() — no reflection needed
-
-    // Uses ChatClient.getBaseUrl() — no reflection needed
-
-    // Uses ChatClient.getModel() — no reflection needed
-
     private String buildToolsPrompt(List<ToolSchema> tools) {
         if (tools == null || tools.isEmpty()) {
             return "";
@@ -268,6 +262,7 @@ public class ChatClientModelAdapter implements Model {
         }
     }
 }
+
 
 
 
