@@ -378,3 +378,59 @@
 <tr><td><code>yolov5-plate-recognize</code></td><td>📄 已有记录</td><td>yolo.plate.translator.Yolo5PlateRecTranslator</td><td></td></tr>
 </tbody></table>
 <!-- coverage:end -->
+
+
+---
+
+## 附录：VLM Florence-2 ONNX 集成（2026-09-01）
+
+> 新增模块：VlmClient SPI 接口 + OnnxVlmClient 门面 + UnderstandTask 枚举
+> 详细报告见 [Florence-2-VLM-测试报告.md](./Florence-2-VLM-测试报告.md)
+
+### A.1 新增文件
+
+| 文件 | 位置 | 说明 |
+| --- | --- | --- |
+| VlmClient.java | utils-support-deeplearning-starter/image/ | VLM 客户端 SPI 接口 |
+| UnderstandTask.java | utils-support-deeplearning-starter/image/ | 15 种理解任务枚举 |
+| UnderstandResult.java | utils-support-deeplearning-starter/image/ | 理解结果封装 |
+| OnnxVlmClient.java | utils-support-deeplearning-onnx-starter/onnx/ | ONNX 门面实现 |
+| Florence2Translator.java | utils-support-deeplearning-onnx-starter/florence2/ | 三模型 ONNX 管线 |
+| Florence2EndToEndTest.java | utils-support-deeplearning-onnx-starter/test/ | 端到端测试 |
+| SPI 注册 | META-INF/extensions/com.chua.deeplearning.support.image.VlmClient | SPI 注册文件 |
+
+### A.2 新增测试
+
+```
+mvn test -pl utils-support-deeplearning-parent/utils-support-deeplearning-onnx-starter -Dtest=Florence2EndToEndTest
+# Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
+```
+
+### A.3 模型文件（自动下载至 %TEMP%/vision/florence2/）
+
+| 文件 | 大小 | 说明 |
+| --- | --- | --- |
+| vision_encoder.onnx | ~349MB | ViT-B/16 视觉编码器 |
+| embed_tokens.onnx | ~150MB | 词嵌入查找表 |
+| decoder_model_merged.onnx | ~370MB | 6层 Decoder + KV-cache |
+| tokenizer.json | ~2.2MB | HuggingFace tokenizer |
+
+### A.4 API 速查
+
+```java
+// SPI 工厂方式
+VlmClient.create("florence2")
+    .understand(imageBytes, UnderstandTask.CAPTION)
+    .getText();
+
+// 门面方式
+OnnxVlmClient.create()
+    .model("florence2")
+    .understand(imageBytes, UnderstandTask.OCR);
+
+// 任务枚举（无魔法字符串）
+UnderstandTask.CAPTION
+UnderstandTask.OCR
+UnderstandTask.OD
+UnderstandTask.DETAILED_CAPTION
+```
