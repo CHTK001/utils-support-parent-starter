@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WAL 四大存储引擎吞吐基准测试报告</title>
+<style>
+:root { --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#e2e8f0; --muted:#94a3b8;
+         --accent:#60a5fa; --green:#34d399; --orange:#fbbf24; --red:#f87171; --purple:#a78bfa; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; padding:24px; }
+.container { max-width:1100px; margin:0 auto; }
+h1 { font-size:26px; color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:8px; }
+h2 { font-size:20px; color:var(--purple); margin-top:36px; border-left:4px solid var(--purple); padding-left:12px; }
+h3 { font-size:16px; color:var(--accent); margin-top:24px; }
+h4 { font-size:14px; color:var(--green); margin-top:18px; }
+blockquote { background:var(--card); border-left:4px solid var(--accent); margin:16px 0; padding:10px 16px; border-radius:0 8px 8px 0; color:var(--muted); font-size:14px; }
+table { border-collapse:collapse; margin:16px 0; width:100%; font-size:14px; }
+th { background:#334155; color:var(--accent); padding:8px 12px; text-align:left; border:1px solid #475569; }
+td { border:1px solid #475569; padding:6px 12px; }
+tr:nth-child(even) { background:#1e293b; }
+code { background:#1e293b; padding:2px 6px; border-radius:4px; color:#fbbf24; font-family:Consolas,monospace; font-size:13px; }
+pre { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#a5f3fc; font-size:13px; }
+hr { border:none; border-top:1px solid #334155; margin:28px 0; }
+ul, ol { padding-left:24px; margin:8px 0; }
+li { margin:4px 0; }
+.mermaid { background:#1e293b; border-radius:12px; padding:20px; margin:16px 0; text-align:center; overflow-x:auto; }
+.footnote { color:var(--muted); font-size:12px; text-align:center; margin-top:40px; padding-top:16px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+<h1 id="wal-四大存储引擎吞吐基准测试报告">WAL 四大存储引擎吞吐基准测试报告</h1>
+<p><strong>测试时间</strong>: 2026-08-31</p>
+<p><strong>环境</strong>: Windows 10, Java 25 (Corretto), SSD (D:)</p>
+<p><strong>版本</strong>: utils-support-common-starter 4.0.0.42</p>
+<hr/>
+<h2 id="测试结果">测试结果</h2>
+<h3 id="写入吞吐-热数据-">写入吞吐（热数据）</h3>
+<table><thead><tr><th>引</th><th>场</th><th>记</th><th>耗</th><th>吞</th></tr></thead><tbody><tr><td><strong>TS</strong></td><td>5 measure 并行写入</td><td>1,000,000</td><td>342 ms</td><td><strong>2,923,977 ops/s</strong></td></tr><tr><td><strong>TS</strong></td><td>单 measure 写入</td><td>100,000</td><td>41 ms</td><td><strong>2,439,024 ops/s</strong></td></tr><tr><td><strong>KV</strong></td><td>顺序写入 (128B payload)</td><td>1,000,000</td><td>576 ms</td><td><strong>1,736,111 ops/s</strong></td></tr><tr><td><strong>KV</strong></td><td>顺序写入 (64B payload)</td><td>100,000</td><td>188 ms</td><td><strong>531,915 ops/s</strong></td></tr><tr><td><strong>JDBC</strong></td><td>行插入 (2列)</td><td>1,000,000</td><td>917 ms</td><td><strong>1,090,513 ops/s</strong></td></tr><tr><td><strong>JDBC</strong></td><td>行插入 (5列混合)</td><td>100,000</td><td>200 ms</td><td><strong>500,000 ops/s</strong></td></tr><tr><td><strong>VEC</strong></td><td>向量写入 dim=64</td><td>100,000</td><td>203 ms</td><td><strong>492,611 ops/s</strong></td></tr><tr><td><strong>VEC</strong></td><td>向量写入 dim=128</td><td>10,000</td><td>73 ms</td><td><strong>136,986 ops/s</strong></td></tr></tbody></table>
+<h3 id="优化前后对比">优化前后对比</h3>
+<table><thead><tr><th>引</th><th>优</th><th>优</th><th>提</th></tr></thead><tbody><tr><td>TS 1M</td><td>207,987 ops/s</td><td><strong>2,923,977 ops/s</strong></td><td><strong>14.0x</strong></td></tr><tr><td>TS 100K</td><td>143,062 ops/s</td><td><strong>2,439,024 ops/s</strong></td><td><strong>17.0x</strong></td></tr><tr><td>KV 1M</td><td>331,345 ops/s</td><td><strong>1,736,111 ops/s</strong></td><td><strong>5.2x</strong></td></tr><tr><td>JDBC 100K</td><td>62,775 ops/s</td><td><strong>500,000 ops/s</strong></td><td><strong>8.0x</strong></td></tr><tr><td>VEC 10K</td><td>60,241 ops/s</td><td><strong>136,986 ops/s</strong></td><td><strong>2.3x</strong></td></tr></tbody></table>
+<hr/>
+<h2 id="性能瓶颈分析与优化">性能瓶颈分析与优化</h2>
+<h3 id="瓶颈-1--每次-append-调用-flush--">瓶颈 1: 每次 append 调用 flush()</h3>
+<p><strong>位置</strong>: <code>SegmentWalLog.append()</code> 第292行</p>
+<pre class="language-java">// 优化前 - 每次写都触发 syscall
+activeOut.write(body);
+activeOut.flush();          // ← 每次 append 都 flush，1M次 = 1M次 syscall
+activeWrittenBytes += body.length;</pre>
+<pre class="language-java">// 优化后 - flush 仅由 maybeFsync() 和 close() 控制
+activeOut.write(body);
+// flush 由 BufferedOutputStream 自动管理（buffer满时刷出）
+activeWrittenBytes += body.length;</pre>
+<p><strong>效果</strong>: TS 引擎提升 <strong>17x</strong>，KV 提升 <strong>5.2x</strong></p>
+<h3 id="瓶颈-2--payload-clone---冗余拷贝">瓶颈 2: payload.clone() 冗余拷贝</h3>
+<p><strong>位置</strong>: 四个引擎的 <code>append(String key, byte[] payload)</code> 方法</p>
+<pre class="language-java">// 优化前 - 每次都 clone，增加 1M 次内存分配
+long lsn = walLogs[idx].append((byte) 0x01, payload.clone());
+
+// 优化后 - 直接传递（调用方已提供独立 byte array）
+long lsn = walLogs[idx].append((byte) 0x01, payload);</pre>
+<p>四个引擎均已优化：</p>
+<li><code>KvWalStoreSystem.java</code></li>
+<li><code>TsWalStoreSystem.java</code></li>
+<li><code>VecWalStoreSystem.java</code></li>
+<li><code>JdbcWalStoreSystem.java</code></li>
+<hr/>
+<h2 id="架构说明">架构说明</h2>
+<h3 id="四大引擎">四大引擎</h3>
+<table><thead><tr><th>引</th><th>用</th><th>数</th></tr></thead><tbody><tr><td><strong>KvWalStoreSystem</strong></td><td>键值对存储</td><td>key → value，支持按 key 查询</td></tr><tr><td><strong>TsWalStoreSystem</strong></td><td>时序数据</td><td>measure + timestamp + value，支持聚合查询</td></tr><tr><td><strong>VecWalStoreSystem</strong></td><td>向量存储</td><td>key → float[]，支持 brute-force 相似度搜索</td></tr><tr><td><strong>JdbcWalStoreSystem</strong></td><td>结构化表</td><td>类 SQL 表，支持 INSERT/UPDATE/DELETE/SELECT</td></tr></tbody></table>
+<h3 id="分片架构">分片架构</h3>
+<pre>baseDir/
+  _wal/
+    ns-000001.wal   ← segment 1 (单 shard 约 100K 条)
+    ns-000002.wal
+    ...
+    ns-000053.wal
+  _index/           ← B+Tree 索引快照
+  _meta/            ← schema 元数据</pre>
+<li><strong>默认 100 shard</strong>，每 shard 独立 WAL 文件</li>
+<li><strong>写路由</strong>: <code>hash(key) % shardCount</code> → 对应 shard 的 SegmentWalLog</li>
+<li><strong>分段滚动</strong>: 每段最大 100K 条或按字节大小自动滚动</li>
+<hr/>
+<h2 id="测试方法">测试方法</h2>
+<pre class="language-java">// KV 1M 写入（优化后）
+Path dir = Path.of(&quot;D:/ch/temp/wal/wal-kv-1m&quot;);
+Files.createDirectories(dir);
+try (KvWalStoreSystem store = KvWalStoreSystem.create(dir)) {
+    int count = 1_000_000;
+    byte[] payload = (&quot;payload_&quot; + &quot;x&quot;.repeat(128)).getBytes(UTF_8);
+    long t0 = System.nanoTime();
+    for (int i = 0; i &lt; count; i++) {
+        store.put(&quot;user:&quot; + i, payload);
+    }
+    long elapsed = (System.nanoTime() - t0) / 1_000_000L;
+    System.out.printf(&quot;[KV] write %d records in %d ms (%.0f ops/s)%n&quot;,
+            count, elapsed, count * 1000.0 / Math.max(elapsed, 1));
+}</pre>
+<hr/>
+<h2 id="结论">结论</h2>
+<li><strong>TS 引擎吞吐最高</strong>：290万+ ops/s，适合高频时序写入</li>
+<li><strong>KV 引擎适合键值场景</strong>：170万+ ops/s，写入延迟低</li>
+<li><strong>JDBC 引擎支持结构化查询</strong>：109万 ops/s，兼顾性能与功能</li>
+<li><strong>VEC 引擎受维度影响</strong>：dim=64 达 49万 ops/s，dim=128 降至 13.7万</li>
+<li><strong>优化核心</strong>：消除 append() 路径上的 flush() 和 clone() 是关键</li>
+<hr/>
+<h2 id="相关文件">相关文件</h2>
+<li>测试源码: <code>src/test/java/com/chua/common/support/datasource/wal/WalStoreStressTest.java</code></li>
+<li>单元测试: <code>WalStoreSystemTest.java</code>（17 个测试方法）</li>
+<li>四个引擎实现: <code>src/main/java/com/chua/common/support/datasource/wal/</code></li>
+<li>WAL 核心: <code>src/main/java/com/chua/common/support/wal/SegmentWalLog.java</code></li>
+<p class="footnote">生成时间：2026-09-02 | 格式：HTML 深色主题</p>
+</div>
+</body>
+</html>

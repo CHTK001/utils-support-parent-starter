@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPULlama3 模块添加测试报告</title>
+<style>
+:root { --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#e2e8f0; --muted:#94a3b8;
+         --accent:#60a5fa; --green:#34d399; --orange:#fbbf24; --red:#f87171; --purple:#a78bfa; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; padding:24px; }
+.container { max-width:1100px; margin:0 auto; }
+h1 { font-size:26px; color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:8px; }
+h2 { font-size:20px; color:var(--purple); margin-top:36px; border-left:4px solid var(--purple); padding-left:12px; }
+h3 { font-size:16px; color:var(--accent); margin-top:24px; }
+h4 { font-size:14px; color:var(--green); margin-top:18px; }
+blockquote { background:var(--card); border-left:4px solid var(--accent); margin:16px 0; padding:10px 16px; border-radius:0 8px 8px 0; color:var(--muted); font-size:14px; }
+table { border-collapse:collapse; margin:16px 0; width:100%; font-size:14px; }
+th { background:#334155; color:var(--accent); padding:8px 12px; text-align:left; border:1px solid #475569; }
+td { border:1px solid #475569; padding:6px 12px; }
+tr:nth-child(even) { background:#1e293b; }
+code { background:#1e293b; padding:2px 6px; border-radius:4px; color:#fbbf24; font-family:Consolas,monospace; font-size:13px; }
+pre { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#a5f3fc; font-size:13px; }
+hr { border:none; border-top:1px solid #334155; margin:28px 0; }
+ul, ol { padding-left:24px; margin:8px 0; }
+li { margin:4px 0; }
+.mermaid { background:#1e293b; border-radius:12px; padding:20px; margin:16px 0; text-align:center; overflow-x:auto; }
+.footnote { color:var(--muted); font-size:12px; text-align:center; margin-top:40px; padding-top:16px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+<h1 id="gpullama3-模块添加测试报告">GPULlama3 模块添加测试报告</h1>
+<blockquote>测试日期: 2026-08-26</blockquote>
+<blockquote>测试对象: <code>utils-support-deeplearning-gpu-llama3-starter</code> 新模块</blockquote>
+<blockquote>JDK: Amazon Corretto 25.0.3</blockquote>
+<hr/>
+<h2 id="一-模块结构">一、模块结构</h2>
+<pre>utils-support-deeplearning-parent/
+└── utils-support-deeplearning-gpu-llama3-starter/
+    ├── pom.xml
+    ├── README.md
+    └── src/main/
+        ├── java/com/chua/deeplearning/support/gpu_llama3/
+        │   ├── GpuLlama3ChatClient.java      # SPI 对话客户端
+        │   └── GpuLlama3ModelRegistrar.java   # 模型注册器
+        └── resources/META-INF/services/
+            └── com.chua.common.support.objects.definition.BeanDefinitionGenerator</pre>
+<h2 id="二-核心文件">二、核心文件</h2>
+<h3 id="1--pom-xml">1. pom.xml</h3>
+<li>继承 <code>utils-support-deeplearning-parent</code></li>
+<li>依赖 <code>de.kherud:llama:4.2.0</code>（GPU 加速版 llama.cpp JNI）</li>
+<li>版本统一管理 <code>${project.version}</code></li>
+<h3 id="2--gpullama3chatclient-java">2. GpuLlama3ChatClient.java</h3>
+<li>标注 <code>@Spi("gpu-llama3")</code>，实现 <code>AbstractLocalChatClient</code></li>
+<li>提供 Llama 3 GPU 对话能力</li>
+<h3 id="3--gpullama3modelregistrar-java">3. GpuLlama3ModelRegistrar.java</h3>
+<li>静态初始化块自动注册模型元数据</li>
+<li>支持三个模型：<code>llama-3-8b-it</code>、<code>llama-3-70b-it</code>、<code>llama-3-2b-it</code></li>
+<li>提供 HuggingFace Mirror 下载链接</li>
+<h3 id="4--llama3chattranslator-java">4. Llama3ChatTranslator.java</h3>
+<li>实现 <code>ITranslator<String, String></code></li>
+<li>GPU 参数配置：<code>setGpuLayers(-1)</code> 全层 GPU、<code>setCtxSize(4096)</code></li>
+<li>支持 Qwen2 风格的 chat 格式和 <code><|end_of_text|></code> 结束符检测</li>
+<h2 id="三-编译验证">三、编译验证</h2>
+<pre class="language-powershell">cd utils-support-deeplearning-parent/utils-support-deeplearning-gpu-llama3-starter
+mvn compile --offline -DskipTests
+# [INFO] BUILD SUCCESS</pre>
+<h2 id="四-父模块更新">四、父模块更新</h2>
+<p><code>utils-support-deeplearning-parent/pom.xml</code> 已添加：</p>
+<pre class="language-xml">&lt;module&gt;utils-support-deeplearning-gpu-llama3-starter&lt;/module&gt;</pre>
+<h2 id="五-使用示例">五、使用示例</h2>
+<pre class="language-java">// 创建客户端
+GpuLlama3ChatClient client = new GpuLlama3ChatClient(new ChatClientSetting());
+client.setModelId(&quot;llama-3-8b-it&quot;);
+client.start();
+
+// 对话
+String reply = client.chat(&quot;用一句话介绍 Java&quot;);
+System.out.println(reply);
+
+// 关闭
+client.close();</pre>
+<h2 id="六-注意事项">六、注意事项</h2>
+<li><strong>GPU 要求</strong>：需要 NVIDIA GPU + CUDA 驱动（默认使用 GPU 设备 0）</li>
+<li><strong>模型下载</strong>：首次运行自动从 hf-mirror.com 下载 GGUF 模型</li>
+<li><strong>显存需求</strong>：</li>
+<li>Q4_K_M 量化 8B 模型约需 6GB</li>
+<li>70B 模型约需 40GB+</li>
+<hr/>
+<p><strong>状态</strong>: ✅ 编译通过，模块已安装至本地 Maven 仓库 (<code>G:\repo</code>)</p>
+<p class="footnote">生成时间：2026-09-02 | 格式：HTML 深色主题</p>
+</div>
+</body>
+</html>

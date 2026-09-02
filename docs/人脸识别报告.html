@@ -1,139 +1,145 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>人脸识别报告</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<title>人脸识别全流程指南</title>
+
 <style>
-body{background:#0f172a;color:#e2e8f0;font-family:"Microsoft YaHei",system-ui,sans-serif;margin:0;padding:24px;line-height:1.7}
-.container{max-width:1000px;margin:0 auto}
-h1{font-size:28px;color:#60a5fa;border-bottom:2px solid #334155;padding-bottom:10px}
-h2{font-size:22px;color:#f472b6;margin-top:40px;border-left:4px solid #f472b6;padding-left:12px}
-h3{font-size:18px;color:#93c5fd;margin-top:28px}
-table{border-collapse:collapse;margin:16px 0;width:100%;font-size:14px}
-th{background:#334155;color:#93c5fd;padding:8px 12px;text-align:left;border:1px solid #475569}
-td{border:1px solid #475569;padding:6px 12px}
-tr:nth-child(even){background:#1e293b}
-code{background:#1e293b;padding:2px 6px;border-radius:4px;color:#fbbf24;font-family:Consolas,monospace;font-size:13px}
-pre{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;overflow-x:auto}
-pre code{background:none;color:#a5f3fc}
-blockquote{background:#1e293b;border-left:4px solid #60a5fa;margin:16px 0;padding:10px 16px;border-radius:0 8px 8px 0;color:#cbd5e1}
-.mermaid{background:#1e293b;border-radius:12px;padding:20px;margin:16px 0;text-align:center;overflow-x:auto}
-hr{border:none;border-top:1px solid #334155;margin:32px 0}
-li{margin:4px 0}
+:root { --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#e2e8f0; --muted:#94a3b8;
+         --accent:#60a5fa; --green:#34d399; --orange:#fbbf24; --red:#f87171; --purple:#a78bfa; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; padding:24px; }
+.container { max-width:1100px; margin:0 auto; }
+h1 { font-size:26px; color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:8px; }
+h2 { font-size:20px; color:var(--purple); margin-top:36px; border-left:4px solid var(--purple); padding-left:12px; }
+h3 { font-size:16px; color:var(--accent); margin-top:24px; }
+h4 { font-size:14px; color:var(--green); margin-top:18px; }
+blockquote { background:var(--card); border-left:4px solid var(--accent); margin:16px 0; padding:10px 16px; border-radius:0 8px 8px 0; color:var(--muted); font-size:14px; }
+table { border-collapse:collapse; margin:16px 0; width:100%; font-size:14px; }
+th { background:#334155; color:var(--accent); padding:8px 12px; text-align:left; border:1px solid #475569; }
+td { border:1px solid #475569; padding:6px 12px; }
+tr:nth-child(even) { background:#1e293b; }
+code { background:#1e293b; padding:2px 6px; border-radius:4px; color:#fbbf24; font-family:Consolas,monospace; font-size:13px; }
+pre { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#a5f3fc; font-size:13px; }
+hr { border:none; border-top:1px solid #334155; margin:28px 0; }
+ul, ol { padding-left:24px; margin:8px 0; }
+li { margin:4px 0; }
+.mermaid { background:#1e293b; border-radius:12px; padding:20px; margin:16px 0; text-align:center; overflow-x:auto; }
+.badge { display:inline-block; font-size:12px; padding:2px 10px; border-radius:12px; font-weight:600; }
+.badge-pass { background:rgba(52,211,153,.15); color:var(--green); }
+.badge-warn { background:rgba(251,191,36,.15); color:var(--orange); }
+.badge-info { background:rgba(96,165,250,.15); color:var(--accent); }
+.nav { margin:16px 0 24px; display:flex; flex-wrap:wrap; gap:8px; }
+.nav a { color:var(--accent); text-decoration:none; font-size:13px; padding:4px 12px; border:1px solid var(--border); border-radius:16px; }
+.nav a:hover { background:var(--border); }
+.footnote { color:var(--muted); font-size:12px; text-align:center; margin-top:40px; padding-top:16px; border-top:1px solid var(--border); }
 </style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark'});</script>
+
 </head>
 <body>
 <div class="container">
-<h1>人脸识别全流程指南</h1>
-<blockquote>模块：<code>utils-support-deeplearning-starter</code> · <code>com.chua.deeplearning.support.face</code></blockquote>
-<blockquote>说明：基于通用 Pipeline 框架编排的 FacePipeline 人脸识别能力，含检测、活体、对齐、修复、超分、特征、1:N 检索。</blockquote>
+<div class="nav"><a href="#一-能力总览">一、能力总览</a><a href="#二-核心流程">二、核心流程</a><a href="#三-模型注册与加载链路">三、模型注册与加载链路</a><a href="#四-向量库与相似度语义">四、向量库与相似度语义</a><a href="#五-人脸修复-pt-vs-onnx-">五、人脸修复（pt vs onnx）</a><a href="#六-完整测试-人脸识别---检索-">六、完整测试（人脸识别 + 检索）</a><a href="#七-回调机制">七、回调机制</a></div><h1 id="人脸识别全流程指南">人脸识别全流程指南</h1>
+<blockquote> 模块：<code>utils-support-deeplearning-starter</code> · <code>com.chua.deeplearning.support.face</code></blockquote>
+<blockquote> 说明：基于通用 Pipeline 框架编排的 FacePipeline 人脸识别能力，含检测、活体、对齐、修复、超分、特征、1:N 检索。</blockquote>
 <hr/>
-<h2>一、能力总览</h2>
-<table><thead><tr><th>能力</th><th>方法</th><th>默认模型</th><th>引擎</th></tr></thead><tbody><tr><td>人脸检测</td><td>`detect` / `detectBoxes` / `detectPipeline`</td><td>`scrfd-face-detector` / `retinaface`</td><td>ONNX</td></tr><tr><td>活体检测</td><td>`isLive` / `liveScore`</td><td>`face-liveness-flrgb` / `flxc`</td><td>ONNX</td></tr><tr><td>人脸对齐</td><td>`align` / `restoreWithAlign`</td><td>5 点仿射（内置 OpenCV）</td><td>OpenCV</td></tr><tr><td>人脸修复</td><td>`restore` / `restoreWithAlign`</td><td>`onnx-gfpgan` / `pytorch-gfpgan` / `codeformer`</td><td>ONNX / PyTorch</td></tr><tr><td>高清超分</td><td>`superResolution`</td><td>`gfpgan-face-super-resolution` / `real-esrgan`</td><td>ONNX</td></tr><tr><td>特征提取</td><td>`extractFeature`</td><td>`r50-face-feature` / `arc-face` / `ada-face`</td><td>ONNX</td></tr><tr><td>1:N 检索</td><td>`identifyPipeline`</td><td>`VectorStorage`（内存/文件/Milvus）</td><td>内置</td></tr><tr><td>1:1 比对</td><td>`compareWithMeta` / `compareFeature`</td><td>余弦相似度</td><td>内置</td></tr><tr><td>登记入库</td><td>`enrollPipeline` / `enroll`</td><td>复用完整特征管线</td><td>内置</td></tr><tr><td>属性分析</td><td>`attributes`</td><td>`age-race-gender`</td><td>ONNX</td></tr><tr><td>表情识别</td><td>`emotion`</td><td>`emotion-ferplus`</td><td>ONNX</td></tr><tr><td>关键点</td><td>`landmark`</td><td>`2d106det`</td><td>ONNX</td></tr><tr><td>质量评估</td><td>`quality`</td><td>OpenCV Laplacian 方差</td><td>OpenCV</td></tr><tr><td>动漫检测</td><td>`animeDetect`</td><td>`anime-face-detector`</td><td>ONNX</td></tr><tr><td>换脸检测</td><td>`isDeepfake`</td><td>`deepfake-detector`</td><td>ONNX</td></tr></tbody></table>
+<h2 id="一-能力总览">一、能力总览</h2>
 <hr/>
-<h2>二、核心流程</h2>
+<h2 id="二-核心流程">二、核心流程</h2>
 <h3>2.1 识别管线 <code>identifyPipeline</code></h3>
-<div class="mermaid">flowchart LR
-    IN["输入图片 byte[]"]
-    DET["① 人脸检测 detectBoxes()<br/>SCRFD/RetinaFace/UltraFace"]
-    BOX{"有检测框?"}
-    CROP["② 裁剪 crop<br/>ImageCropUtils.crop 外扩 padding"]
-    LIVE["③ 活体检测 liveness<br/>FLRGB/FLXC（外扩100%头部区域）"]
-    LIVECHK{"通过活体?<br/>requireLive 可关闭"}
-    ALIGN["④ 对齐 align<br/>5点仿射 → FFHQ 512×512"]
-    RESTORE["⑤ 修复 restore<br/>GFPGAN / CodeFormer"]
-    ENHANCE["⑥ 超分 enhance<br/>GFPGAN超分 / Real-ESRGAN"]
-    FEAT["⑦ 特征提取 feature<br/>ArcFace / R50 / AdaFace 512维"]
-    SEARCH{"配置向量库?"}
-    SEARCHN["⑧ 1:N 检索 search<br/>VectorStorage.topK()"]
-    RESULT["⑨ 收集 collectIdentify<br/>FaceIdentifyHit(box+feature+hits+live)"]
-
-    IN --> DET --> BOX
-    BOX -- "有" --> CROP --> LIVE --> LIVECHK -- "通过" --> ALIGN --> RESTORE --> ENHANCE --> FEAT --> SEARCH
-    BOX -- "无" --> END1["end"]
-    LIVECHK -- "拒绝" --> END1
-    SEARCH -- "有向量库" --> SEARCHN --> RESULT
-    SEARCH -- "无" --> RESULT</div>
+<div class="mermaid">flowchart LR</div>
 <h3>2.2 检测管线 <code>detectPipeline</code>（多人脸 + 活体过滤）</h3>
-<div class="mermaid">flowchart LR
-    IN["输入图片"]
-    DET["人脸检测"]
-    LOOP{"遍历每张人脸<br/>独立 PipelineContext"}
-    CROP["裁剪 crop"]
-    LIVE["活体检测 liveness"]
-    CHK{"通过活体?"}
-    COLL["收集 FaceDetectionHit"]
-    ENDE["end"]
-    IN --> DET --> LOOP -- "每张脸" --> CROP --> LIVE --> CHK -- "通过" --> COLL
-    CHK -- "拒绝" --> ENDE</div>
+<div class="mermaid">flowchart LR</div>
 <h3>2.3 修复管线 <code>restoreWithAlign</code></h3>
-<div class="mermaid">flowchart LR
-    IN["输入图片 byte[]"]
-    DET["检测人脸<br/>含5点关键点"]
-    KPS{"关键点≥5?"}
-    AFFINE["5点仿射对齐<br/>estimateFaceAffine512()<br/>→ 512×512 FFHQ 模板"]
-    AL["对齐人脸<br/>align_i.png"]
-    RESTORE["人脸修复<br/>restorer.enhance()<br/>GFPGAN(pt/onnx) / CodeFormer"]
-    RE["修复人脸<br/>restore_i.png"]
-    RESULT["FaceRestoreResult<br/>box + alignedBytes + restoredBytes"]
-    IN --> DET --> KPS -- "是" --> AFFINE --> AL --> RESTORE --> RE --> RESULT
-    KPS -- "否(跳过)" --> SKIP["跳过该脸"]</div>
+<div class="mermaid">flowchart LR</div>
 <hr/>
-<h2>三、模型注册与加载链路</h2>
-<div class="mermaid">flowchart TB
-    REG["注册器<br/>OnnxModelRegistrar / PytorchModelRegistrar<br/>静态注册: modelId → Translator类 + relativePath"]
-    SPI["SPI 扫描触发<br/>Class.forName"]
-    RESOLVE["路径解析 resolveModelPath()<br/>1. 绝对路径<br/>2. modelRootDir(deeplearning.model.root-dir)<br/>3. classpath:前缀<br/>4. JAR内嵌资源"]
-    EXTRACT["JAR内嵌 → 解压缓存<br/>%TEMP%/chua-dl-models/<br/>大小校验 isUpToDate()<br/>jar 更新自动重解压"]
-    DJL["DJL 加载<br/>Criteria + Translator<br/>engine: OnnxRuntime / PyTorch"]
-    MODELS["模型文件<br/>GFPGANv1.3_clean.onnx<br/>gfpgan_traced_model.pt<br/>scrfd.onnx 等"]
-    REG --> SPI --> RESOLVE --> EXTRACT --> DJL --> MODELS</div>
+<h2 id="三-模型注册与加载链路">三、模型注册与加载链路</h2>
+<div class="mermaid">flowchart TB</div>
 <h3>路径解析顺序（<code>ModelRegistry.resolveModelPath</code>）</h3>
-<ol><li><code>relativePath</code> 绝对路径（文件系统）</li><li><code>{modelRootDir}/{relativePath}</code></li><li><code>classpath:</code> 前缀资源</li><li>相对当前工作目录</li><li>classpath 多种前缀（<code>models/onnx/</code> 等）</li><li>JAR 内嵌资源 → 解压到缓存目录</li></ol>
-<blockquote><strong>缓存失效</strong>：<code>extractClasspathResource</code> 增加 <code>isUpToDate()</code> 校验（比较 JAR 内资源与缓存文件大小），模型 jar 更新后自动重新解压，避免继续使用旧缓存模型。</blockquote>
+<table><thead><tr><th>能</th><th>方</th><th>默</th><th>引</th></tr></thead><tbody>
+<tr><td>人脸检测</td><td><code>detect</code> / <code>detectBoxes</code> / <code>detectPipeline</code></td><td><code>scrfd-face-detector</code> / <code>retinaface</code></td><td>ONNX</td></tr>
+<tr><td>活体检测</td><td><code>isLive</code> / <code>liveScore</code></td><td><code>face-liveness-flrgb</code> / <code>flxc</code></td><td>ONNX</td></tr>
+<tr><td>人脸对齐</td><td><code>align</code> / <code>restoreWithAlign</code></td><td>5 点仿射（内置 OpenCV）</td><td>OpenCV</td></tr>
+<tr><td>人脸修复</td><td><code>restore</code> / <code>restoreWithAlign</code></td><td><code>onnx-gfpgan</code> / <code>pytorch-gfpgan</code> / <code>codeformer</code></td><td>ONNX / PyTorch</td></tr>
+<tr><td>高清超分</td><td><code>superResolution</code></td><td><code>gfpgan-face-super-resolution</code> / <code>real-esrgan</code></td><td>ONNX</td></tr>
+<tr><td>特征提取</td><td><code>extractFeature</code></td><td><code>r50-face-feature</code> / <code>arc-face</code> / <code>ada-face</code></td><td>ONNX</td></tr>
+<tr><td>1:N 检索</td><td><code>identifyPipeline</code></td><td><code>VectorStorage</code>（内存/文件/Milvus）</td><td>内置</td></tr>
+<tr><td>1:1 比对</td><td><code>compareWithMeta</code> / <code>compareFeature</code></td><td>余弦相似度</td><td>内置</td></tr>
+<tr><td>登记入库</td><td><code>enrollPipeline</code> / <code>enroll</code></td><td>复用完整特征管线</td><td>内置</td></tr>
+<tr><td>属性分析</td><td><code>attributes</code></td><td><code>age-race-gender</code></td><td>ONNX</td></tr>
+<tr><td>表情识别</td><td><code>emotion</code></td><td><code>emotion-ferplus</code></td><td>ONNX</td></tr>
+<tr><td>关键点</td><td><code>landmark</code></td><td><code>2d106det</code></td><td>ONNX</td></tr>
+<tr><td>质量评估</td><td><code>quality</code></td><td>OpenCV Laplacian 方差</td><td>OpenCV</td></tr>
+<tr><td>动漫检测</td><td><code>animeDetect</code></td><td><code>anime-face-detector</code></td><td>ONNX</td></tr>
+<tr><td>换脸检测</td><td><code>isDeepfake</code></td><td><code>deepfake-detector</code></td><td>ONNX</td></tr>
+</tbody></table>
+<li><code>relativePath</code> 绝对路径（文件系统）</li>
+<li><code>{modelRootDir}/{relativePath}</code></li>
+<li><code>classpath:</code> 前缀资源</li>
+<li>相对当前工作目录</li>
+<li>classpath 多种前缀（<code>models/onnx/</code> 等）</li>
+<li>JAR 内嵌资源 → 解压到缓存目录</li>
+<blockquote> <strong>缓存失效</strong>：<code>extractClasspathResource</code> 增加 <code>isUpToDate()</code> 校验（比较 JAR 内资源与缓存文件大小），模型 jar 更新后自动重新解压，避免继续使用旧缓存模型。</blockquote>
 <hr/>
-<h2>四、向量库与相似度语义</h2>
+<h2 id="四-向量库与相似度语义">四、向量库与相似度语义</h2>
 <h3>4.1 相似度语义（v4.0.0.42 起统一）</h3>
-<ul><li><strong><code>VectorCompareAlgorithm.compare(a, b)</code> 返回「相似度」，越大越相似</strong></li><li>完全相同的向量：</li><li>COSINE：<code>cos(θ) = 1.0</code></li><li>EUCLIDEAN：<code>-0.0</code></li><li>DOT：<code>‖a‖·‖b‖</code></li><li>排序统一为<strong>降序</strong>（相似度最大的 topK 排最前）</li><li><code>FacePipeline.compareWithMeta</code> 使用余弦相似度 <code>[0,1]</code>，<code>score &gt;= 0.5</code> 判定同一人</li></ul>
-<pre><code class='lang-java'>// 内存向量库（512 维 + 余弦相似度）
+<li><strong><code>VectorCompareAlgorithm.compare(a, b)</code> 返回「相似度」，越大越相似</strong></li>
+<li>完全相同的向量：</li>
+<li>COSINE：<code>cos(θ) = 1.0</code></li>
+<li>EUCLIDEAN：<code>-0.0</code></li>
+<li>DOT：<code>‖a‖·‖b‖</code></li>
+<li>排序统一为<strong>降序</strong>（相似度最大的 topK 排最前）</li>
+<li><code>FacePipeline.compareWithMeta</code> 使用余弦相似度 <code>[0,1]</code>，<code>score >= 0.5</code> 判定同一人</li>
+<pre>// 内存向量库（512 维 + 余弦相似度）
 VectorStorage storage = VectorStorageBuilder.newBuilder()
         .dimension(512)
         .algorithm(&quot;COSINE&quot;)
-        .build();</code></pre>
+        .build();</pre>
 <h3>4.2 登记 + 检索</h3>
-<pre><code class='lang-java'>// 登记：最大人脸 → 完整特征管线 → 入库
+<pre>// 登记：最大人脸 → 完整特征管线 → 入库
 pipeline.enrollPipeline(&quot;person-001&quot;, imageBytes, Map.of(&quot;name&quot;, &quot;张三&quot;));
 
 // 识别 + 1:N 检索
 List&lt;FaceIdentifyHit&gt; hits = pipeline.identifyPipeline(imageBytes);
 FaceIdentifyHit h = hits.get(0);
 String id = h.bestId();        // 最相似的人脸 ID
-double score = h.bestScore();  // 余弦相似度，越大越相似</code></pre>
+double score = h.bestScore();  // 余弦相似度，越大越相似</pre>
 <hr/>
-<h2>五、人脸修复（pt vs onnx）</h2>
+<h2 id="五-人脸修复-pt-vs-onnx-">五、人脸修复（pt vs onnx）</h2>
 <h3>5.1 背景</h3>
 <p><code>FacePipeline.restoreWithAlign</code> 支持两种修复引擎：<code>pytorch-gfpgan</code> 与 <code>onnx-gfpgan</code>。</p>
 <p>检测模型固定为 <code>scrfd-face-detector</code>，保证两侧对齐输入完全一致，仅修复模型不同。</p>
 <h3>5.2 对比测试结果</h3>
-<table><thead><tr><th>模型</th><th>与 pt float 差异</th><th>与 pt uint8 差异</th><th>偏色</th><th>单脸耗时</th></tr></thead><tbody><tr><td>**旧 onnx**（含 RandomNormalLike）</td><td>0.063</td><td>~8.0</td><td>明显偏绿/偏亮（1people2 G+14）</td><td>~11s</td></tr><tr><td>**新 onnx**（harisreedhar/Face-Upscalers-ONNX）</td><td>**0.007**</td><td>**~0.9**</td><td>无</td><td>~10s</td></tr><tr><td>**pt**（gfpgan_traced_model.pt）</td><td>基准</td><td>基准</td><td>无</td><td>~60-90s</td></tr></tbody></table>
-<p><strong>根因</strong>：旧 onnx 模型含 15 个 <code>RandomNormalLike</code> 节点（每次推理注入随机噪声），且金字塔上采样浮点精度差异累积，导致输出偏亮偏灰、面部出现&quot;长胡子/变老&quot;类伪影。新模型为 PyTorch 2.0 干净导出（无 RandomNormalLike），输出与 pt 几乎一致。</p>
+<table><thead><tr><th>模</th><th>与</th><th>与</th><th>偏</th><th>单</th></tr></thead><tbody>
+<tr><td><strong>旧 onnx</strong>（含 RandomNormalLike）</td><td>0.063</td><td>~8.0</td><td>明显偏绿/偏亮（1people2 G+14）</td><td>~11s</td></tr>
+<tr><td><strong>新 onnx</strong>（harisreedhar/Face-Upscalers-ONNX）</td><td><strong>0.007</strong></td><td><strong>~0.9</strong></td><td>无</td><td>~10s</td></tr>
+<tr><td><strong>pt</strong>（gfpgan_traced_model.pt）</td><td>基准</td><td>基准</td><td>无</td><td>~60-90s</td></tr>
+</tbody></table>
+<p><strong>根因</strong>：旧 onnx 模型含 15 个 <code>RandomNormalLike</code> 节点（每次推理注入随机噪声），且金字塔上采样浮点精度差异累积，导致输出偏亮偏灰、面部出现"长胡子/变老"类伪影。新模型为 PyTorch 2.0 干净导出（无 RandomNormalLike），输出与 pt 几乎一致。</p>
 <p><strong>修复内容</strong>：</p>
-<ol><li>下载社区高质量 <code>GFPGANv1.3.onnx</code>（324.5MB），替换 <code>utils-support-models-onnx-gfpgan</code> 模块内模型并重新打包安装。</li><li>修复 <code>ModelRegistry</code> 缓存失效 bug：jar 更新后旧缓存不再被复用。</li><li>输出：<code>pt/restore_i.png</code> 与 <code>onnx/restore_i.png</code> 差异由 13.7 降至 1.04（0-255 尺度）。</li></ol>
+<li>下载社区高质量 <code>GFPGANv1.3.onnx</code>（324.5MB），替换 <code>utils-support-models-onnx-gfpgan</code> 模块内模型并重新打包安装。</li>
+<li>修复 <code>ModelRegistry</code> 缓存失效 bug：jar 更新后旧缓存不再被复用。</li>
+<li>输出：<code>pt/restore_i.png</code> 与 <code>onnx/restore_i.png</code> 差异由 13.7 降至 1.04（0-255 尺度）。</li>
 <h3>5.3 测试方式</h3>
-<pre><code>FaceRestorePipelineCompareTest D:\images\1people2.png
+<pre>FaceRestorePipelineCompareTest D:\images\1people2.png
 → 真实管线 restoreWithAlign + FacePipelineDiskCallback 回调落盘
-→ 输出 D:\images\output\face_restore_compare\{图}\{pt|onnx}\</code></pre>
-<ul><li><strong>管线只负责各阶段回调落盘独立图片</strong>，不拼接；对比图由外部脚本读落盘文件生成，仅用于展示。</li></ul>
+→ 输出 D:\images\output\face_restore_compare\{图}\{pt|onnx}\</pre>
+<li><strong>管线只负责各阶段回调落盘独立图片</strong>，不拼接；对比图由外部脚本读落盘文件生成，仅用于展示。</li>
 <hr/>
-<h2>六、完整测试（人脸识别 + 检索）</h2>
+<h2 id="六-完整测试-人脸识别---检索-">六、完整测试（人脸识别 + 检索）</h2>
 <p>测试类：<code>FaceIdentifyFullTest</code>（<code>utils-support-example-starter</code>）</p>
 <p>运行：<code>run_face_identify_full.ps1</code></p>
 <h3>6.1 测试内容</h3>
-<ol><li><strong>登记</strong>：<code>3peoplebeauty.jpg</code>、<code>1people.png</code>、<code>1people2.png</code> 三图经 <code>enrollPipeline</code> 完整管线入库（检测→裁剪→活体→对齐→修复→超分→特征→入库）。</li><li><strong>识别</strong>：同一批图经 <code>identifyPipeline</code>（检测→活体→对齐→修复→超分→特征→1:N 检索）。</li><li><strong>验证</strong>：检索命中的 <code>bestId</code> 与登记的 ID 一致。</li></ol>
+<li><strong>登记</strong>：<code>3peoplebeauty.jpg</code>、<code>1people.png</code>、<code>1people2.png</code> 三图经 <code>enrollPipeline</code> 完整管线入库（检测→裁剪→活体→对齐→修复→超分→特征→入库）。</li>
+<li><strong>识别</strong>：同一批图经 <code>identifyPipeline</code>（检测→活体→对齐→修复→超分→特征→1:N 检索）。</li>
+<li><strong>验证</strong>：检索命中的 <code>bestId</code> 与登记的 ID 一致。</li>
 <h3>6.2 测试结果（2026-08-29）</h3>
-<pre><code>登记 1people2.png -&gt; person-1p2-0 = true
+<pre>登记 1people2.png -&gt; person-1p2-0 = true
 登记 3peoplebeauty.jpg -&gt; person-3pb-0 = true
 登记 1people.png -&gt; person-1p-0 = true
 向量库 size=3
@@ -141,22 +147,30 @@ double score = h.bestScore();  // 余弦相似度，越大越相似</code></pre>
   命中 id=person-1p-0 meta={score=1.0}      ← 自匹配相似度 1.0（排第一）
   命中 id=person-1p2-0 meta={score=0.31}
   命中 id=person-3pb-0 meta={score=0.19}
-通过: 8, 失败: 0</code></pre>
+通过: 8, 失败: 0</pre>
 <h3>6.3 测试中发现并修复的 Bug</h3>
-<table><thead><tr><th>问题</th><th>文件</th><th>修复</th></tr></thead><tbody><tr><td>`BPlusTree.range(null, null)` 返回空，导致 `MemoryVectorStorage.allEntries()` 遍历不到数据、检索永远返回 0 条</td><td>`BPlusTree.java`</td><td>`range` 支持 null 边界（null 视为 ±∞），`gte`/`lt` 辅助比较</td></tr><tr><td>`VectorMath` 依赖 `jdk.incubator.vector`（JDK 21+ incubator），Corretto 25 无此模块导致 `NoClassDefFoundError`</td><td>`VectorMath.java`</td><td>改为纯标量实现（点积/欧氏/余弦），任意 JDK 可编译运行</td></tr><tr><td>`compare` 语义为&quot;距离，越小越相似&quot;，`bestScore` 易被误解</td><td>`VectorCompareAlgorithm` / `MemoryVectorStorage` / `AbstractVectorStorage`</td><td>统一为「相似度，越大越相似」，排序改降序</td></tr></tbody></table>
 <hr/>
-<h2>七、回调机制</h2>
+<h2 id="七-回调机制">七、回调机制</h2>
+<table><thead><tr><th>问</th><th>文</th><th>修</th></tr></thead><tbody>
+<tr><td><code>BPlusTree.range(null, null)</code> 返回空，导致 <code>MemoryVectorStorage.allEntries()</code> 遍历不到数据、检索永远返回 0 条</td><td><code>BPlusTree.java</code></td><td><code>range</code> 支持 null 边界（null 视为 ±∞），<code>gte</code>/<code>lt</code> 辅助比较</td></tr>
+<tr><td><code>VectorMath</code> 依赖 <code>jdk.incubator.vector</code>（JDK 21+ incubator），Corretto 25 无此模块导致 <code>NoClassDefFoundError</code></td><td><code>VectorMath.java</code></td><td>改为纯标量实现（点积/欧氏/余弦），任意 JDK 可编译运行</td></tr>
+<tr><td><code>compare</code> 语义为"距离，越小越相似"，<code>bestScore</code> 易被误解</td><td><code>VectorCompareAlgorithm</code> / <code>MemoryVectorStorage</code> / <code>AbstractVectorStorage</code></td><td>统一为「相似度，越大越相似」，排序改降序</td></tr>
+</tbody></table>
 <p>管线各阶段通过 <code>FacePipelineCallback</code> 回调暴露中间结果，测试用 <code>FacePipelineDiskCallback</code> 落盘：</p>
-<table><thead><tr><th>回调</th><th>触发时机</th><th>落盘文件</th></tr></thead><tbody><tr><td>`onDetect`</td><td>检测完成</td><td>仅日志（可覆写画框）</td></tr><tr><td>`onAlign(faceIndex, box, aligned)`</td><td>每张人脸对齐完成</td><td>`align_{i}.png`</td></tr><tr><td>`onRestore(faceIndex, restored)`</td><td>每张人脸修复完成</td><td>`restore_{i}.png`</td></tr></tbody></table>
-<pre><code class='lang-java'>FacePipeline pipeline = FacePipeline.builder()
+<pre>FacePipeline pipeline = FacePipeline.builder()
         .detector(&quot;scrfd-face-detector&quot;)
         .feature(&quot;arc-face&quot;)
         .restore(&quot;onnx-gfpgan&quot;)
         .vectorStorage(storage)
         .build();
 pipeline.setCallback(new FacePipelineDiskCallback(Path.of(&quot;D:/images/output/faces&quot;)));
-pipeline.restoreWithAlign(imageBytes);</code></pre>
+pipeline.restoreWithAlign(imageBytes);</pre>
+<table><thead><tr><th>回</th><th>触</th><th>落</th></tr></thead><tbody>
+<tr><td><code>onDetect</code></td><td>检测完成</td><td>仅日志（可覆写画框）</td></tr>
+<tr><td><code>onAlign(faceIndex, box, aligned)</code></td><td>每张人脸对齐完成</td><td><code>align_{i}.png</code></td></tr>
+<tr><td><code>onRestore(faceIndex, restored)</code></td><td>每张人脸修复完成</td><td><code>restore_{i}.png</code></td></tr>
+</tbody></table>
+<p class="footnote">生成时间：2026-09-02 &nbsp;|&nbsp; 格式：HTML 深色主题</p>
 </div>
-<script>mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{primaryColor:'#1e293b',primaryTextColor:'#e2e8f0',lineColor:'#64748b',primaryBorderColor:'#475569'}});</script>
 </body>
 </html>
