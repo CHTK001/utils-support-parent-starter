@@ -1188,6 +1188,40 @@ public class StringUtils {
     }
 
     /**
+     * 转义 HTML 文本内容中的特殊字符，防止 XSS 注入。
+     *
+     * <p>转义规则：{@code & → &amp;}、{@code < → &lt;}、{@code > → &gt;}。</p>
+     *
+     * @param text 原始文本（可为 null）
+     * @return 转义后的安全文本；输入为 null 时返回 null
+     */
+    public static String escapeHtml(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+    }
+
+    /**
+     * 转义 HTML 属性值中的特殊字符，防止 XSS 注入。
+     *
+     * <p>转义规则：{@code & → &amp;}、{@code " → &quot;}、{@code < → &lt;}。</p>
+     *
+     * @param text 原始文本（可为 null）
+     * @return 转义后的安全文本；输入为 null 时返回 null
+     */
+    public static String escapeAttr(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replace("&", "&amp;")
+                .replace("\"", "&quot;")
+                .replace("<", "&lt;");
+    }
+
+    /**
      * 查找占位符结束位置（即下一个 } 的位置）
      *
      * @param strPattern 模板字符串

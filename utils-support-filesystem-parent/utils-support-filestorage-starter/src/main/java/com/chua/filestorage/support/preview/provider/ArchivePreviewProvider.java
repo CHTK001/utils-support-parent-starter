@@ -1,6 +1,9 @@
 package com.chua.filestorage.support.preview.provider;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.DateUtils;
+import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -14,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -211,11 +213,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         if (dirs > 0) {
             sb.append("，").append(dirs).append(" 个目录");
         }
-        sb.append("，总计 ").append(formatSize(totalSize)).append("</div></div>");
+        sb.append("，总计 ").append(FileUtils.readableFileSize(totalSize)).append("</div></div>");
         sb.append("<div class=\"tree\">");
         for (java.util.Map.Entry<String, List<EntryInfo>> de : dirMap.entrySet()) {
-            sb.append("<div class=\"dir\" data-path=\"").append(escapeHtml(de.getKey())).append("\"><span class=\"icon\">📁</span>")
-                    .append(escapeHtml(de.getKey())).append("</div>");
+            sb.append("<div class=\"dir\" data-path=\"").append(StringUtils.escapeHtml(de.getKey())).append("\"><span class=\"icon\">📁</span>")
+                    .append(StringUtils.escapeHtml(de.getKey())).append("</div>");
             for (EntryInfo fe : de.getValue()) {
                 String fname = fe.name.substring(de.getKey().length() + 1);
                 renderFile(sb, fname, fe);
@@ -238,12 +240,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     private void renderFile(StringBuilder sb, String name, EntryInfo fe) {
         String eExt = extFromName(name);
         sb.append("<div class=\"file\"><span class=\"icon\">");
-        sb.append(eExt != null ? escapeHtml(eExt) : "📄");
-        sb.append("</span>").append(escapeHtml(name));
+        sb.append(eExt != null ? StringUtils.escapeHtml(eExt) : "📄");
+        sb.append("</span>").append(StringUtils.escapeHtml(name));
         sb.append("<span class=\"meta-right\">");
-        sb.append(fe.compressOnly ? "-" : formatSize(fe.size));
+        sb.append(fe.compressOnly ? "-" : FileUtils.readableFileSize(fe.size));
         if (fe.date != null) {
-            sb.append(" &middot; ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format(fe.date));
+            String formatted = DateUtils.format(fe.date, "yyyy-MM-dd HH:mm");
+            sb.append(" &middot; ").append(formatted != null ? formatted : "-");
         }
         sb.append("</span></div>");
     }
@@ -255,37 +258,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      * @return 扩展名；无扩展名时返回 null
      */
     private static String extFromName(String name) {
-        int dot = name.lastIndexOf('.');
-        return dot > 0 && dot < name.length() - 1 ? name.substring(dot + 1).toLowerCase(Locale.ENGLISH) : null;
-    }
-
-    /**
-     * 将字节数格式化为人类可读大小。
-     *
-     * @param bytes 字节数
-     * @return 格式化后的大小字符串
-     */
-    private static String formatSize(long bytes) {
-        if (bytes < 1024) {
-            return bytes + " B";
-        }
-        if (bytes < 1024 * 1024) {
-            return String.format("%.1f KB", bytes / 1024.0);
-        }
-        if (bytes < 1024 * 1024 * 1024) {
-            return String.format("%.1f MB", bytes / (1024.0 * 1024));
-        }
-        return String.format("%.1f GB", bytes / (1024.0 * 1024 * 1024));
-    }
-
-    /**
-     * 转义 HTML 特殊字符。
-     *
-     * @param s 原始字符串
-     * @return 转义后的字符串
-     */
-    private static String escapeHtml(String s) {
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        String ext = FileUtils.getExtension(name);
+        return ext == null || ext.isEmpty() ? null : ext.toLowerCase(Locale.ENGLISH);
     }
 
     /**

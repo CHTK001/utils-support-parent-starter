@@ -55,8 +55,9 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     private final List<FileStoragePreviewProvider> previewProviders;
 
     /**
-     * 创建 FileStorageViewServerFilter 实例
-     * @param setting setting
+     * 创建 FileStorageViewServerFilter 实例。
+     *
+     * @param setting  文件存储配置，不能为 null
      */
     public FileStorageViewServerFilter(FileStorageSetting setting) {
         super(setting);
@@ -64,9 +65,10 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     }
 
     /**
-     * 创建 FileStorageViewServerFilter 实例
-     * @param setting setting
-     * @param Path Path
+     * 创建 FileStorageViewServerFilter 实例，指定 PDF 缓存目录。
+     *
+     * @param setting  文件存储配置，不能为 null
+     * @param cacheDir PDF 缓存目录；为 null 时不启用 PDF 缓存
      */
     public FileStorageViewServerFilter(FileStorageSetting setting, Path cacheDir) {
         super(setting, new PreviewPdfCache(cacheDir));
@@ -206,13 +208,16 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     }
 
     /**
-     * 流式输出And过滤Image
-     * @param request request
-     * @param response response
-     * @param storage storage
-     * @param key key
-     * @param ext ext
-     * @param ops ops
+     * 从存储读取图片字节并应用可选滤镜（缩放/裁剪/格式转换）。
+     *
+     * @param request  当前请求，用于读取滤镜参数
+     * @param response 响应对象，文件不存在时返回 404
+     * @param storage  文件存储
+     * @param key      对象键（存储内的文件路径）
+     * @param ext      文件扩展名（小写，用于滤镜推断）
+     * @param ops      文件操作设置，可为 null；包含尺寸、格式等滤镜参数
+     * @return 处理后的图片字节；文件不存在或处理失败时返回 null
+     * @throws Exception 读取或过滤失败
      */
     private byte[] streamAndFilterImage(ServerRequest request, ServerResponse response,
                                         FileStorage storage, String key, String ext, FileOperationSetting ops) throws Exception {
@@ -311,7 +316,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         }
         if (result.getCssUrls() != null) {
             for (String url : result.getCssUrls()) {
-                sb.append("<link rel=\"stylesheet\" href=\"").append(escapeAttr(url)).append("\">");
+                sb.append("<link rel=\"stylesheet\" href=\"").append(StringUtils.escapeAttr(url)).append("\">");
             }
         }
         sb.append("</head><body>");
@@ -323,21 +328,11 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         }
         if (result.getJsUrls() != null) {
             for (String url : result.getJsUrls()) {
-                sb.append("<script src=\"").append(escapeAttr(url)).append("\"></script>");
+                sb.append("<script src=\"").append(StringUtils.escapeAttr(url)).append("\"></script>");
             }
         }
         sb.append("</body></html>");
         return sb.toString();
-    }
-
-    /**
-     * 转义 HTML 属性值中的特殊字符。
-     *
-     * @param s 原始字符串
-     * @return 转义后的字符串
-     */
-    private static String escapeAttr(String s) {
-        return s.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;");
     }
 
     /**

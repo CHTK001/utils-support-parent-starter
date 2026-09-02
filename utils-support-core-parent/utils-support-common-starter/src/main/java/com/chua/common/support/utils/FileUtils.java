@@ -121,6 +121,28 @@ public class FileUtils {
     }
 
     /**
+     * 将字节数格式化为人类可读的文件大小。
+     *
+     * @param bytes 文件大小（字节），负数视为 0
+     * @return 格式化后的大小字符串，如 "1.5 KB"、"2.3 MB"
+     */
+    public static String readableFileSize(long bytes) {
+        if (bytes < 0) {
+            bytes = 0;
+        }
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(java.util.Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
+        if (bytes < 1024 * 1024 * 1024) {
+            return String.format(java.util.Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
+        }
+        return String.format(java.util.Locale.ENGLISH, "%.1f GB", bytes / (1024.0 * 1024 * 1024));
+    }
+
+    /**
      * 获取文件的基础名称（不含路径和扩展名）
      *
      * <pre>

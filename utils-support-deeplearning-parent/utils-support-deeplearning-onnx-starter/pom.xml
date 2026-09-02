@@ -269,5 +269,6 @@
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wav2vec2-base</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-    </dependencies>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId><version>4.0.0.42</version><scope>test</scope></dependency>
+      </dependencies>
 </project>
