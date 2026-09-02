@@ -518,21 +518,6 @@ public class SevenZFileSystem implements FileSystem {
             return szOut;
         }
 
-        /**
-         * 根据配置的压缩方法和级别创建 SevenZOutputFile。
-         */
-        private SevenZOutputFile createOutputFile() throws IOException {
-            SevenZOutputFile szOut = new SevenZOutputFile(file);
-            if (compressionMethod != null) {
-                szOut.setContentMethods(
-                        Collections.singletonList(
-                                compressionLevel >= 0
-                                        ? new SevenZMethodConfiguration(compressionMethod, compressionLevel)
-                                        : new SevenZMethodConfiguration(compressionMethod)));
-            }
-            return szOut;
-        }
-
         /** 写入File */
         private void writeFile(SevenZOutputFile out, File file) throws IOException {
             try (FileInputStream fis = new FileInputStream(file)) {

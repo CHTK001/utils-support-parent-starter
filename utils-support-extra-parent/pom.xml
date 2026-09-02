@@ -33,6 +33,5 @@
         <module>utils-support-mock-starter</module>
         <module>utils-support-tika-starter</module>
         <module>utils-support-video-processor-starter</module>
-        <module>utils-support-example-starter</module>
     </modules>
 </project>

@@ -45,7 +45,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
         <nitrite.version>4.4.3</nitrite.version>
-<lombok.version>1.18.46</lombok.version>
+        <lombok.version>1.18.46</lombok.version>
         <lombok.maven.plugin.version>1.18.46</lombok.maven.plugin.version>
         
         <maven.resolver.version>2.0.14</maven.resolver.version>
