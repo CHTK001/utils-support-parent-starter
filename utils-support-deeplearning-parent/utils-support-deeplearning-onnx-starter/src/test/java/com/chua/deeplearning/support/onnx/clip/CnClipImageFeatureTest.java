@@ -1,15 +1,8 @@
 package com.chua.deeplearning.support.onnx.clip;
 
-import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.ImageFactory;
-import ai.djl.modality.cv.util.NDImageUtils;
-import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDManager;
-import ai.djl.ndarray.types.DataType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -111,7 +104,6 @@ class CnClipImageFeatureTest {
         result.getGraphics().drawImage(scaled, 0, 0, null);
         assertEquals(IMAGE_SIZE, result.getWidth(), "宽度应为 224");
         assertEquals(IMAGE_SIZE, result.getHeight(), "高度应为 224");
-    }
     }
 
     // ==================== 辅助方法 ====================

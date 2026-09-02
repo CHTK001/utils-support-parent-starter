@@ -66,8 +66,8 @@ li { margin:4px 0; }
 <p><!-- coverage:start -->
 <h2 id="model-coverage">附：模型测试覆盖总览（203 个注册模型，更新于 2026-09-02）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 183　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 0　🚫 不再追踪 9　⬜ 未测试 1</p>
-<p>待测试清单（1）：`cn-clip-image`</p>
+<p>状态统计：✅ 实测通过 184　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 0　🚫 不再追踪 9　⬜ 未测试 0</p>
+<p>待测试清单（0）：无</p>
 <h3>OCR（15）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>doc-orientation</code></td><td>✅ 实测通过</td><td>ocr.direction.DocOrientationTranslator</td><td></td></tr>
@@ -165,6 +165,7 @@ li { margin:4px 0; }
 <tr><td><code>clip-image-feature</code></td><td>✅ 实测通过</td><td>feature.ClipImageFeatureTranslator</td><td></td></tr>
 <tr><td><code>clip-text-feature</code></td><td>✅ 实测通过</td><td>clip.ClipTextFeatureTranslator</td><td></td></tr>
 <tr><td><code>clip-vit-zero-shot</code></td><td>✅ 实测通过</td><td>classification.SiglipZeroShotClassificationTranslator</td><td></td></tr>
+<tr><td><code>cn-clip-image</code></td><td>✅ 实测通过</td><td>clip.CnClipImageFeatureTranslator</td><td></td></tr>
 <tr><td><code>cn-clip-text</code></td><td>✅ 实测通过</td><td>clip.CnClipTextFeatureTranslator</td><td></td></tr>
 <tr><td><code>deepfake-detector</code></td><td>✅ 实测通过</td><td>classification.EfficientNetLite0ClassificationTranslator</td><td></td></tr>
 <tr><td><code>efficient-net-lite0-classification</code></td><td>✅ 实测通过</td><td>classification.EfficientNetLite0ClassificationTranslator</td><td></td></tr>
@@ -182,7 +183,6 @@ li { margin:4px 0; }
 <tr><td><code>siglip-zero-shot-classification</code></td><td>✅ 实测通过</td><td>classification.SiglipZeroShotClassificationTranslator</td><td></td></tr>
 <tr><td><code>wd-tagger-swinv2</code></td><td>✅ 实测通过</td><td>classification.ClTaggerTranslator</td><td></td></tr>
 <tr><td><code>yolo-cls</code></td><td>✅ 实测通过</td><td>yolo.cls.YoloClsTranslator</td><td></td></tr>
-<tr><td><code>cn-clip-image</code></td><td>⬜ 未测试</td><td>clip.CnClipImageFeatureTranslator</td><td>OFA-Sys/Chinese-CLIP 图像特征提取（图文相似度、跨模态检索）。官方仓库支持 ONNX 部署（deployment.md）。注册 URL 指向的 gficcg/clip_cn_vit-onnx 已改为 external-data 格式不可用。需从 OFA-Sys 官方 HF 仓库导出 ONNX 或从 ModelScope 下载预转换版本，放到 models/vision/zeroshot/cn-clip-vit-b-16/。</td></tr>
 </tbody></table>
 <h3>图像生成（9）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
