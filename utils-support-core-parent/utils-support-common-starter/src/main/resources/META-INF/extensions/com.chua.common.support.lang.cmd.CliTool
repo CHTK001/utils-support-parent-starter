@@ -1,0 +1,3 @@
+tshark=com.chua.common.support.lang.cmd.tools.TsharkTool
+aria2c=com.chua.common.support.lang.cmd.tools.Aria2Tool
+nvidia-smi=com.chua.common.support.lang.cmd.tools.NvidiaSmiTool
