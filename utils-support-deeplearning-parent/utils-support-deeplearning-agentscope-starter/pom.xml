@@ -27,17 +27,6 @@
             <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.11.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-openai-starter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
