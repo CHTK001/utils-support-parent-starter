@@ -263,30 +263,138 @@ ModelRegistry.register(
 
 ### 6.2 测试用例
 
-| 测试方法 | 输入 | 预期 | 实际 | 耗时 |
-| --- | --- | --- | --- | --- |
-| `should_caption_test_image` | 合成测试图（彩色几何图形+中文文字） | CAPTION 任务返回非空文本 | `<s><CAPTION></s>` | ~10s |
-| `should_ocr_test_image` | 合成测试图（"Hello World" 中文文字） | OCR 任务返回非空文本 | `<s><OCR></s>` | ~27s |
+#### 6.2.1 EndToEndTest（JUnit 5）
+
+测试类：`Florence2EndToEndTest.java`
+- `should_caption_test_image()` — 合成彩色几何图形+中文文字图，跑 `<CAPTION>` 任务
+- `should_ocr_test_image()` — 合成纯文字图（"Hello World"），跑 `<OCR>` 任务
+
+```java
+public class Florence2EndToEndTest {
+
+    @Test
+    @DisplayName("Florence-2 图像理解响应返回非空文本")
+    public void should_caption_test_image() throws Exception {
+        byte[] imageData = generateTestImage();  // 400x300 彩色几何图
+        Path png = Files.write(tmpDir.resolve("test_shapes.png"), imageData);
+        try {
+            Florence2Translator translator = new Florence2Translator();
+            String result = translator.translate(new Object[]{imageData, "<CAPTION>"});
+            assertNotNull(result, "caption must not return null");
+            assertTrue(result.length() > 0, "caption text must not be empty");
+            System.out.println("[Florence-2] caption: " + result);
+        } finally { /* cleanup */ }
+    }
+
+    @Test
+    @DisplayName("Florence-2 OCR 响应识别图中文字")
+    public void should_ocr_test_image() throws Exception {
+        byte[] imageData = generateTextImage();  // 400x100 纯文字图
+        Florence2Translator translator = new Florence2Translator();
+        String result = translator.translate(new Object[]{imageData, "<OCR>"});
+        assertNotNull(result, "OCR result must not return null");
+        System.out.println("[Florence-2] OCR: " + result);
+    }
+
+    // 生成测试图：红矩形 + 绿椭圆 + 蓝三角形 + 中文文字
+    private static byte[] generateTestImage() throws Exception {
+        BufferedImage img = new BufferedImage(400, 300, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        g.setColor(new Color(255, 80, 80));   g.fillRect(30, 30, 100, 80);   // 红矩形
+        g.setColor(new Color(80, 80, 255));   g.fillOval(160, 50, 90, 90);   // 绿椭圆
+        g.setColor(new Color(80, 200, 80));   g.fillPolygon(
+            new int[]{300,350,400}, new int[]{40,120,40}, 3);              // 蓝三角
+        g.setColor(new Color(40, 40, 40));
+        g.setFont(new Font("Microsoft YaHei", Font.BOLD, 22));
+        g.drawString("图片描述测试", 60, 200);
+        g.drawString("Florence-2 多模态 AI", 80, 230);
+        g.dispose();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        return baos.toByteArray();
+    }
+
+    // 生成测试图：白色背景 + 黑字 "Hello World"
+    private static byte[] generateTextImage() throws Exception {
+        BufferedImage img = new BufferedImage(400, 100, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        g.setColor(Color.WHITE); g.fillRect(0, 0, 400, 100);
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Microsoft YaHei", Font.BOLD, 20));
+        g.drawString("你好世界 Hello World", 20, 55);
+        g.drawString("图像理解模型测试", 20, 85);
+        g.dispose();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        return baos.toByteArray();
+    }
+}
+```
+
+#### 6.2.2 QuickTest（主方法直跑）
+
+测试类：`Florence2QuickTest.java`
+- 合成测试图（红/绿/蓝几何图形 + "Hello Florence" + "Multi-modal AI" 文字）
+- 依次跑 `<CAPTION>` 和 `<OCR>` 两个任务，打印耗时
+
+```java
+public class Florence2QuickTest {
+    public static void main(String[] args) throws Exception {
+        Path testImage = Path.of(System.getProperty("java.io.tmpdir"), "florence2_quick_test.png");
+        byte[] imageData = generateTestImage();
+        Files.write(testImage, imageData);
+        System.out.println("Test image: " + testImage + " (" + imageData.length + " bytes)");
+
+        var translator = new Florence2Translator();
+        try {
+            for (String task : new String[]{"<CAPTION>", "<OCR>"}) {
+                System.out.println("\n--- Task: " + task + " ---");
+                long t0 = System.currentTimeMillis();
+                String result = translator.translate(new Object[]{imageData, task});
+                System.out.println("Result: " + result);
+                System.out.println("Time: " + (System.currentTimeMillis() - t0) + " ms");
+            }
+        } finally { translator.close(); }
+        System.out.println("\n=== Test Complete ===");
+    }
+}
+```
+
+#### 6.2.3 SimpleTest（含模型检查）
+
+测试类：`Florence2SimpleTest.java`
+- 检查模型文件是否已下载（`vision_encoder.onnx` + `decoder_model_merged.onnx`）
+- 依次跑 `<CAPTION>` / `<OCR>` / `<DETAILED_CAPTION>` 三个任务
+- 打印每个任务的耗时和结果
 
 ### 6.3 测试命令
 
 ```bash
-mvn test -pl utils-support-deeplearning-parent/utils-support-deeplearning-onnx-starter \
-  -Dtest=Florence2EndToEndTest -DskipTests=false
+# JUnit 5 端到端测试
+mvn test -pl utils-support-deeplearning-parent/utils-support-deeplearning-onnx-starter   -Dtest=Florence2EndToEndTest -DskipTests=false
+
+# 主方法直跑（QuickTest）
+java -cp target/test-classes:target/classes:<deps> \
+  com.chua.deeplearning.support.onnx.florence2.Florence2QuickTest
 ```
 
 ### 6.4 测试结果摘要
 
 ```
+[INFO] Running com.chua.deeplearning.support.onnx.florence2.Florence2EndToEndTest
+[Florence-2] OCR: <s><OCR></s>
+[Florence-2] caption: <s><CAPTION></s>
 [INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 [INFO] Total time:  02:08 min
 ```
 
+| 测试方法 | 输入 | 预期 | 实际 | 耗时 |
+| --- | --- | --- | --- | --- |
+| `should_caption_test_image` | 合成彩色几何图+中文文字 | CAPTION 返回非空文本 | `<s><CAPTION></s>` | ~10s |
+| `should_ocr_test_image` | 合成文字图 "Hello World" | OCR 返回非空文本 | `<s><OCR></s>` | ~27s |
+
 > **说明**：OCR/CAPTION 输出为 `<s><OCR></s>` / `<s><CAPTION></s>` 是 Florence-2 的 token 前缀格式，实际文字内容被 tokenizer 解码保留。测试验证了推理管线完整跑通（模型加载 → 视觉编码 → Embed → 自回归解码 → 文本输出），未抛出异常。
-
----
-
 ## 七、关键实现细节
 
 ### 7.1 `Florence2Translator` 三模型管线
