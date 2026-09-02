@@ -137,10 +137,10 @@ public class ApngEncoder {
             BufferedImage frame = frames.get(i);
             int delayMs = delays.get(i);
 
-            // fcTL：帧控制
-            writeChunk("fcTL", buildFcTL(frame.getWidth(), frame.getHeight(), delayMs));
+            // fcTL：帧控制（30 字节 = sequence(4) + 控制数据(26)）
+            writeChunk("fcTL", buildFcTL(sequence++, frame.getWidth(), frame.getHeight(), delayMs));
 
-            // 帧数据：首帧 IDAT，后续帧 fdAT（带 sequence）
+            // 帧数据：首帧 IDAT（不占 sequence），后续帧 fdAT（带 sequence）
             byte[] compressed = compressFrame(frame, width, height);
             if (i == 0) {
                 writeChunk("IDAT", compressed);
@@ -174,19 +174,21 @@ public class ApngEncoder {
     }
 
     /**
-     * 构建 fcTL 块数据：整帧绘制（x/y=0），dispose=NONE，blend=SOURCE。
+     * 构建 fcTL 块数据（30 字节）：sequence(4) + width/height/x/y/delay(20) + dispose/blend(2)。
+     * 整帧绘制（x/y=0），dispose=NONE，blend=SOURCE。
      */
-    private static byte[] buildFcTL(int width, int height, int delayMillis) {
-        byte[] fcTL = new byte[26];
-        putIntBE(fcTL, 0, width);
-        putIntBE(fcTL, 4, height);
-        putIntBE(fcTL, 8, 0);      // x_offset
-        putIntBE(fcTL, 12, 0);     // y_offset
+    private static byte[] buildFcTL(int sequence, int width, int height, int delayMillis) {
+        byte[] fcTL = new byte[30];
+        putIntBE(fcTL, 0, sequence);
+        putIntBE(fcTL, 4, width);
+        putIntBE(fcTL, 8, height);
+        putIntBE(fcTL, 12, 0);     // x_offset
+        putIntBE(fcTL, 16, 0);     // y_offset
         // delay：delay_num = 毫秒，delay_den = 1000 → 精确毫秒
-        putIntBE(fcTL, 16, delayMillis);
-        putIntBE(fcTL, 20, 1000);
-        fcTL[24] = PNG.APNG_DISPOSE_OP_NONE;
-        fcTL[25] = PNG.APNG_BLEND_OP_SOURCE;
+        putIntBE(fcTL, 20, delayMillis);
+        putIntBE(fcTL, 24, 1000);
+        fcTL[28] = PNG.APNG_DISPOSE_OP_NONE;
+        fcTL[29] = PNG.APNG_BLEND_OP_SOURCE;
         return fcTL;
     }
 

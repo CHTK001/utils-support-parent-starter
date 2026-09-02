@@ -54,11 +54,13 @@ public final class RustFileSearchBridge {
      */
     public static boolean isLoaded() { return loaded; }
 
-    // JNI native ???? Rust DLL ???????
-    private static native int searchByName(String root, String pattern, int max, Consumer<FileResultData> cb);
-    private static native int getTree(String root, int depth, int max, Consumer<FileResultData> cb);
+    // JNI native ??? Rust DLL ???????
+    public static native int searchByName(String root, String pattern, int max, Consumer<FileResultData> cb);
+    public static native int getTree(String root, int depth, int max, Consumer<FileResultData> cb);
+    public static native int searchBySize(String root, long minSize, long maxSize, int max, Consumer<FileResultData> cb);
+    public static native int searchByPath(String root, String pattern, int max, Consumer<FileResultData> cb);
     public static native String getVersion();
-    private static native void cancel();
+    public static native void cancel();
 
     // ===== ?? API =====
     /**
