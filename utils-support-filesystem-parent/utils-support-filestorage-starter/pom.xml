@@ -45,17 +45,17 @@
         <dependency>
             <groupId>org.tukaani</groupId>
             <artifactId>xz</artifactId>
-            <version>${tukaani.xz.version}</version>
+            <version>1.11</version>
         </dependency>
         <dependency>
             <groupId>com.github.luben</groupId>
             <artifactId>zstd-jni</artifactId>
-            <version>${zstd-jni.version}</version>
+            <version>1.5.7-6</version>
         </dependency>
         <dependency>
             <groupId>org.brotli</groupId>
             <artifactId>dec</artifactId>
-            <version>${brotli.dec.version}</version>
+            <version>0.1.2</version>
         </dependency>
           <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      </dependencies>
