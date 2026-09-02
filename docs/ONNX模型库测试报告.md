@@ -124,9 +124,9 @@
 | ~~wespeaker 语义验证~~ | 已用 YESNO 真人语料补测通过（2026-08-26） | 已关闭 |
 <hr>
 <!-- coverage:start -->
-<h2 id="model-coverage">附：模型测试覆盖总览（201 个注册模型，更新于 2026-08-27）</h2>
+<h2 id="model-coverage">附：模型测试覆盖总览（203 个注册模型，更新于 2026-09-02）</h2>
 <p>数据源 <code>docs/model-test-data.json</code>，由 <code>docs/generate-coverage.py</code> 遍历生成本章节；维护测试状态只需修改 JSON 后重新运行脚本。</p>
-<p>状态统计：✅ 实测通过 42　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 139　🚫 不再追踪 9　⬜ 未测试 1</p>
+<p>状态统计：✅ 实测通过 44　🧪 冒烟通过（无正样本） 10　🐞 发现缺陷 0　📄 已有记录 139　🚫 不再追踪 9　⬜ 未测试 1</p>
 <p>待测试清单（1）：`cn-clip-image`</p>
 <h3>OCR（15）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
@@ -339,7 +339,7 @@
 <tr><td><code>t5-seq2seq</code></td><td>📄 已有记录</td><td>seq2seq.T5Seq2SeqOrtTranslator</td><td></td></tr>
 <tr><td><code>xlm-roberta-language-detection</code></td><td>📄 已有记录</td><td>classification.XlmRobertaLanguageDetectionTranslator</td><td></td></tr>
 </tbody></table>
-<h3>视觉理解（8）</h3>
+<h3>视觉理解（9）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>common-action</code></td><td>📄 已有记录</td><td>action.CommonActionTranslator</td><td></td></tr>
 <tr><td><code>depth-anything</code></td><td>📄 已有记录</td><td>depth.DepthAnythingOrtTranslator</td><td></td></tr>
@@ -349,12 +349,14 @@
 <tr><td><code>vit-pose</code></td><td>📄 已有记录</td><td>pose.VitPoseTranslator</td><td></td></tr>
 <tr><td><code>yolov8n-pose</code></td><td>📄 已有记录</td><td>pose.YoloV8nPoseTranslator</td><td></td></tr>
 <tr><td><code>c3d-action-detection</code></td><td>🚫 不再追踪</td><td>action.C3DActionDetectionTranslator</td><td></td></tr>
+<tr><td><code>florence2</code></td><td>✅ 实测通过</td><td>florence2.Florence2Translator</td><td>VlmClient SPI 接口 + OnnxVlmClient 门面；UnderstandTask 枚举（15 任务）；vision_encoder+embed_tokens+decoder 三模型管线</td></tr>
 </tbody></table>
-<h3>语音（6）</h3>
+<h3>语音（7）</h3>
 <table><thead><tr><th>模型ID</th><th>状态</th><th>Translator</th><th>实测数据 / 说明</th></tr></thead><tbody>
 <tr><td><code>dfsmn-ans</code></td><td>✅ 实测通过</td><td>audio.denoise.DfsmnAnsTranslator</td><td></td></tr>
 <tr><td><code>mms-tts-eng</code></td><td>✅ 实测通过</td><td>null</td><td></td></tr>
-<tr><td><code>sensevoice</code></td><td>✅ 实测通过</td><td>null</td><td></td></tr>
+<tr><td><code>sensevoice</code></td><td>✅ 实测通过</td><td>null</td><td>多语言（中/英/日），~325ms</td></tr>
+<tr><td><code>zipformer-zh</code></td><td>✅ 实测通过</td><td>audio.zipformer.ZipformerZhAudioClient</td><td>纯中文轻量 ASR，~16MB，embedded 模式；支持流式 feedAudio/getResult/complete</td></tr>
 <tr><td><code>vits-icefall-zh</code></td><td>✅ 实测通过</td><td>null</td><td></td></tr>
 <tr><td><code>whisper-tiny</code></td><td>🧪 冒烟通过（无正样本）</td><td>null</td><td></td></tr>
 <tr><td><code>pocket-tts</code></td><td>📄 已有记录</td><td>null</td><td></td></tr>
@@ -379,5 +381,53 @@
 </tbody></table>
 <!-- coverage:end -->
 
+
+---
+
+## 附录：VLM Florence-2 + Zipformer-zh 集成（2026-09-01）
+
+### A.1 VlmClient SPI 接口
+
+```java
+package com.chua.deeplearning.support.image;
+
+import com.chua.common.support.spi.ServiceProvider;
+
+public interface VlmClient {
+    static VlmClient create(String name) {
+        return ServiceProvider.of(VlmClient.class).getNewExtension(name);
+    }
+    VlmClient model(String model);
+    UnderstandResult understand(byte[] imageData, UnderstandTask task);
+}
+```
+
+**SPI 注册：** `META-INF/extensions/com.chua.deeplearning.support.image.VlmClient`
+→ `com.chua.deeplearning.support.onnx.OnnxVlmClient`
+
+**UnderstandTask 枚举（15 任务）：** `CAPTION` / `OCR` / `OD` / `DETAILED_CAPTION` / `OCR_WITH_REGION` / `DENSE_REGION_CAPTION` / `CAPTION_TO_PHRASE_GROUNDING` / `REFERRING_EXPRESSION_SEGMENTATION` / `REGION_TO_SEGMENTATION` / `OPEN_VOCABULARY_DETECTION` / `REGION_TO_CATEGORY` / `REGION_TO_DESCRIPTION` / `REGION_TO_OCR` / `REGION_PROPOSAL`
+
+### A.2 Zipformer-zh ASR 集成
+
+```java
+// 嵌入式模型（内置于 JAR，自动解压缓存到 %TEMP%）
+String text = ZipformerZhAudioClient.create()
+    .transcribe(Path.of("chinese.wav"));
+
+// 流式转录（chunk-by-chunk）
+VirtualClient client = VirtualClient.create("zipformer-zh-streaming");
+client.feedAudio(chunk);     // float[2560] @ 16kHz ≈ 160ms
+String partial = client.getResult();
+client.complete();
+String finalResult = client.getResult();
+```
+
+**模型来源：** `chtk/sherpa-onnx-zipformer-zh-14M`（HuggingFace）
+**模型文件：** encoder.onnx (~8MB) + decoder.onnx (~6MB) + joiner.onnx (~2MB)
+
+### A.3 VirtualClient 重命名（2026-09-01）
+
+`AudioClient` 接口已统一重命名为 `VirtualClient`，覆盖 ASR/TTS/STT 多模态场景。
+所有实现类（OpenAiAudioClient、ZipformerZhAudioClient、SenseVoiceAudioClient）同步更新。
 
 ---
