@@ -73,6 +73,45 @@ Files.write(Paths.get("output.png"), result);</code></pre>
     <p>ViT-GPT2 图像描述生成，自动为图片生成文字描述。</p>
 </div>
 
+<h2 id="super-resolution">通用图片超分</h2>
+<div class="note"><strong>能力入口：</strong>统一通过 <code>ImageEnhancer</code>（SPI 名称 <code>onnx</code>）调用，模型自动下载缓存。</div>
+
+<div class="card">
+    <h4>Real-ESRGAN <span class="tag tag-green">通用</span> <span class="tag tag-purple">4x</span></h4>
+    <p>真实照片通用超分（realesrgan_x4plus），任意图片放大 4 倍，兼顾锐化与细节重建。</p>
+<pre><code class="language-java">// 直接按模型名创建
+byte[] hd = ImageEnhancer.create("real-esrgan").enhance(ImageUtils.read(imageBytes));
+// 或 SPI 方式：ImageEnhancer.create("onnx", key).model("real-esrgan").enhance(imageBytes)
+
+Files.write(Path.of("output.png"), hd);</code></pre>
+</div>
+
+<div class="card">
+    <h4>更多通用超分模型</h4>
+    <p>以下模型同样可通过 <code>ImageEnhancer</code> 调用，适合不同场景。</p>
+<pre><code class="language-java">// 4xNomos2 ESRGAN —— 高质量通用 4x 超分
+byte[] a = ImageEnhancer.create("nomos2").enhance(imageBytes);
+
+// 4xRealWebPhoto v4 —— 真实照片增强（去噪 + 超分）
+byte[] b = ImageEnhancer.create("real-web-photo").enhance(imageBytes);
+
+// waifu2x —— 动漫/二次元降噪放大
+byte[] c = ImageEnhancer.create("waifu2x").enhance(imageBytes);
+
+// SwinIR —— 去噪 / 超分
+byte[] d = ImageEnhancer.create("swinir").enhance(imageBytes);
+
+// 人脸专用：gfpgan / gfpgan-face-super-resolution / codeformer
+byte[] e = ImageEnhancer.create("gfpgan").enhance(faceBytes);</code></pre>
+</div>
+
+<div class="card">
+    <h4>模型清单 <span class="tag tag-green">listModels()</span></h4>
+    <p><code>ImageEnhancer.listModels()</code> 按能力枚举全部已注册增强模型，供统一能力清单与前端筛选使用。</p>
+<pre><code class="language-java">List&lt;String&gt; ids = ImageEnhancer.listModels();
+// real-esrgan / nomos2 / real-web-photo / waifu2x / swinir / gfpgan / codeformer ...</code></pre>
+</div>
+
 <div class="footer">utils-support-parent-starter &copy; 2026 &middot; <a href="index.html" style="color:var(--accent)">返回文档中心</a></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>

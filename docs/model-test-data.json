@@ -1664,6 +1664,25 @@
         "随机噪声图": "replay=0.99 符合预期"
       },
       "notes": "MiniFASNetV2 80x80 BGR /255，人脸中心扩 2.7x 边距裁剪；live=1-(p_print+p_replay)；平滑数码图判 replay 属模型特性非缺陷；模块 de3f8e5"
+    },
+    {
+      "id": "florence2",
+      "translator": "florence2.Florence2Translator",
+      "capability": "视觉理解",
+      "path": "vision/florence2/",
+      "status": "verified",
+      "date": "2026-09-01",
+      "notes": "VlmClient SPI + OnnxVlmClient 门面；UnderstandTask 15任务枚举；三模型ONNX管线（vision_encoder+embed_tokens+decoder）"
+    },
+    {
+      "id": "zipformer-zh",
+      "translator": "audio.zipformer.ZipformerZhAudioClient",
+      "capability": "语音",
+      "path": "audio/asr/zipformer-zh/",
+      "status": "verified",
+      "date": "2026-09-01",
+      "notes": "轻量中文ASR，~16MB；embedded模式+流式feedAudio/getResult/complete；JAR内嵌模型自动解压缓存"
     }
-  ]
+  ],
+  "updated": "2026-09-02"
 }

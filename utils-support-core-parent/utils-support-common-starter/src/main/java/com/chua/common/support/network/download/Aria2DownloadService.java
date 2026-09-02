@@ -107,17 +107,20 @@ public class Aria2DownloadService implements DownloadService {
                     "aria2c 启动失败，请确认已安装 aria2 且 aria2c 在 PATH 中: " + e.getMessage(), e);
         }
 
+        // 捕获 process 为 effectively final，供 lambda 使用
+        final Process finalProcess = process;
+
         try {
             if (options.isShowProgress()) {
-                int exit = process.waitFor();
+                int exit = finalProcess.waitFor();
                 if (exit != 0) {
                     throw new DownloadException("aria2c 下载失败，退出码: " + exit);
                 }
             } else {
-                Thread outputThread = new Thread(() -> drainOutput(process), "aria2-output");
+                Thread outputThread = new Thread(() -> drainOutput(finalProcess), "aria2-output");
                 outputThread.setDaemon(true);
                 outputThread.start();
-                int exit = process.waitFor();
+                int exit = finalProcess.waitFor();
                 outputThread.join(5000);
                 if (exit != 0) {
                     throw new DownloadException("aria2c 下载失败，退出码: " + exit);
@@ -125,13 +128,13 @@ public class Aria2DownloadService implements DownloadService {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            if (process != null) {
-                process.destroyForcibly();
+            if (finalProcess != null) {
+                finalProcess.destroyForcibly();
             }
             throw new DownloadException("aria2c 下载被中断", e);
         } finally {
-            if (process != null && process.isAlive()) {
-                process.destroyForcibly();
+            if (finalProcess != null && finalProcess.isAlive()) {
+                finalProcess.destroyForcibly();
             }
         }
     }
