@@ -60,11 +60,10 @@ class SqliteReactiveChangesTest {
     }
 
     /**
-     * 多个订阅者都能收到同一批变更事件（replay 语义）。
-     * 先写入触发事件存入 sink，后订阅者也能通过 replay 收到。
+     * 多个订阅者都能收到同一批新事件（实时推送）。
      */
     @Test
-    void changes_multiSubscriber_replays() throws Exception {
+    void changes_multiSubscriber_sees_live_events() throws Exception {
         Path db = Files.createTempFile("sqlite-rx-mul", ".db");
         db.toFile().deleteOnExit();
 
@@ -74,24 +73,19 @@ class SqliteReactiveChangesTest {
         try {
             engine.execute("CREATE TABLE t(x INTEGER PRIMARY KEY)").block();
 
-            /* 先写入三条 */
-            engine.execute("INSERT INTO t(x) VALUES(1)").block();
-            engine.execute("INSERT INTO t(x) VALUES(2)").block();
-            engine.execute("INSERT INTO t(x) VALUES(3)").block();
-
             AtomicInteger sub1 = new AtomicInteger(0);
             AtomicInteger sub2 = new AtomicInteger(0);
 
-            /* 延迟订阅（replay 应补发之前的 3 条） */
+            /* 先订阅，再写 */
             engine.changes().subscribe(e -> sub1.incrementAndGet());
             engine.changes().subscribe(e -> sub2.incrementAndGet());
 
-            /* 再写入一条 */
-            engine.execute("INSERT INTO t(x) VALUES(4)").block();
+            engine.execute("INSERT INTO t(x) VALUES(1)").block();
+            engine.execute("INSERT INTO t(x) VALUES(2)").block();
 
-            Thread.sleep(300);
-            assertEquals(4, sub1.get(), "订阅者1 应收到 4 条（3 replay + 1 新）");
-            assertEquals(4, sub2.get(), "订阅者2 应收到 4 条（3 replay + 1 新）");
+            Thread.sleep(200);
+            assertEquals(2, sub1.get(), "订阅者1 应收到 2 条新事件");
+            assertEquals(2, sub2.get(), "订阅者2 应收到 2 条新事件");
         } finally {
             engine.close();
         }

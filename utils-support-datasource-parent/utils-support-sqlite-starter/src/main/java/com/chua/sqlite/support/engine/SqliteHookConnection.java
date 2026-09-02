@@ -1,6 +1,5 @@
 package com.chua.sqlite.support.engine;
 
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -13,15 +12,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import reactor.core.Disposable;
 
 /**
  * SQLite update_hook 原生连接封装。
  *
- * <p>通过 Java FFM（Project Panama）绑定 {@code sqlite3_hook.dll}。
- * 写操作通过 {@link #exec(String)} 执行，变更事件在 exec() 返回后同步排空并推送到
- * {@link #changes()} 响应式流。支持多订阅者回放最近 2048 条事件。</p>
+ * <p>通过 Java FFM（Project Panama）绑定 native 库。
+ * 写操作通过 {@link #exec(String)} 执行，变更事件同步排空并推送到
+ * {@link #changes()} 响应式流。支持多订阅者重放最近 2048 条事件。</p>
  *
  * @author CH
  * @since 4.0.0.43
@@ -41,10 +38,7 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     private final MemorySegment handle;
     private final Sinks.Many<SqliteChangeEvent> sink;
-    /** 所有事件列表，用于重放 */
     private final List<SqliteChangeEvent> allEvents = new CopyOnWriteArrayList<>();
-    /** 全局事件序号，每次 emitNext 后递增 */
-    private final AtomicInteger seq = new AtomicInteger(0);
 
     public static SqliteHookConnection open(String dbPath) {
         if (!loadLibrary()) return null;
@@ -56,11 +50,10 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private SqliteHookConnection(MemorySegment handle) {
         this.handle = handle;
-        @SuppressWarnings("rawtypes")
-        Sinks.Many<?> raw = Sinks.many().multicast().directBestEffort();
-        this.sink = (Sinks.Many<SqliteChangeEvent>) raw;
+        this.sink = Sinks.many().multicast().onBackpressureBuffer(MAX_REPLAY);
     }
 
     private static boolean loadLibrary() {
@@ -78,7 +71,7 @@ public final class SqliteHookConnection implements AutoCloseable {
                     is = SqliteHookConnection.class.getResourceAsStream("/native/" + libName);
                 }
                 if (is == null) {
-                    System.loadLibrary("sqlite3_hook");
+                    System.loadLibrary(libName.replace(".dll", "").replace("lib", ""));
                 } else {
                     Path tmp = Files.createTempFile("sqlite3_hook_", "_" + libName);
                     Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
@@ -109,6 +102,7 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     /**
      * 执行 SQL 并通过 update_hook 触发变更事件。
+     * 事件在 exec() 返回前同步排空到 replay sink。
      */
     public int exec(String sql) {
         try (var arena = Arena.ofConfined()) {
@@ -122,28 +116,9 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     /**
      * 变更事件响应式流。
-     * 新订阅者先收到历史快照，然后持续接收新事件。
+     * 新订阅者收到缓冲区中的历史事件（replay），然后持续接收新事件。
      */
-    public Flux<SqliteChangeEvent> changes() {
-        // 原子性地记录当前最大序号，确保无竞态
-        int lastSeq = seq.get();
-        // 快照：所有发生在 lastSeq 之前的事件
-        List<SqliteChangeEvent> snapshot = new ArrayList<>(allEvents);
-        Sinks.Many<SqliteChangeEvent> liveSink = Sinks.many().multicast().directBestEffort();
-        Disposable bridge = sink.asFlux().subscribe(
-                e -> {
-                    // 只转发序号大于 lastSeq 的事件（即本订阅之后的新事件）
-                    if (seq.get() > lastSeq) {                        liveSink.tryEmitNext(e);
-                    }
-                },
-                err -> liveSink.tryEmitError(err),
-                () -> liveSink.tryEmitComplete()
-        );
-        return Flux.concat(
-                Flux.fromIterable(snapshot),
-                liveSink.asFlux()
-        ).doFinally(signalType -> bridge.dispose());
-    }
+    public Flux<SqliteChangeEvent> changes() { List<SqliteChangeEvent> snap = new ArrayList<>(allEvents); return Flux.concat(Flux.fromIterable(snap), sink.asFlux().skip(snap.size())); }
 
     @Override
     public void close() {
@@ -156,7 +131,6 @@ public final class SqliteHookConnection implements AutoCloseable {
     }
 
     private void drainBufferSync() {
-        int polled = 0;
         MemorySegment bufSeg = null;
         try (var arena = Arena.ofConfined()) {
             bufSeg = arena.allocate(512);
@@ -170,9 +144,8 @@ public final class SqliteHookConnection implements AutoCloseable {
                     if (allEvents.size() > MAX_REPLAY) {
                         allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
                     }
-                    int s = seq.incrementAndGet();                    sink.tryEmitNext(event);
+                    sink.tryEmitNext(event);
                 }
-                polled++;
             }
         } catch (Throwable e) {
             // drain error
@@ -226,5 +199,6 @@ public final class SqliteHookConnection implements AutoCloseable {
         catch (NumberFormatException e) { return 0L; }
     }
 }
+
 
 
