@@ -85,11 +85,8 @@ public class OpenCVImageProcessor implements ImageProcessor {
      * 解码图像字节为 OpenCV Mat
      */
     private Mat imdecode(byte[] data) {
-        MatOfByte mob = new MatOfByte(data);
-        try {
+        try (CloseableMob mob = closeableMob(data)) {
             return Imgcodecs.imdecode(mob, Imgcodecs.IMREAD_UNCHANGED);
-        } finally {
-            mob.release();
         }
     }
 
@@ -100,12 +97,38 @@ public class OpenCVImageProcessor implements ImageProcessor {
         String format = params != null && params.get("format") != null
                 ? params.get("format").toString() : "png";
         String ext = "." + format.toLowerCase().replace("jpg", "jpeg");
-        MatOfByte mob = new MatOfByte();
-        try {
+        try (CloseableMob mob = closeableMob()) {
             Imgcodecs.imencode(ext, mat, mob);
             return mob.toArray();
-        } finally {
-            mob.release();
+        }
+    }
+
+    /**
+     * 将 {@link MatOfByte} 包装为 {@link AutoCloseable}，支持 try-with-resources。
+     */
+    private static CloseableMob closeableMob(byte[] data) {
+        return new CloseableMob(data);
+    }
+
+    private static CloseableMob closeableMob() {
+        return new CloseableMob();
+    }
+
+    /**
+     * 可自动释放的 {@link MatOfByte} 包装器。
+     */
+    private static class CloseableMob extends MatOfByte implements AutoCloseable {
+        CloseableMob(byte[] data) {
+            super(data);
+        }
+
+        CloseableMob() {
+            super();
+        }
+
+        @Override
+        public void close() {
+            release();
         }
     }
 

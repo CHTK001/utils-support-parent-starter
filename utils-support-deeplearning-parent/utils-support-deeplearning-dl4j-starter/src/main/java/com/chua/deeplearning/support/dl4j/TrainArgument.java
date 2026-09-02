@@ -1,7 +1,9 @@
 package com.chua.deeplearning.support.dl4j;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -16,6 +18,8 @@ import java.io.Serializable;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TrainArgument implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -44,6 +48,11 @@ public class TrainArgument implements Serializable {
      * 目标检测分类标签（预留）。
      */
     private String detLabels;
+
+    /**
+     * 续训练模型路径。指定后从该已训练模型继续微调（不指定则使用默认预训练模型）。
+     */
+    private String resumeModelPath;
 
     /**
      * 学习率（默认 1e-3）。

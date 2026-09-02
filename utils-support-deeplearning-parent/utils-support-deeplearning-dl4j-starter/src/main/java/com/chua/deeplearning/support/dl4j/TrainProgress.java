@@ -61,6 +61,11 @@ public class TrainProgress implements Serializable {
     private String modelPath;
 
     /**
+     * 实际使用的基模型路径（显示是预训练还是续训模型，启动时填充）。
+     */
+    private String baseModelPath;
+
+    /**
      * 类别标签串（训练完成后填充）。
      */
     private String classLabels;

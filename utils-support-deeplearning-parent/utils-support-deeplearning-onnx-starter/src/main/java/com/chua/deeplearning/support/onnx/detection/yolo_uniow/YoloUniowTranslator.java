@@ -62,9 +62,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     /** 特征图 stride（640 输入：80/40/20 网格） */
     private static final int[] STRIDES = {8, 16, 32};
 
-    /** 文本嵌入 classpath 资源路径 */
+    /** 文本嵌入 classpath 资源路径（LVIS 1203 类，1203×512） */
     private static final String EMBEDDINGS_RESOURCE =
-            "vision/detection/yolo_uniow/class_embeddings_4x512.f32";
+            "vision/detection/yolo_uniow/class_embeddings_1203x512.f32";
 
     /** 类别名 classpath 资源路径 */
     private static final String CLASS_NAMES_RESOURCE =
