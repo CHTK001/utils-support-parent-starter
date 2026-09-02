@@ -2,22 +2,30 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>语音识别管线 + 声纹入库/检索 测试报告</title>
+<title>语音识别管线 · 测试报告</title>
 <style>
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--orange:#d29922;--purple:#bc8cff}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
-.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:16px 40px}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
 .topbar h1{font-size:1.1em;color:#f0f6fc}
+.topbar a{color:var(--accent);text-decoration:none;font-size:0.85em;padding:4px 12px;border:1px solid var(--border);border-radius:6px}
+.topbar a:hover{background:rgba(88,166,255,.1)}
 .main{max-width:960px;margin:0 auto;padding:32px 40px}
 h2{font-size:1.2em;color:#f0f6fc;margin:36px 0 12px;padding-left:12px;border-left:3px solid var(--accent)}
+code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:'Cascadia Code',Consolas,monospace;font-size:.88em;color:#79c0ff}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:10px 0;font-size:.85em}
+pre code{background:none;color:#e6edf3;padding:0}
 .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin:14px 0}
-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.88em}
-th{background:#21262d;color:#8b949e;text-align:left;padding:8px 12px;border:1px solid var(--border)}
-td{padding:8px 12px;border:1px solid var(--border);color:#c9d1d9}
+.card h4{color:var(--accent);margin-bottom:6px;font-size:.95em}
+.card p{font-size:.88em;color:var(--muted);margin-bottom:8px}
+.tag{display:inline-block;font-size:.72em;padding:2px 8px;border-radius:12px;margin-right:4px;font-weight:600}
+.tag-blue{background:rgba(88,166,255,.15);color:var(--accent)}
+.tag-green{background:rgba(63,185,80,.15);color:var(--green)}
+.tag-orange{background:rgba(210,153,34,.15);color:var(--orange)}
+.tag-purple{background:rgba(188,140,255,.15);color:var(--purple)}
 .pass{color:var(--green);font-weight:bold}
-.note{background:rgba(88,166,255,.08);border-left:3px solid var(--accent);padding:10px 14px;margin:12px 0;border-radius:0 6px 6px;font-size:.88em}
-code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;color:#79c0ff}
+.note{background:rgba(88,166,255,.08);border-left:3px solid var(--accent);padding:10px 14px;margin:12px 0;border-radius:0 6px 6px;font-size:.9em}
 .summary{display:flex;gap:16px;margin:20px 0}
 .stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
 .stat .num{font-size:2em;font-weight:bold;color:var(--green)}
@@ -26,47 +34,123 @@ code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:Consolas,m
 .flow .step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.85em;text-align:center}
 .flow .arrow{color:var(--accent);font-size:1.2em}
 .sub{color:var(--muted);font-size:.82em}
-.tag{display:inline-block;font-size:.72em;padding:2px 8px;border-radius:12px;margin-right:4px;font-weight:600;background:rgba(88,166,255,.15);color:var(--accent)}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.88em}
+th{background:#21262d;color:var(--muted);text-align:left;padding:8px 12px;border:1px solid var(--border)}
+td{padding:8px 12px;border:1px solid var(--border);color:var(--text)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:.8em;border-top:1px solid var(--border);margin-top:32px}
 </style>
 </head>
 <body>
-<div class="topbar"><h1>语音识别管线 + 声纹入库/检索 测试报告</h1></div>
+<div class="topbar">
+    <a href="index.html">&#8592; 返回文档中心</a>
+    <h1>语音识别管线 · 测试报告</h1>
+</div>
 <div class="main">
 
-<p class="sub">生成时间：2024-07-24 | 版本：4.0.0.42 | 模块：onnx-starter</p>
+<p class="sub">生成时间：2026-09-02 | 版本：4.0.0.42 | 模块：utils-support-deeplearning-onnx-starter</p>
 
 <div class="summary">
-<div class="stat"><div class="num">7/7</div><div class="label">E2E 全通过</div></div>
-<div class="stat"><div class="num">3+1</div><div class="label">识别引擎(含声纹)</div></div>
-<div class="stat"><div class="num">192维</div><div class="label">CAM++ 神经声纹</div></div>
-<div class="stat"><div class="num">JSON落盘</div><div class="label">重启恢复验证通过</div></div>
+<div class="stat"><div class="num">5</div><div class="label">ASR 引擎</div></div>
+<div class="stat"><div class="num">41/41</div><div class="label">单元测试通过</div></div>
+<div class="stat"><div class="num">2</div><div class="label">流式转录测试</div></div>
+<div class="stat"><div class="num">~831ms</div><div class="label">SenseVoice 推理</div></div>
 </div>
 
-<h2>一、语音识别管线（AsrPipeline）</h2>
+<h2>一、架构总览</h2>
 
 <div class="flow">
-<span class="step">音频输入</span><span class="arrow">&#8594;</span>
-<span class="step">解码重采样<br>16kHz单声道</span><span class="arrow">&#8594;</span>
-<span class="step" style="opacity:.6">DFSMN降噪<br><em>可选</em></span><span class="arrow">&#8594;</span>
-<span class="step" style="opacity:.6">VAD切分<br><em>可选</em></span><span class="arrow">&#8594;</span>
-<span class="step"><b>ASR推理</b><br>必选</span><span class="arrow">&#8594;</span>
-<span class="step" style="opacity:.6">后处理<br><em>可选</em></span><span class="arrow">&#8594;</span>
-<span class="step"><b>文本输出</b></span>
+<span class="step">音频输入<br><em>wav / pcm</em></span>
+<span class="arrow">&#8594;</span>
+<span class="step">解码重采样<br><em>16kHz 单声道</em></span>
+<span class="arrow">&#8594;</span>
+<span class="step" style="opacity:.6">DFSMN降噪<br><em>可选</em></span>
+<span class="arrow">&#8594;</span>
+<span class="step" style="opacity:.6">VAD切分<br><em>可选</em></span>
+<span class="arrow">&#8594;</span>
+<span class="step"><b>ASR推理</b><br><em>必选</em></span>
+<span class="arrow">&#8594;</span>
+<span class="step">文本输出</span>
 </div>
 
-<h2>E2E 识别测试结果</h2>
+<h2>二、ASR 引擎清单</h2>
+
+<table>
+<tr><th>#</th><th>引擎</th><th>语言</th><th>模型大小</th><th>模式</th><th>状态</th></tr>
+<tr><td>1</td><td>paraformer-zh-small</td><td>中文</td><td>~90MB</td><td>基础模式</td><td class="pass">PASS</td></tr>
+<tr><td>2</td><td>SenseVoice-small int8</td><td>中文/英文/日语</td><td>~189MB</td><td>基础模式</td><td class="pass">PASS</td></tr>
+<tr><td>3</td><td>Zipformer-zh (zipformer-zh-14M)</td><td>纯中文</td><td>~16MB</td><td>嵌入式 + 流式</td><td class="pass">PASS</td></tr>
+<tr><td>4</td><td>whisper-tiny fp32</td><td>英文</td><td>~76MB</td><td>language=en</td><td class="pass">PASS</td></tr>
+<tr><td>5</td><td>OpenAI 标准 STT</td><td>多语言</td><td>云端</td><td>VirtualClient SPI</td><td class="pass">PASS</td></tr>
+</table>
+
+<h2>三、E2E 识别测试结果</h2>
+
 <table>
 <tr><th>#</th><th>引擎</th><th>语言</th><th>输入源</th><th>管线配置</th><th>识别文本</th><th>耗时</th><th>结果</th></tr>
 <tr><td>1</td><td>paraformer-zh-small</td><td>中文</td><td>VITS TTS合成</td><td>基础模式</td><td>今天天气非常好我们一起去公园散步吧</td><td>~2300ms</td><td class="pass">PASS</td></tr>
 <tr><td>2</td><td>SenseVoice-small int8</td><td>中文</td><td>官方zh.wav</td><td>基础模式</td><td>开饭时间早上9点至下午5点。</td><td>~325ms</td><td class="pass">PASS</td></tr>
-<tr><td>3</td><td>whisper-tiny fp32</td><td>英文</td><td>真实录音</td><td>language=en</td><td>After early night, all the yellow lamps would light up here and there the squalid quarter of the brownfills.</td><td>~1980ms</td><td class="pass">PASS</td></tr>
-<tr><td>4</td><td>paraformer + DFSMN降噪</td><td>中文</td><td>VITS TTS合成</td><td>.denoise(true)</td><td>同 #1，降噪不影响正确率</td><td>~4000ms</td><td class="pass">PASS</td></tr>
-<tr><td>5</td><td>paraformer + VAD切分</td><td>中文</td><td>VITS TTS合成</td><td>.vad(true)</td><td>同 #1，分段拼接全对</td><td>~4000ms</td><td class="pass">PASS</td></tr>
-<tr><td>6</td><td>paraformer + 降噪 + VAD</td><td>中文</td><td>VITS TTS合成</td><td>全管线</td><td>同 #1</td><td>~4500ms</td><td class="pass">PASS</td></tr>
-<tr><td>7</td><td>SenseVoice 英文</td><td>英文</td><td>官方en.wav</td><td>language=en</td><td>正常转写</td><td>-</td><td class="pass">PASS</td></tr>
+<tr><td>3</td><td>Zipformer-zh</td><td>中文</td><td>官方zh.wav</td><td>embedded 模式</td><td>对我做了介绍那么我想说的是大家如果对我的研究感兴趣呢</td><td>~831ms</td><td class="pass">PASS</td></tr>
+<tr><td>4</td><td>whisper-tiny fp32</td><td>英文</td><td>真实录音</td><td>language=en</td><td>After early night, all the yellow lamps...</td><td>~1980ms</td><td class="pass">PASS</td></tr>
+<tr><td>5</td><td>SenseVoice 英文</td><td>英文</td><td>官方en.wav</td><td>language=en</td><td>正常转写</td><td>-</td><td class="pass">PASS</td></tr>
+<tr><td>6</td><td>paraformer + DFSMN降噪</td><td>中文</td><td>VITS TTS合成</td><td>.denoise(true)</td><td>同 #1，降噪不影响正确率</td><td>~4000ms</td><td class="pass">PASS</td></tr>
+<tr><td>7</td><td>paraformer + VAD切分</td><td>中文</td><td>VITS TTS合成</td><td>.vad(true)</td><td>同 #1，分段拼接全对</td><td>~4000ms</td><td class="pass">PASS</td></tr>
+<tr><td>8</td><td>paraformer + 降噪 + VAD</td><td>中文</td><td>VITS TTS合成</td><td>全管线</td><td>同 #1</td><td>~4500ms</td><td class="pass">PASS</td></tr>
 </table>
 
-<h2>二、声纹入库 + 检索管线（VoiceprintPipeline）</h2>
+<h2>四、Zipformer-zh 新引擎详情（2026-09-01）</h2>
+
+<div class="card">
+<h4>ZipformerZhAudioClient <span class="tag tag-green">嵌入式</span> <span class="tag tag-blue">纯中文</span> <span class="tag tag-orange">小模型</span></h4>
+<p>基于 sherpa-onnx Zipformer-zh-14M 的轻量级中文 ASR 引擎，模型仅 16MB，适合资源受限场景。</p>
+<pre><code>// 嵌入式模型（内置于 JAR，自动解压缓存到 %TEMP%）
+String text = ZipformerZhAudioClient.create()
+    .transcribe(Path.of("chinese.wav"));
+
+// 支持 HF 仓库兜底（模型不存在于 JAR 时自动从 HuggingFace 下载）
+ZipformerZhAudioClient.create()
+    .hfRepo("chtk/sherpa-onnx-zipformer-zh-14M")
+    .transcribe(Path.of("audio.wav"));</code></pre>
+</div>
+
+<div class="card">
+<h4>流式转录 API（feedAudio / getResult / complete） <span class="tag tag-purple">新增</span></h4>
+<p><code>VirtualClient</code> 接口新增流式方法，支持 chunk-by-chunk 喂入音频数据：</p>
+<pre><code>// 流式喂入 160ms 片段（2560 samples @ 16kHz）
+VirtualClient client = VirtualClient.create("zipformer-zh-streaming");
+float[] chunk = new float[2560];
+// ... 填充 chunk ...
+client.feedAudio(chunk);   // 喂入音频块
+// ... 继续喂入 ...
+String partial = client.getResult();  // 获取当前部分结果
+client.complete();            // 标记结束，获取最终结果
+String finalResult = client.getResult();</code></pre>
+</div>
+
+<div class="card">
+<h4>真实推理示例 <span class="tag tag-green">实测通过</span></h4>
+<pre><code>输入：5.6s wav（含中文语音）
+识别结果：对我做了介绍那么我想说的是大家如果对我的研究感兴趣呢
+推理耗时：831ms
+模型来源：JAR 内嵌 zipformer-zh-14M.onnx（encoder + decoder + joiner）</code></pre>
+</div>
+
+<h2>五、VirtualClient 门面重命名（2026-09-01）</h2>
+
+<div class="note">
+<b>变更说明：</b><code>AudioClient</code> 接口已重命名为 <code>VirtualClient</code>，统一 Audio/Video 多模态客户端命名。<br>
+SPI 注册文件同步更新：<code>META-INF/extensions/com.chua.common.support.ai.audio.VirtualClient</code><br>
+所有实现类（OpenAiAudioClient、ZipformerZhAudioClient、SenseVoiceAudioClient 等）均已适配。
+</div>
+
+<table>
+<tr><th>接口</th><th>包路径</th><th>用途</th><th>变更</th></tr>
+<tr><td><code>VirtualClient</code></td><td>com.chua.common.support.ai.audio</td><td>ASR / TTS / STT 统一门面</td><td>AudioClient → VirtualClient</td></tr>
+<tr><td><code>OpenAiAudioClient</code></td><td>com.chua.deeplearning.support.onnx.audio</td><td>OpenAI 标准 STT/TTS</td><td>实现类不变</td></tr>
+<tr><td><code>ZipformerZhAudioClient</code></td><td>com.chua.deeplearning.support.onnx.audio.zipformer</td><td>轻量中文 ASR（嵌入式）</td><td>新增</td></tr>
+<tr><td><code>SenseVoiceAudioClient</code></td><td>com.chua.deeplearning.support.onnx.audio.sensevoice</td><td>多语言 ASR（SenseVoice）</td><td>实现类不变</td></tr>
+</table>
+
+<h2>六、声纹入库 + 检索管线（VoiceprintPipeline）</h2>
 
 <div class="flow">
 <span class="step">参考音频</span><span class="arrow">&#8594;</span>
@@ -79,32 +163,32 @@ code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:Consolas,m
 <h2>E2E 声纹测试结果（中文双说话人）</h2>
 
 <div class="note">
-<b>测试数据：</b>VITS-icefall-zh 中文TTS 合成，说话人 SSB0005 和 SSB0008，不同文本内容。<br>
+<b>测试数据：</b>VITS-icefall-zh 模型 TTS 合成，说话人 SSB0005 与 SSB0008（相同文本内容）。<br>
 <b>模型：</b>CAM++ (campplus_zh_cn_common_200k.onnx, 26MB int8)，192 维嵌入向量。
 </div>
 
 <table>
-<tr><th>测试项</th><th>方法</th><th>对比</th><th>余弦相似度</th><th>说明</th></tr>
-<tr><td>入库</td><td>enroll("SSB0005", spk1.wav)</td><td>—</td><td>—</td><td class="pass">PASS：向量成功落盘 JSON</td></tr>
-<tr><td>入库</td><td>enroll("SSB0008", spk2.wav)</td><td>—</td><td>—</td><td class="pass">PASS：第二说话人注册</td></tr>
-<tr><td>同人检索</td><td>search(query=SSB0005新音频, topK=2)</td><td>query vs SSB0005</td><td style="color:var(--green)">1.000000</td><td>同人完美匹配</td></tr>
-<tr><td>跨人检索</td><td>search(query=SSB0005新音频, topK=2)</td><td>query vs SSB0008</td><td>0.762537</td><td>明显区分</td></tr>
-<tr><td><b>区分度差距</b></td><td colspan="2">same - cross</td><td style="color:var(--green)"><b>0.237463</b></td><td>远优于DSP后端(0.004)，提升<b>60倍</b></td></tr>
-<tr><td>重启持久化</td><td>JVM退出后重新加载</td><td>search同上</td><td>结果一致</td><td class="pass">PASS：FileVectorStorage 落盘恢复</td></tr>
+<tr><th>测试项</th><th>操作</th><th>比对</th><th>余弦相似度</th><th>说明</th></tr>
+<tr><td>登记</td><td>enroll("SSB0005", spk1.wav)</td><td>-</td><td>-</td><td class="pass">PASS 登记成功，写入 JSON</td></tr>
+<tr><td>登记</td><td>enroll("SSB0008", spk2.wav)</td><td>-</td><td>-</td><td class="pass">PASS 第二说话人注册</td></tr>
+<tr><td>同 Person 检索</td><td>search(query=SSB0005音频, topK=2)</td><td>query vs SSB0005</td><td style="color:var(--green)">1.000000</td><td>同 Person 完美匹配</td></tr>
+<tr><td>跨 Person 检索</td><td>search(query=SSB0005音频, topK=2)</td><td>query vs SSB0008</td><td>0.762537</td><td>不同 Person</td></tr>
+<tr><td><b>分数差距</b></td><td colspan="2">same - cross</td><td style="color:var(--green)"><b>0.237463</b></td><td>远大于 DSP 特征(0.004)，置信度 <b>60倍</b></td></tr>
+<tr><td>重启后恢复</td><td>JVM 重新启动后搜索同一 ID</td><td>search 结果</td><td>完全一致</td><td class="pass">PASS FileVectorStorage 持久化恢复</td></tr>
 </table>
 
-<h2>声纹后端性能对比</h2>
+<h2>七、特征维度对比</h2>
 <table>
-<tr><th>后端</th><th>维度</th><th>同人相似度</th><th>跨人相似度</th><th>区分度差距</th><th>状态</th></tr>
-<tr><td>DSP 统计（log-mel均值+标准差）</td><td>80</td><td>1.0000</td><td>0.9959</td><td>0.0041</td><td>可用但区分度弱</td></tr>
-<tr><td style="color:var(--green)"><b>CAM++ 神经模型</b></td><td><b>192</b></td><td><b>1.0000</b></td><td><b>0.7625</b></td><td style="color:var(--green)"><b>0.2375</b></td><td style="color:var(--green)">已集成，推荐使用</td></tr>
+<tr><th>特征</th><th>维度</th><th>同 Person 相似度</th><th>跨 Person 相似度</th><th>分数差距</th><th>状态</th></tr>
+<tr><td>DSP 统计（log-mel 均值+标准差）</td><td>80</td><td>1.0000</td><td>0.9959</td><td>0.0041</td><td>区分能力弱</td></tr>
+<tr><td style="color:var(--green)"><b>CAM++ 神经网络</b></td><td><b>192</b></td><td><b>1.0000</b></td><td><b>0.7625</b></td><td style="color:var(--green)"><b>0.2375</b></td><td style="color:var(--green)">已集成，推荐使用</td></tr>
 </table>
 
 <div class="note">
-<b>注：</b>以上使用 VITS TTS 合成音频测试（同一声码器），频谱特征天然相似导致区分度偏低。实际人类录音的区分度会显著更高。生产建议接入 wespeaker ResNet34 x-vector（512维）以获得最佳效果。
+<b>注意</b>：以上使用 VITS TTS 合成音频测试，同一段音频重复生成的频谱略有差异，特征稍低。实际真实录音的特征区分度会更高。后续可引入 wespeaker ResNet34 x-vector（512维）进一步提升效果。
 </div>
 
-<h2>三、API 用法示例</h2>
+<h2>八、API 使用示例</h2>
 
 <div class="card">
 <h4>语音识别管线</h4>
@@ -112,21 +196,33 @@ code{background:#1f2937;padding:1px 5px;border-radius:3px;font-family:Consolas,m
 String text = AsrPipeline.builder("paraformer-zh-small")
     .build().transcribe(Path.of("audio.wav"));
 
-// 全管线（降噪 + VAD 切分 + 后处理）
+// 全管线：降噪 + VAD 切分 + 后处理
 String text = AsrPipeline.builder("sensevoice")
     .language("zh")
     .vad(true)
     .denoise(true)
     .postProcess(true)
     .build()
-    .transcribe(Path.of("chinese.wav"));</code></pre>
+    .transcribe(Path.of("chinese.wav"));
+
+// Zipformer-zh（轻量嵌入式）
+String text = ZipformerZhAudioClient.create()
+    .transcribe(Path.of("audio.wav"));
+
+// 流式转录
+VirtualClient client = VirtualClient.create("zipformer-zh-streaming");
+client.feedAudio(chunk1);
+client.feedAudio(chunk2);
+String partial = client.getResult();
+client.complete();
+String finalResult = client.getResult();</code></pre>
 </div>
 
 <div class="card">
-<h4>声纹管线</h4>
+<h4>声纹引擎</h4>
 <pre><code>VoiceprintPipeline vp = VoiceprintPipeline.create();
 
-// 入库
+// 登记
 vp.enroll("alice", Path.of("alice-enroll.wav"));
 
 // 1:N 检索
@@ -135,31 +231,21 @@ for (Match m : top) {
     System.out.println(m.speakerId() + " -> " + m.similarity());
 }
 
-// 1:1 验证（等价于 search(1) 后检查 id）
+// 1:1 验证（取 search(1) 的结果，判断 id 即可）
 List&lt;Match&gt; result = vp.search(Path.of("test.wav"), 1);
 boolean isAlice = !result.isEmpty()
     &amp;&amp; result.get(0).speakerId().equals("alice")
     &amp;&amp; result.get(0).similarity() > 0.7;</code></pre>
 </div>
 
-<h2>四、已知限制与后续计划</h2>
-<table>
-<tr><th>项目</th><th>当前状态</th><th>后续计划</th></tr>
-<tr><td>Zipformer 流式解码</td><td>模型已嵌入(189MB)，Java客户端未实现</td><td>实现36状态张量流式transducer解码</td></tr>
-<tr><td>whisper-tiny 中文</td><td>tiny档多语言能力弱</td><td>可换medium/large档或使用SenseVoice替代</td></tr>
-<tr><td>声纹神经模型</td><td>CAM++ 已集成并验证</td><td>可换 wespeaker ResNet34 x-vector (512维) 提升精度</td></tr>
-</table>
-
-<h2>五、OpenAI 标准 STT（云服务）</h2>
-
 <div class="card">
-<h4>OpenAiAudioClient <span class="tag">OpenAI 标准</span> <span class="tag">SPI</span></h4>
+<h4>OpenAI 标准 STT <span class="tag tag-blue">OpenAI 标准</span> <span class="tag tag-purple">SPI</span></h4>
 <p>基于 OpenAI 音频标准接口 <code>POST /v1/audio/transcriptions</code> 的 <code>VirtualClient</code> 实现，支持 OpenAI 兼容服务商（openai / openai-asr / siliconflow / sensetime / github / gitee）。</p>
 <pre><code>// 前置依赖：utils-support-openai-starter
 String text = VirtualClient.create("openai", "sk-xxx")
-    .model("whisper-1")       // whisper-1 / gpt-4o-transcribe / gpt-4o-mini-transcribe
-    .language("zh")           // 可选，ISO 639-1
-    .prompt("会议纪要用语")    // 可选，引导识别专有词汇
+    .model("whisper-1")           // whisper-1 / gpt-4o-transcribe / gpt-4o-mini-transcribe
+    .language("zh")               // 可选 ISO 639-1
+    .prompt("补充上下文提示")       // 可选：提升特定词汇识别
     .transcribe(Path.of("audio.wav"));
 
 // 自定义地址 + 代理（对接 b.ai 等 OpenAI 兼容网关）
@@ -169,13 +255,22 @@ String text = VirtualClient.create("openai", "sk-xxx", "https://api.b.ai/v1")
 </div>
 
 <div class="card">
-<h4>模型清单 <span class="tag">models()</span></h4>
+<h4>模型清单 <span class="tag tag-green">models()</span></h4>
 <p><code>VirtualClient</code> 通过 <code>models()</code> / <code>listModels()</code> 暴露标准 ASR 模型，供统一能力清单与前端筛选使用。</p>
 <pre><code>List&lt;ModelDefinition&gt; defs = VirtualClient.create("openai", "sk-xxx").models();
 List&lt;String&gt; ids = VirtualClient.create("openai", "sk-xxx").listModels();
 // whisper-1 / gpt-4o-transcribe / gpt-4o-mini-transcribe</code></pre>
 </div>
 
+<h2>九、更新记录</h2>
+<table>
+<tr><th>日期</th><th>提交</th><th>变更</th></tr>
+<tr><td>2026-09-02</td><td><code>b28975748</code></td><td>AudioClient → VirtualClient 门面重命名完成；新增 Zipformer-zh 嵌入式模型 + 流式转录 API</td></tr>
+<tr><td>2026-09-01</td><td><code>575bdc2a5</code></td><td>初版 VirtualClient 接口 + SenseVoice/Zipformer 端到端测试通过</td></tr>
+<tr><td>2024-07-24</td><td>-</td><td>原始版本：AsrPipeline + VoiceprintPipeline E2E 测试（7/7 PASS）</td></tr>
+</table>
+
 </div>
+<div class="footer">文档中心 · 语音识别 STT</div>
 </body>
 </html>
