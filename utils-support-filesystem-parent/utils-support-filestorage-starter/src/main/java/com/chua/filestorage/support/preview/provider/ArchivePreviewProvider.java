@@ -115,16 +115,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                         ".header{padding:16px 24px;background:#fff;border-bottom:1px solid #e5e7eb}" +
                         ".header h2{margin:0;font-size:16px;font-weight:600}" +
                         ".header .meta{font-size:13px;color:#6b7280;margin-top:4px}" +
-                        "table{width:100%;border-collapse:collapse}" +
-                        "th{text-align:left;padding:8px 16px;font-size:12px;font-weight:600;" +
-                        "color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;" +
-                        "border-bottom:1px solid #e5e7eb;background:#f9fafb}" +
-                        "td{padding:6px 16px;font-size:13px;border-bottom:1px solid #f3f4f6}" +
-                        "tr:hover td{background:#f3f4f6}" +
-                        ".name{font-family:'Cascadia Code',Consolas,monospace;font-size:12px}" +
-                        ".size{text-align:right;font-variant-numeric:tabular-nums}" +
-                        ".ext{display:inline-block;padding:1px 6px;border-radius:3px;" +
-                        "font-size:11px;font-weight:500;background:#e5e7eb;color:#374151;margin-right:6px}")
+                        ".tree{padding:8px 16px}" +
+                        ".dir,.file{padding:5px 8px;font-size:13px;border-radius:4px;cursor:default;" +
+                        "font-family:'Cascadia Code',Consolas,monospace}" +
+                        ".dir{color:#2563eb;font-weight:600}" +
+                        ".file{color:#374151;padding-left:24px}" +
+                        ".icon{margin-right:6px}" +
+                        ".meta-right{float:right;color:#9ca3af;font-size:12px;font-family:sans-serif}")
                 .build();
     }
 
@@ -147,30 +144,54 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return in;
     }
 
-    /** 构建Html */
+    /** 构建Html（树形结构） */
     private String buildHtml(String ext, List<EntryInfo> entries, int dirs, long totalSize) {
+        java.util.Map<String, List<EntryInfo>> dirMap = new java.util.TreeMap<>();
+        List<EntryInfo> rootFiles = new ArrayList<>();
+        for (EntryInfo e : entries) {
+            int slash = e.name.lastIndexOf('/');
+            if (slash > 0) {
+                String dir = e.name.substring(0, slash);
+                dirMap.computeIfAbsent(dir, k -> new ArrayList<>()).add(e);
+            } else {
+                rootFiles.add(e);
+            }
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("<div class=\"header\"><h2>").append(ext.toUpperCase(Locale.ENGLISH))
                 .append(" 存档预览</h2>")
-                .append("<div class=\"meta\">共 ").append(entries.size())
-                .append(" 个文件");
+                .append("<div class=\"meta\">共 ").append(entries.size()).append(" 个文件");
         if (dirs > 0) {
-            sb.append("，总计 ").append(formatSize(totalSize)).append("</div></div>");
+            sb.append("，").append(dirs).append(" 个目录");
         }
-        sb.append("<table><thead><tr><th>文件名</th><th>大小</th><th>修改日期</th></tr></thead><tbody>");
-        for (EntryInfo e : entries) {
-            sb.append("<tr><td class=\"name\">");
-            String eExt = extFromName(e.name);
-            if (eExt != null) {
-                sb.append("<span class=\"ext\">").append(escapeHtml(eExt)).append("</span>");
+        sb.append("，总计 ").append(formatSize(totalSize)).append("</div></div>");
+        sb.append("<div class=\"tree\">");
+        for (java.util.Map.Entry<String, List<EntryInfo>> de : dirMap.entrySet()) {
+            sb.append("<div class=\"dir\" data-path=\"").append(escapeHtml(de.getKey())).append("\"><span class=\"icon\">📁</span>")
+                    .append(escapeHtml(de.getKey())).append("</div>");
+            for (EntryInfo fe : de.getValue()) {
+                String fname = fe.name.substring(de.getKey().length() + 1);
+                renderFile(sb, fname, fe);
             }
-            sb.append(escapeHtml(e.name)).append("</td>");
-            sb.append("<td class=\"size\">").append(e.compressOnly ? "-" : formatSize(e.size)).append("</td>");
-            sb.append("<td>").append(e.date != null ? new SimpleDateFormat("yyyy-MM-dd HH:mm").format(e.date) : "-")
-                    .append("</td></tr>");
         }
-        sb.append("</tbody></table>");
+        for (EntryInfo fe : rootFiles) {
+            renderFile(sb, fe.name, fe);
+        }
+        sb.append("</div>");
         return sb.toString();
+    }
+
+    private void renderFile(StringBuilder sb, String name, EntryInfo fe) {
+        String eExt = extFromName(name);
+        sb.append("<div class=\"file\"><span class=\"icon\">");
+        sb.append(eExt != null ? escapeHtml(eExt) : "📄");
+        sb.append("</span>").append(escapeHtml(name));
+        sb.append("<span class=\"meta-right\">");
+        sb.append(fe.compressOnly ? "-" : formatSize(fe.size));
+        if (fe.date != null) {
+            sb.append(" &middot; ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format(fe.date));
+        }
+        sb.append("</span></div>");
     }
 
     /** ExtFromName */

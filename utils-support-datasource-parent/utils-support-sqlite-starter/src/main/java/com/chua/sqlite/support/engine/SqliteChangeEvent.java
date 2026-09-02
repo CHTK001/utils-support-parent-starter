@@ -1,20 +1,14 @@
 package com.chua.sqlite.support.engine;
 
 /**
- * SQLite update_hook 变更事件，由 {@link SqliteHookConnection} 通过 FFI 捕获并推送。
- *
- * <p>每条事件包含变更类型（INSERT/UPDATE/DELETE）、表名和 rowId，对应 C 侧
- * {@code sqlite3_update_hook} 回调产生的 JSON 记录。</p>
+ * SQLite 变更事件，由 update_hook 触发。
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.42
  */
 public final class SqliteChangeEvent {
 
-    /** 变更类型：INSERT / UPDATE / DELETE */
-    public enum Type {
-        INSERT, UPDATE, DELETE
-    }
+    public enum Type { INSERT, UPDATE, DELETE }
 
     private final Type type;
     private final String table;
@@ -38,17 +32,9 @@ public final class SqliteChangeEvent {
         return new SqliteChangeEvent(Type.DELETE, table, rowId);
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public String getTable() {
-        return table;
-    }
-
-    public long getRowId() {
-        return rowId;
-    }
+    public Type getType() { return type; }
+    public String getTable() { return table; }
+    public long getRowId() { return rowId; }
 
     @Override
     public String toString() {

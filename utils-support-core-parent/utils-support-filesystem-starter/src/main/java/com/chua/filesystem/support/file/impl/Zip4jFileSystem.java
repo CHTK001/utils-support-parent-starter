@@ -293,10 +293,7 @@ public class Zip4jFileSystem implements FileSystem {
                     }
 
                     // 设置分卷参数（仅对第一个条目生效）
-                    if (splitSize > 0) {
-                        params.setSplitArchive(true);
-                        params.setSplitLength(splitSize);
-                    }
+                    // zip4j 2.11.x 分卷通过 createSplitZipFile 实现，不在 ZipParameters 中设置
 
                     if (ed.getSource() != null) {
                         zipFile.addFile(ed.getSource(), params);

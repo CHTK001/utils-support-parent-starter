@@ -89,9 +89,7 @@ public class ApngDecoder {
 
         List<FrameData> frameDataList = new ArrayList<>();
         FrameData current = null;
-        FrameControl currentControl = null;
         ByteArrayOutputStream idatBuffer = new ByteArrayOutputStream();
-        boolean firstImageData = true;
 
         // 逐块解析
         while (true) {
@@ -113,17 +111,12 @@ public class ApngDecoder {
                     break;
 
                 case CHUNK_fcTL:
-                    // 保存上一帧控制，并开始新帧数据
-                    if (currentControl != null) {
-                        throw new IOException("fcTL 块顺序异常：缺失帧数据");
-                    }
-                    currentControl = parseFrameControl(data);
+                    // 归档上一帧数据，并开始新帧
                     if (current != null) {
                         frameDataList.add(current);
                     }
                     current = new FrameData();
-                    current.control = currentControl;
-                    firstImageData = true;
+                    current.control = parseFrameControl(data);
                     break;
 
                 case CHUNK_IDAT:
@@ -428,15 +421,16 @@ public class ApngDecoder {
     }
 
     private static FrameControl parseFrameControl(byte[] data) {
+        // fcTL 为 30 字节：sequence(4) + 控制数据(26)，偏移 +4
         FrameControl ctrl = new FrameControl();
-        ctrl.width = readIntBE(data, 0);
-        ctrl.height = readIntBE(data, 4);
-        ctrl.xOffset = readIntBE(data, 8);
-        ctrl.yOffset = readIntBE(data, 12);
-        ctrl.delayNum = readIntBE(data, 16);
-        ctrl.delayDen = readIntBE(data, 20);
-        ctrl.disposeOp = data[24] & 0xFF;
-        ctrl.blendOp = data[25] & 0xFF;
+        ctrl.width = readIntBE(data, 4);
+        ctrl.height = readIntBE(data, 8);
+        ctrl.xOffset = readIntBE(data, 12);
+        ctrl.yOffset = readIntBE(data, 16);
+        ctrl.delayNum = readIntBE(data, 20);
+        ctrl.delayDen = readIntBE(data, 24);
+        ctrl.disposeOp = data[28] & 0xFF;
+        ctrl.blendOp = data[29] & 0xFF;
         return ctrl;
     }
 

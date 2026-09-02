@@ -144,8 +144,7 @@ public class SevenZFileSystem implements FileSystem {
                 channels.add(Files.newByteChannel(f.toPath(), StandardOpenOption.READ));
             }
             MultiReadOnlySeekableByteChannel mergedChannel =
-                    MultiReadOnlySeekableByteChannel.forSeekableByteChannels(
-                            channels.toArray(new SeekableByteChannel[0]));
+                    new MultiReadOnlySeekableByteChannel(channels);
             return new SevenZFile(mergedChannel);
         }
 
