@@ -3,12 +3,16 @@ package com.chua.deeplearning.support.onnx.ocr.extractor;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
 import org.opencv.core.Size;
 import org.opencv.dnn.Dnn;
+import org.opencv.dnn.Net;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +31,8 @@ public class PpOcrOpencvTranslator {
 
     private final List<String> dict;
     private final String modelResourcePath;
-    private byte[] modelBytes;
-    private Mat net;
+    private Path modelFile;
+    private Net net;
 
     public PpOcrOpencvTranslator() {
         this("ocr/PP-OCRv6/tiny/rec_infer/inference.onnx", "ocr/PP-OCRv6/tiny/rec_infer/inference.yml");
@@ -43,9 +47,7 @@ public class PpOcrOpencvTranslator {
     private static List<String> loadCharacterDict(String resourcePath) {
         List<String> chars = new ArrayList<>();
         try (InputStream is = PpOcrOpencvTranslator.class.getClassLoader().getResourceAsStream(resourcePath)) {
-            if (is == null) {
-                return List.of("blank");
-            }
+            if (is == null) return List.of("blank");
             String content = new String(is.readAllBytes());
             boolean inDict = false;
             for (String line : content.split("\n")) {
@@ -84,7 +86,7 @@ public class PpOcrOpencvTranslator {
             Mat resized = new Mat();
             Imgproc.resize(src, resized, new Size(resizeW, IMG_H));
 
-            // BGR -> normalize -> flatten to [1,3,48,W]
+            // Extract BGR pixels, normalize, flatten to [1,3,48,W]
             float[] pixels = new float[3 * IMG_H * resizeW];
             for (int y = 0; y < IMG_H; y++) {
                 for (int x = 0; x < resizeW; x++) {
@@ -98,14 +100,18 @@ public class PpOcrOpencvTranslator {
             resized.release();
             src.release();
 
+            // Create input blob [1,3,48,W] CV_32F
             Mat inputBlob = new Mat();
-            inputBlob.create(new int[]{1, 3, IMG_H, resizeW}, CvType.CV_32F);
+            inputBlob.create(1, new int[]{1, 3, IMG_H, resizeW}, CvType.CV_32F);
             inputBlob.put(0, 0, pixels);
 
+            // Forward pass
             List<Mat> outputs = new ArrayList<>();
-            net.forward(outputs, net.getUnconnectedOutLayers());
+            net.forward(outputs);
+            if (outputs.isEmpty()) throw new RuntimeException("模型无输出");
             Mat result = outputs.get(0);
 
+            // Decode CTC
             String text = ctcDecode(result);
             log.debug("[PpOcrOpencv] 识别结果: [{}]", text);
             return text;
@@ -115,27 +121,68 @@ public class PpOcrOpencvTranslator {
     }
 
     private String ctcDecode(Mat probs) {
-        int[] shape = new int[probs.total() > 0 ? (int) probs.total() : 4];
-        probs.get(0, 0, shape);
-        int seqLen = shape[2];
-        int numClasses = shape[3];
+        // OpenCV DNN output shape: [1, seqLen, numClasses]
+        // probs.total() = 1 * seqLen * numClasses
+        long total = probs.total();
+        if (total == 0) return "";
+        int numClasses = dict.size();
+        // Determine seqLen from total and numClasses
+        // For PP-OCR rec: output is [1, seqLen, numClasses]
+        // But we don't know the exact shape, so infer from dict size
+        // Try to find the best seqLen
+        int seqLen = 0;
+        int bestRemainder = Integer.MAX_VALUE;
+        for (int s = 1; s <= 200; s++) {
+            int c = (int) (total / s);
+            int rem = (int) (total % s);
+            if (rem == 0 && c == numClasses && s > seqLen) {
+                seqLen = s;
+                bestRemainder = 0;
+                break;
+            }
+        }
+        if (seqLen == 0) {
+            // Fallback: assume [1, numClasses, seqLen] layout
+            seqLen = (int) (total / numClasses);
+        }
 
-        // OpenCV DNN output is typically [1, seqLen, numClasses] for PP-OCR
-        // But can also be [1, numClasses, seqLen] — detect by checking values
+        // Read all values into a flat array
+        float[] values = new float[(int) total];
+        probs.get(0, 0, values);
+
         StringBuilder sb = new StringBuilder();
         int prevIdx = -1;
-        for (int t = 0; t < seqLen; t++) {
-            int maxIdx = 0;
-            float bestVal = Float.NEGATIVE_INFINITY;
-            for (int cls = 0; cls < numClasses; cls++) {
-                float val = probs.get(0, t, cls)[0];
-                if (val > bestVal) { bestVal = val; maxIdx = cls; }
+        if (seqLen * numClasses == total) {
+            // Layout: [1, seqLen, numClasses] — value at [0, t, c] = values[t * numClasses + c]
+            for (int t = 0; t < seqLen; t++) {
+                int maxIdx = 0;
+                float bestVal = Float.NEGATIVE_INFINITY;
+                int base = t * numClasses;
+                for (int c = 0; c < numClasses; c++) {
+                    float val = values[base + c];
+                    if (val > bestVal) { bestVal = val; maxIdx = c; }
+                }
+                if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
+                    String ch = dict.get(maxIdx);
+                    if (ch != null && !ch.isBlank()) sb.append(ch);
+                }
+                prevIdx = maxIdx;
             }
-            if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
-                String ch = dict.get(maxIdx);
-                if (ch != null && !ch.isBlank()) sb.append(ch);
+        } else if (numClasses * seqLen == total) {
+            // Layout: [1, numClasses, seqLen] — value at [0, c, t] = values[c * seqLen + t]
+            for (int t = 0; t < seqLen; t++) {
+                int maxIdx = 0;
+                float bestVal = Float.NEGATIVE_INFINITY;
+                for (int c = 0; c < numClasses; c++) {
+                    float val = values[c * seqLen + t];
+                    if (val > bestVal) { bestVal = val; maxIdx = c; }
+                }
+                if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
+                    String ch = dict.get(maxIdx);
+                    if (ch != null && !ch.isBlank()) sb.append(ch);
+                }
+                prevIdx = maxIdx;
             }
-            prevIdx = maxIdx;
         }
         return sb.toString();
     }
@@ -143,15 +190,16 @@ public class PpOcrOpencvTranslator {
     private void ensureModel() {
         if (net != null) return;
         try {
-            if (modelBytes == null) {
-                try (InputStream is = PpOcrOpencvTranslator.class.getClassLoader()
-                        .getResourceAsStream(modelResourcePath)) {
-                    if (is == null) throw new IllegalStateException("模型未找到: " + modelResourcePath);
-                    modelBytes = is.readAllBytes();
-                }
+            // Extract ONNX model from classpath to temp file
+            modelFile = Files.createTempFile("ppocrv6_rec_", ".onnx");
+            modelFile.toFile().deleteOnExit();
+            try (InputStream is = PpOcrOpencvTranslator.class.getClassLoader()
+                    .getResourceAsStream(modelResourcePath)) {
+                if (is == null) throw new IllegalStateException("模型未找到: " + modelResourcePath);
+                Files.copy(is, modelFile);
             }
-            net = Dnn.readNetFromOnnx(modelBytes);
-            log.info("[PpOcrOpencv] ONNX loaded: {} dict_size={}", modelResourcePath, dict.size());
+            net = Dnn.readNetFromOnnx(modelFile.toString());
+            log.info("[PpOcrOpencv] ONNX loaded: {} dict_size={}", modelFile.getFileName(), dict.size());
         } catch (Exception e) {
             throw new RuntimeException("[PpOcrOpencv] 模型加载失败: " + e.getMessage(), e);
         }
@@ -165,6 +213,6 @@ public class PpOcrOpencvTranslator {
 
     public void close() {
         if (net != null) { net.close(); net = null; }
-        modelBytes = null;
+        if (modelFile != null) { modelFile.toFile().delete(); modelFile = null; }
     }
 }
