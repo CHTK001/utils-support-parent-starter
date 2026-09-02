@@ -350,7 +350,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("dog-classification", "com.chua.deeplearning.support.onnx.classification.DogClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx");
         // 猫分类（零样本）：识别图像中的猫，区分猫与其他动物；适用宠物识别、安防监控
         reg("cat-classification", "com.chua.deeplearning.support.onnx.classification.CatClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx");
-        // 食物分类（零样本）：识别常见食物类别，替代原 Food-101 PyTorch 模型；适用食物识别、饮食记录
+        // 食物分类（零样本）：识别常见食物类别，替代原 Food-101 PyTorch 模型；适用食物识别、饮食记录（candidates 由调用方传入）
         reg("food-101-classification", "com.chua.deeplearning.support.onnx.classification.SiglipZeroShotClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx", null, false, null);
         // 植物识别(Plant classification)：识别室内植物种类；适用植物识别、园艺
         reg("plant-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/plant/model.onnx", "https://huggingface.co/onnx-community/house-plant-image-detection-ONNX/resolve/main/onnx/model.onnx", false, null);
