@@ -297,8 +297,18 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         if (key == null || !key.contains(".")) {
             return "";
         }
+        String lower = key.toLowerCase(Locale.ENGLISH);
+        for (String compound : COMPOUND_EXTS) {
+            if (lower.endsWith("." + compound)) {
+                return compound;
+            }
+        }
         return key.substring(key.lastIndexOf('.') + 1).toLowerCase(Locale.ENGLISH);
     }
+
+    /** 复合扩展名列表 */
+    private static final List<String> COMPOUND_EXTS = List.of(
+            "tar.gz", "tar.bz2", "tar.xz", "tar.zst", "tar.lz4", "tar.lzma", "tar.sz");
 
     /** 构建OpsSuffix */
     private static String buildOpsSuffix(FileOperationSetting ops) {

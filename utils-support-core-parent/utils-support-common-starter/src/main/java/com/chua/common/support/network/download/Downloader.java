@@ -1,37 +1,16 @@
 package com.chua.common.support.network.download;
 
-import com.chua.common.support.lang.process.ProgressBar;
-import com.chua.common.support.lang.process.ProgressBarBuilder;
-import com.chua.common.support.lang.process.ProgressBarStyle;
 import com.chua.common.support.network.download.extractor.Extractor;
 import com.chua.common.support.network.download.extractor.ExtractorFactory;
 import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.ByteBuffer;
-import java.time.Duration;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HexFormat;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 通用文件下载器 — 链式 API，支持并发分片、断点续传、MD5 校验、限速、代理、自动解压。
@@ -72,59 +51,235 @@ import java.util.concurrent.Future;
 public class Downloader {
 
     // ===== 链式配置字段 =====
+    /** 下载地址 */
     private String url;
+    /** 目标下载目录 */
     private Path targetDir;
+    /** 显式文件名 */
     private String filename;
+    /** 期望的 MD5 校验值 */
     private String expectedMd5;
+    /** 并发下载线程数 */
     private int concurrency = 1;
+    /** 限速字节/秒 */
     private long maxSpeed = 0;
+    /** HTTP 代理 */
     private Proxy proxy;
+    /** 下载完成后自动解压 */
     private boolean autoExtract = false;
+    /** 解压目标目录 */
     private Path extractTo;
+    /** 是否跳过 MD5 校验 */
     private boolean skipMd5Check = false;
+    /** 是否强制重新下载 */
     private boolean forceDownload = false;
+    /** 是否显示进度条 */
     private boolean showProgress = true;
+    /** 连接超时（毫秒） */
     private int connectTimeoutMs = 15_000;
+    /** 读取超时（毫秒） */
     private int readTimeoutMs = 60_000;
-    private java.util.Map<String, String> headers = new java.util.LinkedHashMap<>();
+    /** 自定义请求头 */
+    private Map<String, String> headers = new LinkedHashMap<>();
+    /** 下载协议 */
     private DownloadProtocol protocol = DownloadProtocol.DEFAULT;
 
     // ===== 构造 =====
-    private Downloader() {}
+    private Downloader() {
+    }
 
-    /** 创建 Downloader 实例 */
-    public static Downloader create() { return new Downloader(); }
+    /**
+     * 创建 Downloader 实例。
+     *
+     * @return 新的 Downloader 实例
+     */
+    public static Downloader create() {
+        return new Downloader();
+    }
 
     // ===== 链式配置方法 =====
 
-    public Downloader url(String url) { this.url = url; return this; }
-    public Downloader target(Path targetDir) { this.targetDir = targetDir; return this; }
-    public Downloader filename(String filename) { this.filename = filename; return this; }
+    /**
+     * 设置下载地址。
+     *
+     * @param url 合法的 HTTP/HTTPS URL
+     * @return 当前实例
+     */
+    public Downloader url(String url) {
+        this.url = url;
+        return this;
+    }
 
-    /** 设置期望的 MD5 值（null 则跳过校验） */
-    public Downloader expectedMd5(String md5) { this.expectedMd5 = md5; return this; }
-    public Downloader concurrency(int threads) { this.concurrency = Math.max(1, threads); return this; }
-    public Downloader maxSpeed(long bytesPerSecond) { this.maxSpeed = bytesPerSecond; return this; }
-    public Downloader proxy(Proxy proxy) { this.proxy = proxy; return this; }
-    public Downloader autoExtract(boolean autoExtract) { this.autoExtract = autoExtract; return this; }
-    public Downloader extractTo(Path extractTo) { this.extractTo = extractTo; return this; }
-    public Downloader skipMd5Check(boolean skip) { this.skipMd5Check = skip; return this; }
-    public Downloader forceDownload(boolean force) { this.forceDownload = force; return this; }
-    public Downloader showProgress(boolean show) { this.showProgress = show; return this; }
-    public Downloader connectTimeout(int ms) { this.connectTimeoutMs = ms; return this; }
-    public Downloader readTimeout(int ms) { this.readTimeoutMs = ms; return this; }
+    /**
+     * 设置目标下载目录。
+     *
+     * @param targetDir 目标目录
+     * @return 当前实例
+     */
+    public Downloader target(Path targetDir) {
+        this.targetDir = targetDir;
+        return this;
+    }
 
-    /** 添加自定义请求头 */
-    public Downloader header(String name, String value) { this.headers.put(name, value); return this; }
+    /**
+     * 设置显式文件名。
+     *
+     * @param filename 期望的文件名
+     * @return 当前实例
+     */
+    public Downloader filename(String filename) {
+        this.filename = filename;
+        return this;
+    }
+
+    /**
+     * 设置期望的 MD5 值（null 则跳过校验）。
+     *
+     * @param md5 小写十六进制 MD5 字符串
+     * @return 当前实例
+     */
+    public Downloader expectedMd5(String md5) {
+        this.expectedMd5 = md5;
+        return this;
+    }
+
+    /**
+     * 设置并发下载线程数（默认 1，大于 1 时自动分片）。
+     *
+     * @param threads 线程数，必须 >= 1
+     * @return 当前实例
+     */
+    public Downloader concurrency(int threads) {
+        this.concurrency = Math.max(1, threads);
+        return this;
+    }
+
+    /**
+     * 设置下载限速（bytes/sec，0 = 不限速）。
+     *
+     * @param bytesPerSecond 限速字节/秒
+     * @return 当前实例
+     */
+    public Downloader maxSpeed(long bytesPerSecond) {
+        this.maxSpeed = bytesPerSecond;
+        return this;
+    }
+
+    /**
+     * 设置 HTTP 代理。
+     *
+     * @param proxy 代理对象
+     * @return 当前实例
+     */
+    public Downloader proxy(Proxy proxy) {
+        this.proxy = proxy;
+        return this;
+    }
+
+    /**
+     * 下载完成后自动解压压缩包。
+     *
+     * @param autoExtract true 表示自动解压
+     * @return 当前实例
+     */
+    public Downloader autoExtract(boolean autoExtract) {
+        this.autoExtract = autoExtract;
+        return this;
+    }
+
+    /**
+     * 设置解压目标目录（默认与下载目录相同）。
+     *
+     * @param extractTo 解压目标目录
+     * @return 当前实例
+     */
+    public Downloader extractTo(Path extractTo) {
+        this.extractTo = extractTo;
+        return this;
+    }
+
+    /**
+     * 跳过 MD5 校验。
+     *
+     * @param skip true 表示跳过
+     * @return 当前实例
+     */
+    public Downloader skipMd5Check(boolean skip) {
+        this.skipMd5Check = skip;
+        return this;
+    }
+
+    /**
+     * 强制重新下载（忽略本地缓存文件）。
+     *
+     * @param force true 表示强制
+     * @return 当前实例
+     */
+    public Downloader forceDownload(boolean force) {
+        this.forceDownload = force;
+        return this;
+    }
+
+    /**
+     * 设置是否显示下载进度条（默认 true）。
+     *
+     * @param show true 显示进度条
+     * @return 当前实例
+     */
+    public Downloader showProgress(boolean show) {
+        this.showProgress = show;
+        return this;
+    }
+
+    /**
+     * 设置连接超时（毫秒）。
+     *
+     * @param ms 超时毫秒数
+     * @return 当前实例
+     */
+    public Downloader connectTimeout(int ms) {
+        this.connectTimeoutMs = ms;
+        return this;
+    }
+
+    /**
+     * 设置读取超时（毫秒）。
+     *
+     * @param ms 超时毫秒数
+     * @return 当前实例
+     */
+    public Downloader readTimeout(int ms) {
+        this.readTimeoutMs = ms;
+        return this;
+    }
+
+    /**
+     * 添加自定义 HTTP 请求头。
+     *
+     * @param name  请求头名称
+     * @param value 请求头值
+     * @return 当前实例
+     */
+    public Downloader header(String name, String value) {
+        this.headers.put(name, value);
+        return this;
+    }
 
     /**
      * 设置下载协议。
+     *
      * <ul>
      *   <li>{@link DownloadProtocol#DEFAULT} — 内置 HTTP/HTTPS（单线程/并发分片/断点续传）</li>
      *   <li>{@link DownloadProtocol#ARIA2} — 委托本机 aria2c</li>
      * </ul>
+     *
+     * @param protocol 下载协议
+     * @return 当前实例
      */
-    public Downloader protocol(DownloadProtocol protocol) { this.protocol = protocol; return this; }
+    public Downloader protocol(DownloadProtocol protocol) {
+        this.protocol = protocol;
+        return this;
+    }
 
     // ===== 执行下载 =====
 
@@ -133,16 +288,17 @@ public class Downloader {
      *
      * @return 下载结果
      * @throws DownloadException 下载失败
+     * @throws IOException       文件系统操作失败
      */
     public DownloadResult execute() throws DownloadException, IOException {
         validate();
 
-        String resolvedFilename = resolveFilename();
+        String resolvedFilename = DownloadUtils.resolveFilename(url, filename);
         Path resolvedTargetDir = targetDir != null ? targetDir : Path.of(".");
         Path targetFile = resolvedTargetDir.resolve(resolvedFilename);
 
         // 构建下载配置
-        DownloadConfig config = DownloadConfig.builder()
+        var config = DownloadConfig.builder()
                 .url(url)
                 .targetDir(resolvedTargetDir)
                 .filename(resolvedFilename)
@@ -162,7 +318,7 @@ public class Downloader {
 
         // 获取协议实现
         String serviceKey = protocol == DownloadProtocol.ARIA2 ? "aria2" : "default";
-        DownloadService service = ServiceProvider.of(DownloadService.class).getExtension(serviceKey);
+        var service = ServiceProvider.of(DownloadService.class).getExtension(serviceKey);
         if (service == null) {
             throw new DownloadException("未找到下载服务实现: " + serviceKey);
         }
@@ -172,7 +328,7 @@ public class Downloader {
 
         // MD5 校验（aria2c 内部已校验，若非 force 且文件存在则跳过重复校验）
         if (!skipMd5Check && expectedMd5 != null && !expectedMd5.isBlank() && !result.isSkipped()) {
-            String actualMd5 = computeMd5(targetFile);
+            String actualMd5 = DownloadUtils.computeMd5(targetFile);
             if (!expectedMd5.equalsIgnoreCase(actualMd5)) {
                 Files.deleteIfExists(targetFile);
                 throw new DownloadException("MD5 校验失败: expected=" + expectedMd5 + " actual=" + actualMd5);
@@ -198,6 +354,11 @@ public class Downloader {
 
     // ======================== 内部方法 ========================
 
+    /**
+     * 校验必填参数。
+     *
+     * @throws DownloadException 当 URL 为空时
+     */
     private void validate() throws DownloadException {
         if (url == null || url.isBlank()) {
             throw new DownloadException("URL 不能为空");
@@ -207,35 +368,11 @@ public class Downloader {
         }
     }
 
-    private String resolveFilename() {
-        if (filename != null && !filename.isBlank()) return filename;
-        String path = url.contains("?") ? url.substring(0, url.indexOf('?')) : url;
-        int lastSlash = path.lastIndexOf('/');
-        if (lastSlash >= 0 && lastSlash < path.length() - 1) {
-            return URLDecoder.decode(path.substring(lastSlash + 1), java.nio.charset.StandardCharsets.UTF_8);
-        }
-        return "download";
-    }
-
-    private String computeMd5(Path file) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            try (InputStream in = Files.newInputStream(file)) {
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) != -1) { md.update(buf, 0, n); }
-            }
-            return HexFormat.of().formatHex(md.digest());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("MD5 不可用", e);
-        } catch (IOException e) {
-            log.warn("[Downloader] 计算 MD5 失败: {}", e.getMessage());
-            return "";
-        }
-    }
-
     // ===== 结果 & 异常 =====
 
+    /**
+     * 下载结果。
+     */
     @lombok.Builder
     @lombok.Data
     public static class DownloadResult {
@@ -247,12 +384,20 @@ public class Downloader {
         private boolean skipped;
         /** 跳过/成功原因 */
         private String reason;
-        /** MD5 */
+        /** 期望 MD5 */
         private String md5;
     }
 
+    /**
+     * 下载异常。
+     */
     public static class DownloadException extends IOException {
-        public DownloadException(String message) { super(message); }
-        public DownloadException(String message, Throwable cause) { super(message, cause); }
+        public DownloadException(String message) {
+            super(message);
+        }
+
+        public DownloadException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

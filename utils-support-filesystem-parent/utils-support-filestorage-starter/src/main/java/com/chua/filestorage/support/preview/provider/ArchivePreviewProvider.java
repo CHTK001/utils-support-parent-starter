@@ -36,12 +36,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      * 支持的压缩包扩展名（小写）
      */
     private static final Set<String> SUPPORTED = Set.of(
-            "zip", "rar", "tar", "gz", "tgz", "bz2", "tbz2", "xz", "txz", "7z", "zst", "tzst");
+            "zip", "rar", "tar", "gz", "tgz", "tar.gz", "bz2", "tbz2", "tar.bz2",
+            "xz", "txz", "tar.xz", "7z", "zst", "tzst", "tar.zst", "lz4", "tar.lz4", "lzma", "tar.lzma");
 
     /**
      * 纯压缩流扩展名（不视为容器，无条目概念）
      */
-    private static final Set<String> COMPRESSOR_ONLY = Set.of("gz", "bz2", "xz", "zst");
+    private static final Set<String> COMPRESSOR_ONLY = Set.of("gz", "bz2", "xz", "zst", "lz4", "lzma");
 
     /**
      * @param ext  文件扩展名
@@ -90,8 +91,9 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             } else {
                 try {
                     try (InputStream in = new ByteArrayInputStream(content);
+                         InputStream buffered = new java.io.BufferedInputStream(wrapDecompressor(in, e));
                          ArchiveInputStream ais = new ArchiveStreamFactory()
-                                 .createArchiveInputStream(wrapDecompressor(in, e))) {
+                                 .createArchiveInputStream(buffered)) {
                         ArchiveEntry entry;
                         while ((entry = ais.getNextEntry()) != null) {
                             if (entry.isDirectory()) { dirCount++; continue; }

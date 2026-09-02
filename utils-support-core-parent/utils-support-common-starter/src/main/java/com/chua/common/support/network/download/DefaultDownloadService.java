@@ -1,10 +1,6 @@
 package com.chua.common.support.network.download;
 
-import com.chua.common.support.lang.process.ProgressBar;
-import com.chua.common.support.lang.process.ProgressBarBuilder;
-import com.chua.common.support.lang.process.ProgressBarStyle;
-import com.chua.common.support.network.download.extractor.Extractor;
-import com.chua.common.support.network.download.extractor.ExtractorFactory;
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -25,10 +20,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -50,14 +42,14 @@ public class DefaultDownloadService implements DownloadService {
 
     @Override
     public DownloadResult execute(DownloadConfig config) throws DownloadException, IOException {
-        String filename = resolveFilename(config.getUrl(), config.getFilename());
+        String filename = DownloadUtils.resolveFilename(config.getUrl(), config.getFilename());
         Path targetDir = config.getTargetDir() != null ? config.getTargetDir() : Path.of(".");
         Path targetFile = targetDir.resolve(filename);
 
         // 1. 本地缓存检查
         if (!config.isForceDownload() && Files.isRegularFile(targetFile)) {
             if (!config.isSkipMd5Check() && config.getExpectedMd5() != null && !config.getExpectedMd5().isBlank()) {
-                String actualMd5 = computeMd5(targetFile);
+                String actualMd5 = DownloadUtils.computeMd5(targetFile);
                 if (config.getExpectedMd5().equalsIgnoreCase(actualMd5)) {
                     log.info("[DownloadService] MD5 匹配，跳过下载: {} ({})", filename, actualMd5);
                     return buildResult(targetFile, true, "md5_match", config.getExpectedMd5());
@@ -91,6 +83,14 @@ public class DefaultDownloadService implements DownloadService {
 
     // ======================== 单线程下载 ========================
 
+    /**
+     * 单线程顺序下载。
+     *
+     * @param targetFile   目标文件路径
+     * @param config       下载配置
+     * @param resumeOffset 断点续传起始偏移字节
+     * @throws IOException 当网络或文件系统操作失败时
+     */
     private void downloadSingle(Path targetFile, DownloadConfig config, long resumeOffset) throws IOException {
         ProgressBar bar = null;
         try {
@@ -132,7 +132,7 @@ public class DefaultDownloadService implements DownloadService {
                 ThrottledInputStream throttled = new ThrottledInputStream(in, config.getMaxSpeed());
                 ReadableByteChannel rbc = Channels.newChannel(throttled);
 
-                ByteBuffer buf = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
+                var buf = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
                 long downloaded = resumeOffset;
                 int n;
                 while ((n = rbc.read(buf)) != -1) {
@@ -146,7 +146,9 @@ public class DefaultDownloadService implements DownloadService {
                 }
             } finally {
                 conn.disconnect();
-                if (bar != null) bar.close();
+                if (bar != null) {
+                    bar.close();
+                }
             }
 
             log.info("[DownloadService] 下载完成: {} ({} bytes)", targetFile.getFileName(), Files.size(targetFile));
@@ -159,6 +161,14 @@ public class DefaultDownloadService implements DownloadService {
 
     // ======================== 并发分片下载 ========================
 
+    /**
+     * 并发分片下载，将文件等分成多个块由不同线程同时下载，最后合并。
+     *
+     * @param targetFile   目标文件路径
+     * @param config       下载配置
+     * @param resumeOffset 断点续传起始偏移（当前不支持并发+断点续传混合）
+     * @throws DownloadException 当并发下载或合并分片失败时
+     */
     private void downloadWithConcurrency(Path targetFile, DownloadConfig config, long resumeOffset) throws DownloadException {
         try {
             HttpURLConnection headConn = openConnection(config);
@@ -189,7 +199,7 @@ public class DefaultDownloadService implements DownloadService {
 
             int concurrency = config.getConcurrency();
             ExecutorService pool = ThreadUtils.newFixedThreadPool(concurrency);
-            List<Future<?>> futures = new ArrayList<>();
+            var futures = new ArrayList<Future<?>>();
 
             long chunkSize = totalSize / concurrency;
             for (int i = 0; i < concurrency; i++) {
@@ -207,7 +217,9 @@ public class DefaultDownloadService implements DownloadService {
 
             mergeParts(targetFile, concurrency);
 
-            if (totalBar != null) totalBar.close();
+            if (totalBar != null) {
+                totalBar.close();
+            }
 
             log.info("[DownloadService] 并发下载完成: {} ({} bytes, {} threads)",
                     targetFile.getFileName(), Files.size(targetFile), concurrency);
@@ -221,6 +233,16 @@ public class DefaultDownloadService implements DownloadService {
         }
     }
 
+    /**
+     * 下载单个分片。
+     *
+     * @param targetFile  目标文件路径（用于生成分片临时文件名）
+     * @param start       分片起始字节
+     * @param end         分片结束字节（含）
+     * @param partIndex   分片索引
+     * @param config      下载配置
+     * @param totalBar    全局进度条（可为 null）
+     */
     private void downloadChunk(Path targetFile, long start, long end, int partIndex,
                                 DownloadConfig config, ProgressBar totalBar) {
         String partFile = targetFile + ".part" + partIndex;
@@ -246,7 +268,9 @@ public class DefaultDownloadService implements DownloadService {
                 int n;
                 while ((n = throttled.read(buf)) != -1) {
                     fos.write(buf, 0, n);
-                    if (totalBar != null) totalBar.stepBy(n);
+                    if (totalBar != null) {
+                        totalBar.stepBy(n);
+                    }
                 }
             } finally {
                 conn.disconnect();
@@ -257,6 +281,13 @@ public class DefaultDownloadService implements DownloadService {
         }
     }
 
+    /**
+     * 合并所有分片文件为目标文件，并删除分片临时文件。
+     *
+     * @param targetFile 目标文件路径
+     * @param partCount  分片总数
+     * @throws IOException 当合并或删除失败时
+     */
     private void mergeParts(Path targetFile, int partCount) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(targetFile.toFile());
              FileChannel out = fos.getChannel()) {
@@ -274,6 +305,13 @@ public class DefaultDownloadService implements DownloadService {
 
     // ======================== 工具方法 ========================
 
+    /**
+     * 打开 HTTP 连接，根据配置决定是否使用代理。
+     *
+     * @param config 下载配置
+     * @return 已建立连接的 HttpURLConnection
+     * @throws IOException 当 URL 解析或连接建立失败时
+     */
     private HttpURLConnection openConnection(DownloadConfig config) throws IOException {
         URL u = new URL(config.getUrl());
         if (config.getProxy() != null) {
@@ -282,12 +320,24 @@ public class DefaultDownloadService implements DownloadService {
         return (HttpURLConnection) u.openConnection();
     }
 
+    /**
+     * 将配置中的自定义请求头应用到 HttpURLConnection。
+     *
+     * @param conn   目标连接
+     * @param config 下载配置
+     */
     private void applyHeaders(HttpURLConnection conn, DownloadConfig config) {
         for (java.util.Map.Entry<String, String> entry : config.getHeaders().entrySet()) {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
         }
     }
 
+    /**
+     * 检查服务端是否支持断点续传（通过 HEAD 请求探测 Accept-Ranges 头）。
+     *
+     * @param config 下载配置
+     * @return true 表示服务端支持断点续传
+     */
     private boolean checkResumeSupport(DownloadConfig config) {
         try {
             HttpURLConnection conn = openConnection(config);
@@ -304,35 +354,15 @@ public class DefaultDownloadService implements DownloadService {
         }
     }
 
-    private String computeMd5(Path file) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            try (java.io.InputStream in = Files.newInputStream(file)) {
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) != -1) { md.update(buf, 0, n); }
-            }
-            return HexFormat.of().formatHex(md.digest());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("MD5 不可用", e);
-        } catch (IOException e) {
-            log.warn("[DownloadService] 计算 MD5 失败: {}", e.getMessage());
-            return "";
-        }
-    }
-
-    private static String resolveFilename(String url, String explicitName) {
-        if (explicitName != null && !explicitName.isBlank()) {
-            return explicitName;
-        }
-        String path = url.contains("?") ? url.substring(0, url.indexOf('?')) : url;
-        int lastSlash = path.lastIndexOf('/');
-        if (lastSlash >= 0 && lastSlash < path.length() - 1) {
-            return URLDecoder.decode(path.substring(lastSlash + 1), java.nio.charset.StandardCharsets.UTF_8);
-        }
-        return "download";
-    }
-
+    /**
+     * 构建 DownloadResult，统一封装成功结果。
+     *
+     * @param file   下载完成的文件路径
+     * @param skipped 是否跳过下载（本地已有且校验通过）
+     * @param reason 跳过或完成原因
+     * @param md5    期望的 MD5 值
+     * @return 下载结果
+     */
     private static DownloadResult buildResult(Path file, boolean skipped, String reason, String md5) {
         return DownloadResult.builder()
                 .success(true)
@@ -345,12 +375,27 @@ public class DefaultDownloadService implements DownloadService {
 
     // ======================== 限速 InputStream ========================
 
-    private static class ThrottledInputStream extends java.io.InputStream {
+    /**
+     * 限速 InputStream — 通过令牌桶算法控制读取速率。
+     *
+     * <p>每读取指定字节数后，若令牌不足则阻塞等待令牌补充，从而实现限速。
+     */
+    private static class ThrottledInputStream extends InputStream {
+        /** 底层输入流 */
         private final InputStream delegate;
+        /** 每秒可消耗的毫秒级速率（bytesPerSecond / 1000） */
         private final long bytesPerMs;
+        /** 当前可用令牌数（字节） */
         private long tokens;
+        /** 上次令牌补充时间（毫秒时间戳） */
         private long lastRefill;
 
+        /**
+         * 创建限速输入流。
+         *
+         * @param delegate       底层输入流
+         * @param bytesPerSecond 限速字节/秒，0 表示不限速
+         */
         ThrottledInputStream(InputStream delegate, long bytesPerSecond) {
             this.delegate = delegate;
             this.bytesPerMs = bytesPerSecond / 1000;
@@ -370,8 +415,15 @@ public class DefaultDownloadService implements DownloadService {
             return delegate.read(b, off, len);
         }
 
+        /**
+         * 令牌桶节流：当令牌不足时阻塞等待补充。
+         *
+         * @param bytes 本次请求读取的字节数
+         */
         private void throttle(int bytes) {
-            if (bytesPerMs <= 0) return;
+            if (bytesPerMs <= 0) {
+                return;
+            }
             long now = System.currentTimeMillis();
             long elapsed = now - lastRefill;
             tokens = Math.min(tokens + elapsed * bytesPerMs, bytesPerMs * 1000);
@@ -388,6 +440,8 @@ public class DefaultDownloadService implements DownloadService {
         }
 
         @Override
-        public void close() throws IOException { delegate.close(); }
+        public void close() throws IOException {
+            delegate.close();
+        }
     }
 }
