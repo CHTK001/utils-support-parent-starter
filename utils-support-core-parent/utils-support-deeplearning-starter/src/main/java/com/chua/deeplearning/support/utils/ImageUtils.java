@@ -45,6 +45,12 @@ public final class ImageUtils {
      */
     private static volatile boolean loaded;
 
+    /** JPEG 文件结束标记（EOI）：0xFF 0xD9 */
+    private static final byte[] JPEG_EOF = {(byte) 0xFF, (byte) 0xD9};
+
+    /** PNG IEND 块签名：0x0D 0x0A 0x87 0x0A */
+    private static final byte[] PNG_EOF = {(byte) 0x0D, (byte) 0x0A, (byte) 0x87, (byte) 0x0A};
+
     /**
      * 工具类私有构造，防止实例化。
      */
@@ -518,8 +524,43 @@ public final class ImageUtils {
         if (imageData == null || imageData.length == 0) {
             return null;
         }
+        if (!hasValidEof(imageData)) {
+            return null;
+        }
         return org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData),
                 org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+    }
+
+    /**
+     * 校验图像字节末尾是否含有合法的文件结束标记，用于快速过滤截断/不完整的图片。
+     *
+     * <p>支持的格式及对应 EOF 标记：</p>
+     * <ul>
+     *   <li>JPEG：末尾 2 字节为 {@code 0xFF 0xD9}（EOI marker）</li>
+     *   <li>PNG：末尾 4 字节为 {@code 0x0D 0x0A 0x87 0x0A}（IEND 块签名）</li>
+     * </ul>
+     *
+     * @param imageData 图像字节
+     * @return true 表示末尾 EOF 标记匹配，图像数据大概率完整；false 表示截断或格式未知
+     */
+    public static boolean hasValidEof(byte[] imageData) {
+        if (imageData == null || imageData.length == 0) {
+            return false;
+        }
+        int len = imageData.length;
+        if (len >= 2
+                && (imageData[len - 2] & 0xFF) == 0xFF
+                && (imageData[len - 1] & 0xFF) == 0xD9) {
+            return true;
+        }
+        if (len >= 4
+                && (imageData[len - 4] & 0xFF) == 0x0D
+                && (imageData[len - 3] & 0xFF) == 0x0A
+                && (imageData[len - 2] & 0xFF) == 0x87
+                && (imageData[len - 1] & 0xFF) == 0x0A) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -714,7 +755,8 @@ public static byte[] encode(Mat mat) {
      * @param imageData 图像字节
      * @return true 表示深色背景
      */
-    public static boolean isDarkBackground(byte[] imageData) {        Mat src = decode(imageData);
+    public static boolean isDarkBackground(byte[] imageData) {
+        Mat src = decode(imageData);
         if (src == null) {
             return false;
         }
