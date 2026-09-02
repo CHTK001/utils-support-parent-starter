@@ -111,8 +111,8 @@ public class ApngDecoder {
                     break;
 
                 case CHUNK_fcTL:
-                    // 归档上一帧数据，并开始新帧
-                    if (current != null) {
+                    // 归档上一帧数据（避免重复添加），并开始新帧
+                    if (current != null && !current.added) {
                         frameDataList.add(current);
                     }
                     current = new FrameData();
@@ -127,6 +127,7 @@ public class ApngDecoder {
                         current.data = new ByteArrayOutputStream();
                         current.data.write(data);
                         frameDataList.add(current);
+                        current.added = true;
                     } else {
                         current.data.write(data);
                     }
@@ -141,7 +142,7 @@ public class ApngDecoder {
                     break;
 
                 case CHUNK_IEND:
-                    if (current != null && current.data != null) {
+                    if (current != null && !current.added) {
                         frameDataList.add(current);
                     }
                     decodeFrames(frameDataList);
@@ -418,19 +419,33 @@ public class ApngDecoder {
     private static final class FrameData {
         FrameControl control;
         ByteArrayOutputStream data = new ByteArrayOutputStream();
+        /** 是否已加入帧列表（防止重复添加） */
+        boolean added;
     }
 
     private static FrameControl parseFrameControl(byte[] data) {
-        // fcTL 为 30 字节：sequence(4) + 控制数据(26)，偏移 +4
         FrameControl ctrl = new FrameControl();
-        ctrl.width = readIntBE(data, 4);
-        ctrl.height = readIntBE(data, 8);
-        ctrl.xOffset = readIntBE(data, 12);
-        ctrl.yOffset = readIntBE(data, 16);
-        ctrl.delayNum = readIntBE(data, 20);
-        ctrl.delayDen = readIntBE(data, 24);
-        ctrl.disposeOp = data[28] & 0xFF;
-        ctrl.blendOp = data[29] & 0xFF;
+        if (data.length >= 30) {
+            // 标准 30 字节：seq(4) + width/height/x/y(16) + delay_num/den(8) + dispose/blend(2)
+            ctrl.width = readIntBE(data, 4);
+            ctrl.height = readIntBE(data, 8);
+            ctrl.xOffset = readIntBE(data, 12);
+            ctrl.yOffset = readIntBE(data, 16);
+            ctrl.delayNum = readIntBE(data, 20);
+            ctrl.delayDen = readIntBE(data, 24);
+            ctrl.disposeOp = data[28] & 0xFF;
+            ctrl.blendOp = data[29] & 0xFF;
+        } else if (data.length >= 26) {
+            // PIL 变体 26 字节：seq(4) + width/height/x/y(16) + delay_num/den(各 2 字节) + dispose/blend(2)
+            ctrl.width = readIntBE(data, 4);
+            ctrl.height = readIntBE(data, 8);
+            ctrl.xOffset = readIntBE(data, 12);
+            ctrl.yOffset = readIntBE(data, 16);
+            ctrl.delayNum = ((data[20] & 0xFF) << 8) | (data[21] & 0xFF);
+            ctrl.delayDen = ((data[22] & 0xFF) << 8) | (data[23] & 0xFF);
+            ctrl.disposeOp = data[24] & 0xFF;
+            ctrl.blendOp = data[25] & 0xFF;
+        }
         return ctrl;
     }
 

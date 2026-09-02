@@ -186,7 +186,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("human-seg", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/human/human.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/human/human.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/human/human.onnx"), false, null);
         // SAM2-tiny：encoder/decoder 双文件交互式分割，需点提示；暂不注册（适合人机交互场景）
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
-        reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
+        reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
         // #DISABLED# pp-word-rotate 已禁用（模型未随 jar 分发，避免注册后加载失败）
         // reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
@@ -213,7 +213,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 车牌识别(CRNN)：基于 CRNN 的车牌字符识别；适用停车场、交通监控
         reg("crnn-plate-rec", "com.chua.deeplearning.support.onnx.plate.translator.CrnnPlateRecTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/detection/license/license-plate-finetune-v1x.onnx");
         // 超分辨率(RealWebPhoto)：4x 真实照片超分辨率，增强自然图像细节；适用老旧照片修复、图像放大
-        reg("real-web-photo", "com.chua.deeplearning.support.onnx.realwebphoto.RealWebPhotoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx");
+        reg("real-web-photo", "com.chua.deeplearning.support.onnx.realwebphoto.RealWebPhotoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "vision/enhancement/4xRealWebPhoto_v4/4xRealWebPhoto_v4_fp32_opset17.onnx");
         // 手势关键点(HandPose)：检测手部 21 个关键点坐标，用于手势识别；适用手势控制、手语识别
         reg("hand-pose", "com.chua.deeplearning.support.onnx.reid.HandPoseTranslator", ai.djl.modality.cv.Image.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class, "vision/handpose/handpose_estimation_mediapipe_2023feb.onnx");
         // 行人重识别(OSNet ReID)：提取行人特征向量，用于行人检索/跨摄像头追踪；适用人员追踪、安防监控
@@ -226,15 +226,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文字超分(TextBSR)：针对文字图片的超分辨率，增强文字清晰度；适用 OCR 预处理、文檔增强
         reg("image-text-super-resolution", "com.chua.deeplearning.support.onnx.resolution.ImageTextSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "nlp/general/models/textbsr_traced_model.onnx");
         // 图像去模糊(NAFNet)：去除运动模糊/对焦模糊，恢复清晰图像；适用照片修复、监控图像增强
-        reg("naf-net", "com.chua.deeplearning.support.onnx.resolution.NafNetTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/nafnet/nafnet_deblur_gopro.onnx");
+        reg("naf-net", "com.chua.deeplearning.support.onnx.resolution.NafNetTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "vision/enhancement/nafnet/nafnet_deblur_gopro.onnx");
         // 超分辨率(Real-ESRGAN)：通用 4x 超分辨率，增强图像细节；适用图片放大、老照片修复
-        reg("real-esrgan", "com.chua.deeplearning.support.onnx.resolution.RealEsrganTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/esrgan/realesrgan_x4plus.onnx", "https://huggingface.co/onnx-community/Real-ESRGAN/resolve/main/onnx/model.onnx", false, null);
+        reg("real-esrgan", "com.chua.deeplearning.support.onnx.resolution.RealEsrganTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "vision/enhancement/esrgan/realesrgan_x4plus.onnx", "https://huggingface.co/anakhiu/realesrgan-onnx/resolve/main/realesrgan_x4plus.onnx", false, null);
         // 文字超分(TextBSR)：文字图片专用超分辨率；适用文档扫描增强
         reg("real-text-image-super-resolution", "com.chua.deeplearning.support.onnx.resolution.RealTextImageSuperResolutionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "nlp/general/models/textbsr_traced_model.onnx");
         // 文字超分(TextBSR)：文字超分辨率别名；适用文档增强
         reg("text-bsr", "com.chua.deeplearning.support.onnx.resolution.TextBsrTranslator", byte[].class, java.awt.image.BufferedImage.class, Object.class, "vision/text_restore/textbsr/textbsr.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/text_restore/textbsr/textbsr.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/text_restore/textbsr/textbsr.onnx"), false, null);
         // 动漫超分(Waifu2x)：针对动漫/二次元图片的 2x 超分辨率；适用动漫放大、老旧动漫修复
-        reg("waifu2x", "com.chua.deeplearning.support.onnx.resolution.Waifu2xTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/waifu2x/waifu2x_noise.onnx", "https://huggingface.co/onnx-community/waifu2x/resolve/main/onnx/model.onnx", false, null);
+        reg("waifu2x", "com.chua.deeplearning.support.onnx.resolution.Waifu2xTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "vision/enhancement/waifu2x/waifu2x_noise.onnx", "https://huggingface.co/onnx-community/waifu2x/resolve/main/onnx/model.onnx", false, null);
         // 文档理解(SmolDocling Combined)：端到端文档理解，输入文档图片输出结构化文本（Markdown）；适用发票、报表、合同解析
         reg("smol-docling-combined", "com.chua.deeplearning.support.onnx.smoldocling.SmolDoclingCombinedTranslator", Object.class, String.class, Object.class, "vision/enhancement/smoldocling/vision_encoder.onnx");
         // 文档理解(SmolDocling Decoder)：解码器组件，用于文本序列生成；适用 SmolDocling 流程中的解码阶段
@@ -271,7 +271,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 姿态估计(YOLOv8n-pose)：YOLOv8n 轻量级人体姿态估计，~3.6MB，检测 17 个关键点；适用边缘设备姿态分析、视频逐帧分析
         reg("yolov8n-pose", "com.chua.deeplearning.support.onnx.pose.YoloV8nPoseTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "vision/pose/yolov8n/onnx/model_quantized.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/pose/yolov8n/onnx/model_quantized.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/pose/yolov8n/onnx/model_quantized.onnx"), false, null);
         // 图像修复(SwinIR)：去噪/超分辨率，Swin Transformer 架构；适用图像去噪、修复
-        reg("swinir", "com.chua.deeplearning.support.onnx.resolution.SwinIrTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/swinir/swinir_denoising_color_25.onnx", "https://huggingface.co/Heliosoph/swinir-onnx/resolve/main/swinir_denoising_color_25.onnx", false, null);
+        reg("swinir", "com.chua.deeplearning.support.onnx.resolution.SwinIrTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "vision/enhancement/swinir/swinir_denoising_color_25.onnx", "https://huggingface.co/Heliosoph/swinir-onnx/resolve/main/swinir_denoising_color_25.onnx", false, null);
         // 人脸修复(CodeFormer)：人脸修复/增强，基于 CodeFormer 架构，修复模糊人脸；适用老照片修复、人脸增强
         reg("codeformer", "com.chua.deeplearning.support.onnx.face.CodeFormerTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "face/restoration/codeformer/codeformer.onnx", "https://huggingface.co/bluefoxcreation/Codeformer-ONNX/resolve/main/codeformer.onnx", false, null);
         // SAM 图像编码器(SAM ViT-H)：SAM 的图像编码器，提取图像特征（256维），需配合 SAM 解码器使用；适用 SAM 分割流水线

@@ -104,14 +104,12 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
-        if (shape.length == 4) {
-            outputImg = outputImg.squeeze(0);
-            shape = outputImg.getShape().getShape();
-        }
 
-        int c = (int) shape[0];
-        int h = (int) shape[1];
-        int w = (int) shape[2];
+        // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX NDArray 会递归崩溃）
+        int off = shape.length == 4 ? 1 : 0;
+        int c = (int) shape[off];
+        int h = (int) shape[off + 1];
+        int w = (int) shape[off + 2];
         float[] data = outputImg.toFloatArray();
 
         // CHW [0, 1] -> HWC [0, 255] uint8，手动构建 BufferedImage
