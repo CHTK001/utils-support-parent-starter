@@ -1,0 +1,262 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-deeplearning-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+<artifactId>utils-support-deeplearning-onnx-starter</artifactId>
+  <name>Utils Support Deep Learning ONNX Starter</name>
+  <description>ONNX 鎺ㄧ悊寮曟搸妯″潡锛歒OLO 妫€娴嬨€佸浘鍍忓垎绫荤瓑妯″瀷鎺ㄧ悊</description>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <fork>false</fork>
+          <testExcludes>
+            <testExclude>**/VitH14OnnxTranslatorTest.java</testExclude>
+            <testExclude>**/AudioFullTest.java</testExclude>
+            <testExclude>**/AudioRecognitionExample.java</testExclude>
+            <testExclude>**/YoloWorldInferenceTest.java</testExclude>
+          </testExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <runOrder>alphabetical</runOrder>
+          <argLine>--add-modules jdk.incubator.vector --add-opens java.base/jdk.internal.misc=ALL-UNNAMED</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>audio/**</exclude>
+                <exclude>nlp/**</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- ONNX Runtime 鎵ц寮曟搸鍒囨崲锛坈pu/gpu 浜掓枼锛岄厤鍚?-P!cpu,gpu 鎴?-P!gpu,cpu锛夛細
+         - 榛樿 cpu锛歰nnxruntime 1.21.1锛圕PU 鐗堬級
+         - gpu锛歰nnxruntime_gpu 1.27.0锛堝唴缃?CPU+CUDA+TensorRT EP锛涘惎鐢?CUDA 闇€鏈満 CUDA 12
+           杩愯鏃?cudart/cublas/cudnn9锛岃 utils-support-models-parent/libs/cuda锛?
+           杩愯鏈熺敱 DetectionConfiguration.useGpu(true) 瑙﹀彂 addCUDA()锛夈€?-->
+    <profile>
+      <id>cpu</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.microsoft.onnxruntime</groupId>
+       <artifactId>onnxruntime</artifactId>
+       <version>1.29.0</version>
+        </dependency>
+    </dependencies>
+    </profile>
+    <profile>
+      <id>gpu</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.microsoft.onnxruntime</groupId>
+          <artifactId>onnxruntime_gpu</artifactId>
+          <version>1.29.0</version>
+        </dependency>
+    </dependencies>
+    </profile>
+  </profiles>
+  <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.djl</groupId>
+            <artifactId>api</artifactId>
+            <version>0.36.0</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.djl.onnxruntime</groupId>
+            <artifactId>onnxruntime-engine</artifactId>
+            <version>0.36.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.microsoft.onnxruntime</groupId>
+                    <artifactId>onnxruntime</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>ai.djl.huggingface</groupId>
+            <artifactId>tokenizers</artifactId>
+            <version>0.36.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
+        </dependency>
+        <!-- OpenCV 鍥惧儚棰勫鐞嗭紙resize/cvtColor/normalize 绛夛紝鏇夸唬 DJL NDArray锛?-->
+        <dependency>
+            <groupId>org.openpnp</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${opencv.version}</version>
+        </dependency>
+        <!-- PP-DocLayoutV3 鏂囨。鐗堥潰鍒嗘瀽妯″瀷锛圖ETR锛?5 绫伙紝800 杈撳叆锛?-->
+        
+        <!-- Chinese-CLIP 中文图文特征模型（RN50/ViT-B/16/ViT-L/14，img+txt 独立模块） -->
+        
+        
+        
+        
+        
+        
+        
+
+        <!-- 鐑熺伀妫€娴?/ 涓汉闃叉姢瑁呭锛堝畨鍏ㄥ附锛夋娴嬫ā鍨嬶紙YOLOv8n锛?-->
+        
+        <!-- C3D 瑙嗛鍔ㄤ綔妫€娴嬫ā鍨嬶紙ResNetC3D锛? 绫诲姩浣滐紝~95MB锛?-->
+        
+        <!-- DFSMN 璇煶闄嶅櫔妯″瀷锛堝崟楹?48k锛孭SM锛孧odelScope speech_dfsmn_ans锛?-->
+        
+        <!-- 鍗扮珷妫€娴嬫ā鍨嬶紙SDT Seal inspection锛孻OLO 640锛? 绫伙紝鏉ヨ嚜 ModelScope锛?-->
+        
+        
+        <!-- 鍙嶅厜琛ｆ娴嬫ā鍨嬶紙YOLOv8n锛? 绫伙細safe/unsafe锛?-->
+        
+        <!-- 浜鸿劯妫€娴嬫ā鍨嬶紙SCRFD / UltraFace / YOLOv11n-Face锛?-->
+        
+        
+        
+        <!-- 闊抽妯″瀷锛歸espeaker 璇磋瘽浜哄祵鍏ワ紙512缁达紝25MB锛?-->
+        
+        <!-- 闊抽妯″瀷锛欳AM++ 澹扮汗宓屽叆锛?92缁达紝27MB锛?-->
+        
+        <!-- 闊抽妯″瀷锛歸av2vec2-base 闊抽鎸囩汗锛?84缁达紝360MB锛?-->
+        
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 鍥惧儚婊ら暅鎺ュ彛锛坧rovided锛氳繍琛屾椂鐢?image-starter 鎻愪緵锛?-->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-image-starter</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 娴嬭瘯鐢?SLF4J 瀹炵幇 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.16</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.26.3</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- 测试用例数据：由测试期在 test classpath 解析使用 -->
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <!-- 浠ヤ笅涓変釜 test 渚濊禆鐨?model jar 鏈瀯寤哄埌鏈湴浠撳簱锛屼复鏃剁Щ闄や互鎭㈠缂栬瘧
+        
+        
+        -->
+        
+        
+        
+        
+        
+        <!-- bge-large-zh model jar 鏈瀯寤哄埌鏈湴浠撳簱锛屼复鏃剁Щ闄や互鎭㈠缂栬瘧
+        
+        -->
+        
+        
+        
+        <!-- 娉細utils-support-models-onnx-randeng-t5-77m 鏋勪欢浠庢湭閮ㄧ讲鍒颁换浣曞彲杈句粨搴撲笖鍏ㄤ粨闆朵唬鐮佸紩鐢紝宸茬Щ闄よ姝讳緷璧?-->
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <!-- 鍙ｇ僵妫€娴嬫ā鍨嬶紙YOLOv8锛? 绫伙細cloth/surgical锛屽彲鐢绘锛?-->
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <!-- 宓屽叆寮忎腑鏂囧璇濇ā鍨嬶紙Gemma-3-270M锛寀int8 ONNX锛寏519MB锛夛紝渚?Gemma3GpuTest 浣跨敤 -->
+
+        <!-- 音频模型（wespeaker/campplus/wav2vec2/sensevoice）：从 utils-support-models-parent 独立仓库构建，本地 maven repo install 后自动可用；downloadUrl 作为网络备用（HF: chtk/chua-dl-models） -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wespeaker</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-campplus</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wav2vec2-base</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId><version>4.0.0.42</version><scope>test</scope></dependency>
+      </dependencies>
+</project>
