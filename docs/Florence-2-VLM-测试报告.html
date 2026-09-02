@@ -538,5 +538,77 @@ OnnxTensor.createTensor(ortEnv,
 
 </div>
 <script>mermaid.initialize({startOnLoad:true,theme:'dark'});</script>
-</body>
+<hr/><h2>七、使用场景</h2><h3>场景一：智能客服图片理解</h3><p>用户上传截图或照片，系统自动理解图片内容并回复。</p><pre><code>VlmClient client = VlmClient.create("florence2");
+
+// 用户上传商品图片，自动描述
+byte[] productImage = fetchFromUpload(request);
+String description = client.understand(productImage, UnderstandTask.DETAILED_CAPTION).getText();
+// 输出："A black leather wallet with silver buckle on wooden table"
+
+// 用户上传故障截图，自动分类
+byte[] screenshot = request.getScreenshot();
+String ocrText = client.understand(screenshot, UnderstandTask.OCR).getText();
+// 输出报错信息原文，便于工单系统处理</code></pre><h3>场景二：批量文档 OCR 提取</h3><p>对扫描文档、发票、合同图片批量提取文字内容。</p><pre><code>List&lt;byte[]&gt; docImages = loadFromDirectory("/data/scans/");
+for (byte[] img : docImages) {
+    String text = VlmClient.create("florence2")
+        .understand(img, UnderstandTask.OCR_WITH_REGION)
+        .getText();
+    // 返回格式：[[x1,y1,x2,y2], "文字内容"] 按行组织
+    saveToDatabase(text);
+}</code></pre><h3>场景三：内容审核与敏感检测</h3><p>对上传图片自动进行 NSFW 检测、物体识别、描述生成。</p><pre><code>byte[] image = upload.getImageBytes();
+
+// 先做详细描述
+String caption = VlmClient.create("florence2")
+    .understand(image, UnderstandTask.MORE_DETAILED_CAPTION).getText();
+
+// 再做物体检测，检查是否有违禁物品
+String odResult = VlmClient.create("florence2")
+    .understand(image, UnderstandTask.OPEN_VOCABULARY_DETECTION).getText();
+// 输出：[(x,y,x,y,"weapon"), (x,y,x,y,"person")]</code></pre><h3>场景四：工业质检图像描述</h3><p>生产线产品图片自动描述，替代人工记录。</p><pre><code>byte[] productPhoto = camera.capture();
+String desc = VlmClient.create("florence2")
+    .understand(productPhoto, UnderstandTask.CAPTION).getText();
+// 输出："A circuit board with 3 chips and 2 connectors, no visible damage"
+log.info("Product desc: " + desc);</code></pre><hr/><h2>八、关键实现细节</h2><h3>8.1 三模型管线数据流</h3><pre><code>byte[] image
+  -> preprocessImage(): Resize(768,768) -> BGR to RGB -> Normalize(mean/std)
+  -> float[3 x 768 x 768]
+  -> vision_encoder.onnx (ViT-B/16)
+  -> float[577 x 768] image_features
+  -> embed_tokens.onnx (task prompt -> token IDs)
+  -> float[seq x 768] inputs_embeds
+  -> decoder_model_merged.onnx (first step: use_cache_branch=false)
+  -> logits [1, 1, 51289] -> argmax -> nextToken
+  -> (KV-cache) decoder_model_merged.onnx (subsequent: use_cache_branch=true) x N steps
+  -> tokenizer.decode(generatedTokens) -> String</code></pre><h3>8.2 use_cache_branch 类型修复（ONNX Runtime Java 1.29.0）</h3><div class="warn"><div class="note-title">问题</div>ONNX Runtime Java 1.29.0 不支持 boolean[] 原生 tensor 构造，<code>OnnxTensor.createTensor(env, boolean[], long[])</code> 不存在。</div></div><div class="tip"><div class="note-title">解决</div><pre><code>// 首次解码（use_cache_branch=false）
+OnnxTensor.createTensor(ortEnv,
+    ByteBuffer.wrap(new byte[]{0}), new long[]{1},
+    ai.onnxruntime.OnnxJavaType.BOOL)
+
+// 后续解码（use_cache_branch=true）
+OnnxTensor.createTensor(ortEnv,
+    ByteBuffer.wrap(new byte[]{1}), new long[]{1},
+    ai.onnxruntime.OnnxJavaType.BOOL)</code></pre></div></div><h3>8.3 encoder_attention_mask 类型修复</h3><div class="warn"><div class="note-title">问题</div>Florence-2 decoder 要求 encoder_attention_mask 为 int64 类型，但 ByteBuffer 默认映射为 int8，导致 ORT_INVALID_ARGUMENT 错误。</div></div><div class="tip"><div class="note-title">解决</div><pre><code>long[] encMask = new long[seqLen];
+java.util.Arrays.fill(encMask, 1L);
+OnnxTensor.createTensor(ortEnv,
+    LongBuffer.wrap(encMask), new long[]{1, seqLen});</code></pre></div></div><hr/><h2>九、依赖关系</h2><pre><code>&lt;!-- utils-support-deeplearning-onnx-starter/pom.xml --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.microsoft.onnxruntime&lt;/groupId&gt;
+    &lt;artifactId&gt;onnxruntime&lt;/artifactId&gt;
+    &lt;version&gt;1.29.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;ai.djl.huggingface&lt;/groupId&gt;
+    &lt;artifactId&gt;tokenizers&lt;/artifactId&gt;
+    &lt;version&gt;0.36.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.openpnp&lt;/groupId&gt;
+    &lt;artifactId&gt;opencv&lt;/artifactId&gt;
+    &lt;version&gt;4.9.0-0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- 传递依赖（自动引入） --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.chua&lt;/groupId&gt;
+    &lt;artifactId&gt;utils-support-deeplearning-starter&lt;/artifactId&gt;
+    &lt;version&gt;4.0.0.42&lt;/version&gt;
+&lt;/dependency&gt;</code></pre><hr/><h2>十、注意事项</h2><div class="warn"><div class="note-title">注意：GPU 加速未启用</div>ONNX Runtime 1.29.0 移除了 OrtCUDAProviderOptions，<code>GpuHelper.apply()</code> 中 CUDA 调用已注释。当前仅支持 CPU 推理。如需 GPU，需升级 ONNX Runtime 至支持 CUDA 的版本。</div><div class="warn"><div class="note-title">注意：内存占用</div>三个 ONNX 模型总大小约 <strong>870MB</strong>（349+150+370），加载后 ONNX Runtime 会额外分配推理缓冲区。建议 JVM 堆内存 >= 4GB，Linux 服务器物理内存 >= 8GB。</div><div class="warn"><div class="note-title">注意：首次启动慢</div>首次调用 <code>translate()</code> 时触发三模型下载（~870MB）+ ONNX Session 初始化（~15s）。后续调用复用缓存，首推理耗时降至 ~10s。</div><div class="warn"><div class="note-title">注意：Tokenize 降级兜底</div>若 HF tokenizers 加载失败（网络问题），回退到字符级编码（每个 char -> 一个 token），精度下降。日志输出 <code>[Florence-2] tokenizer failed: ...</code>。</div><div class="warn"><div class="note-title">注意：模型文件未下载时</div><code>prepare()</code> 会抛 <code>IllegalStateException</code>：<code>Florence-2 model files missing: vision=... decoder=...</code>。请检查网络连通性或手动将模型文件放入缓存目录。</div><div class="warn"><div class="note-title">注意：长文本截断</div><code>MAX_NEW_TOKENS=100</code>，超过 100 token 的输出会被截断。对于复杂场景（如 OCR_WITH_REGION），输出可能不完整，可考虑增加此值（需同步调整显存预算）。</div><div class="warn"><div class="note-title">注意：线程安全</div><code>Florence2Translator</code> 实例 <strong>非线程安全</strong>。多线程场景请为每个线程创建独立实例，或使用 <code>OnnxVlmClient</code> + 外部线程池隔离。</div><div class="warn"><div class="note-title">注意：Close 后不可复用</div><code>Florence2Translator.close()</code> 后 Session 被关闭，再次调用会重新加载模型。频繁创建/销毁开销大，建议单例复用。</div><hr/><h2>十一、更新记录</h2><table><thead><tr><th>日期</th><th>提交</th><th>变更</th></tr></thead><tbody><tr><td>2026-09-01</td><td><code>9b1c7a1d9</code></td><td>Florence-2 ONNX 端到端集成：VlmClient 接口 + OnnxVlmClient 门面 + UnderstandTask 枚举 + 2/2 测试通过</td></tr><tr><td>2026-09-01</td><td><code>b28975748</code></td><td>AudioClient -> VirtualClient 门面重命名完成（与 VlmClient 并行设计）</td></tr><tr><td>2026-09-01</td><td><code>575bdc2a5</code></td><td>初版：VirtualClient 接口 + OnnxVirtualClient 门面 + UnderstandTask 枚举</td></tr></tbody></table></body>
 </html>
