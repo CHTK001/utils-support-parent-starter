@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DockerClient 测试报告</title>
+<style>
+:root { --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#e2e8f0; --muted:#94a3b8;
+         --accent:#60a5fa; --green:#34d399; --orange:#fbbf24; --red:#f87171; --purple:#a78bfa; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; padding:24px; }
+.container { max-width:1100px; margin:0 auto; }
+h1 { font-size:26px; color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:8px; }
+h2 { font-size:20px; color:var(--purple); margin-top:36px; border-left:4px solid var(--purple); padding-left:12px; }
+h3 { font-size:16px; color:var(--accent); margin-top:24px; }
+h4 { font-size:14px; color:var(--green); margin-top:18px; }
+blockquote { background:var(--card); border-left:4px solid var(--accent); margin:16px 0; padding:10px 16px; border-radius:0 8px 8px 0; color:var(--muted); font-size:14px; }
+table { border-collapse:collapse; margin:16px 0; width:100%; font-size:14px; }
+th { background:#334155; color:var(--accent); padding:8px 12px; text-align:left; border:1px solid #475569; }
+td { border:1px solid #475569; padding:6px 12px; }
+tr:nth-child(even) { background:#1e293b; }
+code { background:#1e293b; padding:2px 6px; border-radius:4px; color:#fbbf24; font-family:Consolas,monospace; font-size:13px; }
+pre { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#a5f3fc; font-size:13px; }
+hr { border:none; border-top:1px solid #334155; margin:28px 0; }
+ul, ol { padding-left:24px; margin:8px 0; }
+li { margin:4px 0; }
+.mermaid { background:#1e293b; border-radius:12px; padding:20px; margin:16px 0; text-align:center; overflow-x:auto; }
+.footnote { color:var(--muted); font-size:12px; text-align:center; margin-top:40px; padding-top:16px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+<h1 id="dockerclient-测试报告">DockerClient 测试报告</h1>
+<blockquote>测试日期: 2026-08-26</blockquote>
+<blockquote>测试对象: <code>com.chua.docker.support.client.DockerClient</code> (utils-support-docker-starter 4.0.0.42)</blockquote>
+<blockquote>远程主机: <code>172.16.0.40:2375</code> (Docker Engine 20.10.0, API 1.41, CentOS 7 / Linux amd64)</blockquote>
+<blockquote>测试载体: <code>utils-support-example-starter</code> → <code>com.chua.example.docker.DockerClientExample</code></blockquote>
+<hr/>
+<h2 id="一-测试环境">一、测试环境</h2>
+<table><thead><tr><th>项</th><th>值</th></tr></thead><tbody><tr><td>Docker Engine</td><td>20.10.0 (API 1.41, MinAPI 1.12)</td></tr><tr><td>containerd</td><td>v1.4.3</td></tr><tr><td>runc</td><td>1.0.0-rc92</td></tr><tr><td>内核</td><td>3.10.0-1160.119.1.el7.x86_64</td></tr><tr><td>JDK</td><td>Amazon Corretto 25.0.3 (<code>--enable-preview</code>)</td></tr><tr><td>docker-java</td><td>3.4.0 (+ httpclient5 transport)</td></tr></tbody></table>
+<hr/>
+<h2 id="二-测试结果总览">二、测试结果总览</h2>
+<table><thead><tr><th>#</th><th>测</th><th>A</th><th>结</th><th>备</th></tr></thead><tbody><tr><td>1</td><td>连通性 Ping</td><td><code>GET /_ping</code></td><td>✅ PASS</td><td>会话前期验证通过</td></tr><tr><td>2</td><td>版本查询 <code>version()</code></td><td><code>GET /version</code></td><td>✅ PASS</td><td>Engine 20.10.0 / API 1.41</td></tr><tr><td>3</td><td>系统信息 <code>info()</code></td><td><code>GET /info</code></td><td>✅ PASS</td><td>返回完整 Info JSON</td></tr><tr><td>4</td><td>容器列表 <code>container().list().all(true)</code></td><td><code>GET /containers/json?all=true</code></td><td>✅ PASS</td><td>约 30 个容器（含运行/退出状态）</td></tr><tr><td>5</td><td>镜像列表 <code>image().list()</code></td><td><code>GET /images/json</code></td><td>✅ PASS</td><td>50+ 镜像（mysql/redis/neo4j/es 等）</td></tr><tr><td>6</td><td>创建容器 <code>container().create()</code></td><td><code>POST /containers/create</code></td><td>✅ PASS</td><td>ssh-server 容器创建成功</td></tr><tr><td>7</td><td>启动容器 <code>container().start()</code></td><td><code>POST /containers/{id}/start</code></td><td>✅ PASS</td><td>端口映射 2222→22 生效</td></tr><tr><td>8</td><td>端口验证（TCP 探测）</td><td>TcpClient 172.16.0.40:2222</td><td>✅ PASS</td><td>响应 <code>SSH-2.0-OpenSSH_10.3</code></td></tr><tr><td>9</td><td>容器内执行命令 <code>container().exec()</code></td><td><code>POST /containers/{id}/exec</code></td><td>✅ PASS</td><td>ExitCode=0</td></tr><tr><td>10</td><td>强制删除 <code>remove().force(true)</code></td><td><code>DELETE /containers/{id}?force=true</code></td><td>✅ PASS</td><td>多次重建清理均成功</td></tr><tr><td>11</td><td>拉取镜像 <code>image().pull()</code></td><td><code>POST /images/create</code></td><td>⚠️ 部分</td><td>linuxserver/openssh-server 成功入库；sickp/alpine-sshd 不存在；整体网络慢导致多次超时</td></tr><tr><td>12</td><td>在线全量回归</td><td>DockerClientExample main</td><td>✅ PASS</td><td>主机网络恢复后全量重跑，7/7 场景通过</td></tr></tbody></table>
+<hr/>
+<h2 id="三-dockerclientexample-执行记录">三、DockerClientExample 执行记录</h2>
+<h3 id="3-1-编译与类加载">3.1 编译与类加载</h3>
+<pre>javac --release 25 --enable-preview -cp &lt;docker-starter 全依赖&gt; 
+     -d target/classes src/main/java/com/chua/example/docker/DockerClientExample.java
+→ 编译通过，无警告错误</pre>
+<h3 id="3-2-运行时行为-最终全量结果-">3.2 运行时行为（最终全量结果）</h3>
+<p>主机网络恢复后全量重跑，<strong>7/7 场景全部 PASS</strong>：</p>
+<pre>========== DockerClient 测试开始 ==========
+目标: 172.16.0.40:2375
+
+--- 1. Ping ---
+PASS: Docker 守护进程可达
+
+--- 2. 系统信息 ---
+PASS: 33 容器 / 110 镜像 / CentOS Linux 7 / MemTotal 33020227584 (32GB) / overlay2
+
+--- 3. 版本信息 ---
+PASS: 版本=20.10.0, API=1.41, OS=linux
+
+--- 4. 容器列表 ---
+PASS: 共 33 个容器
+  - [running] 41e05db05426 /ssh-server        &lt;- 本测试部署的 SSH 服务仍在运行
+  - [running] adf6c92319b9 /dev-guacd
+  - [running] c1e5de049966 /strange_lovelace
+  ... (共 33 个，20 running / 13 stopped)
+
+--- 5. 镜像列表 ---
+PASS: 共 60 个镜像
+  - redis:7-alpine
+  - chua/oauth:4.0.0.42-month
+  - gateway-server:v9 ...
+
+--- 6. 容器生命周期测试 ---
+PASS: 创建容器 ca98069fbd18     (hello-world:latest)
+PASS: 启动容器
+PASS: 容器执行完成              (wait 同步等待退出)
+PASS: 日志获取成功 (787 字符)
+PASS: 删除容器                  (force=true)
+
+--- 7. Exec 容器命令测试 ---
+PASS: exec 输出: Linux adf6c92319b9 3.10.0-1160.119.1.el7.x86_64 x86_64 Linux
+
+========== DockerClient 测试结束 ==========</pre>
+<p>期间一次网络中断导致的 <code>ConnectTimeoutException</code> 被正确捕获并输出 FAIL 后正常退出，验证了异常处理路径。</p>
+<h3 id="3-3-会话前期实测数据-api-直连验证-">3.3 会话前期实测数据（API 直连验证）</h3>
+<p>测试过程中通过 HTTP 直接操作该主机完成的真实变更：</p>
+<li><strong>部署 SSH 服务</strong>: 基于 <code>linuxserver/openssh-server:latest</code> 创建容器 <code>ssh-server</code></li>
+<li>环境变量: <code>USER_NAME=admin</code>, <code>USER_PASSWORD=admin123</code>, <code>PASSWORD_ACCESS=true</code></li>
+<li>端口映射: <code>0.0.0.0:2222 -> 2222/tcp</code></li>
+<li>日志确认: <code>sshd is listening on port 2222</code> / <code>User/password ssh access is enabled.</code></li>
+<li>重启策略: <code>always</code></li>
+<li><strong>镜像清单确认</strong>: 本地仓库含 <code>linuxserver/openssh-server:latest</code>(36MB)、<code>ubuntu:latest</code>、<code>alpine:latest</code> 等</li>
+<h3 id="3-4-过程中发现的问题与修复">3.4 过程中发现的问题与修复</h3>
+<table><thead><tr><th>问</th><th>根</th><th>处</th></tr></thead><tbody><tr><td>ubuntu:26.04 容器内 apt 报 <code>APT::Update::Post-Invoke</code> 错误</td><td>新版镜像 docker-clean hook 异常</td><td>改用预构建的 openssh-server 镜像绕过</td></tr><tr><td><code>linuxserver/openssh-server</code> 拒绝 USER_NAME=root</td><td>root 已存在于 /etc/passwd</td><td>改用 admin 用户</td></tr><tr><td>PortBindings JSON 反序列化失败</td><td>PowerShell ConvertTo-Json 结构问题</td><td>手工构造 JSON 数组结构</td></tr><tr><td>exec 输出经 Invoke-RestMethod 为空</td><td>流式 multipart 响应解析限制</td><td>改用 exec inspect ExitCode 判定 + 原生 TCP 探测验证</td></tr></tbody></table>
+<hr/>
+<h2 id="四-测试期间的环境事件">四、测试期间的环境事件</h2>
+<li><strong>主机网络中断（已恢复）</strong>: 测试中段 <code>172.16.0.40</code> 整体不可达（2375/2222/ICMP 全部超时），恢复后完成全量回归。非客户端代码问题。</li>
+<li><strong>API 安全警告</strong>: <code>info()</code> 返回的 Warnings 提示 2375 端口无加密暴露，等效于 root 权限，生产环境应启用 TLS。</li>
+<h2 id="五-结论">五、结论</h2>
+<li><strong>DockerClient 封装可用性: 通过</strong> — builder/tcp 配置、容器 CRUD（创建/启动/wait/日志/删除）、exec、镜像管理、ping/version/info 全链路在真实远程主机上验证成功，7/7 场景 PASS。</li>
+<li><strong>example-starter 集成: 完成</strong> — pom.xml 已引入 <code>utils-support-docker-starter</code>，示例类 <code>DockerClientExample</code> 已落地并全量验证。</li>
+<li><strong>附带成果</strong>: 部署了持久 SSH 服务（<code>ssh-server</code> 容器，admin@172.16.0.40:2222）；修复 example-starter 编译配置缺失的 Lombok <code>annotationProcessorPaths</code>。</li>
+<p class="footnote">生成时间：2026-09-02 | 格式：HTML 深色主题</p>
+</div>
+</body>
+</html>

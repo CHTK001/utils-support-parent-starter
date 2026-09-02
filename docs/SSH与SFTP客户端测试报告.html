@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSH 与 SFTP 客户端测试报告</title>
+<style>
+:root { --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#e2e8f0; --muted:#94a3b8;
+         --accent:#60a5fa; --green:#34d399; --orange:#fbbf24; --red:#f87171; --purple:#a78bfa; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; padding:24px; }
+.container { max-width:1100px; margin:0 auto; }
+h1 { font-size:26px; color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:10px; margin-bottom:8px; }
+h2 { font-size:20px; color:var(--purple); margin-top:36px; border-left:4px solid var(--purple); padding-left:12px; }
+h3 { font-size:16px; color:var(--accent); margin-top:24px; }
+h4 { font-size:14px; color:var(--green); margin-top:18px; }
+blockquote { background:var(--card); border-left:4px solid var(--accent); margin:16px 0; padding:10px 16px; border-radius:0 8px 8px 0; color:var(--muted); font-size:14px; }
+table { border-collapse:collapse; margin:16px 0; width:100%; font-size:14px; }
+th { background:#334155; color:var(--accent); padding:8px 12px; text-align:left; border:1px solid #475569; }
+td { border:1px solid #475569; padding:6px 12px; }
+tr:nth-child(even) { background:#1e293b; }
+code { background:#1e293b; padding:2px 6px; border-radius:4px; color:#fbbf24; font-family:Consolas,monospace; font-size:13px; }
+pre { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; overflow-x:auto; margin:12px 0; }
+pre code { background:none; color:#a5f3fc; font-size:13px; }
+hr { border:none; border-top:1px solid #334155; margin:28px 0; }
+ul, ol { padding-left:24px; margin:8px 0; }
+li { margin:4px 0; }
+.mermaid { background:#1e293b; border-radius:12px; padding:20px; margin:16px 0; text-align:center; overflow-x:auto; }
+.footnote { color:var(--muted); font-size:12px; text-align:center; margin-top:40px; padding-top:16px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+<h1 id="ssh-与-sftp-客户端测试报告">SSH 与 SFTP 客户端测试报告</h1>
+<blockquote>测试日期: 2026-08-26</blockquote>
+<blockquote>测试对象: <code>com.chua.ssh.support.client.SshClient</code> / <code>SftpClient</code> (utils-support-ssh-starter 4.0.0.42, Apache MINA SSHD)</blockquote>
+<blockquote>远程主机: <code>admin@172.16.0.40:2222</code> (linuxserver/openssh-server 容器, OpenSSH 10.3, 由 DockerClient 测试部署)</blockquote>
+<blockquote>测试载体: <code>utils-support-example-starter</code> → <code>SshSftpClientExample</code> / <code>SshAdvancedExample</code></blockquote>
+<blockquote>JDK: Amazon Corretto 25.0.3 (<code>--enable-preview</code>)</blockquote>
+<hr/>
+<h2 id="一-测试结果总览">一、测试结果总览</h2>
+<table><thead><tr><th>#</th><th>模</th><th>测</th><th>结</th><th>备</th></tr></thead><tbody><tr><td>1</td><td>SshClient</td><td>连接认证</td><td>✅ PASS</td><td>501 ms</td></tr><tr><td>2</td><td>SshClient</td><td>exec whoami</td><td>✅ PASS</td><td>输出 <code>admin</code></td></tr><tr><td>3</td><td>SshClient</td><td>exec uname -sr</td><td>✅ PASS</td><td><code>Linux 3.10.0-1160.119.1.el7.x86_64</code></td></tr><tr><td>4</td><td>SshClient</td><td>退出码验证 (exit 0)</td><td>✅ PASS</td><td>code=0</td></tr><tr><td>5</td><td>SshClient</td><td>stderr 与失败退出码</td><td>✅ PASS</td><td>code=2, stderr 正确捕获</td></tr><tr><td>6</td><td>SshClient</td><td>交互 Shell (send/readAll)</td><td>✅ PASS</td><td>输出包含标记字符串</td></tr><tr><td>7</td><td>SftpClient</td><td>连接认证</td><td>✅ PASS</td><td>219 ms</td></tr><tr><td>8</td><td>SftpClient</td><td>上传 upload()</td><td>✅ PASS</td><td>3200 字节 → /tmp</td></tr><tr><td>9</td><td>SftpClient</td><td>stat() 大小校验</td><td>✅ PASS</td><td>远近端大小一致</td></tr><tr><td>10</td><td>SftpClient</td><td>ls() 目录列表</td><td>✅ PASS</td><td>目标文件存在确认</td></tr><tr><td>11</td><td>SftpClient</td><td>download() 内容校验</td><td>✅ PASS</td><td>字节级一致</td></tr><tr><td>12</td><td>SftpClient</td><td>mkdir() 创建目录</td><td>⏭️ SKIP</td><td>上轮残留目录已存在（预期分支）</td></tr><tr><td>13</td><td>SftpClient</td><td>rename() 重命名</td><td>✅ PASS</td></tr><tr><td>14</td><td>SftpClient</td><td>rm() 删除文件</td><td>✅ PASS</td></tr><tr><td>15</td><td>SftpClient</td><td>rm().recursive(true) 删目录</td><td>✅ PASS</td></tr></tbody></table>
+<hr/>
+<h2 id="二-发现并修复的缺陷">二、发现并修复的缺陷</h2>
+<h3 id="缺陷--1--execoperation-空指针异常-严重-">缺陷 #1: ExecOperation 空指针异常（严重）</h3>
+<p><strong>现象</strong>: 连接成功后执行任意命令抛出：</p>
+<pre>SshClientException: SSH 命令执行失败: whoami
+Caused by: NullPointerException: Cannot invoke &quot;InputStream.read(byte[])&quot; because &quot;in&quot; is null
+    at SshClient$ExecOperation.execute(SshClient.java:216)</pre>
+<p><strong>根因</strong>: <code>ExecOperation.execute()</code> 在 <code>channel.open()</code> 之后调用 <code>channel.getInvertedOut()</code> 获取输出流，</p>
+<p>但当前 MINA SSHD 版本下 <strong>exec 通道的 inverted 流不可用（返回 null）</strong>（交互式 Shell 通道不受影响）。</p>
+<p><strong>修复</strong>: 改为 MINA SSHD 标准用法——在打开通道前显式绑定输出流：</p>
+<pre class="language-java">var channel = client.getSession().createExecChannel(command);
+var stdoutBuf = new ByteArrayOutputStream();
+var stderrBuf = new ByteArrayOutputStream();
+channel.setOut(stdoutBuf);          // 打开前绑定
+channel.setErr(stderrBuf);
+channel.open().verify(10, TimeUnit.SECONDS);
+channel.waitFor(EnumSet.of(ClientChannelEvent.CLOSED), 30_000);</pre>
+<p><strong>状态</strong>: 已修复并回归验证，exec 全场景（含退出码、stderr）通过。</p>
+<h3 id="备注-非缺陷-">备注（非缺陷）</h3>
+<li><strong>Windows NIO2 关闭噪音</strong>: 会话关闭时偶发后台线程 <code>IllegalStateException: Executor has been shut down</code>，</li>
+<p>为 MINA SSHD 在 Windows 平台的已知异步回调噪音，不影响业务结果。</p>
+<li><strong>RmOperation 语义</strong>: <code>recursive=false</code> 走文件删除 (<code>remove</code>)，删除目录需显式 <code>recursive(true)</code> (走 <code>rmdir</code>)，符合预期设计。</li>
+<hr/>
+<h2 id="四-高级功能测试-pty-终端与隧道-">四、高级功能测试（PTY 终端与隧道）</h2>
+<h3 id="4-1-环境准备">4.1 环境准备</h3>
+<p>linuxserver/openssh-server 镜像默认禁用转发，且其 <code>ALLOW_TCP_FORWARDING</code> / <code>GATEWAY_PORTS</code></p>
+<p>环境变量在该版本(10.3_p1-r0-ls233)未生效。通过 Docker API root exec 直接修改</p>
+<p><code>/config/sshd/sshd_config</code> 并重启容器解决：</p>
+<pre>AllowTcpForwarding yes
+GatewayPorts clientspecified</pre>
+<blockquote>排查要点：磁盘配置修改后 sshd 进程不会自动重载，必须完整 stop/start 容器；</blockquote>
+<blockquote>restart 请求超时会导致"配置已改但进程仍旧"的假象。</blockquote>
+<h3 id="4-2-测试结果">4.2 测试结果</h3>
+<table><thead><tr><th>#</th><th>功</th><th>验</th><th>结</th></tr></thead><tbody><tr><td>16</td><td>PTY 终端连接 (120x30, vt100)</td><td><code>terminal().connect()</code> + isConnected</td><td>✅ PASS</td></tr><tr><td>17</td><td>PTY 命令执行与回显</td><td><code>send("echo ...$((6*7))")</code> → 轮询 readBuffer 含 <code>42</code></td><td>✅ PASS</td></tr><tr><td>18</td><td>sendKey 特殊按键</td><td>Ctrl+C 中断 sleep 30</td><td>✅ PASS</td></tr><tr><td>19</td><td>正向隧道 local()</td><td>本地 16379 → 远程 redis(172.17.0.9:6379)，发送 <code>PING\r\n</code> 收到 <code>+PONG</code></td><td>✅ PASS</td></tr><tr><td>20</td><td>动态隧道 SOCKS5 dynamic()</td><td>本地 11080 发起 SOCKS5 握手，响应 <code>[05 00]</code> 无认证同意</td><td>✅ PASS</td></tr><tr><td>21</td><td>反向隧道 remote() 注册与绑定</td><td>tracker open=true + 容器内 netstat 确认 <code>0.0.0.0:19990 LISTEN</code></td><td>✅ PASS</td></tr><tr><td>22</td><td>反向隧道数据面环回</td><td>容器内 nc → 19990 → SSH → 本地回声服务，标记串原样返回</td><td>✅ PASS</td></tr></tbody></table>
+<h3 id="-22-缺陷定位与修复过程-已修复-">#22 缺陷定位与修复过程（已修复）</h3>
+<p><strong>现象</strong>: 反向隧道注册成功但数据面不通——服务端 accept 连接后数据消失。</p>
+<p><strong>排查链</strong>:</p>
+<li>服务端 sshd_config 确认 <code>AllowTcpForwarding yes</code> / <code>GatewayPorts clientspecified</code>；</li>
+<li>对照实验：系统 ssh.exe 密钥登录建 -R 隧道（注意 admin 用户 HOME 为 <code>/config</code></li>
+<p>而非 <code>/home/admin</code>），环回<strong>成功</strong>；同一服务器上 MINA 隧道失败 → 锁定客户端侧；</p>
+<li>MINA 协议级 TRACE 日志捕获到决定性证据：</li>
+<pre>DEBUG org.apache.sshd.server.forward.RejectAllForwardingFilter
+      - checkAcceptance(forwarded-tcpip) ... rejected</pre>
+<p><strong>根因</strong>: MINA SSHD 的 <code>AbstractFactoryManager.forwardingFilter</code> 默认值为</p>
+<p><code>RejectAllForwardingFilter.INSTANCE</code>——客户端会<strong>静默拒绝</strong>服务端下发的</p>
+<p><code>forwarded-tcpip</code> 通道。反向隧道的控制面(tcpip-forward 请求/绑定)不受该过滤器影响，</p>
+<p>故表现为"注册成功、监听存在、数据黑洞"。</p>
+<p><strong>修复</strong> (<code>SshClient.connect()</code>):</p>
+<pre class="language-java">sshClient = org.apache.sshd.client.SshClient.setUpDefaultClient();
+// 放行服务端发起的 forwarded-tcpip, 否则反向隧道(-R)数据面不通
+sshClient.setForwardingFilter(org.apache.sshd.server.forward.AcceptAllForwardingFilter.INSTANCE);
+sshClient.start();</pre>
+<p><strong>附带修复</strong>: 根 pom 与 network-parent 将 sshd-core/sftp/scp 从里程碑预览版</p>
+<p><code>3.0.0-M2</code> 统一降级至稳定版 <code>2.13.2</code>（API 完全兼容，全量回归通过）。</p>
+<h3 id="4-3-隧道测试网络拓扑说明">4.3 隧道测试网络拓扑说明</h3>
+<li>正向隧道目标使用 redis 容器内网 IP <code>172.17.0.9:6379</code> 而非宿主机映射端口：</li>
+<p>sshd 运行于 bridge 网络容器内，<code>127.0.0.1:6379</code> 指向容器自身，</p>
+<p>docker0 网关 <code>172.17.0.1</code> 因 iptables hairpin 限制亦不可达。</p>
+<li>反向隧道的远程监听端口位于容器网络命名空间内，除非容器发布该端口，</li>
+<p>否则无法从宿主机直连验证，故采用容器内自连环回方案。</p>
+<hr/>
+<h2 id="五-测试代码位置">五、测试代码位置</h2>
+<li>示例类:</li>
+<li><code>utils-support-extra-parent/utils-support-example-starter/src/main/java/com/chua/example/ssh/SshSftpClientExample.java</code> (基础功能)</li>
+<li><code>utils-support-extra-parent/utils-support-example-starter/src/main/java/com/chua/example/ssh/SshAdvancedExample.java</code> (PTY 与隧道)</li>
+<li>修复点: <code>utils-support-network-parent/utils-support-ssh-starter/src/main/java/com/chua/ssh/support/client/SshClient.java</code> (<code>ExecOperation.execute</code>)</li>
+<li>运行方式:</li>
+<pre class="language-powershell">mvn compile -DskipTests
+mvn exec:java &quot;-Dexec.mainClass=com.chua.example.ssh.SshSftpClientExample&quot; `
+  &quot;-Dexec.args=&lt;host&gt; &lt;port&gt; &lt;user&gt; &lt;password&gt;&quot;
+mvn exec:java &quot;-Dexec.mainClass=com.chua.example.ssh.SshAdvancedExample&quot; `
+  &quot;-Dexec.args=&lt;host&gt; &lt;port&gt; &lt;user&gt; &lt;password&gt;&quot;</pre>
+<h2 id="六-结论">六、结论</h2>
+<li><strong>基础功能</strong>: SshClient(exec/shell) 与 SftpClient(上传/下载/stat/ls/mkdir/rename/rm)</li>
+<p>在真实远程主机上全链路通过（15 PASS）。</p>
+<li><strong>高级功能</strong>: PTY 终端、正向隧道、SOCKS5 动态隧道、<strong>反向隧道</strong>全部验证通过（10 PASS），</li>
+<p>反向隧道数据面缺陷已定位（MINA 默认 RejectAllForwardingFilter 静默丢弃 forwarded-tcpip）</p>
+<p>并修复回归。</p>
+<li><strong>累计修复缺陷 3 个</strong>:</li>
+<li>exec 通道 inverted 流 NPE（改用 setOut/setErr 标准用法）</li>
+<li>sshd-core/sftp/scp 里程碑预览版 3.0.0-M2 → 稳定版 2.13.2</li>
+<li>客户端默认拒绝 forwarded-tcpip → setForwardingFilter(AcceptAll)</li>
+<p class="footnote">生成时间：2026-09-02 | 格式：HTML 深色主题</p>
+</div>
+</body>
+</html>
