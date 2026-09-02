@@ -653,7 +653,8 @@ public class AgentScopeAgent implements Agent {
             i++;
         }
         log.info("\n{}", sb);
-     */
+    }
+
     private void printSystemPromptsTree() {
         boolean leader = definition != null && definition.isLeader();
         String mainName = definition != null && definition.getName() != null ? definition.getName() : "?";

@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * 文件存储预览过滤器。
@@ -46,7 +47,11 @@ import java.util.Locale;
 @Slf4j
 public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter {
 
-    /** Previewproviders */
+    /** 复合扩展名列表（需优先于单扩展名识别） */
+    private static final Set<String> COMPOUND_EXTS = Set.of(
+            "tar.gz", "tar.bz2", "tar.xz", "tar.zst", "tar.lz4", "tar.lzma", "tar.sz");
+
+    /** 文件预览提供者列表 */
     private final List<FileStoragePreviewProvider> previewProviders;
 
     /**
@@ -68,8 +73,15 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         this.previewProviders = ServiceProvider.of(FileStoragePreviewProvider.class).getNewExtensions(null);
     }
 
+    /**
+     * 执行过滤逻辑，按优先级处理预览请求。
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param chain    过滤链
+     * @throws Exception 处理失败
+     */
     @Override
-    /** Do过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String preview = request.getParam("preview");
         if (preview == null) {
@@ -177,7 +189,12 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
 
     // ==================== 内部方法 ====================
 
-    /** 是否MediaType */
+    /**
+     * 判断是否为浏览器原生可预览的图片 / 音视频 MIME 类型。
+     *
+     * @param mime MIME 类型
+     * @return true 表示属于图片 / 音视频
+     */
     private boolean isMediaType(String mime) {
         if (mime == null) {
             return false;
@@ -208,7 +225,14 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return applyImageFilter(original, ops, key, ext);
     }
 
-    /** 读取Content */
+    /**
+     * 读取存储对象的内容字节。
+     *
+     * @param storage 文件存储
+     * @param key     对象键
+     * @return 内容字节；对象不存在时返回 null
+     * @throws Exception 读取失败
+     */
     private byte[] readContent(FileStorage storage, String key) throws Exception {
         var getResult = storage.getObject(key);
         if (getResult == null || getResult.getInputStream() == null) {
@@ -217,7 +241,15 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return getResult.getInputStream().readAllBytes();
     }
 
-    /** 转换AndCachePdf */
+    /**
+     * 将 Office 文档转换为 PDF 并缓存，转换失败时返回 null。
+     *
+     * @param storage 文件存储
+     * @param key     对象键
+     * @param ext     文件扩展名
+     * @param ops     文件操作设置
+     * @return PDF 字节；转换失败时返回 null
+     */
     private byte[] convertAndCachePdf(FileStorage storage, String key, String ext, FileOperationSetting ops) {
         String cacheKey = key + buildOpsSuffix(ops);
         try {
@@ -248,7 +280,13 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         }
     }
 
-    /** 查找Provider */
+    /**
+     * 按扩展名查找支持的预览提供者。
+     *
+     * @param ext  文件扩展名
+     * @param mime MIME 类型
+     * @return 匹配的提供者；未找到时返回 null
+     */
     private FileStoragePreviewProvider findProvider(String ext, String mime) {
         for (FileStoragePreviewProvider p : previewProviders) {
             if (p.supports(ext, mime)) {
@@ -258,7 +296,12 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return null;
     }
 
-    /** WrapPreviewPage */
+    /**
+     * 将预览结果包装为完整 HTML 页面。
+     *
+     * @param result 预览结果
+     * @return 完整 HTML 页面字符串
+     */
     private String wrapPreviewPage(PreviewResult result) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
@@ -287,12 +330,22 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return sb.toString();
     }
 
-    /** EscapeAttr */
+    /**
+     * 转义 HTML 属性值中的特殊字符。
+     *
+     * @param s 原始字符串
+     * @return 转义后的字符串
+     */
     private static String escapeAttr(String s) {
         return s.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;");
     }
 
-    /** 获取Ext */
+    /**
+     * 从对象键提取小写扩展名，复合扩展名（如 tar.gz）优先识别。
+     *
+     * @param key 对象键（含路径）
+     * @return 小写扩展名；无扩展名时返回空串
+     */
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
             return "";
@@ -306,11 +359,12 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         return key.substring(key.lastIndexOf('.') + 1).toLowerCase(Locale.ENGLISH);
     }
 
-    /** 复合扩展名列表 */
-    private static final List<String> COMPOUND_EXTS = List.of(
-            "tar.gz", "tar.bz2", "tar.xz", "tar.zst", "tar.lz4", "tar.lzma", "tar.sz");
-
-    /** 构建OpsSuffix */
+    /**
+     * 根据文件操作设置构建缓存键后缀，无操作时返回空串。
+     *
+     * @param ops 文件操作设置
+     * @return 缓存键后缀
+     */
     private static String buildOpsSuffix(FileOperationSetting ops) {
         if (ops == null || !ops.hasOperation()) {
             return "";

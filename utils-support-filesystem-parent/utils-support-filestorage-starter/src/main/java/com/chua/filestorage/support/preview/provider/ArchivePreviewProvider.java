@@ -7,7 +7,6 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
-import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
 import java.io.ByteArrayInputStream;
@@ -24,7 +23,7 @@ import java.util.Set;
 
 /**
  * 压缩包 / 压缩文档预览提供器，支持 zip、rar、tar、gz、bz2、xz、7z、zst 等格式。
- * <p>SPI 类型：{@code preview-archive}。输出 HTML 表格，列出条目名、大小、修改时间。</p>
+ * <p>SPI 类型：{@code preview-archive}。输出树形 HTML 结构，按目录层级展示压缩包条目，并列出大小、修改时间。</p>
  *
  * @author CH
  * @since 4.0.0
@@ -58,9 +57,20 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return SUPPORTED.contains(e);
     }
 
+    /**
+     * 生成压缩包预览页面。
+     *
+     * @param content 压缩包字节内容
+     * @param ext     文件扩展名
+     * @param mime    MIME 类型（当前忽略）
+     * @return 预览结果，包含树形 HTML 与内联样式
+     * @throws IOException 读取压缩包失败
+     */
     @Override
-    /** Preview */
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
+        if (content == null || ext == null) {
+            throw new IllegalArgumentException("content and ext must not be null");
+        }
         String e = ext.toLowerCase(Locale.ENGLISH);
         List<EntryInfo> entries = new ArrayList<>();
         long totalSize = 0;
@@ -99,7 +109,10 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                                  .createArchiveInputStream(buffered)) {
                         ArchiveEntry entry;
                         while ((entry = ais.getNextEntry()) != null) {
-                            if (entry.isDirectory()) { dirCount++; continue; }
+                            if (entry.isDirectory()) {
+                                dirCount++;
+                                continue;
+                            }
                             entries.add(new EntryInfo(
                                     entry.getName(), entry.getSize(), entry.getLastModifiedDate(), false));
                             totalSize += entry.getSize();
@@ -128,7 +141,30 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
-    /** WrapDecompressor */
+    /**
+     * 安全获取 7z 条目的最后修改时间。
+     * 部分 7z 条目未记录时间戳，调用方直接取值会抛出 {@link UnsupportedOperationException}。
+     *
+     * @param entry 7z 归档条目
+     * @return 修改时间；无时间戳时返回 null
+     */
+    private static Date safeLastModifiedDate(org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry) {
+        try {
+            return entry.getLastModifiedDate();
+        } catch (UnsupportedOperationException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 按扩展名将纯压缩流包装为解压流（如 tar.gz 解 gzip、tar.xz 解 xz）。
+     * 非复合扩展名原样返回。
+     *
+     * @param in  原始输入流
+     * @param ext 文件扩展名
+     * @return 解压后的输入流
+     * @throws IOException 创建解压器失败
+     */
     private static InputStream wrapDecompressor(InputStream in, String ext) throws IOException {
         String compType = switch (ext) {
             case "tgz", "tar.gz" -> "gz";
@@ -147,7 +183,15 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return in;
     }
 
-    /** 构建Html（树形结构） */
+    /**
+     * 构建树形 HTML：目录按字典序展示，目录下文件缩进排列，根目录文件紧随其后。
+     *
+     * @param ext       文件扩展名（用于标题展示）
+     * @param entries   归档条目列表
+     * @param dirs      目录数量
+     * @param totalSize 文件总大小
+     * @return 树形 HTML 片段
+     */
     private String buildHtml(String ext, List<EntryInfo> entries, int dirs, long totalSize) {
         java.util.Map<String, List<EntryInfo>> dirMap = new java.util.TreeMap<>();
         List<EntryInfo> rootFiles = new ArrayList<>();
@@ -184,6 +228,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return sb.toString();
     }
 
+    /**
+     * 渲染单个文件行（文件图标、名称、大小与修改时间）。
+     *
+     * @param sb   输出缓冲区
+     * @param name 文件显示名
+     * @param fe   文件条目信息
+     */
     private void renderFile(StringBuilder sb, String name, EntryInfo fe) {
         String eExt = extFromName(name);
         sb.append("<div class=\"file\"><span class=\"icon\">");
@@ -197,13 +248,23 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         sb.append("</span></div>");
     }
 
-    /** ExtFromName */
+    /**
+     * 从文件名提取小写扩展名（不含点号）。
+     *
+     * @param name 文件名
+     * @return 扩展名；无扩展名时返回 null
+     */
     private static String extFromName(String name) {
         int dot = name.lastIndexOf('.');
         return dot > 0 && dot < name.length() - 1 ? name.substring(dot + 1).toLowerCase(Locale.ENGLISH) : null;
     }
 
-    /** 格式化获取大小 */
+    /**
+     * 将字节数格式化为人类可读大小。
+     *
+     * @param bytes 字节数
+     * @return 格式化后的大小字符串
+     */
     private static String formatSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";
@@ -217,11 +278,23 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
         return String.format("%.1f GB", bytes / (1024.0 * 1024 * 1024));
     }
 
-    /** EscapeHtml */
+    /**
+     * 转义 HTML 特殊字符。
+     *
+     * @param s 原始字符串
+     * @return 转义后的字符串
+     */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
-    /** EntryInfo */
+    /**
+     * 压缩包内条目信息。
+     *
+     * @param name         条目完整路径
+     * @param size         条目大小
+     * @param date         最后修改时间（可为空）
+     * @param compressOnly 是否为纯压缩流条目（无文件信息）
+     */
     private record EntryInfo(String name, long size, Date date, boolean compressOnly) {}
 }
