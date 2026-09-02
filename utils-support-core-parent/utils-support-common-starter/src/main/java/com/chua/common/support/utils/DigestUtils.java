@@ -389,6 +389,21 @@ public class DigestUtils {
         return md5(content);
     }
 
+    /**
+     * 计算文件的 MD5 哈希值（十六进制字符串）。
+     *
+     * <p>内部以 8KB 缓冲区分块读取，适用于大文件，避免一次性加载全部数据到内存。
+     *
+     * @param file 待计算的文件，不能为 null
+     * @return 32 位小写十六进制 MD5 字符串
+     * @throws IOException 当读取文件发生 I/O 错误时
+     */
+    public static String md5Hex(java.nio.file.Path file) throws java.io.IOException {
+        try (java.io.InputStream in = java.nio.file.Files.newInputStream(file)) {
+            return StringUtils.bytes2string(hash(MD5, in));
+        }
+    }
+
     // ==================== MD2 算法 ====================
 
     /**

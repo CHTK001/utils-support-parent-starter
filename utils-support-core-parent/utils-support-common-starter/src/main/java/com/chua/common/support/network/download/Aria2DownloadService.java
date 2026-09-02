@@ -1,7 +1,6 @@
 package com.chua.common.support.network.download;
 
 import com.chua.common.support.spi.annotations.Spi;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -33,13 +32,15 @@ public class Aria2DownloadService implements DownloadService {
 
     @Override
     public DownloadResult execute(DownloadConfig config) throws DownloadException, IOException {
-        String filename = resolveFilename(config.getUrl(), config.getFilename());
+        String filename = DownloadUtils.resolveFilename(config.getUrl(), config.getFilename());
         Path targetDir = config.getTargetDir() != null ? config.getTargetDir() : Path.of(".");
         Path targetFile = targetDir.resolve(filename);
 
         // forceDownload 时清除已有文件
         if (config.isForceDownload() && Files.isRegularFile(targetFile)) {
-            try { Files.deleteIfExists(targetFile); } catch (IOException e) {
+            try {
+                Files.deleteIfExists(targetFile);
+            } catch (IOException e) {
                 log.warn("[Aria2DownloadService] 删除已有文件失败: {}", targetFile, e);
             }
         }
@@ -52,7 +53,7 @@ public class Aria2DownloadService implements DownloadService {
 
         Files.createDirectories(targetDir);
 
-        Aria2Options options = Aria2Options.builder()
+        var options = Aria2Options.builder()
                 .url(config.getUrl())
                 .targetFile(targetFile)
                 .concurrency(config.getConcurrency())
@@ -80,6 +81,12 @@ public class Aria2DownloadService implements DownloadService {
                 .build();
     }
 
+    /**
+     * 启动 aria2c 进程执行下载。
+     *
+     * @param options 下载选项
+     * @throws DownloadException 当 aria2c 不可用、进程退出码非 0 或被中断时
+     */
     private static void download(Aria2Options options) throws DownloadException {
         List<String> cmd = buildCommand(options);
 
@@ -87,7 +94,7 @@ public class Aria2DownloadService implements DownloadService {
             log.debug("[Aria2] 命令: {}", cmd);
         }
 
-        Process process;
+        Process process = null;
         try {
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.redirectErrorStream(true);
@@ -118,11 +125,23 @@ public class Aria2DownloadService implements DownloadService {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            process.destroyForcibly();
+            if (process != null) {
+                process.destroyForcibly();
+            }
             throw new DownloadException("aria2c 下载被中断", e);
+        } finally {
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly();
+            }
         }
     }
 
+    /**
+     * 构建 aria2c 命令行参数列表（无 shell 注入风险）。
+     *
+     * @param o 下载选项
+     * @return aria2c 命令行参数列表
+     */
     private static List<String> buildCommand(Aria2Options o) {
         List<String> cmd = new ArrayList<>();
         cmd.add("aria2c");
@@ -149,7 +168,9 @@ public class Aria2DownloadService implements DownloadService {
         }
         if (o.getProxy() != null) {
             String proxy = proxyUri(o.getProxy());
-            if (proxy != null) cmd.add("--all-proxy=" + proxy);
+            if (proxy != null) {
+                cmd.add("--all-proxy=" + proxy);
+            }
         }
         if (o.getHeaders() != null) {
             for (Map.Entry<String, String> entry : o.getHeaders().entrySet()) {
@@ -172,24 +193,58 @@ public class Aria2DownloadService implements DownloadService {
         return cmd;
     }
 
+    /**
+     * 将字节/秒格式化为 aria2c 可识别的 K/M 后缀。
+     *
+     * @param bytesPerSecond 字节每秒
+     * @return 格式化后的字符串，如 "1M"、"500K"
+     */
     private static String formatSpeed(long bytesPerSecond) {
-        if (bytesPerSecond % (1024 * 1024) == 0) return (bytesPerSecond / (1024 * 1024)) + "M";
-        if (bytesPerSecond % 1024 == 0) return (bytesPerSecond / 1024) + "K";
+        if (bytesPerSecond % (1024 * 1024) == 0) {
+            return (bytesPerSecond / (1024 * 1024)) + "M";
+        }
+        if (bytesPerSecond % 1024 == 0) {
+            return (bytesPerSecond / 1024) + "K";
+        }
         return String.valueOf(bytesPerSecond);
     }
 
+    /**
+     * 将 Java Proxy 转换为 aria2c 代理 URI。
+     *
+     * @param proxy Java Proxy 对象
+     * @return 代理 URI 字符串（如 http://host:port），不支持的类型返回 null
+     */
     private static String proxyUri(Proxy proxy) {
-        if (proxy.address() == null || !(proxy.address() instanceof InetSocketAddress)) return null;
+        if (proxy.address() == null || !(proxy.address() instanceof InetSocketAddress)) {
+            return null;
+        }
         InetSocketAddress addr = (InetSocketAddress) proxy.address();
         switch (proxy.type()) {
-            case HTTP:  return "http://" + addr.getHostString() + ":" + addr.getPort();
-            case SOCKS: return "socks5://" + addr.getHostString() + ":" + addr.getPort();
-            default:    return null;
+            case HTTP:
+                return "http://" + addr.getHostString() + ":" + addr.getPort();
+            case SOCKS:
+                return "socks5://" + addr.getHostString() + ":" + addr.getPort();
+            default:
+                return null;
         }
     }
 
-    private static long seconds(int ms) { return Math.max(1, (ms + 999) / 1000); }
+    /**
+     * 毫秒向上取整为秒（最小值为 1）。
+     *
+     * @param ms 毫秒数
+     * @return 秒数
+     */
+    private static long seconds(int ms) {
+        return Math.max(1, (ms + 999) / 1000);
+    }
 
+    /**
+     * 后台线程排空子进程输出到日志（静默模式）。
+     *
+     * @param process 子进程
+     */
     private static void drainOutput(Process process) {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
@@ -202,30 +257,35 @@ public class Aria2DownloadService implements DownloadService {
         }
     }
 
-    private static String resolveFilename(String url, String explicitName) {
-        if (explicitName != null && !explicitName.isBlank()) return explicitName;
-        String path = url.contains("?") ? url.substring(0, url.indexOf('?')) : url;
-        int lastSlash = path.lastIndexOf('/');
-        if (lastSlash >= 0 && lastSlash < path.length() - 1) {
-            return java.net.URLDecoder.decode(path.substring(lastSlash + 1), StandardCharsets.UTF_8);
-        }
-        return "download";
-    }
-
+    /**
+     * aria2c 下载内部选项。
+     */
     @lombok.Builder
     @lombok.Data
-    static class Aria2Options {
+    private static class Aria2Options {
+        /** 下载地址 */
         private String url;
+        /** 目标文件（含目录与文件名） */
         private Path targetFile;
+        /** 并发连接数 */
         private int concurrency;
+        /** 限速（bytes/sec，0 = 不限） */
         private long maxSpeed;
+        /** 代理 */
         private Proxy proxy;
+        /** 自定义请求头 */
         private Map<String, String> headers;
+        /** 期望 MD5（null 则跳过 aria2 校验） */
         private String expectedMd5;
+        /** 断点续传偏移（>0 时启用 --continue） */
         private long resumeOffset;
+        /** 强制重新下载 */
         private boolean forceDownload;
+        /** 是否显示进度 */
         private boolean showProgress;
+        /** 连接超时（毫秒） */
         private int connectTimeoutMs;
+        /** 读取超时（毫秒） */
         private int readTimeoutMs;
     }
 }
