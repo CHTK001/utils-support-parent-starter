@@ -26,7 +26,7 @@ public class SqliteReactiveChangesTest {
      * 注意：需先订阅 changes()，再执行写操作。
      */
     @Test
-    void hook_changes_emits_events() throws Exception {
+    public void hook_changes_emits_events() throws Exception {
         Path db = Files.createTempFile("sqlite-rx-chg", ".db");
         db.toFile().deleteOnExit();
 
@@ -63,7 +63,7 @@ public class SqliteReactiveChangesTest {
      * 多个订阅者都能收到同一批新事件（实时推送）。
      */
     @Test
-    void changes_multiSubscriber_sees_live_events() throws Exception {
+    public void changes_multiSubscriber_sees_live_events() throws Exception {
         Path db = Files.createTempFile("sqlite-rx-mul", ".db");
         db.toFile().deleteOnExit();
 
@@ -95,7 +95,7 @@ public class SqliteReactiveChangesTest {
      * hook 连接不可用时降级到 JDBC，基本 CRUD 仍正常工作。
      */
     @Test
-    void jdbc_fallback_crud_works() throws Exception {
+    public void jdbc_fallback_crud_works() throws Exception {
         Path db = Files.createTempFile("sqlite-rx-fb", ".db");
         db.toFile().deleteOnExit();
 
@@ -121,7 +121,7 @@ public class SqliteReactiveChangesTest {
      * changes() 在 hook 连接未打开时返回空 Flux 而非报错。
      */
     @Test
-    void changes_empty_when_no_hook() {
+    public void changes_empty_when_no_hook() {
         SqliteReactorEngine engine = new SqliteReactorEngine();
         engine.addDataSource("default", ":memory:");
 
