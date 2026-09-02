@@ -5,7 +5,7 @@ import com.chua.common.support.lang.process.ProgressBarBuilder;
 import com.chua.common.support.lang.process.ProgressBarStyle;
 import com.chua.common.support.network.download.extractor.Extractor;
 import com.chua.common.support.network.download.extractor.ExtractorFactory;
-import com.chua.common.support.utils.ThreadUtils;
+import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileOutputStream;
@@ -28,9 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HexFormat;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -52,11 +50,18 @@ import java.util.concurrent.Future;
  * Downloader.create()
  *     .url("https://example.com/large-file.tar.gz")
  *     .target(Path.of("/tmp/downloads"))
- *     .concurrency(4)                    // 4 线程并发下载
- *     .maxSpeed(1024 * 1024)             // 限速 1MB/s
+ *     .concurrency(4)
+ *     .maxSpeed(1024 * 1024)
  *     .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy host", 8080)))
  *     .autoExtract(true)
  *     .extractTo(Path.of("/tmp/extracted"))
+ *     .execute();
+ *
+ * // 使用 aria2c 协议
+ * Downloader.create()
+ *     .url("https://example.com/large-file.zip")
+ *     .target(Path.of("/tmp/downloads"))
+ *     .protocol(DownloadProtocol.ARIA2)
  *     .execute();
  * </pre>
  *
@@ -66,149 +71,60 @@ import java.util.concurrent.Future;
 @Slf4j
 public class Downloader {
 
-    /** Default_buffer_size */
-    private static final int DEFAULT_BUFFER_SIZE = 8192;
-    /** Default_connect_timeout_ms */
-    private static final int DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
-    /** Default_read_timeout_ms */
-    private static final int DEFAULT_READ_TIMEOUT_MS = 60_000;
-
     // ===== 链式配置字段 =====
-    /**
-     * 地址
-     */
     private String url;
-    /** 目标目录 */
     private Path targetDir;
-    /** Filename */
     private String filename;
-    /** ExpectedMD5 */
     private String expectedMd5;
-    /** Concurrency */
     private int concurrency = 1;
-    // ; // bytes per second, 0 = unlimited
-    /** 最大值speed */
     private long maxSpeed = 0;
-    /** Proxy */
     private Proxy proxy;
-    /** Autoextract */
     private boolean autoExtract = false;
-    /** ExtractTO */
     private Path extractTo;
-    /** Skipmd5check */
     private boolean skipMd5Check = false;
-    /** Force下载 */
     private boolean forceDownload = false;
-    /** Showprogress */
     private boolean showProgress = true;
-    /** Connect超时MS */
-    private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MS;
-    /** Read超时MS */
-    private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MS;
-    /** headers */
-    private Map<String, String> headers = new LinkedHashMap<>();
+    private int connectTimeoutMs = 15_000;
+    private int readTimeoutMs = 60_000;
+    private java.util.Map<String, String> headers = new java.util.LinkedHashMap<>();
+    private DownloadProtocol protocol = DownloadProtocol.DEFAULT;
 
     // ===== 构造 =====
-
-    /** 创建 Downloader 实例 */
     private Downloader() {}
 
-    /** 创建 */
-    public static Downloader create() {
-        return new Downloader();
-    }
+    /** 创建 Downloader 实例 */
+    public static Downloader create() { return new Downloader(); }
 
     // ===== 链式配置方法 =====
 
-    /** Url */
-    public Downloader url(String url) {
-        this.url = url;
-        return this;
-    }
-
-    /** Target */
-    public Downloader target(Path targetDir) {
-        this.targetDir = targetDir;
-        return this;
-    }
-
-    /** Filename */
-    public Downloader filename(String filename) {
-        this.filename = filename;
-        return this;
-    }
+    public Downloader url(String url) { this.url = url; return this; }
+    public Downloader target(Path targetDir) { this.targetDir = targetDir; return this; }
+    public Downloader filename(String filename) { this.filename = filename; return this; }
 
     /** 设置期望的 MD5 值（null 则跳过校验） */
-    public Downloader expectedMd5(String md5) {
-        this.expectedMd5 = md5;
-        return this;
-    }
-
-    /** 设置并发下载线程数（默认 1，大于 1 时自动分片） */
-    public Downloader concurrency(int threads) {
-        this.concurrency = Math.max(1, threads);
-        return this;
-    }
-
-    /** 设置下载限速（bytes/sec，0 = 不限速） */
-    public Downloader maxSpeed(long bytesPerSecond) {
-        this.maxSpeed = bytesPerSecond;
-        return this;
-    }
-
-    /** 设置代理 */
-    public Downloader proxy(Proxy proxy) {
-        this.proxy = proxy;
-        return this;
-    }
-
-    /** 下载完成后自动解压 */
-    public Downloader autoExtract(boolean autoExtract) {
-        this.autoExtract = autoExtract;
-        return this;
-    }
-
-    /** 解压目标目录（默认与下载目录相同） */
-    public Downloader extractTo(Path extractTo) {
-        this.extractTo = extractTo;
-        return this;
-    }
-
-    /** 跳过 MD5 校验 */
-    public Downloader skipMd5Check(boolean skip) {
-        this.skipMd5Check = skip;
-        return this;
-    }
-
-    /** 强制重新下载（忽略本地缓存） */
-    public Downloader forceDownload(boolean force) {
-        this.forceDownload = force;
-        return this;
-    }
-
-    /** 是否显示下载进度条（默认 true） */
-    public Downloader showProgress(boolean show) {
-        this.showProgress = show;
-        return this;
-    }
-
-    /** 设置连接超时（毫秒） */
-    public Downloader connectTimeout(int ms) {
-        this.connectTimeoutMs = ms;
-        return this;
-    }
-
-    /** 设置读取超时（毫秒） */
-    public Downloader readTimeout(int ms) {
-        this.readTimeoutMs = ms;
-        return this;
-    }
+    public Downloader expectedMd5(String md5) { this.expectedMd5 = md5; return this; }
+    public Downloader concurrency(int threads) { this.concurrency = Math.max(1, threads); return this; }
+    public Downloader maxSpeed(long bytesPerSecond) { this.maxSpeed = bytesPerSecond; return this; }
+    public Downloader proxy(Proxy proxy) { this.proxy = proxy; return this; }
+    public Downloader autoExtract(boolean autoExtract) { this.autoExtract = autoExtract; return this; }
+    public Downloader extractTo(Path extractTo) { this.extractTo = extractTo; return this; }
+    public Downloader skipMd5Check(boolean skip) { this.skipMd5Check = skip; return this; }
+    public Downloader forceDownload(boolean force) { this.forceDownload = force; return this; }
+    public Downloader showProgress(boolean show) { this.showProgress = show; return this; }
+    public Downloader connectTimeout(int ms) { this.connectTimeoutMs = ms; return this; }
+    public Downloader readTimeout(int ms) { this.readTimeoutMs = ms; return this; }
 
     /** 添加自定义请求头 */
-    public Downloader header(String name, String value) {
-        this.headers.put(name, value);
-        return this;
-    }
+    public Downloader header(String name, String value) { this.headers.put(name, value); return this; }
+
+    /**
+     * 设置下载协议。
+     * <ul>
+     *   <li>{@link DownloadProtocol#DEFAULT} — 内置 HTTP/HTTPS（单线程/并发分片/断点续传）</li>
+     *   <li>{@link DownloadProtocol#ARIA2} — 委托本机 aria2c</li>
+     * </ul>
+     */
+    public Downloader protocol(DownloadProtocol protocol) { this.protocol = protocol; return this; }
 
     // ===== 执行下载 =====
 
@@ -225,40 +141,37 @@ public class Downloader {
         Path resolvedTargetDir = targetDir != null ? targetDir : Path.of(".");
         Path targetFile = resolvedTargetDir.resolve(resolvedFilename);
 
-        // 1. 检查本地文件是否已存在且 MD5 匹配
-        if (!forceDownload && Files.isRegularFile(targetFile)) {
-            if (!skipMd5Check && expectedMd5 != null && !expectedMd5.isBlank()) {
-                String actualMd5 = computeMd5(targetFile);
-                if (expectedMd5.equalsIgnoreCase(actualMd5)) {
-                    log.info("[Downloader] MD5 匹配，跳过下载: {} ({})", resolvedFilename, actualMd5);
-                    return buildResult(targetFile, true, "md5_match");
-                }
-                log.info("[Downloader] MD5 不匹配: expected={} actual={}，重新下载", expectedMd5, actualMd5);
-            } else {
-                log.info("[Downloader] 文件已存在（无 MD5 校验），跳过: {}", targetFile);
-                return buildResult(targetFile, true, "file_exists");
-            }
+        // 构建下载配置
+        DownloadConfig config = DownloadConfig.builder()
+                .url(url)
+                .targetDir(resolvedTargetDir)
+                .filename(resolvedFilename)
+                .expectedMd5(expectedMd5)
+                .concurrency(concurrency)
+                .maxSpeed(maxSpeed)
+                .proxy(proxy)
+                .autoExtract(autoExtract)
+                .extractTo(extractTo)
+                .skipMd5Check(skipMd5Check)
+                .forceDownload(forceDownload)
+                .showProgress(showProgress)
+                .connectTimeoutMs(connectTimeoutMs)
+                .readTimeoutMs(readTimeoutMs)
+                .headers(headers)
+                .build();
+
+        // 获取协议实现
+        String serviceKey = protocol == DownloadProtocol.ARIA2 ? "aria2" : "default";
+        DownloadService service = ServiceProvider.of(DownloadService.class).getExtension(serviceKey);
+        if (service == null) {
+            throw new DownloadException("未找到下载服务实现: " + serviceKey);
         }
 
-        // 2. 检查是否支持断点续传
-        long existingSize = Files.isRegularFile(targetFile) ? targetFile.toFile().length() : 0;
-        boolean resumeSupported = checkResumeSupport();
-        long resumeOffset = (resumeSupported && existingSize > 0) ? existingSize : 0;
+        // 执行下载
+        DownloadResult result = service.execute(config);
 
-        // 3. 执行下载
-        Files.createDirectories(resolvedTargetDir);
-        if (resumeOffset > 0) {
-            log.info("[Downloader] 断点续传: offset={} bytes", resumeOffset);
-        }
-
-        if (concurrency > 1 && resumeOffset == 0) {
-            downloadWithConcurrency(targetFile, resumeOffset);
-        } else {
-            downloadSingle(targetFile, resumeOffset);
-        }
-
-        // 4. MD5 校验
-        if (!skipMd5Check && expectedMd5 != null && !expectedMd5.isBlank()) {
+        // MD5 校验（aria2c 内部已校验，若非 force 且文件存在则跳过重复校验）
+        if (!skipMd5Check && expectedMd5 != null && !expectedMd5.isBlank() && !result.isSkipped()) {
             String actualMd5 = computeMd5(targetFile);
             if (!expectedMd5.equalsIgnoreCase(actualMd5)) {
                 Files.deleteIfExists(targetFile);
@@ -267,8 +180,8 @@ public class Downloader {
             log.info("[Downloader] MD5 校验通过: {}", actualMd5);
         }
 
-        // 5. 自动解压
-        if (autoExtract) {
+        // 自动解压
+        if (autoExtract && !result.isSkipped()) {
             Path dest = extractTo != null ? extractTo : resolvedTargetDir;
             Files.createDirectories(dest);
             Extractor extractor = ExtractorFactory.getExtractor(targetFile.toString());
@@ -280,12 +193,11 @@ public class Downloader {
             }
         }
 
-        return buildResult(targetFile, false, "downloaded");
+        return result;
     }
 
-    // ===== 内部实现 =====
+    // ======================== 内部方法 ========================
 
-    /** 校验 */
     private void validate() throws DownloadException {
         if (url == null || url.isBlank()) {
             throw new DownloadException("URL 不能为空");
@@ -295,11 +207,8 @@ public class Downloader {
         }
     }
 
-    /** 解析Filename */
     private String resolveFilename() {
-        if (filename != null && !filename.isBlank()) {
-            return filename;
-        }
+        if (filename != null && !filename.isBlank()) return filename;
         String path = url.contains("?") ? url.substring(0, url.indexOf('?')) : url;
         int lastSlash = path.lastIndexOf('/');
         if (lastSlash >= 0 && lastSlash < path.length() - 1) {
@@ -308,237 +217,6 @@ public class Downloader {
         return "download";
     }
 
-    /** 校验恢复Support */
-    private boolean checkResumeSupport() {
-        try {
-            HttpURLConnection conn = openConnection();
-            conn.setRequestMethod("HEAD");
-            conn.setConnectTimeout(connectTimeoutMs);
-            conn.setReadTimeout(readTimeoutMs);
-            applyHeaders(conn);
-            conn.connect();
-            boolean acceptRange = "bytes".equalsIgnoreCase(conn.getHeaderField("Accept-Ranges"));
-            conn.disconnect();
-            return acceptRange;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /** DownloadSingle */
-    private void downloadSingle(Path targetFile, long resumeOffset) throws DownloadException {
-        ProgressBar bar = null;
-        try {
-            HttpURLConnection conn = openConnection();
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(connectTimeoutMs);
-            conn.setReadTimeout(readTimeoutMs);
-            applyHeaders(conn);
-
-            if (resumeOffset > 0) {
-                conn.setRequestProperty("Range", "bytes=" + resumeOffset + "-");
-            }
-
-            conn.connect();
-
-            int responseCode = conn.getResponseCode();
-            boolean isPartial = (responseCode == 206);
-            if (responseCode != 200 && !isPartial) {
-                conn.disconnect();
-                throw new DownloadException("HTTP " + responseCode + ": " + conn.getResponseMessage());
-            }
-
-            long contentLength = conn.getContentLengthLong();
-            long totalSize = isPartial ? resumeOffset + contentLength : contentLength;
-
-            // 创建进度条
-            if (showProgress && totalSize > 0) {
-                bar = ProgressBarBuilder.builder()
-                        .setTaskName(resolveFilename())
-                        .setInitialMax(totalSize)
-                        .setStyle(ProgressBarStyle.PYTHON_DOWNLOAD)
-                        .showSpeed()
-                        .startsFrom(resumeOffset, Duration.ZERO)
-                        .build();
-            }
-
-            try (InputStream in = conn.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(targetFile.toFile(), isPartial);
-                 FileChannel channel = fos.getChannel()) {
-
-                ThrottledInputStream throttled = maxSpeed > 0 ? new ThrottledInputStream(in, maxSpeed) : new ThrottledInputStream(in, 0);
-                ReadableByteChannel rbc = Channels.newChannel(throttled);
-
-                ByteBuffer buf = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
-                long downloaded = resumeOffset;
-                int n;
-                while ((n = rbc.read(buf)) != -1) {
-                    buf.flip();
-                    channel.write(buf);
-                    buf.clear();
-                    downloaded += n;
-                    if (bar != null) {
-                        bar.stepBy(n);
-                    }
-                }
-            } finally {
-                conn.disconnect();
-                if (bar != null) {
-                    bar.close();
-                }
-            }
-
-            log.info("[Downloader] 下载完成: {} ({} bytes)", targetFile.getFileName(), Files.size(targetFile));
-        } catch (DownloadException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DownloadException("下载失败: " + e.getMessage(), e);
-        }
-    }
-
-    /** DownloadWithConcurrency */
-    private void downloadWithConcurrency(Path targetFile, long resumeOffset) throws DownloadException {
-        try {
-            // 获取文件总大小
-            HttpURLConnection headConn = openConnection();
-            headConn.setRequestMethod("HEAD");
-            headConn.setConnectTimeout(connectTimeoutMs);
-            headConn.setReadTimeout(readTimeoutMs);
-            applyHeaders(headConn);
-            headConn.connect();
-            long totalSize = headConn.getContentLengthLong();
-            headConn.disconnect();
-
-            if (totalSize <= 0) {
-                log.warn("[Downloader] 无法获取文件大小，降级为单线程下载");
-                downloadSingle(targetFile, 0);
-                return;
-            }
-
-            // 创建总进度条
-            ProgressBar totalBar = null;
-            if (showProgress) {
-                totalBar = ProgressBarBuilder.builder()
-                        .setTaskName(resolveFilename())
-                        .setInitialMax(totalSize)
-                        .setStyle(ProgressBarStyle.PYTHON_DOWNLOAD)
-                        .showSpeed()
-                        .startsFrom(resumeOffset, Duration.ZERO)
-                        .build();
-            }
-
-            // 分片计算
-            long chunkSize = totalSize / concurrency;
-            ExecutorService pool = ThreadUtils.newFixedThreadPool(concurrency);
-            List<Future<?>> futures = new ArrayList<>();
-
-            for (int i = 0; i < concurrency; i++) {
-                long start = resumeOffset + i * chunkSize;
-                long end = (i == concurrency - 1) ? totalSize - 1 : start + chunkSize - 1;
-                int partIndex = i;
-                ProgressBar finalBar = totalBar;
-                futures.add(pool.submit(() -> downloadChunk(targetFile, start, end, partIndex, finalBar)));
-            }
-
-            for (Future<?> f : futures) {
-                f.get();
-            }
-            pool.shutdown();
-
-            if (totalBar != null) {
-                totalBar.close();
-            }
-
-            log.info("[Downloader] 并发下载完成: {} ({} bytes, {} threads)",
-                    targetFile.getFileName(), Files.size(targetFile), concurrency);
-        } catch (ExecutionException e) {
-            throw new DownloadException("并发下载失败: " + e.getCause().getMessage(), e.getCause());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new DownloadException("并发下载被中断", e);
-        } catch (DownloadException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DownloadException("并发下载失败: " + e.getMessage(), e);
-        }
-    }
-
-    /** DownloadChunk */
-    private void downloadChunk(Path targetFile, long start, long end, int partIndex, ProgressBar totalBar) {
-        String partFile = targetFile + ".part" + partIndex;
-        try {
-            HttpURLConnection conn = openConnection();
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(connectTimeoutMs);
-            conn.setReadTimeout(readTimeoutMs);
-            applyHeaders(conn);
-            conn.setRequestProperty("Range", "bytes=" + start + "-" + end);
-            conn.connect();
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode != 206) {
-                conn.disconnect();
-                throw new IOException("HTTP " + responseCode + " for chunk " + partIndex);
-            }
-
-            try (InputStream in = conn.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(partFile)) {
-                ThrottledInputStream throttled = maxSpeed > 0 ? new ThrottledInputStream(in, maxSpeed) : new ThrottledInputStream(in, 0);
-                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                int n;
-                while ((n = throttled.read(buf)) != -1) {
-                    fos.write(buf, 0, n);
-                    if (totalBar != null) {
-                        totalBar.stepBy(n);
-                    }
-                }
-            } finally {
-                conn.disconnect();
-            }
-
-            log.debug("[Downloader] 分片 {} 下载完成", partIndex);
-        } catch (Exception e) {
-            log.error("[Downloader] 分片 {} 下载失败: {}", partIndex, e.getMessage());
-            throw new RuntimeException("Chunk " + partIndex + " failed", e);
-        }
-    }
-
-    /** 合并Parts */
-    private void mergeParts(Path targetFile, int partCount) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(targetFile.toFile());
-             FileChannel out = fos.getChannel()) {
-            for (int i = 0; i < partCount; i++) {
-                Path part = Path.of(targetFile + ".part" + i);
-                if (Files.isRegularFile(part)) {
-                    try (FileChannel in = FileChannel.open(part, StandardOpenOption.READ)) {
-                        in.transferTo(0, in.size(), out);
-                    }
-                    Files.delete(part);
-                }
-            }
-        }
-    }
-
-    /** 打开Connection */
-    private HttpURLConnection openConnection() throws IOException {
-        URL u = new URL(url);
-        HttpURLConnection conn;
-        if (proxy != null) {
-            conn = (HttpURLConnection) u.openConnection(proxy);
-        } else {
-            conn = (HttpURLConnection) u.openConnection();
-        }
-        return conn;
-    }
-
-    /** 应用Headers */
-    private void applyHeaders(HttpURLConnection conn) {
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            conn.setRequestProperty(entry.getKey(), entry.getValue());
-        }
-    }
-
-    /** ComputeMd */
     private String computeMd5(Path file) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -556,110 +234,25 @@ public class Downloader {
         }
     }
 
-    /** 构建Result */
-    private DownloadResult buildResult(Path file, boolean skipped, String reason) {
-        return DownloadResult.builder()
-                .success(true)
-                .file(file)
-                .skipped(skipped)
-                .reason(reason)
-                .md5(expectedMd5)
-                .build();
-    }
-
-    // ===== 限速 InputStream =====
-
-    /**
-     * 限速 InputStream — 通过令牌桶算法控制读取速率。
-     */
-    private static class ThrottledInputStream extends InputStream {
-        /** Delegate */
-        private final InputStream delegate;
-        /** BytesPERMS */
-        private final long bytesPerMs;
-        /** Tokens */
-        private long tokens;
-        /** 最后refill */
-        private long lastRefill;
-
-        ThrottledInputStream(InputStream delegate, long bytesPerSecond) {
-            this.delegate = delegate;
-            this.bytesPerMs = bytesPerSecond / 1000;
-            this.tokens = bytesPerSecond;
-            this.lastRefill = System.currentTimeMillis();
-        }
-
-        @Override
-        /** 读取 */
-        public int read() throws IOException {
-            throttle(1);
-            return delegate.read();
-        }
-
-        @Override
-        /** 读取 */
-        public int read(byte[] b, int off, int len) throws IOException {
-            throttle(len);
-            return delegate.read(b, off, len);
-        }
-
-        /** Throttle */
-        private void throttle(int bytes) {
-            if (bytesPerMs <= 0) {
-                return;
-            }
-            long now = System.currentTimeMillis();
-            long elapsed = now - lastRefill;
-            tokens = Math.min(tokens + elapsed * bytesPerMs, bytesPerMs * 1000);
-            lastRefill = now;
-
-            while (tokens < bytes) {
-                ThreadUtils.sleep(1);
-                now = System.currentTimeMillis();
-                elapsed = now - lastRefill;
-                tokens = Math.min(tokens + elapsed * bytesPerMs, bytesPerMs * 1000);
-                lastRefill = now;
-            }
-            tokens -= bytes;
-        }
-
-        @Override
-        /** 关闭 */
-        public void close() throws IOException { delegate.close(); }
-    }
-
     // ===== 结果 & 异常 =====
 
     @lombok.Builder
     @lombok.Data
     public static class DownloadResult {
-        /**
-         * 是否成功
-         */
+        /** 是否成功 */
         private boolean success;
-        /**
-         * 文件路径
-         */
+        /** 文件路径 */
         private Path file;
-        /** Skipped */
+        /** 是否跳过（文件已存在且校验通过） */
         private boolean skipped;
-        /** Reason */
+        /** 跳过/成功原因 */
         private String reason;
         /** MD5 */
         private String md5;
     }
 
     public static class DownloadException extends IOException {
-        /**
-         * 创建 DownloadException 实例
-         * @param message message
-         */
         public DownloadException(String message) { super(message); }
-        /**
-         * 创建 DownloadException 实例
-         * @param message message
-         * @param Throwable Throwable
-         */
         public DownloadException(String message, Throwable cause) { super(message, cause); }
     }
 }
