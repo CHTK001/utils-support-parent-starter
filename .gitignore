@@ -41,7 +41,6 @@ build/
 /**/rebel.xml
 ${project.build.directory}
 *.class
-**/train/
 *.tar.xz
 *.tar.gz
 *.7z
