@@ -1,0 +1,259 @@
+package com.chua.common.support.image.apng;
+
+import com.chua.common.support.image.png.PNG;
+
+import javax.annotation.Nonnull;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.CRC32;
+import java.util.zip.Deflater;
+
+/**
+ * APNG（Animated PNG）编码器：将多帧图像合成为 APNG 文件。
+ *
+ * <p>对齐 {@code GifEncoder} 的调用风格：
+ * <pre>{@code
+ * ApngEncoder encoder = new ApngEncoder(outputStream);
+ * encoder.setLoopCount(0);                    // 无限循环
+ * encoder.addFrame(frame1, 100);              // 每帧 100ms
+ * encoder.addFrame(frame2, 100);
+ * encoder.finish();
+ * }</pre>
+ *
+ * <p>输出格式：8-bit RGBA（颜色类型 6），首帧数据写入 IDAT，后续帧写入 fdAT，
+ * 帧控制信息写入 fcTL（整帧绘制：x/y=0，dispose=NONE，blend=SOURCE）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public class ApngEncoder {
+
+    /** PNG 文件签名 */
+    private static final byte[] PNG_SIGNATURE = {
+            (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
+    };
+
+    /** 帧列表 */
+    private final List<BufferedImage> frames = new ArrayList<>();
+
+    /** 每帧延迟（毫秒） */
+    private final List<Integer> delays = new ArrayList<>();
+
+    /** 循环次数，0 表示无限循环 */
+    private int loopCount;
+
+    /** 输出流 */
+    private DataOutputStream out;
+
+    /**
+     * 创建编码器。
+     */
+    public ApngEncoder() {
+    }
+
+    /**
+     * 创建编码器并绑定输出流。
+     *
+     * @param output 输出流
+     * @throws IOException IO 异常
+     */
+    public ApngEncoder(@Nonnull OutputStream output) throws IOException {
+        this.out = new DataOutputStream(output);
+    }
+
+    /**
+     * 绑定输出流（未使用构造器绑定时调用）。
+     *
+     * @param output 输出流
+     * @return this
+     * @throws IOException IO 异常
+     */
+    @Nonnull
+    public ApngEncoder start(@Nonnull OutputStream output) throws IOException {
+        this.out = new DataOutputStream(output);
+        return this;
+    }
+
+    /**
+     * 添加一帧。
+     *
+     * @param frame       帧图像（RGBA）
+     * @param delayMillis 帧延迟（毫秒），负值按 0 处理
+     * @return this
+     */
+    @Nonnull
+    public ApngEncoder addFrame(@Nonnull BufferedImage frame, int delayMillis) {
+        frames.add(frame);
+        delays.add(Math.max(0, delayMillis));
+        return this;
+    }
+
+    /**
+     * 设置循环次数。
+     *
+     * @param loopCount 循环次数，0 表示无限循环
+     * @return this
+     */
+    @Nonnull
+    public ApngEncoder setLoopCount(int loopCount) {
+        this.loopCount = Math.max(0, loopCount);
+        return this;
+    }
+
+    /**
+     * 完成编码：写出全部 APNG 块并刷新输出流。
+     *
+     * @throws IOException IO 异常
+     */
+    public void finish() throws IOException {
+        if (out == null) {
+            throw new IOException("未绑定输出流，请使用构造器或 start(OutputStream)");
+        }
+        if (frames.isEmpty()) {
+            throw new IOException("没有帧数据，请先调用 addFrame");
+        }
+
+        BufferedImage first = frames.get(0);
+        int width = first.getWidth();
+        int height = first.getHeight();
+
+        out.write(PNG_SIGNATURE);
+        writeIHDR(width, height);
+
+        // acTL：总帧数 + 播放次数
+        byte[] acTL = new byte[8];
+        putIntBE(acTL, 0, frames.size());
+        putIntBE(acTL, 4, loopCount);
+        writeChunk("acTL", acTL);
+
+        int sequence = 0;
+        for (int i = 0; i < frames.size(); i++) {
+            BufferedImage frame = frames.get(i);
+            int delayMs = delays.get(i);
+
+            // fcTL：帧控制
+            writeChunk("fcTL", buildFcTL(frame.getWidth(), frame.getHeight(), delayMs));
+
+            // 帧数据：首帧 IDAT，后续帧 fdAT（带 sequence）
+            byte[] compressed = compressFrame(frame, width, height);
+            if (i == 0) {
+                writeChunk("IDAT", compressed);
+            } else {
+                byte[] fdAT = new byte[4 + compressed.length];
+                putIntBE(fdAT, 0, sequence++);
+                System.arraycopy(compressed, 0, fdAT, 4, compressed.length);
+                writeChunk("fdAT", fdAT);
+            }
+        }
+
+        writeChunk("IEND", new byte[0]);
+        out.flush();
+    }
+
+    // ==================== 块写入 ====================
+
+    /**
+     * 写入 IHDR 块：8-bit RGBA（颜色类型 6），无隔行。
+     */
+    private void writeIHDR(int width, int height) throws IOException {
+        byte[] ihdr = new byte[13];
+        putIntBE(ihdr, 0, width);
+        putIntBE(ihdr, 4, height);
+        ihdr[8] = 8;                  // bit depth
+        ihdr[9] = PNG.PNG_COLOR_RGB_ALPHA; // color type 6
+        ihdr[10] = 0;                 // compression
+        ihdr[11] = 0;                 // filter
+        ihdr[12] = 0;                 // interlace
+        writeChunk("IHDR", ihdr);
+    }
+
+    /**
+     * 构建 fcTL 块数据：整帧绘制（x/y=0），dispose=NONE，blend=SOURCE。
+     */
+    private static byte[] buildFcTL(int width, int height, int delayMillis) {
+        byte[] fcTL = new byte[26];
+        putIntBE(fcTL, 0, width);
+        putIntBE(fcTL, 4, height);
+        putIntBE(fcTL, 8, 0);      // x_offset
+        putIntBE(fcTL, 12, 0);     // y_offset
+        // delay：delay_num = 毫秒，delay_den = 1000 → 精确毫秒
+        putIntBE(fcTL, 16, delayMillis);
+        putIntBE(fcTL, 20, 1000);
+        fcTL[24] = PNG.APNG_DISPOSE_OP_NONE;
+        fcTL[25] = PNG.APNG_BLEND_OP_SOURCE;
+        return fcTL;
+    }
+
+    /**
+     * 写入一个 PNG 块：length + type + data + CRC。
+     */
+    private void writeChunk(String type, byte[] data) throws IOException {
+        out.writeInt(data.length);
+        byte[] typeBytes = type.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        out.write(typeBytes);
+
+        CRC32 crc = new CRC32();
+        crc.update(typeBytes);
+        crc.update(data);
+        out.write(data);
+        out.writeInt((int) crc.getValue());
+    }
+
+    /**
+     * 压缩一帧为 PNG 扫描线数据：每行 filter=0 + RGBA 像素，zlib 压缩。
+     */
+    private static byte[] compressFrame(BufferedImage frame, int canvasW, int canvasH) throws IOException {
+        int w = frame.getWidth();
+        int h = frame.getHeight();
+        int stride = w * 4;
+
+        ByteArrayOutputStream raw = new ByteArrayOutputStream((stride + 1) * h);
+        int[] pixels;
+        if (frame.getType() == BufferedImage.TYPE_INT_ARGB) {
+            pixels = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+        } else {
+            pixels = frame.getRGB(0, 0, w, h, null, 0, w);
+        }
+
+        for (int y = 0; y < h; y++) {
+            raw.write(0); // filter: none
+            int base = y * w;
+            for (int x = 0; x < w; x++) {
+                int argb = pixels[base + x];
+                raw.write((argb >> 16) & 0xFF); // R
+                raw.write((argb >> 8) & 0xFF);  // G
+                raw.write(argb & 0xFF);         // B
+                raw.write((argb >>> 24) & 0xFF);// A
+            }
+        }
+
+        byte[] rawData = raw.toByteArray();
+        Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
+        try {
+            deflater.setInput(rawData);
+            deflater.finish();
+            ByteArrayOutputStream compressed = new ByteArrayOutputStream(rawData.length);
+            byte[] buf = new byte[8192];
+            while (!deflater.finished()) {
+                int n = deflater.deflate(buf);
+                compressed.write(buf, 0, n);
+            }
+            return compressed.toByteArray();
+        } finally {
+            deflater.end();
+        }
+    }
+
+    private static void putIntBE(byte[] data, int offset, int value) {
+        data[offset] = (byte) (value >>> 24);
+        data[offset + 1] = (byte) (value >>> 16);
+        data[offset + 2] = (byte) (value >>> 8);
+        data[offset + 3] = (byte) value;
+    }
+}

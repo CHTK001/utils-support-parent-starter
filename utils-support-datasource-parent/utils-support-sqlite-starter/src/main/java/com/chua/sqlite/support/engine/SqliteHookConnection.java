@@ -15,23 +15,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * SQLite update_hook 原生连接封装（真正响应式）。
- *
- * <p>通过 Java FFM（Project Panama）绑定 native 库。<br>
- * 后台 drain 线程使用 {@code hook_wait()} OS 级阻塞等待 pipe 事件，异步推入
- * {@link Sinks.Many}，{@link #exec(String)} 仅执行 SQL，不阻塞、不轮询。<br>
- * {@link #changes()} 返回 replay Flux，支持多订阅者（最近 2048 条历史）。</p>
- *
- * @author CH
- * @since 4.0.0.44
- */
 public final class SqliteHookConnection implements AutoCloseable {
 
     private static final Linker LINKER = Linker.nativeLinker();
     private static volatile SymbolLookup SYM_LOOKUP;
     private static final int MAX_REPLAY = 2048;
-    private static final int DRAIN_TIMEOUT_MS = 5000;
+    private static final int DRAIN_TIMEOUT_MS = 100;
 
     private static volatile MethodHandle HOOK_OPEN_HANDLE;
     private static volatile MethodHandle HOOK_WAIT_HANDLE;
@@ -46,7 +35,6 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicReference<Thread> drainThread = new AtomicReference<>();
-    private final MemorySegment drainBufSeg = MemorySegment.NULL;
 
     public static SqliteHookConnection open(String dbPath) {
         if (!loadLibrary()) return null;
@@ -57,6 +45,7 @@ public final class SqliteHookConnection implements AutoCloseable {
             conn.startDrainThread();
             return conn;
         } catch (Throwable e) {
+            System.err.println("[OPEN] error: " + e);
             return null;
         }
     }
@@ -67,31 +56,43 @@ public final class SqliteHookConnection implements AutoCloseable {
     }
 
     private void startDrainThread() {
-        Thread t = new Thread(this::drainLoop, "sqlite-hook-drain");
+        Thread t = new Thread(() -> {
+            System.out.println("[DRAIN] thread started: " + Thread.currentThread().getName());
+            try (var arena = Arena.ofConfined()) {
+                MemorySegment buf = arena.allocate(512);
+                int loops = 0;
+                while (running.get()) {
+                    try {
+                        int len = (int) HOOK_WAIT_HANDLE.invoke(handle, buf, 512, DRAIN_TIMEOUT_MS);
+                        loops++;
+                        System.out.println("[DRAIN] loop=" + loops + " len=" + len + " handle=" + handle);
+                        if (len <= 0) continue;
+                        String json = buf.getString(0, StandardCharsets.UTF_8);
+                        System.out.println("[DRAIN] json=" + json);
+                        SqliteChangeEvent event = parseEvent(json);
+                        if (event != null) {
+                            allEvents.add(event);
+                            if (allEvents.size() > MAX_REPLAY) {
+                                allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
+                            }
+                            System.out.println("[DRAIN] emitting event: " + event.getType());
+                            sink.tryEmitNext(event);
+                        }
+                    } catch (Throwable e) {
+                        System.err.println("[DRAIN] inner error: " + e);
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Throwable e) {
+                System.err.println("[DRAIN] outer error: " + e);
+                e.printStackTrace();
+                if (running.get()) sink.tryEmitError(e);
+            }
+            System.out.println("[DRAIN] exiting loop");
+        }, "sqlite-hook-drain");
         t.setDaemon(true);
         t.start();
         drainThread.set(t);
-    }
-
-    private void drainLoop() {
-        try (var arena = Arena.ofConfined()) {
-            MemorySegment buf = arena.allocate(512);
-            while (running.get()) {
-                int len = (int) HOOK_WAIT_HANDLE.invoke(handle, buf, 512, DRAIN_TIMEOUT_MS);
-                if (len <= 0) continue;
-                String json = buf.getString(0, StandardCharsets.UTF_8);
-                SqliteChangeEvent event = parseEvent(json);
-                if (event != null) {
-                    allEvents.add(event);
-                    if (allEvents.size() > MAX_REPLAY) {
-                        allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
-                    }
-                    sink.tryEmitNext(event);
-                }
-            }
-        } catch (Throwable e) {
-            if (running.get()) sink.tryEmitError(e);
-        }
     }
 
     private static boolean loadLibrary() {
@@ -124,9 +125,12 @@ public final class SqliteHookConnection implements AutoCloseable {
                 HOOK_CLOSE_HANDLE = bind("hook_close", FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
                 LIBRARY_OK = true;
                 LIBRARY_RESOLVED = true;
+                System.out.println("[LIB] loaded successfully");
                 return true;
             } catch (Throwable e) {
                 LIBRARY_RESOLVED = true;
+                System.err.println("[LIB] error: " + e);
+                e.printStackTrace();
                 return false;
             }
         }
@@ -138,20 +142,15 @@ public final class SqliteHookConnection implements AutoCloseable {
         return LINKER.downcallHandle(sym, desc);
     }
 
-    /**
-     * 执行 SQL。纯非阻塞调用，事件由后台 drain 线程异步处理。
-     */
     public int exec(String sql) {
         try (var arena = Arena.ofConfined()) {
             return (int) HOOK_EXEC_HANDLE.invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
         } catch (Throwable e) {
+            System.err.println("[EXEC] error: " + e);
             return -1;
         }
     }
 
-    /**
-     * 变更事件响应式流。新订阅者先 replay 历史事件，再接收实时事件。
-     */
     public Flux<SqliteChangeEvent> changes() {
         List<SqliteChangeEvent> snap = new ArrayList<>(allEvents);
         return Flux.concat(Flux.fromIterable(snap), sink.asFlux().skip(snap.size()));
@@ -159,13 +158,14 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     @Override
     public void close() {
+        System.out.println("[CLOSE] closing, running=" + running.get() + " handle=" + handle);
         running.set(false);
         Thread t = drainThread.getAndSet(null);
         if (t != null) {
-            try { t.join(2000); } catch (InterruptedException ignored) {}
+            try { t.join(2000); System.out.println("[CLOSE] drain thread joined"); } catch (InterruptedException ignored) {}
         }
         sink.tryEmitComplete();
-        try { HOOK_CLOSE_HANDLE.invoke(handle); } catch (Throwable ignored) {}
+        try { HOOK_CLOSE_HANDLE.invoke(handle); System.out.println("[CLOSE] hook_close done"); } catch (Throwable ignored) {}
     }
 
     public boolean isOpen() {
