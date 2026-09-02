@@ -215,7 +215,7 @@ public class PpOcrOpencvTranslator {
     }
 
     public void close() {
-        if (net != null) { net.release(); net = null; }
+        // net lifecycle managed by GC (OpenCV Java binding)
         if (modelFile != null) { modelFile.toFile().delete(); modelFile = null; }
     }
 }
