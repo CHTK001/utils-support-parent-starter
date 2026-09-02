@@ -192,19 +192,7 @@
             <version>3.26.3</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.11.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.11.4</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- 娴嬭瘯鐢ㄤ緥鏁版嵁锛氱敱娴嬭瘯鏈熷湪 test classpath 瑙ｆ瀽浣跨敤 -->
+        <!-- 测试用例数据：由测试期在 test classpath 解析使用 -->
         
         
         

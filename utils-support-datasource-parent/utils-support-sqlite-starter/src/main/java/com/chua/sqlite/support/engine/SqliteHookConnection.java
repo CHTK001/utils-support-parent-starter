@@ -1,5 +1,6 @@
 package com.chua.sqlite.support.engine;
 
+import com.chua.common.support.utils.NativeLoader;
 import java.io.InputStream;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
@@ -129,24 +130,10 @@ public final class SqliteHookConnection implements AutoCloseable {
         synchronized (SqliteHookConnection.class) {
             if (LIBRARY_RESOLVED) return LIBRARY_OK;
             try {
-                String platform = System.getProperty("os.name").toLowerCase().contains("win")
-                        ? "windows-x86_64" : "linux-x86_64";
-                String libName = System.getProperty("os.name").toLowerCase().contains("win")
-                        ? "sqlite3_hook.dll" : "libsqlite3_hook.so";
-                String path = "/native/" + platform + "/" + libName;
-                InputStream is = SqliteHookConnection.class.getResourceAsStream(path);
-                if (is == null) {
-                    is = SqliteHookConnection.class.getResourceAsStream("/native/" + libName);
-                }
-                if (is == null) {
-                    System.loadLibrary(libName.replace(".dll", "").replace("lib", ""));
-                } else {
-                    Path tmp = Files.createTempFile("sqlite3_hook_", "_" + libName);
-                    Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
-                    tmp.toFile().deleteOnExit();
-                    System.load(tmp.toAbsolutePath().toString());
-                    is.close();
-                }
+                NativeLoader.of("sqlite3-hook")
+                        .glob("sqlite3_hook*.dll")
+                        .toTarget(NativeLoader.tempRoot().resolve("sqlite3-hook").toFile().getAbsolutePath())
+                        .load();
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
                 HOOK_OPEN_HANDLE  = bind("hook_open",  FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
                 HOOK_POLL_HANDLE  = bind("hook_poll",  FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
