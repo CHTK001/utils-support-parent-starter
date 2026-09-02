@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author CH
  * @since 4.0.0.43
  */
-class SqliteReactiveChangesTest {
+public class SqliteReactiveChangesTest {
 
     /**
      * hook 连接打开时，INSERT/UPDATE/DELETE 变更能被实时捕获并推送到 Flux。
@@ -131,3 +131,4 @@ class SqliteReactiveChangesTest {
         engine.close();
     }
 }
+
