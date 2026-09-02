@@ -73,9 +73,12 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                 try (SevenZFile sz = SevenZFile.builder().setPath(tmp).get()) {
                     org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
                     while ((entry = sz.getNextEntry()) != null) {
-                        if (entry.isDirectory()) { dirCount++; continue; }
-                        entries.add(new EntryInfo(
-                                entry.getName(), entry.getSize(), entry.getLastModifiedDate(), false));
+                        if (entry.isDirectory()) {
+                            dirCount++;
+                            continue;
+                        }
+                        Date date = safeLastModifiedDate(entry);
+                        entries.add(new EntryInfo(entry.getName(), entry.getSize(), date, false));
                         totalSize += entry.getSize();
                     }
                 }

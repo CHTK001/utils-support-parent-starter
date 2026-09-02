@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx.idcard;
 
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
+import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.translate.Translator;
@@ -14,6 +15,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +24,6 @@ import java.util.List;
  *
  * <p>组合 YOLOv8 身份证检测 + PaddleOCR 文字识别 + 结构化解析，
  * 从身份证图片中提取姓名、身份证号、地址等字段。</p>
- *
- * <pre>{@code
- * CnIdCardRecognizer recognizer = new CnIdCardRecognizer();
- * CnIdCardResult result = recognizer.recognize(imageBytes);
- * System.out.println(result.getName());
- * System.out.println(result.getIdNumber());
- * }</pre>
  *
  * @author CH
  * @since 4.0.0.43
@@ -59,42 +54,38 @@ public class CnIdCardRecognizer {
     public List<CnIdCardResult> recognize(byte[] imageData) {
         List<CnIdCardResult> results = new ArrayList<>();
         try {
-            // 1. 检测身份证区域
             DetectedObjects cards = detectCard(imageData);
-            if (cards == null || cards.getProbabilities().isEmpty()) {
+            if (cards == null || cards.getNumberOfObjects() == 0) {
                 log.warn("[CnIdCard] 未检测到身份证");
                 return results;
             }
 
-            // 2. 对每个检测到的身份证区域进行 OCR
             BufferedImage srcImg = bytesToBufferedImage(imageData);
-            for (int i = 0; i < cards.getProbabilities().size(); i++) {
-                Rectangle box = cards.getBoundingBoxes().get(i);
-                float score = cards.getProbabilities().get(i).floatValue();
+            List<BoundingBox> bboxes = getBoundingBoxes(cards);
+            List<Double> probs = getProbabilities(cards);
 
-                // 裁剪身份证区域
+            for (int i = 0; i < cards.getNumberOfObjects(); i++) {
+                BoundingBox box = bboxes.get(i);
+                float score = probs.get(i).floatValue();
+
                 int w = srcImg.getWidth();
                 int h = srcImg.getHeight();
-                int x1 = Math.max(0, (int) (box.getX() * w));
-                int y1 = Math.max(0, (int) (box.getY() * h));
-                int x2 = Math.min(w, (int) (box.getX() * w + box.getWidth() * w));
-                int y2 = Math.min(h, (int) (box.getY() * h + box.getHeight() * h));
+                Rectangle r = box.getBounds();
+                int x1 = Math.max(0, (int) (r.getX() * w));
+                int y1 = Math.max(0, (int) (r.getY() * h));
+                int x2 = Math.min(w, (int) (r.getX() * w + r.getWidth() * w));
+                int y2 = Math.min(h, (int) (r.getY() * h + r.getHeight() * h));
 
                 if (x2 <= x1 || y2 <= y1) continue;
 
                 BufferedImage crop = srcImg.getSubimage(x1, y1, x2 - x1, y2 - y1);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(crop, "png", baos);
-                byte[] cropped = baos.toByteArray();
-
-                // 3. OCR 识别
+                byte[] cropped = toByteArray(crop);
                 String text = recognizeText(cropped);
                 if (text == null || text.isBlank()) {
                     log.warn("[CnIdCard] OCR 未识别到文字");
                     continue;
                 }
 
-                // 4. 结构化解析
                 CnIdCardResult parsed = PARSER.parse(text);
                 if (parsed != null && parsed.isValid()) {
                     parsed.setConfidence(score);
@@ -148,6 +139,24 @@ public class CnIdCardRecognizer {
             log.error("[CnIdCard] 创建 translator 失败: {}", e.getMessage(), e);
             return null;
         }
+    }
+
+    private List<BoundingBox> getBoundingBoxes(DetectedObjects cards) throws Exception {
+        Field f = cards.getClass().getDeclaredField("boundingBoxes");
+        f.setAccessible(true);
+        return (List<BoundingBox>) f.get(cards);
+    }
+
+    private List<Double> getProbabilities(DetectedObjects cards) throws Exception {
+        Field f = cards.getClass().getSuperclass().getDeclaredField("probabilities");
+        f.setAccessible(true);
+        return (List<Double>) f.get(cards);
+    }
+
+    private byte[] toByteArray(BufferedImage img) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        return baos.toByteArray();
     }
 
     private BufferedImage bytesToBufferedImage(byte[] data) throws Exception {
