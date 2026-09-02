@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.function.Supplier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -216,6 +217,18 @@ public class ProcessCmdExecutor implements CmdExecutor {
         return doExecute(command, timeout, unit);
     }
 
+    @Override
+    /** 执行 */
+    public CmdResult execute(String[] command) {
+        return doExecuteArray(command, NO_TIMEOUT, null);
+    }
+
+    @Override
+    /** 执行 */
+    public CmdResult execute(String[] command, long timeout, TimeUnit unit) {
+        return doExecuteArray(command, timeout, unit);
+    }
+
     /**
      * 实际执行逻辑
      *
@@ -228,19 +241,41 @@ public class ProcessCmdExecutor implements CmdExecutor {
         long startTime = System.currentTimeMillis();
 
         if (StringUtils.isNullOrEmpty(command)) {
-            return CmdResult.builder()
-                    .exitCode(CmdResult.EXIT_CODE_ERROR)
-                    .command(command)
-                    .startTime(startTime)
-                    .endTime(System.currentTimeMillis())
-                    .throwable(new IllegalArgumentException(ERR_INVALID_COMMAND))
-                    .build();
+            return errorResult(command, startTime, new IllegalArgumentException(ERR_INVALID_COMMAND));
         }
+        return executeInternal(parseCommand(command), command, timeout, unit, startTime);
+    }
 
+    /**
+     * 数组形式的执行入口：跳过命令字符串解析，直接把参数交给 {@link ProcessBuilder}。
+     *
+     * @param command 程序名与参数数组
+     * @param timeout 超时值（≤0 表示不超时）
+     * @param unit    超时单位
+     * @return 执行结果
+     */
+    private CmdResult doExecuteArray(String[] command, long timeout, TimeUnit unit) {
+        long startTime = System.currentTimeMillis();
+
+        if (command == null || command.length == 0) {
+            return errorResult(joinCommand(command), startTime, new IllegalArgumentException(ERR_INVALID_COMMAND));
+        }
+        return executeInternal(command, joinCommand(command), timeout, unit, startTime);
+    }
+
+    /**
+     * 命令执行的主体逻辑，同步执行与数组执行共用。
+     *
+     * @param cmdArray       已解析好的参数数组
+     * @param displayCommand 用于结果展示与日志的命令字符串
+     * @param timeout        超时值（≤0 表示不超时）
+     * @param unit           超时单位
+     * @param startTime      起始时间戳
+     * @return 执行结果
+     */
+    private CmdResult executeInternal(String[] cmdArray, String displayCommand,
+                                      long timeout, TimeUnit unit, long startTime) {
         try {
-            // 解析命令为参数数组
-            String[] cmdArray = parseCommand(command);
-
             // 构建 ProcessBuilder 并设置工作目录与流合并策略
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             if (workDirectory != null) {
@@ -281,30 +316,59 @@ public class ProcessCmdExecutor implements CmdExecutor {
                     .exitCode(exitCode)
                     .stdout(stdoutGobbler.getContent())
                     .stderr(stderrGobbler.getContent())
-                    .command(command)
+                    .command(displayCommand)
                     .startTime(startTime)
                     .endTime(endTime)
                     .timeout(timedOut)
                     .build();
 
         } catch (IOException e) {
-            return CmdResult.builder()
-                    .exitCode(CmdResult.EXIT_CODE_ERROR)
-                    .command(command)
-                    .startTime(startTime)
-                    .endTime(System.currentTimeMillis())
-                    .throwable(e)
-                    .build();
+            return errorResult(displayCommand, startTime, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return CmdResult.builder()
-                    .exitCode(CmdResult.EXIT_CODE_ERROR)
-                    .command(command)
-                    .startTime(startTime)
-                    .endTime(System.currentTimeMillis())
-                    .throwable(e)
-                    .build();
+            return errorResult(displayCommand, startTime, e);
         }
+    }
+
+    /**
+     * 构建执行异常的结果对象。
+     *
+     * @param command   命令字符串
+     * @param startTime 起始时间戳
+     * @param throwable 异常对象
+     * @return 错误结果
+     */
+    private static CmdResult errorResult(String command, long startTime, Throwable throwable) {
+        return CmdResult.builder()
+                .exitCode(CmdResult.EXIT_CODE_ERROR)
+                .command(command)
+                .startTime(startTime)
+                .endTime(System.currentTimeMillis())
+                .throwable(throwable)
+                .build();
+    }
+
+    /**
+     * 将参数数组拼接为命令字符串，仅用于结果展示与日志。
+     *
+     * @param command 参数数组
+     * @return 拼接后的命令字符串
+     */
+    private static String joinCommand(String[] command) {
+        if (command == null || command.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String arg : command) {
+            if (arg == null) {
+                continue;
+            }
+            if (sb.length() > 0) {
+                sb.append(' ');
+            }
+            sb.append(arg);
+        }
+        return sb.toString();
     }
 
     // ==================== 异步执行 ====================
@@ -321,6 +385,18 @@ public class ProcessCmdExecutor implements CmdExecutor {
         doExecuteAsync(command, timeout, unit, callback);
     }
 
+    @Override
+    /** 执行Async */
+    public void executeAsync(String[] command, CmdCallback callback) {
+        doExecuteArrayAsync(command, NO_TIMEOUT, null, callback);
+    }
+
+    @Override
+    /** 执行Async */
+    public void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback) {
+        doExecuteArrayAsync(command, timeout, unit, callback);
+    }
+
     /**
      * 异步执行逻辑
      *
@@ -330,27 +406,51 @@ public class ProcessCmdExecutor implements CmdExecutor {
      * @param callback 执行回调，允许为空
      */
     private void doExecuteAsync(String command, long timeout, TimeUnit unit, CmdCallback callback) {
-        if (callback == null) {
-            callback = new CmdCallback() {
-                @Override
-                /** OnComplete */
-                public void onComplete(CmdResult result) {
-                    // 空操作：未指定回调时静默完成
-                }
-            };
-        }
+        submitAsync(command, timeout, unit, callback, () -> doExecute(command, timeout, unit));
+    }
 
-        CmdCallback finalCallback = callback;
+    /**
+     * 数组形式的异步执行入口：跳过命令字符串解析。
+     *
+     * @param command  程序名与参数数组
+     * @param timeout  超时值（≤0 表示不超时）
+     * @param unit     超时单位
+     * @param callback 执行回调，允许为空
+     */
+    private void doExecuteArrayAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback) {
+        String displayCommand = joinCommand(command);
+        submitAsync(displayCommand, timeout, unit, callback, () -> doExecuteArray(command, timeout, unit));
+    }
+
+    /**
+     * 提交异步执行任务的公共逻辑，字符串与数组两种入口共用。
+     *
+     * @param displayCommand 用于回调通知的命令字符串
+     * @param timeout        超时值（≤0 表示不超时）
+     * @param unit           超时单位
+     * @param callback       执行回调，允许为空
+     * @param task           实际执行动作
+     */
+    private void submitAsync(String displayCommand, long timeout, TimeUnit unit,
+                             CmdCallback callback, Supplier<CmdResult> task) {
+        CmdCallback finalCallback = callback != null ? callback : new CmdCallback() {
+            @Override
+            /** OnComplete */
+            public void onComplete(CmdResult result) {
+                // 空操作：未指定回调时静默完成
+            }
+        };
+
         executorService.submit(() -> {
             try {
-                finalCallback.onStart(command);
-                CmdResult result = doExecute(command, timeout, unit);
+                finalCallback.onStart(displayCommand);
+                CmdResult result = task.get();
                 if (result.isTimeout()) {
-                    finalCallback.onTimeout(command, timeout, unit);
+                    finalCallback.onTimeout(displayCommand, timeout, unit);
                 }
                 finalCallback.onComplete(result);
             } catch (Throwable t) {
-                finalCallback.onError(command, t);
+                finalCallback.onError(displayCommand, t);
             }
         });
     }
@@ -363,24 +463,54 @@ public class ProcessCmdExecutor implements CmdExecutor {
         long startTime = System.currentTimeMillis();
 
         if (StringUtils.isNullOrEmpty(command)) {
-            CmdResult result = CmdResult.builder()
-                    .exitCode(CmdResult.EXIT_CODE_ERROR)
-                    .command(command)
-                    .startTime(startTime)
-                    .endTime(System.currentTimeMillis())
-                    .throwable(new IllegalArgumentException(ERR_INVALID_COMMAND))
-                    .build();
-            callback.onError(command, result.getThrowable());
-            return result;
+            return invalidCommandResult(command, startTime, callback);
         }
+        return executeWithOutputInternal(parseCommand(command), command, timeout, unit, callback, startTime);
+    }
 
+    @Override
+    /** 执行WithOutput */
+    public CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback) {
+        long startTime = System.currentTimeMillis();
+
+        if (command == null || command.length == 0) {
+            return invalidCommandResult(joinCommand(command), startTime, callback);
+        }
+        return executeWithOutputInternal(command, joinCommand(command), timeout, unit, callback, startTime);
+    }
+
+    /**
+     * 构建空命令的失败结果并通知回调。
+     *
+     * @param command   命令字符串
+     * @param startTime 起始时间戳
+     * @param callback  逐行回调
+     * @return 错误结果
+     */
+    private static CmdResult invalidCommandResult(String command, long startTime, LineCallback callback) {
+        CmdResult result = errorResult(command, startTime, new IllegalArgumentException(ERR_INVALID_COMMAND));
+        callback.onError(command, result.getThrowable());
+        return result;
+    }
+
+    /**
+     * 实时输出执行的主体逻辑，字符串与数组两种入口共用。
+     *
+     * @param cmdArray       已解析好的参数数组
+     * @param displayCommand 用于结果展示与回调通知的命令字符串
+     * @param timeout        超时值（≤0 表示不超时）
+     * @param unit           超时单位
+     * @param callback       逐行回调
+     * @param startTime      起始时间戳
+     * @return 执行结果
+     */
+    private CmdResult executeWithOutputInternal(String[] cmdArray, String displayCommand,
+                                                long timeout, TimeUnit unit,
+                                                LineCallback callback, long startTime) {
         try {
-            // 解析命令为参数数组
-            String[] cmdArray = parseCommand(command);
-
             // 优先使用 ConPTY（Windows 10 1809+ 支持进度条与 ANSI 转义）
             if (WindowsConPtyProcess.isAvailable() && WindowsConPtyProcess.isWindows()) {
-                return doExecuteWithOutputConPty(cmdArray, command, workDirectory,
+                return doExecuteWithOutputConPty(cmdArray, displayCommand, workDirectory,
                         charset, timeout, unit, callback, startTime);
             }
 
@@ -416,7 +546,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
             CmdResult result = CmdResult.builder()
                     .exitCode(exitCode)
                     .stdout(outputGobbler.getContent())
-                    .command(command)
+                    .command(displayCommand)
                     .startTime(startTime)
                     .endTime(endTime)
                     .timeout(timedOut)
@@ -426,14 +556,8 @@ public class ProcessCmdExecutor implements CmdExecutor {
             return result;
 
         } catch (Exception e) {
-            CmdResult result = CmdResult.builder()
-                    .exitCode(CmdResult.EXIT_CODE_ERROR)
-                    .command(command)
-                    .startTime(startTime)
-                    .endTime(System.currentTimeMillis())
-                    .throwable(e)
-                    .build();
-            callback.onError(command, e);
+            CmdResult result = errorResult(displayCommand, startTime, e);
+            callback.onError(displayCommand, e);
             return result;
         }
     }
