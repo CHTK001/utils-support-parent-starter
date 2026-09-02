@@ -102,7 +102,7 @@ public class PpOcrOpencvTranslator {
 
             // Create input blob [1,3,48,W] CV_32F
             Mat inputBlob = new Mat();
-            inputBlob.create(1, new int[]{1, 3, IMG_H, resizeW}, CvType.CV_32F);
+            inputBlob.create(new int[]{1, 3, IMG_H, resizeW}, CvType.CV_32F);
             inputBlob.put(0, 0, pixels);
 
             // Forward pass
@@ -198,7 +198,7 @@ public class PpOcrOpencvTranslator {
                 if (is == null) throw new IllegalStateException("模型未找到: " + modelResourcePath);
                 Files.copy(is, modelFile);
             }
-            net = Dnn.readNetFromOnnx(modelFile.toString());
+            net = Dnn.readNetFromONNX(modelFile.toString());
             log.info("[PpOcrOpencv] ONNX loaded: {} dict_size={}", modelFile.getFileName(), dict.size());
         } catch (Exception e) {
             throw new RuntimeException("[PpOcrOpencv] 模型加载失败: " + e.getMessage(), e);
@@ -206,13 +206,16 @@ public class PpOcrOpencvTranslator {
     }
 
     private static Mat decodeImage(byte[] data) {
-        try (Mat mob = new Mat()) {
+        Mat mob = new Mat();
+        try {
             return Imgcodecs.imdecode(new org.opencv.core.MatOfByte(data), Imgcodecs.IMREAD_COLOR);
+        } finally {
+            mob.release();
         }
     }
 
     public void close() {
-        if (net != null) { net.close(); net = null; }
+        if (net != null) { net.release(); net = null; }
         if (modelFile != null) { modelFile.toFile().delete(); modelFile = null; }
     }
 }
