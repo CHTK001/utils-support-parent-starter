@@ -41,7 +41,6 @@ utils-support-parent-starter/
 │   ├── spring-starter                        # Spring integration
 │   ├── extension-starter                     # Extensions
 │   ├── spider-starter                        # Web crawler
-│   └── example-starter                       # Usage examples
 │
 ├── cloud-parent/                             # Cloud services
 │   ├── alibaba-starter / tencent-starter     # OSS, SMS, LLM

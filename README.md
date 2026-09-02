@@ -41,7 +41,6 @@ utils-support-parent-starter/
 │   ├── spring-starter                        # Spring 集成
 │   ├── extension-starter                     # 扩展功能
 │   ├── spider-starter                        # 爬虫框架
-│   └── example-starter                       # 使用示例
 │
 ├── cloud-parent/                             # 云服务集成
 │   ├── alibaba-starter / tencent-starter     # 阿里云 OSS/短信/大模型
