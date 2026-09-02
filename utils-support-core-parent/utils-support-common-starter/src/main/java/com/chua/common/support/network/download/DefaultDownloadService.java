@@ -1,5 +1,8 @@
 package com.chua.common.support.network.download;
 
+import com.chua.common.support.lang.process.ProgressBar;
+import com.chua.common.support.lang.process.ProgressBarBuilder;
+import com.chua.common.support.lang.process.ProgressBarStyle;
 import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.spi.annotations.Spi;
