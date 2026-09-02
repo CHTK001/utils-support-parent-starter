@@ -1,13 +1,10 @@
 package com.chua.sqlite.support.engine;
 
 import com.chua.common.support.utils.NativeLoader;
-import java.io.InputStream;
+import com.chua.common.support.utils.NativeUtils;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -131,8 +128,8 @@ public final class SqliteHookConnection implements AutoCloseable {
             if (LIBRARY_RESOLVED) return LIBRARY_OK;
             try {
                 NativeLoader.of("sqlite3-hook")
-                        .glob("sqlite3_hook*.dll")
-                        .toTarget(NativeLoader.tempRoot().resolve("sqlite3-hook").toFile().getAbsolutePath())
+                        .glob(NativeUtils.getLibraryFileName("sqlite3_hook"))
+                        .toTarget(NativeUtils.tempRoot().resolve("sqlite3-hook").toFile().getAbsolutePath())
                         .load();
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
                 HOOK_OPEN_HANDLE  = bind("hook_open",  FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
