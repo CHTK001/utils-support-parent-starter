@@ -279,9 +279,10 @@
       "id": "cn-clip-image",
       "translator": "clip.CnClipImageFeatureTranslator",
       "capability": "图像分类",
-      "path": "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.img.b1.fp32.onnx",
-      "status": "pending",
-      "notes": "OFA-Sys/Chinese-CLIP 图像特征提取（图文相似度、跨模态检索）。官方仓库支持 ONNX 部署（deployment.md）。注册 URL 指向的 gficcg/clip_cn_vit-onnx 已改为 external-data 格式不可用。需从 OFA-Sys 官方 HF 仓库导出 ONNX 或从 ModelScope 下载预转换版本，放到 models/vision/zeroshot/cn-clip-vit-b-16/。"
+      "path": "vision/zeroshot/cn-clip-vit-b-16/vit-b-16.img.dyn.fp16.onnx",
+      "status": "verified",
+      "notes": "CN-CLIP ViT-B/16 图像编码器 fp16 ONNX，输出 512 维嵌入向量，与 cn-clip-text 配对使用余弦相似度",
+      "date": "2026-09-02"
     },
     {
       "id": "cn-clip-text",

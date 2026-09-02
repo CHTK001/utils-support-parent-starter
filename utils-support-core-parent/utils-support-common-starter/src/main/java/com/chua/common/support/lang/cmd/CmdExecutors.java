@@ -137,6 +137,31 @@ public final class CmdExecutors {
         return getExecutor().execute(command, timeout, unit);
     }
 
+    /**
+     * 同步执行数组形式的命令。
+     *
+     * <p>数组形式直接对应进程的参数列表，不经 Shell 解析、无需引号转义，
+     * 参数中的空格与特殊字符都按字面量传递。凡是由程序生成的参数都应使用此形式。</p>
+     *
+     * @param command 程序名与参数数组
+     * @return 命令执行结果
+     */
+    public static CmdResult execute(String[] command) {
+        return getExecutor().execute(command);
+    }
+
+    /**
+     * 同步执行数组形式的命令（带超时）。
+     *
+     * @param command 程序名与参数数组
+     * @param timeout 超时时间值
+     * @param unit    超时时间单位
+     * @return 命令执行结果
+     */
+    public static CmdResult execute(String[] command, long timeout, TimeUnit unit) {
+        return getExecutor().execute(command, timeout, unit);
+    }
+
     // ==================== 异步执行 ====================
 
     /**
@@ -243,6 +268,30 @@ public final class CmdExecutors {
      * @return 命令执行结果
      */
     public static CmdResult executeWithOutput(String command, long timeout, TimeUnit unit, LineCallback callback) {
+        return getExecutor().executeWithOutput(command, timeout, unit, callback);
+    }
+
+    /**
+     * 同步执行数组形式的命令并逐行接收输出。
+     *
+     * @param command  程序名与参数数组
+     * @param callback 逐行输出回调
+     * @return 命令执行结果
+     */
+    public static CmdResult executeWithOutput(String[] command, LineCallback callback) {
+        return getExecutor().executeWithOutput(command, callback);
+    }
+
+    /**
+     * 同步执行数组形式的命令（带超时）并逐行接收输出。
+     *
+     * @param command  程序名与参数数组
+     * @param timeout  超时时间值
+     * @param unit     超时时间单位
+     * @param callback 逐行输出回调
+     * @return 命令执行结果
+     */
+    public static CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback) {
         return getExecutor().executeWithOutput(command, timeout, unit, callback);
     }
 
