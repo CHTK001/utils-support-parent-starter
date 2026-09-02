@@ -125,10 +125,10 @@ public class SqliteReactiveChangesTest {
         SqliteReactorEngine engine = new SqliteReactorEngine();
         engine.addDataSource("default", ":memory:");
 
-        StepVerifier.create(engine.changes())
-                .verifyComplete();
-
-        engine.close();
+        engine.close(); StepVerifier.create(engine.changes()).verifyComplete();
     }
 }
+
+
+
 

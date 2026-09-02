@@ -12,25 +12,29 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * SQLite update_hook 原生连接封装。
+ * SQLite update_hook 原生连接封装（真正响应式）。
  *
- * <p>通过 Java FFM（Project Panama）绑定 native 库。
- * 写操作通过 {@link #exec(String)} 执行，变更事件同步排空并推送到
- * {@link #changes()} 响应式流。支持多订阅者重放最近 2048 条事件。</p>
+ * <p>通过 Java FFM（Project Panama）绑定 native 库。<br>
+ * 后台 drain 线程使用 {@code hook_wait()} OS 级阻塞等待 pipe 事件，异步推入
+ * {@link Sinks.Many}，{@link #exec(String)} 仅执行 SQL，不阻塞、不轮询。<br>
+ * {@link #changes()} 返回 replay Flux，支持多订阅者（最近 2048 条历史）。</p>
  *
  * @author CH
- * @since 4.0.0.43
+ * @since 4.0.0.44
  */
 public final class SqliteHookConnection implements AutoCloseable {
 
     private static final Linker LINKER = Linker.nativeLinker();
     private static volatile SymbolLookup SYM_LOOKUP;
     private static final int MAX_REPLAY = 2048;
+    private static final int DRAIN_TIMEOUT_MS = 5000;
 
     private static volatile MethodHandle HOOK_OPEN_HANDLE;
-    private static volatile MethodHandle HOOK_POLL_HANDLE;
+    private static volatile MethodHandle HOOK_WAIT_HANDLE;
     private static volatile MethodHandle HOOK_EXEC_HANDLE;
     private static volatile MethodHandle HOOK_CLOSE_HANDLE;
     private static volatile boolean LIBRARY_RESOLVED = false;
@@ -40,20 +44,54 @@ public final class SqliteHookConnection implements AutoCloseable {
     private final Sinks.Many<SqliteChangeEvent> sink;
     private final List<SqliteChangeEvent> allEvents = new CopyOnWriteArrayList<>();
 
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicReference<Thread> drainThread = new AtomicReference<>();
+    private final MemorySegment drainBufSeg = MemorySegment.NULL;
+
     public static SqliteHookConnection open(String dbPath) {
         if (!loadLibrary()) return null;
         try (var arena = Arena.ofConfined()) {
             MemorySegment h = (MemorySegment) HOOK_OPEN_HANDLE.invoke(arena.allocateFrom(dbPath, StandardCharsets.UTF_8));
-            return (h != null && !h.equals(MemorySegment.NULL)) ? new SqliteHookConnection(h) : null;
+            if (h == null || h.equals(MemorySegment.NULL)) return null;
+            SqliteHookConnection conn = new SqliteHookConnection(h);
+            conn.startDrainThread();
+            return conn;
         } catch (Throwable e) {
             return null;
         }
     }
 
-    @SuppressWarnings("unchecked")
     private SqliteHookConnection(MemorySegment handle) {
         this.handle = handle;
         this.sink = Sinks.many().multicast().onBackpressureBuffer(MAX_REPLAY);
+    }
+
+    private void startDrainThread() {
+        Thread t = new Thread(this::drainLoop, "sqlite-hook-drain");
+        t.setDaemon(true);
+        t.start();
+        drainThread.set(t);
+    }
+
+    private void drainLoop() {
+        try (var arena = Arena.ofConfined()) {
+            MemorySegment buf = arena.allocate(512);
+            while (running.get()) {
+                int len = (int) HOOK_WAIT_HANDLE.invoke(handle, buf, 512, DRAIN_TIMEOUT_MS);
+                if (len <= 0) continue;
+                String json = buf.getString(0, StandardCharsets.UTF_8);
+                SqliteChangeEvent event = parseEvent(json);
+                if (event != null) {
+                    allEvents.add(event);
+                    if (allEvents.size() > MAX_REPLAY) {
+                        allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
+                    }
+                    sink.tryEmitNext(event);
+                }
+            }
+        } catch (Throwable e) {
+            if (running.get()) sink.tryEmitError(e);
+        }
     }
 
     private static boolean loadLibrary() {
@@ -80,9 +118,9 @@ public final class SqliteHookConnection implements AutoCloseable {
                     is.close();
                 }
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
-                HOOK_OPEN_HANDLE = bind("hook_open", FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-                HOOK_POLL_HANDLE = bind("hook_poll", FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-                HOOK_EXEC_HANDLE = bind("hook_exec", FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
+                HOOK_OPEN_HANDLE  = bind("hook_open",  FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
+                HOOK_WAIT_HANDLE  = bind("hook_wait",  FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+                HOOK_EXEC_HANDLE  = bind("hook_exec",  FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
                 HOOK_CLOSE_HANDLE = bind("hook_close", FunctionDescriptor.ofVoid(ValueLayout.ADDRESS));
                 LIBRARY_OK = true;
                 LIBRARY_RESOLVED = true;
@@ -101,55 +139,37 @@ public final class SqliteHookConnection implements AutoCloseable {
     }
 
     /**
-     * 执行 SQL 并通过 update_hook 触发变更事件。
-     * 事件在 exec() 返回前同步排空到 replay sink。
+     * 执行 SQL。纯非阻塞调用，事件由后台 drain 线程异步处理。
      */
     public int exec(String sql) {
         try (var arena = Arena.ofConfined()) {
-            int rc = (int) HOOK_EXEC_HANDLE.invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
-            drainBufferSync();
-            return rc;
+            return (int) HOOK_EXEC_HANDLE.invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
         } catch (Throwable e) {
             return -1;
         }
     }
 
     /**
-     * 变更事件响应式流。
-     * 新订阅者收到缓冲区中的历史事件（replay），然后持续接收新事件。
+     * 变更事件响应式流。新订阅者先 replay 历史事件，再接收实时事件。
      */
-    public Flux<SqliteChangeEvent> changes() { List<SqliteChangeEvent> snap = new ArrayList<>(allEvents); return Flux.concat(Flux.fromIterable(snap), sink.asFlux().skip(snap.size())); }
+    public Flux<SqliteChangeEvent> changes() {
+        List<SqliteChangeEvent> snap = new ArrayList<>(allEvents);
+        return Flux.concat(Flux.fromIterable(snap), sink.asFlux().skip(snap.size()));
+    }
 
     @Override
     public void close() {
+        running.set(false);
+        Thread t = drainThread.getAndSet(null);
+        if (t != null) {
+            try { t.join(2000); } catch (InterruptedException ignored) {}
+        }
         sink.tryEmitComplete();
         try { HOOK_CLOSE_HANDLE.invoke(handle); } catch (Throwable ignored) {}
     }
 
     public boolean isOpen() {
-        return handle != null && !handle.equals(MemorySegment.NULL);
-    }
-
-    private void drainBufferSync() {
-        MemorySegment bufSeg = null;
-        try (var arena = Arena.ofConfined()) {
-            bufSeg = arena.allocate(512);
-            while (true) {
-                int len = (int) HOOK_POLL_HANDLE.invoke(handle, bufSeg, 512);
-                if (len <= 0) break;
-                String json = bufSeg.getString(0, StandardCharsets.UTF_8);
-                SqliteChangeEvent event = parseEvent(json);
-                if (event != null) {
-                    allEvents.add(event);
-                    if (allEvents.size() > MAX_REPLAY) {
-                        allEvents.subList(0, allEvents.size() - MAX_REPLAY).clear();
-                    }
-                    sink.tryEmitNext(event);
-                }
-            }
-        } catch (Throwable e) {
-            // drain error
-        }
+        return handle != null && !handle.equals(MemorySegment.NULL) && running.get();
     }
 
     static SqliteChangeEvent parseEvent(String json) {
@@ -199,6 +219,3 @@ public final class SqliteHookConnection implements AutoCloseable {
         catch (NumberFormatException e) { return 0L; }
     }
 }
-
-
-
