@@ -84,6 +84,112 @@ public interface CmdExecutor extends AutoCloseable {
      */
     void executeAsync(String command, long timeout, TimeUnit unit, CmdCallback callback);
 
+    // ==================== 数组形式执行 ====================
+
+    /**
+     * 同步执行数组形式的命令。
+     *
+     * <p>数组形式直接对应 {@link ProcessBuilder} 的参数列表，{@code command[0]} 为可执行程序，
+     * 其余为参数。参数不经 Shell 解析、无需引号转义，因此天然免疫命令注入，
+     * 也不会出现空格、引号在 Windows 与 Unix 上的语义差异。</p>
+     *
+     * <p><strong>凡是程序生成的参数都应使用数组形式</strong>，而非拼成字符串后调用
+     * {@link #execute(String)}——后者需要执行器反向解析，属于有损往返。</p>
+     *
+     * <p>默认实现将数组以空格拼接后委托给 {@link #execute(String)}，
+     * 未覆写的实现类行为与字符串执行保持一致。</p>
+     *
+     * @param command 程序名与参数数组
+     * @return 命令执行结果
+     */
+    default CmdResult execute(String[] command) {
+        return execute(joinCommand(command));
+    }
+
+    /**
+     * 同步执行数组形式的命令，指定超时时间。
+     *
+     * @param command 程序名与参数数组
+     * @param timeout 超时时间值
+     * @param unit    超时时间单位
+     * @return 命令执行结果（可能标记为超时）
+     */
+    default CmdResult execute(String[] command, long timeout, TimeUnit unit) {
+        return execute(joinCommand(command), timeout, unit);
+    }
+
+    /**
+     * 异步执行数组形式的命令，通过回调接收结果。
+     *
+     * @param command  程序名与参数数组
+     * @param callback 结果回调
+     */
+    default void executeAsync(String[] command, CmdCallback callback) {
+        executeAsync(joinCommand(command), callback);
+    }
+
+    /**
+     * 异步执行数组形式的命令（带超时），通过回调接收结果。
+     *
+     * @param command  程序名与参数数组
+     * @param timeout  超时时间值
+     * @param unit     超时时间单位
+     * @param callback 结果回调
+     */
+    default void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback) {
+        executeAsync(joinCommand(command), timeout, unit, callback);
+    }
+
+    /**
+     * 同步执行数组形式的命令并逐行接收输出。
+     *
+     * @param command  程序名与参数数组
+     * @param callback 逐行输出回调
+     * @return 命令执行结果
+     */
+    default CmdResult executeWithOutput(String[] command, LineCallback callback) {
+        return executeWithOutput(joinCommand(command), 0, null, callback);
+    }
+
+    /**
+     * 同步执行数组形式的命令（带超时）并逐行接收输出。
+     *
+     * @param command  程序名与参数数组
+     * @param timeout  超时时间值
+     * @param unit     超时时间单位
+     * @param callback 逐行输出回调
+     * @return 命令执行结果
+     */
+    default CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback) {
+        return executeWithOutput(joinCommand(command), timeout, unit, callback);
+    }
+
+    /**
+     * 将参数数组拼接为命令字符串，供未覆写数组方法的实现类兜底。
+     *
+     * <p>空数组返回空字符串，交由实现类的空命令校验逻辑处理；
+     * 数组中的 null 元素会被跳过，避免拼接时抛出空指针异常。</p>
+     *
+     * @param command 参数数组
+     * @return 拼接后的命令字符串
+     */
+    private static String joinCommand(String[] command) {
+        if (command == null || command.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String arg : command) {
+            if (arg == null) {
+                continue;
+            }
+            if (sb.length() > 0) {
+                sb.append(' ');
+            }
+            sb.append(arg);
+        }
+        return sb.toString();
+    }
+
     /**
      * 释放执行器占用的资源。
      *
