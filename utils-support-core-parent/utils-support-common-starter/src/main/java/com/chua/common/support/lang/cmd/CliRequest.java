@@ -1,11 +1,16 @@
 package com.chua.common.support.lang.cmd;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +47,15 @@ public final class CliRequest {
     private long timeout;
     /** 超时单位 */
     private TimeUnit unit;
+
+    /** 请求级工作目录，null 表示不指定 */
+    private File workingDirectory;
+
+    /** 请求级附加环境变量，null 表示不指定 */
+    private Map<String, String> environment;
+
+    /** 标准输入内容，null 表示不写入 */
+    private String input;
 
     /**
      * 创建请求实例
@@ -124,6 +138,104 @@ public final class CliRequest {
         return this;
     }
 
+    // ==================== 扩展参数：工作目录 / 环境变量 / 标准输入 ====================
+
+    /**
+     * 设置请求级工作目录。
+     *
+     * @param dir 工作目录，null 清除
+     * @return this
+     */
+    @Nonnull
+    public CliRequest workingDirectory(@Nullable Path dir) {
+        this.workingDirectory = dir == null ? null : dir.toFile();
+        return this;
+    }
+
+    /**
+     * 设置请求级工作目录。
+     *
+     * @param dir 工作目录，null 清除
+     * @return this
+     */
+    @Nonnull
+    public CliRequest workingDirectory(@Nullable File dir) {
+        this.workingDirectory = dir;
+        return this;
+    }
+
+    /**
+     * 添加单个附加环境变量。
+     *
+     * @param key   变量名
+     * @param value 变量值
+     * @return this
+     */
+    @Nonnull
+    public CliRequest env(@Nonnull String key, @Nonnull String value) {
+        if (environment == null) {
+            environment = new HashMap<>();
+        }
+        environment.put(key, value);
+        return this;
+    }
+
+    /**
+     * 批量添加附加环境变量。
+     *
+     * @param env 环境变量集合，null 忽略
+     * @return this
+     */
+    @Nonnull
+    public CliRequest envs(@Nullable Map<String, String> env) {
+        if (env != null) {
+            if (environment == null) {
+                environment = new HashMap<>();
+            }
+            environment.putAll(env);
+        }
+        return this;
+    }
+
+    /**
+     * 设置写入进程标准输入的内容。
+     *
+     * @param input 标准输入内容，null 清除
+     * @return this
+     */
+    @Nonnull
+    public CliRequest input(@Nullable String input) {
+        this.input = input;
+        return this;
+    }
+
+    /**
+     * 以键值对形式追加参数，展开为 {@code --key value}（长选项风格）。
+     *
+     * <p>键已带 {@code -} 前缀时按原样使用；值为 null 时只输出键（布尔开关）。
+     * 适合封装 {@code --model xxx --steps 8} 这类选项式 CLI 软件。</p>
+     *
+     * @param options 键值对参数
+     * @return this
+     */
+    @Nonnull
+    public CliRequest args(@Nonnull Map<String, Object> options) {
+        if (options != null) {
+            for (Map.Entry<String, Object> entry : options.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (key == null || key.isEmpty()) {
+                    continue;
+                }
+                this.args.add(key.startsWith("-") ? key : "--" + key);
+                if (value != null) {
+                    this.args.add(String.valueOf(value));
+                }
+            }
+        }
+        return this;
+    }
+
     /**
      * 获取当前累积的参数列表。
      *
@@ -172,7 +284,10 @@ public final class CliRequest {
      */
     @Nonnull
     public CmdResult execute() {
-        return tool.executeInternal(toArgArray(), timeout, unit);
+        if (workingDirectory == null && environment == null && input == null) {
+            return tool.executeInternal(toArgArray(), timeout, unit);
+        }
+        return tool.executeInternal(toArgArray(), timeout, unit, workingDirectory, environment, input);
     }
 
     /**
@@ -184,7 +299,11 @@ public final class CliRequest {
      */
     @Nonnull
     public CmdResult executeWithOutput(@Nonnull LineCallback callback) {
-        return tool.executeWithOutputInternal(toArgArray(), timeout, unit, callback);
+        if (workingDirectory == null && environment == null && input == null) {
+            return tool.executeWithOutputInternal(toArgArray(), timeout, unit, callback);
+        }
+        return tool.executeWithOutputInternal(toArgArray(), timeout, unit, callback,
+                workingDirectory, environment, input);
     }
 
     /**
@@ -196,19 +315,35 @@ public final class CliRequest {
     @Nonnull
     public CompletableFuture<CmdResult> executeAsync() {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
-        tool.executeAsyncInternal(toArgArray(), timeout, unit, new CmdCallback() {
-            @Override
-            /** OnComplete */
-            public void onComplete(CmdResult result) {
-                future.complete(result);
-            }
+        if (workingDirectory == null && environment == null && input == null) {
+            tool.executeAsyncInternal(toArgArray(), timeout, unit, new CmdCallback() {
+                @Override
+                /** OnComplete */
+                public void onComplete(CmdResult result) {
+                    future.complete(result);
+                }
 
-            @Override
-            /** On记录错误 */
-            public void onError(String cmd, Throwable throwable) {
-                future.completeExceptionally(throwable);
-            }
-        });
+                @Override
+                /** On记录错误 */
+                public void onError(String cmd, Throwable throwable) {
+                    future.completeExceptionally(throwable);
+                }
+            });
+        } else {
+            tool.executeAsyncInternal(toArgArray(), timeout, unit, new CmdCallback() {
+                @Override
+                /** OnComplete */
+                public void onComplete(CmdResult result) {
+                    future.complete(result);
+                }
+
+                @Override
+                /** On记录错误 */
+                public void onError(String cmd, Throwable throwable) {
+                    future.completeExceptionally(throwable);
+                }
+            }, workingDirectory, environment, input);
+        }
         return future;
     }
 

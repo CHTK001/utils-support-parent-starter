@@ -4,7 +4,13 @@ import com.chua.common.support.utils.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -53,6 +59,9 @@ public class CliTool {
 
     /** 版本缓存 */
     private volatile CliVersion cachedVersion;
+
+    /** 固定参数模板（每次执行都会附加在可执行文件之后），null 表示未配置 */
+    private volatile List<String> fixedArgs;
 
     /**
      * 创建 CLI 工具实例。
@@ -110,6 +119,26 @@ public class CliTool {
         this.resolvedPath = null;
         this.cachedVersion = null;
         ExecutableLocator.clearCache();
+        return this;
+    }
+
+    /**
+     * 配置固定参数模板。
+     *
+     * <p>这些参数会在每次执行时自动附加在可执行文件之后、调用方传入的参数之前，
+     * 适合封装需要固定全局选项的 CLI 软件（如 {@code --model xx --no-color}）。
+     * 重复调用会整体替换；传空数组或 null 清除固定参数。</p>
+     *
+     * @param args 固定参数
+     * @return this，便于链式调用
+     */
+    @Nonnull
+    public CliTool withFixedArgs(@Nullable String... args) {
+        if (args == null || args.length == 0) {
+            this.fixedArgs = null;
+        } else {
+            this.fixedArgs = Collections.unmodifiableList(new ArrayList<>(Arrays.asList(args)));
+        }
         return this;
     }
 
@@ -303,9 +332,16 @@ public class CliTool {
     @Nonnull
     protected String[] buildCommandLine(@Nonnull String[] args) {
         Path executable = requireExecutable();
-        String[] commandLine = new String[args.length + 1];
+        List<String> fixed = fixedArgs;
+        int fixedLen = fixed == null ? 0 : fixed.size();
+        String[] commandLine = new String[fixedLen + args.length + 1];
         commandLine[0] = executable.toString();
-        System.arraycopy(args, 0, commandLine, 1, args.length);
+        if (fixedLen > 0) {
+            for (int i = 0; i < fixedLen; i++) {
+                commandLine[i + 1] = fixed.get(i);
+            }
+        }
+        System.arraycopy(args, 0, commandLine, fixedLen + 1, args.length);
         return commandLine;
     }
 
@@ -339,11 +375,29 @@ public class CliTool {
      */
     @Nonnull
     CmdResult executeInternal(@Nonnull String[] args, long timeout, @Nullable TimeUnit unit) {
+        return executeInternal(args, timeout, unit, null, null, null);
+    }
+
+    /**
+     * 执行入口（扩展参数版本），供 {@link CliRequest} 调用。
+     *
+     * @param args             参数
+     * @param timeout          超时值
+     * @param unit             超时单位
+     * @param workingDirectory 工作目录，可为 null
+     * @param environment      附加环境变量，可为 null
+     * @param input            标准输入内容，可为 null
+     * @return 执行结果
+     */
+    @Nonnull
+    CmdResult executeInternal(@Nonnull String[] args, long timeout, @Nullable TimeUnit unit,
+                              @Nullable File workingDirectory, @Nullable Map<String, String> environment,
+                              @Nullable String input) {
         String[] commandLine = buildCommandLine(args);
         if (timeout > 0 && unit != null) {
-            return CmdExecutors.execute(commandLine, timeout, unit);
+            return CmdExecutors.execute(commandLine, timeout, unit, workingDirectory, environment, input);
         }
-        return CmdExecutors.execute(commandLine);
+        return CmdExecutors.execute(commandLine, 0, null, workingDirectory, environment, input);
     }
 
     /**
@@ -358,11 +412,33 @@ public class CliTool {
     @Nonnull
     CmdResult executeWithOutputInternal(@Nonnull String[] args, long timeout,
                                         @Nullable TimeUnit unit, @Nonnull LineCallback callback) {
+        return executeWithOutputInternal(args, timeout, unit, callback, null, null, null);
+    }
+
+    /**
+     * 带实时输出的执行入口（扩展参数版本），供 {@link CliRequest} 调用。
+     *
+     * @param args             参数
+     * @param timeout          超时值
+     * @param unit             超时单位
+     * @param callback         逐行回调
+     * @param workingDirectory 工作目录，可为 null
+     * @param environment      附加环境变量，可为 null
+     * @param input            标准输入内容，可为 null
+     * @return 执行结果
+     */
+    @Nonnull
+    CmdResult executeWithOutputInternal(@Nonnull String[] args, long timeout,
+                                        @Nullable TimeUnit unit, @Nonnull LineCallback callback,
+                                        @Nullable File workingDirectory, @Nullable Map<String, String> environment,
+                                        @Nullable String input) {
         String[] commandLine = buildCommandLine(args);
         if (timeout > 0 && unit != null) {
-            return CmdExecutors.getExecutor().executeWithOutput(commandLine, timeout, unit, callback);
+            return CmdExecutors.executeWithOutput(commandLine, timeout, unit, callback,
+                    workingDirectory, environment, input);
         }
-        return CmdExecutors.getExecutor().executeWithOutput(commandLine, 0, null, callback);
+        return CmdExecutors.executeWithOutput(commandLine, 0, null, callback,
+                workingDirectory, environment, input);
     }
 
     /**
@@ -375,11 +451,31 @@ public class CliTool {
      */
     void executeAsyncInternal(@Nonnull String[] args, long timeout,
                               @Nullable TimeUnit unit, @Nonnull CmdCallback callback) {
+        executeAsyncInternal(args, timeout, unit, callback, null, null, null);
+    }
+
+    /**
+     * 异步执行入口（扩展参数版本），供 {@link CliRequest} 调用。
+     *
+     * @param args             参数
+     * @param timeout          超时值
+     * @param unit             超时单位
+     * @param callback         结果回调
+     * @param workingDirectory 工作目录，可为 null
+     * @param environment      附加环境变量，可为 null
+     * @param input            标准输入内容，可为 null
+     */
+    void executeAsyncInternal(@Nonnull String[] args, long timeout,
+                              @Nullable TimeUnit unit, @Nonnull CmdCallback callback,
+                              @Nullable File workingDirectory, @Nullable Map<String, String> environment,
+                              @Nullable String input) {
         String[] commandLine = buildCommandLine(args);
         if (timeout > 0 && unit != null) {
-            CmdExecutors.getExecutor().executeAsync(commandLine, timeout, unit, callback);
+            CmdExecutors.executeAsync(commandLine, timeout, unit, callback,
+                    workingDirectory, environment, input);
         } else {
-            CmdExecutors.getExecutor().executeAsync(commandLine, callback);
+            CmdExecutors.executeAsync(commandLine, 0, null, callback,
+                    workingDirectory, environment, input);
         }
     }
 

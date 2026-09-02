@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.cmd;
 
+import java.io.File;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -162,6 +164,66 @@ public interface CmdExecutor extends AutoCloseable {
      */
     default CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback) {
         return executeWithOutput(joinCommand(command), timeout, unit, callback);
+    }
+
+    // ==================== 扩展参数执行（工作目录/环境变量/标准输入） ====================
+
+    /**
+     * 同步执行数组形式的命令，支持工作目录、环境变量与标准输入。
+     *
+     * <p>默认实现忽略扩展参数并回退到 {@link #execute(String[], long, TimeUnit)}；
+     * 需要完整能力的实现类（如 {@code ProcessCmdExecutor}）应覆写此方法。</p>
+     *
+     * @param command          程序名与参数数组
+     * @param timeout          超时值（≤0 表示不超时）
+     * @param unit             超时单位
+     * @param workingDirectory 工作目录，可为 null 表示使用当前目录
+     * @param environment      附加环境变量，可为 null
+     * @param input            标准输入内容，可为 null
+     * @return 命令执行结果
+     */
+    default CmdResult execute(String[] command, long timeout, TimeUnit unit,
+                              File workingDirectory, Map<String, String> environment, String input) {
+        return execute(command, timeout, unit);
+    }
+
+    /**
+     * 同步执行数组形式的命令并逐行接收输出，支持工作目录、环境变量与标准输入。
+     *
+     * <p>默认实现忽略扩展参数并回退到
+     * {@link #executeWithOutput(String[], long, TimeUnit, LineCallback)}。</p>
+     *
+     * @param command          程序名与参数数组
+     * @param timeout          超时值（≤0 表示不超时）
+     * @param unit             超时单位
+     * @param callback         逐行输出回调
+     * @param workingDirectory 工作目录，可为 null
+     * @param environment      附加环境变量，可为 null
+     * @param input            标准输入内容，可为 null
+     * @return 命令执行结果
+     */
+    default CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback,
+                                        File workingDirectory, Map<String, String> environment, String input) {
+        return executeWithOutput(command, timeout, unit, callback);
+    }
+
+    /**
+     * 异步执行数组形式的命令，支持工作目录、环境变量与标准输入。
+     *
+     * <p>默认实现忽略扩展参数并回退到
+     * {@link #executeAsync(String[], long, TimeUnit, CmdCallback)}。</p>
+     *
+     * @param command          程序名与参数数组
+     * @param timeout          超时值（≤0 表示不超时）
+     * @param unit             超时单位
+     * @param callback         结果回调
+     * @param workingDirectory 工作目录，可为 null
+     * @param environment      附加环境变量，可为 null
+     * @param input            标准输入内容，可为 null
+     */
+    default void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback,
+                              File workingDirectory, Map<String, String> environment, String input) {
+        executeAsync(command, timeout, unit, callback);
     }
 
     /**

@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -229,6 +231,37 @@ public class ProcessCmdExecutor implements CmdExecutor {
         return doExecuteArray(command, timeout, unit);
     }
 
+    @Override
+    /** 执行（扩展参数：工作目录/环境变量/标准输入） */
+    public CmdResult execute(String[] command, long timeout, TimeUnit unit,
+                             File workingDirectory, Map<String, String> environment, String input) {
+        long startTime = System.currentTimeMillis();
+        if (command == null || command.length == 0) {
+            return errorResult(joinCommand(command), startTime, new IllegalArgumentException(ERR_INVALID_COMMAND));
+        }
+        return executeInternal(command, joinCommand(command), timeout, unit, startTime,
+                workingDirectory, environment, input);
+    }
+
+    @Override
+    /** 执行WithOutput（扩展参数） */
+    public CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback,
+                                       File workingDirectory, Map<String, String> environment, String input) {
+        long startTime = System.currentTimeMillis();
+        return executeWithOutputInternal(command, joinCommand(command), timeout, unit, callback, startTime,
+                workingDirectory, environment, input);
+    }
+
+    @Override
+    /** 执行Async（扩展参数） */
+    public void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback,
+                             File workingDirectory, Map<String, String> environment, String input) {
+        String displayCommand = joinCommand(command);
+        submitAsync(displayCommand, timeout, unit, callback, () ->
+                executeInternal(command, displayCommand, timeout, unit, System.currentTimeMillis(),
+                        workingDirectory, environment, input));
+    }
+
     /**
      * 实际执行逻辑
      *
@@ -275,16 +308,49 @@ public class ProcessCmdExecutor implements CmdExecutor {
      */
     private CmdResult executeInternal(String[] cmdArray, String displayCommand,
                                       long timeout, TimeUnit unit, long startTime) {
+        return executeInternal(cmdArray, displayCommand, timeout, unit, startTime, null, null, null);
+    }
+
+    /**
+     * 命令执行的主体逻辑，同步执行与数组执行共用，支持扩展参数。
+     *
+     * @param cmdArray         已解析好的参数数组
+     * @param displayCommand   用于结果展示与日志的命令字符串
+     * @param timeout          超时值（≤0 表示不超时）
+     * @param unit             超时单位
+     * @param startTime        起始时间戳
+     * @param workingDirectory 请求级工作目录，null 时回退到实例级工作目录
+     * @param environment      附加环境变量，可为 null
+     * @param input            标准输入内容，可为 null
+     * @return 执行结果
+     */
+    private CmdResult executeInternal(String[] cmdArray, String displayCommand,
+                                      long timeout, TimeUnit unit, long startTime,
+                                      File workingDirectory, Map<String, String> environment, String input) {
         try {
             // 构建 ProcessBuilder 并设置工作目录与流合并策略
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
-            if (workDirectory != null) {
+            if (workingDirectory != null) {
+                pb.directory(workingDirectory);
+            } else if (workDirectory != null) {
                 pb.directory(workDirectory);
+            }
+            if (environment != null && !environment.isEmpty()) {
+                pb.environment().putAll(environment);
             }
             pb.redirectErrorStream(false);
 
             // 启动进程
             Process process = pb.start();
+
+            // 写入标准输入
+            if (input != null) {
+                try (OutputStream os = process.getOutputStream()) {
+                    os.write(input.getBytes(charset));
+                } catch (IOException ignored) {
+                    // 进程可能已提前退出，忽略写输入异常
+                }
+            }
 
             // 异步读取标准输出与错误输出
             StreamGobbler stdoutGobbler = new StreamGobbler(process.getInputStream(), charset);
@@ -535,6 +601,76 @@ public class ProcessCmdExecutor implements CmdExecutor {
                 }
             } else {
                 // 无限等待进程结束
+                process.waitFor();
+            }
+
+            outputGobbler.join();
+
+            long endTime = System.currentTimeMillis();
+            int exitCode = timedOut ? CmdResult.EXIT_CODE_TIMEOUT : process.exitValue();
+
+            CmdResult result = CmdResult.builder()
+                    .exitCode(exitCode)
+                    .stdout(outputGobbler.getContent())
+                    .command(displayCommand)
+                    .startTime(startTime)
+                    .endTime(endTime)
+                    .timeout(timedOut)
+                    .build();
+
+            callback.onComplete(exitCode);
+            return result;
+
+        } catch (Exception e) {
+            CmdResult result = errorResult(displayCommand, startTime, e);
+            callback.onError(displayCommand, e);
+            return result;
+        }
+    }
+
+    /**
+     * 实时输出执行（扩展参数版本）。
+     *
+     * <p>指定工作目录、环境变量或标准输入时直接走标准 {@link ProcessBuilder}，
+     * 不启用 ConPTY（其封装不支持扩展参数的透传）。</p>
+     */
+    private CmdResult executeWithOutputInternal(String[] cmdArray, String displayCommand,
+                                                long timeout, TimeUnit unit,
+                                                LineCallback callback, long startTime,
+                                                File workingDirectory, Map<String, String> environment,
+                                                String input) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            if (workingDirectory != null) {
+                pb.directory(workingDirectory);
+            } else if (workDirectory != null) {
+                pb.directory(workDirectory);
+            }
+            if (environment != null && !environment.isEmpty()) {
+                pb.environment().putAll(environment);
+            }
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+
+            if (input != null) {
+                try (OutputStream os = process.getOutputStream()) {
+                    os.write(input.getBytes(charset));
+                } catch (IOException ignored) {
+                    // 进程可能已提前退出，忽略写输入异常
+                }
+            }
+
+            LineStreamGobbler outputGobbler = new LineStreamGobbler(process.getInputStream(), charset, callback);
+            outputGobbler.start();
+
+            boolean timedOut = false;
+            if (timeout > NO_TIMEOUT && unit != null) {
+                timedOut = !process.waitFor(timeout, unit);
+                if (timedOut) {
+                    process.destroyForcibly();
+                }
+            } else {
                 process.waitFor();
             }
 
