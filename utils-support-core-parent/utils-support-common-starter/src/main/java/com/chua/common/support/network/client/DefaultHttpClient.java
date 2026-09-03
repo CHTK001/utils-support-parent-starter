@@ -204,7 +204,7 @@ public class DefaultHttpClient implements HttpClient {
         }
         return Mono.fromCallable(() -> new InterceptorChain(
                 interceptors, request.getInterceptor(), networkInterceptors,
-                req -> executor.executeAsync(req).block())
+                request, req -> executor.executeAsync(req).block())
                 .proceed(request))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
