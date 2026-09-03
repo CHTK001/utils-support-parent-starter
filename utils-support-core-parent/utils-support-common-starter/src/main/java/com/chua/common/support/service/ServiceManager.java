@@ -52,8 +52,21 @@ public interface ServiceManager {
 
     /**
      * 查询服务状态。
+     *
+     * @param pid 进程 PID，-1 时按 serviceName 查找
+     * @return true 表示正在运行
      */
     boolean isRunning(long pid);
+
+    /**
+     * 按服务名称查找 PID（供 status 查询使用）。
+     *
+     * @param serviceName 服务名称
+     * @return 进程 PID，未找到返回 -1
+     */
+    default long findPidByName(String serviceName) {
+        return -1;
+    }
 
     /**
      * 安装服务（创建启动脚本、注册为系统服务等，幂等操作）。

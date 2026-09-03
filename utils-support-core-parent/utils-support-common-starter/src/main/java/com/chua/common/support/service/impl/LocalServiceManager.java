@@ -95,6 +95,11 @@ public class LocalServiceManager implements ServiceManager {
     }
 
     @Override
+    public long findPidByName(String serviceName) {
+        return tracker.findPidByName(serviceName);
+    }
+
+    @Override
     public void install(String serviceName, String jarPath, String startCmd) {
         log.info("[service] install 无需操作（进程级管理）");
     }
