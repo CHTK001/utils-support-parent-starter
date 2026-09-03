@@ -493,6 +493,11 @@ public class ServiceBuilder implements Closeable {
             return this;
         }
 
+        public LocalDsl withStartCmd(String cmd) {
+            b.withStartCmd(cmd);
+            return this;
+        }
+
         public LocationManager toLocation() {
             return new LocationManager(b);
         }

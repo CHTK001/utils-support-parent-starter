@@ -3,6 +3,9 @@ package com.chua.common.support.network.client;
 import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -69,6 +72,114 @@ public interface HttpClient extends AutoCloseable {
      */
     default RequestSpec request(String url, HttpMethod method) {
         return new RequestSpec(this, url, method);
+    }
+
+    // ==================== 拦截器 ====================
+
+    /**
+     * 注册<b>应用层拦截器</b>。
+     *
+     * <p>应用层拦截器处于拦截器链的最外层，在请求进入网络之前执行，
+     * 适合统一加 Token、加 Header、日志、请求预处理、响应后处理、短路 Mock/缓存等业务级横切逻辑。</p>
+     *
+     * <p><b>优先级（从外到内）：</b>
+     * 客户端级应用层拦截器 → 请求级（{@link ClientRequest}）拦截器 → 网络层拦截器 → 网络调用。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * HttpClient client = HttpClientFactory.getClient();
+     * client.addInterceptor((chain, request) -> {
+     *     request.header("Authorization", "Bearer " + token);
+     *     long start = System.currentTimeMillis();
+     *     ClientResponse resp = chain.proceed(request);
+     *     log.info("{} {} -> {} 耗时 {}ms", request.getMethod(), request.getUrl(),
+     *             resp.getStatusCode(), System.currentTimeMillis() - start);
+     *     return resp;
+     * });
+     * }</pre>
+     *
+     * <p><b>注意：</b>默认实现返回 {@code this}，因此可以在语句中连续注册多个拦截器。</p>
+     *
+     * @param interceptor 应用层拦截器
+     * @return 当前客户端实例（链式调用）
+     */
+    default HttpClient addInterceptor(HttpInterceptor interceptor) {
+        if (interceptor != null) {
+            getInterceptors().add(interceptor);
+        }
+        return this;
+    }
+
+    /**
+     * 注册<b>网络层拦截器</b>。
+     *
+     * <p>网络层拦截器紧贴底层网络调用，位于应用层拦截器的内层，适合统一接入耗时监控、
+     * 错误码统一包装、网络层日志等场景。响应与网络真实返回高度一致。</p>
+     *
+     * @param interceptor 网络层拦截器
+     * @return 当前客户端实例（链式调用）
+     */
+    default HttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
+        if (interceptor != null) {
+            getNetworkInterceptors().add(interceptor);
+        }
+        return this;
+    }
+
+    /**
+     * 注册<b>应用层拦截器</b>（Consumer 便捷版）。
+     *
+     * <p>通过 {@link Consumer} 方式处理请求，无需手动调用 {@code chain.proceed(request)}，
+     * 框架会自动放行。适用于只需在请求前追加 Header 等场景；若需拦截响应或短路请求，
+     * 请使用 {@link #addInterceptor(HttpInterceptor)}。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * client.interceptor(request -> request.header("X-Request-Id", requestId()));
+     * }</pre>
+     *
+     * @param interceptor 请求预处理 Consumer，在请求发出前执行
+     * @return 当前客户端实例（链式调用）
+     */
+    default HttpClient interceptor(Consumer<ClientRequest> interceptor) {
+        return addInterceptor((chain, request) -> {
+            interceptor.accept(request);
+            return chain.proceed(request);
+        });
+    }
+
+    /**
+     * 注册<b>网络层拦截器</b>（Consumer 便捷版）。
+     *
+     * @param interceptor 请求预处理 Consumer，在请求发出前执行
+     * @return 当前客户端实例（链式调用）
+     */
+    default HttpClient networkInterceptor(Consumer<ClientRequest> interceptor) {
+        return addNetworkInterceptor((chain, request) -> {
+            interceptor.accept(request);
+            return chain.proceed(request);
+        });
+    }
+
+    /**
+     * 获取已注册的<b>应用层拦截器</b>列表。
+     *
+     * <p>默认实现返回空列表。实现类（如 {@link DefaultHttpClient}、{@link AbstractHttpClient}）
+     * 应覆写此方法返回其持有的应用层拦截器列表，以便在 {@link #execute(ClientRequest)} 中组装拦截器链。</p>
+     *
+     * @return 应用层拦截器列表，不会返回 null
+     */
+    default List<HttpInterceptor> getInterceptors() {
+        return List.of();
+    }
+
+    /**
+     * 获取已注册的<b>网络层拦截器</b>列表。
+     *
+     * @return 网络层拦截器列表，不会返回 null
+     */
+    default List<HttpInterceptor> getNetworkInterceptors() {
+        return List.of();
     }
 
     /**
