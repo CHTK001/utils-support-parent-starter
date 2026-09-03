@@ -126,7 +126,7 @@ public class DefaultHttpClient implements HttpClient {
     @Override
     public ClientResponse execute(ClientRequest request) {
         return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors,
-                this::doExecute)
+                request, this::doExecute)
                 .proceed(request);
     }
 
