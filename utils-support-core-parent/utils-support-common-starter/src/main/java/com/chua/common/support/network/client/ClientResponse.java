@@ -226,4 +226,17 @@ public class ClientResponse {
     public String getHeader(String name) {
         return headers.get(name);
     }
+
+    /**
+     * 设置（添加）单个响应头。
+     *
+     * <p>若同名响应头已存在，新值会覆盖旧值（基于 {@link HttpHeader#add(String, String)} 的 put 语义）。
+     * 此方法便于在拦截器中动态注入响应头。</p>
+     *
+     * @param name  响应头名称
+     * @param value 响应头值
+     */
+    public void setHeader(String name, String value) {
+        headers.add(name, value);
+    }
 }
