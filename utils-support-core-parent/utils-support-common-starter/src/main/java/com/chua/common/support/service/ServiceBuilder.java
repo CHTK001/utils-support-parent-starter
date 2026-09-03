@@ -483,13 +483,17 @@ public class ServiceBuilder implements Closeable {
     public static class LocalDsl {
         private final ServiceBuilder b = new ServiceBuilder();
 
-        public LocationManager withJar(String jarPath) {
+        public LocalDsl withJar(String jarPath) {
             b.withJar(jarPath);
-            return new LocationManager(b);
+            return this;
         }
 
-        public LocationManager withService(String name) {
+        public LocalDsl withServiceName(String name) {
             b.withServiceName(name);
+            return this;
+        }
+
+        public LocationManager toLocation() {
             return new LocationManager(b);
         }
     }
@@ -500,18 +504,17 @@ public class ServiceBuilder implements Closeable {
     public static class RemoteDsl {
         private final ServiceBuilder b = new ServiceBuilder();
 
-        public RemoteManager withJar(String jarPath) {
+        public RemoteDsl withJar(String jarPath) {
             b.withJar(jarPath);
-            return new RemoteManager(b);
+            return this;
         }
 
-        public RemoteManager withService(String name) {
+        public RemoteDsl withServiceName(String name) {
             b.withServiceName(name);
-            return new RemoteManager(b);
+            return this;
         }
 
         public RemoteManager toRemote(String host, int port, String username, String password) {
-            b.withJar(b.jarPath);
             RemoteManager m = new RemoteManager(b);
             m.withHost(host).withPort(port).withUsername(username).withPassword(password);
             return m;
