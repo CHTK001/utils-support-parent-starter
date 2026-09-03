@@ -70,6 +70,11 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     private volatile boolean checked;
 
     /**
+     * 自定义执行器工厂回调（设置后优先于 SPI 探测）
+     */
+    private volatile CollapseExecutorFactory executorFactory;
+
+    /**
      * 构造门面。
      *
      * @param name          执行器名称
@@ -148,6 +153,23 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     }
 
     /**
+     * 设置自定义执行器工厂回调。
+     *
+     * <p>设置后优先使用回调创建折叠执行器——可注入纯 JDK 实现的折叠执行器工厂，
+     * 无需依赖 utils-support-collapse-starter 模块与 SPI 发现；未设置时回退 SPI 探测，
+     * 探测不到实现则降级为直接执行（语义不变、无折叠收益）。</p>
+     *
+     * <p>需在首次 {@link #execute(Object)} 之前设置。</p>
+     *
+     * @param executorFactory 执行器工厂回调，不可为空
+     * @return this
+     */
+    public CollapseFlow<INPUT, OUTPUT> executorFactory(CollapseExecutorFactory executorFactory) {
+        this.executorFactory = Objects.requireNonNull(executorFactory, "executorFactory must not be null.");
+        return this;
+    }
+
+    /**
      * 执行一次折叠调用。
      *
      * @param input 单次调用的入参
@@ -173,8 +195,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
         }
         synchronized (this) {
             if (!checked) {
-                CollapseExecutorFactory factory = ServiceProvider.of(CollapseExecutorFactory.class)
-                        .getExtension(DEFAULT_FACTORY_NAME);
+                CollapseExecutorFactory factory = resolveFactory();
                 if (factory != null) {
                     if (resultMapper != null) {
                         config.setMergeAll(true);
@@ -187,6 +208,19 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
             }
         }
         return executor;
+    }
+
+    /**
+     * 解析执行器工厂：优先使用回调注入的工厂，其次 SPI 探测。
+     *
+     * @return 执行器工厂，不可用时返回 null
+     */
+    private CollapseExecutorFactory resolveFactory() {
+        CollapseExecutorFactory factory = executorFactory;
+        if (factory != null) {
+            return factory;
+        }
+        return ServiceProvider.of(CollapseExecutorFactory.class).getExtension(DEFAULT_FACTORY_NAME);
     }
 
     /**
