@@ -38,7 +38,8 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      */
     private static final Set<String> SUPPORTED = Set.of(
             "zip", "rar", "tar", "gz", "tgz", "tar.gz", "bz2", "tbz2", "tar.bz2",
-            "xz", "txz", "tar.xz", "7z", "zst", "tzst", "tar.zst", "lz4", "tar.lz4", "lzma", "tar.lzma");
+            "xz", "txz", "tar.xz", "7z", "zst", "tzst", "tar.zst", "lz4", "tar.lz4", "lzma", "tar.lzma",
+            "jar", "war", "ear", "apk", "ipa", "zipx");
 
     /**
      * 纯压缩流扩展名（不视为容器，无条目概念）
@@ -117,11 +118,19 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                             }
                             entries.add(new EntryInfo(
                                     entry.getName(), entry.getSize(), entry.getLastModifiedDate(), false));
-                            totalSize += entry.getSize();
+                            totalSize += Math.max(0, entry.getSize());
                         }
                     }
                 } catch (Exception ex) {
-                    throw new IOException("Failed to read archive", ex);
+                    String comp = compressorOf(e);
+                    if (comp != null) {
+                        entries.clear();
+                        dirCount = 0;
+                        entries.add(new EntryInfo("content." + ext, content.length, null, true));
+                        totalSize = content.length;
+                    } else {
+                        throw new IOException("Failed to read archive", ex);
+                    }
                 }
             }
         }
@@ -168,13 +177,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      * @throws IOException 创建解压器失败
      */
     private static InputStream wrapDecompressor(InputStream in, String ext) throws IOException {
-        String compType = switch (ext) {
-            case "tgz", "tar.gz" -> "gz";
-            case "tbz2", "tar.bz2" -> "bzip2";
-            case "txz", "tar.xz" -> "xz";
-            case "tzst", "tar.zst" -> "zstd";
-            default -> null;
-        };
+        String compType = compressorOf(ext);
         if (compType != null) {
             try {
                 return new CompressorStreamFactory().createCompressorInputStream(compType, in);
@@ -183,6 +186,24 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             }
         }
         return in;
+    }
+
+    /**
+     * 返回扩展名对应的解压器类型；无对应解压器时返回 null。
+     *
+     * @param ext 文件扩展名
+     * @return 解压器类型（如 gz、bzip2、xz、zstd、lz4、lzma）；不支持时返回 null
+     */
+    private static String compressorOf(String ext) {
+        return switch (ext) {
+            case "tgz", "tar.gz" -> "gz";
+            case "tbz2", "tar.bz2" -> "bzip2";
+            case "txz", "tar.xz" -> "xz";
+            case "tzst", "tar.zst" -> "zstd";
+            case "tar.lz4" -> "lz4";
+            case "tar.lzma" -> "lzma";
+            default -> null;
+        };
     }
 
     /**
