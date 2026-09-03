@@ -167,4 +167,48 @@ class HttpInterceptorTest {
         assertEquals(0, invoker.getNetworkInterceptors().size());
         assertNotNull(invoker);
     }
+
+    /**
+     * 验证应用层拦截器多次调用 proceed（重试）不会跳过任何层。
+     *
+     * <p>期望链顺序：
+     * {@code [app → network → real, app → network → real]}</p>
+     */
+    @Test
+    void retryDoesNotSkipLayers() {
+        List<String> order = new ArrayList<>();
+        ClientResponse ok = new ClientResponse();
+        ok.setStatusCode(200);
+
+        DefaultHttpClient client = new DefaultHttpClient(new HttpClientExecutor() {
+            @Override
+            public ClientResponse execute(ClientRequest request) {
+                order.add("real");
+                return ok;
+            }
+
+            @Override
+            public String getName() {
+                return "mock";
+            }
+
+            @Override
+            public boolean isAvailable() {
+                return true;
+            }
+        });
+
+        client.addInterceptor((chain, request) -> {
+            order.add("app");
+            chain.proceed(request); // 第一次
+            return chain.proceed(request); // 第二次（重试）
+        });
+        client.addNetworkInterceptor((chain, request) -> {
+            order.add("network");
+            return chain.proceed(request);
+        });
+
+        client.execute(ClientRequest.of("http://example.com"));
+        assertEquals(List.of("app", "network", "real", "app", "network", "real"), order);
+    }
 }
