@@ -532,4 +532,17 @@ public class ClientRequest {
         this.headers.add(name, value);
         return this;
     }
+
+    /**
+     * 获取指定请求头的值。
+     *
+     * <p>委托给 {@link HttpHeader#get(String)}，用于在拦截器中读取/判断请求头。
+     * 请求头名称是大小写敏感的，必须与添加时的名称完全一致。</p>
+     *
+     * @param name 请求头名称，如 {@code "Content-Type"}、{@code "Authorization"}
+     * @return 请求头值，不存在返回 null
+     */
+    public String getHeader(String name) {
+        return headers.get(name);
+    }
 }
