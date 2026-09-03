@@ -6,12 +6,29 @@ import java.io.File;
  * 模型训练器接口。
  *
  * <p>不同模型架构（ResNet50 / Vgg16 等）各自实现此接口，
- * 由 {@link com.chua.deeplearning.support.dl4j.TrainerFactory} 或 Spring 注入选择。</p>
+ * 由 {@link TrainerFactory} 或 Spring 注入选择。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public interface Trainer {
+
+    /**
+     * 构建一条可链式调用的训练管道（Fluent API）。
+     *
+     * <p>以当前实现作为底层训练器，提供 {@code ChainedTrainer} 承载的
+     * 声明式链式编排：</p>
+     *
+     * <pre>{@code
+     * TrainResult result = Trainer.fluent()
+     *         .data("/data").saveTo("/model").epochs(20).batchSize(8).fit();
+     * }</pre>
+     *
+     * @return 链式训练管道
+     */
+    default ChainedTrainer fluent() {
+        return ChainedTrainer.of(this);
+    }
 
     /**
      * 执行训练。
