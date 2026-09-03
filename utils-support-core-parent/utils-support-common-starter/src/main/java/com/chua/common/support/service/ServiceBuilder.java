@@ -524,6 +524,12 @@ public class ServiceBuilder implements Closeable {
             m.withHost(host).withPort(port).withUsername(username).withPassword(password);
             return m;
         }
+
+        public RemoteManager toRemoteKey(String host, int port, String username, String privateKey) {
+            RemoteManager m = new RemoteManager(b);
+            m.withHost(host).withPort(port).withUsername(username).withPrivateKey(privateKey);
+            return m;
+        }
     }
 
     @Override
