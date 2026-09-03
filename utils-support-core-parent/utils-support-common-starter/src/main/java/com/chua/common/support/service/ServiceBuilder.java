@@ -392,7 +392,9 @@ public class ServiceBuilder implements Closeable {
          * 停止远程服务。
          */
         public void stop() {
-            if (!manager.isConnected()) return;
+            if (!manager.isConnected()) {
+                return;
+            }
             resolveAndValidate();
             manager.stopRemote(-1, builder.serviceName);
             log.info("[service-remote] 远程停止完成: name={}", builder.serviceName);
@@ -402,7 +404,9 @@ public class ServiceBuilder implements Closeable {
          * 重启远程服务。
          */
         public void restart() {
-            if (!manager.isConnected()) connect();
+            if (!manager.isConnected()) {
+                connect();
+            }
             resolveAndValidate();
             String cmd = buildRemoteStartCmd();
             manager.restartRemote(-1, builder.serviceName, builder.jarPath, cmd);

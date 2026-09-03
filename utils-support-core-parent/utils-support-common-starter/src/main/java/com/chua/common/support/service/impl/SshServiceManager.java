@@ -79,7 +79,9 @@ public class SshServiceManager implements RemoteServiceManager {
 
     @Override
     public boolean isConnected() {
-        if (sshClient == null) return false;
+        if (sshClient == null) {
+            return false;
+        }
         try {
             return (boolean) sshClient.getClass().getMethod("isConnected").invoke(sshClient);
         } catch (Exception e) {
@@ -170,7 +172,9 @@ public class SshServiceManager implements RemoteServiceManager {
             Object result = sshClient.getClass().getMethod("exec").invoke(sshClient);
             Object execBuilder = result.getClass().getMethod("command", String.class).invoke(result, cmd);
             Object execResult = execBuilder.getClass().getMethod("execute").invoke(execBuilder);
-            if (execResult == null) return "";
+            if (execResult == null) {
+                return "";
+            }
             Method getOutput = execResult.getClass().getMethod("getOutput");
             Object out = getOutput.invoke(execResult);
             return out != null ? out.toString().trim() : "";
@@ -196,7 +200,9 @@ public class SshServiceManager implements RemoteServiceManager {
     }
 
     private void uploadJarIfNeeded(String localPath, String remotePath) {
-        if (localPath == null || localPath.isBlank()) return;
+        if (localPath == null || localPath.isBlank()) {
+            return;
+        }
         try {
             if (!Files.exists(Path.of(localPath))) {
                 log.warn("[service-remote] 本地 jar 不存在: {}", localPath);
