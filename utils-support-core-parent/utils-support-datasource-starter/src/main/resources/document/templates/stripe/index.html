@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#title# - #databaseName#</title>
+<style>
+:root {
+  --bg-base: #f6f8fc;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --border: #d9e2ec;
+  --border-hover: #2b6cb0;
+  --text-primary: #0d1218;
+  --text-secondary: #3a5a7c;
+  --text-muted: #6b8ba4;
+  --accent: #2b6cb0;
+  --accent-light: #ebf4ff;
+  --accent-dark: #1a4a7c;
+  --method-get-bg: #dbfeff; --method-get-text: #036889; --method-get-border: #7dd3fc;
+  --method-post-bg: #dcfce7; --method-post-text: #166534; --method-post-border: #86efac;
+  --method-patch-bg: #fff7ed; --method-patch-text: #9a3412; --method-patch-border: #fdba74;
+  --method-delete-bg: #fef2f2; --method-delete-text: #991b1b; --method-delete-border: #fca5a5;
+  --code-bg: #1a202c; --code-text: #e2e8f0; --code-keyword: #56d4dd; --code-string: #96e189;
+  --code-type: #d2a8ff; --code-comment: #638cdb;
+  --pk-color: #b45309; --pk-bg: #fffbeb; --pk-border: #fcd34d;
+  --fk-color: #0e7490; --fk-bg: #ecfeff; --fk-border: #67e8f9;
+  --nullable-color: #dc2626; --nullable-bg: #fef2f2;
+  --not-null-color: #16a34a; --not-null-bg: #f0fdf4;
+  --sidebar-w: 300px;
+  --font: 'Inter','SF Pro','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  --mono: 'JetBrains Mono','Fira Code','Cascadia Code','SF Mono','Consolas',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg-base);color:var(--text-primary);min-height:100vh;display:flex;line-height:1.6}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c4d4e6;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#a0b4c8}
+
+/* ── Layout ── */
+.app{display:flex;width:100%;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--bg-surface)}
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-header h1{font-size:17px;font-weight:700;color:var(--text-primary);letter-spacing:-.3px}
+.sidebar-header .sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+.sidebar-search{padding:14px 16px 10px;border-bottom:1px solid var(--border)}
+.sidebar-search .search-box{position:relative}
+.sidebar-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}
+.sidebar-search input{width:100%;padding:9px 10px 9px 32px;border:1px solid var(--border);border-radius:7px;background:var(--bg-base);color:var(--text-primary);font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s}
+.sidebar-search input::placeholder{color:var(--text-muted)}
+.sidebar-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+.sidebar-search .kbd{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);background:#e5eaf2;padding:2px 6px;border-radius:4px;font-family:var(--mono)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 12px 16px}
+.nav-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);padding:10px 12px 4px}
+.nav-item{display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:6px;cursor:pointer;color:var(--text-secondary);font-size:12.5px;transition:all .15s;text-decoration:none}
+.nav-item:hover{background:var(--accent-light);color:var(--text-primary)}
+.nav-item.active{background:var(--accent-light);color:var(--accent)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent);border-radius:0 3px 3px 0}
+.nav-item .idx{font-size:10px;font-family:var(--mono);min-width:18px;text-align:center;color:var(--text-muted);flex-shrink:0}
+.nav-item .label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-item .badge{font-size:10px;color:var(--text-muted);background:#e5eaf2;padding:1px 6px;border-radius:4px;font-family:var(--mono);flex-shrink:0}
+.nav-item.hidden{display:none}
+.nav-count{font-size:11px;color:var(--text-muted);padding:8px 12px 2px}
+.nav-count strong{color:var(--text-secondary)}
+
+/* ── Main ── */
+.main{flex:1;min-width:0;padding:36px 44px 60px}
+.hero{margin-bottom:36px;animation:fadeUp .5s ease-out}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1.2}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.hero .tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:var(--bg-surface);border:1px solid var(--border);font-size:12px;color:var(--text-secondary)}
+.hero .tag .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.hero .tag .dot.db{background:var(--accent)}
+.hero .tag .dot.ver{background:#8b5cf6}
+.hero .tag .dot.prod{background:#059669}
+.hero .desc{margin-top:12px;font-size:14px;color:var(--text-secondary);line-height:1.7;max-width:700px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* ── Table Cards ── */
+.cards{display:flex;flex-direction:column;gap:16px;margin-bottom:40px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.card:hover{border-color:rgba(43,108,176,.25);box-shadow:0 4px 20px rgba(43,108,176,.06)}
+.card-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none}
+.card-header:hover{background:#fafcff}
+.card-method{font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;background:var(--accent-light);color:var(--accent);letter-spacing:.4px;font-family:var(--mono);flex-shrink:0}
+.card-title{font-size:15px;font-weight:700;color:var(--text-primary);font-family:var(--mono)}
+.card-title .remark{color:var(--text-secondary);font-weight:400;font-size:13px;margin-left:8px;font-family:var(--font)}
+.card-title .remark::before{content:'·';margin-right:4px;color:var(--text-muted)}
+.card-schema{font-size:11px;padding:2px 10px;border-radius:12px;background:rgba(43,108,176,.08);color:var(--accent);border:1px solid rgba(43,108,176,.15);margin-left:auto;flex-shrink:0;font-family:var(--mono)}
+.card-expand{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--border);background:var(--bg-base);cursor:pointer;color:var(--text-muted);transition:all .2s;font-size:12px;flex-shrink:0}
+.card-expand:hover{background:#e5eaf2;color:var(--text-primary)}
+.card-expand.expanded{transform:rotate(180deg);color:var(--accent)}
+.card-body{padding:0 20px 16px;display:none}
+.card-body.open{display:block;animation:slideDown .2s ease-out}
+@keyframes slideDown{from{opacity:0;max-height:0}to{opacity:1;max-height:3000px}}
+
+/* ── Fields Table ── */
+.ftable{width:100%;border-collapse:collapse;font-size:13px}
+.ftable thead th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);border-bottom:2px solid var(--border);background:var(--bg-base)}
+.ftable tbody tr{border-bottom:1px solid #f0f4f8;transition:background .12s}
+.ftable tbody tr:hover{background:#f8fbff}
+.ftable tbody tr:last-child{border-bottom:none}
+.ftable tbody td{padding:9px 12px;vertical-align:top;line-height:1.5}
+.ftable .seq{color:var(--text-muted);text-align:center;font-family:var(--mono);font-size:12px}
+.ftable .col-name{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+.ftable .col-type{font-family:var(--mono);font-size:12px;color:#7c3aed}
+.ftable .col-badge{display:inline-flex;gap:3px;flex-wrap:wrap}
+.ftable .badge-pk{font-size:9px;padding:1px 7px;border-radius:4px;font-weight:700;letter-spacing:.3px;background:var(--pk-bg);color:var(--pk-color);border:1px solid var(--pk-border)}
+.ftable .badge-fk{font-size:9px;padding:1px 7px;border-radius:4px;font-weight:700;letter-spacing:.3px;background:var(--fk-bg);color:var(--fk-color);border:1px solid var(--fk-border)}
+.ftable .nullable-yes{font-size:11px;color:var(--nullable-color)}
+.ftable .nullable-no{font-size:11px;color:var(--not-null-color)}
+.ftable .col-default{font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+.ftable .col-remark{font-size:12px;color:var(--text-secondary)}
+.ftable .col-remark.empty{color:var(--text-muted);font-style:italic}
+
+/* ── SQL Code Block ── */
+.sql-block{margin-top:12px;background:var(--code-bg);border-radius:8px;overflow:hidden}
+.sql-block-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.08)}
+.sql-block-header span{font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+.copy-btn{font-size:11px;color:#94a3b8;background:none;border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:2px 8px;cursor:pointer;transition:all .15s}
+.copy-btn:hover{color:#e2e8f0;border-color:#6366f1;background:rgba(99,102,241,.1)}
+.sql-block pre{padding:12px 14px;font-size:12px;line-height:1.7;overflow-x:auto;font-family:var(--mono);color:var(--code-text)}
+.sql-block pre .kw{color:var(--code-keyword);font-weight:600}
+.sql-block pre .str{color:var(--code-string)}
+.sql-block pre .typ{color:var(--code-type)}
+.sql-block pre .cmt{color:var(--code-comment);font-style:italic}
+
+/* ── Relationships ── */
+.rels{margin-top:12px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.rel-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rel-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);min-width:44px}
+.rel-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:12px;background:#f0f9ff;border:1px solid #bae6fd;color:var(--text-secondary)}
+.rel-arrow{font-weight:700;font-size:13px}
+.rel-table{font-family:var(--mono);font-size:11px;color:var(--accent)}
+.rel-col{font-family:var(--mono);font-size:11px;color:var(--text-primary)}
+.rel-via{font-size:10px;color:var(--text-muted)}
+
+.no-results{text-align:center;padding:80px 20px;color:var(--text-muted)}
+.no-results .icon{font-size:44px;margin-bottom:12px;opacity:.3}
+.no-results h3{font-size:16px;color:var(--text-secondary);margin-bottom:4px}
+.no-results p{font-size:13px}
+
+/* ── Toggle button ── */
+.sidebar-toggle{position:fixed;top:14px;right:14px;z-index:100;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface);cursor:pointer;color:var(--text-secondary);transition:all .2s;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.sidebar-toggle:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.app.sidebar-hidden .sidebar{width:0 !important;overflow:hidden;border-right:none}
+.app.sidebar-hidden .sidebar .sidebar-header,.app.sidebar-hidden .sidebar .sidebar-search,.app.sidebar-hidden .sidebar .sidebar-nav{display:none}
+.sidebar-resize-handle{position:absolute;top:0;right:-4px;width:6px;height:100%;cursor:col-resize;z-index:20;opacity:0;transition:opacity .2s}
+.sidebar-resize-handle:hover,.sidebar-resize-handle.active{opacity:1;background:rgba(43,108,176,.15)}
+.sidebar:hover .sidebar-resize-handle{opacity:.35}
+
+@media(max-width:860px){
+  .sidebar{width:0;overflow:hidden;border-right:none;position:fixed;z-index:90;height:100vh}
+  .sidebar-header,.sidebar-search,.sidebar-nav{display:none}
+  .main{padding:20px 16px 40px}
+  .hero h1{font-size:22px}
+  .card-header{flex-wrap:wrap}
+}
+@media print{
+  .sidebar,.sidebar-toggle,.copy-btn{display:none !important}
+  .main{padding:10px}
+  .card-body{display:block !important;page-break-inside:avoid}
+  .card{break-inside:avoid;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>#title#</h1>
+    <div class="sub">#databaseName# · #productName# #productVersion#</div>
+  </div>
+  <div class="sidebar-search">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="搜索表名 / 备注 / 字段..." autocomplete="off">
+      <span class="kbd">/</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav">
+    <div class="nav-count">共 <strong id="totalNavCount">0</strong> 张表</div>
+    <!-- nav injected -->
+  </nav>
+  <div class="sidebar-resize-handle" id="resizeHandle" title="拖拽调整侧边栏宽度"></div>
+</aside>
+
+<main class="main">
+  <section class="hero">
+    <h1>#title#</h1>
+    <div class="meta">
+      <span class="tag"><span class="dot db"></span>#databaseName#</span>
+      <span class="tag"><span class="dot ver"></span>v#version#</span>
+      <span class="tag"><span class="dot prod"></span>#productName# #productVersion#</span>
+      <span class="tag" style="margin-left:auto;opacity:.6">导出时间：#exportTime#</span>
+    </div>
+    <div class="desc">#description#</div>
+  </section>
+
+  <div class="section-title">数据表 <span id="filterInfo"></span></div>
+  <div class="cards" id="cardsContainer"><!-- cards injected --></div>
+  <div class="no-results" id="noResults" style="display:none">
+    <div class="icon">🔍</div>
+    <h3>未找到匹配的表</h3>
+    <p>尝试修改搜索条件</p>
+  </div>
+</main>
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" title="切换侧边栏">☰</button>
+
+<script>
+(function(){
+  var data = #dataJson#;
+  var tables = data && data.tables ? data.tables : [];
+  var container = document.getElementById('cardsContainer');
+  var nav = document.getElementById('sidebarNav');
+  var searchInput = document.getElementById('searchInput');
+  var noResults = document.getElementById('noResults');
+  var filterInfo = document.getElementById('filterInfo');
+  var totalNavCount = document.getElementById('totalNavCount');
+  var app = document.getElementById('app');
+  var sidebar = document.getElementById('sidebar');
+  var toggleBtn = document.getElementById('sidebarToggle');
+
+  totalNavCount.textContent = tables.length;
+
+  // Sidebar state
+  function getSidebarState(){
+    try{
+      var s = localStorage.getItem('doc-sidebar-hidden');
+      return s !== 'true';
+    }catch(e){return true}
+  }
+  var visible = getSidebarState();
+  toggleBtn.style.display = visible ? 'none' : 'block';
+
+  toggleBtn.addEventListener('click', function(){
+    visible = true;
+    app.classList.remove('sidebar-hidden');
+    sidebar.style.width = '';
+    toggleBtn.style.display = 'none';
+  });
+
+  // Resize handle
+  var handle = document.getElementById('resizeHandle');
+  if(handle){
+    var resizing = false, startX = 0, startW = 0;
+    handle.addEventListener('mousedown', function(e){
+      resizing = true; startX = e.clientX;
+      startW = parseInt(getComputedStyle(sidebar).width, 10);
+      document.body.style.cursor = 'col-resize'; e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e){
+      if(!resizing) return;
+      var w = startW + (e.clientX - startX);
+      if(w < 200) w = 200; if(w > 600) w = 600;
+      sidebar.style.setProperty('--sidebar-w', w + 'px');
+    });
+    document.addEventListener('mouseup', function(){
+      if(resizing){
+        resizing = false;
+        document.body.style.cursor = '';
+        handle.classList.remove('active');
+      }
+    });
+  }
+
+  function escHtml(s){
+    if(!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s){
+    if(!s) return '';
+    return String(s).replace(/"/g,'&quot;').replace(/&/g,'&amp;');
+  }
+
+  function tableRemark(t){
+    var r = (t.remark || t.tableComment || '').trim();
+    return r;
+  }
+
+  // Build nav
+  function renderNav(){
+    var html = '<div class="nav-count">共 <strong>' + tables.length + '</strong> 张表</div>';
+    tables.forEach(function(t, i){
+      var remark = tableRemark(t);
+      var display = remark ? remark : t.tableName;
+      html += '<a class="nav-item" href="#card-' + escAttr(i) + '" data-index="' + escAttr(i) + '" data-name="' + escAttr((t.tableName||'').toLowerCase()) + '" data-remark="' + escAttr((remark||'').toLowerCase()) + '" data-fields="' + escAttr(fieldText(t).toLowerCase()) + '">';
+      html += '<span class="idx">' + (i+1) + '</span>';
+      html += '<span class="label">' + escHtml(display) + '</span>';
+      html += '<span class="badge">' + escHtml(t.schema || '') + '</span>';
+      html += '</a>';
+    });
+    nav.innerHTML = html;
+    nav.querySelectorAll('.nav-item').forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.preventDefault();
+        nav.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
+        el.classList.add('active');
+        var idx = el.getAttribute('data-index');
+        var card = document.getElementById('card-' + idx);
+        if(card){
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          setTimeout(function(){
+            var body = card.querySelector('.card-body');
+            if(body && !body.classList.contains('open')){
+              var btn = card.querySelector('.card-expand');
+              if(btn) btn.click();
+            }
+          },320);
+        }
+      });
+    });
+  }
+
+  function fieldText(t){
+    var cols = t.columns || [];
+    return cols.map(function(c){
+      return [c.columnName, (c.remark||c.columnComment||''), (c.typeName||c.dataType||'')].filter(Boolean).join(' ');
+    }).join(' ');
+  }
+
+  function highlightSql(sql, tableName){
+    var kw = ['CREATE','TABLE','IF','NOT','EXISTS','PRIMARY','KEY','FOREIGN','REFERENCES','INSERT','INTO','VALUES','SELECT','FROM','WHERE','AND','OR','DEFAULT','NULL','VARCHAR','CHAR','INT','INTEGER','BIGINT','TEXT','BOOLEAN','DATE','DATETIME','TIMESTAMP','DECIMAL','FLOAT','DOUBLE'];
+    return sql
+      .replace(/--.*/g, function(m){return '<span class="cmt">' + m + '</span>'})
+      .replace(new RegExp('\\b(' + kw.join('|') + ')\\b','gi'), function(m){return '<span class="kw">' + m + '</span>'})
+      .replace(/'([^']*)'/g, '<span class="str">\'$1\'</span>')
+      .replace(/`([^`]*)`/g, '<span class="typ">`$1`</span>');
+  }
+
+  function generateCreateSql(t){
+    var cols = t.columns || [];
+    var pkCols = cols.filter(function(c){ return c.primaryKey; }).map(function(c){ return '`' + c.columnName + '`'; });
+    var lines = ['CREATE TABLE `' + t.tableName + '` ('];
+    var fieldLines = cols.map(function(c, i){
+      var line = '  `' + c.columnName + '` ' + (c.typeName || 'VARCHAR(255)');
+      if(c.columnSize && (!c.decimalDigits)) line += '(' + c.columnSize + ')';
+      else if(c.columnSize && c.decimalDigits != null) line += '(' + c.columnSize + ',' + c.decimalDigits + ')';
+      if(!c.nullable) line += ' NOT NULL';
+      if(c.defaultValue != null && c.defaultValue !== '') line += ' DEFAULT ' + ('' + c.defaultValue);
+      var parts = [];
+      if(c.remark) parts.push('-- ' + c.remark);
+      return line + (parts.length ? ' ' + parts.join(' ') : '');
+    });
+    if(pkCols.length) fieldLines.push('  PRIMARY KEY (' + pkCols.join(', ') + ')');
+    lines.push(fieldLines.join(',\n'));
+    lines.push(');');
+    return lines.join('\n');
+  }
+
+  // Build cards
+  function renderCards(){
+    var html = '';
+    tables.forEach(function(t, i){
+      var cols = t.columns || [];
+      var remark = tableRemark(t);
+      var schema = t.schema || t.tableSchema || '';
+      var colRows = cols.map(function(c, idx){
+        var keyBadges = '';
+        if(c.primaryKey) keyBadges += '<span class="badge-pk">PK</span>';
+        var hasFk = false;
+        if(t.importedKeys){
+          t.importedKeys.forEach(function(r){ if(r.fkColumnName === c.columnName) hasFk = true; });
+        }
+        if(hasFk) keyBadges += '<span class="badge-fk">FK</span>';
+        var nullableStr = c.nullable ? '<span class="nullable-yes">NULL</span>' : '<span class="nullable-no">NOT NULL</span>';
+        var remarkText = (c.remark || '').trim();
+        return '<tr>' +
+          '<td class="seq">' + (idx + 1) + '</td>' +
+          '<td><span class="col-name">' + escHtml(c.columnName) + '</span>' + (keyBadges ? ' <span class="col-badge">' + keyBadges + '</span>' : '') + '</td>' +
+          '<td><span class="col-type">' + escHtml(c.typeName || 'VARCHAR(255)') + (c.columnSize && !c.decimalDigits ? '(' + c.columnSize + ')' : (c.columnSize && c.decimalDigits != null ? '(' + c.columnSize + ',' + c.decimalDigits + ')' : '')) + '</span></td>' +
+          '<td>' + nullableStr + '</td>' +
+          '<td><span class="col-default">' + escHtml(c.defaultValue != null ? c.defaultValue : '−') + '</span></td>' +
+          '<td class="col-remark ' + (remarkText ? '' : 'empty') + '">' + (remarkText || '—') + '</td>' +
+          '</tr>';
+      }).join('');
+
+      var importHtml = '';
+      if(t.importedKeys && t.importedKeys.length > 0){
+        importHtml = '<div class="rel-group"><span class="rel-label">引用</span>';
+        t.importedKeys.forEach(function(r){
+          importHtml += '<span class="rel-tag"><span class="rel-arrow">→</span><span class="rel-table">' + escHtml(r.pkTableName) + '</span><span class="rel-col">.' + escHtml(r.pkColumnName) + '</span><span class="rel-via">via ' + escHtml(r.fkColumnName) + '</span></span>';
+        });
+        importHtml += '</div>';
+      }
+      var exportHtml = '';
+      if(t.exportedKeys && t.exportedKeys.length > 0){
+        exportHtml = '<div class="rel-group"><span class="rel-label">被引用</span>';
+        t.exportedKeys.forEach(function(r){
+          exportHtml += '<span class="rel-tag"><span class="rel-arrow">←</span><span class="rel-table">' + escHtml(r.fkTableName) + '</span><span class="rel-col">.' + escHtml(r.fkColumnName) + '</span></span>';
+        });
+        exportHtml += '</div>';
+      }
+      var relHtml = '';
+      if(importHtml || exportHtml){
+        relHtml = '<div class="rels">' + importHtml + exportHtml + '</div>';
+      }
+
+      var sqlCode = escHtml(generateCreateSql(t));
+      var highlightedSql = highlightSql(generateCreateSql(t), t.tableName);
+
+      html += '<div class="card" id="card-' + i + '" data-index="' + i + '" data-name="' + escAttr((t.tableName||'').toLowerCase()) + '" data-remark="' + escAttr((remark||'').toLowerCase()) + '" data-fields="' + escAttr(fieldText(t).toLowerCase()) + '">' +
+        '<div class="card-header">' +
+          '<span class="card-method">TABLE</span>' +
+          '<span class="card-title">' + escHtml(t.tableName) + (remark ? '<span class="remark">' + escHtml(remark) + '</span>' : '') + '</span>' +
+          (schema ? '<span class="card-schema">' + escHtml(schema) + '</span>' : '') +
+          '<button class="card-expand" onclick="toggleCard(this)" aria-label="展开">▾</button>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<table class="ftable">' +
+          '<thead><tr>' +
+            '<th style="width:32px">#</th>' +
+            '<th style="width:22%">字段名</th>' +
+            '<th style="width:18%">类型</th>' +
+            '<th style="width:10%">约束</th>' +
+            '<th style="width:14%">默认值</th>' +
+            '<th style="width:34%">备注</th>' +
+          '</tr></thead>' +
+          '<tbody>' + colRows + '</tbody>' +
+          '</table>' +
+          relHtml +
+          '<div class="sql-block">' +
+            '<div class="sql-block-header">' +
+              '<span>CREATE TABLE SQL</span>' +
+              '<button class="copy-btn" onclick="copySql(this)">复制</button>' +
+            '</div>' +
+            '<pre>' + highlightedSql + '</pre>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  function toggleCard(btn){
+    var card = btn.closest('.card');
+    var body = card.querySelector('.card-body');
+    var isOpen = body.classList.toggle('open');
+    btn.classList.toggle('expanded', isOpen);
+  }
+
+  window.toggleCard = toggleCard;
+
+  function copySql(btn){
+    var pre = btn.closest('.sql-block').querySelector('pre');
+    var text = pre.textContent || pre.innerText;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(function(){
+        btn.textContent = '已复制!';
+        setTimeout(function(){btn.textContent = '复制';}, 1500);
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '已复制!';
+      setTimeout(function(){btn.textContent = '复制';}, 1500);
+    }
+  }
+  window.copySql = copySql;
+
+  // Search
+  function filter(q){
+    var query = (q || '').trim().toLowerCase();
+    var cards = container.querySelectorAll('.card');
+    var items = nav.querySelectorAll('.nav-item');
+    var visibleCount = 0;
+    cards.forEach(function(c){
+      var match = !query ||
+        (c.dataset.name || '').indexOf(query) !== -1 ||
+        (c.dataset.remark || '').indexOf(query) !== -1 ||
+        (c.dataset.fields || '').indexOf(query) !== -1;
+      c.style.display = match ? '' : 'none';
+      if(match) visibleCount++;
+    });
+    items.forEach(function(el){
+      var hit = !query ||
+        (el.dataset.name || '').indexOf(query) !== -1 ||
+        (el.dataset.remark || '').indexOf(query) !== -1 ||
+        (el.dataset.fields || '').indexOf(query) !== -1;
+      el.classList.toggle('hidden', !hit);
+    });
+    noResults.style.display = visibleCount === 0 && query ? 'block' : 'none';
+    filterInfo.textContent = query ? ' · ' + visibleCount + ' / ' + tables.length : '';
+  }
+
+  var timer = null;
+  searchInput.addEventListener('input', function(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){ filter(searchInput.value); }, 80);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === '/' && document.activeElement !== searchInput){
+      e.preventDefault(); searchInput.focus();
+    }
+    if(e.key === 'Escape' && document.activeElement === searchInput){
+      searchInput.value = ''; filter(''); searchInput.blur();
+    }
+  });
+
+  // Init
+  renderNav();
+  renderCards();
+  filter('');
+})();
+</script>
+</body>
+</html>

@@ -171,4 +171,39 @@ public final class CircuitBreakerFlow {
         }
         return new InMemoryCircuitBreakerProvider(name, failureThreshold, successThreshold, waitDuration);
     }
+
+    /**
+     * 获取已缓存的熔断器。
+     *
+     * @param name 熔断器名称
+     * @return 熔断器实例，未找到返回 null
+     */
+    public static CircuitBreakerProvider get(String name) {
+        return CACHE.get(name);
+    }
+
+    /**
+     * 移除指定熔断器缓存。
+     *
+     * @param name 熔断器名称
+     */
+    public static void remove(String name) {
+        CACHE.remove(name);
+    }
+
+    /**
+     * 清空所有熔断器缓存。
+     */
+    public static void clear() {
+        CACHE.clear();
+    }
+
+    /**
+     * 列出所有已缓存的熔断器（按名称索引）。
+     *
+     * @return 熔断器名称 → 实例映射
+     */
+    public static Map<String, CircuitBreakerProvider> list() {
+        return new java.util.HashMap<>(CACHE);
+    }
 }

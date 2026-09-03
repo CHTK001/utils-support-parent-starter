@@ -203,6 +203,15 @@ public final class RateLimiterFlow {
     }
 
     /**
+     * 列出所有已缓存的限流器（按名称索引）。
+     *
+     * @return 限流器名称 → 实例映射
+     */
+    public static Map<String, RateLimiterProvider> list() {
+        return new java.util.HashMap<>(CACHE);
+    }
+
+    /**
      * 获取限流器提供者实例。
      *
      * @return RateLimiterProvider 实例

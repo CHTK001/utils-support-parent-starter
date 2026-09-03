@@ -1,3 +1,4 @@
 default=com.chua.datasource.support.document.template.DefaultDocumentTemplate
 swagger=com.chua.datasource.support.document.template.SwaggerDocumentTemplate
 aurora=com.chua.datasource.support.document.template.AuroraDocumentTemplate
+stripe=com.chua.datasource.support.document.template.StripeDocumentTemplate

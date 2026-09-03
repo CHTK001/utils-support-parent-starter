@@ -63,6 +63,23 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.53.2.0</version>
         </dependency>
+        <!-- 老版 Office (.doc/.xls/.ppt) 预览 -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+        <!-- PSD 图片预览 -->
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-psd</artifactId>
+            <version>3.12.0</version>
+        </dependency>
           <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      </dependencies>
 </project>
