@@ -2,6 +2,8 @@ package com.chua.common.support.network.client;
 
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 /**
  * 响应式 HTTP 客户端包装器。
  *
@@ -53,6 +55,52 @@ public final class ReactiveHttpClient implements HttpClient {
      */
     public HttpClient getDelegate() {
         return delegate;
+    }
+
+    // ==================== 拦截器（委托） ====================
+
+    /**
+     * 注册应用层拦截器（委托给底层客户端）。
+     *
+     * @param interceptor 应用层拦截器
+     * @return 当前响应式客户端实例（链式调用）
+     */
+    @Override
+    public ReactiveHttpClient addInterceptor(HttpInterceptor interceptor) {
+        delegate.addInterceptor(interceptor);
+        return this;
+    }
+
+    /**
+     * 注册网络层拦截器（委托给底层客户端）。
+     *
+     * @param interceptor 网络层拦截器
+     * @return 当前响应式客户端实例（链式调用）
+     */
+    @Override
+    public ReactiveHttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
+        delegate.addNetworkInterceptor(interceptor);
+        return this;
+    }
+
+    /**
+     * 获取底层客户端的应用层拦截器列表。
+     *
+     * @return 应用层拦截器列表
+     */
+    @Override
+    public List<HttpInterceptor> getInterceptors() {
+        return delegate.getInterceptors();
+    }
+
+    /**
+     * 获取底层客户端的网络层拦截器列表。
+     *
+     * @return 网络层拦截器列表
+     */
+    @Override
+    public List<HttpInterceptor> getNetworkInterceptors() {
+        return delegate.getNetworkInterceptors();
     }
 
     // ==================== 同步接口（委托） ====================

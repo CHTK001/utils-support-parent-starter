@@ -4,6 +4,10 @@ import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * 默认 HTTP 客户端实现，采用<b>委托模式（Delegation Pattern）</b>转发给 {@link HttpClientExecutor}。
  *
@@ -14,6 +18,10 @@ import reactor.core.publisher.Mono;
  *   <li><b>委派层</b> — {@link DefaultHttpClient} 实现接口，将请求转发给执行器</li>
  *   <li><b>执行层</b> — {@link HttpClientExecutor} SPI 实现底层 HTTP 通信（JDK / OkHttp / HttpClient5 / Netty）</li>
  * </ul>
+ *
+ * <p><b>拦截器支持：</b>本类内置应用层/网络层拦截器链（洋葱模型）：
+ * {@code [应用层拦截器] → [请求级拦截器] → [网络层拦截器] → 执行器网络调用}。
+ * 通过 {@link #addInterceptor(HttpInterceptor)} / {@link #addNetworkInterceptor(HttpInterceptor)} 注册。</p>
  *
  * <p><b>异步执行：</b>{@link #executeAsync} 返回 {@link Mono}，由执行器决定底层实现。</p>
  * <ul>
@@ -36,6 +44,22 @@ public class DefaultHttpClient implements HttpClient {
     private final HttpClientExecutor executor;
 
     /**
+     * 应用层拦截器列表（按注册顺序执行）。
+     *
+     * <p>最外层，适合统一加 Token、Header、日志、请求预处理、短路 Mock/缓存等。
+     * 通过 {@link #addInterceptor(HttpInterceptor)} 注册。</p>
+     */
+    private final List<HttpInterceptor> interceptors = new ArrayList<>();
+
+    /**
+     * 网络层拦截器列表（按注册顺序执行）。
+     *
+     * <p>紧贴网络调用，适合监控、错误码统一包装、网络层日志等。
+     * 通过 {@link #addNetworkInterceptor(HttpInterceptor)} 注册。</p>
+     */
+    private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
+
+    /**
      * 使用指定的 HTTP 执行器创建默认客户端。
      *
      * @param executor 底层 HTTP 执行器，通过 {@link HttpClientFactory} 获取
@@ -45,7 +69,55 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     /**
-     * 执行 HTTP 请求，委托给底层执行器处理。
+     * 获取已注册的应用层拦截器列表。
+     *
+     * @return 应用层拦截器列表（只读视图）
+     */
+    @Override
+    public List<HttpInterceptor> getInterceptors() {
+        return Collections.unmodifiableList(interceptors);
+    }
+
+    /**
+     * 获取已注册的网络层拦截器列表。
+     *
+     * @return 网络层拦截器列表（只读视图）
+     */
+    @Override
+    public List<HttpInterceptor> getNetworkInterceptors() {
+        return Collections.unmodifiableList(networkInterceptors);
+    }
+
+    /**
+     * 注册应用层拦截器。
+     *
+     * @param interceptor 应用层拦截器，null 忽略
+     * @return 当前客户端实例（链式调用）
+     */
+    @Override
+    public HttpClient addInterceptor(HttpInterceptor interceptor) {
+        if (interceptor != null) {
+            interceptors.add(interceptor);
+        }
+        return this;
+    }
+
+    /**
+     * 注册网络层拦截器。
+     *
+     * @param interceptor 网络层拦截器，null 忽略
+     * @return 当前客户端实例（链式调用）
+     */
+    @Override
+    public HttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
+        if (interceptor != null) {
+            networkInterceptors.add(interceptor);
+        }
+        return this;
+    }
+
+    /**
+     * 执行 HTTP 请求，组装拦截器链并委托给底层执行器处理。
      *
      * @param request 封装好的请求对象
      * @return 响应对象 {@link ClientResponse}
@@ -53,6 +125,18 @@ public class DefaultHttpClient implements HttpClient {
      */
     @Override
     public ClientResponse execute(ClientRequest request) {
+        return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors,
+                this::doExecute)
+                .proceed(request);
+    }
+
+    /**
+     * 最内层真实网络调用：委托给底层执行器。
+     *
+     * @param request 请求对象（已被拦截器处理）
+     * @return 响应对象
+     */
+    private ClientResponse doExecute(ClientRequest request) {
         try {
             return executor.execute(request);
         } catch (Exception e) {
@@ -99,6 +183,10 @@ public class DefaultHttpClient implements HttpClient {
     /**
      * 异步执行 HTTP 请求，委托给底层执行器。
      *
+     * <p>未注册拦截器时直接委托给执行器的 NIO {@code executeAsync()}（零阻塞）。
+     * 存在拦截器时，在 Reactor {@code boundedElastic} 线程上运行拦截器链，
+     * 最内层仍复用执行器的异步能力。</p>
+     *
      * <p>执行器返回 {@link Mono}，由具体实现决定异步方式：
      * <ul>
      *   <li>{@link JdkHttpClientExecutor} — JDK sendAsync() + Mono.fromFuture()，NIO 事件驱动</li>
@@ -111,7 +199,14 @@ public class DefaultHttpClient implements HttpClient {
      */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
-        return executor.executeAsync(request);
+        if (interceptors.isEmpty() && networkInterceptors.isEmpty() && request.getInterceptor() == null) {
+            return executor.executeAsync(request);
+        }
+        return Mono.fromCallable(() -> new InterceptorChain(
+                interceptors, request.getInterceptor(), networkInterceptors,
+                req -> executor.executeAsync(req).block())
+                .proceed(request))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
     /**
