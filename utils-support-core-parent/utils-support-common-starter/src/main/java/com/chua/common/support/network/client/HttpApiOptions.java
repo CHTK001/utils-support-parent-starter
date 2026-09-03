@@ -2,6 +2,7 @@ package com.chua.common.support.network.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 声明式 HTTP API（{@code HttpInvoker}/{@code HttpApiFactory}）的自定义配置。
@@ -62,6 +63,16 @@ public class HttpApiOptions {
      * 网络层拦截器列表（仅对当前 API 代理生效）。
      */
     private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
+
+    /**
+     * 已被解析注册到客户端上的拦截器（按实例去重）。
+     *
+     * <p>防止同一 {@link HttpApiOptions} 被多次解析（如重复调用 createNew）
+     * 时向客户端重复注册同一拦截器。仅按实例（identity）去重，允许逻辑不同
+     * 但结构相同的拦截器各自生效。</p>
+     */
+    private final Set<HttpInterceptor> resolved = java.util.Collections.newSetFromMap(
+            new java.util.concurrent.ConcurrentHashMap<>());
 
     /**
      * 创建空的配置实例。
@@ -192,9 +203,10 @@ public class HttpApiOptions {
      *
      * <p>解析规则：</p>
      * <ul>
-     *   <li>已设置 {@link #client} — 直接使用，并将配置的拦截器注册到其上</li>
-     *   <li>未设置 client 且配置了拦截器 — 创建独立的 {@code HttpClientFactory.newClient()} 实例，
-     *       避免污染全局单例（防止重复注册/跨调用泄漏）</li>
+     *   <li>已设置 {@link #client} — 直接使用；同一 {@link HttpApiOptions} 多次解析时，
+     *       拦截器按实例去重，避免向同一客户端重复注册</li>
+     *   <li>未设置 client 且配置了拦截器 — 每次解析创建独立的 {@code HttpClientFactory.newClient()} 实例，
+     *       天然隔离，避免污染全局单例</li>
      *   <li>未设置 client 且无拦截器 — 使用全局单例 {@code HttpClientFactory.getClient()}</li>
      * </ul>
      *
@@ -205,16 +217,28 @@ public class HttpApiOptions {
         HttpClient target;
         if (client != null) {
             target = client;
+            // 稳定客户端：按拦截器实例去重，防止重复注册
+            for (HttpInterceptor interceptor : interceptors) {
+                if (resolved.add(interceptor)) {
+                    target.addInterceptor(interceptor);
+                }
+            }
+            for (HttpInterceptor interceptor : networkInterceptors) {
+                if (resolved.add(interceptor)) {
+                    target.addNetworkInterceptor(interceptor);
+                }
+            }
         } else if (hasInterceptors) {
+            // 无稳定客户端：每次创建独立实例，天然隔离，无需去重
             target = HttpClientFactory.newClient();
+            for (HttpInterceptor interceptor : interceptors) {
+                target.addInterceptor(interceptor);
+            }
+            for (HttpInterceptor interceptor : networkInterceptors) {
+                target.addNetworkInterceptor(interceptor);
+            }
         } else {
             target = HttpClientFactory.getClient();
-        }
-        for (HttpInterceptor interceptor : interceptors) {
-            target.addInterceptor(interceptor);
-        }
-        for (HttpInterceptor interceptor : networkInterceptors) {
-            target.addNetworkInterceptor(interceptor);
         }
         return target;
     }
