@@ -2,17 +2,27 @@ package com.chua.common.support.network.client;
 
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * HTTP 客户端抽象基类，采用<b>模板方法模式（Template Method）</b>封装通用逻辑。
  *
  * <p>本类实现了 {@link HttpClient} 接口的 {@link #execute(ClientRequest)} 方法，
  * 在其周围提供了 {@link #beforeExecute(ClientRequest)} 和 {@link #afterExecute(ClientRequest)}
  * 两个扩展点。子类只需实现 {@link #doExecute(ClientRequest)} 完成底层 HTTP 通信，
- * 无需重复处理配置管理、前置/后置拦截等通用逻辑。
+ * 无需重复处理配置管理、前置/后置拦截等通用逻辑。</p>
+ *
+ * <p><b>拦截器支持：</b>本类内置了应用层/网络层拦截器链（洋葱模型）：
+ * {@code [应用层拦截器] → [请求级拦截器] → [网络层拦截器] → doExecute() 网络调用}。
+ * 子类通过 {@link #doExecute(ClientRequest)} 实现真实的网络通信，拦截器在其外层统一生效，
+ * 无需子类关心链式组装逻辑。</p>
  *
  * <p><b>执行流程：</b>
  * <pre>{@code
  * execute(request)
+ *   ├── 组装拦截器链（应用层 → 请求级 → 网络层 → doExecute）
  *   ├── beforeExecute(request)    ← 扩展点：日志、鉴权、参数校验
  *   ├── doExecute(request)        ← 子类实现：实际 HTTP 通信
  *   └── afterExecute(request)     ← 扩展点：资源清理、统计
@@ -60,6 +70,22 @@ public abstract class AbstractHttpClient implements HttpClient {
     protected final ClientSetting setting;
 
     /**
+     * 应用层拦截器列表（按注册顺序执行）。
+     *
+     * <p>最外层，适合统一加 Token、Header、日志、请求预处理、短路 Mock/缓存等。
+     * 通过 {@link #addInterceptor(HttpInterceptor)} 注册。</p>
+     */
+    private final List<HttpInterceptor> interceptors = new ArrayList<>();
+
+    /**
+     * 网络层拦截器列表（按注册顺序执行）。
+     *
+     * <p>紧贴网络调用，适合监控、错误码统一包装、网络层日志等。
+     * 通过 {@link #addNetworkInterceptor(HttpInterceptor)} 注册。</p>
+     */
+    private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
+
+    /**
      * 使用指定配置创建抽象 HTTP 客户端。
      *
      * @param setting 客户端全局配置，为 null 时使用默认配置（超时 30s、不重试、无代理）
@@ -69,10 +95,59 @@ public abstract class AbstractHttpClient implements HttpClient {
     }
 
     /**
+     * 获取已注册的应用层拦截器列表。
+     *
+     * @return 应用层拦截器列表（只读视图）
+     */
+    @Override
+    public List<HttpInterceptor> getInterceptors() {
+        return Collections.unmodifiableList(interceptors);
+    }
+
+    /**
+     * 获取已注册的网络层拦截器列表。
+     *
+     * @return 网络层拦截器列表（只读视图）
+     */
+    @Override
+    public List<HttpInterceptor> getNetworkInterceptors() {
+        return Collections.unmodifiableList(networkInterceptors);
+    }
+
+    /**
+     * 注册应用层拦截器。
+     *
+     * @param interceptor 应用层拦截器，null 忽略
+     * @return 当前客户端实例（链式调用）
+     */
+    @Override
+    public HttpClient addInterceptor(HttpInterceptor interceptor) {
+        if (interceptor != null) {
+            interceptors.add(interceptor);
+        }
+        return this;
+    }
+
+    /**
+     * 注册网络层拦截器。
+     *
+     * @param interceptor 网络层拦截器，null 忽略
+     * @return 当前客户端实例（链式调用）
+     */
+    @Override
+    public HttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
+        if (interceptor != null) {
+            networkInterceptors.add(interceptor);
+        }
+        return this;
+    }
+
+    /**
      * 执行 HTTP 请求（模板方法）。
      *
      * <p>此方法是模板方法模式的核心，定义了不可变的执行流程：
      * <ol>
+     *   <li>组装拦截器链：客户端应用层拦截器 → 请求级拦截器 → 客户端网络层拦截器 → 网络调用</li>
      *   <li>调用 {@link #beforeExecute(ClientRequest)} 进行前置处理</li>
      *   <li>调用子类实现的 {@link #doExecute(ClientRequest)} 发起实际请求</li>
      *   <li>在 finally 块中调用 {@link #afterExecute(ClientRequest)} 确保后置处理</li>
@@ -83,21 +158,18 @@ public abstract class AbstractHttpClient implements HttpClient {
      */
     @Override
     public ClientResponse execute(ClientRequest request) {
-        beforeExecute(request);
-        try {
-            return doExecute(request);
-        } finally {
-            afterExecute(request);
-        }
+        return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors, this)
+                .proceed(request);
     }
 
     /**
      * 执行实际的 HTTP 请求，由子类实现底层通信逻辑。
      *
      * <p>子类在此方法中调用底层 HTTP 库（如 {@link java.net.http.HttpClient}、OkHttp、Apache HttpClient5）
-     * 发起实际的网络请求，并将底层响应转换为 {@link ClientResponse}。
+     * 发起实际的网络请求，并将底层响应转换为 {@link ClientResponse}。</p>
      *
      * <p>子类可以通过 {@link #setting} 获取超时、代理、重试等全局配置。
+     * 当存在拦截器时，本方法由拦截器链的最内层调用。</p>
      *
      * @param request 封装好的请求对象
      * @return 响应对象
@@ -145,7 +217,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     /**
      * 异步执行 HTTP 请求（NIO 非阻塞 + Reactor Mono）。
      *
-     * <p>委托给 {@link #doExecute(ClientRequest)}，在 Reactor 的
+     * <p>与 {@link #execute(ClientRequest)} 相同地组装拦截器链，在 Reactor 的
      * {@code boundedElastic} 线程上执行，支持背压和操作符链。</p>
      *
      * @param request 封装好的请求对象
@@ -153,14 +225,8 @@ public abstract class AbstractHttpClient implements HttpClient {
      */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
-        return Mono.fromCallable(() -> {
-            beforeExecute(request);
-            try {
-                return doExecute(request);
-            } finally {
-                afterExecute(request);
-            }
-        }).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+        return Mono.fromCallable(() -> execute(request))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
     /**
