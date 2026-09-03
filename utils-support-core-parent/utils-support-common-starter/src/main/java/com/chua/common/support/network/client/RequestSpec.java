@@ -142,6 +142,13 @@ public class RequestSpec {
     private boolean followRedirects = true;
 
     /**
+     * 请求级拦截器（应用层，仅对当前请求生效）。
+     *
+     * <p>优先级低于客户端级应用层拦截器，高于网络层拦截器。null 表示不启用。</p>
+     */
+    private HttpInterceptor interceptor;
+
+    /**
      * 使用指定的客户端、URL 和请求方法创建请求规格。
      *
      * <p>包级访问权限，由 {@link HttpClient} 接口的 default 方法内部创建。</p>
@@ -429,6 +436,30 @@ public class RequestSpec {
      */
     public RequestSpec followRedirects(boolean follow) {
         this.followRedirects = follow;
+        return this;
+    }
+
+    /**
+     * 设置请求级拦截器（仅对当前请求生效）。
+     *
+     * <p>请求级拦截器优先级低于客户端级应用层拦截器（{@code HttpClient.addInterceptor}），
+     * 高于网络层拦截器。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * ClientResponse resp = client.get("http://api.example.com/users")
+     *     .interceptor((chain, request) -> {
+     *         request.header("X-Request-Id", requestId());
+     *         return chain.proceed(request);
+     *     })
+     *     .execute();
+     * }</pre>
+     *
+     * @param interceptor 请求级拦截器
+     * @return 当前实例（链式调用）
+     */
+    public RequestSpec interceptor(HttpInterceptor interceptor) {
+        this.interceptor = interceptor;
         return this;
     }
 
@@ -789,6 +820,7 @@ public class RequestSpec {
         request.setVersion(version);
         request.setCacheTtl(cacheTtl);
         request.setMaxRetries(maxRetries);
+        request.setInterceptor(interceptor);
         return request;
     }
 

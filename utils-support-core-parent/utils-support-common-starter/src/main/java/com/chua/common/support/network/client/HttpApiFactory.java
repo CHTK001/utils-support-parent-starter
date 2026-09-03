@@ -57,15 +57,31 @@ public class HttpApiFactory {
      */
 @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> apiClass) {
-        if (!apiClass.isInterface()) {
-            throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
-        }
-        return (T) PROXY_CACHE.computeIfAbsent(apiClass, clazz ->
-                ReflectUtils.newProxy(
-                        clazz.getClassLoader(),
-                        new Class[]{clazz},
-                        new HttpApiInvocationHandler(clazz)
-                )
+        return create(apiClass, null);
+    }
+
+    /**
+     * 创建接口的 HTTP API 客户端代理（带缓存，支持自定义配置）。
+     *
+     * <p>通过 {@link HttpApiOptions} 指定自定义 baseUrl、底层 {@link HttpClient} 及拦截器，
+     * 实现差异化集成与自定义。</p>
+     *
+     * <p><b>注意：</b>代理缓存以<b>接口类</b>为键，首次调用创建的代理会被复用。
+     * 如需为同一接口使用<b>不同</b>配置（如不同 baseUrl/拦截器），请使用 {@link #createNew(Class, HttpApiOptions)}
+     * 每次创建新代理，或在首次调用时就传入最终使用的配置。</p>
+     *
+     * @param <T>      接口类型
+     * @param apiClass 接口类
+     * @param options  自定义配置（baseUrl/客户端/拦截器），可为 null 表示使用默认配置
+     * @return 动态代理实现
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T create(Class<T> apiClass, HttpApiOptions options) {
+        checkInterface(apiClass);
+        HttpApiOptions safeOptions = options != null ? options : HttpApiOptions.of();
+        return (T) PROXY_CACHE.computeIfAbsent(
+                apiClass,
+                clazz -> newProxy(clazz, safeOptions)
         );
     }
 
@@ -77,13 +93,52 @@ public class HttpApiFactory {
      * @return 新的动态代理实例
      */
     public static <T> T createNew(Class<T> apiClass) {
+        return createNew(apiClass, null);
+    }
+
+    /**
+     * 创建新代理实例（不缓存，支持自定义配置）。
+     *
+     * <p>通过 {@link HttpApiOptions} 指定自定义 baseUrl、底层 {@link HttpClient} 及拦截器。
+     * 每次调用都会创建新的代理实例，适用于需要为不同请求使用不同配置的场景。</p>
+     *
+     * @param <T>      接口类型
+     * @param apiClass 接口类
+     * @param options  自定义配置（baseUrl/客户端/拦截器），可为 null 表示使用默认配置
+     * @return 新的动态代理实例
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T createNew(Class<T> apiClass, HttpApiOptions options) {
+        checkInterface(apiClass);
+        return (T) newProxy(
+                apiClass,
+                options != null ? options : HttpApiOptions.of()
+        );
+    }
+
+    /**
+     * 校验接口类型。
+     *
+     * @param apiClass 接口类
+     */
+    private static void checkInterface(Class<?> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
         }
-        return (T) ReflectUtils.newProxy(
-                apiClass.getClassLoader(),
-                new Class[]{apiClass},
-                new HttpApiInvocationHandler(apiClass)
+    }
+
+    /**
+     * 创建动态代理实例。
+     *
+     * @param clazz   接口类
+     * @param options 自定义配置
+     * @return 动态代理实例
+     */
+    private static Object newProxy(Class<?> clazz, HttpApiOptions options) {
+        return ReflectUtils.newProxy(
+                clazz.getClassLoader(),
+                new Class[]{clazz},
+                new HttpApiInvocationHandler(clazz, options)
         );
     }
 

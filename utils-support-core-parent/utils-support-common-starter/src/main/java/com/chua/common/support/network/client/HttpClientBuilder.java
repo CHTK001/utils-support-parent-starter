@@ -179,6 +179,14 @@ public class HttpClientBuilder {
     private MultipartBody multipartBody;
 
     /**
+     * 请求级拦截器（应用层，仅对当前请求生效）。
+     *
+     * <p>优先级低于客户端级（{@code HttpClient.addInterceptor}）应用层拦截器，
+     * 高于网络层拦截器。null 表示不启用。</p>
+     */
+    private HttpInterceptor interceptor;
+
+    /**
      * 构造一个指定基础 URL 的请求构建器。
      * <p>包级访问权限，外部通过 {@link HttpClientFactory#of(String)} 工厂方法创建。</p>
      *
@@ -715,6 +723,32 @@ public class HttpClientBuilder {
     }
 
     /**
+     * 设置请求级拦截器（仅对当前构建的请求生效）。
+     *
+     * <p>请求级拦截器优先级低于客户端级应用层拦截器（{@code HttpClient.addInterceptor}），
+     * 高于网络层拦截器。适用于为单次请求附加额外处理（如特定 Token 注入、临时日志）。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * ClientResponse resp = HttpClientFactory.of("http://api.example.com")
+     *     .interceptor(chain -> {
+     *         System.out.println("请求开始");
+     *         ClientResponse r = chain.proceed(chain.request());
+     *         System.out.println("请求结束，状态码: " + r.getStatusCode());
+     *         return r;
+     *     })
+     *     .get();
+     * }</pre>
+     *
+     * @param interceptor 请求级拦截器
+     * @return 当前构建器实例，支持链式调用
+     */
+    public HttpClientBuilder interceptor(HttpInterceptor interceptor) {
+        this.interceptor = interceptor;
+        return this;
+    }
+
+    /**
      * 执行 HTTP 请求并获取响应。
      *
      * <p>此方法会完成以下步骤：</p>
@@ -748,6 +782,7 @@ public class HttpClientBuilder {
         request.setReadTimeout(readTimeout);
         request.setKeepAliveTimeout(keepAliveTimeout);
         request.setProxy(proxyHost, proxyPort);
+        request.setInterceptor(interceptor);
         return HttpClientFactory.getClient().execute(request);
     }
 
@@ -832,6 +867,7 @@ public class HttpClientBuilder {
         request.setReadTimeout(readTimeout);
         request.setKeepAliveTimeout(keepAliveTimeout);
         request.setProxy(proxyHost, proxyPort);
+        request.setInterceptor(interceptor);
         return HttpClientFactory.getClient().executeAsync(request);
     }
 
