@@ -375,6 +375,14 @@ public class ServiceBuilder implements Closeable {
         }
 
         /**
+         * 设置启动命令（覆盖默认 java -jar 命令）。
+         */
+        public RemoteManager withStartCmd(String cmd) {
+            builder.withStartCmd(cmd);
+            return this;
+        }
+
+        /**
          * 建立 SSH 连接。
          */
         public RemoteManager connect() {

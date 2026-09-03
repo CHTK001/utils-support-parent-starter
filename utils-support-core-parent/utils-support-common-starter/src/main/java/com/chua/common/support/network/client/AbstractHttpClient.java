@@ -159,7 +159,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     @Override
     public ClientResponse execute(ClientRequest request) {
         return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors,
-                this::doExecuteWithHooks)
+                request, this::doExecuteWithHooks)
                 .proceed(request);
     }
 
