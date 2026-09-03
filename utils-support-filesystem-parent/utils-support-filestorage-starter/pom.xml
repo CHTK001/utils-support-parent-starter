@@ -57,6 +57,12 @@
             <artifactId>dec</artifactId>
             <version>0.1.2</version>
         </dependency>
+        <!-- SQLite 数据库预览 -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.53.2.0</version>
+        </dependency>
           <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      </dependencies>
 </project>

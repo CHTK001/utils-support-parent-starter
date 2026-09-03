@@ -21,3 +21,5 @@ com.chua.filestorage.support.preview.provider.VCardPreviewProvider
 com.chua.filestorage.support.preview.provider.FbxPreviewProvider
 com.chua.filestorage.support.preview.provider.BlenderPreviewProvider
 com.chua.filestorage.support.preview.provider.ShapefilePreviewProvider
+com.chua.filestorage.support.preview.provider.JupyterPreviewProvider
+com.chua.filestorage.support.preview.provider.SqlitePreviewProvider
