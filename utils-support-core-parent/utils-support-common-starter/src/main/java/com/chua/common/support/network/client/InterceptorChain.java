@@ -79,17 +79,31 @@ final class InterceptorChain implements HttpInterceptor.Chain {
                      List<HttpInterceptor> networkInterceptors,
                      ClientRequest request,
                      RealCall realCall) {
-        this(new ArrayList<>() {{
-            if (appInterceptors != null) {
-                addAll(appInterceptors);
-            }
-            if (requestInterceptor != null) {
-                add(requestInterceptor);
-            }
-            if (networkInterceptors != null) {
-                addAll(networkInterceptors);
-            }
-        }}, 0, request, realCall);
+        this(merge(appInterceptors, requestInterceptor, networkInterceptors), 0, request, realCall);
+    }
+
+    /**
+     * 合并应用层、请求级、网络层拦截器为完整执行序列。
+     *
+     * @param appInterceptors     客户端应用层拦截器列表
+     * @param requestInterceptor  请求级拦截器
+     * @param networkInterceptors 客户端网络层拦截器列表
+     * @return 合并后的拦截器序列
+     */
+    private static List<HttpInterceptor> merge(List<HttpInterceptor> appInterceptors,
+                                               HttpInterceptor requestInterceptor,
+                                               List<HttpInterceptor> networkInterceptors) {
+        List<HttpInterceptor> merged = new ArrayList<>();
+        if (appInterceptors != null) {
+            merged.addAll(appInterceptors);
+        }
+        if (requestInterceptor != null) {
+            merged.add(requestInterceptor);
+        }
+        if (networkInterceptors != null) {
+            merged.addAll(networkInterceptors);
+        }
+        return merged;
     }
 
     /**
