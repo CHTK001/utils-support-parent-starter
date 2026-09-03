@@ -48,8 +48,8 @@ public final class ImageUtils {
     /** JPEG 文件结束标记（EOI）：0xFF 0xD9 */
     private static final byte[] JPEG_EOF = {(byte) 0xFF, (byte) 0xD9};
 
-    /** PNG IEND 块签名：0x0D 0x0A 0x87 0x0A */
-    private static final byte[] PNG_EOF = {(byte) 0x0D, (byte) 0x0A, (byte) 0x87, (byte) 0x0A};
+    /** PNG IEND 块类型签名：49 45 4E 44（"IEND"），位于文件末尾 CRC 之前 */
+    private static final byte[] PNG_EOF = {(byte) 0x49, (byte) 0x45, (byte) 0x4E, (byte) 0x44};
 
     /**
      * 工具类私有构造，防止实例化。
@@ -553,11 +553,11 @@ public final class ImageUtils {
                 && (imageData[len - 1] & 0xFF) == 0xD9) {
             return true;
         }
-        if (len >= 4
-                && (imageData[len - 4] & 0xFF) == 0x0D
-                && (imageData[len - 3] & 0xFF) == 0x0A
-                && (imageData[len - 2] & 0xFF) == 0x87
-                && (imageData[len - 1] & 0xFF) == 0x0A) {
+        if (len >= 8
+                && (imageData[len - 8] & 0xFF) == PNG_EOF[0]
+                && (imageData[len - 7] & 0xFF) == PNG_EOF[1]
+                && (imageData[len - 6] & 0xFF) == PNG_EOF[2]
+                && (imageData[len - 5] & 0xFF) == PNG_EOF[3]) {
             return true;
         }
         return false;
