@@ -188,6 +188,35 @@ public class ClientRequest {
     private int maxRetries = 0;
 
     /**
+     * 请求级拦截器。
+     *
+     * <p>优先级低于客户端级（{@code HttpClient.addInterceptor}）应用层拦截器，
+     * 高于网络层拦截器。用于为单次请求附加额外的统一处理（如 Token 注入、日志）。
+     * null 表示无请求级拦截器。</p>
+     *
+     * @see HttpClient#addInterceptor(HttpInterceptor)
+     */
+    private HttpInterceptor interceptor;
+
+    /**
+     * 获取请求级拦截器。
+     *
+     * @return 请求级拦截器，未设置时返回 null
+     */
+    public HttpInterceptor getInterceptor() { return interceptor; }
+
+    /**
+     * 设置请求级拦截器。
+     *
+     * @param interceptor 请求级拦截器，null 表示清除
+     * @return 当前请求实例（链式调用）
+     */
+    public ClientRequest setInterceptor(HttpInterceptor interceptor) {
+        this.interceptor = interceptor;
+        return this;
+    }
+
+    /**
      * 获取请求 URL。
      *
      * @return 完整的请求 URL 字符串
@@ -454,7 +483,7 @@ public class ClientRequest {
      * 创建指定 URL 和方法的请求。
      *
      * <p>快速创建包含 URL 和请求方法的请求实例，其他参数使用默认值
-     * （请求头=空、超时=30s、跟随重定向=true）。
+     * （请求头=空、超时=30s、跟随重定向=true）。</p>
      *
      * @param url    请求 URL
      * @param method HTTP 请求方法
@@ -463,6 +492,23 @@ public class ClientRequest {
     public static ClientRequest of(String url, HttpMethod method) {
         ClientRequest r = of(url);
         r.method = method;
+        return r;
+    }
+
+    /**
+     * 创建指定 URL、方法和请求级拦截器的请求。
+     *
+     * <p>快捷方法，无需后续调用 {@link #setInterceptor(HttpInterceptor)}。
+     * 请求级拦截器优先级低于客户端级应用层拦截器，高于网络层拦截器。</p>
+     *
+     * @param url         请求 URL
+     * @param method      HTTP 请求方法
+     * @param interceptor 请求级拦截器
+     * @return ClientRequest 实例
+     */
+    public static ClientRequest of(String url, HttpMethod method, HttpInterceptor interceptor) {
+        ClientRequest r = of(url, method);
+        r.interceptor = interceptor;
         return r;
     }
 
