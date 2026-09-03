@@ -1,8 +1,8 @@
 package com.chua.sqlite.support.engine;
 
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 
 import java.lang.foreign.*;
@@ -56,8 +56,8 @@ public final class SqliteReactorHook implements AutoCloseable {
     /** 实例 ID，用于全局回调分发 */
     private final long instanceId;
     private final MemorySegment handle;
+    private final Sinks.Many<SqliteChangeEvent> eventSink;
     private final Flux<SqliteChangeEvent> flux;
-    private volatile FluxSink<SqliteChangeEvent> sink;
 
     /** 全局实例映射（native 回调通过 ID 找到 Java 实例） */
     private static final ConcurrentHashMap<Long, SqliteReactorHook> INSTANCES = new ConcurrentHashMap<>();
@@ -80,10 +80,11 @@ public final class SqliteReactorHook implements AutoCloseable {
         }
 
         this.instanceId = INSTANCE_COUNTER.incrementAndGet();
-        this.flux = Flux.create(this::subscribe, FluxSink.OverflowStrategy.LATEST);
+        this.eventSink = Sinks.many().multicast().onBackpressureBuffer(256, false);
+        this.flux = eventSink.asFlux();
 
-        // 保持 Arena 存活（用于回调函数指针）
-        this.callbackArena = Arena.ofConfined();
+        // 保持 Arena 存活（用于回调函数指针）— 必须用 ofShared，因为 native 回调在 io_uring 线程触发
+        this.callbackArena = Arena.ofShared();
         INSTANCES.put(instanceId, this);
 
         try {
@@ -112,14 +113,6 @@ public final class SqliteReactorHook implements AutoCloseable {
             if (callbackArena != null) callbackArena.close();
             throw new RuntimeException("Failed to open async hook", e);
         }
-    }
-
-    /**
-     * 订阅事件流（由 Reactor 内部调用）。
-     */
-    private void subscribe(FluxSink<SqliteChangeEvent> sink) {
-        this.sink = sink;
-        sink.onDispose(() -> close());
     }
 
     /**
@@ -166,15 +159,15 @@ public final class SqliteReactorHook implements AutoCloseable {
         if (jsonPtr == null || jsonPtr.equals(MemorySegment.NULL)) return;
 
         try {
-            long userId = userIdPtr.get(ValueLayout.JAVA_LONG, 0);
+            long userId = userIdPtr.reinterpret(Long.MAX_VALUE).get(ValueLayout.JAVA_LONG, 0);
             SqliteReactorHook instance = INSTANCES.get(userId);
 
-            if (instance == null || instance.sink == null || instance.sink.isCancelled()) return;
+            if (instance == null) return;
 
             String json = jsonPtr.reinterpret(Long.MAX_VALUE).getString(0, StandardCharsets.UTF_8);
             SqliteChangeEvent event = parseEvent(json);
             if (event != null) {
-                instance.sink.next(event);
+                instance.eventSink.tryEmitNext(event);
             }
         } catch (Exception ignored) {
         }
@@ -186,9 +179,7 @@ public final class SqliteReactorHook implements AutoCloseable {
 
         INSTANCES.remove(instanceId);
 
-        if (sink != null && !sink.isCancelled()) {
-            sink.complete();
-        }
+        eventSink.tryEmitComplete();
 
         try {
             if (handle != null && !handle.equals(MemorySegment.NULL)) {

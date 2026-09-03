@@ -225,9 +225,8 @@ public class ServiceBuilder implements Closeable {
          * 停止服务。
          */
         public void stop() {
-            resolveAndValidate();
-            long pid = builder.pidFile != null
-                    ? manager.start(builder.jarPath, buildStartCmd()) : -1;
+            long pid = builder.jarPath != null && !builder.jarPath.isBlank()
+                    ? manager.start(builder.jarPath, buildStartCmd(), builder.pidFile) : -1;
             manager.stop(pid, builder.serviceName);
             log.info("[service] 本地停止完成: name={}", builder.serviceName);
         }
