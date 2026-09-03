@@ -195,6 +195,7 @@ public class SegmentWalLog implements WalLog {
 
     /** 扫描Segments */
     private List<WalSegmentInfo> scanSegments() {
+        flushBuffered();
         if (!Files.exists(segmentsDir)) {
             return Collections.emptyList();
         }
@@ -366,6 +367,23 @@ public class SegmentWalLog implements WalLog {
         }
         if (activeChannel != null) {
             activeChannel.force(true);
+        }
+    }
+
+    /**
+     * 将缓冲中的写入数据冲刷到文件，保证后续读路径可见。
+     *
+     * <p>当 {@code syncOnWrite=false} 时写入先进入 {@link BufferedOutputStream}，
+     * 若读路径（replay/listSegments/findByLsn）直接打开新文件流，会读不到仍未落盘的记录。
+     * 本方法在任何读操作前调用，确保写后读一致性（flush 到文件即可见，无需每次 fsync）。</p>
+     */
+    private void flushBuffered() {
+        if (activeOut != null) {
+            try {
+                activeOut.flush();
+            } catch (IOException ignored) {
+                // 忽略冲刷失败，读路径尽量读到已落盘部分
+            }
         }
     }
 
