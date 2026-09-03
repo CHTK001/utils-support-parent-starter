@@ -171,8 +171,9 @@ class HttpInterceptorTest {
     /**
      * 验证应用层拦截器多次调用 proceed（重试）不会跳过任何层。
      *
-     * <p>期望链顺序：
-     * {@code [app → network → real, app → network → real]}</p>
+     * <p>拦截器本体只执行一次（它是当前层），每次 {@code proceed()} 都从下一层重新执行。
+     * 期望链顺序：
+     * {@code [app(进入) → network → real, retry(重试标记) → network → real]}</p>
      */
     @Test
     void retryDoesNotSkipLayers() {
@@ -201,6 +202,7 @@ class HttpInterceptorTest {
         client.addInterceptor((chain, request) -> {
             order.add("app");
             chain.proceed(request); // 第一次
+            order.add("retry");     // 重试标记
             return chain.proceed(request); // 第二次（重试）
         });
         client.addNetworkInterceptor((chain, request) -> {
@@ -209,6 +211,6 @@ class HttpInterceptorTest {
         });
 
         client.execute(ClientRequest.of("http://example.com"));
-        assertEquals(List.of("app", "network", "real", "app", "network", "real"), order);
+        assertEquals(List.of("app", "network", "real", "retry", "network", "real"), order);
     }
 }
