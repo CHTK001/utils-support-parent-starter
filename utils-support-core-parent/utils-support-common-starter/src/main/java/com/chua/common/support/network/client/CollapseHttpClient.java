@@ -114,6 +114,50 @@ public class CollapseHttpClient implements HttpClient {
         return delegate.executeAsync(request);
     }
 
+    /**
+     * 注册应用层拦截器（委托给底层客户端）。
+     *
+     * @param interceptor 应用层拦截器
+     * @return 当前折叠客户端实例（链式调用）
+     */
+    @Override
+    public CollapseHttpClient addInterceptor(HttpInterceptor interceptor) {
+        delegate.addInterceptor(interceptor);
+        return this;
+    }
+
+    /**
+     * 注册网络层拦截器（委托给底层客户端）。
+     *
+     * @param interceptor 网络层拦截器
+     * @return 当前折叠客户端实例（链式调用）
+     */
+    @Override
+    public CollapseHttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
+        delegate.addNetworkInterceptor(interceptor);
+        return this;
+    }
+
+    /**
+     * 获取底层客户端的应用层拦截器列表。
+     *
+     * @return 应用层拦截器列表
+     */
+    @Override
+    public java.util.List<HttpInterceptor> getInterceptors() {
+        return delegate.getInterceptors();
+    }
+
+    /**
+     * 获取底层客户端的网络层拦截器列表。
+     *
+     * @return 网络层拦截器列表
+     */
+    @Override
+    public java.util.List<HttpInterceptor> getNetworkInterceptors() {
+        return delegate.getNetworkInterceptors();
+    }
+
     @Override
     public void close() {
         flow.close();
