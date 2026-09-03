@@ -269,6 +269,15 @@ public final class LockFlow {
     }
 
     /**
+     * 列出所有已缓存的锁提供者（按缓存键索引）。
+     *
+     * @return 锁缓存键 → 实例映射
+     */
+    public static Map<String, LockProvider> list() {
+        return new java.util.HashMap<>(CACHE);
+    }
+
+    /**
      * 移除指定名称开头的锁缓存。
      *
      * @param name 锁名称前缀

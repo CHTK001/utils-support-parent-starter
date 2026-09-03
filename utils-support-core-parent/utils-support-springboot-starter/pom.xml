@@ -11,14 +11,14 @@
     <artifactId>utils-support-springboot-starter</artifactId>
     <name>Utils Support Spring Boot Starter</name>
     <description>
-        Utils Support Spring Boot Starter - Spring Boot 鑷姩瑁呴厤妯″潡
+        Utils Support Spring Boot Starter - Spring Boot 自动配置模块
 
-        鍩轰簬 utils-support-spring-starter锛屾彁渚涳細
-        - 鑷姩閰嶇疆锛圓utoConfiguration锛?
-        - ApplicationContext 娉ㄥ叆
-        - 鏃ユ湡杞崲 / Formatter 鑷姩娉ㄥ唽
-        - API 缁熶竴閰嶇疆锛堢増鏈帶鍒躲€佺紪瑙ｇ爜銆佺伆搴︺€丆ORS銆丮ock銆丗eature Flag锛?
-        - SpringBootObjectContext锛堥泦鎴?OSGI 妯″潡涓婁笅鏂囷級
+        基于 utils-support-spring-starter，提供：
+        - 自动配置（AutoConfiguration）
+        - ApplicationContext 注入
+        - 日期转换 / Formatter 自动注册
+        - API 统一配置（版本控制、编解码、灰度、CORS、Mock、Feature Flag）
+        - SpringBootObjectContext（集成 OSGI 模块上下文）
     </description>
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>
@@ -47,13 +47,13 @@
             <scope>provided</scope>
         </dependency>
 
-<dependency>
+        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-chronicle-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- OSGI 妯″潡鏀寔 -->
+        <!-- OSGI 模块支持 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-osgi-starter</artifactId>
@@ -61,10 +61,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Actuator 端点支持（可选） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
-            
+
         </plugins>
     </build>
 </project>

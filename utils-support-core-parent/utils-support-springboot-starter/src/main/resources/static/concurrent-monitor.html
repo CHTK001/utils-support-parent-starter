@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Concurrent Monitor</title>
+<style>
+body{font-family:sans-serif;background:#1e1e1e;color:#d4d4d4;padding:20px}
+h1{color:#6cb6ff}table{border-collapse:collapse;width:100%;margin-top:12px}
+th,td{border:1px solid #3e3e3e;padding:8px;text-align:left;font-size:13px}
+th{background:#2d2d2d;color:#858585}
+.btn{padding:4px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px;margin:2px}
+.btn-ok{background:#2d6a2d;color:#89d185}
+.section{margin-top:20px}
+.tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:11px}
+.tag-open{background:#4a2d2d;color:#f48771}.tag-closed{background:#2d4a2d;color:#89d185}
+</style>
+</head>
+<body>
+<h1>&#9881; Concurrent Monitor</h1>
+<div class="section"><h2>Rate Limiters <button class="btn btn-ok" onclick="renderAll()">refresh</button></h2>
+<table><tr><th>Name</th><th>Available Permits</th></tr><tbody id="rl"></tbody></table></div>
+<div class="section"><h2>Circuit Breakers <button class="btn btn-ok" onclick="renderAll()">refresh</button></h2>
+<table><tr><th>Name</th><th>Status</th><th>Action</th></tr><tbody id="cb"></tbody></table></div>
+<div class="section"><h2>Locks <button class="btn btn-ok" onclick="renderAll()">refresh</button></h2>
+<table><tr><th>Name</th><th>Type</th><th>Key</th></tr><tbody id="lk"></tbody></table></div>
+<script>
+const B='/actuator/concurrent';
+async function go(p){const r=await fetch(B+'/'+p+'s');return r.json()}
+async function renderAll(){renderRL(await go('ratelimiter'));renderCB(await go('circuitbreaker'));renderLK(await go('lock'))}
+function renderRL(d){document.getElementById('rl').innerHTML=d.map(function(i){return '<tr><td>'+i.name+'</td><td>'+i.availablePermits+'</td></tr>';}).join('')}
+function renderCB(d){document.getElementById('cb').innerHTML=d.map(function(i){var s=i.open?'OPEN':'CLOSED',c=i.open?'tag-open':'tag-closed';return '<tr><td>'+i.name+'</td><td><span class="tag '+c+'">'+s+'</span></td><td><button class="btn btn-ok" onclick="resetCB(&apos;'+i.name+'&apos;)">reset</button></td></tr>';}).join('')}
+function renderLK(d){document.getElementById('lk').innerHTML=d.map(function(i){return '<tr><td>'+i.name+'</td><td>'+i.type+'</td><td>'+i.key+'</td></tr>';}).join('')}
+async function resetCB(n){await fetch(B+'/circuitbreaker/'+n+'/reset',{method:'POST'});renderAll()}
+window.onload=renderAll;
+</script>
+</body>
+</html>

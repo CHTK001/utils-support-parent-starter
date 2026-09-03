@@ -1,1 +1,3 @@
 database=com.chua.datasource.support.document.DatabaseDocumentParser
+swagger=com.chua.datasource.support.document.SwaggerOpenApiParser
+openapi=com.chua.datasource.support.document.SwaggerOpenApiParser

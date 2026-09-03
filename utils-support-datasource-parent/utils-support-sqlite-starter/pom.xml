@@ -13,6 +13,12 @@
     <description>SQLite 数据库支持模块，提供 SqliteDialect、SqlitePolledDirectory 和真响应式 SqliteReactorEngine</description>
     <dependencies>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>

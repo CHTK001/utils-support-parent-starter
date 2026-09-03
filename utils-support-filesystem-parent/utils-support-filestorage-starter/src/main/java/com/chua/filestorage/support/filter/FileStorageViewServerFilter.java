@@ -51,6 +51,16 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     private static final Set<String> COMPOUND_EXTS = Set.of(
             "tar.gz", "tar.bz2", "tar.xz", "tar.zst", "tar.lz4", "tar.lzma", "tar.sz");
 
+    /** 文本预览最大读取字节数，超出后截断并提示 */
+    private static final long MAX_TEXT_PREVIEW_BYTES = 2L * 1024 * 1024;
+
+    /** 文本类扩展名（可安全截断预览） */
+    private static final Set<String> TEXT_EXTS = Set.of(
+            "txt", "md", "csv", "log", "properties", "ini", "conf", "yaml", "yml",
+            "json", "xml", "html", "htm", "js", "ts", "java", "py", "c", "cpp", "h",
+            "go", "rs", "sh", "bat", "sql", "css", "toml", "gradle", "kt", "scala",
+            "groovy", "php", "rb", "lua", "r", "gitignore", "makefile");
+
     /** 文件预览提供者列表 */
     private final List<FileStoragePreviewProvider> previewProviders;
 

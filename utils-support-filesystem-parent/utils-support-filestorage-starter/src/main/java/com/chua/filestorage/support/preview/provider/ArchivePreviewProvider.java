@@ -137,6 +137,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
 
         return PreviewResult.builder()
                 .htmlContent(buildHtml(ext, entries, dirCount, totalSize))
+                .embeddedJs(buildDrillJs())
                 .embeddedCss("body{margin:0;background:#f8f9fa;color:#1a1a2e;" +
                         "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}" +
                         ".header{padding:16px 24px;background:#fff;border-bottom:1px solid #e5e7eb}" +
@@ -146,10 +147,99 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                         ".dir,.file{padding:5px 8px;font-size:13px;border-radius:4px;cursor:default;" +
                         "font-family:'Cascadia Code',Consolas,monospace}" +
                         ".dir{color:#2563eb;font-weight:600}" +
-                        ".file{color:#374151;padding-left:24px}" +
+                        ".file{color:#374151;padding-left:24px;cursor:pointer}" +
+                        ".file:hover{background:#f0f7ff}" +
                         ".icon{margin-right:6px}" +
                         ".meta-right{float:right;color:#9ca3af;font-size:12px;font-family:sans-serif}")
                 .build();
+    }
+
+    /**
+     * 构建压缩包下钻脚本：点击文件条目跳转至内层预览。
+     *
+     * @return 内联 JS 代码
+     */
+    private String buildDrillJs() {
+        return "window.addEventListener('DOMContentLoaded',function(){"
+                + "var files=document.querySelectorAll('.file[data-path]');"
+                + "for(var i=0;i<files.length;i++){(function(el){"
+                + "el.addEventListener('click',function(){"
+                + "var p=el.getAttribute('data-path');if(!p)return;"
+                + "var base=location.pathname.replace(/\\/+$/,'');"
+                + "var sep=base.indexOf('?')>=0?'&':'?';"
+                + "location.href=base+sep+'preview&inner='+encodeURIComponent(p);"
+                + "});})(files[i]);}"
+                + "});";
+    }
+
+    /**
+     * 从压缩包中提取指定路径的文件内容。
+     *
+     * @param content 压缩包字节
+     * @param ext     压缩包扩展名（小写）
+     * @param path    目标条目完整路径
+     * @return 条目内容字节；条目不存在或解析失败时返回 null
+     */
+    public static byte[] extractFile(byte[] content, String ext, String path) {
+        if (content == null || ext == null || path == null) {
+            return null;
+        }
+        String e = ext.toLowerCase(Locale.ENGLISH);
+        if ("7z".equals(e)) {
+            return extractFrom7z(content, path);
+        }
+        try (InputStream in = new ByteArrayInputStream(content);
+             InputStream buffered = new java.io.BufferedInputStream(wrapDecompressor(in, e));
+             ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(buffered)) {
+            ArchiveEntry entry;
+            while ((entry = ais.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                if (path.equals(entry.getName())) {
+                    return ais.readAllBytes();
+                }
+            }
+            return null;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    /**
+     * 从 7z 压缩包中提取指定路径的文件内容。
+     *
+     * @param content 压缩包字节
+     * @param path    目标条目完整路径
+     * @return 条目内容字节；条目不存在时返回 null
+     */
+    private static byte[] extractFrom7z(byte[] content, String path) {
+        Path tmp = null;
+        try {
+            tmp = Files.createTempFile("archive-extract-", ".7z");
+            Files.write(tmp, content);
+            try (SevenZFile sz = SevenZFile.builder().setPath(tmp).get()) {
+                org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
+                while ((entry = sz.getNextEntry()) != null) {
+                    if (entry.isDirectory()) {
+                        continue;
+                    }
+                    if (path.equals(entry.getName())) {
+                        return sz.readAllBytes();
+                    }
+                }
+            }
+            return null;
+        } catch (Exception ex) {
+            return null;
+        } finally {
+            if (tmp != null) {
+                try {
+                    Files.deleteIfExists(tmp);
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     /**
@@ -260,7 +350,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
      */
     private void renderFile(StringBuilder sb, String name, EntryInfo fe) {
         String eExt = extFromName(name);
-        sb.append("<div class=\"file\"><span class=\"icon\">");
+        sb.append("<div class=\"file\" data-path=\"").append(StringUtils.escapeAttr(fe.name)).append("\"><span class=\"icon\">");
         sb.append(eExt != null ? StringUtils.escapeHtml(eExt) : "📄");
         sb.append("</span>").append(StringUtils.escapeHtml(name));
         sb.append("<span class=\"meta-right\">");

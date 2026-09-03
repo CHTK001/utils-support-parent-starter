@@ -179,8 +179,11 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         sb.append("<section class=\"doc-section\" id=\"sec-").append(docId).append("\">");
         sb.append("<h2 id=\"").append(docId).append("\">").append(escape(safeStr(ep.getSummary()).isEmpty() ? ep.getPath() : ep.getSummary())).append("</h2>");
 
-        sb.append("<p><strong>接口地址:</strong> <code>").append(escape(safeStr(ep.getPath()))).append("</code></p>");
-        sb.append("<p><strong>请求方式:</strong> <code>").append(escape(safeStr(ep.getMethod()))).append("</code>");
+        // Method badge with semantic color + path
+        String method = safeStr(ep.getMethod());
+        String methodClass = methodToClass(method);
+        sb.append("<p><span class=\"method-badge ").append(methodClass).append("\">").append(escape(method)).append("</span>");
+        sb.append(" <code class=\"path-code\">").append(escape(safeStr(ep.getPath()))).append("</code></p>");
         if (ep.isDeprecated()) {
             sb.append(" <span class=\"deprecated\">已废弃</span>");
         }
@@ -255,6 +258,20 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
     /** SafeStr */
     private static String safeStr(String s) {
         return s == null ? "" : s;
+    }
+
+    /** MethodToClass 映射 HTTP 方法到 CSS 类名（语义色） */
+    private static String methodToClass(String method) {
+        return switch (method.toUpperCase()) {
+            case "GET"    -> "method-get";
+            case "POST"   -> "method-post";
+            case "PUT"    -> "method-put";
+            case "PATCH"  -> "method-patch";
+            case "DELETE" -> "method-delete";
+            case "HEAD"   -> "method-head";
+            case "OPTIONS" -> "method-options";
+            default       -> "method-default";
+        };
     }
 
     /** Escape */

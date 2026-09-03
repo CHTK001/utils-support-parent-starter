@@ -28,5 +28,11 @@ public enum DocumentTemplateType {
      * Aurora 现代化惊艳模板。
      * <p>深色玻璃拟态 + 渐变光晕 + 侧栏双行导航与实时检索，适合对外展示与分享。</p>
      */
-    AURORA
+    AURORA,
+
+    /**
+     * Stripe 开发者文档风格模板。
+     * <p>左侧表导航 + 语义色标签（PK/FK/可空）、深色 SQL 代码块、搜索过滤、响应式布局。</p>
+     */
+    STRIPE
 }
