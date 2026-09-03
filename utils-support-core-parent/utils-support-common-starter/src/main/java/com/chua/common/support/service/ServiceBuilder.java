@@ -248,6 +248,10 @@ public class ServiceBuilder implements Closeable {
          * 查询服务状态。
          */
         public boolean status() {
+            if (builder.jarPath == null || builder.jarPath.isBlank()) {
+                long pid = manager.findPidByName(builder.serviceName);
+                return manager.isRunning(pid);
+            }
             resolveAndValidate();
             long pid = builder.pidFile != null
                     ? manager.start(builder.jarPath, buildStartCmd()) : -1;
