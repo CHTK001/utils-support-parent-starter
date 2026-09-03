@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>utils-support-retry-starter</module>
+        <module>utils-support-collapse-starter</module>
         <module>utils-support-quartz-starter</module>
         <module>utils-support-datasync-agent-starter</module>
         <module>utils-support-datasync-starter</module>

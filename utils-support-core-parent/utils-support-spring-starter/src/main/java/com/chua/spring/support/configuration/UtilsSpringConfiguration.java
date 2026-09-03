@@ -1,8 +1,10 @@
 package com.chua.spring.support.configuration;
 
+import com.chua.spring.support.aop.CollapsibleAdvisor;
 import com.chua.spring.support.aop.DistributedLockAdvisor;
 import com.chua.spring.support.convert.DateConvertConfiguration;
 import com.chua.spring.support.convert.FormatterConfiguration;
+import com.chua.spring.support.proxy.intercept.CollapsibleIntercept;
 import com.chua.spring.support.proxy.intercept.DistributedLockIntercept;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,5 +35,17 @@ public class UtilsSpringConfiguration {
     /** Distributed锁Advisor */
     public DistributedLockAdvisor distributedLockAdvisor(DistributedLockIntercept intercept) {
         return new DistributedLockAdvisor(intercept);
+    }
+
+    @Bean
+    /** Collapse拦截 */
+    public CollapsibleIntercept collapsibleIntercept() {
+        return new CollapsibleIntercept();
+    }
+
+    @Bean
+    /** CollapseAdvisor */
+    public CollapsibleAdvisor collapsibleAdvisor(CollapsibleIntercept intercept) {
+        return new CollapsibleAdvisor(intercept);
     }
 }
