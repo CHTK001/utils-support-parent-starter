@@ -58,7 +58,7 @@ import java.util.List;
  * @see ClientSetting
  * @see DefaultHttpClient
  */
-public abstract class AbstractHttpClient implements HttpClient, InterceptorChain.RealCall {
+public abstract class AbstractHttpClient implements HttpClient {
 
     /**
      * 客户端全局配置。
