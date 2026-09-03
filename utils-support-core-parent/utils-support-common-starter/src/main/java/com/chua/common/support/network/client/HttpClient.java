@@ -164,22 +164,26 @@ public interface HttpClient extends AutoCloseable {
     /**
      * 获取已注册的<b>应用层拦截器</b>列表。
      *
-     * <p>默认实现返回空列表。实现类（如 {@link DefaultHttpClient}、{@link AbstractHttpClient}）
+     * <p>默认实现返回可变的空列表，避免调用 {@link #addInterceptor(HttpInterceptor)} 时抛出
+     * {@code UnsupportedOperationException}。实现类（如 {@link DefaultHttpClient}、{@link AbstractHttpClient}）
      * 应覆写此方法返回其持有的应用层拦截器列表，以便在 {@link #execute(ClientRequest)} 中组装拦截器链。</p>
      *
      * @return 应用层拦截器列表，不会返回 null
      */
     default List<HttpInterceptor> getInterceptors() {
-        return List.of();
+        return new java.util.ArrayList<>();
     }
 
     /**
      * 获取已注册的<b>网络层拦截器</b>列表。
      *
+     * <p>默认实现返回可变的空列表，避免调用 {@link #addNetworkInterceptor(HttpInterceptor)} 时抛出
+     * {@code UnsupportedOperationException}。</p>
+     *
      * @return 网络层拦截器列表，不会返回 null
      */
     default List<HttpInterceptor> getNetworkInterceptors() {
-        return List.of();
+        return new java.util.ArrayList<>();
     }
 
     /**
