@@ -214,8 +214,6 @@ public class SshServiceManager implements RemoteServiceManager {
             sftp.getClass().getMethod("put", String.class, String.class).invoke(sftp, localPath, remotePath);
             sftp.getClass().getMethod("close").invoke(sftp);
             log.info("[service-remote] jar 已上传: {} -> {}", localPath, remotePath);
-        } catch (ClassNotFoundException e) {
-            log.warn("[service-remote] SFTP 不可用，跳过上传: {}", e.getMessage());
         } catch (Exception e) {
             log.warn("[service-remote] jar 上传失败，可能已存在: {}", e.getMessage());
         }
