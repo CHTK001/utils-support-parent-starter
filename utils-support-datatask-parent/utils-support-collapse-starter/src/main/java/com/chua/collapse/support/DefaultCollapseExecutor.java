@@ -3,6 +3,7 @@ package com.chua.collapse.support;
 import com.chua.common.support.concurrent.collapse.CollapseBatchFunction;
 import com.chua.common.support.concurrent.collapse.CollapseConfig;
 import com.chua.common.support.concurrent.collapse.CollapseExecutor;
+import com.chua.common.support.concurrent.collapse.CollapseResultMapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,6 +57,11 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     private final CollapseBatchFunction<INPUT, OUTPUT> batchFunction;
 
     /**
+     * 折叠结果映射器（结果拆分回填模式），与批量执行函数二选一
+     */
+    private final CollapseResultMapper<INPUT, OUTPUT> resultMapper;
+
+    /**
      * 收集调度线程（单线程，负责批量出队与补收）
      */
     private final ExecutorService dispatcher;
@@ -81,14 +87,41 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-     * 构造默认折叠执行器。
+     * 构造默认折叠执行器（广播模式）。
      *
      * @param config        折叠配置
      * @param batchFunction 批量执行函数
      */
     public DefaultCollapseExecutor(CollapseConfig config, CollapseBatchFunction<INPUT, OUTPUT> batchFunction) {
+        this(config, batchFunction, null);
+    }
+
+    /**
+     * 构造默认折叠执行器（结果拆分回填模式，整批合并）。
+     *
+     * @param config       折叠配置
+     * @param resultMapper 折叠结果映射器
+     */
+    public DefaultCollapseExecutor(CollapseConfig config, CollapseResultMapper<INPUT, OUTPUT> resultMapper) {
+        this(config, null, Objects.requireNonNull(resultMapper, "resultMapper must not be null."));
+    }
+
+    /**
+     * 主构造器。
+     *
+     * @param config        折叠配置
+     * @param batchFunction 批量执行函数（广播模式），可为空
+     * @param resultMapper  折叠结果映射器（拆分回填模式），可为空
+     */
+    private DefaultCollapseExecutor(CollapseConfig config,
+                                    CollapseBatchFunction<INPUT, OUTPUT> batchFunction,
+                                    CollapseResultMapper<INPUT, OUTPUT> resultMapper) {
         this.config = Objects.requireNonNull(config, "config must not be null.");
-        this.batchFunction = Objects.requireNonNull(batchFunction, "batchFunction must not be null.");
+        if (batchFunction == null && resultMapper == null) {
+            throw new IllegalArgumentException("batchFunction 与 resultMapper 至少提供一个");
+        }
+        this.batchFunction = batchFunction;
+        this.resultMapper = resultMapper;
         boolean virtualThread = config.isVirtualThread() && isVirtualThreadAvailable();
         this.dispatcher = createDispatcher(config.getName(), virtualThread);
         this.batchExecutor = createBatchExecutor(config.getName(), virtualThread);
@@ -191,12 +224,20 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     }
 
     /**
-     * 按入参 equals 对批次任务分组，相同入参归入同一组。
+     * 对批次任务分组。
+     *
+     * <p>{@code mergeAll} 时整批合并为一组（配合结果映射器按调用者回填）；
+     * 否则按入参 equals 分组，相同入参归入同一组。</p>
      *
      * @param tasks 批次任务
      * @return 分组结果，组间有序
      */
     private Collection<Collection<Task<INPUT, OUTPUT>>> grouping(Collection<Task<INPUT, OUTPUT>> tasks) {
+        if (config.isMergeAll()) {
+            Collection<Collection<Task<INPUT, OUTPUT>>> whole = new ArrayList<>(1);
+            whole.add(new ArrayList<>(tasks));
+            return whole;
+        }
         Map<INPUT, List<Task<INPUT, OUTPUT>>> grouped = new LinkedHashMap<>();
         List<Task<INPUT, OUTPUT>> nullGroup = null;
         for (Task<INPUT, OUTPUT> task : tasks) {
@@ -223,10 +264,11 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
      * @param group 同入参的任务组
      */
     private void runGroup(Collection<Task<INPUT, OUTPUT>> group) {
-        List<INPUT> inputs = new ArrayList<>(group.size());
-        for (Task<INPUT, OUTPUT> task : group) {
-            inputs.add(task.input());
+        if (resultMapper != null) {
+            runMapped(group);
+            return;
         }
+        List<INPUT> inputs = collectInputs(group);
         try {
             OUTPUT output = batchFunction.executeBatch(inputs);
             for (Task<INPUT, OUTPUT> task : group) {
@@ -237,6 +279,47 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
                 task.future().completeExceptionally(throwable);
             }
         }
+    }
+
+    /**
+     * 整批合并回填：调用一次结果映射器，将合并结果按调用者逐项回填。
+     *
+     * @param group 整批任务（mergeAll 模式下即全部调用）
+     */
+    private void runMapped(Collection<Task<INPUT, OUTPUT>> group) {
+        List<INPUT> inputs = collectInputs(group);
+        try {
+            Map<INPUT, OUTPUT> mapped = resultMapper.map(inputs);
+            if (mapped == null) {
+                throw new IllegalStateException("折叠结果映射器返回空结果");
+            }
+            for (Task<INPUT, OUTPUT> task : group) {
+                if (!mapped.containsKey(task.input())) {
+                    task.future().completeExceptionally(
+                            new IllegalStateException("折叠结果中缺少调用者对应结果"));
+                    continue;
+                }
+                task.future().complete(mapped.get(task.input()));
+            }
+        } catch (Throwable throwable) {
+            for (Task<INPUT, OUTPUT> task : group) {
+                task.future().completeExceptionally(throwable);
+            }
+        }
+    }
+
+    /**
+     * 提取任务组内的全部入参。
+     *
+     * @param group 任务组
+     * @return 入参列表
+     */
+    private static <INPUT, OUTPUT> List<INPUT> collectInputs(Collection<Task<INPUT, OUTPUT>> group) {
+        List<INPUT> inputs = new ArrayList<>(group.size());
+        for (Task<INPUT, OUTPUT> task : group) {
+            inputs.add(task.input());
+        }
+        return inputs;
     }
 
     /**

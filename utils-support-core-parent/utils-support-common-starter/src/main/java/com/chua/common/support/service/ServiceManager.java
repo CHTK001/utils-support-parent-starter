@@ -23,8 +23,22 @@ public interface ServiceManager {
 
     /**
      * 启动服务，返回进程 PID；未跟踪时返回 -1。
+     *
+     * @param jarPath  jar 文件路径
+     * @param startCmd 启动命令（含 java -jar 等）
+     * @return 进程 PID，启动失败返回 -1
      */
     long start(String jarPath, String startCmd);
+
+    /**
+     * 启动服务，返回进程 PID，同时写入 PID 文件。
+     *
+     * @param jarPath  jar 文件路径
+     * @param startCmd 启动命令
+     * @param pidFile  PID 文件路径，null 则使用默认路径
+     * @return 进程 PID，启动失败返回 -1
+     */
+    long start(String jarPath, String startCmd, String pidFile);
 
     /**
      * 停止服务（按 PID 或进程名）。

@@ -38,9 +38,7 @@ public class LocalServiceManager implements ServiceManager {
         this(new PidFileProcessTracker());
     }
 
-    /**
-     * 启动服务（两参数重载，PID 文件由内部默认生成）。
-     */
+    @Override
     public long start(String jarPath, String startCmd) {
         return start(jarPath, startCmd, null);
     }

@@ -1,5 +1,6 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.concurrent.collapse.CollapseConfig;
 import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.spi.ServiceProvider;
 
@@ -130,6 +131,33 @@ public class HttpClientFactory {
      */
     public static ReactiveHttpClient getReactiveClient() {
         return new ReactiveHttpClient(getClient());
+    }
+
+    /**
+     * 包装为折叠 HTTP 客户端（默认折叠配置）。
+     *
+     * <p>并发窗口内方法为 GET 且 URL 相同的请求合并为一次真实网络调用，响应广播给各请求方；
+     * 折叠细节与限制见 {@link CollapseHttpClient}。返回的客户端需要由使用方负责关闭。</p>
+     *
+     * @param delegate 底层 HTTP 客户端，不可为空
+     * @return 折叠 HTTP 客户端
+     */
+    public static HttpClient collapse(HttpClient delegate) {
+        return new CollapseHttpClient(delegate);
+    }
+
+    /**
+     * 包装为折叠 HTTP 客户端（自定义折叠配置）。
+     *
+     * <p>通过 {@link CollapseConfig} 可调整折叠阈值、补收等待时间与虚拟线程开关，
+     * 其余语义与 {@link #collapse(HttpClient)} 一致。</p>
+     *
+     * @param delegate 底层 HTTP 客户端，不可为空
+     * @param config   折叠配置，可为空（使用默认配置）
+     * @return 折叠 HTTP 客户端
+     */
+    public static HttpClient collapse(HttpClient delegate, CollapseConfig config) {
+        return new CollapseHttpClient(delegate, config);
     }
 
     /**
