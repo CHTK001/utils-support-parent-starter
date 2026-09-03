@@ -90,6 +90,26 @@ public class HttpClientFactory {
     }
 
     /**
+     * 创建一个全新的 HTTP 客户端实例（不缓存）。
+     *
+     * <p>与 {@link #getClient()}（全局单例）不同，本方法每次都会创建独立的客户端实例，
+     * 可用于以下场景：</p>
+     * <ul>
+     *   <li>需要独立拦截器配置的客户端（如在 {@code HttpInvoker} 中注册自定义拦截器，
+     *       避免污染全局单例）</li>
+     *   <li>需要不同超时/代理默认行为的客户端</li>
+     *   <li>需要隔离且可在使用后 {@code close()} 释放资源的客户端</li>
+     * </ul>
+     *
+     * <p>底层执行器按<b> okhttp &gt; httpclient5 &gt; httpclient &gt; jdk</b> 优先级自动选择。</p>
+     *
+     * @return 新的 HttpClient 实例
+     */
+    public static HttpClient newClient() {
+        return new DefaultHttpClient(findAvailableExecutor());
+    }
+
+    /**
      * 获取指定名称的 HTTP 客户端实例（不缓存）。
      *
      * <p>通过 SPI 名称获取指定的执行器实现，每次调用都会重新创建 {@link DefaultHttpClient} 实例。

@@ -58,7 +58,7 @@ import java.util.List;
  * @see ClientSetting
  * @see DefaultHttpClient
  */
-public abstract class AbstractHttpClient implements HttpClient {
+public abstract class AbstractHttpClient implements HttpClient, InterceptorChain.RealCall {
 
     /**
      * 客户端全局配置。
@@ -158,8 +158,27 @@ public abstract class AbstractHttpClient implements HttpClient {
      */
     @Override
     public ClientResponse execute(ClientRequest request) {
-        return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors, this)
+        return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors,
+                this::doExecuteWithHooks)
                 .proceed(request);
+    }
+
+    /**
+     * 在执行真实网络调用前后触发模板方法钩子。
+     *
+     * <p>由拦截器链的最内层调用：先 {@link #beforeExecute(ClientRequest)}、再
+     * {@link #doExecute(ClientRequest)}、finally 中 {@link #afterExecute(ClientRequest)}。</p>
+     *
+     * @param request 请求对象
+     * @return 响应对象
+     */
+    private ClientResponse doExecuteWithHooks(ClientRequest request) {
+        beforeExecute(request);
+        try {
+            return doExecute(request);
+        } finally {
+            afterExecute(request);
+        }
     }
 
     /**

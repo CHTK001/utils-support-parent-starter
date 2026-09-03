@@ -132,13 +132,26 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      * @param apiClass 要代理的接口类
      */
     public HttpApiInvocationHandler(Class<?> apiClass) {
+        this(apiClass, null);
+    }
+
+    /**
+     * 构造处理器并预解析 baseUrl（支持自定义配置）。
+     *
+     * <p>通过 {@link HttpApiOptions} 可覆盖接口类级注解解析出的 baseUrl，注入自定义
+     * {@link HttpClient}（含拦截器）等。options 为 null 时使用默认配置。</p>
+     *
+     * @param apiClass 要代理的接口类
+     * @param options  自定义配置（baseUrl/客户端/拦截器），可为 null
+     */
+    public HttpApiInvocationHandler(Class<?> apiClass, HttpApiOptions options) {
         this.apiClass = apiClass;
 
         // 初始化占位符解析器与 HTTP 客户端
         PlaceholderSupport ps = new PlaceholderSupport();
         this.propertyResolver = new StringValuePropertyResolver(ps);
-        this.httpClient = HttpClientFactory.getClient();
-        this.baseUrl = resolveBaseUrl(apiClass);
+        this.httpClient = options != null ? options.resolveClient() : HttpClientFactory.getClient();
+        this.baseUrl = resolveBaseUrl(apiClass, options);
     }
 
     /**
@@ -251,10 +264,20 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     /**
      * 解析类级注解中的 baseUrl
      *
-     * @param clazz 接口类
-     * @return 解析后的 baseUrl，未声明则返回空串
+     * <p>优先级：{@link HttpApiOptions} 中自定义的 baseUrl &gt; 类级注解解析的 baseUrl。</p>
+     *
+     * @param clazz   接口类
+     * @param options 自定义配置，可为 null
+     * @return 解析后的 baseUrl
      */
-    private String resolveBaseUrl(Class<?> clazz) {
+    private String resolveBaseUrl(Class<?> clazz, HttpApiOptions options) {
+        // 优先使用自定义配置中的 baseUrl
+        if (options != null) {
+            String custom = options.getBaseUrl();
+            if (!StringUtils.isEmpty(custom)) {
+                return trimSlash(propertyResolver.resolvePlaceholders(custom));
+            }
+        }
         // 优先尝试 Spring 类级注解
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {

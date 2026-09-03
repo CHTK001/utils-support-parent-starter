@@ -1,7 +1,5 @@
 package com.chua.sqlite.support.engine;
 
-import com.chua.common.support.utils.NativeLoader;
-import com.chua.common.support.utils.NativeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
@@ -67,6 +65,9 @@ public final class SqliteReactorHook implements AutoCloseable {
 
     /** 保持 Arena 存活（回调期间不能释放） */
     private Arena callbackArena;
+
+    /** 防止 close() 重入 */
+    private volatile boolean closed = false;
 
     /**
      * 创建真响应式 SQLite Hook。
@@ -165,12 +166,12 @@ public final class SqliteReactorHook implements AutoCloseable {
         if (jsonPtr == null || jsonPtr.equals(MemorySegment.NULL)) return;
 
         try {
-            // 从 user_data 获取 instanceId
             long userId = userIdPtr.get(ValueLayout.JAVA_LONG, 0);
             SqliteReactorHook instance = INSTANCES.get(userId);
+
             if (instance == null || instance.sink == null || instance.sink.isCancelled()) return;
 
-            String json = jsonPtr.getString(0, StandardCharsets.UTF_8);
+            String json = jsonPtr.reinterpret(Long.MAX_VALUE).getString(0, StandardCharsets.UTF_8);
             SqliteChangeEvent event = parseEvent(json);
             if (event != null) {
                 instance.sink.next(event);
@@ -178,9 +179,11 @@ public final class SqliteReactorHook implements AutoCloseable {
         } catch (Exception ignored) {
         }
     }
-
     @Override
     public void close() {
+        if (closed) return;
+        closed = true;
+
         INSTANCES.remove(instanceId);
 
         if (sink != null && !sink.isCancelled()) {
@@ -204,7 +207,7 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
 
     public boolean isOpen() {
-        return handle != null && !handle.equals(MemorySegment.NULL);
+        return !closed && handle != null && !handle.equals(MemorySegment.NULL);
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -232,10 +235,25 @@ public final class SqliteReactorHook implements AutoCloseable {
         synchronized (SqliteReactorHook.class) {
             if (LIBRARY_RESOLVED) return LIBRARY_OK;
             try {
-                NativeLoader.of("sqlite3-hook")
-                    .glob(NativeUtils.getLibraryFileName("sqlite3_hook"))
-                    .toTarget(NativeUtils.tempRoot().resolve("sqlite3-hook").toFile().getAbsolutePath())
-                    .load();
+                String os = System.getProperty("os.name", "").toLowerCase();
+                String libName;
+                String dirName;
+                if (os.contains("win")) {
+                    libName = "sqlite3_hook.dll";
+                    dirName = "windows-x86_64";
+                } else {
+                    libName = "libsqlite3_hook.so";
+                    dirName = "linux-x86_64";
+                }
+                try (var is = SqliteReactorHook.class.getResourceAsStream("/native/" + dirName + "/" + libName)) {
+                    if (is == null) throw new UnsatisfiedLinkError("Native library not found: " + libName);
+                    var tmpDir = java.nio.file.Files.createTempDirectory("sqlite-hook");
+                    var tmpPath = tmpDir.resolve(libName);
+                    java.nio.file.Files.copy(is, tmpPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    tmpPath.toFile().deleteOnExit();
+                    tmpDir.toFile().deleteOnExit();
+                    System.load(tmpPath.toAbsolutePath().toString());
+                }
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
                 HOOK_OPEN_ASYNC_HANDLE = bind("hook_open_async",
                     FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS));

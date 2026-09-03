@@ -359,6 +359,22 @@ public class ServiceBuilder implements Closeable {
         }
 
         /**
+         * 设置服务名称（委托给外部 Builder）。
+         */
+        public RemoteManager withServiceName(String serviceName) {
+            builder.withServiceName(serviceName);
+            return this;
+        }
+
+        /**
+         * 设置 jar 路径（委托给外部 Builder）。
+         */
+        public RemoteManager withJar(String jarPath) {
+            builder.withJar(jarPath);
+            return this;
+        }
+
+        /**
          * 建立 SSH 连接。
          */
         public RemoteManager connect() {
