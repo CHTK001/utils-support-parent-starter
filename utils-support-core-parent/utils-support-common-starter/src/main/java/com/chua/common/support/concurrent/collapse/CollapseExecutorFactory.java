@@ -29,4 +29,22 @@ public interface CollapseExecutorFactory {
      */
     <INPUT, OUTPUT> CollapseExecutor<INPUT, OUTPUT> create(CollapseConfig config,
                                                            CollapseBatchFunction<INPUT, OUTPUT> batchFunction);
+
+    /**
+     * 创建支持结果拆分回填的折叠执行器。
+     *
+     * <p>用于"整批合并执行 + 按调用者回填"场景：配置 {@code mergeAll = true} 后，
+     * 同一批次内的全部调用合并执行一次，结果由 {@link CollapseResultMapper} 按调用者
+     * 拆分后逐项回填。实现模块可按需覆写本方法。</p>
+     *
+     * @param config   折叠配置，不可为空
+     * @param mapper   折叠结果映射器，不可为空
+     * @param <INPUT>  单次调用的入参类型
+     * @param <OUTPUT> 单次调用的返回类型
+     * @return 折叠执行器实例
+     */
+    default <INPUT, OUTPUT> CollapseExecutor<INPUT, OUTPUT> create(CollapseConfig config,
+                                                                   CollapseResultMapper<INPUT, OUTPUT> mapper) {
+        throw new UnsupportedOperationException("当前工厂实现不支持结果映射模式");
+    }
 }

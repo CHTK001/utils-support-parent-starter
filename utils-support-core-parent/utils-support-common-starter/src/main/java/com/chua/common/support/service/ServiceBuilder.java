@@ -380,7 +380,9 @@ public class ServiceBuilder implements Closeable {
          * 启动远程服务（先连接，后启动）。
          */
         public long start() {
-            if (!manager.isConnected()) connect();
+            if (!manager.isConnected()) {
+                connect();
+            }
             resolveAndValidate();
             String cmd = buildRemoteStartCmd();
             long pid = manager.startRemote(builder.serviceName, builder.jarPath, cmd);

@@ -39,6 +39,16 @@ public class CollapseConfig {
     private boolean virtualThread = true;
 
     /**
+     * 是否整批合并执行（不做入参分组）。
+     *
+     * <p>true：同一收集批次内的全部调用合并为一组，执行一次批量逻辑，
+     * 配合 {@link CollapseResultMapper} 按调用者拆分回填各自结果（单次调用携带集合入参的场景）；</p>
+     *
+     * <p>false（默认）：按入参 equals 分组，相同入参的调用合并执行一次并广播结果。</p>
+     */
+    private boolean mergeAll = false;
+
+    /**
      * 获取执行器名称。
      *
      * @return 执行器名称
@@ -108,5 +118,23 @@ public class CollapseConfig {
      */
     public void setVirtualThread(boolean virtualThread) {
         this.virtualThread = virtualThread;
+    }
+
+    /**
+     * 是否整批合并执行。
+     *
+     * @return 是否整批合并执行
+     */
+    public boolean isMergeAll() {
+        return mergeAll;
+    }
+
+    /**
+     * 设置是否整批合并执行。
+     *
+     * @param mergeAll 是否整批合并执行
+     */
+    public void setMergeAll(boolean mergeAll) {
+        this.mergeAll = mergeAll;
     }
 }
