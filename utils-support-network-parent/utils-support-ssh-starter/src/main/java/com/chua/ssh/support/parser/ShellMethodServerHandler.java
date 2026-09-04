@@ -150,9 +150,10 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         }
         Map<String, ViewParser> parsers = ServiceProvider.of(ViewParser.class).list();
         if (produce != null && !produce.isEmpty()) {
-            ViewParser parser = parsers.get(produce);
-            if (parser != null) {
-                return parser.render(data);
+            for (Map.Entry<String, ViewParser> entry : parsers.entrySet()) {
+                if (produce.equalsIgnoreCase(entry.getKey())) {
+                    return entry.getValue().render(data);
+                }
             }
         }
         for (ViewParser parser : parsers.values().stream()

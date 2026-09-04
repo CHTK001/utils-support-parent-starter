@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `@Collapsible` gains `fallback()`: collapse batch failure degrades per-caller via `FallbackResolver` (`beanName#methodName` or same-class method)
   - Global defaults via Spring Boot `collapse.executor.wait-threshold` / `collapse.executor.collecting-wait-time` (new `CollapseProperties`; annotation sentinels `-1`/`-2` mean "unset", falling back to global then built-in defaults)
   - Collapse metrics: `CollapseExecutor.metrics()` (default empty) and `DefaultCollapseExecutor` statistics (`executedCount`, `batchExecutionCount`, `avgBatchSize`, `maxBatchSize`, `mergeRate`)
+  - `CollapseHttpClient` collapse key now normalizes URL query parameters (sorted), so equivalent URLs differing only in parameter order (`?a=1&b=2` vs `?b=2&a=1`) collapse into one real call
+  - `CollapseFlow.executorFactory(...)` now throws `IllegalStateException` if called after the first `execute()` (contract enforced instead of silently ignored)
+  - `mergeAndSplit` guards against mixing different target instances under a shared executor name (explicit `@Collapsible(name)` collision across beans) — throws instead of returning silently corrupted results
   - JUnit regression tests: `DefaultCollapseExecutorTest` (collapse-starter), `FallbackResolverTest` + `CollapsibleInterceptTest` (spring-starter), `CollapseAutoConfigurationTest` (springboot-starter, verifies `collapse.executor.*` binding → `CollapsibleIntercept` injection chain); runnable via `mvn test -DskipTests=false -am` (root `skipTests=true` default overridable; test-scope deps `junit-jupiter`, `aspectjweaver`, `utils-support-collapse-starter` added to spring-starter/springboot-starter)
 
 ### Fixed
@@ -29,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Spring 7 removed `ClassUtils.findMethod`: fallback resolution switched to `getMethodIfAvailable`
 - `beanName#methodName` fallback failed on non-calling threads: `SpringBeanUtils` holds the context in a ThreadLocal, so `FallbackResolver` now falls back to a globally registered context (registered by `CollapsibleIntercept` via `ApplicationContextAware`)
 - `CollapseConfig` now rejects negative `waitThreshold` (`IllegalArgumentException`; `0` = execute immediately)
+- Merge core invocation now resolves the most specific method on the target class (`getMostSpecificMethod`) before reflection invoke — fixes `IllegalAccessException` when the annotated method's declaring interface is package-private and cross-package
 - common-starter: removed `maven-compiler-plugin` `failOnError=false` (module now compiles cleanly, so compile errors fail the build instead of being masked)
 
 ## [4.0.0.42] - 2026-07-25

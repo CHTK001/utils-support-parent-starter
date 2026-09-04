@@ -7,6 +7,8 @@ import com.chua.common.support.network.http.HttpMethod;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,7 +24,8 @@ import java.util.concurrent.ThreadFactory;
  * <p><b>约定与限制：</b></p>
  * <ul>
  *   <li>仅折叠 GET（幂等）请求，POST/PUT/DELETE 等直接透传底层执行；</li>
- *   <li>折叠 key 为请求 URL（含查询串）；携带不同请求头的同 URL 请求也会被合并，
+ *   <li>折叠 key 为请求 URL（查询参数排序规范化后，参数顺序不同的等价 URL 也会被合并）；
+ *       携带不同请求头的同 URL 请求也会被合并，
  *       因此仅适用于幂等且不依赖调用方私有头语义的场景；</li>
  *   <li>{@link ClientResponse} 的响应体为已物化的字节数组（{@code byte[]}），
  *       广播共享安全，可被多个请求方重复读取；</li>
@@ -115,7 +118,7 @@ public class CollapseHttpClient implements HttpClient {
     public ClientResponse execute(ClientRequest request) {
         if (HttpMethod.GET.equals(request.getMethod())) {
             try {
-                return flow.execute(new HttpCollapseTask(request.getUrl(), request));
+                return flow.execute(new HttpCollapseTask(normalizeUrl(request.getUrl()), request));
             } catch (RuntimeException e) {
                 throw e;
             } catch (Throwable throwable) {
@@ -123,6 +126,39 @@ public class CollapseHttpClient implements HttpClient {
             }
         }
         return delegate.execute(request);
+    }
+
+    /**
+     * 规范化 URL 折叠 key：查询参数按键排序后重组，使参数顺序不同的等价 URL 可合并。
+     *
+     * <p>如 {@code http://a/x?b=1&a=2} 与 {@code http://a/x?a=2&b=1} 归并为同一折叠 key；
+     * 无查询串的 URL 原样返回；片段（{@code #frag}）保留在查询串之后。</p>
+     *
+     * @param url 原始 URL
+     * @return 规范化后的 URL
+     */
+    private static String normalizeUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        int queryIndex = url.indexOf('?');
+        if (queryIndex < 0) {
+            return url;
+        }
+        int fragmentIndex = url.indexOf('#', queryIndex);
+        String base = url.substring(0, queryIndex);
+        String query = fragmentIndex < 0
+                ? url.substring(queryIndex + 1)
+                : url.substring(queryIndex + 1, fragmentIndex);
+        String fragment = fragmentIndex < 0 ? "" : url.substring(fragmentIndex);
+        List<String> params = new ArrayList<>();
+        for (String param : query.split("&")) {
+            if (!param.isEmpty()) {
+                params.add(param);
+            }
+        }
+        params.sort(String::compareTo);
+        return base + "?" + String.join("&", params) + fragment;
     }
 
     @Override
