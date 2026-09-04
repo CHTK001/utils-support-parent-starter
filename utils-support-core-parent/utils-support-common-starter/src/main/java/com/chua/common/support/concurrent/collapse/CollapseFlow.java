@@ -159,12 +159,16 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
      * 无需依赖 utils-support-collapse-starter 模块与 SPI 发现；未设置时回退 SPI 探测，
      * 探测不到实现则降级为直接执行（语义不变、无折叠收益）。</p>
      *
-     * <p>需在首次 {@link #execute(Object)} 之前设置。</p>
+     * <p>需在首次 {@link #execute(Object)} 之前设置；之后设置将抛出
+     * {@link IllegalStateException}（执行器已解析，回调不再生效）。</p>
      *
      * @param executorFactory 执行器工厂回调，不可为空
      * @return this
      */
     public CollapseFlow<INPUT, OUTPUT> executorFactory(CollapseExecutorFactory executorFactory) {
+        if (checked) {
+            throw new IllegalStateException("executorFactory 必须在首次 execute() 之前设置。");
+        }
         this.executorFactory = Objects.requireNonNull(executorFactory, "executorFactory must not be null.");
         return this;
     }

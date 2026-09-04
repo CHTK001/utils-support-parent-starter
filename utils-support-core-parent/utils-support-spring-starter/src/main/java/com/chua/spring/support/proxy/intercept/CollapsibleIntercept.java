@@ -286,9 +286,14 @@ public class CollapsibleIntercept
     private Map<InvocationKey, Object> mergeAndSplit(Collection<InvocationKey> inputs) throws Throwable {
         InvocationKey first = inputs.iterator().next();
         Method method = first.method;
+        Object firstTarget = first.proxyMethod.getTarget();
         for (InvocationKey key : inputs) {
             if (!method.equals(key.method)) {
                 throw new IllegalStateException("同一折叠执行器混入了不同方法：" + key.method);
+            }
+            if (firstTarget != null && key.proxyMethod.getTarget() != firstTarget) {
+                throw new IllegalStateException("同一折叠执行器混入了不同目标实例（接口多实现共享默认名称？"
+                        + "请为不同实现显式设置 @Collapsible(name)）：" + key.method);
             }
         }
         // 按归约键去重并集与归属索引（key() SpEL 提取；缺省时元素自身即键，兼容 Map 返回模式）
@@ -347,10 +352,16 @@ public class CollapsibleIntercept
      */
     private Object invokeCore(InvocationKey key, Object mergedArg) throws Throwable {
         Method method = key.method;
+        Object target = key.proxyMethod.getTarget();
+        // 接口方法在原始目标对象上反射调用受接口可访问性限制（包私有接口跨包会 IllegalAccessException），
+        // 解析为目标类的最具体方法（如实现类的 public 覆写方法）后调用
+        Method mostSpecific = target != null
+                ? ClassUtils.getMostSpecificMethod(method, target.getClass())
+                : method;
         Set<Method> methods = collapsingMethods.get();
         methods.add(method);
         try {
-            return method.invoke(key.proxyMethod.getTarget(), mergedArg);
+            return mostSpecific.invoke(target, mergedArg);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         } finally {
