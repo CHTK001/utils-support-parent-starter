@@ -53,20 +53,37 @@ public class TableViewParser implements ViewParser {
     /**
      * 是否以无边框模式渲染：true 时不绘制框线字符，仅按列宽以空格对齐
      */
-    private boolean borderless;
+    private final boolean borderless;
 
     /**
-     * 设置是否以无边框模式渲染。
+     * 默认构造器：框线模式。
+     */
+    public TableViewParser() {
+        this(false);
+    }
+
+    /**
+     * 构造器。
+     *
+     * @param borderless true 表示无边框模式，false 表示默认框线模式
+     */
+    private TableViewParser(boolean borderless) {
+        this.borderless = borderless;
+    }
+
+    /**
+     * 返回指定无边框模式的新实例（不修改当前单例）。
      *
      * <p>无边框模式下不绘制任何框线字符（{@code ┌ ─ ├ │} 等），仅按列宽以空格对齐，
      * 适用于日志输出、Markdown 代码块或窄屏终端等不适合框线的场景。</p>
      *
+     * <p>由于 SPI 实例是全局单例，此方法返回一个新实例以避免污染共享状态。</p>
+     *
      * @param borderless true 表示无边框模式，false 表示默认框线模式
-     * @return 当前实例（支持链式调用）
+     * @return 新的 TableViewParser 实例
      */
     public TableViewParser setBorderless(boolean borderless) {
-        this.borderless = borderless;
-        return this;
+        return new TableViewParser(borderless);
     }
 
     /**

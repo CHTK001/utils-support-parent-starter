@@ -108,6 +108,21 @@ class ViewParserTest {
     }
 
     /**
+     * TableViewParser：无边框模式不污染 SPI 单例
+     */
+    @Test
+    void borderlessDoesNotPolluteSpiSingleton() {
+        TableViewParser parser = (TableViewParser) ServiceProvider.of(ViewParser.class).getExtension("table");
+        TableViewParser borderless = parser.setBorderless(true);
+
+        String framed = parser.render(ROWS);
+        assertTrue(framed.contains("┌"), "原始单例应保持框线模式");
+
+        String plain = borderless.render(ROWS);
+        assertFalse(plain.chars().anyMatch(c -> "┌├└│".indexOf(c) >= 0), "新实例应为无边框模式");
+    }
+
+    /**
      * TableViewParser：无边框模式不绘制框线字符
      */
     @Test
