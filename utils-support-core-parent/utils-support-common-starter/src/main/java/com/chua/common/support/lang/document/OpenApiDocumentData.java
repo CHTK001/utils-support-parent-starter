@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class OpenApiDocumentData {
+public class OpenApiDocumentData extends DocumentData {
 
     /**
      * 文档标题（OpenAPI info.title）。

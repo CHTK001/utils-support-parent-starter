@@ -1,5 +1,6 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.network.annotations.RequestMethod;
 import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.network.invoker.HttpInvoker;
 import com.chua.common.support.network.invoker.Invoker;
@@ -212,5 +213,67 @@ class HttpInterceptorTest {
 
         client.execute(ClientRequest.of("http://example.com"));
         assertEquals(List.of("app", "network", "real", "retry", "network", "real"), order);
+    }
+
+    /**
+     * 验证 HttpInvoker.addInject 注入规则端到端落地。
+     *
+     * <p>通过 mock 执行器捕获实际请求头，验证：</p>
+     * <ul>
+     *   <li>headers.X 注入到请求头</li>
+     *   <li>attributes.X 注入到共享属性且可被后续规则读取（链式注入）</li>
+     * </ul>
+     */
+    @Test
+    void httpInvokerInjectRuleShouldInjectHeader() {
+        ClientResponse ok = new ClientResponse();
+        ok.setStatusCode(200);
+        ok.setBody("{\"ok\":true}".getBytes());
+
+        final ClientRequest[] captured = {null};
+        HttpClient mockClient = new DefaultHttpClient(new HttpClientExecutor() {
+            @Override
+            public ClientResponse execute(ClientRequest request) {
+                captured[0] = request;
+                return ok;
+            }
+
+            @Override
+            public String getName() {
+                return "mock";
+            }
+
+            @Override
+            public boolean isAvailable() {
+                return true;
+            }
+        });
+
+        Invoker invoker = HttpInvoker.of()
+                .client(mockClient)
+                .addInject("headers.Authorization", ctx -> "Bearer token-999")
+                .addInject("attributes.traceId", ctx -> "trace-abc")
+                .addInject("headers.X-Trace-Id", ctx -> String.valueOf(ctx.getAttribute("traceId")));
+
+        InjectRuleApi api = invoker.createNew(InjectRuleApi.class);
+        api.getUser();
+
+        assertNotNull(captured[0]);
+        assertEquals("Bearer token-999", captured[0].getHeader("Authorization"));
+        assertEquals("trace-abc", captured[0].getHeader("X-Trace-Id"));
+        assertEquals("/api/user", captured[0].getUrl());
+    }
+
+    /**
+     * 声明式 HTTP API 接口（仅用于注入规则测试）。
+     */
+    @RequestMethod("http://example.com")
+    interface InjectRuleApi {
+
+        /**
+         * 获取用户信息。
+         */
+        @RequestMethod(method = "GET", value = "/api/user")
+        String getUser();
     }
 }
