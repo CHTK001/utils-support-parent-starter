@@ -85,6 +85,16 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         return sshClient != null && sshClient.isConnected();
     }
 
+    /**
+     * 同步执行远程命令并返回输出（供远程主机诊断/配置使用）。
+     *
+     * @param command 要执行的命令
+     * @return 命令输出（stdout 为空时回退 stderr）
+     */
+    public String execCommand(String command) {
+        return execAndWait(command);
+    }
+
     @Override
     public long startRemote(String serviceName, String jarPath, String startCmd) {
         requireConnected();
