@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `@Collapsible` gains `fallback()`: collapse batch failure degrades per-caller via `FallbackResolver` (`beanName#methodName` or same-class method)
   - Global defaults via Spring Boot `collapse.executor.wait-threshold` / `collapse.executor.collecting-wait-time` (new `CollapseProperties`; annotation sentinels `-1`/`-2` mean "unset", falling back to global then built-in defaults)
   - Collapse metrics: `CollapseExecutor.metrics()` (default empty) and `DefaultCollapseExecutor` statistics (`executedCount`, `batchExecutionCount`, `avgBatchSize`, `maxBatchSize`, `mergeRate`)
-  - JUnit regression tests: `DefaultCollapseExecutorTest` (collapse-starter), `FallbackResolverTest` + `CollapsibleInterceptTest` (spring-starter), runnable via `mvn test` (junit-jupiter 6.0.3 test-scope added to both modules)
+  - JUnit regression tests: `DefaultCollapseExecutorTest` (collapse-starter), `FallbackResolverTest` + `CollapsibleInterceptTest` (spring-starter), `CollapseAutoConfigurationTest` (springboot-starter, verifies `collapse.executor.*` binding → `CollapsibleIntercept` injection chain); runnable via `mvn test -DskipTests=false -am` (root `skipTests=true` default overridable; test-scope deps `junit-jupiter`, `aspectjweaver`, `utils-support-collapse-starter` added to spring-starter/springboot-starter)
 
 ### Fixed
 - `CollapsibleIntercept` no longer extends `AbstractMethodAnnotationIntercept` (its placeholder resolver NPEs on instantiation without a placeholder environment), so it can be created inside a Spring container

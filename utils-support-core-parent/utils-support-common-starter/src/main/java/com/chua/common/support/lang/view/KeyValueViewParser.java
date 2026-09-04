@@ -8,13 +8,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 键值对视图解析器，将 {@link Map} 渲染为 {@code key: value} 格式。
+ * 键值对视图解析器，将 {@link Map} 渲染为按列对齐的 {@code key   value} 格式。
  * <p>也支持 POJO — 反射提取所有字段展示。</p>
  *
  * <pre>{@code
- * name:    foo
- * size:    1024
- * isDir:   true
+ * name    foo
+ * size    1024
+ * isDir   true
  * }</pre>
  *
  * @author CH

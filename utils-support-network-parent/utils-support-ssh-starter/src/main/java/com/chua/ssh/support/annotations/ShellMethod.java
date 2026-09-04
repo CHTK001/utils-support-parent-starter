@@ -62,7 +62,7 @@ public @interface ShellMethod {
 
     /**
      * 输出格式，指定 {@link com.chua.common.support.lang.view.ViewParser} SPI 名称。
-     * <p>可选值：table、kv、json、tree，默认空表示自动检测。</p>
+     * <p>可选值：table、plain、list、md、kv、card、tree、barchart、json，默认空表示自动检测。</p>
      *
      * @return 视图解析器名称
      */
