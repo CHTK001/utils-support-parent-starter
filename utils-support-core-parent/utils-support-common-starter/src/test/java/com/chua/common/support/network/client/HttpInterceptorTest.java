@@ -4,6 +4,11 @@ import com.chua.common.support.network.annotations.RequestMethod;
 import com.chua.common.support.network.client.spi.HttpClientExecutor;
 import com.chua.common.support.network.invoker.HttpInvoker;
 import com.chua.common.support.network.invoker.Invoker;
+import com.chua.common.support.network.invoker.annotations.RemoteHeader;
+import com.chua.common.support.network.invoker.annotations.RemoteInject;
+import com.chua.common.support.network.invoker.annotations.RemoteMethod;
+import com.chua.common.support.network.invoker.annotations.RemoteParameter;
+import com.chua.common.support.network.invoker.annotations.RemoteService;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -315,6 +320,79 @@ class HttpInterceptorTest {
     }
 
     /**
+     * 验证 HttpInvoker 对 Invoker 自有注解（@RemoteMethod/@RemoteParameter/@RemoteHeader）的支持。
+     */
+    @Test
+    void httpInvokerRemoteAnnotationsSupported() {
+        ClientResponse ok = new ClientResponse();
+        ok.setStatusCode(200);
+        ok.setBody("{\"token\":\"abc123\",\"name\":\"test\"}".getBytes());
+
+        final List<ClientRequest> captured = new ArrayList<>();
+        HttpClient mockClient = new DefaultHttpClient(new HttpClientExecutor() {
+            @Override
+            public ClientResponse execute(ClientRequest request) {
+                captured.add(request);
+                return ok;
+            }
+
+            @Override
+            public String getName() {
+                return "mock";
+            }
+
+            @Override
+            public boolean isAvailable() {
+                return true;
+            }
+        });
+
+        RemoteApi api = HttpInvoker.of().client(mockClient).createNew(RemoteApi.class);
+        api.getUser("u001");
+
+        assertEquals(1, captured.size());
+        assertEquals("http://example.com/api/users/u001", captured.get(0).getUrl());
+        assertEquals("device-x", captured.get(0).getHeader("X-Device"));
+    }
+
+    /**
+     * 验证 @RemoteInject 从上次调用结果注入请求头（链式调用）。
+     */
+    @Test
+    void httpInvokerRemoteInjectChained() {
+        ClientResponse login = new ClientResponse();
+        login.setStatusCode(200);
+        login.setBody("{\"token\":\"login-token-1\"}".getBytes());
+
+        final List<ClientRequest> captured = new ArrayList<>();
+        HttpClient mockClient = new DefaultHttpClient(new HttpClientExecutor() {
+            @Override
+            public ClientResponse execute(ClientRequest request) {
+                captured.add(request);
+                return login;
+            }
+
+            @Override
+            public String getName() {
+                return "mock";
+            }
+
+            @Override
+            public boolean isAvailable() {
+                return true;
+            }
+        });
+
+        RemoteApi api = HttpInvoker.of().client(mockClient).createNew(RemoteApi.class);
+        api.login();
+        api.getUser("u001");
+
+        assertEquals(2, captured.size());
+        // 第二次调用应携带第一次结果注入的 Authorization 头
+        assertEquals("Bearer login-token-1", captured.get(1).getHeader("Authorization"));
+    }
+
+    /**
      * 声明式 HTTP API 接口（仅用于注入规则测试）。
      */
     @RequestMethod("http://example.com")
@@ -325,5 +403,33 @@ class HttpInterceptorTest {
          */
         @RequestMethod(method = "GET", value = "/api/user")
         String getUser();
+    }
+
+    /**
+     * 使用 Invoker 自有注解的接口。
+     */
+    @RemoteService(url = "http://example.com", path = "/api")
+    interface RemoteApi {
+
+        /**
+         * 登录接口，结果注入到共享属性供后续调用携带。
+         */
+        @RemoteMethod(value = "/auth/login", method = "GET")
+        @RemoteInject(target = "attributes.token", source = "result.token")
+        LoginResponse login();
+
+        /**
+         * 获取用户信息，携带上次登录注入的 Authorization 头。
+         */
+        @RemoteMethod(value = "/users/{id}", method = "GET")
+        @RemoteHeader(name = "X-Device", value = "device-x")
+        @RemoteInject(target = "headers.Authorization", source = "attributes.token", format = "Bearer {0}")
+        String getUser(@RemoteParameter("id") String id);
+    }
+
+    /**
+     * 登录响应记录（含 token）。
+     */
+    record LoginResponse(String token) {
     }
 }
