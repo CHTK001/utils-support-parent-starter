@@ -4,6 +4,7 @@ import com.chua.common.support.service.ServiceManager;
 import com.chua.common.support.service.ServiceProcessTracker;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
+import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class LocalServiceManager implements ServiceManager {
             if (dir != null) {
                 Files.createDirectories(dir);
             }
-            log.info("[service] 启动服务: {} cmd={}", jarPath, truncate(startCmd, 80));
+            log.info("[service] 启动服务: {} cmd={}", jarPath, StringUtils.left(startCmd, 80));
             long pid = tracker.startProcess(extractName(jarPath), startCmd, pidFile);
             if (pid > 0 && pidFile != null) {
                 tracker.writePidToFile(pidFile, pid);
@@ -116,9 +117,5 @@ public class LocalServiceManager implements ServiceManager {
         int lastSlash = Math.max(jarPath.lastIndexOf('/'), jarPath.lastIndexOf('\\'));
         String name = lastSlash >= 0 ? jarPath.substring(lastSlash + 1) : jarPath;
         return name.replace(".jar", "").replace(".exe", "");
-    }
-
-    private static String truncate(String s, int maxLen) {
-        return s == null ? "" : (s.length() <= maxLen ? s : s.substring(0, maxLen) + "...");
     }
 }
