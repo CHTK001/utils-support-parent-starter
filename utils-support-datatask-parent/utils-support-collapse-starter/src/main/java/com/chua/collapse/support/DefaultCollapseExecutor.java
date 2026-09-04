@@ -22,6 +22,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 默认折叠执行器。
@@ -87,6 +88,26 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
+     * execute 调用次数
+     */
+    private final AtomicLong executedCount = new AtomicLong();
+
+    /**
+     * 真实批量执行次数
+     */
+    private final AtomicLong batchExecutionCount = new AtomicLong();
+
+    /**
+     * 批次大小累计（用于计算平均批次）
+     */
+    private final AtomicLong batchSizeAccumulator = new AtomicLong();
+
+    /**
+     * 最大批次大小
+     */
+    private final AtomicInteger maxBatchSize = new AtomicInteger();
+
+    /**
      * 构造默认折叠执行器（广播模式）。
      *
      * @param config        折叠配置
@@ -130,10 +151,44 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     @Override
     public OUTPUT execute(INPUT input) throws Throwable {
         checkState();
+        executedCount.incrementAndGet();
         Task<INPUT, OUTPUT> task = new Task<>(input, new CompletableFuture<>());
         queue.add(task);
         schedule();
         return await(task);
+    }
+
+    /**
+     * 记录一次真实批量执行（指标统计）。
+     *
+     * @param size 批次大小
+     */
+    private void recordBatch(int size) {
+        batchExecutionCount.incrementAndGet();
+        batchSizeAccumulator.addAndGet(size);
+        maxBatchSize.accumulateAndGet(size, Math::max);
+    }
+
+    /**
+     * 折叠执行指标。
+     *
+     * <p>指标项：{@code executedCount} 调用次数、{@code batchExecutionCount} 真实批量执行次数、
+     * {@code avgBatchSize} 平均批次大小、{@code maxBatchSize} 最大批次大小、
+     * {@code mergeRate} 合并率（1 - 真实执行/调用，越高折叠收益越大）。</p>
+     *
+     * @return 指标映射
+     */
+    @Override
+    public Map<String, Object> metrics() {
+        long executed = executedCount.get();
+        long batches = batchExecutionCount.get();
+        Map<String, Object> result = new LinkedHashMap<>(5);
+        result.put("executedCount", executed);
+        result.put("batchExecutionCount", batches);
+        result.put("avgBatchSize", batches > 0 ? (double) batchSizeAccumulator.get() / batches : 0d);
+        result.put("maxBatchSize", maxBatchSize.get());
+        result.put("mergeRate", executed > 0 ? 1d - (double) batches / executed : 0d);
+        return result;
     }
 
     @Override
@@ -269,6 +324,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
             return;
         }
         List<INPUT> inputs = collectInputs(group);
+        recordBatch(group.size());
         try {
             OUTPUT output = batchFunction.executeBatch(inputs);
             for (Task<INPUT, OUTPUT> task : group) {
@@ -288,6 +344,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
      */
     private void runMapped(Collection<Task<INPUT, OUTPUT>> group) {
         List<INPUT> inputs = collectInputs(group);
+        recordBatch(group.size());
         try {
             Map<INPUT, OUTPUT> mapped = resultMapper.map(inputs);
             if (mapped == null) {

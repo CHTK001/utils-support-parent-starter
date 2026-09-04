@@ -1,12 +1,15 @@
 package com.chua.springboot.support.autoconfigure;
 
+import com.chua.common.support.concurrent.collapse.CollapseConfig;
 import com.chua.spring.support.aop.CollapsibleAdvisor;
 import com.chua.spring.support.annotation.Collapsible;
 import com.chua.spring.support.proxy.intercept.CollapsibleIntercept;
+import com.chua.springboot.support.properties.CollapseProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -25,17 +28,32 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @ConditionalOnClass(CollapsibleAdvisor.class)
 @ConditionalOnProperty(prefix = "collapse.executor", name = "enabled", havingValue = "true", matchIfMissing = true)
+@EnableConfigurationProperties(CollapseProperties.class)
 public class CollapseAutoConfiguration {
 
     /**
-     * 创建折叠拦截器。
+     * 创建折叠拦截器（注入全局默认配置，注解未显式指定的属性读取全局默认值）。
      *
+     * @param properties 折叠全局默认配置
      * @return CollapsibleIntercept 实例
      */
     @Bean
     @ConditionalOnMissingBean
-    public CollapsibleIntercept collapsibleIntercept() {
-        return new CollapsibleIntercept();
+    public CollapsibleIntercept collapsibleIntercept(CollapseProperties properties) {
+        return new CollapsibleIntercept(toGlobalConfig(properties));
+    }
+
+    /**
+     * 将全局默认配置转换为折叠配置。
+     *
+     * @param properties 折叠全局默认配置
+     * @return CollapseConfig 实例
+     */
+    private static CollapseConfig toGlobalConfig(CollapseProperties properties) {
+        CollapseConfig config = new CollapseConfig();
+        config.setWaitThreshold(properties.getWaitThreshold());
+        config.setCollectingWaitTime(properties.getCollectingWaitTime());
+        return config;
     }
 
     /**

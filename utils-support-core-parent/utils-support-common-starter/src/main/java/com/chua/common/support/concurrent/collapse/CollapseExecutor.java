@@ -1,6 +1,8 @@
 package com.chua.common.support.concurrent.collapse;
 
 import java.io.Closeable;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * 折叠执行器。
@@ -37,5 +39,17 @@ public interface CollapseExecutor<INPUT, OUTPUT> extends Closeable {
     @Override
     default void close() {
         // 子类按需实现资源释放
+    }
+
+    /**
+     * 折叠执行指标。
+     *
+     * <p>默认实现返回空指标；实现类可按需统计（如 {@code executedCount} 调用次数、
+     * {@code batchExecutionCount} 真实执行次数、{@code mergeRate} 合并率等）。</p>
+     *
+     * @return 指标映射
+     */
+    default Map<String, Object> metrics() {
+        return Collections.emptyMap();
     }
 }
