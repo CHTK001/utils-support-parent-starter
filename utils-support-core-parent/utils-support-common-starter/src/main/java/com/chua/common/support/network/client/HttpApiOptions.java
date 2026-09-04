@@ -210,6 +210,42 @@ public class HttpApiOptions {
     }
 
     /**
+     * 注册编程式注入规则（与 {@code @RemoteInject} 注解功能一致）。
+     *
+     * <p>每次远程调用前执行回调，将返回值按 target 注入到请求头或共享属性：</p>
+     * <ul>
+     *   <li>{@code "headers.X"} — 注入到请求头 {@code X}</li>
+     *   <li>{@code "attributes.X"} — 注入到共享属性 {@code X}（可供后续注入规则读取）</li>
+     * </ul>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * HttpInvoker.of()
+     *     .addInject("headers.Authorization", ctx -> "Bearer " + TokenManager.getToken())
+     *     .create(UserApi.class);
+     * }</pre>
+     *
+     * @param target   注入目标路径，如 {@code "headers.Authorization"}
+     * @param callback 注入回调，每次调用时执行，返回注入值；返回 null 则跳过
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions addInject(String target, InjectCallback callback) {
+        if (target != null && callback != null) {
+            injectRules.add(new SharedInvocationContext.InjectRule(target, callback));
+        }
+        return this;
+    }
+
+    /**
+     * 获取已注册的注入规则列表（只读）。
+     *
+     * @return 注入规则列表，不会返回 null
+     */
+    public List<SharedInvocationContext.InjectRule> getInjectRules() {
+        return java.util.Collections.unmodifiableList(injectRules);
+    }
+
+    /**
      * 解析出实际使用的 HttpClient 实例。
      *
      * <p>解析规则：</p>
