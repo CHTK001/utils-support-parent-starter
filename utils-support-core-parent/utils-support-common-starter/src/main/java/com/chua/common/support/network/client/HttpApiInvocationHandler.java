@@ -255,7 +255,8 @@ public class HttpApiInvocationHandler implements InvocationHandler {
             }
         }
 
-        // 3. 应用编程式注入规则（与 @RemoteInject 功能一致，见 HttpInvoker#addInject）
+        // 3. 应用方法级注解（@RemoteHeader 静态头 + @RemoteInject 注入）与编程式注入规则
+        applyMethodAnnotations(meta, args, headers);
         applyInjectRules(meta, args, headers);
 
         // 4. 拼接完整 URL（兼容 baseUrl 与 path 之间的斜杠）
