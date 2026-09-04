@@ -374,10 +374,13 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
                 return;
             }
             ensureSftp();
-            String remoteDir = Path.of(remotePath).getParent().toString();
-            sftpClient.mkdir().path(remoteDir).recursive(true).exec();
-            sftpClient.upload().local(localPath).remote(remotePath).exec();
-            log.info("[service-remote] jar 已上传: {} -> {}", localPath, remotePath);
+            // SFTP 统一使用正斜杠路径（Windows OpenSSH 亦兼容）
+            String sftpPath = remotePath.replace("\\", "/");
+            String remoteDir = Path.of(sftpPath).getParent().toString();
+            // 使用 SSH 命令创建目录（比 SFTP mkdir 更可靠，尤其 Windows）
+            execAndWait("powershell -Command \"New-Item -ItemType Directory -Path '" + remoteDir + "' -Force | Out-Null\"");
+            sftpClient.upload().local(localPath).remote(sftpPath).exec();
+            log.info("[service-remote] jar 已上传: {} -> {}", localPath, sftpPath);
         } catch (Exception e) {
             throw new RuntimeException("[service-remote] jar 上传失败: " + localPath, e);
         }
