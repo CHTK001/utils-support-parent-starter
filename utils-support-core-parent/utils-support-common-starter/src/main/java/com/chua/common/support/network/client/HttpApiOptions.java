@@ -1,5 +1,8 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.network.invoker.filter.InjectCallback;
+import com.chua.common.support.network.invoker.filter.SharedInvocationContext;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -73,6 +76,14 @@ public class HttpApiOptions {
      */
     private final Set<HttpInterceptor> resolved = java.util.Collections.newSetFromMap(
             new java.util.concurrent.ConcurrentHashMap<>());
+
+    /**
+     * 注入规则列表（与 {@code @RemoteInject} 注解功能一致的编程式注入）。
+     *
+     * <p>每次远程调用前执行，将回调返回值按 target 注入到请求头（{@code headers.X}）
+     * 或共享属性（{@code attributes.X}）。由 {@link HttpInvoker#addInject(String, InjectCallback)} 注册。</p>
+     */
+    private final List<SharedInvocationContext.InjectRule> injectRules = new ArrayList<>();
 
     /**
      * 创建空的配置实例。
