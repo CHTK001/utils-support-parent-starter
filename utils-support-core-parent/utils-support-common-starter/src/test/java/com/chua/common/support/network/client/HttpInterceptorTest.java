@@ -265,6 +265,56 @@ class HttpInterceptorTest {
     }
 
     /**
+     * 验证 HttpInvoker 请求级默认配置端到端落地。
+     *
+     * <p>通过 mock 执行器捕获实际请求，验证默认请求头、超时、重试、
+     * 重定向等配置被应用到每次远程调用。</p>
+     */
+    @Test
+    void httpInvokerRequestDefaultsApplied() {
+        ClientResponse ok = new ClientResponse();
+        ok.setStatusCode(200);
+        ok.setBody("{\"ok\":true}".getBytes());
+
+        final ClientRequest[] captured = {null};
+        HttpClient mockClient = new DefaultHttpClient(new HttpClientExecutor() {
+            @Override
+            public ClientResponse execute(ClientRequest request) {
+                captured[0] = request;
+                return ok;
+            }
+
+            @Override
+            public String getName() {
+                return "mock";
+            }
+
+            @Override
+            public boolean isAvailable() {
+                return true;
+            }
+        });
+
+        Invoker invoker = HttpInvoker.of()
+                .client(mockClient)
+                .header("X-App", "demo")
+                .connectTimeout(5000)
+                .readTimeout(15000)
+                .retry(2)
+                .followRedirects(false);
+
+        InjectRuleApi api = invoker.createNew(InjectRuleApi.class);
+        api.getUser();
+
+        assertNotNull(captured[0]);
+        assertEquals("demo", captured[0].getHeader("X-App"));
+        assertEquals(5000, captured[0].getConnectTimeout());
+        assertEquals(15000, captured[0].getReadTimeout());
+        assertEquals(2, captured[0].getMaxRetries());
+        assertFalse(captured[0].isFollowRedirects());
+    }
+
+    /**
      * 声明式 HTTP API 接口（仅用于注入规则测试）。
      */
     @RequestMethod("http://example.com")
