@@ -149,6 +149,16 @@ public class RequestSpec {
     private HttpInterceptor interceptor;
 
     /**
+     * 代理服务器主机名或 IP 地址，null 表示不使用代理。
+     */
+    private String proxyHost;
+
+    /**
+     * 代理服务器端口号。
+     */
+    private int proxyPort;
+
+    /**
      * 使用指定的客户端、URL 和请求方法创建请求规格。
      *
      * <p>包级访问权限，由 {@link HttpClient} 接口的 default 方法内部创建。</p>
@@ -460,6 +470,19 @@ public class RequestSpec {
      */
     public RequestSpec interceptor(HttpInterceptor interceptor) {
         this.interceptor = interceptor;
+        return this;
+    }
+
+    /**
+     * 设置 HTTP 代理服务器。
+     *
+     * @param host 代理服务器主机名或 IP 地址
+     * @param port 代理服务器端口号
+     * @return 当前实例（链式调用）
+     */
+    public RequestSpec proxy(String host, int port) {
+        this.proxyHost = host;
+        this.proxyPort = port;
         return this;
     }
 
@@ -821,6 +844,7 @@ public class RequestSpec {
         request.setCacheTtl(cacheTtl);
         request.setMaxRetries(maxRetries);
         request.setInterceptor(interceptor);
+        request.setProxy(proxyHost, proxyPort);
         return request;
     }
 
