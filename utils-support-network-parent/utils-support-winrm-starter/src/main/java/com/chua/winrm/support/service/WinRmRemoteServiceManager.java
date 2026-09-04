@@ -3,6 +3,7 @@ package com.chua.winrm.support.service;
 import com.chua.common.support.network.protocol.ClientSetting;
 import com.chua.common.support.service.RemoteServiceManager;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.winrm.support.client.WinRmExecClient;
 import com.chua.winrm.support.client.WinRmFileClient;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +88,7 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
         String remotePath = normalizeRemotePath(jarPath);
         uploadJarIfNeeded(jarPath, remotePath);
         String cmd = replaceToken(startCmd, "{jar}", remotePath);
-        log.info("[service-remote] 远程启动: {} cmd={}", serviceName, truncate(cmd, 100));
+        log.info("[service-remote] 远程启动: {} cmd={}", serviceName, StringUtils.left(cmd, 100));
         return execDetach(cmd);
     }
 
@@ -264,9 +265,5 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
 
     private static String replaceToken(String template, String token, String value) {
         return template == null ? value : template.replace(token, value);
-    }
-
-    private static String truncate(String s, int maxLen) {
-        return s == null ? "" : (s.length() <= maxLen ? s : s.substring(0, maxLen) + "...");
     }
 }

@@ -2,6 +2,7 @@ package com.chua.ssh.support.service;
 
 import com.chua.common.support.service.RemoteServiceManager;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.ssh.support.client.SftpClient;
 import com.chua.ssh.support.client.SshClient;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +91,7 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         String remotePath = normalizeRemotePath(jarPath);
         uploadJarIfNeeded(jarPath, remotePath);
         String cmd = replaceToken(startCmd, "{jar}", remotePath);
-        log.info("[service-remote] 远程启动: {} cmd={}", serviceName, truncate(cmd, 100));
+        log.info("[service-remote] 远程启动: {} cmd={}", serviceName, StringUtils.left(cmd, 100));
         return execDetach(cmd);
     }
 
@@ -252,9 +253,5 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
                "RestartSec=5\n\n" +
                "[Install]\n" +
                "WantedBy=multi-user.target";
-    }
-
-    private static String truncate(String s, int maxLen) {
-        return s == null ? "" : (s.length() <= maxLen ? s : s.substring(0, maxLen) + "...");
     }
 }
