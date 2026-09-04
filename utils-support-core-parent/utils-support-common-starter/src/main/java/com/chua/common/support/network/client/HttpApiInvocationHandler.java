@@ -365,7 +365,12 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         }
         RemoteService rs = clazz.getAnnotation(RemoteService.class);
         if (rs != null && !StringUtils.isEmpty(rs.url())) {
-            return trimSlash(propertyResolver.resolvePlaceholders(rs.url()));
+            String url = trimSlash(propertyResolver.resolvePlaceholders(rs.url()));
+            String prefix = rs.path();
+            if (!StringUtils.isEmpty(prefix)) {
+                url = url + "/" + trimSlash(propertyResolver.resolvePlaceholders(prefix));
+            }
+            return url;
         }
         return DEFAULT_BASE_URL;
     }
@@ -423,6 +428,20 @@ public class HttpApiInvocationHandler implements InvocationHandler {
                         pathTemplate = val;
                     }
                 }
+            }
+        }
+
+        // 仍未命中时回退到 @RemoteMethod（Invoker 自有注解）
+        if (httpMethod == null) {
+            RemoteMethod rm = method.getAnnotation(RemoteMethod.class);
+            if (rm != null) {
+                String meth = rm.method();
+                if (!StringUtils.isEmpty(meth)) {
+                    httpMethod = HttpMethod.valueOf(meth.toUpperCase());
+                } else {
+                    httpMethod = HttpMethod.GET;
+                }
+                pathTemplate = rm.value();
             }
         }
 
