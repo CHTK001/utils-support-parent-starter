@@ -64,7 +64,9 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
                 .host(cfg.host())
                 .port(cfg.port())
                 .username(cfg.username())
-                .password(cfg.password());
+                .password(cfg.password())
+                .authenticationScheme("Basic")
+                .payloadEncryptionOff(true);
         this.execClient = builder.build().connect();
         this.connected = true;
         log.info("[service-remote] WinRM 已连接: {}@{}:{}", cfg.username(), cfg.host(), cfg.port());

@@ -65,6 +65,14 @@ public class WinRmExecClient implements AutoCloseable {
      * 会话超时时间
      */
     private final int sessionTimeout;
+    /**
+     * 认证方案（NTLM / Basic），默认 NTLM
+     */
+    private final String authenticationScheme;
+    /**
+     * 是否关闭负载加密（Basic 认证时需配合目标机 AllowUnencrypted=true）
+     */
+    private final boolean payloadEncryptionOff;
 
     /**
      * win Rm Client
@@ -87,6 +95,8 @@ public class WinRmExecClient implements AutoCloseable {
         this.domain = b.domain;
         this.connectTimeout = b.connectTimeout;
         this.sessionTimeout = b.sessionTimeout;
+        this.authenticationScheme = b.authenticationScheme;
+        this.payloadEncryptionOff = b.payloadEncryptionOff;
     }
 
     // ==================== ClientSetting 风格构造函数 ====================
@@ -125,13 +135,17 @@ public class WinRmExecClient implements AutoCloseable {
             String endpoint = "http://" + host + ":" + port + "/wsman";
             WinRmClientBuilder builder = WinRmClient.builder(endpoint);
             builder.credentials(username, password);
-            builder.targetAuthSchemes(Arrays.asList("NTLM"));
+            builder.authenticationScheme(authenticationScheme);
+            if (payloadEncryptionOff) {
+                builder.payloadEncryptionMode(io.cloudsoft.winrm4j.client.PayloadEncryptionMode.OFF);
+            }
+            builder.targetAuthSchemes(Arrays.asList(authenticationScheme));
             builder.disableCertificateChecks(true);
             builder.connectionTimeout(connectTimeout);
             builder.receiveTimeout((long) sessionTimeout);
             winRmClient = builder.build();
             connected = true;
-            log.info("WinRM 连接成功: {}@{}:{}", username, host, port);
+            log.info("WinRM 连接成功: {}@{}:{} scheme={}", username, host, port, authenticationScheme);
         } catch (Exception e) {
             WinRMException ex = new WinRMException("WinRM 连接失败: " + host + ":" + port, e);
             e.printStackTrace(System.err);
@@ -484,6 +498,14 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
          * 会话超时时间
          */
         private int sessionTimeout = 30;
+        /**
+         * 认证方案（NTLM / Basic），默认 NTLM
+         */
+        private String authenticationScheme = "NTLM";
+        /**
+         * 是否关闭负载加密（Basic 认证时需配合目标机 AllowUnencrypted=true）
+         */
+        private boolean payloadEncryptionOff;
 
         /** Host */
         public Builder host(String h) {
@@ -524,6 +546,18 @@ public record ExecResult(int exitCode, String stdout, String stderr) {
         /** SessionTimeout */
         public Builder sessionTimeout(int t) {
             this.sessionTimeout = t;
+            return this;
+        }
+
+        /** 认证Scheme */
+        public Builder authenticationScheme(String scheme) {
+            this.authenticationScheme = scheme;
+            return this;
+        }
+
+        /** 关闭负载加密 */
+        public Builder payloadEncryptionOff(boolean off) {
+            this.payloadEncryptionOff = off;
             return this;
         }
 
