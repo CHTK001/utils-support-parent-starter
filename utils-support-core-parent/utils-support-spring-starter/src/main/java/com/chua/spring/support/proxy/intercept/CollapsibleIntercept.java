@@ -17,6 +17,7 @@ import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -116,7 +117,17 @@ public class CollapsibleIntercept
         if (name == null || name.isBlank()) {
             Method method = proxyMethod.getMethod();
             Object target = proxyMethod.getTarget();
-            Class<?> type = target != null ? ClassUtils.getUserClass(target) : method.getDeclaringClass();
+            Class<?> type = null;
+            if (target != null) {
+                Class<?> userClass = ClassUtils.getUserClass(target);
+                // JDK 动态代理类无法还原真实用户类（非 CGLIB 命名），回退方法声明类
+                if (!Proxy.isProxyClass(userClass)) {
+                    type = userClass;
+                }
+            }
+            if (type == null) {
+                type = method.getDeclaringClass();
+            }
             return type.getName() + "." + method.getName();
         }
         return name;
