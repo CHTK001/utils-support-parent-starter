@@ -352,16 +352,13 @@ public class CollapsibleIntercept
      */
     private Object invokeCore(InvocationKey key, Object mergedArg) throws Throwable {
         Method method = key.method;
-        Object target = key.proxyMethod.getTarget();
-        // 接口方法在原始目标对象上反射调用受接口可访问性限制（包私有接口跨包会 IllegalAccessException），
-        // 解析为目标类的最具体方法（如实现类的 public 覆写方法）后调用
-        Method mostSpecific = target != null
-                ? ClassUtils.getMostSpecificMethod(method, target.getClass())
-                : method;
+        // 合并批核心调用在原始目标对象上反射执行：接口方法 / 包私有声明类方法跨包受访问限制，
+        // 统一放行访问检查（CGLIB 覆写方法为 public，setAccessible 为无害操作）
+        method.setAccessible(true);
         Set<Method> methods = collapsingMethods.get();
         methods.add(method);
         try {
-            return mostSpecific.invoke(target, mergedArg);
+            return method.invoke(key.proxyMethod.getTarget(), mergedArg);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         } finally {

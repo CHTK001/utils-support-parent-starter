@@ -37,6 +37,18 @@ public class UtilsSpringBootAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public BulkheadIntercept bulkheadIntercept() {
+        return new BulkheadIntercept();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TimeoutIntercept timeoutIntercept() {
+        return new TimeoutIntercept();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public BulkheadAdvisor bulkheadAdvisor(BulkheadIntercept intercept) {
         return new BulkheadAdvisor(intercept);
     }

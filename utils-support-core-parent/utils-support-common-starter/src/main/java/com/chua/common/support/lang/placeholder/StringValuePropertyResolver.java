@@ -52,6 +52,13 @@ public class StringValuePropertyResolver implements PropertyResolver {
      */
     public StringValuePropertyResolver(PlaceholderSupport placeholderSupport) {
         this.placeholderSupport = placeholderSupport;
+        if (placeholderSupport == null) {
+            // 未配置占位符支持时退化为直通解析器（不解析任何占位符），
+            // 避免构造期访问空引用（AbstractMethodAnnotationIntercept 等以 null 构造）
+            this.simplePrefix = null;
+            this.placeholderResolver = null;
+            return;
+        }
         // 根据配置的占位符前缀，查找对应的简化前缀（如从 "}" 获取 "{"）
         String simplePrefixForSuffix = STRING_STRING_HASH_MAP.get(placeholderSupport.getPlaceholderPrefix());
         // 如果存在映射且前缀以该字符结尾，则使用简化前缀；否则直接使用原始前缀
@@ -77,6 +84,10 @@ public class StringValuePropertyResolver implements PropertyResolver {
      */
     @Override
     public String resolvePlaceholders(String value) {
+        if (placeholderSupport == null) {
+            // 直通：未配置占位符支持时不解析
+            return value;
+        }
         // 查找第一个占位符前缀的位置
         int startIndex = value.indexOf(placeholderSupport.getPlaceholderPrefix());
         if (startIndex == -1) {
@@ -194,6 +205,10 @@ public class StringValuePropertyResolver implements PropertyResolver {
     protected String parseStringValue(
             String value, PlaceholderResolver placeholderResolver, Set<String> visitedPlaceholders) {
 
+        if (placeholderSupport == null) {
+            // 直通：未配置占位符支持时不解析
+            return value;
+        }
         int startIndex = value.indexOf(placeholderSupport.getPlaceholderPrefix());
         if (startIndex == -1) {
             return value;

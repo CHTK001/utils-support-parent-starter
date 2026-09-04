@@ -2,9 +2,8 @@ package com.chua.common.support.lang.view;
 
 import com.chua.common.support.spi.annotations.Spi;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,49 +22,19 @@ import java.util.Map;
 @Spi("kv")
 public class KeyValueViewParser implements ViewParser {
 
-    /**
-     * 空数据占位文本
-     */
-    private static final String EMPTY_PLACEHOLDER = "(empty)";
-
-    /**
-     * 键与值之间的最小间隔列数
-     */
+    /** 键与值之间的最小间隔列数 */
     private static final int KEY_VALUE_GAP = 2;
 
-    /**
-     * 字段读取失败时的占位字符
-     */
-    private static final String UNKNOWN_CELL = "?";
-
-    /**
-     * 空值占位文本
-     */
-    private static final String NULL_VALUE = "null";
-
-    /**
-     * 判断是否支持渲染指定数据。
-     *
-     * @param data 待渲染的数据
-     * @return {@link Map} 或 POJO 返回 true
-     */
     @Override
     public boolean support(Object data) {
         return data instanceof Map || isPojo(data);
     }
 
-    /**
-     * 将数据渲染为 {@code key: value} 格式。
-     *
-     * @param data 待渲染的数据
-     * @return 键值对文本；空数据返回 {@value #EMPTY_PLACEHOLDER}
-     */
-    @SuppressWarnings("unchecked")
     @Override
     public String render(Object data) {
         Map<String, String> map = toKeyValue(data);
         if (map.isEmpty()) {
-            return EMPTY_PLACEHOLDER;
+            return ViewFormatter.EMPTY_PLACEHOLDER;
         }
         int maxKeyLen = map.keySet().stream().mapToInt(String::length).max().orElse(0);
         StringBuilder sb = new StringBuilder();
@@ -76,7 +45,6 @@ public class KeyValueViewParser implements ViewParser {
             }
             sb.append(entry.getValue()).append('\n');
         }
-        // 移除末尾换行
         if (sb.length() > 0) {
             sb.setLength(sb.length() - 1);
         }
@@ -101,17 +69,13 @@ public class KeyValueViewParser implements ViewParser {
         Map<String, String> result = new LinkedHashMap<>();
         Class<?> type = data.getClass();
         while (type != null && type != Object.class) {
-            for (Field f : type.getDeclaredFields()) {
-                // 跳过静态字段，仅展示实例字段
-                if (Modifier.isStatic(f.getModifiers())) {
-                    continue;
-                }
+            for (var f : ViewFormatter.extractFields(type)) {
                 try {
                     f.setAccessible(true);
                     Object val = f.get(data);
-                    result.put(f.getName(), val != null ? val.toString() : NULL_VALUE);
+                    result.put(f.getName(), val != null ? val.toString() : "null");
                 } catch (Exception e) {
-                    result.put(f.getName(), UNKNOWN_CELL);
+                    result.put(f.getName(), ViewFormatter.UNKNOWN_CELL);
                 }
             }
             type = type.getSuperclass();
@@ -142,11 +106,6 @@ public class KeyValueViewParser implements ViewParser {
         return true;
     }
 
-    /**
-     * 获取解析器顺序。
-     *
-     * @return 顺序值
-     */
     @Override
     public int getOrder() {
         return 10;

@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Bean;
  * @author CH
  * @since 2026/09/03
  */
-@AutoConfiguration
+@AutoConfiguration(before = UtilsSpringBootAutoConfiguration.class)
 @ConditionalOnClass(CollapsibleAdvisor.class)
 @ConditionalOnProperty(prefix = "collapse.executor", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(CollapseProperties.class)
