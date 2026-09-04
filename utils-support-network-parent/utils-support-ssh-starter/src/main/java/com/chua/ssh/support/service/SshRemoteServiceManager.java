@@ -270,7 +270,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         String winPath = normalizeWindowsPath(remoteJarPath);
         String remoteDir = Path.of(winPath).getParent().toString().replace("\\", "/");
         execAndWait("powershell -Command \"New-Item -ItemType Directory -Path '" + remoteDir + "' -Force | Out-Null\"");
-        execAndWait("sc.exe create \"" + serviceName + "\" binPath= \"" + startCmd + "\" start= auto");
+        // 将 startCmd 中的 Linux 风格路径替换为 Windows 绝对路径
+        String winStartCmd = replaceToken(startCmd, remoteJarPath, winPath);
+        execAndWait("sc.exe create \"" + serviceName + "\" binPath= \"" + winStartCmd + "\" start= auto");
         execAndWait("sc.exe description \"" + serviceName + "\" \"" + serviceName + " service\"");
         execAndWait("sc.exe failure \"" + serviceName + "\" reset= 86400 actions= restart/60000");
         log.info("[service-remote] Windows 服务安装完成: {}", serviceName);
