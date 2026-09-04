@@ -23,7 +23,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <release>25</release>
-                    <failOnError>false</failOnError>
                     <fork>false</fork>
                     <compilerArgs>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>

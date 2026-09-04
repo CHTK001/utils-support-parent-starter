@@ -3,6 +3,7 @@ package com.chua.spring.support.proxy.intercept;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.spring.support.configuration.SpringBeanUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
@@ -18,7 +19,11 @@ import java.lang.reflect.Method;
  * </ul>
  *
  * <p>方法查找兼容签名差异：优先精确匹配，其次按"参数个数相同且目标方法参数可赋给降级方法参数"宽松匹配；
- * 容器未初始化、Bean 或方法不存在、调用异常时均返回 {@code null}（调用方决定后续兜底行为），不阻断主流程。</p>
+ * Bean 或方法不存在、调用异常时均返回 {@code null}（调用方决定后续兜底行为），不阻断主流程。</p>
+ *
+ * <p>容器解析优先级：{@link SpringBeanUtils} 线程绑定上下文（ThreadLocal）→
+ * {@link #registerApplicationContext(ApplicationContext)} 注册的全局容器
+ * （由 {@link CollapsibleIntercept} 在 Spring 装配时注入，跨线程可用）。</p>
  *
  * @author CH
  * @since 2026/09/03
@@ -31,7 +36,24 @@ public final class FallbackResolver {
      */
     private static final String SEPARATOR = "#";
 
+    /**
+     * 全局降级 Bean 容器（Spring 装配时注册，线程无关；ThreadLocal 上下文不可用时回退）
+     */
+    private static volatile ApplicationContext fallbackContext;
+
     private FallbackResolver() {
+    }
+
+    /**
+     * 注册全局降级 Bean 容器。
+     *
+     * <p>{@link SpringBeanUtils} 的上下文为线程绑定（ThreadLocal），并发调用线程取不到；
+     * 此处注册的全局容器供任意线程解析 {@code bean#method} 降级。</p>
+     *
+     * @param applicationContext Spring 容器
+     */
+    public static void registerApplicationContext(ApplicationContext applicationContext) {
+        fallbackContext = applicationContext;
     }
 
     /**
@@ -76,18 +98,36 @@ public final class FallbackResolver {
                                             String methodName,
                                             Object[] args,
                                             Class<?>[] paramTypes) throws Exception {
-        Object bean;
-        try {
-            bean = SpringBeanUtils.getBean(beanName, Object.class);
-        } catch (Throwable throwable) {
-            log.warn("Spring 容器未就绪或 Bean 不存在: beanName={}", beanName);
-            return null;
-        }
+        Object bean = lookupBean(beanName);
         if (bean == null) {
-            log.warn("未找到降级 Bean: beanName={}", beanName);
             return null;
         }
         return resolveMethod(bean, methodName, args, paramTypes);
+    }
+
+    /**
+     * 按名称查找降级 Bean：优先线程绑定上下文，其次全局注册容器。
+     *
+     * @param beanName Bean 名称
+     * @return Bean 实例，不可用时返回 null
+     */
+    private static Object lookupBean(String beanName) {
+        try {
+            return SpringBeanUtils.getBean(beanName, Object.class);
+        } catch (Throwable throwable) {
+            // 线程绑定上下文不可用（并发调用线程）时回退全局注册容器
+            ApplicationContext context = fallbackContext;
+            if (context == null) {
+                log.warn("Spring 容器未就绪或 Bean 不存在: beanName={}", beanName);
+                return null;
+            }
+            try {
+                return context.getBean(beanName, Object.class);
+            } catch (Throwable ignored) {
+                log.warn("未找到降级 Bean: beanName={}", beanName);
+                return null;
+            }
+        }
     }
 
     /**

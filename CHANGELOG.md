@@ -15,12 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `@Collapsible` annotation + `CollapsibleAdvisor`/`CollapsibleIntercept` in spring-starter (v2 merge-and-split semantics: single Collection input + Map return; non-Map degrades to same-key collapse; empty input / missing SPI degrades to direct execution)
   - `CollapseAutoConfiguration` in springboot-starter (toggle `collapse.executor.enabled`, default enabled) registered in `AutoConfiguration.imports`
 - `fallback` now supports `beanName#methodName` references via new `FallbackResolver`, applied to `@RateLimiter`/`@CircuitBreaker`/`@Bulkhead`/`@Timeout` (deduplicated 4 private implementations)
+- Collapse enhancements:
+  - `@Collapsible` gains `key()` (SpEL): elements are deduplicated/merged by a key extracted from each element, enabling merge-and-split for entities whose key differs from the element itself (identity behavior when empty)
+  - `@Collapsible` gains `fallback()`: collapse batch failure degrades per-caller via `FallbackResolver` (`beanName#methodName` or same-class method)
+  - Global defaults via Spring Boot `collapse.executor.wait-threshold` / `collapse.executor.collecting-wait-time` (new `CollapseProperties`; annotation sentinels `-1`/`-2` mean "unset", falling back to global then built-in defaults)
+  - Collapse metrics: `CollapseExecutor.metrics()` (default empty) and `DefaultCollapseExecutor` statistics (`executedCount`, `batchExecutionCount`, `avgBatchSize`, `maxBatchSize`, `mergeRate`)
+  - JUnit regression tests: `DefaultCollapseExecutorTest` (collapse-starter), `FallbackResolverTest` + `CollapsibleInterceptTest` (spring-starter), runnable via `mvn test` (junit-jupiter 6.0.3 test-scope added to both modules)
 
 ### Fixed
 - `CollapsibleIntercept` no longer extends `AbstractMethodAnnotationIntercept` (its placeholder resolver NPEs on instantiation without a placeholder environment), so it can be created inside a Spring container
 - `@Collapsible` annotation lookup failed under interface/JDK dynamic proxies: `CollapsibleAdvisor` now resolves annotations through the target class (`getMostSpecificMethod` + `Advised.getTargetSource`)
 - CGLIB proxy class names (`$$SpringCGLIB$$`) polluted collapse executor names: default names now use `ClassUtils.getUserClass`
 - Spring 7 removed `ClassUtils.findMethod`: fallback resolution switched to `getMethodIfAvailable`
+- `beanName#methodName` fallback failed on non-calling threads: `SpringBeanUtils` holds the context in a ThreadLocal, so `FallbackResolver` now falls back to a globally registered context (registered by `CollapsibleIntercept` via `ApplicationContextAware`)
+- `CollapseConfig` now rejects negative `waitThreshold` (`IllegalArgumentException`; `0` = execute immediately)
+- common-starter: removed `maven-compiler-plugin` `failOnError=false` (module now compiles cleanly, so compile errors fail the build instead of being masked)
 
 ## [4.0.0.42] - 2026-07-25
 
