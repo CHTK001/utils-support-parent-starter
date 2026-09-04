@@ -4,12 +4,14 @@ import com.chua.common.support.network.client.HttpApiOptions;
 import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.client.HttpInterceptor;
+import com.chua.common.support.network.http.HttpVersion;
 import com.chua.common.support.network.invoker.filter.InjectCallback;
 import com.chua.common.support.network.invoker.filter.SharedInvocationContext;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 基于 {@link com.chua.common.support.network.client.HttpApiFactory} 的默认 HTTP 调用器实现。
@@ -160,6 +162,118 @@ public class HttpInvoker implements Invoker {
     }
 
     /**
+     * 添加默认请求头（当前 Invoker 生成的代理每次调用自动携带）。
+     *
+     * @param name  请求头名称，如 {@code "Accept"}
+     * @param value 请求头值，如 {@code "application/json"}
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker header(String name, String value) {
+        options().header(name, value);
+        return this;
+    }
+
+    /**
+     * 批量添加默认请求头。
+     *
+     * @param headers 请求头 Map
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker headers(Map<String, String> headers) {
+        options().headers(headers);
+        return this;
+    }
+
+    /**
+     * 设置默认连接超时（毫秒）。
+     *
+     * @param timeout 连接超时，-1 表示使用执行器默认值
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker connectTimeout(long timeout) {
+        options().connectTimeout(timeout);
+        return this;
+    }
+
+    /**
+     * 设置默认读取超时（毫秒）。
+     *
+     * @param timeout 读取超时，-1 表示使用执行器默认值
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker readTimeout(long timeout) {
+        options().readTimeout(timeout);
+        return this;
+    }
+
+    /**
+     * 设置默认写入超时（毫秒）。
+     *
+     * @param timeout 写入超时，-1 表示使用执行器默认值
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker writeTimeout(long timeout) {
+        options().writeTimeout(timeout);
+        return this;
+    }
+
+    /**
+     * 设置默认最大重试次数。
+     *
+     * @param retries 最大重试次数，-1 表示不重试
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker retry(int retries) {
+        options().retry(retries);
+        return this;
+    }
+
+    /**
+     * 设置默认响应缓存有效期（毫秒）。
+     *
+     * @param ttlMs 缓存有效期，-1 表示不缓存
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker cache(long ttlMs) {
+        options().cache(ttlMs);
+        return this;
+    }
+
+    /**
+     * 设置默认是否跟随重定向。
+     *
+     * @param follow true 跟随重定向，false 不跟随
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker followRedirects(boolean follow) {
+        options().followRedirects(follow);
+        return this;
+    }
+
+    /**
+     * 设置默认 HTTP 协议版本。
+     *
+     * @param version HTTP 版本（HTTP_1_1 / HTTP_2）
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker version(HttpVersion version) {
+        options().version(version);
+        return this;
+    }
+
+    /**
+     * 设置默认 HTTP 代理。
+     *
+     * @param host 代理服务器主机名或 IP 地址
+     * @param port 代理服务器端口号
+     * @return 当前实例（链式调用）
+     */
+    public HttpInvoker proxy(String host, int port) {
+        options().proxy(host, port);
+        return this;
+    }
+
+    /**
      * 获取已注册的应用层拦截器（只读）。
      *
      * @return 应用层拦截器列表
@@ -213,9 +327,15 @@ public class HttpInvoker implements Invoker {
      * @return true 表示未做任何自定义，可走快捷路径
      */
     private boolean isDefault() {
-        return options == null
-                || (options.getBaseUrl() == null && options.getClient() == null
+        if (options == null) {
+            return true;
+        }
+        return options.getBaseUrl() == null && options.getClient() == null
                 && options.getInterceptors().isEmpty() && options.getNetworkInterceptors().isEmpty()
-                && options.getInjectRules().isEmpty());
+                && options.getInjectRules().isEmpty() && options.getDefaultHeaders().isEmpty()
+                && options.getConnectTimeout() < 0 && options.getReadTimeout() < 0
+                && options.getWriteTimeout() < 0 && options.getMaxRetries() < 0
+                && options.getCacheTtl() < 0 && options.getFollowRedirects() == null
+                && options.getVersion() == null && options.getProxyHost() == null;
     }
 }
