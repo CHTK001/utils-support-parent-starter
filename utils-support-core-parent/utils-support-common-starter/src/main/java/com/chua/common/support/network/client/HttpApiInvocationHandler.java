@@ -1,5 +1,6 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.lang.bean.BeanPath;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.placeholder.PlaceholderSupport;
 import com.chua.common.support.lang.placeholder.StringValuePropertyResolver;
@@ -284,6 +285,100 @@ public class HttpApiInvocationHandler implements InvocationHandler {
 
         // 6. 响应转换
         return convertResponse(resp, meta);
+    }
+
+    /**
+     * 应用方法级注解（@RemoteHeader 静态请求头 + @RemoteInject 结果注入）。
+     *
+     * <p>与 {@link IpcInvoker} 行为对齐：</p>
+     * <ul>
+     *   <li>{@link RemoteHeader} — 方法级静态请求头，值支持 {@code ${...}} 占位符解析</li>
+     *   <li>{@link RemoteInject} — 从 {@code result.*}/{@code args[i]}/{@code attributes.*} 来源
+     *       提取值，按 {@code format} 格式化后注入到 {@code headers.X} 或 {@code attributes.X}</li>
+     * </ul>
+     *
+     * @param meta    方法元数据
+     * @param args    方法入参
+     * @param headers 请求头容器（就地修改）
+     */
+    private void applyMethodAnnotations(MethodMetadata meta, Object[] args, Map<String, String> headers) {
+        // 方法级 @RemoteHeader：静态请求头
+        RemoteHeader[] staticHeaders = meta.method.getAnnotationsByType(RemoteHeader.class);
+        for (RemoteHeader rh : staticHeaders) {
+            String value = resolvePlaceholders(rh.value());
+            if (!StringUtils.isEmpty(value)) {
+                headers.put(rh.name(), value);
+            }
+        }
+
+        // 方法级 @RemoteInject：来源提取 + 目标注入
+        RemoteInject[] injects = meta.method.getAnnotationsByType(RemoteInject.class);
+        if (injects.length > 0) {
+            BeanPath beanPath = BeanPath.getInstance();
+            if (beanPath != null) {
+                for (RemoteInject ri : injects) {
+                    Object sourceValue = resolveRemoteSource(ri.source(), meta, args, beanPath);
+                    if (sourceValue == null) {
+                        continue;
+                    }
+                    String value = sourceValue.toString();
+                    if (!StringUtils.isEmpty(ri.format())) {
+                        value = ri.format().replace("{0}", value);
+                    }
+                    if (ri.target().startsWith("headers.")) {
+                        headers.put(ri.target().substring(8), value);
+                    } else if (ri.target().startsWith("attributes.")) {
+                        meta.attributes.put(ri.target().substring(11), value);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 解析 @RemoteInject 的 source 来源。
+     *
+     * @param source   来源路径（result.* / args[i] / attributes.* 或 BeanPath 表达式）
+     * @param meta     方法元数据
+     * @param args     方法入参
+     * @param beanPath BeanPath 实例
+     * @return 来源值，解析不到返回 null
+     */
+    private Object resolveRemoteSource(String source, MethodMetadata meta, Object[] args, BeanPath beanPath) {
+        if (source.startsWith("result.")) {
+            return beanPath.getValue(meta.result, source.substring(7));
+        }
+        if (source.startsWith("args[")) {
+            int end = source.indexOf(']');
+            if (end > 0) {
+                int idx = Integer.parseInt(source.substring(5, end));
+                if (idx < 0 || idx >= (args != null ? args.length : 0)) {
+                    return null;
+                }
+                String rest = source.substring(end + 1);
+                if (rest.startsWith(".")) {
+                    rest = rest.substring(1);
+                }
+                return rest.isEmpty() ? args[idx] : beanPath.getValue(args[idx], rest);
+            }
+        }
+        if (source.startsWith("attributes.")) {
+            return meta.attributes.get(source.substring(11));
+        }
+        return null;
+    }
+
+    /**
+     * 解析文本中的占位符（{@code ${...}} 环境变量/系统属性）。
+     *
+     * @param text 原始文本
+     * @return 解析后的文本
+     */
+    private String resolvePlaceholders(String text) {
+        if (StringUtils.isEmpty(text) || !text.contains("${")) {
+            return text;
+        }
+        return propertyResolver.resolvePlaceholders(text);
     }
 
     /**
