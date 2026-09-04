@@ -127,6 +127,14 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     private final HttpClient httpClient;
 
     /**
+     * 请求级注入规则（与 {@code @RemoteInject} 注解功能一致的编程式注入）。
+     *
+     * <p>由 {@link HttpInvoker#addInject(String, InjectCallback)} 注册，每次远程调用前执行，
+     * 将回调返回值注入到请求头或共享属性。不可变，构造时确定。</p>
+     */
+    private final List<SharedInvocationContext.InjectRule> injectRules;
+
+    /**
      * 构造处理器并预解析 baseUrl
      *
      * @param apiClass 要代理的接口类
@@ -142,7 +150,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      * {@link HttpClient}（含拦截器）等。options 为 null 时使用默认配置。</p>
      *
      * @param apiClass 要代理的接口类
-     * @param options  自定义配置（baseUrl/客户端/拦截器），可为 null
+     * @param options  自定义配置（baseUrl/客户端/拦截器/注入规则），可为 null
      */
     public HttpApiInvocationHandler(Class<?> apiClass, HttpApiOptions options) {
         this.apiClass = apiClass;
@@ -152,6 +160,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         this.propertyResolver = new StringValuePropertyResolver(ps);
         this.httpClient = options != null ? options.resolveClient() : HttpClientFactory.getClient();
         this.baseUrl = resolveBaseUrl(apiClass, options);
+        this.injectRules = options != null ? options.getInjectRules() : List.of();
     }
 
     /**
@@ -227,6 +236,9 @@ public class HttpApiInvocationHandler implements InvocationHandler {
                 }
             }
         }
+
+        // 3. 应用编程式注入规则（与 @RemoteInject 功能一致，见 HttpInvoker#addInject）
+        Map<String, Object> attributes = applyInjectRules(meta, args, headers);
 
         // 3. 拼接完整 URL（兼容 baseUrl 与 path 之间的斜杠）
         String fullUrl = baseUrl;
