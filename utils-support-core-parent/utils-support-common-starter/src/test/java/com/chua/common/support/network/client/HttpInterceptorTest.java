@@ -261,7 +261,7 @@ class HttpInterceptorTest {
         assertNotNull(captured[0]);
         assertEquals("Bearer token-999", captured[0].getHeader("Authorization"));
         assertEquals("trace-abc", captured[0].getHeader("X-Trace-Id"));
-        assertEquals("/api/user", captured[0].getUrl());
+        assertEquals("http://example.com/api/user", captured[0].getUrl());
     }
 
     /**
