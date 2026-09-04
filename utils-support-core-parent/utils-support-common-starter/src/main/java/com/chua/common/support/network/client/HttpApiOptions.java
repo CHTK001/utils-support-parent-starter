@@ -298,6 +298,194 @@ public class HttpApiOptions {
     }
 
     /**
+     * 获取默认请求头（只读）。
+     *
+     * @return 默认请求头，不会返回 null
+     */
+    public Map<String, String> getDefaultHeaders() {
+        return java.util.Collections.unmodifiableMap(defaultHeaders);
+    }
+
+    /**
+     * 添加默认请求头（每次远程调用自动携带）。
+     *
+     * @param name  请求头名称
+     * @param value 请求头值
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions header(String name, String value) {
+        if (name != null && value != null) {
+            defaultHeaders.put(name, value);
+        }
+        return this;
+    }
+
+    /**
+     * 批量添加默认请求头。
+     *
+     * @param headers 请求头 Map
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions headers(Map<String, String> headers) {
+        if (headers != null) {
+            headers.forEach(this::header);
+        }
+        return this;
+    }
+
+    /**
+     * 获取连接超时（毫秒）。
+     *
+     * @return 连接超时，-1 表示未设置
+     */
+    public long getConnectTimeout() { return connectTimeout; }
+
+    /**
+     * 设置连接超时（毫秒）。
+     *
+     * @param timeout 连接超时，-1 表示使用执行器默认值
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions connectTimeout(long timeout) { this.connectTimeout = timeout; return this; }
+
+    /**
+     * 获取读取超时（毫秒）。
+     *
+     * @return 读取超时，-1 表示未设置
+     */
+    public long getReadTimeout() { return readTimeout; }
+
+    /**
+     * 设置读取超时（毫秒）。
+     *
+     * @param timeout 读取超时，-1 表示使用执行器默认值
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions readTimeout(long timeout) { this.readTimeout = timeout; return this; }
+
+    /**
+     * 获取写入超时（毫秒）。
+     *
+     * @return 写入超时，-1 表示未设置
+     */
+    public long getWriteTimeout() { return writeTimeout; }
+
+    /**
+     * 设置写入超时（毫秒）。
+     *
+     * @param timeout 写入超时，-1 表示使用执行器默认值
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions writeTimeout(long timeout) { this.writeTimeout = timeout; return this; }
+
+    /**
+     * 获取最大重试次数。
+     *
+     * @return 最大重试次数，-1 表示未设置
+     */
+    public int getMaxRetries() { return maxRetries; }
+
+    /**
+     * 设置最大重试次数。
+     *
+     * @param retries 最大重试次数，-1 表示不重试
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions retry(int retries) { this.maxRetries = retries; return this; }
+
+    /**
+     * 获取缓存有效期（毫秒）。
+     *
+     * @return 缓存有效期，-1 表示未设置
+     */
+    public long getCacheTtl() { return cacheTtl; }
+
+    /**
+     * 设置响应缓存有效期（毫秒）。
+     *
+     * @param ttlMs 缓存有效期，-1 表示不缓存
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions cache(long ttlMs) { this.cacheTtl = ttlMs; return this; }
+
+    /**
+     * 获取是否跟随重定向。
+     *
+     * @return 是否跟随重定向，null 表示未设置
+     */
+    public Boolean getFollowRedirects() { return followRedirects; }
+
+    /**
+     * 设置是否跟随重定向。
+     *
+     * @param follow true 跟随重定向，false 不跟随
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions followRedirects(boolean follow) { this.followRedirects = follow; return this; }
+
+    /**
+     * 获取 HTTP 协议版本。
+     *
+     * @return HTTP 版本，null 表示未设置
+     */
+    public HttpVersion getVersion() { return version; }
+
+    /**
+     * 设置 HTTP 协议版本。
+     *
+     * @param version HTTP 版本（HTTP_1_1 / HTTP_2）
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions version(HttpVersion version) { this.version = version; return this; }
+
+    /**
+     * 获取代理主机名。
+     *
+     * @return 代理主机名，null 表示未设置
+     */
+    public String getProxyHost() { return proxyHost; }
+
+    /**
+     * 获取代理端口号。
+     *
+     * @return 代理端口号
+     */
+    public int getProxyPort() { return proxyPort; }
+
+    /**
+     * 设置 HTTP 代理。
+     *
+     * @param host 代理主机名
+     * @param port 代理端口号
+     * @return 当前配置实例（链式调用）
+     */
+    public HttpApiOptions proxy(String host, int port) {
+        this.proxyHost = host;
+        this.proxyPort = port;
+        return this;
+    }
+
+    /**
+     * 将请求级默认配置应用到 {@link RequestSpec}。
+     *
+     * <p>仅应用用户显式设置的配置（哨兵值 -1 / null 跳过），由
+     * {@link HttpApiInvocationHandler} 在每次远程调用前调用。</p>
+     *
+     * @param spec 目标 RequestSpec
+     */
+    public void applyTo(RequestSpec spec) {
+        defaultHeaders.forEach(spec::header);
+        if (connectTimeout >= 0) spec.connectTimeout(connectTimeout);
+        if (readTimeout >= 0) spec.readTimeout(readTimeout);
+        if (writeTimeout >= 0) spec.writeTimeout(writeTimeout);
+        if (maxRetries >= 0) spec.retry(maxRetries);
+        if (cacheTtl >= 0) spec.cache(cacheTtl);
+        if (followRedirects != null) spec.followRedirects(followRedirects);
+        if (version != null) spec.version(version);
+        if (proxyHost != null && !proxyHost.isEmpty()) spec.proxy(proxyHost, proxyPort);
+    }
+
+    /**
      * 解析出实际使用的 HttpClient 实例。
      *
      * <p>解析规则：</p>
