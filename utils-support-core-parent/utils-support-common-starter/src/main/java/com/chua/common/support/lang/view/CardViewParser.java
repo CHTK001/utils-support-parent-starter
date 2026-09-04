@@ -2,8 +2,6 @@ package com.chua.common.support.lang.view;
 
 import com.chua.common.support.spi.annotations.Spi;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,42 +23,18 @@ import java.util.Map;
 @Spi("card")
 public class CardViewParser implements ViewParser {
 
-    /**
-     * 卡片最小宽度
-     */
+    /** 卡片最小宽度 */
     private static final int MIN_WIDTH = 40;
 
-    /**
-     * 单元格左右内边距
-     */
+    /** 单元格左右内边距 */
     private static final int PADDING = 2;
 
-    /**
-     * 键与值之间的最小间隔列数
-     */
+    /** 键与值之间的最小间隔列数 */
     private static final int KEY_VALUE_GAP = 1;
 
-    /**
-     * 空数据占位文本
-     */
-    private static final String EMPTY_PLACEHOLDER = "(empty)";
-
-    /**
-     * 卡片标题：Map 类型专用
-     */
+    /** Map 类型专用标题 */
     private static final String MAP_TITLE = "Map";
 
-    /**
-     * 新行字符
-     */
-    private static final char NEWLINE = '\n';
-
-    /**
-     * 判断是否支持渲染指定数据。
-     *
-     * @param data 待渲染的数据
-     * @return 普通 POJO 或非空 {@link Map} 返回 true，集合/数组/简单类型返回 false
-     */
     @Override
     public boolean support(Object data) {
         if (data == null) {
@@ -79,17 +53,11 @@ public class CardViewParser implements ViewParser {
         return true;
     }
 
-    /**
-     * 将数据渲染为带标题的分隔卡片。
-     *
-     * @param data 待渲染的数据
-     * @return 卡片字符串；空数据返回 {@value #EMPTY_PLACEHOLDER}
-     */
     @Override
     public String render(Object data) {
         Map<String, String> kv = toKeyValue(data);
         if (kv.isEmpty()) {
-            return EMPTY_PLACEHOLDER;
+            return ViewFormatter.EMPTY_PLACEHOLDER;
         }
 
         int maxKeyLen = kv.keySet().stream().mapToInt(String::length).max().orElse(0);
@@ -100,13 +68,13 @@ public class CardViewParser implements ViewParser {
 
         StringBuilder sb = new StringBuilder();
         // 顶线
-        sb.append('┌').append("─".repeat(width - 2)).append('┐').append(NEWLINE);
-        // 标题
+        sb.append('┌').append("─".repeat(width - 2)).append('┐').append('\n');
+        // 标题（居中）
         int titleStart = (width - 2 - title.length()) / 2;
         sb.append('│').append(" ".repeat(titleStart)).append(title);
-        sb.append(" ".repeat(width - 2 - titleStart - title.length())).append('│').append(NEWLINE);
+        sb.append(" ".repeat(width - 2 - titleStart - title.length())).append('│').append('\n');
         // 分隔线
-        sb.append('├').append("─".repeat(width - 2)).append('┤').append(NEWLINE);
+        sb.append('├').append("─".repeat(width - 2)).append('┤').append('\n');
         // 内容行
         for (var entry : kv.entrySet()) {
             String key = entry.getKey();
@@ -118,7 +86,7 @@ public class CardViewParser implements ViewParser {
             if (remain > 0) {
                 sb.append(" ".repeat(remain));
             }
-            sb.append('│').append(NEWLINE);
+            sb.append('│').append('\n');
         }
         // 底线
         sb.append('└').append("─".repeat(width - 2)).append('┘');
@@ -141,17 +109,13 @@ public class CardViewParser implements ViewParser {
         }
         Class<?> type = data.getClass();
         while (type != null && type != Object.class) {
-            for (Field f : type.getDeclaredFields()) {
-                // 跳过静态字段，仅展示实例字段
-                if (Modifier.isStatic(f.getModifiers())) {
-                    continue;
-                }
+            for (var f : ViewFormatter.extractFields(type)) {
                 try {
                     f.setAccessible(true);
                     Object val = f.get(data);
                     result.put(f.getName(), val != null ? val.toString() : "null");
                 } catch (Exception e) {
-                    result.put(f.getName(), "?");
+                    result.put(f.getName(), ViewFormatter.UNKNOWN_CELL);
                 }
             }
             type = type.getSuperclass();
@@ -159,11 +123,6 @@ public class CardViewParser implements ViewParser {
         return result;
     }
 
-    /**
-     * 获取解析器顺序。
-     *
-     * @return 顺序值
-     */
     @Override
     public int getOrder() {
         return 15;
