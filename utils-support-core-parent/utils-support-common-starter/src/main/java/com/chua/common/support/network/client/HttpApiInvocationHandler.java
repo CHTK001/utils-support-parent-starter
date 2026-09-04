@@ -632,6 +632,21 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      */
     @SuppressWarnings("unchecked")
     private Object convertResponse(ClientResponse resp, MethodMetadata meta) {
+        Object converted = convertResponseValue(resp, meta);
+        // 回填 result，供 @RemoteInject(source="result.X") 在后续链式调用中读取
+        meta.result = converted;
+        return converted;
+    }
+
+    /**
+     * 将 HTTP 响应转换为方法签名要求的返回类型。
+     *
+     * @param resp HTTP 响应
+     * @param meta 方法元数据
+     * @return 转换后的结果
+     */
+    @SuppressWarnings("unchecked")
+    private Object convertResponseValue(ClientResponse resp, MethodMetadata meta) {
         Class<?> returnType = meta.method.getReturnType();
         if (returnType == void.class || returnType == Void.class) {
             return null;
@@ -890,6 +905,17 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
          * 形参注解解析结果数组
          */
         final ParamAnnotation[] paramAnnotations;
+        /**
+         * 方法级注入产生的共享属性（@RemoteInject 与编程式注入规则共用）。
+         *
+         * <p>本次调用内有效，供链式注入（attributes.X → headers.Y）与
+         * {@code @RemoteInject(source="attributes.X")} 读取。使用并发容器保证线程安全。</p>
+         */
+        final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        /**
+         * 本次调用的响应转换结果，供 {@code @RemoteInject(source="result.X")} 读取。
+         */
+        volatile Object result;
 
         /**
          * 构造
