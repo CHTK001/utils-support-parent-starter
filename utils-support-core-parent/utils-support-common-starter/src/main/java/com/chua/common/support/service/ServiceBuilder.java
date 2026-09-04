@@ -489,7 +489,7 @@ public class ServiceBuilder implements Closeable {
             if (!manager.isConnected()) {
                 return false;
             }
-            return manager.isRemoteRunning(-1);
+            return manager.isRemoteServiceRunning(builder.serviceName);
         }
 
         /**

@@ -72,6 +72,16 @@ public interface RemoteServiceManager {
     boolean isRemoteRunning(long pid);
 
     /**
+     * 按服务名查询远程服务是否运行（适用于已安装为系统服务的场景）。
+     *
+     * @param serviceName 服务名
+     * @return true 表示正在运行
+     */
+    default boolean isRemoteServiceRunning(String serviceName) {
+        return false;
+    }
+
+    /**
      * 将 jar 文件上传到远程主机。
      *
      * @param localPath  本地 jar 路径

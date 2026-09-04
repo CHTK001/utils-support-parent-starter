@@ -140,6 +140,21 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     @Override
+    public boolean isRemoteServiceRunning(String serviceName) {
+        if (serviceName == null || serviceName.isBlank()) {
+            return false;
+        }
+        requireConnected();
+        try {
+            String out = execAndWait("sc.exe query \"" + serviceName
+                    + "\" | findstr /C:\"RUNNING\"");
+            return StringUtils.isNotBlank(out);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public void uploadJar(String localPath, String remotePath) {
         requireConnected();
         uploadJarIfNeeded(localPath, remotePath);
