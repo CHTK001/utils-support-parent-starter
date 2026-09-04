@@ -212,12 +212,14 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         try {
             String out;
             if (isWindows()) {
-                out = execAndWait("sc.exe query \"" + serviceName
-                        + "\" | findstr /C:\"RUNNING\"");
+                // 中英文系统兼容：RUNNING / 正在运行
+                out = execAndWait("sc.exe query \"" + serviceName + "\"");
+                String upper = out.toUpperCase();
+                return upper.contains("RUNNING") || upper.contains("\u6B63\u5728\u8FD0\u884C");
             } else {
                 out = execAndWait("systemctl is-active " + serviceName + " 2>/dev/null || echo inactive");
+                return StringUtils.isNotBlank(out) && !"inactive".equalsIgnoreCase(out.trim());
             }
-            return StringUtils.isNotBlank(out);
         } catch (Exception e) {
             return false;
         }

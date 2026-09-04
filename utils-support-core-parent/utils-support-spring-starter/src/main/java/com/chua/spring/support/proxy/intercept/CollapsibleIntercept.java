@@ -7,13 +7,13 @@ import com.chua.common.support.concurrent.collapse.CollapseExecutorFactory;
 import com.chua.common.support.concurrent.collapse.CollapseResultMapper;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.annotation.MethodAnnotationIntercept;
-import com.chua.common.support.proxy.intercept.AbstractMethodAnnotationIntercept;
 import com.chua.common.support.proxy.intercept.MethodInvocation;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.spring.support.annotation.Collapsible;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Spi("com.chua.spring.support.annotation.Collapsible")
-public class CollapsibleIntercept extends AbstractMethodAnnotationIntercept
+public class CollapsibleIntercept
         implements MethodAnnotationIntercept<Collapsible>, DisposableBean {
 
     /**
@@ -95,10 +95,31 @@ public class CollapsibleIntercept extends AbstractMethodAnnotationIntercept
             log.warn("未找到折叠执行器工厂 SPI[collapse]，请引入 utils-support-collapse-starter，本次调用不折叠直接执行。");
             return invocation.proceed();
         }
-        String name = resolveName(annotation.name(), proxyMethod);
+        String name = resolveName(annotation, proxyMethod);
         CollapseExecutor<InvocationKey, Object> executor = executors.computeIfAbsent(name,
                 key -> createExecutor(name, annotation, proxyMethod, factory));
         return executor.execute(new InvocationKey(method, (Collection<?>) args[0], proxyMethod, invocation));
+    }
+
+    /**
+     * 解析执行器名称：未显式声明时使用 目标用户类全限定名.方法名。
+     *
+     * <p>目标对象为 AOP 代理时经 {@link ClassUtils#getUserClass(Class)} 还原为用户类，
+     * 避免 CGLIB 代理类名（含 {@code $$SpringCGLIB$$} 后缀）污染执行器名称。</p>
+     *
+     * @param annotation  折叠注解
+     * @param proxyMethod 被拦截方法信息
+     * @return 执行器名称
+     */
+    private String resolveName(Collapsible annotation, ProxyMethod proxyMethod) {
+        String name = annotation.name();
+        if (name == null || name.isBlank()) {
+            Method method = proxyMethod.getMethod();
+            Object target = proxyMethod.getTarget();
+            Class<?> type = target != null ? ClassUtils.getUserClass(target) : method.getDeclaringClass();
+            return type.getName() + "." + method.getName();
+        }
+        return name;
     }
 
     /**
@@ -116,8 +137,8 @@ public class CollapsibleIntercept extends AbstractMethodAnnotationIntercept
                                                                    CollapseExecutorFactory factory) {
         CollapseConfig config = new CollapseConfig();
         config.setName(name);
-        config.setWaitThreshold(resolveInt(annotation.waitThreshold(), 10, proxyMethod));
-        config.setCollectingWaitTime(resolveLong(annotation.collectingWaitTime(), 0, proxyMethod));
+        config.setWaitThreshold(annotation.waitThreshold());
+        config.setCollectingWaitTime(annotation.collectingWaitTime());
         Class<?> returnType = proxyMethod.getMethod().getReturnType();
         if (Map.class.isAssignableFrom(returnType)) {
             // v2：整批合并执行一次 + 按元素归属拆分回填

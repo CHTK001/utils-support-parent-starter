@@ -76,20 +76,6 @@ public class BulkheadIntercept extends AbstractMethodAnnotationIntercept impleme
      * @return 回退方法的返回值，找不到时返回 null
      */
     private Object resolveFallback(Bulkhead annotation, ProxyMethod proxyMethod) {
-        if (!StringUtils.hasText(annotation.fallback())) {
-            return null;
-        }
-        Object target = proxyMethod.getTarget();
-        if (target != null) {
-            Method fallbackMethod = ClassUtils.findMethod(target.getClass(), annotation.fallback(), proxyMethod.getParameterTypes());
-            if (fallbackMethod != null) {
-                try {
-                    return ReflectUtils.invoke(target, fallbackMethod.getName(), fallbackMethod.getReturnType(), fallbackMethod.getParameterTypes(), proxyMethod.getArgs());
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-        }
-        return null;
+        return FallbackResolver.resolve(annotation.fallback(), proxyMethod);
     }
 }

@@ -69,6 +69,12 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-datasource-starter</artifactId>
+            <version>4.0.0.42</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

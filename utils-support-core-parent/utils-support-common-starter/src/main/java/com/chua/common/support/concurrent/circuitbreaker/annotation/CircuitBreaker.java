@@ -65,6 +65,13 @@ public @interface CircuitBreaker {
     /**
      * 熔断拒绝时调用的回退方法名。
      *
+     * <p>支持两种引用形式：</p>
+     * <ul>
+     *   <li>{@code methodName}：目标方法同类的同名方法（参数签名一致）；</li>
+     *   <li>{@code beanName#methodName}：Spring 容器中指定 Bean 的方法
+     *       （可将降级方法收敛到公共降级 Bean，如统一空降级）。</li>
+     * </ul>
+     *
      * @return 回退方法名，为空时抛出熔断异常
      */
     String fallback() default "";
