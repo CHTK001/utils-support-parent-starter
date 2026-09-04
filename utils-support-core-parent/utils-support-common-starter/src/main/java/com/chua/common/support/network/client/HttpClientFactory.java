@@ -163,7 +163,8 @@ public class HttpClientFactory {
      * @return 折叠 HTTP 客户端
      */
     public static HttpClient collapse(HttpClient delegate) {
-        return new CollapseHttpClient(delegate);
+        // 包装外部客户端时默认不级联关闭，避免关闭折叠客户端误关共享底层实例
+        return new CollapseHttpClient(delegate, null, false);
     }
 
     /**
@@ -177,7 +178,8 @@ public class HttpClientFactory {
      * @return 折叠 HTTP 客户端
      */
     public static HttpClient collapse(HttpClient delegate, CollapseConfig config) {
-        return new CollapseHttpClient(delegate, config);
+        // 包装外部客户端时默认不级联关闭，避免关闭折叠客户端误关共享底层实例
+        return new CollapseHttpClient(delegate, config, false);
     }
 
     /**

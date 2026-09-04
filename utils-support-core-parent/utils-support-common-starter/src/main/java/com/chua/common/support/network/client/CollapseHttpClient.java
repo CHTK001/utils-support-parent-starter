@@ -61,12 +61,17 @@ public class CollapseHttpClient implements HttpClient {
     private final CollapseFlow<HttpCollapseTask, ClientResponse> flow;
 
     /**
+     * 关闭时是否级联关闭底层客户端（默认 true）
+     */
+    private final boolean closeDelegate;
+
+    /**
      * 构造折叠 HTTP 客户端。
      *
      * @param delegate 底层 HTTP 客户端，不可为空
      */
     public CollapseHttpClient(HttpClient delegate) {
-        this(delegate, null);
+        this(delegate, null, true);
     }
 
     /**
@@ -76,7 +81,23 @@ public class CollapseHttpClient implements HttpClient {
      * @param config   折叠配置，可为空（使用默认配置）
      */
     public CollapseHttpClient(HttpClient delegate, CollapseConfig config) {
+        this(delegate, config, true);
+    }
+
+    /**
+     * 构造折叠 HTTP 客户端。
+     *
+     * <p>当包装的底层客户端为共享实例（如 {@link HttpClientFactory#getClient()} 全局单例）时，
+     * 建议将 {@code closeDelegate} 设为 {@code false}，避免关闭折叠客户端误关底层共享实例；
+     * 需要完全级联关闭时保持 {@code true}。</p>
+     *
+     * @param delegate      底层 HTTP 客户端，不可为空
+     * @param config        折叠配置，可为空（使用默认配置）
+     * @param closeDelegate 关闭时是否级联关闭底层客户端
+     */
+    public CollapseHttpClient(HttpClient delegate, CollapseConfig config, boolean closeDelegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate must not be null.");
+        this.closeDelegate = closeDelegate;
         String name = config == null ? DEFAULT_FLOW_NAME : config.getName();
         CollapseBatchFunction<HttpCollapseTask, ClientResponse> batchFunction = tasks -> {
             HttpCollapseTask first = tasks.iterator().next();
@@ -158,10 +179,15 @@ public class CollapseHttpClient implements HttpClient {
         return delegate.getNetworkInterceptors();
     }
 
+    /**
+     * 关闭折叠客户端：始终关闭折叠执行器；是否级联关闭底层客户端由 {@code closeDelegate} 决定。
+     */
     @Override
     public void close() {
         flow.close();
-        delegate.close();
+        if (closeDelegate) {
+            delegate.close();
+        }
     }
 
     /**
