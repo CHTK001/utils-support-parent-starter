@@ -45,19 +45,56 @@ public @interface Collapsible {
     String name() default "";
 
     /**
-     * 批量收集的最小阈值，达到该数量的调用后立即执行，默认 10。
+     * 元素归约键（SpEL 表达式）。
+     *
+     * <p>合并拆分模式下，窗口内全部调用的元素按该表达式提取归约键去重并集，
+     * 核心方法执行一次后按各调用者元素的归约键拆分回填。为空时元素自身即键
+     * （要求方法返回 {@code Map} 且 key = 元素，兼容默认语义）。</p>
+     *
+     * <p>表达式基于元素对象求值，如 {@code "id"}、{@code "#this.id"}、{@code "getKey()"}；
+     * 支持同参合并场景下将元素映射为统一键（如实体按业务键归约）。</p>
+     *
+     * @return 元素归约键 SpEL 表达式
+     */
+    String key() default "";
+
+    /**
+     * 折叠执行失败时调用的降级方法。
+     *
+     * <p>支持两种引用形式：</p>
+     * <ul>
+     *   <li>{@code methodName}：目标方法同类的同名方法（参数签名一致）；</li>
+     *   <li>{@code beanName#methodName}：Spring 容器中指定 Bean 的方法
+     *       （可将降级方法收敛到公共降级 Bean，如统一空降级）。</li>
+     * </ul>
+     *
+     * <p>降级方法返回值非 null 视为降级成功；降级不可用（未配置/Bean 或方法不存在/返回 null）
+     * 时抛出原始异常。</p>
+     *
+     * @return 降级方法引用，为空时折叠失败直接抛原始异常
+     */
+    String fallback() default "";
+
+    /**
+     * 批量收集的最小阈值，达到该数量的调用后立即执行。
+     *
+     * <p>{@code -1} 表示未显式指定：生效值取全局默认配置
+     * （Spring Boot {@code collapse.executor.wait-threshold}），未配置全局时使用内置默认 10。</p>
      *
      * @return 批量收集阈值
      */
-    int waitThreshold() default 10;
+    int waitThreshold() default -1;
 
     /**
      * 未达到阈值时的补收等待时间（毫秒）。
      *
-     * <p>小于 0：立即执行；等于 0（默认）：让出当前收集线程时间片后补收一次；
+     * <p>小于 0：立即执行；等于 0：让出当前收集线程时间片后补收一次；
      * 大于 0：等待指定毫秒后再补收。</p>
+     *
+     * <p>{@code -2} 表示未显式指定：生效值取全局默认配置
+     * （Spring Boot {@code collapse.executor.collecting-wait-time}），未配置全局时使用内置默认 0。</p>
      *
      * @return 补收等待时间（毫秒）
      */
-    long collectingWaitTime() default 0;
+    long collectingWaitTime() default -2;
 }

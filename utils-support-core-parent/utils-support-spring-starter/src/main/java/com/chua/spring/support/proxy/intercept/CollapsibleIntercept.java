@@ -13,6 +13,9 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.spring.support.annotation.Collapsible;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * 折叠拦截器，处理 {@link Collapsible} 注解标注的方法。
@@ -99,7 +103,107 @@ public class CollapsibleIntercept
         String name = resolveName(annotation, proxyMethod);
         CollapseExecutor<InvocationKey, Object> executor = executors.computeIfAbsent(name,
                 key -> createExecutor(name, annotation, proxyMethod, factory));
-        return executor.execute(new InvocationKey(method, (Collection<?>) args[0], proxyMethod, invocation));
+        try {
+            return executor.execute(new InvocationKey(method, (Collection<?>) args[0], proxyMethod, invocation,
+                    resolveKeyExtractor(annotation)));
+        } catch (Throwable throwable) {
+            return resolveFallback(annotation, proxyMethod, throwable);
+        }
+    }
+
+    /**
+     * 折叠执行失败时的降级：注解 fallback 非空时调用降级方法（支持 bean#method 与同类方法名）。
+     *
+     * <p>降级方法返回值非 null 视为降级成功；降级不可用（无 fallback 配置/Bean 或方法不存在/
+     * 降级方法返回 null）时抛出原始异常（Error 不包装直接抛出）。</p>
+     *
+     * @param annotation  折叠注解
+     * @param proxyMethod 被拦截方法信息
+     * @param cause       折叠执行异常
+     * @return 降级结果
+     */
+    private Object resolveFallback(Collapsible annotation, ProxyMethod proxyMethod, Throwable cause) {
+        String fallback = annotation.fallback();
+        if (fallback == null || fallback.isBlank()) {
+            throw collapseException(cause);
+        }
+        Object fallbackResult = FallbackResolver.resolve(fallback, proxyMethod);
+        if (fallbackResult != null) {
+            log.warn("折叠执行失败，已降级处理: {}", cause.getMessage());
+            return fallbackResult;
+        }
+        throw collapseException(cause);
+    }
+
+    /**
+     * 将折叠执行异常包装为可抛出形态（Error 原样抛出，异常包装为 RuntimeException）。
+     *
+     * @param cause 原始异常
+     * @return 可抛出的运行时异常
+     */
+    private static RuntimeException collapseException(Throwable cause) {
+        if (cause instanceof RuntimeException) {
+            return (RuntimeException) cause;
+        }
+        if (cause instanceof Error) {
+            throw (Error) cause;
+        }
+        return new IllegalStateException("折叠执行失败", cause);
+    }
+
+    /**
+     * 全局默认折叠配置（可空）：注解属性未显式指定时生效（Spring Boot 自动装配注入）。
+     */
+    private final CollapseConfig globalDefaults;
+
+    /**
+     * 创建折叠拦截器（无全局默认配置）。
+     */
+    public CollapsibleIntercept() {
+        this(null);
+    }
+
+    /**
+     * 创建折叠拦截器。
+     *
+     * @param globalDefaults 全局默认折叠配置（可空；注解属性未显式指定时生效）
+     */
+    public CollapsibleIntercept(CollapseConfig globalDefaults) {
+        this.globalDefaults = globalDefaults;
+    }
+
+    /**
+     * 解析批量收集阈值：注解显式值优先；未指定时取全局默认，再取内置默认 10。
+     *
+     * @param annotation 折叠注解
+     * @return 批量收集阈值
+     */
+    private int resolveWaitThreshold(Collapsible annotation) {
+        int threshold = annotation.waitThreshold();
+        if (threshold >= 0) {
+            return threshold;
+        }
+        if (globalDefaults != null && globalDefaults.getWaitThreshold() > 0) {
+            return globalDefaults.getWaitThreshold();
+        }
+        return 10;
+    }
+
+    /**
+     * 解析补收等待时间：注解显式值（含 -1 立即执行）优先；未指定（-2）时取全局默认，再取内置默认 0。
+     *
+     * @param annotation 折叠注解
+     * @return 补收等待时间（毫秒）
+     */
+    private long resolveCollectingWaitTime(Collapsible annotation) {
+        long waitTime = annotation.collectingWaitTime();
+        if (waitTime != -2) {
+            return waitTime;
+        }
+        if (globalDefaults != null) {
+            return globalDefaults.getCollectingWaitTime();
+        }
+        return 0;
     }
 
     /**
@@ -148,8 +252,8 @@ public class CollapsibleIntercept
                                                                    CollapseExecutorFactory factory) {
         CollapseConfig config = new CollapseConfig();
         config.setName(name);
-        config.setWaitThreshold(annotation.waitThreshold());
-        config.setCollectingWaitTime(annotation.collectingWaitTime());
+        config.setWaitThreshold(resolveWaitThreshold(annotation));
+        config.setCollectingWaitTime(resolveCollectingWaitTime(annotation));
         Class<?> returnType = proxyMethod.getMethod().getReturnType();
         if (Map.class.isAssignableFrom(returnType)) {
             // v2：整批合并执行一次 + 按元素归属拆分回填
@@ -175,32 +279,33 @@ public class CollapsibleIntercept
                 throw new IllegalStateException("同一折叠执行器混入了不同方法：" + key.method);
             }
         }
-        // 并集与元素归属索引（同一元素可被多个调用者请求）
-        Set<Object> union = new LinkedHashSet<>();
+        // 按归约键去重并集与归属索引（key() SpEL 提取；缺省时元素自身即键，兼容 Map 返回模式）
+        Map<Object, Object> unionElements = new LinkedHashMap<>();
         Map<Object, List<InvocationKey>> owners = new LinkedHashMap<>();
         for (InvocationKey key : inputs) {
             for (Object element : key.collectionArgs) {
-                union.add(element);
-                owners.computeIfAbsent(element, ignored -> new ArrayList<>(2)).add(key);
+                Object collapseKey = key.keyExtractor.apply(element);
+                unionElements.putIfAbsent(collapseKey, element);
+                owners.computeIfAbsent(collapseKey, ignored -> new ArrayList<>(2)).add(key);
             }
         }
-        // 一次核心方法调用（实参 = 并集）
-        Object mergedArg = newCollectionArg(method.getParameterTypes()[0], union);
+        // 一次核心方法调用（实参 = 按归约键去重后的元素集合）
+        Object mergedArg = newCollectionArg(method.getParameterTypes()[0], unionElements.values());
         Object rawResult = invokeCore(first, mergedArg);
         if (!(rawResult instanceof Map)) {
             throw new IllegalStateException("合并拆分模式要求方法返回 Map：" + method);
         }
         Map<?, ?> full = (Map<?, ?>) rawResult;
-        // 按归属拆分回填
+        // 按归属拆分回填（子 Map 键 = 调用者元素的归约键）
         Map<InvocationKey, Object> result = new LinkedHashMap<>();
         for (Map.Entry<Object, List<InvocationKey>> entry : owners.entrySet()) {
-            Object element = entry.getKey();
-            if (!full.containsKey(element)) {
+            Object collapseKey = entry.getKey();
+            if (!full.containsKey(collapseKey)) {
                 continue;
             }
             for (InvocationKey owner : entry.getValue()) {
                 Map<Object, Object> sub = (Map<Object, Object>) result.computeIfAbsent(owner, ignored -> new LinkedHashMap<>());
-                sub.put(element, full.get(element));
+                sub.put(collapseKey, full.get(collapseKey));
             }
         }
         return result;
@@ -277,6 +382,34 @@ public class CollapsibleIntercept
     }
 
     /**
+     * SpEL 表达式解析器（线程安全可复用）
+     */
+    private static final SpelExpressionParser SPEL_PARSER = new SpelExpressionParser();
+
+    /**
+     * key() SpEL 表达式缓存（表达式字符串 -> 编译后表达式）
+     */
+    private static final Map<String, Expression> SPEL_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * 解析元素归约键提取器：注解 key() 非空时按 SpEL 从元素求值，否则元素自身即键。
+     *
+     * @param annotation 折叠注解
+     * @return 元素 -> 归约键 提取函数
+     */
+    private static Function<Object, Object> resolveKeyExtractor(Collapsible annotation) {
+        String key = annotation.key();
+        if (key == null || key.isBlank()) {
+            return Function.identity();
+        }
+        Expression expression = SPEL_CACHE.computeIfAbsent(key, SPEL_PARSER::parseExpression);
+        return element -> {
+            StandardEvaluationContext context = new StandardEvaluationContext(element);
+            return expression.getValue(context);
+        };
+    }
+
+    /**
      * 折叠调用标识：方法 + 实参集合，equals/hashCode 不包含调用上下文。
      *
      * <p>同参折叠模式下 equals 决定合并分组；合并拆分模式下整批执行不依赖 equals。</p>
@@ -303,14 +436,21 @@ public class CollapsibleIntercept
          */
         private final MethodInvocation invocation;
 
+        /**
+         * 元素归约键提取器（key() SpEL；缺省为元素自身，不参与相等比较）
+         */
+        private final Function<Object, Object> keyExtractor;
+
         private InvocationKey(Method method,
                               Collection<?> collectionArgs,
                               ProxyMethod proxyMethod,
-                              MethodInvocation invocation) {
+                              MethodInvocation invocation,
+                              Function<Object, Object> keyExtractor) {
             this.method = method;
             this.collectionArgs = collectionArgs;
             this.proxyMethod = proxyMethod;
             this.invocation = invocation;
+            this.keyExtractor = keyExtractor;
         }
 
         @Override
