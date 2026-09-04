@@ -55,6 +55,15 @@ public class WinRmFileClient implements FileClient {
                 .build();
     }
 
+    /**
+     * 复用已连接的 WinRM 命令客户端构造文件客户端，避免重复认证配置。
+     *
+     * @param execClient 已建立连接的 WinRM 命令客户端
+     */
+    public WinRmFileClient(WinRmExecClient execClient) {
+        this.winrmClient = execClient;
+    }
+
     @Override
     /** 连接 */
     public void connect() throws IOException {

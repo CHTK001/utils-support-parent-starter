@@ -272,25 +272,16 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 懒加载 WinRM 文件客户端，仅首次上传时建立连接。
+     * 懒加载 WinRM 文件客户端，复用已连接的命令客户端。
      */
     private void ensureFileClient() {
         if (fileClient != null) {
             return;
         }
-        ClientSetting setting = ClientSetting.builder()
-                .host(config.host())
-                .port(config.port())
-                .username(config.username())
-                .password(config.password())
-                .build();
-        WinRmFileClient client = new WinRmFileClient(setting);
-        try {
-            client.connect();
-        } catch (IOException e) {
-            throw new RuntimeException("[service-remote] WinRM 文件客户端连接失败", e);
+        if (execClient == null) {
+            throw new IllegalStateException("[service-remote] 请先建立 WinRM 命令客户端连接");
         }
-        this.fileClient = client;
+        this.fileClient = new WinRmFileClient(execClient);
     }
 
     /**
