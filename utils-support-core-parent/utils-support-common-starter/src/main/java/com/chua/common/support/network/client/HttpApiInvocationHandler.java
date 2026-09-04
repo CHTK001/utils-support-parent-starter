@@ -508,6 +508,21 @@ public class HttpApiInvocationHandler implements InvocationHandler {
             return pa;
         }
 
+        // @RemoteParameter（Invoker 自有注解，等价于 @RequestParam）
+        RemoteParameter rp = param.getAnnotation(RemoteParameter.class);
+        if (rp != null) {
+            return new ParamAnnotation(ParamType.REQUEST_PARAM,
+                    StringUtils.isEmpty(rp.value()) ? param.getName() : rp.value(),
+                    rp.required(), rp.defaultValue());
+        }
+
+        // @RemoteHeader（Invoker 自有注解，参数值作为请求头值）
+        RemoteHeader rh = param.getAnnotation(RemoteHeader.class);
+        if (rh != null) {
+            return new ParamAnnotation(ParamType.REQUEST_HEADER,
+                    StringUtils.isEmpty(rh.name()) ? param.getName() : rh.name());
+        }
+
         // 无注解参数：按 @RequestParam 推断（参数名作为查询参数名）
         return new ParamAnnotation(ParamType.REQUEST_PARAM, param.getName());
     }
