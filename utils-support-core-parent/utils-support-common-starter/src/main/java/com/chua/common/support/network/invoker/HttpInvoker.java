@@ -4,6 +4,8 @@ import com.chua.common.support.network.client.HttpApiOptions;
 import com.chua.common.support.network.client.HttpClient;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.network.client.HttpInterceptor;
+import com.chua.common.support.network.invoker.filter.InjectCallback;
+import com.chua.common.support.network.invoker.filter.SharedInvocationContext;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.ArrayList;
@@ -122,6 +124,42 @@ public class HttpInvoker implements Invoker {
     }
 
     /**
+     * 注册编程式注入规则（与 {@code @RemoteInject} 注解功能一致）。
+     *
+     * <p>每次远程调用前执行回调，将返回值按 target 注入：</p>
+     * <ul>
+     *   <li>{@code "headers.X"} — 注入到请求头 {@code X}（如统一加 Token）</li>
+     *   <li>{@code "attributes.X"} — 注入到共享属性 {@code X}（可被后续注入规则读取）</li>
+     * </ul>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * Invoker invoker = HttpInvoker.of()
+     *     .addInject("headers.Authorization", ctx -> "Bearer " + TokenManager.getToken())
+     *     .addInject("attributes.traceId", ctx -> TraceContext.nextId());
+     * UserApi api = invoker.create(UserApi.class);
+     * }</pre>
+     *
+     * @param target   注入目标路径，如 {@code "headers.Authorization"}
+     * @param callback 注入回调，每次调用时执行，返回注入值；返回 null 则跳过
+     * @return 当前实例（链式调用）
+     */
+    @Override
+    public HttpInvoker addInject(String target, InjectCallback callback) {
+        options().addInject(target, callback);
+        return this;
+    }
+
+    /**
+     * 获取已注册的注入规则（只读）。
+     *
+     * @return 注入规则列表
+     */
+    public List<SharedInvocationContext.InjectRule> getInjectRules() {
+        return options == null ? List.of() : new ArrayList<>(options.getInjectRules());
+    }
+
+    /**
      * 获取已注册的应用层拦截器（只读）。
      *
      * @return 应用层拦截器列表
@@ -177,6 +215,7 @@ public class HttpInvoker implements Invoker {
     private boolean isDefault() {
         return options == null
                 || (options.getBaseUrl() == null && options.getClient() == null
-                && options.getInterceptors().isEmpty() && options.getNetworkInterceptors().isEmpty());
+                && options.getInterceptors().isEmpty() && options.getNetworkInterceptors().isEmpty()
+                && options.getInjectRules().isEmpty());
     }
 }
