@@ -253,24 +253,16 @@ public class HttpApiInvocationHandler implements InvocationHandler {
                     : baseUrl + "/" + path;
         }
 
-        // 5. 构建并执行请求
-        HttpClientBuilder builder = HttpClientFactory.of(fullUrl);
-        headers.forEach(builder::header);
-        queryParams.forEach(builder::query);
+        // 5. 构建并执行请求（走当前绑定客户端，确保注入规则/自定义 client 生效）
+        RequestSpec spec = httpClient.request(fullUrl, meta.httpMethod);
+        headers.forEach(spec::header);
+        queryParams.forEach(spec::query);
 
         if (body != null) {
-            builder.json().body(Json.toJson(body));
+            spec.json().body(Json.toJson(body));
         }
 
-        ClientResponse resp = switch (meta.httpMethod) {
-            case GET -> builder.get();
-            case POST -> builder.post();
-            case PUT -> builder.put();
-            case DELETE -> builder.delete();
-            case PATCH -> builder.patch();
-            case HEAD -> builder.head();
-            case OPTIONS -> builder.options();
-        };
+        ClientResponse resp = spec.execute();
 
         // 6. 响应转换
         return convertResponse(resp, meta);
