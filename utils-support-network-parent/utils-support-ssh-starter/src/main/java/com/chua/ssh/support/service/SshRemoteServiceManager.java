@@ -98,7 +98,7 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     @Override
     public long startRemote(String serviceName, String jarPath, String startCmd) {
         requireConnected();
-        String remotePath = normalizeRemotePath(jarPath);
+        String remotePath = isWindows() ? normalizeWindowsPath(jarPath) : normalizeRemotePath(jarPath);
         uploadJarIfNeeded(jarPath, remotePath);
         String cmd = replaceToken(startCmd, "{jar}", remotePath);
         log.info("[service-remote] 远程启动: {} cmd={}", serviceName, StringUtils.left(cmd, 100));
@@ -247,12 +247,30 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
      * 在 Windows 远程主机上安装服务（sc.exe create）。
      */
     private void installRemoteWindows(String serviceName, String remoteJarPath, String startCmd) {
-        String remoteDir = Path.of(remoteJarPath).getParent().toString().replace("\\", "/");
+        String winPath = normalizeWindowsPath(remoteJarPath);
+        String remoteDir = Path.of(winPath).getParent().toString().replace("\\", "/");
         execAndWait("powershell -Command \"New-Item -ItemType Directory -Path '" + remoteDir + "' -Force | Out-Null\"");
         execAndWait("sc.exe create \"" + serviceName + "\" binPath= \"" + startCmd + "\" start= auto");
         execAndWait("sc.exe description \"" + serviceName + "\" \"" + serviceName + " service\"");
         execAndWait("sc.exe failure \"" + serviceName + "\" reset= 86400 actions= restart/60000");
         log.info("[service-remote] Windows 服务安装完成: {}", serviceName);
+    }
+
+    /**
+     * 将 Linux 风格远程路径归一化为 Windows 绝对路径（/opt/x → C:\opt\x）。
+     */
+    private static String normalizeWindowsPath(String path) {
+        if (path == null) {
+            return "C:\\opt\\app.jar";
+        }
+        String p = path.strip().replace("/", "\\");
+        if (p.matches("^[A-Za-z]:.*")) {
+            return p;
+        }
+        if (p.startsWith("\\opt")) {
+            return "C:" + p;
+        }
+        return "C:\\opt\\" + Path.of(p).getFileName();
     }
 
     /**
