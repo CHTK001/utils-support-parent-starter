@@ -1,10 +1,12 @@
 package com.chua.common.support.network.client;
 
+import com.chua.common.support.network.http.HttpVersion;
 import com.chua.common.support.network.invoker.filter.InjectCallback;
 import com.chua.common.support.network.invoker.filter.SharedInvocationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -84,6 +86,56 @@ public class HttpApiOptions {
      * 或共享属性（{@code attributes.X}）。由 {@link HttpInvoker#addInject(String, InjectCallback)} 注册。</p>
      */
     private final List<SharedInvocationContext.InjectRule> injectRules = new ArrayList<>();
+
+    /**
+     * 默认请求头，每次远程调用自动携带。
+     */
+    private final Map<String, String> defaultHeaders = new java.util.LinkedHashMap<>();
+
+    /**
+     * 连接超时（毫秒），-1 表示使用执行器默认值。
+     */
+    private long connectTimeout = -1;
+
+    /**
+     * 读取超时（毫秒），-1 表示使用执行器默认值。
+     */
+    private long readTimeout = -1;
+
+    /**
+     * 写入超时（毫秒），-1 表示使用执行器默认值。
+     */
+    private long writeTimeout = -1;
+
+    /**
+     * 最大重试次数，-1 表示不重试（使用默认）。
+     */
+    private int maxRetries = -1;
+
+    /**
+     * 响应缓存有效期（毫秒），-1 表示不缓存。
+     */
+    private long cacheTtl = -1;
+
+    /**
+     * 是否跟随重定向，null 表示使用客户端默认。
+     */
+    private Boolean followRedirects;
+
+    /**
+     * HTTP 协议版本，null 表示使用执行器默认版本。
+     */
+    private HttpVersion version;
+
+    /**
+     * 代理主机名，null 表示不使用代理。
+     */
+    private String proxyHost;
+
+    /**
+     * 代理端口号。
+     */
+    private int proxyPort;
 
     /**
      * 创建空的配置实例。
