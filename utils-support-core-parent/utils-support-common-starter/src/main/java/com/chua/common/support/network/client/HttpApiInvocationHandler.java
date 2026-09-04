@@ -140,6 +140,14 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     private final List<SharedInvocationContext.InjectRule> injectRules;
 
     /**
+     * 请求级默认配置（默认请求头/超时/重试/缓存/重定向/版本/代理）。
+     *
+     * <p>由 {@link HttpInvoker} 链式方法配置，每次远程调用前应用到 {@link RequestSpec}。
+     * 可为 null（表示无额外默认配置）。</p>
+     */
+    private final HttpApiOptions options;
+
+    /**
      * 构造处理器并预解析 baseUrl
      *
      * @param apiClass 要代理的接口类
@@ -155,7 +163,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      * {@link HttpClient}（含拦截器）等。options 为 null 时使用默认配置。</p>
      *
      * @param apiClass 要代理的接口类
-     * @param options  自定义配置（baseUrl/客户端/拦截器/注入规则），可为 null
+     * @param options  自定义配置（baseUrl/客户端/拦截器/注入规则/请求级默认配置），可为 null
      */
     public HttpApiInvocationHandler(Class<?> apiClass, HttpApiOptions options) {
         this.apiClass = apiClass;
@@ -166,6 +174,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         this.httpClient = options != null ? options.resolveClient() : HttpClientFactory.getClient();
         this.baseUrl = resolveBaseUrl(apiClass, options);
         this.injectRules = options != null ? options.getInjectRules() : List.of();
+        this.options = options;
     }
 
     /**
@@ -255,6 +264,10 @@ public class HttpApiInvocationHandler implements InvocationHandler {
 
         // 5. 构建并执行请求（走当前绑定客户端，确保注入规则/自定义 client 生效）
         RequestSpec spec = httpClient.request(fullUrl, meta.httpMethod);
+        if (options != null) {
+            // 应用请求级默认配置（默认请求头/超时/重试/缓存/重定向/版本/代理）
+            options.applyTo(spec);
+        }
         headers.forEach(spec::header);
         queryParams.forEach(spec::query);
 
