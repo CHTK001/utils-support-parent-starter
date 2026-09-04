@@ -8,6 +8,7 @@ import com.chua.winrm.support.client.WinRmExecClient;
 import com.chua.winrm.support.client.WinRmFileClient;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -51,6 +52,11 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
      */
     private SshConfig config;
 
+    /**
+     * 连接状态标志。
+     */
+    private volatile boolean connected;
+
     @Override
     public void connect(SshConfig cfg) {
         this.config = cfg;
@@ -60,6 +66,7 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
                 .username(cfg.username())
                 .password(cfg.password());
         this.execClient = builder.build().connect();
+        this.connected = true;
         log.info("[service-remote] WinRM 已连接: {}@{}:{}", cfg.username(), cfg.host(), cfg.port());
     }
 
@@ -74,12 +81,13 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
             execClient = null;
         }
         config = null;
+        connected = false;
         log.info("[service-remote] WinRM 已断开");
     }
 
     @Override
     public boolean isConnected() {
-        return execClient != null && execClient.isConnected();
+        return connected;
     }
 
     @Override
@@ -163,12 +171,21 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
 
     // ========== 私有方法 ==========
 
+    /**
+     * 校验 WinRM 连接是否已建立，未连接时抛出异常。
+     */
     private void requireConnected() {
-        if (execClient == null || !execClient.isConnected()) {
+        if (!connected || execClient == null) {
             throw new IllegalStateException("[service-remote] WinRM 未连接，请先调用 connect()");
         }
     }
 
+    /**
+     * 在远程 Windows 主机上同步执行 PowerShell 命令并返回输出。
+     *
+     * @param cmd 要执行的命令
+     * @return 命令输出（stdout 为空时回退 stderr）
+     */
     private String execAndWait(String cmd) {
         requireConnected();
         try {
@@ -180,6 +197,12 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
         }
     }
 
+    /**
+     * 在远程 Windows 主机后台启动 java 进程并返回 PID。
+     *
+     * @param cmd 启动命令（java -jar <path>）
+     * @return 进程 PID，解析失败返回 -1
+     */
     private long execDetach(String cmd) {
         requireConnected();
         try {
@@ -197,6 +220,12 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
         }
     }
 
+    /**
+     * 从 {@code java -jar <path>} 命令中提取 jar 路径。
+     *
+     * @param cmd 启动命令
+     * @return jar 路径（含引号时自动去除）
+     */
     private static String extractJarArg(String cmd) {
         // 提取 java -jar <path> 中的 jar 路径
         int jarIdx = cmd.toLowerCase().indexOf("-jar");
@@ -212,6 +241,12 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
         return space > 0 ? rest.substring(0, space) : rest;
     }
 
+    /**
+     * 将本地 jar 上传到远程 Windows 路径。
+     *
+     * @param localPath  本地 jar 路径
+     * @param remotePath 远程目标路径（含文件名）
+     */
     private void uploadJarIfNeeded(String localPath, String remotePath) {
         if (localPath == null || localPath.isBlank()) {
             return;
@@ -234,24 +269,34 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
         }
     }
 
+    /**
+     * 懒加载 WinRM 文件客户端，仅首次上传时建立连接。
+     */
     private void ensureFileClient() {
         if (fileClient != null) {
             return;
         }
-        ClientSetting setting = new ClientSetting();
-        setting.setHost(config.host());
-        setting.setPort(config.port());
-        setting.setUsername(config.username());
-        setting.setPassword(config.password());
+        ClientSetting setting = ClientSetting.builder()
+                .host(config.host())
+                .port(config.port())
+                .username(config.username())
+                .password(config.password())
+                .build();
         WinRmFileClient client = new WinRmFileClient(setting);
         try {
             client.connect();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException("[service-remote] WinRM 文件客户端连接失败", e);
         }
         this.fileClient = client;
     }
 
+    /**
+     * 规范化为绝对远程路径：相对路径拼接到默认部署目录。
+     *
+     * @param jarPath 原始 jar 路径
+     * @return 归一化远程路径（Windows 反斜杠分隔）
+     */
     private static String normalizeRemotePath(String jarPath) {
         if (jarPath == null) {
             return DEFAULT_REMOTE_DIR + "/app.jar";
@@ -263,6 +308,14 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
         return DEFAULT_REMOTE_DIR + "\\" + Path.of(p).getFileName();
     }
 
+    /**
+     * 替换模板中的占位符 token。
+     *
+     * @param template 模板字符串
+     * @param token    占位符（如 {jar}）
+     * @param value    替换值
+     * @return 替换后的字符串
+     */
     private static String replaceToken(String template, String token, String value) {
         return template == null ? value : template.replace(token, value);
     }

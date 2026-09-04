@@ -53,6 +53,11 @@ public class ServiceBuilder implements Closeable {
      */
     public static final String SPI_REMOTE = "service-remote";
 
+    /**
+     * 默认远程协议：ssh。
+     */
+    public static final String DEFAULT_PROTOCOL = "ssh";
+
     // ---------- 公共属性 ----------
 
     /** jar 文件路径 */
@@ -159,10 +164,34 @@ public class ServiceBuilder implements Closeable {
     }
 
     /**
+     * 切换到远程部署模式（指定协议 ssh/winrm）。
+     *
+     * @param protocol 远程协议（ssh / winrm）
+     */
+    public RemoteManager toRemote(String protocol) {
+        return new RemoteManager(this, protocol);
+    }
+
+    /**
      * 切换到远程部署模式（便捷重载，传入 SSH 连接参数）。
      */
     public RemoteManager toRemote(String host, int port, String username, String password) {
         RemoteManager mgr = new RemoteManager(this);
+        mgr.withHost(host).withPort(port).withUsername(username).withPassword(password);
+        return mgr;
+    }
+
+    /**
+     * 切换到远程部署模式（指定协议与连接参数）。
+     *
+     * @param protocol 远程协议（ssh / winrm）
+     * @param host     远程主机
+     * @param port     远程端口
+     * @param username 用户名
+     * @param password 密码
+     */
+    public RemoteManager toRemote(String protocol, String host, int port, String username, String password) {
+        RemoteManager mgr = new RemoteManager(this, protocol);
         mgr.withHost(host).withPort(port).withUsername(username).withPassword(password);
         return mgr;
     }
@@ -304,7 +333,7 @@ public class ServiceBuilder implements Closeable {
         private final ServiceBuilder builder;
         private final RemoteServiceManager manager;
 
-        // SSH 连接参数
+        // 远程连接参数
         private String sshHost;
         private int sshPort = 22;
         private String sshUsername;
@@ -312,11 +341,22 @@ public class ServiceBuilder implements Closeable {
         private String sshPrivateKey;
 
         RemoteManager(ServiceBuilder builder) {
+            this(builder, DEFAULT_PROTOCOL);
+        }
+
+        /**
+         * 使用指定协议（ssh/winrm）加载远程服务管理器。
+         *
+         * @param builder  宿主构建器
+         * @param protocol SPI 名称（ssh 或 winrm）
+         */
+        RemoteManager(ServiceBuilder builder, String protocol) {
             this.builder = builder;
             this.manager = ServiceProvider.of(RemoteServiceManager.class)
-                    .getExtension(SPI_REMOTE);
+                    .getExtension(protocol);
             if (manager == null) {
-                throw new IllegalStateException("[service] 未找到 RemoteServiceManager 实现，请确保 classpath 包含 ssh-starter 依赖");
+                throw new IllegalStateException("[service] 未找到 RemoteServiceManager 实现: protocol="
+                        + protocol + "，请确保 classpath 包含 ssh-starter 或 winrm-starter 依赖");
             }
         }
 
@@ -548,6 +588,17 @@ public class ServiceBuilder implements Closeable {
 
         public RemoteManager toRemote(String host, int port, String username, String password) {
             RemoteManager m = new RemoteManager(b);
+            m.withHost(host).withPort(port).withUsername(username).withPassword(password);
+            return m;
+        }
+
+        /**
+         * 指定协议（ssh/winrm）后切换远程模式。
+         *
+         * @param protocol 远程协议（ssh / winrm）
+         */
+        public RemoteManager toRemote(String protocol, String host, int port, String username, String password) {
+            RemoteManager m = new RemoteManager(b, protocol);
             m.withHost(host).withPort(port).withUsername(username).withPassword(password);
             return m;
         }
