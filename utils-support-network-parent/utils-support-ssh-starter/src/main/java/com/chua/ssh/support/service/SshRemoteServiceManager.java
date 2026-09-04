@@ -102,18 +102,74 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         uploadJarIfNeeded(jarPath, remotePath);
         String cmd = replaceToken(startCmd, "{jar}", remotePath);
         log.info("[service-remote] 远程启动: {} cmd={}", serviceName, StringUtils.left(cmd, 100));
+        if (isWindows()) {
+            return execDetachWindows(cmd);
+        }
         return execDetach(cmd);
     }
 
     @Override
     public void stopRemote(long pid, String serviceName) {
         requireConnected();
+        if (isWindows()) {
+            stopRemoteWindows(pid, serviceName);
+            return;
+        }
         if (pid > 0) {
             log.info("[service-remote] 远程停止: pid={}", pid);
             execAndWait("kill " + pid + " 2>/dev/null || echo ok");
         } else if (serviceName != null) {
             execAndWait("pkill -f " + serviceName + " 2>/dev/null || echo ok");
         }
+    }
+
+    /**
+     * 停止 Windows 远程 Java 进程（按 PID 或按命令行过滤）。
+     */
+    private void stopRemoteWindows(long pid, String serviceName) {
+        if (pid > 0) {
+            log.info("[service-remote] 远程停止: pid={}", pid);
+            execAndWait("powershell -Command \"Stop-Process -Id " + pid + " -Force -ErrorAction SilentlyContinue\"");
+        } else if (serviceName != null) {
+            execAndWait("powershell -Command \"Get-CimInstance Win32_Process -Filter \\\"Name like '%java%'\\\" | "
+                    + "Where-Object { $_.CommandLine -like '*" + serviceName + "*' } | "
+                    + "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }\"");
+        }
+    }
+
+    /**
+     * 在 Windows 远程主机后台启动命令并返回 PID。
+     */
+    private long execDetachWindows(String cmd) {
+        try {
+            String wrapped = "powershell -Command \"$p = Start-Process -FilePath 'java' -ArgumentList @('-jar', '"
+                    + extractJarArg(cmd) + "') -WindowStyle Hidden -PassThru; $p.Id\"";
+            String out = execAndWait(wrapped);
+            try {
+                return Long.parseLong(out.split("\\n")[0].trim());
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("[service-remote] 远程启动失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 从 {@code java -jar <path>} 命令中提取 jar 路径。
+     */
+    private static String extractJarArg(String cmd) {
+        int jarIdx = cmd.toLowerCase().indexOf("-jar");
+        if (jarIdx < 0) {
+            return cmd;
+        }
+        String rest = cmd.substring(jarIdx + 4).trim();
+        if (rest.startsWith("\"")) {
+            int end = rest.indexOf('"', 1);
+            return end > 0 ? rest.substring(1, end) : rest.replace("\"", "");
+        }
+        int space = rest.indexOf(' ');
+        return space > 0 ? rest.substring(0, space) : rest;
     }
 
     @Override
@@ -134,7 +190,13 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         }
         requireConnected();
         try {
-            String out = execAndWait("kill -0 " + pid + " 2>&1 && echo alive || echo dead");
+            String out;
+            if (isWindows()) {
+                out = execAndWait("powershell -Command \"(Get-Process -Id " + pid
+                        + " -ErrorAction SilentlyContinue) -ne $null\"");
+                return "True".equalsIgnoreCase(out);
+            }
+            out = execAndWait("kill -0 " + pid + " 2>&1 && echo alive || echo dead");
             return out.contains("alive");
         } catch (Exception e) {
             return false;
@@ -147,24 +209,85 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         uploadJarIfNeeded(localPath, remotePath);
     }
 
+    /**
+     * 检测远程主机操作系统类型（Windows 返回 true）。
+     *
+     * @return true 表示远程主机为 Windows
+     */
+    private boolean isWindows() {
+        try {
+            String out = execAndWait("ver 2>&1");
+            return out.toLowerCase().contains("windows");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Override
     public void installRemote(String serviceName, String remoteJarPath, String startCmd) {
         requireConnected();
-        String unitContent = buildSystemdUnit(serviceName, remoteJarPath, startCmd);
-        // 单引号括号避免 shell 变量/命令替换
-        execAndWait("cat > /etc/systemd/system/" + serviceName + ".service << 'UNIT_EOF'\n"
-                + unitContent + "\nUNIT_EOF");
-        execAndWait("systemctl daemon-reload && systemctl enable " + serviceName);
-        log.info("[service-remote] 远程安装完成: {}", serviceName);
+        if (isWindows()) {
+            installRemoteWindows(serviceName, remoteJarPath, startCmd);
+        } else {
+            installRemoteLinux(serviceName, remoteJarPath, startCmd);
+        }
     }
 
     @Override
     public void uninstallRemote(String serviceName) {
         requireConnected();
+        if (isWindows()) {
+            uninstallRemoteWindows(serviceName);
+        } else {
+            uninstallRemoteLinux(serviceName);
+        }
+    }
+
+    /**
+     * 在 Windows 远程主机上安装服务（sc.exe create）。
+     */
+    private void installRemoteWindows(String serviceName, String remoteJarPath, String startCmd) {
+        String remoteDir = Path.of(remoteJarPath).getParent().toString().replace("\\", "/");
+        execAndWait("powershell -Command \"New-Item -ItemType Directory -Path '" + remoteDir + "' -Force | Out-Null\"");
+        execAndWait("sc.exe create \"" + serviceName + "\" binPath= \"" + startCmd + "\" start= auto");
+        execAndWait("sc.exe description \"" + serviceName + "\" \"" + serviceName + " service\"");
+        execAndWait("sc.exe failure \"" + serviceName + "\" reset= 86400 actions= restart/60000");
+        log.info("[service-remote] Windows 服务安装完成: {}", serviceName);
+    }
+
+    /**
+     * 在 Linux 远程主机上安装服务（systemd unit）。
+     */
+    private void installRemoteLinux(String serviceName, String remoteJarPath, String startCmd) {
+        String unitContent = buildSystemdUnit(serviceName, remoteJarPath, startCmd);
+        execAndWait("cat > /etc/systemd/system/" + serviceName + ".service << 'UNIT_EOF'\n"
+                + unitContent + "\nUNIT_EOF");
+        execAndWait("systemctl daemon-reload && systemctl enable " + serviceName);
+        log.info("[service-remote] Linux 服务安装完成: {}", serviceName);
+    }
+
+    /**
+     * 在 Windows 远程主机上卸载服务。
+     */
+    private void uninstallRemoteWindows(String serviceName) {
+        execAndWait("sc.exe stop \"" + serviceName + "\" 2>nul");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+        execAndWait("sc.exe delete \"" + serviceName + "\" 2>nul");
+        log.info("[service-remote] Windows 服务卸载完成: {}", serviceName);
+    }
+
+    /**
+     * 在 Linux 远程主机上卸载服务。
+     */
+    private void uninstallRemoteLinux(String serviceName) {
         execAndWait("systemctl disable " + serviceName + " 2>/dev/null; systemctl stop "
                 + serviceName + " 2>/dev/null");
         execAndWait("rm -f /etc/systemd/system/" + serviceName + ".service && systemctl daemon-reload");
-        log.info("[service-remote] 远程卸载完成: {}", serviceName);
+        log.info("[service-remote] Linux 服务卸载完成: {}", serviceName);
     }
 
     // ========== 私有方法 ==========
@@ -270,8 +393,8 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
         if (jarPath == null) {
             return DEFAULT_REMOTE_DIR + "/app.jar";
         }
-        String p = jarPath.strip();
-        if (p.startsWith("/")) {
+        String p = jarPath.strip().replace("\\", "/");
+        if (p.startsWith("/") || p.matches("^[A-Za-z]:.*")) {
             return p;
         }
         return DEFAULT_REMOTE_DIR + "/" + Path.of(p).getFileName();
