@@ -385,16 +385,16 @@ public class HttpApiInvocationHandler implements InvocationHandler {
      * 应用编程式注入规则，将回调返回值注入到请求头或共享属性。
      *
      * <p>与 {@code @RemoteInject} 注解功能一致，由 {@link HttpInvoker#addInject(String, InjectCallback)}
-     * 注册。每次远程调用前执行，支持链式注入（先注入的 attributes 可被后续规则读取）。</p>
+     * 注册。每次远程调用前执行，支持的 attributes 写入 {@link MethodMetadata#attributes}，
+     * 可与 {@code @RemoteInject} 注解注入的数据互通（链式读取）。</p>
      *
      * @param meta    方法元数据
      * @param args    方法入参
      * @param headers 请求头容器（就地修改）
-     * @return 本次调用注入的共享属性集合
      */
-    private Map<String, Object> applyInjectRules(MethodMetadata meta, Object[] args, Map<String, String> headers) {
+    private void applyInjectRules(MethodMetadata meta, Object[] args, Map<String, String> headers) {
         if (injectRules.isEmpty()) {
-            return Collections.emptyMap();
+            return;
         }
         InvocationContext ctx = new InvocationContext();
         ctx.setPath(meta.pathTemplate);
@@ -402,7 +402,6 @@ public class HttpApiInvocationHandler implements InvocationHandler {
         ctx.setAttribute("javaArgs", args == null ? new Object[0] : args);
         ctx.setAttribute("targetClass", meta.method.getDeclaringClass());
 
-        Map<String, Object> attributes = new LinkedHashMap<>();
         for (SharedInvocationContext.InjectRule rule : injectRules) {
             String value = rule.callback().apply(ctx);
             if (value == null) {
@@ -413,11 +412,10 @@ public class HttpApiInvocationHandler implements InvocationHandler {
                 headers.put(target.substring(8), value);
             } else if (target.startsWith("attributes.")) {
                 String key = target.substring(11);
-                attributes.put(key, value);
+                meta.attributes.put(key, value);
                 ctx.setAttribute(key, value);
             }
         }
-        return attributes;
     }
 
     // ==================== 基础 URL 解析 ====================
