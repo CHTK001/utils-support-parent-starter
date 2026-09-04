@@ -220,12 +220,19 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             Files.write(tmp, content);
             try (SevenZFile sz = SevenZFile.builder().setPath(tmp).get()) {
                 org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
+                byte[] buffer = new byte[8192];
                 while ((entry = sz.getNextEntry()) != null) {
                     if (entry.isDirectory()) {
                         continue;
                     }
                     if (path.equals(entry.getName())) {
-                        return sz.readAllBytes();
+                        try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
+                            int len;
+                            while ((len = sz.read(buffer)) > 0) {
+                                baos.write(buffer, 0, len);
+                            }
+                            return baos.toByteArray();
+                        }
                     }
                 }
             }
