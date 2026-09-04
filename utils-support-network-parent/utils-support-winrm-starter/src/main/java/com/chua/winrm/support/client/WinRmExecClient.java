@@ -113,6 +113,8 @@ public class WinRmExecClient implements AutoCloseable {
         this.domain = null;
         this.connectTimeout = 30;
         this.sessionTimeout = 30;
+        this.authenticationScheme = "NTLM";
+        this.payloadEncryptionOff = false;
     }
 
     // ==================== 工厂方法 ====================
