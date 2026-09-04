@@ -9,7 +9,6 @@ import com.openai.models.FunctionDefinition;
 import com.openai.models.FunctionParameters;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
-import com.openai.models.chat.completions.ChatCompletionFunctionTool;
 import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
@@ -156,7 +155,9 @@ public class ChatClientModelAdapter implements Model {
             if ("user".equals(cm.getRole())) {
                 paramsBuilder.addUserMessage(cm.getContent());
             } else {
-                paramsBuilder.addAssistantMessage(cm.getContent());
+                paramsBuilder.addMessage(com.openai.models.chat.completions.ChatCompletionAssistantMessageParam.builder()
+                        .content(cm.getContent())
+                        .build());
             }
         }
         paramsBuilder.addUserMessage(prompt);
@@ -173,10 +174,9 @@ public class ChatClientModelAdapter implements Model {
                         .additionalProperties(toJsonValueMap(tool.getParameters()))
                         .build());
             }
-            toolDefs.add(ChatCompletionTool.ofFunction(
-                    ChatCompletionFunctionTool.builder()
-                            .function(fnBuilder.build())
-                            .build()));
+            toolDefs.add(ChatCompletionTool.builder()
+                    .function(fnBuilder.build())
+                    .build());
         }
         paramsBuilder.tools(toolDefs);
         paramsBuilder.toolChoice(ChatCompletionToolChoiceOption.ofAuto(ChatCompletionToolChoiceOption.Auto.AUTO));
@@ -189,10 +189,10 @@ public class ChatClientModelAdapter implements Model {
         if (message.toolCalls().isPresent() && !message.toolCalls().get().isEmpty()) {
             List<ContentBlock> blocks = new ArrayList<>();
             for (ChatCompletionMessageToolCall toolCall : message.toolCalls().get()) {
-                var fnCall = toolCall.asFunction();
-                String callId = fnCall.id();
-                String toolName = fnCall.function().name();
-                String argumentsJson = fnCall.function().arguments();
+                var fnCall = toolCall.function();
+                String callId = toolCall.id();
+                String toolName = fnCall.name();
+                String argumentsJson = fnCall.arguments();
                 Map<String, Object> input = parseJson(argumentsJson);
                 blocks.add(new ToolUseBlock(callId, toolName, input));
             }
