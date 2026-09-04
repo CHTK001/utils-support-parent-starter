@@ -1,4 +1,5 @@
 com.chua.springboot.support.autoconfigure.UtilsSpringBootAutoConfiguration
+com.chua.springboot.support.autoconfigure.CollapseAutoConfiguration
 com.chua.springboot.support.autoconfigure.LockAutoConfiguration
 com.chua.springboot.support.autoconfigure.RateLimiterAutoConfiguration
 com.chua.springboot.support.autoconfigure.CircuitBreakerAutoConfiguration

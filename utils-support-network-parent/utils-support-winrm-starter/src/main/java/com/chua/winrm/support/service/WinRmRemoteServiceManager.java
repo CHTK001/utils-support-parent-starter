@@ -146,9 +146,9 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
         }
         requireConnected();
         try {
-            String out = execAndWait("sc.exe query \"" + serviceName
-                    + "\" | findstr /C:\"RUNNING\"");
-            return StringUtils.isNotBlank(out);
+            String out = execAndWait("sc.exe query \"" + serviceName + "\"");
+            String upper = out.toUpperCase();
+            return upper.contains("RUNNING") || upper.contains("\u6B63\u5728\u8FD0\u884C");
         } catch (Exception e) {
             return false;
         }

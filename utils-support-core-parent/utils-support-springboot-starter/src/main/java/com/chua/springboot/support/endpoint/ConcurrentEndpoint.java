@@ -100,7 +100,7 @@ public class ConcurrentEndpoint {
 
     @WriteOperation
     public Map<String, Object> ratelimiterConfigSave(@Selector String name,
-                                                     @org.springframework.boot.actuate.endpoint.annotation.RequestBody(required = false) Map<String, Object> body) {
+                                                     Map<String, Object> body) {
         if (body == null) body = Map.of();
         double pps = toDouble(body.get("permitsPerSecond"), 1.0);
         long warmup = toLong(body.get("warmupPeriodMs"), 0);
@@ -160,7 +160,7 @@ public class ConcurrentEndpoint {
 
     @WriteOperation
     public Map<String, Object> circuitbreakerConfigSave(@Selector String name,
-                                                         @org.springframework.boot.actuate.endpoint.annotation.RequestBody(required = false) Map<String, Object> body) {
+                                                         Map<String, Object> body) {
         if (body == null) body = Map.of();
         int failure = body.containsKey("failureThreshold") ? body.get("failureThreshold").toString().isEmpty() ? 5 : Integer.parseInt(body.get("failureThreshold").toString()) : 5;
         int success = body.containsKey("successThreshold") ? body.get("successThreshold").toString().isEmpty() ? 2 : Integer.parseInt(body.get("successThreshold").toString()) : 2;
@@ -222,7 +222,7 @@ public class ConcurrentEndpoint {
 
     @WriteOperation
     public Map<String, Object> lockConfigSave(@Selector String name,
-                                               @org.springframework.boot.actuate.endpoint.annotation.RequestBody(required = false) Map<String, Object> body) {
+                                               Map<String, Object> body) {
         if (body == null) body = Map.of();
         String lockType = toString(body.get("lockType"), "object");
         boolean fair = toBool(body.get("fair"), false);

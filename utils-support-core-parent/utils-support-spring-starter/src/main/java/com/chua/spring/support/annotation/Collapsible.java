@@ -24,8 +24,7 @@ import java.lang.annotation.Target;
  * </ul>
  *
  * <p>收集窗口由 {@link #waitThreshold()} 与 {@link #collectingWaitTime()} 控制：
- * 补收等待（毫秒）小于 0 立即执行、等于 0（默认）让出收集线程时间片后补收一次、大于 0 等待指定毫秒。
- * 所有数值属性支持 {@code ${...}} 占位符和 {@code #{...}} SpEL 表达式。</p>
+ * 补收等待（毫秒）小于 0 立即执行、等于 0（默认）让出收集线程时间片后补收一次、大于 0 等待指定毫秒。</p>
  *
  * @author CH
  * @since 2026/09/03
@@ -46,21 +45,19 @@ public @interface Collapsible {
     String name() default "";
 
     /**
-     * 批量收集的最小阈值，达到该数量的调用后立即执行。
-     *
-     * <p>支持 {@code ${...}} 与 {@code #{...}} 表达式，默认 10。</p>
+     * 批量收集的最小阈值，达到该数量的调用后立即执行，默认 10。
      *
      * @return 批量收集阈值
      */
-    String waitThreshold() default "10";
+    int waitThreshold() default 10;
 
     /**
      * 未达到阈值时的补收等待时间（毫秒）。
      *
      * <p>小于 0：立即执行；等于 0（默认）：让出当前收集线程时间片后补收一次；
-     * 大于 0：等待指定毫秒后再补收。支持 {@code ${...}} 与 {@code #{...}} 表达式。</p>
+     * 大于 0：等待指定毫秒后再补收。</p>
      *
      * @return 补收等待时间（毫秒）
      */
-    String collectingWaitTime() default "0";
+    long collectingWaitTime() default 0;
 }
