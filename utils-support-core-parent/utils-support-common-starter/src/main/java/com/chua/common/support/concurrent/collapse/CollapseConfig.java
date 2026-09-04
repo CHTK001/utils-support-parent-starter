@@ -24,7 +24,7 @@ public class CollapseConfig {
     private String name = "collapse";
 
     /**
-     * 批量收集的最小阈值，收集到该数量的调用后立即执行批量逻辑
+     * 批量收集的最小阈值，收集到该数量的调用后立即执行批量逻辑；0 表示不等待（每批立即执行），负值非法
      */
     private int waitThreshold = 10;
 
@@ -78,9 +78,12 @@ public class CollapseConfig {
     /**
      * 设置批量收集的最小阈值。
      *
-     * @param waitThreshold 批量收集的最小阈值
+     * @param waitThreshold 批量收集的最小阈值，必须大于等于 0（0 表示不等待、每批立即执行）
      */
     public void setWaitThreshold(int waitThreshold) {
+        if (waitThreshold < 0) {
+            throw new IllegalArgumentException("waitThreshold must be >= 0: " + waitThreshold);
+        }
         this.waitThreshold = waitThreshold;
     }
 

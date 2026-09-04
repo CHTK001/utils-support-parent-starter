@@ -13,6 +13,8 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.spring.support.annotation.Collapsible;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -53,7 +55,7 @@ import java.util.function.Function;
 @Slf4j
 @Spi("com.chua.spring.support.annotation.Collapsible")
 public class CollapsibleIntercept
-        implements MethodAnnotationIntercept<Collapsible>, DisposableBean {
+        implements MethodAnnotationIntercept<Collapsible>, DisposableBean, ApplicationContextAware {
 
     /**
      * 折叠执行器工厂的 SPI 名称
@@ -149,6 +151,16 @@ public class CollapsibleIntercept
             throw (Error) cause;
         }
         return new IllegalStateException("折叠执行失败", cause);
+    }
+
+    /**
+     * Spring 容器装配回调：注册全局降级容器（线程无关），供并发线程解析 bean#method 降级。
+     *
+     * @param applicationContext Spring 容器
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        FallbackResolver.registerApplicationContext(applicationContext);
     }
 
     /**
