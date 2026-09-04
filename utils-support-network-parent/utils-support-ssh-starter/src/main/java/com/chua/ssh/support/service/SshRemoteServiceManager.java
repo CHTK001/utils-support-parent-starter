@@ -204,6 +204,26 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     @Override
+    public boolean isRemoteServiceRunning(String serviceName) {
+        if (serviceName == null || serviceName.isBlank()) {
+            return false;
+        }
+        requireConnected();
+        try {
+            String out;
+            if (isWindows()) {
+                out = execAndWait("sc.exe query \"" + serviceName
+                        + "\" | findstr /C:\"RUNNING\"");
+            } else {
+                out = execAndWait("systemctl is-active " + serviceName + " 2>/dev/null || echo inactive");
+            }
+            return StringUtils.isNotBlank(out);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public void uploadJar(String localPath, String remotePath) {
         requireConnected();
         uploadJarIfNeeded(localPath, remotePath);
