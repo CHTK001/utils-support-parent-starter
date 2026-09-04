@@ -1,6 +1,5 @@
 package com.chua.winrm.support.service;
 
-import com.chua.common.support.network.protocol.ClientSetting;
 import com.chua.common.support.service.RemoteServiceManager;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -8,7 +7,6 @@ import com.chua.winrm.support.client.WinRmExecClient;
 import com.chua.winrm.support.client.WinRmFileClient;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
