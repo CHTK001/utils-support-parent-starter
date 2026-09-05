@@ -196,6 +196,8 @@ public class JdbcReactorEngine implements ReactorEngine {
      * @return this
      */
     public JdbcReactorEngine addDataSource(String name, ConnectionFactory factory, Dialect dialect) {
+        if (factory == null) throw new IllegalArgumentException("factory must not be null");
+        if (dialect == null) throw new IllegalArgumentException("dialect must not be null");
         r2dbcFactories.put(name, factory);
         dialects.put(name, dialect);
         if (defaultDataSourceName == null) {

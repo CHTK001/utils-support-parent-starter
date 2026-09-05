@@ -41,14 +41,15 @@ public abstract class JdbcEngine extends AbstractEngine {
         List<T> data = getData(clazz);
         if (!data.isEmpty()) {
             if (where == null || where.trim().isEmpty()) {
-                return data;
+                return limitSlice(data, limit, offset);
             }
             MemoryWhereParser parser = new MemoryWhereParser();
             List<Object> paramList = (args != null)
                     ? Arrays.asList(args)
                     : Collections.emptyList();
             var predicate = parser.parse(where, paramList);
-            return data.stream().filter(predicate).toList();
+            List<T> filtered = data.stream().filter(predicate).toList();
+            return limitSlice(filtered, limit, offset);
         }
 
         List<T> result = new ArrayList<>();
@@ -106,6 +107,16 @@ public abstract class JdbcEngine extends AbstractEngine {
         }
 
         return result;
+    }
+
+    /**
+     * 对内存数据执行 LIMIT/OFFSET 截取，dialect 不支持物理分页时的兜底实现。
+     */
+    private static <T> List<T> limitSlice(List<T> data, int limit, int offset) {
+        if (limit <= 0 && offset <= 0) return data;
+        int from = Math.min(offset, data.size());
+        int to = limit > 0 ? Math.min(from + limit, data.size()) : data.size();
+        return from >= data.size() ? Collections.emptyList() : data.subList(from, to);
     }
 
     /** 设置FieldValue */
