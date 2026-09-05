@@ -40,7 +40,7 @@ import java.util.Set;
  * @author CH
  * @since 1.0.0
  */
-public interface RpcServer extends AutoCloseable, InitializingAware {
+public interface RpcServer extends AutoCloseable, InitializingAware, RpcMonitor {
 
     /**
      * 创建Service

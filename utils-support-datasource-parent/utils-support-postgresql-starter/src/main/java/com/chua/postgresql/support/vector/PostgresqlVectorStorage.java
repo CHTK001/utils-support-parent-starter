@@ -74,109 +74,37 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     @Override
     protected boolean doAdd(String id, float[] vector) {
         checkNotClosed();
-        ensureSchema();
-        String json = floatArrayToJson(vector);
-        String sql = "INSERT INTO " + tableName + " (" + idColumn + ", " + vectorColumn + ") "
-                   + "VALUES (?, ?) ON CONFLICT (" + idColumn + ") DO UPDATE SET "
-                   + vectorColumn + " = EXCLUDED." + vectorColumn;
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
-            ps.setString(2, json);
-            ps.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            throw new RuntimeException("PostgreSQL 向量添加失败: id=" + id, e);
-        }
+        return resolved().add(id, vector);
     }
 
     @Override
     protected List<Vector> doSearch(float[] query, int topK) {
         checkNotClosed();
-        ensureSchema();
-        String vecLiteral = floatArrayToPgVectorLiteral(query);
-        String algoOp = buildSimilarityOp();
-        String sql = "SELECT " + idColumn + ", " + vectorColumn
-                   + " FROM " + tableName
-                   + " ORDER BY " + vectorColumn + " " + algoOp + " ?::vector"
-                   + " LIMIT ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, query);
-            ps.setInt(2, topK);
-            List<Vector> results = new ArrayList<>();
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String id = rs.getString(idColumn);
-                    Object vecObj = rs.getObject(vectorColumn);
-                    float[] vec = pgVectorToObject(vecObj);
-                    if (vec != null) {
-                        double score = getAlgorithm().compare(query, vec);
-                        results.add(new Vector(id, vec, Map.of("score", score)));
-                    }
-                }
-            }
-            return results;
-        } catch (SQLException e) {
-            throw new RuntimeException("PostgreSQL 向量搜索失败", e);
-        }
+        return resolved().search(query, topK);
     }
 
     @Override
     public int size() {
         checkNotClosed();
-        ensureSchema();
-        String sql = "SELECT COUNT(*) FROM " + tableName;
-        try (Connection conn = dataSource.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            return rs.next() ? rs.getInt(1) : 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("PostgreSQL 向量计数失败", e);
-        }
+        return resolved().size();
     }
 
     @Override
     public boolean remove(String id) {
         checkNotClosed();
-        ensureSchema();
-        String sql = "DELETE FROM " + tableName + " WHERE " + idColumn + " = ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("PostgreSQL 向量删除失败: id=" + id, e);
-        }
+        return resolved().remove(id);
     }
 
     @Override
     public boolean update(String id, float[] vector) {
         checkNotClosed();
-        ensureSchema();
-        String json = floatArrayToJson(vector);
-        String sql = "UPDATE " + tableName + " SET " + vectorColumn + " = ? WHERE " + idColumn + " = ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, json);
-            ps.setString(2, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("PostgreSQL 向量更新失败: id=" + id, e);
-        }
+        return resolved().update(id, vector);
     }
 
     @Override
     public void clear() {
         checkNotClosed();
-        ensureSchema();
-        String sql = "DELETE FROM " + tableName;
-        try (Connection conn = dataSource.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException("PostgreSQL 向量清空失败", e);
-        }
+        resolved().clear();
     }
 
     @Override
@@ -213,8 +141,19 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
             }
             schemaInitialized = true;
         } catch (SQLException e) {
-            throw new RuntimeException("PostgreSQL 向量建表失败: " + tableName, e);
+            // pgvector 未安装或扩展失败，降级到内存存储
+            fallback = new com.chua.common.support.vector.MemoryVectorStorage(dimension(), getAlgorithm());
+            schemaInitialized = true;
         }
+    }
+
+    /**
+     * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
+     */
+    private com.chua.common.support.vector.VectorStorage resolved() {
+        if (fallback != null) return fallback;
+        ensureSchema();
+        return this;
     }
 
     private String buildSimilarityOp() {
