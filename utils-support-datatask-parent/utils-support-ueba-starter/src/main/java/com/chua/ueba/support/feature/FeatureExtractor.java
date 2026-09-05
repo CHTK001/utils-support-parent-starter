@@ -383,9 +383,11 @@ public class FeatureExtractor {
 
     /**
      * 路径到类别 ID 的编码，优先查配置词表，未命中时退化为稳定哈希。
+     * <p>哈希回退的上界取自训练回写的词表（preprocessing.vocab 最大 ID + 1），
+     * 确保索引不超出 ONNX Embedding 表大小；词表为空时才用配置的类别特征 vocabSize。</p>
      *
      * @param event 流量事件，不能为 null
-     * @return 类别 ID，范围 [1, vocabSize)，0 保留给填充位
+     * @return 类别 ID，范围 [1, vocabBound)，0 保留给填充位
      */
     private int encodePath(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
@@ -396,19 +398,26 @@ public class FeatureExtractor {
         if (id != null && id > 0) {
             return id;
         }
-        int vocabSize = vocabSizeOf(path);
-        return (path.hashCode() & 0x7fffffff) % (vocabSize - 1) + 1;
+        int bound = vocabBound(vocab);
+        return (path.hashCode() & 0x7fffffff) % (bound - 1) + 1;
     }
 
     /**
-     * 获取路径对应特征的词表大小。
+     * 计算类别 ID 的取值上界。
      *
-     * @param path 路径字符串
-     * @return 词表大小，至少为 2
+     * @param vocab 配置词表，允许为 null 或空
+     * @return 上界，至少为 2
      */
-    private int vocabSizeOf(String path) {
+    private int vocabBound(Map<String, Integer> vocab) {
+        if (vocab != null && !vocab.isEmpty()) {
+            int maxId = 1;
+            for (int value : vocab.values()) {
+                maxId = Math.max(maxId, value);
+            }
+            return maxId + 1;
+        }
         for (FeatureDefinition def : features) {
-            if (def.getType() == FeatureDefinition.FeatureType.CATEGORICAL && "path_id".equals(def.getName())) {
+            if (def.getType() == FeatureDefinition.FeatureType.CATEGORICAL) {
                 return Math.max(2, def.getVocabSize());
             }
         }
