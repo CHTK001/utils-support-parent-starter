@@ -146,6 +146,44 @@ def build_ip_vectors(rows_by_ip, features_cfg, scalers):
     return ips, vectors
 
 
+# ---------- 续训 / checkpoint ----------
+
+def save_checkpoint(model, opt, epoch, path):
+    """保存训练 checkpoint（模型权重 + 优化器状态 + 轮数）。"""
+    ckpt = {"model": model.state_dict(), "epoch": int(epoch)}
+    if opt is not None:
+        ckpt["optimizer"] = opt.state_dict()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(ckpt, path)
+
+
+def load_checkpoint(model, opt, path, device):
+    """加载 checkpoint 权重并返回起始轮数。"""
+    ckpt = torch.load(path, map_location=device, weights_only=False)
+    model.load_state_dict(ckpt["model"])
+    if opt is not None and "optimizer" in ckpt:
+        opt.load_state_dict(ckpt["optimizer"])
+    return int(ckpt.get("epoch", 0))
+
+
+def resolve_checkpoint(resume, model_file, stem):
+    """从续训来源定位模型 checkpoint 文件（.pt）。"""
+    if not resume:
+        return None
+    p = Path(resume)
+    if p.is_file():
+        return p if str(p).endswith(".pt") else None
+    candidates = [
+        p / "checkpoint" / (stem + "_latest.pt"),
+        p / (stem + ".pt"),
+        p / (Path(model_file).with_suffix(".pt")),
+    ]
+    for cand in candidates:
+        if cand.is_file():
+            return cand
+    return None
+
+
 # ---------- AutoEncoder ----------
 
 class AutoEncoder(nn.Module):
