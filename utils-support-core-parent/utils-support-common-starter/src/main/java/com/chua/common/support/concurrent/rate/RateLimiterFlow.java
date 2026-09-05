@@ -182,7 +182,8 @@ public final class RateLimiterFlow {
      */
     private RateLimiterProvider doCreate() {
         for (RateLimiterProvider provider : ServiceProvider.of(RateLimiterProvider.class).list().values()) {
-            if (name.equals(provider.getName())) {
+            // SPI 列表可能含实例化失败的 null 条目，跳过并回退 Guava 实现
+            if (provider != null && name.equals(provider.getName())) {
                 return provider;
             }
         }
