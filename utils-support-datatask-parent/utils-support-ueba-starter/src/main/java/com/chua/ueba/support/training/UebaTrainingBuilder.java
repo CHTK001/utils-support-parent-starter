@@ -81,6 +81,9 @@ public final class UebaTrainingBuilder {
     /** Python 解释器命令 */
     private String pythonCommand = DEFAULT_PYTHON;
 
+    /** 续训来源目录（已有模型或 checkpoint，null 表示从零训练） */
+    private Path resumeDir;
+
     /**
      * 以内存配置对象设置配置。
      *
@@ -275,6 +278,34 @@ public final class UebaTrainingBuilder {
     }
 
     /**
+     * 设置续训来源目录（输出过模型的目录或 .pt checkpoint），从已有模型继续训练；
+     * 不调用则从零开始训练。
+     *
+     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 null
+     * @return 当前构建器
+     * @throws IllegalArgumentException 当 resumeDir 为 null 时
+     */
+    public UebaTrainingBuilder resume(Path resumeDir) {
+        Objects.requireNonNull(resumeDir, "resumeDir must not be null");
+        this.resumeDir = resumeDir;
+        return this;
+    }
+
+    /**
+     * 设置续训来源路径字符串。
+     *
+     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 null 或空白
+     * @return 当前构建器
+     * @throws IllegalArgumentException 当 resumeDir 为 null 或空白时
+     */
+    public UebaTrainingBuilder resume(String resumeDir) {
+        if (resumeDir == null || resumeDir.isBlank()) {
+            throw new IllegalArgumentException("resumeDir 不能为 null 或空白");
+        }
+        return resume(Paths.get(resumeDir));
+    }
+
+    /**
      * 构建训练管线。
      *
      * @return 训练管线，绝不为 null
@@ -288,7 +319,8 @@ public final class UebaTrainingBuilder {
             throw new IllegalArgumentException("必须先设置训练数据 data/events");
         }
         Path out = outputDir != null ? outputDir : DEFAULT_OUTPUT_DIR;
-        return new UebaTrainer(config, configSource, dataCsv, out, epochs, batchSize, learningRate, pythonCommand);
+        return new UebaTrainer(config, configSource, dataCsv, out, epochs, batchSize,
+                learningRate, pythonCommand, resumeDir);
     }
 
     /**
