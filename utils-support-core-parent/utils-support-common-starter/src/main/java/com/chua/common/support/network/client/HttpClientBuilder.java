@@ -1066,6 +1066,22 @@ public class HttpClientBuilder {
         if (path != null && !path.isEmpty()) {
             url = baseUrl.endsWith("/") ? baseUrl + path.substring(1) : baseUrl + path;
         }
+        // 拼接查询参数（与执行时底层执行器行为一致）
+        if (params != null && !params.isEmpty()) {
+            StringBuilder sb = new StringBuilder(url);
+            sb.append(url.contains("?") ? '&' : '?');
+            boolean first = true;
+            for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
+                if (!first) sb.append('&');
+                sb.append(java.net.URLEncoder.encode(entry.getKey(), java.nio.charset.StandardCharsets.UTF_8));
+                sb.append('=');
+                if (entry.getValue() != null) {
+                    sb.append(java.net.URLEncoder.encode(entry.getValue(), java.nio.charset.StandardCharsets.UTF_8));
+                }
+                first = false;
+            }
+            url = sb.toString();
+        }
         return CurlFormatter.formatFromBuilder(this, url);
     }
 
