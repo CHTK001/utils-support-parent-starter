@@ -1,11 +1,23 @@
 package com.chua.datasource.support.dialect;
 
 import com.chua.common.support.lang.datasource.dialect.Pagination;
+import com.chua.common.support.lang.datasource.dialect.StorageEngine;
 
 import java.util.Properties;
 
 /**
  * MySQL 8.0+ 方言实现（兼容 5.7）。
+ * <p>所有 SQL 片段、引用符、关键字均可通过 {@link #properties} 覆盖：</p>
+ * <ul>
+ *   <li>{@code quote-open} / {@code quote-close} — 标识符引用符，默认 {@code `}</li>
+ *   <li>{@code engine-keyword} — 存储引擎关键字，默认 {@code engine}</li>
+ *   <li>{@code table-type} — CREATE TABLE 表类型后缀，默认 {@code ENGINE=InnoDB DEFAULT CHARSET=utf8mb4}</li>
+ *   <li>{@code auto-increment-keyword} — 自增关键字，默认 {@code AUTO_INCREMENT}</li>
+ *   <li>{@code alter-column-string} — 修改列关键字，默认 {@code MODIFY COLUMN}</li>
+ *   <li>{@code current-timestamp-sql} — 当前时间查询，默认 {@code SELECT NOW()}</li>
+ *   <li>{@code trigger-list-sql} / {@code trigger-sql} — 触发器查询模板</li>
+ *   <li>{@code procedure-list-sql} / {@code procedure-sql} — 存储过程查询模板</li>
+ * </ul>
  *
  * @author CH
  * @since 4.0.0.42
@@ -21,7 +33,7 @@ public class MysqlDialect extends AbstractDialect {
     /**
      * 从属性构建 MySQL 方言。
      *
-     * @param properties 配置属性，支持 key: {@code driver}、{@code url}
+     * @param properties 配置属性，key 见类注释
      */
     public MysqlDialect(Properties properties) {
         withProperties(properties);
@@ -30,34 +42,33 @@ public class MysqlDialect extends AbstractDialect {
     @Override
     /** Protocol */
     public String protocol() {
-        return properties != null
-                ? properties.getProperty("protocol", "mysql")
-                : "mysql";
+        return config("protocol", "mysql");
     }
 
     @Override
     /** Driver */
     public String driver() {
-        String prop = properties != null ? properties.getProperty("driver") : null;
-        return prop != null ? prop : "com.mysql.cj.jdbc.Driver";
+        return config("driver", "com.mysql.cj.jdbc.Driver");
     }
 
     @Override
     /** Url */
     public String url() {
-        return properties != null ? properties.getProperty("url") : null;
+        return config("url", null);
     }
 
     @Override
     /** 打开Quote */
     public char openQuote() {
-        return '`';
+        String v = config("quote-open", "`");
+        return v != null && !v.isEmpty() ? v.charAt(0) : '`';
     }
 
     @Override
     /** 关闭Quote */
     public char closeQuote() {
-        return '`';
+        String v = config("quote-close", "`");
+        return v != null && !v.isEmpty() ? v.charAt(0) : '`';
     }
 
     @Override
@@ -94,7 +105,7 @@ public class MysqlDialect extends AbstractDialect {
     @Override
     /** 获取AutoIncrementKeyword */
     public String getAutoIncrementKeyword() {
-        return "AUTO_INCREMENT";
+        return config("auto-increment-keyword", "AUTO_INCREMENT");
     }
 
     @Override
@@ -113,13 +124,13 @@ public class MysqlDialect extends AbstractDialect {
     @Override
     /** 获取AlterColumnString */
     public String getAlterColumnString() {
-        return "MODIFY COLUMN";
+        return config("alter-column-string", "MODIFY COLUMN");
     }
 
     @Override
     /** 获取CurrentTimestamp选择String */
     public String getCurrentTimestampSelectString() {
-        return "SELECT NOW()";
+        return config("current-timestamp-sql", "SELECT NOW()");
     }
 
     @Override
@@ -137,13 +148,31 @@ public class MysqlDialect extends AbstractDialect {
     @Override
     /** 获取EngineKeyword */
     public String getEngineKeyword() {
-        return "ENGINE";
+        return config("engine-keyword", "ENGINE");
+    }
+
+    @Override
+    /** 获取StorageEngine */
+    public StorageEngine getStorageEngine() {
+        return StorageEngine.INNODB;
     }
 
     @Override
     /** 获取TableTypeString */
     public String getTableTypeString() {
-        return " ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+        return config("table-type", " ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
+
+    @Override
+    /** 原生向量支持检测（MySQL 8.0.31+ 有 VECTOR 类型） */
+    public boolean supportsVector() {
+        return true;
+    }
+
+    @Override
+    /** JSON 支持 */
+    public boolean supportsJson() {
+        return true;
     }
 
     // ==================== 触发器 / 存储过程查询 SQL ====================
@@ -151,6 +180,10 @@ public class MysqlDialect extends AbstractDialect {
     @Override
     /** 获取TriggerListSql */
     public String getTriggerListSql(String schema) {
+        String template = config("trigger-list-sql", null);
+        if (template != null) {
+            return appendSchemaCondition(new StringBuilder(template), "TRIGGER_SCHEMA", schema).toString();
+        }
         StringBuilder sql = new StringBuilder(
                 "SELECT TRIGGER_NAME, TRIGGER_SCHEMA, EVENT_OBJECT_TABLE AS TABLE_NAME, "
                         + "ACTION_TIMING, EVENT_MANIPULATION, ACTION_STATEMENT "
@@ -172,6 +205,10 @@ public class MysqlDialect extends AbstractDialect {
     @Override
     /** 获取ProcedureListSql */
     public String getProcedureListSql(String schema) {
+        String template = config("procedure-list-sql", null);
+        if (template != null) {
+            return appendSchemaCondition(new StringBuilder(template), "ROUTINE_SCHEMA", schema).toString();
+        }
         StringBuilder sql = new StringBuilder(
                 "SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE, DATA_TYPE, "
                         + "ROUTINE_DEFINITION, ROUTINE_COMMENT, SECURITY_TYPE, ROUTINE_BODY "
