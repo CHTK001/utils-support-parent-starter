@@ -210,10 +210,10 @@ public class DubboRpcServer implements RpcServer {
         return result;
     }
 
+    /** 获取指标快照（连接信息 + Dubbo 协议层调用计数） */
     @Override
-    /** 获取指标快照 */
     public RpcMetrics getMetrics() {
-        RpcMetrics metrics = new RpcMetrics("dubbo");
+        RpcMetrics metrics = DubboRpcMetricsHolder.snapshot("dubbo");
         List<RpcConnectionInfo> connections = getConnections();
         metrics.setServiceCount(getServiceCount());
         metrics.setTotalConnections(connections.size());
