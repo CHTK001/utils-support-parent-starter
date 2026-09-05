@@ -10,6 +10,7 @@ import com.chua.starter.datasource.repository.CircuitBreakerConfigRepository;
 import com.chua.starter.datasource.repository.DistributedLockConfigRepository;
 import com.chua.starter.datasource.repository.RateLimiterConfigRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
@@ -39,7 +40,11 @@ import java.util.Map;
 @ConditionalOnClass(name = {
         "com.chua.common.support.concurrent.rate.RateLimiterFlow",
         "com.chua.common.support.concurrent.circuitbreaker.CircuitBreakerFlow",
-        "com.chua.common.support.concurrent.lock.LockFlow"
+        "com.chua.common.support.concurrent.lock.LockFlow",
+        // 端点依赖 datasource 仓储类：仓储 starter 缺失时整体退避（避免类加载失败）
+        "com.chua.starter.datasource.repository.RateLimiterConfigRepository",
+        "com.chua.starter.datasource.repository.CircuitBreakerConfigRepository",
+        "com.chua.starter.datasource.repository.DistributedLockConfigRepository"
 })
 public class ConcurrentEndpoint {
 
@@ -47,12 +52,14 @@ public class ConcurrentEndpoint {
     private final CircuitBreakerConfigRepository cbRepo;
     private final DistributedLockConfigRepository lockRepo;
 
-    public ConcurrentEndpoint(RateLimiterConfigRepository rateLimiterRepo,
-                              CircuitBreakerConfigRepository cbRepo,
-                              DistributedLockConfigRepository lockRepo) {
-        this.rateLimiterRepo = rateLimiterRepo;
-        this.cbRepo = cbRepo;
-        this.lockRepo = lockRepo;
+    public ConcurrentEndpoint(ObjectProvider<RateLimiterConfigRepository> rateLimiterRepo,
+                              ObjectProvider<CircuitBreakerConfigRepository> cbRepo,
+                              ObjectProvider<DistributedLockConfigRepository> lockRepo) {
+        // 仓储 Bean 依赖 datasource 基础设施，缺失时置空并让各操作优雅降级，
+        // 避免非 datasource 应用启动时因必填构造依赖而失败
+        this.rateLimiterRepo = rateLimiterRepo.getIfAvailable();
+        this.cbRepo = cbRepo.getIfAvailable();
+        this.lockRepo = lockRepo.getIfAvailable();
     }
 
     // ==================== 概览 ====================
@@ -70,6 +77,9 @@ public class ConcurrentEndpoint {
 
     @ReadOperation
     public List<Map<String, Object>> ratelimiterConfig() {
+        if (rateLimiterRepo == null) {
+            return List.of();
+        }
         List<Map<String, Object>> result = new ArrayList<>();
         for (ConcurrentRateLimiterConfig c : rateLimiterRepo.findAll()) {
             Map<String, Object> item = new HashMap<>();
@@ -85,6 +95,9 @@ public class ConcurrentEndpoint {
 
     @ReadOperation
     public Map<String, Object> ratelimiterConfig(@Selector String name) {
+        if (rateLimiterRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         return rateLimiterRepo.findByName(name)
                 .map(c -> {
                     Map<String, Object> m = new HashMap<>();
@@ -101,6 +114,9 @@ public class ConcurrentEndpoint {
     @WriteOperation
     public Map<String, Object> ratelimiterConfigSave(@Selector String name,
                                                      Map<String, Object> body) {
+        if (rateLimiterRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         if (body == null) body = Map.of();
         double pps = toDouble(body.get("permitsPerSecond"), 1.0);
         long warmup = toLong(body.get("warmupPeriodMs"), 0);
@@ -121,6 +137,9 @@ public class ConcurrentEndpoint {
 
     @WriteOperation
     public Map<String, Object> ratelimiterConfigDelete(@Selector String name) {
+        if (rateLimiterRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         rateLimiterRepo.delete(name);
         RateLimiterFlow.remove(name);
         return Map.of("name", name, "message", "已删除");
@@ -130,6 +149,9 @@ public class ConcurrentEndpoint {
 
     @ReadOperation
     public List<Map<String, Object>> circuitbreakerConfig() {
+        if (cbRepo == null) {
+            return List.of();
+        }
         List<Map<String, Object>> result = new ArrayList<>();
         for (ConcurrentCircuitBreakerConfig c : cbRepo.findAll()) {
             Map<String, Object> item = new HashMap<>();
@@ -145,6 +167,9 @@ public class ConcurrentEndpoint {
 
     @ReadOperation
     public Map<String, Object> circuitbreakerConfig(@Selector String name) {
+        if (cbRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         return cbRepo.findByName(name)
                 .map(c -> {
                     Map<String, Object> m = new HashMap<>();
@@ -161,6 +186,9 @@ public class ConcurrentEndpoint {
     @WriteOperation
     public Map<String, Object> circuitbreakerConfigSave(@Selector String name,
                                                          Map<String, Object> body) {
+        if (cbRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         if (body == null) body = Map.of();
         int failure = body.containsKey("failureThreshold") ? body.get("failureThreshold").toString().isEmpty() ? 5 : Integer.parseInt(body.get("failureThreshold").toString()) : 5;
         int success = body.containsKey("successThreshold") ? body.get("successThreshold").toString().isEmpty() ? 2 : Integer.parseInt(body.get("successThreshold").toString()) : 2;
@@ -181,6 +209,9 @@ public class ConcurrentEndpoint {
 
     @WriteOperation
     public Map<String, Object> circuitbreakerConfigDelete(@Selector String name) {
+        if (cbRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         cbRepo.delete(name);
         CircuitBreakerFlow.remove(name);
         return Map.of("name", name, "message", "已删除");
@@ -190,6 +221,9 @@ public class ConcurrentEndpoint {
 
     @ReadOperation
     public List<Map<String, Object>> lockConfig() {
+        if (lockRepo == null) {
+            return List.of();
+        }
         List<Map<String, Object>> result = new ArrayList<>();
         for (ConcurrentDistributedLockConfig c : lockRepo.findAll()) {
             Map<String, Object> item = new HashMap<>();
@@ -206,6 +240,9 @@ public class ConcurrentEndpoint {
 
     @ReadOperation
     public Map<String, Object> lockConfig(@Selector String name) {
+        if (lockRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         return lockRepo.findByName(name)
                 .map(c -> {
                     Map<String, Object> m = new HashMap<>();
@@ -223,6 +260,9 @@ public class ConcurrentEndpoint {
     @WriteOperation
     public Map<String, Object> lockConfigSave(@Selector String name,
                                                Map<String, Object> body) {
+        if (lockRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         if (body == null) body = Map.of();
         String lockType = toString(body.get("lockType"), "object");
         boolean fair = toBool(body.get("fair"), false);
@@ -245,6 +285,9 @@ public class ConcurrentEndpoint {
 
     @WriteOperation
     public Map<String, Object> lockConfigDelete(@Selector String name) {
+        if (lockRepo == null) {
+            return Map.of("error", "配置存储未初始化（未配置 datasource）");
+        }
         lockRepo.delete(name);
         LockFlow.remove(name);
         return Map.of("name", name, "message", "已删除");
@@ -369,6 +412,9 @@ public class ConcurrentEndpoint {
     // ==================== 内部辅助 ====================
 
     private void reloadRateLimiter(String name) {
+        if (rateLimiterRepo == null) {
+            return;
+        }
         rateLimiterRepo.findByName(name).ifPresent(c -> {
             RateLimiterFlow.remove(name);
             double pps = c.getPermitsPerSecond();

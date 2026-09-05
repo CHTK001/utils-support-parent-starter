@@ -35,6 +35,13 @@ public class CardViewParser implements ViewParser {
     /** Map 类型专用标题 */
     private static final String MAP_TITLE = "Map";
 
+    /**
+     * 判断是否支持卡片格式渲染。
+     * 不支持数组、Iterable 和 java.* 内置类型；Map 仅在非空时支持。
+     *
+     * @param data 待渲染的数据
+     * @return 支持时返回 true
+     */
     @Override
     public boolean support(Object data) {
         if (data == null) {
@@ -53,6 +60,12 @@ public class CardViewParser implements ViewParser {
         return true;
     }
 
+    /**
+     * 将数据渲染为卡片格式（带边框的键值对展示）。
+     *
+     * @param data 待渲染的数据
+     * @return 卡片字符串；空数据返回 {@link ViewFormatter#EMPTY_PLACEHOLDER}
+     */
     @Override
     public String render(Object data) {
         Map<String, String> kv = toKeyValue(data);
@@ -123,6 +136,11 @@ public class CardViewParser implements ViewParser {
         return result;
     }
 
+    /**
+     * 获取解析器顺序，值越大优先级越高。
+     *
+     * @return 顺序值 15
+     */
     @Override
     public int getOrder() {
         return 15;

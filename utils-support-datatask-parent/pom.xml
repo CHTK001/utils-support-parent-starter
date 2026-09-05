@@ -17,6 +17,7 @@
         <module>utils-support-datasync-starter</module>
         <module>utils-support-datasearch-starter</module>
         <module>utils-support-datarecovery-starter</module>
+        <module>utils-support-ueba-starter</module>
     </modules>
 </project>
 
