@@ -242,6 +242,9 @@ public class UebaTrainer {
         parts.add("--config=" + quote(configFile.toString()));
         parts.add("--data=" + quote(dataCsv.toString()));
         parts.add("--output=" + quote(outputDir.toString()));
+        if (resumeDir != null) {
+            parts.add("--resume=" + quote(resumeDir.toString()));
+        }
         parts.add("--epochs=" + epochs);
         parts.add("--batch-size=" + batchSize);
         parts.add("--learning-rate=" + BigDecimal.valueOf(learningRate).toPlainString());
