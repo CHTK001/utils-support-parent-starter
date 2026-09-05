@@ -5,6 +5,8 @@ import com.alipay.sofa.rpc.config.ProviderConfig;
 import com.alipay.sofa.rpc.config.RegistryConfig;
 import com.alipay.sofa.rpc.config.ServerConfig;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.network.rpc.RpcConnectionInfo;
+import com.chua.common.support.network.rpc.RpcMetrics;
 import com.chua.common.support.network.rpc.RpcProtocolConfig;
 import com.chua.common.support.network.rpc.RpcRegistryConfig;
 import com.chua.common.support.network.rpc.RpcServer;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -143,5 +146,40 @@ public class SofaRpcServer implements RpcServer {
         config.export();
         providerConfigs.add(config);
         return this;
+    }
+
+    @Override
+    /** 获取协议名称 */
+    public String getProtocol() {
+        return "sofa";
+    }
+
+    @Override
+    /** 获取已暴露服务数 */
+    public int getServiceCount() {
+        return providerConfigs.size();
+    }
+
+    @Override
+    /** 获取连接信息（SOFA 内部不暴露 channel 级连接，返回监听端点） */
+    public List<RpcConnectionInfo> getConnections() {
+        long now = System.currentTimeMillis();
+        List<RpcConnectionInfo> result = new ArrayList<>(serverConfigs.size());
+        for (ServerConfig serverConfig : serverConfigs) {
+            result.add(new RpcConnectionInfo("sofa",
+                    serverConfig.getHost(), serverConfig.getPort(),
+                    null, null, "ACTIVE", now, now, Collections.emptyMap()));
+        }
+        return result;
+    }
+
+    @Override
+    /** 获取指标快照 */
+    public RpcMetrics getMetrics() {
+        RpcMetrics metrics = new RpcMetrics("sofa");
+        metrics.setServiceCount(providerConfigs.size());
+        metrics.setConnections(getConnections());
+        metrics.setTotalConnections(metrics.getConnections().size());
+        return metrics;
     }
 }

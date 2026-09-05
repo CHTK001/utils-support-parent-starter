@@ -3,6 +3,9 @@ package com.chua.datasource.support.dialect;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -11,8 +14,9 @@ import java.util.Properties;
  * 方言抽象基类。
  * <p>
  * 提供默认的分页 SQL 生成（LIMIT/OFFSET 语法）和默认类型映射。
- * 所有数据库特有字符串（引号、关键字、DDL片段、SQL模板）均通过 {@link #config(String, String)}
- * 从 {@link #properties} 读取，properties 支持通过环境变量 / application.properties 注入。
+ * 所有数据库特有字符串（引号、关键字、DDL片段、SQL模板、JDBC类型映射）
+ * 均从 {@code META-INF/dialect-env/{protocol}.env} 资源文件加载，
+ * 再由外部传入的 {@link #properties} 覆盖。
  * </p>
  *
  * @author CH
@@ -22,12 +26,40 @@ public abstract class AbstractDialect implements Dialect {
 
     /**
      * 方言配置属性，可通过 Spring {@code application.properties}、环境变量或构造参数注入。
-     * <p>支持通过此属性集覆盖 {@link #driver()}、{@link #url()} 及其他 SQL 片段。</p>
+     * <p>外部传入的 properties 优先级高于内置 .env 文件。</p>
      */
     protected Properties properties;
 
     /** 内存中的默认值缓存，避免重复从 properties 读取 */
     private final Map<String, String> configCache = new HashMap<>();
+
+    /**
+     * 从类路径 {@code META-INF/dialect-env/{className-lowercase}.env} 加载默认配置。
+     * <p>例如 {@code MysqlDialect} → {@code mysql.env}，{@code PostgresqlDialect} → {@code postgresql.env}。</p>
+     */
+    protected AbstractDialect() {
+        this.properties = loadDefaultEnv();
+    }
+
+    /**
+     * 从类路径加载方言默认配置文件。
+     *
+     * @return 加载后的 Properties，文件不存在时返回空 Properties
+     */
+    protected Properties loadDefaultEnv() {
+        String simpleName = getClass().getSimpleName().toLowerCase();
+        String resourceName = "META-INF/dialect-env/" + simpleName + ".env";
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
+            if (is == null) {
+                return new Properties();
+            }
+            Properties props = new Properties();
+            props.load(new java.io.BufferedReader(new java.io.InputStreamReader(is, StandardCharsets.UTF_8)));
+            return props;
+        } catch (IOException e) {
+            return new Properties();
+        }
+    }
 
     @Override
     /** SupportsLimit */
@@ -44,7 +76,7 @@ public abstract class AbstractDialect implements Dialect {
     @Override
     /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
-        // 1. 优先读 properties（key = java.sql.Types 常量名，如 "VARCHAR"、"INTEGER"）
+        // 1. 优先读外部 properties（application.properties 等）
         String configured = config("type." + jdbcTypeName(jdbcType), null);
         if (configured != null) {
             return configured;
@@ -109,18 +141,18 @@ public abstract class AbstractDialect implements Dialect {
 
     /**
      * 根据 key 从 properties 中读取配置值，找不到时返回 {@code defaultValue}。
+     * <p>读取顺序：外部注入的 properties → 内置 .env 文件 → defaultValue。</p>
      * <p>读取结果会被缓存，避免重复 I/O。</p>
      *
      * <pre>{@code
-     * // application.properties 示例：
-     * dialect.mysql.quote-open=`
-     * dialect.mysql.quote-close=`
-     * dialect.mysql.engine-keyword=ENGINE
+     * // application.properties 示例（覆盖默认值）：
+     * dialect.mysql.quote-open=[
+     * dialect.mysql.type.VARCHAR=VARCHAR(1000)
      * }</pre>
      *
-     * @param key          配置键（不带前缀，前缀由子类提供）
+     * @param key          配置键
      * @param defaultValue 默认值
-     * @return 配置值，未配置时返回默认值
+     * @return 配置值
      */
     protected String config(String key, String defaultValue) {
         String cacheKey = key;
@@ -139,23 +171,28 @@ public abstract class AbstractDialect implements Dialect {
     }
 
     /**
-     * 获取方言配置属性。
+     * 获取方言配置属性（合并了内置 .env + 外部注入）。
      *
-     * @return 属性集合，未设置时返回 null
+     * @return 属性集合
      */
     public Properties getProperties() {
         return properties;
     }
 
     /**
-     * 设置方言配置属性。
-     * <p>调用后所有 {@link #config(String, String)} 将优先返回属性中的值，同时清空缓存。</p>
+     * 设置方言配置属性，与内置 .env 合并。
+     * <p>外部 properties 优先级高于内置 .env，同时清空缓存。</p>
      *
-     * @param properties 属性集合
+     * @param properties 外部属性集合
      * @return this
      */
     public AbstractDialect withProperties(Properties properties) {
-        this.properties = properties;
+        // 合并：先存 .env 默认值，再被外部 properties 覆盖
+        Properties merged = new Properties(this.properties);
+        if (properties != null) {
+            merged.putAll(properties);
+        }
+        this.properties = merged;
         this.configCache.clear();
         return this;
     }

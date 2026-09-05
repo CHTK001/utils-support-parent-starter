@@ -67,6 +67,12 @@ public class RuleBasedScorer {
     /** 高请求频率权重 */
     private static final double REQUEST_RATE_WEIGHT = 0.2d;
 
+    /** 高路径熵权重 */
+    private static final double PATH_ENTROPY_WEIGHT = 0.2d;
+
+    /** 高 UA 多样性权重 */
+    private static final double UA_DIVERSITY_WEIGHT = 0.2d;
+
     /** 夜间访问权重 */
     private static final double NIGHT_ACCESS_WEIGHT = 0.1d;
 
@@ -191,7 +197,7 @@ public class RuleBasedScorer {
                     .build();
         }
 
-        boolean sensitiveHit = events.stream().anyMatch(this::isSensitivePath);
+        boolean sensitiveHit = events.stream().anyMatch(RuleBasedScorer::isSensitivePath);
         if (sensitiveHit) {
             score += SENSITIVE_PATH_WEIGHT;
         }
@@ -206,7 +212,7 @@ public class RuleBasedScorer {
             score += REQUEST_RATE_WEIGHT;
         }
 
-        boolean nightAccess = events.stream().anyMatch(this::isNightAccess);
+        boolean nightAccess = events.stream().anyMatch(RuleBasedScorer::isNightAccess);
         if (nightAccess) {
             score += NIGHT_ACCESS_WEIGHT;
         }
@@ -279,9 +285,9 @@ public class RuleBasedScorer {
      * @return 类别标签列表
      */
     private List<String> configClassLabels() {
-        UebaConfig.Lstm lstm = featureExtractor.config();
-        if (lstm != null && lstm.getClassLabels() != null && !lstm.getClassLabels().isEmpty()) {
-            return lstm.getClassLabels();
+        UebaConfig.Lstm lstmConfig = featureExtractor.config().getLstm();
+        if (lstmConfig != null && lstmConfig.getClassLabels() != null && !lstmConfig.getClassLabels().isEmpty()) {
+            return lstmConfig.getClassLabels();
         }
         return DEFAULT_CLASS_LABELS;
     }

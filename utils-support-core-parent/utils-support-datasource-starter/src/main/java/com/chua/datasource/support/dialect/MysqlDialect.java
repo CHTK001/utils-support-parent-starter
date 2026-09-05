@@ -189,7 +189,9 @@ public class MysqlDialect extends AbstractDialect {
     public String getTriggerListSql(String schema) {
         String template = config("trigger-list-sql", null);
         if (template != null) {
-            return appendSchemaCondition(new StringBuilder(template), "TRIGGER_SCHEMA", schema).toString();
+            StringBuilder sql = new StringBuilder(template);
+            appendSchemaCondition(sql, "TRIGGER_SCHEMA", schema);
+            return sql.toString();
         }
         StringBuilder sql = new StringBuilder(
                 "SELECT TRIGGER_NAME, TRIGGER_SCHEMA, EVENT_OBJECT_TABLE AS TABLE_NAME, "
@@ -214,7 +216,9 @@ public class MysqlDialect extends AbstractDialect {
     public String getProcedureListSql(String schema) {
         String template = config("procedure-list-sql", null);
         if (template != null) {
-            return appendSchemaCondition(new StringBuilder(template), "ROUTINE_SCHEMA", schema).toString();
+            StringBuilder sql = new StringBuilder(template);
+            appendSchemaCondition(sql, "ROUTINE_SCHEMA", schema);
+            return sql.toString();
         }
         StringBuilder sql = new StringBuilder(
                 "SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE, DATA_TYPE, "

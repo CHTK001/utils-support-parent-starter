@@ -910,6 +910,59 @@ public class HttpClientBuilder {
         executeAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
+    // ==================== curl 支持 ====================
+
+    /**
+     * 从 curl 命令字符串创建 {@link HttpClientBuilder}。
+     *
+     * <p>支持解析常见的 curl 选项，包括 {@code -X}, {@code -H}, {@code -d},
+     * {@code -u}, {@code --connect-timeout}, {@code --proxy} 等。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * HttpClientBuilder builder = HttpClientBuilder.fromCurl(
+     *     "curl -X POST https://api.example.com/users " +
+     *     "-H 'Content-Type: application/json' " +
+     *     "-H 'Authorization: Bearer xxx' " +
+     *     "-d '{\"name\":\"test\"}'"
+     * );
+     * ClientResponse resp = builder.post();
+     * }</pre>
+     *
+     * @param curl curl 命令字符串，可以是完整命令（含 {@code curl} 前缀），也可以是选项部分
+     * @return 构建好的 HttpClientBuilder
+     */
+    public static HttpClientBuilder fromCurl(String curl) {
+        return CurlParser.fromCurl(curl);
+    }
+
+    /**
+     * 将当前构建状态格式化为等价的 curl 命令字符串。
+     *
+     * <p>适用于调试、日志记录或跨平台复用。输出的命令可以直接在终端执行。</p>
+     *
+     * <p><b>输出示例：</b></p>
+     * <pre>{@code
+     * String curl = HttpClientFactory.of("https://api.example.com")
+     *     .path("/users")
+     *     .json()
+     *     .auth("xxx")
+     *     .body("{\"name\":\"test\"}")
+     *     .connectTimeout(5000)
+     *     .toCurl();
+     * // 输出: curl -X POST 'https://api.example.com/users' -H 'Content-Type: application/json' ...
+     * }</pre>
+     *
+     * @return 等价的 curl 命令字符串
+     */
+    public String toCurl() {
+        String url = baseUrl;
+        if (path != null && !path.isEmpty()) {
+            url = baseUrl.endsWith("/") ? baseUrl + path.substring(1) : baseUrl + path;
+        }
+        return CurlFormatter.formatFromBuilder(this, url);
+    }
+
     // ==================== 同步快捷方法 ====================
 
     /**
