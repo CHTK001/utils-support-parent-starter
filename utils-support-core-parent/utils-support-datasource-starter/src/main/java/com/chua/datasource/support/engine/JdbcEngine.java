@@ -113,10 +113,15 @@ public abstract class JdbcEngine extends AbstractEngine {
      * 对内存数据执行 LIMIT/OFFSET 截取，dialect 不支持物理分页时的兜底实现。
      */
     private static <T> List<T> limitSlice(List<T> data, int limit, int offset) {
-        if (limit <= 0 && offset <= 0) return data;
+        if (limit <= 0 && offset <= 0) {
+            return data;
+        }
         int from = Math.min(offset, data.size());
         int to = limit > 0 ? Math.min(from + limit, data.size()) : data.size();
-        return from >= data.size() ? Collections.emptyList() : data.subList(from, to);
+        if (from >= data.size()) {
+            return Collections.emptyList();
+        }
+        return data.subList(from, to);
     }
 
     /** 设置FieldValue */
@@ -218,7 +223,9 @@ public abstract class JdbcEngine extends AbstractEngine {
                     getDataSource(getDefaultDataSourceName());
             if (eds != null) {
                 Object source = eds.getSource();
-                if (source instanceof javax.sql.DataSource ds) return ds;
+                if (source instanceof javax.sql.DataSource ds) {
+                    return ds;
+                }
             }
             // 回退：通过 Connection.unwrap 获取
             java.sql.Connection conn = getJdbcConnection();
@@ -551,7 +558,10 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     private String currentDialectProtocol() {
         Dialect d = dialect();
-        return d != null ? d.protocol() : "unknown";
+        if (d != null) {
+            return d.protocol();
+        }
+        return "unknown";
     }
 
     @SuppressWarnings("unchecked")
@@ -640,7 +650,9 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     private static String escapeString(String s) {
-        if (StringUtils.isEmpty(s)) return "";
+        if (StringUtils.isEmpty(s)) {
+            return "";
+        }
         return StringUtils.replace(s, "'", "''");
     }
 }
