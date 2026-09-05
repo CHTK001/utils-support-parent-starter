@@ -1,1 +1,2 @@
 sqlserver=com.chua.sqlserver.support.engine.SqlServerEngine
+sqlserver-legacy=com.chua.sqlserver.support.engine.SqlServerLegacyEngine
