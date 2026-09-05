@@ -35,6 +35,9 @@ public class WebhookInboundAdapter {
     /** JDK HTTP 服务器 */
     private volatile HttpServer server;
 
+    /** 端口（启动后填充，port=0 时为系统分配的 ephemeral 端口） */
+    private int actualPort;
+
     /** 端口 */
     private final int port;
 
@@ -73,6 +76,7 @@ public class WebhookInboundAdapter {
         }
         try {
             server = HttpServer.create(new InetSocketAddress(port), 0);
+            this.actualPort = server.getAddress().getPort();
 
             // POST /api/datalake/webhook/{pipelineId} — 单条推送
             server.createContext("/api/datalake/webhook/", this::handleRequest);
@@ -187,6 +191,15 @@ public class WebhookInboundAdapter {
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
         }
+    }
+
+    /**
+     * 返回实际监听的端口（启动后有效，port=0 时为系统分配端口）。
+     *
+     * @return 实际端口号
+     */
+    public int getServerPort() {
+        return actualPort;
     }
 
     /**
