@@ -1,0 +1,83 @@
+# UEBA 分析配置
+# 训练端（Python）与推理端（Java）共享本文件：
+# 1. features 顺序即 AutoEncoder 输入向量的维度顺序，两端必须严格一致
+# 2. 训练完成后将归一化参数与词表回写到 preprocessing 段
+# 3. 新增指标 = 在 features 追加一项 + 重新训练模型，Java 端零改动
+features:
+  - name: request_rate
+    type: NUMERIC
+    normalize: MINMAX
+    window: 60
+  - name: path_entropy
+    type: NUMERIC
+    normalize: ZSCORE
+    window: 300
+  - name: unique_paths_count
+    type: NUMERIC
+    normalize: MINMAX
+    window: 300
+  - name: error_rate
+    type: NUMERIC
+    normalize: MINMAX
+    window: 60
+  - name: method_diversity
+    type: NUMERIC
+    normalize: MINMAX
+    window: 60
+  - name: ua_diversity
+    type: NUMERIC
+    normalize: MINMAX
+    window: 300
+  - name: avg_response_time
+    type: NUMERIC
+    normalize: ZSCORE
+    window: 60
+  - name: max_response_time
+    type: NUMERIC
+    normalize: ZSCORE
+    window: 60
+  - name: avg_body_size
+    type: NUMERIC
+    normalize: ZSCORE
+    window: 60
+  - name: time_of_day
+    type: CYCLIC
+    normalize: NONE
+    period: 86400
+
+autoEncoder:
+  hiddenDims: [32, 16]
+  threshold: 0.8
+  modelFile: autoencoder_ip.onnx
+  modelPath: ""
+
+lstm:
+  windowSize: 20
+  numNumericFeatures: 4
+  numClasses: 3
+  classLabels: [normal, suspicious, attack]
+  modelFile: lstm_attention_behavior.onnx
+  modelPath: ""
+
+risk:
+  ipWeight: 0.5
+  behaviorWeight: 0.5
+  highThreshold: 0.7
+  mediumThreshold: 0.35
+
+preprocessing:
+  # 训练完成后由 Python 回写；Java 推理读取同一份参数
+  scalers:
+    request_rate: { min: 0, max: 100 }
+    path_entropy: { mean: 2.5, std: 1.2 }
+    unique_paths_count: { min: 0, max: 50 }
+    error_rate: { min: 0, max: 0.5 }
+    method_diversity: { min: 0, max: 1 }
+    ua_diversity: { min: 0, max: 1 }
+    avg_response_time: { mean: 200, std: 150 }
+    max_response_time: { mean: 800, std: 600 }
+    avg_body_size: { mean: 2048, std: 4096 }
+  # 训练完成后回写的类别词表：path -> id（0 保留给填充位）
+  vocab:
+    /login: 1
+    /admin: 2
