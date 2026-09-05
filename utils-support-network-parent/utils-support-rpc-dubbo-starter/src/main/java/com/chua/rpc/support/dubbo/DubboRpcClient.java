@@ -58,11 +58,20 @@ public class DubboRpcClient implements RpcClient {
         for (RpcRegistryConfig cfg : rpcRegistryConfigs) {
             RegistryConfig item = new RegistryConfig();
             item.setAddress(cfg.getAddress());
+            item.setProtocol(cfg.getProtocol());
+            item.setPort(cfg.getPort());
             item.setUsername(cfg.getUsername());
             item.setPassword(cfg.getPassword());
             if (cfg.getTimeout() != null) { item.setTimeout(cfg.getTimeout()); }
             if (cfg.getSessionTimeout() != null) { item.setSession(cfg.getSessionTimeout()); }
             if (cfg.getFile() != null) { item.setFile(cfg.getFile()); }
+            if (cfg.getCheck() != null) { item.setCheck(cfg.getCheck()); }
+            if (cfg.getRegister() != null) { item.setRegister(cfg.getRegister()); }
+            if (cfg.getSubscribe() != null) { item.setSubscribe(cfg.getSubscribe()); }
+            if (cfg.getDynamic() != null) { item.setDynamic(cfg.getDynamic()); }
+            if (cfg.getGroup() != null) { item.setGroup(cfg.getGroup()); }
+            if (cfg.getVersion() != null) { item.setVersion(cfg.getVersion()); }
+            if (cfg.getParameters() != null && !cfg.getParameters().isEmpty()) { item.setParameters(cfg.getParameters()); }
             registryConfigs.add(item);
         }
         this.consumerConfig = buildConsumerConfig(consumerCfg);

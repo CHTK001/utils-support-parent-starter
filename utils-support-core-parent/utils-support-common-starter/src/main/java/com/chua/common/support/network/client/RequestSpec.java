@@ -529,6 +529,38 @@ public class RequestSpec {
     }
 
     /**
+     * 快捷设置 Authorization 请求头为 <code>Bearer &lt;token&gt;</code>（{@link #auth} 的别名）。
+     *
+     * @param token Bearer Token 字符串
+     * @return 当前实例（链式调用）
+     */
+    public RequestSpec bearer(String token) {
+        return auth(token);
+    }
+
+    /**
+     * 设置 Authorization 请求头（完整值，直接写入头，不自动添加前缀）。
+     *
+     * @param value 完整的 Authorization 头值
+     * @return 当前实例（链式调用）
+     */
+    public RequestSpec authorization(String value) {
+        this.headers.add("Authorization", value);
+        return this;
+    }
+
+    /**
+     * 快捷设置 Authorization 为 HTTP Basic 认证（{@link #authBasic} 的别名）。
+     *
+     * @param username 认证用户名
+     * @param password 认证密码
+     * @return 当前实例（链式调用）
+     */
+    public RequestSpec basicAuth(String username, String password) {
+        return authBasic(username, password);
+    }
+
+    /**
      * 快捷设置 Authorization 为 HTTP Basic 认证。
      *
      * <p>将用户名和密码拼接为 {@code username:password}，进行 Base64 编码，

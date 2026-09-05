@@ -1,6 +1,5 @@
 package com.chua.common.support.network.rpc;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -25,22 +24,4 @@ public record RpcConnectionInfo(String protocol, String localAddress, Integer lo
                                 String remoteAddress, Integer remotePort, String state,
                                 long createTime, long lastActiveTime,
                                 Map<String, String> attributes) {
-
-    /**
-     * 以当前时间戳创建连接信息。
-     *
-     * @param protocol      协议名称
-     * @param localAddress  本地监听地址
-     * @param localPort     本地监听端口
-     * @param remoteAddress 对端地址
-     * @param remotePort    对端端口
-     * @param state         连接状态
-     * @return 连接信息
-     */
-    public static RpcConnectionInfo of(String protocol, String localAddress, Integer localPort,
-                                       String remoteAddress, Integer remotePort, String state) {
-        long now = System.currentTimeMillis();
-        return new RpcConnectionInfo(protocol, localAddress, localPort, remoteAddress, remotePort,
-                state, now, now, Collections.emptyMap());
-    }
 }

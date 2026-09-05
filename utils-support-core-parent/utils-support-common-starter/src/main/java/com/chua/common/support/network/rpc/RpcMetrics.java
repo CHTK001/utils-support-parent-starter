@@ -1,5 +1,7 @@
 package com.chua.common.support.network.rpc;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Data
 public class RpcMetrics {
 
     /**
@@ -66,16 +69,6 @@ public class RpcMetrics {
     }
 
     /**
-     * 创建空指标快照。
-     *
-     * @param protocol 协议名称
-     * @return 空指标快照
-     */
-    public static RpcMetrics empty(String protocol) {
-        return new RpcMetrics(protocol);
-    }
-
-    /**
      * 创建永不变化的空指标快照（供默认实现使用）。
      *
      * @param protocol 协议名称
@@ -83,89 +76,9 @@ public class RpcMetrics {
      */
     public static RpcMetrics immutable(String protocol) {
         RpcMetrics metrics = new RpcMetrics(protocol);
-        metrics.connections = Collections.emptyList();
-        metrics.methodStats = Collections.emptyList();
+        metrics.setConnections(Collections.emptyList());
+        metrics.setMethodStats(Collections.emptyList());
         return metrics;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public long getTotalCalls() {
-        return totalCalls;
-    }
-
-    public void setTotalCalls(long totalCalls) {
-        this.totalCalls = totalCalls;
-    }
-
-    public long getSuccessCalls() {
-        return successCalls;
-    }
-
-    public void setSuccessCalls(long successCalls) {
-        this.successCalls = successCalls;
-    }
-
-    public long getFailureCalls() {
-        return failureCalls;
-    }
-
-    public void setFailureCalls(long failureCalls) {
-        this.failureCalls = failureCalls;
-    }
-
-    public long getActiveCalls() {
-        return activeCalls;
-    }
-
-    public void setActiveCalls(long activeCalls) {
-        this.activeCalls = activeCalls;
-    }
-
-    public long getTotalConnections() {
-        return totalConnections;
-    }
-
-    public void setTotalConnections(long totalConnections) {
-        this.totalConnections = totalConnections;
-    }
-
-    public int getServiceCount() {
-        return serviceCount;
-    }
-
-    public void setServiceCount(int serviceCount) {
-        this.serviceCount = serviceCount;
-    }
-
-    public List<RpcConnectionInfo> getConnections() {
-        return connections;
-    }
-
-    public void setConnections(List<RpcConnectionInfo> connections) {
-        this.connections = connections;
-    }
-
-    public List<MethodStat> getMethodStats() {
-        return methodStats;
-    }
-
-    public void setMethodStats(List<MethodStat> methodStats) {
-        this.methodStats = methodStats;
     }
 
     /**

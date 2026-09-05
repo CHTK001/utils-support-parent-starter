@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,8 +36,8 @@ import java.util.concurrent.TimeUnit;
  * @author CH
  * @since 4.0.0.42
  */
-@Spi("influxdb")
-public class InfluxDbEngine extends AbstractEngine {
+    @Spi("influxdb")
+    public class InfluxDbEngine extends AbstractEngine {
 
     /**
      * 缺省数据库名
@@ -52,6 +53,34 @@ public class InfluxDbEngine extends AbstractEngine {
      * 实体字段映射缓存：类 -> (snake_case 列名 -> Field)
      */
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * 方言（从 META-INF/dialect-env/influxdb.env 加载）。
+     */
+    private final java.util.Properties dialectProps;
+
+    public InfluxDbEngine() {
+        this.dialectProps = loadProps("influxdb");
+    }
+
+    private static java.util.Properties loadProps(String protocol) {
+        try {
+            java.io.InputStream is = InfluxDbEngine.class.getClassLoader()
+                    .getResourceAsStream("META-INF/dialect-env/" + protocol + ".env");
+            if (is == null) return new java.util.Properties();
+            java.util.Properties props = new java.util.Properties();
+            props.load(new java.io.BufferedReader(
+                    new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8)));
+            return props;
+        } catch (Exception e) {
+            return new java.util.Properties();
+        }
+    }
+
+    private boolean supportsNativePagination() {
+        String v = dialectProps.getProperty("supports-native-pagination", "true");
+        return !"false".equalsIgnoreCase(v.trim());
+    }
 
     /**
      * 添加数据源（InfluxDB 客户端或连接地址）。
@@ -217,29 +246,40 @@ public class InfluxDbEngine extends AbstractEngine {
         com.chua.common.support.lang.datasource.engine.wrapper.QuerySql<T> sql =
                 (com.chua.common.support.lang.datasource.engine.wrapper.QuerySql<T>) wrapper.buildSql();
         String where = sql.whereClause() == null ? "" : sql.whereClause().trim();
-        List<T> rows = doQuery(entityClass, normalizeColumns(where, entityClass), sql.params());
+        List<T> rows = doQuery(entityClass, normalizeColumns(where, entityClass), sql.params(), sql.limit(), sql.offset());
         return sortRows(rows, sql.orderBys(), entityClass);
     }
 
     @Override
-    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> rows = doQuery(entityClass,
                 normalizeColumns(where == null ? "" : where.trim(), entityClass),
-                params == null ? List.of() : List.of(params));
+                params == null ? List.of() : List.of(params),
+                limit, offset);
         return rows;
     }
 
     /**
      * 执行 SELECT 并映射实体。
      */
-    private <T> List<T> doQuery(Class<T> entityClass, String where, List<Object> params) {
+    private <T> List<T> doQuery(Class<T> entityClass, String where, List<Object> params, int limit, int offset) {
         String measurement = getTableName(entityClass);
         StringBuilder ql = new StringBuilder("SELECT * FROM \"").append(measurement).append('"');
         if (!where.isEmpty()) {
             ql.append(" WHERE ").append(inline(where, params));
         }
+        // InfluxDB 支持 LIMIT，不支持 OFFSET（内存兜底截取）
+        if (supportsNativePagination() && limit > 0) {
+            ql.append(" LIMIT ").append(limit);
+        }
         QueryResult resp = client().query(new Query(ql.toString(), database()));
-        return mapResult(entityClass, resp);
+        List<T> rows = mapResult(entityClass, resp);
+        // InfluxDB 无 OFFSET，内存截取
+        if (offset > 0) {
+            int from = Math.min(offset, rows.size());
+            return from >= rows.size() ? Collections.emptyList() : rows.subList(from, rows.size());
+        }
+        return rows;
     }
 
     /**
