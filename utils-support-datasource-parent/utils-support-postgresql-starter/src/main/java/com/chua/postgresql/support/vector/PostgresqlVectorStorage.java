@@ -52,6 +52,8 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     private final int hnswM;
     private final int hnswEfSearch;
     private volatile boolean schemaInitialized;
+    /** 降级存储（pgvector 不可用时初始化） */
+    private volatile com.chua.common.support.vector.VectorStorage fallback;
 
     public PostgresqlVectorStorage(DataSource dataSource, int dimension, VectorCompareAlgorithm algorithm) {
         this(dataSource, dimension, algorithm, new PostgresqlVectorStorageProperties());

@@ -55,6 +55,8 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     private final String vectorColumn;
     /** 是否已建表 */
     private volatile boolean schemaInitialized;
+    /** 降级存储（建表失败时初始化） */
+    private volatile com.chua.common.support.vector.VectorStorage fallback;
 
     /**
      * 构造 MySQL 向量存储。
