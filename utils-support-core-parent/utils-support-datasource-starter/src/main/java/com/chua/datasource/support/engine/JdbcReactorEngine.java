@@ -156,7 +156,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
 
         /* 多数据源时重建联邦 */
-        if (r2dbcFactories.size() > 1 || jdbcDataSources.size() > 1) {
+        boolean multiR2dbc = r2dbcFactories.size() > 1;
+        boolean multiJdbc = jdbcDataSources.size() > 1;
+        if (multiR2dbc || multiJdbc) {
             buildUnifiedDataSource();
         }
 
@@ -181,7 +183,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
-        if (r2dbcFactories.size() > 1) {
+        boolean multi = r2dbcFactories.size() > 1;
+        if (multi) {
             buildUnifiedDataSource();
         }
         return this;
@@ -203,7 +206,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
-        if (r2dbcFactories.size() > 1) {
+        boolean multi2 = r2dbcFactories.size() > 1;
+        if (multi2) {
             buildUnifiedDataSource();
         }
         return this;
@@ -238,12 +242,24 @@ public class JdbcReactorEngine implements ReactorEngine {
 
         /* 复制所有已解析的选项 */
         Object val;
-        if ((val = parsed.getValue(DRIVER)) != null) builder.option(DRIVER, (String) val);
-        if ((val = parsed.getValue(HOST)) != null) builder.option(HOST, (String) val);
-        if ((val = parsed.getValue(PORT)) != null) builder.option(PORT, (Integer) val);
-        if ((val = parsed.getValue(DATABASE)) != null) builder.option(DATABASE, (String) val);
-        if ((val = parsed.getValue(PROTOCOL)) != null) builder.option(PROTOCOL, (String) val);
-        if ((val = parsed.getValue(SSL)) != null) builder.option(SSL, (Boolean) val);
+        if ((val = parsed.getValue(DRIVER)) != null) {
+            builder.option(DRIVER, (String) val);
+        }
+        if ((val = parsed.getValue(HOST)) != null) {
+            builder.option(HOST, (String) val);
+        }
+        if ((val = parsed.getValue(PORT)) != null) {
+            builder.option(PORT, (Integer) val);
+        }
+        if ((val = parsed.getValue(DATABASE)) != null) {
+            builder.option(DATABASE, (String) val);
+        }
+        if ((val = parsed.getValue(PROTOCOL)) != null) {
+            builder.option(PROTOCOL, (String) val);
+        }
+        if ((val = parsed.getValue(SSL)) != null) {
+            builder.option(SSL, (Boolean) val);
+        }
 
         /* H2 mem/file 模式，URL 解析会把 database 当成 host
          * 例如 r2dbc:h2:mem://testdb → host=testdb, database=null
