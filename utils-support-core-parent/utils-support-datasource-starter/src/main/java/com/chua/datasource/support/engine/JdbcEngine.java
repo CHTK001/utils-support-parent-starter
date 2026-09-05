@@ -37,7 +37,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     @Override
     @SuppressWarnings("unchecked")
     /** 执行New查询 */
-    protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz) {
+    protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         List<T> data = getData(clazz);
         if (!data.isEmpty()) {
             if (where == null || where.trim().isEmpty()) {
@@ -633,3 +633,4 @@ public abstract class JdbcEngine extends AbstractEngine {
         return StringUtils.replace(s, "'", "''");
     }
 }
+

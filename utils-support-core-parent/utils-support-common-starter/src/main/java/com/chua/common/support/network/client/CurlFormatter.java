@@ -122,9 +122,9 @@ public final class CurlFormatter {
             for (Map.Entry<String, String> entry : headers.toMap().entrySet()) {
                 String name = entry.getKey();
                 String value = entry.getValue();
-                // 跳过已单独处理的头
-                if ("Content-Type".equalsIgnoreCase(name) && "application/json".equalsIgnoreCase(value)
-                        && body instanceof String b && isJson(b)) {
+                // 跳过已单独处理的头（User-Agent/Referer/Cookie/Authorization 由下方专属段输出）
+                if ("User-Agent".equalsIgnoreCase(name) || "Referer".equalsIgnoreCase(name)
+                        || "Cookie".equalsIgnoreCase(name) || "Authorization".equalsIgnoreCase(name)) {
                     continue;
                 }
                 sb.append(" -H ").append(quote(name + ": " + value));

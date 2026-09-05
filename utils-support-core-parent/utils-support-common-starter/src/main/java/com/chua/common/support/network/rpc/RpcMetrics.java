@@ -89,9 +89,15 @@ public class RpcMetrics {
      * @param success        成功次数
      * @param failure        失败次数
      * @param avgDurationMs  平均耗时（毫秒）
+     * @param maxDurationMs  最大耗时（毫秒）
+     * @param minDurationMs  最小耗时（毫秒）
      * @param lastDurationMs 最近一次耗时（毫秒）
+     * @param lastCallTime   最近一次调用时间戳（毫秒），无记录为 0
+     * @param lastResult     最近一次结果（SUCCESS / FAILURE / NONE）
+     * @param lastError      最近一次失败时的错误信息，成功或未发生失败时为空字符串
      */
     public record MethodStat(String method, long total, long success, long failure,
-                             long avgDurationMs, long lastDurationMs) {
+                             long avgDurationMs, long maxDurationMs, long minDurationMs,
+                             long lastDurationMs, long lastCallTime, String lastResult, String lastError) {
     }
 }

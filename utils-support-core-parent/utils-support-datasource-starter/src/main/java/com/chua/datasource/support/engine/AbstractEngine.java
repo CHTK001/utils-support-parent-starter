@@ -241,9 +241,16 @@ public abstract class AbstractEngine implements Engine {
      */
     public <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         var sql = wrapper.buildSql();
-        List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass);
+        List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass, sql.limit(), sql.offset());
         if (result == null || result.isEmpty()) {
             return result;
+        }
+        // 如果设置了 limit 但 dialect 不支持物理分页，内存截取
+        if (sql.hasLimit()) {
+            int from = sql.offset();
+            int to = Math.min(from + sql.limit(), result.size());
+            if (from >= result.size()) return Collections.emptyList();
+            result = result.subList(from, to);
         }
         // 过滤 null 元素，避免排序引发 NPE
         List<T> valid = result.stream()
@@ -334,7 +341,7 @@ public abstract class AbstractEngine implements Engine {
      * @return 查询结果
      */
     protected abstract <T> List<T> executeNewQuery(
-            String where, Object[] params, Class<T> entityClass);
+            String where, Object[] params, Class<T> entityClass, int limit, int offset);
 
     /**
      * 执行更新操作。
