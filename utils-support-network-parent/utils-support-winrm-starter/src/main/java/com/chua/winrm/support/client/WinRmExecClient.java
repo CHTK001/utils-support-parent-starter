@@ -9,7 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * WinRM 链式客户端，基于 winrm4j（io.cloudsoft.windows:winrm4j），与 SshClient 接口风格一致。
