@@ -73,6 +73,9 @@ public class UebaTrainer {
     /** Python 解释器命令 */
     private final String pythonCommand;
 
+    /** 续训来源目录（已有模型或 checkpoint），null 表示从零训练 */
+    private final Path resumeDir;
+
     /**
      * 构造训练管线。
      *
@@ -84,10 +87,12 @@ public class UebaTrainer {
      * @param batchSize      批大小，必须大于 0
      * @param learningRate   学习率，必须大于 0
      * @param pythonCommand  Python 解释器，不能为 null 或空白
+     * @param resumeDir      续训来源目录（已有模型/checkpoint），允许为 null（null 表示从零训练）
      * @throws IllegalArgumentException 当任一参数不合法时
      */
     public UebaTrainer(UebaConfig config, Path configSource, Path dataCsv, Path outputDir,
-                       int epochs, int batchSize, double learningRate, String pythonCommand) {
+                       int epochs, int batchSize, double learningRate, String pythonCommand,
+                       Path resumeDir) {
         Objects.requireNonNull(config, "config must not be null");
         Objects.requireNonNull(dataCsv, "dataCsv must not be null");
         Objects.requireNonNull(outputDir, "outputDir must not be null");
@@ -111,6 +116,7 @@ public class UebaTrainer {
         this.batchSize = batchSize;
         this.learningRate = learningRate;
         this.pythonCommand = pythonCommand;
+        this.resumeDir = resumeDir;
     }
 
     /**
