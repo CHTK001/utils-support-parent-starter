@@ -189,7 +189,9 @@ public class UebaEngine implements AutoCloseable {
      * @throws IllegalArgumentException 当 event 为 null 时
      */
     public UebaResult analyze(TrafficEvent event) {
-        Objects.requireNonNull(event, "event must not be null");
+        if (event == null) {
+            throw new IllegalArgumentException("event must not be null");
+        }
         tracker.add(event);
         String entity = entityKey(event);
         List<TrafficEvent> window = tracker.snapshot(entity);
