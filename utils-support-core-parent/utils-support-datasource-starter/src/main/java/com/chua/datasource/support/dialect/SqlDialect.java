@@ -14,14 +14,14 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * 统一 SQL 方言实现。
+ * 统一 SQL 方言实现，所有配置驱动。
  * <p>
  * 所有数据库特有配置（驱动、引用符、类型映射、DDL/DML 片段、触发器/存储过程查询 SQL）
  * 均从 {@code META-INF/dialect-env/{protocol}.env} 资源文件加载，外部 {@link #properties}
  * 可覆盖其中任意值。
  * </p>
  * <p>
- * 示例：{@code MysqlDialect} 仅需要 {@code new SqlDialect("mysql")} 即可工作。
+ * 示例：{@code new SqlDialect("mysql")} 即可工作，子类只需传递协议名。
  * </p>
  *
  * @author CH
@@ -82,22 +82,40 @@ public class SqlDialect extends AbstractDialect {
         return firstChar("quote-close");
     }
 
-    /** 返回字符串第一个字符，空字符串时返回空格 */
+    /**
+     * 返回字符串第一个字符，空字符串时返回空格。
+     *
+     * @param key 配置键
+     * @return 第一个字符或空格
+     */
     private char firstChar(String key) {
         String v = config(key, "");
-        return !v.isEmpty() ? v.charAt(0) : ' ';
+        if (v.isEmpty()) {
+            return ' ';
+        }
+        return v.charAt(0);
     }
 
     @Override
     public boolean supportsLimit() {
         Boolean v = configBool("supports-limit");
-        return v != null ? v : true;
+        if (v != null) {
+            return v;
+        }
+        return true;
     }
 
-    /** 支持读取布尔型配置 */
+    /**
+     * 读取布尔型配置，key 不存在时返回 null。
+     *
+     * @param key 配置键
+     * @return 解析后的布尔值，key 不存在返回 null
+     */
     private Boolean configBool(String key) {
         String v = config(key, null);
-        if (v == null) return null;
+        if (v == null) {
+            return null;
+        }
         return Boolean.parseBoolean(v.trim());
     }
 
@@ -118,16 +136,18 @@ public class SqlDialect extends AbstractDialect {
     @Override
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
         String configured = config("type." + jdbcTypeName(jdbcType), null);
-        if (configured != null) return configured;
+        if (configured != null) {
+            return configured;
+        }
         // 带长度的类型，用 {len}/{prec}/{scl} 占位符替换
-        String len  = length  > 0 ? String.valueOf(length)  : "255";
+        String len = length > 0 ? String.valueOf(length) : "255";
         String prec = precision > 0 ? String.valueOf(precision) : "10";
-        String scl  = scale     > 0 ? String.valueOf(scale)     : "0";
+        String scl = scale > 0 ? String.valueOf(scale) : "0";
         String defaultType = config("type-default", "VARCHAR(" + len + ")");
         return defaultType
-                .replace("{len}",  len)
+                .replace("{len}", len)
                 .replace("{prec}", prec)
-                .replace("{scl}",  scl);
+                .replace("{scl}", scl);
     }
 
     @Override
@@ -137,9 +157,11 @@ public class SqlDialect extends AbstractDialect {
 
     @Override
     public boolean supportsUpsert() {
-        return configBool("supports-upsert") != null
-                ? configBool("supports-upsert")
-                : false;
+        Boolean v = configBool("supports-upsert");
+        if (v != null) {
+            return v;
+        }
+        return false;
     }
 
     @Override
@@ -147,9 +169,9 @@ public class SqlDialect extends AbstractDialect {
         String template = config("upsert-template", null);
         if (template != null) {
             return template
-                    .replace("{table}",  quote(tableName))
+                    .replace("{table}", quote(tableName))
                     .replace("{columns}", columns)
-                    .replace("{values}",  values)
+                    .replace("{values}", values)
                     .replace("{updateSet}", updateSet);
         }
         return super.getUpsertSql(tableName, columns, values, updateSet);
@@ -187,13 +209,19 @@ public class SqlDialect extends AbstractDialect {
     @Override
     public boolean supportsInlineComment() {
         Boolean v = configBool("supports-inline-comment");
-        return v != null ? v : false;
+        if (v != null) {
+            return v;
+        }
+        return false;
     }
 
     @Override
     public boolean supportsPartition() {
         Boolean v = configBool("supports-partition");
-        return v != null ? v : false;
+        if (v != null) {
+            return v;
+        }
+        return false;
     }
 
     @Override
@@ -218,12 +246,20 @@ public class SqlDialect extends AbstractDialect {
 
     @Override
     public boolean supportsVector() {
-        return configBool("supports-vector") != null ? configBool("supports-vector") : false;
+        Boolean v = configBool("supports-vector");
+        if (v != null) {
+            return v;
+        }
+        return false;
     }
 
     @Override
     public boolean supportsJson() {
-        return configBool("supports-json") != null ? configBool("supports-json") : false;
+        Boolean v = configBool("supports-json");
+        if (v != null) {
+            return v;
+        }
+        return false;
     }
 
     @Override
@@ -236,16 +272,22 @@ public class SqlDialect extends AbstractDialect {
     @Override
     public String getTriggerListSql(String schema) {
         String template = config("trigger-list-sql", null);
-        if (template == null) return null;
+        if (template == null) {
+            return null;
+        }
         return buildWithSchema(template, schema, "trigger_schema");
     }
 
     @Override
     public String getTriggerSql(String triggerName, String schema) {
         String template = config("trigger-sql", null);
-        if (template == null) return null;
+        if (template == null) {
+            return null;
+        }
         String listSql = getTriggerListSql(schema);
-        if (listSql == null) return null;
+        if (listSql == null) {
+            return null;
+        }
         return template
                 .replace("{list_sql}", listSql)
                 .replace("{trigger_name}", escape(triggerName));
@@ -254,24 +296,39 @@ public class SqlDialect extends AbstractDialect {
     @Override
     public String getProcedureListSql(String schema) {
         String template = config("procedure-list-sql", null);
-        if (template == null) return null;
+        if (template == null) {
+            return null;
+        }
         return buildWithSchema(template, schema, "routine_schema");
     }
 
     @Override
     public String getProcedureSql(String procedureName, String schema) {
         String template = config("procedure-sql", null);
-        if (template == null) return null;
+        if (template == null) {
+            return null;
+        }
         String listSql = getProcedureListSql(schema);
-        if (listSql == null) return null;
+        if (listSql == null) {
+            return null;
+        }
         return template
                 .replace("{list_sql}", listSql)
                 .replace("{procedure_name}", escape(procedureName));
     }
 
-    /** 在模板末尾追加 schema 过滤条件 */
+    /**
+     * 在模板末尾追加 schema 过滤条件。
+     *
+     * @param template       SQL 模板
+     * @param schema         schema 名称，null 或空时不追加
+     * @param schemaColumn   schema 列名
+     * @return 追加条件后的 SQL
+     */
     private String buildWithSchema(String template, String schema, String schemaColumn) {
-        if (schema == null || schema.isEmpty()) return template;
+        if (schema == null || schema.isEmpty()) {
+            return template;
+        }
         String condition = config("schema-condition-template", " AND {column} = '{value}'");
         return template
                 .replace("{column}", schemaColumn)
@@ -282,6 +339,8 @@ public class SqlDialect extends AbstractDialect {
 
     /**
      * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
+     *
+     * @return 加载后的 Properties，文件不存在时返回空 Properties
      */
     @Override
     protected Properties loadDefaultEnv() {
@@ -292,9 +351,13 @@ public class SqlDialect extends AbstractDialect {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) continue;
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
                 int idx = line.indexOf('=');
-                if (idx < 0) continue;
+                if (idx < 0) {
+                    continue;
+                }
                 props.put(line.substring(0, idx).trim(), line.substring(idx + 1).trim());
             }
             return props;
