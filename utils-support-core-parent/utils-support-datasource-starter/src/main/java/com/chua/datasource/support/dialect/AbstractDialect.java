@@ -44,7 +44,55 @@ public abstract class AbstractDialect implements Dialect {
     @Override
     /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
+        // 1. 优先读 properties（key = java.sql.Types 常量名，如 "VARCHAR"、"INTEGER"）
+        String configured = config("type." + jdbcTypeName(jdbcType), null);
+        if (configured != null) {
+            return configured;
+        }
+        // 2. 回退到通用默认值
         return "VARCHAR";
+    }
+
+    /**
+     * 将 JDBC 类型码转为常量名字符串，用于 properties key 查找。
+     * <p>例如 {@code java.sql.Types.VARCHAR} → {@code "VARCHAR"}，未知类型 → {@code "UNKNOWN"}。</p>
+     */
+    protected static String jdbcTypeName(int jdbcType) {
+        return switch (jdbcType) {
+            case java.sql.Types.BIGINT       -> "BIGINT";
+            case java.sql.Types.BINARY       -> "BINARY";
+            case java.sql.Types.BIT          -> "BIT";
+            case java.sql.Types.BLOB         -> "BLOB";
+            case java.sql.Types.BOOLEAN      -> "BOOLEAN";
+            case java.sql.Types.CHAR         -> "CHAR";
+            case java.sql.Types.CLOB         -> "CLOB";
+            case java.sql.Types.DATALINK     -> "DATALINK";
+            case java.sql.Types.DATE         -> "DATE";
+            case java.sql.Types.DECIMAL      -> "DECIMAL";
+            case java.sql.Types.DOUBLE       -> "DOUBLE";
+            case java.sql.Types.FLOAT        -> "FLOAT";
+            case java.sql.Types.INTEGER      -> "INTEGER";
+            case java.sql.Types.JAVA_OBJECT  -> "JAVA_OBJECT";
+            case java.sql.Types.LONGNVARCHAR -> "LONGNVARCHAR";
+            case java.sql.Types.LONGVARCHAR-> "LONGVARCHAR";
+            case java.sql.Types.NCHAR        -> "NCHAR";
+            case java.sql.Types.NCLOB        -> "NCLOB";
+            case java.sql.Types.NUMERIC      -> "NUMERIC";
+            case java.sql.Types.NVARCHAR     -> "NVARCHAR";
+            case java.sql.Types.OTHER        -> "OTHER";
+            case java.sql.Types.REAL         -> "REAL";
+            case java.sql.Types.REF          -> "REF";
+            case java.sql.Types.ROWID        -> "ROWID";
+            case java.sql.Types.SMALLINT     -> "SMALLINT";
+            case java.sql.Types.SQLXML       -> "SQLXML";
+            case java.sql.Types.STRUCT       -> "STRUCT";
+            case java.sql.Types.TIME         -> "TIME";
+            case java.sql.Types.TIMESTAMP    -> "TIMESTAMP";
+            case java.sql.Types.TINYINT      -> "TINYINT";
+            case java.sql.Types.VARBINARY    -> "VARBINARY";
+            case java.sql.Types.VARCHAR      -> "VARCHAR";
+            default                          -> "UNKNOWN";
+        };
     }
 
     @Override

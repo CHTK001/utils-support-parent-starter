@@ -69,25 +69,31 @@ public class PostgresqlDialect extends AbstractDialect {
     @Override
     /** 获取TypeName */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
+        // 优先读 properties（key = java.sql.Types 常量名，如 "VARCHAR"、"BYTEA"）
+        String configured = config("type." + jdbcTypeName(jdbcType), null);
+        if (configured != null) return configured;
+        String len  = length  > 0 ? String.valueOf(length)  : "255";
+        String prec = precision > 0 ? String.valueOf(precision) : "10";
+        String scl  = scale     > 0 ? String.valueOf(scale)     : "0";
         return switch (jdbcType) {
             case java.sql.Types.INTEGER -> "INTEGER";
-            case java.sql.Types.BIGINT -> "BIGINT";
-            case java.sql.Types.SMALLINT -> "SMALLINT";
+            case java.sql.Types.BIGINT  -> "BIGINT";
+            case java.sql.Types.SMALLINT-> "SMALLINT";
             case java.sql.Types.TINYINT -> "SMALLINT";
-            case java.sql.Types.VARCHAR -> length > 0 ? "VARCHAR(" + length + ")" : "VARCHAR(255)";
-            case java.sql.Types.CHAR -> "CHAR(" + length + ")";
-            case java.sql.Types.DECIMAL -> "NUMERIC(" + precision + "," + scale + ")";
-            case java.sql.Types.DOUBLE -> "DOUBLE PRECISION";
-            case java.sql.Types.FLOAT -> "REAL";
+            case java.sql.Types.VARCHAR -> "VARCHAR(" + len + ")";
+            case java.sql.Types.CHAR    -> "CHAR(" + len + ")";
+            case java.sql.Types.DECIMAL -> "NUMERIC(" + prec + "," + scl + ")";
+            case java.sql.Types.DOUBLE  -> "DOUBLE PRECISION";
+            case java.sql.Types.FLOAT   -> "REAL";
             case java.sql.Types.BOOLEAN -> "BOOLEAN";
             case java.sql.Types.TIMESTAMP -> "TIMESTAMP";
-            case java.sql.Types.DATE -> "DATE";
-            case java.sql.Types.TIME -> "TIME";
-            case java.sql.Types.CLOB -> "TEXT";
-            case java.sql.Types.BLOB -> "BYTEA";
-            case java.sql.Types.LONGVARCHAR -> "TEXT";
+            case java.sql.Types.DATE    -> "DATE";
+            case java.sql.Types.TIME    -> "TIME";
+            case java.sql.Types.CLOB    -> "TEXT";
+            case java.sql.Types.BLOB    -> "BYTEA";
+            case java.sql.Types.LONGVARCHAR  -> "TEXT";
             case java.sql.Types.LONGNVARCHAR -> "TEXT";
-            default -> "VARCHAR(255)";
+            default                     -> "VARCHAR(" + len + ")";
         };
     }
 
