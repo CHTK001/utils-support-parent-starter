@@ -187,6 +187,26 @@ public interface HttpClient extends AutoCloseable {
     }
 
     /**
+     * 将当前客户端包装为折叠 HTTP 客户端（并发请求合并）。
+     *
+     * <p>并发窗口内<b>方法为 GET 且 URL 相同</b>的请求合并为一次真实网络调用，
+     * 响应广播给各请求方，降低下游连接数与 I/O 次数。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * HttpClient client = HttpClientFactory.getClient().collapse();
+     * // 或
+     * HttpClient collapsed = newClient.collapse();
+     * }</pre>
+     *
+     * @return 折叠 HTTP 客户端
+     * @see HttpClientFactory#collapse(HttpClient)
+     */
+    default HttpClient collapse() {
+        return HttpClientFactory.collapse(this);
+    }
+
+    /**
      * 执行 GET 请求。
      *
      * <p>快速发起 HTTP GET 请求，适用于查询、获取资源等幂等操作。

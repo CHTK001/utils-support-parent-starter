@@ -1,96 +1,18 @@
 package com.chua.datasource.support.dialect;
-
-import com.chua.common.support.lang.datasource.dialect.Pagination;
-
-/**
- * ClickHouse 20.x 方言实现。
- *
- * @author CH
- * @since 4.0.0.42
- */
-public class ClickHouse20Dialect extends AbstractDialect {
-
-    /**
-     * 支持版本
-     */
+import java.util.Properties;
+/** ClickHouse 20.x 方言（旧驱动）。 */
+public class ClickHouse20Dialect extends SqlDialect {
     public static final String VERSION = "ClickHouse 20.x";
-
-    @Override
-    /** Protocol */
-    public String protocol() {
-        return "clickhouse20";
+    public ClickHouse20Dialect() { super("clickhouse20", defaultProps()); }
+    public ClickHouse20Dialect(Properties properties) { super("clickhouse20", merge(defaultProps(), properties)); }
+    private static Properties defaultProps() {
+        Properties p = new Properties();
+        p.setProperty("driver", "ru.yandex.clickhouse.ClickHouseDriver");
+        return p;
     }
-
-    @Override
-    /** Driver */
-    public String driver() {
-        return "ru.yandex.clickhouse.ClickHouseDriver";
-    }
-
-    @Override
-    /** Url */
-    public String url() {
-        return "jdbc:clickhouse://<IP>:<PORT>/<DATABASE>";
-    }
-
-    @Override
-    /** 打开Quote */
-    public char openQuote() {
-        return '`';
-    }
-
-    @Override
-    /** 关闭Quote */
-    public char closeQuote() {
-        return '`';
-    }
-
-    @Override
-    /** 处理Sql */
-    public String processSql(String sql, Pagination pagination) {
-        return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
-    }
-
-    @Override
-    /** 获取TypeName */
-    public String getTypeName(int jdbcType, long length, int precision, int scale) {
-        return switch (jdbcType) {
-            case java.sql.Types.INTEGER -> "Int32";
-            case java.sql.Types.BIGINT -> "Int64";
-            case java.sql.Types.SMALLINT -> "Int16";
-            case java.sql.Types.TINYINT -> "Int8";
-            case java.sql.Types.VARCHAR -> "String";
-            case java.sql.Types.CHAR -> "String";
-            case java.sql.Types.DECIMAL -> "Decimal(" + precision + "," + scale + ")";
-            case java.sql.Types.DOUBLE -> "Float64";
-            case java.sql.Types.FLOAT -> "Float32";
-            case java.sql.Types.BOOLEAN -> "UInt8";
-            case java.sql.Types.TIMESTAMP -> "DateTime";
-            case java.sql.Types.DATE -> "Date";
-            case java.sql.Types.TIME -> "DateTime";
-            case java.sql.Types.CLOB -> "String";
-            case java.sql.Types.BLOB -> "String";
-            case java.sql.Types.LONGVARCHAR -> "String";
-            case java.sql.Types.LONGNVARCHAR -> "String";
-            default -> "String";
-        };
-    }
-
-    @Override
-    /** 获取AlterColumnString */
-    public String getAlterColumnString() {
-        return "MODIFY COLUMN";
-    }
-
-    @Override
-    /** 获取CurrentTimestamp选择String */
-    public String getCurrentTimestampSelectString() {
-        return "SELECT NOW()";
-    }
-
-    @Override
-    /** SupportsPartition */
-    public boolean supportsPartition() {
-        return true;
+    private static Properties merge(Properties a, Properties b) {
+        Properties m = new Properties(a);
+        if (b != null) m.putAll(b);
+        return m;
     }
 }

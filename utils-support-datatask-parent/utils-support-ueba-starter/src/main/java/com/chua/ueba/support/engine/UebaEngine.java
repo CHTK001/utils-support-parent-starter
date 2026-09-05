@@ -44,8 +44,11 @@ public class UebaEngine implements AutoCloseable {
     /** LOW 风险阈值 */
     private static final double LOW_RISK_THRESHOLD = 0.15d;
 
-    /** AutoEncoder 自适应阈值系数（配置阈值为 0 时使用 err * 系数） */
-    private static final double ADAPTIVE_THRESHOLD_FACTOR = 1.2d;
+    /** AutoEncoder 自适应阈值：标准差倍数（mean + k * std） */
+    private static final double AE_STD_MULTIPLIER = 3.0d;
+
+    /** AutoEncoder 自适应阈值：学习所需最少样本数（Warm-up 期间不告警） */
+    private static final long AE_MIN_SAMPLES = 30L;
 
     /** AutoEncoder 等级映射：MEDIUM 最小误差比 */
     private static final double AE_MEDIUM_RATIO = 1.2d;
@@ -89,6 +92,9 @@ public class UebaEngine implements AutoCloseable {
     /** 规则评分器 */
     private final RuleBasedScorer ruleScorer;
 
+    /** AutoEncoder 重建误差的在线统计（自适应阈值） */
+    private final OnlineStats aeStats;
+
     /** 行为序列长度 */
     private final int seqLen;
 
@@ -121,6 +127,7 @@ public class UebaEngine implements AutoCloseable {
         this.config = config;
         this.featureExtractor = new FeatureExtractor(config);
         this.ruleScorer = new RuleBasedScorer(featureExtractor);
+        this.aeStats = new OnlineStats();
         this.tracker = new IpBehaviorTracker(config.getLstm().getWindowSize() * 4);
         int inputDim = config.getFeatures().size();
         this.autoEncoder = new AutoEncoderIpTranslator(inputDim,
@@ -218,11 +225,10 @@ public class UebaEngine implements AutoCloseable {
             try {
                 float[] features = featureExtractor.extractIpFeatures(window);
                 double err = autoEncoder.reconstructionError(features);
-                double threshold = resolveAeThreshold(err);
-                boolean anomalous = err > threshold;
-                String reason = anomalous
-                        ? String.format("AutoEncoder 重建误差 %.4f 超过阈值 %.4f", err, threshold)
-                        : "访问模式正常";
+                aeStats.update(err);
+                double threshold = resolveAeThreshold();
+                boolean anomalous = aeStats.isWarmedUp() && err > threshold;
+                String reason = buildAeReason(err, threshold, anomalous);
                 return IpAnomalyResult.builder()
                         .ip(entityId)
                         .reconstructionError(err)
@@ -240,16 +246,96 @@ public class UebaEngine implements AutoCloseable {
 
     /**
      * 解析 AutoEncoder 异常阈值。
+     * <p>配置阈值大于 0 时使用配置值；否则使用在线学习阈值
+     * {@code mean + k * std}。Warm-up（样本不足）期间返回无穷大，不误报。</p>
      *
-     * @param err 当前重建误差
-     * @return 配置阈值大于 0 时返回配置值，否则返回 err * 自适应系数
+     * @return 当前异常阈值
      */
-    private double resolveAeThreshold(double err) {
+    private double resolveAeThreshold() {
         double threshold = config.getAutoEncoder().getThreshold();
         if (threshold > 0.0d) {
             return threshold;
         }
-        return err * ADAPTIVE_THRESHOLD_FACTOR;
+        if (!aeStats.isWarmedUp()) {
+            return Double.MAX_VALUE;
+        }
+        return aeStats.mean() + AE_STD_MULTIPLIER * aeStats.std();
+    }
+
+    /**
+     * 构造 AutoEncoder 判定原因。
+     *
+     * @param err       重建误差
+     * @param threshold 异常阈值
+     * @param anomalous 是否异常
+     * @return 判定原因文本
+     */
+    private static String buildAeReason(double err, double threshold, boolean anomalous) {
+        if (anomalous) {
+            return String.format("AutoEncoder 重建误差 %.4f 超过阈值 %.4f", err, threshold);
+        }
+        if (threshold == Double.MAX_VALUE) {
+            return "阈值学习阶段（样本不足 " + AE_MIN_SAMPLES + "，暂不告警）";
+        }
+        return "访问模式正常";
+    }
+
+    /**
+     * 在线统计（Welford 算法），用于自适应异常阈值。
+     */
+    private static final class OnlineStats {
+
+        /** 样本数 */
+        private long count;
+
+        /** 运行均值 */
+        private double mean;
+
+        /** 运行平方差累积 */
+        private double m2;
+
+        /**
+         * 更新一个样本。
+         *
+         * @param value 样本值
+         */
+        void update(double value) {
+            count++;
+            double delta = value - mean;
+            mean += delta / count;
+            double delta2 = value - mean;
+            m2 += delta * delta2;
+        }
+
+        /**
+         * 是否已过学习期。
+         *
+         * @return true 表示样本数达到 {@link UebaEngine#AE_MIN_SAMPLES}
+         */
+        boolean isWarmedUp() {
+            return count >= AE_MIN_SAMPLES;
+        }
+
+        /**
+         * 当前均值。
+         *
+         * @return 均值，无样本时返回 0
+         */
+        double mean() {
+            return count == 0L ? 0.0d : mean;
+        }
+
+        /**
+         * 当前样本标准差（样本标准差，除以 n-1）。
+         *
+         * @return 标准差，样本数小于 2 时返回 0
+         */
+        double std() {
+            if (count < 2L) {
+                return 0.0d;
+            }
+            return Math.sqrt(m2 / (count - 1));
+        }
     }
 
     /**

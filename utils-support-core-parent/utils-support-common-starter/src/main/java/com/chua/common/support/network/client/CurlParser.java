@@ -10,23 +10,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * curl 命令解析器。
- *
- * <p>将 curl 命令字符串解析为 {@link HttpClientBuilder}，支持以下选项：</p>
+ * curl 鍛戒护瑙ｆ瀽鍣ㄣ€? *
+ * <p>灏?curl 鍛戒护瀛楃涓茶В鏋愪负 {@link HttpClientBuilder}锛屾敮鎸佷互涓嬮€夐」锛?/p>
  * <ul>
- *   <li><b>方法：</b>{@code -X}, {@code --request}, {@code -G}, {@code --get}, {@code -I}, {@code --head}</li>
- *   <li><b>请求体：</b>{@code -d}, {@code --data}, {@code --data-raw}, {@code --data-binary}, {@code --data-ascii}, {@code --data-urlencode}</li>
- *   <li><b>请求头：</b>{@code -H}, {@code --header}, {@code -A}, {@code --user-agent}, {@code -e}, {@code --referer}, {@code -b}, {@code --cookie}</li>
- *   <li><b>认证：</b>{@code -u}, {@code --user}（Basic Auth）</li>
- *   <li><b>超时：</b>{@code --connect-timeout}, {@code --max-time}</li>
- *   <li><b>代理：</b>{@code --proxy}, {@code --proxy-user}</li>
- *   <li><b>重定向：</b>{@code -L}, {@code --location}</li>
- *   <li><b>SSL：</b>{@code -k}, {@code --insecure}</li>
- *   <li><b>表单/上传：</b>{@code --form}, {@code -F}, {@code -T}, {@code --upload-file}</li>
- *   <li><b>其他：</b>{@code --compressed}, {@code --url}</li>
+ *   <li><b>鏂规硶锛?/b>{@code -X}, {@code --request}, {@code -G}, {@code --get}, {@code -I}, {@code --head}</li>
+ *   <li><b>璇锋眰浣擄細</b>{@code -d}, {@code --data}, {@code --data-raw}, {@code --data-binary}, {@code --data-ascii}, {@code --data-urlencode}</li>
+ *   <li><b>璇锋眰澶达細</b>{@code -H}, {@code --header}, {@code -A}, {@code --user-agent}, {@code -e}, {@code --referer}, {@code -b}, {@code --cookie}</li>
+ *   <li><b>璁よ瘉锛?/b>{@code -u}, {@code --user}锛圔asic Auth锛?/li>
+ *   <li><b>瓒呮椂锛?/b>{@code --connect-timeout}, {@code --max-time}</li>
+ *   <li><b>浠ｇ悊锛?/b>{@code --proxy}, {@code --proxy-user}</li>
+ *   <li><b>閲嶅畾鍚戯細</b>{@code -L}, {@code --location}</li>
+ *   <li><b>SSL锛?/b>{@code -k}, {@code --insecure}</li>
+ *   <li><b>琛ㄥ崟/涓婁紶锛?/b>{@code --form}, {@code -F}, {@code -T}, {@code --upload-file}</li>
+ *   <li><b>鍏朵粬锛?/b>{@code --compressed}, {@code --url}</li>
  * </ul>
  *
- * <p><b>使用示例：</b></p>
+ * <p><b>浣跨敤绀轰緥锛?/b></p>
  * <pre>{@code
  * HttpClientBuilder builder = CurlParser.fromCurl(
  *     "curl -X POST https://api.example.com/users " +
@@ -36,8 +35,7 @@ import java.util.regex.Pattern;
  * );
  * ClientResponse resp = builder.post();
  *
- * // 或直接执行
- * ClientResponse resp = CurlParser.curl(
+ * // 鎴栫洿鎺ユ墽琛? * ClientResponse resp = CurlParser.curl(
  *     "curl https://api.example.com/users?page=1"
  * );
  * }</pre>
@@ -53,11 +51,9 @@ public final class CurlParser {
     }
 
     /**
-     * 将 curl 命令字符串解析为 {@link HttpClientBuilder}。
-     *
-     * @param curl curl 命令字符串，可以是完整命令（含 {@code curl} 前缀），也可以是选项部分
-     * @return 构建好的 HttpClientBuilder，可用于链式配置后执行
-     */
+     * 灏?curl 鍛戒护瀛楃涓茶В鏋愪负 {@link HttpClientBuilder}銆?     *
+     * @param curl curl 鍛戒护瀛楃涓诧紝鍙互鏄畬鏁村懡浠わ紙鍚?{@code curl} 鍓嶇紑锛夛紝涔熷彲浠ユ槸閫夐」閮ㄥ垎
+     * @return 鏋勫缓濂界殑 HttpClientBuilder锛屽彲鐢ㄤ簬閾惧紡閰嶇疆鍚庢墽琛?     */
     public static HttpClientBuilder fromCurl(String curl) {
         if (curl == null || curl.isBlank()) {
             throw new IllegalArgumentException("curl command must not be blank");
@@ -79,16 +75,14 @@ public final class CurlParser {
     }
 
     /**
-     * 直接执行 curl 命令并返回响应。
-     *
-     * @param curl curl 命令字符串
-     * @return HTTP 响应
+     * 鐩存帴鎵ц curl 鍛戒护骞惰繑鍥炲搷搴斻€?     *
+     * @param curl curl 鍛戒护瀛楃涓?     * @return HTTP 鍝嶅簲
      */
     public static ClientResponse curl(String curl) {
         return fromCurl(curl).execute();
     }
 
-    // ==================== Token 解析 ====================
+    // ==================== Token 瑙ｆ瀽 ====================
 
     static List<String> tokenize(String command) {
         String normalized = command.replaceAll("(?m)\\\\\n\\s*", " ");
@@ -364,7 +358,7 @@ public final class CurlParser {
         return idx;
     }
 
-    // ==================== 状态应用到 Builder ====================
+    // ==================== 鐘舵€佸簲鐢ㄥ埌 Builder ====================
 
     private static void applyState(HttpClientBuilder builder, BuilderState state) {
         // URL / path
@@ -474,11 +468,11 @@ public final class CurlParser {
             case "PATCH" -> builder.patch();
             case "HEAD" -> builder.head();
             case "OPTIONS" -> builder.options();
-            default -> builder.method(com.chua.common.support.network.http.HttpMethod.valueOf(method.toUpperCase()));
+            default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
         }
     }
 
-    // ==================== 内部类 ====================
+    // ==================== 鍐呴儴绫?====================
 
     private static class BuilderState {
         String baseUrl;

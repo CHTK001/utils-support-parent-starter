@@ -346,6 +346,47 @@ public class HttpClientBuilder {
     }
 
     /**
+     * 快捷设置 Authorization 请求头为 <code>Bearer &lt;token&gt;</code>（{@link #auth} 的别名）。
+     *
+     * @param token Bearer Token 字符串，如 JWT 或 OAuth2 Access Token
+     * @return 当前构建器实例，支持链式调用
+     */
+    public HttpClientBuilder bearer(String token) {
+        return auth(token);
+    }
+
+    /**
+     * 设置 Authorization 请求头（完整值，直接写入头）。
+     *
+     * <p>与 {@link #auth(String)} 不同，此方法接受完整的 Authorization 头值，
+     * 不自动添加 <code>Bearer </code> 前缀，适用于自定义认证方案（如 Digest、WSSE 等）。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * .authorization("Bearer eyJhbGciOiJIUzI1NiIs...")
+     * .authorization("Basic dXNlcjpwYXNz")
+     * }</pre>
+     *
+     * @param value 完整的 Authorization 头值
+     * @return 当前构建器实例，支持链式调用
+     */
+    public HttpClientBuilder authorization(String value) {
+        this.headers.add("Authorization", value);
+        return this;
+    }
+
+    /**
+     * 快捷设置 Authorization 请求头为 <code>Basic &lt;base64&gt;</code>（{@link #authBasic} 的别名）。
+     *
+     * @param username 认证用户名
+     * @param password 认证密码
+     * @return 当前构建器实例，支持链式调用
+     */
+    public HttpClientBuilder basicAuth(String username, String password) {
+        return authBasic(username, password);
+    }
+
+    /**
      * 快捷设置 Authorization 请求头为 <code>Basic &lt;base64&gt;</code>（HTTP Basic 认证）。
      *
      * <p>将用户名和密码拼接为 {@code username:password} 格式，
@@ -913,6 +954,71 @@ public class HttpClientBuilder {
     // ==================== curl 支持 ====================
 
     /**
+     * 内部访问：获取 baseUrl（供同包工具类使用）。
+     */
+    String _url() { return baseUrl; }
+
+    /**
+     * 内部访问：获取 path（供同包工具类使用）。
+     */
+    String _path() { return path; }
+
+    /**
+     * 内部访问：获取请求方法（供同包工具类使用）。
+     */
+    HttpMethod _method() { return method; }
+
+    /**
+     * 内部访问：获取请求头（供同包工具类使用）。
+     */
+    com.chua.common.support.network.http.HttpHeader _headers() { return headers; }
+
+    /**
+     * 内部访问：获取请求体（供同包工具类使用）。
+     */
+    Object _body() { return body; }
+
+    /**
+     * 内部访问：获取 multipart 请求体（供同包工具类使用）。
+     */
+    MultipartBody _multipartBody() { return multipartBody; }
+
+    /**
+     * 内部访问：获取纯文本表单字段（供同包工具类使用）。
+     */
+    java.util.Map<String, String> _formData() { return formData; }
+
+    /**
+     * 内部访问：获取连接超时（供同包工具类使用）。
+     */
+    long _connectTimeout() { return connectTimeout; }
+
+    /**
+     * 内部访问：获取读取超时（供同包工具类使用）。
+     */
+    long _readTimeout() { return readTimeout; }
+
+    /**
+     * 内部访问：获取保活超时（供同包工具类使用）。
+     */
+    long _keepAliveTimeout() { return keepAliveTimeout; }
+
+    /**
+     * 内部访问：获取是否跟随重定向（供同包工具类使用）。
+     */
+    boolean _followRedirects() { return followRedirects; }
+
+    /**
+     * 内部访问：获取代理主机（供同包工具类使用）。
+     */
+    String _proxyHost() { return proxyHost; }
+
+    /**
+     * 内部访问：获取代理端口（供同包工具类使用）。
+     */
+    int _proxyPort() { return proxyPort; }
+
+    /**
      * 从 curl 命令字符串创建 {@link HttpClientBuilder}。
      *
      * <p>支持解析常见的 curl 选项，包括 {@code -X}, {@code -H}, {@code -d},
@@ -963,7 +1069,27 @@ public class HttpClientBuilder {
         return CurlFormatter.formatFromBuilder(this, url);
     }
 
+    /**
+     * 将当前构建状态格式化为等价的 curl 命令字符串（{@link #toCurl} 的别名）。
+     *
+     * @return 等价的 curl 命令字符串
+     */
+    public String curl() {
+        return toCurl();
+    }
+
     // ==================== 同步快捷方法 ====================
+
+    /**
+     * 设置请求方法（通用）。适用于 {@link HttpMethod} 枚举中任意方法，如 GET、PATCH、OPTIONS 等。
+     *
+     * @param method HTTP 请求方法
+     * @return 当前构建器实例，支持链式调用
+     */
+    public HttpClientBuilder method(HttpMethod method) {
+        this.method = method;
+        return this;
+    }
 
     /**
      * 执行 GET 请求。
