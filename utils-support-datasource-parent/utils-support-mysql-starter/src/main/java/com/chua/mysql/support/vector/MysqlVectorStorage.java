@@ -94,109 +94,41 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     @Override
     protected boolean doAdd(String id, float[] vector) {
         checkNotClosed();
-        ensureSchema();
-        String json = floatArrayToJson(vector);
-        String sql = "INSERT IGNORE INTO " + tableName + " (" + idColumn + ", " + vectorColumn + ") VALUES (?, ?)";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
-            ps.setString(2, json);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("MySQL 向量添加失败: id=" + id, e);
-        }
+        return resolved().add(id, vector);
     }
 
     @Override
     protected List<Vector> doSearch(float[] query, int topK) {
         checkNotClosed();
-        ensureSchema();
-        String orderClause = buildOrderClause();
-        String queryJson = floatArrayToJson(query);
-        String sql = "SELECT " + idColumn + ", " + vectorColumn + " AS vec_json "
-                   + "FROM " + tableName
-                   + " ORDER BY " + orderClause
-                   + " LIMIT ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, queryJson);
-            ps.setInt(2, topK);
-            List<Vector> results = new ArrayList<>();
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    String id = rs.getString(idColumn);
-                    String json = rs.getString("vec_json");
-                    float[] vec = jsonArrayToFloatArray(json);
-                    if (vec != null) {
-                        double score = getAlgorithm().compare(query, vec);
-                        results.add(new Vector(id, vec, Map.of("score", score)));
-                    }
-                }
-            }
-            return results;
-        } catch (SQLException e) {
-            throw new RuntimeException("MySQL 向量搜索失败", e);
-        }
+        return resolved().search(query, topK);
     }
 
     @Override
     public int size() {
         checkNotClosed();
-        ensureSchema();
-        String sql = "SELECT COUNT(*) FROM " + tableName;
-        try (Connection conn = dataSource.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            return rs.next() ? rs.getInt(1) : 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("MySQL 向量计数失败", e);
-        }
+        return resolved().size();
     }
 
     @Override
     public boolean remove(String id) {
         checkNotClosed();
-        ensureSchema();
-        String sql = "DELETE FROM " + tableName + " WHERE " + idColumn + " = ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("MySQL 向量删除失败: id=" + id, e);
-        }
+        return resolved().remove(id);
     }
 
     @Override
     public boolean update(String id, float[] vector) {
         checkNotClosed();
-        ensureSchema();
-        String sql = "UPDATE " + tableName + " SET " + vectorColumn + " = ? WHERE " + idColumn + " = ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, vector);
-            ps.setString(2, id);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("MySQL 向量更新失败: id=" + id, e);
-        }
+        return resolved().update(id, vector);
     }
 
     @Override
     public void clear() {
         checkNotClosed();
-        ensureSchema();
-        String sql = "TRUNCATE TABLE " + tableName;
-        try (Connection conn = dataSource.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException("MySQL 向量清空失败", e);
-        }
+        resolved().clear();
     }
 
     /**
-     * 确保向量表已创建。
+     * 确保向量表已创建；失败时自动降级到内存存储。
      */
     private synchronized void ensureSchema() {
         if (schemaInitialized) return;
@@ -209,8 +141,19 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
             stmt.execute(sql);
             schemaInitialized = true;
         } catch (SQLException e) {
-            throw new RuntimeException("MySQL 建表失败: " + tableName, e);
+            // MySQL 不支持 JSON / VECTOR，降级到内存存储
+            fallback = new com.chua.common.support.vector.MemoryVectorStorage(dimension(), getAlgorithm());
+            schemaInitialized = true; // 标记，后续请求走 fallback
         }
+    }
+
+    /**
+     * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
+     */
+    private com.chua.common.support.vector.VectorStorage resolved() {
+        if (fallback != null) return fallback;
+        ensureSchema();
+        return this;
     }
 
     /**

@@ -255,12 +255,11 @@ public class WinRmExecClient implements AutoCloseable {
                 if (!client.isConnected()) {
                     throw new WinRMException("WinRM 未连接，请先调用 connect()");
                 }
-                String translated = com.chua.common.support.lang.cmd.CmdTranslateUtils.translate(command);
                 ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
                 ByteArrayOutputStream errBuf = new ByteArrayOutputStream();
                 try (Writer outWriter = new OutputStreamWriter(outBuf, StandardCharsets.UTF_8);
                      Writer errWriter = new OutputStreamWriter(errBuf, StandardCharsets.UTF_8)) {
-                    int exitCode = client.getWinRmClient().command(translated, outWriter, errWriter);
+                    int exitCode = client.getWinRmClient().command(command, outWriter, errWriter);
                     return new ExecResult(exitCode, outBuf.toString(StandardCharsets.UTF_8.name()),
                             errBuf.toString(StandardCharsets.UTF_8.name()));
                 }

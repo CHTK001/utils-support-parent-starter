@@ -296,9 +296,9 @@ public class LstmAttentionBehaviorTranslator {
      * @param result 推理结果
      * @param dim    类别数量
      * @return logits 向量
-     * @throws IOException 当输出类型不支持或维度不匹配时
+     * @throws Exception 当输出读取失败、类型不支持或维度不匹配时
      */
-    private float[] readLogits(OrtSession.Result result, int dim) throws IOException {
+    private float[] readLogits(OrtSession.Result result, int dim) throws Exception {
         Object value = result.get(0).getValue();
         if (value instanceof float[][] matrix) {
             float[] vector = matrix[0];

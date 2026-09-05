@@ -7,6 +7,7 @@ import com.chua.common.support.utils.NativeLoader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -204,7 +205,7 @@ public class AutoEncoderIpTranslator {
         }
         long[] shape = new long[]{1L, inputDim};
         String inputName = session.getInputNames().iterator().next();
-        try (OnnxTensor input = OnnxTensor.createTensor(ortEnv, features, shape);
+        try (OnnxTensor input = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(features), shape);
              OrtSession.Result result = session.run(Map.of(inputName, input))) {
             float[] reconstructed = readOutput(result, inputDim);
             return mse(features, reconstructed);
@@ -217,9 +218,9 @@ public class AutoEncoderIpTranslator {
      * @param result 推理结果
      * @param dim    期望输出维度
      * @return 重建后的特征向量
-     * @throws IOException 当输出类型不支持或维度不匹配时
+     * @throws Exception 当输出读取失败、类型不支持或维度不匹配时
      */
-    private float[] readOutput(OrtSession.Result result, int dim) throws IOException {
+    private float[] readOutput(OrtSession.Result result, int dim) throws Exception {
         Object value = result.get(0).getValue();
         if (value instanceof float[][] matrix) {
             float[] vector = matrix[0];
