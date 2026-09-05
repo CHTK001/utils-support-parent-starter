@@ -207,7 +207,7 @@ class AutoEncoder(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-def train_autoencoder(features_cfg, raw_vectors, ae_cfg, epochs, batch_size, lr, device, out):
+def train_autoencoder(features_cfg, raw_vectors, ae_cfg, epochs, batch_size, lr, device, out, resume=None):
     """训练并导出 AutoEncoder，返回阈值。"""
     xs = torch.tensor(np.asarray(raw_vectors, dtype=np.float32), device=device)
     n = xs.shape[1]
@@ -215,7 +215,14 @@ def train_autoencoder(features_cfg, raw_vectors, ae_cfg, epochs, batch_size, lr,
     opt = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
     model.train()
-    for ep in range(epochs):
+    model_file = ae_cfg.get("modelFile") or "autoencoder_ip.onnx"
+    stem = Path(model_file).stem
+    start_epoch = 0
+    ckpt_path = resolve_checkpoint(resume, model_file, stem)
+    if ckpt_path is not None:
+        start_epoch = load_checkpoint(model, opt, ckpt_path, device)
+        print(f"[AE] resumed from {ckpt_path} at epoch {start_epoch}")
+    for ep in range(start_epoch, start_epoch + epochs):
         perm = torch.randperm(xs.shape[0], device=device)
         total_loss = 0.0
         for s in range(0, xs.shape[0], batch_size):
@@ -227,20 +234,21 @@ def train_autoencoder(features_cfg, raw_vectors, ae_cfg, epochs, batch_size, lr,
             loss.backward()
             opt.step()
             total_loss += loss.item() * batch.shape[0]
-        if (ep + 1) % 10 == 0 or ep + 1 == epochs:
-            print(f"[AE] epoch {ep + 1}/{epochs} mse={total_loss / xs.shape[0]:.6f}")
+        if (ep + 1) % 10 == 0 or ep + 1 == start_epoch + epochs:
+            print(f"[AE] epoch {ep + 1}/{start_epoch + epochs} mse={total_loss / xs.shape[0]:.6f}")
     model.eval()
     with torch.no_grad():
         errors = ((model(xs) - xs) ** 2).mean(dim=1).cpu().numpy()
     threshold = float(ae_cfg.get("threshold") or 0.0)
     if threshold <= 0.0:
         threshold = float(np.quantile(errors, 0.99))
-    ae_path = Path(out) / (ae_cfg.get("modelFile") or "autoencoder_ip.onnx")
+    ae_path = Path(out) / model_file
     torch.onnx.export(
         model, xs[:1], str(ae_path),
         input_names=["features"], output_names=["reconstruction"],
         dynamic_axes=None,
     )
+    save_checkpoint(model, opt, start_epoch + epochs, Path(out) / "checkpoint" / (stem + "_latest.pt"))
     print(f"[AE] exported {ae_path} threshold={threshold:.6f}")
     return threshold
 
@@ -315,7 +323,7 @@ def build_sequences(rows_by_ip, lstm_cfg, scalers, vocab):
 
 
 def train_sequence_model(rows_by_ip, lstm_cfg, scalers, vocab,
-                         epochs, batch_size, lr, device, out):
+                         epochs, batch_size, lr, device, out, resume=None):
     """训练并导出 GRU+Attention 分类器。"""
     ids_arr, num_arr, labels = build_sequences(rows_by_ip, lstm_cfg, scalers, vocab)
     if len(labels) == 0:
@@ -331,8 +339,15 @@ def train_sequence_model(rows_by_ip, lstm_cfg, scalers, vocab,
     opt = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
     model.train()
+    model_file = lstm_cfg.get("modelFile") or "lstm_attention_behavior.onnx"
+    stem = Path(model_file).stem
+    start_epoch = 0
+    ckpt_path = resolve_checkpoint(resume, model_file, stem)
+    if ckpt_path is not None:
+        start_epoch = load_checkpoint(model, opt, ckpt_path, device)
+        print(f"[SEQ] resumed from {ckpt_path} at epoch {start_epoch}")
     n = ids_arr.shape[0]
-    for ep in range(epochs):
+    for ep in range(start_epoch, start_epoch + epochs):
         perm = np.random.permutation(n)
         total_loss, correct = 0.0, 0
         for s in range(0, n, batch_size):
@@ -347,10 +362,10 @@ def train_sequence_model(rows_by_ip, lstm_cfg, scalers, vocab,
             opt.step()
             total_loss += loss.item() * len(idx)
             correct += int((out_logits.argmax(dim=1) == yb).sum().item())
-        if (ep + 1) % 10 == 0 or ep + 1 == epochs:
-            print(f"[SEQ] epoch {ep + 1}/{epochs} loss={total_loss / n:.4f} acc={correct / n:.4f}")
+        if (ep + 1) % 10 == 0 or ep + 1 == start_epoch + epochs:
+            print(f"[SEQ] epoch {ep + 1}/{start_epoch + epochs} loss={total_loss / n:.4f} acc={correct / n:.4f}")
     model.eval()
-    seq_path = Path(out) / (lstm_cfg.get("modelFile") or "lstm_attention_behavior.onnx")
+    seq_path = Path(out) / model_file
     dummy_ids = torch.zeros(1, l, dtype=torch.long, device=device)
     dummy_num = torch.zeros(1, l, m, dtype=torch.float32, device=device)
     torch.onnx.export(
@@ -358,6 +373,7 @@ def train_sequence_model(rows_by_ip, lstm_cfg, scalers, vocab,
         input_names=["sequence_ids", "sequence_numeric"], output_names=["logits"],
         dynamic_axes=None,
     )
+    save_checkpoint(model, opt, start_epoch + epochs, Path(out) / "checkpoint" / (stem + "_latest.pt"))
     print(f"[SEQ] exported {seq_path}")
     return vocab
 
@@ -385,6 +401,8 @@ def main():
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", default="cpu")
+    parser.add_argument("--resume", default=None,
+                        help="已存在模型目录或 .pt checkpoint 路径，从该模型继续训练（续训/微调）")
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -415,7 +433,7 @@ def main():
         threshold = train_autoencoder(features_cfg, clean_vectors,
                                       config.get("autoEncoder") or {},
                                       args.epochs, args.batch_size, args.learning_rate,
-                                      device, out_dir)
+                                      device, out_dir, resume=args.resume)
     else:
         threshold = float((config.get("autoEncoder") or {}).get("threshold") or 0.0)
 
@@ -433,7 +451,7 @@ def main():
     lstm_cfg = config.get("lstm") or {}
     train_sequence_model(by_ip, lstm_cfg, scalers, vocab,
                          args.epochs, args.batch_size, args.learning_rate,
-                         device, out_dir)
+                         device, out_dir, resume=args.resume)
 
     write_back(config, scalers, threshold, vocab, out_dir / "ueba-config-derived.yaml")
     print("[DONE] 请将 ueba-config-derived.yaml 复制回业务模块的 ueba-config.yaml")
