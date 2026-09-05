@@ -304,7 +304,7 @@ public class FileEngine extends AbstractEngine {
     @Override
     @SuppressWarnings("unchecked")
     /** 执行New查询 */
-    protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz) {
+    protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         List<T> data = getData(clazz);
         if (data.isEmpty()) {
             return data;
@@ -317,7 +317,8 @@ public class FileEngine extends AbstractEngine {
                 ? Arrays.asList(args)
                 : Collections.emptyList();
         var predicate = parser.parse(where, paramList);
-        return data.stream().filter(predicate).toList();
+        List<T> filtered = data.stream().filter(predicate).toList();
+        return limit <= 0 && offset <= 0 ? filtered : limitSlice(filtered, limit, offset);
     }
 
     /**
@@ -639,4 +640,12 @@ public class FileEngine extends AbstractEngine {
         }
         return value;
     }
+
+    private static <T> List<T> limitSlice(List<T> data, int limit, int offset) {
+        if (limit <= 0 && offset <= 0) return data;
+        int from = Math.min(offset, data.size());
+        int to = limit > 0 ? Math.min(from + limit, data.size()) : data.size();
+        return from >= data.size() ? Collections.emptyList() : data.subList(from, to);
+    }
 }
+

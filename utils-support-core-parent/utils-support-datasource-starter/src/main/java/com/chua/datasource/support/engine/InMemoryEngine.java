@@ -123,7 +123,7 @@ public class InMemoryEngine extends AbstractEngine {
 
     @Override
     /** 执行New查询 */
-    protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz) {
+    protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         throw new UnsupportedOperationException();
     }
 

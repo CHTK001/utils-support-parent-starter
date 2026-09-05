@@ -29,6 +29,11 @@
             <artifactId>dubbo-registry-multicast</artifactId>
             <version>${dubbo.version}</version>
         </dependency>
+        <!-- dubbo-common 的 JsonUtils/状态上报使用 Gson 序列化，dubbo 自身未声明该依赖 -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
         <!-- dubbo-common 的 FastJsonSerialization 启动时即引用 com.alibaba.fastjson.JSON，
              dubbo 自身未声明该依赖，缺此 jar 抛 NoClassDefFoundError；2.x 即 fastjson2（兼容旧 API） -->
         <dependency>

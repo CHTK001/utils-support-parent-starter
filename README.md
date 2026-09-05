@@ -145,10 +145,13 @@ utils-support-parent-starter/
 │   └── retry-starter                         # 重试机制
 │
 ├── datalake-parent/                          # 数据湖
-│   ├── datalake-starter                      # 数据湖核心
-│   ├── datalake-sink-starter                 # 数据湖写入
-│   ├── datalake-cdc-starter                  # CDC 变更捕获
-│   └── datalake-query-starter                # 数据湖查询
+│   ├── datalake-starter                      # 数据湖核心（服务器）
+│   ├── datalake-sink-starter                 # 数据湖写入（Sink SPI）
+│   ├── datalake-subscribe-starter            # 数据湖订阅器
+│   ├── datalake-query-starter                # 数据湖 HTTP 查询
+│   ├── datalake-cdc-starter                  # CDC MySQL 变更捕获
+│   ├── datalake-mqtt-starter                 # MQTT 5.0 入站适配器
+│   └── datalake-webhook-starter              # HTTP Webhook 入站适配器
 │
 ├── extra-parent/                             # 扩展组件
 │   ├── fastjson-starter / gson-starter / serialize-starter # JSON 序列化

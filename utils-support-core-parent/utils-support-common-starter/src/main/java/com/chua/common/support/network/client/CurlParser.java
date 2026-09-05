@@ -133,7 +133,7 @@ public final class CurlParser {
             case "-X":
             case "--request":
                 state.method = up(next(tokens, idx));
-                break;
+                return idx + 1;
             case "-H":
             case "--header": {
                 String h = next(tokens, idx);
@@ -143,20 +143,20 @@ public final class CurlParser {
                 } else {
                     state.headers.put(h, "");
                 }
-                break;
+                return idx + 1;
             }
             case "-A":
             case "--user-agent":
                 state.headers.put("User-Agent", next(tokens, idx));
-                break;
+                return idx + 1;
             case "-e":
             case "--referer":
                 state.headers.put("Referer", next(tokens, idx));
-                break;
+                return idx + 1;
             case "-b":
             case "--cookie":
                 state.headers.put("Cookie", next(tokens, idx));
-                break;
+                return idx + 1;
             case "-u":
             case "--user": {
                 String auth = next(tokens, idx);
@@ -166,7 +166,7 @@ public final class CurlParser {
                 } else {
                     state.bearerToken = auth;
                 }
-                break;
+                return idx + 1;
             }
             case "-d":
             case "--data":
@@ -175,7 +175,7 @@ public final class CurlParser {
             case "--data-ascii":
                 state.body = next(tokens, idx);
                 state.bodyKind = BodyKind.DATA;
-                break;
+                return idx + 1;
             case "--data-urlencode": {
                 String d = next(tokens, idx);
                 Matcher m = DATA_URL_ENCODE_PATTERN.matcher(d);
@@ -187,30 +187,30 @@ public final class CurlParser {
                     state.body = d;
                     state.bodyKind = BodyKind.DATA;
                 }
-                break;
+                return idx + 1;
             }
             case "-G":
             case "--get":
                 state.getFlag = true;
-                break;
+                return idx;
             case "-I":
             case "--head":
                 state.method = "HEAD";
-                break;
+                return idx;
             case "-L":
             case "--location":
                 state.followRedirects = true;
-                break;
+                return idx;
             case "-k":
             case "--insecure":
                 state.insecure = true;
-                break;
+                return idx;
             case "--connect-timeout":
                 state.connectTimeout = Long.parseLong(next(tokens, idx));
-                break;
+                return idx + 1;
             case "--max-time":
                 state.readTimeout = Long.parseLong(next(tokens, idx)) * 1000;
-                break;
+                return idx + 1;
             case "--proxy": {
                 String proxy = next(tokens, idx);
                 int pp = proxy.lastIndexOf(':');
@@ -221,7 +221,7 @@ public final class CurlParser {
                     state.proxyHost = proxy;
                     state.proxyPort = 8080;
                 }
-                break;
+                return idx + 1;
             }
             case "--proxy-user": {
                 String pu = next(tokens, idx);
@@ -229,32 +229,31 @@ public final class CurlParser {
                 if (pc > 0) {
                     state.proxyAuth = pu;
                 }
-                break;
+                return idx + 1;
             }
             case "-F":
             case "--form": {
                 String f = next(tokens, idx);
                 if (state.formFields == null) state.formFields = new ArrayList<>();
                 state.formFields.add(f);
-                break;
+                return idx + 1;
             }
             case "-T":
             case "--upload-file":
                 state.uploadFile = next(tokens, idx);
-                break;
+                return idx + 1;
             case "--compressed":
                 state.headers.put("Accept-Encoding", "gzip, deflate");
-                break;
+                return idx;
             case "--url":
                 state.baseUrl = next(tokens, idx);
-                break;
+                return idx + 1;
             default:
                 if (!token.startsWith("-")) {
                     if (state.baseUrl == null) state.baseUrl = token;
                 }
-                break;
+                return idx;
         }
-        return idx;
     }
 
     private static int handleShortOption(String opt, List<String> tokens, int idx, BuilderState state) {
@@ -262,61 +261,61 @@ public final class CurlParser {
         switch (opt) {
             case "-X":
             case "--request":
-                state.method = up(next(tokens, ++idx));
-                break;
+                state.method = up(next(tokens, idx));
+                return idx + 1;
             case "-H":
             case "--header":
-                arg = next(tokens, ++idx);
+                arg = next(tokens, idx);
                 int colon = arg.indexOf(':');
                 if (colon > 0) {
                     state.headers.put(arg.substring(0, colon).strip(), arg.substring(colon + 1).strip());
                 } else {
                     state.headers.put(arg, "");
                 }
-                break;
+                return idx + 1;
             case "-d":
             case "--data":
             case "--data-raw":
             case "--data-binary":
             case "--data-ascii":
-                state.body = next(tokens, ++idx);
+                state.body = next(tokens, idx);
                 state.bodyKind = BodyKind.DATA;
-                break;
+                return idx + 1;
             case "-G":
             case "--get":
                 state.getFlag = true;
-                break;
+                return idx;
             case "-I":
             case "--head":
                 state.method = "HEAD";
-                break;
+                return idx;
             case "-A":
             case "--user-agent":
-                state.headers.put("User-Agent", next(tokens, ++idx));
-                break;
+                state.headers.put("User-Agent", next(tokens, idx));
+                return idx + 1;
             case "-e":
             case "--referer":
-                state.headers.put("Referer", next(tokens, ++idx));
-                break;
+                state.headers.put("Referer", next(tokens, idx));
+                return idx + 1;
             case "-b":
             case "--cookie":
-                state.headers.put("Cookie", next(tokens, ++idx));
-                break;
+                state.headers.put("Cookie", next(tokens, idx));
+                return idx + 1;
             case "-u":
             case "--user":
-                arg = next(tokens, ++idx);
+                arg = next(tokens, idx);
                 int ac = arg.indexOf(':');
                 state.basicAuth = ac > 0 ? arg : null;
                 state.bearerToken = ac <= 0 ? arg : null;
-                break;
+                return idx + 1;
             case "--connect-timeout":
-                state.connectTimeout = Long.parseLong(next(tokens, ++idx));
-                break;
+                state.connectTimeout = Long.parseLong(next(tokens, idx));
+                return idx + 1;
             case "--max-time":
-                state.readTimeout = Long.parseLong(next(tokens, ++idx)) * 1000;
-                break;
+                state.readTimeout = Long.parseLong(next(tokens, idx)) * 1000;
+                return idx + 1;
             case "--proxy":
-                arg = next(tokens, ++idx);
+                arg = next(tokens, idx);
                 int pp = arg.lastIndexOf(':');
                 if (pp > 0) {
                     state.proxyHost = arg.substring(0, pp);
@@ -325,37 +324,36 @@ public final class CurlParser {
                     state.proxyHost = arg;
                     state.proxyPort = 8080;
                 }
-                break;
+                return idx + 1;
             case "--proxy-user":
-                arg = next(tokens, ++idx);
+                arg = next(tokens, idx);
                 int pc = arg.indexOf(':');
                 if (pc > 0) state.proxyAuth = arg;
-                break;
+                return idx + 1;
             case "-F":
             case "--form":
-                arg = next(tokens, ++idx);
+                arg = next(tokens, idx);
                 if (state.formFields == null) state.formFields = new ArrayList<>();
                 state.formFields.add(arg);
-                break;
+                return idx + 1;
             case "-T":
             case "--upload-file":
-                state.uploadFile = next(tokens, ++idx);
-                break;
+                state.uploadFile = next(tokens, idx);
+                return idx + 1;
             case "-k":
             case "--insecure":
                 state.insecure = true;
-                break;
+                return idx;
             case "-L":
             case "--location":
                 state.followRedirects = true;
-                break;
+                return idx;
             case "--compressed":
                 state.headers.put("Accept-Encoding", "gzip, deflate");
-                break;
+                return idx;
             default:
-                break;
+                return idx;
         }
-        return idx;
     }
 
     // ==================== 鐘舵€佸簲鐢ㄥ埌 Builder ====================
