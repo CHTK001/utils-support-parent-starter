@@ -267,7 +267,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
                 var dataNodes = actualMap.keySet().stream()
                         .flatMap(db -> limited.stream().map(tbl -> db + "." + tbl))
                         .collect(Collectors.joining(","));
-                var config = new ShardingTableRuleConfiguration(tc.prefix + "*", dataNodes);
+                var config = new ShardingTableRuleConfiguration(tc.prefix, dataNodes);
                 config.setDatabaseShardingStrategy(
                         new StandardShardingStrategyConfiguration(dbCfg.shardingColumn, dbCfg.algorithm));
                 config.setTableShardingStrategy(
@@ -278,7 +278,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
                 var dataNodes = limited.stream()
                         .flatMap(t -> actualMap.keySet().stream().map(ds -> ds + "." + t))
                         .collect(Collectors.joining(","));
-                var config = new ShardingTableRuleConfiguration(tc.prefix + "*", dataNodes);
+                var config = new ShardingTableRuleConfiguration(tc.prefix, dataNodes);
                 config.setTableShardingStrategy(
                         new StandardShardingStrategyConfiguration(tc.shardingColumn, tc.algorithm));
                 shardingRule.getTables().add(config);
