@@ -402,14 +402,14 @@ public class UebaEngine implements AutoCloseable {
      * 获取类别下标对应的标签。
      *
      * @param classIndex 类别下标
-     * @return 类别标签，越界时返回配置的第一个标签
+     * @return 类别标签，越界或标签列表为空时返回 "normal"
      */
     private String classLabel(int classIndex) {
         List<String> labels = config.getLstm().getClassLabels();
-        if (classIndex >= 0 && classIndex < labels.size()) {
+        if (labels != null && !labels.isEmpty() && classIndex >= 0 && classIndex < labels.size()) {
             return labels.get(classIndex);
         }
-        return labels.get(0);
+        return "normal";
     }
 
     /**
