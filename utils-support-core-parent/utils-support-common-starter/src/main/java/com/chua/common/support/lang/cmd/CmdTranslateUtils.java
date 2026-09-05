@@ -153,10 +153,38 @@ public final class CmdTranslateUtils {
         for (Map.Entry<Pattern, String> entry : LINUX_TO_WIN.entrySet()) {
             java.util.regex.Matcher m = entry.getKey().matcher(trimmed);
             if (m.matches()) {
-                return m.replaceAll(entry.getValue());
+                try {
+                    return m.replaceAll(entry.getValue());
+                } catch (IllegalArgumentException ignored) {
+                    // Replacement string contains illegal group reference (e.g. $2 with no group 2).
+                    // Fall back to replacing captured groups one-by-one.
+                    return replaceCaptures(m, entry.getValue());
+                }
             }
         }
         return trimmed;
+    }
+
+    /**
+     * 手动替换 Matcher 捕获组（避免 Illegal group reference）。
+     */
+    private static String replaceCaptures(java.util.regex.Matcher m, String template) {
+        int g = m.groupCount();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < template.length(); i++) {
+            if (template.charAt(i) == '$' && i + 1 < template.length() && Character.isDigit(template.charAt(i + 1))) {
+                int num = template.charAt(i + 1) - '0';
+                if (num > 0 && num <= g) {
+                    sb.append(m.group(num));
+                    i++;
+                } else {
+                    sb.append('$'); // drop invalid reference
+                }
+            } else {
+                sb.append(template.charAt(i));
+            }
+        }
+        return sb.toString();
     }
 
     /**
