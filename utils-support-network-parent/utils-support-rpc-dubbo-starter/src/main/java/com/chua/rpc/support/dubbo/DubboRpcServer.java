@@ -1,6 +1,8 @@
 package com.chua.rpc.support.dubbo;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.network.rpc.RpcConnectionInfo;
+import com.chua.common.support.network.rpc.RpcMetrics;
 import com.chua.common.support.network.rpc.RpcProtocolConfig;
 import com.chua.common.support.network.rpc.RpcRegistryConfig;
 import com.chua.common.support.network.rpc.RpcServer;
@@ -9,8 +11,14 @@ import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
+import org.apache.dubbo.remoting.Channel;
+import org.apache.dubbo.remoting.RemotingServer;
+import org.apache.dubbo.rpc.ProtocolServer;
+import org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -147,5 +155,66 @@ public class DubboRpcServer implements RpcServer {
         config.export();
         serviceConfigs.add(config);
         return this;
+    }
+
+    @Override
+    /** 获取协议名称 */
+    public String getProtocol() {
+        return "dubbo";
+    }
+
+    @Override
+    /** 获取已暴露服务数 */
+    public int getServiceCount() {
+        try {
+            return DubboProtocol.getDubboProtocol().getExporters().size();
+        } catch (Exception e) {
+            log.warn("Failed to collect Dubbo service count: {}", e.getMessage());
+            return serviceConfigs.size();
+        }
+    }
+
+    @Override
+    /** 获取连接信息 */
+    public List<RpcConnectionInfo> getConnections() {
+        List<RpcConnectionInfo> result = new ArrayList<>();
+        try {
+            DubboProtocol protocol = DubboProtocol.getDubboProtocol();
+            for (ProtocolServer protocolServer : protocol.getServers()) {
+                RemotingServer remotingServer = protocolServer.getRemotingServer();
+                if (remotingServer == null) {
+                    continue;
+                }
+                InetSocketAddress local = remotingServer.getLocalAddress();
+                String localAddress = local != null && local.getAddress() != null
+                        ? local.getAddress().getHostAddress() : null;
+                int localPort = local != null ? local.getPort() : 0;
+                String state = remotingServer.isClosed() ? "CLOSED" : "ACTIVE";
+                long now = System.currentTimeMillis();
+                for (Channel channel : remotingServer.getChannels()) {
+                    InetSocketAddress remote = channel.getRemoteAddress();
+                    result.add(new RpcConnectionInfo("dubbo", localAddress, localPort,
+                            remote != null && remote.getAddress() != null
+                                    ? remote.getAddress().getHostAddress() : null,
+                            remote != null ? remote.getPort() : 0,
+                            channel.isConnected() ? state : "DISCONNECTED",
+                            now, now, Collections.emptyMap()));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to collect Dubbo connections: {}", e.getMessage());
+        }
+        return result;
+    }
+
+    @Override
+    /** 获取指标快照 */
+    public RpcMetrics getMetrics() {
+        RpcMetrics metrics = new RpcMetrics("dubbo");
+        List<RpcConnectionInfo> connections = getConnections();
+        metrics.setServiceCount(getServiceCount());
+        metrics.setTotalConnections(connections.size());
+        metrics.setConnections(connections);
+        return metrics;
     }
 }

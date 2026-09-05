@@ -183,6 +183,30 @@ public class HttpClientFactory {
     }
 
     /**
+     * 从 curl 命令字符串创建 {@link HttpClientBuilder}。
+     *
+     * <p>便捷入口，等价于 {@code HttpClientBuilder.fromCurl(curl)}。</p>
+     *
+     * @param curl curl 命令字符串
+     * @return 构建好的 HttpClientBuilder
+     */
+    public static HttpClientBuilder fromCurl(String curl) {
+        return CurlParser.fromCurl(curl);
+    }
+
+    /**
+     * 直接执行 curl 命令并返回响应。
+     *
+     * <p>等价于 {@code fromCurl(curl).execute()}。</p>
+     *
+     * @param curl curl 命令字符串
+     * @return HTTP 响应
+     */
+    public static ClientResponse curl(String curl) {
+        return CurlParser.curl(curl);
+    }
+
+    /**
      * 创建链式 HTTP 请求构建器。
      *
      * <p>这是<b>推荐</b>的 HTTP 请求构建方式。通过链式调用依次设置

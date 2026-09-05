@@ -90,7 +90,7 @@ public class UebaConfig implements Serializable {
      */
     public static UebaConfig load(InputStream in) {
         Objects.requireNonNull(in, "in must not be null");
-        Constructor constructor = new Constructor(UebaConfig.class);
+        Constructor constructor = new Constructor(UebaConfig.class, new LoaderOptions());
         TypeDescription preprocessingDesc = new TypeDescription(Preprocessing.class);
         preprocessingDesc.putMapPropertyType("scalers", String.class, Scaler.class);
         constructor.addTypeDescription(preprocessingDesc);

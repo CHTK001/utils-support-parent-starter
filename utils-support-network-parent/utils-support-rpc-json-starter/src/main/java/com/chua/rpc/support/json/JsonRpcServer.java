@@ -1,6 +1,8 @@
 package com.chua.rpc.support.json;
 
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.network.rpc.RpcConnectionInfo;
+import com.chua.common.support.network.rpc.RpcMetrics;
 import com.chua.common.support.network.rpc.RpcProtocolConfig;
 import com.chua.common.support.network.rpc.RpcRegistryConfig;
 import com.chua.common.support.network.rpc.RpcServer;
@@ -18,12 +20,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * JSON-RPC 2.0 服务端实现（JDK {@link HttpServer} + {@link JsonRpcBasicServer} 多服务模式）。
@@ -117,6 +123,36 @@ public class JsonRpcServer implements RpcServer {
     private ExecutorService executorService;
 
     /**
+     * 服务启动时间戳（毫秒）
+     */
+    private final long startTime = System.currentTimeMillis();
+
+    /**
+     * 累计请求总数（仅统计 POST 请求）
+     */
+    private final AtomicLong totalRequests = new AtomicLong();
+
+    /**
+     * 累计成功响应数
+     */
+    private final AtomicLong successRequests = new AtomicLong();
+
+    /**
+     * 累计失败响应数（5xx/4xx/异常）
+     */
+    private final AtomicLong failureRequests = new AtomicLong();
+
+    /**
+     * 当前在途请求数
+     */
+    private final AtomicLong activeRequests = new AtomicLong();
+
+    /**
+     * 最近请求来源 IP 集合（HTTP 短连接无持久连接，用来源地址近似连接信息）
+     */
+    private final Set<String> clientAddresses = ConcurrentHashMap.newKeySet();
+
+    /**
      * 构造器。
      *
      * @param rpcRegistryConfigs 注册中心配置（json 实现仅取地址，如 {@code http://127.0.0.1:8080}）
@@ -179,8 +215,11 @@ public class JsonRpcServer implements RpcServer {
             exchange.close();
             return;
         }
+        trackRequest(exchange);
         byte[] body = readRequestBody(exchange.getRequestBody());
         if (body.length == 0) {
+            failureRequests.incrementAndGet();
+            activeRequests.decrementAndGet();
             exchange.sendResponseHeaders(400, -1);
             exchange.close();
             return;
@@ -190,6 +229,8 @@ public class JsonRpcServer implements RpcServer {
         JsonRpcBasicServer server = resolveServer(serviceName);
         if (server == null) {
             log.warn("JSON-RPC 无法路由到服务: service={}, 已注册={}", serviceName, rpcServerMap.keySet());
+            failureRequests.incrementAndGet();
+            activeRequests.decrementAndGet();
             exchange.sendResponseHeaders(404, -1);
             exchange.close();
             return;
@@ -201,6 +242,8 @@ public class JsonRpcServer implements RpcServer {
                     exchange.getRequestHeaders().getFirst(HEADER_VERSION),
                     exchange.getRequestHeaders().getFirst(HEADER_GROUP),
                     exchange.getRequestHeaders().getFirst(HEADER_TOKEN) != null ? "***" : null);
+            failureRequests.incrementAndGet();
+            activeRequests.decrementAndGet();
             exchange.sendResponseHeaders(403, -1);
             exchange.close();
             return;
@@ -213,12 +256,77 @@ public class JsonRpcServer implements RpcServer {
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
             exchange.sendResponseHeaders(200, response.length);
             exchange.getResponseBody().write(response);
+            successRequests.incrementAndGet();
         } catch (Exception e) {
             log.error("JSON-RPC handle error", e);
+            failureRequests.incrementAndGet();
             exchange.sendResponseHeaders(500, -1);
         } finally {
+            activeRequests.decrementAndGet();
             exchange.close();
         }
+    }
+
+    /**
+     * 记录一次请求：累计总数、在途数、来源地址。
+     *
+     * @param exchange HTTP 交换对象
+     */
+    private void trackRequest(HttpExchange exchange) {
+        totalRequests.incrementAndGet();
+        activeRequests.incrementAndGet();
+        InetSocketAddress remote = exchange.getRemoteAddress();
+        if (remote != null && remote.getAddress() != null) {
+            clientAddresses.add(remote.getAddress().getHostAddress());
+        }
+    }
+
+    @Override
+    /** 获取协议名称 */
+    public String getProtocol() {
+        return "json";
+    }
+
+    @Override
+    /** 获取已暴露服务数 */
+    public int getServiceCount() {
+        return rpcServerMap.size();
+    }
+
+    @Override
+    /** 获取连接信息 */
+    public List<RpcConnectionInfo> getConnections() {
+        String localAddress = "0.0.0.0";
+        int localPort = DEFAULT_PORT;
+        if (httpServer != null) {
+            InetSocketAddress address = httpServer.getAddress();
+            if (address != null) {
+                localAddress = address.getHostString();
+                localPort = address.getPort();
+            }
+        }
+        long now = System.currentTimeMillis();
+        List<RpcConnectionInfo> result = new ArrayList<>(clientAddresses.size());
+        for (String address : clientAddresses) {
+            result.add(new RpcConnectionInfo("json", localAddress, localPort,
+                    address, 0, "ACTIVE", now, now, Collections.emptyMap()));
+        }
+        return result;
+    }
+
+    @Override
+    /** 获取指标快照 */
+    public RpcMetrics getMetrics() {
+        RpcMetrics metrics = new RpcMetrics("json");
+        metrics.setStartTime(startTime);
+        metrics.setServiceCount(rpcServerMap.size());
+        metrics.setTotalCalls(totalRequests.get());
+        metrics.setSuccessCalls(successRequests.get());
+        metrics.setFailureCalls(failureRequests.get());
+        metrics.setActiveCalls(activeRequests.get());
+        metrics.setTotalConnections(clientAddresses.size());
+        metrics.setConnections(getConnections());
+        return metrics;
     }
 
     /**
