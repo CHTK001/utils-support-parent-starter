@@ -675,6 +675,34 @@ public interface Dialect {
         return null;
     }
 
+    // ==================== 向量 / JSON 支持检测 ====================
+
+    /**
+     * 判断当前数据库是否原生支持向量类型及相似度计算。
+     * <p>返回 {@code true} 时，{@code JdbcEngine} 可尝试创建 MySQL/PostgreSQL 原生向量存储；
+     * 返回 {@code false} 时，向量操作将自动降级到内存/jvector 存储。</p>
+     * <ul>
+     *   <li>MySQL 8.0.31+（含 VECTOR 类型）：默认 true</li>
+     *   <li>PostgreSQL + pgvector 扩展：默认 true</li>
+     *   <li>其他数据库：默认 false</li>
+     * </ul>
+     *
+     * @return true 支持原生向量操作
+     */
+    default boolean supportsVector() {
+        return false;
+    }
+
+    /**
+     * 判断当前数据库是否支持 JSON 类型。
+     * <p>MySQL 5.7+、PostgreSQL 9.4+、MariaDB 10.2+ 默认支持。</p>
+     *
+     * @return true 支持 JSON 类型
+     */
+    default boolean supportsJson() {
+        return false;
+    }
+
     // ==================== SPI 工厂 ====================
 
     /**

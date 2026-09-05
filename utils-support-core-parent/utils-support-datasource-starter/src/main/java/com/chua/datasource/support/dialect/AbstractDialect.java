@@ -3,15 +3,16 @@ package com.chua.datasource.support.dialect;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
  * 方言抽象基类。
  * <p>
  * 提供默认的分页 SQL 生成（LIMIT/OFFSET 语法）和默认类型映射。
- * 触发器/存储过程的获取 SQL 由各具体方言实现 {@link Dialect} 接口的
- * {@code getTriggerListSql} / {@code getProcedureListSql} 系列方法提供，
- * 执行与结果解析由 {@code JdbcEngine} 负责。
+ * 所有数据库特有字符串（引号、关键字、DDL片段、SQL模板）均通过 {@link #config(String, String)}
+ * 从 {@link #properties} 读取，properties 支持通过环境变量 / application.properties 注入。
  * </p>
  *
  * @author CH
@@ -20,10 +21,13 @@ import java.util.Properties;
 public abstract class AbstractDialect implements Dialect {
 
     /**
-     * 方言配置属性。
-     * <p>支持通过此属性集覆盖 {@link #driver()}、{@link #url()} 等值。</p>
+     * 方言配置属性，可通过 Spring {@code application.properties}、环境变量或构造参数注入。
+     * <p>支持通过此属性集覆盖 {@link #driver()}、{@link #url()} 及其他 SQL 片段。</p>
      */
     protected Properties properties;
+
+    /** 内存中的默认值缓存，避免重复从 properties 读取 */
+    private final Map<String, String> configCache = new HashMap<>();
 
     @Override
     /** SupportsLimit */
@@ -46,29 +50,44 @@ public abstract class AbstractDialect implements Dialect {
     @Override
     /** Driver */
     public String driver() {
-        return properties != null
-                ? properties.getProperty("driver", null)
-                : null;
+        return config("driver", null);
     }
 
     @Override
     /** Url */
     public String url() {
-        return properties != null
-                ? properties.getProperty("url", null)
-                : null;
+        return config("url", null);
     }
 
     /**
-     * 设置方言配置属性。
-     * <p>调用后 {@link #driver()} 和 {@link #url()} 将优先返回属性中的值。</p>
+     * 根据 key 从 properties 中读取配置值，找不到时返回 {@code defaultValue}。
+     * <p>读取结果会被缓存，避免重复 I/O。</p>
      *
-     * @param properties 属性集合
-     * @return this
+     * <pre>{@code
+     * // application.properties 示例：
+     * dialect.mysql.quote-open=`
+     * dialect.mysql.quote-close=`
+     * dialect.mysql.engine-keyword=ENGINE
+     * }</pre>
+     *
+     * @param key          配置键（不带前缀，前缀由子类提供）
+     * @param defaultValue 默认值
+     * @return 配置值，未配置时返回默认值
      */
-    public AbstractDialect withProperties(Properties properties) {
-        this.properties = properties;
-        return this;
+    protected String config(String key, String defaultValue) {
+        String cacheKey = key;
+        if (configCache.containsKey(cacheKey)) {
+            return configCache.get(cacheKey);
+        }
+        if (properties != null) {
+            String val = properties.getProperty(key);
+            if (val != null) {
+                configCache.put(cacheKey, val);
+                return val;
+            }
+        }
+        configCache.put(cacheKey, defaultValue);
+        return defaultValue;
     }
 
     /**
@@ -78,6 +97,19 @@ public abstract class AbstractDialect implements Dialect {
      */
     public Properties getProperties() {
         return properties;
+    }
+
+    /**
+     * 设置方言配置属性。
+     * <p>调用后所有 {@link #config(String, String)} 将优先返回属性中的值，同时清空缓存。</p>
+     *
+     * @param properties 属性集合
+     * @return this
+     */
+    public AbstractDialect withProperties(Properties properties) {
+        this.properties = properties;
+        this.configCache.clear();
+        return this;
     }
 
     /**
