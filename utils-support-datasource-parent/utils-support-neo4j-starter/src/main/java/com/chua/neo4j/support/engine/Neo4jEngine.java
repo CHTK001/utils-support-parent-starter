@@ -68,6 +68,35 @@ public class Neo4jEngine implements Engine {
      */
     private Driver driver;
 
+    /**
+     * 方言（从 META-INF/dialect-env/neo4j.env 加载）。
+     */
+    private final java.util.Properties dialectProps;
+
+    public Neo4jEngine() {
+        this.dialectProps = loadProps("neo4j");
+    }
+
+    /** 从类路径加载 .env 文件为 Properties */
+    private static java.util.Properties loadProps(String protocol) {
+        try {
+            java.io.InputStream is = Neo4jEngine.class.getClassLoader()
+                    .getResourceAsStream("META-INF/dialect-env/" + protocol + ".env");
+            if (is == null) return new java.util.Properties();
+            java.util.Properties props = new java.util.Properties();
+            props.load(new java.io.BufferedReader(
+                    new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8)));
+            return props;
+        } catch (Exception e) {
+            return new java.util.Properties();
+        }
+    }
+
+    private boolean supportsNativePagination() {
+        String v = dialectProps.getProperty("supports-native-pagination", "true");
+        return !"false".equalsIgnoreCase(v.trim());
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     /** 添加DataSource */
@@ -365,8 +394,17 @@ public class Neo4jEngine implements Engine {
             @Override
             /** Page */
             public Page<T> page(int pn, int ps) {
+                int offset = (pn - 1) * ps;
+                int limit = ps;
+                // 原生分页：limit 非零时驱动 SKIP/LIMIT
+                if (supportsNativePagination() && limit > 0) {
+                    List<T> all = cypherQuery(entityClass, getConditions(), offset, limit);
+                    long total = all.size(); // 注意：原生分页时 total 需另发 COUNT 查询
+                    return new Page<>(pn, ps, total, all);
+                }
+                // 内存兜底
                 List<T> all = cypherQuery(entityClass, getConditions());
-                int from = (pn - 1) * ps;
+                int from = Math.min(offset, all.size());
                 int to = Math.min(from + ps, all.size());
                 if (from >= all.size()) {
                     return new Page<>(pn, ps, all.size(), Collections.emptyList());
@@ -653,6 +691,10 @@ public class Neo4jEngine implements Engine {
      */
     @SuppressWarnings("unchecked")
     private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions) {
+        return cypherQuery(entityClass, conditions, 0, 0);
+    }
+
+    private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions, int offset, int limit) {
         if (driver == null) {
             log.warn("[neo4j-engine] 驱动未初始化，无法执行查询");
             return Collections.emptyList();
@@ -667,6 +709,11 @@ public class Neo4jEngine implements Engine {
             cypher.append(" WHERE ").append(whereClause);
         }
         cypher.append(" RETURN n");
+        // 原生分页：追加 SKIP/LIMIT
+        if (supportsNativePagination() && (limit > 0 || offset > 0)) {
+            if (offset > 0) cypher.append(" SKIP ").append(offset);
+            if (limit > 0) cypher.append(" LIMIT ").append(limit);
+        }
 
         try (var session = driver.session()) {
             var result = session.run(cypher.toString(), params);

@@ -23,6 +23,12 @@
             <artifactId>dubbo</artifactId>
             <version>${dubbo.version}</version>
         </dependency>
+        <!-- Dubbo 3.x 将 registry 实现拆分为独立模块，multicast 无需外部服务，用于本机/局域网直连 -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-registry-multicast</artifactId>
+            <version>${dubbo.version}</version>
+        </dependency>
         <!-- dubbo-common 的 FastJsonSerialization 启动时即引用 com.alibaba.fastjson.JSON，
              dubbo 自身未声明该依赖，缺此 jar 抛 NoClassDefFoundError；2.x 即 fastjson2（兼容旧 API） -->
         <dependency>

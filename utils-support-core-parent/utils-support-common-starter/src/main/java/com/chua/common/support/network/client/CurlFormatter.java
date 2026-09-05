@@ -61,18 +61,45 @@ public final class CurlFormatter {
      * @return curl 命令字符串
      */
     static String formatFromBuilder(HttpClientBuilder builder, String url) {
-        // 通过反射读取 builder 私有字段（与 HttpClientBuilder 同包，可直接访问）
-        // 由于两者在同一包 com.chua.common.support.network.client，直接通过公开 API 获取信息
-        // 这里我们借助 ClientRequest 作为中间载体
-        return formatFromUrlAndState(url, builder);
+        Object body = builder._body();
+        com.chua.common.support.network.http.HttpHeader headers = builder._headers();
+
+        // 解析请求体（与 HttpClientBuilder.resolveBody 逻辑一致）
+        if (body == null && builder._multipartBody() != null && !builder._multipartBody().isEmpty()) {
+            headers = com.chua.common.support.network.http.HttpHeader.create();
+            for (var entry : builder._headers().toMap().entrySet()) {
+                headers.add(entry.getKey(), entry.getValue());
+            }
+            headers.add("Content-Type", builder._multipartBody().getContentType());
+            body = builder._multipartBody().toBytes();
+        } else if (body == null && builder._formData() != null && !builder._formData().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (java.util.Map.Entry<String, String> entry : builder._formData().entrySet()) {
+                if (sb.length() > 0) sb.append('&');
+                sb.append(java.net.URLEncoder.encode(entry.getKey(), java.nio.charset.StandardCharsets.UTF_8));
+                sb.append('=');
+                if (entry.getValue() != null) {
+                    sb.append(java.net.URLEncoder.encode(entry.getValue(), java.nio.charset.StandardCharsets.UTF_8));
+                }
+            }
+            body = sb.toString();
+        }
+
+        return format(url, builder._method(), headers, body,
+                builder._connectTimeout(), builder._readTimeout(),
+                builder._proxyHost(), builder._proxyPort(), builder._followRedirects());
     }
 
-    private static String formatFromUrlAndState(String url, HttpClientBuilder builder) {
+    /**
+     * 将各参数直接格式化为等价的 curl 命令字符串。
+     */
+    public static String format(String url, com.chua.common.support.network.http.HttpMethod method,
+                                com.chua.common.support.network.http.HttpHeader headers, Object body,
+                                long connectTimeout, long readTimeout,
+                                String proxyHost, int proxyPort, boolean followRedirects) {
         StringBuilder sb = new StringBuilder("curl");
-        // 通过 execute() 的等价逻辑构造 ClientRequest 再格式化
-        // 但由于无法直接访问私有字段，这里采用保守策略：返回基于 URL 的简化格式
-        // 实际使用中建议直接调用 ClientRequest-based 的 format() 方法
-        sb.append(" ").append(quote(url));
+        appendOptions(sb, url, method, headers, body, connectTimeout, readTimeout,
+                proxyHost, proxyPort, followRedirects);
         return sb.toString().strip();
     }
 

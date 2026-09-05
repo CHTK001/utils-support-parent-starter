@@ -226,6 +226,11 @@ public class SqlDialect extends AbstractDialect {
         return configBool("supports-json") != null ? configBool("supports-json") : false;
     }
 
+    @Override
+    public String queryLang() {
+        return config("query-lang", "sql");
+    }
+
     // ==================== 触发器 / 存储过程（走 env 模板） ====================
 
     @Override

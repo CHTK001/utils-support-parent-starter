@@ -703,6 +703,35 @@ public interface Dialect {
         return false;
     }
 
+    // ==================== 查询语言 / 分页模式 ====================
+
+    /**
+     * 查询语言标识。
+     * <p>{@code sql} 表示标准 SQL（JDBC 方言）；
+     * {@code cypher} / {@code es} / {@code influxql} / {@code gremlin} 等表示非 SQL 语言。</p>
+     * <p>非 SQL 语言用于 {@link #supportsNativePagination()} 判断及分页模板匹配。</p>
+     *
+     * @return 查询语言标识，默认 {@code "sql"}
+     */
+    default String queryLang() {
+        return "sql";
+    }
+
+    /**
+     * 判断当前方言是否支持原生分页（在查询语句层面注入 LIMIT/SKIP/offset 等）。
+     * <ul>
+     *   <li>所有 SQL 方言默认 {@code true}（已通过 {@link #supportsLimit()} 覆盖）</li>
+     *   <li>Neo4j/Cypher → 支持 {@code SKIP ... LIMIT ...}，默认 {@code true}</li>
+     *   <li>Elasticsearch → 不支持 SQL 式分页，默认 {@code false}（内存截取）</li>
+     *   <li>InfluxDB → 支持 {@code LIMIT n}，默认 {@code true}</li>
+     * </ul>
+     *
+     * @return true 支持原生分页
+     */
+    default boolean supportsNativePagination() {
+        return supportsLimit();
+    }
+
     // ==================== SPI 工厂 ====================
 
     /**
