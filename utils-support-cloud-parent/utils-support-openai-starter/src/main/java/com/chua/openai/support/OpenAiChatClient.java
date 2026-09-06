@@ -656,9 +656,13 @@ public class OpenAiChatClient implements ChatClient {
                 }
             }
 
-            usageBuilder.durationMillis(System.currentTimeMillis() - startTime);
+            long duration = System.currentTimeMillis() - startTime;
+            usageBuilder.durationMillis(duration);
             if (firstTokenAt > 0) {
                 usageBuilder.firstTokenLatencyMillis(firstTokenAt - startTime);
+            } else if (!stream) {
+                // 非流式请求无法观测首包，用户看到首字的时间即完整响应到达时间
+                usageBuilder.firstTokenLatencyMillis(duration);
             }
 
             // 发送结束事件
