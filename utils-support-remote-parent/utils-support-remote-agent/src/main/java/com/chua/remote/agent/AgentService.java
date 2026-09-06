@@ -13,7 +13,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -45,7 +45,7 @@ public class AgentService implements RemoteAgentSPI {
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /** 采集线程池 */
-    private final Executor captureExecutor;
+    private final ExecutorService captureExecutor;
 
     /** 截图回调（发送到网关） */
     private ScreenCallback screenCallback;
