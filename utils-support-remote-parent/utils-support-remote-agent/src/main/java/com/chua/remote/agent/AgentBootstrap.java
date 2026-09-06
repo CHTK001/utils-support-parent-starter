@@ -1,6 +1,11 @@
 package com.chua.remote.agent;
 
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.sync.netty.NettyWebSocketSyncFlow;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.common.support.utils.IdUtils;
 import com.chua.remote.core.RemoteClient;
 import com.chua.remote.core.codec.FrameCodec;
 import com.chua.remote.protocol.capability.CodecProfile;
@@ -18,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("remote-agent")
 public class AgentBootstrap {
 
     /** 网关客户端 */
@@ -32,17 +38,16 @@ public class AgentBootstrap {
     /** 套壳模式实现 */
     private final AgentShellService shellService;
 
-    /**
-     * 创建被控端启动器。
-     *
-     * @param gatewayUrl 网关地址
-     * @param agentInfo  被控端信息
-     */
+    /** 运行状态 */
+    private volatile boolean running;
+
     public AgentBootstrap(String gatewayUrl, AgentInfo agentInfo) {
         this.client = new RemoteClient(gatewayUrl);
         this.agentInfo = agentInfo;
         this.service = new AgentService(agentInfo);
         this.shellService = new AgentShellService(agentInfo);
+        // 生成验证码
+        agentInfo.setVerifyCode(DigestUtils.md5(IdUtils.uuid() + System.currentTimeMillis()));
     }
 
     /**
@@ -51,44 +56,97 @@ public class AgentBootstrap {
     public void start() {
         // 连接网关
         client.connect();
+        log.info("已连接到网关");
+
+        // 注册到网关
+        String agentId = registerToGateway();
 
         // 上报能力
         reportCapabilities();
 
         // 根据类型启动模式
         if (agentInfo.getAgentType() == AgentInfo.AgentType.SERVICE) {
-            startServiceMode();
+            startServiceMode(agentId);
         } else {
-            startShellMode();
+            startShellMode(agentId);
         }
+        running = true;
+    }
+
+    /** 注册到网关 */
+    private String registerToGateway() {
+        String agentId = agentInfo.getId();
+        // 先通过网关的 SPI 接口注册
+        // 实际注册通过 RemoteTransport 发送信号帧
+        var registerFrame = FrameCodec.encodeSignal(
+                MessageType.SIGNAL, agentId, agentInfo);
+        client.getTransport().send(registerFrame);
+        log.info("被控端注册到网关: id={}, type={}, verifyCode={}",
+                agentId, agentInfo.getAgentType(), agentInfo.getVerifyCode());
+        return agentId;
     }
 
     /** 上报编码能力 */
     private void reportCapabilities() {
-        var frame = FrameCodec.encodeSignal(MessageType.SIGNAL, agentInfo.getId(), agentInfo);
-        client.getTransport().send(frame);
-        log.info("已上报被控端信息: id={}, type={}", agentInfo.getId(), agentInfo.getAgentType());
+        var capabilityFrame = FrameCodec.encodeSignal(
+                MessageType.SIGNAL, agentInfo.getId(), agentInfo.getEncodingCapability());
+        client.getTransport().send(capabilityFrame);
+        log.info("已上报编码能力: agentId={}, encodings={}",
+                agentInfo.getId(), agentInfo.getEncodingCapability().getEncodings());
     }
 
     /** 启动服务模式 */
-    private void startServiceMode() {
+    private void startServiceMode(String agentId) {
+        // 设置截图回调，将编码后的帧发送到网关
+        service.setScreenCallback(encodedFrame -> {
+            var dataFrame = FrameCodec.dataFrame(agentId, encodedFrame);
+            client.getTransport().send(dataFrame);
+        });
         service.start();
-        log.info("服务模式已启动: agentId={}", agentInfo.getId());
+        log.info("服务模式已启动: agentId={}", agentId);
     }
 
     /** 启动套壳模式 */
-    private void startShellMode() {
+    private void startShellMode(String agentId) {
         shellService.start();
-        log.info("套壳模式已启动: agentId={}", agentInfo.getId());
+        log.info("套壳模式已启动: agentId={}", agentId);
     }
 
     /**
      * 停止被控端。
      */
     public void stop() {
+        running = false;
         service.stop();
         shellService.stop();
         client.disconnect();
         log.info("被控端已停止: id={}", agentInfo.getId());
+    }
+
+    /**
+     * 获取被控端信息。
+     *
+     * @return AgentInfo
+     */
+    public AgentInfo getAgentInfo() {
+        return agentInfo;
+    }
+
+    /**
+     * 获取服务模式。
+     *
+     * @return AgentService
+     */
+    public AgentService getService() {
+        return service;
+    }
+
+    /**
+     * 获取套壳模式。
+     *
+     * @return AgentShellService
+     */
+    public AgentShellService getShellService() {
+        return shellService;
     }
 }
