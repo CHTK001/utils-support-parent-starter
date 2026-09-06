@@ -44,7 +44,7 @@ public class Frame implements Serializable {
      * @param <T>   泛型
      * @return 反序列化后的对象
      */
-    public <T> T payloadAs(Class<T> clazz) {
+    public <T extends Serializable> T payloadAs(Class<T> clazz) {
         if (payload == null || payload.length == 0) {
             return null;
         }

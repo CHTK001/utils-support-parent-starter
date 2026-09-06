@@ -1,6 +1,8 @@
 package com.chua.remote.core.transport;
 
 import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.server.SyncServer;
+import com.chua.common.support.network.sync.SyncClient;
 import com.chua.common.support.network.sync.netty.NettyWebSocketSyncFlow;
 import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
@@ -20,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class RemoteTransport {
 
-    /** 连接 */
+    /** 流程 */
     private final NettyWebSocketSyncFlow flow;
 
     /** 订阅处理器 */
@@ -81,49 +83,55 @@ public class RemoteTransport {
     }
 
     /**
-     * 发送帧。
+     * 发送帧（通过客户端）。
      *
      * @param frame 帧
      */
     public void send(Frame frame) {
+        SyncClient client = flow.getClient();
+        if (client == null) {
+            log.warn("客户端未连接，无法发送");
+            return;
+        }
         String topic = frame.getType().name();
         byte[] payload = frame.getPayload();
-        if (payload != null) {
-            flow.send(topic, new String(payload, java.nio.charset.StandardCharsets.UTF_8));
-        } else {
-            flow.send(topic, "");
-        }
+        String msg = payload != null ? new String(payload, java.nio.charset.StandardCharsets.UTF_8) : "";
+        client.send(topic, msg);
     }
 
     /**
-     * 广播帧。
+     * 广播帧（通过服务端）。
      *
      * @param frame 帧
      */
     public void publish(Frame frame) {
+        SyncServer server = flow.getServer();
+        if (server == null) {
+            log.warn("服务端未启动，无法广播");
+            return;
+        }
         String topic = frame.getType().name();
         byte[] payload = frame.getPayload();
-        if (payload != null) {
-            flow.publish(topic, new String(payload, java.nio.charset.StandardCharsets.UTF_8));
-        } else {
-            flow.publish(topic, "");
-        }
+        String msg = payload != null ? new String(payload, java.nio.charset.StandardCharsets.UTF_8) : "";
+        server.publish(topic, msg);
     }
 
     /**
-     * 向指定客户端发送帧。
+     * 向指定客户端发送帧（通过服务端）。
      *
      * @param clientId 客户端 id
      * @param frame    帧
      */
     public void send(String clientId, Frame frame) {
+        SyncServer server = flow.getServer();
+        if (server == null) {
+            log.warn("服务端未启动，无法发送");
+            return;
+        }
         String topic = frame.getType().name();
         byte[] payload = frame.getPayload();
-        if (payload != null) {
-            flow.send(clientId, topic, new String(payload, java.nio.charset.StandardCharsets.UTF_8));
-        } else {
-            flow.send(clientId, topic, "");
-        }
+        String msg = payload != null ? new String(payload, java.nio.charset.StandardCharsets.UTF_8) : "";
+        server.send(clientId, topic, msg);
     }
 
     /**
