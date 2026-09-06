@@ -1,5 +1,6 @@
 package com.chua.remote.controller;
 
+import com.chua.remote.core.RemoteClient;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;

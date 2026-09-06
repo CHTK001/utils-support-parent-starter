@@ -1,7 +1,7 @@
 package com.chua.remote.controller;
 
 import com.chua.common.support.image.ImageProcessors;
-import com.chua.common.support.image.BufferedImageUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
