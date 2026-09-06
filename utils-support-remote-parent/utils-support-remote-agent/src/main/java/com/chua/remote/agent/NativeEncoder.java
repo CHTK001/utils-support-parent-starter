@@ -62,4 +62,11 @@ public class NativeEncoder {
         }
         return new byte[0];
     }
+
+    /**
+     * 关闭编码器，释放资源。
+     */
+    public void close() {
+        log.info("Native 编码器已关闭");
+    }
 }
