@@ -50,7 +50,7 @@ public class SSHTunnelManager {
                     .build();
             sshClient.connect();
             // 正向隧道：本地端口 -> 远程 RDP 服务
-            SshTunnel.TunnelDefinition def = SshClient.TunnelDefinition.local(localPort, "127.0.0.1", port);
+            SshClient.TunnelDefinition def = SshClient.TunnelDefinition.local(localPort, "127.0.0.1", port);
             currentTunnel = new SshTunnel(sshClient, def, "127.0.0.1");
             currentTunnel.open();
             log.info("RDP 隧道已建立: localPort={}", localPort);
@@ -79,7 +79,7 @@ public class SSHTunnelManager {
                     .password(password)
                     .build();
             sshClient.connect();
-            SshTunnel.TunnelDefinition def = SshClient.TunnelDefinition.local(localPort, "127.0.0.1", vncPort);
+            SshClient.TunnelDefinition def = SshClient.TunnelDefinition.local(localPort, "127.0.0.1", vncPort);
             currentTunnel = new SshTunnel(sshClient, def, "127.0.0.1");
             currentTunnel.open();
             log.info("VNC 隧道已建立: localPort={}", localPort);
@@ -108,7 +108,7 @@ public class SSHTunnelManager {
                     .password(password)
                     .build();
             sshClient.connect();
-            SshTunnel.TunnelDefinition def = SshClient.TunnelDefinition.local(localPort, "127.0.0.1", sshPort);
+            SshClient.TunnelDefinition def = SshClient.TunnelDefinition.local(localPort, "127.0.0.1", sshPort);
             currentTunnel = new SshTunnel(sshClient, def, "127.0.0.1");
             currentTunnel.open();
             log.info("SSH 隧道已建立: localPort={}", localPort);
