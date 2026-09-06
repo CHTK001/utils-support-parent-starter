@@ -1,23 +1,20 @@
-package com.chua.remote.agent;
+package com.chua.remote.gateway;
 
+import com.chua.common.support.network.server.ServerSetting;
+import com.chua.remote.core.RemoteServer;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
 import com.chua.remote.protocol.model.AgentInfo;
 import com.chua.remote.protocol.model.ControllerInfo;
 import com.chua.remote.protocol.model.Session;
-import com.chua.remote.protocol.spi.RemoteAgentSPI;
-import com.chua.remote.protocol.spi.RemoteControllerSPI;
+import com.chua.remote.protocol.spi.RemoteServerSPI;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 远控网关入口。
  *
- * <p>负责管理被控端和控制端的连接、鉴权、信令路由和会话生命周期。
- * 实际的帧转发通过 {@link #routeData} / {@link #routeInputEvent} 实现。</p>
+ * <p>负责管理被控端和控制端的连接、鉴权、信令路由和会话生命周期。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -52,7 +49,6 @@ public class GatewayServer implements RemoteServerSPI {
         initHandlers();
     }
 
-    /** 初始化消息处理器 */
     private void initHandlers() {
         server.getTransport().on(MessageType.SIGNAL, frame -> {
             handleSignal(frame);
@@ -65,97 +61,56 @@ public class GatewayServer implements RemoteServerSPI {
         });
     }
 
-    /**
-     * 启动网关。
-     */
     public void start() {
         server.start();
         log.info("远控网关已启动");
     }
 
-    /**
-     * 停止网关。
-     */
     public void stop() {
         server.stop();
         log.info("远控网关已停止");
     }
 
-    /**
-     * 设置网关回调（用于实际发送帧到传输层）。
-     *
-     * @param callback 回调
-     */
     public void setGatewayCallback(GatewayCallback callback) {
         this.gatewayCallback = callback;
     }
 
-    /**
-     * 处理信令帧（注册/能力上报）。
-     */
     private void handleSignal(Frame frame) {
         log.debug("处理信令帧: sessionId={}", frame.getSessionId());
-        // 信令帧可能包含 AgentInfo 或 ControllerInfo
-        // 实际注册逻辑在 agentRegister / controllerConnect 中
     }
 
-    /**
-     * 处理控制帧（鉴权/编解码协商/转码指令）。
-     */
     private void handleControl(Frame frame) {
         log.debug("处理控制帧: sessionId={}", frame.getSessionId());
-        // 处理转码指令等控制消息
     }
 
-    /**
-     * 处理数据帧（媒体流/键鼠事件）。
-     */
     private void handleData(Frame frame) {
         log.debug("处理数据帧: sessionId={}", frame.getSessionId());
-        // 数据帧路由
         if (frame.getType() == MessageType.DATA) {
-            // 屏幕流数据 -> 转发给控制端
             routeData(frame);
         }
     }
 
-    /**
-     * 路由数据帧（屏幕流）到控制端。
-     */
     private void routeData(Frame frame) {
         if (gatewayCallback != null) {
             gatewayCallback.onFrame(frame);
         }
+        server.getTransport().publish(frame);
         log.debug("路由数据帧到控制端: sessionId={}", frame.getSessionId());
     }
 
-    /**
-     * 路由键鼠事件到被控端。
-     */
     private void routeInputEvent(Frame frame) {
         if (gatewayCallback != null) {
             gatewayCallback.onFrame(frame);
         }
+        server.getTransport().send(frame.getSessionId(), frame);
         log.debug("路由键鼠事件到被控端: sessionId={}", frame.getSessionId());
-    }
-
-    /**
-     * 广播帧到所有订阅者。
-     */
-    private void broadcast(Frame frame) {
-        if (gatewayCallback != null) {
-            gatewayCallback.onFrame(frame);
-        }
-        server.getTransport().publish(frame);
     }
 
     @Override
     public String agentRegister(AgentInfo agentInfo) {
-        // 校验验证码
         if (!authManager.verifyAgent(agentInfo.getId(), agentInfo.getVerifyCode())) {
             throw new SecurityException("验证码校验失败: agentId=" + agentInfo.getId());
         }
-        // 注册到会话管理器
         sessionManager.registerAgent(agentInfo);
         authManager.registerAgentAccessCode(agentInfo.getAccessCode());
         authManager.registerAgent(agentInfo.getId(), agentInfo.getVerifyCode());
@@ -166,7 +121,6 @@ public class GatewayServer implements RemoteServerSPI {
 
     @Override
     public String controllerConnect(ControllerInfo controllerInfo) {
-        // 校验接入令牌
         if (!authManager.verifyController(controllerInfo.getAccessToken())) {
             throw new SecurityException("接入令牌校验失败");
         }
@@ -178,21 +132,17 @@ public class GatewayServer implements RemoteServerSPI {
 
     @Override
     public Session createSession(String controllerId, String agentId, String verifyCode) {
-        // 校验验证码
         if (!authManager.verifyAgent(agentId, verifyCode)) {
             throw new SecurityException("验证码校验失败");
         }
-        // 获取双方能力
         var agentInfo = sessionManager.getAgent(agentId);
         var controllerInfo = sessionManager.getController(controllerId);
         if (agentInfo == null || controllerInfo == null) {
             throw new IllegalStateException("被控端或控制端未注册");
         }
-        // 协商编解码
         var negotiated = transcodeEngine.negotiate(
                 agentInfo.getEncodingCapability(),
                 controllerInfo.getDecodingCapability());
-        // 创建会话
         var session = Session.builder()
                 .sessionId(java.util.UUID.randomUUID().toString())
                 .controllerSessionId(controllerId)
@@ -219,10 +169,7 @@ public class GatewayServer implements RemoteServerSPI {
     }
 }
 
-/**
- * 网关回调接口（用于实际帧转发）。
- */
 @FunctionalInterface
 interface GatewayCallback {
-    void onFrame(com.chua.remote.protocol.frame.Frame frame);
+    void onFrame(Frame frame);
 }
