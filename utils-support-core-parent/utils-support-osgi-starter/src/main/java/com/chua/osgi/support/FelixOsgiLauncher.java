@@ -40,6 +40,8 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
 
     /** framework */
     private volatile Framework framework;
+    /** 原始 OSGi BundleContext（服务注册表按名查找入口） */
+    private volatile org.osgi.framework.BundleContext frameworkContext;
     /** Applications */
     private final List<BundleApplication> applications = new CopyOnWriteArrayList<>();
     /** Listeners */
@@ -66,6 +68,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             framework = factory.newFramework(felixConfig);
             framework.init();
             framework.start();
+            frameworkContext = framework.getBundleContext();
             OsgiLauncherHolder.setInstance(this);
             notifyApplications();
             log.info("[osgi] OSGI framework started successfully");
@@ -73,6 +76,11 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
             log.error("[osgi] Failed to start OSGI framework", e);
             throw new RuntimeException("Failed to start OSGI framework", e);
         }
+    }
+
+    /** 获取原始 OSGi BundleContext（服务注册表访问入口，供框架外组件按名查找 OSGi 服务） */
+    public org.osgi.framework.BundleContext getFrameworkBundleContext() {
+        return frameworkContext;
     }
 
     /** 通知Applications */
