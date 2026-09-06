@@ -1,6 +1,6 @@
 package com.chua.remote.agent;
 
-import com.chua.common.support.image.BufferedImageUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.remote.protocol.model.AgentInfo;
 import lombok.extern.slf4j.Slf4j;
 

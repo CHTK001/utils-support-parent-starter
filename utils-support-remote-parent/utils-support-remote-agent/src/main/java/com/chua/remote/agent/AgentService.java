@@ -1,8 +1,9 @@
 package com.chua.remote.agent;
 
 import com.chua.common.support.image.ImageProcessors;
-import com.chua.common.support.image.BufferedImageUtils;
+import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.utils.ThreadUtils;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.model.AgentInfo;
 import com.chua.remote.protocol.spi.RemoteAgentSPI;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("remote-agent")
 public class AgentService implements RemoteAgentSPI {
 
     /** 被控端信息 */
