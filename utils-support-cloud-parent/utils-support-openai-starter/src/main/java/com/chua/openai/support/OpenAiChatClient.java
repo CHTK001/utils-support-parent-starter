@@ -572,6 +572,9 @@ public class OpenAiChatClient implements ChatClient {
                     .provider("openai")
                     .startTime(startTime);
 
+            /** 流式首包时间戳（首个内容 chunk 到达时刻），用于计算首字延迟 */
+            long firstTokenAt = 0;
+
             if (stream) {
                 // 进行流式请求
                 streamResponse = client.chat().completions().createStreaming(params);
@@ -605,6 +608,11 @@ public class OpenAiChatClient implements ChatClient {
                         if (delta != null) {
                             Optional<String> content = delta.content();
                             String reasoning = extractReasoning(delta._additionalProperties());
+                            if (content.isPresent() || reasoning != null) {
+                                if (firstTokenAt == 0) {
+                                    firstTokenAt = System.currentTimeMillis();
+                                }
+                            }
                             if (content.isPresent()) {
                                 consumer.accept(ChatResponse.builder()
                                         .state(ChatResponse.State.STREAMING)
@@ -649,6 +657,9 @@ public class OpenAiChatClient implements ChatClient {
             }
 
             usageBuilder.durationMillis(System.currentTimeMillis() - startTime);
+            if (firstTokenAt > 0) {
+                usageBuilder.firstTokenLatencyMillis(firstTokenAt - startTime);
+            }
 
             // 发送结束事件
             consumer.accept(ChatResponse.builder()
