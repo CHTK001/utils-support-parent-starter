@@ -54,7 +54,12 @@ public class ScreenCapture {
         if (image == null) {
             return new byte[0];
         }
-        return BufferedImageUtils.toBufferedImageArray(image, "png");
+        try {
+            return BufferedImageUtils.toBufferedImageArray(image, "png");
+        } catch (IOException e) {
+            log.error("截图编码失败: agentId={}", agentInfo.getId(), e);
+            return new byte[0];
+        }
     }
 
     /**
