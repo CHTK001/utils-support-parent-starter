@@ -6,6 +6,7 @@ import com.chua.remote.protocol.frame.MessageType;
 import com.chua.remote.protocol.model.ControllerInfo;
 import com.chua.remote.protocol.model.Session;
 import com.chua.remote.protocol.spi.RemoteControllerSPI;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("remote-controller")
 public class ControllerClient implements RemoteControllerSPI {
 
     /** 网关客户端 */

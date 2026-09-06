@@ -1,6 +1,7 @@
 package com.chua.remote.gateway;
 
 import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.remote.core.RemoteServer;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.frame.Frame;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("remote-gateway")
 public class GatewayServer implements RemoteServerSPI {
 
     /** 底层网关服务端 */
