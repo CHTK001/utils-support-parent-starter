@@ -267,6 +267,10 @@ public class GatewayServer implements RemoteServerSPI {
         if (agentInfo == null || controllerInfo == null) {
             throw new IllegalStateException("被控端或控制端未注册");
         }
+        // 控制端参数优先
+        if (controllerInfo.isReverseTunnelEnabled()) {
+            reverseTunnelEnabled = true;
+        }
         var negotiated = transcodeEngine.negotiate(
                 agentInfo.getEncodingCapability(),
                 controllerInfo.getDecodingCapability());
