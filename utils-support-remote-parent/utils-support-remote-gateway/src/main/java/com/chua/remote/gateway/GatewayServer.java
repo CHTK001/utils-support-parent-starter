@@ -14,21 +14,6 @@ import com.chua.remote.protocol.model.Session;
 import com.chua.remote.protocol.spi.RemoteServerSPI;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.net.URI;
-import java.util.concurrent.Executors;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-
 /**
  * 远控网关入口。
  *
@@ -59,11 +44,8 @@ public class GatewayServer implements RemoteServerSPI {
     /** 帧回调（用于实际转发到 RemoteTransport） */
     private GatewayCallback gatewayCallback;
 
-    /** HTTP 验证服务器（JDK 内置轻量 HTTP 服务） */
-    private final com.sun.net.httpserver.HttpServer httpServer;
-
-    /** HTTP 验证端口 */
-    private final int httpPort;
+    /** 是否开启反向隧道（控制端通过网关反向连接被控端） */
+    private boolean reverseTunnelEnabled;
 
     public GatewayServer(ServerSetting setting) {
         this.server = new RemoteServer(setting);
@@ -71,14 +53,7 @@ public class GatewayServer implements RemoteServerSPI {
         this.sessionManager = new SessionManager();
         this.routeManager = new RouteManager(sessionManager);
         this.transcodeEngine = new TranscodeEngine();
-        this.httpPort = setting.getPort() + 1;
-        try {
-            this.httpServer = com.sun.net.httpserver.HttpServer.create(new InetSocketAddress(httpPort), 0);
-            this.httpServer.createContext("/verify", new VerifyHandler());
-            this.httpServer.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
-        } catch (IOException e) {
-            throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
-        }
+        this.reverseTunnelEnabled = false;
         initHandlers();
     }
 
@@ -96,13 +71,11 @@ public class GatewayServer implements RemoteServerSPI {
 
     public void start() {
         server.start();
-        httpServer.start();
-        log.info("远控网关已启动 (WS:{}, HTTP验证:{})", server.getSetting().getPort(), httpPort);
+        log.info("远控网关已启动");
     }
 
     public void stop() {
         server.stop();
-        httpServer.stop(0);
         log.info("远控网关已停止");
     }
 
@@ -290,92 +263,6 @@ public class GatewayServer implements RemoteServerSPI {
         return session;
     }
 
-    /**
-     * HTTP 验证处理类。
-     *
-     * <p>控制端点击连接前先调用此端点验证参数（agentID、验证码、reverseTunnelEnabled）。</p>
-     */
-    private class VerifyHandler implements HttpHandler {
-
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            if (!"POST".equals(exchange.getRequestMethod())) {
-                exchange.sendResponseHeaders(405, -1);
-                return;
-            }
-            try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                Map<String, String> params = parseParams(body);
-                String agentId = params.get("agentId");
-                String verifyCode = params.get("verifyCode");
-                String reverseTunnelEnabled = params.get("reverseTunnelEnabled");
-                boolean rte = "true".equalsIgnoreCase(reverseTunnelEnabled);
-
-                if (!authManager.verifyAgent(agentId, verifyCode)) {
-                    String json = "{\"success\":false,\"message\":\"验证码校验失败\"}";
-                    exchange.getResponseHeaders().add("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(401, json.length());
-                    try (OutputStream os = exchange.getResponseBody()) {
-                        os.write(json.getBytes(StandardCharsets.UTF_8));
-                    }
-                    return;
-                }
-
-                var agentInfo = sessionManager.getAgent(agentId);
-                if (agentInfo == null) {
-                    String json = "{\"success\":false,\"message\":\"被控端未注册\"}";
-                    exchange.getResponseHeaders().add("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(404, json.length());
-                    try (OutputStream os = exchange.getResponseBody()) {
-                        os.write(json.getBytes(StandardCharsets.UTF_8));
-                    }
-                    return;
-                }
-
-                String json = String.format("{\"success\":true,\"agentType\":\"%s\",\"desktopSupported\":%s}",
-                        agentInfo.getAgentType(), agentInfo.getDesktopSupported());
-                exchange.getResponseHeaders().add("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, json.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(json.getBytes(StandardCharsets.UTF_8));
-                }
-                log.info("HTTP验证通过: agentId={}, reverseTunnelEnabled={}", agentId, rte);
-            } catch (Exception e) {
-                String json = "{\"success\":false,\"message\":\"验证异常:" + e.getMessage() + "\"}";
-                exchange.getResponseHeaders().add("Content-Type", "application/json");
-                exchange.sendResponseHeaders(500, json.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(json.getBytes(StandardCharsets.UTF_8));
-                }
-            }
-        }
-
-        private Map<String, String> parseParams(String body) {
-            Map<String, String> params = new HashMap<>();
-            for (String pair : body.split("&")) {
-                String[] kv = pair.split("=", 2);
-                if (kv.length == 2) {
-                    params.put(kv[0], java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8));
-                } else if (kv.length == 1) {
-                    params.put(kv[0], "");
-                }
-            }
-            return params;
-        }
-    }
-
-    public void start() {
-        server.start();
-        httpServer.start();
-        log.info("远控网关已启动 (WS:{}, HTTP验证:{})", server.getSetting().getPort(), httpPort);
-    }
-
-    public void stop() {
-        server.stop();
-        httpServer.stop(0);
-        log.info("远控网关已停止");
-    }
-
     @Override
     public boolean authenticate(String token) {
         return authManager.verifyController(token) || authManager.verifyAgentToken(token);
@@ -386,27 +273,95 @@ public class GatewayServer implements RemoteServerSPI {
         sessionManager.closeSession(sessionId);
         log.info("会话已关闭: sessionId={}", sessionId);
     }
-
-    /**
-     * 部署启动入口。
-     *
-     * @param args [0]=监听端口（默认 9000）
-     */
-    public static void main(String[] args) {
-        int port = args.length > 0 ? Integer.parseInt(args[0]) : 9000;
-        ServerSetting setting = ServerSetting.builder().port(port).build();
-        GatewayServer server = new GatewayServer(setting);
-        server.start();
-        // 保持 JVM 存活（传输层为 NIO Reactor 异步线程——主线程须阻塞，否则 main 返回即退出）
-        try {
-            Thread.currentThread().join();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 }
 
-@FunctionalInterface
-interface GatewayCallback {
-    void onFrame(Frame frame);
+/**
+ * 远控会话模型。
+ *
+ * <p>一个会话关联一个控制端和一个被控端，由网关统一管理生命周期。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Session implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /** 会话标识 */
+    private String sessionId;
+
+    /** 控制端会话 id */
+    private String controllerSessionId;
+
+    /** 被控端 id */
+    private String agentId;
+
+    /** 会话状态 */
+    private SessionStatus status;
+
+    /** 协商后的编解码配置 */
+    private NegotiatedCodec negotiatedCodec;
+
+    /** 被控端模式（网关在建立会话时从被控端注册信息填充） */
+    private AgentInfo.AgentType agentType;
+
+    /** 创建时间戳 */
+    private long createTime;
+
+    /** 过期时间戳 */
+    private Long expireTime;
+
+    /** 附加元数据 */
+    private Map<String, String> metadata;
+
+    /** 是否开启反向隧道（控制端会话参数，网关根据此创建反向隧道） */
+    private boolean reverseTunnelEnabled;
+
+    /**
+     * 会话状态枚举。
+     */
+    public enum SessionStatus {
+        /** 建立中 */
+        CONNECTING,
+        /** 已建立 */
+        ACTIVE,
+        /** 转码中 */
+        TRANSCODING,
+        /** 已关闭 */
+        CLOSED
+    }
+
+    /**
+     * 协商后的编解码配置。
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NegotiatedCodec implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        /** 最终编码格式 */
+        private String encoding;
+
+        /** 目标编码（协商无交集转码时——控制端解码能力；与 encoding 一致时无需转码） */
+        private String targetEncoding;
+
+        /** 最终宽度 */
+        private int width;
+
+        /** 最终高度 */
+        private int height;
+
+        /** 最终质量 */
+        private int quality;
+
+        /** 是否需要网关转码 */
+        private boolean transcoded;
+    }
 }
