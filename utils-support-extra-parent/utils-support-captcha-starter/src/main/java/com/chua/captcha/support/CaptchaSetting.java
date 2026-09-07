@@ -6,7 +6,7 @@ import lombok.Data;
 /**
  * 验证码解析服务配置
  * <p>
- * 用于配置验证码解析服务（如 CaptchaRun）的连接参数，
+ * 用于配置验证码解析服务（如 CaptchaRun、YesCaptcha）的连接参数，
  * 包括 API 令牌、服务地址、超时时间等。
  * </p>
  *
