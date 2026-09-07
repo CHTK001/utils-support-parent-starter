@@ -46,6 +46,9 @@ public class ControllerInfo implements Serializable {
     /** 附加信息 */
     private Map<String, String> extra;
 
+    /** 是否开启反向隧道 */
+    private boolean reverseTunnelEnabled;
+
     /**
      * 凭据模型（账号密码或私钥）。
      */
