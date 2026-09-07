@@ -58,8 +58,9 @@ public class RemotePerfBenchmark {
      * @param width  宽
      * @param height 高
      * @return JPEG 字节
+     * @throws Exception 图像编码异常
      */
-    static byte[] makeJpeg(int width, int height) {
+    static byte[] makeJpeg(int width, int height) throws Exception {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
         for (int x = 0; x < width; x += 8) {
@@ -107,7 +108,7 @@ public class RemotePerfBenchmark {
         ServerSetting setting = ServerSetting.builder().auto(false).host("127.0.0.1").port(port).build();
         RemoteServer server = new RemoteServer(setting);
         AtomicInteger upCount = new AtomicInteger();
-        server.getTransport().on(MessageType.DATA, upCount::incrementAndGet);
+        server.getTransport().on(MessageType.DATA, f -> upCount.incrementAndGet());
         server.start();
         try {
             RemoteClient client = new RemoteClient("perf-client", "tcp://127.0.0.1:" + port);
@@ -166,8 +167,9 @@ public class RemotePerfBenchmark {
      * 控制端渲染热路径对比：仅解码（新）vs 解码+PNG再编码+JPEG再编码（旧实现）。
      *
      * @param jpeg 1080p 帧
+     * @throws Exception 图像编解码异常
      */
-    static void benchRenderPath(byte[] jpeg) {
+    static void benchRenderPath(byte[] jpeg) throws Exception {
         int rounds = 30;
         // 预热
         BufferedImage warm = BufferedImageUtils.toBufferedImage(jpeg);
