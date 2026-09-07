@@ -1,6 +1,7 @@
 package com.chua.remote.agent;
 
 import com.chua.common.support.image.ImageProcessors;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.remote.protocol.capability.CodecProfile;
 import lombok.extern.slf4j.Slf4j;
@@ -27,22 +28,47 @@ public class NativeEncoder {
         this.capability = capability;
     }
 
+    /** 当前 SPI 编码器（按协商编码名缓存——避免逐帧 SPI 查找） */
+    private FrameEncoderSpi currentEncoder;
+
     /**
-     * 编码原始像素帧（不经 BufferedImage——原始 RGB 字节直接 JPEG 编码）。
+     * 编码原始像素帧（不经 BufferedImage——按协商编码名经 SPI 加载编码器）。
      *
      * @param frame 原始 RGB 像素帧
-     * @return 编码后的字节数组（JPEG 格式）
+     * @return 编码后的字节数组（jpeg/h264——按协商编码集）
      */
     public byte[] encode(NativeFrame frame) {
         if (frame == null) {
             return new byte[0];
         }
         try {
-            return RawJpegEncoder.encodeJpeg(frame, 80);
+            // 编码层全走 SPI：按协商编码名加载 @Spi 扩展（jpeg/h264），不直连具体编码类
+            FrameEncoderSpi encoder = resolveEncoder(getPrimaryEncoding());
+            if (encoder == null) {
+                encoder = resolveEncoder("jpeg");
+            }
+            return encoder == null ? new byte[0] : encoder.encode(frame, 80);
         } catch (Exception e) {
             log.error("Native 编码失败（raw 帧）", e);
             return new byte[0];
         }
+    }
+
+    /**
+     * 按编码名加载 SPI 编码器（带缓存）。
+     *
+     * @param codec 编码名（jpeg/h264）
+     * @return 编码器（无注册时返回 null）
+     */
+    private FrameEncoderSpi resolveEncoder(String codec) {
+        if (currentEncoder != null && codec.equals(currentEncoder.codecName())) {
+            return currentEncoder;
+        }
+        FrameEncoderSpi encoder = ServiceProvider.of(FrameEncoderSpi.class).getExtension(codec);
+        if (encoder != null) {
+            currentEncoder = encoder;
+        }
+        return encoder;
     }
 
     /**
@@ -179,9 +205,12 @@ public class NativeEncoder {
     }
 
     /**
-     * 关闭编码器，释放资源。
+     * 关闭编码器（SPI 编码器的原生句柄释放等）。
      */
     public void close() {
+        if (currentEncoder != null) {
+            currentEncoder.close();
+        }
         log.info("Native 编码器已关闭");
     }
 }
