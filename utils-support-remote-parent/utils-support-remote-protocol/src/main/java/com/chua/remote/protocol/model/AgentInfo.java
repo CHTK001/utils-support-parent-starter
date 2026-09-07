@@ -64,6 +64,18 @@ public class AgentInfo implements Serializable {
     /** 是否支持桌面环境（Linux 可能无桌面/无 X 服务——headless 时屏幕采集不可行，控制端应提前感知） */
     private Boolean desktopSupported;
 
+    /** 网关 SSH 主机（用于反向隧道——agent 主动建连到网关） */
+    private String gatewaySshHost;
+
+    /** 网关 SSH 端口 */
+    private int gatewaySshPort;
+
+    /** 网关 SSH 账号 */
+    private String gatewaySshUser;
+
+    /** 网关 SSH 密码 */
+    private String gatewaySshPass;
+
     /**
      * 被控端模式枚举。
      */

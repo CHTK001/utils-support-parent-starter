@@ -270,7 +270,14 @@ public class GatewayServer implements RemoteServerSPI {
     public static void main(String[] args) {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 9000;
         ServerSetting setting = ServerSetting.builder().port(port).build();
-        new GatewayServer(setting).start();
+        GatewayServer server = new GatewayServer(setting);
+        server.start();
+        // 保持 JVM 存活（传输层为 NIO Reactor 异步线程——主线程须阻塞，否则 main 返回即退出）
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
 
