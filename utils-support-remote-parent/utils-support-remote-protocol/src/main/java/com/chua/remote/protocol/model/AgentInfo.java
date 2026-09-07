@@ -61,6 +61,9 @@ public class AgentInfo implements Serializable {
     /** 附加信息 */
     private Map<String, String> extra;
 
+    /** 是否支持桌面环境（Linux 可能无桌面/无 X 服务——headless 时屏幕采集不可行，控制端应提前感知） */
+    private Boolean desktopSupported;
+
     /**
      * 被控端模式枚举。
      */

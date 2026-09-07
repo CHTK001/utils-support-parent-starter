@@ -109,7 +109,7 @@ public class TranscodeEngine {
         return TranscodeRequest.builder()
                 .sessionId(session.getSessionId())
                 .sourceEncoding(negotiated.getEncoding())
-                .targetEncoding(negotiated.getEncoding())
+                .targetEncoding(negotiated.getTargetEncoding())
                 .sourceWidth(negotiated.getWidth())
                 .targetWidth(negotiated.getWidth())
                 .sourceHeight(negotiated.getHeight())

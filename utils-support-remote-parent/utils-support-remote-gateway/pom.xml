@@ -23,5 +23,11 @@
             <artifactId>utils-support-remote-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 原生视频编解码（网关转码——H264 解码/编码 NativeVideoCodec） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-video-codec</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

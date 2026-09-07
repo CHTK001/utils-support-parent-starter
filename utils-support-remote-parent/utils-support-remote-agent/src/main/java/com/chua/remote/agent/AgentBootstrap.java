@@ -65,8 +65,14 @@ public class AgentBootstrap {
         reportCapabilities();
 
         // 根据模式启动：PUSH 走自研采集推送；FORWARD/SHELL 走三方对接/套壳路径
+        // 桌面门控：headless Linux（desktopSupported=false）时禁止桌面采集连接——降级到套壳模式（SSH/RDP/VNC 仍可用）
         if (agentInfo.getAgentType() == AgentInfo.AgentType.PUSH) {
-            startServiceMode(agentId);
+            if (!Boolean.TRUE.equals(agentInfo.getDesktopSupported())) {
+                log.warn("桌面采集不可用（headless/无 X 服务），拒绝桌面连接并降级到套壳模式: agentId={}", agentId);
+                startShellMode(agentId);
+            } else {
+                startServiceMode(agentId);
+            }
         } else {
             startShellMode(agentId);
         }
@@ -148,5 +154,50 @@ public class AgentBootstrap {
      */
     public AgentShellService getShellService() {
         return shellService;
+    }
+
+    /**
+     * 部署启动入口。
+     *
+     * @param args [0]=网关地址（tcp://host:port），[1]=agentId，[2]=verifyCode，[3]=agentType（PUSH/SHELL，默认 PUSH）
+     */
+    public static void main(String[] args) {
+        String gatewayUrl = args.length > 0 ? args[0] : "tcp://localhost:9000";
+        String agentId = args.length > 1 ? args[1] : "agent-" + System.currentTimeMillis();
+        String verifyCode = args.length > 2 ? args[2] : "0000";
+        AgentInfo.AgentType agentType = args.length > 3
+                ? AgentInfo.AgentType.valueOf(args[3].toUpperCase()) : AgentInfo.AgentType.PUSH;
+        AgentInfo info = AgentInfo.builder()
+                .id(agentId)
+                .verifyCode(verifyCode)
+                .accessCode(verifyCode)
+                .platform(System.getProperty("os.name"))
+                .agentType(agentType)
+                .desktopSupported(detectDesktopSupported())
+                .encodingCapability(CodecProfile.builder()
+                        .encodings(java.util.List.of("h264", "jpeg"))
+                        .maxWidth(1920)
+                        .maxHeight(1080)
+                        .quality(80)
+                        .build())
+                .build();
+        new AgentBootstrap(gatewayUrl, info).start();
+    }
+
+    /**
+     * 探测桌面环境可用性（屏幕采集可行性）。
+     *
+     * <p>Windows/macOS 通常有桌面；Linux 需 X 服务（DISPLAY/xvfb），无则 headless——
+     * 控制端应提前感知采集不可行（网关/控制端可据此降级或提示）。</p>
+     *
+     * @return true=支持桌面（可采集）
+     */
+    public static boolean detectDesktopSupported() {
+        String os = System.getProperty("os.name", "").toLowerCase();
+        if (os.contains("win") || os.contains("mac")) {
+            return true;
+        }
+        String display = System.getenv("DISPLAY");
+        return display != null && !display.isBlank() && !"null".equalsIgnoreCase(display.trim());
     }
 }
