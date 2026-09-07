@@ -235,8 +235,9 @@ public final class NativeScreenCapture {
                     region.x, region.y, WinGDI.SRCCOPY)) {
                 throw new IllegalStateException("[NativeScreenCapture] GDI BitBlt 失败");
             }
-            // 显式像素拷贝：GetDIBits 到独立 byte[] 缓冲（BGRA 32bpp）
+            // 显式像素拷贝：GetDIBits 到独立 Memory 缓冲（BGRA 32bpp），随后读回 byte[]
             byte[] bgra = new byte[width * height * 4];
+            com.sun.jna.Memory dibitsBuffer = new com.sun.jna.Memory(bgra.length);
             WinGDI.BITMAPINFO bmi = new WinGDI.BITMAPINFO();
             bmi.bmiHeader.biSize = bmi.bmiHeader.size();
             bmi.bmiHeader.biWidth = width;
@@ -244,10 +245,12 @@ public final class NativeScreenCapture {
             bmi.bmiHeader.biPlanes = 1;
             bmi.bmiHeader.biBitCount = 32;
             bmi.bmiHeader.biCompression = WinGDI.BI_RGB;
-            int lines = GDI32.INSTANCE.GetDIBits(memoryDc, bitmap, 0, height, bgra, bmi, WinGDI.DIB_RGB_COLORS);
+            int lines = GDI32.INSTANCE.GetDIBits(memoryDc, bitmap, 0, height, dibitsBuffer, bmi, WinGDI.DIB_RGB_COLORS);
             if (lines == 0) {
                 throw new IllegalStateException("[NativeScreenCapture] GetDIBits 失败");
             }
+            // 显式读回：GetDIBits 写入 Memory → 显式拷贝到 byte[]（不经零拷贝共享缓冲）
+            dibitsBuffer.read(0, bgra, 0, bgra.length);
             // BGRA→RGB 显式转换（原始像素拷贝——不经 BufferedImage）
             byte[] rgb = new byte[width * height * 3];
             for (int y = 0; y < height; y++) {
