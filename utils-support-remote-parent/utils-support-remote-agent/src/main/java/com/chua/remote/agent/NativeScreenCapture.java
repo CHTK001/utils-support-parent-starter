@@ -48,6 +48,25 @@ public final class NativeScreenCapture {
     }
 
     /**
+     * XImage C 结构映射（Xlib 字段顺序——X11$XImage 为 PointerType，字段经 Structure 读取）。
+     */
+    public static class XImageStruct extends com.sun.jna.Structure {
+
+        public int width;
+        public int height;
+        public int xoffset;
+        public int format;
+        public com.sun.jna.Pointer data;
+        public int byte_order;
+        public int bitmap_unit;
+        public int bitmap_bit_order;
+        public int bitmap_pad;
+        public int depth;
+        public int bytes_per_line;
+        public int bits_per_pixel;
+    }
+
+    /**
      * macOS CoreGraphics 原生采集：CGDisplayCreateImage + CGDataProviderCopyData。
      *
      * <p>整屏采集路径（免 CGRect by-value）：主屏 CGImage → 数据提供者 → CFData
@@ -166,15 +185,19 @@ public final class NativeScreenCapture {
                 throw new IllegalStateException("[NativeScreenCapture] XGetImage 失败");
             }
             try {
-                int bytesPerPixel = image.getBitsPerPixel() / 8;
-                int bytesPerLine = image.getBytesPerLine();
-                byte[] data = image.getData().getByteArray(0, region.height * bytesPerLine);
+                // XImage 为 C 结构指针（X11$XImage extends PointerType）——经 jna Structure 映射读取字段
+                XImageStruct xis = com.sun.jna.Structure.fromPointer(image.getPointer(), XImageStruct.class);
+                int width = xis.width;
+                int height = xis.height;
+                int bytesPerPixel = xis.bits_per_pixel / 8;
+                int bytesPerLine = xis.bytes_per_line;
+                byte[] data = xis.data.getByteArray(0, height * bytesPerLine);
                 // BGR→RGB 显式转换（原始像素拷贝——不经 BufferedImage）
-                byte[] rgb = new byte[region.width * region.height * 3];
-                for (int y = 0; y < region.height; y++) {
+                byte[] rgb = new byte[width * height * 3];
+                for (int y = 0; y < height; y++) {
                     int line = y * bytesPerLine;
-                    int row = y * region.width * 3;
-                    for (int x = 0; x < region.width; x++) {
+                    int row = y * width * 3;
+                    for (int x = 0; x < width; x++) {
                         int offset = line + x * bytesPerPixel;
                         int p = row + x * 3;
                         rgb[p] = data[offset + 2];
@@ -182,7 +205,7 @@ public final class NativeScreenCapture {
                         rgb[p + 2] = data[offset];
                     }
                 }
-                return new NativeFrame(region.width, region.height, NativeFrame.FORMAT_RGB, rgb);
+                return new NativeFrame(width, height, NativeFrame.FORMAT_RGB, rgb);
             } finally {
                 x11.XDestroyImage(image);
             }
