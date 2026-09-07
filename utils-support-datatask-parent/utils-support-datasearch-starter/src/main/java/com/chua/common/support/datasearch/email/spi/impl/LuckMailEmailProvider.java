@@ -63,7 +63,8 @@ public class LuckMailEmailProvider implements EmailProvider {
                     .header("X-API-Key", apiKey)
                     .header("X-API-Secret", apiSecret)
                     .header("Content-Type", "application/json")
-                    .post(body)
+                    .body(body)
+                    .post()
                     .getBodyString();
 
             // 简化实现：返回请求体中的邮箱地址（实际需解析响应）

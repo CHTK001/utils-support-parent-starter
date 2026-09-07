@@ -64,7 +64,8 @@ public class MailTmEmailProvider implements EmailProvider {
                     + "\",\"password\":\"" + password + "\"}";
             String createResp = HttpClientFactory.of(BASE + "/accounts")
                     .header("Content-Type", "application/json")
-                    .post(createBody)
+                    .body(createBody)
+                    .post()
                     .getBodyString();
             JsonNode created = MAPPER.readTree(createResp);
             if (!created.has("address")) {
@@ -77,7 +78,8 @@ public class MailTmEmailProvider implements EmailProvider {
                     + "\",\"password\":\"" + password + "\"}";
             String tokenResp = HttpClientFactory.of(BASE + "/token")
                     .header("Content-Type", "application/json")
-                    .post(tokenBody)
+                    .body(tokenBody)
+                    .post()
                     .getBodyString();
             JsonNode tokenNode = MAPPER.readTree(tokenResp);
             String token = tokenNode.path("token").asText("");
