@@ -1,5 +1,6 @@
 package com.chua.remote.agent;
 
+import com.chua.runtime.shell.TelnetServer;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.model.AgentInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
  * 套壳模式被控端实现。
  *
  * <p>Java 启动器内启动三方软件（freerdp/vnc/ssh），
- * 负责网网关注册 id、验证码等信息，媒体流转发到本地软件。</p>
+ * 负责网网关注册 id、验证码等信息，媒体流转发到本地软件。
+ * 同时启动 Telnet Shell 提供本地管理界面。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,6 +24,9 @@ public class AgentShellService {
     /** SSH 隧道管理器 */
     private final SSHTunnelManager sshTunnelManager;
 
+    /** Telnet Shell 服务器 */
+    private final TelnetServer telnetServer;
+
     /** 是否运行中 */
     private volatile boolean running;
 
@@ -31,6 +36,7 @@ public class AgentShellService {
     public AgentShellService(AgentInfo agentInfo) {
         this.agentInfo = agentInfo;
         this.sshTunnelManager = new SSHTunnelManager(agentInfo);
+        this.telnetServer = new TelnetServer();
         this.shellMode = determineShellMode();
     }
 
@@ -54,10 +60,8 @@ public class AgentShellService {
      */
     public void start() {
         running = true;
-        // 1. 注册到网关（信令通道）
         registerToGateway();
-
-        // 2. 根据模式启动对应的三方工具
+        startTelnetServer();
         switch (shellMode) {
             case RDP:
                 startRDPSession();
@@ -73,41 +77,65 @@ public class AgentShellService {
         log.info("套壳模式已启动: agentId={}, mode={}", agentInfo.getId(), shellMode);
     }
 
+    /** 启动 Telnet Shell 服务器 */
+    private void startTelnetServer() {
+        try {
+            telnetServer.start(4567);
+            log.info("Telnet Shell 已启动，监听端口: 4567");
+        } catch (Exception e) {
+            log.error("Telnet Shell 启动失败", e);
+        }
+    }
+
     /** 注册到网关 */
     private void registerToGateway() {
-        // 上报 id、验证码、接入码、编码能力
         log.info("套壳模式注册: agentId={}, accessCode={}, verifyCode={}, type={}",
                 agentInfo.getId(), agentInfo.getAccessCode(), agentInfo.getVerifyCode(), agentInfo.getAgentType());
     }
 
-    /** 启动 RDP 会话（freerdp） */
+    /** 启动 RDP 会话（freerdp + SSH 隧道） */
     private void startRDPSession() {
-        sshTunnelManager.startFreerdp(
-                agentInfo.getHardwareInfo(), // host
-                3389, // default RDP port
-                "admin", // username (from config)
-                agentInfo.getVerifyCode() // password/verify
-        );
-        log.info("启动 RDP 会话: agentId={}", agentInfo.getId());
+        String host = agentInfo.getHost();
+        int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 3389;
+        String username = agentInfo.getUsername();
+        String password = agentInfo.getPassword();
+        String sshHost = agentInfo.getPlatform();
+        int sshPort = 22;
+        String sshUser = agentInfo.getUsername();
+        String sshPass = agentInfo.getPassword();
+        int localPort = 3390;
+
+        sshTunnelManager.createRDPTunnel(host, port, sshHost, sshPort, sshUser, sshPass, localPort);
+        sshTunnelManager.startFreerdp(host, port, username, password);
+        log.info("启动 RDP 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
     }
 
-    /** 启动 VNC 会话 */
+    /** 启动 VNC 会话（vncviewer + SSH 隧道） */
     private void startVNCSession() {
-        sshTunnelManager.startVncViewer(
-                agentInfo.getHardwareInfo(), // host
-                5900 // default VNC port
-        );
-        log.info("启动 VNC 会话: agentId={}", agentInfo.getId());
+        String host = agentInfo.getHost();
+        int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 5900;
+        String sshHost = agentInfo.getPlatform();
+        int sshPort = 22;
+        String sshUser = agentInfo.getUsername();
+        String sshPass = agentInfo.getPassword();
+        int localPort = 5901;
+
+        sshTunnelManager.createVNCTunnel(host, port, sshHost, sshPort, sshUser, sshPass, localPort);
+        sshTunnelManager.startVncViewer(host, port);
+        log.info("启动 VNC 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
     }
 
-    /** 启动 SSH 会话 */
+    /** 启动 SSH 会话（SSH 隧道 + 交互式终端） */
     private void startSSHSession() {
-        sshTunnelManager.startSshShell(
-                agentInfo.getHardwareInfo(), // host
-                22, // default SSH port
-                "root" // username (from config)
-        );
-        log.info("启动 SSH 会话: agentId={}", agentInfo.getId());
+        String host = agentInfo.getHost();
+        int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 22;
+        String username = agentInfo.getUsername();
+        String password = agentInfo.getPassword();
+        int localPort = 2222;
+
+        sshTunnelManager.createSSHTunnel(host, port, username, password, localPort);
+        sshTunnelManager.startSshShellViaClient(host, port, username, password);
+        log.info("启动 SSH 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
     }
 
     /**
@@ -115,6 +143,7 @@ public class AgentShellService {
      */
     public void stop() {
         running = false;
+        telnetServer.stop();
         sshTunnelManager.closeAll();
         log.info("套壳模式已停止: agentId={}", agentInfo.getId());
     }
@@ -127,7 +156,7 @@ public class AgentShellService {
         RDP,
         /** VNC（vncviewer） */
         VNC,
-        /** SSH（ssh 命令） */
+        /** SSH（ssh 命令/PTY 终端） */
         SSH
     }
 }

@@ -2,6 +2,7 @@ package com.chua.remote.controller;
 
 import com.chua.remote.core.RemoteClient;
 import com.chua.remote.core.codec.FrameCodec;
+import com.chua.remote.core.transport.RemoteTransport;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
@@ -196,6 +197,17 @@ public class ControllerClient implements RemoteControllerSPI {
         sessions.clear();
         currentSessionId = null;
         log.info("控制端已断开");
+    }
+
+    /**
+     * 获取底层传输层。
+     *
+     * <p>供嵌入式部署订阅帧或观测传输使用。</p>
+     *
+     * @return 传输层
+     */
+    public RemoteTransport getTransport() {
+        return client.getTransport();
     }
 
     /**
