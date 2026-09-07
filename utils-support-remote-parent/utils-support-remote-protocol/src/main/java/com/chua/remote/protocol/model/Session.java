@@ -40,7 +40,7 @@ public class Session implements Serializable {
     private NegotiatedCodec negotiatedCodec;
 
     /** 被控端模式（网关在建立会话时从被控端注册信息填充） */
-    private AgentType agentType;
+    private AgentInfo.AgentType agentType;
 
     /** 创建时间戳 */
     private long createTime;

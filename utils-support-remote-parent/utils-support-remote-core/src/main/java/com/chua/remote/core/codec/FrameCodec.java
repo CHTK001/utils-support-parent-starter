@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -269,17 +270,17 @@ public class FrameCodec {
      * @param frame   帧
      * @throws IOException 写失败
      */
-    public static void writeBinary(WritableByteChannel channel, Frame frame) throws IOException {
-        ByteBuffer[] buffers = encodeBinary(frame);
-        long remaining = buffers[0].remaining() + buffers[1].remaining();
-        while (remaining > 0) {
-            long written = channel.write(buffers);
-            if (written <= 0) {
-                throw new IOException("二进制帧写出停滞");
-            }
-            remaining -= written;
-        }
-    }
+     public static void writeBinary(GatheringByteChannel channel, Frame frame) throws IOException {
+         ByteBuffer[] buffers = encodeBinary(frame);
+         long remaining = buffers[0].remaining() + buffers[1].remaining();
+         while (remaining > 0) {
+             long written = channel.write(buffers);
+             if (written <= 0) {
+                 throw new IOException("二进制帧写出停滞");
+             }
+             remaining -= written;
+         }
+     }
 
     /**
      * 从底层通道读取一帧二进制数据。
