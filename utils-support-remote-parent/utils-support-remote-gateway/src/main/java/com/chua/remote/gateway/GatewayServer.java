@@ -261,6 +261,17 @@ public class GatewayServer implements RemoteServerSPI {
         sessionManager.closeSession(sessionId);
         log.info("会话已关闭: sessionId={}", sessionId);
     }
+
+    /**
+     * 部署启动入口。
+     *
+     * @param args [0]=监听端口（默认 9000）
+     */
+    public static void main(String[] args) {
+        int port = args.length > 0 ? Integer.parseInt(args[0]) : 9000;
+        ServerSetting setting = ServerSetting.builder().port(port).build();
+        new GatewayServer(setting).start();
+    }
 }
 
 @FunctionalInterface
