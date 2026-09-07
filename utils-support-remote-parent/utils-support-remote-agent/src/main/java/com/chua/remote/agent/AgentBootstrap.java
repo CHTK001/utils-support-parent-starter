@@ -42,7 +42,7 @@ public class AgentBootstrap {
     private volatile boolean running;
 
     public AgentBootstrap(String gatewayUrl, AgentInfo agentInfo) {
-        this.client = new RemoteClient(gatewayUrl);
+        this.client = new RemoteClient(agentInfo.getId(), gatewayUrl);
         this.agentInfo = agentInfo;
         this.service = new AgentService(agentInfo);
         this.shellService = new AgentShellService(agentInfo);
