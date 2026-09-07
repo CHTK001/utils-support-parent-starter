@@ -64,8 +64,8 @@ public class AgentBootstrap {
         // 上报能力
         reportCapabilities();
 
-        // 根据类型启动模式
-        if (agentInfo.getAgentType() == AgentInfo.AgentType.SERVICE) {
+        // 根据模式启动：PUSH 走自研采集推送；FORWARD/SHELL 走三方对接/套壳路径
+        if (agentInfo.getAgentType() == AgentInfo.AgentType.PUSH) {
             startServiceMode(agentId);
         } else {
             startShellMode(agentId);
