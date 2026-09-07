@@ -38,10 +38,7 @@ public class TcpServerFilterChainTest {
         // 注册 URL 路由（与 HttpServer 相同 API）
         server.registerMapping("/hello", (ServerHandler) (req, res) ->
                 res.end("Hello from TCP URL mapping!"));
-        server.registerMapping("/echo", req -> {
-            String body = req.getBodyString();
-            req.getResponse().end(body);
-        });
+        server.registerMapping("/echo", (req, res) -> res.end(req.getBodyString()));
         server.registerMapping("/status", (ServerHandler) (req, res) ->
                 res.setStatus(201).setBody("created"));
 
