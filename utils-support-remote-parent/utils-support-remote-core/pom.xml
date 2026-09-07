@@ -23,5 +23,10 @@
             <artifactId>utils-support-network-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.7</version>
+        </dependency>
     </dependencies>
 </project>
