@@ -158,7 +158,7 @@ public class RemoteTransport {
      *
      * @param frame 帧
      */
-    void dispatch(Frame frame) {
+    public void dispatch(Frame frame) {
         List<FrameHandler> handlerList = handlers.get(frame.getType());
         if (handlerList == null || handlerList.isEmpty()) {
             return;

@@ -190,11 +190,10 @@ public class GatewayServer implements RemoteServerSPI {
             var agentInfo = sessionManager.getAgent(agentId);
 
             if (agentInfo != null) {
-                boolean agentConnected = server.getTransport().getConnectedClients().contains(agentId);
-                if (!agentConnected && reverseTunnel && agentInfo.getExtra() != null) {
+                if (reverseTunnel && agentInfo.getExtra() != null) {
                     String tunnelPort = agentInfo.getExtra().get("reverseTunnelPort");
                     if (tunnelPort != null) {
-                        log.info("Agent未直连，通过反向隧道连接: agentId={}, tunnelPort={}", agentId, tunnelPort);
+                        log.info("通过反向隧道连接agent: agentId={}, tunnelPort={}", agentId, tunnelPort);
                         connectToAgentViaTunnel(agentId, Integer.parseInt(tunnelPort));
                     }
                 }
