@@ -168,7 +168,42 @@ public class GatewayServer implements RemoteServerSPI {
             }
             return;
         }
+        if (Session.class.getSimpleName().equals(kind)) {
+            handleSessionRequest(frame);
+            return;
+        }
         log.debug("处理信令帧: sessionId={}, kind={}", frame.getSessionId(), kind);
+    }
+
+    private void handleSessionRequest(Frame frame) {
+        Session request = FrameCodec.decodeSignal(frame, Session.class);
+        if (request == null) {
+            return;
+        }
+        String controllerId = request.getControllerSessionId();
+        String agentId = request.getAgentId();
+        String verifyCode = frame.getMetadata().get(ControllerClient.METADATA_VERIFY_CODE);
+        boolean reverseTunnel = frame.getMetadata().get("reverseTunnelEnabled") != null
+                && "true".equalsIgnoreCase(frame.getMetadata().get("reverseTunnelEnabled"));
+
+        try {
+            Session session = createSession(controllerId, agentId, verifyCode, reverseTunnel);
+
+            var agentInfo = sessionManager.getAgent(agentId);
+            if (agentInfo != null) {
+                var notifyFrame = FrameCodec.encodeSignal(MessageType.SIGNAL, agentId, session);
+                server.getTransport().send(agentId, notifyFrame);
+            }
+
+            var controllerFrame = FrameCodec.encodeSignal(MessageType.SIGNAL, controllerId, session);
+            server.getTransport().send(controllerId, controllerFrame);
+
+            log.info("会话建立信令闭环: sessionId={}, agentId={}, controllerId={}",
+                    session.getSessionId(), agentId, controllerId);
+        } catch (Exception e) {
+            log.error("会话建立失败: agentId={}, controllerId={}, error={}",
+                    agentId, controllerId, e.getMessage());
+        }
     }
 
     private void handleControl(Frame frame) {
