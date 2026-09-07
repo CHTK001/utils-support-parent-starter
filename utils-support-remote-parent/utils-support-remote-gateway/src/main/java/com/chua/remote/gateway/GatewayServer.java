@@ -1,7 +1,6 @@
 package com.chua.remote.gateway;
 
 import com.chua.common.support.network.server.ServerSetting;
-import com.chua.common.support.network.server.impl.JdkHttpServer;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.remote.core.RemoteServer;
 import com.chua.remote.core.codec.FrameCodec;
@@ -17,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -58,8 +58,8 @@ public class GatewayServer implements RemoteServerSPI {
     /** 帧回调（用于实际转发到 RemoteTransport） */
     private GatewayCallback gatewayCallback;
 
-    /** HTTP 验证服务器 */
-    private final JdkHttpServer httpServer;
+    /** HTTP 验证服务器（JDK 内置轻量 HTTP 服务） */
+    private final com.sun.net.httpserver.HttpServer httpServer;
 
     /** HTTP 验证端口 */
     private final int httpPort;
@@ -71,27 +71,13 @@ public class GatewayServer implements RemoteServerSPI {
         this.routeManager = new RouteManager(sessionManager);
         this.transcodeEngine = new TranscodeEngine();
         this.httpPort = setting.getPort() + 1;
-        ServerSetting httpSetting = ServerSetting.builder().port(httpPort).contextPath("/verify").build();
-        this.httpServer = new JdkHttpServer(httpSetting) {
-            @Override
-            protected void doStart() {
-                try {
-                    InetSocketAddress addr = new InetSocketAddress(httpPort);
-                    HttpServer delegate = HttpServer.create(addr, 0);
-                    delegate.createContext("/verify", new VerifyHandler());
-                    delegate.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
-                    delegate.start();
-                    log.info("HTTP 验证服务器已启动 on port:{}", httpPort);
-                } catch (IOException e) {
-                    throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
-                }
-            }
-
-            @Override
-            protected void doStop() {
-                log.info("HTTP 验证服务器已停止");
-            }
-        };
+        try {
+            this.httpServer = com.sun.net.httpserver.HttpServer.create(new InetSocketAddress(httpPort), 0);
+            this.httpServer.createContext("/verify", new VerifyHandler());
+            this.httpServer.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+        } catch (IOException e) {
+            throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
+        }
         initHandlers();
     }
 
@@ -375,6 +361,12 @@ public class GatewayServer implements RemoteServerSPI {
         server.start();
         httpServer.start();
         log.info("远控网关已启动 (WS:{}, HTTP验证:{})", server.getSetting().getPort(), httpPort);
+    }
+
+    public void stop() {
+        server.stop();
+        httpServer.stop(0);
+        log.info("远控网关已停止");
     }
 
     @Override
