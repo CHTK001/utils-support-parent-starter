@@ -12,12 +12,14 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 控制端客户端。
  *
- * <p>连接网关、上报接入令牌和解码能力、发起会话、渲染画面、注入键鼠事件。</p>
+ * <p>以接入令牌为连接标识接入网关、上报解码能力、发起会话请求、
+ * 接收并渲染屏幕流、注入键鼠事件。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -26,14 +28,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("remote-controller")
 public class ControllerClient implements RemoteControllerSPI {
 
-    /** 网关客户端 */
+    /** 会话请求帧元数据键：被控端验证码 */
+    public static final String METADATA_VERIFY_CODE = "verifyCode";
+
+    /** 网关客户端（以接入令牌为连接标识，供网关定向路由） */
     private final RemoteClient client;
 
     /** 控制端信息 */
     private final ControllerInfo controllerInfo;
 
     /** 当前会话 id */
-    private String currentSessionId;
+    private volatile String currentSessionId;
 
     /** 会话映射 */
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
@@ -45,20 +50,30 @@ public class ControllerClient implements RemoteControllerSPI {
     private final InputInjector inputInjector;
 
     public ControllerClient(String gatewayUrl, ControllerInfo controllerInfo) {
-        this.client = new RemoteClient(gatewayUrl);
+        this.client = new RemoteClient(controllerInfo.getAccessToken(), gatewayUrl);
         this.controllerInfo = controllerInfo;
         this.decoderRenderer = new DecoderRenderer(controllerInfo.getDecodingCapability());
         this.inputInjector = new InputInjector();
     }
 
     /**
-     * 连接到网关。
+     * 连接到网关并订阅屏幕流数据帧。
      */
     public void connect() {
+        client.getTransport().on(MessageType.DATA, this::handleDataFrame);
         client.connect();
         // 上报接入令牌和解码能力
         reportToGateway();
         log.info("控制端已连接: accessToken={}", controllerInfo.getAccessToken());
+    }
+
+    /**
+     * 处理网关转发的数据帧（屏幕流），解码渲染。
+     *
+     * @param frame 数据帧
+     */
+    private void handleDataFrame(Frame frame) {
+        decoderRenderer.render(frame);
     }
 
     /** 上报到网关 */
@@ -74,21 +89,34 @@ public class ControllerClient implements RemoteControllerSPI {
         return info.getAccessToken();
     }
 
+    /**
+     * 发起会话（控制端本地登记并向网关发送会话请求信令）。
+     *
+     * <p>会话 id 由控制端预生成，随信令帧上报网关；
+     * 信令元数据携带被控端验证码，供网关校验会话建立资格。</p>
+     *
+     * @param agentId    被控端 id
+     * @param verifyCode 被控端验证码
+     * @return 会话 id
+     */
     @Override
     public String startSession(String agentId, String verifyCode) {
-        // 通过网关创建会话
-        currentSessionId = java.util.UUID.randomUUID().toString();
+        String sessionId = UUID.randomUUID().toString();
         var session = Session.builder()
-                .sessionId(currentSessionId)
+                .sessionId(sessionId)
                 .controllerSessionId(controllerInfo.getAccessToken())
                 .agentId(agentId)
-                .status(Session.SessionStatus.ACTIVE)
+                .status(Session.SessionStatus.CONNECTING)
                 .createTime(System.currentTimeMillis())
                 .build();
-        sessions.put(currentSessionId, session);
+        sessions.put(sessionId, session);
+        currentSessionId = sessionId;
+        var frame = FrameCodec.encodeSignal(MessageType.SIGNAL, sessionId, session);
+        frame.getMetadata().put(METADATA_VERIFY_CODE, verifyCode);
+        client.getTransport().send(frame);
         log.info("发起会话: controllerId={}, agentId={}, sessionId={}",
-                controllerInfo.getAccessToken(), agentId, currentSessionId);
-        return currentSessionId;
+                controllerInfo.getAccessToken(), agentId, sessionId);
+        return sessionId;
     }
 
     @Override
@@ -121,8 +149,43 @@ public class ControllerClient implements RemoteControllerSPI {
      * @return 会话 id
      */
     public String createSession(String agentId, String verifyCode) {
-        currentSessionId = startSession(agentId, verifyCode);
-        return currentSessionId;
+        return startSession(agentId, verifyCode);
+    }
+
+    /**
+     * 标记会话已建立（网关确认后回调）。
+     *
+     * @param sessionId 会话 id
+     */
+    public void sessionEstablished(String sessionId) {
+        Session session = sessions.get(sessionId);
+        if (session != null) {
+            session.setStatus(Session.SessionStatus.ACTIVE);
+            log.info("会话已建立: sessionId={}", sessionId);
+        }
+    }
+
+    /**
+     * 关闭会话并通知网关。
+     *
+     * @param sessionId 会话 id
+     */
+    public void closeSession(String sessionId) {
+        Session session = sessions.remove(sessionId);
+        if (session == null) {
+            return;
+        }
+        session.setStatus(Session.SessionStatus.CLOSED);
+        var frame = Frame.builder()
+                .type(MessageType.CTRL)
+                .sessionId(sessionId)
+                .metadata(Map.of(FrameCodec.METADATA_KIND, "SessionClose"))
+                .build();
+        client.getTransport().send(frame);
+        if (sessionId.equals(currentSessionId)) {
+            currentSessionId = null;
+        }
+        log.info("会话已关闭: sessionId={}", sessionId);
     }
 
     /**

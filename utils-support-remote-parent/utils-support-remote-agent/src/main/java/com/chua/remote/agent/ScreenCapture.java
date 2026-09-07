@@ -4,16 +4,18 @@ import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.remote.protocol.model.AgentInfo;
 import lombok.extern.slf4j.Slf4j;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Native 屏幕采集器。
  *
- * <p>使用 {@link java.awt.Robot} 进行跨平台截图，
- * 支持多显示器和指定区域采集。</p>
+ * <p>使用 {@link NativeScreenCapture}（操作系统原生采集——Windows GDI 等）进行截图，
+ * 不允许 {@link java.awt.Robot}；支持多显示器和指定区域采集。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,9 +26,6 @@ public class ScreenCapture {
     /** 被控端信息 */
     private final AgentInfo agentInfo;
 
-    /** Robot 实例 */
-    private final Robot robot;
-
     /** 屏幕尺寸 */
     private final Dimension screenSize;
 
@@ -36,12 +35,7 @@ public class ScreenCapture {
     public ScreenCapture(AgentInfo agentInfo) {
         this.agentInfo = agentInfo;
         this.multiScreen = isMultiScreen();
-        try {
-            this.robot = new Robot();
-            this.screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        } catch (AWTException e) {
-            throw new RuntimeException("初始化 Robot 失败", e);
-        }
+        this.screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
     }
 
     /**
@@ -79,7 +73,7 @@ public class ScreenCapture {
      */
     public BufferedImage capturePrimaryScreen() {
         try {
-            BufferedImage capture = robot.createScreenCapture(
+            BufferedImage capture = NativeScreenCapture.capture(
                     new Rectangle(screenSize));
             log.debug("采集主屏幕: agentId={}, size={}x{}",
                     agentInfo.getId(), capture.getWidth(), capture.getHeight());
@@ -114,7 +108,7 @@ public class ScreenCapture {
             int offsetX = 0;
             for (GraphicsDevice screen : screens) {
                 Rectangle bounds = screen.getDefaultConfiguration().getBounds();
-                BufferedImage capture = robot.createScreenCapture(bounds);
+                BufferedImage capture = NativeScreenCapture.capture(bounds);
                 g.drawImage(capture, offsetX, 0, null);
                 offsetX += capture.getWidth();
             }
@@ -139,7 +133,7 @@ public class ScreenCapture {
      */
     public byte[] captureRegion(int x, int y, int width, int height) {
         try {
-            BufferedImage capture = robot.createScreenCapture(
+            BufferedImage capture = NativeScreenCapture.capture(
                     new Rectangle(x, y, width, height));
             log.debug("采集区域: agentId={}, x={}, y={}, w={}, h={}",
                     agentInfo.getId(), x, y, width, height);
