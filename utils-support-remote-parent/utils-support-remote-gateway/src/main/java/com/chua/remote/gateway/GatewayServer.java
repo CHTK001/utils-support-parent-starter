@@ -1,6 +1,7 @@
 package com.chua.remote.gateway;
 
 import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.server.impl.JdkHttpServer;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.remote.core.RemoteServer;
 import com.chua.remote.core.codec.FrameCodec;
@@ -16,15 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.net.URI;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -60,7 +59,7 @@ public class GatewayServer implements RemoteServerSPI {
     private GatewayCallback gatewayCallback;
 
     /** HTTP 验证服务器 */
-    private final com.sun.net.httpserver.HttpServer httpServer;
+    private final JdkHttpServer httpServer;
 
     /** HTTP 验证端口 */
     private final int httpPort;
@@ -72,13 +71,27 @@ public class GatewayServer implements RemoteServerSPI {
         this.routeManager = new RouteManager(sessionManager);
         this.transcodeEngine = new TranscodeEngine();
         this.httpPort = setting.getPort() + 1;
-        try {
-            this.httpServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
-            this.httpServer.createContext("/verify", new VerifyHandler());
-            this.httpServer.setExecutor(Executors.newCachedThreadPool());
-        } catch (IOException e) {
-            throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
-        }
+        ServerSetting httpSetting = ServerSetting.builder().port(httpPort).contextPath("/verify").build();
+        this.httpServer = new JdkHttpServer(httpSetting) {
+            @Override
+            protected void doStart() {
+                try {
+                    InetSocketAddress addr = new InetSocketAddress(httpPort);
+                    HttpServer delegate = HttpServer.create(addr, 0);
+                    delegate.createContext("/verify", new VerifyHandler());
+                    delegate.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+                    delegate.start();
+                    log.info("HTTP 验证服务器已启动 on port:{}", httpPort);
+                } catch (IOException e) {
+                    throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
+                }
+            }
+
+            @Override
+            protected void doStop() {
+                log.info("HTTP 验证服务器已停止");
+            }
+        };
         initHandlers();
     }
 
