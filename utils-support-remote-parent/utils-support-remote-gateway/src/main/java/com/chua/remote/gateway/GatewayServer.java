@@ -276,3 +276,8 @@ public class GatewayServer implements RemoteServerSPI {
         log.info("会话已关闭: sessionId={}", sessionId);
     }
 }
+
+@FunctionalInterface
+interface GatewayCallback {
+    void onFrame(Frame frame);
+}
