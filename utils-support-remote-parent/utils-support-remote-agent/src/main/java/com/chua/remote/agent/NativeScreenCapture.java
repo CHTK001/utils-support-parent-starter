@@ -67,6 +67,30 @@ public final class NativeScreenCapture {
     }
 
     /**
+     * 自定义 X11 JNA（jna-platform 的 X11 接口缺 XGetImage 映射——按 Xlib 签名补充）。
+     */
+    interface X11Jna extends X11 {
+
+        X11Jna INSTANCE = com.sun.jna.Native.load("X11", X11Jna.class);
+
+        /**
+         * XGetImage：抓取窗口区域图像（Xlib 签名——planeMask 为 unsigned long）。
+         *
+         * @param display  显示器
+         * @param drawable 绘制对象
+         * @param x        起始 x
+         * @param y        起始 y
+         * @param width    宽度
+         * @param height   高度
+         * @param planeMask 平面掩码（全平面 ~0L）
+         * @param format   像素格式（ZPixmap）
+         * @return XImage 指针
+         */
+        X11.XImage XGetImage(X11.Display display, X11.Window drawable,
+                int x, int y, int width, int height, long planeMask, int format);
+    }
+
+    /**
      * macOS CoreGraphics 原生采集：CGDisplayCreateImage + CGDataProviderCopyData。
      *
      * <p>整屏采集路径（免 CGRect by-value）：主屏 CGImage → 数据提供者 → CFData
@@ -179,14 +203,14 @@ public final class NativeScreenCapture {
         try {
             int screen = x11.XDefaultScreen(display);
             X11.Window root = x11.XRootWindow(display, screen);
-            X11.XImage image = x11.XGetImage(display, root, region.x, region.y,
-                    region.width, region.height, X11.AllPlanes, X11.ZPixmap);
+            X11.XImage image = X11Jna.INSTANCE.XGetImage(display, root, region.x, region.y,
+                    region.width, region.height, ~0L, X11.ZPixmap);
             if (image == null) {
                 throw new IllegalStateException("[NativeScreenCapture] XGetImage 失败");
             }
             try {
                 // XImage 为 C 结构指针（X11$XImage extends PointerType）——经 jna Structure 映射读取字段
-                XImageStruct xis = com.sun.jna.Structure.fromPointer(image.getPointer(), XImageStruct.class);
+                XImageStruct xis = com.sun.jna.Structure.newInstance(XImageStruct.class, image.getPointer());
                 int width = xis.width;
                 int height = xis.height;
                 int bytesPerPixel = xis.bits_per_pixel / 8;
@@ -229,10 +253,11 @@ public final class NativeScreenCapture {
         WinDef.HDC screenDc = User32.INSTANCE.GetDC(null);
         WinDef.HDC memoryDc = GDI32.INSTANCE.CreateCompatibleDC(screenDc);
         WinDef.HBITMAP bitmap = GDI32.INSTANCE.CreateCompatibleBitmap(screenDc, width, height);
-        WinDef.HANDLE oldBitmap = GDI32.INSTANCE.SelectObject(memoryDc, bitmap);
+        // GDI32.SelectObject 返回/入参为 WinNT.HANDLE（非 WinDef.HANDLE）
+        com.sun.jna.platform.win32.WinNT.HANDLE oldBitmap = GDI32.INSTANCE.SelectObject(memoryDc, bitmap);
         try {
             if (!GDI32.INSTANCE.BitBlt(memoryDc, 0, 0, width, height, screenDc,
-                    region.x, region.y, WinGDI.SRCCOPY)) {
+                    region.x, region.y, 0x00CC0020)) {
                 throw new IllegalStateException("[NativeScreenCapture] GDI BitBlt 失败");
             }
             // 显式像素拷贝：GetDIBits 到独立 Memory 缓冲（BGRA 32bpp），随后读回 byte[]

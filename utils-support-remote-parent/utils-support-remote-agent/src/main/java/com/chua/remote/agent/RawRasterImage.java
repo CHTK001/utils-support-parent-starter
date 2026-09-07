@@ -130,8 +130,8 @@ final class RawRasterImage implements RenderedImage {
     }
 
     @Override
-    public java.util.List<RenderedImage> getSources() {
-        return java.util.Collections.emptyList();
+    public java.util.Vector<RenderedImage> getSources() {
+        return new java.util.Vector<>();
     }
 
     @Override
