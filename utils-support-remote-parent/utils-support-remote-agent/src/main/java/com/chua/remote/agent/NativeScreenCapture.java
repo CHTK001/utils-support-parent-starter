@@ -1,22 +1,22 @@
 package com.chua.remote.agent;
 
+import com.sun.jna.platform.unix.X11;
 import com.sun.jna.platform.win32.Gdi32;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinGDI;
 import lombok.extern.slf4j.Slf4j;
 
-import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
 
 /**
- * 操作系统原生屏幕采集（替代 AWT Robot）。
+ * 操作系统原生屏幕采集（替代 AWT Robot，不经 BufferedImage）。
  *
  * <p>约束：自研 agent 必须使用操作系统采集方式，不允许 {@link java.awt.Robot}。
- * Windows 走 GDI（{@code CreateCompatibleDC + BitBlt + GetDIBits}），像素数据经
- * 显式 {@code byte[]} 拷贝回填 {@link BufferedImage}（不引入零拷贝共享缓冲）。
- * 平台分发：Windows 原生 GDI；Linux/macOS 的 X11/CoreGraphics 原生路径为结构占位
- * （同 JNA 方式，按平台实现）。</p>
+ * 采集直接产出原始 RGB 像素（{@link NativeFrame}——显式 {@code byte[]} 拷贝），
+ * 编码链路直接消费原始帧，不经 {@link java.awt.image.BufferedImage} 转换。
+ * Windows 走 GDI（{@code CreateCompatibleDC + BitBlt + GetDIBits}），
+ * Linux 走 X11（{@code XOpenDisplay + XGetImage}），macOS 走 CoreGraphics（实现中）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -31,9 +31,9 @@ public final class NativeScreenCapture {
      * 按操作系统原生方式采集屏幕区域。
      *
      * @param region 采集区域（虚拟桌面坐标）
-     * @return 采集图像（显式像素拷贝）
+     * @return 原始 RGB 像素帧（不经 BufferedImage）
      */
-    public static BufferedImage capture(Rectangle region) {
+    public static NativeFrame capture(Rectangle region) {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (os.contains("win")) {
             return captureWindows(region);
@@ -42,22 +42,115 @@ public final class NativeScreenCapture {
             return captureX11(region);
         }
         if (os.contains("mac")) {
-            throw new UnsupportedOperationException(
-                    "[NativeScreenCapture] macOS 的 CoreGraphics 原生采集路径实现中（同 Windows GDI 方式）");
+            return captureMac(region);
         }
         throw new UnsupportedOperationException("[NativeScreenCapture] 不支持的操作系统: " + os);
     }
 
     /**
+     * macOS CoreGraphics 原生采集：CGDisplayCreateImage + CGDataProviderCopyData。
+     *
+     * <p>整屏采集路径（免 CGRect by-value）：主屏 CGImage → 数据提供者 → CFData
+     * 字节指针显式拷贝 → RGBA 转 RGB（不经 BufferedImage）。</p>
+     *
+     * @param region 采集区域（整屏基线；区域裁剪由编码端按帧宽高处理）
+     * @return 原始 RGB 像素帧
+     */
+    private static NativeFrame captureMac(Rectangle region) {
+        CoreGraphics cg = CoreGraphics.INSTANCE;
+        int displayId = cg.CGMainDisplayID();
+        com.sun.jna.Pointer image = cg.CGDisplayCreateImage(displayId);
+        if (image == null) {
+            throw new IllegalStateException("[NativeScreenCapture] CGDisplayCreateImage 失败");
+        }
+        try {
+            com.sun.jna.Pointer provider = cg.CGImageGetDataProvider(image);
+            if (provider == null) {
+                throw new IllegalStateException("[NativeScreenCapture] CGImageGetDataProvider 失败");
+            }
+            com.sun.jna.Pointer data = cg.CGDataProviderCopyData(provider);
+            if (data == null) {
+                throw new IllegalStateException("[NativeScreenCapture] CGDataProviderCopyData 失败");
+            }
+            try {
+                long length = cg.CFDataGetLength(data);
+                com.sun.jna.Pointer bytes = cg.CFDataGetBytePtr(data);
+                // 显式像素拷贝：CFData 字节指针 → 独立 byte[]（不经 BufferedImage）
+                byte[] rgba = bytes.getByteArray(0, (int) length);
+                int width = (int) cg.CGImageGetWidth(image);
+                int height = (int) cg.CGImageGetHeight(image);
+                // RGBA→RGB 显式转换
+                byte[] rgb = new byte[width * height * 3];
+                for (int y = 0; y < height; y++) {
+                    int line = y * width * 4;
+                    int row = y * width * 3;
+                    for (int x = 0; x < width; x++) {
+                        int offset = line + x * 4;
+                        int p = row + x * 3;
+                        rgb[p] = rgba[offset];
+                        rgb[p + 1] = rgba[offset + 1];
+                        rgb[p + 2] = rgba[offset + 2];
+                    }
+                }
+                return new NativeFrame(width, height, NativeFrame.FORMAT_RGB, rgb);
+            } finally {
+                cg.CFRelease(data);
+            }
+        } finally {
+            cg.CGImageRelease(image);
+        }
+    }
+
+    /**
+     * macOS CoreGraphics JNA 直连（jna-platform 无 mac CoreGraphics 封装）。
+     *
+     * <p>整屏采集所需最小 API 集。编译级验证；macOS 运行时未实测（如实记录）。</p>
+     */
+    interface CoreGraphics extends com.sun.jna.Library {
+
+        CoreGraphics INSTANCE = com.sun.jna.Native.load("CoreGraphics", CoreGraphics.class);
+
+        /** 主显示器 id */
+        int CGMainDisplayID();
+
+        /** 整屏图像（CGImageRef） */
+        com.sun.jna.Pointer CGDisplayCreateImage(int displayId);
+
+        /** 图像数据提供者（CGDataProviderRef） */
+        com.sun.jna.Pointer CGImageGetDataProvider(com.sun.jna.Pointer image);
+
+        /** 提供者数据拷贝（CFDataRef） */
+        com.sun.jna.Pointer CGDataProviderCopyData(com.sun.jna.Pointer provider);
+
+        /** 数据长度 */
+        long CFDataGetLength(com.sun.jna.Pointer data);
+
+        /** 数据字节指针 */
+        com.sun.jna.Pointer CFDataGetBytePtr(com.sun.jna.Pointer data);
+
+        /** 图像宽 */
+        long CGImageGetWidth(com.sun.jna.Pointer image);
+
+        /** 图像高 */
+        long CGImageGetHeight(com.sun.jna.Pointer image);
+
+        /** 释放图像 */
+        void CGImageRelease(com.sun.jna.Pointer image);
+
+        /** 释放 CF 数据 */
+        void CFRelease(com.sun.jna.Pointer data);
+    }
+
+    /**
      * Linux X11 原生采集：XOpenDisplay + XGetImage。
      *
-     * <p>像素数据经 XImage 显式 {@code byte[]} 拷贝回填 {@link BufferedImage}
-     * （不引入零拷贝共享缓冲）。无可用 X 服务（无头环境未配 xvfb）时明确报错。</p>
+     * <p>像素数据经 XImage 显式 {@code byte[]} 拷贝并转换为 RGB（不经 BufferedImage）。
+     * 无可用 X 服务（无头环境未配 xvfb）时明确报错。</p>
      *
      * @param region 采集区域
-     * @return 采集图像
+     * @return 原始 RGB 像素帧
      */
-    private static BufferedImage captureX11(Rectangle region) {
+    private static NativeFrame captureX11(Rectangle region) {
         X11 x11 = X11.INSTANCE;
         X11.Display display = x11.XOpenDisplay(null);
         if (display == null) {
@@ -76,20 +169,20 @@ public final class NativeScreenCapture {
                 int bytesPerPixel = image.getBitsPerPixel() / 8;
                 int bytesPerLine = image.getBytesPerLine();
                 byte[] data = image.getData().getByteArray(0, region.height * bytesPerLine);
-                BufferedImage result = new BufferedImage(region.width, region.height, BufferedImage.TYPE_INT_RGB);
-                // 直接写 raster 数据缓冲（int[] 一次性填充——避免逐像素 setRGB 的方法调用开销，30fps 采集必需）
-                int[] pixels = ((java.awt.image.DataBufferInt) result.getRaster().getDataBuffer()).getData();
+                // BGR→RGB 显式转换（原始像素拷贝——不经 BufferedImage）
+                byte[] rgb = new byte[region.width * region.height * 3];
                 for (int y = 0; y < region.height; y++) {
-                    int row = y * region.width;
                     int line = y * bytesPerLine;
+                    int row = y * region.width * 3;
                     for (int x = 0; x < region.width; x++) {
                         int offset = line + x * bytesPerPixel;
-                        pixels[row + x] = ((data[offset + 2] & 0xFF) << 16)
-                                | ((data[offset + 1] & 0xFF) << 8)
-                                | (data[offset] & 0xFF);
+                        int p = row + x * 3;
+                        rgb[p] = data[offset + 2];
+                        rgb[p + 1] = data[offset + 1];
+                        rgb[p + 2] = data[offset];
                     }
                 }
-                return result;
+                return new NativeFrame(region.width, region.height, NativeFrame.FORMAT_RGB, rgb);
             } finally {
                 x11.XDestroyImage(image);
             }
@@ -101,13 +194,13 @@ public final class NativeScreenCapture {
     /**
      * Windows GDI 采集：CreateCompatibleDC + BitBlt + GetDIBits。
      *
-     * <p>像素数据经 GetDIBits 显式拷贝到独立 {@code byte[]} 缓冲，再回填
-     * {@link BufferedImage}——数据路径全程显式复制，不使用零拷贝共享缓冲。</p>
+     * <p>像素数据经 GetDIBits 显式拷贝到独立 {@code byte[]} 缓冲并转换为 RGB
+     * （不经 BufferedImage，不使用零拷贝共享缓冲）。</p>
      *
      * @param region 采集区域
-     * @return 采集图像
+     * @return 原始 RGB 像素帧
      */
-    private static BufferedImage captureWindows(Rectangle region) {
+    private static NativeFrame captureWindows(Rectangle region) {
         int width = region.width;
         int height = region.height;
         WinDef.HDC screenDc = User32.INSTANCE.GetDC(null);
@@ -119,8 +212,8 @@ public final class NativeScreenCapture {
                     region.x, region.y, WinGDI.SRCCOPY)) {
                 throw new IllegalStateException("[NativeScreenCapture] GDI BitBlt 失败");
             }
-            // 显式像素拷贝：GetDIBits 到独立 byte[] 缓冲
-            byte[] pixels = new byte[width * height * 4];
+            // 显式像素拷贝：GetDIBits 到独立 byte[] 缓冲（BGRA 32bpp）
+            byte[] bgra = new byte[width * height * 4];
             WinGDI.BITMAPINFO bmi = new WinGDI.BITMAPINFO();
             bmi.bmiHeader.biSize = bmi.bmiHeader.size();
             bmi.bmiHeader.biWidth = width;
@@ -128,25 +221,24 @@ public final class NativeScreenCapture {
             bmi.bmiHeader.biPlanes = 1;
             bmi.bmiHeader.biBitCount = 32;
             bmi.bmiHeader.biCompression = WinGDI.BI_RGB;
-            int lines = Gdi32.INSTANCE.GetDIBits(memoryDc, bitmap, 0, height, pixels, bmi, WinGDI.DIB_RGB_COLORS);
+            int lines = Gdi32.INSTANCE.GetDIBits(memoryDc, bitmap, 0, height, bgra, bmi, WinGDI.DIB_RGB_COLORS);
             if (lines == 0) {
                 throw new IllegalStateException("[NativeScreenCapture] GetDIBits 失败");
             }
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            // 直接写 raster 数据缓冲（int[] 一次性填充——避免逐像素 setRGB 的方法调用开销，30fps 采集必需）
-            int[] target = ((java.awt.image.DataBufferInt) image.getRaster().getDataBuffer()).getData();
-            // 像素回填（显式复制——BI_RGB 32bpp 为 B/G/R/A 顺序，源为 GetDIBits 的 byte[] 缓冲）
+            // BGRA→RGB 显式转换（原始像素拷贝——不经 BufferedImage）
+            byte[] rgb = new byte[width * height * 3];
             for (int y = 0; y < height; y++) {
-                int row = y * width;
                 int line = y * width * 4;
+                int row = y * width * 3;
                 for (int x = 0; x < width; x++) {
                     int offset = line + x * 4;
-                    target[row + x] = ((pixels[offset + 2] & 0xFF) << 16)
-                            | ((pixels[offset + 1] & 0xFF) << 8)
-                            | (pixels[offset] & 0xFF);
+                    int p = row + x * 3;
+                    rgb[p] = bgra[offset + 2];
+                    rgb[p + 1] = bgra[offset + 1];
+                    rgb[p + 2] = bgra[offset];
                 }
             }
-            return image;
+            return new NativeFrame(width, height, NativeFrame.FORMAT_RGB, rgb);
         } finally {
             Gdi32.INSTANCE.SelectObject(memoryDc, oldBitmap);
             Gdi32.INSTANCE.DeleteObject(bitmap);
