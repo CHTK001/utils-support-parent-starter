@@ -213,11 +213,8 @@ public class GatewayServer implements RemoteServerSPI {
 
     private void connectToAgentViaTunnel(String agentId, int tunnelPort) {
         try {
-            var client = new com.chua.remote.core.FrameClient(agentId, "tcp://127.0.0.1:" + tunnelPort);
-            client.setListener(frame -> {
-                FrameListener current = server.getTransport().getListener();
-                if (current != null) current.onFrame(agentId, frame);
-            });
+            var client = new com.chua.remote.core.transport.FrameClient(agentId, "tcp://127.0.0.1:" + tunnelPort);
+            client.setListener(frame -> server.getTransport().dispatch(frame));
             client.connect();
             log.info("已通过反向隧道连接到agent: agentId={}, port={}", agentId, tunnelPort);
         } catch (Exception e) {
