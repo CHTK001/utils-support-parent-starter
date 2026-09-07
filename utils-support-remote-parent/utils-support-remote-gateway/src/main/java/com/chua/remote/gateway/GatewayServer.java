@@ -59,12 +59,26 @@ public class GatewayServer implements RemoteServerSPI {
     /** 帧回调（用于实际转发到 RemoteTransport） */
     private GatewayCallback gatewayCallback;
 
+    /** HTTP 验证服务器 */
+    private final com.sun.net.httpserver.HttpServer httpServer;
+
+    /** HTTP 验证端口 */
+    private final int httpPort;
+
     public GatewayServer(ServerSetting setting) {
         this.server = new RemoteServer(setting);
         this.authManager = new AuthManager();
         this.sessionManager = new SessionManager();
         this.routeManager = new RouteManager(sessionManager);
         this.transcodeEngine = new TranscodeEngine();
+        this.httpPort = setting.getPort() + 1;
+        try {
+            this.httpServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
+            this.httpServer.createContext("/verify", new VerifyHandler());
+            this.httpServer.setExecutor(Executors.newCachedThreadPool());
+        } catch (IOException e) {
+            throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
+        }
         initHandlers();
     }
 
@@ -238,6 +252,11 @@ public class GatewayServer implements RemoteServerSPI {
 
     @Override
     public Session createSession(String controllerId, String agentId, String verifyCode) {
+        return createSession(controllerId, agentId, verifyCode, false);
+    }
+
+    @Override
+    public Session createSession(String controllerId, String agentId, String verifyCode, boolean reverseTunnelEnabled) {
         if (!authManager.verifyAgent(agentId, verifyCode)) {
             throw new SecurityException("验证码校验失败");
         }
@@ -257,11 +276,92 @@ public class GatewayServer implements RemoteServerSPI {
                 .negotiatedCodec(negotiated)
                 .agentType(agentInfo.getAgentType())
                 .createTime(System.currentTimeMillis())
+                .reverseTunnelEnabled(reverseTunnelEnabled)
                 .build();
         sessionManager.addSession(session);
-        log.info("会话创建成功: sessionId={}, agentId={}, controllerId={}, transcoded={}",
-                session.getSessionId(), agentId, controllerId, negotiated.isTranscoded());
+        log.info("会话创建成功: sessionId={}, agentId={}, controllerId={}, transcoded={}, reverseTunnelEnabled={}",
+                session.getSessionId(), agentId, controllerId, negotiated.isTranscoded(), reverseTunnelEnabled);
         return session;
+    }
+
+    /**
+     * HTTP 验证处理类。
+     *
+     * <p>控制端点击连接前先调用此端点验证参数（agentID、验证码、reverseTunnelEnabled）。</p>
+     */
+    private class VerifyHandler implements HttpHandler {
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"POST".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            try {
+                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                Map<String, String> params = parseParams(body);
+                String agentId = params.get("agentId");
+                String verifyCode = params.get("verifyCode");
+                String reverseTunnelEnabled = params.get("reverseTunnelEnabled");
+                boolean rte = "true".equalsIgnoreCase(reverseTunnelEnabled);
+
+                if (!authManager.verifyAgent(agentId, verifyCode)) {
+                    String json = "{\"success\":false,\"message\":\"验证码校验失败\"}";
+                    exchange.getResponseHeaders().add("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(401, json.length());
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(json.getBytes(StandardCharsets.UTF_8));
+                    }
+                    return;
+                }
+
+                var agentInfo = sessionManager.getAgent(agentId);
+                if (agentInfo == null) {
+                    String json = "{\"success\":false,\"message\":\"被控端未注册\"}";
+                    exchange.getResponseHeaders().add("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(404, json.length());
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(json.getBytes(StandardCharsets.UTF_8));
+                    }
+                    return;
+                }
+
+                String json = String.format("{\"success\":true,\"agentType\":\"%s\",\"desktopSupported\":%s}",
+                        agentInfo.getAgentType(), agentInfo.getDesktopSupported());
+                exchange.getResponseHeaders().add("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, json.length());
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(json.getBytes(StandardCharsets.UTF_8));
+                }
+                log.info("HTTP验证通过: agentId={}, reverseTunnelEnabled={}", agentId, rte);
+            } catch (Exception e) {
+                String json = "{\"success\":false,\"message\":\"验证异常:" + e.getMessage() + "\"}";
+                exchange.getResponseHeaders().add("Content-Type", "application/json");
+                exchange.sendResponseHeaders(500, json.length());
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(json.getBytes(StandardCharsets.UTF_8));
+                }
+            }
+        }
+
+        private Map<String, String> parseParams(String body) {
+            Map<String, String> params = new HashMap<>();
+            for (String pair : body.split("&")) {
+                String[] kv = pair.split("=", 2);
+                if (kv.length == 2) {
+                    params.put(kv[0], java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8));
+                } else if (kv.length == 1) {
+                    params.put(kv[0], "");
+                }
+            }
+            return params;
+        }
+    }
+
+    public void start() {
+        server.start();
+        httpServer.start();
+        log.info("远控网关已启动 (WS:{}, HTTP验证:{})", server.getSetting().getPort(), httpPort);
     }
 
     @Override
