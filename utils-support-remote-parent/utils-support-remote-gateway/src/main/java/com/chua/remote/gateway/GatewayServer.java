@@ -227,6 +227,7 @@ public class GatewayServer implements RemoteServerSPI {
                 .agentId(agentId)
                 .status(Session.SessionStatus.ACTIVE)
                 .negotiatedCodec(negotiated)
+                .agentType(agentInfo.getAgentType())
                 .createTime(System.currentTimeMillis())
                 .build();
         sessionManager.addSession(session);

@@ -136,6 +136,11 @@ public class ControllerClient implements RemoteControllerSPI {
 
     @Override
     public void injectInputEvent(byte[] eventData) {
+        Session session = currentSessionId != null ? sessions.get(currentSessionId) : null;
+        if (session != null && session.getAgentType() == com.chua.remote.protocol.model.AgentInfo.AgentType.PUSH) {
+            log.warn("被控端为纯推送模式（PUSH），不支持远程控制，丢弃键鼠事件: sessionId={}", currentSessionId);
+            return;
+        }
         var frame = FrameCodec.controlFrame(currentSessionId, eventData);
         client.getTransport().send(frame);
         inputInjector.inject(eventData);
