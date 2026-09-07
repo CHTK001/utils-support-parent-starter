@@ -51,6 +51,9 @@ public class Session implements Serializable {
     /** 附加元数据 */
     private Map<String, String> metadata;
 
+    /** 是否开启反向隧道（控制端会话参数，网关根据此创建反向隧道） */
+    private boolean reverseTunnelEnabled;
+
     /**
      * 会话状态枚举。
      */
