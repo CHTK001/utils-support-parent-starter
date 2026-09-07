@@ -45,6 +45,7 @@ public class RemotePerfBenchmark {
             byte[] jpeg = makeJpeg(wh[0], wh[1]);
             System.out.printf("[PERF] frame %dx%d -> jpeg %d KB%n", wh[0], wh[1], jpeg.length / 1024);
             benchWireCodec(jpeg);
+            benchBinaryCodec(jpeg);
             benchTcp(jpeg, wh[0] + "x" + wh[1]);
         }
         byte[] fullHd = makeJpeg(1920, 1080);
@@ -94,6 +95,36 @@ public class RemotePerfBenchmark {
         double mbps = rounds * jpeg.length / seconds / 1024 / 1024;
         System.out.printf("[PERF] wire enc+dec %.1f KB payload: %,d ops/s, %.0f MB/s%n",
                 jpeg.length / 1024.0, (int) (rounds / seconds), mbps);
+    }
+
+    /**
+     * 二进制帧编解码吞吐（编码组包 + 解析计入同一轮）。
+     *
+     * @param jpeg 帧载荷
+     */
+    static void benchBinaryCodec(byte[] jpeg) {
+        Frame frame = FrameCodec.dataFrame("perf-sess", jpeg);
+        java.nio.ByteBuffer[] buffers = FrameCodec.encodeBinary(frame);
+        int wireSize = buffers[0].remaining() + buffers[1].remaining();
+        java.nio.ByteBuffer composed = java.nio.ByteBuffer.allocate(wireSize);
+        composed.put(buffers[0]);
+        composed.put(buffers[1]);
+        composed.flip();
+        int rounds = jpeg.length > 128 * 1024 ? 2000 : 5000;
+        // 预热
+        for (int i = 0; i < 200; i++) {
+            FrameCodec.parseBinary(composed.duplicate());
+        }
+        long start = System.nanoTime();
+        for (int i = 0; i < rounds; i++) {
+            FrameCodec.encodeBinary(frame);
+            FrameCodec.parseBinary(composed.duplicate());
+        }
+        double seconds = (System.nanoTime() - start) / 1e9;
+        double mbps = rounds * jpeg.length / seconds / 1024 / 1024;
+        System.out.printf("[PERF] binary enc+parse %.1f KB payload: %,d ops/s, %.0f MB/s (wire %d KB, json+base64 需 %d KB)%n",
+                jpeg.length / 1024.0, (int) (rounds / seconds), mbps,
+                wireSize / 1024, (int) (wireSize * 1.36) / 1024 + 1);
     }
 
     /**
