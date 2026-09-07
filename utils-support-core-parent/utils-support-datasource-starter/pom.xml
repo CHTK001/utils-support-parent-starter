@@ -31,7 +31,6 @@
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-spi</artifactId>
             <version>0.9.1.RELEASE</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.asyncer</groupId>
