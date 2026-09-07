@@ -38,13 +38,23 @@ public class TranscodeEngine {
         int finalWidth = Math.min(encodingAbility.getMaxWidth(), decodingAbility.getMaxWidth());
         int finalHeight = Math.min(encodingAbility.getMaxHeight(), decodingAbility.getMaxHeight());
         int finalQuality = Math.min(encodingAbility.getQuality(), decodingAbility.getQuality());
-        boolean needTranscode = finalEncoding == null || !finalEncoding.equals("JPEG");
+        // 仅交集为空时需要转码（交集非空时直接使用共同编码，无需转码）
+        boolean needTranscode = finalEncoding == null;
 
-        log.info("编解码协商结果: encoding={}, width={}, height={}, transcoded={}",
-                finalEncoding, finalWidth, finalHeight, needTranscode);
+        // 转码场景：源编码 = 被控端编码能力（帧的实际编码），目标编码 = 控制端解码能力
+        String sourceEncoding = needTranscode && encodingAbility.getEncodings() != null
+                && !encodingAbility.getEncodings().isEmpty()
+                ? encodingAbility.getEncodings().get(0) : finalEncoding;
+        String targetEncoding = needTranscode && decodingAbility.getEncodings() != null
+                && !decodingAbility.getEncodings().isEmpty()
+                ? decodingAbility.getEncodings().get(0) : finalEncoding;
+
+        log.info("编解码协商结果: encoding={}, target={}, width={}, height={}, transcoded={}",
+                sourceEncoding, targetEncoding, finalWidth, finalHeight, needTranscode);
 
         return Session.NegotiatedCodec.builder()
-                .encoding(finalEncoding != null ? finalEncoding : "JPEG")
+                .encoding(sourceEncoding != null ? sourceEncoding : "jpeg")
+                .targetEncoding(targetEncoding != null ? targetEncoding : "jpeg")
                 .width(finalWidth)
                 .height(finalHeight)
                 .quality(finalQuality)
@@ -69,6 +79,22 @@ public class TranscodeEngine {
             }
         }
         return null;
+    }
+
+    /**
+     * 执行转码（协商无交集时——网关兜底转码）。
+     *
+     * @param session    会话（携带协商结果）
+     * @param sourceData 源帧字节
+     * @return 转码后字节（无需转码或转码失败时返回原数据）
+     */
+    public byte[] transcode(Session session, byte[] sourceData) {
+        var negotiated = session.getNegotiatedCodec();
+        if (negotiated == null || !negotiated.isTranscoded()) {
+            return sourceData;
+        }
+        return GatewayTranscoder.transcode(sourceData, negotiated.getEncoding(),
+                negotiated.getTargetEncoding(), negotiated.getWidth(), negotiated.getHeight());
     }
 
     /**
