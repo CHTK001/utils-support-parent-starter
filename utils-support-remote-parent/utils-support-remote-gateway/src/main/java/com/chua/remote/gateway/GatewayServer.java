@@ -182,7 +182,7 @@ public class GatewayServer implements RemoteServerSPI {
         }
         String controllerId = request.getControllerSessionId();
         String agentId = request.getAgentId();
-        String verifyCode = frame.getMetadata().get(ControllerClient.METADATA_VERIFY_CODE);
+        String verifyCode = frame.getMetadata().get("verifyCode");
         boolean reverseTunnel = frame.getMetadata().get("reverseTunnelEnabled") != null
                 && "true".equalsIgnoreCase(frame.getMetadata().get("reverseTunnelEnabled"));
 
