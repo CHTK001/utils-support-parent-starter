@@ -101,6 +101,8 @@ public class ControllerClient implements RemoteControllerSPI {
         currentSessionId = sessionId;
         var frame = FrameCodec.encodeSignal(MessageType.SIGNAL, sessionId, session);
         frame.getMetadata().put(METADATA_VERIFY_CODE, verifyCode);
+        frame.getMetadata().put("reverseTunnelEnabled",
+                String.valueOf(controllerInfo.isReverseTunnelEnabled()));
         client.getTransport().send(frame);
         log.info("发起会话: controllerId={}, agentId={}, sessionId={}",
                 controllerInfo.getAccessToken(), agentId, sessionId);
