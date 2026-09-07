@@ -79,6 +79,9 @@ public class Session implements Serializable {
         /** 最终编码格式 */
         private String encoding;
 
+        /** 目标编码（协商无交集转码时——控制端解码能力；与 encoding 一致时无需转码） */
+        private String targetEncoding;
+
         /** 最终宽度 */
         private int width;
 

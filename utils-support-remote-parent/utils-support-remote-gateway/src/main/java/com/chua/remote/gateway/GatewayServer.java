@@ -134,10 +134,25 @@ public class GatewayServer implements RemoteServerSPI {
     }
 
     private void routeData(Frame frame) {
-        if (gatewayCallback != null) {
-            gatewayCallback.onFrame(frame);
+        // 协商无交集时：网关按会话协商结果兜底转码后转发
+        Frame routed = frame;
+        Session session = sessionManager.getSession(frame.getSessionId());
+        if (session != null && session.getNegotiatedCodec() != null
+                && session.getNegotiatedCodec().isTranscoded()) {
+            byte[] payload = transcodeEngine.transcode(session, frame.getPayload());
+            if (payload != frame.getPayload()) {
+                routed = Frame.builder()
+                        .type(MessageType.DATA)
+                        .sessionId(frame.getSessionId())
+                        .payload(payload)
+                        .metadata(frame.getMetadata())
+                        .build();
+            }
         }
-        server.getTransport().publish(frame);
+        if (gatewayCallback != null) {
+            gatewayCallback.onFrame(routed);
+        }
+        server.getTransport().publish(routed);
         log.debug("路由数据帧到控制端: sessionId={}", frame.getSessionId());
     }
 
