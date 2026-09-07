@@ -31,6 +31,9 @@ public class DecoderRenderer {
     /** 缩略图渲染器 */
     private final ThumbnailRenderer thumbnailRenderer;
 
+    /** 帧渲染回调（解码结果直接交付，嵌入方自行绘制到窗口） */
+    private volatile java.util.function.Consumer<BufferedImage> frameListener;
+
     public DecoderRenderer(CodecProfile decodingCapability) {
         this.decodingCapability = decodingCapability;
         this.hardwareDecode = true;
@@ -38,7 +41,22 @@ public class DecoderRenderer {
     }
 
     /**
+     * 设置帧渲染回调。
+     *
+     * <p>解码结果（BufferedImage）直接交付回调，由嵌入方绘制到本地窗口；
+     * 未设置时仅记录日志。热路径不做任何再编码。</p>
+     *
+     * @param listener 渲染回调
+     */
+    public void setFrameListener(java.util.function.Consumer<BufferedImage> listener) {
+        this.frameListener = listener;
+    }
+
+    /**
      * 渲染数据帧。
+     *
+     * <p>热路径仅做一次解码：解码结果交付渲染回调；
+     * 缩略图（若启用）直接由解码结果缩放生成，不再二次解码。</p>
      *
      * @param frame 数据帧
      */
@@ -52,16 +70,16 @@ public class DecoderRenderer {
             return;
         }
         try {
-            // 1. 解码：将字节数组转为 BufferedImage
+            // 1. 解码（热路径唯一一次图像编解码）
             BufferedImage image = decode(data);
             if (image == null) {
                 return;
             }
-            // 2. 渲染到本地窗口
+            // 2. 交付渲染回调
             renderFrame(image);
-            // 3. 如果支持缩略图，同时渲染缩略图
+            // 3. 如果支持缩略图，由解码结果直接缩放生成
             if (decodingCapability.isThumbnailSupported()) {
-                renderThumbnail(data);
+                renderThumbnail(image);
             }
         } catch (Exception e) {
             log.error("渲染帧失败", e);
@@ -84,36 +102,30 @@ public class DecoderRenderer {
     }
 
     /**
-     * 渲染帧到本地窗口。
+     * 交付渲染帧。
      *
-     * @param image 像素数据
+     * @param image 解码后的像素数据
      */
     private void renderFrame(BufferedImage image) {
-        log.debug("渲染帧: width={}, height={}", image.getWidth(), image.getHeight());
-        // 使用 ImageProcessors 进行后处理（如亮度/对比度调整）
-        try {
-            String format = decodingCapability.getEncodings() != null
-                    && !decodingCapability.getEncodings().isEmpty()
-                    ? decodingCapability.getEncodings().get(0) : "jpeg";
-            byte[] processed = ImageProcessors.from(BufferedImageUtils.toBufferedImageArray(image, "png"))
-                    .format(format)
-                    .toBytes();
-            log.debug("帧渲染完成: size={}", processed.length);
-        } catch (Exception e) {
-            log.error("帧后处理失败", e);
+        java.util.function.Consumer<BufferedImage> listener = frameListener;
+        if (listener != null) {
+            listener.accept(image);
         }
+        log.debug("渲染帧: width={}, height={}", image.getWidth(), image.getHeight());
     }
 
     /**
-     * 渲染缩略图。
+     * 渲染缩略图（由解码结果直接缩放，不二次解码）。
      *
-     * @param data 原始数据
+     * @param image 解码后的像素数据
      */
-    private void renderThumbnail(byte[] data) {
+    private void renderThumbnail(BufferedImage image) {
         try {
-            byte[] thumbnail = ImageProcessors.from(data)
-                    .resize(Math.max(1, decodingCapability.getMaxWidth() / 4),
-                            Math.max(1, decodingCapability.getMaxHeight() / 4))
+            BufferedImage scaled = BufferedImageUtils.scaleImage(image,
+                    Math.max(1, decodingCapability.getMaxWidth() / 4),
+                    Math.max(1, decodingCapability.getMaxHeight() / 4));
+            byte[] thumbnail = ImageProcessors.from(
+                            BufferedImageUtils.toBufferedImageArray(scaled, "png"))
                     .format("jpeg")
                     .toBytes();
             log.debug("缩略图渲染完成: size={}", thumbnail.length);
