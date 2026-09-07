@@ -53,7 +53,8 @@ public class MailNestEmailProvider implements EmailProvider {
             String resp = HttpClientFactory.of(BASE + "/email/temporary/buy")
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
-                    .post(body)
+                    .body(body)
+                    .post()
                     .getBodyString();
             JsonNode root = MAPPER.readTree(resp);
             if (root.isArray() && !root.isEmpty()) {
@@ -67,7 +68,8 @@ public class MailNestEmailProvider implements EmailProvider {
             resp = HttpClientFactory.of(BASE + "/email/exclusive/buy")
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
-                    .post("{\"count\":1}")
+                    .body("{\"count\":1}")
+                    .post()
                     .getBodyString();
             root = MAPPER.readTree(resp);
             if (root.isArray() && !root.isEmpty()) {
@@ -95,7 +97,8 @@ public class MailNestEmailProvider implements EmailProvider {
             String resp = HttpClientFactory.of(BASE + "/email/receive")
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
-                    .post(body)
+                    .body(body)
+                    .post()
                     .getBodyString();
             JsonNode root = MAPPER.readTree(resp);
             if (!root.isArray()) {

@@ -65,7 +65,8 @@ public class FceEmailProvider implements EmailProvider {
             String body = HttpClientFactory.of(API_BASE + "/inboxes")
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
-                    .post("{\"inbox\":\"" + email + "\"}")
+                    .body("{\"inbox\":\"" + email + "\"}")
+                    .post()
                     .getBodyString();
             JsonNode root = MAPPER.readTree(body);
             if (root.path("success").asBoolean(false)) {
