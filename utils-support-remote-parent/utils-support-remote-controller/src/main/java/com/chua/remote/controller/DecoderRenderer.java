@@ -92,8 +92,11 @@ public class DecoderRenderer {
         log.debug("渲染帧: width={}, height={}", image.getWidth(), image.getHeight());
         // 使用 ImageProcessors 进行后处理（如亮度/对比度调整）
         try {
+            String format = decodingCapability.getEncodings() != null
+                    && !decodingCapability.getEncodings().isEmpty()
+                    ? decodingCapability.getEncodings().get(0) : "jpeg";
             byte[] processed = ImageProcessors.from(BufferedImageUtils.toBufferedImageArray(image, "png"))
-                    .format(decodingCapability.getEncodings().isEmpty() ? "jpeg" : decodingCapability.getEncodings().get(0))
+                    .format(format)
                     .toBytes();
             log.debug("帧渲染完成: size={}", processed.length);
         } catch (Exception e) {
@@ -109,7 +112,8 @@ public class DecoderRenderer {
     private void renderThumbnail(byte[] data) {
         try {
             byte[] thumbnail = ImageProcessors.from(data)
-                    .resize(decodingCapability.getMaxWidth() / 4, decodingCapability.getMaxHeight() / 4)
+                    .resize(Math.max(1, decodingCapability.getMaxWidth() / 4),
+                            Math.max(1, decodingCapability.getMaxHeight() / 4))
                     .format("jpeg")
                     .toBytes();
             log.debug("缩略图渲染完成: size={}", thumbnail.length);

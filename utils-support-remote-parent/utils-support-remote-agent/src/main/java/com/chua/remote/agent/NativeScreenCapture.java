@@ -77,13 +77,16 @@ public final class NativeScreenCapture {
                 int bytesPerLine = image.getBytesPerLine();
                 byte[] data = image.getData().getByteArray(0, region.height * bytesPerLine);
                 BufferedImage result = new BufferedImage(region.width, region.height, BufferedImage.TYPE_INT_RGB);
+                // 直接写 raster 数据缓冲（int[] 一次性填充——避免逐像素 setRGB 的方法调用开销，30fps 采集必需）
+                int[] pixels = ((java.awt.image.DataBufferInt) result.getRaster().getDataBuffer()).getData();
                 for (int y = 0; y < region.height; y++) {
+                    int row = y * region.width;
+                    int line = y * bytesPerLine;
                     for (int x = 0; x < region.width; x++) {
-                        int offset = y * bytesPerLine + x * bytesPerPixel;
-                        int b = data[offset] & 0xFF;
-                        int g = data[offset + 1] & 0xFF;
-                        int r = data[offset + 2] & 0xFF;
-                        result.setRGB(x, y, (r << 16) | (g << 8) | b);
+                        int offset = line + x * bytesPerPixel;
+                        pixels[row + x] = ((data[offset + 2] & 0xFF) << 16)
+                                | ((data[offset + 1] & 0xFF) << 8)
+                                | (data[offset] & 0xFF);
                     }
                 }
                 return result;
@@ -130,14 +133,17 @@ public final class NativeScreenCapture {
                 throw new IllegalStateException("[NativeScreenCapture] GetDIBits 失败");
             }
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            // 直接写 raster 数据缓冲（int[] 一次性填充——避免逐像素 setRGB 的方法调用开销，30fps 采集必需）
+            int[] pixels = ((java.awt.image.DataBufferInt) image.getRaster().getDataBuffer()).getData();
             // 像素回填（显式复制——BI_RGB 32bpp 为 B/G/R/A 顺序）
             for (int y = 0; y < height; y++) {
+                int row = y * width;
+                int line = y * width * 4;
                 for (int x = 0; x < width; x++) {
-                    int offset = (y * width + x) * 4;
-                    int b = pixels[offset] & 0xFF;
-                    int g = pixels[offset + 1] & 0xFF;
-                    int r = pixels[offset + 2] & 0xFF;
-                    image.setRGB(x, y, (r << 16) | (g << 8) | b);
+                    int offset = line + x * 4;
+                    pixels[row + x] = ((pixels[0] & 0) | ((pixels[offset + 2] & 0xFF) << 16))
+                            | ((pixels[offset + 1] & 0xFF) << 8)
+                            | (pixels[offset] & 0xFF);
                 }
             }
             return image;
