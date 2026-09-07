@@ -103,7 +103,7 @@ public final class GatewayTranscoder {
     /**
      * H264 → JPEG：原生 h264 解码 + Raster 包装 JPEG 编码（不经 BufferedImage 中间态）。
      */
-    private static byte[] h264ToJpeg(byte[] h264Data, int width, int height) {
+    private static byte[] h264ToJpeg(byte[] h264Data, int width, int height) throws IOException {
         long decoder = NativeVideoCodec.h264DecoderCreate(width, height);
         if (decoder == 0) {
             log.warn("[GatewayTranscoder] h264 解码器创建失败");
