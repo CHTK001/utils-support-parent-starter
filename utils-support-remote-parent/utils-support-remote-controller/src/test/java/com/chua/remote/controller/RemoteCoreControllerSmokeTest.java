@@ -94,8 +94,9 @@ public class RemoteCoreControllerSmokeTest {
      * 生成真实 JPEG 屏幕帧。
      *
      * @return JPEG 字节
+     * @throws Exception 图像编码异常
      */
-    static byte[] jpegFrame() {
+    static byte[] jpegFrame() throws Exception {
         BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         graphics.setColor(Color.RED);

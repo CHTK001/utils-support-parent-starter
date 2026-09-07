@@ -28,6 +28,24 @@ public class NativeEncoder {
     }
 
     /**
+     * 编码原始像素帧（不经 BufferedImage——原始 RGB 字节直接 JPEG 编码）。
+     *
+     * @param frame 原始 RGB 像素帧
+     * @return 编码后的字节数组（JPEG 格式）
+     */
+    public byte[] encode(NativeFrame frame) {
+        if (frame == null) {
+            return new byte[0];
+        }
+        try {
+            return RawJpegEncoder.encodeJpeg(frame, 80);
+        } catch (Exception e) {
+            log.error("Native 编码失败（raw 帧）", e);
+            return new byte[0];
+        }
+    }
+
+    /**
      * 编码 BufferedImage。
      *
      * @param image 原始图像
