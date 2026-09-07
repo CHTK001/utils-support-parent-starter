@@ -6,16 +6,20 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.IOException;
 
 /**
  * Native 屏幕采集器。
  *
- * <p>使用 {@link NativeScreenCapture}（操作系统原生采集——Windows GDI 等）进行截图，
- * 不允许 {@link java.awt.Robot}；支持多显示器和指定区域采集。</p>
+ * <p>使用 {@link NativeScreenCapture}（操作系统原生采集——Windows GDI / Linux X11 /
+ * macOS CoreGraphics）进行截图，不允许 {@link java.awt.Robot}；采集直接产出原始
+ * RGB 像素帧（{@link NativeFrame}，不经 BufferedImage），编码链路直接消费原始帧；
+ * 兼容方法（capture/captureBufferedImage）仅在消费边界做一次转换。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -39,60 +43,28 @@ public class ScreenCapture {
     }
 
     /**
-     * 采集屏幕画面。
+     * 采集屏幕画面（原始像素帧——不经 BufferedImage）。
      *
-     * @return 截图数据
+     * @return 原始 RGB 像素帧
      */
-    public byte[] capture() {
-        BufferedImage image = captureBufferedImage();
-        if (image == null) {
-            return new byte[0];
-        }
-        try {
-            return BufferedImageUtils.toBufferedImageArray(image, "png");
-        } catch (IOException e) {
-            log.error("截图编码失败: agentId={}", agentInfo.getId(), e);
-            return new byte[0];
-        }
-    }
-
-    /**
-     * 采集屏幕画面为 BufferedImage。
-     *
-     * @return BufferedImage
-     */
-    public BufferedImage captureBufferedImage() {
+    public NativeFrame captureFrame() {
         if (multiScreen) {
-            return captureAllScreens();
+            return captureAllScreensFrame();
         }
-        return capturePrimaryScreen();
+        return NativeScreenCapture.capture(new Rectangle(screenSize));
     }
 
     /**
-     * 采集主屏幕。
+     * 采集所有屏幕（多屏合并，原始像素行拼接）。
+     *
+     * @return 合并后的原始 RGB 像素帧
      */
-    public BufferedImage capturePrimaryScreen() {
-        try {
-            BufferedImage capture = NativeScreenCapture.capture(
-                    new Rectangle(screenSize));
-            log.debug("采集主屏幕: agentId={}, size={}x{}",
-                    agentInfo.getId(), capture.getWidth(), capture.getHeight());
-            return capture;
-        } catch (Exception e) {
-            log.error("采集主屏幕失败: agentId={}", agentInfo.getId(), e);
-            return null;
-        }
-    }
-
-    /**
-     * 采集所有屏幕（多屏合并）。
-     */
-    public BufferedImage captureAllScreens() {
+    private NativeFrame captureAllScreensFrame() {
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice[] screens = ge.getScreenDevices();
             if (screens.length == 0) {
-                return capturePrimaryScreen();
+                return NativeScreenCapture.capture(new Rectangle(screenSize));
             }
             // 计算合并后的总尺寸
             int totalWidth = 0;
@@ -101,24 +73,47 @@ public class ScreenCapture {
                 totalWidth += screen.getDefaultConfiguration().getBounds().width;
                 totalHeight = Math.max(totalHeight, screen.getDefaultConfiguration().getBounds().height);
             }
-            // 创建合并后的图像
-            BufferedImage combined = new BufferedImage(
-                    totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = combined.createGraphics();
+            // 原始像素行拼接（显式拷贝——不经 BufferedImage）
+            byte[] combined = new byte[totalWidth * totalHeight * 3];
             int offsetX = 0;
             for (GraphicsDevice screen : screens) {
                 Rectangle bounds = screen.getDefaultConfiguration().getBounds();
-                BufferedImage capture = NativeScreenCapture.capture(bounds);
-                g.drawImage(capture, offsetX, 0, null);
-                offsetX += capture.getWidth();
+                NativeFrame frame = NativeScreenCapture.capture(bounds);
+                for (int y = 0; y < frame.height(); y++) {
+                    System.arraycopy(frame.pixels(), y * frame.width() * 3,
+                            combined, y * totalWidth * 3 + offsetX * 3, frame.width() * 3);
+                }
+                offsetX += frame.width();
             }
-            g.dispose();
             log.debug("采集多屏: agentId={}, totalSize={}x{}",
                     agentInfo.getId(), totalWidth, totalHeight);
-            return combined;
+            return new NativeFrame(totalWidth, totalHeight, NativeFrame.FORMAT_RGB, combined);
         } catch (Exception e) {
             log.error("采集多屏失败: agentId={}", agentInfo.getId(), e);
-            return capturePrimaryScreen();
+            return NativeScreenCapture.capture(new Rectangle(screenSize));
+        }
+    }
+
+    /**
+     * 采集屏幕画面为 BufferedImage（消费边界转换——编码链路请使用 {@link #captureFrame()}）。
+     *
+     * @return BufferedImage
+     */
+    public BufferedImage captureBufferedImage() {
+        return toBufferedImage(captureFrame());
+    }
+
+    /**
+     * 采集屏幕画面。
+     *
+     * @return 截图数据（PNG 编码）
+     */
+    public byte[] capture() {
+        try {
+            return BufferedImageUtils.toBufferedImageArray(captureBufferedImage(), "png");
+        } catch (IOException e) {
+            log.error("截图编码失败: agentId={}", agentInfo.getId(), e);
+            return new byte[0];
         }
     }
 
@@ -133,15 +128,31 @@ public class ScreenCapture {
      */
     public byte[] captureRegion(int x, int y, int width, int height) {
         try {
-            BufferedImage capture = NativeScreenCapture.capture(
-                    new Rectangle(x, y, width, height));
+            NativeFrame frame = NativeScreenCapture.capture(new Rectangle(x, y, width, height));
             log.debug("采集区域: agentId={}, x={}, y={}, w={}, h={}",
                     agentInfo.getId(), x, y, width, height);
-            return BufferedImageUtils.toBufferedImageArray(capture, "png");
+            return BufferedImageUtils.toBufferedImageArray(toBufferedImage(frame), "png");
         } catch (Exception e) {
             log.error("采集区域失败", e);
             return new byte[0];
         }
+    }
+
+    /**
+     * 原始 RGB 像素帧 → BufferedImage（仅消费边界转换）。
+     *
+     * @param frame 原始 RGB 像素帧
+     * @return BufferedImage（TYPE_INT_RGB，显式像素回填）
+     */
+    private static BufferedImage toBufferedImage(NativeFrame frame) {
+        BufferedImage image = new BufferedImage(frame.width(), frame.height(), BufferedImage.TYPE_INT_RGB);
+        int[] target = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        byte[] rgb = frame.pixels();
+        for (int i = 0; i < target.length; i++) {
+            int p = i * 3;
+            target[i] = ((rgb[p] & 0xFF) << 16) | ((rgb[p + 1] & 0xFF) << 8) | (rgb[p + 2] & 0xFF);
+        }
+        return image;
     }
 
     /**
