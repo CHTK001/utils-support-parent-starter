@@ -271,15 +271,25 @@ public class FrameServer {
             }
         }
 
-        /**
-         * 关闭连接。
-         */
-        private void close() {
-            synchronized (channel) {
-                closeQuietly(channel);
-            }
-        }
-    }
+         /**
+          * 关闭连接。
+          */
+         private void close() {
+             synchronized (channel) {
+                 closeQuietly(channel);
+             }
+         }
+
+         /** 安全关闭通道 */
+         private static void closeQuietly(SocketChannel channel) {
+             if (channel != null) {
+                 try {
+                     channel.close();
+                 } catch (IOException ignored) {
+                 }
+             }
+         }
+     }
 
     /**
      * 帧服务端事件监听器。
