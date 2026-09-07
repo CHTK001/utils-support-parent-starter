@@ -18,16 +18,25 @@ import lombok.Data;
 public class CaptchaSetting {
 
     /**
-     * API 鉴权令牌
+     * YesCaptcha API 服务地址
+     */
+    public static final String YESCAPTCHA_API_URL = "https://api.yescaptcha.com";
+
+    /**
+     * CaptchaRun API 服务地址
+     */
+    public static final String CAPTCHA_RUN_API_URL = "https://api.captcha-run.com";
+
+    /**
+     * API 鉴权令牌（从 yescaptcha.com 或 captcha-run.com 获取）
      */
     private String apiToken;
 
     /**
-     * API 服务地址，默认 https://api.captcha-run.com
+     * API 服务地址，默认使用 YesCaptcha
      */
     @Builder.Default
-    /** APIURL */
-    private String apiUrl = "https://api.captcha-run.com";
+    private String apiUrl = YESCAPTCHA_API_URL;
 
     /**
      * 连接超时时间（毫秒），默认 30000ms
