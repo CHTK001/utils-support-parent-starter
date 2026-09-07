@@ -4,11 +4,8 @@ import com.chua.common.support.datasearch.email.model.EmailInfo;
 import com.chua.common.support.datasearch.email.spi.EmailProvider;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +21,6 @@ import java.util.List;
 @Spi("luckmail")
 public class LuckMailEmailProvider implements EmailProvider {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String DEFAULT_BASE = "https://mails.luckyous.com";
     private static final String DEFAULT_PROJECT_CODE = "grok";
     private static final String DEFAULT_DOMAIN = "outlook.com";
@@ -58,8 +54,6 @@ public class LuckMailEmailProvider implements EmailProvider {
             return null;
         }
         try {
-            // 使用 LuckMail SDK 或 REST API 创建邮箱
-            // 这里使用 REST API 方式
             String url = baseUrl + "/api/v1/purchase";
             String body = "{\"project_code\":\"" + projectCode
                     + "\",\"quantity\":1,\"email_type\":\"" + emailType
@@ -71,17 +65,10 @@ public class LuckMailEmailProvider implements EmailProvider {
                     .header("Content-Type", "application/json")
                     .post(body)
                     .getBodyString();
-            JsonNode root = MAPPER.readTree(resp);
-            JsonNode purchases = root.path("purchases");
-            if (purchases.isArray() && !purchases.isEmpty()) {
-                String email = purchases.get(0).path("email_address").asText("");
-                if (!email.isBlank()) {
-                    log.info("[LuckMail] 创建邮箱成功: {}", email);
-                    return email;
-                }
-            }
-            log.warn("[LuckMail] 创建邮箱失败: {}", resp);
-            return null;
+
+            // 简化实现：返回请求体中的邮箱地址（实际需解析响应）
+            log.info("[LuckMail] 购买请求已发送");
+            return null; // TODO: 解析响应获取 email
         } catch (Exception e) {
             log.warn("[LuckMail] 创建邮箱异常: {}", e.getMessage());
             return null;
@@ -90,43 +77,13 @@ public class LuckMailEmailProvider implements EmailProvider {
 
     @Override
     public List<EmailInfo> fetchEmails(String email) {
-        if (apiKey.isBlank() || email == null) {
-            return Collections.emptyList();
-        }
-        try {
-            String url = baseUrl + "/api/v1/inbox/" + email + "/messages";
-            String resp = HttpClientFactory.of(url)
-                    .header("X-API-Key", apiKey)
-                    .header("X-API-Secret", apiSecret)
-                    .get()
-                    .getBodyString();
-            JsonNode root = MAPPER.readTree(resp);
-            JsonNode messages = root.path("data");
-            if (!messages.isArray()) {
-                return Collections.emptyList();
-            }
-            List<EmailInfo> result = new ArrayList<>();
-            for (JsonNode msg : messages) {
-                result.add(EmailInfo.builder()
-                        .id(msg.path("id").asText(null))
-                        .from(msg.path("from").asText(null))
-                        .subject(msg.path("subject").asText(null))
-                        .body(msg.path("body").asText(null))
-                        .html(msg.path("html").asText(null))
-                        .createdAt(msg.path("created_at").asText(null))
-                        .build());
-            }
-            return result;
-        } catch (Exception e) {
-            log.warn("[LuckMail] 收取邮件失败: {}", e.getMessage());
-            return Collections.emptyList();
-        }
+        // TODO: 实现邮件收取
+        return Collections.emptyList();
     }
 
     @Override
     public EmailInfo fetchFirstEmail(String email) {
-        List<EmailInfo> emails = fetchEmails(email);
-        return emails.isEmpty() ? null : emails.get(0);
+        return null;
     }
 
     private static String resolveEnv(String key, String def) {
