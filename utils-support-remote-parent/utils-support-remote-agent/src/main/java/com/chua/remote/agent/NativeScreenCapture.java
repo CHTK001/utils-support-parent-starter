@@ -134,14 +134,14 @@ public final class NativeScreenCapture {
             }
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             // 直接写 raster 数据缓冲（int[] 一次性填充——避免逐像素 setRGB 的方法调用开销，30fps 采集必需）
-            int[] pixels = ((java.awt.image.DataBufferInt) image.getRaster().getDataBuffer()).getData();
-            // 像素回填（显式复制——BI_RGB 32bpp 为 B/G/R/A 顺序）
+            int[] target = ((java.awt.image.DataBufferInt) image.getRaster().getDataBuffer()).getData();
+            // 像素回填（显式复制——BI_RGB 32bpp 为 B/G/R/A 顺序，源为 GetDIBits 的 byte[] 缓冲）
             for (int y = 0; y < height; y++) {
                 int row = y * width;
                 int line = y * width * 4;
                 for (int x = 0; x < width; x++) {
                     int offset = line + x * 4;
-                    pixels[row + x] = ((pixels[0] & 0) | ((pixels[offset + 2] & 0xFF) << 16))
+                    target[row + x] = ((pixels[offset + 2] & 0xFF) << 16)
                             | ((pixels[offset + 1] & 0xFF) << 8)
                             | (pixels[offset] & 0xFF);
                 }
