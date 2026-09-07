@@ -22,10 +22,12 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -490,14 +492,65 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
 
     /** 处理Request */
     private void processRequest(SocketChannel sc, byte[] reqData, Attachment att) {
-        try {
-            byte[] respData = frameHandler.handle(reqData);
-            if (respData != null) {
-                writeResponse(sc, respData);
+        if (frameHandler == null || urlMappingFilter == null || urlMappingFilter.getFactory().routeCount() == 0) {
+            // 无 URL 路由时走旧帧式路径（零开销）
+            try {
+                byte[] respData = frameHandler.handle(reqData);
+                if (respData != null) {
+                    writeResponse(sc, respData);
+                }
+            } catch (Exception e) {
+                log.error("Process request error", e);
+                closeChannel(keyFor(sc, att));
             }
+            return;
+        }
+        // URL 路由模式：将帧体解析为 HTTP 请求，走完整 Filter Chain
+        InetSocketAddress remoteAddr = null;
+        try {
+            java.net.Socket socket = sc.socket();
+            remoteAddr = (InetSocketAddress) socket.getRemoteSocketAddress();
+        } catch (Exception ignored) {
+        }
+        TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, StandardCharsets.UTF_8);
+        TcpServerResponse response = new TcpServerResponse();
+        try {
+            handleRequest(request, response);
         } catch (Exception e) {
             log.error("Process request error", e);
             closeChannel(keyFor(sc, att));
+            return;
+        }
+        if (!response.isEnded()) {
+            response.end();
+        }
+        byte[] respFrame = response.getReadyBytes();
+        if (respFrame != null && respFrame.length > 0) {
+            writeResponse(sc, respFrame);
+        } else {
+            writeEmptyResponse(sc);
+        }
+    }
+
+    /**
+     * 写回空响应（200 + Content-Length: 0）。
+     */
+    private void writeEmptyResponse(SocketChannel sc) {
+        try {
+            String resp = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n";
+            byte[] bytes = resp.getBytes(StandardCharsets.US_ASCII);
+            ByteBuffer buf = ByteBuffer.allocate(4 + bytes.length);
+            buf.putInt(bytes.length);
+            buf.put(bytes);
+            buf.flip();
+            while (buf.hasRemaining()) {
+                int written = sc.write(buf);
+                if (written <= 0) {
+                    Thread.yield();
+                }
+            }
+        } catch (Exception e) {
+            log.debug("写空响应失败: {}", e.getMessage());
         }
     }
 

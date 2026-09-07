@@ -192,6 +192,6 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
     @Override
     /** SupportProtocols */
     public ProtocolType[] supportProtocols() {
-        return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.WS};
+        return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.WS, ProtocolType.TCP};
     }
 }
