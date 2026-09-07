@@ -130,6 +130,11 @@ final class RawRasterImage implements RenderedImage {
     }
 
     @Override
+    public java.util.List<RenderedImage> getSources() {
+        return java.util.Collections.emptyList();
+    }
+
+    @Override
     public String[] getPropertyNames() {
         return null;
     }
