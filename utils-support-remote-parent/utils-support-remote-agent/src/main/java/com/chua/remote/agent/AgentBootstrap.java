@@ -21,13 +21,15 @@ public class AgentBootstrap {
     private final AgentInfo agentInfo;
     private final AgentService service;
     private final AgentShellService shellService;
+    private final SSHChannelManager sshChannelManager;
     private volatile boolean running;
 
     public AgentBootstrap(String gatewayUrl, AgentInfo agentInfo) {
         this.client = new RemoteClient(agentInfo.getId(), gatewayUrl);
         this.agentInfo = agentInfo;
         this.service = new AgentService(agentInfo);
-        this.shellService = new AgentShellService(agentInfo);
+        this.shellService = new AgentShellService(agentInfo, client);
+        this.sshChannelManager = new SSHChannelManager(client, agentInfo.getId());
         agentInfo.setVerifyCode(DigestUtils.md5(IdUtils.uuid() + System.currentTimeMillis()));
     }
 
@@ -36,6 +38,7 @@ public class AgentBootstrap {
         log.info("已连接到网关");
 
         client.getTransport().on(MessageType.SIGNAL, this::handleSignal);
+        client.getTransport().on(MessageType.SSH, sshChannelManager::handleSSHFrame);
 
         String agentId = registerToGateway();
         reportCapabilities();

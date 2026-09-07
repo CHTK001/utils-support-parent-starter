@@ -71,6 +71,7 @@ public class GatewayServer implements RemoteServerSPI {
         server.getTransport().on(MessageType.SIGNAL, this::handleSignal);
         server.getTransport().on(MessageType.CTRL, this::handleControl);
         server.getTransport().on(MessageType.DATA, this::handleData);
+        server.getTransport().on(MessageType.SSH, this::handleSSH);
     }
 
     public void start() {
@@ -191,6 +192,14 @@ public class GatewayServer implements RemoteServerSPI {
 
             var agentInfo = sessionManager.getAgent(agentId);
             if (agentInfo != null) {
+                if (reverseTunnel && agentInfo.getExtra() != null) {
+                    String tunnelPort = agentInfo.getExtra().get("reverseTunnelPort");
+                    String gatewayLocalPort = agentInfo.getExtra().get("gatewayLocalPort");
+                    if (tunnelPort != null) {
+                        log.info("反向隧道信息: agentId={}, tunnelPort={}, gatewayLocalPort={}",
+                                agentId, tunnelPort, gatewayLocalPort);
+                    }
+                }
                 var notifyFrame = FrameCodec.encodeSignal(MessageType.SIGNAL, agentId, session);
                 server.getTransport().send(agentId, notifyFrame);
             }
@@ -198,8 +207,8 @@ public class GatewayServer implements RemoteServerSPI {
             var controllerFrame = FrameCodec.encodeSignal(MessageType.SIGNAL, controllerId, session);
             server.getTransport().send(controllerId, controllerFrame);
 
-            log.info("会话建立信令闭环: sessionId={}, agentId={}, controllerId={}",
-                    session.getSessionId(), agentId, controllerId);
+            log.info("会话建立信令闭环: sessionId={}, agentId={}, controllerId={}, reverseTunnel={}",
+                    session.getSessionId(), agentId, controllerId, reverseTunnel);
         } catch (Exception e) {
             log.error("会话建立失败: agentId={}, controllerId={}, error={}",
                     agentId, controllerId, e.getMessage());

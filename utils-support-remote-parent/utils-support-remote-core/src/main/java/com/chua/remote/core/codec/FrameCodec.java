@@ -229,6 +229,23 @@ public class FrameCodec {
                 .build();
     }
 
+    public static Frame sshFrame(String sessionId, byte[] payload) {
+        return Frame.builder()
+                .type(MessageType.SSH)
+                .sessionId(sessionId)
+                .payload(payload)
+                .build();
+    }
+
+    public static Frame sshFrame(String sessionId, byte[] payload, Map<String, String> metadata) {
+        return Frame.builder()
+                .type(MessageType.SSH)
+                .sessionId(sessionId)
+                .payload(payload)
+                .metadata(metadata)
+                .build();
+    }
+
     /**
      * 将 Frame 编码为二进制帧（零拷贝）。
      *
