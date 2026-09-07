@@ -181,7 +181,14 @@ public class AgentBootstrap {
                         .quality(80)
                         .build())
                 .build();
-        new AgentBootstrap(gatewayUrl, info).start();
+        AgentBootstrap bootstrap = new AgentBootstrap(gatewayUrl, info);
+        bootstrap.start();
+        // 保持 JVM 存活（传输层为 NIO Reactor 异步线程——主线程须阻塞，否则 main 返回即退出）
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
