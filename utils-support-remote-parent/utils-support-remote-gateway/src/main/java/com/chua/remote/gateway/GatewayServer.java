@@ -6,7 +6,6 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.remote.core.RemoteServer;
 import com.chua.remote.core.codec.FrameCodec;
 import com.chua.remote.core.transport.RemoteTransport;
-import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
 import com.chua.remote.protocol.model.AgentInfo;
@@ -15,40 +14,23 @@ import com.chua.remote.protocol.model.Session;
 import com.chua.remote.protocol.spi.RemoteServerSPI;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-/**
- * 远控网关入口。
- *
- * <p>负责管理被控端和控制端的连接、鉴权、信令路由和会话生命周期。</p>
- *
- * @author CH
- * @since 4.0.0.42
- */
-@Spi("remote-gateway")
 @Slf4j
+@Spi("remote-gateway")
 public class GatewayServer implements RemoteServerSPI {
 
-    /** 底层网关服务端 */
     private final RemoteServer server;
-
-    /** 鉴权管理器 */
     private final AuthManager authManager;
-
-    /** 会话管理器 */
     private final SessionManager sessionManager;
-
-    /** 信令路由管理器 */
     final RouteManager routeManager;
-
-    /** 转码引擎 */
     final TranscodeEngine transcodeEngine;
-
-    /** 帧回调（用于实际转发到 RemoteTransport） */
     private GatewayCallback gatewayCallback;
-
-    /** 是否开启反向隧道（控制端通过网关反向连接被控端） */
-    private boolean reverseTunnelEnabled;
+    private final JdkHttpServer httpServer;
+    private final int httpPort;
 
     public GatewayServer(ServerSetting setting) {
         this.server = new RemoteServer(setting);
@@ -56,29 +38,50 @@ public class GatewayServer implements RemoteServerSPI {
         this.sessionManager = new SessionManager();
         this.routeManager = new RouteManager(sessionManager);
         this.transcodeEngine = new TranscodeEngine();
-        this.reverseTunnelEnabled = false;
+        this.httpPort = setting.getPort() + 1;
+        ServerSetting httpSetting = ServerSetting.builder()
+                .port(httpPort)
+                .contextPath("/")
+                .build();
+        this.httpServer = new JdkHttpServer(httpSetting) {
+            @Override
+            protected void doStart() {
+                try {
+                    com.sun.net.httpserver.HttpServer delegate =
+                            com.sun.net.httpserver.HttpServer.create(
+                                    new java.net.InetSocketAddress(httpPort), 0);
+                    delegate.createContext("/verify", exchange -> handleVerify(exchange));
+                    delegate.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+                    delegate.start();
+                    log.info("HTTP 验证服务器已启动 on port:{}", httpPort);
+                } catch (Exception e) {
+                    throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
+                }
+            }
+
+            @Override
+            protected void doStop() {
+                log.info("HTTP 验证服务器已停止");
+            }
+        };
         initHandlers();
     }
 
     private void initHandlers() {
-        server.getTransport().on(MessageType.SIGNAL, frame -> {
-            handleSignal(frame);
-        });
-        server.getTransport().on(MessageType.CTRL, frame -> {
-            handleControl(frame);
-        });
-        server.getTransport().on(MessageType.DATA, frame -> {
-            handleData(frame);
-        });
+        server.getTransport().on(MessageType.SIGNAL, this::handleSignal);
+        server.getTransport().on(MessageType.CTRL, this::handleControl);
+        server.getTransport().on(MessageType.DATA, this::handleData);
     }
 
     public void start() {
         server.start();
-        log.info("远控网关已启动");
+        httpServer.start();
+        log.info("远控网关已启动 (WS端口:{}, HTTP验证端口:{})", httpPort - 1, httpPort);
     }
 
     public void stop() {
         server.stop();
+        httpServer.stop();
         log.info("远控网关已停止");
     }
 
@@ -86,22 +89,68 @@ public class GatewayServer implements RemoteServerSPI {
         this.gatewayCallback = callback;
     }
 
-    /**
-     * 获取底层传输层。
-     *
-     * <p>供嵌入式部署注入或观测传输帧使用。</p>
-     *
-     * @return 传输层
-     */
     public RemoteTransport getTransport() {
         return server.getTransport();
     }
 
-    /**
-     * 处理信令帧：按载荷对象类型分发到被控端注册或控制端接入。
-     *
-     * @param frame 信令帧
-     */
+    private void handleVerify(com.sun.net.httpserver.HttpExchange exchange) {
+        if (!"POST".equals(exchange.getRequestMethod())) {
+            sendJson(exchange, 405, "{\"success\":false,\"message\":\"仅支持POST\"}");
+            return;
+        }
+        try {
+            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Map<String, String> params = parseParams(body);
+            String agentId = params.get("agentId");
+            String verifyCode = params.get("verifyCode");
+
+            if (!authManager.verifyAgent(agentId, verifyCode)) {
+                sendJson(exchange, 401, "{\"success\":false,\"message\":\"验证码校验失败\"}");
+                return;
+            }
+            var agentInfo = sessionManager.getAgent(agentId);
+            if (agentInfo == null) {
+                sendJson(exchange, 404, "{\"success\":false,\"message\":\"被控端未注册\"}");
+                return;
+            }
+            String json = String.format(
+                    "{\"success\":true,\"agentType\":\"%s\",\"desktopSupported\":%s}",
+                    agentInfo.getAgentType(),
+                    agentInfo.getDesktopSupported() != null ? agentInfo.getDesktopSupported() : "true");
+            sendJson(exchange, 200, json);
+            log.info("HTTP验证通过: agentId={}", agentId);
+        } catch (Exception e) {
+            sendJson(exchange, 500,
+                    "{\"success\":false,\"message\":\"验证异常:" + e.getMessage() + "\"}");
+        }
+    }
+
+    private void sendJson(com.sun.net.httpserver.HttpExchange exchange, int code, String json) {
+        try {
+            byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(code, bytes.length);
+            try (var os = exchange.getResponseBody()) {
+                os.write(bytes);
+            }
+        } catch (Exception e) {
+            log.warn("发送HTTP响应失败", e);
+        }
+    }
+
+    private Map<String, String> parseParams(String body) {
+        Map<String, String> params = new HashMap<>();
+        for (String pair : body.split("&")) {
+            String[] kv = pair.split("=", 2);
+            if (kv.length == 2) {
+                params.put(kv[0], java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8));
+            } else if (kv.length == 1) {
+                params.put(kv[0], "");
+            }
+        }
+        return params;
+    }
+
     private void handleSignal(Frame frame) {
         String kind = frame.getMetadata() != null
                 ? frame.getMetadata().get(FrameCodec.METADATA_KIND) : null;
@@ -122,11 +171,6 @@ public class GatewayServer implements RemoteServerSPI {
         log.debug("处理信令帧: sessionId={}, kind={}", frame.getSessionId(), kind);
     }
 
-    /**
-     * 处理控制帧：将键鼠事件路由到会话对应的被控端。
-     *
-     * @param frame 控制帧（sessionId 为远控会话 id）
-     */
     private void handleControl(Frame frame) {
         routeInputEvent(frame);
     }
@@ -139,7 +183,6 @@ public class GatewayServer implements RemoteServerSPI {
     }
 
     private void routeData(Frame frame) {
-        // 协商无交集时：网关按会话协商结果兜底转码后转发
         Frame routed = frame;
         Session session = sessionManager.getSession(frame.getSessionId());
         if (session != null && session.getNegotiatedCodec() != null
@@ -161,13 +204,6 @@ public class GatewayServer implements RemoteServerSPI {
         log.debug("路由数据帧到控制端: sessionId={}", frame.getSessionId());
     }
 
-    /**
-     * 路由键鼠事件到被控端。
-     *
-     * <p>控制帧以远控会话 id 标识，路由前改写为被控端 id 以定位目标连接。</p>
-     *
-     * @param frame 控制帧
-     */
     private void routeInputEvent(Frame frame) {
         Session session = sessionManager.getSession(frame.getSessionId());
         if (session == null) {
@@ -188,15 +224,6 @@ public class GatewayServer implements RemoteServerSPI {
                 session.getAgentId(), session.getSessionId());
     }
 
-    /**
-     * 被控端注册。
-     *
-     * <p>验证码由被控端自行生成并随注册上报，作为后续控制端发起会话的凭据；
-     * 重复注册时校验验证码一致性，防止身份冒用。</p>
-     *
-     * @param agentInfo 被控端信息
-     * @return 被控端 id
-     */
     @Override
     public String agentRegister(AgentInfo agentInfo) {
         AgentInfo existing = sessionManager.getAgent(agentInfo.getId());
@@ -211,15 +238,6 @@ public class GatewayServer implements RemoteServerSPI {
         return agentInfo.getId();
     }
 
-    /**
-     * 控制端接入。
-     *
-     * <p>接入令牌即凭据（capability token）：首次接入完成注册，重复接入更新接入信息；
-     * 后续 {@link #authenticate(String)} 与会话校验均以已注册令牌为准。</p>
-     *
-     * @param controllerInfo 控制端信息
-     * @return 接入令牌
-     */
     @Override
     public String controllerConnect(ControllerInfo controllerInfo) {
         authManager.registerController(controllerInfo.getAccessToken(), controllerInfo);
@@ -243,7 +261,6 @@ public class GatewayServer implements RemoteServerSPI {
         if (agentInfo == null || controllerInfo == null) {
             throw new IllegalStateException("被控端或控制端未注册");
         }
-        // 控制端参数优先
         if (controllerInfo.isReverseTunnelEnabled()) {
             reverseTunnelEnabled = true;
         }
@@ -275,6 +292,18 @@ public class GatewayServer implements RemoteServerSPI {
     public void closeSession(String sessionId) {
         sessionManager.closeSession(sessionId);
         log.info("会话已关闭: sessionId={}", sessionId);
+    }
+
+    public static void main(String[] args) {
+        int port = args.length > 0 ? Integer.parseInt(args[0]) : 9000;
+        ServerSetting setting = ServerSetting.builder().port(port).build();
+        GatewayServer server = new GatewayServer(setting);
+        server.start();
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
 
