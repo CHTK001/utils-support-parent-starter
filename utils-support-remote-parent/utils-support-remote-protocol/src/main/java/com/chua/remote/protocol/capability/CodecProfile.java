@@ -24,8 +24,8 @@ public class CodecProfile implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 支持的编码格式（如 JPEG, PNG, WebP, H264） */
     /** 支持的编码集（协商用——h264 优先，jpeg 兜底） */
+    @Builder.Default
     private List<String> encodings = List.of("h264", "jpeg");
 
     /** 最大宽度 */
