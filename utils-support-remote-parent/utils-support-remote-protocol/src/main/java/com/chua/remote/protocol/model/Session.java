@@ -39,6 +39,9 @@ public class Session implements Serializable {
     /** 协商后的编解码配置 */
     private NegotiatedCodec negotiatedCodec;
 
+    /** 被控端模式（网关在建立会话时从被控端注册信息填充） */
+    private AgentType agentType;
+
     /** 创建时间戳 */
     private long createTime;
 
