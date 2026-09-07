@@ -1,16 +1,17 @@
 package com.chua.remote.core;
 
 import com.chua.common.support.network.server.ServerSetting;
-import com.chua.common.support.network.server.SyncServer;
-import com.chua.common.support.network.sync.SyncClient;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.remote.core.transport.FrameClient;
+import com.chua.remote.core.transport.FrameServer;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
 
 /**
  * 远控流程管理器。
  *
- * <p>同时管理网关服务端和客户端（TCP 同步族，经 SPI 加载 {@code tcp} 扩展），适用于网关既作为
- * 服务端接收被控端连接，又作为客户端连接控制端的场景。</p>
+ * <p>同时管理网关服务端和客户端（零拷贝帧引擎），适用于网关既作为
+ * 服务端接收被控端连接，又作为客户端连接上级网关的场景。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -18,20 +19,31 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RemoteFlow {
 
-    /** 服务端（服务端模式）——经 SPI 加载的 TCP 同步服务端 */
-    private final SyncServer server;
+    /** 服务端引擎（服务端模式） */
+    private final FrameServer server;
 
-    /** 客户端（客户端模式）——经 SPI 加载的 TCP 同步客户端 */
-    private final SyncClient client;
+    /** 客户端引擎（客户端模式） */
+    private final FrameClient client;
 
     /**
-     * 创建流程管理器（纯客户端模式）。
+     * 创建流程管理器（纯客户端模式，随机连接标识）。
      *
      * @param serverUrl 服务端地址
      */
     public RemoteFlow(String serverUrl) {
         this.server = null;
-        this.client = ServiceProvider.of(SyncClient.class).getNewExtension("tcp", serverUrl);
+        this.client = new FrameClient(UUID.randomUUID().toString(), serverUrl);
+    }
+
+    /**
+     * 创建流程管理器（纯客户端模式，显式连接标识）。
+     *
+     * @param clientId  连接标识
+     * @param serverUrl 服务端地址
+     */
+    public RemoteFlow(String clientId, String serverUrl) {
+        this.server = null;
+        this.client = new FrameClient(clientId, serverUrl);
     }
 
     /**
@@ -40,7 +52,7 @@ public class RemoteFlow {
      * @param setting 服务配置
      */
     public RemoteFlow(ServerSetting setting) {
-        this.server = ServiceProvider.of(SyncServer.class).getNewExtension("tcp", setting);
+        this.server = new FrameServer(setting);
         this.client = null;
     }
 
@@ -51,8 +63,8 @@ public class RemoteFlow {
      * @param serverUrl 客户端连接地址
      */
     public RemoteFlow(ServerSetting setting, String serverUrl) {
-        this.server = ServiceProvider.of(SyncServer.class).getNewExtension("tcp", setting);
-        this.client = ServiceProvider.of(SyncClient.class).getNewExtension("tcp", serverUrl);
+        this.server = new FrameServer(setting);
+        this.client = new FrameClient(UUID.randomUUID().toString(), serverUrl);
     }
 
     /**
@@ -72,30 +84,30 @@ public class RemoteFlow {
      * 停止流程。
      */
     public void stop() {
-        if (server != null) {
-            server.stop();
-        }
         if (client != null) {
             client.disconnect();
+        }
+        if (server != null) {
+            server.stop();
         }
         log.info("远控流程已停止");
     }
 
     /**
-     * 获取底层服务端（服务端模式）。
+     * 获取底层服务端引擎（服务端模式）。
      *
-     * @return TCP 同步服务端，客户端模式返回 null
+     * @return 帧服务端，客户端模式返回 null
      */
-    public SyncServer getServer() {
+    public FrameServer getServer() {
         return server;
     }
 
     /**
-     * 获取底层客户端（客户端模式）。
+     * 获取底层客户端引擎（客户端模式）。
      *
-     * @return TCP 同步客户端，服务端模式返回 null
+     * @return 帧客户端，服务端模式返回 null
      */
-    public SyncClient getClient() {
+    public FrameClient getClient() {
         return client;
     }
 }

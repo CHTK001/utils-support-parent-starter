@@ -60,5 +60,10 @@
             <artifactId>jna-platform</artifactId>
             <version>5.12.1</version>
         </dependency>
+        <!-- 原生视频编码（H264 原始帧编码——NativeVideoCodec） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ffmpeg-rust-starter</artifactId>
+        </dependency>
     </dependencies>
 </project>
