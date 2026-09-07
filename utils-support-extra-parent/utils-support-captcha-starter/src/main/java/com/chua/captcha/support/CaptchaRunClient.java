@@ -21,6 +21,7 @@ import java.util.Map;
  * @since 2026-03-14
  */
 @Slf4j
+@Spi("captcha-run")
 public class CaptchaRunClient implements CaptchaParser {
 
     /** 设置 */
