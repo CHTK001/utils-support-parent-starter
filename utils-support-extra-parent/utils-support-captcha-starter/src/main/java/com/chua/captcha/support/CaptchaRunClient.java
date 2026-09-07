@@ -2,6 +2,7 @@ package com.chua.captcha.support;
 
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 

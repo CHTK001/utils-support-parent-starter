@@ -80,11 +80,10 @@ public class YesCaptchaClient implements CaptchaParser {
         String captchaType = options.getOrDefault("captchaType", "ReCaptchaV2");
         Map<String, Object> task = new HashMap<>();
         task.put("type", mapToYesCaptchaType(captchaType));
-
         if ("ImageToTextTask".equals(task.get("type"))) {
-            // handled outside - base64 image data passed via options
+            String body = options.get("body");
+            putIfNotBlank(task, "body", body);
         }
-
         putIfNotBlank(task, "websiteURL", options.get("url"));
         putIfNotBlank(task, "websiteKey", options.get("siteKey"));
         putIfNotBlank(task, "websiteAction", options.get("action"));
