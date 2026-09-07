@@ -12,6 +12,11 @@ import com.chua.remote.protocol.spi.RemoteControllerSPI;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +60,37 @@ public class ControllerClient implements RemoteControllerSPI {
         this.controllerInfo = controllerInfo;
         this.decoderRenderer = new DecoderRenderer(controllerInfo.getDecodingCapability());
         this.inputInjector = new InputInjector();
+    }
+
+    /**
+     * HTTP 验证（点击连接前调用）。
+     *
+     * @param gatewayHttpUrl 网关 HTTP 地址，如 http://localhost:9001
+     * @param agentId        被控端 id
+     * @param verifyCode     验证码
+     * @return 验证结果 JSON
+     */
+    public static VerifyResult verify(String gatewayHttpUrl, String agentId, String verifyCode) {
+        try {
+            String body = "agentId=" + java.net.URLEncoder.encode(agentId, StandardCharsets.UTF_8)
+                    + "&verifyCode=" + java.net.URLEncoder.encode(verifyCode, StandardCharsets.UTF_8);
+            HttpClient httpClient = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(gatewayHttpUrl + "/verify"))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+            HttpResponse<String> resp = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            return new VerifyResult(resp.statusCode(), resp.body());
+        } catch (Exception e) {
+            return new VerifyResult(500, "{\"success\":false,\"message\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    public record VerifyResult(int statusCode, String body) {
+        public boolean isSuccess() {
+            return statusCode == 200 && body.contains("\"success\":true");
+        }
     }
 
     /**
