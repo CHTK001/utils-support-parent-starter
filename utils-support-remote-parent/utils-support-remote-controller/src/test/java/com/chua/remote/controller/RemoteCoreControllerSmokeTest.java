@@ -182,6 +182,13 @@ public class RemoteCoreControllerSmokeTest {
             server.getTransport().publish(FrameCodec.dataFrame("sess-1", jpeg));
             check("tcp: 广播数据帧到达", await(() -> clientData.size() >= 2, 5000));
 
+            // 3.5 256KB 大帧往返（验证二进制定长前缀帧无行缓冲上限）
+            byte[] big = new byte[256 * 1024];
+            new java.util.Random(42).nextBytes(big);
+            server.getTransport().send("ctrl-token-1", FrameCodec.dataFrame("sess-big", big));
+            check("tcp: 256KB 大帧到达且字节一致", await(() -> clientData.size() >= 3, 5000)
+                    && Arrays.equals(big, clientData.get(clientData.size() - 1).getPayload()));
+
             // 4. 控制端发起会话：Session 信令 + verifyCode 元数据
             String sessionId = controller.startSession("agent-9", "123456");
             boolean sessionRequested = await(() -> serverSignals.size() >= 2, 5000);
