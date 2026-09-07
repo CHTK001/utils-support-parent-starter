@@ -77,4 +77,35 @@ public class ControllerBootstrap {
         controllerClient.disconnect();
         log.info("控制端已停止");
     }
+
+    /**
+     * 部署启动入口。
+     *
+     * @param args [0]=网关地址（默认 tcp://localhost:9000），[1]=accessToken，[2]=targetAgentId，[3]=verifyCode
+     */
+    public static void main(String[] args) {
+        String gatewayUrl = args.length > 0 ? args[0] : "tcp://localhost:9000";
+        String accessToken = args.length > 1 ? args[1] : "controller-token-1";
+        String targetAgentId = args.length > 2 ? args[2] : "agent1";
+        String verifyCode = args.length > 3 ? args[3] : "0000";
+        ControllerInfo info = ControllerInfo.builder()
+                .accessToken(accessToken)
+                .targetAgentId(targetAgentId)
+                .verifyCode(verifyCode)
+                .decodingCapability(CodecProfile.builder()
+                        .encodings(java.util.List.of("h264", "jpeg"))
+                        .maxWidth(1920)
+                        .maxHeight(1080)
+                        .quality(80)
+                        .build())
+                .build();
+        ControllerBootstrap bootstrap = new ControllerBootstrap(gatewayUrl, info);
+        bootstrap.start();
+        // 保持 JVM 存活（传输层为 NIO Reactor 异步线程——主线程须阻塞，否则 main 返回即退出）
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
