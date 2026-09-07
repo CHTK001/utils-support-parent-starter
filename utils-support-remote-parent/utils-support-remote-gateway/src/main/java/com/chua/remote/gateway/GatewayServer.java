@@ -96,11 +96,13 @@ public class GatewayServer implements RemoteServerSPI {
 
     public void start() {
         server.start();
-        log.info("远控网关已启动");
+        httpServer.start();
+        log.info("远控网关已启动 (WS:{}, HTTP验证:{})", server.getSetting().getPort(), httpPort);
     }
 
     public void stop() {
         server.stop();
+        httpServer.stop(0);
         log.info("远控网关已停止");
     }
 
