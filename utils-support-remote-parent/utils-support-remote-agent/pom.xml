@@ -48,10 +48,17 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- JNA：操作系统原生采集（Windows GDI / Linux X11 / macOS CoreGraphics）——
+             jna-platform 提供 com.sun.jna.platform.win32.Gdi32 / unix.X11 等封装 -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>5.14.0</version>
+            <version>5.12.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>5.12.1</version>
         </dependency>
     </dependencies>
 </project>

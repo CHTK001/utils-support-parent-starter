@@ -1,7 +1,7 @@
 package com.chua.remote.agent;
 
 import com.sun.jna.platform.unix.X11;
-import com.sun.jna.platform.win32.Gdi32;
+import com.sun.jna.platform.win32.GDI32;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinGDI;
@@ -204,11 +204,11 @@ public final class NativeScreenCapture {
         int width = region.width;
         int height = region.height;
         WinDef.HDC screenDc = User32.INSTANCE.GetDC(null);
-        WinDef.HDC memoryDc = Gdi32.INSTANCE.CreateCompatibleDC(screenDc);
-        WinDef.HBITMAP bitmap = Gdi32.INSTANCE.CreateCompatibleBitmap(screenDc, width, height);
-        WinDef.HANDLE oldBitmap = Gdi32.INSTANCE.SelectObject(memoryDc, bitmap);
+        WinDef.HDC memoryDc = GDI32.INSTANCE.CreateCompatibleDC(screenDc);
+        WinDef.HBITMAP bitmap = GDI32.INSTANCE.CreateCompatibleBitmap(screenDc, width, height);
+        WinDef.HANDLE oldBitmap = GDI32.INSTANCE.SelectObject(memoryDc, bitmap);
         try {
-            if (!Gdi32.INSTANCE.BitBlt(memoryDc, 0, 0, width, height, screenDc,
+            if (!GDI32.INSTANCE.BitBlt(memoryDc, 0, 0, width, height, screenDc,
                     region.x, region.y, WinGDI.SRCCOPY)) {
                 throw new IllegalStateException("[NativeScreenCapture] GDI BitBlt 失败");
             }
@@ -221,7 +221,7 @@ public final class NativeScreenCapture {
             bmi.bmiHeader.biPlanes = 1;
             bmi.bmiHeader.biBitCount = 32;
             bmi.bmiHeader.biCompression = WinGDI.BI_RGB;
-            int lines = Gdi32.INSTANCE.GetDIBits(memoryDc, bitmap, 0, height, bgra, bmi, WinGDI.DIB_RGB_COLORS);
+            int lines = GDI32.INSTANCE.GetDIBits(memoryDc, bitmap, 0, height, bgra, bmi, WinGDI.DIB_RGB_COLORS);
             if (lines == 0) {
                 throw new IllegalStateException("[NativeScreenCapture] GetDIBits 失败");
             }
@@ -240,9 +240,9 @@ public final class NativeScreenCapture {
             }
             return new NativeFrame(width, height, NativeFrame.FORMAT_RGB, rgb);
         } finally {
-            Gdi32.INSTANCE.SelectObject(memoryDc, oldBitmap);
-            Gdi32.INSTANCE.DeleteObject(bitmap);
-            Gdi32.INSTANCE.DeleteDC(memoryDc);
+            GDI32.INSTANCE.SelectObject(memoryDc, oldBitmap);
+            GDI32.INSTANCE.DeleteObject(bitmap);
+            GDI32.INSTANCE.DeleteDC(memoryDc);
             User32.INSTANCE.ReleaseDC(null, screenDc);
         }
     }
