@@ -34,7 +34,15 @@ public class SessionManager {
      * @param info 被控端信息
      */
     public void registerAgent(AgentInfo info) {
-        agents.put(info.getId(), info);
+        AgentInfo existing = agents.get(info.getId());
+        if (existing != null && info.getExtra() != null) {
+            if (existing.getExtra() == null) {
+                existing.setExtra(new java.util.HashMap<>());
+            }
+            existing.getExtra().putAll(info.getExtra());
+        } else {
+            agents.put(info.getId(), info);
+        }
     }
 
     /**

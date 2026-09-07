@@ -178,9 +178,7 @@ public class GatewayServer implements RemoteServerSPI {
 
     private void handleSessionRequest(Frame frame) {
         Session request = FrameCodec.decodeSignal(frame, Session.class);
-        if (request == null) {
-            return;
-        }
+        if (request == null) return;
         String controllerId = request.getControllerSessionId();
         String agentId = request.getAgentId();
         String verifyCode = frame.getMetadata().get("verifyCode");
@@ -189,15 +187,15 @@ public class GatewayServer implements RemoteServerSPI {
 
         try {
             Session session = createSession(controllerId, agentId, verifyCode, reverseTunnel);
-
             var agentInfo = sessionManager.getAgent(agentId);
+
             if (agentInfo != null) {
-                if (reverseTunnel && agentInfo.getExtra() != null) {
+                boolean agentConnected = server.getTransport().getConnectedClients().contains(agentId);
+                if (!agentConnected && reverseTunnel && agentInfo.getExtra() != null) {
                     String tunnelPort = agentInfo.getExtra().get("reverseTunnelPort");
-                    String gatewayLocalPort = agentInfo.getExtra().get("gatewayLocalPort");
                     if (tunnelPort != null) {
-                        log.info("反向隧道信息: agentId={}, tunnelPort={}, gatewayLocalPort={}",
-                                agentId, tunnelPort, gatewayLocalPort);
+                        log.info("Agent未直连，通过反向隧道连接: agentId={}, tunnelPort={}", agentId, tunnelPort);
+                        connectToAgentViaTunnel(agentId, Integer.parseInt(tunnelPort));
                     }
                 }
                 var notifyFrame = FrameCodec.encodeSignal(MessageType.SIGNAL, agentId, session);
@@ -206,12 +204,24 @@ public class GatewayServer implements RemoteServerSPI {
 
             var controllerFrame = FrameCodec.encodeSignal(MessageType.SIGNAL, controllerId, session);
             server.getTransport().send(controllerId, controllerFrame);
-
-            log.info("会话建立信令闭环: sessionId={}, agentId={}, controllerId={}, reverseTunnel={}",
+            log.info("会话建立: sessionId={}, agentId={}, controllerId={}, reverseTunnel={}",
                     session.getSessionId(), agentId, controllerId, reverseTunnel);
         } catch (Exception e) {
-            log.error("会话建立失败: agentId={}, controllerId={}, error={}",
-                    agentId, controllerId, e.getMessage());
+            log.error("会话建立失败: agentId={}, controllerId={}", agentId, controllerId, e);
+        }
+    }
+
+    private void connectToAgentViaTunnel(String agentId, int tunnelPort) {
+        try {
+            var client = new com.chua.remote.core.FrameClient(agentId, "tcp://127.0.0.1:" + tunnelPort);
+            client.setListener(frame -> {
+                FrameListener current = server.getTransport().getListener();
+                if (current != null) current.onFrame(agentId, frame);
+            });
+            client.connect();
+            log.info("已通过反向隧道连接到agent: agentId={}, port={}", agentId, tunnelPort);
+        } catch (Exception e) {
+            log.error("反向隧道连接失败: agentId={}, port={}", agentId, tunnelPort, e);
         }
     }
 
