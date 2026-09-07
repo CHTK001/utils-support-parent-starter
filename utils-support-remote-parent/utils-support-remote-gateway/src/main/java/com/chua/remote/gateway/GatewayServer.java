@@ -3,6 +3,8 @@ package com.chua.remote.gateway;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.remote.core.RemoteServer;
+import com.chua.remote.core.codec.FrameCodec;
+import com.chua.remote.core.transport.RemoteTransport;
 import com.chua.remote.protocol.capability.CodecProfile;
 import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
@@ -11,6 +13,8 @@ import com.chua.remote.protocol.model.ControllerInfo;
 import com.chua.remote.protocol.model.Session;
 import com.chua.remote.protocol.spi.RemoteServerSPI;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
 
 /**
  * 远控网关入口。
@@ -77,12 +81,49 @@ public class GatewayServer implements RemoteServerSPI {
         this.gatewayCallback = callback;
     }
 
-    private void handleSignal(Frame frame) {
-        log.debug("处理信令帧: sessionId={}", frame.getSessionId());
+    /**
+     * 获取底层传输层。
+     *
+     * <p>供嵌入式部署注入或观测传输帧使用。</p>
+     *
+     * @return 传输层
+     */
+    public RemoteTransport getTransport() {
+        return server.getTransport();
     }
 
+    /**
+     * 处理信令帧：按载荷对象类型分发到被控端注册或控制端接入。
+     *
+     * @param frame 信令帧
+     */
+    private void handleSignal(Frame frame) {
+        String kind = frame.getMetadata() != null
+                ? frame.getMetadata().get(FrameCodec.METADATA_KIND) : null;
+        if (AgentInfo.class.getSimpleName().equals(kind)) {
+            AgentInfo agentInfo = FrameCodec.decodeSignal(frame, AgentInfo.class);
+            if (agentInfo != null) {
+                agentRegister(agentInfo);
+            }
+            return;
+        }
+        if (ControllerInfo.class.getSimpleName().equals(kind)) {
+            ControllerInfo controllerInfo = FrameCodec.decodeSignal(frame, ControllerInfo.class);
+            if (controllerInfo != null) {
+                controllerConnect(controllerInfo);
+            }
+            return;
+        }
+        log.debug("处理信令帧: sessionId={}, kind={}", frame.getSessionId(), kind);
+    }
+
+    /**
+     * 处理控制帧：将键鼠事件路由到会话对应的被控端。
+     *
+     * @param frame 控制帧（sessionId 为远控会话 id）
+     */
     private void handleControl(Frame frame) {
-        log.debug("处理控制帧: sessionId={}", frame.getSessionId());
+        routeInputEvent(frame);
     }
 
     private void handleData(Frame frame) {
@@ -100,32 +141,67 @@ public class GatewayServer implements RemoteServerSPI {
         log.debug("路由数据帧到控制端: sessionId={}", frame.getSessionId());
     }
 
+    /**
+     * 路由键鼠事件到被控端。
+     *
+     * <p>控制帧以远控会话 id 标识，路由前改写为被控端 id 以定位目标连接。</p>
+     *
+     * @param frame 控制帧
+     */
     private void routeInputEvent(Frame frame) {
-        if (gatewayCallback != null) {
-            gatewayCallback.onFrame(frame);
+        Session session = sessionManager.getSession(frame.getSessionId());
+        if (session == null) {
+            log.warn("会话不存在，丢弃控制帧: sessionId={}", frame.getSessionId());
+            return;
         }
-        server.getTransport().send(frame.getSessionId(), frame);
-        log.debug("路由键鼠事件到被控端: sessionId={}", frame.getSessionId());
+        Frame routed = Frame.builder()
+                .type(MessageType.CTRL)
+                .sessionId(session.getAgentId())
+                .payload(frame.getPayload())
+                .metadata(frame.getMetadata())
+                .build();
+        if (gatewayCallback != null) {
+            gatewayCallback.onFrame(routed);
+        }
+        server.getTransport().send(session.getAgentId(), routed);
+        log.debug("路由键鼠事件到被控端: agentId={}, sessionId={}",
+                session.getAgentId(), session.getSessionId());
     }
 
+    /**
+     * 被控端注册。
+     *
+     * <p>验证码由被控端自行生成并随注册上报，作为后续控制端发起会话的凭据；
+     * 重复注册时校验验证码一致性，防止身份冒用。</p>
+     *
+     * @param agentInfo 被控端信息
+     * @return 被控端 id
+     */
     @Override
     public String agentRegister(AgentInfo agentInfo) {
-        if (!authManager.verifyAgent(agentInfo.getId(), agentInfo.getVerifyCode())) {
-            throw new SecurityException("验证码校验失败: agentId=" + agentInfo.getId());
+        AgentInfo existing = sessionManager.getAgent(agentInfo.getId());
+        if (existing != null && !Objects.equals(existing.getVerifyCode(), agentInfo.getVerifyCode())) {
+            throw new SecurityException("被控端重复注册且验证码不一致: agentId=" + agentInfo.getId());
         }
         sessionManager.registerAgent(agentInfo);
-        authManager.registerAgentAccessCode(agentInfo.getAccessCode());
         authManager.registerAgent(agentInfo.getId(), agentInfo.getVerifyCode());
+        authManager.registerAgentAccessCode(agentInfo.getAccessCode());
         log.info("被控端注册成功: id={}, type={}, accessCode={}",
                 agentInfo.getId(), agentInfo.getAgentType(), agentInfo.getAccessCode());
         return agentInfo.getId();
     }
 
+    /**
+     * 控制端接入。
+     *
+     * <p>接入令牌即凭据（capability token）：首次接入完成注册，重复接入更新接入信息；
+     * 后续 {@link #authenticate(String)} 与会话校验均以已注册令牌为准。</p>
+     *
+     * @param controllerInfo 控制端信息
+     * @return 接入令牌
+     */
     @Override
     public String controllerConnect(ControllerInfo controllerInfo) {
-        if (!authManager.verifyController(controllerInfo.getAccessToken())) {
-            throw new SecurityException("接入令牌校验失败");
-        }
         authManager.registerController(controllerInfo.getAccessToken(), controllerInfo);
         log.info("控制端接入成功: accessToken={}, targetAgentId={}",
                 controllerInfo.getAccessToken(), controllerInfo.getTargetAgentId());

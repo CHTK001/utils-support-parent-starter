@@ -28,11 +28,24 @@ public class RemoteClient {
     }
 
     /**
+     * 创建网关客户端（显式连接标识）。
+     *
+     * <p>连接标识即网关定向路由的 clientId，
+     * 被控端应传入被控端 id、控制端应传入接入令牌。</p>
+     *
+     * @param clientId  连接标识
+     * @param serverUrl 网关地址
+     */
+    public RemoteClient(String clientId, String serverUrl) {
+        this.transport = new RemoteTransport(clientId, serverUrl);
+    }
+
+    /**
      * 连接到网关。
      */
     public void connect() {
         transport.start();
-        log.info("远控网关客户端已连接: serverUrl={}", transport.getFlow().getServer() != null ? "server" : "client");
+        log.info("远控网关客户端已连接");
     }
 
     /**

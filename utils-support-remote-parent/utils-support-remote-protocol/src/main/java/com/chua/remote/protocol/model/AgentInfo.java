@@ -43,6 +43,18 @@ public class AgentInfo implements Serializable {
     /** 硬件信息（GPU/CPU 型号） */
     private String hardwareInfo;
 
+    /** 套壳模式目标主机地址 */
+    private String host;
+
+    /** 套壳模式目标端口 */
+    private int port;
+
+    /** 套壳模式登录账号 */
+    private String username;
+
+    /** 套壳模式登录密码 */
+    private String password;
+
     /** 被控端类型：SERVICE（服务模式）| SHELL（套壳模式） */
     private AgentType agentType;
 

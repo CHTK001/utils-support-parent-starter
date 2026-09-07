@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 服务模式被控端实现。
  *
- * <p>纯自研的完整系统：使用 {@link java.awt.Robot} 进行 Native 截图，
+ * <p>纯自研的完整系统：使用 {@link NativeScreenCapture}（操作系统原生采集——Windows GDI 等）进行截图，
  * 通过 {@link ImageProcessors} 进行图像编码压缩，实时传输到网关。</p>
  *
  * @author CH

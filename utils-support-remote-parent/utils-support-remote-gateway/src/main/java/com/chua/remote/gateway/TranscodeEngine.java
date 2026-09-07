@@ -82,7 +82,7 @@ public class TranscodeEngine {
         var negotiated = session.getNegotiatedCodec();
         return TranscodeRequest.builder()
                 .sessionId(session.getSessionId())
-                .sourceEncoding(session.getAgentId())
+                .sourceEncoding(negotiated.getEncoding())
                 .targetEncoding(negotiated.getEncoding())
                 .sourceWidth(negotiated.getWidth())
                 .targetWidth(negotiated.getWidth())
