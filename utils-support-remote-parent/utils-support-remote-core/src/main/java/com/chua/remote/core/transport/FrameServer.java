@@ -186,6 +186,8 @@ public class FrameServer {
             }
         } catch (IOException e) {
             log.debug("连接结束: clientId={}, cause={}", clientId, e.getMessage());
+        } catch (Exception e) {
+            log.warn("连接处理异常，断开: clientId={}", clientId, e);
         } finally {
             if (clientId != null) {
                 connections.remove(clientId);

@@ -295,7 +295,7 @@ public class FrameCodec {
         ByteBuffer head = ByteBuffer.allocate(BINARY_HEADER_SIZE);
         readFully(channel, head);
         head.flip();
-        head.get();
+        head.getInt();
         byte type = head.get();
         int sidLen = head.getShort() & 0xFFFF;
         int metaLen = head.getInt();
