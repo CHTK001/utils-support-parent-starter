@@ -31,14 +31,25 @@ public interface RemoteServerSPI {
     String controllerConnect(ControllerInfo controllerInfo);
 
     /**
-     * 建立会话（控制端请求访问某被控端）。
-     *
-     * @param controllerId 控制端 id
-     * @param agentId      被控端 id
-     * @param verifyCode   验证码
-     * @return 会话信息
-     */
+      * 建立会话（控制端请求访问某被控端）。
+      *
+      * @param controllerId 控制端 id
+      * @param agentId      被控端 id
+      * @param verifyCode   验证码
+      * @return 会话信息
+      */
     Session createSession(String controllerId, String agentId, String verifyCode);
+
+    /**
+      * 建立会话（控制端请求访问某被控端）。
+      *
+      * @param controllerId        控制端 id
+      * @param agentId             被控端 id
+      * @param verifyCode          验证码
+      * @param reverseTunnelEnabled 是否开启反向隧道（控制端通过网关反向连接被控端）
+      * @return 会话信息
+      */
+    Session createSession(String controllerId, String agentId, String verifyCode, boolean reverseTunnelEnabled);
 
     /**
      * 网关鉴权（校验接入令牌/接入码）。
