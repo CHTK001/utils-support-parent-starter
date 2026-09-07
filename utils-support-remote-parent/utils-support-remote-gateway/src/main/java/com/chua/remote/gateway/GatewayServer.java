@@ -268,6 +268,23 @@ public class GatewayServer implements RemoteServerSPI {
                 session.getAgentId(), session.getSessionId());
     }
 
+    private void handleSSH(Frame frame) {
+        Session session = sessionManager.getSession(frame.getSessionId());
+        if (session == null) {
+            log.debug("SSH帧无会话: sessionId={}", frame.getSessionId());
+            return;
+        }
+        String agentId = session.getAgentId();
+        Frame routed = Frame.builder()
+                .type(MessageType.SSH)
+                .sessionId(agentId)
+                .payload(frame.getPayload())
+                .metadata(frame.getMetadata())
+                .build();
+        server.getTransport().send(agentId, routed);
+        log.debug("路由SSH帧到被控端: agentId={}, sessionId={}", agentId, frame.getSessionId());
+    }
+
     @Override
     public String agentRegister(AgentInfo agentInfo) {
         AgentInfo existing = sessionManager.getAgent(agentInfo.getId());

@@ -33,6 +33,7 @@ public class ControllerClient implements RemoteControllerSPI {
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
     private final DecoderRenderer decoderRenderer;
     private final InputInjector inputInjector;
+    private volatile java.util.function.Consumer<Frame> sshFrameHandler;
 
     public ControllerClient(String gatewayUrl, ControllerInfo controllerInfo) {
         this.client = new RemoteClient(controllerInfo.getAccessToken(), gatewayUrl);
@@ -66,6 +67,7 @@ public class ControllerClient implements RemoteControllerSPI {
 
     public void connect() {
         client.getTransport().on(MessageType.DATA, this::handleDataFrame);
+        client.getTransport().on(MessageType.SSH, this::handleSSHFrame);
         client.connect();
         reportToGateway();
         log.info("控制端已连接: accessToken={}", controllerInfo.getAccessToken());
@@ -73,6 +75,59 @@ public class ControllerClient implements RemoteControllerSPI {
 
     private void handleDataFrame(Frame frame) {
         decoderRenderer.render(frame);
+    }
+
+    private void handleSSHFrame(Frame frame) {
+        if (sshFrameHandler != null) {
+            sshFrameHandler.accept(frame);
+        }
+    }
+
+    public void setSshFrameHandler(java.util.function.Consumer<Frame> handler) {
+        this.sshFrameHandler = handler;
+    }
+
+    public void startSSHSession(String sessionId, String host, int port,
+                                String username, String password, int cols, int rows) {
+        Map<String, String> meta = Map.of(
+                "sshAction", "start",
+                "sshSessionId", sessionId,
+                "host", host,
+                "port", String.valueOf(port),
+                "username", username,
+                "password", password != null ? password : "",
+                "cols", String.valueOf(cols),
+                "rows", String.valueOf(rows));
+        Frame frame = FrameCodec.sshFrame(sessionId, new byte[0], meta);
+        client.getTransport().send(frame);
+        log.info("发送SSH启动指令: sessionId={}, host={}:{}", sessionId, host, port);
+    }
+
+    public void sendSSHInput(String sessionId, byte[] data) {
+        Map<String, String> meta = Map.of(
+                "sshAction", "input",
+                "sshSessionId", sessionId);
+        Frame frame = FrameCodec.sshFrame(sessionId, data, meta);
+        client.getTransport().send(frame);
+    }
+
+    public void resizeSSH(String sessionId, int cols, int rows) {
+        Map<String, String> meta = Map.of(
+                "sshAction", "resize",
+                "sshSessionId", sessionId,
+                "cols", String.valueOf(cols),
+                "rows", String.valueOf(rows));
+        Frame frame = FrameCodec.sshFrame(sessionId, new byte[0], meta);
+        client.getTransport().send(frame);
+    }
+
+    public void stopSSHSession(String sessionId) {
+        Map<String, String> meta = Map.of(
+                "sshAction", "stop",
+                "sshSessionId", sessionId);
+        Frame frame = FrameCodec.sshFrame(sessionId, new byte[0], meta);
+        client.getTransport().send(frame);
+        log.info("发送SSH停止指令: sessionId={}", sessionId);
     }
 
     private void reportToGateway() {
