@@ -6,7 +6,7 @@ import java.util.Map;
  * 验证码解析器接口
  * <p>
  * 定义验证码解析服务的核心行为：提交验证码图片进行解析、查询解析结果。
- * 实现类可对接不同的验证码解析服务提供商（如 CaptchaRun、2Captcha 等）。
+ * 实现类可对接不同的验证码解析服务提供商（如 CaptchaRun、YesCaptcha 等）。
  * </p>
  *
  * @author CH
