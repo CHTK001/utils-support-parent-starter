@@ -493,10 +493,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     /** 处理Request */
     private void processRequest(SocketChannel sc, byte[] reqData, Attachment att) {
         boolean hasUrlMapping = urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0;
-        System.out.println("[JdkTcpServer] processRequest: frameHandler=" + (frameHandler != null)
-                + ", urlMappingFilter=" + (urlMappingFilter != null)
-                + ", routeCount=" + (urlMappingFilter != null ? urlMappingFilter.getFactory().routeCount() : "N/A")
-                + ", usingFilterChain=" + hasUrlMapping);
+        System.err.println("[JdkTcpServer.processRequest] frameHandler=" + (frameHandler != null)
+                + " urlMappingFilter=" + (urlMappingFilter != null)
+                + " routeCount=" + (urlMappingFilter != null ? urlMappingFilter.getFactory().routeCount() : "N/A")
+                + " usingFilterChain=" + hasUrlMapping
+                + " firstBytes=" + java.util.Arrays.toString(java.util.Arrays.copyOf(reqData, Math.min(40, reqData.length))));
         if (frameHandler == null || !hasUrlMapping) {
             // 无 URL 路由时走旧帧式路径（零开销）
             try {
