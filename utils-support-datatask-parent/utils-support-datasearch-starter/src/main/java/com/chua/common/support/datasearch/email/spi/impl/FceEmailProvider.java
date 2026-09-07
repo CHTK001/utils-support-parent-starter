@@ -6,32 +6,25 @@ import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.mail.Flags;
-import jakarta.mail.Folder;
-import jakarta.mail.Message;
-import jakarta.mail.Store;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * FreeCustom.Email (FCE) 临时邮箱服务实现 — IMAP 方式收信。
+ * FreeCustom.Email (FCE) 临时邮箱服务实现 — REST API 方式。
  *
- * <p>创建邮箱通过 REST API，收信通过标准 IMAP（RFC 3501）：</p>
+ * <p>纯 REST API，无需浏览器，无需 IMAP：</p>
  * <ul>
- *   <li>IMAP: {@code imap.freecustom.email:993}，TLS 加密</li>
- *   <li>用户名：邮箱地址（如 {@code xxx@ditapi.info}）</li>
- *   <li>密码：FCE API Key（{@code fce_xxx}）</li>
+ *   <li>POST /v1/inboxes {"inbox": "前缀@域名"} → 注册地址</li>
+ *   <li>GET  /v1/inboxes/{inbox}/messages → 收取邮件列表</li>
  * </ul>
  *
  * <p>注册地址：https://www.freecustom.email/auth</p>
+ * <p>IMAP 备用：imap.freecustom.email:993（需 Growth 套餐）</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,12 +35,11 @@ public class FceEmailProvider implements EmailProvider {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String API_BASE = "https://api2.freecustom.email/v1";
-    private static final String IMAP_HOST = "imap.freecustom.email";
-    private static final int IMAP_PORT = 993;
     private static final String[] DOMAINS = {"ditapi.info", "fce.email"};
 
-    /** OTP 验证码正则：6位大写字母数字 */
+    /** OTP 验证码正则：3+3格式（如 ABC-123）或纯6位数字 */
     private static final Pattern OTP_PATTERN = Pattern.compile("\\b([A-Z0-9]{3})-?([A-Z0-9]{3})\\b");
+    private static final Pattern NUM_OTP_PATTERN = Pattern.compile("\\b(\\d{6})\\b");
 
     private final String apiKey;
 
@@ -94,27 +86,29 @@ public class FceEmailProvider implements EmailProvider {
             return Collections.emptyList();
         }
         try {
-            Properties props = new Properties();
-            props.put("mail.imap.ssl.enable", "true");
-            props.put("mail.imap.port", String.valueOf(IMAP_PORT));
-            props.put("mail.imap.ssl.trust", IMAP_HOST);
-            props.put("mail.imap.auth.login.disable", "true");
-
-            Store store = jakarta.mail.Session.getInstance(props)
-                    .getStore("imaps");
-            store.connect(IMAP_HOST, IMAP_PORT, email, apiKey);
-
-            Folder inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_ONLY);
-
-            List<EmailInfo> result = new ArrayList<>();
-            Message[] messages = inbox.getMessages();
-            for (Message msg : messages) {
-                result.add(toEmailInfo(msg));
+            String url = API_BASE + "/inboxes/" + java.net.URLEncoder.encode(email, "UTF-8") + "/messages";
+            String body = HttpClientFactory.of(url)
+                    .header("Authorization", "Bearer " + apiKey)
+                    .get()
+                    .getBodyString();
+            JsonNode root = MAPPER.readTree(body);
+            JsonNode data = root.path("data");
+            if (!data.isArray()) {
+                return Collections.emptyList();
             }
-
-            inbox.close(false);
-            store.close();
+            List<EmailInfo> result = new ArrayList<>();
+            for (JsonNode msg : data) {
+                result.add(EmailInfo.builder()
+                        .id(msg.path("id").asText(null))
+                        .from(msg.path("from").path("address").asText(
+                                msg.path("from").asText(null)))
+                        .subject(msg.path("subject").asText(null))
+                        .body(msg.path("body").asText(
+                                msg.path("text").asText(null)))
+                        .html(msg.path("html").asText(null))
+                        .createdAt(msg.path("created_at").asText(null))
+                        .build());
+            }
             return result;
         } catch (Exception e) {
             log.warn("[FceEmail] 收取邮件失败: {}", e.getMessage());
@@ -129,7 +123,7 @@ public class FceEmailProvider implements EmailProvider {
     }
 
     /**
-     * 从邮件中提取 OTP 验证码（3+3格式，如 ABC-123）。
+     * 从邮件内容中提取 OTP 验证码。
      */
     public static String extractOtp(String text) {
         if (text == null) return null;
@@ -137,49 +131,8 @@ public class FceEmailProvider implements EmailProvider {
         if (m.find()) {
             return m.group(1) + m.group(2);
         }
-        // 纯6位数字
-        Pattern num = Pattern.compile("\\b(\\d{6})\\b");
-        Matcher nm = num.matcher(text);
+        Matcher nm = NUM_OTP_PATTERN.matcher(text);
         return nm.find() ? nm.group(1) : null;
-    }
-
-    private EmailInfo toEmailInfo(Message msg) throws Exception {
-        String subject = msg.getSubject();
-        String from = msg.getFrom()[0].toString();
-        String createdAt = msg.getReceivedDate() != null
-                ? msg.getReceivedDate().toString() : "";
-
-        // 提取纯文本正文
-        String body = "";
-        Object content = msg.getContent();
-        if (content instanceof String) {
-            body = (String) content;
-        } else if (content instanceof jakarta.mail.Multipart) {
-            body = extractTextFromMultipart((jakarta.mail.Multipart) content);
-        }
-
-        return EmailInfo.builder()
-                .subject(subject)
-                .from(from)
-                .body(body)
-                .createdAt(createdAt)
-                .build();
-    }
-
-    private String extractTextFromMultipart(jakarta.mail.Multipart mp) throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (int i = 0; i < mp.getCount(); i++) {
-            jakarta.mail.BodyPart part = mp.getBodyPart(i);
-            Object content = part.getContent();
-            if (content instanceof String) {
-                baos.write(((String) content).getBytes(StandardCharsets.UTF_8));
-            } else if (part.isMimeType("text/*")) {
-                byte[] bytes = new byte[part.getInputStream().available()];
-                part.getInputStream().read(bytes);
-                baos.write(bytes);
-            }
-        }
-        return baos.toString(StandardCharsets.UTF_8);
     }
 
     private static String randomPrefix(int length) {

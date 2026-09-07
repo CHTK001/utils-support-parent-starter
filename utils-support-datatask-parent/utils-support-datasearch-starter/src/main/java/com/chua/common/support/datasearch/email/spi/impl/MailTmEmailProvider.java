@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * mail.tm 免费临时邮箱服务实现。
  *
- * <p>无需注册，无需 API Key，免费开放 API：</p>
+ * <p>无需注册，无需 API Key：</p>
  * <ul>
  *   <li>POST /api/accounts — 创建邮箱账号</li>
  *   <li>POST /api/token — 获取 JWT</li>
@@ -87,10 +87,8 @@ public class MailTmEmailProvider implements EmailProvider {
                 return null;
             }
 
-            // 4. 缓存 token 到系统属性（供 fetchEmails 使用）
+            // 4. 缓存 token
             System.setProperty("mailtm.token." + email, token);
-            System.setProperty("mailtm.email", email);
-
             log.info("[MailTM] 创建邮箱成功: {}", email);
             return email;
         } catch (Exception e) {
