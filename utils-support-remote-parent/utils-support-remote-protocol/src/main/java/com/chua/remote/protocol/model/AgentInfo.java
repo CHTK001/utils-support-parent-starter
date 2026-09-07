@@ -55,19 +55,30 @@ public class AgentInfo implements Serializable {
     /** 套壳模式登录密码 */
     private String password;
 
-    /** 被控端类型：SERVICE（服务模式）| SHELL（套壳模式） */
+    /** 被控端模式：FORWARD（纯转发）| SHELL（套壳/自研）| PUSH（纯自研实时推送，仅监控） */
     private AgentType agentType;
 
     /** 附加信息 */
     private Map<String, String> extra;
 
     /**
-     * 被控端类型枚举。
+     * 被控端模式枚举。
      */
     public enum AgentType {
-        /** 服务模式：完整系统，纯自研截图+编码 */
-        SERVICE,
-        /** 套壳模式：Java 启动器内启动三方软件（freerdp/vnc/ssh） */
-        SHELL
+        /**
+         * 纯转发模式：被控端仅做会话桥接，远控能力完全由三方软件
+         * （freerdp/vnc/ssh）提供，Java 侧只负责对接与转发。
+         */
+        FORWARD,
+        /**
+         * 套壳模式：Java 启动器自行拉起三方软件（如 freerdp）并转发，
+         * 或在套壳基础上使用自研实现。
+         */
+        SHELL,
+        /**
+         * 纯推送模式：仅自研实现，被控端实时采集并推送画面；
+         * 适用于实时画面监控，不支持键鼠远程控制。
+         */
+        PUSH
     }
 }
