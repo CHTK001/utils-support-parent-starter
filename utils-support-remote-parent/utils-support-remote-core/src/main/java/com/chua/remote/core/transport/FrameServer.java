@@ -163,7 +163,7 @@ public class FrameServer {
             @Override
             public void onMessage(WebSocket ws, String message) {}
             @Override
-            public void onBinaryMessage(WebSocket ws, ByteBuffer message) {
+            public void onMessage(WebSocket ws, ByteBuffer message) {
                 WsSession session = wsSessions.get(ws);
                 if (session != null) session.queue.offer(message);
             }
