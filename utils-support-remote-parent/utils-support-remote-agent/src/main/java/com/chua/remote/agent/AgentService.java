@@ -79,13 +79,13 @@ public class AgentService implements RemoteAgentSPI {
 
     @Override
     public byte[] captureScreen() {
-        // 1. Native 截图
-        BufferedImage screenshot = screenCapture.captureBufferedImage();
-        if (screenshot == null) {
+        // 1. 原生截图（原始像素帧——不经 BufferedImage）
+        NativeFrame frame = screenCapture.captureFrame();
+        if (frame == null) {
             return new byte[0];
         }
-        // 2. 编码压缩（缩放 + JPEG 编码）
-        return nativeEncoder.encode(screenshot);
+        // 2. 原始帧直接 JPEG 编码（不经 BufferedImage）
+        return nativeEncoder.encode(frame);
     }
 
     @Override
