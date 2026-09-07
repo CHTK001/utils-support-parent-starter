@@ -9,8 +9,10 @@ import com.chua.common.support.utils.IdUtils;
 import com.chua.remote.core.RemoteClient;
 import com.chua.remote.core.codec.FrameCodec;
 import com.chua.remote.protocol.capability.CodecProfile;
+import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
 import com.chua.remote.protocol.model.AgentInfo;
+import com.chua.remote.protocol.model.Session;
 import com.chua.remote.protocol.spi.RemoteAgentSPI;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,18 +56,14 @@ public class AgentBootstrap {
      * 启动被控端。
      */
     public void start() {
-        // 连接网关
         client.connect();
         log.info("已连接到网关");
 
-        // 注册到网关
-        String agentId = registerToGateway();
+        client.getTransport().on(MessageType.SIGNAL, this::handleSignal);
 
-        // 上报能力
+        String agentId = registerToGateway();
         reportCapabilities();
 
-        // 根据模式启动：PUSH 走自研采集推送；FORWARD/SHELL 走三方对接/套壳路径
-        // 桌面门控：headless Linux（desktopSupported=false）时禁止桌面采集连接——降级到套壳模式（SSH/RDP/VNC 仍可用）
         if (agentInfo.getAgentType() == AgentInfo.AgentType.PUSH) {
             if (!Boolean.TRUE.equals(agentInfo.getDesktopSupported())) {
                 log.warn("桌面采集不可用（headless/无 X 服务），拒绝桌面连接并降级到套壳模式: agentId={}", agentId);
@@ -77,6 +75,19 @@ public class AgentBootstrap {
             startShellMode(agentId);
         }
         running = true;
+    }
+
+    private void handleSignal(Frame frame) {
+        String kind = frame.getMetadata() != null
+                ? frame.getMetadata().get(com.chua.remote.core.codec.FrameCodec.METADATA_KIND) : null;
+        if (Session.class.getSimpleName().equals(kind)) {
+            Session session = com.chua.remote.core.codec.FrameCodec.decodeSignal(frame, Session.class);
+            if (session != null && session.isReverseTunnelEnabled()) {
+                log.info("收到会话建立通知（反向隧道已启用）: sessionId={}, agentId={}",
+                        session.getSessionId(), agentInfo.getId());
+                shellService.start();
+            }
+        }
     }
 
     /** 注册到网关 */
