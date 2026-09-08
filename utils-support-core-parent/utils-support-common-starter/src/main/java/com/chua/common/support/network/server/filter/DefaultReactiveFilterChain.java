@@ -68,7 +68,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     if (handler instanceof ReactiveServerHandler reactive) {
                         return reactive.handleReactive(request, response);
                     }
-                    // 同步执行处理器，避免与 whenComplete 竞争
+                    // 同步执行：避免与 whenComplete 竞争导致 404 状态丢失
                     handler.handle(request, response);
                     return CompletableFuture.completedStage(null);
                 } catch (Exception e) {
