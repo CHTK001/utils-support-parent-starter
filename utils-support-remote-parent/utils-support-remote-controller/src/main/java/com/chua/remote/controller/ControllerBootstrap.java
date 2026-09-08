@@ -83,7 +83,7 @@ public class ControllerBootstrap {
      *
      * @param args [0]=网关地址（默认 tcp://localhost:9000），[1]=accessToken，[2]=targetAgentId，[3]=verifyCode
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String gatewayUrl = args.length > 0 ? args[0] : "tcp://localhost:9000";
         String accessToken = args.length > 1 ? args[1] : "controller-token-1";
         String targetAgentId = args.length > 2 ? args[2] : "agent1";
@@ -101,6 +101,28 @@ public class ControllerBootstrap {
                 .build();
         ControllerBootstrap bootstrap = new ControllerBootstrap(gatewayUrl, info);
         bootstrap.start();
+
+        // 帧 WS 桥（远控画面 Web 推流——前端 vue-support-remote-starter 远控页 canvas 渲染真实帧）
+        int wsPort = args.length > 4 ? Integer.parseInt(args[4]) : 8090;
+        FrameWsBridge frameBridge = new FrameWsBridge(wsPort);
+        frameBridge.start();
+        bootstrap.controllerClient.setFrameListener(image -> {
+            try {
+                java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+                javax.imageio.ImageIO.write(image, "jpeg", bos);
+                frameBridge.broadcastFrame(bos.toByteArray());
+            } catch (Exception e) {
+                log.warn("画面帧推流失败", e);
+            }
+        });
+
+        // 自动发起会话（真实帧源——帧流经网关路由至控制器渲染监听 → WS 桥 → Web 前端）
+        try {
+            bootstrap.startSession(targetAgentId, verifyCode);
+            log.info("会话已发起: agentId={}", targetAgentId);
+        } catch (Exception e) {
+            log.warn("会话发起失败（agent 可能不在线）: {}", e.getMessage());
+        }
         // 保持 JVM 存活（传输层为 NIO Reactor 异步线程——主线程须阻塞，否则 main 返回即退出）
         try {
             Thread.currentThread().join();

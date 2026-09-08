@@ -87,6 +87,11 @@ public class ControllerClient implements RemoteControllerSPI {
         this.sshFrameHandler = handler;
     }
 
+    /** 设置渲染帧监听（画面帧 → 外部消费——如 WS 桥推流给 Web 前端） */
+    public void setFrameListener(java.util.function.Consumer<java.awt.image.BufferedImage> listener) {
+        decoderRenderer.setFrameListener(listener);
+    }
+
     public void startSSHSession(String sessionId, String host, int port,
                                 String username, String password, int cols, int rows) {
         Map<String, String> meta = Map.of(
