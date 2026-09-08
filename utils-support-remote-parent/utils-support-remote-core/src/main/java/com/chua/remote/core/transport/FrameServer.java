@@ -239,8 +239,13 @@ public class FrameServer {
             byte[] bytes = FrameCodec.encode(frame);
             if (channel != null) {
                 synchronized (channel) {
-                    try { FrameCodec.writeBinary(channel, frame); }
-                    catch (IOException e) { closeQuietly(channel); }
+                    try {
+                        FrameCodec.writeBinary(channel, frame);
+                        log.info("连接写入成功: bytes={}", bytes.length);
+                    } catch (IOException e) {
+                        log.error("连接写入失败: {}", e.getMessage());
+                        closeQuietly(channel);
+                    }
                 }
             } else if (ws != null && ws.isOpen()) {
                 synchronized (ws) {
