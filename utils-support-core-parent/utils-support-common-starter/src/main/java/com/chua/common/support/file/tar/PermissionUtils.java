@@ -21,6 +21,9 @@ import java.util.Set;
  */
 public class PermissionUtils {
 
+    private PermissionUtils() {
+    }
+
     /**
      * 标准文件权限枚举。
      * <p>

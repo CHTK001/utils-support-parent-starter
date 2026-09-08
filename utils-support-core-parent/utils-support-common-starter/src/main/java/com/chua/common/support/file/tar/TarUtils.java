@@ -12,6 +12,9 @@ import java.util.List;
  */
 public class TarUtils {
 
+	private TarUtils() {
+	}
+
 	/**
 	 * 计算给定文件或文件夹路径对应的 TAR 文件大小。
 	 *
