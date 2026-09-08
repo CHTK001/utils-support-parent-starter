@@ -27,7 +27,6 @@ public class SSHChannelManager {
     }
 
     public void handleSSHFrame(Frame frame) {
-        log.info("SSH frame received: type={}, sessionId={}, meta={}", frame.getType(), frame.getSessionId(), frame.getMetadata());
         Map<String, String> meta = frame.getMetadata();
         if (meta == null) {
             return;
