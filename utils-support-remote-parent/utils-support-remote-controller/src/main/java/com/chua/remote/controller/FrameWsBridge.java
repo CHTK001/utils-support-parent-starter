@@ -105,11 +105,17 @@ public class FrameWsBridge {
         InputStream in = socket.getInputStream();
         ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
         byte[] buf = new byte[4096];
-        int read = in.read(buf);
-        if (read <= 0) {
-            return false;
+        // 读至头部结束（\r\n\r\n）——浏览器握手请求较大（Origin/UA 等头），单次 read 可能不完整
+        while (reqBuf.size() < 16384) {
+            int read = in.read(buf);
+            if (read < 0) {
+                break;
+            }
+            reqBuf.write(buf, 0, read);
+            if (reqBuf.toString(StandardCharsets.UTF_8.name()).contains("\r\n\r\n")) {
+                break;
+            }
         }
-        reqBuf.write(buf, 0, read);
         String request = reqBuf.toString(StandardCharsets.UTF_8.name());
         String key = null;
         for (String line : request.split("\r\n")) {
