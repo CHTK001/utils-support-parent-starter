@@ -34,6 +34,8 @@ public class TcpServerFilterChainTest {
         setting.setPort(0);
         setting.setHost("127.0.0.1");
         server = new JdkTcpServer(setting);
+        // 设置帧处理器（NIO 模式必填，否则走流式回显路径）
+        server.setHandler(bytes -> bytes);
 
         // 注册 URL 路由（与 HttpServer 相同 API）
         server.registerMapping("/hello", (ServerHandler) (req, res) ->
