@@ -225,7 +225,9 @@ public class QuickTest {
         Quick quick = Quick.create()
                 .variable("x", 10)
                 .variable("y", 20);
-        Object result = quick.execute("return variables.get(\"x\") + variables.get(\"y\");");
+        // variables.get 返回 Object，片段内需自行强转
+        Object result = quick.execute(
+                "return ((Number) variables.get(\"x\")).intValue() + ((Number) variables.get(\"y\")).intValue();");
         check(result instanceof Number && ((Number) result).intValue() == 30, "execute 访问变量 x+y=30");
         quick.close();
     }

@@ -163,14 +163,20 @@ public class DefaultQuick implements Quick {
             BeanDefinitionRegistry registry = context.getRegistry();
             ServiceProvider<BeanDefinitionRegister> provider = ServiceProvider.of(BeanDefinitionRegister.class);
             boolean addedAny = false;
-            for (Class<?> implClass : provider.listType().values()) {
+            for (Map.Entry<String, Class<BeanDefinitionRegister>> entry : provider.listType().entrySet()) {
+                Class<?> implClass = entry.getValue();
                 try {
                     Object fresh = ClassUtils.forObject(implClass);
                     if (fresh instanceof BeanDefinitionRegister register && registry.addRegister(register)) {
                         addedAny = true;
                     }
                 } catch (Exception e) {
-                    log.debug("创建独立 BeanDefinitionRegister 失败: {}", implClass.getName(), e);
+                    // default 注册器是注册兜底（support() 回退目标），失败必须告警
+                    if ("default".equalsIgnoreCase(entry.getKey())) {
+                        log.warn("创建独立默认 BeanDefinitionRegister 失败: {}", implClass.getName(), e);
+                    } else {
+                        log.debug("创建独立 BeanDefinitionRegister 失败: {}", implClass.getName(), e);
+                    }
                 }
             }
             if (!addedAny) {
