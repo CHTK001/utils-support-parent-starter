@@ -40,6 +40,9 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  */
 public class ObjectUtils {
 
+    private ObjectUtils() {
+    }
+
     private static final long serialVersionUID = 1L;
     /** Initial_hash */
     private static final int INITIAL_HASH = 7;
