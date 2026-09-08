@@ -264,6 +264,9 @@ public interface Quick extends AutoCloseable {
      *       {@code quick}（当前实例）与 {@code variables}（绑定变量 Map）。</li>
      * </ul>
      *
+     * <p><b>安全提示：</b>{@code execute} 会编译并执行任意 Java 源码，等同于远程代码执行能力，
+     * 仅应在受信任的脚本/配置来源下使用（与 GroovyShell 等脚本门面一致）。</p>
+     *
      * @param script Java 脚本源码或代码片段
      * @return 执行结果
      */
