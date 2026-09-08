@@ -26,14 +26,13 @@ public class ControllerWebSocketServer extends WebSocketServer {
     private final Map<WebSocket, String> wsToAgent = new ConcurrentHashMap<>();
 
     public ControllerWebSocketServer(int port, RemoteTransport transport) {
-        super(new InetSocketAddress(port), Executors.newVirtualThreadPerTaskExecutor());
+        super(new InetSocketAddress(port));
         this.transport = transport;
-        setKeepAliveInterval(30);
     }
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        String path = handshake.getResource();
+        String path = handshake.getResourceDescriptor();
         if (path == null) path = "";
         String agentId = extractAgentId(path);
         if (agentId == null) {
@@ -43,7 +42,11 @@ public class ControllerWebSocketServer extends WebSocketServer {
         }
         wsToAgent.put(conn, agentId);
         log.info("Controller WS connected: agentId={}, path={}", agentId, path);
-        conn.send(mapper.toJson(toJsonMsg("connected", agentId)));
+        try {
+            conn.send(mapper.writeValueAsString(toJsonMsg("connected", agentId)));
+        } catch (Exception e) {
+            log.warn("Controller WS 发送连接消息失败", e);
+        }
     }
 
     @Override
