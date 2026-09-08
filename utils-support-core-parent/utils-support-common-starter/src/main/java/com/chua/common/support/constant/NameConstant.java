@@ -30,109 +30,109 @@ public final class NameConstant {
     /**
      * JPEG 图片格式名称 {@value}。
      */
-    String JPEG = "jpeg";
+    public static final String JPEG = "jpeg";
     /**
      * 默认值字符串 "default"。
      * 常用于表示默认配置、默认实例等场景。
      */
-    String DEFAULT = "default";
+    public static final String DEFAULT = "default";
 
     /**
      * getter 方法前缀 "get"。
      * 常用于反射获取方法名、JavaBean 属性访问等场景。
      */
-    String METHOD_GETTER = "get";
+    public static final String METHOD_GETTER = "get";
 
     /**
      * setter 方法前缀 "set"。
      * 常用于反射设置方法名、JavaBean 属性访问等场景。
      */
-    String METHOD_SETTER = "set";
+    public static final String METHOD_SETTER = "set";
 
     /**
      * null 字符串 "null"。
      * 常用于字符串比较、JSON 处理等场景。
      */
-    String NULL = "null";
+    public static final String NULL = "null";
 
     /**
      * 类型字段 "type"。
      * 常用于分类、类型标识、JSON 字段等场景。
      */
-    String TYPE = "type";
+    public static final String TYPE = "type";
 
     /**
      * UTF-8 编码大写 "UTF-8"。
      * 常用于字符集转换、IO 操作等场景。
      */
-    String UTF_8 = "UTF-8";
+    public static final String UTF_8 = "UTF-8";
 
     /**
      * 类路径 URL 前缀 "classpath:"。
      * 常用于资源加载、类路径扫描等场景。
      */
-    String CLASSPATH_URL_PREFIX = "classpath:";
+    public static final String CLASSPATH_URL_PREFIX = "classpath:";
 
     /**
      * 类路径 URL 前缀 "classpath*:"。
      * 常用于资源加载、类路径扫描等场景。
      */
-    String CLASSPATH_URL_ALL_PREFIX = "classpath*:";
+    public static final String CLASSPATH_URL_ALL_PREFIX = "classpath*:";
 
     /**
      * 文件系统 URL 前缀 "filesystem:"。
      * 常用于文件路径、文件系统操作等场景。
      */
-    String FILE_SYSTEM_URL_PREFIX = "filesystem:";
+    public static final String FILE_SYSTEM_URL_PREFIX = "filesystem:";
 
 
     /**
      * 文件系统 URL 前缀 "filesystem*:"。
      * 常用于文件路径、文件系统操作等场景。
      */
-    String FILE_SYSTEM_URL_ALL_PREFIX = "filesystem*:";
+    public static final String FILE_SYSTEM_URL_ALL_PREFIX = "filesystem*:";
     /**
      * 文件 URL 前缀 "file:"。
      * 常用于文件路径、文件系统操作等场景。
      */
-    String FILE_URL_PREFIX = "file:";
+    public static final String FILE_URL_PREFIX = "file:";
 
     /**
      * FTP URL 前缀 "ftp:"。
      * 常用于文件路径、文件系统操作等场景。
      */
-    String FTP_URL_PREFIX = "ftp:";
+    public static final String FTP_URL_PREFIX = "ftp:";
 
 
     // ==================== 操作方法名（大写，用于方法名匹配） ====================
 
     /** 新增 */
-    String SAVE = "SAVE";
-    String INSERT = "INSERT";
-    String ADD = "ADD";
+    public static final String SAVE = "SAVE";
+    public static final String INSERT = "INSERT";
+    public static final String ADD = "ADD";
     /** 修改 */
-    String UPDATE = "UPDATE";
-    String MODIFY = "MODIFY";
+    public static final String UPDATE = "UPDATE";
+    public static final String MODIFY = "MODIFY";
     /** 删除 */
-    String DELETE = "DELETE";
-    String DROP = "DROP";
-    String REMOVE = "REMOVE";
+    public static final String DELETE = "DELETE";
+    public static final String DROP = "DROP";
+    public static final String REMOVE = "REMOVE";
     /** 重置 */
-    String RESET = "RESET";
+    public static final String RESET = "RESET";
 
     // ==================== HTTP 方法名 ====================
 
     /** HTTP GET */
-    String GET = "GET";
+    public static final String GET = "GET";
     /** HTTP POST */
-    String POST = "POST";
+    public static final String POST = "POST";
     /** HTTP PUT */
-    String PUT = "PUT";
+    public static final String PUT = "PUT";
     /** HTTP DELETE */
-    String DELETE_METHOD = "DELETE";
+    public static final String DELETE_METHOD = "DELETE";
     /** HTTP PATCH */
-    String PATCH = "PATCH";
+    public static final String PATCH = "PATCH";
     /** HTTP HEAD */
-    String HEAD = "HEAD";
+    public static final String HEAD = "HEAD";
 
 }

@@ -61,6 +61,7 @@ public class ControllerWebSocketServer extends WebSocketServer {
     public void onMessage(WebSocket conn, String message) {
         String agentId = wsToAgent.get(conn);
         if (agentId == null) return;
+        log.info("WS_ONMESSAGE: agentId={}, message={}", agentId, message);
         try {
             JsonNode node = mapper.readTree(message);
             String action = node.path("action").asText("");
@@ -69,6 +70,7 @@ public class ControllerWebSocketServer extends WebSocketServer {
             String sshAction = node.path("sshAction").asText("");
             String sessionId = node.path("sessionId").asText("");
             String host = node.path("host").asText("local");
+            log.info("WS收到ssh消息: agentId={}, sshAction={}, sessionId={}", agentId, sshAction, sessionId);
 
             var meta = new java.util.HashMap<String, String>();
             meta.put("sshAction", sshAction);

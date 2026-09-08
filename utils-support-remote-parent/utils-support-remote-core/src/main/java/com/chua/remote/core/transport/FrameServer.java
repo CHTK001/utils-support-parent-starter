@@ -75,6 +75,7 @@ public class FrameServer {
             log.debug("连接不存在，丢弃帧: clientId={}, type={}", clientId, frame.getType());
             return;
         }
+        log.info("[帧投递] SEND_TO_CLIENT: clientId={}, type={}, sessionId={}", clientId, frame.getType(), frame.getSessionId());
         connection.write(frame);
     }
 
@@ -113,7 +114,10 @@ public class FrameServer {
                     continue;
                 }
                 FrameListener current = listener;
-                if (current != null) current.onFrame(clientId, frame);
+                if (current != null) {
+                    log.info("帧到达分发: clientId={}, type={}", clientId, frame.getType());
+                    current.onFrame(clientId, frame);
+                }
             }
         } catch (IOException e) {
             log.debug("TCP连接结束: clientId={}, cause={}", clientId, e.getMessage());
