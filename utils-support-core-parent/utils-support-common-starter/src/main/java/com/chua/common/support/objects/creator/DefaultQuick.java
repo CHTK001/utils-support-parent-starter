@@ -315,7 +315,7 @@ public class DefaultQuick implements Quick {
 
     @Override
     /** 创建Table构造器 */
-    public <R, C, V> TableBuilder<R, C, V> table() {
+    public <R extends Comparable<? super R>, C extends Comparable<? super C>, V> TableBuilder<R, C, V> table() {
         return new DefaultTableBuilder<>();
     }
 
@@ -398,7 +398,7 @@ public class DefaultQuick implements Quick {
         if (value != null) {
             return (T) value;
         }
-        return context.getRegistry().getBean(name, Object.class);
+        return (T) context.getRegistry().getBean(name, Object.class);
     }
 
     @Override
@@ -868,11 +868,11 @@ public class DefaultQuick implements Quick {
     /**
      * Table 构造器默认实现。
      *
-     * @param <R> 行类型
-     * @param <C> 列类型
+     * @param <R> 行类型（Comparable）
+     * @param <C> 列类型（Comparable）
      * @param <V> 值类型
      */
-    static class DefaultTableBuilder<R, C, V> implements TableBuilder<R, C, V> {
+    static class DefaultTableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>, V> implements TableBuilder<R, C, V> {
 
         /**
          * 目标实现类型
