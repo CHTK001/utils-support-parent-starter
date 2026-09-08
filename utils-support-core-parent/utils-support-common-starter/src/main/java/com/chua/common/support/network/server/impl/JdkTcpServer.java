@@ -492,14 +492,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
 
     /** 处理Request */
     private void processRequest(SocketChannel sc, byte[] reqData, Attachment att) {
-        // 写日志验证本方法是否被调用（使用绝对路径避免工作目录问题）
-        String debugPath = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
-        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "processRequest called\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING); } catch (Exception e) { System.err.println("WRITE_ERR: " + e); }
-        boolean hasUrlMapping = urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0;
-        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "hasUrlMapping=" + hasUrlMapping + " frameHandler=" + (frameHandler != null) + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
-        if (frameHandler == null || !hasUrlMapping) {
+        if (frameHandler == null || urlMappingFilter == null || urlMappingFilter.getFactory().routeCount() == 0) {
             // 无 URL 路由时走旧帧式路径（零开销）
-            try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "[OLD_PATH]\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
             try {
                 byte[] respData = frameHandler.handle(reqData);
                 if (respData != null) {
@@ -512,9 +506,6 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             return;
         }
         // URL 路由模式：将帧体解析为 HTTP 请求，走完整 Filter Chain
-        System.err.println("[DEBUG] BEFORE handleRequest path=" + new TcpServerRequest(reqData, null, StandardCharsets.UTF_8).getPath()
-                + " urlMappingFilter=" + (urlMappingFilter != null)
-                + " routeCount=" + (urlMappingFilter != null ? urlMappingFilter.getFactory().routeCount() : 0));
         InetSocketAddress remoteAddr = null;
         try {
             java.net.Socket socket = sc.socket();
@@ -533,10 +524,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         if (!response.isEnded()) {
             response.end();
         }
-        System.err.println("[DEBUG] response status=" + ((TcpServerResponse)response).getStatus()
-                + " ended=" + response.isEnded() + " body=" + new String(((TcpServerResponse)response).getBody() != null ? ((TcpServerResponse)response).getBody() : new byte[0]));
         byte[] respFrame = response.getReadyBytes();
-        System.err.println("[DEBUG] respFrame length=" + respFrame.length + " first bytes=" + java.util.Arrays.toString(java.util.Arrays.copyOf(respFrame, Math.min(80, respFrame.length))));
         if (respFrame != null && respFrame.length > 0) {
             writeResponse(sc, respFrame);
         } else {
