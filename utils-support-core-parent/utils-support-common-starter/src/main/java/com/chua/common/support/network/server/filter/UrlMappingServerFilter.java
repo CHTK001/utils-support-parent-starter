@@ -96,6 +96,7 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
     /** Do过滤 */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         ServerHandler handler = factory.resolveHandler(request);
+        System.err.println("[UrlMappingFilter] path=" + request.getPath() + " handler=" + (handler != null) + " ended=" + response.isEnded() + " status=" + response.getStatus());
         if (handler instanceof ReactiveServerHandler reactive) {
             return reactive.handleReactive(request, response);
         }
