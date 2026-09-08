@@ -291,8 +291,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     private void processViaFilterChain(AsynchronousSocketChannel channel, byte[] reqData) {
         InetSocketAddress remoteAddr = null;
         try {
-            ChannelRemoteAddr attr = channel.getOption(StandardSocketOptions.SO_PEERADDR);
-            if (attr != null) remoteAddr = attr.address;
+            SocketAddress addr = channel.getOption(StandardSocketOptions.SO_PEERADDR);
+            if (addr instanceof InetSocketAddress isa) remoteAddr = isa;
         } catch (Exception ignored) {}
         TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, StandardCharsets.UTF_8);
         TcpServerResponse response = new TcpServerResponse();
