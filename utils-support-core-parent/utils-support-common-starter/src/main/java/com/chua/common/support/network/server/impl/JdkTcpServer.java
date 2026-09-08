@@ -423,7 +423,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             return;
         }
         String debugPath = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
-        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "doAccept frameHandler=" + (frameHandler != null) + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING); } catch (Exception ignored) {}
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "doAccept frameHandler=" + (frameHandler != null) + " this=" + System.identityHashCode(this) + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
         if (frameHandler != null) {
             // 帧式协议：注册到 IO Selector，NIO 拼帧（加密告警已在 doStart 统一提示）
             sc.configureBlocking(false);
