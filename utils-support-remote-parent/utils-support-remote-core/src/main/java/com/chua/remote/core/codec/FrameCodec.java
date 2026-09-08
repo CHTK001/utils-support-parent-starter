@@ -61,6 +61,9 @@ public class FrameCodec {
     private static final byte TYPE_CTRL = 2;
     private static final byte TYPE_SSH = 3;
 
+    /** 二进制帧类型：VNC 桌面 */
+    private static final byte TYPE_VNC = 4;
+
     /** 空缓冲（无元数据/无载荷时复用） */
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
 
@@ -247,6 +250,23 @@ public class FrameCodec {
                 .build();
     }
 
+    public static Frame vncFrame(String sessionId, byte[] payload) {
+        return Frame.builder()
+                .type(MessageType.VNC)
+                .sessionId(sessionId)
+                .payload(payload)
+                .build();
+    }
+
+    public static Frame vncFrame(String sessionId, byte[] payload, Map<String, String> metadata) {
+        return Frame.builder()
+                .type(MessageType.VNC)
+                .sessionId(sessionId)
+                .payload(payload)
+                .metadata(metadata)
+                .build();
+    }
+
     /**
      * 将 Frame 编码为二进制帧（零拷贝）。
      *
@@ -423,6 +443,9 @@ public class FrameCodec {
         if (type == MessageType.SSH) {
             return TYPE_SSH;
         }
+        if (type == MessageType.VNC) {
+            return TYPE_VNC;
+        }
         return TYPE_SIGNAL;
     }
 
@@ -441,6 +464,9 @@ public class FrameCodec {
         }
         if (type == TYPE_SSH) {
             return MessageType.SSH;
+        }
+        if (type == TYPE_VNC) {
+            return MessageType.VNC;
         }
         return MessageType.SIGNAL;
     }
