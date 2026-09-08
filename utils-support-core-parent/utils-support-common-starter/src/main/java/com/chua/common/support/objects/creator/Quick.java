@@ -220,12 +220,12 @@ public interface Quick extends AutoCloseable {
     /**
      * 创建 Table 链式构造器（Guava Table，row/column/value 三维）。
      *
-     * @param <R> 行类型
-     * @param <C> 列类型
+     * @param <R> 行类型（需 {@link Comparable}，用于 TreeBasedTable）
+     * @param <C> 列类型（需 {@link Comparable}，用于 TreeBasedTable）
      * @param <V> 值类型
      * @return Table 构造器
      */
-    <R, C, V> TableBuilder<R, C, V> table();
+    <R extends Comparable<? super R>, C extends Comparable<? super C>, V> TableBuilder<R, C, V> table();
 
     // ==================== 动态类 ====================
 
@@ -385,11 +385,11 @@ public interface Quick extends AutoCloseable {
     /**
      * Table 链式构造器（Guava Table）。
      *
-     * @param <R> 行类型
-     * @param <C> 列类型
+     * @param <R> 行类型（需 {@link Comparable}，用于 TreeBasedTable）
+     * @param <C> 列类型（需 {@link Comparable}，用于 TreeBasedTable）
      * @param <V> 值类型
      */
-    interface TableBuilder<R, C, V> {
+    interface TableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>, V> {
 
         /**
          * 添加单元格。
