@@ -23,6 +23,7 @@
         <module>utils-support-remote-core</module>
         <module>utils-support-remote-gateway</module>
         <module>utils-support-remote-agent</module>
+        <module>utils-support-remote-agent-ssh</module>
         <module>utils-support-remote-controller</module>
     </modules>
 
