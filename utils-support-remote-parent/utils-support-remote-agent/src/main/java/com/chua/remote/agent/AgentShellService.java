@@ -42,8 +42,6 @@ public class AgentShellService {
     public void start() {
         running = true;
         startTelnetServer();
-        createReverseTunnel();
-        reRegisterToGateway();
         switch (shellMode) {
             case RDP:
                 startRDPSession();
@@ -56,8 +54,49 @@ public class AgentShellService {
                 startSSHSession();
                 break;
         }
-        log.info("套壳模式已启动: agentId={}, mode={}, reverseTunnelPort={}",
-                agentInfo.getId(), shellMode, reverseTunnelPort);
+        log.info("套壳模式已启动: agentId={}, mode={}", agentInfo.getId(), shellMode);
+    }
+
+    private void startRDPSession() {
+        try {
+            String host = agentInfo.getHost();
+            int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 3389;
+            String username = agentInfo.getUsername();
+            String password = agentInfo.getPassword();
+            sshTunnelManager.createRDPTunnel(host, port, agentInfo.getPlatform(), 22, username, password, 3390);
+            sshTunnelManager.startFreerdp(host, port, username, password);
+            log.info("启动 RDP 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
+        } catch (NoClassDefFoundError | Exception e) {
+            log.warn("RDP 套壳不可用（依赖缺失），降级为本地 shell: agentId={}, error={}", agentInfo.getId(), e.getMessage());
+        }
+    }
+
+    private void startVNCSession() {
+        try {
+            String host = agentInfo.getHost();
+            int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 5900;
+            String username = agentInfo.getUsername();
+            String password = agentInfo.getPassword();
+            sshTunnelManager.createVNCTunnel(host, port, agentInfo.getPlatform(), 22, username, password, 5901);
+            sshTunnelManager.startVncViewer(host, port);
+            log.info("启动 VNC 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
+        } catch (NoClassDefFoundError | Exception e) {
+            log.warn("VNC 套壳不可用（依赖缺失），降级为本地 shell: agentId={}, error={}", agentInfo.getId(), e.getMessage());
+        }
+    }
+
+    private void startSSHSession() {
+        try {
+            String host = agentInfo.getHost();
+            int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 22;
+            String username = agentInfo.getUsername();
+            String password = agentInfo.getPassword();
+            sshTunnelManager.createSSHTunnel(host, port, username, password, 2222);
+            sshTunnelManager.startSshShellViaClient(host, port, username, password);
+            log.info("启动 SSH 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
+        } catch (NoClassDefFoundError | Exception e) {
+            log.warn("SSH 套壳不可用（依赖缺失），使用本地 shell: agentId={}, error={}", agentInfo.getId(), e.getMessage());
+        }
     }
 
     private void createReverseTunnel() {

@@ -88,14 +88,38 @@ public class FrameWsBridge {
             log.info("WS 客户端已连接: {}", socket.getRemoteSocketAddress());
             InputStream in = socket.getInputStream();
             while (!socket.isClosed()) {
-                // 阻塞读——检测断连（-1 即对端关闭）；客户端帧在此忽略（纯推流场景）
-                if (in.read() < 0) {
+                // 读帧头首字节（opcode）——阻塞读检测断连（-1 即对端关闭）
+                int first = in.read();
+                if (first < 0) {
                     break;
+                }
+                int opcode = first & 0x0F;
+                // 忽略非控制帧载荷（纯推流场景——客户端帧在此不处理）
+                if (opcode == 0x8) {
+                    // 关闭帧——对端主动关闭
+                    break;
+                }
+                if (opcode == 0x9) {
+                    // 心跳 PING——按协议回 PONG（0xA）保持连接
+                    sendPong(socket);
                 }
             }
         } catch (IOException e) {
             // 客户端断连——静默
         } finally {
+            removeClient(socket);
+        }
+    }
+
+    /** 回 PONG（0xA）——响应客户端心跳 PING，防止连接被超时断开 */
+    private void sendPong(Socket socket) {
+        try {
+            synchronized (socket) {
+                // 服务端帧不掩码：首字节 0x8A（FIN+0xA），第二字节长度 0（空 PONG）
+                socket.getOutputStream().write(new byte[]{(byte) 0x8A, 0x00});
+                socket.getOutputStream().flush();
+            }
+        } catch (IOException e) {
             removeClient(socket);
         }
     }
