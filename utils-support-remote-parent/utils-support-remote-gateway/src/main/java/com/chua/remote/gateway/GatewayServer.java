@@ -95,7 +95,11 @@ public class GatewayServer implements RemoteServerSPI {
         server.stop();
         httpServer.stop();
         if (controllerWs != null) {
-            controllerWs.stop(1000, "gateway shutdown");
+            try {
+                controllerWs.stop(1000, "gateway shutdown");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
         log.info("远控网关已停止");
     }
