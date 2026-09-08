@@ -45,6 +45,9 @@ public class AuthManager {
      * @return 是否通过
      */
     public boolean verifyAgent(String agentId, String verifyCode) {
+        if (agentId == null || verifyCode == null) {
+            return false;
+        }
         return verifyCode.equals(agentVerifyCodes.get(agentId));
     }
 
