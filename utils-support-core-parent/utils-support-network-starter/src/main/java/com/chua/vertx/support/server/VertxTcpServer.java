@@ -203,6 +203,43 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
+     * 通过 Filter Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 NetSocket。
+     */
+    private void processViaFilterChain(NetSocket socket) {
+        try {
+            byte[] frame = readFrame(new NetSocketInputStream(socket));
+            if (frame == null) return;
+            InetSocketAddress remoteAddr = socket.remoteAddress() instanceof java.net.SocketAddress sa
+                    ? (InetSocketAddress) sa : null;
+            TcpServerRequest request = new TcpServerRequest(frame, remoteAddr, StandardCharsets.UTF_8);
+            TcpServerResponse response = new TcpServerResponse();
+            try {
+                handleRequest(request, response);
+            } catch (Exception e) {
+                log.debug("帧处理器异常: {}", e.getMessage());
+                return;
+            }
+            if (!response.isEnded()) {
+                response.end();
+            }
+            byte[] respFrame = response.getReadyBytes();
+            if (respFrame != null && respFrame.length > 0) {
+                byte[] len = new byte[4];
+                len[0] = (byte) (respFrame.length >>> 24);
+                len[1] = (byte) (respFrame.length >>> 16);
+                len[2] = (byte) (respFrame.length >>> 8);
+                len[3] = (byte) respFrame.length;
+                socket.write(ByteBuffer.wrap(len));
+                socket.write(ByteBuffer.wrap(respFrame));
+            }
+        } catch (Exception e) {
+            log.debug("URL 路由处理异常: {}", e.getMessage());
+        } finally {
+            socket.close();
+        }
+    }
+
+    /**
      * 读取一帧（与 JdkTcpClient 长度帧协议对称：4 字节长度头 + ScatterFrame body）。
      *
      * @param in 输入流
