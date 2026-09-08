@@ -1,9 +1,11 @@
 package com.chua.common.support.objects.creator;
 
+import com.chua.common.support.lang.compile.Compiler;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.spi.ServiceProvider;
 import com.google.common.collect.Table;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +53,7 @@ public class QuickTest {
         testExecuteTyped();
         testSpiRegistration();
         testImportPackageAndInitByName();
+        testCompilerSpiSwitch();
 
         System.out.println("========================================");
         System.out.println("QuickTest 结果: PASS=" + passCount + ", FAIL=" + failureCount);
@@ -265,6 +268,49 @@ public class QuickTest {
         ArrayList<String> list = quick.init("ArrayList");
         check(list != null, "importPackage + init(名称) 解析");
         quick.close();
+    }
+
+    /** 编译器 SPI：dynamic/compile 自动切换（classpath 含 asm-starter 时使用 ASM） */
+    static void testCompilerSpiSwitch() {
+        Quick quick = Quick.create();
+        Compiler compiler = resolveCompilerReflectively(quick);
+        check(compiler != null, "编译器 SPI 解析非空");
+        String implName = compiler.getClass().getName();
+        System.out.println("[INFO] 当前编译器实现: " + implName);
+        if (implName.equals("com.chua.common.support.lang.compile.AsmCompiler")) {
+            // classpath 含 utils-support-asm-starter：验证 SPI 注册与 dynamic/compile 均可用
+            Compiler asm = ServiceProvider.of(Compiler.class).getExtension("asm");
+            check(asm != null && asm.getClass().getName().equals("com.chua.common.support.lang.compile.AsmCompiler"),
+                    "asm-starter 在 classpath 时自动解析 AsmCompiler");
+            Runnable runnable = quick.dynamic(Runnable.class, "public void run() { System.out.println(\"asm dynamic ok\"); }");
+            check(runnable != null, "dynamic() 在 ASM 编译器下生成子类");
+            if (runnable != null) {
+                runnable.run();
+            }
+            Class<?> clazz = quick.compile("public class CompiledProbe { public static int add(int a, int b) { return a + b; } }");
+            check(clazz != null, "compile() 在 ASM 编译器下编译源码");
+        } else {
+            // 无 asm-starter：应回退 common-starter 自带 JdkCompiler
+            check(implName.equals("com.chua.common.support.lang.compile.JdkCompiler"),
+                    "无 asm-starter 时回退 JdkCompiler");
+        }
+        quick.close();
+    }
+
+    /**
+     * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
+     *
+     * @param quick Quick 实例（DefaultQuick 实现）
+     * @return 当前编译器实现
+     */
+    private static Compiler resolveCompilerReflectively(Quick quick) {
+        try {
+            Method method = DefaultQuick.class.getDeclaredMethod("resolveCompiler");
+            method.setAccessible(true);
+            return (Compiler) method.invoke(quick);
+        } catch (Exception e) {
+            throw new IllegalStateException("反射获取编译器失败", e);
+        }
     }
 
     /** 测试用用户类 */
