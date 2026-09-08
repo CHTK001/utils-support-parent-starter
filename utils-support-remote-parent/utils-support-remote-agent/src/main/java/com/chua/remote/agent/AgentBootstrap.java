@@ -133,7 +133,7 @@ public class AgentBootstrap {
                 .agentType(agentType)
                 .desktopSupported(detectDesktopSupported())
                 .encodingCapability(CodecProfile.builder()
-                        .encodings(java.util.List.of("h264", "jpeg"))
+                        .encodings(java.util.List.of("jpeg"))
                         .maxWidth(1920)
                         .maxHeight(1080)
                         .quality(80)
