@@ -398,7 +398,10 @@ public class DefaultQuick implements Quick {
         if (value != null) {
             return (T) value;
         }
-        return (T) context.getRegistry().getBean(name, Object.class);
+        if (context.containsBean(name)) {
+            return (T) context.getRegistry().getBean(name, Object.class);
+        }
+        return null;
     }
 
     @Override
