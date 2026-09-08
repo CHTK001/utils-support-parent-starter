@@ -10,6 +10,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ThreadUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
@@ -229,8 +230,8 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                 len[1] = (byte) (respFrame.length >>> 16);
                 len[2] = (byte) (respFrame.length >>> 8);
                 len[3] = (byte) respFrame.length;
-                socket.write(ByteBuffer.wrap(len));
-                socket.write(ByteBuffer.wrap(respFrame));
+                socket.write(Buffer.buffer(len));
+                socket.write(Buffer.buffer(respFrame));
             }
         } catch (Exception e) {
             log.debug("URL 路由处理异常: {}", e.getMessage());
