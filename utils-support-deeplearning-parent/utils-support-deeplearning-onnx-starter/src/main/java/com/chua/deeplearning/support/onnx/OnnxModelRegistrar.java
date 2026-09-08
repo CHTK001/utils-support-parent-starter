@@ -601,6 +601,22 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("vit-h-14-text", "com.chua.deeplearning.support.onnx.vision.clip.VitH14TextTranslator",
                 String.class, float[].class, Object.class,
                 "vision/clip/vit-h-14/text_encoder.onnx");
+        // ==================== WeMM-Embedding 多模态文本嵌入 ====================
+        // 多模态文本嵌入(WeMM-2B)：腾讯 WeMM-Embedding-2B 文本分支，2048维 Matryoshka（64/128/256/512/1024/2048），
+        // 支持中文/英文，适用高精度语义搜索、多模态检索；模型由 utils-support-models-onnx-wemm-embedding-2b jar 提供
+        reg("wemm-embedding-2b", "com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient",
+                String.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class,
+                "nlp/embedding/wemm-embedding-2b/model.onnx");
+        // 多模态文本嵌入(WeMM-4B)：腾讯 WeMM-Embedding-4B 文本分支，2560维 Matryoshka（64/128/256/512/1024/2560），
+        // 更高精度；模型由 utils-support-models-onnx-wemm-embedding-4b jar 提供
+        reg("wemm-embedding-4b", "com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient",
+                String.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class,
+                "nlp/embedding/wemm-embedding-4b/model.onnx");
+        // 多模态文本嵌入(WeMM-9B)：腾讯 WeMM-Embedding-9B 文本分支，4096维 Matryoshka（64/128/256/512/1024/2048/4096），
+        // 最高精度；模型由 utils-support-models-onnx-wemm-embedding-9b jar 提供
+        reg("wemm-embedding-9b", "com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient",
+                String.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class,
+                "nlp/embedding/wemm-embedding-9b/model.onnx");
     }
 
     /**
