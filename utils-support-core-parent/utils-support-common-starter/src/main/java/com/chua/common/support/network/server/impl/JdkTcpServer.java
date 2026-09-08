@@ -500,6 +500,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 + " firstBytes=" + java.util.Arrays.toString(java.util.Arrays.copyOf(reqData, Math.min(40, reqData.length))));
         if (frameHandler == null || !hasUrlMapping) {
             // 无 URL 路由时走旧帧式路径（零开销）
+            try { java.nio.file.Files.writeString(java.nio.file.Paths.get("tcp-debug.log"), "[OLD_PATH]\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
             try {
                 byte[] respData = frameHandler.handle(reqData);
                 if (respData != null) {
