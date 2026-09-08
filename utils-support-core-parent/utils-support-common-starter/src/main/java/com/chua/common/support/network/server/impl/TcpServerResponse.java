@@ -183,17 +183,6 @@ public class TcpServerResponse implements ServerResponse {
 
     @Override
     public void end() {
-        if (!ended) {
-            String debugPath = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
-            try {
-                java.io.PrintWriter pw = new java.io.PrintWriter(java.nio.file.Files.newBufferedWriter(java.nio.file.Paths.get(debugPath), java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND));
-                pw.println("TcpServerResponse.end() called from: " + Thread.currentThread().getName());
-                for (StackTraceElement frame : new Exception().getStackTrace()) {
-                    pw.println("  at " + frame);
-                }
-                pw.close();
-            } catch (Exception ignored) {}
-        }
         // 将 OutputStream 缓冲区内容合并到 body
         if (output != null && output.size() > 0) {
             if (body != null && body.length > 0) {
