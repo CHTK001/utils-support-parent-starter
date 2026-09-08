@@ -14,6 +14,8 @@ import lombok.Getter;
  */
 public class PageUtils {
 
+    private PageUtils() {}
+
     /**
      * 首页页码，默认为0。
      * 如果业务中页码从1开始，可通过 {@link #setFirstPageNo(int)} 修改。

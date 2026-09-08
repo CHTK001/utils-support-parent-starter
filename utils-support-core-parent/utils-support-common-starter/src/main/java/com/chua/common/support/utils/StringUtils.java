@@ -50,6 +50,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 @SuppressWarnings("ALL")
 public class StringUtils {
+
+    private StringUtils() {
+    }
+
     /**
      * SQL 注入替换正则，匹配 SQL 中有特殊含义的字符。
      *

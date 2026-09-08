@@ -12,6 +12,9 @@ package com.chua.common.support.lang.process;
  */
 class StringDisplayUtils {
 
+    private StringDisplayUtils() {
+    }
+
     /**
      * 获取字符的显示宽度（Unicode 字符按双宽度计算）
      *

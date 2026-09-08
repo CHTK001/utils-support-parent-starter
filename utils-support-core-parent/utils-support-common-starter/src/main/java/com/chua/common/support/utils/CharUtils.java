@@ -12,6 +12,9 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SLASH
  * @author CH
  */
 public class CharUtils {
+
+    private CharUtils() {}
+
     /**
      * 输入结束标记，常用于表示文本或流读取结束。
      */

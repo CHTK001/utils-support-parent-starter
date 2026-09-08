@@ -35,6 +35,9 @@ import static com.chua.common.support.constant.ValueConstant.*;
  */
 public class ArrayUtils {
 
+    private ArrayUtils() {
+    }
+
     /**
      *
      *
