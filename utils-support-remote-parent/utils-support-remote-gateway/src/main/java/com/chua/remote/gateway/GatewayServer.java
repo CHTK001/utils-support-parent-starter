@@ -423,6 +423,7 @@ public class GatewayServer implements RemoteServerSPI {
     @Override
     public String controllerConnect(ControllerInfo controllerInfo) {
         authManager.registerController(controllerInfo.getAccessToken(), controllerInfo);
+        sessionManager.registerController(controllerInfo);
         log.info("控制端接入成功: accessToken={}, targetAgentId={}",
                 controllerInfo.getAccessToken(), controllerInfo.getTargetAgentId());
         return controllerInfo.getAccessToken();
