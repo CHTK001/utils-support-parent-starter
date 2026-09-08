@@ -34,6 +34,7 @@ public class GatewayServer implements RemoteServerSPI {
     private final JdkHttpServer httpServer;
     private final int httpPort;
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private ControllerWebSocketServer controllerWs;
 
     public GatewayServer(ServerSetting setting) {
         this.server = new RemoteServer(setting);
@@ -84,7 +85,10 @@ public class GatewayServer implements RemoteServerSPI {
     public void start() {
         server.start();
         httpServer.start();
-        log.info("远控网关已启动 (WS端口:{}, HTTP验证端口:{})", httpPort - 1, httpPort);
+        controllerWs = new ControllerWebSocketServer(httpPort + 2, server.getTransport());
+        controllerWs.setReuseAddr(true);
+        controllerWs.start();
+        log.info("远控网关已启动 (帧端口:{}, HTTP端口:{}, ControllerWS端口:{})", httpPort - 1, httpPort, httpPort + 2);
     }
 
     public void stop() {

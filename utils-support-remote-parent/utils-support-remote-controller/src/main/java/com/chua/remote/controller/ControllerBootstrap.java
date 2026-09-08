@@ -117,11 +117,18 @@ public class ControllerBootstrap {
         });
 
         // 自动发起会话（真实帧源——帧流经网关路由至控制器渲染监听 → WS 桥 → Web 前端）
-        try {
-            bootstrap.startSession(targetAgentId, verifyCode);
-            log.info("会话已发起: agentId={}", targetAgentId);
-        } catch (Exception e) {
-            log.warn("会话发起失败（agent 可能不在线）: {}", e.getMessage());
+        // 注册信令异步处理——首次会话请求可能早于 agent/控制器注册完成，失败时重试
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                bootstrap.startSession(targetAgentId, verifyCode);
+                log.info("会话已发起: agentId={}", targetAgentId);
+                break;
+            } catch (Exception e) {
+                log.warn("会话发起失败（第 {} 次，将重试）: {}", attempt, e.getMessage());
+                if (attempt < 3) {
+                    Thread.sleep(2000L * attempt);
+                }
+            }
         }
         // 保持 JVM 存活（传输层为 NIO Reactor 异步线程——主线程须阻塞，否则 main 返回即退出）
         try {
