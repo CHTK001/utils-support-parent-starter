@@ -27,6 +27,9 @@ import static com.chua.common.support.constant.NumberConstant.NUMBER_2;
  */
 public class FileUtils {
 
+    private FileUtils() {
+    }
+
     /**
      * 获取简单扩展名（去掉第一段）
      *
