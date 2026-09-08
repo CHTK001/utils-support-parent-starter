@@ -160,7 +160,6 @@ public class RemoteTransport {
      */
     public void dispatch(Frame frame) {
         List<FrameHandler> handlerList = handlers.get(frame.getType());
-        log.debug("dispatch: type={}, sessionId={}, handlers={}", frame.getType(), frame.getSessionId(), handlerList != null ? handlerList.size() : 0);
         if (handlerList == null || handlerList.isEmpty()) {
             return;
         }
