@@ -24,6 +24,8 @@ public class ControllerWebSocketServer extends WebSocketServer {
     private final RemoteTransport transport;
     private final ObjectMapper mapper = new ObjectMapper();
     private final Map<WebSocket, String> wsToAgent = new ConcurrentHashMap<>();
+    /** sshSessionId → ws（agent 响应帧带 sshSessionId——回流按会话路由，而非 agentId） */
+    private final Map<String, WebSocket> sshSessions = new ConcurrentHashMap<>();
 
     public ControllerWebSocketServer(int port, RemoteTransport transport) {
         super(new InetSocketAddress(port));
@@ -85,6 +87,9 @@ public class ControllerWebSocketServer extends WebSocketServer {
 
             Frame frame = FrameCodec.sshFrame(agentId, payload, meta);
             transport.send(agentId, frame);
+            if (!sessionId.isEmpty()) {
+                sshSessions.put(sessionId, conn);
+            }
             log.debug("WS→Agent: agentId={}, action={}, sessionId={}", agentId, sshAction, sessionId);
         } catch (Exception e) {
             log.error("WS消息处理失败: {}", e.getMessage());
@@ -116,8 +121,14 @@ public class ControllerWebSocketServer extends WebSocketServer {
         }
 
         String json = toJsonMsg(action, text, meta.getOrDefault("stream", "stdout"));
-        log.debug("Agent→WS: agentId={}, action={}, len={}", agentId, action, data != null ? data.length : 0);
+        log.debug("Agent→WS: sessionId={}, action={}, len={}", frame.getSessionId(), action, data != null ? data.length : 0);
 
+        // 优先按 sshSessionId 路由（agent 响应帧带会话 id——与 wsToAgent 的 agentId 不一致）
+        WebSocket sessionWs = sshSessions.get(frame.getSessionId());
+        if (sessionWs != null && sessionWs.isOpen()) {
+            sessionWs.send(json);
+            return;
+        }
         for (WebSocket ws : getConnections()) {
             if (agentId.equals(wsToAgent.get(ws))) {
                 ws.send(json);
