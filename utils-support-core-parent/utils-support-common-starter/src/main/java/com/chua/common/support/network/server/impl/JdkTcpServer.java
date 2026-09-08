@@ -512,7 +512,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             return;
         }
         // URL 路由模式：将帧体解析为 HTTP 请求，走完整 Filter Chain
-        System.err.println("[JdkTcpServer.URL_PATH] entering URL routing mode");
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get("tcp-debug.log"), "[URL_PATH] entering\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
         InetSocketAddress remoteAddr = null;
         try {
             java.net.Socket socket = sc.socket();
