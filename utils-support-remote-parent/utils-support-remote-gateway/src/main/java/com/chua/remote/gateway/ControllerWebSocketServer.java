@@ -28,7 +28,7 @@ public class ControllerWebSocketServer extends WebSocketServer {
     public ControllerWebSocketServer(int port, RemoteTransport transport) {
         super(new InetSocketAddress(port), Executors.newVirtualThreadPerTaskExecutor());
         this.transport = transport;
-        setKeepAliveIntervall(30);
+        setKeepAliveInterval(30);
     }
 
     @Override
@@ -65,11 +65,12 @@ public class ControllerWebSocketServer extends WebSocketServer {
             String sessionId = node.path("sessionId").asText("");
             String host = node.path("host").asText("local");
 
-            Map<String, String> meta = Map.of(
-                    "sshAction", sshAction,
-                    "sshSessionId", sessionId,
-                    "host", host
-            );
+            var meta = new java.util.HashMap<String, String>();
+            meta.put("sshAction", sshAction);
+            meta.put("sshSessionId", sessionId);
+            meta.put("host", host);
+            if (node.has("cols")) meta.put("cols", node.path("cols").asText("80"));
+            if (node.has("rows")) meta.put("rows", node.path("rows").asText("24"));
 
             byte[] payload = new byte[0];
             if ("input".equals(sshAction)) {
