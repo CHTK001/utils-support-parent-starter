@@ -251,6 +251,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     /** 设置Handler */
     public JdkTcpServer setHandler(TcpServerHandler handler) {
         this.frameHandler = handler;
+        String p = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(p), "setHandler called, frameHandler=" + (handler != null) + " this=" + System.identityHashCode(this) + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING); } catch (Exception ignored) {}
         return this;
     }
 
