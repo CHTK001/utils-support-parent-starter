@@ -35,6 +35,8 @@ import java.util.List;
  */
 public class BufferedImageUtils {
 
+    private BufferedImageUtils() {}
+
     /**
      * 安全获取图像类型，将 JDK 内置 TIFF 插件返回的 TYPE_CUSTOM(0) 替换为 TYPE_INT_RGB，
      * 避免 new BufferedImage(w, h, 0) 抛出 IllegalArgumentException。

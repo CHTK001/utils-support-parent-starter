@@ -46,6 +46,9 @@ import static com.chua.common.support.converter.Converter.convertIfPrimitive;
 @SuppressWarnings("ALL")
 public class ClassUtils {
 
+    private ClassUtils() {
+    }
+
     /**
      *       .
      * Key             Value                    JDK          

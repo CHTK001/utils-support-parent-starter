@@ -23,6 +23,9 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  */
 public class ServiceDefinitionUtils {
 
+    private ServiceDefinitionUtils() {
+    }
+
     /**
      * 根据服务类型和实现类构建对应的服务定义列表。
      *

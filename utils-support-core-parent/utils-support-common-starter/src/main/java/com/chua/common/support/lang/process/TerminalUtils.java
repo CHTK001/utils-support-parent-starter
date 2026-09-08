@@ -19,6 +19,9 @@ import javax.annotation.Nullable;
  */
 public class TerminalUtils {
 
+    private TerminalUtils() {
+    }
+
     static final char CARRIAGE_RETURN = '\r';
     static final char ESCAPE_CHAR = '\u001b';
     static final int DEFAULT_TERMINAL_WIDTH = 120;

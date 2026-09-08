@@ -18,6 +18,8 @@ import javax.annotation.Nullable;
 @Slf4j
 public class MatchUtils {
 
+    private MatchUtils() {}
+
     /**
      * 匹配类型枚举
      */

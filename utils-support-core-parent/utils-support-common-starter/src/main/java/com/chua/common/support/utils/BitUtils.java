@@ -15,6 +15,9 @@ import static com.chua.common.support.utils.ByteUtils.*;
  * @since 2021/3/3
  */
 public class BitUtils {
+
+    private BitUtils() {}
+
     /**
      * 单个字节对应的二进制位数。
      */

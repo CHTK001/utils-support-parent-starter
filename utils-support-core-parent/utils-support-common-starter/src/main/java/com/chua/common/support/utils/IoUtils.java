@@ -21,6 +21,8 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_BUFFER_SIZ
  */
 public class IoUtils {
 
+    private IoUtils() {}
+
     /** AsBytes */
     public static byte[] asBytes(final InputStreamReader input, final Charset charset) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {

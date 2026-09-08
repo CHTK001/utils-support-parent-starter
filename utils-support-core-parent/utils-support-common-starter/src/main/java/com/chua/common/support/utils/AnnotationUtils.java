@@ -44,6 +44,8 @@ import java.util.*;
  */
 public class AnnotationUtils {
 
+    private AnnotationUtils() {}
+
     /**
      * 别名缓存：窄注解 Class（WeakHashMap key）→ 宽注解全限定名。
      * 使用 WeakHashMap 保证窄注解类被 GC 回收时缓存自动清理，防止类加载器泄漏。
