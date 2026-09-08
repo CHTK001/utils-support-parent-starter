@@ -54,12 +54,12 @@ import java.util.Map;
  *     .fromXml("<config><name>zhang</name><age>25</age></config>");
  *
  * // 2. 导入的数据可直接用于类初始化（init 优先消费 fromXml/fromJson 导入的数据）
- * User user = quick.init(User.class);      // name=zhang, age=25
+ * User user = quick.init(User.class);      // 假设存在 User 业务实体类：name=zhang, age=25
  *
  * // 3. 动态类生成：为接口/类生成子类并实例化，源码自动带导入包（java.time.*）
  * Runnable task = quick.dynamic(Runnable.class,
  *         "public void run() { System.out.println(\"today=\" + LocalDate.now()); }");
- * task.run();                              // today=2026-09-08
+ * task.run();                              // today=<运行当天日期>
  *
  * // 4. 脚本执行：代码片段内可访问 quick（当前实例）与 variables（绑定变量快照）
  * Object sum = quick.execute(
