@@ -358,29 +358,27 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     /**
      * 构建 WebSocket 文本帧
+     *
+     * <p>协议规定：仅客户端帧需掩码（masked），服务端帧必须无掩码——否则客户端按协议
+     * 校验会异常关闭连接（1006）。</p>
      */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.write(0x81);
         if (data.length <= 125) {
-            out.write(0x80 | data.length);
+            out.write(data.length);
         } else if (data.length <= 65535) {
-            out.write(0x80 | 126);
+            out.write(126);
             out.write((data.length >> 8) & 0xFF);
             out.write(data.length & 0xFF);
         } else {
-            out.write(0x80 | 127);
+            out.write(127);
             for (int i = 7; i >= 0; i--) {
                 out.write((int) ((data.length >> (8 * i)) & 0xFF));
             }
         }
-        byte[] maskKey = new byte[4];
-        new java.security.SecureRandom().nextBytes(maskKey);
-        out.write(maskKey);
-        for (int i = 0; i < data.length; i++) {
-            out.write(data[i] ^ maskKey[i % 4]);
-        }
+        out.write(data);
         return out.toByteArray();
     }
 
