@@ -240,6 +240,8 @@ public abstract class AbstractServer implements ConfigServer {
         if (!res.isEnded()) {
             res.sendError(404, "Not Found");
         }
+        String debugPath = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "DEFAULT_404_HANDLER called, status=" + res.getStatus() + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
     };
 
     /**
