@@ -153,36 +153,6 @@ public class AgentShellService {
         }
     }
 
-    private void startRDPSession() {
-        String host = agentInfo.getHost();
-        int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 3389;
-        String username = agentInfo.getUsername();
-        String password = agentInfo.getPassword();
-        sshTunnelManager.createRDPTunnel(host, port, agentInfo.getPlatform(), 22, username, password, 3390);
-        sshTunnelManager.startFreerdp(host, port, username, password);
-        log.info("启动 RDP 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
-    }
-
-    private void startVNCSession() {
-        String host = agentInfo.getHost();
-        int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 5900;
-        String username = agentInfo.getUsername();
-        String password = agentInfo.getPassword();
-        sshTunnelManager.createVNCTunnel(host, port, agentInfo.getPlatform(), 22, username, password, 5901);
-        sshTunnelManager.startVncViewer(host, port);
-        log.info("启动 VNC 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
-    }
-
-    private void startSSHSession() {
-        String host = agentInfo.getHost();
-        int port = agentInfo.getPort() > 0 ? agentInfo.getPort() : 22;
-        String username = agentInfo.getUsername();
-        String password = agentInfo.getPassword();
-        sshTunnelManager.createSSHTunnel(host, port, username, password, 2222);
-        sshTunnelManager.startSshShellViaClient(host, port, username, password);
-        log.info("启动 SSH 会话: agentId={}, host={}:{}", agentInfo.getId(), host, port);
-    }
-
     public void stop() {
         running = false;
         telnetServer.stop();
