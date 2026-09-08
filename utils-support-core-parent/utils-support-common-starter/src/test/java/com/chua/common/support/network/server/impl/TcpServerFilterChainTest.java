@@ -101,7 +101,7 @@ public class TcpServerFilterChainTest {
         String response = sendAndReceive(request);
         boolean ok = response.contains("HTTP/1.1 404");
         System.out.println("[test404] " + (ok ? "PASS" : "FAIL")
-                + " | response: " + trimToFirstLine(response));
+                + " | response: " + response.trim().substring(0, Math.min(80, response.trim().length())));
         return ok;
     }
 
