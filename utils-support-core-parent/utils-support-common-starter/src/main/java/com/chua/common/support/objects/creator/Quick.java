@@ -43,6 +43,43 @@ import java.util.Map;
  * quick.fromXml("<user><name>li</name><age>30</age></user>");
  * }</pre>
  *
+ * <h2>完整链式调用示例（importPackage + fromXml + dynamic + execute 组合）</h2>
+ * <pre>{@code
+ * // 1. 链式初始化：包导入 + 常量/变量/环境绑定 + XML 数据导入（这些方法均返回 Quick）
+ * Quick quick = Quick.create()
+ *     .importPackage("java.time", "java.util")
+ *     .constant("PI", 3.14)
+ *     .variable("factor", 2)
+ *     .env("server.port", "8080")
+ *     .fromXml("<config><name>zhang</name><age>25</age></config>");
+ *
+ * // 2. 导入的数据可直接用于类初始化（init 优先消费 fromXml/fromJson 导入的数据）
+ * User user = quick.init(User.class);      // name=zhang, age=25
+ *
+ * // 3. 动态类生成：为接口/类生成子类并实例化，源码自动带导入包（java.time.*）
+ * Runnable task = quick.dynamic(Runnable.class,
+ *         "public void run() { System.out.println(\"today=\" + LocalDate.now()); }");
+ * task.run();                              // today=2026-09-08
+ *
+ * // 4. 脚本执行：代码片段内可访问 quick（当前实例）与 variables（绑定变量快照）
+ * Object sum = quick.execute(
+ *         "return ((Number) variables.get(\"factor\")).intValue() + 1;");   // 3
+ *
+ * // 5. 脚本执行：类型化返回
+ * Double area = quick.execute("2 * Math.PI", Double.class);                  // 6.283...
+ *
+ * // 6. 脚本执行：完整类源码（实现 QuickScript，run 接收 quick 与 variables）
+ * Object name = quick.execute(
+ *         "public class MyScript implements com.chua.common.support.objects.creator.QuickScript {"
+ *       + "  public Object run(Quick quick, Map<String, Object> variables) {"
+ *       + "    return variables.get(\"name\");"                             // zhang
+ *       + "  }"
+ *       + "}");
+ *
+ * // 7. 用完释放内部上下文
+ * quick.close();
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  * @see DefaultQuick
