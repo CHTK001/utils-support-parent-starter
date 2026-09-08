@@ -86,5 +86,14 @@ public class SshAgentBootstrap {
         SshAgentBootstrap bootstrap = new SshAgentBootstrap(gatewayUrl, info);
         Runtime.getRuntime().addShutdownHook(new Thread(bootstrap::stop));
         bootstrap.start();
+        // 主线程保活：main 返回后 JVM 立即退出（虚拟线程不阻塞进程退出）——必须阻塞直到停机信号
+        while (bootstrap.running) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 }
