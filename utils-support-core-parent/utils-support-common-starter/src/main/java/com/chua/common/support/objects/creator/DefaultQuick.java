@@ -25,6 +25,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
@@ -249,7 +250,7 @@ public class DefaultQuick implements Quick {
         }
         Map<String, Object> map = xmlToMap(xml);
         this.data = map;
-        T bean = ClassUtils.forObjectOfMap(type, map);
+        T bean = mapToBean(map, type);
         registerNamedBean(type.getSimpleName(), bean);
         return bean;
     }
@@ -264,7 +265,7 @@ public class DefaultQuick implements Quick {
         }
         Object current = this.data;
         if (current instanceof Map<?, ?> map && !type.isInstance(current)) {
-            T bean = ClassUtils.forObjectOfMap(type, (Map<String, Object>) map);
+            T bean = mapToBean((Map<String, Object>) map, type);
             registerNamedBean(type.getSimpleName(), bean);
             return bean;
         }
@@ -456,6 +457,18 @@ public class DefaultQuick implements Quick {
     }
 
     /**
+     * 构建脚本公共 import 语句（Quick 包 + JDK 集合 + 用户导入包）。
+     *
+     * @return import 语句字符串
+     */
+    private String buildScriptImports() {
+        return "import " + Quick.class.getPackageName() + ".*;\n"
+                + "import java.util.*;\n"
+                + "import java.util.stream.*;\n"
+                + buildImports();
+    }
+
+    /**
      * 构建导入包对应的 import 语句。
      *
      * @return import 语句字符串
@@ -498,7 +511,12 @@ public class DefaultQuick implements Quick {
      * @return 执行结果
      */
     private Object executeFullClass(String source) {
-        Class<?> clazz = compile(source);
+        String processed = source;
+        // 无 package 声明的完整类源码：自动注入公共 import（Quick 包 + JDK 集合 + 用户导入包）
+        if (!source.trim().startsWith("package ")) {
+            processed = buildScriptImports() + "\n" + source;
+        }
+        Class<?> clazz = compile(processed);
         if (clazz == null) {
             return null;
         }
@@ -548,10 +566,7 @@ public class DefaultQuick implements Quick {
         }
         String className = "QuickScript" + SCRIPT_SEQ.incrementAndGet();
         String source = "package " + SCRIPT_PACKAGE + ";\n"
-                + "import " + Quick.class.getPackageName() + ".*;\n"
-                + "import java.util.*;\n"
-                + "import java.util.stream.*;\n"
-                + buildImports()
+                + buildScriptImports()
                 + "public class " + className + " implements " + QuickScript.class.getName() + " {\n"
                 + "    public Object run(" + Quick.class.getName() + " quick, Map<String, Object> variables) {\n"
                 + "        " + body + "\n"
@@ -632,6 +647,41 @@ public class DefaultQuick implements Quick {
             }
         }
         return null;
+    }
+
+    /**
+     * 将 Map 数据转换为目标类型对象（按字段名填充，自动类型转换）。
+     *
+     * @param map  数据 Map
+     * @param type 目标类型
+     * @param <T>  泛型类型
+     * @return 转换后的对象，字段值无法转换时跳过该字段
+     */
+    private <T> T mapToBean(Map<String, Object> map, Class<T> type) {
+        if (map == null || type == null) {
+            return null;
+        }
+        T bean = ClassUtils.forObject(type);
+        if (bean == null) {
+            return null;
+        }
+        for (Field field : ClassUtils.getFields(type)) {
+            if (!map.containsKey(field.getName())) {
+                continue;
+            }
+            Object value = map.get(field.getName());
+            if (value == null) {
+                continue;
+            }
+            Class<?> fieldType = field.getType();
+            Object converted = fieldType.isAssignableFrom(value.getClass())
+                    ? value
+                    : Converter.convertIfNecessary(value, fieldType);
+            if (converted != null) {
+                ClassUtils.setFieldValue(field, type, converted, bean);
+            }
+        }
+        return bean;
     }
 
     /**

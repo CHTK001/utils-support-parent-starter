@@ -246,9 +246,9 @@ class QuickTest {
     /** 导入包 + 按名称init */
     void testImportPackageAndInitByName() {
         Quick quick = Quick.create()
-                .importPackage("com.chua.common.support.objects.creator");
-        User user = quick.init("User");
-        assertNotNull(user);
+                .importPackage("java.util");
+        ArrayList<String> list = quick.init("ArrayList");
+        assertNotNull(list);
         quick.close();
     }
 
