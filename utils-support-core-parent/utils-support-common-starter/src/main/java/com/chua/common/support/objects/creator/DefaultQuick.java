@@ -9,6 +9,8 @@ import com.chua.common.support.objects.DefaultObjectContext;
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.ObjectContextConfig;
 import com.chua.common.support.objects.definition.SingletonBeanDefinition;
+import com.chua.common.support.objects.register.BeanDefinitionRegister;
+import com.chua.common.support.objects.register.BeanDefinitionRegistry;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
@@ -123,21 +125,61 @@ public class DefaultQuick implements Quick {
      */
     public DefaultQuick(ClassLoader classLoader) {
         this.classLoader = classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader();
-        this.context = new DefaultObjectContext();
-        this.context.init(ObjectContextConfig.empty());
+        this.context = createIsolatedContext();
     }
 
     /**
      * 创建 Quick 实例，复用外部 ObjectContext。
      *
-     * @param context 外部对象容器
+     * <p>注意：外部传入的容器沿用其自身的注册中心（含 SPI 共享注册器），
+     * 变量/常量仍为 Quick 实例私有，但 Bean 可能在共享注册器间可见，
+     * 需由调用方保证隔离性。</p>
+     *
+     * @param context 外部对象容器，null 时创建隔离容器
      */
     public DefaultQuick(ObjectContext context) {
-        this.context = context != null ? context : new DefaultObjectContext();
         this.classLoader = ClassUtils.getDefaultClassLoader();
-        if (context == null) {
-            this.context.init(ObjectContextConfig.empty());
+        if (context != null) {
+            this.context = context;
+        } else {
+            this.context = createIsolatedContext();
         }
+    }
+
+    /**
+     * 创建隔离的 ObjectContext。
+     *
+     * <p>SPI 发现的 {@link BeanDefinitionRegister} 实现被 {@link ServiceProvider} 缓存为全局单例
+     * （ServiceDefinition.getObj 缓存实例），若直接复用会导致不同 Quick 实例的 Bean
+     * 相互可见。因此此处以 {@code spiEnabled=false} 初始化容器（不加载共享注册器），
+     * 再按实现类逐一创建<b>全新实例</b>并注册，保证每个 Quick 拥有完全独立的注册中心。</p>
+     *
+     * @return 隔离的 ObjectContext
+     */
+    private static ObjectContext createIsolatedContext() {
+        DefaultObjectContext context = new DefaultObjectContext();
+        context.init(ObjectContextConfig.builder().spiEnabled(false).build());
+        try {
+            BeanDefinitionRegistry registry = context.getRegistry();
+            ServiceProvider<BeanDefinitionRegister> provider = ServiceProvider.of(BeanDefinitionRegister.class);
+            boolean addedAny = false;
+            for (Class<?> implClass : provider.listType().values()) {
+                try {
+                    Object fresh = ClassUtils.forObject(implClass);
+                    if (fresh instanceof BeanDefinitionRegister register && registry.addRegister(register)) {
+                        addedAny = true;
+                    }
+                } catch (Exception e) {
+                    log.debug("创建独立 BeanDefinitionRegister 失败: {}", implClass.getName(), e);
+                }
+            }
+            if (!addedAny) {
+                log.warn("未添加任何独立 BeanDefinitionRegister，隔离注册中心可能无法注册 Bean");
+            }
+        } catch (Exception e) {
+            log.warn("初始化隔离注册中心失败", e);
+        }
+        return context;
     }
 
     @Override
