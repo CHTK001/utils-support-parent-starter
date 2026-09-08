@@ -3,6 +3,8 @@ package com.chua.common.support.network.server.aio;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
+import com.chua.common.support.network.server.impl.TcpServerRequest;
+import com.chua.common.support.network.server.impl.TcpServerResponse;
 import com.chua.common.support.network.tcp.TcpServer;
 import com.chua.common.support.network.tcp.callback.TcpServerHandler;
 import com.chua.common.support.spi.annotations.Spi;
@@ -16,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -249,6 +252,16 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
                 buf.flip();
                 byte[] request = new byte[buf.remaining()];
                 buf.get(request);
+                // URL 路由模式：走 Filter Chain；否则走旧帧式路径
+                if (urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0) {
+                    processViaFilterChain(channel, request);
+                    return;
+                }
+                if (frameHandler == null) {
+                    closeQuietly(channel);
+                    activeConnections.decrementAndGet();
+                    return;
+                }
                 byte[] response;
                 try {
                     response = frameHandler.handle(request);
@@ -262,22 +275,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
                     issueFrameRead(channel, buf);
                     return;
                 }
-                ByteBuffer out = ByteBuffer.wrap(response);
-                channel.write(out, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
-                    @Override
-                    public void completed(Integer w, Void attachment) {
-                        if (out.hasRemaining()) {
-                            channel.write(out, null, this);
-                            return;
-                        }
-                        issueFrameRead(channel, buf);
-                    }
-
-                    @Override
-                    public void failed(Throwable exc, Void attachment) {
-                        closeQuietly(channel);
-                    }
-                });
+                writeFrame(channel, response);
             }
 
             @Override
@@ -285,6 +283,71 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
                 closeQuietly(channel);
             }
         });
+    }
+
+    /**
+     * 通过 Filter Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回通道。
+     */
+    private void processViaFilterChain(AsynchronousSocketChannel channel, byte[] reqData) {
+        InetSocketAddress remoteAddr = null;
+        try {
+            ChannelRemoteAddr attr = channel.getOption(StandardSocketOptions.SO_PEERADDR);
+            if (attr != null) remoteAddr = attr.address;
+        } catch (Exception ignored) {}
+        TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, StandardCharsets.UTF_8);
+        TcpServerResponse response = new TcpServerResponse();
+        try {
+            handleRequest(request, response);
+        } catch (Exception e) {
+            log.debug("帧处理器异常: {}", e.getMessage());
+            closeQuietly(channel);
+            activeConnections.decrementAndGet();
+            return;
+        }
+        if (!response.isEnded()) {
+            response.end();
+        }
+        byte[] respFrame = response.getReadyBytes();
+        if (respFrame != null && respFrame.length > 0) {
+            writeFrame(channel, respFrame);
+        } else {
+            writeEmptyFrame(channel);
+        }
+    }
+
+    /**
+     * 写出长度帧：4 字节大端长度头 + body。
+     */
+    private void writeFrame(AsynchronousSocketChannel channel, byte[] data) {
+        if (data.length > 8 * 1024 * 1024) {
+            log.warn("响应过大: {} bytes", data.length);
+            closeQuietly(channel);
+            activeConnections.decrementAndGet();
+            return;
+        }
+        ByteBuffer out = ByteBuffer.allocate(4 + data.length);
+        out.putInt(data.length);
+        out.put(data);
+        out.flip();
+        channel.write(out, null, new java.nio.channels.CompletionHandler<Integer, Void>() {
+            @Override
+            public void completed(Integer w, Void attachment) {
+                issueFrameRead(channel, ByteBuffer.allocateDirect(Math.max(setting.getBufferSize(), 32768)));
+            }
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                closeQuietly(channel);
+                activeConnections.decrementAndGet();
+            }
+        });
+    }
+
+    /**
+     * 写出空响应帧（200 OK + Content-Length: 0）。
+     */
+    private void writeEmptyFrame(AsynchronousSocketChannel channel) {
+        byte[] empty = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n".getBytes(StandardCharsets.US_ASCII);
+        writeFrame(channel, empty);
     }
 
     /**
