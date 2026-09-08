@@ -165,6 +165,7 @@ public class FrameClient {
                 }
                 FrameListener current = listener;
                 if (current != null) {
+                    log.info("客户端收到帧: type={}", frame.getType());
                     current.onFrame(frame);
                 }
             }
