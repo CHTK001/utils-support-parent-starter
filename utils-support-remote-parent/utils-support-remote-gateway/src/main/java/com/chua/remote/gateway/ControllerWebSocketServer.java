@@ -59,6 +59,7 @@ public class ControllerWebSocketServer extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
+        log.info("收到文本消息: len={}", message.length());
         String agentId = wsToAgent.get(conn);
         if (agentId == null) return;
         log.info("WS_ONMESSAGE: agentId={}, message={}", agentId, message);
@@ -101,6 +102,18 @@ public class ControllerWebSocketServer extends WebSocketServer {
     @Override
     public void onError(WebSocket conn, Exception ex) {
         log.error("Controller WS error", ex);
+    }
+
+    /** 二进制消息（库版本可能按二进制投递文本帧——验证用） */
+    @Override
+    public void onMessage(WebSocket conn, java.nio.ByteBuffer bytes) {
+        log.info("收到二进制消息: len={}", bytes.remaining());
+        try {
+            String message = new String(bytes.array(), bytes.arrayOffset(), bytes.remaining(), java.nio.charset.StandardCharsets.UTF_8);
+            onMessage(conn, message);
+        } catch (Exception e) {
+            log.error("二进制消息处理失败", e);
+        }
     }
 
     @Override
