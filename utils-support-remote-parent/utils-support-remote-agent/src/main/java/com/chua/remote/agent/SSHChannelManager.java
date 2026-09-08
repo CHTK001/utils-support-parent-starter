@@ -67,7 +67,8 @@ public class SSHChannelManager {
             if (local) {
                 String os = System.getProperty("os.name", "").toLowerCase();
                 if (os.contains("win")) {
-                    pb = new ProcessBuilder("powershell", "-NoProfile", "-NonInteractive");
+                    // cmd.exe 恒在 System32——powershell 在部分 JVM 环境 PATH 解析失败（CreateProcess error=2）
+                    pb = new ProcessBuilder("cmd.exe");
                 } else {
                     pb = new ProcessBuilder("/bin/bash");
                 }
