@@ -186,7 +186,7 @@ public class FrameWsBridge {
                 out.write((int) ((data.length >> (8 * i)) & 0xFF));
             }
         }
-        out.write(data);
+        out.write(data, 0, data.length);
         return out.toByteArray();
     }
 
