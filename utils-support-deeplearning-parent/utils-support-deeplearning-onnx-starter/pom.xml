@@ -258,5 +258,9 @@
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId><version>4.0.0.42</version><scope>test</scope></dependency>
+        <!-- WeMM-Embedding 多模态嵌入模型（2B/4B/9B）：文本分支 ONNX，供 WeMMEmbeddingClient 测试 -->
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-2b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-4b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wemm-embedding-9b</artifactId><version>${project.version}</version><scope>test</scope></dependency>
       </dependencies>
 </project>
