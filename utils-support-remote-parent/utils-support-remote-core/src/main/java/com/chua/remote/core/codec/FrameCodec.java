@@ -59,6 +59,7 @@ public class FrameCodec {
 
     /** 二进制帧类型：控制 */
     private static final byte TYPE_CTRL = 2;
+    private static final byte TYPE_SSH = 3;
 
     /** 空缓冲（无元数据/无载荷时复用） */
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
@@ -419,6 +420,9 @@ public class FrameCodec {
         if (type == MessageType.CTRL) {
             return TYPE_CTRL;
         }
+        if (type == MessageType.SSH) {
+            return TYPE_SSH;
+        }
         return TYPE_SIGNAL;
     }
 
@@ -434,6 +438,9 @@ public class FrameCodec {
         }
         if (type == TYPE_CTRL) {
             return MessageType.CTRL;
+        }
+        if (type == TYPE_SSH) {
+            return MessageType.SSH;
         }
         return MessageType.SIGNAL;
     }
