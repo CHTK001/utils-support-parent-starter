@@ -504,10 +504,13 @@ public class GatewayServer implements RemoteServerSPI {
         ServerSetting setting = ServerSetting.builder().port(port).build();
         GatewayServer server = new GatewayServer(setting);
         server.start();
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            log.error("未捕获异常 thread={} name={}", t.getName(), t.getId(), e);
-        });
-        Thread.currentThread().join();
+        Thread.setDefaultUncaughtExceptionHandler((t, e) ->
+                log.error("未捕获异常 thread={}", t.getName(), e));
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
 
