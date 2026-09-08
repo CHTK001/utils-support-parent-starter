@@ -420,6 +420,8 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         if (sc == null) {
             return;
         }
+        String debugPath = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "doAccept frameHandler=" + (frameHandler != null) + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING); } catch (Exception ignored) {}
         if (frameHandler != null) {
             // 帧式协议：注册到 IO Selector，NIO 拼帧（加密告警已在 doStart 统一提示）
             sc.configureBlocking(false);
@@ -492,13 +494,14 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
 
     /** 处理Request */
     private void processRequest(SocketChannel sc, byte[] reqData, Attachment att) {
-        // 写日志验证本方法是否被调用
-        try { java.nio.file.Files.writeString(java.nio.file.Paths.get("tcp-debug.log"), "processRequest called\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception e) { System.err.println("WRITE_ERR: " + e); }
+        // 写日志验证本方法是否被调用（使用绝对路径避免工作目录问题）
+        String debugPath = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "processRequest called\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING); } catch (Exception e) { System.err.println("WRITE_ERR: " + e); }
         boolean hasUrlMapping = urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0;
-        try { java.nio.file.Files.writeString(java.nio.file.Paths.get("tcp-debug.log"), "hasUrlMapping=" + hasUrlMapping + " frameHandler=" + (frameHandler != null) + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "hasUrlMapping=" + hasUrlMapping + " frameHandler=" + (frameHandler != null) + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
         if (frameHandler == null || !hasUrlMapping) {
             // 无 URL 路由时走旧帧式路径（零开销）
-            try { java.nio.file.Files.writeString(java.nio.file.Paths.get("tcp-debug.log"), "[OLD_PATH]\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
+            try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "[OLD_PATH]\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
             try {
                 byte[] respData = frameHandler.handle(reqData);
                 if (respData != null) {
