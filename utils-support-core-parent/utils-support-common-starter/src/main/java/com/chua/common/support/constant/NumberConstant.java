@@ -21,7 +21,8 @@ package com.chua.common.support.constant;
  * @author CH
  * @since 1.0
  */
-public interface NumberConstant {
+public final class NumberConstant {
+    private NumberConstant() {}
 
     /**
      * 默认大小常量 16。
