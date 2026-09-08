@@ -283,7 +283,12 @@ public class DefaultQuick implements Quick {
         } catch (Exception e) {
             log.debug("从上下文注册 Bean 失败，直接创建实例: {}", type.getName(), e);
         }
-        return context.getBeanOfType(type);
+        bean = context.getBeanOfType(type);
+        if (bean != null) {
+            return bean;
+        }
+        // 普通类（无 BeanDefinitionGenerator 支持）直接反射创建
+        return ClassUtils.forObject(type);
     }
 
     @Override
