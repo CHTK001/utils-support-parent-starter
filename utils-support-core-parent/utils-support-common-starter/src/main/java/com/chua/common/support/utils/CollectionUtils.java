@@ -31,6 +31,8 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
 @Slf4j
 public class CollectionUtils {
 
+    private CollectionUtils() {
+    }
 
     /**
      * 遍历集合中的每个元素并执行回调。

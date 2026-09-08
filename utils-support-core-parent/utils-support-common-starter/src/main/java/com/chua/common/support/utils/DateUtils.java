@@ -50,6 +50,10 @@ import static java.util.Calendar.getInstance;
  */
 @Slf4j
 public class DateUtils {
+
+    private DateUtils() {
+    }
+
     /**
      * T
      */
