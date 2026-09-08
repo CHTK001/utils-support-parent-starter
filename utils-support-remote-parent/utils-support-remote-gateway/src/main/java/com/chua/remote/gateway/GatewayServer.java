@@ -403,7 +403,6 @@ public class GatewayServer implements RemoteServerSPI {
     private void handleSSH(Frame frame) {
         Map<String, String> meta = frame.getMetadata();
         String action = meta != null ? meta.get("sshAction") : null;
-        log.info("handleSSH: action={}, sessionId={}, agentId={}", action, frame.getSessionId(), frame.getMetadata());
 
         if ("output".equals(action) || "started".equals(action) || "error".equals(action) || "stopped".equals(action)) {
             if (controllerWs != null) {
