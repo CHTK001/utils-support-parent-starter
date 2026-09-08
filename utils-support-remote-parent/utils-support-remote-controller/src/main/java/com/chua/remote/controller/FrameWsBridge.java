@@ -212,8 +212,11 @@ public class FrameWsBridge {
             out.write(data.length & 0xFF);
         } else {
             out.write(127);
+            // data.length 为 int——位移 > 31 位会按 mod-32 回绕（>>56 实为 >>24）——
+            // 先转 long 再移，写出标准的 8 字节大端长度
+            long len = data.length;
             for (int i = 7; i >= 0; i--) {
-                out.write((int) ((data.length >> (8 * i)) & 0xFF));
+                out.write((int) ((len >> (8 * i)) & 0xFF));
             }
         }
         out.write(data, 0, data.length);
