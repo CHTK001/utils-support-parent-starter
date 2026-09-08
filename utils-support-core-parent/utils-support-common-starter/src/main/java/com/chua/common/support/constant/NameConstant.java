@@ -24,7 +24,8 @@ package com.chua.common.support.constant;
  * @author CH
  * @since 1.0
  */
-public interface NameConstant {
+public final class NameConstant {
+    private NameConstant() {}
 
     /**
      * JPEG 图片格式名称 {@value}。

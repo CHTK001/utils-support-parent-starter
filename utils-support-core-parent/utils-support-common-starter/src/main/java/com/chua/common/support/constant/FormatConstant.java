@@ -20,7 +20,8 @@ import java.text.DecimalFormat;
  * @author CH
  * @since 2024-01-01
  */
-public interface FormatConstant {
+public final class FormatConstant {
+    private FormatConstant() {}
 
     // ========================== 日期格式 ==========================
 

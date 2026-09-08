@@ -9,7 +9,8 @@ import java.util.Properties;
  * @author CH
  * @since 4.0.0.42
  */
-public interface ValueConstant {
+public final class ValueConstant {
+    private ValueConstant() {}
     /**
      * 空字符串常量。
      */

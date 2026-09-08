@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
  * @since 2024-01-01
  */
 @SuppressWarnings("all")
-public interface RegexConstant {
+public final class RegexConstant {
+    private RegexConstant() {}
 
     // ========================== 联系方式 ==========================
 
