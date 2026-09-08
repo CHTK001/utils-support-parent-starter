@@ -386,10 +386,12 @@ public class DefaultQuick implements Quick {
         }
         String className = DYNAMIC_PACKAGE + ".Dynamic" + SCRIPT_SEQ.incrementAndGet();
         String keyword = superType.isInterface() ? "implements" : "extends";
+        // 使用 canonical name（嵌套类为 Outer.Inner），二进制名（Outer$Inner）无法被 javac 源码引用
+        String superTypeName = superType.getCanonicalName() != null ? superType.getCanonicalName() : superType.getName();
         String fullSource = "package " + DYNAMIC_PACKAGE + ";\n"
                 + buildImports()
                 + "public class " + className.substring(className.lastIndexOf('.') + 1)
-                + " " + keyword + " " + superType.getName() + " {\n"
+                + " " + keyword + " " + superTypeName + " {\n"
                 + source + "\n}\n";
         Class<?> clazz = compile(fullSource);
         if (clazz == null) {
