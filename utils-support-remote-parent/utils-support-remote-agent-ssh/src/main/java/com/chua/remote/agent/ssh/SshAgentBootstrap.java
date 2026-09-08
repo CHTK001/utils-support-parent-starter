@@ -80,6 +80,7 @@ public class SshAgentBootstrap {
         AgentInfo info = new AgentInfo();
         info.setId(agentId);
         info.setVerifyCode(verifyCode);
+        info.setAccessCode(verifyCode);
         info.setUsername(username);
         info.setPassword(password);
         SshAgentBootstrap bootstrap = new SshAgentBootstrap(gatewayUrl, info);
