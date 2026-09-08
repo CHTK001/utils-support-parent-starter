@@ -164,6 +164,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                     socket.close();
                 }
             });
+        } else if (urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0) {
+            // URL 路由模式：走 Filter Chain
+            workerPool.submit(() -> processViaFilterChain(socket));
         } else if (frameHandler != null) {
             // 帧模式(TcpServer 接口):短连接一请求一响应,读完整帧→处理→写响应→关闭
             workerPool.submit(() -> {
