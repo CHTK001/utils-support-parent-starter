@@ -36,6 +36,9 @@ import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
  */
 public class NumberUtils {
 
+    private NumberUtils() {
+    }
+
     /** Long_min */
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
 
