@@ -156,6 +156,95 @@ public class GatewayServer implements RemoteServerSPI {
         return params;
     }
 
+    private volatile String savedConfig = "{}";
+
+    private void handleConfig(com.sun.net.httpserver.HttpExchange exchange) {
+        if ("GET".equals(exchange.getRequestMethod())) {
+            sendJson(exchange, 200, savedConfig);
+            return;
+        }
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                savedConfig = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                sendJson(exchange, 200, "{\"success\":true}");
+            } catch (Exception e) {
+                sendJson(exchange, 500, "{\"success\":false}");
+            }
+            return;
+        }
+        sendJson(exchange, 405, "{\"error\":\"method not allowed\"}");
+    }
+
+    private void handleGateways(com.sun.net.httpserver.HttpExchange exchange) {
+        String json = "[{\"url\":\"tcp://localhost:9000\",\"name\":\"本地网关\"}]";
+        sendJson(exchange, 200, json);
+    }
+
+    private void handleAgents(com.sun.net.httpserver.HttpExchange exchange) {
+        if ("GET".equals(exchange.getRequestMethod())) {
+            var all = sessionManager.getAgents();
+            StringBuilder sb = new StringBuilder("[");
+            boolean first = true;
+            for (var entry : all.entrySet()) {
+                if (!first) sb.append(",");
+                first = false;
+                var info = entry.getValue();
+                sb.append(String.format(
+                        "{\"id\":\"%s\",\"agentType\":\"%s\",\"platform\":\"%s\",\"desktopSupported\":%s,\"status\":\"在线\"}",
+                        info.getId(), info.getAgentType(),
+                        info.getPlatform() != null ? info.getPlatform() : "",
+                        info.getDesktopSupported() != null ? info.getDesktopSupported() : false));
+            }
+            sb.append("]");
+            sendJson(exchange, 200, sb.toString());
+            return;
+        }
+        if ("DELETE".equals(exchange.getRequestMethod())) {
+            try {
+                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                Map<String, String> params = parseParams(body);
+                String agentId = params.get("agentId");
+                if (agentId != null) {
+                    sessionManager.removeAgent(agentId);
+                }
+                sendJson(exchange, 200, "{\"success\":true}");
+            } catch (Exception e) {
+                sendJson(exchange, 500, "{\"success\":false}");
+            }
+            return;
+        }
+        sendJson(exchange, 405, "{\"error\":\"method not allowed\"}");
+    }
+
+    private volatile java.util.List<String> accessCodeList = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    private void handleAccessCodes(com.sun.net.httpserver.HttpExchange exchange) {
+        if ("GET".equals(exchange.getRequestMethod())) {
+            StringBuilder sb = new StringBuilder("[");
+            boolean first = true;
+            for (String code : accessCodeList) {
+                if (!first) sb.append(",");
+                first = false;
+                sb.append(String.format("{\"code\":\"%s\",\"type\":\"接入码\",\"status\":\"启用\"}", code));
+            }
+            sb.append("]");
+            sendJson(exchange, 200, sb.toString());
+            return;
+        }
+        if ("POST".equals(exchange.getRequestMethod())) {
+            try {
+                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                accessCodeList = java.util.Arrays.asList(
+                        body.replaceAll("[\\[\\]\\s]", "").split(","));
+                sendJson(exchange, 200, "{\"success\":true}");
+            } catch (Exception e) {
+                sendJson(exchange, 500, "{\"success\":false}");
+            }
+            return;
+        }
+        sendJson(exchange, 405, "{\"error\":\"method not allowed\"}");
+    }
+
     private void handleSignal(Frame frame) {
         String kind = frame.getMetadata() != null
                 ? frame.getMetadata().get(FrameCodec.METADATA_KIND) : null;

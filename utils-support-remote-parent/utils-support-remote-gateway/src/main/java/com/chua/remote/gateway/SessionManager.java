@@ -113,4 +113,18 @@ public class SessionManager {
     public Map<String, Session> getSessions() {
         return sessions;
     }
+
+    /**
+     * 获取所有已注册被控端。
+     */
+    public Map<String, AgentInfo> getAgents() {
+        return agents;
+    }
+
+    /**
+     * 移除被控端。
+     */
+    public void removeAgent(String agentId) {
+        agents.remove(agentId);
+    }
 }
