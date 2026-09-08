@@ -68,14 +68,9 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
                     if (handler instanceof ReactiveServerHandler reactive) {
                         return reactive.handleReactive(request, response);
                     }
-                    return CompletableFuture.supplyAsync(() -> {
-                        try {
-                            handler.handle(request, response);
-                            return null;
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }, ThreadUtils.GLOBAL_EXECUTOR);
+                    // 同步执行处理器，避免与 whenComplete 竞争
+                    handler.handle(request, response);
+                    return CompletableFuture.completedStage(null);
                 } catch (Exception e) {
                     log.warn("响应式处理器执行异常: {}", e.getMessage(), e);
                     if (!response.isEnded()) {
