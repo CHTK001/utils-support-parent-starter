@@ -63,6 +63,7 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response) {
         // 全部过滤器已执行完，调用目标处理器
         if (index >= filters.size()) {
+            System.err.println("[DefaultReactiveFilterChain] all filters done, index=" + index + " size=" + filters.size() + " handler=" + (handler != null) + " ended=" + response.isEnded() + " status=" + response.getStatus());
             if (handler != null && !response.isEnded()) {
                 try {
                     if (handler instanceof ReactiveServerHandler reactive) {
