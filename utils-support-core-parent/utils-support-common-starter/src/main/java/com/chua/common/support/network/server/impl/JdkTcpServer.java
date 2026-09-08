@@ -535,7 +535,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         if (!response.isEnded()) {
             response.end();
         }
+        System.err.println("[DEBUG] response status=" + ((TcpServerResponse)response).getStatus()
+                + " ended=" + response.isEnded() + " body=" + new String(((TcpServerResponse)response).getBody() != null ? ((TcpServerResponse)response).getBody() : new byte[0]));
         byte[] respFrame = response.getReadyBytes();
+        System.err.println("[DEBUG] respFrame length=" + respFrame.length + " first bytes=" + java.util.Arrays.toString(java.util.Arrays.copyOf(respFrame, Math.min(80, respFrame.length))));
         if (respFrame != null && respFrame.length > 0) {
             writeResponse(sc, respFrame);
         } else {
