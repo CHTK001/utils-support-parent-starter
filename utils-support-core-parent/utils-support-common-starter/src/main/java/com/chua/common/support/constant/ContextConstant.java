@@ -21,19 +21,20 @@ import java.lang.annotation.Annotation;
  * @since 1.0
  * @see org.springframework.stereotype.Component
  */
-public interface ContextConstant {
+public final class ContextConstant {
+    private ContextConstant() {}
 
     /**
      * Spring Component 注解的完整类名。
      * 用于通过反射方式加载 Component 注解类。
      */
-    String COMPONENT_CLASS_NAME = "org.springframework.stereotype.Component";
+    public static final String COMPONENT_CLASS_NAME = "org.springframework.stereotype.Component";
 
     /**
      * Spring Component 注解的 Class 对象。
      * 如果 Spring 框架不在类路径中，则为 null。
      */
-    Class<? extends Annotation> COMPONENT = loadComponentAnnotation();
+    public static final Class<? extends Annotation> COMPONENT = loadComponentAnnotation();
 
     /**
      * 尝试加载 Spring Component 注解类。
