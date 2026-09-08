@@ -40,15 +40,50 @@ public final class RawJpegEncoder {
      * @return JPEG 字节
      */
     public static byte[] encodeJpeg(NativeFrame frame, int quality) {
+        return encodeJpeg(frame, quality, 0, 0);
+    }
+
+    /**
+     * 编码原始 RGB 像素帧为 JPEG（支持目标尺寸降采样——大屏帧编码提速）。
+     *
+     * @param frame   原始 RGB 像素帧
+     * @param quality 压缩质量（0-100，0 表示编码器默认）
+     * @param maxW    目标最大宽度（{@code <= 0} 不缩放）
+     * @param maxH    目标最大高度（{@code <= 0} 不缩放）
+     * @return JPEG 字节
+     */
+    public static byte[] encodeJpeg(NativeFrame frame, int quality, int maxW, int maxH) {
         int width = frame.width();
         int height = frame.height();
         byte[] pixels = frame.pixels();
+        int scale = 1;
+        if (maxW > 0 && maxH > 0) {
+            scale = Math.max(1, Math.max((width + maxW - 1) / maxW, (height + maxH - 1) / maxH));
+        }
+        int outW = width / scale;
+        int outH = height / scale;
+        byte[] out = pixels;
+        if (scale > 1) {
+            // 整数降采样（每 scale 个像素取 1）——构造缩略数组，ImageIO 编码像素量减少 scale² 倍
+            out = new byte[outW * outH * 3];
+            for (int y = 0; y < outH; y++) {
+                int srcRow = y * scale * width * 3;
+                int dstRow = y * outW * 3;
+                for (int x = 0; x < outW; x++) {
+                    int src = srcRow + x * scale * 3;
+                    int dst = dstRow + x * 3;
+                    out[dst] = pixels[src];
+                    out[dst + 1] = pixels[src + 1];
+                    out[dst + 2] = pixels[src + 2];
+                }
+            }
+        }
         // 包装原始 RGB 字节的 raster（3 波段交错——R/G/B）
         SampleModel sampleModel = new PixelInterleavedSampleModel(
-                DataBuffer.TYPE_BYTE, width, height, 3, width * 3, new int[]{0, 1, 2});
-        DataBuffer dataBuffer = new DataBufferByte(pixels, pixels.length);
+                DataBuffer.TYPE_BYTE, outW, outH, 3, outW * 3, new int[]{0, 1, 2});
+        DataBuffer dataBuffer = new DataBufferByte(out, out.length);
         WritableRaster raster = Raster.createWritableRaster(sampleModel, dataBuffer, null);
-        RenderedImage image = new RawRasterImage(raster, width, height);
+        RenderedImage image = new RawRasterImage(raster, outW, outH);
         // ImageIO JPEG writer 直接消费 RenderedImage
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg");
         if (!writers.hasNext()) {
@@ -56,8 +91,8 @@ public final class RawJpegEncoder {
         }
         ImageWriter writer = writers.next();
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream(pixels.length / 3);
-            try (ImageOutputStream ios = ImageIO.createImageOutputStream(out)) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(out.length / 3);
+            try (ImageOutputStream ios = ImageIO.createImageOutputStream(bos)) {
                 writer.setOutput(ios);
                 ImageWriteParam param = writer.getDefaultWriteParam();
                 if (param.canWriteCompressed()) {
@@ -66,7 +101,7 @@ public final class RawJpegEncoder {
                 }
                 writer.write(null, new IIOImage(image, null, null), param);
             }
-            return out.toByteArray();
+            return bos.toByteArray();
         } catch (IOException e) {
             throw new IllegalStateException("[RawJpegEncoder] JPEG 编码失败", e);
         } finally {
