@@ -108,7 +108,6 @@ public class GatewayServer implements RemoteServerSPI {
         }
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            log.info("VERIFY body: [{}]", body);
             Map<String, String> params = parseJsonParams(body);
             String agentId = params.get("agentId");
             String verifyCode = params.get("verifyCode");
