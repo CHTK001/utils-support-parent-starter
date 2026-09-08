@@ -23,7 +23,8 @@ import java.nio.charset.StandardCharsets;
  * @version 1.0.0
  */
 @SuppressWarnings("ALL")
-public interface CharsetConstant {
+public final class CharsetConstant {
+    private CharsetConstant() {}
     /**
      * UTF-8 字符集
      * <p>
@@ -31,7 +32,7 @@ public interface CharsetConstant {
      * 它是 Web 互联网中最常用的编码方式，能够表示 Unicode 标准中的任何字符。
      * </p>
      */
-    Charset UTF_8 = StandardCharsets.UTF_8;
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
 
 
     /**
@@ -41,7 +42,7 @@ public interface CharsetConstant {
      * 它是双字节编码，能够表示 65536 个字符。
      * </p>
      */
-    Charset GBK = Charset.forName("GBK");
+    public static final Charset GBK = Charset.forName("GBK");
     /**
      * ASCII 字符集
      * <p>
@@ -49,7 +50,7 @@ public interface CharsetConstant {
      * 主要用于现代英语及其他西欧语言的控制字符和可打印字符表示。
      * </p>
      */
-    Charset ASCII = Charset.forName("US-ASCII");
+    public static final Charset ASCII = Charset.forName("US-ASCII");
 
     /**
      * ISO-8859-1 字符集
@@ -58,5 +59,5 @@ public interface CharsetConstant {
      * 它是 ISO/IEC 8859 标准的一部分，常用于早期 Web 页面及某些网络协议。
      * </p>
      */
-    Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 }
