@@ -51,6 +51,10 @@ public class GatewayServer implements RemoteServerSPI {
                             com.sun.net.httpserver.HttpServer.create(
                                     new java.net.InetSocketAddress(httpPort), 0);
                     delegate.createContext("/verify", exchange -> handleVerify(exchange));
+                    delegate.createContext("/api/remote/config", exchange -> handleConfig(exchange));
+                    delegate.createContext("/api/remote/gateways", exchange -> handleGateways(exchange));
+                    delegate.createContext("/api/remote/agents", exchange -> handleAgents(exchange));
+                    delegate.createContext("/api/remote/access-codes", exchange -> handleAccessCodes(exchange));
                     delegate.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
                     delegate.start();
                     log.info("HTTP 验证服务器已启动 on port:{}", httpPort);
