@@ -210,8 +210,14 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         try {
             byte[] frame = readFrame(new NetSocketInputStream(socket));
             if (frame == null) return;
-            InetSocketAddress remoteAddr = socket.remoteAddress() instanceof java.net.SocketAddress sa
-                    ? (InetSocketAddress) sa : null;
+            InetSocketAddress remoteAddr = null;
+            try {
+                String addrStr = socket.remoteAddress() != null ? socket.remoteAddress().path() : null;
+                if (addrStr != null && addrStr.contains(":")) {
+                    String host = addrStr.contains("[") ? addrStr.replaceAll("[\\[\\]:]", "") : addrStr.split(":")[0];
+                    remoteAddr = new InetSocketAddress(host, Integer.parseInt(addrStr.split(":")[addrStr.split(":").length - 1]));
+                }
+            } catch (Exception ignored) {}
             TcpServerRequest request = new TcpServerRequest(frame, remoteAddr, StandardCharsets.UTF_8);
             TcpServerResponse response = new TcpServerResponse();
             try {
