@@ -30,7 +30,6 @@ public class AgentBootstrap {
         this.service = new AgentService(agentInfo);
         this.shellService = new AgentShellService(agentInfo, client);
         this.sshChannelManager = new SSHChannelManager(client, agentInfo.getId());
-        agentInfo.setVerifyCode(DigestUtils.md5(IdUtils.uuid() + System.currentTimeMillis()));
     }
 
     public void start() {
