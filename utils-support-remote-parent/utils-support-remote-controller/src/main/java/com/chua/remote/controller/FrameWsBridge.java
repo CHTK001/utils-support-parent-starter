@@ -1,21 +1,31 @@
 package com.chua.remote.controller;
 
-import com.chua.common.support.network.server.ServerSetting;
-import com.chua.common.support.network.sync.impl.WebSocketSyncServer;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 帧 WS 桥（远控画面推流）——复用框架 {@link WebSocketSyncServer}。
+ * 帧 WS 桥（远控画面推流）——内嵌最小 WebSocket 服务器。
  *
- * <p>前端（vue-support-remote-starter 远控页）经 {@code ws://host:port/ws} 连接，
- * 桥按帧广播（JPEG 字节——前端嗅探 FFD8 后 canvas 直绘）。</p>
+ * <p>绕开框架 {@code WebSocketSyncServer} 的连接保活怪癖（客户端连接异常 1006 关闭），
+ * 自实现裸 ServerSocket + 手动握手（101）+ 文本帧广播。前端（vue-support-remote-starter
+ * 远控页）经 {@code ws://host:port/ws} 连接，payload 为 {@code frame:base64(JPEG)}，
+ * 前端解码嗅探 FFD8 后 canvas 直绘。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,33 +33,120 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class FrameWsBridge {
 
-    private final WebSocketSyncServer wsServer;
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-        Thread t = new Thread(r, "frame-ws-bridge");
+    private final int port;
+    private final List<Socket> clients = new CopyOnWriteArrayList<>();
+    private ServerSocket serverSocket;
+    private Thread acceptThread;
+    private final ScheduledExecutorService broadcaster = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "frame-ws-broadcaster");
         t.setDaemon(true);
         return t;
     });
 
     public FrameWsBridge(int port) {
-        ServerSetting setting = ServerSetting.builder().port(port).build();
-        this.wsServer = new WebSocketSyncServer(setting);
+        this.port = port;
     }
 
-    public void start() {
-        wsServer.start();
-        log.info("帧WS桥已启动 port:{}", port());
+    public void start() throws IOException {
+        serverSocket = new ServerSocket(port);
+        acceptThread = new Thread(this::acceptLoop, "frame-ws-accept");
+        acceptThread.setDaemon(true);
+        acceptThread.start();
+        log.info("帧WS桥已启动 port:{}", port);
     }
 
     /** 桥端口 */
     public int port() {
-        return wsServer.getPort();
+        return port;
+    }
+
+    /** 接受连接循环 */
+    private void acceptLoop() {
+        while (!serverSocket.isClosed()) {
+            try {
+                Socket socket = serverSocket.accept();
+                clients.add(socket);
+                Thread t = new Thread(() -> handleClient(socket), "frame-ws-client");
+                t.setDaemon(true);
+                t.start();
+            } catch (IOException e) {
+                if (serverSocket.isClosed()) {
+                    break;
+                }
+                log.warn("接受连接失败", e);
+            }
+        }
+    }
+
+    /** 单客户端处理：握手 + 读循环（保持连接，断连移除） */
+    private void handleClient(Socket socket) {
+        try {
+            if (!performHandshake(socket)) {
+                removeClient(socket);
+                return;
+            }
+            log.info("WS 客户端已连接: {}", socket.getRemoteSocketAddress());
+            InputStream in = socket.getInputStream();
+            while (!socket.isClosed()) {
+                // 阻塞读——检测断连（-1 即对端关闭）；客户端帧在此忽略（纯推流场景）
+                if (in.read() < 0) {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            // 客户端断连——静默
+        } finally {
+            removeClient(socket);
+        }
+    }
+
+    /** WebSocket 握手（101 Switching Protocols） */
+    private boolean performHandshake(Socket socket) throws IOException {
+        InputStream in = socket.getInputStream();
+        ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
+        byte[] buf = new byte[4096];
+        int read = in.read(buf);
+        if (read <= 0) {
+            return false;
+        }
+        reqBuf.write(buf, 0, read);
+        String request = reqBuf.toString(StandardCharsets.UTF_8.name());
+        String key = null;
+        for (String line : request.split("\r\n")) {
+            if (line.toLowerCase().startsWith("sec-websocket-key:")) {
+                key = line.substring(line.indexOf(":") + 1).trim();
+                break;
+            }
+        }
+        if (key == null) {
+            return false;
+        }
+        String accept;
+        try {
+            accept = computeWebSocketAccept(key);
+        } catch (Exception e) {
+            throw new IOException("WebSocket 握手失败", e);
+        }
+        String response = "HTTP/1.1 101 Switching Protocols\r\n"
+                + "Upgrade: websocket\r\n"
+                + "Connection: Upgrade\r\n"
+                + "Sec-WebSocket-Accept: " + accept + "\r\n"
+                + "\r\n";
+        socket.getOutputStream().write(response.getBytes(StandardCharsets.US_ASCII));
+        socket.getOutputStream().flush();
+        return true;
+    }
+
+    /** 计算 WebSocket 接受密钥（SHA-1 + GUID + base64） */
+    private static String computeWebSocketAccept(String key) throws Exception {
+        String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        byte[] digest = md.digest(combined.getBytes(StandardCharsets.US_ASCII));
+        return Base64.getEncoder().encodeToString(digest);
     }
 
     /**
-     * 广播一帧（JPEG 字节）——前端嗅探 FFD8 后 canvas 直绘。
-     *
-     * <p>注意：{@link WebSocketSyncServer#publish} 为文本模型（{@code topic:message.toString()}），
-     * byte[] 需 base64 编码后传输，前端解码还原。</p>
+     * 广播一帧（JPEG 字节）——payload = {@code frame:base64(JPEG)}，前端解码嗅探 FFD8 后直绘。
      *
      * @param jpeg JPEG 帧字节
      */
@@ -57,7 +154,49 @@ public class FrameWsBridge {
         if (jpeg == null || jpeg.length == 0) {
             return;
         }
-        wsServer.publish("frame", java.util.Base64.getEncoder().encodeToString(jpeg));
+        String payload = "frame:" + Base64.getEncoder().encodeToString(jpeg);
+        byte[] frame = buildTextFrame(payload);
+        for (Socket socket : clients) {
+            try {
+                synchronized (socket) {
+                    OutputStream out = socket.getOutputStream();
+                    out.write(frame);
+                    out.flush();
+                }
+            } catch (IOException e) {
+                removeClient(socket);
+            }
+        }
+    }
+
+    /** 构建 WebSocket 文本帧（服务端无掩码——协议规定） */
+    private static byte[] buildTextFrame(String payload) {
+        byte[] data = payload.getBytes(StandardCharsets.UTF_8);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(0x81);
+        if (data.length <= 125) {
+            out.write(data.length);
+        } else if (data.length <= 65535) {
+            out.write(126);
+            out.write((data.length >> 8) & 0xFF);
+            out.write(data.length & 0xFF);
+        } else {
+            out.write(127);
+            for (int i = 7; i >= 0; i--) {
+                out.write((int) ((data.length >> (8 * i)) & 0xFF));
+            }
+        }
+        out.write(data);
+        return out.toByteArray();
+    }
+
+    private void removeClient(Socket socket) {
+        clients.remove(socket);
+        try {
+            socket.close();
+        } catch (IOException ignored) {
+            // ignore
+        }
     }
 
     /**
@@ -67,7 +206,7 @@ public class FrameWsBridge {
      * @param intervalMillis 广播间隔（毫秒）
      */
     public void broadcastTestLoop(byte[] jpeg, long intervalMillis) {
-        scheduler.scheduleAtFixedRate(() -> {
+        broadcaster.scheduleAtFixedRate(() -> {
             try {
                 broadcastFrame(jpeg);
             } catch (Exception e) {
@@ -77,8 +216,17 @@ public class FrameWsBridge {
     }
 
     public void stop() {
-        scheduler.shutdownNow();
-        wsServer.stop();
+        broadcaster.shutdownNow();
+        for (Socket socket : clients) {
+            removeClient(socket);
+        }
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+        } catch (IOException ignored) {
+            // ignore
+        }
     }
 
     /** 生成 64x48 红色测试 JPEG（仅测试模式用——真实链路由采集→编码产出帧） */
