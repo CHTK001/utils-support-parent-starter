@@ -86,5 +86,12 @@
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
+        <!-- 测试：验证引入 asm-starter 后 dynamic()/compile() 自动切换到 ASM 编译器（Compiler SPI） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-asm-starter</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
