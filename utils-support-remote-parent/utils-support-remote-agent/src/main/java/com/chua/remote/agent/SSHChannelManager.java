@@ -53,7 +53,7 @@ public class SSHChannelManager {
     }
 
     private void startSession(String sessionId, Map<String, String> meta) {
-        String host = meta.getOrDefault("host", "127.0.0.1");
+        String host = meta.getOrDefault("host", "local");
         int port = Integer.parseInt(meta.getOrDefault("port", "22"));
         String username = meta.getOrDefault("username", "");
         String password = meta.getOrDefault("password", "");
@@ -61,26 +61,39 @@ public class SSHChannelManager {
         int rows = Integer.parseInt(meta.getOrDefault("rows", "24"));
 
         try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "ssh", "-o", "StrictHostKeyChecking=no",
-                    username + "@" + host, "-p", String.valueOf(port));
-            if (password != null && !password.isEmpty()) {
-                pb.environment().put("SSHPASS", password);
+            ProcessBuilder pb;
+            boolean local = "local".equals(host) || "localhost".equals(host) && port == 22;
+            if (local) {
+                String os = System.getProperty("os.name", "").toLowerCase();
+                if (os.contains("win")) {
+                    pb = new ProcessBuilder("powershell", "-NoProfile", "-NonInteractive");
+                } else {
+                    pb = new ProcessBuilder("/bin/bash");
+                }
+                pb.redirectErrorStream(true);
+            } else {
                 pb = new ProcessBuilder(
-                        "sshpass", "-p", password,
                         "ssh", "-o", "StrictHostKeyChecking=no",
                         username + "@" + host, "-p", String.valueOf(port));
+                if (password != null && !password.isEmpty()) {
+                    pb = new ProcessBuilder(
+                            "sshpass", "-p", password,
+                            "ssh", "-o", "StrictHostKeyChecking=no",
+                            username + "@" + host, "-p", String.valueOf(port));
+                }
+                pb.redirectErrorStream(false);
             }
-            pb.redirectErrorStream(false);
             Process process = pb.start();
             SSHSession session = new SSHSession(sessionId, process);
             sessions.put(sessionId, session);
 
             executor.submit(() -> readOutput(sessionId, "stdout", process.getInputStream()));
-            executor.submit(() -> readOutput(sessionId, "stderr", process.getErrorStream()));
+            if (!local) {
+                executor.submit(() -> readOutput(sessionId, "stderr", process.getErrorStream()));
+            }
 
             sendSSHFrame(sessionId, "started", null);
-            log.info("SSH会话已启动: sessionId={}, host={}:{}", sessionId, host, port);
+            log.info("SSH会话已启动: sessionId={}, host={}", sessionId, local ? "local" : host + ":" + port);
         } catch (Exception e) {
             log.error("SSH会话启动失败: sessionId={}", sessionId, e);
             sendSSHFrame(sessionId, "error", e.getMessage().getBytes());
