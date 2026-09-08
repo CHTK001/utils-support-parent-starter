@@ -94,6 +94,9 @@ public class GatewayServer implements RemoteServerSPI {
     public void stop() {
         server.stop();
         httpServer.stop();
+        if (controllerWs != null) {
+            controllerWs.stop(1000, "gateway shutdown");
+        }
         log.info("远控网关已停止");
     }
 
@@ -394,6 +397,16 @@ public class GatewayServer implements RemoteServerSPI {
     }
 
     private void handleSSH(Frame frame) {
+        Map<String, String> meta = frame.getMetadata();
+        String action = meta != null ? meta.get("sshAction") : null;
+
+        if ("output".equals(action) || "started".equals(action) || "error".equals(action) || "stopped".equals(action)) {
+            if (controllerWs != null) {
+                controllerWs.onAgentSSHFrame(frame);
+            }
+            return;
+        }
+
         Session session = sessionManager.getSession(frame.getSessionId());
         if (session == null) {
             log.debug("SSH帧无会话: sessionId={}", frame.getSessionId());
