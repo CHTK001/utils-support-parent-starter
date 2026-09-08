@@ -46,6 +46,9 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
 @SuppressWarnings({"unchecked", "ALL"})
 public class MapUtils {
 
+    private MapUtils() {
+    }
+
     /**
      * 默认初始容量，HashMap 默认的桶数量。
      */
