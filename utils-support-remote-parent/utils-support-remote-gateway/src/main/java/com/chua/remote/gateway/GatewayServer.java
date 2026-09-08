@@ -1,5 +1,7 @@
 package com.chua.remote.gateway;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.impl.JdkHttpServer;
 import com.chua.common.support.spi.annotations.Spi;
@@ -31,6 +33,7 @@ public class GatewayServer implements RemoteServerSPI {
     private GatewayCallback gatewayCallback;
     private final JdkHttpServer httpServer;
     private final int httpPort;
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public GatewayServer(ServerSetting setting) {
         this.server = new RemoteServer(setting);
@@ -105,10 +108,14 @@ public class GatewayServer implements RemoteServerSPI {
         }
         try {
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            Map<String, String> params = parseParams(body);
+            Map<String, String> params = parseJsonParams(body);
             String agentId = params.get("agentId");
             String verifyCode = params.get("verifyCode");
 
+            if (agentId == null || verifyCode == null) {
+                sendJson(exchange, 400, "{\"success\":false,\"message\":\"参数不完整\"}");
+                return;
+            }
             if (!authManager.verifyAgent(agentId, verifyCode)) {
                 sendJson(exchange, 401, "{\"success\":false,\"message\":\"验证码校验失败\"}");
                 return;
@@ -152,6 +159,21 @@ public class GatewayServer implements RemoteServerSPI {
             } else if (kv.length == 1) {
                 params.put(kv[0], "");
             }
+        }
+        return params;
+    }
+
+    private Map<String, String> parseJsonParams(String body) {
+        Map<String, String> params = new HashMap<>();
+        try {
+            JsonNode node = MAPPER.readTree(body);
+            node.fields().forEachRemaining(entry -> {
+                if (!entry.getValue().isNull()) {
+                    params.put(entry.getKey(), entry.getValue().asText());
+                }
+            });
+        } catch (Exception e) {
+            log.warn("JSON解析失败: {}", body, e);
         }
         return params;
     }
