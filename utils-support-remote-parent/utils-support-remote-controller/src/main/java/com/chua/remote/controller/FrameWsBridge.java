@@ -48,13 +48,16 @@ public class FrameWsBridge {
     /**
      * 广播一帧（JPEG 字节）——前端嗅探 FFD8 后 canvas 直绘。
      *
+     * <p>注意：{@link WebSocketSyncServer#publish} 为文本模型（{@code topic:message.toString()}），
+     * byte[] 需 base64 编码后传输，前端解码还原。</p>
+     *
      * @param jpeg JPEG 帧字节
      */
     public void broadcastFrame(byte[] jpeg) {
         if (jpeg == null || jpeg.length == 0) {
             return;
         }
-        wsServer.publish("frame", jpeg);
+        wsServer.publish("frame", java.util.Base64.getEncoder().encodeToString(jpeg));
     }
 
     /**
