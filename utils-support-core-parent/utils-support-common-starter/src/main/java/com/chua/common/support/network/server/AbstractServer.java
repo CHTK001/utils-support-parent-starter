@@ -237,11 +237,13 @@ public abstract class AbstractServer implements ConfigServer {
      * 默认的 404 处理器。
      */
     private static final ServerHandler DEFAULT_404_HANDLER = (req, res) -> {
+        int statusBefore = res.getStatus();
         if (!res.isEnded()) {
             res.sendError(404, "Not Found");
         }
+        int statusAfter = res.getStatus();
         String debugPath = System.getProperty("java.io.tmpdir") + "\\tcp-debug.log";
-        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "DEFAULT_404_HANDLER called, status=" + res.getStatus() + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
+        try { java.nio.file.Files.writeString(java.nio.file.Paths.get(debugPath), "DEFAULT_404 path=" + req.getPath() + " statusBefore=" + statusBefore + " statusAfter=" + statusAfter + " ended=" + res.isEnded() + "\n", java.nio.charset.StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND); } catch (Exception ignored) {}
     };
 
     /**
