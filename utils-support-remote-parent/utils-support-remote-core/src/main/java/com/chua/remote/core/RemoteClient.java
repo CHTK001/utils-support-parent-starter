@@ -29,4 +29,13 @@ public class RemoteClient {
     public RemoteTransport getTransport() {
         return transport;
     }
+
+    /**
+     * 连接状态（供断连重连判定）。
+     *
+     * @return 已连接
+     */
+    public boolean isConnected() {
+        return transport.isConnected();
+    }
 }
