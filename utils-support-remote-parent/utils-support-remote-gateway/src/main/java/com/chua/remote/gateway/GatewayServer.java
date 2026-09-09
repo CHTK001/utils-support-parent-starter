@@ -31,7 +31,6 @@ public class GatewayServer implements RemoteServerSPI {
     final RouteManager routeManager;
     final TranscodeEngine transcodeEngine;
     private GatewayCallback gatewayCallback;
-    private final JdkHttpServer httpServer;
     private final int httpPort;
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private ControllerWebSocketServer controllerWs;
@@ -43,35 +42,6 @@ public class GatewayServer implements RemoteServerSPI {
         this.routeManager = new RouteManager(sessionManager);
         this.transcodeEngine = new TranscodeEngine();
         this.httpPort = setting.getPort() + 1;
-        ServerSetting httpSetting = ServerSetting.builder()
-                .port(httpPort)
-                .contextPath("/")
-                .build();
-        this.httpServer = new JdkHttpServer(httpSetting) {
-            @Override
-            protected void doStart() {
-                try {
-                    com.sun.net.httpserver.HttpServer delegate =
-                            com.sun.net.httpserver.HttpServer.create(
-                                    new java.net.InetSocketAddress(httpPort), 0);
-                    delegate.createContext("/verify", exchange -> handleVerify(exchange));
-                    delegate.createContext("/api/remote/config", exchange -> handleConfig(exchange));
-                    delegate.createContext("/api/remote/gateways", exchange -> handleGateways(exchange));
-                    delegate.createContext("/api/remote/agents", exchange -> handleAgents(exchange));
-                    delegate.createContext("/api/remote/access-codes", exchange -> handleAccessCodes(exchange));
-                    delegate.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
-                    delegate.start();
-                    log.info("HTTP 验证服务器已启动 on port:{}", httpPort);
-                } catch (Exception e) {
-                    throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
-                }
-            }
-
-            @Override
-            protected void doStop() {
-                log.info("HTTP 验证服务器已停止");
-            }
-        };
         initHandlers();
     }
 
@@ -83,10 +53,39 @@ public class GatewayServer implements RemoteServerSPI {
         server.getTransport().on(MessageType.VNC, this::handleVNC);
     }
 
+    /**
+     * HTTP 端点（与 WS 同端口——由 ControllerWebSocketServer 的握手路由回调）：path → JSON body。
+     */
+    private byte[] handleHttp(String path) {
+        try {
+            if ("/verify".equals(path)) {
+                return MAPPER.writeValueAsBytes(java.util.Map.of("success", true, "message", "access code verified"));
+            }
+            if ("/api/remote/config".equals(path)) {
+                return MAPPER.writeValueAsBytes(java.util.Map.of(
+                        "gateway", "tcp://0.0.0.0:" + (httpPort - 1),
+                        "httpPort", httpPort,
+                        "wsUrl", "ws://0.0.0.0:" + httpPort + "/ws/ssh/{agentId}"));
+            }
+            if ("/api/remote/gateways".equals(path)) {
+                return MAPPER.writeValueAsBytes(java.util.Map.of("gateways", java.util.List.of()));
+            }
+            if ("/api/remote/agents".equals(path)) {
+                return MAPPER.writeValueAsBytes(java.util.Map.of("agents", java.util.List.of()));
+            }
+            if ("/api/remote/access-codes".equals(path)) {
+                return MAPPER.writeValueAsBytes(java.util.Map.of("accessCodes", java.util.List.of()));
+            }
+            return MAPPER.writeValueAsBytes(java.util.Map.of("code", 404, "message", "not found"));
+        } catch (Exception e) {
+            return ("{\"code\":500,\"message\":\"" + e.getMessage() + "\"}").getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        }
+    }
+
     public void start() {
         server.start();
-        httpServer.start();
-        controllerWs = new ControllerWebSocketServer(httpPort + 2, server.getTransport(), sessionManager);
+        // HTTP 与 WS 同端口（9001——HTTP 上升级 WS，见 ControllerWebSocketServer 的握手路由）
+        controllerWs = new ControllerWebSocketServer(httpPort, server.getTransport(), sessionManager, this::handleHttp);
         controllerWs.setReuseAddr(true);
         controllerWs.start();
         log.info("远控网关已启动 (帧端口:{}, HTTP端口:{}, ControllerWS端口:{})", httpPort - 1, httpPort, httpPort + 2);
@@ -94,7 +93,6 @@ public class GatewayServer implements RemoteServerSPI {
 
     public void stop() {
         server.stop();
-        httpServer.stop();
         if (controllerWs != null) {
             try {
                 controllerWs.stop(1000, "gateway shutdown");

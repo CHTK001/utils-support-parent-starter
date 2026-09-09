@@ -206,27 +206,29 @@ public class VncSessionManager {
             while (running.get()) {
                 try {
                     NativeFrame frame = screenCapture.captureFrame();
-                    if (frame != null && frame.pixels().length > 0) {
-                        byte[] encoded = nativeEncoder.encode(frame);
-                        if (encoded.length > 0) {
-                            Map<String, String> meta = Map.of(
-                                    META_ACTION, "frame",
-                                    META_SESSION_ID, sessionId);
-                            client.getTransport().send(
-                                    FrameCodec.vncFrame(agentInfo.getId(), encoded, meta));
-                            if (sent++ < 3) {
-                                log.info("[VNC_FRAME_PUSH] sessionId={} raw={} encoded={}",
-                                        sessionId, frame.pixels().length, encoded.length);
-                            }
-                        } else {
-                            if (sent++ < 3) {
-                                log.warn("[VNC_ENCODE_EMPTY] sessionId={} rawPixels={}", sessionId, frame.pixels().length);
-                            }
-                        }
-                    } else {
+                    if (frame == null || frame.pixels().length == 0) {
                         if (sent++ < 3) {
                             log.warn("[VNC_CAPTURE_EMPTY] sessionId={} frameNull={}", sessionId, frame == null);
                         }
+                        Thread.sleep(intervalMs);
+                        continue;
+                    }
+                    byte[] encoded = nativeEncoder.encode(frame);
+                    if (encoded.length == 0) {
+                        if (sent++ < 3) {
+                            log.warn("[VNC_ENCODE_EMPTY] sessionId={} rawPixels={}", sessionId, frame.pixels().length);
+                        }
+                        Thread.sleep(intervalMs);
+                        continue;
+                    }
+                    Map<String, String> meta = Map.of(
+                            META_ACTION, "frame",
+                            META_SESSION_ID, sessionId);
+                    client.getTransport().send(
+                            FrameCodec.vncFrame(agentInfo.getId(), encoded, meta));
+                    if (sent++ < 3) {
+                        log.info("[VNC_FRAME_PUSH] sessionId={} raw={} encoded={}",
+                                sessionId, frame.pixels().length, encoded.length);
                     }
                     Thread.sleep(intervalMs);
                 } catch (InterruptedException e) {

@@ -6,6 +6,7 @@ import com.chua.remote.protocol.frame.Frame;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -176,11 +177,13 @@ public final class SshSessionChannel {
         cmd.add("-p");
         cmd.add(String.valueOf(SSH_PORT));
         cmd.add(username + "@" + host);
-        if (serviceManager.getPlatform() != SshServiceManager.Platform.WINDOWS) {
+        if (serviceManager.getPlatform() != SshServiceProbe.Platform.WINDOWS) {
             cmd.add("stty cols " + cols + " rows " + rows + "; exec bash -l");
         }
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectErrorStream(true);
+        // TERM 必须显式设置（Windows 启动的 agent 环境常缺——远端 top/vim/htop 依赖它）
+        pb.environment().putIfAbsent("TERM", "xterm-256color");
         return pb.start();
     }
 

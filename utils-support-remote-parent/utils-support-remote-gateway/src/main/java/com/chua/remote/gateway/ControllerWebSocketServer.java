@@ -21,6 +21,7 @@ public class ControllerWebSocketServer extends WebSocketServer {
 
     private final RemoteTransport transport;
     private final SessionManager sessionManager;
+    private final java.util.function.Function<String, byte[]> httpRouter;
     private final ObjectMapper mapper = new ObjectMapper();
     private final Map<WebSocket, String> wsToAgent = new ConcurrentHashMap<>();
     private final Map<WebSocket, String> wsToType = new ConcurrentHashMap<>();
@@ -29,10 +30,40 @@ public class ControllerWebSocketServer extends WebSocketServer {
     /** vncSessionId → ws（agent 画面帧带 vncSessionId——回流按会话路由） */
     private final Map<String, WebSocket> vncSessions = new ConcurrentHashMap<>();
 
-    public ControllerWebSocketServer(int port, RemoteTransport transport, SessionManager sessionManager) {
+    public ControllerWebSocketServer(int port, RemoteTransport transport, SessionManager sessionManager,
+                                     java.util.function.Function<String, byte[]> httpRouter) {
         super(new InetSocketAddress(port));
         this.transport = transport;
         this.sessionManager = sessionManager;
+        this.httpRouter = httpRouter;
+    }
+
+    /**
+     * HTTP 与 WS 同端口路由：{@code /ws/*} 走正常 WS 升级；其它路径作为 HTTP 端点返回 JSON（网关验证/配置）。
+     */
+    @Override
+    public org.java_websocket.handshake.ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(
+            org.java_websocket.WebSocket conn, org.java_websocket.drafts.Draft draft,
+            org.java_websocket.handshake.ClientHandshake request) throws org.java_websocket.exceptions.InvalidDataException {
+        String path = request.getResourceDescriptor();
+        if (path != null && path.startsWith("/ws/")) {
+            return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
+        }
+        try {
+            byte[] body = httpRouter.apply(path != null ? path : "");
+            org.java_websocket.handshake.HandshakeImpl1Server builder = new org.java_websocket.handshake.HandshakeImpl1Server();
+            builder.setHttpStatus((short) 200);
+            builder.setHttpStatusMessage("OK");
+            builder.put("Content-Type", "application/json; charset=UTF-8");
+            builder.put("Content-Length", String.valueOf(body.length));
+            builder.put("Access-Control-Allow-Origin", "*");
+            builder.setContent(body);
+            log.info("HTTP 同端口响应: path={}, bytes={}", path, body.length);
+            return builder;
+        } catch (Exception e) {
+            log.error("HTTP 同端口响应失败: path={}", path, e);
+            return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
+        }
     }
 
     @Override
