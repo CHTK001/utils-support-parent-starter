@@ -215,14 +215,18 @@ public class VncSessionManager {
                             client.getTransport().send(
                                     FrameCodec.vncFrame(agentInfo.getId(), encoded, meta));
                             if (sent++ < 3) {
-                                log.info("VNC 画面帧已推送: sessionId={}, raw={}, encoded={}",
+                                log.info("[VNC_FRAME_PUSH] sessionId={} raw={} encoded={}",
                                         sessionId, frame.pixels().length, encoded.length);
                             }
                         } else {
-                            log.warn("VNC 编码为空: sessionId={}, rawPixels={}", sessionId, frame.pixels().length);
+                            if (sent++ < 3) {
+                                log.warn("[VNC_ENCODE_EMPTY] sessionId={} rawPixels={}", sessionId, frame.pixels().length);
+                            }
                         }
                     } else {
-                        log.warn("VNC 采集为空: sessionId={}, frameNull={}", sessionId, frame == null);
+                        if (sent++ < 3) {
+                            log.warn("[VNC_CAPTURE_EMPTY] sessionId={} frameNull={}", sessionId, frame == null);
+                        }
                     }
                     Thread.sleep(intervalMs);
                 } catch (InterruptedException e) {
