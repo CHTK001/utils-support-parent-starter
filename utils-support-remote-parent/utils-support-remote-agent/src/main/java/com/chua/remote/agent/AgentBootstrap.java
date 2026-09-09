@@ -103,7 +103,6 @@ public class AgentBootstrap {
         running = false;
         service.stop();
         shellService.stop();
-        vncSessionManager.stopAll();
         client.disconnect();
         log.info("被控端已停止: id={}", agentInfo.getId());
     }
