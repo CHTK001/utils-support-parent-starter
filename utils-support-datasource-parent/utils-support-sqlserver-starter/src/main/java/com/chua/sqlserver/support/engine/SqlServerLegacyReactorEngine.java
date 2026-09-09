@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * SQL Server 老版本兼容响应式引擎（SQL Server 2000/2005），使用 jTDS 驱动。
@@ -18,6 +19,11 @@ import java.util.Map;
  */
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
+
+    /**
+     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
+     */
+    private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     private final SqlServerLegacyEngine delegate = new SqlServerLegacyEngine();
 
@@ -31,11 +37,11 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     }
 
     public Flux<Map<String, Object>> queryAll(String table) {
-        return query("SELECT * FROM " + table);
+        return query("SELECT * FROM " + safeIdentifier(table));
     }
 
     public Flux<Map<String, Object>> queryWhere(String table, String where, Object... params) {
-        StringBuilder sql = new StringBuilder("SELECT * FROM ").append(table);
+        StringBuilder sql = new StringBuilder("SELECT * FROM ").append(safeIdentifier(table));
         if (where != null && !where.isEmpty()) {
             sql.append(" WHERE ").append(where);
         }
@@ -51,5 +57,23 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
         }
         sb.append(")");
         return execute(sb.toString(), vals);
+    }
+
+    /**
+     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+     *
+     * @param id 待校验标识符
+     * @return 去除首尾空白后的标识符
+     * @throws IllegalArgumentException 标识符非法时抛出
+     */
+    private String safeIdentifier(String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("SQL 标识符不能为空");
+        }
+        String trimmed = id.trim();
+        if (!SAFE_IDENTIFIER.matcher(trimmed).matches()) {
+            throw new IllegalArgumentException("非法的 SQL 标识符: " + id);
+        }
+        return trimmed;
     }
 }

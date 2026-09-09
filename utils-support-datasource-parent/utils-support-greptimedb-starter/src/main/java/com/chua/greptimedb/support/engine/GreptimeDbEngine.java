@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * GreptimeDB 时序数据库引擎实现。
@@ -69,6 +70,11 @@ public class GreptimeDbEngine extends AbstractEngine {
      * 实体字段映射缓存：类 -> (snake_case 列名 -> Field)
      */
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
+     */
+    private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     /**
      * 覆盖用的 JDBC URL；为空时按 gRPC 端点主机 + 4002 端口推导。
@@ -462,7 +468,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         if (where == null || where.isBlank()) {
             throw new IllegalStateException("DELETE 必须携带 WHERE 条件（时序库删除需命中 tag/time 列）");
         }
-        String table = getTableName(sql.entityClass());
+        String table = safeIdentifier(getTableName(sql.entityClass()));
         // 豁免：表名由实体类名派生(getTableName)，WHERE 由框架 LambdaQueryWrapper 解析生成，params 经 jdbc().update() 参数化传递
         String deleteSql = "DELETE FROM " + table + " WHERE " + normalizeColumns(where, sql.entityClass());
         try {
@@ -719,6 +725,24 @@ public class GreptimeDbEngine extends AbstractEngine {
             throw new IllegalStateException("数据源缺少端点信息，请调用 setJdbcUrl 指定 JDBC 地址");
         }
         return GreptimeJdbcClient.jdbcUrlFromEndpoint(endpoint, database());
+    }
+
+    /**
+     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+     *
+     * @param id 待校验标识符
+     * @return 去除首尾空白后的标识符
+     * @throws IllegalArgumentException 标识符非法时抛出
+     */
+    private String safeIdentifier(String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("SQL 标识符不能为空");
+        }
+        String trimmed = id.trim();
+        if (!SAFE_IDENTIFIER.matcher(trimmed).matches()) {
+            throw new IllegalArgumentException("非法的 SQL 标识符: " + id);
+        }
+        return trimmed;
     }
 
     /**
