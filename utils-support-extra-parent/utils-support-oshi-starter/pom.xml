@@ -22,5 +22,10 @@
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.83</version>
+        </dependency>
     </dependencies>
 </project>

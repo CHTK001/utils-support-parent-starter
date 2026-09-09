@@ -1,7 +1,7 @@
 # VNC Agent 部署与流程（业务定义）
 
-> 状态：业务逻辑定稿（按产品定义梳理）
-> 关联：`utils-support-remote-agent`（agent 端 VNC 桌面能力）
+> 状态：业务逻辑定稿 + 实施任务清单（2026-09-09 按代码现状复核）
+> 关联：`utils-support-remote-agent-vnc`（agent 端 VNC 桌面能力——重写已落地于此新模块）
 
 ---
 
@@ -82,27 +82,84 @@ agent 自采集平台类型 + VNC 服务可用性
 
 ---
 
-## 5. 与现状代码的差距（如实）
+## 5. 现状复核（2026-09-09，按代码如实）
 
-| 现状（`utils-support-remote-agent`） | 正确业务 | 差距 |
+重写方向（原第 6 节清单）**已基本落地**，落在 `utils-support-remote-agent-vnc` 新模块：
+
+| 原差距项 | 现状 | 结论 |
 |---|---|---|
-| `AgentShellService` VNC 分支仅做 **SSH 隧道 + 启动 vncviewer 进程**（`startVNCSession`） | 检测 → 转发/自启 VNC 服务，画面回传控制端 | **方向不符——vncviewer 是本地开窗查看，不是远程回传** |
-| 无「VNC 服务可用性检测 + 自启」组件 | Linux/Mac 无 VNC → 自启 x11vnc | **缺失——需新增采集/检测/自启组件** |
-| `AgentService`（PUSH 模式）已有自研桌面采集（GDI/X11/CG 采集 + JPEG/H264 编码） | Windows 无 VNC 时自研采集推流 | **可复用——下沉为通用桌面采集通道** |
-| `InputInjector`（controller 模块）为空实现 | 键鼠事件注入被控机桌面 | **需在 agent 侧实现真实注入（java.awt.Robot / VNC 协议）** |
+| `startVNCSession`（SSH 隧道 + vncviewer 本地开窗）方向不符 | `VncSessionChannel` 已实现自研采集推流（`ScreenCapture` → `NativeEncoder` JPEG/H264，按 fps 采集即编码即推）+ `VncInputInjector`（Robot key/mouse/wheel） | ✅ 主路径对齐 |
+| 无 VNC 服务检测/自启组件 | `VncServiceProbe`（服务级检测 + 桌面会话检测）/ `VncServiceManager`（分支 + 自研采集降级）/ `VncServerStarter`（x11vnc→tigervnc / Mac 屏幕共享 / Windows）已实现 | ✅ |
+| `InputInjector`（controller 侧）空实现 | agent 侧 `VncInputInjector` 真实注入（java.awt.Robot） | ✅ |
+| 采集结果上报 | `VncAgentBootstrap` 注册（agentType=FORWARD + platform + vncAvailable/desktopSupported extra） | ✅ |
+| 网关路由 | `MessageType.VNC` + `FrameCodec.vncFrame` + `GatewayServer.handleVNC` + `ControllerWebSocketServer` `/ws/vnc/{agentId}` | ✅ |
+| 「转发已有 VNC server」语义 | **未实现**——会话画面一律走自研采集，已检测到的本机 VNC server（vncPresent=true）并未被会话消费（浏览器不解 RFB 协议） | **待澄清/对齐**（见 6.1） |
+| 旧通道并存 | `AgentShellService.startVNCSession`（vncviewer 本地开窗）仍在 | **待归档** |
+| H264 前端解码 | `RemoteView.vue` 只识别 NAL 起始码打标，**未解码** | **待补** |
 
 ---
 
-## 6. 重写方向（下一步实现清单）
+## 6. 实施任务清单（可勾选——完成一项勾一项）
 
-1. **新增**：`VncServiceProbe`——采集平台类型 + 检测本机 VNC server **服务**（`ps -ef | grep -E "x11vnc|Xvnc|vncserver|tigervnc"` / Windows 进程检测——**非端口 5900 探测**）
-2. **新增**：`VncServiceManager`——平台分支：
-   - Linux/Mac：有 VNC server → 转发模式；无 → 自启 x11vnc（绑定当前 DISPLAY）
-   - Windows：复用已装 VNC server；否则自研桌面采集推流（复用 `AgentService` 的 `NativeScreenCapture` + `NativeEncoder`）
-3. **新增**：`VncSessionManager`——桌面会话生命周期：
-   - `start`：按平台分支供给 VNC 服务 → 启动桌面采集循环（编码帧推送）
-   - `input`：接收控制端键鼠事件 → `VncInputInjector` 注入
-   - `stop`：停止采集 + 回收自启的 VNC 服务
-4. **新增**：`VncInputInjector`——真实键鼠注入（`java.awt.Robot`：`keyPress/keyRelease/mouseMove/mousePress/mouseRelease`），替代 controller 侧空实现
-5. **上报**：采集结果（平台 / VNC 服务状态 / 编码能力）随 `AgentInfo` 注册上报
-6. **路由**：网关侧 `ControllerWebSocketServer` 增加 `vnc` 消息处理（start/input/stop），复用 SSH 的帧路由骨架（FrameCodec 编码 VNC 消息类型）
+### 6.1 agent 检测与供给
+
+- [x] `VncServiceProbe`——平台类型检测
+- [x] `VncServiceProbe`——VNC server **服务级检测**（ps 查 x11vnc/Xvnc/vncserver/tigervnc / Windows 进程——非端口 5900 探测）
+- [x] `VncServiceProbe.hasDesktopSession`——桌面会话检测（DISPLAY / Windows 交互桌面）
+- [x] `VncServiceManager`——平台分支（有 VNC → 转发判定；无 → 自启；自启失败降级自研采集）
+- [x] `VncServerStarter`——Linux 自启（x11vnc 绑定当前 DISPLAY → 兜底 tigervncserver）
+- [x] `VncServerStarter`——Mac 自启（launchctl 屏幕共享）
+- [x] `VncServerStarter`——Windows 自启（已装 VNC 工具）
+- [ ] **转发模式语义对齐**：`vncPresent=true`（已有 VNC server）时会话应消费该服务（RFB 代理或以之为采集源），当前实际一律走自研采集——明确「转发」在 Web 控制端下的可实现形态并落地
+- [ ] 自启的 x11vnc/tigervnc 会话结束回收策略（`-forever/-bg` 启动的进程 stop 时关闭）
+- [ ] headless（无 DISPLAY 且 Windows 无交互桌面）时 start 会话明确拒绝（error 帧）语义验证
+
+### 6.2 agent 会话通道（VncSessionChannel）
+
+- [x] `handleVncFrame` 帧分派（start / input / stop）
+- [x] `CaptureLoop`——按帧率上限（默认 15fps）采集 → 编码 → frame 帧即推（不攒批）
+- [x] 编码经 `NativeEncoder`（协商编码集 h264/jpeg）
+- [x] `VncInputInjector`——Robot 注入 key/mouse/wheel（即收即注入）
+- [ ] **H264 帧前端解码**（RemoteView 仅打标未解码——JMuxer / ffmpeg.wasm / WebCodecs 选型）
+- [ ] 增量帧/脏区优化（当前全屏帧每帧全量编码，带宽高）
+- [ ] 分辨率变化 / 多屏场景处理（尺寸变更帧 + 前端 canvas 重置）
+- [ ] 采集帧率/质量接入网关协商结果（`NegotiatedCodec.quality/fps`——当前固定 DEFAULT_FPS）
+- [ ] stop 后采集线程回收验证（CaptureLoop 中断 + encoder close 传播）
+
+### 6.3 注册与上报
+
+- [x] `VncAgentBootstrap` 启动：连网关 → 挂 `MessageType.VNC` 监听 → 注册（platform + vncAvailable + desktopSupported extra）
+- [x] `stop()`：stopAll + disconnect
+- [ ] 编码能力上报完整性（`encodingCapability` 帧编码集与实际 `NativeEncoder` 可用 SPI 一致性——未装 h264 native 时不误报）
+- [ ] main 保活循环（`while running sleep`）与 stop 语义复核
+
+### 6.4 网关与协议
+
+- [x] `MessageType.VNC` 帧类型
+- [x] `FrameCodec.vncFrame()` 辅助方法
+- [x] `GatewayServer.handleVNC`——frame/started/error/stopped 回流控制端，其余路由 agent
+- [x] `ControllerWebSocketServer`——`/ws/vnc/{agentId}` 接入 + vncSessions 路由表 + started 状态 JSON 下发
+- [ ] vnc 会话与 `SessionManager` 鉴权闭环（当前 start 不校验 sessionId 归属/令牌）
+- [ ] **WebRTC 媒体通道**（既定方向：桌面帧走 WebRTC，WS 仅信令——见 进度和计划.md）
+
+### 6.5 前端（vue-support-remote-starter / RemoteView.vue）
+
+- [x] VNC canvas 基础版：WS `/ws/vnc/{agentId}` 连接 + JPEG 帧 `createImageBitmap` 渲染 + 键鼠事件 base64 JSON 上行
+- [ ] H264 解码渲染（配合 6.2）
+- [ ] 键鼠事件映射完整性验证（keyCode → Robot 键位表全量覆盖，含中文输入法场景）
+- [ ] 滚轮/右键/拖拽端到端验证
+- [ ] 画面分辨率自适应 canvas 缩放与坐标换算复核（当前坐标直传是否按缩放换算）
+
+### 6.6 残留清理
+
+- [ ] 归档 `AgentShellService.startVNCSession`（SSH 隧道 + vncviewer 本地开窗——方向不符的旧实现）
+- [ ] `InputInjector`（controller 模块空实现）删除或改为真实实现
+
+### 6.7 端到端联调验收
+
+- [ ] Linux 真机：**已有 VNC server** 分支（联调机 124.221.230.112）
+- [ ] Linux 真机：**无 VNC 自启 x11vnc** 分支
+- [ ] Linux headless：明确拒绝/降级表现
+- [ ] Windows 真机：自研采集推流（GDI + JPEG）
+- [ ] 实时性验收：画面帧即采即渲、键鼠即时回流（无攒批——文档 §4 硬要求）
+- [ ] 冒烟测试补充：`VncSessionChannel` start/input/stop + 注入事件字节级用例

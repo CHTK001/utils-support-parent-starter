@@ -1,7 +1,7 @@
 # RDP Agent 部署与流程（业务定义）
 
-> 状态：业务逻辑定稿（按产品定义梳理）
-> 关联：`utils-support-remote-agent`（agent 端 RDP 桌面能力）
+> 状态：业务逻辑定稿 + 实施任务清单（2026-09-09 按代码现状复核）
+> 关联：`utils-support-remote-agent`（agent 端 RDP 桌面能力——**待新建 `utils-support-remote-agent-rdp` 模块**，对齐 ssh/vnc 模块结构）
 > 姊妹文档：`SSH-AGENT-流程.md` / `VNC-AGENT-流程.md`（结构对称）
 
 ---
@@ -114,16 +114,66 @@ agent 自采集平台类型 + RDP 服务可用性
 
 ---
 
-## 6. 重写方向（下一步实现清单）
+## 6. 实施任务清单（可勾选——完成一项勾一项）
 
-1. **新增**：`RdpServiceProbe`——采集平台类型 + 检测本机 RDP server **服务**（Windows：`TermService` 状态 + `fDenyTSConnections` 注册表；Linux：`ps`/systemd 查 xrdp——**非端口 3389 探测**；Mac：恒 false）
-2. **新增**：`RdpServiceManager`——平台分支（**受纯服务器约束，只操纵原生服务，不实现协议**）：
-   - Windows：已启用 → 转发；未启用 → 系统级开启（注册表 + 服务启停）
-   - Linux：有 xrdp → 转发；无 → 拉起 xrdp；不可得 → 降级自研采集
-   - Mac：直接降级自研采集
-3. **新增**：`RdpSessionManager`（或与 `VncSessionManager` 合并为 `DesktopSessionManager`）——桌面会话生命周期：`start` 供给 + 采集循环推帧 / `input` 键鼠注入 / `stop` 回收
-4. **协议**：`MessageType` 增加 `RDP`；`FrameCodec.rdpFrame()`；网关 `ControllerWebSocketServer` 增加 `/ws/rdp/{agentId}` 路由（复用 SSH/VNC 帧路由骨架）
-5. **注入**：复用 `VncInputInjector`（`java.awt.Robot`），抽出共享注入组件
-6. **上报**：采集结果（平台 / RDP 服务状态 / 编码能力）随 `AgentInfo` 注册上报
-7. **前端**：`RemoteView.vue` 增加「远程桌面(RDP)」连接方式——自研路径渲染逻辑与 VNC 完全一致（canvas + JPEG/H264 帧）；原生 RDP 码流直传属未来项（需 RDP 解码转码）
-8. **清理**：`startRDPSession` 的「freerdp 本地开窗」实现按重写方向移除/归档（仅当确有第三方 RDP 目标机跳板需求时保留并明确其语义）
+> RDP 是三者中唯一**未动工**的通道（协议/网关/agent/前端全缺）。骨架尽量复用已落地的 SSH/VNC 模块。
+
+### 6.1 协议层（remote-protocol / remote-core）
+
+- [ ] `MessageType` 增加 `RDP` 枚举值
+- [ ] `FrameCodec.rdpFrame()` 辅助方法（对齐 `sshFrame`/`vncFrame`）
+- [ ] 元数据键约定：`rdpAction`（start/input/stop）+ `rdpSessionId`（对齐 vnc）
+
+### 6.2 网关（remote-gateway）
+
+- [ ] `GatewayServer.handleRDP`——frame/started/error/stopped 回流控制端，其余路由 agent（照抄 `handleVNC` 骨架）
+- [ ] `ControllerWebSocketServer`——`/ws/rdp/{agentId}` 接入 + rdpSessions 路由表 + started 状态 JSON 下发
+- [ ] path 白名单放行 `/ws/rdp/*`（当前 `path must be /ws/{ssh|vnc}/{agentId}` 会拒绝）
+- [ ] rdp 会话与 `SessionManager` 鉴权闭环（**与 ssh/vnc 共同欠账**——一并补）
+- [ ] **WebRTC 媒体通道**（既定方向：桌面帧走 WebRTC，WS 仅信令——rdp/vnc 共同项）
+
+### 6.3 agent 检测与供给（受纯服务器约束——只操纵原生服务，不实现 RDP 协议）
+
+- [ ] 新建模块 `utils-support-remote-agent-rdp`（对齐 agent-ssh/agent-vnc 结构与 pom）
+- [ ] `RdpServiceProbe`——平台类型检测
+- [ ] `RdpServiceProbe`——Windows：`TermService` 服务状态 + 注册表 `fDenyTSConnections`（**服务级检测，非端口 3389 探测**）
+- [ ] `RdpServiceProbe`——Linux：`ps`/systemd 查 xrdp；Mac：恒 false
+- [ ] `RdpServiceManager`——平台分支（Windows 已启用→转发 / 未启用→系统开启；Linux 有 xrdp→转发 / 无→拉起 / 不可得→降级自研采集；Mac→直接降级）
+- [ ] `RdpServerStarter`——Windows 系统级开启远程桌面（`fDenyTSConnections=0` + 启 `TermService`，需管理员权限的失败路径处理）
+- [ ] `RdpServerStarter`——Linux 拉起 xrdp（systemctl / 直接进程，含 `-forever` 式保活参数决策）
+- [ ] 自启服务会话结束回收策略（对齐 ssh/vnc 6.1 共同项）
+- [ ] 降级判定上报（`rdpAvailable=false` + `desktopSupported=true` → 控制端提示走自研画面）
+
+### 6.4 agent 会话通道
+
+- [ ] `RdpSessionChannel`——或**与 `VncSessionChannel` 合并为 `DesktopSessionChannel`**（采集/推帧/注入骨架完全同构，仅帧类型与供给分支不同——先决策再动手）
+- [ ] 降级路径：`ScreenCapture` → `NativeEncoder` JPEG/H264 采集推流（复用，无新代码则勾选验证即可）
+- [ ] 键鼠注入：复用 `VncInputInjector`（抽出共享注入组件到公共依赖，避免双份 Robot 代码）
+- [ ] handleRdpFrame 帧分派（start/input/stop）+ started/error/stopped 状态帧
+- [ ] 原生 RDP 码流直传（**未来项**——需 RDP 解码转码，当前原生库仅 h264/h265；见 进度和计划.md 遗留备忘）
+
+### 6.5 agent 注册（RdpAgentBootstrap）
+
+- [ ] `RdpAgentBootstrap`——连网关 → 挂 `MessageType.RDP` 监听 → 注册（agentType + platform + `rdpAvailable` + `desktopSupported` extra）
+- [ ] 心跳（对齐 SshAgentBootstrap 5s tick）
+- [ ] `main` 入口 + stop 清理 + 保活循环
+
+### 6.6 前端（vue-support-remote-starter / RemoteView.vue）
+
+- [ ] 连接方式增加「远程桌面(RDP)」（当前仅 ssh/vnc）
+- [ ] WS 路径 `/ws/rdp/{agentId}` + 键鼠/画面消息（渲染逻辑与 VNC 完全同构——canvas + JPEG，先复用）
+- [ ] H264 解码渲染（与 VNC 共同项）
+- [ ] 坐标换算与分辨率自适应复核（与 VNC 共同项）
+
+### 6.7 残留清理
+
+- [ ] 归档/移除 `AgentShellService.startRDPSession` + `SSHTunnelManager.startFreerdp`（freerdp 本地开窗——方向不符；仅当确有「第三方 RDP 目标机跳板」需求时保留并单独明确语义）
+
+### 6.8 端到端联调验收
+
+- [ ] Windows 真机：**转发模式**（联调目标 192.168.200.18，RDP 3389 已确认可达）
+- [ ] Windows 真机：远程桌面未开启 → agent 系统开启分支
+- [ ] Linux 真机：xrdp 拉起分支
+- [ ] Linux/Mac：降级自研采集分支
+- [ ] 实时性验收：画面即采即渲、键鼠即时回流（文档 §4 硬要求）
+- [ ] 冒烟测试补充：rdp 帧字节级用例（对齐 `RemoteCoreControllerSmokeTest` 风格）
