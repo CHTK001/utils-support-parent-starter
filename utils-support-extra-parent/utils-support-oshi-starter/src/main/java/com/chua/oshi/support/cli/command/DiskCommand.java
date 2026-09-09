@@ -1,6 +1,6 @@
 package com.chua.oshi.support.cli.command;
 
-import com.beust.jcommander.Parameters;
+import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.SysFile;
 import com.chua.oshi.support.cli.display.Formatter;
@@ -18,7 +18,6 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Parameters(commandDescription = "Disk details: physical disks, partitions, usage")
 public final class DiskCommand extends AbstractCommand {
 
     @Override
@@ -32,12 +31,7 @@ public final class DiskCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
-        if (help) {
-            printHelp();
-            return;
-        }
-
+    public void execute(CommandLine options) {
         HardwareAbstractionLayer hw = Oshi.getHardware();
 
         // ── Physical disks ──

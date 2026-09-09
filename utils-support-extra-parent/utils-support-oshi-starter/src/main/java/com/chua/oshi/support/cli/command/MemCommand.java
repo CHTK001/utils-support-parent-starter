@@ -1,10 +1,8 @@
 package com.chua.oshi.support.cli.command;
 
-import com.beust.jcommander.Parameters;
-import com.chua.oshi.support.Disk;
+import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Mem;
 import com.chua.oshi.support.Oshi;
-import com.chua.oshi.support.SysFile;
 import com.chua.oshi.support.cli.display.Formatter;
 
 import oshi.hardware.GlobalMemory;
@@ -16,12 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * oshc mem — 内存明细：物理内存条、虚拟内存/交换分区、磁盘文件系统。
+ * oshc mem — 内存明细：物理内存条、虚拟内存/交换分区。
  *
  * @author CH
  * @since 4.0.0.42
  */
-@Parameters(commandDescription = "Memory details: physical modules, virtual memory, swap")
 public final class MemCommand extends AbstractCommand {
 
     @Override
@@ -35,12 +32,7 @@ public final class MemCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
-        if (help) {
-            printHelp();
-            return;
-        }
-
+    public void execute(CommandLine options) {
         HardwareAbstractionLayer hw = Oshi.getHardware();
         GlobalMemory globalMemory = hw.getMemory();
         Mem mem = Oshi.newMem();
@@ -68,21 +60,21 @@ public final class MemCommand extends AbstractCommand {
             for (PhysicalMemory pm : modules) {
                 rows.add(new String[]{
                         pm.getBankLabel() == null ? "N/A" : pm.getBankLabel(),
-                        pm.getLocator() == null ? "N/A" : pm.getLocator(),
+                        pm.getPartNumber() == null ? "N/A" : pm.getPartNumber(),
                         pm.getMemoryType() == null ? "N/A" : pm.getMemoryType(),
                         Formatter.formatBytes(pm.getCapacity()),
                         pm.getClockSpeed() > 0 ? pm.getClockSpeed() + " MHz" : "N/A",
                         pm.getManufacturer() == null ? "N/A" : pm.getManufacturer()
                 });
             }
-            System.out.println(Formatter.table("", new String[]{"Bank", "Locator", "Type", "Capacity", "Speed", "Manufacturer"}, rows));
+            System.out.println(Formatter.table("", new String[]{"Bank", "Part Number", "Type", "Capacity", "Speed", "Manufacturer"}, rows));
         }
 
         // ── Virtual memory / swap ──
         VirtualMemory virtualMemory = globalMemory.getVirtualMemory();
         System.out.println();
         long swapTotal = virtualMemory.getSwapTotal();
-        long swapUsed = swapTotal - virtualMemory.getSwapPages();
+        long swapUsed = virtualMemory.getSwapUsed();
         long swapFree = swapTotal - swapUsed;
         double swapPct = swapTotal > 0 ? (double) swapUsed / swapTotal * 100 : 0;
         System.out.println("Swap:");
@@ -92,15 +84,18 @@ public final class MemCommand extends AbstractCommand {
                         "Swap total", Formatter.formatBytes(swapTotal),
                         "Swap used", Formatter.formatBytes(swapUsed),
                         "Swap free", Formatter.formatBytes(swapFree),
-                        "Swap in", Formatter.formatBytes(virtualMemory.getSwapIn()),
-                        "Swap out", Formatter.formatBytes(virtualMemory.getSwapOut())
+                        "Swap pages in", String.valueOf(virtualMemory.getSwapPagesIn()),
+                        "Swap pages out", String.valueOf(virtualMemory.getSwapPagesOut())
                 )
         );
 
         // ── Top processes by RSS ──
-        List<oshi.software.os.OSProcess> procs = Oshi.getOperatingSystem().getProcesses(
-                (a, b) -> Long.compare(b.getResidentSetSize(), a.getResidentSetSize()), 10);
-        if (procs != null && !procs.isEmpty()) {
+        List<oshi.software.os.OSProcess> procs = Oshi.getOperatingSystem().getProcesses();
+        procs.sort((a, b) -> Long.compare(b.getResidentSetSize(), a.getResidentSetSize()));
+        if (procs.size() > 10) {
+            procs = procs.subList(0, 10);
+        }
+        if (!procs.isEmpty()) {
             System.out.println();
             System.out.println("Top 10 Processes by RSS:");
             List<String[]> rows = new ArrayList<>();

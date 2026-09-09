@@ -29,6 +29,25 @@ public class NetAddress {
         this.port = port;
     }
 
+    /**
+     * 从 host:port 字符串解析网络地址。
+     *
+     * @param address 格式 {@code host:port} 或仅 {@code host}（端口默认 0）
+     * @return 解析后的 NetAddress
+     */
+    public static NetAddress of(String address) {
+        if (address == null || address.isBlank()) {
+            return new NetAddress();
+        }
+        int idx = address.lastIndexOf(':');
+        if (idx > 0) {
+            String host = address.substring(0, idx);
+            int port = Integer.parseInt(address.substring(idx + 1));
+            return new NetAddress(host, port);
+        }
+        return new NetAddress(address, 0);
+    }
+
     /** 获取主机地址 */
     public String getHost() {
         return host;

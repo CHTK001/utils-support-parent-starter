@@ -1,7 +1,6 @@
 package com.chua.oshi.support.cli.command;
 
-import com.beust.jcommander.Parameters;
-import com.chua.oshi.support.Cpu;
+import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.cli.display.Formatter;
 
@@ -18,7 +17,6 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Parameters(commandDescription = "CPU details: per-core usage, frequency, top processes")
 public final class CpuCommand extends AbstractCommand {
 
     @Override
@@ -32,12 +30,7 @@ public final class CpuCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
-        if (help) {
-            printHelp();
-            return;
-        }
-
+    public void execute(CommandLine options) {
         HardwareAbstractionLayer hw = Oshi.getHardware();
         CentralProcessor processor = hw.getProcessor();
 
@@ -46,7 +39,7 @@ public final class CpuCommand extends AbstractCommand {
         System.out.println(
                 Formatter.panel("oshc cpu",
                         "Cores", processor.getPhysicalProcessorCount() + " physical / " + processor.getLogicalProcessorCount() + " logical",
-                        "Frequency", formatHz(processor.getCurrentFreq()) + " (max " + formatHz(processor.getMaxFreq()) + ")",
+                        "Frequency", formatHz(currentFreq(processor)) + " (max " + formatHz(processor.getMaxFreq()) + ")",
                         "Vendor", processor.getProcessorIdentifier().getVendor(),
                         "Family", processor.getProcessorIdentifier().getFamily(),
                         "Model", processor.getProcessorIdentifier().getModel(),
@@ -103,7 +96,11 @@ public final class CpuCommand extends AbstractCommand {
         );
 
         // ── Top processes by CPU ──
-        List<OSProcess> procs = Oshi.getOperatingSystem().getProcesses(0, 10);
+        List<OSProcess> procs = Oshi.getOperatingSystem().getProcesses();
+        procs.sort((a, b) -> Double.compare(b.getProcessCpuLoadCumulative(), a.getProcessCpuLoadCumulative()));
+        if (procs.size() > 10) {
+            procs = procs.subList(0, 10);
+        }
         if (procs != null && !procs.isEmpty()) {
             System.out.println();
             System.out.println("Top 10 Processes by CPU:");
@@ -112,12 +109,24 @@ public final class CpuCommand extends AbstractCommand {
                 procs2.add(new String[]{
                         String.valueOf(p.getProcessID()),
                         truncate(p.getName(), 24),
-                        String.format("%5.1f%%", p.getProcessCpuLoad() * 100),
+                        String.format("%5.1f%%", p.getProcessCpuLoadCumulative() * 100),
                         Formatter.formatBytes(p.getResidentSetSize())
                 });
             }
             System.out.println(Formatter.table("", new String[]{"PID", "Name", "CPU", "RSS"}, procs2));
         }
+    }
+
+    private static long currentFreq(CentralProcessor processor) {
+        long[] freqs = processor.getCurrentFreq();
+        if (freqs == null || freqs.length == 0) {
+            return 0;
+        }
+        long max = 0;
+        for (long f : freqs) {
+            max = Math.max(max, f);
+        }
+        return max;
     }
 
     private static String formatHz(long hz) {

@@ -118,50 +118,59 @@ agent 自采集平台类型 + RDP 服务可用性
 
 > RDP 是三者中唯一**未动工**的通道（协议/网关/agent/前端全缺）。骨架尽量复用已落地的 SSH/VNC 模块。
 
+> **2026-09-09 首轮落地**（全部 9 模块 `mvn compile` BUILD SUCCESS）：
+> RDP 全链路已打通——协议层（`MessageType.RDP` + `FrameCodec.rdpFrame`）、网关（`handleRDP` + `/ws/rdp/{agentId}` + 白名单）、
+> agent 模块（`RdpServiceProbe/ServiceManager/ServerStarter/SessionChannel/RdpAgentBootstrap`，降级路径为自研采集推流）、
+> 前端（RDP 连接方式 + WebRTC 信令尝试 + 自动降级帧流）。
+> **WebRTC 现状**：`webrtc-java` API jar 在 Central 可得但 **native JNI（webrtc-jni）未发布**（GitHub 亦不可达），
+> agent 侧真实媒体栈暂无法引入——已按「信令缝」落地：前端发 `webrtc-offer` → agent 回 `webrtc-unsupported` →
+> 前端自动降级 WS 帧流；`RdpSessionChannel.handleWebrtcSignal` 即 native 接入点。键鼠注入已抽共享组件
+> `DesktopInputInjector`（remote-agent 基础模块，VNC 的 `VncInputInjector` 改为继承）。
+
 ### 6.1 协议层（remote-protocol / remote-core）
 
-- [ ] `MessageType` 增加 `RDP` 枚举值
-- [ ] `FrameCodec.rdpFrame()` 辅助方法（对齐 `sshFrame`/`vncFrame`）
-- [ ] 元数据键约定：`rdpAction`（start/input/stop）+ `rdpSessionId`（对齐 vnc）
+- [x] `MessageType` 增加 `RDP` 枚举值
+- [x] `FrameCodec.rdpFrame()` 辅助方法（对齐 `sshFrame`/`vncFrame`）
+- [x] 元数据键约定：`rdpAction`（start/input/stop）+ `rdpSessionId`（对齐 vnc）
 
 ### 6.2 网关（remote-gateway）
 
-- [ ] `GatewayServer.handleRDP`——frame/started/error/stopped 回流控制端，其余路由 agent（照抄 `handleVNC` 骨架）
-- [ ] `ControllerWebSocketServer`——`/ws/rdp/{agentId}` 接入 + rdpSessions 路由表 + started 状态 JSON 下发
-- [ ] path 白名单放行 `/ws/rdp/*`（当前 `path must be /ws/{ssh|vnc}/{agentId}` 会拒绝）
+- [x] `GatewayServer.handleRDP`——frame/started/error/stopped 回流控制端，其余路由 agent（照抄 `handleVNC` 骨架）
+- [x] `ControllerWebSocketServer`——`/ws/rdp/{agentId}` 接入 + rdpSessions 路由表 + started 状态 JSON 下发
+- [x] path 白名单放行 `/ws/rdp/*`（当前 `path must be /ws/{ssh|vnc}/{agentId}` 会拒绝）
 - [ ] rdp 会话与 `SessionManager` 鉴权闭环（**与 ssh/vnc 共同欠账**——一并补）
-- [ ] **WebRTC 媒体通道**（既定方向：桌面帧走 WebRTC，WS 仅信令——rdp/vnc 共同项）
+- [ ] **WebRTC 媒体通道**（既定方向：桌面帧走 WebRTC，WS 仅信令——rdp/vnc 共同项）——**信令缝已落地**（前端 offer/ICE + agent 受理 + 降级），剩余：引入 webrtc-jni natives → agent 侧 PeerConnection/VideoTrack 实装
 
 ### 6.3 agent 检测与供给（受纯服务器约束——只操纵原生服务，不实现 RDP 协议）
 
-- [ ] 新建模块 `utils-support-remote-agent-rdp`（对齐 agent-ssh/agent-vnc 结构与 pom）
-- [ ] `RdpServiceProbe`——平台类型检测
-- [ ] `RdpServiceProbe`——Windows：`TermService` 服务状态 + 注册表 `fDenyTSConnections`（**服务级检测，非端口 3389 探测**）
-- [ ] `RdpServiceProbe`——Linux：`ps`/systemd 查 xrdp；Mac：恒 false
-- [ ] `RdpServiceManager`——平台分支（Windows 已启用→转发 / 未启用→系统开启；Linux 有 xrdp→转发 / 无→拉起 / 不可得→降级自研采集；Mac→直接降级）
-- [ ] `RdpServerStarter`——Windows 系统级开启远程桌面（`fDenyTSConnections=0` + 启 `TermService`，需管理员权限的失败路径处理）
-- [ ] `RdpServerStarter`——Linux 拉起 xrdp（systemctl / 直接进程，含 `-forever` 式保活参数决策）
+- [x] 新建模块 `utils-support-remote-agent-rdp`（对齐 agent-ssh/agent-vnc 结构与 pom）
+- [x] `RdpServiceProbe`——平台类型检测
+- [x] `RdpServiceProbe`——Windows：`TermService` 服务状态 + 注册表 `fDenyTSConnections`（**服务级检测，非端口 3389 探测**）
+- [x] `RdpServiceProbe`——Linux：`ps`/systemd 查 xrdp；Mac：恒 false
+- [x] `RdpServiceManager`——平台分支（Windows 已启用→转发 / 未启用→系统开启；Linux 有 xrdp→转发 / 无→拉起 / 不可得→降级自研采集；Mac→直接降级）
+- [x] `RdpServerStarter`——Windows 系统级开启远程桌面（`fDenyTSConnections=0` + 启 `TermService`，需管理员权限的失败路径处理）
+- [x] `RdpServerStarter`——Linux 拉起 xrdp（systemctl / 直接进程，含 `-forever` 式保活参数决策）
 - [ ] 自启服务会话结束回收策略（对齐 ssh/vnc 6.1 共同项）
 - [ ] 降级判定上报（`rdpAvailable=false` + `desktopSupported=true` → 控制端提示走自研画面）
 
 ### 6.4 agent 会话通道
 
-- [ ] `RdpSessionChannel`——或**与 `VncSessionChannel` 合并为 `DesktopSessionChannel`**（采集/推帧/注入骨架完全同构，仅帧类型与供给分支不同——先决策再动手）
-- [ ] 降级路径：`ScreenCapture` → `NativeEncoder` JPEG/H264 采集推流（复用，无新代码则勾选验证即可）
-- [ ] 键鼠注入：复用 `VncInputInjector`（抽出共享注入组件到公共依赖，避免双份 Robot 代码）
-- [ ] handleRdpFrame 帧分派（start/input/stop）+ started/error/stopped 状态帧
+- [x] `RdpSessionChannel`——或**与 `VncSessionChannel` 合并为 `DesktopSessionChannel`**（采集/推帧/注入骨架完全同构，仅帧类型与供给分支不同——先决策再动手）
+- [x] 降级路径：`ScreenCapture` → `NativeEncoder` JPEG/H264 采集推流（复用，无新代码则勾选验证即可）
+- [x] 键鼠注入：复用 `VncInputInjector`（抽出共享注入组件到公共依赖，避免双份 Robot 代码）
+- [x] handleRdpFrame 帧分派（start/input/stop）+ started/error/stopped 状态帧
 - [ ] 原生 RDP 码流直传（**未来项**——需 RDP 解码转码，当前原生库仅 h264/h265；见 进度和计划.md 遗留备忘）
 
 ### 6.5 agent 注册（RdpAgentBootstrap）
 
-- [ ] `RdpAgentBootstrap`——连网关 → 挂 `MessageType.RDP` 监听 → 注册（agentType + platform + `rdpAvailable` + `desktopSupported` extra）
-- [ ] 心跳（对齐 SshAgentBootstrap 5s tick）
-- [ ] `main` 入口 + stop 清理 + 保活循环
+- [x] `RdpAgentBootstrap`——连网关 → 挂 `MessageType.RDP` 监听 → 注册（agentType + platform + `rdpAvailable` + `desktopSupported` extra）
+- [x] 心跳（对齐 SshAgentBootstrap 5s tick）
+- [x] `main` 入口 + stop 清理 + 保活循环
 
 ### 6.6 前端（vue-support-remote-starter / RemoteView.vue）
 
-- [ ] 连接方式增加「远程桌面(RDP)」（当前仅 ssh/vnc）
-- [ ] WS 路径 `/ws/rdp/{agentId}` + 键鼠/画面消息（渲染逻辑与 VNC 完全同构——canvas + JPEG，先复用）
+- [x] 连接方式增加「远程桌面(RDP)」（当前仅 ssh/vnc）
+- [x] WS 路径 `/ws/rdp/{agentId}` + 键鼠/画面消息（渲染逻辑与 VNC 完全同构——canvas + JPEG，先复用）
 - [ ] H264 解码渲染（与 VNC 共同项）
 - [ ] 坐标换算与分辨率自适应复核（与 VNC 共同项）
 

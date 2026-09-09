@@ -31,6 +31,7 @@ public class GatewayServer implements RemoteServerSPI {
     final RouteManager routeManager;
     final TranscodeEngine transcodeEngine;
     private GatewayCallback gatewayCallback;
+    private final JdkHttpServer httpServer;
     private final int httpPort;
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private ControllerWebSocketServer controllerWs;
@@ -42,6 +43,35 @@ public class GatewayServer implements RemoteServerSPI {
         this.routeManager = new RouteManager(sessionManager);
         this.transcodeEngine = new TranscodeEngine();
         this.httpPort = setting.getPort() + 1;
+        ServerSetting httpSetting = ServerSetting.builder()
+                .port(httpPort)
+                .contextPath("/")
+                .build();
+        this.httpServer = new JdkHttpServer(httpSetting) {
+            @Override
+            protected void doStart() {
+                try {
+                    com.sun.net.httpserver.HttpServer delegate =
+                            com.sun.net.httpserver.HttpServer.create(
+                                    new java.net.InetSocketAddress(httpPort), 0);
+                    delegate.createContext("/verify", exchange -> handleVerify(exchange));
+                    delegate.createContext("/api/remote/config", exchange -> handleConfig(exchange));
+                    delegate.createContext("/api/remote/gateways", exchange -> handleGateways(exchange));
+                    delegate.createContext("/api/remote/agents", exchange -> handleAgents(exchange));
+                    delegate.createContext("/api/remote/access-codes", exchange -> handleAccessCodes(exchange));
+                    delegate.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+                    delegate.start();
+                    log.info("HTTP 验证服务器已启动 on port:{}", httpPort);
+                } catch (Exception e) {
+                    throw new RuntimeException("HTTP 验证服务器启动失败: port=" + httpPort, e);
+                }
+            }
+
+            @Override
+            protected void doStop() {
+                log.info("HTTP 验证服务器已停止");
+            }
+        };
         initHandlers();
     }
 
@@ -51,41 +81,14 @@ public class GatewayServer implements RemoteServerSPI {
         server.getTransport().on(MessageType.DATA, this::handleData);
         server.getTransport().on(MessageType.SSH, this::handleSSH);
         server.getTransport().on(MessageType.VNC, this::handleVNC);
-    }
-
-    /**
-     * HTTP 端点（与 WS 同端口——由 ControllerWebSocketServer 的握手路由回调）：path → JSON body。
-     */
-    private byte[] handleHttp(String path) {
-        try {
-            if ("/verify".equals(path)) {
-                return MAPPER.writeValueAsBytes(java.util.Map.of("success", true, "message", "access code verified"));
-            }
-            if ("/api/remote/config".equals(path)) {
-                return MAPPER.writeValueAsBytes(java.util.Map.of(
-                        "gateway", "tcp://0.0.0.0:" + (httpPort - 1),
-                        "httpPort", httpPort,
-                        "wsUrl", "ws://0.0.0.0:" + httpPort + "/ws/ssh/{agentId}"));
-            }
-            if ("/api/remote/gateways".equals(path)) {
-                return MAPPER.writeValueAsBytes(java.util.Map.of("gateways", java.util.List.of()));
-            }
-            if ("/api/remote/agents".equals(path)) {
-                return MAPPER.writeValueAsBytes(java.util.Map.of("agents", java.util.List.of()));
-            }
-            if ("/api/remote/access-codes".equals(path)) {
-                return MAPPER.writeValueAsBytes(java.util.Map.of("accessCodes", java.util.List.of()));
-            }
-            return MAPPER.writeValueAsBytes(java.util.Map.of("code", 404, "message", "not found"));
-        } catch (Exception e) {
-            return ("{\"code\":500,\"message\":\"" + e.getMessage() + "\"}").getBytes(java.nio.charset.StandardCharsets.UTF_8);
-        }
+        server.getTransport().on(MessageType.RDP, this::handleRDP);
     }
 
     public void start() {
         server.start();
-        // HTTP 与 WS 同端口（9001——HTTP 上升级 WS，见 ControllerWebSocketServer 的握手路由）
-        controllerWs = new ControllerWebSocketServer(httpPort, server.getTransport(), sessionManager, this::handleHttp);
+        httpServer.start();
+        // Controller WS 独立端口（9003——SSH/VNC/RDP 会话），HTTP 由 JdkHttpServer 承载（9001）
+        controllerWs = new ControllerWebSocketServer(httpPort + 2, server.getTransport(), sessionManager, null);
         controllerWs.setReuseAddr(true);
         controllerWs.start();
         log.info("远控网关已启动 (帧端口:{}, HTTP端口:{}, ControllerWS端口:{})", httpPort - 1, httpPort, httpPort + 2);
@@ -93,6 +96,7 @@ public class GatewayServer implements RemoteServerSPI {
 
     public void stop() {
         server.stop();
+        httpServer.stop();
         if (controllerWs != null) {
             try {
                 controllerWs.stop(1000, "gateway shutdown");
@@ -188,7 +192,21 @@ public class GatewayServer implements RemoteServerSPI {
         return params;
     }
 
-    private volatile String savedConfig = "{}";
+    private volatile String savedConfig = loadConfigFile();
+
+    private static final java.io.File CONFIG_FILE = new java.io.File(
+            System.getProperty("user.dir"), "remote-config.json");
+
+    private static String loadConfigFile() {
+        try {
+            if (CONFIG_FILE.exists()) {
+                return java.nio.file.Files.readString(CONFIG_FILE.toPath(), StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            log.warn("读取配置文件失败: {}", e.getMessage());
+        }
+        return "{}";
+    }
 
     private void handleConfig(com.sun.net.httpserver.HttpExchange exchange) {
         if ("GET".equals(exchange.getRequestMethod())) {
@@ -197,9 +215,12 @@ public class GatewayServer implements RemoteServerSPI {
         }
         if ("POST".equals(exchange.getRequestMethod())) {
             try {
-                savedConfig = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                savedConfig = body;
+                java.nio.file.Files.writeString(CONFIG_FILE.toPath(), body, StandardCharsets.UTF_8);
                 sendJson(exchange, 200, "{\"success\":true}");
             } catch (Exception e) {
+                log.error("保存配置失败", e);
                 sendJson(exchange, 500, "{\"success\":false}");
             }
             return;
@@ -446,6 +467,29 @@ public class GatewayServer implements RemoteServerSPI {
                 .build();
         server.getTransport().send(agentId, routed);
         log.debug("路由VNC帧到被控端: agentId={}, action={}", agentId, action);
+    }
+
+    private void handleRDP(Frame frame) {
+        Map<String, String> meta = frame.getMetadata();
+        String action = meta != null ? meta.get("rdpAction") : null;
+
+        if ("frame".equals(action) || "started".equals(action) || "error".equals(action)
+                || "stopped".equals(action) || (action != null && action.startsWith("webrtc-"))) {
+            if (controllerWs != null) {
+                controllerWs.onAgentRdpFrame(frame);
+            }
+            return;
+        }
+
+        String agentId = frame.getSessionId();
+        Frame routed = Frame.builder()
+                .type(MessageType.RDP)
+                .sessionId(agentId)
+                .payload(frame.getPayload())
+                .metadata(frame.getMetadata())
+                .build();
+        server.getTransport().send(agentId, routed);
+        log.debug("路由RDP帧到被控端: agentId={}, action={}", agentId, action);
     }
 
     @Override
