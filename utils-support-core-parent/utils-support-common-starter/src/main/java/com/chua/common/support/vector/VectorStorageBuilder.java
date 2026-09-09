@@ -1,7 +1,7 @@
 package com.chua.common.support.vector;
 
+import com.chua.common.support.spi.ServiceProvider;
 
-import com.chua.common.support.reflection.ReflectUtils;
 /**
  * 向量存储链式构建器。
  * <p>
@@ -175,27 +175,31 @@ public class VectorStorageBuilder {
     public VectorStorage build() {
         var algo = algorithm != null ? algorithm : VectorCompareAlgorithm.euclidean();
         return switch (type.toUpperCase()) {
-            case "MEMORY" -> new MemoryVectorStorage(dimension, algo);
-            case "JVECTOR" -> {
-                try {
-                    var cls = ReflectUtils.forName("com.chua.jvector.support.storage.JVectorVectorStorage");
-                    var ctor = cls.getConstructor(int.class, VectorCompareAlgorithm.class);
-                    yield (VectorStorage) ctor.newInstance(dimension, algo);
-                } catch (Exception e) {
-                    throw new RuntimeException("JVECTOR 模块未加载: " + e.getMessage());
-                }
-            }
-            case "MILVUS" -> {
-                try {
-                    var cls = ReflectUtils.forName("com.chua.milvus.support.storage.MilvusVectorStorage");
-                    var ctor = cls.getConstructor(int.class, VectorCompareAlgorithm.class, String.class, int.class, String.class);
-                    yield (VectorStorage) ctor.newInstance(dimension, algo, host, port, collection);
-                } catch (Exception e) {
-                    throw new RuntimeException("MILVUS 模块未加载: " + e.getMessage());
-                }
-            }
+            case "MEMORY" -> VectorStorageProvider.create("memory", dimension, algo);
+            case "JVECTOR" -> createOptionalStorage("jvector", dimension, algo, vectorProperties);
+            case "MILVUS" -> createOptionalStorage("milvus", dimension, algo, vectorProperties);
             case "VECTOR" -> VectorStorageProvider.create("vector", dimension, algo, vectorProperties);
             default -> throw new IllegalArgumentException("不支持的向量存储类型: " + type);
         };
+    }
+
+    /**
+     * 通过 ServiceProvider SPI 创建可选模块（jvector/milvus）的向量存储。
+     *
+     * @param spiName    SPI 扩展名
+     * @param dimension  向量维度
+     * @param algo       比较算法
+     * @param properties 实现特定配置
+     * @return 向量存储实例
+     */
+    private VectorStorage createOptionalStorage(String spiName,
+                                                int dimension,
+                                                VectorCompareAlgorithm algo,
+                                                Object properties) {
+        var provider = ServiceProvider.of(VectorStorageProvider.class).getExtension(spiName);
+        if (provider == null) {
+            throw new RuntimeException(spiName + " 模块未加载，请引入对应依赖并确认 SPI 已注册");
+        }
+        return provider.create(dimension, algo, properties);
     }
 }
