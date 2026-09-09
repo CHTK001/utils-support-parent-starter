@@ -22,7 +22,6 @@ public class AgentBootstrap {
     private final AgentService service;
     private final AgentShellService shellService;
     private final SSHChannelManager sshChannelManager;
-    private final VncSessionManager vncSessionManager;
     private volatile boolean running;
 
     public AgentBootstrap(String gatewayUrl, AgentInfo agentInfo) {
@@ -31,7 +30,6 @@ public class AgentBootstrap {
         this.service = new AgentService(agentInfo);
         this.shellService = new AgentShellService(agentInfo, client);
         this.sshChannelManager = new SSHChannelManager(client, agentInfo.getId());
-        this.vncSessionManager = new VncSessionManager(client, agentInfo);
     }
 
     public void start() {
@@ -40,7 +38,6 @@ public class AgentBootstrap {
 
         client.getTransport().on(MessageType.SIGNAL, this::handleSignal);
         client.getTransport().on(MessageType.SSH, sshChannelManager::handleSSHFrame);
-        client.getTransport().on(MessageType.VNC, vncSessionManager::handleVncFrame);
 
         String agentId = registerToGateway();
         reportCapabilities();

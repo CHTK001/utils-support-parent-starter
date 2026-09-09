@@ -240,7 +240,7 @@ public final class SshSessionChannel {
                 "sshAction", action,
                 "sshSessionId", sessionId);
         byte[] payload = data != null ? Arrays.copyOf(data, len) : new byte[0];
-        client.getTransport().send(FrameCodec.sshFrame(agentId, payload, meta));
+        client.getTransport().send(FrameCodec.sshFrame(sessionId, payload, meta));
     }
 
     /**
