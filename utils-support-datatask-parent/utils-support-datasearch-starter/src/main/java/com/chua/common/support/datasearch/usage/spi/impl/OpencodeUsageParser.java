@@ -31,8 +31,15 @@ public class OpencodeUsageParser extends BaseUsageParser {
     private static final Logger log = LoggerFactory.getLogger(OpencodeUsageParser.class);
 
     /** DB path */
-    private static final Path DB_PATH = Path.of(
-            System.getProperty("user.home"), ".local", "share", "opencode", "opencode.db");
+    private static final Path DB_PATH = resolveDbPath();
+
+    private static Path resolveDbPath() {
+        String xdgDataHome = System.getenv("XDG_DATA_HOME");
+        if (xdgDataHome != null && !xdgDataHome.isBlank()) {
+            return Path.of(xdgDataHome, "opencode", "opencode.db");
+        }
+        return Path.of(System.getProperty("user.home"), ".local", "share", "opencode", "opencode.db");
+    }
 
     /** SQL: 从 message 表按 token 用量筛选并返回每条请求的用量字段 */
     private static final String SQL_MESSAGES =
