@@ -1,21 +1,16 @@
 package com.chua.oshi.support.cli.command;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.Sys;
 import com.chua.oshi.support.cli.display.Formatter;
 
-import oshi.SystemInfo;
 import oshi.hardware.*;
-import oshi.software.os.OSFileStore;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OperatingSystem;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -24,11 +19,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Parameters(commandDescription = "System info: OS, hostname, CPU, processes")
 public final class SysCommand extends AbstractCommand {
-
-    @Parameter(names = {"--services"}, description = "List running OS services")
-    private boolean services;
 
     @Override
     public String name() {
@@ -41,12 +32,7 @@ public final class SysCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
-        if (help) {
-            printHelp();
-            return;
-        }
-
+    public void execute(CommandLine options) {
         HardwareAbstractionLayer hw = Oshi.getHardware();
         OperatingSystem os = Oshi.getOperatingSystem();
         ComputerSystem cs = hw.getComputerSystem();
@@ -61,7 +47,7 @@ public final class SysCommand extends AbstractCommand {
                         "Manufacturer", cs.getManufacturer() == null ? "N/A" : cs.getManufacturer(),
                         "Model", cs.getModel() == null ? "N/A" : cs.getModel(),
                         "Serial", cs.getSerialNumber() == null ? "N/A" : cs.getSerialNumber(),
-                        "UUID", cs.getUUID() == null ? "N/A" : cs.getUUID()
+                        "UUID", cs.getHardwareUUID() == null ? "N/A" : cs.getHardwareUUID()
                 )
         );
 
@@ -118,7 +104,7 @@ public final class SysCommand extends AbstractCommand {
         int stopped = 0;
         int zombie = 0;
         int other = 0;
-        for (oshi.software.os.OSProcess p : os.getProcesses(0, 0)) {
+        for (oshi.software.os.OSProcess p : os.getProcesses()) {
             switch (p.getState()) {
                 case RUNNING -> running++;
                 case SLEEPING -> sleeping++;
@@ -170,10 +156,10 @@ public final class SysCommand extends AbstractCommand {
         }
 
         // ── Battery ──
-        oshi.hardware.PowerSource[] ps = hw.getPowerSources();
-        if (ps != null && ps.length > 0) {
+        List<oshi.hardware.PowerSource> ps = hw.getPowerSources();
+        if (ps != null && !ps.isEmpty()) {
             System.out.println();
-            System.out.println("Power Sources (" + ps.length + "):");
+            System.out.println("Power Sources (" + ps.size() + "):");
             for (oshi.hardware.PowerSource p : ps) {
                 System.out.printf("  %-25s  remaining=%.1f%%  %s%n",
                         p.getName(), p.getRemainingCapacityPercent(),
@@ -182,18 +168,23 @@ public final class SysCommand extends AbstractCommand {
         }
 
         // ── Services ──
-        if (services) {
+        if (options.has("services")) {
             List<OSService> svcs = os.getServices();
             if (svcs != null && !svcs.isEmpty()) {
                 System.out.println();
                 System.out.println("Running Services (" + svcs.size() + "):");
                 List<String[]> srow = new ArrayList<>();
+                int count = 0;
                 for (OSService svc : svcs) {
+                    if (count >= 100) {
+                        break;
+                    }
                     srow.add(new String[]{
-                            String.valueOf(svc.getProcessId()),
+                            String.valueOf(svc.getProcessID()),
                             svc.getName(),
                             svc.getState().name()
                     });
+                    count++;
                 }
                 System.out.println(Formatter.table("", new String[]{"PID", "Name", "State"}, srow));
             }

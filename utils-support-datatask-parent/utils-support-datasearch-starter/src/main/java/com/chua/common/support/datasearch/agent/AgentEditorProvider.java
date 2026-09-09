@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ul>
  *
  * <p>支持的 AI 编辑器：Cursor、Claude Code、Codex、Windsurf、Cline、Roo Code、
- * Trae、Augment Code、Continue、Gemini CLI、Cody、CodeBuddy、TRAE-CN
+ * Trae、Augment Code、Continue、Gemini CLI、Cody、MiMo Code、CodeBuddy、TRAE-CN
  *
  * @author CH
  * @since 4.0.0.42
@@ -167,79 +167,90 @@ public class AgentEditorProvider {
         private final boolean workspaceBased;
 
         /**
+         * 环境变量名，用于覆盖默认配置目录路径。
+         * 例如 CODEX_HOME、CLAUDE_CONFIG_DIR 等
+         */
+        private final String envVar;
+
+        /**
          * Cursor 编辑器配置，配置目录为 .cursor，MCP 配置文件为 mcp.json
          */
-        public static final AgentEditor CURSOR = new AgentEditor("Cursor", ".cursor", "mcp.json", false);
+        public static final AgentEditor CURSOR = new AgentEditor("Cursor", ".cursor", "mcp.json", false, "CURSOR_CONFIG_DIR");
 
         /**
          * Claude Code 编辑器配置，配置目录为 .claude，MCP 配置文件为 settings.json
          */
-        public static final AgentEditor CLAUDE = new AgentEditor("Claude Code", ".claude", "settings.json", false);
+        public static final AgentEditor CLAUDE = new AgentEditor("Claude Code", ".claude", "settings.json", false, "CLAUDE_CONFIG_DIR");
 
         /**
          * Codex 编辑器配置，配置目录为 .codex，MCP 配置文件为 config.json
          */
-        public static final AgentEditor CODEX = new AgentEditor("Codex", ".codex", "config.json", false);
+        public static final AgentEditor CODEX = new AgentEditor("Codex", ".codex", "config.json", false, "CODEX_HOME");
 
         /**
-         * Windsurf 编辑器配置，配置目录为 .windsurf，MCP 配置文件为 mcp.json
+         * Windsurf 编辑器配置，配置目录为 .codeium/windsurf，MCP 配置文件为 mcp_config.json
          */
-        public static final AgentEditor WINDSURF = new AgentEditor("Windsurf", ".windsurf", "mcp.json", false);
+        public static final AgentEditor WINDSURF = new AgentEditor("Windsurf", ".codeium/windsurf", "mcp_config.json", false, null);
 
         /**
-         * Cline 编辑器配置，位于 VSCode Server 全局存储目录下，配置文件为 cline_mcp_settings.json
+         * Cline 编辑器配置，配置目录为 .cline，MCP 配置文件为 cline_mcp_settings.json
          */
-        public static final AgentEditor CLINE = new AgentEditor("Cline",
-                ".vscode-server/data/User/globalStorage/saoudrizwan.claude-dev/settings", "cline_mcp_settings.json", false);
+        public static final AgentEditor CLINE = new AgentEditor("Cline", ".cline", "cline_mcp_settings.json", false, "CLINE_DATA_DIR");
 
         /**
          * Roo Code 编辑器配置，配置目录为 .roo，MCP 配置文件为 mcp.json
          */
-        public static final AgentEditor ROO_CODE = new AgentEditor("Roo Code", ".roo", "mcp.json", false);
+        public static final AgentEditor ROO_CODE = new AgentEditor("Roo Code", ".roo", "mcp.json", false, null);
 
         /**
          * Trae 编辑器配置（国际版），配置目录为 .trae，MCP 配置文件为 mcp.json
          */
-        public static final AgentEditor TRAE = new AgentEditor("Trae", ".trae", "mcp.json", false);
+        public static final AgentEditor TRAE = new AgentEditor("Trae", ".trae", "mcp.json", false, null);
 
         /**
          * Augment Code 编辑器配置，配置目录为 .augment，MCP 配置文件为 mcp.json
          */
-        public static final AgentEditor AUGMENT = new AgentEditor("Augment Code", ".augment", "mcp.json", false);
+        public static final AgentEditor AUGMENT = new AgentEditor("Augment Code", ".augment", "mcp.json", false, null);
 
         /**
          * Continue 编辑器配置，配置目录为 .continue，MCP 配置文件为 config.json
          */
-        public static final AgentEditor CONTINUE = new AgentEditor("Continue", ".continue", "config.json", false);
+        public static final AgentEditor CONTINUE = new AgentEditor("Continue", ".continue", "config.json", false, null);
 
         /**
          * Gemini CLI 编辑器配置，配置目录为 .gemini，MCP 配置文件为 settings.json
          */
-        public static final AgentEditor GEMINI_CLI = new AgentEditor("Gemini CLI", ".gemini", "settings.json", false);
+        public static final AgentEditor GEMINI_CLI = new AgentEditor("Gemini CLI", ".gemini", "settings.json", false, "GEMINI_CLI_HOME");
 
         /**
-         * Cody（Sourcegraph）编辑器配置，配置目录为 .cody，MCP 配置文件为 mcp.json
+         * Cody（Sourcegraph）编辑辑器配置，配置目录为 .cody，MCP 配置文件为 mcp.json
          */
-        public static final AgentEditor CODY = new AgentEditor("Cody", ".cody", "mcp.json", false);
+        public static final AgentEditor CODY = new AgentEditor("Cody", ".cody", "mcp.json", false, null);
 
         /**
          * CodeBuddy 编辑器配置，配置目录为 .codebuddy，MCP 配置文件为 mcp.json。
          * workspaceBased=true，从当前目录向上搜索 .codebuddy/。
          */
-        public static final AgentEditor CODEBUDDY = new AgentEditor("CodeBuddy", CODEBUDDY_DIR, "mcp.json", true);
+        public static final AgentEditor CODEBUDDY = new AgentEditor("CodeBuddy", CODEBUDDY_DIR, "mcp.json", true, null);
 
         /**
          * TRAE-CN 编辑器配置，配置目录为 .trae-cn，MCP 配置在 plugins 目录下。
          * install/uninstall 为 no-op，仅用于插件发现和 Skills 扫描。
          */
-        public static final AgentEditor TRAE_CN = new AgentEditor("TRAE-CN", ".trae-cn", "plugins", false);
+        public static final AgentEditor TRAE_CN = new AgentEditor("TRAE-CN", ".trae-cn", "plugins", false, null);
+
+        /**
+         * MiMo Code 编辑器配置，配置目录为 .mimocode，MCP 配置文件为 mimocode.json。
+         * 支持 MIMOCODE_HOME 环境变量覆盖默认配置目录。
+         */
+        public static final AgentEditor MIMO = new AgentEditor("MiMo Code", ".mimocode", "mimocode.json", false, "MIMOCODE_HOME");
 
         /**
          * 全部内置编辑器列表，按注册顺序排列，用于批量安装/卸载时遍历
          */
         public static final List<AgentEditor> ALL = List.of(
                 CURSOR, CLAUDE, CODEX, WINDSURF, CLINE, ROO_CODE,
-                TRAE, AUGMENT, CONTINUE, GEMINI_CLI, CODY,
+                TRAE, AUGMENT, CONTINUE, GEMINI_CLI, CODY, MIMO,
                 CODEBUDDY, TRAE_CN);
 
         /**
@@ -251,10 +262,24 @@ public class AgentEditorProvider {
          * @param workspaceBased 是否基于工作区目录（true: 从当前目录向上搜索配置目录）
          */
         public AgentEditor(String name, String configDir, String mcpConfigFile, boolean workspaceBased) {
+            this(name, configDir, mcpConfigFile, workspaceBased, null);
+        }
+
+        /**
+         * 根据编辑器名称、配置目录、配置文件名、工作区标记与环境变量构建实例。
+         *
+         * @param name           编辑器显示名称
+         * @param configDir      相对目录的配置目录路径
+         * @param mcpConfigFile  MCP 配置文件名
+         * @param workspaceBased 是否基于工作区目录（true: 从当前目录向上搜索配置目录）
+         * @param envVar         环境变量名，用于覆盖默认配置目录路径，可为 null
+         */
+        public AgentEditor(String name, String configDir, String mcpConfigFile, boolean workspaceBased, String envVar) {
             this.name = name;
             this.configDir = configDir;
             this.mcpConfigFile = mcpConfigFile;
             this.workspaceBased = workspaceBased;
+            this.envVar = envVar;
         }
 
         /**
@@ -273,6 +298,31 @@ public class AgentEditorProvider {
          */
         public String getConfigDir() {
             return configDir;
+        }
+
+        /**
+         * 获取环境变量名。
+         *
+         * @return 环境变量名，可为 null
+         */
+        public String getEnvVar() {
+            return envVar;
+        }
+
+        /**
+         * 获取实际的配置目录路径。
+         * 优先使用环境变量（如果配置了且非空），否则使用默认的 configDir。
+         *
+         * @return 配置目录 Path
+         */
+        public Path getConfigDirPath() {
+            if (envVar != null) {
+                String envValue = System.getenv(envVar);
+                if (envValue != null && !envValue.isBlank()) {
+                    return Paths.get(envValue);
+                }
+            }
+            return USER_HOME.resolve(configDir);
         }
 
         /**
@@ -300,6 +350,16 @@ public class AgentEditorProvider {
          */
         public String getMcpConfigPath() {
             return configDir + "/" + mcpConfigFile;
+        }
+
+        /**
+         * 获取 MCP 配置文件的实际 Path。
+         * 优先使用环境变量（如果配置了），否则使用 USER_HOME/configDir/mcpConfigFile。
+         *
+         * @return MCP 配置文件 Path
+         */
+        public Path getMcpConfigFilePath() {
+            return getConfigDirPath().resolve(mcpConfigFile);
         }
     }
 
@@ -708,7 +768,7 @@ public class AgentEditorProvider {
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> readMcpConfig(AgentEditor editor) {
-        Path file = USER_HOME.resolve(editor.getMcpConfigPath());
+        Path file = editor.getMcpConfigFilePath();
         if (!Files.exists(file)) {
             return Collections.emptyMap();
         }
@@ -1015,7 +1075,7 @@ public class AgentEditorProvider {
                     result.add(editor.getName());
                 }
             } else {
-                Path dir = USER_HOME.resolve(editor.getConfigDir());
+                Path dir = editor.getConfigDirPath();
                 if (Files.isDirectory(dir)) {
                     result.add(editor.getName());
                 }
@@ -1122,11 +1182,20 @@ public class AgentEditorProvider {
     @SuppressWarnings("unchecked")
     private boolean installToWorkspace(AgentEditor editor, Path basePath, McpMode mode, String jarPath, String serverUrl) {
         try {
-            Path configDir = basePath.resolve(editor.getConfigDir());
+            // 优先使用环境变量指定的路径，否则使用 basePath/configDir
+            Path configDir;
+            Path configFile;
+            String envValue = editor.getEnvVar() != null ? System.getenv(editor.getEnvVar()) : null;
+            if (envValue != null && !envValue.isBlank()) {
+                configDir = Paths.get(envValue);
+                configFile = configDir.resolve(editor.getMcpConfigFile());
+            } else {
+                configDir = basePath.resolve(editor.getConfigDir());
+                configFile = basePath.resolve(editor.getMcpConfigPath());
+            }
             if (!Files.exists(configDir)) {
                 Files.createDirectories(configDir);
             }
-            Path configFile = basePath.resolve(editor.getMcpConfigPath());
             // 工作区模式下读取工作区级别的配置文件
             Map<String, Object> existing = editor.isWorkspaceBased()
                     ? new LinkedHashMap<>(readMcpConfig(configFile))
@@ -1209,7 +1278,14 @@ public class AgentEditorProvider {
      */
     private boolean uninstallFromWorkspace(AgentEditor editor, Path basePath) {
         try {
-            Path configFile = basePath.resolve(editor.getMcpConfigPath());
+            // 优先使用环境变量指定的路径，否则使用 basePath/configDir
+            Path configFile;
+            String envValue = editor.getEnvVar() != null ? System.getenv(editor.getEnvVar()) : null;
+            if (envValue != null && !envValue.isBlank()) {
+                configFile = Paths.get(envValue).resolve(editor.getMcpConfigFile());
+            } else {
+                configFile = basePath.resolve(editor.getMcpConfigPath());
+            }
             if (!Files.exists(configFile)) {
                 return true;
             }

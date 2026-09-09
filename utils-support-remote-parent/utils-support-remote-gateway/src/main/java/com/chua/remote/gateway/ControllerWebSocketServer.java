@@ -29,6 +29,8 @@ public class ControllerWebSocketServer extends WebSocketServer {
     private final Map<String, WebSocket> sshSessions = new ConcurrentHashMap<>();
     /** vncSessionId → ws（agent 画面帧带 vncSessionId——回流按会话路由） */
     private final Map<String, WebSocket> vncSessions = new ConcurrentHashMap<>();
+    /** rdpSessionId → ws（agent 画面帧带 rdpSessionId——回流按会话路由） */
+    private final Map<String, WebSocket> rdpSessions = new ConcurrentHashMap<>();
 
     public ControllerWebSocketServer(int port, RemoteTransport transport, SessionManager sessionManager,
                                      java.util.function.Function<String, byte[]> httpRouter) {
@@ -46,24 +48,11 @@ public class ControllerWebSocketServer extends WebSocketServer {
             org.java_websocket.WebSocket conn, org.java_websocket.drafts.Draft draft,
             org.java_websocket.handshake.ClientHandshake request) throws org.java_websocket.exceptions.InvalidDataException {
         String path = request.getResourceDescriptor();
-        if (path != null && path.startsWith("/ws/")) {
+        if (path == null || !path.startsWith("/ws/")) {
+            // 没有 httpRouter（HTTP 由 JdkHttpServer 独立承载）时，非 WS 路径直接拒绝
             return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
         }
-        try {
-            byte[] body = httpRouter.apply(path != null ? path : "");
-            org.java_websocket.handshake.HandshakeImpl1Server builder = new org.java_websocket.handshake.HandshakeImpl1Server();
-            builder.setHttpStatus((short) 200);
-            builder.setHttpStatusMessage("OK");
-            builder.put("Content-Type", "application/json; charset=UTF-8");
-            builder.put("Content-Length", String.valueOf(body.length));
-            builder.put("Access-Control-Allow-Origin", "*");
-            builder.setContent(body);
-            log.info("HTTP 同端口响应: path={}, bytes={}", path, body.length);
-            return builder;
-        } catch (Exception e) {
-            log.error("HTTP 同端口响应失败: path={}", path, e);
-            return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
-        }
+        return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
     }
 
     @Override
@@ -74,7 +63,7 @@ public class ControllerWebSocketServer extends WebSocketServer {
         String type = extractType(path);
         if (agentId == null || type == null) {
             log.warn("Controller WS: 无效路径 {}", path);
-            conn.close(4000, "path must be /ws/{ssh|vnc}/{agentId}");
+            conn.close(4000, "path must be /ws/{ssh|vnc|rdp}/{agentId}");
             return;
         }
         wsToAgent.put(conn, agentId);
@@ -95,6 +84,7 @@ public class ControllerWebSocketServer extends WebSocketServer {
         wsToType.remove(conn);
         sshSessions.values().remove(conn);
         vncSessions.values().remove(conn);
+        rdpSessions.values().remove(conn);
     }
 
     @Override
@@ -109,6 +99,8 @@ public class ControllerWebSocketServer extends WebSocketServer {
                 handleSshMessage(conn, agentId, node);
             } else if ("vnc".equals(action)) {
                 handleVncMessage(conn, agentId, node);
+            } else if ("rdp".equals(action)) {
+                handleRdpMessage(conn, agentId, node);
             }
         } catch (Exception e) {
             log.error("WS消息处理失败: {}", e.getMessage());
@@ -177,6 +169,33 @@ public class ControllerWebSocketServer extends WebSocketServer {
             vncSessions.put(sessionId, conn);
         }
         log.debug("WS→Agent vnc: agentId={}, action={}, sessionId={}", agentId, vncAction, sessionId);
+    }
+
+    /**
+     * 浏览器 RDP 消息 → agent（start/input/stop + WebRTC 信令 webrtc-offer/webrtc-ice）。
+     */
+    private void handleRdpMessage(WebSocket conn, String agentId, JsonNode node) {
+        String rdpAction = node.path("rdpAction").asText("");
+        String sessionId = node.path("sessionId").asText("");
+
+        var meta = new java.util.HashMap<String, String>();
+        meta.put("rdpAction", rdpAction);
+        meta.put("rdpSessionId", sessionId);
+
+        byte[] payload = new byte[0];
+        if ("input".equals(rdpAction) || rdpAction.startsWith("webrtc-")) {
+            String data = node.path("data").asText("");
+            if (!data.isEmpty()) {
+                payload = Base64.getDecoder().decode(data);
+            }
+        }
+
+        Frame frame = FrameCodec.rdpFrame(agentId, payload, meta);
+        transport.send(agentId, frame);
+        if (!sessionId.isEmpty()) {
+            rdpSessions.put(sessionId, conn);
+        }
+        log.debug("WS→Agent rdp: agentId={}, action={}, sessionId={}", agentId, rdpAction, sessionId);
     }
 
     @Override
@@ -250,12 +269,61 @@ public class ControllerWebSocketServer extends WebSocketServer {
         }
     }
 
+    /**
+     * agent RDP 帧回流浏览器：frame（画面二进制）直发，状态/WebRTC 信令走 JSON。
+     */
+    void onAgentRdpFrame(Frame frame) {
+        String agentId = frame.getSessionId();
+        Map<String, String> meta = frame.getMetadata();
+        if (meta == null) return;
+        String action = meta.get("rdpAction");
+        byte[] data = frame.getPayload();
+
+        String sessionId = meta.get("rdpSessionId");
+        WebSocket sessionWs = sessionId != null ? rdpSessions.get(sessionId) : null;
+        if (sessionWs == null || !sessionWs.isOpen()) {
+            for (WebSocket ws : getConnections()) {
+                if (agentId.equals(wsToAgent.get(ws)) && "rdp".equals(wsToType.get(ws))) {
+                    sessionWs = ws;
+                    break;
+                }
+            }
+        }
+        if (sessionWs == null || !sessionWs.isOpen()) {
+            return;
+        }
+
+        if ("frame".equals(action) && data != null && data.length > 0) {
+            sessionWs.send(ByteBuffer.wrap(data));
+        } else if (action != null && action.startsWith("webrtc-") && data != null && data.length > 0) {
+            try {
+                String json = mapper.writeValueAsString(Map.of(
+                        "type", "rdp", "data", action,
+                        "payload", java.util.Base64.getEncoder().encodeToString(data)));
+                sessionWs.send(json);
+            } catch (Exception e) {
+                log.warn("RDP WebRTC 信令序列化失败", e);
+            }
+        } else {
+            try {
+                String json = mapper.writeValueAsString(
+                        Map.of("type", "rdp", "data", action, "stream", "stdout"));
+                sessionWs.send(json);
+            } catch (Exception e) {
+                log.warn("RDP 状态帧序列化失败", e);
+            }
+        }
+    }
+
     private String extractAgentId(String path) {
         if (path.startsWith("/ws/ssh/")) {
             return path.substring("/ws/ssh/".length());
         }
         if (path.startsWith("/ws/vnc/")) {
             return path.substring("/ws/vnc/".length());
+        }
+        if (path.startsWith("/ws/rdp/")) {
+            return path.substring("/ws/rdp/".length());
         }
         return null;
     }
@@ -266,6 +334,9 @@ public class ControllerWebSocketServer extends WebSocketServer {
         }
         if (path.startsWith("/ws/vnc/")) {
             return "vnc";
+        }
+        if (path.startsWith("/ws/rdp/")) {
+            return "rdp";
         }
         return null;
     }

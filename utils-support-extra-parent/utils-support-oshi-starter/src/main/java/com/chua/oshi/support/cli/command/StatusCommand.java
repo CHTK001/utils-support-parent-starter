@@ -1,13 +1,17 @@
 package com.chua.oshi.support.cli.command;
 
-import com.beust.jcommander.Parameters;
-import com.chua.oshi.support.*;
+import com.chua.common.support.utils.CommandLine;
+import com.chua.oshi.support.Cpu;
+import com.chua.oshi.support.Mem;
+import com.chua.oshi.support.Network;
+import com.chua.oshi.support.Oshi;
+import com.chua.oshi.support.Sys;
+import com.chua.oshi.support.SysFile;
 import com.chua.oshi.support.cli.display.Formatter;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +20,6 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Parameters(commandDescription = "Dashboard: system overview, CPU, memory, disk, network")
 public final class StatusCommand extends AbstractCommand {
 
     @Override
@@ -30,17 +33,12 @@ public final class StatusCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
-        if (help) {
-            printHelp();
-            return;
-        }
-
+    public void execute(CommandLine options) {
         HardwareAbstractionLayer hw = Oshi.getHardware();
 
         // ── System info ──
         Sys sys = Oshi.newSys();
-        ComputerSystem cs = hw.getComputerSystem();
+        oshi.hardware.ComputerSystem cs = hw.getComputerSystem();
         System.out.println();
         System.out.println(
                 Formatter.panel("oshc status",
@@ -71,11 +69,11 @@ public final class StatusCommand extends AbstractCommand {
 
         // ── Virtual memory ──
         oshi.hardware.GlobalMemory globalMem = hw.getMemory();
-        oshi.software.os.VirtualMemory vMem = globalMem.getVirtualMemory();
+        oshi.hardware.VirtualMemory vMem = globalMem.getVirtualMemory();
         if (vMem != null) {
             long swapTotal = vMem.getSwapTotal();
             if (swapTotal > 0) {
-                long swapUsed = swapTotal - vMem.getSwapPages();
+                long swapUsed = vMem.getSwapUsed();
                 double swapPct = swapTotal > 0 ? (double) swapUsed / swapTotal * 100 : 0;
                 System.out.println("Swap: " + Formatter.formatBytes(swapUsed) + " / "
                         + Formatter.formatBytes(swapTotal) + " — " + String.format("%.1f%%", swapPct));
@@ -134,24 +132,28 @@ public final class StatusCommand extends AbstractCommand {
         Sensors sensors = hw.getSensors();
         System.out.println();
         System.out.println("Sensors:");
-        double[] temps = sensors.getTemperatures();
-        if (temps.length > 0) {
-            System.out.println("  Temperature: " + String.format("%.1f", average(temps)) + " °C (max " + String.format("%.1f", max(temps)) + " °C)");
+        double cpuTemp = sensors.getCpuTemperature();
+        if (cpuTemp > 0) {
+            System.out.println("  CPU Temperature: " + String.format("%.1f °C", cpuTemp));
         }
-        double[] fans = sensors.getFanSpeeds();
+        int[] fans = sensors.getFanSpeeds();
         if (fans.length > 0) {
-            System.out.println("  Fan Speed: " + (int) average(fans) + " RPM");
+            int maxFan = 0;
+            for (int f : fans) {
+                maxFan = Math.max(maxFan, f);
+            }
+            System.out.println("  Fan Speed: " + maxFan + " RPM");
         }
-        double[] voltages = sensors.getVoltages();
-        if (voltages.length > 0) {
-            System.out.println("  Voltage: " + String.format("%.2f V", average(voltages)));
+        double voltage = sensors.getCpuVoltage();
+        if (voltage > 0) {
+            System.out.println("  CPU Voltage: " + String.format("%.2f V", voltage));
         }
 
         // ── Power supply ──
-        oshi.hardware.PowerSource[] ps = hw.getPowerSources();
-        if (ps != null && ps.length > 0) {
+        List<oshi.hardware.PowerSource> ps = hw.getPowerSources();
+        if (ps != null && !ps.isEmpty()) {
             System.out.println();
-            System.out.println("Power Sources (" + ps.length + "):");
+            System.out.println("Power Sources (" + ps.size() + "):");
             for (oshi.hardware.PowerSource p : ps) {
                 System.out.printf("  %-20s  %.1f%%  %s%n",
                         p.getName(), p.getRemainingCapacityPercent(),
@@ -164,24 +166,5 @@ public final class StatusCommand extends AbstractCommand {
 
     private static String pad(String label, double val) {
         return String.format("%-5s %6.1f%%  ", label, val);
-    }
-
-    private static double average(double[] arr) {
-        if (arr.length == 0) {
-            return 0;
-        }
-        double sum = 0;
-        for (double v : arr) {
-            sum += v;
-        }
-        return sum / arr.length;
-    }
-
-    private static double max(double[] arr) {
-        double m = 0;
-        for (double v : arr) {
-            m = Math.max(m, v);
-        }
-        return m;
     }
 }

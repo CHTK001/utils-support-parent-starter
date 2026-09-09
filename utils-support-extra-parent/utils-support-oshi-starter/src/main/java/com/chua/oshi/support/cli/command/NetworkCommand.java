@@ -1,7 +1,6 @@
 package com.chua.oshi.support.cli.command;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.Network;
 import com.chua.oshi.support.Oshi;
 import com.chua.oshi.support.cli.display.Formatter;
@@ -15,12 +14,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
-@Parameters(commandDescription = "Network interfaces: IP/MAC, bytes, speed, status")
 public final class NetworkCommand extends AbstractCommand {
-
-    /** 仅显示 up 状态的接口 */
-    @Parameter(names = {"--up"}, description = "Show only UP interfaces")
-    private boolean upOnly;
 
     @Override
     public String name() {
@@ -33,14 +27,9 @@ public final class NetworkCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
-        if (help) {
-            printHelp();
-            return;
-        }
-
+    public void execute(CommandLine options) {
         List<Network> nets = Oshi.newNetwork();
-        if (upOnly) {
+        if (options.has("up")) {
             nets = nets.stream().filter(n -> "UP".equalsIgnoreCase(n.getIfOperStatus())).toList();
         }
 

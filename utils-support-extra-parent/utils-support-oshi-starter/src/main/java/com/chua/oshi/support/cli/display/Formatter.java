@@ -90,10 +90,8 @@ public final class Formatter {
     public static String table(String title, String[] headers, List<String[]> rows, String[] summary) {
         int cols = headers.length;
         int[] widths = new int[cols];
-        for (String[] h : List.of(headers)) {
-            for (int c = 0; c < cols; c++) {
-                widths[c] = Math.max(widths[c], width(h[c]));
-            }
+        for (int c = 0; c < cols; c++) {
+            widths[c] = Math.max(widths[c], width(headers[c]));
         }
         List<String[]> all = new ArrayList<>(rows);
         if (summary != null) {

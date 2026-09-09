@@ -198,6 +198,11 @@ public class NetAddress implements Serializable {
     }
 
     /** 获取Host */
+    public String getHost() {
+        return host;
+    }
+
+    /** 获取Host（带默认值） */
     public String getHost(String defaultHost) {
         return StringUtils.isNullOrEmpty(host) || "127.0.0.1".equals(host)
                 ? (defaultHost != null ? defaultHost : "127.0.0.1")

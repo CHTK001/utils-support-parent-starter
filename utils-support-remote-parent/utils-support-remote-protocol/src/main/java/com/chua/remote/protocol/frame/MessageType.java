@@ -5,5 +5,6 @@ public enum MessageType {
     DATA,
     CTRL,
     SSH,
-    VNC
+    VNC,
+    RDP
 }
