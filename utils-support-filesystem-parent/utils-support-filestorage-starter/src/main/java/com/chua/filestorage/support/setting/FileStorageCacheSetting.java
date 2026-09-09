@@ -44,17 +44,20 @@ public class FileStorageCacheSetting {
     private long ttl = 86400L;
 
     /**
-     * 内存缓存上限。
-     * <p>格式如 "512MB"、"1GB"，为空表示不限制。</p>
-     */
-    private String memoryCacheLimit;
-
-    /**
-     * 是否预加载到内存。
+     * 内存 LRU 缓存容量（条目数）。
+     * <p>默认 128。0 表示不启用内存缓存。</p>
      */
     @Builder.Default
-    /** PreloadTOmemory */
-    private boolean preloadToMemory = false;
+    /** 内存缓存容量 */
+    private int memoryCacheCapacity = 128;
+
+    /**
+     * 单文件内存缓存上限（字节）。
+     * <p>超过此大小的 PDF 不会放入内存缓存，默认 5MB。</p>
+     */
+    @Builder.Default
+    /** 单文件内存上限 */
+    private long maxMemoryFileSize = 5L * 1024 * 1024;
 
     /**
      * 闪图 token 过期时间（秒）。
