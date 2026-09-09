@@ -164,7 +164,7 @@ public final class SshSessionChannel {
      */
     private Process startSshProcess(String keyPath, String host, String username, int cols, int rows) throws IOException {
         List<String> cmd = new ArrayList<>();
-        cmd.add("ssh");
+        cmd.add(resolveSshExecutable());
         cmd.add("-i");
         cmd.add(keyPath);
         cmd.add("-tt");
@@ -250,6 +250,22 @@ public final class SshSessionChannel {
         sessions.forEach((id, session) -> session.process.destroyForcibly());
         sessions.clear();
         executor.shutdownNow();
+    }
+
+    /**
+     * 解析 ssh 可执行文件：Windows 平台优先使用系统内置 OpenSSH（避免 Git 发行版 ssh.exe
+     * 在 ProcessBuilder 子进程环境缺 DLL（"error while loading sha..."）导致启动崩溃）。
+     *
+     * @return ssh 可执行文件路径
+     */
+    private String resolveSshExecutable() {
+        if (serviceManager.getPlatform() == SshServiceProbe.Platform.WINDOWS) {
+            File winSsh = new File("C:\\Windows\\System32\\OpenSSH\\ssh.exe");
+            if (winSsh.isFile()) {
+                return winSsh.getAbsolutePath();
+            }
+        }
+        return "ssh";
     }
 
     private static void runCommand(String... cmd) {

@@ -48,6 +48,12 @@ public class SshAgentBootstrap {
             while (running) {
                 try {
                     Thread.sleep(5000);
+                    // 心跳附带重发注册（幂等——首次注册帧随机丢失后自动补上，网关按 agentId 覆盖）
+                    try {
+                        registerToGateway();
+                    } catch (Exception e) {
+                        log.warn("心跳重注册失败: {}", e.getMessage());
+                    }
                     log.info("agent-keepalive-tick: id={}", agentInfo.getId());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -66,6 +72,7 @@ public class SshAgentBootstrap {
         String agentId = agentInfo.getId();
         agentInfo.setPlatform(serviceManager.getPlatform().name());
         agentInfo.setAgentType(AgentInfo.AgentType.FORWARD);
+        agentInfo.setDesktopSupported(detectDesktopSupported());
         if (agentInfo.getExtra() == null) {
             agentInfo.setExtra(new HashMap<>());
         }
@@ -76,6 +83,20 @@ public class SshAgentBootstrap {
                 agentId, agentInfo.getAgentType(), agentInfo.getPlatform(),
                 serviceManager.isForwardMode(), agentInfo.getUsername());
         return agentId;
+    }
+
+    /**
+     * 桌面能力检测：Windows/macOS 恒有桌面；Linux 依赖 DISPLAY（无则 headless）。
+     *
+     * @return 是否支持桌面
+     */
+    private static boolean detectDesktopSupported() {
+        String os = System.getProperty("os.name", "").toLowerCase();
+        if (os.contains("win") || os.contains("mac")) {
+            return true;
+        }
+        String display = System.getenv("DISPLAY");
+        return display != null && !display.isBlank() && !"null".equalsIgnoreCase(display.trim());
     }
 
     public void stop() {

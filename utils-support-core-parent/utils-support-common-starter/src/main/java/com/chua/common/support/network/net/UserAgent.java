@@ -164,6 +164,16 @@ public class UserAgent implements Serializable {
     }
 
     /**
+     * 解析 User-Agent 字符串（兼容旧命名，等价于 {@link #parse(String)}）。
+     *
+     * @param userAgent User-Agent 字符串
+     * @return 解析后的 {@link UserAgent} 对象
+     */
+    public static UserAgent parseUserAgentString(String userAgent) {
+        return parse(userAgent);
+    }
+
+    /**
      * 直接判断字符串是否为爬虫 UA（便捷静态方法）。
      *
      * <p>内部调用 {@link #parse(String)} 后取 {@link #isCrawler()} 结果，
@@ -857,11 +867,27 @@ public class UserAgent implements Serializable {
          * Apple iOS（iPhone / iPad / iPod）
          */
         IOS,
-        /**
-         * 无法识别的操作系统
-         */
-        UNKNOWN
+    /**
+     * 无法识别的操作系统
+     */
+    UNKNOWN;
+
+    /**
+     * 获取操作系统友好名称。
+     *
+     * @return 名称字符串（如 "Windows"）
+     */
+    public String getName() {
+        return switch (this) {
+            case WINDOWS -> "Windows";
+            case MACOS -> "macOS";
+            case LINUX -> "Linux";
+            case ANDROID -> "Android";
+            case IOS -> "iOS";
+            case UNKNOWN -> "Unknown";
+        };
     }
+}
 
     /**
      * 设备类型枚举。
