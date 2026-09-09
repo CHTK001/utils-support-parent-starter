@@ -34,8 +34,15 @@ public class KiloConversationParser implements ConversationParser {
 
     private static final Logger log = LoggerFactory.getLogger(KiloConversationParser.class);
 
-    private static final Path DB_PATH = Path.of(
-            System.getProperty("user.home"), ".local", "share", "kilo", "kilo.db");
+    private static final Path DB_PATH = resolveDbPath();
+
+    private static Path resolveDbPath() {
+        String xdgDataHome = System.getenv("XDG_DATA_HOME");
+        if (xdgDataHome != null && !xdgDataHome.isBlank()) {
+            return Path.of(xdgDataHome, "kilo", "kilo.db");
+        }
+        return Path.of(System.getProperty("user.home"), ".local", "share", "kilo", "kilo.db");
+    }
 
     private static final String SQL_TEXT_PARTS =
             "SELECT p.data AS part_data, m.data AS msg_data "

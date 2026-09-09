@@ -33,8 +33,15 @@ import java.util.Map;
 @Spi("kilo")
 public class KiloUsageParser extends BaseUsageParser {
 
-    private static final Path DB_PATH = Path.of(
-            System.getProperty("user.home"), ".local", "share", "kilo", "kilo.db");
+    private static final Path DB_PATH = resolveDbPath();
+
+    private static Path resolveDbPath() {
+        String xdgDataHome = System.getenv("XDG_DATA_HOME");
+        if (xdgDataHome != null && !xdgDataHome.isBlank()) {
+            return Path.of(xdgDataHome, "kilo", "kilo.db");
+        }
+        return Path.of(System.getProperty("user.home"), ".local", "share", "kilo", "kilo.db");
+    }
 
     private static final String SQL_SESSIONS =
             "SELECT id, model, cost, tokens_input, tokens_output, "
