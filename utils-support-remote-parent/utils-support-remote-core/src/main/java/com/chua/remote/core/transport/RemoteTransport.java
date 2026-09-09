@@ -114,6 +114,15 @@ public class RemoteTransport {
     }
 
     /**
+     * 客户端连接状态（供断连重连判定）。
+     *
+     * @return 已连接
+     */
+    public boolean isConnected() {
+        return client != null && client.isConnected();
+    }
+
+    /**
      * 广播帧（通过服务端）。
      *
      * @param frame 帧

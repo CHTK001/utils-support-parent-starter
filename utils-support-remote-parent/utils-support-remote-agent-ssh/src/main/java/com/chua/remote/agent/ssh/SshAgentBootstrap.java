@@ -110,14 +110,46 @@ public class SshAgentBootstrap {
         SshAgentBootstrap bootstrap = new SshAgentBootstrap(gatewayUrl, info);
         Runtime.getRuntime().addShutdownHook(new Thread(bootstrap::stop));
         bootstrap.start();
-        // 主线程保活：main 返回后 JVM 立即退出（虚拟线程不阻塞进程退出）——必须阻塞直到停机信号
+        // 主线程保活 + 断连重连：连接丢失（Connection reset 等）后自动重建而非停机
         while (bootstrap.running) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+            if (!bootstrap.isConnected()) {
+                log.info("连接断开，5 秒后重连...");
+                try {
+                    Thread.sleep(5000);
+                    bootstrap.reconnect();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    log.warn("重连失败: {}", e.getMessage());
+                }
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
         }
+    }
+
+    /**
+     * 连接状态。
+     *
+     * @return 已连接
+     */
+    public boolean isConnected() {
+        return client.isConnected();
+    }
+
+    /**
+     * 断连重连：重新连接网关并重新注册（会话通道保持）。
+     */
+    public void reconnect() {
+        client.connect();
+        client.getTransport().on(MessageType.SSH, sessionChannel::handleSSHFrame);
+        registerToGateway();
+        log.info("重连完成并重新注册: id={}", agentInfo.getId());
     }
 }
