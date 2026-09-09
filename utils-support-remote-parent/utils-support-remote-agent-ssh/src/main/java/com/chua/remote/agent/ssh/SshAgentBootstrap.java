@@ -32,7 +32,9 @@ public class SshAgentBootstrap {
         this.client = new RemoteClient(agentInfo.getId(), gatewayUrl);
         this.agentInfo = agentInfo;
         this.serviceManager = new SshServiceManager();
-        this.sessionChannel = new SshSessionChannel(client, agentInfo.getId(), serviceManager);
+        // 注册上报的 SSH 凭据（username/password）作为会话缺省凭据（meta 未带时回落）
+        this.sessionChannel = new SshSessionChannel(client, agentInfo.getId(), serviceManager,
+                agentInfo.getUsername(), agentInfo.getPassword());
     }
 
     public void start() {
@@ -41,6 +43,18 @@ public class SshAgentBootstrap {
         client.getTransport().on(MessageType.SSH, sessionChannel::handleSSHFrame);
         String agentId = registerToGateway();
         running = true;
+        // 心跳日志（每 5s——区分进程存活 vs 日志缓冲滞后：心跳持续=进程活着，日志只是延迟刷出）
+        Thread.ofPlatform().name("agent-heartbeat").daemon(true).start(() -> {
+            while (running) {
+                try {
+                    Thread.sleep(5000);
+                    log.info("agent-keepalive-tick: id={}", agentInfo.getId());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
         log.info("SSH agent 就绪: agentId={}, platform={}, sshdPresent={}",
                 agentId, serviceManager.getPlatform(), serviceManager.isForwardMode());
     }
@@ -65,6 +79,16 @@ public class SshAgentBootstrap {
     }
 
     public void stop() {
+        log.info("SSH agent 停止中: id={}, 调用线程={}", agentInfo.getId(), Thread.currentThread().getName());
+        Thread.getAllStackTraces().forEach((t, st) -> {
+            if ("main".equals(t.getName())) {
+                StringBuilder sb = new StringBuilder();
+                for (StackTraceElement e : st) {
+                    sb.append("\n    at ").append(e);
+                }
+                log.info("main 线程栈（死亡瞬间）:{}", sb);
+            }
+        });
         running = false;
         sessionChannel.stopAll();
         client.disconnect();

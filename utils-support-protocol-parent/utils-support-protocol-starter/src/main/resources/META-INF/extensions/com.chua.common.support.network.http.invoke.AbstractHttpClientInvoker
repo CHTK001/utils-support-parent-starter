@@ -1,0 +1,2 @@
+httpclient=com.chua.common.support.network.http.invoke.HttpClientlHttpClientInvoker
+url=com.chua.common.support.network.http.invoke.UrlHttpClientInvoker

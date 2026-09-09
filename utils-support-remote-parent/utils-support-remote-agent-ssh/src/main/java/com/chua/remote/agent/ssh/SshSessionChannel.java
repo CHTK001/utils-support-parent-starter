@@ -30,13 +30,22 @@ public final class SshSessionChannel {
     private final RemoteClient client;
     private final String agentId;
     private final SshServiceManager serviceManager;
+    private final String defaultUsername;
+    private final String defaultPassword;
     private final Map<String, SshSession> sessions = new ConcurrentHashMap<>();
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     public SshSessionChannel(RemoteClient client, String agentId, SshServiceManager serviceManager) {
+        this(client, agentId, serviceManager, null, null);
+    }
+
+    public SshSessionChannel(RemoteClient client, String agentId, SshServiceManager serviceManager,
+                             String defaultUsername, String defaultPassword) {
         this.client = client;
         this.agentId = agentId;
         this.serviceManager = serviceManager;
+        this.defaultUsername = defaultUsername;
+        this.defaultPassword = defaultPassword;
     }
 
     /**
@@ -66,19 +75,24 @@ public final class SshSessionChannel {
 
     private void startSession(String sessionId, Map<String, String> meta) {
         try {
-            // ① 确保本机 SSH 服务可达（转发已有 / 自启缺失——平台分支）
-            if (!serviceManager.ensureSshService()) {
-                sendSSHFrame(sessionId, "error", "SSH服务不可用（自启失败）".getBytes());
-                return;
+            // ① 目标主机：meta 优先（远程直连），local/缺省走本机 sshd 供给（转发已有 / 自启缺失）
+            String host = meta.getOrDefault("host", "local");
+            boolean local = "local".equals(host) || "localhost".equals(host) || "127.0.0.1".equals(host);
+            if (local) {
+                if (!serviceManager.ensureSshService()) {
+                    sendSSHFrame(sessionId, "error", "SSH服务不可用（自启失败）".getBytes());
+                    return;
+                }
+                host = "127.0.0.1";
             }
-            // ② 会话参数（凭据 + 终端尺寸）
-            String username = meta.getOrDefault("username", "");
-            String password = meta.getOrDefault("password", "");
+            // ② 会话参数（凭据 meta 优先——缺省回落到 agent 注册上报的凭据 + 终端尺寸）
+            String username = meta.getOrDefault("username", defaultUsername != null ? defaultUsername : "");
+            String password = meta.getOrDefault("password", defaultPassword != null ? defaultPassword : "");
             int cols = Integer.parseInt(meta.getOrDefault("cols", "80"));
             int rows = Integer.parseInt(meta.getOrDefault("rows", "24"));
 
-            // ③ 连接本机 sshd，建立 pty 终端（实时回调）
-            SshClient ssh = SshClient.create("127.0.0.1", username, password);
+            // ③ 连接 SSH 服务（local=本机 sshd；remote=meta 指定主机），建立 pty 终端（实时回调）
+            SshClient ssh = SshClient.create(host, username, password);
             ssh.connect();
             SshClient.TerminalOperation terminal = ssh.terminal()
                     .width(cols)

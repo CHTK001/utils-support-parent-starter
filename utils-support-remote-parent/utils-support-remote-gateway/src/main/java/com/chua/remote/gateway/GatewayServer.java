@@ -80,12 +80,13 @@ public class GatewayServer implements RemoteServerSPI {
         server.getTransport().on(MessageType.CTRL, this::handleControl);
         server.getTransport().on(MessageType.DATA, this::handleData);
         server.getTransport().on(MessageType.SSH, this::handleSSH);
+        server.getTransport().on(MessageType.VNC, this::handleVNC);
     }
 
     public void start() {
         server.start();
         httpServer.start();
-        controllerWs = new ControllerWebSocketServer(httpPort + 2, server.getTransport());
+        controllerWs = new ControllerWebSocketServer(httpPort + 2, server.getTransport(), sessionManager);
         controllerWs.setReuseAddr(true);
         controllerWs.start();
         log.info("远控网关已启动 (帧端口:{}, HTTP端口:{}, ControllerWS端口:{})", httpPort - 1, httpPort, httpPort + 2);
@@ -427,6 +428,28 @@ public class GatewayServer implements RemoteServerSPI {
         log.debug("路由SSH帧到被控端: agentId={}, sessionId={}", agentId, frame.getSessionId());
     }
 
+    private void handleVNC(Frame frame) {
+        Map<String, String> meta = frame.getMetadata();
+        String action = meta != null ? meta.get("vncAction") : null;
+
+        if ("frame".equals(action) || "started".equals(action) || "error".equals(action) || "stopped".equals(action)) {
+            if (controllerWs != null) {
+                controllerWs.onAgentVncFrame(frame);
+            }
+            return;
+        }
+
+        String agentId = frame.getSessionId();
+        Frame routed = Frame.builder()
+                .type(MessageType.VNC)
+                .sessionId(agentId)
+                .payload(frame.getPayload())
+                .metadata(frame.getMetadata())
+                .build();
+        server.getTransport().send(agentId, routed);
+        log.debug("路由VNC帧到被控端: agentId={}, action={}", agentId, action);
+    }
+
     @Override
     public String agentRegister(AgentInfo agentInfo) {
         AgentInfo existing = sessionManager.getAgent(agentInfo.getId());
@@ -505,9 +528,10 @@ public class GatewayServer implements RemoteServerSPI {
         server.start();
         Thread.setDefaultUncaughtExceptionHandler((t, e) ->
                 log.error("未捕获异常 thread={}", t.getName(), e));
+        log.info("网关主线程阻塞等待中...");
         try {
             Thread.currentThread().join();
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
