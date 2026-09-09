@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * SQLite 数据库轮询目录实现，基于 JDBC 查询的快照对比机制。
@@ -51,6 +52,11 @@ import java.util.*;
 public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
 
     /**
+     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
+     */
+    private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
+
+    /**
      * JDBC 连接 URL，如 {@code jdbc:sqlite:/data/test.db}
      */
     private final String jdbcUrl;
@@ -86,7 +92,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
             throw new IllegalArgumentException("缺少必填配置: jdbc.url");
         }
         this.querySql = environment.getProperty("query.sql",
-                "SELECT rowid, * FROM " + listenPath);
+                "SELECT rowid, * FROM " + safeIdentifier(listenPath));
         this.keyColumnIndex = Integer.parseInt(
                 environment.getProperty("query.key.column", "1"));
         this.tsColumnIndex = Integer.parseInt(
@@ -164,5 +170,23 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
         } catch (NumberFormatException e) {
             return (long) item.substring(sep + 1).hashCode();
         }
+    }
+
+    /**
+     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+     *
+     * @param id 待校验标识符
+     * @return 去除首尾空白后的标识符
+     * @throws IllegalArgumentException 标识符非法时抛出
+     */
+    private String safeIdentifier(String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("SQL 标识符不能为空");
+        }
+        String trimmed = id.trim();
+        if (!SAFE_IDENTIFIER.matcher(trimmed).matches()) {
+            throw new IllegalArgumentException("非法的 SQL 标识符: " + id);
+        }
+        return trimmed;
     }
 }
