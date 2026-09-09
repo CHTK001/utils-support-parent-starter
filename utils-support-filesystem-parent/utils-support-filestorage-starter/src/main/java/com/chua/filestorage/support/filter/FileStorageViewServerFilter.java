@@ -267,32 +267,32 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
      */
     private byte[] convertAndCachePdf(FileStorage storage, String key, String ext, FileOperationSetting ops) {
         String cacheKey = key + buildOpsSuffix(ops);
-        try {
-            Path cached = getPdfCache().getCacheFile("default", cacheKey);
-            if (cached != null) {
-                return Files.readAllBytes(cached);
-            }
-            var getResult = storage.getObject(key);
-            if (getResult == null || getResult.getInputStream() == null) {
+        // 使用 getOrConvert 实现并发去重：同一文件并发请求只触发一次转换
+        return getPdfCache().getOrConvert("default", cacheKey, () -> {
+            try {
+                var getResult = storage.getObject(key);
+                if (getResult == null || getResult.getInputStream() == null) {
+                    return null;
+                }
+                byte[] originalBytes = getResult.getInputStream().readAllBytes();
+                Path tempPdf = Files.createTempFile("preview-", ".pdf");
+                try {
+                    try (ByteArrayInputStream bais = new ByteArrayInputStream(originalBytes);
+                         FileOutputStream fos = new FileOutputStream(tempPdf.toFile())) {
+                        FileSource source = FileSource.of(bais, ext);
+                        FileSource target = FileSource.of(fos, "pdf");
+                        ConvertSupport.convert(ext, "pdf")
+                                .from(source).to(target).convert();
+                    }
+                    return Files.readAllBytes(tempPdf);
+                } finally {
+                    Files.deleteIfExists(tempPdf);
+                }
+            } catch (Exception e) {
+                log.warn("PDF 转换失败 ({}): {}", ext, e.getMessage());
                 return null;
             }
-            byte[] originalBytes = getResult.getInputStream().readAllBytes();
-            Path tempPdf = Files.createTempFile("preview-", ".pdf");
-            try (ByteArrayInputStream bais = new ByteArrayInputStream(originalBytes);
-                 FileOutputStream fos = new FileOutputStream(tempPdf.toFile())) {
-                FileSource source = FileSource.of(bais, ext);
-                FileSource target = FileSource.of(fos, "pdf");
-                ConvertSupport.convert(ext, "pdf")
-                        .from(source).to(target).convert();
-            }
-            byte[] pdfBytes = Files.readAllBytes(tempPdf);
-            getPdfCache().writeCache("default", cacheKey, pdfBytes);
-            Files.deleteIfExists(tempPdf);
-            return pdfBytes;
-        } catch (Exception e) {
-            log.warn("PDF 转换失败 ({}): {}", ext, e.getMessage());
-            return null;
-        }
+        });
     }
 
     /**
@@ -374,6 +374,43 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         if (ops == null || !ops.hasOperation()) {
             return "";
         }
-        return "_" + ops.hashCode();
+        // 使用字段长度前缀 + 显式字段拼接替代 hashCode()，完全避免不同参数组合的哈希碰撞
+        // 格式: 每个字段用 "len(value)value" 拼接，如 "6200x2004webp"
+        StringBuilder sb = new StringBuilder();
+        appendField(sb, ops.getSize());
+        appendField(sb, ops.getFormat());
+        appendIntField(sb, ops.getQuality());
+        appendField(sb, ops.getCrop());
+        appendIntField(sb, ops.getRotate());
+        appendField(sb, ops.getFlip());
+        if (Boolean.TRUE.equals(ops.getGrayscale())) sb.append("1g");
+        appendFloatField(sb, ops.getBlur());
+        appendFloatField(sb, ops.getSharpen());
+        appendField(sb, ops.getWatermarkText());
+        appendField(sb, ops.getWatermarkImage());
+        return sb.length() > 0 ? "_" + sb.toString() : "";
+    }
+
+    /** 追加字符串字段（长度前缀 + 值），null 时不追加 */
+    private static void appendField(StringBuilder sb, String value) {
+        if (value != null) {
+            sb.append(value.length()).append(value);
+        }
+    }
+
+    /** 追加整数字段（长度前缀 + 值），null 时不追加 */
+    private static void appendIntField(StringBuilder sb, Integer value) {
+        if (value != null) {
+            String s = String.valueOf(value);
+            sb.append(s.length()).append(s);
+        }
+    }
+
+    /** 追加浮点字段（长度前缀 + 值），null 或 <=0 时不追加 */
+    private static void appendFloatField(StringBuilder sb, Float value) {
+        if (value != null && value > 0) {
+            String s = String.valueOf(value);
+            sb.append(s.length()).append(s);
+        }
     }
 }

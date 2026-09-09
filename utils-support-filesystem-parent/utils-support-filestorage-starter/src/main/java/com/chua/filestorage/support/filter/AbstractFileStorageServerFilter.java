@@ -20,7 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.newKeySet;
 
 /**
  * 文件存储服务器过滤器（抽象基类）。
@@ -33,6 +35,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public abstract class AbstractFileStorageServerFilter implements ServerFilter {
+
+    /** 全局共享：所有实例的 pdfCache 引用，用于 JVM 关闭时统一释放 */
+    private static final Set<PreviewPdfCache> ALL_CACHES = newKeySet();
+    /** 全局共享：单个 JVM shutdown hook，避免多实例重复注册 */
+    private static volatile Thread shutdownHook;
 
     /** storageMap */
     protected final Map<String, FileStorage> storageMap = new ConcurrentHashMap<>();
@@ -65,8 +72,44 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
      */
     public AbstractFileStorageServerFilter(FileStorageSetting setting, PreviewPdfCache pdfCache) {
         this.setting = setting;
-        this.pdfCache = pdfCache != null ? pdfCache : new PreviewPdfCache(Path.of(setting.getCache().getPdfCacheDir()));
+        if (pdfCache != null) {
+            this.pdfCache = pdfCache;
+        } else {
+            var cacheSetting = setting.getCache();
+            this.pdfCache = new PreviewPdfCache(
+                    Path.of(cacheSetting.getPdfCacheDir()),
+                    cacheSetting.getTtl(),
+                    cacheSetting.getMemoryCacheCapacity(),
+                    cacheSetting.getMaxMemoryFileSize());
+        }
         loadSpis();
+        // 注册全局共享 shutdown hook（仅首次创建时注册）
+        registerShutdownHook();
+        // 将此实例的 cache 注册到全局集合
+        ALL_CACHES.add(this.pdfCache);
+    }
+
+    /**
+     * 注册全局共享的 JVM shutdown hook，确保所有 PreviewPdfCache 实例的后台清理线程被释放。
+     * 使用 double-check locking 确保只注册一次。
+     */
+    private static void registerShutdownHook() {
+        if (shutdownHook == null) {
+            synchronized (AbstractFileStorageServerFilter.class) {
+                if (shutdownHook == null) {
+                    shutdownHook = new Thread(() -> {
+                        for (PreviewPdfCache cache : ALL_CACHES) {
+                            try {
+                                cache.close();
+                            } catch (Exception e) {
+                                // shutdown 期间忽略异常
+                            }
+                        }
+                    }, "filestorage-cache-shutdown");
+                    Runtime.getRuntime().addShutdownHook(shutdownHook);
+                }
+            }
+        }
     }
 
     /** 加载Spis */
@@ -244,5 +287,17 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         }
         String bucket = path.substring(0, slashIndex);
         return bucket.isEmpty() ? "default" : bucket;
+    }
+
+    /**
+     * 关闭过滤器，释放后台资源（PDF 缓存调度线程等）。
+     *
+     * <p>由 JVM shutdown hook 自动调用，也可手动调用。</p>
+     */
+    public void close() {
+        if (pdfCache != null) {
+            ALL_CACHES.remove(pdfCache);
+            pdfCache.close();
+        }
     }
 }

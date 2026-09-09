@@ -75,6 +75,13 @@ public class FrameServer {
             log.debug("连接不存在，丢弃帧: clientId={}, type={}", clientId, frame.getType());
             return;
         }
+        boolean alive = (connection.channel != null && connection.channel.isOpen())
+                || (connection.ws != null && connection.ws.isOpen());
+        if (!alive) {
+            connections.remove(clientId);
+            log.warn("连接已失效，移除并丢弃帧: clientId={}, type={}", clientId, frame.getType());
+            return;
+        }
         log.info("[帧投递] SEND_TO_CLIENT: clientId={}, type={}, sessionId={}, channel={}, ws={}",
                 clientId, frame.getType(), frame.getSessionId(), connection.channel != null, connection.ws != null);
         connection.write(frame);
