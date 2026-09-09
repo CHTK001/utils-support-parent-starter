@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentHashMap.newKeySet;
+import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 
 /**
  * 文件存储服务器过滤器（抽象基类）。

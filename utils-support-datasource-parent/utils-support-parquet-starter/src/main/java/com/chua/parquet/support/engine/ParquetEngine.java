@@ -140,7 +140,7 @@ public class ParquetEngine extends AbstractEngine {
      * 读取真实文件后按 WHERE 过滤（排序/分页由父类完成）。
      */
     @Override
-    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<GenericRecord> records = readAll(getTableName(entityClass));
         List<T> out = new ArrayList<>(records.size());
         Map<String, Field> fields = fieldsOf(entityClass);
@@ -253,7 +253,7 @@ public class ParquetEngine extends AbstractEngine {
      * 读取整表实体列表（文件不存在时返回空表）。
      */
     private <T> List<T> doRead(Class<T> entityClass) {
-        return executeNewQuery("", new Object[0], entityClass);
+        return executeNewQuery("", new Object[0], entityClass, 0, 0);
     }
     // ==================== Parquet 本地 IO ====================
 

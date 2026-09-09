@@ -171,7 +171,7 @@ public class SolrEngine extends AbstractEngine {
 
     @Override
     /** 执行New查询 */
-    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         SolrClient sc = getClient();
         if (sc == null) {
             log.warn("[SOLR_DEBUG] getClient() returned null");

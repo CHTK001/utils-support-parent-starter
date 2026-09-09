@@ -35,7 +35,7 @@ public class FceEmailProvider implements EmailProvider {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String API_BASE = "https://api2.freecustom.email/v1";
-    private static final String[] DOMAINS = {"ditapi.info", "fce.email"};
+    private static final String[] DOMAINS = {"ditube.info", "ditapi.info"};
 
     /** OTP 验证码正则：3+3格式（如 ABC-123）或纯6位数字 */
     private static final Pattern OTP_PATTERN = Pattern.compile("\\b([A-Z0-9]{3})-?([A-Z0-9]{3})\\b");
