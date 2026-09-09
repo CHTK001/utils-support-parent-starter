@@ -287,7 +287,7 @@ public class HBaseEngine extends AbstractEngine {
      * HBase 无 SQL：请使用 scan()。
      */
     @Override
-    protected <T> java.util.List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+    protected <T> java.util.List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         throw new UnsupportedOperationException(
                 "HBase 无 SQL 查询。请使用 scan(table, family, rowPrefix) 真实 API。");
     }

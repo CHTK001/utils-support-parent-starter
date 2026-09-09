@@ -228,7 +228,7 @@ public class GreptimeDbEngine extends AbstractEngine {
      * @return 实体列表
      */
     @Override
-    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         return doQuery(entityClass, normalizeColumns(where == null ? "" : where.trim(), entityClass),
                 params == null ? List.of() : Arrays.asList(params), "");
     }

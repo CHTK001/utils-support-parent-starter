@@ -480,13 +480,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
         /** List */
         public List<Map<String, Object>> list() {
-            List<T> entities = engine.executeNewQuery(where, params, entityClass);
+            List<T> entities = engine.executeNewQuery(where, params, entityClass, 0, 0);
             return groupEntities(entities, groupByCols);
         }
 
         /** Page */
         public Page<Map<String, Object>> page(int pn, int ps) {
-            List<T> all = engine.executeNewQuery(where, params, entityClass);
+            List<T> all = engine.executeNewQuery(where, params, entityClass, 0, 0);
             List<Map<String, Object>> grouped = groupEntities(all, groupByCols);
             int from = (pn - 1) * ps;
             int to = Math.min(from + ps, grouped.size());
@@ -631,7 +631,7 @@ import java.util.concurrent.ConcurrentHashMap;
      * @return 查询结果列表
      */
     @Override
-    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> data = getData(entityClass);
         if (!data.isEmpty()) {
             if (where == null || where.trim().isEmpty()) {

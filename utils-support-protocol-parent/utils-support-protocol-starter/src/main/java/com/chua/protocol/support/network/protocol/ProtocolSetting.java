@@ -1,7 +1,5 @@
 package com.chua.protocol.support.network.protocol;
 
-import com.chua.common.support.base.collection.Options;
-
 /**
  * 协议配置构建器。
  *
@@ -18,8 +16,8 @@ public class ProtocolSetting {
     /** 监听端口 */
     private int port;
 
-    /** 附加选项 */
-    private Options options;
+    /** 附加选项，接收任意配置对象（如 Options / Map） */
+    private Object options;
 
     private ProtocolSetting() {
     }
@@ -43,8 +41,8 @@ public class ProtocolSetting {
         return port;
     }
 
-    /** 获取附加选项 */
-    public Options getOptions() {
+    /** 获取附加选项对象 */
+    public Object getOptions() {
         return options;
     }
 
@@ -72,8 +70,8 @@ public class ProtocolSetting {
             return this;
         }
 
-        /** 设置附加选项 */
-        public Builder options(Options options) {
+        /** 设置附加选项（接受任意对象） */
+        public Builder options(Object options) {
             setting.options = options;
             return this;
         }

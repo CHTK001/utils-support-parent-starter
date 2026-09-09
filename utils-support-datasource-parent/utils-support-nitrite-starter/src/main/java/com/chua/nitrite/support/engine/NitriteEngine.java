@@ -92,7 +92,7 @@ import java.util.concurrent.ConcurrentHashMap;
     @Override
     @SuppressWarnings("unchecked")
     /** 执行New查询 */
-    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass) {
+    protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> memoryData = getData(entityClass);
         if (!memoryData.isEmpty()) {
             if (where == null || where.trim().isEmpty()) {
