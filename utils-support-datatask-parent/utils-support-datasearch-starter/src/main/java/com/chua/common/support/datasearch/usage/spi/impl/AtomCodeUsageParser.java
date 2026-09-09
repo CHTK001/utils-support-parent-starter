@@ -51,11 +51,26 @@ public class AtomCodeUsageParser extends BaseUsageParser {
 
     private static final Logger log = LoggerFactory.getLogger(AtomCodeUsageParser.class);
 
-    /** Session transcripts root: ~/.atomcode/sessions */
-    private static final Path SESSIONS_DIR = Path.of(
-            System.getProperty("user.home"), ".atomcode", "sessions");
+    /**
+     * AtomCode home 目录，支持 ATOMCODE_HOME 环境变量覆盖。
+     * 默认为 ~/.atomcode
+     */
+    private static final Path ATOMCODE_HOME;
+
+    /** Session transcripts root: $ATOMCODE_HOME/sessions */
+    private static final Path SESSIONS_DIR;
 
     private static final String PROVIDER_ATOMCODE = "atomcode";
+
+    static {
+        String envHome = System.getenv("ATOMCODE_HOME");
+        if (envHome != null && !envHome.isBlank()) {
+            ATOMCODE_HOME = Path.of(envHome);
+        } else {
+            ATOMCODE_HOME = Path.of(System.getProperty("user.home"), ".atomcode");
+        }
+        SESSIONS_DIR = ATOMCODE_HOME.resolve("sessions");
+    }
 
     @Override
     public String name() {
@@ -68,6 +83,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
+            log.debug("[atomcode] sessions directory not found: {}", SESSIONS_DIR);
             return Flux.empty();
         }
         try {
@@ -77,6 +93,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
                         .filter(p -> p.getFileName().toString().endsWith(".jsonl"))
                         .toList();
             }
+            log.debug("[atomcode] found {} JSONL files in {}", files.size(), SESSIONS_DIR);
             return Flux.fromIterable(files)
                     .subscribeOn(Schedulers.boundedElastic())
                     .concatMap(this::streamJsonlFile);
