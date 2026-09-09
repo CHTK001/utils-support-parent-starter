@@ -1,0 +1,3 @@
+jdk=com.chua.common.support.network.http.invoke.JdkSseClientInvoker
+url=com.chua.common.support.network.http.invoke.UrlSseClientInvoker
+httpclient-sse=com.chua.common.support.network.http.invoke.HttpClientSseClientInvoker

@@ -53,6 +53,8 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     private final String tokenizerFile;
     /** 默认输出维度 */
     private final int defaultDim;
+    /** 本地模型目录（downloadUrl 缓存注入） */
+    private volatile Path localModelDir;
 
     /** ONNX 运行时环境 */
     private OrtEnvironment ortEnv;
@@ -104,25 +106,51 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
                 "wemm-embedding-9b", "nlp/embedding/wemm-embedding-9b/", "model.onnx", "tokenizer.json", 4096);
     }
 
+    /**
+     * 设置本地模型目录（downloadUrl 缓存由 ModelRegistry 注入）。
+     *
+     * @param dir 包含 model.onnx + model.onnx_data + tokenizer.json 的目录
+     */
+    public void setModelPath(Path dir) {
+        this.localModelDir = dir;
+        this.loaded = false;
+    }
+
+    /**
+     * 设置本地模型路径（字符串形式，由 ModelRegistry 反射注入）。
+     *
+     * @param path 模型文件或目录路径
+     */
+    public void setModelPath(String path) {
+        this.localModelDir = Path.of(path);
+        this.loaded = false;
+    }
+
     /** Prepare */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
         }
 
-        Path tmpDir = Files.createTempDirectory("wemm-onnx-");
-        tmpDir.toFile().deleteOnExit();
-        Path modelDir = tmpDir.resolve(name);
-        Files.createDirectories(modelDir);
-
-        NativeLoader.of("wemm-" + name)
-                .from(WeMMEmbeddingTranslator.class.getClassLoader())
-                .basePath(resourceBase)
-                .toTarget(modelDir)
-                .glob("*")
-                .withMd5(true)
-                .extractOnly(true)
-                .load();
+        // 1. 优先使用本地模型目录（downloadUrl 缓存）
+        Path modelDir;
+        if (localModelDir != null && Files.isDirectory(localModelDir)) {
+            modelDir = localModelDir;
+        } else {
+            // 2. jar 内嵌资源
+            modelDir = Files.createTempDirectory("wemm-onnx-");
+            modelDir.toFile().deleteOnExit();
+            modelDir = modelDir.resolve(name);
+            Files.createDirectories(modelDir);
+            NativeLoader.of("wemm-" + name)
+                    .from(WeMMEmbeddingTranslator.class.getClassLoader())
+                    .basePath(resourceBase)
+                    .toTarget(modelDir)
+                    .glob("*")
+                    .withMd5(true)
+                    .extractOnly(true)
+                    .load();
+        }
 
         Path modelPath = modelDir.resolve(modelFile);
         Path tkPath = modelDir.resolve(tokenizerFile);

@@ -16,6 +16,7 @@
            <module>utils-support-middleware-parent</module>
              <module>utils-support-extra-parent</module>
               <module>utils-support-runtime-parent</module>
+	      <module>utils-support-protocol-parent</module>
           <module>utils-support-remote-parent</module>
           </modules>
     <properties>

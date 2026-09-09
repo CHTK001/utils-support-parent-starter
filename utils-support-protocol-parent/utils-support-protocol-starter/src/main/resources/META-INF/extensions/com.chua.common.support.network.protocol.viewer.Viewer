@@ -1,0 +1,6 @@
+css=com.chua.common.support.network.protocol.viewer.CssViewer
+javascript=com.chua.common.support.network.protocol.viewer.JavaScriptViewer
+json=com.chua.common.support.network.protocol.viewer.JsonViewer
+office=com.chua.common.support.network.protocol.viewer.OfficeViewer
+text=com.chua.common.support.network.protocol.viewer.TextViewer
+xml=com.chua.common.support.network.protocol.viewer.XmlViewer

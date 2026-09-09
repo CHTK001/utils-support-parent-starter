@@ -145,6 +145,7 @@ public class AgentBootstrap {
                 .build();
         AgentBootstrap bootstrap = new AgentBootstrap(gatewayUrl, info);
         bootstrap.start();
+        log.info("被控端主线程阻塞等待中...");
         try {
             Thread.currentThread().join();
         } catch (InterruptedException e) {

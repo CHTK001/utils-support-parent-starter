@@ -1,0 +1,5 @@
+binary=com.chua.common.support.network.protocol.view.converter.BinaryContentConverter
+html=com.chua.common.support.network.protocol.view.converter.HtmlContentConverter
+json=com.chua.common.support.network.protocol.view.converter.JsonContentConverter
+text=com.chua.common.support.network.protocol.view.converter.TextContentConverter
+xml=com.chua.common.support.network.protocol.view.converter.XmlContentConverter

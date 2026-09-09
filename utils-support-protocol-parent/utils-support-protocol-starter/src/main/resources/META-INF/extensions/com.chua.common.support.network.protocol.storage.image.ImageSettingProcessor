@@ -1,0 +1,7 @@
+blur=com.chua.common.support.network.protocol.storage.image.BlurImageSettingProcessor
+bright=com.chua.common.support.network.protocol.storage.image.BrightImageSettingProcessor
+gray=com.chua.common.support.network.protocol.storage.image.GrayImageSettingProcessor
+quality=com.chua.common.support.network.protocol.storage.image.QualityImageSettingProcessor
+rotate=com.chua.common.support.network.protocol.storage.image.RotateImageSettingProcessor
+shape=com.chua.common.support.network.protocol.storage.image.ShapeImageSettingProcessor
+thumbnail=com.chua.common.support.network.protocol.storage.image.ThumbnailImageSettingProcessor

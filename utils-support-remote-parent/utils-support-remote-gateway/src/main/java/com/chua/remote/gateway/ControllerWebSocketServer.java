@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ControllerWebSocketServer extends WebSocketServer {
 
     private final RemoteTransport transport;
+    private final SessionManager sessionManager;
     private final ObjectMapper mapper = new ObjectMapper();
     private final Map<WebSocket, String> wsToAgent = new ConcurrentHashMap<>();
     private final Map<WebSocket, String> wsToType = new ConcurrentHashMap<>();
@@ -28,9 +29,10 @@ public class ControllerWebSocketServer extends WebSocketServer {
     /** vncSessionId → ws（agent 画面帧带 vncSessionId——回流按会话路由） */
     private final Map<String, WebSocket> vncSessions = new ConcurrentHashMap<>();
 
-    public ControllerWebSocketServer(int port, RemoteTransport transport) {
+    public ControllerWebSocketServer(int port, RemoteTransport transport, SessionManager sessionManager) {
         super(new InetSocketAddress(port));
         this.transport = transport;
+        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -56,11 +58,12 @@ public class ControllerWebSocketServer extends WebSocketServer {
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        String agentId = wsToAgent.get(conn);
+        log.info("Controller WS closed: code={}, reason={}, remote={}, agent={}", code, reason, remote, agentId);
         wsToAgent.remove(conn);
         wsToType.remove(conn);
         sshSessions.values().remove(conn);
         vncSessions.values().remove(conn);
-        log.info("Controller WS closed: code={}, reason={}", code, reason);
     }
 
     @Override
@@ -85,6 +88,18 @@ public class ControllerWebSocketServer extends WebSocketServer {
         String sshAction = node.path("sshAction").asText("");
         String sessionId = node.path("sessionId").asText("");
         String host = node.path("host").asText("local");
+        if ("start".equals(sshAction) && !sessionId.isEmpty() && sessionManager.getSession(sessionId) == null) {
+            // 浏览器 wsUrl 直连路径未走 HTTP 会话创建——自动补建简化会话
+            sessionManager.addSession(com.chua.remote.protocol.model.Session.builder()
+                    .sessionId(sessionId)
+                    .controllerSessionId(sessionId)
+                    .agentId(agentId)
+                    .agentType(com.chua.remote.protocol.model.AgentInfo.AgentType.FORWARD)
+                    .status(com.chua.remote.protocol.model.Session.SessionStatus.ACTIVE)
+                    .createTime(System.currentTimeMillis())
+                    .build());
+            log.info("自动补建会话: sessionId={}, agentId={}", sessionId, agentId);
+        }
 
         var meta = new java.util.HashMap<String, String>();
         meta.put("sshAction", sshAction);

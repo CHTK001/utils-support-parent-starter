@@ -1,0 +1,2 @@
+http=com.chua.common.support.network.protocol.impl.HttpProtocol
+telnet=com.chua.common.support.network.protocol.TelnetProtocol

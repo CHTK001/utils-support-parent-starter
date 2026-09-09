@@ -1,0 +1,6 @@
+http=com.chua.common.support.network.protocol.server.impl.HttpProtocolServer
+httpd=com.chua.common.support.network.protocol.server.impl.HttpProtocolServer
+http-proxy=com.chua.common.support.network.protocol.server.impl.HttpProxyServer
+http-proxy-server=com.chua.common.support.network.protocol.server.impl.HttpProxyServer
+websocket=com.chua.common.support.network.protocol.server.impl.WebSocketProtocolServer
+WEBSOCKET=com.chua.common.support.network.protocol.server.impl.WebSocketProtocolServer

@@ -1,0 +1,3 @@
+http-sync=com.chua.common.support.network.protocol.sync.http.HttpSyncServer
+http-stream-sync=com.chua.common.support.network.protocol.sync.http.HttpStreamingSyncServer
+websocket-sync=com.chua.common.support.network.protocol.sync.websocket.WebSocketSyncServer
