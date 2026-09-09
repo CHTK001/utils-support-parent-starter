@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ul>
  *
  * <p>支持的 AI 编辑器：Cursor、Claude Code、Codex、Windsurf、Cline、Roo Code、
- * Trae、Augment Code、Continue、Gemini CLI、Cody、MiMo Code、CodeBuddy、TRAE-CN
+ * Trae、Augment Code、Continue、Gemini CLI、Cody、MiMo Code、AtomCode、CodeBuddy、TRAE-CN
  *
  * @author CH
  * @since 4.0.0.42
@@ -243,14 +243,19 @@ public class AgentEditorProvider {
          * MiMo Code 编辑器配置，配置目录为 .mimocode，MCP 配置文件为 mimocode.json。
          * 支持 MIMOCODE_HOME 环境变量覆盖默认配置目录。
          */
-        public static final AgentEditor MIMO = new AgentEditor("MiMo Code", ".mimocode", "mimocode.json", false, "MIMOCODE_HOME");
+        public static final AgentEditor MIMO = new AgentEditor("MiMo Code", ".mimocode", "mcp.json", false, "MIMOCODE_HOME");
+
+        /**
+         * AtomCode 编辑器配置，配置目录为 .atomcode，MCP 配置文件为 mcp.json。
+         */
+        public static final AgentEditor ATOMCODE = new AgentEditor("AtomCode", ".atomcode", "mcp.json", false, null);
 
         /**
          * 全部内置编辑器列表，按注册顺序排列，用于批量安装/卸载时遍历
          */
         public static final List<AgentEditor> ALL = List.of(
                 CURSOR, CLAUDE, CODEX, WINDSURF, CLINE, ROO_CODE,
-                TRAE, AUGMENT, CONTINUE, GEMINI_CLI, CODY, MIMO,
+                TRAE, AUGMENT, CONTINUE, GEMINI_CLI, CODY, MIMO, ATOMCODE,
                 CODEBUDDY, TRAE_CN);
 
         /**
