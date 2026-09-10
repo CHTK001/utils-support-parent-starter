@@ -183,7 +183,7 @@ public class NativeRpcClient implements RpcClient {
         /** 应用 */
         public Object apply(ProxyMethod pm) {
             // 同 JVM 直调：目标服务已在本进程注册时直接调用，跳过网络与序列化
-            Object localService = inlineEnabled ? NativeRpcServer.LOCAL_SERVICES.get(targetType.getName()) : null;
+            Object localService = inlineEnabled ? LocalServiceRegistry.INSTANCE.get(targetType.getName()) : null;
             if (localService != null) {
                 return invokeLocal(localService, pm);
             }

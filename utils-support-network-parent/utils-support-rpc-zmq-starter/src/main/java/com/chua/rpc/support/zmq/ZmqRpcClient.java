@@ -3,7 +3,7 @@ package com.chua.rpc.support.zmq;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
-import com.chua.common.support.network.rpc.NativeRpcServer;
+import com.chua.common.support.network.rpc.LocalServiceRegistry;
 import com.chua.common.support.network.rpc.RpcClient;
 import com.chua.common.support.network.rpc.RpcConsumerConfig;
 import com.chua.common.support.network.rpc.RpcException;
@@ -274,7 +274,7 @@ public class ZmqRpcClient implements RpcClient {
         /** 执行调用 */
         public Object apply(ProxyMethod proxyMethod) {
             // 同 JVM 直调：目标服务已在本进程注册时直接调用，跳过网络与序列化
-            Object localService = inlineEnabled ? NativeRpcServer.LOCAL_SERVICES.get(targetType.getName()) : null;
+            Object localService = inlineEnabled ? LocalServiceRegistry.INSTANCE.get(targetType.getName()) : null;
             if (localService != null) {
                 return invokeLocal(localService, proxyMethod);
             }
