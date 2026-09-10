@@ -202,6 +202,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
                         }
                         handleConnection(clientSocket);
                     } finally {
+                        READ_BUFFER.remove();
                         if (connectionLimiter != null) {
                             connectionLimiter.release();
                         }
@@ -262,6 +263,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
                                 }
                                 handleConnection(clientSocket);
                             } finally {
+                                READ_BUFFER.remove();
                                 if (connectionLimiter != null) {
                                     connectionLimiter.release();
                                 }
@@ -378,6 +380,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
             if (running) {
                 log.debug("[proxy] 转发结束: {}", e.getMessage());
             }
+        } finally {
+            FORWARD_BUFFER.remove();
         }
     }
 

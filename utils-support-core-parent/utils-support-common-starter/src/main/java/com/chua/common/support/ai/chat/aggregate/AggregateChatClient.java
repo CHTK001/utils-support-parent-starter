@@ -331,6 +331,8 @@ public class AggregateChatClient implements ChatClient {
             return router.executeSync(candidates.isEmpty() ? allClients : candidates, prepared, usageCollector);
         } catch (Exception e) {
             throw new RuntimeException("AggregateChatClient failed: " + e.getMessage(), e);
+        } finally {
+            clearTokenGroup();
         }
     }
 
@@ -372,6 +374,8 @@ public class AggregateChatClient implements ChatClient {
             consumer.accept(ChatResponse.builder()
                     .state(ChatResponse.State.ERROR).errorMessage(e.getMessage()).build());
             onError.accept(e);
+        } finally {
+            clearTokenGroup();
         }
     }
 
