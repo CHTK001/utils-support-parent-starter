@@ -766,4 +766,17 @@ public class DigestUtils {
         digest.reset();
         return digest;
     }
+
+    /**
+     * 清除当前线程的 {@link MessageDigest} ThreadLocal 缓存
+     *
+     * <p>释放当前线程在 {@link #DIGEST_CACHE} 中缓存的所有 {@code ThreadLocal<MessageDigest>} 引用。
+     * 在固定线程池中，线程长期存活会导致缓存的摘要实例无法被回收，
+     * 线程池关闭或应用退出时应调用此方法。</p>
+     */
+    public static void clearThreadLocals() {
+        for (ThreadLocal<MessageDigest> threadLocal : DIGEST_CACHE.values()) {
+            threadLocal.remove();
+        }
+    }
 }

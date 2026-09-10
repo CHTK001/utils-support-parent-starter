@@ -506,9 +506,10 @@ public class AsyncLogWriter implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /** 关闭写入器，刷盘数据并释放当前线程的 ThreadLocal 映射视图缓存 */
     public void close() {
         running = false;
+        threadViews.remove();
         flushThread.interrupt();
         try {
             flushThread.join(flushIntervalMs * 2 + 1000);

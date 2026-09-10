@@ -101,6 +101,16 @@ public class StringUtils {
     private static final char INVISIBLE_CHAR_2 = 173;
 
     /**
+     * 释放当前线程的 {@link StringBuilder} 池 ThreadLocal
+     *
+     * <p>在固定线程池中，线程长期存活会导致 {@link #THREAD_LOCAL_BUILDERS} 缓存的
+     * {@link Stack} 及其持有对象无法被回收，线程池关闭或应用退出时应调用此方法。</p>
+     */
+    public static void clearThreadLocalBuilders() {
+        THREAD_LOCAL_BUILDERS.remove();
+    }
+
+    /**
      * 判断字符串是否为 {@code null} 或空字符串（长度为 0）
      *
      * <pre>
