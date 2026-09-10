@@ -80,6 +80,20 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
+    /** 卸载 */
+    public void uninstall() {
+        try {
+            for (ServiceRegistration<?> reg : registrations) {
+                reg.unregister();
+            }
+            registrations.clear();
+            bundle.uninstall();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to uninstall bundle: " + getSymbolicName(), e);
+        }
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     /** 注册Service */
     public <T> void registerService(Class<T> type, T service) {
