@@ -14,6 +14,8 @@ import com.chua.remote.protocol.model.AgentInfo;
 import com.chua.remote.protocol.model.ControllerInfo;
 import com.chua.remote.protocol.model.Session;
 import com.chua.remote.protocol.spi.RemoteServerSPI;
+import com.chua.remote.gateway.store.AccessCodeStore;
+import com.chua.remote.gateway.store.AccessCodeStores;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
@@ -54,11 +56,11 @@ public class GatewayServer implements RemoteServerSPI {
                     com.sun.net.httpserver.HttpServer delegate =
                             com.sun.net.httpserver.HttpServer.create(
                                     new java.net.InetSocketAddress(httpPort), 0);
-                    delegate.createContext("/verify", exchange -> handleVerify(exchange));
-                    delegate.createContext("/api/remote/config", exchange -> handleConfig(exchange));
-                    delegate.createContext("/api/remote/gateways", exchange -> handleGateways(exchange));
-                    delegate.createContext("/api/remote/agents", exchange -> handleAgents(exchange));
-                    delegate.createContext("/api/remote/access-codes", exchange -> handleAccessCodes(exchange));
+                    createCorsContext(delegate, "/verify", exchange -> handleVerify(exchange));
+                    createCorsContext(delegate, "/api/remote/config", exchange -> handleConfig(exchange));
+                    createCorsContext(delegate, "/api/remote/gateways", exchange -> handleGateways(exchange));
+                    createCorsContext(delegate, "/api/remote/agents", exchange -> handleAgents(exchange));
+                    createCorsContext(delegate, "/api/remote/access-codes", exchange -> handleAccessCodes(exchange));
                     delegate.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
                     delegate.start();
                     log.info("HTTP 验证服务器已启动 on port:{}", httpPort);
@@ -73,6 +75,22 @@ public class GatewayServer implements RemoteServerSPI {
             }
         };
         initHandlers();
+        // 接入码存储：SPI 加载（spring 生态 MyBatis 实现持久化到数据库；独立运行回退内存）——启动从存储恢复
+        accessCodeStore = AccessCodeStores.load();
+        for (AccessCodeInfo info : accessCodeStore.findAll()) {
+            accessCodes.put(info.getCode(), info);
+        }
+        // 默认接入码（与本地 agent 启动参数对齐——保证开箱即用）
+        if (accessCodes.isEmpty()) {
+            AccessCodeInfo def = new AccessCodeInfo();
+            def.setCode("0000");
+            def.setType("接入码");
+            def.setStatus("启用");
+            def.setCreatedAt(java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            accessCodes.put("0000", def);
+            accessCodeStore.save(def);
+        }
     }
 
     private void initHandlers() {
@@ -130,6 +148,7 @@ public class GatewayServer implements RemoteServerSPI {
                 sendJson(exchange, 400, "{\"success\":false,\"message\":\"参数不完整\"}");
                 return;
             }
+            // 接入码是 agent 接入网关的鉴权凭证（agent 注册时校验）——控制端连接仅校验 agentId+验证码
             if (!authManager.verifyAgent(agentId, verifyCode)) {
                 sendJson(exchange, 401, "{\"success\":false,\"message\":\"验证码校验失败\"}");
                 return;
@@ -149,6 +168,30 @@ public class GatewayServer implements RemoteServerSPI {
             sendJson(exchange, 500,
                     "{\"success\":false,\"message\":\"验证异常:" + e.getMessage() + "\"}");
         }
+    }
+
+    /**
+     * 注册带 CORS 的 HTTP 上下文：浏览器跨域（前端 8091 → 网关 9001）访问必须放行，
+     * 否则 /verify 等请求被浏览器拦截——连接永远建立不起来。
+     *
+     * @param server  JDK HttpServer
+     * @param path    上下文路径
+     * @param handler 实际处理器
+     */
+    private void createCorsContext(com.sun.net.httpserver.HttpServer server, String path,
+                                   com.sun.net.httpserver.HttpHandler handler) {
+        server.createContext(path, exchange -> {
+            var headers = exchange.getResponseHeaders();
+            headers.add("Access-Control-Allow-Origin", "*");
+            headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            handler.handle(exchange);
+        });
     }
 
     private void sendJson(com.sun.net.httpserver.HttpExchange exchange, int code, String json) {
@@ -269,33 +312,111 @@ public class GatewayServer implements RemoteServerSPI {
         sendJson(exchange, 405, "{\"error\":\"method not allowed\"}");
     }
 
-    private volatile java.util.List<String> accessCodeList = new java.util.concurrent.CopyOnWriteArrayList<>();
+    /** 平台接入码表：code → 接入码信息（含过期/上限/接入统计） */
+    private final java.util.Map<String, AccessCodeInfo> accessCodes = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** 接入码存储 SPI（spring 生态 MyBatis 实现持久化到数据库；独立运行回退内存） */
+    private AccessCodeStore accessCodeStore;
 
     private void handleAccessCodes(com.sun.net.httpserver.HttpExchange exchange) {
-        if ("GET".equals(exchange.getRequestMethod())) {
-            StringBuilder sb = new StringBuilder("[");
-            boolean first = true;
-            for (String code : accessCodeList) {
-                if (!first) sb.append(",");
-                first = false;
-                sb.append(String.format("{\"code\":\"%s\",\"type\":\"接入码\",\"status\":\"启用\"}", code));
+        try {
+            if ("GET".equals(exchange.getRequestMethod())) {
+                StringBuilder sb = new StringBuilder("[");
+                boolean first = true;
+                for (AccessCodeInfo info : accessCodes.values()) {
+                    if (!first) sb.append(",");
+                    first = false;
+                    sb.append(toAccessCodeJson(info));
+                }
+                sb.append("]");
+                sendJson(exchange, 200, sb.toString());
+                return;
             }
-            sb.append("]");
-            sendJson(exchange, 200, sb.toString());
-            return;
-        }
-        if ("POST".equals(exchange.getRequestMethod())) {
-            try {
+            if ("POST".equals(exchange.getRequestMethod())) {
                 String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                accessCodeList = java.util.Arrays.asList(
-                        body.replaceAll("[\\[\\]\\s]", "").split(","));
-                sendJson(exchange, 200, "{\"success\":true}");
-            } catch (Exception e) {
-                sendJson(exchange, 500, "{\"success\":false}");
+                Map<String, String> params = parseJsonParams(body);
+                String code = params.get("code");
+                if (code == null || code.isBlank()) {
+                    sendJson(exchange, 400, "{\"success\":false,\"message\":\"接入码不能为空\"}");
+                    return;
+                }
+                AccessCodeInfo existing = accessCodes.get(code);
+                if (existing == null) {
+                    existing = new AccessCodeInfo();
+                    existing.setCode(code);
+                    existing.setCreatedAt(java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                    existing.setType("接入码");
+                    existing.setStatus("启用");
+                    accessCodes.put(code, existing);
+                }
+                if (params.containsKey("type") && !params.get("type").isBlank()) existing.setType(params.get("type"));
+                if (params.containsKey("status") && !params.get("status").isBlank()) existing.setStatus(params.get("status"));
+                if (params.containsKey("expiresAt")) existing.setExpiresAt(params.get("expiresAt"));
+                if (params.containsKey("ipWhitelist")) existing.setIpWhitelist(params.get("ipWhitelist"));
+                if (params.containsKey("maxAgents")) {
+                    try {
+                        existing.setMaxAgents(Integer.parseInt(params.get("maxAgents")));
+                    } catch (Exception ignore) {
+                    }
+                }
+                accessCodeStore.save(existing);
+                sendJson(exchange, 200, "{\"success\":true,\"code\":\"" + code + "\"}");
+                return;
             }
-            return;
+            if ("DELETE".equals(exchange.getRequestMethod())) {
+                String code = parseQueryParam(exchange.getRequestURI().getQuery(), "code");
+                if (code == null || !accessCodes.containsKey(code)) {
+                    sendJson(exchange, 404, "{\"success\":false,\"message\":\"接入码不存在\"}");
+                    return;
+                }
+                accessCodes.remove(code);
+                accessCodeStore.delete(code);
+                sendJson(exchange, 200, "{\"success\":true}");
+                return;
+            }
+            sendJson(exchange, 405, "{\"error\":\"method not allowed\"}");
+        } catch (Exception e) {
+            sendJson(exchange, 500, "{\"success\":false,\"message\":\"" + e.getMessage() + "\"}");
         }
-        sendJson(exchange, 405, "{\"error\":\"method not allowed\"}");
+    }
+
+    /** 接入码 → JSON（含过期/上限/接入统计） */
+    private String toAccessCodeJson(AccessCodeInfo info) {
+        StringBuilder agents = new StringBuilder("[");
+        boolean first = true;
+        for (AccessCodeInfo.AgentAccessStat stat : info.getAgents()) {
+            if (!first) agents.append(",");
+            first = false;
+            agents.append(String.format("{\"agentId\":\"%s\",\"ip\":\"%s\",\"time\":\"%s\"}",
+                    stat.getAgentId(), stat.getIp(), stat.getTime()));
+        }
+        agents.append("]");
+        return String.format(
+                "{\"code\":\"%s\",\"type\":\"%s\",\"status\":\"%s\",\"createdAt\":\"%s\",\"expiresAt\":\"%s\",\"ipWhitelist\":\"%s\",\"maxAgents\":%d,\"usedAgents\":%d,\"agents\":%s}",
+                info.getCode(),
+                info.getType() != null ? info.getType() : "接入码",
+                info.getStatus() != null ? info.getStatus() : "启用",
+                info.getCreatedAt() != null ? info.getCreatedAt() : "",
+                info.getExpiresAt() != null ? info.getExpiresAt() : "",
+                info.getIpWhitelist() != null ? info.getIpWhitelist() : "",
+                info.getMaxAgents(), info.getUsedAgents(), agents);
+    }
+
+    /** 解析 query 参数（?code=xxx） */
+    private String parseQueryParam(String query, String key) {
+        if (query == null) return null;
+        for (String pair : query.split("&")) {
+            String[] kv = pair.split("=", 2);
+            if (kv.length == 2 && key.equals(kv[0])) {
+                try {
+                    return java.net.URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+                } catch (Exception e) {
+                    return kv[1];
+                }
+            }
+        }
+        return null;
     }
 
     private void handleSignal(Frame frame) {
@@ -304,7 +425,13 @@ public class GatewayServer implements RemoteServerSPI {
         if (AgentInfo.class.getSimpleName().equals(kind)) {
             AgentInfo agentInfo = FrameCodec.decodeSignal(frame, AgentInfo.class);
             if (agentInfo != null) {
-                agentRegister(agentInfo);
+                String remoteIp = frame.getMetadata() != null
+                        ? frame.getMetadata().get(com.chua.remote.core.transport.FrameServer.META_REMOTE_ADDR) : null;
+                try {
+                    agentRegister(agentInfo, remoteIp);
+                } catch (SecurityException se) {
+                    log.warn("接入码校验拒绝: {}", se.getMessage());
+                }
             }
             return;
         }
@@ -493,7 +620,27 @@ public class GatewayServer implements RemoteServerSPI {
     }
 
     @Override
-    public String agentRegister(AgentInfo agentInfo) {
+    public String agentRegister(AgentInfo agentInfo, String remoteIp) {
+        // 平台接入码校验：被控端接入平台必须提供平台颁发的接入码（未授权/停用/过期/达上限拒绝）
+        String code = agentInfo.getAccessCode();
+        AccessCodeInfo acInfo = code == null ? null : accessCodes.get(code);
+        if (acInfo == null) {
+            throw new SecurityException("被控端接入被拒绝: 未授权接入码 agentId=" + agentInfo.getId());
+        }
+        if (!"启用".equals(acInfo.getStatus()) || acInfo.isExpired() || acInfo.isFull()) {
+            throw new SecurityException("被控端接入被拒绝: 接入码停用/过期/达上限 agentId=" + agentInfo.getId());
+        }
+        // 白名单 IP 校验：agent 上报的全部 IP（多网卡）+ 连接来源 IP，命中其一即通过；白名单空=不限制
+        java.util.List<String> agentIps = new java.util.ArrayList<>();
+        if (agentInfo.getIps() != null) {
+            agentIps.addAll(agentInfo.getIps());
+        }
+        if (remoteIp != null && !remoteIp.isBlank() && !agentIps.contains(remoteIp)) {
+            agentIps.add(remoteIp);
+        }
+        if (!acInfo.isAllowedIp(agentIps)) {
+            throw new SecurityException("被控端接入被拒绝: IP 不在白名单 agentId=" + agentInfo.getId());
+        }
         AgentInfo existing = sessionManager.getAgent(agentInfo.getId());
         if (existing != null && !Objects.equals(existing.getVerifyCode(), agentInfo.getVerifyCode())) {
             throw new SecurityException("被控端重复注册且验证码不一致: agentId=" + agentInfo.getId());
@@ -501,6 +648,24 @@ public class GatewayServer implements RemoteServerSPI {
         sessionManager.registerAgent(agentInfo);
         authManager.registerAgent(agentInfo.getId(), agentInfo.getVerifyCode());
         authManager.registerAgentAccessCode(agentInfo.getAccessCode());
+        // 记录/刷新接入统计（agentId/IP/时间——按 agentId 去重；重连时刷新 IP 与接入时间）
+        String statIp = remoteIp != null && !remoteIp.isBlank() ? remoteIp : String.join(",", agentIps);
+        AccessCodeInfo.AgentAccessStat stat = acInfo.getAgents().stream()
+                .filter(a -> agentInfo.getId().equals(a.getAgentId()))
+                .findFirst().orElse(null);
+        if (stat == null) {
+            acInfo.getAgents().add(new AccessCodeInfo.AgentAccessStat(
+                    agentInfo.getId(), statIp, java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+            acInfo.setUsedAgents(acInfo.getAgents().size());
+        } else {
+            stat.setIp(statIp);
+            stat.setTime(java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }
+        accessCodeStore.save(acInfo);
+        log.info("接入统计: agentId={}, remoteIp={}, agentIps={}, statIp={}",
+                agentInfo.getId(), remoteIp, agentIps, statIp);
         log.info("被控端注册成功: id={}, type={}, accessCode={}",
                 agentInfo.getId(), agentInfo.getAgentType(), agentInfo.getAccessCode());
         return agentInfo.getId();

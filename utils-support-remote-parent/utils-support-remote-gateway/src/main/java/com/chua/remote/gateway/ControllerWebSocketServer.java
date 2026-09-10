@@ -1,8 +1,10 @@
 package com.chua.remote.gateway;
 
+import com.chua.remote.core.RemoteClient;
 import com.chua.remote.core.codec.FrameCodec;
 import com.chua.remote.core.transport.RemoteTransport;
 import com.chua.remote.protocol.frame.Frame;
+import com.chua.remote.protocol.frame.MessageType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,8 @@ public class ControllerWebSocketServer extends WebSocketServer {
     private final Map<String, WebSocket> vncSessions = new ConcurrentHashMap<>();
     /** rdpSessionId → ws（agent 画面帧带 rdpSessionId——回流按会话路由） */
     private final Map<String, WebSocket> rdpSessions = new ConcurrentHashMap<>();
+    /** sshSessionId → agent 会话独立连接（9004——每会话一连接——多会话并发） */
+    private final Map<String, RemoteClient> sessionConns = new ConcurrentHashMap<>();
 
     public ControllerWebSocketServer(int port, RemoteTransport transport, SessionManager sessionManager,
                                      java.util.function.Function<String, byte[]> httpRouter) {
@@ -110,7 +114,6 @@ public class ControllerWebSocketServer extends WebSocketServer {
     private void handleSshMessage(WebSocket conn, String agentId, JsonNode node) {
         String sshAction = node.path("sshAction").asText("");
         String sessionId = node.path("sessionId").asText("");
-        String host = node.path("host").asText("local");
         if ("start".equals(sshAction) && !sessionId.isEmpty() && sessionManager.getSession(sessionId) == null) {
             // 浏览器 wsUrl 直连路径未走 HTTP 会话创建——自动补建简化会话
             sessionManager.addSession(com.chua.remote.protocol.model.Session.builder()
@@ -127,7 +130,6 @@ public class ControllerWebSocketServer extends WebSocketServer {
         var meta = new java.util.HashMap<String, String>();
         meta.put("sshAction", sshAction);
         meta.put("sshSessionId", sessionId);
-        meta.put("host", host);
         if (node.has("cols")) meta.put("cols", node.path("cols").asText("80"));
         if (node.has("rows")) meta.put("rows", node.path("rows").asText("24"));
 
@@ -140,11 +142,63 @@ public class ControllerWebSocketServer extends WebSocketServer {
         }
 
         Frame frame = FrameCodec.sshFrame(agentId, payload, meta);
-        transport.send(agentId, frame);
+
+        // 连接模型：会话走 agent 独立连接（9004——每会话一连接）；start 建连，input/stop 走该连接
+        if ("start".equals(sshAction)) {
+            RemoteClient sessionConn = connectAgentSession(agentId, sessionId);
+            if (sessionConn == null) {
+                try {
+                    conn.send(mapper.writeValueAsString(toJsonMsg("error", agentId, "连接被控端会话端口失败")));
+                } catch (Exception ignore) {
+                }
+                return;
+            }
+            sessionConn.getTransport().send(frame);
+            sessionConns.put(sessionId, sessionConn);
+        } else {
+            RemoteClient sessionConn = sessionConns.get(sessionId);
+            if (sessionConn != null) {
+                sessionConn.getTransport().send(frame);
+            } else {
+                // 回退：9000 主通道（兼容未挂 9004 的旧 agent）
+                transport.send(agentId, frame);
+            }
+        }
         if (!sessionId.isEmpty()) {
             sshSessions.put(sessionId, conn);
         }
         log.debug("WS→Agent ssh: agentId={}, action={}, sessionId={}", agentId, sshAction, sessionId);
+    }
+
+    /**
+     * 建立到 agent 会话端口（9004）的独立连接——每会话一连接（多会话并发互不干扰）。
+     */
+    private RemoteClient connectAgentSession(String agentId, String sessionId) {
+        try {
+            String ip = resolveAgentIp(agentId);
+            RemoteClient conn = new RemoteClient(sessionId, "tcp://" + ip + ":9004");
+            conn.connect();
+            // agent 回传帧（output/started/error/stopped）→ 按会话路由回前端 WS（复用现有路由）
+            conn.getTransport().on(MessageType.SSH, this::onAgentSSHFrame);
+            return conn;
+        } catch (Exception e) {
+            log.error("连接被控端会话端口失败: agentId={}, sessionId={}", agentId, sessionId, e);
+            return null;
+        }
+    }
+
+    /** 解析 agent 可达地址（注册上报的多网卡 IP——优先非回环；兜底 127.0.0.1） */
+    private String resolveAgentIp(String agentId) {
+        var info = sessionManager.getAgent(agentId);
+        if (info != null && info.getIps() != null && !info.getIps().isEmpty()) {
+            for (String ip : info.getIps()) {
+                if (ip != null && !ip.isBlank() && !ip.startsWith("127.")) {
+                    return ip;
+                }
+            }
+            return info.getIps().get(0);
+        }
+        return "127.0.0.1";
     }
 
     private void handleVncMessage(WebSocket conn, String agentId, JsonNode node) {

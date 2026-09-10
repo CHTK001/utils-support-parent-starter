@@ -158,7 +158,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
             builder.inputTokens(inputTokens > 0 ? inputTokens : null)
                     .outputTokens(outputTokens > 0 ? outputTokens : null)
                     .totalTokens(Math.max(inputTokens, 0) + Math.max(outputTokens, 0))
-                    .cacheTokens(cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null));
+                    .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead)
+                            : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null);
         }
         if (costUsd > 0) {
             builder.totalCost(BigDecimal.valueOf(costUsd))

@@ -6,7 +6,14 @@ import com.chua.remote.protocol.model.Session;
 
 public interface RemoteServerSPI {
 
-    String agentRegister(AgentInfo agentInfo);
+    /**
+     * 注册被控端（agent 接入平台）。
+     *
+     * @param agentInfo 被控端信息
+     * @param remoteIp  接入来源 IP（安全审计——来自帧连接的真实地址，可能为 null）
+     * @return 被控端 id
+     */
+    String agentRegister(AgentInfo agentInfo, String remoteIp);
 
     String controllerConnect(ControllerInfo controllerInfo);
 

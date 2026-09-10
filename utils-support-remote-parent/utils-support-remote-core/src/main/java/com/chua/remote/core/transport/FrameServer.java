@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class FrameServer {
 
     public static final String META_CLIENT_ID = "clientId";
+    /** 元数据键：连接来源地址（安全审计——agent 接入真实 IP） */
+    public static final String META_REMOTE_ADDR = "remoteAddr";
     private static final String META_KIND = FrameCodec.METADATA_KIND;
 
     private final ServerSetting setting;
@@ -123,6 +125,20 @@ public class FrameServer {
                 }
                 FrameListener current = listener;
                 if (current != null) {
+                    // 记录连接来源地址（安全审计：agent 接入真实 IP）——写入帧元数据供网关使用
+                    try {
+                        java.net.SocketAddress remoteAddress = channel.getRemoteAddress();
+                        if (remoteAddress instanceof java.net.InetSocketAddress) {
+                            java.net.InetSocketAddress isa = (java.net.InetSocketAddress) remoteAddress;
+                            if (frame.getMetadata() == null) {
+                                frame.setMetadata(new java.util.HashMap<>());
+                            }
+                            frame.getMetadata().put(META_REMOTE_ADDR,
+                                    isa.getAddress() != null ? isa.getAddress().getHostAddress() : isa.getHostString());
+                        }
+                    } catch (IOException ignored) {
+                        // 地址获取失败——不阻断帧分发
+                    }
                     log.info("帧到达分发: clientId={}, type={}", clientId, frame.getType());
                     current.onFrame(clientId, frame);
                 }

@@ -157,7 +157,8 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
                 .totalTokens(inputTokens + outputTokens)
-                .cacheTokens(cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null))
+                .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead)
+                        : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
                 .startTime(startTime > 0 ? startTime : null)
                 .build());
     }

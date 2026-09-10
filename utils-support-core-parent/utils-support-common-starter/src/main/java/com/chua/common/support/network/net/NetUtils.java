@@ -100,6 +100,69 @@ public final class NetUtils {
         return ANY_HOST.equals(host) || "0.0.0.0".equals(host);
     }
 
+    /**
+     * 枚举本机全部网卡 IPv4（非回环——多网卡全部返回，供白名单等"命中其一"场景）。
+     *
+     * @return 本机全部 IPv4 列表（可能为空）
+     */
+    public static java.util.List<String> getLocalIps() {
+        java.util.List<String> ips = new java.util.ArrayList<>();
+        try {
+            Enumeration<NetworkInterface> nifs = NetworkInterface.getNetworkInterfaces();
+            while (nifs.hasMoreElements()) {
+                NetworkInterface nif = nifs.nextElement();
+                if (!nif.isUp() || nif.isLoopback()) {
+                    continue;
+                }
+                Enumeration<InetAddress> addresses = nif.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress address = addresses.nextElement();
+                    if (address instanceof Inet4Address && !address.isLoopbackAddress()) {
+                        String ip = address.getHostAddress();
+                        if (ip != null && !ips.contains(ip)) {
+                            ips.add(ip);
+                        }
+                    }
+                }
+            }
+        } catch (SocketException ignored) {
+            // 网卡枚举失败——返回空列表
+        }
+        return ips;
+    }
+
+    /**
+     * IPv4 地址转 long（用于区间比较）。
+     *
+     * @param ip IPv4 地址（如 192.168.1.5）
+     * @return 数值（非法输入抛出异常）
+     */
+    public static long ipToLong(String ip) {
+        String[] parts = ip.split("\\.");
+        long value = 0;
+        for (int i = 0; i < 4; i++) {
+            value = (value << 8) | (Integer.parseInt(parts[i]) & 0xFF);
+        }
+        return value;
+    }
+
+    /**
+     * 判断 IP 是否在 [start, end] 区间内（IPv4）。
+     *
+     * @param ip    待判断 IP
+     * @param start 区间起点
+     * @param end   区间终点
+     * @return 是否在区间内（非法输入返回 false）
+     */
+    public static boolean ipInRange(String ip, String start, String end) {
+        try {
+            long value = ipToLong(ip);
+            return ipToLong(start) <= value && value <= ipToLong(end);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** 解析LocalHost */
     private static String resolveLocalHost() {
         try {

@@ -91,9 +91,9 @@ public class ZCodeUsageParser extends BaseUsageParser {
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
                 .totalTokens(inputTokens + outputTokens)
-                .reasoningTokens(reasoning > 0 ? reasoning : null)
-                .cacheTokens(cacheRead > 0 ? cacheRead
-                        : (cacheWrite > 0 ? cacheWrite : null))
+                .reasoningTokens(reasoning > 0 ? Integer.valueOf(reasoning) : null)
+                .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead)
+                        : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
                 .currency("CREDITS")
                 .startTime(startedAt > 0 ? startedAt : null)
                 .durationMillis(durationMs > 0 ? durationMs : null)

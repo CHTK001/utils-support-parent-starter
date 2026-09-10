@@ -180,6 +180,7 @@ public class QoderUsageParser extends BaseUsageParser {
     private Integer readCacheTokens(JsonNode usage) {
         int cacheRead = usage.get("cache_read_input_tokens").toIntValue(0);
         int cacheWrite = usage.get("cache_creation_input_tokens").toIntValue(0);
-        return cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null);
+        return cacheRead > 0 ? Integer.valueOf(cacheRead)
+                : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null;
     }
 }
