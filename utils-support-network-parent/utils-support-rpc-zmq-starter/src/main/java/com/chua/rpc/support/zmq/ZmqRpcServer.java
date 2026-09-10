@@ -3,6 +3,7 @@ package com.chua.rpc.support.zmq;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.network.rpc.NativeRpcServer;
 import com.chua.common.support.network.rpc.RpcConnectionInfo;
 import com.chua.common.support.network.rpc.RpcMetrics;
 import com.chua.common.support.network.rpc.RpcProtocolConfig;
@@ -212,6 +213,8 @@ public class ZmqRpcServer implements RpcServer {
             return this;
         }
         services.put(name, bean);
+        // 写入同 JVM 直调共享注册表，客户端 inline=true 时可零网络调用
+        NativeRpcServer.LOCAL_SERVICES.put(name, bean);
         // 注册到服务发现（zookeeper/nacos 等），客户端无需硬编码端口即可发现
         if (serviceDiscovery != null) {
             Discovery discovery = Discovery.builder()
@@ -504,6 +507,8 @@ public class ZmqRpcServer implements RpcServer {
             }
         }
         methodCache.clear();
+        // 从同 JVM 直调共享注册表移除本服务端注册的服务
+        services.keySet().forEach(NativeRpcServer.LOCAL_SERVICES::remove);
         services.clear();
         log.info("ZmqRpcServer closed");
     }
