@@ -87,18 +87,6 @@ public class NativeRpcServer implements RpcServer {
     private final Map<String, Object> services = new ConcurrentHashMap<>();
 
     /**
-     * 本进程内已注册服务共享注册表（供同 JVM 直调使用）。
-     *
-     * <p>key 为服务接口全限定名，value 为服务实现对象。客户端开启
-     * {@link RpcConsumerConfig#getInline()} 后直接在此查找并本地调用，
-     * 绕过 TCP 与序列化。</p>
-     *
-     * <p>公开可见：除 native 协议外，zmq 等其他 RPC 实现的服务端
-     * （如 {@code ZmqRpcServer}）注册服务时也写入该表，共享同 JVM 直调能力。</p>
-     */
-    public static final Map<String, Object> LOCAL_SERVICES = new ConcurrentHashMap<>();
-
-    /**
      * 底层 TCP 长度帧服务端（复用传输层）
      */
     private TcpServer tcpServer;
@@ -269,7 +257,8 @@ public class NativeRpcServer implements RpcServer {
     /** 注册 */
     public RpcServer register(String name, Object bean) {
         services.put(name, bean);
-        LOCAL_SERVICES.put(name, bean);
+        // 注册到同 JVM 直调共享注册表（多实例语义，精确按引用注销）
+        LocalServiceRegistry.INSTANCE.register(name, bean);
         // 注册到 ServiceDiscovery
         if (serviceDiscovery != null) {
             Discovery discovery = Discovery.builder()
@@ -301,6 +290,8 @@ public class NativeRpcServer implements RpcServer {
             }
         }
         methodCache.clear();
+        // 从同 JVM 直调共享注册表移除本服务端注册的服务（仅移除自己注册的实例）
+        services.keySet().forEach(name -> LocalServiceRegistry.INSTANCE.unregister(name, services.get(name)));
         log.info("NativeRpcServer closed");
     }
 
