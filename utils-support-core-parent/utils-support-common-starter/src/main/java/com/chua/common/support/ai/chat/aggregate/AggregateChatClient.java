@@ -9,11 +9,6 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.chat.aggregate.monitor.UsageStats;
 import com.chua.common.support.ai.chat.aggregate.strategy.RouterStrategy;
 import com.chua.common.support.ai.chat.aggregate.strategy.HybridStrategy;
-import com.chua.common.support.ai.chat.aggregate.strategy.RoundRobinRouterStrategy;
-import com.chua.common.support.ai.chat.aggregate.strategy.WeightedRouterStrategy;
-import com.chua.common.support.ai.chat.aggregate.strategy.CostRouterStrategy;
-import com.chua.common.support.ai.chat.aggregate.strategy.LatencyRouterStrategy;
-import com.chua.common.support.ai.chat.aggregate.strategy.FailoverRouterStrategy;
 import com.chua.common.support.ai.chat.protocol.AiTokenProvider;
 import com.chua.common.support.ai.chat.protocol.AiProtocolServerFilter;
 import com.chua.common.support.network.server.Server;
@@ -26,6 +21,7 @@ import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import com.chua.common.support.file.FileSystem;
@@ -834,7 +830,7 @@ public class AggregateChatClient implements ChatClient {
 
     /**
      * 构建路由策略。
-     * 使用字符串比较代替 instanceof 判断，
+     * 通过 ServiceProvider SPI 解析路由策略实现，
      * hybrid 策略使用分组路由，其他策略使用扁平路由。
      *
      * @param strategyName 策略名称
@@ -844,13 +840,15 @@ public class AggregateChatClient implements ChatClient {
     private static RouterStrategy buildRouter(String strategyName, AllParsed parsed,
                                                 Predicate<RouterStrategy.WeightedClient> healthFilter) {
         if ("hybrid".equalsIgnoreCase(strategyName)) {
-            return new HybridStrategy(parsed.groupRouters, healthFilter);
+            return ServiceProvider.of(RouterStrategy.class)
+                    .getNewExtension("hybrid", parsed.groupRouters, healthFilter);
         }
         return createFlatStrategy(strategyName);
     }
 
     /**
      * 创建扁平路由策略实例。
+     * 通过 SPI 扩展名解析对应实现，未知扩展名回退到默认策略 failover。
      *
      * @param name 策略名称，null 时默认使用 failover
      * @return 路由策略实例
@@ -859,13 +857,7 @@ public class AggregateChatClient implements ChatClient {
         if (name == null) {
             name = "failover";
         }
-        return switch (name.toLowerCase()) {
-            case "round_robin" -> new RoundRobinRouterStrategy();
-            case "weighted" -> new WeightedRouterStrategy();
-            case "cost" -> new CostRouterStrategy();
-            case "latency" -> new LatencyRouterStrategy();
-            default -> new FailoverRouterStrategy();
-        };
+        return ServiceProvider.of(RouterStrategy.class).getNewExtension(name.toLowerCase());
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.chat.aggregate.strategy;
 
+import com.chua.common.support.spi.annotations.Spi;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi("round_robin")
 public class RoundRobinRouterStrategy implements RouterStrategy {
 
     /** 原子计数器 */

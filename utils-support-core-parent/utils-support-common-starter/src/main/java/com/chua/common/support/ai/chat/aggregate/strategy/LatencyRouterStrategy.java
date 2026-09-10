@@ -5,6 +5,7 @@ import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.aggregate.FailoverTemplate;
 import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("latency")
 public class LatencyRouterStrategy implements RouterStrategy {
 
     /**

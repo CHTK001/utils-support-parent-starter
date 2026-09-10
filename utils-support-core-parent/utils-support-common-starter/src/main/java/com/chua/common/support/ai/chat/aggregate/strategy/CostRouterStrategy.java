@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.chat.aggregate.strategy;
 
+import com.chua.common.support.spi.annotations.Spi;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi("cost")
 public class CostRouterStrategy implements RouterStrategy {
 
     /** 短文本阈值 */
