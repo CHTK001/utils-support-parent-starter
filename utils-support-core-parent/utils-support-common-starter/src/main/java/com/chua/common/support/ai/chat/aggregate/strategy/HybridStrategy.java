@@ -2,6 +2,7 @@ package com.chua.common.support.ai.chat.aggregate.strategy;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.ChatResponse;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.function.Predicate;
  * @since 4.0.0.42
  */
 @Slf4j
+@Spi("hybrid")
 public class HybridStrategy implements RouterStrategy {
 
     /** 路由组列表 */
