@@ -25,6 +25,7 @@
         <module>utils-support-apollo-starter</module>
         <module>utils-support-minio-starter</module>
         <module>utils-support-docker-starter</module>
+        <module>utils-support-guacamole-starter</module>
         <module>utils-support-sentinel-starter</module>
         <module>utils-support-resilience4j-starter</module>
         <module>utils-support-prometheus-starter</module>
