@@ -104,7 +104,7 @@ public class GuacamoleClient {
 
     /**
      * 创建 GuacamoleClient 实例
-     * @param b b
+     * @param b 构建器，不能为 null
      */
     private GuacamoleClient(Builder b) {
         this.guacdHost = b.guacdHost;
@@ -222,7 +222,7 @@ public class GuacamoleClient {
      * @return 形如 {@code http://host:port/guacamole/}
      */
     public String webUrl() {
-        String path = contextPath == null ? DEFAULT_CONTEXT_PATH : contextPath;
+        var path = contextPath == null ? DEFAULT_CONTEXT_PATH : contextPath;
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
@@ -300,7 +300,7 @@ public class GuacamoleClient {
         if (token == null || token.isBlank()) {
             return Optional.empty();
         }
-        ExpireValue<RemoteSpec> holder = tokens.get(token);
+        var holder = tokens.get(token);
         if (holder == null) {
             return Optional.empty();
         }
@@ -315,8 +315,8 @@ public class GuacamoleClient {
      * @return 实际续期的 token 数量
      */
     public int refreshTokens() {
-        int count = 0;
-        for (ExpireValue<RemoteSpec> holder : tokens.values()) {
+        var count = 0;
+        for (var holder : tokens.values()) {
             holder.refresh();
             count++;
         }
@@ -345,9 +345,9 @@ public class GuacamoleClient {
      */
     private String register(RemoteSpec spec) {
         Objects.requireNonNull(spec, "spec 不能为 null");
-        for (int attempt = 0; attempt < TOKEN_MAX_RETRY; attempt++) {
-            String token = newToken();
-            ExpireValue<RemoteSpec> holder = ExpireValue.of(spec, tokenTtl);
+        for (var attempt = 0; attempt < TOKEN_MAX_RETRY; attempt++) {
+            var token = newToken();
+            var holder = ExpireValue.of(spec, tokenTtl);
             if (tokens.putIfAbsent(token, holder) == null) {
                 return token;
             }
