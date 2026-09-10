@@ -53,7 +53,7 @@ public class SpringBeanScopeDetector implements BeanScopeDetector {
     /** 获取AnnotationValue */
     private static <T> T getAnnotationValue(Annotation annotation, String attribute, T defaultValue) {
         try {
-return (T) ReflectUtils.invoke(annotation, attribute, Object.class, new Class<?>[0], new Object[0], new Object[0]);
+return (T) ReflectUtils.invoke(annotation, attribute, Object.class, new Class<?>[0]);
         } catch (Exception e) {
             return defaultValue;
         }

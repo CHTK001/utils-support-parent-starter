@@ -266,7 +266,10 @@ public final class ReflectUtils {
                         MethodType mt = MethodType.methodType(returnType, paramTypes);
                         return LOOKUP.findStatic(clazz, methodName, mt);
                     } catch (NoSuchMethodException | IllegalAccessException ex) {
-                        return null;
+                        // 返回类型容错：请求的返回类型与方法实际类型不一致（如注解代理 value() 实际返回 String
+                        // 而调用方请求 Object.class），findVirtual 为精确类型匹配会失败；
+                        // 按实际返回类型查找后原样返回，由 invokeWithArguments 自动适配
+                        return findWithActualReturnType(clazz, methodName, paramTypes);
                     }
                 }
             });
@@ -623,6 +626,41 @@ public final class ReflectUtils {
     /**
      * 构建 MethodHandle 缓存 key。
      */
+    /**
+     * 返回类型容错查找：请求的返回类型与方法实际类型不一致时，
+     * 遍历 public 方法按名称与参数类型定位，返回实际类型的 MethodHandle。
+     *
+     * @param clazz      目标类
+     * @param methodName 方法名
+     * @param paramTypes 参数类型
+     * @return 实际类型的 MethodHandle；未找到返回 null
+     */
+    private static MethodHandle findWithActualReturnType(Class<?> clazz, String methodName,
+                                                         Class<?>[] paramTypes) {
+        for (java.lang.reflect.Method method : clazz.getMethods()) {
+            if (!method.getName().equals(methodName)
+                    || method.getParameterCount() != paramTypes.length) {
+                continue;
+            }
+            Class<?>[] actual = method.getParameterTypes();
+            boolean matched = true;
+            for (int i = 0; i < paramTypes.length; i++) {
+                if (!paramTypes[i].isAssignableFrom(actual[i])) {
+                    matched = false;
+                    break;
+                }
+            }
+            if (matched) {
+                try {
+                    return LOOKUP.unreflect(method);
+                } catch (IllegalAccessException e) {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
     private static String buildMethodKey(Class<?> clazz, String methodName,
                                           Class<?> returnType, Class<?>... paramTypes) {
         return "MH:" + clazz.getName() + "." + methodName + "@"

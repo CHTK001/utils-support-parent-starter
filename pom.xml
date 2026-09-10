@@ -17,8 +17,7 @@
              <module>utils-support-extra-parent</module>
               <module>utils-support-runtime-parent</module>
 	      <module>utils-support-protocol-parent</module>
-          <module>utils-support-remote-parent</module>
-          </modules>
+	        </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
@@ -2231,5 +2230,4 @@
         </profile>
     </profiles>
 </project>
-
 
