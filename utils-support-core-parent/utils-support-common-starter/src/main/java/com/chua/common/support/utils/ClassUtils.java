@@ -60,7 +60,7 @@ public class ClassUtils {
      * Key                   Value              Method       
      *        ConcurrentReferenceHashMap                512                              
      */
-    private static Map<Integer, Method> cacheMethod = new ConcurrentReferenceHashMap<>(512);
+    private static final Map<Integer, Method> cacheMethod = new ConcurrentReferenceHashMap<>(512);
     /**
      *                   : {@code '$' == {@value}}.
      *                             Outer$Inner        $
