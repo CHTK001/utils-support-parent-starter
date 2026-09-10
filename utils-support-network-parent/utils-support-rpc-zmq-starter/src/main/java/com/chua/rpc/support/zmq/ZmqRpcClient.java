@@ -3,6 +3,7 @@ package com.chua.rpc.support.zmq;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.network.discovery.DiscoveryOption;
 import com.chua.common.support.network.discovery.ServiceDiscovery;
+import com.chua.common.support.network.rpc.NativeRpcServer;
 import com.chua.common.support.network.rpc.RpcClient;
 import com.chua.common.support.network.rpc.RpcConsumerConfig;
 import com.chua.common.support.network.rpc.RpcException;
@@ -13,6 +14,7 @@ import com.chua.common.support.network.rpc.RpcSerialization;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,10 @@ import java.util.function.Function;
  * （如 {@code zookeeper}/{@code nacos}）时，自动通过 SPI 加载 {@link ServiceDiscovery}，
  * 每次建连按 {@code /appName/serviceName} 动态解析服务端地址；protocol 为
  * {@code direct}/{@code zmq} 或空时取第一个地址直连，与无注册中心场景兼容。</p>
+ *
+ * <p><b>同 JVM 直调</b>：消费者配置 {@code inline=true} 时，若目标服务已在本进程通过
+ * {@link ZmqRpcServer#register(String, Object)}（或 NativeRpcServer）注册，则直接调用
+ * 本地对象，跳过 ZMQ 网络与序列化，获得极大吞吐与极低延迟。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -92,6 +98,11 @@ public class ZmqRpcClient implements RpcClient {
     private final RpcConsumerConfig consumerConfig;
 
     /**
+     * 是否启用同 JVM 直调：目标服务已在本进程注册时直接调用本地对象，跳过 ZMQ 网络与序列化
+     */
+    private final boolean inlineEnabled;
+
+    /**
      * 调用超时（毫秒）
      */
     private final int recvTimeout;
@@ -128,6 +139,7 @@ public class ZmqRpcClient implements RpcClient {
         this.consumerConfig = consumerConfig;
         this.registryConfigs = registryConfigs;
         this.appName = name;
+        this.inlineEnabled = consumerConfig != null && Boolean.TRUE.equals(consumerConfig.getInline());
         String address = registryConfigs != null && !registryConfigs.isEmpty()
                 ? registryConfigs.get(0).getAddress() : null;
         this.serviceDiscovery = initServiceDiscovery();
@@ -261,6 +273,11 @@ public class ZmqRpcClient implements RpcClient {
         @Override
         /** 执行调用 */
         public Object apply(ProxyMethod proxyMethod) {
+            // 同 JVM 直调：目标服务已在本进程注册时直接调用，跳过网络与序列化
+            Object localService = inlineEnabled ? NativeRpcServer.LOCAL_SERVICES.get(targetType.getName()) : null;
+            if (localService != null) {
+                return invokeLocal(localService, proxyMethod);
+            }
             int maxRetries = consumerConfig != null && Boolean.FALSE.equals(consumerConfig.getRetryEnabled())
                     ? 0 : (consumerConfig != null && consumerConfig.getRetries() != null
                     ? consumerConfig.getRetries() : 0);
@@ -325,6 +342,31 @@ public class ZmqRpcClient implements RpcClient {
                 throw RpcException.business(response.getError());
             }
             return response.getResult();
+        }
+
+        /**
+         * 同 JVM 直调：反射调用本机已注册的服务对象，零网络、零序列化。
+         *
+         * @param localService 本机服务对象
+         * @param proxyMethod  代理方法
+         * @return 调用结果
+         */
+        private Object invokeLocal(Object localService, ProxyMethod proxyMethod) {
+            try {
+                java.lang.reflect.Method method = proxyMethod.getMethod();
+                method.setAccessible(true);
+                Object result = ReflectUtils.invoke(localService, method.getName(), Object.class,
+                        method.getParameterTypes(), proxyMethod.getArgs());
+                // 语义对齐：服务端通过 RpcServer 返回 Future 时也做同样解包
+                if (result instanceof java.util.concurrent.Future) {
+                    return ((java.util.concurrent.Future<?>) result).get();
+                }
+                return result;
+            } catch (Exception e) {
+                // ReflectUtils.invoke 内部已吞掉 Throwable（调用失败返回 null），
+                // 此处仅处理 Future.get() 等本方法显式抛出的异常
+                throw RpcException.transport("Inline ZMQ-RPC invoke failed", e);
+            }
         }
     }
 

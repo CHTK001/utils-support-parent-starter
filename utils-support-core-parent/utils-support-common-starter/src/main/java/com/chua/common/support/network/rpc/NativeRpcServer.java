@@ -92,8 +92,11 @@ public class NativeRpcServer implements RpcServer {
      * <p>key 为服务接口全限定名，value 为服务实现对象。客户端开启
      * {@link RpcConsumerConfig#getInline()} 后直接在此查找并本地调用，
      * 绕过 TCP 与序列化。</p>
+     *
+     * <p>公开可见：除 native 协议外，zmq 等其他 RPC 实现的服务端
+     * （如 {@code ZmqRpcServer}）注册服务时也写入该表，共享同 JVM 直调能力。</p>
      */
-    static final Map<String, Object> LOCAL_SERVICES = new ConcurrentHashMap<>();
+    public static final Map<String, Object> LOCAL_SERVICES = new ConcurrentHashMap<>();
 
     /**
      * 底层 TCP 长度帧服务端（复用传输层）
