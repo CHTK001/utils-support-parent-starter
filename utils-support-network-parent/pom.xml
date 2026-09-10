@@ -26,6 +26,7 @@
         <module>utils-support-rpc-sofa-starter</module>
         <module>utils-support-rpc-json-starter</module>
         <module>utils-support-rpc-dubbo-starter</module>
+        <module>utils-support-rpc-zmq-starter</module>
         <module>utils-support-playwright-starter</module>
         <module>utils-support-kimi-starter</module>
         <module>utils-support-armeria-starter</module>
@@ -46,6 +47,7 @@
              该外部库已从未在任何 Maven 仓库发布，模块无源码，仅引用不可达依赖，暂从聚合移除。 -->
     </modules>
     <properties>
+        <jeromq.version>0.6.0</jeromq.version>
         <sshd.version>2.13.2</sshd.version>
         <commons.net.version>3.11.1</commons.net.version>
         <sinch.version>2.0.0</sinch.version>
