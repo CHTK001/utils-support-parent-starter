@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.greptimedb.support.client.GreptimeDbClient;
@@ -543,7 +544,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     private static <T> T mapRow(Class<T> clazz, Map<String, Field> fields,
                                 List<String> columns, Object[] row) {
         try {
-            T instance = clazz.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(clazz);
             for (int i = 0; i < columns.size() && i < row.length; i++) {
                 Field field = fields.get(columns.get(i));
                 if (field == null || row[i] == null) {

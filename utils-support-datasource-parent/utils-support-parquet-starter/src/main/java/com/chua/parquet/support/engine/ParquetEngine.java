@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.datasource.support.engine.MemoryWhereParser;
@@ -146,7 +147,7 @@ public class ParquetEngine extends AbstractEngine {
         Map<String, Field> fields = fieldsOf(entityClass);
         for (GenericRecord rec : records) {
             try {
-                T inst = entityClass.getDeclaredConstructor().newInstance();
+                T inst = ReflectUtils.instantiate(entityClass);
                 for (Schema.Field sf : rec.getSchema().getFields()) {
                     Field f = fields.get(sf.name());
                     Object v = rec.get(sf.name());
