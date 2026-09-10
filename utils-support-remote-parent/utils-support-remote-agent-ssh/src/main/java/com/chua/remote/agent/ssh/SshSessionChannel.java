@@ -1,5 +1,7 @@
 package com.chua.remote.agent.ssh;
 
+import com.chua.remote.agent.ssh.spi.SshSessionStrategies;
+import com.chua.remote.agent.ssh.spi.SshSessionStrategy;
 import com.chua.remote.core.RemoteClient;
 import com.chua.remote.core.codec.FrameCodec;
 import com.chua.remote.protocol.frame.Frame;
@@ -38,34 +40,35 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public final class SshSessionChannel {
 
+    /** 免密公钥文件名（agent 生成 + 装入目标用户 authorized_keys） */
     private static final String KEY_NAME = "agent_proxy_key";
-    private static final int SSH_PORT = 22;
 
     private final RemoteClient client;
     private final String agentId;
     private final SshServiceManager serviceManager;
-    private final String defaultUsername;
-    private final String defaultPassword;
+    /** 会话服务端（9004——网关每会话独立建连；信令仍走 9000 主连接） */
+    private com.chua.remote.core.transport.FrameServer sessionServer;
     private final Map<String, SshSession> sessions = new ConcurrentHashMap<>();
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     public SshSessionChannel(RemoteClient client, String agentId, SshServiceManager serviceManager) {
-        this(client, agentId, serviceManager, null, null);
-    }
-
-    public SshSessionChannel(RemoteClient client, String agentId, SshServiceManager serviceManager,
-                             String defaultUsername, String defaultPassword) {
         this.client = client;
         this.agentId = agentId;
         this.serviceManager = serviceManager;
-        this.defaultUsername = defaultUsername;
-        this.defaultPassword = defaultPassword;
+    }
+
+    /** 绑定会话服务端（agent 启动时注入——9004 端口——每会话独立连接） */
+    public void bindSessionServer(com.chua.remote.core.transport.FrameServer sessionServer) {
+        this.sessionServer = sessionServer;
     }
 
     /**
      * SSH 帧分派（start / input / stop）。
+     *
+     * @param frame    帧
+     * @param clientId 会话连接 id（9004 独立连接——回传走该连接）
      */
-    public void handleSSHFrame(Frame frame) {
+    public void handleSSHFrame(Frame frame, String clientId) {
         Map<String, String> meta = frame.getMetadata();
         if (meta == null) {
             return;
@@ -74,7 +77,7 @@ public final class SshSessionChannel {
         String sessionId = meta.getOrDefault("sshSessionId", "");
         switch (action) {
             case "start":
-                startSession(sessionId, meta);
+                startSession(sessionId, meta, clientId);
                 break;
             case "input":
                 writeInput(sessionId, frame.getPayload());
@@ -87,35 +90,30 @@ public final class SshSessionChannel {
         }
     }
 
-    private void startSession(String sessionId, Map<String, String> meta) {
+    private void startSession(String sessionId, Map<String, String> meta, String clientId) {
         try {
-            // ① 目标主机：meta 优先（远程直连），local/缺省走本机 sshd 供给（转发已有 / 自启缺失）
-            String host = meta.getOrDefault("host", "local");
-            boolean local = "local".equals(host) || "localhost".equals(host) || "127.0.0.1".equals(host);
-            if (local) {
-                if (!serviceManager.ensureSshService()) {
-                    sendSSHFrame(sessionId, "error", "SSH服务不可用（自启失败）".getBytes());
-                    return;
-                }
-                host = "127.0.0.1";
-            }
-            // ② 会话参数（凭据 meta 优先——缺省回落到 agent 注册上报的凭据 + 终端尺寸）
-            String username = meta.getOrDefault("username", defaultUsername != null ? defaultUsername : "");
             int cols = Integer.parseInt(meta.getOrDefault("cols", "80"));
             int rows = Integer.parseInt(meta.getOrDefault("rows", "24"));
+            // 双分支策略：已有 sshd 复用套壳 / 无 sshd 自启——免密公钥认证（无账号密码）
+            SshSessionStrategy strategy = SshSessionStrategies.select(
+                    serviceManager.getPlatform(), serviceManager.isForwardMode());
+            if (!strategy.ensureReady()) {
+                sendSSHFrame(sessionId, "error", "SSH服务不可用（复用/自启失败）".getBytes());
+                return;
+            }
+            // 免密公钥准备（系统 ssh-keygen + authorized_keys——无密码库依赖）
+            String keyPath = prepareProxyKey();
 
-            // ③ 免密 key 准备（系统 ssh-keygen + authorized_keys——无密码库依赖）
-            String keyPath = prepareProxyKey(username);
+            // ssh -tt 套壳（真实 pty——top/vim 可用）
+            Process process = strategy.startShell(keyPath, cols, rows);
 
-            // ④ 系统 ssh 命令（pty 实时双向）
-            Process process = startSshProcess(keyPath, host, username, cols, rows);
-
-            // ⑤ 输出即读即发（虚拟线程——不攒批）
+            // 输出即读即发（虚拟线程——不攒批）
             executor.submit(() -> readLoop(sessionId, process));
 
-            sessions.put(sessionId, new SshSession(sessionId, process));
+            sessions.put(sessionId, new SshSession(sessionId, process, clientId));
             sendSSHFrame(sessionId, "started", null);
-            log.info("SSH会话已启动: sessionId={}, {}@{}:{} ({}x{})", sessionId, username, host, SSH_PORT, cols, rows);
+            log.info("SSH会话已启动: sessionId={}, strategy={}, conn={} ({}x{})",
+                    sessionId, strategy.getClass().getSimpleName(), clientId, cols, rows);
         } catch (Exception e) {
             log.error("SSH会话启动失败: sessionId={}", sessionId, e);
             sendSSHFrame(sessionId, "error", (e.getMessage() == null ? "启动失败" : e.getMessage()).getBytes());
@@ -123,9 +121,9 @@ public final class SshSessionChannel {
     }
 
     /**
-     * 免密 key 准备：生成 ed25519 key（首次）并装入目标用户 authorized_keys。
+     * 免密 key 准备：生成 ed25519 key（首次）并装入当前用户 authorized_keys（agent 在目标机上——连本机 sshd）。
      */
-    private String prepareProxyKey(String username) {
+    private String prepareProxyKey() {
         String home = System.getProperty("user.home", "");
         String sshDir = home + File.separator + ".ssh";
         String keyPath = sshDir + File.separator + KEY_NAME;
@@ -141,18 +139,30 @@ public final class SshSessionChannel {
             File pub = new File(keyPath + ".pub");
             if (pub.exists()) {
                 String pubContent = Files.readString(pub.toPath()).trim();
-                File ak = new File(sshDir, "authorized_keys");
-                String akContent = ak.exists() ? Files.readString(ak.toPath()) : "";
-                if (!akContent.contains(pubContent)) {
-                    Files.writeString(ak.toPath(), pubContent + System.lineSeparator(),
-                            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                    log.info("已安装免密公钥到: {}", ak.getAbsolutePath());
+                if (serviceManager.getPlatform() == SshServiceProbe.Platform.WINDOWS) {
+                    // Windows OpenSSH：管理员用户公钥须在 C:\ProgramData\ssh\administrators_authorized_keys
+                    // （sshd_config 的 Match Group administrators 指定）——普通 ~/.ssh 位置 sshd 不读
+                    installWindowsAdminKey(pubContent);
+                } else {
+                    // Linux/Mac：装入目标用户 authorized_keys
+                    File ak = new File(sshDir, "authorized_keys");
+                    String akContent = ak.exists() ? Files.readString(ak.toPath()) : "";
+                    if (!akContent.contains(pubContent)) {
+                        Files.writeString(ak.toPath(), pubContent + System.lineSeparator(),
+                                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                        log.info("已安装免密公钥到: {}", ak.getAbsolutePath());
+                    }
                 }
             }
-            // 权限收紧（sshd 拒绝宽松权限——Linux/Mac）
-            runCommand("chmod", "700", sshDir);
-            runCommand("chmod", "600", keyPath);
-            runCommand("chmod", "600", sshDir + File.separator + "authorized_keys");
+            if (serviceManager.getPlatform() == SshServiceProbe.Platform.WINDOWS) {
+                // Windows 权限由 installWindowsAdminKey 内 icacls 收紧
+                runCommand("chmod", "600", keyPath);
+            } else {
+                // 权限收紧（sshd 拒绝宽松权限——Linux/Mac）
+                runCommand("chmod", "700", sshDir);
+                runCommand("chmod", "600", keyPath);
+                runCommand("chmod", "600", sshDir + File.separator + "authorized_keys");
+            }
         } catch (Exception e) {
             log.warn("免密 key 准备异常（继续——将回退其它认证）: {}", e.getMessage());
         }
@@ -160,31 +170,40 @@ public final class SshSessionChannel {
     }
 
     /**
-     * 系统 ssh 命令启动（pty——-tt）。Linux/Mac 远端设置终端尺寸后进 bash；Windows 走默认 shell。
+     * Windows OpenSSH：公钥装入管理员 authorized_keys（C:\ProgramData\ssh\administrators_authorized_keys）
+     * 并收紧 ACL（仅 SYSTEM + Administrators 可访问——否则 sshd 拒绝使用该文件）。
      */
-    private Process startSshProcess(String keyPath, String host, String username, int cols, int rows) throws IOException {
-        List<String> cmd = new ArrayList<>();
-        cmd.add(resolveSshExecutable());
-        cmd.add("-i");
-        cmd.add(keyPath);
-        cmd.add("-tt");
-        cmd.add("-o");
-        cmd.add("StrictHostKeyChecking=no");
-        cmd.add("-o");
-        cmd.add("UserKnownHostsFile=/dev/null");
-        cmd.add("-o");
-        cmd.add("PreferredAuthentications=publickey");
-        cmd.add("-p");
-        cmd.add(String.valueOf(SSH_PORT));
-        cmd.add(username + "@" + host);
-        if (serviceManager.getPlatform() != SshServiceProbe.Platform.WINDOWS) {
-            cmd.add("stty cols " + cols + " rows " + rows + "; exec bash -l");
+    private void installWindowsAdminKey(String pubContent) {
+        File ak = new File("C:\\ProgramData\\ssh\\administrators_authorized_keys");
+        try {
+            if (!ak.exists() && !ak.createNewFile()) {
+                log.warn("创建 administrators_authorized_keys 失败（需管理员权限）");
+                return;
+            }
+            String akContent = ak.exists() ? Files.readString(ak.toPath()) : "";
+            if (!akContent.contains(pubContent)) {
+                Files.writeString(ak.toPath(), pubContent + System.lineSeparator(),
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                log.info("已安装免密公钥到(Windows 管理员): {}", ak.getAbsolutePath());
+            }
+            // Windows sshd 严格要求：仅 SYSTEM + Administrators 可访问
+            runCommand("icacls", ak.getAbsolutePath(),
+                    "/inheritance:r", "/grant", "SYSTEM:(F)", "Administrators:(F)");
+        } catch (Exception e) {
+            log.warn("安装 Windows 管理员公钥异常: {}", e.getMessage());
         }
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        pb.redirectErrorStream(true);
-        // TERM 必须显式设置（Windows 启动的 agent 环境常缺——远端 top/vim/htop 依赖它）
-        pb.environment().putIfAbsent("TERM", "xterm-256color");
-        return pb.start();
+    }
+
+    private static void runCommand(String... cmd) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.redirectErrorStream(true);
+            Process p = pb.start();
+            p.getInputStream().readAllBytes();
+            p.waitFor(10, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.warn("命令执行失败: {} — {}", String.join(" ", cmd), e.getMessage());
+        }
     }
 
     private void readLoop(String sessionId, Process process) {
@@ -240,7 +259,14 @@ public final class SshSessionChannel {
                 "sshAction", action,
                 "sshSessionId", sessionId);
         byte[] payload = data != null ? Arrays.copyOf(data, len) : new byte[0];
-        client.getTransport().send(FrameCodec.sshFrame(sessionId, payload, meta));
+        SshSession session = sessions.get(sessionId);
+        if (session != null && session.clientId != null && sessionServer != null) {
+            // 会话独立连接（9004）回传——多会话并发互不干扰
+            sessionServer.send(session.clientId, FrameCodec.sshFrame(sessionId, payload, meta));
+        } else {
+            // 回退：9000 主连接
+            client.getTransport().send(FrameCodec.sshFrame(sessionId, payload, meta));
+        }
     }
 
     /**
@@ -252,41 +278,16 @@ public final class SshSessionChannel {
         executor.shutdownNow();
     }
 
-    /**
-     * 解析 ssh 可执行文件：Windows 平台优先使用系统内置 OpenSSH（避免 Git 发行版 ssh.exe
-     * 在 ProcessBuilder 子进程环境缺 DLL（"error while loading sha..."）导致启动崩溃）。
-     *
-     * @return ssh 可执行文件路径
-     */
-    private String resolveSshExecutable() {
-        if (serviceManager.getPlatform() == SshServiceProbe.Platform.WINDOWS) {
-            File winSsh = new File("C:\\Windows\\System32\\OpenSSH\\ssh.exe");
-            if (winSsh.isFile()) {
-                return winSsh.getAbsolutePath();
-            }
-        }
-        return "ssh";
-    }
-
-    private static void runCommand(String... cmd) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder(cmd);
-            pb.redirectErrorStream(true);
-            Process p = pb.start();
-            p.getInputStream().readAllBytes();
-            p.waitFor(10, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            log.warn("命令执行失败: {} — {}", String.join(" ", cmd), e.getMessage());
-        }
-    }
-
     private static final class SshSession {
         final String sessionId;
         final Process process;
+        /** 会话独立连接 id（9004——回传走该连接） */
+        final String clientId;
 
-        SshSession(String sessionId, Process process) {
+        SshSession(String sessionId, Process process, String clientId) {
             this.sessionId = sessionId;
             this.process = process;
+            this.clientId = clientId;
         }
     }
 }

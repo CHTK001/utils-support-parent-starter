@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.skill.spi;
 
 import com.chua.common.support.ai.skill.SkillDefinition;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,5 +72,18 @@ public interface SkillOfflineProvider {
      */
     default boolean uninstall(String clientId, String skillId) {
         return false;
+    }
+
+    /**
+     * 解析指定技能在本机的真实落盘位置（目录或单文件 {@code .md}/{@code .mdc}）。
+     *
+     * <p>供后端将 {@code agent://PROVIDER/SKILL} 形式的虚拟地址解析为可导入的文件路径。
+     * 未实现或未找到时返回 null。</p>
+     *
+     * @param skillName 技能名（目录名或去掉扩展名的 .md 文件名）
+     * @return 落盘路径；找不到返回 null
+     */
+    default Path resolveSkillPath(String skillName) {
+        return null;
     }
 }

@@ -33,6 +33,8 @@ public class AgentInfo implements Serializable {
     private String gatewaySshHost;
     private int gatewaySshPort;
     private String gatewaySshUser;
+    /** 本机全部网卡 IP（多网卡全部上报——白名单校验命中其一即通过） */
+    private java.util.List<String> ips;
     private String gatewaySshPass;
 
     public enum AgentType {

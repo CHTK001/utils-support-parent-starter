@@ -155,4 +155,43 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     public String name() {
         return "agent";
     }
+
+    /**
+     * 解析技能在本机的真实落盘位置。
+     *
+     * <p>在与 {@link #listAgentSkills()} 相同的目录下（{@code skills/rules/commands}）
+     * 查找与技能名匹配的目录（含 SKILL.md/skill.md）或单文件规则（{@code <name>.md/.mdc}），
+     * 供后端将 {@code agent://PROVIDER/SKILL} 虚拟地址解析为可导入路径。</p>
+     *
+     * @param skillName 技能名（目录名或去掉扩展名的 .md 文件名）
+     * @return 落盘路径；找不到返回 null
+     */
+    @Override
+    public Path resolveSkillPath(String skillName) {
+        if (skillName == null || skillName.isBlank()) {
+            return null;
+        }
+        Path base = workspaceBased() ? findWorkspaceConfig() : USER_HOME.resolve(configDir());
+        if (base == null) {
+            return null;
+        }
+        for (String sub : new String[]{"skills", "rules", "commands"}) {
+            Path dir = base.resolve(sub);
+            if (!Files.isDirectory(dir)) {
+                continue;
+            }
+            Path dirMatch = dir.resolve(skillName);
+            if (Files.isDirectory(dirMatch)
+                    && (Files.exists(dirMatch.resolve("SKILL.md")) || Files.exists(dirMatch.resolve("skill.md")))) {
+                return dirMatch;
+            }
+            for (String ext : new String[]{".md", ".mdc"}) {
+                Path fileMatch = dir.resolve(skillName + ext);
+                if (Files.isRegularFile(fileMatch)) {
+                    return fileMatch;
+                }
+            }
+        }
+        return null;
+    }
 }

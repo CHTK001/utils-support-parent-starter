@@ -1,8 +1,11 @@
 package com.chua.remote.agent.ssh;
 
+import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.remote.core.RemoteClient;
 import com.chua.remote.core.codec.FrameCodec;
+import com.chua.remote.core.transport.FrameServer;
+import com.chua.remote.protocol.frame.Frame;
 import com.chua.remote.protocol.frame.MessageType;
 import com.chua.remote.protocol.model.AgentInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -26,21 +29,37 @@ public class SshAgentBootstrap {
     private final AgentInfo agentInfo;
     private final SshServiceManager serviceManager;
     private final SshSessionChannel sessionChannel;
+    /** 会话服务端（9004——网关每会话独立建连——多会话并发；信令仍走 9000 主连接） */
+    private FrameServer sessionServer;
+    /** 会话端口（agent 挂端口——会话数据通道） */
+    private static final int SESSION_PORT = 9004;
     private volatile boolean running;
 
     public SshAgentBootstrap(String gatewayUrl, AgentInfo agentInfo) {
         this.client = new RemoteClient(agentInfo.getId(), gatewayUrl);
         this.agentInfo = agentInfo;
         this.serviceManager = new SshServiceManager();
-        // 注册上报的 SSH 凭据（username/password）作为会话缺省凭据（meta 未带时回落）
-        this.sessionChannel = new SshSessionChannel(client, agentInfo.getId(), serviceManager,
-                agentInfo.getUsername(), agentInfo.getPassword());
+        this.sessionChannel = new SshSessionChannel(client, agentInfo.getId(), serviceManager);
     }
 
     public void start() {
         client.connect();
         log.info("已连接到网关");
-        client.getTransport().on(MessageType.SSH, sessionChannel::handleSSHFrame);
+        // 会话服务端：agent 挂端口 9004——网关每会话独立建连（多会话并发互不干扰）
+        try {
+            sessionServer = new FrameServer(ServerSetting.builder()
+                    .host("0.0.0.0").port(SESSION_PORT).build());
+            sessionServer.setListener((clientId, frame) -> {
+                if (frame.getType() == MessageType.SSH) {
+                    sessionChannel.handleSSHFrame(frame, clientId);
+                }
+            });
+            sessionServer.start();
+            sessionChannel.bindSessionServer(sessionServer);
+            log.info("会话服务端已启动: port={}", SESSION_PORT);
+        } catch (Exception e) {
+            log.warn("会话服务端启动失败（会话帧将回退 9000 主通道）: {}", e.getMessage());
+        }
         String agentId = registerToGateway();
         running = true;
         // 心跳日志（每 5s——区分进程存活 vs 日志缓冲滞后：心跳持续=进程活着，日志只是延迟刷出）
@@ -111,6 +130,12 @@ public class SshAgentBootstrap {
             }
         });
         running = false;
+        if (sessionServer != null) {
+            try {
+                sessionServer.stop();
+            } catch (Exception ignored) {
+            }
+        }
         sessionChannel.stopAll();
         client.disconnect();
         log.info("SSH agent 已停止: id={}", agentInfo.getId());
@@ -128,6 +153,8 @@ public class SshAgentBootstrap {
         info.setAccessCode(verifyCode);
         info.setUsername(username);
         info.setPassword(password);
+        // 多网卡全部 IP 上报（白名单校验：命中其一即通过）——复用 NetUtils 枚举
+        info.setIps(com.chua.common.support.network.net.NetUtils.getLocalIps());
         SshAgentBootstrap bootstrap = new SshAgentBootstrap(gatewayUrl, info);
         Runtime.getRuntime().addShutdownHook(new Thread(bootstrap::stop));
         bootstrap.start();
@@ -165,11 +192,10 @@ public class SshAgentBootstrap {
     }
 
     /**
-     * 断连重连：重新连接网关并重新注册（会话通道保持）。
+     * 断连重连：重新连接网关并重新注册（会话通道 9004 独立保持——不重新挂接 9000 SSH 帧）。
      */
     public void reconnect() {
         client.connect();
-        client.getTransport().on(MessageType.SSH, sessionChannel::handleSSHFrame);
         registerToGateway();
         log.info("重连完成并重新注册: id={}", agentInfo.getId());
     }

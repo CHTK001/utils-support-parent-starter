@@ -1,5 +1,6 @@
 package com.chua.filestorage.support.preview.provider;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
@@ -36,10 +37,8 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     private static final long MAX_FILE_SIZE = 512L * 1024 * 1024;
 
     static {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("sqlite-jdbc driver not found", e);
+        if (ReflectUtils.forName("org.sqlite.JDBC") == null) {
+            throw new IllegalStateException("sqlite-jdbc driver not found");
         }
     }
 
