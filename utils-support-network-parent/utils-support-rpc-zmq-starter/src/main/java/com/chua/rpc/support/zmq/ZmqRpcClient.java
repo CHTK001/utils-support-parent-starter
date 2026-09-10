@@ -1,5 +1,8 @@
 package com.chua.rpc.support.zmq;
 
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.network.discovery.DiscoveryOption;
+import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.network.rpc.RpcClient;
 import com.chua.common.support.network.rpc.RpcConsumerConfig;
 import com.chua.common.support.network.rpc.RpcException;
@@ -10,6 +13,7 @@ import com.chua.common.support.network.rpc.RpcSerialization;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import org.zeromq.SocketType;
@@ -39,6 +43,11 @@ import java.util.function.Function;
  * <p><b>响应式超时</b>：套接字接收超时取自消费者配置的 {@code timeout}，
  * 防止服务端无响应时无限阻塞调用线程。</p>
  *
+ * <p><b>服务发现</b>：构造器传入的 {@link RpcRegistryConfig} 中 protocol 为注册中心类型
+ * （如 {@code zookeeper}/{@code nacos}）时，自动通过 SPI 加载 {@link ServiceDiscovery}，
+ * 每次建连按 {@code /appName/serviceName} 动态解析服务端地址；protocol 为
+ * {@code direct}/{@code zmq} 或空时取第一个地址直连，与无注册中心场景兼容。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -57,9 +66,25 @@ public class ZmqRpcClient implements RpcClient {
     private static final int DEFAULT_RETRY_DELAY = 100;
 
     /**
-     * 目标服务地址，如 {@code tcp://127.0.0.1:5555}
+     * 目标服务地址，如 {@code tcp://127.0.0.1:5555}；直连模式下生效，
+     * 注册中心模式下为空并在调用时动态解析
      */
     private final String serverAddress;
+
+    /**
+     * 注册中心配置列表（用于服务发现 SPI 初始化）
+     */
+    private final List<RpcRegistryConfig> registryConfigs;
+
+    /**
+     * APP 名称（用于服务发现路径查询）
+     */
+    private final String appName;
+
+    /**
+     * 服务发现实例（SPI 加载，可为 {@code null} 表示纯直连模式）
+     */
+    private final ServiceDiscovery serviceDiscovery;
 
     /**
      * 消费者全局配置
@@ -94,15 +119,21 @@ public class ZmqRpcClient implements RpcClient {
     /**
      * 构造器。
      *
-     * @param registryConfigs 注册中心配置（zmq 实现仅取第一个地址，如 {@code tcp://127.0.0.1:5555}）
+     * @param registryConfigs 注册中心配置列表；protocol 为 "zookeeper"/"nacos" 等时走服务发现，
+     *                        为 {@code null} 或 protocol 为 "direct"/"zmq"/空时取第一个地址直连
      * @param consumerConfig  消费者配置（超时 / 重试 / 重试间隔），可为 {@code null}
-     * @param name            应用名（zmq 实现不使用，保留 SPI 构造契约）
+     * @param name            应用名（用于服务发现路径查询）
      */
     public ZmqRpcClient(List<RpcRegistryConfig> registryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.consumerConfig = consumerConfig;
+        this.registryConfigs = registryConfigs;
+        this.appName = name;
         String address = registryConfigs != null && !registryConfigs.isEmpty()
-                ? registryConfigs.get(0).getAddress() : DEFAULT_ADDRESS;
-        this.serverAddress = normalizeAddress(address);
+                ? registryConfigs.get(0).getAddress() : null;
+        this.serviceDiscovery = initServiceDiscovery();
+        // 直连地址仅在无服务发现或地址显式指定时使用；服务发现模式下地址可为空
+        this.serverAddress = address != null && !address.isBlank()
+                ? normalizeAddress(address) : null;
         this.recvTimeout = consumerConfig != null && consumerConfig.getTimeout() != null
                 && consumerConfig.getTimeout() > 0 ? consumerConfig.getTimeout() : 10000;
         this.rpcSerialization = new RpcSerialization(
@@ -111,14 +142,45 @@ public class ZmqRpcClient implements RpcClient {
     }
 
     /**
+     * 初始化服务发现：遍历注册中心配置，protocol 为注册中心类型（zookeeper/nacos 等）时
+     * 通过 SPI 加载 {@link ServiceDiscovery} 并启动。
+     *
+     * @return 服务发现实例，纯直连模式下返回 {@code null}
+     */
+    private ServiceDiscovery initServiceDiscovery() {
+        if (registryConfigs == null || registryConfigs.isEmpty()) {
+            return null;
+        }
+        for (RpcRegistryConfig config : registryConfigs) {
+            String protocol = config.getProtocol();
+            if (protocol != null && !"direct".equals(protocol) && !"zmq".equals(protocol)) {
+                try {
+                    DiscoveryOption option = new DiscoveryOption();
+                    option.setAddress(config.getAddress());
+                    ServiceDiscovery sd = ServiceProvider.of(ServiceDiscovery.class)
+                            .getNewExtension(protocol, option);
+                    if (sd != null) {
+                        sd.start();
+                        log.info("ServiceDiscovery initialized: {}", protocol);
+                        return sd;
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to init ServiceDiscovery: {}", e.getMessage());
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * 规范化端点地址：补全 {@code tcp://} 前缀。
      *
-     * @param address 注册中心配置中的地址
-     * @return 规范的 ZMQ 端点
+     * @param address 注册中心配置中的地址，可为 {@code null}
+     * @return 规范的 ZMQ 端点；地址为空时返回 {@code null}
      */
     private static String normalizeAddress(String address) {
         if (address == null || address.isBlank()) {
-            return DEFAULT_ADDRESS;
+            return null;
         }
         String trimmed = address.trim();
         if (trimmed.startsWith("tcp://") || trimmed.startsWith("ipc://")
@@ -145,12 +207,36 @@ public class ZmqRpcClient implements RpcClient {
      */
     private ZMQ.Socket ensureSocket(Class<?> targetType) {
         return socketCache.computeIfAbsent(targetType, type -> {
+            String endpoint = resolveServerAddress(targetType);
             ZMQ.Socket socket = zContext.createSocket(SocketType.DEALER);
             socket.setLinger(0);
             socket.setReceiveTimeOut(recvTimeout);
-            socket.connect(serverAddress);
+            socket.connect(endpoint);
             return socket;
         });
+    }
+
+    /**
+     * 解析目标服务端地址：优先通过服务发现按 {@code /appName/serviceName} 查询，
+     * 否则回退到构造器直连地址。
+     *
+     * @param targetType 目标接口
+     * @return ZMQ 端点地址，无法解析时抛出异常
+     */
+    private String resolveServerAddress(Class<?> targetType) {
+        if (serviceDiscovery != null) {
+            String path = "/" + appName + "/" + targetType.getName();
+            Discovery discovery = serviceDiscovery.getService(path);
+            if (discovery != null && discovery.getHost() != null) {
+                return "tcp://" + discovery.getHost() + ":" + discovery.getPort();
+            }
+            log.warn("ServiceDiscovery no node for {}, fallback to direct address", path);
+        }
+        if (serverAddress != null) {
+            return serverAddress;
+        }
+        throw RpcException.transport("No ZMQ server address: serviceDiscovery="
+                + (serviceDiscovery != null) + ", direct=" + serverAddress);
     }
 
     /**
@@ -228,12 +314,11 @@ public class ZmqRpcClient implements RpcClient {
             // DEALER 单帧发送；JeroMQ 内部线程负责实际 IO，send 后本线程阻塞 recv
             boolean sent = socket.send(requestData, 0);
             if (!sent) {
-                throw RpcException.transport("ZMQ send failed: " + serverAddress);
+                throw RpcException.transport("ZMQ send failed");
             }
             byte[] responseData = socket.recv(0);
             if (responseData == null) {
-                throw RpcException.transport("ZMQ recv timeout: " + serverAddress
-                        + " (timeout=" + recvTimeout + "ms)");
+                throw RpcException.transport("ZMQ recv timeout (timeout=" + recvTimeout + "ms)");
             }
             RpcResponse response = rpcSerialization.deserializeResponse(responseData);
             if (!response.isSuccess()) {
@@ -256,6 +341,13 @@ public class ZmqRpcClient implements RpcClient {
         socketCache.clear();
         proxyCache.clear();
         zContext.close();
+        if (serviceDiscovery != null) {
+            try {
+                serviceDiscovery.close();
+            } catch (Exception ignored) {
+                // 关闭时忽略服务发现异常
+            }
+        }
         log.info("ZmqRpcClient closed");
     }
 }

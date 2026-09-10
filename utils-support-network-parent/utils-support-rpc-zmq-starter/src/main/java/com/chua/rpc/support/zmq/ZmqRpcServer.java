@@ -1,5 +1,8 @@
 package com.chua.rpc.support.zmq;
 
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.network.discovery.DiscoveryOption;
+import com.chua.common.support.network.discovery.ServiceDiscovery;
 import com.chua.common.support.network.rpc.RpcConnectionInfo;
 import com.chua.common.support.network.rpc.RpcMetrics;
 import com.chua.common.support.network.rpc.RpcProtocolConfig;
@@ -8,6 +11,7 @@ import com.chua.common.support.network.rpc.RpcRequest;
 import com.chua.common.support.network.rpc.RpcResponse;
 import com.chua.common.support.network.rpc.RpcSerialization;
 import com.chua.common.support.network.rpc.RpcServer;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +55,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p><b>服务治理</b>：若注册的 bean 标注了 {@link RpcService} 并配置
  * {@code version} / {@code group} / {@code token}，服务端会校验请求携带的元数据，
  * 不匹配时返回业务错误响应；未配置时放行。</p>
+ *
+ * <p><b>服务发现</b>：构造器传入的 {@link RpcRegistryConfig} 中 protocol 为注册中心类型
+ * （如 {@code zookeeper}/{@code nacos}）时，自动通过 SPI 加载 {@link ServiceDiscovery}
+ * 并注册服务（路径 {@code /appName/serviceName}）；protocol 为 {@code direct}/{@code zmq}
+ * 或空时走纯直连，与无注册中心场景兼容。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -140,6 +149,21 @@ public class ZmqRpcServer implements RpcServer {
     private String bindAddress = "tcp://0.0.0.0:5555";
 
     /**
+     * 注册中心配置列表（用于服务发现 SPI 初始化）
+     */
+    private final List<RpcRegistryConfig> registryConfigs;
+
+    /**
+     * APP 名称（用于服务发现路径拼接）
+     */
+    private final String appName;
+
+    /**
+     * 服务发现实例（SPI 加载，可为 {@code null} 表示纯直连模式）
+     */
+    private ServiceDiscovery serviceDiscovery;
+
+    /**
      * ZMQ 上下文（线程安全，复用）
      */
     private ZContext zContext;
@@ -162,11 +186,14 @@ public class ZmqRpcServer implements RpcServer {
     /**
      * 构造器。
      *
-     * @param registryConfigs 注册中心配置（zmq 实现仅取地址，如 {@code tcp://127.0.0.1:5555}）
+     * @param registryConfigs 注册中心配置列表；protocol 为 "zookeeper"/"nacos" 等时走服务发现，
+     *                        为 {@code null} 或 protocol 为 "direct"/"native"/空时走直连
      * @param protocolConfig  协议配置（端口 / 线程数 / 序列化），可为 {@code null}
-     * @param name            应用名（zmq 实现不使用，保留 SPI 构造契约）
+     * @param name            应用名（用于服务发现路径拼接）
      */
     public ZmqRpcServer(List<RpcRegistryConfig> registryConfigs, RpcProtocolConfig protocolConfig, String name) {
+        this.registryConfigs = registryConfigs;
+        this.appName = name;
         this.host = protocolConfig != null && protocolConfig.host() != null ? protocolConfig.host() : "0.0.0.0";
         this.port = protocolConfig != null && protocolConfig.port() != null ? protocolConfig.port() : DEFAULT_PORT;
         this.threads = protocolConfig != null && protocolConfig.threads() != null
@@ -174,6 +201,7 @@ public class ZmqRpcServer implements RpcServer {
         this.rpcSerialization = new RpcSerialization(
                 protocolConfig != null ? protocolConfig.serialization() : null);
         this.bindAddress = "tcp://" + host + ":" + port;
+        initServiceDiscovery();
     }
 
     @Override
@@ -184,8 +212,47 @@ public class ZmqRpcServer implements RpcServer {
             return this;
         }
         services.put(name, bean);
+        // 注册到服务发现（zookeeper/nacos 等），客户端无需硬编码端口即可发现
+        if (serviceDiscovery != null) {
+            Discovery discovery = Discovery.builder()
+                    .serverId(name)
+                    .host(host.equals("0.0.0.0") ? "127.0.0.1" : host)
+                    .port(port)
+                    .protocol("zmq")
+                    .build();
+            serviceDiscovery.registerService("/" + appName + "/" + name, discovery);
+            log.info("Registered ZMQ service to ServiceDiscovery: {}", name);
+        }
         log.info("Registered ZMQ service: {} -> {}", name, bean.getClass().getName());
         return this;
+    }
+
+    /**
+     * 初始化服务发现：遍历注册中心配置，protocol 为注册中心类型（zookeeper/nacos 等）时
+     * 通过 SPI 加载 {@link ServiceDiscovery} 并启动。
+     */
+    private void initServiceDiscovery() {
+        if (registryConfigs == null || registryConfigs.isEmpty()) {
+            return;
+        }
+        for (RpcRegistryConfig config : registryConfigs) {
+            String protocol = config.getProtocol();
+            if (protocol != null && !"direct".equals(protocol) && !"zmq".equals(protocol)) {
+                try {
+                    DiscoveryOption option = new DiscoveryOption();
+                    option.setAddress(config.getAddress());
+                    this.serviceDiscovery = ServiceProvider.of(ServiceDiscovery.class)
+                            .getNewExtension(protocol, option);
+                    if (serviceDiscovery != null) {
+                        serviceDiscovery.start();
+                        log.info("ServiceDiscovery initialized: {}", protocol);
+                        return;
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to init ServiceDiscovery: {}", e.getMessage());
+                }
+            }
+        }
     }
 
     @Override
@@ -428,6 +495,13 @@ public class ZmqRpcServer implements RpcServer {
         }
         if (zContext != null) {
             zContext.close();
+        }
+        if (serviceDiscovery != null) {
+            try {
+                serviceDiscovery.close();
+            } catch (Exception ignored) {
+                // 关闭时忽略服务发现异常
+            }
         }
         methodCache.clear();
         services.clear();
