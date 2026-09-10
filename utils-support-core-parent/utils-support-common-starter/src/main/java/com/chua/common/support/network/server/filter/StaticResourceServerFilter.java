@@ -93,6 +93,12 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     @Override
+    public String supportPath() {
+        // Endpoint Filter：绑定 URL 前缀，仅匹配该前缀时触发
+        return urlPrefix + "/**";
+    }
+
+    @Override
     public void init(ServerFilterConfig config) {
         if (config == null) {
             return;
