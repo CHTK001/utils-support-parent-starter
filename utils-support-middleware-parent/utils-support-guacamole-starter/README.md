@@ -62,6 +62,9 @@ client.refreshTokens();
 本模块为零配置模块，引入依赖后即可使用。guacd 服务器地址默认 `127.0.0.1:4822`，
 Guacamole Web 前端默认 `127.0.0.1:8080/guacamole/`，短 token 有效期默认 1 小时（`tokenTtl` 可调）。
 
+真实环境自检（对接真实 Guacamole 栈与真实目标机）：`com.chua.example.guacamole.GuacamoleClientLiveExample`
+（测试报告：`utils-support-example-starter/docs/guacamole-client-live-test-report.html`）。
+
 ---
 
 ## 依赖关系
