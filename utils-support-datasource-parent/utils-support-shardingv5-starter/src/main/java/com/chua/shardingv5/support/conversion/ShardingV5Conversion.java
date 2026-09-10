@@ -1,5 +1,6 @@
 package com.chua.shardingv5.support.conversion;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.DataSourceConversion;
 import com.chua.datasource.support.engine.DataSourceEnvironment;
@@ -97,8 +98,8 @@ public class ShardingV5Conversion implements DataSourceConversion {
      */
     public ShardingV5Conversion algo(String name, Class<? extends ShardingAlgorithm> implClass) {
         try {
-            implClass.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
+            ReflectUtils.instantiate(implClass);
+        } catch (Exception e) {
             log.warn("算法类 " + implClass.getName() + " 缺少无参构造器，CLASS_BASED 运行时可能失败");
         }
         algorithms.put(name, new AlgorithmHolder("CLASS_BASED", Map.of(

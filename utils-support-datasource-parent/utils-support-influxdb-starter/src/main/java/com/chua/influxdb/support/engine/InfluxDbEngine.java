@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.influxdb.support.datasource.InfluxDbEngineDataSource;
@@ -339,7 +340,7 @@ public class InfluxDbEngine extends AbstractEngine {
                 List<String> cols = s.getColumns();
                 for (List<Object> row : s.getValues()) {
                     try {
-                        T inst = entityClass.getDeclaredConstructor().newInstance();
+                        T inst = ReflectUtils.instantiate(entityClass);
                         for (int i = 0; i < cols.size() && i < row.size(); i++) {
                             Field f = fields.get(cols.get(i));
                             if (f == null || row.get(i) == null) {
