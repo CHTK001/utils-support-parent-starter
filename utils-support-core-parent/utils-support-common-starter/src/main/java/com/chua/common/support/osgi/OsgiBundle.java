@@ -45,6 +45,12 @@ public interface OsgiBundle {
     void stop();
 
     /**
+     * 卸载该 Bundle（主动基于 bundle 对象卸载，不依赖 symbolicName 字符串匹配）。
+     * <p>卸载前若处于 ACTIVE/STARTING 状态会先停止；卸载后 bundle 进入 UNINSTALLED 状态。</p>
+     */
+    void uninstall();
+
+    /**
      * 注册服务到 OSGI 容器。
      *
      * @param type    服务接口类型
