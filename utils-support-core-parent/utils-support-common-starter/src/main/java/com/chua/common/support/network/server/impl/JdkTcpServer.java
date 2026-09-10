@@ -627,6 +627,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         } catch (Exception e) {
             log.debug("TCP 连接处理异常: {}", e.getMessage());
         } finally {
+            THREAD_LOCAL_BUFFER.remove();
             try {
                 socket.close();
             } catch (IOException ignored) {

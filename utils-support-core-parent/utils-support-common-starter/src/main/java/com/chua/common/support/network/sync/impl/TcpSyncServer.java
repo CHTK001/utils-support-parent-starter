@@ -385,6 +385,7 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
                 }
             }
         }
+        IO_BUFFER.remove();
     }
 
     /**

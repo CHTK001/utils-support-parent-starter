@@ -60,6 +60,8 @@ public class JdkTcpClient implements TcpClient {
             ch.socket().setSoTimeout(readTimeout);
             return exchange(ch, request);
         } finally {
+            WRITE_BUFFER.remove();
+            HEADER_BUFFER.remove();
             if (ch != null) {
                 try { ch.close(); } catch (IOException ignored) {}
             }
