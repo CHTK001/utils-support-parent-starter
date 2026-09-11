@@ -239,12 +239,14 @@ public final class WekaInstanceData {
     /**
      * 将一行数据填入给定的实例结构，生成属性值数组。
      *
-     * @param ins 提供属性结构的实例容器
-     * @param row 一行数据（列名 -> 值）
+     * @param ins 提供属性结构的实例容器，不能为 null
+     * @param row 一行数据（列名 -> 值），可为 null（视为整行缺失）
      * @return 属性值数组
-     * @throws WekaException 数值列内容非法
+     * @throws NullPointerException 当实例容器为 null 时
+     * @throws WekaException        数值列内容非法
      */
     public static double[] toAttributeValues(Instances ins, Map<String, Object> row) {
+        Objects.requireNonNull(ins, "ins must not be null");
         var values = new double[ins.numAttributes()];
         for (int i = 0; i < values.length; i++) {
             var attr = ins.attribute(i);
@@ -263,14 +265,17 @@ public final class WekaInstanceData {
     }
 
     /**
-     * 解析数值列取值。
+     * 解析数值列取值（Number 直接取值，可解析的 String 按 double 解析）。
      *
-     * @param name  列名
-     * @param value 原始值
-     * @return 解析结果
-     * @throws WekaException 值无法解析为数值
+     * @param name  列名（仅用于异常信息），不能为 null
+     * @param value 原始值，须为 Number 或可解析为 double 的 String，不能为 null
+     * @return 解析后的 double 值
+     * @throws NullPointerException 当列名或取值为 null 时
+     * @throws WekaException        值无法解析为数值
      */
     public static double numericValue(String name, Object value) {
+        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(value, "value must not be null");
         if (value instanceof Number number) {
             return number.doubleValue();
         }
