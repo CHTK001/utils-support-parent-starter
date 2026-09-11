@@ -197,9 +197,9 @@ public final class WekaInstanceData {
         if (!hasTargetOrLabel()) {
             throw new WekaException("请先指定标签列或目标列（withLabelColumn / withTargetColumn）");
         }
-        Map<String, List<String>> nominal = nominalValues();
-        ArrayList<Attribute> attrs = new ArrayList<>(features.size() + 1);
-        for (FeatureColumn feature : features) {
+        var nominal = nominalValues();
+        var attrs = new ArrayList<Attribute>(features.size() + 1);
+        for (var feature : features) {
             if (feature.getType() == FeatureColumn.FeatureType.NUMERIC) {
                 attrs.add(new Attribute(feature.getName()));
             } else {
@@ -211,9 +211,9 @@ public final class WekaInstanceData {
         } else {
             attrs.add(new Attribute(labelColumn, nominal.getOrDefault(labelColumn, List.of(""))));
         }
-        Instances ins = new Instances("WekaInstanceData", attrs, 0);
+        var ins = new Instances("WekaInstanceData", attrs, 0);
         ins.setClassIndex(attrs.size() - 1);
-        for (Map<String, Object> row : rows) {
+        for (var row : rows) {
             ins.add(new DenseInstance(1.0, toAttributeValues(ins, row)));
         }
         return ins;
@@ -228,17 +228,17 @@ public final class WekaInstanceData {
      * @throws WekaException 数值列内容非法
      */
     public static double[] toAttributeValues(Instances ins, Map<String, Object> row) {
-        double[] values = new double[ins.numAttributes()];
+        var values = new double[ins.numAttributes()];
         for (int i = 0; i < values.length; i++) {
-            Attribute attr = ins.attribute(i);
-            Object value = row == null ? null : row.get(attr.name());
+            var attr = ins.attribute(i);
+            var value = row == null ? null : row.get(attr.name());
             if (value == null) {
                 values[i] = MISSING_VALUE;
             } else if (attr.isNumeric()) {
                 values[i] = numericValue(attr.name(), value);
             } else {
-                String text = value instanceof String s ? s : value.toString();
-                int index = attr.indexOfValue(text);
+                var text = value instanceof String s ? s : value.toString();
+                var index = attr.indexOfValue(text);
                 values[i] = index >= 0 ? index : MISSING_VALUE;
             }
         }
