@@ -36,7 +36,7 @@ public class H2CleanupPlugin {
     /**
      * 清理所有用户数据（保留系统表）。
      * <p>
-     * 顺序：先删全文索引 → 再删用户表 → 重置序列。
+     * 顺序：先删用户索引 → 再删用户表 → 重置序列。
      * </p>
      *
      * @return 清理的表数量
@@ -46,8 +46,8 @@ public class H2CleanupPlugin {
             conn.setAutoCommit(false);
             int count = 0;
 
-            // 1. 删除所有文本全文索引
-            count += dropAllTextIndexes(conn);
+            // 1. 删除所有用户索引（H2 2.x 无 TEXT 索引）
+            dropAllUserIndexes(conn);
 
             // 2. 删除所有用户表（排除系统表）
             count += dropAllUserTables(conn);
@@ -128,19 +128,20 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 删除所有文本全文索引。
+     * 删除所有用户索引（H2 2.x 无 TEXT 索引，按普通索引清理）。
      */
-    private int dropAllTextIndexes(Connection conn) throws SQLException {
+    private int dropAllUserIndexes(Connection conn) throws SQLException {
         List<String> indexes = new ArrayList<>();
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
-                     "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE INDEX_TYPE LIKE '%TEXT%'")) {
+                     "SELECT DISTINCT INDEX_NAME FROM INFORMATION_SCHEMA.INDEXES "
+                             + "WHERE INDEX_TYPE_NAME = 'INDEX'")) {
             while (rs.next()) {
-                indexes.add(rs.getString("INDEX_NAME"));
+                indexes.add(rs.getString(1));
             }
         }
         for (String name : indexes) {
-            dropTable(conn, name);
+            dropIndex(conn, name);
         }
         return indexes.size();
     }
@@ -183,6 +184,17 @@ public class H2CleanupPlugin {
             stmt.execute("DROP TABLE IF EXISTS \"" + tableName + "\"");
         } catch (SQLException ignored) {
             // 表不存在时忽略
+        }
+    }
+
+    /**
+     * 删除指定索引。
+     */
+    private void dropIndex(Connection conn, String indexName) throws SQLException {
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP INDEX IF EXISTS \"" + indexName + "\"");
+        } catch (SQLException ignored) {
+            // 索引不存在时忽略
         }
     }
 }

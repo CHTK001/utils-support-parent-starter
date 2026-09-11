@@ -103,9 +103,9 @@ public class H2SearchEngineImpl implements SearchEngine {
         }
 
         String columnList = String.join(", ", columns);
-        // H2 全文索引：CREATE TEXT INDEX 或 CREATE INDEX ... USING TEXT INDEX
-        String sql = "CREATE TEXT INDEX IF NOT EXISTS "
-                   + escape(indexName) + " ON TABLE " + escape(table)
+        // H2 2.x 无全文检索引擎，检索门面降级为普通索引 + LIKE 关键字查询
+        String sql = "CREATE INDEX IF NOT EXISTS "
+                   + escape(indexName) + " ON " + escape(table)
                    + " (" + columnList + ")";
 
         try (Connection conn = getConn();
@@ -119,13 +119,13 @@ public class H2SearchEngineImpl implements SearchEngine {
 
     @Override
     public boolean deleteIndex(String indexName) {
-        String sql = "DROP TEXT INDEX IF EXISTS " + escape(indexName);
+        String sql = "DROP INDEX IF EXISTS " + escape(indexName);
         try (Connection conn = getConn();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             return true;
         } catch (Exception e) {
-            throw new RuntimeException("删除 H2 全文索引失败: " + indexName, e);
+            throw new RuntimeException("删除索引失败: " + indexName, e);
         }
     }
 
