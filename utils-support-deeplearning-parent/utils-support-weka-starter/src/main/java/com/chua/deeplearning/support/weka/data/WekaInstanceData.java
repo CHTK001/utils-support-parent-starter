@@ -175,7 +175,7 @@ public final class WekaInstanceData {
      * @return 列名 -> 取值列表（保持首次出现顺序）
      */
     public Map<String, List<String>> nominalValues() {
-        Map<String, List<String>> map = new LinkedHashMap<>();
+        var map = new LinkedHashMap<String, List<String>>(features.size() + 1);
         for (FeatureColumn feature : features) {
             if (feature.getType() == FeatureColumn.FeatureType.CATEGORICAL) {
                 map.put(feature.getName(), collectValues(feature.getName()));
@@ -268,9 +268,9 @@ public final class WekaInstanceData {
     }
 
     private List<String> collectValues(String columnName) {
-        java.util.LinkedHashSet<String> values = new java.util.LinkedHashSet<>();
-        for (Map<String, Object> row : rows) {
-            Object value = row == null ? null : row.get(columnName);
+        var values = new LinkedHashSet<String>();
+        for (var row : rows) {
+            var value = row == null ? null : row.get(columnName);
             if (value != null) {
                 values.add(value instanceof String s ? s : value.toString());
             }

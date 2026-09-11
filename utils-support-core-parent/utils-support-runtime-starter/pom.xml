@@ -9,8 +9,8 @@
         <version>4.0.0.42</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>utils-support-runtime-starter</artifactId>
-    <name>Utils Support Runtime Starter</name>
+    <artifactId>utils-support-runtime-support</artifactId>
+    <name>Utils Support Runtime Support</name>
     <description>运行时管理模块：工件注册、生命周期管理（启动/停止/重启）、实时日志、下载支持</description>
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>
