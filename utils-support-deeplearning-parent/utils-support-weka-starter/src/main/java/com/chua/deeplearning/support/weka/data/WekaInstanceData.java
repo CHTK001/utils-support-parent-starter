@@ -86,21 +86,25 @@ public final class WekaInstanceData {
     /**
      * 构建通用数据对象（未指定标签 / 目标，需后续 {@link #withLabelColumn} 或 {@link #withTargetColumn}）。
      *
-     * @param features 特征列定义
-     * @param rows     行数据
+     * @param features 特征列定义，不能为 null 且不能为空集合
+     * @param rows     行数据，可为 null（按空数据集处理）
      * @return 数据对象
+     * @throws NullPointerException 当特征列为 null 时
+     * @throws WekaException        当特征列为空集合时
      */
     public static WekaInstanceData of(List<FeatureColumn> features, List<Map<String, Object>> rows) {
         return new WekaInstanceData(features, null, null, rows);
     }
 
     /**
-     * 构建分类数据对象。
+     * 构建分类数据对象（标签列承载名义值）。
      *
-     * @param features    特征列定义
-     * @param labelColumn 标签列名
-     * @param rows        行数据
-     * @return 数据对象
+     * @param features    特征列定义，不能为 null 且不能为空集合
+     * @param labelColumn 标签列名，不能为空白字符串
+     * @param rows        行数据，可为 null（按空数据集处理）
+     * @return 分类数据对象
+     * @throws NullPointerException 当特征列为 null 时
+     * @throws WekaException        当特征列为空集合或标签列名为空白时
      */
     public static WekaInstanceData classification(List<FeatureColumn> features, String labelColumn,
             List<Map<String, Object>> rows) {
@@ -108,12 +112,14 @@ public final class WekaInstanceData {
     }
 
     /**
-     * 构建回归数据对象。
+     * 构建回归数据对象（目标列承载数值）。
      *
-     * @param features     特征列定义
-     * @param targetColumn 目标列名
-     * @param rows         行数据
-     * @return 数据对象
+     * @param features     特征列定义，不能为 null 且不能为空集合
+     * @param targetColumn 目标列名，不能为空白字符串
+     * @param rows         行数据，可为 null（按空数据集处理）
+     * @return 回归数据对象
+     * @throws NullPointerException 当特征列为 null 时
+     * @throws WekaException        当特征列为空集合或目标列名为空白时
      */
     public static WekaInstanceData regression(List<FeatureColumn> features, String targetColumn,
             List<Map<String, Object>> rows) {
@@ -121,27 +127,31 @@ public final class WekaInstanceData {
     }
 
     /**
-     * 基于当前数据指定标签列，返回新的分类数据对象。
+     * 基于当前数据指定标签列，返回新的分类数据对象（原对象不变）。
      *
-     * @param labelColumn 标签列名
+     * @param labelColumn 标签列名，不能为空白字符串
      * @return 分类数据对象
+     * @throws WekaException 当标签列名为空白时
      */
     public WekaInstanceData withLabelColumn(String labelColumn) {
         return new WekaInstanceData(features, labelColumn, null, rows);
     }
 
     /**
-     * 基于当前数据指定目标列，返回新的回归数据对象。
+     * 基于当前数据指定目标列，返回新的回归数据对象（原对象不变）。
      *
-     * @param targetColumn 目标列名
+     * @param targetColumn 目标列名，不能为空白字符串
      * @return 回归数据对象
+     * @throws WekaException 当目标列名为空白时
      */
     public WekaInstanceData withTargetColumn(String targetColumn) {
         return new WekaInstanceData(features, null, targetColumn, rows);
     }
 
     /**
-     * @return 是否设置了标签列
+     * 判断当前数据是否为分类场景（是否已设置标签列）。
+     *
+     * @return true 表示已设置标签列
      */
     public boolean hasLabel() {
         return labelColumn != null;
