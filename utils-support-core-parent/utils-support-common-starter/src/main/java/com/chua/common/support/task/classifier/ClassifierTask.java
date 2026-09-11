@@ -69,15 +69,17 @@ public interface ClassifierTask {
         /**
          * 评估模型（K 折交叉验证，数据须包含标签列）。
          *
-         * @param samples 评估数据行
-         * @return 评估报告
+         * @param samples 评估数据行（列名 -> 值，须含标签列），不能为 null
+         * @return 评估报告（实例数 / 折数 / 准确率 / Kappa）
+         * @throws RuntimeException 实现对应的运行时异常（数据不足或评估失败）
          */
         Report evaluate(List<Map<String, Object>> samples);
 
         /**
          * 保存模型到磁盘。
          *
-         * @param file 目标文件
+         * @param file 目标文件路径，不能为 null
+         * @throws RuntimeException 实现对应的运行时异常（写入失败）
          */
         void save(Path file);
     }
