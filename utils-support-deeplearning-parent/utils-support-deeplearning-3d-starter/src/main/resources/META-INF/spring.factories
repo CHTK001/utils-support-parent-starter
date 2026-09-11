@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.chua.deeplearning.support._3d.config.GenerationApiModel3DGenerator
+  com.chua.deeplearning.support.spring.config.GenerationApiModel3DGenerator
