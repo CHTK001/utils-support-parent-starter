@@ -10,7 +10,7 @@
     </parent>
     <artifactId>utils-support-h2-starter</artifactId>
     <name>Utils Support H2 Starter</name>
-    <description>H2 嵌入式数据库支持模块：H2Engine、H2MetaData、H2SearchEngine（CATSEARCH 全文检索）</description>
+    <description>H2 嵌入式数据库支持模块：H2Engine、H2MetaData、H2SearchEngine（H2 2.x 无内置 FTS，检索门面降级为普通索引 + LIKE 关键字查询）</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>

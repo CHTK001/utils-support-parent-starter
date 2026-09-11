@@ -148,13 +148,15 @@ public class H2CleanupPlugin {
 
     /**
      * 获取所有用户表名（排除系统表）。
+     * <p>H2 2.x 中用户表的 TABLE_TYPE 为 'BASE TABLE'（SQL 标准值）。</p>
      */
     private List<String> getUserTableNames(Connection conn) throws SQLException {
         List<String> tables = new ArrayList<>();
         String excludePattern = "(?i)(information_schema|system_|INFORMATION_SCHEMA|flyway_schema_history|schema_)";
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
-                     "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'TABLE'")) {
+                     "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES "
+                             + "WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = 'PUBLIC'")) {
             while (rs.next()) {
                 String name = rs.getString("TABLE_NAME");
                 if (!name.matches(excludePattern) && !name.equalsIgnoreCase(HISTORY_TABLE)) {

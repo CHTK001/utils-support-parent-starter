@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.weka.data;
 
 import com.chua.deeplearning.support.weka.WekaException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,9 +20,15 @@ import java.util.Objects;
  * @since 4.0.0.42
  */
 public record ModelDomain(List<FeatureColumn> features, String targetName, boolean regression,
-        Map<String, List<String>> nominalValues) {
+        Map<String, List<String>> nominalValues) implements Serializable {
 
-    ModelDomain {
+    /** 序列化版本号（P3C 规约：Serializable 必须声明） */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 紧凑构造器：校验非空并固化不可变拷贝。
+     */
+    public ModelDomain {
         Objects.requireNonNull(features, "features must not be null");
         Objects.requireNonNull(targetName, "targetName must not be null");
         Objects.requireNonNull(nominalValues, "nominalValues must not be null");
