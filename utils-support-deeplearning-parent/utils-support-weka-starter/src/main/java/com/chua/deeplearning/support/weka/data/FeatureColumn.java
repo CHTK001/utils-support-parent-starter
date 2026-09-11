@@ -1,6 +1,8 @@
 package com.chua.deeplearning.support.weka.data;
 
 import java.io.Serializable;
+import java.util.Objects;
+import lombok.Getter;
 
 /**
  * 特征列定义。
@@ -11,6 +13,7 @@ import java.io.Serializable;
  * @author CH
  * @since 4.0.0.42
  */
+@Getter
 public final class FeatureColumn implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,9 +40,11 @@ public final class FeatureColumn implements Serializable {
     private final String description;
 
     private FeatureColumn(String name, FeatureType type, String description) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("特征列名不能为空");
+        Objects.requireNonNull(name, "name must not be null");
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("特征列名不能为空白");
         }
+        Objects.requireNonNull(type, "type must not be null");
         this.name = name;
         this.type = type;
         this.description = description == null ? "" : description;
@@ -92,20 +97,6 @@ public final class FeatureColumn implements Serializable {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * @return 特征类型
-     */
-    public FeatureType getType() {
-        return type;
-    }
-
-    /**
-     * @return 列描述
-     */
-    public String getDescription() {
-        return description;
     }
 
     @Override

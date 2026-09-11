@@ -1,9 +1,11 @@
 package com.chua.deeplearning.support.weka.rf;
 
 import com.chua.deeplearning.support.weka.WekaException;
+import com.chua.deeplearning.support.weka.data.ModelDomain;
 import com.chua.deeplearning.support.weka.data.WekaInstanceData;
 import com.chua.deeplearning.support.weka.result.FeatureImportance;
 import java.util.List;
+import java.util.Objects;
 import weka.core.Instances;
 
 /**
@@ -19,13 +21,14 @@ import weka.core.Instances;
  * List<FeatureImportance> importance =
  *         new WekaRandomForestFeatureImportance().analyze(data, RandomForestOptions.defaults());
  * for (FeatureImportance item : importance) {
- *     System.out.println(item.getFeature() + "=" + item.getNormalizedImportance()
- *             + " (rank " + item.getRank() + ")");
+ *     System.out.println(item.feature() + "=" + item.normalizedImportance()
+ *             + " (rank " + item.rank() + ")");
  * }
  * // 保留前 N 个特征即为特征筛选：
- * List<String> topFeatures = importance.stream().limit(5).map(FeatureImportance::getFeature).toList();
+ * List<String> topFeatures = importance.stream().limit(5).map(FeatureImportance::feature).toList();
  * }</pre>
  *
+ * @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
  * @author CH
  * @since 4.0.0.42
  */
@@ -40,15 +43,14 @@ public class WekaRandomForestFeatureImportance {
      * @throws WekaException 数据缺少标签 / 目标列或训练失败
      */
     public List<FeatureImportance> analyze(WekaInstanceData data, RandomForestOptions options) {
+        Objects.requireNonNull(data, "data must not be null");
         if (!data.hasTargetOrLabel()) {
             throw new WekaException("特征重要性分析需要标签列或目标列");
         }
-        boolean regression = data.hasTarget();
-        RandomForestModel model = RandomForestModel.create(
-                options == null ? RandomForestOptions.defaults() : options,
-                regression, data.getFeatures(), data.targetName(), data.nominalValues());
-        Instances ins = data.toWekaInstances();
-        model.train(ins);
-        return model.featureImportances(ins);
+        var model = RandomForestModel.create(options == null ? RandomForestOptions.defaults() : options,
+                ModelDomain.of(data));
+        var instances = data.toWekaInstances();
+        model.train(instances);
+        return model.featureImportances(instances);
     }
 }
