@@ -393,8 +393,9 @@ public interface Value<T> extends Serializable {
      * @param consumer 消费行为
      */
     default void ifPresent(Consumer<? super T> consumer) {
-        if (getValue() != null) {
-            consumer.accept(getValue());
+        T value = getValue();
+        if (value != null && consumer != null) {
+            consumer.accept(value);
         }
     }
 
@@ -407,7 +408,10 @@ public interface Value<T> extends Serializable {
     @SuppressWarnings({"all", "unchecked"})
     default Value<T> filter(Predicate<? super T> predicate) {
         T value = getValue();
-        if (value != null && predicate.test(value)) {
+        if (value == null) {
+            return (Value<T>) NullValue.INSTANCE;
+        }
+        if (predicate == null || predicate.test(value)) {
             return this;
         }
         return (Value<T>) NullValue.INSTANCE;
@@ -439,7 +443,7 @@ public interface Value<T> extends Serializable {
      */
     default Value<T> peek(Consumer<? super T> action) {
         T value = getValue();
-        if (value != null) {
+        if (value != null && action != null) {
             action.accept(value);
         }
         return this;
