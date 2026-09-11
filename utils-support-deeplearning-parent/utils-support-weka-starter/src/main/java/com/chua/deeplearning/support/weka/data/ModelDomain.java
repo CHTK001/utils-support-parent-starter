@@ -21,7 +21,7 @@ import java.util.Objects;
 public record ModelDomain(List<FeatureColumn> features, String targetName, boolean regression,
         Map<String, List<String>> nominalValues) {
 
-    private ModelDomain {
+    ModelDomain {
         Objects.requireNonNull(features, "features must not be null");
         Objects.requireNonNull(targetName, "targetName must not be null");
         Objects.requireNonNull(nominalValues, "nominalValues must not be null");
