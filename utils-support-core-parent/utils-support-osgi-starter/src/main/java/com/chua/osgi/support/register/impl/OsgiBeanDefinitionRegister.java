@@ -106,7 +106,13 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
             if (parts.length < 2) {
                 return null;
             }
+            // 兼容两种格式：
+            // 1. "prefix:full.qualified.ClassName" — parts[1] 是类名（标准查询）
+            // 2. "full.qualified.ClassName:identityHashCode" — parts[0] 是类名（getBeanDefinitionOfType 生成格式）
             Class<?> type = ReflectUtils.forName(parts[1]);
+            if (type == null) {
+                type = ReflectUtils.forName(parts[0]);
+            }
             if (type == null) {
                 return null;
             }
