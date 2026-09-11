@@ -20,10 +20,7 @@ import weka.core.Instances;
  * WekaInstanceData data = WekaInstanceData.classification(features, "label", rows);
  * List<FeatureImportance> importance =
  *         new WekaRandomForestFeatureImportance().analyze(data, RandomForestOptions.defaults());
- * for (FeatureImportance item : importance) {
- *     System.out.println(item.feature() + "=" + item.normalizedImportance()
- *             + " (rank " + item.rank() + ")");
- * }
+ * importance.forEach(item -> log.info("特征重要性 {}", item));
  * // 保留前 N 个特征即为特征筛选：
  * List<String> topFeatures = importance.stream().limit(5).map(FeatureImportance::feature).toList();
  * }</pre>
