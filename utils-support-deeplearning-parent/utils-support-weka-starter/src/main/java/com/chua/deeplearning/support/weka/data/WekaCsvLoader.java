@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * CSV 文件 -> {@link WekaInstanceData} 加载器。
@@ -56,6 +57,7 @@ public final class WekaCsvLoader {
      * @throws WekaException 文件读取失败或数据行为空
      */
     public static WekaInstanceData load(Path csvFile, boolean hasHeader) {
+        Objects.requireNonNull(csvFile, "csvFile must not be null");
         List<String> lines;
         try {
             lines = Files.readAllLines(csvFile, StandardCharsets.UTF_8);
@@ -66,39 +68,39 @@ public final class WekaCsvLoader {
         if (start >= lines.size() || lines.subList(start, lines.size()).stream().allMatch(String::isBlank)) {
             throw new WekaException("CSV 无数据行: " + csvFile);
         }
-        List<List<String>> cellRows = new ArrayList<>();
+        var cellRows = new ArrayList<List<String>>(lines.size() - start);
         for (int i = start; i < lines.size(); i++) {
             if (!lines.get(i).isBlank()) {
                 cellRows.add(splitLine(lines.get(i)));
             }
         }
         int numCols = cellRows.get(0).size();
-        List<String> names = new ArrayList<>(numCols);
+        var names = new ArrayList<String>(numCols);
         if (hasHeader) {
-            List<String> header = splitLine(lines.get(0));
+            var header = splitLine(stripBom(lines.get(0)));
             for (int i = 0; i < numCols; i++) {
-                String name = i < header.size() ? header.get(i) : "col_" + i;
-                names.add(stripBom(name).trim());
+                var name = i < header.size() ? header.get(i) : "col_" + i;
+                names.add(name.trim());
             }
         } else {
             for (int i = 0; i < numCols; i++) {
                 names.add("col_" + i);
             }
         }
-        List<Map<String, Object>> rows = new ArrayList<>(cellRows.size());
-        for (List<String> cells : cellRows) {
-            Map<String, Object> row = new LinkedHashMap<>();
+        var rows = new ArrayList<Map<String, Object>>(cellRows.size());
+        for (var cells : cellRows) {
+            var row = new LinkedHashMap<String, Object>(numCols);
             for (int c = 0; c < numCols; c++) {
-                String cell = c < cells.size() ? cells.get(c).trim() : "";
+                var cell = c < cells.size() ? cells.get(c).trim() : "";
                 row.put(names.get(c), cell.isEmpty() ? null : cell);
             }
             rows.add(row);
         }
-        List<FeatureColumn> features = new ArrayList<>(numCols);
+        var features = new ArrayList<FeatureColumn>(numCols);
         for (int c = 0; c < numCols; c++) {
-            boolean numeric = true;
-            for (Map<String, Object> row : rows) {
-                Object value = row.get(names.get(c));
+            var numeric = true;
+            for (var row : rows) {
+                var value = row.get(names.get(c));
                 if (value != null) {
                     try {
                         Double.parseDouble((String) value);
