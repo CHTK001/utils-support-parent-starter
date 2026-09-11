@@ -158,21 +158,27 @@ public final class WekaInstanceData {
     }
 
     /**
-     * @return 是否设置了目标列
+     * 判断当前数据是否为回归场景（是否已设置目标列）。
+     *
+     * @return true 表示已设置目标列
      */
     public boolean hasTarget() {
         return targetColumn != null;
     }
 
     /**
-     * @return 是否具备目标列或标签列
+     * 判断当前数据是否具备标签列或目标列（两者满足其一即可转换 Weka 实例）。
+     *
+     * @return true 表示已设置标签列或目标列
      */
     public boolean hasTargetOrLabel() {
         return hasLabel() || hasTarget();
     }
 
     /**
-     * @return 目标列名（优先目标列，其次标签列）
+     * 获取目标列名（回归目标列优先，其次分类标签列）。
+     *
+     * @return 目标列名；标签列与目标列均未设置时返回 null
      */
     public String targetName() {
         return targetColumn != null ? targetColumn : labelColumn;
