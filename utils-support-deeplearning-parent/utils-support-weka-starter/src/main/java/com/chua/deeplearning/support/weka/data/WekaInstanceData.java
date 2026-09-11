@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import lombok.Getter;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
@@ -44,6 +46,7 @@ import weka.core.Instances;
  * @author CH
  * @since 4.0.0.42
  */
+@Getter
 public final class WekaInstanceData {
 
     /** 缺失值标记（Weka 3.8 以 NaN 表示缺失） */
