@@ -6,9 +6,13 @@ import com.chua.git.support.listener.GitFileListener;
 import com.chua.git.support.listener.GitProgressListener;
 import com.chua.git.support.operation.BranchOperation;
 import com.chua.git.support.operation.CloneOperation;
+import com.chua.git.support.operation.CommitOperation;
 import com.chua.git.support.operation.DeployOperation;
 import com.chua.git.support.operation.FetchOperation;
+import com.chua.git.support.operation.LogOperation;
 import com.chua.git.support.operation.PushOperation;
+import com.chua.git.support.operation.StatusOperation;
+import com.chua.git.support.operation.TagOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullCommand;
@@ -28,7 +32,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * Git 客户端，基于 Eclipse JGit 7.x 提供链式操作 API。
  *
  * <p>该类是唯一对外入口，内部封装了 JGit 的 {@link Git} 和 {@link Repository} 对象，
- * 通过"操作子类模式"将 clone、pull、push、branch 等具体动作委托给独立的 Operation 类。</p>
+ * 通过"操作子类模式"将 clone、pull、push、branch、log、status、commit、tag、deploy 等
+ * 具体动作委托给独立的 Operation 类。</p>
  *
  * <h3>设计原则</h3>
  * <ol>
@@ -59,7 +64,19 @@ import java.util.concurrent.locks.ReentrantLock;
  * // 5. 分支信息
  * List<BranchInfo> branches = client.branch().listAll();
  *
- * // 6. 关闭
+ * // 6. 提交日志
+ * List<LogEntry> log = client.log().list(10);
+ *
+ * // 7. 工作区状态
+ * StatusResult status = client.status().execute();
+ *
+ * // 8. 提交
+ * client.commit().addAll().commit("feat: 新功能");
+ *
+ * // 9. 标签
+ * List<TagInfo> tags = client.tag().list();
+ *
+ * // 10. 关闭
  * client.close();
  * }</pre>
  *
@@ -315,6 +332,62 @@ public class GitClient implements AutoCloseable {
      */
     public DeployOperation deploy() {
         return new DeployOperation(this);
+    }
+
+    /**
+     * 准备提交日志查询操作（git log）。
+     *
+     * <pre>{@code
+     * List<LogEntry> log = client.log().list(10);
+     * }</pre>
+     *
+     * @return LogOperation 链式构建器
+     */
+    public LogOperation log() {
+        return new LogOperation(this);
+    }
+
+    /**
+     * 准备工作区状态查询操作（git status）。
+     *
+     * <pre>{@code
+     * StatusResult status = client.status().execute();
+     * boolean clean = status.isClean();
+     * }</pre>
+     *
+     * @return StatusOperation 链式构建器
+     */
+    public StatusOperation status() {
+        return new StatusOperation(this);
+    }
+
+    /**
+     * 准备暂存与提交操作（git add / git commit）。
+     *
+     * <pre>{@code
+     * client.commit().addAll().commit("feat: 新增功能");
+     * client.commit().add("src/").commit("fix: 修复 bug");
+     * }</pre>
+     *
+     * @return CommitOperation 链式构建器
+     */
+    public CommitOperation commit() {
+        return new CommitOperation(this);
+    }
+
+    /**
+     * 准备标签操作（git tag）。
+     *
+     * <pre>{@code
+     * List<TagInfo> tags = client.tag().list();
+     * client.tag().create("v1.0", "发布 1.0");
+     * client.tag().delete("v0.9");
+     * }</pre>
+     *
+     * @return TagOperation 链式构建器
+     */
+    public TagOperation tag() {
+        return new TagOperation(this);
     }
 
     // ==================== 核心操作 ====================
