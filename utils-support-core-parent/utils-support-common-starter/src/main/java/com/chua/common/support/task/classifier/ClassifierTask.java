@@ -1,0 +1,96 @@
+package com.chua.common.support.task.classifier;
+
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 分类建模任务接口（SPI）。
+ *
+ * <p>定义「输入行数据 -> 输出预测 / 评估结果」的分类建模契约，
+ * 调用方依赖本接口即可解耦具体算法实现（Weka 随机森林等模块提供实现）。
+ * 行数据以「列名 -> 值」传递，特征列类型由实现从数据自动推断
+ * （非空值均可解析为数值时为数值列，否则为类别列）。</p>
+ *
+ * <p>使用流程：
+ * <ol>
+ *   <li>准备样本行：每行一个对象（Map），值可为 Number / String / null（缺失）</li>
+ *   <li>{@link #train(String, List)} 训练，得到 {@link Model}</li>
+ *   <li>{@link Model#predict(Map)} 预测新数据行</li>
+ *   <li>{@link Model#evaluate(List)} 交叉验证评估</li>
+ * </ol>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+public interface ClassifierTask {
+
+    /**
+     * 训练分类模型。
+     *
+     * @param labelColumn 标签列名（行数据中的答案列，名义值）
+     * @param samples     样本行（列名 -> 值），至少 2 行且标签需有多个不同取值
+     * @return 训练好的模型
+     */
+    Model train(String labelColumn, List<Map<String, Object>> samples);
+
+    /**
+     * 训练好的分类模型。
+     */
+    interface Model extends Serializable {
+
+        /**
+         * 预测单行数据。
+         *
+         * @param row 预测数据行（列名 -> 值，可缺省标签列）
+         * @return 预测结果
+         */
+        Result predict(Map<String, Object> row);
+
+        /**
+         * 批量预测。
+         *
+         * @param rows 预测数据行
+         * @return 预测结果列表（与输入顺序一致）
+         */
+        List<Result> predictBatch(List<Map<String, Object>> rows);
+
+        /**
+         * 评估模型（K 折交叉验证，数据须包含标签列）。
+         *
+         * @param samples 评估数据行
+         * @return 评估报告
+         */
+        Report evaluate(List<Map<String, Object>> samples);
+
+        /**
+         * 保存模型到磁盘。
+         *
+         * @param file 目标文件
+         */
+        void save(Path file);
+    }
+
+    /**
+     * 分类预测结果。
+     *
+     * @param label         预测标签
+     * @param confidence    预测置信度（0.0 ~ 1.0）
+     * @param probabilities 各类别概率分布（可能为空 Map）
+     */
+    record Result(String label, double confidence, Map<String, Double> probabilities) {
+    }
+
+    /**
+     * 模型评估报告。
+     *
+     * @param numInstances 数据实例总数
+     * @param numFolds     交叉验证折数
+     * @param accuracyPct  准确率（%）
+     * @param kappa        Kappa 一致性系数
+     */
+    record Report(int numInstances, int numFolds, double accuracyPct, double kappa) {
+    }
+}
