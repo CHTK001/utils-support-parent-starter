@@ -91,6 +91,26 @@ public @interface RemoteService {
     String protocol() default "http";
 
     /**
+     * RpcClient SPI 协议名（仅当 {@link #protocol()} 为 {@code "rpc"} 时生效）。
+     *
+     * <p>指定 {@code RpcClient.createClient()} 使用的具体协议实现，可选值：
+     * {@code json}（JSON-RPC）、{@code dubbo}、{@code sofa}、{@code zmq}、{@code native} 等。
+     * 未配置时默认 {@code json}，与既有 {@code RpcInvoker} 行为一致。</p>
+     *
+     * <p><b>使用示例：</b></p>
+     * <pre>{@code
+     * // 通过 ZMQ RPC 调用
+     * \@RemoteService(url = "tcp://127.0.0.1:5555", protocol = "rpc", client = "zmq")
+     * public interface ZmqApi {
+     *     String echo(String message);
+     * }
+     * }</pre>
+     *
+     * @return RPC 客户端协议名
+     */
+    String client() default "";
+
+    /**
      * 负载均衡策略 SPI 名称。
      *
      * <p>复用 {@code com.chua.common.support.lang.balance.LoadBalance} SPI 机制：</p>
