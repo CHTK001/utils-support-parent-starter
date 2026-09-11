@@ -31,9 +31,13 @@ public interface ClassifierTask {
     /**
      * 训练分类模型。
      *
+     * <p>实现须校验：{@code labelColumn} 非 null 非空白、{@code samples} 非 null 且至少 2 行；
+     * 校验失败或训练失败时抛出实现对应的运行时异常。</p>
+     *
      * @param labelColumn 标签列名（行数据中的答案列，名义值）
      * @param samples     样本行（列名 -> 值），至少 2 行且标签需有多个不同取值
      * @return 训练好的模型
+     * @throws IllegalArgumentException 参数非法（标签列为空 / 样本为空）
      */
     Model train(String labelColumn, List<Map<String, Object>> samples);
 
