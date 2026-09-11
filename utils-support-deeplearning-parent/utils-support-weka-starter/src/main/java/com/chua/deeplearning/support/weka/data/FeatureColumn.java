@@ -92,13 +92,6 @@ public final class FeatureColumn implements Serializable {
         return new FeatureColumn(name, FeatureType.CATEGORICAL, description);
     }
 
-    /**
-     * @return 列名
-     */
-    public String getName() {
-        return name;
-    }
-
     @Override
     public String toString() {
         return name + "(" + type + ")";
