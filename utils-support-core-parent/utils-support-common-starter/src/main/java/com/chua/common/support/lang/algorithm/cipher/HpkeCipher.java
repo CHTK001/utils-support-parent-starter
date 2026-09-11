@@ -2,8 +2,6 @@ package com.chua.common.support.lang.algorithm.cipher;
 
 import com.chua.common.support.spi.ServiceProvider;
 
-import java.util.Objects;
-
 /**
  * HPKE（Hybrid Public Key Encryption，RFC 9180）混合公钥加密 SPI 接口。
  *
@@ -14,46 +12,27 @@ import java.util.Objects;
  *
  * <p>默认实现基于 X25519 + HKDF-SHA256 + AES-256-GCM（RFC 9180 base 模式，无 PSK）。
  *
- * <h2>两种使用方式</h2>
- * <ul>
- *   <li><b>原语</b>：直接调用 {@link #generateKeyPair()}/{@link #encap}/{@link #recoverKey}/{@link #seal}/{@link #open}</li>
- *   <li><b>门面链式调用</b>：通过 {@link #sender()}/{@link #receiver()} 构建器把「封装 + 加密」「开包 + 解密」
- *       串成一条链，一行完成，见下方示例</li>
- * </ul>
+ * <h2>原语</h2>
+ * 本接口提供 RFC 9180 base 模式的五个原语：{@link #generateKeyPair}、{@link #encap}、
+ * {@link #recoverKey}、{@link #seal}、{@link #open}。
  *
- * <h2>使用示例</h2>
+ * <h2>门面链式调用</h2>
+ * 需要把「封装 + 加密」「开包 + 解密」串成一条链时，请使用 {@link HpkeFlow} 门面：
  * <pre>{@code
- * HpkeCipher hpke = HpkeCipher.create("bc");
+ * byte[][] keys = HpkeFlow.of().keys();
  *
- * // 接收方：生成密钥对
- * byte[][] keys = hpke.generateKeyPair();
- * byte[] receiverPub = keys[0];
- * byte[] receiverPriv = keys[1];
- *
- * // ===== 门面链式调用（发送方）=====
- * // 封装 + AEAD 加密，一步完成；enc 需随密文一起发给接收方
- * byte[] aad = "order-1024".getBytes(StandardCharsets.UTF_8);
- * byte[] plain = "机密数据".getBytes(StandardCharsets.UTF_8);
- * HpkeCipher.SealedMessage msg = hpke.sender()
- *         .receiverPk(receiverPub)      // 接收方公钥
- *         .ikm(null)                    // 可选输入密钥材料
- *         .aad(aad)                     // 可选附加认证数据
- *         .seal(plain);
- *
- * // ===== 门面链式调用（接收方）=====
- * byte[] decrypted = hpke.receiver()
- *         .secretKey(receiverPriv)      // 接收方私钥
- *         .enc(msg.enc())               // 发送方封装密钥
- *         .ikm(null)
- *         .aad(aad)
- *         .open(msg.ciphertext());
+ * HpkeFlow.SealedMessage msg = HpkeFlow.of()
+ *         .receiverPk(keys[0]).aad(aad).seal(plain);      // 发送方
+ * byte[] out = HpkeFlow.of()
+ *         .secretKey(keys[1]).enc(msg.enc()).aad(aad).open(msg.ciphertext()); // 接收方
  * }</pre>
  *
- * <p>说明：{@code ikm}（输入密钥材料，如共享口令）与 {@code aad}（附加认证数据）均可为空
- * （空数组），发送方与接收方必须使用完全相同的 {@code ikm} 与 {@code aad} 才能成功解密。</p>
+ * <p>说明：{@code ikm}（输入密钥材料，如共享口令）与 {@code aad}（附加认证数据）均可为 null，
+ * 发送方与接收方必须使用完全相同的 {@code ikm} 与 {@code aad} 才能成功解密。</p>
  *
  * @author CH
  * @since 4.0.0.42
+ * @see HpkeFlow
  * @see EciesCipher
  * @see RsaCipher
  * @see Cipher
@@ -65,7 +44,7 @@ public interface HpkeCipher extends Cipher {
      * 创建指定提供者的 HPKE 加解密实例。
      *
      * <p>通过 SPI 机制根据提供者名称加载对应的 HPKE 实现。
-     * 当前内置基于 hpke-jdk 的实现，提供者名称为 "bc"。</p>
+     * 当前内置基于 BouncyCastle 原语的实现，提供者名称为 "bc"。</p>
      *
      * @param provider 提供者名称，如 "bc"
      * @return HpkeCipher 实例
@@ -128,221 +107,4 @@ public interface HpkeCipher extends Cipher {
      * @return 解密后的明文
      */
     byte[] open(byte[] ek, byte[] aad, byte[] ciphertext);
-
-    // ==================== 门面链式调用 ====================
-
-    /**
-     * 进入发送方链式门面：封装 + 加密。
-     *
-     * @return 发送方构建器
-     */
-    default Sender sender() {
-        return new Sender(this);
-    }
-
-    /**
-     * 进入接收方链式门面：开包 + 解密。
-     *
-     * @return 接收方构建器
-     */
-    default Receiver receiver() {
-        return new Receiver(this);
-    }
-
-    /**
-     * 发送方链式构建器，把 {@link #encap} 与 {@link #seal} 串联为一条链。
-     *
-     * <pre>{@code
-     * HpkeCipher.SealedMessage msg = hpke.sender()
-     *         .receiverPk(receiverPub)
-     *         .aad(aad)
-     *         .seal(plaintext);
-     * }</pre>
-     */
-    final class Sender {
-
-        /** HPKE 原语实例 */
-        private final HpkeCipher hpke;
-        /** 接收方公钥 */
-        private byte[] receiverPublicKey;
-        /** 可选输入密钥材料 */
-        private byte[] ikm;
-        /** 可选附加认证数据 */
-        private byte[] aad;
-
-        /** 构造函数 */
-        Sender(HpkeCipher hpke) {
-            this.hpke = hpke;
-        }
-
-        /**
-         * 设置接收方公钥。
-         *
-         * @param receiverPublicKey 接收方公钥（32 字节）
-         * @return 当前构建器（链式调用）
-         */
-        public Sender receiverPk(byte[] receiverPublicKey) {
-            this.receiverPublicKey = receiverPublicKey;
-            return this;
-        }
-
-        /**
-         * 设置可选输入密钥材料。
-         *
-         * @param ikm 输入密钥材料，可为 null
-         * @return 当前构建器（链式调用）
-         */
-        public Sender ikm(byte[] ikm) {
-            this.ikm = ikm;
-            return this;
-        }
-
-        /**
-         * 设置可选附加认证数据。
-         *
-         * @param aad 附加认证数据，可为 null
-         * @return 当前构建器（链式调用）
-         */
-        public Sender aad(byte[] aad) {
-            this.aad = aad;
-            return this;
-        }
-
-        /**
-         * 执行封装 + 加密，一步完成。
-         *
-         * @param plaintext 待加密明文
-         * @return 含封装密钥与密文的消息体
-         * @throws NullPointerException 未通过 {@link #receiverPk} 设置接收方公钥时
-         */
-        public SealedMessage seal(byte[] plaintext) {
-            Objects.requireNonNull(receiverPublicKey, "receiverPk 未设置");
-            byte[][] result = hpke.encap(receiverPublicKey, ikm);
-            byte[] ek = hpke.seal(result[1], aad, plaintext);
-            return new SealedMessage(result[0], ek);
-        }
-    }
-
-    /**
-     * 接收方链式构建器，把 {@link #recoverKey} 与 {@link #open} 串联为一条链。
-     *
-     * <pre>{@code
-     * byte[] plain = hpke.receiver()
-     *         .secretKey(receiverPriv)
-     *         .enc(msg.enc())
-     *         .aad(aad)
-     *         .open(msg.ciphertext());
-     * }</pre>
-     */
-    final class Receiver {
-
-        /** HPKE 原语实例 */
-        private final HpkeCipher hpke;
-        /** 接收方私钥 */
-        private byte[] secretKey;
-        /** 发送方的封装密钥 */
-        private byte[] enc;
-        /** 可选输入密钥材料 */
-        private byte[] ikm;
-        /** 可选附加认证数据 */
-        private byte[] aad;
-
-        /** 构造函数 */
-        Receiver(HpkeCipher hpke) {
-            this.hpke = hpke;
-        }
-
-        /**
-         * 设置接收方私钥。
-         *
-         * @param secretKey 接收方私钥（32 字节）
-         * @return 当前构建器（链式调用）
-         */
-        public Receiver secretKey(byte[] secretKey) {
-            this.secretKey = secretKey;
-            return this;
-        }
-
-        /**
-         * 设置发送方的封装密钥。
-         *
-         * @param enc 发送方封装密钥，见 {@link SealedMessage#enc()}
-         * @return 当前构建器（链式调用）
-         */
-        public Receiver enc(byte[] enc) {
-            this.enc = enc;
-            return this;
-        }
-
-        /**
-         * 设置可选输入密钥材料（须与发送方一致）。
-         *
-         * @param ikm 输入密钥材料，可为 null
-         * @return 当前构建器（链式调用）
-         */
-        public Receiver ikm(byte[] ikm) {
-            this.ikm = ikm;
-            return this;
-        }
-
-        /**
-         * 设置可选附加认证数据（须与发送方一致）。
-         *
-         * @param aad 附加认证数据，可为 null
-         * @return 当前构建器（链式调用）
-         */
-        public Receiver aad(byte[] aad) {
-            this.aad = aad;
-            return this;
-        }
-
-        /**
-         * 执行开包 + 解密，一步完成。
-         *
-         * @param ciphertext 待解密密文（含 16 字节认证标签）
-         * @return 解密后的明文
-         * @throws NullPointerException 未通过 {@link #secretKey} 或 {@link #enc} 设置时
-         */
-        public byte[] open(byte[] ciphertext) {
-            Objects.requireNonNull(secretKey, "secretKey 未设置");
-            Objects.requireNonNull(enc, "enc 未设置");
-            byte[] ek = hpke.recoverKey(secretKey, enc, ikm);
-            return hpke.open(ek, aad, ciphertext);
-        }
-    }
-
-    /**
-     * 发送方产出物：封装密钥（需随密文传输）与 AEAD 密文。
-     */
-    final class SealedMessage {
-
-        /** 封装密钥，须随密文发给接收方 */
-        private final byte[] enc;
-        /** AEAD 密文（含 16 字节认证标签） */
-        private final byte[] ciphertext;
-
-        /** 构造函数 */
-        SealedMessage(byte[] enc, byte[] ciphertext) {
-            this.enc = enc;
-            this.ciphertext = ciphertext;
-        }
-
-        /**
-         * 获取封装密钥（发送给接收方）。
-         *
-         * @return 封装密钥
-         */
-        public byte[] enc() {
-            return enc;
-        }
-
-        /**
-         * 获取 AEAD 密文。
-         *
-         * @return 密文（含 16 字节认证标签）
-         */
-        public byte[] ciphertext() {
-            return ciphertext;
-        }
-    }
 }

@@ -18,6 +18,36 @@ import weka.core.Instance;
  *
  * <p>输入：带标签数据（{@link WekaInstanceData#classification}），输出：模型、分类预测结果、评估报告。</p>
  *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * // 1. 构建训练数据：特征列 + 行数据（列名 -> 值）+ 标签列
+ * List<FeatureColumn> features = List.of(
+ *         FeatureColumn.numeric("age"),
+ *         FeatureColumn.categorical("city"));
+ * List<Map<String, Object>> rows = List.of(
+ *         Map.of("age", 35, "city", "北京", "label", "high"),
+ *         Map.of("age", 22, "city", "上海", "label", "low"));
+ * WekaInstanceData data = WekaInstanceData.classification(features, "label", rows);
+ *
+ * // 2. 训练（options 可传 null 使用默认参数）
+ * WekaRandomForestClassifier classifier = new WekaRandomForestClassifier();
+ * RandomForestModel model = classifier.train(data, RandomForestOptions.defaults());
+ *
+ * // 3. 单条 / 批量预测
+ * ClassificationResult one = classifier.predict(model, Map.of("age", 41, "city", "广州"));
+ * one.getLabel();            // 预测标签
+ * one.getProbabilities();   // 各类别概率
+ *
+ * // 4. 评估（K 折交叉验证，默认 10 折）
+ * EvaluationReport report = classifier.evaluate(model, data);
+ * report.getAccuracyPct();   // 准确率（%）
+ * report.getKappa();        // Kappa 一致性
+ *
+ * // 5. 模型落盘 / 恢复
+ * model.save(Path.of("rf-model.ser"));
+ * RandomForestModel loaded = RandomForestModel.load(Path.of("rf-model.ser"));
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */

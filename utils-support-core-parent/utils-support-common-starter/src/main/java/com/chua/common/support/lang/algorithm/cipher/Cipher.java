@@ -7,7 +7,7 @@ package com.chua.common.support.lang.algorithm.cipher;
  * <p>所有加解密算法的顶层标记接口，定义了密码算法的统一抽象类型。
  * 具体算法实现通过 SPI 机制加载，支持非对称加密（如 SM2）和对称加密（如 SM4）两大类算法。
  *
- * <p>需要统一获取各算法实现并链式调用时，请使用 {@link CipherFactory}（统一工厂门面）。
+ * <p>需要统一获取各算法实现并链式调用时，请使用 {@link CipherFlow}（统一门面）。
  *
  * <h2>子接口</h2>
  * <ul>
@@ -19,7 +19,7 @@ package com.chua.common.support.lang.algorithm.cipher;
  *
  * @author CH
  * @since 2026/07/16
- * @see CipherFactory
+ * @see CipherFlow
  */
 public interface Cipher {
 }

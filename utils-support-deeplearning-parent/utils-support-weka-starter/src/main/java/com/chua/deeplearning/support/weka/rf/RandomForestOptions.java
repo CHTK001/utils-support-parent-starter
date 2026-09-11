@@ -15,6 +15,16 @@ import lombok.Setter;
  *   <li>{@code maxDepth} -&gt; 最大树深（0 = 不限制）</li>
  * </ul>
  *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * RandomForestOptions options = RandomForestOptions.defaults();
+ * options.setNumTrees(100);        // 更多树通常更稳
+ * options.setNumFeatures(5);       // 每棵树只看 5 个候选特征
+ * options.setMaxDepth(20);
+ * options.setSeed(42);             // 固定种子保证可复现
+ * RandomForestModel model = classifier.train(data, options);
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */

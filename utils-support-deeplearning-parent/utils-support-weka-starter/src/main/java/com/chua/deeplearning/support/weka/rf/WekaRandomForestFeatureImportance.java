@@ -12,6 +12,20 @@ import weka.core.Instances;
  * <p>输入：带标签或目标的数据，输出：各特征重要性（平均不纯度下降）排名，
  * 可用于特征筛选与模型可解释性分析。</p>
  *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * // 数据需具备标签列（分类）或目标列（回归）之一
+ * WekaInstanceData data = WekaInstanceData.classification(features, "label", rows);
+ * List<FeatureImportance> importance =
+ *         new WekaRandomForestFeatureImportance().analyze(data, RandomForestOptions.defaults());
+ * for (FeatureImportance item : importance) {
+ *     System.out.println(item.getFeature() + "=" + item.getNormalizedImportance()
+ *             + " (rank " + item.getRank() + ")");
+ * }
+ * // 保留前 N 个特征即为特征筛选：
+ * List<String> topFeatures = importance.stream().limit(5).map(FeatureImportance::getFeature).toList();
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */

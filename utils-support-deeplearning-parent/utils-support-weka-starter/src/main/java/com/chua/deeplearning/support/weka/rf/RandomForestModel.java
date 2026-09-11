@@ -27,6 +27,16 @@ import weka.core.Instance;
  * <p>持有训练好的分类器与训练参数、特征快照、名义取值快照，
  * 支持 JDK 序列化落盘 / 恢复，以及单条、批量预测与特征重要性分析。</p>
  *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * RandomForestModel model = new WekaRandomForestClassifier().train(data, RandomForestOptions.defaults());
+ * model.predictRaw(instance);          // 底层原始预测（分类=标签索引 / 回归=数值）
+ * model.predictDistribution(instance); // 类别概率分布（回归为 null）
+ * model.featureImportances(trainIns);  // 特征重要性排名
+ * model.save(Path.of("model.ser"));   // 序列化保存
+ * RandomForestModel loaded = RandomForestModel.load(Path.of("model.ser"));
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */

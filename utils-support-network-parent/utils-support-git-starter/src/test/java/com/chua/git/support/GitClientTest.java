@@ -105,18 +105,16 @@ public class GitClientTest {
         List<LogEntry> last2 = client.log().list(2);
         assertOk("log 最近2条", last2.size() == 2);
 
-        // 用实际 SHA 测试区间：验证不抛异常即可
+        // 用实际 SHA 测试区间
         String newerSha = all.get(1).sha();
         String olderSha = all.get(all.size() - 1).sha();
-        System.out.println("  区间调试: newer=" + newerSha.substring(0,7) + " older=" + olderSha.substring(0,7));
         List<LogEntry> between;
         try {
             between = client.log().listBetween(newerSha, olderSha);
-            System.out.println("  between.size=" + between.size());
-            assertOk("log 区间", between != null);
+            assertOk("log 区间", between != null && !between.isEmpty());
         } catch (Exception e) {
-            System.out.println("  between 异常: " + e.getMessage());
             assertOk("log 区间", false);
+            between = List.of();
         }
         System.out.println("  区间日志条数: " + between.size());
 
@@ -129,10 +127,6 @@ public class GitClientTest {
         client.commit().addAll().commit("chore: 清理未跟踪文件");
 
         StatusResult clean = client.status().execute();
-        System.out.println("  status: clean=" + clean.isClean()
-                + ", untracked=" + clean.untracked()
-                + ", idx=" + clean.indexToWorkTree()
-                + ", wt=" + clean.workTreeToIndex());
         assertOk("status 干净", clean.isClean());
 
         Path untracked = dir.resolve("untracked.txt");
