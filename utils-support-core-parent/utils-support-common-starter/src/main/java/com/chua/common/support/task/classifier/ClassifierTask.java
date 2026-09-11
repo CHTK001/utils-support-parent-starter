@@ -21,7 +21,6 @@ import java.util.Map;
  *   <li>{@link Model#predict(Map)} 预测新数据行</li>
  *   <li>{@link Model#evaluate(List)} 交叉验证评估</li>
  * </ol>
- * </p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -43,22 +42,27 @@ public interface ClassifierTask {
 
     /**
      * 训练好的分类模型。
+     *
+     * <p>模型由 {@link #train} 产出，可预测、评估、保存；
+     * 实现类须声明 {@code serialVersionUID} 支持落盘序列化。</p>
      */
     interface Model extends Serializable {
 
         /**
          * 预测单行数据。
          *
-         * @param row 预测数据行（列名 -> 值，可缺省标签列）
-         * @return 预测结果
+         * @param row 预测数据行（列名 -> 值，可缺省标签列），不能为 null
+         * @return 预测结果（标签 + 置信度 + 概率分布）
+         * @throws RuntimeException 实现对应的运行时异常（模型未训练或预测失败）
          */
         Result predict(Map<String, Object> row);
 
         /**
          * 批量预测。
          *
-         * @param rows 预测数据行
+         * @param rows 预测数据行（与输入顺序一致），不能为 null
          * @return 预测结果列表（与输入顺序一致）
+         * @throws RuntimeException 实现对应的运行时异常（模型未训练或预测失败）
          */
         List<Result> predictBatch(List<Map<String, Object>> rows);
 
