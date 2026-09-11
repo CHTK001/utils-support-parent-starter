@@ -6,7 +6,6 @@ import com.chua.deeplearning.support.weka.data.WekaInstanceData;
 import com.chua.deeplearning.support.weka.result.FeatureImportance;
 import java.util.List;
 import java.util.Objects;
-import weka.core.Instances;
 
 /**
  * 随机森林特征重要性场景。
