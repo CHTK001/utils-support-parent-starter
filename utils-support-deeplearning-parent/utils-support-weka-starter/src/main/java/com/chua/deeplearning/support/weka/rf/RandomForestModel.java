@@ -175,9 +175,9 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-      * 计算特征重要性（平均不纯度下降，并按排名归一化）。
-      *
-      * @param trainingData 训练实例，不能为 null
+     * 计算特征重要性（平均不纯度下降，并按排名归一化）。
+     *
+     * @param trainingData 训练实例，不能为 null
      * @return 按重要性降序排列的重要性列表
      * @throws WekaException 计算失败
      */
