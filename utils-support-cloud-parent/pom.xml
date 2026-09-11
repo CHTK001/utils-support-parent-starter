@@ -26,6 +26,8 @@
         <module>utils-support-huawei-starter</module>
         <module>utils-support-microsoft-starter</module>
         <module>utils-support-qiniu-starter</module>
+        <module>utils-support-huggingface-starter</module>
+        <module>utils-support-modelscope-starter</module>
         <module>utils-support-hunyuan-starter</module>
         <module>utils-support-tencent-starter</module>
         <module>utils-support-xunfei-starter</module>
