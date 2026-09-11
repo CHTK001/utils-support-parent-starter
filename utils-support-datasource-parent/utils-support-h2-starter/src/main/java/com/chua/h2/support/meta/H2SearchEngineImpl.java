@@ -66,7 +66,7 @@ public class H2SearchEngineImpl implements SearchEngine {
             List<SearchFieldDef> fields = new ArrayList<>();
 
             String sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.INDEX_COLUMNS "
-                       + "WHERE INDEX_NAME = '" + escape(indexName) + "'";
+                       + "WHERE UPPER(INDEX_NAME) = UPPER('" + escape(indexName) + "')";
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
@@ -158,8 +158,12 @@ public class H2SearchEngineImpl implements SearchEngine {
         return ds.getConnection();
     }
 
+    /**
+     * 标识符归一化：H2 未加引号标识符统一转为大写，
+     * 因此这里直接大写化以匹配 H2 内部存储形式，避免引号导致的大小写敏感问题。
+     */
     private static String escape(String name) {
-        if (name == null) return "\"\"";
-        return "\"" + name.replace("\"", "\"\"") + "\"";
+        if (name == null) return "";
+        return name.toUpperCase();
     }
 }

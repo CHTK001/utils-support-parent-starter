@@ -66,8 +66,15 @@ public final class WekaInstanceData {
 
     private WekaInstanceData(List<FeatureColumn> features, String labelColumn, String targetColumn,
             List<Map<String, Object>> rows) {
-        if (features == null || features.isEmpty()) {
+        Objects.requireNonNull(features, "features must not be null");
+        if (features.isEmpty()) {
             throw new WekaException("特征列不能为空");
+        }
+        if (labelColumn != null && labelColumn.isBlank()) {
+            throw new WekaException("标签列名不能为空白");
+        }
+        if (targetColumn != null && targetColumn.isBlank()) {
+            throw new WekaException("目标列名不能为空白");
         }
         this.features = List.copyOf(features);
         this.labelColumn = labelColumn;
@@ -158,34 +165,6 @@ public final class WekaInstanceData {
      */
     public String targetName() {
         return targetColumn != null ? targetColumn : labelColumn;
-    }
-
-    /**
-     * @return 特征列定义
-     */
-    public List<FeatureColumn> getFeatures() {
-        return features;
-    }
-
-    /**
-     * @return 标签列名（可能为 null）
-     */
-    public String getLabelColumn() {
-        return labelColumn;
-    }
-
-    /**
-     * @return 目标列名（可能为 null）
-     */
-    public String getTargetColumn() {
-        return targetColumn;
-    }
-
-    /**
-     * @return 行数据
-     */
-    public List<Map<String, Object>> getRows() {
-        return rows;
     }
 
     /**
