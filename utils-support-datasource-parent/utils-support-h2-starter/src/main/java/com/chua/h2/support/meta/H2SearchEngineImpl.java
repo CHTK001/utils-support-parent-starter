@@ -12,14 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * H2 搜索引擎实现，基于 H2 FULLTEXT 索引 + CATSEARCH() 函数。
+ * H2 搜索引擎实现，基于 H2 索引元数据（H2 2.x 语法）。
  * <p>
- * H2 全文检索通过以下方式实现：
- * <ul>
- *   <li>创建索引：{@code CREATE INDEX ... USING TEXT INDEX ON table(column)} 或 {@code CREATE FULLTEXT INDEX}</li>
- *   <li>全文查询：{@code SELECT * FROM table WHERE CATSEARCH(column, 'keyword', null) > 0}</li>
- * </ul>
+ * H2 2.x 已移除内置全文检索引擎（TEXT INDEX / CATSEARCH），
+ * 本实现将检索门面降级为：普通索引管理 + 关键字 LIKE 查询。
  * </p>
+ * <ul>
+ *   <li>创建索引：{@code CREATE INDEX IF NOT EXISTS}</li>
+ *   <li>列出索引：{@code INFORMATION_SCHEMA.INDEXES}</li>
+ *   <li>关键字查询：{@code WHERE col LIKE '%keyword%'}（调用方 SQL）</li>
+ * </ul>
  *
  * @author CH
  * @since 4.0.0.42
