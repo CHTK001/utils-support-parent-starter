@@ -53,10 +53,10 @@ public final class LazyValue<T> implements Value<T> {
     /**
      * 构造函数，包装一个 {@link Loader}。
      *
-     * @param loader 懒加载器，不能为 null
+     * @param loader 懒加载器，可为 null（null 表示该值恒为 null）
      */
     private LazyValue(Loader<T> loader) {
-        this.loader = Objects.requireNonNull(loader, "loader 不能为 null");
+        this.loader = loader;
     }
 
     // ==================== 工厂方法 ====================
@@ -64,10 +64,9 @@ public final class LazyValue<T> implements Value<T> {
     /**
      * 创建 LazyValue 实例（基于自定义加载器）。
      *
-     * @param loader 懒加载器，不能为 null
+     * @param loader 懒加载器，可为 null（null 表示该值恒为 null）
      * @param <T> 值类型
      * @return LazyValue 实例
-     * @throws NullPointerException loader 为 null 时
      */
     public static <T> LazyValue<T> of(Loader<T> loader) {
         return new LazyValue<>(loader);
@@ -77,15 +76,15 @@ public final class LazyValue<T> implements Value<T> {
      * 创建 LazyValue 实例（基于 {@link Supplier}）。
      *
      * <p>内部使用 {@link SingletonLoader} 将供应商包装为线程安全的单例懒加载器，
-     * 首次 {@link #getValue()} 时执行供应商，之后返回缓存结果。</p>
+     * 首次 {@link #getValue()} 时执行供应商，之后返回缓存结果。
+     * 供应商为 null 时等价于一个恒为 null 的空值。</p>
      *
-     * @param supplier 值提供者，不能为 null
+     * @param supplier 值提供者，可为 null
      * @param <T> 值类型
      * @return LazyValue 实例
-     * @throws NullPointerException supplier 为 null 时
      */
     public static <T> LazyValue<T> ofSupplier(Supplier<T> supplier) {
-        return of(new SingletonLoader<>(Objects.requireNonNull(supplier, "supplier 不能为 null")));
+        return of(supplier == null ? null : new SingletonLoader<>(supplier));
     }
 
     // ==================== Value 契约 ====================
@@ -93,11 +92,11 @@ public final class LazyValue<T> implements Value<T> {
     /**
      * 获取值，首次调用时触发懒加载，之后返回缓存结果。
      *
-     * @return 加载后的值，可能为 null（当加载器返回 null 时）
+     * @return 加载后的值，加载器为 null 或其返回 null 时均为 null
      */
     @Override
     public T getValue() {
-        return loader.get();
+        return loader == null ? null : loader.get();
     }
 
     /**
@@ -113,7 +112,7 @@ public final class LazyValue<T> implements Value<T> {
     /**
      * 判断加载后的值是否为 null。
      *
-     * <p>会触发懒加载（若尚未加载）。当加载器返回 null 时判定为 null。</p>
+     * <p>会触发懒加载（若尚未加载）。当加载器为 null 或返回 null 时判定为 null。</p>
      *
      * @return true 表示加载后的值为 null
      */
@@ -140,23 +139,25 @@ public final class LazyValue<T> implements Value<T> {
     /**
      * 判断是否已加载（缓存中是否已有实例），不触发加载。
      *
-     * @return true 表示已加载
+     * @return true 表示已加载；加载器为 null 时恒为 false
      */
     public boolean isLoaded() {
-        return loader.isLoaded();
+        return loader != null && loader.isLoaded();
     }
 
     /**
-     * 清除缓存，下次 {@link #getValue()} 时重新加载。
+     * 清除缓存，下次 {@link #getValue()} 时重新加载。加载器为 null 时无操作。
      */
     public void reset() {
-        loader.reset();
+        if (loader != null) {
+            loader.reset();
+        }
     }
 
     /**
      * 获取底层加载器。
      *
-     * @return 底层 {@link Loader}
+     * @return 底层 {@link Loader}，可能为 null
      */
     public Loader<T> getLoader() {
         return loader;

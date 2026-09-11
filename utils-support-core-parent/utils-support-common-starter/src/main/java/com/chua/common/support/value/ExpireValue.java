@@ -64,6 +64,9 @@ public class ExpireValue<T> implements Value<T> {
     /** 未设置过期时间的时间戳（值为 null 或已清除时） */
     private static final long UNSET_EXPIRE_AT = 0L;
 
+    /** 永不过期的过期时间戳（ttl 为 null 时使用） */
+    private static final long NEVER_EXPIRE_AT = Long.MAX_VALUE;
+
     /** 当前值，清除后为 null */
     private volatile T value;
     /** 过期时间戳（毫秒），未设置时为 0 */
@@ -79,12 +82,21 @@ public class ExpireValue<T> implements Value<T> {
      * 构造函数，通过工厂方法 {@link #of(Object, Duration)} 创建实例。
      *
      * @param value 初始值，允许 null（null 表示初始即为已清除状态）
-     * @param ttl 存活时间，不能为 null
+     * @param ttl 存活时间，可为 null（null 表示永不过期）
      */
     private ExpireValue(T value, Duration ttl) {
         this.value = value;
         this.ttl = ttl;
-        this.expireAt = value == null ? UNSET_EXPIRE_AT : System.currentTimeMillis() + ttl.toMillis();
+        this.expireAt = value == null ? UNSET_EXPIRE_AT : nextExpireAt();
+    }
+
+    /**
+     * 计算下一次过期时间戳：ttl 为 null 时永不过期。
+     *
+     * @return 过期时间戳（毫秒），或 {@link #NEVER_EXPIRE_AT}
+     */
+    private long nextExpireAt() {
+        return ttl == null ? NEVER_EXPIRE_AT : System.currentTimeMillis() + ttl.toMillis();
     }
 
     // ==================== 工厂方法 ====================
@@ -93,15 +105,13 @@ public class ExpireValue<T> implements Value<T> {
      * 创建 ExpireValue 实例。
      *
      * @param value 初始值，允许 null（null 表示初始即为已清除状态）
-     * @param ttl 存活时间，不能为 null，不允许为负
+     * @param ttl 存活时间，可为 null（null 表示永不过期），不允许为负
      * @param <T> 值类型
      * @return ExpireValue 实例
-     * @throws NullPointerException ttl 为 null 时
      * @throws IllegalArgumentException ttl 为负时
      */
     public static <T> ExpireValue<T> of(T value, Duration ttl) {
-        Objects.requireNonNull(ttl, "ttl 不能为 null");
-        if (ttl.isNegative()) {
+        if (ttl != null && ttl.isNegative()) {
             throw new IllegalArgumentException("ttl 不能为负: " + ttl);
         }
         return new ExpireValue<>(value, ttl);
@@ -112,18 +122,16 @@ public class ExpireValue<T> implements Value<T> {
      *
      * @param value 初始值，允许 null（null 表示初始即为已清除状态）
      * @param amount 存活时长数值，不允许为负
-     * @param unit 存活时长单位，不能为 null
+     * @param unit 存活时长单位，可为 null（null 表示永不过期）
      * @param <T> 值类型
      * @return ExpireValue 实例
-     * @throws NullPointerException unit 为 null 时
      * @throws IllegalArgumentException amount 为负时
      */
     public static <T> ExpireValue<T> of(T value, long amount, TimeUnit unit) {
-        Objects.requireNonNull(unit, "unit 不能为 null");
         if (amount < 0) {
             throw new IllegalArgumentException("amount 不能为负: " + amount);
         }
-        return of(value, Duration.of(amount, unit.toChronoUnit()));
+        return of(value, unit == null ? null : Duration.of(amount, unit.toChronoUnit()));
     }
 
     // ==================== 过期处理 ====================
@@ -175,7 +183,7 @@ public class ExpireValue<T> implements Value<T> {
             if (replaced == null) {
                 return null;
             }
-            expireAt = now + ttl.toMillis();
+            expireAt = ttl == null ? NEVER_EXPIRE_AT : now + ttl.toMillis();
             return replaced;
         }
         var reload = loader;
@@ -184,7 +192,7 @@ public class ExpireValue<T> implements Value<T> {
             if (loaded == null) {
                 return null;
             }
-            expireAt = now + ttl.toMillis();
+            expireAt = ttl == null ? NEVER_EXPIRE_AT : now + ttl.toMillis();
             return loaded;
         }
         return null;
@@ -201,8 +209,9 @@ public class ExpireValue<T> implements Value<T> {
      * @throws NullPointerException callback 为 null 时
      */
     public ExpireValue<T> onExpire(Function<? super T, ? extends T> callback) {
-        Objects.requireNonNull(callback, "callback 不能为 null");
-        this.expireCallback = callback;
+        if (callback != null) {
+            this.expireCallback = callback;
+        }
         return this;
     }
 
@@ -217,7 +226,9 @@ public class ExpireValue<T> implements Value<T> {
      * @throws NullPointerException listener 为 null 时
      */
     public ExpireValue<T> onExpireNotify(Consumer<? super T> listener) {
-        Objects.requireNonNull(listener, "listener 不能为 null");
+        if (listener == null) {
+            return this;
+        }
         return onExpire(expired -> {
             listener.accept(expired);
             return null;
@@ -235,8 +246,9 @@ public class ExpireValue<T> implements Value<T> {
      * @throws NullPointerException loader 为 null 时
      */
     public ExpireValue<T> loader(Supplier<? extends T> loader) {
-        Objects.requireNonNull(loader, "loader 不能为 null");
-        this.loader = loader;
+        if (loader != null) {
+            this.loader = loader;
+        }
         return this;
     }
 
@@ -262,7 +274,7 @@ public class ExpireValue<T> implements Value<T> {
             if (value == null) {
                 expireAt = UNSET_EXPIRE_AT;
             } else {
-                expireAt = System.currentTimeMillis() + ttl.toMillis();
+                expireAt = nextExpireAt();
             }
             return this;
         }
@@ -305,7 +317,7 @@ public class ExpireValue<T> implements Value<T> {
     /**
      * 获取存活时间。
      *
-     * @return 存活时间
+     * @return 存活时间，可为 null（null 表示永不过期）
      */
     public Duration ttl() {
         return ttl;
