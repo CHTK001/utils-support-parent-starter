@@ -19,6 +19,28 @@ import weka.core.Instances;
  * <p>行取值类型：数值列传 {@link Number}（或可解析的 {@link String}），
  * 类别列 / 标签列传 {@link String}，缺失传 {@code null}。</p>
  *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * List<FeatureColumn> features = List.of(
+ *         FeatureColumn.numeric("age", "年龄"),
+ *         FeatureColumn.categorical("city", "城市"));
+ *
+ * // 手工构建行数据（列名 -> 值，缺列 / 显式 null 均视为缺失）
+ * Map<String, Object> row1 = Map.of("age", 30, "city", "北京");
+ * Map<String, Object> row2 = Map.of("age", 45, "city", "上海");
+ *
+ * // 场景 1：分类（标签列 label）
+ * WekaInstanceData training = WekaInstanceData.classification(
+ *         features, "label",
+ *         List.of(Map.of("age", 30, "city", "北京", "label", "高"),
+ *                 Map.of("age", 45, "city", "上海", "label", "低")));
+ *
+ * // 场景 2：回归（目标列 target 为数值）
+ * WekaInstanceData regression = WekaInstanceData.regression(
+ *         features, "target",
+ *         List.of(Map.of("age", 30, "city", "北京", "target", 98.5)));
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */

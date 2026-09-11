@@ -118,7 +118,7 @@ public class LogOperation {
                     org.eclipse.jgit.revwalk.RevCommit from = revWalk.parseCommit(fromOid);
                     org.eclipse.jgit.revwalk.RevCommit to = revWalk.parseCommit(toOid);
                     revWalk.markStart(from);
-                    revWalk.markUninterested(to);
+                    revWalk.markUninteresting(to);
                 } else if (fromRef != null) {
                     ObjectId fromOid = resolveRef(repo, fromRef);
                     org.eclipse.jgit.revwalk.RevCommit from = revWalk.parseCommit(fromOid);

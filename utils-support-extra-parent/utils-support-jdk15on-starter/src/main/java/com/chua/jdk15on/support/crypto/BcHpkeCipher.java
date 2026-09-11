@@ -32,15 +32,15 @@ import java.util.Arrays;
  *
  * <h2>使用示例</h2>
  * <pre>{@code
- * HpkeCipher hpke = HpkeCipher.create("bc");
- * byte[][] keys = hpke.generateKeyPair();
+ * // 链式门面（HpkeFlow）
+ * byte[][] keys = HpkeFlow.of().keys();
  *
- * HpkeCipher.SealedMessage msg = hpke.sender()
+ * HpkeFlow.SealedMessage msg = HpkeFlow.of()
  *         .receiverPk(keys[0])
  *         .aad("order-1024".getBytes())
  *         .seal("机密数据".getBytes());
  *
- * byte[] plain = hpke.receiver()
+ * byte[] plain = HpkeFlow.of()
  *         .secretKey(keys[1])
  *         .enc(msg.enc())
  *         .aad("order-1024".getBytes())

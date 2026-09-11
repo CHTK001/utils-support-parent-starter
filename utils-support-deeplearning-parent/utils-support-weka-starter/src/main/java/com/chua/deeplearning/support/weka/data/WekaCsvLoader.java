@@ -18,6 +18,15 @@ import java.util.Map;
  * 加载结果不含标签 / 目标列，需通过 {@link WekaInstanceData#withLabelColumn(String)} 或
  * {@link WekaInstanceData#withTargetColumn(String)} 指定。</p>
  *
+ * <p>使用示例（CSV 内容：age,city,label）：</p>
+ * <pre>{@code
+ * // 30,北京,高
+ * // 45,上海,低
+ * WekaInstanceData data = WekaCsvLoader.load(Path.of("data.csv"))
+ *         .withLabelColumn("label");      // 分类：标签列是名义值
+ * // 回归场景：.withTargetColumn("amount")
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */

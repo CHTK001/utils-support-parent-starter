@@ -17,6 +17,26 @@ import weka.core.Instance;
  *
  * <p>输入：带数值目标的数据（{@link WekaInstanceData#regression}），输出：模型、回归预测值、评估报告。</p>
  *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * // 目标列 target 为数值（销量、金额、风险分等）
+ * List<FeatureColumn> features = List.of(FeatureColumn.numeric("price"));
+ * List<Map<String, Object>> rows = List.of(
+ *         Map.of("price", 9.9, "target", 120.5),
+ *         Map.of("price", 19.9, "target", 88.2));
+ * WekaInstanceData data = WekaInstanceData.regression(features, "target", rows);
+ *
+ * WekaRandomForestRegressor regressor = new WekaRandomForestRegressor();
+ * RandomForestModel model = regressor.train(data, null);
+ *
+ * RegressionResult result = regressor.predict(model, Map.of("price", 12.5));
+ * result.getPredictedValue();   // 预测值
+ *
+ * EvaluationReport report = regressor.evaluate(model, data);
+ * report.getRmse();            // 均方根误差
+ * report.getMae();            // 平均绝对误差
+ * }</pre>
+ *
  * @author CH
  * @since 4.0.0.42
  */
