@@ -90,9 +90,9 @@ WekaInstanceData data = WekaCsvLoader.load(Path.of("data.csv")).withLabelColumn(
 1. 从访问日志按 IP 聚合统计特征（请求数、UA 数、404 比例、地域数等）→ 每个 IP 一行 `Map`
 2. 有人工标注时走分类（`label` = 正常/攻击）；无标注可先按规则筛可疑样本再半监督
 3. `WekaRandomForestClassifier` 训练 + 预测 + `EvaluationReport` 评估
-4. 特征重要性找出最具判别力的行为特征
+4. 特征重要性（`WekaRandomForestFeatureImportance`）找出最具判别力的行为特征
 
 ## 注意
 
-- 数据量需 >= 10 行（默认 10 折交叉验证），标签需有 2 种以上取值
+- 数据量需 >= 2 行（SPI `train` 校验）；默认 10 折交叉验证时数据量不足 10 行会按 2 折降级，标签需有 2 种以上取值
 - `RandomForestOptions`：`numTrees`（树数）、`numFeatures`（每树候选特征数，0=自动）、`maxDepth`、`bagSizePercent`（100=全量重采样）、`seed`（可复现）

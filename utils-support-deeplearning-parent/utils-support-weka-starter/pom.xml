@@ -18,6 +18,7 @@
     </properties>
 
     <dependencies>
+        <!-- 公共工具层：复用 SPI / 任务契约等公共能力（层级合规：utils-* 统一来自 common-starter） -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
@@ -31,6 +32,7 @@
             <version>${weka.version}</version>
         </dependency>
 
+        <!-- Lombok：由 utils-support-parent-starter 统一配置 annotationProcessorPaths，本模块无需重复声明 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
