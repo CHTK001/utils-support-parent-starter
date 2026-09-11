@@ -51,42 +51,50 @@ public final class FeatureColumn implements Serializable {
     }
 
     /**
-     * 构建数值特征。
+     * 构建无描述的数值特征。
      *
-     * @param name 列名
+     * @param name 列名，不能为 null 或空白
      * @return 数值特征定义
+     * @throws NullPointerException     当列名为 null 时
+     * @throws IllegalArgumentException 当列名为空白字符串时
      */
     public static FeatureColumn numeric(String name) {
         return new FeatureColumn(name, FeatureType.NUMERIC, "");
     }
 
     /**
-     * 构建数值特征。
+     * 构建带描述的数值特征（描述仅供业务展示，不进入 Weka 属性域）。
      *
-     * @param name        列名
-     * @param description 列描述
+     * @param name        列名，不能为 null 或空白
+     * @param description 列描述，可为 null（按空字符串处理）
      * @return 数值特征定义
+     * @throws NullPointerException     当列名为 null 时
+     * @throws IllegalArgumentException 当列名为空白字符串时
      */
     public static FeatureColumn numeric(String name, String description) {
         return new FeatureColumn(name, FeatureType.NUMERIC, description);
     }
 
     /**
-     * 构建类别特征。
+     * 构建无描述的类别特征。
      *
-     * @param name 列名
+     * @param name 列名，不能为 null 或空白
      * @return 类别特征定义
+     * @throws NullPointerException     当列名为 null 时
+     * @throws IllegalArgumentException 当列名为空白字符串时
      */
     public static FeatureColumn categorical(String name) {
         return new FeatureColumn(name, FeatureType.CATEGORICAL, "");
     }
 
     /**
-     * 构建类别特征。
+     * 构建带描述的类别特征（描述仅供业务展示，不进入 Weka 属性域）。
      *
-     * @param name        列名
-     * @param description 列描述
+     * @param name        列名，不能为 null 或空白
+     * @param description 列描述，可为 null（按空字符串处理）
      * @return 类别特征定义
+     * @throws NullPointerException     当列名为 null 时
+     * @throws IllegalArgumentException 当列名为空白字符串时
      */
     public static FeatureColumn categorical(String name, String description) {
         return new FeatureColumn(name, FeatureType.CATEGORICAL, description);
