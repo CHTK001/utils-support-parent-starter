@@ -97,9 +97,9 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-      * 训练模型。
-      *
-      * @param trainingData 训练实例，不能为 null
+     * 训练模型。
+     *
+     * @param trainingData 训练实例，不能为 null
      * @throws WekaException 训练失败
      */
     public void train(Instances trainingData) {
@@ -143,9 +143,9 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-      * 单条原始预测。
-      *
-      * @param instance 预测实例，不能为 null
+     * 单条原始预测。
+     *
+     * @param instance 预测实例，不能为 null
      * @return 分类场景为标签索引，回归场景为预测值
      * @throws WekaException 预测失败
      */
@@ -159,9 +159,9 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-      * 单条预测的概率分布。
-      *
-      * @param instance 预测实例，不能为 null
+     * 单条预测的概率分布。
+     *
+     * @param instance 预测实例，不能为 null
      * @return 类别概率分布；回归场景无分布，返回 {@link Optional#empty()}
      * @throws WekaException 预测失败
      */
