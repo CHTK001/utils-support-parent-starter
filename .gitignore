@@ -19,6 +19,8 @@
 .tmp-sync/
 .project
 .settings
+**/.classpath
+**/.factorypath
 .kiro/
 logs/
 target/

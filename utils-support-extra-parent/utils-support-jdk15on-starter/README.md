@@ -24,6 +24,7 @@
 |---------|------|
 | `BcDesedeCipher` | 基于 BouncyCastle 的 3DES 对称加解密实现 通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者 实现 DESed |
 | `BcEciesCipher` | 基于 BouncyCastle 的 ECIES 椭圆曲线集成加密方案实现 通过 SPI 机制以 "bc" 名称注册，实现密钥封装与对称加密结合的混合加密方案。 |
+| `BcHpkeCipher` | 基于 BouncyCastle 原语的 HPKE（RFC 9180）混合公钥加密实现 通过 SPI 机制以 "bc" 名称注册，使用 X25519 + HKDF-SHA256 + AES-256-GCM 拼装 base 模式，nonce 由 KDF 确定性派生。 |
 | `BcNoekeonCipher` | 基于 BouncyCastle 的 Noekeon 对称加解密实现 通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者 实现 No |
 | `BcRsaCipher` | 基于 BouncyCastle 的 RSA 非对称加解密实现 通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者 实现 RSA 密 |
 | `BcSm2Cipher` | 基于 BouncyCastle 的 SM2 非对称加解密实现 通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者 实现 SM2 密 |
