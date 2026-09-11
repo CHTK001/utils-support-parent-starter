@@ -33,7 +33,7 @@ public class WekaRandomForestFeatureImportance {
     /**
      * 分析特征重要性。
      *
-     * @param data    数据（需具备标签列或目标列）
+     * @param data    数据（需具备标签列或目标列），不能为 null
      * @param options 随机森林参数，传 {@code null} 使用默认值
      * @return 按重要性降序排列的特征重要性列表
      * @throws WekaException 数据缺少标签 / 目标列或训练失败

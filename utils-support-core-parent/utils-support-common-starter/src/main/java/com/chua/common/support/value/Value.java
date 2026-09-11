@@ -24,7 +24,10 @@ import java.util.stream.Stream;
  *   <li><b>默认值</b>：所有 {@code asXXX(defaultValue)} 方法在值为 null 时返回指定的默认值</li>
  *   <li><b>空值安全</b>：{@link #of(Object)} 工厂方法在值 null 时返回 {@link NullValue} 单例，避免空指针</li>
  *   <li><b>异常承载</b>：{@link #getThrowable()} 支持携带转换过程中产生的异常信息</li>
- *   <li><b>函数式增强</b>：{@link #orElse}, {@link #orElseGet}, {@link #orElseThrow}, {@link #map}, {@link #flatMap}, {@link #ifPresent} 提供安全的链式操作，避免空指针</li>
+ *   <li><b>函数式增强</b>：{@link #orElse}, {@link #orElseGet}, {@link #orElseThrow}, {@link #map}, {@link #flatMap}, {@link #ifPresent}, {@link #filter}, {@link #peek} 提供安全的链式操作，避免空指针</li>
+ *   <li><b>空值安全集合/流</b>：{@link #asList}, {@link #asSet}, {@link #stream} 在值为 null 时返回空集合/空流而非 null</li>
+ *   <li><b>Optional 桥接</b>：{@link #toOptional} / {@link #ofOptional} 与 JDK {@link Optional} 互转</li>
+ *   <li><b>空判断</b>：{@link #isEmpty} 判断是否为空值</li>
  * </ul>
  * </p>
  *
@@ -45,6 +48,19 @@ public interface Value<T> extends Serializable {
 @SuppressWarnings("ALL")
     static <T> Value<T> of(T value) {
         return null == value ? (Value<T>) NullValue.INSTANCE : new DefaultValue<>(value);
+    }
+
+    /**
+     * 从 {@link Optional} 创建 Value 实例。
+     * <p>Optional 为空（或本身为 null）时返回 {@link NullValue} 单例，否则包装其中的值。</p>
+     *
+     * @param optional Optional，可为 null
+     * @param <T> 值类型
+     * @return Value 实例
+     */
+    @SuppressWarnings("ALL")
+    static <T> Value<T> ofOptional(Optional<? extends T> optional) {
+        return of(optional == null ? null : optional.orElse(null));
     }
 
     /**
@@ -73,7 +89,7 @@ public interface Value<T> extends Serializable {
      * @return 转换后的值
      */
     default <E> E getValue(Class<E> target) {
-        if (target == Object.class) {
+        if (target == null || target == Object.class) {
             return (E) getValue();
         }
         return Converter.convertIfNecessary(getValue(), target);
@@ -272,6 +288,26 @@ public interface Value<T> extends Serializable {
     }
 
     /**
+     * 获取单元素列表；值为 null 时返回空列表（而非 null）。
+     *
+     * @return 只含该值的不可变列表，或空列表
+     */
+    default List<T> asList() {
+        T value = getValue();
+        return value == null ? List.of() : List.of(value);
+    }
+
+    /**
+     * 获取单元素集合；值为 null 时返回空集合（而非 null）。
+     *
+     * @return 只含该值的不可变 Set，或空集合
+     */
+    default Set<T> asSet() {
+        T value = getValue();
+        return value == null ? Set.of() : Set.of(value);
+    }
+
+    /**
      * 如果当前值不为 null，则返回该值；否则返回 {@code other}。
      *
      * @param other 备用值
@@ -289,7 +325,11 @@ public interface Value<T> extends Serializable {
      */
     @SuppressWarnings("NullAway")
     default T orElseGet(Supplier<? extends T> other) {
-        return getValue() != null ? getValue() : other.get();
+        T value = getValue();
+        if (value != null) {
+            return value;
+        }
+        return other == null ? null : other.get();
     }
 
     /**
@@ -301,8 +341,12 @@ public interface Value<T> extends Serializable {
      * @throws X 如果值为 null
      */
     default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
-        if (getValue() != null) {
-            return getValue();
+        T value = getValue();
+        if (value != null) {
+            return value;
+        }
+        if (exceptionSupplier == null) {
+            throw new IllegalStateException("orElseThrow 需要提供异常源");
         }
         throw exceptionSupplier.get();
     }
@@ -317,7 +361,10 @@ public interface Value<T> extends Serializable {
     @SuppressWarnings({"unchecked", "NullAway"})
     default <R> Value<R> map(Function<? super T, ? extends R> mapper) {
         T v = getValue();
-        return v != null ? Value.of((R) mapper.apply(v)) : (Value<R>) NullValue.INSTANCE;
+        if (v == null || mapper == null) {
+            return (Value<R>) NullValue.INSTANCE;
+        }
+        return Value.of((R) mapper.apply(v));
     }
 
     /**
@@ -330,7 +377,7 @@ public interface Value<T> extends Serializable {
     @SuppressWarnings({"all", "unchecked", "NullAway"})
     default <R> Value<R> flatMap(Function<? super T, ? extends Value<? extends R>> mapper) {
         T v = getValue();
-        if (v == null) {
+        if (v == null || mapper == null) {
             return (Value<R>) NullValue.INSTANCE;
         }
         Value<? extends R> result = mapper.apply(v);
@@ -349,5 +396,61 @@ public interface Value<T> extends Serializable {
         if (getValue() != null) {
             consumer.accept(getValue());
         }
+    }
+
+    /**
+     * 如果当前值不为 null 且满足谓词，则返回当前 Value；否则返回 {@link NullValue}。
+     *
+     * @param predicate 谓词，不能为 null
+     * @return 过滤后的 Value
+     */
+    @SuppressWarnings({"all", "unchecked"})
+    default Value<T> filter(Predicate<? super T> predicate) {
+        T value = getValue();
+        if (value != null && predicate.test(value)) {
+            return this;
+        }
+        return (Value<T>) NullValue.INSTANCE;
+    }
+
+    /**
+     * 获取值的 Stream；值为 null 时返回空流（而非 null）。
+     *
+     * @return 含该值的单元素流，或空流
+     */
+    default Stream<T> stream() {
+        return Stream.ofNullable(getValue());
+    }
+
+    /**
+     * 转换为 JDK {@link Optional}；值为 null 时得到空 Optional。
+     *
+     * @return 包装该值的 Optional
+     */
+    default Optional<T> toOptional() {
+        return Optional.ofNullable(getValue());
+    }
+
+    /**
+     * 如果当前值不为 null，执行副作用后返回当前 Value（链式窥视，不改变值）。
+     *
+     * @param action 副作用行为，不能为 null
+     * @return 当前 Value
+     */
+    default Value<T> peek(Consumer<? super T> action) {
+        T value = getValue();
+        if (value != null) {
+            action.accept(value);
+        }
+        return this;
+    }
+
+    /**
+     * 判断当前值是否为空（null）。
+     *
+     * @return true 表示为空值
+     */
+    default boolean isEmpty() {
+        return isNull();
     }
 }

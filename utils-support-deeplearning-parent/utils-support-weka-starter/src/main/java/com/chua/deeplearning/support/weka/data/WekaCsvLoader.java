@@ -38,11 +38,12 @@ public final class WekaCsvLoader {
     }
 
     /**
-     * 读取带表头的 CSV 文件。
+     * 读取带表头的 CSV 文件（第一行作为列名）。
      *
-     * @param csvFile CSV 文件路径
-     * @return 数据对象（特征类型已自动推断）
-     * @throws WekaException 文件读取失败或数据行为空
+     * @param csvFile CSV 文件路径，不能为 null
+     * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
+     * @throws NullPointerException 当文件路径为 null 时
+     * @throws WekaException        文件读取失败或数据行为空
      */
     public static WekaInstanceData load(Path csvFile) {
         return load(csvFile, true);
@@ -51,10 +52,11 @@ public final class WekaCsvLoader {
     /**
      * 读取 CSV 文件。
      *
-     * @param csvFile   CSV 文件路径
-     * @param hasHeader 第一行是否为表头
-     * @return 数据对象（特征类型已自动推断）
-     * @throws WekaException 文件读取失败或数据行为空
+     * @param csvFile   CSV 文件路径，不能为 null
+     * @param hasHeader 第一行是否为表头（true 时第一行解析为列名，否则列名按 col_0 / col_1 生成）
+     * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
+     * @throws NullPointerException 当文件路径为 null 时
+     * @throws WekaException        文件读取失败或数据行为空
      */
     public static WekaInstanceData load(Path csvFile, boolean hasHeader) {
         Objects.requireNonNull(csvFile, "csvFile must not be null");
