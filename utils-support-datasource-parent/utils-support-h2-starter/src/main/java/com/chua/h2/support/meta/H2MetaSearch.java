@@ -18,9 +18,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * H2 搜索引擎元数据操作实现。
+ * H2 搜索引擎元数据操作实现（H2 2.x）。
  * <p>
- * H2 通过 CATSEARCH() 函数进行全文检索，索引通过 FULLTEXT 约束创建。
+ * H2 2.x 已移除内置全文检索引擎（TEXT INDEX / CATSEARCH），
+ * 检索门面降级为普通索引管理：索引通过 {@code CREATE INDEX} 创建，
+ * 关键字查询由调用方以 {@code LIKE} 方式执行。
  * </p>
  *
  * @author CH
@@ -76,22 +78,8 @@ public class H2MetaSearch extends AbstractMetaSearch {
 
     @Override
     public boolean optimize(String indexName) {
-        try (Connection conn = getConnection()) {
-            Statement stmt = conn.createStatement();
-            stmt.execute("CALL FILE_READ('" + indexName + "')");
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /** 获取 JDBC 连接 */
-    private Connection getConnection() throws SQLException {
-        var dsObj = engine.getDataSource();
-        if (dsObj == null) {
-            throw new IllegalStateException("H2 搜索引擎未配置数据源");
-        }
-        return ((javax.sql.DataSource) dsObj.getSource()).getConnection();
+        // H2 索引自动维护，无需在线优化
+        return true;
     }
 
     // ==================== 内部构建器 ====================
