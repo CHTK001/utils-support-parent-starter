@@ -43,13 +43,13 @@ public class H2SearchEngineImpl implements SearchEngine {
     @SuppressWarnings("unchecked")
     public List<String> listIndexes() {
         try (Connection conn = getConn()) {
-            String sql = "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.INDEXES "
-                       + "WHERE INDEX_TYPE = 'TEXT' OR INDEX_TYPE LIKE '%TEXT%'";
+            String sql = "SELECT DISTINCT INDEX_NAME FROM INFORMATION_SCHEMA.INDEXES "
+                       + "WHERE INDEX_TYPE_NAME = 'INDEX'";
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
                 List<String> indexes = new ArrayList<>();
                 while (rs.next()) {
-                    indexes.add(rs.getString("INDEX_NAME"));
+                    indexes.add(rs.getString(1));
                 }
                 return indexes;
             }

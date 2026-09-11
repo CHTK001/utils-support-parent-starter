@@ -121,7 +121,7 @@ public final class RandomForestModel implements Serializable {
         Objects.requireNonNull(rows, "rows must not be null");
         var attrs = new ArrayList<Attribute>(domain.features().size() + 1);
         for (var feature : domain.features()) {
-            if (feature.getType() == com.chua.deeplearning.support.weka.data.FeatureColumn.FeatureType.NUMERIC) {
+            if (feature.getType() == FeatureColumn.FeatureType.NUMERIC) {
                 attrs.add(new Attribute(feature.getName()));
             } else {
                 attrs.add(new Attribute(feature.getName(),
