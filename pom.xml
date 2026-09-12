@@ -2019,6 +2019,7 @@
                             <arg>--enable-preview</arg>
                             <arg>-parameters</arg>
                             <arg>--add-modules=jdk.incubator.vector</arg>
+                            <arg>--add-exports=jdk.incubator.vector/jdk.incubator.vector=ALL-UNNAMED</arg>
                         </compilerArgs>
                         <annotationProcessorPaths>
                             <path>
