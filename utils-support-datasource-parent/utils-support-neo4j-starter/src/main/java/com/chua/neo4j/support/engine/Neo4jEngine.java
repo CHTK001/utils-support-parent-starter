@@ -1,27 +1,18 @@
 package com.chua.neo4j.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.CollectionUtils;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
-import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
@@ -30,8 +21,6 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.reflection.ReflectUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -80,14 +69,11 @@ public class Neo4jEngine implements Engine {
         this.dialectProps = loadProps("neo4j");
     }
 
-     /**
-     * 加载props。
-     * @param protocol 协议
-     * @return 加载props的结果
-      */
-     * 从类路径加载 .env 文件为 属性
-     *
-     * @return 支持NATpagination的结果
+    /**
+    * 从类路径加载方言环境配置文件。
+    *
+    * @param protocol 方言协议名，对应 {@code META-INF/dialect-env/<protocol>.env} 文件
+    * @return 加载的属性对象，文件不存在或加载失败时返回空属性对象
      */
     private static java.util.Properties loadProps(String protocol) {
         try {
@@ -216,6 +202,35 @@ public class Neo4jEngine implements Engine {
     /** 获取执行器 */
     public SqlExecutor getExecutor() {
         return null;
+    }
+
+    @Override
+    /**
+    * 执行原生 Cypher 语句。
+    * <p>位置参数按 {@code p0、p1…} 转换为 Cypher {@code $pN} 命名参数；
+    * 返回受影响的节点/关系/属性变更总数。</p>
+    *
+    * @param ql     Cypher 语句
+    * @param params 参数列表
+    * @return 受影响行数
+     */
+    public int execute(String ql, Object... params) {
+        if (driver == null) {
+            throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
+        }
+        Map<String, Object> cypherParams = new LinkedHashMap<>();
+        for (int i = 0; i < params.length; i++) {
+            cypherParams.put("p" + i, params[i]);
+        }
+        try (Session session = driver.session()) {
+            var summary = session.run(ql, cypherParams).consume();
+            var counters = summary.counters();
+            return counters.nodesCreated() + counters.nodesDeleted()
+                    + counters.relationshipsCreated() + counters.relationshipsDeleted()
+                    + counters.propertiesSet();
+        } catch (Exception e) {
+            throw new RuntimeException("Cypher 执行失败: " + ql, e);
+        }
     }
 
     @Override
@@ -715,18 +730,12 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-    * 执行 Cypher 查询。
+    * 执行 Cypher 查询（无分页）。
+    *
     * @param entityClass 实体类
-    * @param conditions 条件
-     /**
-      * cypher查询。
-      * @param entityClass 实体类
-      * @param conditions 条件
-      * @return cypher查询的结果
-      */
-     * @param offset 偏移量
-     * @param limit 限制
-     * @return cypher查询的结果
+    * @param conditions  条件列表
+    * @param <T>         实体类型
+    * @return 查询结果列表
      */
     @SuppressWarnings("unchecked")
     private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions) {

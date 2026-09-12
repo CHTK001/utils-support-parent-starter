@@ -4,12 +4,15 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
+import com.chua.common.support.lang.datasource.engine.wrapper.QuerySql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.datasource.support.meta.DefaultMetaData;
 import com.chua.datasource.support.ddl.DslManager;
 import com.chua.datasource.support.user.UserManager;
@@ -54,6 +57,31 @@ public abstract class AbstractEngine implements Engine {
     * 默认数据源名称。
      */
     protected String defaultDataSourceName;
+
+    /**
+    * 引擎拦截器扩展缓存，首次访问时通过 SPI 加载。
+     */
+    private volatile List<EngineInterceptor> interceptorCache;
+
+    /**
+    * 获取引擎拦截器扩展列表（首次调用后缓存）。
+    * <p>通过 SPI 查找 {@code engine-interceptor} 扩展点实现，
+    * 结果按 order 降序排列；无注册实现时返回空列表。</p>
+    *
+    * @return 拦截器列表（非 null）
+     */
+    protected List<EngineInterceptor> interceptors() {
+        if (interceptorCache == null) {
+            synchronized (this) {
+                if (interceptorCache == null) {
+                    List<EngineInterceptor> loaded = ServiceProvider.of(EngineInterceptor.class)
+                            .getNewExtensions(EngineInterceptor.SPI_NAME, this);
+                    interceptorCache = loaded == null ? List.of() : List.copyOf(loaded);
+                }
+            }
+        }
+        return interceptorCache;
+    }
 
     @Override
     /** 查询 */
@@ -143,9 +171,16 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 获取Dialect */
+    /**
+    * 获取Dialect
+    * <p>从已注册的数据源中获取方言，数据源不存在或未设置方言时返回 null。</p>
+    *
+    * @param n 数据源名称
+    * @return 方言实例，无匹配时返回 null
+     */
     public Dialect getDialect(String n) {
-        return null;
+        EngineDataSource<?> ds = dataSources.get(n);
+        return ds != null ? ds.getDialect() : null;
     }
 
     @Override
@@ -248,6 +283,8 @@ public abstract class AbstractEngine implements Engine {
 
     /**
     * 执行旧版查询。
+    * <p>执行前后依次回调 {@link EngineInterceptor} 扩展的
+    * {@code beforeQuery / afterQuery / onError}。</p>
     *
     * @param wrapper     查询包装器
     * @param entityClass 实体类类型
@@ -256,7 +293,36 @@ public abstract class AbstractEngine implements Engine {
      */
     public <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         var sql = wrapper.buildSql();
-        List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass, sql.limit(), sql.offset());
+        String ql = sql.whereClause();
+        Object[] queryParams = sql.params().toArray();
+        List<EngineInterceptor> interceptorList = interceptors();
+        for (EngineInterceptor interceptor : interceptorList) {
+            interceptor.beforeQuery(ql, queryParams);
+        }
+        try {
+            List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass, sql.limit(), sql.offset());
+            result = processQueryResult(sql, result);
+            for (EngineInterceptor interceptor : interceptorList) {
+                interceptor.afterQuery(ql, queryParams, result);
+            }
+            return result;
+        } catch (RuntimeException re) {
+            for (EngineInterceptor interceptor : interceptorList) {
+                interceptor.onError(ql, queryParams, re);
+            }
+            throw re;
+        }
+    }
+
+    /**
+    * 对查询结果执行内存后处理：物理分页截断、空元素过滤与排序。
+    *
+    * @param sql    查询 SQL 信息
+    * @param result 原始查询结果
+    * @param <T>    实体类型
+    * @return 后处理后的查询结果
+     */
+    private <T> List<T> processQueryResult(QuerySql<T> sql, List<T> result) {
         if (result == null || result.isEmpty()) {
             return result;
         }
@@ -362,26 +428,62 @@ public abstract class AbstractEngine implements Engine {
 
     /**
     * 执行更新操作。
-    * <p>默认调用内存实现，子类可重写。</p>
+    * <p>默认调用内存实现，子类可重写。执行前后依次回调
+    * {@link EngineInterceptor} 扩展的 {@code beforeUpdate / afterUpdate / onError}。</p>
     *
     * @param sql  更新 SQL 信息
     * @param <T>  实体类型
     * @return 影响行数
      */
     public <T> int executeUpdate(UpdateSql<T> sql) {
-        return executeUpdateInMemory(sql);
+        String ql = sql.whereClause();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        List<EngineInterceptor> interceptorList = interceptors();
+        for (EngineInterceptor interceptor : interceptorList) {
+            interceptor.beforeUpdate(ql, params);
+        }
+        try {
+            int affected = executeUpdateInMemory(sql);
+            for (EngineInterceptor interceptor : interceptorList) {
+                interceptor.afterUpdate(ql, params, affected);
+            }
+            return affected;
+        } catch (RuntimeException re) {
+            for (EngineInterceptor interceptor : interceptorList) {
+                interceptor.onError(ql, params, re);
+            }
+            throw re;
+        }
     }
 
     /**
     * 执行删除操作。
-    * <p>默认调用内存实现，子类可重写。</p>
+    * <p>默认调用内存实现，子类可重写。执行前后依次回调
+    * {@link EngineInterceptor} 扩展的 {@code beforeUpdate / afterUpdate / onError}。</p>
     *
     * @param sql  删除 SQL 信息
     * @param <T>  实体类型
     * @return 影响行数
      */
     public <T> int executeDelete(DeleteSql<T> sql) {
-        return executeDeleteInMemory(sql);
+        String ql = sql.whereClause();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        List<EngineInterceptor> interceptorList = interceptors();
+        for (EngineInterceptor interceptor : interceptorList) {
+            interceptor.beforeUpdate(ql, params);
+        }
+        try {
+            int affected = executeDeleteInMemory(sql);
+            for (EngineInterceptor interceptor : interceptorList) {
+                interceptor.afterUpdate(ql, params, affected);
+            }
+            return affected;
+        } catch (RuntimeException re) {
+            for (EngineInterceptor interceptor : interceptorList) {
+                interceptor.onError(ql, params, re);
+            }
+            throw re;
+        }
     }
 
     @SuppressWarnings("unchecked")

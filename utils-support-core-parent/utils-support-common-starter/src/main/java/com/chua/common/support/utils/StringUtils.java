@@ -3131,27 +3131,6 @@ public class StringUtils {
     * @param relUrl the relative URL 转为 resolve. (If it's already absolute, it will be 返回)
     * @return the resolved absolute URL
     * @throws MalformedURLException if an 错误 occurred generating the URL
-    * @param input 输入
-     /**
-      * resolve。
-      * @param base 基础
-      * @param relUrl relurl
-      * @return resolve的结果
-      */
-      * @param input 输入
-     /**
-     * resolve。
-     * @param base 基础
-     * @param relUrl relurl
-     * @return resolve的结果
-      */
-      * @param input 输入
-     /**
-     * resolve。
-     * @param base base
-     * @param relUrl relUrl
-     * @return resolve的结果
-      */
      */
     public static URL resolve(URL base, String relUrl) throws MalformedURLException {
         relUrl = stripControlChars(relUrl);

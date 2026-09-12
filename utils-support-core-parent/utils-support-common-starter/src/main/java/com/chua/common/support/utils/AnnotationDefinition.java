@@ -85,13 +85,9 @@ public final class AnnotationDefinition<A extends Annotation> {
 
     /**
     * 创建子类覆盖父类的注解定义（子类优先标志置位）。
-    * @return 获取注解类的结果
-     /**
-       * subclassoverrides。
-      * @param annotationClass 注解类
-      * @param annotation 注解
-      * @return subclassOverrides的结果
-      */
+    * @param annotationClass 注解类
+    * @param annotation 注解
+    * @return subclassOverrides的结果
      */
     public static <A extends Annotation> AnnotationDefinition<A> subclassOverrides(Class<A> annotationClass, A annotation) {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, true);

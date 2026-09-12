@@ -143,13 +143,10 @@ public class RedisDataTable implements DataTable {
     }
 
     @Override
-     /**
-     * 获取column名称。
-     * @return 获取column名称的结果
-      */
+    /**
      * 获取column名称
      *
-     * @return 获取column类型的结果
+     * @return column名称列表
      */
     public List<String> getColumnNames() {
         ensureLoaded();

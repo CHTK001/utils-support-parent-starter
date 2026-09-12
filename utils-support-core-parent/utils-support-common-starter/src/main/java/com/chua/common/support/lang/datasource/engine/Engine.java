@@ -2,6 +2,7 @@ package com.chua.common.support.lang.datasource.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
@@ -11,6 +12,7 @@ import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
+import java.util.Map;
 
 /**
 * 引擎接口，是数据源管理和 Lambda 链式操作的核心入口。
@@ -78,6 +80,11 @@ import java.util.List;
 * @since 2024/12/12
  */
 public interface Engine extends AutoCloseable {
+
+    /**
+    * Engine SPI 扩展名，用于 {@code META-INF/extensions/} 注册与 SPI 查找。
+     */
+    String SPI_NAME = "engine";
 
     /**
     * 添加一个数据源到引擎。
@@ -168,7 +175,9 @@ public interface Engine extends AutoCloseable {
     /**
     * 执行数据操作语句（INSERT / UPDATE / DELETE / CREATE 等）。
     * <p>参数名为 ql（查询语言），SQL 引擎执行 SQL，NoSQL 引擎执行对应方言。</p>
-    * <p>默认实现通过 {@link #getExecutor()} 代理，非 SQL 引擎应覆盖实现。</p>
+    * <p>默认实现通过 {@link #getExecutor()} 代理，非 SQL 引擎应覆盖实现。
+    * 执行前后依次回调 {@link EngineInterceptor} 扩展的
+    * {@code beforeUpdate / afterUpdate / onError}。</p>
     *
     * @param ql     数据操作语句
     * @param params 参数
@@ -177,9 +186,134 @@ public interface Engine extends AutoCloseable {
     default int execute(String ql, Object... params) {
         SqlExecutor e = getExecutor();
         if (e == null) {
-            throw new UnsupportedOperationException("当前引擎不支持数据操作: " + getClass().getName());
+            UnsupportedOperationException ex = new UnsupportedOperationException("当前引擎不支持数据操作: " + getClass().getName());
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.onError(ql, params, ex);
+            }
+            throw ex;
         }
-        return e.execute(ql, params);
+        for (EngineInterceptor interceptor : getInterceptors()) {
+            interceptor.beforeUpdate(ql, params);
+        }
+        try {
+            int affected = e.execute(ql, params);
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.afterUpdate(ql, params, affected);
+            }
+            return affected;
+        } catch (RuntimeException re) {
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.onError(ql, params, re);
+            }
+            throw re;
+        }
+    }
+
+    /**
+    * 执行原生查询语句，返回 Map 行列表。
+    * <p>参数名为 ql（查询语言），SQL 引擎执行 SQL，NoSQL 引擎执行对应方言。</p>
+    * <p>默认实现通过 {@link #getExecutor()} 代理，非 SQL 引擎应覆盖实现。
+    * 执行前后依次回调 {@link EngineInterceptor} 扩展的
+    * {@code beforeQuery / afterQuery / onError}。</p>
+    *
+    * @param ql     查询语句
+    * @param params 参数
+    * @return 查询结果行列表
+     */
+    default List<Map<String, Object>> query(String ql, Object... params) {
+        SqlExecutor e = getExecutor();
+        if (e == null) {
+            UnsupportedOperationException ex = new UnsupportedOperationException("当前引擎不支持 SQL 查询: " + getClass().getName());
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.onError(ql, params, ex);
+            }
+            throw ex;
+        }
+        for (EngineInterceptor interceptor : getInterceptors()) {
+            interceptor.beforeQuery(ql, params);
+        }
+        try {
+            List<Map<String, Object>> result = e.query(ql, params);
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.afterQuery(ql, params, result);
+            }
+            return result;
+        } catch (RuntimeException re) {
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.onError(ql, params, re);
+            }
+            throw re;
+        }
+    }
+
+    /**
+    * 执行原生查询语句，自动映射为指定类型的对象列表。
+    * <p>默认实现通过 {@link #getExecutor()} 代理，非 SQL 引擎应覆盖实现。
+    * 执行前后依次回调 {@link EngineInterceptor} 扩展的
+    * {@code beforeQuery / afterQuery / onError}。</p>
+    *
+    * @param ql      查询语句
+    * @param rowType 行类型
+    * @param params  参数
+    * @param <T>     行类型参数
+    * @return 类型化结果列表
+     */
+    default <T> List<T> query(String ql, Class<T> rowType, Object... params) {
+        SqlExecutor e = getExecutor();
+        if (e == null) {
+            UnsupportedOperationException ex = new UnsupportedOperationException("当前引擎不支持 SQL 查询: " + getClass().getName());
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.onError(ql, params, ex);
+            }
+            throw ex;
+        }
+        for (EngineInterceptor interceptor : getInterceptors()) {
+            interceptor.beforeQuery(ql, params);
+        }
+        try {
+            List<T> result = e.query(ql, rowType, params);
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.afterQuery(ql, params, result);
+            }
+            return result;
+        } catch (RuntimeException re) {
+            for (EngineInterceptor interceptor : getInterceptors()) {
+                interceptor.onError(ql, params, re);
+            }
+            throw re;
+        }
+    }
+
+    /**
+    * 判断当前引擎是否支持原生 SQL/方言语句执行。
+    *
+    * @return true 表示 {@link #getExecutor()} 返回有效执行器
+     */
+    default boolean supportsSql() {
+        return getExecutor() != null;
+    }
+
+    /**
+    * 判断当前引擎是否支持元数据操作。
+    * <p>不支持元数据操作的引擎（如 Prometheus）应覆盖返回 false。</p>
+    *
+    * @return 默认返回 true
+     */
+    default boolean supportsMeta() {
+        return true;
+    }
+
+    /**
+    * 获取引擎拦截器扩展列表。
+    * <p>通过 SPI 查找 {@code engine-interceptor} 扩展点实现，
+    * 结果按 order 降序排列，无注册实现时返回空列表。</p>
+    *
+    * @return 拦截器列表（非 null）
+     */
+    private List<EngineInterceptor> getInterceptors() {
+        List<EngineInterceptor> interceptors = ServiceProvider.of(EngineInterceptor.class)
+                .getNewExtensions(EngineInterceptor.SPI_NAME, this);
+        return interceptors == null ? List.of() : interceptors;
     }
 
     /**

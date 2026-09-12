@@ -1,34 +1,29 @@
 package com.chua.tablesaw.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
+import tech.tablesaw.api.BooleanColumn;
+import tech.tablesaw.api.DoubleColumn;
+import tech.tablesaw.api.FloatColumn;
+import tech.tablesaw.api.IntColumn;
+import tech.tablesaw.api.LongColumn;
 import tech.tablesaw.api.Row;
+import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.reflection.ReflectUtils;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.invoke.SerializedLambda;
@@ -108,9 +103,135 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** 存储 */
+    @SuppressWarnings("unchecked")
+    /**
+    * 将数据列表存储到引擎内存中。
+    * <p>通过反射读取实体 getter 属性，按返回类型构建 Tablesaw 列并填充数据，
+    * 写入 {@code tables} 后即可被 {@code query(Class)} 链式查询检索；
+    * 数值/布尔按对应数值列存储，其余类型以字符串形式存储。</p>
+    *
+    * @param name 数据存储名称（表名）
+    * @param data 数据列表
+    * @param <T>  数据类型
+    * @return this
+     */
     public <T> Engine store(String name, List<T> data) {
+        if (CollectionUtils.isEmpty(data)) {
+            return this;
+        }
+        Class<T> entityClass = (Class<T>) data.get(0).getClass();
+        // 收集实体类的 getter 属性（get/is 前缀，无参方法）
+        Map<String, Method> getters = new LinkedHashMap<>();
+        for (Method method : entityClass.getMethods()) {
+            String methodName = method.getName();
+            if (method.getParameterCount() != 0 || "getClass".equals(methodName)) {
+                continue;
+            }
+            String prop = null;
+            if (methodName.startsWith("get") && methodName.length() > 3) {
+                prop = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+            } else if (methodName.startsWith("is") && method.getReturnType() == boolean.class && methodName.length() > 2) {
+                prop = Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
+            }
+            if (prop != null) {
+                getters.put(prop, method);
+            }
+        }
+        // 按属性返回类型创建列并逐行填充
+        Table table = Table.create(name);
+        for (Map.Entry<String, Method> entry : getters.entrySet()) {
+            String column = entry.getKey();
+            Method getter = entry.getValue();
+            Class<?> type = getter.getReturnType();
+            if (type == int.class || type == Integer.class) {
+                IntColumn col = IntColumn.create(column);
+                for (T entity : data) {
+                    Object value = invokeGetter(entity, getter);
+                    if (value == null) {
+                        col.appendMissing();
+                    } else {
+                        col.append(((Number) value).intValue());
+                    }
+                }
+                table.addColumns(col);
+            } else if (type == long.class || type == Long.class) {
+                LongColumn col = LongColumn.create(column);
+                for (T entity : data) {
+                    Object value = invokeGetter(entity, getter);
+                    if (value == null) {
+                        col.appendMissing();
+                    } else {
+                        col.append(((Number) value).longValue());
+                    }
+                }
+                table.addColumns(col);
+            } else if (type == double.class || type == Double.class) {
+                DoubleColumn col = DoubleColumn.create(column);
+                for (T entity : data) {
+                    Object value = invokeGetter(entity, getter);
+                    if (value == null) {
+                        col.appendMissing();
+                    } else {
+                        col.append(((Number) value).doubleValue());
+                    }
+                }
+                table.addColumns(col);
+            } else if (type == float.class || type == Float.class) {
+                FloatColumn col = FloatColumn.create(column);
+                for (T entity : data) {
+                    Object value = invokeGetter(entity, getter);
+                    if (value == null) {
+                        col.appendMissing();
+                    } else {
+                        col.append(((Number) value).floatValue());
+                    }
+                }
+                table.addColumns(col);
+            } else if (type == boolean.class || type == Boolean.class) {
+                BooleanColumn col = BooleanColumn.create(column);
+                for (T entity : data) {
+                    Object value = invokeGetter(entity, getter);
+                    if (value == null) {
+                        col.appendMissing();
+                    } else {
+                        col.append((Boolean) value);
+                    }
+                }
+                table.addColumns(col);
+            } else {
+                StringColumn col = StringColumn.create(column);
+                for (T entity : data) {
+                    Object value = invokeGetter(entity, getter);
+                    if (value == null) {
+                        col.appendMissing();
+                    } else {
+                        col.append(String.valueOf(value));
+                    }
+                }
+                table.addColumns(col);
+            }
+        }
+        tables.put(name, table);
+        if (defaultDataSourceName == null) {
+            defaultDataSourceName = name;
+        }
+        log.info("Tablesaw 数据存储成功: name={}, rows={}, cols={}", name, table.rowCount(), table.columnCount());
         return this;
+    }
+
+    /**
+    * 反射调用 getter 方法获取属性值。
+    *
+    * @param entity 实体对象
+    * @param getter getter 方法
+    * @return 属性值，调用失败返回 null
+     */
+    private static Object invokeGetter(Object entity, Method getter) {
+        try {
+            return ReflectUtils.invoke(entity, getter.getName(), Object.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

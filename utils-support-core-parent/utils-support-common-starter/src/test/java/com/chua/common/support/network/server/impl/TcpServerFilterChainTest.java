@@ -158,18 +158,13 @@ public class TcpServerFilterChainTest {
         }
     }
 
-     /**
-     * 构建http帧。
-     * @param method 方法
-     * @param path 路径
-     * @param body 主体
-     * @param contentType 内容类型
-     * @return 构建http帧的结果
-      */
-     * 构造完整 HTTP 请求报文。
-     *
-     * @param s s
-     * @return 修剪转为第一个线的结果
+    /**
+    * 构建http帧。
+    * @param method 方法
+    * @param path 路径
+    * @param body 主体
+    * @param contentType 内容类型
+    * @return 构建http帧的结果
      */
     private static String buildHttpFrame(String method, String path, String body, String contentType) {
         StringBuilder sb = new StringBuilder();

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 * INI 文件解析工具类
 * <p>
 * 提供通用的 INI 格式文件解析功能
-* 支持 Section 和 键=值 对的解析
+* 支持 Section 和 key=value 对的解析
 * 支持注释处理（;和#）
 *
 * @author CH

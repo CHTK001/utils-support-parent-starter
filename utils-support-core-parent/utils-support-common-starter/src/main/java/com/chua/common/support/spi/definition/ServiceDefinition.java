@@ -348,13 +348,9 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return classLoader;
     }
 
-     /**
-     * 设置类加载。
-     * @param classLoader 类加载
-      */
-     * 设置类加载
-     *
-     * @return 获取类型的结果
+    /**
+    * 设置类加载。
+    * @param classLoader 类加载
      */
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -436,13 +432,10 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return ex;
     }
 
-     /**
-     * 设置ex。
-     * @param ex ex
-      */
-     * 设置Ex
-     *
-     * @return 获取查找类型的结果
+    /**
+    * 设置Ex
+    *
+    * @param ex ex
      */
     public void setEx(Throwable ex) {
         this.ex = ex;

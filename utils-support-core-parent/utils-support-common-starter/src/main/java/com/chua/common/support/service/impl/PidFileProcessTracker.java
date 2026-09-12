@@ -153,13 +153,9 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
 
     /**
     * 检测进程 PID（跨平台兼容）。
-    * @return 是否窗口的结果
-     /**
-       * detectpid。
-      * @param process 处理
-      * @param serviceName 服务名称
-      * @return detectPid的结果
-      */
+    * @param process 进程
+    * @param serviceName 服务名称
+    * @return 检测到的 PID
      */
     private long detectPid(Process process, String serviceName) {
         long pid = process.pid();
