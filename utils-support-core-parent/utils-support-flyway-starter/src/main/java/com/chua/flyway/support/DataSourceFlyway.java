@@ -89,12 +89,12 @@ public class DataSourceFlyway implements Flyway {
         List<MigrationInfo> result = new ArrayList<>();
         for (ScriptFile script : scanScripts()) {
             result.add(new MigrationInfo(
-                    Long.parseLong(script.version),
+                    script.version,
                     script.description,
                     script.fileName,
                     applied.contains(script.version)));
         }
-        result.sort(Comparator.comparingLong(MigrationInfo::version));
+        result.sort(Comparator.comparing(MigrationInfo::version, Comparator.comparingLong(Long::parseLong)));
         return result;
     }
 
