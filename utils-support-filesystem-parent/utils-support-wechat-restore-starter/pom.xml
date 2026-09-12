@@ -9,8 +9,8 @@
         <version>4.0.0.42</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>utils-support-wechat-starter</artifactId>
-    <name>Utils Support Wechat Starter</name>
+    <artifactId>utils-support-wechat-restore-starter</artifactId>
+    <name>Utils Support Wechat Restore Starter</name>
     <description>本机微信数据还原模块：Java 25 FFM 直连 WCDB 原生库（优先）或编排 Wechat-Export 工具（兜底），还原聊天记录为 CSV / SQL / Excel</description>
     <dependencies>
         <dependency>
