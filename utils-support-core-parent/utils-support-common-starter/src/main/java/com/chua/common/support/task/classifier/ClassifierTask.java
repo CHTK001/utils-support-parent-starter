@@ -43,8 +43,10 @@ public interface ClassifierTask {
     /**
      * 训练好的分类模型。
      *
-     * <p>模型由 {@link #train} 产出，可预测、评估、保存；
-     * 实现类须声明 {@code serialVersionUID} 支持落盘序列化。</p>
+     * <p>模型由 {@link #train} 产出，可预测、评估、保存。
+     * 本接口继承 {@link Serializable} 而非 {@link java.io.Externalizable}：
+     * 实现类须声明 {@code serialVersionUID} 以支持落盘序列化
+     * （{@link #save(Path)} 内部基于 JDK 序列化写入文件）。</p>
      *
      * @author CH
      * @since 4.0.0.42
