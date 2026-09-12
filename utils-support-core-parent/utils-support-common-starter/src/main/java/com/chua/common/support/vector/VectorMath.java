@@ -5,6 +5,8 @@ import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorShape;
 import jdk.incubator.vector.VectorSpecies;
 
+import java.util.Objects;
+
 /**
  * Vector distance computation using Java Vector API (JEP 448).
  * Falls back to scalar when Vector API is unavailable.
@@ -23,14 +25,20 @@ public final class VectorMath {
     }
 
     public static float dot(float[] a, float[] b) {
-        if (VECTORIZED && a.length >= SPECIES.length()) return dotVec(a, b);
+        if (VECTORIZED && a.length >= Objects.requireNonNull(SPECIES).length()) {
+            return dotVec(a, b);
+        }
         float sum = 0f;
-        for (int i = 0; i < a.length; i++) sum += a[i] * b[i];
+        for (int i = 0; i < a.length; i++) {
+            sum += a[i] * b[i];
+        }
         return sum;
     }
 
     public static float euclidean(float[] a, float[] b) {
-        if (VECTORIZED && a.length >= SPECIES.length()) return euclideanVec(a, b);
+        if (VECTORIZED && a.length >= Objects.requireNonNull(SPECIES).length()) {
+            return euclideanVec(a, b);
+        }
         float sum = 0f;
         for (int i = 0; i < a.length; i++) {
             float d = a[i] - b[i];
@@ -40,7 +48,9 @@ public final class VectorMath {
     }
 
     public static float cosine(float[] a, float[] b) {
-        if (VECTORIZED && a.length >= SPECIES.length()) return cosineVec(a, b);
+        if (VECTORIZED && a.length >= Objects.requireNonNull(SPECIES).length()) {
+            return cosineVec(a, b);
+        }
         float dot = 0f, na = 0f, nb = 0f;
         for (int i = 0; i < a.length; i++) {
             dot += a[i] * b[i];
