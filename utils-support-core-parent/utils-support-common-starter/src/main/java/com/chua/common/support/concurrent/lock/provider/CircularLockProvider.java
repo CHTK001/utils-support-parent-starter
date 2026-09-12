@@ -125,13 +125,10 @@ public class CircularLockProvider extends AbstractLockProvider {
      * @return 成功占位返回 true，无空闲槽位返回 false
      */
     private boolean acquire() {
-        int start = writeIndex.get();
-        for (int step = 0; step < size; step++) {
-            int idx = (start + step) % size;
-            if (holders[idx].compareAndSet(false, true)) {
-                writeIndex.compareAndSet(start, (idx + 1) % size);
-                return true;
-            }
+        int idx = writeIndex.get();
+        if (holders[idx].compareAndSet(false, true)) {
+            writeIndex.set((idx + 1) % size);
+            return true;
         }
         return false;
     }
