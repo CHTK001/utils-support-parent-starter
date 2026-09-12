@@ -119,6 +119,7 @@ public final class WekaCsvLoader {
         return WekaInstanceData.of(features, rows);
     }
 
+    /** 去除行首 UTF-8 BOM 字符（若存在），原样返回无前缀字符串 */
     private static String stripBom(String value) {
         return value.startsWith("\uFEFF") ? value.substring(1) : value;
     }

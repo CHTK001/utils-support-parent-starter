@@ -39,6 +39,7 @@ public final class FeatureColumn implements Serializable {
     /** 列描述 */
     private final String description;
 
+    /** 内部构造器：校验列名非空非空白、类型非空，描述为 null 时按空字符串固化 */
     private FeatureColumn(String name, FeatureType type, String description) {
         Objects.requireNonNull(name, "name must not be null");
         if (name.isBlank()) {
