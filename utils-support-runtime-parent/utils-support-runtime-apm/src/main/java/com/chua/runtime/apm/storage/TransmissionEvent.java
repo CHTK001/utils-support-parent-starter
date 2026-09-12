@@ -14,13 +14,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 传输事件 — 持久化用扁平 record。
- *
- * <p>从 {@code TransmissionRecord} 提取扁平字段，避免持久化层依赖 spy 模块；
-   * 查询时再由 控制器 还原为 {@link com.chua.runtime.protocol.TransmissionRecord}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 传输事件 — 持久化用扁平 record。
+*
+* <p>从 {@code TransmissionRecord} 提取扁平字段，避免持久化层依赖 spy 模块；
+* 查询时再由 控制器 还原为 {@link com.chua.runtime.protocol.TransmissionRecord}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
@@ -32,57 +32,57 @@ public class TransmissionEvent {
     private long id;
 
     /**
-      * 追踪 标识
+    * 追踪 标识
      */
     private String traceId;
     /**
-      * span 标识
+    * span 标识
      */
     private String spanId;
     /**
-      * 父 Span 标识
+    * 父 Span 标识
      */
     private String parentSpanId;
 
     /**
-      * 源 协议
+    * 源 协议
      */
     private String sourceProtocol;
     /**
-      * 源 Software
+    * 源 Software
      */
     private String sourceSoftware;
     /**
-      * 源 主机
+    * 源 主机
      */
     private String sourceHost;
     /**
-      * 源 端口
+    * 源 端口
      */
     private int sourcePort;
     /**
-      * 源 路径
+    * 源 路径
      */
     private String sourcePath;
 
     /**
-      * Target 协议
+    * Target 协议
      */
     private String targetProtocol;
     /**
-      * Target Software
+    * Target Software
      */
     private String targetSoftware;
     /**
-      * Target 主机
+    * Target 主机
      */
     private String targetHost;
     /**
-      * Target 端口
+    * Target 端口
      */
     private int targetPort;
     /**
-      * Target 路径
+    * Target 路径
      */
     private String targetPath;
 
@@ -102,33 +102,33 @@ public class TransmissionEvent {
     private int statusCode;
 
     /**
-      * 启动 时间
+    * 启动 时间
      */
     private long startTime;
     /**
-      * 结束 时间
+    * 结束 时间
      */
     private long endTime;
     /**
-      * 持续时间
+    * 持续时间
      */
     private long duration;
 
     /**
-      * bytes 出
+    * bytes 出
      */
     private long bytesOut;
     /**
-      * bytes 入
+    * bytes 入
      */
     private long bytesIn;
 
     /**
-      * 错误 类型
+    * 错误 类型
      */
     private String errorType;
     /**
-      * 错误 消息
+    * 错误 消息
      */
     private String errorMessage;
 
@@ -137,9 +137,9 @@ public class TransmissionEvent {
     private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
-     * 从 {@link com.chua.runtime.protocol.TransmissionRecord} 转扁平字段。
-     * @param record record
-     * @return 从record的结果
+    * 从 {@link com.chua.runtime.protocol.TransmissionRecord} 转扁平字段。
+    * @param record record
+    * @return 从record的结果
      */
     public static TransmissionEvent fromRecord(TransmissionRecord record) {
         if (record == null) {
@@ -181,8 +181,8 @@ public class TransmissionEvent {
     }
 
     /**
-      * 还原为 {@link TransmissionRecord} — 控制器 序列化时调用。
-     * @return 转为record的结果
+    * 还原为 {@link TransmissionRecord} — 控制器 序列化时调用。
+    * @return 转为record的结果
      */
     public TransmissionRecord toRecord() {
         TransmissionRecord r = new TransmissionRecord();
@@ -221,10 +221,10 @@ public class TransmissionEvent {
     }
 
     /**
-     * 解析协议
-     *
-     * @param name 名称
-     * @return 解析协议的结果
+    * 解析协议
+    *
+    * @param name 名称
+    * @return 解析协议的结果
      */
     private static Protocol parseProtocol(String name) {
         if (name == null) {
@@ -238,10 +238,10 @@ public class TransmissionEvent {
     }
 
     /**
-     * 解析Software
-     *
-     * @param name 名称
-     * @return 解析software的结果
+    * 解析Software
+    *
+    * @param name 名称
+    * @return 解析software的结果
      */
     private static Software parseSoftware(String name) {
         if (name == null) {

@@ -10,58 +10,58 @@ import reactor.core.publisher.Flux;
 import java.util.*;
 
 /**
-   * Elasticsearch 引擎的 数据同步 输出 提供者。
- * <p>将 {@link Flux}&lt;Map&gt; 逐条写入 ES Index，使用文档内 id 保证幂等。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Elasticsearch 引擎的 数据同步 输出 提供者。
+* <p>将 {@link Flux}&lt;Map&gt; 逐条写入 ES Index，使用文档内 id 保证幂等。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class EsDataSyncSource implements DataSyncSource {
 
     /**
-     * 默认批大小
+    * 默认批大小
      */
     private static final int DEFAULT_BATCH = 1000;
 
     /**
-      * 标识 字段名
+    * 标识 字段名
      */
     private static final String ID = "id";
 
     /**
-     * 底层 ES 引擎
+    * 底层 ES 引擎
      */
     private final ElasticsearchEngine engine;
 
     /**
-     * 目标索引名
+    * 目标索引名
      */
     private final String indexName;
 
     /**
-     * 源标识
+    * 源标识
      */
     private final String sourceId;
 
     /**
-      * 智能体 标识
+    * 智能体 标识
      */
     private final String agentId;
 
     /**
-     * 批大小
+    * 批大小
      */
     private final int batchSize;
 
     /**
-     * 私有构造。
-     *
-     * @param engine    ES 引擎
-     * @param indexName 索引名
-     * @param sourceId  源标识
-     * @param agentId   智能体 标识
-     * @param batchSize 批大小
+    * 私有构造。
+    *
+    * @param engine    ES 引擎
+    * @param indexName 索引名
+    * @param sourceId  源标识
+    * @param agentId   智能体 标识
+    * @param batchSize 批大小
      */
     private EsDataSyncSource(ElasticsearchEngine engine, String indexName,
                              String sourceId, String agentId, int batchSize) {
@@ -73,13 +73,13 @@ public class EsDataSyncSource implements DataSyncSource {
     }
 
     /**
-     * 默认批大小创建。
-     *
-     * @param engine    ES 引擎
-     * @param indexName 索引名
-     * @param sourceId  源标识
-     * @param agentId   智能体 标识
-     * @return 实例
+    * 默认批大小创建。
+    *
+    * @param engine    ES 引擎
+    * @param indexName 索引名
+    * @param sourceId  源标识
+    * @param agentId   智能体 标识
+    * @return 实例
      */
     public static EsDataSyncSource output(ElasticsearchEngine engine, String indexName,
                                           String sourceId, String agentId) {
@@ -87,14 +87,14 @@ public class EsDataSyncSource implements DataSyncSource {
     }
 
     /**
-     * 自定义批大小创建。
-     *
-     * @param engine    ES 引擎
-     * @param indexName 索引名
-     * @param sourceId  源标识
-     * @param agentId   智能体 标识
-     * @param batchSize 批大小
-     * @return 实例
+    * 自定义批大小创建。
+    *
+    * @param engine    ES 引擎
+    * @param indexName 索引名
+    * @param sourceId  源标识
+    * @param agentId   智能体 标识
+    * @param batchSize 批大小
+    * @return 实例
      */
     public static EsDataSyncSource output(ElasticsearchEngine engine, String indexName,
                                           String sourceId, String agentId, int batchSize) {

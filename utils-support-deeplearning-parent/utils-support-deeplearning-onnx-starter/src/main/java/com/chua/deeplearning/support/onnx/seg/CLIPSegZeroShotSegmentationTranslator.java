@@ -22,29 +22,29 @@ import java.util.Arrays;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
-   * clipseg 零样本语义分割 Translator
- * <p>
-   * clipseg 是基于 CLIP 的零样本分割模型，通过文本描述直接对图像进行语义分割，
-   * 无需训练即可分割任意目标类别（如 "a person"、"a car"、"a 树" 等）。
- * 适用于需要灵活指定分割类别的场景。
- * </p>
- * <p>
- * 模型来源：huggingface.co/Xenova/clipseg-rd64-refined
- * 架构：CNN + CLIP 文本编码器
-   * 输入：镜像 + 文本描述（通过构造方法传入）
-   * 输出：镜像（二值分割掩码，255=前景，0=背景）
- * </p>
- * <p>
- * 输入流程：
- * <ol>
- *   <li>图像 resize 到 352x352，归一化到 [-1, 1]</li>
- *   <li>文本描述用 CLIP tokenizer 编码为固定长度 77 的 token IDs</li>
- *   <li>ONNX 模型输出分割掩码 logits</li>
- *   <li>Sigmoid + 阈值化得到二值掩码</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* clipseg 零样本语义分割 Translator
+* <p>
+* clipseg 是基于 CLIP 的零样本分割模型，通过文本描述直接对图像进行语义分割，
+* 无需训练即可分割任意目标类别（如 "a person"、"a car"、"a 树" 等）。
+* 适用于需要灵活指定分割类别的场景。
+* </p>
+* <p>
+* 模型来源：huggingface.co/Xenova/clipseg-rd64-refined
+* 架构：CNN + CLIP 文本编码器
+* 输入：镜像 + 文本描述（通过构造方法传入）
+* 输出：镜像（二值分割掩码，255=前景，0=背景）
+* </p>
+* <p>
+* 输入流程：
+* <ol>
+*   <li>图像 resize 到 352x352，归一化到 [-1, 1]</li>
+*   <li>文本描述用 CLIP tokenizer 编码为固定长度 77 的 token IDs</li>
+*   <li>ONNX 模型输出分割掩码 logits</li>
+*   <li>Sigmoid + 阈值化得到二值掩码</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, Image> {
@@ -68,9 +68,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     private Float probThreshold;
 
     /**
-     * 创建 Translator（支持外部阈值覆盖）。
-     *
-     * @param configuration 检测配置（可空）
+    * 创建 Translator（支持外部阈值覆盖）。
+    *
+    * @param configuration 检测配置（可空）
      */
     public CLIPSegZeroShotSegmentationTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
@@ -88,9 +88,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     /**
-      * 创建 clipsegzeroshotsegmentationtranslator 实例
-     * @param prompt 字符串
-     * @param prompt 提示符
+    * 创建 clipsegzeroshotsegmentationtranslator 实例
+    * @param prompt 字符串
+    * @param prompt 提示符
      */
     public CLIPSegZeroShotSegmentationTranslator(@Nonnull String prompt) {
         this.prompt = prompt != null ? prompt : "object";
@@ -166,10 +166,10 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     /**
-     * 解析模型根
-     *
-     * @param modelPath 模型路径
-     * @return resolve模型根的结果
+    * 解析模型根
+    *
+    * @param modelPath 模型路径
+    * @return resolve模型根的结果
      */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -182,11 +182,11 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     /**
-     * 查找文件
-     *
-     * @param root 根
-     * @param name 名称
-     * @return find文件的结果
+    * 查找文件
+    *
+    * @param root 根
+    * @param name 名称
+    * @return find文件的结果
      */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);

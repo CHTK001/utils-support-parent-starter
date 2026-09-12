@@ -15,11 +15,11 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 /**
- * PNG 图像数据流写入抽象基类，使用 {@link Deflater} 实时压缩并在 chunk 边界收尾。
- * <p>子类需实现 {@link #startChunk()}，决定写入哪种 chunk 类型（IDAT / fdAT）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* PNG 图像数据流写入抽象基类，使用 {@link Deflater} 实时压缩并在 chunk 边界收尾。
+* <p>子类需实现 {@link #startChunk()}，决定写入哪种 chunk 类型（IDAT / fdAT）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
 
@@ -72,9 +72,9 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
             stream.flushBefore(pos);
         } catch (IOException e) {
             /*
-              * If flush之前() 失败 we 尝试 转为 access 启动采购订单 入 最终
-              * block 的 写入_IDAT(). We should 更新 启动采购订单 转为 avoid
-              * 索引出的bound异常 while seek() 是否 happening.
+    * If flush之前() 失败 we 尝试 转为 access 启动采购订单 入 最终
+    * block 的 写入_IDAT(). We should 更新 启动采购订单 转为 avoid
+    * 索引出的bound异常 while seek() 是否 happening.
              */
             this.startPos = stream.getStreamPosition();
             throw e;

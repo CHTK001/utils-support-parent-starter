@@ -13,13 +13,13 @@ import java.nio.file.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 默认响应式文件系统实现。
- *
- * <p>路由策略：文件大小 &lt; {@link #sizeThreshold} → 阻塞 Files.* 在 boundedElastic 调度器上执行；
- * &ge; 阈值 → AsynchronousFileChannel 真异步（Windows IOCP / Linux 回退线程池）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 默认响应式文件系统实现。
+*
+* <p>路由策略：文件大小 &lt; {@link #sizeThreshold} → 阻塞 Files.* 在 boundedElastic 调度器上执行；
+* &ge; 阈值 → AsynchronousFileChannel 真异步（Windows IOCP / Linux 回退线程池）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultReactorFileSystem implements ReactorFileSystem {
 
@@ -31,7 +31,7 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
     }
 
     /**
-     * 构造并指定阈值。
+    * 构造并指定阈值。
      */
     public DefaultReactorFileSystem(long sizeThreshold) {
         this.sizeThreshold = Math.max(1, sizeThreshold);
@@ -127,8 +127,8 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
     }
 
     /**
-     * 使用 AsynchronousFileChannel 异步写入。
-     * Windows 上底层为 IOCP 真·非阻塞；Linux 上 JVM 内部使用线程池模拟。
+    * 使用 AsynchronousFileChannel 异步写入。
+    * Windows 上底层为 IOCP 真·非阻塞；Linux 上 JVM 内部使用线程池模拟。
      */
     private Mono<Void> writeAsync(Path path, byte[] data) {
         return Mono.create(sink -> {

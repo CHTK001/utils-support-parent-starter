@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * WAL 工厂方法。
- *
- * @author CH
- * @since 4.0.0.42
+* WAL 工厂方法。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class WalFactory {
 
@@ -17,11 +17,11 @@ public final class WalFactory {
     }
 
     /**
-     * 打开或创建 WAL 实例。
-     *
-     * @param config 配置
-     * @return WalLog 实例
-     * @throws IOException 打开失败
+    * 打开或创建 WAL 实例。
+    *
+    * @param config 配置
+    * @return WalLog 实例
+    * @throws IOException 打开失败
      */
     public static WalLog open(WalConfig config) throws IOException {
         if (config == null) {

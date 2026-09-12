@@ -12,74 +12,74 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-   * 网络拦截器 — 劫持 套接字/HTTP/TCP/UDP 通信。
- *
- * <p>字节码插桩实现：</p>
- * <p>对目标网络类（如 java/net/Socket）的 connect/read/write 方法，
-   * 在方法入口/出口插入 runtimespy.onintercept()。</p>
- *
- * <p>ASM 插入的字节码：</p>
- * <pre>
- * Socket.connect(InetSocketAddress, int):
- *   LDC "java/net/Socket"            // className
- *   LDC "connect"                     // methodName
- *   LDC "(Ljava/net/SocketAddress;I)V" // descriptor
- *   LDC "net_connect_pre"             // pointKey
- *   INVOKESTATIC RuntimeSpy.onIntercept
- *   // 原始方法体...
- *   LDC "java/net/Socket"             // className
- *   LDC "connect"                     // methodName
- *   LDC "(Ljava/net/SocketAddress;I)V" // descriptor
- *   LDC "net_connect_post"            // pointKey
- *   INVOKESTATIC RuntimeSpy.onIntercept
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 网络拦截器 — 劫持 套接字/HTTP/TCP/UDP 通信。
+*
+* <p>字节码插桩实现：</p>
+* <p>对目标网络类（如 java/net/Socket）的 connect/read/write 方法，
+* 在方法入口/出口插入 runtimespy.onintercept()。</p>
+*
+* <p>ASM 插入的字节码：</p>
+* <pre>
+* Socket.connect(InetSocketAddress, int):
+*   LDC "java/net/Socket"            // className
+*   LDC "connect"                     // methodName
+*   LDC "(Ljava/net/SocketAddress;I)V" // descriptor
+*   LDC "net_connect_pre"             // pointKey
+*   INVOKESTATIC RuntimeSpy.onIntercept
+*   // 原始方法体...
+*   LDC "java/net/Socket"             // className
+*   LDC "connect"                     // methodName
+*   LDC "(Ljava/net/SocketAddress;I)V" // descriptor
+*   LDC "net_connect_post"            // pointKey
+*   INVOKESTATIC RuntimeSpy.onIntercept
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(NetHandler.class.getName());
 
     /**
-      * Java.net.套接字 类名
+    * Java.net.套接字 类名
      */
     private static final String SOCKET_CLASS = "java/net/Socket";
 
     /**
-      * Java.net.datagram套接字 类名
+    * Java.net.datagram套接字 类名
      */
     private static final String DATAGRAM_CLASS = "java/net/DatagramSocket";
 
     /**
-      * Java.net.httpurlconnection 类名
+    * Java.net.httpurlconnection 类名
      */
     private static final String HTTP_URL_CONN = "java/net/HttpURLConnection";
 
     /**
-     * 网络记录列表
+    * 网络记录列表
      */
     private final BoundedRecordList<NetRecord> records;
 
     /**
-     * 最大记录数
+    * 最大记录数
      */
     private static final int MAX_RECORDS = 10000;
 
     /**
-     * 是否启用
+    * 是否启用
      */
     private boolean enabled;
 
     /**
-     * 插件上下文
+    * 插件上下文
      */
     private PluginContext context;
 
     /**
-     * 是否已启动
+    * 是否已启动
      */
     private final AtomicBoolean started;
 
@@ -147,9 +147,9 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 接收插桩事件。
-     *
-     * @param context 插桩上下文
+    * 接收插桩事件。
+    *
+    * @param context 插桩上下文
      */
     @Override
     public void onIntercept(InterceptContext context) {
@@ -170,10 +170,10 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 记录连接事件。
-     *
-     * @param ctx    插桩上下文
-     * @param status 连接状态
+    * 记录连接事件。
+    *
+    * @param ctx    插桩上下文
+    * @param status 连接状态
      */
     private void recordConnection(InterceptContext ctx, String status) {
         NetRecord record = new NetRecord();
@@ -191,10 +191,10 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 记录 HTTP 事件。
-     *
-     * @param ctx    插桩上下文
-     * @param status 请求/响应状态
+    * 记录 HTTP 事件。
+    *
+    * @param ctx    插桩上下文
+    * @param status 请求/响应状态
      */
     private void recordHttp(InterceptContext ctx, String status) {
         NetRecord record = new NetRecord();
@@ -212,10 +212,10 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 更新最后一条记录的字节计数。
-     *
-     * @param ctx    插桩上下文
-     * @param action 更新动作
+    * 更新最后一条记录的字节计数。
+    *
+    * @param ctx    插桩上下文
+    * @param action 更新动作
      */
     private void updateLast(InterceptContext ctx, UpdateAction action) {
         if (records.size() == 0) {
@@ -231,7 +231,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 注册 套接字 连接拦截。
+    * 注册 套接字 连接拦截。
      */
     private void registerSocketIntercepts() {
         RuntimeSpy.registerInterceptor(SOCKET_CLASS, "connect",
@@ -242,7 +242,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 注册 datagram套接字 (UDP) 拦截。
+    * 注册 datagram套接字 (UDP) 拦截。
      */
     private void registerDatagramIntercepts() {
         RuntimeSpy.registerInterceptor(DATAGRAM_CLASS, "send",
@@ -253,7 +253,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 注册 httpurlconnection 拦截。
+    * 注册 httpurlconnection 拦截。
      */
     private void registerHttpIntercepts() {
         RuntimeSpy.registerInterceptor(HTTP_URL_CONN, "connect",
@@ -264,10 +264,10 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 解析协议类型。
-     *
-     * @param className 内部类名
-     * @return 协议
+    * 解析协议类型。
+    *
+    * @param className 内部类名
+    * @return 协议
      */
     private String resolveProtocol(String className) {
         if (SOCKET_CLASS.equals(className)) {
@@ -283,123 +283,123 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 添加网络记录。
-     *
-     * @param record 网络记录
+    * 添加网络记录。
+    *
+    * @param record 网络记录
      */
     public void addRecord(NetRecord record) {
         records.add(record);
     }
 
     /**
-     * 获取所有网络记录。
-     *
-     * @return 网络记录列表
+    * 获取所有网络记录。
+    *
+    * @return 网络记录列表
      */
     public List<NetRecord> getRecords() {
         return records.snapshot();
     }
 
     /**
-     * 获取最近 N 条网络记录。
-     *
-     * @param n 条数
-     * @return 网络记录列表
+    * 获取最近 N 条网络记录。
+    *
+    * @param n 条数
+    * @return 网络记录列表
      */
     public List<NetRecord> tail(int n) {
         return records.tail(n);
     }
 
     /**
-     * 清空网络记录。
+    * 清空网络记录。
      */
     public void clear() {
         records.clear();
     }
 
     /**
-     * 更新动作函数接口。
-     * @author CH
-     * @since 4.0.0
+    * 更新动作函数接口。
+    * @author CH
+    * @since 4.0.0
      */
     private interface UpdateAction {
 
         /**
-         * 执行更新。
-         *
-         * @param record 网络记录
+        * 执行更新。
+        *
+        * @param record 网络记录
          */
         void apply(NetRecord record);
     }
 
     /**
-     * 网络记录。
-     *
-     * @since 4.0.0.42
-     * @author CH
+    * 网络记录。
+    *
+    * @since 4.0.0.42
+    * @author CH
      */
     @Data
     public static class NetRecord {
 
         /**
-         * 时间戳
+        * 时间戳
          */
         private long timestamp;
 
         /**
-         * 协议类型
+        * 协议类型
          */
         private String protocol;
 
         /**
-         * 源地址
+        * 源地址
          */
         private String sourceAddress;
 
         /**
-         * 目标地址
+        * 目标地址
          */
         private String targetAddress;
 
         /**
-         * 发送字节数
+        * 发送字节数
          */
         private long bytesSent;
 
         /**
-         * 接收字节数
+        * 接收字节数
          */
         private long bytesReceived;
 
         /**
-         * 耗时（毫秒）
+        * 耗时（毫秒）
          */
         private long duration;
 
         /**
-         * 状态
+        * 状态
          */
         private String status;
 
         /**
-         * 类名
+        * 类名
          */
         private String className;
 
         /**
-         * 方法名
+        * 方法名
          */
         private String methodName;
 
         /**
-         * 增加发送字节数。
+        * 增加发送字节数。
          */
         public void incrementSent() {
             this.bytesSent++;
         }
 
         /**
-         * 增加接收字节数。
+        * 增加接收字节数。
          */
         public void incrementReceived() {
             this.bytesReceived++;

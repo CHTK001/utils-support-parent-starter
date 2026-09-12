@@ -6,25 +6,25 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * 版面分析管线磁盘回调：自动将各阶段中间数据落盘，供人工/脚本查看真实流程效果。
- *
- * <p>各阶段数据输出到指定目录：预处理后的图像。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 版面分析管线磁盘回调：自动将各阶段中间数据落盘，供人工/脚本查看真实流程效果。
+*
+* <p>各阶段数据输出到指定目录：预处理后的图像。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class LayoutPipelineDiskCallback implements LayoutPipelineCallback {
 
     /**
-     * 输出目录。
+    * 输出目录。
      */
     private final Path outputDir;
 
     /**
-     * 构造磁盘回调。
-     *
-     * @param outputDir 输出目录
+    * 构造磁盘回调。
+    *
+    * @param outputDir 输出目录
      */
     public LayoutPipelineDiskCallback(Path outputDir) {
         this.outputDir = outputDir;
@@ -46,10 +46,10 @@ public class LayoutPipelineDiskCallback implements LayoutPipelineCallback {
     }
 
     /**
-     * 写图片到输出目录。
-     *
-     * @param data 图片字节
-     * @param name 文件名
+    * 写图片到输出目录。
+    *
+    * @param data 图片字节
+    * @param name 文件名
      */
     private void write(byte[] data, String name) {
         try {

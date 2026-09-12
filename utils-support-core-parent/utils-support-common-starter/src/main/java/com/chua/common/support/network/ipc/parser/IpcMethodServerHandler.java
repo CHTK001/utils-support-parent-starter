@@ -14,12 +14,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * IPC 方法反射处理器。
- *
- * <p>将 IPC 请求通过反射转发到目标 Bean 的方法上，自动从 JSON 请求体解析参数并返回 JSON 响应。</p>
- *
- * @author CH
- * @since 2026/07/18
+* IPC 方法反射处理器。
+*
+* <p>将 IPC 请求通过反射转发到目标 Bean 的方法上，自动从 JSON 请求体解析参数并返回 JSON 响应。</p>
+*
+* @author CH
+* @since 2026/07/18
  */
 public class IpcMethodServerHandler implements HttpDefaultServerHandler {
 
@@ -32,12 +32,12 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
     private final String path;
 
     /**
-     * 创建 IpcMethodServerHandler 实例
-     * @param objectContext objectContext
-     * @param Class Class
-     * @param targetClass targetClass
-     * @param Method Method
-     * @param String String
+    * 创建 IpcMethodServerHandler 实例
+    * @param objectContext objectContext
+    * @param Class Class
+    * @param targetClass targetClass
+    * @param Method Method
+    * @param String String
      */
     public IpcMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path) {
         this.objectContext = objectContext;

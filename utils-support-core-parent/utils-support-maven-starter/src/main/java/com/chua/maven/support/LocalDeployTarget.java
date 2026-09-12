@@ -7,27 +7,27 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * 本地文件系统部署目标。
- * <p>
- * 将构建产版本复制到本地目录。这是 {@link MavenDeployTarget} 的默认实现。
- * </p>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * LocalDeployTarget target = new LocalDeployTarget("/opt/app");
- * target.connect();
- * target.upload("target/myapp.jar", "myapp.jar");
- * target.disconnect();
- *
- * // 或通过传输客户端
- * MavenClient.create().projectPath("pom.xml").goal("package")
- *     .compileAndDeploy()
- *     .deployTo(new LocalDeployTarget("/opt/app"));
- * }</pre>DeployTarget("/opt/app"));
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 本地文件系统部署目标。
+* <p>
+* 将构建产版本复制到本地目录。这是 {@link MavenDeployTarget} 的默认实现。
+* </p>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* LocalDeployTarget target = new LocalDeployTarget("/opt/app");
+* target.connect();
+* target.upload("target/myapp.jar", "myapp.jar");
+* target.disconnect();
+*
+* // 或通过传输客户端
+* MavenClient.create().projectPath("pom.xml").goal("package")
+*     .compileAndDeploy()
+*     .deployTo(new LocalDeployTarget("/opt/app"));
+* }</pre>DeployTarget("/opt/app"));
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class LocalDeployTarget implements MavenDeployTarget {
 
@@ -35,24 +35,24 @@ public class LocalDeployTarget implements MavenDeployTarget {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LocalDeployTarget.class);
 
     /**
-     * 目标根目录
+    * 目标根目录
      */
     private final String rootDir;
 
     /**
-     * 是否已连接
+    * 是否已连接
      */
     private boolean ready;
 
     /**
-     * 部署回调
+    * 部署回调
      */
     private MavenDeployCallback callback;
 
     /**
-     * 构造本地部署目标
-     *
-     * @param rootDir 目标根目录路径
+    * 构造本地部署目标
+    *
+    * @param rootDir 目标根目录路径
      */
     public LocalDeployTarget(String rootDir) {
         this.rootDir = rootDir;
@@ -143,16 +143,16 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     /**
-     * 获取根目录路径
-     *
-     * @return 根目录
+    * 获取根目录路径
+    *
+    * @return 根目录
      */
     public String getRootDir() {
         return rootDir;
     }
 
     /**
-     * 确保已连接
+    * 确保已连接
      */
     private void ensureReady() {
         if (!ready) {

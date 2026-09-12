@@ -24,59 +24,59 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HTTP 爬虫抓取器。
- *
- * <p>基于 JDK 内置的 {@link HttpClient} 实现 Web 页面抓取。
-   * 支持 获取/POST 请求、自定义请求头、Cookie、代理、超时控制等功能。
- * 当 OkHttp 不在类路径上时作为默认 HTTP 抓取实现。</p>
- *
- * <p>SPI 名称：{@code fetcher:http}</p>
- *
- * @author CH
- * @since 4.0.0.42
+* HTTP 爬虫抓取器。
+*
+* <p>基于 JDK 内置的 {@link HttpClient} 实现 Web 页面抓取。
+* 支持 获取/POST 请求、自定义请求头、Cookie、代理、超时控制等功能。
+* 当 OkHttp 不在类路径上时作为默认 HTTP 抓取实现。</p>
+*
+* <p>SPI 名称：{@code fetcher:http}</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "http", order = 0)
 public class HttpFetcher implements SpiderFetcher {
 
     /**
-     * 默认请求超时时间，30 秒
+    * 默认请求超时时间，30 秒
      */
     private static final int DEFAULT_TIMEOUT = 30_000;
 
     /**
-     * 请求属性键：超时时间（毫秒）。可写整数。
+    * 请求属性键：超时时间（毫秒）。可写整数。
      */
     private static final String ATTR_TIMEOUT = "timeoutMs";
 
     /**
-      * 请求属性键：用户-智能体。
+    * 请求属性键：用户-智能体。
      */
     private static final String ATTR_USER_AGENT = "userAgent";
 
     /**
-      * 默认 用户-智能体
+    * 默认 用户-智能体
      */
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
                     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
     /**
-      * JDK HTTP客户端 实例（无代理时的共享实例）
+    * JDK HTTP客户端 实例（无代理时的共享实例）
      */
     private final HttpClient httpClient;
 
     /**
-      * 默认构造器，使用默认超时和 用户-智能体。
+    * 默认构造器，使用默认超时和 用户-智能体。
      */
     public HttpFetcher() {
         this(DEFAULT_TIMEOUT);
     }
 
     /**
-     * 构造器，指定超时时间。
-     *
-     * @param timeoutMs 请求超时毫秒数
+    * 构造器，指定超时时间。
+    *
+    * @param timeoutMs 请求超时毫秒数
      */
     public HttpFetcher(int timeoutMs) {
         this.httpClient = HttpClient.newBuilder()
@@ -133,10 +133,10 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     /**
-      * 构建 JDK http请求.构建器：URL + 方法 + 头 + Cookie + 主体。
-     *
-     * @param request 爬虫请求
-     * @return JDK 请求构造器
+    * 构建 JDK http请求.构建器：URL + 方法 + 头 + Cookie + 主体。
+    *
+    * @param request 爬虫请求
+    * @return JDK 请求构造器
      */
     private HttpRequest.Builder buildHttpRequest(SpiderRequest request) {
         Map<String, Object> attributes = request.getAttributes() != null
@@ -192,10 +192,10 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     /**
-     * 选择 HTTP 客户端：无代理时复用共享实例，有代理时为本次请求新建。
-     *
-     * @param request 爬虫请求
-     * @return HttpClient 实例
+    * 选择 HTTP 客户端：无代理时复用共享实例，有代理时为本次请求新建。
+    *
+    * @param request 爬虫请求
+    * @return HttpClient 实例
      */
     private HttpClient chooseClient(SpiderRequest request) {
         SpiderProxyConfig proxy = request.getProxy();
@@ -217,14 +217,14 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     /**
-      * 根据代理配置构建 JDK 代理selector。
-     *
-     * <p>根据 {@link SpiderProxyConfig#getProxyProtocol()} 选择代理类型：
-     * SOCKS/SOCKS5 使用 {@link Proxy.Type#SOCKS}，其余（HTTP/HTTPS）使用
-     * {@link Proxy.Type#HTTP}。通过可配置的地址实现代理转发。</p>
-     *
-     * @param proxy 代理配置
-     * @return ProxySelector 实例
+    * 根据代理配置构建 JDK 代理selector。
+    *
+    * <p>根据 {@link SpiderProxyConfig#getProxyProtocol()} 选择代理类型：
+    * SOCKS/SOCKS5 使用 {@link Proxy.Type#SOCKS}，其余（HTTP/HTTPS）使用
+    * {@link Proxy.Type#HTTP}。通过可配置的地址实现代理转发。</p>
+    *
+    * @param proxy 代理配置
+    * @return ProxySelector 实例
      */
     private ProxySelector buildProxySelector(SpiderProxyConfig proxy) {
         InetSocketAddress address = new InetSocketAddress(proxy.getProxyHost(), proxy.getProxyPort());
@@ -250,10 +250,10 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     /**
-      * 合并 Cookie 字符串与结构化 Cookie列表 为标准 Cookie 请求头。
-     *
-     * @param request 爬虫请求
-     * @return Cookie 请求头值；都为空时返回 空
+    * 合并 Cookie 字符串与结构化 Cookie列表 为标准 Cookie 请求头。
+    *
+    * @param request 爬虫请求
+    * @return Cookie 请求头值；都为空时返回 空
      */
     private String buildCookieHeader(SpiderRequest request) {
         StringBuilder builder = new StringBuilder();

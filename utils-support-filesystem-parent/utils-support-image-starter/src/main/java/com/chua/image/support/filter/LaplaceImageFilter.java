@@ -10,65 +10,65 @@ import javax.annotation.Nullable;
 
 
 /**
- * 拉普拉斯图像锐化滤镜
- *
- * 基于拉普拉斯算子的图像锐化滤镜，提供多种图像增强处理模式。
- * 拉普拉斯算子是一种二阶微分算子，能够检测图像中的边缘并进行锐化处理。
- *
- * 技术原理：
- * - 拉普拉斯算子：二阶微分算子，对图像进行边缘检测
- * - 图像锐化：通过增强边缘来提高图像清晰度
- * - 多算法融合：结合拉普拉斯、Sobel、均值滤波等多种算法
- * - 伽马校正：调整图像的亮度和对比度
- *
- * 拉普拉斯算子（3x3）：
- * [ 0 -1  0]
- * [-1  4 -1]
- * [ 0 -1  0]
- *
- * 处理模式：
- * 1. 基础拉普拉斯处理：直接应用拉普拉斯算子
- * 2. 拉普拉斯叠加处理：拉普拉斯结果与原图叠加
- * 3. Sobel边缘检测：使用Sobel算子进行边缘检测
- * 4. 均值滤波处理：5x5均值滤波平滑处理
- * 5. 数学运算处理：多种算法结果的数学组合
- * 6. 伽马校正处理：最终的亮度和对比度调整
- *
- * 算法特点：
- * - 边缘增强：有效增强图像的边缘和细节
- * - 噪声敏感：对噪声比较敏感，可能放大噪声
- * - 多级处理：提供从简单到复杂的多种处理级别
- * - 自适应处理：可根据图像特点选择合适的处理模式
- *
- * 应用场景：
- * - 图像锐化：提高图像的清晰度和细节
- * - 边缘增强：突出显示图像中的边缘信息
- * - 医学影像：医学图像的边缘增强和细节提升
- * - 工业检测：产品表面缺陷检测和边缘分析
- * - 图像预处理：为后续处理准备高质量图像
- * - 印刷出版：提高印刷图像的清晰度
- *
- * 使用建议：
- * - 对于噪声较多的图像，建议先进行降噪处理
- * - 可根据图像特点选择合适的处理强度
- * - 建议与其他滤镜组合使用以获得最佳效果
- *
- * @author CH
-   * @版本 1.0.0
- * @since 2024/10/2
+* 拉普拉斯图像锐化滤镜
+*
+* 基于拉普拉斯算子的图像锐化滤镜，提供多种图像增强处理模式。
+* 拉普拉斯算子是一种二阶微分算子，能够检测图像中的边缘并进行锐化处理。
+*
+* 技术原理：
+* - 拉普拉斯算子：二阶微分算子，对图像进行边缘检测
+* - 图像锐化：通过增强边缘来提高图像清晰度
+* - 多算法融合：结合拉普拉斯、Sobel、均值滤波等多种算法
+* - 伽马校正：调整图像的亮度和对比度
+*
+* 拉普拉斯算子（3x3）：
+* [ 0 -1  0]
+* [-1  4 -1]
+* [ 0 -1  0]
+*
+* 处理模式：
+* 1. 基础拉普拉斯处理：直接应用拉普拉斯算子
+* 2. 拉普拉斯叠加处理：拉普拉斯结果与原图叠加
+* 3. Sobel边缘检测：使用Sobel算子进行边缘检测
+* 4. 均值滤波处理：5x5均值滤波平滑处理
+* 5. 数学运算处理：多种算法结果的数学组合
+* 6. 伽马校正处理：最终的亮度和对比度调整
+*
+* 算法特点：
+* - 边缘增强：有效增强图像的边缘和细节
+* - 噪声敏感：对噪声比较敏感，可能放大噪声
+* - 多级处理：提供从简单到复杂的多种处理级别
+* - 自适应处理：可根据图像特点选择合适的处理模式
+*
+* 应用场景：
+* - 图像锐化：提高图像的清晰度和细节
+* - 边缘增强：突出显示图像中的边缘信息
+* - 医学影像：医学图像的边缘增强和细节提升
+* - 工业检测：产品表面缺陷检测和边缘分析
+* - 图像预处理：为后续处理准备高质量图像
+* - 印刷出版：提高印刷图像的清晰度
+*
+* 使用建议：
+* - 对于噪声较多的图像，建议先进行降噪处理
+* - 可根据图像特点选择合适的处理强度
+* - 建议与其他滤镜组合使用以获得最佳效果
+*
+* @author CH
+* @版本 1.0.0
+* @since 2024/10/2
  */
 @Spi("laplace")
 @SpiDescribe("拉普拉斯图像锐化滤镜")
 public class LaplaceImageFilter extends AbstractImageFilter{
     /**
-     * 执行拉普拉斯滤镜处理
-     *
-     * 默认使用拉普拉斯叠加处理模式，将拉普拉斯算子的结果与原图像叠加，
-     * 实现图像锐化效果。
-     *
-     * @param src 源图像
-     * @param dst 目标图像（此参数未使用）
-     * @return 处理后的图像
+    * 执行拉普拉斯滤镜处理
+    *
+    * 默认使用拉普拉斯叠加处理模式，将拉普拉斯算子的结果与原图像叠加，
+    * 实现图像锐化效果。
+    *
+    * @param src 源图像
+    * @param dst 目标图像（此参数未使用）
+    * @return 处理后的图像
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
@@ -78,13 +78,13 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     }
 
     /**
-     * 基础拉普拉斯处理
-     *
-     * 直接应用拉普拉斯算子对图像进行边缘检测和锐化处理。
-     * 使用标准的3x3拉普拉斯卷积核进行处理。
-     *
-     * @param src 源图像
-     * @return 拉普拉斯处理后的图像
+    * 基础拉普拉斯处理
+    *
+    * 直接应用拉普拉斯算子对图像进行边缘检测和锐化处理。
+    * 使用标准的3x3拉普拉斯卷积核进行处理。
+    *
+    * @param src 源图像
+    * @return 拉普拉斯处理后的图像
      */
     public BufferedImage laplaceProcess(BufferedImage src) {
 
@@ -180,18 +180,18 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return dest;
     }
     /**
-     * 拉普拉斯叠加原图像处理
-     *
-     * 将拉普拉斯算子的处理结果与原图像进行叠加，实现图像锐化效果。
-     * 这种方法能够在保持原图像信息的同时增强边缘和细节。
-     *
-     * 处理流程：
-     * 1. 对图像应用拉普拉斯算子
-     * 2. 将拉普拉斯结果与原图像像素值相加
-     * 3. 限制结果在有效颜色范围内
-     *
-     * @param src 源图像
-     * @return 拉普拉斯叠加处理后的图像
+    * 拉普拉斯叠加原图像处理
+    *
+    * 将拉普拉斯算子的处理结果与原图像进行叠加，实现图像锐化效果。
+    * 这种方法能够在保持原图像信息的同时增强边缘和细节。
+    *
+    * 处理流程：
+    * 1. 对图像应用拉普拉斯算子
+    * 2. 将拉普拉斯结果与原图像像素值相加
+    * 3. 限制结果在有效颜色范围内
+    *
+    * @param src 源图像
+    * @return 拉普拉斯叠加处理后的图像
      */
     public BufferedImage laplaceAddProcess(BufferedImage src) {
 
@@ -293,10 +293,10 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return dest;
     }
     /**
-     * Sobel处理
-     *
-     * @param src src
-     * @return sobel处理的结果
+    * Sobel处理
+    *
+    * @param src src
+    * @return sobel处理的结果
      */
     public BufferedImage sobelProcess(BufferedImage src) {
 
@@ -435,9 +435,9 @@ public class LaplaceImageFilter extends AbstractImageFilter{
 
     }
     /**
-     * 均值滤波 *
-     * @param src src
-     * @return mean值处理的结果
+    * 均值滤波 *
+    * @param src src
+    * @return mean值处理的结果
      */
     public BufferedImage meanValueProcess(BufferedImage src) {
 
@@ -506,9 +506,9 @@ public class LaplaceImageFilter extends AbstractImageFilter{
         return dest;
     }
     /**
-     * 数学运算
-     * @param src src
-     * @return math处理的结果
+    * 数学运算
+    * @param src src
+    * @return math处理的结果
      */
     public BufferedImage mathProcess(BufferedImage src) {
 
@@ -605,9 +605,9 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     }
 
     /**
-     * 伽马变化
-     * @param src src
-     * @return gamma处理的结果
+    * 伽马变化
+    * @param src src
+    * @return gamma处理的结果
      */
     public BufferedImage gammaProcess(BufferedImage src) {
 

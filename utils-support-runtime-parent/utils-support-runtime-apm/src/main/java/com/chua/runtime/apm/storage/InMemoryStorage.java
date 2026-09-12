@@ -12,18 +12,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 内存存储 — 带 LRU + TTL 限制。
- *
- * <p>无数据库场景使用，单进程内有效。重启即清空（除非外加 snapshot 持久化）。</p>
- *
- * <p>容量上限通过 {@code apm.storage.capacity} 配置；TTL 通过
- * {@code apm.storage.retention.ms} 配置。超限时按时间淘汰最旧数据。</p>
- *
- * <p>线程安全：所有 collections 均为并发安全容器,容量淘汰使用 synchronized 块保证原子性,
- * 避免迭代与修改的并发问题。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 内存存储 — 带 LRU + TTL 限制。
+*
+* <p>无数据库场景使用，单进程内有效。重启即清空（除非外加 snapshot 持久化）。</p>
+*
+* <p>容量上限通过 {@code apm.storage.capacity} 配置；TTL 通过
+* {@code apm.storage.retention.ms} 配置。超限时按时间淘汰最旧数据。</p>
+*
+* <p>线程安全：所有 collections 均为并发安全容器,容量淘汰使用 synchronized 块保证原子性,
+* 避免迭代与修改的并发问题。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Log
 public class InMemoryStorage implements ApmStorage {
@@ -31,11 +31,11 @@ public class InMemoryStorage implements ApmStorage {
     /** 自增 标识 分配器 */
     private final AtomicLong transmissionSeq = new AtomicLong();
     /**
-     * leak Seq
+    * leak Seq
      */
     private final AtomicLong leakSeq = new AtomicLong();
     /**
-      * 日志 Seq
+    * 日志 Seq
      */
     private final AtomicLong logSeq = new AtomicLong();
 
@@ -52,11 +52,11 @@ public class InMemoryStorage implements ApmStorage {
     private final Map<Long, LogRecord> logs = new ConcurrentHashMap<>();
 
     /**
-      * 容量
+    * 容量
      */
     private volatile int capacity = 100_000;
     /**
-     * retention（毫秒）
+    * retention（毫秒）
      */
     private volatile long retentionMillis = 7L * 24 * 60 * 60 * 1000L;
 
@@ -200,9 +200,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     /**
-      * 线程安全的过期清理 — 使用 迭代器.移除() 避免 流().peek(移除) 的并发修改问题。
-     * @param cutoff cutoff
-     * @return cleanup内部的结果
+    * 线程安全的过期清理 — 使用 迭代器.移除() 避免 流().peek(移除) 的并发修改问题。
+    * @param cutoff cutoff
+    * @return cleanup内部的结果
      */
     private long cleanupInternal(long cutoff) {
         long removed = 0;
@@ -214,10 +214,10 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     /**
-      * 移除if旧thanleak
-     * @param map 映射
-     * @param cutoff cutoff
-     * @param tsExtractor tsextractor
+    * 移除if旧thanleak
+    * @param map 映射
+    * @param cutoff cutoff
+    * @param tsExtractor tsextractor
      */
     private static <V> long removeIfOlderThanLeak(Map<String, LeakRecord> map, long cutoff,
                                                   java.util.function.Function<LeakRecord, Long> tsExtractor) {
@@ -225,10 +225,10 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     /**
-      * 移除if旧thanlong
-     * @param map 映射
-     * @param cutoff cutoff
-     * @param tsExtractor tsextractor
+    * 移除if旧thanlong
+    * @param map 映射
+    * @param cutoff cutoff
+    * @param tsExtractor tsextractor
      */
     private static <V> long removeIfOlderThanLong(Map<Long, V> map, long cutoff,
                                                   java.util.function.Function<V, Long> tsExtractor) {
@@ -237,11 +237,11 @@ public class InMemoryStorage implements ApmStorage {
 
     @SuppressWarnings("unchecked")
     /**
-      * 执行移除旧
-     * @param map 映射
-     * @param cutoff cutoff
-     * @param tsExtractor V
-     * @param tsExtractor tsextractor
+    * 执行移除旧
+    * @param map 映射
+    * @param cutoff cutoff
+    * @param tsExtractor V
+    * @param tsExtractor tsextractor
      */
     private static <K, V> long doRemoveOlder(Map<K, V> map, long cutoff,
                                             java.util.function.Function<? super V, Long> tsExtractor) {
@@ -271,10 +271,10 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     /**
-     * 容量超限时按主键顺序淘汰最旧 N% 数据。
-      * 使用 同步 块保证 放入/evict 原子性,防止并发越界。
-     * @param map 映射
-     * @return enforce容量long的结果
+    * 容量超限时按主键顺序淘汰最旧 N% 数据。
+    * 使用 同步 块保证 放入/evict 原子性,防止并发越界。
+    * @param map 映射
+    * @return enforce容量long的结果
      */
     private <V> void enforceCapacityLong(Map<Long, V> map) {
         synchronized (map) {
@@ -292,8 +292,8 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     /**
-      * dependencies 映射 的容量淘汰(泛型 键 类型不同,独立方法)
-     * @param map 映射
+    * dependencies 映射 的容量淘汰(泛型 键 类型不同,独立方法)
+    * @param map 映射
      */
     private void enforceCapacityStr(Map<String, DependencyEdge> map) {
         synchronized (map) {
@@ -311,11 +311,11 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     /**
-     * 匹配时间
-     *
-     * @param ts ts
-     * @param q q
-     * @return 匹配时间的结果
+    * 匹配时间
+    *
+    * @param ts ts
+    * @param q q
+    * @return 匹配时间的结果
      */
     private static boolean matchTime(long ts, Query q) {
         if (q.getStartTime() != null && ts < q.getStartTime()) {
@@ -328,11 +328,11 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     /**
-     * 匹配字符串
-     *
-     * @param value 值
-     * @param filter 过滤器
-     * @return 匹配字符串的结果
+    * 匹配字符串
+    *
+    * @param value 值
+    * @param filter 过滤器
+    * @return 匹配字符串的结果
      */
     private static boolean matchString(String value, String filter) {
         if (filter == null || filter.isEmpty()) {

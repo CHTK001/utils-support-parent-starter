@@ -14,11 +14,11 @@ import java.util.function.BiConsumer;
 
 
 /**
- * JSON 对象类，继承自 LinkedHashMap，用于存储和操作键值对。
- * 提供了流畅的 API 方法以及便捷的方法来访问嵌套的 JSON 结构（如 JsonObject 和 JsonArray）。
- *
- * @author CH
- * @since 4.0.0.42
+* JSON 对象类，继承自 LinkedHashMap，用于存储和操作键值对。
+* 提供了流畅的 API 方法以及便捷的方法来访问嵌套的 JSON 结构（如 JsonObject 和 JsonArray）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @SuppressWarnings("ALL")
 public class JsonObject extends LinkedHashMap<String, Object> {
@@ -229,10 +229,10 @@ public class JsonObject extends LinkedHashMap<String, Object> {
     }
 
     /**
-     * 将一个 Java Bean 对象转换为 JsonObject（走当前 {@link JsonProvider} SPI 节点工厂）。
-     *
-     * @param bean 源 Bean 对象
-     * @return 转换后的 JsonObject
+    * 将一个 Java Bean 对象转换为 JsonObject（走当前 {@link JsonProvider} SPI 节点工厂）。
+    *
+    * @param bean 源 Bean 对象
+    * @return 转换后的 JsonObject
      */
     public static JsonObject create(Object bean) {
         return Json.createJsonObject(BeanUtils.objectToMap(bean));
@@ -343,9 +343,9 @@ public class JsonObject extends LinkedHashMap<String, Object> {
         super.forEach(new BiConsumer<String, Object>() {
             @Override
             /**
-             * Accept
-             * @param s s
-             * @param o o
+            * Accept
+            * @param s s
+            * @param o o
              */
             public void accept(String s, Object o) {
                 if (o instanceof Map) {

@@ -1,15 +1,15 @@
 package com.chua.common.support.status;
 
 /**
-   * 服务器运行状态枚举，标记 启动 / RUNNING / STOPPING / STOPPED / PAUSED / 错误 六种生命周期阶段。
- *
- * @author CH
- * @since 4.0.0.42
+* 服务器运行状态枚举，标记 启动 / RUNNING / STOPPING / STOPPED / PAUSED / 错误 六种生命周期阶段。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public enum ServerStatus {
 
     /**
-     * 启动中：尚未接受请求
+    * 启动中：尚未接受请求
      */
     STARTING {
         @Override
@@ -20,7 +20,7 @@ public enum ServerStatus {
     },
 
     /**
-     * 运行中：接受请求
+    * 运行中：接受请求
      */
     RUNNING {
         @Override
@@ -31,7 +31,7 @@ public enum ServerStatus {
     },
 
     /**
-     * 停止中：暂不接受新请求，等待正在处理的请求完成
+    * 停止中：暂不接受新请求，等待正在处理的请求完成
      */
     STOPPING {
         @Override
@@ -42,7 +42,7 @@ public enum ServerStatus {
     },
 
     /**
-     * 已停止：不接受请求
+    * 已停止：不接受请求
      */
     STOPPED {
         @Override
@@ -53,7 +53,7 @@ public enum ServerStatus {
     },
 
     /**
-     * 已暂停：临时不接受请求，可恢复
+    * 已暂停：临时不接受请求，可恢复
      */
     PAUSED {
         @Override
@@ -64,7 +64,7 @@ public enum ServerStatus {
     },
 
     /**
-     * 异常状态：发生错误，拒绝请求
+    * 异常状态：发生错误，拒绝请求
      */
     ERROR {
         @Override
@@ -75,9 +75,9 @@ public enum ServerStatus {
     };
 
     /**
-     * 当前状态下服务器是否接受请求。
-     *
-     * @return true 表示可接受请求
+    * 当前状态下服务器是否接受请求。
+    *
+    * @return true 表示可接受请求
      */
     public abstract boolean canAcceptRequests();
 }

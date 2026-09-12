@@ -6,29 +6,29 @@ import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
 
 /**
- * Engine 删除包装器。
- *
- * @param <T> 实体类型
- * @author CH
- * @since 4.0.0.42
+* Engine 删除包装器。
+*
+* @param <T> 实体类型
+* @author CH
+* @since 4.0.0.42
  */
 public class EngineDeleteWrapper<T> extends LambdaDeleteWrapper<T> {
 
     /**
-     * 引擎实例。
+    * 引擎实例。
      */
     private final AbstractEngine engine;
 
     /**
-     * 实体类类型。
+    * 实体类类型。
      */
     private final Class<T> entityClass;
 
     /**
-     * 构造函数。
-     *
-     * @param engine      引擎实例
-     * @param entityClass 实体类类型
+    * 构造函数。
+    *
+    * @param engine      引擎实例
+    * @param entityClass 实体类类型
      */
     public EngineDeleteWrapper(AbstractEngine engine, Class<T> entityClass) {
         super(entityClass);

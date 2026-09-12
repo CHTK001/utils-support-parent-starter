@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * pip 软件包管理器提供器。
- *
- * <p>通过 pip CLI 搜索、安装和卸载 Python 软件包。
-   * 支持 <code>pip 搜索</code>（已废弃，使用 pip install 试探）、
- * <code>pip install</code>、<code>pip uninstall</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* pip 软件包管理器提供器。
+*
+* <p>通过 pip CLI 搜索、安装和卸载 Python 软件包。
+* 支持 <code>pip 搜索</code>（已废弃，使用 pip install 试探）、
+* <code>pip install</code>、<code>pip uninstall</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("pip")
 public class PipSoftwareProvider implements SoftwareProvider {
@@ -93,12 +93,12 @@ public class PipSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -126,10 +126,10 @@ public class PipSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析pip输出
-     *
-     * @param output 输出
-     * @return 解析pip输出的结果
+    * 解析pip输出
+    *
+    * @param output 输出
+    * @return 解析pip输出的结果
      */
     private List<SoftwareInfo> parsePipOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();

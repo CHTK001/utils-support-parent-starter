@@ -3,10 +3,10 @@ package com.chua.h2.support.dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 
 /**
- * H2 1.x 方言实现。
- *
- * @author CH
- * @since 4.0.0.42
+* H2 1.x 方言实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class H2V1Dialect extends com.chua.datasource.support.dialect.AbstractDialect {
 

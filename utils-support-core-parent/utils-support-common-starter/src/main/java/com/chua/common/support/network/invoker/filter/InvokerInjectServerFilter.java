@@ -7,14 +7,14 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * 内置注入过滤器，将 {@code @RemoteInject} 注解和 {@code addInject} 注册的注入规则
- * 在每次调用时应用到请求头或共享上下文中。
- *
- * <p>自动通过 SPI 发现，无需手动注册。order 设为最高优先级（-1000），
- * 确保在业务过滤器之前执行。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 内置注入过滤器，将 {@code @RemoteInject} 注解和 {@code addInject} 注册的注入规则
+* 在每次调用时应用到请求头或共享上下文中。
+*
+* <p>自动通过 SPI 发现，无需手动注册。order 设为最高优先级（-1000），
+* 确保在业务过滤器之前执行。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("invoker_inject")
 public class InvokerInjectServerFilter implements ServerFilter {

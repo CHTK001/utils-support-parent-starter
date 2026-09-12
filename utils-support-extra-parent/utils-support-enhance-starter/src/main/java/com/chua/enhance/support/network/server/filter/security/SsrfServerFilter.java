@@ -12,29 +12,29 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * SSRF 防护过滤器，阻止服务端请求伪造攻击。
- *
- * <p>检查请求头中的 {@code Referer} 和 {@code Origin} 是否指向内网地址，
- * 防止攻击者利用服务器发起对内网资源的请求。
- *
- * <h2>配置参数</h2>
- * <ul>
- *   <li>{@code ssrf.allowedDomains} — 逗号分隔的允许域名白名单</li>
- *   <li>{@code ssrf.blockInternal} — 是否阻止内网地址，默认 true</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* SSRF 防护过滤器，阻止服务端请求伪造攻击。
+*
+* <p>检查请求头中的 {@code Referer} 和 {@code Origin} 是否指向内网地址，
+* 防止攻击者利用服务器发起对内网资源的请求。
+*
+* <h2>配置参数</h2>
+* <ul>
+*   <li>{@code ssrf.allowedDomains} — 逗号分隔的允许域名白名单</li>
+*   <li>{@code ssrf.blockInternal} — 是否阻止内网地址，默认 true</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class SsrfServerFilter implements ServerFilter {
 
     /**
-     * 允许的域名白名单
+    * 允许的域名白名单
      */
     private final Set<String> allowedDomains = new HashSet<>();
 
     /**
-     * 是否阻止内网地址
+    * 是否阻止内网地址
      */
     private boolean blockInternal = true;
 
@@ -85,9 +85,9 @@ public class SsrfServerFilter implements ServerFilter {
     }
 
     /**
-     * 检查 URL 中的主机是否在白名单中且不是内网地址。
-     * @param url url
-     * @return 是否allowed主机的结果
+    * 检查 URL 中的主机是否在白名单中且不是内网地址。
+    * @param url url
+    * @return 是否allowed主机的结果
      */
     private boolean isAllowedHost(String url) {
         try {
@@ -116,9 +116,9 @@ public class SsrfServerFilter implements ServerFilter {
     }
 
     /**
-     * 判断是否为内网地址。
-     * @param host 主机
-     * @return 是否内部地址的结果
+    * 判断是否为内网地址。
+    * @param host 主机
+    * @return 是否内部地址的结果
      */
     private boolean isInternalAddress(String host) {
         if ("localhost".equals(host) || "127.0.0.1".equals(host) || "::1".equals(host)) {

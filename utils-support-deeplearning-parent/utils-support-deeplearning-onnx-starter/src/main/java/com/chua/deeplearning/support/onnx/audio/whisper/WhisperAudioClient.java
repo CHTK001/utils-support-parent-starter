@@ -13,54 +13,54 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 /**
- * 基于 ONNX Runtime 的本地 Whisper ASR 客户端。
- *
- * <p>通过 {@link WhisperTranslator} 在本地 CPU 端进行 30 秒窗口的语音转写，
- * 不依赖任何云服务，适合离线 / 隐私 / 嵌入式场景。
- *
- * <p>用法：
- * <pre>{@code
- *   String text = VirtualClient.create("whisper", "")
- *       .model("whisper-tiny")
- *       .language("zh")
- *       .transcribe(Path.of("audio.wav"));
- * }</pre>(Path.of("audio.wav"));
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 ONNX Runtime 的本地 Whisper ASR 客户端。
+*
+* <p>通过 {@link WhisperTranslator} 在本地 CPU 端进行 30 秒窗口的语音转写，
+* 不依赖任何云服务，适合离线 / 隐私 / 嵌入式场景。
+*
+* <p>用法：
+* <pre>{@code
+*   String text = VirtualClient.create("whisper", "")
+*       .model("whisper-tiny")
+*       .language("zh")
+*       .transcribe(Path.of("audio.wav"));
+* }</pre>(Path.of("audio.wav"));
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"whisper", "whisper-tiny", "whisper-onnx"})
 public class WhisperAudioClient implements VirtualClient {
 
     /**
-     * 默认模型名
+    * 默认模型名
      */
     private static final String DEFAULT_MODEL = "whisper-tiny";
 
     /**
-      * 类路径 资源根路径
+    * 类路径 资源根路径
      */
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /**
-     * 模型缓存根目录（相对 {@code deeplearning.model.cache-dir} 或 {@code %TEMP%}）
+    * 模型缓存根目录（相对 {@code deeplearning.model.cache-dir} 或 {@code %TEMP%}）
      */
     private static final String CACHE_ROOT = "audio/asr/";
 
     /**
-     * 临时音频文件名前缀
+    * 临时音频文件名前缀
      */
     private static final String TMP_AUDIO_PREFIX = "whisper-audio-";
 
     /**
-     * 临时音频文件名后缀
+    * 临时音频文件名后缀
      */
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
     /**
-      * 任务 标识 前缀
+    * 任务 标识 前缀
      */
     private static final String TASK_ID_PREFIX = "whisper-";
 
@@ -103,8 +103,8 @@ public class WhisperAudioClient implements VirtualClient {
     private boolean prepared;
 
     /**
-      * 创建 whisper音频客户端 实例
-     * @param setting setting
+    * 创建 whisper音频客户端 实例
+    * @param setting setting
      */
     public WhisperAudioClient(AudioClientSetting setting) {
         this.setting = setting;
@@ -270,10 +270,10 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     /**
-     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
-     * 未配置时回落 {@code %TEMP%}。
-     *
-     * @return 缓存根目录
+    * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+    * 未配置时回落 {@code %TEMP%}。
+    *
+    * @return 缓存根目录
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
@@ -281,9 +281,9 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     /**
-     * 解析音频路径
-     *
-     * @return resolve音频路径的结果
+    * 解析音频路径
+    *
+    * @return resolve音频路径的结果
      */
     private Path resolveAudioPath() {
         if (audioPath != null) {

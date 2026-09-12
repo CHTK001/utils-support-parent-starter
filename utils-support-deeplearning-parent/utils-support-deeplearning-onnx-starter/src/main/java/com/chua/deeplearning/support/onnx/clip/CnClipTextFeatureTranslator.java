@@ -16,13 +16,13 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
- * CN-CLIP                 Translator   
- *
- * <p>CN-CLIP        Chinese-CLIP ViT-B/16 text encoder ONNX                       
-   * 输入 输入_标识 [1,52] + attention_mask [1,52]  unnorm_文本_特征 [1,512]           </p>
- *
- * @author CH
- * @since 4.0.0.42
+* CN-CLIP                 Translator   
+*
+* <p>CN-CLIP        Chinese-CLIP ViT-B/16 text encoder ONNX                       
+* 输入 输入_标识 [1,52] + attention_mask [1,52]  unnorm_文本_特征 [1,512]           </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class CnClipTextFeatureTranslator implements Translator<String, float[]> {
 
@@ -71,10 +71,10 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     /**
-     * 解析模型根
-     *
-     * @param modelPath 模型路径
-     * @return resolve模型根的结果
+    * 解析模型根
+    *
+    * @param modelPath 模型路径
+    * @return resolve模型根的结果
      */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -85,11 +85,11 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     /**
-     * 解析第一个existing
-     *
-     * @param modelRoot 模型根
-     * @param names 名称
-     * @return resolve第一个existing的结果
+    * 解析第一个existing
+    *
+    * @param modelRoot 模型根
+    * @param names 名称
+    * @return resolve第一个existing的结果
      */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
@@ -102,11 +102,11 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     /**
-     * Truncate
-     *
-     * @param ids 标识
-     * @param maxLen 最大len
-     * @return truncate的结果
+    * Truncate
+    *
+    * @param ids 标识
+    * @param maxLen 最大len
+    * @return truncate的结果
      */
     private static long[] truncate(long[] ids, int maxLen) {
         long[] out = new long[maxLen];

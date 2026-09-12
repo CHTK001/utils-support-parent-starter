@@ -10,14 +10,14 @@ import javax.tools.Diagnostic;
 import java.util.Set;
 
 /**
- * {@link Trim} 注解的 AST 处理器
- * <p>
-   * 在编译期扫描标注了 {@code @Trim} 注解的 字符串 类型方法参数，
- * 在方法体开头插入 {@code param = param.trim();} 赋值语句。
- * </p>
- *
- * @author CH
- * @since 4.0.0
+* {@link Trim} 注解的 AST 处理器
+* <p>
+* 在编译期扫描标注了 {@code @Trim} 注解的 字符串 类型方法参数，
+* 在方法体开头插入 {@code param = param.trim();} 赋值语句。
+* </p>
+*
+* @author CH
+* @since 4.0.0
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Trim")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -81,10 +81,10 @@ public final class TrimAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 是否字符串类型
-     *
-     * @param type 类型
-     * @return 是否字符串类型的结果
+    * 是否字符串类型
+    *
+    * @param type 类型
+    * @return 是否字符串类型的结果
      */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != javax.lang.model.type.TypeKind.DECLARED) { return false; }
@@ -93,9 +93,9 @@ public final class TrimAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 应用去空格转换
-     * @param methodTree 方法树
-     * @param paramName 参数名称
+    * 应用去空格转换
+    * @param methodTree 方法树
+    * @param paramName 参数名称
      */
     private void applyTrimTransform(com.sun.source.tree.MethodTree methodTree,
             String paramName) throws Exception {

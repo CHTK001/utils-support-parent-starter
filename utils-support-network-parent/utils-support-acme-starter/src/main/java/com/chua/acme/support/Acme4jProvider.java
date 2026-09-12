@@ -34,54 +34,54 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * 基于 ACME4J 的 ACME 提供者实现。
- *
- * <p>支持 Let's Encrypt、ZeroSSL 等标准 ACME 服务器，验证方式支持 HTTP-01 与 DNS-01。
- * 申请流程采用「先获取验证信息，后完成签发」的两阶段模式：</p>
- * <ol>
- *     <li>{@link #getValidationInfo} 创建订单并返回域名验证信息（token / 文件路径 / DNS 记录）；</li>
- *     <li>{@link #requestCertificate} 复用同一订单，在验证通过后完成 CSR 提交与证书下载。</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
-   * @版本 1.0.0
+* 基于 ACME4J 的 ACME 提供者实现。
+*
+* <p>支持 Let's Encrypt、ZeroSSL 等标准 ACME 服务器，验证方式支持 HTTP-01 与 DNS-01。
+* 申请流程采用「先获取验证信息，后完成签发」的两阶段模式：</p>
+* <ol>
+*     <li>{@link #getValidationInfo} 创建订单并返回域名验证信息（token / 文件路径 / DNS 记录）；</li>
+*     <li>{@link #requestCertificate} 复用同一订单，在验证通过后完成 CSR 提交与证书下载。</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
+* @版本 1.0.0
  */
 @Slf4j
 public class Acme4jProvider implements AcmeProvider {
 
     /**
-     * 最大等待验证次数
+    * 最大等待验证次数
      */
     private static final int MAX_ATTEMPTS = 30;
 
     /**
-     * 轮询间隔（毫秒）
+    * 轮询间隔（毫秒）
      */
     private static final long POLL_INTERVAL_MS = 3000L;
 
     /**
-     * ACME 会话
+    * ACME 会话
      */
     private Session session;
     /**
-     * ACME 账户
+    * ACME 账户
      */
     private Account account;
     /**
-     * 账户密钥对
+    * 账户密钥对
      */
     private KeyPair accountKeyPair;
     /**
-     * 账户私钥 PEM 内容
+    * 账户私钥 PEM 内容
      */
     private String accountPrivateKeyPem;
     /**
-      * 当前订单（获取校验信息 创建，请求证书 复用）
+    * 当前订单（获取校验信息 创建，请求证书 复用）
      */
     private Order currentOrder;
     /**
-     * 证书私钥（申请时生成，返回给调用方）
+    * 证书私钥（申请时生成，返回给调用方）
      */
     private String certificatePrivateKeyPem;
 
@@ -223,11 +223,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 构建单条验证信息。
-     *
-     * @param domain    域名
-     * @param challenge 挑战对象
-     * @return 验证信息，不支持的挑战类型返回 空
+    * 构建单条验证信息。
+    *
+    * @param domain    域名
+    * @param challenge 挑战对象
+    * @return 验证信息，不支持的挑战类型返回 空
      */
     private AcmeValidationInfo buildValidationInfo(String domain, Challenge challenge) {
         AcmeValidationInfo info = new AcmeValidationInfo();
@@ -251,11 +251,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 触发订单中所有待验证且匹配类型的挑战（HTTP-01 / DNS-01）。
-     * <p>调用后 CA 开始发起验证，需在触发前完成验证文件/DNS 记录部署。</p>
-     *
-     * @param order         订单
-     * @param challengeType 挑战类型
+    * 触发订单中所有待验证且匹配类型的挑战（HTTP-01 / DNS-01）。
+    * <p>调用后 CA 开始发起验证，需在触发前完成验证文件/DNS 记录部署。</p>
+    *
+    * @param order         订单
+    * @param challengeType 挑战类型
      */
     private void triggerPendingChallenges(Order order, String challengeType) {
         for (Authorization auth : order.getAuthorizations()) {
@@ -281,12 +281,12 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 轮询等待订单所有授权变为 VALID。
-     * <p>验证文件已部署后，CA 会异步发起验证，通常数秒内完成。</p>
-     *
-     * @param order         订单
-     * @param challengeType 挑战类型
-     * @return 是否全部通过验证
+    * 轮询等待订单所有授权变为 VALID。
+    * <p>验证文件已部署后，CA 会异步发起验证，通常数秒内完成。</p>
+    *
+    * @param order         订单
+    * @param challengeType 挑战类型
+    * @return 是否全部通过验证
      */
     private boolean waitForValid(Order order, String challengeType) {
         int attempts = 10;
@@ -311,11 +311,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 收集订单中尚未通过验证的授权信息。
-     *
-     * @param order         订单
-     * @param challengeType 首选挑战类型（HTTP-01 / DNS-01），不匹配时回退到任一种
-     * @return 待验证信息列表，为空表示所有授权均已通过验证
+    * 收集订单中尚未通过验证的授权信息。
+    *
+    * @param order         订单
+    * @param challengeType 首选挑战类型（HTTP-01 / DNS-01），不匹配时回退到任一种
+    * @return 待验证信息列表，为空表示所有授权均已通过验证
      */
     private List<AcmeValidationInfo> collectPendingValidations(Order order, String challengeType) {
         List<AcmeValidationInfo> pending = new ArrayList<>();
@@ -336,11 +336,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 判断验证类型是否匹配请求类型。
-     *
-     * @param infoType      验证信息类型（HTTP-01 / DNS-01）
-     * @param challengeType 请求类型，可空或空串时视为任意类型
-     * @return 是否匹配
+    * 判断验证类型是否匹配请求类型。
+    *
+    * @param infoType      验证信息类型（HTTP-01 / DNS-01）
+    * @param challengeType 请求类型，可空或空串时视为任意类型
+    * @return 是否匹配
      */
     private boolean matchesChallengeType(String infoType, String challengeType) {
         if (challengeType == null || challengeType.isEmpty()) {
@@ -350,11 +350,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 提交 CSR 并等待签发，下载完整证书链。
-     *
-     * @param order   订单
-     * @param domains 域名列表
-     * @return 证书结果
+    * 提交 CSR 并等待签发，下载完整证书链。
+    *
+    * @param order   订单
+    * @param domains 域名列表
+    * @return 证书结果
      */
     private AcmeCertificateResult executeAndFetchCertificate(Order order, List<String> domains) {
         try {
@@ -410,11 +410,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 加载已有账户私钥或生成新密钥对。
-     *
-     * @param privateKeyPem 账户私钥 PEM，可为空（生成新密钥）
-     * @return 密钥对
-     * @throws Exception 加载或生成失败
+    * 加载已有账户私钥或生成新密钥对。
+    *
+    * @param privateKeyPem 账户私钥 PEM，可为空（生成新密钥）
+    * @return 密钥对
+    * @throws Exception 加载或生成失败
      */
     private KeyPair loadOrGenerateKeyPair(String privateKeyPem) throws Exception {
         if (privateKeyPem != null && !privateKeyPem.isEmpty()) {
@@ -428,10 +428,10 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 序列化密钥对为 PEM 文本。
-     *
-     * @param keyPair 密钥对
-     * @return PEM 文本
+    * 序列化密钥对为 PEM 文本。
+    *
+    * @param keyPair 密钥对
+    * @return PEM 文本
      */
     private String writeKeyPairPem(KeyPair keyPair) {
         try {
@@ -445,10 +445,10 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 生成 RSA 2048 密钥对。
-     *
-     * @return 密钥对
-     * @throws Exception 生成失败
+    * 生成 RSA 2048 密钥对。
+    *
+    * @return 密钥对
+    * @throws Exception 生成失败
      */
     private KeyPair generateKeyPair() throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -457,10 +457,10 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 解析证书 PEM 中的证书列表。
-     *
-     * @param pem 证书 PEM
-     * @return 证书列表
+    * 解析证书 PEM 中的证书列表。
+    *
+    * @param pem 证书 PEM
+    * @return 证书列表
      */
     private List<X509Certificate> parseCertificates(String pem) {
         List<X509Certificate> certs = new ArrayList<>();
@@ -482,10 +482,10 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * 将 PEM 字符串转为标准 DER 字节流。
-     *
-     * @param pem PEM 内容
-     * @return DER 字节流
+    * 将 PEM 字符串转为标准 DER 字节流。
+    *
+    * @param pem PEM 内容
+    * @return DER 字节流
      */
     private byte[] normalizePemForParsing(String pem) {
         return java.util.Base64.getMimeDecoder().decode(
@@ -495,10 +495,10 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-     * X509 证书转 PEM。
-     *
-     * @param cert 证书
-     * @return PEM 内容
+    * X509 证书转 PEM。
+    *
+    * @param cert 证书
+    * @return PEM 内容
      */
     private String toPem(X509Certificate cert) {
         try {

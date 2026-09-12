@@ -29,78 +29,78 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * TAR 归档文件系统 SPI 实现。
- *
- * <p>通过 SPI 机制注册为 {@code "tar"} 类型的文件系统实现。基于纯 Java 实现
- * （{@code com.chua.common.support.file.tar}），不依赖任何第三方 tar 库。</p>
- *
- * <p>特性：
- * <ul>
- *     <li>支持链式创建 tar 包（文件 / 输入流 / 字节数组三种数据源）</li>
- *     <li>支持读取条目列表、提取全部 / 部分条目、按名称读取内容</li>
- *     <li>写入时自动写入 EOF 块，读取时自动跳过填充字节</li>
- *     <li>支持分卷压缩（.tar.gz.01, .tar.gz.02, ...）</li>
- * </ul>
- *
- * <h2>写操作示例</h2>
- * <pre>{@code
- * FileSystem tar = FileSystem.create("tar");
- * tar.write(new File("output.tar"))
- *    .addFile("dir/a.txt", new File("a.txt"))
- *    .addStream("dir/b.txt", inputStream)
- *    .addBytes("dir/c.txt", bytes)
- *    .finish();
- * }</pre>
- *
- * <h2>读操作示例</h2>
- * <pre>{@code
- * // 全部提取
- * tar.read(new File("input.tar")).extractAll(targetDir);
- *
- * // 指定文件提取
- * tar.read(new File("input.tar")).extract("dir/a.txt", targetDir);
- *
- * // 列出所有条目
- * List<String> entries = tar.read(new File("input.tar")).listEntries();
- *
- * // 分卷压缩写入（.tar.gz 分卷）
- * tar.write(new File("output.tar.gz"))
- *    .gz()
- *    .splitSize(1024 * 1024 * 100) // 100MB 分卷
- *    .addFile("large-file.bin", new File("large-file.bin"))
- *    .finish();
- * // Creates: output.tar.gz.01, output.tar.gz.02, ...
- *
- * // 分卷压缩读取（自动检测分卷文件）
- * tar.read(new File("output.tar.gz"))
- *    .gz()
- *    .split() // 启用分卷读取模式
- *    .extractAll(targetDir);
- * }</pre>
- *
- * @author CH
- * @since 1.0.0
+* TAR 归档文件系统 SPI 实现。
+*
+* <p>通过 SPI 机制注册为 {@code "tar"} 类型的文件系统实现。基于纯 Java 实现
+* （{@code com.chua.common.support.file.tar}），不依赖任何第三方 tar 库。</p>
+*
+* <p>特性：
+* <ul>
+*     <li>支持链式创建 tar 包（文件 / 输入流 / 字节数组三种数据源）</li>
+*     <li>支持读取条目列表、提取全部 / 部分条目、按名称读取内容</li>
+*     <li>写入时自动写入 EOF 块，读取时自动跳过填充字节</li>
+*     <li>支持分卷压缩（.tar.gz.01, .tar.gz.02, ...）</li>
+* </ul>
+*
+* <h2>写操作示例</h2>
+* <pre>{@code
+* FileSystem tar = FileSystem.create("tar");
+* tar.write(new File("output.tar"))
+*    .addFile("dir/a.txt", new File("a.txt"))
+*    .addStream("dir/b.txt", inputStream)
+*    .addBytes("dir/c.txt", bytes)
+*    .finish();
+* }</pre>
+*
+* <h2>读操作示例</h2>
+* <pre>{@code
+* // 全部提取
+* tar.read(new File("input.tar")).extractAll(targetDir);
+*
+* // 指定文件提取
+* tar.read(new File("input.tar")).extract("dir/a.txt", targetDir);
+*
+* // 列出所有条目
+* List<String> entries = tar.read(new File("input.tar")).listEntries();
+*
+* // 分卷压缩写入（.tar.gz 分卷）
+* tar.write(new File("output.tar.gz"))
+*    .gz()
+*    .splitSize(1024 * 1024 * 100) // 100MB 分卷
+*    .addFile("large-file.bin", new File("large-file.bin"))
+*    .finish();
+* // Creates: output.tar.gz.01, output.tar.gz.02, ...
+*
+* // 分卷压缩读取（自动检测分卷文件）
+* tar.read(new File("output.tar.gz"))
+*    .gz()
+*    .split() // 启用分卷读取模式
+*    .extractAll(targetDir);
+* }</pre>
+*
+* @author CH
+* @since 1.0.0
  */
 @Spi("tar")
 public class TarFileSystem implements FileSystem {
 
     /**
-     * 读写缓冲区的字节数
+    * 读写缓冲区的字节数
      */
     private static final int BUFFER_SIZE = 8192;
 
     /**
-     * 一次性内存块大小（用于读取流式数据为字节数组）
+    * 一次性内存块大小（用于读取流式数据为字节数组）
      */
     private static final int STREAM_BUFFER_SIZE = 8192;
 
     /**
-     * 归档条目名分隔符
+    * 归档条目名分隔符
      */
     private static final String ENTRY_NAME_SEPARATOR = "/";
 
     /**
-     * 提取操作错误信息：条目路径在目标目录之外，防止 Zip Slip 攻击
+    * 提取操作错误信息：条目路径在目标目录之外，防止 Zip Slip 攻击
      */
     private static final String ERROR_ENTRY_OUTSIDE_TARGET = "TAR entry outside target: ";
 
@@ -123,9 +123,9 @@ public class TarFileSystem implements FileSystem {
     }
 
     /**
-     * TAR 文件读取构建器。
-     *
-     * @since 1.0.0
+    * TAR 文件读取构建器。
+    *
+    * @since 1.0.0
      */
     public static class TarReadBuilder extends ReadBuilder {
 
@@ -140,10 +140,10 @@ public class TarFileSystem implements FileSystem {
         }
 
         /**
-         * 启用分卷读取模式。
-         * <p>启用后将自动检测同目录下的分卷文件并合并读取。</p>
-         *
-         * @return 当前构建器
+        * 启用分卷读取模式。
+        * <p>启用后将自动检测同目录下的分卷文件并合并读取。</p>
+        *
+        * @return 当前构建器
          */
         public TarReadBuilder split() {
             this.splitMode = true;
@@ -151,9 +151,9 @@ public class TarFileSystem implements FileSystem {
         }
 
         /**
-         * 启用 GZIP 解包（读取 .tar.gz 文件时使用）。
-         *
-         * @return 当前构建器
+        * 启用 GZIP 解包（读取 .tar.gz 文件时使用）。
+        *
+        * @return 当前构建器
          */
         public TarReadBuilder gz() {
             this.gzipEnabled = true;
@@ -161,7 +161,7 @@ public class TarFileSystem implements FileSystem {
         }
 
         /**
-         * 创建输入流，自动判断是否使用 GZIP 解包。
+        * 创建输入流，自动判断是否使用 GZIP 解包。
          */
         private InputStream openInput() throws IOException {
             InputStream is;
@@ -177,10 +177,10 @@ public class TarFileSystem implements FileSystem {
         }
 
         /**
-         * 创建合并的输入流，用于分卷读取。
-         *
-         * @return 合并后的输入流
-         * @throws IOException IO 异常
+        * 创建合并的输入流，用于分卷读取。
+        *
+        * @return 合并后的输入流
+        * @throws IOException IO 异常
          */
         private InputStream createMergedInputStream() throws IOException {
             List<File> splitFiles = findSplitFiles();
@@ -191,9 +191,9 @@ public class TarFileSystem implements FileSystem {
         }
 
         /**
-         * 查找同目录下的分卷文件。
-         *
-         * @return 分卷文件列表（按顺序排列）
+        * 查找同目录下的分卷文件。
+        *
+        * @return 分卷文件列表（按顺序排列）
          */
         private List<File> findSplitFiles() {
             List<File> splitFiles = new ArrayList<>();
@@ -242,7 +242,7 @@ public class TarFileSystem implements FileSystem {
         }
 
         /**
-         * 合并多个分卷文件的输入流。
+        * 合并多个分卷文件的输入流。
          */
         private static class MergedInputStream extends InputStream {
             private final List<File> files;
@@ -402,9 +402,9 @@ public class TarFileSystem implements FileSystem {
     }
 
     /**
-     * TAR 文件写入构建器。
-     *
-     * @since 1.0.0
+    * TAR 文件写入构建器。
+    *
+    * @since 1.0.0
      */
     public static class TarWriteBuilder extends WriteBuilder {
 

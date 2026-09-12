@@ -26,8 +26,8 @@ public class OnnxFeatureClient implements FeatureClient {
     private String resolvedModelId;
 
     /**
-      * 创建 onnx特征客户端 实例
-     * @param setting setting
+    * 创建 onnx特征客户端 实例
+    * @param setting setting
      */
     public OnnxFeatureClient(FeatureClientSetting setting) {
         this.setting = setting;
@@ -42,9 +42,9 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     /**
-     * 获取Translator
-     *
-     * @return 获取translator的结果
+    * 获取Translator
+    *
+    * @return 获取translator的结果
      */
     private synchronized ITranslator<Object, Object> getTranslator() throws Exception {
         if (translator == null) {

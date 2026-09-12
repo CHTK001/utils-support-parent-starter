@@ -12,18 +12,18 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
-   * JSR 标准生命周期处理器，通过反射处理 @postconstruct 和 @pre销毁 注解。
- *
- * <p>支持的 JSR 标准：
- * <ul>
- *   <li>JSR-250：@PostConstruct（javax.annotation.PostConstruct / jakarta.annotation.PostConstruct）</li>
- *   <li>JSR-250：@PreDestroy（javax.annotation.PreDestroy / jakarta.annotation.PreDestroy）</li>
- * </ul></p>
- *
- * <p>所有注解均通过反射按类名检测，不依赖编译时注解 API。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* JSR 标准生命周期处理器，通过反射处理 @postconstruct 和 @pre销毁 注解。
+*
+* <p>支持的 JSR 标准：
+* <ul>
+*   <li>JSR-250：@PostConstruct（javax.annotation.PostConstruct / jakarta.annotation.PostConstruct）</li>
+*   <li>JSR-250：@PreDestroy（javax.annotation.PreDestroy / jakarta.annotation.PreDestroy）</li>
+* </ul></p>
+*
+* <p>所有注解均通过反射按类名检测，不依赖编译时注解 API。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("jsr")
@@ -64,10 +64,10 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     /**
-     * 调用annotated方法
-     *
-     * @param bean Bean
-     * @param annotationNames 注解名称
+    * 调用annotated方法
+    *
+    * @param bean Bean
+    * @param annotationNames 注解名称
      */
     private void invokeAnnotatedMethods(Object bean, String... annotationNames) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
@@ -86,11 +86,11 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     /**
-     * 是否拥有任意注解
-     *
-     * @param method 方法
-     * @param annotationNames 注解名称
-     * @return 是否包含任意注解的结果
+    * 是否拥有任意注解
+    *
+    * @param method 方法
+    * @param annotationNames 注解名称
+    * @return 是否包含任意注解的结果
      */
     private boolean hasAnyAnnotation(Method method, String... annotationNames) {
         for (Annotation ann : method.getAnnotations()) {

@@ -1,13 +1,13 @@
 package com.chua.datasync.agent.support.exception;
 
 /**
- * 数据同步错误码枚举。
- * <p>
- * 错误码格式：DSYNC-{类别}-{编号}
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 数据同步错误码枚举。
+* <p>
+* 错误码格式：DSYNC-{类别}-{编号}
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public enum DataSyncErrorCode {
 
@@ -127,28 +127,28 @@ public enum DataSyncErrorCode {
     }
 
     /**
-     * 获取错误码数字。
-     *
-     * @return 错误码
+    * 获取错误码数字。
+    *
+    * @return 错误码
      */
     public int code() {
         return code;
     }
 
     /**
-     * 获取格式化模板。
-     *
-     * @return 模板字符串
+    * 获取格式化模板。
+    *
+    * @return 模板字符串
      */
     public String template() {
         return template;
     }
 
     /**
-     * 格式化错误消息。
-     *
-     * @param args 参数
-     * @return 格式化后的错误消息
+    * 格式化错误消息。
+    *
+    * @param args 参数
+    * @return 格式化后的错误消息
      */
     public String format(Object... args) {
         if (args == null || args.length == 0) {
@@ -162,19 +162,19 @@ public enum DataSyncErrorCode {
     }
 
     /**
-     * 获取完整错误码字符串。
-     *
-     * @return DSYNC-{code} 格式的字符串
+    * 获取完整错误码字符串。
+    *
+    * @return DSYNC-{code} 格式的字符串
      */
     public String codeString() {
         return "DSYNC-" + code;
     }
 
     /**
-     * 获取带错误码的错误消息。
-     *
-     * @param args 参数
-     * @return 格式化的错误消息，含错误码前缀
+    * 获取带错误码的错误消息。
+    *
+    * @param args 参数
+    * @return 格式化的错误消息，含错误码前缀
      */
     public String formatWithCode(Object... args) {
         return codeString() + " " + format(args);

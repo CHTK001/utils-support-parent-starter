@@ -11,44 +11,44 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * SSH 远程服务管理器。
- *
- * <p>直接基于 {@link SshClient} 与 {@link SftpClient}（Apache MINA SSHD）实现，
- * 用于在远程主机上对 Java 服务进行 启停/重启/安装/卸载 管理。</p>
- *
- * <pre>{@code
- * SshRemoteServiceManager mgr = ServiceProvider.of(RemoteServiceManager.class)
- *         .getNewExtension("ssh");
- * mgr.connect(new SshConfig("192.168.1.10", 22, "root", "pass", null));
- * mgr.installRemote("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
- * mgr.startRemote("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
- * }</pre>te("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.43
+* SSH 远程服务管理器。
+*
+* <p>直接基于 {@link SshClient} 与 {@link SftpClient}（Apache MINA SSHD）实现，
+* 用于在远程主机上对 Java 服务进行 启停/重启/安装/卸载 管理。</p>
+*
+* <pre>{@code
+* SshRemoteServiceManager mgr = ServiceProvider.of(RemoteServiceManager.class)
+*         .getNewExtension("ssh");
+* mgr.connect(new SshConfig("192.168.1.10", 22, "root", "pass", null));
+* mgr.installRemote("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
+* mgr.startRemote("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
+* }</pre>te("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Slf4j
 @Spi("ssh")
 public class SshRemoteServiceManager implements RemoteServiceManager {
 
     /**
-     * 默认远程部署目录。
+    * 默认远程部署目录。
      */
     private static final String DEFAULT_REMOTE_DIR = "/opt/sip-server";
 
     /**
-     * SSH 客户端。
+    * SSH 客户端。
      */
     private SshClient sshClient;
 
     /**
-     * SFTP 客户端（上传 jar 用）。
+    * SFTP 客户端（上传 jar 用）。
      */
     private SftpClient sftpClient;
 
     /**
-     * 当前配置。
+    * 当前配置。
      */
     private SshConfig config;
 
@@ -87,10 +87,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 同步执行远程命令并返回输出（供远程主机诊断/配置使用）。
-     *
-     * @param command 要执行的命令
-     * @return 命令输出（stdout 为空时回退 stderr）
+    * 同步执行远程命令并返回输出（供远程主机诊断/配置使用）。
+    *
+    * @param command 要执行的命令
+    * @return 命令输出（stdout 为空时回退 stderr）
      */
     public String execCommand(String command) {
         return execAndWait(command);
@@ -125,9 +125,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-      * 停止 窗口 远程 Java 进程（按 PID 或按命令行过滤）。
-     * @param pid pid
-     * @param serviceName 服务名称
+    * 停止 窗口 远程 Java 进程（按 PID 或按命令行过滤）。
+    * @param pid pid
+    * @param serviceName 服务名称
      */
     private void stopRemoteWindows(long pid, String serviceName) {
         if (pid > 0) {
@@ -141,9 +141,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-      * 在 窗口 远程主机后台启动命令并返回 PID。
-     * @param cmd CMD
-     * @return 执行detach窗口的结果
+    * 在 窗口 远程主机后台启动命令并返回 PID。
+    * @param cmd CMD
+    * @return 执行detach窗口的结果
      */
     private long execDetachWindows(String cmd) {
         try {
@@ -161,9 +161,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 从 {@code java -jar <path>} 命令中提取 jar 路径。
-     * @param cmd CMD
-     * @return extractjar参数的结果
+    * 从 {@code java -jar <path>} 命令中提取 jar 路径。
+    * @param cmd CMD
+    * @return extractjar参数的结果
      */
     private static String extractJarArg(String cmd) {
         int jarIdx = cmd.toLowerCase().indexOf("-jar");
@@ -239,9 +239,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-      * 检测远程主机操作系统类型（窗口 返回 true）。
-     *
-     * @return true 表示远程主机为 窗口
+    * 检测远程主机操作系统类型（窗口 返回 true）。
+    *
+    * @return true 表示远程主机为 窗口
      */
     private boolean isWindows() {
         try {
@@ -273,10 +273,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-      * 在 窗口 远程主机上安装服务（sc.exe 创建）。
-     * @param serviceName 服务名称
-     * @param remoteJarPath 远程jar路径
-     * @param startCmd 启动CMD
+    * 在 窗口 远程主机上安装服务（sc.exe 创建）。
+    * @param serviceName 服务名称
+    * @param remoteJarPath 远程jar路径
+    * @param startCmd 启动CMD
      */
     private void installRemoteWindows(String serviceName, String remoteJarPath, String startCmd) {
         String winPath = normalizeWindowsPath(remoteJarPath);
@@ -291,9 +291,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-      * 将 Linux 风格远程路径归一化为 窗口 绝对路径（/opt/x → C:\opt\x）。
-     * @param path 路径
-     * @return normalize窗口路径的结果
+    * 将 Linux 风格远程路径归一化为 窗口 绝对路径（/opt/x → C:\opt\x）。
+    * @param path 路径
+    * @return normalize窗口路径的结果
      */
     private static String normalizeWindowsPath(String path) {
         if (path == null) {
@@ -310,10 +310,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在 Linux 远程主机上安装服务（systemd unit）。
-     * @param serviceName 服务名称
-     * @param remoteJarPath 远程jar路径
-     * @param startCmd 启动CMD
+    * 在 Linux 远程主机上安装服务（systemd unit）。
+    * @param serviceName 服务名称
+    * @param remoteJarPath 远程jar路径
+    * @param startCmd 启动CMD
      */
     private void installRemoteLinux(String serviceName, String remoteJarPath, String startCmd) {
         String unitContent = buildSystemdUnit(serviceName, remoteJarPath, startCmd);
@@ -324,8 +324,8 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-      * 在 窗口 远程主机上卸载服务。
-     * @param serviceName 服务名称
+    * 在 窗口 远程主机上卸载服务。
+    * @param serviceName 服务名称
      */
     private void uninstallRemoteWindows(String serviceName) {
         execAndWait("sc.exe stop \"" + serviceName + "\" 2>nul");
@@ -339,8 +339,8 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在 Linux 远程主机上卸载服务。
-     * @param serviceName 服务名称
+    * 在 Linux 远程主机上卸载服务。
+    * @param serviceName 服务名称
      */
     private void uninstallRemoteLinux(String serviceName) {
         execAndWait("systemctl disable " + serviceName + " 2>/dev/null; systemctl stop "
@@ -352,7 +352,7 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     // ========== 私有方法 ==========
 
     /**
-     * 校验 SSH 连接是否已建立，未连接时抛出异常。
+    * 校验 SSH 连接是否已建立，未连接时抛出异常。
      */
     private void requireConnected() {
         if (sshClient == null || !sshClient.isConnected()) {
@@ -361,10 +361,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在远程主机上同步执行命令并返回输出。
-     *
-     * @param cmd 要执行的命令
-     * @return 命令输出（stdout 为空时回退 stderr）
+    * 在远程主机上同步执行命令并返回输出。
+    *
+    * @param cmd 要执行的命令
+    * @return 命令输出（stdout 为空时回退 stderr）
      */
     private String execAndWait(String cmd) {
         requireConnected();
@@ -378,10 +378,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在远程主机后台执行命令并返回进程 PID。
-     *
-     * @param cmd 后台启动命令
-     * @return 进程 PID，解析失败返回 -1
+    * 在远程主机后台执行命令并返回进程 PID。
+    *
+    * @param cmd 后台启动命令
+    * @return 进程 PID，解析失败返回 -1
      */
     private long execDetach(String cmd) {
         requireConnected();
@@ -400,10 +400,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 将本地 jar 上传到远程路径。
-     *
-     * @param localPath  本地 jar 路径
-     * @param remotePath 远程目标路径（含文件名）
+    * 将本地 jar 上传到远程路径。
+    *
+    * @param localPath  本地 jar 路径
+    * @param remotePath 远程目标路径（含文件名）
      */
     private void uploadJarIfNeeded(String localPath, String remotePath) {
         if (localPath == null || localPath.isBlank()) {
@@ -428,7 +428,7 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 懒加载 SFTP 客户端，仅首次上传时建立连接。
+    * 懒加载 SFTP 客户端，仅首次上传时建立连接。
      */
     private void ensureSftp() {
         if (sftpClient != null) {
@@ -446,10 +446,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 规范化为绝对远程路径：相对路径拼接到默认部署目录。
-     *
-     * @param jarPath 原始 jar 路径
-     * @return 归一化远程路径
+    * 规范化为绝对远程路径：相对路径拼接到默认部署目录。
+    *
+    * @param jarPath 原始 jar 路径
+    * @return 归一化远程路径
      */
     private static String normalizeRemotePath(String jarPath) {
         if (jarPath == null) {
@@ -463,24 +463,24 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-      * 替换模板中的占位符 令牌。
-     *
-     * @param template 模板字符串
-     * @param token    占位符（如 {jar}）
-     * @param value    替换值
-     * @return 替换后的字符串
+    * 替换模板中的占位符 令牌。
+    *
+    * @param template 模板字符串
+    * @param token    占位符（如 {jar}）
+    * @param value    替换值
+    * @return 替换后的字符串
      */
     private static String replaceToken(String template, String token, String value) {
         return template == null ? value : template.replace(token, value);
     }
 
     /**
-     * 构建 systemd unit 文件内容。
-     *
-     * @param serviceName 服务名
-     * @param jarPath     jar 远程路径（用于推断工作目录）
-     * @param startCmd    启动命令
-     * @return unit 文件文本
+    * 构建 systemd unit 文件内容。
+    *
+    * @param serviceName 服务名
+    * @param jarPath     jar 远程路径（用于推断工作目录）
+    * @param startCmd    启动命令
+    * @return unit 文件文本
      */
     private static String buildSystemdUnit(String serviceName, String jarPath, String startCmd) {
         return "[Unit]\n" +

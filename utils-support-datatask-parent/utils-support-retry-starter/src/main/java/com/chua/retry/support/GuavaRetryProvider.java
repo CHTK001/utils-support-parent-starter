@@ -12,21 +12,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * 基于 Guava 重试 的重试提供者实现
- *
- * <p>使用 Guava Retrying 库提供声明式重试能力。Guava Retrying 是一个轻量级的
- * 重试框架，支持灵活的停止策略、等待策略和异常监听。
- *
- * <p>与默认 {@link com.chua.common.support.task.retry.JdkRetryProvider} 相比，
-   * Guava 重试 提供更丰富的策略组合：
- * <ul>
- *   <li><strong>停止策略</strong>：最大重试次数、超时时间、永不停止</li>
- *   <li><strong>等待策略</strong>：固定等待、指数退避、斐波那契退避、随机等待</li>
- *   <li><strong>异常监听</strong>：重试回调监听器</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Guava 重试 的重试提供者实现
+*
+* <p>使用 Guava Retrying 库提供声明式重试能力。Guava Retrying 是一个轻量级的
+* 重试框架，支持灵活的停止策略、等待策略和异常监听。
+*
+* <p>与默认 {@link com.chua.common.support.task.retry.JdkRetryProvider} 相比，
+* Guava 重试 提供更丰富的策略组合：
+* <ul>
+*   <li><strong>停止策略</strong>：最大重试次数、超时时间、永不停止</li>
+*   <li><strong>等待策略</strong>：固定等待、指数退避、斐波那契退避、随机等待</li>
+*   <li><strong>异常监听</strong>：重试回调监听器</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("guava-retry")
 public class GuavaRetryProvider extends AbstractRetryProvider {
@@ -56,10 +56,10 @@ public class GuavaRetryProvider extends AbstractRetryProvider {
     }
 
     /**
-     * 转为waitstrategy
-     *
-     * @param config 配置
-     * @return 转为waitstrategy的结果
+    * 转为waitstrategy
+    *
+    * @param config 配置
+    * @return 转为waitstrategy的结果
      */
     private static com.github.rholder.retry.WaitStrategy toWaitStrategy(RetryConfig config) {
         return switch (config.getBackoffStrategy()) {

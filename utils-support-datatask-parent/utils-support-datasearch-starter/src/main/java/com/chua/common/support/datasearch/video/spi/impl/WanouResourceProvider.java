@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("Wanou")
 public class WanouResourceProvider extends AbstractResourceProvider {
@@ -35,17 +35,17 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-      * 创建 wanouresource提供者 实例
-     * @param videoSource 视频源
+    * 创建 wanouresource提供者 实例
+    * @param videoSource 视频源
      */
     public WanouResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
     /**
-     * 获取地址
-     *
-     * @return
+    * 获取地址
+    *
+    * @return
      */
     protected String getUrl() {
         return StringUtils.defaultString(videoSource.getVideoSourceUrl(), "https://woog.nxog.eu.org/api.php/provide/vod?ac=detail&wd=%s");
@@ -101,11 +101,11 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 注册Download
-     *
-     * @param videoDownloads 视频downloads
-     * @param vodDownFrom voddown从
-     * @param vodDownUrl voddownurl
+    * 注册Download
+    *
+    * @param videoDownloads 视频downloads
+    * @param vodDownFrom voddown从
+    * @param vodDownUrl voddownurl
      */
     private void registerDownload(List<VideoDownload> videoDownloads, String vodDownFrom, String vodDownUrl) {
         if (null == vodDownFrom) {
@@ -123,12 +123,12 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 调动名称
-     *
-     * @param s s
-     * @return 调动名称的结果
-     * @author CH
-     * @since 4.0.0
+    * 调动名称
+    *
+    * @param s s
+    * @return 调动名称的结果
+    * @author CH
+    * @since 4.0.0
      */
     public String transferName(String s) {
         return switch (s.toLowerCase()) {

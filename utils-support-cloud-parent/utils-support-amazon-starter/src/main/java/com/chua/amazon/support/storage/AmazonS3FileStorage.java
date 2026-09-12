@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 亚马逊 S3 文件存储实现（兼容所有 S3 协议存储：最小io、Ceph、juicefs 等）。
- *
- * <p>基于 AWS SDK for Java S3 实现 {@link FileStorage} SPI 接口。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 亚马逊 S3 文件存储实现（兼容所有 S3 协议存储：最小io、Ceph、juicefs 等）。
+*
+* <p>基于 AWS SDK for Java S3 实现 {@link FileStorage} SPI 接口。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"s3", "amazon"})
 public class AmazonS3FileStorage extends AbstractFileStorage {
@@ -40,8 +40,8 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     private final AmazonS3 s3Client;
 
     /**
-      * 创建 amazons3文件storage 实例
-     * @param bucketSetting bucketsetting
+    * 创建 amazons3文件storage 实例
+    * @param bucketSetting bucketsetting
      */
     public AmazonS3FileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);

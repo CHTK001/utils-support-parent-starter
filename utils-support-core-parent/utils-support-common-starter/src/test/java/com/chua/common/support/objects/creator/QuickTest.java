@@ -13,16 +13,16 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Quick 门面功能冒烟测试。
- *
- * <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
- * <pre>
- * 运行方式：{@code java com.chua.common.support.objects.creator.QuickTest}
- * 任一校验失败抛出 {@link AssertionError} 并输出 FAIL，全部通过输出 PASS。
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Quick 门面功能冒烟测试。
+*
+* <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
+* <pre>
+* 运行方式：{@code java com.chua.common.support.objects.creator.QuickTest}
+* 任一校验失败抛出 {@link AssertionError} 并输出 FAIL，全部通过输出 PASS。
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class QuickTest {
 
@@ -33,8 +33,8 @@ public class QuickTest {
     private static int passCount = 0;
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) {
         testCreate();
@@ -302,10 +302,10 @@ public class QuickTest {
     }
 
     /**
-     * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
-     *
-     * @param quick Quick 实例（默认quick 实现）
-     * @return 当前编译器实现
+    * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
+    *
+    * @param quick Quick 实例（默认quick 实现）
+    * @return 当前编译器实现
      */
     private static Compiler resolveCompilerReflectively(Quick quick) {
         try {
@@ -318,10 +318,10 @@ public class QuickTest {
     }
 
     /**
-     * 测试用用户类
-     *
-     * @param age age
-     * @return 设置名称的结果
+    * 测试用用户类
+    *
+    * @param age age
+    * @return 设置名称的结果
      /**
       * 获取名称。
       * @return 获取名称的结果
@@ -331,10 +331,10 @@ public class QuickTest {
         private String name; // 名称
         private int age; // age
 /**
- * 设置名称。
- * @param name 名称
- * @param age age
- * @return 方法的结果
+* 设置名称。
+* @param name 名称
+* @param age age
+* @return 方法的结果
  /**
    * 获取名称。
    * @return 获取名称的结果
@@ -344,10 +344,10 @@ public class QuickTest {
         public String getName() {
             return name;
         /**
-         * 设置名称。
-         * @param name 名称
-         * @param age age
-         * @return 方法的结果
+        * 设置名称。
+        * @param name 名称
+        * @param age age
+        * @return 方法的结果
          */
         }
 
@@ -365,10 +365,10 @@ public class QuickTest {
     }
 
     /**
-     * 校验并计数。
-     *
-     * @param condition 条件
-     * @param message   校验说明
+    * 校验并计数。
+    *
+    * @param condition 条件
+    * @param message   校验说明
      */
     private static void check(boolean condition, String message) {
         if (condition) {
@@ -381,11 +381,11 @@ public class QuickTest {
     }
 
     /**
-      * 对象相等比较（处理 空）。
-     *
-     * @param expected 期望值
-     * @param actual   实际值
-     * @return 是否相等
+    * 对象相等比较（处理 空）。
+    *
+    * @param expected 期望值
+    * @param actual   实际值
+    * @return 是否相等
      */
     private static boolean eq(Object expected, Object actual) {
         return expected == null ? actual == null : expected.equals(actual);

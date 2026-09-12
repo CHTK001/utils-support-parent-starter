@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * SMB 协议还原器。
- *
- * <p>识别 SMB1/SMB2 命令头，包含 Magic 与 Command Code 解析。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* SMB 协议还原器。
+*
+* <p>识别 SMB1/SMB2 命令头，包含 Magic 与 Command Code 解析。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SmbProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -60,11 +60,11 @@ public class SmbProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为命令名称
-     *
-     * @param magic 魔法
-     * @param command 命令
-     * @return 转为命令名称的结果
+    * 转为命令名称
+    *
+    * @param magic 魔法
+    * @param command 命令
+    * @return 转为命令名称的结果
      */
     private static String toCommandName(int magic, int command) {
         if (magic == 0x424d53fe) {

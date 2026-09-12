@@ -3,10 +3,10 @@ package com.chua.common.support.scatter;
 import lombok.Data;
 
 /**
- * scatter 请求上下文（单次同步/拉取的元数据）。
- *
- * @author CH
- * @since 4.0.0.42
+* scatter 请求上下文（单次同步/拉取的元数据）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 public class ScatterContext {
@@ -19,10 +19,10 @@ public class ScatterContext {
     private final long timeoutMillis;
 
     /**
-     * scatter上下文。
-     * @param requestId 请求标识
-     * @param path 路径
-     * @param timeoutMillis 超时millis
+    * scatter上下文。
+    * @param requestId 请求标识
+    * @param path 路径
+    * @param timeoutMillis 超时millis
      */
     public ScatterContext(String requestId, String path, long timeoutMillis) {
         this.requestId = requestId;

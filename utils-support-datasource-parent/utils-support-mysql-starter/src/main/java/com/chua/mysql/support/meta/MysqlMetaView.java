@@ -16,29 +16,29 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 
 public class MysqlMetaView extends AbstractMetaView {
 
     /**
-      * 创建 mysqlmetaview 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param engine engine
+    * 创建 mysqlmetaview 实例
+    * @param metaData meta数据
+    * @param engine Engine
+    * @param engine engine
      */
     protected MysqlMetaView(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-      * 创建 mysqlmetaview 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param viewName 字符串
-     * @param engine engine
-     * @param viewName view名称
+    * 创建 mysqlmetaview 实例
+    * @param metaData meta数据
+    * @param engine Engine
+    * @param viewName 字符串
+    * @param engine engine
+    * @param viewName view名称
      */
     protected MysqlMetaView(AbstractMetaData metaData, Engine engine, String viewName) {
         super(metaData, engine, viewName);
@@ -110,12 +110,12 @@ public class MysqlMetaView extends AbstractMetaView {
     }
 
     /**
-     * 读取viewdefinition
-     *
-     * @param conn conn
-     * @param schema 模式
-     * @param viewName view名称
-     * @return 读取viewdefinition的结果
+    * 读取viewdefinition
+    *
+    * @param conn conn
+    * @param schema 模式
+    * @param viewName view名称
+    * @return 读取viewdefinition的结果
      */
     protected String readViewDefinition(Connection conn, String schema, String viewName) throws Exception {
         String sql = "SHOW CREATE VIEW " + quote(schema != null ? schema + "." + viewName : viewName);
@@ -129,9 +129,9 @@ public class MysqlMetaView extends AbstractMetaView {
     }
 
     /**
-     * 获取Connection
-     *
-     * @return 获取connection的结果
+    * 获取Connection
+    *
+    * @return 获取connection的结果
      */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
@@ -146,22 +146,22 @@ public class MysqlMetaView extends AbstractMetaView {
     }
 
     /**
-     * 引述
-     *
-     * @param name 名称
-     * @return 引述的结果
+    * 引述
+    *
+    * @param name 名称
+    * @return 引述的结果
      */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
     /**
-     * 执行更新
-     *
-     * @param sql SQL
-     * @return 执行更新的结果
-     * @author CH
-     * @since 4.0.0
+    * 执行更新
+    *
+    * @param sql SQL
+    * @return 执行更新的结果
+    * @author CH
+    * @since 4.0.0
      */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
@@ -229,11 +229,11 @@ public class MysqlMetaView extends AbstractMetaView {
 
         @Override
         /**
-         * 执行
-         *
-         * @return 执行的结果
-         * @author CH
-         * @since 4.0.0
+        * 执行
+        *
+        * @return 执行的结果
+        * @author CH
+        * @since 4.0.0
          */
         public ViewDef execute() {
             if (definition == null || definition.isEmpty()) {

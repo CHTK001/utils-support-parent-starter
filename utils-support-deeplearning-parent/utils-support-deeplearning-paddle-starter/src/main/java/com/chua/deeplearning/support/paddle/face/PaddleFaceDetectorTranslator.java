@@ -18,25 +18,25 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-   * 飞桨 人脸检测 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* 飞桨 人脸检测 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     * 缩放比例。
+    * 缩放比例。
      */
     private final float shrink;
 
     /**
-     * 置信度阈值。
+    * 置信度阈值。
      */
     private final float threshold;
 
     /**
-     * 类别名。
+    * 类别名。
      */
     private final List<String> className;
 
@@ -46,10 +46,10 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     /**
-      * 创建 飞桨facedetectortranslator 实例
-     * @param shrink shrink
-     * @param shrink float
-     * @param threshold 阈值
+    * 创建 飞桨facedetectortranslator 实例
+    * @param shrink shrink
+    * @param shrink float
+    * @param threshold 阈值
      */
     public PaddleFaceDetectorTranslator(float shrink, float threshold) {
         this.shrink = shrink;
@@ -85,12 +85,12 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     /**
-     * 处理镜像输入
-     *
-     * @param manager 管理器
-     * @param input 输入
-     * @param currentShrink 当前shrink
-     * @return 处理镜像输入的结果
+    * 处理镜像输入
+    *
+    * @param manager 管理器
+    * @param input 输入
+    * @param currentShrink 当前shrink
+    * @return 处理镜像输入的结果
      */
     private NDList processImageInput(NDManager manager, Image input, float currentShrink) {
         NDArray array = input.toNDArray(manager);

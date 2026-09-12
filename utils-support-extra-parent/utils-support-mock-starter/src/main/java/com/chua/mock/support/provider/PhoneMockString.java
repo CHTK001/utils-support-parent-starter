@@ -8,26 +8,26 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * 手机号 Mock 生成器
- *
- * <p>生成中国大陆 11 位手机号，格式为 {@code 1[3-9]xxxxxxxxx}，
- * 不保证号码真实可用，仅用于测试数据填充。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 手机号 Mock 生成器
+*
+* <p>生成中国大陆 11 位手机号，格式为 {@code 1[3-9]xxxxxxxxx}，
+* 不保证号码真实可用，仅用于测试数据填充。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"phone", "mobile", "cellphone"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class PhoneMockString implements MockString {
 
     /**
-     * 第二位号码取值区间（3-9）
+    * 第二位号码取值区间（3-9）
      */
     private static final int SECOND_DIGIT_MIN = 3;
     /**
-     * 第二位号码取值区间上界
-     * @param environment 环境
-     * @return 获取字符串的结果
+    * 第二位号码取值区间上界
+    * @param environment 环境
+    * @return 获取字符串的结果
      */
     private static final int SECOND_DIGIT_MAX = 10;
 

@@ -14,35 +14,35 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
 import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATOR;
 
 /**
- * 服务提供者注册表
- * <p>
- *     管理服务定义的注册、注销和查询
- * </p>
- *
- * @author CH
- * @since 2024-12-05
+* 服务提供者注册表
+* <p>
+*     管理服务定义的注册、注销和查询
+* </p>
+*
+* @author CH
+* @since 2024-12-05
  */
 class ServiceProviderRegistry {
     
     /**
-     * 服务定义映射表
+    * 服务定义映射表
      */
     private final Map<String, SortedList<ServiceDefinition>> definitions;
     
     /**
-     * 默认服务定义列表
+    * 默认服务定义列表
      */
     private final SortedList<ServiceDefinition> defaultDefinitions;
     
     /**
-     * 自动装配器
+    * 自动装配器
      */
     private final ServiceAutowire serviceAutowire;
     
     /**
-     * 构造服务提供者注册表
-     *
-     * @param serviceAutowire 自动装配器
+    * 构造服务提供者注册表
+    *
+    * @param serviceAutowire 自动装配器
      */
     public ServiceProviderRegistry(ServiceAutowire serviceAutowire) {
         this.serviceAutowire = serviceAutowire;
@@ -51,9 +51,9 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 注册服务定义列表
-     *
-     * @param serviceDefinitions 服务定义列表
+    * 注册服务定义列表
+    *
+    * @param serviceDefinitions 服务定义列表
      */
     public void register(List<ServiceDefinition> serviceDefinitions) {
         for (ServiceDefinition serviceDefinition : serviceDefinitions) {
@@ -70,20 +70,20 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 注册服务定义数组
-     *
-     * @param serviceDefinitions 服务定义数组
+    * 注册服务定义数组
+    *
+    * @param serviceDefinitions 服务定义数组
      */
     public void register(ServiceDefinition... serviceDefinitions) {
         register(List.of(serviceDefinitions));
     }
     
     /**
-     * 通过解析器注册服务定义
-     *
-     * @param resolver 服务解析器
-     * @param type 服务类型
-     * @param classLoader 类加载器
+    * 通过解析器注册服务定义
+    *
+    * @param resolver 服务解析器
+    * @param type 服务类型
+    * @param classLoader 类加载器
      */
     public void register(ServiceResolver resolver, Class<?> type, ClassLoader classLoader) {
         List<ServiceDefinition> resolve = resolver.resolve(type, classLoader);
@@ -91,11 +91,11 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 注册对象实例
-     *
-     * @param name 名称
-     * @param ref 实例引用
-     * @param type 服务类型
+    * 注册对象实例
+    *
+    * @param name 名称
+    * @param ref 实例引用
+    * @param type 服务类型
      */
     public void register(String name, Object ref, Class<?> type) {
         name = name.toUpperCase();
@@ -107,11 +107,11 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 注册实现类
-     *
-     * @param name 名称
-     * @param ref 实现类
-     * @param type 服务类型
+    * 注册实现类
+    *
+    * @param name 名称
+    * @param ref 实现类
+    * @param type 服务类型
      */
     public void register(String name, Class<?> ref, Class<?> type) {
         name = name.toUpperCase();
@@ -122,10 +122,10 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 注销服务定义
-     *
-     * @param baseName 基础名称
-     * @param resolverType 解析器类型
+    * 注销服务定义
+    *
+    * @param baseName 基础名称
+    * @param resolverType 解析器类型
      */
     public void unregister(String baseName, Class<? extends ServiceResolver> resolverType) {
         Map<String, List<ServiceDefinition>> remove = new HashMap<>(DEFAULT_SIZE);
@@ -146,7 +146,7 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 收集待移除的服务定义
+    * 收集待移除的服务定义
      */
     private void doRegisterRemoveCollection(Map<String, List<ServiceDefinition>> remove, String baseName, 
                                              Class<? extends ServiceResolver> resolverType, 
@@ -158,7 +158,7 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 添加到待移除集合
+    * 添加到待移除集合
      */
     private void doRegisterRemoveCollectionItem(String baseName, String key, 
                                                 Map<String, List<ServiceDefinition>> remove, 
@@ -172,36 +172,36 @@ class ServiceProviderRegistry {
     }
     
     /**
-     * 获取所有服务定义
-     *
-     * @return 服务定义映射
+    * 获取所有服务定义
+    *
+    * @return 服务定义映射
      */
     public Map<String, SortedList<ServiceDefinition>> getDefinitions() {
         return definitions;
     }
     
     /**
-     * 获取默认服务定义列表
-     *
-     * @return 默认服务定义列表
+    * 获取默认服务定义列表
+    *
+    * @return 默认服务定义列表
      */
     public SortedList<ServiceDefinition> getDefaultDefinitions() {
         return defaultDefinitions;
     }
     
     /**
-     * 判断是否为空
-     *
-     * @return true 表示为空
+    * 判断是否为空
+    *
+    * @return true 表示为空
      */
     public boolean isEmpty() {
         return definitions.isEmpty();
     }
     
     /**
-     * 获取所有扩展名称
-     *
-     * @return 扩展名称集合
+    * 获取所有扩展名称
+    *
+    * @return 扩展名称集合
      */
     public Set<String> getExtensionNames() {
         return definitions.keySet();

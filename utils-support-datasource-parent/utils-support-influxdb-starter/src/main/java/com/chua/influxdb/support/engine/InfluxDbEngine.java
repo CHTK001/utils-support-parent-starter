@@ -28,48 +28,48 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
-   * influxdb 时序数据库引擎实现（真实 HTTP 客户端）。
- * <p>
- * <b>写入</b>经官方 SDK 行协议 {@code write(Point)}；
- * <b>查询/删除</b>经 InfluxQL 下推服务器执行。SPI 键 {@code "influxdb"}。
- * </p>
-   * 时序库语义：不支持 更新（相同 标签+时间戳重写即覆盖）；删除 需命中 时间 条件。
- *
- * @author CH
- * @since 4.0.0.42
+* influxdb 时序数据库引擎实现（真实 HTTP 客户端）。
+* <p>
+* <b>写入</b>经官方 SDK 行协议 {@code write(Point)}；
+* <b>查询/删除</b>经 InfluxQL 下推服务器执行。SPI 键 {@code "influxdb"}。
+* </p>
+* 时序库语义：不支持 更新（相同 标签+时间戳重写即覆盖）；删除 需命中 时间 条件。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("influxdb")
 public class InfluxDbEngine extends AbstractEngine {
 
     /**
-     * 缺省数据库名
+    * 缺省数据库名
      */
     private static final String DEFAULT_DATABASE = "app";
 
     /**
-     * 缺省保留策略
+    * 缺省保留策略
      */
     private static final String DEFAULT_RETENTION = "autogen";
 
     /**
-      * 实体字段映射缓存：类 -> (snake_大小写 列名 -> 字段)
+    * 实体字段映射缓存：类 -> (snake_大小写 列名 -> 字段)
      */
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
+    * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
      */
     private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     /**
-     * 方言（从 META-INF/dialect-env/influxdb.env 加载）。
-     * @return 支持NATpagination的结果
-     * @param protocol 协议
+    * 方言（从 META-INF/dialect-env/influxdb.env 加载）。
+    * @return 支持NATpagination的结果
+    * @param protocol 协议
      */
     private final java.util.Properties dialectProps;
 
     /**
-     * InfluxDbEngine。
+    * InfluxDbEngine。
      */
     public InfluxDbEngine() {
         this.dialectProps = loadProps("influxdb");
@@ -97,12 +97,12 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 添加数据源（influxdb 客户端或连接地址）。
-     *
-     * @param name       数据源名称
-     * @param dataSource 数据源封装
-     * @param <T>        底层类型
-     * @return this
+    * 添加数据源（influxdb 客户端或连接地址）。
+    *
+    * @param name       数据源名称
+    * @param dataSource 数据源封装
+    * @param <T>        底层类型
+    * @return this
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -131,14 +131,14 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 便捷添加数据源。
-     *
-     * @param name      数据源名称
-     * @param url       连接地址，如 {@code http://172.16.0.40:8086}
-     * @param database  数据库名
-     * @param username  用户名，可为空
-     * @param password  密码，可为空
-     * @return this
+    * 便捷添加数据源。
+    *
+    * @param name      数据源名称
+    * @param url       连接地址，如 {@code http://172.16.0.40:8086}
+    * @param database  数据库名
+    * @param username  用户名，可为空
+    * @param password  密码，可为空
+    * @return this
      */
     public InfluxDbEngine addDataSource(String name, String url,
                                         String database, String username, String password) {
@@ -150,7 +150,7 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 内部包装：按连接串创建客户端的数据源。
+    * 内部包装：按连接串创建客户端的数据源。
      */
     private EngineDataSource<Object> wrapUrlDataSource(String name, String url,
                                                        String database, String username, String password) {
@@ -164,18 +164,18 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 判断字符串非空。
-     * @param s s
-     * @return 是否包含文本的结果
+    * 判断字符串非空。
+    * @param s s
+    * @return 是否包含文本的结果
      */
     private static boolean hasText(String s) {
         return s != null && !s.isEmpty();
     }
 
     /**
-      * 获取默认 influxdb 客户端；默认数据源缺失时回退任意已注册数据源。
-     *
-     * @return InfluxDB 客户端
+    * 获取默认 influxdb 客户端；默认数据源缺失时回退任意已注册数据源。
+    *
+    * @return InfluxDB 客户端
      */
     public InfluxDB client() {
         EngineDataSource<Object> ds = defaultDataSourceName == null
@@ -193,10 +193,10 @@ public class InfluxDbEngine extends AbstractEngine {
     // ==================== 写入（行协议） ====================
 
     /**
-     * 写入一个数据点（异步批量）。
-     *
-     * @param point SDK 数据点
-     * @return this
+    * 写入一个数据点（异步批量）。
+    *
+    * @param point SDK 数据点
+    * @return this
      */
     public InfluxDbEngine write(Point point) {
         client().write(point);
@@ -204,12 +204,12 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 以当前时间写入一条记录。
-     *
-     * @param measurement 表(measurement)名
-     * @param tags        标签 集
-     * @param fields      字段 集
-     * @return this
+    * 以当前时间写入一条记录。
+    *
+    * @param measurement 表(measurement)名
+    * @param tags        标签 集
+    * @param fields      字段 集
+    * @return this
      */
     public InfluxDbEngine write(String measurement, Map<String, String> tags, Map<String, Object> fields) {
         Point.Builder b = Point.measurement(measurement).time(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
@@ -239,9 +239,9 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 获取当前数据源数据库名，缺省 {@value #DEFAULT_DATABASE}。
-     *
-     * @return 数据库名
+    * 获取当前数据源数据库名，缺省 {@value #DEFAULT_DATABASE}。
+    *
+    * @return 数据库名
      */
     private String database() {
         EngineDataSource<Object> ds = defaultDataSourceName == null
@@ -253,7 +253,7 @@ public class InfluxDbEngine extends AbstractEngine {
     // ==================== 查询（InfluxQL 下推） ====================
 
     /**
-      * WHERE / 查询全部下推为 influxql；排序由父类在结果集上完成。
+    * WHERE / 查询全部下推为 influxql；排序由父类在结果集上完成。
      */
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -276,13 +276,13 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 执行 选择 并映射实体。
-     * @param entityClass 实体类
-     * @param where where
-     * @param params 参数
-     * @param limit 限制
-     * @param offset 偏移量
-     * @return 执行查询的结果
+    * 执行 选择 并映射实体。
+    * @param entityClass 实体类
+    * @param where where
+    * @param params 参数
+    * @param limit 限制
+    * @param offset 偏移量
+    * @return 执行查询的结果
      */
     private <T> List<T> doQuery(Class<T> entityClass, String where, List<Object> params, int limit, int offset) {
         String measurement = getTableName(entityClass);
@@ -305,10 +305,10 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 占位符替换为 influxql 字面量。
-     * @param where where
-     * @param params 参数
-     * @return inline的结果
+    * 占位符替换为 influxql 字面量。
+    * @param where where
+    * @param params 参数
+    * @return inline的结果
      */
     private String inline(String where, List<Object> params) {
         if (params == null || params.isEmpty()) {
@@ -328,9 +328,9 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 参数转 influxql 字面量（字符串单引号并转义）。
-     * @param v v
-     * @return 字面量的结果
+    * 参数转 influxql 字面量（字符串单引号并转义）。
+    * @param v v
+    * @return 字面量的结果
      */
     private String literal(Object v) {
         if (v == null) {
@@ -343,10 +343,10 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 解析 查询结果 并映射为实体列表。
-     * @param entityClass 实体类
-     * @param resp resp
-     * @return 映射结果的结果
+    * 解析 查询结果 并映射为实体列表。
+    * @param entityClass 实体类
+    * @param resp resp
+    * @return 映射结果的结果
      */
     @SuppressWarnings("unchecked")
     private <T> List<T> mapResult(Class<T> entityClass, QueryResult resp) {
@@ -402,7 +402,7 @@ public class InfluxDbEngine extends AbstractEngine {
     // ==================== 明确不支持的语义 ====================
 
     /**
-      * influxdb 无 更新：相同 标签+时间戳重写即覆盖。
+    * influxdb 无 更新：相同 标签+时间戳重写即覆盖。
      */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
@@ -411,7 +411,7 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 数据一律经 写入(Point) 真实落库，禁止内存旁路。
+    * 数据一律经 写入(Point) 真实落库，禁止内存旁路。
      */
     @Override
     public <T> Engine store(String name, List<T> data) {
@@ -422,11 +422,11 @@ public class InfluxDbEngine extends AbstractEngine {
     // ==================== 工具方法 ====================
 
     /**
-      * 结果集按 订单bys 排序（列名已归一化到字段）。
-     * @param rows rows
-     * @param orderBys 订单bys
-     * @param entityClass 实体类
-     * @return 排序rows的结果
+    * 结果集按 订单bys 排序（列名已归一化到字段）。
+    * @param rows rows
+    * @param orderBys 订单bys
+    * @param entityClass 实体类
+    * @return 排序rows的结果
      */
     private <T> List<T> sortRows(List<T> rows, List<String> orderBys, Class<?> entityClass) {
         if (orderBys == null || orderBys.isEmpty() || rows.size() < 2) {
@@ -453,11 +453,11 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 反射比较两对象某字段值。
-     * @param a a
-     * @param b b
-     * @param f f
-     * @return compare的结果
+    * 反射比较两对象某字段值。
+    * @param a a
+    * @param b b
+    * @param f f
+    * @return compare的结果
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T> int compare(T a, T b, Field f) {
@@ -484,10 +484,10 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 归一化表达式中的列名（驼峰/去下划线变体 -> 真实列名）。
-     * @param expr expr
-     * @param entityClass 实体类
-     * @return normalizeColumns的结果
+    * 归一化表达式中的列名（驼峰/去下划线变体 -> 真实列名）。
+    * @param expr expr
+    * @param entityClass 实体类
+    * @return normalizeColumns的结果
      */
     private String normalizeColumns(String expr, Class<?> entityClass) {
         if (expr == null || expr.isEmpty()) {
@@ -511,10 +511,10 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 追加别名规则（去重、忽略同名词）。
-     * @param rules rules
-     * @param variant variant
-     * @param canonical canonical
+    * 追加别名规则（去重、忽略同名词）。
+    * @param rules rules
+    * @param variant variant
+    * @param canonical canonical
      */
     private void addRule(List<String[]> rules, String variant, String canonical) {
         if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
@@ -524,9 +524,9 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 实体字段 -> snake_大小写 列名映射缓存。
-     * @param clazz clazz
-     * @return 字段的的结果
+    * 实体字段 -> snake_大小写 列名映射缓存。
+    * @param clazz clazz
+    * @return 字段的的结果
      */
     private static Map<String, Field> fieldsOf(Class<?> clazz) {
         return FIELD_CACHE.computeIfAbsent(clazz, c -> {
@@ -541,9 +541,9 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 驼峰转 snake_大小写。
-     * @param name 名称
-     * @return camel转为snake的结果
+    * 驼峰转 snake_大小写。
+    * @param name 名称
+    * @return camel转为snake的结果
      */
     private static String camelToSnake(String name) {
         StringBuilder sb = new StringBuilder();
@@ -558,10 +558,10 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 按目标字段类型转换数据库取值。
-     * @param v v
-     * @param type 类型
-     * @return 转换的结果
+    * 按目标字段类型转换数据库取值。
+    * @param v v
+    * @param type 类型
+    * @return 转换的结果
      */
     private static Object convert(Object v, Class<?> type) {
         if (type == String.class) {
@@ -621,9 +621,9 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-      * 多格式时间字符串转 轮次 毫秒。
-     * @param s s
-     * @return 转为轮次milli的结果
+    * 多格式时间字符串转 轮次 毫秒。
+    * @param s s
+    * @return 转为轮次milli的结果
      */
     private static long toEpochMilli(String s) {
         for (DateTimeFormatter f : new DateTimeFormatter[]{
@@ -642,11 +642,11 @@ public class InfluxDbEngine extends AbstractEngine {
     }
 
     /**
-     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
-     *
-     * @param id 待校验标识符
-     * @return 去除首尾空白后的标识符
-     * @throws IllegalArgumentException 标识符非法时抛出
+    * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+    *
+    * @param id 待校验标识符
+    * @return 去除首尾空白后的标识符
+    * @throws IllegalArgumentException 标识符非法时抛出
      */
     private String safeIdentifier(String id) {
         if (id == null) {

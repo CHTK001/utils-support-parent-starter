@@ -13,32 +13,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 响应式 Lambda 删除包装器，条件 API 与 {@code LambdaDeleteWrapper} 一致，
- * 终端方法 {@link #remove()} 返回 {@link Mono}。
- *
- * <pre>{@code
- * Mono<Integer> affected = engine.delete(User.class)
- *     .eq(User::getId, 1)
- *     .remove();
- * }</pre>    .remove();
- * }</pre>
- *
- * @param <T> 实体类型
- * @author CH
- * @since 4.0.0.42
+* 响应式 Lambda 删除包装器，条件 API 与 {@code LambdaDeleteWrapper} 一致，
+* 终端方法 {@link #remove()} 返回 {@link Mono}。
+*
+* <pre>{@code
+* Mono<Integer> affected = engine.delete(User.class)
+*     .eq(User::getId, 1)
+*     .remove();
+* }</pre>    .remove();
+* }</pre>
+*
+* @param <T> 实体类型
+* @author CH
+* @since 4.0.0.42
  */
 public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, ReactorLambdaDeleteWrapper<T>> {
 
     /**
-     * 底层同步引擎
+    * 底层同步引擎
      */
     private final Engine engine;
 
     /**
-     * 创建响应式删除包装器。
-     *
-     * @param engine      底层引擎
-     * @param entityClass 实体类
+    * 创建响应式删除包装器。
+    *
+    * @param engine      底层引擎
+    * @param entityClass 实体类
      */
     public ReactorLambdaDeleteWrapper(Engine engine, Class<T> entityClass) {
         super(entityClass);
@@ -46,8 +46,8 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
     }
 
     /**
-     * 构建删除 SQL 信息。
-     * @return 构建sql的结果
+    * 构建删除 SQL 信息。
+    * @return 构建sql的结果
      */
     public DeleteSql<T> buildSql() {
         List<Object> params = new ArrayList<>();
@@ -62,9 +62,9 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
     }
 
     /**
-     * 执行删除操作，返回受影响行数的 Mono。
-     *
-     * @return 受影响行数 Mono
+    * 执行删除操作，返回受影响行数的 Mono。
+    *
+    * @return 受影响行数 Mono
      */
     public Mono<Integer> remove() {
         return Mono.fromCallable(this::doRemove)
@@ -72,8 +72,8 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
     }
 
     /**
-     * 同步执行删除（内部使用）。
-     * @return 执行移除的结果
+    * 同步执行删除（内部使用）。
+    * @return 执行移除的结果
      */
     private int doRemove() {
         DeleteSql<T> sql = buildSql();
@@ -96,10 +96,10 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
     }
 
     /**
-     * 渲染单个条件为 SQL 片段。
-     * @param sb sb
-     * @param params 参数
-     * @param c c
+    * 渲染单个条件为 SQL 片段。
+    * @param sb sb
+    * @param params 参数
+    * @param c c
      */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {

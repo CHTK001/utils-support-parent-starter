@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * oshc sys — 系统信息：OS、主机、CPU、磁盘、网络、进程统计一览。
- *
- * @author CH
- * @since 4.0.0.42
+* oshc sys — 系统信息：OS、主机、CPU、磁盘、网络、进程统计一览。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class SysCommand extends AbstractCommand {
 
@@ -194,9 +194,9 @@ public final class SysCommand extends AbstractCommand {
     }
 
     /**
-     * 格式化hz。
-     * @param hz hz
-     * @return 格式化hz的结果
+    * 格式化hz。
+    * @param hz hz
+    * @return 格式化hz的结果
      */
     private static String formatHz(long hz) {
         if (hz >= 1_000_000_000L) {
@@ -209,9 +209,9 @@ public final class SysCommand extends AbstractCommand {
     }
 
     /**
-     * 格式化持续时间。
-     * @param seconds seconds
-     * @return 格式化持续时间的结果
+    * 格式化持续时间。
+    * @param seconds seconds
+    * @return 格式化持续时间的结果
      */
     private static String formatDuration(long seconds) {
         if (seconds < 0) {

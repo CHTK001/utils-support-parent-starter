@@ -18,17 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 向量存储 SPI 工厂，通过 {@link RuntimeDetector} SPI 自动选择最优后端。
- *
- * <h3>后端选择优先级</h3>
- * <pre>
- * forceCpu=true                    → jvector (CPU)
- * forceCpu=false, requireGpu=true  → cuVS 可用则用，否则抛异常
- * forceCpu=false, requireGpu=false → cuVS 可用则用，否则降级到 jvector (CPU)
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 向量存储 SPI 工厂，通过 {@link RuntimeDetector} SPI 自动选择最优后端。
+*
+* <h3>后端选择优先级</h3>
+* <pre>
+* forceCpu=true                    → jvector (CPU)
+* forceCpu=false, requireGpu=true  → cuVS 可用则用，否则抛异常
+* forceCpu=false, requireGpu=false → cuVS 可用则用，否则降级到 jvector (CPU)
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "vector", order = 50)
@@ -68,10 +68,10 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 根据配置和运行时环境解析最终使用的后端。
-     *
-     * @param props 用户配置
-     * @return 实际使用的后端类型
+    * 根据配置和运行时环境解析最终使用的后端。
+    *
+    * @param props 用户配置
+    * @return 实际使用的后端类型
      */
     private VectorStorageProperties.Backend resolveBackend(VectorStorageProperties props) {
         // forceCpu=true：直接走 CPU，跳过 GPU 检测
@@ -99,10 +99,10 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-      * 尝试选择 cuvs，不可用时降级到 jvector 并记录日志。
-     * @param props props
-     * @param backendName backend名称
-     * @return 尝试或降级的结果
+    * 尝试选择 cuvs，不可用时降级到 jvector 并记录日志。
+    * @param props props
+    * @param backendName backend名称
+    * @return 尝试或降级的结果
      */
     private VectorStorageProperties.Backend tryOrFallback(VectorStorageProperties props, String backendName) {
         try {
@@ -122,9 +122,9 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-      * 尝试获取 GPU，不可用时抛出异常（requiregpu=true 场景）。
-     * @param props props
-     * @return 选择gpu或抛出的结果
+    * 尝试获取 GPU，不可用时抛出异常（requiregpu=true 场景）。
+    * @param props props
+    * @return 选择gpu或抛出的结果
      */
     private VectorStorageProperties.Backend selectGpuOrThrow(VectorStorageProperties props) {
         VectorStorageProperties.Backend backend = selectBestBackend(props);
@@ -140,10 +140,10 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-      * 通过 runtimedetector SPI 选择最优后端。
-     *
-     * @return 选中的后端类型
-     * @param props props
+    * 通过 runtimedetector SPI 选择最优后端。
+    *
+    * @return 选中的后端类型
+    * @param props props
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBestBackend(VectorStorageProperties props) {
@@ -168,9 +168,9 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 根据名称选择对应后端（内部方法，不抛异常）。
-     * @param properties 属性
-     * @return 转为属性的结果
+    * 根据名称选择对应后端（内部方法，不抛异常）。
+    * @param properties 属性
+    * @return 转为属性的结果
      /**
       * 选择backend。
       * @param name 名称

@@ -13,23 +13,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 压测报告 HTML 导出器（基于 ECharts CDN 渲染图表）。
- *
- * <p>将 {@link BenchmarkDocumentData} 渲染为单页 HTML 压测报告，
- * 包含：</p>
- * <ul>
- *   <li>逐场景明细表（实现 × 并发 × 成功率 / RPS / p95 / p99）</li>
- *   <li>ECharts 图表：成功率、p95、p99、RPS 对比</li>
- * </ul>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * BenchmarkDocumentData data = BenchmarkDocumentData.fromK6SummaryJson(json, "jdk", 500);
- * DocumentProvider.create("benchmark-html").export(data, new File("report.html"));
- * }</pre>
- *
- * @author CH
- * @since 2026/08/15
+* 压测报告 HTML 导出器（基于 ECharts CDN 渲染图表）。
+*
+* <p>将 {@link BenchmarkDocumentData} 渲染为单页 HTML 压测报告，
+* 包含：</p>
+* <ul>
+*   <li>逐场景明细表（实现 × 并发 × 成功率 / RPS / p95 / p99）</li>
+*   <li>ECharts 图表：成功率、p95、p99、RPS 对比</li>
+* </ul>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* BenchmarkDocumentData data = BenchmarkDocumentData.fromK6SummaryJson(json, "jdk", 500);
+* DocumentProvider.create("benchmark-html").export(data, new File("report.html"));
+* }</pre>
+*
+* @author CH
+* @since 2026/08/15
  */
 @Spi("benchmark-html")
 public class BenchmarkHtmlProvider implements DocumentProvider {
@@ -63,7 +63,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
     }
 
     /**
-     * 渲染 HTML 报告。
+    * 渲染 HTML 报告。
      */
     private String render(BenchmarkDocumentData data) {
         List<BenchmarkDocumentData.BenchmarkRow> rows = new ArrayList<>(data.getRows());
@@ -298,7 +298,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
     }
 
     /**
-     * 查找指定实现 + 并发等级的行。
+    * 查找指定实现 + 并发等级的行。
      */
     private BenchmarkDocumentData.BenchmarkRow find(List<BenchmarkDocumentData.BenchmarkRow> rows,
                                                     String impl, int concurrency) {
@@ -311,7 +311,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
     }
 
     /**
-     * HTML 转义。
+    * HTML 转义。
      */
     private static String escape(String s) {
         if (s == null) {
@@ -322,7 +322,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
     }
 
     /**
-     * JS 字符串转义。
+    * JS 字符串转义。
      */
     private static String escapeJs(String s) {
         if (s == null) {
@@ -333,7 +333,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
     }
 
     /**
-     * 写入文件。
+    * 写入文件。
      */
     private void write(File outputFile, String content) {
         try {

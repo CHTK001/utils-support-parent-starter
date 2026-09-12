@@ -21,22 +21,22 @@ import java.util.regex.Pattern;
 
 
 /**
- * 类型转换器基础接口，定义类型转换的核心契约。
- * <p>
- * 所有转换器通过 SPI 机制加载，实现该接口以支持从任意类型到特定目标类型的转换。
- * 该接口提供了丰富的默认方法用于辅助转换：
- * <ul>
- *   <li>{@link #convert(Object)} — 核心转换方法，子类必须实现</li>
- *   <li>{@link #transToBigDecimal(Object)} — 将各种类型统一转为 BigDecimal 的中间转换</li>
- *   <li>{@link #transToArray(Object, Class)} 系列 — 数组类型转换辅助</li>
- *   <li>{@link #convertIfNecessary(Object)} — 兜底转换回调</li>
- * </ul>
- * </p>
- *
- * @param <O> 目标类型
- * @author CH
- * @version 1.0.0
- * @since 2020/10/30
+* 类型转换器基础接口，定义类型转换的核心契约。
+* <p>
+* 所有转换器通过 SPI 机制加载，实现该接口以支持从任意类型到特定目标类型的转换。
+* 该接口提供了丰富的默认方法用于辅助转换：
+* <ul>
+*   <li>{@link #convert(Object)} — 核心转换方法，子类必须实现</li>
+*   <li>{@link #transToBigDecimal(Object)} — 将各种类型统一转为 BigDecimal 的中间转换</li>
+*   <li>{@link #transToArray(Object, Class)} 系列 — 数组类型转换辅助</li>
+*   <li>{@link #convertIfNecessary(Object)} — 兜底转换回调</li>
+* </ul>
+* </p>
+*
+* @param <O> 目标类型
+* @author CH
+* @version 1.0.0
+* @since 2020/10/30
  */
 public interface TypeConverter<O> {
 
@@ -48,8 +48,8 @@ public interface TypeConverter<O> {
     Map<String, Long> MAPPING = new HashMap<>(10);
 
     /**
-     * 初始化存储容量单位映射表。
-     * <p>预定义 B、KB/K、MB/M、GB/G、PB/P 与字节数的对应关系。</p>
+    * 初始化存储容量单位映射表。
+    * <p>预定义 B、KB/K、MB/M、GB/G、PB/P 与字节数的对应关系。</p>
      */
     static void initial() {
         MAPPING.put("B", 1L);
@@ -64,49 +64,49 @@ public interface TypeConverter<O> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return 目标类型的 Class 对象
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return 目标类型的 Class 对象
      */
     Class<O> getType();
 
     /**
-     * 将给定值转换为当前转换器支持的目标类型。
-     *
-     * @param value 源值
-     * @return 转换后的值，如果无法转换则返回 null
+    * 将给定值转换为当前转换器支持的目标类型。
+    *
+    * @param value 源值
+    * @return 转换后的值，如果无法转换则返回 null
      */
     O convert(Object value);
 
     /**
-     * 判断值是否是指定类型的实例。
-     *
-     * @param value 源值
-     * @param type  目标类型
-     * @return 如果 value 是 type 的实例返回 true
+    * 判断值是否是指定类型的实例。
+    *
+    * @param value 源值
+    * @param type  目标类型
+    * @return 如果 value 是 type 的实例返回 true
      */
     default boolean isAssignableFrom(Object value, Class<?> type) {
         return type.isAssignableFrom(value.getClass());
     }
 
     /**
-     * 兜底转换方法，当主要转换逻辑无法处理时调用。
-     * <p>子类可重写此方法以提供备选转换策略，默认返回 null。</p>
-     *
-     * @param value 源值
-     * @return 转换后的值，默认返回 null
+    * 兜底转换方法，当主要转换逻辑无法处理时调用。
+    * <p>子类可重写此方法以提供备选转换策略，默认返回 null。</p>
+    *
+    * @param value 源值
+    * @return 转换后的值，默认返回 null
      */
     default O convertIfNecessary(Object value) {
         return null;
     }
 
     /**
-     * 将 List 转换为指定元素类型的目标数组。
-     *
-     * @param value 源 List
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 List 转换为指定元素类型的目标数组。
+    *
+    * @param value 源 List
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     @SuppressWarnings("all")
     default <T> T[] transToArray(List value, Class<T> type) {
@@ -114,25 +114,25 @@ public interface TypeConverter<O> {
     }
 
     /**
-     * 将对象数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源对象数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将对象数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源对象数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(Object[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将任意对象尝试转换为指定元素类型的目标数组。
-     * <p>支持包装类型数组和基本类型数组的自动识别与转换。</p>
-     *
-     * @param value 源对象
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组，如果无法转换则返回空数组
+    * 将任意对象尝试转换为指定元素类型的目标数组。
+    * <p>支持包装类型数组和基本类型数组的自动识别与转换。</p>
+    *
+    * @param value 源对象
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组，如果无法转换则返回空数组
      */
     default <T> T[] transToArray(Object value, Class<T> type) {
 
@@ -195,104 +195,104 @@ public interface TypeConverter<O> {
     }
 
     /**
-     * 将 byte[] 基本类型数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源 byte 数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 byte[] 基本类型数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源 byte 数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(byte[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将 long[] 基本类型数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源 long 数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 long[] 基本类型数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源 long 数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(long[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将 boolean[] 基本类型数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源 boolean 数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 boolean[] 基本类型数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源 boolean 数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(boolean[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将 short[] 基本类型数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源 short 数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 short[] 基本类型数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源 short 数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(short[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将 int[] 基本类型数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源 int 数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 int[] 基本类型数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源 int 数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(int[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将 double[] 基本类型数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源 double 数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 double[] 基本类型数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源 double 数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(double[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将 float[] 基本类型数组转换为指定元素类型的目标数组。
-     *
-     * @param value 源 float 数组
-     * @param type  目标元素类型
-     * @param <T>   目标元素泛型类型
-     * @return 转换后的数组
+    * 将 float[] 基本类型数组转换为指定元素类型的目标数组。
+    *
+    * @param value 源 float 数组
+    * @param type  目标元素类型
+    * @param <T>   目标元素泛型类型
+    * @return 转换后的数组
      */
     default <T> T[] transToArray(float[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
 
     /**
-     * 将任意对象转换为 BigDecimal 中间值。
-     * <p>支持以下类型的转换：</p>
-     * <ul>
-     *   <li>{@link Number} — 直接通过 toString 构造</li>
-     *   <li>{@link Date}/{@link java.time.LocalDateTime}/{@link java.time.LocalDate}/{@link java.time.LocalTime} — 转为时间戳</li>
-     *   <li>{@link java.awt.Color} — 转为 RGB 整数值</li>
-     *   <li>{@link File} — 转为文件长度</li>
-     *   <li>{@link String} — 通过 {@link #stringTransToBigDecimal(String)} 解析数字字符串、千分位、容量单位、中文数字等</li>
-     *   <li>{@code byte[]} — 通过 BigInteger 转为 BigDecimal</li>
-     *   <li>{@code char[]} — 直接构造 BigDecimal</li>
-     * </ul>
-     *
-     * @param value 源值
-     * @return BigDecimal 值，如果无法转换则返回 null
+    * 将任意对象转换为 BigDecimal 中间值。
+    * <p>支持以下类型的转换：</p>
+    * <ul>
+    *   <li>{@link Number} — 直接通过 toString 构造</li>
+    *   <li>{@link Date}/{@link java.time.LocalDateTime}/{@link java.time.LocalDate}/{@link java.time.LocalTime} — 转为时间戳</li>
+    *   <li>{@link java.awt.Color} — 转为 RGB 整数值</li>
+    *   <li>{@link File} — 转为文件长度</li>
+    *   <li>{@link String} — 通过 {@link #stringTransToBigDecimal(String)} 解析数字字符串、千分位、容量单位、中文数字等</li>
+    *   <li>{@code byte[]} — 通过 BigInteger 转为 BigDecimal</li>
+    *   <li>{@code char[]} — 直接构造 BigDecimal</li>
+    * </ul>
+    *
+    * @param value 源值
+    * @return BigDecimal 值，如果无法转换则返回 null
      */
     default BigDecimal transToBigDecimal(Object value) {
         if (isAssignableFrom(value, Number.class)) {
@@ -355,19 +355,19 @@ public interface TypeConverter<O> {
     }
 
     /**
-     * 将字符串解析为 BigDecimal。
-     * <p>支持以下格式：</p>
-     * <ul>
-     *   <li>标准数字 — 如 "123.45"</li>
-     *   <li>千分位格式 — 如 "1,234,567.89"</li>
-     *   <li>存储容量单位 — 如 "10MB"、"1.5GB"（需配合 {@link #clearSize(String)}）</li>
-     *   <li>中文数字 — 如 "十二万三千四百五十六"</li>
-     *   <li>科学计数法 — 如 "1.23e4"</li>
-     *   <li>尾部 f/F/d/D 标识的数字 — 如 "123.45f"</li>
-     * </ul>
-     *
-     * @param value 字符串
-     * @return BigDecimal 值，如果无法解析则返回 null
+    * 将字符串解析为 BigDecimal。
+    * <p>支持以下格式：</p>
+    * <ul>
+    *   <li>标准数字 — 如 "123.45"</li>
+    *   <li>千分位格式 — 如 "1,234,567.89"</li>
+    *   <li>存储容量单位 — 如 "10MB"、"1.5GB"（需配合 {@link #clearSize(String)}）</li>
+    *   <li>中文数字 — 如 "十二万三千四百五十六"</li>
+    *   <li>科学计数法 — 如 "1.23e4"</li>
+    *   <li>尾部 f/F/d/D 标识的数字 — 如 "123.45f"</li>
+    * </ul>
+    *
+    * @param value 字符串
+    * @return BigDecimal 值，如果无法解析则返回 null
      */
     static BigDecimal stringTransToBigDecimal(String value) {
         if (NumberUtils.isNumber(value)) {
@@ -429,11 +429,11 @@ public interface TypeConverter<O> {
 
 
     /**
-     * 去除字符串末尾的存储容量单位后缀。
-     * <p>如 "10MB" → "10"。</p>
-     *
-     * @param valueStr 带有单位后缀的字符串
-     * @return 去除单位后缀后的字符串
+    * 去除字符串末尾的存储容量单位后缀。
+    * <p>如 "10MB" → "10"。</p>
+    *
+    * @param valueStr 带有单位后缀的字符串
+    * @return 去除单位后缀后的字符串
      */
     static String clearSize(String valueStr) {
         if (MAPPING.isEmpty()) {
@@ -450,11 +450,11 @@ public interface TypeConverter<O> {
     }
 
     /**
-     * 判断字符串末尾的存储容量单位并返回对应的字节数。
-     * <p>如 "10MB" 返回 1048576L。</p>
-     *
-     * @param valueStr 带有单位后缀的字符串
-     * @return 对应的字节数，如果没有匹配的单位则返回 0
+    * 判断字符串末尾的存储容量单位并返回对应的字节数。
+    * <p>如 "10MB" 返回 1048576L。</p>
+    *
+    * @param valueStr 带有单位后缀的字符串
+    * @return 对应的字节数，如果没有匹配的单位则返回 0
      */
     static long isSize(String valueStr) {
         if (MAPPING.isEmpty()) {

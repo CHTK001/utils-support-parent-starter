@@ -16,10 +16,10 @@ import javax.annotation.Nullable;
 
 
 /**
- * 渐进色
- *
- * @author CH
- * @since 4.0.0.42
+* 渐进色
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("PROGRESSIVE")
 @Slf4j

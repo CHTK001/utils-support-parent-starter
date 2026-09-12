@@ -12,16 +12,16 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-   * v卡片 (VCF) 联系人预览提供器。
- * <p>SPI 类型：{@code preview-vcard}。解析 VCF 文件中的联系人信息。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param bytes bytes
- * @return human大小的结果
- * @param content 内容
- * @param ext ext
- * @param mime mime
+* v卡片 (VCF) 联系人预览提供器。
+* <p>SPI 类型：{@code preview-vcard}。解析 VCF 文件中的联系人信息。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param bytes bytes
+* @return human大小的结果
+* @param content 内容
+* @param ext ext
+* @param mime mime
  */
 @Spi("preview-vcard")
 public class VCardPreviewProvider implements FileStoragePreviewProvider {
@@ -43,9 +43,9 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
                 .htmlContent(html)
                 .build();
     /**
-     * 解析v卡片。
-     * @param vcf vcf
-     * @return 解析v卡片的结果
+    * 解析v卡片。
+    * @param vcf vcf
+    * @return 解析v卡片的结果
      */
     }
 
@@ -107,9 +107,9 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
 
         return contacts;
     /**
-     * extract值。
-     * @param line 线
-     * @return extract值的结果
+    * extract值。
+    * @param line 线
+    * @return extract值的结果
      */
     }
 
@@ -120,10 +120,10 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         }
         return line.substring(colonIdx + 1).trim();
     /**
-     * 构建html。
-     * @param contacts contacts
-     * @param fileSize 文件大小
-     * @return 构建html的结果
+    * 构建html。
+    * @param contacts contacts
+    * @param fileSize 文件大小
+    * @return 构建html的结果
      */
     }
 
@@ -193,12 +193,12 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         sb.append("</div></body></html>");
         return sb.toString();
     /**
-      * escapehtml。
-     * @param text 文本
-     * @return escapeHtml的结果
-     * @author CH
-     * @since 4.0.0
-     * @param bytes bytes
+    * escapehtml。
+    * @param text 文本
+    * @return escapeHtml的结果
+    * @author CH
+    * @since 4.0.0
+    * @param bytes bytes
      */
     }
 

@@ -7,12 +7,12 @@ import com.google.common.util.concurrent.RateLimiter;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于 Guava RateLimiter 的限流器实现。
- *
- * <p>支持平滑突发限流（SmoothBursty）和预热限流（SmoothWarmingUp）两种模式。</p>
- *
- * @author CH
- * @since 2026/07/24
+* 基于 Guava RateLimiter 的限流器实现。
+*
+* <p>支持平滑突发限流（SmoothBursty）和预热限流（SmoothWarmingUp）两种模式。</p>
+*
+* @author CH
+* @since 2026/07/24
  */
 @Spi("rate")
 public class GuavaRateLimiterProvider implements RateLimiterProvider {
@@ -23,10 +23,10 @@ public class GuavaRateLimiterProvider implements RateLimiterProvider {
     private final RateLimiter rateLimiter;
 
     /**
-     * 创建平滑突发限流器。
-     *
-     * @param name             限流器名称
-     * @param permitsPerSecond 每秒许可数
+    * 创建平滑突发限流器。
+    *
+    * @param name             限流器名称
+    * @param permitsPerSecond 每秒许可数
      */
     public GuavaRateLimiterProvider(String name, double permitsPerSecond) {
         this.name = name;
@@ -34,11 +34,11 @@ public class GuavaRateLimiterProvider implements RateLimiterProvider {
     }
 
     /**
-     * 创建预热限流器。
-     *
-     * @param name             限流器名称
-     * @param permitsPerSecond 每秒许可数
-     * @param warmupPeriod     预热时间（秒）
+    * 创建预热限流器。
+    *
+    * @param name             限流器名称
+    * @param permitsPerSecond 每秒许可数
+    * @param warmupPeriod     预热时间（秒）
      */
     public GuavaRateLimiterProvider(String name, double permitsPerSecond, long warmupPeriod) {
         this.name = name;

@@ -22,25 +22,25 @@ import com.chua.datasource.support.engine.MemorySqlAst.UpdatePlan;
 import com.chua.datasource.support.engine.MemorySqlLex.TokenStream;
 
 /**
- * 内存引擎原生 SQL 解析器：将单表 SQL 编译为二叉表达式树（AST），
-   * 求值时以内存 列表 行引用为输入执行过滤 / 投影 / 排序 / 截断管道。
- *
- * <p>支持：SELECT 列清单 / * / COUNT(*)、WHERE、ORDER BY、LIMIT [OFFSET]、
-   * 插入 多值、更新 设置、删除，运算符 = != &lt;&gt; &lt; &lt;= &gt; &gt;=
-   * LIKE 入 BETWEEN 是否 [NOT] 空 及 和 / 或 / 括号 / NOT，支持 ? 参数绑定。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 内存引擎原生 SQL 解析器：将单表 SQL 编译为二叉表达式树（AST），
+* 求值时以内存 列表 行引用为输入执行过滤 / 投影 / 排序 / 截断管道。
+*
+* <p>支持：SELECT 列清单 / * / COUNT(*)、WHERE、ORDER BY、LIMIT [OFFSET]、
+* 插入 多值、更新 设置、删除，运算符 = != &lt;&gt; &lt; &lt;= &gt; &gt;=
+* LIKE 入 BETWEEN 是否 [NOT] 空 及 和 / 或 / 括号 / NOT，支持 ? 参数绑定。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class MemorySqlParser {
 
     /**
-     * 解析并执行查询。
-     *
-     * @param sql    选择 语句
-     * @param rows   从 表对应的行引用列表
-     * @param params 绑定参数
-     * @return 结果行集合
+    * 解析并执行查询。
+    *
+    * @param sql    选择 语句
+    * @param rows   从 表对应的行引用列表
+    * @param params 绑定参数
+    * @return 结果行集合
      */
     public List<java.util.Map<String, Object>> executeQuery(String sql, List<?> rows, Object[] params) {
         SelectStmt stmt = parseSelect(sql);
@@ -49,10 +49,10 @@ public class MemorySqlParser {
     }
 
     /**
-     * 解析 DML 为执行计划（不执行），由引擎对行引用应用变更。
-     *
-     * @param sql DML 语句
-     * @return 计划
+    * 解析 DML 为执行计划（不执行），由引擎对行引用应用变更。
+    *
+    * @param sql DML 语句
+    * @return 计划
      */
     public DmlPlan parseDml(String sql) {
         TokenStream ts = new TokenStream(sql);
@@ -69,10 +69,10 @@ public class MemorySqlParser {
     }
 
     /**
-      * 解析 选择 文本为语句树。
-     *
-     * @param sql 选择 语句
-     * @return 语句对象
+    * 解析 选择 文本为语句树。
+    *
+    * @param sql 选择 语句
+    * @return 语句对象
      */
     public SelectStmt parseSelect(String sql) {
         TokenStream ts = new TokenStream(sql);
@@ -118,10 +118,10 @@ public class MemorySqlParser {
     /* ==================== 表达式树：优先级递归下降 ==================== */
 
     /**
-      * 解析 或 层级表达式（最低优先级）。
-     *
-     * @param ts 词法流
-     * @return 表达式树节点
+    * 解析 或 层级表达式（最低优先级）。
+    *
+    * @param ts 词法流
+    * @return 表达式树节点
      */
     private Node parseOr(TokenStream ts) {
         Node left = parseAnd(ts);
@@ -132,10 +132,10 @@ public class MemorySqlParser {
     }
 
     /**
-      * 解析 和 层级表达式（中优先级）。
-     *
-     * @param ts 词法流
-     * @return 表达式树节点
+    * 解析 和 层级表达式（中优先级）。
+    *
+    * @param ts 词法流
+    * @return 表达式树节点
      */
     private Node parseAnd(TokenStream ts) {
         Node left = parseSimple(ts);
@@ -146,10 +146,10 @@ public class MemorySqlParser {
     }
 
     /**
-      * 解析单个谓词：括号分组 / NOT / 是否 空 / BETWEEN / 入 / LIKE / 比较运算。
-     *
-     * @param ts 词法流
-     * @return 谓词节点
+    * 解析单个谓词：括号分组 / NOT / 是否 空 / BETWEEN / 入 / LIKE / 比较运算。
+    *
+    * @param ts 词法流
+    * @return 谓词节点
      */
     private Node parseSimple(TokenStream ts) {
         if (match(ts, "(")) {
@@ -194,10 +194,10 @@ public class MemorySqlParser {
     /* ==================== DML ==================== */
 
     /**
-      * 解析 插入 语句为计划。
-     *
-     * @param ts 词法流
-     * @return 插入计划
+    * 解析 插入 语句为计划。
+    *
+    * @param ts 词法流
+    * @return 插入计划
      */
     private DmlPlan parseInsert(TokenStream ts) {
         expectKeyword(ts, "INSERT");
@@ -224,10 +224,10 @@ public class MemorySqlParser {
     }
 
     /**
-      * 解析 更新 语句为计划。
-     *
-     * @param ts 词法流
-     * @return 更新计划
+    * 解析 更新 语句为计划。
+    *
+    * @param ts 词法流
+    * @return 更新计划
      */
     private DmlPlan parseUpdate(TokenStream ts) {
         expectKeyword(ts, "UPDATE");
@@ -246,10 +246,10 @@ public class MemorySqlParser {
     }
 
     /**
-      * 解析 删除 语句为计划。
-     *
-     * @param ts 词法流
-     * @return 删除计划
+    * 解析 删除 语句为计划。
+    *
+    * @param ts 词法流
+    * @return 删除计划
      */
     private DmlPlan parseDelete(TokenStream ts) {
         expectKeyword(ts, "DELETE");
@@ -265,10 +265,10 @@ public class MemorySqlParser {
     /* ==================== 词法辅助 ==================== */
 
     /**
-      * 断言下一个 令牌 为指定关键字，否则抛出解析异常。
-     *
-     * @param ts 词法流
-     * @param kw 期望关键字
+    * 断言下一个 令牌 为指定关键字，否则抛出解析异常。
+    *
+    * @param ts 词法流
+    * @param kw 期望关键字
      */
     private static void expectKeyword(TokenStream ts, String kw) {
         if (!matchKeyword(ts, kw)) {
@@ -278,11 +278,11 @@ public class MemorySqlParser {
     }
 
     /**
-     * 尝试匹配关键字，命中则消费。
-     *
-     * @param ts 词法流
-     * @param kw 关键字（忽略大小写）
-     * @return 是否命中
+    * 尝试匹配关键字，命中则消费。
+    *
+    * @param ts 词法流
+    * @param kw 关键字（忽略大小写）
+    * @return 是否命中
      */
     private static boolean matchKeyword(TokenStream ts, String kw) {
         if (!ts.eof() && ts.peek().equalsIgnoreCase(kw)) {
@@ -293,11 +293,11 @@ public class MemorySqlParser {
     }
 
     /**
-     * 尝试匹配符号，命中则消费。
-     *
-     * @param ts     词法流
-     * @param symbol 符号字面量
-     * @return 是否命中
+    * 尝试匹配符号，命中则消费。
+    *
+    * @param ts     词法流
+    * @param symbol 符号字面量
+    * @return 是否命中
      */
     private static boolean match(TokenStream ts, String symbol) {
         if (!ts.eof() && ts.peek().equals(symbol)) {
@@ -308,10 +308,10 @@ public class MemorySqlParser {
     }
 
     /**
-     * 强制消费指定符号，未命中抛出解析异常。
-     *
-     * @param ts     词法流
-     * @param symbol 期望符号
+    * 强制消费指定符号，未命中抛出解析异常。
+    *
+    * @param ts     词法流
+    * @param symbol 期望符号
      */
     private static void consume(TokenStream ts, String symbol) {
         if (!match(ts, symbol)) {
@@ -321,10 +321,10 @@ public class MemorySqlParser {
     }
 
     /**
-     * 消费一个合法标识符（表名/列名）。
-     *
-     * @param ts 词法流
-     * @return 标识符
+    * 消费一个合法标识符（表名/列名）。
+    *
+    * @param ts 词法流
+    * @return 标识符
      */
     private static String consumeIdentifier(TokenStream ts) {
         if (ts.eof()) {
@@ -338,10 +338,10 @@ public class MemorySqlParser {
     }
 
     /**
-      * 消费一个整数字面量（限制/偏移量）。
-     *
-     * @param ts 词法流
-     * @return 整数值
+    * 消费一个整数字面量（限制/偏移量）。
+    *
+    * @param ts 词法流
+    * @return 整数值
      */
     private static int consumeInt(TokenStream ts) {
         String t = ts.next();
@@ -353,10 +353,10 @@ public class MemorySqlParser {
     }
 
     /**
-     * 消费一个比较运算符。
-     *
-     * @param ts 词法流
-     * @return 运算符字面量
+    * 消费一个比较运算符。
+    *
+    * @param ts 词法流
+    * @return 运算符字面量
      */
     private static String consumeOperator(TokenStream ts) {
         String t = ts.next();
@@ -375,10 +375,10 @@ public class MemorySqlParser {
     }
 
     /**
-      * 消费一个值：? 占位 / '字符串' / 空 / 数值 / 裸标识符。
-     *
-     * @param ts 词法流
-     * @return 值对象或 参数记号笔 占位
+    * 消费一个值：? 占位 / '字符串' / 空 / 数值 / 裸标识符。
+    *
+    * @param ts 词法流
+    * @return 值对象或 参数记号笔 占位
      */
     private Object consumeValueOrParam(TokenStream ts) {
         if (match(ts, "?")) {

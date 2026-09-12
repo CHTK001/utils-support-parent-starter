@@ -1,13 +1,13 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * Kafka 协议还原器。
- *
- * <p>Kafka 请求/响应帧：length(4) + apiKey(2) + apiVersion(2) + correlationId(4) + clientId。
-   * 解析常用 API 键: 0=Produce, 1=获取, 2=列表偏移量, 3=Metadata, 8=偏移量commit。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Kafka 协议还原器。
+*
+* <p>Kafka 请求/响应帧：length(4) + apiKey(2) + apiVersion(2) + correlationId(4) + clientId。
+* 解析常用 API 键: 0=Produce, 1=获取, 2=列表偏移量, 3=Metadata, 8=偏移量commit。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class KafkaProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -60,10 +60,10 @@ public class KafkaProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为api键名称
-     *
-     * @param apiKey api键
-     * @return 转为api键名称的结果
+    * 转为api键名称
+    *
+    * @param apiKey api键
+    * @return 转为api键名称的结果
      */
     private static String toApiKeyName(int apiKey) {
         return switch (apiKey) {

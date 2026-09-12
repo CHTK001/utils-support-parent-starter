@@ -25,18 +25,18 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 /**
-   * WebSocket 数据同步 智能体 服务端
- * <p>运行在 DataSyncServer 侧，接受 WebSocket 连接，管理 Agent 注册、心跳、数据拉取。</p>
- *
- * <pre>{@code
- * WebSocketDataSyncAgentServer server = new WebSocketDataSyncAgentServer(8080);
- * server.start();
- * }</pre>;
- * server.start();
- * }</pre>
- *
- * @author CH
- * @since 2026-07-20
+* WebSocket 数据同步 智能体 服务端
+* <p>运行在 DataSyncServer 侧，接受 WebSocket 连接，管理 Agent 注册、心跳、数据拉取。</p>
+*
+* <pre>{@code
+* WebSocketDataSyncAgentServer server = new WebSocketDataSyncAgentServer(8080);
+* server.start();
+* }</pre>;
+* server.start();
+* }</pre>
+*
+* @author CH
+* @since 2026-07-20
  */
 public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
@@ -44,33 +44,33 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     private static final Logger log = LoggerFactory.getLogger(WebSocketDataSyncAgentServer.class);
 
     /**
-     * 监听端口
+    * 监听端口
      */
     private final int port;
 
     /**
-     * 服务器套接字
+    * 服务器套接字
      */
     private ServerSocket serverSocket;
 
     /**
-     * 线程池
+    * 线程池
      */
     private ExecutorService executor;
 
     /**
-       * 智能体 连接映射（智能体标识 -> Connection）
+    * 智能体 连接映射（智能体标识 -> Connection）
      */
     private final Map<String, Connection> connections = new ConcurrentHashMap<>();
 
     /**
-       * 响应等待器（请求标识 -> completable期货）
+    * 响应等待器（请求标识 -> completable期货）
      */
     private final Map<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
 
     /**
-      * 创建 web套接字数据同步智能体服务端 实例
-     * @param port 端口
+    * 创建 web套接字数据同步智能体服务端 实例
+    * @param port 端口
      */
     public WebSocketDataSyncAgentServer(int port) {
         super("websocket");
@@ -130,9 +130,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     /**
-     * 处理Connection
-     *
-     * @param socket 套接字
+    * 处理Connection
+    *
+    * @param socket 套接字
      */
     private void handleConnection(Socket socket) {
         String agentId = null;
@@ -211,11 +211,11 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     /**
-     * 发送请求
-     *
-     * @param agentId 智能体标识
-     * @param request 请求
-     * @return 发送请求的结果
+    * 发送请求
+    *
+    * @param agentId 智能体标识
+    * @param request 请求
+    * @return 发送请求的结果
      */
     public String sendRequest(String agentId, String request) {
         Connection conn = connections.get(agentId);
@@ -239,10 +239,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     /**
-     * 读取文本帧
-     *
-     * @param in 入
-     * @return 读取文本帧的结果
+    * 读取文本帧
+    *
+    * @param in 入
+    * @return 读取文本帧的结果
      */
     private static String readTextFrame(InputStream in) throws IOException {
         int b0 = in.read();
@@ -300,10 +300,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     /**
-     * 写入文本帧
-     *
-     * @param out 出
-     * @param payload payload
+    * 写入文本帧
+    *
+    * @param out 出
+    * @param payload payload
      */
     private static void writeTextFrame(OutputStream out, String payload) throws IOException {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
@@ -328,12 +328,12 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     /**
-     * computeweb套接字accept
-     *
-     * @param key 键
-     * @return computeweb套接字accept的结果
-     * @author CH
-     * @since 4.0.0
+    * computeweb套接字accept
+    *
+    * @param key 键
+    * @return computeweb套接字accept的结果
+    * @author CH
+    * @since 4.0.0
      */
     private static String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -356,9 +356,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
 
         /**
-         * 发送文本帧
-         *
-         * @param text 文本
+        * 发送文本帧
+        *
+        * @param text 文本
          */
         public void sendTextFrame(String text) throws IOException {
             synchronized (socket) {
@@ -367,15 +367,15 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
 
         /**
-          * 获取智能体标识
-         *
-         * @return 获取智能体id的结果
+        * 获取智能体标识
+        *
+        * @return 获取智能体id的结果
          */
         public String getAgentId() { return agentId; }
         /**
-          * 获取源标识
-         *
-         * @return 获取源id的结果
+        * 获取源标识
+        *
+        * @return 获取源id的结果
          */
         public String getSourceId() { return sourceId; }
         /** 关闭 */

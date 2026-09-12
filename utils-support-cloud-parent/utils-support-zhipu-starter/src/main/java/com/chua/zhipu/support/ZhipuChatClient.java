@@ -26,97 +26,97 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * 智谱 GLM 大模型对话客户端
- *
- * <p>基于智谱 AI 开放平台 GLM API 的 {@link ChatClient} 实现，通过官方的 oapi-java-sdk
- * 调用智谱 GLM-4 系列模型的对话接口。
- *
- * @author CH
- * @since 4.0.0.42
+* 智谱 GLM 大模型对话客户端
+*
+* <p>基于智谱 AI 开放平台 GLM API 的 {@link ChatClient} 实现，通过官方的 oapi-java-sdk
+* 调用智谱 GLM-4 系列模型的对话接口。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"zhipu", "glm"})
 public class ZhipuChatClient implements ChatClient {
 
     /**
-     * 智谱 GLM 默认 API 地址
+    * 智谱 GLM 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
 
     /**
-     * Zhipu SDK 客户端
+    * Zhipu SDK 客户端
      */
     private final ClientV3 client;
 
     /**
-     * 客户端配置
+    * 客户端配置
      */
     private final ChatClientSetting setting;
 
     /**
-     * 当前使用的模型名称
+    * 当前使用的模型名称
      */
     private String model;
 
     /**
-     * 当前温度参数
+    * 当前温度参数
      */
     private Double temperature;
 
     /**
-      * 当前最大 令牌 数
+    * 当前最大 令牌 数
      */
     private Integer maxTokens;
 
     /**
-     * 当前系统提示词
+    * 当前系统提示词
      */
     private String system;
 
     /**
-      * 当前会话 标识
+    * 当前会话 标识
      */
     private String sessionId;
 
     /**
-     * 对话历史消息列表
+    * 对话历史消息列表
      */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-     * 外部传入的完整历史记录
+    * 外部传入的完整历史记录
      */
     private List<ChatMessage> externalHistory;
 
     /**
-     * 图片附件 URL 列表
+    * 图片附件 URL 列表
      */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
-     * 是否启用深度思考
+    * 是否启用深度思考
      */
     private boolean thinking;
 
     /**
-     * 深度思考力度
+    * 深度思考力度
      */
     private String thinkingEffort;
 
     /**
-     * 是否启用智能搜索
+    * 是否启用智能搜索
      */
     private boolean smartSearch;
 
     /**
-     * 技能管理器
+    * 技能管理器
      */
     private SkillManager skillManager;
 
     /**
-     * 构造智谱 GLM 对话客户端
-     *
-     * @param setting 客户端配置
+    * 构造智谱 GLM 对话客户端
+    *
+    * @param setting 客户端配置
      */
     public ZhipuChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -254,10 +254,10 @@ public class ZhipuChatClient implements ChatClient {
     }
 
     /**
-     * 同步对话内部实现，同时捕获文本与用量信息。
-     *
-     * @param prompt 用户输入
-     * @return 包含文本与用量的响应
+    * 同步对话内部实现，同时捕获文本与用量信息。
+    *
+    * @param prompt 用户输入
+    * @return 包含文本与用量的响应
      */
     private ChatSyncResponse chatSyncInternal(String prompt) {
         StringBuilder result = new StringBuilder();
@@ -289,11 +289,11 @@ public class ZhipuChatClient implements ChatClient {
 
     @Override
     /**
-     * 对话
-     * @param prompt 提示符
-     * @param consumer consumer
-     * @param onComplete on完成
-     * @param onError on错误
+    * 对话
+    * @param prompt 提示符
+    * @param consumer consumer
+    * @param onComplete on完成
+    * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -392,10 +392,10 @@ public class ZhipuChatClient implements ChatClient {
     }
 
     /**
-      * 剥离 JSON 字符串外层引号（智谱 SDK 返回的 内容 为带引号的 JSON 字面量）。
-     *
-     * @param value 原始内容
-     * @return 去除首尾引号后的内容
+    * 剥离 JSON 字符串外层引号（智谱 SDK 返回的 内容 为带引号的 JSON 字面量）。
+    *
+    * @param value 原始内容
+    * @return 去除首尾引号后的内容
      */
     private static String unquote(String value) {
         if (value == null || value.isEmpty()) {
@@ -408,11 +408,11 @@ public class ZhipuChatClient implements ChatClient {
     }
 
     /**
-     * 通过系统属性配置代理
-     *
-     * <p>Zhipu SDK 内部使用 OkHttp，需通过系统属性设置代理。
-     *
-     * @param proxyStr 代理字符串，如 http://127.0.0.1:8080
+    * 通过系统属性配置代理
+    *
+    * <p>Zhipu SDK 内部使用 OkHttp，需通过系统属性设置代理。
+    *
+    * @param proxyStr 代理字符串，如 http://127.0.0.1:8080
      */
     private static void setupProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {

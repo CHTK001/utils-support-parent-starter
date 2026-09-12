@@ -11,41 +11,41 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * HTTP 同步流程管理器。
- * <p>
- * 组合 {@link HttpSyncClient} 和 {@link HttpSyncServer}，提供统一的生命周期管理。
- * </p>
- *
- * @author CH
- * @since 2026-07-25
+* HTTP 同步流程管理器。
+* <p>
+* 组合 {@link HttpSyncClient} 和 {@link HttpSyncServer}，提供统一的生命周期管理。
+* </p>
+*
+* @author CH
+* @since 2026-07-25
  */
 public class HttpSyncFlow implements SyncFlow {
 
     /**
-     * HTTP 同步客户端
+    * HTTP 同步客户端
      */
     private final HttpSyncClient client;
 
     /**
-     * HTTP 同步服务端
+    * HTTP 同步服务端
      */
     private final HttpSyncServer server;
 
     /**
-     * 是否运行中
+    * 是否运行中
      */
     private volatile boolean running = false;
 
     /**
-     * 监听器列表
+    * 监听器列表
      */
     private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
 
     /**
-     * 创建 HTTP 同步流程。
-     *
-     * @param setting 服务端配置
-     * @param serverUrl 客户端连接的服务端地址
+    * 创建 HTTP 同步流程。
+    *
+    * @param setting 服务端配置
+    * @param serverUrl 客户端连接的服务端地址
      */
     public HttpSyncFlow(ServerSetting setting, String serverUrl) {
         this.server = new HttpSyncServer(setting);
@@ -53,9 +53,9 @@ public class HttpSyncFlow implements SyncFlow {
     }
 
     /**
-     * 创建 HTTP 同步流程（仅客户端模式）。
-     *
-     * @param serverUrl 服务端地址
+    * 创建 HTTP 同步流程（仅客户端模式）。
+    *
+    * @param serverUrl 服务端地址
      */
     public HttpSyncFlow(String serverUrl) {
         this.server = null;
@@ -63,9 +63,9 @@ public class HttpSyncFlow implements SyncFlow {
     }
 
     /**
-     * 创建 HTTP 同步流程（仅服务端模式）。
-     *
-     * @param setting 服务端配置
+    * 创建 HTTP 同步流程（仅服务端模式）。
+    *
+    * @param setting 服务端配置
      */
     public HttpSyncFlow(ServerSetting setting) {
         this.server = new HttpSyncServer(setting);
@@ -176,7 +176,7 @@ public class HttpSyncFlow implements SyncFlow {
     // ==================== 内部方法 ====================
 
     /**
-     * 通知监听器
+    * 通知监听器
      */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {

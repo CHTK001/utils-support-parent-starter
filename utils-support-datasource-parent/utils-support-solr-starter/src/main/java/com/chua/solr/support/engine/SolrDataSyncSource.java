@@ -10,11 +10,11 @@ import reactor.core.publisher.Flux;
 import java.util.*;
 
 /**
-   * Solr 引擎的 数据同步 输出 提供者。
- * <p>将 {@link Flux}&lt;Map&gt; 批量写入 Solr Collection。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Solr 引擎的 数据同步 输出 提供者。
+* <p>将 {@link Flux}&lt;Map&gt; 批量写入 Solr Collection。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SolrDataSyncSource implements DataSyncSource {
@@ -34,12 +34,12 @@ public class SolrDataSyncSource implements DataSyncSource {
     private final int batchSize;
 
     /**
-      * 创建 Solr数据同步源 实例
-     * @param engine engine
-     * @param collectionName 集合名称
-     * @param sourceId 源标识
-     * @param agentId 智能体标识
-     * @param batchSize 批量大小
+    * 创建 Solr数据同步源 实例
+    * @param engine engine
+    * @param collectionName 集合名称
+    * @param sourceId 源标识
+    * @param agentId 智能体标识
+    * @param batchSize 批量大小
      */
     private SolrDataSyncSource(SolrEngine engine, String collectionName,
                                String sourceId, String agentId, int batchSize) {
@@ -51,11 +51,11 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     /**
-      * 输出
-     * @param engine engine
-     * @param collectionName 集合名称
-     * @param sourceId 源标识
-     * @param agentId 智能体标识
+    * 输出
+    * @param engine engine
+    * @param collectionName 集合名称
+    * @param sourceId 源标识
+    * @param agentId 智能体标识
      */
     public static SolrDataSyncSource output(SolrEngine engine, String collectionName,
                                             String sourceId, String agentId) {
@@ -63,12 +63,12 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     /**
-      * 输出
-     * @param engine engine
-     * @param collectionName 集合名称
-     * @param sourceId 源标识
-     * @param agentId 智能体标识
-     * @param batchSize 批量大小
+    * 输出
+    * @param engine engine
+    * @param collectionName 集合名称
+    * @param sourceId 源标识
+    * @param agentId 智能体标识
+    * @param batchSize 批量大小
      */
     public static SolrDataSyncSource output(SolrEngine engine, String collectionName,
                                             String sourceId, String agentId, int batchSize) {

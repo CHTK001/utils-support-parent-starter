@@ -7,40 +7,40 @@ import java.util.Enumeration;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * MAC 地址自增序列算法 ID 生成器，基于机器 MAC 地址自动生成分布式全局唯一 ID。
- *
- * <p>64 位 Long 型 ID 的位分配如下：</p>
- * <pre>
- * 1 bit sign | 28 bits timestamp | 24 bits macId | 11 bits sequence
- * (始终为 0) | (秒级时间戳) | (MAC 地址哈希) | (自增序号)
- * </pre>
- *
- * <ul>
- * <li>28 位秒级时间戳：相对于纪元起始，可使用约 8.7 年</li>
- * <li>24 位 MAC 地址标识：由机器网卡 MAC 地址经 XOR 折叠得到，最多支持 1600 万节点</li>
- * <li>11 位序列号：每秒最多生成 2048 个 ID</li>
- * <li>无需手动配置节点 ID，自动识别机器唯一标识</li>
- * </ul>
- *
- * <p>MAC 地址获取策略：</p>
- * <ul>
- * <li>优先使用非回环、非虚拟网卡的硬件 MAC 地址</li>
- * <li>自动过滤虚拟机和容器网卡（如 docker、veth 等）</li>
- * <li>若获取失败则退化为随机数 + 主机名哈希的组合</li>
- * </ul>
- *
- * <p>使用方法：</p>
- * <pre>{@code
- * // 创建生成器（自动读取本机 MAC 地址）
- * MacSequenceGenerator generator = new MacSequenceGenerator();
- *
- * // 生成 ID
- * long id = generator.nextId();
- * String idStr = generator.nextIdString();
- * }</pre>
- *
- * @author CH
- * @since 1.0.0
+* MAC 地址自增序列算法 ID 生成器，基于机器 MAC 地址自动生成分布式全局唯一 ID。
+*
+* <p>64 位 Long 型 ID 的位分配如下：</p>
+* <pre>
+* 1 bit sign | 28 bits timestamp | 24 bits macId | 11 bits sequence
+* (始终为 0) | (秒级时间戳) | (MAC 地址哈希) | (自增序号)
+* </pre>
+*
+* <ul>
+* <li>28 位秒级时间戳：相对于纪元起始，可使用约 8.7 年</li>
+* <li>24 位 MAC 地址标识：由机器网卡 MAC 地址经 XOR 折叠得到，最多支持 1600 万节点</li>
+* <li>11 位序列号：每秒最多生成 2048 个 ID</li>
+* <li>无需手动配置节点 ID，自动识别机器唯一标识</li>
+* </ul>
+*
+* <p>MAC 地址获取策略：</p>
+* <ul>
+* <li>优先使用非回环、非虚拟网卡的硬件 MAC 地址</li>
+* <li>自动过滤虚拟机和容器网卡（如 docker、veth 等）</li>
+* <li>若获取失败则退化为随机数 + 主机名哈希的组合</li>
+* </ul>
+*
+* <p>使用方法：</p>
+* <pre>{@code
+* // 创建生成器（自动读取本机 MAC 地址）
+* MacSequenceGenerator generator = new MacSequenceGenerator();
+*
+* // 生成 ID
+* long id = generator.nextId();
+* String idStr = generator.nextIdString();
+* }</pre>
+*
+* @author CH
+* @since 1.0.0
  */
 public class MacSequenceGenerator {
 

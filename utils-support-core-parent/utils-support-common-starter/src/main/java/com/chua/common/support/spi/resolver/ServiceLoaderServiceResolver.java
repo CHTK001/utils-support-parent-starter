@@ -14,13 +14,13 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
-   * 基于 Java 服务加载 的 SPI 服务解析器实现。
- *
- * <p>读取 META-INF/services 文件获取实现类名，构建 ServiceDefinition。
-   * 不通过 服务加载 实例化对象（避免无参构造器要求），由 服务提供者 统一用构造参数创建实例。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Java 服务加载 的 SPI 服务解析器实现。
+*
+* <p>读取 META-INF/services 文件获取实现类名，构建 ServiceDefinition。
+* 不通过 服务加载 实例化对象（避免无参构造器要求），由 服务提供者 统一用构造参数创建实例。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ServiceLoaderServiceResolver implements ServiceResolver {
 

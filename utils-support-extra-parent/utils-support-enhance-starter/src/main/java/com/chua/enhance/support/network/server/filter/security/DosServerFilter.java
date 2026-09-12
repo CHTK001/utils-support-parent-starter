@@ -11,28 +11,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-   * 执行 防护过滤器，基于滑动窗口的请求频率限制。
- *
- * <p>按客户端 IP 统计固定时间窗口内的请求次数，超过阈值返回 429。
- * 使用 {@link ConcurrentHashMap} + {@link AtomicInteger} 实现线程安全的计数。
- *
- * <h2>配置参数</h2>
- * <ul>
- *   <li>{@code dos.maxRequests} — 时间窗口内最大请求数，默认 100</li>
- *   <li>{@code dos.windowSeconds} — 时间窗口大小（秒），默认 60</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* 执行 防护过滤器，基于滑动窗口的请求频率限制。
+*
+* <p>按客户端 IP 统计固定时间窗口内的请求次数，超过阈值返回 429。
+* 使用 {@link ConcurrentHashMap} + {@link AtomicInteger} 实现线程安全的计数。
+*
+* <h2>配置参数</h2>
+* <ul>
+*   <li>{@code dos.maxRequests} — 时间窗口内最大请求数，默认 100</li>
+*   <li>{@code dos.windowSeconds} — 时间窗口大小（秒），默认 60</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class DosServerFilter implements ServerFilter {
 
     /**
-     * 默认最大请求数
+    * 默认最大请求数
      */
     private static final int DEFAULT_MAX_REQUESTS = 100;
     /**
-     * 默认时间窗口（秒）
+    * 默认时间窗口（秒）
      */
     private static final int DEFAULT_WINDOW_SECONDS = 60;
 
@@ -42,11 +42,11 @@ public class DosServerFilter implements ServerFilter {
     private int windowSeconds = DEFAULT_WINDOW_SECONDS;
 
     /**
-     * IP → 请求计数
+    * IP → 请求计数
      */
     private final Map<String, AtomicInteger> requestCounts = new ConcurrentHashMap<>();
     /**
-     * IP → 窗口起始时间戳
+    * IP → 窗口起始时间戳
      */
     private final Map<String, Long> windowStartTimes = new ConcurrentHashMap<>();
 
@@ -99,9 +99,9 @@ public class DosServerFilter implements ServerFilter {
     }
 
     /**
-      * 解析客户端真实 IP，优先从 X-远期-For 头获取。
-     * @param request 请求
-     * @return resolve客户端ip的结果
+    * 解析客户端真实 IP，优先从 X-远期-For 头获取。
+    * @param request 请求
+    * @return resolve客户端ip的结果
      */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");

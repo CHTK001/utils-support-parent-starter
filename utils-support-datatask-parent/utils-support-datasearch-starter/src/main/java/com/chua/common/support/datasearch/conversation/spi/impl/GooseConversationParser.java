@@ -17,24 +17,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Goose conversation parser.
- *
- * <p>Goose stores every exchange in the {@code messages} table of
- * {@code %APPDATA%\Block\goose\data\sessions\sessions.db}; content is a JSON
-   * array 的 类型 blocks:</p>
- *
- * <pre>{@code
- * {
- *   "message_id": "msg_...", "session_id": "...", "role": "user",
- *   "content_json": [ { "type": "text", "text": "Say ok" } ],
- *   "created_timestamp": 1787641406
- * }
- * }</pre>787641406
- * }
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Goose conversation parser.
+*
+* <p>Goose stores every exchange in the {@code messages} table of
+* {@code %APPDATA%\Block\goose\data\sessions\sessions.db}; content is a JSON
+* array 的 类型 blocks:</p>
+*
+* <pre>{@code
+* {
+*   "message_id": "msg_...", "session_id": "...", "role": "user",
+*   "content_json": [ { "type": "text", "text": "Say ok" } ],
+*   "created_timestamp": 1787641406
+* }
+* }</pre>787641406
+* }
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("goose")
 public class GooseConversationParser implements ConversationParser {
@@ -49,9 +49,9 @@ public class GooseConversationParser implements ConversationParser {
                     + "FROM messages ORDER BY created_timestamp ASC";
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "goose"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "goose"}
      */
     @Override
     public String name() {
@@ -59,9 +59,9 @@ public class GooseConversationParser implements ConversationParser {
     }
 
     /**
-     * 流式解析全部会话消息：JDBC 游标逐行发射。
-     * @param value 值
-     * @param fallback 降级
+    * 流式解析全部会话消息：JDBC 游标逐行发射。
+    * @param value 值
+    * @param fallback 降级
      /**
       * 流消息。
       * @return 流消息的结果
@@ -90,11 +90,11 @@ public class GooseConversationParser implements ConversationParser {
                 log.warn("[goose] parse failed: {}", e.getMessage(), e);
                 sink.complete();
             /**
-             * 转为消息。
-             * @param rs R
-             * @return 转为消息的结果
-             * @param value 值
-             * @param fallback 降级
+            * 转为消息。
+            * @param rs R
+            * @return 转为消息的结果
+            * @param value 值
+            * @param fallback 降级
              */
             }
         }).subscribeOn(Schedulers.boundedElastic());
@@ -129,9 +129,9 @@ public class GooseConversationParser implements ConversationParser {
         }
         return result;
     /**
-     * safe解析。
-     * @param raw raw
-     * @return safe解析的结果
+    * safe解析。
+    * @param raw raw
+    * @return safe解析的结果
      */
     }
 

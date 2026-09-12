@@ -22,13 +22,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 基于 AIO(Proactor/IOCP) 的 TCP 代理:接入连接与后端连接均为
- * AsynchronousSocketChannel,双端各一条虚拟线程做阻塞 Future 泵。
- *
- * <p>目标地址解析顺序:构造器/Setter 注入的固定目标 →
- * {@code ServerSetting.getHost()/getPort()}(作为后端地址语义)。</p>
- * @author CH
- * @since 2026/08/24
+* 基于 AIO(Proactor/IOCP) 的 TCP 代理:接入连接与后端连接均为
+* AsynchronousSocketChannel,双端各一条虚拟线程做阻塞 Future 泵。
+*
+* <p>目标地址解析顺序:构造器/Setter 注入的固定目标 →
+* {@code ServerSetting.getHost()/getPort()}(作为后端地址语义)。</p>
+* @author CH
+* @since 2026/08/24
  */
 @Slf4j
 @Spi({"aio-tcp-proxy"})
@@ -47,20 +47,20 @@ public class AioTcpProxyServer extends AbstractServer {
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
-     * 创建 AIO TCP 代理(SPI 入口,目标取 setting host/port)。
-     *
-     * @param setting 配置
+    * 创建 AIO TCP 代理(SPI 入口,目标取 setting host/port)。
+    *
+    * @param setting 配置
      */
     public AioTcpProxyServer(ServerSetting setting) {
         super(setting);
     }
 
     /**
-     * 设置固定后端目标。
-     *
-     * @param host 后端主机
-     * @param port 后端端口
-     * @return 当前实例
+    * 设置固定后端目标。
+    *
+    * @param host 后端主机
+    * @param port 后端端口
+    * @return 当前实例
      */
     public AioTcpProxyServer setTarget(String host, int port) {
         this.target = new InetSocketAddress(host, port);
@@ -68,9 +68,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 解析后端地址。
-     *
-     * @return 后端地址
+    * 解析后端地址。
+    *
+    * @return 后端地址
      */
     private InetSocketAddress resolveTarget() {
         if (target != null) {
@@ -105,14 +105,14 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 接纳循环(纯回调):完成后补位续挂。
+    * 接纳循环(纯回调):完成后补位续挂。
      */
     private void acceptLoop() {
         issueAccept();
     }
 
     /**
-     * 挂起一次重叠 accept。
+    * 挂起一次重叠 accept。
      */
     private void issueAccept() {
         // 不检查 running:start() 模板在 doStart 返回后才置位,首挂 accept 会因此永不发生
@@ -136,9 +136,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 单连接处理:连后端 → 双向泵。
-     *
-     * @param client 接入通道
+    * 单连接处理:连后端 → 双向泵。
+    *
+    * @param client 接入通道
      */
     private void handleClient(AsynchronousSocketChannel client) {
         activeConnections.incrementAndGet();
@@ -176,8 +176,8 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 单向异步泵:src 读完成 → dst 写完成 → 续读,全程无阻塞。
-     * 任一方向 EOF/失败即关闭两端,另一方向回调随之自然终止。
+    * 单向异步泵:src 读完成 → dst 写完成 → 续读,全程无阻塞。
+    * 任一方向 EOF/失败即关闭两端,另一方向回调随之自然终止。
      */
     private final class PipeReader
             implements java.nio.channels.CompletionHandler<Integer, Void> {
@@ -190,10 +190,10 @@ public class AioTcpProxyServer extends AbstractServer {
         private final ByteBuffer buf;
 
         /**
-         * 创建单向泵。
-         *
-         * @param src 源通道
-         * @param dst 目标通道
+        * 创建单向泵。
+        *
+        * @param src 源通道
+        * @param dst 目标通道
          */
         PipeReader(AsynchronousSocketChannel src, AsynchronousSocketChannel dst) {
             this.src = src;
@@ -202,7 +202,7 @@ public class AioTcpProxyServer extends AbstractServer {
         }
 
         /**
-         * 启动(首次)读。
+        * 启动(首次)读。
          */
         void start() {
             if (running && src.isOpen()) {
@@ -252,9 +252,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 静默关闭通道。
-     *
-     * @param ch 通道
+    * 静默关闭通道。
+    *
+    * @param ch 通道
      */
     private static void closeQuietly(AsynchronousSocketChannel ch) {
         if (ch != null) {
@@ -298,9 +298,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 获取活跃连接数。
-     *
-     * @return 活跃连接数
+    * 获取活跃连接数。
+    *
+    * @return 活跃连接数
      */
     public int getActiveConnections() {
         return activeConnections.get();

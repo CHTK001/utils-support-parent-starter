@@ -15,35 +15,35 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * 通义千问 编码 usage parser.
- *
- * <p>Qwen Code (Alibaba's Gemini-CLI fork) persists one usage statistics line
-   * per 会话 at {@code ~/.qwen/usage_record.jsonl}, with per-模型 令牌
-   * breakdowns — unlike upstream Gemini CLI which 存储 nothing:</p>
- *
- * <pre>{@code
- * {
- *   "sessionId": "...",
- *   "timestamp": 1787702513366,
- *   "project": "D:\\ch\\project",
- *   "durationMs": 69510,
- *   "models": {
- *     "gemini-3.6-flash": {
- *       "requests": 4, "inputTokens": 31871, "outputTokens": 23,
- *       "cachedTokens": 0, "thoughtsTokens": 352, "totalTokens": 32246
- *     }
- *   }
- * }
- * }</pre>kens": 352, "totalTokens": 32246
- *     }
- *   }
- * }
- * }</pre>
- *
- * <p>Each session line is expanded into one AiUsage record per model.</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 通义千问 编码 usage parser.
+*
+* <p>Qwen Code (Alibaba's Gemini-CLI fork) persists one usage statistics line
+* per 会话 at {@code ~/.qwen/usage_record.jsonl}, with per-模型 令牌
+* breakdowns — unlike upstream Gemini CLI which 存储 nothing:</p>
+*
+* <pre>{@code
+* {
+*   "sessionId": "...",
+*   "timestamp": 1787702513366,
+*   "project": "D:\\ch\\project",
+*   "durationMs": 69510,
+*   "models": {
+*     "gemini-3.6-flash": {
+*       "requests": 4, "inputTokens": 31871, "outputTokens": 23,
+*       "cachedTokens": 0, "thoughtsTokens": 352, "totalTokens": 32246
+*     }
+*   }
+* }
+* }</pre>kens": 352, "totalTokens": 32246
+*     }
+*   }
+* }
+* }</pre>
+*
+* <p>Each session line is expanded into one AiUsage record per model.</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("qwen")
 public class QwenUsageParser extends BaseUsageParser {
@@ -52,16 +52,16 @@ public class QwenUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".qwen", "usage_record.jsonl");
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "qwen"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "qwen"}
      */
     public String name() {
         return "qwen";
     }
 
     /**
-     * 流式解析全部会话用量记录，按模型展开。
+    * 流式解析全部会话用量记录，按模型展开。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -89,9 +89,9 @@ public class QwenUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析线safe。
-     * @param line 线
-     * @return 解析线safe的结果
+    * 解析线safe。
+    * @param line 线
+    * @return 解析线safe的结果
      */
     private List<AiUsage> parseLineSafe(String line) {
         try {
@@ -103,9 +103,9 @@ public class QwenUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析线。
-     * @param line 线
-     * @return 解析线的结果
+    * 解析线。
+    * @param line 线
+    * @return 解析线的结果
      */
     private List<AiUsage> parseLine(String line) {
         if (line.isBlank()) {

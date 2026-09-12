@@ -19,25 +19,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * GPT-2              Translator   
- * <p>
-   * huggingface Tokenizer + ONNX
-   * decode                 令牌
- * </p>
- *
- * @author CH
- * @since 2025-04-10
+* GPT-2              Translator   
+* <p>
+* huggingface Tokenizer + ONNX
+* decode                 令牌
+* </p>
+*
+* @author CH
+* @since 2025-04-10
  */
 @Slf4j
 public class Gpt2Translator implements Translator<String, Classifications> {
 
     /**
-     * GPT-2                               128
+    * GPT-2                               128
      */
     private static final int MAX_LENGTH = 128;
 
     /**
-      * huggingface
+    * huggingface
      */
     private HuggingFaceTokenizer tokenizer;
 
@@ -122,11 +122,11 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     /**
-      * 模型路径          文件名
-     *
-     * @param modelPath             
-     * @param fileName              
-     * @return                        path，       空
+    * 模型路径          文件名
+    *
+    * @param modelPath             
+    * @param fileName              
+    * @return                        path，       空
      */
     private static Path findFile(Path modelPath, String fileName) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
@@ -141,11 +141,11 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     /**
-     * top-K                          
-     *
-     * @param arr                 
-     * @param k           top-K   
-     * @return top-K       
+    * top-K                          
+    *
+    * @param arr                 
+    * @param k           top-K   
+    * @return top-K       
      */
     private static int[] topKIndices(float[] arr, int k) {
         int n = arr.length;

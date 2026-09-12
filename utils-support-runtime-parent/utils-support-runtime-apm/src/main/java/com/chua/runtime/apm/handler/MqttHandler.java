@@ -7,33 +7,33 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * MQTT 应用层 处理器 — 拦截 Eclipse Paho 客户端关键调用并生成应用语义传输记录。
- *
- * <p>拦截目标：</p>
- * <ul>
- *   <li>{@code org.eclipse.paho.client.mqttv3.MqttAsyncClient} — publish / subscribe / unsubscribe（异步客户端）</li>
- *   <li>{@code org.eclipse.paho.client.mqttv3.MqttClient} — publish / subscribe（同步客户端）</li>
- * </ul>
- *
- * <p>采用零编译期依赖策略：Paho 客户端不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* MQTT 应用层 处理器 — 拦截 Eclipse Paho 客户端关键调用并生成应用语义传输记录。
+*
+* <p>拦截目标：</p>
+* <ul>
+*   <li>{@code org.eclipse.paho.client.mqttv3.MqttAsyncClient} — publish / subscribe / unsubscribe（异步客户端）</li>
+*   <li>{@code org.eclipse.paho.client.mqttv3.MqttClient} — publish / subscribe（同步客户端）</li>
+* </ul>
+*
+* <p>采用零编译期依赖策略：Paho 客户端不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class MqttHandler extends AbstractAppHandler {
 
     /**
-      * mqtt异步客户端 类内部名
+    * mqtt异步客户端 类内部名
      */
     private static final String MQTT_ASYNC_CLIENT = "org/eclipse/paho/client/mqttv3/MqttAsyncClient";
 
     /**
-      * mqtt客户端 类内部名
+    * mqtt客户端 类内部名
      */
     private static final String MQTT_SYNC_CLIENT = "org/eclipse/paho/client/mqttv3/MqttClient";
 
     /**
-     * MQTT 方法集合（发布/订阅/断开）
+    * MQTT 方法集合（发布/订阅/断开）
      */
     private static final String[] MQTT_METHODS = {"publish", "subscribe", "unsubscribe"};
 

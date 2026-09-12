@@ -10,85 +10,85 @@ import javax.annotation.Nullable;
 
 
 /**
- * 渐变进度条渲染器，支持多种颜色渐变效果。
- * <p>
- * 继承默认渲染器，提供 Python 风格的颜色渐变进度条显示。
- *
- * @author CH
- * @since 2024-01-01
- * @version 1.0.0
+* 渐变进度条渲染器，支持多种颜色渐变效果。
+* <p>
+* 继承默认渲染器，提供 Python 风格的颜色渐变进度条显示。
+*
+* @author CH
+* @since 2024-01-01
+* @version 1.0.0
  */
 public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
 
     /**
-     * 渐变类型枚举，定义不同的颜色渐变方案
-     * <p>
-     * 每种类型对应一种颜色渐变效果。
-     *
- * @author CH
-     * @since 2024-01-01
+    * 渐变类型枚举，定义不同的颜色渐变方案
+    * <p>
+    * 每种类型对应一种颜色渐变效果。
+    *
+    * @author CH
+    * @since 2024-01-01
      */
     public enum GradientType {
         /**
-         * 灰色到橙色渐变（Python 默认风格）
+        * 灰色到橙色渐变（Python 默认风格）
          */
         GRAY_TO_ORANGE,
         /**
-         * 灰色到绿色渐变
+        * 灰色到绿色渐变
          */
         GRAY_TO_GREEN,
         /**
-         * 蓝色到青色渐变
+        * 蓝色到青色渐变
          */
         BLUE_TO_CYAN,
         /**
-         * 红色到黄色渐变
+        * 红色到黄色渐变
          */
         RED_TO_YELLOW,
         /**
-         * 彩虹渐变
+        * 彩虹渐变
          */
         RAINBOW,
         /**
-         * 矩阵风格渐变
+        * 矩阵风格渐变
          */
         MATRIX,
         /**
-         * 火焰风格渐变
+        * 火焰风格渐变
          */
         FIRE,
         /**
-         * 海洋风格渐变
+        * 海洋风格渐变
          */
         OCEAN,
         /**
-         * 霓虹风格渐变
+        * 霓虹风格渐变
          */
         NEON,
         /**
-         * 日落风格渐变
+        * 日落风格渐变
          */
         SUNSET
     }
 
     /**
-     * 渐变类型
+    * 渐变类型
      */
     private final GradientType gradientType;
 
     /**
-     * 构造函数
-     *
-     * @param style         进度条样式
-     * @param unit          进度单位
-     * @param unitName      单位名称
-     * @param unitSize      单位大小
-     * @param isSpeedShown  是否显示速度
-     * @param speedFormat   速度格式
-     * @param speedUnit     速度单位
-     * @param isEtaShown    是否显示预计剩余时间
-     * @param eta           预计剩余时间计算函数
-     * @param gradientType  渐变类型
+    * 构造函数
+    *
+    * @param style         进度条样式
+    * @param unit          进度单位
+    * @param unitName      单位名称
+    * @param unitSize      单位大小
+    * @param isSpeedShown  是否显示速度
+    * @param speedFormat   速度格式
+    * @param speedUnit     速度单位
+    * @param isEtaShown    是否显示预计剩余时间
+    * @param eta           预计剩余时间计算函数
+    * @param gradientType  渐变类型
      */
     public GradientProgressBarRenderer(
             ProgressBarStyle style,
@@ -107,11 +107,11 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                
-     *
-     * @param progress             
-     * @param length                
-     * @return                               
+    *                
+    *
+    * @param progress             
+    * @param length                
+    * @return                               
      */
     @Override
     public String render(ProgressState progress, int length) {
@@ -156,11 +156,11 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                                                 ANSI            
-     *
-     * @param type              
-     * @param ratio              (0.0 - 1.0)
-     * @return ANSI            
+    *                                                 ANSI            
+    *
+    * @param type              
+    * @param ratio              (0.0 - 1.0)
+    * @return ANSI            
      */
     private String getColorCode(GradientType type, double ratio) {
         switch (type) {
@@ -190,7 +190,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                      
+    *                      
      */
     private String getGrayToOrangeColor(double ratio) {
         if (ratio < 0.3) {
@@ -205,7 +205,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                      
+    *                      
      */
     private String getGrayToGreenColor(double ratio) {
         if (ratio < 0.3) {
@@ -220,7 +220,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                      
+    *                      
      */
     private String getBlueToCyanColor(double ratio) {
         if (ratio < 0.5) {
@@ -231,7 +231,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                      
+    *                      
      */
     private String getRedToYellowColor(double ratio) {
         if (ratio < 0.5) {
@@ -242,7 +242,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *             
+    *             
      */
     private String getRainbowColor(double ratio) {
         if (ratio < 0.16) {
@@ -261,7 +261,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                                           
+    *                                           
      */
     private String getMatrixColor(double ratio) {
         if (ratio < 0.2) {
@@ -278,7 +278,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                                        
+    *                                        
      */
     private String getFireColor(double ratio) {
         if (ratio < 0.25) {
@@ -293,7 +293,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                                        
+    *                                        
      */
     private String getOceanColor(double ratio) {
         if (ratio < 0.25) {
@@ -308,7 +308,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                                        
+    *                                        
      */
     private String getNeonColor(double ratio) {
         if (ratio < 0.33) {
@@ -321,7 +321,7 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                                        
+    *                                        
      */
     private String getSunsetColor(double ratio) {
         if (ratio < 0.33) {
@@ -334,17 +334,17 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *       Python                                       
-     *
-     * @param unit             
-     * @param unitName             
-     * @param unitSize             
-     * @param showSpeed                   
-     * @param speedFormat                   
-     * @param speedUnit             
-     * @param showEta                               
-     * @param eta                               
-     * @return Python                                       
+    *       Python                                       
+    *
+    * @param unit             
+    * @param unitName             
+    * @param unitSize             
+    * @param showSpeed                   
+    * @param speedFormat                   
+    * @param speedUnit             
+    * @param showEta                               
+    * @param eta                               
+    * @return Python                                       
      */
     public static GradientProgressBarRenderer createPythonDownloadStyle(
             ProgressUnit unit,
@@ -371,17 +371,17 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
     }
 
     /**
-     *                                              
-     *
-     * @param unit             
-     * @param unitName             
-     * @param unitSize             
-     * @param showSpeed                   
-     * @param speedFormat                   
-     * @param speedUnit             
-     * @param showEta                               
-     * @param eta                               
-     * @return                                        
+    *                                              
+    *
+    * @param unit             
+    * @param unitName             
+    * @param unitSize             
+    * @param showSpeed                   
+    * @param speedFormat                   
+    * @param speedUnit             
+    * @param showEta                               
+    * @param eta                               
+    * @return                                        
      */
     public static GradientProgressBarRenderer createRainbowStyle(
             ProgressUnit unit,

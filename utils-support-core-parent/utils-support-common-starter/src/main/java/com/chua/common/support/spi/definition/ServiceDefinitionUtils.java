@@ -13,42 +13,42 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
 
 
 /**
- * SPI 服务定义构建工具类，用于根据注解信息生成 {@link ServiceDefinition} 实例。
- * <p>
- * 该类会读取实现类上的 {@link Spi}、{@link SpiDescribe}、{@link SpiSupport}、{@link SpiOrder} 等注解，
- * 组装服务名称、描述信息、优先级、默认实现标识以及关联的扩展点信息，供 SPI 解析器统一使用。
- *
- * @author CH
- * @since 4.0.0.42
+* SPI 服务定义构建工具类，用于根据注解信息生成 {@link ServiceDefinition} 实例。
+* <p>
+* 该类会读取实现类上的 {@link Spi}、{@link SpiDescribe}、{@link SpiSupport}、{@link SpiOrder} 等注解，
+* 组装服务名称、描述信息、优先级、默认实现标识以及关联的扩展点信息，供 SPI 解析器统一使用。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ServiceDefinitionUtils {
 
     /**
-     * 服务definition工具。
+    * 服务definition工具。
      */
     private ServiceDefinitionUtils() {
     }
 
     /**
-     * 根据服务类型和实现类构建对应的服务定义列表。
-     *
-     * @param service 服务扩展点类型
-     * @param implType 服务实现类
-     * @param resolverType 发现该服务定义的解析器类型
-     * @return 构建得到的服务定义列表
+    * 根据服务类型和实现类构建对应的服务定义列表。
+    *
+    * @param service 服务扩展点类型
+    * @param implType 服务实现类
+    * @param resolverType 发现该服务定义的解析器类型
+    * @return 构建得到的服务定义列表
      */
     public static List<ServiceDefinition> buildDefinition(Class<?> service, Class<?> implType, Class<?> resolverType) {
         return buildDefinition(service, resolverType, null, implType, null, null);
     }
 
     /**
-     * 根据服务名称、服务类型和实例对象构建服务定义列表。
-     *
-     * @param name 服务名称
-     * @param service 服务扩展点类型
-     * @param obj 服务实例对象
-     * @param resolverType 发现该服务定义的解析器类型
-     * @return 构建得到的服务定义列表
+    * 根据服务名称、服务类型和实例对象构建服务定义列表。
+    *
+    * @param name 服务名称
+    * @param service 服务扩展点类型
+    * @param obj 服务实例对象
+    * @param resolverType 发现该服务定义的解析器类型
+    * @return 构建得到的服务定义列表
      */
     public static List<ServiceDefinition> buildDefinition(String name, Class<?> service, Object obj, Class<?> resolverType) {
         Class<?> aClass = ClassUtils.toType(obj);
@@ -61,12 +61,12 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 根据服务类型和对象实例构建服务定义列表，名称会从对象类型自动推导。
-     *
-     * @param service 服务扩展点类型
-     * @param obj 服务实例对象
-     * @param resolverType 发现该服务定义的解析器类型
-     * @return 构建得到的服务定义列表
+    * 根据服务类型和对象实例构建服务定义列表，名称会从对象类型自动推导。
+    *
+    * @param service 服务扩展点类型
+    * @param obj 服务实例对象
+    * @param resolverType 发现该服务定义的解析器类型
+    * @return 构建得到的服务定义列表
      */
     public static List<ServiceDefinition> buildDefinition(Class<?> service, Object obj, Class<?> resolverType) {
         Class<?> aClass = ClassUtils.toType(obj);
@@ -74,15 +74,15 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 构建服务定义列表，支持枚举类型、别名和 URL 来源的处理。
-     *
-     * @param service 服务扩展点类型
-     * @param resolverType 发现该服务定义的解析器类型
-     * @param obj 服务实例对象
-     * @param implType 服务实现类
-     * @param alias 服务别名
-     * @param url 服务定义来源地址
-     * @return 构建得到的服务定义列表
+    * 构建服务定义列表，支持枚举类型、别名和 URL 来源的处理。
+    *
+    * @param service 服务扩展点类型
+    * @param resolverType 发现该服务定义的解析器类型
+    * @param obj 服务实例对象
+    * @param implType 服务实现类
+    * @param alias 服务别名
+    * @param url 服务定义来源地址
+    * @return 构建得到的服务定义列表
      */
     public static List<ServiceDefinition> buildDefinition(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, String alias, URL url) {
         if (null == implType) {
@@ -113,15 +113,15 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 为枚举类型构建对应的服务定义列表。
-     *
-     * @param service 服务扩展点类型
-     * @param resolverType 发现该服务定义的解析器类型
-     * @param obj 枚举实例对象
-     * @param implType 枚举实现类
-     * @param alias 服务别名
-     * @param url 服务定义来源地址
-     * @return 枚举对应的服务定义列表
+    * 为枚举类型构建对应的服务定义列表。
+    *
+    * @param service 服务扩展点类型
+    * @param resolverType 发现该服务定义的解析器类型
+    * @param obj 枚举实例对象
+    * @param implType 枚举实现类
+    * @param alias 服务别名
+    * @param url 服务定义来源地址
+    * @return 枚举对应的服务定义列表
      */
     private static List<ServiceDefinition> buildEnumDefinition(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, String alias, URL url) {
         if (StringUtils.isEmpty(alias)) {
@@ -141,10 +141,10 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 判断实现类是否满足 SPI 条件注解要求。
-     *
-     * @param implType 服务实现类
-     * @return 满足条件则返回 {@code true}
+    * 判断实现类是否满足 SPI 条件注解要求。
+    *
+    * @param implType 服务实现类
+    * @return 满足条件则返回 {@code true}
      */
     private static boolean isCondition(Class<?> implType) {
         SpiIgnore spiIgnore = implType.getDeclaredAnnotation(SpiIgnore.class);
@@ -181,14 +181,14 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 根据实现类和注解信息构造服务定义集合。
-     *
-     * @param service 服务扩展点类型
-     * @param resolverType 发现该服务定义的解析器类型
-     * @param obj 服务实例对象
-     * @param implType 服务实现类
-     * @param url 服务定义来源地址
-     * @return 构造得到的服务定义集合
+    * 根据实现类和注解信息构造服务定义集合。
+    *
+    * @param service 服务扩展点类型
+    * @param resolverType 发现该服务定义的解析器类型
+    * @param obj 服务实例对象
+    * @param implType 服务实现类
+    * @param url 服务定义来源地址
+    * @return 构造得到的服务定义集合
      */
     private static Collection<? extends ServiceDefinition> buildDefinitionType(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, URL url) {
         if (!isCondition(implType)) {
@@ -213,10 +213,10 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 从实现类注解中提取服务名称集合。
-     *
-     * @param implType 服务实现类
-     * @return 服务名称数组
+    * 从实现类注解中提取服务名称集合。
+    *
+    * @param implType 服务实现类
+    * @return 服务名称数组
      */
     private static String[] getName(Class<?> implType) {
         if(null == implType) {
@@ -243,16 +243,16 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 根据服务扩展点、实现类和别名构建单个服务定义对象。
-     *
-     * @param service 服务扩展点类型
-     * @param resolverType 发现该服务定义的解析器类型
-     * @param obj 服务实例对象
-     * @param implType 服务实现类
-     * @param url 服务定义来源地址
-     * @param alias 服务别名
-     * @param order 服务优先级
-     * @return 构建得到的服务定义对象
+    * 根据服务扩展点、实现类和别名构建单个服务定义对象。
+    *
+    * @param service 服务扩展点类型
+    * @param resolverType 发现该服务定义的解析器类型
+    * @param obj 服务实例对象
+    * @param implType 服务实现类
+    * @param url 服务定义来源地址
+    * @param alias 服务别名
+    * @param order 服务优先级
+    * @return 构建得到的服务定义对象
      */
     @SuppressWarnings("ALL")
     public static ServiceDefinition buildDefinitionAlias(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, URL url, String alias, int order) {
@@ -289,10 +289,10 @@ public class ServiceDefinitionUtils {
     }
 
     /**
-     * 从实现类注解中提取服务优先级。
-     *
-     * @param implType 服务实现类
-     * @return 服务优先级，未配置时返回 0
+    * 从实现类注解中提取服务优先级。
+    *
+    * @param implType 服务实现类
+    * @return 服务优先级，未配置时返回 0
      */
     private static int getOrder(Class<?> implType) {
         SpiOrder spiOrder = implType.getDeclaredAnnotation(SpiOrder.class);

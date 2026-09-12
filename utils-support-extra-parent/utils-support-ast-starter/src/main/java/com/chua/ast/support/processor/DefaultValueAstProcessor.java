@@ -14,40 +14,40 @@ import javax.tools.Diagnostic;
 import java.util.Set;
 
 /**
- * {@link DefaultValue} 注解的 AST 处理器
- * <p>
-   * 在编译期扫描标注了 {@code @DefaultValue} 注解的方法参数，通过 javac 树 API
-   * 在方法体开头插入 空 检查 + 默认值赋值的代码。
- * </p>
- * <p>
- * 转换示例：
- * <pre>{@code
- * // 转换前：public void foo(@DefaultValue("default") String name) { ... }
- * // 转换后：
- * public void foo(String name) {
- *     if (name == null) { name = "default"; }
- *     ...original body...
- * }
- *
- * // 数组类型：public void foo(@DefaultValue({"a","b"}) String[] names) { ... }
- * // 转换后：
- * public void foo(String[] names) {
- *     if (names == null) { names = new String[]{"a", "b"}; }
- *     ...original body...
- * }
- *
- * // 枚举类型：public void foo(@DefaultValue("HIGH") LogLevel level) { ... }
- * // 转换后：
- * public void foo(LogLevel level) {
- *     if (level == null) { level = LogLevel.HIGH; }
- *     ...original body...
- * }
- * }</pre> * }
- * }</pre>
- * </p>
- *
- * @author CH
- * @since 4.0.0
+* {@link DefaultValue} 注解的 AST 处理器
+* <p>
+* 在编译期扫描标注了 {@code @DefaultValue} 注解的方法参数，通过 javac 树 API
+* 在方法体开头插入 空 检查 + 默认值赋值的代码。
+* </p>
+* <p>
+* 转换示例：
+* <pre>{@code
+* // 转换前：public void foo(@DefaultValue("default") String name) { ... }
+* // 转换后：
+* public void foo(String name) {
+*     if (name == null) { name = "default"; }
+*     ...original body...
+* }
+*
+* // 数组类型：public void foo(@DefaultValue({"a","b"}) String[] names) { ... }
+* // 转换后：
+* public void foo(String[] names) {
+*     if (names == null) { names = new String[]{"a", "b"}; }
+*     ...original body...
+* }
+*
+* // 枚举类型：public void foo(@DefaultValue("HIGH") LogLevel level) { ... }
+* // 转换后：
+* public void foo(LogLevel level) {
+*     if (level == null) { level = LogLevel.HIGH; }
+*     ...original body...
+* }
+* }</pre> * }
+* }</pre>
+* </p>
+*
+* @author CH
+* @since 4.0.0
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.DefaultValue")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -111,13 +111,13 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 应用 默认值 编译期转换，在方法体开头插入默认值赋值代码
-     *
-     * @param methodTree 方法树节点
-     * @param paramName 参数名称
-     * @param defaultValues 默认值数组
-     * @param paramType 参数类型
-     * @param paramElement 参数元素
+    * 应用 默认值 编译期转换，在方法体开头插入默认值赋值代码
+    *
+    * @param methodTree 方法树节点
+    * @param paramName 参数名称
+    * @param defaultValues 默认值数组
+    * @param paramType 参数类型
+    * @param paramElement 参数元素
      */
     private void applyAstTransform(com.sun.source.tree.MethodTree methodTree,
             String paramName,
@@ -177,10 +177,10 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 判断类型是否为字符串类型
-     *
-     * @param type 类型镜像
-     * @return 如果是字符串类型返回 true，否则返回 false
+    * 判断类型是否为字符串类型
+    *
+    * @param type 类型镜像
+    * @return 如果是字符串类型返回 true，否则返回 false
      */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) { return false; }
@@ -189,10 +189,10 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 判断类型是否为枚举类型
-     *
-     * @param type 类型镜像
-     * @return 如果是枚举类型返回 true，否则返回 false
+    * 判断类型是否为枚举类型
+    *
+    * @param type 类型镜像
+    * @return 如果是枚举类型返回 true，否则返回 false
      */
     private boolean isEnumType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) { return false; }
@@ -204,14 +204,14 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 构建数组赋值语句：{@code param = new ElementType[]{v1, v2, ...};}
-     *
-     * @param maker 树maker 实例
-     * @param names 名称 实例
-     * @param paramIdent 参数标识符
-     * @param defaultValues 默认值数组
-     * @param arrayType 数组类型
-     * @return 赋值表达式语句
+    * 构建数组赋值语句：{@code param = new ElementType[]{v1, v2, ...};}
+    *
+    * @param maker 树maker 实例
+    * @param names 名称 实例
+    * @param paramIdent 参数标识符
+    * @param defaultValues 默认值数组
+    * @param arrayType 数组类型
+    * @return 赋值表达式语句
      */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildArrayAssignment(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,
@@ -249,17 +249,17 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 构建枚举赋值语句：{@code param = EnumType.VALUE;}
-     * <p>
-      * 支持全限定枚举类型名，例如 Java.lang.Thread.状态 会自动解析为 选择(选择(Ident("Java"), "lang"), "Thread") 后 选择 "状态"。
-     * </p>
-     *
-     * @param maker 树maker 实例
-     * @param names 名称 实例
-     * @param paramIdent 参数标识符
-     * @param enumValue 枚举常量名称
-     * @param paramType 参数类型
-     * @return 赋值表达式语句
+    * 构建枚举赋值语句：{@code param = EnumType.VALUE;}
+    * <p>
+    * 支持全限定枚举类型名，例如 Java.lang.Thread.状态 会自动解析为 选择(选择(Ident("Java"), "lang"), "Thread") 后 选择 "状态"。
+    * </p>
+    *
+    * @param maker 树maker 实例
+    * @param names 名称 实例
+    * @param paramIdent 参数标识符
+    * @param enumValue 枚举常量名称
+    * @param paramType 参数类型
+    * @return 赋值表达式语句
      */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildEnumAssignment(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,
@@ -276,12 +276,12 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 构建全限定名标识符表达式：Java.lang.字符串 将生成为 选择(选择(Ident("Java"), "lang"), "字符串")
-     *
-     * @param maker 树maker 实例
-     * @param names 名称 实例
-     * @param qualifiedName 全限定类名
-     * @return 全限定名标识符表达式
+    * 构建全限定名标识符表达式：Java.lang.字符串 将生成为 选择(选择(Ident("Java"), "lang"), "字符串")
+    *
+    * @param maker 树maker 实例
+    * @param names 名称 实例
+    * @param qualifiedName 全限定类名
+    * @return 全限定名标识符表达式
      */
     private com.sun.tools.javac.tree.JCTree.JCExpression buildQualifiedIdent(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,

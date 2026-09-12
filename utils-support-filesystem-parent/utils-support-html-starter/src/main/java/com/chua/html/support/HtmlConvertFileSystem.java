@@ -16,29 +16,29 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 文件转 HTML 转换器。
- *
- * <p>使用 Aspose.HTML 将 EPUB、SVG、MHTML、Markdown 等格式转换为 HTML，并自动删除水印。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 文件转 HTML 转换器。
+*
+* <p>使用 Aspose.HTML 将 EPUB、SVG、MHTML、Markdown 等格式转换为 HTML，并自动删除水印。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("aspose-html")
 public class HtmlConvertFileSystem implements FileConvertSystem {
 
     /**
-     * 支持的源文件格式列表
+    * 支持的源文件格式列表
      */
     private static final List<String> SOURCES = List.of("html", "htm", "xhtml", "svg", "epub", "mhtml", "md");
 
     /**
-      * 目标文件格式（固定为 HTML）
+    * 目标文件格式（固定为 HTML）
      */
     private static final String TARGET = "html";
 
     /**
-     * 源格式集合（用于快速判断是否支持某格式）
+    * 源格式集合（用于快速判断是否支持某格式）
      */
     private static final Set<String> SOURCE_SET = Set.copyOf(SOURCES);
 
@@ -115,10 +115,10 @@ public class HtmlConvertFileSystem implements FileConvertSystem {
     }
 
     /**
-     * 获取源文件的格式后缀
-     *
-     * @param source 文件源
-     * @return 格式后缀（如 "HTML"、"epub"），无法识别时返回 空
+    * 获取源文件的格式后缀
+    *
+    * @param source 文件源
+    * @return 格式后缀（如 "HTML"、"epub"），无法识别时返回 空
      */
     private String getSourceFormat(FileSource source) {
         if (source.isPath()) {

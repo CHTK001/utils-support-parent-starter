@@ -13,10 +13,10 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 /**
- * Quarkus (CDI) 方法注入器，处理 {@link Inject} / {@link Named} 注解的 setter 方法。
- *
- * @author CH
- * @since 4.0.0.42
+* Quarkus (CDI) 方法注入器，处理 {@link Inject} / {@link Named} 注解的 setter 方法。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")
@@ -30,12 +30,12 @@ public class QuarkusBeanDefinitionMethodInjector implements BeanDefinitionMethod
 
     @Override
     /**
-     * Inject
-     * @param method 方法
-     * @param instance instance
-     * @param beanDefinition Beandefinition
-     * @param beanProvider Bean提供者
-     * @param typeProvider 类型提供者
+    * Inject
+    * @param method 方法
+    * @param instance instance
+    * @param beanDefinition Beandefinition
+    * @param beanProvider Bean提供者
+    * @param typeProvider 类型提供者
      */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,

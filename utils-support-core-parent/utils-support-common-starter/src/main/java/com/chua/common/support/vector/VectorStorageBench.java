@@ -6,9 +6,9 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 向量存储性能基准测试 - 独立运行入口。
- * @author CH
- * @since 4.0.0
+* 向量存储性能基准测试 - 独立运行入口。
+* @author CH
+* @since 4.0.0
  */
 public class VectorStorageBench {
 
@@ -23,8 +23,8 @@ public class VectorStorageBench {
     private static Path testDir; // 测试dir
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("vector-bench-");
@@ -48,9 +48,9 @@ public class VectorStorageBench {
     // ==================== 工具方法 ====================
 
     /**
-     * 随机向量。
-     * @param dim dim
-     * @return 随机向量的结果
+    * 随机向量。
+    * @param dim dim
+    * @return 随机向量的结果
      */
     private static float[] randomVector(int dim) {
         float[] v = new float[dim];
@@ -71,8 +71,8 @@ public class VectorStorageBench {
     }
 
     /**
-     * 删除recursively。
-     * @param dir dir
+    * 删除recursively。
+    * @param dir dir
      */
     private static void deleteRecursively(Path dir) {
         try {
@@ -83,10 +83,10 @@ public class VectorStorageBench {
     }
 
     /**
-     * print吞吐量。
-     * @param label 标签
-     * @param ops ops
-     * @param ms ms
+    * print吞吐量。
+    * @param label 标签
+    * @param ops ops
+    * @param ms ms
      */
     private static void printThroughput(String label, long ops, long ms) {
         System.out.printf("[%s] %.0f ops/s (%.0f MSOPS)%n", label, ops * 1000.0 / Math.max(ms, 1),
@@ -96,7 +96,7 @@ public class VectorStorageBench {
     // ==================== MemoryVectorStorage ====================
 
     /**
-     * 测试内存storage。
+    * 测试内存storage。
      */
     private static void testMemoryStorage() {
         System.out.println("【1. MemoryVectorStorage】");
@@ -141,7 +141,7 @@ public class VectorStorageBench {
     // ==================== DefaultVectorStorage - HYBRID ====================
 
     /**
-     * 测试默认hybrid。
+    * 测试默认hybrid。
      */
     private static void testDefaultHybrid() throws Exception {
         System.out.println("【2. DefaultVectorStorage (HYBRID)】");
@@ -218,7 +218,7 @@ public class VectorStorageBench {
     // ==================== 大规模测试 ====================
 
     /**
-     * 测试largescale。
+    * 测试largescale。
      */
     private static void testLargeScale() throws Exception {
         System.out.println("【3. 大规模 - 100万条向量】");

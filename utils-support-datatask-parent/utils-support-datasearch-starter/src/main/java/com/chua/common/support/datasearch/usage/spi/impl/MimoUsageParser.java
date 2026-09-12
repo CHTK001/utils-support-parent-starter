@@ -11,34 +11,34 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * MiMo Code (Xiaomi) usage parser.
- *
- * <p>MiMo Code (mimocode) is Xiaomi's agentic CLI, an OpenCode fork that
- * persists assistant turns in the {@code message} table of
- * {@code ~/.local/share/mimocode/mimocode.db} (Windows:
- * {@code %APPDATA%\mimocode\mimocode.db}). The {@code data} JSON column
- * carries per-request tokens:</p>
- *
- * <pre>{@code
- * {
- *   "role": "assistant",
- *   "modelID": "mimo-v2.5-pro",
- *   "providerID": "mimo",
- *   "time": { "created": 1787616871678 },
- *   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
- *               "cache": { "read": 0, "write": 0 } }
- * }
- * }</pre>
- *
- * <p>miMo code mirrors the user's Claude Code / claude-mem history into its
- * own {@code message} table with {@code providerID="anthropic"}. Those rows
- * are <b>excluded</b> here (they are already counted by the Claude parser);
- * only turns whose {@code providerID} is {@code "mimo"} or
- * {@code "xiaomi"} (miMo's own runtime/auto-router) are emitted, matching
- * TokenTracker's discriminator.
- *
- * @author CH
- * @since 4.0.0.44
+* MiMo Code (Xiaomi) usage parser.
+*
+* <p>MiMo Code (mimocode) is Xiaomi's agentic CLI, an OpenCode fork that
+* persists assistant turns in the {@code message} table of
+* {@code ~/.local/share/mimocode/mimocode.db} (Windows:
+* {@code %APPDATA%\mimocode\mimocode.db}). The {@code data} JSON column
+* carries per-request tokens:</p>
+*
+* <pre>{@code
+* {
+*   "role": "assistant",
+*   "modelID": "mimo-v2.5-pro",
+*   "providerID": "mimo",
+*   "time": { "created": 1787616871678 },
+*   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
+*               "cache": { "read": 0, "write": 0 } }
+* }
+* }</pre>
+*
+* <p>miMo code mirrors the user's Claude Code / claude-mem history into its
+* own {@code message} table with {@code providerID="anthropic"}. Those rows
+* are <b>excluded</b> here (they are already counted by the Claude parser);
+* only turns whose {@code providerID} is {@code "mimo"} or
+* {@code "xiaomi"} (miMo's own runtime/auto-router) are emitted, matching
+* TokenTracker's discriminator.
+*
+* @author CH
+* @since 4.0.0.44
  */
 @Spi("mimo")
 public class MimoUsageParser extends BaseUsageParser {
@@ -48,10 +48,10 @@ public class MimoUsageParser extends BaseUsageParser {
     private static final String PROVIDER_MIMO = "mimo";
 
     /**
-     * resolvedb路径：Windows 走 APPDATA，其余走 XDG_DATA_HOME /
-     * ~/.local/share。
-     *
-     * @return MiMo 数据库路径
+    * resolvedb路径：Windows 走 APPDATA，其余走 XDG_DATA_HOME /
+    * ~/.local/share。
+    *
+    * @return MiMo 数据库路径
      */
     private static Path resolveDbPath() {
         String appData = System.getenv("APPDATA");
@@ -67,9 +67,9 @@ public class MimoUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 仅统计 MiMo 自身轮次（providerID 为 mimo / xiaomi），排除镜像进来的
-     * anthropic/openai/google 行——那些已由各自的 Claude / Codex / Gemini
-     * 解析器计数，纳入本解析器会双计。
+    * 仅统计 MiMo 自身轮次（providerID 为 mimo / xiaomi），排除镜像进来的
+    * anthropic/openai/google 行——那些已由各自的 Claude / Codex / Gemini
+    * 解析器计数，纳入本解析器会双计。
      */
     private static final String SQL_MESSAGES =
             "SELECT time_created, "
@@ -84,9 +84,9 @@ public class MimoUsageParser extends BaseUsageParser {
                     + "ORDER BY time_created ASC";
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "mimo"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "mimo"}
      */
     @Override
     public String name() {
@@ -94,7 +94,7 @@ public class MimoUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析 MiMo 自身轮次的用量记录。
+    * 流式解析 MiMo 自身轮次的用量记录。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -111,10 +111,10 @@ public class MimoUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将 SQL 行映射为 {@link AiUsage}；零用量行返回 null 由上游过滤。
-     *
-     * @param row 数据库行
-     * @return 用量记录
+    * 将 SQL 行映射为 {@link AiUsage}；零用量行返回 null 由上游过滤。
+    *
+    * @param row 数据库行
+    * @return 用量记录
      */
     private AiUsage toAiUsage(Map<String, Object> row) {
         String rawTokens = asStr(row.get("tokens"));

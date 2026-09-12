@@ -30,12 +30,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 /**
- * 内置 HTTP/HTTPS 下载实现。
- *
- * <p>支持：单线程、并发分片、断点续传、限速、进度条显示。
- *
- * @author CH
- * @since 4.0.0.42
+* 内置 HTTP/HTTPS 下载实现。
+*
+* <p>支持：单线程、并发分片、断点续传、限速、进度条显示。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("default")
@@ -87,12 +87,12 @@ public class DefaultDownloadService implements DownloadService {
     // ======================== 单线程下载 ========================
 
     /**
-     * 单线程顺序下载。
-     *
-     * @param targetFile   目标文件路径
-     * @param config       下载配置
-     * @param resumeOffset 断点续传起始偏移字节
-     * @throws IOException 当网络或文件系统操作失败时
+    * 单线程顺序下载。
+    *
+    * @param targetFile   目标文件路径
+    * @param config       下载配置
+    * @param resumeOffset 断点续传起始偏移字节
+    * @throws IOException 当网络或文件系统操作失败时
      */
     private void downloadSingle(Path targetFile, DownloadConfig config, long resumeOffset) throws IOException {
         ProgressBar bar = null;
@@ -165,12 +165,12 @@ public class DefaultDownloadService implements DownloadService {
     // ======================== 并发分片下载 ========================
 
     /**
-     * 并发分片下载，将文件等分成多个块由不同线程同时下载，最后合并。
-     *
-     * @param targetFile   目标文件路径
-     * @param config       下载配置
-     * @param resumeOffset 断点续传起始偏移（当前不支持并发+断点续传混合）
-     * @throws DownloadException 当并发下载或合并分片失败时
+    * 并发分片下载，将文件等分成多个块由不同线程同时下载，最后合并。
+    *
+    * @param targetFile   目标文件路径
+    * @param config       下载配置
+    * @param resumeOffset 断点续传起始偏移（当前不支持并发+断点续传混合）
+    * @throws DownloadException 当并发下载或合并分片失败时
      */
     private void downloadWithConcurrency(Path targetFile, DownloadConfig config, long resumeOffset) throws DownloadException {
         try {
@@ -237,14 +237,14 @@ public class DefaultDownloadService implements DownloadService {
     }
 
     /**
-     * 下载单个分片。
-     *
-     * @param targetFile  目标文件路径（用于生成分片临时文件名）
-     * @param start       分片起始字节
-     * @param end         分片结束字节（含）
-     * @param partIndex   分片索引
-     * @param config      下载配置
-     * @param totalBar    全局进度条（可为 null）
+    * 下载单个分片。
+    *
+    * @param targetFile  目标文件路径（用于生成分片临时文件名）
+    * @param start       分片起始字节
+    * @param end         分片结束字节（含）
+    * @param partIndex   分片索引
+    * @param config      下载配置
+    * @param totalBar    全局进度条（可为 null）
      */
     private void downloadChunk(Path targetFile, long start, long end, int partIndex,
                                 DownloadConfig config, ProgressBar totalBar) {
@@ -285,11 +285,11 @@ public class DefaultDownloadService implements DownloadService {
     }
 
     /**
-     * 合并所有分片文件为目标文件，并删除分片临时文件。
-     *
-     * @param targetFile 目标文件路径
-     * @param partCount  分片总数
-     * @throws IOException 当合并或删除失败时
+    * 合并所有分片文件为目标文件，并删除分片临时文件。
+    *
+    * @param targetFile 目标文件路径
+    * @param partCount  分片总数
+    * @throws IOException 当合并或删除失败时
      */
     private void mergeParts(Path targetFile, int partCount) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(targetFile.toFile());
@@ -309,11 +309,11 @@ public class DefaultDownloadService implements DownloadService {
     // ======================== 工具方法 ========================
 
     /**
-     * 打开 HTTP 连接，根据配置决定是否使用代理。
-     *
-     * @param config 下载配置
-     * @return 已建立连接的 HttpURLConnection
-     * @throws IOException 当 URL 解析或连接建立失败时
+    * 打开 HTTP 连接，根据配置决定是否使用代理。
+    *
+    * @param config 下载配置
+    * @return 已建立连接的 HttpURLConnection
+    * @throws IOException 当 URL 解析或连接建立失败时
      */
     private HttpURLConnection openConnection(DownloadConfig config) throws IOException {
         URL u = new URL(config.getUrl());
@@ -324,10 +324,10 @@ public class DefaultDownloadService implements DownloadService {
     }
 
     /**
-     * 将配置中的自定义请求头应用到 HttpURLConnection。
-     *
-     * @param conn   目标连接
-     * @param config 下载配置
+    * 将配置中的自定义请求头应用到 HttpURLConnection。
+    *
+    * @param conn   目标连接
+    * @param config 下载配置
      */
     private void applyHeaders(HttpURLConnection conn, DownloadConfig config) {
         for (java.util.Map.Entry<String, String> entry : config.getHeaders().entrySet()) {
@@ -336,10 +336,10 @@ public class DefaultDownloadService implements DownloadService {
     }
 
     /**
-     * 检查服务端是否支持断点续传（通过 HEAD 请求探测 Accept-Ranges 头）。
-     *
-     * @param config 下载配置
-     * @return true 表示服务端支持断点续传
+    * 检查服务端是否支持断点续传（通过 HEAD 请求探测 Accept-Ranges 头）。
+    *
+    * @param config 下载配置
+    * @return true 表示服务端支持断点续传
      */
     private boolean checkResumeSupport(DownloadConfig config) {
         try {
@@ -358,13 +358,13 @@ public class DefaultDownloadService implements DownloadService {
     }
 
     /**
-     * 构建 DownloadResult，统一封装成功结果。
-     *
-     * @param file   下载完成的文件路径
-     * @param skipped 是否跳过下载（本地已有且校验通过）
-     * @param reason 跳过或完成原因
-     * @param md5    期望的 MD5 值
-     * @return 下载结果
+    * 构建 DownloadResult，统一封装成功结果。
+    *
+    * @param file   下载完成的文件路径
+    * @param skipped 是否跳过下载（本地已有且校验通过）
+    * @param reason 跳过或完成原因
+    * @param md5    期望的 MD5 值
+    * @return 下载结果
      */
     private static DownloadResult buildResult(Path file, boolean skipped, String reason, String md5) {
         return DownloadResult.builder()
@@ -379,9 +379,9 @@ public class DefaultDownloadService implements DownloadService {
     // ======================== 限速 InputStream ========================
 
     /**
-     * 限速 InputStream — 通过令牌桶算法控制读取速率。
-     *
-     * <p>每读取指定字节数后，若令牌不足则阻塞等待令牌补充，从而实现限速。
+    * 限速 InputStream — 通过令牌桶算法控制读取速率。
+    *
+    * <p>每读取指定字节数后，若令牌不足则阻塞等待令牌补充，从而实现限速。
      */
     private static class ThrottledInputStream extends InputStream {
         /** 底层输入流 */
@@ -394,10 +394,10 @@ public class DefaultDownloadService implements DownloadService {
         private long lastRefill;
 
         /**
-         * 创建限速输入流。
-         *
-         * @param delegate       底层输入流
-         * @param bytesPerSecond 限速字节/秒，0 表示不限速
+        * 创建限速输入流。
+        *
+        * @param delegate       底层输入流
+        * @param bytesPerSecond 限速字节/秒，0 表示不限速
          */
         ThrottledInputStream(InputStream delegate, long bytesPerSecond) {
             this.delegate = delegate;
@@ -419,9 +419,9 @@ public class DefaultDownloadService implements DownloadService {
         }
 
         /**
-         * 令牌桶节流：当令牌不足时阻塞等待补充。
-         *
-         * @param bytes 本次请求读取的字节数
+        * 令牌桶节流：当令牌不足时阻塞等待补充。
+        *
+        * @param bytes 本次请求读取的字节数
          */
         private void throttle(int bytes) {
             if (bytesPerMs <= 0) {

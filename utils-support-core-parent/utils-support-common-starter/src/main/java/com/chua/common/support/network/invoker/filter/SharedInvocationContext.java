@@ -6,10 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * 共享调用上下文，在一次远程调用中持续存在，跨多次方法调用共享数据。
- *
- * @author CH
- * @since 4.0.0.42
+* 共享调用上下文，在一次远程调用中持续存在，跨多次方法调用共享数据。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SharedInvocationContext {
 

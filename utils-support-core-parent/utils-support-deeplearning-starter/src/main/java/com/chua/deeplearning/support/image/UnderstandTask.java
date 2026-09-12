@@ -1,12 +1,12 @@
 package com.chua.deeplearning.support.image;
 
 /**
- * Florence-2 视觉理解任务类型枚举。
- *
- * <p>每个枚举值对应 Florence-2 模型的一个 prompt 前缀，用于控制模型执行不同类型的视觉理解任务。
- *
- * @author CH
- * @since 4.0.0.42
+* Florence-2 视觉理解任务类型枚举。
+*
+* <p>每个枚举值对应 Florence-2 模型的一个 prompt 前缀，用于控制模型执行不同类型的视觉理解任务。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public enum UnderstandTask {
     /** 生成简短图像描述 */
@@ -48,19 +48,19 @@ public enum UnderstandTask {
     }
 
     /**
-      * 获取 提示符 前缀。
-     *
-     * @return prompt 前缀字符串
+    * 获取 提示符 前缀。
+    *
+    * @return prompt 前缀字符串
      */
     public String prompt() {
         return prompt;
     }
 
     /**
-      * 将 输入 插入 提示符，生成完整提示词。
-     *
-     * @param input 输入文本，替换 提示符 中的 {输入} 占位符
-     * @return 完整 提示符
+    * 将 输入 插入 提示符，生成完整提示词。
+    *
+    * @param input 输入文本，替换 提示符 中的 {输入} 占位符
+    * @return 完整 提示符
      */
     public String promptWithInput(String input) {
         return prompt.replace("{input}", input);

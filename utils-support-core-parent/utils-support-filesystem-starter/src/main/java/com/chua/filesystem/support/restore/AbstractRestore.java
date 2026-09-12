@@ -9,33 +9,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * 抽象恢复基类
- * <p>
- * 提供恢复接口的基础实现，子类需要实现具体的恢复逻辑。
- * </p>
- *
-   * @版本 1.0.0
- * @author CH
- * @since 4.0.0.42
+* 抽象恢复基类
+* <p>
+* 提供恢复接口的基础实现，子类需要实现具体的恢复逻辑。
+* </p>
+*
+* @版本 1.0.0
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractRestore implements Restore {
 
     /**
-     * 数据库配置选项
+    * 数据库配置选项
      */
     protected final DataSourceOptions databaseOptions;
 
     /**
-     * 恢复设置
+    * 恢复设置
      */
     protected RestoreSetting restoreSetting;
 
     /**
-     * 构造函数
-     *
-     * @param databaseOptions 数据库配置选项
-     * @param restoreSetting  恢复设置
+    * 构造函数
+    *
+    * @param databaseOptions 数据库配置选项
+    * @param restoreSetting  恢复设置
      */
     public AbstractRestore(DataSourceOptions databaseOptions, RestoreSetting restoreSetting) {
         this.databaseOptions = databaseOptions;
@@ -147,9 +147,9 @@ public abstract class AbstractRestore implements Restore {
     }
 
     /**
-     * 获取文件扩展名
-     * @param file 文件
-     * @return 获取文件延伸的结果
+    * 获取文件扩展名
+    * @param file 文件
+    * @return 获取文件延伸的结果
      */
     protected String getFileExtension(File file) {
         String name = file.getName();

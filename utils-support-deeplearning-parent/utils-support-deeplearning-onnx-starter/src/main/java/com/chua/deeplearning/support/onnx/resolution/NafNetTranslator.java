@@ -17,42 +17,42 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 /**
-   * nafnet ONNX             /            /
- *
- * <p>         :                                        384   64                HWC     CHW                       [0, 1]
- *
- * <p>         :           [0, 1]          [0, 255] uint8                                     Image
- *
- * <p>      : <a href="https://github.com/megvii-research/NAFNet">NAFNet</a>
- *
- * @author CH
- * @since 2026-05-09
+* nafnet ONNX             /            /
+*
+* <p>         :                                        384   64                HWC     CHW                       [0, 1]
+*
+* <p>         :           [0, 1]          [0, 255] uint8                                     Image
+*
+* <p>      : <a href="https://github.com/megvii-research/NAFNet">NAFNet</a>
+*
+* @author CH
+* @since 2026-05-09
  */
 @Slf4j
 public class NafNetTranslator implements Translator<Image, Image> {
 
     /**
-      * nafnet                                                                 0
+    * nafnet                                                                 0
      */
     private static final int MIN_SIZE = 384;
 
     /**
-      * nafnet
+    * nafnet
      */
     private static final int SIZE_ALIGN = 64;
 
     /**
-      * nafnet ONNX nd管理器
+    * nafnet ONNX nd管理器
      */
     private NDManager manager;
 
     /**
-     *                                                      
+    *                                                      
      */
     private int origWidth;
 
     /**
-     *                                                      
+    *                                                      
      */
     private int origHeight;
 
@@ -134,10 +134,10 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
-     *
-     * @param v 浮点像素值
-     * @return 0-255 整数
+    * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
+    *
+    * @param v 浮点像素值
+    * @return 0-255 整数
      */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
@@ -145,12 +145,12 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 需要时缩放图像到目标尺寸（高质量双三次）。
-     *
-     * @param src   源图
-     * @param w     目标宽
-     * @param h     目标高
-     * @return 缩放后的图（尺寸一致时返回原图）
+    * 需要时缩放图像到目标尺寸（高质量双三次）。
+    *
+    * @param src   源图
+    * @param w     目标宽
+    * @param h     目标高
+    * @return 缩放后的图（尺寸一致时返回原图）
      */
     private static BufferedImage resizeIfNeeded(BufferedImage src, int w, int h) {
         if (src.getWidth() == w && src.getHeight() == h) {
@@ -165,10 +165,10 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     /**
-      * 最小_大小          大小_ALIGN
-     *
-     * @param size                       
-     * @return                                
+    * 最小_大小          大小_ALIGN
+    *
+    * @param size                       
+    * @return                                
      */
     private static int alignSize(int size) {
         if (size < MIN_SIZE) {

@@ -15,21 +15,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于 Apache Tomcat 的嵌入式 Web 容器实现。
- *
- * <p>支持 WAR 包的部署与启动，通过 {@link AbstractWebContainer} 提供
- * 统一的容器生命周期管理。
- *
- * <p>核心特性：
- * <ul>
- *   <li>内嵌式部署，无需外部 Tomcat 安装</li>
- *   <li>支持多应用同时部署（多 Context）</li>
- *   <li>支持 WAR 自动解压部署</li>
- *   <li>支持 SSL/TLS 安全连接</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Apache Tomcat 的嵌入式 Web 容器实现。
+*
+* <p>支持 WAR 包的部署与启动，通过 {@link AbstractWebContainer} 提供
+* 统一的容器生命周期管理。
+*
+* <p>核心特性：
+* <ul>
+*   <li>内嵌式部署，无需外部 Tomcat 安装</li>
+*   <li>支持多应用同时部署（多 Context）</li>
+*   <li>支持 WAR 自动解压部署</li>
+*   <li>支持 SSL/TLS 安全连接</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"tomcat", "apache-tomcat"})
@@ -85,10 +85,10 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 部署 WAR 文件到 Tomcat。
-      * 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixdocbase 失败）。
-     * @param archivePath Arch Linux Linux路径
-     * @param contextPath 上下文路径
+    * 部署 WAR 文件到 Tomcat。
+    * 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixdocbase 失败）。
+    * @param archivePath Arch Linux Linux路径
+    * @param contextPath 上下文路径
      */
     private void deployWar(String archivePath, String contextPath) throws Exception {
         var warFile = resolveFile(archivePath);
@@ -192,7 +192,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 配置 Tomcat 引擎参数。
+    * 配置 Tomcat 引擎参数。
      */
     private void configureTomcat() {
         tomcat.setHostname(setting.getHost());
@@ -246,7 +246,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 配置 SSL/TLS。
+    * 配置 SSL/TLS。
      */
     private void configureSsl() {
         WebContainerSetting.SslConfig ssl = setting.getSsl();
@@ -279,7 +279,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 部署在初始化时注册但延迟到启动时执行的单元。
+    * 部署在初始化时注册但延迟到启动时执行的单元。
      */
     private void deployPendingUnits() {
         if (setting.getDeployUnits() == null) {
@@ -297,11 +297,11 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * deploywarsafely
-     *
-     * @param path 路径
-     * @param ctxPath ctx路径
-     * @param type 类型
+    * deploywarsafely
+    *
+    * @param path 路径
+    * @param ctxPath ctx路径
+    * @param type 类型
      */
     private void deployWarSafely(String path, String ctxPath, DeployUnitType type) {
         try {
@@ -313,9 +313,9 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-      * 解析文件路径，支持文件系统路径和 类路径 前缀。
-     * @param path 路径
-     * @return resolve文件的结果
+    * 解析文件路径，支持文件系统路径和 类路径 前缀。
+    * @param path 路径
+    * @return resolve文件的结果
      */
     private File resolveFile(String path) {
         if (path.startsWith("classpath:")) {

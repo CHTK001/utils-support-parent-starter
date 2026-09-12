@@ -11,13 +11,13 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
-   * Codex++ 用量解析器 — 从本地 sqlite 数据库解析会话用量。
- *
- * <p>数据源为 {@code %USERPROFILE%\.codex\state_5.sqlite} 中的 {@code threads} 表。
-   * 该表按会话（thread）聚合 令牌_used，但不区分输入/输出缓存粒度。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Codex++ 用量解析器 — 从本地 sqlite 数据库解析会话用量。
+*
+* <p>数据源为 {@code %USERPROFILE%\.codex\state_5.sqlite} 中的 {@code threads} 表。
+* 该表按会话（thread）聚合 令牌_used，但不区分输入/输出缓存粒度。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("codex++")
 public class CodexPlusPlusUsageParser extends BaseUsageParser {
@@ -30,7 +30,7 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
                     + "WHERE tokens_used > 0 ORDER BY created_at_ms ASC";
 
     /**
-      * 响应式流式入口：通过 sqlitereactorengine 流出会话记录。
+    * 响应式流式入口：通过 sqlitereactorengine 流出会话记录。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -52,9 +52,9 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "codex++"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "codex++"}
      */
     @Override
     public String name() {

@@ -15,11 +15,11 @@ import javax.annotation.Nullable;
 
 
 /**
- * 大小滤镜
- *
- * @author CH
-   * @版本 1.0.0
- * @since 2021/6/11
+* 大小滤镜
+*
+* @author CH
+* @版本 1.0.0
+* @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -35,8 +35,8 @@ public class ImageSizedFilter extends AbstractImageFilter {
     private double size = 0.5d;
 
     /**
-      * 创建 镜像大小过滤器 实例
-     * @param size 大小
+    * 创建 镜像大小过滤器 实例
+    * @param size 大小
      */
     public ImageSizedFilter(double size) {
         this.size = size;
@@ -52,11 +52,11 @@ public class ImageSizedFilter extends AbstractImageFilter {
 
 
     /**
-     * 按比例对图片进行缩放.
-     *
-     * @param scale 缩放比率
-     * @param img   缓冲镜像
-     * @return zoomByScale的结果
+    * 按比例对图片进行缩放.
+    *
+    * @param scale 缩放比率
+    * @param img   缓冲镜像
+    * @return zoomByScale的结果
      */
     public static BufferedImage zoomByScale(double scale, BufferedImage img) {
         //获取缩放后的长和宽

@@ -11,37 +11,37 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-   * 全部-minilm-L6-v2 本地离线嵌入客户端（SPI 提供者="minilm"）。
- *
- * <p>本地基于 Xenova/all-MiniLM-L6-v2 的 int8 量化 ONNX（23MB，~50ms/句，CPU 即可），
-   * 文本 → 384 维 L2 归一化句向量。与 sentence-transformers/全部-minilm-L6-v2 语义一致，
- * 可直接用于余弦相似度 / 向量检索 / 聚类。</p>
- *
- * <p>用法（与云端 EmbeddingClient 完全一致）：
- * <pre>{@code
- *   float[] v = EmbeddingClient.create("minilm", "")
- *       .model("minilm")
- *       .embedding("你好世界");
- *
- *   EmbeddingClient client = EmbeddingClient.create("minilm", "")
- *       .model("minilm");
- *   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
- * }</pre>   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
- * }</pre>
- * </p>
- *
- * <p>资源位于 {@code nlp/embedding/minilm/model_quantized.onnx}（int8 量化版）或
- * {@code nlp/embedding/minilm-fp32/model.onnx}（fp32 未量化版），由 jar
- * {@code utils-support-models-onnx-minilm-int8} 或 {@code utils-support-models-onnx-minilm-fp32} 提供。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 全部-minilm-L6-v2 本地离线嵌入客户端（SPI 提供者="minilm"）。
+*
+* <p>本地基于 Xenova/all-MiniLM-L6-v2 的 int8 量化 ONNX（23MB，~50ms/句，CPU 即可），
+* 文本 → 384 维 L2 归一化句向量。与 sentence-transformers/全部-minilm-L6-v2 语义一致，
+* 可直接用于余弦相似度 / 向量检索 / 聚类。</p>
+*
+* <p>用法（与云端 EmbeddingClient 完全一致）：
+* <pre>{@code
+*   float[] v = EmbeddingClient.create("minilm", "")
+*       .model("minilm")
+*       .embedding("你好世界");
+*
+*   EmbeddingClient client = EmbeddingClient.create("minilm", "")
+*       .model("minilm");
+*   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
+* }</pre>   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
+* }</pre>
+* </p>
+*
+* <p>资源位于 {@code nlp/embedding/minilm/model_quantized.onnx}（int8 量化版）或
+* {@code nlp/embedding/minilm-fp32/model.onnx}（fp32 未量化版），由 jar
+* {@code utils-support-models-onnx-minilm-int8} 或 {@code utils-support-models-onnx-minilm-fp32} 提供。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class MiniLMEmbeddingClient implements EmbeddingClient {
 
     /**
-     * 默认最大序列长度（包含 [CLS]/[SEP]）
+    * 默认最大序列长度（包含 [CLS]/[SEP]）
      */
     private static final int DEFAULT_MAX_LEN = 128;
 
@@ -54,8 +54,8 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     private volatile String resolvedModel;
 
     /**
-      * 创建 minilm嵌入客户端 实例
-     * @param setting setting
+    * 创建 minilm嵌入客户端 实例
+    * @param setting setting
      */
     public MiniLMEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
@@ -84,9 +84,9 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-     * Translator
-     *
-     * @return translator的结果
+    * Translator
+    *
+    * @return translator的结果
      */
     private MiniLMEmbeddingTranslator translator() {
         String model = setting.getModel();

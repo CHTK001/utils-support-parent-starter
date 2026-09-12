@@ -8,20 +8,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 存储配置 — 启动时一次性传入 {@link ApmStorage#start(StorageConfig)}。
- *
- * <p>键值对语义，具体键由实现定义：</p>
- * <ul>
- *   <li>{@code apm.storage.type} — 选择实现（noop/inmemory/sqlite/jdbc/otlp）</li>
- *   <li>{@code apm.storage.retention.ms} — 默认 7 天（604800000）</li>
- *   <li>{@code apm.storage.capacity} — 单表最大行数（默认 100000）</li>
- *   <li>{@code apm.storage.path} — SQLite 文件路径</li>
- *   <li>{@code apm.storage.datasource} — Spring DataSource bean name</li>
- *   <li>{@code apm.storage.otlp.endpoint} — OTLP HTTP endpoint</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 存储配置 — 启动时一次性传入 {@link ApmStorage#start(StorageConfig)}。
+*
+* <p>键值对语义，具体键由实现定义：</p>
+* <ul>
+*   <li>{@code apm.storage.type} — 选择实现（noop/inmemory/sqlite/jdbc/otlp）</li>
+*   <li>{@code apm.storage.retention.ms} — 默认 7 天（604800000）</li>
+*   <li>{@code apm.storage.capacity} — 单表最大行数（默认 100000）</li>
+*   <li>{@code apm.storage.path} — SQLite 文件路径</li>
+*   <li>{@code apm.storage.datasource} — Spring DataSource bean name</li>
+*   <li>{@code apm.storage.otlp.endpoint} — OTLP HTTP endpoint</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor
@@ -32,11 +32,11 @@ public class StorageConfig {
     private Map<String, String> properties = new HashMap<>();
 
     /**
-     * 放入
-     *
-     * @param key 键
-     * @param value 值
-     * @return 放入的结果
+    * 放入
+    *
+    * @param key 键
+    * @param value 值
+    * @return 放入的结果
      */
     public StorageConfig put(String key, String value) {
         properties.put(key, value);
@@ -44,32 +44,32 @@ public class StorageConfig {
     }
 
     /**
-     * 获取
-     *
-     * @param key 键
-     * @return 获取的结果
+    * 获取
+    *
+    * @param key 键
+    * @return 获取的结果
      */
     public String get(String key) {
         return properties.get(key);
     }
 
     /**
-     * 获取
-     *
-     * @param key 键
-     * @param defaultValue 默认值
-     * @return 获取的结果
+    * 获取
+    *
+    * @param key 键
+    * @param defaultValue 默认值
+    * @return 获取的结果
      */
     public String get(String key, String defaultValue) {
         return properties.getOrDefault(key, defaultValue);
     }
 
     /**
-     * 获取Long
-     *
-     * @param key 键
-     * @param defaultValue 默认值
-     * @return 获取long的结果
+    * 获取Long
+    *
+    * @param key 键
+    * @param defaultValue 默认值
+    * @return 获取long的结果
      */
     public long getLong(String key, long defaultValue) {
         String v = properties.get(key);
@@ -84,19 +84,19 @@ public class StorageConfig {
     }
 
     /**
-     * 获取Int
-     *
-     * @param key 键
-     * @param defaultValue 默认值
-     * @return 获取int的结果
+    * 获取Int
+    *
+    * @param key 键
+    * @param defaultValue 默认值
+    * @return 获取int的结果
      */
     public int getInt(String key, int defaultValue) {
         return (int) getLong(key, defaultValue);
     }
 
     /**
-     * 默认配置（无操作存储）。
-     * @return 默认的结果
+    * 默认配置（无操作存储）。
+    * @return 默认的结果
      */
     public static StorageConfig defaults() {
         StorageConfig c = new StorageConfig();

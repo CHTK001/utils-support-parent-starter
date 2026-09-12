@@ -19,43 +19,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 简单 webdav 文件存储实现。
- *
- * <p>基于 Sardine WebDAV 库实现 {@link FileStorage} SPI 接口。
-   * 支持通过 webdav 协议与各种 webdav 服务器（如 Nginx webdav、Apache mod_dav、
-   * 下一个cloud、owncloud 等）进行文件存储操作。</p>
- *
- * <p>配置示例：</p>
- * <pre>{@code
- * BucketSetting setting = BucketSetting.builder()
- *     .endpoint("https://webdav.example.com")
- *     .accessKeyId("username")
- *     .accessKeySecret("password")
- *     .bucket("remote-path")
- *     .build();
- *
- * FileStorage storage = new SWebdavFileStorage(setting);
- * }</pre> = new SWebdavFileStorage(setting);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 简单 webdav 文件存储实现。
+*
+* <p>基于 Sardine WebDAV 库实现 {@link FileStorage} SPI 接口。
+* 支持通过 webdav 协议与各种 webdav 服务器（如 Nginx webdav、Apache mod_dav、
+* 下一个cloud、owncloud 等）进行文件存储操作。</p>
+*
+* <p>配置示例：</p>
+* <pre>{@code
+* BucketSetting setting = BucketSetting.builder()
+*     .endpoint("https://webdav.example.com")
+*     .accessKeyId("username")
+*     .accessKeySecret("password")
+*     .bucket("remote-path")
+*     .build();
+*
+* FileStorage storage = new SWebdavFileStorage(setting);
+* }</pre> = new SWebdavFileStorage(setting);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"webdav", "swebdav"})
 public class WebdavFileStorage extends AbstractFileStorage {
 
     /**
-     * sardine
+    * sardine
      */
     private final Sardine sardine;
     /**
-     * 基础地址
+    * 基础地址
      */
     private final String baseUrl;
 
     /**
-      * 创建 webdav文件storage 实例
-     * @param bucketSetting bucketsetting
+    * 创建 webdav文件storage 实例
+    * @param bucketSetting bucketsetting
      */
     public WebdavFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -65,10 +65,10 @@ public class WebdavFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 完整url
-     *
-     * @param key 键
-     * @return 完整url的结果
+    * 完整url
+    *
+    * @param key 键
+    * @return 完整url的结果
      */
     private String fullUrl(String key) {
         return baseUrl + key;
@@ -99,8 +99,8 @@ public class WebdavFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 确保父目录存在，不存在则递归创建。
-     * @param key 键
+    * 确保父目录存在，不存在则递归创建。
+    * @param key 键
      */
     private void ensureParentPath(String key) throws IOException {
         if (!key.contains("/")) {

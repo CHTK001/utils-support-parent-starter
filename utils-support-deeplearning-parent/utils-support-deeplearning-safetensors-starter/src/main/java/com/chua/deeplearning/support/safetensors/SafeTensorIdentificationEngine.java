@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * safetensor 引擎实现。
- *
- * <p>提供模型实例化和 LLM 翻译能力。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* safetensor 引擎实现。
+*
+* <p>提供模型实例化和 LLM 翻译能力。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SafeTensorIdentificationEngine implements IdentificationEngine {

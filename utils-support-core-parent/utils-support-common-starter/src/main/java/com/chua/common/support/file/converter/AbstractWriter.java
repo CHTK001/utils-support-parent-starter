@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractWriter implements FileSystem {
@@ -25,7 +25,7 @@ public abstract class AbstractWriter implements FileSystem {
     /** 是否已初始化 */
     protected boolean initialized;
     /**
-     * 文件路径
+    * 文件路径
      */
     protected File file;
 
@@ -37,8 +37,8 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     /**
-     * 创建 AbstractWriter 实例
-     * @param file file
+    * 创建 AbstractWriter 实例
+    * @param file file
      */
     protected AbstractWriter(File file) {
         this.file = file;
@@ -48,8 +48,8 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     /**
-     * 创建 AbstractWriter 实例
-     * @param filePath filePath
+    * 创建 AbstractWriter 实例
+    * @param filePath filePath
      */
     protected AbstractWriter(String filePath) {
         this.file = filePath != null ? new File(filePath) : null;

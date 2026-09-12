@@ -8,25 +8,25 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * OCR 管线磁盘回调：自动将各阶段中间数据落盘，供人工/脚本查看真实流程效果。
- *
- * <p>各阶段数据输出到指定目录：检测框、识别结果、矫正图片、高清化图片。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* OCR 管线磁盘回调：自动将各阶段中间数据落盘，供人工/脚本查看真实流程效果。
+*
+* <p>各阶段数据输出到指定目录：检测框、识别结果、矫正图片、高清化图片。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OcrPipelineDiskCallback implements OcrPipelineCallback {
 
     /**
-     * 输出目录。
+    * 输出目录。
      */
     private final Path outputDir;
 
     /**
-     * 构造磁盘回调。
-     *
-     * @param outputDir 输出目录
+    * 构造磁盘回调。
+    *
+    * @param outputDir 输出目录
      */
     public OcrPipelineDiskCallback(Path outputDir) {
         this.outputDir = outputDir;
@@ -58,10 +58,10 @@ public class OcrPipelineDiskCallback implements OcrPipelineCallback {
     }
 
     /**
-     * 写图片到输出目录。
-     *
-     * @param data 图片字节
-     * @param name 文件名
+    * 写图片到输出目录。
+    *
+    * @param data 图片字节
+    * @param name 文件名
      */
     private void write(byte[] data, String name) {
         try {

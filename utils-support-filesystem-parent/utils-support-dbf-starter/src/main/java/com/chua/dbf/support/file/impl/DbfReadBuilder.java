@@ -8,24 +8,24 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 
 public class DbfReadBuilder extends ReadBuilder {
 
     /**
-      * 创建 dbf读取构建器 实例
-     * @param file 文件
+    * 创建 dbf读取构建器 实例
+    * @param file 文件
      */
     public DbfReadBuilder(File file) {
         super(file);
     }
 
     /**
-     * Rows
-     *
-     * @return rows的结果
+    * Rows
+    *
+    * @return rows的结果
      */
     public List<Map<String, Object>> rows() {
         List<Map<String, Object>> result = new ArrayList<>();

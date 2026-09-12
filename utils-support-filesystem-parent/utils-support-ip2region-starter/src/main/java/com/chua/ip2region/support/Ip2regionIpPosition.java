@@ -11,47 +11,47 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Ip2region IP 地理位置查询 SPI 实现。
- *
- * <p>基于 ip2region xdb 数据库文件实现毫秒级 IP 定位。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Ip2region IP 地理位置查询 SPI 实现。
+*
+* <p>基于 ip2region xdb 数据库文件实现毫秒级 IP 定位。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("ip2region")
 public class Ip2regionIpPosition implements IpPosition {
 
     /**
-     * 默认数据库文件路径
+    * 默认数据库文件路径
      */
     private static final String DEFAULT_DB = "ip2region.xdb";
 
     /**
-     * xdb 文件完整数据
+    * xdb 文件完整数据
      */
     private final byte[] data;
 
     /**
-     * 索引区起始位置
+    * 索引区起始位置
      */
     private final long indexBegin;
 
     /**
-     * 索引区结束位置
+    * 索引区结束位置
      */
     private final long indexEnd;
 
     /**
-     * 使用默认路径构造。
+    * 使用默认路径构造。
      */
     public Ip2regionIpPosition() {
         this(DEFAULT_DB);
     }
 
     /**
-     * 指定数据库文件路径构造。
-     *
-     * @param dbPath xdb 数据库文件路径
+    * 指定数据库文件路径构造。
+    *
+    * @param dbPath xdb 数据库文件路径
      */
     public Ip2regionIpPosition(String dbPath) {
         try {
@@ -116,9 +116,9 @@ public class Ip2regionIpPosition implements IpPosition {
     }
 
     /**
-     * 读取 4 字节无符号整数（小端序）。
-     * @param offset 偏移量
-     * @return 读取int的结果
+    * 读取 4 字节无符号整数（小端序）。
+    * @param offset 偏移量
+    * @return 读取int的结果
      */
     private long readInt(int offset) {
         return (data[offset] & 0xFFL)
@@ -128,10 +128,10 @@ public class Ip2regionIpPosition implements IpPosition {
     }
 
     /**
-     * 读取以 \0 结尾的字符串（GBK 编码）。
-     * @param offset 偏移量
-     * @param buffer 缓冲
-     * @return 读取字符串的结果
+    * 读取以 \0 结尾的字符串（GBK 编码）。
+    * @param offset 偏移量
+    * @param buffer 缓冲
+    * @return 读取字符串的结果
      */
     private String readString(int offset, byte[] buffer) {
         int end = offset;
@@ -142,9 +142,9 @@ public class Ip2regionIpPosition implements IpPosition {
     }
 
     /**
-     * 将 IP 地址转换为长整型。
-     * @param ip ip
-     * @return ip转为long的结果
+    * 将 IP 地址转换为长整型。
+    * @param ip ip
+    * @return ip转为long的结果
      */
     private static long ipToLong(String ip) {
         String[] parts = ip.split("\\.");

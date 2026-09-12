@@ -14,43 +14,43 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 默认流程编排图实现。
- *
- * <p>由 {@link DefaultFlow#createGraph()} 创建，进入可执行状态。
- * 通过链式 DSL 配置节点连线，构建结束后可创建流程实例：</p>
- * <ul>
- *   <li>{@link #start(String)} — 指定起始节点</li>
- *   <li>{@link #next(String...)} — 顺序连线，前一个节点依次连接后续节点</li>
- *   <li>{@link #when(String, boolean, String)} — 条件节点分支连线</li>
- *   <li>{@link #end(String...)} — 标记终止节点，结束编排构建</li>
- * </ul>
- *
- * <p>连线写入底层流程定义的 edges 集合，JSON 导出格式与前端 ReFlow 画布数据一致。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 默认流程编排图实现。
+*
+* <p>由 {@link DefaultFlow#createGraph()} 创建，进入可执行状态。
+* 通过链式 DSL 配置节点连线，构建结束后可创建流程实例：</p>
+* <ul>
+*   <li>{@link #start(String)} — 指定起始节点</li>
+*   <li>{@link #next(String...)} — 顺序连线，前一个节点依次连接后续节点</li>
+*   <li>{@link #when(String, boolean, String)} — 条件节点分支连线</li>
+*   <li>{@link #end(String...)} — 标记终止节点，结束编排构建</li>
+* </ul>
+*
+* <p>连线写入底层流程定义的 edges 集合，JSON 导出格式与前端 ReFlow 画布数据一致。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultFlowGraph implements FlowGraph {
 
     /**
-     * 底层流程
+    * 底层流程
      */
     private final DefaultFlow flow;
 
     /**
-      * 当前连线游标节点 标识
+    * 当前连线游标节点 标识
      */
     private String cursor;
 
     /**
-      * 起始节点 标识
+    * 起始节点 标识
      */
     private String startNodeId;
 
     /**
-     * 以指定流程创建编排图。
-     *
-     * @param flow 底层流程
+    * 以指定流程创建编排图。
+    *
+    * @param flow 底层流程
      */
     public DefaultFlowGraph(DefaultFlow flow) {
         this.flow = flow;
@@ -137,9 +137,9 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     /**
-     * 校验节点是否已注册到流程。
-     *
-     * @param nodeId 节点 标识
+    * 校验节点是否已注册到流程。
+    *
+    * @param nodeId 节点 标识
      */
     private void checkNode(String nodeId) {
         if (!flow.containsNode(nodeId)) {

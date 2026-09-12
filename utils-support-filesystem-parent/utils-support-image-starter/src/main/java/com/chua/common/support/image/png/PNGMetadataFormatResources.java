@@ -6,13 +6,13 @@ import javax.annotation.Nullable;
 
 
 /**
- * PNG 元数据格式国际化资源包。
- *
- * <p>继承自 {@link java.util.ListResourceBundle}，为 PNG 原生元数据格式中的各元素和属性
- * 提供面向用户的本地化描述文本，配合 {@link PNGMetadataFormat} 使用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* PNG 元数据格式国际化资源包。
+*
+* <p>继承自 {@link java.util.ListResourceBundle}，为 PNG 原生元数据格式中的各元素和属性
+* 提供面向用户的本地化描述文本，配合 {@link PNGMetadataFormat} 使用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PNGMetadataFormatResources extends ListResourceBundle {
 
@@ -20,9 +20,9 @@ public class PNGMetadataFormatResources extends ListResourceBundle {
     public PNGMetadataFormatResources() {}
 
     /**
-     * 获取内容
-     *
-     * @return 获取内容的结果
+    * 获取内容
+    *
+    * @return 获取内容的结果
      */
     protected Object[][] getContents() {
         return new Object[][] {

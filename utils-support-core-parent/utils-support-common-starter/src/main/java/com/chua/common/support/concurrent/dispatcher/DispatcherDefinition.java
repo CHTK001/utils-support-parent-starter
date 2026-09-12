@@ -9,43 +9,43 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * 分发器注册定义工具类，封装单个订阅方法及其目标主题。
- * <p>
- * 每个被 {@code @Subscribe} 注解标记的方法都会对应一个 {@code DispatcherDefinition}，
- * 在消息到达时由该对象负责将消息体转换为目标方法参数类型并执行反射调用。
- * </p>
- *
- * @author CH
- * @since 2025-11-26
+* 分发器注册定义工具类，封装单个订阅方法及其目标主题。
+* <p>
+* 每个被 {@code @Subscribe} 注解标记的方法都会对应一个 {@code DispatcherDefinition}，
+* 在消息到达时由该对象负责将消息体转换为目标方法参数类型并执行反射调用。
+* </p>
+*
+* @author CH
+* @since 2025-11-26
  */
 @Slf4j
 public class DispatcherDefinition {
 
     /**
-     * 订阅者对象实例
+    * 订阅者对象实例
      */
     @Getter
     /** Subscriber */
     private final Object subscriber;
 
     /**
-     * 目标方法
+    * 目标方法
      */
     private final Method method;
 
     /**
-     * 订阅的主题列表。
+    * 订阅的主题列表。
      */
     @Getter
     /** Topics */
     private final List<String> topics;
 
     /**
-     * 创建订阅定义实例。
-     *
-     * @param subscriber 订阅者对象实例
-     * @param method 目标订阅方法
-     * @param topics 订阅主题列表
+    * 创建订阅定义实例。
+    *
+    * @param subscriber 订阅者对象实例
+    * @param method 目标订阅方法
+    * @param topics 订阅主题列表
      */
     public DispatcherDefinition(Object subscriber, Method method, List<String> topics) {
         this.subscriber = subscriber;
@@ -54,9 +54,9 @@ public class DispatcherDefinition {
     }
 
     /**
-     * 分派消息到目标方法，自动将 body 转换为方法参数类型。
-     *
-     * @param body 消息体
+    * 分派消息到目标方法，自动将 body 转换为方法参数类型。
+    *
+    * @param body 消息体
      */
     public void dispatch(Object body) {
         try {

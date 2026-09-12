@@ -11,16 +11,16 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-   * TAESD (Tiny Auto 编码器 for st Diffusion) VAE
- *
- * <p>    Stable Diffusion              latents           RGB          
- *              SD VAE (~350MB)   TAESD     ~10MB                      5-10       </p>
- *
- * <p>         (1, 4, latent_h, latent_w) latents</p>
- * <p>         (1, 3, h*8, w*8) RGB                 [0, 1]</p>
- *
- * @author CH
- * @since 2026-05-02
+* TAESD (Tiny Auto 编码器 for st Diffusion) VAE
+*
+* <p>    Stable Diffusion              latents           RGB          
+*              SD VAE (~350MB)   TAESD     ~10MB                      5-10       </p>
+*
+* <p>         (1, 4, latent_h, latent_w) latents</p>
+* <p>         (1, 3, h*8, w*8) RGB                 [0, 1]</p>
+*
+* @author CH
+* @since 2026-05-02
  */
 public class TaesdDecoderTranslator implements Translator<NDList, Image> {
 

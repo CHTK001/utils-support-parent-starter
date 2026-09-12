@@ -16,10 +16,10 @@ import javax.lang.model.type.TypeKind;
 import java.util.Set;
 
 /**
- * {@link CleanNull} 注解的 AST 处理器
- *
- * @author CH
- * @since 4.0.0.42
+* {@link CleanNull} 注解的 AST 处理器
+*
+* @author CH
+* @since 4.0.0.42
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.CleanNull")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -43,9 +43,9 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-     * 处理参数
-     *
-     * @param paramElement 参数element
+    * 处理参数
+    *
+    * @param paramElement 参数element
      */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
@@ -92,10 +92,10 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-     * 是否字符串类型
-     *
-     * @param element element
-     * @return 是否字符串类型的结果
+    * 是否字符串类型
+    *
+    * @param element element
+    * @return 是否字符串类型的结果
      */
     private boolean isStringType(VariableElement element) {
         TypeMirror type = element.asType();
@@ -107,12 +107,12 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-      * 构建clean对账单
-     * @param maker maker
-     * @param names 名称
-     * @param paramName 参数名称
-     * @param keywords keywords
-     * @param isString 是否字符串
+    * 构建clean对账单
+    * @param maker maker
+    * @param names 名称
+    * @param paramName 参数名称
+    * @param keywords keywords
+    * @param isString 是否字符串
      */
     private JCTree.JCStatement buildCleanStatement(TreeMaker maker, Names names,
                                                      String paramName, String[] keywords, boolean isString) {
@@ -166,10 +166,10 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-     * 前置对账单
-     *
-     * @param body 主体
-     * @param stmt stmt
+    * 前置对账单
+    *
+    * @param body 主体
+    * @param stmt stmt
      */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);

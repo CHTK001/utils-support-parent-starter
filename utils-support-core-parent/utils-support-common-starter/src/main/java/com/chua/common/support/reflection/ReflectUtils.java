@@ -9,24 +9,24 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 /**
-   * 统一反射工具类 — 基于 方法处理 + lambdametafactory 实现。
- *
- * <p>所有反射操作必须通过本类完成，禁止在业务代码中直接调用 {@code java.lang.reflect} API。</p>
- *
- * <h3>核心能力</h3>
- * <ul>
- *   <li>方法调用：{@link #invoke}, {@link #invokeStatic}, {@link #invokeMethod}</li>
- *   <li>字段读写：{@link #getField}, {@link #setField}, {@link #findField}</li>
- *   <li>实例化：{@link #instantiate}, {@link #forName}</li>
- *   <li>动态代理：{@link #newProxy}</li>
- *   <li>Lambda 工厂：{@link #asFunctionalInterface}</li>
- * </ul>
- *
- * <h3>缓存策略</h3>
- * <p>所有 MethodHandle 和 FieldHandle 均按 (class, name, paramTypes) 键缓存，首次查找后零开销。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 统一反射工具类 — 基于 方法处理 + lambdametafactory 实现。
+*
+* <p>所有反射操作必须通过本类完成，禁止在业务代码中直接调用 {@code java.lang.reflect} API。</p>
+*
+* <h3>核心能力</h3>
+* <ul>
+*   <li>方法调用：{@link #invoke}, {@link #invokeStatic}, {@link #invokeMethod}</li>
+*   <li>字段读写：{@link #getField}, {@link #setField}, {@link #findField}</li>
+*   <li>实例化：{@link #instantiate}, {@link #forName}</li>
+*   <li>动态代理：{@link #newProxy}</li>
+*   <li>Lambda 工厂：{@link #asFunctionalInterface}</li>
+* </ul>
+*
+* <h3>缓存策略</h3>
+* <p>所有 MethodHandle 和 FieldHandle 均按 (class, name, paramTypes) 键缓存，首次查找后零开销。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public final class ReflectUtils {
@@ -56,10 +56,10 @@ public final class ReflectUtils {
     // ==================== Class 加载 ====================
 
     /**
-     * 加载类（带缓存）。
-     *
-     * @param className 全限定类名
-     * @return Class 对象，加载失败返回 空
+    * 加载类（带缓存）。
+    *
+    * @param className 全限定类名
+    * @return Class 对象，加载失败返回 空
      */
     public static Class<?> forName(String className) {
         if (className == null || className.isEmpty()) {
@@ -76,11 +76,11 @@ public final class ReflectUtils {
     }
 
     /**
-      * 加载类（指定 类加载，带缓存）。
-     *
-     * @param className     全限定类名
-     * @param classLoader   类加载器
-     * @return Class 对象，加载失败返回 空
+    * 加载类（指定 类加载，带缓存）。
+    *
+    * @param className     全限定类名
+    * @param classLoader   类加载器
+    * @return Class 对象，加载失败返回 空
      */
     public static Class<?> forName(String className, ClassLoader classLoader) {
         if (className == null || className.isEmpty()) {
@@ -102,12 +102,12 @@ public final class ReflectUtils {
     }
 
     /**
-     * 加载类并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
-     *
-     * @param className  全限定类名
-     * @param returnType 期望的返回类型
-     * @param <T>        泛型类型参数
-     * @return 类型兼容时返回对应 {@link Class}，加载失败或不兼容返回 {@code null}
+    * 加载类并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
+    *
+    * @param className  全限定类名
+    * @param returnType 期望的返回类型
+    * @param <T>        泛型类型参数
+    * @return 类型兼容时返回对应 {@link Class}，加载失败或不兼容返回 {@code null}
      */
     @SuppressWarnings("unchecked")
     public static <T> Class<T> forName(String className, Class<T> returnType) {
@@ -119,13 +119,13 @@ public final class ReflectUtils {
     }
 
     /**
-      * 加载类（指定 类加载）并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
-     *
-     * @param className   全限定类名
-     * @param classLoader 类加载器
-     * @param returnType  期望的返回类型
-     * @param <T>         泛型类型参数
-     * @return 类型兼容时返回对应 {@link Class}，加载失败或不兼容返回 {@code null}
+    * 加载类（指定 类加载）并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
+    *
+    * @param className   全限定类名
+    * @param classLoader 类加载器
+    * @param returnType  期望的返回类型
+    * @param <T>         泛型类型参数
+    * @return 类型兼容时返回对应 {@link Class}，加载失败或不兼容返回 {@code null}
      */
     @SuppressWarnings("unchecked")
     public static <T> Class<T> forName(String className, ClassLoader classLoader, Class<T> returnType) {
@@ -139,14 +139,14 @@ public final class ReflectUtils {
     // ==================== 方法调用 ====================
 
     /**
-      * 调用实例方法（方法处理 路径）。
-     *
-     * @param target       目标对象，静态方法传 空
-     * @param methodName   方法名
-     * @param returnType   返回类型
-     * @param argTypes     参数类型数组
-     * @param args         参数值
-     * @return 方法返回值
+    * 调用实例方法（方法处理 路径）。
+    *
+    * @param target       目标对象，静态方法传 空
+    * @param methodName   方法名
+    * @param returnType   返回类型
+    * @param argTypes     参数类型数组
+    * @param args         参数值
+    * @return 方法返回值
      */
     public static Object invoke(Object target, String methodName, Class<?> returnType,
                                 Class<?>[] argTypes, Object... args) {
@@ -170,13 +170,13 @@ public final class ReflectUtils {
     }
 
     /**
-     * 调用实例方法（自动推断参数类型）。
-     *
-     * @param target     目标对象
-     * @param methodName 方法名
-     * @param returnType 返回类型
-     * @param args       参数值
-     * @return 方法返回值
+    * 调用实例方法（自动推断参数类型）。
+    *
+    * @param target     目标对象
+    * @param methodName 方法名
+    * @param returnType 返回类型
+    * @param args       参数值
+    * @return 方法返回值
      */
     public static Object invoke(Object target, String methodName, Class<?> returnType, Object... args) {
         Class<?>[] argTypes = inferArgTypes(args);
@@ -184,26 +184,26 @@ public final class ReflectUtils {
     }
 
     /**
-     * 调用无参实例方法。
-     *
-     * @param target     目标对象
-     * @param methodName 方法名
-     * @param returnType 返回类型
-     * @return 方法返回值
+    * 调用无参实例方法。
+    *
+    * @param target     目标对象
+    * @param methodName 方法名
+    * @param returnType 返回类型
+    * @return 方法返回值
      */
     public static Object invoke(Object target, String methodName, Class<?> returnType) {
         return invoke(target, methodName, returnType, new Class<?>[0], new Object[0]);
     }
 
     /**
-     * 调用静态方法。
-     *
-     * @param clazz      目标类
-     * @param methodName 方法名
-     * @param returnType 返回类型
-     * @param argTypes   参数类型数组
-     * @param args       参数值
-     * @return 方法返回值
+    * 调用静态方法。
+    *
+    * @param clazz      目标类
+    * @param methodName 方法名
+    * @param returnType 返回类型
+    * @param argTypes   参数类型数组
+    * @param args       参数值
+    * @return 方法返回值
      */
     public static Object invokeStatic(Class<?> clazz, String methodName, Class<?> returnType,
                                       Class<?>[] argTypes, Object... args) {
@@ -223,13 +223,13 @@ public final class ReflectUtils {
     }
 
     /**
-     * 通过类名字符串调用静态方法。
-     *
-     * @param className  全限定类名
-     * @param methodName 方法名
-     * @param returnType 返回类型
-     * @param args       参数值
-     * @return 方法返回值
+    * 通过类名字符串调用静态方法。
+    *
+    * @param className  全限定类名
+    * @param methodName 方法名
+    * @param returnType 返回类型
+    * @param args       参数值
+    * @return 方法返回值
      */
     public static Object invokeStatic(String className, String methodName, Class<?> returnType, Object... args) {
         Class<?> clazz = forName(className);
@@ -241,13 +241,13 @@ public final class ReflectUtils {
     }
 
     /**
-      * 获取 方法处理（带缓存）。
-     *
-     * @param clazz        目标类
-     * @param methodName   方法名
-     * @param returnType   返回类型
-     * @param paramTypes   参数类型
-     * @return MethodHandle，找不到返回 空
+    * 获取 方法处理（带缓存）。
+    *
+    * @param clazz        目标类
+    * @param methodName   方法名
+    * @param returnType   返回类型
+    * @param paramTypes   参数类型
+    * @return MethodHandle，找不到返回 空
      */
     public static MethodHandle findMethodHandle(Class<?> clazz, String methodName,
                                                  Class<?> returnType, Class<?>... paramTypes) {
@@ -280,7 +280,7 @@ public final class ReflectUtils {
     }
 
     /**
-      * 获取静态 方法处理（带缓存）。
+    * 获取静态 方法处理（带缓存）。
      */
     public static MethodHandle findStaticMethodHandle(Class<?> clazz, String methodName,
                                                        Class<?> returnType, Class<?>... paramTypes) {
@@ -306,11 +306,11 @@ public final class ReflectUtils {
     // ==================== 字段访问 ====================
 
     /**
-     * 读取字段值（沿继承链查找，结果缓存）。
-     *
-     * @param target    目标对象
-     * @param fieldName 字段名
-     * @return 字段值，找不到或异常返回 空
+    * 读取字段值（沿继承链查找，结果缓存）。
+    *
+    * @param target    目标对象
+    * @param fieldName 字段名
+    * @return 字段值，找不到或异常返回 空
      */
     public static Object getField(Object target, String fieldName) {
         if (target == null || fieldName == null) {
@@ -330,12 +330,12 @@ public final class ReflectUtils {
     }
 
     /**
-     * 写入字段值（沿继承链查找，结果缓存）。
-     *
-     * @param target    目标对象
-     * @param fieldName 字段名
-     * @param value     新值
-     * @return 是否成功
+    * 写入字段值（沿继承链查找，结果缓存）。
+    *
+    * @param target    目标对象
+    * @param fieldName 字段名
+    * @param value     新值
+    * @return 是否成功
      */
     public static boolean setField(Object target, String fieldName, Object value) {
         if (target == null || fieldName == null) {
@@ -356,10 +356,10 @@ public final class ReflectUtils {
     }
 
     /**
-      * 查找字段（沿继承链），返回 方法处理 getter。
-     * @param clazz clazz
-     * @param fieldName 字段名称
-     * @return find字段getter的结果
+    * 查找字段（沿继承链），返回 方法处理 getter。
+    * @param clazz clazz
+    * @param fieldName 字段名称
+    * @return find字段getter的结果
      */
     private static MethodHandle findFieldGetter(Class<?> clazz, String fieldName) {
         String key = "GET:" + clazz.getName() + "|" + fieldName;
@@ -384,10 +384,10 @@ public final class ReflectUtils {
     }
 
     /**
-      * 查找字段（沿继承链），返回 方法处理 setter。
-     * @param clazz clazz
-     * @param fieldName 字段名称
-     * @return find字段setter的结果
+    * 查找字段（沿继承链），返回 方法处理 setter。
+    * @param clazz clazz
+    * @param fieldName 字段名称
+    * @return find字段setter的结果
      */
     private static MethodHandle findFieldSetter(Class<?> clazz, String fieldName) {
         String key = "SET:" + clazz.getName() + "|" + fieldName;
@@ -412,11 +412,11 @@ public final class ReflectUtils {
     }
 
     /**
-      * 查找字段（沿继承链），返回 Java.lang.reflect.字段（用于兼容场景）。
-     *
-     * @param clazz   目标类
-     * @param name    字段名
-     * @return Field 对象，找不到返回 空
+    * 查找字段（沿继承链），返回 Java.lang.reflect.字段（用于兼容场景）。
+    *
+    * @param clazz   目标类
+    * @param name    字段名
+    * @return Field 对象，找不到返回 空
      */
     public static java.lang.reflect.Field findField(Class<?> clazz, String name) {
         Class<?> c = clazz;
@@ -431,12 +431,12 @@ public final class ReflectUtils {
     }
 
     /**
-     * 查找包含子串的字段名（用于 Kafka broker 等模糊匹配场景）。
-     *
-     * @param clazz         目标类
-     * @param nameSubstring 字段名字符串片段
-     * @return 第一个匹配的字段值，找不到返回 空
-     * @param target Target
+    * 查找包含子串的字段名（用于 Kafka broker 等模糊匹配场景）。
+    *
+    * @param clazz         目标类
+    * @param nameSubstring 字段名字符串片段
+    * @return 第一个匹配的字段值，找不到返回 空
+    * @param target Target
      */
     public static Object findFieldBySubstring(Object target, String nameSubstring) {
         if (target == null || nameSubstring == null) {
@@ -459,11 +459,11 @@ public final class ReflectUtils {
     // ==================== 实例化 ====================
 
     /**
-      * 无参实例化（方法处理 路径）。
-     *
-     * @param clazz 目标类
-     * @param <T>   返回类型
-     * @return 实例，失败返回 空
+    * 无参实例化（方法处理 路径）。
+    *
+    * @param clazz 目标类
+    * @param <T>   返回类型
+    * @return 实例，失败返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T instantiate(Class<T> clazz) {
@@ -485,12 +485,12 @@ public final class ReflectUtils {
     }
 
     /**
-      * 带参实例化（方法处理 路径）。
-     *
-     * @param clazz  目标类
-     * @param args   构造参数
-     * @param <T>    返回类型
-     * @return 实例，失败返回 空
+    * 带参实例化（方法处理 路径）。
+    *
+    * @param clazz  目标类
+    * @param args   构造参数
+    * @param <T>    返回类型
+    * @return 实例，失败返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T instantiate(Class<T> clazz, Object... args) {
@@ -511,11 +511,11 @@ public final class ReflectUtils {
     }
 
     /**
-     * 通过类名无参实例化。
-     *
-     * @param className 全限定类名
-     * @param <T>       返回类型
-     * @return 实例，失败返回 空
+    * 通过类名无参实例化。
+    *
+    * @param className 全限定类名
+    * @param <T>       返回类型
+    * @return 实例，失败返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T instantiate(String className) {
@@ -527,10 +527,10 @@ public final class ReflectUtils {
     }
 
     /**
-      * 获取构造器 方法处理（带缓存）。
-     * @param clazz clazz
-     * @param paramTypes 参数类型
-     * @return findconstructor处理的结果
+    * 获取构造器 方法处理（带缓存）。
+    * @param clazz clazz
+    * @param paramTypes 参数类型
+    * @return findconstructor处理的结果
      */
     private static MethodHandle findConstructorHandle(Class<?> clazz, Class<?>... paramTypes) {
         String key = "CTOR:" + clazz.getName() + "@" + formatTypes(paramTypes);
@@ -551,13 +551,13 @@ public final class ReflectUtils {
     // ==================== 动态代理 ====================
 
     /**
-      * 创建 JDK 动态代理（通过 方法处理 桥接）。
-     *
-     * @param loader     类加载器
-     * @param interfaces 接口数组
-     * @param handler    调用处理器
-     * @param <T>        代理类型
-     * @return 代理实例
+    * 创建 JDK 动态代理（通过 方法处理 桥接）。
+    *
+    * @param loader     类加载器
+    * @param interfaces 接口数组
+    * @param handler    调用处理器
+    * @param <T>        代理类型
+    * @return 代理实例
      */
     @SuppressWarnings("unchecked")
     public static <T> T newProxy(ClassLoader loader, Class<?>[] interfaces,
@@ -568,25 +568,25 @@ public final class ReflectUtils {
     // ==================== LambdaMetafactory ====================
 
     /**
-      * 将 方法处理 适配为函数式接口的 lambda 实例（使用 lambdametafactory）。
-     *
-     * <p>典型用法：将私有方法或静态方法转换为 {@link Function}/{@link Runnable} 等。</p>
-     *
-     * <pre>{@code
-     *   // 将 ObjIntConsumer<Integer> 适配为 MethodHandle
-     *   MethodHandle mh = LOOKUP.findVirtual(SomeClass.class, "process",
-     *           MethodType.methodType(void.class, int.class));
-     *   ObjIntConsumer<Integer> fn = ReflectUtils.asFunctionalInterface(
-     *           mh, ObjIntConsumer.class, Integer.class, int.class);
-     * }</pre>rface(
-     *           mh, ObjIntConsumer.class, Integer.class, int.class);
-     * }</pre>
-     *
-     * @param implMethod       实现方法的 方法处理（已 bind转为 Target）
-     * @param functionalInterface 目标函数式接口 类
-     * @param paramTypes       函数式接口方法参数类型（按顺序）
-     * @param <T>              函数式接口类型
-     * @return lambda 实例
+    * 将 方法处理 适配为函数式接口的 lambda 实例（使用 lambdametafactory）。
+    *
+    * <p>典型用法：将私有方法或静态方法转换为 {@link Function}/{@link Runnable} 等。</p>
+    *
+    * <pre>{@code
+    *   // 将 ObjIntConsumer<Integer> 适配为 MethodHandle
+    *   MethodHandle mh = LOOKUP.findVirtual(SomeClass.class, "process",
+    *           MethodType.methodType(void.class, int.class));
+    *   ObjIntConsumer<Integer> fn = ReflectUtils.asFunctionalInterface(
+    *           mh, ObjIntConsumer.class, Integer.class, int.class);
+    * }</pre>rface(
+    *           mh, ObjIntConsumer.class, Integer.class, int.class);
+    * }</pre>
+    *
+    * @param implMethod       实现方法的 方法处理（已 bind转为 Target）
+    * @param functionalInterface 目标函数式接口 类
+    * @param paramTypes       函数式接口方法参数类型（按顺序）
+    * @param <T>              函数式接口类型
+    * @return lambda 实例
      */
     @SuppressWarnings("unchecked")
     public static <T> T asFunctionalInterface(MethodHandle implMethod,
@@ -615,10 +615,10 @@ public final class ReflectUtils {
     }
 
     /**
-      * 将无参 方法处理 适配为 {@link java.util.concurrent.Callable}。
-     * @param mh mh
-     * @param returnType 返回类型
-     * @return asCallable的结果
+    * 将无参 方法处理 适配为 {@link java.util.concurrent.Callable}。
+    * @param mh mh
+    * @param returnType 返回类型
+    * @return asCallable的结果
      */
     @SuppressWarnings("unchecked")
     public static <T> java.util.concurrent.Callable<T> asCallable(MethodHandle mh, Class<T> returnType) {
@@ -639,16 +639,16 @@ public final class ReflectUtils {
     // ==================== 内部工具 ====================
 
     /**
-      * 构建 方法处理 缓存 键。
+    * 构建 方法处理 缓存 键。
      */
     /**
-     * 返回类型容错查找：请求的返回类型与方法实际类型不一致时，
-      * 遍历 公共 方法按名称与参数类型定位，返回实际类型的 方法处理。
-     *
-     * @param clazz      目标类
-     * @param methodName 方法名
-     * @param paramTypes 参数类型
-     * @return 实际类型的 方法处理；未找到返回 空
+    * 返回类型容错查找：请求的返回类型与方法实际类型不一致时，
+    * 遍历 公共 方法按名称与参数类型定位，返回实际类型的 方法处理。
+    *
+    * @param clazz      目标类
+    * @param methodName 方法名
+    * @param paramTypes 参数类型
+    * @return 实际类型的 方法处理；未找到返回 空
      */
     private static MethodHandle findWithActualReturnType(Class<?> clazz, String methodName,
                                                          Class<?>[] paramTypes) {
@@ -683,7 +683,7 @@ public final class ReflectUtils {
     }
 
     /**
-      * 构建静态 方法处理 缓存 键。
+    * 构建静态 方法处理 缓存 键。
      */
     private static String buildStaticMethodKey(Class<?> clazz, String methodName,
                                                 Class<?> returnType, Class<?>... paramTypes) {
@@ -692,9 +692,9 @@ public final class ReflectUtils {
     }
 
     /**
-     * 格式化类型数组为字符串。
-     * @param types 类型
-     * @return 格式化类型的结果
+    * 格式化类型数组为字符串。
+    * @param types 类型
+    * @return 格式化类型的结果
      */
     private static String formatTypes(Class<?>... types) {
         if (types == null || types.length == 0) {
@@ -711,9 +711,9 @@ public final class ReflectUtils {
     }
 
     /**
-     * 根据参数值推断参数类型数组。
-     * @param args 参数
-     * @return infer参数类型的结果
+    * 根据参数值推断参数类型数组。
+    * @param args 参数
+    * @return infer参数类型的结果
      */
     private static Class<?>[] inferArgTypes(Object... args) {
         if (args == null || args.length == 0) {
@@ -729,7 +729,7 @@ public final class ReflectUtils {
     // ==================== 缓存清理 ====================
 
     /**
-     * 清空所有缓存（调试/测试用）。
+    * 清空所有缓存（调试/测试用）。
      */
     public static void clearCache() {
         METHOD_HANDLE_CACHE.clear();
@@ -740,8 +740,8 @@ public final class ReflectUtils {
     }
 
     /**
-     * 返回当前缓存条目数。
-     * @return 缓存大小的结果
+    * 返回当前缓存条目数。
+    * @return 缓存大小的结果
      */
     public static int cacheSize() {
         return METHOD_HANDLE_CACHE.size() + FIELD_GETTER_CACHE.size() + FIELD_SETTER_CACHE.size();

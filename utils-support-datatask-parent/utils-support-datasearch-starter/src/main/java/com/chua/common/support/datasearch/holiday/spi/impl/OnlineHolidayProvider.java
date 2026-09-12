@@ -23,15 +23,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于公开 JSON 的法定节假日提供器（在线 API + 内置兜底）。
- *
- * <p>在线数据源默认使用 <a href="https://github.com/NateScarlet/holiday-cn">holiday-cn</a>
- * 的年度 JSON（结构：{@code "2026-01-01": {"name":"元旦","type":"holiday"}}）。
- * 当在线获取失败（如离线 / 网络受限）时，自动回退到内置的 2026 年官方放假安排，
- * 保证核心能力可用。
- *
- * @author CH
- * @since 4.0.0.42
+* 基于公开 JSON 的法定节假日提供器（在线 API + 内置兜底）。
+*
+* <p>在线数据源默认使用 <a href="https://github.com/NateScarlet/holiday-cn">holiday-cn</a>
+* 的年度 JSON（结构：{@code "2026-01-01": {"name":"元旦","type":"holiday"}}）。
+* 当在线获取失败（如离线 / 网络受限）时，自动回退到内置的 2026 年官方放假安排，
+* 保证核心能力可用。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("online")
 public class OnlineHolidayProvider implements HolidayProvider {
@@ -63,9 +63,9 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     /**
-     * 构造一个指定数据源地址模板的提供器。
-     *
-     * @param urlTemplate 含 {@code %d} 年份占位符的 JSON 地址，如 {@code https://host/%d.json}
+    * 构造一个指定数据源地址模板的提供器。
+    *
+    * @param urlTemplate 含 {@code %d} 年份占位符的 JSON 地址，如 {@code https://host/%d.json}
      */
     public OnlineHolidayProvider(String urlTemplate) {
         this.urlTemplate = urlTemplate;
@@ -109,20 +109,20 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     /**
-     * 解析
-     *
-     * @param date 日期
-     * @return resolve的结果
+    * 解析
+    *
+    * @param date 日期
+    * @return resolve的结果
      */
     private HolidayInfo resolve(LocalDate date) {
         return load(date.getYear()).get(date.toString());
     }
 
     /**
-     * 加载
-     *
-     * @param year year
-     * @return 加载的结果
+    * 加载
+    *
+    * @param year year
+    * @return 加载的结果
      */
     private Map<String, HolidayInfo> load(int year) {
         Map<String, HolidayInfo> cached = cache.get(year);
@@ -163,11 +163,11 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     /**
-     * 文本
-     *
-     * @param n n
-     * @param k k
-     * @return 文本的结果
+    * 文本
+    *
+    * @param n n
+    * @param k k
+    * @return 文本的结果
      */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
@@ -175,8 +175,8 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     /**
-     * 内置 2026 年法定节假日与调休补班（国务院办公厅 2025-11-04 发布）。
-     * @return build2026的结果
+    * 内置 2026 年法定节假日与调休补班（国务院办公厅 2025-11-04 发布）。
+    * @return build2026的结果
      */
     private static Map<String, HolidayInfo> build2026() {
         Map<String, HolidayInfo> m = new LinkedHashMap<>();
@@ -198,13 +198,13 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     /**
-     * 添加
-     *
-     * @param m m
-     * @param start 启动
-     * @param end 结束
-     * @param name 名称
-     * @param type 类型
+    * 添加
+    *
+    * @param m m
+    * @param start 启动
+    * @param end 结束
+    * @param name 名称
+    * @param type 类型
      */
     private static void add(Map<String, HolidayInfo> m, String start, String end, String name, String type) {
         LocalDate s = LocalDate.parse(start);

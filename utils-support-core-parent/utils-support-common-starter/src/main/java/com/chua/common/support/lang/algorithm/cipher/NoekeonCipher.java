@@ -3,29 +3,29 @@ package com.chua.common.support.lang.algorithm.cipher;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
- * Noekeon 对称加解密 SPI 接口
- *
- * <p>基于 SPI 机制加载实现，支持 Noekeon/ECB/ZeroBytePadding 模式的加密与解密。
- * Noekeon 是一种轻量级分组密码，密钥长度固定为 16 字节（128 位）。
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 创建 Noekeon 加解密实例
- * NoekeonCipher cipher = NoekeonCipher.create("bc");
- *
- * // 加密
- * byte[] ciphertext = cipher.encrypt(key, plaintext);
- *
- * // 解密
- * byte[] decrypted = cipher.decrypt(key, ciphertext);
- *
- * // 字符串模式
- * String encryptedStr = cipher.encryptToString(key, "明文数据");
- * String decryptedStr = cipher.decryptToString(key, encryptedStr);
- * }</pre>
- *
- * @author CH
- * @since 2026/07/16
+* Noekeon 对称加解密 SPI 接口
+*
+* <p>基于 SPI 机制加载实现，支持 Noekeon/ECB/ZeroBytePadding 模式的加密与解密。
+* Noekeon 是一种轻量级分组密码，密钥长度固定为 16 字节（128 位）。
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 创建 Noekeon 加解密实例
+* NoekeonCipher cipher = NoekeonCipher.create("bc");
+*
+* // 加密
+* byte[] ciphertext = cipher.encrypt(key, plaintext);
+*
+* // 解密
+* byte[] decrypted = cipher.decrypt(key, ciphertext);
+*
+* // 字符串模式
+* String encryptedStr = cipher.encryptToString(key, "明文数据");
+* String decryptedStr = cipher.decryptToString(key, encryptedStr);
+* }</pre>
+*
+* @author CH
+* @since 2026/07/16
  */
 public interface NoekeonCipher extends Cipher {
 

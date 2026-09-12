@@ -11,10 +11,10 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-   * 飞桨 人脸特征 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* 飞桨 人脸特征 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PaddleFaceFeatureTranslator implements Translator<Image, float[]> {
 

@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
@@ -28,39 +28,39 @@ public class ReturnPageResult<T> implements Serializable {
     private boolean success;
 
     /**
-     * 的
-     *
-     * @param data 数据
-     * @return 的的结果
+    * 的
+    *
+    * @param data 数据
+    * @return 的的结果
      */
     public static <T> ReturnPageResult<T> of(PageResult<T> data) {
         return new ReturnPageResult<>(data, null, true);
     }
 
     /**
-     * Ok
-     *
-     * @param data 数据
-     * @return ok的结果
+    * Ok
+    *
+    * @param data 数据
+    * @return ok的结果
      */
     public static <T> ReturnPageResult<T> ok(PageResult<T> data) {
         return of(data);
     }
 
     /**
-     * 记录错误
-     *
-     * @param message 消息
-     * @return 错误的结果
+    * 记录错误
+    *
+    * @param message 消息
+    * @return 错误的结果
      */
     public static <T> ReturnPageResult<T> error(String message) {
         return new ReturnPageResult<T>(null, message, false);
     }
 
     /**
-     * 空
-     *
-     * @return 空的结果
+    * 空
+    *
+    * @return 空的结果
      */
     public static <T> ReturnPageResult<T> empty() {
         return new ReturnPageResult<T>(PageResult.<T>empty(), null, true);

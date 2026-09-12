@@ -29,16 +29,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * 基于 Vert.x {@link NetServer} 的 TCP 服务器实现,与 {@link JdkTcpServer} 能力对齐:
- * <ul>
- *   <li><b>回显</b>(默认):NetSocket 收到数据后原样写回(事件循环驱动,非阻塞)</li>
- *   <li><b>Handler</b>:通过 {@link #registerHandler(String, TcpHandler)} 注册,
- *       兼容 {@link JdkTcpServer.TcpHandler} 流式接口(虚拟线程执行)</li>
- *   <li><b>keep-alive</b>:连接不主动关闭,可持续读写</li>
- * </ul>
- *
- * @author CH
- * @since 2026/08/16
+* 基于 Vert.x {@link NetServer} 的 TCP 服务器实现,与 {@link JdkTcpServer} 能力对齐:
+* <ul>
+*   <li><b>回显</b>(默认):NetSocket 收到数据后原样写回(事件循环驱动,非阻塞)</li>
+*   <li><b>Handler</b>:通过 {@link #registerHandler(String, TcpHandler)} 注册,
+*       兼容 {@link JdkTcpServer.TcpHandler} 流式接口(虚拟线程执行)</li>
+*   <li><b>keep-alive</b>:连接不主动关闭,可持续读写</li>
+* </ul>
+*
+* @author CH
+* @since 2026/08/16
  */
 @Slf4j
 @Spi("vertx-tcp")
@@ -56,8 +56,8 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     private com.chua.common.support.network.tcp.callback.TcpServerHandler frameHandler;
 
     /**
-      * 创建 vertxtcp服务端 实例
-     * @param setting setting
+    * 创建 vertxtcp服务端 实例
+    * @param setting setting
      */
     public VertxTcpServer(ServerSetting setting) {
         super(setting);
@@ -149,9 +149,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-     * 处理套接字
-     *
-     * @param socket 套接字
+    * 处理套接字
+    *
+    * @param socket 套接字
      */
     private void handleSocket(NetSocket socket) {
         String clientKey = socket.remoteAddress() != null ? socket.remoteAddress().toString() : "";
@@ -208,8 +208,8 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-      * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 net套接字。
-     * @param socket 套接字
+    * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 net套接字。
+    * @param socket 套接字
      */
     private void processViaFilterChain(NetSocket socket) {
         try {
@@ -246,11 +246,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-      * 读取一帧（与 jdktcp客户端 长度帧协议对称：4 字节长度头 + scatter帧 主体）。
-     *
-     * @param in 输入流
-     * @return 完整帧字节，EOF 返回 空
-     * @param buf buf
+    * 读取一帧（与 jdktcp客户端 长度帧协议对称：4 字节长度头 + scatter帧 主体）。
+    *
+    * @param in 输入流
+    * @return 完整帧字节，EOF 返回 空
+    * @param buf buf
      /**
       * 读取帧。
       * @param in 入
@@ -258,15 +258,15 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
       */
       * @param buf buf
      /**
-      * 读取帧。
-      * @param in 入
-      * @return 读取帧的结果
+     * 读取帧。
+     * @param in 入
+     * @return 读取帧的结果
       */
       * @param buf buf
      /**
-      * 读取帧。
-      * @param in 入
-      * @return 读取帧的结果
+     * 读取帧。
+     * @param in 入
+     * @return 读取帧的结果
       */
      */
     private static byte[] readFrame(InputStream in) throws IOException {
@@ -301,10 +301,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-     * 查找处理器
-     *
-     * @param clientKey 客户端键
-     * @return find处理器的结果
+    * 查找处理器
+    *
+    * @param clientKey 客户端键
+    * @return find处理器的结果
      */
     private JdkTcpServer.TcpHandler findHandler(String clientKey) {
         JdkTcpServer.TcpHandler handler = handlers.get(clientKey);
@@ -321,11 +321,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-     * 注册 TCP 处理器(兼容 {@link JdkTcpServer.TcpHandler})。
-     *
-     * @param name   连接标识(支持 "*" 通配与地址前缀匹配)
-     * @param handler 处理器
-     * @return 当前实例
+    * 注册 TCP 处理器(兼容 {@link JdkTcpServer.TcpHandler})。
+    *
+    * @param name   连接标识(支持 "*" 通配与地址前缀匹配)
+    * @param handler 处理器
+    * @return 当前实例
      */
     public VertxTcpServer registerHandler(String name, JdkTcpServer.TcpHandler handler) {
         handlers.put(name, handler);

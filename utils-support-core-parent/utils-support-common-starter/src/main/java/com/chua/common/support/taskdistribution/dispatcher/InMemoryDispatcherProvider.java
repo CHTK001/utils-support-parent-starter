@@ -16,109 +16,109 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 内存派发提供者。
- *
- * <p>基于优先级队列和批量消费，支持取消、暂停、恢复和全局派发控制。
- * 适用于单机模式，零外部依赖。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 内存派发提供者。
+*
+* <p>基于优先级队列和批量消费，支持取消、暂停、恢复和全局派发控制。
+* 适用于单机模式，零外部依赖。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class InMemoryDispatcherProvider implements DispatcherProvider {
 
     /**
-     * 优先级队列（高优先级先出队）
+    * 优先级队列（高优先级先出队）
      */
     private final PriorityBlockingQueue<QueueEntry> queue;
 
     /**
-     * 监听器
+    * 监听器
      */
     private DispatcherListener listener;
 
     /**
-     * 消费线程池
+    * 消费线程池
      */
     private ThreadPoolExecutor executor;
 
     /**
-     * 是否运行
+    * 是否运行
      */
     private volatile boolean running;
 
     /**
-     * 是否全局暂停
+    * 是否全局暂停
      */
     private volatile boolean globallyPaused;
 
     /**
-     * 暂停的任务集合
+    * 暂停的任务集合
      */
     private final Set<String> pausedTasks = ConcurrentHashMap.newKeySet();
 
     /**
-     * 取消的任务集合
+    * 取消的任务集合
      */
     private final Set<String> cancelledTasks = ConcurrentHashMap.newKeySet();
 
     /**
-     * 任务去重器
+    * 任务去重器
      */
     private TaskDeduplicator deduplicator;
 
     /**
-     * 队列容量
+    * 队列容量
      */
     private final int capacity;
 
     /**
-     * 批量处理大小
+    * 批量处理大小
      */
     private volatile int batchSize;
 
     /**
-     * 消费线程数
+    * 消费线程数
      */
     private final int consumerThreads;
 
     /**
-     * 默认队列容量
+    * 默认队列容量
      */
     public static final int DEFAULT_CAPACITY = 1024;
 
     /**
-     * 默认批量大小
+    * 默认批量大小
      */
     private static final int DEFAULT_BATCH_SIZE = 1;
 
     /**
-     * 默认消费线程数
+    * 默认消费线程数
      */
     private static final int DEFAULT_CONSUMER_THREADS = 1;
 
     /**
-     * 构造内存派发提供者。
+    * 构造内存派发提供者。
      */
     public InMemoryDispatcherProvider() {
         this(DEFAULT_CAPACITY, DEFAULT_BATCH_SIZE, DEFAULT_CONSUMER_THREADS);
     }
 
     /**
-     * 构造内存派发提供者。
-     *
-     * @param batchSize 每次批量处理的任务数
+    * 构造内存派发提供者。
+    *
+    * @param batchSize 每次批量处理的任务数
      */
     public InMemoryDispatcherProvider(int batchSize) {
         this(DEFAULT_CAPACITY, batchSize, DEFAULT_CONSUMER_THREADS);
     }
 
     /**
-     * 构造内存派发提供者。
-     *
-     * @param capacity         队列容量
-     * @param batchSize        批量大小
-     * @param consumerThreads  消费线程数
+    * 构造内存派发提供者。
+    *
+    * @param capacity         队列容量
+    * @param batchSize        批量大小
+    * @param consumerThreads  消费线程数
      */
     public InMemoryDispatcherProvider(int capacity, int batchSize, int consumerThreads) {
         this.capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
@@ -129,9 +129,9 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     /**
-     * 启用去重。
-     *
-     * @param deduplicator 去重器
+    * 启用去重。
+    *
+    * @param deduplicator 去重器
      */
     public void enableDeduplication(TaskDeduplicator deduplicator) {
         this.deduplicator = deduplicator;
@@ -243,7 +243,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     /**
-     * 消费循环（支持批量处理）。
+    * 消费循环（支持批量处理）。
      */
     private void consume() {
         while (running) {
@@ -278,8 +278,8 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     /**
-     * 派发单条数据，跳过已取消/暂停的任务。
-     * @param entry entry
+    * 派发单条数据，跳过已取消/暂停的任务。
+    * @param entry entry
      */
     private void dispatch(QueueEntry entry) {
         if (listener == null) {
@@ -347,12 +347,12 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     /**
-     * 优先级队列条目。
-     *
-     * @param data     任务或结果
-     * @param priority 优先级
-     * @since 4.0.0.42
-     * @return 队列entry的结果
+    * 优先级队列条目。
+    *
+    * @param data     任务或结果
+    * @param priority 优先级
+    * @since 4.0.0.42
+    * @return 队列entry的结果
      */
     private record QueueEntry(Object data, TaskPriority priority) {
     }

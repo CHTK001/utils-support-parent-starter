@@ -6,20 +6,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 日志回调监听器。
- *
- * <p>内置的 {@link PipelineListener} 实现，在节点执行前后、异常时、完成时输出日志。
- * 通过 {@link com.chua.common.support.task.pipeline.builder.PipelineBuilder#logging()} 便捷注册。</p>
- *
- * <p>日志级别：</p>
- * <ul>
- *   <li>节点执行前/后 — {@link Level#FINE}</li>
- *   <li>流水线完成 — {@link Level#INFO}</li>
- *   <li>异常 — {@link Level#SEVERE}</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 日志回调监听器。
+*
+* <p>内置的 {@link PipelineListener} 实现，在节点执行前后、异常时、完成时输出日志。
+* 通过 {@link com.chua.common.support.task.pipeline.builder.PipelineBuilder#logging()} 便捷注册。</p>
+*
+* <p>日志级别：</p>
+* <ul>
+*   <li>节点执行前/后 — {@link Level#FINE}</li>
+*   <li>流水线完成 — {@link Level#INFO}</li>
+*   <li>异常 — {@link Level#SEVERE}</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class LoggingListener implements PipelineListener {
 
@@ -34,19 +34,19 @@ public class LoggingListener implements PipelineListener {
     private final Level errorLevel;
 
     /**
-     * 构造默认日志监听器。
-     * <p>节点执行前/后使用 FINE 级别，完成使用 INFO 级别，异常使用 SEVERE 级别。</p>
+    * 构造默认日志监听器。
+    * <p>节点执行前/后使用 FINE 级别，完成使用 INFO 级别，异常使用 SEVERE 级别。</p>
      */
     public LoggingListener() {
         this(Level.FINE, Level.INFO, Level.SEVERE);
     }
 
     /**
-     * 构造日志监听器，自定义日志级别。
-     *
-     * @param nodeLevel    节点执行前/后的日志级别
-     * @param completeLevel 流水线完成的日志级别
-     * @param errorLevel   异常的日志级别
+    * 构造日志监听器，自定义日志级别。
+    *
+    * @param nodeLevel    节点执行前/后的日志级别
+    * @param completeLevel 流水线完成的日志级别
+    * @param errorLevel   异常的日志级别
      */
     public LoggingListener(Level nodeLevel, Level completeLevel, Level errorLevel) {
         this.nodeLevel = nodeLevel;

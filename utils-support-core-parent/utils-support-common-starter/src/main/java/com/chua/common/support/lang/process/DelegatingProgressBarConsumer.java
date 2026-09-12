@@ -6,41 +6,41 @@ import javax.annotation.Nullable;
 
 
 /**
- * 委托进度条消费者，将进度输出委托给指定 {@link Consumer}。
- * <p>
- * 适用于自定义进度输出逻辑的场景。
- *
- * @author Alex Peelman
- * @author CH
- * @since 2024-01-01
- * @version 1.0.0
+* 委托进度条消费者，将进度输出委托给指定 {@link Consumer}。
+* <p>
+* 适用于自定义进度输出逻辑的场景。
+*
+* @author Alex Peelman
+* @author CH
+* @since 2024-01-01
+* @version 1.0.0
  */
 public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
 
     /**
-     * 最大进度显示长度
+    * 最大进度显示长度
      */
     private final int maxProgressLength;
 
     /**
-     * 委托的消费者
+    * 委托的消费者
      */
     private final Consumer<String> consumer;
 
     /**
-     *             
-     *
-     * @param consumer                   
+    *             
+    *
+    * @param consumer                   
      */
     public DelegatingProgressBarConsumer(Consumer<String> consumer) {
         this(consumer, TerminalUtils.getTerminalWidth());
     }
 
     /**
-     *             
-     *
-     * @param consumer                   
-     * @param maxProgressLength                      
+    *             
+    *
+    * @param consumer                   
+    * @param maxProgressLength                      
      */
     public DelegatingProgressBarConsumer(Consumer<String> consumer, int maxProgressLength) {
         this.maxProgressLength = maxProgressLength;
@@ -48,9 +48,9 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
     }
 
     /**
-     *                         
-     *
-     * @return                   
+    *                         
+    *
+    * @return                   
      */
     @Override
     public int getMaxRenderedLength() {
@@ -58,9 +58,9 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
     }
 
     /**
-     *                                  
-     *
-     * @param str                               
+    *                                  
+    *
+    * @param str                               
      */
     @Override
     public void accept(String str) {
@@ -68,9 +68,9 @@ public class DelegatingProgressBarConsumer implements ProgressBarConsumer {
     }
 
     /**
-     *                
-     * <p>
-     *                                           
+    *                
+    * <p>
+    *                                           
      */
     @Override
     public void close() {

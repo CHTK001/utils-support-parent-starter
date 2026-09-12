@@ -27,71 +27,71 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
-   * 默认运行时实例 — 基于 处理构建器 管理进程生命周期。
- *
- * @author CH
- * @since 4.0.0.42
+* 默认运行时实例 — 基于 处理构建器 管理进程生命周期。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultRuntimeInstance implements RuntimeInstance {
 
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(DefaultRuntimeInstance.class.getName());
     /**
-     * 健康检查超时（秒）
+    * 健康检查超时（秒）
      */
     private static final int HEALTH_TIMEOUT = 5;
 
     /**
-     * 优雅停止超时（秒）
+    * 优雅停止超时（秒）
      */
     private static final int GRACEFUL_STOP = 10;
 
     /**
-     * 强制停止超时（秒）
+    * 强制停止超时（秒）
      */
     private static final int FORCE_STOP = 5;
 
     /**
-     * 工件
+    * 工件
      */
     private final RuntimeArtifact artifact;
 
     /**
-     * 状态
+    * 状态
      */
     private final AtomicReference<RuntimeStatus> status;
 
     /**
-     * 进程
+    * 进程
      */
     private final AtomicReference<Process> processRef;
 
     /**
-     * 日志流
+    * 日志流
      */
     private final LogStream logStream;
 
     /**
-      * 退出 期货
+    * 退出 期货
      */
     private final CompletableFuture<CmdResult> onExitFuture;
 
     /**
-     * 日志线程
+    * 日志线程
      */
     private volatile Thread logThread;
 
     /**
-     * 启动时间
+    * 启动时间
      */
     private volatile long startTime;
 
     /**
-      * 创建 默认runtimeinstance 实例
-     * @param artifact artifact
+    * 创建 默认runtimeinstance 实例
+    * @param artifact artifact
      */
     public DefaultRuntimeInstance(RuntimeArtifact artifact) {
         this.artifact = artifact;
@@ -298,9 +298,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 构建命令
-     *
-     * @return 构建命令的结果
+    * 构建命令
+    *
+    * @return 构建命令的结果
      */
     private List<String> buildCommand() {
         List<String> cmd = new ArrayList<>();
@@ -333,9 +333,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 是否拥有健康校验
-     *
-     * @return 是否包含健康检查的结果
+    * 是否拥有健康校验
+    *
+    * @return 是否包含健康检查的结果
      */
     private boolean hasHealthCheck() {
         return StringUtils.isNotEmpty(artifact.getHealthCheckUrl())
@@ -343,10 +343,10 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 健康校验Http
-     *
-     * @param url url
-     * @return 健康检查http的结果
+    * 健康校验Http
+    *
+    * @param url url
+    * @return 健康检查http的结果
      */
     private CmdResult healthCheckHttp(String url) {
         try {
@@ -366,9 +366,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 开始记录日志Reader
-     *
-     * @param process 处理
+    * 开始记录日志Reader
+    *
+    * @param process 处理
      */
     private void startLogReader(Process process) {
         stopLogReader();
@@ -401,9 +401,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * waitforexit异步
-     *
-     * @param process 处理
+    * waitforexit异步
+    *
+    * @param process 处理
      */
     private void waitForExitAsync(Process process) {
         CompletableFuture.runAsync(() -> {

@@ -6,31 +6,31 @@ import java.io.File;
 import java.util.Date;
 
 /**
- * Tar 归档条目表示，封装文件/目录及其对应的 TarHeader。
- *
- * @author CH
- * @since 4.0.0.42
+* Tar 归档条目表示，封装文件/目录及其对应的 TarHeader。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Getter
 public class TarEntry {
 
 	/**
-	 * 原始文件对象。
-     * -- GETTER --
-     *  获取关联的文件对象。
+	* 原始文件对象。
+	* -- GETTER --
+	*  获取关联的文件对象。
      */
 	private File file;
 
 	/**
-	 * Tar 头信息对象。
-     * -- GETTER --
-     *  获取当前的 Tar 头信息。
+	* Tar 头信息对象。
+	* -- GETTER --
+	*  获取当前的 Tar 头信息。
 
      */
 	private TarHeader header;
 
 	/**
-	 * 私有构造函数，用于初始化默认状态。
+	* 私有构造函数，用于初始化默认状态。
 	 */
 	private TarEntry() {
 		this.file = null;
@@ -38,10 +38,10 @@ public class TarEntry {
 	}
 
 	/**
-	 * 根据文件和条目名称创建新的 Tar 条目。
-	 *
-	 * @param file      源文件对象
-	 * @param entryName 条目在归档中的名称
+	* 根据文件和条目名称创建新的 Tar 条目。
+	*
+	* @param file      源文件对象
+	* @param entryName 条目在归档中的名称
 	 */
 	public TarEntry(File file, String entryName) {
 		this();
@@ -50,9 +50,9 @@ public class TarEntry {
 	}
 
 	/**
-	 * 根据字节缓冲区解析创建 Tar 条目。
-	 *
-	 * @param headerBuf 包含 Tar 头信息的字节数组
+	* 根据字节缓冲区解析创建 Tar 条目。
+	*
+	* @param headerBuf 包含 Tar 头信息的字节数组
 	 */
 	public TarEntry(byte[] headerBuf) {
 		this();
@@ -60,11 +60,11 @@ public class TarEntry {
 	}
 
 	/**
-	 * 根据现有的 TarHeader 对象创建条目。
-	 * <p>
-	 * 此方法适用于以编程方式添加新条目（例如，添加文件系统中不存在的文件或目录）。
-	 *
-	 * @param header 现有的 Tar 头对象
+	* 根据现有的 TarHeader 对象创建条目。
+	* <p>
+	* 此方法适用于以编程方式添加新条目（例如，添加文件系统中不存在的文件或目录）。
+	*
+	* @param header 现有的 Tar 头对象
 	 */
 	public TarEntry(TarHeader header) {
 		this.file = null;
@@ -88,19 +88,19 @@ public class TarEntry {
 	}
 
 	/**
-	 * 检查当前条目是否为指定条目的后代。
-	 *
-	 * @param desc 待检查的后代条目
-	 * @return 如果是指定条目的后代返回 true
+	* 检查当前条目是否为指定条目的后代。
+	*
+	* @param desc 待检查的后代条目
+	* @return 如果是指定条目的后代返回 true
 	 */
 	public boolean isDescendent(TarEntry desc) {
 		return desc.header.name.toString().startsWith(this.header.name.toString());
 	}
 
     /**
-	 * 获取条目的完整名称（包括前缀）。
-	 *
-	 * @return 完整的条目名称字符串
+    * 获取条目的完整名称（包括前缀）。
+    *
+    * @return 完整的条目名称字符串
 	 */
 	public String getName() {
 		String name = this.header.name.toString();
@@ -111,91 +111,91 @@ public class TarEntry {
 	}
 
 	/**
-	 * 设置条目的名称。
-	 *
-	 * @param name 新的条目名称
+	* 设置条目的名称。
+	*
+	* @param name 新的条目名称
 	 */
 	public void setName(String name) {
 		this.header.name = new StringBuffer(name);
 	}
 
 	/**
-	 * 获取用户 ID。
-	 *
-	 * @return 用户 ID
+	* 获取用户 ID。
+	*
+	* @return 用户 ID
 	 */
 	public int getUserId() {
 		return this.header.userId;
 	}
 
 	/**
-	 * 设置用户 ID。
-	 *
-	 * @param userId 新的用户 ID
+	* 设置用户 ID。
+	*
+	* @param userId 新的用户 ID
 	 */
 	public void setUserId(int userId) {
 		this.header.userId = userId;
 	}
 
 	/**
-	 * 获取组 ID。
-	 *
-	 * @return 组 ID
+	* 获取组 ID。
+	*
+	* @return 组 ID
 	 */
 	public int getGroupId() {
 		return this.header.groupId;
 	}
 
 	/**
-	 * 设置组 ID。
-	 *
-	 * @param groupId 新的组 ID
+	* 设置组 ID。
+	*
+	* @param groupId 新的组 ID
 	 */
 	public void setGroupId(int groupId) {
 		this.header.groupId = groupId;
 	}
 
 	/**
-	 * 获取用户名。
-	 *
-	 * @return 用户名
+	* 获取用户名。
+	*
+	* @return 用户名
 	 */
 	public String getUserName() {
 		return this.header.userName.toString();
 	}
 
 	/**
-	 * 设置用户名。
-	 *
-	 * @param userName 新的用户名
+	* 设置用户名。
+	*
+	* @param userName 新的用户名
 	 */
 	public void setUserName(String userName) {
 		this.header.userName = new StringBuffer(userName);
 	}
 
 	/**
-	 * 获取组名。
-	 *
-	 * @return 组名
+	* 获取组名。
+	*
+	* @return 组名
 	 */
 	public String getGroupName() {
 		return this.header.groupName.toString();
 	}
 
 	/**
-	 * 设置组名。
-	 *
-	 * @param groupName 新的组名
+	* 设置组名。
+	*
+	* @param groupName 新的组名
 	 */
 	public void setGroupName(String groupName) {
 		this.header.groupName = new StringBuffer(groupName);
 	}
 
 	/**
-	 * 同时设置用户 ID 和组 ID。
-	 *
-	 * @param userId   用户 ID
-	 * @param groupId  组 ID
+	* 同时设置用户 ID 和组 ID。
+	*
+	* @param userId   用户 ID
+	* @param groupId  组 ID
 	 */
 	public void setIds(int userId, int groupId) {
 		this.setUserId(userId);
@@ -203,54 +203,54 @@ public class TarEntry {
 	}
 
 	/**
-	 * 通过毫秒时间戳设置修改时间。
-	 *
-	 * @param time 毫秒时间戳
+	* 通过毫秒时间戳设置修改时间。
+	*
+	* @param time 毫秒时间戳
 	 */
 	public void setModTime(long time) {
 		this.header.modTime = time / 1000;
 	}
 
 	/**
-	 * 通过 Date 对象设置修改时间。
-	 *
-	 * @param time Date 对象
+	* 通过 Date 对象设置修改时间。
+	*
+	* @param time Date 对象
 	 */
 	public void setModTime(Date time) {
 		this.header.modTime = time.getTime() / 1000;
 	}
 
 	/**
-	 * 获取修改时间。
-	 *
-	 * @return 修改时间的 Date 对象
+	* 获取修改时间。
+	*
+	* @return 修改时间的 Date 对象
 	 */
 	public Date getModTime() {
 		return new Date(this.header.modTime * 1000L);
 	}
 
     /**
-	 * 获取条目大小。
-	 *
-	 * @return 文件大小（字节）
+    * 获取条目大小。
+    *
+    * @return 文件大小（字节）
 	 */
 	public long getSize() {
 		return this.header.size;
 	}
 
 	/**
-	 * 设置条目大小。
-	 *
-	 * @param size 新的大小（字节）
+	* 设置条目大小。
+	*
+	* @param size 新的大小（字节）
 	 */
 	public void setSize(long size) {
 		this.header.size = size;
 	}
 
 	/**
-	 * 检查当前条目是否为目录。
-	 *
-	 * @return 如果是目录返回 true
+	* 检查当前条目是否为目录。
+	*
+	* @return 如果是目录返回 true
 	 */
 	public boolean isDirectory() {
 		if (this.file != null) {
@@ -271,9 +271,9 @@ public class TarEntry {
 	}
 
 	/**
-	 * 从文件系统提取并填充 Tar 头信息。
-	 *
-	 * @param entryName 条目名称
+	* 从文件系统提取并填充 Tar 头信息。
+	*
+	* @param entryName 条目名称
 	 */
 	public void extractTarHeader(String entryName) {
 		int permissions = PermissionUtils.permissions(this.file);
@@ -287,10 +287,10 @@ public class TarEntry {
 	}
 
 	/**
-	 * 计算校验和。
-	 *
-	 * @param buf 数据缓冲区
-	 * @return 校验和值
+	* 计算校验和。
+	*
+	* @param buf 数据缓冲区
+	* @return 校验和值
 	 */
 	public long computeCheckSum(byte[] buf) {
 		long sum = 0;
@@ -303,9 +303,9 @@ public class TarEntry {
 	}
 
 	/**
-	 * 将头信息写入字节缓冲区。
-	 *
-	 * @param outbuf 输出缓冲区
+	* 将头信息写入字节缓冲区。
+	*
+	* @param outbuf 输出缓冲区
 	 */
 	public void writeEntryHeader(byte[] outbuf) {
 		int offset = 0;
@@ -345,9 +345,9 @@ public class TarEntry {
 	}
 
 	/**
-	 * 从字节缓冲区解析 Tar 头信息。
-	 *
-	 * @param bh 包含 Tar 头信息的字节数组
+	* 从字节缓冲区解析 Tar 头信息。
+	*
+	* @param bh 包含 Tar 头信息的字节数组
 	 */
 	public void parseTarHeader(byte[] bh) {
 		int offset = 0;

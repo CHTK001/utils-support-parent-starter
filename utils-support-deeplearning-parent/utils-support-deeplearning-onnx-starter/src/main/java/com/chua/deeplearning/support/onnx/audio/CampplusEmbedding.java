@@ -15,47 +15,47 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * CAM++ 声纹嵌入提取器（中文优化，192 维）。
- *
- * <p>基于 ModelScope {@code iic/speech_campplus_sv_zh-cn_16k-common}，
- * 通过 Kaldi-style fbank 80 维特征 + CAM++ ONNX 推理生成 192 维说话人嵌入向量。</p>
- *
- * <p>模型文件 {@code audio/speaker/campplus_zh_cn_common_200k.onnx} 由 jar
- * {@code utils-support-models-onnx-sensevoice} 提供。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* CAM++ 声纹嵌入提取器（中文优化，192 维）。
+*
+* <p>基于 ModelScope {@code iic/speech_campplus_sv_zh-cn_16k-common}，
+* 通过 Kaldi-style fbank 80 维特征 + CAM++ ONNX 推理生成 192 维说话人嵌入向量。</p>
+*
+* <p>模型文件 {@code audio/speaker/campplus_zh_cn_common_200k.onnx} 由 jar
+* {@code utils-support-models-onnx-sensevoice} 提供。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class CampplusEmbedding {
 
     /**
-     * 目标采样率
+    * 目标采样率
      */
     private static final int SAMPLE_RATE = 16000;
 
     /**
-     * fbank 维数
+    * fbank 维数
      */
     private static final int FEATURE_DIM = 80;
 
     /**
-     * FFT 窗口大小
+    * FFT 窗口大小
      */
     private static final int FFT_N = 512;
 
     /**
-     * 帧长 25ms
+    * 帧长 25ms
      */
     private static final int FRAME_LEN = 400;
 
     /**
-     * 帧移 10ms
+    * 帧移 10ms
      */
     private static final int FRAME_SHIFT = 160;
 
     /**
-     * 嵌入维度
+    * 嵌入维度
      */
     private static final int EMBEDDING_DIM = 192;
 
@@ -65,9 +65,9 @@ public class CampplusEmbedding {
     private final double[][] melFilters; // mel过滤器
 
     /**
-     * campplus嵌入。
-     * @param session 会话
-     * @param env env
+    * campplus嵌入。
+    * @param session 会话
+    * @param env env
      */
     private CampplusEmbedding(OrtSession session, OrtEnvironment env) {
         this.session = session;
@@ -78,9 +78,9 @@ public class CampplusEmbedding {
     }
 
     /**
-      * 从 类路径 加载模型（自动从 JAR 解压到缓存目录）。
-     *
-     * @return CampplusEmbedding 实例
+    * 从 类路径 加载模型（自动从 JAR 解压到缓存目录）。
+    *
+    * @return CampplusEmbedding 实例
      */
     public static CampplusEmbedding load() {
         try {
@@ -121,10 +121,10 @@ public class CampplusEmbedding {
     }
 
     /**
-     * 提取声纹嵌入。
-     *
-     * @param samples 16khz 单声道 [-1,1] 浮点采样
-     * @return L2 归一化 192 维嵌入向量
+    * 提取声纹嵌入。
+    *
+    * @param samples 16khz 单声道 [-1,1] 浮点采样
+    * @return L2 归一化 192 维嵌入向量
      */
     public float[] extract(float[] samples) {
         double[][] feat80 = computeFbank80(samples);
@@ -150,19 +150,19 @@ public class CampplusEmbedding {
     }
 
     /**
-     * 获取嵌入维度。
-     *
-     * @return 192
+    * 获取嵌入维度。
+    *
+    * @return 192
      */
     public int getDimension() {
         return EMBEDDING_DIM;
     }
 
     /**
-     * Kaldi-style fbank 80 维计算
-     *
-     * @param samples 样本
-     * @return computeFbank80的结果
+    * Kaldi-style fbank 80 维计算
+    *
+    * @param samples 样本
+    * @return computeFbank80的结果
      */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
@@ -214,10 +214,10 @@ public class CampplusEmbedding {
     }
 
     /**
-     * 构建 Kaldi-style mel 滤波器组 [nfreq bins][特征_DIM mels]
-     *
-     * @param nFreq nfreq
-     * @return 构建kaldimel过滤器的结果
+    * 构建 Kaldi-style mel 滤波器组 [nfreq bins][特征_DIM mels]
+    *
+    * @param nFreq nfreq
+    * @return 构建kaldimel过滤器的结果
      */
     private static double[][] buildKaldiMelFilters(int nFreq) {
         double[][] filters = new double[nFreq][FEATURE_DIM];
@@ -260,10 +260,10 @@ public class CampplusEmbedding {
     }
 
      /**
-       * fftradix2。
-      * @param frameSamples 帧样本
-      * @param re re
-      * @param im im
+     * fftradix2。
+     * @param frameSamples 帧样本
+     * @param re re
+     * @param im im
       */
      * Radix-2 迭代 FFT
      *
@@ -302,9 +302,9 @@ public class CampplusEmbedding {
                     double ni = cr * wi + ci * wr;
                     cr = nr; ci = ni;
                 /**
-                 * 转为floatarray。
-                 * @param t t
-                 * @return 转为floatarray的结果
+                * 转为floatarray。
+                * @param t t
+                * @return 转为floatarray的结果
                  */
                 }
             }
@@ -314,8 +314,8 @@ public class CampplusEmbedding {
     private static float[] toFloatArray(ai.onnxruntime.OnnxTensor t) {
         FloatBuffer fb = t.getFloatBuffer();
         /**
-         * l2Normalize。
-         * @param v v
+        * l2Normalize。
+        * @param v v
          */
         float[] arr = new float[fb.remaining()];
         fb.get(arr);
@@ -325,10 +325,10 @@ public class CampplusEmbedding {
     private static void l2Normalize(float[] v) {
         double s = 0;
         /**
-         * hz转为mel。
-         * @param hz hz
-         * @return hz转为mel的结果
-         * @param mel mel
+        * hz转为mel。
+        * @param hz hz
+        * @return hz转为mel的结果
+        * @param mel mel
          */
         for (float x : v) {
             s += x * x;
@@ -357,10 +357,10 @@ public class CampplusEmbedding {
     }
 
         /**
-         * 将 double 矩阵拍平并转为 float 数组。
-         *
-         * @param mat mat
-         * @return flatten的结果
+        * 将 double 矩阵拍平并转为 float 数组。
+        *
+        * @param mat mat
+        * @return flatten的结果
          */
     private static float[] flatten(double[][] mat) {
         int rows = mat.length;
@@ -375,9 +375,9 @@ public class CampplusEmbedding {
     }
 
 /**
-     * 二维数组展平为一维。
- * @param mat mat
- * @return flatten的结果
+* 二维数组展平为一维。
+* @param mat mat
+* @return flatten的结果
      */
     private static float[] flatten(float[][] mat) {
         int total = 0;

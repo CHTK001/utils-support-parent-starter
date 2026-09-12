@@ -28,10 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 支付宝支付渠道实现
- *
- * @author CH
- * @since 4.0.0.42
+* 支付宝支付渠道实现
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("alipay")
@@ -48,8 +48,8 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-      * 创建 alipay提供者 实例
-     * @param config 配置
+    * 创建 alipay提供者 实例
+    * @param config 配置
      */
     public AlipayProvider(AlipayConfig config) {
         this.config = config;
@@ -75,9 +75,9 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-     * 构建客户端
-     *
-     * @return 构建客户端的结果
+    * 构建客户端
+    *
+    * @return 构建客户端的结果
      */
     private AlipayClient buildClient() {
         if (config == null) {
@@ -95,10 +95,10 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-     * app薪酬
-     *
-     * @param request 请求
-     * @return app薪酬的结果
+    * app薪酬
+    *
+    * @param request 请求
+    * @return app薪酬的结果
      */
     private PaymentResponse appPay(PaymentRequest request) {
         AlipayTradeAppPayRequest payRequest = new AlipayTradeAppPayRequest();
@@ -147,10 +147,10 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-     * wap薪酬
-     *
-     * @param request 请求
-     * @return wap薪酬的结果
+    * wap薪酬
+    *
+    * @param request 请求
+    * @return wap薪酬的结果
      */
     private PaymentResponse wapPay(PaymentRequest request) {
         AlipayTradeWapPayRequest payRequest = new AlipayTradeWapPayRequest();
@@ -190,10 +190,10 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-     * bar编码薪酬
-     *
-     * @param request 请求
-     * @return bar编码薪酬的结果
+    * bar编码薪酬
+    *
+    * @param request 请求
+    * @return bar编码薪酬的结果
      */
     private PaymentResponse barCodePay(PaymentRequest request) {
         AlipayTradePayRequest payRequest = new AlipayTradePayRequest();
@@ -234,10 +234,10 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-     * Precreate
-     *
-     * @param request 请求
-     * @return precreate的结果
+    * Precreate
+    *
+    * @param request 请求
+    * @return precreate的结果
      */
     private PaymentResponse precreate(PaymentRequest request) {
         AlipayTradePrecreateRequest payRequest = new AlipayTradePrecreateRequest();
@@ -274,10 +274,10 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-     * 设置通知Url
-     *
-     * @param payRequest 薪酬请求
-     * @param request 请求
+    * 设置通知Url
+    *
+    * @param payRequest 薪酬请求
+    * @param request 请求
      */
     private void setNotifyUrl(com.alipay.api.AlipayRequest<?> payRequest, PaymentRequest request) {
         if (config != null && config.getNotifyUrl() != null) {
@@ -289,10 +289,10 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-     * 转为urlstr
-     *
-     * @param params 参数
-     * @return 转为urlstr的结果
+    * 转为urlstr
+    *
+    * @param params 参数
+    * @return 转为urlstr的结果
      */
     private static String toUrlStr(Map<String, String> params) {
         if (params == null || params.isEmpty()) {

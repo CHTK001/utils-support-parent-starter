@@ -11,29 +11,29 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * 图像上色 Translator（灰度 → 彩色）。
- * <p>
- * 简化版：将输入转为灰度单通道并 resize 到 256，输出彩色图。
-   * 适用于常见 Colorization torchscript 模型。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 图像上色 Translator（灰度 → 彩色）。
+* <p>
+* 简化版：将输入转为灰度单通道并 resize 到 256，输出彩色图。
+* 适用于常见 Colorization torchscript 模型。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ColorizationTranslator implements Translator<Image, Image> {
 
     /**
-     * 模型输入尺寸。
+    * 模型输入尺寸。
      */
     private static final int SIZE = 256;
 
     /**
-     * 原图宽。
+    * 原图宽。
      */
     private int width;
 
     /**
-     * 原图高。
+    * 原图高。
      */
     private int height;
 

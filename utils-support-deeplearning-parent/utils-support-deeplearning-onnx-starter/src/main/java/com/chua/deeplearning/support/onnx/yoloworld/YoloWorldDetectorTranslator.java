@@ -27,15 +27,15 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
-   * YOLO-World zero-shot detector with 打开-vocabulary 支持.
- * 
- * <p>Uses ClipTextFeatureTranslator to generate CLIP text embeddings at runtime.</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param raw raw
- * @return 解析类的结果
- * @param ctx ctx
+* YOLO-World zero-shot detector with 打开-vocabulary 支持.
+* 
+* <p>Uses ClipTextFeatureTranslator to generate CLIP text embeddings at runtime.</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param raw raw
+* @return 解析类的结果
+* @param ctx ctx
  */
 @Slf4j
 public class YoloWorldDetectorTranslator implements Translator<Image, DetectedObjects> {
@@ -64,15 +64,15 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     private final double nmsThreshold; // nms阈值
     private final int inputSize; // 输入大小
     /**
-      * yoloworlddetectortranslator。
+    * yoloworlddetectortranslator。
      */
     
     private ClipTextFeatureTranslator clipTextTranslator; // clip文本translator
 /**
-   * yoloworlddetectortranslator。
- * @param config 配置
- * @param raw raw
- * @return 解析类的结果
+* yoloworlddetectortranslator。
+* @param config 配置
+* @param raw raw
+* @return 解析类的结果
  /**
    * YoloWorldDetectorTranslator。
   */
@@ -114,10 +114,10 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-      * Generate CLIP 文本 嵌入 for the given 类.
-     * @param ctx ctx
-     * @param classes 类
-     * @return generate文本嵌入的结果
+    * Generate CLIP 文本 嵌入 for the given 类.
+    * @param ctx ctx
+    * @param classes 类
+    * @return generate文本嵌入的结果
      */
     private NDArray generateTextEmbeddings(TranslatorContext ctx, List<String> classes) throws Exception {
         NDManager manager = ctx.getNDManager();
@@ -260,9 +260,9 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-     * 构建习俗标签。
-     * @param numClasses num类
-     * @return 构建习俗标签的结果
+    * 构建习俗标签。
+    * @param numClasses num类
+    * @return 构建习俗标签的结果
      */
     private String[] buildCustomLabels(int numClasses) {
         String[] labels = new String[Math.max(numClasses, customClasses.size())];
@@ -314,11 +314,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-     * letterbox。
-     * @param src src
-     * @param tw tw
-     * @param th th
-     * @return letterbox的结果
+    * letterbox。
+    * @param src src
+    * @param tw tw
+    * @param th th
+    * @return letterbox的结果
      */
     private BufferedImage letterbox(BufferedImage src, int tw, int th) {
         int sw = src.getWidth(), sh = src.getHeight();
@@ -337,10 +337,10 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-     * 读取参数。
-     * @param args 参数
-     * @param key 键
-     * @return 读取参数的结果
+    * 读取参数。
+    * @param args 参数
+    * @param key 键
+    * @return 读取参数的结果
      */
     private static String readArgument(Map<String, ?> args, String key) {
         if (args == null || args.isEmpty()) {
@@ -350,11 +350,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return v == null ? null : String.valueOf(v);
     }
     /**
-     * 读取double。
-     * @param args 参数
-     * @param key 键
-     * @param d d
-     * @return 读取double的结果
+    * 读取double。
+    * @param args 参数
+    * @param key 键
+    * @param d d
+    * @return 读取double的结果
      */
     private static double readDouble(Map<String, ?> args, String key, double d) {
         String v = readArgument(args, key);
@@ -364,11 +364,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         try { return Double.parseDouble(v.trim()); } catch (Exception e) { return d; }
     }
     /**
-     * 读取int。
-     * @param args 参数
-     * @param key 键
-     * @param d d
-     * @return 读取int的结果
+    * 读取int。
+    * @param args 参数
+    * @param key 键
+    * @param d d
+    * @return 读取int的结果
      */
     private static int readInt(Map<String, ?> args, String key, int d) {
         String v = readArgument(args, key);

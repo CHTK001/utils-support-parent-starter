@@ -43,40 +43,40 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Tablesaw 数据引擎实现，基于 Tablesaw 数据处理引擎提供文件数据源的 ORM 查询能力。
- * <p>
-   * 通过 {@link #load(String, String)} 加载 CSV 文件，使用 lambda查询包装器 / lambda更新包装器
- * 提供标准的 Engine ORM 接口，完整支持条件过滤、排序、分页等功能。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Tablesaw 数据引擎实现，基于 Tablesaw 数据处理引擎提供文件数据源的 ORM 查询能力。
+* <p>
+* 通过 {@link #load(String, String)} 加载 CSV 文件，使用 lambda查询包装器 / lambda更新包装器
+* 提供标准的 Engine ORM 接口，完整支持条件过滤、排序、分页等功能。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("tablesaw")
 public class TablesawEngine implements Engine {
 
     /**
-     * Tablesaw 表格数据存储映射表
-     * <p>
-      * 键 为数据源名称或表名，值 为对应的 Tablesaw Table 对象。
-     * </p>
+    * Tablesaw 表格数据存储映射表
+    * <p>
+    * 键 为数据源名称或表名，值 为对应的 Tablesaw Table 对象。
+    * </p>
      */
     private final Map<String, Table> tables = new ConcurrentHashMap<>();
 
     /**
-     * 引擎数据源映射表
-     * <p>
-     * 存储所有通过 {@link #addDataSource(String, EngineDataSource)} 注册的数据源。
-     * </p>
+    * 引擎数据源映射表
+    * <p>
+    * 存储所有通过 {@link #addDataSource(String, EngineDataSource)} 注册的数据源。
+    * </p>
      */
     private final Map<String, EngineDataSource<Object>> dataSources = new ConcurrentHashMap<>();
 
     /**
-     * 默认数据源名称
-     * <p>
-     * 当未指定数据源名称时，使用此名称对应的数据源进行操作。
-     * </p>
+    * 默认数据源名称
+    * <p>
+    * 当未指定数据源名称时，使用此名称对应的数据源进行操作。
+    * </p>
      */
     private String defaultDataSourceName;
 
@@ -98,9 +98,9 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 获取默认数据源名称。
-     *
-     * @return 默认数据源名称
+    * 获取默认数据源名称。
+    *
+    * @return 默认数据源名称
      */
     @Override
     public String getDefaultDataSourceName() {
@@ -151,23 +151,23 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 加载 CSV 文件到指定名称的数据源
-     *
-     * @param name    数据源名称
-     * @param csvPath CSV 文件路径
-     * @return 当前引擎实例，支持链式调用
+    * 加载 CSV 文件到指定名称的数据源
+    *
+    * @param name    数据源名称
+    * @param csvPath CSV 文件路径
+    * @return 当前引擎实例，支持链式调用
      */
     public TablesawEngine load(String name, String csvPath) {
         return load(name, csvPath, null);
     }
 
     /**
-     * 加载指定编码的 CSV 文件到数据源
-     *
-     * @param name    数据源名称
-     * @param csvPath CSV 文件路径
-     * @param charset 文件编码（如 UTF-8、GBK），为 空 时使用系统默认编码
-     * @return 当前引擎实例，支持链式调用
+    * 加载指定编码的 CSV 文件到数据源
+    *
+    * @param name    数据源名称
+    * @param csvPath CSV 文件路径
+    * @param charset 文件编码（如 UTF-8、GBK），为 空 时使用系统默认编码
+    * @return 当前引擎实例，支持链式调用
      */
     public TablesawEngine load(String name, String csvPath, String charset) {
         try {
@@ -193,11 +193,11 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 从输入流加载 CSV 数据到数据源
-     *
-     * @param name        数据源名称
-     * @param inputStream CSV 数据输入流
-     * @return 当前引擎实例，支持链式调用
+    * 从输入流加载 CSV 数据到数据源
+    *
+    * @param name        数据源名称
+    * @param inputStream CSV 数据输入流
+    * @return 当前引擎实例，支持链式调用
      */
     public TablesawEngine load(String name, InputStream inputStream) {
         try {
@@ -214,28 +214,28 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 获取指定名称的 Tablesaw 表格
-     *
-     * @param name 表名或数据源名称
-     * @return Tablesaw Table 对象，不存在则返回 空
+    * 获取指定名称的 Tablesaw 表格
+    *
+    * @param name 表名或数据源名称
+    * @return Tablesaw Table 对象，不存在则返回 空
      */
     public Table getTable(String name) {
         return tables.get(name);
     }
 
     /**
-     * 获取默认 Tablesaw 表格
-     *
-     * @return 默认的 Tablesaw Table 对象
+    * 获取默认 Tablesaw 表格
+    *
+    * @return 默认的 Tablesaw Table 对象
      */
     public Table getTable() {
         return tables.get(defaultDataSourceName);
     }
 
     /**
-     * 获取所有已加载的表名
-     *
-     * @return 表名集合
+    * 获取所有已加载的表名
+    *
+    * @return 表名集合
      */
     public Set<String> tableNames() {
         return tables.keySet();
@@ -354,13 +354,13 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 解析 Lambda 表达式中的方法引用为属性名
-     * <p>
-     * 例如 {@code User::getName} 解析为 {@code "name"}。
-     * </p>
-     *
-     * @param column Lambda 方法引用
-     * @return 属性名字符串，解析失败返回 空
+    * 解析 Lambda 表达式中的方法引用为属性名
+    * <p>
+    * 例如 {@code User::getName} 解析为 {@code "name"}。
+    * </p>
+    *
+    * @param column Lambda 方法引用
+    * @return 属性名字符串，解析失败返回 空
      */
     private String resolveLambdaColumn(SFunction<?, ?> column) {
         if (column == null) {
@@ -389,14 +389,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 执行查询操作
-     * <p>
-     * 先加载全部数据，然后根据条件过滤，最后排序。
-     * </p>
-     *
-     * @param wrapper 查询包装器
-     * @param <T>     实体类型
-     * @return 查询结果列表
+    * 执行查询操作
+    * <p>
+    * 先加载全部数据，然后根据条件过滤，最后排序。
+    * </p>
+    *
+    * @param wrapper 查询包装器
+    * @param <T>     实体类型
+    * @return 查询结果列表
      */
     @SuppressWarnings("unchecked")
     private <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper) {
@@ -433,16 +433,16 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 比较两个对象在指定字段上的大小
-     * <p>
-      * 支持多字段排序，按 订单bys 列表顺序逐字段比较。
-     * </p>
-     *
-     * @param a        对象 A
-     * @param b        对象 B
-     * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
-     * @param <T>      对象类型
-     * @return 负数表示 a < b，正数表示 a > b，相等返回 0
+    * 比较两个对象在指定字段上的大小
+    * <p>
+    * 支持多字段排序，按 订单bys 列表顺序逐字段比较。
+    * </p>
+    *
+    * @param a        对象 A
+    * @param b        对象 B
+    * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
+    * @param <T>      对象类型
+    * @return 负数表示 a < b，正数表示 a > b，相等返回 0
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> int compareOrdered(T a, T b, List<String> orderBys) {
@@ -472,14 +472,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 将条件列表转换为 Predicate
-     * <p>
-      * 多个条件之间为 和 关系。
-     * </p>
-     *
-     * @param conditions 条件列表
-     * @param <T>        实体类型
-     * @return 组合后的 Predicate
+    * 将条件列表转换为 Predicate
+    * <p>
+    * 多个条件之间为 和 关系。
+    * </p>
+    *
+    * @param conditions 条件列表
+    * @param <T>        实体类型
+    * @return 组合后的 Predicate
      */
     private <T> Predicate<T> conditionsToPredicate(List<Condition> conditions) {
         if (CollectionUtils.isEmpty(conditions)) {
@@ -493,14 +493,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 将单个条件转换为 Predicate
-     * <p>
-      * 支持嵌套条件（和/或 逻辑组合）。
-     * </p>
-     *
-     * @param c   条件对象
-     * @param <T> 实体类型
-     * @return 对应的 Predicate
+    * 将单个条件转换为 Predicate
+    * <p>
+    * 支持嵌套条件（和/或 逻辑组合）。
+    * </p>
+    *
+    * @param c   条件对象
+    * @param <T> 实体类型
+    * @return 对应的 Predicate
      */
     @SuppressWarnings("unchecked")
     private <T> Predicate<T> conditionToPredicate(Condition c) {
@@ -524,15 +524,15 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 计算属性值与操作数的匹配结果
-     * <p>
-      * 支持的操作符：=, !=, >, >=, <, <=, LIKE, NOT LIKE, 入, NOT 入, 是否 空, 是否 NOT 空, BETWEEN。
-     * </p>
-     *
-     * @param prop 属性值
-     * @param op   操作符
-     * @param val  操作数值
-     * @return 匹配结果
+    * 计算属性值与操作数的匹配结果
+    * <p>
+    * 支持的操作符：=, !=, >, >=, <, <=, LIKE, NOT LIKE, 入, NOT 入, 是否 空, 是否 NOT 空, BETWEEN。
+    * </p>
+    *
+    * @param prop 属性值
+    * @param op   操作符
+    * @param val  操作数值
+    * @return 匹配结果
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean evaluate(Object prop, String op, Object val) {
@@ -623,14 +623,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 判断两个值是否相等
-     * <p>
-      * 对 数字 类型使用 double 值比较，其他类型使用 转为字符串 兜底。
-     * </p>
-     *
-     * @param prop 属性值
-     * @param val  目标值
-     * @return 是否相等
+    * 判断两个值是否相等
+    * <p>
+    * 对 数字 类型使用 double 值比较，其他类型使用 转为字符串 兜底。
+    * </p>
+    *
+    * @param prop 属性值
+    * @param val  目标值
+    * @return 是否相等
      */
     private boolean eq(Object prop, Object val) {
         if (prop == null) {
@@ -649,14 +649,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * LIKE 模糊匹配
-     * <p>
-     * 支持 % 通配符：%xxx（结尾匹配）、xxx%（开头匹配）、%xxx%（包含匹配）。
-     * </p>
-     *
-     * @param prop    属性值字符串
-     * @param pattern 匹配模式
-     * @return 是否匹配
+    * LIKE 模糊匹配
+    * <p>
+    * 支持 % 通配符：%xxx（结尾匹配）、xxx%（开头匹配）、%xxx%（包含匹配）。
+    * </p>
+    *
+    * @param prop    属性值字符串
+    * @param pattern 匹配模式
+    * @return 是否匹配
      */
     private boolean likeMatch(String prop, String pattern) {
         String p = pattern.replace("%", "").toLowerCase();
@@ -673,13 +673,13 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 执行分页查询
-     *
-     * @param wrapper  查询包装器
-     * @param pageNum  页码（从 1 开始）
-     * @param pageSize 每页大小
-     * @param <T>      实体类型
-     * @return 分页结果
+    * 执行分页查询
+    *
+    * @param wrapper  查询包装器
+    * @param pageNum  页码（从 1 开始）
+    * @param pageSize 每页大小
+    * @param <T>      实体类型
+    * @return 分页结果
      */
     private <T> Page<T> executePage(LambdaQueryWrapper<T> wrapper, int pageNum, int pageSize) {
         List<T> all = executeQuery(wrapper);
@@ -696,13 +696,13 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 根据实体类型解析对应的 Tablesaw 表格
-     * <p>
-     * 优先查找表名匹配的表格，其次使用默认表格。
-     * </p>
-     *
-     * @param entityClass 实体类类型
-     * @return Tablesaw Table 对象，未找到返回 空
+    * 根据实体类型解析对应的 Tablesaw 表格
+    * <p>
+    * 优先查找表名匹配的表格，其次使用默认表格。
+    * </p>
+    *
+    * @param entityClass 实体类类型
+    * @return Tablesaw Table 对象，未找到返回 空
      */
     private Table resolveTable(Class<?> entityClass) {
         String name = getTableName(entityClass);
@@ -714,14 +714,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 将 Tablesaw 行数据转换为实体对象
-     *
-     * @param row         Tablesaw 行数据
-     * @param entityClass 实体类类型
-     * @param setters     setter 方法映射表
-     * @param columnNames 列名列表
-     * @param <T>         实体类型
-     * @return 实体对象
+    * 将 Tablesaw 行数据转换为实体对象
+    *
+    * @param row         Tablesaw 行数据
+    * @param entityClass 实体类类型
+    * @param setters     setter 方法映射表
+    * @param columnNames 列名列表
+    * @param <T>         实体类型
+    * @return 实体对象
      */
     private <T> T rowToEntity(
             Row row,
@@ -747,12 +747,12 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 从 Tablesaw 行中获取指定列的值并转换类型
-     *
-     * @param row        Tablesaw 行数据
-     * @param column     列名
-     * @param targetType 目标类型
-     * @return 转换后的值
+    * 从 Tablesaw 行中获取指定列的值并转换类型
+    *
+    * @param row        Tablesaw 行数据
+    * @param column     列名
+    * @param targetType 目标类型
+    * @return 转换后的值
      */
     private static Object getRowValue(Row row, String column, Class<?> targetType) {
         if (row.isMissing(column)) {
@@ -797,14 +797,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 解析实体类的 setter 方法映射
-     * <p>
-     * 根据 CSV 列名匹配对应实体类的 setter 方法，列名不区分大小写。
-     * </p>
-     *
-     * @param entityClass 实体类类型
-     * @param columnNames 列名列表
-     * @return 列名小写到 setter 方法的映射表
+    * 解析实体类的 setter 方法映射
+    * <p>
+    * 根据 CSV 列名匹配对应实体类的 setter 方法，列名不区分大小写。
+    * </p>
+    *
+    * @param entityClass 实体类类型
+    * @param columnNames 列名列表
+    * @return 列名小写到 setter 方法的映射表
      */
     private static Map<String, Method> resolveSetters(Class<?> entityClass, List<String> columnNames) {
         Map<String, Method> setters = new HashMap<>();
@@ -830,13 +830,13 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 将实体类名转换为表名
-     * <p>
-     * 驼峰命名转换为下划线命名，例如 {@code UserInfo} 转换为 {@code user_info}。
-     * </p>
-     *
-     * @param entityClass 实体类类型
-     * @return 转换后的表名
+    * 将实体类名转换为表名
+    * <p>
+    * 驼峰命名转换为下划线命名，例如 {@code UserInfo} 转换为 {@code user_info}。
+    * </p>
+    *
+    * @param entityClass 实体类类型
+    * @return 转换后的表名
      */
     private static String getTableName(Class<?> entityClass) {
         String simpleName = entityClass.getSimpleName();
@@ -851,14 +851,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-     * 通过反射获取对象属性值
-     * <p>
-      * 优先尝试 获取xxx() 方法，其次尝试 是否xxx() 方法（适用于 布尔值 类型字段）。
-     * </p>
-     *
-     * @param bean  对象实例
-     * @param field 字段名
-     * @return 属性值，获取失败返回 空
+    * 通过反射获取对象属性值
+    * <p>
+    * 优先尝试 获取xxx() 方法，其次尝试 是否xxx() 方法（适用于 布尔值 类型字段）。
+    * </p>
+    *
+    * @param bean  对象实例
+    * @param field 字段名
+    * @return 属性值，获取失败返回 空
      */
     private static Object getPropertyValue(Object bean, String field) {
         try {

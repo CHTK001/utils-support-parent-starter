@@ -1,15 +1,15 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * MQTT 控制包协议还原器。
- *
- * <p>MQTT v3.1.1 / v5 固定头部：byte 0 = (PacketType << 4 | Flags)。
-   * 数据包类型：1=连接, 2=CONNACK, 3=发布, 4=PUBACK, 5=PUBREC, 6=PUBREL,
-   * 7=PUBCOMP, 8=订阅, 9=SUBACK, 10=UNSUBSCRIBE, 11=UNSUBACK, 12=PINGREQ,
-   * 13=PINGRESP, 14=断开连接, 15=认证。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* MQTT 控制包协议还原器。
+*
+* <p>MQTT v3.1.1 / v5 固定头部：byte 0 = (PacketType << 4 | Flags)。
+* 数据包类型：1=连接, 2=CONNACK, 3=发布, 4=PUBACK, 5=PUBREC, 6=PUBREL,
+* 7=PUBCOMP, 8=订阅, 9=SUBACK, 10=UNSUBSCRIBE, 11=UNSUBACK, 12=PINGREQ,
+* 13=PINGRESP, 14=断开连接, 15=认证。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class MqttProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -102,10 +102,10 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为数据包类型名称
-     *
-     * @param type 类型
-     * @return 转为数据包类型名称的结果
+    * 转为数据包类型名称
+    *
+    * @param type 类型
+    * @return 转为数据包类型名称的结果
      */
     private static String toPacketTypeName(int type) {
         return switch (type) {

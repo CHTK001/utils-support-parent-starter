@@ -10,19 +10,19 @@ import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
- * 微笑检测器，检测图像中是否存在微笑表情。
- *
- * @author CH
- * @since 4.0.0.42
+* 微笑检测器，检测图像中是否存在微笑表情。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public interface SmileDetector {
 
     /**
-      * 通过 SPI 创建实例（提供者="onnx" 等）。
-     *
-     * @param provider 提供者 名称
-     * @param apiKey   API 密钥（本地引擎可空）
-     * @return 实例
+    * 通过 SPI 创建实例（提供者="onnx" 等）。
+    *
+    * @param provider 提供者 名称
+    * @param apiKey   API 密钥（本地引擎可空）
+    * @return 实例
      */
     static SmileDetector create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(SmileDetector.class)
@@ -30,20 +30,20 @@ public interface SmileDetector {
     }
 
     /**
-      * 设置 提供者。
-     *
-     * @param provider 提供者 名称
-     * @return this
+    * 设置 提供者。
+    *
+    * @param provider 提供者 名称
+    * @return this
      */
     default SmileDetector provider(String provider) {
         return this;
     }
 
     /**
-     * 设置模型名称。
-     *
-     * @param model 模型名称
-     * @return this
+    * 设置模型名称。
+    *
+    * @param model 模型名称
+    * @return this
      */
     default SmileDetector model(String model) {
         return this;
@@ -51,22 +51,22 @@ public interface SmileDetector {
 
 
     /**
-     * 创建微笑检测器。
-     *
-     * @param name 模型名称
-     * @return 检测器
+    * 创建微笑检测器。
+    *
+    * @param name 模型名称
+    * @return 检测器
      */
     static SmileDetector create(String name) {
         return new DefaultSmileDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
 
     /**
-     * 查询该能力下全部可用模型。
-     *
-     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
-     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
-     *
-     * @return 模型 标识 列表
+    * 查询该能力下全部可用模型。
+    *
+    * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+    * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
+    *
+    * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.SmileDetector.class);
@@ -74,45 +74,45 @@ public interface SmileDetector {
 
 
     /**
-     * 创建微笑检测器。
-     *
-     * @param name    模型名称
-     * @param setting 模型配置
-     * @return 检测器
+    * 创建微笑检测器。
+    *
+    * @param name    模型名称
+    * @param setting 模型配置
+    * @return 检测器
      */
     static SmileDetector create(String name, ModelSetting setting) {
         return new DefaultSmileDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
 
     /**
-     * 设置模型路径。
-     *
-     * @param path 路径
-     * @return this
+    * 设置模型路径。
+    *
+    * @param path 路径
+    * @return this
      */
     SmileDetector modelPath(String path);
 
     /**
-     * 设置运行设备。
-     *
-     * @param device 设备
-     * @return this
+    * 设置运行设备。
+    *
+    * @param device 设备
+    * @return this
      */
     SmileDetector device(String device);
 
     /**
-     * 检测微笑区域。
-     *
-     * @param imageData 图像字节数组
-     * @return 微笑框列表
+    * 检测微笑区域。
+    *
+    * @param imageData 图像字节数组
+    * @return 微笑框列表
      */
     List<PredictRectangle> detect(byte[] imageData);
 
     /**
-     * 是否检测到微笑。
-     *
-     * @param imageData 图像字节数组
-     * @return true 表示微笑
+    * 是否检测到微笑。
+    *
+    * @param imageData 图像字节数组
+    * @return true 表示微笑
      */
     default boolean isSmiling(byte[] imageData) {
         return !detect(imageData).isEmpty();
@@ -120,51 +120,51 @@ public interface SmileDetector {
 }
 
 /**
- * 默认微笑检测器实现。
- *
- * @author CH
- * @since 4.0.0.42
+* 默认微笑检测器实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 class DefaultSmileDetector implements SmileDetector {
 
     /**
-     * 默认运行设备（CPU）。
+    * 默认运行设备（CPU）。
      */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
-     * 识别引擎。
+    * 识别引擎。
      */
     private final IdentificationEngine engine;
 
     /**
-     * 模型名称。
+    * 模型名称。
      */
     private final String modelName;
 
     /**
-     * 模型配置。
+    * 模型配置。
      */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
-     * 模型路径。
+    * 模型路径。
      */
     private String modelPath;
 
     /**
-     * 运行设备。
+    * 运行设备。
      */
     private String device = DEFAULT_DEVICE;
 
     /**
-     * 构造默认微笑检测器。
-     *
-     * @param engine    识别引擎
-     * @param modelName 模型名称
-     * @param setting   模型配置
+    * 构造默认微笑检测器。
+    *
+    * @param engine    识别引擎
+    * @param modelName 模型名称
+    * @param setting   模型配置
      */
     DefaultSmileDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
@@ -195,10 +195,10 @@ class DefaultSmileDetector implements SmileDetector {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * Detect
-     *
-     * @param imageData 镜像数据
-     * @return detect的结果
+    * Detect
+    *
+    * @param imageData 镜像数据
+    * @return detect的结果
      */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =

@@ -9,17 +9,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 /**
- * JDBC 格式 WAL 文件系统实现。
-   * payload: int32 col数量 + [int32 名称len + 名称 + int32 vallen + val]...
- * @author CH
- * @since 4.0.0
+* JDBC 格式 WAL 文件系统实现。
+* payload: int32 col数量 + [int32 名称len + 名称 + int32 vallen + val]...
+* @author CH
+* @since 4.0.0
  */
 @Spi("wal-jdbc")
 public class JdbcWalFileSystem extends AbstractWalFileSystem {
 
     /**
-     * jdbcwal文件系统。
-     * @param config 配置
+    * jdbcwal文件系统。
+    * @param config 配置
      */
     public JdbcWalFileSystem(WalStoreConfig config) throws IOException {
         super(config);
@@ -50,10 +50,10 @@ public class JdbcWalFileSystem extends AbstractWalFileSystem {
     }
 
     /**
-     * encode。
-     * @param colCount col数量
-     * @param colsAndVals cols和vals
-     * @return encode的结果
+    * encode。
+    * @param colCount col数量
+    * @param colsAndVals cols和vals
+    * @return encode的结果
      */
     public static byte[] encode(int colCount, String... colsAndVals) {
         ByteBuffer bb = ByteBuffer.allocate(64);

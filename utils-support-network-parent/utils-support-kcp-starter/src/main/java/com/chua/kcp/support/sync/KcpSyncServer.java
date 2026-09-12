@@ -14,31 +14,31 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * KCP 同步服务端实现，基于 kcp-Netty 提供可靠 UDP 长连接双向同步能力。
- *
- * <p>委托给 {@link KcpServer} 处理底层 KCP 通信与消息分发，
- * 通过 SPI 以 {@code "kcp"} 类型注册，与 {@link KcpSyncClient} 配对使用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* KCP 同步服务端实现，基于 kcp-Netty 提供可靠 UDP 长连接双向同步能力。
+*
+* <p>委托给 {@link KcpServer} 处理底层 KCP 通信与消息分发，
+* 通过 SPI 以 {@code "kcp"} 类型注册，与 {@link KcpSyncClient} 配对使用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("kcp")
 public class KcpSyncServer extends AbstractServer implements SyncServer, SyncProtocol {
 
     /**
-     * 默认客户端连接地址
+    * 默认客户端连接地址
      */
     private static final String DEFAULT_URL = "kcp://127.0.0.1:19380";
 
     /**
-     * 底层 KCP 消息服务器
+    * 底层 KCP 消息服务器
      */
     private final KcpServer delegate;
 
     /**
-     * 创建 KCP 同步服务端。
-     *
-     * @param setting 服务端配置
+    * 创建 KCP 同步服务端。
+    *
+    * @param setting 服务端配置
      */
     public KcpSyncServer(ServerSetting setting) {
         super(setting);

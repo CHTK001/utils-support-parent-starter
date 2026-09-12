@@ -21,180 +21,180 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Small Stable Diffusion v0 文生图全流程编排（文本编码 → CFG 引导 DDIM 去噪 → VAE 解码）。
- *
- * <p><b>原生 ORT 实现</b>：三个阶段均通过 ai.onnxruntime 原生会话执行，
- * 不经过 DJL 模型包装——规避该导出版本文本编码器输出 uint32 张量、
-   * DJL ndarray 不支持的问题；文本编码阶段仅请求 fp32 输出。</p>
- *
- * <p>设备策略：跟随 {@link DeviceSelector}——auto 模式探测到可用 GPU 时
- * 各会话启用 CUDA EP，任一会话初始化失败自动整体降级 CPU（粘性）。
- * 权重与 tokenizer.json 缺失时自动下载（hf-mirror.com 镜像优先）。</p>
- *
- * <p>采样：DDIM η=0（scaled_linear β ∈ [0.00085, 0.012]，1000 训练步）；
- * CFG 默认 7.5。可调系统属性：{@code small.sd.steps}、{@code small.sd.guidance}、
- * {@code small.sd.seed}、{@code small.sd.width}、{@code small.sd.height}、
- * {@code deeplearning.device}。</p>
- *
- * <p>权重来源：{@code subpixel/small-stable-diffusion-v0-onnx-ort-web}
-   * （OFA-Sys/small-st-diffusion-v0 的 ONNX 转换；unet 权重外置 权重.pb）。
- *
- * @author CH
- * @since 4.0.0.42
+* Small Stable Diffusion v0 文生图全流程编排（文本编码 → CFG 引导 DDIM 去噪 → VAE 解码）。
+*
+* <p><b>原生 ORT 实现</b>：三个阶段均通过 ai.onnxruntime 原生会话执行，
+* 不经过 DJL 模型包装——规避该导出版本文本编码器输出 uint32 张量、
+* DJL ndarray 不支持的问题；文本编码阶段仅请求 fp32 输出。</p>
+*
+* <p>设备策略：跟随 {@link DeviceSelector}——auto 模式探测到可用 GPU 时
+* 各会话启用 CUDA EP，任一会话初始化失败自动整体降级 CPU（粘性）。
+* 权重与 tokenizer.json 缺失时自动下载（hf-mirror.com 镜像优先）。</p>
+*
+* <p>采样：DDIM η=0（scaled_linear β ∈ [0.00085, 0.012]，1000 训练步）；
+* CFG 默认 7.5。可调系统属性：{@code small.sd.steps}、{@code small.sd.guidance}、
+* {@code small.sd.seed}、{@code small.sd.width}、{@code small.sd.height}、
+* {@code deeplearning.device}。</p>
+*
+* <p>权重来源：{@code subpixel/small-stable-diffusion-v0-onnx-ort-web}
+* （OFA-Sys/small-st-diffusion-v0 的 ONNX 转换；unet 权重外置 权重.pb）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SmallStableDiffusionCombinedTranslator implements ITranslator<Object, Object>, AutoCloseable {
 
     /**
-     * 模型标识（与注册表一致）
+    * 模型标识（与注册表一致）
      */
     public static final String MODEL_ID = "small-stable-diffusion-combined";
 
     /**
-     * CLIP 序列长度
+    * CLIP 序列长度
      */
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
-      * CLIP 填充 令牌 标识（&lt;|endoftext|&gt;）
+    * CLIP 填充 令牌 标识（&lt;|endoftext|&gt;）
      */
     private static final long PAD_TOKEN_ID = 49407L;
 
     /**
-     * latent 通道数
+    * latent 通道数
      */
     private static final int LATENT_CHANNELS = 4;
 
     /**
-     * VAE 缩放因子
+    * VAE 缩放因子
      */
     private static final float VAE_SCALE_FACTOR = 0.18215f;
 
     /**
-     * 训练总扩散步数
+    * 训练总扩散步数
      */
     private static final int TRAIN_TIMESTEPS = 1000;
 
     /**
-      * 权重仓库基础地址（huggingface）
+    * 权重仓库基础地址（huggingface）
      */
     private static final String HF_BASE =
             "https://huggingface.co/nmkd/stable-diffusion-1.5-onnx/resolve/main";
 
     /**
-      * CLIP tokenizer.json 来源（各 打开AI CLIP 变体共享同一 BPE 词表）
+    * CLIP tokenizer.json 来源（各 打开AI CLIP 变体共享同一 BPE 词表）
      */
     private static final String TOKENIZER_URL =
             "https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/main/tokenizer.json";
 
     /**
-     * 图像宽度
+    * 图像宽度
      */
     private final int width;
 
     /**
-     * 图像高度
+    * 图像高度
      */
     private final int height;
 
     /**
-     * 去噪步数
+    * 去噪步数
      */
     private final int numInferenceSteps;
 
     /**
-     * CFG 引导系数
+    * CFG 引导系数
      */
     private final double guidanceScale;
 
     /**
-     * 随机源
+    * 随机源
      */
     private final Random random;
 
     /**
-     * α̅ 查找表（cumprod(1-β)），长度 1000
+    * α̅ 查找表（cumprod(1-β)），长度 1000
      */
     private final double[] alphasCumprod;
 
     /**
-     * 负面提示词
+    * 负面提示词
      */
     private volatile String negative = System.getProperty("small.sd.negative", "");
 
     /**
-      * LCM 少步模式（-Dsmall.sd.lcm=true）：guidance=1（跳过 uncond 分支，unet 前向减半），
-     * 默认步数 4。适配 LCM Dreamshaper 等一致性蒸馏模型。
+    * LCM 少步模式（-Dsmall.sd.lcm=true）：guidance=1（跳过 uncond 分支，unet 前向减半），
+    * 默认步数 4。适配 LCM Dreamshaper 等一致性蒸馏模型。
      */
     private static final boolean LCM_MODE = Boolean.getBoolean("small.sd.lcm");
 
     /**
-     * 设备设置（auto/cpu/gpu），来自配置或系统属性
+    * 设备设置（auto/cpu/gpu），来自配置或系统属性
      */
     private String deviceSetting = System.getProperty("deeplearning.device");
 
     /**
-      * unet 独立设备设置（nan 时可单独落 CPU，TE/VAE 保持 GPU）
+    * unet 独立设备设置（nan 时可单独落 CPU，TE/VAE 保持 GPU）
      */
     private String unetDeviceSetting = System.getProperty("small.sd.unetDevice");
 
     /**
-      * unet 是否已强制运行于 CPU
+    * unet 是否已强制运行于 CPU
      */
     private volatile boolean unetOnCpu;
 
     /**
-     * ORT 环境
+    * ORT 环境
      */
     private final OrtEnvironment env = OrtEnvironment.getEnvironment();
 
     /**
-     * 初始化锁
+    * 初始化锁
      */
     private final Object lock = new Object();
 
     /**
-     * 是否已初始化
+    * 是否已初始化
      */
     private volatile boolean initialized;
 
     /**
-     * GPU 失败后强制 CPU（粘性）
+    * GPU 失败后强制 CPU（粘性）
      */
     private volatile boolean forceCpu;
 
     /**
-     * 当前实际使用的设备："gpu" / "cpu"
+    * 当前实际使用的设备："gpu" / "cpu"
      */
     private volatile String deviceUsed;
 
     /**
-     * 文本编码会话
+    * 文本编码会话
      */
     private OrtSession textEncoderSession;
 
     /**
-      * 文本编码输出名（fp32 的 hidden 状态）
+    * 文本编码输出名（fp32 的 hidden 状态）
      */
     private String textEncoderOutput;
 
     /**
-      * unet 会话
+    * unet 会话
      */
     private OrtSession unetSession;
 
     /**
-     * VAE 解码会话
+    * VAE 解码会话
      */
     private OrtSession vaeSession;
 
     /**
-     * 分词器（懒加载）
+    * 分词器（懒加载）
      */
     private volatile ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
 
     /**
-     * 默认构造（512×512，20 步，引导 7.5）。
+    * 默认构造（512×512，20 步，引导 7.5）。
      */
     public SmallStableDiffusionCombinedTranslator() {
         this(Integer.getInteger("small.sd.width", 512),
@@ -204,11 +204,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 配置构造：从 {@link com.chua.deeplearning.support.ai.DetectionConfiguration} 的
-      * 系统期权 读取参数（键：width/height/steps/guidance/参见/negative/device/unetdevice），
-     * 未提供的键回退到系统属性 small.sd.* 与 deeplearning.device。
-     *
-     * @param config 检测/推理配置
+    * 配置构造：从 {@link com.chua.deeplearning.support.ai.DetectionConfiguration} 的
+    * 系统期权 读取参数（键：width/height/steps/guidance/参见/negative/device/unetdevice），
+    * 未提供的键回退到系统属性 small.sd.* 与 deeplearning.device。
+    *
+    * @param config 检测/推理配置
      */
     public SmallStableDiffusionCombinedTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration config) {
         this(optInt(config, "width", Integer.getInteger("small.sd.width", 512)),
@@ -225,11 +225,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 从配置读取整数（缺失回退默认）。
-     * @param c c
-     * @param k k
-     * @param def def
-     * @return optInt的结果
+    * 从配置读取整数（缺失回退默认）。
+    * @param c c
+    * @param k k
+    * @param def def
+    * @return optInt的结果
      */
     private static int optInt(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, int def) {
         if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
@@ -240,11 +240,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 从配置读取浮点（缺失回退默认）。
-     * @param c c
-     * @param k k
-     * @param def def
-     * @return optDbl的结果
+    * 从配置读取浮点（缺失回退默认）。
+    * @param c c
+    * @param k k
+    * @param def def
+    * @return optDbl的结果
      */
     private static double optDbl(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, double def) {
         if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
@@ -254,11 +254,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 从配置读取字符串（缺失回退默认）。
-     * @param c c
-     * @param k k
-     * @param def def
-     * @return optStr的结果
+    * 从配置读取字符串（缺失回退默认）。
+    * @param c c
+    * @param k k
+    * @param def def
+    * @return optStr的结果
      */
     private static String optStr(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, String def) {
         if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
@@ -268,11 +268,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 从配置读取长整数（缺失回退默认）。
-     * @param c c
-     * @param k k
-     * @param def def
-     * @return optLng的结果
+    * 从配置读取长整数（缺失回退默认）。
+    * @param c c
+    * @param k k
+    * @param def def
+    * @return optLng的结果
      */
     private static Long optLng(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, Long def) {
         if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
@@ -287,12 +287,12 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 全参构造。
-     *
-     * @param width             宽度
-     * @param height            高度
-     * @param numInferenceSteps 步数
-     * @param guidanceScale     CFG 引导系数
+    * 全参构造。
+    *
+    * @param width             宽度
+    * @param height            高度
+    * @param numInferenceSteps 步数
+    * @param guidanceScale     CFG 引导系数
      */
     public SmallStableDiffusionCombinedTranslator(int width, int height,
                                                   int numInferenceSteps, double guidanceScale) {
@@ -308,9 +308,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 构建 scaled_linear β 调度的 α̅ 表（与 diffusers 默认一致）。
-     *
-     * @return α̅ 数组
+    * 构建 scaled_linear β 调度的 α̅ 表（与 diffusers 默认一致）。
+    *
+    * @return α̅ 数组
      */
     private static double[] buildAlphasCumprod() {
         double betaStart = 0.00085d;
@@ -332,9 +332,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 翻译器名称。
-     *
-     * @return 模型标识
+    * 翻译器名称。
+    *
+    * @return 模型标识
      */
     @Override
     public String name() {
@@ -342,10 +342,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 全流程执行：分词 → 文本编码 → DDIM 去噪 → VAE 解码 → PNG 字节。
-     *
-     * @param input 提示词（字符串）
-     * @return PNG 图像字节数组
+    * 全流程执行：分词 → 文本编码 → DDIM 去噪 → VAE 解码 → PNG 字节。
+    *
+    * @param input 提示词（字符串）
+    * @return PNG 图像字节数组
      */
     @Override
     public Object translate(Object input) {
@@ -424,10 +424,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 懒加载：确保权重就绪并打开三个会话（GPU 失败整体降级 CPU）。
-     *
-     * @throws OrtException 会话异常
-     * @throws IOException  权重缺失
+    * 懒加载：确保权重就绪并打开三个会话（GPU 失败整体降级 CPU）。
+    *
+    * @throws OrtException 会话异常
+    * @throws IOException  权重缺失
      */
     private void ensureInitialized() throws OrtException, IOException {
         if (initialized) {
@@ -474,21 +474,21 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 当前生效的设备设置来源。
-     *
-     * @return 设备设置字符串
+    * 当前生效的设备设置来源。
+    *
+    * @return 设备设置字符串
      */
     private String deviceSetting() {
         return System.getProperty("deeplearning.device");
     }
 
     /**
-     * 打开三个会话。
-     *
-     * @param base      权重目录
-     * @param useGpu    TE/VAE 是否 CUDA
-     * @param unetUseGpu unet 是否 CUDA（可独立落 CPU）
-     * @throws OrtException 会话创建失败
+    * 打开三个会话。
+    *
+    * @param base      权重目录
+    * @param useGpu    TE/VAE 是否 CUDA
+    * @param unetUseGpu unet 是否 CUDA（可独立落 CPU）
+    * @throws OrtException 会话创建失败
      */
     private void openSessions(Path base, boolean useGpu, boolean unetUseGpu) throws OrtException, IOException {
         textEncoderSession = openSession(base.resolve("text_encoder").resolve("model.onnx"), useGpu);
@@ -506,12 +506,12 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 创建单个会话。
-     *
-     * @param path   ONNX 路径
-     * @param useGpu 是否 CUDA
-     * @return 会话
-     * @throws OrtException 创建失败
+    * 创建单个会话。
+    *
+    * @param path   ONNX 路径
+    * @param useGpu 是否 CUDA
+    * @return 会话
+    * @throws OrtException 创建失败
      */
     private OrtSession openSession(Path path, boolean useGpu) throws OrtException {
         OrtSession.SessionOptions opt = new OrtSession.SessionOptions();
@@ -530,10 +530,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 选择文本编码器的 fp32 输出（避开 uint32 类型的附加输出）。
-     *
-     * @param session 文本编码会话
-     * @return 输出名
+    * 选择文本编码器的 fp32 输出（避开 uint32 类型的附加输出）。
+    *
+    * @param session 文本编码会话
+    * @return 输出名
      */
     private String pickTextEncoderOutput(OrtSession session) {
         Set<String> names = session.getOutputNames();
@@ -546,11 +546,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 迁移 registry 扁平缓存产物到结构化布局（幂等）。
-     *
-     * @param base   权重基准目录
-     * @param tePath 文本编码器目标路径
-     * @throws IOException 移动失败
+    * 迁移 registry 扁平缓存产物到结构化布局（幂等）。
+    *
+    * @param base   权重基准目录
+    * @param tePath 文本编码器目标路径
+    * @throws IOException 移动失败
      */
     private void migrateFlatPrimary(Path base, Path tePath) throws IOException {
         Path flat = base.resolve(MODEL_ID).resolve("model.onnx");
@@ -562,15 +562,15 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 解析权重基准目录（registry 缓存根或配置路径）。
-     *
-     * @return 基准目录
+    * 解析权重基准目录（registry 缓存根或配置路径）。
+    *
+    * @return 基准目录
      */
     private static final Path D_DRIVE_BASE = java.nio.file.Paths.get("D:\\chua-dl-models\\small-sd");
 
     /**
-      * resolvebasedir。
-     * @return resolveBaseDir的结果
+    * resolvebasedir。
+    * @return resolveBaseDir的结果
      */
     private Path resolveBaseDir() {
         Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd");
@@ -585,20 +585,20 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * GPU 数值异常记忆标记文件（存在则跳过 GPU 尝试）。
-     *
-     * @return 标记路径
+    * GPU 数值异常记忆标记文件（存在则跳过 GPU 尝试）。
+    *
+    * @return 标记路径
      */
     private static Path gpuBlockFlag() {
         return D_DRIVE_BASE.resolve("small-sd-gpu-blocked.flag");
     }
 
     /**
-     * 确保目标文件存在，缺失时下载（镜像优先，带超时）。
-     *
-     * @param target 目标路径
-     * @param remote 远程地址
-     * @throws IOException 失败
+    * 确保目标文件存在，缺失时下载（镜像优先，带超时）。
+    *
+    * @param target 目标路径
+    * @param remote 远程地址
+    * @throws IOException 失败
      */
     private void ensureFile(Path target, String remote) throws IOException {
         if (Files.exists(target) && Files.size(target) > 0) {
@@ -637,10 +637,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 确保 tokenizer.json 就绪。
-     *
-     * @param base 基准目录
-     * @throws IOException 失败
+    * 确保 tokenizer.json 就绪。
+    *
+    * @param base 基准目录
+    * @throws IOException 失败
      */
     private void ensureTokenizer(Path base) throws IOException {
         if (Files.exists(base.resolve("tokenizer.json"))) {
@@ -650,11 +650,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 编码正/空负提示词对。
-     *
-     * @param prompt 正向提示词
-     * @return [无条件ids, 条件标识]
-     * @throws IOException 分词失败
+    * 编码正/空负提示词对。
+    *
+    * @param prompt 正向提示词
+    * @return [无条件ids, 条件标识]
+    * @throws IOException 分词失败
      */
     private long[][] tokenizePair(String prompt) throws IOException {
         String negative = System.getProperty("small.sd.negative", "");
@@ -662,11 +662,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 定长分词（截断/填充到 77）。
-     *
-     * @param text 文本
-     * @return token 标识
-     * @throws IOException 失败
+    * 定长分词（截断/填充到 77）。
+    *
+    * @param text 文本
+    * @return token 标识
+    * @throws IOException 失败
      */
     private long[] tokenize(String text) throws IOException {
         if (tokenizer == null) {
@@ -688,9 +688,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 权重目录（延迟定位）。
-     *
-     * @return 目录
+    * 权重目录（延迟定位）。
+    *
+    * @return 目录
      */
     private Path weightDir() {
         Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd/tokenizer.json");
@@ -701,11 +701,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-      * 文本编码前向（仅请求 fp32 hidden 状态 输出）。
-     *
-     * @param ids 令牌 标识（长度 77）
-     * @return 嵌入 [77*768]
-     * @throws OrtException 推理失败
+    * 文本编码前向（仅请求 fp32 hidden 状态 输出）。
+    *
+    * @param ids 令牌 标识（长度 77）
+    * @return 嵌入 [77*768]
+    * @throws OrtException 推理失败
      */
     private float[] runTextEncoder(long[] ids) throws OrtException {
         int[][] ids32 = new int[1][ids.length];
@@ -729,13 +729,13 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-      * 单次 unet 噪声预测。
-     *
-     * @param latent 当前 latent
-     * @param t      时间步
-     * @param emb    文本嵌入
-     * @return 噪声预测
-     * @throws OrtException 推理失败
+    * 单次 unet 噪声预测。
+    *
+    * @param latent 当前 latent
+    * @param t      时间步
+    * @param emb    文本嵌入
+    * @return 噪声预测
+    * @throws OrtException 推理失败
      */
     private float[] predictNoise(float[] latent, long t, float[] emb) throws OrtException {
         int latentH = height / 8;
@@ -765,10 +765,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-      * float 数组转半精度 direct缓冲。
-     *
-     * @param data 原始数据
-     * @return 半精度缓冲
+    * float 数组转半精度 direct缓冲。
+    *
+    * @param data 原始数据
+    * @return 半精度缓冲
      */
     private static java.nio.ShortBuffer toHalfBuffer(float[] data) {
         java.nio.ShortBuffer buf = java.nio.ByteBuffer.allocateDirect(data.length * 2)
@@ -782,11 +782,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * VAE 解码 latent 为 RGB 像素。
-     *
-     * @param latent 最终 latent
-     * @return RGB 像素（行优先）
-     * @throws OrtException 推理失败
+    * VAE 解码 latent 为 RGB 像素。
+    *
+    * @param latent 最终 latent
+    * @return RGB 像素（行优先）
+    * @throws OrtException 推理失败
      */
     private int[] decodeVae(float[] latent) throws OrtException {
         int latentH = height / 8;
@@ -846,10 +846,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 半精度位模式转 float。
-     *
-     * @param h 半精度位模式
-     * @return 单精度值
+    * 半精度位模式转 float。
+    *
+    * @param h 半精度位模式
+    * @return 单精度值
      */
     private static float halfToFloat(short h) {
         int sign = (h & 0x8000) << 16;
@@ -867,10 +867,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-      * float 数组转 half 钻头（IEEE 754 半精度）。
-     *
-     * @param f 单精度值
-     * @return 半精度位模式
+    * float 数组转 half 钻头（IEEE 754 半精度）。
+    *
+    * @param f 单精度值
+    * @return 半精度位模式
      */
     private static short floatToHalf(float f) {
         int bits = Float.floatToIntBits(f);
@@ -887,19 +887,19 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 数值截断到 [0,255]。
-     *
-     * @param v 原值
-     * @return 整数像素值
+    * 数值截断到 [0,255]。
+    *
+    * @param v 原值
+    * @return 整数像素值
      */
     private static int clamp255(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
     }
 
     /**
-      * 数组最小值（含 nan 检测输出）。
-     * @param a a
-     * @return fmin的结果
+    * 数组最小值（含 nan 检测输出）。
+    * @param a a
+    * @return fmin的结果
      */
     private static float fmin(float[] a) {
         float m = Float.POSITIVE_INFINITY;
@@ -910,9 +910,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 数组最大值。
-     * @param a a
-     * @return fmax的结果
+    * 数组最大值。
+    * @param a a
+    * @return fmax的结果
      */
     private static float fmax(float[] a) {
         float m = Float.NEGATIVE_INFINITY;
@@ -923,9 +923,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 数组绝对值最大值。
-     * @param a a
-     * @return fmaxAbs的结果
+    * 数组绝对值最大值。
+    * @param a a
+    * @return fmaxAbs的结果
      */
     private static float fmaxAbs(float[] a) {
         float m = 0f;
@@ -936,9 +936,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-      * 是否包含 nan/Infinity。
-     * @param a a
-     * @return 是否包含nan的结果
+    * 是否包含 nan/Infinity。
+    * @param a a
+    * @return 是否包含nan的结果
      */
     private static boolean hasNaN(float[] a) {
         for (float v : a) {
@@ -950,11 +950,11 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 像素编码为 PNG 字节。
-     *
-     * @param rgb 行优先像素
-     * @return PNG bytes
-     * @throws IOException 编码失败
+    * 像素编码为 PNG 字节。
+    *
+    * @param rgb 行优先像素
+    * @return PNG bytes
+    * @throws IOException 编码失败
      */
     private byte[] encodePng(int[] rgb) throws IOException {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -966,7 +966,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 关闭全部会话。
+    * 关闭全部会话。
      */
     @Override
     public void close() {
@@ -974,7 +974,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 关闭会话（静默）。
+    * 关闭会话（静默）。
      */
     private void closeSessions() {
         for (OrtSession s : new OrtSession[]{textEncoderSession, unetSession, vaeSession}) {

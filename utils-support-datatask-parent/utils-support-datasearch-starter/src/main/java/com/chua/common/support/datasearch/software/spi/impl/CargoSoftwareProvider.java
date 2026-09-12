@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Cargo 软件包管理器提供器。
- *
- * <p>通过 cargo CLI 搜索、安装和卸载 Rust crate。
-   * 支持 <code>Cargo 搜索</code>、<code>Cargo install</code>、<code>Cargo uninstall</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* Cargo 软件包管理器提供器。
+*
+* <p>通过 cargo CLI 搜索、安装和卸载 Rust crate。
+* 支持 <code>Cargo 搜索</code>、<code>Cargo install</code>、<code>Cargo uninstall</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("cargo")
 public class CargoSoftwareProvider implements SoftwareProvider {
@@ -89,12 +89,12 @@ public class CargoSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -122,10 +122,10 @@ public class CargoSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析cargo输出
-     *
-     * @param output 输出
-     * @return 解析cargo输出的结果
+    * 解析cargo输出
+    *
+    * @param output 输出
+    * @return 解析cargo输出的结果
      */
     private List<SoftwareInfo> parseCargoOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();

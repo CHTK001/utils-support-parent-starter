@@ -31,13 +31,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-   * scatter 发现基类：本地服务 哈希 表（按 服务端id 幂等去重）+ 自身注册 + 心跳剔除 + 持久化。
- *
- * <p>帧处理（{@link ScatterNodeHandler}）：REQ 拉取 → 返回服务表 RESP；PUSH 推送 → 合并去重 + ACK。
-   * 每轮同步（{@link #doDiscoveryRound()}）由子类实现（路由 gossip / 参见 同步）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* scatter 发现基类：本地服务 哈希 表（按 服务端id 幂等去重）+ 自身注册 + 心跳剔除 + 持久化。
+*
+* <p>帧处理（{@link ScatterNodeHandler}）：REQ 拉取 → 返回服务表 RESP；PUSH 推送 → 合并去重 + ACK。
+* 每轮同步（{@link #doDiscoveryRound()}）由子类实现（路由 gossip / 参见 同步）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         implements ScatterServiceDiscovery, ScatterNodeHandler {
@@ -58,8 +58,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
             java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     /**
-     * 清理所有活跃 scatter 发现实例的本地服务缓存。
-     * 用于测试场景：防止上一轮测试残留的服务条目污染本轮测试。
+    * 清理所有活跃 scatter 发现实例的本地服务缓存。
+    * 用于测试场景：防止上一轮测试残留的服务条目污染本轮测试。
      */
     public static void resetAllCaches() {
         for (AbstractScatterDiscovery inst : INSTANCES) {
@@ -71,14 +71,14 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 重置所有实例注册表（测试类结束后调用，防止跨测试类污染）。
-     * @param setting setting
+    * 重置所有实例注册表（测试类结束后调用，防止跨测试类污染）。
+    * @param setting setting
      /**
        * resetinstances。
       */
       * @param setting setting
      /**
-      * resetInstances。
+     * resetInstances。
       */
      */
     public static void resetInstances() {
@@ -104,18 +104,18 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 获取分组。
-     *
-     * @return 获取群体id的结果
+    * 获取分组。
+    *
+    * @return 获取群体id的结果
      */
     public String getGroupId() {
         return setting.getGroupId();
     }
 
     /**
-     * 获取配置。
-     *
-     * @return 获取setting的结果
+    * 获取配置。
+    *
+    * @return 获取setting的结果
      */
     public ScatterSetting getSetting() {
         return setting;
@@ -137,8 +137,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /** 每轮同步：注册自身 → 子类发现/扩散 → 心跳探活 → 持久化。
-      * 每步之间检查 启动 标志：关闭() 后仍在执行中的旧一轮必须尽快退出，
-      * 防止 persist节点 把过期服务表写回磁盘污染下一次启动（跨测试/重启污染）。 */
+    * 每步之间检查 启动 标志：关闭() 后仍在执行中的旧一轮必须尽快退出，
+    * 防止 persist节点 把过期服务表写回磁盘污染下一次启动（跨测试/重启污染）。 */
     private void discoveryRound() {
         try {
             if (!started) {
@@ -210,9 +210,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 动态权重（cpu+内存负载，0.1-1.0）。
-     *
-     * @return computedynamic权重的结果
+    * 动态权重（cpu+内存负载，0.1-1.0）。
+    *
+    * @return computedynamic权重的结果
      */
     protected double computeDynamicWeight() {
         try {
@@ -311,9 +311,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 探活单个节点：轻量 ICMP/TCP 探针（复用 远程客户端 通道），返回同步结果用于合并。
-     *
-     * @param d d
+    * 探活单个节点：轻量 ICMP/TCP 探针（复用 远程客户端 通道），返回同步结果用于合并。
+    *
+    * @param d d
      */
     protected void probeHeartbeat(Discovery d) {
         ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
@@ -332,9 +332,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 合并对端服务表：逐条按 服务端id 幂等合并（同分组）。
-     *
-     * @param remote 远程
+    * 合并对端服务表：逐条按 服务端id 幂等合并（同分组）。
+    *
+    * @param remote 远程
      */
     protected void mergeRemote(java.util.List<Discovery> remote) {
         for (Discovery r : remote) {
@@ -345,9 +345,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 心跳失败：累计计数，达阈值剔除。
-     *
-     * @param node 节点
+    * 心跳失败：累计计数，达阈值剔除。
+    *
+    * @param node 节点
      */
     protected void onHeartbeatFail(ScatterNode node) {
         int count = heartbeatFailCounts.merge(node.getNodeId(), 1, Integer::sum);
@@ -359,10 +359,10 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * seed 引导条目不参与心跳剔除（仅引导地址）。
-     *
-     * @param d d
-     * @return 是否参见节点的结果
+    * seed 引导条目不参与心跳剔除（仅引导地址）。
+    *
+    * @param d d
+    * @return 是否参见节点的结果
      */
     protected boolean isSeedNode(Discovery d) {
         return d.getMetadata() != null
@@ -371,28 +371,28 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 生成单调递增的请求 标识（避免 UUID 哈希 碰撞与负数）。
-     *
-     * @return gen请求id的结果
+    * 生成单调递增的请求 标识（避免 UUID 哈希 碰撞与负数）。
+    *
+    * @return gen请求id的结果
      */
     protected int genRequestId() {
         return Math.abs(requestIdSeq.incrementAndGet());
     }
 
     /**
-     * 不可路由地址（0.0.0.0 等）跳过探活。
-     *
-     * @param host 主机
-     * @return 是否unroutable的结果
+    * 不可路由地址（0.0.0.0 等）跳过探活。
+    *
+    * @param host 主机
+    * @return 是否unroutable的结果
      */
     protected boolean isUnroutable(String host) {
         return host == null || host.isBlank() || "0.0.0.0".equals(host);
     }
 
     /**
-     * 解析 seed 地址为节点列表（供子类同步/扩散用）。
-     *
-     * @return resolveSeeds的结果
+    * 解析 seed 地址为节点列表（供子类同步/扩散用）。
+    *
+    * @return resolveSeeds的结果
      */
     protected List<ScatterNode> resolveSeeds() {
         List<ScatterNode> nodes = new ArrayList<>();
@@ -481,8 +481,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-      * 优雅关闭：等待当前一轮 discoveryround 完成后再停止调度器，
-      * 确保正在执行的 健康检查 → 移除从缓存 不会被中断。
+    * 优雅关闭：等待当前一轮 discoveryround 完成后再停止调度器，
+    * 确保正在执行的 健康检查 → 移除从缓存 不会被中断。
      */
     public void gracefulClose() {
         started = false;

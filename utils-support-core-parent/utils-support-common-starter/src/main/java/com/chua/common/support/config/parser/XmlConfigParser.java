@@ -21,64 +21,64 @@ import java.util.Map;
 
 
 /**
- * XML                
- * <p>
- *           XML                      
- * </p>
- * <h3>1.                   </h3>
- * <pre>{@code
- * <config>
- *     <server>
- *         <host>localhost</host>
- *         <port>8080</port>
- *     </server>
- *     <database>
- *         <url>jdbc:mysql://localhost:3306/test</url>
- *         <username>root</username>
- *     </database>
- * </config>
- * }</pre>
- *                server.host=localhost, server.port=8080, database.url=...
- *
- * <h3>2.             </h3>
- * <pre>{@code
- * <config>
- *     <property name="server.host" value="localhost"/>
- *     <property name="server.port" value="8080"/>
- *     <property name="app.name">MyApp</property>
- * </config>
- * }</pre>
- *        value                                  
- *                server.host=localhost, server.port=8080, app.name=MyApp
- *
- * <h3>3.                   </h3>
- * <pre>{@code
- * <config>
- *     <server host="localhost" port="8080"/>
- *     <database url="jdbc:mysql://localhost:3306/test">
- *         <pool-size>10</pool-size>
- *     </database>
- * </config>
- * }</pre>
- *                server.host=localhost, server.port=8080, database.url=..., database.pool-size=10
- *
- * <h3>4.       /                      MutiPropertySource   </h3>
- * <pre>{@code
- * <configs>
- *     <item>
- *         <name>config1</name>
- *         <value>1</value>
- *     </item>
- *     <item>
- *         <name>config2</name>
- *         <value>2</value>
- *     </item>
- * </configs>
- * }</pre>
- *                                                             
- *
- * @author CH
- * @since 2023-09-05
+* XML                
+* <p>
+*           XML                      
+* </p>
+* <h3>1.                   </h3>
+* <pre>{@code
+* <config>
+*     <server>
+*         <host>localhost</host>
+*         <port>8080</port>
+*     </server>
+*     <database>
+*         <url>jdbc:mysql://localhost:3306/test</url>
+*         <username>root</username>
+*     </database>
+* </config>
+* }</pre>
+*                server.host=localhost, server.port=8080, database.url=...
+*
+* <h3>2.             </h3>
+* <pre>{@code
+* <config>
+*     <property name="server.host" value="localhost"/>
+*     <property name="server.port" value="8080"/>
+*     <property name="app.name">MyApp</property>
+* </config>
+* }</pre>
+*        value                                  
+*                server.host=localhost, server.port=8080, app.name=MyApp
+*
+* <h3>3.                   </h3>
+* <pre>{@code
+* <config>
+*     <server host="localhost" port="8080"/>
+*     <database url="jdbc:mysql://localhost:3306/test">
+*         <pool-size>10</pool-size>
+*     </database>
+* </config>
+* }</pre>
+*                server.host=localhost, server.port=8080, database.url=..., database.pool-size=10
+*
+* <h3>4.       /                      MutiPropertySource   </h3>
+* <pre>{@code
+* <configs>
+*     <item>
+*         <name>config1</name>
+*         <value>1</value>
+*     </item>
+*     <item>
+*         <name>config2</name>
+*         <value>2</value>
+*     </item>
+* </configs>
+* }</pre>
+*                                                             
+*
+* @author CH
+* @since 2023-09-05
  */
 @Slf4j
 @Spi({"xml"})
@@ -117,11 +117,11 @@ public class XmlConfigParser implements ConfigParser {
     }
 
     /**
-     *                            
-     *                                                       
-     *
-     * @param root          
-     * @return                                            null
+    *                            
+    *                                                       
+    *
+    * @param root          
+    * @return                                            null
      */
     private List<Map<String, Object>> parseAsList(Element root) {
         NodeList children = root.getChildNodes();
@@ -155,18 +155,18 @@ public class XmlConfigParser implements ConfigParser {
     }
 
     /**
-     *                 property       
-     * <p>
-     *                      
-     * <ul>
-     *     <li>{@code <property name="key" value="value"/>}</li>
-     *     <li>{@code <property name="key">value</property>}</li>
-     *     <li>{@code <entry key="key" value="value"/>}</li>
-     *     <li>{@code <entry key="key">value</entry>}</li>
-     * </ul>
-     *
-     * @param root          
-     * @return Map                property                 null
+    *                 property       
+    * <p>
+    *                      
+    * <ul>
+    *     <li>{@code <property name="key" value="value"/>}</li>
+    *     <li>{@code <property name="key">value</property>}</li>
+    *     <li>{@code <entry key="key" value="value"/>}</li>
+    *     <li>{@code <entry key="key">value</entry>}</li>
+    * </ul>
+    *
+    * @param root          
+    * @return Map                property                 null
      */
     private Map<String, Object> parsePropertyFormat(Element root) {
         NodeList children = root.getChildNodes();
@@ -206,7 +206,7 @@ public class XmlConfigParser implements ConfigParser {
     }
 
     /**
-     *              XML       
+    *              XML       
      */
     private Map<String, Object> parseElement(Element element) {
         Map<String, Object> result = new LinkedHashMap<>();
@@ -253,7 +253,7 @@ public class XmlConfigParser implements ConfigParser {
     }
 
     /**
-     *                                        
+    *                                        
      */
     private boolean hasOnlyTextContent(Element element) {
         NodeList children = element.getChildNodes();

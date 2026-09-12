@@ -13,15 +13,15 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * PaddleOCR 文字方向分类 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* PaddleOCR 文字方向分类 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PpWordRotateTranslator implements Translator<Image, Classifications> {
 
     /**
-     * 类别。
+    * 类别。
      */
     private final List<String> classes = Arrays.asList("No Rotate", "Rotate");
 

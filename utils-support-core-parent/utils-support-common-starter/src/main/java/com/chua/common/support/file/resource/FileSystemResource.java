@@ -8,25 +8,25 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * 基于 {@link File} 的文件系统资源实现。
- *
- * <p>资源通过 {@link FileInputStream} 读取，URL 由 {@code File.toURI().toURL()} 派生，
- * 最后修改时间取自 {@link File#lastModified()}。</p>
- *
- * @author CH
- * @since 1.0.0
+* 基于 {@link File} 的文件系统资源实现。
+*
+* <p>资源通过 {@link FileInputStream} 读取，URL 由 {@code File.toURI().toURL()} 派生，
+* 最后修改时间取自 {@link File#lastModified()}。</p>
+*
+* @author CH
+* @since 1.0.0
  */
 public class FileSystemResource implements Resource {
 
     /**
-     * 资源对应的文件。
+    * 资源对应的文件。
      */
     private final File file;
 
     /**
-     * 使用指定文件构造资源。
-     *
-     * @param file 文件对象
+    * 使用指定文件构造资源。
+    *
+    * @param file 文件对象
      */
     public FileSystemResource(File file) {
         this.file = file;

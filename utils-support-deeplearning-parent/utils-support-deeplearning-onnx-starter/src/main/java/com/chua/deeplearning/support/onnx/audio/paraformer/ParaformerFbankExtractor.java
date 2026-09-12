@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * Paraformer 特征提取器（纯 Java 实现，复刻 kaldi-NAT-fbank + sherpa-onnx 流程）。
- * <p>
- * 处理链路：WAV 样本(16k, int16 范围) → kaldi fbank(80 维) → LFR 拼接(7 帧→560 维) → CMVN 归一化。
- * </p>
- * <ul>
- *   <li>kaldi fbank：帧长 25ms(400)、帧移 10ms(160)、hamming 窗、pre-emphasis 0.97、
-   * DC 去除、FFT 512(补零)、power 谱、80 维 mel 滤波器组(20~8000Hz)、日志 能量</li>
- *   <li>LFR(Low Frame Rate)：窗口 7、步长 6，输出帧数 = 1 + (n-1)/6，每帧 7×80=560 维，
- *       越界处按边界帧复制</li>
- *   <li>CMVN：对每帧 80 维执行 (x + neg_mean) × inv_stddev，参数来自 ONNX metadata</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* Paraformer 特征提取器（纯 Java 实现，复刻 kaldi-NAT-fbank + sherpa-onnx 流程）。
+* <p>
+* 处理链路：WAV 样本(16k, int16 范围) → kaldi fbank(80 维) → LFR 拼接(7 帧→560 维) → CMVN 归一化。
+* </p>
+* <ul>
+*   <li>kaldi fbank：帧长 25ms(400)、帧移 10ms(160)、hamming 窗、pre-emphasis 0.97、
+* DC 去除、FFT 512(补零)、power 谱、80 维 mel 滤波器组(20~8000Hz)、日志 能量</li>
+*   <li>LFR(Low Frame Rate)：窗口 7、步长 6，输出帧数 = 1 + (n-1)/6，每帧 7×80=560 维，
+*       越界处按边界帧复制</li>
+*   <li>CMVN：对每帧 80 维执行 (x + neg_mean) × inv_stddev，参数来自 ONNX metadata</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ParaformerFbankExtractor {
 
@@ -114,10 +114,10 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 设置 CMVN 归一化参数（来自 ONNX metadata）。
-     *
-     * @param negMean   负均值数组，长度为 80
-     * @param invStddev 逆标准差数组，长度为 80
+    * 设置 CMVN 归一化参数（来自 ONNX metadata）。
+    *
+    * @param negMean   负均值数组，长度为 80
+    * @param invStddev 逆标准差数组，长度为 80
      */
     public void setCmvn(float[] negMean, float[] invStddev) {
         this.negMean = negMean;
@@ -127,10 +127,10 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 提取完整特征：fbank → LFR → CMVN。
-     *
-     * @param samples 16khz 单声道样本（int16 范围，约 ±32768）
-     * @return (frames, 560) 扁平 float 数组，每帧 560 维
+    * 提取完整特征：fbank → LFR → CMVN。
+    *
+    * @param samples 16khz 单声道样本（int16 范围，约 ±32768）
+    * @return (frames, 560) 扁平 float 数组，每帧 560 维
      */
     public float[] extract(float[] samples) {
         float[][] fbank = computeFbank(samples);
@@ -142,10 +142,10 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 计算 LFR 后的帧数。
-     *
-     * @param inputFrames fbank 帧数
-     * @return LFR 输出帧数
+    * 计算 LFR 后的帧数。
+    *
+    * @param inputFrames fbank 帧数
+    * @return LFR 输出帧数
      */
     public static int lfrFrames(int inputFrames) {
         if (inputFrames == 0) {
@@ -155,10 +155,10 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-      * 计算 kaldi fbank（80 维 日志-mel 能量）。
-     *
-     * @param samples 16khz 单声道样本
-     * @return (frames, 80) 特征矩阵
+    * 计算 kaldi fbank（80 维 日志-mel 能量）。
+    *
+    * @param samples 16khz 单声道样本
+    * @return (frames, 80) 特征矩阵
      */
     private float[][] computeFbank(float[] samples) {
         int numFrames = numFrames(samples.length);
@@ -208,10 +208,10 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * LFR 拼接：每输出帧取窗口 7 帧拼接成 560 维，越界处按边界帧复制。
-     *
-     * @param fbank (帧, 80) 特征矩阵
-     * @return 扁平 (lfr帧 * 560) 数组
+    * LFR 拼接：每输出帧取窗口 7 帧拼接成 560 维，越界处按边界帧复制。
+    *
+    * @param fbank (帧, 80) 特征矩阵
+    * @return 扁平 (lfr帧 * 560) 数组
      */
     private float[] applyLfr(float[][] fbank) {
         int inputFrames = fbank.length;
@@ -238,9 +238,9 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * CMVN 归一化：对每个 80 维块执行 (x + neg_mean) × inv_stddev。
-     *
-     * @param features 扁平特征数组（LFR 后）
+    * CMVN 归一化：对每个 80 维块执行 (x + neg_mean) × inv_stddev。
+    *
+    * @param features 扁平特征数组（LFR 后）
      */
     private void applyCmvn(float[] features) {
         int dim = negMean.length;
@@ -251,10 +251,10 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 计算可提取帧数（snip_edges=true，kaldi 逻辑）。
-     *
-     * @param numSamples 样本总数
-     * @return 帧数
+    * 计算可提取帧数（snip_edges=true，kaldi 逻辑）。
+    *
+    * @param numSamples 样本总数
+    * @return 帧数
      */
     private static int numFrames(int numSamples) {
         if (numSamples < WINDOW_SIZE) {
@@ -264,9 +264,9 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 去除直流分量（减去均值）。
-     *
-     * @param buf 帧数据，原地修改
+    * 去除直流分量（减去均值）。
+    *
+    * @param buf 帧数据，原地修改
      */
     private static void removeDcOffset(float[] buf) {
         float sum = 0.0f;
@@ -280,10 +280,10 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 计算 power 谱（|FFT|^2，取 257 个 bin）。
-     *
-     * @param padded 补零后的 512 样本
-     * @return 257 维 power 谱
+    * 计算 power 谱（|FFT|^2，取 257 个 bin）。
+    *
+    * @param padded 补零后的 512 样本
+    * @return 257 维 power 谱
      */
     private float[] powerSpectrum(float[] padded) {
         FftRadix2 fft = new FftRadix2(PADDED_WINDOW_SIZE);
@@ -299,9 +299,9 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-      * 构造 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
-     *
-     * @return 400 维窗口系数
+    * 构造 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
+    *
+    * @return 400 维窗口系数
      */
     private static float[] buildWindow() {
         float[] w = new float[WINDOW_SIZE];
@@ -313,9 +313,9 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 构造 kaldi mel 滤波器组（80 bins，20~8000Hz，htk 公式）。
-     *
-     * @return 滤波器组权重与偏移
+    * 构造 kaldi mel 滤波器组（80 bins，20~8000Hz，htk 公式）。
+    *
+    * @return 滤波器组权重与偏移
      */
     private static MelBank buildMelBank() {
         float nyquist = 0.5f * SAMPLE_RATE;
@@ -361,21 +361,21 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * htk mel 刻度换算。
-     *
-     * @param freq 频率（Hz）
-     * @return mel 值
+    * htk mel 刻度换算。
+    *
+    * @param freq 频率（Hz）
+    * @return mel 值
      */
     private static float melScale(float freq) {
         return (float) (1127.0 * Math.log(1.0 + freq / 700.0));
     }
 
     /**
-     * mel 滤波器组容器。
-     *
-     * @param weights 每行权重数组
-     * @param offsets 每行起始 fft bin
-     * @return MelBank的结果
+    * mel 滤波器组容器。
+    *
+    * @param weights 每行权重数组
+    * @param offsets 每行起始 fft bin
+    * @return MelBank的结果
      */
     private record MelBank(float[][] weights, int[] offsets) {
     }

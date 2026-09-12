@@ -6,24 +6,24 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 基于句子边界的文本分割器。
- * <p>
- * 按句号（。！？）、换行符等自然句子边界进行分割，
- * 每个块的大小受 maxChunkSize 控制，优先在句子边界截断。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于句子边界的文本分割器。
+* <p>
+* 按句号（。！？）、换行符等自然句子边界进行分割，
+* 每个块的大小受 maxChunkSize 控制，优先在句子边界截断。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SentenceTextSplitter implements TextSplitter {
 
     /**
-     * 默认最大块大小（字符）
+    * 默认最大块大小（字符）
      */
     private static final int DEFAULT_MAX_CHUNK_SIZE = 500;
 
     /**
-     * 句子边界分隔符（按优先级依次匹配）
+    * 句子边界分隔符（按优先级依次匹配）
      */
     private static final List<String> SENTENCE_DELIMITERS = List.of(
             "\n\n",
@@ -39,12 +39,12 @@ public class SentenceTextSplitter implements TextSplitter {
     );
 
     /**
-     * 最大块大小
+    * 最大块大小
      */
     private final int maxChunkSize;
 
     /**
-     * 块重叠大小
+    * 块重叠大小
      */
     private final int chunkOverlap;
 
@@ -54,17 +54,17 @@ public class SentenceTextSplitter implements TextSplitter {
     }
 
     /**
-     * 创建 SentenceTextSplitter 实例
-     * @param maxChunkSize maxChunkSize
+    * 创建 SentenceTextSplitter 实例
+    * @param maxChunkSize maxChunkSize
      */
     public SentenceTextSplitter(int maxChunkSize) {
         this(maxChunkSize, 0);
     }
 
     /**
-     * 创建 SentenceTextSplitter 实例
-     * @param maxChunkSize maxChunkSize
-     * @param maxChunkSize int
+    * 创建 SentenceTextSplitter 实例
+    * @param maxChunkSize maxChunkSize
+    * @param maxChunkSize int
      */
     public SentenceTextSplitter(int maxChunkSize, int chunkOverlap) {
         this.maxChunkSize = Math.max(1, maxChunkSize);
@@ -108,12 +108,12 @@ public class SentenceTextSplitter implements TextSplitter {
     }
 
     /**
-     * 在文本中查找句子边界位置
-     *
-     * @param text    完整文本
-     * @param start   起始位置
-     * @param hardEnd 硬上限位置
-     * @return 句子边界位置，未找到时返回 hardEnd
+    * 在文本中查找句子边界位置
+    *
+    * @param text    完整文本
+    * @param start   起始位置
+    * @param hardEnd 硬上限位置
+    * @return 句子边界位置，未找到时返回 hardEnd
      */
     private int findSentenceBoundary(String text, int start, int hardEnd) {
         int best = -1;

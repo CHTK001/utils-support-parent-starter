@@ -10,10 +10,10 @@ import java.io.OutputStream;
 import javax.annotation.Nullable;
 
 /**
-   * 压缩格式归档输出流提供者
- *
- * @author CH
- * @since 4.0.0.42
+* 压缩格式归档输出流提供者
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("zip")
 public class ZipArchiveOutputStreamProvider implements CompressArchiveOutputStream {

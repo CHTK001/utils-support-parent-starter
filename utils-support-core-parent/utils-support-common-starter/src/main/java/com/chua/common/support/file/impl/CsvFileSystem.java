@@ -22,45 +22,45 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * CSV 文件系统 SPI 实现。
- *
- * <p>通过 SPI 机制注册为 {@code "csv"} 类型的文件系统实现。
- * 使用 JDK 内置 IO 流实现 CSV 格式的解析与生成，不依赖第三方库。
- * 支持分隔符配置、表头识别、引号转义等标准 CSV 特性。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* CSV 文件系统 SPI 实现。
+*
+* <p>通过 SPI 机制注册为 {@code "csv"} 类型的文件系统实现。
+* 使用 JDK 内置 IO 流实现 CSV 格式的解析与生成，不依赖第三方库。
+* 支持分隔符配置、表头识别、引号转义等标准 CSV 特性。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("csv")
 public class CsvFileSystem implements FileSystem {
 
     /**
-     * CSV 文件类型标识
+    * CSV 文件类型标识
      */
     private static final String TYPE_CSV = "csv";
 
     /**
-     * 默认字段分隔符（逗号）
+    * 默认字段分隔符（逗号）
      */
     private static final char DEFAULT_DELIMITER = ',';
 
     /**
-     * 无表头时生成的列名前缀
+    * 无表头时生成的列名前缀
      */
     private static final String COLUMN_KEY_PREFIX = "col";
 
     /**
-     * CSV 双引号字符
+    * CSV 双引号字符
      */
     private static final char QUOTE_CHAR = '"';
 
     /**
-     * 空值占位字符串
+    * 空值占位字符串
      */
     private static final String EMPTY_VALUE = "";
 
     /**
-     * 读取每行默认的列数估算（仅用于预分配 Map 容量，避免初始扩容）
+    * 读取每行默认的列数估算（仅用于预分配 Map 容量，避免初始扩容）
      */
     private static final int ESTIMATED_COLUMN_COUNT = 8;
 
@@ -83,15 +83,15 @@ public class CsvFileSystem implements FileSystem {
     }
 
     /**
-     * CSV 文件读取构建器。
-     *
-     * @since 4.0.0.42
+    * CSV 文件读取构建器。
+    *
+    * @since 4.0.0.42
      */
     @Slf4j
     public static class CsvReadBuilder extends ReadBuilder {
 
         /**
-         * 字段分隔符，默认逗号
+        * 字段分隔符，默认逗号
          */
         private char delimiter = DEFAULT_DELIMITER;
 
@@ -100,10 +100,10 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 设置字段分隔符。
-         *
-         * @param delimiter 分隔符字符
-         * @return 当前构建器
+        * 设置字段分隔符。
+        *
+        * @param delimiter 分隔符字符
+        * @return 当前构建器
          */
         public CsvReadBuilder withDelimiter(char delimiter) {
             this.delimiter = delimiter;
@@ -118,11 +118,11 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 读取全部行并返回 Map 列表。
-         *
-         * <p>当 {@link #withHeader()} 启用时，Map 的 key 为列名。</p>
-         *
-         * @return Map 行数据列表
+        * 读取全部行并返回 Map 列表。
+        *
+        * <p>当 {@link #withHeader()} 启用时，Map 的 key 为列名。</p>
+        *
+        * @return Map 行数据列表
          */
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = CollectionUtils.newArrayList();
@@ -177,11 +177,11 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 解析 CSV 一行数据，支持双引号包裹字段内含分隔符的场景。
-         *
-         * @param line      CSV 行文本
-         * @param delimiter 字段分隔符
-         * @return 解析后的字段数组
+        * 解析 CSV 一行数据，支持双引号包裹字段内含分隔符的场景。
+        *
+        * @param line      CSV 行文本
+        * @param delimiter 字段分隔符
+        * @return 解析后的字段数组
          */
         private String[] parseLine(String line, char delimiter) {
             List<String> parts = CollectionUtils.newArrayList();
@@ -205,20 +205,20 @@ public class CsvFileSystem implements FileSystem {
     }
 
     /**
-     * CSV 文件写入构建器。
-     *
-     * @since 4.0.0.42
+    * CSV 文件写入构建器。
+    *
+    * @since 4.0.0.42
      */
     @Slf4j
     public static class CsvWriteBuilder extends WriteBuilder {
 
         /**
-         * 字段分隔符，默认逗号
+        * 字段分隔符，默认逗号
          */
         private char delimiter = DEFAULT_DELIMITER;
 
         /**
-         * 显式指定的表头列（与 {@link #headerColumns} 二选一）
+        * 显式指定的表头列（与 {@link #headerColumns} 二选一）
          */
         private String[] header;
 
@@ -227,10 +227,10 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 设置显式表头列。
-         *
-         * @param header 表头列数组
-         * @return 当前构建器
+        * 设置显式表头列。
+        *
+        * @param header 表头列数组
+        * @return 当前构建器
          */
         public CsvWriteBuilder withHeader(String... header) {
             this.header = header;
@@ -238,10 +238,10 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 设置字段分隔符。
-         *
-         * @param delimiter 分隔符字符
-         * @return 当前构建器
+        * 设置字段分隔符。
+        *
+        * @param delimiter 分隔符字符
+        * @return 当前构建器
          */
         public CsvWriteBuilder withDelimiter(char delimiter) {
             this.delimiter = delimiter;
@@ -267,10 +267,10 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 显式写入一组 Map 行。
-         *
-         * @param rows 行数据列表
-         * @return 当前构建器
+        * 显式写入一组 Map 行。
+        *
+        * @param rows 行数据列表
+        * @return 当前构建器
          */
         public CsvWriteBuilder write(List<Map<String, Object>> rows) {
             pending.add(rows);
@@ -278,9 +278,9 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 立即将指定行写入磁盘并刷新。
-         *
-         * @param rows 行数据列表
+        * 立即将指定行写入磁盘并刷新。
+        *
+        * @param rows 行数据列表
          */
         public void writeAndFlush(List<Map<String, Object>> rows) {
             callback.onStart();
@@ -374,9 +374,9 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-         * 解析最终用于写入的列顺序：优先使用 {@link #headerColumns}，否则从首行 Map 的 keySet 推断。
-         *
-         * @return 列名列表，无法推断时返回 null
+        * 解析最终用于写入的列顺序：优先使用 {@link #headerColumns}，否则从首行 Map 的 keySet 推断。
+        *
+        * @return 列名列表，无法推断时返回 null
          */
         private List<String> resolveColumns() {
             if (headerColumns != null) {

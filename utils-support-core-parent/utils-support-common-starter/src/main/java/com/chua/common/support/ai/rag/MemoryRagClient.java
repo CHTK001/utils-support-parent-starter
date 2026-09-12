@@ -26,141 +26,141 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * 内存 RAG 客户端实现，用于测试和演示。
- *
- * <p>基于内存向量存储和伪向量 Embedding，无需外部服务。
- * 仅用于功能验证，不适合生产环境。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 内存 RAG 客户端实现，用于测试和演示。
+*
+* <p>基于内存向量存储和伪向量 Embedding，无需外部服务。
+* 仅用于功能验证，不适合生产环境。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class MemoryRagClient implements RagClient {
 
     /**
-     * 上传目录下存放原始文件的子目录名
+    * 上传目录下存放原始文件的子目录名
      */
     private static final String UPLOAD_FILES_SUBDIR = "files";
 
     /**
-     * 向量元数据：文档正文内容键
+    * 向量元数据：文档正文内容键
      */
     private static final String META_CONTENT = "content";
 
     /**
-     * 向量元数据：所属文档 ID 键
+    * 向量元数据：所属文档 ID 键
      */
     private static final String META_DOC_ID = "docId";
 
     /**
-     * 向量元数据：原始文件名键
+    * 向量元数据：原始文件名键
      */
     private static final String META_FILE_NAME = "fileName";
 
     /**
-     * 向量元数据：文件类型（扩展名）键
+    * 向量元数据：文件类型（扩展名）键
      */
     private static final String META_FILE_TYPE = "fileType";
 
     /**
-     * 向量元数据：分块序号键
+    * 向量元数据：分块序号键
      */
     private static final String META_CHUNK_INDEX = "chunkIndex";
 
     /**
-     * 文件名拼接时 docId 与原文件名之间的分隔符
+    * 文件名拼接时 docId 与原文件名之间的分隔符
      */
     private static final String FILE_NAME_SEPARATOR = "_";
 
     /**
-     * 段落分隔符（双换行）
+    * 段落分隔符（双换行）
      */
     private static final String PARAGRAPH_BREAK = "\n\n";
 
     /**
-     * 检索得到的默认相似度（精确匹配）
+    * 检索得到的默认相似度（精确匹配）
      */
     private static final double DEFAULT_SIMILARITY = 1.0;
 
     /**
-     * 文档状态：已就绪，可被重新索引
+    * 文档状态：已就绪，可被重新索引
      */
     private static final String STATUS_READY = "READY";
 
     /**
-     * UUID 中的连字符
+    * UUID 中的连字符
      */
     private static final String UUID_DASH = "-";
 
     /**
-     * UUID 替换连字符后的空字符串
+    * UUID 替换连字符后的空字符串
      */
     private static final String EMPTY = "";
 
     /**
-     * 检索上下文拼接的模板：标题 + 上下文 + 问题
+    * 检索上下文拼接的模板：标题 + 上下文 + 问题
      */
     private static final String CONTEXT_HEADER = "基于以下上下文回答问题。\n\n上下文:";
 
     /**
-     * 问题前缀
+    * 问题前缀
      */
     private static final String QUESTION_PREFIX = "\n\n问题: ";
 
     /**
-     * 文档上传提供者（默认本地文件落盘）。
+    * 文档上传提供者（默认本地文件落盘）。
      */
     private final UploadProvider uploadProvider;
 
     /**
-     * 客户端配置
+    * 客户端配置
      */
     private final RagClientSetting setting;
 
     /**
-     * 向量存储后端
+    * 向量存储后端
      */
     private final VectorStorage vectorStorage;
 
     /**
-     * 文本分块器
+    * 文本分块器
      */
     private final TextSplitter textSplitter;
 
     /**
-     * 向量计算服务
+    * 向量计算服务
      */
     private VectorService vectorService;
 
     /**
-     * 上传文件根目录
+    * 上传文件根目录
      */
     private final Path uploadDir;
 
     /**
-     * 已上传原始文件目录（{@code uploadDir/files}）
+    * 已上传原始文件目录（{@code uploadDir/files}）
      */
     private final Path filesDir;
 
     /**
-     * 文档状态列表
+    * 文档状态列表
      */
     private final List<RagDocument> documents;
 
     /**
-     * 检索返回的 Top K 数量
+    * 检索返回的 Top K 数量
      */
     private int topK;
 
     /**
-     * 检索相似度阈值
+    * 检索相似度阈值
      */
     private double similarityThreshold;
 
     /**
-     * 构造内存版 RAG 客户端。
-     *
-     * @param setting 客户端配置（非空）
+    * 构造内存版 RAG 客户端。
+    *
+    * @param setting 客户端配置（非空）
      */
     public MemoryRagClient(RagClientSetting setting) {
         this.setting = setting;
@@ -185,10 +185,10 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 设置 Top K。
-     *
-     * @param topK 检索返回的最大文档片段数
-     * @return 当前客户端以支持链式调用
+    * 设置 Top K。
+    *
+    * @param topK 检索返回的最大文档片段数
+    * @return 当前客户端以支持链式调用
      */
     @Override
     public RagClient topK(int topK) {
@@ -197,10 +197,10 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 设置相似度阈值。
-     *
-     * @param threshold 相似度阈值，低于此值的向量被过滤
-     * @return 当前客户端以支持链式调用
+    * 设置相似度阈值。
+    *
+    * @param threshold 相似度阈值，低于此值的向量被过滤
+    * @return 当前客户端以支持链式调用
      */
     @Override
     public RagClient similarityThreshold(double threshold) {
@@ -209,10 +209,10 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 使用默认 Top K 与相似度阈值查询。
-     *
-     * @param query 用户查询文本
-     * @return RAG 响应
+    * 使用默认 Top K 与相似度阈值查询。
+    *
+    * @param query 用户查询文本
+    * @return RAG 响应
      */
     @Override
     public RagResponse query(String query) {
@@ -220,12 +220,12 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 查询 RAG：检索向量、拼接上下文并调用聊天客户端生成回答。
-     *
-     * @param query               用户查询文本
-     * @param topK                检索返回的最大文档片段数
-     * @param similarityThreshold 相似度阈值
-     * @return RAG 响应（包含答案、来源片段与元数据）
+    * 查询 RAG：检索向量、拼接上下文并调用聊天客户端生成回答。
+    *
+    * @param query               用户查询文本
+    * @param topK                检索返回的最大文档片段数
+    * @param similarityThreshold 相似度阈值
+    * @return RAG 响应（包含答案、来源片段与元数据）
      */
     @Override
     public RagResponse query(String query, int topK, double similarityThreshold) {
@@ -257,10 +257,10 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 流式查询：当前实现退化为同步查询后通过 consumer 推回结果。
-     *
-     * @param query    用户查询文本
-     * @param consumer 流式回调（接收完整答案）
+    * 流式查询：当前实现退化为同步查询后通过 consumer 推回结果。
+    *
+    * @param query    用户查询文本
+    * @param consumer 流式回调（接收完整答案）
      */
     @Override
     public void queryStream(String query, Consumer<String> consumer) {
@@ -269,12 +269,12 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 流式查询（带 Top K 与相似度阈值）：当前实现退化为同步查询。
-     *
-     * @param query               用户查询文本
-     * @param topK                检索返回的最大文档片段数
-     * @param similarityThreshold 相似度阈值
-     * @param consumer            流式回调
+    * 流式查询（带 Top K 与相似度阈值）：当前实现退化为同步查询。
+    *
+    * @param query               用户查询文本
+    * @param topK                检索返回的最大文档片段数
+    * @param similarityThreshold 相似度阈值
+    * @param consumer            流式回调
      */
     @Override
     public void queryStream(String query, int topK, double similarityThreshold, Consumer<String> consumer) {
@@ -283,14 +283,14 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 上传并索引一个文档。
-     *
-     * <p>流程：落盘 → 文本抽取 → 分块 → 向量化 → 入库。任意步骤失败都会在返回的
-     * {@link RagDocument} 中以 {@code error} 字段记录错误信息。</p>
-     *
-     * @param fileName 文件名（带扩展名）
-     * @param data     文件二进制内容
-     * @return 文档状态对象（含 docId、状态、错误信息等）
+    * 上传并索引一个文档。
+    *
+    * <p>流程：落盘 → 文本抽取 → 分块 → 向量化 → 入库。任意步骤失败都会在返回的
+    * {@link RagDocument} 中以 {@code error} 字段记录错误信息。</p>
+    *
+    * @param fileName 文件名（带扩展名）
+    * @param data     文件二进制内容
+    * @return 文档状态对象（含 docId、状态、错误信息等）
      */
     @Override
     public RagDocument uploadDocument(String fileName, byte[] data) {
@@ -348,15 +348,15 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 抽取已上传文件的文本内容。
-     *
-     * <p>优先调用 setting 中注入的 TextExtractor（PDF/Word/Excel 等由其解析）；
-     * 若未注入或抽取失败，则按 UTF-8 兜底读取文件内容。</p>
-     *
-     * @param data     文件字节数据
-     * @param fileName 原始文件名（用于日志）
-     * @return 抽取出的文本
-     * @throws IOException 读取失败
+    * 抽取已上传文件的文本内容。
+    *
+    * <p>优先调用 setting 中注入的 TextExtractor（PDF/Word/Excel 等由其解析）；
+    * 若未注入或抽取失败，则按 UTF-8 兜底读取文件内容。</p>
+    *
+    * @param data     文件字节数据
+    * @param fileName 原始文件名（用于日志）
+    * @return 抽取出的文本
+    * @throws IOException 读取失败
      */
     private String extractText(byte[] data, String fileName) throws IOException {
         TextExtractor extractor = setting.getTextExtractor();
@@ -377,10 +377,10 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 删除指定文档：同步清理向量存储和落盘文件。
-     *
-     * @param docId 文档 ID
-     * @return 是否成功移除
+    * 删除指定文档：同步清理向量存储和落盘文件。
+    *
+    * @param docId 文档 ID
+    * @return 是否成功移除
      */
     @Override
     public boolean deleteDocument(String docId) {
@@ -402,7 +402,7 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 更新文档：保留原 docId，替换文件内容并重新向量化。
+    * 更新文档：保留原 docId，替换文件内容并重新向量化。
      */
     @Override
     public RagDocument updateDocument(String docId, String fileName, byte[] data) {
@@ -448,11 +448,11 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 分页列出文档，按创建时间倒序。
-     *
-     * @param page     页号（从 1 开始）
-     * @param pageSize 每页大小
-     * @return 当前页的文档列表
+    * 分页列出文档，按创建时间倒序。
+    *
+    * @param page     页号（从 1 开始）
+    * @param pageSize 每页大小
+    * @return 当前页的文档列表
      */
     @Override
     public List<RagDocument> listDocuments(int page, int pageSize) {
@@ -467,9 +467,9 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 获取已索引文档总数。
-     *
-     * @return 文档数
+    * 获取已索引文档总数。
+    *
+    * @return 文档数
      */
     @Override
     public int documentCount() {
@@ -477,9 +477,9 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 重新索引全部 READY 状态的文档：清空现有向量库并对每个文档重新向量化。
-     *
-     * @return 成功重新索引的文档数
+    * 重新索引全部 READY 状态的文档：清空现有向量库并对每个文档重新向量化。
+    *
+    * @return 成功重新索引的文档数
      */
     @Override
     public int reindex() {
@@ -517,10 +517,10 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 读取指定文档的原始文件内容。
-     *
-     * @param docId 文档 ID
-     * @return 文档文本；文档不存在或文件丢失时返回 {@code null}
+    * 读取指定文档的原始文件内容。
+    *
+    * @param docId 文档 ID
+    * @return 文档文本；文档不存在或文件丢失时返回 {@code null}
      */
     @Override
     public String readDocumentContent(String docId) {
@@ -537,9 +537,9 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 获取客户端配置。
-     *
-     * @return 配置对象
+    * 获取客户端配置。
+    *
+    * @return 配置对象
      */
     @Override
     public RagClientSetting getSetting() {
@@ -547,9 +547,9 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 注入聊天客户端。
-     *
-     * @param chatClient 聊天客户端实现
+    * 注入聊天客户端。
+    *
+    * @param chatClient 聊天客户端实现
      */
     @Override
     public void setChatClient(ChatClient chatClient) {
@@ -557,9 +557,9 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 注入 Embedding 客户端，并刷新内部的 {@link VectorService}。
-     *
-     * @param embeddingClient Embedding 客户端实现
+    * 注入 Embedding 客户端，并刷新内部的 {@link VectorService}。
+    *
+    * @param embeddingClient Embedding 客户端实现
      */
     @Override
     public void setEmbeddingClient(EmbeddingClient embeddingClient) {
@@ -568,7 +568,7 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-     * 关闭客户端：当前实现为 no-op，保留以便未来扩展。
+    * 关闭客户端：当前实现为 no-op，保留以便未来扩展。
      */
     @Override
     public void close() {

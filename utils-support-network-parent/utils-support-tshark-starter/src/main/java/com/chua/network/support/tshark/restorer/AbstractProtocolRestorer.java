@@ -6,27 +6,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * 协议还原器抽象基类。
- *
- * <p>封装 {@link ProtocolRestorer} 的样板方法，提供：
- * <ul>
- *   <li>{@link #bytes(Map)} — 安全提取原始字节数组</li>
- *   <li>{@link #string(Map)} — 将字节数组按 UTF-8 转字符串</li>
- *   <li>{@link #toText(byte[])} — 将字节数组转可打印 ASCII（含中文）</li>
- *   <li>{@link #contains(Map, String)} — 检查 protocolInfo 是否包含指定 layer</li>
- * </ul>
- * 子类仅需实现 {@link #getProtocolName()} 与 {@link #restore(Map, byte[])}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 协议还原器抽象基类。
+*
+* <p>封装 {@link ProtocolRestorer} 的样板方法，提供：
+* <ul>
+*   <li>{@link #bytes(Map)} — 安全提取原始字节数组</li>
+*   <li>{@link #string(Map)} — 将字节数组按 UTF-8 转字符串</li>
+*   <li>{@link #toText(byte[])} — 将字节数组转可打印 ASCII（含中文）</li>
+*   <li>{@link #contains(Map, String)} — 检查 protocolInfo 是否包含指定 layer</li>
+* </ul>
+* 子类仅需实现 {@link #getProtocolName()} 与 {@link #restore(Map, byte[])}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
 
     /**
-      * 从 协议信息 中取出原始字节数组。
-     *
-     * @param protocolInfo 协议信息
-     * @return 字节数组，若不存在返回 空
+    * 从 协议信息 中取出原始字节数组。
+    *
+    * @param protocolInfo 协议信息
+    * @return 字节数组，若不存在返回 空
      */
     protected static byte[] bytes(Map<String, Object> protocolInfo) {
         if (protocolInfo == null) {
@@ -44,11 +44,11 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-      * 从 协议信息 安全提取字符串字段。
-     *
-     * @param protocolInfo 协议信息
-     * @param key           字段名
-     * @return 字符串值，不存在返回 空
+    * 从 协议信息 安全提取字符串字段。
+    *
+    * @param protocolInfo 协议信息
+    * @param key           字段名
+    * @return 字符串值，不存在返回 空
      */
     protected static String string(Map<String, Object> protocolInfo, String key) {
         if (protocolInfo == null) {
@@ -59,21 +59,21 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-      * 判断 协议信息 是否包含指定 layer（用于 能否restore 短路）。
-     *
-     * @param protocolInfo 协议信息
-     * @param layerName    layer 名称
-     * @return true 表示包含
+    * 判断 协议信息 是否包含指定 layer（用于 能否restore 短路）。
+    *
+    * @param protocolInfo 协议信息
+    * @param layerName    layer 名称
+    * @return true 表示包含
      */
     protected static boolean contains(Map<String, Object> protocolInfo, String layerName) {
         return protocolInfo != null && protocolInfo.containsKey(layerName);
     }
 
     /**
-     * 将字节数组转可读 ASCII 文本：可打印字符原样保留，控制字符替换为 '.'。
-     *
-     * @param data 原始字节
-     * @return 可读字符串
+    * 将字节数组转可读 ASCII 文本：可打印字符原样保留，控制字符替换为 '.'。
+    *
+    * @param data 原始字节
+    * @return 可读字符串
      */
     protected static String toText(byte[] data) {
         if (data == null || data.length == 0) {
@@ -94,10 +94,10 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-      * 将字节数组按 UTF-8 解码（用于 HTTP 主体 等场景）。
-     *
-     * @param data 字节数组
-     * @return UTF-8 字符串
+    * 将字节数组按 UTF-8 解码（用于 HTTP 主体 等场景）。
+    *
+    * @param data 字节数组
+    * @return UTF-8 字符串
      */
     protected static String utf8(byte[] data) {
         if (data == null) {
@@ -107,11 +107,11 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-      * 默认 能否restore：仅判断 协议信息 包含指定 layer。
-     *
-     * @param protocolInfo 协议信息
-     * @param rawData      原始字节
-     * @return true 表示可还原
+    * 默认 能否restore：仅判断 协议信息 包含指定 layer。
+    *
+    * @param protocolInfo 协议信息
+    * @param rawData      原始字节
+    * @return true 表示可还原
      */
     @Override
     public boolean canRestore(Map<String, Object> protocolInfo, byte[] rawData) {

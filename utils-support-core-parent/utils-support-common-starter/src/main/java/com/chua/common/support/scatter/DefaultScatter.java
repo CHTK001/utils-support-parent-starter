@@ -6,10 +6,10 @@ import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * scatter 聚合实现：组装发现服务 + 节点服务端，统一生命周期。
- *
- * @author CH
- * @since 4.0.0.42
+* scatter 聚合实现：组装发现服务 + 节点服务端，统一生命周期。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DefaultScatter implements Scatter {
@@ -20,8 +20,8 @@ public class DefaultScatter implements Scatter {
     private ScatterNodeServer nodeServer; // 节点服务端
 
     /**
-     * 默认scatter。
-     * @param builder 构建器
+    * 默认scatter。
+    * @param builder 构建器
      */
     public DefaultScatter(ScatterBuilder<?> builder) {
         this.builder = builder;

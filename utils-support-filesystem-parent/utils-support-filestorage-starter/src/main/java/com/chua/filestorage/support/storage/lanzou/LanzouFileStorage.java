@@ -30,83 +30,83 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 蓝奏云网盘文件存储实现。
- *
- * <p>基于登录态 Cookie 调用蓝奏云网盘接口（{@code doupload.php} 系列 task），
- * 完整实现 {@link com.chua.common.support.storage.FileStorage} 契约。</p>
- *
- * <h3>接口映射</h3>
- * <ul>
- *   <li>列表：{@code task=5}（文件）/ {@code task=47}（文件夹树）</li>
- *   <li>下载：{@code task=22} 拿分享短链 → 分享页 → {@code ajaxm.php} 直链</li>
- *   <li>删除文件：{@code task=6}；删除文件夹：{@code task=3}</li>
- *   <li>上传：{@code multipart} 直传（端点可配置）</li>
- * </ul>
- *
- * <h3>Key 约定</h3>
- * <p>蓝奏云以数字 {@code file_id} 唯一标识文件。{@code listObject} 返回的每个条目的
- * {@link Metadata#getKey()} 形如 {@code <file_id>/<文件名>}，调用 {@code getObject/deleteObject}
-   * 时透传该 键 即可（实现会从中解析出 文件_标识）。</p>
- *
- * <h3>配置</h3>
- * <pre>{@code
- * BucketSetting setting = BucketSetting.builder()
- *     .extraProperties(Map.of(
- *         "cookiePath", "/path/to/cookies.txt",   // Netscape 或 playwright JSON
- *         "uid", "1645999",                         // 可选，缺省从 cookie 的 ylogin 提取
- *         "rootFolderId", "-1",                    // 可选，默认 -1（全部）
- *         "uploadUrl", "https://up.lanzou.com/up"  // 可选，上传端点
- *     ))
- *     .build();
- * }</pre>/up"  // 可选，上传端点
- *     ))
- *     .build();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 蓝奏云网盘文件存储实现。
+*
+* <p>基于登录态 Cookie 调用蓝奏云网盘接口（{@code doupload.php} 系列 task），
+* 完整实现 {@link com.chua.common.support.storage.FileStorage} 契约。</p>
+*
+* <h3>接口映射</h3>
+* <ul>
+*   <li>列表：{@code task=5}（文件）/ {@code task=47}（文件夹树）</li>
+*   <li>下载：{@code task=22} 拿分享短链 → 分享页 → {@code ajaxm.php} 直链</li>
+*   <li>删除文件：{@code task=6}；删除文件夹：{@code task=3}</li>
+*   <li>上传：{@code multipart} 直传（端点可配置）</li>
+* </ul>
+*
+* <h3>Key 约定</h3>
+* <p>蓝奏云以数字 {@code file_id} 唯一标识文件。{@code listObject} 返回的每个条目的
+* {@link Metadata#getKey()} 形如 {@code <file_id>/<文件名>}，调用 {@code getObject/deleteObject}
+* 时透传该 键 即可（实现会从中解析出 文件_标识）。</p>
+*
+* <h3>配置</h3>
+* <pre>{@code
+* BucketSetting setting = BucketSetting.builder()
+*     .extraProperties(Map.of(
+*         "cookiePath", "/path/to/cookies.txt",   // Netscape 或 playwright JSON
+*         "uid", "1645999",                         // 可选，缺省从 cookie 的 ylogin 提取
+*         "rootFolderId", "-1",                    // 可选，默认 -1（全部）
+*         "uploadUrl", "https://up.lanzou.com/up"  // 可选，上传端点
+*     ))
+*     .build();
+* }</pre>/up"  // 可选，上传端点
+*     ))
+*     .build();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"lanzou"})
 public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
-     * 网盘主接口域名。
+    * 网盘主接口域名。
      */
     private static final String HOST = "https://pc.woozooo.com";
 
     /**
-     * 登录态文件列表 Referer。
+    * 登录态文件列表 Referer。
      */
     private final String referer;
 
     /**
-     * 蓝奏云 HTTP 客户端（含 WAF 挑战处理）。
+    * 蓝奏云 HTTP 客户端（含 WAF 挑战处理）。
      */
     private final LanzouHttp http;
 
     /**
-      * 登录用户 标识。
+    * 登录用户 标识。
      */
     private final String uid;
 
     /**
-     * 列举根目录（默认 -1 表示全部）。
+    * 列举根目录（默认 -1 表示全部）。
      */
     private final String rootFolderId;
 
     /**
-     * 上传端点。
+    * 上传端点。
      */
     private final String uploadUrl;
 
     /**
-     * 附加配置。
+    * 附加配置。
      */
     private final Map<String, String> extra;
 
     /**
-      * 创建 lanzou文件storage 实例
-     * @param bucketSetting bucketsetting
+    * 创建 lanzou文件storage 实例
+    * @param bucketSetting bucketsetting
      */
     public LanzouFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -125,9 +125,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 从 Cookie 文件（Netscape 或 playwright JSON）读取并拼装为 Cookie 头串。
-     * @param path 路径
-     * @return 加载Cookie的结果
+    * 从 Cookie 文件（Netscape 或 playwright JSON）读取并拼装为 Cookie 头串。
+    * @param path 路径
+    * @return 加载Cookie的结果
      */
     private String loadCookie(String path) {
         if (path == null || path.isEmpty()) {
@@ -145,9 +145,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 解析 Netscape Cookie 文件（每行 7 字段）。
-     * @param raw raw
-     * @return 解析netscapeCookie的结果
+    * 解析 Netscape Cookie 文件（每行 7 字段）。
+    * @param raw raw
+    * @return 解析netscapeCookie的结果
      */
     private String parseNetscapeCookie(String raw) {
         StringBuilder builder = new StringBuilder();
@@ -169,9 +169,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 解析 playwright JSON Cookie 数组（[{名称,值,...}]）。
-     * @param raw raw
-     * @return 解析jsonCookie的结果
+    * 解析 playwright JSON Cookie 数组（[{名称,值,...}]）。
+    * @param raw raw
+    * @return 解析jsonCookie的结果
      */
     private String parseJsonCookie(String raw) {
         StringBuilder builder = new StringBuilder();
@@ -188,9 +188,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 从 Cookie 串提取登录 UID（ylogin 字段）。
-     * @param cookie Cookie
-     * @return extractUid的结果
+    * 从 Cookie 串提取登录 UID（ylogin 字段）。
+    * @param cookie Cookie
+    * @return extractUid的结果
      */
     private String extractUid(String cookie) {
         if (cookie == null) {
@@ -202,8 +202,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-      * 放入对象
-     * @param request 请求
+    * 放入对象
+    * @param request 请求
      */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
@@ -241,8 +241,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-      * 获取对象
-     * @param request 请求
+    * 获取对象
+    * @param request 请求
      */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
@@ -285,8 +285,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-      * 获取对象
-     * @param key 键
+    * 获取对象
+    * @param key 键
      */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
@@ -296,8 +296,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-      * 删除对象
-     * @param key 键
+    * 删除对象
+    * @param key 键
      */
     public DeleteObjectResult deleteObject(String key) {
         try {
@@ -323,8 +323,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-      * exist对象
-     * @param request 请求
+    * exist对象
+    * @param request 请求
      */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
@@ -346,8 +346,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-      * 列表对象
-     * @param request 请求
+    * 列表对象
+    * @param request 请求
      */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
@@ -380,9 +380,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 递归列出某文件夹下的全部文件（含子文件夹）。
-     * @param folderId 文件夹标识
-     * @return 列表全部的结果
+    * 递归列出某文件夹下的全部文件（含子文件夹）。
+    * @param folderId 文件夹标识
+    * @return 列表全部的结果
      */
     private List<LanzouFile> listAll(String folderId) {
         List<LanzouFile> result = new ArrayList<>();
@@ -394,9 +394,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 列出文件夹下的文件（任务=5）。
-     * @param folderId 文件夹标识
-     * @return 列表文件的结果
+    * 列出文件夹下的文件（任务=5）。
+    * @param folderId 文件夹标识
+    * @return 列表文件的结果
      */
     private List<LanzouFile> listFiles(String folderId) {
         String resp = postTask("5", Map.of("folder_id", folderId, "pg", "1"), referer);
@@ -410,9 +410,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 列出文件夹下的子文件夹（任务=47）。
-     * @param folderId 文件夹标识
-     * @return 列表文件夹的结果
+    * 列出文件夹下的子文件夹（任务=47）。
+    * @param folderId 文件夹标识
+    * @return 列表文件夹的结果
      */
     private List<LanzouFile> listFolders(String folderId) {
         String resp = postTask("47", Map.of("folder_id", folderId), referer);
@@ -426,10 +426,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 解析文件/文件夹数组为模型列表。
-     * @param root 根
-     * @param list 列表
-     * @param directory 目录
+    * 解析文件/文件夹数组为模型列表。
+    * @param root 根
+    * @param list 列表
+    * @param directory 目录
      */
     private void parseFileArray(JsonObject root, List<LanzouFile> list, boolean directory) {
         JsonArray array = root.getJsonArray("text");
@@ -445,10 +445,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 单个文件/文件夹对象转换。
-     * @param o o
-     * @param directory 目录
-     * @return 转为lanzou文件的结果
+    * 单个文件/文件夹对象转换。
+    * @param o o
+    * @param directory 目录
+    * @return 转为lanzou文件的结果
      */
     private LanzouFile toLanzouFile(JsonObject o, boolean directory) {
         String id = directory ? o.getType("fol_id", "", String.class) : o.getType("id", "", String.class);
@@ -468,11 +468,11 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 提交 doupload.PHP 任务。
-     * @param task 任务
-     * @param params 参数
-     * @param referer referer
-     * @return post任务的结果
+    * 提交 doupload.PHP 任务。
+    * @param task 任务
+    * @param params 参数
+    * @param referer referer
+    * @return post任务的结果
      */
     private String postTask(String task, Map<String, String> params, String referer) {
         Map<String, String> body = new LinkedHashMap<>(params);
@@ -481,9 +481,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 从 键（<file_id>/<name> 或纯 文件_标识）解析出 文件_标识。
-     * @param key 键
-     * @return resolve文件id的结果
+    * 从 键（<file_id>/<name> 或纯 文件_标识）解析出 文件_标识。
+    * @param key 键
+    * @return resolve文件id的结果
      */
     private String resolveFileId(String key) {
         if (key == null) {
@@ -496,9 +496,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-      * 解析上传目标文件夹 标识。
-     * @param filePath 文件路径
-     * @return resolve文件夹id的结果
+    * 解析上传目标文件夹 标识。
+    * @param filePath 文件路径
+    * @return resolve文件夹id的结果
      */
     private String resolveFolderId(String filePath) {
         if (filePath == null || filePath.isEmpty()) {
@@ -510,9 +510,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 解析蓝奏云大小文本（如 "330.6 K"）为字节数。
-     * @param sizeText 大小文本
-     * @return 解析大小的结果
+    * 解析蓝奏云大小文本（如 "330.6 K"）为字节数。
+    * @param sizeText 大小文本
+    * @return 解析大小的结果
      */
     private long parseSize(String sizeText) {
         if (sizeText == null || sizeText.isEmpty()) {

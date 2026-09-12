@@ -18,100 +18,100 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 原生 TCP NIO RPC 服务端，复用 {@link JdkTcpServer} 长度帧传输层。
- *
- * <p>传输层（连接接收、拼帧、响应回写）由 {@link JdkTcpServer} 承担，
- * 本类只负责 RPC 语义：反序列化请求、方法查找调用、序列化响应。</p>
- *
- * <p>支持直连和注册中心两种模式：
- * <ul>
- *   <li>直连：通过 {@link RpcRegistryConfig#getAddress()} 直接指定监听地址</li>
- *   <li>注册中心：通过 {@link RpcRegistryConfig#getProtocol()} 指定注册中心类型（如 zookeeper/nacos），
- *       自动使用 {@link ServiceDiscovery} SPI 注册服务</li>
- * </ul>
- *
- * @author CH
- * @since 1.0.0
+* 原生 TCP NIO RPC 服务端，复用 {@link JdkTcpServer} 长度帧传输层。
+*
+* <p>传输层（连接接收、拼帧、响应回写）由 {@link JdkTcpServer} 承担，
+* 本类只负责 RPC 语义：反序列化请求、方法查找调用、序列化响应。</p>
+*
+* <p>支持直连和注册中心两种模式：
+* <ul>
+*   <li>直连：通过 {@link RpcRegistryConfig#getAddress()} 直接指定监听地址</li>
+*   <li>注册中心：通过 {@link RpcRegistryConfig#getProtocol()} 指定注册中心类型（如 zookeeper/nacos），
+*       自动使用 {@link ServiceDiscovery} SPI 注册服务</li>
+* </ul>
+*
+* @author CH
+* @since 1.0.0
  */
 @Slf4j
 @Spi("native")
 public class NativeRpcServer implements RpcServer {
 
     /**
-     * 日志
+    * 日志
      */
 
     /**
-     * 默认端口
+    * 默认端口
      */
     private static final int DEFAULT_PORT = 18866;
 
     /**
-     * 默认工作线程数
+    * 默认工作线程数
      */
     private static final int DEFAULT_WORKERS = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
-     * 端口号
+    * 端口号
      */
     private final int port;
 
     /**
-     * 主机名
+    * 主机名
      */
     private final String host;
 
     /**
-     * Worker 线程数
+    * Worker 线程数
      */
     private final int workerThreads;
 
     /**
-     * IO Selector 线程数
+    * IO Selector 线程数
      */
     private final int ioThreadsCount;
 
     /**
-     * APP名称
+    * APP名称
      */
     private final String appName;
 
     /**
-     * 注册中心配置
+    * 注册中心配置
      */
     private final List<RpcRegistryConfig> registryConfigs;
 
     /**
-     * 服务注册表
+    * 服务注册表
      */
     private final Map<String, Object> services = new ConcurrentHashMap<>();
 
     /**
-     * 底层 TCP 长度帧服务端（复用传输层）
+    * 底层 TCP 长度帧服务端（复用传输层）
      */
     private TcpServer tcpServer;
 
     /**
-     * 服务发现
+    * 服务发现
      */
     private ServiceDiscovery serviceDiscovery;
 
     /**
-     * 服务方法缓存：避免每次请求都走 getMethod 反射查找（热路径开销）
+    * 服务方法缓存：避免每次请求都走 getMethod 反射查找（热路径开销）
      */
     private final Map<MethodKey, java.lang.reflect.Method> methodCache = new ConcurrentHashMap<>();
 
     /**
-     * 请求/响应编解码器（SPI 序列化，Fury 优先）
+    * 请求/响应编解码器（SPI 序列化，Fury 优先）
      */
     private final RpcSerialization rpcSerialization;
 
     /**
-     * 创建原生 TCP NIO RPC 服务端。
-     *
-     * @param registryConfigs 注册中心配置列表
-     * @param protocolConfig  协议配置
-     * @param name            APP 名称
+    * 创建原生 TCP NIO RPC 服务端。
+    *
+    * @param registryConfigs 注册中心配置列表
+    * @param protocolConfig  协议配置
+    * @param name            APP 名称
      */
     public NativeRpcServer(List<RpcRegistryConfig> registryConfigs, RpcProtocolConfig protocolConfig, String name) {
         this.registryConfigs = registryConfigs;
@@ -147,10 +147,10 @@ public class NativeRpcServer implements RpcServer {
     }
 
     /**
-     * RPC 帧处理：反序列化请求、调用方法、序列化响应。
-     *
-     * @param reqData 请求帧字节
-     * @return 响应帧字节
+    * RPC 帧处理：反序列化请求、调用方法、序列化响应。
+    *
+    * @param reqData 请求帧字节
+    * @return 响应帧字节
      */
     private byte[] handleRequest(byte[] reqData) throws Exception {
         try {
@@ -213,12 +213,12 @@ public class NativeRpcServer implements RpcServer {
     }
 
     /**
-     * 解析并缓存服务方法：热路径下避免每次请求都做 getMethod 反射查找。
-     *
-     * @param service 服务实例
-     * @param request RPC 请求
-     * @return 已解析的方法
-     * @throws NoSuchMethodException 方法不存在时抛出
+    * 解析并缓存服务方法：热路径下避免每次请求都做 getMethod 反射查找。
+    *
+    * @param service 服务实例
+    * @param request RPC 请求
+    * @return 已解析的方法
+    * @throws NoSuchMethodException 方法不存在时抛出
      */
     private java.lang.reflect.Method resolveMethod(Object service, RpcRequest request) throws NoSuchMethodException {
         String[] typeNames = request.getParamTypes();
@@ -296,12 +296,12 @@ public class NativeRpcServer implements RpcServer {
     }
 
     /**
-     * 服务方法缓存键：服务名 + 方法名 + 参数类型名。
-     *
-     * @param service    服务名
-     * @param method     方法名
-     * @param paramTypes 参数类型名数组
-     * @since 4.0.0.42
+    * 服务方法缓存键：服务名 + 方法名 + 参数类型名。
+    *
+    * @param service    服务名
+    * @param method     方法名
+    * @param paramTypes 参数类型名数组
+    * @since 4.0.0.42
      */
     private record MethodKey(String service, String method, String[] paramTypes) {
         @Override

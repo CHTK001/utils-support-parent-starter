@@ -5,34 +5,34 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Linux → Windows PowerShell/cmd 命令翻译器。
- *
- * <p>提供常用 Linux 命令到 Windows 的等价转换，
- * 使得跨平台脚本（SSH/WinRM/PTY）可复用同一份命令。</p>
- *
- * <h3>已支持的映射</h3>
- * <pre>{@code
- * ifconfig        → ipconfig
- * ping -c N       → ping -n N
- * ps aux          → Get-Process | Select-Object
- * ls / ls -la     → dir /a
- * cat file        → Get-Content file
- * grep pat file   → Select-String pat file
- * head -n N       → Select-Object -First N
- * tail -n N / -f  → Select-Object -Last N / -Wait
- * mkdir -p        → New-Item -Force
- * rm -rf          → Remove-Item -Force -Recurse
- * find -name      → Get-ChildItem -Filter
- * df -h           → Get-Volume
- * env / set       → [Environment]::GetEnvironmentVariables()
- * pwd             → Get-Location
- * echo            → Write-Output
- * }</pre>
- *
- * <p>不在映射表中的命令原样返回，调用方可安全兜底。</p>
- *
- * @author CH
- * @since 4.0.0.43
+* Linux → Windows PowerShell/cmd 命令翻译器。
+*
+* <p>提供常用 Linux 命令到 Windows 的等价转换，
+* 使得跨平台脚本（SSH/WinRM/PTY）可复用同一份命令。</p>
+*
+* <h3>已支持的映射</h3>
+* <pre>{@code
+* ifconfig        → ipconfig
+* ping -c N       → ping -n N
+* ps aux          → Get-Process | Select-Object
+* ls / ls -la     → dir /a
+* cat file        → Get-Content file
+* grep pat file   → Select-String pat file
+* head -n N       → Select-Object -First N
+* tail -n N / -f  → Select-Object -Last N / -Wait
+* mkdir -p        → New-Item -Force
+* rm -rf          → Remove-Item -Force -Recurse
+* find -name      → Get-ChildItem -Filter
+* df -h           → Get-Volume
+* env / set       → [Environment]::GetEnvironmentVariables()
+* pwd             → Get-Location
+* echo            → Write-Output
+* }</pre>
+*
+* <p>不在映射表中的命令原样返回，调用方可安全兜底。</p>
+*
+* @author CH
+* @since 4.0.0.43
  */
 public final class CmdTranslateUtils {
 
@@ -139,11 +139,11 @@ public final class CmdTranslateUtils {
     }
 
     /**
-     * 将 Linux 命令转换为等效的 PowerShell/cmd 命令。
-     * 若不在映射表中则原样返回。
-     *
-     * @param cmd 原始命令（支持完整命令行，含参数）
-     * @return 转换后的命令；未匹配时返回原命令
+    * 将 Linux 命令转换为等效的 PowerShell/cmd 命令。
+    * 若不在映射表中则原样返回。
+    *
+    * @param cmd 原始命令（支持完整命令行，含参数）
+    * @return 转换后的命令；未匹配时返回原命令
      */
     public static String translate(String cmd) {
         if (cmd == null || cmd.trim().isEmpty()) {
@@ -166,7 +166,7 @@ public final class CmdTranslateUtils {
     }
 
     /**
-     * 手动替换 Matcher 捕获组（避免 Illegal group reference）。
+    * 手动替换 Matcher 捕获组（避免 Illegal group reference）。
      */
     private static String replaceCaptures(java.util.regex.Matcher m, String template) {
         int g = m.groupCount();
@@ -188,7 +188,7 @@ public final class CmdTranslateUtils {
     }
 
     /**
-     * 判断给定命令是否可被翻译（即命中映射表）。
+    * 判断给定命令是否可被翻译（即命中映射表）。
      */
     public static boolean canTranslate(String cmd) {
         if (cmd == null || cmd.trim().isEmpty()) {
@@ -204,7 +204,7 @@ public final class CmdTranslateUtils {
     }
 
     /**
-     * 返回当前注册的翻译规则数量。
+    * 返回当前注册的翻译规则数量。
      */
     public static int ruleCount() {
         return LINUX_TO_WIN.size();

@@ -18,9 +18,9 @@ import javax.annotation.Nullable;
 
 
 /**
- * 底图穿透
- * @author CH
- * @since 4.0.0.42
+* 底图穿透
+* @author CH
+* @since 4.0.0.42
  */
 public class EmptinessBackgroundResolver implements BackgroundResolver {
 
@@ -74,16 +74,16 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     }
 
     /**
-     * Render
-     *
-     * @param g g
-     * @param whiteColor whitecolor
-     * @param blackColor blackcolor
-     * @param bufferedImage 缓冲镜像
-     * @param rect rect
-     * @param i i
-     * @param j j
-     * @param codePointStyle 编码pointstyle
+    * Render
+    *
+    * @param g g
+    * @param whiteColor whitecolor
+    * @param blackColor blackcolor
+    * @param bufferedImage 缓冲镜像
+    * @param rect rect
+    * @param i i
+    * @param j j
+    * @param codePointStyle 编码pointstyle
      */
     private void render(Graphics2D g, Color whiteColor, Color blackColor, BufferedImage bufferedImage, byte[][] rect, int i, int j, CodePointStyle codePointStyle) {
         if (rect[i][j] == 1) {
@@ -102,16 +102,16 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
         }
     }
     /**
-      * fill位置detectionshape
-     * @param g g
-     * @param eyeDf eyedf
-     * @param lf lf
-     * @param lb lb
-     * @param qrCodeWidth qr编码width
-     * @param startX 启动x
-     * @param startY 启动y
-     * @param version 版本
-     * @param fillPositionDetectionShapeModel fill位置detectionshape模型
+    * fill位置detectionshape
+    * @param g g
+    * @param eyeDf eyedf
+    * @param lf lf
+    * @param lb lb
+    * @param qrCodeWidth qr编码width
+    * @param startX 启动x
+    * @param startY 启动y
+    * @param version 版本
+    * @param fillPositionDetectionShapeModel fill位置detectionshape模型
      */
     private static void fillPositionDetectionShape(Graphics2D g, Color eyeDf,Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version,
                                                    CodeEyeStyle fillPositionDetectionShapeModel) {
@@ -119,10 +119,10 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
                     .resolve(g, eyeDf, lf, lb, qrCodeWidth, startX, startY, version);
     }
     /**
-     * 计算指定版本的二维码的大小。
-     *
-     * @param version 二维码的版本号，范围从1到20
-     * @return 返回二维码的大小，如果版本号超出范围，则返回0
+    * 计算指定版本的二维码的大小。
+    *
+    * @param version 二维码的版本号，范围从1到20
+    * @return 返回二维码的大小，如果版本号超出范围，则返回0
      */
     public static int size(int version) {
         // 根据二维码版本计算其大小
@@ -134,12 +134,12 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     }
 
     /**
-     * 判断指定位置的模块是否为固定模块。
-     *
-     * @param size 二维码的大小
-     * @param x 指定位置的x坐标
-     * @param y 指定位置的y坐标
-     * @return 如果指定位置为固定模块，则返回true，否则返回false
+    * 判断指定位置的模块是否为固定模块。
+    *
+    * @param size 二维码的大小
+    * @param x 指定位置的x坐标
+    * @param y 指定位置的y坐标
+    * @return 如果指定位置为固定模块，则返回true，否则返回false
      */
     private static boolean isFixed(int size, int x, int y) {
         // 判断位置是否为固定模块

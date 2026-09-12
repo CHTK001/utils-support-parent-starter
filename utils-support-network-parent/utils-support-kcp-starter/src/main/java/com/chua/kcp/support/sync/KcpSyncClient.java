@@ -15,53 +15,53 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
-   * 基于 kcp-基础 的 KCP 同步客户端实现。
- *
- * <p>通过 KCP 可靠 UDP 长连接与服务端双向同步，支持注册、主题订阅与消息收发，
- * 与 {@link KcpSyncServer} 配对使用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 kcp-基础 的 KCP 同步客户端实现。
+*
+* <p>通过 KCP 可靠 UDP 长连接与服务端双向同步，支持注册、主题订阅与消息收发，
+* 与 {@link KcpSyncServer} 配对使用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("kcp")
 @Slf4j
 public class KcpSyncClient implements SyncClient {
 
     /**
-      * 服务端 URL（kcp://主机:端口）
+    * 服务端 URL（kcp://主机:端口）
      */
     private final String serverUrl;
     /**
-     * 客户端标识
+    * 客户端标识
      */
     private final String clientId;
     /**
-     * 底层 KCP 客户端实例
+    * 底层 KCP 客户端实例
      */
     private KcpClient kcpClient;
     /**
-     * 是否已连接
+    * 是否已连接
      */
     private boolean connected;
 
     /**
-      * 连接前注册的订阅缓存（topic -> 处理器），连接成功后统一应用
+    * 连接前注册的订阅缓存（topic -> 处理器），连接成功后统一应用
      */
     private final Map<String, SyncMessageHandler> pendingSubscriptions = new ConcurrentHashMap<>();
 
     /**
-      * 创建 kcp同步客户端 实例
-     * @param serverUrl 服务端url
+    * 创建 kcp同步客户端 实例
+    * @param serverUrl 服务端url
      */
     public KcpSyncClient(String serverUrl) {
         this("kcp-sync-client", serverUrl);
     }
 
     /**
-      * 创建 kcp同步客户端 实例
-     * @param clientId 客户端标识
-     * @param clientId 字符串
-     * @param serverUrl 服务端url
+    * 创建 kcp同步客户端 实例
+    * @param clientId 客户端标识
+    * @param clientId 字符串
+    * @param serverUrl 服务端url
      */
     public KcpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
@@ -106,11 +106,11 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 执行
-     *
-     * @param topic topic
-     * @param message 消息
-     * @return 执行的结果
+    * 执行
+    *
+    * @param topic topic
+    * @param message 消息
+    * @return 执行的结果
      */
     public String execute(String topic, Object message) {
         if (!isConnected()) {
@@ -120,12 +120,12 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 执行
-     *
-     * @param topic topic
-     * @param message 消息
-     * @param timeoutMs 超时ms
-     * @return 执行的结果
+    * 执行
+    *
+    * @param topic topic
+    * @param message 消息
+    * @param timeoutMs 超时ms
+    * @return 执行的结果
      */
     public String execute(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
@@ -135,11 +135,11 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 执行异步
-     *
-     * @param topic topic
-     * @param message 消息
-     * @return 执行异步的结果
+    * 执行异步
+    *
+    * @param topic topic
+    * @param message 消息
+    * @return 执行异步的结果
      */
     public CompletableFuture<String> executeAsync(String topic, Object message) {
         if (!isConnected()) {
@@ -151,12 +151,12 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 执行异步
-     *
-     * @param topic topic
-     * @param message 消息
-     * @param timeoutMs 超时ms
-     * @return 执行异步的结果
+    * 执行异步
+    *
+    * @param topic topic
+    * @param message 消息
+    * @param timeoutMs 超时ms
+    * @return 执行异步的结果
      */
     public CompletableFuture<String> executeAsync(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
@@ -168,10 +168,10 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 发送消息。
-     *
-     * @param topic   主题
-     * @param message 消息内容
+    * 发送消息。
+    *
+    * @param topic   主题
+    * @param message 消息内容
      */
     @Override
     public void send(String topic, Object message) {
@@ -182,10 +182,10 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 发布
-     *
-     * @param topic topic
-     * @param message 消息
+    * 发布
+    *
+    * @param topic topic
+    * @param message 消息
      */
     public void publish(String topic, Object message) {
         if (!isConnected()) {
@@ -195,9 +195,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 添加同步事件监听器。
-     *
-     * @param listener 监听器
+    * 添加同步事件监听器。
+    *
+    * @param listener 监听器
      */
     @Override
     public void addListener(SyncFlowListener listener) {
@@ -207,9 +207,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 移除同步事件监听器。
-     *
-     * @param listener 监听器
+    * 移除同步事件监听器。
+    *
+    * @param listener 监听器
      */
     @Override
     public void removeListener(SyncFlowListener listener) {
@@ -217,9 +217,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 获取客户端元数据。
-     *
-     * @return 元数据映射
+    * 获取客户端元数据。
+    *
+    * @return 元数据映射
      */
     @Override
     public Map<String, Object> getMetadata() {
@@ -248,10 +248,10 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 注册同步流程监听器。
-     *
-     * @param listener 监听器
-     * @return 当前实例
+    * 注册同步流程监听器。
+    *
+    * @param listener 监听器
+    * @return 当前实例
      */
     public KcpSyncClient onFlow(SyncFlowListener listener) {
         if (!isConnected()) {
@@ -262,9 +262,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 注册客户端元数据。
-     *
-     * @param meta 元数据
+    * 注册客户端元数据。
+    *
+    * @param meta 元数据
      */
     public void register(Map<String, Object> meta) {
         if (kcpClient != null) {
@@ -279,18 +279,18 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-     * 获取客户端id
-     *
-     * @return 获取客户端id的结果
+    * 获取客户端id
+    *
+    * @return 获取客户端id的结果
      */
     public String getClientId() {
         return clientId;
     }
 
     /**
-     * 获取服务端url
-     *
-     * @return 获取服务端url的结果
+    * 获取服务端url
+    *
+    * @return 获取服务端url的结果
      */
     public String getServerUrl() {
         return serverUrl;

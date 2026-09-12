@@ -19,10 +19,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-   * 基于虹软 arcsoft SDK 的人脸特征相似度比较算法
- *
- * @author CH
- * @since 4.0.0.42
+* 基于虹软 arcsoft SDK 的人脸特征相似度比较算法
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("arcsoft")

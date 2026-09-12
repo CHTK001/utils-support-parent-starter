@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * efficientnet-Lite4              Translator
- *
- * @author CH
- * @since 2026-04-19
+* efficientnet-Lite4              Translator
+*
+* @author CH
+* @since 2026-04-19
  */
 public class EfficientNetLite4ClassificationTranslator implements Translator<Image, Classifications> {
 
@@ -80,10 +80,10 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     /**
-     * 加载标签
-     *
-     * @param modelPath 模型路径
-     * @return 加载标签的结果
+    * 加载标签
+    *
+    * @param modelPath 模型路径
+    * @return 加载标签的结果
      */
     private static List<String> loadLabels(Path modelPath) {
         try {
@@ -115,10 +115,10 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     /**
-     * 默认标签
-     *
-     * @param size 大小
-     * @return 默认标签的结果
+    * 默认标签
+    *
+    * @param size 大小
+    * @return 默认标签的结果
      */
     private static List<String> defaultLabels(int size) {
         List<String> labels = new ArrayList<>(size);
@@ -129,10 +129,10 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     /**
-     * Softmax
-     *
-     * @param logits logits
-     * @return softmax的结果
+    * Softmax
+    *
+    * @param logits logits
+    * @return softmax的结果
      */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;

@@ -16,28 +16,28 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 桌面通知推送实现
- *
- * <p>通过 {@link NativeDesktopNotifier} 调用操作系统原生桌面通知能力。
-   * 自动检测平台并选择对应的原生实现（窗口/macOS/Linux）。
- *
- * <h3>环境配置</h3>
- * <pre>
- *   desktop.title    通知标题（可选，默认 "通知"）
- *   desktop.icon     通知图标路径（可选）
- * </pre>
- *
- * <h3>架构</h3>
- * <pre>
- *   DesktopMessagePush (MessagePush)
- *       → NativeDesktopNotifier (SPI 自动发现)
- *           ├── WindowsDesktopNotifier (PowerShell)
- *           ├── MacOsDesktopNotifier (osascript)
- *           └── LinuxDesktopNotifier (notify-send)
- * </pre>
- *
- * @author CH
- * @since 2026/07/17
+* 桌面通知推送实现
+*
+* <p>通过 {@link NativeDesktopNotifier} 调用操作系统原生桌面通知能力。
+* 自动检测平台并选择对应的原生实现（窗口/macOS/Linux）。
+*
+* <h3>环境配置</h3>
+* <pre>
+*   desktop.title    通知标题（可选，默认 "通知"）
+*   desktop.icon     通知图标路径（可选）
+* </pre>
+*
+* <h3>架构</h3>
+* <pre>
+*   DesktopMessagePush (MessagePush)
+*       → NativeDesktopNotifier (SPI 自动发现)
+*           ├── WindowsDesktopNotifier (PowerShell)
+*           ├── MacOsDesktopNotifier (osascript)
+*           └── LinuxDesktopNotifier (notify-send)
+* </pre>
+*
+* @author CH
+* @since 2026/07/17
  */
 @Spi("desktop")
 @SpiDescribe(
@@ -50,10 +50,10 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
-   * 公共 类 desktop消息push implements 消息push {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 desktop消息push implements 消息push {
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DesktopMessagePush implements MessagePush {
 
@@ -68,8 +68,8 @@ public class DesktopMessagePush implements MessagePush {
     }
 
     /**
-      * 创建 desktop消息push 实例
-     * @param environment 环境
+    * 创建 desktop消息push 实例
+    * @param environment 环境
      */
     public DesktopMessagePush(MessageEnvironment environment) {
         this.environment = environment;
@@ -83,8 +83,8 @@ public class DesktopMessagePush implements MessagePush {
 
     @Override
     /**
-     * 发送
-     * @param request 请求
+    * 发送
+    * @param request 请求
      */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
@@ -120,16 +120,16 @@ public class DesktopMessagePush implements MessagePush {
 
     @Override
     /**
-     * 获取Template
-     * @param templateId templateid
+    * 获取Template
+    * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
 
     /**
-     * 注册Template
-     * @param template template
+    * 注册Template
+    * @param template template
      */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);

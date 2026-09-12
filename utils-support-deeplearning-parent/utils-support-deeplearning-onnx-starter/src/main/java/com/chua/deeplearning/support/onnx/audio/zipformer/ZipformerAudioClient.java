@@ -18,21 +18,21 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Zipformer 中英双语流式 ASR 标准客户端。
- *
- * <p>通过 SPI 名称 {@code zipformer} / {@code zipformer-zh-en} 创建：
- *
- * <pre>{@code
- * VirtualClient client = VirtualClient.create("onnx", "zipformer");
- * String text = client.audio(Path.of("test.wav")).transcribe();
- * }</pre>est.wav")).transcribe();
- * }</pre>
- *
- * <p>模型（int8 约 189MB）首次使用时自动从 hf-mirror 下载到缓存目录，
- * 也可通过系统属性 {@code speech.loop.zipformer.dir} 指定已有模型目录。
- *
- * @author chua
- * @since 4.0.0.42
+* Zipformer 中英双语流式 ASR 标准客户端。
+*
+* <p>通过 SPI 名称 {@code zipformer} / {@code zipformer-zh-en} 创建：
+*
+* <pre>{@code
+* VirtualClient client = VirtualClient.create("onnx", "zipformer");
+* String text = client.audio(Path.of("test.wav")).transcribe();
+* }</pre>est.wav")).transcribe();
+* }</pre>
+*
+* <p>模型（int8 约 189MB）首次使用时自动从 hf-mirror 下载到缓存目录，
+* 也可通过系统属性 {@code speech.loop.zipformer.dir} 指定已有模型目录。
+*
+* @author chua
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"zipformer", "zipformer-zh-en", "zipformer-streaming"})
@@ -54,9 +54,9 @@ public class ZipformerAudioClient implements VirtualClient {
     private boolean prepared; // prepared
 
     /**
-     * 构造客户端。
-     *
-     * @param setting 配置
+    * 构造客户端。
+    *
+    * @param setting 配置
      */
     public ZipformerAudioClient(AudioClientSetting setting) {
         this.setting = setting;
@@ -154,7 +154,7 @@ public class ZipformerAudioClient implements VirtualClient {
     }
 
      /**
-       * ensureprepared。
+     * ensureprepared。
       */
      * 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
      *
@@ -184,8 +184,8 @@ public class ZipformerAudioClient implements VirtualClient {
         }
         Path dir = Path.of(cacheRoot(), "audio", "asr", "zipformer-zh-en");
         /**
-         * download模型。
-         * @param dir dir
+        * download模型。
+        * @param dir dir
          */
         Files.createDirectories(dir);
         return dir;
@@ -208,8 +208,8 @@ public class ZipformerAudioClient implements VirtualClient {
         }
         if (!failed.isEmpty()) {
             /**
-             * resolve音频路径。
-             * @return resolve音频路径的结果
+            * resolve音频路径。
+            * @return resolve音频路径的结果
              */
             throw new IOException("模型文件下载失败: " + failed);
         }

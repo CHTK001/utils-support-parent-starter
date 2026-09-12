@@ -9,27 +9,27 @@ import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 数据库文档解析器 — 通过 JDBC 元数据读取表结构及外键关系。
- *
- * <p>SPI 名称为 {@code "database"}，接受 {@link DocumentConfig} 配置 JDBC 连接。</p>
- *
- * <p>配置项（通过 {@link DocumentConfig#getOptions()}）：</p>
- * <ul>
- *   <li>{@code schemas} — 逗号分隔的 schema 名列表，或 {@code "*"} 表示全部（默认全部）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 数据库文档解析器 — 通过 JDBC 元数据读取表结构及外键关系。
+*
+* <p>SPI 名称为 {@code "database"}，接受 {@link DocumentConfig} 配置 JDBC 连接。</p>
+*
+* <p>配置项（通过 {@link DocumentConfig#getOptions()}）：</p>
+* <ul>
+*   <li>{@code schemas} — 逗号分隔的 schema 名列表，或 {@code "*"} 表示全部（默认全部）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("database")
 @Slf4j
 public class DatabaseDocumentParser implements DocumentParser {
 
 /**
-     * 解析数据库文档。
-     *
-     * @param config 文档配置
-     * @return 文档数据
+* 解析数据库文档。
+*
+* @param config 文档配置
+* @return 文档数据
      */
     @Override
     public DocumentData parse(DocumentConfig config) {
@@ -210,10 +210,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-      * 判断是否解析全部 模式（配置项 全部 = true）。
-     *
-     * @param config 文档配置
-     * @return true 表示解析全部 模式
+    * 判断是否解析全部 模式（配置项 全部 = true）。
+    *
+    * @param config 文档配置
+    * @return true 表示解析全部 模式
      */
     private static boolean isAllMode(DocumentConfig config) {
         if (config.getOptions() == null) {
@@ -230,10 +230,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-      * 解析需要导出的 模式 列表，未配置时导出全部。
-     *
-     * @param config 文档配置
-     * @return schema 名称集合，空 表示全部
+    * 解析需要导出的 模式 列表，未配置时导出全部。
+    *
+    * @param config 文档配置
+    * @return schema 名称集合，空 表示全部
      */
     private static Set<String> resolveSchemas(DocumentConfig config) {
         if (config.getOptions() == null) {
@@ -258,10 +258,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-     * 从配置中读取版本号，未设置时返回默认值。
-     *
-     * @param config 文档配置
-     * @return 版本号字符串
+    * 从配置中读取版本号，未设置时返回默认值。
+    *
+    * @param config 文档配置
+    * @return 版本号字符串
      */
     private static String resolveVersion(DocumentConfig config) {
         if (config.getOptions() == null) {
@@ -275,10 +275,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-     * 从 JDBC URL 中提取数据库名。
-     *
-     * @param url JDBC 连接 URL
-     * @return 数据库名，无法提取返回 空
+    * 从 JDBC URL 中提取数据库名。
+    *
+    * @param url JDBC 连接 URL
+    * @return 数据库名，无法提取返回 空
      */
     private static String extractCatalog(String url) {
         int idx = url.indexOf('?');
@@ -294,11 +294,11 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-     * 生成数据库文档名称。
-     *
-     * @param catalog 数据库目录
-     * @param schemas 模式 名称集合
-     * @return 数据库名称
+    * 生成数据库文档名称。
+    *
+    * @param catalog 数据库目录
+    * @param schemas 模式 名称集合
+    * @return 数据库名称
      */
     private static String buildDbName(String catalog, Set<String> schemas) {
         if (schemas.size() == 1) {
@@ -311,10 +311,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-      * 复用已有列数据构建便于修改的 构建器。
-     *
-     * @param c 列数据
-     * @return 列 构建器
+    * 复用已有列数据构建便于修改的 构建器。
+    *
+    * @param c 列数据
+    * @return 列 构建器
      */
     private static ColumnData.ColumnDataBuilder toBuilder(ColumnData c) {
         return ColumnData.builder()
@@ -330,10 +330,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-     * 将 JDBC 外键动作规则解析为可读文本。
-     *
-     * @param rule JDBC 规则编码
-     * @return 规则文本
+    * 将 JDBC 外键动作规则解析为可读文本。
+    *
+    * @param rule JDBC 规则编码
+    * @return 规则文本
      */
     private static String resolveRule(short rule) {
         return switch (rule) {

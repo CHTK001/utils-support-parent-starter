@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
-   * Redis redi搜索 元数据操作实现。
- *
- * @author CH
- * @since 4.0.0.42
+* Redis redi搜索 元数据操作实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RedisSearchMeta extends AbstractMetaSearch {
 
@@ -26,10 +26,10 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     private final RedisSearchEngineImpl searchEngine;
 
     /**
-      * 创建 redis搜索meta 实例
-     * @param metaData meta数据
-     * @param engine redi搜索engine
-     * @param engine engine
+    * 创建 redis搜索meta 实例
+    * @param metaData meta数据
+    * @param engine redi搜索engine
+    * @param engine engine
      */
     public RedisSearchMeta(AbstractMetaData metaData, RediSearchEngine engine) {
         super(metaData, engine);
@@ -76,12 +76,12 @@ public class RedisSearchMeta extends AbstractMetaSearch {
 
     @Override
     /**
-     * 优化
-     *
-     * @param indexName 索引名称
-     * @return 优化的结果
-     * @author CH
-     * @since 4.0.0
+    * 优化
+    *
+    * @param indexName 索引名称
+    * @return 优化的结果
+    * @author CH
+    * @since 4.0.0
      */
     public boolean optimize(String indexName) {
         return true;
@@ -169,11 +169,11 @@ public class RedisSearchMeta extends AbstractMetaSearch {
 
         @Override
         /**
-         * 执行
-         *
-         * @return 执行的结果
-         * @author CH
-         * @since 4.0.0
+        * 执行
+        *
+        * @return 执行的结果
+        * @author CH
+        * @since 4.0.0
          */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();

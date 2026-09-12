@@ -15,13 +15,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * HTML 抓取型视频搜索提供器基类
- *
- * <p>从指定 URL 抓取搜索页面 HTML，正则提取标题和链接。
-   * 子类只需实现 搜索url() 即可快速接入新站点。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* HTML 抓取型视频搜索提供器基类
+*
+* <p>从指定 URL 抓取搜索页面 HTML，正则提取标题和链接。
+* 子类只需实现 搜索url() 即可快速接入新站点。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class HtmlScraperResourceProvider extends AbstractResourceProvider {
 
@@ -30,26 +30,26 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
             .followRedirects(HttpClient.Redirect.NORMAL).build();
 
     /**
-     * 搜索 URL 模板，%s 替换编码后的关键词
-     *
-     * @param encodedKeyword encodedkeyword
-     * @return 搜索url的结果
+    * 搜索 URL 模板，%s 替换编码后的关键词
+    *
+    * @param encodedKeyword encodedkeyword
+    * @return 搜索url的结果
      */
     protected abstract String searchUrl(String encodedKeyword);
 
     /**
-     * 结果行正则：群体(1)=链接，群体(2)=标题，群体(3)=大小
-     *
-     * @return 结果模式的结果
+    * 结果行正则：群体(1)=链接，群体(2)=标题，群体(3)=大小
+    *
+    * @return 结果模式的结果
      */
     protected abstract Pattern resultPattern();
 
     /**
-     * 从匹配中构建 视频信息结果；可覆写自定义映射
-     *
-     * @param m m
-     * @param keyword keyword
-     * @return 构建结果的结果
+    * 从匹配中构建 视频信息结果；可覆写自定义映射
+    *
+    * @param m m
+    * @param keyword keyword
+    * @return 构建结果的结果
      */
     protected VideoInfoResult buildResult(Matcher m, String keyword) {
         VideoInfoResult v = new VideoInfoResult();
@@ -61,8 +61,8 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
 
     public HtmlScraperResourceProvider() { super(); }
     /**
-     * htmlscraperresource提供者。
-     * @param vs vs
+    * htmlscraperresource提供者。
+    * @param vs vs
      */
     public HtmlScraperResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
 

@@ -20,34 +20,34 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
- * C3D 视频动作检测 ONNX 翻译器。
- *
- * <p>基于 C3D 卷积神经网络，对输入视频帧序列执行动作分类检测。
- *
- * @author CH
- * @since 4.0.0.42
+* C3D 视频动作检测 ONNX 翻译器。
+*
+* <p>基于 C3D 卷积神经网络，对输入视频帧序列执行动作分类检测。
+*
+* @author CH
+* @since 4.0.0.42
  */
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 /**
- * c3d动作detectiontranslator类。
- *
- * @author CH
- * @since 4.0.0
- * @param x1 x1
- * @param y1 y1
- * @param x2 x2
- * @param y2 y2
- * @param score score
- * @param classId 类标识
- * @return Detection的结果
- * @param predBboxes predbboxes
- * @param predScores predscores
- * @param timestamp 时间戳
- * @param frames 帧
- * @param videoData 视频数据
+* c3d动作detectiontranslator类。
+*
+* @author CH
+* @since 4.0.0
+* @param x1 x1
+* @param y1 y1
+* @param x2 x2
+* @param y2 y2
+* @param score score
+* @param classId 类标识
+* @return Detection的结果
+* @param predBboxes predbboxes
+* @param predScores predscores
+* @param timestamp 时间戳
+* @param frames 帧
+* @param videoData 视频数据
  */
 
 @Slf4j
@@ -80,14 +80,14 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
 
     private static volatile C3DActionDetectionTranslator shared; // 共享
 /**
- * c3d动作detectiontranslator。
- * @return 获取instance的结果
+* c3d动作detectiontranslator。
+* @return 获取instance的结果
  */
 
     public static C3DActionDetectionTranslator getInstance() {
         if (shared == null) {
             /**
-             * prepare。
+            * prepare。
              */
             synchronized (C3DActionDetectionTranslator.class) {
                 if (shared == null) {
@@ -125,10 +125,10 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                 }
                 this.ortEnv = OrtEnvironment.getEnvironment();
                 /**
-                 * 名称。
-                 * @return 名称的结果
-                 * @param frames 帧
-                 * @param videoData 视频数据
+                * 名称。
+                * @return 名称的结果
+                * @param frames 帧
+                * @param videoData 视频数据
                  */
                 OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
                 opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));
@@ -249,14 +249,14 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         data[0 * chStride + pixelOffset] = (float) pixel[0];
                         data[1 * chStride + pixelOffset] = (float) pixel[1];
                         /**
-                         * 解析tensor。
-                         * @param result 结果
-                         * @param name 名称
-                         * @param expectedDims 期望dims
-                         * @return 解析tensor的结果
-                         * @param predBboxes predBboxes
-                         * @param predScores predScores
-                         * @param timestamp 时间戳
+                        * 解析tensor。
+                        * @param result 结果
+                        * @param name 名称
+                        * @param expectedDims 期望dims
+                        * @return 解析tensor的结果
+                        * @param predBboxes predBboxes
+                        * @param predScores predScores
+                        * @param timestamp 时间戳
                          */
                         data[2 * chStride + pixelOffset] = (float) pixel[2];
                     }
@@ -329,10 +329,10 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
             for (Detection d : kept) {
                 results.add(new ActionDetectionResult(
                         /**
-                         * nms。
-                         * @param detections detections
-                         * @param threshold 阈值
-                         * @return nms的结果
+                        * nms。
+                        * @param detections detections
+                        * @param threshold 阈值
+                        * @return nms的结果
                          */
                         timestamp, ACTION_NAMES[d.classId], d.score,
                         d.x1, d.y1, d.x2 - d.x1, d.y2 - d.y1));
@@ -358,23 +358,23 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                 float iou = computeIou(a, b);
                 if (iou > threshold) {
                     /**
-                      * computeiou。
-                     * @param a a
-                     * @param b b
-                     * @return computeIou的结果
-                     * @param x1 x1
-                     * @param y1 y1
-                     * @param x2 x2
-                     * @param y2 y2
-                     * @param score score
-                     * @param classId 类id
+                    * computeiou。
+                    * @param a a
+                    * @param b b
+                    * @return computeIou的结果
+                    * @param x1 x1
+                    * @param y1 y1
+                    * @param x2 x2
+                    * @param y2 y2
+                    * @param score score
+                    * @param classId 类id
                      */
                     suppressed[j] = true;
                 /**
-                 * computeIou。
-                 * @param a a
-                 * @param b b
-                 * @return computeIou的结果
+                * computeIou。
+                * @param a a
+                * @param b b
+                * @return computeIou的结果
                  */
                 }
             }

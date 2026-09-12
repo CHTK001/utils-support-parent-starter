@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * NuGet 软件包管理器提供器。
- *
- * <p>通过 dotnet / nuget CLI 搜索、安装和卸载 .NET 全局工具与包。
-   * 搜索使用 <code>dotnet NuGet 搜索</code>，安装/卸载使用
- * <code>dotnet tool install/uninstall --global</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* NuGet 软件包管理器提供器。
+*
+* <p>通过 dotnet / nuget CLI 搜索、安装和卸载 .NET 全局工具与包。
+* 搜索使用 <code>dotnet NuGet 搜索</code>，安装/卸载使用
+* <code>dotnet tool install/uninstall --global</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("nuget")
 public class NuGetSoftwareProvider implements SoftwareProvider {
@@ -90,12 +90,12 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -123,10 +123,10 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析nuget输出
-     *
-     * @param output 输出
-     * @return 解析nuget输出的结果
+    * 解析nuget输出
+    *
+    * @param output 输出
+    * @return 解析nuget输出的结果
      */
     private List<SoftwareInfo> parseNugetOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
@@ -161,10 +161,10 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * lookslike版本
-     *
-     * @param s s
-     * @return lookslike版本的结果
+    * lookslike版本
+    *
+    * @param s s
+    * @return lookslike版本的结果
      */
     private boolean looksLikeVersion(String s) {
         if (s == null || s.isEmpty()) {

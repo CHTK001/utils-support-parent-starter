@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * HEIC/HEIF 图像读取器（纯Java实现）。
- *
- * @author CH
- * @since 4.0.0.42
+* HEIC/HEIF 图像读取器（纯Java实现）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HEICImageReader extends ImageReader {
 
@@ -23,8 +23,8 @@ public class HEICImageReader extends ImageReader {
     private int width, height; // height
 
     /**
-     * heic镜像读取。
-     * @param spi spi
+    * heic镜像读取。
+    * @param spi spi
      */
     public HEICImageReader(HEICImageReaderSpi spi) {
         super(spi);

@@ -20,126 +20,126 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
-   * 加密程序包引导器（Manifest 注入的 Main-类）
- *
- * <p>启动流程：
- * <ol>
- *   <li>反注入自检（{@link SelfDefense#install()}）</li>
- *   <li>按优先级获取主密钥：校验服务器 → 私钥文件 → 包内密钥封装块</li>
- *   <li>解密应用类与依赖包到进程私有临时目录（默认模式，退出自动清理）；
- *       或 {@code -Dchua.crypto.lazy=true} 启用惰性解密类加载器</li>
- *   <li>调用原始主类</li>
- * </ol>
- *
- * <p>密钥来源配置（均支持 -D 系统属性与环境变量）：
- * <table border="1">
- *   <tr><th>形式</th><th>-D 属性</th><th>环境变量</th></tr>
- *   <tr><td>字符串口令(pepper)</td><td>chua.crypto.pin</td><td>CHUA_CRYPTO_PIN</td></tr>
- *   <tr><td>主机指纹固定值</td><td>chua.crypto.server-id</td><td>CHUA_CRYPTO_SERVER_ID</td></tr>
- *   <tr><td>私钥文件</td><td>chua.crypto.key-file</td><td>CHUA_CRYPTO_KEY_FILE</td></tr>
- *   <tr><td>校验服务器</td><td>chua.crypto.license-url / app-id</td><td>CHUA_CRYPTO_LICENSE_URL / CHUA_CRYPTO_APP_ID</td></tr>
- * </table>
- *
- * @author CH
- * @since 2026-08-26
+* 加密程序包引导器（Manifest 注入的 Main-类）
+*
+* <p>启动流程：
+* <ol>
+*   <li>反注入自检（{@link SelfDefense#install()}）</li>
+*   <li>按优先级获取主密钥：校验服务器 → 私钥文件 → 包内密钥封装块</li>
+*   <li>解密应用类与依赖包到进程私有临时目录（默认模式，退出自动清理）；
+*       或 {@code -Dchua.crypto.lazy=true} 启用惰性解密类加载器</li>
+*   <li>调用原始主类</li>
+* </ol>
+*
+* <p>密钥来源配置（均支持 -D 系统属性与环境变量）：
+* <table border="1">
+*   <tr><th>形式</th><th>-D 属性</th><th>环境变量</th></tr>
+*   <tr><td>字符串口令(pepper)</td><td>chua.crypto.pin</td><td>CHUA_CRYPTO_PIN</td></tr>
+*   <tr><td>主机指纹固定值</td><td>chua.crypto.server-id</td><td>CHUA_CRYPTO_SERVER_ID</td></tr>
+*   <tr><td>私钥文件</td><td>chua.crypto.key-file</td><td>CHUA_CRYPTO_KEY_FILE</td></tr>
+*   <tr><td>校验服务器</td><td>chua.crypto.license-url / app-id</td><td>CHUA_CRYPTO_LICENSE_URL / CHUA_CRYPTO_APP_ID</td></tr>
+* </table>
+*
+* @author CH
+* @since 2026-08-26
  */
 public final class CryptoLauncher {
 
     /**
-     * 打包内嵌密钥块条目名
+    * 打包内嵌密钥块条目名
      */
     public static final String KEY_BLOB_ENTRY = "META-INF/chua-crypto.key";
 
     /**
-     * 原始主类清单属性
+    * 原始主类清单属性
      */
     public static final String ATTR_ORIGINAL_MAIN = "Chua-Original-Main-Class";
 
     /**
-     * 口令系统属性
+    * 口令系统属性
      */
     public static final String PROP_PIN = "chua.crypto.pin";
 
     /**
-     * 口令环境变量
+    * 口令环境变量
      */
     public static final String ENV_PIN = "CHUA_CRYPTO_PIN";
 
     /**
-     * 固定服务器标识系统属性
+    * 固定服务器标识系统属性
      */
     public static final String PROP_SERVER_ID = "chua.crypto.server-id";
 
     /**
-     * 固定服务器标识环境变量
+    * 固定服务器标识环境变量
      */
     public static final String ENV_SERVER_ID = "CHUA_CRYPTO_SERVER_ID";
 
     /**
-     * 私钥文件系统属性
+    * 私钥文件系统属性
      */
     public static final String PROP_KEY_FILE = "chua.crypto.key-file";
 
     /**
-     * 私钥文件环境变量
+    * 私钥文件环境变量
      */
     public static final String ENV_KEY_FILE = "CHUA_CRYPTO_KEY_FILE";
 
     /**
-     * 校验服务器地址系统属性
+    * 校验服务器地址系统属性
      */
     public static final String PROP_LICENSE_URL = "chua.crypto.license-url";
 
     /**
-     * 校验服务器地址环境变量
+    * 校验服务器地址环境变量
      */
     public static final String ENV_LICENSE_URL = "CHUA_CRYPTO_LICENSE_URL";
 
     /**
-     * 应用标识系统属性
+    * 应用标识系统属性
      */
     public static final String PROP_APP_ID = "chua.crypto.app-id";
 
     /**
-     * 应用标识环境变量
+    * 应用标识环境变量
      */
     public static final String ENV_APP_ID = "CHUA_CRYPTO_APP_ID";
 
     /**
-     * 校验服务器响应签名密钥系统属性（生产必须配置）
+    * 校验服务器响应签名密钥系统属性（生产必须配置）
      */
     public static final String PROP_LICENSE_SECRET = "chua.crypto.license-secret";
 
     /**
-     * 校验服务器响应签名密钥环境变量
+    * 校验服务器响应签名密钥环境变量
      */
     public static final String ENV_LICENSE_SECRET = "CHUA_CRYPTO_LICENSE_SECRET";
 
     /**
-     * 惰性加载开关（默认关闭：解密装载模式对 Spring 组件扫描等完全兼容）
+    * 惰性加载开关（默认关闭：解密装载模式对 Spring 组件扫描等完全兼容）
      */
     public static final String PROP_LAZY = "chua.crypto.lazy";
 
     /**
-      * fatjar 依赖目录前缀
+    * fatjar 依赖目录前缀
      */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
 
     /**
-      * fatjar 应用类根前缀
+    * fatjar 应用类根前缀
      */
     private static final String BOOT_CLASSES_PREFIX = "BOOT-INF/classes/";
 
     /**
-     * 私有构造
+    * 私有构造
      */
     private CryptoLauncher() {
     }
 
     /**
-     * JVM 入口：失败时打印原因并以非零码退出
-     *
-     * @param args 应用启动参数
+    * JVM 入口：失败时打印原因并以非零码退出
+    *
+    * @param args 应用启动参数
      */
     public static void main(String[] args) {
         try {
@@ -151,10 +151,10 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 引导主流程
-     *
-     * @param args 应用启动参数
-     * @throws Throwable 启动失败
+    * 引导主流程
+    *
+    * @param args 应用启动参数
+    * @throws Throwable 启动失败
      */
     static void launch(String[] args) throws Throwable {
         SelfDefense.install();
@@ -190,10 +190,10 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 收紧目录权限（best-effort）：POSIX 文件系统设为仅属主读写执行；
-      * 不支持 POSIX 语义的文件系统跳过，依赖部署环境 访问控制列表
-     *
-     * @param dir 目标目录
+    * 收紧目录权限（best-effort）：POSIX 文件系统设为仅属主读写执行；
+    * 不支持 POSIX 语义的文件系统跳过，依赖部署环境 访问控制列表
+    *
+    * @param dir 目标目录
      */
     private static void harden(Path dir) {
         try {
@@ -208,16 +208,16 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 解封主密钥，优先级：
-     * <ol>
-     *   <li>校验服务器：POST 本机指纹 → 校验注册合法性 → 下发注册的私钥封装块</li>
-     *   <li>私钥文件（CHKF）</li>
-     *   <li>包内密钥封装块（策略以块内标志为准）</li>
-     * </ol>
-     *
-     * @param jar 加密程序包
-     * @return 32 字节主密钥
-     * @throws IOException 读取失败
+    * 解封主密钥，优先级：
+    * <ol>
+    *   <li>校验服务器：POST 本机指纹 → 校验注册合法性 → 下发注册的私钥封装块</li>
+    *   <li>私钥文件（CHKF）</li>
+    *   <li>包内密钥封装块（策略以块内标志为准）</li>
+    * </ol>
+    *
+    * @param jar 加密程序包
+    * @return 32 字节主密钥
+    * @throws IOException 读取失败
      */
     private static byte[] resolveMaster(JarFile jar) throws IOException {
         char[] pin = readSecret();
@@ -252,14 +252,14 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 加载外置私钥文件封装块（CHKF）
-     *
-     * @param file      载体文件
-     * @param desc      描述（用于错误消息）
-     * @param pin       口令
-     * @param serverId  固定服务器标识
-     * @return 主密钥
-     * @throws IOException 读取失败
+    * 加载外置私钥文件封装块（CHKF）
+    *
+    * @param file      载体文件
+    * @param desc      描述（用于错误消息）
+    * @param pin       口令
+    * @param serverId  固定服务器标识
+    * @return 主密钥
+    * @throws IOException 读取失败
      */
     private static byte[] loadCarrierBlob(Path file, String desc, char[] pin, String serverId) throws IOException {
         if (!Files.exists(file)) {
@@ -270,13 +270,13 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 默认模式：应用类与资源、依赖包整体解密到临时目录，构建标准类加载器。
-     *
-     * @param jar     加密程序包
-     * @param master  主密钥
-     * @param tempDir 进程私有临时根目录
-     * @return 应用类加载器
-     * @throws IOException 解密写出失败
+    * 默认模式：应用类与资源、依赖包整体解密到临时目录，构建标准类加载器。
+    *
+    * @param jar     加密程序包
+    * @param master  主密钥
+    * @param tempDir 进程私有临时根目录
+    * @return 应用类加载器
+    * @throws IOException 解密写出失败
      */
     private static URLClassLoader buildExtractedLoader(JarFile jar, byte[] master, Path tempDir)
             throws IOException {
@@ -308,12 +308,12 @@ public final class CryptoLauncher {
     }
 
     /**
-      * 惰性模式：应用 类 经 {@link EncryptedAppClassLoader} 按需解密，不落盘。
-     *
-     * @param self   包文件
-     * @param master 主密钥
-     * @return 惰性加载器
-     * @throws IOException 解密失败
+    * 惰性模式：应用 类 经 {@link EncryptedAppClassLoader} 按需解密，不落盘。
+    *
+    * @param self   包文件
+    * @param master 主密钥
+    * @return 惰性加载器
+    * @throws IOException 解密失败
      */
     private static URLClassLoader buildLazyLoader(File self, byte[] master) throws IOException {
         Path libsDir = Files.createTempDirectory("chua-crypto-libs");
@@ -334,10 +334,10 @@ public final class CryptoLauncher {
     }
 
     /**
-      * 收集 fatjar 依赖条目并按名称排序
-     *
-     * @param jar 加密程序包
-     * @return 依赖条目列表
+    * 收集 fatjar 依赖条目并按名称排序
+    *
+    * @param jar 加密程序包
+    * @return 依赖条目列表
      */
     private static List<JarEntry> collectLibEntries(JarFile jar) {
         List<JarEntry> libs = new ArrayList<>();
@@ -354,13 +354,13 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 解密条目（未加密则原样返回）
-     *
-     * @param jar   程序包
-     * @param entry 条目
-     * @param master 主密钥
-     * @return 明文字节
-     * @throws IOException 读取失败
+    * 解密条目（未加密则原样返回）
+    *
+    * @param jar   程序包
+    * @param entry 条目
+    * @param master 主密钥
+    * @return 明文字节
+    * @throws IOException 读取失败
      */
     private static byte[] decryptEntryBytes(JarFile jar, JarEntry entry, byte[] master) throws IOException {
         byte[] raw = readAll(jar.getInputStream(entry));
@@ -368,19 +368,19 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 取条目文件名
-     *
-     * @param entry 条目
-     * @return 文件名
+    * 取条目文件名
+    *
+    * @param entry 条目
+    * @return 文件名
      */
     private static String fileName(JarEntry entry) {
         return Path.of(entry.getName()).getFileName().toString();
     }
 
     /**
-     * 注册 JVM 关闭钩子：递归删除临时目录
-     *
-     * @param dir 临时目录
+    * 注册 JVM 关闭钩子：递归删除临时目录
+    *
+    * @param dir 临时目录
      */
     private static void registerCleanup(Path dir) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -393,10 +393,10 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 定位自身程序包文件
-     *
-     * @return 加密包物理文件
-     * @throws IllegalStateException 无法定位
+    * 定位自身程序包文件
+    *
+    * @return 加密包物理文件
+    * @throws IllegalStateException 无法定位
      */
     private static File locateSelfJar() {
         ProtectionDomain domain = CryptoLauncher.class.getProtectionDomain();
@@ -417,11 +417,11 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 读取 Manifest 主属性
-     *
-     * @param jar 程序包
-     * @return 主属性
-     * @throws IOException 读取失败
+    * 读取 Manifest 主属性
+    *
+    * @param jar 程序包
+    * @return 主属性
+    * @throws IOException 读取失败
      */
     private static Attributes mainAttributes(JarFile jar) throws IOException {
         return jar.getManifest() != null
@@ -430,9 +430,9 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 读取口令：系统属性优先，其次环境变量
-     *
-     * @return 口令字符数组（可能为 空）
+    * 读取口令：系统属性优先，其次环境变量
+    *
+    * @return 口令字符数组（可能为 空）
      */
     private static char[] readSecret() {
         String pin = System.getProperty(PROP_PIN);
@@ -443,10 +443,10 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 取第一个非空字符串
-     *
-     * @param values 候选值
-     * @return 首个非空值或 空
+    * 取第一个非空字符串
+    *
+    * @param values 候选值
+    * @return 首个非空值或 空
      */
     private static String firstNonBlank(String... values) {
         for (String value : values) {
@@ -458,11 +458,11 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 读取流全部字节
-     *
-     * @param in 输入流
-     * @return 字节
-     * @throws IOException 读取失败
+    * 读取流全部字节
+    *
+    * @param in 输入流
+    * @return 字节
+    * @throws IOException 读取失败
      */
     private static byte[] readAll(InputStream in) throws IOException {
         try (InputStream input = in) {

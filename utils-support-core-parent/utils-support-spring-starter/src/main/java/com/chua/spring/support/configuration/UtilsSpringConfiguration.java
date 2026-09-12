@@ -12,13 +12,13 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 
 /**
- * Spring 集成总配置：导入日期转换与 MVC Formatter，启用 AOP 并注入默认拦截器。
- * <p>
- * 纯 Spring 环境可通过 {@code @Import(UtilsSpringConfiguration.class)} 启用；
- * Spring Boot 环境由 {@code utils-support-springboot-starter} 自动装配。
- *
- * @author CH
- * @since 4.0.0.42
+* Spring 集成总配置：导入日期转换与 MVC Formatter，启用 AOP 并注入默认拦截器。
+* <p>
+* 纯 Spring 环境可通过 {@code @Import(UtilsSpringConfiguration.class)} 启用；
+* Spring Boot 环境由 {@code utils-support-springboot-starter} 自动装配。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Configuration
 @EnableAspectJAutoProxy
@@ -28,9 +28,9 @@ public class UtilsSpringConfiguration {
     @Bean
     @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
     /**
-     * Distributed锁Intercept
-     *
-     * @return distributed锁intercept的结果
+    * Distributed锁Intercept
+    *
+    * @return distributed锁intercept的结果
      */
     public DistributedLockIntercept distributedLockIntercept() {
         return new DistributedLockIntercept();
@@ -39,10 +39,10 @@ public class UtilsSpringConfiguration {
     @Bean
     @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
     /**
-     * Distributed锁Advisor
-     *
-     * @param intercept intercept
-     * @return distributed锁advisor的结果
+    * Distributed锁Advisor
+    *
+    * @param intercept intercept
+    * @return distributed锁advisor的结果
      */
     public DistributedLockAdvisor distributedLockAdvisor(DistributedLockIntercept intercept) {
         return new DistributedLockAdvisor(intercept);
@@ -51,9 +51,9 @@ public class UtilsSpringConfiguration {
     @Bean
     @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
     /**
-     * Collapse拦截
-     *
-     * @return collapsibleIntercept的结果
+    * Collapse拦截
+    *
+    * @return collapsibleIntercept的结果
      */
     public CollapsibleIntercept collapsibleIntercept() {
         return new CollapsibleIntercept();
@@ -62,10 +62,10 @@ public class UtilsSpringConfiguration {
     @Bean
     @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
     /**
-     * collapseadvisor
-     *
-     * @param intercept intercept
-     * @return collapsibleAdvisor的结果
+    * collapseadvisor
+    *
+    * @param intercept intercept
+    * @return collapsibleAdvisor的结果
      */
     public CollapsibleAdvisor collapsibleAdvisor(CollapsibleIntercept intercept) {
         return new CollapsibleAdvisor(intercept);

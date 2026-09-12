@@ -15,19 +15,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-   * free习俗.Email (FCE) 临时邮箱服务实现 — REST API 方式。
- *
- * <p>纯 REST API，无需浏览器，无需 IMAP：</p>
- * <ul>
- *   <li>POST /v1/inboxes {"inbox": "前缀@域名"} → 注册地址</li>
- *   <li>GET  /v1/inboxes/{inbox}/messages → 收取邮件列表</li>
- * </ul>
- *
- * <p>注册地址：https://www.freecustom.email/auth</p>
- * <p>IMAP 备用：imap.freecustom.email:993（需 Growth 套餐）</p>
- *
- * @author CH
- * @since 4.0.0.42
+* free习俗.Email (FCE) 临时邮箱服务实现 — REST API 方式。
+*
+* <p>纯 REST API，无需浏览器，无需 IMAP：</p>
+* <ul>
+*   <li>POST /v1/inboxes {"inbox": "前缀@域名"} → 注册地址</li>
+*   <li>GET  /v1/inboxes/{inbox}/messages → 收取邮件列表</li>
+* </ul>
+*
+* <p>注册地址：https://www.freecustom.email/auth</p>
+* <p>IMAP 备用：imap.freecustom.email:993（需 Growth 套餐）</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("fce")
@@ -44,7 +44,7 @@ public class FceEmailProvider implements EmailProvider {
     private final String apiKey;
 
     /**
-     * fceemail提供者。
+    * fceemail提供者。
      */
     public FceEmailProvider() {
         this.apiKey = resolveApiKey();
@@ -127,8 +127,8 @@ public class FceEmailProvider implements EmailProvider {
     }
 
     /**
-     * 从邮件内容中提取 OTP 验证码。
-     * @return resolveapi键的结果
+    * 从邮件内容中提取 OTP 验证码。
+    * @return resolveapi键的结果
      /**
        * extractotp。
       * @param text 文本

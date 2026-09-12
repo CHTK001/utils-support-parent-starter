@@ -10,11 +10,11 @@ import java.util.Map;
 
 
 /**
- * TOML字符串转配置
- *
- * @author CH
-   * @版本 1.0.0
- * @since 4.0.0.42
+* TOML字符串转配置
+*
+* @author CH
+* @版本 1.0.0
+* @since 4.0.0.42
  */
 @SuppressWarnings("ALL")
 @Spi({"toml"})

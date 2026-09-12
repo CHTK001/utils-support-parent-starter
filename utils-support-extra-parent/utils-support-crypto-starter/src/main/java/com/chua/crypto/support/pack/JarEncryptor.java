@@ -19,153 +19,153 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 /**
-   * 可执行程序包加密器（springboot fatjar / 普通 Jar）
- *
- * <p>将可运行程序整体加密为自保护发行包：
- * <ul>
- *   <li>类文件 — {@code *.class} 全部按 CHKJ 格式逐条目加密</li>
- *   <li>依赖包 — FatJar 内 {@code BOOT-INF/lib/*.jar} 整体加密（依赖包加密）</li>
- *   <li>配置文件 — 链式开关 {@code encryptConfig(true)} 后，application/bootstrap 等配置一并加密，
- *       运行期由引导类加载器透明解密，磁盘始终密文</li>
- *   <li>主密钥 — 以 CHKF 封装块内嵌至 {@code META-INF/chua.crypto.key}：
-   * 服务端_BOUND 策略下密钥与打包机绑定，程序拷贝到其他服务器无法启动；
-   * 习俗 策略下需口令启动；亦可在启动时改用私钥文件解封</li>
- *   <li>引导器 — 注入零依赖的 {@code launch} 包并接管 Manifest Main-Class，
-   * 原 Main-类 记录于 {@code Chua-Original-Main-Class}</li>
- * </ul>
- *
- * <p>使用示例：
- * <pre>{@code
- * Crypto crypto = Crypto.create().keyPolicy(KeyPolicy.SERVER_BOUND).build();
- *
- * JarEncryptor.create()
- *         .source("app.jar")              // SpringBoot FatJar 或普通可执行 Jar
- *         .output("app-secure.jar")
- *         .crypto(crypto)
- *         .encryptConfig(true)            // 配置文件随包一起加密
- *         .exclude("BOOT-INF/classes/static/")
- *         .execute();
- *
- * // 发行后运行：java -jar app-secure.jar（SERVER_BOUND 本机免参；CUSTOM 加 -Dchua.crypto.pin=xxx）
- * }</pre> // 发行后运行：java -jar app-secure.jar（SERVER_BOUND 本机免参；CUSTOM 加 -Dchua.crypto.pin=xxx）
- * }</pre>
- *
- * @author CH
- * @since 2026-08-26
+* 可执行程序包加密器（springboot fatjar / 普通 Jar）
+*
+* <p>将可运行程序整体加密为自保护发行包：
+* <ul>
+*   <li>类文件 — {@code *.class} 全部按 CHKJ 格式逐条目加密</li>
+*   <li>依赖包 — FatJar 内 {@code BOOT-INF/lib/*.jar} 整体加密（依赖包加密）</li>
+*   <li>配置文件 — 链式开关 {@code encryptConfig(true)} 后，application/bootstrap 等配置一并加密，
+*       运行期由引导类加载器透明解密，磁盘始终密文</li>
+*   <li>主密钥 — 以 CHKF 封装块内嵌至 {@code META-INF/chua.crypto.key}：
+* 服务端_BOUND 策略下密钥与打包机绑定，程序拷贝到其他服务器无法启动；
+* 习俗 策略下需口令启动；亦可在启动时改用私钥文件解封</li>
+*   <li>引导器 — 注入零依赖的 {@code launch} 包并接管 Manifest Main-Class，
+* 原 Main-类 记录于 {@code Chua-Original-Main-Class}</li>
+* </ul>
+*
+* <p>使用示例：
+* <pre>{@code
+* Crypto crypto = Crypto.create().keyPolicy(KeyPolicy.SERVER_BOUND).build();
+*
+* JarEncryptor.create()
+*         .source("app.jar")              // SpringBoot FatJar 或普通可执行 Jar
+*         .output("app-secure.jar")
+*         .crypto(crypto)
+*         .encryptConfig(true)            // 配置文件随包一起加密
+*         .exclude("BOOT-INF/classes/static/")
+*         .execute();
+*
+* // 发行后运行：java -jar app-secure.jar（SERVER_BOUND 本机免参；CUSTOM 加 -Dchua.crypto.pin=xxx）
+* }</pre> // 发行后运行：java -jar app-secure.jar（SERVER_BOUND 本机免参；CUSTOM 加 -Dchua.crypto.pin=xxx）
+* }</pre>
+*
+* @author CH
+* @since 2026-08-26
  */
 public class JarEncryptor {
 
     /**
-     * 打包内嵌密钥块条目名
+    * 打包内嵌密钥块条目名
      */
     public static final String KEY_BLOB_ENTRY = CryptoLauncher.KEY_BLOB_ENTRY;
 
     /**
-     * 原始主类清单属性
+    * 原始主类清单属性
      */
     public static final String ATTR_ORIGINAL_MAIN = CryptoLauncher.ATTR_ORIGINAL_MAIN;
 
     /**
-     * SpringBoot 真实主类属性名
+    * SpringBoot 真实主类属性名
      */
     public static final String START_CLASS_ATTR = "Start-Class";
 
     /**
-     * 引导器主类名
+    * 引导器主类名
      */
     private static final String LAUNCHER_CLASS = CryptoLauncher.class.getName();
 
     /**
-     * 引导器包路径前缀（保持明文注入）
+    * 引导器包路径前缀（保持明文注入）
      */
     private static final String LAUNCH_PACKAGE = "com/chua/crypto/support/launch/";
 
     /**
-      * fatjar 依赖目录前缀
+    * fatjar 依赖目录前缀
      */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
 
     /**
-     * 需剔除的签名文件模式
+    * 需剔除的签名文件模式
      */
     private static final Pattern SIGNATURE_FILE = Pattern.compile("^META-INF/.*\\.(SF|DSA|RSA|EC)$");
 
     /**
-      * 配置文件条目模式（encrypt配置 开启时生效）
+    * 配置文件条目模式（encrypt配置 开启时生效）
      */
     private static final Pattern CONFIG_ENTRY =
             Pattern.compile("^(application|bootstrap)[-.\\w]*\\.(yml|yaml|properties)$");
 
     /**
-     * 源程序包
+    * 源程序包
      */
     private Path source;
 
     /**
-     * 输出加密包
+    * 输出加密包
      */
     private Path output;
 
     /**
-     * 已初始化的加密门面
+    * 已初始化的加密门面
      */
     private Crypto crypto;
 
     /**
-     * 是否同时加密配置文件
+    * 是否同时加密配置文件
      */
     private boolean encryptConfig;
 
     /**
-     * 是否加密依赖包(BOOT-INF/lib/*.jar)，默认加密；关闭后依赖包明文保留
+    * 是否加密依赖包(BOOT-INF/lib/*.jar)，默认加密；关闭后依赖包明文保留
      */
     private boolean encryptLibs = true;
 
     /**
-      * 是否对应用 类 做混淆处理（剥离调试信息）
+    * 是否对应用 类 做混淆处理（剥离调试信息）
      */
     private boolean obfuscate;
 
     /**
-     * 混淆时是否重命名私有成员（需自行评估反射兼容性）
+    * 混淆时是否重命名私有成员（需自行评估反射兼容性）
      */
     private boolean renamePrivates;
 
     /**
-      * 源包是否为 springboot 布局（执行 期间判定）
+    * 源包是否为 springboot 布局（执行 期间判定）
      */
     private boolean springBootLayout;
 
     /**
-     * 是否内嵌密钥封装块（默认 true；关闭后包必须依赖 校验服务器/私钥文件/管道 获取密钥）
+    * 是否内嵌密钥封装块（默认 true；关闭后包必须依赖 校验服务器/私钥文件/管道 获取密钥）
      */
     private boolean embedKeyBlob = true;
 
     /**
-     * 明文保留前缀排除列表
+    * 明文保留前缀排除列表
      */
     private final List<String> excludes = new ArrayList<>();
 
     /**
-     * 私有构造，统一从 {@link #create()} 进入
+    * 私有构造，统一从 {@link #create()} 进入
      */
     private JarEncryptor() {
     }
 
     /**
-     * 创建链式构建入口
-     *
-     * @return 加密器
+    * 创建链式构建入口
+    *
+    * @return 加密器
      */
     public static JarEncryptor create() {
         return new JarEncryptor();
     }
 
     /**
-     * 设置源程序包
-     *
-     * @param source 源 jar 路径
-     * @return 当前对象
+    * 设置源程序包
+    *
+    * @param source 源 jar 路径
+    * @return 当前对象
      */
     public JarEncryptor source(String source) {
         this.source = Path.of(source);
@@ -173,10 +173,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 设置源程序包
-     *
-     * @param source 源 jar 路径
-     * @return 当前对象
+    * 设置源程序包
+    *
+    * @param source 源 jar 路径
+    * @return 当前对象
      */
     public JarEncryptor source(Path source) {
         this.source = source;
@@ -184,10 +184,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 设置输出加密包路径
-     *
-     * @param output 输出路径
-     * @return 当前对象
+    * 设置输出加密包路径
+    *
+    * @param output 输出路径
+    * @return 当前对象
      */
     public JarEncryptor output(String output) {
         this.output = Path.of(output);
@@ -195,10 +195,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 设置输出加密包路径
-     *
-     * @param output 输出路径
-     * @return 当前对象
+    * 设置输出加密包路径
+    *
+    * @param output 输出路径
+    * @return 当前对象
      */
     public JarEncryptor output(Path output) {
         this.output = output;
@@ -206,10 +206,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 绑定已初始化的加密门面（提供主密钥与策略）
-     *
-     * @param crypto 加密门面
-     * @return 当前对象
+    * 绑定已初始化的加密门面（提供主密钥与策略）
+    *
+    * @param crypto 加密门面
+    * @return 当前对象
      */
     public JarEncryptor crypto(Crypto crypto) {
         this.crypto = crypto;
@@ -217,10 +217,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 设置配置文件是否随包一起加密
-     *
-     * @param encryptConfig true 表示加密 application/bootstrap 等配置条目
-     * @return 当前对象
+    * 设置配置文件是否随包一起加密
+    *
+    * @param encryptConfig true 表示加密 application/bootstrap 等配置条目
+    * @return 当前对象
      */
     public JarEncryptor encryptConfig(boolean encryptConfig) {
         this.encryptConfig = encryptConfig;
@@ -228,10 +228,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 设置依赖包是否加密（默认 true）
-     *
-     * @param encryptLibs false 表示 BOOT-INF/lib/*.jar 明文保留
-     * @return 当前对象
+    * 设置依赖包是否加密（默认 true）
+    *
+    * @param encryptLibs false 表示 BOOT-INF/lib/*.jar 明文保留
+    * @return 当前对象
      */
     public JarEncryptor encryptLibs(boolean encryptLibs) {
         this.encryptLibs = encryptLibs;
@@ -239,10 +239,10 @@ public class JarEncryptor {
     }
 
     /**
-      * 开启应用 类 混淆（剥离调试信息：源文件名/行号表/局部变量表）
-     *
-     * @param obfuscate true 表示启用
-     * @return 当前对象
+    * 开启应用 类 混淆（剥离调试信息：源文件名/行号表/局部变量表）
+    *
+    * @param obfuscate true 表示启用
+    * @return 当前对象
      */
     public JarEncryptor obfuscate(boolean obfuscate) {
         this.obfuscate = obfuscate;
@@ -250,10 +250,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 混淆时进一步重命名私有成员（反射框架如 MyBatis/Jackson 依赖私有字段名时会失效，谨慎开启）
-     *
-     * @param renamePrivates true 表示启用
-     * @return 当前对象
+    * 混淆时进一步重命名私有成员（反射框架如 MyBatis/Jackson 依赖私有字段名时会失效，谨慎开启）
+    *
+    * @param renamePrivates true 表示启用
+    * @return 当前对象
      */
     public JarEncryptor renamePrivates(boolean renamePrivates) {
         this.renamePrivates = renamePrivates;
@@ -261,11 +261,11 @@ public class JarEncryptor {
     }
 
     /**
-     * 是否内嵌密钥封装块（默认 true）
-     *
-     * @param embedKeyBlob false 表示不内嵌，运行期必须提供外部密钥来源
-     *                     （校验服务器/私钥文件）
-     * @return 当前对象
+    * 是否内嵌密钥封装块（默认 true）
+    *
+    * @param embedKeyBlob false 表示不内嵌，运行期必须提供外部密钥来源
+    *                     （校验服务器/私钥文件）
+    * @return 当前对象
      */
     public JarEncryptor embedKeyBlob(boolean embedKeyBlob) {
         this.embedKeyBlob = embedKeyBlob;
@@ -273,10 +273,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 追加明文保留排除项（条目路径前缀匹配）
-     *
-     * @param prefixes 前缀列表（如 BOOT-INF/类/静态/）
-     * @return 当前对象
+    * 追加明文保留排除项（条目路径前缀匹配）
+    *
+    * @param prefixes 前缀列表（如 BOOT-INF/类/静态/）
+    * @return 当前对象
      */
     public JarEncryptor exclude(String... prefixes) {
         excludes.addAll(Arrays.asList(prefixes));
@@ -284,9 +284,9 @@ public class JarEncryptor {
     }
 
     /**
-     * 执行打包加密
-     *
-     * @return 输出加密包路径
+    * 执行打包加密
+    *
+    * @return 输出加密包路径
      */
     public Path execute() {
         validate();
@@ -312,11 +312,11 @@ public class JarEncryptor {
     }
 
     /**
-     * 注入零依赖引导器载荷：从当前类路径读取 launch 包全部类文件（含内部类），
-     * 以明文形态写入输出包根目录，保证其在应用类加载器建立前即可运行
-     *
-     * @param out 目标流
-     * @throws IOException 载荷注入失败
+    * 注入零依赖引导器载荷：从当前类路径读取 launch 包全部类文件（含内部类），
+    * 以明文形态写入输出包根目录，保证其在应用类加载器建立前即可运行
+    *
+    * @param out 目标流
+    * @throws IOException 载荷注入失败
      */
     private void injectLaunchPayload(JarOutputStream out) throws IOException {
         ClassLoader classLoader = JarEncryptor.class.getClassLoader();
@@ -331,12 +331,12 @@ public class JarEncryptor {
     }
 
     /**
-     * 递归写入类及其全部声明内部类的字节（载荷自身剥离调试信息）
-     *
-     * @param out         目标流
-     * @param classLoader 类路径资源加载器
-     * @param type        目标类
-     * @throws IOException 写入失败
+    * 递归写入类及其全部声明内部类的字节（载荷自身剥离调试信息）
+    *
+    * @param out         目标流
+    * @param classLoader 类路径资源加载器
+    * @param type        目标类
+    * @throws IOException 写入失败
      */
     private void writeClassHierarchy(JarOutputStream out, ClassLoader classLoader, Class<?> type) throws IOException {
         String resource = type.getName().replace('.', '/') + ".class";
@@ -356,7 +356,7 @@ public class JarEncryptor {
     }
 
     /**
-     * 参数校验
+    * 参数校验
      */
     private void validate() {
         if (source == null || !Files.exists(source)) {
@@ -375,10 +375,10 @@ public class JarEncryptor {
     }
 
     /**
-      * 判断是否可执行包（存在 Main-类）
-     *
-     * @param jarPath 包路径
-     * @return true 表示可执行
+    * 判断是否可执行包（存在 Main-类）
+    *
+    * @param jarPath 包路径
+    * @return true 表示可执行
      */
     private boolean isFatJar(Path jarPath) {
         try (JarFile jar = new JarFile(jarPath.toFile())) {
@@ -391,9 +391,9 @@ public class JarEncryptor {
     }
 
     /**
-     * 判断源包是否为 SpringBoot 布局（存在 BOOT-INF/classes）
-     *
-     * @return true 表示 SpringBoot 布局
+    * 判断源包是否为 SpringBoot 布局（存在 BOOT-INF/classes）
+    *
+    * @return true 表示 SpringBoot 布局
      */
     private boolean isSpringBootLayout() {
         try (JarFile jar = new JarFile(source.toFile())) {
@@ -404,10 +404,10 @@ public class JarEncryptor {
     }
 
     /**
-      * 判断条目是否为应用自身 类（混淆作用域：排除引导器与依赖包）
-     *
-     * @param name 条目名
-     * @return true 表示应用 类
+    * 判断条目是否为应用自身 类（混淆作用域：排除引导器与依赖包）
+    *
+    * @param name 条目名
+    * @return true 表示应用 类
      */
     private boolean isAppClass(String name) {
         if (!name.endsWith(".class") || name.startsWith(LAUNCH_PACKAGE)) {
@@ -417,11 +417,11 @@ public class JarEncryptor {
     }
 
     /**
-      * 改写清单：Main-类 替换为引导器，原主类写入专属属性
-     *
-     * @param original 原清单
-     * @return 新清单
-     * @throws IOException 清单缺失
+    * 改写清单：Main-类 替换为引导器，原主类写入专属属性
+    *
+    * @param original 原清单
+    * @return 新清单
+    * @throws IOException 清单缺失
      */
     private Manifest patchManifest(Manifest original) throws IOException {
         if (original == null) {
@@ -444,9 +444,9 @@ public class JarEncryptor {
     }
 
     /**
-     * 生成内嵌主密钥封装块（CHKF 格式，策略取自当前加密门面设置）
-     *
-     * @return 封装块字节
+    * 生成内嵌主密钥封装块（CHKF 格式，策略取自当前加密门面设置）
+    *
+    * @return 封装块字节
      */
     private byte[] buildKeyBlob() {
         return com.chua.crypto.support.key.KeyBlobCodec.encode(
@@ -456,12 +456,12 @@ public class JarEncryptor {
     }
 
     /**
-     * 拷贝单个条目：按规则决定明文保留或加密重写
-     *
-     * @param out   目标流
-     * @param input 源包
-     * @param entry 条目
-     * @throws IOException 读写失败
+    * 拷贝单个条目：按规则决定明文保留或加密重写
+    *
+    * @param out   目标流
+    * @param input 源包
+    * @param entry 条目
+    * @throws IOException 读写失败
      */
     private void copyEntry(JarOutputStream out, JarFile input, JarEntry entry) throws IOException {
         String name = entry.getName();
@@ -494,10 +494,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 混淆排除判断（当前保留扩展位：目录级排除）
-     *
-     * @param name 条目名
-     * @return true 表示跳过混淆
+    * 混淆排除判断（当前保留扩展位：目录级排除）
+    *
+    * @param name 条目名
+    * @return true 表示跳过混淆
      */
     private boolean springBootLayoutExcluded(String name) {
         return excludes.stream().anyMatch(prefix ->
@@ -505,11 +505,11 @@ public class JarEncryptor {
     }
 
     /**
-     * 判定条目是否保持明文：引导器载荷、显式排除前缀、非目标类型
-     *
-     * @param name 条目名
-     * @param raw  条目内容
-     * @return true 表示保留明文
+    * 判定条目是否保持明文：引导器载荷、显式排除前缀、非目标类型
+    *
+    * @param name 条目名
+    * @param raw  条目内容
+    * @return true 表示保留明文
      */
     private boolean shouldKeepPlain(String name, byte[] raw) {
         // 引导器必须明文（先于类加载器工作）
@@ -530,10 +530,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 取路径最后一段
-     *
-     * @param path 条目路径
-     * @return 文件名
+    * 取路径最后一段
+    *
+    * @param path 条目路径
+    * @return 文件名
      */
     private String lastSegment(String path) {
         int slash = path.lastIndexOf('/');
@@ -541,12 +541,12 @@ public class JarEncryptor {
     }
 
     /**
-     * 写入单条目
-     *
-     * @param out   目标流
-     * @param name  条目名
-     * @param bytes 内容
-     * @throws IOException 写出失败
+    * 写入单条目
+    *
+    * @param out   目标流
+    * @param name  条目名
+    * @param bytes 内容
+    * @throws IOException 写出失败
      */
     private void writeEntry(JarOutputStream out, String name, byte[] bytes) throws IOException {
         JarEntry entry = new JarEntry(name);
@@ -557,11 +557,11 @@ public class JarEncryptor {
     }
 
     /**
-     * 序列化清单
-     *
-     * @param manifest 清单
-     * @return 字节
-     * @throws IOException 序列化失败
+    * 序列化清单
+    *
+    * @param manifest 清单
+    * @return 字节
+    * @throws IOException 序列化失败
      */
     private byte[] toManifestBytes(Manifest manifest) throws IOException {
         var buffer = new java.io.ByteArrayOutputStream();
@@ -570,11 +570,11 @@ public class JarEncryptor {
     }
 
     /**
-     * 读取流全部字节
-     *
-     * @param in 输入流
-     * @return 字节
-     * @throws IOException 读取失败
+    * 读取流全部字节
+    *
+    * @param in 输入流
+    * @return 字节
+    * @throws IOException 读取失败
      */
     private byte[] readAll(InputStream in) throws IOException {
         try (InputStream input = in) {

@@ -12,23 +12,23 @@ import java.util.Date;
 
 
 /**
- * LocalDate 类型转换器。
- * <p>将各种类型的值转换为 {@link LocalDate}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@link java.time.LocalDateTime} / {@link Date} / {@link java.time.LocalTime} / {@link Long} / {@link java.util.Calendar} / {@link java.time.Instant} — 通过 DateUtils 转换</li>
- *   <li>{@link String} — 通过 DateUtils.toLocalDate 解析日期字符串</li>
- * </ul>
- *
- * @author CH
- * @version 1.0.0
- * @since 2021/1/26
+* LocalDate 类型转换器。
+* <p>将各种类型的值转换为 {@link LocalDate}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@link java.time.LocalDateTime} / {@link Date} / {@link java.time.LocalTime} / {@link Long} / {@link java.util.Calendar} / {@link java.time.Instant} — 通过 DateUtils 转换</li>
+*   <li>{@link String} — 通过 DateUtils.toLocalDate 解析日期字符串</li>
+* </ul>
+*
+* @author CH
+* @version 1.0.0
+* @since 2021/1/26
  */
 public class LocalDateTypeConverter implements TypeConverter<LocalDate> {
     /**
-     * 将给定值转换为 LocalDate。
-     *
-     * @param value 源值
-     * @return LocalDate 值，如果无法转换则返回 null
+    * 将给定值转换为 LocalDate。
+    *
+    * @param value 源值
+    * @return LocalDate 值，如果无法转换则返回 null
      */
     @Override
     public LocalDate convert(Object value) {
@@ -71,9 +71,9 @@ public class LocalDateTypeConverter implements TypeConverter<LocalDate> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return LocalDate.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return LocalDate.class
      */
     @Override
     public Class<LocalDate> getType() {

@@ -23,43 +23,43 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Dubbo RPC 服务端实现。
- *
- * @author CH
- * @since 4.0.0.42
+* Dubbo RPC 服务端实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("dubbo")
 @Slf4j
 public class DubboRpcServer implements RpcServer {
 
     /**
-      * registry 配置
+    * registry 配置
      */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
-      * 协议 配置
+    * 协议 配置
      */
     private final List<ProtocolConfig> protocolConfigs = new ArrayList<>();
     /**
-      * 服务 配置
+    * 服务 配置
      */
     private final List<ServiceConfig<?>> serviceConfigs = new ArrayList<>();
     /**
-      * 状态
+    * 状态
      */
     private final AtomicBoolean state = new AtomicBoolean(false);
     /**
-      * application 配置
+    * application 配置
      */
     private final ApplicationConfig applicationConfig;
 
     /**
-      * 创建 Dubborpc服务端 实例
-     * @param rpcRegistryConfigs rpcregistry配置
-     * @param protocolConfig rpc协议配置
-     * @param name 字符串
-     * @param protocolConfig 协议配置
-     * @param name 名称
+    * 创建 Dubborpc服务端 实例
+    * @param rpcRegistryConfigs rpcregistry配置
+    * @param protocolConfig rpc协议配置
+    * @param name 字符串
+    * @param protocolConfig 协议配置
+    * @param name 名称
      */
     public DubboRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig = DubboConfigs.get(name);
@@ -68,9 +68,9 @@ public class DubboRpcServer implements RpcServer {
     }
 
     /**
-     * 初始化Registries
-     *
-     * @param configs 配置
+    * 初始化Registries
+    *
+    * @param configs 配置
      */
     private void initRegistries(List<RpcRegistryConfig> configs) {
         if (configs == null) {
@@ -97,9 +97,9 @@ public class DubboRpcServer implements RpcServer {
     }
 
     /**
-     * 初始化协议
-     *
-     * @param config 配置
+    * 初始化协议
+    *
+    * @param config 配置
      */
     private void initProtocol(RpcProtocolConfig config) {
         if (config == null) {

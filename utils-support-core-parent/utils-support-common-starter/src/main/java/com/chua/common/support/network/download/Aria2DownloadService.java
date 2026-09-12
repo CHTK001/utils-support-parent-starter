@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * aria2c 下载实现。
- *
- * <p>通过 {@code ProcessBuilder} 调用本机 aria2c 完成下载，
- * 支持并发分片、限速、代理、请求头、断点续传、MD5 校验。
- *
- * <p>依赖：本机需安装 aria2（aria2c 可执行文件在 PATH 中）。
- *
- * @author CH
- * @since 4.0.0.42
+* aria2c 下载实现。
+*
+* <p>通过 {@code ProcessBuilder} 调用本机 aria2c 完成下载，
+* 支持并发分片、限速、代理、请求头、断点续传、MD5 校验。
+*
+* <p>依赖：本机需安装 aria2（aria2c 可执行文件在 PATH 中）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("aria2")
@@ -82,10 +82,10 @@ public class Aria2DownloadService implements DownloadService {
     }
 
     /**
-     * 启动 aria2c 进程执行下载。
-     *
-     * @param options 下载选项
-     * @throws DownloadException 当 aria2c 不可用、进程退出码非 0 或被中断时
+    * 启动 aria2c 进程执行下载。
+    *
+    * @param options 下载选项
+    * @throws DownloadException 当 aria2c 不可用、进程退出码非 0 或被中断时
      */
     private static void download(Aria2Options options) throws DownloadException {
         List<String> cmd = buildCommand(options);
@@ -140,10 +140,10 @@ public class Aria2DownloadService implements DownloadService {
     }
 
     /**
-     * 构建 aria2c 命令行参数列表（无 shell 注入风险）。
-     *
-     * @param o 下载选项
-     * @return aria2c 命令行参数列表
+    * 构建 aria2c 命令行参数列表（无 shell 注入风险）。
+    *
+    * @param o 下载选项
+    * @return aria2c 命令行参数列表
      */
     private static List<String> buildCommand(Aria2Options o) {
         List<String> cmd = new ArrayList<>();
@@ -197,10 +197,10 @@ public class Aria2DownloadService implements DownloadService {
     }
 
     /**
-     * 将字节/秒格式化为 aria2c 可识别的 K/M 后缀。
-     *
-     * @param bytesPerSecond 字节每秒
-     * @return 格式化后的字符串，如 "1M"、"500K"
+    * 将字节/秒格式化为 aria2c 可识别的 K/M 后缀。
+    *
+    * @param bytesPerSecond 字节每秒
+    * @return 格式化后的字符串，如 "1M"、"500K"
      */
     private static String formatSpeed(long bytesPerSecond) {
         if (bytesPerSecond % (1024 * 1024) == 0) {
@@ -213,10 +213,10 @@ public class Aria2DownloadService implements DownloadService {
     }
 
     /**
-     * 将 Java Proxy 转换为 aria2c 代理 URI。
-     *
-     * @param proxy Java Proxy 对象
-     * @return 代理 URI 字符串（如 http://host:port），不支持的类型返回 null
+    * 将 Java Proxy 转换为 aria2c 代理 URI。
+    *
+    * @param proxy Java Proxy 对象
+    * @return 代理 URI 字符串（如 http://host:port），不支持的类型返回 null
      */
     private static String proxyUri(Proxy proxy) {
         if (proxy.address() == null || !(proxy.address() instanceof InetSocketAddress)) {
@@ -234,19 +234,19 @@ public class Aria2DownloadService implements DownloadService {
     }
 
     /**
-     * 毫秒向上取整为秒（最小值为 1）。
-     *
-     * @param ms 毫秒数
-     * @return 秒数
+    * 毫秒向上取整为秒（最小值为 1）。
+    *
+    * @param ms 毫秒数
+    * @return 秒数
      */
     private static long seconds(int ms) {
         return Math.max(1, (ms + 999) / 1000);
     }
 
     /**
-     * 后台线程排空子进程输出到日志（静默模式）。
-     *
-     * @param process 子进程
+    * 后台线程排空子进程输出到日志（静默模式）。
+    *
+    * @param process 子进程
      */
     private static void drainOutput(Process process) {
         try (BufferedReader reader = new BufferedReader(
@@ -261,7 +261,7 @@ public class Aria2DownloadService implements DownloadService {
     }
 
     /**
-     * aria2c 下载内部选项。
+    * aria2c 下载内部选项。
      */
     @lombok.Builder
     @lombok.Data

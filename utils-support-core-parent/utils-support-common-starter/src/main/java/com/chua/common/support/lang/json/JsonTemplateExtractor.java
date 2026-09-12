@@ -18,41 +18,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * JSON 模板提取器：用一份“模板 JSON”从另一份输入 JSON 中抽取变量。
- *
- * <p>模板中值为 {@code {变量名}} 的占位符标记了待抽取的槽位。提取器依据占位符在模板中的
- * <b>键路径</b>到输入 JSON 中定位对应的值，因此与字段<b>顺序无关</b>；并采用 JSON5 宽松解析
- * 容忍注释、单引号、空白等格式差异。</p>
- *
- * <p>模板占位符支持两种形态：</p>
- * <ul>
- * <li>整值：{@code "xx": "{name}"} —— 提取整个值（保留原始 JSON 类型：字符串/数字/布尔/对象/数组）；</li>
- * <li>内嵌：{@code "greeting": "hello {name}!"} —— 正则截取变量部分，其余字面量仅作定位锚点（部分提取）。</li>
- * </ul>
- *
- * <p>本类是 {@link TemplateExtractor} 契约的 JSON 实现，通过 SPI 机制发现与加载
- * （标记 {@code @SpiDefault}），详见 {@link ServiceProvider}。</p>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * String template = "{\"xx\":\"{name}\",\"yy\":\"{age}\"}";
- * String input = "{\"yy\":25,\"xx\":\"Alice\"}"; // 顺序故意打乱
- *
- * // 1. 通过 SPI 入口（推荐，解耦具体实现）
- * Map<String, Object> r1 = JsonTemplateExtractor.getInstance().extract(template, input);
- *
- * // 2. 流式构建器做更细粒度控制（数组策略、类型容忍等）
- * Map<String, Object> r2 = JsonTemplateExtractor.create()
- * .template(template)
- * .extract(input)
- * .toMap();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
- * @see TemplateExtractor
- * @see TemplateExtractResult
- * @see TemplateVar
+* JSON 模板提取器：用一份“模板 JSON”从另一份输入 JSON 中抽取变量。
+*
+* <p>模板中值为 {@code {变量名}} 的占位符标记了待抽取的槽位。提取器依据占位符在模板中的
+* <b>键路径</b>到输入 JSON 中定位对应的值，因此与字段<b>顺序无关</b>；并采用 JSON5 宽松解析
+* 容忍注释、单引号、空白等格式差异。</p>
+*
+* <p>模板占位符支持两种形态：</p>
+* <ul>
+* <li>整值：{@code "xx": "{name}"} —— 提取整个值（保留原始 JSON 类型：字符串/数字/布尔/对象/数组）；</li>
+* <li>内嵌：{@code "greeting": "hello {name}!"} —— 正则截取变量部分，其余字面量仅作定位锚点（部分提取）。</li>
+* </ul>
+*
+* <p>本类是 {@link TemplateExtractor} 契约的 JSON 实现，通过 SPI 机制发现与加载
+* （标记 {@code @SpiDefault}），详见 {@link ServiceProvider}。</p>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* String template = "{\"xx\":\"{name}\",\"yy\":\"{age}\"}";
+* String input = "{\"yy\":25,\"xx\":\"Alice\"}"; // 顺序故意打乱
+*
+* // 1. 通过 SPI 入口（推荐，解耦具体实现）
+* Map<String, Object> r1 = JsonTemplateExtractor.getInstance().extract(template, input);
+*
+* // 2. 流式构建器做更细粒度控制（数组策略、类型容忍等）
+* Map<String, Object> r2 = JsonTemplateExtractor.create()
+* .template(template)
+* .extract(input)
+* .toMap();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
+* @see TemplateExtractor
+* @see TemplateExtractResult
+* @see TemplateVar
  */
 @Spi("json")
 @SpiDefault
@@ -129,12 +129,12 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  }
 
  /**
-  * 创建 JsonTemplateExtractor 实例
-  * @param prefix prefix
-  * @param suffix suffix
-  * @param lenient lenient
-  * @param arrayStrategy arrayStrategy
-  * @param tolerantType tolerantType
+ * 创建 JsonTemplateExtractor 实例
+ * @param prefix prefix
+ * @param suffix suffix
+ * @param lenient lenient
+ * @param arrayStrategy arrayStrategy
+ * @param tolerantType tolerantType
   */
  private JsonTemplateExtractor(String prefix, String suffix, boolean lenient,
  ArrayMatchStrategy arrayStrategy, boolean tolerantType) {

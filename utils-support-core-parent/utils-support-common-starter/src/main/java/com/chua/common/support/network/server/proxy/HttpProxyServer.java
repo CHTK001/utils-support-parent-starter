@@ -12,16 +12,16 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
- * JDK HTTP 反向代理服务器（基于 {@link AbstractProxyServer} 骨架，短连接）。
- *
- * <p>复用 AbstractProxyServer 的非阻塞批量 accept + 连接限流 + 虚拟线程池；
- * {@link #handleConnection(Socket)} 内完成"读 HTTP 请求 → 解析后端 → 转发 → 回传响应 → 关闭"，
- * 一请求一响应一断。</p>
- *
- * <p>与 vertx 版 {@code VertxHttpProxyServer}（事件循环异步）对等，本实现为 JDK 阻塞版。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* JDK HTTP 反向代理服务器（基于 {@link AbstractProxyServer} 骨架，短连接）。
+*
+* <p>复用 AbstractProxyServer 的非阻塞批量 accept + 连接限流 + 虚拟线程池；
+* {@link #handleConnection(Socket)} 内完成"读 HTTP 请求 → 解析后端 → 转发 → 回传响应 → 关闭"，
+* 一请求一响应一断。</p>
+*
+* <p>与 vertx 版 {@code VertxHttpProxyServer}（事件循环异步）对等，本实现为 JDK 阻塞版。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"http-proxy"})

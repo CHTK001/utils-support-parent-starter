@@ -14,41 +14,41 @@ import javax.tools.Diagnostic;
 import java.lang.reflect.Field;
 
 /**
-   * AST 处理器基类，封装了 树maker 和 名称 的获取逻辑。
- * <p>
- * 子类只需实现 {@link #process(java.util.Set, javax.annotation.processing.RoundEnvironment)} 方法，
- * 通过 {@link #getTreeMaker()} 和 {@link #getNames(TreeMaker)} 获取 javac 编译树 API 的工具实例。
- * </p>
- *
- * @author CH
- * @since 2024
+* AST 处理器基类，封装了 树maker 和 名称 的获取逻辑。
+* <p>
+* 子类只需实现 {@link #process(java.util.Set, javax.annotation.processing.RoundEnvironment)} 方法，
+* 通过 {@link #getTreeMaker()} 和 {@link #getNames(TreeMaker)} 获取 javac 编译树 API 的工具实例。
+* </p>
+*
+* @author CH
+* @since 2024
  */
 public abstract class AbstractAstProcessor extends AbstractProcessor {
 
     /**
-      * 树 实例，用于获取编译树。
+    * 树 实例，用于获取编译树。
      */
     protected Trees trees;
 
     /**
-     * 消息处理器，用于输出编译期日志和警告。
+    * 消息处理器，用于输出编译期日志和警告。
      */
     protected Messager messager;
 
     /**
-     * 编译处理环境。
+    * 编译处理环境。
      */
     protected ProcessingEnvironment processingEnv;
 
     /**
-     * javac 上下文。
+    * javac 上下文。
      */
     protected Context context;
 
     /**
-      * 初始化处理器，获取 树 实例。
-     *
-     * @param processingEnv 编译处理环境
+    * 初始化处理器，获取 树 实例。
+    *
+    * @param processingEnv 编译处理环境
      */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -65,13 +65,13 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 通过 javac树 的 上下文 获取 树maker 实例。
-     * <p>
-      * 尝试两种方式获取 上下文：方式一从 javac处理环境 直接获取，
-      * 方式二从 javac树 反射获取。
-     * </p>
-     *
-     * @return TreeMaker 实例，获取失败返回 空
+    * 通过 javac树 的 上下文 获取 树maker 实例。
+    * <p>
+    * 尝试两种方式获取 上下文：方式一从 javac处理环境 直接获取，
+    * 方式二从 javac树 反射获取。
+    * </p>
+    *
+    * @return TreeMaker 实例，获取失败返回 空
      */
     protected TreeMaker getTreeMaker() {
         if (trees == null) {
@@ -99,12 +99,12 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 方式一：从 javac处理环境 反射获取 上下文。
-     * <p>
-     * 优先调用 {@code getContext()} 方法，若不存在则回退到反射读取 {@code context} 字段。
-     * </p>
-     *
-     * @return javac 上下文，获取失败返回 空
+    * 方式一：从 javac处理环境 反射获取 上下文。
+    * <p>
+    * 优先调用 {@code getContext()} 方法，若不存在则回退到反射读取 {@code context} 字段。
+    * </p>
+    *
+    * @return javac 上下文，获取失败返回 空
      */
     private Context getContextFromJavacEnv() {
         try {
@@ -130,12 +130,12 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 方式二：从 javac树 反射获取 上下文。
-     * <p>
-     * 依次尝试 {@code context}、{@code treeContext} 字段名，返回第一个成功读取的值。
-     * </p>
-     *
-     * @return javac 上下文，获取失败返回 空
+    * 方式二：从 javac树 反射获取 上下文。
+    * <p>
+    * 依次尝试 {@code context}、{@code treeContext} 字段名，返回第一个成功读取的值。
+    * </p>
+    *
+    * @return javac 上下文，获取失败返回 空
      */
     private Context getContextFromJavacTrees() {
         JavacTrees javacTrees = (JavacTrees) trees;
@@ -154,13 +154,13 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 从 上下文 获取 名称 实例。
-     * <p>
-      * 优先从已获取的 上下文 中获取 名称，若 上下文 为空则从 树maker 中反射获取。
-     * </p>
-     *
-     * @param maker 树maker 实例
-     * @return Names 实例，获取失败返回 空
+    * 从 上下文 获取 名称 实例。
+    * <p>
+    * 优先从已获取的 上下文 中获取 名称，若 上下文 为空则从 树maker 中反射获取。
+    * </p>
+    *
+    * @param maker 树maker 实例
+    * @return Names 实例，获取失败返回 空
      */
     protected Names getNames(TreeMaker maker) {
         if (context != null) {
@@ -179,29 +179,29 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 检查 树 API 是否可用。
-     *
-     * @return Trees 实例不为 空 时返回 true
+    * 检查 树 API 是否可用。
+    *
+    * @return Trees 实例不为 空 时返回 true
      */
     protected boolean isTreeApiAvailable() {
         return trees != null;
     }
 
     /**
-     * 输出编译期提示信息。
-     *
-     * @param msg     提示消息
-     * @param element 关联的编译元素
+    * 输出编译期提示信息。
+    *
+    * @param msg     提示消息
+    * @param element 关联的编译元素
      */
     protected void note(String msg, Element element) {
         messager.printMessage(Diagnostic.Kind.NOTE, msg, element);
     }
 
     /**
-     * 输出编译期警告信息。
-     *
-     * @param msg     警告消息
-     * @param element 关联的编译元素
+    * 输出编译期警告信息。
+    *
+    * @param msg     警告消息
+    * @param element 关联的编译元素
      */
     protected void warn(String msg, Element element) {
         messager.printMessage(Diagnostic.Kind.WARNING, msg, element);

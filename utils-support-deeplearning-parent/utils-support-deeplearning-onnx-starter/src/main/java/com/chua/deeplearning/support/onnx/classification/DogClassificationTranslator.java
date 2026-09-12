@@ -5,20 +5,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 狗分类器（零样本）：判断图像中是否有狗，区分狗与其他对象；适用宠物识别、安防监控
- *
- * @author CH
- * @since 4.0.0.47
- * @param candidates candidates
- * @return 构建参数的结果
+* 狗分类器（零样本）：判断图像中是否有狗，区分狗与其他对象；适用宠物识别、安防监控
+*
+* @author CH
+* @since 4.0.0.47
+* @param candidates candidates
+* @return 构建参数的结果
  */
 public class DogClassificationTranslator extends SiglipZeroShotClassificationTranslator {
 
     private static final String DOGS = "dog,cat,bird,fish,horse,rabbit,hamster," +
             /**
-              * dogclassificationtranslator。
-             * @param candidates candidates
-             * @return 构建参数的结果
+            * dogclassificationtranslator。
+            * @param candidates candidates
+            * @return 构建参数的结果
              */
             "squirrel,deer,raccoon,fox,wolf,lion,tiger,bear";
 

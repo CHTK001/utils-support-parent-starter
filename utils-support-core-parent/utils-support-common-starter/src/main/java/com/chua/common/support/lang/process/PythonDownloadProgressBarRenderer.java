@@ -10,72 +10,72 @@ import javax.annotation.Nullable;
 
 
 /**
- * Python 下载风格进度条渲染器。
- * 模仿 Python tqdm 下载进度条的显示风格。
- *
- * @author CH
- * @since 1.0.0
- * @version 1.0.0
+* Python 下载风格进度条渲染器。
+* 模仿 Python tqdm 下载进度条的显示风格。
+*
+* @author CH
+* @since 1.0.0
+* @version 1.0.0
  */
 public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
 
     /**
-     * 进度条样式
+    * 进度条样式
      */
     private final ProgressBarStyle style;
 
     /**
-     * 进度单位
+    * 进度单位
      */
     private final ProgressUnit unit;
 
     /**
-     * 单位名称
+    * 单位名称
      */
     private final String unitName;
 
     /**
-     * 单位大小
+    * 单位大小
      */
     private final long unitSize;
 
     /**
-     * 是否显示速度
+    * 是否显示速度
      */
     private final boolean isSpeedShown;
 
     /**
-     * 速度格式
+    * 速度格式
      */
     private final DecimalFormat speedFormat;
 
     /**
-     * 速度单位
+    * 速度单位
      */
     private final ChronoUnit speedUnit;
 
     /**
-     * 是否显示预计剩余时间
+    * 是否显示预计剩余时间
      */
     private final boolean isEtaShown;
 
     /**
-     * 预计剩余时间计算函数
+    * 预计剩余时间计算函数
      */
     private final Function<ProgressState, Optional<Duration>> eta;
 
     /**
-     * Python 下载风格渲染器构造函数
-     *
-     * @param style         进度条样式
-     * @param unit          进度单位
-     * @param unitName      单位名称
-     * @param unitSize      单位大小
-     * @param isSpeedShown  是否显示速度
-     * @param speedFormat   速度格式
-     * @param speedUnit     速度单位
-     * @param isEtaShown    是否显示预计剩余时间
-     * @param eta           预计剩余时间计算函数
+    * Python 下载风格渲染器构造函数
+    *
+    * @param style         进度条样式
+    * @param unit          进度单位
+    * @param unitName      单位名称
+    * @param unitSize      单位大小
+    * @param isSpeedShown  是否显示速度
+    * @param speedFormat   速度格式
+    * @param speedUnit     速度单位
+    * @param isEtaShown    是否显示预计剩余时间
+    * @param eta           预计剩余时间计算函数
      */
     public PythonDownloadProgressBarRenderer(
             ProgressBarStyle style,
@@ -100,11 +100,11 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                
-     *
-     * @param progress             
-     * @param maxLength             
-     * @return                               
+    *                
+    *
+    * @param progress             
+    * @param maxLength             
+    * @return                               
      */
     @Override
     public String render(ProgressState progress, int maxLength) {
@@ -150,10 +150,10 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                                  /            
-     *
-     * @param progress             
-     * @return                         
+    *                                  /            
+    *
+    * @param progress             
+    * @return                         
      */
     private String formatDownloadInfo(ProgressState progress) {
         if (progress.max <= 0) {
@@ -163,10 +163,10 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                      
-     *
-     * @param bytes          
-     * @return                                  
+    *                      
+    *
+    * @param bytes          
+    * @return                                  
      */
     private String formatFileSize(long bytes) {
         if (bytes < 1024) {
@@ -181,11 +181,11 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                            
-     *
-     * @param progress             
-     * @param length                
-     * @return                   
+    *                            
+    *
+    * @param progress             
+    * @param length                
+    * @return                   
      */
     private String renderProgressBar(ProgressState progress, int length) {
         StringBuilder sb = new StringBuilder();
@@ -256,10 +256,10 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                            
-     *
-     * @param progress             
-     * @return                      
+    *                            
+    *
+    * @param progress             
+    * @return                      
      */
     private String getDownloadSpeedString(ProgressState progress) {
         Duration elapsed = progress.getTotalElapsed();
@@ -273,10 +273,10 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                                  
-     *
-     * @param progress             
-     * @return                            
+    *                                  
+    *
+    * @param progress             
+    * @return                            
      */
     private String getEtaString(ProgressState progress) {
         if (eta == null) {
@@ -292,10 +292,10 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                                     ANSI               
-     *
-     * @param str          
-     * @return             
+    *                                     ANSI               
+    *
+    * @param str          
+    * @return             
      */
     private int getStringDisplayLength(String str) {
         if (str == null) {
@@ -307,17 +307,17 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *       Python Download                           
-     *
-     * @param unit             
-     * @param unitName             
-     * @param unitSize             
-     * @param showSpeed                   
-     * @param speedFormat             
-     * @param speedUnit             
-     * @param showEta                               
-     * @param eta                               
-     * @return Python Download                     
+    *       Python Download                           
+    *
+    * @param unit             
+    * @param unitName             
+    * @param unitSize             
+    * @param showSpeed                   
+    * @param speedFormat             
+    * @param speedUnit             
+    * @param showEta                               
+    * @param eta                               
+    * @return Python Download                     
      */
     public static PythonDownloadProgressBarRenderer create(
             ProgressUnit unit,

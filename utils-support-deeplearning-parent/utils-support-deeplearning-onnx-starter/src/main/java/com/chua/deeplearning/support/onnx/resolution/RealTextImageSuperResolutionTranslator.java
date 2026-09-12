@@ -14,29 +14,29 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *                                  
- *                                                             
- *
- * @author CH
- * @since 2024/11/14 16:51
+*                                  
+*                                                             
+*
+* @author CH
+* @since 2024/11/14 16:51
  */
 @Slf4j
 public class RealTextImageSuperResolutionTranslator implements Translator<Image, Image> {
 
     /**
-      * ND                        ndarray
+    * ND                        ndarray
      */
     private NDManager manager;
 
     /**
-     *                                                    
+    *                                                    
      */
     private final int detectResolution = 512;
 
     /**
-     *                                           
-     *
-     * @param ctx                   
+    *                                           
+    *
+    * @param ctx                   
      */
     @Override
     public void prepare(TranslatorContext ctx) {
@@ -44,19 +44,19 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     }
 
     /**
-      * nd列表
-     * <p>
-     *                
-      * 1.                   ndarray         FLOAT32
-     * 2.                                                 
-     * 3.                                  
-     * 4.                      HWC -> CHW
-     * 5.              [0, 1]                255   
-     * 6.                   (array - 0.5) / 0.5
-     *
-     * @param ctx                     
-     * @param input             
-     * @return                         NDList
+    * nd列表
+    * <p>
+    *                
+    * 1.                   ndarray         FLOAT32
+    * 2.                                                 
+    * 3.                                  
+    * 4.                      HWC -> CHW
+    * 5.              [0, 1]                255   
+    * 6.                   (array - 0.5) / 0.5
+    *
+    * @param ctx                     
+    * @param input             
+    * @return                         NDList
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -87,18 +87,18 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     }
 
     /**
-      * nd列表
-     * <p>
-     *                
-     * 1.                               
-      * 2.                输出 * 0.5 + 0.5
-     * 3.                   [0,1]         
-     * 4.          UINT8                  [0,255]      
-      * 5.    ndarray
-     *
-     * @param ctx                    
-     * @param list                nd列表
-     * @return                               
+    * nd列表
+    * <p>
+    *                
+    * 1.                               
+    * 2.                输出 * 0.5 + 0.5
+    * 3.                   [0,1]         
+    * 4.          UINT8                  [0,255]      
+    * 5.    ndarray
+    *
+    * @param ctx                    
+    * @param list                nd列表
+    * @return                               
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -124,9 +124,9 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     }
 
     /**
-     *                      
-     *
-     * @return                               STACK      
+    *                      
+    *
+    * @return                               STACK      
      */
     @Override
     public Batchifier getBatchifier() {

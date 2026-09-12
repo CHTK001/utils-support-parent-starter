@@ -6,12 +6,12 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ONNX C3D 动作检测客户端，基于预注册模型执行视频动作识别。
- *
- * @author CH
- * @since 4.0.0.42
- * @return resolve模型的结果
- * @param model 模型
+* ONNX C3D 动作检测客户端，基于预注册模型执行视频动作识别。
+*
+* @author CH
+* @since 4.0.0.42
+* @return resolve模型的结果
+* @param model 模型
  */
 @Slf4j
 public class OnnxActionDetector implements ActionDetector {
@@ -20,10 +20,10 @@ public class OnnxActionDetector implements ActionDetector {
     private float threshold = 0.45f; // 阈值
     private String modelPath; // 模型路径
     /**
-     * onnx动作detector。
-     * @param apiKey api键
-     * @return resolve模型的结果
-     * @param model 模型
+    * onnx动作detector。
+    * @param apiKey api键
+    * @return resolve模型的结果
+    * @param model 模型
      */
     private String device = "cpu";
 

@@ -7,13 +7,13 @@ import com.chua.deeplearning.support.image.VirtualClient;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ONNX 运行时虚拟视觉语言模型客户端实现。
- *
- * <p>通过 {@link ModelRegistry} 动态加载指定的 ONNX 翻译器，
-   * 将图像字节数据与任务 提示符 组合后调用翻译器完成推理。
- *
- * @author CH
- * @since 4.0.0.42
+* ONNX 运行时虚拟视觉语言模型客户端实现。
+*
+* <p>通过 {@link ModelRegistry} 动态加载指定的 ONNX 翻译器，
+* 将图像字节数据与任务 提示符 组合后调用翻译器完成推理。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OnnxVirtualClient implements VirtualClient {
@@ -22,10 +22,10 @@ public class OnnxVirtualClient implements VirtualClient {
     private String modelName = "florence2";
 
     /**
-     * 设置模型名称。
-     *
-     * @param model 模型标识（如 florence2）
-     * @return 当前实例
+    * 设置模型名称。
+    *
+    * @param model 模型标识（如 florence2）
+    * @return 当前实例
      */
     @Override
     public VirtualClient model(String model) {
@@ -34,13 +34,13 @@ public class OnnxVirtualClient implements VirtualClient {
     }
 
     /**
-     * 对图像执行视觉理解推理。
-     *
-     * @param imageData 图像字节数组
-     * @param task      理解任务类型
-     * @return 理解结果
-     * @throws IllegalStateException 当模型未在 模型registry 中注册时
-     * @throws RuntimeException      当推理过程发生异常时
+    * 对图像执行视觉理解推理。
+    *
+    * @param imageData 图像字节数组
+    * @param task      理解任务类型
+    * @return 理解结果
+    * @throws IllegalStateException 当模型未在 模型registry 中注册时
+    * @throws RuntimeException      当推理过程发生异常时
      */
     @Override
     public UnderstandResult understand(byte[] imageData, UnderstandTask task) {

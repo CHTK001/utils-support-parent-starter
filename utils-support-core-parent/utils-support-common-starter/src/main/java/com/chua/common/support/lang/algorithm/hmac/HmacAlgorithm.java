@@ -8,14 +8,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * HMAC (Hash-based Message Authentication Code) 算法枚举。
- * <p>
- * 该枚举定义了支持的各类 HMAC 哈希算法，包括标准的 MD5、SHA 系列以及国密 SM3 算法。
- * 支持通过字符串值快速查找对应的算法实例。
- * </p>
- *
- * @author CH
- * @since 2025/10/23
+* HMAC (Hash-based Message Authentication Code) 算法枚举。
+* <p>
+* 该枚举定义了支持的各类 HMAC 哈希算法，包括标准的 MD5、SHA 系列以及国密 SM3 算法。
+* 支持通过字符串值快速查找对应的算法实例。
+* </p>
+*
+* @author CH
+* @since 2025/10/23
  */
 @Getter
 public enum HmacAlgorithm {

@@ -11,14 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Oracle 索引管理器 SPI 实现。
- * <p>
-   * Oracle 索引管理使用 用户_索引 视图查询当前用户的索引列表。
-   * 创建索引使用 创建 索引，删除使用 掉落 索引。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Oracle 索引管理器 SPI 实现。
+* <p>
+* Oracle 索引管理使用 用户_索引 视图查询当前用户的索引列表。
+* 创建索引使用 创建 索引，删除使用 掉落 索引。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class OracleIndexManager implements IndexManager, DataSourceAware {
 
@@ -26,9 +26,9 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     private DataSource dataSource;
 
     /**
-     * 返回 SPI 扩展键：{@code oracle}
-     *
-     * @return "oracle"
+    * 返回 SPI 扩展键：{@code oracle}
+    *
+    * @return "oracle"
      */
     @Override
     public String type() {
@@ -36,9 +36,9 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     }
 
     /**
-     * 设置 JDBC 数据源，由 SPI 工厂自动调用。
-     *
-     * @param dataSource 数据源
+    * 设置 JDBC 数据源，由 SPI 工厂自动调用。
+    *
+    * @param dataSource 数据源
      */
     @Override
     public void setDataSource(DataSource dataSource) {
@@ -46,10 +46,10 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     }
 
     /**
-      * 查询指定表上的所有索引（通过 用户_索引 视图）。
-     *
-     * @param table 表名（自动转换为大写）
-     * @return 索引名列表
+    * 查询指定表上的所有索引（通过 用户_索引 视图）。
+    *
+    * @param table 表名（自动转换为大写）
+    * @return 索引名列表
      */
     @Override
     public List<String> listIndexes(String table) {
@@ -71,10 +71,10 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     }
 
     /**
-     * 创建索引的链式构建器。
-     *
-     * @param indexName 索引名
-     * @return 创建索引的链式步骤对象
+    * 创建索引的链式构建器。
+    *
+    * @param indexName 索引名
+    * @return 创建索引的链式步骤对象
      */
     @Override
     public CreateIndexStep createIndex(String indexName) {
@@ -82,10 +82,10 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     }
 
     /**
-     * 删除索引的链式构建器。
-     *
-     * @param indexName 索引名
-     * @return 删除索引的链式步骤对象
+    * 删除索引的链式构建器。
+    *
+    * @param indexName 索引名
+    * @return 删除索引的链式步骤对象
      */
     @Override
     public DropIndexStep dropIndex(String indexName) {

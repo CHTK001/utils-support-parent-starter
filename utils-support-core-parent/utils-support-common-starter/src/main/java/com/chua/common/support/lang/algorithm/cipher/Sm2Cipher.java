@@ -5,50 +5,50 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.security.KeyPair;
 
 /**
- * SM2 非对称加解密接口
- *
- * <p>基于 SPI 机制加载实现，支持国密 SM2 算法的密钥生成、加密、解密、签名和验签操作。
- * SM2 是国家密码管理局发布的椭圆曲线公钥密码算法（GM/T 0003-2012），
- * 适用于商用密码应用中的数字签名、密钥协商和数据加密。
- *
- * <h2>功能特性</h2>
- * <ul>
- * <li>密钥对生成 — 基于 sm2p256v1 椭圆曲线参数生成 SM2 密钥对</li>
- * <li>数据加密 — 使用公钥加密数据，采用 C1C3C2 模式的 SM2Engine</li>
- * <li>数据解密 — 使用私钥解密数据</li>
- * <li>数字签名 — 使用私钥对数据进行签名</li>
- * <li>签名验证 — 使用公钥验证签名的有效性</li>
- * </ul>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 1. 创建 SM2 加解密实例
- * Sm2Cipher sm2 = Sm2Cipher.create("bc");
- *
- * // 2. 生成密钥对
- * KeyPair keyPair = sm2.generateKeyPair();
- * byte[] publicKey = keyPair.getPublic().getEncoded();
- * byte[] privateKey = keyPair.getPrivate().getEncoded();
- *
- * // 3. 加密数据
- * byte[] plaintext = "待加密的敏感数据".getBytes(StandardCharsets.UTF_8);
- * byte[] ciphertext = sm2.encrypt(publicKey, plaintext);
- *
- * // 4. 解密数据
- * byte[] decrypted = sm2.decrypt(privateKey, ciphertext);
- *
- * // 5. 签名
- * byte[] signature = sm2.sign(privateKey, data);
- *
- * // 6. 验签
- * boolean isValid = sm2.verify(publicKey, data, signature);
- * }</pre>
- *
- * @author CH
- * @since 2026/07/16
- * @see Sm4Cipher
- * @see Cipher
- * @see com.chua.common.support.spi.ServiceProvider
+* SM2 非对称加解密接口
+*
+* <p>基于 SPI 机制加载实现，支持国密 SM2 算法的密钥生成、加密、解密、签名和验签操作。
+* SM2 是国家密码管理局发布的椭圆曲线公钥密码算法（GM/T 0003-2012），
+* 适用于商用密码应用中的数字签名、密钥协商和数据加密。
+*
+* <h2>功能特性</h2>
+* <ul>
+* <li>密钥对生成 — 基于 sm2p256v1 椭圆曲线参数生成 SM2 密钥对</li>
+* <li>数据加密 — 使用公钥加密数据，采用 C1C3C2 模式的 SM2Engine</li>
+* <li>数据解密 — 使用私钥解密数据</li>
+* <li>数字签名 — 使用私钥对数据进行签名</li>
+* <li>签名验证 — 使用公钥验证签名的有效性</li>
+* </ul>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 1. 创建 SM2 加解密实例
+* Sm2Cipher sm2 = Sm2Cipher.create("bc");
+*
+* // 2. 生成密钥对
+* KeyPair keyPair = sm2.generateKeyPair();
+* byte[] publicKey = keyPair.getPublic().getEncoded();
+* byte[] privateKey = keyPair.getPrivate().getEncoded();
+*
+* // 3. 加密数据
+* byte[] plaintext = "待加密的敏感数据".getBytes(StandardCharsets.UTF_8);
+* byte[] ciphertext = sm2.encrypt(publicKey, plaintext);
+*
+* // 4. 解密数据
+* byte[] decrypted = sm2.decrypt(privateKey, ciphertext);
+*
+* // 5. 签名
+* byte[] signature = sm2.sign(privateKey, data);
+*
+* // 6. 验签
+* boolean isValid = sm2.verify(publicKey, data, signature);
+* }</pre>
+*
+* @author CH
+* @since 2026/07/16
+* @see Sm4Cipher
+* @see Cipher
+* @see com.chua.common.support.spi.ServiceProvider
  */
 public interface Sm2Cipher extends Cipher {
 

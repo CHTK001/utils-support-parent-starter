@@ -16,14 +16,14 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
- * RAR格式归档输入流提供者
- * <p>
- * 基于Junrar库实现RAR格式的读取。
-   * 注意：RAR格式需要文件对象，不支持从输入流直接读取。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* RAR格式归档输入流提供者
+* <p>
+* 基于Junrar库实现RAR格式的读取。
+* 注意：RAR格式需要文件对象，不支持从输入流直接读取。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("rar")
@@ -56,9 +56,9 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     /**
-     * RAR归档输入流适配器
-     * @author CH
-     * @since 4.0.0
+    * RAR归档输入流适配器
+    * @author CH
+    * @since 4.0.0
      */
     private static class RarArchiveInputStreamAdapter implements ArchiveInputStream {
         /** Archive */
@@ -88,9 +88,9 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         @Override
         @Nullable
         /**
-         * 获取下一个entry
-         *
-         * @return 获取下一个entry的结果
+        * 获取下一个entry
+        *
+        * @return 获取下一个entry的结果
          */
         public ArchiveEntry getNextEntry() throws IOException {
             // 关闭当前条目流
@@ -224,9 +224,9 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     /**
-     * RAR归档条目适配器
-     * @author CH
-     * @since 4.0.0
+    * RAR归档条目适配器
+    * @author CH
+    * @since 4.0.0
      */
     private static class RarArchiveEntryAdapter implements ArchiveEntry {
         /** 文件头部 */

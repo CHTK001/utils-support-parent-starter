@@ -17,79 +17,79 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * {@link AutoSpi} 注解处理器，编译期自动生成 {@code META-INF/extensions/} SPI 索引文件
- * <p>
- * 扫描标注了 {@code @AutoSpi} 的实现类，推导其对应的 SPI 接口与扩展别名，
- * 自动生成 {@code META-INF/extensions/<接口全限定名>} 配置文件，免去手动维护 SPI 索引。
- * </p>
- * <p>
- * 生成的文件格式与运行时 {@code CustomServiceResolver} 解析格式完全一致：
- * <ul>
- *     <li>{@code 实现类全限定名}</li>
- *     <li>{@code 别名=实现类全限定名}</li>
- * </ul>
- * </p>
- * <p>
- * 接口推导规则：优先使用 {@code @AutoSpi.value()} 显式指定；缺省时递归收集
- * 实现类及其父类实现的所有非 JDK 接口，每个接口各生成一份索引文件。
- * </p>
- * <p>
- * 别名推导规则：优先使用 {@code @AutoSpi.name()} 显式指定；其次读取实现类上的
-   * common-starter {@code @Spi} / {@code @Extension} 注解（按全限定名反射匹配，避免模块依赖）；
- * 最后按「类名去掉接口名」推导（如 {@code MiniLMEmbeddingClient} 推导为 {@code MiniLM}）。
- * </p>
- * <p>
- * 与 {@code @Spi}/{@code @Extension} 共存规则：运行时 {@code ServiceDefinitionUtils} 优先读取
- * 类上的 {@code @Spi}/{@code @Extension} 注解生成名称，索引行别名仅在类无注解时生效。
- * 因此当实现类带这两个注解时，每个接口只生成一条「裸类名」发现行（不再为每个别名各写一行），
- * 避免运行时 N×M 重复注册，并自动清理历史构建遗留的冗余 {@code 别名=类名} 行；
- * 若此时仍显式指定 {@code @AutoSpi.name()}，将给出编译告警（该名称会被运行时忽略）。
- * </p>
- * <p>
- * 索引文件写入规则：若目标文件已存在（如仍手动维护的配置），读取已有内容，
- * 追加本次生成的新条目并自动去重（相同行只保留一份），不会覆盖已有配置。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* {@link AutoSpi} 注解处理器，编译期自动生成 {@code META-INF/extensions/} SPI 索引文件
+* <p>
+* 扫描标注了 {@code @AutoSpi} 的实现类，推导其对应的 SPI 接口与扩展别名，
+* 自动生成 {@code META-INF/extensions/<接口全限定名>} 配置文件，免去手动维护 SPI 索引。
+* </p>
+* <p>
+* 生成的文件格式与运行时 {@code CustomServiceResolver} 解析格式完全一致：
+* <ul>
+*     <li>{@code 实现类全限定名}</li>
+*     <li>{@code 别名=实现类全限定名}</li>
+* </ul>
+* </p>
+* <p>
+* 接口推导规则：优先使用 {@code @AutoSpi.value()} 显式指定；缺省时递归收集
+* 实现类及其父类实现的所有非 JDK 接口，每个接口各生成一份索引文件。
+* </p>
+* <p>
+* 别名推导规则：优先使用 {@code @AutoSpi.name()} 显式指定；其次读取实现类上的
+* common-starter {@code @Spi} / {@code @Extension} 注解（按全限定名反射匹配，避免模块依赖）；
+* 最后按「类名去掉接口名」推导（如 {@code MiniLMEmbeddingClient} 推导为 {@code MiniLM}）。
+* </p>
+* <p>
+* 与 {@code @Spi}/{@code @Extension} 共存规则：运行时 {@code ServiceDefinitionUtils} 优先读取
+* 类上的 {@code @Spi}/{@code @Extension} 注解生成名称，索引行别名仅在类无注解时生效。
+* 因此当实现类带这两个注解时，每个接口只生成一条「裸类名」发现行（不再为每个别名各写一行），
+* 避免运行时 N×M 重复注册，并自动清理历史构建遗留的冗余 {@code 别名=类名} 行；
+* 若此时仍显式指定 {@code @AutoSpi.name()}，将给出编译告警（该名称会被运行时忽略）。
+* </p>
+* <p>
+* 索引文件写入规则：若目标文件已存在（如仍手动维护的配置），读取已有内容，
+* 追加本次生成的新条目并自动去重（相同行只保留一份），不会覆盖已有配置。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.AutoSpi")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public final class AutoSpiAstProcessor extends AbstractProcessor {
 
     /**
-     * SPI 索引文件目录
+    * SPI 索引文件目录
      */
     private static final String EXTENSIONS_PATH = "META-INF/extensions/";
 
     /**
-      * common-starter {@code @Spi} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
+    * common-starter {@code @Spi} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
      */
     private static final String SPI_ANNOTATION = "com.chua.common.support.spi.annotations.Spi";
 
     /**
-      * common-starter {@code @Extension} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
+    * common-starter {@code @Extension} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
      */
     private static final String EXTENSION_ANNOTATION = "com.chua.common.support.spi.annotations.Extension";
 
     /**
-     * 索引内容：接口全限定名 -> 配置行集合（去重、有序）
+    * 索引内容：接口全限定名 -> 配置行集合（去重、有序）
      */
     private final Map<String, SortedSet<String>> index = new LinkedHashMap<>();
 
     /**
-     * 注解派生别名的实现类：类全限定名 -> {@code @Spi}/{@code @Extension} 注解派生别名集合
-     * <p>用于清理历史构建遗留的冗余 {@code 别名=类名} 行（运行时忽略这些别名，且会与新的发现行叠加导致重复注册）。</p>
+    * 注解派生别名的实现类：类全限定名 -> {@code @Spi}/{@code @Extension} 注解派生别名集合
+    * <p>用于清理历史构建遗留的冗余 {@code 别名=类名} 行（运行时忽略这些别名，且会与新的发现行叠加导致重复注册）。</p>
      */
     private final Map<String, Set<String>> annotationDerivedAliases = new LinkedHashMap<>();
 
     /**
-     * 编译期消息输出
+    * 编译期消息输出
      */
     private Messager messager;
 
     /**
-     * 元素工具（用于获取接口的二进制名，保证与运行时 {@code Class.getTypeName()} 一致）
+    * 元素工具（用于获取接口的二进制名，保证与运行时 {@code Class.getTypeName()} 一致）
      */
     private javax.lang.model.util.Elements elementUtils;
 
@@ -118,9 +118,9 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 收集单个标注了 {@code @AutoSpi} 的实现类
-     *
-     * @param implElement 实现类元素
+    * 收集单个标注了 {@code @AutoSpi} 的实现类
+    *
+    * @param implElement 实现类元素
      */
     private void collect(TypeElement implElement) {
         ElementKind kind = implElement.getKind();
@@ -190,14 +190,14 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 推导实现类对应的 SPI 接口列表
-     * <p>
-      * 优先使用注解 值 显式指定；缺省时递归收集实现类及其父类实现的所有非 JDK 接口。
-     * </p>
-     *
-     * @param annotation  注解实例
-     * @param implElement 实现类元素
-     * @return 接口全限定名列表
+    * 推导实现类对应的 SPI 接口列表
+    * <p>
+    * 优先使用注解 值 显式指定；缺省时递归收集实现类及其父类实现的所有非 JDK 接口。
+    * </p>
+    *
+    * @param annotation  注解实例
+    * @param implElement 实现类元素
+    * @return 接口全限定名列表
      */
     private List<String> readInterfaces(AutoSpi annotation, TypeElement implElement) {
         List<String> result = new ArrayList<>();
@@ -217,12 +217,12 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 将显式指定的接口全限定名归一化为二进制名
-     * <p>能通过 {@code Elements.getTypeElement} 解析时返回二进制名（嵌套接口为 {@code Outer$Inner}，
-     * 与运行时 {@code Class.getTypeName()} 的索引查找一致）；无法解析时原样返回并告警。</p>
-     *
-     * @param fqn 接口全限定名（点分或 {@code $} 分隔均可）
-     * @return 归一化后的接口名
+    * 将显式指定的接口全限定名归一化为二进制名
+    * <p>能通过 {@code Elements.getTypeElement} 解析时返回二进制名（嵌套接口为 {@code Outer$Inner}，
+    * 与运行时 {@code Class.getTypeName()} 的索引查找一致）；无法解析时原样返回并告警。</p>
+    *
+    * @param fqn 接口全限定名（点分或 {@code $} 分隔均可）
+    * @return 归一化后的接口名
      */
     private String normalizeInterfaceName(String fqn) {
         TypeElement resolved = elementUtils.getTypeElement(fqn);
@@ -233,10 +233,10 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 递归收集实现类及其父类实现的所有非 JDK 接口
-     *
-     * @param type   当前类型
-     * @param result 结果集合
+    * 递归收集实现类及其父类实现的所有非 JDK 接口
+    *
+    * @param type   当前类型
+    * @param result 结果集合
      */
     private void collectInterfaces(TypeElement type, Set<String> result) {
         for (TypeMirror ifaceMirror : type.getInterfaces()) {
@@ -257,12 +257,12 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 判断类上是否存在 common-starter {@code @Spi} / {@code @Extension} 注解
-     * <p>运行时 {@code ServiceDefinitionUtils} 优先读取这两个注解生成名称，
-     * 索引行别名仅在类无注解时生效，因此带注解的类只需生成「发现行」。</p>
-     *
-     * @param implElement 实现类元素
-     * @return true 表示存在 {@code @Spi} / {@code @Extension}
+    * 判断类上是否存在 common-starter {@code @Spi} / {@code @Extension} 注解
+    * <p>运行时 {@code ServiceDefinitionUtils} 优先读取这两个注解生成名称，
+    * 索引行别名仅在类无注解时生效，因此带注解的类只需生成「发现行」。</p>
+    *
+    * @param implElement 实现类元素
+    * @return true 表示存在 {@code @Spi} / {@code @Extension}
      */
     private boolean hasSpiOrExtension(TypeElement implElement) {
         for (AnnotationMirror mirror : implElement.getAnnotationMirrors()) {
@@ -275,10 +275,10 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 读取类上 {@code @Spi} / {@code @Extension} 注解的 值 值
-     *
-     * @param implElement 实现类元素
-     * @return 注解声明的名称列表
+    * 读取类上 {@code @Spi} / {@code @Extension} 注解的 值 值
+    *
+    * @param implElement 实现类元素
+    * @return 注解声明的名称列表
      */
     private List<String> readAnnotationAliases(TypeElement implElement) {
         List<String> result = new ArrayList<>();
@@ -292,10 +292,10 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-      * 读取注解镜像中名为 {@code value} 的属性值（支持 字符串 与 字符串[]）
-     *
-     * @param mirror 注解镜像
-     * @return 属性值列表
+    * 读取注解镜像中名为 {@code value} 的属性值（支持 字符串 与 字符串[]）
+    *
+    * @param mirror 注解镜像
+    * @return 属性值列表
      */
     private List<String> readAnnotationValue(AnnotationMirror mirror) {
         List<String> result = new ArrayList<>();
@@ -318,12 +318,12 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 从全限定名（或二进制名）中提取简单名
-     * <p>同时按 {@code .} 与 {@code $} 切分，保证嵌套接口（二进制名 {@code Outer$Inner}）
-     * 推导出的简单名与运行时 {@code Class.getSimpleName()} 一致。</p>
-     *
-     * @param fqn 全限定名或二进制名
-     * @return 简单名
+    * 从全限定名（或二进制名）中提取简单名
+    * <p>同时按 {@code .} 与 {@code $} 切分，保证嵌套接口（二进制名 {@code Outer$Inner}）
+    * 推导出的简单名与运行时 {@code Class.getSimpleName()} 一致。</p>
+    *
+    * @param fqn 全限定名或二进制名
+    * @return 简单名
      */
     private String simpleName(String fqn) {
         int lastDot = fqn.lastIndexOf('.');
@@ -333,10 +333,10 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 判断全限定名是否为 JDK 内置类型
-     *
-     * @param fqn 全限定名
-     * @return true 表示为 JDK 内置类型
+    * 判断全限定名是否为 JDK 内置类型
+    *
+    * @param fqn 全限定名
+    * @return true 表示为 JDK 内置类型
      */
     private boolean isJdkType(String fqn) {
         return fqn.startsWith("java.") || fqn.startsWith("javax.")
@@ -346,11 +346,11 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 在最后一个处理轮次生成全部索引文件
-     * <p>
-     * 先读取已存在的索引文件内容（不存在则忽略），再追加本次生成的新条目并自动去重
-     * （相同行只保留一份），保证不破坏手动维护的既有配置。
-     * </p>
+    * 在最后一个处理轮次生成全部索引文件
+    * <p>
+    * 先读取已存在的索引文件内容（不存在则忽略），再追加本次生成的新条目并自动去重
+    * （相同行只保留一份），保证不破坏手动维护的既有配置。
+    * </p>
      */
     private void generateIndexFiles() {
         Filer filer = processingEnv.getFiler();
@@ -374,11 +374,11 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 清理历史冗余索引行
-     * <p>移除形如 {@code 别名=类全限定名} 且别名属于该类当前 {@code @Spi}/{@code @Extension}
-     * 注解派生名的行——运行时读取类注解后这些行别名会被忽略，且与新的发现行叠加会造成重复注册。</p>
-     *
-     * @param merged 已合并的配置行集合（原地清理）
+    * 清理历史冗余索引行
+    * <p>移除形如 {@code 别名=类全限定名} 且别名属于该类当前 {@code @Spi}/{@code @Extension}
+    * 注解派生名的行——运行时读取类注解后这些行别名会被忽略，且与新的发现行叠加会造成重复注册。</p>
+    *
+    * @param merged 已合并的配置行集合（原地清理）
      */
     private void pruneStaleAliasLines(Set<String> merged) {
         if (annotationDerivedAliases.isEmpty()) {
@@ -397,12 +397,12 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 读取已存在的索引文件内容到目标集合
-     *
-     * @param filer    Filer 实例
-     * @param fileName 索引文件路径（{@code META-INF/extensions/...}）
-     * @param merged   目标集合（保留原有行顺序）
-     * @return true 表示文件已存在并读取成功；false 表示文件不存在
+    * 读取已存在的索引文件内容到目标集合
+    *
+    * @param filer    Filer 实例
+    * @param fileName 索引文件路径（{@code META-INF/extensions/...}）
+    * @param merged   目标集合（保留原有行顺序）
+    * @return true 表示文件已存在并读取成功；false 表示文件不存在
      */
     private boolean readExisting(Filer filer, String fileName, Set<String> merged) {
         try {
@@ -424,12 +424,12 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 写出索引文件；若文件管理器拒绝覆盖已存在文件，则回退为直接以输出流写出合并内容
-     *
-     * @param filer    Filer 实例
-     * @param fileName 索引文件路径（{@code META-INF/extensions/...}）
-     * @param lines    合并后的配置行集合
-     * @param exists   文件是否已存在（仅用于提示语）
+    * 写出索引文件；若文件管理器拒绝覆盖已存在文件，则回退为直接以输出流写出合并内容
+    *
+    * @param filer    Filer 实例
+    * @param fileName 索引文件路径（{@code META-INF/extensions/...}）
+    * @param lines    合并后的配置行集合
+    * @param exists   文件是否已存在（仅用于提示语）
      */
     private void writeIndexFile(Filer filer, String fileName, Set<String> lines, boolean exists) {
         try {
@@ -462,11 +462,11 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 将配置行集合以 UTF-8 写入文件对象（每行以换行符结尾）
-     *
-     * @param fileObject 文件对象
-     * @param lines      配置行集合
-     * @throws IOException 写入失败
+    * 将配置行集合以 UTF-8 写入文件对象（每行以换行符结尾）
+    *
+    * @param fileObject 文件对象
+    * @param lines      配置行集合
+    * @throws IOException 写入失败
      */
     private void writeLines(FileObject fileObject, Set<String> lines) throws IOException {
         try (OutputStream output = fileObject.openOutputStream()) {
@@ -479,10 +479,10 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 输出编译期警告
-     *
-     * @param message 警告信息
-     * @param element 关联元素
+    * 输出编译期警告
+    *
+    * @param message 警告信息
+    * @param element 关联元素
      */
     private void warn(String message, Element element) {
         messager.printMessage(Diagnostic.Kind.WARNING, message, element);

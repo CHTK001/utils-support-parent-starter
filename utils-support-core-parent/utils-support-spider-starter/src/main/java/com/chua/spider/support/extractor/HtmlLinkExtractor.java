@@ -15,15 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * HTML 链接提取器。
- *
- * <p>使用 JSoup 解析 HTML 内容，从 &lt;a href&gt; 标签中提取所有链接。
-   * 自动处理相对路径转绝对路径，过滤无效链接（JavaScript:、mailto: 等）。
- *
- * <p>SPI 名称：{@code extractor:html}
- *
- * @author CH
- * @since 4.0.0.42
+* HTML 链接提取器。
+*
+* <p>使用 JSoup 解析 HTML 内容，从 &lt;a href&gt; 标签中提取所有链接。
+* 自动处理相对路径转绝对路径，过滤无效链接（JavaScript:、mailto: 等）。
+*
+* <p>SPI 名称：{@code extractor:html}
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("html")
@@ -31,7 +31,7 @@ import java.util.List;
 public class HtmlLinkExtractor implements SpiderLinkExtractor {
 
     /**
-     * 需要排除的链接协议前缀
+    * 需要排除的链接协议前缀
      */
     private static final String[] EXCLUDED_PROTOCOLS = {
             "javascript:", "mailto:", "tel:", "sms:", "file:", "data:", "blob:"
@@ -80,10 +80,10 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     }
 
     /**
-     * 判断链接是否有效（排除非 HTTP 协议链接、空链接、锚点链接）。
-     *
-     * @param href 链接 URL
-     * @return true 表示有效链接
+    * 判断链接是否有效（排除非 HTTP 协议链接、空链接、锚点链接）。
+    *
+    * @param href 链接 URL
+    * @return true 表示有效链接
      */
     private boolean isValidLink(String href) {
         if (StringUtils.isEmpty(href)) {
@@ -107,12 +107,12 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     }
 
     /**
-     * 标准化 URL。
-     *
-     * <p>去除尾部斜杠、清理多余的空格、统一小写协议等。
-     *
-     * @param url 原始 URL
-     * @return 标准化后的 URL
+    * 标准化 URL。
+    *
+    * <p>去除尾部斜杠、清理多余的空格、统一小写协议等。
+    *
+    * @param url 原始 URL
+    * @return 标准化后的 URL
      */
     private String normalizeUrl(String url) {
         if (url == null) {

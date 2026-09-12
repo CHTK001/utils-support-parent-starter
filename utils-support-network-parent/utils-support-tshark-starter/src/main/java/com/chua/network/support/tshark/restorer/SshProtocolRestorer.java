@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * SSH 协议还原器。
- *
- * <p>SSH 协议客户端/服务端版本协商还原（如 "SSH-2.0-OpenSSH_9.x"）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* SSH 协议还原器。
+*
+* <p>SSH 协议客户端/服务端版本协商还原（如 "SSH-2.0-OpenSSH_9.x"）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SshProtocolRestorer extends AbstractProtocolRestorer {
 

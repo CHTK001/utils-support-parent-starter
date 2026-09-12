@@ -13,16 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * Whisper BPE tokenizer（解码器-only，纯 Java）。
- * <p>
-   * Whisper 使用 GPT-2 风格的 BPE（byte-级别），vocab 来自 vocab.json
-   * （每个 令牌 标识 映射到 令牌 字符串，含 Ġ 表示前导空格）。
-   * 特殊 令牌（SOT/EOT/NOTIMESTAMP 等）来自 tokenizer.json 的 添加_令牌。
-   * 本类只实现 decode：令牌 标识 序列 → 字符串。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Whisper BPE tokenizer（解码器-only，纯 Java）。
+* <p>
+* Whisper 使用 GPT-2 风格的 BPE（byte-级别），vocab 来自 vocab.json
+* （每个 令牌 标识 映射到 令牌 字符串，含 Ġ 表示前导空格）。
+* 特殊 令牌（SOT/EOT/NOTIMESTAMP 等）来自 tokenizer.json 的 添加_令牌。
+* 本类只实现 decode：令牌 标识 序列 → 字符串。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class WhisperTokenizer {
 
@@ -43,11 +43,11 @@ public class WhisperTokenizer {
     private final int vocabSize;
 
     /**
-      * 创建 whispertokenizer 实例
-     *
-     * @param idToToken 令牌 标识 → 令牌 字符串 数组
-     * @param tokenToId 令牌 字符串 → 令牌 标识 映射
-     * @param vocabSize vocab 大小
+    * 创建 whispertokenizer 实例
+    *
+    * @param idToToken 令牌 标识 → 令牌 字符串 数组
+    * @param tokenToId 令牌 字符串 → 令牌 标识 映射
+    * @param vocabSize vocab 大小
      */
     private WhisperTokenizer(String[] idToToken, Map<String, Integer> tokenToId, int vocabSize) {
         this.idToToken = idToToken;
@@ -56,21 +56,21 @@ public class WhisperTokenizer {
     }
 
     /**
-      * 从 vocab.json 加载（兼容旧版，不含特殊 令牌）。
-     *
-     * @param vocabJson vocab.json 路径
-     * @return tokenizer 实例
+    * 从 vocab.json 加载（兼容旧版，不含特殊 令牌）。
+    *
+    * @param vocabJson vocab.json 路径
+    * @return tokenizer 实例
      */
     public static WhisperTokenizer load(Path vocabJson) throws IOException {
         return load(vocabJson, vocabJson.resolveSibling("tokenizer.json"));
     }
 
     /**
-      * 从 vocab.json + tokenizer.json 加载完整 vocab（含特殊 令牌）。
-     *
-     * @param vocabJson  vocab.json 路径
-     * @param tokJson    tokenizer.json 路径
-     * @return tokenizer 实例
+    * 从 vocab.json + tokenizer.json 加载完整 vocab（含特殊 令牌）。
+    *
+    * @param vocabJson  vocab.json 路径
+    * @param tokJson    tokenizer.json 路径
+    * @return tokenizer 实例
      */
     public static WhisperTokenizer load(Path vocabJson, Path tokJson) throws IOException {
  // 1. 加载 BPE vocab（自动识别方向：标识→令牌 或 令牌→标识）
@@ -129,19 +129,19 @@ public class WhisperTokenizer {
     }
 
     /**
-     * Vocab 获取大小
-     *
-     * @return vocab大小的结果
+    * Vocab 获取大小
+    *
+    * @return vocab大小的结果
      */
     public int vocabSize() {
         return vocabSize;
     }
 
     /**
-     * 令牌转为id
-     *
-     * @param token 令牌
-     * @return 令牌转为id的结果
+    * 令牌转为id
+    *
+    * @param token 令牌
+    * @return 令牌转为id的结果
      */
     public int tokenToId(String token) {
         Integer id = tokenToId.get(token);
@@ -149,10 +149,10 @@ public class WhisperTokenizer {
     }
 
     /**
-     * id转为令牌
-     *
-     * @param id 标识
-     * @return id转为令牌的结果
+    * id转为令牌
+    *
+    * @param id 标识
+    * @return id转为令牌的结果
      */
     public String idToToken(int id) {
         if (id < 0 || id >= vocabSize) {
@@ -162,15 +162,15 @@ public class WhisperTokenizer {
     }
 
     /**
-      * 解码 令牌 标识 序列为字符串：
-     * <ol>
-     *   <li>拼接所有 token（替换 Ġ → " "）</li>
-     *   <li>跳过特殊 token（以 &lt; 开头且以 &gt; 结尾）</li>
-     *   <li>转换 byte fallback（部分非 ascii 字符）</li>
-     * </ol>
-     *
-     * @param ids 令牌 标识 序列
-     * @return 解码后的字符串（已过滤特殊 令牌）
+    * 解码 令牌 标识 序列为字符串：
+    * <ol>
+    *   <li>拼接所有 token（替换 Ġ → " "）</li>
+    *   <li>跳过特殊 token（以 &lt; 开头且以 &gt; 结尾）</li>
+    *   <li>转换 byte fallback（部分非 ascii 字符）</li>
+    * </ol>
+    *
+    * @param ids 令牌 标识 序列
+    * @return 解码后的字符串（已过滤特殊 令牌）
      */
     public String decode(int[] ids) {
         StringBuilder sb = new StringBuilder();
@@ -194,18 +194,18 @@ public class WhisperTokenizer {
     }
 
     /**
-     * 是否 Special
-     *
-     * @param token 令牌
-     * @return 是否special的结果
+    * 是否 Special
+    *
+    * @param token 令牌
+    * @return 是否special的结果
      */
     private static boolean isSpecial(String token) {
         return token.startsWith("<") && token.endsWith(">");
     }
 
     /**
-      * Whisper 特殊 令牌 常量（与 huggingface whisper tokenizer 一致）。
-      * 来源: 配置.json bos_令牌_标识=50257, eos_令牌_标识=50256
+    * Whisper 特殊 令牌 常量（与 huggingface whisper tokenizer 一致）。
+    * 来源: 配置.json bos_令牌_标识=50257, eos_令牌_标识=50256
      */
 
     /** 启动 的 转写 */
@@ -223,10 +223,10 @@ public class WhisperTokenizer {
     /** Language 令牌 基础 标识 */
     public static final int LANG_BASE = 50260;
     /**
-     * 判断字符串是否为整数键
-     *
-     * @param key 键
-     * @return 是否int键的结果
+    * 判断字符串是否为整数键
+    *
+    * @param key 键
+    * @return 是否int键的结果
      */
     private static boolean isIntKey(String key) {
         if (key == null || key.isEmpty()) {

@@ -14,61 +14,61 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-   * 套接字.IO 协议下的 同步客户端 实现，基于 套接字.io-客户端-Java。
- * <p>支持自动重连（间隔 3 秒）与按 topic 的事件订阅。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 套接字.IO 协议下的 同步客户端 实现，基于 套接字.io-客户端-Java。
+* <p>支持自动重连（间隔 3 秒）与按 topic 的事件订阅。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SocketIOSyncClient implements SyncClient {
 
     /**
-     * 客户端唯一标识
+    * 客户端唯一标识
      */
     private final String clientId = UUID.randomUUID().toString();
 
     /**
-     * 服务端 URL
+    * 服务端 URL
      */
     private final String serverUrl;
 
     /**
-     * 是否已连接
+    * 是否已连接
      */
     private volatile boolean connected;
 
     /**
-     * topic -> 消息处理器映射
+    * topic -> 消息处理器映射
      */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
 
     /**
-     * 生命周期监听器列表
+    * 生命周期监听器列表
      */
     private final java.util.List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-      * 套接字.IO 套接字 实例
+    * 套接字.IO 套接字 实例
      */
     private Socket socket;
 
     /**
-     * 重连计数器
+    * 重连计数器
      */
     private final AtomicInteger reconnectCount = new AtomicInteger(0);
 
     /**
-     * 最大重连次数，0 表示无限重连
+    * 最大重连次数，0 表示无限重连
      */
     private static final int MAX_RECONNECT = 0;
 
     /**
-     * 重连间隔（毫秒）
+    * 重连间隔（毫秒）
      */
     private static final long RECONNECT_INTERVAL = 3000;
 
     /**
-     * @param serverUrl 服务端 URL
+    * @param serverUrl 服务端 URL
      */
     public SocketIOSyncClient(String serverUrl) {
         this.serverUrl = serverUrl;
@@ -200,9 +200,9 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     /**
-     * ensuretopic监听器
-     *
-     * @param topic topic
+    * ensuretopic监听器
+    *
+    * @param topic topic
      */
     private void ensureTopicListener(String topic) {
         if (socket == null) {
@@ -217,9 +217,9 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     /**
-     * 通知监听器
-     *
-     * @param action 动作
+    * 通知监听器
+    *
+    * @param action 动作
      */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {

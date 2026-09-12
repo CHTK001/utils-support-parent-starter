@@ -10,16 +10,16 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Blender (.blend) 文件预览提供器。
- * <p>SPI 类型：{@code preview-blender}。解析 BLEND 文件头部，提取版本和元信息。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param data 数据
- * @return 解析blend的结果
- * @param content 内容
- * @param ext ext
- * @param mime mime
+* Blender (.blend) 文件预览提供器。
+* <p>SPI 类型：{@code preview-blender}。解析 BLEND 文件头部，提取版本和元信息。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param data 数据
+* @return 解析blend的结果
+* @param content 内容
+* @param ext ext
+* @param mime mime
  */
 @Spi("preview-blender")
 public class BlenderPreviewProvider implements FileStoragePreviewProvider {
@@ -66,21 +66,21 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
 
         // 版本号: 3 位数字
     /**
-     * blend信息类。
-     *
-     * @author CH
-     * @since 4.0.0
-     * @param bytes bytes
-     * @return human大小的结果
+    * blend信息类。
+    *
+    * @author CH
+    * @since 4.0.0
+    * @param bytes bytes
+    * @return human大小的结果
      */
         info.version = String.format(Locale.ENGLISH, "%c.%c.%c", data[9], data[10], data[11]);
 
         return info;
     /**
-     * 构建html。
-     * @param info 信息
-     * @param fileSize 文件大小
-     * @return 构建html的结果
+    * 构建html。
+    * @param info 信息
+    * @param fileSize 文件大小
+    * @return 构建html的结果
      */
     }
 
@@ -118,12 +118,12 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
 
         return sb.toString();
     /**
-      * escapehtml。
-     * @param text 文本
-     * @return escapeHtml的结果
-     * @author CH
-     * @since 4.0.0
-     * @param bytes bytes
+    * escapehtml。
+    * @param text 文本
+    * @return escapeHtml的结果
+    * @author CH
+    * @since 4.0.0
+    * @param bytes bytes
      */
     }
 

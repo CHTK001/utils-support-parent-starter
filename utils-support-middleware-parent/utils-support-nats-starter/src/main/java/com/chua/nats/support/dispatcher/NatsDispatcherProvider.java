@@ -18,10 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
-   * NATS 分发器提供者，基于 NATS 核心 Pub/Sub 实现跨进程的发布订阅。
- *
- * @author CH
- * @since 4.0.0.42
+* NATS 分发器提供者，基于 NATS 核心 Pub/Sub 实现跨进程的发布订阅。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("nats")
@@ -40,8 +40,8 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
 
     /**
-      * 创建 NATSdispatcher提供者 实例
-     * @param config 配置
+    * 创建 NATSdispatcher提供者 实例
+    * @param config 配置
      */
     public NatsDispatcherProvider(DispatcherConfig config) {
         super(config);

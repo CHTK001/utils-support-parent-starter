@@ -17,14 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * I看TV (ikantv) 影视搜索提供器
- * @author CH
- * @since 4.0.0
+* I看TV (ikantv) 影视搜索提供器
+* @author CH
+* @since 4.0.0
  */
 @Spi("ikantv")
 public class IKanTvResourceProvider extends AbstractResourceProvider {
     /**
-     * ikantvresource提供者。
+    * ikantvresource提供者。
      */
     public IKanTvResourceProvider() { super(); }
     @Override

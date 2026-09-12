@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JDK 默认的文件存储 URL 参数设置实现。
- *
- * @author CH
- * @since 4.0.0.42
+* JDK 默认的文件存储 URL 参数设置实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("jdk")
@@ -54,11 +54,11 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     /**
-     * 获取第一个
-     *
-     * @param request 请求
-     * @param names 名称
-     * @return 获取第一个的结果
+    * 获取第一个
+    *
+    * @param request 请求
+    * @param names 名称
+    * @return 获取第一个的结果
      */
     private String getFirst(ServerRequest request, String... names) {
         for (String name : names) {
@@ -71,11 +71,11 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     /**
-     * 解析Int
-     *
-     * @param request 请求
-     * @param names 名称
-     * @return 解析int的结果
+    * 解析Int
+    *
+    * @param request 请求
+    * @param names 名称
+    * @return 解析int的结果
      */
     private Integer parseInt(ServerRequest request, String... names) {
         String v = getFirst(request, names);
@@ -91,11 +91,11 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     /**
-     * 解析Long
-     *
-     * @param request 请求
-     * @param names 名称
-     * @return 解析long的结果
+    * 解析Long
+    *
+    * @param request 请求
+    * @param names 名称
+    * @return 解析long的结果
      */
     private Long parseLong(ServerRequest request, String... names) {
         String v = getFirst(request, names);
@@ -110,11 +110,11 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     /**
-     * 解析Float
-     *
-     * @param request 请求
-     * @param names 名称
-     * @return 解析float的结果
+    * 解析Float
+    *
+    * @param request 请求
+    * @param names 名称
+    * @return 解析float的结果
      */
     private Float parseFloat(ServerRequest request, String... names) {
         String v = getFirst(request, names);
@@ -129,11 +129,11 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     /**
-     * 解析Bool
-     *
-     * @param request 请求
-     * @param names 名称
-     * @return 解析bool的结果
+    * 解析Bool
+    *
+    * @param request 请求
+    * @param names 名称
+    * @return 解析bool的结果
      */
     private Boolean parseBool(ServerRequest request, String... names) {
         String v = getFirst(request, names);

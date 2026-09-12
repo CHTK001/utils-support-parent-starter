@@ -8,31 +8,31 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * 用户名 Mock 生成器
- *
- * <p>由小写字母与数字组成，默认长度区间 [6, 16]；
- * 若环境指定了该区间外的长度，将按默认区间约束取值。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 用户名 Mock 生成器
+*
+* <p>由小写字母与数字组成，默认长度区间 [6, 16]；
+* 若环境指定了该区间外的长度，将按默认区间约束取值。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("username")
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class UsernameMockString implements MockString {
 
     /**
-     * 用户名字符池（小写字母 + 数字）
+    * 用户名字符池（小写字母 + 数字）
      */
     private static final char[] CHARS =
             "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
     /**
-     * 默认最短用户名长度
+    * 默认最短用户名长度
      */
     private static final int DEFAULT_MIN = 6;
     /**
-     * 默认最长用户名长度
-     * @param environment 环境
-     * @return 获取字符串的结果
+    * 默认最长用户名长度
+    * @param environment 环境
+    * @return 获取字符串的结果
      */
     private static final int DEFAULT_MAX = 16;
 

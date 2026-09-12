@@ -19,41 +19,41 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * SPI 自定义解析器
- * <p>
- *     从 {@code META-INF/extensions} 目录加载 SPI 配置，将配置行解析为 {@link ServiceDefinition} 对象
- * <p>
- *     配置文件格式为 {@code META-INF/extensions/<接口全限定名>}
- * <ul>
- *     <li>{@code 实现类全限定名}</li>
- *     <li>{@code 别名=实现类全限定名}</li>
- * </ul>
- *     自动处理 UTF-8 BOM、不可见字符等边界情况
- *
- * @author CH
- * @since 2024-01-03
+* SPI 自定义解析器
+* <p>
+*     从 {@code META-INF/extensions} 目录加载 SPI 配置，将配置行解析为 {@link ServiceDefinition} 对象
+* <p>
+*     配置文件格式为 {@code META-INF/extensions/<接口全限定名>}
+* <ul>
+*     <li>{@code 实现类全限定名}</li>
+*     <li>{@code 别名=实现类全限定名}</li>
+* </ul>
+*     自动处理 UTF-8 BOM、不可见字符等边界情况
+*
+* @author CH
+* @since 2024-01-03
  */
 @Slf4j
 public class CustomServiceResolver implements ServiceResolver {
 
 
     /**
-      * SPI 配置文件在 类路径 中的路径
+    * SPI 配置文件在 类路径 中的路径
      */
     private static final String PATH = "META-INF/extensions";
 
     /**
-      * UTF-8 BOM 字符（Zero Width No-中断 Space U+FEFF）
+    * UTF-8 BOM 字符（Zero Width No-中断 Space U+FEFF）
      */
     private static final char BOM = '\uFEFF';
 
     /**
-     * 从文件中加载 SPI 定义
-     *
-     * @param path SPI 配置文件路径（以 {@code /} 结尾）
-     * @param type 服务接口类型
-     * @param classLoader 类加载器
-     * @return SPI 定义列表
+    * 从文件中加载 SPI 定义
+    *
+    * @param path SPI 配置文件路径（以 {@code /} 结尾）
+    * @param type 服务接口类型
+    * @param classLoader 类加载器
+    * @return SPI 定义列表
      */
     protected synchronized List<ServiceDefinition> loadFromFile(String path, Class<?> type, ClassLoader classLoader) {
         if (log.isTraceEnabled()) {
@@ -74,13 +74,13 @@ public class CustomServiceResolver implements ServiceResolver {
     }
 
     /**
-     * 通过类加载器加载 SPI 配置文件
-     *
-     * @param fullFileName SPI 配置文件全路径
-     * @param type 服务接口类型
-     * @param classLoader 类加载器
-     * @return SPI 扩展类列表
-     * @throws Throwable 加载异常
+    * 通过类加载器加载 SPI 配置文件
+    *
+    * @param fullFileName SPI 配置文件全路径
+    * @param type 服务接口类型
+    * @param classLoader 类加载器
+    * @return SPI 扩展类列表
+    * @throws Throwable 加载异常
      */
     private List<ServiceDefinition> loadFromClassLoader(final String fullFileName, Class<?> type, ClassLoader classLoader) throws Throwable {
         Enumeration<URL> urls = classLoader.getResources(fullFileName);
@@ -115,13 +115,13 @@ public class CustomServiceResolver implements ServiceResolver {
     }
 
     /**
-     * 解析单行 SPI 配置
-     *
-     * @param line 配置行内容
-     * @param url 配置文件 URL
-     * @param type 服务接口类型
-     * @param classLoader 类加载器
-     * @return 服务定义列表
+    * 解析单行 SPI 配置
+    *
+    * @param line 配置行内容
+    * @param url 配置文件 URL
+    * @param type 服务接口类型
+    * @param classLoader 类加载器
+    * @return 服务定义列表
      */
     protected List<ServiceDefinition> readLine(final String line, URL url, Class<?> type, ClassLoader classLoader) {
         String[] aliasAndClassName = parseSpiNameAndClassName(line);
@@ -136,10 +136,10 @@ public class CustomServiceResolver implements ServiceResolver {
     }
 
     /**
-     * 解析 SPI 配置行中的名称和类名
-     *
-     * @param line 配置行
-     * @return 包含别名和类名的数组，解析失败返回 空
+    * 解析 SPI 配置行中的名称和类名
+    *
+    * @param line 配置行
+    * @return 包含别名和类名的数组，解析失败返回 空
      */
     protected String[] parseSpiNameAndClassName(String line) {
         if (null == line || "".equals(line)) {
@@ -165,10 +165,10 @@ public class CustomServiceResolver implements ServiceResolver {
     }
 
     /**
-     * 清理 SPI 配置行中的 BOM 和不可见字符
-     *
-     * @param line 原始配置行
-     * @return 清理后的配置行
+    * 清理 SPI 配置行中的 BOM 和不可见字符
+    *
+    * @param line 原始配置行
+    * @return 清理后的配置行
      */
     private static String sanitizeSpiLine(String line) {
         if (line == null || line.isEmpty()) {
@@ -185,10 +185,10 @@ public class CustomServiceResolver implements ServiceResolver {
     }
 
     /**
-     * 判断字符是否为不可见前缀字符
-     *
-     * @param ch 字符
-     * @return true 表示为不可见前缀字符
+    * 判断字符是否为不可见前缀字符
+    *
+    * @param ch 字符
+    * @return true 表示为不可见前缀字符
      */
     private static boolean isInvisiblePrefixChar(char ch) {
         return switch (ch) {

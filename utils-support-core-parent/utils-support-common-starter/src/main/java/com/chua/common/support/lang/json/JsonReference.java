@@ -7,12 +7,12 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SQUARE
 
 
 /**
- * JSON 字符串引用封装类，用于便捷地判断和操作 JSON 数据。
- * 该类提供了对 JSON 字符串是否为空、是否为数组或对象类型的快速检查，
- * 以及直接获取对应的 JsonObject 或 JsonArray 实例的方法。
- *
- * @author CH
- * @since 4.0.0.42
+* JSON 字符串引用封装类，用于便捷地判断和操作 JSON 数据。
+* 该类提供了对 JSON 字符串是否为空、是否为数组或对象类型的快速检查，
+* 以及直接获取对应的 JsonObject 或 JsonArray 实例的方法。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class JsonReference {
  /**

@@ -8,19 +8,19 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * JDK 默认的图片全局滤镜设置实现。
- *
- * <p>支持从系统属性或配置文件读取滤镜链配置。
- * 配置格式示例：
- * <pre>{@code
- * filestorage.filter.chain=resize,grayscale
- * filestorage.filter.exclude.paths=**\/avatar.*,**\/logo.*
- * filestorage.filter.exclude.extensions=svg
- * }</pre>svg
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* JDK 默认的图片全局滤镜设置实现。
+*
+* <p>支持从系统属性或配置文件读取滤镜链配置。
+* 配置格式示例：
+* <pre>{@code
+* filestorage.filter.chain=resize,grayscale
+* filestorage.filter.exclude.paths=**\/avatar.*,**\/logo.*
+* filestorage.filter.exclude.extensions=svg
+* }</pre>svg
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("jdk")
@@ -83,9 +83,9 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     /**
-     * 构建过滤Chain
-     *
-     * @return 构建过滤器chain的结果
+    * 构建过滤Chain
+    *
+    * @return 构建过滤器chain的结果
      */
     private List<FileStorageFilterSetting.ImageFilterConfig> buildFilterChain() {
         String chainStr = System.getProperty(PREFIX + "chain", "");
@@ -100,9 +100,9 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     /**
-     * 构建exclude路径模式
-     *
-     * @return 构建exclude路径模式的结果
+    * 构建exclude路径模式
+    *
+    * @return 构建exclude路径模式的结果
      */
     private List<Pattern> buildExcludePathPatterns() {
         String paths = System.getProperty(PREFIX + "exclude.paths", "");
@@ -117,9 +117,9 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     /**
-     * 构建exclude延伸
-     *
-     * @return 构建exclude延伸的结果
+    * 构建exclude延伸
+    *
+    * @return 构建exclude延伸的结果
      */
     private Set<String> buildExcludeExtensions() {
         String exts = System.getProperty(PREFIX + "exclude.extensions", "svg");
@@ -131,10 +131,10 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     /**
-     * ant转为regex
-     *
-     * @param ant Ant
-     * @return ant转为regex的结果
+    * ant转为regex
+    *
+    * @param ant Ant
+    * @return ant转为regex的结果
      */
     private String antToRegex(String ant) {
         return ant

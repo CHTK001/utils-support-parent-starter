@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * 简化 SQL 解析器。
+* 简化 SQL 解析器。
  */
 public class SimpleSqlParser {
 

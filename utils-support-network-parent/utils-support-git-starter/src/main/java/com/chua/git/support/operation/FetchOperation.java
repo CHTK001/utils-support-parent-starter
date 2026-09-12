@@ -14,78 +14,78 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * 拉取操作（Git 拉手），同步/异步执行并支持进度及文件变更回调。
- *
- * <p>该类本身是链式构建的一个环节，最终通过以下任一方式触发执行：</p>
- * <ol>
- *   <li>{@link #execute()} — 一次同步(或异步) pull，返回结果</li>
- *   <li>{@link #start()} — 启动后台定时轮询 pull + 文件 diff 通知</li>
- * </ol>
- *
- * <pre>典型链式用法：
- * {@code
- * // 1. 同步
- * PullResult r = client.open().pull().execute();
- *
- * // 2. 异步
- * CompletableFuture<PullResult> f = (CompletableFuture<PullResult>) client.pull().async().execute();
- *
- * // 3. 定时监听
- * client.pull()
- *     .interval(30, TimeUnit.SECONDS)
- *     .listener(e -> System.out.println(e.changeType() + ": " + e.filePath()))
- *     .progressListener(new ConsoleProgress())
- *     .start();
- * }</pre>) + ": " + e.filePath()))
- *     .progressListener(new ConsoleProgress())
- *     .start();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 拉取操作（Git 拉手），同步/异步执行并支持进度及文件变更回调。
+*
+* <p>该类本身是链式构建的一个环节，最终通过以下任一方式触发执行：</p>
+* <ol>
+*   <li>{@link #execute()} — 一次同步(或异步) pull，返回结果</li>
+*   <li>{@link #start()} — 启动后台定时轮询 pull + 文件 diff 通知</li>
+* </ol>
+*
+* <pre>典型链式用法：
+* {@code
+* // 1. 同步
+* PullResult r = client.open().pull().execute();
+*
+* // 2. 异步
+* CompletableFuture<PullResult> f = (CompletableFuture<PullResult>) client.pull().async().execute();
+*
+* // 3. 定时监听
+* client.pull()
+*     .interval(30, TimeUnit.SECONDS)
+*     .listener(e -> System.out.println(e.changeType() + ": " + e.filePath()))
+*     .progressListener(new ConsoleProgress())
+*     .start();
+* }</pre>) + ": " + e.filePath()))
+*     .progressListener(new ConsoleProgress())
+*     .start();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class FetchOperation {
 
     /**
-      * 所属 git客户端。
+    * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
-      * 异步标记：为 true 时 {@link #execute()} 返回 completable期货。
+    * 异步标记：为 true 时 {@link #execute()} 返回 completable期货。
      */
     private boolean asyncMode;
 
     /**
-     * 定时轮询间隔（秒），默认 30。
+    * 定时轮询间隔（秒），默认 30。
      */
     private long watchInterval = 30;
 
     /**
-      * 轮询间隔单位，默认 时间unit.SECONDS。
+    * 轮询间隔单位，默认 时间unit.SECONDS。
      */
     private TimeUnit watchTimeUnit = TimeUnit.SECONDS;
 
     /**
-      * 文件变更监听器，不为 空 时执行 diff。
+    * 文件变更监听器，不为 空 时执行 diff。
      */
     private GitFileListener watchListener;
 
     /**
-      * 进度监听器，透传到底层 jgit 进步监控。
+    * 进度监听器，透传到底层 jgit 进步监控。
      */
     private GitProgressListener progressListener;
 
     /**
-     * 定时拉取使用的调度线程。
+    * 定时拉取使用的调度线程。
      */
     private ScheduledExecutorService scheduler;
 
     /**
-     * 构建操作实例（仅框架内部调用）。
-     *
-     * @param client 所属 Git客户端
+    * 构建操作实例（仅框架内部调用）。
+    *
+    * @param client 所属 Git客户端
      */
     public FetchOperation(GitClient client) {
         this.client = client;
@@ -94,9 +94,9 @@ public class FetchOperation {
     // ==================== 链式配置方法 ====================
 
     /**
-     * 标记为异步模式：{@link #execute()} 将返回 {@link CompletableFuture}。
-     *
-     * @return 当前操作实例（链式衔接）
+    * 标记为异步模式：{@link #execute()} 将返回 {@link CompletableFuture}。
+    *
+    * @return 当前操作实例（链式衔接）
      */
     public FetchOperation async() {
         this.asyncMode = true;
@@ -104,10 +104,10 @@ public class FetchOperation {
     }
 
     /**
-     * 设置进度监听器。
-     *
-     * @param listener 进度监听器，非空
-     * @return 当前操作实例
+    * 设置进度监听器。
+    *
+    * @param listener 进度监听器，非空
+    * @return 当前操作实例
      */
     public FetchOperation progressListener(GitProgressListener listener) {
         this.progressListener = listener;
@@ -115,11 +115,11 @@ public class FetchOperation {
     }
 
     /**
-     * 设置轮询（watch）间隔。
-     *
-     * @param interval 间隔数值
-     * @param unit     时间单位
-     * @return 当前操作实例
+    * 设置轮询（watch）间隔。
+    *
+    * @param interval 间隔数值
+    * @param unit     时间单位
+    * @return 当前操作实例
      */
     public FetchOperation interval(long interval, TimeUnit unit) {
         this.watchInterval = interval;
@@ -128,10 +128,10 @@ public class FetchOperation {
     }
 
     /**
-     * 设置文件变更监听器（与 {@link #start()} 配合使用）。
-     *
-     * @param listener 文件变更监听器，非 空
-     * @return 当前操作实例
+    * 设置文件变更监听器（与 {@link #start()} 配合使用）。
+    *
+    * @param listener 文件变更监听器，非 空
+    * @return 当前操作实例
      */
     public FetchOperation listener(GitFileListener listener) {
         this.watchListener = listener;
@@ -141,9 +141,9 @@ public class FetchOperation {
     // ==================== 执行方法 ====================
 
     /**
-     * 执行一次拉取。
-     *
-     * @return 同步模式返回 {@link PullResult}，异步模式返回 {@link CompletableFuture}{@code <PullResult>}
+    * 执行一次拉取。
+    *
+    * @return 同步模式返回 {@link PullResult}，异步模式返回 {@link CompletableFuture}{@code <PullResult>}
      */
     public Object execute() {
         if (asyncMode) {
@@ -153,14 +153,14 @@ public class FetchOperation {
     }
 
     /**
-     * 启动定时拉取监听。
-     *
-     * <p>后台守护线程会以固定间隔执行 {@code git pull}，
-      * 若 拉手 后 HEAD 树变化，再 diff 出文件列表通知 {@link #watchListener}。</p>
-     *
-     * <p>必须先调用 {@link #listener(GitFileListener)} 后再调用该方法。</p>
-     *
-     * @throws GitClientException 如果未设置监听器
+    * 启动定时拉取监听。
+    *
+    * <p>后台守护线程会以固定间隔执行 {@code git pull}，
+    * 若 拉手 后 HEAD 树变化，再 diff 出文件列表通知 {@link #watchListener}。</p>
+    *
+    * <p>必须先调用 {@link #listener(GitFileListener)} 后再调用该方法。</p>
+    *
+    * @throws GitClientException 如果未设置监听器
      */
     public void start() {
         if (watchListener == null) {
@@ -183,7 +183,7 @@ public class FetchOperation {
     }
 
     /**
-     * 停止由 {@link #start()} 启动的定时拉取。
+    * 停止由 {@link #start()} 启动的定时拉取。
      */
     public void stop() {
         if (scheduler != null && !scheduler.isShutdown()) {

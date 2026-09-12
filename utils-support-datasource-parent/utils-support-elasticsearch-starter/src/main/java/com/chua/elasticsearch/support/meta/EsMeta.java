@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Elasticsearch 元数据操作实现。
- *
- * @author CH
- * @since 4.0.0.42
+* Elasticsearch 元数据操作实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class EsMeta extends AbstractMetaSearch {
 
@@ -27,10 +27,10 @@ public class EsMeta extends AbstractMetaSearch {
     private final EsSearchEngineImpl searchEngine;
 
     /**
-      * 创建 esmeta 实例
-     * @param metaData meta数据
-     * @param engine elasticsearchengine
-     * @param engine engine
+    * 创建 esmeta 实例
+    * @param metaData meta数据
+    * @param engine elasticsearchengine
+    * @param engine engine
      */
     public EsMeta(AbstractMetaData metaData, ElasticsearchEngine engine) {
         super(metaData, engine);
@@ -83,12 +83,12 @@ public class EsMeta extends AbstractMetaSearch {
 
     @Override
     /**
-     * 优化
-     *
-     * @param indexName 索引名称
-     * @return 优化的结果
-     * @author CH
-     * @since 4.0.0
+    * 优化
+    *
+    * @param indexName 索引名称
+    * @return 优化的结果
+    * @author CH
+    * @since 4.0.0
      */
     public boolean optimize(String indexName) {
         try {
@@ -185,11 +185,11 @@ public class EsMeta extends AbstractMetaSearch {
 
         @Override
         /**
-         * 执行
-         *
-         * @return 执行的结果
-         * @author CH
-         * @since 4.0.0
+        * 执行
+        *
+        * @return 执行的结果
+        * @author CH
+        * @since 4.0.0
          */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();

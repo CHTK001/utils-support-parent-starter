@@ -2,10 +2,10 @@ package com.chua.common.support.concurrent.offset;
 
 
 /**
- * offset 存储 SPI。
- *
- * @author CH
- * @since 4.0.0.43
+* offset 存储 SPI。
+*
+* @author CH
+* @since 4.0.0.43
  */
 public interface OffsetStore extends AutoCloseable {
 

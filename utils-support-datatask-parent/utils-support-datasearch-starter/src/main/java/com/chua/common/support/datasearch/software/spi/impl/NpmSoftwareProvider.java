@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * NPM 软件包管理器提供器。
- *
- * <p>通过 npm CLI 搜索、安装和卸载 Node.js 软件包。
-   * 支持 <code>NPM 搜索</code>、<code>NPM install</code>、<code>NPM uninstall</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* NPM 软件包管理器提供器。
+*
+* <p>通过 npm CLI 搜索、安装和卸载 Node.js 软件包。
+* 支持 <code>NPM 搜索</code>、<code>NPM install</code>、<code>NPM uninstall</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("npm")
 public class NpmSoftwareProvider implements SoftwareProvider {
@@ -90,12 +90,12 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -123,10 +123,10 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析npm输出
-     *
-     * @param output 输出
-     * @return 解析npm输出的结果
+    * 解析npm输出
+    *
+    * @param output 输出
+    * @return 解析npm输出的结果
      */
     private List<SoftwareInfo> parseNpmOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
@@ -153,11 +153,11 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * extractjson值
-     *
-     * @param json json
-     * @param key 键
-     * @return extractjson值的结果
+    * extractjson值
+    *
+    * @param json json
+    * @param key 键
+    * @return extractjson值的结果
      */
     private String extractJsonValue(String json, String key) {
         String searchKey = "\"" + key + "\"";

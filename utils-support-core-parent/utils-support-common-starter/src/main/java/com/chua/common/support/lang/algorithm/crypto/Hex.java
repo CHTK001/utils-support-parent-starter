@@ -8,14 +8,14 @@ import java.nio.charset.StandardCharsets;
 
 
 /**
- * 十六进制编码与解码工具类。
- * <p>
- * 提供字节数组、字符串和 ByteBuffer 之间的十六进制转换功能，
- * 参考 Apache Commons Codec Hex 实现风格。
- *
- * @author CH
- * @version 1.0.0
- * @since 2025/11/29
+* 十六进制编码与解码工具类。
+* <p>
+* 提供字节数组、字符串和 ByteBuffer 之间的十六进制转换功能，
+* 参考 Apache Commons Codec Hex 实现风格。
+*
+* @author CH
+* @version 1.0.0
+* @since 2025/11/29
  */
 @Getter
 public class Hex {

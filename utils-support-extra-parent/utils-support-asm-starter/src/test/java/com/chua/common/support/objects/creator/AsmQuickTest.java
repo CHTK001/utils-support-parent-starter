@@ -7,24 +7,24 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.lang.reflect.Method;
 
 /**
-   * 验证引入 utils-support-asm-starter 后 Quick 的 {@code dynamic()}/{@code compile()}
- * 自动切换到 ASM 编译器实现（{@link Compiler} SPI 优先解析 {@code "asm"}）。
- *
- * <p>asm-starter 的测试类路径天然包含本模块（{@link AsmCompiler} 及其 SPI 注册资源）
-   * 与 common-starter（{@link Quick}/{@link DefaultQuick}），单向依赖无 reactor 循环引用，
- * 因此本测试是“asm-starter 在测试类路径”场景的规范验证位置。</p>
- *
- * <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
- * <pre>
- * 运行方式：{@code java com.chua.common.support.objects.creator.AsmQuickTest}
- * 任一校验失败抛出计数并输出 FAIL，全部通过输出 PASS。
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
- * @see AsmCompiler
- * @see DefaultQuick
- * @see Quick
+* 验证引入 utils-support-asm-starter 后 Quick 的 {@code dynamic()}/{@code compile()}
+* 自动切换到 ASM 编译器实现（{@link Compiler} SPI 优先解析 {@code "asm"}）。
+*
+* <p>asm-starter 的测试类路径天然包含本模块（{@link AsmCompiler} 及其 SPI 注册资源）
+* 与 common-starter（{@link Quick}/{@link DefaultQuick}），单向依赖无 reactor 循环引用，
+* 因此本测试是“asm-starter 在测试类路径”场景的规范验证位置。</p>
+*
+* <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
+* <pre>
+* 运行方式：{@code java com.chua.common.support.objects.creator.AsmQuickTest}
+* 任一校验失败抛出计数并输出 FAIL，全部通过输出 PASS。
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
+* @see AsmCompiler
+* @see DefaultQuick
+* @see Quick
  */
 public class AsmQuickTest {
 
@@ -35,8 +35,8 @@ public class AsmQuickTest {
     private static int passCount = 0;
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) {
         testSpiResolvesAsm();
@@ -108,10 +108,10 @@ public class AsmQuickTest {
     }
 
     /**
-     * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
-     *
-     * @param quick 默认quick 实例
-     * @return 当前编译器实现
+    * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
+    *
+    * @param quick 默认quick 实例
+    * @return 当前编译器实现
      */
     private static Compiler resolveCompilerReflectively(DefaultQuick quick) {
         try {
@@ -124,10 +124,10 @@ public class AsmQuickTest {
     }
 
     /**
-     * 校验并计数。
-     *
-     * @param condition 条件
-     * @param message   校验说明
+    * 校验并计数。
+    *
+    * @param condition 条件
+    * @param message   校验说明
      */
     private static void check(boolean condition, String message) {
         if (condition) {
@@ -140,11 +140,11 @@ public class AsmQuickTest {
     }
 
     /**
-      * 对象相等比较（处理 空）。
-     *
-     * @param expected 期望值
-     * @param actual   实际值
-     * @return 是否相等
+    * 对象相等比较（处理 空）。
+    *
+    * @param expected 期望值
+    * @param actual   实际值
+    * @return 是否相等
      */
     private static boolean eq(Object expected, Object actual) {
         return expected == null ? actual == null : expected.equals(actual);

@@ -8,26 +8,26 @@ import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
- * 语音识别器，将音频数据转换为文字。
- *
- * @author CH
- * @since 4.0.0.42
+* 语音识别器，将音频数据转换为文字。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public interface SpeechRecognizer {
 
     /**
-     * 创建语音识别器。
-     *
-     * @param name 模型名称
-     * @return 识别器
+    * 创建语音识别器。
+    *
+    * @param name 模型名称
+    * @return 识别器
      */
 
     /**
-      * 通过 SPI 创建实例（提供者="onnx" 等）。
-     *
-     * @param provider 提供者 名称
-     * @param apiKey   API 密钥（本地引擎可空）
-     * @return 实例
+    * 通过 SPI 创建实例（提供者="onnx" 等）。
+    *
+    * @param provider 提供者 名称
+    * @param apiKey   API 密钥（本地引擎可空）
+    * @return 实例
      */
     static SpeechRecognizer create(String provider, String apiKey) {
         return ServiceProvider.of(SpeechRecognizer.class)
@@ -35,42 +35,42 @@ public interface SpeechRecognizer {
     }
 
     /**
-      * 设置 提供者。
-     *
-     * @param provider 提供者 名称
-     * @return this
+    * 设置 提供者。
+    *
+    * @param provider 提供者 名称
+    * @return this
      */
     default SpeechRecognizer provider(String provider) {
         return this;
     }
 
     /**
-     * 设置模型名称。
-     *
-     * @param model 模型名称
-     * @return this
+    * 设置模型名称。
+    *
+    * @param model 模型名称
+    * @return this
      */
     default SpeechRecognizer model(String model) {
         return this;
     }
 
     /**
-     * 创建
-     *
-     * @param name 名称
-     * @return 创建的结果
+    * 创建
+    *
+    * @param name 名称
+    * @return 创建的结果
      */
     static SpeechRecognizer create(String name) {
         return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
 
     /**
-     * 查询该能力下全部可用模型。
-     *
-     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
-     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
-     *
-     * @return 模型 标识 列表
+    * 查询该能力下全部可用模型。
+    *
+    * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+    * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
+    *
+    * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.speech.SpeechRecognizer.class);
@@ -78,132 +78,132 @@ public interface SpeechRecognizer {
 
 
     /**
-     * 创建语音识别器。
-     *
-     * @param name    模型名称
-     * @param setting 模型配置
-     * @return 识别器
+    * 创建语音识别器。
+    *
+    * @param name    模型名称
+    * @param setting 模型配置
+    * @return 识别器
      */
     static SpeechRecognizer create(String name, ModelSetting setting) {
         return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
 
     /**
-     * 设置识别语言。
-     *
-     * @param lang 语言代码
-     * @return this
+    * 设置识别语言。
+    *
+    * @param lang 语言代码
+    * @return this
      */
     SpeechRecognizer lang(String lang);
 
     /**
-     * 设置模型路径。
-     *
-     * @param path 路径
-     * @return this
+    * 设置模型路径。
+    *
+    * @param path 路径
+    * @return this
      */
     SpeechRecognizer modelPath(String path);
 
     /**
-     * 设置运行设备。
-     *
-     * @param device 设备
-     * @return this
+    * 设置运行设备。
+    *
+    * @param device 设备
+    * @return this
      */
     SpeechRecognizer device(String device);
 
     /**
-     * 设置采样率。
-     *
-     * @param rate 采样率（Hz）
-     * @return this
+    * 设置采样率。
+    *
+    * @param rate 采样率（Hz）
+    * @return this
      */
     SpeechRecognizer sampleRate(int rate);
 
     /**
-     * 识别语音内容。
-     *
-     * @param audioData 音频数据
-     * @return 识别文字
+    * 识别语音内容。
+    *
+    * @param audioData 音频数据
+    * @return 识别文字
      */
     String recognize(byte[] audioData);
 
     /**
-     * 识别语音内容，指定语言。
-     *
-     * @param audioData 音频数据
-     * @param language  语言代码
-     * @return 识别文字
+    * 识别语音内容，指定语言。
+    *
+    * @param audioData 音频数据
+    * @param language  语言代码
+    * @return 识别文字
      */
     String recognize(byte[] audioData, String language);
 }
 
 /**
- * 默认语音识别器实现。
- *
- * @author CH
- * @since 4.0.0.42
+* 默认语音识别器实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 class DefaultSpeechRecognizer implements SpeechRecognizer {
 
     /**
-     * 默认识别语言（中文）。
+    * 默认识别语言（中文）。
      */
     private static final String DEFAULT_LANG = "zh";
 
     /**
-     * 默认运行设备（CPU）。
+    * 默认运行设备（CPU）。
      */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
-      * 默认采样率（16khz）。
+    * 默认采样率（16khz）。
      */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
 
     /**
-     * 识别引擎。
+    * 识别引擎。
      */
     private final IdentificationEngine engine;
 
     /**
-     * 模型名称。
+    * 模型名称。
      */
     private final String modelName;
 
     /**
-     * 模型配置。
+    * 模型配置。
      */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
-     * 识别语言。
+    * 识别语言。
      */
     private String lang = DEFAULT_LANG;
 
     /**
-     * 模型路径。
+    * 模型路径。
      */
     private String modelPath;
 
     /**
-     * 运行设备。
+    * 运行设备。
      */
     private String device = DEFAULT_DEVICE;
 
     /**
-     * 采样率。
+    * 采样率。
      */
     private int sampleRate = DEFAULT_SAMPLE_RATE;
 
     /**
-     * 构造默认语音识别器。
-     *
-     * @param engine    识别引擎
-     * @param modelName 模型名称
-     * @param setting   模型配置
+    * 构造默认语音识别器。
+    *
+    * @param engine    识别引擎
+    * @param modelName 模型名称
+    * @param setting   模型配置
      */
     DefaultSpeechRecognizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
@@ -248,10 +248,10 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * Recognize
-     *
-     * @param audioData 音频数据
-     * @return recognize的结果
+    * Recognize
+    *
+    * @param audioData 音频数据
+    * @return recognize的结果
      */
     public String recognize(byte[] audioData) {
         ITranslator<byte[], String> t =
@@ -265,11 +265,11 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * Recognize
-     *
-     * @param audioData 音频数据
-     * @param language language
-     * @return recognize的结果
+    * Recognize
+    *
+    * @param audioData 音频数据
+    * @param language language
+    * @return recognize的结果
      */
     public String recognize(byte[] audioData, String language) {
         this.lang = language;

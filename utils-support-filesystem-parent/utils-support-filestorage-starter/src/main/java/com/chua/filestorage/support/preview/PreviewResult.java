@@ -4,12 +4,12 @@ import lombok.Builder;
 import lombok.Value;
 
 /**
- * 预览结果对象。
- *
- * <p>封装了文件转换为 HTML 预览的全部资源。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 预览结果对象。
+*
+* <p>封装了文件转换为 HTML 预览的全部资源。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Value
 @Builder

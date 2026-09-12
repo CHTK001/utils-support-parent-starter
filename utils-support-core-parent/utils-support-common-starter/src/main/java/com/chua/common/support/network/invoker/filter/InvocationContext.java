@@ -13,12 +13,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * 调用上下文，承载一次远程调用的请求/响应数据，实现 {@link ServerRequest} 和 {@link ServerResponse}。
- *
- * <p>复用服务端 {@link com.chua.common.support.network.server.filter.ServerFilter} 体系。
- *
- * @author CH
- * @since 4.0.0.42
+* 调用上下文，承载一次远程调用的请求/响应数据，实现 {@link ServerRequest} 和 {@link ServerResponse}。
+*
+* <p>复用服务端 {@link com.chua.common.support.network.server.filter.ServerFilter} 体系。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class InvocationContext implements ServerRequest, ServerResponse {
 

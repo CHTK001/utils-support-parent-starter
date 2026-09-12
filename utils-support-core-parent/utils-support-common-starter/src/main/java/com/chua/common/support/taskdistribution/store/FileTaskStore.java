@@ -17,64 +17,64 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 文件任务存储实现。
- *
- * <p>基于 JSON 序列化将任务持久化到文件系统，支持应用重启后自动恢复。
- * 文件路径通过 SPI 参数 {@code filePath} 配置，默认 {@code ./data/taskstore/}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 文件任务存储实现。
+*
+* <p>基于 JSON 序列化将任务持久化到文件系统，支持应用重启后自动恢复。
+* 文件路径通过 SPI 参数 {@code filePath} 配置，默认 {@code ./data/taskstore/}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("file")
 public class FileTaskStore implements TaskStore {
 
     /**
-     * 默认数据目录
+    * 默认数据目录
      */
     private static final String DEFAULT_DATA_DIR = "./data/taskstore/";
 
     /**
-     * 任务文件后缀
+    * 任务文件后缀
      */
     private static final String TASK_SUFFIX = ".task.json";
 
     /**
-     * 结果文件后缀
+    * 结果文件后缀
      */
     private static final String RESULT_SUFFIX = ".result.json";
 
     /**
-     * 数据目录
+    * 数据目录
      */
     private final Path dataDir;
 
     /**
-     * 内存缓存（避免频繁读文件）
+    * 内存缓存（避免频繁读文件）
      */
     private final Map<String, Task<?>> taskCache = new ConcurrentHashMap<>();
 
     /**
-     * 结果缓存
+    * 结果缓存
      */
     private final Map<String, TaskResult<?>> resultCache = new ConcurrentHashMap<>();
 
     /**
-     * 状态缓存
+    * 状态缓存
      */
     private final Map<String, TaskStatus> statusCache = new ConcurrentHashMap<>();
 
     /**
-     * 构造文件任务存储，使用默认数据目录。
+    * 构造文件任务存储，使用默认数据目录。
      */
     public FileTaskStore() {
         this(DEFAULT_DATA_DIR);
     }
 
     /**
-     * 构造文件任务存储。
-     *
-     * @param dataDir 数据目录路径
+    * 构造文件任务存储。
+    *
+    * @param dataDir 数据目录路径
      */
     public FileTaskStore(String dataDir) {
         String dir = dataDir != null ? dataDir : DEFAULT_DATA_DIR;
@@ -88,7 +88,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     /**
-     * 启动时从磁盘加载所有任务到缓存。
+    * 启动时从磁盘加载所有任务到缓存。
      */
     private void loadFromDisk() {
         File[] files = dataDir.toFile().listFiles((dir, name) -> name.endsWith(TASK_SUFFIX));
@@ -216,8 +216,8 @@ public class FileTaskStore implements TaskStore {
     }
 
     /**
-     * 持久化任务到文件。
-     * @param task 任务
+    * 持久化任务到文件。
+    * @param task 任务
      */
     private void persistTask(Task<?> task) {
         try {
@@ -232,8 +232,8 @@ public class FileTaskStore implements TaskStore {
     }
 
     /**
-     * 持久化结果到文件。
-     * @param result 结果
+    * 持久化结果到文件。
+    * @param result 结果
      */
     private void persistResult(TaskResult<?> result) {
         try {

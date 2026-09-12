@@ -1,13 +1,13 @@
 package com.chua.deeplearning.support.onnx.audio.zipformer;
 
 /**
-   * Kaldi 兼容 80 维 fbank 特征提取器 (16 khz)。
- *
- * <p>参数与 sherpa-onnx / kaldi-native-fbank 默认配置一致:
- * 帧长 25 ms、帧移 10 ms、Povey 窗、预加重 0.97、去直流、80 个 Mel 滤波器。
- *
- * @author chua
- * @since 4.0.0.42
+* Kaldi 兼容 80 维 fbank 特征提取器 (16 khz)。
+*
+* <p>参数与 sherpa-onnx / kaldi-native-fbank 默认配置一致:
+* 帧长 25 ms、帧移 10 ms、Povey 窗、预加重 0.97、去直流、80 个 Mel 滤波器。
+*
+* @author chua
+* @since 4.0.0.42
  */
 public class ZipformerFbank {
 
@@ -28,7 +28,7 @@ public class ZipformerFbank {
     private final float[] sinTable; // sintable
 
     /**
-      * zipformerfbank。
+    * zipformerfbank。
      */
     public ZipformerFbank() {
         this.window = buildPoveyWindow();
@@ -45,11 +45,11 @@ public class ZipformerFbank {
     }
 
     /**
-     * 提取 fbank 特征矩阵。
-     *
-     * @param samples 16 khz 单声道 PCM [-1,1]
-     * @return [帧数][80] 二维特征
-     * @param hz hz
+    * 提取 fbank 特征矩阵。
+    *
+    * @param samples 16 khz 单声道 PCM [-1,1]
+    * @return [帧数][80] 二维特征
+    * @param hz hz
      /**
       * extract。
       * @param samples 样本
@@ -99,10 +99,10 @@ public class ZipformerFbank {
         }
         return result;
     /**
-      * computepowerspectrum。
-     * @param frame 帧
-     * @param powerSpec powerspec
-     * @return 构建povey窗口的结果
+    * computepowerspectrum。
+    * @param frame 帧
+    * @param powerSpec powerspec
+    * @return 构建povey窗口的结果
      */
     }
 
@@ -127,10 +127,10 @@ public class ZipformerFbank {
         }
         return w;
     /**
-     * 构建melbanks。
-     * @return 构建melbanks的结果
-     * @param hz hz
-     * @param mel mel
+    * 构建melbanks。
+    * @return 构建melbanks的结果
+    * @param hz hz
+    * @param mel mel
      */
     }
 

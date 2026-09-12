@@ -18,15 +18,15 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * PaddleOCR 文字检测 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* PaddleOCR 文字检测 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PpWordDetectionTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     * 最长边限制。
+    * 最长边限制。
      */
     private final int maxSideLen;
 
@@ -36,8 +36,8 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     }
 
     /**
-      * 创建 ppworddetectiontranslator 实例
-     * @param maxSideLen 最大sidelen
+    * 创建 ppworddetectiontranslator 实例
+    * @param maxSideLen 最大sidelen
      */
     public PpWordDetectionTranslator(int maxSideLen) {
         this.maxSideLen = maxSideLen;
@@ -96,10 +96,10 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     }
 
     /**
-     * Align
-     *
-     * @param value 值
-     * @return align32的结果
+    * Align
+    *
+    * @param value 值
+    * @return align32的结果
      */
     private int align32(int value) {
         if (value % 32 == 0) {

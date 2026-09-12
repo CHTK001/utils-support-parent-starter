@@ -7,13 +7,13 @@ import lombok.Data;
 import java.util.Map;
 
 /**
- * 汇率接口响应实体。
- *
- * <p>对应 open.er-api.com {@code /v6/latest/{base}} 响应结构，
- * {@code rates} 为币种 -> 汇率（1 单位 base 可兑换数量）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 汇率接口响应实体。
+*
+* <p>对应 open.er-api.com {@code /v6/latest/{base}} 响应结构，
+* {@code rates} 为币种 -> 汇率（1 单位 base 可兑换数量）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

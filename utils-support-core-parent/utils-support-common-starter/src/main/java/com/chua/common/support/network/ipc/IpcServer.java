@@ -12,20 +12,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * IPC 服务器，处理浏览器端到 Java 端的进程间通信请求。
- *
- * <p>继承 {@link AbstractServer}，内部持有 {@link IpcServerFilter}，
- * 由 filter 的 {@link ServerHandlerFactory} 统一管理 IPC 方法路由。</p>
- *
- * @author CH
- * @since 2026/07/18
+* IPC 服务器，处理浏览器端到 Java 端的进程间通信请求。
+*
+* <p>继承 {@link AbstractServer}，内部持有 {@link IpcServerFilter}，
+* 由 filter 的 {@link ServerHandlerFactory} 统一管理 IPC 方法路由。</p>
+*
+* @author CH
+* @since 2026/07/18
  */
 @Slf4j
 public class IpcServer extends AbstractServer {
     /**
-     * 构造 IPC 服务器。
-     *
-     * @param setting 服务器配置
+    * 构造 IPC 服务器。
+    *
+    * @param setting 服务器配置
      */
     public IpcServer(ServerSetting setting) {
         super(setting);
@@ -50,12 +50,12 @@ public class IpcServer extends AbstractServer {
     }
 
     /**
-     * 处理 IPC 消息。
-     *
-     * @param source 消息来源标识
-     * @param path   方法路径
-     * @param body   请求体
-     * @return JSON 响应字符串
+    * 处理 IPC 消息。
+    *
+    * @param source 消息来源标识
+    * @param path   方法路径
+    * @param body   请求体
+    * @return JSON 响应字符串
      */
     public String handleMessage(String source, String path, String body) {
         Map<String, Object> response = new LinkedHashMap<>();

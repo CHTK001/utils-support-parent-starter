@@ -11,20 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * VGGT              Translator
- * <p>
- *              {@link VggtOutput}                    Image   
- *           3D                             Translator   
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2024/11/08
+* VGGT              Translator
+* <p>
+*              {@link VggtOutput}                    Image   
+*           3D                             Translator   
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2024/11/08
  */
 @Slf4j
 public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
 
     /**
-     *                         
+    *                         
      */
     private static final int INPUT_SIZE = 518;
 

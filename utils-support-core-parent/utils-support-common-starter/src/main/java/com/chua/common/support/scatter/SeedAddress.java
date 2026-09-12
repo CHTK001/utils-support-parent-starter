@@ -3,21 +3,21 @@ package com.chua.common.support.scatter;
 import java.net.InetSocketAddress;
 
 /**
-   * 参见 地址解析：支持 {@code host:port} 或 {@code host}（端口缺省时回落到节点端口）。
- *
- * @author CH
- * @since 4.0.0.42
- * @return 获取端口的结果
+* 参见 地址解析：支持 {@code host:port} 或 {@code host}（端口缺省时回落到节点端口）。
+*
+* @author CH
+* @since 4.0.0.42
+* @return 获取端口的结果
  */
 public class SeedAddress {
 
     private final String host; // 主机
     private final int port; // 端口
 /**
- * 参见地址。
- * @param host 主机
- * @param port 端口
- * @return 获取端口的结果
+* 参见地址。
+* @param host 主机
+* @param port 端口
+* @return 获取端口的结果
  */
 
     public SeedAddress(String host, int port) {
@@ -34,10 +34,10 @@ public class SeedAddress {
     }
 
     /**
-     * 解析 seed 地址字符串。
-     *
-     * @param address 如 "192.168.1.10:19000" 或 "192.168.1.10"
-     * @return seed 地址，格式非法返回 空
+    * 解析 seed 地址字符串。
+    *
+    * @param address 如 "192.168.1.10:19000" 或 "192.168.1.10"
+    * @return seed 地址，格式非法返回 空
      */
     public static SeedAddress parse(String address) {
         if (address == null || address.isBlank()) {
@@ -64,10 +64,10 @@ public class SeedAddress {
     }
 
     /**
-     * 获取有效端口：显式端口 > 0 用之，否则回落到节点端口。
-     *
-     * @param fallbackPort 节点端口
-     * @return 有效端口
+    * 获取有效端口：显式端口 > 0 用之，否则回落到节点端口。
+    *
+    * @param fallbackPort 节点端口
+    * @return 有效端口
      */
     public int effectivePort(int fallbackPort) {
         return port > 0 ? port : fallbackPort;

@@ -12,26 +12,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-   * mxnet inceptionv3 图像分类 Translator。
- * <p>输入图像将被缩放至 299x299 并归一化，输出 ImageNet 类别概率分布。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* mxnet inceptionv3 图像分类 Translator。
+* <p>输入图像将被缩放至 299x299 并归一化，输出 ImageNet 类别概率分布。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class InceptionV3ActionTranslator implements Translator<Image, Classifications> {
 
     /**
-     * 输入图像宽度（像素）
+    * 输入图像宽度（像素）
      */
     private static final int DEFAULT_WIDTH = 299;
 
     /**
-     * 输入图像高度（像素）
+    * 输入图像高度（像素）
      */
     private static final int DEFAULT_HEIGHT = 299;
 
     /**
-     * 类别标签文件名
+    * 类别标签文件名
      */
     private static final String DEFAULT_SYNSET_FILE = "classes.txt";
 
@@ -45,8 +45,8 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
     }
 
     /**
-      * 创建 inceptionv3动作translator 实例
-     * @param arguments 参数
+    * 创建 inceptionv3动作translator 实例
+    * @param arguments 参数
      */
     public InceptionV3ActionTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = new LinkedHashMap<>();

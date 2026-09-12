@@ -21,19 +21,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-   * 文件 系统 resource 查找 - 注册 "文件:" 协议.
- * <p>
-   * Uses OS-NAT 搜索 tools for fast 文件 lookups:
- * <ul>
- *   <li>Windows: {@code where /r} (command-line search)</li>
- *   <li>Linux: {@code locate} (mlocate/plocate database)</li>
- *   <li>macOS: {@code mdfind} (Spotlight index)</li>
- * </ul>
-   * 下降 back 转为 Java NIO 文件.walk文件树 if NAT tool 是否 不可用.
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 文件 系统 resource 查找 - 注册 "文件:" 协议.
+* <p>
+* Uses OS-NAT 搜索 tools for fast 文件 lookups:
+* <ul>
+*   <li>Windows: {@code where /r} (command-line search)</li>
+*   <li>Linux: {@code locate} (mlocate/plocate database)</li>
+*   <li>macOS: {@code mdfind} (Spotlight index)</li>
+* </ul>
+* 下降 back 转为 Java NIO 文件.walk文件树 if NAT tool 是否 不可用.
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
 */
 @Slf4j
 public class FileResourceFinder implements ResourceFinder {
@@ -45,8 +45,8 @@ public class FileResourceFinder implements ResourceFinder {
     private final ResourceConfiguration configuration;
 
     /**
-      * 创建 文件resource查找 实例
-     * @param configuration 配置
+    * 创建 文件resource查找 实例
+    * @param configuration 配置
      */
     public FileResourceFinder(ResourceConfiguration configuration) {
         this.configuration = configuration;
@@ -104,13 +104,13 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 搜索withNATtool
-     *
-     * @param name 名称
-     * @param fullPath 完整路径
-     * @param matchPath 匹配路径
-     * @param dirs dirs
-     * @return 搜索withNATtool的结果
+    * 搜索withNATtool
+    *
+    * @param name 名称
+    * @param fullPath 完整路径
+    * @param matchPath 匹配路径
+    * @param dirs dirs
+    * @return 搜索withNATtool的结果
      */
     private Set<Resource> searchWithNativeTool(String name, String fullPath, String matchPath, Set<String> dirs) {
         try {
@@ -130,12 +130,12 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 搜索Linuxlocate
-     *
-     * @param name 名称
-     * @param fullPath 完整路径
-     * @param matchPath 匹配路径
-     * @return 搜索Linuxlocate的结果
+    * 搜索Linuxlocate
+    *
+    * @param name 名称
+    * @param fullPath 完整路径
+    * @param matchPath 匹配路径
+    * @return 搜索Linuxlocate的结果
      */
     private Set<Resource> searchLinuxLocate(String name, String fullPath, String matchPath) throws Exception {
         if (!isCommandAvailable("locate")) {
@@ -209,12 +209,12 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 搜索窗口where
-     *
-     * @param name 名称
-     * @param fullPath 完整路径
-     * @param matchPath 匹配路径
-     * @return 搜索窗口where的结果
+    * 搜索窗口where
+    *
+    * @param name 名称
+    * @param fullPath 完整路径
+    * @param matchPath 匹配路径
+    * @return 搜索窗口where的结果
      */
     private Set<Resource> searchWindowsWhere(String name, String fullPath, String matchPath) throws Exception {
         String searchRoot = fullPath.isEmpty() ? "C:\\" : fullPath;
@@ -249,12 +249,12 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 搜索macmdfind
-     *
-     * @param name 名称
-     * @param fullPath 完整路径
-     * @param matchPath 匹配路径
-     * @return 搜索macmdfind的结果
+    * 搜索macmdfind
+    *
+    * @param name 名称
+    * @param fullPath 完整路径
+    * @param matchPath 匹配路径
+    * @return 搜索macmdfind的结果
      */
     private Set<Resource> searchMacMdfind(String name, String fullPath, String matchPath) throws Exception {
         String searchRoot = fullPath.isEmpty() ? "/" : fullPath;
@@ -290,12 +290,12 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-      * walk目录
-     * @param dirPath dir路径
-     * @param fullPath 完整路径
-     * @param matchPath 匹配路径
-     * @param results 结果
-     * @param scannedCount scanned数量
+    * walk目录
+    * @param dirPath dir路径
+    * @param fullPath 完整路径
+    * @param matchPath 匹配路径
+    * @param results 结果
+    * @param scannedCount scanned数量
      */
     private void walkDirectory(String dirPath, String fullPath, String matchPath,
                                Set<Resource> results, AtomicLong scannedCount) {
@@ -318,10 +318,10 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * Calculate最大值深度
-     *
-     * @param matchPath 匹配路径
-     * @return calculate最大深度的结果
+    * Calculate最大值深度
+    *
+    * @param matchPath 匹配路径
+    * @return calculate最大深度的结果
      */
     private int calculateMaxDepth(String matchPath) {
         if (StringUtils.isEmpty(matchPath)) { return 1; }
@@ -330,10 +330,10 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 获取Dir
-     *
-     * @param fullPath 完整路径
-     * @return 获取dir的结果
+    * 获取Dir
+    *
+    * @param fullPath 完整路径
+    * @return 获取dir的结果
      */
     private Set<String> getDir(String fullPath) {
         if (StringUtils.isEmpty(fullPath)) {
@@ -347,10 +347,10 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 获取完整路径
-     *
-     * @param path 路径
-     * @return 获取完整路径的结果
+    * 获取完整路径
+    *
+    * @param path 路径
+    * @return 获取完整路径的结果
      */
     private String getFullPath(String path) {
         path = path.replace("\\", "/");
@@ -365,10 +365,10 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 获取匹配路径
-     *
-     * @param path 路径
-     * @return 获取匹配路径的结果
+    * 获取匹配路径
+    *
+    * @param path 路径
+    * @return 获取匹配路径的结果
      */
     private String getMatchPath(String path) {
         path = path.replace("\\", "/");
@@ -384,11 +384,11 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 获取real名称
-     *
-     * @param filePath 文件路径
-     * @param rootPath 根路径
-     * @return 获取real名称的结果
+    * 获取real名称
+    *
+    * @param filePath 文件路径
+    * @param rootPath 根路径
+    * @return 获取real名称的结果
      */
     private String getRealName(String filePath, String rootPath) {
         if (StringUtils.isNullOrEmpty(rootPath)) {
@@ -403,11 +403,11 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 是否匹配
-     *
-     * @param name 名称
-     * @param matchPath 匹配路径
-     * @return 是否匹配的结果
+    * 是否匹配
+    *
+    * @param name 名称
+    * @param matchPath 匹配路径
+    * @return 是否匹配的结果
      */
     private boolean isMatch(String name, String matchPath) {
         if (StringUtils.isEmpty(matchPath) || "*".equals(matchPath) || "**".equals(matchPath)) { return true; }
@@ -418,10 +418,10 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 是否命令可用
-     *
-     * @param cmd CMD
-     * @return 是否命令可用的结果
+    * 是否命令可用
+    *
+    * @param cmd CMD
+    * @return 是否命令可用的结果
      */
     private static boolean isCommandAvailable(String cmd) {
         try {
@@ -509,19 +509,19 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * 运行和forget
-     *
-     * @param cmd CMD
+    * 运行和forget
+    *
+    * @param cmd CMD
      */
     private static void runAndForget(String... cmd) {
         runAndForget(30, cmd);
     }
 
     /**
-     * 运行和forget
-     *
-     * @param timeoutSecs 超时secs
-     * @param cmd CMD
+    * 运行和forget
+    *
+    * @param timeoutSecs 超时secs
+    * @param cmd CMD
      */
     private static void runAndForget(int timeoutSecs, String... cmd) {
         try {
@@ -536,12 +536,12 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-     * glob转为regex
-     *
-     * @param glob glob
-     * @return glob转为regex的结果
-     * @author CH
-     * @since 4.0.0
+    * glob转为regex
+    *
+    * @param glob glob
+    * @return glob转为regex的结果
+    * @author CH
+    * @since 4.0.0
      */
     private static String globToRegex(String glob) {
         return glob

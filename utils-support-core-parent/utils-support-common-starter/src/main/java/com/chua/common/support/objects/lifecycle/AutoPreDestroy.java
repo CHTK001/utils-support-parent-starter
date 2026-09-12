@@ -7,10 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
-   * pre销毁 注解，标记销毁方法。
- *
- * @author CH
- * @since 2024/12/20
+* pre销毁 注解，标记销毁方法。
+*
+* @author CH
+* @since 2024/12/20
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

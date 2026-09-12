@@ -15,27 +15,27 @@ import java.util.Arrays;
 
 
 /**
- *                    Translator
- * <p>
- *        KINETICS400              400                      
- *                               
- * </p>
- * <p>
- *                   
- * 1.                 224x224
-   * 2.             镜像net
- * 3.           CHW       
- * </p>
- *
- * @author CH
- * @since 2025-01-22
+*                    Translator
+* <p>
+*        KINETICS400              400                      
+*                               
+* </p>
+* <p>
+*                   
+* 1.                 224x224
+* 2.             镜像net
+* 3.           CHW       
+* </p>
+*
+* @author CH
+* @since 2025-01-22
  */
 @Slf4j
 @Spi("common_action")
 public class CommonActionTranslator implements Translator<Image, Classifications> {
 
     /**
-     * KINETICS400                      400      
+    * KINETICS400                      400      
      */
     public static final String RAW_LABELS = "'abseiling','air_drumming','answering_questions','applauding','applying_cream','archery'," +
             "'arm_wrestling','arranging_flowers','assembling_computer','auctioning','baby_waking_up','baking_cookies'," +
@@ -103,25 +103,25 @@ public class CommonActionTranslator implements Translator<Image, Classifications
             "'weaving_basket','welding','whistling','windsurfing','wrapping_present','wrestling','writing','yawning','yoga','zumba'";
 
     /**
-     *                   
+    *                   
      */
     private final int width;
 
     /**
-     *                   
+    *                   
      */
     private final int height;
 
     /**
-     *                         
+    *                         
      */
     private String[] labels;
 
     /**
-     *             
-     *
-     * @param width                    
-     * @param height                   
+    *             
+    *
+    * @param width                    
+    * @param height                   
      */
     public CommonActionTranslator(int width, int height) {
         this.width = width;
@@ -129,7 +129,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     /**
-     *                      224x224   
+    *                      224x224   
      */
     public CommonActionTranslator() {
         this(224, 224);

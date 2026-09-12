@@ -14,30 +14,30 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 代理池 REST 接口。
- *
- * @author CH
- * @since 4.0.0.42
+* 代理池 REST 接口。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @RestController
 @RequestMapping("/spider/proxy-pools")
 public class SpiderProxyPoolController {
 
     /**
-     * 代理池存储
+    * 代理池存储
      */
     private final SpiderProxyPoolStore store;
 
     /**
-     * 代理节点连通性测试器
+    * 代理节点连通性测试器
      */
     private final SpiderProxyProbe tester;
 
     /**
-      * 创建 蜘蛛代理游泳池控制器 实例
-     * @param store 存储
-     * @param tester 蜘蛛代理探针
-     * @param tester 测试
+    * 创建 蜘蛛代理游泳池控制器 实例
+    * @param store 存储
+    * @param tester 蜘蛛代理探针
+    * @param tester 测试
      */
     public SpiderProxyPoolController(SpiderProxyPoolStore store, SpiderProxyProbe tester) {
         this.store = store;
@@ -46,20 +46,20 @@ public class SpiderProxyPoolController {
 
     @GetMapping("/page")
     /**
-     * Page
-     * @param pageNo pageno
-     * @param pageSize page大小
-     * @param keyword keyword
-     * @param pageSize page大小
-     * @param keyword keyword
-     * @param poolCode 游泳池编码
-     * @param pool 游泳池
-     * @param poolCode 游泳池编码
-     * @param poolCode 游泳池编码
-     * @param poolStatus 游泳池状态
-     * @param true true
-     * @param false false
-     * @param poolCode 游泳池编码
+    * Page
+    * @param pageNo pageno
+    * @param pageSize page大小
+    * @param keyword keyword
+    * @param pageSize page大小
+    * @param keyword keyword
+    * @param poolCode 游泳池编码
+    * @param pool 游泳池
+    * @param poolCode 游泳池编码
+    * @param poolCode 游泳池编码
+    * @param poolStatus 游泳池状态
+    * @param true true
+    * @param false false
+    * @param poolCode 游泳池编码
      */
     public SpiderProxyPoolStore.PageResult<SpiderProxyPool> page(
             @RequestParam(defaultValue = "1") int pageNo,
@@ -70,10 +70,10 @@ public class SpiderProxyPoolController {
 
     @GetMapping("/detail")
     /**
-     * Detail
-     *
-     * @param poolCode 游泳池编码
-     * @return detail的结果
+    * Detail
+    *
+    * @param poolCode 游泳池编码
+    * @return detail的结果
      */
     public SpiderProxyPool detail(@RequestParam String poolCode) {
         return store.get(poolCode);
@@ -81,10 +81,10 @@ public class SpiderProxyPoolController {
 
     @PostMapping("/save")
     /**
-     * 保存
-     *
-     * @param pool 游泳池
-     * @return 保存的结果
+    * 保存
+    *
+    * @param pool 游泳池
+    * @return 保存的结果
      */
     public SpiderProxyPool save(@RequestBody SpiderProxyPool pool) {
         return store.save(pool);
@@ -92,10 +92,10 @@ public class SpiderProxyPoolController {
 
     @DeleteMapping("/delete")
     /**
-     * 删除
-     *
-     * @param poolCode 游泳池编码
-     * @return 删除的结果
+    * 删除
+    *
+    * @param poolCode 游泳池编码
+    * @return 删除的结果
      */
     public Map<String, Object> delete(@RequestParam String poolCode) {
         Map<String, Object> result = new LinkedHashMap<>();
@@ -105,9 +105,9 @@ public class SpiderProxyPoolController {
 
     @PostMapping("/status")
     /**
-      * 状态
-     * @param poolCode 游泳池编码
-     * @param poolStatus 游泳池状态
+    * 状态
+    * @param poolCode 游泳池编码
+    * @param poolStatus 游泳池状态
      */
     public Map<String, Object> status(@RequestParam String poolCode,
                                        @RequestParam int poolStatus) {
@@ -123,10 +123,10 @@ public class SpiderProxyPoolController {
     }
 
     /**
-     * 测试代理池所有节点连通性。
-     *
-     * @param poolCode 代理池编码
-     * @return 每个节点的测试结果 + 汇总
+    * 测试代理池所有节点连通性。
+    *
+    * @param poolCode 代理池编码
+    * @return 每个节点的测试结果 + 汇总
      */
     @PostMapping("/test")
     public Map<String, Object> test(@RequestParam String poolCode) {

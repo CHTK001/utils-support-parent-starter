@@ -14,20 +14,20 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
-   * only办公室 文档转换器。
- *
- * <p>通过 OnlyOffice Document Server API 实现 Office 文档的在线格式转换。
- * 支持 doc/docx/xls/xlsx/ppt/pptx 等多种格式转换为 PDF。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* only办公室 文档转换器。
+*
+* <p>通过 OnlyOffice Document Server API 实现 Office 文档的在线格式转换。
+* 支持 doc/docx/xls/xlsx/ppt/pptx 等多种格式转换为 PDF。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("onlyoffice")
 public class OnlyOfficeFileConvertSystem implements FileConvertSystem {
 
     /**
-     * 支持的源文件格式列表
+    * 支持的源文件格式列表
      */
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx");
 

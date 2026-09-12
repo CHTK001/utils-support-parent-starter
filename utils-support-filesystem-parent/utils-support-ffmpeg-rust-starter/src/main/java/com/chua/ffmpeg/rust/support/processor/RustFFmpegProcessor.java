@@ -16,13 +16,13 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
-   * 基于原生 Rust ffmpeg 库的 ffmpeg 处理器。
- *
- * <p>本处理器通过 JNI 调用 Rust 原生 FFmpeg 实现，支持推流/拉流、
- * 文件转码、截帧、拼接、媒体信息查询等功能。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于原生 Rust ffmpeg 库的 ffmpeg 处理器。
+*
+* <p>本处理器通过 JNI 调用 Rust 原生 FFmpeg 实现，支持推流/拉流、
+* 文件转码、截帧、拼接、媒体信息查询等功能。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = {"rust", "native"}, order = 100)
@@ -55,11 +55,11 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-      * 转换视频
-     * @param inputStream 输入流
-     * @param outputStream 输出流
-     * @param inputFormat 输入格式化
-     * @param outputFormat 输出格式化
+    * 转换视频
+    * @param inputStream 输入流
+    * @param outputStream 输出流
+    * @param inputFormat 输入格式化
+    * @param outputFormat 输出格式化
      */
     public void convertVideo(java.io.InputStream inputStream, java.io.OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
@@ -228,13 +228,13 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-      * 视频转为gif
-     * @param videoInput 视频输入
-     * @param gifOutput gif输出
-     * @param startTime 启动时间
-     * @param duration 持续时间
-     * @param width width
-     * @param fps fps
+    * 视频转为gif
+    * @param videoInput 视频输入
+    * @param gifOutput gif输出
+    * @param startTime 启动时间
+    * @param duration 持续时间
+    * @param width width
+    * @param fps fps
      */
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
@@ -274,11 +274,11 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-     * 推送流式输出
-     * @param input 输入
-     * @param streamUrl 流url
-     * @param options 期权
-     * @param callback callback
+    * 推送流式输出
+    * @param input 输入
+    * @param streamUrl 流url
+    * @param options 期权
+    * @param callback callback
      */
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
                            Consumer<FrameInfo> callback) throws IOException {
@@ -297,11 +297,11 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-      * 推送流式输出设置帧
-     * @param input 输入
-     * @param streamUrl 流url
-     * @param options 期权
-     * @param callback callback
+    * 推送流式输出设置帧
+    * @param input 输入
+    * @param streamUrl 流url
+    * @param options 期权
+    * @param callback callback
      */
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
@@ -320,11 +320,11 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-     * 拉取流式输出
-     * @param streamUrl 流url
-     * @param output 输出
-     * @param duration 持续时间
-     * @param callback callback
+    * 拉取流式输出
+    * @param streamUrl 流url
+    * @param output 输出
+    * @param duration 持续时间
+    * @param callback callback
      */
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
@@ -337,11 +337,11 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-      * 拉取流式输出设置帧
-     * @param streamUrl 流url
-     * @param output 输出
-     * @param duration 持续时间
-     * @param callback callback
+    * 拉取流式输出设置帧
+    * @param streamUrl 流url
+    * @param output 输出
+    * @param duration 持续时间
+    * @param callback callback
      */
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
@@ -387,10 +387,10 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-     * 解析media信息
-     *
-     * @param json json
-     * @return 解析media信息的结果
+    * 解析media信息
+    *
+    * @param json json
+    * @return 解析media信息的结果
      */
     private FFmpegMediaInfo parseMediaInfo(String json) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(json);

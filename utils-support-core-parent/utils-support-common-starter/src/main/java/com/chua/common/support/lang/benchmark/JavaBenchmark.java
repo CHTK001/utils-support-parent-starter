@@ -22,36 +22,36 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
- * 纯 Java 压测引擎：零外部依赖，一键 run + report。
- *
- * <p>基于 JDK {@link HttpClient} + 虚拟线程实现，替代 k6 等外部 CLI：</p>
- * <ul>
- *   <li>并发模式（默认）：{@code concurrencyLevels} 中每个档位启动 N 个虚拟线程，
- *       同时各发 1 次请求（flash 真并发，考验 backlog / accept 接纳能力）</li>
- *   <li>吞吐模式：每个档位固定连接数 × {@code iterationsPerVus} 次请求，
- *       考验持续吞吐能力</li>
- *   <li>统计成功率 / RPS / p50 / p95 / p99 / max（毫秒）</li>
- * </ul>
- *
- * <p>报告通过 {@link BenchmarkHtmlProvider}（ECharts）一键生成，与 k6 引擎共用同一套报告。</p>
- *
- * <h2>用法</h2>
- * <pre>{@code
- * try (Benchmark benchmark = Benchmark.create("java")) {
- *     benchmark.configure(BenchmarkConfig.builder()
- *             .targetUrl("http://127.0.0.1:8100/echo")
- *             .concurrencyLevels(new int[]{100, 500, 1000})
- *             .iterationsPerVus(1)
- *             .implementation("nio")
- *             .reportPath("target/http-bench.html")
- *             .build());
- *     benchmark.run();
- *     benchmark.report();
- * }
- * }</pre>
- *
- * @author CH
- * @since 2026/08/15
+* 纯 Java 压测引擎：零外部依赖，一键 run + report。
+*
+* <p>基于 JDK {@link HttpClient} + 虚拟线程实现，替代 k6 等外部 CLI：</p>
+* <ul>
+*   <li>并发模式（默认）：{@code concurrencyLevels} 中每个档位启动 N 个虚拟线程，
+*       同时各发 1 次请求（flash 真并发，考验 backlog / accept 接纳能力）</li>
+*   <li>吞吐模式：每个档位固定连接数 × {@code iterationsPerVus} 次请求，
+*       考验持续吞吐能力</li>
+*   <li>统计成功率 / RPS / p50 / p95 / p99 / max（毫秒）</li>
+* </ul>
+*
+* <p>报告通过 {@link BenchmarkHtmlProvider}（ECharts）一键生成，与 k6 引擎共用同一套报告。</p>
+*
+* <h2>用法</h2>
+* <pre>{@code
+* try (Benchmark benchmark = Benchmark.create("java")) {
+*     benchmark.configure(BenchmarkConfig.builder()
+*             .targetUrl("http://127.0.0.1:8100/echo")
+*             .concurrencyLevels(new int[]{100, 500, 1000})
+*             .iterationsPerVus(1)
+*             .implementation("nio")
+*             .reportPath("target/http-bench.html")
+*             .build());
+*     benchmark.run();
+*     benchmark.report();
+* }
+* }</pre>
+*
+* @author CH
+* @since 2026/08/15
  */
 @Slf4j
 @Spi("java")
@@ -112,7 +112,7 @@ public class JavaBenchmark implements Benchmark {
     }
 
     /**
-     * 执行单档压测。
+    * 执行单档压测。
      */
     private BenchmarkDocumentData.BenchmarkRow runLevel(HttpClient client, URI uri, int vus) throws Exception {
         int perVus = Math.max(1, config.getIterationsPerVus());
@@ -199,7 +199,7 @@ public class JavaBenchmark implements Benchmark {
     }
 
     /**
-     * 分位数（毫秒）。
+    * 分位数（毫秒）。
      */
     private static double percentile(long[] sortedMs, double p) {
         int idx = (int) Math.ceil(p * sortedMs.length) - 1;

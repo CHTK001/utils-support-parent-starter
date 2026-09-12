@@ -21,21 +21,21 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 基于 Apache Tika 的通用文本提取器 SPI 实现，支持从多种文档格式中提取纯文本内容。
- * <p>
- * Tika 通过 {@link AutoDetectParser} 自动检测文件类型并调用对应的解析器，
- * 支持的格式包括但不限于：PDF、Word（.docx/.doc）、Excel（.xlsx/.xls）、
-   * powerpoint（.pptx）、HTML、XML、CSV、RTF、EPUB、邮件（.msg/.eml）等。
- * </p>
- *
- * <pre>{@code
- * // 使用方式
- * String text = TextExtractor.create("tika").extractText(new File("document.pdf"));
- * }</pre>nt.pdf"));
- * }</pre>
- *
- * @author CH
- * @since 4.0.0
+* 基于 Apache Tika 的通用文本提取器 SPI 实现，支持从多种文档格式中提取纯文本内容。
+* <p>
+* Tika 通过 {@link AutoDetectParser} 自动检测文件类型并调用对应的解析器，
+* 支持的格式包括但不限于：PDF、Word（.docx/.doc）、Excel（.xlsx/.xls）、
+* powerpoint（.pptx）、HTML、XML、CSV、RTF、EPUB、邮件（.msg/.eml）等。
+* </p>
+*
+* <pre>{@code
+* // 使用方式
+* String text = TextExtractor.create("tika").extractText(new File("document.pdf"));
+* }</pre>nt.pdf"));
+* }</pre>
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 @Spi("tika")

@@ -19,39 +19,39 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * 本地文件系统文件存储实现。
- *
- * <p>基于 {@link java.nio.file} 实现 {@link com.chua.common.support.storage.FileStorage} SPI 接口，
- * 将文件存储到本地磁盘目录，适合开发测试或单机部署场景。</p>
- *
- * <p>配置说明：</p>
- * <ul>
- *   <li>{@code bucket} — 本地存储根目录（必填），如 "/data/storage" 或 "C:/storage"</li>
- *   <li>{@code endpoint} — 可选，备用根目录（优先级低于 bucket）</li>
- * </ul>
- *
- * <p>使用示例：</p>
- * <pre>{@code
- * BucketSetting setting = BucketSetting.builder()
- *     .bucket("/tmp/filestorage")
- *     .build();
- * FileStorage storage = FileStorage.createStorage("filesystem", setting);
- *
- * // 上传文件
- * storage.putObject(PutObjectRequest.builder()
- *     .fileName("test.txt")
- *     .filePath("docs")
- *     .content("hello".getBytes())
- *     .build());
- *
- * // 下载文件
- * GetObjectResult result = storage.getObject("docs/test.txt");
- * }</pre>件
- * GetObjectResult result = storage.getObject("docs/test.txt");
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 本地文件系统文件存储实现。
+*
+* <p>基于 {@link java.nio.file} 实现 {@link com.chua.common.support.storage.FileStorage} SPI 接口，
+* 将文件存储到本地磁盘目录，适合开发测试或单机部署场景。</p>
+*
+* <p>配置说明：</p>
+* <ul>
+*   <li>{@code bucket} — 本地存储根目录（必填），如 "/data/storage" 或 "C:/storage"</li>
+*   <li>{@code endpoint} — 可选，备用根目录（优先级低于 bucket）</li>
+* </ul>
+*
+* <p>使用示例：</p>
+* <pre>{@code
+* BucketSetting setting = BucketSetting.builder()
+*     .bucket("/tmp/filestorage")
+*     .build();
+* FileStorage storage = FileStorage.createStorage("filesystem", setting);
+*
+* // 上传文件
+* storage.putObject(PutObjectRequest.builder()
+*     .fileName("test.txt")
+*     .filePath("docs")
+*     .content("hello".getBytes())
+*     .build());
+*
+* // 下载文件
+* GetObjectResult result = storage.getObject("docs/test.txt");
+* }</pre>件
+* GetObjectResult result = storage.getObject("docs/test.txt");
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"filesystem", "file", "local"})
 public class FileSystemFileStorage extends AbstractFileStorage {
@@ -60,8 +60,8 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     private final Path basePath;
 
     /**
-      * 创建 文件系统文件storage 实例
-     * @param bucketSetting bucketsetting
+    * 创建 文件系统文件storage 实例
+    * @param bucketSetting bucketsetting
      */
     public FileSystemFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -82,20 +82,20 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 解析路径
-     *
-     * @param key 键
-     * @return resolve路径的结果
+    * 解析路径
+    *
+    * @param key 键
+    * @return resolve路径的结果
      */
     private Path resolvePath(String key) {
         return basePath.resolve(key).normalize();
     }
 
     /**
-     * 构建键
-     *
-     * @param request 请求
-     * @return 构建键的结果
+    * 构建键
+    *
+    * @param request 请求
+    * @return 构建键的结果
      */
     private String buildKey(PutObjectRequest request) {
         String path = request.getFilePath();
@@ -107,10 +107,10 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 构建键
-     *
-     * @param request 请求
-     * @return 构建键的结果
+    * 构建键
+    *
+    * @param request 请求
+    * @return 构建键的结果
      */
     private String buildKey(GetObjectRequest request) {
         String path = request.getFilePath();

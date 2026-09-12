@@ -25,63 +25,63 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SSH Shell 服务器，继承 {@link AbstractServer}。
- * <p>使用 {@link ShellUrlServerFilter} 进行命令路由，
- * 支持通过 {@link ShellMethod} 注解声明式注册命令。</p>
- *
- * <pre>{@code
- * SshServer server = SshServer.builder()
- *     .port(7222)
- *     .password("secret")
- *     .build();
- * server.registerBean(new BuiltinShellCommands());
- * server.start();
- * }</pre>ShellCommands());
- * server.start();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* SSH Shell 服务器，继承 {@link AbstractServer}。
+* <p>使用 {@link ShellUrlServerFilter} 进行命令路由，
+* 支持通过 {@link ShellMethod} 注解声明式注册命令。</p>
+*
+* <pre>{@code
+* SshServer server = SshServer.builder()
+*     .port(7222)
+*     .password("secret")
+*     .build();
+* server.registerBean(new BuiltinShellCommands());
+* server.start();
+* }</pre>ShellCommands());
+* server.start();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SshServer extends AbstractServer {
 
     /**
-     * 默认 SSH 端口
+    * 默认 SSH 端口
      */
     public static final int DEFAULT_PORT = 7222;
 
     /**
-     * 连接密码，空字符串表示不验证
+    * 连接密码，空字符串表示不验证
      */
     private final String password;
 
     /**
-     * 空闲超时时间（秒），0 表示不限制
+    * 空闲超时时间（秒），0 表示不限制
      */
     private final int idleTimeout;
 
     /**
-     * Shell 命令路由过滤器
+    * Shell 命令路由过滤器
      */
     private final ShellUrlServerFilter shellFilter;
 
     /**
-     * 处理器工厂，管理 Shell 命令路由
+    * 处理器工厂，管理 Shell 命令路由
      */
     private final ServerHandlerFactory<ServerHandlerAnnotationParser> factory;
 
     /**
-     * MINA SSHD 服务器实例
+    * MINA SSHD 服务器实例
      */
     private org.apache.sshd.server.SshServer sshd;
 
     /**
-     * 构造 SSH 服务器。
-     *
-     * @param setting     服务器配置
-     * @param password    连接密码
-     * @param idleTimeout 空闲超时
+    * 构造 SSH 服务器。
+    *
+    * @param setting     服务器配置
+    * @param password    连接密码
+    * @param idleTimeout 空闲超时
      */
     protected SshServer(ServerSetting setting, String password, int idleTimeout) {
         super(setting);
@@ -110,11 +110,11 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * 注册 Shell 命令。
-     *
-     * @param commandName 命令名称
-     * @param handler     命令处理器
-     * @return this
+    * 注册 Shell 命令。
+    *
+    * @param commandName 命令名称
+    * @param handler     命令处理器
+    * @return this
      */
     public SshServer registerCommand(String commandName, ServerHandler handler) {
         shellFilter.route(commandName, handler);
@@ -122,12 +122,12 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * 注册 Shell 命令（含描述）。
-     *
-     * @param commandName 命令名称
-     * @param description 命令描述
-     * @param handler     命令处理器
-     * @return this
+    * 注册 Shell 命令（含描述）。
+    *
+    * @param commandName 命令名称
+    * @param description 命令描述
+    * @param handler     命令处理器
+    * @return this
      */
     public SshServer registerCommand(String commandName, String description, ServerHandler handler) {
         shellFilter.route(commandName, handler);
@@ -135,10 +135,10 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * 移除 Shell 命令。
-     *
-     * @param commandName 命令名称
-     * @return this
+    * 移除 Shell 命令。
+    *
+    * @param commandName 命令名称
+    * @return this
      */
     public SshServer removeCommand(String commandName) {
         shellFilter.removeRoute(commandName);
@@ -146,9 +146,9 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * 获取所有已注册的命令名称。
-     *
-     * @return 命令名称列表
+    * 获取所有已注册的命令名称。
+    *
+    * @return 命令名称列表
      */
     public List<String> getCommandNames() {
         return new ArrayList<>(shellFilter.getCommandNames());
@@ -199,34 +199,34 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * 交互式 Shell 会话，为每个 SSH 客户端处理命令输入。
-     * @author CH
-     * @since 4.0.0
+    * 交互式 Shell 会话，为每个 SSH 客户端处理命令输入。
+    * @author CH
+    * @since 4.0.0
      */
     private class InteractiveShell implements Command, Runnable {
 
         /**
-         * 客户端输入流
+        * 客户端输入流
          */
         private InputStream in;
 
         /**
-         * 客户端输出流
+        * 客户端输出流
          */
         private OutputStream out;
 
         /**
-         * 客户端错误输出流
+        * 客户端错误输出流
          */
         private OutputStream err;
 
         /**
-         * 退出回调
+        * 退出回调
          */
         private ExitCallback exitCallback;
 
         /**
-         * 会话线程
+        * 会话线程
          */
         private Thread thread;
 
@@ -317,9 +317,9 @@ public class SshServer extends AbstractServer {
         }
 
         /**
-         * 打印命令帮助信息。
-         *
-         * @param writer 输出写入器
+        * 打印命令帮助信息。
+        *
+        * @param writer 输出写入器
          */
         private void printHelp(PrintWriter writer) {
             writer.println("Available commands:");
@@ -333,9 +333,9 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * Shell 工厂，为每个会话创建交互式 Shell。
-     * @author CH
-     * @since 4.0.0
+    * Shell 工厂，为每个会话创建交互式 Shell。
+    * @author CH
+    * @since 4.0.0
      */
     private class InteractiveShellFactory implements ShellFactory {
 
@@ -347,46 +347,46 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-      * 创建 ssh服务端 构建器。
-     *
-     * @return 构建器实例
+    * 创建 ssh服务端 构建器。
+    *
+    * @return 构建器实例
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-      * ssh服务端 构建器。
-     * @author CH
-     * @since 4.0.0
+    * ssh服务端 构建器。
+    * @author CH
+    * @since 4.0.0
      */
     public static class Builder {
 
         /**
-         * 监听端口
+        * 监听端口
          */
         private int port = DEFAULT_PORT;
 
         /**
-         * 连接密码
+        * 连接密码
          */
         private String password = "";
 
         /**
-         * 绑定地址
+        * 绑定地址
          */
         private String host = "0.0.0.0";
 
         /**
-         * 空闲超时
+        * 空闲超时
          */
         private int idleTimeout;
 
         /**
-         * 设置监听端口。
-         *
-         * @param port 端口号
-         * @return this
+        * 设置监听端口。
+        *
+        * @param port 端口号
+        * @return this
          */
         public Builder port(int port) {
             this.port = port;
@@ -394,10 +394,10 @@ public class SshServer extends AbstractServer {
         }
 
         /**
-         * 设置连接密码。
-         *
-         * @param password 密码字符串
-         * @return this
+        * 设置连接密码。
+        *
+        * @param password 密码字符串
+        * @return this
          */
         public Builder password(String password) {
             this.password = password != null ? password : "";
@@ -405,10 +405,10 @@ public class SshServer extends AbstractServer {
         }
 
         /**
-         * 设置绑定地址。
-         *
-         * @param host 主机地址
-         * @return this
+        * 设置绑定地址。
+        *
+        * @param host 主机地址
+        * @return this
          */
         public Builder host(String host) {
             this.host = host;
@@ -416,10 +416,10 @@ public class SshServer extends AbstractServer {
         }
 
         /**
-         * 设置空闲超时时间。
-         *
-         * @param seconds 超时秒数
-         * @return this
+        * 设置空闲超时时间。
+        *
+        * @param seconds 超时秒数
+        * @return this
          */
         public Builder idleTimeout(int seconds) {
             this.idleTimeout = seconds;
@@ -427,9 +427,9 @@ public class SshServer extends AbstractServer {
         }
 
         /**
-          * 构建 ssh服务端 实例。
-         *
-         * @return SshServer 实例
+        * 构建 ssh服务端 实例。
+        *
+        * @return SshServer 实例
          */
         public SshServer build() {
             ServerSetting setting = ServerSetting.defaults();
@@ -440,9 +440,9 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * 命令行入口。
-     *
-     * @param args 启动参数
+    * 命令行入口。
+    *
+    * @param args 启动参数
      */
     public static void main(String[] args) {
         int port = DEFAULT_PORT;

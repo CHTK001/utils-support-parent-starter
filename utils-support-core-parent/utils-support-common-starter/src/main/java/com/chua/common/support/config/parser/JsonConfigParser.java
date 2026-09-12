@@ -15,19 +15,19 @@ import java.util.Map;
 
 
 /**
- * JSON/JSON5 config parser
- * <p>
- * Supports JSON5 features:
- * <ul>
- *     <li>Single-line and multi-line comments</li>
- *     <li>Trailing commas</li>
- *     <li>Single quoted strings</li>
- *     <li>Hexadecimal numbers</li>
- *     <li>Unquoted object keys</li>
- * </ul>
- *
- * @author CH
- * @since 2023-09-05
+* JSON/JSON5 config parser
+* <p>
+* Supports JSON5 features:
+* <ul>
+*     <li>Single-line and multi-line comments</li>
+*     <li>Trailing commas</li>
+*     <li>Single quoted strings</li>
+*     <li>Hexadecimal numbers</li>
+*     <li>Unquoted object keys</li>
+* </ul>
+*
+* @author CH
+* @since 2023-09-05
  */
 @Slf4j
 @Spi({"json", "json5"})

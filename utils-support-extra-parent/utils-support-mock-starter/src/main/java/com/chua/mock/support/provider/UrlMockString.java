@@ -8,26 +8,26 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * URL Mock 生成器
- *
- * <p>由协议、域名与随机路径组合生成，如
- * {@code https://daxingcloud.com/api/user/123}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* URL Mock 生成器
+*
+* <p>由协议、域名与随机路径组合生成，如
+* {@code https://daxingcloud.com/api/user/123}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"url", "web-url", "link"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class UrlMockString implements MockString {
 
     /**
-     * 协议池
+    * 协议池
      */
     private static final String[] PROTOCOLS = {"https", "http"};
     /**
-     * 路径段池
-     * @param environment 环境
-     * @return 获取字符串的结果
+    * 路径段池
+    * @param environment 环境
+    * @return 获取字符串的结果
      */
     private static final String[] PATHS = {
             "api", "user", "order", "product", "login", "home", "detail", "search",

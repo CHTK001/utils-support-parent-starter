@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * WebSocket 智能体 数据源
- * <p>Server 侧通过 WebSocket 与 Agent 交互，支持拉取和推送。</p>
- *
- * @author CH
- * @since 2026-07-20
+* WebSocket 智能体 数据源
+* <p>Server 侧通过 WebSocket 与 Agent 交互，支持拉取和推送。</p>
+*
+* @author CH
+* @since 2026-07-20
  */
 public class WebSocketAgentDataSyncSource implements DataSyncSource {
 
@@ -24,10 +24,10 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     private final String sourceId;
 
     /**
-      * 创建 web套接字智能体数据同步源 实例
-     * @param connection connection
-     * @param sourceId 字符串
-     * @param sourceId 源标识
+    * 创建 web套接字智能体数据同步源 实例
+    * @param connection connection
+    * @param sourceId 字符串
+    * @param sourceId 源标识
      */
     public WebSocketAgentDataSyncSource(com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection, String sourceId) {
         this.connection = connection;

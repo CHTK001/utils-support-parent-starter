@@ -10,14 +10,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * OSGI 服务解析器，从全局唯一的 OSGI 框架实例中获取 SPI 服务实现。
- * <p>
- * 通过 {@link OsgiLauncherHolder} 获取已激活的 OSGI 启动器，
- * 再调用 {@link OsgiLauncher#getServices(Class)} 查找与指定类型匹配的服务。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* OSGI 服务解析器，从全局唯一的 OSGI 框架实例中获取 SPI 服务实现。
+* <p>
+* 通过 {@link OsgiLauncherHolder} 获取已激活的 OSGI 启动器，
+* 再调用 {@link OsgiLauncher#getServices(Class)} 查找与指定类型匹配的服务。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OsgiServiceResolver implements ServiceResolver {

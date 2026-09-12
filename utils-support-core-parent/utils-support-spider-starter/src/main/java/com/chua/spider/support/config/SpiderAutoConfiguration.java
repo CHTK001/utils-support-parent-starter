@@ -9,18 +9,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 爬虫模块自动配置（含代理池 + 定时调度 + 执行）。
- *
- * @author CH
- * @since 4.0.0.42
+* 爬虫模块自动配置（含代理池 + 定时调度 + 执行）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Configuration
 @ConditionalOnClass(RestController.class)
 public class SpiderAutoConfiguration {
 
     /**
-     * 爬虫定义存储（单例 Bean，控制器与定时服务共享）。
-     * @return 蜘蛛definition存储的结果
+    * 爬虫定义存储（单例 Bean，控制器与定时服务共享）。
+    * @return 蜘蛛definition存储的结果
      */
     @Bean
     public SpiderDefinitionStore spiderDefinitionStore() {
@@ -28,8 +28,8 @@ public class SpiderAutoConfiguration {
     }
 
     /**
-     * 执行记录存储（单例 Bean）。
-     * @return 蜘蛛执行存储的结果
+    * 执行记录存储（单例 Bean）。
+    * @return 蜘蛛执行存储的结果
      */
     @Bean
     public SpiderExecutionStore spiderExecutionStore() {
@@ -37,9 +37,9 @@ public class SpiderAutoConfiguration {
     }
 
     /**
-     * 代理节点连通性测试器。
-     * @param poolStore 游泳池存储
-     * @return 蜘蛛代理探针的结果
+    * 代理节点连通性测试器。
+    * @param poolStore 游泳池存储
+    * @return 蜘蛛代理探针的结果
      */
     @Bean
     public SpiderProxyProbe SpiderProxyProbe(SpiderProxyPoolStore poolStore) {
@@ -47,8 +47,8 @@ public class SpiderAutoConfiguration {
     }
 
     /**
-      * 代理池内存存储（单例 Bean，可注入到 蜘蛛请求工厂）。
-     * @return 蜘蛛代理游泳池存储的结果
+    * 代理池内存存储（单例 Bean，可注入到 蜘蛛请求工厂）。
+    * @return 蜘蛛代理游泳池存储的结果
      */
     @Bean
     public SpiderProxyPoolStore spiderProxyPoolStore() {
@@ -56,9 +56,9 @@ public class SpiderAutoConfiguration {
     }
 
     /**
-      * 爬虫请求工厂：基于 蜘蛛definition + 代理池生成 蜘蛛请求。
-     * @param proxyStore 代理存储
-     * @return 蜘蛛请求工厂的结果
+    * 爬虫请求工厂：基于 蜘蛛definition + 代理池生成 蜘蛛请求。
+    * @param proxyStore 代理存储
+    * @return 蜘蛛请求工厂的结果
      */
     @Bean
     public SpiderRequestFactory spiderRequestFactory(SpiderProxyPoolStore proxyStore) {
@@ -66,7 +66,7 @@ public class SpiderAutoConfiguration {
     }
 
     /**
-      * 爬虫执行器：根据 蜘蛛definition 启动后台线程执行爬虫。
+    * 爬虫执行器：根据 蜘蛛definition 启动后台线程执行爬虫。
      */
     @Bean
     public SpiderRunner spiderRunner(SpiderDefinitionStore defStore,
@@ -76,7 +76,7 @@ public class SpiderAutoConfiguration {
     }
 
     /**
-      * 爬虫定时调度服务：根据 蜘蛛调度cron 触发任务。
+    * 爬虫定时调度服务：根据 蜘蛛调度cron 触发任务。
      */
     @Bean(initMethod = "start", destroyMethod = "stop")
     public SpiderTimerService spiderTimerService(SpiderDefinitionStore defStore,
@@ -88,10 +88,10 @@ public class SpiderAutoConfiguration {
 
     @Bean
     /**
-     * 蜘蛛控制器
-     *
-     * @param store 存储
-     * @return 蜘蛛控制器的结果
+    * 蜘蛛控制器
+    *
+    * @param store 存储
+    * @return 蜘蛛控制器的结果
      */
     public SpiderController spiderController(SpiderDefinitionStore store) {
         return new SpiderController(store);
@@ -99,15 +99,15 @@ public class SpiderAutoConfiguration {
 
     @Bean
     /**
-      * 蜘蛛代理游泳池控制器
-     * @param poolStore 游泳池存储
-     * @param poolTester 游泳池测试
-     * @param poolTester 游泳池测试
-     * @param execStore 执行存储
-     * @param defStore def存储
-     * @param runner runner
-     * @param defStore def存储
-     * @param runner runner
+    * 蜘蛛代理游泳池控制器
+    * @param poolStore 游泳池存储
+    * @param poolTester 游泳池测试
+    * @param poolTester 游泳池测试
+    * @param execStore 执行存储
+    * @param defStore def存储
+    * @param runner runner
+    * @param defStore def存储
+    * @param runner runner
      */
     public SpiderProxyPoolController spiderProxyPoolController(
             SpiderProxyPoolStore poolStore, SpiderProxyProbe poolTester) {
@@ -116,10 +116,10 @@ public class SpiderAutoConfiguration {
 
     @Bean
     /**
-      * 蜘蛛执行控制器
-     * @param execStore 执行存储
-     * @param defStore def存储
-     * @param runner runner
+    * 蜘蛛执行控制器
+    * @param execStore 执行存储
+    * @param defStore def存储
+    * @param runner runner
      */
     public SpiderExecutionController spiderExecutionController(SpiderExecutionStore execStore,
                                                               SpiderDefinitionStore defStore,

@@ -18,58 +18,58 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * SMB 服务端原生库桥接 — Java 25 FFM (Panama) 绑定。
- *
- * <p>从 classpath 加载预编译的 {@code rust_smb_server} 动态库，通过 FFM API 调用 FFI 函数。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* SMB 服务端原生库桥接 — Java 25 FFM (Panama) 绑定。
+*
+* <p>从 classpath 加载预编译的 {@code rust_smb_server} 动态库，通过 FFM API 调用 FFI 函数。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public final class RustSmbServerBridge {
 
     /**
-      * lib Target dir
+    * lib Target dir
      */
     private static final String LIB_TARGET_DIR =
             NativeUtils.tempRoot().resolve("rust_smb_server").toString();
 
     /**
-     * ARENA
+    * ARENA
      */
     private static Arena ARENA;
     /**
-      * 图书馆
+    * 图书馆
      */
     private static SymbolLookup LIBRARY;
     /**
-     * LINKER
+    * LINKER
      */
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
-      * 启动 处理
+    * 启动 处理
      */
     private static MethodHandle startHandle;
     /**
-      * 停止 处理
+    * 停止 处理
      */
     private static MethodHandle stopHandle;
     /**
-      * 列表 共享 处理
+    * 列表 共享 处理
      */
     private static MethodHandle listSharesHandle;
     /**
-      * free 字符串 处理
+    * free 字符串 处理
      */
     private static MethodHandle freeStringHandle;
 
     /**
-      * 加载
+    * 加载
      */
     private static volatile boolean loaded = false;
     /**
-     * 加载 锁
+    * 加载 锁
      */
     private static final Object LOAD_LOCK = new Object();
 
@@ -150,15 +150,15 @@ public final class RustSmbServerBridge {
     // ==================== 公共 API ====================
 
     /**
-     * 启动 SMB 服务器。
-     *
-     * @param bindAddr  绑定地址 (如 "0.0.0.0")
-     * @param port      监听端口
-     * @param shareName 共享目录名称
-     * @param rootPath  本地根路径
-     * @param user      用户名 (可为 空 或空，表示匿名)
-     * @param password  密码 (可为 空 或空)
-     * @return 正数 处理，失败抛异常
+    * 启动 SMB 服务器。
+    *
+    * @param bindAddr  绑定地址 (如 "0.0.0.0")
+    * @param port      监听端口
+    * @param shareName 共享目录名称
+    * @param rootPath  本地根路径
+    * @param user      用户名 (可为 空 或空，表示匿名)
+    * @param password  密码 (可为 空 或空)
+    * @return 正数 处理，失败抛异常
      */
     public static long start(String bindAddr, int port, String shareName, String rootPath,
                              String user, String password) {
@@ -182,9 +182,9 @@ public final class RustSmbServerBridge {
     }
 
     /**
-     * 停止 SMB 服务器。
-     *
-     * @param handle smb_服务端_启动 返回的句柄
+    * 停止 SMB 服务器。
+    *
+    * @param handle smb_服务端_启动 返回的句柄
      */
     public static void stop(long handle) {
         if (!loaded || handle <= 0) {
@@ -201,10 +201,10 @@ public final class RustSmbServerBridge {
     }
 
     /**
-      * 列出 共享 名称。
-     *
-     * @param handle smb_服务端_启动 返回的句柄
-     * @return share 名称数组
+    * 列出 共享 名称。
+    *
+    * @param handle smb_服务端_启动 返回的句柄
+    * @return share 名称数组
      */
     public static String[] listShares(long handle) {
         checkLoaded();
@@ -223,8 +223,8 @@ public final class RustSmbServerBridge {
     }
 
     /**
-     * 原生库是否已加载。
-     * @return 是否加载的结果
+    * 原生库是否已加载。
+    * @return 是否加载的结果
      */
     public static boolean isLoaded() {
         return loaded;

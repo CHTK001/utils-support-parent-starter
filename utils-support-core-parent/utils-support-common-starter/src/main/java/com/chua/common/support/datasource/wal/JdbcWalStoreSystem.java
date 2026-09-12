@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * JDBC 文件存储引擎。
+* JDBC 文件存储引擎。
  */
 public class JdbcWalStoreSystem implements WalStoreSystem<String> {
 

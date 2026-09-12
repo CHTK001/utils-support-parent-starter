@@ -9,50 +9,50 @@ import java.net.Socket;
 import java.util.function.Consumer;
 
 /**
- * FTP 数据通道：被动模式数据连接管理。
- *
- * <p>FTP 数据连接独立于控制连接，用于实际的文件传输。
- * 被动模式下服务器开放随机端口等待客户端连接。</p>
- *
- * @author CH
- * @since 4.0.0.43
+* FTP 数据通道：被动模式数据连接管理。
+*
+* <p>FTP 数据连接独立于控制连接，用于实际的文件传输。
+* 被动模式下服务器开放随机端口等待客户端连接。</p>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Slf4j
 class FtpDataChannel {
 
     /**
-     * 关联的 FTP 会话
+    * 关联的 FTP 会话
      */
     private final FtpSession session;
 
     /**
-     * 数据端口监听 ServerSocket
+    * 数据端口监听 ServerSocket
      */
     private volatile ServerSocket serverSocket;
 
     /**
-     * 当前数据连接
+    * 当前数据连接
      */
     private volatile Socket dataSocket;
 
     /**
-     * 被动模式端口范围
+    * 被动模式端口范围
      */
     private final int portMin;
     private final int portMax;
 
     /**
-     * 连接超时（毫秒）
+    * 连接超时（毫秒）
      */
     private final int connectTimeoutMs;
 
     /**
-     * 创建数据通道。
-     *
-     * @param session          关联的 FTP 会话
-     * @param portMin          被动模式端口范围起始
-     * @param portMax          被动模式端口范围结束
-     * @param connectTimeoutMs 连接超时（毫秒）
+    * 创建数据通道。
+    *
+    * @param session          关联的 FTP 会话
+    * @param portMin          被动模式端口范围起始
+    * @param portMax          被动模式端口范围结束
+    * @param connectTimeoutMs 连接超时（毫秒）
      */
     FtpDataChannel(FtpSession session, int portMin, int portMax, int connectTimeoutMs) {
         this.session = session;
@@ -62,11 +62,11 @@ class FtpDataChannel {
     }
 
     /**
-     * 进入被动模式：开放随机端口，返回 PASV 响应。
-     *
-     * @param serverIp 服务器 IP 地址
-     * @return PASV 响应字符串
-     * @throws IOException 端口绑定失败
+    * 进入被动模式：开放随机端口，返回 PASV 响应。
+    *
+    * @param serverIp 服务器 IP 地址
+    * @return PASV 响应字符串
+    * @throws IOException 端口绑定失败
      */
     String enterPassiveMode(String serverIp) throws IOException {
         close();
@@ -84,10 +84,10 @@ class FtpDataChannel {
     }
 
     /**
-     * 等待客户端数据连接（被动模式）。
-     *
-     * @return 数据连接 Socket
-     * @throws IOException 连接超时或失败
+    * 等待客户端数据连接（被动模式）。
+    *
+    * @return 数据连接 Socket
+    * @throws IOException 连接超时或失败
      */
     Socket acceptDataConnection() throws IOException {
         if (serverSocket == null) {
@@ -99,12 +99,12 @@ class FtpDataChannel {
     }
 
     /**
-     * 主动模式：服务器主动连接客户端指定的端口。
-     *
-     * @param clientIp   客户端 IP 地址
-     * @param clientPort 客户端端口
-     * @return 数据连接 Socket
-     * @throws IOException 连接失败
+    * 主动模式：服务器主动连接客户端指定的端口。
+    *
+    * @param clientIp   客户端 IP 地址
+    * @param clientPort 客户端端口
+    * @return 数据连接 Socket
+    * @throws IOException 连接失败
      */
     Socket connectToClient(String clientIp, int clientPort) throws IOException {
         close();
@@ -114,9 +114,9 @@ class FtpDataChannel {
     }
 
     /**
-     * 获取当前数据连接的输入流。
-     *
-     * @return 输入流，无连接时返回 null
+    * 获取当前数据连接的输入流。
+    *
+    * @return 输入流，无连接时返回 null
      */
     InputStream getDataInputStream() {
         Socket s = dataSocket;
@@ -124,7 +124,7 @@ class FtpDataChannel {
     }
 
     /**
-     * 关闭数据通道。
+    * 关闭数据通道。
      */
     void close() {
         try {
@@ -144,16 +144,16 @@ class FtpDataChannel {
     }
 
     /**
-     * 获取当前数据连接。
-     *
-     * @return 数据 Socket
+    * 获取当前数据连接。
+    *
+    * @return 数据 Socket
      */
     Socket getDataSocket() {
         return dataSocket;
     }
 
     /**
-     * 是否正在监听连接（PASV 模式已启动）。
+    * 是否正在监听连接（PASV 模式已启动）。
      */
     boolean isListening() {
         return serverSocket != null && !serverSocket.isClosed();

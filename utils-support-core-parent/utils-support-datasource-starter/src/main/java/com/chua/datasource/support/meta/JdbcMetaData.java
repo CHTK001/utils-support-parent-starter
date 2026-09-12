@@ -15,29 +15,29 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 基于方言的通用 JDBC 元数据入口。
- * <p>
- * 通过 {@link Dialect} 提供的 SQL 查询触发器、存储过程等元数据，
- * 并通过 JDBC {@link DatabaseMetaData} 读取表结构、索引、视图等信息。
- * 子类仅需覆盖数据库特有逻辑（如用户管理、搜索引擎索引等）。
- * </p>
- * <p>
- * 使用示例：
- * <pre>{@code
- * // 查询所有表
- * List<TableDef> tables = engine.meta().table().list();
- *
- * // 查询单表结构
- * TableDef user = engine.meta().table("user").get();
- *
- * // 列出索引
- * List<IndexMetadata> indexes = engine.meta().index().onTable("user").list();
- * }</pre>ist();
- * }</pre>
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于方言的通用 JDBC 元数据入口。
+* <p>
+* 通过 {@link Dialect} 提供的 SQL 查询触发器、存储过程等元数据，
+* 并通过 JDBC {@link DatabaseMetaData} 读取表结构、索引、视图等信息。
+* 子类仅需覆盖数据库特有逻辑（如用户管理、搜索引擎索引等）。
+* </p>
+* <p>
+* 使用示例：
+* <pre>{@code
+* // 查询所有表
+* List<TableDef> tables = engine.meta().table().list();
+*
+* // 查询单表结构
+* TableDef user = engine.meta().table("user").get();
+*
+* // 列出索引
+* List<IndexMetadata> indexes = engine.meta().index().onTable("user").list();
+* }</pre>ist();
+* }</pre>
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class JdbcMetaData extends AbstractMetaData implements DataSourceAware {
 
@@ -45,9 +45,9 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     protected DataSource dataSource;
 
     /**
-     * 构造方法。
-     *
-     * @param engine 引擎实例
+    * 构造方法。
+    *
+    * @param engine 引擎实例
      */
     protected JdbcMetaData(Engine engine) {
         super(engine);
@@ -59,8 +59,8 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-     * 获取当前方言实例。
-     * @return dialect的结果
+    * 获取当前方言实例。
+    * @return dialect的结果
      */
     protected Dialect dialect() {
         com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
@@ -83,10 +83,10 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     // ==================== JDBC 通用查询辅助 ====================
 
     /**
-     * 从 {@link DatabaseMetaData} 中列出所有表名。
-     * @param catalog catalog
-     * @param schemaPattern 模式模式
-     * @return 列表table名称的结果
+    * 从 {@link DatabaseMetaData} 中列出所有表名。
+    * @param catalog catalog
+    * @param schemaPattern 模式模式
+    * @return 列表table名称的结果
      */
     protected List<String> listTableNames(String catalog, String schemaPattern) throws Exception {
         List<String> result = new ArrayList<>();
@@ -106,11 +106,11 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-     * 从 {@link DatabaseMetaData} 中列出指定表的所有列。
-     * @param catalog catalog
-     * @param schema 模式
-     * @param tableName table名称
-     * @return 列表column名称的结果
+    * 从 {@link DatabaseMetaData} 中列出指定表的所有列。
+    * @param catalog catalog
+    * @param schema 模式
+    * @param tableName table名称
+    * @return 列表column名称的结果
      */
     protected List<String> listColumnNames(String catalog, String schema, String tableName) throws Exception {
         List<String> result = new ArrayList<>();
@@ -129,9 +129,9 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-     * 执行方言提供的 SQL 并返回结果集行列表。
-     * @param sql SQL
-     * @return 查询dialectsql的结果
+    * 执行方言提供的 SQL 并返回结果集行列表。
+    * @param sql SQL
+    * @return 查询dialectsql的结果
      */
     protected List<String[]> queryDialectSql(String sql) {
         List<String[]> result = new ArrayList<>();
@@ -154,9 +154,9 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-      * 获取当前默认数据源的 JDBC 数据源。
-      * 优先从 engine数据源 接口获取，失败时回退到 Connection.unwrap。
-     * @return 获取数据源的结果
+    * 获取当前默认数据源的 JDBC 数据源。
+    * 优先从 engine数据源 接口获取，失败时回退到 Connection.unwrap。
+    * @return 获取数据源的结果
      */
     protected DataSource getDataSource() {
         if (dataSource != null) {
@@ -179,8 +179,8 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-      * 获取 JDBC 连接（与 jdbcengine 同模式）。
-     * @return 获取jdbcconnection的结果
+    * 获取 JDBC 连接（与 jdbcengine 同模式）。
+    * @return 获取jdbcconnection的结果
      */
     protected Connection getJdbcConnection() throws Exception {
         com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =

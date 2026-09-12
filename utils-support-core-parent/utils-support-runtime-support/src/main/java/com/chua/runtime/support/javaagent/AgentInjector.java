@@ -18,127 +18,127 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * Java 智能体 链式注入器 — 提供流畅的 API 将 智能体 JAR 注入到目标 JVM。
- *
- * <p>支持两种注入方式：</p>
- * <ul>
- *   <li><strong>VirtualMachine.attach()</strong> — JDK 标准机制，适用于同用户进程</li>
- *   <li><strong>jattach 命令</strong> — Linux/macOS 专用，可跨用户注入</li>
- *   <li><strong>JVM Attach API</strong> — Windows 平台使用 sc.exe 或 tasklist</li>
- * </ul>
- *
- * <h3>链式用法</h3>
- * <pre>{@code
- * // 将 Agent 注入到 PID 12345 的 JVM
- * AgentInjector.builder()
- *         .pid(12345)
- *         .agentPath(Path.of("/path/to/runtime-starter.jar"))
- *         .options("log_level=DEBUG,startup_timeout=60000")
- *         .timeout(30, TimeUnit.SECONDS)
- *         .callback(line -> System.out.println("[AGENT] " + line))
- *         .inject();
- *
- * // 注入到所有包含特定关键字的 JVM
- * AgentInjector.builder()
- *         .processNameContains("my-app")
- *         .agentPath(Path.of("runtime-starter.jar"))
- *         .injectAll();
- *
- * // 注入到所有 Java 进程
- * AgentInjector.builder()
- *         .agentPath(Path.of("runtime-starter.jar"))
- *         .injectAll();
- * }</pre>njectAll();
- *
- * // 注入到所有 Java 进程
- * AgentInjector.builder()
- *         .agentPath(Path.of("runtime-starter.jar"))
- *         .injectAll();
- * }</pre>
- *
- * <h3>注入后使用</h3>
- * <pre>{@code
- * // 注入成功后，目标 JVM 中的 RuntimeContextHolder 可用
- * // 例如通过 JMX 或 RMI 调用：
- * RuntimeContextHolder.register(RuntimeArtifact.builder()
- *         .id("target-app")
- *         .name("Target Application")
- *         .build());
- * }</pre>on")
- *         .build());
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Java 智能体 链式注入器 — 提供流畅的 API 将 智能体 JAR 注入到目标 JVM。
+*
+* <p>支持两种注入方式：</p>
+* <ul>
+*   <li><strong>VirtualMachine.attach()</strong> — JDK 标准机制，适用于同用户进程</li>
+*   <li><strong>jattach 命令</strong> — Linux/macOS 专用，可跨用户注入</li>
+*   <li><strong>JVM Attach API</strong> — Windows 平台使用 sc.exe 或 tasklist</li>
+* </ul>
+*
+* <h3>链式用法</h3>
+* <pre>{@code
+* // 将 Agent 注入到 PID 12345 的 JVM
+* AgentInjector.builder()
+*         .pid(12345)
+*         .agentPath(Path.of("/path/to/runtime-starter.jar"))
+*         .options("log_level=DEBUG,startup_timeout=60000")
+*         .timeout(30, TimeUnit.SECONDS)
+*         .callback(line -> System.out.println("[AGENT] " + line))
+*         .inject();
+*
+* // 注入到所有包含特定关键字的 JVM
+* AgentInjector.builder()
+*         .processNameContains("my-app")
+*         .agentPath(Path.of("runtime-starter.jar"))
+*         .injectAll();
+*
+* // 注入到所有 Java 进程
+* AgentInjector.builder()
+*         .agentPath(Path.of("runtime-starter.jar"))
+*         .injectAll();
+* }</pre>njectAll();
+*
+* // 注入到所有 Java 进程
+* AgentInjector.builder()
+*         .agentPath(Path.of("runtime-starter.jar"))
+*         .injectAll();
+* }</pre>
+*
+* <h3>注入后使用</h3>
+* <pre>{@code
+* // 注入成功后，目标 JVM 中的 RuntimeContextHolder 可用
+* // 例如通过 JMX 或 RMI 调用：
+* RuntimeContextHolder.register(RuntimeArtifact.builder()
+*         .id("target-app")
+*         .name("Target Application")
+*         .build());
+* }</pre>on")
+*         .build());
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class AgentInjector {
 
     /**
-      * JDK 虚拟machine 类名
+    * JDK 虚拟machine 类名
      */
     private static final String VM_CLASS_NAME = "com.sun.tools.attach.VirtualMachine";
 
     /**
-     * jattach 命令路径
+    * jattach 命令路径
      */
     private static final String JATTACH_PATH = "/usr/local/bin/jattach";
 
     /**
-      * 智能体 注入超时（毫秒）
+    * 智能体 注入超时（毫秒）
      */
     private static final int DEFAULT_TIMEOUT = 30_000;
 
     /**
-      * 智能体 JAR 路径
+    * 智能体 JAR 路径
      */
     private Path agentPath;
 
     /**
-      * 目标进程 标识
+    * 目标进程 标识
      */
     private Integer pid;
 
     /**
-     * 进程名称匹配（精确匹配）
+    * 进程名称匹配（精确匹配）
      */
     private String processName;
 
     /**
-     * 进程名称包含匹配
+    * 进程名称包含匹配
      */
     private String processNameContains;
 
     /**
-      * 智能体 参数
+    * 智能体 参数
      */
     private String options;
 
     /**
-     * 注入超时时间
+    * 注入超时时间
      */
     private long timeoutMs;
 
     /**
-     * 日志回调
+    * 日志回调
      */
     private LineCallback callback;
 
     /**
-     * 注入策略
+    * 注入策略
      */
     private InjectionStrategy strategy;
 
     /**
-     * 私有构造器
+    * 私有构造器
      */
     private AgentInjector() {
     }
 
     /**
-     * 创建注入器构建器。
-     *
-     * @return 注入器构建器
+    * 创建注入器构建器。
+    *
+    * @return 注入器构建器
      */
     public static AgentInjectorBuilder builder() {
         return new AgentInjectorBuilder();
@@ -147,9 +147,9 @@ public class AgentInjector {
     // ==================== 注入执行 ====================
 
     /**
-     * 执行注入。
-     *
-     * @return 注入结果
+    * 执行注入。
+    *
+    * @return 注入结果
      */
     public CmdResult inject() {
         log.info("[runtime-javaagent] 开始注入 Agent 到 PID[{}]...", pid);
@@ -203,9 +203,9 @@ public class AgentInjector {
     }
 
     /**
-     * 注入到所有 Java 进程。
-     *
-     * @return 所有注入结果
+    * 注入到所有 Java 进程。
+    *
+    * @return 所有注入结果
      */
     public java.util.List<java.util.Map<String, Object>> injectAll() {
         java.util.List<java.util.Map<String, Object>> results = new ArrayList<>();
@@ -254,11 +254,11 @@ public class AgentInjector {
     // ==================== 注入方式 ====================
 
     /**
-      * 通过 JDK 虚拟machine 注入。
-     *
-     * @param pid 目标进程 标识
-     * @param agentJarPath 智能体 JAR 路径
-     * @return 注入结果
+    * 通过 JDK 虚拟machine 注入。
+    *
+    * @param pid 目标进程 标识
+    * @param agentJarPath 智能体 JAR 路径
+    * @return 注入结果
      */
     private CmdResult injectByVirtualMachine(int pid, String agentJarPath) {
         try {
@@ -293,11 +293,11 @@ public class AgentInjector {
     }
 
     /**
-     * 通过 jattach 命令注入。
-     *
-     * @param pid 目标进程 标识
-     * @param agentJarPath 智能体 JAR 路径
-     * @return 注入结果
+    * 通过 jattach 命令注入。
+    *
+    * @param pid 目标进程 标识
+    * @param agentJarPath 智能体 JAR 路径
+    * @return 注入结果
      */
     private CmdResult injectByJattach(int pid, String agentJarPath) {
         String cmd = String.format("jattach %d load %s %s", pid, agentJarPath,
@@ -306,11 +306,11 @@ public class AgentInjector {
     }
 
     /**
-     * 通过 jpigeon 工具注入。
-     *
-     * @param pid 目标进程 标识
-     * @param agentJarPath 智能体 JAR 路径
-     * @return 注入结果
+    * 通过 jpigeon 工具注入。
+    *
+    * @param pid 目标进程 标识
+    * @param agentJarPath 智能体 JAR 路径
+    * @return 注入结果
      */
     private CmdResult injectByJpigeon(int pid, String agentJarPath) {
         String cmd = String.format("java -jar jpigeon.jar %d load %s %s", pid, agentJarPath,
@@ -319,11 +319,11 @@ public class AgentInjector {
     }
 
     /**
-     * 自动选择注入方式。
-     *
-     * @param pid 目标进程 标识
-     * @param agentJarPath 智能体 JAR 路径
-     * @return 注入结果
+    * 自动选择注入方式。
+    *
+    * @param pid 目标进程 标识
+    * @param agentJarPath 智能体 JAR 路径
+    * @return 注入结果
      */
     private CmdResult injectByAutomatic(int pid, String agentJarPath) {
  // 尝试 虚拟machine
@@ -343,9 +343,9 @@ public class AgentInjector {
     // ==================== 工具方法 ====================
 
     /**
-     * 列出所有 Java 进程。
-     *
-     * @return PID 到进程描述的映射
+    * 列出所有 Java 进程。
+    *
+    * @return PID 到进程描述的映射
      */
     public static java.util.Map<Integer, String> listJavaProcesses() {
         CmdResult result = CmdExecutors.execute(
@@ -373,10 +373,10 @@ public class AgentInjector {
     }
 
     /**
-      * 从 JAR Manifest 中获取 智能体-类。
-     *
-     * @param agentJarPath 智能体 JAR 路径
-     * @return Agent 类名，未找到返回 空
+    * 从 JAR Manifest 中获取 智能体-类。
+    *
+    * @param agentJarPath 智能体 JAR 路径
+    * @return Agent 类名，未找到返回 空
      */
     private String getAgentClass(String agentJarPath) {
         try {
@@ -392,85 +392,85 @@ public class AgentInjector {
     // ==================== 构建器 ====================
 
     /**
-     * 注入策略枚举。
-     * @author CH
-     * @since 4.0.0
+    * 注入策略枚举。
+    * @author CH
+    * @since 4.0.0
      */
     public enum InjectionStrategy {
         /**
-         * 自动选择
+        * 自动选择
          */
         AUTOMATIC,
 
         /**
-          * JDK 虚拟machine
+        * JDK 虚拟machine
          */
         VIRTUAL_MACHINE,
 
         /**
-         * jattach 命令
+        * jattach 命令
          */
         JATTACH,
 
         /**
-         * jpigeon 工具
+        * jpigeon 工具
          */
         JPIGEON
     }
 
     /**
-      * 智能体injector 构建器 — 链式 API。
-     *
-     * @since 4.0.0.42
-     * @author CH
+    * 智能体injector 构建器 — 链式 API。
+    *
+    * @since 4.0.0.42
+    * @author CH
      */
     public static class AgentInjectorBuilder {
 
         /**
-          * 智能体 JAR 路径
+        * 智能体 JAR 路径
          */
         private Path agentPath;
 
         /**
-          * 目标进程 标识
+        * 目标进程 标识
          */
         private Integer pid;
 
         /**
-         * 进程名称匹配（精确匹配）
+        * 进程名称匹配（精确匹配）
          */
         private String processName;
 
         /**
-         * 进程名称包含匹配
+        * 进程名称包含匹配
          */
         private String processNameContains;
 
         /**
-          * 智能体 参数
+        * 智能体 参数
          */
         private String options;
 
         /**
-         * 注入超时时间
+        * 注入超时时间
          */
         private long timeoutMs = DEFAULT_TIMEOUT;
 
         /**
-         * 日志回调
+        * 日志回调
          */
         private LineCallback callback;
 
         /**
-         * 注入策略
+        * 注入策略
          */
         private InjectionStrategy strategy = InjectionStrategy.AUTOMATIC;
 
         /**
-          * 指定 智能体 JAR 路径。
-         *
-         * @param agentPath 智能体 JAR 路径
-         * @return 构建器自身
+        * 指定 智能体 JAR 路径。
+        *
+        * @param agentPath 智能体 JAR 路径
+        * @return 构建器自身
          */
         public AgentInjectorBuilder agentPath(Path agentPath) {
             this.agentPath = agentPath;
@@ -478,10 +478,10 @@ public class AgentInjector {
         }
 
         /**
-          * 指定 智能体 JAR 路径（字符串形式）。
-         *
-         * @param agentPath 智能体 JAR 路径
-         * @return 构建器自身
+        * 指定 智能体 JAR 路径（字符串形式）。
+        *
+        * @param agentPath 智能体 JAR 路径
+        * @return 构建器自身
          */
         public AgentInjectorBuilder agentPath(String agentPath) {
             this.agentPath = Paths.get(agentPath);
@@ -489,10 +489,10 @@ public class AgentInjector {
         }
 
         /**
-          * 指定目标进程 标识。
-         *
-         * @param pid 进程 标识
-         * @return 构建器自身
+        * 指定目标进程 标识。
+        *
+        * @param pid 进程 标识
+        * @return 构建器自身
          */
         public AgentInjectorBuilder pid(int pid) {
             this.pid = pid;
@@ -500,10 +500,10 @@ public class AgentInjector {
         }
 
         /**
-         * 指定进程名称匹配（精确匹配）。
-         *
-         * @param processName 进程名称
-         * @return 构建器自身
+        * 指定进程名称匹配（精确匹配）。
+        *
+        * @param processName 进程名称
+        * @return 构建器自身
          */
         public AgentInjectorBuilder processName(String processName) {
             this.processName = processName;
@@ -511,10 +511,10 @@ public class AgentInjector {
         }
 
         /**
-         * 指定进程名称包含匹配。
-         *
-         * @param processNameContains 进程名称包含字符串
-         * @return 构建器自身
+        * 指定进程名称包含匹配。
+        *
+        * @param processNameContains 进程名称包含字符串
+        * @return 构建器自身
          */
         public AgentInjectorBuilder processNameContains(String processNameContains) {
             this.processNameContains = processNameContains;
@@ -522,10 +522,10 @@ public class AgentInjector {
         }
 
         /**
-          * 指定 智能体 参数。
-         *
-         * @param options 智能体 参数（键=值 格式，多参数用逗号分隔）
-         * @return 构建器自身
+        * 指定 智能体 参数。
+        *
+        * @param options 智能体 参数（键=值 格式，多参数用逗号分隔）
+        * @return 构建器自身
          */
         public AgentInjectorBuilder options(String options) {
             this.options = options;
@@ -533,10 +533,10 @@ public class AgentInjector {
         }
 
         /**
-         * 指定注入超时时间（毫秒）。
-         *
-         * @param timeoutMs 超时值（毫秒）
-         * @return 构建器自身
+        * 指定注入超时时间（毫秒）。
+        *
+        * @param timeoutMs 超时值（毫秒）
+        * @return 构建器自身
          */
         public AgentInjectorBuilder timeout(long timeoutMs) {
             this.timeoutMs = timeoutMs;
@@ -544,11 +544,11 @@ public class AgentInjector {
         }
 
         /**
-         * 指定注入超时时间。
-         *
-         * @param timeout 超时值
-         * @param unit 时间单位
-         * @return 构建器自身
+        * 指定注入超时时间。
+        *
+        * @param timeout 超时值
+        * @param unit 时间单位
+        * @return 构建器自身
          */
         public AgentInjectorBuilder timeout(long timeout, TimeUnit unit) {
             this.timeoutMs = unit.toMillis(timeout);
@@ -556,10 +556,10 @@ public class AgentInjector {
         }
 
         /**
-         * 指定日志回调。
-         *
-         * @param callback 日志行回调
-         * @return 构建器自身
+        * 指定日志回调。
+        *
+        * @param callback 日志行回调
+        * @return 构建器自身
          */
         public AgentInjectorBuilder callback(LineCallback callback) {
             this.callback = callback;
@@ -567,10 +567,10 @@ public class AgentInjector {
         }
 
         /**
-         * 指定注入策略。
-         *
-         * @param strategy 注入策略
-         * @return 构建器自身
+        * 指定注入策略。
+        *
+        * @param strategy 注入策略
+        * @return 构建器自身
          */
         public AgentInjectorBuilder strategy(InjectionStrategy strategy) {
             this.strategy = strategy;
@@ -578,9 +578,9 @@ public class AgentInjector {
         }
 
         /**
-         * 构建注入器实例。
-         *
-         * @return AgentInjector 实例
+        * 构建注入器实例。
+        *
+        * @return AgentInjector 实例
          */
         public AgentInjector build() {
             AgentInjector injector = new AgentInjector();
@@ -596,18 +596,18 @@ public class AgentInjector {
         }
 
         /**
-         * 构建并直接执行注入。
-         *
-         * @return 注入结果
+        * 构建并直接执行注入。
+        *
+        * @return 注入结果
          */
         public CmdResult inject() {
             return build().inject();
         }
 
         /**
-         * 构建并直接执行批量注入。
-         *
-         * @return 所有注入结果
+        * 构建并直接执行批量注入。
+        *
+        * @return 所有注入结果
          */
         public java.util.List<java.util.Map<String, Object>> injectAll() {
             return build().injectAll();

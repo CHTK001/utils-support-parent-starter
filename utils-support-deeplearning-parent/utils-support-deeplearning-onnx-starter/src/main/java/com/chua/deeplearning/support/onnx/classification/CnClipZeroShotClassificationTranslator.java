@@ -29,18 +29,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * CN-CLIP                 Translator   
- *
- * <p>CN-CLIP        Chinese-CLIP ONNX                       CLIP                      
- *                                                                    logits          </p>
- *
- * <p>        gficcg/clip_cn_vit-onnx              
-   * 镜像 编码器 + 文本 编码器 + vocab.txt
-   * ONNX   unnorm_镜像_特征 / unnorm_文本_特征
- *  L2      cosine * logit_scale  softmax             </p>
- *
- * @author CH
- * @since 4.0.0.42
+* CN-CLIP                 Translator   
+*
+* <p>CN-CLIP        Chinese-CLIP ONNX                       CLIP                      
+*                                                                    logits          </p>
+*
+* <p>        gficcg/clip_cn_vit-onnx              
+* 镜像 编码器 + 文本 编码器 + vocab.txt
+* ONNX   unnorm_镜像_特征 / unnorm_文本_特征
+*  L2      cosine * logit_scale  softmax             </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class CnClipZeroShotClassificationTranslator implements Translator<Image, Classifications> {
 
@@ -84,8 +84,8 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-      * 创建 cnclipzeroshotclassificationtranslator 实例
-     * @param arguments 参数
+    * 创建 cnclipzeroshotclassificationtranslator 实例
+    * @param arguments 参数
      */
     public CnClipZeroShotClassificationTranslator(Map<String, ?> arguments) {
         String rawCandidates = readArgument(arguments, "candidates");
@@ -182,10 +182,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * Normalize
-     *
-     * @param vec vec
-     * @return normalize的结果
+    * Normalize
+    *
+    * @param vec vec
+    * @return normalize的结果
      */
     private static float[] normalize(float[] vec) {
         float norm = 0f;
@@ -205,10 +205,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
 
     // 输入已 L2 归一化，余弦相似度 = 点积
     /**
-     * cosine相似度。
-     * @param a a
-     * @param b b
-     * @return cosine相似度的结果
+    * cosine相似度。
+    * @param a a
+    * @param b b
+    * @return cosine相似度的结果
      */
     private static float cosineSimilarity(float[] a, float[] b) {
         float dot = 0f;
@@ -220,11 +220,11 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * Truncate
-     *
-     * @param ids 标识
-     * @param maxLen 最大len
-     * @return truncate的结果
+    * Truncate
+    *
+    * @param ids 标识
+    * @param maxLen 最大len
+    * @return truncate的结果
      */
     private static long[] truncate(long[] ids, int maxLen) {
         if (ids.length <= maxLen) {
@@ -236,10 +236,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 解析模型根
-     *
-     * @param modelPath 模型路径
-     * @return resolve模型根的结果
+    * 解析模型根
+    *
+    * @param modelPath 模型路径
+    * @return resolve模型根的结果
      */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -250,11 +250,11 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 解析第一个existing
-     *
-     * @param modelRoot 模型根
-     * @param names 名称
-     * @return resolve第一个existing的结果
+    * 解析第一个existing
+    *
+    * @param modelRoot 模型根
+    * @param names 名称
+    * @return resolve第一个existing的结果
      */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
@@ -267,10 +267,10 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 解析Candidates
-     *
-     * @param raw raw
-     * @return 解析candidates的结果
+    * 解析Candidates
+    *
+    * @param raw raw
+    * @return 解析candidates的结果
      */
     private static List<String> parseCandidates(@Nullable String raw) {
         if (raw == null || raw.isBlank()) {
@@ -287,11 +287,11 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 读取参数
-     *
-     * @param arguments 参数
-     * @param key 键
-     * @return 读取参数的结果
+    * 读取参数
+    *
+    * @param arguments 参数
+    * @param key 键
+    * @return 读取参数的结果
      */
     private static String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null) {

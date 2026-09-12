@@ -18,18 +18,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-   * vit-H-14 ONNX 图像特征提取 Translator。
- *
- * <p>基于 Chinese-CLIP ViT-H-14 模型：输入图像，输出 1024 维图像特征向量。
-   * 支持动态 批量 大小，适用于图像检索、图像匹配等场景。</p>
- *
- * <p>流程：图像 → resize(224x224) → normalize(CLIP) → CHW → ONNX 推理 → 特征向量。</p>
- *
- * <p>模型输入：pixel_values [batch, 3, 224, 224] float32</p>
- * <p>模型输出：image_features [batch, 1024] float32</p>
- *
- * @author CH
- * @since 4.0.0.42
+* vit-H-14 ONNX 图像特征提取 Translator。
+*
+* <p>基于 Chinese-CLIP ViT-H-14 模型：输入图像，输出 1024 维图像特征向量。
+* 支持动态 批量 大小，适用于图像检索、图像匹配等场景。</p>
+*
+* <p>流程：图像 → resize(224x224) → normalize(CLIP) → CHW → ONNX 推理 → 特征向量。</p>
+*
+* <p>模型输入：pixel_values [batch, 3, 224, 224] float32</p>
+* <p>模型输出：image_features [batch, 1024] float32</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCloseable {
@@ -62,24 +62,24 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     private Path modelPath;
 
     /**
-     * 构造图像特征提取器
+    * 构造图像特征提取器
      */
     public VitH14OnnxTranslator() {
     }
 
     /**
-     * 构造图像特征提取器（指定模型路径）
-     *
-     * @param modelPath 模型路径
+    * 构造图像特征提取器（指定模型路径）
+    *
+    * @param modelPath 模型路径
      */
     public VitH14OnnxTranslator(Path modelPath) {
         this.modelPath = modelPath;
     }
 
     /**
-     * 准备模型（懒加载）
-     *
-     * @throws Exception 准备异常
+    * 准备模型（懒加载）
+    *
+    * @throws Exception 准备异常
      */
     private synchronized void prepare() throws Exception {
         if (prepared) {
@@ -107,9 +107,9 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 解析模型路径
-     *
-     * @return 模型文件路径
+    * 解析模型路径
+    *
+    * @return 模型文件路径
      */
     private Path resolveModelPath() {
         // 1. 优先使用外部指定路径
@@ -146,9 +146,9 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 模型缓存根目录
-     *
-     * @return 缓存根目录
+    * 模型缓存根目录
+    *
+    * @return 缓存根目录
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
@@ -156,10 +156,10 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-      * 提取图像特征（itranslator 接口实现）
-     *
-     * @param input DJL 镜像 图像
-     * @return 1024 维特征向量
+    * 提取图像特征（itranslator 接口实现）
+    *
+    * @param input DJL 镜像 图像
+    * @return 1024 维特征向量
      */
     @Override
     public float[] translate(Image input) {
@@ -176,20 +176,20 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 提取单张图像特征
-     *
-     * @param image DJL 镜像 图像
-     * @return 1024 维特征向量
+    * 提取单张图像特征
+    *
+    * @param image DJL 镜像 图像
+    * @return 1024 维特征向量
      */
     public float[] extractFeature(Image image) {
         return translate(image);
     }
 
     /**
-     * 批量提取图像特征
-     *
-     * @param images DJL 镜像 图像数组
-     * @return 特征向量数组，每个元素为 1024 维特征
+    * 批量提取图像特征
+    *
+    * @param images DJL 镜像 图像数组
+    * @return 特征向量数组，每个元素为 1024 维特征
      */
     public float[][] extractFeatures(Image[] images) {
         try {
@@ -204,11 +204,11 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * ONNX 推理
-     *
-     * @param images DJL 镜像 图像数组
-     * @return 特征向量数组
-     * @throws Exception 推理异常
+    * ONNX 推理
+    *
+    * @param images DJL 镜像 图像数组
+    * @return 特征向量数组
+    * @throws Exception 推理异常
      */
     private float[][] infer(Image[] images) throws Exception {
         int batch = images.length;
@@ -234,11 +234,11 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 批量图像预处理：resize → CHW → normalize
-     *
-     * @param images DJL 镜像 图像数组
-     * @return 归一化像素 [批量, 3, 224, 224]
-     * @throws Exception 预处理异常
+    * 批量图像预处理：resize → CHW → normalize
+    *
+    * @param images DJL 镜像 图像数组
+    * @return 归一化像素 [批量, 3, 224, 224]
+    * @throws Exception 预处理异常
      */
     private float[] preprocessBatch(Image[] images) throws Exception {
         int batch = images.length;
@@ -252,13 +252,13 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 单张图像预处理：resize → CHW → normalize
-     *
-     * <p>使用 OpenCV (ImageUtils) 缩放图像，输出 [3, 224, 224] 归一化像素（RGB 顺序）。</p>
-     *
-     * @param image DJL 镜像 图像
-     * @return 归一化像素 [3, 224, 224]
-     * @throws Exception 预处理异常
+    * 单张图像预处理：resize → CHW → normalize
+    *
+    * <p>使用 OpenCV (ImageUtils) 缩放图像，输出 [3, 224, 224] 归一化像素（RGB 顺序）。</p>
+    *
+    * @param image DJL 镜像 图像
+    * @return 归一化像素 [3, 224, 224]
+    * @throws Exception 预处理异常
      */
     private float[] preprocessImage(Image image) throws Exception {
         float[] pixels = ImageUtils.toTensorResize(image, IMAGE_SIZE, MEAN, STD);
@@ -266,11 +266,11 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 计算两个特征向量的余弦相似度
-     *
-     * @param a 特征向量 A
-     * @param b 特征向量 B
-     * @return 余弦相似度 [-1, 1]
+    * 计算两个特征向量的余弦相似度
+    *
+    * @param a 特征向量 A
+    * @param b 特征向量 B
+    * @return 余弦相似度 [-1, 1]
      */
     public static float cosineSimilarity(float[] a, float[] b) {
         return MathUtils.cosineSimilarity(a, b);
@@ -282,16 +282,16 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 获取特征维度
-     *
-     * @return 特征维度（1024）
+    * 获取特征维度
+    *
+    * @return 特征维度（1024）
      */
     public int featureDimension() {
         return FEATURE_DIM;
     }
 
     /**
-     * 关闭资源
+    * 关闭资源
      */
     @Override
     public void close() {

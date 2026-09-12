@@ -10,42 +10,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Calcite 数据表实现类。
- * 用于封装 Calcite 查询结果或构建内存中的虚拟表结构。
- *
- * @author CH
- * @since 4.0.0.42
+* Calcite 数据表实现类。
+* 用于封装 Calcite 查询结果或构建内存中的虚拟表结构。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @RequiredArgsConstructor
 @Accessors(fluent = true)
 public class CalciteDataTable implements DataTable {
 
     /**
-     * 数据表的名称。
+    * 数据表的名称。
      */
     private final String name;
 
     /**
-     * 列名列表。
+    * 列名列表。
      */
     private final List<String> columnNames;
 
     /**
-     * 列类型列表。
+    * 列类型列表。
      */
     private final List<Class<?>> columnTypes;
 
     /**
-     * 行数据列表，每行是一个键值对映射。
+    * 行数据列表，每行是一个键值对映射。
      */
     private final List<Map<String, Object>> data;
 
     /**
-     * 构造一个新的 Calcite 数据表实例。
-     *
-     * @param name          表名
-     * @param columnNames   列名集合
-     * @param columnTypes   列类型集合
+    * 构造一个新的 Calcite 数据表实例。
+    *
+    * @param name          表名
+    * @param columnNames   列名集合
+    * @param columnTypes   列类型集合
      */
     public CalciteDataTable(String name, List<String> columnNames, List<Class<?>> columnTypes) {
         this.name = name;
@@ -55,19 +55,19 @@ public class CalciteDataTable implements DataTable {
     }
 
     /**
-     * 获取列类型列表。
-     *
-     * @return 列类型列表
+    * 获取列类型列表。
+    *
+    * @return 列类型列表
      */
     public List<Class<?>> getColumnTypes() {
         return columnTypes;
     }
 
     /**
-     * 向当前数据表中添加一行数据。
-     *
-     * @param values 列对应的值数组
-     * @return 当前实例，支持链式调用
+    * 向当前数据表中添加一行数据。
+    *
+    * @param values 列对应的值数组
+    * @return 当前实例，支持链式调用
      */
     public CalciteDataTable addRow(Object... values) {
         Map<String, Object> row = new LinkedHashMap<>();

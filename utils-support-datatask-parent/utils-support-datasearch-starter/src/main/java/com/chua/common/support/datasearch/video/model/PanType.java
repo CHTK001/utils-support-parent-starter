@@ -1,12 +1,12 @@
 package com.chua.common.support.datasearch.video.model;
 
 /**
- * 网盘类型ö举
- * ֧持的网盘类型定?
- *
- * @author CH
-   * @版本 1.0
- * @since 4.0.0.42
+* 网盘类型ö举
+* ֧持的网盘类型定?
+*
+* @author CH
+* @版本 1.0
+* @since 4.0.0.42
  */
 public enum PanType {
 
@@ -35,10 +35,10 @@ public enum PanType {
     }
 
     /**
-     * 从编码
-     *
-     * @param code 编码
-     * @return 从编码的结果
+    * 从编码
+    *
+    * @param code 编码
+    * @return 从编码的结果
      */
     public static PanType fromCode(String code) {
         if (code == null) {
@@ -53,36 +53,36 @@ public enum PanType {
     }
 
     /**
-     * 获取编码
-     *
-     * @return 获取编码的结果
+    * 获取编码
+    *
+    * @return 获取编码的结果
      */
     public String getCode() {
         return code;
     }
 
     /**
-     * 获取名称
-     *
-     * @return 获取名称的结果
+    * 获取名称
+    *
+    * @return 获取名称的结果
      */
     public String getName() {
         return name;
     }
 
     /**
-     * 是否magnet类型
-     *
-     * @return 是否magnet类型的结果
+    * 是否magnet类型
+    *
+    * @return 是否magnet类型的结果
      */
     public boolean isMagnetType() {
         return this == MAGNET || this == ED2K;
     }
 
     /**
-     * 是否pan类型
-     *
-     * @return 是否pan类型的结果
+    * 是否pan类型
+    *
+    * @return 是否pan类型的结果
      */
     public boolean isPanType() {
         return !isMagnetType() && this != OTHERS;

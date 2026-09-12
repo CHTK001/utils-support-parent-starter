@@ -3,8 +3,8 @@ package com.chua.common.support.media;
 import java.util.HashMap;
 import java.util.Map;
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 
 public class MediaTypeFactory {
@@ -30,10 +30,10 @@ public class MediaTypeFactory {
     }
 
     /**
-     * 获取media类型
-     *
-     * @param name 名称
-     * @return 获取media类型的结果
+    * 获取media类型
+    *
+    * @param name 名称
+    * @return 获取media类型的结果
      */
     public static MediaType getMediaType(String name) {
         MediaType mt = MEDIA_TYPES.get(name.toLowerCase());
@@ -44,10 +44,10 @@ public class MediaTypeFactory {
     }
 
     /**
-     * 获取media类型空
-     *
-     * @param name 名称
-     * @return 获取media类型空的结果
+    * 获取media类型空
+    *
+    * @param name 名称
+    * @return 获取media类型空的结果
      */
     public static MediaType getMediaTypeNullable(String name) {
         if (name == null || name.trim().isEmpty()) {

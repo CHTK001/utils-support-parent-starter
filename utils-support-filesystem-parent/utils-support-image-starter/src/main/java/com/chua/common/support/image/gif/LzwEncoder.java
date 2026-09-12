@@ -5,12 +5,12 @@ import java.io.OutputStream;
 
 
 /**
- * lzw
- *
- * @author K Weiner 12/00
- * @since 4.0.0.42
- * @author CH
- * @since 4.0.0.42
+* lzw
+*
+* @author K Weiner 12/00
+* @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
 */
 class LzwEncoder {
 
@@ -206,10 +206,10 @@ class LzwEncoder {
     }
 
     /**
-     * Maxcode
-     *
-     * @param nBits n钻头
-     * @return maxcode的结果
+    * Maxcode
+    *
+    * @param nBits n钻头
+    * @return maxcode的结果
      */
     final int maxcode(int nBits) {
         return (1 << nBits) - 1;
@@ -217,9 +217,9 @@ class LzwEncoder {
 
 
     /**
-     * 下一个pixel
-     *
-     * @return 下一个pixel的结果
+    * 下一个pixel
+    *
+    * @return 下一个pixel的结果
      */
     private int nextPixel() {
         if (remaining == 0) {

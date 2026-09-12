@@ -3,10 +3,10 @@ package com.chua.playwright.support;
 import java.util.Map;
 
 /**
- * 双模式 {@code Response}。
- * @author CH
- * @since 4.0.0
- * @return 状态的结果
+* 双模式 {@code Response}。
+* @author CH
+* @since 4.0.0
+* @return 状态的结果
  */
 public class Response {
 
@@ -30,8 +30,8 @@ public class Response {
 
     public int status() { return status; }
     /**
-     * url。
-     * @return url的结果
+    * url。
+    * @return url的结果
      */
     public String url() { return url; }
 }

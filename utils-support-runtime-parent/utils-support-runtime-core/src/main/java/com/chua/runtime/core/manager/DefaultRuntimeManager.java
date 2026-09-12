@@ -28,35 +28,35 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 默认运行时管理器。
- *
- * @author CH
- * @since 4.0.0.42
+* 默认运行时管理器。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultRuntimeManager implements RuntimeManager {
 
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(DefaultRuntimeManager.class.getName());
     /**
-     * 工件注册表
+    * 工件注册表
      */
     private final ConcurrentMap<String, RuntimeArtifact> artifactMap;
 
     /**
-     * 实例表
+    * 实例表
      */
     private final ConcurrentMap<String, RuntimeInstance> instanceMap;
 
     /**
-     * 服务管理器
+    * 服务管理器
      */
     private volatile ServiceManager serviceManager;
 
     /**
-      * 智能体 管理器
+    * 智能体 管理器
      */
     private volatile JavaAgentManager javaAgentManager;
 
@@ -434,9 +434,9 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     /**
-     * discover服务管理器
-     *
-     * @return discover服务管理器的结果
+    * discover服务管理器
+    *
+    * @return discover服务管理器的结果
      */
     private ServiceManager discoverServiceManager() {
         String os = System.getProperty("os.name", "").toLowerCase();

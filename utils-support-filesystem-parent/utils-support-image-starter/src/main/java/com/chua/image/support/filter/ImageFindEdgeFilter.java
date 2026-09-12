@@ -12,63 +12,63 @@ import javax.annotation.Nullable;
 
 
 /**
- * 综合边缘检测图像滤镜
- *
- * 基于 Sobel 算子的双向边缘检测滤镜，同时计算水平和垂直方向的梯度，
- * 通过梯度幅值来检测图像中的边缘。相比单向 Sobel 滤镜，能够检测
- * 任意方向的边缘，提供更完整的边缘信息。
- *
- * 技术原理：
- * - 同时应用水平和垂直 Sobel 算子
- * - 计算两个方向的梯度分量 Gx 和 Gy
- * - 通过梯度幅值 |G| = √(Gx² + Gy²) 确定边缘强度
- * - 可选择性计算梯度方向 θ = arctan(Gy/Gx)
- *
- * Sobel 算子：
- * 水平方向（检测垂直边缘）：   垂直方向（检测水平边缘）：
- * [-1 -2 -1]                    [-1  0  1]
- * [ 0  0  0]                    [-2  0  2]
- * [ 1  2  1]                    [-1  0  1]
- *
- * 算法优势：
- * - 全方向边缘检测：能检测任意方向的边缘
- * - 边缘强度量化：提供边缘的强度信息
- * - 噪声抑制：Sobel 算子具有一定的平滑效果
- * - 计算效率：使用整数运算，计算速度快
- *
- * 应用场景：
- * - 图像分析：提取图像的结构信息
- * - 特征检测：为后续处理提供边缘特征
- * - 图像分割：基于边缘信息进行区域分割
- * - 目标识别：物体轮廓提取和识别
- * - 医学影像：医学图像的边缘增强和分析
- * - 工业检测：产品边缘质量检测
- *
- * @author CH
-   * @版本 1.0.0
- * @since 4.0.0.42
+* 综合边缘检测图像滤镜
+*
+* 基于 Sobel 算子的双向边缘检测滤镜，同时计算水平和垂直方向的梯度，
+* 通过梯度幅值来检测图像中的边缘。相比单向 Sobel 滤镜，能够检测
+* 任意方向的边缘，提供更完整的边缘信息。
+*
+* 技术原理：
+* - 同时应用水平和垂直 Sobel 算子
+* - 计算两个方向的梯度分量 Gx 和 Gy
+* - 通过梯度幅值 |G| = √(Gx² + Gy²) 确定边缘强度
+* - 可选择性计算梯度方向 θ = arctan(Gy/Gx)
+*
+* Sobel 算子：
+* 水平方向（检测垂直边缘）：   垂直方向（检测水平边缘）：
+* [-1 -2 -1]                    [-1  0  1]
+* [ 0  0  0]                    [-2  0  2]
+* [ 1  2  1]                    [-1  0  1]
+*
+* 算法优势：
+* - 全方向边缘检测：能检测任意方向的边缘
+* - 边缘强度量化：提供边缘的强度信息
+* - 噪声抑制：Sobel 算子具有一定的平滑效果
+* - 计算效率：使用整数运算，计算速度快
+*
+* 应用场景：
+* - 图像分析：提取图像的结构信息
+* - 特征检测：为后续处理提供边缘特征
+* - 图像分割：基于边缘信息进行区域分割
+* - 目标识别：物体轮廓提取和识别
+* - 医学影像：医学图像的边缘增强和分析
+* - 工业检测：产品边缘质量检测
+*
+* @author CH
+* @版本 1.0.0
+* @since 4.0.0.42
  */
 @Spi("FindEdge")
 @SpiDescribe("综合边缘检测滤镜")
 public class ImageFindEdgeFilter extends AbstractImageFilter {
 
     /**
-     * 水平方向 Sobel 算子（检测水平边缘）
-     *
-     * <p>注意：此处「水平方向」对应 {@link ImageProcessorUtils#SOBEL_Y}，
-     * 因为检测水平边缘使用 Y 梯度方向的卷积核。</p>
-     *
-     * @see ImageProcessorUtils#SOBEL_Y
+    * 水平方向 Sobel 算子（检测水平边缘）
+    *
+    * <p>注意：此处「水平方向」对应 {@link ImageProcessorUtils#SOBEL_Y}，
+    * 因为检测水平边缘使用 Y 梯度方向的卷积核。</p>
+    *
+    * @see ImageProcessorUtils#SOBEL_Y
      */
     public static final int[] SOBEL_X = ImageProcessorUtils.SOBEL_Y;
     
     /**
-     * 垂直方向 Sobel 算子（检测垂直边缘）
-     *
-     * <p>注意：此处「垂直方向」对应 {@link ImageProcessorUtils#SOBEL_X}，
-     * 因为检测垂直边缘使用 X 梯度方向的卷积核。</p>
-     *
-     * @see ImageProcessorUtils#SOBEL_X
+    * 垂直方向 Sobel 算子（检测垂直边缘）
+    *
+    * <p>注意：此处「垂直方向」对应 {@link ImageProcessorUtils#SOBEL_X}，
+    * 因为检测垂直边缘使用 X 梯度方向的卷积核。</p>
+    *
+    * @see ImageProcessorUtils#SOBEL_X
      */
     public static final int[] SOBEL_Y = ImageProcessorUtils.SOBEL_X;
 

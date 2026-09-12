@@ -15,19 +15,19 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SQUAR
 
 
 /**
- * List 类型转换器。
- * <p>将各种类型的值转换为 {@link List}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@link List} — 直接返回</li>
- *   <li>{@link java.util.Collection} — 转为 ArrayList</li>
- *   <li>{@link Iterable} — 遍历元素构造 LinkedList</li>
- *   <li>{@link String} — 支持 JSON 数组格式（[a,b,c]）和多分隔符字符串（逗号/分号/空格/制表符/换行分隔）</li>
- *   <li>数组类型 — 通过 ArrayUtils.toList 转换</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
- * @version 1.0.0
+* List 类型转换器。
+* <p>将各种类型的值转换为 {@link List}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@link List} — 直接返回</li>
+*   <li>{@link java.util.Collection} — 转为 ArrayList</li>
+*   <li>{@link Iterable} — 遍历元素构造 LinkedList</li>
+*   <li>{@link String} — 支持 JSON 数组格式（[a,b,c]）和多分隔符字符串（逗号/分号/空格/制表符/换行分隔）</li>
+*   <li>数组类型 — 通过 ArrayUtils.toList 转换</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
+* @version 1.0.0
  */
 public class ListTypeConverter implements TypeConverter<List> {
 
@@ -36,10 +36,10 @@ public class ListTypeConverter implements TypeConverter<List> {
     public static final ListTypeConverter INSTANCE = new ListTypeConverter();
 
     /**
-     * 将给定值转换为 List。
-     *
-     * @param value 源值
-     * @return List 值，如果为 null 则返回 null
+    * 将给定值转换为 List。
+    *
+    * @param value 源值
+    * @return List 值，如果为 null 则返回 null
      */
     @Override
     public List convert(Object value) {
@@ -92,9 +92,9 @@ public class ListTypeConverter implements TypeConverter<List> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return List.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return List.class
      */
     @Override
     public Class<List> getType() {

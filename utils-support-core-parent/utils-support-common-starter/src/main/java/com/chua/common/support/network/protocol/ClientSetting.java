@@ -2,10 +2,10 @@ package com.chua.common.support.network.protocol;
 
 
 /**
- * 客户端设置，包含连接参数。
- *
- * @author CH
- * @since 2026/07/27
+* 客户端设置，包含连接参数。
+*
+* @author CH
+* @since 2026/07/27
  */
 public class ClientSetting {
 
@@ -25,8 +25,8 @@ public class ClientSetting {
     private final long writeTimeout;
 
     /**
-     * 创建 ClientSetting 实例
-     * @param b b
+    * 创建 ClientSetting 实例
+    * @param b b
      */
     private ClientSetting(Builder b) {
         this.host = b.host;
@@ -39,79 +39,79 @@ public class ClientSetting {
     }
 
     /**
-     * 获取主机地址。
-     *
-     * @return 主机地址
+    * 获取主机地址。
+    *
+    * @return 主机地址
      */
     public String getHost() {
         return host;
     }
 
     /**
-     * 获取端口号。
-     *
-     * @return 端口号
+    * 获取端口号。
+    *
+    * @return 端口号
      */
     public int getPort() {
         return port;
     }
 
     /**
-     * 获取用户名。
-     *
-     * @return 用户名
+    * 获取用户名。
+    *
+    * @return 用户名
      */
     public String getUsername() {
         return username;
     }
 
     /**
-     * 获取密码。
-     *
-     * @return 密码
+    * 获取密码。
+    *
+    * @return 密码
      */
     public String getPassword() {
         return password;
     }
 
     /**
-     * 获取连接超时（毫秒）。
-     *
-     * @return 连接超时
+    * 获取连接超时（毫秒）。
+    *
+    * @return 连接超时
      */
     public long getConnectTimeout() {
         return connectTimeout;
     }
 
     /**
-     * 获取读取超时（毫秒）。
-     *
-     * @return 读取超时
+    * 获取读取超时（毫秒）。
+    *
+    * @return 读取超时
      */
     public long getReadTimeout() {
         return readTimeout;
     }
 
     /**
-     * 获取写入超时（毫秒）。
-     *
-     * @return 写入超时
+    * 获取写入超时（毫秒）。
+    *
+    * @return 写入超时
      */
     public long getWriteTimeout() {
         return writeTimeout;
     }
 
     /**
-     * 创建新的 Builder。
-     *
-     * @return Builder 实例
+    * 创建新的 Builder。
+    *
+    * @return Builder 实例
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * 构建器类。
+    * 构建器类。
      */
     public static class Builder {
         /** 主机 */

@@ -9,23 +9,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 从 net-vortex.com 获取免费代理。
- *
- * <p>解析页面表格中的 IP:PORT 格式，每小时更新一次。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 从 net-vortex.com 获取免费代理。
+*
+* <p>解析页面表格中的 IP:PORT 格式，每小时更新一次。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("netvortex")
 public class NetVortexFetcher implements ProxyFetcher {
 
     /**
-     * 免费代理列表 URL
+    * 免费代理列表 URL
      */
     private static final String URL = "https://net-vortex.com/free-proxies";
 
     /**
-      * 匹配 IP:端口 格式的正则
+    * 匹配 IP:端口 格式的正则
      */
     private static final Pattern PATTERN = Pattern.compile(
             "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{2,5})");

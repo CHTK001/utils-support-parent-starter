@@ -6,12 +6,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Guava RateLimiter 实现的限流提供者。
- *
- * <p>基于令牌桶算法，支持平滑限流和突发流量处理。</p>
- *
- * @author CH
- * @since 2026/07/18
+* Guava RateLimiter 实现的限流提供者。
+*
+* <p>基于令牌桶算法，支持平滑限流和突发流量处理。</p>
+*
+* @author CH
+* @since 2026/07/18
  */
 @Spi("guava")
 public class GuavaRateLimitProvider implements RateLimitProvider {
@@ -35,13 +35,13 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
     }
 
     /**
-     * 全局 Guava 限流器。
+    * 全局 Guava 限流器。
      */
     private static class GuavaRateLimiter implements RateLimiter {
         /** Limiter */
         private final com.google.common.util.concurrent.RateLimiter limiter;
         /**
-         * 容量
+        * 容量
          */
         private final double capacity;
 
@@ -76,7 +76,7 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
     }
 
     /**
-     * 按 key 分组的 Guava 限流器。
+    * 按 key 分组的 Guava 限流器。
      */
     private static class PerKeyGuavaRateLimiter implements RateLimiter {
         /** QPS */

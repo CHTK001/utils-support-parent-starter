@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Feign 处理器 — intercepts Feign 客户端 Requests.
- *
- * @author CH
- * @since 4.0.0.42
+* Feign 处理器 — intercepts Feign 客户端 Requests.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FeignHandler extends AbstractAppHandler {
 
     /**
-      * Feign 客户端
+    * Feign 客户端
      */
     private static final String FEIGN_CLIENT = "feign/Client";
     /**
-      * 执行 方法
+    * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute"};
 

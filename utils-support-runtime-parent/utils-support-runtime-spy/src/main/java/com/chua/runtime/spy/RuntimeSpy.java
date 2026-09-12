@@ -19,135 +19,135 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 插桩运行时入口 — 被 ASM 字节码修改插入到目标方法中。
- *
- * <p>核心职责：</p>
- * <ul>
- *   <li>作为 ASM 字节码插桩的静态入口，被 SpyTransformer 插入</li>
- *   <li>维护 Handler 注册表，根据类名/方法名/插桩点路由事件到对应 Handler</li>
- *   <li>维护线程局部上下文（TraceContext）</li>
- * </ul>
- *
- * <p>插桩流程：</p>
- * <pre>
- * 1. Handler.start() 调用 RuntimeSpy.registerInterceptor()
- * 2. RuntimeSpy 将拦截规则传递给 SpyTransformer
- * 3. SpyTransformer 在类加载时插入字节码: RuntimeSpy.onIntercept()
- * 4. 目标方法执行时触发 RuntimeSpy.onIntercept()
- * 5. RuntimeSpy 查找匹配的 Handler 并调用 onIntercept()
- * </pre>
- *
- * <p>插入的字节码：</p>
- * <pre>
- * LDC "org/slf4j/Logger"           // className
- * LDC "info"                        // methodName
- * LDC "(Ljava/lang/String;)V"       // descriptor
- * LDC "log_pre"                     // pointKey
- * INVOKESTATIC RuntimeSpy.onIntercept
- *
- *   ... 原始方法体 ...
- *
- * LDC "org/slf4j/Logger"           // className
- * LDC "info"                        // methodName
- * LDC "(Ljava/lang/String;)V"       // descriptor
- * LDC "log_post"                    // pointKey
- * INVOKESTATIC RuntimeSpy.onIntercept
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 插桩运行时入口 — 被 ASM 字节码修改插入到目标方法中。
+*
+* <p>核心职责：</p>
+* <ul>
+*   <li>作为 ASM 字节码插桩的静态入口，被 SpyTransformer 插入</li>
+*   <li>维护 Handler 注册表，根据类名/方法名/插桩点路由事件到对应 Handler</li>
+*   <li>维护线程局部上下文（TraceContext）</li>
+* </ul>
+*
+* <p>插桩流程：</p>
+* <pre>
+* 1. Handler.start() 调用 RuntimeSpy.registerInterceptor()
+* 2. RuntimeSpy 将拦截规则传递给 SpyTransformer
+* 3. SpyTransformer 在类加载时插入字节码: RuntimeSpy.onIntercept()
+* 4. 目标方法执行时触发 RuntimeSpy.onIntercept()
+* 5. RuntimeSpy 查找匹配的 Handler 并调用 onIntercept()
+* </pre>
+*
+* <p>插入的字节码：</p>
+* <pre>
+* LDC "org/slf4j/Logger"           // className
+* LDC "info"                        // methodName
+* LDC "(Ljava/lang/String;)V"       // descriptor
+* LDC "log_pre"                     // pointKey
+* INVOKESTATIC RuntimeSpy.onIntercept
+*
+*   ... 原始方法体 ...
+*
+* LDC "org/slf4j/Logger"           // className
+* LDC "info"                        // methodName
+* LDC "(Ljava/lang/String;)V"       // descriptor
+* LDC "log_post"                    // pointKey
+* INVOKESTATIC RuntimeSpy.onIntercept
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RuntimeSpy {
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(RuntimeSpy.class.getName());
     /**
-      * 拦截点匹配键分隔符（类名称#方法名称#point键）
+    * 拦截点匹配键分隔符（类名称#方法名称#point键）
      */
     private static final String KEY_SEPARATOR = "#";
 
     /**
-      * 追踪id / spanid 标识长度（16 字符）
+    * 追踪id / spanid 标识长度（16 字符）
      */
     private static final int ID_LENGTH = 16;
 
     /**
-     * 追踪栈最大深度 — 防止 AOP 死循环或意外递归导致栈帧累积到 OOM
+    * 追踪栈最大深度 — 防止 AOP 死循环或意外递归导致栈帧累积到 OOM
      */
     private static final int MAX_TRACE_DEPTH = 256;
 
     /**
-      * 跨线程追踪上下文最大条目数 — 防止海量 键 导致内存爆炸
+    * 跨线程追踪上下文最大条目数 — 防止海量 键 导致内存爆炸
      */
     private static final int MAX_CROSS_THREAD_TRACES = 10_000;
 
     /**
-      * 跨线程追踪条目 TTL（毫秒） — 防止未配对 restoreby键 导致内存泄漏
+    * 跨线程追踪条目 TTL（毫秒） — 防止未配对 restoreby键 导致内存泄漏
      */
     private static final long CROSS_THREAD_TRACE_TTL_MS = 60L * 60 * 1000;
 
     /**
-     * 插桩上下文（仅 ENTRY/EXIT 之间有效）
+    * 插桩上下文（仅 ENTRY/EXIT 之间有效）
      */
     private static final ThreadLocal<SpyContext> CONTEXT = new ThreadLocal<>();
 
     /**
-      * ENTRY 时记录的 thisref（受拦截实例引用）。
-     *
-     * <p>在 ENTRY 插桩点压入，EXIT/EXCEPTION 阶段 ctx 注入 userData 后清空。
-      * 用于 处理器 在 EXIT 时拿到原始实例（套接字 / httpurlconnection / 文件输入流 等）。</p>
+    * ENTRY 时记录的 thisref（受拦截实例引用）。
+    *
+    * <p>在 ENTRY 插桩点压入，EXIT/EXCEPTION 阶段 ctx 注入 userData 后清空。
+    * 用于 处理器 在 EXIT 时拿到原始实例（套接字 / httpurlconnection / 文件输入流 等）。</p>
      */
     private static final ThreadLocal<Object> ENTRY_THIS = new ThreadLocal<>();
 
     /**
-      * 全局追踪栈 — 每个线程保存 追踪id + spanid 栈帧。
-     *
-     * <p>栈帧结构：(traceId, spanId)。ENTRY 压栈，EXIT/EXCEPTION 弹栈，
-      * 保持 spanid 父子关系。每次调用 拦截器 时，追踪id 始终不变，
-      * spanid 是当前栈帧，父spanid 是栈帧下方那个 spanid。</p>
+    * 全局追踪栈 — 每个线程保存 追踪id + spanid 栈帧。
+    *
+    * <p>栈帧结构：(traceId, spanId)。ENTRY 压栈，EXIT/EXCEPTION 弹栈，
+    * 保持 spanid 父子关系。每次调用 拦截器 时，追踪id 始终不变，
+    * spanid 是当前栈帧，父spanid 是栈帧下方那个 spanid。</p>
      */
     private static final ThreadLocal<Deque<TraceStackFrame>> TRACE_STACK =
             ThreadLocal.withInitial(ArrayDeque::new);
 
     /**
-      * 处理器 注册表：拦截键 → 处理器 实例
+    * 处理器 注册表：拦截键 → 处理器 实例
      */
     private static final Map<String, Interceptor> INTERCEPTOR_MAP = new ConcurrentHashMap<>();
 
     /**
-     * 插桩计数器（线程局部）
+    * 插桩计数器（线程局部）
      */
     private static final ThreadLocal<Integer> TRANSFORM_COUNT = ThreadLocal.withInitial(() -> 0);
 
     /**
-      * 跨线程追踪上下文存储（键 由用户指定）
-     *
-     * <p>为防止恶意/异常的 key 海量构造导致 OOM,使用 {@link BoundedLocalCache} 限制:
-     * 最多 {@value #MAX_CROSS_THREAD_TRACES} 条,默认 TTL {@value #CROSS_THREAD_TRACE_TTL_MS} ms。
-      * 任何 放入 操作都强制校验容量上限 + 过期清理。</p>
+    * 跨线程追踪上下文存储（键 由用户指定）
+    *
+    * <p>为防止恶意/异常的 key 海量构造导致 OOM,使用 {@link BoundedLocalCache} 限制:
+    * 最多 {@value #MAX_CROSS_THREAD_TRACES} 条,默认 TTL {@value #CROSS_THREAD_TRACE_TTL_MS} ms。
+    * 任何 放入 操作都强制校验容量上限 + 过期清理。</p>
      */
     private static final BoundedLocalCache<String, TraceEnvelope> CROSS_THREAD_TRACES =
             new BoundedLocalCache<>(MAX_CROSS_THREAD_TRACES, CROSS_THREAD_TRACE_TTL_MS);
 
     /**
-      * MDC 键：追踪id（与 SLF4J MDC 桥接）
+    * MDC 键：追踪id（与 SLF4J MDC 桥接）
      */
     private static final String MDC_KEY_TRACE_ID = "traceId";
 
     /**
-      * MDC 键：spanid
+    * MDC 键：spanid
      */
     private static final String MDC_KEY_SPAN_ID = "spanId";
 
     /**
-      * MDC 键：类名称
+    * MDC 键：类名称
      */
     private static final String MDC_KEY_CLASS_NAME = "className";
 
     /**
-      * MDC 键：方法名称
+    * MDC 键：方法名称
      */
     private static final String MDC_KEY_METHOD_NAME = "methodName";
 
@@ -156,15 +156,15 @@ public class RuntimeSpy {
     }
 
     /**
-     * 注册拦截器。
-     *
-     * <p>Handler 在 start() 中调用此方法注册拦截规则。</p>
-     *
-     * @param className  目标类名（内部名，如 "org/slf4j/日志记录器"）
-     * @param methodName 目标方法名（如 "信息"）
-     * @param descriptor 方法描述符（如 "(Ljava/lang/字符串;)V"）
-     * @param point      插桩点（ENTRY / EXIT / 日志_PRE / 日志_POST 等）
-     * @param interceptor 处理器 实例
+    * 注册拦截器。
+    *
+    * <p>Handler 在 start() 中调用此方法注册拦截规则。</p>
+    *
+    * @param className  目标类名（内部名，如 "org/slf4j/日志记录器"）
+    * @param methodName 目标方法名（如 "信息"）
+    * @param descriptor 方法描述符（如 "(Ljava/lang/字符串;)V"）
+    * @param point      插桩点（ENTRY / EXIT / 日志_PRE / 日志_POST 等）
+    * @param interceptor 处理器 实例
      */
     public static void registerInterceptor(String className,
                                            String methodName,
@@ -179,14 +179,14 @@ public class RuntimeSpy {
     }
 
     /**
-      * 同步精确插桩规则到 spy转换。
-     *
-     * <p>保证 ASM 转换器在类加载/重变换时对目标方法真正插入字节码。</p>
-     *
-     * @param className  目标类名（内部名）
-     * @param methodName 目标方法名
-     * @param point      插桩点
-     * @param register   注册为 true，注销为 false
+    * 同步精确插桩规则到 spy转换。
+    *
+    * <p>保证 ASM 转换器在类加载/重变换时对目标方法真正插入字节码。</p>
+    *
+    * @param className  目标类名（内部名）
+    * @param methodName 目标方法名
+    * @param point      插桩点
+    * @param register   注册为 true，注销为 false
      */
     private static void syncTransformerRule(String className, String methodName,
                                             InterceptPoint point, boolean register) {
@@ -210,13 +210,13 @@ public class RuntimeSpy {
     }
 
     /**
-      * 对已加载的目标类触发重变换 — 关键！否则 处理器.启动() 在 premain 之后注册时，
-      * 类已用空规则集被首次变换过，bytecode 没有真实的 Bootstrap.onintercept 调用。
-     *
-     * <p>前提：Agent JAR 已同时追加到 bootstrap classpath（{@code appendToBootstrapClassLoaderSearch}），
-      * 因此 Bootstrap 类在 bootstrap 内可解析，对 Java/net/套接字 等 JDK 类也可见。</p>
-     *
-     * @param internalName 类内部名（如 "Java/net/套接字"）
+    * 对已加载的目标类触发重变换 — 关键！否则 处理器.启动() 在 premain 之后注册时，
+    * 类已用空规则集被首次变换过，bytecode 没有真实的 Bootstrap.onintercept 调用。
+    *
+    * <p>前提：Agent JAR 已同时追加到 bootstrap classpath（{@code appendToBootstrapClassLoaderSearch}），
+    * 因此 Bootstrap 类在 bootstrap 内可解析，对 Java/net/套接字 等 JDK 类也可见。</p>
+    *
+    * @param internalName 类内部名（如 "Java/net/套接字"）
      */
     private static void retransformLoadedClass(String internalName) {
         Instrumentation inst = SpyBootstrap.getInstrumentation();
@@ -246,11 +246,11 @@ public class RuntimeSpy {
     }
 
     /**
-     * 注销拦截器。
-     *
-     * @param className  目标类名
-     * @param methodName 目标方法名
-     * @param point      插桩点
+    * 注销拦截器。
+    *
+    * @param className  目标类名
+    * @param methodName 目标方法名
+    * @param point      插桩点
      */
     public static void unregisterInterceptor(String className,
                                              String methodName,
@@ -261,9 +261,9 @@ public class RuntimeSpy {
     }
 
     /**
-      * 批量注销指定 处理器 的所有拦截器。
-     *
-     * @param interceptor 处理器 实例
+    * 批量注销指定 处理器 的所有拦截器。
+    *
+    * @param interceptor 处理器 实例
      */
     public static void unregisterAll(Interceptor interceptor) {
         String handlerName = interceptor.getClass().getSimpleName();
@@ -282,9 +282,9 @@ public class RuntimeSpy {
     }
 
     /**
-     * 根据拦截键同步注销 transformer 规则。
-     *
-     * @param key 拦截键（类名称#方法名称#point键）
+    * 根据拦截键同步注销 transformer 规则。
+    *
+    * @param key 拦截键（类名称#方法名称#point键）
      */
     private static void syncRemoveRule(String key) {
         String[] parts = key.split(KEY_SEPARATOR, -1);
@@ -298,15 +298,15 @@ public class RuntimeSpy {
     }
 
     /**
-      * ASM 字节码插桩入口 — 被 spy转换 通过 INVOKESTATIC 调用。
-     *
-     * <p>新签名：包含 thisRef，方便 Handler 直接拿到受拦截实例（Socket/HttURLConnection 等）。</p>
-     *
-     * @param thisRef  受拦截实例（可为 空）
-     * @param className  目标类名
-     * @param methodName 目标方法名
-     * @param descriptor 方法描述符
-     * @param pointKey   插桩点标识
+    * ASM 字节码插桩入口 — 被 spy转换 通过 INVOKESTATIC 调用。
+    *
+    * <p>新签名：包含 thisRef，方便 Handler 直接拿到受拦截实例（Socket/HttURLConnection 等）。</p>
+    *
+    * @param thisRef  受拦截实例（可为 空）
+    * @param className  目标类名
+    * @param methodName 目标方法名
+    * @param descriptor 方法描述符
+    * @param pointKey   插桩点标识
      */
     public static void onIntercept(String className,
                                    String methodName,
@@ -410,22 +410,22 @@ public class RuntimeSpy {
     }
 
     /**
-     * 捕获当前线程的追踪栈（用于跨线程传播）。
-     *
-     * <p>使用示例（在新线程中恢复追踪上下文）：</p>
-     * <pre>
-     * TraceContextSnapshot snap = RuntimeSpy.capture();
-     * new Thread(() -&gt; {
-     *     RuntimeSpy.restore(snap);
-     *     try {
-     *         // 业务代码...
-     *     } finally {
-     *         RuntimeSpy.clear();
-     *     }
-     * }).start();
-     * </pre>
-     *
-     * @return 追踪栈快照，调用方负责传递给子线程
+    * 捕获当前线程的追踪栈（用于跨线程传播）。
+    *
+    * <p>使用示例（在新线程中恢复追踪上下文）：</p>
+    * <pre>
+    * TraceContextSnapshot snap = RuntimeSpy.capture();
+    * new Thread(() -&gt; {
+    *     RuntimeSpy.restore(snap);
+    *     try {
+    *         // 业务代码...
+    *     } finally {
+    *         RuntimeSpy.clear();
+    *     }
+    * }).start();
+    * </pre>
+    *
+    * @return 追踪栈快照，调用方负责传递给子线程
      */
     public static TraceContextSnapshot capture() {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
@@ -437,12 +437,12 @@ public class RuntimeSpy {
     }
 
     /**
-     * 在子线程中恢复追踪上下文（跨线程传播）。
-     *
-     * <p>调用此方法后，该线程后续的 ENTRY 插桩会作为快照中根 Span 的子 Span，
-      * 直到调用 clear() 或 restore(空)。</p>
-     *
-     * @param snapshot 之前调用 capture() 获得的快照
+    * 在子线程中恢复追踪上下文（跨线程传播）。
+    *
+    * <p>调用此方法后，该线程后续的 ENTRY 插桩会作为快照中根 Span 的子 Span，
+    * 直到调用 clear() 或 restore(空)。</p>
+    *
+    * @param snapshot 之前调用 capture() 获得的快照
      */
     public static void restore(TraceContextSnapshot snapshot) {
         if (snapshot == null || CollectionUtils.isEmpty(snapshot.frames())) {
@@ -457,10 +457,10 @@ public class RuntimeSpy {
     }
 
     /**
-      * 捕获并以 键 保存追踪上下文（用于通过 执行器服务 跨线程传递）。
-     *
-     * @param key 标识键
-     * @return 快照
+    * 捕获并以 键 保存追踪上下文（用于通过 执行器服务 跨线程传递）。
+    *
+    * @param key 标识键
+    * @return 快照
      */
     public static TraceContextSnapshot captureAsKey(String key) {
         TraceContextSnapshot snap = capture();
@@ -471,9 +471,9 @@ public class RuntimeSpy {
     }
 
     /**
-      * 用 键 恢复追踪上下文（跨 执行器服务.submit(Runnable, 键) 模式）。
-     *
-     * @param key 标识键
+    * 用 键 恢复追踪上下文（跨 执行器服务.submit(Runnable, 键) 模式）。
+    *
+    * @param key 标识键
      */
     public static void restoreByKey(String key) {
         if (StringUtils.isEmpty(key)) {
@@ -492,27 +492,27 @@ public class RuntimeSpy {
     }
 
     /**
-      * 生成 16 字符 追踪id / spanid（UUID 去横线取前 16 位）。
-     *
-     * @return ID 字符串
+    * 生成 16 字符 追踪id / spanid（UUID 去横线取前 16 位）。
+    *
+    * @return ID 字符串
      */
     private static String generateId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
     }
 
     /**
-      * 测试辅助 — 生成一个新的 追踪id/spanid。
-     * 仅用于 e2e 测试断言,生产代码应通过插桩调用。
-     * @return generateidfor测试的结果
+    * 测试辅助 — 生成一个新的 追踪id/spanid。
+    * 仅用于 e2e 测试断言,生产代码应通过插桩调用。
+    * @return generateidfor测试的结果
      */
     public static String generateIdForTest() {
         return generateId();
     }
 
     /**
-     * 测试辅助 — 模拟业务调用 ENTRY 后栈状态。
-      * 仅用于 e2e 测试断言隔离性,实际由 spy转换 字节码调用 onintercept 推入。
-     * @param traceId 追踪标识
+    * 测试辅助 — 模拟业务调用 ENTRY 后栈状态。
+    * 仅用于 e2e 测试断言隔离性,实际由 spy转换 字节码调用 onintercept 推入。
+    * @param traceId 追踪标识
      */
     public static void pushTraceForTest(String traceId) {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
@@ -524,13 +524,13 @@ public class RuntimeSpy {
     }
 
     /**
-     * 方法入口插桩 — 直接入口。
-     *
-     * @param className  类名
-     * @param methodName 方法名
-     * @param descriptor 描述符
-     * @param pointKey   插桩点
-     * @param thisRef    受拦截实例
+    * 方法入口插桩 — 直接入口。
+    *
+    * @param className  类名
+    * @param methodName 方法名
+    * @param descriptor 描述符
+    * @param pointKey   插桩点
+    * @param thisRef    受拦截实例
      */
     public static void onEntry(String className,
                                String methodName,
@@ -541,13 +541,13 @@ public class RuntimeSpy {
     }
 
     /**
-     * 方法出口插桩 — 直接入口。
-     *
-     * @param className  类名
-     * @param methodName 方法名
-     * @param descriptor 描述符
-     * @param pointKey   插桩点
-     * @param thisRef    受拦截实例
+    * 方法出口插桩 — 直接入口。
+    *
+    * @param className  类名
+    * @param methodName 方法名
+    * @param descriptor 描述符
+    * @param pointKey   插桩点
+    * @param thisRef    受拦截实例
      */
     public static void onExit(String className,
                               String methodName,
@@ -558,13 +558,13 @@ public class RuntimeSpy {
     }
 
     /**
-      * 异常出口插桩 — 由 spy转换 在异常处理器中调用。
-     *
-     * <p>className 传入的可能是点分隔的全限定名，统一转换为内部名参与路由。</p>
-     *
-     * @param className  类名（点分隔或内部名均可）
-     * @param methodName 方法名
-     * @param throwable  异常对象
+    * 异常出口插桩 — 由 spy转换 在异常处理器中调用。
+    *
+    * <p>className 传入的可能是点分隔的全限定名，统一转换为内部名参与路由。</p>
+    *
+    * @param className  类名（点分隔或内部名均可）
+    * @param methodName 方法名
+    * @param throwable  异常对象
      */
     public static void onException(String className,
                                    String methodName,
@@ -592,50 +592,50 @@ public class RuntimeSpy {
     }
 
     /**
-     * 构建拦截键。
-     *
-     * @param className  类名
-     * @param methodName 方法名
-     * @param pointKey   插桩点 键
-     * @return 拦截键
+    * 构建拦截键。
+    *
+    * @param className  类名
+    * @param methodName 方法名
+    * @param pointKey   插桩点 键
+    * @return 拦截键
      */
     private static String buildKey(String className, String methodName, String pointKey) {
         return className + KEY_SEPARATOR + methodName + KEY_SEPARATOR + pointKey;
     }
 
     /**
-     * 获取当前插桩上下文。
-     *
-     * @return SpyContext
+    * 获取当前插桩上下文。
+    *
+    * @return SpyContext
      */
     public static SpyContext currentContext() {
         return CONTEXT.get();
     }
 
     /**
-     * 清除当前插桩上下文。
+    * 清除当前插桩上下文。
      */
     public static void clearContext() {
         CONTEXT.remove();
     }
 
     /**
-     * 获取插桩总次数。
-     *
-     * @return 次数
+    * 获取插桩总次数。
+    *
+    * @return 次数
      */
     public static int getInterceptCount() {
         return TRANSFORM_COUNT.get();
     }
 
     /**
-      * 写入 SLF4J MDC（业务日志可看到 追踪id/spanid）。
-     *
-     * <p>使用反射调用 {@code org.slf4j.MDC.put}，避免 spy 模块强依赖 slf4j-api。
-      * SLF4J 不在 类路径 时静默跳过。</p>
-     *
-     * @param key   MDC 键
-     * @param value MDC 值
+    * 写入 SLF4J MDC（业务日志可看到 追踪id/spanid）。
+    *
+    * <p>使用反射调用 {@code org.slf4j.MDC.put}，避免 spy 模块强依赖 slf4j-api。
+    * SLF4J 不在 类路径 时静默跳过。</p>
+    *
+    * @param key   MDC 键
+    * @param value MDC 值
      */
     public static void putMdc(String key, String value) {
         if (key == null) {
@@ -649,9 +649,9 @@ public class RuntimeSpy {
     }
 
     /**
-      * 清除 SLF4J MDC 中所有 runtimespy 写入的键。
-     *
-     * <p>使用反射调用 {@code org.slf4j.MDC.remove}。</p>
+    * 清除 SLF4J MDC 中所有 runtimespy 写入的键。
+    *
+    * <p>使用反射调用 {@code org.slf4j.MDC.remove}。</p>
      */
     public static void clearMdc() {
         try {
@@ -665,16 +665,16 @@ public class RuntimeSpy {
     }
 
     /**
-     * 获取已注册的拦截器数量。
-     *
-     * @return 数量
+    * 获取已注册的拦截器数量。
+    *
+    * @return 数量
      */
     public static int getRegisteredCount() {
         return INTERCEPTOR_MAP.size();
     }
 
     /**
-      * 清除所有拦截器注册与当前线程 thread本地。
+    * 清除所有拦截器注册与当前线程 thread本地。
      */
     public static void clear() {
         INTERCEPTOR_MAP.clear();
@@ -687,8 +687,8 @@ public class RuntimeSpy {
     }
 
     /**
-      * 仅清理当前线程 thread本地 — 不影响全局拦截器注册。
-     * 适用于业务线程进入时兜底清理(防止线程池复用导致跨请求脏数据)。
+    * 仅清理当前线程 thread本地 — 不影响全局拦截器注册。
+    * 适用于业务线程进入时兜底清理(防止线程池复用导致跨请求脏数据)。
      */
     public static void clearThreadLocal() {
         CONTEXT.remove();
@@ -699,9 +699,9 @@ public class RuntimeSpy {
     }
 
     /**
-      * 获取当前线程追踪栈的 追踪id（栈顶）。
-     *
-     * @return traceId，栈空时返回 空
+    * 获取当前线程追踪栈的 追踪id（栈顶）。
+    *
+    * @return traceId，栈空时返回 空
      */
     public static String getCurrentTraceId() {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
@@ -712,9 +712,9 @@ public class RuntimeSpy {
     }
 
     /**
-      * 获取当前线程追踪栈的 spanid（栈顶）。
-     *
-     * @return spanId，栈空时返回 空
+    * 获取当前线程追踪栈的 spanid（栈顶）。
+    *
+    * @return spanId，栈空时返回 空
      */
     public static String getCurrentSpanId() {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
@@ -725,9 +725,9 @@ public class RuntimeSpy {
     }
 
     /**
-     * 获取当前线程追踪栈深度。
-     *
-     * @return 栈深度（0 表示无追踪）
+    * 获取当前线程追踪栈深度。
+    *
+    * @return 栈深度（0 表示无追踪）
      */
     public static int getTraceStackSize() {
         Deque<TraceStackFrame> stack = TRACE_STACK.get();
@@ -735,15 +735,15 @@ public class RuntimeSpy {
     }
 
     /**
-     * 包装 Runnable — 在新线程中执行前自动恢复追踪上下文。
-     *
-     * <p>使用示例：</p>
-     * <pre>
-     * executor.submit(RuntimeSpy.wrap(() -> doWork()));
-     * </pre>
-     *
-     * @param task 原始任务
-     * @return 包装后的任务
+    * 包装 Runnable — 在新线程中执行前自动恢复追踪上下文。
+    *
+    * <p>使用示例：</p>
+    * <pre>
+    * executor.submit(RuntimeSpy.wrap(() -> doWork()));
+    * </pre>
+    *
+    * @param task 原始任务
+    * @return 包装后的任务
      */
     public static Runnable wrap(Runnable task) {
         if (task == null) {
@@ -761,11 +761,11 @@ public class RuntimeSpy {
     }
 
     /**
-     * 包装 Callable — 返回泛型版本。
-     *
-     * @param task 原始任务
-     * @param <T> 返回类型
-     * @return Callable
+    * 包装 Callable — 返回泛型版本。
+    *
+    * @param task 原始任务
+    * @param <T> 返回类型
+    * @return Callable
      */
     public static <T> java.util.concurrent.Callable<T> wrap(java.util.concurrent.Callable<T> task) {
         if (task == null) {
@@ -783,10 +783,10 @@ public class RuntimeSpy {
     }
 
     /**
-     * 包装 Thread — 启动时自动恢复追踪上下文。
-     *
-     * @param thread 原始 Thread
-     * @return 包装后的 Thread
+    * 包装 Thread — 启动时自动恢复追踪上下文。
+    *
+    * @param thread 原始 Thread
+    * @return 包装后的 Thread
      */
     public static Thread wrap(Thread thread) {
         if (thread == null) {
@@ -812,13 +812,13 @@ public class RuntimeSpy {
     }
 
     /**
-     * 插桩上下文（线程局部）。
-     *
-     * @param className  类名
-     * @param methodName 方法名
-     * @param startTime  开始时间
- * @author CH
-     * @since 4.0.0.42
+    * 插桩上下文（线程局部）。
+    *
+    * @param className  类名
+    * @param methodName 方法名
+    * @param startTime  开始时间
+    * @author CH
+    * @since 4.0.0.42
      */
     public record SpyContext(
             String className,
@@ -828,12 +828,12 @@ public class RuntimeSpy {
     }
 
     /**
-     * 追踪栈帧。
-     *
-     * @param traceId 全局追踪 标识
-     * @param spanId  当前 Span 标识
- * @author CH
-     * @since 4.0.0.42
+    * 追踪栈帧。
+    *
+    * @param traceId 全局追踪 标识
+    * @param spanId  当前 Span 标识
+    * @author CH
+    * @since 4.0.0.42
      */
     public record TraceStackFrame(
             String traceId,
@@ -842,12 +842,12 @@ public class RuntimeSpy {
     }
 
     /**
-     * 追踪上下文快照 — 用于跨线程传递。
-     *
-     * @param traceId 根 追踪标识
-     * @param frames  追踪栈（按从栈底到栈顶顺序）
- * @author CH
-     * @since 4.0.0.42
+    * 追踪上下文快照 — 用于跨线程传递。
+    *
+    * @param traceId 根 追踪标识
+    * @param frames  追踪栈（按从栈底到栈顶顺序）
+    * @author CH
+    * @since 4.0.0.42
      */
     public record TraceContextSnapshot(
             String traceId,
@@ -856,7 +856,7 @@ public class RuntimeSpy {
     }
 
     /**
-     * 跨线程追踪上下文条目 — 携带过期时间戳,支持 TTL 清理。
+    * 跨线程追踪上下文条目 — 携带过期时间戳,支持 TTL 清理。
      */
     private static final class TraceEnvelope {
         final List<TraceStackFrame> frames;
@@ -869,28 +869,28 @@ public class RuntimeSpy {
     }
 
     /**
-     * 有界本地缓存 — 限制最大条目数 + 自动过期清理。
-     *
-     * <p>替代裸 ConcurrentHashMap,防止恶意/异常 key 海量构造导致 OOM。</p>
-     *
-     * @param <K> 键类型
-     * @param <V> 值类型
+    * 有界本地缓存 — 限制最大条目数 + 自动过期清理。
+    *
+    * <p>替代裸 ConcurrentHashMap,防止恶意/异常 key 海量构造导致 OOM。</p>
+    *
+    * @param <K> 键类型
+    * @param <V> 值类型
      */
     private static final class BoundedLocalCache<K, V> {
         /**
-         * 映射
+        * 映射
          */
         private final Map<K, V> map = new ConcurrentHashMap<>();
         /**
-          * 最大大小
+        * 最大大小
          */
         private final int maxSize;
         /**
-         * ttl Ms
+        * ttl Ms
          */
         private final long ttlMs;
         /**
-          * 最后一个 Cleanup
+        * 最后一个 Cleanup
          */
         private final AtomicLong lastCleanup = new AtomicLong();
 
@@ -900,11 +900,11 @@ public class RuntimeSpy {
         }
 
         /**
-         * 放入
-         *
-         * @param key 键
-         * @param value 值
-         * @return 放入的结果
+        * 放入
+        *
+        * @param key 键
+        * @param value 值
+        * @return 放入的结果
          */
         synchronized V put(K key, V value) {
             // 容量超限：移除最旧的 10%
@@ -921,10 +921,10 @@ public class RuntimeSpy {
         }
 
         /**
-         * 获取
-         *
-         * @param key 键
-         * @return 获取的结果
+        * 获取
+        *
+        * @param key 键
+        * @return 获取的结果
          */
         synchronized V get(K key) {
             // 每 60s 触发一次过期清理
@@ -944,10 +944,10 @@ public class RuntimeSpy {
         }
 
         /**
-         * 移除
-         *
-         * @param key 键
-         * @return 移除的结果
+        * 移除
+        *
+        * @param key 键
+        * @return 移除的结果
          */
         synchronized V remove(K key) {
             return map.remove(key);
@@ -959,18 +959,18 @@ public class RuntimeSpy {
         }
 
         /**
-         * 获取大小
-         *
-         * @return 大小的结果
+        * 获取大小
+        *
+        * @return 大小的结果
          */
         synchronized int size() {
             return map.size();
         }
 
         /**
-         * Cleanup
-         *
-         * @param now now
+        * Cleanup
+        *
+        * @param now now
          */
         private void cleanup(long now) {
             map.entrySet().removeIf(e -> {
@@ -983,17 +983,17 @@ public class RuntimeSpy {
     }
 
     /**
-      * 拦截器接口 — 处理器 实现此接口接收插桩事件。
-     *
- * @author CH
-     * @since 4.0.0.42
+    * 拦截器接口 — 处理器 实现此接口接收插桩事件。
+    *
+    * @author CH
+    * @since 4.0.0.42
      */
     public interface Interceptor {
 
         /**
-         * 接收插桩事件。
-         *
-         * @param context 插桩上下文
+        * 接收插桩事件。
+        *
+        * @param context 插桩上下文
          */
         void onIntercept(InterceptContext context);
     }

@@ -19,13 +19,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 基于 JDK Socket 的 WebSocket 同步服务端实现。
- * <p>
- * 提供主题发布、客户端消息拉取等能力。
- * </p>
- *
- * @author CH
- * @since 2026-07-25
+* 基于 JDK Socket 的 WebSocket 同步服务端实现。
+* <p>
+* 提供主题发布、客户端消息拉取等能力。
+* </p>
+*
+* @author CH
+* @since 2026-07-25
  */
 @Spi("websocket")
 public class WebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
@@ -50,51 +50,51 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 服务器套接字
+    * 服务器套接字
      */
     private ServerSocket serverSocket;
 
     /**
-     * 线程池
+    * 线程池
      */
     private ExecutorService executor;
 
     /**
-     * 连接列表
+    * 连接列表
      */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
 
     /**
-     * 客户端注册表（sessionId -> metadata）
+    * 客户端注册表（sessionId -> metadata）
      */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
 
     /**
-     * 主题订阅表（topic -> set of sessionId）
+    * 主题订阅表（topic -> set of sessionId）
      */
     private final Map<String, Set<String>> subscriptions = new ConcurrentHashMap<>();
 
     /**
-     * 监听器列表
+    * 监听器列表
      */
     private final List<SyncServerListener> listeners = new ArrayList<>();
 
     /**
-     * 连接 ID 生成器
+    * 连接 ID 生成器
      */
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
-     * 创建 WebSocket 同步服务端 (默认配置)。
+    * 创建 WebSocket 同步服务端 (默认配置)。
      */
     public WebSocketSyncServer() {
         this(ServerSetting.defaults());
     }
 
     /**
-     * 创建 WebSocket 同步服务端。
-     *
-     * @param setting 服务端配置
+    * 创建 WebSocket 同步服务端。
+    *
+    * @param setting 服务端配置
      */
     public WebSocketSyncServer(ServerSetting setting) {
         super(setting);
@@ -206,7 +206,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     // ==================== 内部方法 ====================
 
     /**
-     * 接受连接循环
+    * 接受连接循环
      */
     private void acceptLoop() {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -228,7 +228,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 处理连接
+    * 处理连接
      */
     private void handleConnection(Connection conn) {
         try {
@@ -245,7 +245,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 执行 WebSocket 握手
+    * 执行 WebSocket 握手
      */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
@@ -284,7 +284,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 读取 WebSocket 帧
+    * 读取 WebSocket 帧
      */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
@@ -347,7 +347,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 计算 WebSocket 接受密钥
+    * 计算 WebSocket 接受密钥
      */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -357,10 +357,10 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 构建 WebSocket 文本帧
-     *
-     * <p>协议规定：仅客户端帧需掩码（masked），服务端帧必须无掩码——否则客户端按协议
-     * 校验会异常关闭连接（1006）。</p>
+    * 构建 WebSocket 文本帧
+    *
+    * <p>协议规定：仅客户端帧需掩码（masked），服务端帧必须无掩码——否则客户端按协议
+    * 校验会异常关闭连接（1006）。</p>
      */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
@@ -383,7 +383,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 关闭连接
+    * 关闭连接
      */
     private void closeConnection(Connection conn) {
         try {
@@ -399,7 +399,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-     * 通知监听器
+    * 通知监听器
      */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
@@ -414,7 +414,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     // ==================== 内部类 ====================
 
     /**
-     * WebSocket 连接
+    * WebSocket 连接
      */
     private static class Connection {
         Socket socket;

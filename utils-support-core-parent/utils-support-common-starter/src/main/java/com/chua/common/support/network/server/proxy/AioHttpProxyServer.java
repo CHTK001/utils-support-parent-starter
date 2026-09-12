@@ -19,11 +19,11 @@ import java.util.ArrayDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * AIO 正向 HTTP 代理 —— 纯非阻塞响应式实现(Proactor/IOCP)。
- * 支持 CONNECT 隧道、绝对 URI 转发、Content-Length 体、Keep-Alive 循环。
- * 限制:v1 不支持 chunked 体。
- * @author CH
- * @since 2026/08/24
+* AIO 正向 HTTP 代理 —— 纯非阻塞响应式实现(Proactor/IOCP)。
+* 支持 CONNECT 隧道、绝对 URI 转发、Content-Length 体、Keep-Alive 循环。
+* 限制:v1 不支持 chunked 体。
+* @author CH
+* @since 2026/08/24
  */
 @Slf4j
 @Spi({"aio-http-proxy"})
@@ -166,7 +166,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 无限双向泵(隧道用):任一方向终止即关两端并触发一次 onClose。
+    * 无限双向泵(隧道用):任一方向终止即关两端并触发一次 onClose。
      */
     private final class Pump implements CompletionHandler<Integer, Void> {
 
@@ -190,7 +190,7 @@ public class AioHttpProxyServer extends AbstractServer {
         }
 
         /**
-         * 启动读取。
+        * 启动读取。
          */
         void start() {
             if (!running || !src.isOpen()) {
@@ -242,7 +242,7 @@ public class AioHttpProxyServer extends AbstractServer {
     // ==================== CONNECT 隧道 ====================
 
     /**
-     * CONNECT 隧道:异步连目标 → 回 200 → 双向异步泵。
+    * CONNECT 隧道:异步连目标 → 回 200 → 双向异步泵。
      */
     private void tunnel(ClientCtx ctx, RequestHead head) {
         connectAsync(new InetSocketAddress(head.host, head.port),
@@ -265,7 +265,7 @@ public class AioHttpProxyServer extends AbstractServer {
     // ==================== 普通请求转发 ====================
 
     /**
-     * 转发请求到后端。
+    * 转发请求到后端。
      */
     private void forward(ClientCtx ctx, RequestHead head, byte[] leftover) {
         connectAsync(new InetSocketAddress(head.host, head.port),
@@ -277,7 +277,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 发送改写后的请求头与体前缀。
+    * 发送改写后的请求头与体前缀。
      */
     private void sendRequest(ClientCtx ctx, AsynchronousSocketChannel backend,
 
@@ -335,7 +335,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 请求头已发:补齐剩余请求体后进入响应阶段。
+    * 请求头已发:补齐剩余请求体后进入响应阶段。
      */
     private void afterRequestHeadSent(ClientCtx ctx, AsynchronousSocketChannel backend) {
         if (ctx.reqBodyLeft > 0) {
@@ -349,7 +349,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 异步读后端响应头并中继响应体。
+    * 异步读后端响应头并中继响应体。
      */
     private void readBackendResponse(ClientCtx ctx, AsynchronousSocketChannel backend) {
         ResponseParser parser = new ResponseParser();
@@ -361,7 +361,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 循环解析直至响应头就绪。
+    * 循环解析直至响应头就绪。
      */
     private void pumpParse(AsynchronousSocketChannel ch, ByteBuffer buf,
                            ResponseParser parser, Runnable onDone,
@@ -392,7 +392,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 响应头就绪:回传头与体前缀,限量中继剩余体。
+    * 响应头就绪:回传头与体前缀,限量中继剩余体。
      */
     private void onResponseHead(ClientCtx ctx, AsynchronousSocketChannel backend,
                                 ResponseMeta meta, ByteBuffer leftoverBuf) {
@@ -420,7 +420,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 响应完成:keep-alive 则重置解析器继续下一请求。
+    * 响应完成:keep-alive 则重置解析器继续下一请求。
      */
     private void afterResponse(ClientCtx ctx, AsynchronousSocketChannel backend,
                                ResponseMeta meta) {
@@ -440,7 +440,7 @@ public class AioHttpProxyServer extends AbstractServer {
         return out;
     }
     /**
-     * 精确中继 N 字节(src→dst,纯异步回调链)。
+    * 精确中继 N 字节(src→dst,纯异步回调链)。
      */
     private final class LimitedRelay implements CompletionHandler<Integer, Void> {
 
@@ -460,14 +460,14 @@ public class AioHttpProxyServer extends AbstractServer {
         private long left;
 
         /**
-         * 创建限量中继。
-         *
-         * @param src    源
-         * @param dst    目标
-         * @param n      总字节数
-         * @param onDone 完成
-         * @param onEof  提前 EOF
-         * @param onError 异常
+        * 创建限量中继。
+        *
+        * @param src    源
+        * @param dst    目标
+        * @param n      总字节数
+        * @param onDone 完成
+        * @param onEof  提前 EOF
+        * @param onError 异常
          */
         LimitedRelay(AsynchronousSocketChannel src, AsynchronousSocketChannel dst,
                      long n, Runnable onDone, Runnable onEof,
@@ -481,7 +481,7 @@ public class AioHttpProxyServer extends AbstractServer {
         }
 
         /**
-         * 启动中继。
+        * 启动中继。
          */
         void start() {
             if (left <= 0 || !running) {
@@ -530,7 +530,7 @@ public class AioHttpProxyServer extends AbstractServer {
     // ==================== 客户端上下文与生命周期 ====================
 
     /**
-     * 单客户端连接上下文。
+    * 单客户端连接上下文。
      */
     private static final class ClientCtx {
 
@@ -557,7 +557,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 结束客户端连接(幂等):关通道并扣减计数。
+    * 结束客户端连接(幂等):关通道并扣减计数。
      */
     private void finishClient(ClientCtx ctx) {
         if (ctx.closed) {
@@ -570,7 +570,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 回错误并关闭。
+    * 回错误并关闭。
      */
     private void respondErrorAndClose(ClientCtx ctx, int code, String reason) {
         byte[] resp = ("HTTP/1.1 " + code + " " + reason
@@ -582,7 +582,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 异步建立后端连接。
+    * 异步建立后端连接。
      */
     private void connectAsync(InetSocketAddress addr,
                               java.util.function.Consumer<AsynchronousSocketChannel> onDone,
@@ -610,7 +610,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 异步写尽整个缓冲。
+    * 异步写尽整个缓冲。
      */
     private void writeAll(AsynchronousSocketChannel ch, ByteBuffer src,
                           Runnable onDone, java.util.function.Consumer<Throwable> onError) {
@@ -632,7 +632,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 静默关闭通道。
+    * 静默关闭通道。
      */
     private static void closeQuietly(AsynchronousSocketChannel ch) {
         if (ch != null) {
@@ -646,7 +646,7 @@ public class AioHttpProxyServer extends AbstractServer {
     // ==================== 增量头解析器 ====================
 
     /**
-     * HTTP 头增量解析器(peek 式消费,头后剩余字节保留在缓冲中作为体前缀)。
+    * HTTP 头增量解析器(peek 式消费,头后剩余字节保留在缓冲中作为体前缀)。
      */
     static final class HeadParser {
 
@@ -664,10 +664,10 @@ public class AioHttpProxyServer extends AbstractServer {
         private RequestHead head;
 
         /**
-         * 喂入一段字节。
-         *
-         * @param in 输入缓冲
-         * @return 结果;DONE 后缓冲剩余即体前缀
+        * 喂入一段字节。
+        *
+        * @param in 输入缓冲
+        * @return 结果;DONE 后缓冲剩余即体前缀
          */
         Result feed(ByteBuffer in) {
             while (in.hasRemaining()) {
@@ -686,16 +686,16 @@ public class AioHttpProxyServer extends AbstractServer {
         }
 
         /**
-         * 获取解析出的头。
-         *
-         * @return 头信息
+        * 获取解析出的头。
+        *
+        * @return 头信息
          */
         RequestHead head() {
             return head;
         }
 
         /**
-         * 重置以复用于同连接下一请求。
+        * 重置以复用于同连接下一请求。
          */
         void reset() {
             acc.reset();
@@ -769,7 +769,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 请求头信息。
+    * 请求头信息。
      */
     static final class RequestHead {
         /** 方法 */
@@ -803,7 +803,7 @@ public class AioHttpProxyServer extends AbstractServer {
         }
 
         /**
-         * 绝对 URI → 源形式路径。
+        * 绝对 URI → 源形式路径。
          */
         String extractOriginForm() {
             if (target.startsWith("http://") || target.startsWith("https://")) {
@@ -817,7 +817,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 响应头增量解析器(结构同 HeadParser,提取 CL/Connection)。
+    * 响应头增量解析器(结构同 HeadParser,提取 CL/Connection)。
      */
     static final class ResponseParser {
 
@@ -825,10 +825,10 @@ public class AioHttpProxyServer extends AbstractServer {
         private ResponseMeta meta;
 
         /**
-         * 喂入后端响应字节。
-         *
-         * @param in 缓冲
-         * @return 结果
+        * 喂入后端响应字节。
+        *
+        * @param in 缓冲
+        * @return 结果
          */
         HeadParser.Result feed(ByteBuffer in) {
             while (in.hasRemaining()) {
@@ -846,9 +846,9 @@ public class AioHttpProxyServer extends AbstractServer {
         }
 
         /**
-         * 获取响应元数据。
-         *
-         * @return 元数据
+        * 获取响应元数据。
+        *
+        * @return 元数据
          */
         ResponseMeta meta() {
             return meta;
@@ -885,7 +885,7 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 响应元数据。
+    * 响应元数据。
      */
     static final class ResponseMeta {
         /** 原始头(含结尾空行) */
@@ -932,9 +932,9 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 获取活跃连接数。
-     *
-     * @return 活跃连接数
+    * 获取活跃连接数。
+    *
+    * @return 活跃连接数
      */
     public int getActiveConnections() {
         return activeConnections.get();

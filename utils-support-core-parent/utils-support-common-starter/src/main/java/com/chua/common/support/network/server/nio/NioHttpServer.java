@@ -41,25 +41,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 基于 NIO {@link ServerSocketChannel} 的 HTTP/1.1 服务器实现。
- *
- * <p>替代 {@code com.sun.net.httpserver.HttpServer}，从根本上解决单 acceptor + 无法调优的限制。
- * 使用 ServerSocketChannel（阻塞模式）accept 连接，每个连接分配一个虚拟线程处理请求，
- * 支持 HTTP/1.1 Keep-Alive 连接复用。</p>
- *
- * <p>特性：
- * <ul>
- *   <li>Selector 无关 — 阻塞 accept + 虚拟线程阻塞 I/O，简洁高效</li>
- *   <li>完全可控的 backlog / SO_REUSEADDR / TCP_NODELAY / bufferSize</li>
- *   <li>HTTP/1.1 Keep-Alive 连接复用</li>
- *   <li>SSE (Server-Sent Events) chunked transfer 流式推送</li>
- *   <li>WebSocket 升级 — 请求头携带 {@code Upgrade: websocket} 时自动切换为帧协议，
- *       支持 {@code @OnMessage} 注解方法与 {@link #onSubscribe(String, ServerHandler)} 订阅</li>
- *   <li>SSL/TLS — 自签名证书一键生成（{@code selfSignedAuto}）或 KeyStore/PEM 加载</li>
- * </ul>
- *
- * @author CH
- * @since 2026/08/12
+* 基于 NIO {@link ServerSocketChannel} 的 HTTP/1.1 服务器实现。
+*
+* <p>替代 {@code com.sun.net.httpserver.HttpServer}，从根本上解决单 acceptor + 无法调优的限制。
+* 使用 ServerSocketChannel（阻塞模式）accept 连接，每个连接分配一个虚拟线程处理请求，
+* 支持 HTTP/1.1 Keep-Alive 连接复用。</p>
+*
+* <p>特性：
+* <ul>
+*   <li>Selector 无关 — 阻塞 accept + 虚拟线程阻塞 I/O，简洁高效</li>
+*   <li>完全可控的 backlog / SO_REUSEADDR / TCP_NODELAY / bufferSize</li>
+*   <li>HTTP/1.1 Keep-Alive 连接复用</li>
+*   <li>SSE (Server-Sent Events) chunked transfer 流式推送</li>
+*   <li>WebSocket 升级 — 请求头携带 {@code Upgrade: websocket} 时自动切换为帧协议，
+*       支持 {@code @OnMessage} 注解方法与 {@link #onSubscribe(String, ServerHandler)} 订阅</li>
+*   <li>SSL/TLS — 自签名证书一键生成（{@code selfSignedAuto}）或 KeyStore/PEM 加载</li>
+* </ul>
+*
+* @author CH
+* @since 2026/08/12
  */
 @Slf4j
 @Spi({"nio", "nio-http"})
@@ -74,7 +74,7 @@ public class NioHttpServer extends AbstractServer {
     /** 每分片对应的"写完成待恢复 OP_READ"队列:worker 直写排空后入队,事件循环统一恢复 OP_READ */
     private java.util.Queue<SelectionKey>[] rearmReadQueues;
     /** 每分片对应的待注册连接队列:accept 线程只入队,由目标分片事件循环线程自行 register,
-     *  消除跨线程 register 与 select() 之间的竞态(8 分片下跨线程注册占比高时会出现请求超时) */
+    *  消除跨线程 register 与 select() 之间的竞态(8 分片下跨线程注册占比高时会出现请求超时) */
     /** Pendingacceptqueues */
     private java.util.Queue<SocketChannel>[] pendingAcceptQueues;
     /** 执行器 */
@@ -85,18 +85,18 @@ public class NioHttpServer extends AbstractServer {
     private SSLContext sslContext;
 
     /**
-     * WebSocket 主题处理器映射（topic -> handlers）。
+    * WebSocket 主题处理器映射（topic -> handlers）。
      */
     private final Map<String, List<ServerHandler>> wsTopicHandlers = new ConcurrentHashMap<>();
 
     /**
-     * 当前活跃的 WebSocket 连接。
+    * 当前活跃的 WebSocket 连接。
      */
     private final List<WsConnection> wsConnections = new CopyOnWriteArrayList<>();
 
     /**
-     * 创建 NioHttpServer 实例
-     * @param setting setting
+    * 创建 NioHttpServer 实例
+    * @param setting setting
      */
     public NioHttpServer(ServerSetting setting) {
         super(setting);
@@ -210,8 +210,8 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 事件循环(分片版):每分片一个 Selector + 线程,处理该分片连接的 OP_READ/OP_WRITE。
-     * 分片 0 额外承载 OP_ACCEPT。连接不占线程;完整请求解析后提交虚拟线程 worker 池执行 handler 链。
+    * 事件循环(分片版):每分片一个 Selector + 线程,处理该分片连接的 OP_READ/OP_WRITE。
+    * 分片 0 额外承载 OP_ACCEPT。连接不占线程;完整请求解析后提交虚拟线程 worker 池执行 handler 链。
      */
     private void eventLoop(int idx) {
         Selector sel = selectors[idx];
@@ -402,10 +402,10 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 内联快速路径:事件循环线程直接执行 handler 链并同步写出。
-     * <p>仅适用于非阻塞 handler(setting.inlineDispatch=true 且非 SSL/WS)。
-     * 若单次 write 未写完(对端背压),剩余字节追加 pendingWrite 队列,
-     * 由事件循环按既有 OP_WRITE 路径续写,不丢失数据。</p>
+    * 内联快速路径:事件循环线程直接执行 handler 链并同步写出。
+    * <p>仅适用于非阻塞 handler(setting.inlineDispatch=true 且非 SSL/WS)。
+    * 若单次 write 未写完(对端背压),剩余字节追加 pendingWrite 队列,
+    * 由事件循环按既有 OP_WRITE 路径续写,不丢失数据。</p>
      */
     private void processRequestInline(ConnectionState st, SelectionKey key) {
         try {
@@ -450,11 +450,11 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 内联路径写出完成收尾：Keep-Alive 恢复 OP_READ 继续读，否则关闭连接。
-     * <p>对照 {@link #handleWrite} 写完后的收尾语义。</p>
-     *
-     * @param st  连接状态
-     * @param key 选择键
+    * 内联路径写出完成收尾：Keep-Alive 恢复 OP_READ 继续读，否则关闭连接。
+    * <p>对照 {@link #handleWrite} 写完后的收尾语义。</p>
+    *
+    * @param st  连接状态
+    * @param key 选择键
      */
     private void finishAfterWrite(ConnectionState st, SelectionKey key) {
         if (st.keepAlive && running) {
@@ -492,7 +492,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * worker(虚拟线程)执行 handler 链,响应通过 asyncWriter 交给事件循环 OP_WRITE 写出。
+    * worker(虚拟线程)执行 handler 链,响应通过 asyncWriter 交给事件循环 OP_WRITE 写出。
      */
     private void processRequest(ConnectionState st, SelectionKey key) {
         try {
@@ -547,11 +547,11 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * worker(虚拟线程)执行 handler 链后,由 worker 线程直接同步写出(直写路径)。
-     * <p>对比 {@link #processRequest}:直写让 socket 写调用在 12 核虚拟线程上并行执行,
-     * 而非全部串行在 2 个事件循环线程上(Windows 上限),显著提升多核吞吐。</p>
-     * <p>线程安全:与事件循环 {@link #handleWrite} 共用 st.writeQueue 同一把锁排空,
-     * worker 只操作 writeQueue + rearmReadQueues(仅入队),interestOps 仍只由事件循环修改。</p>
+    * worker(虚拟线程)执行 handler 链后,由 worker 线程直接同步写出(直写路径)。
+    * <p>对比 {@link #processRequest}:直写让 socket 写调用在 12 核虚拟线程上并行执行,
+    * 而非全部串行在 2 个事件循环线程上(Windows 上限),显著提升多核吞吐。</p>
+    * <p>线程安全:与事件循环 {@link #handleWrite} 共用 st.writeQueue 同一把锁排空,
+    * worker 只操作 writeQueue + rearmReadQueues(仅入队),interestOps 仍只由事件循环修改。</p>
      */
     private void processRequestDirectWrite(ConnectionState st, SelectionKey key) {
         try {
@@ -605,13 +605,13 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 排空 writeQueue 至写满或清空。
-     * <p>必须在持有 st.writeQueue 锁的情况下调用(与事件循环 handleWrite 互斥)。
-     * 返回 true 表示已全部写出,false 表示 socket 缓冲已满仍有剩余(需 OP_WRITE 续写)。</p>
-     *
-     * @param st  连接状态
-     * @param key 选择键
-     * @return true 全部写完,false 未写完
+    * 排空 writeQueue 至写满或清空。
+    * <p>必须在持有 st.writeQueue 锁的情况下调用(与事件循环 handleWrite 互斥)。
+    * 返回 true 表示已全部写出,false 表示 socket 缓冲已满仍有剩余(需 OP_WRITE 续写)。</p>
+    *
+    * @param st  连接状态
+    * @param key 选择键
+    * @return true 全部写完,false 未写完
      */
     private boolean drainWriteQueue(ConnectionState st, SelectionKey key) {
         while (true) {
@@ -702,8 +702,8 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
-     * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
+    * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
+    * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
      */
     private void handleConnection(SocketChannel channel) {
         try {
@@ -763,7 +763,7 @@ public class NioHttpServer extends AbstractServer {
     // ==================== WebSocket 支持 ====================
 
     /**
-     * 处理 WebSocket 升级：握手后进入帧循环，按主题分发消息。
+    * 处理 WebSocket 升级：握手后进入帧循环，按主题分发消息。
      */
     private void handleWebSocketUpgrade(SocketChannel channel, NioServerRequest request) {
         OutputStream out = null;
@@ -819,7 +819,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 按主题分发 WebSocket 消息（{@code topic\nbody} 约定，与 JdkWebSocketServer 一致）。
+    * 按主题分发 WebSocket 消息（{@code topic\nbody} 约定，与 JdkWebSocketServer 一致）。
      */
     private void dispatchWsMessage(WebSocketProtocol.Frame frame, WsConnection conn) {
         String text = new String(frame.payload(), StandardCharsets.UTF_8);
@@ -854,11 +854,11 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 订阅指定主题的 WebSocket 消息。
-     *
-     * @param topic   主题
-     * @param handler 消息处理器
-     * @return 当前服务器实例
+    * 订阅指定主题的 WebSocket 消息。
+    *
+    * @param topic   主题
+    * @param handler 消息处理器
+    * @return 当前服务器实例
      */
     public NioHttpServer onSubscribe(String topic, ServerHandler handler) {
         wsTopicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
@@ -866,10 +866,10 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 向指定主题广播消息。
-     *
-     * @param topic   主题
-     * @param payload 消息内容
+    * 向指定主题广播消息。
+    *
+    * @param topic   主题
+    * @param payload 消息内容
      */
     public void publish(String topic, String payload) {
         String message = topic + "\n" + payload;
@@ -903,7 +903,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 构建基于 {@code @OnMessage} 注解方法的处理器。
+    * 构建基于 {@code @OnMessage} 注解方法的处理器。
      */
     private ServerHandler createWsMessageHandler(Object bean, Method method) {
         return (request, response) -> {
@@ -940,7 +940,7 @@ public class NioHttpServer extends AbstractServer {
     // ==================== WebSocket 内部类 ====================
 
     /**
-     * WebSocket 连接封装，负责向对端发送帧。
+    * WebSocket 连接封装，负责向对端发送帧。
      */
     private static final class WsConnection {
         /** OUT */
@@ -951,14 +951,14 @@ public class NioHttpServer extends AbstractServer {
         }
 
         /**
-         * 发送文本消息。
+        * 发送文本消息。
          */
         void send(String text) {
             sendRaw(WebSocketProtocol.textFrame(text));
         }
 
         /**
-         * 发送原始帧数据。
+        * 发送原始帧数据。
          */
         void sendRaw(byte[] frame) {
             try {
@@ -972,7 +972,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * WebSocket 消息请求（与 JdkWebSocketServer.SimpleServerRequest 行为一致）。
+    * WebSocket 消息请求（与 JdkWebSocketServer.SimpleServerRequest 行为一致）。
      */
     private static final class WsServerRequest implements ServerRequest {
         /** Topic */
@@ -1007,7 +1007,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
+    * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
      */
     private static final class WsServerResponse implements ServerResponse {
         /** Connection */
@@ -1066,7 +1066,7 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-     * 判断是否保持连接
+    * 判断是否保持连接
      */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
         if (response.isChannelClosed()) {

@@ -10,20 +10,20 @@ import java.net.Socket;
 import java.util.*;
 
 /**
- * 软件栈检测工具 — 通过调用栈分析识别第三方库。
- *
- * <p>核心原理：从当前线程调用栈中自顶向下扫描，跳过 JDK/Agent 框架内部调用，
- * 通过包名前缀匹配识别发起连接的第三方客户端库。</p>
- *
- * <p>不依赖编译期类加载，零版本绑定，覆盖市面上主流中间件客户端。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 软件栈检测工具 — 通过调用栈分析识别第三方库。
+*
+* <p>核心原理：从当前线程调用栈中自顶向下扫描，跳过 JDK/Agent 框架内部调用，
+* 通过包名前缀匹配识别发起连接的第三方客户端库。</p>
+*
+* <p>不依赖编译期类加载，零版本绑定，覆盖市面上主流中间件客户端。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class SoftwareDetector {
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(SoftwareDetector.class.getName());
     /** 创建 softwaredetector 实例 */
@@ -31,7 +31,7 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 包名前缀 → 软件栈映射（匹配顺序：前缀短的优先）。
+    * 包名前缀 → 软件栈映射（匹配顺序：前缀短的优先）。
      */
     private static final Map<String, Software> SOFTWARE_PATTERNS = new LinkedHashMap<>() {{
         // Redis
@@ -310,7 +310,7 @@ public final class SoftwareDetector {
     }};
 
     /**
-      * 需跳过的包名前缀（JDK + 本 智能体 框架自身）。
+    * 需跳过的包名前缀（JDK + 本 智能体 框架自身）。
      */
     private static final List<String> SKIP_PREFIXES = Arrays.asList(
             "java.", "javax.", "jdk.", "sun.", "com.sun.", "com.oracle.",
@@ -324,17 +324,17 @@ public final class SoftwareDetector {
     );
 
     /**
-      * 栈帧跳过深度 — 跳过当前方法 + ASM 注入字节码 + runtimespy.onintercept + JDK 内部。
+    * 栈帧跳过深度 — 跳过当前方法 + ASM 注入字节码 + runtimespy.onintercept + JDK 内部。
      */
     private static final int SKIP_FRAMES = 5;
 
     /**
-     * 从当前线程调用栈分析发起连接的软件栈。
-     *
-     * <p>跳过 SKIP_FRAMES 层栈帧后，逐帧检查类名是否匹配已知三方库前缀，
-     * 首个命中即返回。</p>
-     *
-     * @return 识别到的软件栈，无命中返回 UNKNOWN
+    * 从当前线程调用栈分析发起连接的软件栈。
+    *
+    * <p>跳过 SKIP_FRAMES 层栈帧后，逐帧检查类名是否匹配已知三方库前缀，
+    * 首个命中即返回。</p>
+    *
+    * @return 识别到的软件栈，无命中返回 UNKNOWN
      */
     public static Software detectSoftwareFromStack() {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
@@ -357,12 +357,12 @@ public final class SoftwareDetector {
     }
 
     /**
-      * 从 套接字 实例的远程地址推断协议（通过端口号）。
-     *
-     * <p>使用反射避免编译时依赖，调用方负责捕获 NoSuchMethodException。</p>
-     *
-     * @param socket 套接字 实例
-     * @return 推断的协议，获取失败返回 UNKNOWN
+    * 从 套接字 实例的远程地址推断协议（通过端口号）。
+    *
+    * <p>使用反射避免编译时依赖，调用方负责捕获 NoSuchMethodException。</p>
+    *
+    * @param socket 套接字 实例
+    * @return 推断的协议，获取失败返回 UNKNOWN
      */
     public static Protocol inferProtocolFromSocket(Socket socket) {
         try {
@@ -377,10 +377,10 @@ public final class SoftwareDetector {
     }
 
     /**
-      * 从 inet套接字地址 实例推断协议（通过端口号）。
-     *
-     * @param addr inet套接字地址 实例
-     * @return 推断的协议
+    * 从 inet套接字地址 实例推断协议（通过端口号）。
+    *
+    * @param addr inet套接字地址 实例
+    * @return 推断的协议
      */
     public static Protocol inferProtocolFromAddress(InetSocketAddress addr) {
         if (addr == null) {
@@ -390,12 +390,12 @@ public final class SoftwareDetector {
     }
 
     /**
-      * 从 套接字 实例提取目标 端点 信息（用于依赖图）。
-     *
-     * <p>反射调用 Socket.getRemoteSocketAddress() + Socket.getLocalSocketAddress()。</p>
-     *
-     * @param socket 套接字 实例
-     * @return Endpoint 描述（主机:端口），获取失败返回 "?"
+    * 从 套接字 实例提取目标 端点 信息（用于依赖图）。
+    *
+    * <p>反射调用 Socket.getRemoteSocketAddress() + Socket.getLocalSocketAddress()。</p>
+    *
+    * @param socket 套接字 实例
+    * @return Endpoint 描述（主机:端口），获取失败返回 "?"
      */
     public static String extractSocketTarget(Socket socket) {
         try {
@@ -410,10 +410,10 @@ public final class SoftwareDetector {
     }
 
     /**
-      * 从 httpurlconnection 提取目标 URL。
-     *
-     * @param conn httpurlconnection 实例
-     * @return URL 字符串，获取失败返回 "?"
+    * 从 httpurlconnection 提取目标 URL。
+    *
+    * @param conn httpurlconnection 实例
+    * @return URL 字符串，获取失败返回 "?"
      */
     public static String extractHttpUrl(Object conn) {
         try {
@@ -425,10 +425,10 @@ public final class SoftwareDetector {
     }
 
     /**
-      * 从 httpurlconnection 提取 HTTP 方法。
-     *
-     * @param conn httpurlconnection 实例
-     * @return HTTP 方法，获取失败返回 "获取"
+    * 从 httpurlconnection 提取 HTTP 方法。
+    *
+    * @param conn httpurlconnection 实例
+    * @return HTTP 方法，获取失败返回 "获取"
      */
     public static String extractHttpMethod(Object conn) {
         try {
@@ -439,10 +439,10 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 判断类名是否应跳过（JDK / 本框架 / 通用库）。
-     *
-     * @param className 全限定类名
-     * @return 应跳过返回 true
+    * 判断类名是否应跳过（JDK / 本框架 / 通用库）。
+    *
+    * @param className 全限定类名
+    * @return 应跳过返回 true
      */
     private static boolean shouldSkip(String className) {
         for (String prefix : SKIP_PREFIXES) {
@@ -454,10 +454,10 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 通过包名前缀匹配软件栈。
-     *
-     * @param className 全限定类名
-     * @return 匹配到的软件栈，无匹配返回 空
+    * 通过包名前缀匹配软件栈。
+    *
+    * @param className 全限定类名
+    * @return 匹配到的软件栈，无匹配返回 空
      */
     private static Software matchSoftware(String className) {
         for (Map.Entry<String, Software> entry : SOFTWARE_PATTERNS.entrySet()) {

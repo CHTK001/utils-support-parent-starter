@@ -16,21 +16,21 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 /**
- * 英文离线 Zipformer ASR 标准客户端。
- *
- * <p>整句一次性解码，无流式分块的边界重复问题；仅支持英文。
- *
- * <pre>{@code
- * VirtualClient client = VirtualClient.create("zipformer-en", "zipformer-en");
- * String text = client.audio(Path.of("en.wav")).transcribe();
- * }</pre>n.wav")).transcribe();
- * }</pre>
- *
- * <p>模型（int8 约 66MB）首次使用自动从 hf-mirror 下载，
- * 可用系统属性 {@code speech.loop.zipformer-en.dir} 指定已有目录。
- *
- * @author chua
- * @since 4.0.0.42
+* 英文离线 Zipformer ASR 标准客户端。
+*
+* <p>整句一次性解码，无流式分块的边界重复问题；仅支持英文。
+*
+* <pre>{@code
+* VirtualClient client = VirtualClient.create("zipformer-en", "zipformer-en");
+* String text = client.audio(Path.of("en.wav")).transcribe();
+* }</pre>n.wav")).transcribe();
+* }</pre>
+*
+* <p>模型（int8 约 66MB）首次使用自动从 hf-mirror 下载，
+* 可用系统属性 {@code speech.loop.zipformer-en.dir} 指定已有目录。
+*
+* @author chua
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"zipformer-en", "zipformer-en-offline"})
@@ -51,10 +51,10 @@ public class ZipformerEnAudioClient implements VirtualClient {
     private boolean prepared; // prepared
 
     /**
-     * 构造客户端。
-     *
-     * @param setting 配置
-     * @return 缓存根的结果
+    * 构造客户端。
+    *
+    * @param setting 配置
+    * @return 缓存根的结果
      /**
       * zipformeren音频客户端。
       * @param setting setting
@@ -65,9 +65,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
      */
     public ZipformerEnAudioClient(AudioClientSetting setting) {
         /**
-         * 模型。
-         * @param model 模型
-         * @return 模型的结果
+        * 模型。
+        * @param model 模型
+        * @return 模型的结果
          */
         this.setting = setting;
     }
@@ -75,9 +75,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     @Override
     public VirtualClient model(String model) {
         /**
-         * language。
-         * @param language language
-         * @return language的结果
+        * language。
+        * @param language language
+        * @return language的结果
          */
         return this;
     }
@@ -85,9 +85,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     @Override
     public VirtualClient language(String language) {
         /**
-         * 样本rate。
-         * @param sampleRate 样本rate
-         * @return 样本rate的结果
+        * 样本rate。
+        * @param sampleRate 样本rate
+        * @return 样本rate的结果
          */
         return this;
     }
@@ -95,9 +95,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     @Override
     public VirtualClient sampleRate(Integer sampleRate) {
         /**
-         * 格式化。
-         * @param format 格式化
-         * @return 格式化的结果
+        * 格式化。
+        * @param format 格式化
+        * @return 格式化的结果
          */
         return this;
     }
@@ -105,9 +105,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     @Override
     public VirtualClient format(String format) {
         /**
-         * 提示符。
-         * @param prompt 提示符
-         * @return 提示符的结果
+        * 提示符。
+        * @param prompt 提示符
+        * @return 提示符的结果
          */
         return this;
     }
@@ -115,9 +115,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     @Override
     public VirtualClient prompt(String prompt) {
         /**
-         * temperature。
-         * @param temperature temperature
-         * @return temperature的结果
+        * temperature。
+        * @param temperature temperature
+        * @return temperature的结果
          */
         return this;
     }
@@ -125,9 +125,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     @Override
     public VirtualClient temperature(Double temperature) {
         /**
-         * 参见。
-         * @param seed 参见
-         * @return 参见的结果
+        * 参见。
+        * @param seed 参见
+        * @return 参见的结果
          */
         return this;
     }
@@ -135,9 +135,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     @Override
     public VirtualClient seed(Long seed) {
         /**
-         * 音频。
-         * @param audio 音频
-         * @return 音频的结果
+        * 音频。
+        * @param audio 音频
+        * @return 音频的结果
          */
         return this;
     }
@@ -146,9 +146,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     public VirtualClient audio(byte[] audio) {
         setting.setAudio(audio);
         /**
-         * 音频。
-         * @param input 输入
-         * @return 音频的结果
+        * 音频。
+        * @param input 输入
+        * @return 音频的结果
          */
         return this;
     }
@@ -157,9 +157,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     public VirtualClient audio(InputStream input) {
         setting.setAudioInput(input);
         /**
-         * 音频。
-         * @param path 路径
-         * @return 音频的结果
+        * 音频。
+        * @param path 路径
+        * @return 音频的结果
          */
         return this;
     }
@@ -168,9 +168,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     public VirtualClient audio(Path path) {
         setting.setAudioPath(path);
         /**
-         * transcribe。
-         * @param path 路径
-         * @return transcribe的结果
+        * transcribe。
+        * @param path 路径
+        * @return transcribe的结果
          */
         return this;
     }
@@ -193,9 +193,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     public String createTask(Path path) {
         return "zipformer-en-" + UUID.randomUUID();
     /**
-     * 查询任务。
-     * @param taskId 任务标识
-     * @return 查询任务的结果
+    * 查询任务。
+    * @param taskId 任务标识
+    * @return 查询任务的结果
      */
     }
 
@@ -216,10 +216,10 @@ public class ZipformerEnAudioClient implements VirtualClient {
                     .errorMessage(e.getMessage())
                     .build();
         /**
-          * ensureprepared。
-         * @return 缓存根的结果
-         * @param dir dir
-         * @param name 名称
+        * ensureprepared。
+        * @return 缓存根的结果
+        * @param dir dir
+        * @param name 名称
          */
         }
     }

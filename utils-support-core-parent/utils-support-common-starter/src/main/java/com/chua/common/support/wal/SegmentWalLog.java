@@ -23,130 +23,130 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 分片 WAL 实现，支持按大小/记录数自动滚动分片、checkpoint 管理、范围回放。
- *
- * <h2>目录布局</h2>
- * <pre>
- * ${walDir}/
- * ├── segments/
- * │   ├── ${namespace}-000001.wal
- * │   ├── ${namespace}-000002.wal
- * │   └── ${namespace}-000003.wal   ← 当前活跃分片
- * └── checkpoint.meta                ← checkpoint 元信息
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 分片 WAL 实现，支持按大小/记录数自动滚动分片、checkpoint 管理、范围回放。
+*
+* <h2>目录布局</h2>
+* <pre>
+* ${walDir}/
+* ├── segments/
+* │   ├── ${namespace}-000001.wal
+* │   ├── ${namespace}-000002.wal
+* │   └── ${namespace}-000003.wal   ← 当前活跃分片
+* └── checkpoint.meta                ← checkpoint 元信息
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SegmentWalLog implements WalLog {
 
     /**
-     * 分片目录名
+    * 分片目录名
      */
     private static final String SEGMENTS_DIR = "segments";
 
     /**
-     * 分片文件名格式
+    * 分片文件名格式
      */
     private static final String SEGMENT_NAME_FORMAT = "%s-%06d.wal";
 
     /**
-     * checkpoint 文件名
+    * checkpoint 文件名
      */
     private static final String CHECKPOINT_FILE_NAME = "checkpoint.meta";
 
     /**
-     * checkpoint 文件魔数
+    * checkpoint 文件魔数
      */
     private static final byte[] CHECKPOINT_MAGIC = new byte[]{'C', 'K', 'P', 'T'};
 
     /**
-     * checkpoint 元信息固定大小
+    * checkpoint 元信息固定大小
      */
     private static final int CHECKPOINT_META_SIZE = 4 + 8 + 4 + 8 + 8;
 
     /**
-     * 分片目录
+    * 分片目录
      */
     private final Path segmentsDir;
 
     /**
-     * checkpoint 文件路径
+    * checkpoint 文件路径
      */
     private final Path checkpointFile;
 
     /**
-     * 配置
+    * 配置
      */
     private final WalConfig config;
 
     /**
-     * 命名空间（用于分片文件名前缀）
+    * 命名空间（用于分片文件名前缀）
      */
     private final String namespace;
 
     /**
-     * 当前活跃分片序号
+    * 当前活跃分片序号
      */
     private int activeSegmentNo;
 
     /**
-      * 当前活跃分片 随机access文件
+    * 当前活跃分片 随机access文件
      */
     private RandomAccessFile activeRaf;
 
     /**
-      * 当前活跃分片 文件通道
+    * 当前活跃分片 文件通道
      */
     private FileChannel activeChannel;
 
     /**
-     * 当前活跃分片输出流
+    * 当前活跃分片输出流
      */
     private DataOutputStream activeOut;
 
     /**
-     * 当前活跃分片已写入字节
+    * 当前活跃分片已写入字节
      */
     private long activeWrittenBytes;
 
     /**
-     * 当前活跃分片已写入记录数
+    * 当前活跃分片已写入记录数
      */
     private int activeRecordCount;
 
     /**
-     * 当前活跃分片首条 LSN
+    * 当前活跃分片首条 LSN
      */
     private long activeFirstLsn;
 
     /**
-     * 当前最大 LSN
+    * 当前最大 LSN
      */
     private long currentLsn;
 
     /**
-     * 当前 checkpoint LSN
+    * 当前 checkpoint LSN
      */
     private long checkpointLsn;
 
     /**
-     * 当前 checkpoint 段号
+    * 当前 checkpoint 段号
      */
     private int checkpointSegmentNo;
 
     /**
-     * 当前 checkpoint 段内偏移
+    * 当前 checkpoint 段内偏移
      */
     private long checkpointOffset;
 
     /**
-     * 自上次 fsync 起累计写入条数
+    * 自上次 fsync 起累计写入条数
      */
     private int pendingFsyncOps;
 
     /**
-     * 是否已关闭
+    * 是否已关闭
      */
     private boolean closed;
 
@@ -157,8 +157,8 @@ public class SegmentWalLog implements WalLog {
     private byte[] writeBuf;
 
     /**
-      * 创建 segmentwal日志 实例
-     * @param config 配置
+    * 创建 segmentwal日志 实例
+    * @param config 配置
      */
     public SegmentWalLog(WalConfig config) throws IOException {
         this.config = config;
@@ -194,9 +194,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 扫描Segments
-     *
-     * @return 扫描segments的结果
+    * 扫描Segments
+    *
+    * @return 扫描segments的结果
      */
     private List<WalSegmentInfo> scanSegments() {
         flushBuffered();
@@ -224,10 +224,10 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 扫描单个segment
-     *
-     * @param path 路径
-     * @return 扫描单个segment的结果
+    * 扫描单个segment
+    *
+    * @param path 路径
+    * @return 扫描单个segment的结果
      */
     private WalSegmentInfo scanSingleSegment(Path path) {
         String name = path.getFileName().toString();
@@ -271,9 +271,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 打开活跃segmentwriter
-     *
-     * @param segNo segno
+    * 打开活跃segmentwriter
+    *
+    * @param segNo segno
      */
     private void openActiveSegmentWriter(int segNo) throws IOException {
         Path p = segmentPath(segNo);
@@ -290,10 +290,10 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * segment路径
-     *
-     * @param segNo segno
-     * @return segment路径的结果
+    * segment路径
+    *
+    * @param segNo segno
+    * @return segment路径的结果
      */
     private Path segmentPath(int segNo) {
         String name = String.format(SEGMENT_NAME_FORMAT, namespace, segNo);
@@ -325,10 +325,10 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * needsroll
-     *
-     * @param incomingBytes 收入bytes
-     * @return needsRoll的结果
+    * needsroll
+    *
+    * @param incomingBytes 收入bytes
+    * @return needsRoll的结果
      */
     private boolean needsRoll(int incomingBytes) {
         if (activeWrittenBytes + incomingBytes > config.maxSegmentBytes()) {
@@ -394,11 +394,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 将缓冲中的写入数据冲刷到文件，保证后续读路径可见。
-     *
-     * <p>当 {@code syncOnWrite=false} 时写入先进入 {@link BufferedOutputStream}，
-      * 若读路径（replay/列表segments/findbylsn）直接打开新文件流，会读不到仍未落盘的记录。
-     * 本方法在任何读操作前调用，确保写后读一致性（flush 到文件即可见，无需每次 fsync）。</p>
+    * 将缓冲中的写入数据冲刷到文件，保证后续读路径可见。
+    *
+    * <p>当 {@code syncOnWrite=false} 时写入先进入 {@link BufferedOutputStream}，
+    * 若读路径（replay/列表segments/findbylsn）直接打开新文件流，会读不到仍未落盘的记录。
+    * 本方法在任何读操作前调用，确保写后读一致性（flush 到文件即可见，无需每次 fsync）。</p>
      */
     private void flushBuffered() {
         if (activeOut != null) {
@@ -437,9 +437,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 读取checkpoint从disk
-     *
-     * @return 读取checkpoint从disk的结果
+    * 读取checkpoint从disk
+    *
+    * @return 读取checkpoint从disk的结果
      */
     private CheckpointMeta readCheckpointFromDisk() throws IOException {
         if (!Files.exists(checkpointFile)) {
@@ -471,9 +471,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 写入checkpoint转为disk
-     *
-     * @param meta meta
+    * 写入checkpoint转为disk
+    *
+    * @param meta meta
      */
     private void writeCheckpointToDisk(CheckpointMeta meta) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(CHECKPOINT_META_SIZE);
@@ -574,12 +574,12 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-      * replaysegmentinto
-     * @param seg seg
-     * @param fromLsn 从lsn
-     * @param toLsn 转为lsn
-     * @param handler 处理器
-     * @param records records
+    * replaysegmentinto
+    * @param seg seg
+    * @param fromLsn 从lsn
+    * @param toLsn 转为lsn
+    * @param handler 处理器
+    * @param records records
      */
     private void replaySegmentInto(WalSegmentInfo seg, long fromLsn, long toLsn,
                                    WalReplayHandler handler,
@@ -668,11 +668,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 查找入segment
-     *
-     * @param seg seg
-     * @param lsn lsn
-     * @return find入segment的结果
+    * 查找入segment
+    *
+    * @param seg seg
+    * @param lsn lsn
+    * @return find入segment的结果
      */
     private Optional<WalRecord> findInSegment(WalSegmentInfo seg, long lsn) throws IOException {
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(
@@ -786,12 +786,12 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 构建主体
-     *
-     * @param lsn lsn
-     * @param op op
-     * @param payload payload
-     * @return 构建主体的结果
+    * 构建主体
+    *
+    * @param lsn lsn
+    * @param op op
+    * @param payload payload
+    * @return 构建主体的结果
      */
     private byte[] buildBody(long lsn, byte op, byte[] payload) {
         crc.reset();
@@ -809,11 +809,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * Crc
-     *
-     * @param op op
-     * @param payload payload
-     * @return crc32的结果
+    * Crc
+    *
+    * @param op op
+    * @param payload payload
+    * @return crc32的结果
      */
     private long crc32(byte op, byte[] payload) {
         CRC32 crc = new CRC32();
@@ -823,11 +823,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 写入Int
-     *
-     * @param dst dst
-     * @param offset 偏移量
-     * @param value 值
+    * 写入Int
+    *
+    * @param dst dst
+    * @param offset 偏移量
+    * @param value 值
      */
     private static void writeInt(byte[] dst, int offset, int value) {
         dst[offset] = (byte) ((value >>> 24) & 0xFF);
@@ -837,11 +837,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 写入Long
-     *
-     * @param dst dst
-     * @param offset 偏移量
-     * @param value 值
+    * 写入Long
+    *
+    * @param dst dst
+    * @param offset 偏移量
+    * @param value 值
      */
     private static void writeLong(byte[] dst, int offset, long value) {
         dst[offset] = (byte) ((value >>> 56) & 0xFF);
@@ -855,11 +855,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 读取Int
-     *
-     * @param src src
-     * @param offset 偏移量
-     * @return 读取int的结果
+    * 读取Int
+    *
+    * @param src src
+    * @param offset 偏移量
+    * @return 读取int的结果
      */
     private static int readInt(byte[] src, int offset) {
         return ((src[offset] & 0xFF) << 24)
@@ -869,11 +869,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 读取Long
-     *
-     * @param src src
-     * @param offset 偏移量
-     * @return 读取long的结果
+    * 读取Long
+    *
+    * @param src src
+    * @param offset 偏移量
+    * @return 读取long的结果
      */
     private static long readLong(byte[] src, int offset) {
         return ((long) (src[offset] & 0xFF) << 56)
@@ -887,7 +887,7 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-     * 链式写入实现。
+    * 链式写入实现。
      */
     private static final class WalChainImpl implements WalChain {
 

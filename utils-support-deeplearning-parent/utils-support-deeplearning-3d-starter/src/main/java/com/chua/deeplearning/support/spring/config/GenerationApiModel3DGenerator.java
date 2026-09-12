@@ -14,10 +14,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 3D 生成自动配置
- *
- * @author CH
- * @since 4.0.0.42
+* 3D 生成自动配置
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Configuration
 @ConditionalOnClass({Model3DGenerator.class, ForgeStyleApiModel3DGenerator.class})
@@ -26,10 +26,10 @@ import org.springframework.context.annotation.Configuration;
 public class GenerationApiModel3DGenerator {
 
     /**
-     * 文生 3D 生成器
-     *
-     * @param config 3D 生成配置
-     * @return 文生 3D 生成器
+    * 文生 3D 生成器
+    *
+    * @param config 3D 生成配置
+    * @return 文生 3D 生成器
      */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "text-to-3d-enable", havingValue = "true", matchIfMissing = true)
@@ -38,10 +38,10 @@ public class GenerationApiModel3DGenerator {
     }
 
     /**
-     * 图生 3D 生成器
-     *
-     * @param config 3D 生成配置
-     * @return 图生 3D 生成器
+    * 图生 3D 生成器
+    *
+    * @param config 3D 生成配置
+    * @return 图生 3D 生成器
      */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "image-to-3d-enable", havingValue = "true", matchIfMissing = true)
@@ -50,10 +50,10 @@ public class GenerationApiModel3DGenerator {
     }
 
     /**
-     * 草图生 3D 生成器
-     *
-     * @param config 3D 生成配置
-     * @return 草图生 3D 生成器
+    * 草图生 3D 生成器
+    *
+    * @param config 3D 生成配置
+    * @return 草图生 3D 生成器
      */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "sketch-to-3d-enable", havingValue = "true", matchIfMissing = true)
@@ -62,10 +62,10 @@ public class GenerationApiModel3DGenerator {
     }
 
     /**
-     * 通用 3D 生成器
-     *
-     * @param config 3D 生成配置
-     * @return 通用 3D 生成器
+    * 通用 3D 生成器
+    *
+    * @param config 3D 生成配置
+    * @return 通用 3D 生成器
      */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "generator-enable", havingValue = "true", matchIfMissing = true)
@@ -74,10 +74,10 @@ public class GenerationApiModel3DGenerator {
     }
 
     /**
-     * 3D 模型风格化器
-     *
-     * @param config 3D 生成配置
-     * @return 3D 模型风格化器
+    * 3D 模型风格化器
+    *
+    * @param config 3D 生成配置
+    * @return 3D 模型风格化器
      */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "stylizer-enable", havingValue = "true", matchIfMissing = true)

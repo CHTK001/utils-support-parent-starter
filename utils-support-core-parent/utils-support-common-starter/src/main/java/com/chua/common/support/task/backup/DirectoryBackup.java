@@ -7,24 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 目录备份实现
- *
- * <p>备份指定目录的所有文件，支持增量备份（仅备份变更文件）。
- *
- * @author CH
- * @since 2026/07/16
+* 目录备份实现
+*
+* <p>备份指定目录的所有文件，支持增量备份（仅备份变更文件）。
+*
+* @author CH
+* @since 2026/07/16
  */
 public class DirectoryBackup implements BackupStrategy {
 
     /**
-     * 类型
+    * 类型
      */
     private static final String TYPE = "directory";
     /** 全量备份委托实现 */
     private final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
     /**
-      * 策略类型标识：目录。
+    * 策略类型标识：目录。
      */
     @Override
     public String type() {
@@ -32,7 +32,7 @@ public class DirectoryBackup implements BackupStrategy {
     }
 
     /**
-     * 执行全量备份，委托给 {@link DefaultDailyBackupStrategy}。
+    * 执行全量备份，委托给 {@link DefaultDailyBackupStrategy}。
      */
     @Override
     public BackupResult execute(BackupConfig config) {
@@ -40,7 +40,7 @@ public class DirectoryBackup implements BackupStrategy {
     }
 
     /**
-      * 执行增量备份：仅拷贝修改时间晚于 最后一个backup时间 的文件。
+    * 执行增量备份：仅拷贝修改时间晚于 最后一个backup时间 的文件。
      */
     @Override
     public BackupResult executeIncremental(BackupConfig config, long lastBackupTime) {
@@ -72,12 +72,12 @@ public class DirectoryBackup implements BackupStrategy {
     }
 
     /**
-     * 仅拷贝变更的文件
-     * @param source 源
-     * @param target Target
-     * @param config 配置
-     * @param since 自
-     * @return 副本改变文件的结果
+    * 仅拷贝变更的文件
+    * @param source 源
+    * @param target Target
+    * @param config 配置
+    * @param since 自
+    * @return 副本改变文件的结果
      */
     private List<Path> copyChangedFiles(Path source, Path target, BackupConfig config, long since) throws IOException {
         List<Path> changed = new ArrayList<>();

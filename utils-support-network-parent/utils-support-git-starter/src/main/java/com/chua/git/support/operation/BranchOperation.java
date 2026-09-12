@@ -13,46 +13,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 分支信息查询与操作。
- *
- * <p>对已打开的本地仓库，提供以下操作：</p>
- * <ul>
- *   <li>{@link #listAll()} — 所有分支（本地 + 远程）</li>
- *   <li>{@link #listLocal()} — 仅本地分支</li>
- *   <li>{@link #listRemote()} — 仅远程分支</li>
- *   <li>{@link #current()} — 当前 HEAD 指向的分支</li>
- *   <li>{@link #checkout(String)} — 切换分支</li>
- *   <li>{@link #checkoutCreate(String)} — 创建并切换新分支</li>
- *   <li>{@link #create(String, String)} — 创建分支（不切换）</li>
- *   <li>{@link #delete(String)} — 删除分支</li>
- *   <li>{@link #deleteForce(String)} — 强制删除分支</li>
- *   <li>{@link #remoteUrls()} — 已配置的远端 URL</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 分支信息查询与操作。
+*
+* <p>对已打开的本地仓库，提供以下操作：</p>
+* <ul>
+*   <li>{@link #listAll()} — 所有分支（本地 + 远程）</li>
+*   <li>{@link #listLocal()} — 仅本地分支</li>
+*   <li>{@link #listRemote()} — 仅远程分支</li>
+*   <li>{@link #current()} — 当前 HEAD 指向的分支</li>
+*   <li>{@link #checkout(String)} — 切换分支</li>
+*   <li>{@link #checkoutCreate(String)} — 创建并切换新分支</li>
+*   <li>{@link #create(String, String)} — 创建分支（不切换）</li>
+*   <li>{@link #delete(String)} — 删除分支</li>
+*   <li>{@link #deleteForce(String)} — 强制删除分支</li>
+*   <li>{@link #remoteUrls()} — 已配置的远端 URL</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class BranchOperation {
 
     /**
-      * 所属 git客户端。
+    * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
-     * 构建操作实例（仅框架内部调用）。
-     *
-     * @param client 所属 Git客户端
+    * 构建操作实例（仅框架内部调用）。
+    *
+    * @param client 所属 Git客户端
      */
     public BranchOperation(GitClient client) {
         this.client = client;
     }
 
     /**
-     * 列出所有分支（本地 + 远程）。
-     *
-     * @return 分支信息列表，可能为空列表
+    * 列出所有分支（本地 + 远程）。
+    *
+    * @return 分支信息列表，可能为空列表
      */
     public List<BranchInfo> listAll() {
         try {
@@ -69,9 +69,9 @@ public class BranchOperation {
     }
 
     /**
-     * 仅列出本地分支。
-     *
-     * @return 本地分支列表
+    * 仅列出本地分支。
+    *
+    * @return 本地分支列表
      */
     public List<BranchInfo> listLocal() {
         return listAll().stream()
@@ -80,9 +80,9 @@ public class BranchOperation {
     }
 
     /**
-     * 仅列出远程分支。
-     *
-     * @return 远程分支列表
+    * 仅列出远程分支。
+    *
+    * @return 远程分支列表
      */
     public List<BranchInfo> listRemote() {
         return listAll().stream()
@@ -91,10 +91,10 @@ public class BranchOperation {
     }
 
     /**
-     * 查询当前 HEAD 指向的分支。
-     *
-     * @return 当前分支信息
-     * @throws GitClientException 若仓库处于 detached HEAD 状态（无分支指向）
+    * 查询当前 HEAD 指向的分支。
+    *
+    * @return 当前分支信息
+    * @throws GitClientException 若仓库处于 detached HEAD 状态（无分支指向）
      */
     public BranchInfo current() {
         try {
@@ -115,10 +115,10 @@ public class BranchOperation {
     // ==================== 分支操作方法 ====================
 
     /**
-      * 切换到指定分支（Git checkout / Git switch）。
-     *
-     * @param branch 分支名称（如 "main"、"develop"）
-     * @return 当前操作实例
+    * 切换到指定分支（Git checkout / Git switch）。
+    *
+    * @param branch 分支名称（如 "main"、"develop"）
+    * @return 当前操作实例
      */
     public BranchOperation checkout(String branch) {
         try {
@@ -134,10 +134,10 @@ public class BranchOperation {
     }
 
     /**
-      * 创建并切换到新分支（Git checkout -b）。
-     *
-     * @param branch 新分支名称
-     * @return 当前操作实例
+    * 创建并切换到新分支（Git checkout -b）。
+    *
+    * @param branch 新分支名称
+    * @return 当前操作实例
      */
     public BranchOperation checkoutCreate(String branch) {
         try {
@@ -154,11 +154,11 @@ public class BranchOperation {
     }
 
     /**
-     * 基于指定起点创建新分支（不切换）。
-     *
-     * @param branch     新分支名称
-     * @param startPoint 起点引用（如 "main"、"v1.0"、提交 SHA）
-     * @return 当前操作实例
+    * 基于指定起点创建新分支（不切换）。
+    *
+    * @param branch     新分支名称
+    * @param startPoint 起点引用（如 "main"、"v1.0"、提交 SHA）
+    * @return 当前操作实例
      */
     public BranchOperation create(String branch, String startPoint) {
         try {
@@ -175,10 +175,10 @@ public class BranchOperation {
     }
 
     /**
-      * 删除本地分支（Git 分支 -d）。
-     *
-     * @param branch 分支名称
-     * @return 当前操作实例
+    * 删除本地分支（Git 分支 -d）。
+    *
+    * @param branch 分支名称
+    * @return 当前操作实例
      */
     public BranchOperation delete(String branch) {
         try {
@@ -194,10 +194,10 @@ public class BranchOperation {
     }
 
     /**
-      * 强制删除本地分支（Git 分支 -D），允许删除未合并分支。
-     *
-     * @param branch 分支名称
-     * @return 当前操作实例
+    * 强制删除本地分支（Git 分支 -D），允许删除未合并分支。
+    *
+    * @param branch 分支名称
+    * @return 当前操作实例
      */
     public BranchOperation deleteForce(String branch) {
         try {
@@ -214,11 +214,11 @@ public class BranchOperation {
     }
 
     /**
-     * 查询已配置的远程仓库 URL。
-     *
-     * <p>遍历 {@code .git/config} 中的 [remote] 段获取 url 值。</p>
-     *
-     * @return 远程 URL 列表，通常只有一条
+    * 查询已配置的远程仓库 URL。
+    *
+    * <p>遍历 {@code .git/config} 中的 [remote] 段获取 url 值。</p>
+    *
+    * @return 远程 URL 列表，通常只有一条
      */
     public List<String> remoteUrls() {
         try {

@@ -11,63 +11,63 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 /**
- * OCR 检测掩码连通域框查找。
- *
- * @author CH
- * @since 4.0.0.42
+* OCR 检测掩码连通域框查找。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class BoundFinderV2 {
 
     /**
-     * 四邻域 X 偏移。
+    * 四邻域 X 偏移。
      */
     private final int[] deltaX = {0, 1, -1, 0};
 
     /**
-     * 四邻域 Y 偏移。
+    * 四邻域 Y 偏移。
      */
     private final int[] deltaY = {1, 0, 0, -1};
 
     /**
-     * 连通域点集合。
+    * 连通域点集合。
      */
     private final List<List<Point>> pointsCollection;
 
     /**
-     * 掩码宽。
+    * 掩码宽。
      */
     private final int width;
 
     /**
-     * 掩码高。
+    * 掩码高。
      */
     private final int height;
 
     /**
-     * 最小框宽（像素阈值，相对归一化后反算）。
+    * 最小框宽（像素阈值，相对归一化后反算）。
      */
     private final float limitWidth;
 
     /**
-     * 最小框高。
+    * 最小框高。
      */
     private final float limitHeight;
 
     /**
-     * 基于布尔掩码构造。
-     *
-     * @param grid 2D 掩码
+    * 基于布尔掩码构造。
+    *
+    * @param grid 2D 掩码
      */
     public BoundFinderV2(boolean[][] grid) {
         this(grid, 5.0f, 1.1f);
     }
 
     /**
-     * 基于布尔掩码构造。
-     *
-     * @param grid         2D 掩码
-     * @param limitWidth   最小宽（像素）
-     * @param limitHeight  最小高（像素）
+    * 基于布尔掩码构造。
+    *
+    * @param grid         2D 掩码
+    * @param limitWidth   最小宽（像素）
+    * @param limitHeight  最小高（像素）
      */
     public BoundFinderV2(boolean[][] grid, float limitWidth, float limitHeight) {
         this.limitWidth = limitWidth;
@@ -86,9 +86,9 @@ public class BoundFinderV2 {
     }
 
     /**
-     * 计算矩形框列表（归一化坐标）。
-     *
-     * @return 边界框
+    * 计算矩形框列表（归一化坐标）。
+    *
+    * @return 边界框
      */
     public List<BoundingBox> getBoxes() {
         return pointsCollection.stream()
@@ -113,13 +113,13 @@ public class BoundFinderV2 {
     }
 
     /**
-     * Bfs
-     *
-     * @param grid grid
-     * @param x x
-     * @param y y
-     * @param visited visited
-     * @return bfs的结果
+    * Bfs
+    *
+    * @param grid grid
+    * @param x x
+    * @param y y
+    * @param visited visited
+    * @return bfs的结果
      */
     private List<Point> bfs(boolean[][] grid, int x, int y, boolean[][] visited) {
         Queue<Point> queue = new ArrayDeque<>();
@@ -143,13 +143,13 @@ public class BoundFinderV2 {
     }
 
     /**
-     * 是否Valid
-     *
-     * @param grid grid
-     * @param x x
-     * @param y y
-     * @param visited visited
-     * @return 是否valid的结果
+    * 是否Valid
+    *
+    * @param grid grid
+    * @param x x
+    * @param y y
+    * @param visited visited
+    * @return 是否valid的结果
      */
     private boolean isValid(boolean[][] grid, int x, int y, boolean[][] visited) {
         if (x < 0 || x >= width || y < 0 || y >= height) {

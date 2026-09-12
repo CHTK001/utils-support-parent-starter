@@ -10,13 +10,13 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-   * 代码 / 文本预览提供者：js、CSS、xml、json、yaml、Java、py 等 → 语法高亮 HTML。
- *
- * <p>注意：html/htm 已由 HtmlPreviewProvider 接管，csv 已由 CsvPreviewProvider 接管，
-   * md 已由 markdownpreview提供者 接管，SVG 已由 SVGpreview提供者 接管。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 代码 / 文本预览提供者：js、CSS、xml、json、yaml、Java、py 等 → 语法高亮 HTML。
+*
+* <p>注意：html/htm 已由 HtmlPreviewProvider 接管，csv 已由 CsvPreviewProvider 接管，
+* md 已由 markdownpreview提供者 接管，SVG 已由 SVGpreview提供者 接管。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("preview-code")
 public class CodePreviewProvider implements FileStoragePreviewProvider {
@@ -76,10 +76,10 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * escapehtml
-     *
-     * @param s s
-     * @return escapeHtml的结果
+    * escapehtml
+    *
+    * @param s s
+    * @return escapeHtml的结果
      */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")

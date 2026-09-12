@@ -1,20 +1,20 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * WebSocket 协议还原器。
- *
- * <p>WebSocket 帧格式：
- * <ul>
- *   <li>byte 0: FIN(1) + RSV1-3(3) + opcode(4)</li>
- *   <li>byte 1: MASK(1) + payloadLength(7)</li>
- *   <li>扩展长度: 2 bytes (length=126) 或 8 bytes (length=127)</li>
- *   <li>masking key (4 bytes, only if MASK=1)</li>
- *   <li>payload (with mask XOR)</li>
- * </ul>
-   * opcode: 0x1=文本, 0x2=binary, 0x8=关闭, 0x9=ping, 0xa=pong, 0xf=continuation</p>
- *
- * @author CH
- * @since 4.0.0.42
+* WebSocket 协议还原器。
+*
+* <p>WebSocket 帧格式：
+* <ul>
+*   <li>byte 0: FIN(1) + RSV1-3(3) + opcode(4)</li>
+*   <li>byte 1: MASK(1) + payloadLength(7)</li>
+*   <li>扩展长度: 2 bytes (length=126) 或 8 bytes (length=127)</li>
+*   <li>masking key (4 bytes, only if MASK=1)</li>
+*   <li>payload (with mask XOR)</li>
+* </ul>
+* opcode: 0x1=文本, 0x2=binary, 0x8=关闭, 0x9=ping, 0xa=pong, 0xf=continuation</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -110,10 +110,10 @@ public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为opcode名称
-     *
-     * @param opcode opcode
-     * @return 转为opcode名称的结果
+    * 转为opcode名称
+    *
+    * @param opcode opcode
+    * @return 转为opcode名称的结果
      */
     private static String toOpcodeName(int opcode) {
         return switch (opcode) {

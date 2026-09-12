@@ -10,11 +10,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
- * 加权随机负载均衡器。
- * <p>按节点权重构造概率区间后随机抽样，被选中的节点权重衰减以避免热点命中。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 加权随机负载均衡器。
+* <p>按节点权重构造概率区间后随机抽样，被选中的节点权重衰减以避免热点命中。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("weight")
 public class WeightLoadBalance implements LoadBalance {

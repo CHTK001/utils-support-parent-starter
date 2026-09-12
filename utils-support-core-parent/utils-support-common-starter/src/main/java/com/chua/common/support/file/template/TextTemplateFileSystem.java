@@ -10,11 +10,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 简易文本模板引擎 — 将 {@code #key#} 替换为 data 中的对应值
- * <p>支持 txt、xml、html 等纯文本模板。统一使用 {@code #key#} 作为占位符格式。</p>
- *
- * @author CH
- * @since 2026-07-16
+* 简易文本模板引擎 — 将 {@code #key#} 替换为 data 中的对应值
+* <p>支持 txt、xml、html 等纯文本模板。统一使用 {@code #key#} 作为占位符格式。</p>
+*
+* @author CH
+* @since 2026-07-16
  */
 @Spi({"txt", "xml", "html"})
 public class TextTemplateFileSystem implements TemplateFileSystem {

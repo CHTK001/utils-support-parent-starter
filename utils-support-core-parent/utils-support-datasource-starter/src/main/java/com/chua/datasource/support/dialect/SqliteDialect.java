@@ -4,12 +4,12 @@ import java.util.Properties;
 public class SqliteDialect extends SqlDialect {
     public static final String VERSION = "SQLite 3.x"; // 版本
     /**
-      * sqlitedialect。
+    * sqlitedialect。
      */
     public SqliteDialect() { super("sqlite"); }
     /**
-      * sqlitedialect。
-     * @param properties 属性
+    * sqlitedialect。
+    * @param properties 属性
      */
     public SqliteDialect(Properties properties) { super("sqlite", properties); }
 }

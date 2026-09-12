@@ -12,13 +12,13 @@ import java.net.URL;
 import java.util.Base64;
 
 /**
-   * safetensor 图像工具类。
- * <p>
-   * 将多种输入类型（缓冲镜像、byte[]、文件、路径字符串、URL、输入流）统一转为 基础64 PNG。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* safetensor 图像工具类。
+* <p>
+* 将多种输入类型（缓冲镜像、byte[]、文件、路径字符串、URL、输入流）统一转为 基础64 PNG。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 final class SafeTensorImageUtils {
 
@@ -26,10 +26,10 @@ final class SafeTensorImageUtils {
     private SafeTensorImageUtils() {}
 
     /**
-      * 将输入图像转为 基础64 PNG 字符串。
-     *
-     * @param input 图像输入
-     * @return base64 编码字符串
+    * 将输入图像转为 基础64 PNG 字符串。
+    *
+    * @param input 图像输入
+    * @return base64 编码字符串
      */
     static String toBase64(Object input) {
         if (input instanceof String text) {
@@ -47,11 +47,11 @@ final class SafeTensorImageUtils {
     }
 
     /**
-      * 将输入转为 缓冲镜像。
-     *
-     * @param input 输入
-     * @return BufferedImage
-     * @throws IOException IO 异常
+    * 将输入转为 缓冲镜像。
+    *
+    * @param input 输入
+    * @return BufferedImage
+    * @throws IOException IO 异常
      */
     static BufferedImage toBufferedImage(Object input) throws IOException {
         if (input instanceof BufferedImage bi) {
@@ -80,10 +80,10 @@ final class SafeTensorImageUtils {
     }
 
     /**
-      * 检查并规范化 基础64 字符串。
-     *
-     * @param text 输入字符串
-     * @return 规范化后的 基础64，如果非 基础64 则返回 空
+    * 检查并规范化 基础64 字符串。
+    *
+    * @param text 输入字符串
+    * @return 规范化后的 基础64，如果非 基础64 则返回 空
      */
     private static String normalizeBase64(String text) {
         if (text == null || text.isBlank()) {

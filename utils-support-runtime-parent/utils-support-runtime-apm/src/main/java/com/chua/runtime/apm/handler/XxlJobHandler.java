@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * XXL-作业 处理器 — intercepts XXL-作业 任务 执行.
- *
- * @author CH
- * @since 4.0.0.42
+* XXL-作业 处理器 — intercepts XXL-作业 任务 执行.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class XxlJobHandler extends AbstractAppHandler {
 
     /**
-      * 作业 处理器
+    * 作业 处理器
      */
     private static final String JOB_HANDLER = "com/xxl/job/core/handler/IJobHandler";
     /**
-      * 执行器
+    * 执行器
      */
     private static final String EXECUTOR = "com/xxl/job/core/executor/XxlJobExecutor";
     /**
-      * 执行 方法
+    * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute"};
     /**
-      * 启动 方法
+    * 启动 方法
      */
     private static final String[] START_METHODS = {"start", "stop"};
 

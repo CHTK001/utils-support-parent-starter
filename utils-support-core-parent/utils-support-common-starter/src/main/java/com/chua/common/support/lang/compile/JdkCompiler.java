@@ -18,22 +18,22 @@ import static com.chua.common.support.constant.CommonConstant.JAR_URL_SEPARATOR;
 
 // 基于 JDK JavaCompiler API 实现的动态编译器，支持在运行时编译并加载 Java 源代码
 /**
- * jdk 动态编译器实现类
- * 利用 Java Compiler API 将字符串形式的 Java 源码编译为 Class 对象
- *
- * @author CHTK
- * @since 4.0.0.42
+* jdk 动态编译器实现类
+* 利用 Java Compiler API 将字符串形式的 Java 源码编译为 Class 对象
+*
+* @author CHTK
+* @since 4.0.0.42
  */
 @Slf4j
 public class JdkCompiler implements Compiler {
     /**
-     * 执行单次编译任务
-     * 将给定的类名和源码编译为 Class 对象并返回
-     *
-     * @param name   生成的类的全限定名 (例如: com.example.MyClass)
-     * @param source Java 源代码字符串
-     * @return 编译后的 Class 对象，如果编译失败或无结果则返回 null
-     * @throws Throwable 编译过程中可能抛出的各种异常
+    * 执行单次编译任务
+    * 将给定的类名和源码编译为 Class 对象并返回
+    *
+    * @param name   生成的类的全限定名 (例如: com.example.MyClass)
+    * @param source Java 源代码字符串
+    * @return 编译后的 Class 对象，如果编译失败或无结果则返回 null
+    * @throws Throwable 编译过程中可能抛出的各种异常
      */
     @Override
     public Class<?> doCompile(String name, String source) throws Throwable {
@@ -52,8 +52,8 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 动态类加载器
-     * 用于加载由内存中字节码生成的类，继承自父类加载器以支持委托机制
+    * 动态类加载器
+    * 用于加载由内存中字节码生成的类，继承自父类加载器以支持委托机制
      */
     public static final class DynamicClassLoader extends ClassLoader {
         // 存储已编译的字节码映射：类名 -> 字节码对象
@@ -61,16 +61,16 @@ public class JdkCompiler implements Compiler {
         private final Map<String, MemoryByteCode> byteCodes = new HashMap<String, MemoryByteCode>();
 
         /**
-         * 创建 DynamicClassLoader 实例
-         * @param classLoader classLoader
+        * 创建 DynamicClassLoader 实例
+        * @param classLoader classLoader
          */
         public DynamicClassLoader(ClassLoader classLoader) {
             super(classLoader);
         }
 
         /**
-         * 获取所有已编译的字节码数组
-         * @return 类名到字节码数组的映射
+        * 获取所有已编译的字节码数组
+        * @return 类名到字节码数组的映射
          */
         public Map<String, byte[]> getByteCodes() {
             Map<String, byte[]> result = new HashMap<String, byte[]>(byteCodes.size());
@@ -81,10 +81,10 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 获取所有已编译的 Class 对象
-         * 遍历字节码映射，通过 defineClass 方法将字节码转换为 Class 对象
-         * @return 类名到 Class 对象的映射
-         * @throws ClassNotFoundException 如果类定义失败
+        * 获取所有已编译的 Class 对象
+        * 遍历字节码映射，通过 defineClass 方法将字节码转换为 Class 对象
+        * @return 类名到 Class 对象的映射
+        * @throws ClassNotFoundException 如果类定义失败
          */
         public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
             Map<String, Class<?>> classes = new HashMap<String, Class<?>>(1 << 4);
@@ -95,16 +95,16 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 注册编译后的源文件字节码
-         * @param byteCode 包含类名和字节码的对象
+        * 注册编译后的源文件字节码
+        * @param byteCode 包含类名和字节码的对象
          */
         public void registerCompiledSource(MemoryByteCode byteCode) {
             byteCodes.put(byteCode.getClassName(), byteCode);
         }
 
         /**
-         * 重写 findClass 方法，优先从内存字节码中查找类
-         * 如果内存中存在该类，直接定义；否则委托给父类加载器
+        * 重写 findClass 方法，优先从内存字节码中查找类
+        * 如果内存中存在该类，直接定义；否则委托给父类加载器
          */
         @Override
         protected Class<?> findClass(String name) throws ClassNotFoundException {
@@ -118,9 +118,9 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 动态 Java 文件管理器
-     * 扩展 ForwardingJavaFileManager，拦截文件输出操作，将编译结果保存到内存中
-     * 同时支持从 ClassLoader 中查找包内的类文件
+    * 动态 Java 文件管理器
+    * 扩展 ForwardingJavaFileManager，拦截文件输出操作，将编译结果保存到内存中
+    * 同时支持从 ClassLoader 中查找包内的类文件
      */
     static final class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
         // 需要转发给标准文件管理器的位置名称（平台类路径和系统模块）
@@ -141,9 +141,9 @@ public class JdkCompiler implements Compiler {
         private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
 
         /**
-         * 创建 DynamicJavaFileManager 实例
-         * @param fileManager fileManager
-         * @param DynamicClassLoader DynamicClassLoader
+        * 创建 DynamicJavaFileManager 实例
+        * @param fileManager fileManager
+        * @param DynamicClassLoader DynamicClassLoader
          */
         public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
             super(fileManager);
@@ -153,8 +153,8 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 获取指定位置的类加载器
-         * 始终返回当前的动态类加载器，确保新编译的类能被正确加载
+        * 获取指定位置的类加载器
+        * 始终返回当前的动态类加载器，确保新编译的类能被正确加载
          */
         @Override
         public ClassLoader getClassLoader(Location location) {
@@ -162,8 +162,8 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 处理输出文件的创建
-         * 当编译器需要写入 .class 文件时，重定向到内存中的 MemoryByteCode 对象
+        * 处理输出文件的创建
+        * 当编译器需要写入 .class 文件时，重定向到内存中的 MemoryByteCode 对象
          */
         @Override
         public JavaFileObject getJavaFileForOutput(Location location, String className,
@@ -183,8 +183,8 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 推断二进制名称
-         * 如果是自定义的文件对象，返回其二进制名称；否则交给标准管理器处理
+        * 推断二进制名称
+        * 如果是自定义的文件对象，返回其二进制名称；否则交给标准管理器处理
          */
         @Override
         public String inferBinaryName(Location location, JavaFileObject file) {
@@ -192,16 +192,16 @@ public class JdkCompiler implements Compiler {
                 return ((CustomJavaFileObject) file).binaryName();
             } else {
                 /**
-                 * 如果不是 CustomJavaFileObject，说明来自标准文件管理器
-                 * - 让标准管理器处理文件名推断逻辑
+                * 如果不是 CustomJavaFileObject，说明来自标准文件管理器
+                * - 让标准管理器处理文件名推断逻辑
                  */
                 return super.inferBinaryName(location, file);
             }
         }
 
         /**
-         * 列出指定位置的文件
-         * 合并标准文件系统中的文件和 ClassLoader 中的包内类
+        * 列出指定位置的文件
+        * 合并标准文件系统中的文件和 ClassLoader 中的包内类
          */
         @Override
         public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds,
@@ -231,10 +231,10 @@ public class JdkCompiler implements Compiler {
             private final Iterable<T> first, next;
 
             /**
-             * 创建 IterableJoin 实例
-             * @param first first
-             * @param Iterable Iterable
-             * @param next next
+            * 创建 IterableJoin 实例
+            * @param first first
+            * @param Iterable Iterable
+            * @param next next
              */
             public IterableJoin(Iterable<T> first, Iterable<T> next) {
                 this.first = first;
@@ -254,10 +254,10 @@ public class JdkCompiler implements Compiler {
             private final Iterator<T> first, next;
 
             /**
-             * 创建 IteratorJoin 实例
-             * @param first first
-             * @param Iterator Iterator
-             * @param next next
+            * 创建 IteratorJoin 实例
+            * @param first first
+            * @param Iterator Iterator
+            * @param next next
              */
             public IteratorJoin(Iterator<T> first, Iterator<T> next) {
                 this.first = first;
@@ -288,20 +288,20 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 迭代器连接辅助类
-     * 将两个迭代器串联起来，依次返回元素
-     *
-     * @param <T> 元素类型
+    * 迭代器连接辅助类
+    * 将两个迭代器串联起来，依次返回元素
+    *
+    * @param <T> 元素类型
      */
     static class IteratorJoin<T> implements Iterator<T> {
         /** 第一个与第二个迭代器 */
         private final Iterator<T> first, next;
 
         /**
-         * 创建 IteratorJoin 实例
-         * @param first first
-         * @param Iterator Iterator
-         * @param next next
+        * 创建 IteratorJoin 实例
+        * @param first first
+        * @param Iterator Iterator
+        * @param next next
          */
         public IteratorJoin(Iterator<T> first, Iterator<T> next) {
             this.first = first;
@@ -331,9 +331,9 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 内存字节码文件对象
-     * 继承 SimpleJavaFileObject，将编译后的 .class 字节码保存在 ByteArrayOutputStream 中
-     * 避免写入磁盘，实现纯内存编译
+    * 内存字节码文件对象
+    * 继承 SimpleJavaFileObject，将编译后的 .class 字节码保存在 ByteArrayOutputStream 中
+    * 避免写入磁盘，实现纯内存编译
      */
     static final class MemoryByteCode extends SimpleJavaFileObject {
         /** 包路径分隔符 */
@@ -347,8 +347,8 @@ public class JdkCompiler implements Compiler {
         private ByteArrayOutputStream byteArrayOutputStream;
 
         /**
-         * 创建 MemoryByteCode 实例
-         * @param className className
+        * 创建 MemoryByteCode 实例
+        * @param className className
          */
         public MemoryByteCode(String className) {
             super(URI.create("byte:///" + className.replace(PKG_SEPARATOR, DIR_SEPARATOR)
@@ -356,9 +356,9 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 创建 MemoryByteCode 实例
-         * @param className className
-         * @param ByteArrayOutputStream ByteArrayOutputStream
+        * 创建 MemoryByteCode 实例
+        * @param className className
+        * @param ByteArrayOutputStream ByteArrayOutputStream
          */
         public MemoryByteCode(String className, ByteArrayOutputStream byteArrayOutputStream)
                 throws URISyntaxException {
@@ -367,14 +367,14 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 获取编译后的字节码数组
+        * 获取编译后的字节码数组
          */
         public byte[] getByteCode() {
             return byteArrayOutputStream.toByteArray();
         }
 
         /**
-         * 从 URI 中提取类名
+        * 从 URI 中提取类名
          */
         public String getClassName() {
             String className = getName();
@@ -395,9 +395,9 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 包内部类查找器
-     * 用于在 ClassLoader 的资源路径中查找特定包下的所有 .class 文件
-     * 支持本地目录和 JAR 包两种场景
+    * 包内部类查找器
+    * 用于在 ClassLoader 的资源路径中查找特定包下的所有 .class 文件
+    * 支持本地目录和 JAR 包两种场景
      */
     static final class PackageInternalsFinder {
         /** 类文件扩展名 */
@@ -406,18 +406,18 @@ public class JdkCompiler implements Compiler {
         private final ClassLoader classLoader;
 
         /**
-         * 创建 PackageInternalsFinder 实例
-         * @param classLoader classLoader
+        * 创建 PackageInternalsFinder 实例
+        * @param classLoader classLoader
          */
         public PackageInternalsFinder(ClassLoader classLoader) {
             this.classLoader = classLoader;
         }
 
         /**
-         * 查找指定包名下的所有类文件对象
-         * @param packageName 包名 (如: com.example)
-         * @return 类文件对象列表
-         * @throws IOException 读取资源时发生 IO 错误
+        * 查找指定包名下的所有类文件对象
+        * @param packageName 包名 (如: com.example)
+        * @return 类文件对象列表
+        * @throws IOException 读取资源时发生 IO 错误
          */
         public List<JavaFileObject> find(String packageName) throws IOException {
             String javaPackageName = packageName.replaceAll("\\.", "/");
@@ -436,7 +436,7 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 根据 URL 类型决定是扫描本地目录还是 JAR 包
+        * 根据 URL 类型决定是扫描本地目录还是 JAR 包
          */
         private Collection<JavaFileObject> listUnder(String packageName, URL url) {
             File directory = new File(url.getFile());
@@ -450,7 +450,7 @@ public class JdkCompiler implements Compiler {
 
 
         /**
-         * 处理 JAR 包中的类文件
+        * 处理 JAR 包中的类文件
          */
         private List<JavaFileObject> processJar(URL url) {
             List<JavaFileObject> result = new ArrayList<JavaFileObject>();
@@ -482,7 +482,7 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 处理本地目录中的类文件
+        * 处理本地目录中的类文件
          */
         private List<JavaFileObject> processDir(String packageName, File directory) {
             List<JavaFileObject> result = new ArrayList<JavaFileObject>();
@@ -505,8 +505,8 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 动态编译器核心类
-     * 封装了 JavaCompiler API 的调用流程，负责编译源码并返回 Class 对象或字节码
+    * 动态编译器核心类
+    * 封装了 JavaCompiler API 的调用流程，负责编译源码并返回 Class 对象或字节码
      */
     final class DynamicCompiler {
         /** Java 编译器 */
@@ -529,17 +529,17 @@ public class JdkCompiler implements Compiler {
         private final Writer writer;
 
         /**
-         * 创建 DynamicCompiler 实例
-         * @param classLoader classLoader
+        * 创建 DynamicCompiler 实例
+        * @param classLoader classLoader
          */
         public DynamicCompiler(ClassLoader classLoader) {
             this(classLoader, null);
         }
 
         /**
-         * 创建 DynamicCompiler 实例
-         * @param classLoader classLoader
-         * @param Writer Writer
+        * 创建 DynamicCompiler 实例
+        * @param classLoader classLoader
+        * @param Writer Writer
          */
         public DynamicCompiler(ClassLoader classLoader, Writer writer) {
             standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
@@ -550,22 +550,22 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 添加源码字符串进行编译
+        * 添加源码字符串进行编译
          */
         public void addSource(String className, String source) {
             addSource(new StringSource(className, source));
         }
 
         /**
-         * 添加 JavaFileObject 进行编译
+        * 添加 JavaFileObject 进行编译
          */
         public void addSource(JavaFileObject javaFileObject) {
             compilationUnits.add(javaFileObject);
         }
 
         /**
-         * 执行编译并返回编译后的 Class 对象映射
-         * @return 类名到 Class 对象的映射
+        * 执行编译并返回编译后的 Class 对象映射
+        * @return 类名到 Class 对象的映射
          */
         public Map<String, Class<?>> build() {
 
@@ -622,8 +622,8 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 执行编译并返回编译后的字节码映射
-         * @return 类名到字节码数组的映射
+        * 执行编译并返回编译后的字节码映射
+        * @return 类名到字节码数组的映射
          */
         public Map<String, byte[]> buildByteCodes() {
 
@@ -676,28 +676,28 @@ public class JdkCompiler implements Compiler {
         }
 
         /**
-         * 获取动态类加载器
+        * 获取动态类加载器
          */
         public ClassLoader getClassLoader() {
             return dynamicClassLoader;
         }
 
         /**
-         * 获取编译错误信息列表
+        * 获取编译错误信息列表
          */
         public List<String> getErrors() {
             return diagnosticToString(errors);
         }
 
         /**
-         * 获取编译警告信息列表
+        * 获取编译警告信息列表
          */
         public List<String> getWarnings() {
             return diagnosticToString(warnings);
         }
 
         /**
-         * 将诊断信息转换为可读的字符串列表
+        * 将诊断信息转换为可读的字符串列表
          */
         private List<String> diagnosticToString(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
 
@@ -714,17 +714,17 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 字符串源文件对象
-     * 将 Java 源码字符串包装成 JavaFileObject，供编译器使用
+    * 字符串源文件对象
+    * 将 Java 源码字符串包装成 JavaFileObject，供编译器使用
      */
     public static class StringSource extends SimpleJavaFileObject {
         /** 文件内容 */
         private final String contents;
 
         /**
-         * 创建 StringSource 实例
-         * @param className className
-         * @param String String
+        * 创建 StringSource 实例
+        * @param className className
+        * @param String String
          */
         public StringSource(String className, String contents) {
             super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
@@ -739,8 +739,8 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-     * 自定义 Java 文件对象
-     * 用于表示 JAR 包或本地文件系统中的类文件
+    * 自定义 Java 文件对象
+    * 用于表示 JAR 包或本地文件系统中的类文件
      */
     public static class CustomJavaFileObject implements JavaFileObject {
         /** 二进制类名 */
@@ -748,14 +748,14 @@ public class JdkCompiler implements Compiler {
         /** 文件 URI */
         private final URI uri;
         /**
-         * 名称
+        * 名称
          */
         private final String name;
 
         /**
-         * 创建 CustomJavaFileObject 实例
-         * @param binaryName binaryName
-         * @param URI URI
+        * 创建 CustomJavaFileObject 实例
+        * @param binaryName binaryName
+        * @param URI URI
          */
         public CustomJavaFileObject(String binaryName, URI uri) {
             this.uri = uri;

@@ -5,34 +5,34 @@ import com.chua.common.support.lang.ast.ExpressionParser;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * Lucene 查询表达式解析器
- *
- * <p>支持 Lucene 查询语法解析和生成。
- *
- * <h3>支持的语法</h3>
- * <pre>
- *   name:张三 AND age:[18 TO *]
- *   status:active OR role:admin
- *   -deleted:true AND title:测试
- *   price:[100 TO 500]
- * </pre>
- *
- * <h3>Lucene 特有语法映射</h3>
- * <ul>
- *   <li>AND → BTreeNode.logic("AND", ...)</li>
- *   <li>OR → BTreeNode.logic("OR", ...)</li>
- *   <li>-field:value → BTreeNode.not(compare("=", column, value))</li>
- *   <li>field:[min TO max] → BTreeNode.compare("BETWEEN", ...)</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* Lucene 查询表达式解析器
+*
+* <p>支持 Lucene 查询语法解析和生成。
+*
+* <h3>支持的语法</h3>
+* <pre>
+*   name:张三 AND age:[18 TO *]
+*   status:active OR role:admin
+*   -deleted:true AND title:测试
+*   price:[100 TO 500]
+* </pre>
+*
+* <h3>Lucene 特有语法映射</h3>
+* <ul>
+*   <li>AND → BTreeNode.logic("AND", ...)</li>
+*   <li>OR → BTreeNode.logic("OR", ...)</li>
+*   <li>-field:value → BTreeNode.not(compare("=", column, value))</li>
+*   <li>field:[min TO max] → BTreeNode.compare("BETWEEN", ...)</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 @Spi("lucene")
 public class LuceneExpressionParser implements ExpressionParser {
 
     /**
-     * 类型
+    * 类型
      */
     private static final String TYPE = "lucene";
 
@@ -84,14 +84,14 @@ public class LuceneExpressionParser implements ExpressionParser {
     }
 
     /**
-     * Lucene 语法预处理
-     *
-     * <p>将 Lucene 特有语法转为通用表达式语法：
-     * <ul>
-     *   <li>field:value → field = value</li>
-     *   <li>-field:value → NOT (field = value)</li>
-     *   <li>field:[min TO max] → field BETWEEN min AND max</li>
-     * </ul>
+    * Lucene 语法预处理
+    *
+    * <p>将 Lucene 特有语法转为通用表达式语法：
+    * <ul>
+    *   <li>field:value → field = value</li>
+    *   <li>-field:value → NOT (field = value)</li>
+    *   <li>field:[min TO max] → field BETWEEN min AND max</li>
+    * </ul>
      */
     private String normalizeLucene(String expression) {
         // 简化处理，实际项目中可能需要更复杂的转换

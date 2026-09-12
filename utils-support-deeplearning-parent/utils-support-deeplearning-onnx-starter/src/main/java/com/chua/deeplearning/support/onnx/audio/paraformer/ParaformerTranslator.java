@@ -20,23 +20,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Paraformer ONNX Translator（音频文件 → 转写文本）。
- * <p>
- * 流程：WAV(16k int16) → kaldi fbank(80) → LFR(560) → CMVN → ONNX 单次推理 →
-   * greedy 搜索(按帧 argmax，遇 EOS 停止) → 令牌 解码。
- * </p>
- * <p>
-   * ONNX 模型输入输出（已按 模型.int8.onnx 实测确认）：
- * <ul>
- *   <li>输入 {@code speech}：(1, T, 560) float32</li>
- *   <li>输入 {@code speech_lengths}：(1,) int64</li>
- *   <li>输出 {@code logits}：(1, T, 8359) float32</li>
- *   <li>输出 {@code token_num}：(1,) int64</li>
- * </ul>
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Paraformer ONNX Translator（音频文件 → 转写文本）。
+* <p>
+* 流程：WAV(16k int16) → kaldi fbank(80) → LFR(560) → CMVN → ONNX 单次推理 →
+* greedy 搜索(按帧 argmax，遇 EOS 停止) → 令牌 解码。
+* </p>
+* <p>
+* ONNX 模型输入输出（已按 模型.int8.onnx 实测确认）：
+* <ul>
+*   <li>输入 {@code speech}：(1, T, 560) float32</li>
+*   <li>输入 {@code speech_lengths}：(1,) int64</li>
+*   <li>输出 {@code logits}：(1, T, 8359) float32</li>
+*   <li>输出 {@code token_num}：(1,) int64</li>
+* </ul>
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class ParaformerTranslator {
@@ -98,10 +98,10 @@ public class ParaformerTranslator {
     private boolean prepared;
 
     /**
-     * 加载模型与词表。
-     *
-     * @param modelDir 模型目录（含 模型.int8.onnx、令牌.txt）
-     * @throws Exception 加载失败
+    * 加载模型与词表。
+    *
+    * @param modelDir 模型目录（含 模型.int8.onnx、令牌.txt）
+    * @throws Exception 加载失败
      */
     public void prepare(Path modelDir) throws Exception {
         Path modelPath = findOnnx(modelDir);
@@ -128,9 +128,9 @@ public class ParaformerTranslator {
     }
 
     /**
-     * 读取 ONNX metadata：LFR 参数与 CMVN 向量。
-     *
-     * @throws Exception 读取失败
+    * 读取 ONNX metadata：LFR 参数与 CMVN 向量。
+    *
+    * @throws Exception 读取失败
      */
     private void readMetadata() throws Exception {
         Map<String, String> meta = session.getMetadata().getCustomMetadata();
@@ -142,10 +142,10 @@ public class ParaformerTranslator {
     }
 
     /**
-     * 解析逗号分隔的 float 数组。
-     *
-     * @param value 逗号分隔字符串
-     * @return float 数组
+    * 解析逗号分隔的 float 数组。
+    *
+    * @param value 逗号分隔字符串
+    * @return float 数组
      */
     private static float[] parseFloats(String value) {
         String[] parts = value.split(",");
@@ -157,11 +157,11 @@ public class ParaformerTranslator {
     }
 
     /**
-     * 查找模型目录下的 ONNX 文件。
-     *
-     * @param dir 模型目录
-     * @return ONNX 文件路径，找不到返回 空
-     * @throws IOException 列目录失败
+    * 查找模型目录下的 ONNX 文件。
+    *
+    * @param dir 模型目录
+    * @return ONNX 文件路径，找不到返回 空
+    * @throws IOException 列目录失败
      */
     private static Path findOnnx(Path dir) throws IOException {
         try (var stream = Files.list(dir)) {
@@ -173,11 +173,11 @@ public class ParaformerTranslator {
     }
 
     /**
-     * 转写音频。
-     *
-     * @param audioPath 音频文件路径
-     * @return 识别文本
-     * @throws Exception 处理失败
+    * 转写音频。
+    *
+    * @param audioPath 音频文件路径
+    * @return 识别文本
+    * @throws Exception 处理失败
      */
     public String transcribe(Path audioPath) throws Exception {
         if (!prepared) {
@@ -235,11 +235,11 @@ public class ParaformerTranslator {
     }
 
     /**
-      * 加载音频为 16khz 单声道 int16 范围样本（约 ±32768）。
-     *
-     * @param path 音频文件路径
-     * @return 样本数组
-     * @throws Exception 读取失败
+    * 加载音频为 16khz 单声道 int16 范围样本（约 ±32768）。
+    *
+    * @param path 音频文件路径
+    * @return 样本数组
+    * @throws Exception 读取失败
      */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {

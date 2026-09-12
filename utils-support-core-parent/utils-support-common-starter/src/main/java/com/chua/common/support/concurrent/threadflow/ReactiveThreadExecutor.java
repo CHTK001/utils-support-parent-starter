@@ -8,34 +8,34 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 响应式执行器，基于 {@link CompletableFuture} 异步执行。
- *
- * <p>使用 ForkJoinPool.commonPool() 作为默认线程池，
- * 每个任务通过 {@link CompletableFuture#supplyAsync} 提交。</p>
- *
- * @author CH
- * @since 2026/08/15
+* 响应式执行器，基于 {@link CompletableFuture} 异步执行。
+*
+* <p>使用 ForkJoinPool.commonPool() 作为默认线程池，
+* 每个任务通过 {@link CompletableFuture#supplyAsync} 提交。</p>
+*
+* @author CH
+* @since 2026/08/15
  */
 public class ReactiveThreadExecutor extends AbstractThreadExecutor {
 
     /**
-     * 创建 ReactiveThreadExecutor 实例
-     * @param strategy strategy
-     * @param int int
-     * @param long long
-     * @param TimeUnit TimeUnit
+    * 创建 ReactiveThreadExecutor 实例
+    * @param strategy strategy
+    * @param int int
+    * @param long long
+    * @param TimeUnit TimeUnit
      */
     public ReactiveThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1);
     }
 
     /**
-     * 创建 ReactiveThreadExecutor 实例
-     * @param strategy strategy
-     * @param threshold threshold
-     * @param timeout timeout
-     * @param timeUnit timeUnit
-     * @param maxConcurrent maxConcurrent
+    * 创建 ReactiveThreadExecutor 实例
+    * @param strategy strategy
+    * @param threshold threshold
+    * @param timeout timeout
+    * @param timeUnit timeUnit
+    * @param maxConcurrent maxConcurrent
      */
     public ReactiveThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent) {

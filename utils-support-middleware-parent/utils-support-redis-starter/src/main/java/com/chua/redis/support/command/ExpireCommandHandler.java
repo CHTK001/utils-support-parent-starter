@@ -6,10 +6,10 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 /**
- * Redis EXPIRE 命令处理器，设置键的过期时间。
- *
- * @author CH
- * @since 4.0.0.42
+* Redis EXPIRE 命令处理器，设置键的过期时间。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("EXPIRE")
 public class ExpireCommandHandler implements RedisCommandHandler {

@@ -15,41 +15,41 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * NATS 全功能链式客户端。
- *
- * <p>封装 NATS Core Pub/Sub + JetStream + Key-Value Store + Object Store，提供链式 API。</p>
- *
- * <h2>使用方式</h2>
- * <pre>{@code
- * // 创建客户端
- * NatsClient client = NatsClient.builder()
- *     .url("nats://127.0.0.1:4222")
- *     .build();
- * client.start();
- *
- * // --- Core Pub/Sub ---
- * client.publish().subject("orders.create").body("{\"id\":1}").send();
- * client.subscribe().subject("orders.>").handler(msg -> {
- *     System.out.println("收到: " + new String(msg.getData()));
- * }).start();
- *
- * // --- Request/Reply ---
- * String reply = client.request("service.calc", "{\"x\":1}");
- *
- * // --- JetStream ---
- * client.jetStream().stream("ORDERS").addStream();
- * client.jetStream().stream("ORDERS").publish("{\"id\":2}");
- *
- * // --- Key-Value Store ---
- * client.kvStore("users").put("usr_001", "{\"name\":\"Alice\"}");
- *
- * // --- Object Store ---
- * client.objectStore("files").put("doc.pdf", pdfBytes);
- * }</pre>储("文件").放入("doc.pdf", pdfbytes);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* NATS 全功能链式客户端。
+*
+* <p>封装 NATS Core Pub/Sub + JetStream + Key-Value Store + Object Store，提供链式 API。</p>
+*
+* <h2>使用方式</h2>
+* <pre>{@code
+* // 创建客户端
+* NatsClient client = NatsClient.builder()
+*     .url("nats://127.0.0.1:4222")
+*     .build();
+* client.start();
+*
+* // --- Core Pub/Sub ---
+* client.publish().subject("orders.create").body("{\"id\":1}").send();
+* client.subscribe().subject("orders.>").handler(msg -> {
+*     System.out.println("收到: " + new String(msg.getData()));
+* }).start();
+*
+* // --- Request/Reply ---
+* String reply = client.request("service.calc", "{\"x\":1}");
+*
+* // --- JetStream ---
+* client.jetStream().stream("ORDERS").addStream();
+* client.jetStream().stream("ORDERS").publish("{\"id\":2}");
+*
+* // --- Key-Value Store ---
+* client.kvStore("users").put("usr_001", "{\"name\":\"Alice\"}");
+*
+* // --- Object Store ---
+* client.objectStore("files").put("doc.pdf", pdfBytes);
+* }</pre>储("文件").放入("doc.pdf", pdfbytes);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Getter
@@ -88,8 +88,8 @@ public class NatsClient implements AutoCloseable {
     private final List<DispatchedSubscription> subscriptions = new ArrayList<>();
 
     /**
-      * 创建 NATS客户端 实例
-     * @param b b
+    * 创建 NATS客户端 实例
+    * @param b b
      */
     private NatsClient(Builder b) {
         this.url = b.url;
@@ -105,28 +105,28 @@ public class NatsClient implements AutoCloseable {
     // ==================== 工厂方法 ====================
 
     /**
-     * 创建
-     *
-     * @return 创建的结果
+    * 创建
+    *
+    * @return 创建的结果
      */
     public static NatsClient create() {
         return builder().build();
     }
 
     /**
-     * 创建
-     *
-     * @param url url
-     * @return 创建的结果
+    * 创建
+    *
+    * @param url url
+    * @return 创建的结果
      */
     public static NatsClient create(String url) {
         return builder().url(url).build();
     }
 
     /**
-     * 构建器
-     *
-     * @return 构建器的结果
+    * 构建器
+    *
+    * @return 构建器的结果
      */
     public static Builder builder() {
         return new Builder();
@@ -135,9 +135,9 @@ public class NatsClient implements AutoCloseable {
     // ==================== 启动/停止 ====================
 
     /**
-     * 启动 NATS 客户端，连接到服务器。
-     *
-     * @return this
+    * 启动 NATS 客户端，连接到服务器。
+    *
+    * @return this
      */
     public NatsClient start() {
         try {
@@ -182,9 +182,9 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-     * 关闭 NATS 客户端。
-     *
-     * @return this
+    * 关闭 NATS 客户端。
+    *
+    * @return this
      */
     public NatsClient shutdown() {
         if (closed.compareAndSet(false, true)) {
@@ -222,18 +222,18 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-     * 检查连接是否健康。
-     *
-     * @return 是否已连接
+    * 检查连接是否健康。
+    *
+    * @return 是否已连接
      */
     public boolean isConnected() {
         return connection != null && connection.getStatus() == Connection.Status.CONNECTED;
     }
 
     /**
-     * 获取 NATS 服务器信息。
-     *
-     * @return 服务器信息
+    * 获取 NATS 服务器信息。
+    *
+    * @return 服务器信息
      */
     public ServerInfo getServerInfo() {
         return connection.getServerInfo();
@@ -242,41 +242,41 @@ public class NatsClient implements AutoCloseable {
     // ==================== Core Pub/Sub ====================
 
     /**
-     * 获取发布操作构建器。
-     *
-     * @return PublishOperation
+    * 获取发布操作构建器。
+    *
+    * @return PublishOperation
      */
     public PublishOperation publish() {
         return new PublishOperation(this);
     }
 
     /**
-     * 获取订阅操作构建器。
-     *
-     * @return SubscribeOperation
+    * 获取订阅操作构建器。
+    *
+    * @return SubscribeOperation
      */
     public SubscribeOperation subscribe() {
         return new SubscribeOperation(this);
     }
 
     /**
-     * 发送请求并等待回复（同步）。
-     *
-     * @param subject 主题
-     * @param body    请求体
-     * @return 回复内容（字节数组）
+    * 发送请求并等待回复（同步）。
+    *
+    * @param subject 主题
+    * @param body    请求体
+    * @return 回复内容（字节数组）
      */
     public byte[] request(String subject, byte[] body) {
         return request(subject, body, Duration.ofSeconds(5));
     }
 
     /**
-     * 发送请求并等待回复（同步），指定超时。
-     *
-     * @param subject 主题
-     * @param body    请求体
-     * @param timeout 超时时间
-     * @return 回复内容（字节数组）
+    * 发送请求并等待回复（同步），指定超时。
+    *
+    * @param subject 主题
+    * @param body    请求体
+    * @param timeout 超时时间
+    * @return 回复内容（字节数组）
      */
     public byte[] request(String subject, byte[] body, Duration timeout) {
         try {
@@ -288,11 +288,11 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-     * 发送请求并等待回复（同步），参数为字符串。
-     *
-     * @param subject 主题
-     * @param body    请求体（字符串）
-     * @return 回复内容（字符串）
+    * 发送请求并等待回复（同步），参数为字符串。
+    *
+    * @param subject 主题
+    * @param body    请求体（字符串）
+    * @return 回复内容（字符串）
      */
     public String request(String subject, String body) {
         byte[] reply = request(subject, toBytes(body));
@@ -300,23 +300,23 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-     * 发送请求并等待回复（异步）。
-     *
-     * @param subject 主题
-     * @param body    请求体
-     * @return CompletableFuture 包含回复内容
+    * 发送请求并等待回复（异步）。
+    *
+    * @param subject 主题
+    * @param body    请求体
+    * @return CompletableFuture 包含回复内容
      */
     public CompletableFuture<byte[]> requestAsync(String subject, byte[] body) {
         return requestAsync(subject, body, Duration.ofSeconds(5));
     }
 
     /**
-     * 发送请求并等待回复（异步），指定超时。
-     *
-     * @param subject 主题
-     * @param body    请求体
-     * @param timeout 超时时间
-     * @return CompletableFuture 包含回复内容
+    * 发送请求并等待回复（异步），指定超时。
+    *
+    * @param subject 主题
+    * @param body    请求体
+    * @param timeout 超时时间
+    * @return CompletableFuture 包含回复内容
      */
     public CompletableFuture<byte[]> requestAsync(String subject, byte[] body, Duration timeout) {
         return connection.requestWithTimeout(subject, body, timeout)
@@ -326,9 +326,9 @@ public class NatsClient implements AutoCloseable {
     // ==================== JetStream ====================
 
     /**
-     * 获取 JetStream 操作构建器。
-     *
-     * @return JetStreamOperation
+    * 获取 JetStream 操作构建器。
+    *
+    * @return JetStreamOperation
      */
     public JetStreamOperation jetStream() {
         return new JetStreamOperation(this);
@@ -337,10 +337,10 @@ public class NatsClient implements AutoCloseable {
     // ==================== Key-Value Store ====================
 
     /**
-      * 获取 键-值 存储 操作构建器。
-     *
-     * @param bucketName 存储桶名称
-     * @return KvOperation
+    * 获取 键-值 存储 操作构建器。
+    *
+    * @param bucketName 存储桶名称
+    * @return KvOperation
      */
     public KvOperation kvStore(String bucketName) {
         return new KvOperation(this, bucketName);
@@ -349,10 +349,10 @@ public class NatsClient implements AutoCloseable {
     // ==================== Object Store ====================
 
     /**
-      * 获取 对象 存储 操作构建器。
-     *
-     * @param bucketName 存储桶名称
-     * @return ObjectStoreOperation
+    * 获取 对象 存储 操作构建器。
+    *
+    * @param bucketName 存储桶名称
+    * @return ObjectStoreOperation
      */
     public ObjectStoreOperation objectStore(String bucketName) {
         return new ObjectStoreOperation(this, bucketName);
@@ -360,10 +360,10 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== Builder ====================
     /**
-     * 构建器类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * 构建器类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class Builder {
@@ -385,10 +385,10 @@ public class NatsClient implements AutoCloseable {
         private boolean pedantic;
 
         /**
-         * Url
-         *
-         * @param url url
-         * @return url的结果
+        * Url
+        *
+        * @param url url
+        * @return url的结果
          */
         public Builder url(String url) {
             this.url = url;
@@ -396,11 +396,11 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 凭证
-         *
-         * @param username 用户名
-         * @param password 密码
-         * @return 凭证的结果
+        * 凭证
+        *
+        * @param username 用户名
+        * @param password 密码
+        * @return 凭证的结果
          */
         public Builder credentials(String username, String password) {
             this.username = username;
@@ -409,10 +409,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 令牌
-         *
-         * @param token 令牌
-         * @return 令牌的结果
+        * 令牌
+        *
+        * @param token 令牌
+        * @return 令牌的结果
          */
         public Builder token(String token) {
             this.token = token;
@@ -420,10 +420,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * connection超时
-         *
-         * @param timeout 超时
-         * @return connection超时的结果
+        * connection超时
+        *
+        * @param timeout 超时
+        * @return connection超时的结果
          */
         public Builder connectionTimeout(Duration timeout) {
             this.connectionTimeout = timeout;
@@ -431,10 +431,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * connection超时millis
-         *
-         * @param ms ms
-         * @return connection超时millis的结果
+        * connection超时millis
+        *
+        * @param ms ms
+        * @return connection超时millis的结果
          */
         public Builder connectionTimeoutMillis(long ms) {
             this.connectionTimeout = Duration.ofMillis(ms);
@@ -442,10 +442,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * reconnectwait
-         *
-         * @param wait wait
-         * @return reconnectWait的结果
+        * reconnectwait
+        *
+        * @param wait wait
+        * @return reconnectWait的结果
          */
         public Builder reconnectWait(Duration wait) {
             this.reconnectWait = wait;
@@ -453,10 +453,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 最大值Reconnects
-         *
-         * @param max 最大
-         * @return 最大reconnects的结果
+        * 最大值Reconnects
+        *
+        * @param max 最大
+        * @return 最大reconnects的结果
          */
         public Builder maxReconnects(int max) {
             this.maxReconnects = max;
@@ -464,10 +464,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * Pedantic
-         *
-         * @param pedantic pedantic
-         * @return pedantic的结果
+        * Pedantic
+        *
+        * @param pedantic pedantic
+        * @return pedantic的结果
          */
         public Builder pedantic(boolean pedantic) {
             this.pedantic = pedantic;
@@ -475,9 +475,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 构建
-         *
-         * @return 构建的结果
+        * 构建
+        *
+        * @return 构建的结果
          */
         public NatsClient build() {
             return new NatsClient(this);
@@ -486,10 +486,10 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== 发布操作 ====================
     /**
-     * 发布operation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * 发布operation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class PublishOperation {
@@ -509,10 +509,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 主题
-         *
-         * @param s s
-         * @return 主题的结果
+        * 主题
+        *
+        * @param s s
+        * @return 主题的结果
          */
         public PublishOperation subject(String s) {
             this.subject = s;
@@ -520,10 +520,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 主体
-         *
-         * @param b b
-         * @return 主体的结果
+        * 主体
+        *
+        * @param b b
+        * @return 主体的结果
          */
         public PublishOperation body(byte[] b) {
             this.body = b;
@@ -531,10 +531,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 主体
-         *
-         * @param s s
-         * @return 主体的结果
+        * 主体
+        *
+        * @param s s
+        * @return 主体的结果
          */
         public PublishOperation body(String s) {
             this.body = toBytes(s);
@@ -542,10 +542,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * reply转为
-         *
-         * @param r r
-         * @return reply转为的结果
+        * reply转为
+        *
+        * @param r r
+        * @return reply转为的结果
          */
         public PublishOperation replyTo(String r) {
             this.replyTo = r;
@@ -553,11 +553,11 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 头部
-         *
-         * @param key 键
-         * @param value 值
-         * @return 头部的结果
+        * 头部
+        *
+        * @param key 键
+        * @param value 值
+        * @return 头部的结果
          */
         public PublishOperation header(String key, String value) {
             if (headers == null) {
@@ -568,10 +568,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 头部
-         *
-         * @param h h
-         * @return 头部的结果
+        * 头部
+        *
+        * @param h h
+        * @return 头部的结果
          */
         public PublishOperation headers(Map<String, String> h) {
             this.headers = h;
@@ -579,7 +579,7 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 同步发送消息。
+        * 同步发送消息。
          */
         public void send() {
             client.connection.publish(buildMessage());
@@ -587,18 +587,18 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 异步发送消息。
-         *
-         * @return CompletableFuture
+        * 异步发送消息。
+        *
+        * @return CompletableFuture
          */
         public CompletableFuture<Void> sendAsync() {
             return CompletableFuture.runAsync(this::send);
         }
 
         /**
-         * 构建消息
-         *
-         * @return 构建消息的结果
+        * 构建消息
+        *
+        * @return 构建消息的结果
          */
         private Message buildMessage() {
             io.nats.client.impl.NatsMessage.Builder builder = io.nats.client.impl.NatsMessage.builder()
@@ -616,10 +616,10 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== 订阅操作 ====================
     /**
-     * 订阅operation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * 订阅operation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class SubscribeOperation {
@@ -639,10 +639,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 主题
-         *
-         * @param s s
-         * @return 主题的结果
+        * 主题
+        *
+        * @param s s
+        * @return 主题的结果
          */
         public SubscribeOperation subject(String s) {
             this.subject = s;
@@ -650,10 +650,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 队列
-         *
-         * @param q q
-         * @return 队列的结果
+        * 队列
+        *
+        * @param q q
+        * @return 队列的结果
          */
         public SubscribeOperation queue(String q) {
             this.queue = q;
@@ -661,10 +661,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * autoACK
-         *
-         * @param a a
-         * @return autoACK的结果
+        * autoACK
+        *
+        * @param a a
+        * @return autoACK的结果
          */
         public SubscribeOperation autoAck(boolean a) {
             this.autoAck = a;
@@ -672,9 +672,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 设置消息处理器。
-         * @param h h
-         * @return 处理器的结果
+        * 设置消息处理器。
+        * @param h h
+        * @return 处理器的结果
          */
         public SubscribeOperation handler(Consumer<io.nats.client.Message> h) {
             this.handler = h;
@@ -682,9 +682,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-          * 设置简单消息处理器（仅处理 数据）。
-         * @param h h
-         * @return on消息的结果
+        * 设置简单消息处理器（仅处理 数据）。
+        * @param h h
+        * @return on消息的结果
          */
         public SubscribeOperation onMessage(Consumer<byte[]> h) {
             this.handler = msg -> h.accept(msg.getData());
@@ -692,9 +692,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 设置字符串消息处理器。
-         * @param h h
-         * @return on字符串的结果
+        * 设置字符串消息处理器。
+        * @param h h
+        * @return on字符串的结果
          */
         public SubscribeOperation onString(Consumer<String> h) {
             this.handler = msg -> h.accept(new String(msg.getData(), StandardCharsets.UTF_8));
@@ -702,9 +702,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 开始订阅。
-         *
-         * @return 订阅对象
+        * 开始订阅。
+        *
+        * @return 订阅对象
          */
         public DispatchedSubscription start() {
             DispatchedSubscription sub;
@@ -724,10 +724,10 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-     * 为订阅创建消息分发器。
-     * @param handler 处理器
-     * @param autoAck autoACK
-     * @return 创建dispatcher的结果
+    * 为订阅创建消息分发器。
+    * @param handler 处理器
+    * @param autoAck autoACK
+    * @return 创建dispatcher的结果
      */
     private Dispatcher createDispatcher(Consumer<io.nats.client.Message> handler, boolean autoAck) {
         return connection.createDispatcher(msg -> {
@@ -744,10 +744,10 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== JetStream 操作 ====================
     /**
-     * jet流operation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * jet流operation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class JetStreamOperation {
@@ -759,20 +759,20 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 获取指定流的操作构建器。
-         *
-         * @param streamName 流名称
-         * @return StreamOperation
+        * 获取指定流的操作构建器。
+        *
+        * @param streamName 流名称
+        * @return StreamOperation
          */
         public StreamOperation stream(String streamName) {
             return new StreamOperation(client, streamName);
         }
 
         /**
-         * 创建或更新流。
-         *
-         * @param config 流配置
-         * @return StreamInfo
+        * 创建或更新流。
+        *
+        * @param config 流配置
+        * @return StreamInfo
          */
         public StreamInfo addStream(StreamConfiguration config) {
             try {
@@ -783,9 +783,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 删除流。
-         *
-         * @param streamName 流名称
+        * 删除流。
+        *
+        * @param streamName 流名称
          */
         public void deleteStream(String streamName) {
             try {
@@ -796,10 +796,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 获取流信息。
-         *
-         * @param streamName 流名称
-         * @return StreamInfo
+        * 获取流信息。
+        *
+        * @param streamName 流名称
+        * @return StreamInfo
          */
         public StreamInfo getStream(String streamName) {
             try {
@@ -810,9 +810,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 列出所有流。
-         *
-         * @return 流名称列表
+        * 列出所有流。
+        *
+        * @return 流名称列表
          */
         public List<String> listStreams() {
             try {
@@ -824,9 +824,9 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-     * JetStream 流操作。
-     * @author CH
-     * @since 4.0.0
+    * JetStream 流操作。
+    * @author CH
+    * @since 4.0.0
      */
     public static class StreamOperation {
         /** 客户端 */
@@ -842,9 +842,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 设置流配置。
-         * @param config 配置
-         * @return 配置的结果
+        * 设置流配置。
+        * @param config 配置
+        * @return 配置的结果
          */
         public StreamOperation config(StreamConfiguration config) {
             this.config = config;
@@ -852,9 +852,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 添加流（不存在则创建）。
-         *
-         * @return StreamInfo
+        * 添加流（不存在则创建）。
+        *
+        * @return StreamInfo
          */
         public StreamInfo addStream() {
             try {
@@ -869,31 +869,31 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 发布消息到 JetStream 流。
-         *
-         * @param body 消息体
-         * @return PublishAck
+        * 发布消息到 JetStream 流。
+        *
+        * @param body 消息体
+        * @return PublishAck
          */
         public PublishAck publish(byte[] body) {
             return publish(body, null);
         }
 
         /**
-         * 发布消息到 JetStream 流。
-         *
-         * @param body 消息体
-         * @return PublishAck
+        * 发布消息到 JetStream 流。
+        *
+        * @param body 消息体
+        * @return PublishAck
          */
         public PublishAck publish(String body) {
             return publish(toBytes(body));
         }
 
         /**
-         * 发布消息到 JetStream 流，带消息头。
-         *
-         * @param body    消息体
-         * @param headers 消息头
-         * @return PublishAck
+        * 发布消息到 JetStream 流，带消息头。
+        *
+        * @param body    消息体
+        * @param headers 消息头
+        * @return PublishAck
          */
         public PublishAck publish(byte[] body, Map<String, String> headers) {
             try {
@@ -912,21 +912,21 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 订阅 JetStream 流（推送模式）。
-         *
-         * @param handler 消息处理器
-         * @return DispatchedSubscription
+        * 订阅 JetStream 流（推送模式）。
+        *
+        * @param handler 消息处理器
+        * @return DispatchedSubscription
          */
         public DispatchedSubscription subscribe(Consumer<io.nats.client.Message> handler) {
             return subscribe(handler, "default-consumer");
         }
 
         /**
-         * 订阅 JetStream 流（推送模式），指定消费者名称。
-         *
-         * @param handler      消息处理器
-         * @param consumerName 消费者名称
-         * @return DispatchedSubscription
+        * 订阅 JetStream 流（推送模式），指定消费者名称。
+        *
+        * @param handler      消息处理器
+        * @param consumerName 消费者名称
+        * @return DispatchedSubscription
          */
         public DispatchedSubscription subscribe(Consumer<io.nats.client.Message> handler, String consumerName) {
             try {
@@ -972,10 +972,10 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== Key-Value Store 操作 ====================
     /**
-     * KvOperation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * KvOperation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class KvOperation {
@@ -992,9 +992,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 设置 KV 存储配置。
-         * @param config 配置
-         * @return 配置的结果
+        * 设置 KV 存储配置。
+        * @param config 配置
+        * @return 配置的结果
          */
         public KvOperation config(KeyValueConfiguration config) {
             this.config = config;
@@ -1002,9 +1002,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-          * 创建或获取 键-值 存储桶。
-         *
-         * @return KeyValue
+        * 创建或获取 键-值 存储桶。
+        *
+        * @return KeyValue
          */
         public KeyValue createOrGet() {
             try {
@@ -1025,11 +1025,11 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 写入键值对。
-         *
-         * @param key   键
-         * @param value 值
-         * @return 版本号（插入成功后的序列号）
+        * 写入键值对。
+        *
+        * @param key   键
+        * @param value 值
+        * @return 版本号（插入成功后的序列号）
          */
         public long put(String key, byte[] value) {
             try {
@@ -1040,21 +1040,21 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 写入字符串值。
-         *
-         * @param key   键
-         * @param value 值
-         * @return 版本号
+        * 写入字符串值。
+        *
+        * @param key   键
+        * @param value 值
+        * @return 版本号
          */
         public long put(String key, String value) {
             return put(key, toBytes(value));
         }
 
         /**
-         * 读取键值对。
-         *
-         * @param key 键
-         * @return 键值对条目
+        * 读取键值对。
+        *
+        * @param key 键
+        * @return 键值对条目
          */
         public KeyValueEntry get(String key) {
             try {
@@ -1065,10 +1065,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 读取键值对的值（字符串）。
-         *
-         * @param key 键
-         * @return 值字符串
+        * 读取键值对的值（字符串）。
+        *
+        * @param key 键
+        * @return 值字符串
          */
         public String getString(String key) {
             var entry = get(key);
@@ -1076,9 +1076,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 删除键。
-         *
-         * @param key 键
+        * 删除键。
+        *
+        * @param key 键
          */
         public void delete(String key) {
             try {
@@ -1089,9 +1089,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 列出所有键。
-         *
-         * @return 键列表
+        * 列出所有键。
+        *
+        * @return 键列表
          */
         public List<String> keys() {
             try {
@@ -1105,7 +1105,7 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 删除存储桶。
+        * 删除存储桶。
          */
         public void deleteBucket() {
             try {
@@ -1118,10 +1118,10 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== Object Store 操作 ====================
     /**
-     * 对象存储operation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * 对象存储operation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class ObjectStoreOperation {
@@ -1136,9 +1136,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-          * 创建或获取 对象 存储 存储桶。
-         *
-         * @return ObjectStore
+        * 创建或获取 对象 存储 存储桶。
+        *
+        * @return ObjectStore
          */
         public ObjectStore createOrGet() {
             try {
@@ -1156,12 +1156,12 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 上传对象。
-         *
-         * @param name     对象名称
-         * @param data     数据
-         * @param metadata 元数据
-         * @return ObjectInfo 条目信息
+        * 上传对象。
+        *
+        * @param name     对象名称
+        * @param data     数据
+        * @param metadata 元数据
+        * @return ObjectInfo 条目信息
          */
         public ObjectInfo put(String name, byte[] data, Map<String, String> metadata) {
             try {
@@ -1179,21 +1179,21 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 上传对象。
-         *
-         * @param name 对象名称
-         * @param data 数据
-         * @return ObjectInfo 条目信息
+        * 上传对象。
+        *
+        * @param name 对象名称
+        * @param data 数据
+        * @return ObjectInfo 条目信息
          */
         public ObjectInfo put(String name, byte[] data) {
             return put(name, data, null);
         }
 
         /**
-         * 获取对象信息。
-         *
-         * @param name 对象名称
-         * @return ObjectInfo 条目信息
+        * 获取对象信息。
+        *
+        * @param name 对象名称
+        * @return ObjectInfo 条目信息
          */
         public ObjectInfo get(String name) {
             try {
@@ -1204,9 +1204,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 删除对象。
-         *
-         * @param name 对象名称
+        * 删除对象。
+        *
+        * @param name 对象名称
          */
         public void delete(String name) {
             try {
@@ -1217,9 +1217,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 列出所有对象。
-         *
-         * @return 对象列表
+        * 列出所有对象。
+        *
+        * @return 对象列表
          */
         public List<ObjectInfo> list() {
             try {
@@ -1233,9 +1233,9 @@ public class NatsClient implements AutoCloseable {
     // ==================== 订阅包装 ====================
 
     /**
-     * 已分发的订阅。
-     * @author CH
-     * @since 4.0.0
+    * 已分发的订阅。
+    * @author CH
+    * @since 4.0.0
      */
     @Getter
     public static class DispatchedSubscription {
@@ -1255,7 +1255,7 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 取消订阅。
+        * 取消订阅。
          */
         public void unsubscribe() {
             cancelled = true;
@@ -1271,20 +1271,20 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 暂停订阅。
-         * <p>
-         * 当前 jnats 版本未提供暂停接口，方法保留为 no-op。
-         * </p>
+        * 暂停订阅。
+        * <p>
+        * 当前 jnats 版本未提供暂停接口，方法保留为 no-op。
+        * </p>
          */
         public void pause() {
             // 当前 jnats 版本未提供暂停订阅能力
         }
 
         /**
-         * 恢复订阅。
-         * <p>
-         * 当前 jnats 版本未提供恢复接口，方法保留为 no-op。
-         * </p>
+        * 恢复订阅。
+        * <p>
+        * 当前 jnats 版本未提供恢复接口，方法保留为 no-op。
+        * </p>
          */
         public void resume() {
             // 当前 jnats 版本未提供恢复订阅能力
@@ -1294,10 +1294,10 @@ public class NatsClient implements AutoCloseable {
     // ==================== 工具方法 ====================
 
     /**
-     * 转为bytes
-     *
-     * @param s s
-     * @return 转为bytes的结果
+    * 转为bytes
+    *
+    * @param s s
+    * @return 转为bytes的结果
      */
     private static byte[] toBytes(String s) {
         return s != null ? s.getBytes(StandardCharsets.UTF_8) : new byte[0];
@@ -1306,24 +1306,24 @@ public class NatsClient implements AutoCloseable {
     // ==================== 异常类 ====================
 
     /**
-     * NATS 客户端异常。
-     * @author CH
-     * @since 4.0.0
+    * NATS 客户端异常。
+    * @author CH
+    * @since 4.0.0
      */
     public static class NatsClientException extends RuntimeException {
         /**
-          * 创建 NATS客户端异常 实例
-         * @param message 消息
-         * @param cause Throwable
-         * @param cause cause
+        * 创建 NATS客户端异常 实例
+        * @param message 消息
+        * @param cause Throwable
+        * @param cause cause
          */
         public NatsClientException(String message, Throwable cause) {
             super(message, cause);
         }
 
         /**
-          * 创建 NATS客户端异常 实例
-         * @param message 消息
+        * 创建 NATS客户端异常 实例
+        * @param message 消息
          */
         public NatsClientException(String message) {
             super(message);

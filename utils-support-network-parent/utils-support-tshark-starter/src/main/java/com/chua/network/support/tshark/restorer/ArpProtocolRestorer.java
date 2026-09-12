@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * ARP 协议还原器。
- *
- * <p>解析 ARP 请求/应答：发送端 MAC/IP、目标 MAC/IP。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* ARP 协议还原器。
+*
+* <p>解析 ARP 请求/应答：发送端 MAC/IP、目标 MAC/IP。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ArpProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -54,11 +54,11 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * mac转为字符串
-     *
-     * @param data 数据
-     * @param offset 偏移量
-     * @return mac转为字符串的结果
+    * mac转为字符串
+    *
+    * @param data 数据
+    * @param offset 偏移量
+    * @return mac转为字符串的结果
      */
     private static String macToString(byte[] data, int offset) {
         StringBuilder sb = new StringBuilder();
@@ -72,11 +72,11 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * ip转为字符串
-     *
-     * @param data 数据
-     * @param offset 偏移量
-     * @return ip转为字符串的结果
+    * ip转为字符串
+    *
+    * @param data 数据
+    * @param offset 偏移量
+    * @return ip转为字符串的结果
      */
     private static String ipToString(byte[] data, int offset) {
         return (data[offset] & 0xff) + "."

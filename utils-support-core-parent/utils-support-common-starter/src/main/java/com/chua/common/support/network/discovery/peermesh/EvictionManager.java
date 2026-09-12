@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 超时剔除管理器：定期清理长时间未活动的节点。
- *
- * @author CH
- * @since 4.0.0.42
+* 超时剔除管理器：定期清理长时间未活动的节点。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class EvictionManager {
@@ -25,12 +25,12 @@ public class EvictionManager {
     private final PeerMeshDiscovery discovery;
 
     /**
-     * 构造函数。
-     *
-     * @param config 配置
-     * @param nodeTable 节点表
-     * @param localServerId 本地 serverId（剔除时排除自身）
-     * @param discovery PeerMeshDiscovery 实例
+    * 构造函数。
+    *
+    * @param config 配置
+    * @param nodeTable 节点表
+    * @param localServerId 本地 serverId（剔除时排除自身）
+    * @param discovery PeerMeshDiscovery 实例
      */
     public EvictionManager(MeshConfig config, NodeTable nodeTable, String localServerId,
                            PeerMeshDiscovery discovery) {
@@ -41,7 +41,7 @@ public class EvictionManager {
     }
 
     /**
-     * 执行一次剔除检查。
+    * 执行一次剔除检查。
      */
     public void evict() {
         long now = System.currentTimeMillis();

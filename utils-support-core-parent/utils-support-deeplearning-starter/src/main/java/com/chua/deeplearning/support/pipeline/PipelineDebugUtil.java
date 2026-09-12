@@ -8,15 +8,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * 管线调试工具：将管线各阶段中间数据落盘。
- * <p>
-   * 自动将 镜像pipeline 各步骤的图片保存到 <code>G:/镜像/输出/调试/管线名/步骤名_时间戳.png</code>，
- * 方便查看管线真实流程效果。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param pipelineName pipeline名称
+* 管线调试工具：将管线各阶段中间数据落盘。
+* <p>
+* 自动将 镜像pipeline 各步骤的图片保存到 <code>G:/镜像/输出/调试/管线名/步骤名_时间戳.png</code>，
+* 方便查看管线真实流程效果。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param pipelineName pipeline名称
  */
 public class PipelineDebugUtil {
 
@@ -25,9 +25,9 @@ public class PipelineDebugUtil {
     private final String pipelineName; // pipeline名称
     private final boolean enabled; // 已启用
 /**
- * pipeline调试util。
- * @param pipelineName pipeline名称
- * @param enabled 已启用
+* pipeline调试util。
+* @param pipelineName pipeline名称
+* @param enabled 已启用
  */
 
     public PipelineDebugUtil(String pipelineName, boolean enabled) {
@@ -40,10 +40,10 @@ public class PipelineDebugUtil {
     }
 
     /**
-     * 保存步骤快照。
-     *
-     * @param stepName 步骤名
-     * @param data     图片字节或可转为图片的对象
+    * 保存步骤快照。
+    *
+    * @param stepName 步骤名
+    * @param data     图片字节或可转为图片的对象
      */
     public void snapshot(String stepName, Object data) {
         if (!enabled || data == null) {
@@ -64,12 +64,12 @@ public class PipelineDebugUtil {
     }
 
     /**
-     * 保存步骤快照（带索引）。
-     *
-     * @param stepName 步骤名
-     * @param index    索引
-     * @param data     图片数据
-     * @return 转为bytes的结果
+    * 保存步骤快照（带索引）。
+    *
+    * @param stepName 步骤名
+    * @param index    索引
+    * @param data     图片数据
+    * @return 转为bytes的结果
      /**
       * snapshot。
       * @param stepName step名称
@@ -78,17 +78,17 @@ public class PipelineDebugUtil {
       */
       * @return 转为bytes的结果
      /**
-      * snapshot。
-      * @param stepName step名称
-      * @param index 索引
-      * @param data 数据
+     * snapshot。
+     * @param stepName step名称
+     * @param index 索引
+     * @param data 数据
       */
       * @return 转为bytes的结果
      /**
-      * snapshot。
-      * @param stepName step名称
-      * @param index 索引
-      * @param data 数据
+     * snapshot。
+     * @param stepName step名称
+     * @param index 索引
+     * @param data 数据
       */
      */
     public void snapshot(String stepName, int index, Object data) {

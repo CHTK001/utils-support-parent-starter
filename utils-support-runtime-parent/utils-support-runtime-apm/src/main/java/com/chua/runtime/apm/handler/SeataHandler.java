@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Seata 处理器 — intercepts Seata 全局 transaction 开始/commit/rollback.
- *
- * @author CH
- * @since 4.0.0.42
+* Seata 处理器 — intercepts Seata 全局 transaction 开始/commit/rollback.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SeataHandler extends AbstractAppHandler {
 
     /**
-      * 全局 transaction
+    * 全局 transaction
      */
     private static final String GLOBAL_TRANSACTION = "io/seata/tm/api/GlobalTransaction";
     /**
-      * tx 方法
+    * tx 方法
      */
     private static final String[] TX_METHODS = {"begin", "commit", "rollback", "getStatus"};
 

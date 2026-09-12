@@ -4,24 +4,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 统一返回状态码枚举
- * <p>
- * <b>编码格式</b>: {@code [大类前缀][主HTTP段][次前缀][子序号]}, 共 10 位。
- * <br>例如 {@code S0500C0400} 表示: 服务端(S) 500 错误, 关联客户端(C) 400 场景。
- * <p>
- * <b>大类前缀</b>:
- * <ul>
- * <li>{@code 00000}: 成功</li>
- * <li>{@code Cxxxx}: 客户端错误 (Client)</li>
- * <li>{@code Sxxxx}: 服务端错误 (Server)</li>
- * <li>{@code Axxxx}: 认证/授权错误 (Auth)</li>
- * <li>{@code Dxxxx}: 数据错误 (Data)</li>
- * <li>{@code Bxxxx}: 业务错误 (Business)</li>
- * <li>{@code Fxxxx}: 文件错误 (File)</li>
- * </ul>
- *
- * @author CH
- * @since 2023-04-01
+* 统一返回状态码枚举
+* <p>
+* <b>编码格式</b>: {@code [大类前缀][主HTTP段][次前缀][子序号]}, 共 10 位。
+* <br>例如 {@code S0500C0400} 表示: 服务端(S) 500 错误, 关联客户端(C) 400 场景。
+* <p>
+* <b>大类前缀</b>:
+* <ul>
+* <li>{@code 00000}: 成功</li>
+* <li>{@code Cxxxx}: 客户端错误 (Client)</li>
+* <li>{@code Sxxxx}: 服务端错误 (Server)</li>
+* <li>{@code Axxxx}: 认证/授权错误 (Auth)</li>
+* <li>{@code Dxxxx}: 数据错误 (Data)</li>
+* <li>{@code Bxxxx}: 业务错误 (Business)</li>
+* <li>{@code Fxxxx}: 文件错误 (File)</li>
+* </ul>
+*
+* @author CH
+* @since 2023-04-01
  */
 @Getter
 @AllArgsConstructor

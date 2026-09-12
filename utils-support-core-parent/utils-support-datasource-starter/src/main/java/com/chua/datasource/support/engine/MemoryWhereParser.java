@@ -7,25 +7,25 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
- * 内存 WHERE 条件解析器。
- * <p>
- * 将 SQL 风格的 WHERE 子句解析为 Java {@link Predicate}。
-   * 支持 =、!=、&lt;&gt;、&gt;、&gt;=、&lt;、&lt;=、LIKE、入、是否 空、是否 NOT 空、BETWEEN，
-   * 以及括号分组（和 / 或 嵌套）。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 内存 WHERE 条件解析器。
+* <p>
+* 将 SQL 风格的 WHERE 子句解析为 Java {@link Predicate}。
+* 支持 =、!=、&lt;&gt;、&gt;、&gt;=、&lt;、&lt;=、LIKE、入、是否 空、是否 NOT 空、BETWEEN，
+* 以及括号分组（和 / 或 嵌套）。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class MemoryWhereParser {
 
     /**
-     * 解析 WHERE 子句为 Predicate。
-     *
-     * @param whereClause WHERE 子句（不含 WHERE 关键字）
-     * @param params      参数值列表
-     * @param <T>         实体类型
-     * @return 谓词
+    * 解析 WHERE 子句为 Predicate。
+    *
+    * @param whereClause WHERE 子句（不含 WHERE 关键字）
+    * @param params      参数值列表
+    * @param <T>         实体类型
+    * @return 谓词
      */
     public <T> Predicate<T> parse(String whereClause, List<Object> params) {
         if (whereClause == null || whereClause.trim().isEmpty()) {
@@ -36,12 +36,12 @@ public class MemoryWhereParser {
 
     @SuppressWarnings("unchecked")
     /**
-     * 解析条件
-     *
-     * @param where where
-     * @param params 参数
-     * @param startIdx 启动idx
-     * @return 解析条件的结果
+    * 解析条件
+    *
+    * @param where where
+    * @param params 参数
+    * @param startIdx 启动idx
+    * @return 解析条件的结果
      */
     private <T> Predicate<T> parseConditions(String where, List<Object> params, int startIdx) {
         Predicate<T> result = t -> true;
@@ -261,10 +261,10 @@ public class MemoryWhereParser {
     }
 
     /**
-      * 将参数值转换为与字段值相同的类型，避免 类cast异常。
-     * @param fieldValue 字段值
-     * @param paramValue 参数值
-     * @return 转换转为匹配的结果
+    * 将参数值转换为与字段值相同的类型，避免 类cast异常。
+    * @param fieldValue 字段值
+    * @param paramValue 参数值
+    * @return 转换转为匹配的结果
      */
     private Object convertToMatch(Object fieldValue, Object paramValue) {
         if (fieldValue == null || paramValue == null) {
@@ -306,10 +306,10 @@ public class MemoryWhereParser {
     }
 
     /**
-     * 通过反射获取对象字段的值。
-     * @param obj obj
-     * @param field 字段
-     * @return 获取字段值的结果
+    * 通过反射获取对象字段的值。
+    * @param obj obj
+    * @param field 字段
+    * @return 获取字段值的结果
      */
     private <T> Object getFieldValue(T obj, String field) {
         return MethodCache.getValue(obj, field);

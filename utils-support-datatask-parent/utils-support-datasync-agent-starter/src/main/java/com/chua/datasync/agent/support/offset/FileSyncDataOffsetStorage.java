@@ -7,10 +7,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 /**
- * 文件系统偏移量存储。
- *
- * @author CH
- * @since 4.0.0.42
+* 文件系统偏移量存储。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
 
@@ -23,8 +23,8 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     /**
-      * 创建 文件同步数据偏移量storage 实例
-     * @param storageDir storagedir
+    * 创建 文件同步数据偏移量storage 实例
+    * @param storageDir storagedir
      */
     public FileSyncDataOffsetStorage(Path storageDir) {
         this.storageDir = storageDir;

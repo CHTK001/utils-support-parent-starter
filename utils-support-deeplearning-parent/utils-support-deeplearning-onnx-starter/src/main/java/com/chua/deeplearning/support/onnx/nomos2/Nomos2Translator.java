@@ -16,35 +16,35 @@ import java.awt.image.BufferedImage;
 
 
 /**
-   * 4xnomos2 ESRGAN
- * <p>
- *                                                                   
- * <p>
- *                
- * -           float32       
- * -              [0, 1]
-   * -           CHW          通道, Height, Width
- * <p>
- *                
- * -           [0, 1]       
- * -           [0, 255]
- * -           UINT8       
-   * -           镜像
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2024/11/08
+* 4xnomos2 ESRGAN
+* <p>
+*                                                                   
+* <p>
+*                
+* -           float32       
+* -              [0, 1]
+* -           CHW          通道, Height, Width
+* <p>
+*                
+* -           [0, 1]       
+* -           [0, 255]
+* -           UINT8       
+* -           镜像
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2024/11/08
  */
 @Slf4j
 public class Nomos2Translator implements Translator<Image, Image> {
 
     /**
-     *                                                    {@link NDList}   
-     *
-     * @param ctx translator上下文
-     * @param input                       
-     * @return NDList               
-     * @throws Exception                
+    *                                                    {@link NDList}   
+    *
+    * @param ctx translator上下文
+    * @param input                       
+    * @return NDList               
+    * @throws Exception                
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
@@ -77,12 +77,12 @@ public class Nomos2Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                                                  {@link Image}   
-     *
-     * @param ctx translator上下文
-     * @param list nd列表
-     * @return Image               
-     * @throws Exception                
+    *                                                  {@link Image}   
+    *
+    * @param ctx translator上下文
+    * @param list nd列表
+    * @return Image               
+    * @throws Exception                
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
@@ -122,10 +122,10 @@ public class Nomos2Translator implements Translator<Image, Image> {
     }
 
     /**
-     * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
-     *
-     * @param v 浮点像素值
-     * @return 0-255 整数
+    * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
+    *
+    * @param v 浮点像素值
+    * @return 0-255 整数
      */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
@@ -133,12 +133,12 @@ public class Nomos2Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                           
-     * <p>
-     *        STACK             
-     * </p>
-     *
-     * @return Batchifier          
+    *                           
+    * <p>
+    *        STACK             
+    * </p>
+    *
+    * @return Batchifier          
      */
     @Override
     public Batchifier getBatchifier() {

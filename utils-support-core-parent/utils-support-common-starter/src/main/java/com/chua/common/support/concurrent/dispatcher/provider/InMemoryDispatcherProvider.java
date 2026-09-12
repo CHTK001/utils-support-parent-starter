@@ -14,13 +14,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 内存队列分发器提供者，基于 {@link LinkedBlockingQueue} 实现纯内存发布订阅。
- *
- * <p>适用于同 JVM 内轻量级 pub/sub，无需磁盘持久化或外部中间件。
- * 消息直接通过队列传递，不经过序列化。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 内存队列分发器提供者，基于 {@link LinkedBlockingQueue} 实现纯内存发布订阅。
+*
+* <p>适用于同 JVM 内轻量级 pub/sub，无需磁盘持久化或外部中间件。
+* 消息直接通过队列传递，不经过序列化。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class InMemoryDispatcherProvider extends AbstractDispatcherProvider implements DispatcherProvider {
@@ -39,8 +39,8 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     private static final int QUEUE_CAPACITY = 50000;
 
     /**
-     * 创建 InMemoryDispatcherProvider 实例
-     * @param config config
+    * 创建 InMemoryDispatcherProvider 实例
+    * @param config config
      */
     public InMemoryDispatcherProvider(DispatcherConfig config) {
         super(config);

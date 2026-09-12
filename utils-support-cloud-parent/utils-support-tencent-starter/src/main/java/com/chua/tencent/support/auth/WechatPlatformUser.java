@@ -8,12 +8,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 微信开放平台用户信息
- * <p>
- * 记录同一用户在不同应用下的openid和平台类型
- *
- * @author CH
- * @since 4.0.0.42
+* 微信开放平台用户信息
+* <p>
+* 记录同一用户在不同应用下的openid和平台类型
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
@@ -22,9 +22,9 @@ import lombok.NoArgsConstructor;
 public class WechatPlatformUser {
 
     /**
- * @author CH
-     * 平台类型
-     * @since 4.0.0
+    * @author CH
+    * 平台类型
+    * @since 4.0.0
      */
     public enum PlatformType {
         /** 微信小程序 */
@@ -45,9 +45,9 @@ public class WechatPlatformUser {
 
         @JsonValue
         /**
-         * 获取值
-         *
-         * @return 获取值的结果
+        * 获取值
+        *
+        * @return 获取值的结果
          */
         public String getValue() {
             return value;
@@ -55,10 +55,10 @@ public class WechatPlatformUser {
 
         @JsonCreator
         /**
-         * 从值
-         *
-         * @param value 值
-         * @return 从值的结果
+        * 从值
+        *
+        * @param value 值
+        * @return 从值的结果
          */
         public static PlatformType fromValue(String value) {
             if (value == null) {
@@ -74,37 +74,37 @@ public class WechatPlatformUser {
     }
 
     /**
-      * 主键标识
+    * 主键标识
      */
     private Long id;
 
     /**
-     * 用户unionid（同一开放平台下唯一）
+    * 用户unionid（同一开放平台下唯一）
      */
     private String unionId;
 
     /**
-      * 应用appid
+    * 应用appid
      */
     private String appId;
 
     /**
-     * 用户在该应用下的openid
+    * 用户在该应用下的openid
      */
     private String openId;
 
     /**
-     * 平台类型
+    * 平台类型
      */
     private PlatformType platformType;
 
     /**
-     * 用户昵称
+    * 用户昵称
      */
     private String nickname;
 
     /**
-     * 用户头像
+    * 用户头像
      */
     private String avatar;
 }

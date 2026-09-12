@@ -29,71 +29,71 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
-   * r套接字 嵌入式服务器，轻量级实现。
- * <p>
- * 继承 {@link AbstractServer}，支持 {@link ServerFilter} 过滤器链、
- * {@link com.chua.common.support.objects.annotation.OnOpen @OnOpen}、
- * {@link com.chua.common.support.objects.annotation.OnClose @OnClose}、
- * {@link com.chua.common.support.objects.annotation.OnMessage @OnMessage} 注解处理。
-   * 基于 r套接字 Java 实现，支持 请求响应、fire和forget、请求流 模型。
- * </p>
- *
- * <h2>使用方式</h2>
- * <pre>{@code
- * ServerSetting setting = ServerSetting.defaults();
- * setting.setPort(7000);
- * RSocketServer server = new RSocketServer(setting);
- *
- * server.register(new Object() {
- *     &#64;OnOpen
- *     public void onConnect() { System.out.println("客户端连接"); }
- *
- *     &#64;OnMessage("order")
- *     public void onOrder(String payload) { System.out.println("收到: " + payload); }
- *
- *     &#64;OnClose
- *     public void onDisconnect() { System.out.println("客户端断开"); }
- * });
- *
- * server.start();
- * server.publish("order", "hello");
- * server.stop();
- * }</pre>
-   * 服务端.发布("订单", "hello");
-   * 服务端.停止();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* r套接字 嵌入式服务器，轻量级实现。
+* <p>
+* 继承 {@link AbstractServer}，支持 {@link ServerFilter} 过滤器链、
+* {@link com.chua.common.support.objects.annotation.OnOpen @OnOpen}、
+* {@link com.chua.common.support.objects.annotation.OnClose @OnClose}、
+* {@link com.chua.common.support.objects.annotation.OnMessage @OnMessage} 注解处理。
+* 基于 r套接字 Java 实现，支持 请求响应、fire和forget、请求流 模型。
+* </p>
+*
+* <h2>使用方式</h2>
+* <pre>{@code
+* ServerSetting setting = ServerSetting.defaults();
+* setting.setPort(7000);
+* RSocketServer server = new RSocketServer(setting);
+*
+* server.register(new Object() {
+*     &#64;OnOpen
+*     public void onConnect() { System.out.println("客户端连接"); }
+*
+*     &#64;OnMessage("order")
+*     public void onOrder(String payload) { System.out.println("收到: " + payload); }
+*
+*     &#64;OnClose
+*     public void onDisconnect() { System.out.println("客户端断开"); }
+* });
+*
+* server.start();
+* server.publish("order", "hello");
+* server.stop();
+* }</pre>
+* 服务端.发布("订单", "hello");
+* 服务端.停止();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("rsocket")
 public class RSocketServer extends AbstractServer {
 
     /**
-      * r套接字 服务器 disposable
+    * r套接字 服务器 disposable
      */
     private Disposable serverDisposable;
 
     /**
-      * 主题到订阅者 fluxsink 列表的映射
+    * 主题到订阅者 fluxsink 列表的映射
      */
     private final Map<String, List<FluxSinkWrapper>> topicSubscribers = new ConcurrentHashMap<>();
 
     /**
-      * 主题到 服务端处理器 的映射
+    * 主题到 服务端处理器 的映射
      */
     private final Map<String, ServerHandler> messageHandlers = new ConcurrentHashMap<>();
 
     /**
-      * 虚拟线程执行器(异步派发 请求响应/fire和forget 业务,避免阻塞连接 事件 循环)
+    * 虚拟线程执行器(异步派发 请求响应/fire和forget 业务,避免阻塞连接 事件 循环)
      */
     private final java.util.concurrent.ExecutorService bizExecutor =
             ThreadUtils.newVirtualThreadPerTaskExecutor();
 
     /**
-      * 创建 r套接字服务端 实例
-     * @param setting setting
+    * 创建 r套接字服务端 实例
+    * @param setting setting
      */
     public RSocketServer(ServerSetting setting) {
         super(setting);
@@ -242,14 +242,14 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * 注册注解处理器。
-     * <p>
-     * 扫描类上的 {@link OnOpen}、{@link OnClose}、{@link OnMessage} 注解，
-     * 自动绑定到对应事件。
-     * </p>
-     *
-     * @param handler 处理器对象
-     * @return 当前服务器实例，支持链式调用
+    * 注册注解处理器。
+    * <p>
+    * 扫描类上的 {@link OnOpen}、{@link OnClose}、{@link OnMessage} 注解，
+    * 自动绑定到对应事件。
+    * </p>
+    *
+    * @param handler 处理器对象
+    * @return 当前服务器实例，支持链式调用
      */
     @Override
     public RSocketServer registerBean(Object handler) {
@@ -275,11 +275,11 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * 注册主题请求处理器。
-     *
-     * @param topic   主题名称
-     * @param handler 消息处理器
-     * @return 当前服务器实例，支持链式调用
+    * 注册主题请求处理器。
+    *
+    * @param topic   主题名称
+    * @param handler 消息处理器
+    * @return 当前服务器实例，支持链式调用
      */
     public RSocketServer onSubscribe(String topic, Consumer<String> handler) {
         messageHandlers.put(topic, (request, response) -> {
@@ -289,14 +289,14 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * 注册主题对应的 {@link ServerHandler} 处理器。
-     *
-     * <p>与 {@link #onSubscribe(String, Consumer)} 不同,此处直接注册请求-响应处理器,
-      * 处理器写入 {@link ServerResponse} 的内容会作为 请求响应 的响应返回。</p>
-     *
-     * @param topic   主题名称
-     * @param handler 请求-响应处理器
-     * @return 当前服务器实例，支持链式调用
+    * 注册主题对应的 {@link ServerHandler} 处理器。
+    *
+    * <p>与 {@link #onSubscribe(String, Consumer)} 不同,此处直接注册请求-响应处理器,
+    * 处理器写入 {@link ServerResponse} 的内容会作为 请求响应 的响应返回。</p>
+    *
+    * @param topic   主题名称
+    * @param handler 请求-响应处理器
+    * @return 当前服务器实例，支持链式调用
      */
     public RSocketServer onRequest(String topic, ServerHandler handler) {
         if (handler != null) {
@@ -306,10 +306,10 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * 向所有订阅了指定主题的客户端推送消息。
-     *
-     * @param topic   主题名称
-     * @param payload 消息内容
+    * 向所有订阅了指定主题的客户端推送消息。
+    *
+    * @param topic   主题名称
+    * @param payload 消息内容
      */
     public void publish(String topic, String payload) {
         List<FluxSinkWrapper> wrappers = topicSubscribers.getOrDefault(topic, List.of());
@@ -324,10 +324,10 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-      * 从 r套接字 Payload 中提取 topic。
-     *
-     * @param payload r套接字 负载
-     * @return topic 名称，提取失败返回 空
+    * 从 r套接字 Payload 中提取 topic。
+    *
+    * @param payload r套接字 负载
+    * @return topic 名称，提取失败返回 空
      */
     private String extractTopic(io.rsocket.Payload payload) {
         if (payload == null) {
@@ -361,9 +361,9 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * 调用标注了指定注解的方法。
-     *
-     * @param annotationType 注解类型
+    * 调用标注了指定注解的方法。
+    *
+    * @param annotationType 注解类型
      */
     private void invokeAnnotatedMethods(Class<? extends Annotation> annotationType) {
         if (getObjectContext() == null) {
@@ -392,11 +392,11 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * 创建消息处理器。
-     *
-     * @param bean   目标对象
-     * @param method 目标方法
-     * @return ServerHandler 实例
+    * 创建消息处理器。
+    *
+    * @param bean   目标对象
+    * @param method 目标方法
+    * @return ServerHandler 实例
      */
     private ServerHandler createMessageHandler(Object bean, Method method) {
         method.setAccessible(true);
@@ -433,18 +433,18 @@ public class RSocketServer extends AbstractServer {
     // ==================== 轻量请求/响应适配 ====================
 
     /**
-      * 轻量 r套接字 请求适配。
-     * @author CH
-     * @since 4.0.0
+    * 轻量 r套接字 请求适配。
+    * @author CH
+    * @since 4.0.0
      */
     private static class SimpleServerRequest extends com.chua.common.support.network.server.request.AbstractServerRequest {
 
         /**
-         * topic
+        * topic
          */
         private final String topic;
         /**
-         * 数据内容
+        * 数据内容
          */
         private final byte[] body;
 
@@ -503,9 +503,9 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-      * 轻量 r套接字 响应适配。
-     * @author CH
-     * @since 4.0.0
+    * 轻量 r套接字 响应适配。
+    * @author CH
+    * @since 4.0.0
      */
     private static class SimpleServerResponse extends com.chua.common.support.network.server.response.AbstractServerResponse {
 
@@ -523,9 +523,9 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-      * fluxsink 包装器。
-     * @param sink sink
-     * @return fluxsink包装器的结果
+    * fluxsink 包装器。
+    * @param sink sink
+    * @return fluxsink包装器的结果
      */
     private record FluxSinkWrapper(reactor.core.publisher.FluxSink<io.rsocket.Payload> sink) {
     }

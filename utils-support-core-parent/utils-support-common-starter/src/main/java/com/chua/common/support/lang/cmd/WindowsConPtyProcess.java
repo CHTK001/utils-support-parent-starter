@@ -15,104 +15,104 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Windows ConPTY 进程封装，基于 JDK Panama FFI 调用 kernel32 实现伪控制台子进程。
- * <p>
- * 仅 Windows 10 1809 及以上可用，使用前通过 {@link #isAvailable()} 判断当前环境是否支持。
- * 提供伪终端输入管道、UTF-16LE 环境块与 ConPTY 进程属性列表的封装，对外暴露 {@link InputStream} 与 {@link #waitFor()}。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Windows ConPTY 进程封装，基于 JDK Panama FFI 调用 kernel32 实现伪控制台子进程。
+* <p>
+* 仅 Windows 10 1809 及以上可用，使用前通过 {@link #isAvailable()} 判断当前环境是否支持。
+* 提供伪终端输入管道、UTF-16LE 环境块与 ConPTY 进程属性列表的封装，对外暴露 {@link InputStream} 与 {@link #waitFor()}。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class WindowsConPtyProcess implements Closeable {
 
     /**
-     * 当前进程 ConPTY 可用标志，{@code true} 表示当前为 Windows 10 1809+ 且 kernel32 符号解析成功
+    * 当前进程 ConPTY 可用标志，{@code true} 表示当前为 Windows 10 1809+ 且 kernel32 符号解析成功
      */
     private static final boolean AVAILABLE;
 
     // region Panama FFI 绑定
 
     /**
-     * 系统 Linker，用于生成 native downcall
+    * 系统 Linker，用于生成 native downcall
      */
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
-     * kernel32 符号查找器
+    * kernel32 符号查找器
      */
     private static final SymbolLookup K32;
 
     /**
-     * kernel32!CreatePipe 方法句柄
+    * kernel32!CreatePipe 方法句柄
      */
     private static final MethodHandle CreatePipe;
 
     /**
-     * kernel32!CloseHandle 方法句柄
+    * kernel32!CloseHandle 方法句柄
      */
     private static final MethodHandle CloseHandle;
 
     /**
-     * kernel32!GetLastError 方法句柄
+    * kernel32!GetLastError 方法句柄
      */
     private static final MethodHandle GetLastError;
 
     /**
-     * kernel32!WaitForSingleObject 方法句柄
+    * kernel32!WaitForSingleObject 方法句柄
      */
     private static final MethodHandle WaitForSingleObject;
 
     /**
-     * kernel32!GetExitCodeProcess 方法句柄
+    * kernel32!GetExitCodeProcess 方法句柄
      */
     private static final MethodHandle GetExitCodeProcess;
 
     /**
-     * kernel32!TerminateProcess 方法句柄
+    * kernel32!TerminateProcess 方法句柄
      */
     private static final MethodHandle TerminateProcess;
 
     /**
-     * kernel32!ReadFile 方法句柄
+    * kernel32!ReadFile 方法句柄
      */
     private static final MethodHandle ReadFile;
 
     /**
-     * kernel32!CreatePseudoConsole 方法句柄
+    * kernel32!CreatePseudoConsole 方法句柄
      */
     private static final MethodHandle CreatePseudoConsole;
 
     /**
-     * kernel32!ClosePseudoConsole 方法句柄
+    * kernel32!ClosePseudoConsole 方法句柄
      */
     private static final MethodHandle ClosePseudoConsole;
 
     /**
-     * kernel32!InitializeProcThreadAttributeList 方法句柄
+    * kernel32!InitializeProcThreadAttributeList 方法句柄
      */
     private static final MethodHandle InitializeProcThreadAttributeList;
 
     /**
-     * kernel32!UpdateProcThreadAttribute 方法句柄
+    * kernel32!UpdateProcThreadAttribute 方法句柄
      */
     private static final MethodHandle UpdateProcThreadAttribute;
 
     /**
-     * kernel32!DeleteProcThreadAttributeList 方法句柄
+    * kernel32!DeleteProcThreadAttributeList 方法句柄
      */
     private static final MethodHandle DeleteProcThreadAttributeList;
 
     /**
-     * kernel32!CreateProcessW 方法句柄
+    * kernel32!CreateProcessW 方法句柄
      */
     private static final MethodHandle CreateProcessW;
 
     /**
-     * 在 kernel32 中按名字查找符号，未找到抛出 {@link UnsatisfiedLinkError}。
-     *
-     * @param name 符号名（含或不含 {@code kernel32!} 前缀均可）
-     * @return 对应的 MemorySegment
+    * 在 kernel32 中按名字查找符号，未找到抛出 {@link UnsatisfiedLinkError}。
+    *
+    * @param name 符号名（含或不含 {@code kernel32!} 前缀均可）
+    * @return 对应的 MemorySegment
      */
     private static MemorySegment findOrThrow(String name) {
         return K32.find(name).orElseThrow(
@@ -120,11 +120,11 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     /**
-     * 通过 Linker 生成 native downcall 方法句柄。
-     *
-     * @param name kernel32 符号名
-     * @param desc 函数签名描述
-     * @return 对应的 downcall MethodHandle
+    * 通过 Linker 生成 native downcall 方法句柄。
+    *
+    * @param name kernel32 符号名
+    * @param desc 函数签名描述
+    * @return 对应的 downcall MethodHandle
      */
     private static MethodHandle mh(String name, FunctionDescriptor desc) {
         return LINKER.downcallHandle(findOrThrow(name), desc);
@@ -137,7 +137,7 @@ public final class WindowsConPtyProcess implements Closeable {
     // ------------------------------------------------------------------
 
     /**
-     * CONSOLE_COORD 结构布局（控制台坐标 X/Y）
+    * CONSOLE_COORD 结构布局（控制台坐标 X/Y）
      */
     private static final MemoryLayout COORD_LAYOUT = MemoryLayout.structLayout(
             ValueLayout.JAVA_SHORT.withName("X"),
@@ -145,7 +145,7 @@ public final class WindowsConPtyProcess implements Closeable {
     );
 
     /**
-     * SECURITY_ATTRIBUTES 结构布局（句柄安全属性，CreatePipe 需传入）
+    * SECURITY_ATTRIBUTES 结构布局（句柄安全属性，CreatePipe 需传入）
      */
     private static final MemoryLayout SECURITY_ATTRIBUTES_LAYOUT = MemoryLayout.structLayout(
             ValueLayout.JAVA_INT.withName("nLength"),
@@ -155,7 +155,7 @@ public final class WindowsConPtyProcess implements Closeable {
     );
 
     /**
-     * PROCESS_INFORMATION 结构布局（CreateProcessW 输出进程/线程句柄与 ID）
+    * PROCESS_INFORMATION 结构布局（CreateProcessW 输出进程/线程句柄与 ID）
      */
     private static final MemoryLayout PROCESS_INFORMATION_LAYOUT = MemoryLayout.structLayout(
             ValueLayout.ADDRESS.withName("hProcess"),
@@ -165,7 +165,7 @@ public final class WindowsConPtyProcess implements Closeable {
     );
 
     /**
-     * STARTUPINFO 结构布局（Win64 上为 104 字节）
+    * STARTUPINFO 结构布局（Win64 上为 104 字节）
      */
     private static final MemoryLayout STARTUPINFO_LAYOUT = MemoryLayout.structLayout(
             ValueLayout.JAVA_INT.withName("cb"),
@@ -191,59 +191,59 @@ public final class WindowsConPtyProcess implements Closeable {
     );
 
     /**
-     * STARTUPINFO 结构大小（常量 104 字节）
+    * STARTUPINFO 结构大小（常量 104 字节）
      */
     private static final long STARTUPINFO_SIZE = STARTUPINFO_LAYOUT.byteSize();
 
     /**
-     * STARTUPINFOEX 结构大小 = STARTUPINFO + lpAttributeList
+    * STARTUPINFOEX 结构大小 = STARTUPINFO + lpAttributeList
      */
     private static final long STARTUPINFOEX_SIZE;
 
     // endregion
 
     /**
-     * WaitForSingleObject 使用的无限等待常量（-1）
+    * WaitForSingleObject 使用的无限等待常量（-1）
      */
     private static final int INFINITE = -1;
 
     /**
-     * PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE 属性值
+    * PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE 属性值
      */
     private static final long PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE = 0x00020016L;
 
     /**
-     * EXTENDED_STARTUPINFO_PRESENT 标志位
+    * EXTENDED_STARTUPINFO_PRESENT 标志位
      */
     private static final int EXTENDED_STARTUPINFO_PRESENT = 0x00080000;
 
     /**
-     * CREATE_UNICODE_ENVIRONMENT 标志位
+    * CREATE_UNICODE_ENVIRONMENT 标志位
      */
     private static final int CREATE_UNICODE_ENVIRONMENT = 0x00000400;
 
     /**
-     * 伪控制台默认列宽
+    * 伪控制台默认列宽
      */
     private static final short CONSOLE_WIDTH = 80;
 
     /**
-     * 伪控制台默认行高
+    * 伪控制台默认行高
      */
     private static final short CONSOLE_HEIGHT = 300;
 
     /**
-     * 句柄继承标志（TRUE）
+    * 句柄继承标志（TRUE）
      */
     private static final int INHERIT_HANDLES = 1;
 
     /**
-     * 属性列表数量
+    * 属性列表数量
      */
     private static final int ATTRIBUTE_COUNT = 1;
 
     /**
-     * 管道缓冲区大小（0 表示使用默认）
+    * 管道缓冲区大小（0 表示使用默认）
      */
     private static final int PIPE_BUFFER_SIZE = 0;
 
@@ -358,43 +358,43 @@ public final class WindowsConPtyProcess implements Closeable {
     // ==================== 实例 ====================
 
     /**
-     * ConPTY 伪控制台句柄
+    * ConPTY 伪控制台句柄
      */
     private MemorySegment hPC;
 
     /**
-     * 子进程 stdin 写端句柄
+    * 子进程 stdin 写端句柄
      */
     private MemorySegment hInputWrite;
 
     /**
-     * 子进程 stdout 读端句柄
+    * 子进程 stdout 读端句柄
      */
     private MemorySegment hOutputRead;
 
     /**
-     * 子进程句柄
+    * 子进程句柄
      */
     private MemorySegment hProcess;
 
     /**
-     * 子进程主线程句柄
+    * 子进程主线程句柄
      */
     private MemorySegment hThread;
 
     /**
-     * 输出字节流封装
+    * 输出字节流封装
      */
     private ConPtyInputStream inputStream;
 
     /**
-     * 创建 WindowsConPtyProcess 实例
-     * @param hPC hPC
-     * @param hInputWrite hInputWrite
-     * @param hOutputRead hOutputRead
-     * @param hProcess hProcess
-     * @param hThread hThread
-     * @param inputStream inputStream
+    * 创建 WindowsConPtyProcess 实例
+    * @param hPC hPC
+    * @param hInputWrite hInputWrite
+    * @param hOutputRead hOutputRead
+    * @param hProcess hProcess
+    * @param hThread hThread
+    * @param inputStream inputStream
      */
     private WindowsConPtyProcess(MemorySegment hPC, MemorySegment hInputWrite,
                                   MemorySegment hOutputRead, MemorySegment hProcess,
@@ -408,11 +408,11 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     /**
-     * 将 Java 字符串转换为 UTF-16LE 编码、以双 NUL 结尾的 Windows 宽字符串。
-     *
-     * @param arena 用于分配内存的 Arena
-     * @param s     源字符串
-     * @return 指向宽字符串内存的 MemorySegment
+    * 将 Java 字符串转换为 UTF-16LE 编码、以双 NUL 结尾的 Windows 宽字符串。
+    *
+    * @param arena 用于分配内存的 Arena
+    * @param s     源字符串
+    * @return 指向宽字符串内存的 MemorySegment
      */
     private static MemorySegment toWideString(Arena arena, String s) {
         byte[] bytes = s.getBytes(StandardCharsets.UTF_16LE);
@@ -426,9 +426,9 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     /**
-     * 调用 kernel32!GetLastError 获取最近一次调用的错误码。调用失败统一返回 {@code -1}。
-     *
-     * @return Win32 错误码
+    * 调用 kernel32!GetLastError 获取最近一次调用的错误码。调用失败统一返回 {@code -1}。
+    *
+    * @return Win32 错误码
      */
     private static int getLastError() {
         try {
@@ -439,10 +439,10 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     /**
-     * 关闭 Windows 句柄，若句柄为 null 或调用失败则返回 false。
-     *
-     * @param handle 待关闭的句柄
-     * @return true 表示关闭成功
+    * 关闭 Windows 句柄，若句柄为 null 或调用失败则返回 false。
+    *
+    * @param handle 待关闭的句柄
+    * @return true 表示关闭成功
      */
     private static boolean closeHandle(MemorySegment handle) {
         if (handle == null) {
@@ -727,14 +727,14 @@ public final class WindowsConPtyProcess implements Closeable {
     // ==================== 环境块 ====================
 
     /**
-     * 构造子进程的环境块，按 UTF-16LE 拼接并以双 NUL 结尾。
-     * <p>
-     * 自动读取 Windows 注册表中的系统代理并写入 {@code HTTP_PROXY}/{@code HTTPS_PROXY}，
-     * 避免子进程无法访问外网。
-     * </p>
-     *
-     * @param arena 用于分配环境块内存的 Arena
-     * @return 指向环境块 UTF-16LE 字符串的 MemorySegment
+    * 构造子进程的环境块，按 UTF-16LE 拼接并以双 NUL 结尾。
+    * <p>
+    * 自动读取 Windows 注册表中的系统代理并写入 {@code HTTP_PROXY}/{@code HTTPS_PROXY}，
+    * 避免子进程无法访问外网。
+    * </p>
+    *
+    * @param arena 用于分配环境块内存的 Arena
+    * @return 指向环境块 UTF-16LE 字符串的 MemorySegment
      */
     static MemorySegment buildEnvBlock(Arena arena) {
         Map<String, String> env = new java.util.LinkedHashMap<>(System.getenv());
@@ -765,12 +765,12 @@ public final class WindowsConPtyProcess implements Closeable {
     // ==================== 基于 ReadFile 的 InputStream ====================
 
     /**
-     * 基于 kernel32!ReadFile 的标准 InputStream 包装，从子进程 stdout 读端读取数据。
+    * 基于 kernel32!ReadFile 的标准 InputStream 包装，从子进程 stdout 读端读取数据。
      */
     private static class ConPtyInputStream extends InputStream {
 
         /**
-         * 子进程 stdout 管道读端句柄
+        * 子进程 stdout 管道读端句柄
          */
         private final MemorySegment handle;
 

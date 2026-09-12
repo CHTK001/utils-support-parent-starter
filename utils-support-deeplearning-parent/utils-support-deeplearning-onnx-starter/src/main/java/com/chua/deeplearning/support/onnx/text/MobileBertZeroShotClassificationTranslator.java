@@ -24,35 +24,35 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
-   * mobilebert MNLI                       Translator
- * <p>
-   * 映射("premise" ->             , "假设" ->             )
- *   CONTRADICTION / ENTAILMENT / NEUTRAL                
- * </p>
- * <p>
- *                                                premise                                 
-   * "This example 是否 about {标签}."        假设       ENTAILMENT score
- * </p>
- *
- * @author CH
- * @since 2026-05-10
+* mobilebert MNLI                       Translator
+* <p>
+* 映射("premise" ->             , "假设" ->             )
+*   CONTRADICTION / ENTAILMENT / NEUTRAL                
+* </p>
+* <p>
+*                                                premise                                 
+* "This example 是否 about {标签}."        假设       ENTAILMENT score
+* </p>
+*
+* @author CH
+* @since 2026-05-10
  */
 @Slf4j
 public class MobileBertZeroShotClassificationTranslator implements Translator<Map<String, String>, Classifications> {
 
     /**
-     *                       128
+    *                       128
      */
     private static final int MAX_LENGTH = 128;
 
     /**
-     * MNLI                          
-     *   ENTAILMENT / NEUTRAL / CONTRADICTION
+    * MNLI                          
+    *   ENTAILMENT / NEUTRAL / CONTRADICTION
      */
     private static final List<String> NLI_LABELS = List.of("ENTAILMENT", "NEUTRAL", "CONTRADICTION");
 
     /**
-      * huggingface
+    * huggingface
      */
     private HuggingFaceTokenizer tokenizer;
 
@@ -78,11 +78,11 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     @Override
     @Nonnull
     /**
-     * 处理输入
-     *
-     * @param ctx ctx
-     * @param input 输入
-     * @return 处理输入的结果
+    * 处理输入
+    *
+    * @param ctx ctx
+    * @param input 输入
+    * @return 处理输入的结果
      */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Map<String, String> input) {
         if (tokenizer == null) {
@@ -115,11 +115,11 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     @Override
     @Nonnull
     /**
-     * 处理输出
-     *
-     * @param ctx ctx
-     * @param list 列表
-     * @return 处理输出的结果
+    * 处理输出
+    *
+    * @param ctx ctx
+    * @param list 列表
+    * @return 处理输出的结果
      */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
@@ -133,17 +133,17 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     }
 
     /**
-     *                               
-     * <p>
-      * "This example 是否 about {标签}.",        NLI,
-     *     ENTAILMENT score                      
-      * zoo模型        Predictor
-     * </p>
-     *
-     * @param predictor                      Predictor
-     * @param text                          
-     * @param candidateLabels                   
-     * @return                                        
+    *                               
+    * <p>
+    * "This example 是否 about {标签}.",        NLI,
+    *     ENTAILMENT score                      
+    * zoo模型        Predictor
+    * </p>
+    *
+    * @param predictor                      Predictor
+    * @param text                          
+    * @param candidateLabels                   
+    * @return                                        
      */
     public static Classifications zeroShotClassify(
             ai.djl.inference.Predictor<Map<String, String>, Classifications> predictor,
@@ -177,19 +177,19 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     @Override
     @Nullable
     /**
-     * 获取Batchifier
-     *
-     * @return 获取batchifier的结果
+    * 获取Batchifier
+    *
+    * @return 获取batchifier的结果
      */
     public Batchifier getBatchifier() {
         return null;
     }
 
     /**
-     *                        tokenizer.json
-     *
-     * @param modelPath             
-     * @return                        path，       空
+    *                        tokenizer.json
+    *
+    * @param modelPath             
+    * @return                        path，       空
      */
     private static Path findTokenizerPath(Path modelPath) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
@@ -210,10 +210,10 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     }
 
     /**
-     * softmax                  
-     *
-     * @param logits                      
-     * @return softmax              
+    * softmax                  
+    *
+    * @param logits                      
+    * @return softmax              
      */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;

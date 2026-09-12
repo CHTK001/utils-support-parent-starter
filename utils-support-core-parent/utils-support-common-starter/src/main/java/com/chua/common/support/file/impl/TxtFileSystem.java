@@ -20,34 +20,34 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TXT 纯文本文件系统 SPI 实现。
- *
- * <p>通过 SPI 机制注册为 {@code "txt"} 类型的文件系统实现。
- * 使用 JDK 内置 IO 流实现纯文本文件的逐行读取与写入。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* TXT 纯文本文件系统 SPI 实现。
+*
+* <p>通过 SPI 机制注册为 {@code "txt"} 类型的文件系统实现。
+* 使用 JDK 内置 IO 流实现纯文本文件的逐行读取与写入。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("txt")
 public class TxtFileSystem implements FileSystem {
 
     /**
-     * 文本读取默认分隔符（Tab 字符）
+    * 文本读取默认分隔符（Tab 字符）
      */
     private static final char DEFAULT_DELIMITER = '\t';
 
     /**
-     * 单行行内字段缺失表头时的列名前缀
+    * 单行行内字段缺失表头时的列名前缀
      */
     private static final String COLUMN_KEY_PREFIX = "col";
 
     /**
-     * 写入时使用的默认单元格分隔符（Tab 字符）
+    * 写入时使用的默认单元格分隔符（Tab 字符）
      */
     private static final String TAB_DELIMITER = "\t";
 
     /**
-     * 多行拼接使用的换行符
+    * 多行拼接使用的换行符
      */
     private static final String LINE_SEPARATOR = "\n";
 
@@ -70,15 +70,15 @@ public class TxtFileSystem implements FileSystem {
     }
 
     /**
-     * TXT 文件读取构建器。
-     *
-     * @since 4.0.0.42
+    * TXT 文件读取构建器。
+    *
+    * @since 4.0.0.42
      */
     @Slf4j
     public static class TxtReadBuilder extends ReadBuilder {
 
         /**
-         * 字段分隔符
+        * 字段分隔符
          */
         private char delimiter = DEFAULT_DELIMITER;
 
@@ -94,10 +94,10 @@ public class TxtFileSystem implements FileSystem {
         }
 
         /**
-         * 设置分隔符（默认 TAB）。
-         *
-         * @param delimiter 分隔符字符
-         * @return 当前构建器
+        * 设置分隔符（默认 TAB）。
+        *
+        * @param delimiter 分隔符字符
+        * @return 当前构建器
          */
         public TxtReadBuilder withDelimiter(char delimiter) {
             this.delimiter = delimiter;
@@ -105,9 +105,9 @@ public class TxtFileSystem implements FileSystem {
         }
 
         /**
-         * 读取文件全部行。
-         *
-         * @return 行文本列表
+        * 读取文件全部行。
+        *
+        * @return 行文本列表
          */
         public List<String> lines() {
             List<String> result = new ArrayList<>();
@@ -131,9 +131,9 @@ public class TxtFileSystem implements FileSystem {
         }
 
         /**
-         * 以表格形式读取（首行为表头，行数据转为 Map）。
-         *
-         * @return Map 行数据列表
+        * 以表格形式读取（首行为表头，行数据转为 Map）。
+        *
+        * @return Map 行数据列表
          */
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
@@ -195,20 +195,20 @@ public class TxtFileSystem implements FileSystem {
     }
 
     /**
-     * TXT 文件写入构建器。
-     *
-     * @since 4.0.0.42
+    * TXT 文件写入构建器。
+    *
+    * @since 4.0.0.42
      */
     @Slf4j
     public static class TxtWriteBuilder extends WriteBuilder {
 
         /**
-         * 是否已写入表头行
+        * 是否已写入表头行
          */
         private boolean txtHeaderDone;
 
         /**
-         * 表头列列表
+        * 表头列列表
          */
         private List<String> txtHeaderCols;
 
@@ -236,10 +236,10 @@ public class TxtFileSystem implements FileSystem {
         }
 
         /**
-         * 追加多行文本写入。
-         *
-         * @param lines 待写入的行列表
-         * @return 当前构建器
+        * 追加多行文本写入。
+        *
+        * @param lines 待写入的行列表
+        * @return 当前构建器
          */
         public TxtWriteBuilder write(List<String> lines) {
             pending.addAll(lines);
@@ -271,9 +271,9 @@ public class TxtFileSystem implements FileSystem {
         }
 
         /**
-         * 将待写入数据解析为行字符串列表。
-         *
-         * @return 行字符串列表
+        * 将待写入数据解析为行字符串列表。
+        *
+        * @return 行字符串列表
          */
         private List<String> resolveLines() {
             List<String> result = new ArrayList<>();
@@ -296,10 +296,10 @@ public class TxtFileSystem implements FileSystem {
         }
 
         /**
-         * 追加一行 Map 数据；首行根据 {@link #withHeader} 决定是否写入表头。
-         *
-         * @param result 收集行字符串的列表
-         * @param map    单行数据
+        * 追加一行 Map 数据；首行根据 {@link #withHeader} 决定是否写入表头。
+        *
+        * @param result 收集行字符串的列表
+        * @param map    单行数据
          */
         private void appendMapRow(List<String> result, Map<String, Object> map) {
             // 应用行过滤谓词

@@ -25,34 +25,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 腾讯云 COS（Cloud 对象 Storage）文件存储实现。
- *
- * <p>基于腾讯云 COS Java SDK 实现 {@link FileStorage} SPI 接口，
- * 提供对象存储的上传、下载、删除、存在性检查、列表等操作。</p>
- *
- * <p>配置说明：</p>
- * <ul>
- *   <li>endpoint — COS 访问域名，如 {@code https://cos.ap-guangzhou.myqcloud.com}</li>
- *   <li>region — 地域，如 {@code ap-guangzhou}（广州）、{@code ap-beijing}（北京）</li>
- *   <li>bucket — 存储桶名称（不含 APPID 后缀，SDK 自动拼接）</li>
- *   <li>accessKeyId / accessKeySecret — 腾讯云 API 密钥（SecretId / SecretKey）</li>
- * </ul>
- *
- * <p>使用示例：</p>
- * <pre>{@code
- * BucketSetting setting = BucketSetting.builder()
- *     .endpoint("https://cos.ap-guangzhou.myqcloud.com")
- *     .bucket("my-bucket-1250000000")
- *     .accessKeyId("AKID...")
- *     .accessKeySecret("...")
- *     .region("ap-guangzhou")
- *     .build();
- * FileStorage storage = FileStorage.createStorage("cos", setting);
- * }</pre>e("cos", setting);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 腾讯云 COS（Cloud 对象 Storage）文件存储实现。
+*
+* <p>基于腾讯云 COS Java SDK 实现 {@link FileStorage} SPI 接口，
+* 提供对象存储的上传、下载、删除、存在性检查、列表等操作。</p>
+*
+* <p>配置说明：</p>
+* <ul>
+*   <li>endpoint — COS 访问域名，如 {@code https://cos.ap-guangzhou.myqcloud.com}</li>
+*   <li>region — 地域，如 {@code ap-guangzhou}（广州）、{@code ap-beijing}（北京）</li>
+*   <li>bucket — 存储桶名称（不含 APPID 后缀，SDK 自动拼接）</li>
+*   <li>accessKeyId / accessKeySecret — 腾讯云 API 密钥（SecretId / SecretKey）</li>
+* </ul>
+*
+* <p>使用示例：</p>
+* <pre>{@code
+* BucketSetting setting = BucketSetting.builder()
+*     .endpoint("https://cos.ap-guangzhou.myqcloud.com")
+*     .bucket("my-bucket-1250000000")
+*     .accessKeyId("AKID...")
+*     .accessKeySecret("...")
+*     .region("ap-guangzhou")
+*     .build();
+* FileStorage storage = FileStorage.createStorage("cos", setting);
+* }</pre>e("cos", setting);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"cos", "tencent"})
 public class TencentCosFileStorage extends AbstractFileStorage {
@@ -61,8 +61,8 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     private final COSClient cosClient;
 
     /**
-      * 创建 tencentcos文件storage 实例
-     * @param bucketSetting bucketsetting
+    * 创建 tencentcos文件storage 实例
+    * @param bucketSetting bucketsetting
      */
     public TencentCosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);

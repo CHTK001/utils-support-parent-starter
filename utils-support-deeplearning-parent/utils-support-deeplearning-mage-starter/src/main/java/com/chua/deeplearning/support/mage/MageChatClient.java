@@ -20,107 +20,107 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * Microsoft Mage 多模态理解客户端（SPI 提供者="mage"）。
- *
- * <p>通过 HTTP 调用<b>自部署</b>的 Mage-VL 推理服务（见本模块 {@code scripts/server.py}），
- * 后端为微软 Mage-VL 4B —— 编解码器原生的图像/视频理解基础模型
-   * （Mage-vit 从零训练视觉栈 + 通义千问3-4B 解码器，支持主动流式评论）。
- *
- * <p>服务端接口为 OpenAI Chat Completions 风格子集：
- * <pre>
- * POST /v1/chat/completions {model, messages[{role, content}]}
- *   content 支持纯文本或多模态数组：
- *   [{type: "text", text}, {type: "image_url", image_url: {url}}, {type: "video_url", video_url: {url}}]
- *   url 支持 http(s) 远程地址与 data:image/...;base64, 数据 URI
- * GET  /v1/models
- * </pre>
- *
- * <p>调用示例：
- * <pre>{@code
- *   // 图文理解
- *   String answer = ChatClient.create("mage", "sk-xxx")
- *       .baseUrl("http://gpu-host:7861")
- *       .model("mage-vl")
- *       .addImage("file:///data/scene.jpg")          // 也支持 http(s) 与本地路径
- *       .chatSync("描述这段画面里发生了什么");
- *
- *   // 纯文本多轮对话
- *   String reply = ChatClient.create("mage", "sk-xxx")
- *       .model("mage-vl")
- *       .system("你是监控分析助手")
- *       .addUserHistory("上一帧有人翻越围栏")
- *       .chatSync("当前帧需要注意什么？");
- * }</pre>控分析助手")
- *       .addUserHistory("上一帧有人翻越围栏")
- *       .chatSync("当前帧需要注意什么？");
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Microsoft Mage 多模态理解客户端（SPI 提供者="mage"）。
+*
+* <p>通过 HTTP 调用<b>自部署</b>的 Mage-VL 推理服务（见本模块 {@code scripts/server.py}），
+* 后端为微软 Mage-VL 4B —— 编解码器原生的图像/视频理解基础模型
+* （Mage-vit 从零训练视觉栈 + 通义千问3-4B 解码器，支持主动流式评论）。
+*
+* <p>服务端接口为 OpenAI Chat Completions 风格子集：
+* <pre>
+* POST /v1/chat/completions {model, messages[{role, content}]}
+*   content 支持纯文本或多模态数组：
+*   [{type: "text", text}, {type: "image_url", image_url: {url}}, {type: "video_url", video_url: {url}}]
+*   url 支持 http(s) 远程地址与 data:image/...;base64, 数据 URI
+* GET  /v1/models
+* </pre>
+*
+* <p>调用示例：
+* <pre>{@code
+*   // 图文理解
+*   String answer = ChatClient.create("mage", "sk-xxx")
+*       .baseUrl("http://gpu-host:7861")
+*       .model("mage-vl")
+*       .addImage("file:///data/scene.jpg")          // 也支持 http(s) 与本地路径
+*       .chatSync("描述这段画面里发生了什么");
+*
+*   // 纯文本多轮对话
+*   String reply = ChatClient.create("mage", "sk-xxx")
+*       .model("mage-vl")
+*       .system("你是监控分析助手")
+*       .addUserHistory("上一帧有人翻越围栏")
+*       .chatSync("当前帧需要注意什么？");
+* }</pre>控分析助手")
+*       .addUserHistory("上一帧有人翻越围栏")
+*       .chatSync("当前帧需要注意什么？");
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("mage")
 public class MageChatClient implements ChatClient {
 
     /**
-     * 默认服务地址
+    * 默认服务地址
      */
     private static final String DEFAULT_URL = "http://127.0.0.1:7861";
 
     /**
-      * 默认模型 标识
+    * 默认模型 标识
      */
     private static final String DEFAULT_MODEL = "mage-vl";
 
     /**
-     * 读超时（毫秒）：长视频编码 + 自回归解码可能耗时较长
+    * 读超时（毫秒）：长视频编码 + 自回归解码可能耗时较长
      */
     private static final long READ_TIMEOUT_MILLIS = 300_000L;
 
     /**
-     * 客户端配置
+    * 客户端配置
      */
     private final ChatClientSetting setting;
 
     /**
-      * 当前使用的模型 标识
+    * 当前使用的模型 标识
      */
     private String model;
 
     /**
-     * 当前系统提示词
+    * 当前系统提示词
      */
     private String system;
 
     /**
-     * 对话历史消息列表
+    * 对话历史消息列表
      */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-      * 外部传入的完整历史记录；非空时覆盖内部 历史
+    * 外部传入的完整历史记录；非空时覆盖内部 历史
      */
     private List<ChatMessage> externalHistory;
 
     /**
-      * 图片附件 URL / 数据 URI / 本地路径列表
+    * 图片附件 URL / 数据 URI / 本地路径列表
      */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
-      * 视频附件 URL / 数据 URI / 本地路径列表
+    * 视频附件 URL / 数据 URI / 本地路径列表
      */
     private final List<String> videoUrls = new ArrayList<>();
 
     /**
-      * 文件附件列表（图片字节将转为 数据 URI 参与请求）
+    * 文件附件列表（图片字节将转为 数据 URI 参与请求）
      */
     private final List<Attachment> attachments = new ArrayList<>();
 
     /**
-     * 构造 Mage 多模态理解客户端。
-     *
-     * @param setting 客户端配置
+    * 构造 Mage 多模态理解客户端。
+    *
+    * @param setting 客户端配置
      */
     public MageChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -150,10 +150,10 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-     * 添加视频附件（Mage-VL 支持视频理解）。
-     *
-     * @param videoUrl 视频 URL、数据 URI 或服务端可访问的本地路径
-     * @return 当前客户端实例
+    * 添加视频附件（Mage-VL 支持视频理解）。
+    *
+    * @param videoUrl 视频 URL、数据 URI 或服务端可访问的本地路径
+    * @return 当前客户端实例
      */
     public ChatClient addVideo(String videoUrl) {
         this.videoUrls.add(videoUrl);
@@ -260,10 +260,10 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-      * 组装并发送 对话/completions 请求。
-     *
-     * @param prompt 用户输入
-     * @return 服务端 JSON 响应
+    * 组装并发送 对话/completions 请求。
+    *
+    * @param prompt 用户输入
+    * @return 服务端 JSON 响应
      */
     private Map<String, Object> postChatCompletions(String prompt) {
         JsonObject requestBody = JsonObject.create()
@@ -289,14 +289,14 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-      * 构建 打开AI 风格的 消息 数组。
-     *
-     * <p>包含：系统提示词（可选）、外部或内部对话历史、携带多模态内容的当前用户消息。
-      * 当前用户消息的图片/视频/字节附件以 内容 parts 形式附加；
-     * 无任何附件时退化为纯文本字符串以保持兼容。
-     *
-     * @param prompt 用户输入
-     * @return 消息列表（JsonObject 结构）
+    * 构建 打开AI 风格的 消息 数组。
+    *
+    * <p>包含：系统提示词（可选）、外部或内部对话历史、携带多模态内容的当前用户消息。
+    * 当前用户消息的图片/视频/字节附件以 内容 parts 形式附加；
+    * 无任何附件时退化为纯文本字符串以保持兼容。
+    *
+    * @param prompt 用户输入
+    * @return 消息列表（JsonObject 结构）
      */
     private List<JsonObject> buildMessages(String prompt) {
         List<JsonObject> messages = new ArrayList<>();
@@ -319,10 +319,10 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-     * 构建当前用户消息。
-     *
-     * @param prompt 用户输入
-     * @return 含多模态 内容 parts 或纯文本的用户消息
+    * 构建当前用户消息。
+    *
+    * @param prompt 用户输入
+    * @return 含多模态 内容 parts 或纯文本的用户消息
      */
     private JsonObject buildUserMessage(String prompt) {
         List<JsonObject> parts = new ArrayList<>();
@@ -368,13 +368,13 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-     * 将附件地址转换为服务端可访问的 URL。
-     *
-     * <p>本地文件路径（含 file:// 协议）转为 {@code file://} 绝对路径 data 引用，
-      * 由 Mage 服务端读取；http(s)/数据 URI 直接透传。
-     *
-     * @param url 原始地址
-     * @return 服务端可访问的地址
+    * 将附件地址转换为服务端可访问的 URL。
+    *
+    * <p>本地文件路径（含 file:// 协议）转为 {@code file://} 绝对路径 data 引用，
+    * 由 Mage 服务端读取；http(s)/数据 URI 直接透传。
+    *
+    * @param url 原始地址
+    * @return 服务端可访问的地址
      */
     private String toRequestUrl(String url) {
         if (url == null) {
@@ -389,10 +389,10 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-     * 解析用量信息。
-     *
-     * @param usageObj 服务端返回的 usage 对象
-     * @return 用量信息；缺失时返回 空
+    * 解析用量信息。
+    *
+    * @param usageObj 服务端返回的 usage 对象
+    * @return 用量信息；缺失时返回 空
      */
     private AiUsage parseUsage(Object usageObj) {
         Map<String, Object> usage = castMap(usageObj);
@@ -409,9 +409,9 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-      * 构建 授权 头。
-     *
-     * @return 已配置 app键 时返回 Bearer 头，否则返回空串（不携带认证）
+    * 构建 授权 头。
+    *
+    * @return 已配置 app键 时返回 Bearer 头，否则返回空串（不携带认证）
      */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
@@ -419,12 +419,12 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-     * 规范化服务基地址。
-     *
-     * <p>移除末尾斜杠与多余的 {@code /v1} 后缀（路径由客户端拼接），
-     * 未配置时使用默认地址 {@value DEFAULT_URL}。
-     *
-     * @return 规范化后的 URL
+    * 规范化服务基地址。
+    *
+    * <p>移除末尾斜杠与多余的 {@code /v1} 后缀（路径由客户端拼接），
+    * 未配置时使用默认地址 {@value DEFAULT_URL}。
+    *
+    * @return 规范化后的 URL
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
@@ -441,10 +441,10 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-      * 安全类型转换：映射。
-     *
-     * @param obj 原始对象
-     * @return Map 视图；类型不符时返回 空
+    * 安全类型转换：映射。
+    *
+    * @param obj 原始对象
+    * @return Map 视图；类型不符时返回 空
      */
     @SuppressWarnings("unchecked")
     private Map<String, Object> castMap(Object obj) {
@@ -452,10 +452,10 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-      * 安全类型转换：映射 列表。
-     *
-     * @param obj 原始对象
-     * @return 列表视图；类型不符时返回 空
+    * 安全类型转换：映射 列表。
+    *
+    * @param obj 原始对象
+    * @return 列表视图；类型不符时返回 空
      */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> castList(Object obj) {
@@ -463,10 +463,10 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-     * 安全整数转换。
-     *
-     * @param obj 原始对象
-     * @return 整数值；无法转换时返回 空
+    * 安全整数转换。
+    *
+    * @param obj 原始对象
+    * @return 整数值；无法转换时返回 空
      */
     private Integer asInteger(Object obj) {
         if (obj instanceof Number number) {
@@ -480,7 +480,7 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-     * Mage-VL 家族模型定义。
+    * Mage-VL 家族模型定义。
      */
     private static final List<ModelDefinition> MODELS = List.of(
             ModelDefinition.builder()

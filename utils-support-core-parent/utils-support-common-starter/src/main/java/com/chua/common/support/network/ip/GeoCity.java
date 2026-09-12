@@ -2,12 +2,12 @@ package com.chua.common.support.network.ip;
 
 
 /**
- * 地理位置信息
- *
- * <p>存储 IP 定位或经纬度反向解析的结果，包含国家、省份、城市、ISP 等信息。
- *
- * @author CH
- * @since 1.0.0
+* 地理位置信息
+*
+* <p>存储 IP 定位或经纬度反向解析的结果，包含国家、省份、城市、ISP 等信息。
+*
+* @author CH
+* @since 1.0.0
  */
 public class GeoCity {
 
@@ -89,9 +89,9 @@ public class GeoCity {
     public void setTimeZone(String timeZone) { this.timeZone = timeZone; }
 
     /**
-     * 获取完整地址字符串
-     *
-     * @return 国家+省份+城市
+    * 获取完整地址字符串
+    *
+    * @return 国家+省份+城市
      */
     public String getFullAddress() {
         StringBuilder sb = new StringBuilder();

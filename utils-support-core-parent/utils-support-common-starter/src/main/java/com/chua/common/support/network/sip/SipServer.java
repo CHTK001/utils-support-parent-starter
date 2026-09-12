@@ -29,105 +29,105 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * SIP 单端口服务器：认证信令与 frp 数据平面共用同一监听端口。
- *
- * <p>继承 {@link AbstractServer} 获得统一生命周期与配置管理，实现 {@link TcpServer} 接口
- * 复用 TCP 服务抽象，底层由 {@link JdkTcpServer} 流式模式承载连接。</p>
- *
- * <p>连接建立后首行握手：</p>
- * <ul>
- *   <li>{@code AUTH|clientId|host|port|signature} → 认证连接，
- *       验签通过后返回 {@code TOKEN|token} 并保持为信令长连接，后续按行收发信令</li>
- *   <li>{@code CONNECT|channelId|role|token} → 数据平面连接，
- *       携带会话 token 校验，通过后与对端裸字节流双向桥接（TCP 代理模式）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* SIP 单端口服务器：认证信令与 frp 数据平面共用同一监听端口。
+*
+* <p>继承 {@link AbstractServer} 获得统一生命周期与配置管理，实现 {@link TcpServer} 接口
+* 复用 TCP 服务抽象，底层由 {@link JdkTcpServer} 流式模式承载连接。</p>
+*
+* <p>连接建立后首行握手：</p>
+* <ul>
+*   <li>{@code AUTH|clientId|host|port|signature} → 认证连接，
+*       验签通过后返回 {@code TOKEN|token} 并保持为信令长连接，后续按行收发信令</li>
+*   <li>{@code CONNECT|channelId|role|token} → 数据平面连接，
+*       携带会话 token 校验，通过后与对端裸字节流双向桥接（TCP 代理模式）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SipServer extends AbstractServer implements TcpServer {
 
     /**
-     * 握手首行最大长度（字节），超长直接断开，防止恶意连接打爆内存
+    * 握手首行最大长度（字节），超长直接断开，防止恶意连接打爆内存
      */
     private static final int MAX_HEAD_LINE = 8192;
 
     /**
-     * 客户端注册表（clientId -> 信令连接）
+    * 客户端注册表（clientId -> 信令连接）
      */
     private final Map<String, SignalConnection> registry = new ConcurrentHashMap<>();
 
     /**
-     * 会话令牌表（token -> clientId）
+    * 会话令牌表（token -> clientId）
      */
     private final Map<String, String> sessionTokens = new ConcurrentHashMap<>();
 
     /**
-     * 隧道服务注册表（serviceName -> 服务提供方 clientId）
+    * 隧道服务注册表（serviceName -> 服务提供方 clientId）
      */
     private final Map<String, String> tunnelServices = new ConcurrentHashMap<>();
 
     /**
-     * 隧道通道路由表（channelId -> 通道两端）
+    * 隧道通道路由表（channelId -> 通道两端）
      */
     private final Map<String, TunnelChannel> tunnelChannels = new ConcurrentHashMap<>();
 
     /**
-     * 数据通道桥接表（channelId -> 桥接器）
+    * 数据通道桥接表（channelId -> 桥接器）
      */
     private final Map<String, DataChannel> dataChannels = new ConcurrentHashMap<>();
 
     /**
-     * 多路复用连接表（clientId|role -> 连接）
+    * 多路复用连接表（clientId|role -> 连接）
      */
     private final Map<String, MuxServerConn> muxConns = new ConcurrentHashMap<>();
 
     /**
-     * 多路复用待转发帧（channelId|peerKey -> 帧列表，对端连接未注册时暂存）
+    * 多路复用待转发帧（channelId|peerKey -> 帧列表，对端连接未注册时暂存）
      */
     private final Map<String, List<byte[]>> muxPending = new ConcurrentHashMap<>();
 
     /**
-     * 客户端连接回调列表
+    * 客户端连接回调列表
      */
     private final List<Consumer<String>> connectListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 客户端断开回调列表
+    * 客户端断开回调列表
      */
     private final List<Consumer<String>> disconnectListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 认证令牌（初始共享密钥）
+    * 认证令牌（初始共享密钥）
      */
     private final String token;
 
 
 
     /**
-     * 底层 TCP 服务器（流式模式，一连接一虚拟线程）
+    * 底层 TCP 服务器（流式模式，一连接一虚拟线程）
      */
     private JdkTcpServer tcpServer;
 
     /**
-     * 连接级限流器（认证限流 + 帧率限制）
+    * 连接级限流器（认证限流 + 帧率限制）
      */
     private final SipRateLimiter rateLimiter;
 
     private volatile boolean running = true;
 
     /**
-     * 使用默认配置创建 SIP 服务器。
+    * 使用默认配置创建 SIP 服务器。
      */
     public SipServer() {
         this(SipConfig.defaults());
     }
 
     /**
-     * 使用指定配置创建 SIP 服务器。
-     *
-     * @param config 服务器配置
+    * 使用指定配置创建 SIP 服务器。
+    *
+    * @param config 服务器配置
      */
     public SipServer(SipConfig config) {
         super(serverSetting(config));
@@ -136,13 +136,13 @@ public class SipServer extends AbstractServer implements TcpServer {
     }
 
     /**
-     * 构建服务器配置。
-     *
-     * @param config SIP 配置
-     * @return 服务器配置
+    * 构建服务器配置。
+    *
+    * @param config SIP 配置
+    * @return 服务器配置
      */
         /**
-     * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
+        * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
      */
     private static String resolveToken(SipConfig config) {
         String file = config.getTokenFile();
@@ -174,7 +174,7 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 启动服务器的具体逻辑。
+    * 启动服务器的具体逻辑。
      */
     @Override
     protected void doStart() {
@@ -186,7 +186,7 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 停止服务器的具体逻辑。
+    * 停止服务器的具体逻辑。
      */
     @Override
     protected void doStop() {
@@ -211,9 +211,9 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 获取服务器配置。
-     *
-     * @return 配置实例
+    * 获取服务器配置。
+    *
+    * @return 配置实例
      */
     public SipConfig getConfig() {
         return SipConfig.builder()
@@ -224,19 +224,19 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 获取当前已注册的客户端标识列表。
-     *
-     * @return 客户端标识列表
+    * 获取当前已注册的客户端标识列表。
+    *
+    * @return 客户端标识列表
      */
     public List<String> getConnectedClients() {
         return List.copyOf(registry.keySet());
     }
 
     /**
-     * 注册客户端连接回调。
-     *
-     * @param listener 连接回调，参数为客户端标识
-     * @return 当前服务器实例，支持链式调用
+    * 注册客户端连接回调。
+    *
+    * @param listener 连接回调，参数为客户端标识
+    * @return 当前服务器实例，支持链式调用
      */
     public SipServer onConnect(Consumer<String> listener) {
         connectListeners.add(listener);
@@ -244,10 +244,10 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 注册客户端断开回调。
-     *
-     * @param listener 断开回调，参数为客户端标识
-     * @return 当前服务器实例，支持链式调用
+    * 注册客户端断开回调。
+    *
+    * @param listener 断开回调，参数为客户端标识
+    * @return 当前服务器实例，支持链式调用
      */
     public SipServer onDisconnect(Consumer<String> listener) {
         disconnectListeners.add(listener);
@@ -255,10 +255,10 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 注册帧处理器（TcpServer 接口，SIP 使用流式协议，此处直接返回当前实例）。
-     *
-     * @param handler 帧处理器
-     * @return 当前实例
+    * 注册帧处理器（TcpServer 接口，SIP 使用流式协议，此处直接返回当前实例）。
+    *
+    * @param handler 帧处理器
+    * @return 当前实例
      */
     @Override
     public SipServer setHandler(TcpServerHandler handler) {
@@ -266,9 +266,9 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 获取协议类型。
-     *
-     * @return 协议类型
+    * 获取协议类型。
+    *
+    * @return 协议类型
      */
     @Override
     public ProtocolType getProtocolType() {
@@ -276,14 +276,14 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 以协议处理器方式处理一条被协议嗅探服务器转交的连接。
-     *
-     * <p>复用单端口首行分流逻辑（{@code AUTH} 认证信令 / {@code CONNECT} 数据平面），
-     * 供 {@link com.chua.common.support.network.tcp.ProtocolSniffingTcpServer} 等
-     * 外部监听器嵌入调用。此时本服务器不独立监听端口，由外部监听器负责连接接入与协议识别。</p>
-     *
-     * @param in  输入流（含外部监听器已回推的头部字节）
-     * @param out 输出流
+    * 以协议处理器方式处理一条被协议嗅探服务器转交的连接。
+    *
+    * <p>复用单端口首行分流逻辑（{@code AUTH} 认证信令 / {@code CONNECT} 数据平面），
+    * 供 {@link com.chua.common.support.network.tcp.ProtocolSniffingTcpServer} 等
+    * 外部监听器嵌入调用。此时本服务器不独立监听端口，由外部监听器负责连接接入与协议识别。</p>
+    *
+    * @param in  输入流（含外部监听器已回推的头部字节）
+    * @param out 输出流
      */
     public void handleStream(InputStream in, OutputStream out) {
         running = true;
@@ -291,10 +291,10 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 处理一条连接：读首行握手，按前缀分流认证信令与数据平面。
-     *
-     * @param in  输入流
-     * @param out 输出流
+    * 处理一条连接：读首行握手，按前缀分流认证信令与数据平面。
+    *
+    * @param in  输入流
+    * @param out 输出流
      */
     private void handleConnection(InputStream in, OutputStream out) {
         try {
@@ -316,12 +316,12 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 处理多路复用数据面连接：验签后注册到连接表，读循环内按 channelId 解帧路由。
-     *
-     * @param in        输入流
-     * @param out       输出流
-     * @param firstLine 握手行（MUXCONN|首个channelId|role|signature）
-     * @throws IOException IO 异常
+    * 处理多路复用数据面连接：验签后注册到连接表，读循环内按 channelId 解帧路由。
+    *
+    * @param in        输入流
+    * @param out       输出流
+    * @param firstLine 握手行（MUXCONN|首个channelId|role|signature）
+    * @throws IOException IO 异常
      */
     private void handleMuxConnection(InputStream in, OutputStream out, String firstLine) throws IOException {
         String[] parts = firstLine.split("\\|", 4);
@@ -359,11 +359,11 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * mux 帧路由：按通道两端将帧转发给对端复用连接；对端未注册时暂存。
-     *
-     * @param from      来源连接
-     * @param channelId 通道标识
-     * @param payload   负载（空数组为通道关闭标记）
+    * mux 帧路由：按通道两端将帧转发给对端复用连接；对端未注册时暂存。
+    *
+    * @param from      来源连接
+    * @param channelId 通道标识
+    * @param payload   负载（空数组为通道关闭标记）
      */
     private void muxRoute(MuxServerConn from, String channelId, byte[] payload) {
         TunnelChannel channel = tunnelChannels.get(channelId);
@@ -409,9 +409,9 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 冲刷暂存帧：对端复用连接注册后补发（对端客户端 earlyFrames 会缓冲至流挂载）。
-     *
-     * @param conn 新注册的连接
+    * 冲刷暂存帧：对端复用连接注册后补发（对端客户端 earlyFrames 会缓冲至流挂载）。
+    *
+    * @param conn 新注册的连接
      */
     private void muxFlushPending(MuxServerConn conn) {
         for (Map.Entry<String, List<byte[]>> entry : muxPending.entrySet()) {
@@ -431,19 +431,19 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 冲刷暂存帧：新复用连接注册后，补发等它的一切帧。
-     *
-     * @param conn 新注册的连接
+    * 冲刷暂存帧：新复用连接注册后，补发等它的一切帧。
+    *
+    * @param conn 新注册的连接
      */
 
 
     /**
-     * 逐字节读取首行（遇换行停止），不预读缓冲后续字节，保证数据平面业务字节不被吞掉。
-     * <p>超过 {@link #MAX_HEAD_LINE} 字节直接视为非法连接并断开，防止恶意客户端打爆内存。</p>
-     *
-     * @param in 输入流
-     * @return 首行内容（不含换行符），读不到或超长时返回 null
-     * @throws IOException IO 异常
+    * 逐字节读取首行（遇换行停止），不预读缓冲后续字节，保证数据平面业务字节不被吞掉。
+    * <p>超过 {@link #MAX_HEAD_LINE} 字节直接视为非法连接并断开，防止恶意客户端打爆内存。</p>
+    *
+    * @param in 输入流
+    * @return 首行内容（不含换行符），读不到或超长时返回 null
+    * @throws IOException IO 异常
      */
     private static String readHeadLine(InputStream in) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream(256);
@@ -464,12 +464,12 @@ private static ServerSetting serverSetting(SipConfig config) {
     }
 
     /**
-     * 处理信令长连接：认证换 token 后循环读取信令行。
-     *
-     * @param reader    输入
-     * @param out       输出
-     * @param firstLine 认证握手行（AUTH|clientId|host|port|signature）
-     * @throws IOException IO 异常
+    * 处理信令长连接：认证换 token 后循环读取信令行。
+    *
+    * @param reader    输入
+    * @param out       输出
+    * @param firstLine 认证握手行（AUTH|clientId|host|port|signature）
+    * @throws IOException IO 异常
      */
     private void handleSignalConnection(BufferedReader reader, OutputStream out, String firstLine) throws IOException {
         String[] parts = firstLine.split("\\|");
@@ -515,10 +515,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 处理信令命令。
-     *
-     * @param clientId 客户端标识
-     * @param line     命令行
+    * 处理信令命令。
+    *
+    * @param clientId 客户端标识
+    * @param line     命令行
      */
     private void handleSignal(String clientId, String line) {
         try {
@@ -559,12 +559,12 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 校验信令行携带的会话令牌与当前连接一致，防止伪造命令。
-     *
-     * @param clientId 客户端标识
-     * @param parts    已按分隔符拆分的信令字段（第 1 位为会话令牌）
-     * @param tokenIdx 会话令牌所在下标
-     * @return true 表示校验通过
+    * 校验信令行携带的会话令牌与当前连接一致，防止伪造命令。
+    *
+    * @param clientId 客户端标识
+    * @param parts    已按分隔符拆分的信令字段（第 1 位为会话令牌）
+    * @param tokenIdx 会话令牌所在下标
+    * @return true 表示校验通过
      */
     private boolean matchesToken(String clientId, String[] parts, int tokenIdx) {
         SignalConnection conn = registry.get(clientId);
@@ -581,10 +581,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 处理隧道开启请求。
-     *
-     * @param clientId 访问方客户端标识
-     * @param line     命令行（OPEN|requestId|serviceName）
+    * 处理隧道开启请求。
+    *
+    * @param clientId 访问方客户端标识
+    * @param line     命令行（OPEN|requestId|serviceName）
      */
     private void handleOpen(String clientId, String line) {
         String[] parts = line.split("\\|", 4);
@@ -616,10 +616,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 处理隧道关闭。
-     *
-     * @param clientId 关闭方客户端标识
-     * @param line     命令行（CLOSE|channelId）
+    * 处理隧道关闭。
+    *
+    * @param clientId 关闭方客户端标识
+    * @param line     命令行（CLOSE|channelId）
      */
     private void handleClose(String clientId, String line) {
         String[] parts = line.split("\\|", 3);
@@ -628,11 +628,11 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 处理数据平面连接：会话 token 校验后与对端桥接裸字节流。
-     *
-     * @param in        输入流
-     * @param out       输出流
-     * @param firstLine 连接握手行（CONNECT|channelId|role|token）
+    * 处理数据平面连接：会话 token 校验后与对端桥接裸字节流。
+    *
+    * @param in        输入流
+    * @param out       输出流
+    * @param firstLine 连接握手行（CONNECT|channelId|role|token）
      */
     private void handleDataConnection(InputStream in, OutputStream out, String firstLine) {
         String[] parts = firstLine.split("\\|", 4);
@@ -669,9 +669,9 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 信令连接关闭后的清理。
-     *
-     * @param clientId 客户端标识
+    * 信令连接关闭后的清理。
+    *
+    * @param clientId 客户端标识
      */
     private void onSignalClosed(String clientId) {
         SignalConnection conn = registry.remove(clientId);
@@ -686,9 +686,9 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 清理某客户端名下的隧道服务与参与的通道路由（服务端主动踢连接时复用）。
-     *
-     * @param clientId 客户端标识
+    * 清理某客户端名下的隧道服务与参与的通道路由（服务端主动踢连接时复用）。
+    *
+    * @param clientId 客户端标识
      */
     private void disconnectTunnelsOf(String clientId) {
         // 移除该客户端提供的服务
@@ -705,9 +705,9 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 服务端主动关闭某客户端的信令连接。
-     *
-     * @param conn 信令连接
+    * 服务端主动关闭某客户端的信令连接。
+    *
+    * @param conn 信令连接
      */
     private void closeQuietly(SignalConnection conn) {
         try {
@@ -717,9 +717,9 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 关闭隧道并通知两端。
-     *
-     * @param channelId 通道标识
+    * 关闭隧道并通知两端。
+    *
+    * @param channelId 通道标识
      */
     private void closeChannel(String channelId) {
         TunnelChannel channel = tunnelChannels.remove(channelId);
@@ -743,10 +743,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 向指定客户端发送信令行；写入失败时移除该连接并清理其资源。
-     *
-     * @param clientId 客户端标识
-     * @param line     信令行
+    * 向指定客户端发送信令行；写入失败时移除该连接并清理其资源。
+    *
+    * @param clientId 客户端标识
+    * @param line     信令行
      */
     private void send(String clientId, String line) {
         SignalConnection conn = registry.get(clientId);
@@ -760,10 +760,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 写一行输出。
-     *
-     * @param out  输出流
-     * @param line 行内容
+    * 写一行输出。
+    *
+    * @param out  输出流
+    * @param line 行内容
      */
     private void writeLine(OutputStream out, String line) {
         try {
@@ -777,10 +777,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 解析整数。
-     *
-     * @param value 文本
-     * @return 整数，解析失败返回 0
+    * 解析整数。
+    *
+    * @param value 文本
+    * @return 整数，解析失败返回 0
      */
     private int parseInt(String value) {
         try {
@@ -791,9 +791,9 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 通知连接回调。
-     *
-     * @param clientId 客户端标识
+    * 通知连接回调。
+    *
+    * @param clientId 客户端标识
      */
     private void notifyConnectListeners(String clientId) {
         for (Consumer<String> listener : connectListeners) {
@@ -806,9 +806,9 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 通知断开回调。
-     *
-     * @param clientId 客户端标识
+    * 通知断开回调。
+    *
+    * @param clientId 客户端标识
      */
     private void notifyDisconnectListeners(String clientId) {
         for (Consumer<String> listener : disconnectListeners) {
@@ -821,21 +821,21 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 已注册客户端的信令长连接。
-     *
-     * @param clientId 客户端标识
-     * @param host     可达地址
-     * @param port     可达端口
-     * @param token    会话令牌
-     * @param writer   输出
+    * 已注册客户端的信令长连接。
+    *
+    * @param clientId 客户端标识
+    * @param host     可达地址
+    * @param port     可达端口
+    * @param token    会话令牌
+    * @param writer   输出
      */
     private record SignalConnection(String clientId, String host, int port, String token, PrintWriter writer) {
 
         /**
-         * 发送信令行；写入失败时返回 false（连接已断）。
-         *
-         * @param line 信令行
-         * @return true 表示发送成功
+        * 发送信令行；写入失败时返回 false（连接已断）。
+        *
+        * @param line 信令行
+        * @return true 表示发送成功
          */
         boolean send(String line) {
             synchronized (writer) {
@@ -847,54 +847,54 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 隧道通道两端路由信息。
-     *
-     * @param aId 访问方客户端标识
-     * @param bId 服务提供方客户端标识
+    * 隧道通道两端路由信息。
+    *
+    * @param aId 访问方客户端标识
+    * @param bId 服务提供方客户端标识
      */
     private record TunnelChannel(String aId, String bId) {
     }
 
     /**
-     * 单条隧道的数据桥接器：负责访问方与提供方两条数据连接的裸字节流双向转发。
+    * 单条隧道的数据桥接器：负责访问方与提供方两条数据连接的裸字节流双向转发。
      */
     /**
-     * 多路复用服务端连接：单条连接承载同角色全部通道的帧收发。
+    * 多路复用服务端连接：单条连接承载同角色全部通道的帧收发。
      */
     private final class MuxServerConn {
 
         /**
-         * 连接键（clientId|role）
+        * 连接键（clientId|role）
          */
         private final String key;
 
         /**
-         * 客户端标识
+        * 客户端标识
          */
         private final String clientId;
 
         /**
-         * 角色（visitor / provider）
+        * 角色（visitor / provider）
          */
         private final String role;
 
         /**
-         * 输入流
+        * 输入流
          */
         private final InputStream in;
 
         /**
-         * 输出流
+        * 输出流
          */
         private final OutputStream out;
 
         /**
-         * 本连接承载过的通道
+        * 本连接承载过的通道
          */
         private final java.util.Set<String> channels = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
         /**
-         * 是否仍在运行
+        * 是否仍在运行
          */
         private volatile boolean running = true;
 
@@ -907,7 +907,7 @@ onSignalClosed(clientId);
         }
 
         /**
-         * 读循环：解帧并交给路由。
+        * 读循环：解帧并交给路由。
          */
         void readLoop() {
             try {
@@ -930,15 +930,15 @@ onSignalClosed(clientId);
         }
 
         /**
-         * 发送一帧。
-         *
-         * @param channelId 通道标识
-         * @param payload   负载（空为关闭标记）
+        * 发送一帧。
+        *
+        * @param channelId 通道标识
+        * @param payload   负载（空为关闭标记）
          */
         /**
-         * 直接写出完整帧（含长度头与 channelId）。
-         *
-         * @param fullFrame 完整帧
+        * 直接写出完整帧（含长度头与 channelId）。
+        *
+        * @param fullFrame 完整帧
          */
         void sendRaw(byte[] fullFrame) {
             try {
@@ -967,7 +967,7 @@ onSignalClosed(clientId);
         }
 
         /**
-         * 连接退出时：对本连接承载的全部通道，向对端发送关闭标记并清理暂存。
+        * 连接退出时：对本连接承载的全部通道，向对端发送关闭标记并清理暂存。
          */
         void notifyPeerChannelsClosed() {
             for (String ch : channels) {
@@ -988,12 +988,12 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 阻塞读满指定长度。
-     *
-     * @param in 输入流
-     * @param n  期望长度
-     * @return 数据
-     * @throws IOException 流结束
+    * 阻塞读满指定长度。
+    *
+    * @param in 输入流
+    * @param n  期望长度
+    * @return 数据
+    * @throws IOException 流结束
      */
     private static byte[] readFullyN(InputStream in, int n) throws IOException {
         byte[] data = new byte[n];
@@ -1009,10 +1009,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * UUID 字符串转 16 字节。
-     *
-     * @param uuid UUID 字符串
-     * @return 16 字节
+    * UUID 字符串转 16 字节。
+    *
+    * @param uuid UUID 字符串
+    * @return 16 字节
      */
     private static byte[] uuidBytes(String uuid) {
         String hex = uuid.replace("-", "");
@@ -1024,10 +1024,10 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 16 字节转 UUID 字符串。
-     *
-     * @param data 16 字节
-     * @return UUID 字符串
+    * 16 字节转 UUID 字符串。
+    *
+    * @param data 16 字节
+    * @return UUID 字符串
      */
     private static String uuidString(byte[] data) {
         StringBuilder hex = new StringBuilder();
@@ -1041,41 +1041,41 @@ onSignalClosed(clientId);
     private static final class DataChannel {
 
         /**
-         * 通道标识
+        * 通道标识
          */
         private final String channelId;
 
         /**
-         * 访问方输入输出
+        * 访问方输入输出
          */
         private volatile Endpoint visitor;
 
         /**
-         * 提供方输入输出
+        * 提供方输入输出
          */
         private volatile Endpoint provider;
 
         /**
-         * 是否已关闭
+        * 是否已关闭
          */
         private volatile boolean closed;
 
         /**
-         * 关闭闩锁：两端 handler 线程在此等待，连接关闭后释放
+        * 关闭闩锁：两端 handler 线程在此等待，连接关闭后释放
          */
         private final java.util.concurrent.CountDownLatch closedLatch = new java.util.concurrent.CountDownLatch(1);
 
         /**
-         * 创建通道桥接器。
-         *
-         * @param channelId 通道标识
+        * 创建通道桥接器。
+        *
+        * @param channelId 通道标识
          */
         private DataChannel(String channelId) {
             this.channelId = channelId;
         }
 
         /**
-         * 等待通道关闭（阻塞调用线程，避免连接被上层框架提前关闭）。
+        * 等待通道关闭（阻塞调用线程，避免连接被上层框架提前关闭）。
          */
         void awaitClosed() {
             try {
@@ -1086,11 +1086,11 @@ onSignalClosed(clientId);
         }
 
         /**
-         * 绑定一端连接，两端齐备后启动双向透传。
-         *
-         * @param role 角色（visitor / provider）
-         * @param in   输入流
-         * @param out  输出流
+        * 绑定一端连接，两端齐备后启动双向透传。
+        *
+        * @param role 角色（visitor / provider）
+        * @param in   输入流
+        * @param out  输出流
          */
         void bind(String role, InputStream in, OutputStream out) {
             Endpoint endpoint = new Endpoint(in, out);
@@ -1108,11 +1108,11 @@ onSignalClosed(clientId);
         }
 
         /**
-         * 单向裸字节流转发（与 TcpProxyServer 相同模式）。
-         *
-         * @param source 来源端点
-         * @param target 目标端点
-         * @param role   来源角色
+        * 单向裸字节流转发（与 TcpProxyServer 相同模式）。
+        *
+        * @param source 来源端点
+        * @param target 目标端点
+        * @param role   来源角色
          */
         private void bridge(Endpoint source, Endpoint target, String role) {
             ThreadUtils.startVirtualThread("sip-data-bridge-" + channelId + "-" + role, () -> {
@@ -1133,7 +1133,7 @@ onSignalClosed(clientId);
         }
 
         /**
-         * 关闭通道两端连接。
+        * 关闭通道两端连接。
          */
         void close() {
             if (closed) {
@@ -1150,25 +1150,25 @@ onSignalClosed(clientId);
         }
 
         /**
-         * 连接端点。
+        * 连接端点。
          */
         private static final class Endpoint {
 
             /**
-             * 输入流
+            * 输入流
              */
             private final InputStream in;
 
             /**
-             * 输出流
+            * 输出流
              */
             private final OutputStream out;
 
             /**
-             * 创建端点。
-             *
-             * @param in  输入流
-             * @param out 输出流
+            * 创建端点。
+            *
+            * @param in  输入流
+            * @param out 输出流
              */
             private Endpoint(InputStream in, OutputStream out) {
                 this.in = in;
@@ -1176,7 +1176,7 @@ onSignalClosed(clientId);
             }
 
             /**
-             * 关闭。
+            * 关闭。
              */
             void close() {
                 try {
@@ -1192,27 +1192,27 @@ onSignalClosed(clientId);
     }
 
     /**
-     * 数据平面角色。
+    * 数据平面角色。
      */
     private enum SipDataPlaneRole {
         /**
-         * 访问方
+        * 访问方
          */
         VISITOR("visitor"),
         /**
-         * 提供方
+        * 提供方
          */
         PROVIDER("provider");
 
         /**
-         * 名称
+        * 名称
          */
         private final String name;
 
         /**
-         * 创建角色。
-         *
-         * @param name 名称
+        * 创建角色。
+        *
+        * @param name 名称
          */
         SipDataPlaneRole(String name) {
             this.name = name;

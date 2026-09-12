@@ -14,13 +14,13 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
-   * git客户端 新增操作集成测试。
- *
- * <p>运行方式：直接执行 {@code main}，在临时目录中创建真实 Git 仓库，
-   * 依次验证 日志、状态、commit、分支、标签 各操作。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* git客户端 新增操作集成测试。
+*
+* <p>运行方式：直接执行 {@code main}，在临时目录中创建真实 Git 仓库，
+* 依次验证 日志、状态、commit、分支、标签 各操作。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class GitClientTest {
 
@@ -28,8 +28,8 @@ public class GitClientTest {
     static int failed = 0; // 失败
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) throws Exception {
         Path tempDir = Files.createTempDirectory("git-test");
@@ -74,9 +74,9 @@ public class GitClientTest {
     }
 
     /**
-     * 测试initialcommit。
-     * @param client 客户端
-     * @param dir dir
+    * 测试initialcommit。
+    * @param client 客户端
+    * @param dir dir
      */
     static void testInitialCommit(GitClient client, Path dir) throws Exception {
         String msg = "init: 初始提交";
@@ -88,9 +88,9 @@ public class GitClientTest {
     }
 
     /**
-     * 测试添加和commit。
-     * @param client 客户端
-     * @param dir dir
+    * 测试添加和commit。
+    * @param client 客户端
+    * @param dir dir
      */
     static void testAddAndCommit(GitClient client, Path dir) throws Exception {
         Path newFile = dir.resolve("hello.txt");
@@ -112,8 +112,8 @@ public class GitClientTest {
     }
 
     /**
-     * 测试日志。
-     * @param client 客户端
+    * 测试日志。
+    * @param client 客户端
      */
     static void testLog(GitClient client) {
         List<LogEntry> all = client.log().list();
@@ -141,9 +141,9 @@ public class GitClientTest {
     }
 
     /**
-     * 测试状态。
-     * @param client 客户端
-     * @param dir dir
+    * 测试状态。
+    * @param client 客户端
+    * @param dir dir
      */
     static void testStatus(GitClient client, Path dir) throws Exception {
         // 先 commit 所有未跟踪文件，确保工作区干净
@@ -161,9 +161,9 @@ public class GitClientTest {
     }
 
     /**
-     * 测试分支。
-     * @param client 客户端
-     * @param dir dir
+    * 测试分支。
+    * @param client 客户端
+    * @param dir dir
      */
     static void testBranch(GitClient client, Path dir) throws Exception {
         List<BranchInfo> branches = client.branch().listLocal();
@@ -193,8 +193,8 @@ public class GitClientTest {
     }
 
     /**
-     * 测试标签。
-     * @param client 客户端
+    * 测试标签。
+    * @param client 客户端
      */
     static void testTag(GitClient client) {
         List<TagInfo> tags = client.tag().list();
@@ -214,9 +214,9 @@ public class GitClientTest {
     }
 
     /**
-     * 测试amend。
-     * @param client 客户端
-     * @param dir dir
+    * 测试amend。
+    * @param client 客户端
+    * @param dir dir
      */
     static void testAmend(GitClient client, Path dir) throws Exception {
         Path file = dir.resolve("amend.txt");
@@ -229,9 +229,9 @@ public class GitClientTest {
     }
 
     /**
-     * 断言ok。
-     * @param name 名称
-     * @param condition 条件
+    * 断言ok。
+    * @param name 名称
+    * @param condition 条件
      */
     static void assertOk(String name, boolean condition) {
         if (condition) {
@@ -244,8 +244,8 @@ public class GitClientTest {
     }
 
     /**
-     * 删除recursively。
-     * @param dir dir
+    * 删除recursively。
+    * @param dir dir
      */
     static void deleteRecursively(Path dir) throws IOException {
         if (dir == null || !Files.exists(dir)) {

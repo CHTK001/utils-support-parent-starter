@@ -11,10 +11,10 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * 基于 Netty 的 WebSocket 同步客户端实现。
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Netty 的 WebSocket 同步客户端实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class NettyWebSocketSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
@@ -36,18 +36,18 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     private Thread receiveThread;
 
     /**
-      * 创建 nettyweb套接字同步客户端 实例
-     * @param serverUrl 服务端url
+    * 创建 nettyweb套接字同步客户端 实例
+    * @param serverUrl 服务端url
      */
     public NettyWebSocketSyncClient(String serverUrl) {
         this(java.util.UUID.randomUUID().toString(), serverUrl);
     }
 
     /**
-      * 创建 nettyweb套接字同步客户端 实例
-     * @param clientId 客户端标识
-     * @param clientId 字符串
-     * @param serverUrl 服务端url
+    * 创建 nettyweb套接字同步客户端 实例
+    * @param clientId 客户端标识
+    * @param clientId 字符串
+    * @param serverUrl 服务端url
      */
     public NettyWebSocketSyncClient(String clientId, String serverUrl) {
  // 客户端标识 是否 generated above
@@ -221,9 +221,9 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     /**
-     * 处理消息
-     *
-     * @param message 消息
+    * 处理消息
+    *
+    * @param message 消息
      */
     private void handleMessage(String message) {
         int idx = message.indexOf(':');
@@ -239,9 +239,9 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     /**
-     * 关闭Silently
-     *
-     * @param s s
+    * 关闭Silently
+    *
+    * @param s s
      */
     private void closeSilently(Socket s) {
         if (s != null) {
@@ -254,9 +254,9 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     /**
-     * 通知监听器
-     *
-     * @param action 动作
+    * 通知监听器
+    *
+    * @param action 动作
      */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {

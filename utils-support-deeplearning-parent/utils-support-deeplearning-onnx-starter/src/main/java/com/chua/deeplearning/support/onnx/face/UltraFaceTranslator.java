@@ -18,14 +18,14 @@ import java.util.List;
 import java.util.Locale;
 
 /**
-   * ultraface/ultralight        ONNX Translator
- *
- * <p>             `face_detection_sdk`        `slim / RFB / mobilenet`                            
-   * raw boxes + 类 scores (+ landmarks)             锚栓
-   * 输出0     scores          </p>
- *
- * @author CH
- * @since 2025-01-20
+* ultraface/ultralight        ONNX Translator
+*
+* <p>             `face_detection_sdk`        `slim / RFB / mobilenet`                            
+* raw boxes + 类 scores (+ landmarks)             锚栓
+* 输出0     scores          </p>
+*
+* @author CH
+* @since 2025-01-20
  */
 public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
 
@@ -65,30 +65,30 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 创建 ultrafacetranslator 实例
-     * @param configuration 配置
+    * 创建 ultrafacetranslator 实例
+    * @param configuration 配置
      */
     public UltraFaceTranslator(DetectionConfiguration configuration) {
         this(configuration == null ? null : configuration.loadModelName());
     }
 
     /**
-      * 创建 ultrafacetranslator 实例
-     * @param confThresh confthresh
-     * @param confThresh double
-     * @param nmsThresh nmsthresh
+    * 创建 ultrafacetranslator 实例
+    * @param confThresh confthresh
+    * @param confThresh double
+    * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this(confThresh, nmsThresh, "slim");
     }
 
     /**
-      * 创建 ultrafacetranslator 实例
-     * @param confThresh confthresh
-     * @param confThresh double
-     * @param int int
-     * @param inputSize 输入大小
-     * @param nmsThresh nmsthresh
+    * 创建 ultrafacetranslator 实例
+    * @param confThresh confthresh
+    * @param confThresh double
+    * @param int int
+    * @param inputSize 输入大小
+    * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh, int[] inputSize) {
         this(confThresh, nmsThresh, inputSize[0], inputSize[1], DEFAULT_VARIANCE,
@@ -97,20 +97,20 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 创建 ultrafacetranslator 实例
-     * @param modelName 模型名称
+    * 创建 ultrafacetranslator 实例
+    * @param modelName 模型名称
      */
     private UltraFaceTranslator(String modelName) {
         this(0.2d, 0.3d, modelName);
     }
 
     /**
-      * 创建 ultrafacetranslator 实例
-     * @param confThresh confthresh
-     * @param confThresh double
-     * @param modelName 字符串
-     * @param nmsThresh nmsthresh
-     * @param modelName 模型名称
+    * 创建 ultrafacetranslator 实例
+    * @param confThresh confthresh
+    * @param confThresh double
+    * @param modelName 字符串
+    * @param nmsThresh nmsthresh
+    * @param modelName 模型名称
      */
     private UltraFaceTranslator(double confThresh, double nmsThresh, String modelName) {
         String normalized = modelName == null ? "" : modelName.toLowerCase(Locale.ROOT);
@@ -150,15 +150,15 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 创建 ultrafacetranslator 实例
-     * @param confThresh confthresh
-     * @param nmsThresh nmsthresh
-     * @param inputWidth 输入width
-     * @param inputHeight 输入height
-     * @param variance variance
-     * @param scales scales
-     * @param steps steps
-     * @param topK topk
+    * 创建 ultrafacetranslator 实例
+    * @param confThresh confthresh
+    * @param nmsThresh nmsthresh
+    * @param inputWidth 输入width
+    * @param inputHeight 输入height
+    * @param variance variance
+    * @param scales scales
+    * @param steps steps
+    * @param topK topk
      */
     private UltraFaceTranslator(double confThresh, double nmsThresh, int inputWidth, int inputHeight,
                                 double[] variance, int[][] scales, int[] steps, int topK) {
@@ -279,10 +279,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * squeezebatch
-     *
-     * @param array array
-     * @return squeezeBatch的结果
+    * squeezebatch
+    *
+    * @param array array
+    * @return squeezeBatch的结果
      */
     private NDArray squeezeBatch(NDArray array) {
         if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
@@ -292,13 +292,13 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * boxrecover
-     *
-     * @param width width
-     * @param height height
-     * @param scales scales
-     * @param steps steps
-     * @return boxRecover的结果
+    * boxrecover
+    *
+    * @param width width
+    * @param height height
+    * @param scales scales
+    * @param steps steps
+    * @return boxRecover的结果
      */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> defaultBoxes = new ArrayList<>();
@@ -327,21 +327,21 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * Clip
-     *
-     * @param value 值
-     * @return clip的结果
+    * Clip
+    *
+    * @param value 值
+    * @return clip的结果
      */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
 
     /**
-     * Clip获取大小
-     *
-     * @param origin origin
-     * @param size 大小
-     * @return clip大小的结果
+    * Clip获取大小
+    *
+    * @param origin origin
+    * @param size 大小
+    * @return clip大小的结果
      */
     private double clipSize(double origin, double size) {
         return Math.max(0d, Math.min(1d - clip(origin), size));
@@ -355,11 +355,11 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * Candidate
-     *
-     * @param rectangle rectangle
-     * @param probability probability
-     * @return Candidate的结果
+    * Candidate
+    *
+    * @param rectangle rectangle
+    * @param probability probability
+    * @return Candidate的结果
      */
     private record Candidate(Rectangle rectangle, double probability) {
     }

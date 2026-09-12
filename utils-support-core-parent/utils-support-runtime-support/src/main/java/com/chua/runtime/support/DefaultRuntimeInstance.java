@@ -26,70 +26,70 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 默认运行时实例实现 — 基于 {@link ProcessBuilder} 管理进程生命周期。
- *
- * <p>支持启动、停止（优雅 + 强制）、重启、健康检查和实时日志。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 默认运行时实例实现 — 基于 {@link ProcessBuilder} 管理进程生命周期。
+*
+* <p>支持启动、停止（优雅 + 强制）、重启、健康检查和实时日志。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DefaultRuntimeInstance implements RuntimeInstance {
 
     /**
-     * 健康检查 HTTP 超时（秒）
+    * 健康检查 HTTP 超时（秒）
      */
     private static final int HEALTH_CHECK_TIMEOUT_SECONDS = 5;
 
     /**
-     * 优雅停止等待时间（秒）
+    * 优雅停止等待时间（秒）
      */
     private static final int GRACEFUL_STOP_TIMEOUT_SECONDS = 10;
 
     /**
-     * 强制停止等待时间（秒）
+    * 强制停止等待时间（秒）
      */
     private static final int FORCE_STOP_TIMEOUT_SECONDS = 5;
 
     /**
-     * 工件信息
+    * 工件信息
      */
     private final RuntimeArtifact artifact;
 
     /**
-     * 运行时状态
+    * 运行时状态
      */
     private final AtomicReference<RuntimeStatus> status;
 
     /**
-     * 底层进程引用
+    * 底层进程引用
      */
     private final AtomicReference<Process> processRef;
 
     /**
-     * 实时日志流
+    * 实时日志流
      */
     private final LogStream logStream;
 
     /**
-      * 进程退出时的 期货
+    * 进程退出时的 期货
      */
     private final CompletableFuture<CmdResult> onExitFuture;
 
     /**
-     * 日志读取线程
+    * 日志读取线程
      */
     private volatile Thread logThread;
 
     /**
-     * 进程启动时间戳
+    * 进程启动时间戳
      */
     private volatile long startTime;
 
     /**
-     * 创建默认运行时实例。
-     *
-     * @param artifact 工件描述
+    * 创建默认运行时实例。
+    *
+    * @param artifact 工件描述
      */
     public DefaultRuntimeInstance(RuntimeArtifact artifact) {
         this.artifact = artifact;
@@ -327,9 +327,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 构建启动命令列表。
-     *
-     * @return 命令列表
+    * 构建启动命令列表。
+    *
+    * @return 命令列表
      */
     private List<String> buildCommand() {
         List<String> cmd = new ArrayList<>();
@@ -368,9 +368,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 是否配置了健康检查。
-     *
-     * @return 有健康检查配置返回 true
+    * 是否配置了健康检查。
+    *
+    * @return 有健康检查配置返回 true
      */
     private boolean hasHealthCheck() {
         return StringUtils.isNotEmpty(artifact.getHealthCheckUrl())
@@ -378,10 +378,10 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * HTTP 健康检查。
-     *
-     * @param url 健康检查 URL
-     * @return 检查结果
+    * HTTP 健康检查。
+    *
+    * @param url 健康检查 URL
+    * @return 检查结果
      */
     private CmdResult healthCheckHttp(String url) {
         try {
@@ -411,19 +411,19 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 命令健康检查。
-     *
-     * @param command 健康检查命令
-     * @return 检查结果
+    * 命令健康检查。
+    *
+    * @param command 健康检查命令
+    * @return 检查结果
      */
     private CmdResult healthCheckCommand(String command) {
         return CmdExecutors.execute(command, HEALTH_CHECK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     /**
-      * 启动日志读取线程，从进程的 输入流 逐行读取并推送到 日志流。
-     *
-     * @param process 进程实例
+    * 启动日志读取线程，从进程的 输入流 逐行读取并推送到 日志流。
+    *
+    * @param process 进程实例
      */
     private void startLogReader(Process process) {
         stopLogReader();
@@ -447,7 +447,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 停止日志读取线程。
+    * 停止日志读取线程。
      */
     private void stopLogReader() {
         Thread thread = this.logThread;
@@ -458,9 +458,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-      * 异步等待进程退出，退出时更新状态并完成 onexit 期货。
-     *
-     * @param process 进程实例
+    * 异步等待进程退出，退出时更新状态并完成 onexit 期货。
+    *
+    * @param process 进程实例
      */
     private void waitForExitAsync(Process process) {
         CompletableFuture.runAsync(() -> {

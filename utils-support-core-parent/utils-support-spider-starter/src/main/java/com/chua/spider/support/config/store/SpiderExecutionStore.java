@@ -11,29 +11,29 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
- * 爬虫执行记录内存存储。
- *
- * @author CH
- * @since 4.0.0.42
+* 爬虫执行记录内存存储。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SpiderExecutionStore {
 
     /**
-     * 自增批次号生成器
+    * 自增批次号生成器
      */
     private final AtomicLong seq = new AtomicLong(1);
 
     /**
-     * 批次号 → 执行记录
+    * 批次号 → 执行记录
      */
     private final Map<String, SpiderExecutionRecord> storage = new ConcurrentHashMap<>();
 
     /**
-     * 生成新的批次号。
-     *
-     * <p>格式：{@code exec-{时间戳毫秒}-{序号}}</p>
-     *
-     * @return 新的批次号
+    * 生成新的批次号。
+    *
+    * <p>格式：{@code exec-{时间戳毫秒}-{序号}}</p>
+    *
+    * @return 新的批次号
      */
     public String nextExecutionNo() {
         long ts = System.currentTimeMillis();
@@ -42,29 +42,29 @@ public class SpiderExecutionStore {
     }
 
     /**
-     * 保存执行记录。
-     *
-     * @param record 执行记录
+    * 保存执行记录。
+    *
+    * @param record 执行记录
      */
     public void save(SpiderExecutionRecord record) {
         storage.put(record.getExecutionNo(), record);
     }
 
     /**
-     * 按批次号查询。
-     *
-     * @param executionNo 批次号
-     * @return 执行记录，不存在返回 空
+    * 按批次号查询。
+    *
+    * @param executionNo 批次号
+    * @return 执行记录，不存在返回 空
      */
     public SpiderExecutionRecord get(String executionNo) {
         return storage.get(executionNo);
     }
 
     /**
-     * 按爬虫编码查询所有执行记录（按开始时间倒序）。
-     *
-     * @param spiderCode 爬虫编码
-     * @return 执行记录列表
+    * 按爬虫编码查询所有执行记录（按开始时间倒序）。
+    *
+    * @param spiderCode 爬虫编码
+    * @return 执行记录列表
      */
     public List<SpiderExecutionRecord> listByCode(String spiderCode) {
         return storage.values().stream()
@@ -79,12 +79,12 @@ public class SpiderExecutionStore {
     }
 
     /**
-     * 分页查询执行记录。
-     *
-     * @param pageNo   页码
-     * @param pageSize 每页条数
-     * @param spiderCode 可选爬虫编码过滤
-     * @return 分页结果
+    * 分页查询执行记录。
+    *
+    * @param pageNo   页码
+    * @param pageSize 每页条数
+    * @param spiderCode 可选爬虫编码过滤
+    * @return 分页结果
      */
     public PageResult<SpiderExecutionRecord> page(int pageNo, int pageSize, String spiderCode) {
         List<SpiderExecutionRecord> all = listByCode(spiderCode);
@@ -98,7 +98,7 @@ public class SpiderExecutionStore {
     }
 
     /**
-     * 分页结果。
+    * 分页结果。
      */
     public record PageResult<T>(
             List<T> records,

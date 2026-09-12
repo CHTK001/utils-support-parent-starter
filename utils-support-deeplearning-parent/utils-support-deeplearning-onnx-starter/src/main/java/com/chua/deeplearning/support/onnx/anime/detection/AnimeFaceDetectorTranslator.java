@@ -18,37 +18,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * Anime Face yolov8 ONNX Translator（嵌入式，纯 Java 预处理，兼容 onnxruntime engine）。
- *
- * <p>动漫人脸检测：YOLOv8 v1.4_n（deepghs/anime_face_detection）。
- * 输入 640×640 RGB 归一化 [0,1]，输出 [1,5,8400]（cx,cy,w,h,face_conf）。</p>
- *
- * <p>onnxruntime engine 不支持 NDArray resize/set 等运算，故 letterbox 与 NMS 均用纯 Java 实现。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Anime Face yolov8 ONNX Translator（嵌入式，纯 Java 预处理，兼容 onnxruntime engine）。
+*
+* <p>动漫人脸检测：YOLOv8 v1.4_n（deepghs/anime_face_detection）。
+* 输入 640×640 RGB 归一化 [0,1]，输出 [1,5,8400]（cx,cy,w,h,face_conf）。</p>
+*
+* <p>onnxruntime engine 不支持 NDArray resize/set 等运算，故 letterbox 与 NMS 均用纯 Java 实现。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     * 标签名。
+    * 标签名。
      */
     private static final String FACE_LABEL = "anime_face";
 
     /**
-     * 输入尺寸。
+    * 输入尺寸。
      */
     private static final int INPUT_SIZE = 640;
 
     /**
-     * 置信度阈值。
+    * 置信度阈值。
      */
     /** 置信度阈值（默认 0.5），可经 detection配置 覆盖。 */
         /**
-     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
-     *
-     * @param configuration 检测配置（可空）
+    * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+    *
+    * @param configuration 检测配置（可空）
      */
     public AnimeFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (configuration != null) {
@@ -57,7 +57,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-     * 无参构造：使用默认阈值（SPI/反射实例化要求）。
+    * 无参构造：使用默认阈值（SPI/反射实例化要求）。
      */
     public AnimeFaceDetectorTranslator() {
         this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
@@ -66,37 +66,37 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
 private float confThreshold = 0.45f; // conf阈值
 
     /**
-     * NMS IOU 阈值。
+    * NMS IOU 阈值。
      */
     private static final float IOU_THRESHOLD = 0.45f;
 
     /**
-     * Top-K。
+    * Top-K。
      */
     private static final int TOP_K = 100;
 
     /**
-     * letterbox 缩放比例与填充。
+    * letterbox 缩放比例与填充。
      */
     private float scaleR = 1f;
 
     /**
-     * 左侧填充。
+    * 左侧填充。
      */
     private int padLeft;
 
     /**
-     * 顶部填充。
+    * 顶部填充。
      */
     private int padTop;
 
     /**
-     * 原图宽。
+    * 原图宽。
      */
     private int imageWidth;
 
     /**
-     * 原图高。
+    * 原图高。
      */
     private int imageHeight;
 
@@ -173,12 +173,12 @@ private float confThreshold = 0.45f; // conf阈值
     }
 
     /**
-     * 处理 [C,N] / [B,N,C] 布局（NCH 步长直读，避免转置）。
-     *
-     * @param dim       维度数
-     * @param shape     形状
-     * @param data      flat 数据
-     * @return 检测结果
+    * 处理 [C,N] / [B,N,C] 布局（NCH 步长直读，避免转置）。
+    *
+    * @param dim       维度数
+    * @param shape     形状
+    * @param data      flat 数据
+    * @return 检测结果
      */
     private DetectedObjects processNch(int dim, long[] shape, float[] data) {
         int c = (int) shape[dim - 2];
@@ -195,24 +195,24 @@ private float confThreshold = 0.45f; // conf阈值
     }
 
     /**
-     * 处理 [N,C] / [B,C,N] 布局（NCM 步长直读）。
-     *
-     * @param data      flat 数据
-     * @param numDets   检测数
-     * @param numChannels 通道数
-     * @return 检测结果
+    * 处理 [N,C] / [B,C,N] 布局（NCM 步长直读）。
+    *
+    * @param data      flat 数据
+    * @param numDets   检测数
+    * @param numChannels 通道数
+    * @return 检测结果
      */
     private DetectedObjects processNcm(float[] data, int numDets, int numChannels) {
         return assemble(data, numDets, numChannels);
     }
 
     /**
-      * 从 [numdets, num通道] 扁平数组组装检测框。
-     *
-     * @param data     扁平数据
-     * @param numDets  检测数
-     * @param numChannels 通道数（须 >=5：cx,cy,w,h,conf...）
-     * @return 检测结果
+    * 从 [numdets, num通道] 扁平数组组装检测框。
+    *
+    * @param data     扁平数据
+    * @param numDets  检测数
+    * @param numChannels 通道数（须 >=5：cx,cy,w,h,conf...）
+    * @return 检测结果
      */
     private DetectedObjects assemble(float[] data, int numDets, int numChannels) {
         if (numChannels < 5) {
@@ -272,11 +272,11 @@ private float confThreshold = 0.45f; // conf阈值
     }
 
     /**
-     * 纯 Java NMS（按分数降序，抑制 IOU 重叠框）。
-     *
-     * @param boxes  候选框 [x1,y1,x2,y2] 列表
-     * @param scores 对应分数
-     * @return 保留框索引（分数降序）
+    * 纯 Java NMS（按分数降序，抑制 IOU 重叠框）。
+    *
+    * @param boxes  候选框 [x1,y1,x2,y2] 列表
+    * @param scores 对应分数
+    * @return 保留框索引（分数降序）
      */
     private static int[] nms(List<float[]> boxes, List<Float> scores) {
         int n = boxes.size();

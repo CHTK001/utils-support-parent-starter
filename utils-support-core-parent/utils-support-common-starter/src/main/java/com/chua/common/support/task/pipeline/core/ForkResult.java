@@ -3,69 +3,69 @@ package com.chua.common.support.task.pipeline.core;
 import java.util.*;
 
 /**
- * 分叉节点执行结果。
- *
- * <p>封装分叉节点所有分支的输出数据，作为结构化结果存入父上下文的 {@code nodeOutputs}。</p>
- *
- * <p><strong>存储模型：</strong></p>
- * <pre>
- * nodeOutputs["fork1"] = ForkResult {
- *     nodeId: "fork1",
- *     branches: {
- *         "branchA": dataA,    // 分支A的最终输出（currentData）
- *         "branchB": dataB     // 分支B的最终输出（currentData）
- *     },
- *     histories: {
- *         "branchA": ["a1", "a2"],  // 分支A的执行历史
- *         "branchB": ["b1", "b2"]   // 分支B的执行历史
- *     }
- * }
- * </pre>
- *
- * <p><strong>数据访问：</strong></p>
- * <table>
- *   <tr><th>方式</th><th>存储key</th><th>获取方式</th></tr>
- *   <tr>
- *     <td>结构化</td>
- *     <td>{@code fork1}</td>
- *     <td>{@code ctx.getData("fork1", ForkResult.class).getBranch("branchA")}</td>
- *   </tr>
- * </table>
- *
- * <p>结构化存储的优势：</p>
- * <ul>
- *   <li>key统一为nodeId，调用方不需要知道节点类型</li>
- *   <li>分叉结果内聚在对象里，分支数据不散落</li>
- *   <li>支持unit能力：{@code ctx.getData("fork1")} 即可获取完整结果</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
- * @see com.chua.common.support.task.pipeline.node.ForkNode
+* 分叉节点执行结果。
+*
+* <p>封装分叉节点所有分支的输出数据，作为结构化结果存入父上下文的 {@code nodeOutputs}。</p>
+*
+* <p><strong>存储模型：</strong></p>
+* <pre>
+* nodeOutputs["fork1"] = ForkResult {
+*     nodeId: "fork1",
+*     branches: {
+*         "branchA": dataA,    // 分支A的最终输出（currentData）
+*         "branchB": dataB     // 分支B的最终输出（currentData）
+*     },
+*     histories: {
+*         "branchA": ["a1", "a2"],  // 分支A的执行历史
+*         "branchB": ["b1", "b2"]   // 分支B的执行历史
+*     }
+* }
+* </pre>
+*
+* <p><strong>数据访问：</strong></p>
+* <table>
+*   <tr><th>方式</th><th>存储key</th><th>获取方式</th></tr>
+*   <tr>
+*     <td>结构化</td>
+*     <td>{@code fork1}</td>
+*     <td>{@code ctx.getData("fork1", ForkResult.class).getBranch("branchA")}</td>
+*   </tr>
+* </table>
+*
+* <p>结构化存储的优势：</p>
+* <ul>
+*   <li>key统一为nodeId，调用方不需要知道节点类型</li>
+*   <li>分叉结果内聚在对象里，分支数据不散落</li>
+*   <li>支持unit能力：{@code ctx.getData("fork1")} 即可获取完整结果</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
+* @see com.chua.common.support.task.pipeline.node.ForkNode
  */
 public class ForkResult {
 
     /**
-      * 分叉节点 标识
+    * 分叉节点 标识
      */
     private final String nodeId;
 
     /**
-      * 分支输出数据：分支名称 → 分支的最终输出（当前数据）
+    * 分支输出数据：分支名称 → 分支的最终输出（当前数据）
      */
     private final Map<String, Object> branches;
 
     /**
-      * 分支执行历史：分支名称 → 分支已执行节点标识列表
+    * 分支执行历史：分支名称 → 分支已执行节点标识列表
      */
     private final Map<String, List<String>> histories;
 
     /**
-     * 构造分叉结果。
-     *
-     * @param nodeId   分叉节点 标识
-     * @param branches 分支输出数据
-     * @param histories 分支执行历史
+    * 构造分叉结果。
+    *
+    * @param nodeId   分叉节点 标识
+    * @param branches 分支输出数据
+    * @param histories 分支执行历史
      */
     public ForkResult(String nodeId, Map<String, Object> branches, Map<String, List<String>> histories) {
         this.nodeId = nodeId;
@@ -74,29 +74,29 @@ public class ForkResult {
     }
 
     /**
-      * 获取分叉节点 标识。
-     *
-     * @return 节点 标识
+    * 获取分叉节点 标识。
+    *
+    * @return 节点 标识
      */
     public String getNodeId() {
         return nodeId;
     }
 
     /**
-     * 获取所有分支输出数据。
-     *
-     * @return 分支名称 → 输出数据的不可变映射
+    * 获取所有分支输出数据。
+    *
+    * @return 分支名称 → 输出数据的不可变映射
      */
     public Map<String, Object> getBranches() {
         return Collections.unmodifiableMap(branches);
     }
 
     /**
-     * 获取指定分支的输出数据。
-     *
-     * @param branchName 分支名称
-     * @param <V>        数据值类型
-     * @return 分支输出数据，不存在时返回 空
+    * 获取指定分支的输出数据。
+    *
+    * @param branchName 分支名称
+    * @param <V>        数据值类型
+    * @return 分支输出数据，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getBranch(String branchName) {
@@ -104,12 +104,12 @@ public class ForkResult {
     }
 
     /**
-     * 获取指定分支的输出数据（带类型转换）。
-     *
-     * @param branchName 分支名称
-     * @param type       期望的数据类型
-     * @param <V>        数据值类型
-     * @return 分支输出数据，不存在时返回 空
+    * 获取指定分支的输出数据（带类型转换）。
+    *
+    * @param branchName 分支名称
+    * @param type       期望的数据类型
+    * @param <V>        数据值类型
+    * @return 分支输出数据，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getBranch(String branchName, Class<V> type) {
@@ -118,19 +118,19 @@ public class ForkResult {
     }
 
     /**
-     * 获取所有分支的执行历史。
-     *
-     * @return 分支名称 → 执行历史节点标识列表的不可变映射
+    * 获取所有分支的执行历史。
+    *
+    * @return 分支名称 → 执行历史节点标识列表的不可变映射
      */
     public Map<String, List<String>> getHistories() {
         return Collections.unmodifiableMap(histories);
     }
 
     /**
-     * 获取指定分支的执行历史。
-     *
-     * @param branchName 分支名称
-     * @return 执行历史节点ID列表，不存在时返回空列表
+    * 获取指定分支的执行历史。
+    *
+    * @param branchName 分支名称
+    * @return 执行历史节点ID列表，不存在时返回空列表
      */
     public List<String> getHistory(String branchName) {
         List<String> history = histories.get(branchName);
@@ -138,19 +138,19 @@ public class ForkResult {
     }
 
     /**
-     * 获取分支数量。
-     *
-     * @return 分支数量
+    * 获取分支数量。
+    *
+    * @return 分支数量
      */
     public int getBranchCount() {
         return branches.size();
     }
 
     /**
-     * 判断指定分支是否存在。
-     *
-     * @param branchName 分支名称
-     * @return 存在时返回 true
+    * 判断指定分支是否存在。
+    *
+    * @param branchName 分支名称
+    * @return 存在时返回 true
      */
     public boolean hasBranch(String branchName) {
         return branches.containsKey(branchName);

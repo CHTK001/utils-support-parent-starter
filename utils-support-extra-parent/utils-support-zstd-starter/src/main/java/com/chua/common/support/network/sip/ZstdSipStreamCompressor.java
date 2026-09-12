@@ -7,14 +7,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Zstd SIP 数据面流式压缩实现。
- *
- * <p>使用 Zstd 原生库进行高效压缩与解压，适合对压缩比和速度有平衡要求的隧道传输场景。</p>
- *
- * <p>与 {@link SipStreamCompressor} SPI 契约一致，通过 {@code SipConfig.compress} 开关启用。</p>
- *
- * @author CH
- * @since 4.0.0.43
+* Zstd SIP 数据面流式压缩实现。
+*
+* <p>使用 Zstd 原生库进行高效压缩与解压，适合对压缩比和速度有平衡要求的隧道传输场景。</p>
+*
+* <p>与 {@link SipStreamCompressor} SPI 契约一致，通过 {@code SipConfig.compress} 开关启用。</p>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Spi("zstd-sip-stream-compressor")
 public class ZstdSipStreamCompressor implements SipStreamCompressor {

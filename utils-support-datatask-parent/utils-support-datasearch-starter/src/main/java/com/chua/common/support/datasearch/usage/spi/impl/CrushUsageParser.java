@@ -16,23 +16,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Crush usage parser.
- *
- * <p>Crush (github.com/charmbracelet/crush) keeps per-project SQLite databases
-   * at {@code <project>/.crush/crush.db}, 索引 by
- * {@code ~/.local/share/crush/projects.json}. The {@code sessions} table holds
-   * 会话-级别 令牌 和 cost aggregates:</p>
- *
- * <pre>{@code
- * CREATE TABLE sessions (
- *   id, title, message_count,
- *   prompt_tokens INTEGER, completion_tokens INTEGER, cost REAL,
- *   created_at, updated_at, ... )   -- timestamps in epoch seconds
- * }</pre>ed_at, ... )   -- timestamps in epoch seconds
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Crush usage parser.
+*
+* <p>Crush (github.com/charmbracelet/crush) keeps per-project SQLite databases
+* at {@code <project>/.crush/crush.db}, 索引 by
+* {@code ~/.local/share/crush/projects.json}. The {@code sessions} table holds
+* 会话-级别 令牌 和 cost aggregates:</p>
+*
+* <pre>{@code
+* CREATE TABLE sessions (
+*   id, title, message_count,
+*   prompt_tokens INTEGER, completion_tokens INTEGER, cost REAL,
+*   created_at, updated_at, ... )   -- timestamps in epoch seconds
+* }</pre>ed_at, ... )   -- timestamps in epoch seconds
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("crush")
 public class CrushUsageParser extends BaseUsageParser {
@@ -50,16 +50,16 @@ public class CrushUsageParser extends BaseUsageParser {
     private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "crush"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "crush"}
      */
     public String name() {
         return "crush";
     }
 
     /**
-     * 流式解析全部项目的会话用量。
+    * 流式解析全部项目的会话用量。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -74,8 +74,8 @@ public class CrushUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
-     * @param row row
+    * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
+    * @param row row
      /**
       * 列表projectdatabases。
       * @return 列表projectdatabases的结果
@@ -84,8 +84,8 @@ public class CrushUsageParser extends BaseUsageParser {
      * @return 转为AIusage的结果
       * @param row row
      /**
-      * 列表projectdatabases。
-      * @return 列表projectdatabases的结果
+     * 列表projectdatabases。
+     * @return 列表projectdatabases的结果
       */
      */
     private List<Path> listProjectDatabases() {

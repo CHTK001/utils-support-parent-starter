@@ -14,53 +14,53 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
-   * LCM-lora unet
- * <p>
-   * LCM-lora     unet
- *                               
- * </p>
- * <p>
- *                
- * -                       
- * -                       
-   * -     unet
- * </p>
- * <p>
- *                   
- * 1.                   
- * 2.                
- * 3.                            
- * </p>
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2025/01/26
+* LCM-lora unet
+* <p>
+* LCM-lora     unet
+*                               
+* </p>
+* <p>
+*                
+* -                       
+* -                       
+* -     unet
+* </p>
+* <p>
+*                   
+* 1.                   
+* 2.                
+* 3.                            
+* </p>
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2025/01/26
  */
 @Slf4j
 public class LcmLoraUnetTranslator implements Translator<Image, Image> {
 
     /**
-     *                   
+    *                   
      */
     private final int width;
 
     /**
-     *                   
+    *                   
      */
     private final int height;
 
     /**
-     *              -                   
+    *              -                   
      */
     public LcmLoraUnetTranslator() {
         this(512, 512);
     }
 
     /**
-     *              -                
-     *
-     * @param width                    
-     * @param height                   
+    *              -                
+    *
+    * @param width                    
+    * @param height                   
      */
     public LcmLoraUnetTranslator(int width, int height) {
         this.width = width;
@@ -71,11 +71,11 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                     
-     * @param input             
-     * @return              NDList
+    *                   
+    *
+    * @param ctx                     
+    * @param input             
+    * @return              NDList
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -104,11 +104,11 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                    
-     * @param list              nd列表
-     * @return                
+    *                   
+    *
+    * @param ctx                    
+    * @param list              nd列表
+    * @return                
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -139,9 +139,9 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
-     *
-     * @return STACK             
+    *                   
+    *
+    * @return STACK             
      */
     @Override
     public Batchifier getBatchifier() {

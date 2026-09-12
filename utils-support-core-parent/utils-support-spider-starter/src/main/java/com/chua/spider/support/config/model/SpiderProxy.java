@@ -6,10 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * 单个代理节点。
- *
- * @author CH
- * @since 4.0.0.42
+* 单个代理节点。
+*
+* @author CH
+* @since 4.0.0.42
  */
 
 @NoArgsConstructor
@@ -18,27 +18,27 @@ import lombok.Data;
 public class SpiderProxy {
 
     /**
-     * 代理主机（IP 或域名）
+    * 代理主机（IP 或域名）
      */
     private String proxyHost;
 
     /**
-     * 代理端口
+    * 代理端口
      */
     private Integer proxyPort;
 
     /**
-     * 代理协议（HTTP / HTTPS / SOCKS5）
+    * 代理协议（HTTP / HTTPS / SOCKS5）
      */
     private String proxyProtocol;
 
     /**
-     * 用户名（可选）
+    * 用户名（可选）
      */
     private String proxyUsername;
 
     /**
-     * 密码（可选）
+    * 密码（可选）
      */
     private String proxyPassword;
 }

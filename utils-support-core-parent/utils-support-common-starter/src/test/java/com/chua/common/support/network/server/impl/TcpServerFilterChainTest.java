@@ -12,13 +12,13 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 /**
-   * tcp服务端过滤器chain测试 — 验证 TCP 帧接入 urlmapping服务端过滤器 的端到端行为。
- *
- * <p>运行方式：直接执行 {@code main}，通过内嵌 TcpServer 接收 TCP 客户端请求，
-   * 校验路径路由、获取/POST、404 等场景。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* tcp服务端过滤器chain测试 — 验证 TCP 帧接入 urlmapping服务端过滤器 的端到端行为。
+*
+* <p>运行方式：直接执行 {@code main}，通过内嵌 TcpServer 接收 TCP 客户端请求，
+* 校验路径路由、获取/POST、404 等场景。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class TcpServerFilterChainTest {
 
@@ -28,8 +28,8 @@ public class TcpServerFilterChainTest {
     private static int port;
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) throws Exception {
         System.out.println("[TcpServerFilterChainTest] starting...");
@@ -69,9 +69,9 @@ public class TcpServerFilterChainTest {
     }
 
     /**
-     * 获取 /hello → 200 "Hello 从 TCP URL mapping!"
-     *
-     * @return 测试获取hello的结果
+    * 获取 /hello → 200 "Hello 从 TCP URL mapping!"
+    *
+    * @return 测试获取hello的结果
      */
     private static boolean testGetHello() throws Exception {
         String request = buildHttpFrame("GET", "/hello", "", null);
@@ -83,9 +83,9 @@ public class TcpServerFilterChainTest {
     }
 
     /**
-     * 获取 /状态 → 201 "创建"
-     *
-     * @return 测试获取状态的结果
+    * 获取 /状态 → 201 "创建"
+    *
+    * @return 测试获取状态的结果
      */
     private static boolean testGetStatus() throws Exception {
         String request = buildHttpFrame("GET", "/status", "", null);
@@ -97,9 +97,9 @@ public class TcpServerFilterChainTest {
     }
 
     /**
-     * POST /echo → 回显请求体
-     *
-     * @return 测试postecho的结果
+    * POST /echo → 回显请求体
+    *
+    * @return 测试postecho的结果
      */
     private static boolean testPostEcho() throws Exception {
         String body = "hello tcp";
@@ -112,9 +112,9 @@ public class TcpServerFilterChainTest {
     }
 
     /**
-     * 获取 /unknown → 404
-     *
-     * @return test404的结果
+    * 获取 /unknown → 404
+    *
+    * @return test404的结果
      */
     private static boolean test404() throws Exception {
         String request = buildHttpFrame("GET", "/unknown", "", null);
@@ -126,10 +126,10 @@ public class TcpServerFilterChainTest {
     }
 
     /**
-     * 将 HTTP 请求包装为 TCP 长度帧并发送，返回响应帧体（去掉长度头后的原始字节）。
-     *
-     * @param httpReq httpreq
-     * @return 发送和接收的结果
+    * 将 HTTP 请求包装为 TCP 长度帧并发送，返回响应帧体（去掉长度头后的原始字节）。
+    *
+    * @param httpReq httpreq
+    * @return 发送和接收的结果
      */
     private static String sendAndReceive(String httpReq) throws Exception {
         try (Socket socket = new Socket("127.0.0.1", port)) {
@@ -159,12 +159,12 @@ public class TcpServerFilterChainTest {
     }
 
      /**
-      * 构建http帧。
-      * @param method 方法
-      * @param path 路径
-      * @param body 主体
-      * @param contentType 内容类型
-      * @return 构建http帧的结果
+     * 构建http帧。
+     * @param method 方法
+     * @param path 路径
+     * @param body 主体
+     * @param contentType 内容类型
+     * @return 构建http帧的结果
       */
      * 构造完整 HTTP 请求报文。
      *
@@ -183,21 +183,21 @@ public class TcpServerFilterChainTest {
         sb.append("\r\n");
         if (body != null && !body.isEmpty()) {
             /**
-             * 读取fully。
-             * @param in 入
-             * @param buf buf
-             * @param s s
-             * @return 修剪转为第一个线的结果
+            * 读取fully。
+            * @param in 入
+            * @param buf buf
+            * @param s s
+            * @return 修剪转为第一个线的结果
              */
             sb.append(body);
         }
         return sb.toString();
     /**
-     * 读取fully。
-     * @param in 入
-     * @param buf buf
-     * @param s s
-     * @return 修剪转为第一个线的结果
+    * 读取fully。
+    * @param in 入
+    * @param buf buf
+    * @param s s
+    * @return 修剪转为第一个线的结果
      */
     }
 

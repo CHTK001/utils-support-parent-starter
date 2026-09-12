@@ -11,13 +11,13 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.File;
 
 /**
- * 视频文件系统 SPI 实现。
- *
- * <p>基于 FFmpeg 实现视频文件的元数据读取与格式转换。
-   * 底层通过 {@link FFmpegProcessor} SPI 进行实际的 ffmpeg 操作。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 视频文件系统 SPI 实现。
+*
+* <p>基于 FFmpeg 实现视频文件的元数据读取与格式转换。
+* 底层通过 {@link FFmpegProcessor} SPI 进行实际的 ffmpeg 操作。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("video")
 public class VideoFileSystem implements FileSystem {
@@ -55,9 +55,9 @@ public class VideoFileSystem implements FileSystem {
     }
 
     /**
-     * 获取处理器
-     *
-     * @return 获取处理器的结果
+    * 获取处理器
+    *
+    * @return 获取处理器的结果
      */
     public FFmpegProcessor getProcessor() {
         return processor;

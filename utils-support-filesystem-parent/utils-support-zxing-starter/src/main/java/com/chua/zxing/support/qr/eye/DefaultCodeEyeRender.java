@@ -20,9 +20,9 @@ import javax.annotation.Nullable;
 
 
 /**
- * 码眼解析器
- * @author CH
- * @since 4.0.0.42
+* 码眼解析器
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultCodeEyeRender implements CodeEyeRender {
     @Override
@@ -63,10 +63,10 @@ public class DefaultCodeEyeRender implements CodeEyeRender {
     }
 
     /**
-     * 格式化编码eye
-     *
-     * @param builder 构建器
-     * @param setting setting
+    * 格式化编码eye
+    *
+    * @param builder 构建器
+    * @param setting setting
      */
     private void formatCodeEye(QrCodeGenWrapper.Builder builder, CodeEyeSetting setting) {
         CodeEyeStyle codeEye = setting.getCodeEye();

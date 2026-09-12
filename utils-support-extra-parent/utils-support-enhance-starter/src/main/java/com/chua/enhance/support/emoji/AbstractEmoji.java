@@ -3,10 +3,10 @@ package com.chua.enhance.support.emoji;
 import java.util.regex.Pattern;
 
 /**
-   * Emoji 抽象基类，提供 short编码 和 HTML 实体的正则模式以及 HTML 转换辅助方法。
- *
+* Emoji 抽象基类，提供 short编码 和 HTML 实体的正则模式以及 HTML 转换辅助方法。
+*
 * @author CH
- * @since 1.0.0
+* @since 1.0.0
 */
 public abstract class AbstractEmoji {
 
@@ -22,12 +22,12 @@ public abstract class AbstractEmoji {
     protected static final Pattern HTML_ENTITY_PATTERN = Pattern.compile("&#x?\\w+;");
 
     /**
-     * html助手
-     *
-     * @param text 文本
-     * @param hex hex
-     * @param asSurrogate assurrogate
-     * @return html助手的结果
+    * html助手
+    *
+    * @param text 文本
+    * @param hex hex
+    * @param asSurrogate assurrogate
+    * @return html助手的结果
      */
     protected static String htmlHelper(String text, boolean hex, boolean asSurrogate) {
         StringBuilder sb = new StringBuilder();

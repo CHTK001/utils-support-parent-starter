@@ -16,60 +16,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * ultraface 人脸检测 Translator（pytorch torchscript）。
- *
- * @author CH
- * @since 4.0.0.42
+* ultraface 人脸检测 Translator（pytorch torchscript）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     * 默认方差。
+    * 默认方差。
      */
     private static final double[] DEFAULT_VARIANCE = {0.1d, 0.2d};
 
     /**
-     * BGR 均值。
+    * BGR 均值。
      */
     private static final float[] BGR_MEAN = {104f, 117f, 123f};
 
     /**
-     * 置信度阈值。
+    * 置信度阈值。
      */
     private final double confThresh;
 
     /**
-     * NMS 阈值。
+    * NMS 阈值。
      */
     private final double nmsThresh;
 
     /**
-     * Top-K。
+    * Top-K。
      */
     private final int topK;
 
     /**
-     * 输入宽。
+    * 输入宽。
      */
     private final int inputWidth;
 
     /**
-     * 输入高。
+    * 输入高。
      */
     private final int inputHeight;
 
     /**
-     * 方差。
+    * 方差。
      */
     private final double[] variance;
 
     /**
-     * 锚框尺度。
+    * 锚框尺度。
      */
     private final int[][] scales;
 
     /**
-     * 特征步长。
+    * 特征步长。
      */
     private final int[] steps;
 
@@ -79,10 +79,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 创建 ultrafacetranslator 实例
-     * @param confThresh confthresh
-     * @param confThresh double
-     * @param nmsThresh nmsthresh
+    * 创建 ultrafacetranslator 实例
+    * @param confThresh confthresh
+    * @param confThresh double
+    * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this.confThresh = confThresh;
@@ -177,10 +177,10 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * squeezebatch
-     *
-     * @param array array
-     * @return squeezeBatch的结果
+    * squeezebatch
+    *
+    * @param array array
+    * @return squeezeBatch的结果
      */
     private NDArray squeezeBatch(NDArray array) {
         if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
@@ -190,13 +190,13 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * boxrecover
-     *
-     * @param width width
-     * @param height height
-     * @param scales scales
-     * @param steps steps
-     * @return boxRecover的结果
+    * boxrecover
+    *
+    * @param width width
+    * @param height height
+    * @param scales scales
+    * @param steps steps
+    * @return boxRecover的结果
      */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> defaultBoxes = new ArrayList<>();
@@ -224,21 +224,21 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * Clip
-     *
-     * @param value 值
-     * @return clip的结果
+    * Clip
+    *
+    * @param value 值
+    * @return clip的结果
      */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
 
     /**
-     * Clip获取大小
-     *
-     * @param origin origin
-     * @param size 大小
-     * @return clip大小的结果
+    * Clip获取大小
+    *
+    * @param origin origin
+    * @param size 大小
+    * @return clip大小的结果
      */
     private double clipSize(double origin, double size) {
         return Math.max(0d, Math.min(1d - clip(origin), size));
@@ -251,11 +251,11 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * Candidate
-     *
-     * @param rectangle rectangle
-     * @param probability probability
-     * @return Candidate的结果
+    * Candidate
+    *
+    * @param rectangle rectangle
+    * @param probability probability
+    * @return Candidate的结果
      */
     private record Candidate(Rectangle rectangle, double probability) {
     }

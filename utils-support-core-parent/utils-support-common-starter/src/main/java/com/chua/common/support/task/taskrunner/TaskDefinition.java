@@ -10,112 +10,112 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
-   * 任务定义 — 任务runner 中单个任务节点的声明式配置。
- *
- * <p>通过 {@code TaskRunner#task(String, Function)} 注册并返回本实例，
- * 以链式调用完成依赖、超时、重试、熔断降级等配置：</p>
- *
- * <pre>{@code
- * runner.task("flaky", ctx -> unstableCall())
- *         .afterNode("a", "b")              // 控制流依赖：a、b 完成后才执行
- *         .timeout(Duration.ofMillis(500))  // 单独超时（未设置时用 runner 全局值）
- *         .retry(5)                         // 单独重试次数（未设置时用 runner 全局值）
- *         .failureThreshold(3)              // 连续失败 3 次熔断打开
- *         .waitDuration(10_000)             // 熔断打开后半开等待毫秒
- *         .circuitBreaker()                 // 启用熔断（与上述参数同级）
- *         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
- * }</pre>           // 启用熔断（与上述参数同级）
- *         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
- * }</pre>
- *
- * <p>依赖语义：</p>
- * <ul>
- *   <li>{@link #afterNode(String...)} — 纯控制流依赖：前置完成后即触发，不读取其结果</li>
- *   <li>{@link #dependsNode(String...)} — 数据依赖：前置完成后校验其结果非 null，
-   * 缺失则本节点判失败（可被 降级 兜底）；隐含控制流语义</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 任务定义 — 任务runner 中单个任务节点的声明式配置。
+*
+* <p>通过 {@code TaskRunner#task(String, Function)} 注册并返回本实例，
+* 以链式调用完成依赖、超时、重试、熔断降级等配置：</p>
+*
+* <pre>{@code
+* runner.task("flaky", ctx -> unstableCall())
+*         .afterNode("a", "b")              // 控制流依赖：a、b 完成后才执行
+*         .timeout(Duration.ofMillis(500))  // 单独超时（未设置时用 runner 全局值）
+*         .retry(5)                         // 单独重试次数（未设置时用 runner 全局值）
+*         .failureThreshold(3)              // 连续失败 3 次熔断打开
+*         .waitDuration(10_000)             // 熔断打开后半开等待毫秒
+*         .circuitBreaker()                 // 启用熔断（与上述参数同级）
+*         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
+* }</pre>           // 启用熔断（与上述参数同级）
+*         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
+* }</pre>
+*
+* <p>依赖语义：</p>
+* <ul>
+*   <li>{@link #afterNode(String...)} — 纯控制流依赖：前置完成后即触发，不读取其结果</li>
+*   <li>{@link #dependsNode(String...)} — 数据依赖：前置完成后校验其结果非 null，
+* 缺失则本节点判失败（可被 降级 兜底）；隐含控制流语义</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class TaskDefinition {
 
     /**
-     * 重试退避基础间隔毫秒
+    * 重试退避基础间隔毫秒
      */
     private static final long BACKOFF_BASE_MS = 200L;
 
     /**
-     * 重试退避最大间隔毫秒
+    * 重试退避最大间隔毫秒
      */
     private static final long BACKOFF_CAP_MS = 2_000L;
 
     /**
-     * 所属运行器，用于链式续接注册与执行出口
+    * 所属运行器，用于链式续接注册与执行出口
      */
     private final TaskRunner owner;
 
     /**
-      * 节点 标识，运行内唯一
+    * 节点 标识，运行内唯一
      */
     private final String id;
 
     /**
-     * 任务执行函数
+    * 任务执行函数
      */
     private final Function<RunnerContext, Object> action;
 
     /**
-      * 控制流依赖的前置节点 标识 集合（保持注册顺序）
+    * 控制流依赖的前置节点 标识 集合（保持注册顺序）
      */
     private final List<String> dependencies = new ArrayList<>();
 
     /**
-      * 数据依赖的前置节点 标识 集合（requires 非 空 结果）
+    * 数据依赖的前置节点 标识 集合（requires 非 空 结果）
      */
     private final Set<String> dataDependencies = new LinkedHashSet<>();
 
     /**
-      * 单独超时，空 表示使用 runner 全局值
+    * 单独超时，空 表示使用 runner 全局值
      */
     private Duration timeout;
 
     /**
-      * 单独重试次数，空 表示使用 runner 全局值
+    * 单独重试次数，空 表示使用 runner 全局值
      */
     private Integer retryCount;
 
     /**
-     * 熔断失败阈值，-1 表示未设置（启用熔断且未设置时取默认值 5）
+    * 熔断失败阈值，-1 表示未设置（启用熔断且未设置时取默认值 5）
      */
     private int failureThreshold = -1;
 
     /**
-     * 半开恢复成功阈值，-1 表示未设置（默认 2）
+    * 半开恢复成功阈值，-1 表示未设置（默认 2）
      */
     private int successThreshold = -1;
 
     /**
-     * 熔断打开后半开等待毫秒，-1 表示未设置（默认 60000）
+    * 熔断打开后半开等待毫秒，-1 表示未设置（默认 60000）
      */
     private long waitDurationMs = -1L;
 
     /**
-     * 是否启用熔断保护
+    * 是否启用熔断保护
      */
     private boolean circuitBreakerEnabled;
 
     /**
-      * 降级兜底函数，空 表示无降级
+    * 降级兜底函数，空 表示无降级
      */
     private Function<RunnerContext, Object> fallback;
 
     /**
-      * 创建任务定义（由 任务runner#任务 调用）。
-     *
-     * @param owner  所属运行器
-     * @param id     节点 标识，不为空
-     * @param action 执行函数，不为 空
+    * 创建任务定义（由 任务runner#任务 调用）。
+    *
+    * @param owner  所属运行器
+    * @param id     节点 标识，不为空
+    * @param action 执行函数，不为 空
      */
     TaskDefinition(TaskRunner owner, String id, Function<RunnerContext, Object> action) {
         if (id == null || id.isBlank()) {
@@ -127,80 +127,80 @@ public final class TaskDefinition {
     }
 
     /**
-     * 继续注册下一个任务节点（委托给所属运行器）。
-     *
-     * @param id     节点 标识，运行内唯一且非空
-     * @param action 执行函数
-     * @return 新任务定义
+    * 继续注册下一个任务节点（委托给所属运行器）。
+    *
+    * @param id     节点 标识，运行内唯一且非空
+    * @param action 执行函数
+    * @return 新任务定义
      */
     public TaskDefinition task(String id, Function<RunnerContext, Object> action) {
         return owner.task(id, action);
     }
 
     /**
-     * 设置完成策略（委托给所属运行器）。
-     *
-     * @param p 完成策略，不为 空
-     * @return 所属运行器
+    * 设置完成策略（委托给所属运行器）。
+    *
+    * @param p 完成策略，不为 空
+    * @return 所属运行器
      */
     public TaskRunner policy(CompletionPolicy p) {
         return owner.policy(p);
     }
 
     /**
-     * 注册事件监听器（委托给所属运行器）。
-     *
-     * @param l 监听器，不为 空
-     * @return 所属运行器
+    * 注册事件监听器（委托给所属运行器）。
+    *
+    * @param l 监听器，不为 空
+    * @return 所属运行器
      */
     public TaskRunner listener(RunnerListener l) {
         return owner.listener(l);
     }
 
     /**
-     * 同步执行整个拓扑图（委托给所属运行器）。
-     *
-     * @param input 初始输入，可为 空
-     * @return 整体结果
+    * 同步执行整个拓扑图（委托给所属运行器）。
+    *
+    * @param input 初始输入，可为 空
+    * @return 整体结果
      */
     public RunResult executeSync(Object input) {
         return owner.executeSync(input);
     }
 
     /**
-     * 异步执行整个拓扑图（委托给所属运行器）。
-     *
-     * @param input 初始输入，可为 空
-     * @return 整体结果 期货
+    * 异步执行整个拓扑图（委托给所属运行器）。
+    *
+    * @param input 初始输入，可为 空
+    * @return 整体结果 期货
      */
     public CompletableFuture<RunResult> execute(Object input) {
         return owner.execute(input);
     }
 
     /**
-     * 响应式执行整个拓扑图（委托给所属运行器）。
-     *
-     * @param input 初始输入，可为 空
-     * @return 整体结果 Mono
+    * 响应式执行整个拓扑图（委托给所属运行器）。
+    *
+    * @param input 初始输入，可为 空
+    * @return 整体结果 Mono
      */
     public reactor.core.publisher.Mono<RunResult> executeReactor(Object input) {
         return owner.executeReactor(input);
     }
 
     /**
-     * 订阅运行事件流（委托给所属运行器）。
-     *
-     * @return 事件 Flux
+    * 订阅运行事件流（委托给所属运行器）。
+    *
+    * @return 事件 Flux
      */
     public reactor.core.publisher.Flux<RunnerEvent> watch() {
         return owner.watch();
     }
 
     /**
-     * 追加控制流依赖：声明的全部前置节点完成后才执行本节点。
-     *
-     * @param ids 前置节点 标识，至少一个且不能为空
-     * @return 当前定义
+    * 追加控制流依赖：声明的全部前置节点完成后才执行本节点。
+    *
+    * @param ids 前置节点 标识，至少一个且不能为空
+    * @return 当前定义
      */
     public TaskDefinition afterNode(String... ids) {
         requireIds(ids);
@@ -209,12 +209,12 @@ public final class TaskDefinition {
     }
 
     /**
-      * 追加数据依赖：前置节点完成后校验其结果非 空，缺失则本节点判失败。
-     *
-     * <p>同时具备 {@link #afterNode(String...)} 的控制流语义。</p>
-     *
-     * @param ids 前置节点 标识，至少一个且不能为空
-     * @return 当前定义
+    * 追加数据依赖：前置节点完成后校验其结果非 空，缺失则本节点判失败。
+    *
+    * <p>同时具备 {@link #afterNode(String...)} 的控制流语义。</p>
+    *
+    * @param ids 前置节点 标识，至少一个且不能为空
+    * @return 当前定义
      */
     public TaskDefinition dependsNode(String... ids) {
         requireIds(ids);
@@ -228,13 +228,13 @@ public final class TaskDefinition {
     }
 
     /**
-     * 设置单独超时时间，覆盖 runner 全局值。
-     *
-     * <p>超时约束整个"重试序列"的总耗时，而非单次尝试；
-     * 剩余预算不足以容纳下一次退避与执行时，重试提前放弃。</p>
-     *
-     * @param d 超时时长，必须为正
-     * @return 当前定义
+    * 设置单独超时时间，覆盖 runner 全局值。
+    *
+    * <p>超时约束整个"重试序列"的总耗时，而非单次尝试；
+    * 剩余预算不足以容纳下一次退避与执行时，重试提前放弃。</p>
+    *
+    * @param d 超时时长，必须为正
+    * @return 当前定义
      */
     public TaskDefinition timeout(Duration d) {
         Objects.requireNonNull(d, "timeout must not be null");
@@ -246,10 +246,10 @@ public final class TaskDefinition {
     }
 
     /**
-     * 设置单独重试次数，覆盖 runner 全局值。
-     *
-     * @param n 最大重试次数（不含首次执行），必须 ≥ 0
-     * @return 当前定义
+    * 设置单独重试次数，覆盖 runner 全局值。
+    *
+    * @param n 最大重试次数（不含首次执行），必须 ≥ 0
+    * @return 当前定义
      */
     public TaskDefinition retry(int n) {
         if (n < 0) {
@@ -260,10 +260,10 @@ public final class TaskDefinition {
     }
 
     /**
-     * 设置熔断失败阈值：连续失败达到该次数后熔断打开。
-     *
-     * @param n 失败次数阈值，必须 ≥ 1
-     * @return 当前定义
+    * 设置熔断失败阈值：连续失败达到该次数后熔断打开。
+    *
+    * @param n 失败次数阈值，必须 ≥ 1
+    * @return 当前定义
      */
     public TaskDefinition failureThreshold(int n) {
         if (n < 1) {
@@ -274,10 +274,10 @@ public final class TaskDefinition {
     }
 
     /**
-     * 设置半开恢复成功阈值：半开状态下连续成功该次数后熔断关闭。
-     *
-     * @param n 成功次数阈值，必须 ≥ 1
-     * @return 当前定义
+    * 设置半开恢复成功阈值：半开状态下连续成功该次数后熔断关闭。
+    *
+    * @param n 成功次数阈值，必须 ≥ 1
+    * @return 当前定义
      */
     public TaskDefinition successThreshold(int n) {
         if (n < 1) {
@@ -288,10 +288,10 @@ public final class TaskDefinition {
     }
 
     /**
-     * 设置熔断打开后的半开等待时长（毫秒）。
-     *
-     * @param ms 等待毫秒数，必须 > 0
-     * @return 当前定义
+    * 设置熔断打开后的半开等待时长（毫秒）。
+    *
+    * @param ms 等待毫秒数，必须 > 0
+    * @return 当前定义
      */
     public TaskDefinition waitDuration(long ms) {
         if (ms <= 0) {
@@ -302,12 +302,12 @@ public final class TaskDefinition {
     }
 
     /**
-     * 启用熔断保护。
-     *
-     * <p>未显式设置的阈值参数取默认值：failureThreshold=5、successThreshold=2、
-      * wait持续时间=60000ms。熔断状态按节点 标识 跨多次 运行 持久生效。</p>
-     *
-     * @return 当前定义
+    * 启用熔断保护。
+    *
+    * <p>未显式设置的阈值参数取默认值：failureThreshold=5、successThreshold=2、
+    * wait持续时间=60000ms。熔断状态按节点 标识 跨多次 运行 持久生效。</p>
+    *
+    * @return 当前定义
      */
     public TaskDefinition circuitBreaker() {
         this.circuitBreakerEnabled = true;
@@ -315,10 +315,10 @@ public final class TaskDefinition {
     }
 
     /**
-     * 按条件启用或关闭熔断保护。
-     *
-     * @param enable true 启用
-     * @return 当前定义
+    * 按条件启用或关闭熔断保护。
+    *
+    * @param enable true 启用
+    * @return 当前定义
      */
     public TaskDefinition circuitBreaker(boolean enable) {
         this.circuitBreakerEnabled = enable;
@@ -326,11 +326,11 @@ public final class TaskDefinition {
     }
 
     /**
-     * 设置降级兜底函数：任务失败（重试耗尽）、超时或熔断拒绝时，
-     * 以降级返回值作为本节点的成功结果。
-     *
-     * @param f 降级函数，不为 空
-     * @return 当前定义
+    * 设置降级兜底函数：任务失败（重试耗尽）、超时或熔断拒绝时，
+    * 以降级返回值作为本节点的成功结果。
+    *
+    * @param f 降级函数，不为 空
+    * @return 当前定义
      */
     public TaskDefinition fallback(Function<RunnerContext, Object> f) {
         this.fallback = Objects.requireNonNull(f, "fallback must not be null");
@@ -338,30 +338,30 @@ public final class TaskDefinition {
     }
 
     /**
-     * 解析实际生效的超时时长。
-     *
-     * @param globalTimeout runner 全局超时，可为 空
-     * @return 实际超时；两者均未设置时为 空（不限时）
+    * 解析实际生效的超时时长。
+    *
+    * @param globalTimeout runner 全局超时，可为 空
+    * @return 实际超时；两者均未设置时为 空（不限时）
      */
     Duration resolveTimeout(Duration globalTimeout) {
         return timeout != null ? timeout : globalTimeout;
     }
 
     /**
-     * 解析实际生效的重试次数。
-     *
-     * @param globalRetry runner 全局重试次数
-     * @return 实际重试次数
+    * 解析实际生效的重试次数。
+    *
+    * @param globalRetry runner 全局重试次数
+    * @return 实际重试次数
      */
     int resolveRetry(int globalRetry) {
         return retryCount != null ? retryCount : globalRetry;
     }
 
     /**
-      * 计算第 尝试 次失败后的退避间隔（指数增长，封顶 2 秒）。
-     *
-     * @param attempt 从 0 开始的失败序号
-     * @return 退避毫秒数
+    * 计算第 尝试 次失败后的退避间隔（指数增长，封顶 2 秒）。
+    *
+    * @param attempt 从 0 开始的失败序号
+    * @return 退避毫秒数
      */
     static long backoffMillis(int attempt) {
         var scaled = BACKOFF_BASE_MS << Math.min(attempt, 4);
@@ -369,9 +369,9 @@ public final class TaskDefinition {
     }
 
     /**
-      * 校验依赖 标识 数组合法性。
-     *
-     * @param ids 待校验数组
+    * 校验依赖 标识 数组合法性。
+    *
+    * @param ids 待校验数组
      */
     private static void requireIds(String[] ids) {
         Objects.requireNonNull(ids, "依赖 id 数组不能为 null");
@@ -386,90 +386,90 @@ public final class TaskDefinition {
     }
 
     /**
-      * 获取节点 标识。
-     *
-     * @return 注册时声明的节点 标识
+    * 获取节点 标识。
+    *
+    * @return 注册时声明的节点 标识
      */
     public String getId() {
         return id;
     }
 
     /**
-     * 获取任务执行函数。
-     *
-     * @return 注册时传入的业务函数
+    * 获取任务执行函数。
+    *
+    * @return 注册时传入的业务函数
      */
     public Function<RunnerContext, Object> getAction() {
         return action;
     }
 
     /**
-      * 获取控制流依赖的前置节点 标识 列表。
-     *
-     * @return 不可变快照，保持注册顺序
+    * 获取控制流依赖的前置节点 标识 列表。
+    *
+    * @return 不可变快照，保持注册顺序
      */
     public List<String> getDependencies() {
         return List.copyOf(dependencies);
     }
 
     /**
-      * 获取数据依赖的前置节点 标识 集合。
-     *
-     * @return 不可变快照，执行前会校验这些节点的结果非 空
+    * 获取数据依赖的前置节点 标识 集合。
+    *
+    * @return 不可变快照，执行前会校验这些节点的结果非 空
      */
     public Set<String> getDataDependencies() {
         return Set.copyOf(dataDependencies);
     }
 
     /**
-     * 判断是否配置了降级兜底函数。
-     *
-     * @return true 表示失败时可走 降级
+    * 判断是否配置了降级兜底函数。
+    *
+    * @return true 表示失败时可走 降级
      */
     public boolean hasFallback() {
         return fallback != null;
     }
 
     /**
-     * 获取降级兜底函数。
-     *
-     * @return 降级函数；未配置时为 空
+    * 获取降级兜底函数。
+    *
+    * @return 降级函数；未配置时为 空
      */
     public Function<RunnerContext, Object> getFallback() {
         return fallback;
     }
 
     /**
-     * 判断是否启用熔断保护。
-     *
-     * @return true 表示已调用 熔断中断() 启用
+    * 判断是否启用熔断保护。
+    *
+    * @return true 表示已调用 熔断中断() 启用
      */
     public boolean isCircuitBreakerEnabled() {
         return circuitBreakerEnabled;
     }
 
     /**
-     * 获取生效的熔断失败阈值。
-     *
-     * @return 显式设置值；未设置时返回默认值 5
+    * 获取生效的熔断失败阈值。
+    *
+    * @return 显式设置值；未设置时返回默认值 5
      */
     public int getFailureThreshold() {
         return failureThreshold >= 1 ? failureThreshold : 5;
     }
 
     /**
-     * 获取生效的半开恢复成功阈值。
-     *
-     * @return 显式设置值；未设置时返回默认值 2
+    * 获取生效的半开恢复成功阈值。
+    *
+    * @return 显式设置值；未设置时返回默认值 2
      */
     public int getSuccessThreshold() {
         return successThreshold >= 1 ? successThreshold : 2;
     }
 
     /**
-     * 获取生效的熔断半开等待毫秒数。
-     *
-     * @return 显式设置值；未设置时返回默认值 60000ms
+    * 获取生效的熔断半开等待毫秒数。
+    *
+    * @return 显式设置值；未设置时返回默认值 60000ms
      */
     public long getWaitDuration() {
         return waitDurationMs > 0 ? waitDurationMs : 60_000L;

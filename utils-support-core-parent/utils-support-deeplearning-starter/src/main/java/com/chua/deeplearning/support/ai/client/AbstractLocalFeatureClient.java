@@ -10,43 +10,43 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 
 /**
- * 本地引擎特征提取客户端抽象基类。
- * <p>
- * 统一实现 {@link FeatureClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
-   * 已注册的 字符串/byte[] → float[] 翻译器执行特征提取，并提供该引擎的模型列表。
- * 支持文本特征与图像特征两种输入模态。子类只需指定引擎名称。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 本地引擎特征提取客户端抽象基类。
+* <p>
+* 统一实现 {@link FeatureClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
+* 已注册的 字符串/byte[] → float[] 翻译器执行特征提取，并提供该引擎的模型列表。
+* 支持文本特征与图像特征两种输入模态。子类只需指定引擎名称。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractLocalFeatureClient implements FeatureClient {
 
     /**
-      * 引擎名称（提供者）
+    * 引擎名称（提供者）
      */
     protected final String engine;
 
     /**
-     * 识别引擎实例
+    * 识别引擎实例
      */
     protected final IdentificationEngine identificationEngine;
 
     /**
-     * 当前模型名称
+    * 当前模型名称
      */
     protected String model;
 
     /**
-     * 输出向量维度
+    * 输出向量维度
      */
     protected Integer dimensions;
 
     /**
-     * 构造本地特征提取客户端。
-     *
-     * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
-     * @param setting 客户端配置
+    * 构造本地特征提取客户端。
+    *
+    * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
+    * @param setting 客户端配置
      */
     protected AbstractLocalFeatureClient(String engine, FeatureClientSetting setting) {
         this.engine = engine;
@@ -76,12 +76,12 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     /**
-     * 解析实际使用的模型名称。
-     *
-     * <p>{@code auto} / 空值表示按当前服务器硬件配置自动挑选推荐模型，
-     * 否则返回显式指定的模型名。</p>
-     *
-     * @return 模型名称
+    * 解析实际使用的模型名称。
+    *
+    * <p>{@code auto} / 空值表示按当前服务器硬件配置自动挑选推荐模型，
+    * 否则返回显式指定的模型名。</p>
+    *
+    * @return 模型名称
      */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
@@ -127,11 +127,11 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     /**
-     * 将翻译器输出转换为 float 向量。
-     *
-     * @param result    翻译器输出
-     * @param modelName 模型名称
-     * @return float 向量
+    * 将翻译器输出转换为 float 向量。
+    *
+    * @param result    翻译器输出
+    * @param modelName 模型名称
+    * @return float 向量
      */
     private static float[] toFloatArray(Object result, String modelName) {
         if (result instanceof float[] floats) {

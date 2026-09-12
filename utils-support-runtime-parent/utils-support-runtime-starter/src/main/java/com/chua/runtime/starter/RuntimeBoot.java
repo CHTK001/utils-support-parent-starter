@@ -29,58 +29,58 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * 运行时启动器 — 软件管理与 智能体 注入的主入口。
- *
- * <p>支持链式操作：下载 &gt; 安装 main &gt; 注入 agent &gt; 启动服务 &gt; 打开 shell。</p>
- *
- * <p>示例（Guacamole 远程网关）：</p>
- * <pre>
- * RuntimeBoot
- *     .create()
- *     .withArtifact(GuacamoleArtifact.builder().build())
- *     .install()
- *     .attachAgent()
- *     .startShell()
- *     .run();
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 运行时启动器 — 软件管理与 智能体 注入的主入口。
+*
+* <p>支持链式操作：下载 &gt; 安装 main &gt; 注入 agent &gt; 启动服务 &gt; 打开 shell。</p>
+*
+* <p>示例（Guacamole 远程网关）：</p>
+* <pre>
+* RuntimeBoot
+*     .create()
+*     .withArtifact(GuacamoleArtifact.builder().build())
+*     .install()
+*     .attachAgent()
+*     .startShell()
+*     .run();
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RuntimeBoot {
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(RuntimeBoot.class.getName());
     /**
-     * 配置
+    * 配置
      */
     private final BootConfig config;
 
     /**
-     * 运行时管理器
+    * 运行时管理器
      */
     private RuntimeManager manager;
 
     /**
-     * APM 启动器
+    * APM 启动器
      */
     private ApmBootstrap apm;
 
     /**
-     * Shell 服务器
+    * Shell 服务器
      */
     private TelnetServer shell;
 
     /**
-     * 是否已运行
+    * 是否已运行
      */
     private boolean running;
 
     /**
-      * 创建 runtimeboot 实例
-     * @param config 配置
+    * 创建 runtimeboot 实例
+    * @param config 配置
      */
     private RuntimeBoot(BootConfig config) {
         this.config = config;
@@ -90,29 +90,29 @@ public class RuntimeBoot {
     }
 
     /**
-     * 创建启动器。
-     *
-     * @return 启动器
+    * 创建启动器。
+    *
+    * @return 启动器
      */
     public static RuntimeBoot create() {
         return create(BootConfig.builder().build());
     }
 
     /**
-     * 创建启动器。
-     *
-     * @param config 配置
-     * @return 启动器
+    * 创建启动器。
+    *
+    * @param config 配置
+    * @return 启动器
      */
     public static RuntimeBoot create(BootConfig config) {
         return new RuntimeBoot(config);
     }
 
     /**
-     * 设置工件。
-     *
-     * @param artifact 工件
-     * @return 自身
+    * 设置工件。
+    *
+    * @param artifact 工件
+    * @return 自身
      */
     public RuntimeBoot withArtifact(RuntimeArtifact artifact) {
         manager.registerOrReplace(artifact);
@@ -120,10 +120,10 @@ public class RuntimeBoot {
     }
 
     /**
-     * 设置服务配置。
-     *
-     * @param service 服务配置
-     * @return 自身
+    * 设置服务配置。
+    *
+    * @param service 服务配置
+    * @return 自身
      */
     public RuntimeBoot withService(ManagedService service) {
         config.setService(service);
@@ -131,10 +131,10 @@ public class RuntimeBoot {
     }
 
     /**
-      * 设置 智能体 路径。
-     *
-     * @param agentPath 智能体 路径
-     * @return 自身
+    * 设置 智能体 路径。
+    *
+    * @param agentPath 智能体 路径
+    * @return 自身
      */
     public RuntimeBoot withAgent(Path agentPath) {
         config.setAgentPath(agentPath);
@@ -142,10 +142,10 @@ public class RuntimeBoot {
     }
 
     /**
-      * 设置 智能体 选项。
-     *
-     * @param options 智能体 选项
-     * @return 自身
+    * 设置 智能体 选项。
+    *
+    * @param options 智能体 选项
+    * @return 自身
      */
     public RuntimeBoot withAgentOptions(String options) {
         config.setAgentOptions(options);
@@ -153,10 +153,10 @@ public class RuntimeBoot {
     }
 
     /**
-     * 设置 Shell 端口。
-     *
-     * @param port 端口
-     * @return 自身
+    * 设置 Shell 端口。
+    *
+    * @param port 端口
+    * @return 自身
      */
     public RuntimeBoot withShellPort(int port) {
         config.setShellPort(port);
@@ -164,9 +164,9 @@ public class RuntimeBoot {
     }
 
     /**
-      * 注册 Shell 自定义命令（APM 查看）。
-     *
-     * @return 自身
+    * 注册 Shell 自定义命令（APM 查看）。
+    *
+    * @return 自身
      */
     public RuntimeBoot withApmCommand() {
         shell.register(new ApmCommand(apm));
@@ -174,10 +174,10 @@ public class RuntimeBoot {
     }
 
     /**
-     * 注册自定义 APM 处理器。
-     *
-     * @param handler 自定义处理器
-     * @return 自身
+    * 注册自定义 APM 处理器。
+    *
+    * @param handler 自定义处理器
+    * @return 自身
      */
     public RuntimeBoot withHandler(Plugin handler) {
         apm.addHandler(handler);
@@ -185,9 +185,9 @@ public class RuntimeBoot {
     }
 
     /**
-     * 链式步骤：下载工件。
-     *
-     * @return 自身
+    * 链式步骤：下载工件。
+    *
+    * @return 自身
      */
     public RuntimeBoot install() {
         String id = config.getArtifact().getId();
@@ -213,9 +213,9 @@ public class RuntimeBoot {
     }
 
     /**
-      * 链式步骤：注入 智能体 到正在运行的 JVM。
-     *
-     * @return 自身
+    * 链式步骤：注入 智能体 到正在运行的 JVM。
+    *
+    * @return 自身
      */
     public RuntimeBoot attachAgent() {
         Path agentPath = config.getAgentPath();
@@ -233,19 +233,19 @@ public class RuntimeBoot {
     }
 
     /**
-     * 链式步骤：注入 Agent 到<b>当前 JVM 进程自身</b>（自 attach）。
-     *
-     * <p>用于"纯 Maven 依赖、零 JVM 启动参数"的自动注入场景。
-     * 内部通过 {@code com.sun.tools.attach.VirtualMachine.attach(currentPid)}
-     * 把 agent jar 加载进当前 JVM，触发 {@code RuntimeAgent.agentmain}，
-     * 进而启动 SpyBootstrap（字节码引擎）+ ApmBootstrap（APM 处理器）。</p>
-     *
-     * <p>若 {@code BootConfig.agentPath} 未显式设置，则自动定位 agent jar：
-     * 优先扫 classpath 上含 {@code com/chua/runtime/agent/RuntimeAgent.class} 的 jar，
-     * 找不到时回退扫 Spring Boot fat jar 的 {@code BOOT-INF/lib/*.jar}
-     * （适用于 {@code java -jar} 运行的嵌套加载场景）。</p>
-     *
-     * @return 自身
+    * 链式步骤：注入 Agent 到<b>当前 JVM 进程自身</b>（自 attach）。
+    *
+    * <p>用于"纯 Maven 依赖、零 JVM 启动参数"的自动注入场景。
+    * 内部通过 {@code com.sun.tools.attach.VirtualMachine.attach(currentPid)}
+    * 把 agent jar 加载进当前 JVM，触发 {@code RuntimeAgent.agentmain}，
+    * 进而启动 SpyBootstrap（字节码引擎）+ ApmBootstrap（APM 处理器）。</p>
+    *
+    * <p>若 {@code BootConfig.agentPath} 未显式设置，则自动定位 agent jar：
+    * 优先扫 classpath 上含 {@code com/chua/runtime/agent/RuntimeAgent.class} 的 jar，
+    * 找不到时回退扫 Spring Boot fat jar 的 {@code BOOT-INF/lib/*.jar}
+    * （适用于 {@code java -jar} 运行的嵌套加载场景）。</p>
+    *
+    * @return 自身
      */
     public RuntimeBoot attachSelf() {
         // 1. 定位 agent jar
@@ -278,15 +278,15 @@ public class RuntimeBoot {
     }
 
     /**
-     * 定位 agent jar（两级探测）。
-     *
-     * <p>方案 A：枚举 {@code java.class.path}，找含
-     * {@code com/chua/runtime/agent/RuntimeAgent.class} 的 jar（裸 jar / classpath 场景）；
-     * 若外层是 Spring Boot fat jar，扫 {@code BOOT-INF/lib/} 下 agent jar 并解压到临时目录。</p>
-     *
-     * <p>方案 B（回退）：通过 classloader 找 RuntimeAgent 的代码源。</p>
-     *
-     * @return agent jar 物理路径；定位不到返回 {@code null}
+    * 定位 agent jar（两级探测）。
+    *
+    * <p>方案 A：枚举 {@code java.class.path}，找含
+    * {@code com/chua/runtime/agent/RuntimeAgent.class} 的 jar（裸 jar / classpath 场景）；
+    * 若外层是 Spring Boot fat jar，扫 {@code BOOT-INF/lib/} 下 agent jar 并解压到临时目录。</p>
+    *
+    * <p>方案 B（回退）：通过 classloader 找 RuntimeAgent 的代码源。</p>
+    *
+    * @return agent jar 物理路径；定位不到返回 {@code null}
      */
     private static Path resolveSelfAgentPath() {
         // 方案 A：扫 classpath jar
@@ -331,13 +331,13 @@ public class RuntimeBoot {
     }
 
     /**
-     * 从 Spring Boot fat jar 的 {@code BOOT-INF/lib/} 下找 agent jar 并解压到临时目录。
-     *
-     * <p>attach 机制（{@code VirtualMachine.loadAgent}）要求物理文件路径，
-     * 不能直接喂 fat jar 内的嵌套 jar，故解压到 {@code java.io.tmpdir} 下。</p>
-     *
-     * @param fatJar 外层 fat jar
-     * @return 解压后的 agent jar 物理路径；找不到返回 {@code null}
+    * 从 Spring Boot fat jar 的 {@code BOOT-INF/lib/} 下找 agent jar 并解压到临时目录。
+    *
+    * <p>attach 机制（{@code VirtualMachine.loadAgent}）要求物理文件路径，
+    * 不能直接喂 fat jar 内的嵌套 jar，故解压到 {@code java.io.tmpdir} 下。</p>
+    *
+    * @param fatJar 外层 fat jar
+    * @return 解压后的 agent jar 物理路径；找不到返回 {@code null}
      */
     private static Path extractAgentFromFatJar(Path fatJar) {
         try {
@@ -374,9 +374,9 @@ public class RuntimeBoot {
     }
 
     /**
-      * 链式步骤：启动 Shell。
-     *
-     * @return 自身
+    * 链式步骤：启动 Shell。
+    *
+    * @return 自身
      */
     public RuntimeBoot startShell() {
         try {
@@ -388,9 +388,9 @@ public class RuntimeBoot {
     }
 
     /**
-     * 链式步骤：启动 APM。
-     *
-     * @return 自身
+    * 链式步骤：启动 APM。
+    *
+    * @return 自身
      */
     public RuntimeBoot startApm() {
         apm.start();
@@ -398,9 +398,9 @@ public class RuntimeBoot {
     }
 
     /**
-     * 链式步骤：注册为系统服务并启动。
-     *
-     * @return 自身
+    * 链式步骤：注册为系统服务并启动。
+    *
+    * @return 自身
      */
     public RuntimeBoot startAsService() {
         String id = config.getArtifact().getId();
@@ -418,7 +418,7 @@ public class RuntimeBoot {
     }
 
     /**
-     * 链式步骤：运行（阻塞）。
+    * 链式步骤：运行（阻塞）。
      */
     public void run() {
         if (running) {
@@ -440,7 +440,7 @@ public class RuntimeBoot {
     }
 
     /**
-     * 停止所有组件。
+    * 停止所有组件。
      */
     public void shutdown() {
         LOG.log(Level.INFO, "关闭 Runtime...");
@@ -459,82 +459,82 @@ public class RuntimeBoot {
     }
 
     /**
-     * 获取运行时管理器。
-     *
-     * @return RuntimeManager
+    * 获取运行时管理器。
+    *
+    * @return RuntimeManager
      */
     public RuntimeManager getManager() {
         return manager;
     }
 
     /**
-     * 获取 APM 启动器。
-     *
-     * @return ApmBootstrap
+    * 获取 APM 启动器。
+    *
+    * @return ApmBootstrap
      */
     public ApmBootstrap getApm() {
         return apm;
     }
 
     /**
-     * 获取 Shell 服务器。
-     *
-     * @return TelnetServer
+    * 获取 Shell 服务器。
+    *
+    * @return TelnetServer
      */
     public TelnetServer getShell() {
         return shell;
     }
 
     /**
-     * 启动器配置。
-     *
-     * @since 4.0.0.42
-     * @author CH
+    * 启动器配置。
+    *
+    * @since 4.0.0.42
+    * @author CH
      */
     @Data
     @Builder
     public static class BootConfig {
 
         /**
-         * 工件
+        * 工件
          */
         @Builder.Default
         /** Artifact */
         private RuntimeArtifact artifact = RuntimeArtifact.builder().id("default").build();
 
         /**
-         * 服务配置
+        * 服务配置
          */
         private ManagedService service;
 
         /**
-          * 智能体 JAR 路径
+        * 智能体 JAR 路径
          */
         private Path agentPath;
 
         /**
-          * 智能体 选项
+        * 智能体 选项
          */
         @Builder.Default
         /** Agentoptions */
         private String agentOptions = "";
 
         /**
-         * 目标 PID
+        * 目标 PID
          */
         @Builder.Default
         /** PID */
         private int pid = 0;
 
         /**
-         * Shell 端口
+        * Shell 端口
          */
         @Builder.Default
         /** Shell端口 */
         private int shellPort = 4567;
 
         /**
-         * 插件目录
+        * 插件目录
          */
         @Builder.Default
         /** 插件目录 */

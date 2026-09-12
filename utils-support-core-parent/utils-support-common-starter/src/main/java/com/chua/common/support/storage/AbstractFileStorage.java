@@ -17,12 +17,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 文件存储抽象基类。
- *
- * <p>提供 Bucket 初始化、检查等公共逻辑，简化具体实现的开发。</p>
- *
- * @since 1.0
- * @author CH
+* 文件存储抽象基类。
+*
+* <p>提供 Bucket 初始化、检查等公共逻辑，简化具体实现的开发。</p>
+*
+* @since 1.0
+* @author CH
  */
 public abstract class AbstractFileStorage implements FileStorage {
 
@@ -31,26 +31,26 @@ public abstract class AbstractFileStorage implements FileStorage {
     /** 存储桶 */
     protected final String bucket;
     /**
-     * 区域
+    * 区域
      */
     protected final String region;
     /**
-     * 服务端点
+    * 服务端点
      */
     protected final String endpoint;
     /**
-      * 访问密钥 标识
+    * 访问密钥 标识
      */
     protected final String accessKeyId;
     /**
-      * 访问密钥 Secret
+    * 访问密钥 Secret
      */
     protected final String accessKeySecret;
 
     /**
-     * 构造函数，接收 Bucket 配置。
-     *
-     * @param bucketSetting Bucket 配置
+    * 构造函数，接收 Bucket 配置。
+    *
+    * @param bucketSetting Bucket 配置
      */
     protected AbstractFileStorage(BucketSetting bucketSetting) {
         this.bucketSetting = bucketSetting;
@@ -68,11 +68,11 @@ public abstract class AbstractFileStorage implements FileStorage {
     }
 
     /**
-     * 创建分片上传存储。
-     *
-     * <p>默认使用本地临时目录暂存分片，完成时合并为完整文件后调用 {@link #putObject(PutObjectRequest)}。</p>
-     *
-     * @return 分片上传存储实例
+    * 创建分片上传存储。
+    *
+    * <p>默认使用本地临时目录暂存分片，完成时合并为完整文件后调用 {@link #putObject(PutObjectRequest)}。</p>
+    *
+    * @return 分片上传存储实例
      */
     @Override
     public MultipartStorage createMultipartStorage() {
@@ -80,11 +80,11 @@ public abstract class AbstractFileStorage implements FileStorage {
     }
 
     /**
-     * 基于本地临时目录的分片上传存储实现。
-     *
-     * <p>分片暂存在本地临时目录，完成时合并为完整字节数组后调用 {@link #putObject(PutObjectRequest)}。</p>
- * @author CH
-     * @since 4.0.0
+    * 基于本地临时目录的分片上传存储实现。
+    *
+    * <p>分片暂存在本地临时目录，完成时合并为完整字节数组后调用 {@link #putObject(PutObjectRequest)}。</p>
+    * @author CH
+    * @since 4.0.0
      */
     private static class LocalTmpMultipartStorage implements MultipartStorage {
 
@@ -100,8 +100,8 @@ public abstract class AbstractFileStorage implements FileStorage {
 
         @Override
         /**
-         * Initiate
-         * @param request 请求
+        * Initiate
+        * @param request 请求
          */
         public MultipartPartResult initiate(PutObjectRequest request) {
             String uploadId = IdUtils.simpleUuid();
@@ -122,8 +122,8 @@ public abstract class AbstractFileStorage implements FileStorage {
 
         @Override
         /**
-          * uploadpart
-         * @param request 请求
+        * uploadpart
+        * @param request 请求
          */
         public MultipartPartResult uploadPart(com.chua.common.support.storage.request.MultipartUploadPartRequest request) {
             MultipartContext ctx = contexts.get(request.getUploadId());
@@ -152,9 +152,9 @@ public abstract class AbstractFileStorage implements FileStorage {
 
         @Override
         /**
-         * 完成
-         * @param uploadId uploadid
-         * @param parts parts
+        * 完成
+        * @param uploadId uploadid
+        * @param parts parts
          */
         public PutObjectResult complete(String uploadId, List<PartETag> parts) {
             MultipartContext ctx = contexts.remove(uploadId);
@@ -187,8 +187,8 @@ public abstract class AbstractFileStorage implements FileStorage {
 
         @Override
         /**
-         * Abort
-         * @param uploadId uploadid
+        * Abort
+        * @param uploadId uploadid
          */
         public DeleteObjectResult abort(String uploadId) {
             MultipartContext ctx = contexts.remove(uploadId);
@@ -204,10 +204,10 @@ public abstract class AbstractFileStorage implements FileStorage {
         }
 
         /**
-         * 合并Parts
-         * @param ctx ctx
-         * @param parts parts
-         * @return 合并parts的结果
+        * 合并Parts
+        * @param ctx ctx
+        * @param parts parts
+        * @return 合并parts的结果
          */
         private byte[] mergeParts(MultipartContext ctx, List<PartETag> parts) throws IOException {
             parts.sort((a, b) -> Integer.compare(a.getPartNumber(), b.getPartNumber()));
@@ -230,8 +230,8 @@ public abstract class AbstractFileStorage implements FileStorage {
         }
 
         /**
-          * 删除tempdir
-         * @param tempDir tempdir
+        * 删除tempdir
+        * @param tempDir tempdir
          */
         private void deleteTempDir(Path tempDir) {
             try {
@@ -251,13 +251,13 @@ public abstract class AbstractFileStorage implements FileStorage {
             }
         }
         /**
-          * 私募 record multipart上下文(放入对象请求 请求, 路径 tempdir) {
-         *
-         * @author CH
-         * @since 4.0.0.42
-         * @param request 请求
-         * @param tempDir tempdir
-         * @return multipart上下文的结果
+        * 私募 record multipart上下文(放入对象请求 请求, 路径 tempdir) {
+        *
+        * @author CH
+        * @since 4.0.0.42
+        * @param request 请求
+        * @param tempDir tempdir
+        * @return multipart上下文的结果
          */
 
         private record MultipartContext(PutObjectRequest request, Path tempDir) {

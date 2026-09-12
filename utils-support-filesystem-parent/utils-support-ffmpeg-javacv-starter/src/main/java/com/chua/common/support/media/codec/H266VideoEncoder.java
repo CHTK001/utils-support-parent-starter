@@ -14,12 +14,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
 /**
-   * 基于 javacv ffmpeg 的 H.266/VVC 编码器。
- *
- * <p>注意：当前 FFmpeg 版本默认可能不支持 H.266 编码，若不可用请改用 H.265 编码器。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 javacv ffmpeg 的 H.266/VVC 编码器。
+*
+* <p>注意：当前 FFmpeg 版本默认可能不支持 H.266 编码，若不可用请改用 H.265 编码器。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = {"h266", "vvc"}, order = 35)
@@ -71,24 +71,24 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-      * 创建 H266视频编码器 实例
-     * @param width width
-     * @param width int
-     * @param width int
-     * @param height height
-     * @param fps fps
+    * 创建 H266视频编码器 实例
+    * @param width width
+    * @param width int
+    * @param width int
+    * @param height height
+    * @param fps fps
      */
     public H266VideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
 
     /**
-      * 创建 H266视频编码器 实例
-     * @param width width
-     * @param width Integer
-     * @param width Integer
-     * @param height height
-     * @param fps fps
+    * 创建 H266视频编码器 实例
+    * @param width width
+    * @param width Integer
+    * @param width Integer
+    * @param height height
+    * @param fps fps
      */
     public H266VideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
@@ -97,8 +97,8 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-      * 创建 H266视频编码器 实例
-     * @param args 参数
+    * 创建 H266视频编码器 实例
+    * @param args 参数
      */
     public H266VideoEncoder(Object... args) {
         if (args != null && args.length >= 3
@@ -112,12 +112,12 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 初始化
-     *
-     * @param width width
-     * @param height height
-     * @param fps fps
-     * @return 初始化的结果
+    * 初始化
+    *
+    * @param width width
+    * @param height height
+    * @param fps fps
+    * @return 初始化的结果
      */
     public boolean init(int width, int height, int fps) {
         close();
@@ -152,10 +152,10 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * ensureeven
-     *
-     * @param v v
-     * @return ensureEven的结果
+    * ensureeven
+    *
+    * @param v v
+    * @return ensureEven的结果
      */
     private static int ensureEven(int v) {
         return v + (v & 1);
@@ -186,11 +186,11 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * ensure初始化
-     *
-     * @param w w
-     * @param h h
-     * @param f f
+    * ensure初始化
+    *
+    * @param w w
+    * @param h h
+    * @param f f
      */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || recorder == null) {
@@ -243,10 +243,10 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 编码内部
-     *
-     * @param frame 帧
-     * @return encode内部的结果
+    * 编码内部
+    *
+    * @param frame 帧
+    * @return encode内部的结果
      */
     private byte[] encodeInternal(Frame frame) {
         if (!started || recorder == null) {
@@ -309,10 +309,10 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * ensurebgr
-     *
-     * @param src src
-     * @return ensureBgr的结果
+    * ensurebgr
+    *
+    * @param src src
+    * @return ensureBgr的结果
      */
     private static BufferedImage ensureBgr(BufferedImage src) {
         if (src.getType() == BufferedImage.TYPE_3BYTE_BGR) {

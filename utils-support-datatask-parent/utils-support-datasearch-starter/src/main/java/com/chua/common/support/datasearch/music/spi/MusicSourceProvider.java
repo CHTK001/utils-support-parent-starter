@@ -12,35 +12,35 @@ import com.chua.common.support.datasearch.music.model.MusicTrackDetail;
 import java.util.List;
 
 /**
- * 音乐音源 SPI
- *
- * @author CH
- * @since 4.0.0.42
+* 音乐音源 SPI
+*
+* @author CH
+* @since 4.0.0.42
 */
 public interface MusicSourceProvider {
 
     /**
-     * 当前音源基础信息
+    * 当前音源基础信息
      */
     MusicSourceOption getSource();
 
     /**
-     * 首页概览
+    * 首页概览
      */
     MusicOverview getOverview();
 
     /**
-     * 搜索歌曲
+    * 搜索歌曲
      */
     MusicSearchResult search(String keyword, int page, int pageSize);
 
     /**
-     * 搜索歌单
+    * 搜索歌单
      */
     MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize);
 
     /**
-     * 歌单分类目录
+    * 歌单分类目录
      */
     default MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
         return MusicPlaylistCategoryCatalog.builder()
@@ -51,7 +51,7 @@ public interface MusicSourceProvider {
     }
 
     /**
-     * 按分类读取歌单
+    * 按分类读取歌单
      */
     default MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
         return MusicPlaylistCategoryResult.builder()
@@ -66,12 +66,12 @@ public interface MusicSourceProvider {
     }
 
     /**
-     * 读取歌单详情
+    * 读取歌单详情
      */
     MusicPlaylistDetail getPlaylistDetail(String playlistId);
 
     /**
-     * 读取歌曲播放详情
+    * 读取歌曲播放详情
      */
     MusicTrackDetail getTrackDetail(String trackId);
 }

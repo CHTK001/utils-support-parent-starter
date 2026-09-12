@@ -16,38 +16,38 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * 用量持久化 ChatClient 包装器 — 为任意 {@link ChatClient} 添加异步 AiUsage 持久化能力。
- *
- * <p>通过装饰器模式拦截 {@link #chatSyncWithResponse(String)} 调用，
- * 在返回响应后异步将 {@link AiUsage} 通过 Engine ORM 持久化到数据库。
- * 不阻塞调用线程，适用于所有 ChatClient 实现。
- *
- * <p>使用示例：
- * <pre>{@code
- *   Engine engine = Engine.create("jdbc");
- *
- *   // 包装任意 ChatClient
- *   ChatClient client = UsagePersistChatClient.wrap(
- *       ChatClient.create("openai", "sk-xxx"), engine);
- *
- *   // 通过 chatSyncWithResponse 触发异步持久化
- *   ChatSyncResponse resp = client.chatSyncWithResponse("你好");
- *
- *   // 或通过流式 chat（STOP 事件中的 usage 被自动持久化）
- *   client.chat("你好", System.out::print);
- *
- *   // 注意：chatSync() 仅返回文本，不触发持久化。
- *   // 请使用 chatSyncWithResponse() 或 chat() 流式调用。
- *
- *   // 关闭前等待所有待写入完成
- *   client.close();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
- *
- * @see AggregateChatClient AggregateChatClient 内置了相同的持久化逻辑，
- *      包装已配置 Engine 的 AggregateChatClient 会导致用量重复写入，请避免。
+* 用量持久化 ChatClient 包装器 — 为任意 {@link ChatClient} 添加异步 AiUsage 持久化能力。
+*
+* <p>通过装饰器模式拦截 {@link #chatSyncWithResponse(String)} 调用，
+* 在返回响应后异步将 {@link AiUsage} 通过 Engine ORM 持久化到数据库。
+* 不阻塞调用线程，适用于所有 ChatClient 实现。
+*
+* <p>使用示例：
+* <pre>{@code
+*   Engine engine = Engine.create("jdbc");
+*
+*   // 包装任意 ChatClient
+*   ChatClient client = UsagePersistChatClient.wrap(
+*       ChatClient.create("openai", "sk-xxx"), engine);
+*
+*   // 通过 chatSyncWithResponse 触发异步持久化
+*   ChatSyncResponse resp = client.chatSyncWithResponse("你好");
+*
+*   // 或通过流式 chat（STOP 事件中的 usage 被自动持久化）
+*   client.chat("你好", System.out::print);
+*
+*   // 注意：chatSync() 仅返回文本，不触发持久化。
+*   // 请使用 chatSyncWithResponse() 或 chat() 流式调用。
+*
+*   // 关闭前等待所有待写入完成
+*   client.close();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
+*
+* @see AggregateChatClient AggregateChatClient 内置了相同的持久化逻辑，
+*      包装已配置 Engine 的 AggregateChatClient 会导致用量重复写入，请避免。
  */
 @Slf4j
 public class UsagePersistChatClient implements ChatClient {
@@ -60,20 +60,20 @@ public class UsagePersistChatClient implements ChatClient {
     private final List<CompletableFuture<?>> pendingFutures = new CopyOnWriteArrayList<>();
 
     /**
-     * 包装任意 ChatClient，为其添加异步用量持久化能力
-     *
-     * @param delegate 被包装的 ChatClient 实例（不应是已配置 Engine 的 AggregateChatClient）
-     * @param engine   Engine 实例
-     * @return 包装后的 ChatClient
+    * 包装任意 ChatClient，为其添加异步用量持久化能力
+    *
+    * @param delegate 被包装的 ChatClient 实例（不应是已配置 Engine 的 AggregateChatClient）
+    * @param engine   Engine 实例
+    * @return 包装后的 ChatClient
      */
     public static UsagePersistChatClient wrap(ChatClient delegate, Engine engine) {
         return new UsagePersistChatClient(delegate, engine);
     }
 
     /**
-     * 创建 UsagePersistChatClient 实例
-     * @param delegate delegate
-     * @param engine Engine
+    * 创建 UsagePersistChatClient 实例
+    * @param delegate delegate
+    * @param engine Engine
      */
     private UsagePersistChatClient(ChatClient delegate, Engine engine) {
         this.delegate = delegate;
@@ -98,11 +98,11 @@ public class UsagePersistChatClient implements ChatClient {
 
     @Override
     /**
-     * 对话
-     * @param prompt prompt
-     * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+    * 对话
+    * @param prompt prompt
+    * @param consumer consumer
+    * @param onComplete onComplete
+    * @param onError onError
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -227,7 +227,7 @@ public class UsagePersistChatClient implements ChatClient {
     // ======================== 持久化控制 ========================
 
     /**
-     * 等待所有异步用量写入完成
+    * 等待所有异步用量写入完成
      */
     public void flush() {
         List<CompletableFuture<?>> pending = List.copyOf(pendingFutures);
@@ -243,11 +243,11 @@ public class UsagePersistChatClient implements ChatClient {
     }
 
     /**
-     * 从外部 SPI 同步用量到当前 Engine
-     *
-     * <p>将外部数据源（如 UsageParser 解析的本地工具用量）批量写入 Engine 持久化表。</p>
-     *
-     * @param externalUsage 外部来源的用量数据列表
+    * 从外部 SPI 同步用量到当前 Engine
+    *
+    * <p>将外部数据源（如 UsageParser 解析的本地工具用量）批量写入 Engine 持久化表。</p>
+    *
+    * @param externalUsage 外部来源的用量数据列表
      */
     public void syncUsage(List<AiUsage> externalUsage) {
         if (externalUsage == null || externalUsage.isEmpty() || engine == null) {

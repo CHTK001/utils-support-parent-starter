@@ -7,11 +7,11 @@ import lombok.experimental.Accessors;
 
 
 /**
- * 负载均衡节点。
- * <p>封装负载均衡候选节点的内容与权重。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 负载均衡节点。
+* <p>封装负载均衡候选节点的内容与权重。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor

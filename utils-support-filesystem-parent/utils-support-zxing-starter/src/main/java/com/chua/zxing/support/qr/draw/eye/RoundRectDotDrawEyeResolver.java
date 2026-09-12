@@ -15,29 +15,29 @@ import javax.annotation.Nullable;
 
 
 /**
- * 圆角外框 + 中心圆点 风格的码眼
- * 对应示例图（Telegram 风格）：外层为圆角矩形环，内为实心圆
- *
- * @author CH
- * @since 4.0.0.42
+* 圆角外框 + 中心圆点 风格的码眼
+* 对应示例图（Telegram 风格）：外层为圆角矩形环，内为实心圆
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("ROUND_RECTANGLE_DOT")
 public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
 
     /**
-      * 创建 roundrectdotdraweye解析器 实例
-     * @param qrCodeConfig qr编码配置
-     * @param g2 g2
-     * @param bitMatrix 钻头matrix
-     * @param matrixW matrixw
-     * @param matrixH matrixh
-     * @param leftPadding leftpadding
-     * @param topPadding toppadding
-     * @param infoSize 信息大小
-     * @param detectCornerSize detectcorner大小
-     * @param detectOutColor detect出color
-     * @param detectInnerColor detect内部color
-     * @param codeEyeSetting 编码eyesetting
+    * 创建 roundrectdotdraweye解析器 实例
+    * @param qrCodeConfig qr编码配置
+    * @param g2 g2
+    * @param bitMatrix 钻头matrix
+    * @param matrixW matrixw
+    * @param matrixH matrixh
+    * @param leftPadding leftpadding
+    * @param topPadding toppadding
+    * @param infoSize 信息大小
+    * @param detectCornerSize detectcorner大小
+    * @param detectOutColor detect出color
+    * @param detectInnerColor detect内部color
+    * @param codeEyeSetting 编码eyesetting
      */
     public RoundRectDotDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                        Graphics2D g2,

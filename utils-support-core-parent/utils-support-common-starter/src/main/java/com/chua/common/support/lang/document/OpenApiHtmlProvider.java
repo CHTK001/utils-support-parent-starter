@@ -16,18 +16,18 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * OpenAPI 文档 → 单页 HTML 导出器（泛微 E10 OpenAPI 风格）。
- *
- * <p>与具体协议栈（SpringDoc / native OpenAPI / Knife4j）解耦——
- * 入参为通用的 {@link OpenApiDocumentData}，出参为单文件 HTML,
- * 含侧边 tree 导航 + API section (请求参数 / 响应参数 / 请求示例 / 响应示例)。</p>
- *
- * <h2>样式来源</h2>
- * <p>CSS / JS / 表格结构参照泛微 E10_Open_API接口文档.html (单页 + 侧边 tree + api-table);
- * 实现上由本类在内存中拼接字符串, 无外部模板, 便于嵌入任意 starter。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* OpenAPI 文档 → 单页 HTML 导出器（泛微 E10 OpenAPI 风格）。
+*
+* <p>与具体协议栈（SpringDoc / native OpenAPI / Knife4j）解耦——
+* 入参为通用的 {@link OpenApiDocumentData}，出参为单文件 HTML,
+* 含侧边 tree 导航 + API section (请求参数 / 响应参数 / 请求示例 / 响应示例)。</p>
+*
+* <h2>样式来源</h2>
+* <p>CSS / JS / 表格结构参照泛微 E10_Open_API接口文档.html (单页 + 侧边 tree + api-table);
+* 实现上由本类在内存中拼接字符串, 无外部模板, 便于嵌入任意 starter。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("html")
 public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
@@ -68,7 +68,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
     }
 
     /**
-     * 仅渲染 HTML，便于测试或预览。
+    * 仅渲染 HTML，便于测试或预览。
      */
     public String render(OpenApiDocumentData data) {
         String title = data.getTitle() != null ? data.getTitle() : "Open API 接口文档";
@@ -295,7 +295,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
     }
 
     /**
-     * 样式 (从泛微E10_Open_API接口文档.html 提取并简化)。
+    * 样式 (从泛微E10_Open_API接口文档.html 提取并简化)。
      */
     private static final String STYLE = """
             * { box-sizing: border-box; }

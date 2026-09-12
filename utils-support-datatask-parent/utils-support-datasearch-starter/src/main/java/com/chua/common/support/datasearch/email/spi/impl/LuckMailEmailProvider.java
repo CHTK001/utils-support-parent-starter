@@ -10,12 +10,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-   * luckmail 临时邮箱服务实现（付费，约 ¥0.02/个）。
- *
- * <p>注册地址：https://mails.luckyous.com</p>
- *
- * @author CH
- * @since 4.0.0.42
+* luckmail 临时邮箱服务实现（付费，约 ¥0.02/个）。
+*
+* <p>注册地址：https://mails.luckyous.com</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("luckmail")
@@ -34,7 +34,7 @@ public class LuckMailEmailProvider implements EmailProvider {
     private final String domain; // domain
 
     /**
-     * luckmailemail提供者。
+    * luckmailemail提供者。
      */
     public LuckMailEmailProvider() {
         this.apiKey = resolveEnv("LUCKMAIL_API_KEY", "");
@@ -91,10 +91,10 @@ public class LuckMailEmailProvider implements EmailProvider {
     }
 
     /**
-      * resolveenv。
-     * @param key 键
-     * @param def def
-     * @return resolveEnv的结果
+    * resolveenv。
+    * @param key 键
+    * @param def def
+    * @return resolveEnv的结果
      */
     private static String resolveEnv(String key, String def) {
         String v = System.getenv(key);

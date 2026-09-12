@@ -12,10 +12,10 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-   * vggface 人脸特征 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* vggface 人脸特征 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class VggFaceTranslator implements Translator<Image, float[]> {
 

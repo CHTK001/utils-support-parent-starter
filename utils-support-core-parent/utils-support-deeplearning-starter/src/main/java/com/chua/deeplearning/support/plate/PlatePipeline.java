@@ -16,58 +16,58 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 车牌识别流水线，组合车牌检测和车牌识别两个步骤完成端到端识别。
- *
- * <p>基于 {@link Pipeline} 通用管线框架编排（裁剪 → 识别 → 收集），取代手写循环；
- * 多车牌场景由外层循环驱动，每个车牌一个独立 {@link PipelineContext}。
- * 模型清单通过 {@link #listModels()} 动态获取。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 车牌识别流水线，组合车牌检测和车牌识别两个步骤完成端到端识别。
+*
+* <p>基于 {@link Pipeline} 通用管线框架编排（裁剪 → 识别 → 收集），取代手写循环；
+* 多车牌场景由外层循环驱动，每个车牌一个独立 {@link PipelineContext}。
+* 模型清单通过 {@link #listModels()} 动态获取。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class PlatePipeline {
 
     /**
-     * 节点：裁剪
+    * 节点：裁剪
      */
     private static final String NODE_CROP = "crop";
 
     /**
-     * 节点：识别
+    * 节点：识别
      */
     private static final String NODE_RECOGNIZE = "recognize";
 
     /**
-     * 节点：收集
+    * 节点：收集
      */
     private static final String NODE_COLLECT = "collect";
 
     /**
-     * 节点：终止
+    * 节点：终止
      */
     private static final String NODE_END = "end";
 
     /**
-     * 车牌检测器。
+    * 车牌检测器。
      */
     private final PlateDetector detector;
 
     /**
-     * 车牌识别器。
+    * 车牌识别器。
      */
     private final LicensePlateRecognizer recognizer;
 
     /**
-     * 识别管线实例。
+    * 识别管线实例。
      */
     private final Pipeline pipeline;
 
     /**
-     * 构造车牌流水线。
-     *
-     * @param detector   车牌检测器
-     * @param recognizer 车牌识别器
+    * 构造车牌流水线。
+    *
+    * @param detector   车牌检测器
+    * @param recognizer 车牌识别器
      */
     public PlatePipeline(PlateDetector detector,
                          LicensePlateRecognizer recognizer) {
@@ -77,36 +77,36 @@ public class PlatePipeline {
     }
 
     /**
-     * 链式构建器。
-     *
-     * @return builder
+    * 链式构建器。
+    *
+    * @return builder
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * 车牌流水线构建器。
-     *
-     * @since 4.0.0.42
+    * 车牌流水线构建器。
+    *
+    * @since 4.0.0.42
      */
     public static final class Builder {
 
         /**
-         * 车牌检测器。
+        * 车牌检测器。
          */
         private PlateDetector detector;
 
         /**
-         * 车牌识别器。
+        * 车牌识别器。
          */
         private LicensePlateRecognizer recognizer;
 
         /**
-         * 设置车牌检测器。
-         *
-         * @param detector 检测器
-         * @return this
+        * 设置车牌检测器。
+        *
+        * @param detector 检测器
+        * @return this
          */
         public Builder detector(PlateDetector detector) {
             this.detector = detector;
@@ -114,10 +114,10 @@ public class PlatePipeline {
         }
 
         /**
-          * 按模型 标识 创建检测器。
-         *
-         * @param modelId 模型 标识
-         * @return this
+        * 按模型 标识 创建检测器。
+        *
+        * @param modelId 模型 标识
+        * @return this
          */
         public Builder detector(String modelId) {
             this.detector = PlateDetector.create(modelId);
@@ -125,10 +125,10 @@ public class PlatePipeline {
         }
 
         /**
-         * 设置车牌识别器。
-         *
-         * @param recognizer 识别器
-         * @return this
+        * 设置车牌识别器。
+        *
+        * @param recognizer 识别器
+        * @return this
          */
         public Builder recognizer(LicensePlateRecognizer recognizer) {
             this.recognizer = recognizer;
@@ -136,10 +136,10 @@ public class PlatePipeline {
         }
 
         /**
-          * 按模型 标识 创建识别器。
-         *
-         * @param modelId 模型 标识
-         * @return this
+        * 按模型 标识 创建识别器。
+        *
+        * @param modelId 模型 标识
+        * @return this
          */
         public Builder recognizer(String modelId) {
             this.recognizer = LicensePlateRecognizer.create(modelId);
@@ -147,9 +147,9 @@ public class PlatePipeline {
         }
 
         /**
-         * 构建。
-         *
-         * @return PlatePipeline
+        * 构建。
+        *
+        * @return PlatePipeline
          */
         public PlatePipeline build() {
             return new PlatePipeline(detector, recognizer);
@@ -157,9 +157,9 @@ public class PlatePipeline {
     }
 
     /**
-     * 编排识别管线（裁剪 → 识别 → 收集）。
-     *
-     * @return 管线实例
+    * 编排识别管线（裁剪 → 识别 → 收集）。
+    *
+    * @return 管线实例
      */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("plate-recognize")
@@ -200,10 +200,10 @@ public class PlatePipeline {
     }
 
     /**
-     * 检测并识别图像中所有车牌。
-     *
-     * @param imageData 图像数据
-     * @return 车牌检测命中列表
+    * 检测并识别图像中所有车牌。
+    *
+    * @param imageData 图像数据
+    * @return 车牌检测命中列表
      */
     public List<PlateDetectHit> detect(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
@@ -218,10 +218,10 @@ public class PlatePipeline {
     }
 
     /**
-     * 仅检测车牌边界框（不识别）。
-     *
-     * @param imageData 图像数据
-     * @return 检测框列表
+    * 仅检测车牌边界框（不识别）。
+    *
+    * @param imageData 图像数据
+    * @return 检测框列表
      */
     public List<PredictRectangle> detectBoxes(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
@@ -229,9 +229,9 @@ public class PlatePipeline {
     }
 
     /**
-     * 对单个车牌执行识别管线。
-     *
-     * @param pc 上下文
+    * 对单个车牌执行识别管线。
+    *
+    * @param pc 上下文
      */
     private void runSingle(PlateContext pc) {
         PipelineContext<PlateContext> ctx = new PipelineContext<>(pipeline.getId(), pc);
@@ -241,10 +241,10 @@ public class PlatePipeline {
     }
 
     /**
-     * 从管线上下文提取车牌上下文。
-     *
-     * @param ctx 管线上下文
-     * @return 车牌上下文
+    * 从管线上下文提取车牌上下文。
+    *
+    * @param ctx 管线上下文
+    * @return 车牌上下文
      */
     @SuppressWarnings("unchecked")
     private static PlateContext current(PipelineContext<?> ctx) {
@@ -252,12 +252,12 @@ public class PlatePipeline {
     }
 
     /**
-     * 枚举可用模型清单。
-     *
-     * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按模型名称约定归类
-     * （车牌检测 / 车牌识别）。新增模型注册后自动出现在对应分组。</p>
-     *
-     * @return 能力分组 → 模型 标识 列表
+    * 枚举可用模型清单。
+    *
+    * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按模型名称约定归类
+    * （车牌检测 / 车牌识别）。新增模型注册后自动出现在对应分组。</p>
+    *
+    * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {
@@ -280,10 +280,10 @@ public class PlatePipeline {
     }
 
     /**
-     * 按模型名称约定归类车牌模型。
-     *
-     * @param entry 注册表条目
-     * @return 能力分组；无法识别时返回 空
+    * 按模型名称约定归类车牌模型。
+    *
+    * @param entry 注册表条目
+    * @return 能力分组；无法识别时返回 空
      */
     private static String groupOf(ModelRegistry.Entry entry) {
         String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
@@ -300,27 +300,27 @@ public class PlatePipeline {
     }
 
     /**
-     * 获取车牌检测器。
-     *
-     * @return PlateDetector
+    * 获取车牌检测器。
+    *
+    * @return PlateDetector
      */
     public PlateDetector detector() {
         return detector;
     }
 
     /**
-     * 获取车牌识别器。
-     *
-     * @return LicensePlateRecognizer
+    * 获取车牌识别器。
+    *
+    * @return LicensePlateRecognizer
      */
     public LicensePlateRecognizer recognizer() {
         return recognizer;
     }
 
     /**
-     * 创建标注管线，支持一键绘制检测结果。
-     *
-     * @return DrawerPipeline 实例
+    * 创建标注管线，支持一键绘制检测结果。
+    *
+    * @return DrawerPipeline 实例
      */
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);

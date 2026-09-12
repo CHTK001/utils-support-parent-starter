@@ -28,27 +28,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 反向代理过滤器，支持 HTTP 和 WebSocket 双向代理。
- *
- * <p>从 {@link ServerAttribute#BACKEND_DISCOVERY} 获取后端地址：
- * <ul>
- *   <li>HTTP 请求 — JDK HttpClient 异步转发</li>
- *   <li>WebSocket 升级 — 检测 Upgrade:websocket 头，建立 WebSocket 连接双向转发</li>
- * </ul>
- *
- * <h2>使用方式</h2>
- * <pre>{@code
- * // HTTP 代理
- * // GET /api/users → http://backend:8080/api/users
- *
- * // WebSocket 代理
- * // Upgrade: websocket → ws://backend:8080/ws/chat
- * // 客户端 ←→ 后端 双向消息转发
- * }</pre>e>
- *
- * @author CH
- * @since 4.0.0.42
- * @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
+* 反向代理过滤器，支持 HTTP 和 WebSocket 双向代理。
+*
+* <p>从 {@link ServerAttribute#BACKEND_DISCOVERY} 获取后端地址：
+* <ul>
+*   <li>HTTP 请求 — JDK HttpClient 异步转发</li>
+*   <li>WebSocket 升级 — 检测 Upgrade:websocket 头，建立 WebSocket 连接双向转发</li>
+* </ul>
+*
+* <h2>使用方式</h2>
+* <pre>{@code
+* // HTTP 代理
+* // GET /api/users → http://backend:8080/api/users
+*
+* // WebSocket 代理
+* // Upgrade: websocket → ws://backend:8080/ws/chat
+* // 客户端 ←→ 后端 双向消息转发
+* }</pre>e>
+*
+* @author CH
+* @since 4.0.0.42
+* @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
  */
 @Slf4j
 public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFilter {
@@ -66,8 +66,8 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-      * 创建 reverse代理服务端过滤器 实例
-     * @param timeoutSeconds 超时seconds
+    * 创建 reverse代理服务端过滤器 实例
+    * @param timeoutSeconds 超时seconds
      */
     public ReverseProxyServerFilter(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
@@ -121,10 +121,10 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
 
     @Override
     /**
-      * 执行过滤
-     * @param request 请求
-     * @param response 响应
-     * @param chain chain
+    * 执行过滤
+    * @param request 请求
+    * @param response 响应
+    * @param chain chain
      */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
@@ -163,9 +163,9 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-      * 响应式过滤器入口:适配 vertx-http 等响应式 服务端 的过滤器链
-     * (其响应式链仅执行 {@link ReactiveServerFilter})。
-      * 返回转发完成的 Stage,供响应式链等待真正写出响应,避免提前 结束vertx 空响应。
+    * 响应式过滤器入口:适配 vertx-http 等响应式 服务端 的过滤器链
+    * (其响应式链仅执行 {@link ReactiveServerFilter})。
+    * 返回转发完成的 Stage,供响应式链等待真正写出响应,避免提前 结束vertx 空响应。
      */
     @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
@@ -184,12 +184,12 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-      * 处理http代理异步
-     * @param request 请求
-     * @param response 响应
-     * @param host 主机
-     * @param port 端口
-     * @param scheme scheme
+    * 处理http代理异步
+    * @param request 请求
+    * @param response 响应
+    * @param host 主机
+    * @param port 端口
+    * @param scheme scheme
      */
     private CompletableFuture<Void> handleHttpProxyAsync(ServerRequest request, ServerResponse response,
                                                          String host, int port, String scheme) {
@@ -278,12 +278,12 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-      * 处理http代理
-     * @param request 请求
-     * @param response 响应
-     * @param host 主机
-     * @param port 端口
-     * @param scheme scheme
+    * 处理http代理
+    * @param request 请求
+    * @param response 响应
+    * @param host 主机
+    * @param port 端口
+    * @param scheme scheme
      */
     private void handleHttpProxy(ServerRequest request, ServerResponse response,
                                  String host, int port, String scheme) throws Exception {
@@ -291,10 +291,10 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-     * Extract查询
-     *
-     * @param uri uri
-     * @return extract查询的结果
+    * Extract查询
+    *
+    * @param uri uri
+    * @return extract查询的结果
      */
     private String extractQuery(String uri) {
         if (uri == null) {

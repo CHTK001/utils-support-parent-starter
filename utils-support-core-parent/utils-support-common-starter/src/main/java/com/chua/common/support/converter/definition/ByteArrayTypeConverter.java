@@ -18,28 +18,28 @@ import javax.annotation.Nullable;
 
 
 /**
- * byte[] 类型转换器。
- * <p>将各种类型的值转换为 {@code byte[]}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@link String} — 尝试作为文件读取；HTTP/HTTPS URL 下载；否则按 UTF-8 编码</li>
- *   <li>{@link Map} / {@link java.util.Collection} — toString().getBytes() 或遍历取 byteValue</li>
- *   <li>{@code byte[]} / {@link Byte} — 直接返回或包装</li>
- *   <li>{@link Short} / {@link Character} / {@link Integer} / {@link Long} / {@link Float} / {@link Double} / {@link Number} — 通过 ByteBuffer 转换</li>
- *   <li>{@link File} / {@link Path} / {@link URL} / {@link com.google.common.io.ByteSource} — 读取全部字节</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
- * @version 1.0.0
+* byte[] 类型转换器。
+* <p>将各种类型的值转换为 {@code byte[]}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@link String} — 尝试作为文件读取；HTTP/HTTPS URL 下载；否则按 UTF-8 编码</li>
+*   <li>{@link Map} / {@link java.util.Collection} — toString().getBytes() 或遍历取 byteValue</li>
+*   <li>{@code byte[]} / {@link Byte} — 直接返回或包装</li>
+*   <li>{@link Short} / {@link Character} / {@link Integer} / {@link Long} / {@link Float} / {@link Double} / {@link Number} — 通过 ByteBuffer 转换</li>
+*   <li>{@link File} / {@link Path} / {@link URL} / {@link com.google.common.io.ByteSource} — 读取全部字节</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
+* @version 1.0.0
  */
 public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
 
 
     /**
-     * 将给定值转换为 byte[]。
-     *
-     * @param value 源值
-     * @return byte[] 值，如果为 null 则返回空数组
+    * 将给定值转换为 byte[]。
+    *
+    * @param value 源值
+    * @return byte[] 值，如果为 null 则返回空数组
      */
     @Override
     public byte[] convert(Object value) {
@@ -151,11 +151,11 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
     }
 
     /**
-     * 从 InputStream 中读取全部字节。
-     *
-     * @param is 输入流
-     * @return 字节数组
-     * @throws Exception 读取异常
+    * 从 InputStream 中读取全部字节。
+    *
+    * @param is 输入流
+    * @return 字节数组
+    * @throws Exception 读取异常
      */
     private byte[] readBytes(InputStream is) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -168,9 +168,9 @@ public class ByteArrayTypeConverter implements TypeConverter<byte[]> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return byte[].class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return byte[].class
      */
     @Override
     public Class<byte[]> getType() {

@@ -19,12 +19,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 微信开放平台服务默认实现
- * <p>
-   * 使用 文件engine 存储 openid 映射关系，支持自动持久化到 JSON 文件。
- *
- * @author CH
- * @since 4.0.0.42
+* 微信开放平台服务默认实现
+* <p>
+* 使用 文件engine 存储 openid 映射关系，支持自动持久化到 JSON 文件。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DefaultWechatOpenPlatformService implements WechatOpenPlatformService {
@@ -37,12 +37,12 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     private static final String TABLE_NAME = "wechat_platform_user";
 
     /**
-     * openid -> 平台用户信息（用于通过openid反查unionid）
+    * openid -> 平台用户信息（用于通过openid反查unionid）
      */
     private final ConcurrentHashMap<String, WechatPlatformUser> openIdIndex = new ConcurrentHashMap<>();
 
     /**
-     * unionid -> 该用户在所有应用下的openid列表
+    * unionid -> 该用户在所有应用下的openid列表
      */
     private final ConcurrentHashMap<String, List<WechatPlatformUser>> unionUserMap = new ConcurrentHashMap<>();
 
@@ -56,12 +56,12 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     private long idSequence = 0;
 
     /**
-      * 创建 默认wechat打开platform服务 实例
-     * @param componentAppId 组件appid
-     * @param componentAppId 字符串
-     * @param componentAppId 字符串
-     * @param componentAppSecret 组件appsecret
-     * @param storagePath storage路径
+    * 创建 默认wechat打开platform服务 实例
+    * @param componentAppId 组件appid
+    * @param componentAppId 字符串
+    * @param componentAppId 字符串
+    * @param componentAppSecret 组件appsecret
+    * @param storagePath storage路径
      */
     public DefaultWechatOpenPlatformService(String componentAppId, String componentAppSecret, String storagePath) {
         this.componentAppId = componentAppId;
@@ -71,11 +71,11 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     /**
-     * 构建Wx打开服务
-     *
-     * @param componentAppId 组件appid
-     * @param componentAppSecret 组件appsecret
-     * @return 构建wx打开服务的结果
+    * 构建Wx打开服务
+    *
+    * @param componentAppId 组件appid
+    * @param componentAppSecret 组件appsecret
+    * @return 构建wx打开服务的结果
      */
     private WxOpenService buildWxOpenService(String componentAppId, String componentAppSecret) {
         WxOpenInMemoryConfigStorage config = new WxOpenInMemoryConfigStorage();
@@ -86,10 +86,10 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     /**
-     * 初始化Engine
-     *
-     * @param storagePath storage路径
-     * @return 初始化engine的结果
+    * 初始化Engine
+    *
+    * @param storagePath storage路径
+    * @return 初始化engine的结果
      */
     private WechatFileEngine initEngine(String storagePath) {
         WechatFileEngine fileEngine = new WechatFileEngine();
@@ -99,7 +99,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     /**
-     * 从 Engine 加载数据到内存索引
+    * 从 Engine 加载数据到内存索引
      */
     private void loadFromEngine() {
         List<WechatPlatformUser> users = engine.loadWithJackson(TABLE_NAME, WechatPlatformUser.class);
@@ -117,9 +117,9 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     /**
-     * 构建索引
-     *
-     * @param user 用户
+    * 构建索引
+    *
+    * @param user 用户
      */
     private void buildIndex(WechatPlatformUser user) {
         // 更新unionid索引
@@ -198,7 +198,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     /**
-     * 将所有内存索引数据持久化到 Engine
+    * 将所有内存索引数据持久化到 Engine
      */
     private void persistToEngine() {
         List<WechatPlatformUser> allUsers = new ArrayList<>();
@@ -259,11 +259,11 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     /**
-     * 获取unionid从wechatapi
-     *
-     * @param authorizerAppId authorizerappid
-     * @param openid openid
-     * @return 获取unionid从wechatapi的结果
+    * 获取unionid从wechatapi
+    *
+    * @param authorizerAppId authorizerappid
+    * @param openid openid
+    * @return 获取unionid从wechatapi的结果
      */
     private String getUnionIdFromWechatApi(String authorizerAppId, String openid) {
         try {
@@ -296,11 +296,11 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     /**
-     * 执行post
-     *
-     * @param urlStr urlstr
-     * @param body 主体
-     * @return 执行post的结果
+    * 执行post
+    *
+    * @param urlStr urlstr
+    * @param body 主体
+    * @return 执行post的结果
      */
     private String doPost(String urlStr, String body) throws Exception {
         URL url = new URL(urlStr);

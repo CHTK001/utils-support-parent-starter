@@ -28,39 +28,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于 Vert.x 的 Quarkus 风格 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
- *
- * <p>Quarkus 框架底层使用 Vert.x 作为 HTTP 引擎，本实现提供与 Quarkus 兼容的
- * HTTP 服务器功能。通过 SPI 键 {@code quarkus} 或 {@code quarkus-http} 选取。</p>
- *
- * <p>同步模式（默认）：过滤器链在 Vert.x Worker 线程池中执行。</p>
- * <p>响应式模式（{@link ServerSetting#isReactor()} = true）：过滤器链在 Vert.x EventLoop 线程上执行。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Vert.x 的 Quarkus 风格 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
+*
+* <p>Quarkus 框架底层使用 Vert.x 作为 HTTP 引擎，本实现提供与 Quarkus 兼容的
+* HTTP 服务器功能。通过 SPI 键 {@code quarkus} 或 {@code quarkus-http} 选取。</p>
+*
+* <p>同步模式（默认）：过滤器链在 Vert.x Worker 线程池中执行。</p>
+* <p>响应式模式（{@link ServerSetting#isReactor()} = true）：过滤器链在 Vert.x EventLoop 线程上执行。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"quarkus-http", "quarkus"})
 public class QuarkusHttpServer extends AbstractServer {
 
     /**
-     * Vert.x 实例
+    * Vert.x 实例
      */
     private Vertx vertx;
 
     /**
-     * Vert.x HTTP 服务器
+    * Vert.x HTTP 服务器
      */
     private io.vertx.core.http.HttpServer server;
 
     /**
-      * 是否使用 事件循环 线程（响应式模式）。
+    * 是否使用 事件循环 线程（响应式模式）。
      */
     private boolean reactive;
 
     /**
-      * 创建 quarkushttp服务端 实例
-     * @param setting setting
+    * 创建 quarkushttp服务端 实例
+    * @param setting setting
      */
     public QuarkusHttpServer(ServerSetting setting) {
         super(setting);
@@ -150,10 +150,10 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
     /**
-     * 执行处理
-     *
-     * @param request 请求
-     * @param response 响应
+    * 执行处理
+    *
+    * @param request 请求
+    * @param response 响应
      */
     private void doHandle(QuarkusServerRequest request, QuarkusServerResponse response) {
         try {
@@ -186,48 +186,48 @@ public class QuarkusHttpServer extends AbstractServer {
 
     // ======================== Response ========================
     /**
-     * quarkus服务端响应类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * quarkus服务端响应类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     static class QuarkusServerResponse implements ServerResponse {
 
         /**
-         * ctx
+        * ctx
          */
         private final RoutingContext ctx;
         /**
-         * 状态
+        * 状态
          */
         private int status = 200;
         /**
-         * 数据内容
+        * 数据内容
          */
         private byte[] body;
         /**
-          * 头部
+        * 头部
          */
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         /**
-          * 内容 类型
+        * 内容 类型
          */
         private String contentType;
         /**
-         * committed
+        * committed
          */
         private boolean committed;
         /**
-          * 结束
+        * 结束
          */
         private boolean ended;
         /**
-         * 结果
+        * 结果
          */
         private Object result;
         /**
-         * sse Mode
+        * sse Mode
          */
         private boolean sseMode;
 
@@ -474,12 +474,12 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
         /**
-          * 由 设置结果 设置的结果对象派生出响应体字节（对齐 抽象服务端#转换结果 语义）：
-          * 字符串 → UTF-8、byte[] → 原样、路径 → 文件字节、其他 → 转为字符串() 字节。
-          * 仅在 主体 未显式设置时生效，避免覆盖 设置主体。
-         *
-         * @param r 处理器 通过 设置结果 设置的结果对象
-         * @return 派生的响应体字节；r 为 空 返回 空
+        * 由 设置结果 设置的结果对象派生出响应体字节（对齐 抽象服务端#转换结果 语义）：
+        * 字符串 → UTF-8、byte[] → 原样、路径 → 文件字节、其他 → 转为字符串() 字节。
+        * 仅在 主体 未显式设置时生效，避免覆盖 设置主体。
+        *
+        * @param r 处理器 通过 设置结果 设置的结果对象
+        * @return 派生的响应体字节；r 为 空 返回 空
          */
         private static byte[] resolveResult(Object r) {
             if (r == null) {
@@ -499,24 +499,24 @@ public class QuarkusHttpServer extends AbstractServer {
 
     // ======================== Request ========================
     /**
-     * quarkus服务端请求类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * quarkus服务端请求类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     static class QuarkusServerRequest implements ServerRequest {
 
         /**
-         * ctx
+        * ctx
          */
         private final RoutingContext ctx;
         /**
-         * 内容 Bytes
+        * 内容 Bytes
          */
         private byte[] bodyBytes;
         /**
-         * attributes
+        * attributes
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 

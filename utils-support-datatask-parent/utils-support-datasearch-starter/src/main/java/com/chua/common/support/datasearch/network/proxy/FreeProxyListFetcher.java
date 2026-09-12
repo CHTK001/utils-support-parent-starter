@@ -9,21 +9,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-   * 从 free-代理-列表.net 获取免费代理。
- *
- * @author CH
- * @since 4.0.0.42
+* 从 free-代理-列表.net 获取免费代理。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("free-proxy-list")
 public class FreeProxyListFetcher implements ProxyFetcher {
 
     /**
-     * 免费代理列表 URL
+    * 免费代理列表 URL
      */
     private static final String URL = "https://free-proxy-list.net/";
 
     /**
-     * IP 和端口正则
+    * IP 和端口正则
      */
     private static final Pattern PROXY_PATTERN = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})</td><td>(\\d{2,5})");
 

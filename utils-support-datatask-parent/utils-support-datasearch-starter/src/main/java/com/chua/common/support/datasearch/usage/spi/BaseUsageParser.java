@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * usageparser 基类 — 提供按天聚合公共逻辑。
- *
- * <p>子类实现 {@link #parseAll()} 从各自数据源读取原始用量记录，
- * 本基类提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* usageparser 基类 — 提供按天聚合公共逻辑。
+*
+* <p>子类实现 {@link #parseAll()} 从各自数据源读取原始用量记录，
+* 本基类提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class BaseUsageParser implements UsageParser {
 
@@ -32,8 +32,8 @@ public abstract class BaseUsageParser implements UsageParser {
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // DAY_FMT
 
     /**
-     * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
-      * 直接覆写 流全部() 的子类不受影响。
+    * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
+    * 直接覆写 流全部() 的子类不受影响。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -41,9 +41,9 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-      * 阻塞式全量装载（可选覆写）：供未直接实现 流全部 的存量子类使用。
-     *
-     * @return 原始 aiusage 记录列表
+    * 阻塞式全量装载（可选覆写）：供未直接实现 流全部 的存量子类使用。
+    *
+    * @return 原始 aiusage 记录列表
      */
     protected List<AiUsage> parseAll() {
         throw new UnsupportedOperationException(
@@ -51,10 +51,10 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 按行惰性读取文本文件（内存占用与总量无关）。
-     *
-     * @param file 文本文件
-     * @return 行内容流；文件由 Flux.使用 负责关闭
+    * 按行惰性读取文本文件（内存占用与总量无关）。
+    *
+    * @param file 文本文件
+    * @return 行内容流；文件由 Flux.使用 负责关闭
      */
     protected static Flux<String> streamLines(java.nio.file.Path file) {
         return Flux.using(
@@ -70,13 +70,13 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-      * 解析 ISO-8601 时间字符串为 轮次 毫秒（子类通用工具）。
-     *
-     * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
-     * 解析失败返回 0L。</p>
-     *
-     * @param isoTimestamp ISO-8601 时间字符串
-     * @return epoch 毫秒；入参为空或非法时返回 0L
+    * 解析 ISO-8601 时间字符串为 轮次 毫秒（子类通用工具）。
+    *
+    * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
+    * 解析失败返回 0L。</p>
+    *
+    * @param isoTimestamp ISO-8601 时间字符串
+    * @return epoch 毫秒；入参为空或非法时返回 0L
      */
     protected static long parseInstantToMillis(String isoTimestamp) {
         if (isoTimestamp == null || isoTimestamp.isBlank()) {
@@ -90,10 +90,10 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-      * 解析 yyyy-MM-dd 日期字符串为当天零点的 轮次 毫秒（子类通用工具）。
-     *
-     * @param dateStr 日期字符串
-     * @return epoch 毫秒；入参为空或非法时返回 0L
+    * 解析 yyyy-MM-dd 日期字符串为当天零点的 轮次 毫秒（子类通用工具）。
+    *
+    * @param dateStr 日期字符串
+    * @return epoch 毫秒；入参为空或非法时返回 0L
      */
     protected static long parseDayStartToMillis(String dateStr) {
         if (dateStr == null || dateStr.isBlank()) {
@@ -109,11 +109,11 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 返回第一个非空白字符串（子类通用工具）。
-     *
-     * @param value    待检查的值
-     * @param fallback 兜底值
-     * @return value 非空白时返回 值，否则返回 降级
+    * 返回第一个非空白字符串（子类通用工具）。
+    *
+    * @param value    待检查的值
+    * @param fallback 兜底值
+    * @return value 非空白时返回 值，否则返回 降级
      */
     protected static String firstNonBlank(String value, String fallback) {
         if (value != null && !value.isBlank()) {
@@ -123,12 +123,12 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 将数据库列值转换为 int（子类通用工具）。
-     *
-     * <p>兼容 Number、可解析的字符串；无法转换时返回 0。</p>
-     *
-     * @param value 原始列值
-     * @return int 值
+    * 将数据库列值转换为 int（子类通用工具）。
+    *
+    * <p>兼容 Number、可解析的字符串；无法转换时返回 0。</p>
+    *
+    * @param value 原始列值
+    * @return int 值
      */
     protected static int asInt(Object value) {
         if (value instanceof Number n) {
@@ -145,10 +145,10 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 将数据库列值转换为 long（子类通用工具）。
-     *
-     * @param value 原始列值
-     * @return long 值
+    * 将数据库列值转换为 long（子类通用工具）。
+    *
+    * @param value 原始列值
+    * @return long 值
      */
     protected static long asLong(Object value) {
         if (value instanceof Number n) {
@@ -165,10 +165,10 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 将数据库列值转换为 double（子类通用工具）。
-     *
-     * @param value 原始列值
-     * @return double 值
+    * 将数据库列值转换为 double（子类通用工具）。
+    *
+    * @param value 原始列值
+    * @return double 值
      */
     protected static double asDouble(Object value) {
         if (value instanceof Number n) {
@@ -185,23 +185,23 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 将数据库列值转换为非空字符串（子类通用工具）。
-     *
-     * @param value 原始列值
-     * @return 字符串形式；null 转为空串
+    * 将数据库列值转换为非空字符串（子类通用工具）。
+    *
+    * @param value 原始列值
+    * @return 字符串形式；null 转为空串
      */
     protected static String asStr(Object value) {
         return value == null ? "" : value.toString();
     }
 
     /**
-      * 将原始记录按天聚合，每天一条 AIusage 记录。
-     *
-     * @param records 原始用量记录列表
-     * @return 按天聚合后的记录列表
-     * @author CH
-     * @since 4.0.0
-     * @param d d
+    * 将原始记录按天聚合，每天一条 AIusage 记录。
+    *
+    * @param records 原始用量记录列表
+    * @return 按天聚合后的记录列表
+    * @author CH
+    * @since 4.0.0
+    * @param d d
      /**
        * aggregatebyday。
       * @param records records
@@ -210,9 +210,9 @@ public abstract class BaseUsageParser implements UsageParser {
      * @param millis millis
       * @param d d
      /**
-      * aggregateByDay。
-      * @param records records
-      * @return aggregateByDay的结果
+     * aggregateByDay。
+     * @param records records
+     * @return aggregateByDay的结果
       */
      */
     protected List<AiUsage> aggregateByDay(List<AiUsage> records) {

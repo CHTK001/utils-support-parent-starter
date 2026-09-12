@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * 支持 Enum 类型转换的 文件engine 子类
- * <p>
-   * 解决 文件engine 的 映射转为实体 不支持 字符串 -> Enum 转换的问题。
- * 通过 Jackson 进行反序列化，确保 Enum 类型正确转换。
- *
- * @author CH
- * @since 4.0.0.42
+* 支持 Enum 类型转换的 文件engine 子类
+* <p>
+* 解决 文件engine 的 映射转为实体 不支持 字符串 -> Enum 转换的问题。
+* 通过 Jackson 进行反序列化，确保 Enum 类型正确转换。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class WechatFileEngine extends FileEngine {
 
@@ -34,12 +34,12 @@ public class WechatFileEngine extends FileEngine {
     }
 
     /**
-     * 使用 Jackson 重新加载数据，支持 Enum 转换
-     * <p>
-      * 文件engine 保存的 JSON 格式为二维数组：[["col1","col2",...],[val1,val2,...],...]
-     * @param name 名称
-     * @param entityClass 实体类
-     * @return 加载withjackson的结果
+    * 使用 Jackson 重新加载数据，支持 Enum 转换
+    * <p>
+    * 文件engine 保存的 JSON 格式为二维数组：[["col1","col2",...],[val1,val2,...],...]
+    * @param name 名称
+    * @param entityClass 实体类
+    * @return 加载withjackson的结果
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> loadWithJackson(String name, Class<T> entityClass) {

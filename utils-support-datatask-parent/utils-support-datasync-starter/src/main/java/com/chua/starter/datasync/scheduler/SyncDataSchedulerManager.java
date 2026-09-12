@@ -3,59 +3,59 @@ package com.chua.starter.datasync.scheduler;
 import com.chua.starter.datasync.model.DataSyncMapping;
 
 /**
- * 数据同步调度器管理器，每秒执行一次，获取满足条件的 Mapping 并执行。
- *
- * @author CH
- * @since 4.0.0.42
+* 数据同步调度器管理器，每秒执行一次，获取满足条件的 Mapping 并执行。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public interface SyncDataSchedulerManager {
 
     /**
-     * 添加映射。
-     *
-     * @param mapping 映射配置
+    * 添加映射。
+    *
+    * @param mapping 映射配置
      */
     void addMapping(DataSyncMapping mapping);
 
     /**
-     * 移除映射。
-     *
-     * @param mappingId 映射 标识
+    * 移除映射。
+    *
+    * @param mappingId 映射 标识
      */
     void removeMapping(String mappingId);
 
     /**
-     * 获取映射。
-     *
-     * @param mappingId 映射 标识
-     * @return 映射配置
+    * 获取映射。
+    *
+    * @param mappingId 映射 标识
+    * @return 映射配置
      */
     DataSyncMapping getMapping(String mappingId);
 
     /**
-     * 获取所有映射。
-     *
-     * @return 映射列表
+    * 获取所有映射。
+    *
+    * @return 映射列表
      */
     java.util.List<DataSyncMapping> getMappings();
 
     /**
-     * 启动调度器。
+    * 启动调度器。
      */
     void start();
 
     /**
-     * 停止调度器。
+    * 停止调度器。
      */
     void stop();
 
     /**
-     * 手动触发单个映射立即执行。
-     *
-     * <p>默认实现抛 {@link UnsupportedOperationException}，支持手动触发的实现可覆盖。
-      * 用于一次性任务、无 型调度或测试驱动。</p>
-     *
-     * @param mappingId 映射 标识
+    * 手动触发单个映射立即执行。
+    *
+    * <p>默认实现抛 {@link UnsupportedOperationException}，支持手动触发的实现可覆盖。
+    * 用于一次性任务、无 型调度或测试驱动。</p>
+    *
+    * @param mappingId 映射 标识
      */
     default void trigger(String mappingId) {
         throw new UnsupportedOperationException("当前调度器不支持手动触发: " + mappingId);

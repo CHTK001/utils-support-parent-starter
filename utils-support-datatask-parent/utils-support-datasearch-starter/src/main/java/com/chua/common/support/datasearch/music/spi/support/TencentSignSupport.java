@@ -5,11 +5,11 @@ import java.security.MessageDigest;
 import java.util.Base64;
 
 /**
- * QQ音乐签名支持工具类
- * 使用SHA1摘要+位置采样+异或扰码机制为QQ音乐API生成请求签名
- * 
+* QQ音乐签名支持工具类
+* 使用SHA1摘要+位置采样+异或扰码机制为QQ音乐API生成请求签名
+* 
 * @author CH
- * @since 4.0.0.42
+* @since 4.0.0.42
 */
 public final class TencentSignSupport {
 
@@ -27,10 +27,10 @@ public final class TencentSignSupport {
     }
 
     /**
-     * 标志
-     *
-     * @param text 文本
-     * @return 标志的结果
+    * 标志
+    *
+    * @param text 文本
+    * @return 标志的结果
      */
     public static String sign(String text) {
         String hash = sha1(text).toUpperCase();
@@ -51,11 +51,11 @@ public final class TencentSignSupport {
     }
 
     /**
-     * Pick
-     *
-     * @param hash 哈希
-     * @param indexes 索引
-     * @return pick的结果
+    * Pick
+    *
+    * @param hash 哈希
+    * @param indexes 索引
+    * @return pick的结果
      */
     private static String pick(String hash, int[] indexes) {
         StringBuilder builder = new StringBuilder();
@@ -70,10 +70,10 @@ public final class TencentSignSupport {
     }
 
     /**
-     * Sha
-     *
-     * @param text 文本
-     * @return sha1的结果
+    * Sha
+    *
+    * @param text 文本
+    * @return sha1的结果
      */
     private static String sha1(String text) {
         try {

@@ -19,13 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 英文离线（非流式）Zipformer ASR 翻译器。
- *
- * <p>与流式版本不同：整句一次性送入编码器，无分块、无状态传递，
- * 因此不存在分块边界的重复问题。解码仍为 transducer 贪心。
- *
- * @author chua
- * @since 4.0.0.42
+* 英文离线（非流式）Zipformer ASR 翻译器。
+*
+* <p>与流式版本不同：整句一次性送入编码器，无分块、无状态传递，
+* 因此不存在分块边界的重复问题。解码仍为 transducer 贪心。
+*
+* @author chua
+* @since 4.0.0.42
  */
 public class ZipformerEnOfflineTranslator implements AutoCloseable {
 
@@ -40,11 +40,11 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
     private final Map<Integer, String> vocab = new HashMap<>(); // vocab
 
     /**
-     * 从模型目录加载。
-     *
-     * @param modelDir 含 编码器/解码器/连接 int8 onnx 与 令牌.txt
-     * @throws Exception 加载异常
-     * @param tokensFile 令牌文件
+    * 从模型目录加载。
+    *
+    * @param modelDir 含 编码器/解码器/连接 int8 onnx 与 令牌.txt
+    * @throws Exception 加载异常
+    * @param tokensFile 令牌文件
      /**
       * prepare。
       * @param modelDir 模型dir
@@ -54,8 +54,8 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
      * @return 方法的结果
       * @param tokensFile 令牌文件
      /**
-      * prepare。
-      * @param modelDir 模型dir
+     * prepare。
+     * @param modelDir 模型dir
       */
      */
     public void prepare(Path modelDir) throws Exception {
@@ -99,12 +99,12 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
     }
 
     /**
-     * 转写音频文件（英文）。
-     *
-     * @param wavPath WAV 路径
-     * @return 识别文本
-     * @throws Exception 推理异常
-     * @param encoderOut 编码器出
+    * 转写音频文件（英文）。
+    *
+    * @param wavPath WAV 路径
+    * @return 识别文本
+    * @throws Exception 推理异常
+    * @param encoderOut 编码器出
      /**
       * transcribe。
       * @param wavPath wav路径
@@ -113,9 +113,9 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
      * @param features 特征
       * @param encoderOut 编码器出
      /**
-      * transcribe。
-      * @param wavPath wav路径
-      * @return transcribe的结果
+     * transcribe。
+     * @param wavPath wav路径
+     * @return transcribe的结果
       */
      */
     public String transcribe(Path wavPath) throws Exception {
@@ -160,9 +160,9 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
     }
 
      /**
-       * decodepiece。
-      * @param piece piece
-      * @return decodePiece的结果
+     * decodepiece。
+     * @param piece piece
+     * @return decodePiece的结果
       */
      * BPE 词片转可读文本：▁ 还原为空格。
      *
@@ -180,10 +180,10 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
              OrtSession.Result result =
                      decoderSession.run(Collections.singletonMap("y", tensor))) {
             /**
-             * 运行连接。
-             * @param encFrame enc帧
-             * @param decOut dec出
-             * @return 运行连接的结果
+            * 运行连接。
+            * @param encFrame enc帧
+            * @param decOut dec出
+            * @return 运行连接的结果
              */
             return ((float[][]) result.get(0).getValue())[0];
         }
@@ -198,10 +198,10 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
                      "encoder_out", encTensor,
                      "decoder_out", decTensor))) {
             /**
-             * argmax。
-             * @param arr arr
-             * @return argmax的结果
-             * @param session 会话
+            * argmax。
+            * @param arr arr
+            * @return argmax的结果
+            * @param session 会话
              */
             return ((float[][]) result.get(0).getValue())[0];
         }

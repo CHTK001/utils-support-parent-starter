@@ -11,40 +11,40 @@ import java.util.Base64;
 import java.util.List;
 
 /**
-   * winrm 文件客户端，实现 winrm 协议下的文件操作。
- *
- * <p>注意：WinRM 本身不直接提供文件传输功能，本实现通过 PowerShell 命令模拟文件操作。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* winrm 文件客户端，实现 winrm 协议下的文件操作。
+*
+* <p>注意：WinRM 本身不直接提供文件传输功能，本实现通过 PowerShell 命令模拟文件操作。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class WinRmFileClient implements FileClient {
 
     /**
-     * PowerShell 布尔真值字符串
+    * PowerShell 布尔真值字符串
      */
     private static final String POWERSHELL_TRUE = "True";
 
     /**
-     * 换行符，用于分割命令输出
+    * 换行符，用于分割命令输出
      */
     private static final String NEWLINE = "\n";
 
     /**
-     * PowerShell 递归创建目录的强制参数
+    * PowerShell 递归创建目录的强制参数
      */
     private static final String FORCE_FLAG = " -Force";
 
     /**
-      * winrm 命令执行客户端
+    * winrm 命令执行客户端
      */
     private final WinRmExecClient winrmClient;
 
     /**
-      * 通过客户端设置构造 winrm 文件客户端。
-     *
-     * @param setting 客户端连接配置
+    * 通过客户端设置构造 winrm 文件客户端。
+    *
+    * @param setting 客户端连接配置
      */
     public WinRmFileClient(com.chua.common.support.network.protocol.ClientSetting setting) {
         this.winrmClient = WinRmExecClient.builder()
@@ -56,9 +56,9 @@ public class WinRmFileClient implements FileClient {
     }
 
     /**
-      * 复用已连接的 winrm 命令客户端构造文件客户端，避免重复认证配置。
-     *
-     * @param execClient 已建立连接的 winrm 命令客户端
+    * 复用已连接的 winrm 命令客户端构造文件客户端，避免重复认证配置。
+    *
+    * @param execClient 已建立连接的 winrm 命令客户端
      */
     public WinRmFileClient(WinRmExecClient execClient) {
         this.winrmClient = execClient;

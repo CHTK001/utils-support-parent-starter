@@ -6,12 +6,12 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 台风路径点实体。
- *
- * <p>对应详情 {@code points[]} 元素，含实测/预报路径点与多机构预报。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 台风路径点实体。
+*
+* <p>对应详情 {@code points[]} 元素，含实测/预报路径点与多机构预报。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

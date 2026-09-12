@@ -9,37 +9,37 @@ import com.chua.common.support.lang.datasource.meta.model.ViewDef;
 import java.util.List;
 
 /**
- * 视图元数据操作抽象基类。
- * <p>
- * 持有 {@link AbstractMetaData} 引用，提供视图名上下文。
- * 子类只需实现具体的 JDBC 元数据读取和 DDL 生成逻辑。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 视图元数据操作抽象基类。
+* <p>
+* 持有 {@link AbstractMetaData} 引用，提供视图名上下文。
+* 子类只需实现具体的 JDBC 元数据读取和 DDL 生成逻辑。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractMetaView implements MetaView {
 
     /**
-     * 元数据入口
+    * 元数据入口
      */
     protected final AbstractMetaData metaData;
 
     /**
-     * 引擎实例
+    * 引擎实例
      */
     protected final Engine engine;
 
     /**
-     * 当前视图名
+    * 当前视图名
      */
     protected String viewName;
 
     /**
-     * 构造方法（无视图名上下文）。
-     *
-     * @param metaData 元数据入口
-     * @param engine   引擎实例
+    * 构造方法（无视图名上下文）。
+    *
+    * @param metaData 元数据入口
+    * @param engine   引擎实例
      */
     protected AbstractMetaView(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
@@ -47,11 +47,11 @@ public abstract class AbstractMetaView implements MetaView {
     }
 
     /**
-     * 构造方法（带视图名上下文）。
-     *
-     * @param metaData 元数据入口
-     * @param engine   引擎实例
-     * @param viewName 视图名
+    * 构造方法（带视图名上下文）。
+    *
+    * @param metaData 元数据入口
+    * @param engine   引擎实例
+    * @param viewName 视图名
      */
     protected AbstractMetaView(AbstractMetaData metaData, Engine engine, String viewName) {
         this.metaData = metaData;

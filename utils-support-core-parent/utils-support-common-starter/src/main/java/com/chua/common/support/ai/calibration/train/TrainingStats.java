@@ -4,10 +4,10 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 训练效果统计（校准前后对比）。
- *
- * @author CH
- * @since 2026/07/31
+* 训练效果统计（校准前后对比）。
+*
+* @author CH
+* @since 2026/07/31
  */
 @Data
 @Builder

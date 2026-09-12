@@ -9,10 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 /**
- * CSV 预览提供者：将 CSV 转为 HTML 表格。
- *
- * @author CH
- * @since 2024/12/28
+* CSV 预览提供者：将 CSV 转为 HTML 表格。
+*
+* @author CH
+* @since 2024/12/28
  */
 @Spi("preview-csv")
 public class CsvPreviewProvider implements FileStoragePreviewProvider {
@@ -61,10 +61,10 @@ public class CsvPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * escapehtml
-     *
-     * @param s s
-     * @return escapeHtml的结果
+    * escapehtml
+    *
+    * @param s s
+    * @return escapeHtml的结果
      */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");

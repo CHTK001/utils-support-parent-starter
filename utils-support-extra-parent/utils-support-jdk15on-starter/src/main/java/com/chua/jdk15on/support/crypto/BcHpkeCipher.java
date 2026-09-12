@@ -17,40 +17,40 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 
 /**
-   * 基于 bouncycastle 原语的 HPKE（RFC 9180）混合公钥加密实现。
- *
- * <p>通过 SPI 机制以 "bc" 名称注册。由于 BouncyCastle 无现成 HPKE API，本实现用其原语
-   * 手工拼装 RFC 9180 基础 模式（无 PSK）：
- * <ul>
- *   <li><b>KEM（密钥封装）</b>：X25519 椭圆曲线 Diffie-Hellman 密钥协商</li>
- *   <li><b>KDF（密钥派生）</b>：HKDF-SHA256（RFC 5869），由共享密钥派生对称密钥与 nonce</li>
- *   <li><b>AEAD（认证加密）</b>：AES-256-GCM（GCM 自带 16 字节认证标签）</li>
- * </ul>
- *
- * <p>nonce 由 KDF 确定性派生（而非随机），因此发送方与接收方无需额外传输 nonce，
- * 只需随密文传输 32 字节的封装密钥 {@code enc} 即可。</p>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 链式门面（HpkeFlow）
- * byte[][] keys = HpkeFlow.of().keys();
- *
- * HpkeFlow.SealedMessage msg = HpkeFlow.of()
- *         .receiverPk(keys[0])
- *         .aad("order-1024".getBytes())
- *         .seal("机密数据".getBytes());
- *
- * byte[] plain = HpkeFlow.of()
- *         .secretKey(keys[1])
- *         .enc(msg.enc())
- *         .aad("order-1024".getBytes())
- *         .open(msg.ciphertext());
- * }</pre>     .aad("order-1024".getBytes())
- *         .open(msg.ciphertext());
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 bouncycastle 原语的 HPKE（RFC 9180）混合公钥加密实现。
+*
+* <p>通过 SPI 机制以 "bc" 名称注册。由于 BouncyCastle 无现成 HPKE API，本实现用其原语
+* 手工拼装 RFC 9180 基础 模式（无 PSK）：
+* <ul>
+*   <li><b>KEM（密钥封装）</b>：X25519 椭圆曲线 Diffie-Hellman 密钥协商</li>
+*   <li><b>KDF（密钥派生）</b>：HKDF-SHA256（RFC 5869），由共享密钥派生对称密钥与 nonce</li>
+*   <li><b>AEAD（认证加密）</b>：AES-256-GCM（GCM 自带 16 字节认证标签）</li>
+* </ul>
+*
+* <p>nonce 由 KDF 确定性派生（而非随机），因此发送方与接收方无需额外传输 nonce，
+* 只需随密文传输 32 字节的封装密钥 {@code enc} 即可。</p>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 链式门面（HpkeFlow）
+* byte[][] keys = HpkeFlow.of().keys();
+*
+* HpkeFlow.SealedMessage msg = HpkeFlow.of()
+*         .receiverPk(keys[0])
+*         .aad("order-1024".getBytes())
+*         .seal("机密数据".getBytes());
+*
+* byte[] plain = HpkeFlow.of()
+*         .secretKey(keys[1])
+*         .enc(msg.enc())
+*         .aad("order-1024".getBytes())
+*         .open(msg.ciphertext());
+* }</pre>     .aad("order-1024".getBytes())
+*         .open(msg.ciphertext());
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"bc", "bouncycastle"})
 public class BcHpkeCipher implements HpkeCipher {
@@ -136,32 +136,32 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     /**
-     * 取对称密钥（ek 前 32 字节）
-     *
-     * @param ek ek
-     * @return aes键的结果
+    * 取对称密钥（ek 前 32 字节）
+    *
+    * @param ek ek
+    * @return aes键的结果
      */
     private byte[] aesKey(byte[] ek) {
         return Arrays.copyOfRange(ek, 0, SYM_KEY_LEN);
     }
 
     /**
-     * 取 nonce（ek 第 32~44 字节）
-     *
-     * @param ek ek
-     * @return nonce的结果
+    * 取 nonce（ek 第 32~44 字节）
+    *
+    * @param ek ek
+    * @return nonce的结果
      */
     private byte[] nonce(byte[] ek) {
         return Arrays.copyOfRange(ek, SYM_KEY_LEN, SYM_KEY_LEN + GCM_NONCE_LEN);
     }
 
     /**
-      * 由 X25519 共享密钥与可选 ikm 经 HKDF 派生对称密钥材料（键||nonce）。
-     *
-     * @param sk 本地 X25519 私钥
-     * @param peerPub 对端 X25519 公钥
-     * @param ikm 可选输入密钥材料
-     * @return 长度 {@code SYM_KEY_LEN + GCM_NONCE_LEN} 的密钥材料
+    * 由 X25519 共享密钥与可选 ikm 经 HKDF 派生对称密钥材料（键||nonce）。
+    *
+    * @param sk 本地 X25519 私钥
+    * @param peerPub 对端 X25519 公钥
+    * @param ikm 可选输入密钥材料
+    * @return 长度 {@code SYM_KEY_LEN + GCM_NONCE_LEN} 的密钥材料
      */
     private byte[] deriveSharedKey(X25519PrivateKeyParameters sk, byte[] peerPub, byte[] ikm) {
         X25519Agreement agreement = new X25519Agreement();
@@ -174,23 +174,23 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     /**
-     * HKDF-Extract（RFC 5869），salt 为空时用全零
-     *
-     * @param salt salt
-     * @param ikm ikm
-     * @return hkdfExtract的结果
+    * HKDF-Extract（RFC 5869），salt 为空时用全零
+    *
+    * @param salt salt
+    * @param ikm ikm
+    * @return hkdfExtract的结果
      */
     private static byte[] hkdfExtract(byte[] salt, byte[] ikm) {
         return hmacSha256(salt.length == 0 ? new byte[32] : salt, ikm);
     }
 
     /**
-     * HKDF-Expand（RFC 5869）
-     *
-     * @param prk prk
-     * @param info 信息
-     * @param length 长度
-     * @return hkdfExpand的结果
+    * HKDF-Expand（RFC 5869）
+    *
+    * @param prk prk
+    * @param info 信息
+    * @param length 长度
+    * @return hkdfExpand的结果
      */
     private static byte[] hkdfExpand(byte[] prk, byte[] info, int length) {
         byte[] okm = new byte[length];
@@ -206,11 +206,11 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     /**
-     * HMAC-SHA256
-     *
-     * @param key 键
-     * @param data 数据
-     * @return hmacSha256的结果
+    * HMAC-SHA256
+    *
+    * @param key 键
+    * @param data 数据
+    * @return hmacSha256的结果
      */
     private static byte[] hmacSha256(byte[] key, byte[] data) {
         try {
@@ -223,11 +223,11 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     /**
-     * 拼接两个字节数组
-     *
-     * @param a a
-     * @param b b
-     * @return 连接的结果
+    * 拼接两个字节数组
+    *
+    * @param a a
+    * @param b b
+    * @return 连接的结果
      */
     private static byte[] concat(byte[] a, byte[] b) {
         byte[] r = new byte[a.length + b.length];
@@ -237,9 +237,9 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     /**
-     * GCM 标签长度（供调用方核对密文结构时使用）
-     *
-     * @return gcm标签长度的结果
+    * GCM 标签长度（供调用方核对密文结构时使用）
+    *
+    * @return gcm标签长度的结果
      */
     public int gcmTagLength() {
         return GCM_TAG_LEN;

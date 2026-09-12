@@ -22,47 +22,47 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * 模型scope 图像生成客户端（SPI 提供者="modelscope"）。
- *
- * <p>调用 ModelScope API-Inference 的 OpenAI 兼容图像端点
- * {@code POST {baseUrl}/v1/images/generations}。ModelScope 在该端点下挂载了
-   * 多种文生图模型（如 通义千问-镜像、st Diffusion 系列、FLUX.1、Wan 等），
-   * 鉴权使用 Bearer 令牌（{@code MODELSCOPE_TOKEN}，从魔搭个人中心获取）。
- *
- * <p>ModelScope 扩展字段（negative_prompt / seed / steps / guidance_scale）通过
-   * 请求体顶层字段透传，与 打开AI 官方字段不冲突。
- *
- * <p>调用示例：
- * <pre>{@code
- *   // 文生图
- *   BufferedImage image = ImageClient.create("modelscope", "ms-xxx")
- *       .model("Qwen/Qwen-Image")
- *       .size(1024, 1024)
- *       .negativePrompt("低质量、模糊")
- *       .steps(30)
- *       .seed(42L)
- *       .generate("一只柴犬在樱花树下");
- *
- *   // 异步任务（适合长耗时模型）
- *   String taskId = ImageClient.create("modelscope", "ms-xxx")
- *       .model("damo/text-to-image-large")
- *       .size(1024, 1024)
- *       .createTask("夜景城市");
- *   ImageResponse resp = client.queryTask(taskId);
- * }</pre>ze(1024, 1024)
- *       .createTask("夜景城市");
- *   ImageResponse resp = client.queryTask(taskId);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 模型scope 图像生成客户端（SPI 提供者="modelscope"）。
+*
+* <p>调用 ModelScope API-Inference 的 OpenAI 兼容图像端点
+* {@code POST {baseUrl}/v1/images/generations}。ModelScope 在该端点下挂载了
+* 多种文生图模型（如 通义千问-镜像、st Diffusion 系列、FLUX.1、Wan 等），
+* 鉴权使用 Bearer 令牌（{@code MODELSCOPE_TOKEN}，从魔搭个人中心获取）。
+*
+* <p>ModelScope 扩展字段（negative_prompt / seed / steps / guidance_scale）通过
+* 请求体顶层字段透传，与 打开AI 官方字段不冲突。
+*
+* <p>调用示例：
+* <pre>{@code
+*   // 文生图
+*   BufferedImage image = ImageClient.create("modelscope", "ms-xxx")
+*       .model("Qwen/Qwen-Image")
+*       .size(1024, 1024)
+*       .negativePrompt("低质量、模糊")
+*       .steps(30)
+*       .seed(42L)
+*       .generate("一只柴犬在樱花树下");
+*
+*   // 异步任务（适合长耗时模型）
+*   String taskId = ImageClient.create("modelscope", "ms-xxx")
+*       .model("damo/text-to-image-large")
+*       .size(1024, 1024)
+*       .createTask("夜景城市");
+*   ImageResponse resp = client.queryTask(taskId);
+* }</pre>ze(1024, 1024)
+*       .createTask("夜景城市");
+*   ImageResponse resp = client.queryTask(taskId);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("modelscope")
 public class ModelscopeImageClient implements ImageClient {
 
     /**
-     * 默认生成模型（魔搭公开的高质量文生图模型）
+    * 默认生成模型（魔搭公开的高质量文生图模型）
      */
     private static final String DEFAULT_MODEL = "Qwen/Qwen-Image";
 
@@ -79,8 +79,8 @@ public class ModelscopeImageClient implements ImageClient {
     private final List<byte[]> referenceImages = new ArrayList<>(); // 引用镜像
 
     /**
-     * modelscope镜像客户端。
-     * @param setting setting
+    * modelscope镜像客户端。
+    * @param setting setting
      */
     public ModelscopeImageClient(ImageClientSetting setting) {
         this.setting = setting;
@@ -134,11 +134,11 @@ public class ModelscopeImageClient implements ImageClient {
     }
 
     /**
-      * 设置 CFG 引导系数（模型scope 字段名 guidance_scale）。
-     *
-     * @param guidance CFG 引导系数
-     * @return 当前客户端实例
-     * @param json json
+    * 设置 CFG 引导系数（模型scope 字段名 guidance_scale）。
+    *
+    * @param guidance CFG 引导系数
+    * @return 当前客户端实例
+    * @param json json
      /**
        * guidancescale。
       * @param guidance guidance
@@ -151,9 +151,9 @@ public class ModelscopeImageClient implements ImageClient {
      */
     public ImageClient guidanceScale(double guidance) {
         /**
-         * 引用镜像。
-         * @param image 镜像
-         * @return 引用镜像的结果
+        * 引用镜像。
+        * @param image 镜像
+        * @return 引用镜像的结果
          */
         this.guidanceScale = guidance;
         return this;
@@ -182,9 +182,9 @@ public class ModelscopeImageClient implements ImageClient {
         log.warn("ModelScope 文生图端点不支持 imageStrength，已忽略");
         return this;
     /**
-     * control类型。
-     * @param controlType control类型
-     * @return control类型的结果
+    * control类型。
+    * @param controlType control类型
+    * @return control类型的结果
      */
     }
 
@@ -192,9 +192,9 @@ public class ModelscopeImageClient implements ImageClient {
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("ModelScope provider 不支持 ControlNet（controlType=" + controlType + "）");
     /**
-     * quality。
-     * @param quality quality
-     * @return quality的结果
+    * quality。
+    * @param quality quality
+    * @return quality的结果
      */
     }
 
@@ -203,9 +203,9 @@ public class ModelscopeImageClient implements ImageClient {
         log.warn("ModelScope provider 不支持 quality 字段，已忽略");
         return this;
     /**
-     * style。
-     * @param style style
-     * @return style的结果
+    * style。
+    * @param style style
+    * @return style的结果
      */
     }
 
@@ -214,11 +214,11 @@ public class ModelscopeImageClient implements ImageClient {
         log.warn("ModelScope provider 不支持 style 字段，已忽略");
         return this;
     /**
-     * generate。
-     * @param prompt 提示符
-     * @return generate的结果
-     * @param json json
-     * @param taskId 任务id
+    * generate。
+    * @param prompt 提示符
+    * @return generate的结果
+    * @param json json
+    * @param taskId 任务id
      */
     }
 
@@ -459,7 +459,7 @@ public class ModelscopeImageClient implements ImageClient {
     }
 
     /**
-      * 模型scope 知名图像生成模型清单（节选自魔搭 模型 页面）。
+    * 模型scope 知名图像生成模型清单（节选自魔搭 模型 页面）。
      */
     private static final List<ModelDefinition> MODELS = List.of(
             ModelDefinition.builder()

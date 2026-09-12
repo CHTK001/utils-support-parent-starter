@@ -17,19 +17,19 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 /**
- * GFPGAN 人脸修复/超分 Translator（ONNX 版）。
- * <p>
-   * 预处理与 pytorch 版一致：直接 resize 到 512×512（不做 center-crop），
- * mean=[0.5,0.5,0.5] std=[0.5,0.5,0.5] 归一化，
- * 输出 [-1,1] → 还原 [0,255]。
- * </p>
- * <p>
- * 注意：GFPGAN 模型输入期望 FFHQ 标准 512×512 对齐人脸，
-   * 独立使用时应先通过 facepipeline.restorewithalign() 做 5 点仿射对齐。
- * </p>
- *
- * @author CH
- * @since 2024/11/08
+* GFPGAN 人脸修复/超分 Translator（ONNX 版）。
+* <p>
+* 预处理与 pytorch 版一致：直接 resize 到 512×512（不做 center-crop），
+* mean=[0.5,0.5,0.5] std=[0.5,0.5,0.5] 归一化，
+* 输出 [-1,1] → 还原 [0,255]。
+* </p>
+* <p>
+* 注意：GFPGAN 模型输入期望 FFHQ 标准 512×512 对齐人脸，
+* 独立使用时应先通过 facepipeline.restorewithalign() 做 5 点仿射对齐。
+* </p>
+*
+* @author CH
+* @since 2024/11/08
  */
 public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Image> {
 
@@ -78,9 +78,9 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
     }
 
     /**
-      * clampu8。
-     * @param v v
-     * @return clampU8的结果
+    * clampu8。
+    * @param v v
+    * @return clampU8的结果
      */
     private static int clampU8(float v) {
         float x = Math.max(-1f, Math.min(1f, v));

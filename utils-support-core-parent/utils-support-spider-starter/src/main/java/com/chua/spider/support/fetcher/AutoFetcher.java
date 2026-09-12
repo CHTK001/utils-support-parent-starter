@@ -11,36 +11,36 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 自动降级抓取器。
- *
- * <p>SPI 名称：{@code auto}
- *
- * <p>内部收集所有可用的 {@link SpiderFetcher} SPI 实现，
- * 按优先级排序。执行 {@link #fetch(SpiderRequest)} 时，
- * 先尝试优先级最高的实现，如果返回失败则依次降级到下一个实现，
- * 直到某个实现成功获取内容或所有实现尝试完毕。
- *
- * <p>适用于不确定目标站点兼容性的场景，自动选择可用的抓取方式：
- * <ol>
- *   <li>优先尝试 {@code http}（JDK HttpClient，零依赖）</li>
- *   <li>如果失败则尝试其他 SPI 注册的 Fetcher</li>
- *   <li>所有尝试均失败后返回最后一次失败的结果</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* 自动降级抓取器。
+*
+* <p>SPI 名称：{@code auto}
+*
+* <p>内部收集所有可用的 {@link SpiderFetcher} SPI 实现，
+* 按优先级排序。执行 {@link #fetch(SpiderRequest)} 时，
+* 先尝试优先级最高的实现，如果返回失败则依次降级到下一个实现，
+* 直到某个实现成功获取内容或所有实现尝试完毕。
+*
+* <p>适用于不确定目标站点兼容性的场景，自动选择可用的抓取方式：
+* <ol>
+*   <li>优先尝试 {@code http}（JDK HttpClient，零依赖）</li>
+*   <li>如果失败则尝试其他 SPI 注册的 Fetcher</li>
+*   <li>所有尝试均失败后返回最后一次失败的结果</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("auto")
 public class AutoFetcher implements SpiderFetcher {
 
     /**
-     * 可用的 Fetcher 实现列表，按优先级排序
+    * 可用的 Fetcher 实现列表，按优先级排序
      */
     private final List<SpiderFetcher> fetchers;
 
     /**
-     * 默认构造器，从 SPI 收集所有可用的 Fetcher 实现。
+    * 默认构造器，从 SPI 收集所有可用的 Fetcher 实现。
      */
     public AutoFetcher() {
         ServiceProvider<SpiderFetcher> provider = ServiceProvider.of(SpiderFetcher.class);

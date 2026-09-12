@@ -12,29 +12,29 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * animeganv2 Face Portrait V2 Translator（NCHW 布局）。
- *
- * <p>Face Portrait V2 模型的 ONNX 导出为 NCHW 布局 {@code [1,3,512,512]}，
- * 与 Hayao/Shinkai/Paprika 的 NHWC {@code [1,512,512,3]} 不同，需独立处理。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* animeganv2 Face Portrait V2 Translator（NCHW 布局）。
+*
+* <p>Face Portrait V2 模型的 ONNX 导出为 NCHW 布局 {@code [1,3,512,512]}，
+* 与 Hayao/Shinkai/Paprika 的 NHWC {@code [1,512,512,3]} 不同，需独立处理。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
 
     /**
-     * 输入尺寸（固定 512x512）。
+    * 输入尺寸（固定 512x512）。
      */
     private static final int INPUT_SIZE = 512;
 
     /**
-     * 原始图像宽。
+    * 原始图像宽。
      */
     private int originalWidth;
 
     /**
-     * 原始图像高。
+    * 原始图像高。
      */
     private int originalHeight;
 
@@ -92,20 +92,20 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * Clip
-     *
-     * @param v v
-     * @return clip的结果
+    * Clip
+    *
+    * @param v v
+    * @return clip的结果
      */
     private static int clip(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
     }
 
     /**
-     * hwcpixels
-     *
-     * @param input 输入
-     * @return hwcPixels的结果
+    * hwcpixels
+    *
+    * @param input 输入
+    * @return hwcPixels的结果
      */
     private static float[] hwcPixels(Image input) {
         Object wrapped = input.getWrappedImage();
@@ -125,14 +125,14 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 调整大小Hwc
-     *
-     * @param src src
-     * @param sw sw
-     * @param sh sh
-     * @param dw dw
-     * @param dh dh
-     * @return resizeHwc的结果
+    * 调整大小Hwc
+    *
+    * @param src src
+    * @param sw sw
+    * @param sh sh
+    * @param dw dw
+    * @param dh dh
+    * @return resizeHwc的结果
      */
     private static float[] resizeHwc(float[] src, int sw, int sh, int dw, int dh) {
         float[] out = new float[dw * dh * 3];
@@ -153,12 +153,12 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 调整大小缓冲
-     *
-     * @param src src
-     * @param dw dw
-     * @param dh dh
-     * @return resize缓冲的结果
+    * 调整大小缓冲
+    *
+    * @param src src
+    * @param dw dw
+    * @param dh dh
+    * @return resize缓冲的结果
      */
     private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
         return ImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);

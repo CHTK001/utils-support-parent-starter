@@ -12,22 +12,22 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 
 
 /**
-   * 情绪 ferplus
- * <p>
- *             : [1, 3, 224, 224] RGB       
- *             : [1, 7]                   
- * <p>
- *          :
- * -                 224x224
-   * -              镜像net
- * -           CHW       
- * <p>
- *          :
- * -        softmax             
- * -                                  
- *
- * @author CH
- * @since 2025-01-20
+* 情绪 ferplus
+* <p>
+*             : [1, 3, 224, 224] RGB       
+*             : [1, 7]                   
+* <p>
+*          :
+* -                 224x224
+* -              镜像net
+* -           CHW       
+* <p>
+*          :
+* -        softmax             
+* -                                  
+*
+* @author CH
+* @since 2025-01-20
  */
 public class EmotionFerplusTranslator implements Translator<Image, PredictResult> {
 
@@ -41,8 +41,8 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     /**
-      * 创建 情绪ferplustranslator 实例
-     * @param emotionLabels 情绪标签
+    * 创建 情绪ferplustranslator 实例
+    * @param emotionLabels 情绪标签
      */
     public EmotionFerplusTranslator(String[] emotionLabels) {
         this.emotionLabels = emotionLabels;
@@ -99,9 +99,9 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     /**
-     *        softmax       
-     * @param logits logits
-     * @return softmax的结果
+    *        softmax       
+    * @param logits logits
+    * @return softmax的结果
      */
     private float[] softmax(float[] logits) {
         float max = 0.0f;

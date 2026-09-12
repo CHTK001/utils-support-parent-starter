@@ -21,58 +21,58 @@ import java.util.regex.Pattern;
 
 
 /**
- * 配置值绑定管理器。
- *
- * <p>管理 @ConfigValue 注解的扫描、注册和动态更新。
- * 支持配置热加载，当配置中心的数据发生变化时自动更新绑定值。</p>
- *
- * <h3>核心流程</h3>
- * <ul>
- *     <li>扫描 Bean 中标注 @ConfigValue 的字段和方法并注册</li>
- *     <li>从配置提供者获取配置值并注入到目标字段</li>
- *     <li>监听配置变更，自动更新热加载的绑定值</li>
- *     <li>支持回调方法，在配置变更后执行自定义逻辑</li>
- * </ul>
- *
- * @author CH
- * @since 2024-12-05
- * @version 1.0.0
+* 配置值绑定管理器。
+*
+* <p>管理 @ConfigValue 注解的扫描、注册和动态更新。
+* 支持配置热加载，当配置中心的数据发生变化时自动更新绑定值。</p>
+*
+* <h3>核心流程</h3>
+* <ul>
+*     <li>扫描 Bean 中标注 @ConfigValue 的字段和方法并注册</li>
+*     <li>从配置提供者获取配置值并注入到目标字段</li>
+*     <li>监听配置变更，自动更新热加载的绑定值</li>
+*     <li>支持回调方法，在配置变更后执行自定义逻辑</li>
+* </ul>
+*
+* @author CH
+* @since 2024-12-05
+* @version 1.0.0
  */
 @Slf4j
 public class ConfigValueBindingManager implements ConfigListener {
 
     /**
-     * 占位符正则表达式。
-     * 匹配 ${key} 和 ${key:defaultValue} 两种格式。
+    * 占位符正则表达式。
+    * 匹配 ${key} 和 ${key:defaultValue} 两种格式。
      */
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}:]+)(?::([^}]*))?}");
 
     /**
-     * 按配置键分组的绑定映射表。
-     * key: 配置键
-     * value: 该配置键对应的所有绑定列表
+    * 按配置键分组的绑定映射表。
+    * key: 配置键
+    * value: 该配置键对应的所有绑定列表
      */
     private final Map<String, List<ConfigValueBinding>> bindingsByKey = new ConcurrentHashMap<>();
 
     /**
-     * 全部绑定的列表。
+    * 全部绑定的列表。
      */
     private final List<ConfigValueBinding> allBindings = Collections.synchronizedList(new ArrayList<>());
 
     /**
-     * 配置值提供者函数。
+    * 配置值提供者函数。
      */
     private Function<String, String> configProvider;
 
     /**
-     * 全局单例实例。
+    * 全局单例实例。
      */
     private static volatile ConfigValueBindingManager instance;
 
     /**
-     * 获取全局单例。
-     *
-     * @return 单例实例
+    * 获取全局单例。
+    *
+    * @return 单例实例
      */
     public static ConfigValueBindingManager getInstance() {
         if (instance == null) {
@@ -90,19 +90,19 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 设置配置值提供者。
-     *
-     * @param provider 根据 key 返回配置值的函数
+    * 设置配置值提供者。
+    *
+    * @param provider 根据 key 返回配置值的函数
      */
     public void setConfigProvider(Function<String, String> provider) {
         this.configProvider = provider;
     }
 
     /**
-     * 扫描 Bean 中标注了 @ConfigValue 的字段和方法并注册。
-     *
-     * @param beanName Bean 名称
-     * @param bean     Bean 实例
+    * 扫描 Bean 中标注了 @ConfigValue 的字段和方法并注册。
+    *
+    * @param beanName Bean 名称
+    * @param bean     Bean 实例
      */
     public void scanAndRegister(String beanName, Object bean) {
         if (bean == null) {
@@ -127,12 +127,12 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 注册字段绑定。
-     *
-     * @param beanName   Bean 名称
-     * @param bean       Bean 实例
-     * @param field      目标字段
-     * @param annotation @ConfigValue 注解
+    * 注册字段绑定。
+    *
+    * @param beanName   Bean 名称
+    * @param bean       Bean 实例
+    * @param field      目标字段
+    * @param annotation @ConfigValue 注解
      */
     private void registerFieldBinding(String beanName, Object bean, Field field, ConfigValue annotation) {
         String expression = annotation.value();
@@ -162,12 +162,12 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 注册方法绑定。
-     *
-     * @param beanName   Bean 名称
-     * @param bean       Bean 实例
-     * @param method     目标方法
-     * @param annotation @ConfigValue 注解
+    * 注册方法绑定。
+    *
+    * @param beanName   Bean 名称
+    * @param bean       Bean 实例
+    * @param method     目标方法
+    * @param annotation @ConfigValue 注解
      */
     private void registerMethodBinding(String beanName, Object bean, Method method, ConfigValue annotation) {
         String expression = annotation.value();
@@ -197,9 +197,9 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 添加绑定到注册表。
-     *
-     * @param binding 配置值绑定
+    * 添加绑定到注册表。
+    *
+    * @param binding 配置值绑定
      */
     private void addBinding(ConfigValueBinding binding) {
         allBindings.add(binding);
@@ -208,11 +208,11 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 解析配置值。
-     *
-     * @param key           配置键
-     * @param defaultValue  默认值
-     * @return 配置值
+    * 解析配置值。
+    *
+    * @param key           配置键
+    * @param defaultValue  默认值
+    * @return 配置值
      */
     private String resolveValue(String key, String defaultValue) {
         if (configProvider != null) {
@@ -225,10 +225,10 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 将配置值注入到字段。
-     *
-     * @param binding 配置值绑定
-     * @param value   配置值
+    * 将配置值注入到字段。
+    *
+    * @param binding 配置值绑定
+    * @param value   配置值
      */
     private void injectFieldValue(ConfigValueBinding binding, String value) {
         try {
@@ -243,10 +243,10 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 将配置值注入到方法。
-     *
-     * @param binding 配置值绑定
-     * @param value   配置值
+    * 将配置值注入到方法。
+    *
+    * @param binding 配置值绑定
+    * @param value   配置值
      */
     private void injectMethodValue(ConfigValueBinding binding, String value) {
         try {
@@ -261,11 +261,11 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 类型转换。
-     *
-     * @param value      原始字符串值
-     * @param targetType 目标类型
-     * @return 转换后的对象
+    * 类型转换。
+    *
+    * @param value      原始字符串值
+    * @param targetType 目标类型
+    * @return 转换后的对象
      */
     private Object convertValue(String value, Class<?> targetType) {
         if (value == null) {
@@ -275,10 +275,10 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 解析占位符表达式。
-     *
-     * @param expression 占位符表达式，如 "${server.port:8080}"
-     * @return 解析结果，包含 key 和默认值
+    * 解析占位符表达式。
+    *
+    * @param expression 占位符表达式，如 "${server.port:8080}"
+    * @return 解析结果，包含 key 和默认值
      */
     private ParsedExpression parseExpression(String expression) {
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(expression);
@@ -292,19 +292,19 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 获取类的所有字段。
-     *
-     * @param clazz 目标类
-     * @return 字段列表
+    * 获取类的所有字段。
+    *
+    * @param clazz 目标类
+    * @return 字段列表
      */
     private List<Field> getAllFields(Class<?> clazz) {
         return ClassUtils.getFields(clazz);
     }
 
     /**
-     * 获取所有启用了热加载的绑定列表。
-     *
-     * @return 热加载绑定列表
+    * 获取所有启用了热加载的绑定列表。
+    *
+    * @return 热加载绑定列表
      */
     public List<ConfigValueBinding> getHotReloadBindings() {
         List<ConfigValueBinding> result = new ArrayList<>();
@@ -317,10 +317,10 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 按配置键获取绑定列表。
-     *
-     * @param configKey 配置键
-     * @return 绑定列表
+    * 按配置键获取绑定列表。
+    *
+    * @param configKey 配置键
+    * @return 绑定列表
      */
     public List<ConfigValueBinding> getBindingsByKey(String configKey) {
         return bindingsByKey.getOrDefault(configKey, Collections.emptyList());
@@ -330,10 +330,10 @@ public class ConfigValueBindingManager implements ConfigListener {
 
     @Override
     /**
-     * OnChange
-     * @param key key
-     * @param oldValue oldValue
-     * @param newValue newValue
+    * OnChange
+    * @param key key
+    * @param oldValue oldValue
+    * @param newValue newValue
      */
     public void onChange(String key, String oldValue, String newValue) {
         // 由 onUpdate 处理即可
@@ -341,9 +341,9 @@ public class ConfigValueBindingManager implements ConfigListener {
 
     @Override
     /**
-     * On删除
-     * @param key key
-     * @param oldValue oldValue
+    * On删除
+    * @param key key
+    * @param oldValue oldValue
      */
     public void onDelete(String key, String oldValue) {
         List<ConfigValueBinding> bindings = bindingsByKey.get(key);
@@ -363,10 +363,10 @@ public class ConfigValueBindingManager implements ConfigListener {
 
     @Override
     /**
-     * On更新
-     * @param key key
-     * @param oldValue oldValue
-     * @param newValue newValue
+    * On更新
+    * @param key key
+    * @param oldValue oldValue
+    * @param newValue newValue
      */
     public void onUpdate(String key, String oldValue, String newValue) {
         List<ConfigValueBinding> bindings = bindingsByKey.get(key);
@@ -387,11 +387,11 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 更新绑定的配置值。
-     *
-     * @param binding  配置值绑定
-     * @param oldValue 旧值
-     * @param newValue 新值
+    * 更新绑定的配置值。
+    *
+    * @param binding  配置值绑定
+    * @param oldValue 旧值
+    * @param newValue 新值
      */
     private void updateBindingValue(ConfigValueBinding binding, String oldValue, String newValue) {
         Object oldConvertedValue = binding.getCurrentValue();
@@ -409,11 +409,11 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 调用配置变更回调方法。
-     *
-     * @param binding  配置值绑定
-     * @param oldValue 旧值
-     * @param newValue 新值
+    * 调用配置变更回调方法。
+    *
+    * @param binding  配置值绑定
+    * @param oldValue 旧值
+    * @param newValue 新值
      */
     private void invokeCallback(ConfigValueBinding binding, Object oldValue, Object newValue) {
         String callbackName = binding.getCallback();
@@ -437,7 +437,7 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-     * 解析后的表达式结果，包含配置键和默认值。
+    * 解析后的表达式结果，包含配置键和默认值。
      */
     private static class ParsedExpression {
         final String key;

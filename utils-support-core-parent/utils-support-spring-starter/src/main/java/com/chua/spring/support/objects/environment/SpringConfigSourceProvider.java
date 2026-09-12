@@ -10,11 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Spring 配置源提供者，将 Spring {@link org.springframework.core.env.Environment}
- * 中的 {@link org.springframework.core.env.PropertySource} 包装为框架配置源。
- *
- * @author CH
- * @since 2024/12/20
+* Spring 配置源提供者，将 Spring {@link org.springframework.core.env.Environment}
+* 中的 {@link org.springframework.core.env.PropertySource} 包装为框架配置源。
+*
+* @author CH
+* @since 2024/12/20
  */
 @Slf4j
 @Spi("spring")
@@ -48,10 +48,10 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
     }
 
     /**
-     * Spring {@link org.springframework.core.env.PropertySource} 到框架
-     * {@link com.chua.common.support.config.source.PropertySource} 的适配器。
-     * @author CH
-     * @since 4.0.0
+    * Spring {@link org.springframework.core.env.PropertySource} 到框架
+    * {@link com.chua.common.support.config.source.PropertySource} 的适配器。
+    * @author CH
+    * @since 4.0.0
      */
     private static class SpringPropertySourceAdapter implements com.chua.common.support.config.source.PropertySource {
 

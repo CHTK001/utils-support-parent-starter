@@ -14,129 +14,129 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * XML 文件系统 SPI 实现（简易 DOM 解析）。
- *
- * <p>通过 SPI 机制注册为 {@code "xml"} 类型的文件系统实现。
- * 使用 JDK 内置解析方式实现简易 XML 的读取与生成，适用于结构简单的配置文件。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* XML 文件系统 SPI 实现（简易 DOM 解析）。
+*
+* <p>通过 SPI 机制注册为 {@code "xml"} 类型的文件系统实现。
+* 使用 JDK 内置解析方式实现简易 XML 的读取与生成，适用于结构简单的配置文件。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("xml")
 public class XmlFileSystem implements FileSystem {
 
     /**
-     * XML 文件类型标识
+    * XML 文件类型标识
      */
     private static final String TYPE_XML = "xml";
 
     /**
-     * 行标签起始
+    * 行标签起始
      */
     private static final String ROW_START_TAG = "<row>";
 
     /**
-     * 行标签结束
+    * 行标签结束
      */
     private static final String ROW_END_TAG = "</row>";
 
     /**
-     * 行标签起始长度
+    * 行标签起始长度
      */
     private static final int ROW_START_TAG_LENGTH = ROW_START_TAG.length();
 
     /**
-     * 行标签结束长度
+    * 行标签结束长度
      */
     private static final int ROW_END_TAG_LENGTH = ROW_END_TAG.length();
 
     /**
-     * XML 处理指令正则
+    * XML 处理指令正则
      */
     private static final String XML_DECLARATION_PATTERN = "<\\?[^>]+\\?>";
 
     /**
-     * 标签起始字符
+    * 标签起始字符
      */
     private static final char TAG_START_CHAR = '<';
 
     /**
-     * 标签结束字符
+    * 标签结束字符
      */
     private static final char TAG_END_CHAR = '>';
 
     /**
-     * 结束标签前缀
+    * 结束标签前缀
      */
     private static final String CLOSE_TAG_PREFIX = "</";
 
     /**
-     * 结束标签后缀
+    * 结束标签后缀
      */
     private static final String CLOSE_TAG_SUFFIX = ">";
 
     /**
-     * 结束标签前缀长度
+    * 结束标签前缀长度
      */
     private static final int CLOSE_TAG_PREFIX_LENGTH = CLOSE_TAG_PREFIX.length();
 
     /**
-     * 空白字符分隔正则
+    * 空白字符分隔正则
      */
     private static final String WHITESPACE_PATTERN = "\\s+";
 
     /**
-     * XML 声明头
+    * XML 声明头
      */
     private static final String XML_DECLARATION_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n";
 
     /**
-     * 根结束标签
+    * 根结束标签
      */
     private static final String ROOT_END_TAG = "</root>\n";
 
     /**
-     * 行开始标签模板
+    * 行开始标签模板
      */
     private static final String ROW_OPEN_TAG_TEMPLATE = "<row>\n";
 
     /**
-     * 行结束标签模板
+    * 行结束标签模板
      */
     private static final String ROW_CLOSE_TAG_TEMPLATE = "</row>\n";
 
     /**
-     * 字段开始标签模板
+    * 字段开始标签模板
      */
     private static final String FIELD_OPEN_TAG_TEMPLATE = "  <";
 
     /**
-     * 字段结束标签模板
+    * 字段结束标签模板
      */
     private static final String FIELD_CLOSE_TAG_TEMPLATE = ">";
 
     /**
-     * 字段闭合标签模板
+    * 字段闭合标签模板
      */
     private static final String FIELD_END_TAG_TEMPLATE = "</";
 
     /**
-     * 字段换行模板
+    * 字段换行模板
      */
     private static final String FIELD_NEWLINE_TEMPLATE = ">\n";
 
     /**
-     * 单层缩进
+    * 单层缩进
      */
     private static final String INDENT_UNIT = "  ";
 
     /**
-     * 标签后偏移量（标签结束符位置 + 1）
+    * 标签后偏移量（标签结束符位置 + 1）
      */
     private static final int TAG_END_OFFSET = 1;
 
     /**
-     * 关闭标签总偏移量（关闭标签前缀长度 + 标签名长度 + 关闭标签后缀长度）
+    * 关闭标签总偏移量（关闭标签前缀长度 + 标签名长度 + 关闭标签后缀长度）
      */
     private static final int CLOSE_TAG_TOTAL_EXTRA = CLOSE_TAG_PREFIX_LENGTH + CLOSE_TAG_SUFFIX.length();
 
@@ -159,14 +159,14 @@ public class XmlFileSystem implements FileSystem {
     }
 
     /**
-     * XML 文件读取构建器。
-     *
-     * @since 4.0.0.42
+    * XML 文件读取构建器。
+    *
+    * @since 4.0.0.42
      */
     public static class XmlReadBuilder extends ReadBuilder {
 
         /**
-         * 是否将首行作为表头
+        * 是否将首行作为表头
          */
         private boolean hasHeader;
 
@@ -182,9 +182,9 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-         * 标记首条记录为表头（属性名作为列名）。
-         *
-         * @return 当前构建器
+        * 标记首条记录为表头（属性名作为列名）。
+        *
+        * @return 当前构建器
          */
         public XmlReadBuilder withHeader() {
             this.hasHeader = true;
@@ -192,9 +192,9 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-         * 以表格形式读取 XML（{@code <root><row>...}），每条 row 为一条记录。
-         *
-         * @return Map 行数据列表
+        * 以表格形式读取 XML（{@code <root><row>...}），每条 row 为一条记录。
+        *
+        * @return Map 行数据列表
          */
         @SuppressWarnings("unchecked")
         public List<Map<String, Object>> rows() {
@@ -251,9 +251,9 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-         * 读取 XML 文件并返回 Map 结构。
-         *
-         * @return Map 格式的数据
+        * 读取 XML 文件并返回 Map 结构。
+        *
+        * @return Map 格式的数据
          */
         public Map<String, Object> toMap() {
             Map<String, Object> result = new LinkedHashMap<>();
@@ -278,10 +278,10 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-         * 简易 XML 解析器，将标签结构转为 Map。
-         *
-         * @param xml 待解析的 XML 片段
-         * @param map 输出 Map 容器
+        * 简易 XML 解析器，将标签结构转为 Map。
+        *
+        * @param xml 待解析的 XML 片段
+        * @param map 输出 Map 容器
          */
         private void parseXml(String xml, Map<String, Object> map) {
             int pos = 0;
@@ -317,9 +317,9 @@ public class XmlFileSystem implements FileSystem {
     }
 
     /**
-     * XML 文件写入构建器。
-     *
-     * @since 4.0.0.42
+    * XML 文件写入构建器。
+    *
+    * @since 4.0.0.42
      */
     public static class XmlWriteBuilder extends WriteBuilder {
 
@@ -354,10 +354,10 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-         * 写入 Map 数据。
-         *
-         * @param data 待写入的 Map 数据
-         * @return 当前构建器
+        * 写入 Map 数据。
+        *
+        * @param data 待写入的 Map 数据
+        * @return 当前构建器
          */
         public XmlWriteBuilder write(Map<String, Object> data) {
             pending.add(data);
@@ -381,9 +381,9 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-         * 渲染 XML 字符串。
-         *
-         * @return 渲染后的 XML 字符串
+        * 渲染 XML 字符串。
+        *
+        * @return 渲染后的 XML 字符串
          */
         private String renderXml() {
             StringBuilder sb = new StringBuilder(XML_DECLARATION_HEADER);
@@ -402,11 +402,11 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-         * 渲染单行 Map 为 XML。
-         *
-         * @param sb    StringBuilder 输出
-         * @param row   行数据
-         * @param depth 缩进深度
+        * 渲染单行 Map 为 XML。
+        *
+        * @param sb    StringBuilder 输出
+        * @param row   行数据
+        * @param depth 缩进深度
          */
         private void renderRow(StringBuilder sb, Map<String, Object> row, int depth) {
             String indent = INDENT_UNIT.repeat(depth);

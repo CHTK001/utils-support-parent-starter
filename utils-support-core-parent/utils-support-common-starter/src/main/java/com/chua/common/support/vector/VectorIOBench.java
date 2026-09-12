@@ -8,33 +8,33 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 向量存储 I/O 性能对比测试。
- * 对比三种读取路径：
-   * 1. 顺序 数据输入流 扫描（旧版 文件 模式）
-   * 2. mappedbyte缓冲 顺序扫描（无索引，整文件 mmap）
-   * 3. B+树 + mappedbyte缓冲 精确偏移读取（HYBRID 模式）
- * @author CH
- * @since 4.0.0
- * @param count 数量
- * @param flushBatch flushbatch
- * @param label 标签
+* 向量存储 I/O 性能对比测试。
+* 对比三种读取路径：
+* 1. 顺序 数据输入流 扫描（旧版 文件 模式）
+* 2. mappedbyte缓冲 顺序扫描（无索引，整文件 mmap）
+* 3. B+树 + mappedbyte缓冲 精确偏移读取（HYBRID 模式）
+* @author CH
+* @since 4.0.0
+* @param count 数量
+* @param flushBatch flushbatch
+* @param label 标签
  */
 public class VectorIOBench {
 
     private static final int DIM = 128; // DIM
     /**
-     * main。
-     * @param args 参数
-     * @param count 数量
-     * @param flushBatch flushbatch
-     * @param label 标签
+    * main。
+    * @param args 参数
+    * @param count 数量
+    * @param flushBatch flushbatch
+    * @param label 标签
      */
     private static final Random RND = ThreadLocalRandom.current();
     private static Path testDir; // 测试dir
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("io-bench-");
@@ -104,12 +104,12 @@ public class VectorIOBench {
     // ==================== 三种搜索方式 ====================
 
     /**
-     * A: 旧版顺序扫描 - 每个分片开 数据输入流 逐条读
-     *
-     * @param dir dir
-     * @param expectedCount 期望数量
-     * @param diskBytes diskbytes
-     * @return 测量sequential的结果
+    * A: 旧版顺序扫描 - 每个分片开 数据输入流 逐条读
+    *
+    * @param dir dir
+    * @param expectedCount 期望数量
+    * @param diskBytes diskbytes
+    * @return 测量sequential的结果
      */
     private static long measureSequential(Path dir, int expectedCount, long diskBytes) throws Exception {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
@@ -145,12 +145,12 @@ public class VectorIOBench {
     }
 
     /**
-     * B: mappedbyte缓冲 顺序扫描 - 整文件 mmap 后顺序读
-     *
-     * @param dir dir
-     * @param expectedCount 期望数量
-     * @param diskBytes diskbytes
-     * @return 测量mmapsequential的结果
+    * B: mappedbyte缓冲 顺序扫描 - 整文件 mmap 后顺序读
+    *
+    * @param dir dir
+    * @param expectedCount 期望数量
+    * @param diskBytes diskbytes
+    * @return 测量mmapsequential的结果
      */
     private static long measureMmapSequential(Path dir, int expectedCount, long diskBytes) throws Exception {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
@@ -191,12 +191,12 @@ public class VectorIOBench {
     }
 
     /**
-     * C: HYBRID - B+树 索引 + mappedbyte缓冲 精确偏移读取
-     *
-     * @param dir dir
-     * @param expectedCount 期望数量
-     * @param diskBytes diskbytes
-     * @return 测量hybrid的结果
+    * C: HYBRID - B+树 索引 + mappedbyte缓冲 精确偏移读取
+    *
+    * @param dir dir
+    * @param expectedCount 期望数量
+    * @param diskBytes diskbytes
+    * @return 测量hybrid的结果
      */
     private static long measureHybrid(Path dir, int expectedCount, long diskBytes) throws Exception {
         DefaultVectorStorage storage = DefaultVectorStorage.builder()
@@ -219,8 +219,8 @@ public class VectorIOBench {
     // ==================== 工具方法 ====================
 
     /**
-     * 随机vec。
-     * @return 随机vec的结果
+    * 随机vec。
+    * @return 随机vec的结果
      */
     private static float[] randomVec() {
         float[] v = new float[DIM];
@@ -241,10 +241,10 @@ public class VectorIOBench {
     }
 
     /**
-      * cosinesimd。
-     * @param a a
-     * @param b b
-     * @return cosineSIMD的结果
+    * cosinesimd。
+    * @param a a
+    * @param b b
+    * @return cosineSIMD的结果
      */
     private static float cosineSIMD(float[] a, float[] b) {
         double dot = 0, nA = 0, nB = 0;
@@ -254,9 +254,9 @@ public class VectorIOBench {
     }
 
     /**
-     * totaldisk大小。
-     * @param dir dir
-     * @return totaldisk大小的结果
+    * totaldisk大小。
+    * @param dir dir
+    * @return totaldisk大小的结果
      */
     private static long totalDiskSize(Path dir) {
         try {
@@ -266,9 +266,9 @@ public class VectorIOBench {
     }
 
     /**
-     * shard数量。
-     * @param dir dir
-     * @return shard数量的结果
+    * shard数量。
+    * @param dir dir
+    * @return shard数量的结果
      */
     private static int shardCount(Path dir) {
         File[] fs = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
@@ -276,8 +276,8 @@ public class VectorIOBench {
     }
 
     /**
-     * 删除recursively。
-     * @param dir dir
+    * 删除recursively。
+    * @param dir dir
      */
     private static void deleteRecursively(Path dir) {
         try { Files.walk(dir).sorted(Comparator.reverseOrder())

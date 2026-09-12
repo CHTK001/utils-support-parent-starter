@@ -6,66 +6,66 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * SSH 多任务并排进度条，封装 {@link MultiProgressBar} 自动适配 SSH 输出流。
- * <pre>{@code
- * @ShellMethod("batch")
- * public void batch(String[] args, SshCommandResponse res) throws Exception {
- *     SshMultiProgress mp = new SshMultiProgress(res);
- *     mp.add("任务A", 100);
- *     mp.add("任务B", 200);
- *     mp.add("任务C", 50);
- *
- *     for (int i = 0; i <= 100; i++) {
- *         mp.stepBy(0, 1);
- *         if (i % 2 == 0) mp.stepBy(1, 1);
- *         if (i % 5 == 0) mp.stepBy(2, 1);
- *         Thread.sleep(50);
- *     }
- *     mp.close();
- * }
- * }</pre>pBy(2, 1);
- *         Thread.sleep(50);
- *     }
-   * mp.关闭();
- * }
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* SSH 多任务并排进度条，封装 {@link MultiProgressBar} 自动适配 SSH 输出流。
+* <pre>{@code
+* @ShellMethod("batch")
+* public void batch(String[] args, SshCommandResponse res) throws Exception {
+*     SshMultiProgress mp = new SshMultiProgress(res);
+*     mp.add("任务A", 100);
+*     mp.add("任务B", 200);
+*     mp.add("任务C", 50);
+*
+*     for (int i = 0; i <= 100; i++) {
+*         mp.stepBy(0, 1);
+*         if (i % 2 == 0) mp.stepBy(1, 1);
+*         if (i % 5 == 0) mp.stepBy(2, 1);
+*         Thread.sleep(50);
+*     }
+*     mp.close();
+* }
+* }</pre>pBy(2, 1);
+*         Thread.sleep(50);
+*     }
+* mp.关闭();
+* }
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SshMultiProgress implements AutoCloseable {
 
     /**
-     * 响应
+    * 响应
      */
     private final SshCommandResponse response;
     /**
-     * bar Width
+    * bar Width
      */
     private final int barWidth;
     /**
-     * pending
+    * pending
      */
     private final List<TaskDef> pending = new ArrayList<>();
     /**
-     * 委托对象
+    * 委托对象
      */
     private MultiProgressBar delegate;
 
     /**
-     * 创建多任务进度条。
-     *
-     * @param response SSH 响应
+    * 创建多任务进度条。
+    *
+    * @param response SSH 响应
      */
     public SshMultiProgress(SshCommandResponse response) {
         this(response, 80);
     }
 
     /**
-     * 创建多任务进度条。
-     *
-     * @param response SSH 响应
-     * @param barWidth 每个进度条的最大字符宽度
+    * 创建多任务进度条。
+    *
+    * @param response SSH 响应
+    * @param barWidth 每个进度条的最大字符宽度
      */
     public SshMultiProgress(SshCommandResponse response, int barWidth) {
         this.response = response;
@@ -73,21 +73,21 @@ public class SshMultiProgress implements AutoCloseable {
     }
 
     /**
-     * 添加一个任务。
-     *
-     * @param name  任务名称
-     * @param total 总进度
+    * 添加一个任务。
+    *
+    * @param name  任务名称
+    * @param total 总进度
      */
     public void add(@Nonnull String name, long total) {
         pending.add(new TaskDef(name, total));
     }
 
     /**
-     * 指定索引的任务步进指定数量。
-     *
-     * @param index 任务索引
-     * @param n     步进数
-     * @return this
+    * 指定索引的任务步进指定数量。
+    *
+    * @param index 任务索引
+    * @param n     步进数
+    * @return this
      */
     public SshMultiProgress stepBy(int index, long n) {
         lazyInit();
@@ -96,11 +96,11 @@ public class SshMultiProgress implements AutoCloseable {
     }
 
     /**
-     * 指定名称的任务步进指定数量。
-     *
-     * @param name 任务名称
-     * @param n    步进数
-     * @return this
+    * 指定名称的任务步进指定数量。
+    *
+    * @param name 任务名称
+    * @param n    步进数
+    * @return this
      */
     public SshMultiProgress stepBy(@Nonnull String name, long n) {
         lazyInit();
@@ -109,11 +109,11 @@ public class SshMultiProgress implements AutoCloseable {
     }
 
     /**
-     * 指定索引的任务跳转到指定进度。
-     *
-     * @param index 任务索引
-     * @param value 目标进度
-     * @return this
+    * 指定索引的任务跳转到指定进度。
+    *
+    * @param index 任务索引
+    * @param value 目标进度
+    * @return this
      */
     public SshMultiProgress stepTo(int index, long value) {
         lazyInit();
@@ -122,11 +122,11 @@ public class SshMultiProgress implements AutoCloseable {
     }
 
     /**
-     * 指定名称的任务跳转到指定进度。
-     *
-     * @param name  任务名称
-     * @param value 目标进度
-     * @return this
+    * 指定名称的任务跳转到指定进度。
+    *
+    * @param name  任务名称
+    * @param value 目标进度
+    * @return this
      */
     public SshMultiProgress stepTo(@Nonnull String name, long value) {
         lazyInit();

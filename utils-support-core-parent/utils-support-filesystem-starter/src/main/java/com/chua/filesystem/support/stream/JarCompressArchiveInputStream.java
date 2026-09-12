@@ -11,13 +11,13 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
- * JAR格式归档输入流提供者
- * <p>
-   * JAR（Java Arch Linux Linux）格式基于压缩格式，用于Java应用程序打包
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* JAR格式归档输入流提供者
+* <p>
+* JAR（Java Arch Linux Linux）格式基于压缩格式，用于Java应用程序打包
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("jar")
 public class JarCompressArchiveInputStream implements CompressArchiveInputStream {

@@ -3,14 +3,14 @@ package com.chua.common.support.concurrent.lock;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 锁提供者抽象基类
- *
- * <p>提供通用锁方法的默认实现，子类只需实现核心锁逻辑：
- * {@link #doTryLock(int, TimeUnit)}、{@link #doUnlock()}、
- * {@link #doGetName()}、{@link #doGetType()}。
- *
- * @author CH
- * @since 1.0.0
+* 锁提供者抽象基类
+*
+* <p>提供通用锁方法的默认实现，子类只需实现核心锁逻辑：
+* {@link #doTryLock(int, TimeUnit)}、{@link #doUnlock()}、
+* {@link #doGetName()}、{@link #doGetType()}。
+*
+* @author CH
+* @since 1.0.0
  */
 public abstract class AbstractLockProvider implements LockProvider {
 

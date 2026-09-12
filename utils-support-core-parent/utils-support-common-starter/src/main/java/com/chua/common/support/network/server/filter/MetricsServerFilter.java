@@ -16,26 +16,26 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
- * 指标收集过滤器。
- *
- * <p>在过滤器链中拦截每个请求，记录端到端延迟，并按固定周期向回调输出聚合指标。
- * 指标包含：p50 / p75 / p90 / p95 / p99 延迟、QPS、TPS 等。</p>
- *
- * <p>使用方式：</p>
- * <pre>{@code
- * server.addFilter(new MetricsServerFilter(
- *     snapshot -> System.out.println(snapshot),
- *     10
- * ));
- * }</pre>
- *
- * @author CH
- * @since 2026/07/24
+* 指标收集过滤器。
+*
+* <p>在过滤器链中拦截每个请求，记录端到端延迟，并按固定周期向回调输出聚合指标。
+* 指标包含：p50 / p75 / p90 / p95 / p99 延迟、QPS、TPS 等。</p>
+*
+* <p>使用方式：</p>
+* <pre>{@code
+* server.addFilter(new MetricsServerFilter(
+*     snapshot -> System.out.println(snapshot),
+*     10
+* ));
+* }</pre>
+*
+* @author CH
+* @since 2026/07/24
  */
 public class MetricsServerFilter implements ServerFilter {
 
     /**
-     * 指标快照。
+    * 指标快照。
      */
     public static class MetricsSnapshot {
         /** 总数requests */
@@ -66,20 +66,20 @@ public class MetricsServerFilter implements ServerFilter {
         private final long uptimeMs;
 
         /**
-         * 创建 MetricsSnapshot 实例
-         * @param totalRequests totalRequests
-         * @param errorCount errorCount
-         * @param activeRequests activeRequests
-         * @param avgLatencyMs avgLatencyMs
-         * @param maxLatencyMs maxLatencyMs
-         * @param p50Ms p50Ms
-         * @param p75Ms p75Ms
-         * @param p90Ms p90Ms
-         * @param p95Ms p95Ms
-         * @param p99Ms p99Ms
-         * @param qps qps
-         * @param tps tps
-         * @param uptimeMs uptimeMs
+        * 创建 MetricsSnapshot 实例
+        * @param totalRequests totalRequests
+        * @param errorCount errorCount
+        * @param activeRequests activeRequests
+        * @param avgLatencyMs avgLatencyMs
+        * @param maxLatencyMs maxLatencyMs
+        * @param p50Ms p50Ms
+        * @param p75Ms p75Ms
+        * @param p90Ms p90Ms
+        * @param p95Ms p95Ms
+        * @param p99Ms p99Ms
+        * @param qps qps
+        * @param tps tps
+        * @param uptimeMs uptimeMs
          */
         public MetricsSnapshot(long totalRequests, long errorCount, long activeRequests,
                                double avgLatencyMs, long maxLatencyMs,
@@ -149,7 +149,7 @@ public class MetricsServerFilter implements ServerFilter {
     }
 
     /**
-     * 指标回调接口。
+    * 指标回调接口。
      */
     public interface MetricsCallback {
         void onMetrics(MetricsSnapshot snapshot);
@@ -178,10 +178,10 @@ public class MetricsServerFilter implements ServerFilter {
     private volatile long lastPeriodTimestamp;
 
     /**
-     * 创建指标收集过滤器。
-     *
-     * @param callback      指标回调
-     * @param periodSeconds 输出周期（秒）
+    * 创建指标收集过滤器。
+    *
+    * @param callback      指标回调
+    * @param periodSeconds 输出周期（秒）
      */
     public MetricsServerFilter(MetricsCallback callback, int periodSeconds) {
         this.callback = Objects.requireNonNull(callback, "callback must not be null");

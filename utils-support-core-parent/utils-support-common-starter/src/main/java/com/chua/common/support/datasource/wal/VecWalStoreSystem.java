@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 向量存储引擎（基础版）。
+* 向量存储引擎（基础版）。
  */
 public class VecWalStoreSystem implements WalStoreSystem<String> {
 

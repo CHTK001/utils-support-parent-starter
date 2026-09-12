@@ -1,13 +1,13 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * HTTPS/TLS 协议还原器。
- *
- * <p>解析 TLS ClientHello 与 ServerHello，提取 SNI（Server Name Indication）、
-   * ciphersuite 等关键字段。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* HTTPS/TLS 协议还原器。
+*
+* <p>解析 TLS ClientHello 与 ServerHello，提取 SNI（Server Name Indication）、
+* ciphersuite 等关键字段。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -68,10 +68,10 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-      * 从 客户端hello 中提取 SNI。
-     *
-     * @param data TLS 记录字节
-     * @return SNI 域名，若无法提取返回 空
+    * 从 客户端hello 中提取 SNI。
+    *
+    * @param data TLS 记录字节
+    * @return SNI 域名，若无法提取返回 空
      */
     private static String extractSni(byte[] data) {
         try {
@@ -118,10 +118,10 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * TLS 版本号转可读字符串。
-     *
-     * @param version 原始版本号
-     * @return 版本字符串
+    * TLS 版本号转可读字符串。
+    *
+    * @param version 原始版本号
+    * @return 版本字符串
      */
     private static String toVersionString(int version) {
         return switch (version) {
@@ -135,10 +135,10 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-      * TLS 内容类型 编号转可读字符串。
-     *
-     * @param type 原始类型编号
-     * @return 类型字符串
+    * TLS 内容类型 编号转可读字符串。
+    *
+    * @param type 原始类型编号
+    * @return 类型字符串
      */
     private static String toContentTypeString(int type) {
         return switch (type) {

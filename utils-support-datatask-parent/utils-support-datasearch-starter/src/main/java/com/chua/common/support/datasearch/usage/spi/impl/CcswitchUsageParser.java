@@ -12,16 +12,16 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * CC Switch usage parser.
- *
- * <p>CC Switch (github.com/farion1231/cc-switch) is a Tauri desktop manager
-   * for Claude 编码 / Codex / Gemini CLI 提供者. It keeps a sqlite database
- * at {@code ~/.cc-switch/cc-switch.db} whose {@code proxy_request_logs}
-   * table records every routed 请求 (代理 interception 或 CLI 会话
-   * 导入) with 完整 令牌, cost 和 延迟 detail.</p>
- *
- * @author CH
- * @since 4.0.0.42
+* CC Switch usage parser.
+*
+* <p>CC Switch (github.com/farion1231/cc-switch) is a Tauri desktop manager
+* for Claude 编码 / Codex / Gemini CLI 提供者. It keeps a sqlite database
+* at {@code ~/.cc-switch/cc-switch.db} whose {@code proxy_request_logs}
+* table records every routed 请求 (代理 interception 或 CLI 会话
+* 导入) with 完整 令牌, cost 和 延迟 detail.</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("ccswitch")
 public class CcswitchUsageParser extends BaseUsageParser {
@@ -42,9 +42,9 @@ public class CcswitchUsageParser extends BaseUsageParser {
     private static final int HTTP_OK = 200; // HTTP_OK
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "ccswitch"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "ccswitch"}
      */
     @Override
     public String name() {
@@ -52,9 +52,9 @@ public class CcswitchUsageParser extends BaseUsageParser {
     }
 
     /**
-      * 响应式流式入口：通过 sqlitereactorengine 流出请求日志。
-     * @param row row
-     * @return 转为AIusage的结果
+    * 响应式流式入口：通过 sqlitereactorengine 流出请求日志。
+    * @param row row
+    * @return 转为AIusage的结果
      /**
       * 流全部。
       * @return 流全部的结果

@@ -8,10 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * {@link Transactional} 注解的 SPI 拦截器，使 Invoker 的 Proxy 支持事务。
- *
- * @author CH
- * @since 4.0.0.42
+* {@link Transactional} 注解的 SPI 拦截器，使 Invoker 的 Proxy 支持事务。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("org.springframework.transaction.annotation.Transactional")
 public class TransactionalIntercept implements MethodAnnotationIntercept<Transactional> {

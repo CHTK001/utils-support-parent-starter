@@ -9,20 +9,20 @@ import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Gzip 响应压缩过滤器。
- *
- * <p>当客户端请求头包含 {@code Accept-Encoding: gzip} 且响应体大小超过配置阈值时，
- * 对响应体进行 Gzip 压缩。压缩等级和阈值通过 {@link ServerSetting} 控制。</p>
- *
- * <p>仅在 {@link ServerSetting#isGzipEnabled()} 为 true 时生效。</p>
- *
- * @author CH
- * @since 2024/12/20
+* Gzip 响应压缩过滤器。
+*
+* <p>当客户端请求头包含 {@code Accept-Encoding: gzip} 且响应体大小超过配置阈值时，
+* 对响应体进行 Gzip 压缩。压缩等级和阈值通过 {@link ServerSetting} 控制。</p>
+*
+* <p>仅在 {@link ServerSetting#isGzipEnabled()} 为 true 时生效。</p>
+*
+* @author CH
+* @since 2024/12/20
  */
 public class GzipFilter implements ServerFilter {
 
     /**
-     * 服务器配置引用，用于读取 gzip 开关、压缩等级和最小压缩大小。
+    * 服务器配置引用，用于读取 gzip 开关、压缩等级和最小压缩大小。
      */
     private volatile ServerSetting setting;
 

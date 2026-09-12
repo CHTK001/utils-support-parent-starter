@@ -14,23 +14,23 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
-   * Quarkus (micro配置文件 配置) 配置注入器，通过反射处理 {@code @ConfigProperty} 注解的字段和方法参数。
- *
- * <p>不直接依赖 microprofile-config-api 编译 API，所有注解均通过反射按类名检测。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Quarkus (micro配置文件 配置) 配置注入器，通过反射处理 {@code @ConfigProperty} 注解的字段和方法参数。
+*
+* <p>不直接依赖 microprofile-config-api 编译 API，所有注解均通过反射按类名检测。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")
 public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfigInjector {
 
     /**
-      * 配置 财产
+    * 配置 财产
      */
     private static final String CONFIG_PROPERTY = "org.eclipse.microprofile.config.inject.ConfigProperty";
     /**
-     * unconfigured 值
+    * unconfigured 值
      */
     private static final String UNCONFIGURED_VALUE = "org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE";
 
@@ -94,10 +94,10 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     /**
-     * 是否拥有配置财产
-     *
-     * @param annotations 注解
-     * @return 是否包含配置财产的结果
+    * 是否拥有配置财产
+    *
+    * @param annotations 注解
+    * @return 是否包含配置财产的结果
      */
     private boolean hasConfigProperty(Annotation[] annotations) {
         for (Annotation ann : annotations) {
@@ -109,10 +109,10 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     /**
-     * 查找配置财产
-     *
-     * @param annotations 注解
-     * @return find配置财产的结果
+    * 查找配置财产
+    *
+    * @param annotations 注解
+    * @return find配置财产的结果
      */
     private Annotation findConfigProperty(Annotation[] annotations) {
         for (Annotation ann : annotations) {
@@ -124,12 +124,12 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     /**
-     * 解析值
-     *
-     * @param annotation 注解
-     * @param targetType Target类型
-     * @param environment 环境
-     * @return resolve值的结果
+    * 解析值
+    *
+    * @param annotation 注解
+    * @param targetType Target类型
+    * @param environment 环境
+    * @return resolve值的结果
      */
     private Object resolveValue(Annotation annotation, Class<?> targetType, Environment environment) {
         try {

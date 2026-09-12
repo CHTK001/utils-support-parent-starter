@@ -13,42 +13,42 @@ import java.util.Map;
 
 
 /**
-   * BERT-squad
- * <p>
-   * : 令牌_标识, attention_mask, segment_标识
-   * : 启动_logits, 结束_logits
- * <p>
- *          :
- * -        BERT tokenizer                                  
-   * -        令牌_标识, attention_mask, segment_标识
- * <p>
- *          :
-   * -     启动_logits     结束_logits
- * -                   
- *
- * @author CH
- * @since 2025-01-20
+* BERT-squad
+* <p>
+* : 令牌_标识, attention_mask, segment_标识
+* : 启动_logits, 结束_logits
+* <p>
+*          :
+* -        BERT tokenizer                                  
+* -        令牌_标识, attention_mask, segment_标识
+* <p>
+*          :
+* -     启动_logits     结束_logits
+* -                   
+*
+* @author CH
+* @since 2025-01-20
  */
 @Slf4j
 public class BertSquadTranslator implements Translator<Map<String, String>, String> {
 
     /**
-      * BERT-squad
+    * BERT-squad
      */
     private static final int MAX_LENGTH = 384;
 
     /**
-      * BERT [CLS] 令牌 标识
+    * BERT [CLS] 令牌 标识
      */
     private static final int CLS_TOKEN_ID = 101;
 
     /**
-      * BERT [SEP] 令牌 标识
+    * BERT [SEP] 令牌 标识
      */
     private static final int SEP_TOKEN_ID = 102;
 
     /**
-      * BERT [UNK] 令牌 标识
+    * BERT [UNK] 令牌 标识
      */
     private static final int UNK_TOKEN_ID = 100;
 
@@ -152,10 +152,10 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
     }
 
     /**
-      * 令牌 哈希                             BERT vocab
-     *
-     * @param token                   
-     * @return                             BERT vocab 标识
+    * 令牌 哈希                             BERT vocab
+    *
+    * @param token                   
+    * @return                             BERT vocab 标识
      */
     private long hashToken(String token) {
         if (StringUtils.isEmpty(token)) {

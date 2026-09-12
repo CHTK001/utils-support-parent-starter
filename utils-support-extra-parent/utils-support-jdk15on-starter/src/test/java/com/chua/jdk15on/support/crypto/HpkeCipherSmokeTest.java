@@ -10,16 +10,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
-   * HPKE / cipher流 / hpke流 冒烟测试。
- *
- * <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
- * <pre>
- * 运行方式：{@code java com.chua.jdk15on.support.crypto.HpkeCipherSmokeTest}
- * 任一校验失败输出 FAIL 并以退出码 1 结束，全部通过输出 PASS。
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* HPKE / cipher流 / hpke流 冒烟测试。
+*
+* <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
+* <pre>
+* 运行方式：{@code java com.chua.jdk15on.support.crypto.HpkeCipherSmokeTest}
+* 任一校验失败输出 FAIL 并以退出码 1 结束，全部通过输出 PASS。
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HpkeCipherSmokeTest {
 
@@ -30,8 +30,8 @@ public class HpkeCipherSmokeTest {
     private static int passCount = 0;
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) {
         testKeyPair();
@@ -175,10 +175,10 @@ public class HpkeCipherSmokeTest {
     }
 
     /**
-     * 校验并计数
-     *
-     * @param condition 条件
-     * @param message 消息
+    * 校验并计数
+    *
+    * @param condition 条件
+    * @param message 消息
      */
     private static void check(boolean condition, String message) {
         if (condition) {

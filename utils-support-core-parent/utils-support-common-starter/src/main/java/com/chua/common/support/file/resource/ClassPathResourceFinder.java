@@ -28,30 +28,30 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_LEFT_SLASH;
 import static com.chua.common.support.constant.NameConstant.CLASSPATH_URL_PREFIX;
 
 /**
- * {@code classpath:} 协议资源查找器。
- *
- * <p>仅从类加载器中<strong>首个</strong>匹配位置加载资源。当路径含 Ant 通配符时，
- * 在首个匹配的根目录下递归扫描（文件目录使用 NIO {@link Files#walkFileTree}，
- * JAR/WAR/ZIP 归档使用 {@link ZipFile} 遍历条目）。</p>
- *
- * <p>支持 Ant 风格通配符：{@code *}（单层任意）、{@code **}（多层任意）、{@code ?}（单字符）。</p>
- *
- * @author CH
- * @since 1.0.0
+* {@code classpath:} 协议资源查找器。
+*
+* <p>仅从类加载器中<strong>首个</strong>匹配位置加载资源。当路径含 Ant 通配符时，
+* 在首个匹配的根目录下递归扫描（文件目录使用 NIO {@link Files#walkFileTree}，
+* JAR/WAR/ZIP 归档使用 {@link ZipFile} 遍历条目）。</p>
+*
+* <p>支持 Ant 风格通配符：{@code *}（单层任意）、{@code **}（多层任意）、{@code ?}（单字符）。</p>
+*
+* @author CH
+* @since 1.0.0
  */
 @Slf4j
 public class ClassPathResourceFinder extends AbstractResourceFinder {
 
 
     /**
-     * 文件树遍历默认最大深度。
+    * 文件树遍历默认最大深度。
      */
     private static final int DEFAULT_MAX_DEPTH = 128;
 
     /**
-     * 使用指定配置构造查找器。
-     *
-     * @param configuration 查找配置
+    * 使用指定配置构造查找器。
+    *
+    * @param configuration 查找配置
      */
     public ClassPathResourceFinder(ResourceConfiguration configuration) {
         super(configuration);
@@ -68,10 +68,10 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-     * 按通配符模式在首个类路径根下查找匹配资源。
-     *
-     * @param name 含 {@code classpath:} 前缀的完整模式
-     * @return 匹配资源集合
+    * 按通配符模式在首个类路径根下查找匹配资源。
+    *
+    * @param name 含 {@code classpath:} 前缀的完整模式
+    * @return 匹配资源集合
      */
     private Set<Resource> findPathMatchingResources(String name) {
         Set<Resource> result = ConcurrentHashMap.newKeySet();
@@ -93,12 +93,12 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-     * 遍历根资源集合，按 JAR/目录分别匹配通配子路径。
-     *
-     * @param resources    根资源集合
-     * @param name         完整模式（用于日志）
-     * @param subPath      通配子路径
-     * @param result       匹配结果收集集合
+    * 遍历根资源集合，按 JAR/目录分别匹配通配子路径。
+    *
+    * @param resources    根资源集合
+    * @param name         完整模式（用于日志）
+    * @param subPath      通配子路径
+    * @param result       匹配结果收集集合
      */
     private void analysisResources(Set<Resource> resources, String name, String subPath, Set<Resource> result) {
         long startTime = System.currentTimeMillis();
@@ -143,12 +143,12 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-     * 在 JAR 归档中匹配通配子路径。
-     *
-     * @param url          JAR URL
-     * @param subPath      通配子路径
-     * @param result       匹配结果收集集合
-     * @param scannedCount 已扫描计数器
+    * 在 JAR 归档中匹配通配子路径。
+    *
+    * @param url          JAR URL
+    * @param subPath      通配子路径
+    * @param result       匹配结果收集集合
+    * @param scannedCount 已扫描计数器
      */
     private void doFindPathMatchingJarResources(URL url, String subPath, Set<Resource> result,
                                                 AtomicLong scannedCount) {
@@ -213,12 +213,12 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-     * 在文件目录下使用 NIO 文件树遍历匹配通配子路径。
-     *
-     * @param matcherPath  通配子路径
-     * @param rootDir      根目录
-     * @param result       匹配结果收集集合
-     * @param scannedCount 已扫描计数器
+    * 在文件目录下使用 NIO 文件树遍历匹配通配子路径。
+    *
+    * @param matcherPath  通配子路径
+    * @param rootDir      根目录
+    * @param result       匹配结果收集集合
+    * @param scannedCount 已扫描计数器
      */
     private void doFindPathMatchingResources(String matcherPath, File rootDir, Set<Resource> result,
                                              AtomicLong scannedCount) {
@@ -240,10 +240,10 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-     * 根据通配模式计算最大遍历深度。
-     *
-     * @param matchPath 通配模式
-     * @return 最大深度
+    * 根据通配模式计算最大遍历深度。
+    *
+    * @param matchPath 通配模式
+    * @return 最大深度
      */
     private int calculateMaxDepth(String matchPath) {
         if (StringUtils.isEmpty(matchPath)) {
@@ -256,10 +256,10 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-     * 定位单个类路径资源（无通配符场景）。
-     *
-     * @param name 含 {@code classpath:} 前缀的完整路径
-     * @return 单元素集合，未找到时为空集合
+    * 定位单个类路径资源（无通配符场景）。
+    *
+    * @param name 含 {@code classpath:} 前缀的完整路径
+    * @return 单元素集合，未找到时为空集合
      */
     private Set<Resource> findAllClassPathResources(String name) {
         String path = name.substring(CLASSPATH_URL_PREFIX.length()).trim();
@@ -274,14 +274,14 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-     * NIO 文件树访问器，按完整模式匹配文件并收集命中结果。
+    * NIO 文件树访问器，按完整模式匹配文件并收集命中结果。
      */
     private class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
 
         /** 完整匹配模式 */
         private final String fullPattern;
         /**
-         * 结果
+        * 结果
          */
         private final Set<Resource> result;
         /** 已扫描计数 */

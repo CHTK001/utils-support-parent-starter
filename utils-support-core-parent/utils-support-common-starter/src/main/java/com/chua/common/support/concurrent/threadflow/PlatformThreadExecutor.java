@@ -8,39 +8,39 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于平台线程池的执行器。
- *
- * <p>使用 {@link Executors#newCachedThreadPool()} 作为默认线程池，
- * 也支持用户传入自定义 {@link ExecutorService}。</p>
- *
- * @author CH
- * @since 2026/08/15
+* 基于平台线程池的执行器。
+*
+* <p>使用 {@link Executors#newCachedThreadPool()} 作为默认线程池，
+* 也支持用户传入自定义 {@link ExecutorService}。</p>
+*
+* @author CH
+* @since 2026/08/15
  */
 public class PlatformThreadExecutor extends AbstractThreadExecutor {
 
     /**
-     * 线程池实例
+    * 线程池实例
      */
     private final ExecutorService executor;
 
     /**
-     * 创建 PlatformThreadExecutor 实例
-     * @param strategy strategy
-     * @param int int
-     * @param long long
-     * @param TimeUnit TimeUnit
+    * 创建 PlatformThreadExecutor 实例
+    * @param strategy strategy
+    * @param int int
+    * @param long long
+    * @param TimeUnit TimeUnit
      */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1, ThreadUtils.newCachedThreadPool("platform-thread-executor"));
     }
 
     /**
-     * 创建 PlatformThreadExecutor 实例
-     * @param strategy strategy
-     * @param threshold threshold
-     * @param timeout timeout
-     * @param timeUnit timeUnit
-     * @param maxConcurrent maxConcurrent
+    * 创建 PlatformThreadExecutor 实例
+    * @param strategy strategy
+    * @param threshold threshold
+    * @param timeout timeout
+    * @param timeUnit timeUnit
+    * @param maxConcurrent maxConcurrent
      */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent) {
@@ -48,13 +48,13 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
     }
 
     /**
-     * 创建 PlatformThreadExecutor 实例
-     * @param strategy strategy
-     * @param threshold threshold
-     * @param timeout timeout
-     * @param timeUnit timeUnit
-     * @param maxConcurrent maxConcurrent
-     * @param executor executor
+    * 创建 PlatformThreadExecutor 实例
+    * @param strategy strategy
+    * @param threshold threshold
+    * @param timeout timeout
+    * @param timeUnit timeUnit
+    * @param maxConcurrent maxConcurrent
+    * @param executor executor
      */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent, ExecutorService executor) {

@@ -17,33 +17,33 @@ import javax.annotation.Nullable;
 
 
 /**
- * 高斯模糊图像滤镜
- *
- * 实现高斯模糊效果的图像滤镜，通过应用高斯核函数对图像进行卷积运算，
- * 产生平滑的模糊效果。支持多线程并行处理以提高性能。
- *
- * 技术原理：
- * - 基于高斯分布函数生成卷积核
- * - 分别进行水平和垂直方向的一维卷积
- * - 使用可分离卷积提高计算效率
- * - 多线程并行处理RGB三个颜色通道
- *
- * 算法特点：
- * - 可调节模糊强度（sigma参数）
- * - 自适应核大小计算
- * - 边界像素处理
- * - 内存优化的实现方式
- *
- * 应用场景：
- * - 图像降噪：去除图像中的高频噪声
- * - 艺术效果：创建柔和、梦幻的视觉效果
- * - 背景虚化：突出主体，模糊背景
- * - 图像预处理：为后续处理准备平滑的图像
- * - 缩略图生成：减少细节以适应小尺寸显示
- *
- * @author CH
-   * @版本 1.0.0
- * @since 4.0.0.42
+* 高斯模糊图像滤镜
+*
+* 实现高斯模糊效果的图像滤镜，通过应用高斯核函数对图像进行卷积运算，
+* 产生平滑的模糊效果。支持多线程并行处理以提高性能。
+*
+* 技术原理：
+* - 基于高斯分布函数生成卷积核
+* - 分别进行水平和垂直方向的一维卷积
+* - 使用可分离卷积提高计算效率
+* - 多线程并行处理RGB三个颜色通道
+*
+* 算法特点：
+* - 可调节模糊强度（sigma参数）
+* - 自适应核大小计算
+* - 边界像素处理
+* - 内存优化的实现方式
+*
+* 应用场景：
+* - 图像降噪：去除图像中的高频噪声
+* - 艺术效果：创建柔和、梦幻的视觉效果
+* - 背景虚化：突出主体，模糊背景
+* - 图像预处理：为后续处理准备平滑的图像
+* - 缩略图生成：减少细节以适应小尺寸显示
+*
+* @author CH
+* @版本 1.0.0
+* @since 4.0.0.42
  */
 @Slf4j
 @SpiDescribe("高斯模糊滤镜")
@@ -52,12 +52,12 @@ import javax.annotation.Nullable;
 public class ImageGaussianBlurFilter extends AbstractImageFilter {
 
     /**
-     * 高斯卷积核数组
+    * 高斯卷积核数组
      */
     private float[] kernel = new float[0];
 
     /**
-     * 高斯分布的标准差，控制模糊程度
+    * 高斯分布的标准差，控制模糊程度
      */
     private double sigma = 2;
 
@@ -68,10 +68,10 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     CompletionService<Void> service;
 
     /**
-     * 构造函数，使用自定义的卷积核和标准差
-     *
-     * @param kernel 高斯卷积核数组
-     * @param sigma  高斯分布的标准差
+    * 构造函数，使用自定义的卷积核和标准差
+    *
+    * @param kernel 高斯卷积核数组
+    * @param sigma  高斯分布的标准差
      */
     public ImageGaussianBlurFilter(float[] kernel, double sigma) {
         this.kernel = kernel;
@@ -79,15 +79,15 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     }
 
     /**
-     * 执行一维高斯模糊卷积
-     *
-     * 对图像的一个颜色通道进行一维高斯卷积运算。通过分离的水平垂直卷积
-     * 来实现二维高斯模糊，这种方法比直接二维卷积更高效。
-     *
-     * @param inPixels  输入像素数据数组
-     * @param outPixels 输出像素数据数组
-     * @param width     图像宽度
-     * @param height    图像高度
+    * 执行一维高斯模糊卷积
+    *
+    * 对图像的一个颜色通道进行一维高斯卷积运算。通过分离的水平垂直卷积
+    * 来实现二维高斯模糊，这种方法比直接二维卷积更高效。
+    *
+    * @param inPixels  输入像素数据数组
+    * @param outPixels 输出像素数据数组
+    * @param width     图像宽度
+    * @param height    图像高度
      */
     private void blur(byte[] inPixels, byte[] outPixels, int width, int height) {
         int subCol = 0;
@@ -126,14 +126,14 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
     }
 
     /**
-     * 执行高斯模糊滤镜处理
-     *
-     * 对输入图像应用高斯模糊效果。使用多线程并行处理RGB三个颜色通道，
-     * 先进行水平方向的模糊，再进行垂直方向的模糊，实现完整的二维高斯模糊。
-     *
-     * @param src 源图像
-     * @param dst 目标图像（此参数未使用）
-     * @return 应用高斯模糊后的图像
+    * 执行高斯模糊滤镜处理
+    *
+    * 对输入图像应用高斯模糊效果。使用多线程并行处理RGB三个颜色通道，
+    * 先进行水平方向的模糊，再进行垂直方向的模糊，实现完整的二维高斯模糊。
+    *
+    * @param src 源图像
+    * @param dst 目标图像（此参数未使用）
+    * @return 应用高斯模糊后的图像
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
@@ -188,14 +188,14 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
 
 
     /**
-     * 生成高斯卷积核
-     *
-     * 根据给定的标准差和精度要求生成一维高斯卷积核。
-     * 卷积核的大小会根据标准差自动计算，确保在指定精度下的高斯分布近似。
-     *
-     * @param sigma     高斯分布的标准差，控制模糊程度
-     * @param accuracy  精度要求，确定卷积核的截断点
-     * @param maxRadius 最大卷积核半径，防止卷积核过大
+    * 生成高斯卷积核
+    *
+    * 根据给定的标准差和精度要求生成一维高斯卷积核。
+    * 卷积核的大小会根据标准差自动计算，确保在指定精度下的高斯分布近似。
+    *
+    * @param sigma     高斯分布的标准差，控制模糊程度
+    * @param accuracy  精度要求，确定卷积核的截断点
+    * @param maxRadius 最大卷积核半径，防止卷积核过大
      */
     public void makeGaussianKernel(final double sigma, final double accuracy, int maxRadius) {
         // 根据精度要求计算卷积核半径

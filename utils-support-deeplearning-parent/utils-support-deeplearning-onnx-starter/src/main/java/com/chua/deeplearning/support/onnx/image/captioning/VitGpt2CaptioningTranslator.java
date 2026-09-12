@@ -19,75 +19,75 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * vit-GPT2 图像描述（镜像 Captioning）Translator。
- *
- * <p>基于 modelscope {@code Xenova/vit-gpt2-image-captioning}：ViT 图像编码器 +
- * GPT-2 文本解码器。输入图像字节，输出图像的文字描述。</p>
- *
- * <p>流程：图像 → resize/normalize → encoder（ViT）→ last_hidden_state →
-   * 解码器（GPT-2）自回归生成 → 令牌 序列 → 文本。</p>
- *
- * <p>encoder 模型打包在 jar（vision/captioning/vit-gpt2/encoder_model_quantized.onnx）；
-   * 解码器 模型较大（~151MB）通过 模型registry 自动下载或本地路径提供。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* vit-GPT2 图像描述（镜像 Captioning）Translator。
+*
+* <p>基于 modelscope {@code Xenova/vit-gpt2-image-captioning}：ViT 图像编码器 +
+* GPT-2 文本解码器。输入图像字节，输出图像的文字描述。</p>
+*
+* <p>流程：图像 → resize/normalize → encoder（ViT）→ last_hidden_state →
+* 解码器（GPT-2）自回归生成 → 令牌 序列 → 文本。</p>
+*
+* <p>encoder 模型打包在 jar（vision/captioning/vit-gpt2/encoder_model_quantized.onnx）；
+* 解码器 模型较大（~151MB）通过 模型registry 自动下载或本地路径提供。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> {
 
     /**
-     * 模型名称
+    * 模型名称
      */
     private static final String NAME = "vit-gpt2-captioning";
 
     /**
-      * 输入图像尺寸（vit-基础 224）
+    * 输入图像尺寸（vit-基础 224）
      */
     private static final int IMAGE_SIZE = 224;
 
     /**
-      * 图像均值（镜像net）
+    * 图像均值（镜像net）
      */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
-      * 图像标准差（镜像net）
+    * 图像标准差（镜像net）
      */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
-     * 最大生成长度
+    * 最大生成长度
      */
     private static final int MAX_NEW_TOKENS = 40;
 
     /**
-      * GPT-2 EOS 令牌 标识
+    * GPT-2 EOS 令牌 标识
      */
     private static final long EOS_ID = 50256L;
 
     /**
-      * GPT-2 BOS 起始 令牌 标识
+    * GPT-2 BOS 起始 令牌 标识
      */
     private static final long BOS_ID = 0L;
 
     /**
-      * 类路径 资源根路径
+    * 类路径 资源根路径
      */
     private static final String RESOURCE_BASE = "vision/captioning/vit-gpt2/";
 
     /**
-      * 编码器 模型文件名
+    * 编码器 模型文件名
      */
     private static final String ENCODER_FILE = "encoder_model_quantized.onnx";
 
     /**
-      * 解码器 模型文件名
+    * 解码器 模型文件名
      */
     private static final String DECODER_FILE = "decoder_model_quantized.onnx";
 
     /**
-     * 缓存根目录
+    * 缓存根目录
      */
     private static final String CACHE_ROOT = "vision/captioning/vit-gpt2/";
 
@@ -105,16 +105,16 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     private volatile boolean prepared;
 
     /**
-     * 构造图像描述翻译器。
+    * 构造图像描述翻译器。
      */
     public VitGpt2CaptioningTranslator() {
     }
 
     /**
-     * 准备模型（懒加载）。
-     *
-     * @param decoderModelPath 解码器 模型路径（本地或远程缓存），空 时尝试从 模型registry 解析
-     * @throws Exception 准备异常
+    * 准备模型（懒加载）。
+    *
+    * @param decoderModelPath 解码器 模型路径（本地或远程缓存），空 时尝试从 模型registry 解析
+    * @throws Exception 准备异常
      */
     private synchronized void prepare(Path decoderModelPath) throws Exception {
         if (prepared) {
@@ -153,10 +153,10 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
-     * 未配置时回落 {@code %TEMP%}。
-     *
-     * @return 缓存根目录
+    * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+    * 未配置时回落 {@code %TEMP%}。
+    *
+    * @return 缓存根目录
      */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
@@ -164,11 +164,11 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-      * 解析 解码器 模型路径。
-     *
-     * @param configured 配置路径
-     * @param modelDir   缓存目录
-     * @return decoder 路径
+    * 解析 解码器 模型路径。
+    *
+    * @param configured 配置路径
+    * @param modelDir   缓存目录
+    * @return decoder 路径
      */
     private static Path resolveDecoder(Path configured, Path modelDir) {
         if (configured != null && Files.exists(configured)) {
@@ -191,11 +191,11 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-     * 生成图像描述。
-     *
-     * @param imageData      图像字节
-     * @param decoderModelPath 解码器 模型路径（可为 空）
-     * @return 图像描述文本
+    * 生成图像描述。
+    *
+    * @param imageData      图像字节
+    * @param decoderModelPath 解码器 模型路径（可为 空）
+    * @return 图像描述文本
      */
     public String caption(byte[] imageData, Path decoderModelPath) {
         try {
@@ -224,11 +224,11 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-      * 编码器 推理：图像 → 最后一个_hidden_状态。
-     *
-     * @param imageData 图像字节
-     * @return hidden 状态，行 = 令牌，列 = 768
-     * @throws Exception 推理异常
+    * 编码器 推理：图像 → 最后一个_hidden_状态。
+    *
+    * @param imageData 图像字节
+    * @return hidden 状态，行 = 令牌，列 = 768
+    * @throws Exception 推理异常
      */
     private float[][] inferEncoder(byte[] imageData) throws Exception {
         float[] pixels = preprocessImage(imageData);
@@ -252,14 +252,14 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-     * 图像预处理：解码 → resize → CHW → normalize。
-     *
-     * <p>使用 Java2D 缩放图像（避免依赖 DJL NDManager 引擎），
-     * 输出 [3, 224, 224] 归一化像素（RGB 顺序）。</p>
-     *
-     * @param imageData 图像字节
-     * @return 归一化像素 [3, 224, 224]
-     * @throws Exception 预处理异常
+    * 图像预处理：解码 → resize → CHW → normalize。
+    *
+    * <p>使用 Java2D 缩放图像（避免依赖 DJL NDManager 引擎），
+    * 输出 [3, 224, 224] 归一化像素（RGB 顺序）。</p>
+    *
+    * @param imageData 图像字节
+    * @return 归一化像素 [3, 224, 224]
+    * @throws Exception 预处理异常
      */
     private float[] preprocessImage(byte[] imageData) throws Exception {
  // 加载 打开cv 原生库（openpnp）
@@ -293,11 +293,11 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-      * 解码器 自回归生成。
-     *
-     * @param encoderHidden 编码器 hidden 状态（行 = 令牌）
-     * @return 生成的文本
-     * @throws Exception 生成异常
+    * 解码器 自回归生成。
+    *
+    * @param encoderHidden 编码器 hidden 状态（行 = 令牌）
+    * @return 生成的文本
+    * @throws Exception 生成异常
      */
     private String generate(float[][] encoderHidden) throws Exception {
         int seqLen = encoderHidden.length;
@@ -351,12 +351,12 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-      * argmax 取最大概率 令牌。
-     *
-     * @param logits   全部分数
-     * @param offset   起始偏移
-     * @param vocabSize 词表大小
-     * @return token 标识
+    * argmax 取最大概率 令牌。
+    *
+    * @param logits   全部分数
+    * @param offset   起始偏移
+    * @param vocabSize 词表大小
+    * @return token 标识
      */
     private static int argmax(float[] logits, int offset, int vocabSize) {
         int maxIdx = 0;
@@ -372,7 +372,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     /**
-     * 关闭资源。
+    * 关闭资源。
      */
     public void close() {
         if (encoderSession != null) {

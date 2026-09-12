@@ -11,13 +11,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 基于 JDK NIO SocketChannel 的 TCP 长度帧客户端实现。
- *
- * <p>每个实例维护独立的虚拟线程池,每次 {@link #call} 通过池提交连接任务,
- * 一个连接一个虚拟线程,线程用完即回收,无连接池管理开销。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 JDK NIO SocketChannel 的 TCP 长度帧客户端实现。
+*
+* <p>每个实例维护独立的虚拟线程池,每次 {@link #call} 通过池提交连接任务,
+* 一个连接一个虚拟线程,线程用完即回收,无连接池管理开销。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("jdk-tcp")

@@ -10,50 +10,50 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 轻量级原始 Map 封装
- *
- * <p>内部持有 {@code Map<String, Object>}，实现标准 Map 接口，
- * 同时提供类型安全的取值方法（基于 Converter 转换）。
- * 适用于协议解析结果、配置参数、JSON 反序列化等场景。
- *
- * <h3>嵌套取值</h3>
- * <pre>
- *   get("a.b.c")   → 精确匹配优先，找不到则嵌套穿透
- *   getDot("a.b.c") → 强制嵌套穿透
- * </pre>
- *
- * <h3>使用示例</h3>
- * <pre>{@code
- *   LiteRawMap map = LiteRawMap.of(rawMap);
- *
- *   // 类型安全取值（基于 Converter）
- *   String name = map.getString("name");
- *   int age = map.getInt("age", 0);
- *   boolean active = map.getBoolean("active", false);
- *
- *   // 嵌套取值
- *   String city = (String) map.getDot("address.city");
- *
- *   // 扁平化
- *   Map<String, Object> flat = map.flatten();
- * }</pre>
- *
- * @author CH
- * @since 2026/07/17
+* 轻量级原始 Map 封装
+*
+* <p>内部持有 {@code Map<String, Object>}，实现标准 Map 接口，
+* 同时提供类型安全的取值方法（基于 Converter 转换）。
+* 适用于协议解析结果、配置参数、JSON 反序列化等场景。
+*
+* <h3>嵌套取值</h3>
+* <pre>
+*   get("a.b.c")   → 精确匹配优先，找不到则嵌套穿透
+*   getDot("a.b.c") → 强制嵌套穿透
+* </pre>
+*
+* <h3>使用示例</h3>
+* <pre>{@code
+*   LiteRawMap map = LiteRawMap.of(rawMap);
+*
+*   // 类型安全取值（基于 Converter）
+*   String name = map.getString("name");
+*   int age = map.getInt("age", 0);
+*   boolean active = map.getBoolean("active", false);
+*
+*   // 嵌套取值
+*   String city = (String) map.getDot("address.city");
+*
+*   // 扁平化
+*   Map<String, Object> flat = map.flatten();
+* }</pre>
+*
+* @author CH
+* @since 2026/07/17
  */
 @SuppressWarnings("unchecked")
 public class LiteRawMap implements Map<String, Object> {
 
     /**
-     * 内部存储的 Map 数据
+    * 内部存储的 Map 数据
      */
     private final Map<String, Object> delegate;
 
     /**
-     * 从原始 Map 创建 LiteRawMap
-     *
-     * @param map 原始 Map 数据
-     * @return LiteRawMap 实例
+    * 从原始 Map 创建 LiteRawMap
+    *
+    * @param map 原始 Map 数据
+    * @return LiteRawMap 实例
      */
     public static LiteRawMap of(Map<String, Object> map) {
         if (map instanceof LiteRawMap lrm) {
@@ -63,18 +63,18 @@ public class LiteRawMap implements Map<String, Object> {
     }
 
     /**
-     * 创建空的 LiteRawMap
-     *
-     * @return 空的 LiteRawMap 实例
+    * 创建空的 LiteRawMap
+    *
+    * @return 空的 LiteRawMap 实例
      */
     public static LiteRawMap create() {
         return new LiteRawMap(new LinkedHashMap<>());
     }
 
     /**
-     * 构造方法
-     *
-     * @param delegate 内部存储的 Map
+    * 构造方法
+    *
+    * @param delegate 内部存储的 Map
      */
     private LiteRawMap(Map<String, Object> delegate) {
         this.delegate = delegate;
@@ -83,13 +83,13 @@ public class LiteRawMap implements Map<String, Object> {
     // ==================== 嵌套取值 ====================
 
     /**
-     * 嵌套取值（强制穿透）
-     *
-     * <p>按点号分隔路径，逐级穿透嵌套 Map。
-     * 例：getDot("a.b.c") → delegate["a"]["b"]["c"]
-     *
-     * @param dotPath 点号分隔的路径
-     * @return 对应的值，路径不存在则返回 null
+    * 嵌套取值（强制穿透）
+    *
+    * <p>按点号分隔路径，逐级穿透嵌套 Map。
+    * 例：getDot("a.b.c") → delegate["a"]["b"]["c"]
+    *
+    * @param dotPath 点号分隔的路径
+    * @return 对应的值，路径不存在则返回 null
      */
     public Object getDot(String dotPath) {
         String[] parts = dotPath.split("\\.");
@@ -105,11 +105,11 @@ public class LiteRawMap implements Map<String, Object> {
     }
 
     /**
-     * 嵌套取值（类型安全）
-     *
-     * @param dotPath 点号分隔的路径
-     * @param type    目标类型
-     * @return 转换后的值
+    * 嵌套取值（类型安全）
+    *
+    * @param dotPath 点号分隔的路径
+    * @param type    目标类型
+    * @return 转换后的值
      */
     public <T> T getDot(String dotPath, Class<T> type) {
         Object val = getDot(dotPath);
@@ -125,75 +125,75 @@ public class LiteRawMap implements Map<String, Object> {
     // ==================== 类型安全取值（基于 Converter） ====================
 
     /**
-     * 获取字符串值
-     *
-     * @param key 属性键
-     * @return 字符串值，不存在则返回 null
+    * 获取字符串值
+    *
+    * @param key 属性键
+    * @return 字符串值，不存在则返回 null
      */
     public String getString(String key) {
         return Converter.convertIfNecessary(get(key), String.class);
     }
 
     /**
-     * 获取字符串值（带默认值）
-     *
-     * @param key 属性键
-     * @param def 默认值
-     * @return 字符串值或默认值
+    * 获取字符串值（带默认值）
+    *
+    * @param key 属性键
+    * @param def 默认值
+    * @return 字符串值或默认值
      */
     public String getString(String key, String def) {
         return Converter.convertIfNecessary(get(key), String.class, def);
     }
 
     /**
-     * 获取整数值（带默认值）
-     *
-     * @param key 属性键
-     * @param def 默认值
-     * @return 整数值或默认值
+    * 获取整数值（带默认值）
+    *
+    * @param key 属性键
+    * @param def 默认值
+    * @return 整数值或默认值
      */
     public int getInt(String key, int def) {
         return Converter.convertIfNecessary(get(key), Integer.class, def);
     }
 
     /**
-     * 获取长整型值（带默认值）
-     *
-     * @param key 属性键
-     * @param def 默认值
-     * @return 长整型值或默认值
+    * 获取长整型值（带默认值）
+    *
+    * @param key 属性键
+    * @param def 默认值
+    * @return 长整型值或默认值
      */
     public long getLong(String key, long def) {
         return Converter.convertIfNecessary(get(key), Long.class, def);
     }
 
     /**
-     * 获取双精度值（带默认值）
-     *
-     * @param key 属性键
-     * @param def 默认值
-     * @return 双精度值或默认值
+    * 获取双精度值（带默认值）
+    *
+    * @param key 属性键
+    * @param def 默认值
+    * @return 双精度值或默认值
      */
     public double getDouble(String key, double def) {
         return Converter.convertIfNecessary(get(key), Double.class, def);
     }
 
     /**
-     * 获取布尔值（带默认值）
-     *
-     * @param key 属性键
-     * @param def 默认值
-     * @return 布尔值或默认值
+    * 获取布尔值（带默认值）
+    *
+    * @param key 属性键
+    * @param def 默认值
+    * @return 布尔值或默认值
      */
     public boolean getBoolean(String key, boolean def) {
         return Converter.convertIfNecessary(get(key), Boolean.class, def);
     }
 
     /**
-     * 获取 BigDecimal 值
-     *
-     * @param key 属性键
-     * @return BigDecimal 值，不存在则返回 null
+    * 获取 BigDecimal 值
+    *
+    * @param key 属性键
+    * @return BigDecimal 值，不存在则返回 null
      */
     public BigDecimal getBigDecimal(String key) {
         return Converter.convertIfNecessary(get(key), BigDecimal.class);
@@ -202,10 +202,10 @@ public class LiteRawMap implements Map<String, Object> {
     // ==================== 泛型取值 ====================
 
     /**
-     * 获取 List 值
-     *
-     * @param key 属性键
-     * @return List 值，不存在则返回 null
+    * 获取 List 值
+    *
+    * @param key 属性键
+    * @return List 值，不存在则返回 null
      */
     public <T> List<T> getList(String key) {
         Object val = delegate.get(key);
@@ -216,10 +216,10 @@ public class LiteRawMap implements Map<String, Object> {
     }
 
     /**
-     * 获取嵌套 Map 值
-     *
-     * @param key 属性键
-     * @return 嵌套 Map，不存在则返回 null
+    * 获取嵌套 Map 值
+    *
+    * @param key 属性键
+    * @return 嵌套 Map，不存在则返回 null
      */
     public Map<String, Object> getMap(String key) {
         Object val = delegate.get(key);
@@ -232,12 +232,12 @@ public class LiteRawMap implements Map<String, Object> {
     // ==================== 扁平化 ====================
 
     /**
-     * 扁平化嵌套 Map
-     *
-     * <p>将多层嵌套的 Map 展开为点号分隔的扁平结构。
-     * 例：{server: {port: 8080}} → {"server.port": 8080}
-     *
-     * @return 扁平化后的 Map
+    * 扁平化嵌套 Map
+    *
+    * <p>将多层嵌套的 Map 展开为点号分隔的扁平结构。
+    * 例：{server: {port: 8080}} → {"server.port": 8080}
+    *
+    * @return 扁平化后的 Map
      */
     public Map<String, Object> flatten() {
         Map<String, Object> result = new LinkedHashMap<>();
@@ -246,7 +246,7 @@ public class LiteRawMap implements Map<String, Object> {
     }
 
     /**
-     * 递归扁平化
+    * 递归扁平化
      */
     private void flattenInternal(Map<String, ?> map, String prefix, Map<String, Object> result) {
         for (Map.Entry<String, ?> entry : map.entrySet()) {

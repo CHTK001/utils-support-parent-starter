@@ -12,10 +12,10 @@ import javax.annotation.Nullable;
 
 
 /**
- * 水印
- *
- * @author CH
- * @since 4.0.0
+* 水印
+*
+* @author CH
+* @since 4.0.0
  */
 @SpiIgnore
 public class TextWaterImageFilter extends AbstractImageFilter {
@@ -37,17 +37,17 @@ public class TextWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
      */
     public TextWaterImageFilter(String text) {
         this(text, Position.RIGHT_BOTTOM, DEFAULT_FONT, DEFAULT_FONT_SIZE);
     }
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param position 位置
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param position 位置
      */
     public TextWaterImageFilter(String text, Position position) {
         this(text, position, DEFAULT_FONT, DEFAULT_FONT_SIZE);
@@ -55,28 +55,28 @@ public class TextWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param font font
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param font font
      */
     public TextWaterImageFilter(String text, Font font) {
         this(text, Position.RIGHT_BOTTOM, font, DEFAULT_FONT_SIZE);
     }
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param color color
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param color color
      */
     public TextWaterImageFilter(String text, Color color) {
         this(text, Position.RIGHT_BOTTOM, DEFAULT_FONT, DEFAULT_FONT_SIZE, color);
     }
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param font font
-     * @param color color
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param font font
+    * @param color color
      */
     public TextWaterImageFilter(String text, Font font, Color color) {
         this(text, Position.RIGHT_BOTTOM, font, DEFAULT_FONT_SIZE, color);
@@ -84,32 +84,32 @@ public class TextWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param position 位置
-     * @param font font
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param position 位置
+    * @param font font
      */
     public TextWaterImageFilter(String text, Position position, Font font) {
         this(text, position, font, DEFAULT_FONT_SIZE);
     }
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param position 位置
-     * @param font font
-     * @param color color
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param position 位置
+    * @param font font
+    * @param color color
      */
     public TextWaterImageFilter(String text, Position position, Font font, Color color) {
         this(text, position, font, DEFAULT_FONT_SIZE, color);
     }
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param position 位置
-     * @param font font
-     * @param fontSize font大小
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param position 位置
+    * @param font font
+    * @param fontSize font大小
      */
     public TextWaterImageFilter(String text, Position position, Font font, int fontSize) {
         this.text = text;
@@ -119,12 +119,12 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-      * 创建 文本水镜像过滤器 实例
-     * @param text 文本
-     * @param position 位置
-     * @param font font
-     * @param fontSize font大小
-     * @param color color
+    * 创建 文本水镜像过滤器 实例
+    * @param text 文本
+    * @param position 位置
+    * @param font font
+    * @param fontSize font大小
+    * @param color color
      */
     public TextWaterImageFilter(String text, Position position, Font font, int fontSize, Color color) {
         this.text = text;
@@ -135,13 +135,13 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 获取字符串占用的宽度
-     * <br>
-     *
-     * @param str      字符串
-     * @param fontSize 文字大小
-     * @return 字符串占用的宽度
-     * @author Shendi <a href='tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=1711680493'>QQ</a>
+    * 获取字符串占用的宽度
+    * <br>
+    *
+    * @param str      字符串
+    * @param fontSize 文字大小
+    * @return 字符串占用的宽度
+    * @author Shendi <a href='tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=1711680493'>QQ</a>
      */
     public static int getStrWidth(String str, int fontSize) {
         char[] chars = str.toCharArray();
@@ -172,11 +172,11 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 水过滤
-     *
-     * @param src src
-     * @param dst dst
-     * @return 水过滤器的结果
+    * 水过滤
+    *
+    * @param src src
+    * @param dst dst
+    * @return 水过滤器的结果
      */
     private BufferedImage waterFilter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth(), h = src.getHeight();
@@ -198,12 +198,12 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /***
-     * 图片位置定位计算
-     * @param g 图像
-     * @param text 文本
-     * @param width 宽
-     * @param height 高
-     * @param direction 位置
+    * 图片位置定位计算
+    * @param g 图像
+    * @param text 文本
+    * @param width 宽
+    * @param height 高
+    * @param direction 位置
      */
     private void imageCountProcess(Graphics2D g, String text, int width, int height, Position direction) {
  // 降低_RIGHT

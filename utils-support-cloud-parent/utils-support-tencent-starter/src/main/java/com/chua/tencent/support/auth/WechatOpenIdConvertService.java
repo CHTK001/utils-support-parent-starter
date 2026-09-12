@@ -20,13 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 小程序openid到公众号openid转换服务实现
- * <p>
- * 基于微信开放平台第三方平台API（getuservector），实现小程序openid到公众号openid的转换。
- * 前提条件：小程序和公众号均已绑定到同一个微信开放平台第三方平台。
- *
- * @author CH
- * @since 4.0.0.42
+* 小程序openid到公众号openid转换服务实现
+* <p>
+* 基于微信开放平台第三方平台API（getuservector），实现小程序openid到公众号openid的转换。
+* 前提条件：小程序和公众号均已绑定到同一个微信开放平台第三方平台。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"default", "wechat-openid-convert"})
@@ -45,12 +45,12 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     private final String defaultMiniAppId;
 
     /**
-      * 创建 wechat打开id转换服务 实例
-     * @param componentAppId 组件appid
-     * @param componentAppId 字符串
-     * @param componentAppId 字符串
-     * @param componentAppSecret 组件appsecret
-     * @param defaultMiniAppId 默认miniappid
+    * 创建 wechat打开id转换服务 实例
+    * @param componentAppId 组件appid
+    * @param componentAppId 字符串
+    * @param componentAppId 字符串
+    * @param componentAppSecret 组件appsecret
+    * @param defaultMiniAppId 默认miniappid
      */
     public WechatOpenIdConvertService(String componentAppId, String componentAppSecret, String defaultMiniAppId) {
         this.componentAppId = componentAppId;
@@ -59,11 +59,11 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     }
 
     /**
-     * 构建Wx打开服务
-     *
-     * @param componentAppId 组件appid
-     * @param componentAppSecret 组件appsecret
-     * @return 构建wx打开服务的结果
+    * 构建Wx打开服务
+    *
+    * @param componentAppId 组件appid
+    * @param componentAppSecret 组件appsecret
+    * @return 构建wx打开服务的结果
      */
     private WxOpenService buildWxOpenService(String componentAppId, String componentAppSecret) {
         WxOpenInMemoryConfigStorage config = new WxOpenInMemoryConfigStorage();
@@ -135,10 +135,10 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     }
 
     /**
-     * 发送POST请求
-     * @param urlStr urlstr
-     * @param body 主体
-     * @return 执行post的结果
+    * 发送POST请求
+    * @param urlStr urlstr
+    * @param body 主体
+    * @return 执行post的结果
      */
     private String doPost(String urlStr, String body) throws Exception {
         URL url = new URL(urlStr);

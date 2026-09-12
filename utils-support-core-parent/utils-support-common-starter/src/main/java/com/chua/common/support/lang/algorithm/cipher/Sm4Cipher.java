@@ -3,50 +3,50 @@ package com.chua.common.support.lang.algorithm.cipher;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
- * SM4 对称加解密接口
- *
- * <p>基于 SPI 机制加载实现，支持国密 SM4 算法的 ECB/CBC 模式加密与解密。
- * SM4 是国家密码管理局发布的无线局域网标准的分组密码算法（GM/T 0002-2012），
- * 密钥长度为 128 位（16 字节），分组长度为 128 位。
- *
- * <h2>功能特性</h2>
- * <ul>
- * <li>数据加密 — 使用 128 位密钥对数据进行加密，支持 PKCS7Padding 填充</li>
- * <li>数据解密 — 使用 128 位密钥对密文数据进行解密</li>
- * <li>字符串模式 — 提供便捷的 Base64 编码/解码的字符串加解密方法</li>
- * </ul>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 1. 创建 SM4 加解密实例
- * Sm4Cipher sm4 = Sm4Cipher.create("bc");
- *
- * // 2. 准备 16 字节密钥
- * byte[] key = "0123456789abcdef".getBytes(StandardCharsets.UTF_8);
- *
- * // 3. 加密数据（字节模式）
- * byte[] plaintext = "待加密的敏感数据".getBytes(StandardCharsets.UTF_8);
- * byte[] ciphertext = sm4.encrypt(key, plaintext);
- *
- * // 4. 解密数据（字节模式）
- * byte[] decrypted = sm4.decrypt(key, ciphertext);
- *
- * // 5. 加密数据（字符串模式）
- * String encryptedStr = sm4.encryptToString(key, "待加密的敏感数据");
- *
- * // 6. 解密数据（字符串模式）
- * String decryptedStr = sm4.decryptToString(key, encryptedStr);
- * }</pre>
- *
- * <h2>密钥要求</h2>
- * <p>SM4 算法要求密钥长度必须为 16 字节（128 位），
- * 传入不合法长度的密钥将抛出 {@link IllegalArgumentException}。
- *
- * @author CH
- * @since 2026/07/16
- * @see Sm2Cipher
- * @see Cipher
- * @see com.chua.common.support.spi.ServiceProvider
+* SM4 对称加解密接口
+*
+* <p>基于 SPI 机制加载实现，支持国密 SM4 算法的 ECB/CBC 模式加密与解密。
+* SM4 是国家密码管理局发布的无线局域网标准的分组密码算法（GM/T 0002-2012），
+* 密钥长度为 128 位（16 字节），分组长度为 128 位。
+*
+* <h2>功能特性</h2>
+* <ul>
+* <li>数据加密 — 使用 128 位密钥对数据进行加密，支持 PKCS7Padding 填充</li>
+* <li>数据解密 — 使用 128 位密钥对密文数据进行解密</li>
+* <li>字符串模式 — 提供便捷的 Base64 编码/解码的字符串加解密方法</li>
+* </ul>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 1. 创建 SM4 加解密实例
+* Sm4Cipher sm4 = Sm4Cipher.create("bc");
+*
+* // 2. 准备 16 字节密钥
+* byte[] key = "0123456789abcdef".getBytes(StandardCharsets.UTF_8);
+*
+* // 3. 加密数据（字节模式）
+* byte[] plaintext = "待加密的敏感数据".getBytes(StandardCharsets.UTF_8);
+* byte[] ciphertext = sm4.encrypt(key, plaintext);
+*
+* // 4. 解密数据（字节模式）
+* byte[] decrypted = sm4.decrypt(key, ciphertext);
+*
+* // 5. 加密数据（字符串模式）
+* String encryptedStr = sm4.encryptToString(key, "待加密的敏感数据");
+*
+* // 6. 解密数据（字符串模式）
+* String decryptedStr = sm4.decryptToString(key, encryptedStr);
+* }</pre>
+*
+* <h2>密钥要求</h2>
+* <p>SM4 算法要求密钥长度必须为 16 字节（128 位），
+* 传入不合法长度的密钥将抛出 {@link IllegalArgumentException}。
+*
+* @author CH
+* @since 2026/07/16
+* @see Sm2Cipher
+* @see Cipher
+* @see com.chua.common.support.spi.ServiceProvider
  */
 public interface Sm4Cipher extends Cipher {
 

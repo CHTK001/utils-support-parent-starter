@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Curator 处理器 — intercepts ZooKeeper operations via Apache Curator.
- *
- * @author CH
- * @since 4.0.0.42
+* Curator 处理器 — intercepts ZooKeeper operations via Apache Curator.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class CuratorHandler extends AbstractAppHandler {
 
     /**
-      * curator 框架
+    * curator 框架
      */
     private static final String CURATOR_FRAMEWORK = "org/apache/curator/framework/CuratorFramework";
     /**
-     * OPERATIONS
+    * OPERATIONS
      */
     private static final String[] OPERATIONS = {"create", "delete", "getData", "setData", "getChildren", "checkExists"};
 

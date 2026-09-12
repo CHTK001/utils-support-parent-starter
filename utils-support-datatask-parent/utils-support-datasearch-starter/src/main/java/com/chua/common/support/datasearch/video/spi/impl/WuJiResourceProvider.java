@@ -18,22 +18,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 无极网盘资源提供器 — 解析 xcili.net 搜索结果。
- *
- * <p>使用字符串分段提取（非正则），逐行解析搜索结果表。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @return 获取url的结果
- * @param videoSource 视频源
+* 无极网盘资源提供器 — 解析 xcili.net 搜索结果。
+*
+* <p>使用字符串分段提取（非正则），逐行解析搜索结果表。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @return 获取url的结果
+* @param videoSource 视频源
  */
 @Spi("wuji")
 public class WuJiResourceProvider extends AbstractResourceProvider {
 
     /**
-     * wujiresource提供者。
-     * @return 获取url的结果
-     * @param videoSource 视频源
+    * wujiresource提供者。
+    * @return 获取url的结果
+    * @param videoSource 视频源
      */
     private static final String MARKER = "<td class=\"result-title\"";
 

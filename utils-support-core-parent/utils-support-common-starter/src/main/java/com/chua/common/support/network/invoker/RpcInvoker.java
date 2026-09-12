@@ -14,20 +14,20 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 
 /**
- * 基于 {@link RpcClient} SPI 的通用 RPC 调用器实现。
- *
- * <p>通过 {@code RpcClient.createClient()} 获取 RPC 客户端，支持 JSON-RPC、Dubbo、
- * SOFA、ZeroMQ（zmq）、native 等协议。RPC 客户端协议由接口标注的
- * {@code @RemoteService.client()} 指定（如 {@code client = "zmq"}），未配置时
- * 默认 {@code json}；服务地址由 {@code @RequestMethod} / {@code @RequestMapping} /
- * {@code @InvokerService} / {@code @RemoteService(url)} 注解指定。</p>
- *
- * <p>SPI 名称为 {@code "rpc"}，order=50，优先级高于 {@code HttpInvoker}。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @see RpcClient
- * @see Invoker
+* 基于 {@link RpcClient} SPI 的通用 RPC 调用器实现。
+*
+* <p>通过 {@code RpcClient.createClient()} 获取 RPC 客户端，支持 JSON-RPC、Dubbo、
+* SOFA、ZeroMQ（zmq）、native 等协议。RPC 客户端协议由接口标注的
+* {@code @RemoteService.client()} 指定（如 {@code client = "zmq"}），未配置时
+* 默认 {@code json}；服务地址由 {@code @RequestMethod} / {@code @RequestMapping} /
+* {@code @InvokerService} / {@code @RemoteService(url)} 注解指定。</p>
+*
+* <p>SPI 名称为 {@code "rpc"}，order=50，优先级高于 {@code HttpInvoker}。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @see RpcClient
+* @see Invoker
  */
 @Spi(value = "rpc", order = 50)
 public class RpcInvoker implements Invoker {
@@ -50,7 +50,7 @@ public class RpcInvoker implements Invoker {
     }
 
     /**
-     * 未配置 {@code @RemoteService.client()} 时的默认 RPC 客户端协议
+    * 未配置 {@code @RemoteService.client()} 时的默认 RPC 客户端协议
      */
     private static final String DEFAULT_CLIENT = "json";
 
@@ -76,11 +76,11 @@ public class RpcInvoker implements Invoker {
     }
 
     /**
-     * 解析 RPC 客户端 SPI 协议名：优先读取接口 {@code @RemoteService.client()}，
-     * 未配置时回退默认 {@code json}（与既有行为一致）。
-     *
-     * @param clazz 接口类型
-     * @return RPC 客户端协议名
+    * 解析 RPC 客户端 SPI 协议名：优先读取接口 {@code @RemoteService.client()}，
+    * 未配置时回退默认 {@code json}（与既有行为一致）。
+    *
+    * @param clazz 接口类型
+    * @return RPC 客户端协议名
      */
     private static String resolveClient(Class<?> clazz) {
         RemoteService rs = clazz.getAnnotation(RemoteService.class);

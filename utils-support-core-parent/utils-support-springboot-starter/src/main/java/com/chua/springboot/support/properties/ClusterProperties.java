@@ -8,32 +8,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Scatter / Cluster 集群配置属性。
- *
- * <p>绑定前缀 {@code chua.cluster}，示例：</p>
- * <pre>
- * chua:
- *   cluster:
- *     scatter-id: order
- *     seeds: ["127.0.0.1:19001"]
- *     port: 8080
- *     http-enabled: true
- *     tcp-enabled: false
- *     balance: weight
- *     timeout-millis: 3000
- *     server-entries:
- *       - service-path: /api
- *         host: 192.168.1.10
- *         port: 8080
- *         protocol: http
- *       - service-path: /pay
- *         host: 10.0.0.5
- *         port: 9001
- *         protocol: tcp
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Scatter / Cluster 集群配置属性。
+*
+* <p>绑定前缀 {@code chua.cluster}，示例：</p>
+* <pre>
+* chua:
+*   cluster:
+*     scatter-id: order
+*     seeds: ["127.0.0.1:19001"]
+*     port: 8080
+*     http-enabled: true
+*     tcp-enabled: false
+*     balance: weight
+*     timeout-millis: 3000
+*     server-entries:
+*       - service-path: /api
+*         host: 192.168.1.10
+*         port: 8080
+*         protocol: http
+*       - service-path: /pay
+*         host: 10.0.0.5
+*         port: 9001
+*         protocol: tcp
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Getter
 @Setter
@@ -80,15 +80,15 @@ public class ClusterProperties {
     private long autoDiscoveryIntervalMillis = 1000;
 
     /**
-     * 声明的远端服务条目（scatter 会自动将这些服务注册到集群，供对等发现）。
-      * 同一 服务路径 下只允许同一种协议。
+    * 声明的远端服务条目（scatter 会自动将这些服务注册到集群，供对等发现）。
+    * 同一 服务路径 下只允许同一种协议。
      */
     private List<ServerEntryProp> serverEntries = new ArrayList<>();
 
     /**
-     * 单个服务条目元数据。
-     * @author CH
-     * @since 4.0.0
+    * 单个服务条目元数据。
+    * @author CH
+    * @since 4.0.0
      */
     @Getter
     @Setter

@@ -13,9 +13,9 @@ import javax.annotation.Nullable;
 
 
 /**
- * 默认二维码生成器
- * @author CH
- * @since 4.0.0.42
+* 默认二维码生成器
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultCodeProduct implements CodeProduct{
 
@@ -26,13 +26,13 @@ public class DefaultCodeProduct implements CodeProduct{
     }
 
     /**
-      * 将二维码数据转换为带有可能的背景图、logo和前景图的缓冲镜像对象。
-     *
-     * @param qrCodeConfig 二维码配置选项，包含背景图、logo和前景图等设置
-     * @param bitMatrix 二维码的位矩阵数据
-     * @param setting      二维码设置
-     * @return 背景图、logo和前景图的BufferedImage对象
-     * @throws IOException 如果读取背景图、logo或前景图时发生错误。
+    * 将二维码数据转换为带有可能的背景图、logo和前景图的缓冲镜像对象。
+    *
+    * @param qrCodeConfig 二维码配置选项，包含背景图、logo和前景图等设置
+    * @param bitMatrix 二维码的位矩阵数据
+    * @param setting      二维码设置
+    * @return 背景图、logo和前景图的BufferedImage对象
+    * @throws IOException 如果读取背景图、logo或前景图时发生错误。
      */
     BufferedImage toBufferedImage(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrSetting setting) throws IOException {
         // 绘制二维码基本图形

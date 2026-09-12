@@ -17,68 +17,68 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * tensor流 对象 Detection 保存模型 Translator。
- * <p>输入 [1,H,W,C] UINT8；解析 detection_boxes / scores / classes。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* tensor流 对象 Detection 保存模型 Translator。
+* <p>输入 [1,H,W,C] UINT8；解析 detection_boxes / scores / classes。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator<Image, DetectedObjects> {
 
     /**
-     * 默认最大检测框数
+    * 默认最大检测框数
      */
     private static final int DEFAULT_MAX_BOXES = 10;
 
     /**
-     * 默认置信度阈值
+    * 默认置信度阈值
      */
     private static final float DEFAULT_THRESHOLD = 0.5f;
 
     /**
-     * 默认输入图像边长（像素）
+    * 默认输入图像边长（像素）
      */
     private static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
-     * COCO 数据集默认类别映射
+    * COCO 数据集默认类别映射
      */
     private static final Map<Integer, String> DEFAULT_COCO_CLASSES = defaultCocoClasses();
 
     /**
-     * 类别映射。
+    * 类别映射。
      */
     private final Map<Integer, String> classes;
 
     /**
-     * 最大框数。
+    * 最大框数。
      */
     private final int maxBoxes;
 
     /**
-     * 置信度阈值。
+    * 置信度阈值。
      */
     private final float threshold;
 
     /**
-     * 输入边长。
+    * 输入边长。
      */
     private final int inputSize;
 
     /**
-     * 构造 Translator，使用默认参数。
+    * 构造 Translator，使用默认参数。
      */
     public SavedModelObjectDetectionTranslator() {
         this(DEFAULT_MAX_BOXES, DEFAULT_THRESHOLD, DEFAULT_INPUT_SIZE, DEFAULT_COCO_CLASSES);
     }
 
     /**
-     * 构造 Translator。
-     *
-     * @param maxBoxes  最大检测框数
-     * @param threshold 置信度阈值
-     * @param inputSize 输入图像边长（像素）
-     * @param classes   类别 标识 到名称的映射
+    * 构造 Translator。
+    *
+    * @param maxBoxes  最大检测框数
+    * @param threshold 置信度阈值
+    * @param inputSize 输入图像边长（像素）
+    * @param classes   类别 标识 到名称的映射
      */
     public SavedModelObjectDetectionTranslator(int maxBoxes, float threshold, int inputSize,
                                                Map<Integer, String> classes) {
@@ -154,9 +154,9 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
     }
 
     /**
-     * 构建 COCO 数据集默认类别映射。
-     *
-     * @return 类别 标识 到名称的映射
+    * 构建 COCO 数据集默认类别映射。
+    *
+    * @return 类别 标识 到名称的映射
      */
     private static Map<Integer, String> defaultCocoClasses() {
         Map<Integer, String> map = new HashMap<>();

@@ -6,23 +6,23 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Python 脚本执行器
- *
- * <p>通过系统 Python 解释器执行 Python 脚本。
- * 支持传入上下文参数，脚本通过命令行参数或环境变量获取。
- *
- * @author CH
- * @since 4.0.0.42
+* Python 脚本执行器
+*
+* <p>通过系统 Python 解释器执行 Python 脚本。
+* 支持传入上下文参数，脚本通过命令行参数或环境变量获取。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PythonScriptExecutor implements ScriptExecutor {
 
     /**
-     * Python 解释器路径
+    * Python 解释器路径
      */
     private final String pythonPath;
 
     /**
-     * 执行超时（毫秒）
+    * 执行超时（毫秒）
      */
     private final long timeoutMillis;
 
@@ -32,18 +32,18 @@ public class PythonScriptExecutor implements ScriptExecutor {
     }
 
     /**
-      * 创建 pythonscript执行器 实例
-     * @param pythonPath Python路径
+    * 创建 pythonscript执行器 实例
+    * @param pythonPath Python路径
      */
     public PythonScriptExecutor(String pythonPath) {
         this(pythonPath, 60000);
     }
 
     /**
-      * 创建 pythonscript执行器 实例
-     * @param pythonPath Python路径
-     * @param timeoutMillis long
-     * @param timeoutMillis 超时millis
+    * 创建 pythonscript执行器 实例
+    * @param pythonPath Python路径
+    * @param timeoutMillis long
+    * @param timeoutMillis 超时millis
      */
     public PythonScriptExecutor(String pythonPath, long timeoutMillis) {
         this.pythonPath = pythonPath;

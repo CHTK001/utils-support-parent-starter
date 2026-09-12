@@ -9,10 +9,10 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 
 /**
- * {@link Cacheable} 注解的 SPI 拦截器，使 Invoker 的 Proxy 支持缓存。
- *
- * @author CH
- * @since 4.0.0.42
+* {@link Cacheable} 注解的 SPI 拦截器，使 Invoker 的 Proxy 支持缓存。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("org.springframework.cache.annotation.Cacheable")
 public class CacheableIntercept implements MethodAnnotationIntercept<Cacheable> {

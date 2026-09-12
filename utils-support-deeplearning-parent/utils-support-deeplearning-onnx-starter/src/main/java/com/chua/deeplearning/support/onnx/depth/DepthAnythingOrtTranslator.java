@@ -16,14 +16,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-   * 深度-Anything V2 ONNX（ORT 直连，规避 DJL onnxruntime 对 Resize op 的兼容问题）。
- *
- * <p>输入 byte[] → 518x518 ImageNet normalize → ORT 推理 → 深度图归一化 → 缩放到原图尺寸 → byte[]</p>
- * @author CH
- * @since 4.0.0
- * @param imageBytes 镜像bytes
- * @return 深度的结果
- * @param input 输入
+* 深度-Anything V2 ONNX（ORT 直连，规避 DJL onnxruntime 对 Resize op 的兼容问题）。
+*
+* <p>输入 byte[] → 518x518 ImageNet normalize → ORT 推理 → 深度图归一化 → 缩放到原图尺寸 → byte[]</p>
+* @author CH
+* @since 4.0.0
+* @param imageBytes 镜像bytes
+* @return 深度的结果
+* @param input 输入
  */
 @Slf4j
 public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, AutoCloseable {
@@ -35,18 +35,18 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
     private final String modelId; // 模型标识
     private OrtEnvironment ortEnv; // ortenv
     /**
-     * 深度anythingorttranslator。
+    * 深度anythingorttranslator。
      */
     private OrtSession session;
     private volatile boolean initialized; // 初始化
 
     /**
-     * 深度anythingorttranslator。
+    * 深度anythingorttranslator。
      */
     public DepthAnythingOrtTranslator() {
         /**
-         * 深度anythingorttranslator。
-         * @param modelId 模型标识
+        * 深度anythingorttranslator。
+        * @param modelId 模型标识
          */
         this("depth-anything");
     }
@@ -54,10 +54,10 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
     public DepthAnythingOrtTranslator(String modelId) {
         this.modelId = modelId;
     /**
-     * 名称。
-     * @return 名称的结果
-     * @param imageBytes 镜像bytes
-     * @param input 输入
+    * 名称。
+    * @return 名称的结果
+    * @param imageBytes 镜像bytes
+    * @param input 输入
      */
     }
 

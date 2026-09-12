@@ -13,16 +13,16 @@ import com.chua.common.support.reflection.ReflectUtils;
 import java.lang.reflect.Method;
 
 /**
- * 并发隔离拦截器，处理 {@link Bulkhead} 注解的方法。
- *
- * <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
- * 读取注解属性构建 {@link BulkheadFlow}，在并发隔离保护下执行目标方法，
- * 并发数达上限时自动降级。</p>
- *
- * <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 并发隔离拦截器，处理 {@link Bulkhead} 注解的方法。
+*
+* <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
+* 读取注解属性构建 {@link BulkheadFlow}，在并发隔离保护下执行目标方法，
+* 并发数达上限时自动降级。</p>
+*
+* <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("com.chua.common.support.concurrent.bulkhead.annotation.Bulkhead")
 public class BulkheadIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Bulkhead> {
@@ -68,11 +68,11 @@ public class BulkheadIntercept extends AbstractMethodAnnotationIntercept impleme
     }
 
     /**
-     * 调用注解指定的回退方法。
-     *
-     * @param annotation  隔离注解
-     * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值，找不到时返回 空
+    * 调用注解指定的回退方法。
+    *
+    * @param annotation  隔离注解
+    * @param proxyMethod 被拦截的方法信息
+    * @return 回退方法的返回值，找不到时返回 空
      */
     private Object resolveFallback(Bulkhead annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);

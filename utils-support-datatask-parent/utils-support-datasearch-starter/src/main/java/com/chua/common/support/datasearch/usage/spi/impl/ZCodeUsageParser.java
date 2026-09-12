@@ -11,26 +11,26 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
-   * z编码 usage parser.
- *
- * <p>ZCode (Z.ai's Agentic Development Environment) persists per-request
-   * usage 入 the {@code model_usage} table 的
- * {@code ~/.zcode/cli/db/db.sqlite} once the CLI/desktop agent runs:</p>
- *
- * <pre>{@code
- * CREATE TABLE model_usage (
- *   id, session_id, turn_id, provider_id, model_id,
- *   status, started_at, completed_at,
- *   duration_ms, time_to_first_token_ms, finish_reason,
- *   input_tokens, output_tokens, reasoning_tokens,
- *   cache_creation_input_tokens, cache_read_input_tokens, ...
- * )   -- timestamps in epoch millis
- * }</pre>ache_creation_input_tokens, cache_read_input_tokens, ...
- * )   -- timestamps in epoch millis
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* z编码 usage parser.
+*
+* <p>ZCode (Z.ai's Agentic Development Environment) persists per-request
+* usage 入 the {@code model_usage} table 的
+* {@code ~/.zcode/cli/db/db.sqlite} once the CLI/desktop agent runs:</p>
+*
+* <pre>{@code
+* CREATE TABLE model_usage (
+*   id, session_id, turn_id, provider_id, model_id,
+*   status, started_at, completed_at,
+*   duration_ms, time_to_first_token_ms, finish_reason,
+*   input_tokens, output_tokens, reasoning_tokens,
+*   cache_creation_input_tokens, cache_read_input_tokens, ...
+* )   -- timestamps in epoch millis
+* }</pre>ache_creation_input_tokens, cache_read_input_tokens, ...
+* )   -- timestamps in epoch millis
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("zcode")
 public class ZCodeUsageParser extends BaseUsageParser {
@@ -50,18 +50,18 @@ public class ZCodeUsageParser extends BaseUsageParser {
     private static final String PROVIDER_ZCODE = "zcode"; // 提供者zcode
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "zcode"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "zcode"}
      */
     public String name() {
         return "zcode";
     }
 
     /**
-     * 流式解析全部模型请求用量记录。
-     * @param row row
-     * @return 转为AIusage的结果
+    * 流式解析全部模型请求用量记录。
+    * @param row row
+    * @return 转为AIusage的结果
      /**
       * 流全部。
       * @return 流全部的结果

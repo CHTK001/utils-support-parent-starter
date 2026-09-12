@@ -1,19 +1,19 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * Redis RESP 协议还原器。
- *
- * <p>Redis 序列化协议：
- * <ul>
- *   <li>*N - 数组 N 个元素</li>
- *   <li>$N - 字符串，长度 N</li>
- *   <li>:N - 整数 N</li>
- *   <li>+OK\r\n - 简单字符串</li>
- *   <li>-ERR message\r\n - 错误</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* Redis RESP 协议还原器。
+*
+* <p>Redis 序列化协议：
+* <ul>
+*   <li>*N - 数组 N 个元素</li>
+*   <li>$N - 字符串，长度 N</li>
+*   <li>:N - 整数 N</li>
+*   <li>+OK\r\n - 简单字符串</li>
+*   <li>-ERR message\r\n - 错误</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RedisProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -75,11 +75,11 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 解析获取长度
-     *
-     * @param data 数据
-     * @param offset 偏移量
-     * @return 解析长度的结果
+    * 解析获取长度
+    *
+    * @param data 数据
+    * @param offset 偏移量
+    * @return 解析长度的结果
      */
     private static int parseLength(byte[] data, int offset) {
         int value = 0;
@@ -99,11 +99,11 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 解析Long
-     *
-     * @param data 数据
-     * @param offset 偏移量
-     * @return 解析long的结果
+    * 解析Long
+    *
+    * @param data 数据
+    * @param offset 偏移量
+    * @return 解析long的结果
      */
     private static long parseLong(byte[] data, int offset) {
         long value = 0;

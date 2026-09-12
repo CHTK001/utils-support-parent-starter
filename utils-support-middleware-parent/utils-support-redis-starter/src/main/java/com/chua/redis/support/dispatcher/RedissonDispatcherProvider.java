@@ -18,10 +18,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
-   * 基于 Redisson rtopic 的 Redis 发布订阅分发器提供者
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Redisson rtopic 的 Redis 发布订阅分发器提供者
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis")
@@ -39,8 +39,8 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
 
     /**
-      * 创建 redissondispatcher提供者 实例
-     * @param config 配置
+    * 创建 redissondispatcher提供者 实例
+    * @param config 配置
      */
     public RedissonDispatcherProvider(DispatcherConfig config) {
         super(config);
@@ -52,10 +52,10 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-      * 创建 redissondispatcher提供者 实例
-     * @param config 配置
-     * @param redissonClient redisson客户端
-     * @param redissonClient redisson客户端
+    * 创建 redissondispatcher提供者 实例
+    * @param config 配置
+    * @param redissonClient redisson客户端
+    * @param redissonClient redisson客户端
      */
     public RedissonDispatcherProvider(DispatcherConfig config, RedissonClient redissonClient) {
         super(config);
@@ -133,10 +133,10 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-     * 获取或创建Topic
-     *
-     * @param topic topic
-     * @return 获取或创建topic的结果
+    * 获取或创建Topic
+    *
+    * @param topic topic
+    * @return 获取或创建topic的结果
      */
     private RTopic getOrCreateTopic(String topic) {
         return topicMap.computeIfAbsent(topic, redissonClient::getTopic);

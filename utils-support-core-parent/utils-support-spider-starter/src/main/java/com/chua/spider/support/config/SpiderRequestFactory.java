@@ -15,48 +15,48 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 爬虫请求工厂。
- *
- * <p>根据 {@link SpiderDefinition}（含代理池开关/Cookie/Header）构建
- * 实际的 {@link SpiderRequest}：若启用代理池，从池中按策略挑选一个代理；
-   * 公共 Cookie/头部 会自动合并到每次请求上。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 爬虫请求工厂。
+*
+* <p>根据 {@link SpiderDefinition}（含代理池开关/Cookie/Header）构建
+* 实际的 {@link SpiderRequest}：若启用代理池，从池中按策略挑选一个代理；
+* 公共 Cookie/头部 会自动合并到每次请求上。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SpiderRequestFactory {
 
     /**
-     * 代理池存储。
+    * 代理池存储。
      */
     private final SpiderProxyPoolStore proxyPoolStore;
 
     /**
-      * 创建 蜘蛛请求工厂 实例
-     * @param proxyPoolStore 代理游泳池存储
+    * 创建 蜘蛛请求工厂 实例
+    * @param proxyPoolStore 代理游泳池存储
      */
     public SpiderRequestFactory(SpiderProxyPoolStore proxyPoolStore) {
         this.proxyPoolStore = proxyPoolStore;
     }
 
     /**
-     * 根据爬虫定义与 URL 构建请求。
-     *
-     * @param definition 爬虫定义
-     * @param url        目标 URL
-     * @return SpiderRequest 实例
+    * 根据爬虫定义与 URL 构建请求。
+    *
+    * @param definition 爬虫定义
+    * @param url        目标 URL
+    * @return SpiderRequest 实例
      */
     public SpiderRequest build(SpiderDefinition definition, String url) {
         return build(definition, url, null);
     }
 
     /**
-     * 根据爬虫定义 + URL + 请求体构建请求。
-     *
-     * @param definition 爬虫定义
-     * @param url        目标 URL
-     * @param body       请求体（POST/放入）
-     * @return SpiderRequest 实例
+    * 根据爬虫定义 + URL + 请求体构建请求。
+    *
+    * @param definition 爬虫定义
+    * @param url        目标 URL
+    * @param body       请求体（POST/放入）
+    * @return SpiderRequest 实例
      */
     public SpiderRequest build(SpiderDefinition definition, String url, String body) {
         Map<String, String> headers = new HashMap<>();
@@ -96,10 +96,10 @@ public class SpiderRequestFactory {
     }
 
     /**
-      * 反序列化 头部 JSON 字符串为 映射。
-     *
-     * @param json 头部 JSON 字符串
-     * @return 解析后的 映射；解析失败返回空 映射
+    * 反序列化 头部 JSON 字符串为 映射。
+    *
+    * @param json 头部 JSON 字符串
+    * @return 解析后的 映射；解析失败返回空 映射
      */
     private Map<String, String> deserializeHeaders(String json) {
         try {
@@ -112,10 +112,10 @@ public class SpiderRequestFactory {
     }
 
     /**
-      * 反序列化 Cookie JSON 字符串为 列表。
-     *
-     * @param json Cookie JSON 字符串
-     * @return 解析后的 列表；解析失败返回空 列表
+    * 反序列化 Cookie JSON 字符串为 列表。
+    *
+    * @param json Cookie JSON 字符串
+    * @return 解析后的 列表；解析失败返回空 列表
      */
     private List<SpiderCookie> deserializeCookies(String json) {
         try {

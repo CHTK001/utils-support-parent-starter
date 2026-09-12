@@ -26,18 +26,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 钉钉消息推送实现
- *
- * <p>基于钉钉机器人 Webhook 的消息发送实现，支持文本和 Markdown 格式。
- *
- * <h3>环境配置</h3>
- * <pre>
- *   dingding.webhookUrl   机器人 Webhook 地址（必填）
- *   dingding.secret       加签密钥（可选）
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 钉钉消息推送实现
+*
+* <p>基于钉钉机器人 Webhook 的消息发送实现，支持文本和 Markdown 格式。
+*
+* <h3>环境配置</h3>
+* <pre>
+*   dingding.webhookUrl   机器人 Webhook 地址（必填）
+*   dingding.secret       加签密钥（可选）
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("dingding")
@@ -51,10 +51,10 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
-   * 公共 类 dingding消息push implements 消息push {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 dingding消息push implements 消息push {
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DingdingMessagePush implements MessagePush {
 
@@ -69,8 +69,8 @@ public class DingdingMessagePush implements MessagePush {
     }
 
     /**
-      * 创建 dingding消息push 实例
-     * @param environment 环境
+    * 创建 dingding消息push 实例
+    * @param environment 环境
      */
     public DingdingMessagePush(MessageEnvironment environment) {
         this.environment = environment;
@@ -84,8 +84,8 @@ public class DingdingMessagePush implements MessagePush {
 
     @Override
     /**
-     * 发送
-     * @param request 请求
+    * 发送
+    * @param request 请求
      */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
@@ -154,10 +154,10 @@ public class DingdingMessagePush implements MessagePush {
 
     @Override
     /**
-     * 发送Template
-     * @param templateId templateid
-     * @param to 转为
-     * @param params 参数
+    * 发送Template
+    * @param templateId templateid
+    * @param to 转为
+    * @param params 参数
      */
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()
@@ -176,16 +176,16 @@ public class DingdingMessagePush implements MessagePush {
 
     @Override
     /**
-     * 获取Template
-     * @param templateId templateid
+    * 获取Template
+    * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
 
     /**
-     * 注册Template
-     * @param template template
+    * 注册Template
+    * @param template template
      */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);

@@ -17,8 +17,8 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     private String device = "cpu";
 
     /**
-      * 创建 onnxpedestriandetector 实例
-     * @param apiKey API密钥
+    * 创建 onnxpedestriandetector 实例
+    * @param apiKey API密钥
      */
     public OnnxPedestrianDetector(String apiKey) {
     }
@@ -31,9 +31,9 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     }
 
     /**
-     * 解析模型
-     *
-     * @return resolve模型的结果
+    * 解析模型
+    *
+    * @return resolve模型的结果
      */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov8n-ppe";

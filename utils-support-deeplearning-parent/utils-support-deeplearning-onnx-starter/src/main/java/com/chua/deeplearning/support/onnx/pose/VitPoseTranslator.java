@@ -12,19 +12,19 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * vitpose 基础 简单 ONNX
- * <p>
-   * : onnx-社区/vitpose-基础-简单
- * </p>
- * <p>
- *      : 17                COCO                   
- * </p>
- * <p>
-   * : float[17][3]  (x, y, 信心)
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* vitpose 基础 简单 ONNX
+* <p>
+* : onnx-社区/vitpose-基础-简单
+* </p>
+* <p>
+*      : 17                COCO                   
+* </p>
+* <p>
+* : float[17][3]  (x, y, 信心)
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class VitPoseTranslator implements Translator<Image, float[][]> {

@@ -15,40 +15,40 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 /**
- * 文件存储下载过滤器。
- *
- * <p>拦截 {@code ?download} 和 {@code ?flash} flag 形式的请求。
-   * 文件路径从 URL 路径 解析：{@code /{bucket}/{filepath}?download}。
- * 当 {@link FileStorageSetting#isOpenDownload()} 为 false 时拒绝。</p>
- *
- * <p>支持：
- * <ul>
- *   <li>Range 断点续传（{@link FileStorageSetting#isOpenRange()} 开启时）</li>
- *   <li>闪图一次性文件（使用后自动清理）</li>
- *   <li>自定义文件名（filename 参数）</li>
- *   <li>存储路由（storage 参数）</li>
- * </ul>
- * </p>
- *
- * @author CH
- * @since 2024/12/28
+* 文件存储下载过滤器。
+*
+* <p>拦截 {@code ?download} 和 {@code ?flash} flag 形式的请求。
+* 文件路径从 URL 路径 解析：{@code /{bucket}/{filepath}?download}。
+* 当 {@link FileStorageSetting#isOpenDownload()} 为 false 时拒绝。</p>
+*
+* <p>支持：
+* <ul>
+*   <li>Range 断点续传（{@link FileStorageSetting#isOpenRange()} 开启时）</li>
+*   <li>闪图一次性文件（使用后自动清理）</li>
+*   <li>自定义文件名（filename 参数）</li>
+*   <li>存储路由（storage 参数）</li>
+* </ul>
+* </p>
+*
+* @author CH
+* @since 2024/12/28
  */
 @Slf4j
 public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFilter {
 
     /**
-      * 创建 文件storagedownload服务端过滤器 实例
-     * @param setting setting
+    * 创建 文件storagedownload服务端过滤器 实例
+    * @param setting setting
      */
     public FileStorageDownloadServerFilter(FileStorageSetting setting) {
         super(setting);
     }
 
     /**
-      * 创建 文件storagedownload服务端过滤器 实例
-     * @param setting setting
-     * @param java Java
-     * @param cacheDir 缓存dir
+    * 创建 文件storagedownload服务端过滤器 实例
+    * @param setting setting
+    * @param java Java
+    * @param cacheDir 缓存dir
      */
     public FileStorageDownloadServerFilter(FileStorageSetting setting, java.nio.file.Path cacheDir) {
         super(setting, new PreviewPdfCache(cacheDir));
@@ -82,10 +82,10 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 处理Download
-     *
-     * @param request 请求
-     * @param response 响应
+    * 处理Download
+    *
+    * @param request 请求
+    * @param response 响应
      */
     private void handleDownload(ServerRequest request, ServerResponse response) throws Exception {
  // 从 路径 解析文件路径：/{bucket}/{filepath}
@@ -130,11 +130,11 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 处理Flash
-     *
-     * @param request 请求
-     * @param response 响应
-     * @param flashTokenOrCmd flash令牌或CMD
+    * 处理Flash
+    *
+    * @param request 请求
+    * @param response 响应
+    * @param flashTokenOrCmd flash令牌或CMD
      */
     private void handleFlash(ServerRequest request, ServerResponse response, String flashTokenOrCmd) throws Exception {
         FlashTokenService svc = getFlashService();
@@ -204,13 +204,13 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-      * 处理范围
-     * @param request 请求
-     * @param response 响应
-     * @param getResult 获取结果
-     * @param mime mime
-     * @param fileName 文件名
-     * @param rangeHeader 范围头部
+    * 处理范围
+    * @param request 请求
+    * @param response 响应
+    * @param getResult 获取结果
+    * @param mime mime
+    * @param fileName 文件名
+    * @param rangeHeader 范围头部
      */
     private void handleRange(ServerRequest request, ServerResponse response,
                              com.chua.common.support.storage.result.GetObjectResult getResult,
@@ -239,11 +239,11 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 解析文件名
-     *
-     * @param request 请求
-     * @param key 键
-     * @return resolve文件名称的结果
+    * 解析文件名
+    *
+    * @param request 请求
+    * @param key 键
+    * @return resolve文件名称的结果
      */
     private static String resolveFileName(ServerRequest request, String key) {
         String filename = request.getParam("filename");
@@ -257,10 +257,10 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 获取Ext
-     *
-     * @param key 键
-     * @return 获取ext的结果
+    * 获取Ext
+    *
+    * @param key 键
+    * @return 获取ext的结果
      */
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
@@ -270,11 +270,11 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 解析范围
-     *
-     * @param header 头部
-     * @param len len
-     * @return 解析范围的结果
+    * 解析范围
+    *
+    * @param header 头部
+    * @param len len
+    * @return 解析范围的结果
      */
     private static Range parseRange(String header, long len) {
         String h = header.trim();
@@ -298,11 +298,11 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 范围
-     *
-     * @param start 启动
-     * @param end 结束
-     * @return 范围的结果
+    * 范围
+    *
+    * @param start 启动
+    * @param end 结束
+    * @return 范围的结果
      */
     private record Range(long start, long end) {
     }

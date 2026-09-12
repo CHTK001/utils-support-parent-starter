@@ -16,28 +16,28 @@ import javax.annotation.Nullable;
 
 
 /**
- * InputStream 类型转换器。
- * <p>将各种类型的值转换为 {@link InputStream}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@link java.awt.image.BufferedImage} — 写入 JPEG 格式的 ByteArrayInputStream</li>
- *   <li>{@link File} / {@link java.nio.file.Path} — 通过 FileInputStream 读取</li>
- *   <li>{@link URL} / {@link URI} — 通过 openStream() 获取</li>
- *   <li>{@link FileDescriptor} — 通过 FileInputStream 读取</li>
- *   <li>{@link Reader} — 读取全部字符后转为 UTF-8 字节流</li>
- *   <li>{@link String} — 尝试作为文件路径读取，失败则通过 File 转换器获取</li>
- * </ul>
- *
- * @author CH
- * @version 1.0.0
- * @since 2021/5/24
+* InputStream 类型转换器。
+* <p>将各种类型的值转换为 {@link InputStream}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@link java.awt.image.BufferedImage} — 写入 JPEG 格式的 ByteArrayInputStream</li>
+*   <li>{@link File} / {@link java.nio.file.Path} — 通过 FileInputStream 读取</li>
+*   <li>{@link URL} / {@link URI} — 通过 openStream() 获取</li>
+*   <li>{@link FileDescriptor} — 通过 FileInputStream 读取</li>
+*   <li>{@link Reader} — 读取全部字符后转为 UTF-8 字节流</li>
+*   <li>{@link String} — 尝试作为文件路径读取，失败则通过 File 转换器获取</li>
+* </ul>
+*
+* @author CH
+* @version 1.0.0
+* @since 2021/5/24
  */
 public class InputStreamTypeConverter implements TypeConverter<InputStream> {
 
     /**
-     * 将给定值转换为 InputStream。
-     *
-     * @param value 源值
-     * @return InputStream 值，如果无法转换则返回 null
+    * 将给定值转换为 InputStream。
+    *
+    * @param value 源值
+    * @return InputStream 值，如果无法转换则返回 null
      */
     @Override
     public InputStream convert(Object value) {
@@ -120,9 +120,9 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return InputStream.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return InputStream.class
      */
     @Override
     public Class<InputStream> getType() {

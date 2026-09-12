@@ -11,20 +11,20 @@ import java.util.Base64;
 import java.util.List;
 
 /**
-   * winrm 文件客户端 SPI 实现。
- * <p>
-   * 当前为占位实现，所有 IO 操作返回空 / false。实际 winrm 文件传输需通过 wsman Shell 命令或 SMT/HTTP 通道扩展实现。
- * 连接生命周期由 SPI 框架管理，{@link #connect()} 与 {@link #closeQuietly()} 均无操作。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* winrm 文件客户端 SPI 实现。
+* <p>
+* 当前为占位实现，所有 IO 操作返回空 / false。实际 winrm 文件传输需通过 wsman Shell 命令或 SMT/HTTP 通道扩展实现。
+* 连接生命周期由 SPI 框架管理，{@link #connect()} 与 {@link #closeQuietly()} 均无操作。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class WinRmFileClientSpi implements FileClient {
 
     /**
-     * 建立连接（占位，SPI 框架管理生命周期）。
+    * 建立连接（占位，SPI 框架管理生命周期）。
      */
     @Override
     public void connect() throws IOException {
@@ -32,7 +32,7 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 静默关闭连接（占位实现）。
+    * 静默关闭连接（占位实现）。
      */
     @Override
     public void closeQuietly() {
@@ -40,10 +40,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 列出指定路径下的文件（占位实现，返回空列表）。
-     *
-     * @param path 远端路径
-     * @return 文件名列表，当前始终为空
+    * 列出指定路径下的文件（占位实现，返回空列表）。
+    *
+    * @param path 远端路径
+    * @return 文件名列表，当前始终为空
      */
     @Override
     public List<String> listFiles(String path) throws IOException {
@@ -51,10 +51,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 上传文件到远端（暂未实现）。
-     *
-     * @param inputStream 源输入流
-     * @param path        远端目标路径
+    * 上传文件到远端（暂未实现）。
+    *
+    * @param inputStream 源输入流
+    * @param path        远端目标路径
      */
     @Override
     public void uploadFile(InputStream inputStream, String path) throws IOException {
@@ -62,10 +62,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 下载远端文件到输出流（暂未实现）。
-     *
-     * @param path         远端源路径
-     * @param outputStream 本地输出流
+    * 下载远端文件到输出流（暂未实现）。
+    *
+    * @param path         远端源路径
+    * @param outputStream 本地输出流
      */
     @Override
     public void downloadFile(String path, OutputStream outputStream) throws IOException {
@@ -73,10 +73,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 读取远端文件全部内容（暂未实现）。
-     *
-     * @param path 远端文件路径
-     * @return 当前返回 空
+    * 读取远端文件全部内容（暂未实现）。
+    *
+    * @param path 远端文件路径
+    * @return 当前返回 空
      */
     @Override
     public String readFile(String path) throws IOException {
@@ -84,10 +84,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 在远端创建目录（暂未实现）。
-     *
-     * @param path      远端目录路径
-     * @param recursive 是否递归创建
+    * 在远端创建目录（暂未实现）。
+    *
+    * @param path      远端目录路径
+    * @param recursive 是否递归创建
      */
     @Override
     public void createDirectory(String path, boolean recursive) throws IOException {
@@ -95,9 +95,9 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 删除远端文件或目录（暂未实现）。
-     *
-     * @param path 远端路径
+    * 删除远端文件或目录（暂未实现）。
+    *
+    * @param path 远端路径
      */
     @Override
     public void delete(String path) throws IOException {
@@ -105,10 +105,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 重命名远端路径（暂未实现）。
-     *
-     * @param oldPath 远端原路径
-     * @param newPath 远端新路径
+    * 重命名远端路径（暂未实现）。
+    *
+    * @param oldPath 远端原路径
+    * @param newPath 远端新路径
      */
     @Override
     public void rename(String oldPath, String newPath) throws IOException {
@@ -116,10 +116,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 判断远端路径是否存在（占位实现，返回 false）。
-     *
-     * @param path 远端路径
-     * @return true 表示存在
+    * 判断远端路径是否存在（占位实现，返回 false）。
+    *
+    * @param path 远端路径
+    * @return true 表示存在
      */
     @Override
     public boolean exists(String path) throws IOException {
@@ -127,10 +127,10 @@ public class WinRmFileClientSpi implements FileClient {
     }
 
     /**
-     * 判断远端路径是否为目录（占位实现，返回 false）。
-     *
-     * @param path 远端路径
-     * @return true 表示是目录
+    * 判断远端路径是否为目录（占位实现，返回 false）。
+    *
+    * @param path 远端路径
+    * @return true 表示是目录
      */
     @Override
     public boolean isDirectory(String path) throws IOException {

@@ -12,13 +12,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * r套接字 同步服务端实现。
- * <p>
-   * 委托给 {@link com.chua.rsocket.support.server.RSocketServer} 处理底层 r套接字 通信。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* r套接字 同步服务端实现。
+* <p>
+* 委托给 {@link com.chua.rsocket.support.server.RSocketServer} 处理底层 r套接字 通信。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("rsocket")
 public class RSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
@@ -43,21 +43,21 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
     }
 
     /**
-      * 客户端
+    * 客户端
      */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /**
-     * 监听器列表
+    * 监听器列表
      */
     private final List<SyncServerListener> listeners = new ArrayList<>();
     /**
-     * 委托对象
+    * 委托对象
      */
     private final com.chua.rsocket.support.server.RSocketServer delegate;
 
     /**
-      * 创建 r套接字同步服务端 实例
-     * @param setting setting
+    * 创建 r套接字同步服务端 实例
+    * @param setting setting
      */
     public RSocketSyncServer(ServerSetting setting) {
         super(setting);
@@ -123,9 +123,9 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
     }
 
     /**
-     * 通知监听器
-     *
-     * @param action 动作
+    * 通知监听器
+    *
+    * @param action 动作
      */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {

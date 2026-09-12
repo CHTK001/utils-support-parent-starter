@@ -11,13 +11,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 文件权限处理工具类。
- * <p>
- * 用于获取和处理文件的权限信息，支持POSIX系统和非POSIX系统（如Windows）。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 文件权限处理工具类。
+* <p>
+* 用于获取和处理文件的权限信息，支持POSIX系统和非POSIX系统（如Windows）。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PermissionUtils {
 
@@ -25,22 +25,22 @@ public class PermissionUtils {
     }
 
     /**
-     * 标准文件权限枚举。
-     * <p>
-     * 在非POSIX系统中，所有者和组被视为具有相同的权限，其他人没有权限。
-     * </p>
+    * 标准文件权限枚举。
+    * <p>
+    * 在非POSIX系统中，所有者和组被视为具有相同的权限，其他人没有权限。
+    * </p>
      */
     private static enum StandardFilePermission {
         /**
-         * 执行权限模式：0110 (八进制)。
+        * 执行权限模式：0110 (八进制)。
          */
         EXECUTE(0110),
         /**
-         * 写入权限模式：0220 (八进制)。
+        * 写入权限模式：0220 (八进制)。
          */
         WRITE(0220),
         /**
-         * 读取权限模式：0440 (八进制)。
+        * 读取权限模式：0440 (八进制)。
          */
         READ(0440);
 
@@ -53,7 +53,7 @@ public class PermissionUtils {
     }
 
     /**
-     * POSIX权限到整数的映射表。
+    * POSIX权限到整数的映射表。
      */
     private static final Map<PosixFilePermission, Integer> POSIX_PERMISSION_TO_INTEGER = new HashMap<>();
 
@@ -75,25 +75,25 @@ public class PermissionUtils {
     }
 
     /**
-     * 判断当前系统是否支持POSIX文件属性视图。
+    * 判断当前系统是否支持POSIX文件属性视图。
      */
     private static final boolean IS_POSIX = FileSystems.getDefault()
             .supportedFileAttributeViews()
             .contains("posix");
 
     /**
-     * 获取文件的权限（以八进制整数形式表示，例如0755）。
-     * <p>
-     * 注意：如果操作系统支持POSIX权限，则使用 {@link Files#getPosixFilePermissions} 精确获取；
-     * 否则回退到使用标准的Java文件操作（如 {@link File#canExecute()}）。
-     * 在回退模式下，'所有者'和'组'的权限被视为相同，'其他人'没有权限。
-     * 例如，在Windows上如果文件是'只读'，权限将返回为0550。
-     * </p>
-     *
-     * @param f 要检查的文件对象，不能为null。
-     * @return 文件的权限值（八进制整数）。
-     * @throws NullPointerException 如果文件为null。
-     * @throws IllegalArgumentException 如果文件不存在。
+    * 获取文件的权限（以八进制整数形式表示，例如0755）。
+    * <p>
+    * 注意：如果操作系统支持POSIX权限，则使用 {@link Files#getPosixFilePermissions} 精确获取；
+    * 否则回退到使用标准的Java文件操作（如 {@link File#canExecute()}）。
+    * 在回退模式下，'所有者'和'组'的权限被视为相同，'其他人'没有权限。
+    * 例如，在Windows上如果文件是'只读'，权限将返回为0550。
+    * </p>
+    *
+    * @param f 要检查的文件对象，不能为null。
+    * @return 文件的权限值（八进制整数）。
+    * @throws NullPointerException 如果文件为null。
+    * @throws IllegalArgumentException 如果文件不存在。
      */
     public static int permissions(File f) {
         if (f == null) {
@@ -111,11 +111,11 @@ public class PermissionUtils {
     }
 
     /**
-     * 获取POSIX系统的文件权限。
-     *
-     * @param f 文件对象。
-     * @return 权限的整数值。
-     * @throws RuntimeException 如果在获取权限时发生IO异常。
+    * 获取POSIX系统的文件权限。
+    *
+    * @param f 文件对象。
+    * @return 权限的整数值。
+    * @throws RuntimeException 如果在获取权限时发生IO异常。
      */
     private static int posixPermissions(File f) {
         int number = 0;
@@ -133,10 +133,10 @@ public class PermissionUtils {
     }
 
     /**
-     * 读取标准文件权限（适用于非POSIX系统）。
-     *
-     * @param f 文件对象。
-     * @return 包含标准权限的集合。
+    * 读取标准文件权限（适用于非POSIX系统）。
+    *
+    * @param f 文件对象。
+    * @return 包含标准权限的集合。
      */
     private static Set<StandardFilePermission> readStandardPermissions(File f) {
         Set<StandardFilePermission> permissions = new HashSet<>();
@@ -153,10 +153,10 @@ public class PermissionUtils {
     }
 
     /**
-     * 计算标准文件权限的整数值。
-     *
-     * @param f 文件对象。
-     * @return 权限的整数值。
+    * 计算标准文件权限的整数值。
+    *
+    * @param f 文件对象。
+    * @return 权限的整数值。
      */
     private static int standardPermissions(File f) {
         int number = 0;

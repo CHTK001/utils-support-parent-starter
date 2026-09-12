@@ -21,38 +21,38 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JDBC SQL 执行器，基于 {@link JdbcEngine} 提供的连接执行原生 SQL。
- *
- * <p>作为 {@link JdbcEngine#getExecutor()} 的默认实现，提供以下能力：</p>
- * <ul>
- *   <li>查询 — {@link #query(String, Object...)} 返回 {@code Map} 行</li>
- *   <li>类型化查询 — {@link #query(String, Class, Object...)} 反射映射实体</li>
- *   <li>分页查询 — {@link #queryPage(String, Pagination, Object...)} 基于方言分页</li>
- *   <li>更新 — {@link #execute(String, Object...)} 执行 INSERT/UPDATE/DELETE</li>
- *   <li>批量操作 — {@link #batch(String, List)} 批量执行</li>
- * </ul>
- *
- * <p>所有参数使用 {@code ?} 占位符，通过 PreparedStatement 预编译执行，防止 SQL 注入。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* JDBC SQL 执行器，基于 {@link JdbcEngine} 提供的连接执行原生 SQL。
+*
+* <p>作为 {@link JdbcEngine#getExecutor()} 的默认实现，提供以下能力：</p>
+* <ul>
+*   <li>查询 — {@link #query(String, Object...)} 返回 {@code Map} 行</li>
+*   <li>类型化查询 — {@link #query(String, Class, Object...)} 反射映射实体</li>
+*   <li>分页查询 — {@link #queryPage(String, Pagination, Object...)} 基于方言分页</li>
+*   <li>更新 — {@link #execute(String, Object...)} 执行 INSERT/UPDATE/DELETE</li>
+*   <li>批量操作 — {@link #batch(String, List)} 批量执行</li>
+* </ul>
+*
+* <p>所有参数使用 {@code ?} 占位符，通过 PreparedStatement 预编译执行，防止 SQL 注入。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class JdbcSqlExecutor implements SqlExecutor {
 
     /**
-     * 统计总数子查询的别名
+    * 统计总数子查询的别名
      */
     private static final String COUNT_ALIAS = "t";
 
     /**
-     * 所属 JDBC 引擎，用于获取连接与方言
+    * 所属 JDBC 引擎，用于获取连接与方言
      */
     private final JdbcEngine engine;
 
     /**
-     * 构造 JDBC SQL 执行器。
-     *
-     * @param engine 所属 JDBC 引擎，用于获取连接与方言
+    * 构造 JDBC SQL 执行器。
+    *
+    * @param engine 所属 JDBC 引擎，用于获取连接与方言
      */
     public JdbcSqlExecutor(JdbcEngine engine) {
         this.engine = engine;
@@ -154,11 +154,11 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 统计 SQL 结果总数，用于填充分页 total。
-     *
-     * @param sql    原始 SQL
-     * @param params 参数列表
-     * @return 总记录数
+    * 统计 SQL 结果总数，用于填充分页 total。
+    *
+    * @param sql    原始 SQL
+    * @param params 参数列表
+    * @return 总记录数
      */
     private long count(String sql, Object... params) {
         String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") " + COUNT_ALIAS;
@@ -177,11 +177,11 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 使用方言生成分页 SQL，无方言时直接返回原 SQL（由调用方自行截取）。
-     *
-     * @param sql        原始 SQL
-     * @param pagination 分页参数（含 偏移量 / 限制）
-     * @return 分页 SQL
+    * 使用方言生成分页 SQL，无方言时直接返回原 SQL（由调用方自行截取）。
+    *
+    * @param sql        原始 SQL
+    * @param pagination 分页参数（含 偏移量 / 限制）
+    * @return 分页 SQL
      */
     private String buildPageSql(String sql, Pagination pagination) {
         Dialect dialect = engine.getDialect(engine.getDefaultDataSourceName());
@@ -192,10 +192,10 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 去掉 SQL 末尾的分号与空白，便于子查询包装。
-     *
-     * @param sql 原始 SQL
-     * @return 清理后的 SQL
+    * 去掉 SQL 末尾的分号与空白，便于子查询包装。
+    *
+    * @param sql 原始 SQL
+    * @return 清理后的 SQL
      */
     private static String trimSql(String sql) {
         if (sql == null) {
@@ -209,14 +209,14 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 反射设置对象字段值，兼容原列名与驼峰化列名。
-     *
-     * <p>字段匹配顺序：精确匹配原列名 → 驼峰化列名（如 {@code user_name} → {@code userName}）。
-     * 类型转换复用 {@link Converter}，支持数值、字符串、枚举等类型的自动转换。</p>
-     *
-     * @param instance   目标对象
-     * @param columnName 列名
-     * @param value      列值
+    * 反射设置对象字段值，兼容原列名与驼峰化列名。
+    *
+    * <p>字段匹配顺序：精确匹配原列名 → 驼峰化列名（如 {@code user_name} → {@code userName}）。
+    * 类型转换复用 {@link Converter}，支持数值、字符串、枚举等类型的自动转换。</p>
+    *
+    * @param instance   目标对象
+    * @param columnName 列名
+    * @param value      列值
      */
     private static void setFieldValue(Object instance, String columnName, Object value) {
         Class<?> clazz = instance.getClass();
@@ -245,11 +245,11 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 在类及父类中查找字段。
-     *
-     * @param clazz 目标类
-     * @param name  字段名
-     * @return 字段，未找到返回 空
+    * 在类及父类中查找字段。
+    *
+    * @param clazz 目标类
+    * @param name  字段名
+    * @return 字段，未找到返回 空
      */
     private static Field findField(Class<?> clazz, String name) {
         Class<?> current = clazz;
@@ -264,10 +264,10 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 将下划线命名转换为驼峰命名。
-     *
-     * @param name 原始名称（如 用户_名称）
-     * @return 驼峰命名（如 用户名）
+    * 将下划线命名转换为驼峰命名。
+    *
+    * @param name 原始名称（如 用户_名称）
+    * @return 驼峰命名（如 用户名）
      */
     private static String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
@@ -290,11 +290,11 @@ public class JdbcSqlExecutor implements SqlExecutor {
     }
 
     /**
-     * 绑定参数到预编译语句，索引从 1 开始。
-     *
-     * @param ps     预编译语句
-     * @param params 参数数组
-     * @throws SQLException 绑定失败
+    * 绑定参数到预编译语句，索引从 1 开始。
+    *
+    * @param ps     预编译语句
+    * @param params 参数数组
+    * @throws SQLException 绑定失败
      */
     private static void bindParams(PreparedStatement ps, Object... params) throws SQLException {
         if (params == null) {

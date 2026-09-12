@@ -15,64 +15,64 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 基于 Needle 推理引擎的本地对话客户端。
- *
- * <p>通过 Java 25 FFM 直接调用 Needle C 动态库，提供无网络的本地对话能力，
- * 无需外部模型文件（权重内嵌于引擎）。</p>
- *
- * <h3>输入参数</h3>
- * <ul>
- *   <li>{@link #chatSync(String)} — 用户提示文本（必填）</li>
- *   <li>{@link #system(String)} — 系统提示词 / 环境事实，如 {@code "date: 2026-07-21 Tue 14:30"}</li>
- *   <li>{@link #model(String)} — 模型名称，默认 {@code needle2}</li>
- * </ul>
- *
- * <h3>输出参数</h3>
- * <ul>
- *   <li>{@link #chatSync(String)} 返回 {@code String} — 引擎生成的文本响应</li>
- *   <li>{@link #chatSyncWithResponse(String)} 返回 {@link ChatSyncResponse} — 含 text 字段的结构化响应</li>
- * </ul>
- *
- * <p>用法：
- * <pre>{@code
- *   String answer = ChatClient.create("needle", "")
- *       .system("date: 2026-07-21 Tue 14:30")
- *       .chatSync("你好，今天星期几？");
- * }</pre>tSync("你好，今天星期几？");
- * }</pre>
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Needle 推理引擎的本地对话客户端。
+*
+* <p>通过 Java 25 FFM 直接调用 Needle C 动态库，提供无网络的本地对话能力，
+* 无需外部模型文件（权重内嵌于引擎）。</p>
+*
+* <h3>输入参数</h3>
+* <ul>
+*   <li>{@link #chatSync(String)} — 用户提示文本（必填）</li>
+*   <li>{@link #system(String)} — 系统提示词 / 环境事实，如 {@code "date: 2026-07-21 Tue 14:30"}</li>
+*   <li>{@link #model(String)} — 模型名称，默认 {@code needle2}</li>
+* </ul>
+*
+* <h3>输出参数</h3>
+* <ul>
+*   <li>{@link #chatSync(String)} 返回 {@code String} — 引擎生成的文本响应</li>
+*   <li>{@link #chatSyncWithResponse(String)} 返回 {@link ChatSyncResponse} — 含 text 字段的结构化响应</li>
+* </ul>
+*
+* <p>用法：
+* <pre>{@code
+*   String answer = ChatClient.create("needle", "")
+*       .system("date: 2026-07-21 Tue 14:30")
+*       .chatSync("你好，今天星期几？");
+* }</pre>tSync("你好，今天星期几？");
+* }</pre>
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("needle")
 public class NeedleChatClient implements ChatClient {
 
     /**
-      * 默认最大生成 令牌 数
+    * 默认最大生成 令牌 数
      */
     private static final int DEFAULT_MAX_TOKENS = 256;
 
     /**
-     * 系统提示词（环境事实）
+    * 系统提示词（环境事实）
      */
     private String system;
 
     /**
-     * 当前模型名称
+    * 当前模型名称
      */
     private String model;
 
     /**
-      * 最大生成 令牌 数
+    * 最大生成 令牌 数
      */
     private int maxTokens = DEFAULT_MAX_TOKENS;
 
     /**
-     * 构造 Needle 对话客户端。
-     *
-     * @param setting 客户端配置（可为 空）
+    * 构造 Needle 对话客户端。
+    *
+    * @param setting 客户端配置（可为 空）
      */
     public NeedleChatClient(ChatClientSetting setting) {
         if (setting != null) {
@@ -114,11 +114,11 @@ public class NeedleChatClient implements ChatClient {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 对话同步
-     *
-     * @param prompt 提示符
-     * @param timeoutMillis 超时millis
-     * @return 对话同步的结果
+    * 对话同步
+    *
+    * @param prompt 提示符
+    * @param timeoutMillis 超时millis
+    * @return 对话同步的结果
      */
     public String chatSync(String prompt, long timeoutMillis) {
         NeedleNative.init(system, "[]", null);
@@ -155,16 +155,16 @@ public class NeedleChatClient implements ChatClient {
     }
 
     /**
-     * 从引擎 JSON envelope 中提取文本响应。
-     *
-     * <p>引擎返回格式：
-     * <ul>
-     *   <li>{@code type=respond} — 含 {@code text} 字段，直接返回</li>
-     *   <li>{@code type=call} — 工具调用类型，提取 {@code reasoning} 或返回原始 JSON</li>
-     * </ul>
-     *
-     * @param raw 引擎原始输出
-     * @return 用户可读的文本响应
+    * 从引擎 JSON envelope 中提取文本响应。
+    *
+    * <p>引擎返回格式：
+    * <ul>
+    *   <li>{@code type=respond} — 含 {@code text} 字段，直接返回</li>
+    *   <li>{@code type=call} — 工具调用类型，提取 {@code reasoning} 或返回原始 JSON</li>
+    * </ul>
+    *
+    * @param raw 引擎原始输出
+    * @return 用户可读的文本响应
      */
     @SuppressWarnings("unchecked")
     private String extractText(String raw) {

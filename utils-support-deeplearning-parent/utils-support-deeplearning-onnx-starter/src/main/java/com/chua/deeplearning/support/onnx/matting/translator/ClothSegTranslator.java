@@ -15,11 +15,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
 /**
- * U2Net Cloth 分割 Translator：768×768 输入，4 通道输出（背景/衣物/人体/配件），
- * 取 argmax 生成前景 mask，RGBA 输出。
- *
- * @author CH
- * @since 4.0.0
+* U2Net Cloth 分割 Translator：768×768 输入，4 通道输出（背景/衣物/人体/配件），
+* 取 argmax 生成前景 mask，RGBA 输出。
+*
+* @author CH
+* @since 4.0.0
  */
 public final class ClothSegTranslator implements Translator<Image, Image> {
 
@@ -30,7 +30,7 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
     private BufferedImage originalImage; // 原始镜像
 
     /**
-      * clothsegtranslator。
+    * clothsegtranslator。
      */
     public ClothSegTranslator() {
     }
@@ -100,9 +100,9 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 转为缓冲镜像。
-     * @param input 输入
-     * @return 转为缓冲镜像的结果
+    * 转为缓冲镜像。
+    * @param input 输入
+    * @return 转为缓冲镜像的结果
      */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
@@ -113,11 +113,11 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * resize转为。
-     * @param input 输入
-     * @param tw tw
-     * @param th th
-     * @return resize转为的结果
+    * resize转为。
+    * @param input 输入
+    * @param tw tw
+    * @param th th
+    * @return resize转为的结果
      */
     private BufferedImage resizeTo(Image input, int tw, int th) {
         BufferedImage src = toBufferedImage(input);
@@ -133,9 +133,9 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 创建rgba镜像。
-     * @param mask mask
-     * @return 创建rgba镜像的结果
+    * 创建rgba镜像。
+    * @param mask mask
+    * @return 创建rgba镜像的结果
      */
     private Image createRgbaImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

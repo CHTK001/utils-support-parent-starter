@@ -1,18 +1,18 @@
 package com.chua.common.support.scatter;
 
 /**
- * TCP scatter 构建器。
- *
- * @author CH
- * @since 4.0.0.42
- * @param setting setting
+* TCP scatter 构建器。
+*
+* @author CH
+* @since 4.0.0.42
+* @param setting setting
  */
 public class TcpScatterBuilder extends ScatterBuilder<TcpScatterBuilder> {
 
     private static final String PROTOCOL_TCP = "tcp"; // 协议tcp
 /**
- * tcpscatter构建器。
- * @param setting setting
+* tcpscatter构建器。
+* @param setting setting
  */
 
     public TcpScatterBuilder() {

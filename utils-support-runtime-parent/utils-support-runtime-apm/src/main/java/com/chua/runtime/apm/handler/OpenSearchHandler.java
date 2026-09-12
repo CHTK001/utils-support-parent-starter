@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * 打开搜索 处理器 — intercepts 打开搜索 客户端 operations.
- *
- * @author CH
- * @since 4.0.0.42
+* 打开搜索 处理器 — intercepts 打开搜索 客户端 operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class OpenSearchHandler extends AbstractAppHandler {
 
     /**
-     * rest 客户端
+    * rest 客户端
      */
     private static final String REST_CLIENT = "org/opensearch/client/RestHighLevelClient";
     /**
-      * 客户端 方法
+    * 客户端 方法
      */
     private static final String[] CLIENT_METHODS = {"search", "get", "index", "delete", "update", "bulk", "count", "exists"};
 

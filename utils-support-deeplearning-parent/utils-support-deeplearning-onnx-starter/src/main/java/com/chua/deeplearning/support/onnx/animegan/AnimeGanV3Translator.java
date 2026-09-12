@@ -16,29 +16,29 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
-   * animeganv3
- * <p>
-   * animeganv3
- *
- *                
- * 1.                                                    
- * 2.                                                       
- * 3.                                  
- *
- * @author CH
-   * @版本 4.0.0.30
- * @since 2024/12/20
+* animeganv3
+* <p>
+* animeganv3
+*
+*                
+* 1.                                                    
+* 2.                                                       
+* 3.                                  
+*
+* @author CH
+* @版本 4.0.0.30
+* @since 2024/12/20
  */
 @Slf4j
 public class AnimeGanV3Translator implements Translator<Image, Image> {
 
     /**
-     *                   
+    *                   
      */
     private static final int INPUT_SIZE = 512;
 
     /**
-     *                                           
+    *                                           
      */
     private int originalWidth;
     /** 原始高度 */
@@ -46,11 +46,11 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     private int originalHeight;
 
     /**
-     *                      
-     *
-     * @param ctx                   
-     * @param input             
-     * @return                            
+    *                      
+    *
+    * @param ctx                   
+    * @param input             
+    * @return                            
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -141,11 +141,11 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                      
-     *
-     * @param ctx                   
-     * @param list                         
-     * @return                      
+    *                      
+    *
+    * @param ctx                   
+    * @param list                         
+    * @return                      
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -211,9 +211,9 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
-     *
-     * @return              -        无                    处理输入
+    *                   
+    *
+    * @return              -        无                    处理输入
      */
     @Override
     public Batchifier getBatchifier() {
@@ -221,18 +221,18 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
-     *
-     * @return             
+    *                   
+    *
+    * @return             
      */
     public int getInputSize() {
         return INPUT_SIZE;
     }
 
     /**
-     *                         
-     *
-     * @return                    [width, height]
+    *                         
+    *
+    * @return                    [width, height]
      */
     public int[] getOriginalSize() {
         return new int[]{originalWidth, originalHeight};

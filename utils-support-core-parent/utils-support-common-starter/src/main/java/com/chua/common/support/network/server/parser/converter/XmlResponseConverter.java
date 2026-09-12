@@ -6,17 +6,17 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import java.nio.charset.StandardCharsets;
 
 /**
- * XML 响应转化器，将数据对象转换为 XML 格式文本。
- *
- * <p>Content-Type 为 {@code application/xml}。支持以下数据类型：
- * <ul>
- *   <li>{@link String} — 直接作为 XML 输出</li>
- *   <li>{@code byte[]} — 按 UTF-8 解码为字符串</li>
- *   <li>其他对象 — 调用 {@link Object#toString()} 输出</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* XML 响应转化器，将数据对象转换为 XML 格式文本。
+*
+* <p>Content-Type 为 {@code application/xml}。支持以下数据类型：
+* <ul>
+*   <li>{@link String} — 直接作为 XML 输出</li>
+*   <li>{@code byte[]} — 按 UTF-8 解码为字符串</li>
+*   <li>其他对象 — 调用 {@link Object#toString()} 输出</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class XmlResponseConverter implements ResponseConverter {
 

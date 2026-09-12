@@ -18,54 +18,54 @@ import java.util.Set;
 
 
 /**
- * 图片格式互转转换器。
- *
- * <p>支持常见图片格式之间的相互转换，通过 {@link ImageSupportUtils} 动态发现
-   * 当前 JVM 中 镜像io 注册的所有读写格式，无需硬编码格式列表。
- *
- * <h3>支持的格式</h3>
- * <ul>
- *   <li><b>JPEG</b> (.jpg, .jpeg) — 自动处理 Alpha 通道移除</li>
- *   <li><b>PNG</b> (.png) — 无损压缩</li>
- *   <li><b>BMP</b> (.bmp) — 无压缩位图</li>
- *   <li><b>GIF</b> (.gif) — 索引色格式</li>
- *   <li><b>WBMP</b> (.wbmp) — 无线位图</li>
- *   <li><b>TIFF</b> (.tiff, .tif) — 需 JAI ImageIO 插件</li>
- * </ul>
- *
- * <p>以下格式由专用转换器处理，本转换器不处理：</p>
- * <ul>
- *   <li><b>WEBP</b> (.webp) — 由 {@code WebpConvertFileSystem} 处理</li>
- *   <li><b>RAW</b> (.cr2, .nef 等) — 由 Rust 转换器处理</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 图片格式互转转换器。
+*
+* <p>支持常见图片格式之间的相互转换，通过 {@link ImageSupportUtils} 动态发现
+* 当前 JVM 中 镜像io 注册的所有读写格式，无需硬编码格式列表。
+*
+* <h3>支持的格式</h3>
+* <ul>
+*   <li><b>JPEG</b> (.jpg, .jpeg) — 自动处理 Alpha 通道移除</li>
+*   <li><b>PNG</b> (.png) — 无损压缩</li>
+*   <li><b>BMP</b> (.bmp) — 无压缩位图</li>
+*   <li><b>GIF</b> (.gif) — 索引色格式</li>
+*   <li><b>WBMP</b> (.wbmp) — 无线位图</li>
+*   <li><b>TIFF</b> (.tiff, .tif) — 需 JAI ImageIO 插件</li>
+* </ul>
+*
+* <p>以下格式由专用转换器处理，本转换器不处理：</p>
+* <ul>
+*   <li><b>WEBP</b> (.webp) — 由 {@code WebpConvertFileSystem} 处理</li>
+*   <li><b>RAW</b> (.cr2, .nef 等) — 由 Rust 转换器处理</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi
 public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
-     * 默认构造函数
+    * 默认构造函数
      */
     public ImageFormatConvertFileSystem() {
         super();
     }
 
     /**
-     * 构造函数
-     *
-     * @param file 文件对象
+    * 构造函数
+    *
+    * @param file 文件对象
      */
     public ImageFormatConvertFileSystem(File file) {
         super(file);
     }
 
     /**
-     * 构造函数
-     *
-     * @param filePath 文件路径
+    * 构造函数
+    *
+    * @param filePath 文件路径
      */
     public ImageFormatConvertFileSystem(String filePath) {
         super(filePath);
@@ -79,11 +79,11 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
 
     @Override
     /**
-      * 执行转换
-     * @param inputStream 输入流
-     * @param outputStream 输出流
-     * @param sourceFile 源文件
-     * @param targetFile Target文件
+    * 执行转换
+    * @param inputStream 输入流
+    * @param outputStream 输出流
+    * @param sourceFile 源文件
+    * @param targetFile Target文件
      */
     protected void doConvert(InputStream inputStream, OutputStream outputStream,
                              File sourceFile, File targetFile) throws IOException {
@@ -104,11 +104,11 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-     * 是否支持格式化
-     *
-     * @param sourceFormat 源格式化
-     * @param targetFormat Target格式化
-     * @return 是否支持格式化的结果
+    * 是否支持格式化
+    *
+    * @param sourceFormat 源格式化
+    * @param targetFormat Target格式化
+    * @return 是否支持格式化的结果
      */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换

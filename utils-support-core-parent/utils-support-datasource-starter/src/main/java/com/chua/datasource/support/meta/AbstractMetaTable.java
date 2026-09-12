@@ -9,37 +9,37 @@ import com.chua.common.support.lang.datasource.table.TableDef;
 import java.util.List;
 
 /**
- * 表元数据操作抽象基类。
- * <p>
- * 持有 {@link AbstractMetaData} 引用，提供表名上下文。
- * 子类只需实现具体的 JDBC 元数据读取和 DDL 生成逻辑。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 表元数据操作抽象基类。
+* <p>
+* 持有 {@link AbstractMetaData} 引用，提供表名上下文。
+* 子类只需实现具体的 JDBC 元数据读取和 DDL 生成逻辑。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractMetaTable implements MetaTable {
 
     /**
-     * 元数据入口
+    * 元数据入口
      */
     protected final AbstractMetaData metaData;
 
     /**
-     * 引擎实例
+    * 引擎实例
      */
     protected final Engine engine;
 
     /**
-     * 当前表名
+    * 当前表名
      */
     protected String tableName;
 
     /**
-     * 构造方法（无表名上下文）。
-     *
-     * @param metaData 元数据入口
-     * @param engine   引擎实例
+    * 构造方法（无表名上下文）。
+    *
+    * @param metaData 元数据入口
+    * @param engine   引擎实例
      */
     protected AbstractMetaTable(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
@@ -47,11 +47,11 @@ public abstract class AbstractMetaTable implements MetaTable {
     }
 
     /**
-     * 构造方法（带表名上下文）。
-     *
-     * @param metaData 元数据入口
-     * @param engine   引擎实例
-     * @param tableName 表名
+    * 构造方法（带表名上下文）。
+    *
+    * @param metaData 元数据入口
+    * @param engine   引擎实例
+    * @param tableName 表名
      */
     protected AbstractMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         this.metaData = metaData;

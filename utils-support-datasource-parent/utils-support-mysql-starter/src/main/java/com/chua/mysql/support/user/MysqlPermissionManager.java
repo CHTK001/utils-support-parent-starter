@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MySQL 权限管理器 SPI 实现。
- *
- * @author CH
- * @since 4.0.0.42
+* MySQL 权限管理器 SPI 实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("mysql")
 public class MysqlPermissionManager implements PermissionManager, DataSourceAware {
@@ -78,9 +78,9 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     /**
-     * 解析grantprivileges。
-     * @param sql SQL
-     * @return 解析grantprivileges的结果
+    * 解析grantprivileges。
+    * @param sql SQL
+    * @return 解析grantprivileges的结果
      */
     private static String parseGrantPrivileges(String sql) {
         if (sql == null) {
@@ -100,9 +100,9 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     /**
-     * 解析grantdatabase。
-     * @param sql SQL
-     * @return 解析grantdatabase的结果
+    * 解析grantdatabase。
+    * @param sql SQL
+    * @return 解析grantdatabase的结果
      */
     private static String parseGrantDatabase(String sql) {
         if (sql == null) {
@@ -144,9 +144,9 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     /**
-     * strip引述。
-     * @param raw raw
-     * @return strip引述的结果
+    * strip引述。
+    * @param raw raw
+    * @return strip引述的结果
      */
     private static String stripQuote(String raw) {
         if (raw == null) {
@@ -174,9 +174,9 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     /**
-     * 执行sql。
-     * @param ds ds
-     * @param sql SQL
+    * 执行sql。
+    * @param ds ds
+    * @param sql SQL
      */
     private static void execSql(DataSource ds, String sql) {
         try (Connection conn = ds.getConnection();
@@ -189,10 +189,10 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
 
     // ==================== Inner Actions ====================
      /**
-      * grant动作类。
-      *
-      * @author CH
-      * @since 4.0.0
+     * grant动作类。
+     *
+     * @author CH
+     * @since 4.0.0
       */
      * revoke动作类。
      *

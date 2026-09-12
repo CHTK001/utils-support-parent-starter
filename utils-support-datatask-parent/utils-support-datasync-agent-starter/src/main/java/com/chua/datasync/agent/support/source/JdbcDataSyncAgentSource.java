@@ -13,14 +13,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-   * JDBC 数据同步 源，从关系型数据库读取数据。
- * <p>
-   * 基于 hikaricp 连接池，支持增量读取：
-   * 当 参数["偏移量"] 有值时，追加 WHERE 标识 > 偏移量 条件过滤已读行。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* JDBC 数据同步 源，从关系型数据库读取数据。
+* <p>
+* 基于 hikaricp 连接池，支持增量读取：
+* 当 参数["偏移量"] 有值时，追加 WHERE 标识 > 偏移量 条件过滤已读行。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional {
@@ -43,20 +43,20 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     private final HikariDataSource dataSource;
 
     /**
-      * 创建 jdbc数据同步智能体源 实例
-     * @param sourceId 源标识
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param sourceId 字符串
-     * @param columnNames column名称
-     * @param inputId 输入标识
-     * @param jdbcUrl jdbcurl
-     * @param username 用户名
-     * @param password 密码
-     * @param sql SQL
+    * 创建 jdbc数据同步智能体源 实例
+    * @param sourceId 源标识
+    * @param sourceId 字符串
+    * @param sourceId 字符串
+    * @param sourceId 字符串
+    * @param sourceId 字符串
+    * @param sourceId 字符串
+    * @param sourceId 字符串
+    * @param columnNames column名称
+    * @param inputId 输入标识
+    * @param jdbcUrl jdbcurl
+    * @param username 用户名
+    * @param password 密码
+    * @param sql SQL
      */
     public JdbcDataSyncAgentSource(String sourceId, String inputId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
         this.sourceId = sourceId;
@@ -70,12 +70,12 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     /**
-     * 创建数据源
-     *
-     * @param url url
-     * @param user 用户
-     * @param pass 通过
-     * @return 创建数据源的结果
+    * 创建数据源
+    *
+    * @param url url
+    * @param user 用户
+    * @param pass 通过
+    * @return 创建数据源的结果
      */
     private HikariDataSource createDataSource(String url, String user, String pass) {
         HikariConfig config = new HikariConfig();
@@ -161,10 +161,10 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     /**
-     * 构建sqlwith偏移量
-     *
-     * @param offsetValue 偏移量值
-     * @return 构建sqlwith偏移量的结果
+    * 构建sqlwith偏移量
+    *
+    * @param offsetValue 偏移量值
+    * @return 构建sqlwith偏移量的结果
      */
     private String buildSqlWithOffset(Object offsetValue) {
         if (offsetValue == null) {

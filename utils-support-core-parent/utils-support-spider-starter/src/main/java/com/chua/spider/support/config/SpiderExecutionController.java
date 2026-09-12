@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 爬虫执行记录 REST 接口。
- *
- * @author CH
- * @since 4.0.0.42
+* 爬虫执行记录 REST 接口。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @RestController
@@ -26,32 +26,32 @@ import java.util.Map;
 public class SpiderExecutionController {
 
     /**
-      * 测试态：蜘蛛runner 在保存前回调通知，记录 哈希 与 json 长度。
+    * 测试态：蜘蛛runner 在保存前回调通知，记录 哈希 与 json 长度。
      */
     private volatile int lastSavedHash = 0;
     /** 最后一个保存结果json */
     private volatile String lastSavedResultsJson = null;
 
     /**
-     * 执行记录存储
+    * 执行记录存储
      */
     private final SpiderExecutionStore executionStore;
 
     /**
-     * 爬虫定义存储
+    * 爬虫定义存储
      */
     private final SpiderDefinitionStore definitionStore;
 
     /**
-     * 爬虫执行器
+    * 爬虫执行器
      */
     private final SpiderRunner runner;
 
     /**
-      * 创建 蜘蛛执行控制器 实例
-     * @param executionStore 执行存储
-     * @param definitionStore definition存储
-     * @param runner runner
+    * 创建 蜘蛛执行控制器 实例
+    * @param executionStore 执行存储
+    * @param definitionStore definition存储
+    * @param runner runner
      */
     public SpiderExecutionController(SpiderExecutionStore executionStore,
                                      SpiderDefinitionStore definitionStore,
@@ -64,8 +64,8 @@ public class SpiderExecutionController {
     }
 
     /**
-      * 蜘蛛runner 在 最终 调用，记录保存前 record 的 哈希 与 结果json。
-     * @param r r
+    * 蜘蛛runner 在 最终 调用，记录保存前 record 的 哈希 与 结果json。
+    * @param r r
      */
     public void noteSaveState(SpiderExecutionRecord r) {
         this.lastSavedHash = System.identityHashCode(r);
@@ -75,8 +75,8 @@ public class SpiderExecutionController {
     }
 
     /**
-      * 调试接口：返回最近一次保存前的 哈希 与 json 长度。
-     * @return 调试最后一个保存的结果
+    * 调试接口：返回最近一次保存前的 哈希 与 json 长度。
+    * @return 调试最后一个保存的结果
      */
     @GetMapping("/debug/last-save")
     public Map<String, Object> debugLastSave() {
@@ -90,12 +90,12 @@ public class SpiderExecutionController {
     }
 
     /**
-     * 触发爬虫执行（异步）。
-     *
-     * <p>仅当爬虫状态为 1（启用）时才会真正启动；禁用状态返回 4xx 友好的错误对象。</p>
-     *
-     * @param spiderCode 爬虫编码
-     * @return 执行记录（状态 RUNNING），或包含 {@code error} 字段的错误对象
+    * 触发爬虫执行（异步）。
+    *
+    * <p>仅当爬虫状态为 1（启用）时才会真正启动；禁用状态返回 4xx 友好的错误对象。</p>
+    *
+    * @param spiderCode 爬虫编码
+    * @return 执行记录（状态 RUNNING），或包含 {@code error} 字段的错误对象
      */
     @PostMapping("/run")
     public Map<String, Object> run(@RequestParam String spiderCode) {
@@ -120,10 +120,10 @@ public class SpiderExecutionController {
     }
 
     /**
-     * 查询单条执行记录。
-     *
-     * @param executionNo 批次号
-     * @return 执行记录
+    * 查询单条执行记录。
+    *
+    * @param executionNo 批次号
+    * @return 执行记录
      */
     @GetMapping("/detail")
     public SpiderExecutionRecord detail(@RequestParam String executionNo) {
@@ -131,12 +131,12 @@ public class SpiderExecutionController {
     }
 
     /**
-     * 分页查询执行记录。
-     *
-     * @param pageNo      页码
-     * @param pageSize    每页条数
-     * @param spiderCode  可选爬虫编码过滤
-     * @return 分页结果
+    * 分页查询执行记录。
+    *
+    * @param pageNo      页码
+    * @param pageSize    每页条数
+    * @param spiderCode  可选爬虫编码过滤
+    * @return 分页结果
      */
     @GetMapping("/page")
     public SpiderExecutionStore.PageResult<SpiderExecutionRecord> page(
@@ -147,8 +147,8 @@ public class SpiderExecutionController {
     }
 
     /**
-      * 调试接口：返回所有执行记录的内存快照（含 结果json 实际值）。
-     * @return 调试列表全部的结果
+    * 调试接口：返回所有执行记录的内存快照（含 结果json 实际值）。
+    * @return 调试列表全部的结果
      */
     @GetMapping("/debug/list-all")
     public List<Map<String, Object>> debugListAll() {
@@ -172,11 +172,11 @@ public class SpiderExecutionController {
     }
 
     /**
-     * 读取字段
-     *
-     * @param target Target
-     * @param name 名称
-     * @return 读取字段的结果
+    * 读取字段
+    *
+    * @param target Target
+    * @param name 名称
+    * @return 读取字段的结果
      */
     private Object readField(Object target, String name) {
         try {

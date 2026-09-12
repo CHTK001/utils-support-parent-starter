@@ -11,13 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * CN-CLIP                 Translator   
- *
- * <p>CN-CLIP        Chinese-CLIP ViT-B/16 image encoder ONNX                       
-   * 输入 [N,3,224,224] float32  unnorm_镜像_特征 [N,512]           </p>
- *
- * @author CH
- * @since 4.0.0.42
+* CN-CLIP                 Translator   
+*
+* <p>CN-CLIP        Chinese-CLIP ViT-B/16 image encoder ONNX                       
+* 输入 [N,3,224,224] float32  unnorm_镜像_特征 [N,512]           </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.cv.Image, float[]> {
 

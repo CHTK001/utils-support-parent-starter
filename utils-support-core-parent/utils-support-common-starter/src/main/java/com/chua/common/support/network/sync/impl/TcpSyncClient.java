@@ -20,73 +20,73 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * 基于 NIO SocketChannel + 虚拟线程的 TCP 同步客户端实现。
- * <p>
- * 通过 TCP 长连接与服务端双向同步，支持注册、主题订阅与消息收发。
- * 读取由虚拟线程承载（阻塞读让出载体线程，连接数不再消耗 OS 线程），
- * 行切分后按订阅表/监听器分发。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 NIO SocketChannel + 虚拟线程的 TCP 同步客户端实现。
+* <p>
+* 通过 TCP 长连接与服务端双向同步，支持注册、主题订阅与消息收发。
+* 读取由虚拟线程承载（阻塞读让出载体线程，连接数不再消耗 OS 线程），
+* 行切分后按订阅表/监听器分发。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("tcp")
 public class TcpSyncClient implements SyncClient {
 
     /**
-     * 客户端标识
+    * 客户端标识
      */
     private final String clientId;
 
     /**
-     * 服务端地址
+    * 服务端地址
      */
     private final String serverUrl;
 
     /**
-     * 底层通道
+    * 底层通道
      */
     private SocketChannel channel;
 
     /**
-     * 是否已连接
+    * 是否已连接
      */
     private volatile boolean connected;
 
     /**
-     * 是否已注册成功
+    * 是否已注册成功
      */
     private volatile boolean registered;
 
     /**
-     * 订阅的主题映射（topic -> handler）
+    * 订阅的主题映射（topic -> handler）
      */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
 
     /**
-     * 监听器列表
+    * 监听器列表
      */
     private final List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 接收虚拟线程
+    * 接收虚拟线程
      */
     private Thread readThread;
 
     /**
-     * 创建 TCP 同步客户端。
-     *
-     * @param serverUrl 服务端地址，如 tcp://localhost:19390
+    * 创建 TCP 同步客户端。
+    *
+    * @param serverUrl 服务端地址，如 tcp://localhost:19390
      */
     public TcpSyncClient(String serverUrl) {
         this(UUID.randomUUID().toString(), serverUrl);
     }
 
     /**
-     * 创建 TCP 同步客户端。
-     *
-     * @param clientId  客户端标识
-     * @param serverUrl 服务端地址
+    * 创建 TCP 同步客户端。
+    *
+    * @param clientId  客户端标识
+    * @param serverUrl 服务端地址
      */
     public TcpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
@@ -116,7 +116,7 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 等待服务端注册确认, 保证 connect() 返回后已可收发。
+    * 等待服务端注册确认, 保证 connect() 返回后已可收发。
      */
     private void waitRegistered() {
         long deadline = System.currentTimeMillis() + 3000L;
@@ -202,7 +202,7 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 启动虚拟线程读取：阻塞读让出载体线程，行到达后按订阅/监听器分发。
+    * 启动虚拟线程读取：阻塞读让出载体线程，行到达后按订阅/监听器分发。
      */
     private void startRead() {
         // 捕获本次连接的通道：旧线程退出时不误标已被重连替换的新连接
@@ -229,9 +229,9 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 处理一行消息。
-     *
-     * @param line 消息行
+    * 处理一行消息。
+    *
+    * @param line 消息行
      */
     private void handleLine(String line) {
         String message = line.trim();
@@ -250,9 +250,9 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 发送一行消息。
-     *
-     * @param line 消息行
+    * 发送一行消息。
+    *
+    * @param line 消息行
      */
     private void sendLine(String line) {
         try {
@@ -272,7 +272,7 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 校验连接状态。
+    * 校验连接状态。
      */
     private void checkConnected() {
         if (!connected) {
@@ -281,10 +281,10 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 解析 tcp://host:port 地址。
-     *
-     * @param url 地址
-     * @return SocketAddress
+    * 解析 tcp://host:port 地址。
+    *
+    * @param url 地址
+    * @return SocketAddress
      */
     private InetSocketAddress parseAddress(String url) {
         String address = url;
@@ -301,9 +301,9 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-     * 通知监听器。
-     *
-     * @param action 动作
+    * 通知监听器。
+    *
+    * @param action 动作
      */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {

@@ -15,42 +15,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 抽象读取器类，用于处理文件的读取操作。
- * @author CH
- * @since 4.0.0.42
+* 抽象读取器类，用于处理文件的读取操作。
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractReader implements FileSystem {
 
     /**
-     * 读取选项配置。
+    * 读取选项配置。
      */
     protected ReadOption readOption;
 
     /**
-     * 文件对象，表示当前要读取的文件。
+    * 文件对象，表示当前要读取的文件。
      */
     protected File file;
 
     /**
-     * 默认构造函数。
+    * 默认构造函数。
      */
     protected AbstractReader() {
     }
 
     /**
-     * 带文件参数的构造函数。
-     *
-     * @param file 文件对象
+    * 带文件参数的构造函数。
+    *
+    * @param file 文件对象
      */
     protected AbstractReader(File file) {
         this.file = file;
     }
 
     /**
-     * 带文件路径字符串的构造函数。
-     *
-     * @param filePath 文件路径字符串
+    * 带文件路径字符串的构造函数。
+    *
+    * @param filePath 文件路径字符串
      */
     protected AbstractReader(String filePath) {
         if (filePath != null) {
@@ -61,10 +61,10 @@ public abstract class AbstractReader implements FileSystem {
     }
 
     /**
-     * 设置文件对象并返回当前实例，支持链式调用。
-     *
-     * @param file 文件对象
-     * @return 当前AbstractReader实例
+    * 设置文件对象并返回当前实例，支持链式调用。
+    *
+    * @param file 文件对象
+    * @return 当前AbstractReader实例
      */
     public AbstractReader withFile(File file) {
         this.file = file;
@@ -72,9 +72,9 @@ public abstract class AbstractReader implements FileSystem {
     }
 
     /**
-     * 获取当前读取器的类型标识。
-     *
-     * @return 类型字符串
+    * 获取当前读取器的类型标识。
+    *
+    * @return 类型字符串
      */
     @Override
     public String getType() {
@@ -82,11 +82,11 @@ public abstract class AbstractReader implements FileSystem {
     }
 
     /**
-     * 创建读取构建器（未实现）。
-     *
-     * @param file 文件对象
-     * @return 读取构建器
-     * @throws UnsupportedOperationException 始终抛出此异常，因为子类需要实现具体逻辑
+    * 创建读取构建器（未实现）。
+    *
+    * @param file 文件对象
+    * @return 读取构建器
+    * @throws UnsupportedOperationException 始终抛出此异常，因为子类需要实现具体逻辑
      */
     @Override
     public ReadBuilder read(File file) {
@@ -94,11 +94,11 @@ public abstract class AbstractReader implements FileSystem {
     }
 
     /**
-     * 创建写入构建器（未实现）。
-     *
-     * @param file 文件对象
-     * @return 写入构建器
-     * @throws UnsupportedOperationException 始终抛出此异常，因为此类仅负责读取
+    * 创建写入构建器（未实现）。
+    *
+    * @param file 文件对象
+    * @return 写入构建器
+    * @throws UnsupportedOperationException 始终抛出此异常，因为此类仅负责读取
      */
     @Override
     public WriteBuilder write(File file) {
@@ -106,10 +106,10 @@ public abstract class AbstractReader implements FileSystem {
     }
 
     /**
-     * 读取所有数据到内存中。
-     *
-     * @return 当前AbstractReader实例
-     * @throws IOException 当发生IO错误时抛出
+    * 读取所有数据到内存中。
+    *
+    * @return 当前AbstractReader实例
+    * @throws IOException 当发生IO错误时抛出
      */
     public AbstractReader readAll() throws IOException {
         if (file == null || !file.exists() || !file.isFile()) {
@@ -120,11 +120,11 @@ public abstract class AbstractReader implements FileSystem {
     }
 
     /**
-     * 打开文件的输入流。
-     *
-     * @return 文件输入流
-     * @throws FileNotFoundException 当文件为空或不存在时抛出
-     * @throws IOException           当发生IO错误时抛出
+    * 打开文件的输入流。
+    *
+    * @return 文件输入流
+    * @throws FileNotFoundException 当文件为空或不存在时抛出
+    * @throws IOException           当发生IO错误时抛出
      */
     public InputStream openInputStream() throws IOException {
         if (file == null) {
@@ -137,11 +137,11 @@ public abstract class AbstractReader implements FileSystem {
     }
 
     /**
-     * 执行具体的读取操作，将文件内容转换为Map列表。
-     * 必须由子类实现具体逻辑。
-     *
-     * @return Map列表，每个Map代表一行或一条记录
-     * @throws IOException 当发生IO错误时抛出
+    * 执行具体的读取操作，将文件内容转换为Map列表。
+    * 必须由子类实现具体逻辑。
+    *
+    * @return Map列表，每个Map代表一行或一条记录
+    * @throws IOException 当发生IO错误时抛出
      */
     protected abstract List<Map<String, Object>> doReadMaps() throws IOException;
 }

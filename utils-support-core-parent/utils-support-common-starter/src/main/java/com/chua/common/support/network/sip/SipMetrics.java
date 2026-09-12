@@ -7,17 +7,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * SIP 服务器/客户端运行时指标（轻量级、无外部依赖）。
- *
- * <p>提供关键计数用于：</p>
- * <ul>
- *   <li>运行时健康监控（活跃隧道/客户端/帧率）</li>
- *   <li>故障定位（错误分类计数）</li>
- *   <li>容量规划（认证/注册/隧道累计）</li>
- * </ul>
- *
- * <p>使用 {@link ConcurrentHashMap} 支持并发安全的多维度错误计数，
- * 指标读取使用 {@link #snapshot()} 返回一致性弱快照。</p>
+* SIP 服务器/客户端运行时指标（轻量级、无外部依赖）。
+*
+* <p>提供关键计数用于：</p>
+* <ul>
+*   <li>运行时健康监控（活跃隧道/客户端/帧率）</li>
+*   <li>故障定位（错误分类计数）</li>
+*   <li>容量规划（认证/注册/隧道累计）</li>
+* </ul>
+*
+* <p>使用 {@link ConcurrentHashMap} 支持并发安全的多维度错误计数，
+* 指标读取使用 {@link #snapshot()} 返回一致性弱快照。</p>
  */
 public class SipMetrics {
 
@@ -73,7 +73,7 @@ public class SipMetrics {
     }
 
     /**
-     * 返回当前指标的弱一致性快照（用于日志或 /metrics 端点）。
+    * 返回当前指标的弱一致性快照（用于日志或 /metrics 端点）。
      */
     public Map<String, Object> snapshot() {
         Map<String, Object> m = new LinkedHashMap<>();
@@ -98,10 +98,10 @@ public class SipMetrics {
     }
 
     /**
-     * 将指标格式化为单行结构化日志条目（key=value 用空格分隔）。
-     *
-     * @param prefix 日志前缀（如 "sip-metrics"）
-     * @return 单行字符串
+    * 将指标格式化为单行结构化日志条目（key=value 用空格分隔）。
+    *
+    * @param prefix 日志前缀（如 "sip-metrics"）
+    * @return 单行字符串
      */
     public String formatOneLine(String prefix) {
         Map<String, Object> s = snapshot();

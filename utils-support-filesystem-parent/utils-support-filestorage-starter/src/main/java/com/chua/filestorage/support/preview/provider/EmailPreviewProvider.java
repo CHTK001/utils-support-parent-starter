@@ -14,16 +14,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * EML 邮件预览提供器。
- * <p>SPI 类型：{@code preview-email}。解析 EML 文件的头部信息和正文。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param eml eml
- * @return 解析eml的结果
- * @param content 内容
- * @param ext ext
- * @param mime mime
+* EML 邮件预览提供器。
+* <p>SPI 类型：{@code preview-email}。解析 EML 文件的头部信息和正文。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param eml eml
+* @return 解析eml的结果
+* @param content 内容
+* @param ext ext
+* @param mime mime
  */
 @Spi("preview-email")
 public class EmailPreviewProvider implements FileStoragePreviewProvider {
@@ -99,12 +99,12 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         bodyText = bodyText.replaceAll("<[^>]+>", "");
         // 截断
     /**
-     * email信息类。
-     *
-     * @author CH
-     * @since 4.0.0
-     * @param bytes bytes
-     * @return human大小的结果
+    * email信息类。
+    *
+    * @author CH
+    * @since 4.0.0
+    * @param bytes bytes
+    * @return human大小的结果
      */
         if (bodyText.length() > 2000) {
             bodyText = bodyText.substring(0, 2000) + "...";
@@ -113,10 +113,10 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         info.body = bodyText;
         return info;
     /**
-     * 构建html。
-     * @param info 信息
-     * @param fileSize 文件大小
-     * @return 构建html的结果
+    * 构建html。
+    * @param info 信息
+    * @param fileSize 文件大小
+    * @return 构建html的结果
      */
     }
 
@@ -166,12 +166,12 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         sb.append("</div></body></html>");
         return sb.toString();
     /**
-      * escapehtml。
-     * @param text 文本
-     * @return escapeHtml的结果
-     * @author CH
-     * @since 4.0.0
-     * @param bytes bytes
+    * escapehtml。
+    * @param text 文本
+    * @return escapeHtml的结果
+    * @author CH
+    * @since 4.0.0
+    * @param bytes bytes
      */
     }
 

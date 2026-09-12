@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * H2 数据清理插件，提供测试环境的 模式 和数据清理能力。
- * <p>
- * 清理顺序：删除所有全文索引 → 删除所有用户表 → 重置序列。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* H2 数据清理插件，提供测试环境的 模式 和数据清理能力。
+* <p>
+* 清理顺序：删除所有全文索引 → 删除所有用户表 → 重置序列。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class H2CleanupPlugin {
 
@@ -25,21 +25,21 @@ public class H2CleanupPlugin {
     private final Engine engine;
 
     /**
-     * 构造方法。
-     *
-     * @param engine H2 引擎
+    * 构造方法。
+    *
+    * @param engine H2 引擎
      */
     public H2CleanupPlugin(Engine engine) {
         this.engine = engine;
     }
 
     /**
-     * 清理所有用户数据（保留系统表）。
-     * <p>
-     * 顺序：先删用户索引 → 再删用户表 → 重置序列。
-     * </p>
-     *
-     * @return 清理的表数量
+    * 清理所有用户数据（保留系统表）。
+    * <p>
+    * 顺序：先删用户索引 → 再删用户表 → 重置序列。
+    * </p>
+    *
+    * @return 清理的表数量
      */
     public int cleanup() {
         try (Connection conn = getConnection()) {
@@ -63,10 +63,10 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 仅删除指定前缀的表（用于隔离测试）。
-     *
-     * @param prefix 表名前缀
-     * @return 清理的表数量
+    * 仅删除指定前缀的表（用于隔离测试）。
+    *
+    * @param prefix 表名前缀
+    * @return 清理的表数量
      */
     public int cleanupByPrefix(String prefix) {
         try (Connection conn = getConnection()) {
@@ -87,9 +87,9 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 清空所有用户表数据（保留表结构）。
-     *
-     * @return 清理的行数
+    * 清空所有用户表数据（保留表结构）。
+    *
+    * @return 清理的行数
      */
     public int truncateAll() {
         try (Connection conn = getConnection()) {
@@ -114,8 +114,8 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 获取connection。
-     * @return 获取connection的结果
+    * 获取connection。
+    * @return 获取connection的结果
      */
     private Connection getConnection() throws SQLException {
         DataSource ds = getDataSource();
@@ -127,8 +127,8 @@ public class H2CleanupPlugin {
 
     @SuppressWarnings("unchecked")
     /**
-     * 获取数据源。
-     * @return 获取数据源的结果
+    * 获取数据源。
+    * @return 获取数据源的结果
      */
     private DataSource getDataSource() {
         var dsObj = engine.getDataSource();
@@ -136,9 +136,9 @@ public class H2CleanupPlugin {
     }
 
     /**
-      * 删除所有用户索引（H2 2.x 无 文本 索引，按普通索引清理）。
-     * @param conn conn
-     * @return 掉落全部用户索引的结果
+    * 删除所有用户索引（H2 2.x 无 文本 索引，按普通索引清理）。
+    * @param conn conn
+    * @return 掉落全部用户索引的结果
      */
     private int dropAllUserIndexes(Connection conn) throws SQLException {
         List<String> indexes = new ArrayList<>();
@@ -157,10 +157,10 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 获取所有用户表名（排除系统表）。
-     * <p>H2 2.x 中用户表的 TABLE_TYPE 为 'BASE TABLE'（SQL 标准值）。</p>
-     * @param conn conn
-     * @return 获取用户table名称的结果
+    * 获取所有用户表名（排除系统表）。
+    * <p>H2 2.x 中用户表的 TABLE_TYPE 为 'BASE TABLE'（SQL 标准值）。</p>
+    * @param conn conn
+    * @return 获取用户table名称的结果
      */
     private List<String> getUserTableNames(Connection conn) throws SQLException {
         List<String> tables = new ArrayList<>();
@@ -180,9 +180,9 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 删除所有用户表。
-     * @param conn conn
-     * @return 掉落全部用户tables的结果
+    * 删除所有用户表。
+    * @param conn conn
+    * @return 掉落全部用户tables的结果
      */
     private int dropAllUserTables(Connection conn) throws SQLException {
         List<String> tables = getUserTableNames(conn);
@@ -193,9 +193,9 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 删除指定表。
-     * @param conn conn
-     * @param tableName table名称
+    * 删除指定表。
+    * @param conn conn
+    * @param tableName table名称
      */
     private void dropTable(Connection conn, String tableName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
@@ -206,9 +206,9 @@ public class H2CleanupPlugin {
     }
 
     /**
-     * 删除指定索引。
-     * @param conn conn
-     * @param indexName 索引名称
+    * 删除指定索引。
+    * @param conn conn
+    * @param indexName 索引名称
      */
     private void dropIndex(Connection conn, String indexName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {

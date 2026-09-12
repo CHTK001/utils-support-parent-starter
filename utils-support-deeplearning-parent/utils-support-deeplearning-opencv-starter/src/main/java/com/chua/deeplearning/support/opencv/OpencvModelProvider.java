@@ -18,44 +18,44 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
-   * 纯 打开cv 批量模型提供者。
- * <p>
- * 一次注册人脸检测、眼睛、微笑、侧脸、人体、HOG 行人、图像质量、人脸质量等模型。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 纯 打开cv 批量模型提供者。
+* <p>
+* 一次注册人脸检测、眼睛、微笑、侧脸、人体、HOG 行人、图像质量、人脸质量等模型。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OpencvModelProvider implements BulkModelProvider {
 
     /**
-     * 模型提供方。
+    * 模型提供方。
      */
     private static final String PROVIDER = "opencv";
 
     /**
-     * 人脸模型路径。
+    * 人脸模型路径。
      */
     private static final String FACE = "models/opencv/haarcascade_frontalface_default.xml";
 
     /**
-     * 眼睛模型路径。
+    * 眼睛模型路径。
      */
     private static final String EYE = "models/opencv/haarcascade_eye.xml";
 
     /**
-     * 微笑模型路径。
+    * 微笑模型路径。
      */
     private static final String SMILE = "models/opencv/haarcascade_smile.xml";
 
     /**
-     * 全身模型路径。
+    * 全身模型路径。
      */
     private static final String FULLBODY = "models/opencv/haarcascade_fullbody.xml";
 
     /**
-     * 侧脸模型路径。
+    * 侧脸模型路径。
      */
     private static final String PROFILE = "models/opencv/haarcascade_profileface.xml";
 
@@ -87,12 +87,12 @@ public class OpencvModelProvider implements BulkModelProvider {
     }
 
     /**
-     * 安全创建并加入模型定义。
-     *
-     * @param list      结果列表
-     * @param modelId   模型 标识
-     * @param modelPath 模型路径，可为空
-     * @param supplier  翻译器工厂
+    * 安全创建并加入模型定义。
+    *
+    * @param list      结果列表
+    * @param modelId   模型 标识
+    * @param modelPath 模型路径，可为空
+    * @param supplier  翻译器工厂
      */
     private void add(List<TranslatorModelDefinition> list,
                      String modelId,

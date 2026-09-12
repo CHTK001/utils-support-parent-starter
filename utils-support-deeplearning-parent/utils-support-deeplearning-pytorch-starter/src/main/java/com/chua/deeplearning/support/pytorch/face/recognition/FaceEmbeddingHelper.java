@@ -4,10 +4,10 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 
 /**
- * 人脸特征向量后处理工具。
- *
- * @author CH
- * @since 4.0.0.42
+* 人脸特征向量后处理工具。
+*
+* @author CH
+* @since 4.0.0.42
  */
 final class FaceEmbeddingHelper {
 
@@ -16,10 +16,10 @@ final class FaceEmbeddingHelper {
     }
 
     /**
-     * 将模型输出转为 L2 归一化特征向量。
-     *
-     * @param list 模型输出
-     * @return 特征向量
+    * 将模型输出转为 L2 归一化特征向量。
+    *
+    * @param list 模型输出
+    * @return 特征向量
      */
     static float[] toFeature(NDList list) {
         NDArray output = list.singletonOrThrow();

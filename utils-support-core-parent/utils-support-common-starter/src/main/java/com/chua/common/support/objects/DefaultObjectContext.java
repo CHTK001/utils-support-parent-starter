@@ -19,82 +19,82 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * 默认对象容器实现。
- *
- * <p>持有 {@link ObjectContextConfig} 和 {@link BeanDefinitionRegistry} 实例，
-   * 替代接口静态 {@code WeakHashMap} holder，提供线程安全、可 GC 的轻量级 IOC 容器。</p>
- *
- * <p>核心职责：
- * <ul>
- *   <li>管理配置 {@link ObjectContextConfig} 和注册中心 {@link BeanDefinitionRegistry}</li>
- *   <li>Bean 生命周期：注册、获取、初始化、销毁</li>
- *   <li>依赖注入链路：{@code @AutoInject} / {@code @ConfigValue} 通过
- *       {@link BeanDefinition#setBeanNameProvider(Function)} /
- *       {@link BeanDefinition#setBeanTypeProvider(Function)} 回调解析依赖</li>
- *   <li>事件发布：委托 {@link EventPublisher}</li>
- * </ul></p>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * DefaultObjectContext context = new DefaultObjectContext();
- * context.init(ObjectContextConfig.defaults());
- * context.registerBean(new MyService());
- * MyService service = context.getBean(MyService.class);
- * }</pre>an(new MyService());
- * MyService service = context.getBean(MyService.class);
- * }</pre>
- *
- * @author CH
- * @since 2024/12/20
+* 默认对象容器实现。
+*
+* <p>持有 {@link ObjectContextConfig} 和 {@link BeanDefinitionRegistry} 实例，
+* 替代接口静态 {@code WeakHashMap} holder，提供线程安全、可 GC 的轻量级 IOC 容器。</p>
+*
+* <p>核心职责：
+* <ul>
+*   <li>管理配置 {@link ObjectContextConfig} 和注册中心 {@link BeanDefinitionRegistry}</li>
+*   <li>Bean 生命周期：注册、获取、初始化、销毁</li>
+*   <li>依赖注入链路：{@code @AutoInject} / {@code @ConfigValue} 通过
+*       {@link BeanDefinition#setBeanNameProvider(Function)} /
+*       {@link BeanDefinition#setBeanTypeProvider(Function)} 回调解析依赖</li>
+*   <li>事件发布：委托 {@link EventPublisher}</li>
+* </ul></p>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* DefaultObjectContext context = new DefaultObjectContext();
+* context.init(ObjectContextConfig.defaults());
+* context.registerBean(new MyService());
+* MyService service = context.getBean(MyService.class);
+* }</pre>an(new MyService());
+* MyService service = context.getBean(MyService.class);
+* }</pre>
+*
+* @author CH
+* @since 2024/12/20
  */
 @Slf4j
 public class DefaultObjectContext implements ObjectContext {
 
     /**
-     * 容器配置
+    * 容器配置
      */
     private ObjectContextConfig config;
 
     /**
-      * Bean 定义注册中心（延迟初始化，直到第一次 获取registry() 或 初始化()）
+    * Bean 定义注册中心（延迟初始化，直到第一次 获取registry() 或 初始化()）
      */
     private volatile BeanDefinitionRegistry registry;
 
     /**
-     * 事件发布器
+    * 事件发布器
      */
     private final EventPublisher eventPublisher = new EventPublisher();
 
     /**
-     * 环境配置
+    * 环境配置
      */
     private final Environment environment = new DefaultEnvironment();
 
     /**
-     * 容器是否已关闭。
+    * 容器是否已关闭。
      */
     private volatile boolean closed = false;
 
     // ==================== 构造器 ====================
 
     /**
-      * 使用默认配置创建容器（不自动 初始化，需手动调用 {@link #init()}）
+    * 使用默认配置创建容器（不自动 初始化，需手动调用 {@link #init()}）
      */
     public DefaultObjectContext() {
     }
 
     /**
-      * 使用指定配置创建容器（不自动 初始化）
-     * @param config 配置
+    * 使用指定配置创建容器（不自动 初始化）
+    * @param config 配置
      */
     public DefaultObjectContext(ObjectContextConfig config) {
         this.config = config;
     }
 
     /**
-      * 创建容器并从 类路径 配置（application.yml 等）完成初始化。
-     *
-     * @return 已 初始化 的上下文
+    * 创建容器并从 类路径 配置（application.yml 等）完成初始化。
+    *
+    * @return 已 初始化 的上下文
      */
     public static DefaultObjectContext create() {
         DefaultObjectContext context = new DefaultObjectContext();
@@ -103,10 +103,10 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
     /**
-     * 创建容器并使用指定配置完成初始化。
-     *
-     * @param config 容器配置
-     * @return 已 初始化 的上下文
+    * 创建容器并使用指定配置完成初始化。
+    *
+    * @param config 容器配置
+    * @return 已 初始化 的上下文
      */
     public static DefaultObjectContext create(ObjectContextConfig config) {
         DefaultObjectContext context = new DefaultObjectContext();
@@ -140,8 +140,8 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
     /**
-      * 为注册中心中所有 Beandefinition 设置容器回调，
-     * 使其在构造器注入和字段注入时能从容器查找依赖。
+    * 为注册中心中所有 Beandefinition 设置容器回调，
+    * 使其在构造器注入和字段注入时能从容器查找依赖。
      */
     private void configureAllBeanDefinitionProviders() {
         BeanDefinitionRegistry reg = this.registry;
@@ -154,8 +154,8 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
     /**
-      * 为单个 Beandefinition 设置容器回调。
-     * @param def def
+    * 为单个 Beandefinition 设置容器回调。
+    * @param def def
      */
     private void configureBeanDefinitionProvider(BeanDefinition def) {
         if (!(def instanceof AbstractBeanDefinition abd)) {
@@ -551,8 +551,8 @@ public class DefaultObjectContext implements ObjectContext {
     // ==================== 生命周期 ====================
 
     /**
-     * 关闭容器，销毁所有 Bean 并清理相关状态。
-     * <p>幂等：重复调用安全。关闭后所有查找类方法返回 null/empty，注册类方法抛出 {@link com.chua.common.support.objects.exception.BeanDefinitionException}。</p>
+    * 关闭容器，销毁所有 Bean 并清理相关状态。
+    * <p>幂等：重复调用安全。关闭后所有查找类方法返回 null/empty，注册类方法抛出 {@link com.chua.common.support.objects.exception.BeanDefinitionException}。</p>
      */
     @Override
     public void close() {
@@ -573,8 +573,8 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
     /**
-     * 容器是否已关闭。
-     * <p>基于实例字段，避免依赖 {@link ObjectContext#REGISTRY_HOLDER} 的状态。</p>
+    * 容器是否已关闭。
+    * <p>基于实例字段，避免依赖 {@link ObjectContext#REGISTRY_HOLDER} 的状态。</p>
      */
     @Override
     public boolean isClosed() {

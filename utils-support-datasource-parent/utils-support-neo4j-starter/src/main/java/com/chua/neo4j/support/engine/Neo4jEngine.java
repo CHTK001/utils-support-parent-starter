@@ -40,50 +40,50 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * Neo4j 图数据库引擎实现，通过 螺栓 协议连接 Neo4j 执行 Cypher 查询。
- * <p>
- * 支持 Lambda 链式查询、条件过滤、分页、更新和删除操作。
- * 条件自动转为参数化 Cypher WHERE 子句，防止 Cypher 注入。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Neo4j 图数据库引擎实现，通过 螺栓 协议连接 Neo4j 执行 Cypher 查询。
+* <p>
+* 支持 Lambda 链式查询、条件过滤、分页、更新和删除操作。
+* 条件自动转为参数化 Cypher WHERE 子句，防止 Cypher 注入。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("neo4j")
 public class Neo4jEngine implements Engine {
 
     /**
-     * 数据源映射表。
+    * 数据源映射表。
      */
     private final Map<String, EngineDataSource<Object>> dataSources = new ConcurrentHashMap<>();
 
     /**
-     * 默认数据源名称。
+    * 默认数据源名称。
      */
     private String defaultDataSourceName;
 
     /**
-     * Neo4j 驱动实例。
+    * Neo4j 驱动实例。
      */
     private Driver driver;
 
     /**
-     * 方言（从 META-INF/dialect-env/neo4j.env 加载）。
+    * 方言（从 META-INF/dialect-env/neo4j.env 加载）。
      */
     private final java.util.Properties dialectProps;
 
     /**
-      * Neo4jengine。
+    * Neo4jengine。
      */
     public Neo4jEngine() {
         this.dialectProps = loadProps("neo4j");
     }
 
      /**
-      * 加载props。
-      * @param protocol 协议
-      * @return 加载props的结果
+     * 加载props。
+     * @param protocol 协议
+     * @return 加载props的结果
       */
      * 从类路径加载 .env 文件为 属性
      *
@@ -113,11 +113,11 @@ public class Neo4jEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 添加数据源
-     *
-     * @param name 名称
-     * @param ds ds
-     * @return 添加数据源的结果
+    * 添加数据源
+    *
+    * @param name 名称
+    * @param ds ds
+    * @return 添加数据源的结果
      */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
@@ -132,12 +132,12 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 连接 Neo4j 数据库。
-     *
-     * @param uri      螺栓 URI，如 螺栓://主机:7687
-     * @param user     用户名
-     * @param password 密码
-     * @return 当前引擎实例
+    * 连接 Neo4j 数据库。
+    *
+    * @param uri      螺栓 URI，如 螺栓://主机:7687
+    * @param user     用户名
+    * @param password 密码
+    * @return 当前引擎实例
      */
     public Neo4jEngine connect(String uri, String user, String password) {
         Config config = Config.builder()
@@ -221,10 +221,10 @@ public class Neo4jEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取数据源
-     *
-     * @param n n
-     * @return 获取数据源的结果
+    * 获取数据源
+    *
+    * @param n n
+    * @return 获取数据源的结果
      */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
@@ -233,9 +233,9 @@ public class Neo4jEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取数据源
-     *
-     * @return 获取数据源的结果
+    * 获取数据源
+    *
+    * @return 获取数据源的结果
      */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
@@ -263,66 +263,66 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-             * 解析Column
-             * @param col col
-             * @param col col
-             * @param pn pn
-             * @param ps ps
-             * @param ps ps
-             * @param ps ps
-             * @param to 转为
-             * @param entityClass 实体类
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param params 参数
-             * @param params 参数
-             * @param entityClass 实体类
-             * @param e e
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param setValues 设置值
-             * @param params 参数
-             * @param params 参数
-             * @param e e
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param params 参数
-             * @param params 参数
-             * @param e e
-             * @param conditions 条件
-             * @param params 参数
-             * @param alias 别名
-             * @param 0 0
-             * @param params 参数
-             * @param alias 别名
-             * @param sb sb
-             * @param c c
-             * @param params 参数
-             * @param alias 别名
-             * @param 0 0
-             * @param params 参数
-             * @param alias 别名
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param props props
-             * @param entityClass 实体类
-             * @param paramType 参数类型
-             * @param value 值
-             * @param e e
-             * @param e e
-             * @param value 值
-             * @param targetType Target类型
-             * @param Number 数字
+            * 解析Column
+            * @param col col
+            * @param col col
+            * @param pn pn
+            * @param ps ps
+            * @param ps ps
+            * @param ps ps
+            * @param to 转为
+            * @param entityClass 实体类
+            * @param col col
+            * @param col col
+            * @param entityClass 实体类
+            * @param col col
+            * @param col col
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param params 参数
+            * @param params 参数
+            * @param entityClass 实体类
+            * @param e e
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param setValues 设置值
+            * @param params 参数
+            * @param params 参数
+            * @param e e
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param params 参数
+            * @param params 参数
+            * @param e e
+            * @param conditions 条件
+            * @param params 参数
+            * @param alias 别名
+            * @param 0 0
+            * @param params 参数
+            * @param alias 别名
+            * @param sb sb
+            * @param c c
+            * @param params 参数
+            * @param alias 别名
+            * @param 0 0
+            * @param params 参数
+            * @param alias 别名
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param props props
+            * @param entityClass 实体类
+            * @param paramType 参数类型
+            * @param value 值
+            * @param e e
+            * @param e e
+            * @param value 值
+            * @param targetType Target类型
+            * @param Number 数字
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -336,65 +336,65 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                     * 解析Column
-                     * @param col col
-                     * @param pn pn
-                     * @param ps ps
-                     * @param ps ps
-                     * @param ps ps
-                     * @param to 转为
-                     * @param entityClass 实体类
-                     * @param col col
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param col col
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param params 参数
-                     * @param entityClass 实体类
-                     * @param e e
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param setValues 设置值
-                     * @param params 参数
-                     * @param params 参数
-                     * @param e e
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param params 参数
-                     * @param e e
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param 0 0
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param sb sb
-                     * @param c c
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param 0 0
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param props props
-                     * @param entityClass 实体类
-                     * @param paramType 参数类型
-                     * @param value 值
-                     * @param e e
-                     * @param e e
-                     * @param value 值
-                     * @param targetType Target类型
-                     * @param Number 数字
+                    * 解析Column
+                    * @param col col
+                    * @param pn pn
+                    * @param ps ps
+                    * @param ps ps
+                    * @param ps ps
+                    * @param to 转为
+                    * @param entityClass 实体类
+                    * @param col col
+                    * @param col col
+                    * @param entityClass 实体类
+                    * @param col col
+                    * @param col col
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param params 参数
+                    * @param entityClass 实体类
+                    * @param e e
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param setValues 设置值
+                    * @param params 参数
+                    * @param params 参数
+                    * @param e e
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param params 参数
+                    * @param e e
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param 0 0
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param sb sb
+                    * @param c c
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param 0 0
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param props props
+                    * @param entityClass 实体类
+                    * @param paramType 参数类型
+                    * @param value 值
+                    * @param e e
+                    * @param e e
+                    * @param value 值
+                    * @param targetType Target类型
+                    * @param Number 数字
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -449,58 +449,58 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-             * 解析Column
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param params 参数
-             * @param params 参数
-             * @param entityClass 实体类
-             * @param e e
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param setValues 设置值
-             * @param params 参数
-             * @param params 参数
-             * @param e e
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param params 参数
-             * @param params 参数
-             * @param e e
-             * @param conditions 条件
-             * @param params 参数
-             * @param alias 别名
-             * @param 0 0
-             * @param params 参数
-             * @param alias 别名
-             * @param sb sb
-             * @param c c
-             * @param params 参数
-             * @param alias 别名
-             * @param 0 0
-             * @param params 参数
-             * @param alias 别名
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param props props
-             * @param entityClass 实体类
-             * @param paramType 参数类型
-             * @param value 值
-             * @param e e
-             * @param e e
-             * @param value 值
-             * @param targetType Target类型
-             * @param Number 数字
+            * 解析Column
+            * @param col col
+            * @param col col
+            * @param entityClass 实体类
+            * @param col col
+            * @param col col
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param params 参数
+            * @param params 参数
+            * @param entityClass 实体类
+            * @param e e
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param setValues 设置值
+            * @param params 参数
+            * @param params 参数
+            * @param e e
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param params 参数
+            * @param params 参数
+            * @param e e
+            * @param conditions 条件
+            * @param params 参数
+            * @param alias 别名
+            * @param 0 0
+            * @param params 参数
+            * @param alias 别名
+            * @param sb sb
+            * @param c c
+            * @param params 参数
+            * @param alias 别名
+            * @param 0 0
+            * @param params 参数
+            * @param alias 别名
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param props props
+            * @param entityClass 实体类
+            * @param paramType 参数类型
+            * @param value 值
+            * @param e e
+            * @param e e
+            * @param value 值
+            * @param targetType Target类型
+            * @param Number 数字
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -514,57 +514,57 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                     * 解析Column
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param col col
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param params 参数
-                     * @param entityClass 实体类
-                     * @param e e
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param setValues 设置值
-                     * @param params 参数
-                     * @param params 参数
-                     * @param e e
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param params 参数
-                     * @param e e
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param 0 0
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param sb sb
-                     * @param c c
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param 0 0
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param props props
-                     * @param entityClass 实体类
-                     * @param paramType 参数类型
-                     * @param value 值
-                     * @param e e
-                     * @param e e
-                     * @param value 值
-                     * @param targetType Target类型
-                     * @param Number 数字
+                    * 解析Column
+                    * @param col col
+                    * @param entityClass 实体类
+                    * @param col col
+                    * @param col col
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param params 参数
+                    * @param entityClass 实体类
+                    * @param e e
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param setValues 设置值
+                    * @param params 参数
+                    * @param params 参数
+                    * @param e e
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param params 参数
+                    * @param e e
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param 0 0
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param sb sb
+                    * @param c c
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param 0 0
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param props props
+                    * @param entityClass 实体类
+                    * @param paramType 参数类型
+                    * @param value 值
+                    * @param e e
+                    * @param e e
+                    * @param value 值
+                    * @param targetType Target类型
+                    * @param Number 数字
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -588,55 +588,55 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-             * 解析Column
-             * @param col col
-             * @param col col
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param params 参数
-             * @param params 参数
-             * @param entityClass 实体类
-             * @param e e
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param setValues 设置值
-             * @param params 参数
-             * @param params 参数
-             * @param e e
-             * @param entityClass 实体类
-             * @param conditions 条件
-             * @param params 参数
-             * @param params 参数
-             * @param e e
-             * @param conditions 条件
-             * @param params 参数
-             * @param alias 别名
-             * @param 0 0
-             * @param params 参数
-             * @param alias 别名
-             * @param sb sb
-             * @param c c
-             * @param params 参数
-             * @param alias 别名
-             * @param 0 0
-             * @param params 参数
-             * @param alias 别名
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param val val
-             * @param props props
-             * @param entityClass 实体类
-             * @param paramType 参数类型
-             * @param value 值
-             * @param e e
-             * @param e e
-             * @param value 值
-             * @param targetType Target类型
-             * @param Number 数字
+            * 解析Column
+            * @param col col
+            * @param col col
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param params 参数
+            * @param params 参数
+            * @param entityClass 实体类
+            * @param e e
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param setValues 设置值
+            * @param params 参数
+            * @param params 参数
+            * @param e e
+            * @param entityClass 实体类
+            * @param conditions 条件
+            * @param params 参数
+            * @param params 参数
+            * @param e e
+            * @param conditions 条件
+            * @param params 参数
+            * @param alias 别名
+            * @param 0 0
+            * @param params 参数
+            * @param alias 别名
+            * @param sb sb
+            * @param c c
+            * @param params 参数
+            * @param alias 别名
+            * @param 0 0
+            * @param params 参数
+            * @param alias 别名
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param val val
+            * @param props props
+            * @param entityClass 实体类
+            * @param paramType 参数类型
+            * @param value 值
+            * @param e e
+            * @param e e
+            * @param value 值
+            * @param targetType Target类型
+            * @param Number 数字
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -650,54 +650,54 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                     * 解析Column
-                     * @param col col
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param params 参数
-                     * @param entityClass 实体类
-                     * @param e e
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param setValues 设置值
-                     * @param params 参数
-                     * @param params 参数
-                     * @param e e
-                     * @param entityClass 实体类
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param params 参数
-                     * @param e e
-                     * @param conditions 条件
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param 0 0
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param sb sb
-                     * @param c c
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param 0 0
-                     * @param params 参数
-                     * @param alias 别名
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param val val
-                     * @param props props
-                     * @param entityClass 实体类
-                     * @param paramType 参数类型
-                     * @param value 值
-                     * @param e e
-                     * @param e e
-                     * @param value 值
-                     * @param targetType Target类型
-                     * @param Number 数字
+                    * 解析Column
+                    * @param col col
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param params 参数
+                    * @param entityClass 实体类
+                    * @param e e
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param setValues 设置值
+                    * @param params 参数
+                    * @param params 参数
+                    * @param e e
+                    * @param entityClass 实体类
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param params 参数
+                    * @param e e
+                    * @param conditions 条件
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param 0 0
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param sb sb
+                    * @param c c
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param 0 0
+                    * @param params 参数
+                    * @param alias 别名
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param val val
+                    * @param props props
+                    * @param entityClass 实体类
+                    * @param paramType 参数类型
+                    * @param value 值
+                    * @param e e
+                    * @param e e
+                    * @param value 值
+                    * @param targetType Target类型
+                    * @param Number 数字
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -715,9 +715,9 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 执行 Cypher 查询。
-     * @param entityClass 实体类
-     * @param conditions 条件
+    * 执行 Cypher 查询。
+    * @param entityClass 实体类
+    * @param conditions 条件
      /**
       * cypher查询。
       * @param entityClass 实体类
@@ -769,7 +769,7 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 执行 Cypher 更新。
+    * 执行 Cypher 更新。
      */
     @SuppressWarnings("unchecked")
     private <T> int cypherUpdate(
@@ -814,10 +814,10 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 执行 Cypher 删除。
-     * @param entityClass 实体类
-     * @param conditions 条件
-     * @return cypher删除的结果
+    * 执行 Cypher 删除。
+    * @param entityClass 实体类
+    * @param conditions 条件
+    * @return cypher删除的结果
      */
     @SuppressWarnings("unchecked")
     private <T> int cypherDelete(Class<T> entityClass, List<Condition> conditions) {
@@ -847,12 +847,12 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-      * 将结构化 条件 列表构建为 Cypher WHERE 子句。
-     *
-     * @param conditions 条件列表
-     * @param params     参数映射（输出）
-     * @param alias      节点别名
-     * @return Cypher WHERE 字符串
+    * 将结构化 条件 列表构建为 Cypher WHERE 子句。
+    *
+    * @param conditions 条件列表
+    * @param params     参数映射（输出）
+    * @param alias      节点别名
+    * @return Cypher WHERE 字符串
      */
     private String buildCypherWhere(
             List<Condition> conditions,
@@ -872,7 +872,7 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-      * 追加单个条件到 字符串构建器。
+    * 追加单个条件到 字符串构建器。
      */
     private void appendCondition(
             StringBuilder sb,
@@ -957,11 +957,11 @@ public class Neo4jEngine implements Engine {
 
     @SuppressWarnings("unchecked")
     /**
-     * 映射转为实体
-     *
-     * @param props props
-     * @param entityClass 实体类
-     * @return 映射转为实体的结果
+    * 映射转为实体
+    *
+    * @param props props
+    * @param entityClass 实体类
+    * @return 映射转为实体的结果
      */
     private <T> T mapToEntity(Map<String, Object> props, Class<T> entityClass) {
         try {
@@ -992,11 +992,11 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 转换数字
-     *
-     * @param value 值
-     * @param targetType Target类型
-     * @return 转换数字的结果
+    * 转换数字
+    *
+    * @param value 值
+    * @param targetType Target类型
+    * @return 转换数字的结果
      */
     private Object convertNumber(Object value, Class<?> targetType) {
         if (!(value instanceof Number)) {

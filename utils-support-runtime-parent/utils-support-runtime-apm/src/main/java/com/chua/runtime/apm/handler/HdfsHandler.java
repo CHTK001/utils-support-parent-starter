@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * HDFS 处理器 — intercepts Hadoop 文件系统 operations.
- *
- * @author CH
- * @since 4.0.0.42
+* HDFS 处理器 — intercepts Hadoop 文件系统 operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HdfsHandler extends AbstractAppHandler {
 
     /**
-      * 文件 系统
+    * 文件 系统
      */
     private static final String FILE_SYSTEM = "org/apache/hadoop/fs/FileSystem";
     /**
-      * fs 方法
+    * fs 方法
      */
     private static final String[] FS_METHODS = {"open", "create", "delete", "rename", "listStatus", "mkdirs", "exists", "getFileStatus"};
 

@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 本地文件落盘的 UploadProvider 默认实现。
- * <p>
- * 将上传文件保存到本地目录（{@code uploadDir/files/}），
- * 文件 ID 与文档 ID 对应，支持 {@link #upload}、{@link #read}、{@link #delete}。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 本地文件落盘的 UploadProvider 默认实现。
+* <p>
+* 将上传文件保存到本地目录（{@code uploadDir/files/}），
+* 文件 ID 与文档 ID 对应，支持 {@link #upload}、{@link #read}、{@link #delete}。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class LocalFileUploadProvider implements UploadProvider {
@@ -33,9 +33,9 @@ public class LocalFileUploadProvider implements UploadProvider {
     private final Path baseDir;
 
     /**
-     * 构造本地文件上传提供者。
-     *
-     * @param uploadDir 上传根目录路径
+    * 构造本地文件上传提供者。
+    *
+    * @param uploadDir 上传根目录路径
      */
     public LocalFileUploadProvider(String uploadDir) {
         this.baseDir = Path.of(uploadDir, FILES_SUBDIR);

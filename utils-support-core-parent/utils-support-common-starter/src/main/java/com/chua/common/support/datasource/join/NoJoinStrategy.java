@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 无 JOIN 策略（默认，单表模式）。
- *
- * @author CH
- * @since 4.0.0.42
+* 无 JOIN 策略（默认，单表模式）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("none")
 public class NoJoinStrategy implements JoinStrategy {

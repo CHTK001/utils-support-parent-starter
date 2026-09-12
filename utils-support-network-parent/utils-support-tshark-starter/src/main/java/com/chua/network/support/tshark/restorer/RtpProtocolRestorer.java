@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * RTP 协议还原器。
- *
- * <p>解析 RTP 头部：版本、padding、扩展、CSRC count、marker、payload type、sequence、timestamp、SSRC。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* RTP 协议还原器。
+*
+* <p>解析 RTP 头部：版本、padding、扩展、CSRC count、marker、payload type、sequence、timestamp、SSRC。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RtpProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -75,10 +75,10 @@ public class RtpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为payload类型名称
-     *
-     * @param pt pt
-     * @return 转为payload类型名称的结果
+    * 转为payload类型名称
+    *
+    * @param pt pt
+    * @return 转为payload类型名称的结果
      */
     private static String toPayloadTypeName(int pt) {
         return switch (pt) {

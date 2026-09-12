@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * 分库分表sphere 表结构缓存。
- *
- * @author CH
- * @since 4.0.0.42
+* 分库分表sphere 表结构缓存。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class TableCache {
@@ -25,10 +25,10 @@ public class TableCache {
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     /**
-      * 创建 table缓存 实例
-     * @param dataSources 数据源
-     * @param cacheSeconds int
-     * @param cacheSeconds 缓存seconds
+    * 创建 table缓存 实例
+    * @param dataSources 数据源
+    * @param cacheSeconds int
+    * @param cacheSeconds 缓存seconds
      */
     public TableCache(List<DataSource> dataSources, int cacheSeconds) {
         this.dataSources = dataSources;
@@ -36,10 +36,10 @@ public class TableCache {
     }
 
     /**
-     * 获取Tables
-     *
-     * @param prefix 前缀
-     * @return 获取tables的结果
+    * 获取Tables
+    *
+    * @param prefix 前缀
+    * @return 获取tables的结果
      */
     public List<String> getTables(String prefix) {
         var now = System.currentTimeMillis();
@@ -65,10 +65,10 @@ public class TableCache {
     public void clear() { cache.clear(); }
 
     /**
-     * 扫描Tables
-     *
-     * @param prefix 前缀
-     * @return 扫描tables的结果
+    * 扫描Tables
+    *
+    * @param prefix 前缀
+    * @return 扫描tables的结果
      */
     private List<String> scanTables(String prefix) {
         var all = new LinkedHashSet<String>();

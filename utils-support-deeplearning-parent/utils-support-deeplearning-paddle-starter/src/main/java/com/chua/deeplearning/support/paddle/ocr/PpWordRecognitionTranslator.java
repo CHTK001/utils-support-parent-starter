@@ -19,20 +19,20 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * PaddleOCR 文字识别 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* PaddleOCR 文字识别 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PpWordRecognitionTranslator implements Translator<Image, String> {
 
     /**
-     * 是否使用空格字符。
+    * 是否使用空格字符。
      */
     private final boolean useSpaceChar;
 
     /**
-     * 字符表。
+    * 字符表。
      */
     private List<String> table;
 
@@ -42,8 +42,8 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     /**
-      * 创建 ppword认可translator 实例
-     * @param useSpaceChar usespacechar
+    * 创建 ppword认可translator 实例
+    * @param useSpaceChar usespacechar
      */
     public PpWordRecognitionTranslator(boolean useSpaceChar) {
         this.useSpaceChar = useSpaceChar;
@@ -65,10 +65,10 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     /**
-     * 打开Vocabulary
-     *
-     * @param model 模型
-     * @return 打开vocabulary的结果
+    * 打开Vocabulary
+    *
+    * @param model 模型
+    * @return 打开vocabulary的结果
      */
     private InputStream openVocabulary(Model model) throws IOException {
         String[] candidates = {

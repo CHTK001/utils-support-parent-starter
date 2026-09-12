@@ -20,17 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Whisper ONNX Translator（音频文件 → 转写文本）。
- * <p>
-   * 简化实现：每步 feed 1 个 令牌（不做 KV 缓存 优化），
-   * 始终 use_缓存_分支=False（optimum 导出 解码器 的
-   * 编码器 KV 缓存 shape bug workaround）。
- * </p>
- *
-   * 流程：WAV → mel → 编码器 → 解码器 greedy → 令牌 标识 → 文本
- *
- * @author CH
- * @since 4.0.0.42
+* Whisper ONNX Translator（音频文件 → 转写文本）。
+* <p>
+* 简化实现：每步 feed 1 个 令牌（不做 KV 缓存 优化），
+* 始终 use_缓存_分支=False（optimum 导出 解码器 的
+* 编码器 KV 缓存 shape bug workaround）。
+* </p>
+*
+* 流程：WAV → mel → 编码器 → 解码器 greedy → 令牌 标识 → 文本
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class WhisperTranslator {
@@ -79,9 +79,9 @@ public class WhisperTranslator {
     private OrtSession decoderPastSession;
 
     /**
-     * Prepare
-     *
-     * @param modelDir 模型dir
+    * Prepare
+    *
+    * @param modelDir 模型dir
      */
     public void prepare(Path modelDir) throws Exception {
         Path onnxDir = modelDir.resolve("onnx");
@@ -119,11 +119,11 @@ public class WhisperTranslator {
     }
 
     /**
-     * 查找Onnx
-     *
-     * @param dir dir
-     * @param prefix 前缀
-     * @return findOnnx的结果
+    * 查找Onnx
+    *
+    * @param dir dir
+    * @param prefix 前缀
+    * @return findOnnx的结果
      */
     private static Path findOnnx(Path dir, String prefix) throws IOException {
         try (var stream = Files.list(dir)) {
@@ -137,9 +137,9 @@ public class WhisperTranslator {
     }
 
     /**
-      * 从 类路径 jar 内按 音频/asr/whisper-tiny/ 路径解压到 模型dir。
-      * 保留子目录结构（onnx/编码器_模型_quantized.onnx 等）。
-     * @param modelDir 模型dir
+    * 从 类路径 jar 内按 音频/asr/whisper-tiny/ 路径解压到 模型dir。
+    * 保留子目录结构（onnx/编码器_模型_quantized.onnx 等）。
+    * @param modelDir 模型dir
      */
     private static void extractFromJar(Path modelDir) throws Exception {
         final String basePath = "audio/asr/whisper-tiny";
@@ -208,10 +208,10 @@ public class WhisperTranslator {
     }
 
     /**
-     * Transcribe
-     *
-     * @param audioPath 音频路径
-     * @return transcribe的结果
+    * Transcribe
+    *
+    * @param audioPath 音频路径
+    * @return transcribe的结果
      */
     public String transcribe(Path audioPath) throws Exception {
         long start = System.currentTimeMillis();
@@ -230,10 +230,10 @@ public class WhisperTranslator {
     }
 
     /**
-     * 执行transcribe
-     *
-     * @param mel mel
-     * @return 执行transcribe的结果
+    * 执行transcribe
+    *
+    * @param mel mel
+    * @return 执行transcribe的结果
      */
     private String doTranscribe(float[][] mel) throws Exception {
 
@@ -260,19 +260,19 @@ public class WhisperTranslator {
 
 
     /**
-     * 设置识别语言（zh/en 等）
-     *
-     * @param language language
+    * 设置识别语言（zh/en 等）
+    *
+    * @param language language
      */
     public void setLanguage(String language) {
         this.language = language;
     }
 
     /**
-     * Greedy解码（非自回归模式：每次扩展输入序列重新推理）
-     *
-     * @param encoderHidden 编码器hidden
-     * @return greedyDecode的结果
+    * Greedy解码（非自回归模式：每次扩展输入序列重新推理）
+    *
+    * @param encoderHidden 编码器hidden
+    * @return greedyDecode的结果
      */
     private int[] greedyDecode(float[] encoderHidden) {
         List<Integer> tokens = new ArrayList<>();
@@ -343,12 +343,12 @@ public class WhisperTranslator {
     }
 
     /**
-     * Argmax
-     *
-     * @param arr arr
-     * @param offset 偏移量
-     * @param length 长度
-     * @return argmax的结果
+    * Argmax
+    *
+    * @param arr arr
+    * @param offset 偏移量
+    * @param length 长度
+    * @return argmax的结果
      */
     private static int argmax(float[] arr, int offset, int length) {
         int idx = 0;
@@ -364,10 +364,10 @@ public class WhisperTranslator {
     }
 
     /**
-     * 加载音频
-     *
-     * @param path 路径
-     * @return 加载音频的结果
+    * 加载音频
+    *
+    * @param path 路径
+    * @return 加载音频的结果
      */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {

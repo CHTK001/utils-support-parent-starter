@@ -11,12 +11,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 基于虚拟线程的 ShutdownOnFailure 结构化并发实现。
- *
- * <p>任一任务失败立即取消其余任务，并抛出第一个异常。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于虚拟线程的 ShutdownOnFailure 结构化并发实现。
+*
+* <p>任一任务失败立即取消其余任务，并抛出第一个异常。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ShutdownOnFailureStructuredConcurrencyProvider implements StructuredConcurrencyProvider {
 
@@ -31,8 +31,8 @@ public class ShutdownOnFailureStructuredConcurrencyProvider implements Structure
     }
 
     /**
-     * 创建 ShutdownOnFailureStructuredConcurrencyProvider 实例
-     * @param executor executor
+    * 创建 ShutdownOnFailureStructuredConcurrencyProvider 实例
+    * @param executor executor
      */
     public ShutdownOnFailureStructuredConcurrencyProvider(ExecutorService executor) {
         this.executor = executor;

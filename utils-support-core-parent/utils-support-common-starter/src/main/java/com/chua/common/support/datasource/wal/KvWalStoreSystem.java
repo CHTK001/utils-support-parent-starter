@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * KV 存储引擎。
+* KV 存储引擎。
  */
 public class KvWalStoreSystem implements WalStoreSystem<String> {
 

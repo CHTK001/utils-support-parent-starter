@@ -7,18 +7,18 @@ import com.chua.nmap.support.bridge.RustNmapBridge;
 import java.util.List;
 
 /**
- * Nmap 独立测试入口，打包成 fat jar 后在 Linux 服务器上直接运行
-   * 用法: Java -jar nmap-测试.jar [Target_ip]
- * @author CH
- * @since 4.0.0
+* Nmap 独立测试入口，打包成 fat jar 后在 Linux 服务器上直接运行
+* 用法: Java -jar nmap-测试.jar [Target_ip]
+* @author CH
+* @since 4.0.0
  */
 public class NmapTestRunner {
 
     private static final String SEP = "─".repeat(50); // SEP
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) {
         String target = args.length > 0 ? args[0] : "172.16.0.40";

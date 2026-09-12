@@ -9,22 +9,22 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Trae CN 版 "tc" 加密格式解密器。
- *
- * <p>算法（逆向自 Trae CN IDE，版本 3.3.67）：
- * <ol>
- *   <li>Base64 解码后结构：[6B Header][32B RandomBytes][AES-CBC 密文]</li>
- *   <li>Header "tc"(0x74 0x63) 表示标准 AES 类型，用 SALT_A XOR SALT_B 派生密钥</li>
- *   <li>key/IV 派生：SHA-512(RandomBytes) → step1；SHA-512(step1 || salt) → step2；key=step2[0:16]，iv=step2[16:32]</li>
- *   <li>AES-128-CBC/PKCS5 解密</li>
- *   <li>解密后结构：[64B SHA-512 哈希][明文 JSON]，需验证哈希</li>
- * </ol>
- *
- * <p>纯 JDK JCE 实现，无 native 依赖。
- *
- * @see <a href="https://github.com/ZedeX/trae-local-api/blob/main/CRACK_TUTORIAL.md">TC 解密逆向文档</a>
- * @author CH
- * @since 4.0.0.42
+* Trae CN 版 "tc" 加密格式解密器。
+*
+* <p>算法（逆向自 Trae CN IDE，版本 3.3.67）：
+* <ol>
+*   <li>Base64 解码后结构：[6B Header][32B RandomBytes][AES-CBC 密文]</li>
+*   <li>Header "tc"(0x74 0x63) 表示标准 AES 类型，用 SALT_A XOR SALT_B 派生密钥</li>
+*   <li>key/IV 派生：SHA-512(RandomBytes) → step1；SHA-512(step1 || salt) → step2；key=step2[0:16]，iv=step2[16:32]</li>
+*   <li>AES-128-CBC/PKCS5 解密</li>
+*   <li>解密后结构：[64B SHA-512 哈希][明文 JSON]，需验证哈希</li>
+* </ol>
+*
+* <p>纯 JDK JCE 实现，无 native 依赖。
+*
+* @see <a href="https://github.com/ZedeX/trae-local-api/blob/main/CRACK_TUTORIAL.md">TC 解密逆向文档</a>
+* @author CH
+* @since 4.0.0.42
  */
 public final class TraeTcDecryptor {
 
@@ -56,17 +56,17 @@ public final class TraeTcDecryptor {
     private static final int HASH_LEN = 64;
 
     /**
-     * 私有构造，防止实例化。
+    * 私有构造，防止实例化。
      */
     private TraeTcDecryptor() {
         throw new UnsupportedOperationException("TraeTcDecryptor is a static utility");
     }
 
     /**
-      * 判断字符串是否为 tc 加密格式（基础64 解码后首 2 字节为 "tc"）。
-     *
-     * @param value 基础64 字符串或明文，不可为 空
-     * @return true 表示是 tc 加密串，需解密
+    * 判断字符串是否为 tc 加密格式（基础64 解码后首 2 字节为 "tc"）。
+    *
+    * @param value 基础64 字符串或明文，不可为 空
+    * @return true 表示是 tc 加密串，需解密
      */
     public static boolean isTcEncrypted(String value) {
         if (value == null || value.isEmpty()) {
@@ -89,11 +89,11 @@ public final class TraeTcDecryptor {
     }
 
     /**
-     * 解密 tc 加密串，返回明文 JSON。
-     *
-     * @param base64Value 基础64 编码的 tc 加密串，不可为 空
-     * @return 解密后的明文 JSON 字符串
-     * @throws TcDecryptException 当解密失败或哈希校验不通过时
+    * 解密 tc 加密串，返回明文 JSON。
+    *
+    * @param base64Value 基础64 编码的 tc 加密串，不可为 空
+    * @return 解密后的明文 JSON 字符串
+    * @throws TcDecryptException 当解密失败或哈希校验不通过时
      */
     public static String decrypt(String base64Value) {
         if (base64Value == null || base64Value.isEmpty()) {
@@ -141,32 +141,32 @@ public final class TraeTcDecryptor {
     }
 
     /**
-     * 判断是否为 tc 加密格式的 tc 解密异常。
-     * @author CH
-     * @since 4.0.0
+    * 判断是否为 tc 加密格式的 tc 解密异常。
+    * @author CH
+    * @since 4.0.0
      */
     public static class TcDecryptException extends RuntimeException {
         /**
-         * 创建异常。
-         *
-         * @param message 消息
+        * 创建异常。
+        *
+        * @param message 消息
          */
         public TcDecryptException(String message) { super(message); }
 
         /**
-         * 创建带原因的异常。
-         *
-         * @param message 消息
-         * @param cause 原因
+        * 创建带原因的异常。
+        *
+        * @param message 消息
+        * @param cause 原因
          */
         public TcDecryptException(String message, Throwable cause) { super(message, cause); }
     }
 
     /**
-     * 将 int[] 转 byte[]（低 8 位）。
-     *
-     * @param arr 整数数组
-     * @return 字节数组
+    * 将 int[] 转 byte[]（低 8 位）。
+    *
+    * @param arr 整数数组
+    * @return 字节数组
      */
     private static byte[] toBytes(int[] arr) {
         byte[] out = new byte[arr.length];
@@ -177,11 +177,11 @@ public final class TraeTcDecryptor {
     }
 
     /**
-     * 异或两个等长字节数组。
-     *
-     * @param a 数组 A
-     * @param b 数组 B
-     * @return 异或结果
+    * 异或两个等长字节数组。
+    *
+    * @param a 数组 A
+    * @param b 数组 B
+    * @return 异或结果
      */
     private static byte[] xor(byte[] a, byte[] b) {
         byte[] out = new byte[a.length];
@@ -192,11 +192,11 @@ public final class TraeTcDecryptor {
     }
 
     /**
-     * 拼接两个字节数组。
-     *
-     * @param a 前段
-     * @param b 后段
-     * @return 拼接结果
+    * 拼接两个字节数组。
+    *
+    * @param a 前段
+    * @param b 后段
+    * @return 拼接结果
      */
     private static byte[] concat(byte[] a, byte[] b) {
         byte[] out = new byte[a.length + b.length];
@@ -206,10 +206,10 @@ public final class TraeTcDecryptor {
     }
 
     /**
-     * 计算 SHA-512 摘要。
-     *
-     * @param input 输入字节
-     * @return 64 字节摘要
+    * 计算 SHA-512 摘要。
+    *
+    * @param input 输入字节
+    * @return 64 字节摘要
      */
     private static byte[] sha512(byte[] input) {
         try {

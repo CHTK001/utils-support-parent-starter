@@ -10,25 +10,25 @@ import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcException;
 
 /**
- * Dubbo 服务端 RPC 指标拦截器。
- *
- * <p>通过 Dubbo SPI 的 {@link Activate} 注解自动生效（provider 调用链），
-   * 统计每次调用的耗时、成功/失败、方法级计数，供 {@link DubboRpcMetricsHolder} 暴露到监控 端点。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Dubbo 服务端 RPC 指标拦截器。
+*
+* <p>通过 Dubbo SPI 的 {@link Activate} 注解自动生效（provider 调用链），
+* 统计每次调用的耗时、成功/失败、方法级计数，供 {@link DubboRpcMetricsHolder} 暴露到监控 端点。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Activate(group = CommonConstants.PROVIDER)
 @Slf4j
 public class DubboRpcMetricsFilter implements Filter {
 
     /**
-      * 在 提供者 侧拦截一次 RPC 调用，记录开始/结束与结果。
-     *
-     * @param invoker    Dubbo 服务代理对象
-     * @param invocation 调用信息（方法名、参数、服务标识）
-     * @return 调用结果
-     * @throws RpcException Dubbo 远程调用异常
+    * 在 提供者 侧拦截一次 RPC 调用，记录开始/结束与结果。
+    *
+    * @param invoker    Dubbo 服务代理对象
+    * @param invocation 调用信息（方法名、参数、服务标识）
+    * @return 调用结果
+    * @throws RpcException Dubbo 远程调用异常
      */
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -58,11 +58,11 @@ public class DubboRpcMetricsFilter implements Filter {
     }
 
     /**
-     * 构建方法键（接口全名 + "." + 方法名）。
-     *
-     * @param invoker    Dubbo 服务代理
-     * @param invocation 调用信息
-     * @return 方法键
+    * 构建方法键（接口全名 + "." + 方法名）。
+    *
+    * @param invoker    Dubbo 服务代理
+    * @param invocation 调用信息
+    * @return 方法键
      */
     private String buildMethodKey(Invoker<?> invoker, Invocation invocation) {
         Class<?> iface = invoker != null && invoker.getInterface() != null ? invoker.getInterface() : Object.class;

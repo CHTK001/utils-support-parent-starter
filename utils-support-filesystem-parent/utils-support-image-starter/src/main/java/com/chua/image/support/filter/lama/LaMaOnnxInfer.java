@@ -17,25 +17,25 @@ import javax.annotation.Nullable;
 
 
 /**
-   * lama ONNX推理类
- * <p>
-   * 基于ONNX Runtime实现的lama图像修复模型推理
- * 支持CPU和GPU推理，提供图像修复功能
- * </p>
- * 
- * <p>
- * 使用此类需要添加以下依赖：
- * <pre>
- * &lt;dependency&gt;
- *     &lt;groupId&gt;com.microsoft.onnxruntime&lt;/groupId&gt;
- *     &lt;artifactId&gt;onnxruntime&lt;/artifactId&gt;
- *     &lt;version&gt;1.17.1&lt;/version&gt;
- * &lt;/dependency&gt;
- * </pre>
- * </p>
- *
- * @author CH
- * @since 2024/7/29
+* lama ONNX推理类
+* <p>
+* 基于ONNX Runtime实现的lama图像修复模型推理
+* 支持CPU和GPU推理，提供图像修复功能
+* </p>
+* 
+* <p>
+* 使用此类需要添加以下依赖：
+* <pre>
+* &lt;dependency&gt;
+*     &lt;groupId&gt;com.microsoft.onnxruntime&lt;/groupId&gt;
+*     &lt;artifactId&gt;onnxruntime&lt;/artifactId&gt;
+*     &lt;version&gt;1.17.1&lt;/version&gt;
+* &lt;/dependency&gt;
+* </pre>
+* </p>
+*
+* @author CH
+* @since 2024/7/29
  */
 @Slf4j
 public class LaMaOnnxInfer implements AutoCloseable {
@@ -50,9 +50,9 @@ public class LaMaOnnxInfer implements AutoCloseable {
     private boolean initialized = false;
 
     /**
-     * 构造函数
-     *
-     * @param config lama配置
+    * 构造函数
+    *
+    * @param config lama配置
      */
     public LaMaOnnxInfer(LaMaConfiguration config) {
         this.config = config;
@@ -61,7 +61,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
     }
 
     /**
-     * 初始化ONNX Runtime
+    * 初始化ONNX Runtime
      */
     private void initialize() {
         try {
@@ -141,21 +141,21 @@ public class LaMaOnnxInfer implements AutoCloseable {
     }
 
     /**
-     * 执行图像修复推理
-     *
-     * @param image 输入图像
-     * @return 修复后的图像
+    * 执行图像修复推理
+    *
+    * @param image 输入图像
+    * @return 修复后的图像
      */
     public BufferedImage infer(BufferedImage image) {
         return infer(image, null);
     }
 
     /**
-     * 执行图像修复推理
-     *
-     * @param image 输入图像
-     * @param mask  修复mask（可选）
-     * @return 修复后的图像
+    * 执行图像修复推理
+    *
+    * @param image 输入图像
+    * @param mask  修复mask（可选）
+    * @return 修复后的图像
      */
     public BufferedImage infer(BufferedImage image, BufferedImage mask) {
         if (!initialized) {
@@ -217,11 +217,11 @@ public class LaMaOnnxInfer implements AutoCloseable {
     }
 
     /**
-     * 执行ONNX推理
-     *
-     * @param imageData 图像数据
-     * @param maskData  mask数据
-     * @return 推理结果
+    * 执行ONNX推理
+    *
+    * @param imageData 图像数据
+    * @param maskData  mask数据
+    * @return 推理结果
      */
     private float[] runInference(float[] imageData, float[] maskData) throws Exception {
         Class<?> onnxTensorClass = ClassUtils.forName("ai.onnxruntime.OnnxTensor");
@@ -314,9 +314,9 @@ if (tensorValue instanceof float[][][]) {
     }
 
     /**
-     * 展平3D数组
-     * @param array3D array3D
-     * @return flatten3DArray的结果
+    * 展平3D数组
+    * @param array3D array3D
+    * @return flatten3DArray的结果
      */
     private float[] flatten3DArray(float[][][] array3D) {
         int channels = array3D[0].length;
@@ -332,9 +332,9 @@ if (tensorValue instanceof float[][][]) {
     }
 
     /**
-     * 展平2D数组
-     * @param array2D array2D
-     * @return flatten2DArray的结果
+    * 展平2D数组
+    * @param array2D array2D
+    * @return flatten2DArray的结果
      */
     private float[] flatten2DArray(float[][] array2D) {
         int height = array2D.length;
@@ -350,27 +350,27 @@ if (tensorValue instanceof float[][][]) {
     }
 
     /**
-     * 检查推理器是否已初始化
-     *
-     * @return 是否已初始化
+    * 检查推理器是否已初始化
+    *
+    * @return 是否已初始化
      */
     public boolean isInitialized() {
         return initialized;
     }
 
     /**
-     * 获取配置信息
-     *
-     * @return 配置对象
+    * 获取配置信息
+    *
+    * @return 配置对象
      */
     public LaMaConfiguration getConfig() {
         return config;
     }
 
     /**
-     * 获取模型信息
-     *
-     * @return 模型信息字符串
+    * 获取模型信息
+    *
+    * @return 模型信息字符串
      */
     public String getModelInfo() {
         if (!initialized) {

@@ -14,26 +14,26 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
-   * FLXC 炫彩人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flxc）。
- *
- * <p>ResNet 结构，输入 112×112×12（4 帧 × RGB 3 通道，炫彩光源序列），输出
- * {@code [1,2]} = [活体概率, 假体概率]。返回索引 0（活体概率）作为活体分数。</p>
- *
- * <p>炫彩活体需多帧光反射序列；单图输入时以重复帧填充（效果受限，建议接入采流设备）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* FLXC 炫彩人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flxc）。
+*
+* <p>ResNet 结构，输入 112×112×12（4 帧 × RGB 3 通道，炫彩光源序列），输出
+* {@code [1,2]} = [活体概率, 假体概率]。返回索引 0（活体概率）作为活体分数。</p>
+*
+* <p>炫彩活体需多帧光反射序列；单图输入时以重复帧填充（效果受限，建议接入采流设备）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class FlXcLivenessTranslator implements Translator<Image, Float> {
 
     /**
-     * 输入尺寸。
+    * 输入尺寸。
      */
     private static final int INPUT_SIZE = 112;
 
     /**
-     * 通道数（4 帧 × 3）。
+    * 通道数（4 帧 × 3）。
      */
     private static final int CHANNELS = 12;
 

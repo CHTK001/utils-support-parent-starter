@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Pocket-TTS 专用 tokenizer（基于 vocab.json 的 BPE 分词器）。
- *
- * <p>Pocket-TTS 使用 sentencepiece 训练的分词器。本类从 vocab.json 加载词表，
-   * 实现贪心最长匹配（Greedily Longest 匹配）进行文本分词。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Pocket-TTS 专用 tokenizer（基于 vocab.json 的 BPE 分词器）。
+*
+* <p>Pocket-TTS 使用 sentencepiece 训练的分词器。本类从 vocab.json 加载词表，
+* 实现贪心最长匹配（Greedily Longest 匹配）进行文本分词。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class PocketTtsTokenizer {
@@ -44,10 +44,10 @@ public class PocketTtsTokenizer {
     private int padId = 3;
 
     /**
-     * 从 vocab.json 路径加载词表。
-     *
-     * @param vocabPath vocab.json 文件路径
-     * @throws IOException IO 异常
+    * 从 vocab.json 路径加载词表。
+    *
+    * @param vocabPath vocab.json 文件路径
+    * @throws IOException IO 异常
      */
     public void load(Path vocabPath) throws IOException {
         String content = Files.readString(vocabPath, StandardCharsets.UTF_8);
@@ -57,9 +57,9 @@ public class PocketTtsTokenizer {
     }
 
     /**
-     * 解析 vocab.json 内容（简单 JSON 对象格式）。
-     *
-     * @param json JSON 字符串
+    * 解析 vocab.json 内容（简单 JSON 对象格式）。
+    *
+    * @param json JSON 字符串
      */
     private void parseVocab(String json) {
         String inner = json.trim();
@@ -88,12 +88,12 @@ public class PocketTtsTokenizer {
     }
 
     /**
-      * 将文本编码为 令牌 标识 序列。
-     * <p>策略：贪心最长匹配（从左到右，优先匹配词表中最长的前缀）。
-     * 未登录字符以单个字符查找，若仍不在词表中则使用 UNK。</p>
-     *
-     * @param text 输入文本
-     * @return token 标识 数组
+    * 将文本编码为 令牌 标识 序列。
+    * <p>策略：贪心最长匹配（从左到右，优先匹配词表中最长的前缀）。
+    * 未登录字符以单个字符查找，若仍不在词表中则使用 UNK。</p>
+    *
+    * @param text 输入文本
+    * @return token 标识 数组
      */
     public long[] encode(String text) {
         if (text == null || text.isBlank()) {
@@ -145,19 +145,19 @@ public class PocketTtsTokenizer {
     }
 
     /**
-     * 获取词表大小。
-     *
-     * @return 词表大小
+    * 获取词表大小。
+    *
+    * @return 词表大小
      */
     public int vocabSize() {
         return vocab.size();
     }
 
     /**
-      * 列表 转 long 数组。
-     *
-     * @param list 元素列表
-     * @return long 数组
+    * 列表 转 long 数组。
+    *
+    * @param list 元素列表
+    * @return long 数组
      */
     private static long[] toLongArray(List<Long> list) {
         long[] arr = new long[list.size()];

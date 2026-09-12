@@ -14,17 +14,17 @@ import com.microsoft.playwright.options.LoadState;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Playwright 浏览器渲染解析器。
- *
- * <p>使用 Playwright 重新渲染已抓取的 HTML 内容，
- * 提取 JS 执行后的页面标题和纯文本。
-   * 适用于 水疗中心 或动态页面内容的提取。
- *
- * <p>SPI 名称：{@code playwright}，配合 {@link PlaywrightFetcher} 使用。
- * 内部持有 Playwright 浏览器实例，{@link #close()} 可释放资源。
- *
- * @author CH
- * @since 4.0.0.42
+* Playwright 浏览器渲染解析器。
+*
+* <p>使用 Playwright 重新渲染已抓取的 HTML 内容，
+* 提取 JS 执行后的页面标题和纯文本。
+* 适用于 水疗中心 或动态页面内容的提取。
+*
+* <p>SPI 名称：{@code playwright}，配合 {@link PlaywrightFetcher} 使用。
+* 内部持有 Playwright 浏览器实例，{@link #close()} 可释放资源。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("playwright")
@@ -32,21 +32,21 @@ import lombok.extern.slf4j.Slf4j;
 public class PlaywrightParser implements SpiderParser {
 
     /**
-      * 支持 类型
+    * 支持 类型
      */
     private static final String[] SUPPORTED_TYPES = {"text/html", "application/xhtml+xml"};
 
     /**
-     * Playwright 实例
+    * Playwright 实例
      */
     private final Playwright playwright;
     /**
-     * 浏览器实例
+    * 浏览器实例
      */
     private final Browser browser;
 
     /**
-      * 默认构造器，启动 铬 浏览器。
+    * 默认构造器，启动 铬 浏览器。
      */
     public PlaywrightParser() {
         this.playwright = Playwright.create();
@@ -55,10 +55,10 @@ public class PlaywrightParser implements SpiderParser {
     }
 
     /**
-     * 构造器，使用已有 Playwright 和浏览器实例。
-     *
-     * @param playwright Playwright 实例
-     * @param browser    浏览器实例
+    * 构造器，使用已有 Playwright 和浏览器实例。
+    *
+    * @param playwright Playwright 实例
+    * @param browser    浏览器实例
      */
     public PlaywrightParser(Playwright playwright, Browser browser) {
         this.playwright = playwright;
@@ -109,7 +109,7 @@ public class PlaywrightParser implements SpiderParser {
     }
 
     /**
-     * 释放浏览器资源。
+    * 释放浏览器资源。
      */
     public void close() {
         Exception ex = null;

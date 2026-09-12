@@ -10,52 +10,52 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * 插件扫描器 — 扫描指定目录下的所有插件 JAR 并加载。
- *
- * <p>支持：</p>
- * <ul>
- *   <li>扫描顶层 JAR 文件</li>
- *   <li>扫描嵌套目录下的 JAR</li>
- *   <li>通过 SPI 配置加载 Plugin 实现</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 插件扫描器 — 扫描指定目录下的所有插件 JAR 并加载。
+*
+* <p>支持：</p>
+* <ul>
+*   <li>扫描顶层 JAR 文件</li>
+*   <li>扫描嵌套目录下的 JAR</li>
+*   <li>通过 SPI 配置加载 Plugin 实现</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PluginScanner {
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(PluginScanner.class.getName());
     /**
-     * 插件根目录
+    * 插件根目录
      */
     private final Path pluginRoot;
 
     /**
-     * 父类加载器
+    * 父类加载器
      */
     private final ClassLoader parentLoader;
 
     /**
-     * 已扫描的插件列表
+    * 已扫描的插件列表
      */
     private final List<PluginInfo> plugins;
 
     /**
-      * 创建 pluginscanner 实例
-     * @param pluginRoot plugin根
+    * 创建 pluginscanner 实例
+    * @param pluginRoot plugin根
      */
     public PluginScanner(Path pluginRoot) {
         this(pluginRoot, ClassLoader.getSystemClassLoader());
     }
 
     /**
-      * 创建 pluginscanner 实例
-     * @param pluginRoot plugin根
-     * @param parentLoader 类加载
-     * @param parentLoader 父加载
+    * 创建 pluginscanner 实例
+    * @param pluginRoot plugin根
+    * @param parentLoader 类加载
+    * @param parentLoader 父加载
      */
     public PluginScanner(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;
@@ -64,10 +64,10 @@ public class PluginScanner {
     }
 
     /**
-     * 扫描并加载所有插件。
-     *
-     * @return 插件信息列表
-     * @throws IOException 目录读取异常
+    * 扫描并加载所有插件。
+    *
+    * @return 插件信息列表
+    * @throws IOException 目录读取异常
      */
     public List<PluginInfo> scan() throws IOException {
         plugins.clear();
@@ -86,9 +86,9 @@ public class PluginScanner {
     }
 
     /**
-     * 加载单个插件。
-     *
-     * @param pluginDir 插件目录
+    * 加载单个插件。
+    *
+    * @param pluginDir 插件目录
      */
     private void scanPlugin(Path pluginDir) {
         String pluginName = pluginDir.getFileName().toString();
@@ -125,10 +125,10 @@ public class PluginScanner {
     }
 
     /**
-     * 判断目录是否为插件目录。
-     *
-     * @param dir 目录路径
-     * @return 是插件目录返回 true
+    * 判断目录是否为插件目录。
+    *
+    * @param dir 目录路径
+    * @return 是插件目录返回 true
      */
     private boolean isPluginDirectory(Path dir) {
         String name = dir.getFileName().toString();
@@ -152,19 +152,19 @@ public class PluginScanner {
     }
 
     /**
-     * 获取Plugins
-     *
-     * @return 获取plugins的结果
+    * 获取Plugins
+    *
+    * @return 获取plugins的结果
      */
     public List<PluginInfo> getPlugins() {
         return Collections.unmodifiableList(plugins);
     }
 
     /**
-     * 插件信息。
-     *
- * @author CH
-     * @since 4.0.0.42
+    * 插件信息。
+    *
+    * @author CH
+    * @since 4.0.0.42
      */
     public record PluginInfo(
             String name,

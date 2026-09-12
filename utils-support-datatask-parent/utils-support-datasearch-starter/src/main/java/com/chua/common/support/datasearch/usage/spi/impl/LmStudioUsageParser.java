@@ -17,31 +17,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * LM Studio local inference usage parser.
- *
- * <p>LM Studio's embedded inference server writes request logs under
- * {@code ~/.lmstudio/server-logs/**/*.log} (override via {@code LM_STUDIO_HOME}).
- * Each request completion appends a JSONL line carrying an OpenAI-style
- * {@code usage} block:</p>
- *
- * <pre>{@code
- * {
- *   "model": "meta-llama/...",
- *   "usage": {
- *     "prompt_tokens": 512,
- *     "completion_tokens": 128,
- *     "total_tokens": 640
- *   },
- *   "timestamp": 1730000000000
- * }
- * </pre>
- *
- * <p>Local inference has no billed cost — records carry token counts only
- * (cost fields are surfaced when the log happens to carry them). Non-JSON
- * log lines are skipped.</p>
- *
- * @author CH
- * @since 4.0.0.43
+* LM Studio local inference usage parser.
+*
+* <p>LM Studio's embedded inference server writes request logs under
+* {@code ~/.lmstudio/server-logs/**/*.log} (override via {@code LM_STUDIO_HOME}).
+* Each request completion appends a JSONL line carrying an OpenAI-style
+* {@code usage} block:</p>
+*
+* <pre>{@code
+* {
+*   "model": "meta-llama/...",
+*   "usage": {
+*     "prompt_tokens": 512,
+*     "completion_tokens": 128,
+*     "total_tokens": 640
+*   },
+*   "timestamp": 1730000000000
+* }
+* </pre>
+*
+* <p>Local inference has no billed cost — records carry token counts only
+* (cost fields are surfaced when the log happens to carry them). Non-JSON
+* log lines are skipped.</p>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Spi("lmstudio")
 public class LmStudioUsageParser extends BaseUsageParser {
@@ -53,9 +53,9 @@ public class LmStudioUsageParser extends BaseUsageParser {
     private static final Path SERVER_LOGS = LMSTUDIO_HOME.resolve("server-logs");
 
     /**
-     * 解析 LM Studio home 目录（支持环境变量覆盖）。
-     *
-     * @return home 目录
+    * 解析 LM Studio home 目录（支持环境变量覆盖）。
+    *
+    * @return home 目录
      */
     private static Path resolveHome() {
         String env = System.getenv("TOKENTRACKER_LMSTUDIO_HOME");
@@ -68,9 +68,9 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "lmstudio"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "lmstudio"}
      */
     @Override
     public String name() {
@@ -78,7 +78,7 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析全部服务器日志中的推理用量记录。
+    * 流式解析全部服务器日志中的推理用量记录。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -94,9 +94,9 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 递归枚举 {@code server-logs/**/*.log} 文件。
-     *
-     * @return 日志文件列表
+    * 递归枚举 {@code server-logs/**/*.log} 文件。
+    *
+    * @return 日志文件列表
      */
     private List<Path> listLogFiles() {
         if (!Files.isDirectory(SERVER_LOGS)) {
@@ -114,10 +114,10 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析单个日志文件：逐行查找携带 usage 块的 JSON 行。
-     *
-     * @param file 日志文件
-     * @return 用量记录列表
+    * 解析单个日志文件：逐行查找携带 usage 块的 JSON 行。
+    *
+    * @param file 日志文件
+    * @return 用量记录列表
      */
     private List<AiUsage> parseFile(Path file) {
         List<AiUsage> result = new ArrayList<>();
@@ -144,10 +144,10 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从 JSON 行提取 usage 块并累加一条记录。
-     *
-     * @param node JSON 行
-     * @param result 结果累加器
+    * 从 JSON 行提取 usage 块并累加一条记录。
+    *
+    * @param node JSON 行
+    * @param result 结果累加器
      */
     private void addUsageRecord(JsonNode node, List<AiUsage> result) {
         JsonNode usage = node.get("usage");

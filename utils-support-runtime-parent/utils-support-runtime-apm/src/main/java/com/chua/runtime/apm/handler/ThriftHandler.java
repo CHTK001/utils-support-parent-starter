@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Thrift 应用层 处理器 — 拦截 Apache Thrift RPC 进出站调用并生成应用语义传输记录。
- *
- * <p>拦截目标：</p>
- * <ul>
- *   <li>{@code org.apache.thrift.TServiceClient} — sendBase / recvBase（客户端进出站核心）</li>
- * </ul>
- *
- * <p>采用零编译期依赖策略：Thrift 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Thrift 应用层 处理器 — 拦截 Apache Thrift RPC 进出站调用并生成应用语义传输记录。
+*
+* <p>拦截目标：</p>
+* <ul>
+*   <li>{@code org.apache.thrift.TServiceClient} — sendBase / recvBase（客户端进出站核心）</li>
+* </ul>
+*
+* <p>采用零编译期依赖策略：Thrift 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ThriftHandler extends AbstractAppHandler {
 
     /**
-      * t服务客户端 类内部名
+    * t服务客户端 类内部名
      */
     private static final String T_SERVICE_CLIENT = "org/apache/thrift/TServiceClient";
 
     /**
-      * t服务客户端 方法集合（进出站核心）
+    * t服务客户端 方法集合（进出站核心）
      */
     private static final String[] CLIENT_METHODS = {"sendBase", "recvBase"};
 

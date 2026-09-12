@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * YAML 配置文件解析器。
- *
- * @author CH
- * @since 4.0.0.42
+* YAML 配置文件解析器。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class YamlConfigFileParser implements ConfigFileParser {
 
@@ -115,11 +115,11 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-     * 获取字符串
-     *
-     * @param map 映射
-     * @param key 键
-     * @return 获取字符串的结果
+    * 获取字符串
+    *
+    * @param map 映射
+    * @param key 键
+    * @return 获取字符串的结果
      */
     private static String getString(Map<String, Object> map, String key) {
         Object v = map.get(key);
@@ -127,12 +127,12 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-     * 获取Int
-     *
-     * @param map 映射
-     * @param key 键
-     * @param defaultValue 默认值
-     * @return 获取int的结果
+    * 获取Int
+    *
+    * @param map 映射
+    * @param key 键
+    * @param defaultValue 默认值
+    * @return 获取int的结果
      */
     private static int getInt(Map<String, Object> map, String key, int defaultValue) {
         Object v = map.get(key);
@@ -149,7 +149,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-     * 默认字段映射。
+    * 默认字段映射。
      */
     private record DefaultDataSyncFieldMapping(String sourceField, String targetField, String converter)
             implements DataSyncFieldMapping {
@@ -173,7 +173,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-     * 默认目录配置定义。
+    * 默认目录配置定义。
      */
     private record DefaultDirectoryConfigDefinition(
             String mappingId,
@@ -244,7 +244,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-     * 默认文件配置定义。
+    * 默认文件配置定义。
      */
     private record DefaultFileConfigDefinition(
             String mappingId,
@@ -315,7 +315,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-     * 默认文本配置定义。
+    * 默认文本配置定义。
      */
     private record DefaultTextConfigDefinition(
             String mappingId,
@@ -386,7 +386,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-     * 简单配置定义。
+    * 简单配置定义。
      */
     private record SimpleConfigDefinition(
             String inputId,

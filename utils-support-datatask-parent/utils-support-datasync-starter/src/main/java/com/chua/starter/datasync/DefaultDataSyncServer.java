@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * 数据同步服务端 默认实现。
- *
- * @author CH
- * @since 4.0.0.42
+* 数据同步服务端 默认实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DefaultDataSyncServer implements DataSyncServer {
@@ -43,17 +43,17 @@ public class DefaultDataSyncServer implements DataSyncServer {
     private final Map<String, DataSyncAgent> agentRegistry = new ConcurrentHashMap<>();
 
     /**
-      * 创建 默认数据同步服务端 实例
-     * @param agentServerManager 智能体服务端管理器
+    * 创建 默认数据同步服务端 实例
+    * @param agentServerManager 智能体服务端管理器
      */
     public DefaultDataSyncServer(AgentServerManager agentServerManager) {
         this(agentServerManager, DefaultSyncDataSchedulerManager.SchedulerConfig.builder().build());
     }
 
     /**
-      * 创建 默认数据同步服务端 实例
-     * @param agentServerManager 智能体服务端管理器
-     * @param schedulerConfig 调度器配置
+    * 创建 默认数据同步服务端 实例
+    * @param agentServerManager 智能体服务端管理器
+    * @param schedulerConfig 调度器配置
      */
     public DefaultDataSyncServer(AgentServerManager agentServerManager,
                                   DefaultSyncDataSchedulerManager.SchedulerConfig schedulerConfig) {
@@ -64,19 +64,19 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     /**
-      * 替换执行器管理器（与 数据湖 整合时使用）。
-     * 必须在 {@link #start()} 之前调用。
-     * @param executorManager 执行器管理器
+    * 替换执行器管理器（与 数据湖 整合时使用）。
+    * 必须在 {@link #start()} 之前调用。
+    * @param executorManager 执行器管理器
      */
     public void setExecutorManager(ExecutorManager executorManager) {
         this.executorManager = executorManager;
     }
 
     /**
-     * 替换映射管理器（测试或外部共享时使用）。
-     * 必须在 {@link #start()} 之前调用。
-     *
-     * @param mappingManager 映射管理器
+    * 替换映射管理器（测试或外部共享时使用）。
+    * 必须在 {@link #start()} 之前调用。
+    *
+    * @param mappingManager 映射管理器
      */
     public void setMappingManager(DataSyncMappingManager mappingManager) {
         this.mappingManager = mappingManager;

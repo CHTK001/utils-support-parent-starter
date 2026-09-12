@@ -15,17 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * wttr.入 天气数据源实现。
- *
- * <p>通过 {@code HttpClientFactory} 调用免费公开接口
- * {@code https://wttr.in/{city}?format=j1}（无需 key，按城市名查询），
-   * 解析 当前_条件 实时天气。</p>
- *
- * <p>30 分钟内存缓存（惰性刷新，不内置定时任务）。城市路径动态，故使用
-   * HTTP客户端 实体请求而非 httpinvoker 声明式代理（后者面向固定 URL 接口）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* wttr.入 天气数据源实现。
+*
+* <p>通过 {@code HttpClientFactory} 调用免费公开接口
+* {@code https://wttr.in/{city}?format=j1}（无需 key，按城市名查询），
+* 解析 当前_条件 实时天气。</p>
+*
+* <p>30 分钟内存缓存（惰性刷新，不内置定时任务）。城市路径动态，故使用
+* HTTP客户端 实体请求而非 httpinvoker 声明式代理（后者面向固定 URL 接口）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("wttr-in")
 public class WttrInWeatherProvider implements WeatherProvider {
@@ -56,10 +56,10 @@ public class WttrInWeatherProvider implements WeatherProvider {
     }
 
     /**
-     * 查询指定城市的实时天气。
-     *
-     * @param city 城市名（如 "北京"、"Beijing"）
-     * @return 天气信息；数据源不可达或城市不存在时返回 空
+    * 查询指定城市的实时天气。
+    *
+    * @param city 城市名（如 "北京"、"Beijing"）
+    * @return 天气信息；数据源不可达或城市不存在时返回 空
      */
     @Override
     public WeatherInfo getWeather(String city) {
@@ -89,11 +89,11 @@ public class WttrInWeatherProvider implements WeatherProvider {
     }
 
     /**
-      * 解析 wttr.入 j1 响应为天气实体。
-     *
-     * @param json 响应 JSON
-     * @param city 请求城市
-     * @return 天气实体；解析失败返回 空
+    * 解析 wttr.入 j1 响应为天气实体。
+    *
+    * @param json 响应 JSON
+    * @param city 请求城市
+    * @return 天气实体；解析失败返回 空
      */
     private WeatherInfo parse(String json, String city) {
         if (json == null || json.isEmpty()) {
@@ -132,10 +132,10 @@ public class WttrInWeatherProvider implements WeatherProvider {
     }
 
     /**
-      * 解析未来数日预报（天气 数组，3 天）。
-     *
-     * @param weatherNode 天气 数组节点
-     * @return 预报列表；非数组时返回空列表
+    * 解析未来数日预报（天气 数组，3 天）。
+    *
+    * @param weatherNode 天气 数组节点
+    * @return 预报列表；非数组时返回空列表
      */
     private List<DailyForecast> parseForecast(JsonNode weatherNode) {
         List<DailyForecast> result = new ArrayList<>();
@@ -157,10 +157,10 @@ public class WttrInWeatherProvider implements WeatherProvider {
     }
 
     /**
-     * 解析逐小时天气采样（8 个点，3 小时间隔）。
-     *
-     * @param hourlyNode 时薪 数组节点
-     * @return 逐小时列表；非数组时返回空列表
+    * 解析逐小时天气采样（8 个点，3 小时间隔）。
+    *
+    * @param hourlyNode 时薪 数组节点
+    * @return 逐小时列表；非数组时返回空列表
      */
     private List<HourlyWeather> parseHourly(JsonNode hourlyNode) {
         List<HourlyWeather> result = new ArrayList<>();
@@ -184,10 +184,10 @@ public class WttrInWeatherProvider implements WeatherProvider {
     }
 
     /**
-     * 读取数值节点。
-     *
-     * @param node 数值节点
-     * @return 数值；缺失/非数值返回 空
+    * 读取数值节点。
+    *
+    * @param node 数值节点
+    * @return 数值；缺失/非数值返回 空
      */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
@@ -197,10 +197,10 @@ public class WttrInWeatherProvider implements WeatherProvider {
     }
 
     /**
-     * 读取整数节点。
-     *
-     * @param node 数值节点
-     * @return 整数；缺失/非数值返回 空
+    * 读取整数节点。
+    *
+    * @param node 数值节点
+    * @return 整数；缺失/非数值返回 空
      */
     private Integer intVal(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {

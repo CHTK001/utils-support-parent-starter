@@ -18,9 +18,9 @@ import javax.annotation.Nullable;
 
 
 /**
- * 默认处理
- * @author CH
- * @since 4.0.0.42
+* 默认处理
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultImaging implements Imaging{
 

@@ -12,12 +12,12 @@ import org.redisson.config.Config;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于 Redisson 分布式限流器的实现。
- *
- * <p>使用 Redisson {@link RRateLimiter} 实现分布式限流，支持 OVERALL 和 PER_CLIENT 两种模式。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Redisson 分布式限流器的实现。
+*
+* <p>使用 Redisson {@link RRateLimiter} 实现分布式限流，支持 OVERALL 和 PER_CLIENT 两种模式。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("redis")
 public class RedisRateLimiterProvider implements RateLimiterProvider {
@@ -30,12 +30,12 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     private final RRateLimiter rateLimiter;
 
     /**
-      * 创建 redisrate限制提供者 实例
-     * @param name 名称
-     * @param name 字符串
-     * @param permitsPerSecond double
-     * @param redisUri redisuri
-     * @param permitsPerSecond 许可证persecond
+    * 创建 redisrate限制提供者 实例
+    * @param name 名称
+    * @param name 字符串
+    * @param permitsPerSecond double
+    * @param redisUri redisuri
+    * @param permitsPerSecond 许可证persecond
      */
     public RedisRateLimiterProvider(String name, String redisUri, double permitsPerSecond) {
         this.name = name;
@@ -47,12 +47,12 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     }
 
     /**
-      * 创建 redisrate限制提供者 实例
-     * @param name 名称
-     * @param redissonClient redisson客户端
-     * @param permitsPerSecond double
-     * @param redissonClient redisson客户端
-     * @param permitsPerSecond 许可证persecond
+    * 创建 redisrate限制提供者 实例
+    * @param name 名称
+    * @param redissonClient redisson客户端
+    * @param permitsPerSecond double
+    * @param redissonClient redisson客户端
+    * @param permitsPerSecond 许可证persecond
      */
     public RedisRateLimiterProvider(String name, RedissonClient redissonClient, double permitsPerSecond) {
         this.name = name;

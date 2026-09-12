@@ -16,89 +16,89 @@ import java.util.List;
 import java.util.UUID;
 
 /**
-   * 打开AI 文字转语音（TTS）客户端。
- *
- * <p>基于 OpenAI 音频标准接口 {@code POST /v1/audio/speech} 的 {@link TextToAudioClient}
-   * 实现，支持 打开AI 兼容接口的所有服务商（如 打开AI、silicon流、sense时间、b.AI 等）。
- *
- * <p>通过 SPI 机制注册以下别名：
- * <ul>
- *   <li>openai — OpenAI 官方（tts-1 / tts-1-hd / gpt-4o-mini-tts）</li>
- *   <li>openai-tts — 语义化别名</li>
- *   <li>siliconflow / sensetime / github / gitee — OpenAI 兼容服务商</li>
- * </ul>
- *
- * <p>调用示例：
- * <pre>{@code
- *   byte[] mp3 = TextToAudioClient.create("openai", "sk-xxx")
- *       .model("tts-1")
- *       .voice("alloy")
- *       .format("mp3")
- *       .synthesize("你好世界");
- * }</pre>       .synthesize("你好世界");
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 打开AI 文字转语音（TTS）客户端。
+*
+* <p>基于 OpenAI 音频标准接口 {@code POST /v1/audio/speech} 的 {@link TextToAudioClient}
+* 实现，支持 打开AI 兼容接口的所有服务商（如 打开AI、silicon流、sense时间、b.AI 等）。
+*
+* <p>通过 SPI 机制注册以下别名：
+* <ul>
+*   <li>openai — OpenAI 官方（tts-1 / tts-1-hd / gpt-4o-mini-tts）</li>
+*   <li>openai-tts — 语义化别名</li>
+*   <li>siliconflow / sensetime / github / gitee — OpenAI 兼容服务商</li>
+* </ul>
+*
+* <p>调用示例：
+* <pre>{@code
+*   byte[] mp3 = TextToAudioClient.create("openai", "sk-xxx")
+*       .model("tts-1")
+*       .voice("alloy")
+*       .format("mp3")
+*       .synthesize("你好世界");
+* }</pre>       .synthesize("你好世界");
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"openai", "openai-tts", "siliconflow", "sensetime", "github", "gitee"})
 public class OpenAiTextToAudioClient implements TextToAudioClient {
 
     /**
-      * 打开AI 默认 API 地址
+    * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
-     * 默认 TTS 模型
+    * 默认 TTS 模型
      */
     private static final String DEFAULT_MODEL = "tts-1";
 
     /**
-     * 默认发音人
+    * 默认发音人
      */
     private static final String DEFAULT_VOICE = "alloy";
 
     /**
-     * 默认输出格式
+    * 默认输出格式
      */
     private static final String DEFAULT_FORMAT = "mp3";
 
     /**
-     * 客户端配置
+    * 客户端配置
      */
     private final TextToAudioClientSetting setting;
 
     /**
-     * 当前模型
+    * 当前模型
      */
     private String model;
 
     /**
-     * 当前发音人
+    * 当前发音人
      */
     private String voice;
 
     /**
-     * 当前输出格式
+    * 当前输出格式
      */
     private String format;
 
     /**
-     * 当前语速
+    * 当前语速
      */
     private Double speed;
 
     /**
-     * 当前文本
+    * 当前文本
      */
     private String text;
 
     /**
-      * 构造 打开AI TTS 客户端。
-     *
-     * @param setting 客户端配置
+    * 构造 打开AI TTS 客户端。
+    *
+    * @param setting 客户端配置
      */
     public OpenAiTextToAudioClient(TextToAudioClientSetting setting) {
         this.setting = setting;
@@ -245,10 +245,10 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
     }
 
     /**
-     * 创建带公共配置的 HTTP 请求构建器。
-     *
-     * @param path API 路径（含前导斜杠）
-     * @return 请求构建器
+    * 创建带公共配置的 HTTP 请求构建器。
+    *
+    * @param path API 路径（含前导斜杠）
+    * @return 请求构建器
      */
     private HttpClientBuilder newBuilder(String path) {
         HttpClientBuilder builder = HttpClientFactory.of(normalizeBaseUrl())
@@ -266,9 +266,9 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
     }
 
     /**
-     * 规范化 API 基础地址。
-     *
-     * @return 规范化后的 URL
+    * 规范化 API 基础地址。
+    *
+    * @return 规范化后的 URL
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();

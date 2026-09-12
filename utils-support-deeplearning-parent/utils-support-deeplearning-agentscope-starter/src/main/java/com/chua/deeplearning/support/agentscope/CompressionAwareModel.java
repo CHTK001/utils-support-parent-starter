@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * Compression-aware 模型 decorator.
- * <p>
-   * 统一走 {@link ContextCompressor}（与轻量 对话客户端 同一入口/算法）。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Compression-aware 模型 decorator.
+* <p>
+* 统一走 {@link ContextCompressor}（与轻量 对话客户端 同一入口/算法）。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class CompressionAwareModel implements Model {
@@ -47,13 +47,13 @@ public class CompressionAwareModel implements Model {
     private final String compressionModelId;
 
     /**
-      * 创建 compressionaware模型 实例
-     * @param delegate delegate
-     * @param fallbackChatClient 降级对话客户端
-     * @param compressionConfig compression配置
-     * @param modelName 模型名称
-     * @param workspace workspace
-     * @param compressionModelId compression模型标识
+    * 创建 compressionaware模型 实例
+    * @param delegate delegate
+    * @param fallbackChatClient 降级对话客户端
+    * @param compressionConfig compression配置
+    * @param modelName 模型名称
+    * @param workspace workspace
+    * @param compressionModelId compression模型标识
      */
     public CompressionAwareModel(Model delegate, ChatClient fallbackChatClient,
                                  AgentCompressionConfig compressionConfig,
@@ -71,10 +71,10 @@ public class CompressionAwareModel implements Model {
 
     @Override
     /**
-     * 流式输出
-     * @param messages 消息
-     * @param tools tools
-     * @param options 期权
+    * 流式输出
+    * @param messages 消息
+    * @param tools tools
+    * @param options 期权
      */
     public Flux<ChatResponse> stream(List<Msg> messages, List<io.agentscope.core.model.ToolSchema> tools,
                                      GenerateOptions options) {
@@ -91,35 +91,35 @@ public class CompressionAwareModel implements Model {
     }
 
     /**
-      * 包内测试 / 调试入口，与 流 路径一致。
+    * 包内测试 / 调试入口，与 流 路径一致。
      */
     List<ChatMessage> detectAndCompress(List<ChatMessage> messages) {
         return compressor.maybeCompress(messages);
     }
 
     /**
-     * 获取Compressor
-     *
-     * @return 获取compressor的结果
+    * 获取Compressor
+    *
+    * @return 获取compressor的结果
      */
     public ContextCompressor getCompressor() {
         return compressor;
     }
 
     /**
-     * 获取compression模型id
-     *
-     * @return 获取compression模型id的结果
+    * 获取compression模型id
+    *
+    * @return 获取compression模型id的结果
      */
     public String getCompressionModelId() {
         return compressionModelId;
     }
 
     /**
-     * 转换转为对话消息
-     *
-     * @param messages 消息
-     * @return 转换转为对话消息的结果
+    * 转换转为对话消息
+    *
+    * @param messages 消息
+    * @return 转换转为对话消息的结果
      */
     private static List<ChatMessage> convertToChatMessages(List<Msg> messages) {
         if (messages == null) {
@@ -141,10 +141,10 @@ public class CompressionAwareModel implements Model {
     }
 
     /**
-     * 转换转为msg
-     *
-     * @param messages 消息
-     * @return 转换转为msg的结果
+    * 转换转为msg
+    *
+    * @param messages 消息
+    * @return 转换转为msg的结果
      */
     private static List<Msg> convertToMsg(List<ChatMessage> messages) {
         if (messages == null) {

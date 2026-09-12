@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Pacman 软件包管理器提供器。
- *
- * <p>通过 pacman CLI 在 Arch Linux 中搜索、安装和卸载软件包。
- * 支持 <code>pacman -Ss</code>、<code>pacman -S --noconfirm</code>、
- * <code>pacman -R --noconfirm</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* Pacman 软件包管理器提供器。
+*
+* <p>通过 pacman CLI 在 Arch Linux 中搜索、安装和卸载软件包。
+* 支持 <code>pacman -Ss</code>、<code>pacman -S --noconfirm</code>、
+* <code>pacman -R --noconfirm</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("pacman")
 public class PacmanSoftwareProvider implements SoftwareProvider {
@@ -90,12 +90,12 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -123,10 +123,10 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析pacman输出
-     *
-     * @param output 输出
-     * @return 解析pacman输出的结果
+    * 解析pacman输出
+    *
+    * @param output 输出
+    * @return 解析pacman输出的结果
      */
     private List<SoftwareInfo> parsePacmanOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();

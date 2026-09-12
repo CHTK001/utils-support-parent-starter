@@ -21,32 +21,32 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
-   * 应用层传输 处理器 抽象基类 — 抽取 ENTRY/EXIT/异常 公共处理逻辑。
- *
- * <p>子类只需声明名称、协议、软件栈、拦截方法列表与目标端点构建逻辑，
- * 公共的记录存储、依赖图同步、生命周期管理全部由基类完成。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 应用层传输 处理器 抽象基类 — 抽取 ENTRY/EXIT/异常 公共处理逻辑。
+*
+* <p>子类只需声明名称、协议、软件栈、拦截方法列表与目标端点构建逻辑，
+* 公共的记录存储、依赖图同步、生命周期管理全部由基类完成。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(AbstractAppHandler.class.getName());
 
     /**
-     * 传输记录列表（有界）
+    * 传输记录列表（有界）
      */
     protected final BoundedRecordList<TransmissionRecord> records;
 
     /**
-     * 是否启用
+    * 是否启用
      */
     protected boolean enabled;
 
     /**
-     * 是否已启动
+    * 是否已启动
      */
     protected final AtomicBoolean started;
 
@@ -120,14 +120,14 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-      * 当前调用帧（用 ctx.用户数据 关联 entry/exit）。
+    * 当前调用帧（用 ctx.用户数据 关联 entry/exit）。
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
     /**
-     * 处理Entry
-     *
-     * @param ctx ctx
+    * 处理Entry
+    *
+    * @param ctx ctx
      */
     private void handleEntry(InterceptContext ctx) {
         try {
@@ -157,9 +157,9 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 处理Exit
-     *
-     * @param ctx ctx
+    * 处理Exit
+    *
+    * @param ctx ctx
      */
     private void handleExit(InterceptContext ctx) {
         try {
@@ -178,9 +178,9 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 处理异常
-     *
-     * @param ctx ctx
+    * 处理异常
+    *
+    * @param ctx ctx
      */
     private void handleException(InterceptContext ctx) {
         try {
@@ -203,10 +203,10 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 记录 + 同步到存储与依赖图。
-     *
-     * @param record  传输记录
-     * @param isError 是否为错误记录
+    * 记录 + 同步到存储与依赖图。
+    *
+    * @param record  传输记录
+    * @param isError 是否为错误记录
      */
     private void addAndEmit(TransmissionRecord record, boolean isError) {
         records.add(record);
@@ -231,13 +231,13 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 注册单方法双插桩点（ENTRY/EXIT）。
-     *
-     * <p>不注册 EXCEPTION：对含自身异常处理器表的三方类（JDBC 驱动、Redis 客户端等），
-     * {@code visitMaxs} 注入的 try/catch + onException 与原生异常表叠加会导致 VerifyError。</p>
-     *
-     * @param className  目标类内部名
-     * @param methodName 目标方法名
+    * 注册单方法双插桩点（ENTRY/EXIT）。
+    *
+    * <p>不注册 EXCEPTION：对含自身异常处理器表的三方类（JDBC 驱动、Redis 客户端等），
+    * {@code visitMaxs} 注入的 try/catch + onException 与原生异常表叠加会导致 VerifyError。</p>
+    *
+    * @param className  目标类内部名
+    * @param methodName 目标方法名
      */
     protected void register(String className, String methodName) {
         RuntimeSpy.registerInterceptor(className, methodName, "", InterceptPoint.ENTRY, this);
@@ -245,13 +245,13 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-      * 注册单方法双插桩点（仅 ENTRY/EXIT，无 异常）。
-     *
-     * <p>用于类自身带复杂异常处理器表的三方类（如 JDBC 驱动语句/连接类），
-      * 避免 {@code visitMaxs} 注入的 尝试/卡扣 + on异常 与原生异常表叠加导致 验证错误。</p>
-     *
-     * @param className  目标类内部名
-     * @param methodName 目标方法名
+    * 注册单方法双插桩点（仅 ENTRY/EXIT，无 异常）。
+    *
+    * <p>用于类自身带复杂异常处理器表的三方类（如 JDBC 驱动语句/连接类），
+    * 避免 {@code visitMaxs} 注入的 尝试/卡扣 + on异常 与原生异常表叠加导致 验证错误。</p>
+    *
+    * @param className  目标类内部名
+    * @param methodName 目标方法名
      */
     protected void registerEntryExit(String className, String methodName) {
         RuntimeSpy.registerInterceptor(className, methodName, "", InterceptPoint.ENTRY, this);
@@ -259,10 +259,10 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 注册类多方法双插桩点（仅 ENTRY/EXIT）。
-     *
-     * @param className 目标类内部名
-     * @param methods   目标方法名数组
+    * 注册类多方法双插桩点（仅 ENTRY/EXIT）。
+    *
+    * @param className 目标类内部名
+    * @param methods   目标方法名数组
      */
     protected void registerAllEntryExit(String className, String[] methods) {
         for (String method : methods) {
@@ -271,10 +271,10 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 注册类多方法三插桩点。
-     *
-     * @param className 目标类内部名
-     * @param methods   目标方法名数组
+    * 注册类多方法三插桩点。
+    *
+    * @param className 目标类内部名
+    * @param methods   目标方法名数组
      */
     protected void registerAll(String className, String[] methods) {
         for (String method : methods) {
@@ -283,78 +283,78 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 软件栈（默认取 {@link #software()}）。
-     *
-     * <p>子类可按入口区分子角色（如 Producer/Consumer）覆写此方法。</p>
-     *
-     * @param ctx 插桩上下文
-     * @return 软件栈枚举
+    * 软件栈（默认取 {@link #software()}）。
+    *
+    * <p>子类可按入口区分子角色（如 Producer/Consumer）覆写此方法。</p>
+    *
+    * @param ctx 插桩上下文
+    * @return 软件栈枚举
      */
     protected Software softwareForEntry(InterceptContext ctx) {
         return software();
     }
 
     /**
-      * 端点角色（默认 客户端）。
-     *
-     * <p>子类可按入口区分子角色（如 Producer/Consumer）覆写此方法。</p>
-     *
-     * @param ctx 插桩上下文
-     * @return 端点角色
+    * 端点角色（默认 客户端）。
+    *
+    * <p>子类可按入口区分子角色（如 Producer/Consumer）覆写此方法。</p>
+    *
+    * @param ctx 插桩上下文
+    * @return 端点角色
      */
     protected EndpointKind kindForEntry(InterceptContext ctx) {
         return EndpointKind.CLIENT;
     }
 
     /**
-     * 注册插桩规则（子类实现）。
+    * 注册插桩规则（子类实现）。
      */
     protected abstract void registerInterceptors();
 
     /**
-      * 启用配置项 键。
-     *
-     * @return 配置 键
+    * 启用配置项 键。
+    *
+    * @return 配置 键
      */
     protected abstract String enabledKey();
 
     /**
-     * 软件栈。
-     *
-     * @return 软件栈枚举
+    * 软件栈。
+    *
+    * @return 软件栈枚举
      */
     protected abstract Software software();
 
     /**
-     * 协议。
-     *
-     * @return 协议枚举
+    * 协议。
+    *
+    * @return 协议枚举
      */
     protected abstract Protocol protocol();
 
     /**
-     * 构建目标端点。
-     *
-     * @param ctx      插桩上下文
-     * @param instance 受拦截实例
-     * @return 目标端点
+    * 构建目标端点。
+    *
+    * @param ctx      插桩上下文
+    * @param instance 受拦截实例
+    * @return 目标端点
      */
     protected abstract Endpoint buildTarget(InterceptContext ctx, Object instance);
 
     /**
-     * 推导操作描述（方法名转大写）。
-     *
-     * @param ctx 插桩上下文
-     * @return 操作描述
+    * 推导操作描述（方法名转大写）。
+    *
+    * @param ctx 插桩上下文
+    * @return 操作描述
      */
     protected String deriveOperation(InterceptContext ctx) {
         return ctx.getMethodName().toUpperCase();
     }
 
     /**
-     * 获取本机 IP。
-     *
-     * @return IP 地址，获取失败返回 "localhost"
+    * 获取本机 IP。
+    *
+    * @return IP 地址，获取失败返回 "localhost"
      */
     protected static String localHost() {
         try {
@@ -365,12 +365,12 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-      * 从 对账单 / Connection 对象反查 JDBC Connection 实例。
-     *
-     * <p>传入 Connection 时原样返回；传入 Statement 时向上反查 connection 字段。</p>
-     *
-     * @param jdbcObject JDBC 对象
-     * @return Connection 实例，找不到返回 空
+    * 从 对账单 / Connection 对象反查 JDBC Connection 实例。
+    *
+    * <p>传入 Connection 时原样返回；传入 Statement 时向上反查 connection 字段。</p>
+    *
+    * @param jdbcObject JDBC 对象
+    * @return Connection 实例，找不到返回 空
      */
     protected Object resolveConnection(Object jdbcObject) {
         if (jdbcObject == null) {
@@ -384,21 +384,21 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 在继承链中查找指定字段值。
-     *
-     * @param owner     对象
-     * @param fieldName 字段名
-     * @return 字段值，找不到返回 空
+    * 在继承链中查找指定字段值。
+    *
+    * @param owner     对象
+    * @param fieldName 字段名
+    * @return 字段值，找不到返回 空
      */
     protected static Object findField(Object owner, String fieldName) {
         return ReflectUtils.getField(owner, fieldName);
     }
 
     /**
-      * 从 JDBC URL 解析 主机（JDBC:xxx://主机:端口/db）。
-     *
-     * @param url JDBC URL
-     * @return 主机名，解析失败返回 空
+    * 从 JDBC URL 解析 主机（JDBC:xxx://主机:端口/db）。
+    *
+    * @param url JDBC URL
+    * @return 主机名，解析失败返回 空
      */
     protected static String parseUrlHost(String url) {
         if (url == null) {
@@ -419,11 +419,11 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 从 JDBC URL 解析端口。
-     *
-     * @param url         JDBC URL
-     * @param defaultPort 默认端口
-     * @return 端口
+    * 从 JDBC URL 解析端口。
+    *
+    * @param url         JDBC URL
+    * @param defaultPort 默认端口
+    * @return 端口
      */
     protected static int parseUrlPort(String url, int defaultPort) {
         if (url == null) {
@@ -448,10 +448,10 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 从 JDBC URL 解析数据库路径。
-     *
-     * @param url JDBC URL
-     * @return 数据库路径（/dbname），解析失败返回 "/"
+    * 从 JDBC URL 解析数据库路径。
+    *
+    * @param url JDBC URL
+    * @return 数据库路径（/dbname），解析失败返回 "/"
      */
     protected static String parseUrlDb(String url) {
         if (url == null) {
@@ -473,9 +473,9 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 获取Records
-     *
-     * @return 获取records的结果
+    * 获取Records
+    *
+    * @return 获取records的结果
      */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();

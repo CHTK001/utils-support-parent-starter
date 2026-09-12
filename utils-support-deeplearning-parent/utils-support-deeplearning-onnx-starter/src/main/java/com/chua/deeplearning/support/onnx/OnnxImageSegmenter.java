@@ -16,8 +16,8 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     private String device = "cpu";
 
     /**
-      * 创建 onnx镜像segmenter 实例
-     * @param apiKey API密钥
+    * 创建 onnx镜像segmenter 实例
+    * @param apiKey API密钥
      */
     public OnnxImageSegmenter(String apiKey) {
     }
@@ -30,9 +30,9 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     }
 
     /**
-     * 解析模型
-     *
-     * @return resolve模型的结果
+    * 解析模型
+    *
+    * @return resolve模型的结果
      */
     private String resolveModel() {
         return modelName != null ? modelName : "fastsam";

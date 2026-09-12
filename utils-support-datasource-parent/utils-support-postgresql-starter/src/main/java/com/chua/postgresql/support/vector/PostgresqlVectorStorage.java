@@ -11,39 +11,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 基于 PostgreSQL pgvector 扩展的向量存储实现。
- * <p>
- * pgvector 是 PostgreSQL 的开源向量相似性搜索扩展，支持：
- * <ul>
- *   <li>COSINE_SIMILARITY / cosine distance（余弦相似度）</li>
- *   <li>L2_DISTANCE（欧氏距离）</li>
- *   <li>MAX_INNER_PRODUCT / inner product（点积）</li>
- * </ul>
- * </p>
- * <p>
-   * 首次 添加 时自动：
- * <ol>
- *   <li>创建 {@code vector} 扩展（如未存在）</li>
- *   <li>创建向量表（JSON 存储向量，兼容无 pgvector 环境）</li>
- *   <li>若启用 pgvector，使用 HNSW/IVFFlat 索引加速搜索</li>
- * </ol>
- * </p>
- * <p>
- * 使用示例：
- * <pre>{@code
- * VectorStorage storage = VectorStorageProvider.of("postgresql")
- *         .dimension(768)
- *         .algorithm("cosine")
- *         .properties(new MysqlVectorStorageProvider.MysqlVectorStorageProps(dataSource))
- *         .build();
- * }</pre>r.MysqlVectorStorageProps(dataSource))
- *         .build();
- * }</pre>
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
- * @see <a href="https://github.com/pgvector/pgvector">pgvector GitHub</a>
+* 基于 PostgreSQL pgvector 扩展的向量存储实现。
+* <p>
+* pgvector 是 PostgreSQL 的开源向量相似性搜索扩展，支持：
+* <ul>
+*   <li>COSINE_SIMILARITY / cosine distance（余弦相似度）</li>
+*   <li>L2_DISTANCE（欧氏距离）</li>
+*   <li>MAX_INNER_PRODUCT / inner product（点积）</li>
+* </ul>
+* </p>
+* <p>
+* 首次 添加 时自动：
+* <ol>
+*   <li>创建 {@code vector} 扩展（如未存在）</li>
+*   <li>创建向量表（JSON 存储向量，兼容无 pgvector 环境）</li>
+*   <li>若启用 pgvector，使用 HNSW/IVFFlat 索引加速搜索</li>
+* </ol>
+* </p>
+* <p>
+* 使用示例：
+* <pre>{@code
+* VectorStorage storage = VectorStorageProvider.of("postgresql")
+*         .dimension(768)
+*         .algorithm("cosine")
+*         .properties(new MysqlVectorStorageProvider.MysqlVectorStorageProps(dataSource))
+*         .build();
+* }</pre>r.MysqlVectorStorageProps(dataSource))
+*         .build();
+* }</pre>
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
+* @see <a href="https://github.com/pgvector/pgvector">pgvector GitHub</a>
  */
 public class PostgresqlVectorStorage extends AbstractVectorStorage {
 
@@ -58,10 +58,10 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     private volatile com.chua.common.support.vector.VectorStorage fallback;
 
     /**
-     * postgresql向量storage。
-     * @param dataSource 数据源
-     * @param dimension 维度
-     * @param algorithm algorithm
+    * postgresql向量storage。
+    * @param dataSource 数据源
+    * @param dimension 维度
+    * @param algorithm algorithm
      */
     public PostgresqlVectorStorage(DataSource dataSource, int dimension, VectorCompareAlgorithm algorithm) {
         this(dataSource, dimension, algorithm, new PostgresqlVectorStorageProperties());
@@ -123,7 +123,7 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     // ==================== 内部实现 ====================
 
     /**
-     * ensure模式。
+    * ensure模式。
      */
     private synchronized void ensureSchema() {
         if (schemaInitialized) {
@@ -161,8 +161,8 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
-     * @return 构建相似度op的结果
+    * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
+    * @return 构建相似度op的结果
      /**
       * resolved。
       * @return resolved的结果
@@ -187,9 +187,9 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-      * 将 float[] 转为 PostgreSQL 向量 字面量，如 {@code '[0.1,0.2,0.3]'}.
-     * @param arr arr
-     * @return floatarray转为pg向量字面量的结果
+    * 将 float[] 转为 PostgreSQL 向量 字面量，如 {@code '[0.1,0.2,0.3]'}.
+    * @param arr arr
+    * @return floatarray转为pg向量字面量的结果
      */
     private static String floatArrayToPgVectorLiteral(float[] arr) {
         if (arr == null || arr.length == 0) {
@@ -208,8 +208,8 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-      * 将 PostgreSQL 向量 对象转为 float[]。
-     * @param json json
+    * 将 PostgreSQL 向量 对象转为 float[]。
+    * @param json json
      /**
       * pg向量转为对象。
       * @param obj obj
@@ -234,10 +234,10 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
         String s = obj.toString();
         return jsonArrayToFloatArray(s);
     /**
-     * floatarray转为json。
-     * @param vector 向量
-     * @return floatarray转为json的结果
-     * @param json json
+    * floatarray转为json。
+    * @param vector 向量
+    * @return floatarray转为json的结果
+    * @param json json
      */
     }
 
