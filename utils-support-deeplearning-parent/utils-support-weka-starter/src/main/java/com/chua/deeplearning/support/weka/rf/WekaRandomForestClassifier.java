@@ -230,9 +230,10 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     /**
      * 从样本行推断特征列定义（排除标签列，保持首次出现顺序）。
      *
-     * @param samples    样本行
-     * @param labelColumn 标签列名（排除项）
-     * @return 特征列定义列表
+     * @param samples     样本行，不能为 null
+     * @param labelColumn 标签列名（排除项），不能为 null / 空白
+     * @return 特征列定义列表（至少 1 列）
+     * @throws WekaException 样本行不包含任何特征列
      */
     private static List<FeatureColumn> inferFeatures(List<Map<String, Object>> samples, String labelColumn) {
         var names = new LinkedHashSet<String>();

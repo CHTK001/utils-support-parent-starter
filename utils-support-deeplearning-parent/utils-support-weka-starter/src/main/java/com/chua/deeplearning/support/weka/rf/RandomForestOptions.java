@@ -7,7 +7,7 @@ import lombok.Setter;
 /**
  * 随机森林超参数。
  *
- * <p>对应 Weka {@link weka.classifiers.trees.RandomForest} 的参数配置：</p>
+ * <p>对应 Weka {@code weka.classifiers.trees.RandomForest} 的参数配置：</p>
  * <ul>
  *   <li>{@code numTrees} -&gt; 树的数量（Bagging 迭代次数）</li>
  *   <li>{@code bagSizePercent} -&gt; Bagging 采样比例（100 = 全量重采样，Weka 默认）</li>

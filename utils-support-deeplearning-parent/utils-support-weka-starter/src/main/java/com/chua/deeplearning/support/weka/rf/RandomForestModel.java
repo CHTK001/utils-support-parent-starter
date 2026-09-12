@@ -101,11 +101,9 @@ public final class RandomForestModel implements Serializable {
      *
      * @param trainingData 训练实例，不能为 null
      * @throws WekaException 训练失败
-     * @throws IllegalStateException 模型未通过 {@link #create} 初始化底层分类器
      */
     public void train(Instances trainingData) {
         Objects.requireNonNull(trainingData, "trainingData must not be null");
-        Objects.requireNonNull(forest, "底层分类器未初始化");
         try {
             forest.buildClassifier(trainingData);
         } catch (Exception e) {
@@ -151,6 +149,8 @@ public final class RandomForestModel implements Serializable {
      * @return 分类场景为标签索引，回归场景为预测值
      * @throws WekaException 预测失败
      */
+    public double predictRaw(Instance instance) {
+        Objects.requireNonNull(instance, "instance must not be null");
         try {
             return forest.classifyInstance(instance);
         } catch (Exception e) {
@@ -187,6 +187,7 @@ public final class RandomForestModel implements Serializable {
         try {
             raw = forest.computeAverageImpurityDecreasePerAttribute(new double[trainingData.numAttributes()]);
         } catch (weka.core.WekaException e) {
+            // 与模块 WekaException 同名冲突，此处仅捕获 Weka 原生异常
             throw new WekaException("特征重要性计算失败: " + e.getMessage(), e);
         }
         double max = 0;
