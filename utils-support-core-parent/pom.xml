@@ -15,6 +15,7 @@
     <modules>
         <module>utils-support-common-starter</module>
         <module>utils-support-datasource-starter</module>
+        <module>utils-support-flyway-starter</module>
         <module>utils-support-network-starter</module>
         <module>utils-support-spring-starter</module>
         <module>utils-support-springboot-starter</module>
