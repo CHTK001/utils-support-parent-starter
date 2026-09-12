@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Qoder CLI usage parser.
  *
  * <p>Qoder is Alibaba's agentic coding CLI. Authenticated runs persist
- * Claude-Code-style session transcripts under
+   * Claude-编码-style 会话 transcripts under
  * {@code ~/.qoder/projects/<project>/<sessionId>.jsonl}. Each
  * {@code type=assistant} line carries an API usage block:</p>
  *
@@ -41,10 +41,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  *     }
  *   }
  * }
+ * }</pre>03285,
+ *       "original_credits": 0.03285
+ *     }
+ *   }
+ * }
  * }</pre>
  *
  * <p>Qoder bills by platform <b>credits</b>, not raw tokens — its proxy reports
- * all token counts as zero. This parser therefore maps {@code credits} to
+   * 全部 令牌 数量 as zero. This parser therefore 映射 {@code credits} 转为
  * {@code totalCost} with currency {@code "CREDITS"} and leaves token fields
  * unset rather than emitting misleading zeros.</p>
  *
@@ -57,16 +62,16 @@ public class QoderUsageParser extends BaseUsageParser {
     private static final Path PROJECTS_DIR = Path.of(
             System.getProperty("user.home"), ".qoder", "projects");
 
-    private static final String PROVIDER_QODER = "qoder";
-    private static final String CURRENCY_CREDITS = "CREDITS";
+    private static final String PROVIDER_QODER = "qoder"; // 提供者qoder
+    private static final String CURRENCY_CREDITS = "CREDITS"; // 货币抵免
 
     /**
-     * Returns the SPI name for Qoder.
+      * 返回 the SPI 名称 for Qoder.
      *
      * @return {@code "qoder"}
      */
     /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+      * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
      */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
@@ -79,9 +84,9 @@ public class QoderUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Parses all Qoder session transcripts and extracts billed credits.
+      * 解析 全部 Qoder 会话 transcripts 和 extracts 账单 抵免.
      *
-     * @return list of AiUsage records, one per assistant response
+     * @return list 的 aiusage records, one per assistant 响应
      */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
@@ -110,11 +115,11 @@ public class QoderUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Reads one transcript file line by line, extracting assistant usage.
+      * 读取 one transcript 文件 线 by 线, extracting assistant usage.
      *
-     * @param file   path to the session JSONL file
-     * @param result accumulator list for parsed records
-     * @throws IOException if the file cannot be read
+     * @param file   路径 转为 the 会话 JSONL 文件
+     * @param result accumulator 列表 for 解析 records
+     * @throws IOException if the 文件 cannot be 读取
      */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -133,11 +138,23 @@ public class QoderUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Converts one transcript JSON line into an AiUsage record when it is a
-     * billed assistant response.
+      * 转换 one transcript JSON 线 into an AIusage record When.js it 是否 a
+      * 账单 assistant 响应.
      *
-     * @param node parsed JSON of a single transcript line
-     * @return the parsed record, or empty for non-assistant or unbilled lines
+     * @param node 解析 JSON 的 a 单个 transcript 线
+     * @return the 解析 record, 或 空 for non-assistant 或 unbilled 线
+     * @param usage usage
+     /**
+      * 解析节点。
+      * @param node 节点
+      * @return 解析节点的结果
+      */
+      * @param usage usage
+     /**
+      * 解析节点。
+      * @param node 节点
+      * @return 解析节点的结果
+      */
      */
     private java.util.Optional<AiUsage> parseNode(JsonNode node) {
         if (!"assistant".equals(node.get("type").toStringValue())) {

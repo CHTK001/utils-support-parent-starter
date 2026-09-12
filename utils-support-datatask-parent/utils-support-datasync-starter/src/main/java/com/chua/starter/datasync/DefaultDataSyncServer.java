@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DataSyncServer 默认实现。
+   * 数据同步服务端 默认实现。
  *
  * @author CH
  * @since 4.0.0.42
@@ -43,17 +43,17 @@ public class DefaultDataSyncServer implements DataSyncServer {
     private final Map<String, DataSyncAgent> agentRegistry = new ConcurrentHashMap<>();
 
     /**
-     * 创建 DefaultDataSyncServer 实例
-     * @param agentServerManager agentServerManager
+      * 创建 默认数据同步服务端 实例
+     * @param agentServerManager 智能体服务端管理器
      */
     public DefaultDataSyncServer(AgentServerManager agentServerManager) {
         this(agentServerManager, DefaultSyncDataSchedulerManager.SchedulerConfig.builder().build());
     }
 
     /**
-     * 创建 DefaultDataSyncServer 实例
-     * @param agentServerManager agentServerManager
-     * @param schedulerConfig schedulerConfig
+      * 创建 默认数据同步服务端 实例
+     * @param agentServerManager 智能体服务端管理器
+     * @param schedulerConfig 调度器配置
      */
     public DefaultDataSyncServer(AgentServerManager agentServerManager,
                                   DefaultSyncDataSchedulerManager.SchedulerConfig schedulerConfig) {
@@ -64,8 +64,9 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     /**
-     * 替换执行器管理器（与 Datalake 整合时使用）。
+      * 替换执行器管理器（与 数据湖 整合时使用）。
      * 必须在 {@link #start()} 之前调用。
+     * @param executorManager 执行器管理器
      */
     public void setExecutorManager(ExecutorManager executorManager) {
         this.executorManager = executorManager;
@@ -82,25 +83,25 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** MappingManager */
+    /** mapping管理器 */
     public DataSyncMappingManager mappingManager() {
         return mappingManager;
     }
 
     @Override
-    /** SchedulerManager */
+    /** 调度器管理器 */
     public SyncDataSchedulerManager schedulerManager() {
         return schedulerManager;
     }
 
     @Override
-    /** AgentServerManager */
+    /** 智能体服务端管理器 */
     public AgentServerManager agentServerManager() {
         return agentServerManager;
     }
 
     @Override
-    /** ExecutorManager */
+    /** 执行器管理器 */
     public ExecutorManager executorManager() {
         return executorManager;
     }
@@ -112,7 +113,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 注册Source */
+    /** 注册源 */
     public void registerSource(DataSyncAgentSource source) {
         if (source == null || source.sourceId() == null) {
             return;
@@ -122,7 +123,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 注销Source */
+    /** 注销源 */
     public void unregisterSource(String sourceId) {
         if (sourceId == null) {
             return;
@@ -156,7 +157,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 获取Source */
+    /** 获取源 */
     public DataSyncAgentSource getSource(String sourceId) {
         return sourceRegistry.get(sourceId);
     }
@@ -168,7 +169,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 获取Sources */
+    /** 获取源 */
     public List<DataSyncAgentSource> getSources() {
         return List.copyOf(sourceRegistry.values());
     }
@@ -180,7 +181,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 注册Agent */
+    /** 注册智能体 */
     public void registerAgent(DataSyncAgent agent) {
         if (agent == null || agent.agentId() == null) {
             return;
@@ -190,7 +191,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 注销Agent */
+    /** 注销智能体 */
     public void unregisterAgent(String agentId) {
         if (agentId == null) {
             return;
@@ -202,13 +203,13 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 获取Agent */
+    /** 获取智能体 */
     public DataSyncAgent getAgent(String agentId) {
         return agentRegistry.get(agentId);
     }
 
     @Override
-    /** 获取Agents */
+    /** 获取智能体 */
     public List<DataSyncAgent> getAgents() {
         return List.copyOf(agentRegistry.values());
     }

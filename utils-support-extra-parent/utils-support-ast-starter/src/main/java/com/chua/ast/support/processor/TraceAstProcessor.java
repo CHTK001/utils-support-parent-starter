@@ -14,6 +14,7 @@ import java.util.Set;
  * {@link Trace} 注解的 AST 处理器
  *
  * @author CH
+ * @since 4.0.0
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Trace")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -74,13 +75,13 @@ public final class TraceAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 应用TraceTransform
-     * @param methodTree methodTree
-     * @param className className
-     * @param packageName packageName
-     * @param methodName methodName
-     * @param methodElement methodElement
-     * @param trace trace
+      * 应用追踪转换
+     * @param methodTree 方法树
+     * @param className 类名称
+     * @param packageName 包名称
+     * @param methodName 方法名称
+     * @param methodElement 方法element
+     * @param trace 追踪
      */
     private void applyTraceTransform(com.sun.source.tree.MethodTree methodTree,
             String className, String packageName, String methodName,
@@ -107,7 +108,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
         var catchVar = maker.VarDef(maker.Modifiers(0), names.fromString("t"),
                 maker.Ident(names.fromString("Throwable")), null);
         var catchBody = buildCall(maker, names, "com.chua.ast.support.trace.TraceContext", "catchException");
-        // catchException 需要参数，用 maker.Apply
+ // 卡扣异常 需要参数，用 maker.Apply
         var traceCtxClass = buildQualifiedName(maker, names, "com.chua.ast.support.trace.TraceContext");
         var catchExSelect = maker.Select(traceCtxClass, names.fromString("catchException"));
         var tIdent = maker.Ident(names.fromString("t"));
@@ -134,7 +135,9 @@ public final class TraceAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 构建参数字符串：name=" + name + ", age=" + age
+      * 构建参数字符串：名称=" + 名称 + ", age=" + age
+     * @param methodElement 方法element
+     * @return 构建参数expression的结果
      */
     private String buildArgsExpression(ExecutableElement methodElement) {
         List<? extends VariableElement> params = methodElement.getParameters();
@@ -155,7 +158,12 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return sb.toString();
     }
 
-    /** 是否StringType */
+    /**
+     * 是否字符串类型
+     *
+     * @param type 类型
+     * @return 是否字符串类型的结果
+     */
     private boolean isStringType(TypeMirror type) {
         String name = type.toString();
         return "java.lang.String".equals(name) || "java.lang.CharSequence".equals(name);
@@ -164,7 +172,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     // ==================== AST 构建 ====================
 
     /**
-     * TraceContext.setMaxDepth(N)
+      * 追踪上下文.设置最大深度(N)
      */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildSetMaxDepthStmt(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, int depth) {
@@ -178,7 +186,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * TraceContext.push(className, packageName, methodName) 或 TraceContext.pushWithArgs(...)
+      * 追踪上下文.push(类名称, 包名称, 方法名称) 或 追踪上下文.pushwith参数(...)
      */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildPushStmt(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names,
@@ -236,20 +244,20 @@ public final class TraceAstProcessor extends AbstractProcessor {
     /**
      * 构建调用
      * @param maker maker
-     * @param names names
-     * @param className className
-     * @param methodName methodName
-     * @param names names
-     * @param className className
-     * @param select select
+     * @param names 名称
+     * @param className 类名称
+     * @param methodName 方法名称
+     * @param names 名称
+     * @param className 类名称
+     * @param select 选择
      * @param maker maker
-     * @param names names
-     * @param qualifiedName qualifiedName
-     * @param methodElement methodElement
-     * @param typeElement typeElement
-     * @param methodElement methodElement
-     * @param TypeElement TypeElement
-     * @param typeElement typeElement
+     * @param names 名称
+     * @param qualifiedName qualified名称
+     * @param methodElement 方法element
+     * @param typeElement 类型element
+     * @param methodElement 方法element
+     * @param TypeElement 类型element
+     * @param typeElement 类型element
      */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildCall(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names,
@@ -263,15 +271,15 @@ public final class TraceAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 构建QualifiedName
+      * 构建qualified名称
      * @param maker maker
-     * @param names names
-     * @param qualifiedName qualifiedName
-     * @param methodElement methodElement
-     * @param typeElement typeElement
-     * @param methodElement methodElement
-     * @param TypeElement TypeElement
-     * @param typeElement typeElement
+     * @param names 名称
+     * @param qualifiedName qualified名称
+     * @param methodElement 方法element
+     * @param typeElement 类型element
+     * @param methodElement 方法element
+     * @param TypeElement 类型element
+     * @param typeElement 类型element
      */
     private com.sun.tools.javac.tree.JCTree.JCExpression buildQualifiedName(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, String qualifiedName) {
@@ -284,7 +292,12 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return expr;
     }
 
-    /** 获取SimpleClassName */
+    /**
+     * 获取简单类名称
+     *
+     * @param methodElement 方法element
+     * @return 获取简单类名称的结果
+     */
     private String getSimpleClassName(ExecutableElement methodElement) {
         Element enclosing = methodElement.getEnclosingElement();
         if (enclosing instanceof TypeElement typeElement) {
@@ -293,7 +306,12 @@ public final class TraceAstProcessor extends AbstractProcessor {
         return "Unknown";
     }
 
-    /** 获取PackageName */
+    /**
+     * 获取包名称
+     *
+     * @param methodElement 方法element
+     * @return 获取包名称的结果
+     */
     private String getPackageName(ExecutableElement methodElement) {
         Element enclosing = methodElement.getEnclosingElement();
         while (enclosing != null && !(enclosing instanceof TypeElement)) {

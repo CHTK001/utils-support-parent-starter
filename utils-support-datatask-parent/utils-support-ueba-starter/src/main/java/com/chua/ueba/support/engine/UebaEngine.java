@@ -20,8 +20,8 @@ import java.util.Objects;
 /**
  * UEBA 综合分析引擎。
  * <p>
- * 编排 IP 异常流量检测（AutoEncoder）、用户操作行为序列分析（LSTM/GRU + Attention）
- * 与语义解释（MiniMind），并输出综合风险分数与等级。流程：</p>
+   * 编排 IP 异常流量检测（auto编码器）、用户操作行为序列分析（LSTM/GRU + Attention）
+   * 与语义解释（minimind），并输出综合风险分数与等级。流程：</p>
  * <ol>
  *   <li>将流量事件加入实体滑动窗口</li>
  *   <li>AutoEncoder 计算 IP 聚合特征重建误差，得到 IP 异常结果</li>
@@ -38,25 +38,25 @@ import java.util.Objects;
 @Slf4j
 public class UebaEngine implements AutoCloseable {
 
-    /** classpath 默认配置文件 */
+    /** 类路径 默认配置文件 */
     private static final String DEFAULT_CONFIG_RESOURCE = "ueba-config.yaml";
 
     /** LOW 风险阈值 */
     private static final double LOW_RISK_THRESHOLD = 0.15d;
 
-    /** AutoEncoder 自适应阈值：标准差倍数（mean + k * std） */
+    /** auto编码器 自适应阈值：标准差倍数（mean + k * std） */
     private static final double AE_STD_MULTIPLIER = 3.0d;
 
-    /** AutoEncoder 自适应阈值：学习所需最少样本数（Warm-up 期间不告警） */
+    /** auto编码器 自适应阈值：学习所需最少样本数（Warm-up 期间不告警） */
     private static final long AE_MIN_SAMPLES = 30L;
 
-    /** AutoEncoder 等级映射：MEDIUM 最小误差比 */
+    /** auto编码器 等级映射：MEDIUM 最小误差比 */
     private static final double AE_MEDIUM_RATIO = 1.2d;
 
-    /** AutoEncoder 等级映射：HIGH 最小误差比 */
+    /** auto编码器 等级映射：HIGH 最小误差比 */
     private static final double AE_HIGH_RATIO = 2.0d;
 
-    /** AutoEncoder 等级映射：CRITICAL 最小误差比 */
+    /** auto编码器 等级映射：CRITICAL 最小误差比 */
     private static final double AE_CRITICAL_RATIO = 3.0d;
 
     /** attack 类别的风险分值 */
@@ -68,7 +68,7 @@ public class UebaEngine implements AutoCloseable {
     /** normal 类别的风险分值 */
     private static final double NORMAL_RISK = 0.1d;
 
-    /** 实体键：IP 与 Session 均缺失时使用 */
+    /** 实体键：IP 与 会话 均缺失时使用 */
     private static final String UNKNOWN_ENTITY = "unknown";
 
     /** UEBA 配置 */
@@ -80,19 +80,19 @@ public class UebaEngine implements AutoCloseable {
     /** 实体窗口跟踪器 */
     private final IpBehaviorTracker tracker;
 
-    /** AutoEncoder 推理器 */
+    /** auto编码器 推理器 */
     private final AutoEncoderIpTranslator autoEncoder;
 
     /** LSTM/GRU 序列推理器 */
     private final LstmAttentionBehaviorTranslator lstm;
 
-    /** MiniMind 解释器（enableLlm=false 时为 null） */
+    /** minimind 解释器（enablellm=false 时为 空） */
     private final MiniMindUebaAnalyzer llm;
 
     /** 规则评分器 */
     private final RuleBasedScorer ruleScorer;
 
-    /** AutoEncoder 重建误差的在线统计（自适应阈值） */
+    /** auto编码器 重建误差的在线统计（自适应阈值） */
     private final OnlineStats aeStats;
 
     /** 行为序列长度 */
@@ -105,9 +105,9 @@ public class UebaEngine implements AutoCloseable {
     private final int numClasses;
 
     /**
-     * 构造引擎，启用 MiniMind。
+      * 构造引擎，启用 minimind。
      *
-     * @param config UEBA 配置，不能为 null，且必须包含 features/autoEncoder/lstm/risk
+     * @param config UEBA 配置，不能为 空，且必须包含 特征/auto编码器/lstm/risk
      * @throws IllegalArgumentException 当配置缺失必要段落时
      */
     public UebaEngine(UebaConfig config) {
@@ -117,8 +117,8 @@ public class UebaEngine implements AutoCloseable {
     /**
      * 构造引擎。
      *
-     * @param config      UEBA 配置，不能为 null，且必须包含 features/autoEncoder/lstm/risk
-     * @param enableLlm   是否启用 MiniMind 语义解释
+     * @param config      UEBA 配置，不能为 空，且必须包含 特征/auto编码器/lstm/risk
+     * @param enableLlm   是否启用 minimind 语义解释
      * @throws IllegalArgumentException 当配置缺失必要段落时
      */
     public UebaEngine(UebaConfig config, boolean enableLlm) {
@@ -145,8 +145,8 @@ public class UebaEngine implements AutoCloseable {
     /**
      * 校验配置必要段落。
      *
-     * @param config 配置对象，不能为 null
-     * @throws IllegalArgumentException 当 features/autoEncoder/lstm/risk 缺失时
+     * @param config 配置对象，不能为 空
+     * @throws IllegalArgumentException 当 特征/auto编码器/lstm/risk 缺失时
      */
     private static void validateConfig(UebaConfig config) {
         if (config.getFeatures() == null || config.getFeatures().isEmpty()) {
@@ -164,10 +164,10 @@ public class UebaEngine implements AutoCloseable {
     }
 
     /**
-     * 从 classpath 加载默认配置并构造引擎。
+      * 从 类路径 加载默认配置并构造引擎。
      *
      * @return 使用默认配置的引擎实例
-     * @throws IllegalStateException 当 classpath 缺少 ueba-config.yaml 时
+     * @throws IllegalStateException 当 类路径 缺少 ueba-配置.yaml 时
      * @throws UncheckedIOException 当配置文件读取失败时
      */
     public static UebaEngine loadDefault() {
@@ -184,9 +184,9 @@ public class UebaEngine implements AutoCloseable {
     /**
      * 对单条流量事件执行综合分析。
      *
-     * @param event 流量事件，不能为 null
-     * @return 综合分析结果，绝不为 null
-     * @throws IllegalArgumentException 当 event 为 null 时
+     * @param event 流量事件，不能为 空
+     * @return 综合分析结果，绝不为 空
+     * @throws IllegalArgumentException 当 事件 为 空 时
      */
     public UebaResult analyze(TrafficEvent event) {
         if (event == null) {
@@ -216,11 +216,11 @@ public class UebaEngine implements AutoCloseable {
     }
 
     /**
-     * IP 异常检测：优先 AutoEncoder，失败回退规则评分。
+      * IP 异常检测：优先 auto编码器，失败回退规则评分。
      *
      * @param entityId 实体标识
      * @param window   窗口事件列表
-     * @return IP 异常结果，绝不为 null
+     * @return IP 异常结果，绝不为 空
      */
     private IpAnomalyResult detectIp(String entityId, List<TrafficEvent> window) {
         if (autoEncoder.isAvailable()) {
@@ -247,7 +247,7 @@ public class UebaEngine implements AutoCloseable {
     }
 
     /**
-     * 解析 AutoEncoder 异常阈值。
+      * 解析 auto编码器 异常阈值。
      * <p>配置阈值大于 0 时使用配置值；否则使用在线学习阈值
      * {@code mean + k * std}。Warm-up（样本不足）期间返回无穷大，不误报。</p>
      *
@@ -265,7 +265,7 @@ public class UebaEngine implements AutoCloseable {
     }
 
     /**
-     * 构造 AutoEncoder 判定原因。
+      * 构造 auto编码器 判定原因。
      *
      * @param err       重建误差
      * @param threshold 异常阈值
@@ -370,7 +370,7 @@ public class UebaEngine implements AutoCloseable {
      *
      * @param entityId 实体标识
      * @param window   窗口事件列表
-     * @return 行为画像，绝不为 null
+     * @return 行为画像，绝不为 空
      */
     private BehaviorProfile analyzeBehavior(String entityId, List<TrafficEvent> window) {
         if (lstm.isAvailable()) {
@@ -431,10 +431,10 @@ public class UebaEngine implements AutoCloseable {
     /**
      * 合并 IP 异常分数与行为分数。
      *
-     * @param ipAnomaly IP 异常结果，不能为 null
-     * @param behavior  行为画像，不能为 null
+     * @param ipAnomaly IP 异常结果，不能为 空
+     * @param behavior  行为画像，不能为 空
      * @return 综合风险分数，范围 [0, 1]
-     * @throws IllegalArgumentException 当任一参数为 null 时
+     * @throws IllegalArgumentException 当任一参数为 空 时
      */
     private double computeRisk(IpAnomalyResult ipAnomaly, BehaviorProfile behavior) {
         Objects.requireNonNull(ipAnomaly, "ipAnomaly must not be null");
@@ -468,7 +468,7 @@ public class UebaEngine implements AutoCloseable {
     }
 
     /**
-     * 未启用 MiniMind 时的模板解释。
+      * 未启用 minimind 时的模板解释。
      *
      * @param ipAnomaly IP 异常结果
      * @param behavior  行为画像
@@ -484,7 +484,7 @@ public class UebaEngine implements AutoCloseable {
     /**
      * 提取实体的窗口键。
      *
-     * @param event 流量事件，不能为 null
+     * @param event 流量事件，不能为 空
      * @return 实体标识
      */
     private static String entityKey(TrafficEvent event) {
@@ -499,7 +499,7 @@ public class UebaEngine implements AutoCloseable {
     }
 
     /**
-     * 将值限制在 [min, max] 区间。
+      * 将值限制在 [最小, 最大] 区间。
      *
      * @param value 原值
      * @param min   下界

@@ -18,8 +18,8 @@ import javax.annotation.Nullable;
 /**
  * CLIP                      
  * <p>
- *   CLIP ViT-B/16     ViT-B/32 Vision                               
- *     CLIP-ViT-B-16-IMAGE     CLIP-ViT-B-32-IMAGE          
+   * CLIP vit-B/16     vit-B/32 Vision
+   * CLIP-vit-B-16-镜像     CLIP-vit-B-32-镜像
  * </p>
  * <p>
  *                  
@@ -31,10 +31,10 @@ import javax.annotation.Nullable;
  * 6.           NCHW       
  * </p>
  * <p>
- *                       OpenAI CLIP                      
- * - image_mean: [0.48145466, 0.4578275, 0.40821073]
- * - image_std: [0.26862954, 0.26130258, 0.27577711]
- * - crop_size: 224x224
+   * 打开AI CLIP
+   * - 镜像_mean: [0.48145466, 0.4578275, 0.40821073]
+   * - 镜像_std: [0.26862954, 0.26130258, 0.27577711]
+   * - crop_大小: 224x224
  * - resample: BICUBIC
  * </p>
  *
@@ -46,13 +46,13 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
 
     /**
      * CLIP                            
-     *   OpenAI CLIP                
+      * 打开AI CLIP
      */
     private static final float[] IMAGE_MEAN = {0.48145466f, 0.4578275f, 0.40821073f};
 
     /**
      * CLIP                               
-     *   OpenAI CLIP                
+      * 打开AI CLIP
      */
     private static final float[] IMAGE_STD = {0.26862954f, 0.26130258f, 0.27577711f};
 
@@ -129,11 +129,11 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      *                   
      * <p>
      *                                                       
-     * CLIP ViT-B/16     ViT-B/32           512                   
+      * CLIP vit-B/16     vit-B/32           512
      * </p>
      *
      * @param ctx                    
-     * @param list                 NDList
+     * @param list                 nd列表
      * @return                         
      */
     @Override

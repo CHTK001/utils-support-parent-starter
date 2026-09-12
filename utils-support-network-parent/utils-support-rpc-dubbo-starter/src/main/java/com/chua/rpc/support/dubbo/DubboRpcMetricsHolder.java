@@ -44,6 +44,9 @@ public final class DubboRpcMetricsHolder {
      */
     private static final ConcurrentHashMap<String, MethodStat> METHOD_STATS = new ConcurrentHashMap<>();
 
+    /**
+     * Dubborpc指标holder。
+     */
     private DubboRpcMetricsHolder() {
     }
 
@@ -176,7 +179,7 @@ public final class DubboRpcMetricsHolder {
          */
         final AtomicLong lastTime = new AtomicLong();
         /**
-         * 最近一次结果（SUCCESS / FAILURE / NONE）
+          * 最近一次结果（成功 / 失败 / 无）
          */
         volatile String lastResult = "NONE";
         /**

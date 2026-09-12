@@ -191,21 +191,21 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
-    /** 暂停All */
+    /** 暂停全部 */
     public void pauseAll() {
         globallyPaused = true;
         log.info("全局派发已暂停");
     }
 
     @Override
-    /** 恢复All */
+    /** 恢复全部 */
     public void resumeAll() {
         globallyPaused = false;
         log.info("全局派发已恢复");
     }
 
     @Override
-    /** 设置Batch获取大小 */
+    /** 设置批量获取大小 */
     public void setBatchSize(int batchSize) {
         if (batchSize > 0) {
             this.batchSize = batchSize;
@@ -219,7 +219,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     @Override
-    /** Listener */
+    /** 监听器 */
     public DispatcherProvider listener(DispatcherListener listener) {
         this.listener = listener;
         return this;
@@ -279,6 +279,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
 
     /**
      * 派发单条数据，跳过已取消/暂停的任务。
+     * @param entry entry
      */
     private void dispatch(QueueEntry entry) {
         if (listener == null) {
@@ -351,6 +352,7 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
      * @param data     任务或结果
      * @param priority 优先级
      * @since 4.0.0.42
+     * @return 队列entry的结果
      */
     private record QueueEntry(Object data, TaskPriority priority) {
     }

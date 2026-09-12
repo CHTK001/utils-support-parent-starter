@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 文档方向分类（PP-LCNet_x1_0_doc_ori，4 类：0°/90°/180°/270°）。
+   * 文档方向分类（PP-lcnet_x1_0_doc_ori，4 类：0°/90°/180°/270°）。
  *
  * <p>PaddleOCR 文档方向分类模型，整图输入 48×192，输出 4 类 softmax。
  * 替代 pp-word-rotate（仅 0/180）的启发式整图矫正逻辑。</p>
@@ -40,10 +40,10 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
     private static final List<String> CLASSES = List.of("0", "90", "180", "270");
 
     /** 资源基础路径 */
-    /** Resource_base */
+    /** Resource_基础 */
     private static final String RESOURCE_BASE = "ocr/direction/doc_ori/";
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "model.onnx";
 
     /** ONNX 运行时环境 */
@@ -68,7 +68,7 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         log.info("[doc-orientation] ONNX loaded: {}", modelPath.getFileName());
     }
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "doc-orientation";
     }
@@ -84,7 +84,12 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
         }
     }
 
-    /** Classify */
+    /**
+     * Classify
+     *
+     * @param imageData 镜像数据
+     * @return classify的结果
+     */
     private DirectionInfo classify(byte[] imageData) {
         try {
             ImageUtils.load();

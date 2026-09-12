@@ -25,8 +25,8 @@ import java.util.concurrent.Executor;
 /**
  * Nacos 配置中心实现。
  * <p>
- * 基于 Nacos Client SDK 连接 Nacos 服务器，提供配置的获取、发布、删除和变更监听功能。
- * 支持 YAML、Properties 两种配置格式的自动识别和解析，通过 SPI 扩展点支持更多格式。
+   * 基于 Nacos 客户端 SDK 连接 Nacos 服务器，提供配置的获取、发布、删除和变更监听功能。
+   * 支持 YAML、属性 两种配置格式的自动识别和解析，通过 SPI 扩展点支持更多格式。
  * </p>
  * <p>
  * <b>功能特性：</b>
@@ -58,7 +58,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     private ConfigService configService;
 
     /**
-     * 配置内容缓存，key 为 "dataId:group"
+      * 配置内容缓存，键 为 "数据id:群体"
      */
     private final Map<String, Map<String, Object>> configContentCache = new ConcurrentHashMap<>();
 
@@ -102,7 +102,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         final Properties properties = new Properties();
         String address = configCenterSetting.getAddress();
 
-        // 解析地址格式，支持 grpc:// 等协议前缀
+ // 解析地址格式，支持 gRPC:// 等协议前缀
         if (address != null && address.contains("://")) {
             String[] parts = address.split("://", 2);
             properties.setProperty(PropertyKeyConst.SERVER_ADDR, parts[1]);
@@ -231,7 +231,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(String dataId, ConfigListener listener) {
         super.addListener(dataId, listener);
 
@@ -239,7 +239,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
         try {
             configService.addListener(dataId, DEFAULT_GROUP, new Listener() {
                 @Override
-                /** 接收ConfigInfo */
+                /** 接收配置信息 */
                 public void receiveConfigInfo(String configInfo) {
                     // 配置变更时解析新内容并通知监听器
                     Map<String, Object> newConfig = parseConfigContent(configInfo, dataId);
@@ -268,7 +268,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
                 }
 
                 @Override
-                /** 获取Executor */
+                /** 获取执行器 */
                 public Executor getExecutor() {
                     return null;
                 }
@@ -281,8 +281,8 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     /**
      * 解析配置内容字符串为键值映射。
      * <p>
-     * 根据 dataId 的后缀（如 .yaml、.properties）选择合适的解析器。
-     * 无后缀时自动检测 YAML 或 Properties 格式。
+      * 根据 数据id 的后缀（如 .yaml、.属性）选择合适的解析器。
+      * 无后缀时自动检测 YAML 或 属性 格式。
      * </p>
      *
      * @param configContent 配置内容
@@ -334,11 +334,11 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 判断是否为 Properties 配置。
+      * 判断是否为 属性 配置。
      *
      * @param dataId  配置标识
      * @param content 配置内容
-     * @return true-应使用 Properties 解析
+     * @return true-应使用 属性 解析
      */
     private boolean isPropertiesConfig(String dataId, String content) {
         if (dataId != null) {
@@ -351,7 +351,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 将配置 Map 转换为 YAML 格式字符串。
+      * 将配置 映射 转换为 YAML 格式字符串。
      *
      * @param config 配置映射
      * @return YAML 格式字符串

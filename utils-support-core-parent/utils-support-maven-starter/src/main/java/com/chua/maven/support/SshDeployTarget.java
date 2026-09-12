@@ -6,8 +6,8 @@ import java.util.List;
 /**
  * SSH/SFTP 远程部署目标。
  * <p>
- * 基于 ssh-starter 的 SftpClient 实现远程服务器部署。
- * 需要类路径中存在 SftpClient（ssh-starter 依赖需手动提供）。
+   * 基于 ssh-启动 的 sftp客户端 实现远程服务器部署。
+   * 需要类路径中存在 sftp客户端（ssh-启动 依赖需手动提供）。
  * </p>
  *
  * <h2>使用示例</h2>
@@ -23,6 +23,7 @@ import java.util.List;
  *     .goal("clean", "package")
  *     .compileAndDeploy()
  *     .deployTo(new SshDeployTarget(host, port, user, pass, "/opt/app"));
+ * }</pre>(host, port, user, pass, "/opt/app"));
  * }</pre>
  *
  * @author CH
@@ -103,13 +104,13 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "SSH:" + host + ":" + port + " -> " + remoteRoot;
     }
 
     @Override
-    /** 是否Ready */
+    /** 是否就绪 */
     public boolean isReady() {
         return ready;
     }
@@ -118,7 +119,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     /** 连接 */
     public void connect() {
         try {
-            // 通过 ReflectUtils 动态加载避免编译时强依赖
+ // 通过 reflect工具 动态加载避免编译时强依赖
             Class<?> builderClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient$Builder");
             Class<?> sftpClientClass = ReflectUtils.forName("com.chua.ssh.support.client.SftpClient");
             Object builder = ReflectUtils.invokeStatic((Class<?>) sftpClientClass, "builder", Object.class, new Class<?>[0]);
@@ -159,7 +160,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 创建Directory */
+    /** 创建目录 */
     public void createDirectory(String path) {
         if (path == null || ".".equals(path)) {
             return;
@@ -229,7 +230,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** UploadBatch */
+    /** uploadbatch */
     public int uploadBatch(List<String> files, String targetDir) {
         ensureReady();
         int count = 0;

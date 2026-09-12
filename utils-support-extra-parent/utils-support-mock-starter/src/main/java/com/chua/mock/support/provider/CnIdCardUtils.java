@@ -70,7 +70,7 @@ final class CnIdCardUtils {
     }
 
     /**
-     * 生成随机的出生日期字符串（yyyyMMdd）。
+      * 生成随机的出生日期字符串（yyyymmdd）。
      *
      * @param environment Mock 环境
      * @param min         范围下界（包含）

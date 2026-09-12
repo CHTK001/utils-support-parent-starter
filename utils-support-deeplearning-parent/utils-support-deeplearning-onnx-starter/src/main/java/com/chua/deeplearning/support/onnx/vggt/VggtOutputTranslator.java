@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  *           3D                             Translator   
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Slf4j
@@ -29,7 +29,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
     private static final int INPUT_SIZE = 518;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -46,7 +46,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
         // DJL     normalize        CHW                                             
         array = array.transpose(2, 0, 1);
 
-        //             ImageNet          
+ // 镜像net
         float[] mean = {0.485f, 0.456f, 0.406f};
         float[] std = {0.229f, 0.224f, 0.225f};
         array = NDImageUtils.normalize(array, mean, std).expandDims(0);
@@ -58,7 +58,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public VggtOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}          ", list.size());
@@ -82,7 +82,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
         log.info("       3D             : {}    float   ,       : {}",
                 gaussianData.length, java.util.Arrays.toString(outputShape));
 
-        //                 VggtOutput       
+ // vggt输出
         VggtOutput vggtOutput = new VggtOutput(gaussianData, outputShape);
 
         log.info("3D                   : {}                ,                   : {}",

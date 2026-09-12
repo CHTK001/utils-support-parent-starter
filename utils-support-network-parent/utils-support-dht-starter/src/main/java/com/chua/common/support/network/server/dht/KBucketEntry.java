@@ -35,7 +35,7 @@ public class KBucketEntry implements Serializable {
     private long lastSeen;
 
     /**
-     * 使用指定节点创建条目，初始 lastSeen 为当前系统时间。
+      * 使用指定节点创建条目，初始 最后一个seen 为当前系统时间。
      *
      * @param peer 远程节点
      */
@@ -55,9 +55,9 @@ public class KBucketEntry implements Serializable {
     }
 
     /**
-     * 刷新条目的活跃时间戳，同时更新 peer 的 lastSeen 并重置失败计数。
+      * 刷新条目的活跃时间戳，同时更新 peer 的 最后一个seen 并重置失败计数。
      * <p>
-     * 如果 peer 为 null，则仅更新当前条目的 lastSeen。
+      * 如果 peer 为 空，则仅更新当前条目的 最后一个seen。
      * </p>
      */
     public void refresh() {

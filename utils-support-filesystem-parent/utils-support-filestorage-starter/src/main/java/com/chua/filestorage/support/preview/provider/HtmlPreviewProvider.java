@@ -42,12 +42,12 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 把 HTML 内容通过 iframe srcdoc 渲染。移除 script/on-event/javascript:/iframe/object/embed 等危险内容。
+      * 把 HTML 内容通过 iframe srcdoc 渲染。移除 script/on-事件/JavaScript:/iframe/对象/embed 等危险内容。
      *
      * @param content 原始字节
      * @param ext     扩展名
      * @param mime    MIME 类型（当前忽略）
-     * @return PreviewResult 含 htmlContent + embeddedCss
+     * @return PreviewResult 含 HTML内容 + embeddedcss
      */
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) {
@@ -65,6 +65,8 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
 
     /**
      * 移除危险标签和属性，保留安全 HTML 内容
+     * @param html HTML
+     * @return sanitize的结果
      */
     private String sanitize(String html) {
         if (html == null || html.isEmpty()) {
@@ -76,17 +78,19 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
                 // 移除事件处理属性
                 .replaceAll("(?i)\\s+on\\w+\\s*=\\s*[\"'][^\"']*[\"']", "")
                 .replaceAll("(?i)\\s+on\\w+\\s*=\\s*[^\\s>]+", "")
-                // 移除 javascript: 协议
+ // 移除 JavaScript: 协议
                 .replaceAll("(?i)javascript\\s*:", "#")
                 // 移除 iframe 标签
                 .replaceAll("(?i)<iframe[\\s\\S]*?</iframe>", "")
-                // 移除 object/embed 标签
+ // 移除 对象/embed 标签
                 .replaceAll("(?i)<(object|embed)[\\s\\S]*?</(object|embed)>", "")
                 .replaceAll("(?i)<(object|embed)[^>]*/?>", "");
     }
 
     /**
      * 构建包含预览容器的 HTML 包装
+     * @param sanitizedHtml sanitizedhtml
+     * @return 构建包装器html的结果
      */
     private String buildWrapperHtml(String sanitizedHtml) {
         StringBuilder sb = new StringBuilder();
@@ -106,6 +110,8 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
 
     /**
      * 转义 HTML 用于 srcdoc 属性值
+     * @param html HTML
+     * @return escapeHtmlForSrcdoc的结果
      */
     private String escapeHtmlForSrcdoc(String html) {
         return html

@@ -5,10 +5,15 @@ package com.chua.common.support.scatter;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param setting setting
  */
 public class TcpScatterBuilder extends ScatterBuilder<TcpScatterBuilder> {
 
-    private static final String PROTOCOL_TCP = "tcp";
+    private static final String PROTOCOL_TCP = "tcp"; // 协议tcp
+/**
+ * tcpscatter构建器。
+ * @param setting setting
+ */
 
     public TcpScatterBuilder() {
         super(PROTOCOL_TCP);

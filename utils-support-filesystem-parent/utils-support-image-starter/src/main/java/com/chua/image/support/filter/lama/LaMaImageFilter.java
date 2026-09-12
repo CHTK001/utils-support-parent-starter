@@ -12,10 +12,10 @@ import javax.annotation.Nullable;
 
 
 /**
- * LaMa 图像修复滤镜
+   * lama 图像修复滤镜
  *
- * 基于 LaMa (Large Mask Inpainting) 深度学习模型的智能图像修复滤镜。
- * LaMa 是一种先进的图像修复技术，能够高质量地填补图像中的缺失区域，
+   * 基于 lama (Large Mask Inpainting) 深度学习模型的智能图像修复滤镜。
+   * lama 是一种先进的图像修复技术，能够高质量地填补图像中的缺失区域，
  * 移除不需要的对象，并智能地生成符合上下文的内容。
  *
  * 技术特点：
@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
  *
  * 使用要求：
  * 1. 添加 ONNX Runtime 依赖
- * 2. 下载 LaMa ONNX 模型文件
+   * 2. 下载 lama ONNX 模型文件
  * 3. 配置模型路径和推理参数
  * 4. 准备输入图像和对应的掩码
  *
@@ -61,7 +61,7 @@ import javax.annotation.Nullable;
  * - 可配置的推理参数
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/7/29
  */
 @Slf4j
@@ -70,7 +70,7 @@ import javax.annotation.Nullable;
 public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseable {
 
     /**
-     * LaMa配置
+      * lama配置
      */
     private LaMaConfiguration config;
 
@@ -86,7 +86,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
 
     /**
      * 默认构造函数
-     * 需要后续调用setConfig()方法设置配置
+      * 需要后续调用设置配置()方法设置配置
      */
     public LaMaImageFilter() {
         // 默认构造函数，需要后续设置配置
@@ -104,7 +104,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     /**
      * 构造函数
      *
-     * @param config LaMa配置
+     * @param config lama配置
      */
     public LaMaImageFilter(LaMaConfiguration config) {
         setConfig(config);
@@ -113,7 +113,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     /**
      * 设置配置
      *
-     * @param config LaMa配置
+     * @param config lama配置
      * @return 当前实例
      */
     public LaMaImageFilter setConfig(LaMaConfiguration config) {
@@ -254,20 +254,20 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     @Override
-    /** Converter */
+    /** 转换器 */
     public BufferedImage converter(BufferedImage image) throws IOException {
         return filter(image, null);
     }
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat() {
         // png"; // LaMa输出通常使用PNG格式以保持质量
         return "png";
     }
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat(String name) {
         
         return name != null ? name : getImageFormat();
@@ -357,7 +357,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-     * 创建默认LaMa滤镜
+      * 创建默认lama滤镜
      *
      * @param modelPath 模型路径
      * @return LaMa滤镜实例
@@ -367,7 +367,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-     * 创建高质量LaMa滤镜
+      * 创建高质量lama滤镜
      *
      * @param modelPath 模型路径
      * @return 高质量LaMa滤镜实例
@@ -377,7 +377,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-     * 创建快速LaMa滤镜
+      * 创建快速lama滤镜
      *
      * @param modelPath 模型路径
      * @return 快速LaMa滤镜实例
@@ -387,7 +387,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-     * 创建GPU加速LaMa滤镜
+      * 创建GPU加速lama滤镜
      *
      * @param modelPath 模型路径
      * @return GPU加速LaMa滤镜实例
@@ -397,11 +397,11 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-     * 创建自动mask LaMa滤镜
+      * 创建自动mask lama滤镜
      *
      * @param modelPath   模型路径
      * @param targetColor 目标颜色
-     * @return 自动mask LaMa滤镜实例
+     * @return 自动mask lama滤镜实例
      */
     public static LaMaImageFilter createAutoMask(String modelPath, int[] targetColor) {
         return new LaMaImageFilter(LaMaConfiguration.createAutoMask(modelPath, targetColor));

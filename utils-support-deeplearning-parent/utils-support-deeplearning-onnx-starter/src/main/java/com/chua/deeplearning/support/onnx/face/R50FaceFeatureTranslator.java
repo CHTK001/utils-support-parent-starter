@@ -17,9 +17,10 @@ import java.awt.image.BufferedImage;
  * R50 人脸特征提取 Translator。
  *
  * <p>使用纯 Java 预处理（BufferedImage resize + RGB 归一化），
- * 避免部分 NDArray 实现（如 ONNX）不支持的 {@code NDImageUtils.resize} 图像操作。</p>
+   * 避免部分 ndarray 实现（如 ONNX）不支持的 {@code NDImageUtils.resize} 图像操作。</p>
  *
  * @author CH
+ * @since 4.0.0
 */
 public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
 
@@ -29,7 +30,7 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
     private static final int INPUT_SIZE = 448;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         // 纯 Java 预处理：resize 到 448x448，RGB 归一化到 [0,1]，NHWC 布局
         BufferedImage src = (BufferedImage) input.getWrappedImage();
@@ -51,7 +52,7 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         // 输出形状 [1, N]，取第一行作为特征向量
         NDArray output = list.singletonOrThrow();

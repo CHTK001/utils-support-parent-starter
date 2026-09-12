@@ -17,7 +17,7 @@ import java.io.IOException;
  * Groovy 脚本标记器实现。
  *
  * <p>通过 {@link ScriptMarker} SPI 机制注册为 {@code "groovy"} 脚本引擎，
- * 支持将 Groovy 源代码动态编译为 Java Class 并创建实例对象。</p>
+   * 支持将 Groovy 源代码动态编译为 Java 类 并创建实例对象。</p>
  *
  * <h3>工作原理</h3>
  * <ol>
@@ -32,7 +32,7 @@ import java.io.IOException;
  *   <li>若传入的 classLoader 为 {@link GroovyClassLoader} 实例，则复用且不关闭</li>
  *   <li>若为其他 ClassLoader 或 null，则新建 GroovyClassLoader，失败时自动关闭</li>
  *   <li>热重载时由 {@link com.chua.common.support.objects.definition.AbstractScriptDefinition}
- *       负责销毁旧的 ClassLoader</li>
+   * 负责销毁旧的 类加载</li>
  *   <li>通过 {@link #previousClassLoader} 追踪旧 ClassLoader，支持主动清理其 Groovy 缓存</li>
  * </ul>
  *
@@ -62,7 +62,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     private final CompilerConfiguration config;
 
     /**
-     * 最后一次编译生成的 Class 类型
+      * 最后一次编译生成的 类 类型
      */
     private Class<?> compiledClass;
 
@@ -74,7 +74,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     /**
      * 上一次使用的类加载器，用于在热重载时主动清理其 Groovy 内部缓存。
      * <p>当新的 GroovyClassLoader 被创建后，旧的 ClassLoader 被保存到此字段，
-     * 供 {@link #cleanupPreviousClassLoader()} 调用 clearCache() 释放 Metaspace。</p>
+      * 供 {@link #cleanupPreviousClassLoader()} 调用 clear缓存() 释放 Metaspace。</p>
      */
     private volatile ClassLoader previousClassLoader;
 
@@ -89,7 +89,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     /**
      * 构造 Groovy 脚本标记器。
      *
-     * @param config 编译器配置，为 null 时使用默认配置
+     * @param config 编译器配置，为 空 时使用默认配置
      */
     public GroovyScriptMarker(CompilerConfiguration config) {
         this.config = config != null ? new CompilerConfiguration(config) : new CompilerConfiguration(DEFAULT_CONFIG);
@@ -100,8 +100,8 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
      * 创建脚本对象实例（线程安全）。
      *
      * <p>若传入的 classLoader 是 {@link GroovyClassLoader} 则复用；
-     * 否则新建 GroovyClassLoader。每次创建新 ClassLoader 时，
-     * 旧的 ClassLoader 被保存到 {@link #previousClassLoader} 供后续清理。</p>
+      * 否则新建 groovy类加载。每次创建新 类加载 时，
+      * 旧的 类加载 被保存到 {@link #previousClassLoader} 供后续清理。</p>
      */
     public synchronized Object createObject(Listener listener, ClassLoader classLoader, Object[] args) {
         if (listener == null) {
@@ -118,7 +118,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
         try {
             this.compiledClass = groovyClassLoader.parseClass(listener.getSource());
 
-            // 新增：保存旧 ClassLoader 引用，供后续清理 Groovy 内部缓存
+ // 新增：保存旧 类加载 引用，供后续清理 Groovy 内部缓存
             if (this.lastClassLoader != null && this.lastClassLoader != groovyClassLoader) {
                 this.previousClassLoader = this.lastClassLoader;
             }
@@ -146,7 +146,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     }
 
     @Override
-    /** 获取ScriptClassLoader */
+    /** 获取script类加载 */
     public ClassLoader getScriptClassLoader() {
         return lastClassLoader;
     }
@@ -161,10 +161,10 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     }
 
     /**
-     * 清理旧 ClassLoader 的 Groovy 内部缓存。
+      * 清理旧 类加载 的 Groovy 内部缓存。
      *
      * <p>在热重载后调用，释放旧 {@link GroovyClassLoader} 的 sourceCache 和
-     * ClassInfo 反射缓存，帮助 Metaspace 内存回收。</p>
+      * 类信息 反射缓存，帮助 Metaspace 内存回收。</p>
      *
      * <p>仅在 previousClassLoader 是 GroovyClassLoader 实例时执行清理。</p>
      */
@@ -185,7 +185,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     }
 
     /**
-     * 静默关闭 GroovyClassLoader，忽略异常。
+      * 静默关闭 groovy类加载，忽略异常。
      *
      * <p>关闭前先调用 {@code clearCache()} 清理 Groovy 内部缓存。</p>
      *

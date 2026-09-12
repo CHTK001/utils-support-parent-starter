@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 /**
  * Tablesaw 数据引擎实现，基于 Tablesaw 数据处理引擎提供文件数据源的 ORM 查询能力。
  * <p>
- * 通过 {@link #load(String, String)} 加载 CSV 文件，使用 LambdaQueryWrapper / LambdaUpdateWrapper
+   * 通过 {@link #load(String, String)} 加载 CSV 文件，使用 lambda查询包装器 / lambda更新包装器
  * 提供标准的 Engine ORM 接口，完整支持条件过滤、排序、分页等功能。
  * </p>
  *
@@ -59,7 +59,7 @@ public class TablesawEngine implements Engine {
     /**
      * Tablesaw 表格数据存储映射表
      * <p>
-     * Key 为数据源名称或表名，Value 为对应的 Tablesaw Table 对象。
+      * 键 为数据源名称或表名，值 为对应的 Tablesaw Table 对象。
      * </p>
      */
     private final Map<String, Table> tables = new ConcurrentHashMap<>();
@@ -81,7 +81,7 @@ public class TablesawEngine implements Engine {
     private String defaultDataSourceName;
 
     @Override
-    /** 添加DataSource */
+    /** 添加数据源 */
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         dataSources.put(name, (EngineDataSource<Object>) dataSource);
         if (defaultDataSourceName == null) {
@@ -91,7 +91,7 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** 设置DefaultDataSourceName */
+    /** 设置默认数据源名称 */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
@@ -108,31 +108,31 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** Store */
+    /** 存储 */
     public <T> Engine store(String name, List<T> data) {
         return this;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
-    /** 获取DataSource */
+    /** 获取数据源 */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return (EngineDataSource<T>) dataSources.get(name);
     }
 
     @Override
-    /** 获取DataSource */
+    /** 获取数据源 */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
@@ -166,7 +166,7 @@ public class TablesawEngine implements Engine {
      *
      * @param name    数据源名称
      * @param csvPath CSV 文件路径
-     * @param charset 文件编码（如 UTF-8、GBK），为 null 时使用系统默认编码
+     * @param charset 文件编码（如 UTF-8、GBK），为 空 时使用系统默认编码
      * @return 当前引擎实例，支持链式调用
      */
     public TablesawEngine load(String name, String csvPath, String charset) {
@@ -217,7 +217,7 @@ public class TablesawEngine implements Engine {
      * 获取指定名称的 Tablesaw 表格
      *
      * @param name 表名或数据源名称
-     * @return Tablesaw Table 对象，不存在则返回 null
+     * @return Tablesaw Table 对象，不存在则返回 空
      */
     public Table getTable(String name) {
         return tables.get(name);
@@ -253,7 +253,7 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
@@ -266,7 +266,7 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** List */
+            /** 列表 */
             public List<T> list() {
                 return executeQuery(this);
             }
@@ -301,7 +301,7 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
@@ -333,7 +333,7 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
@@ -360,7 +360,7 @@ public class TablesawEngine implements Engine {
      * </p>
      *
      * @param column Lambda 方法引用
-     * @return 属性名字符串，解析失败返回 null
+     * @return 属性名字符串，解析失败返回 空
      */
     private String resolveLambdaColumn(SFunction<?, ?> column) {
         if (column == null) {
@@ -435,12 +435,12 @@ public class TablesawEngine implements Engine {
     /**
      * 比较两个对象在指定字段上的大小
      * <p>
-     * 支持多字段排序，按 orderBys 列表顺序逐字段比较。
+      * 支持多字段排序，按 订单bys 列表顺序逐字段比较。
      * </p>
      *
      * @param a        对象 A
      * @param b        对象 B
-     * @param orderBys 排序字段列表，格式为 "fieldName ASC" 或 "fieldName DESC"
+     * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
      * @param <T>      对象类型
      * @return 负数表示 a < b，正数表示 a > b，相等返回 0
      */
@@ -474,7 +474,7 @@ public class TablesawEngine implements Engine {
     /**
      * 将条件列表转换为 Predicate
      * <p>
-     * 多个条件之间为 AND 关系。
+      * 多个条件之间为 和 关系。
      * </p>
      *
      * @param conditions 条件列表
@@ -495,7 +495,7 @@ public class TablesawEngine implements Engine {
     /**
      * 将单个条件转换为 Predicate
      * <p>
-     * 支持嵌套条件（AND/OR 逻辑组合）。
+      * 支持嵌套条件（和/或 逻辑组合）。
      * </p>
      *
      * @param c   条件对象
@@ -526,7 +526,7 @@ public class TablesawEngine implements Engine {
     /**
      * 计算属性值与操作数的匹配结果
      * <p>
-     * 支持的操作符：=, !=, >, >=, <, <=, LIKE, NOT LIKE, IN, NOT IN, IS NULL, IS NOT NULL, BETWEEN。
+      * 支持的操作符：=, !=, >, >=, <, <=, LIKE, NOT LIKE, 入, NOT 入, 是否 空, 是否 NOT 空, BETWEEN。
      * </p>
      *
      * @param prop 属性值
@@ -625,7 +625,7 @@ public class TablesawEngine implements Engine {
     /**
      * 判断两个值是否相等
      * <p>
-     * 对 Number 类型使用 double 值比较，其他类型使用 toString 兜底。
+      * 对 数字 类型使用 double 值比较，其他类型使用 转为字符串 兜底。
      * </p>
      *
      * @param prop 属性值
@@ -702,7 +702,7 @@ public class TablesawEngine implements Engine {
      * </p>
      *
      * @param entityClass 实体类类型
-     * @return Tablesaw Table 对象，未找到返回 null
+     * @return Tablesaw Table 对象，未找到返回 空
      */
     private Table resolveTable(Class<?> entityClass) {
         String name = getTableName(entityClass);
@@ -853,12 +853,12 @@ public class TablesawEngine implements Engine {
     /**
      * 通过反射获取对象属性值
      * <p>
-     * 优先尝试 getXxx() 方法，其次尝试 isXxx() 方法（适用于 boolean 类型字段）。
+      * 优先尝试 获取xxx() 方法，其次尝试 是否xxx() 方法（适用于 布尔值 类型字段）。
      * </p>
      *
      * @param bean  对象实例
      * @param field 字段名
-     * @return 属性值，获取失败返回 null
+     * @return 属性值，获取失败返回 空
      */
     private static Object getPropertyValue(Object bean, String field) {
         try {

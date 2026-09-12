@@ -27,9 +27,9 @@ import java.util.Set;
 @Spi("preview-jupyter")
 public class JupyterPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("ipynb");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("ipynb"); // 支持exts
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // 对象映射器
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -101,10 +101,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 读取单元格源码（source 可为字符串或字符串数组）。
+      * 读取单元格源码（源 可为字符串或字符串数组）。
      *
      * @param cell 单元格节点
-     * @return 拼接后的源码；缺失时返回 null
+     * @return 拼接后的源码；缺失时返回 空
      */
     private String readSource(JsonNode cell) {
         JsonNode sourceNode = cell.path("source");
@@ -192,7 +192,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 追加 data 中的纯文本回复（优先 text/plain，无则取首个字符串类型值）。
+      * 追加 数据 中的纯文本回复（优先 文本/plain，无则取首个字符串类型值）。
      *
      * @param outputs 输出容器
      * @param output  输出节点
@@ -379,10 +379,11 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     /**
      * 单元格信息。
      *
-     * @param type           单元格类型（markdown / code）
+     * @param type           单元格类型（markdown / 编码）
      * @param source         单元格源码
      * @param outputs        代码输出内容列表
      * @param executionCount 执行计数（-1 表示未执行）
+     * @return cell信息的结果
      */
     private record CellInfo(String type, String source, List<String> outputs, int executionCount) {
     }

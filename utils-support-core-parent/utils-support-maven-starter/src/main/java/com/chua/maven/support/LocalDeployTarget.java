@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption;
  * MavenClient.create().projectPath("pom.xml").goal("package")
  *     .compileAndDeploy()
  *     .deployTo(new LocalDeployTarget("/opt/app"));
+ * }</pre>DeployTarget("/opt/app"));
  * }</pre>
  *
  * @author CH
@@ -58,13 +59,13 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "本地文件系统: " + rootDir;
     }
 
     @Override
-    /** 是否Ready */
+    /** 是否就绪 */
     public boolean isReady() {
         return ready;
     }
@@ -99,7 +100,7 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 创建Directory */
+    /** 创建目录 */
     public void createDirectory(String path) {
         ensureReady();
         File dir = new File(rootDir, path);

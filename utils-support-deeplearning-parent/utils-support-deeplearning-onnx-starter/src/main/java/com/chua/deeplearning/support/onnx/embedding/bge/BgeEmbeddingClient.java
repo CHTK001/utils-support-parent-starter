@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * BGE 文本嵌入客户端（SPI provider="bge"，离线/自动下载通用）。
+   * BGE 文本嵌入客户端（SPI 提供者="bge"，离线/自动下载通用）。
  *
  * <p>底层为 BGE 系列（bge-small-zh / bge-m3）ONNX，输入
  * {@code input_ids + attention_mask}，输出已池化句向量。中英文通用，可直接用于
@@ -43,11 +43,11 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 是否已加载 */
-    /** Loaded */
+    /** 加载 */
     private boolean loaded;
 
     /**
-     * jar 内打包的资源目录（离线版），null 表示自动下载版
+      * jar 内打包的资源目录（离线版），空 表示自动下载版
      */
     private String embeddedBase;
     /** 嵌入式模型名称 */
@@ -68,7 +68,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     private Path modelPath;
 
     /**
-     * 创建 BgeEmbeddingClient 实例
+      * 创建 bge嵌入客户端 实例
      * @param setting setting
      */
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {
@@ -79,7 +79,12 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         log.info("[BGE] init model='{}' embeddedBase='{}'", setting.getModel(), this.embeddedBase);
     }
 
-    /** 解析EmbeddedBase */
+    /**
+     * 解析embeddedbase
+     *
+     * @param model 模型
+     * @return resolveEmbeddedBase的结果
+     */
     private String resolveEmbeddedBase(String model) {
         if (model == null) {
             return null;
@@ -98,14 +103,14 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Provider */
+    /** 提供者 */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.embeddedBase = resolveEmbeddedBase(model);
@@ -114,13 +119,13 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Dimensions */
+    /** 维度 */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
     }
 
-    /** 重置Loaded */
+    /** 重置加载 */
     private void resetLoaded() {
         loaded = false;
         translator = null;
@@ -186,7 +191,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Embedding */
+    /** 嵌入 */
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -208,7 +213,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatch */
+    /** 嵌入batch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -221,7 +226,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingWithResponse */
+    /** 嵌入with响应 */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -231,7 +236,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatchWithResponse */
+    /** 嵌入batchwith响应 */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -244,13 +249,13 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingAsync */
+    /** 嵌入异步 */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** EmbeddingBatchAsync */
+    /** 嵌入batch异步 */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }

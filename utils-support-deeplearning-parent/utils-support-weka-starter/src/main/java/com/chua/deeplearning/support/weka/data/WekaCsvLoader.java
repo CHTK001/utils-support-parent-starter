@@ -26,6 +26,7 @@ import java.util.Objects;
  * WekaInstanceData data = WekaCsvLoader.load(Path.of("data.csv"))
  *         .withLabelColumn("label");      // 分类：标签列是名义值
  * // 回归场景：.withTargetColumn("amount")
+ * }</pre>mn("amount")
  * }</pre>
  *
  * @author CH
@@ -33,6 +34,9 @@ import java.util.Objects;
  */
 public final class WekaCsvLoader {
 
+    /**
+     * wekacsv加载。
+     */
     private WekaCsvLoader() {
         throw new UnsupportedOperationException("工具类，禁止实例化");
     }
@@ -40,9 +44,9 @@ public final class WekaCsvLoader {
     /**
      * 读取带表头的 CSV 文件（第一行作为列名）。
      *
-     * @param csvFile CSV 文件路径，不能为 null
+     * @param csvFile CSV 文件路径，不能为 空
      * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
-     * @throws NullPointerException 当文件路径为 null 时
+     * @throws NullPointerException 当文件路径为 空 时
      * @throws WekaException        文件读取失败或数据行为空
      */
     public static WekaInstanceData load(Path csvFile) {
@@ -52,10 +56,10 @@ public final class WekaCsvLoader {
     /**
      * 读取 CSV 文件。
      *
-     * @param csvFile   CSV 文件路径，不能为 null
+     * @param csvFile   CSV 文件路径，不能为 空
      * @param hasHeader 第一行是否为表头（true 时第一行解析为列名，否则列名按 col_0 / col_1 生成）
      * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
-     * @throws NullPointerException 当文件路径为 null 时
+     * @throws NullPointerException 当文件路径为 空 时
      * @throws WekaException        文件读取失败或数据行为空
      */
     public static WekaInstanceData load(Path csvFile, boolean hasHeader) {
@@ -119,7 +123,12 @@ public final class WekaCsvLoader {
         return WekaInstanceData.of(features, rows);
     }
 
-    /** 去除行首 UTF-8 BOM 字符（若存在），原样返回无前缀字符串 */
+    /**
+     * 去除行首 UTF-8 BOM 字符（若存在），原样返回无前缀字符串
+     *
+     * @param value 值
+     * @return stripBOM的结果
+     */
     private static String stripBom(String value) {
         return value.startsWith("\uFEFF") ? value.substring(1) : value;
     }

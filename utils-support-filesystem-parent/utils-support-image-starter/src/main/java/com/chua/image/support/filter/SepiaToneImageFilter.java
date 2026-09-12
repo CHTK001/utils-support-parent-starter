@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  * - 情感表达：营造温暖、怀念的氛围
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 @Spi("SepiaTone")

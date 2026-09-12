@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * MailNest 临时邮箱服务实现（付费）。
+   * mailnest 临时邮箱服务实现（付费）。
  *
  * <p>注册地址：https://mailnest.top</p>
  *
@@ -24,13 +24,16 @@ import java.util.List;
 @Spi("mailnest")
 public class MailNestEmailProvider implements EmailProvider {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final String BASE = "https://mailnest.top/api/v1";
-    private static final String DEFAULT_PROJECT_CODE = "x-ai001";
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
+    private static final String BASE = "https://mailnest.top/api/v1"; // 基础
+    private static final String DEFAULT_PROJECT_CODE = "x-ai001"; // 默认project编码
 
-    private final String apiKey;
-    private final String projectCode;
+    private final String apiKey; // api键
+    private final String projectCode; // project编码
 
+    /**
+     * mailnestemail提供者。
+     */
     public MailNestEmailProvider() {
         this.apiKey = resolveEnv("MAILNEST_API_KEY", "");
         this.projectCode = resolveEnv("MAILNEST_PROJECT_CODE", DEFAULT_PROJECT_CODE);
@@ -125,6 +128,12 @@ public class MailNestEmailProvider implements EmailProvider {
         return emails.isEmpty() ? null : emails.get(0);
     }
 
+    /**
+      * resolveenv。
+     * @param key 键
+     * @param def def
+     * @return resolveEnv的结果
+     */
     private static String resolveEnv(String key, String def) {
         String v = System.getenv(key);
         return v != null && !v.isBlank() ? v : def;

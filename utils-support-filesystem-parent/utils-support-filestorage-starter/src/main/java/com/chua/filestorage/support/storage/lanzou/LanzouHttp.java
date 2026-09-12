@@ -34,7 +34,7 @@ import java.util.zip.InflaterInputStream;
 class LanzouHttp {
 
     /**
-     * 浏览器 User-Agent，蓝奏云会对非浏览器 UA 返回异常页面。
+      * 浏览器 用户-智能体，蓝奏云会对非浏览器 UA 返回异常页面。
      */
     private static final String USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -56,14 +56,14 @@ class LanzouHttp {
     private final int readTimeout;
 
     /**
-     * 会话 Cookie 容器，key 为 Cookie 名。
+      * 会话 Cookie 容器，键 为 Cookie 名。
      */
     private final Map<String, String> cookies = new ConcurrentHashMap<>();
 
     /**
      * 构造 HTTP 客户端。
      *
-     * @param rawCookie      初始 Cookie 串，形如 {@code ylogin=123; phpdisk_info=xxx}，可为 null
+     * @param rawCookie      初始 Cookie 串，形如 {@code ylogin=123; phpdisk_info=xxx}，可为 空
      * @param connectTimeout 连接超时（毫秒）
      * @param readTimeout    读取超时（毫秒）
      */
@@ -98,7 +98,7 @@ class LanzouHttp {
      * 读取指定 Cookie 值。
      *
      * @param name Cookie 名
-     * @return Cookie 值，不存在返回 null
+     * @return Cookie 值，不存在返回 空
      */
     String getCookie(String name) {
         return cookies.get(name);
@@ -121,10 +121,10 @@ class LanzouHttp {
     }
 
     /**
-     * 发送 GET 请求并返回文本响应，自动处理 WAF 挑战。
+      * 发送 获取 请求并返回文本响应，自动处理 WAF 挑战。
      *
      * @param url     请求地址
-     * @param referer Referer 头，可为 null
+     * @param referer Referer 头，可为 空
      * @return 响应正文
      */
     String get(String url, String referer) {
@@ -147,7 +147,7 @@ class LanzouHttp {
      *
      * @param url     请求地址
      * @param params  表单参数，将以 {@code application/x-www-form-urlencoded} 编码
-     * @param referer Referer 头，可为 null
+     * @param referer Referer 头，可为 空
      * @return 响应正文
      */
     String post(String url, Map<String, String> params, String referer) {
@@ -167,7 +167,7 @@ class LanzouHttp {
     }
 
     /**
-     * 以 multipart/form-data 上传文件。
+      * 以 multipart/form-数据 上传文件。
      *
      * @param url      上传地址
      * @param referer  Referer 头
@@ -246,7 +246,7 @@ class LanzouHttp {
      *
      * @param url     请求地址
      * @param method  请求方法
-     * @param payload 请求体，GET 时为 null
+     * @param payload 请求体，获取 时为 空
      * @param referer Referer 头
      * @return 响应正文
      */
@@ -326,7 +326,7 @@ class LanzouHttp {
     }
 
     /**
-     * 根据 Content-Encoding 包装解压流。
+      * 根据 内容-编码 包装解压流。
      *
      * @param input    原始流
      * @param encoding 内容编码
@@ -347,7 +347,7 @@ class LanzouHttp {
     }
 
     /**
-     * 收集响应中的 Set-Cookie 并合并到会话。
+      * 收集响应中的 设置-Cookie 并合并到会话。
      *
      * @param connection 连接
      */
@@ -389,7 +389,7 @@ class LanzouHttp {
     }
 
     /**
-     * 构造 multipart/form-data 请求体。
+      * 构造 multipart/form-数据 请求体。
      *
      * @param boundary 分隔串
      * @param fields   普通字段

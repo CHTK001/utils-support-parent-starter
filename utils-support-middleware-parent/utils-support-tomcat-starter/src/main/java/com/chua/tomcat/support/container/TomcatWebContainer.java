@@ -37,17 +37,17 @@ public class TomcatWebContainer extends AbstractWebContainer {
 
     /** Tomcat */
     private Tomcat tomcat;
-    /** contexts */
+    /** 上下文 */
     private final Map<String, Context> contexts = new ConcurrentHashMap<>();
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "tomcat";
     }
 
     @Override
-    /** 获取Port */
+    /** 获取端口 */
     public int getPort() {
         if (tomcat != null && tomcat.getConnector() != null) {
             return tomcat.getConnector().getLocalPort();
@@ -56,7 +56,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     @Override
-    /** DoDeploy */
+    /** 执行deploy */
     protected void doDeploy(String archivePath, String contextPath, DeployUnitType type) {
         if (tomcat == null) {
             log.warn("Tomcat 引擎尚未初始化，部署将延迟到启动时执行");
@@ -86,11 +86,13 @@ public class TomcatWebContainer extends AbstractWebContainer {
 
     /**
      * 部署 WAR 文件到 Tomcat。
-     * 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixDocBase 失败）。
+      * 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixdocbase 失败）。
+     * @param archivePath Arch Linux Linux路径
+     * @param contextPath 上下文路径
      */
     private void deployWar(String archivePath, String contextPath) throws Exception {
         var warFile = resolveFile(archivePath);
-        // 部署目录：使用固定独立路径，避免 docBase 路径解析冲突
+ // 部署目录：使用固定独立路径，避免 docbase 路径解析冲突
         var deployDir = new File(System.getProperty("java.io.tmpdir"),
                 "guacamole-deploy" + File.separator + contextPath.replace("/", ""));
         if (!deployDir.exists() && !deployDir.mkdirs()) {
@@ -121,7 +123,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
             log.info("WAR 已解压到: {}", deployDir);
         }
 
-        // 确保 host 的 appBase 存在
+ // 确保 主机 的 appbase 存在
         var host = tomcat.getHost();
         if (host != null) {
             var appBase = new File(host.getAppBase());
@@ -130,7 +132,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
             }
         }
 
-        // 部署解压后的目录（不是 WAR 文件），避免 fixDocBase 失败
+ // 部署解压后的目录（不是 WAR 文件），避免 fixdocbase 失败
         var ctx = (org.apache.catalina.core.StandardContext) tomcat.addWebapp(contextPath, deployDir.getAbsolutePath());
         ctx.setDelegate(true);
         ctx.setParentClassLoader(getClass().getClassLoader());
@@ -139,7 +141,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     @Override
-    /** DoUndeploy */
+    /** 执行undeploy */
     protected void doUndeploy(String contextPath) {
         Context ctx = contexts.remove(contextPath);
         if (ctx != null && tomcat != null && tomcat.getHost() != null) {
@@ -153,7 +155,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             tomcat = new Tomcat();
@@ -162,7 +164,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
             // 设置父类加载器，使 WAR 能委托找到 javax.servlet 等容器类
             tomcat.getEngine().setParentClassLoader(getClass().getClassLoader());
 
-            // 部署来自 setting 的配置单元（deployWar 会同时加入 deployedUnits）
+ // 部署来自 setting 的配置单元（deploywar 会同时加入 deployedunits）
             deployPendingUnits();
 
             tomcat.start();
@@ -173,7 +175,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         try {
             if (tomcat != null) {
@@ -201,7 +203,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
                 "tomcat-" + System.currentTimeMillis()).getAbsolutePath();
         tomcat.setBaseDir(baseDir);
 
-        // 显式设置 catalina.home，并预先创建 appBase/webapps 目录
+ // 显式设置 catalina.Home，并预先创建 appbase/webapps 目录
         var catalinaHome = new File(baseDir);
         System.setProperty("catalina.home", catalinaHome.getAbsolutePath());
         System.setProperty("catalina.base", catalinaHome.getAbsolutePath());
@@ -210,7 +212,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
             log.warn("Tomcat appBase/webapps 目录创建失败: {}", webappsDir);
         }
 
-        // 显式设置 host 的 appBase（否则默认是 user.dir/webapps）
+ // 显式设置 主机 的 appbase（否则默认是 用户.dir/webapps）
         var host = tomcat.getHost();
         if (host == null) {
             host = new org.apache.catalina.core.StandardHost();
@@ -294,7 +296,13 @@ public class TomcatWebContainer extends AbstractWebContainer {
         }
     }
 
-    /** DeployWarSafely */
+    /**
+     * deploywarsafely
+     *
+     * @param path 路径
+     * @param ctxPath ctx路径
+     * @param type 类型
+     */
     private void deployWarSafely(String path, String ctxPath, DeployUnitType type) {
         try {
             deployWar(path, ctxPath);
@@ -305,7 +313,9 @@ public class TomcatWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 解析文件路径，支持文件系统路径和 classpath 前缀。
+      * 解析文件路径，支持文件系统路径和 类路径 前缀。
+     * @param path 路径
+     * @return resolve文件的结果
      */
     private File resolveFile(String path) {
         if (path.startsWith("classpath:")) {

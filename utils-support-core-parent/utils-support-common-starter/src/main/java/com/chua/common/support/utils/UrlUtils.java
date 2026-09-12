@@ -40,9 +40,10 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
  * @author CH
  * @see SimpleUrlEncoder
  * @see URLDecoder
+ * @since 4.0.0
  */
 public class UrlUtils {
-    /** 创建 UrlUtils 实例 */
+    /** 创建 url工具 实例 */
     private UrlUtils() {
     }
 
@@ -80,7 +81,7 @@ public class UrlUtils {
      * <ol>
      *   <li><b>分离协议头</b> —— 查找字符串中的首个 {@code "://"}，
      *       之前的部分（含 {@code ://}）作为 {@code protocol}，之后的部分作为 {@code body}。
-     *       若不存在 {@code ://}，则视整个字符串为无协议的 body。</li>
+      * 若不存在 {@code ://}，则视整个字符串为无协议的 主体。</li>
      *   <li><b>分离查询参数</b> —— 在 body 中查找首个 {@code ?}，
      *       {@code ?} 及之后的部分作为 {@code params} 临时移除。</li>
      *   <li><b>清理路径</b> —— 去除开头斜杠、反斜杠转正斜杠、压缩连续斜杠。</li>
@@ -163,7 +164,7 @@ public class UrlUtils {
         return String.join("/", stack);
     }
     /**
-     * 使用默认 {@link SimpleUrlEncoder} 对 URL 进行百分号编码（percent-encoding）。
+      * 使用默认 {@link SimpleUrlEncoder} 对 URL 进行百分号编码（percent-编码）。
      *
      * <p>编码格式遵循 RFC 3986 规范：安全字符（字母、数字、{@code -._~!$&'()*+,;=:@/}）保持原样，
      * 非安全字符（如中文字符、空格、特殊符号）转换为 {@code %XX} 格式，其中 {@code XX} 为该字节的无符号十六进制大写表示。
@@ -251,7 +252,7 @@ public class UrlUtils {
     }
 
     /**
-     * 获取 URL 的解码后路径（Decoded Path）。
+      * 获取 URL 的解码后路径（Decoded 路径）。
      *
      * <p><b>双层回退策略</b>：
      * <ol>
@@ -272,8 +273,8 @@ public class UrlUtils {
      *
      * @param url 目标 URL 对象
      * @return URI 解码后的路径字符串（若可用），否则返回 URL 的原始路径；
-     *         若 url 为 null 则返回 null
-     * @throws NullPointerException 如果 URL 转 URI 后为 null（即转换失败），
+      * 若 url 为 空 则返回 空
+     * @throws NullPointerException 如果 URL 转 URI 后为 空（即转换失败），
      *         调用 {@link Objects#requireNonNull(Object)} 时抛出此异常
      * @see #toUri(URL)
      */
@@ -283,7 +284,7 @@ public class UrlUtils {
         }
 
         String path = null;
-        // 优先通过 URI 获取解码后的 path，若失败则回退到 URL 的 getPath
+ // 优先通过 URI 获取解码后的 路径，若失败则回退到 URL 的 获取路径
         path = Objects.requireNonNull(toUri(url)).getPath();
         return (null != path) ? path : url.getPath();
     }
@@ -343,6 +344,7 @@ public class UrlUtils {
      * @param path 待规范化的路径字符串，可为 {@code null}
      * @return 以 {@code /} 开头的路径字符串
      * @since 2026/07/18
+     * @author CH
      */
     public static String normalizePath(String path) {
         if (StringUtils.isBlank(path)) {
@@ -433,7 +435,7 @@ public class UrlUtils {
             encoder.addCharacter('.');
             encoder.addCharacter('_');
             encoder.addCharacter('~');
-            // Add the sub-delims
+ // 添加 the sub-delims
             encoder.addCharacter('!');
             encoder.addCharacter('$');
             encoder.addCharacter('&');
@@ -445,7 +447,7 @@ public class UrlUtils {
             encoder.addCharacter(',');
             encoder.addCharacter(';');
             encoder.addCharacter('=');
-            // Add the remaining literals
+ // 添加 the remaining 字面量
             encoder.addCharacter(':');
             encoder.addCharacter('@');
             // Add '/' so it isn't encoded when we encode a path
@@ -470,7 +472,7 @@ public class UrlUtils {
         }
 
         /**
-         * 对字符串进行 URL 百分号编码（percent-encoding），采用逐字符遍历的方式。
+          * 对字符串进行 URL 百分号编码（percent-编码），采用逐字符遍历的方式。
          *
          * <p><b>编码算法（逐字符处理）</b>：
          * <ol>
@@ -523,7 +525,7 @@ public class UrlUtils {
                     //
                     rewrittenPath.append('+');
                 } else {
-                    // convert to external encoding before hex conversion
+ // 转换 转为 外部 编码 之前 hex 转换
                     try {
                         writer.write((char) c);
                         writer.flush();
@@ -534,7 +536,7 @@ public class UrlUtils {
 
                     byte[] ba = buf.toByteArray();
                     for (byte toEncode : ba) {
-                        // Converting each byte in the buffer
+ // 转换 each byte 入 the 缓冲
                         rewrittenPath.append('%');
                         Hex.appendHex(rewrittenPath, toEncode, false);
                     }

@@ -38,12 +38,12 @@ import java.util.Map;
 @ConditionalOnClass({"org.jsoup.Jsoup", "com.fasterxml.jackson.databind.ObjectMapper"})
 public class SpiderFieldMapper {
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    /** Max_ai_text_length */
+    /** 最大_AI_文本_长度 */
     private static final int MAX_AI_TEXT_LENGTH = 8000;
 
-    /** Chat客户端 */
+    /** 对话客户端 */
     private final ChatClient chatClient;
 
     /**
@@ -57,7 +57,7 @@ public class SpiderFieldMapper {
      * 构造器（使用 AI 提取）。
      *
      * @param aiProvider AI 服务商名称，如 "openai"、"deepseek"
-     * @param aiApiKey   API Key
+     * @param aiApiKey   API 键
      */
     public SpiderFieldMapper(String aiProvider, String aiApiKey) {
         if (aiProvider != null && aiApiKey != null) {
@@ -72,7 +72,10 @@ public class SpiderFieldMapper {
     }
 
     /**
-     * 将 SpiderResult 映射到指定类型的 POJO。
+      * 将 蜘蛛结果 映射到指定类型的 POJO。
+     * @param result 结果
+     * @param clazz clazz
+     * @return 映射的结果
      */
     @SuppressWarnings("unchecked")
     public <T> T map(SpiderResult result, Class<T> clazz) {
@@ -129,6 +132,9 @@ public class SpiderFieldMapper {
 
     /**
      * 通过 CSS 选择器从 HTML 中提取值。
+     * @param html HTML
+     * @param annotation 注解
+     * @return extractBySelector的结果
      */
     private String extractBySelector(String html, SpiderField annotation) {
         if (StringUtils.isEmpty(html)) {
@@ -160,7 +166,7 @@ public class SpiderFieldMapper {
         Map<String, String> results = new LinkedHashMap<>();
 
         try {
-            // 读取 @SpiderAi 类级注解
+ // 读取 @蜘蛛AI 类级注解
             SpiderAi classAi = clazz.getAnnotation(SpiderAi.class);
             StringBuilder prompt = new StringBuilder();
 
@@ -174,7 +180,7 @@ public class SpiderFieldMapper {
             }
             prompt.append("\n只返回 JSON，不要包含其他说明文字。");
 
-            // 调用 ChatClient
+ // 调用 对话客户端
             String text = result.getText() != null ? result.getText() : "";
             if (text.length() > MAX_AI_TEXT_LENGTH) {
                 text = text.substring(0, MAX_AI_TEXT_LENGTH);
@@ -199,6 +205,8 @@ public class SpiderFieldMapper {
 
     /**
      * 解析 JSON 响应，优先使用 Jackson，失败时回退到手动解析。
+     * @param json json
+     * @param results 结果
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void parseJsonResponse(String json, Map<String, String> results) {
@@ -248,7 +256,10 @@ public class SpiderFieldMapper {
     }
 
     /**
-     * 设置字段值（支持 String + 基本类型转换）。
+      * 设置字段值（支持 字符串 + 基本类型转换）。
+     * @param instance instance
+     * @param field 字段
+     * @param value 值
      */
     private void setFieldValue(Object instance, Field field, String value) {
         try {

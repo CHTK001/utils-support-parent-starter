@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * BitTorrent Bencode 编解码器，基于 {@link Bencode} 三方库。
+   * 钻头torrent Bencode 编解码器，基于 {@link Bencode} 三方库。
  *
  * @author CH
  * @since 4.0.0.42

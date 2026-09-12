@@ -10,7 +10,7 @@ import java.util.Map;
  * 消息请求对象
  * <p>
  * 封装发送消息所需的全部参数，包括接收人、内容、标题、附件等。
- * 通过 Builder 模式构建，支持不同类型的消息需求。
+   * 通过 构建器 模式构建，支持不同类型的消息需求。
  *
  * @author CH
  * @since 2026/07/17
@@ -19,7 +19,7 @@ import java.util.Map;
 public class MessageRequest {
 
     /**
-     * 接收人（邮箱/手机号/用户ID/群组ID 等）
+      * 接收人（邮箱/手机号/用户标识/群组标识 等）
      */
     private final String to;
 
@@ -43,7 +43,7 @@ public class MessageRequest {
     private String content;
 
     /**
-     * 消息类型（text/html/markdown/json 等）
+      * 消息类型（文本/HTML/markdown/json 等）
      */
     private final String contentType;
 
@@ -53,7 +53,7 @@ public class MessageRequest {
     private final List<String> attachments;
 
     /**
-     * 模板 ID（使用模板发送时）
+      * 模板 标识（使用模板发送时）
      */
     private final String templateId;
 
@@ -68,8 +68,8 @@ public class MessageRequest {
     private final Map<String, Object> extra;
 
     /**
-     * 创建 MessageRequest 实例
-     * @param builder builder
+      * 创建 消息请求 实例
+     * @param builder 构建器
      */
     private MessageRequest(Builder builder) {
         this.to = builder.to;
@@ -83,13 +83,19 @@ public class MessageRequest {
         this.extra = builder.extra;
     }
 
-    /** Builder */
+    /**
+     * 构建器
+     *
+     * @return 构建器的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
-        /** TO */
+        /** 转为 */
         private String to;
         /** CC */
         private List<String> cc;
@@ -106,10 +112,10 @@ public class MessageRequest {
         /** Attachments */
         private List<String> attachments;
         /**
-         * 模板 ID
+          * 模板 标识
          */
         private String templateId;
-        /** templateParams */
+        /** template参数 */
         private Map<String, String> templateParams;
         /** extra */
         private Map<String, Object> extra;
@@ -118,7 +124,7 @@ public class MessageRequest {
          * 设置接收人
          *
          * @param to 接收人标识
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder to(String to) {
             this.to = to;
@@ -129,7 +135,7 @@ public class MessageRequest {
          * 设置抄送人列表
          *
          * @param cc 抄送人列表
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder cc(List<String> cc) {
             this.cc = cc;
@@ -140,7 +146,7 @@ public class MessageRequest {
          * 设置消息标题
          *
          * @param subject 消息标题
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder subject(String subject) {
             this.subject = subject;
@@ -151,7 +157,7 @@ public class MessageRequest {
          * 设置消息内容
          *
          * @param content 消息内容
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder content(String content) {
             this.content = content;
@@ -161,8 +167,8 @@ public class MessageRequest {
         /**
          * 设置消息类型
          *
-         * @param contentType 消息类型（如 text, html, markdown 等）
-         * @return 当前 Builder 实例
+         * @param contentType 消息类型（如 文本, HTML, markdown 等）
+         * @return 当前 构建器 实例
          */
         public Builder contentType(String contentType) {
             this.contentType = contentType;
@@ -173,7 +179,7 @@ public class MessageRequest {
          * 设置附件文件路径列表
          *
          * @param attachments 附件路径列表
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder attachments(List<String> attachments) {
             this.attachments = attachments;
@@ -181,10 +187,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置模板 ID
+          * 设置模板 标识
          *
          * @param templateId 模板唯一标识
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder templateId(String templateId) {
             this.templateId = templateId;
@@ -195,7 +201,7 @@ public class MessageRequest {
          * 设置模板参数
          *
          * @param params 模板参数字典
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder templateParams(Map<String, String> params) {
             this.templateParams = params;
@@ -206,7 +212,7 @@ public class MessageRequest {
          * 设置扩展参数
          *
          * @param extra 额外的扩展参数
-         * @return 当前 Builder 实例
+         * @return 当前 构建器 实例
          */
         public Builder extra(Map<String, Object> extra) {
             this.extra = extra;
@@ -214,9 +220,9 @@ public class MessageRequest {
         }
 
         /**
-         * 构建 MessageRequest 对象
+          * 构建 消息请求 对象
          *
-         * @return 构建完成的 MessageRequest 实例
+         * @return 构建完成的 消息请求 实例
          * @throws IllegalArgumentException 当接收人为空或空白时抛出异常
          */
         public MessageRequest build() {

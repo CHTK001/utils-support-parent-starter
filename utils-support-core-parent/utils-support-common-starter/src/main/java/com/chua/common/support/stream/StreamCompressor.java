@@ -48,7 +48,7 @@ public interface StreamCompressor {
     InputStream unwrap(InputStream in) throws IOException;
 
     /**
-     * SPI 名称，用于 ServiceProvider 发现。
+      * SPI 名称，用于 服务提供者 发现。
      *
      * @return 压缩器名称
      */

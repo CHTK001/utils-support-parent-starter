@@ -7,7 +7,7 @@ import com.chua.common.support.network.annotations.RequestMethod;
  * 汇率公开 API 声明式接口（实体查询）。
  *
  * <p>通过 {@code HttpInvoker}/{@code HttpApiFactory} 动态代理调用，
- * 数据源为 open.er-api.com 免费接口（无需 key，约 166 个币种）。</p>
+   * 数据源为 打开.er-api.com 免费接口（无需 键，约 166 个币种）。</p>
  *
  * @author CH
  * @since 4.0.0.42

@@ -59,11 +59,16 @@ public class CampplusEmbedding {
      */
     private static final int EMBEDDING_DIM = 192;
 
-    private final OrtEnvironment ortEnv;
-    private final OrtSession session;
-    private final String inputName;
-    private final double[][] melFilters;
+    private final OrtEnvironment ortEnv; // ortenv
+    private final OrtSession session; // 会话
+    private final String inputName; // 输入名称
+    private final double[][] melFilters; // mel过滤器
 
+    /**
+     * campplus嵌入。
+     * @param session 会话
+     * @param env env
+     */
     private CampplusEmbedding(OrtSession session, OrtEnvironment env) {
         this.session = session;
         this.ortEnv = env;
@@ -73,7 +78,7 @@ public class CampplusEmbedding {
     }
 
     /**
-     * 从 classpath 加载模型（自动从 JAR 解压到缓存目录）。
+      * 从 类路径 加载模型（自动从 JAR 解压到缓存目录）。
      *
      * @return CampplusEmbedding 实例
      */
@@ -84,7 +89,7 @@ public class CampplusEmbedding {
             Path modelPath = cacheDir.resolve("campplus_zh_cn_common_200k.onnx");
             if (!Files.isRegularFile(modelPath)) {
                 Files.createDirectories(cacheDir);
-                // 直接从 classpath 读取（兼容 jar 内嵌模型），无需 NativeLoader SPI
+ // 直接从 类路径 读取（兼容 jar 内嵌模型），无需 NAT加载 SPI
                 String[] candidates = {
                         "audio/speaker/campplus_zh_cn_common_200k.onnx",
                         "audio/speaker/campplus/model.onnx"
@@ -118,7 +123,7 @@ public class CampplusEmbedding {
     /**
      * 提取声纹嵌入。
      *
-     * @param samples 16kHz 单声道 [-1,1] 浮点采样
+     * @param samples 16khz 单声道 [-1,1] 浮点采样
      * @return L2 归一化 192 维嵌入向量
      */
     public float[] extract(float[] samples) {
@@ -153,7 +158,12 @@ public class CampplusEmbedding {
         return EMBEDDING_DIM;
     }
 
-    /** Kaldi-style fbank 80 维计算 */
+    /**
+     * Kaldi-style fbank 80 维计算
+     *
+     * @param samples 样本
+     * @return computeFbank80的结果
+     */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
         int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
@@ -181,7 +191,9 @@ public class CampplusEmbedding {
                 frame[j] = cur - 0.97F * samples[off + j - 1];
             }
             double mean = 0;
-            for (double v : frame) mean += v;
+            for (double v : frame) {
+                mean += v;
+            }
             mean /= FRAME_LEN;
             for (int j = 0; j < FRAME_LEN; j++) {
                 frame[j] = (frame[j] - mean) * window[j];
@@ -201,7 +213,12 @@ public class CampplusEmbedding {
         return feat;
     }
 
-    /** 构建 Kaldi-style mel 滤波器组 [nFreq bins][FEATURE_DIM mels] */
+    /**
+     * 构建 Kaldi-style mel 滤波器组 [nfreq bins][特征_DIM mels]
+     *
+     * @param nFreq nfreq
+     * @return 构建kaldimel过滤器的结果
+     */
     private static double[][] buildKaldiMelFilters(int nFreq) {
         double[][] filters = new double[nFreq][FEATURE_DIM];
 
@@ -219,8 +236,12 @@ public class CampplusEmbedding {
 
         for (int b = 0; b < FEATURE_DIM; b++) {
             int left = binPts[b], center = binPts[b + 1], right = binPts[b + 2];
-            if (center <= left) center = left + 1;
-            if (right <= center) right = center + 1;
+            if (center <= left) {
+                center = left + 1;
+            }
+            if (right <= center) {
+                right = center + 1;
+            }
             for (int k = left; k < Math.min(right, nFreq); k++) {
                 double w;
                 if (k <= center && center > left) {
@@ -238,7 +259,17 @@ public class CampplusEmbedding {
         return filters;
     }
 
-    /** Radix-2 迭代 FFT */
+     /**
+       * fftradix2。
+      * @param frameSamples 帧样本
+      * @param re re
+      * @param im im
+      */
+     * Radix-2 迭代 FFT
+     *
+     * @param mel mel
+     * @return mel转为hertz的结果
+     */
     private static void fftRadix2(double[] frameSamples, double[] re, double[] im) {
         int n = FFT_N;
         System.arraycopy(frameSamples, 0, re, 0, Math.min(frameSamples.length, n));
@@ -270,6 +301,11 @@ public class CampplusEmbedding {
                     double nr = cr * wr - ci * wi;
                     double ni = cr * wi + ci * wr;
                     cr = nr; ci = ni;
+                /**
+                 * 转为floatarray。
+                 * @param t t
+                 * @return 转为floatarray的结果
+                 */
                 }
             }
         }
@@ -277,6 +313,10 @@ public class CampplusEmbedding {
 
     private static float[] toFloatArray(ai.onnxruntime.OnnxTensor t) {
         FloatBuffer fb = t.getFloatBuffer();
+        /**
+         * l2Normalize。
+         * @param v v
+         */
         float[] arr = new float[fb.remaining()];
         fb.get(arr);
         return arr;
@@ -284,9 +324,21 @@ public class CampplusEmbedding {
 
     private static void l2Normalize(float[] v) {
         double s = 0;
-        for (float x : v) s += x * x;
+        /**
+         * hz转为mel。
+         * @param hz hz
+         * @return hz转为mel的结果
+         * @param mel mel
+         */
+        for (float x : v) {
+            s += x * x;
+        }
         double nn = Math.sqrt(s);
-        if (nn > 1e-12) for (int i = 0; i < v.length; i++) v[i] /= nn;
+        if (nn > 1e-12) {
+            for (int i = 0; i < v.length; i++) {
+                v[i] /= nn;
+            }
+        }
     }
 
     private static double hzToMel(double hz) {
@@ -304,7 +356,12 @@ public class CampplusEmbedding {
         }
     }
 
-        /** 将 double 矩阵拍平并转为 float 数组。 */
+        /**
+         * 将 double 矩阵拍平并转为 float 数组。
+         *
+         * @param mat mat
+         * @return flatten的结果
+         */
     private static float[] flatten(double[][] mat) {
         int rows = mat.length;
         int cols = rows > 0 ? mat[0].length : 0;
@@ -319,10 +376,14 @@ public class CampplusEmbedding {
 
 /**
      * 二维数组展平为一维。
+ * @param mat mat
+ * @return flatten的结果
      */
     private static float[] flatten(float[][] mat) {
         int total = 0;
-        for (float[] row : mat) total += row.length;
+        for (float[] row : mat) {
+            total += row.length;
+        }
         float[] out = new float[total];
         int pos = 0;
         for (float[] row : mat) {

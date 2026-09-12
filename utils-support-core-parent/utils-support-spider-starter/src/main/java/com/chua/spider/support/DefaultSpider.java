@@ -149,7 +149,7 @@ public class DefaultSpider implements Spider {
     }
 
     @Override
-    /** 运行Sync */
+    /** 运行同步 */
     public List<SpiderResult> runSync() {
         if (!running.compareAndSet(false, true)) {
             return Collections.emptyList();
@@ -311,7 +311,7 @@ public class DefaultSpider implements Spider {
     }
 
     @Override
-    /** Scheduler */
+    /** 调度器 */
     public ScheduledTask scheduler(Trigger trigger) {
         return new JdkSchedulerProvider().schedule(this::runSync, trigger);
     }
@@ -335,7 +335,7 @@ public class DefaultSpider implements Spider {
     }
 
     @Override
-    /** 获取Results */
+    /** 获取结果 */
     public List<SpiderResult> getResults() {
         return Collections.unmodifiableList(results);
     }
@@ -441,6 +441,7 @@ public class DefaultSpider implements Spider {
      *
      * @param response 抓取响应
      * @param request  当前请求
+     * @return extract和enqueue链接的结果
      */
     private List<String> extractAndEnqueueLinks(SpiderResponse response, SpiderRequest request) {
         if (linkExtractor == null) {
@@ -497,6 +498,8 @@ public class DefaultSpider implements Spider {
      * 内置所有组件的默认实现，开箱即用。
      * 所有组件均可通过链式方法替换为自定义实现。
      *
+     * @author CH
+     * @since 4.0.0
      */
     public static class DefaultSpiderBuilder implements Spider.Builder {
 
@@ -597,7 +600,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
-        /** LinkExtractor */
+        /** 链接extractor */
         public Builder linkExtractor(SpiderLinkExtractor linkExtractor) {
             this.linkExtractor = linkExtractor;
             return this;
@@ -613,7 +616,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
-        /** Scheduler */
+        /** 调度器 */
         public Builder scheduler(SpiderScheduler scheduler) {
             this.scheduler = scheduler;
             return this;
@@ -627,7 +630,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
-        /** AiParser */
+        /** aiparser */
         public Builder aiParser(String name, String apiKey) {
             this.aiParser = ServiceProvider.of(SpiderAiParser.class).getNewExtension(name, apiKey);
             if (this.aiParser == null) {
@@ -683,9 +686,9 @@ public class DefaultSpider implements Spider {
         @Override
         /**
          * As
-         * @param targetClass targetClass
-         * @param aiProvider aiProvider
-         * @param aiApiKey aiApiKey
+         * @param targetClass Target类
+         * @param aiProvider AI提供者
+         * @param aiApiKey aiapi键
          * @param consumer consumer
          */
         public <T> Builder as(Class<T> targetClass, String aiProvider,
@@ -703,7 +706,7 @@ public class DefaultSpider implements Spider {
         }
 
         @Override
-        /** 添加Request */
+        /** 添加请求 */
         public Builder addRequest(SpiderRequest request) {
             if (request != null && request.getUrl() != null) {
                 this.seedUrls.add(request.getUrl());
@@ -736,7 +739,7 @@ public class DefaultSpider implements Spider {
             }
             if (parser == null) {
                 parser = ServiceProvider.of(SpiderParser.class).getNewDefaultExtension();
-                // SPI 加载失败时回退到 AutoParser（自动降级）
+ // SPI 加载失败时回退到 autoparser（自动降级）
                 if (parser == null) {
                     parser = new AutoParser();
                 }
@@ -750,7 +753,13 @@ public class DefaultSpider implements Spider {
             if (linkExtractor == null) {
                 linkExtractor = ServiceProvider.of(SpiderLinkExtractor.class)
                         .getNewDefaultExtension();
-                // SPI 加载失败时回退到 HtmlLinkExtractor
+ // SPI 加载失败时回退到 HTML链接extractor
+        /**
+          * consumerpipeline类。
+         *
+         * @author CH
+         * @since 4.0.0
+         */
                 if (linkExtractor == null) {
                     linkExtractor = new HtmlLinkExtractor();
                 }

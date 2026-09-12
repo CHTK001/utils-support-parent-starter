@@ -16,29 +16,49 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Depth-Anything V2 ONNX（ORT 直连，规避 DJL onnxruntime 对 Resize op 的兼容问题）。
+   * 深度-Anything V2 ONNX（ORT 直连，规避 DJL onnxruntime 对 Resize op 的兼容问题）。
  *
  * <p>输入 byte[] → 518x518 ImageNet normalize → ORT 推理 → 深度图归一化 → 缩放到原图尺寸 → byte[]</p>
  * @author CH
+ * @since 4.0.0
+ * @param imageBytes 镜像bytes
+ * @return 深度的结果
+ * @param input 输入
  */
 @Slf4j
 public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, AutoCloseable {
 
-    private static final int MODEL_SIZE = 518;
-    private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
-    private static final float[] STD = {0.229f, 0.224f, 0.225f};
+    private static final int MODEL_SIZE = 518; // 模型大小
+    private static final float[] MEAN = {0.485f, 0.456f, 0.406f}; // MEAN
+    private static final float[] STD = {0.229f, 0.224f, 0.225f}; // STD
 
-    private final String modelId;
-    private OrtEnvironment ortEnv;
+    private final String modelId; // 模型标识
+    private OrtEnvironment ortEnv; // ortenv
+    /**
+     * 深度anythingorttranslator。
+     */
     private OrtSession session;
-    private volatile boolean initialized;
+    private volatile boolean initialized; // 初始化
 
+    /**
+     * 深度anythingorttranslator。
+     */
     public DepthAnythingOrtTranslator() {
+        /**
+         * 深度anythingorttranslator。
+         * @param modelId 模型标识
+         */
         this("depth-anything");
     }
 
     public DepthAnythingOrtTranslator(String modelId) {
         this.modelId = modelId;
+    /**
+     * 名称。
+     * @return 名称的结果
+     * @param imageBytes 镜像bytes
+     * @param input 输入
+     */
     }
 
     @Override
@@ -56,7 +76,9 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
     }
 
     private synchronized void prepare() throws Exception {
-        if (initialized) return;
+        if (initialized) {
+            return;
+        }
         Path modelPath = ModelRegistry.resolveModelPath(modelId);
         if (modelPath == null || !Files.exists(modelPath)) {
             throw new IllegalStateException("模型文件不存在: " + modelPath);
@@ -109,12 +131,18 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
                 float min = Float.MAX_VALUE, max = Float.MIN_VALUE;
                 for (int y = 0; y < h; y++) {
                     for (int x = 0; x < w; x++) {
-                        if (depth[0][y][x] < min) min = depth[0][y][x];
-                        if (depth[0][y][x] > max) max = depth[0][y][x];
+                        if (depth[0][y][x] < min) {
+                            min = depth[0][y][x];
+                        }
+                        if (depth[0][y][x] > max) {
+                            max = depth[0][y][x];
+                        }
                     }
                 }
                 float range = max - min;
-                if (range <= 0) range = 1f;
+                if (range <= 0) {
+                    range = 1f;
+                }
 
                 BufferedImage depthImg = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
                 for (int y = 0; y < h; y++) {

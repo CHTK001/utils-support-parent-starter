@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * YOLO26-Depth 单目深度估计翻译器（纯 ONNX Runtime 实现）。
+   * YOLO26-深度 单目深度估计翻译器（纯 ONNX Runtime 实现）。
  *
  * <h2>模型说明</h2>
  * <p>基于 Ultralytics YOLO26 的 monocular depth estimation 模型：
@@ -42,13 +42,13 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     /** letterbox 填充灰度值（Ultralytics 约定） */
     private static final int PAD_VALUE = 114;
 
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    private String modelPath;
-    private volatile boolean prepared = false;
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    private String modelPath; // 模型路径
+    private volatile boolean prepared = false; // prepared
 
     /**
-     * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
+      * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
      *
      * @param modelPath 模型文件绝对路径
      */
@@ -82,7 +82,9 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     }
 
     private synchronized void ensurePrepared() throws Exception {
-        if (prepared) return;
+        if (prepared) {
+            return;
+        }
         if (modelPath == null || !Files.exists(Path.of(modelPath))) {
             throw new IllegalStateException("模型文件不存在: " + modelPath);
         }
@@ -155,8 +157,12 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
                         float srcX = cropLeft + (x + 0.5f) * cropW / origW;
                         float v = sampleDepth(depth, h, w, srcY, srcX);
                         meters[y][x] = v;
-                        if (v < min) min = v;
-                        if (v > max) max = v;
+                        if (v < min) {
+                            min = v;
+                        }
+                        if (v > max) {
+                            max = v;
+                        }
                         sum += v;
                         cnt++;
                     }
@@ -168,8 +174,12 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
                     center = 0f;
                 }
                 float mean = cnt > 0 ? sum / cnt : 0f;
-                if (min == Float.MAX_VALUE) min = 0f;
-                if (max == Float.MIN_VALUE) max = 0f;
+                if (min == Float.MAX_VALUE) {
+                    min = 0f;
+                }
+                if (max == Float.MIN_VALUE) {
+                    max = 0f;
+                }
 
                 // 由距离矩阵生成深度图：转为 disparity（值越大=越近），线性归一化灰度（近处亮、远处暗）
                 float[] disparity = new float[origH * origW];
@@ -179,12 +189,18 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
                         float v = meters[y][x];
                         float d = v > 0.01f ? 1f / v : 0f;
                         disparity[y * origW + x] = d;
-                        if (d < dMin) dMin = d;
-                        if (d > dMax) dMax = d;
+                        if (d < dMin) {
+                            dMin = d;
+                        }
+                        if (d > dMax) {
+                            dMax = d;
+                        }
                     }
                 }
                 float dRange = dMax - dMin;
-                if (dRange <= 0) dRange = 1f;
+                if (dRange <= 0) {
+                    dRange = 1f;
+                }
 
                 BufferedImage depthImg = new BufferedImage(origW, origH, BufferedImage.TYPE_3BYTE_BGR);
                 for (int y = 0; y < origH; y++) {
@@ -206,6 +222,12 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
 
     /**
      * 双线性采样距离矩阵中的像素值。
+     * @param depth 深度
+     * @param h h
+     * @param w w
+     * @param y y
+     * @param x x
+     * @return 样本深度的结果
      */
     private static float sampleDepth(float[][] depth, int h, int w, float y, float x) {
         int y0 = Math.min(h - 1, Math.max(0, (int) Math.floor(y)));

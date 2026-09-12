@@ -21,13 +21,15 @@ import java.util.List;
  *
  * <p>Goose stores every exchange in the {@code messages} table of
  * {@code %APPDATA%\Block\goose\data\sessions\sessions.db}; content is a JSON
- * array of typed blocks:</p>
+   * array 的 类型 blocks:</p>
  *
  * <pre>{@code
  * {
  *   "message_id": "msg_...", "session_id": "...", "role": "user",
  *   "content_json": [ { "type": "text", "text": "Say ok" } ],
  *   "created_timestamp": 1787641406
+ * }
+ * }</pre>787641406
  * }
  * }</pre>
  *
@@ -37,7 +39,7 @@ import java.util.List;
 @Spi("goose")
 public class GooseConversationParser implements ConversationParser {
 
-    private static final Logger log = LoggerFactory.getLogger(GooseConversationParser.class);
+    private static final Logger log = LoggerFactory.getLogger(GooseConversationParser.class); // 日志
 
     private static final Path DB_PATH = Path.of(System.getenv("APPDATA"),
             "Block", "goose", "data", "sessions", "sessions.db");
@@ -58,6 +60,14 @@ public class GooseConversationParser implements ConversationParser {
 
     /**
      * 流式解析全部会话消息：JDBC 游标逐行发射。
+     * @param value 值
+     * @param fallback 降级
+     /**
+      * 流消息。
+      * @return 流消息的结果
+      */
+     * @return 第一个nonblank的结果
+     * @param raw raw
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
@@ -79,6 +89,13 @@ public class GooseConversationParser implements ConversationParser {
             } catch (SQLException e) {
                 log.warn("[goose] parse failed: {}", e.getMessage(), e);
                 sink.complete();
+            /**
+             * 转为消息。
+             * @param rs R
+             * @return 转为消息的结果
+             * @param value 值
+             * @param fallback 降级
+             */
             }
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -111,6 +128,11 @@ public class GooseConversationParser implements ConversationParser {
             }
         }
         return result;
+    /**
+     * safe解析。
+     * @param raw raw
+     * @return safe解析的结果
+     */
     }
 
     private JsonNode safeParse(String raw) {

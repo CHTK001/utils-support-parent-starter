@@ -6,7 +6,7 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 /**
- * Redis INCR 命令处理器，将 key 存储的数值递增 1。
+   * Redis INCR 命令处理器，将 键 存储的数值递增 1。
  *
  * <p>返回递增后的新值（Long，转换为 int）。</p>
  *

@@ -12,16 +12,21 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * iCalendar (ICS) 日历预览提供器。
+   * icalendar (ICS) 日历预览提供器。
  * <p>SPI 类型：{@code preview-calendar}。解析 ICS 文件中的事件信息。</p>
  *
  * @author CH
  * @since 4.0.0.42
+ * @param ics ics
+ * @return 解析ics的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-calendar")
 public class CalendarPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("ics", "ical", "ifb", "icalendar");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("ics", "ical", "ifb", "icalendar"); // 支持exts
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -83,10 +88,25 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
         return events;
     }
 
+    /**
+     * extract日期时间。
+     * @param line 线
+     * @return extract日期时间的结果
+     */
     private String extractDateTime(String line) {
         // 处理 DTSTART:20240101T120000Z 或 DTSTART;VALUE=DATE:20240101
+    /**
+     * calendar事件类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
         int colonIdx = line.indexOf(':');
-        if (colonIdx < 0) return line;
+        if (colonIdx < 0) {
+            return line;
+        }
 
         String value = line.substring(colonIdx + 1).trim();
         if (value.length() >= 8) {
@@ -104,6 +124,12 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
             return sb.toString();
         }
         return value;
+    /**
+     * 构建html。
+     * @param events 事件
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     private String buildHtml(List<CalendarEvent> events, long fileSize) {
@@ -155,29 +181,51 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("</div></body></html>");
         return sb.toString();
+    /**
+     * truncate。
+     * @param text 文本
+     * @param maxLen 最大len
+     * @return truncate的结果
+     */
     }
 
     private String truncate(String text, int maxLen) {
-        if (text.length() <= maxLen) return text;
+        if (text.length() <= maxLen) {
+            return text;
+        }
         return text.substring(0, maxLen) + "...";
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 
     private static class CalendarEvent {
-        String summary;
-        String dtstart;
-        String dtend;
-        String location;
-        String description;
+        String summary; // summary
+        String dtstart; // dtstart
+        String dtend; // dtend
+        String location; // 位置
+        String description; // description
     }
 }

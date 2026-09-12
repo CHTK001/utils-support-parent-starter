@@ -12,7 +12,7 @@ import java.util.Map;
  * 站点配置。
  *
  * <p>描述目标站点的爬取规则和限制，包括请求间隔、重试策略、
- * User-Agent、Cookie 等。每个域名可配置独立的站点信息。
+   * 用户-智能体、Cookie 等。每个域名可配置独立的站点信息。
  *
  * @author CH
  * @since 4.0.0.42
@@ -31,12 +31,12 @@ public class SpiderSite {
     private String domain;
 
     /**
-     * User-Agent。
+      * 用户-智能体。
      *
      * <p>爬取该站点时使用的 User-Agent 字符串，用于模拟浏览器。
      */
     @Builder.Default
-    /** 用户agent */
+    /** 用户智能体 */
     private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
             + "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
@@ -56,7 +56,7 @@ public class SpiderSite {
      * <p>请求失败时的最大重试次数。超过此次数后丢弃该请求。
      */
     @Builder.Default
-    /** 重试times */
+    /** 重试时间 */
     private int retryTimes = 3;
 
     /**
@@ -81,7 +81,7 @@ public class SpiderSite {
      * <p>爬取该站点时附加的 HTTP 请求头。
      */
     @Builder.Default
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> headers = new HashMap<>(); // 头部
 
     /**
      * 是否遵守 robots.txt。
@@ -89,7 +89,7 @@ public class SpiderSite {
      * <p>为 true 时，爬虫会检查并遵守目标站点的 robots.txt 规则。
      */
     @Builder.Default
-    /** RespectrobotsTXT */
+    /** respectrobotstxt */
     private boolean respectRobotsTxt = false;
 
     /**

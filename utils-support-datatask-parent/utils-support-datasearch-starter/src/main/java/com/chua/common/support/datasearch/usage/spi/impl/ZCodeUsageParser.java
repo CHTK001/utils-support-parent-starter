@@ -11,10 +11,10 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * ZCode usage parser.
+   * z编码 usage parser.
  *
  * <p>ZCode (Z.ai's Agentic Development Environment) persists per-request
- * usage in the {@code model_usage} table of
+   * usage 入 the {@code model_usage} table 的
  * {@code ~/.zcode/cli/db/db.sqlite} once the CLI/desktop agent runs:</p>
  *
  * <pre>{@code
@@ -24,6 +24,8 @@ import java.util.Map;
  *   duration_ms, time_to_first_token_ms, finish_reason,
  *   input_tokens, output_tokens, reasoning_tokens,
  *   cache_creation_input_tokens, cache_read_input_tokens, ...
+ * )   -- timestamps in epoch millis
+ * }</pre>ache_creation_input_tokens, cache_read_input_tokens, ...
  * )   -- timestamps in epoch millis
  * }</pre>
  *
@@ -45,7 +47,7 @@ public class ZCodeUsageParser extends BaseUsageParser {
                     + "WHERE input_tokens > 0 OR output_tokens > 0 "
                     + "ORDER BY started_at ASC";
 
-    private static final String PROVIDER_ZCODE = "zcode";
+    private static final String PROVIDER_ZCODE = "zcode"; // 提供者zcode
 
     /**
      * 返回 SPI 名称。
@@ -58,6 +60,13 @@ public class ZCodeUsageParser extends BaseUsageParser {
 
     /**
      * 流式解析全部模型请求用量记录。
+     * @param row row
+     * @return 转为AIusage的结果
+     /**
+      * 流全部。
+      * @return 流全部的结果
+      */
+      * @param row row
      */
     @Override
     public Flux<AiUsage> streamAll() {

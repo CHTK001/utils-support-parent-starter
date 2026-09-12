@@ -18,13 +18,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * MOSS-TTS-Nano 多语言 TTS 标准客户端（48 kHz）。
+   * MOSS-TTS-nano 多语言 TTS 标准客户端（48 khz）。
  *
  * <p>通过 SPI 名称 {@code moss-tts-nano} 创建：
  *
  * <pre>{@code
  * TextToAudioClient client = TextToAudioClient.create("onnx", "moss-tts-nano");
  * byte[] wav = client.voice("Junhao").synthesize("你好世界");
+ * }</pre>synthesize("你好世界");
  * }</pre>
  *
  * <p>模型（TTS 640MB + Codec 85MB）首次使用时自动从 hf-mirror 下载到缓存目录，
@@ -58,9 +59,9 @@ public class MossTextToAudioClient implements TextToAudioClient {
             "moss_audio_tokenizer_decode_shared.data",
     };
 
-    private final TextToAudioClientSetting setting;
-    private MossTtsTranslator translator;
-    private boolean prepared;
+    private final TextToAudioClientSetting setting; // setting
+    private MossTtsTranslator translator; // translator
+    private boolean prepared; // prepared
 
     /**
      * 克隆参考音频（设置后优先于内置音色）。
@@ -199,7 +200,13 @@ public class MossTextToAudioClient implements TextToAudioClient {
         }
     }
 
-    /** 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。 */
+     /**
+       * ensureprepared。
+      */
+     * 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
+     *
+     * @return 缓存根的结果
+     */
     private void ensurePrepared() {
         if (prepared) {
             return;
@@ -223,6 +230,10 @@ public class MossTextToAudioClient implements TextToAudioClient {
         Path dir = (prop != null && !prop.isBlank())
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-tts-nano");
+        /**
+          * codecdir。
+         * @return codecDir的结果
+         */
         Files.createDirectories(dir);
         return dir;
     }
@@ -232,6 +243,13 @@ public class MossTextToAudioClient implements TextToAudioClient {
         Path dir = (prop != null && !prop.isBlank())
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-audio-tokenizer");
+        /**
+          * downloadmissing。
+         * @param dir dir
+         * @param files 文件
+         * @param mirrorBase mirrorbase
+         * @return 缓存根的结果
+         */
         Files.createDirectories(dir);
         return dir;
     }

@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * LibreOffice 文档格式转换器。
+   * libre办公室 文档格式转换器。
  *
  * <p>通过命令行调用 LibreOffice 实现多种 Office 格式的相互转换。
  * 支持 doc/docx/xls/xlsx/ppt/pptx/odt/ods/odp 等格式的交叉转换。</p>
@@ -33,7 +33,7 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp");
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String source, String target) {
         if (!SOURCES.contains(source)) {
             return false;

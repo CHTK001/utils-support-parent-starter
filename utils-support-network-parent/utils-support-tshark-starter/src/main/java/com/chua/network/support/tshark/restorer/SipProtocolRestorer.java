@@ -5,7 +5,7 @@ package com.chua.network.support.tshark.restorer;
  *
  * <p>SIP（会话初始协议）请求/响应第一行：方法 + URI + SIP/2.0
  * 或响应行：SIP/2.0 + 状态码 + 状态文本。
- * 识别 INVITE/REGISTER/BYE/CANCEL/ACK/OPTIONS/PRACK/INFO/SUBSCRIBE/NOTIFY/REFER 等方法。</p>
+   * 识别 INVITE/注册/BYE/CANCEL/ACK/期权/PRACK/信息/订阅/通知/REFER 等方法。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,7 +13,7 @@ package com.chua.network.support.tshark.restorer;
 public class SipProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "sip";
     }

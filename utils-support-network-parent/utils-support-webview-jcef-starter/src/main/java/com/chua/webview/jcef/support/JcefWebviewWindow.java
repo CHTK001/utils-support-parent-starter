@@ -23,18 +23,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * JCEF (Java Chromium Embedded Framework) WebView             
+   * JCEF (Java 铬 Embedded 框架) webview
  * <p>
  *        <a href="https://github.com/jcefmaven/jcefmaven">JCEF Maven</a>   
- *                 Chromium                         
+   * 铬
  * <ul>
  *   <li>          HTML5 / CSS3 / JavaScript       </li>
  *   <li>DevTools       </li>
  *   <li>          (Windows / macOS / Linux)</li>
  *   <li>IPC                 JS   Java              {@link IpcProtocolServer}          </li>
  * </ul>
- *        webview_java     WebView2/WKWebView/WebKitGTK          
- * JCEF                 Chromium                                                 
+   * webview_Java     webview2/wkwebview/webkitgtk
+   * JCEF                 铬
  * </p>
  * <p>
  *        {@link ConditionalOnClass}                       classpath          
@@ -71,11 +71,11 @@ public class JcefWebviewWindow implements WebViewWindow {
      */
     private CefBrowser browser;
     /**
-     * frame
+      * 帧
      */
     private Frame frame;
     /**
-     * ipc Server
+      * ipc 服务端
      */
     private IpcProtocolServer ipcServer;
 
@@ -92,7 +92,7 @@ public class JcefWebviewWindow implements WebViewWindow {
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
-                /** WindowClosing */
+                /** 窗口关闭 */
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -105,12 +105,19 @@ catch (Throwable e) {
     }
 
     @Override
-    /** SupportsIpc */
+    /** 支持ipc */
     public boolean supportsIpc() {
         return true;
     }
 
-    /** 打开 */
+    /**
+     * 打开
+     *
+     * @param server 服务端
+     * @param title title
+     * @param width width
+     * @param height height
+     */
     public void open(ProtocolServer server, String title, int width, int height) {
         ProtocolType type = server.getProtocolType();
         if (type == ProtocolType.IPC) {
@@ -122,12 +129,16 @@ catch (Throwable e) {
     }
 
     /**
-     *     IPC              WebView       
+      * IPC              webview
      * <p>
-     *              IPC                 CefMessageRouter        {@code javaBridge} JS          
+      * IPC                 cef消息router        {@code javaBridge} JS
      *              {@code window.javaBridge.send(JSON.stringify({path, method, body}), callback)}
      *     {@link IpcProtocolServer#handleMessage}                            
      * </p>
+     * @param server 服务端
+     * @param title title
+     * @param width width
+     * @param height height
      */
     private void openIpc(ProtocolServer server, String title, int width, int height) {
         if (!(server instanceof IpcProtocolServer)) {
@@ -147,7 +158,7 @@ catch (Throwable e) {
             router.addHandler(new IpcMessageRouterHandler(this.ipcServer), true);
             client.addMessageRouter(router);
 
-            //              IPC          data URL                      
+ // IPC          数据 URL
             browser = client.createBrowser("data:text/html;base64," +
                     java.util.Base64.getEncoder().encodeToString(IPC_PAGE.getBytes(StandardCharsets.UTF_8)),
                     false, false);
@@ -157,7 +168,7 @@ catch (Throwable e) {
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
-                /** WindowClosing */
+                /** 窗口关闭 */
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -192,12 +203,14 @@ finally {
     }
 
     /**
-     * JCEF CefMessageRouter                 JS                 {@link IpcProtocolServer}
+      * JCEF cef消息router                 JS                 {@link IpcProtocolServer}
+     * @author CH
+     * @since 4.0.0
      */
     private static class IpcMessageRouterHandler extends CefMessageRouterHandlerAdapter {
 
         /**
-         * ipc Server
+          * ipc 服务端
          */
         private final IpcProtocolServer ipcServer;
 
@@ -209,9 +222,9 @@ finally {
         /**
          * On查询
          * @param browser browser
-         * @param frame frame
-         * @param queryId queryId
-         * @param request request
+         * @param frame 帧
+         * @param queryId 查询标识
+         * @param request 请求
          * @param persistent persistent
          * @param callback callback
          */

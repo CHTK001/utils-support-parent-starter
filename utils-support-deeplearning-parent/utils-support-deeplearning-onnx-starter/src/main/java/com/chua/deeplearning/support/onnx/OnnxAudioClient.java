@@ -22,6 +22,7 @@ import java.util.List;
  *       .model("whisper-tiny")
  *       .language("zh")
  *       .transcribe(Path.of("audio.wav"));
+ * }</pre>(Path.of("audio.wav"));
  * }</pre>
  *
  * @author CH
@@ -40,7 +41,7 @@ public class OnnxAudioClient extends AbstractLocalAudioClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, byte[].class, String.class);
     }

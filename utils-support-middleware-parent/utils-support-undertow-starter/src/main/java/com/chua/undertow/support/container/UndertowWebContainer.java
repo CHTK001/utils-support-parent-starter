@@ -62,7 +62,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
      */
     private ServletContainer servletContainer;
     /**
-     * 已部署应用集合，key 为上下文路径
+      * 已部署应用集合，键 为上下文路径
      */
     private final Map<String, DeploymentManager> deployments = new ConcurrentHashMap<>();
     /**
@@ -71,13 +71,13 @@ public class UndertowWebContainer extends AbstractWebContainer {
     private final PathHandler pathHandler = Handlers.path();
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "undertow";
     }
 
     @Override
-    /** DoDeploy */
+    /** 执行deploy */
     protected void doDeploy(String archivePath, String contextPath, DeployUnitType type) {
         if (undertow != null && undertow.getListenerInfo().isEmpty()) {
             throw new ContainerException("Undertow 服务器尚未启动，无法动态部署");
@@ -107,6 +107,8 @@ public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
      * 部署 WAR 文件。
+     * @param archivePath Arch Linux Linux路径
+     * @param contextPath 上下文路径
      */
     private void deployWar(String archivePath, String contextPath) throws Exception {
         File warFile = resolveFile(archivePath);
@@ -138,6 +140,8 @@ public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
      * 部署 Fat JAR（Spring Boot 等可执行 JAR）。
+     * @param archivePath Arch Linux Linux路径
+     * @param contextPath 上下文路径
      */
     private void deployFatJar(String archivePath, String contextPath) throws Exception {
         File jarFile = resolveFile(archivePath);
@@ -161,6 +165,8 @@ public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
      * 作为静态资源部署。
+     * @param archivePath Arch Linux Linux路径
+     * @param contextPath 上下文路径
      */
     private void deployResource(String archivePath, String contextPath) throws Exception {
         File resourceFile = resolveFile(archivePath);
@@ -175,7 +181,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     @Override
-    /** DoUndeploy */
+    /** 执行undeploy */
     protected void doUndeploy(String contextPath) {
         DeploymentManager manager = deployments.remove(contextPath);
         if (manager != null) {
@@ -191,7 +197,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             servletContainer = ServletContainer.Factory.newInstance();
@@ -219,7 +225,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         try {
             // 先停止所有部署
@@ -268,6 +274,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
      * 配置 SSL/TLS。
+     * @param builder 构建器
      */
     private void configureSsl(Undertow.Builder builder) {
         WebContainerSetting.SslConfig ssl = setting.getSsl();
@@ -302,6 +309,8 @@ public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
      * 解析文件路径。
+     * @param path 路径
+     * @return resolve文件的结果
      */
     private File resolveFile(String path) {
         if (path.startsWith("classpath:")) {

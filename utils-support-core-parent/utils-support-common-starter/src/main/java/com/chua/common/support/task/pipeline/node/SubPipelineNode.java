@@ -51,6 +51,7 @@ import java.util.Map;
  *     .pipeline("subStep", subPipeline)
  *     .task("mainEnd", ctx -> { return null; }).taskEnd()
  *     .build();
+ * }</pre>* .构建();
  * }</pre>
  *
  * @author CH
@@ -74,12 +75,12 @@ public class SubPipelineNode implements PipelineNode {
     private PipelineNode preHandler;
 
     /**
-     * 子流水线起始节点 ID（覆盖默认起始节点，可选）
+      * 子流水线起始节点 标识（覆盖默认起始节点，可选）
      */
     private String startNode;
 
     /**
-     * 子流水线参数（注入到子上下文的 nodeLocalData，可选）
+      * 子流水线参数（注入到子上下文的 节点本地数据，可选）
      */
     private Map<String, Object> params;
 
@@ -100,24 +101,24 @@ public class SubPipelineNode implements PipelineNode {
     }
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getId() {
         return id;
     }
 
-    /** 节点类型：subPipeline。 */
+    /** 节点类型：subpipeline。 */
     @Override
     public String getType() {
         return "subPipeline";
     }
 
     /**
-     * 获取子流水线 ID。
+      * 获取子流水线 标识。
      *
-     * @return 子流水线 ID
+     * @return 子流水线 标识
      */
     public String getSubPipelineId() {
         return subPipeline.getId();
@@ -133,18 +134,18 @@ public class SubPipelineNode implements PipelineNode {
     }
 
     /**
-     * 获取子流水线起始节点虚拟 ID（用于树打印）。
+      * 获取子流水线起始节点虚拟 标识（用于树打印）。
      *
-     * @return 起始节点 ID
+     * @return 起始节点 标识
      */
     public String getSubPipelineStartId() {
         return "sub:" + subPipeline.getId() + ":start";
     }
 
     /**
-     * 获取子流水线终止节点虚拟 ID（用于树打印）。
+      * 获取子流水线终止节点虚拟 标识（用于树打印）。
      *
-     * @return 终止节点 ID
+     * @return 终止节点 标识
      */
     public String getSubPipelineEndId() {
         return "sub:" + subPipeline.getId() + ":end";
@@ -164,16 +165,16 @@ public class SubPipelineNode implements PipelineNode {
     /**
      * 获取前置处理器。
      *
-     * @return 前置处理器，未设置时返回 null
+     * @return 前置处理器，未设置时返回 空
      */
     public PipelineNode getPreHandler() {
         return preHandler;
     }
 
     /**
-     * 设置子流水线起始节点 ID。
+      * 设置子流水线起始节点 标识。
      *
-     * @param startNode 起始节点 ID
+     * @param startNode 起始节点 标识
      * @return this
      */
     public SubPipelineNode start(String startNode) {
@@ -182,9 +183,9 @@ public class SubPipelineNode implements PipelineNode {
     }
 
     /**
-     * 获取子流水线起始节点 ID。
+      * 获取子流水线起始节点 标识。
      *
-     * @return 起始节点 ID，未设置时返回 null
+     * @return 起始节点 标识，未设置时返回 空
      */
     public String getStartNode() {
         return startNode;
@@ -204,7 +205,7 @@ public class SubPipelineNode implements PipelineNode {
     /**
      * 获取子流水线参数。
      *
-     * @return 参数映射，未设置时返回空 Map
+     * @return 参数映射，未设置时返回空 映射
      */
     public Map<String, Object> getParams() {
         return params != null ? params : Collections.emptyMap();
@@ -236,7 +237,7 @@ public class SubPipelineNode implements PipelineNode {
             preHandler.execute(context);
         }
 
-        // 2. 执行子流水线 — 通过 createBranchContext 共享 attributes/nodeOutputs（与 ForkNode 一致）
+ // 2. 执行子流水线 — 通过 创建分支上下文 共享 attributes/节点输出（与 fork节点 一致）
         PipelineContext<Object> subCtx =
                 context.createBranchContext(subPipeline.getId(), context.getCurrentData());
         if (startNode != null) {
@@ -248,11 +249,11 @@ public class SubPipelineNode implements PipelineNode {
         }
         subCtx = subPipeline.execute(subCtx);
 
-        // 3. 将子流程结果以 SubPipelineResult 结构化对象存入父上下文 nodeOutputs
+ // 3. 将子流程结果以 subpipeline结果 结构化对象存入父上下文 节点输出
         SubPipelineResult result = new SubPipelineResult(
                 id, subCtx.getCurrentData(), subCtx.getHistory(), subPipeline.getId());
         context.setNodeOutput(id, result);
-        // 同时更新 currentData，保持向后兼容（后续节点可通过 currentData 获取子流程输出）
+ // 同时更新 当前数据，保持向后兼容（后续节点可通过 当前数据 获取子流程输出）
         @SuppressWarnings("unchecked")
         PipelineContext<Object> parentCtx = (PipelineContext<Object>) context;
         parentCtx.setCurrentData(subCtx.getCurrentData());

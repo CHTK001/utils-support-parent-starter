@@ -28,14 +28,15 @@ import java.nio.file.Paths;
  */
 public final class GuacamoleArtifact {
 
-    /** 创建 GuacamoleArtifact 实例 */
+    /** 创建 guacamoleartifact 实例 */
     private GuacamoleArtifact() {
+        // NOTHING
     }
 
     /**
      * 创建 Guacamole 工件构建器。
      *
-     * @param artifactId 工件 ID
+     * @param artifactId 工件 标识
      * @param version    版本
      * @return 构建器
      */
@@ -53,7 +54,7 @@ public final class GuacamoleArtifact {
     }
 
     /**
-     * 创建 Guacamole Server（guacd）工件。
+      * 创建 Guacamole 服务端（guacd）工件。
      *
      * @return RuntimeArtifact
      */
@@ -82,11 +83,12 @@ public final class GuacamoleArtifact {
      * Guacamole 构建器。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     public static class GuacamoleBuilder {
 
         /**
-         * 工件 ID
+          * 工件 标识
          */
         private String artifactId;
 

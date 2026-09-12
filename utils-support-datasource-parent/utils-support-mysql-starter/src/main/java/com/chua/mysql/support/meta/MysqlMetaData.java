@@ -20,6 +20,10 @@ import com.chua.datasource.support.meta.JdbcMetaData;
 @Spi("mysql")
 public class MysqlMetaData extends JdbcMetaData {
 
+    /**
+     * mysqlmeta数据。
+     * @param engine engine
+     */
     public MysqlMetaData(Engine engine) {
         super(engine);
     }

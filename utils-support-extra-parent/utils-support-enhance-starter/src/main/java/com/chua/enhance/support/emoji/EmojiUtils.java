@@ -22,10 +22,10 @@ import java.util.regex.Pattern;
 public class EmojiUtils extends AbstractEmoji {
 
     /**
-     * 按编码查找 emoji（支持 unicode、shortcode、html 实体）
+      * 按编码查找 emoji（支持 unicode、shortcode、HTML 实体）
      *
      * @param code 编码字符串
-     * @return Emoji 对象，未找到返回 null
+     * @return Emoji 对象，未找到返回 空
      */
     public static Emoji getEmoji(String code) {
         Matcher m = SHORT_CODE_PATTERN.matcher(code);
@@ -56,7 +56,7 @@ public class EmojiUtils extends AbstractEmoji {
      * 按别名查找 emoji
      *
      * @param alias 别名
-     * @return Emoji 对象，未找到返回 null
+     * @return Emoji 对象，未找到返回 空
      */
     public static Emoji getForAlias(String alias) {
         if (alias == null || alias.isEmpty()) {
@@ -65,7 +65,12 @@ public class EmojiUtils extends AbstractEmoji {
         return EmojiManager.EMOJIS_BY_ALIAS.get(trimAlias(alias));
     }
 
-    /** 去空格Alias */
+    /**
+     * 去空格别名
+     *
+     * @param alias 别名
+     * @return 修剪别名的结果
+     */
     private static String trimAlias(String alias) {
         int len = alias.length();
         return alias.substring(
@@ -93,14 +98,28 @@ public class EmojiUtils extends AbstractEmoji {
         return emojify(text, 0);
     }
 
-    /** Emojify */
+    /**
+     * Emojify
+     *
+     * @param text 文本
+     * @param startIndex 启动索引
+     * @return emojify的结果
+     */
     private static String emojify(String text, int startIndex) {
         text = processStringWithRegex(text, SHORT_CODE_OR_HTML_ENTITY_PATTERN, startIndex, true);
         text = processStringWithRegex(text, EmojiManager.getEmoticonRegexPattern(), startIndex, true);
         return text;
     }
 
-    /** 处理StringWithRegex */
+    /**
+     * 处理字符串withregex
+     *
+     * @param text 文本
+     * @param pattern 模式
+     * @param startIndex 启动索引
+     * @param recurseEmojify recurseemojify
+     * @return 处理字符串withregex的结果
+     */
     private static String processStringWithRegex(String text, Pattern pattern, int startIndex, boolean recurseEmojify) {
         Matcher matcher = pattern.matcher(text);
         StringBuffer sb = new StringBuffer();

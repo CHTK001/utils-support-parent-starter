@@ -26,10 +26,10 @@ import java.util.Map;
 public class SpiderExecutionController {
 
     /**
-     * 测试态：SpiderRunner 在保存前回调通知，记录 hash 与 json 长度。
+      * 测试态：蜘蛛runner 在保存前回调通知，记录 哈希 与 json 长度。
      */
     private volatile int lastSavedHash = 0;
-    /** lastSavedResultsJson */
+    /** 最后一个保存结果json */
     private volatile String lastSavedResultsJson = null;
 
     /**
@@ -48,9 +48,9 @@ public class SpiderExecutionController {
     private final SpiderRunner runner;
 
     /**
-     * 创建 SpiderExecutionController 实例
-     * @param executionStore executionStore
-     * @param definitionStore definitionStore
+      * 创建 蜘蛛执行控制器 实例
+     * @param executionStore 执行存储
+     * @param definitionStore definition存储
      * @param runner runner
      */
     public SpiderExecutionController(SpiderExecutionStore executionStore,
@@ -59,12 +59,13 @@ public class SpiderExecutionController {
         this.executionStore = executionStore;
         this.definitionStore = definitionStore;
         this.runner = runner;
-        // 把自己引用回填给 SpiderRunner 用于 noteSaveState 回调
+ // 把自己引用回填给 蜘蛛runner 用于 笔记保存状态 回调
         runner.setController(this);
     }
 
     /**
-     * SpiderRunner 在 finally 调用，记录保存前 record 的 hash 与 resultsJson。
+      * 蜘蛛runner 在 最终 调用，记录保存前 record 的 哈希 与 结果json。
+     * @param r r
      */
     public void noteSaveState(SpiderExecutionRecord r) {
         this.lastSavedHash = System.identityHashCode(r);
@@ -74,7 +75,8 @@ public class SpiderExecutionController {
     }
 
     /**
-     * 调试接口：返回最近一次保存前的 hash 与 json 长度。
+      * 调试接口：返回最近一次保存前的 哈希 与 json 长度。
+     * @return 调试最后一个保存的结果
      */
     @GetMapping("/debug/last-save")
     public Map<String, Object> debugLastSave() {
@@ -145,7 +147,8 @@ public class SpiderExecutionController {
     }
 
     /**
-     * 调试接口：返回所有执行记录的内存快照（含 resultsJson 实际值）。
+      * 调试接口：返回所有执行记录的内存快照（含 结果json 实际值）。
+     * @return 调试列表全部的结果
      */
     @GetMapping("/debug/list-all")
     public List<Map<String, Object>> debugListAll() {
@@ -168,7 +171,13 @@ public class SpiderExecutionController {
                 .toList();
     }
 
-    /** 读取Field */
+    /**
+     * 读取字段
+     *
+     * @param target Target
+     * @param name 名称
+     * @return 读取字段的结果
+     */
     private Object readField(Object target, String name) {
         try {
             var f = target.getClass().getDeclaredField(name);

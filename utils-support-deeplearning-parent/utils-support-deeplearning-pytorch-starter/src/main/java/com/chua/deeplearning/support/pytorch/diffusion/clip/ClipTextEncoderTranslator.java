@@ -23,7 +23,7 @@ import java.util.Arrays;
 public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, NDList> {
 
     /**
-     * CLIP 最大 token 长度。
+      * CLIP 最大 令牌 长度。
      */
     private static final int MAX_LENGTH = 77;
 
@@ -33,18 +33,18 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     private final String tokenizerPath;
 
     /**
-     * HuggingFace tokenizer。
+      * huggingface tokenizer。
      */
     private HuggingFaceTokenizer tokenizer;
 
-    /** 创建 ClipTextEncoderTranslator 实例 */
+    /** 创建 clip文本编码器translator 实例 */
     public ClipTextEncoderTranslator() {
         this(null);
     }
 
     /**
-     * 创建 ClipTextEncoderTranslator 实例
-     * @param tokenizerPath tokenizerPath
+      * 创建 clip文本编码器translator 实例
+     * @param tokenizerPath tokenizer路径
      */
     public ClipTextEncoderTranslator(String tokenizerPath) {
         this.tokenizerPath = tokenizerPath;
@@ -67,7 +67,11 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
         }
     }
 
-    /** 解析TokenizerPath */
+    /**
+     * 解析tokenizer路径
+     *
+     * @return resolvetokenizer路径的结果
+     */
     private Path resolveTokenizerPath() {
         if (tokenizerPath != null && !tokenizerPath.isBlank()) {
             Path p = Paths.get(tokenizerPath);
@@ -83,7 +87,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] ids = encoding.getIds();
@@ -97,7 +101,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public NDList processOutput(TranslatorContext ctx, NDList list) {
         list.detach();
         return list;

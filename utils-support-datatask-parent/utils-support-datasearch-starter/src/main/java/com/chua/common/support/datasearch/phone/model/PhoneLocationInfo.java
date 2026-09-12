@@ -44,7 +44,7 @@ public class PhoneLocationInfo {
     private final String postCode;
 
     /**
-     * 创建 PhoneLocationInfo 实例
+      * 创建 phone位置信息 实例
      *
      * @param phone    手机号码
      * @param province 省份
@@ -62,38 +62,62 @@ public class PhoneLocationInfo {
         this.postCode = postCode;
     }
 
-    /** 获取手机号码 */
+    /**
+     * 获取手机号码
+     *
+     * @return 获取phone的结果
+     */
     public String getPhone() {
         return phone;
     }
 
-    /** 获取省份 */
+    /**
+     * 获取省份
+     *
+     * @return 获取province的结果
+     */
     public String getProvince() {
         return province;
     }
 
-    /** 获取城市 */
+    /**
+     * 获取城市
+     *
+     * @return 获取city的结果
+     */
     public String getCity() {
         return city;
     }
 
-    /** 获取运营商 */
+    /**
+     * 获取运营商
+     *
+     * @return 获取carrier的结果
+     */
     public String getCarrier() {
         return carrier;
     }
 
-    /** 获取区号 */
+    /**
+     * 获取区号
+     *
+     * @return 获取area编码的结果
+     */
     public String getAreaCode() {
         return areaCode;
     }
 
-    /** 获取邮编 */
+    /**
+     * 获取邮编
+     *
+     * @return 获取post编码的结果
+     */
     public String getPostCode() {
         return postCode;
     }
 
     /**
-     * 转换为 Map 用于 JSON 序列化
+      * 转换为 映射 用于 JSON 序列化
      *
      * @return Map 表示
      */

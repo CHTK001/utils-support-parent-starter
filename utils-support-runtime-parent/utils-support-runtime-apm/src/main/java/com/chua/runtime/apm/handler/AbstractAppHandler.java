@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 应用层传输 Handler 抽象基类 — 抽取 ENTRY/EXIT/EXCEPTION 公共处理逻辑。
+   * 应用层传输 处理器 抽象基类 — 抽取 ENTRY/EXIT/异常 公共处理逻辑。
  *
  * <p>子类只需声明名称、协议、软件栈、拦截方法列表与目标端点构建逻辑，
  * 公共的记录存储、依赖图同步、生命周期管理全部由基类完成。</p>
@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(AbstractAppHandler.class.getName());
 
@@ -50,14 +50,14 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
      */
     protected final AtomicBoolean started;
 
-    /** 创建 AbstractAppHandler 实例 */
+    /** 创建 抽象app处理器 实例 */
     protected AbstractAppHandler() {
         this.records = new BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return "1.0.0";
     }
@@ -93,7 +93,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("%s[enabled=%s, records=%d]", name(), enabled, records.size());
     }
@@ -105,7 +105,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     @Override
-    /** OnIntercept */
+    /** onintercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -120,11 +120,15 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 当前调用帧（用 ctx.userData 关联 entry/exit）。
+      * 当前调用帧（用 ctx.用户数据 关联 entry/exit）。
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
-    /** 处理Entry */
+    /**
+     * 处理Entry
+     *
+     * @param ctx ctx
+     */
     private void handleEntry(InterceptContext ctx) {
         try {
             TransmissionRecord record = new TransmissionRecord();
@@ -152,7 +156,11 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         }
     }
 
-    /** 处理Exit */
+    /**
+     * 处理Exit
+     *
+     * @param ctx ctx
+     */
     private void handleExit(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -169,7 +177,11 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         }
     }
 
-    /** 处理Exception */
+    /**
+     * 处理异常
+     *
+     * @param ctx ctx
+     */
     private void handleException(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -233,10 +245,10 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 注册单方法双插桩点（仅 ENTRY/EXIT，无 EXCEPTION）。
+      * 注册单方法双插桩点（仅 ENTRY/EXIT，无 异常）。
      *
      * <p>用于类自身带复杂异常处理器表的三方类（如 JDBC 驱动语句/连接类），
-     * 避免 {@code visitMaxs} 注入的 try/catch + onException 与原生异常表叠加导致 VerifyError。</p>
+      * 避免 {@code visitMaxs} 注入的 尝试/卡扣 + on异常 与原生异常表叠加导致 验证错误。</p>
      *
      * @param className  目标类内部名
      * @param methodName 目标方法名
@@ -283,7 +295,7 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 端点角色（默认 CLIENT）。
+      * 端点角色（默认 客户端）。
      *
      * <p>子类可按入口区分子角色（如 Producer/Consumer）覆写此方法。</p>
      *
@@ -300,9 +312,9 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     protected abstract void registerInterceptors();
 
     /**
-     * 启用配置项 key。
+      * 启用配置项 键。
      *
-     * @return 配置 key
+     * @return 配置 键
      */
     protected abstract String enabledKey();
 
@@ -353,12 +365,12 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     /**
-     * 从 Statement / Connection 对象反查 JDBC Connection 实例。
+      * 从 对账单 / Connection 对象反查 JDBC Connection 实例。
      *
      * <p>传入 Connection 时原样返回；传入 Statement 时向上反查 connection 字段。</p>
      *
      * @param jdbcObject JDBC 对象
-     * @return Connection 实例，找不到返回 null
+     * @return Connection 实例，找不到返回 空
      */
     protected Object resolveConnection(Object jdbcObject) {
         if (jdbcObject == null) {
@@ -376,17 +388,17 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
      *
      * @param owner     对象
      * @param fieldName 字段名
-     * @return 字段值，找不到返回 null
+     * @return 字段值，找不到返回 空
      */
     protected static Object findField(Object owner, String fieldName) {
         return ReflectUtils.getField(owner, fieldName);
     }
 
     /**
-     * 从 JDBC URL 解析 host（jdbc:xxx://host:port/db）。
+      * 从 JDBC URL 解析 主机（JDBC:xxx://主机:端口/db）。
      *
      * @param url JDBC URL
-     * @return 主机名，解析失败返回 null
+     * @return 主机名，解析失败返回 空
      */
     protected static String parseUrlHost(String url) {
         if (url == null) {
@@ -460,7 +472,11 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
         return "/";
     }
 
-    /** 获取Records */
+    /**
+     * 获取Records
+     *
+     * @return 获取records的结果
+     */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
     }

@@ -16,14 +16,18 @@ import javax.annotation.Nullable;
  */
 public class PNGMetadataFormatResources extends ListResourceBundle {
 
-    /** 创建 PNGMetadataFormatResources 实例 */
+    /** 创建 pngmetadata格式化resources 实例 */
     public PNGMetadataFormatResources() {}
 
-    /** 获取Contents */
+    /**
+     * 获取内容
+     *
+     * @return 获取内容的结果
+     */
     protected Object[][] getContents() {
         return new Object[][] {
 
-        // Node name, followed by description
+ // 节点 名称, followed by description
         { "IHDR", "The IHDR chunk, containing the header" },
         { "PLTE", "The PLTE chunk, containing the palette" },
         { "PLTEEntry", "A palette entry" },

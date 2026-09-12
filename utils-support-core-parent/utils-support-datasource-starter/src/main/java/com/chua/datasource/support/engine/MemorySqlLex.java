@@ -15,15 +15,18 @@ import com.chua.common.support.reflection.ReflectUtils;
  */
 final class MemorySqlLex {
 
+    /**
+     * 内存sqllex。
+     */
     private MemorySqlLex() {
     }
 
     /**
-     * 将 SQL 切分为 token：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
+      * 将 SQL 切分为 令牌：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
      */
     static final class TokenStream {
 
-        /** token 序列 */
+        /** 令牌 序列 */
         private final List<String> tokens;
 
         /** 当前读取位置 */
@@ -41,16 +44,16 @@ final class MemorySqlLex {
         /**
          * 是否已读到末尾。
          *
-         * @return true 表示无剩余 token
+         * @return true 表示无剩余 令牌
          */
         boolean eof() {
             return pos >= tokens.size();
         }
 
         /**
-         * 预览当前 token（不消费）。
+          * 预览当前 令牌（不消费）。
          *
-         * @return 当前 token
+         * @return 当前 令牌
          */
         String peek() {
             if (eof()) {
@@ -60,9 +63,9 @@ final class MemorySqlLex {
         }
 
         /**
-         * 消费并返回当前 token。
+          * 消费并返回当前 令牌。
          *
-         * @return 当前 token
+         * @return 当前 令牌
          */
         String next() {
             if (eof()) {
@@ -72,7 +75,7 @@ final class MemorySqlLex {
         }
 
         /**
-         * 将 SQL 切分为 token：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
+          * 将 SQL 切分为 令牌：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
          *
          * @param sql 原始文本
          * @return token 列表
@@ -132,10 +135,14 @@ final class MemorySqlLex {
     }
 
     /**
-     * 行访问器：行可为 Map（列名忽略大小写）或 bean（getter 反射）。
+      * 行访问器：行可为 映射（列名忽略大小写）或 Bean（getter 反射）。
      */
     static final class RowAccessor {
 
+        /**
+          * rowaccessor。
+         * @return RowAccessor的结果
+         */
         private RowAccessor() {
         }
 
@@ -144,7 +151,7 @@ final class MemorySqlLex {
          *
          * @param row       行对象
          * @param column    列名
-         * @return 值，缺失返回 null
+         * @return 值，缺失返回 空
          */
         static Object value(Object row, String column) {
             if (row instanceof Map) {
@@ -207,7 +214,7 @@ final class MemorySqlLex {
         }
 
         /**
-         * 向行写入列值（Map 忽略大小写覆盖；bean 走 setter）。
+          * 向行写入列值（映射 忽略大小写覆盖；Bean 走 setter）。
          *
          * @param row    行对象
          * @param column 列名
@@ -262,7 +269,7 @@ final class MemorySqlLex {
         }
 
         /**
-         * Map 行转 bean 实例（反射 setter 注入）。
+          * 映射 行转 Bean 实例（反射 setter 注入）。
          *
          * @param row     结果行
          * @param rowType 目标类型

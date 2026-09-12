@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * OCR 统一能力门面：检测 → 裁剪 → 方向矫正 → 修复 → 识别。
  *
  * <p>基于 {@link Pipeline} 通用管线框架，聚合文字识别全量能力。
- * 方向矫正、文字修复、检测、识别均由模型 ID 动态加载，支持引擎无关的 SPI 扩展。</p>
+   * 方向矫正、文字修复、检测、识别均由模型 标识 动态加载，支持引擎无关的 SPI 扩展。</p>
  *
  * <pre>{@code
  * OcrPipeline ocr = OcrPipeline.builder()
@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
  * String text = ocr.recognize(imageBytes);
  * List<OcrResult> results = ocr.recognizeDetail(imageBytes);
  * byte[] corrected = ocr.correct(imageBytes);
+ * }</pre>ct(imageBytes);
  * }</pre>
  *
  * @author CH
@@ -98,12 +99,12 @@ public class OcrPipeline {
     private final OcrRecognizer recognizer;
 
     /**
-     * 方向矫正翻译器，可为 null
+      * 方向矫正翻译器，可为 空
      */
     private final ITranslator<Object, Object> direction;
 
     /**
-     * 文字高清化翻译器，可为 null
+      * 文字高清化翻译器，可为 空
      */
     private final ITranslator<Object, Object> enhancer;
 
@@ -134,7 +135,7 @@ public class OcrPipeline {
 
     /**
      * 大角度矫正阈值（度）：检测框角度绝对值超过该值时，
-     * 按旋转矩形扶正裁剪（cropRotated），否则轴对齐裁剪直接 rec。
+      * 按旋转矩形扶正裁剪（croprotated），否则轴对齐裁剪直接 rec。
      * 小于 0 表示禁用大角度矫正。
      */
     private final float cropRotateThreshold;
@@ -170,8 +171,8 @@ public class OcrPipeline {
      *
      * @param detector          文字检测器
      * @param recognizer        文字识别器
-     * @param direction         方向矫正翻译器，可为 null
-     * @param enhancer          文字高清化翻译器，可为 null
+     * @param direction         方向矫正翻译器，可为 空
+     * @param enhancer          文字高清化翻译器，可为 空
      * @param enhanceInPipeline 是否在识别管线内启用文字高清化
      * @param sortReadingOrder  是否按阅读顺序排序
      * @param minConfidence     最低识别置信度
@@ -231,12 +232,12 @@ public class OcrPipeline {
         private OcrRecognizer recognizer;
 
         /**
-         * 方向矫正模型 ID，可为 null
+          * 方向矫正模型 标识，可为 空
          */
         private String direction;
 
         /**
-         * 文字高清化模型 ID，可为 null
+          * 文字高清化模型 标识，可为 空
          */
         private String enhancer;
 
@@ -273,12 +274,12 @@ public class OcrPipeline {
         private float cropRotateThreshold = 25f;
 
         /**
-         * 质量门控：模糊图（清晰度低于 blurThreshold）跳过方向矫正并优先进修复（默认关闭）
+          * 质量门控：模糊图（清晰度低于 blur阈值）跳过方向矫正并优先进修复（默认关闭）
          */
         private boolean qualityGate;
 
         /**
-         * 清晰度阈值：模糊度评分低于该值判定为模糊（默认 100，与 OpencvImageQualityAssessor 一致）
+          * 清晰度阈值：模糊度评分低于该值判定为模糊（默认 100，与 opencv镜像qualityassessor 一致）
          */
         private float blurThreshold = 100f;
 
@@ -304,9 +305,9 @@ public class OcrPipeline {
         }
 
         /**
-         * 按模型 ID 创建检测器。
+          * 按模型 标识 创建检测器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder detector(String modelId) {
@@ -326,9 +327,9 @@ public class OcrPipeline {
         }
 
         /**
-         * 按模型 ID 创建识别器。
+          * 按模型 标识 创建识别器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder recognizer(String modelId) {
@@ -337,9 +338,9 @@ public class OcrPipeline {
         }
 
         /**
-         * 按模型 ID 设置方向矫正器。
+          * 按模型 标识 设置方向矫正器。
          *
-         * @param modelId 模型 ID，如 "pp-word-rotate"
+         * @param modelId 模型 标识，如 "pp-word-rotate"
          * @return this
          */
         public Builder direction(String modelId) {
@@ -348,9 +349,9 @@ public class OcrPipeline {
         }
 
         /**
-         * 按模型 ID 设置文字高清化器。
+          * 按模型 标识 设置文字高清化器。
          *
-         * @param modelId 模型 ID，如 "text-bsr"
+         * @param modelId 模型 标识，如 "文本-bsr"
          * @return this
          */
         public Builder enhancer(String modelId) {
@@ -489,10 +490,10 @@ public class OcrPipeline {
         }
 
         /**
-         * 按模型 ID 懒创建翻译器。
+          * 按模型 标识 懒创建翻译器。
          *
-         * @param modelId 模型 ID，可为 null
-         * @return 翻译器或 null
+         * @param modelId 模型 标识，可为 空
+         * @return 翻译器或 空
          */
         @SuppressWarnings("unchecked")
         private static ITranslator<Object, Object> createTranslator(String modelId) {
@@ -509,7 +510,7 @@ public class OcrPipeline {
      *
      * <p>顺序：检测（外层）→ 裁剪 → 修复 → 识别。小角度框（|angle| ≦ 阈值，默认 15°）
      * 轴对齐裁剪直接识别，依赖 rec 对 ±20° 内倾斜鲁棒；超过阈值的大角度框
-     * 按旋转矩形中心扶正后裁剪（cropRotated），避免倾斜文字识别失败。</p>
+      * 按旋转矩形中心扶正后裁剪（croprotated），避免倾斜文字识别失败。</p>
      *
      * @return 管线实例
      */
@@ -622,6 +623,7 @@ public class OcrPipeline {
      * @param results 识别结果
      * @author CH
      * @since 4.0.0.42
+     * @return ocrrecognize结果的结果
      */
     public record OcrRecognizeResult(byte[] image, List<OcrResult> results) {
     }
@@ -856,7 +858,7 @@ public class OcrPipeline {
     }
 
     /**
-     * BufferedImage 转 PNG 字节。
+      * 缓冲镜像 转 PNG 字节。
      *
      * @param img 图像
      * @return PNG 字节
@@ -886,7 +888,7 @@ public class OcrPipeline {
      *
      * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按能力接口与模型名称约定归类。</p>
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {
@@ -912,7 +914,7 @@ public class OcrPipeline {
      * 按能力接口与名称约定归类 OCR 模型。
      *
      * @param entry 注册表条目
-     * @return 能力分组；无法识别时返回 null
+     * @return 能力分组；无法识别时返回 空
      */
     private static String groupOf(ModelRegistry.Entry entry) {
         String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();

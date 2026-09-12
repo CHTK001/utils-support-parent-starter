@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Webhook 入站适配器：HTTP POST → JSON → DataEnvelope → PipelineEngine。
+   * Webhook 入站适配器：HTTP POST → JSON → 数据envelope → pipelineengine。
  *
  * <p>暴露 HTTP 端点接收外部系统推送的 JSON 数据，自动解析并交给 PipelineEngine 处理。</p>
  *
@@ -35,7 +35,7 @@ public class WebhookInboundAdapter {
     /** JDK HTTP 服务器 */
     private volatile HttpServer server;
 
-    /** 端口（启动后填充，port=0 时为系统分配的 ephemeral 端口） */
+    /** 端口（启动后填充，端口=0 时为系统分配的 ephemeral 端口） */
     private int actualPort;
 
     /** 端口 */
@@ -53,6 +53,10 @@ public class WebhookInboundAdapter {
     /** 运行状态 */
     private volatile boolean running = false;
 
+    /**
+     * webhookinbound适配器。
+     * @param builder 构建器
+     */
     private WebhookInboundAdapter(Builder builder) {
         this.port = builder.port;
         this.pipelineEngine = builder.pipelineEngine;
@@ -78,7 +82,7 @@ public class WebhookInboundAdapter {
             server = HttpServer.create(new InetSocketAddress(port), 0);
             this.actualPort = server.getAddress().getPort();
 
-            // POST /api/datalake/webhook/{pipelineId} — 单条推送
+ // POST /api/数据湖/webhook/{pipelineid} — 单条推送
             server.createContext("/api/datalake/webhook/", this::handleRequest);
 
             server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(4));
@@ -126,7 +130,7 @@ public class WebhookInboundAdapter {
                 return;
             }
 
-            // 解析 pipelineId: /api/datalake/webhook/{pipelineId} 或 /api/datalake/webhook/{pipelineId}/batch
+ // 解析 pipelineid: /api/数据湖/webhook/{pipelineid} 或 /api/数据湖/webhook/{pipelineid}/批量
             String prefix = "/api/datalake/webhook/";
             String remaining = path.substring(prefix.length());
             boolean isBatch = remaining.endsWith("/batch");
@@ -137,7 +141,7 @@ public class WebhookInboundAdapter {
                 return;
             }
 
-            // 读取 body
+ // 读取 主体
             String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
 
             if (isBatch) {
@@ -194,7 +198,7 @@ public class WebhookInboundAdapter {
     }
 
     /**
-     * 返回实际监听的端口（启动后有效，port=0 时为系统分配端口）。
+      * 返回实际监听的端口（启动后有效，端口=0 时为系统分配端口）。
      *
      * @return 实际端口号
      */
@@ -220,18 +224,34 @@ public class WebhookInboundAdapter {
         return running;
     }
 
-    // ━━━━━━━━━━━━━━ Builder ━━━━━━━━━━━━━━
+ // ━━━━━━━━━━━━━━ 构建器 ━━━━━━━━━━━━━━
 
     /**
      * Webhook 入站适配器构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
-        private int port = 8700;
-        private PipelineEngine pipelineEngine;
+        private int port = 8700; // 端口
+        private PipelineEngine pipelineEngine; // pipelineengine
 
+        /**
+         * 端口。
+         * @param port 端口
+         * @return 端口的结果
+         */
         public Builder port(int port) { this.port = port; return this; }
+        /**
+          * pipelineengine。
+         * @param engine engine
+         * @return pipelineEngine的结果
+         */
         public Builder pipelineEngine(PipelineEngine engine) { this.pipelineEngine = engine; return this; }
 
+        /**
+         * 构建。
+         * @return 构建的结果
+         */
         public WebhookInboundAdapter build() {
             if (pipelineEngine == null) {
                 throw new IllegalArgumentException("pipelineEngine 不能为空");

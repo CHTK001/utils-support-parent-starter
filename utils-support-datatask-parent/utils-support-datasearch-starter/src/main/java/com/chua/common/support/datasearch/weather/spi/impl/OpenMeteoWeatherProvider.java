@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Open-Meteo 天气数据源实现（逐小时 24 点）。
+   * 打开-Meteo 天气数据源实现（逐小时 24 点）。
  *
  * <p>免费公开接口（无 key，无需经纬度由城市地理编码自动解析）：</p>
  * <ul>
@@ -34,9 +34,9 @@ import java.util.Map;
 @Spi("open-meteo")
 public class OpenMeteoWeatherProvider implements WeatherProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(OpenMeteoWeatherProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenMeteoWeatherProvider.class); // 日志
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
     /** 城市地理编码地址模板 */
     private static final String GEO_URL =
@@ -57,7 +57,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
 
     /** 缓存的天气与城市 */
     private volatile String cachedCity;
-    private volatile WeatherInfo cached;
+    private volatile WeatherInfo cached; // 缓存
 
     /** 缓存时间戳 */
     private volatile long cachedAt;
@@ -95,7 +95,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
      * 抓取并组装天气：城市 → 经纬度 → 3 天逐小时。
      *
      * @param city 城市名
-     * @return 天气实体；解析失败返回 null
+     * @return 天气实体；解析失败返回 空
      * @throws Exception 网络或解析异常
      */
     private WeatherInfo fetch(String city) throws Exception {
@@ -232,7 +232,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
      * 读取数值节点。
      *
      * @param node 数值节点
-     * @return 数值；缺失/非数值返回 null
+     * @return 数值；缺失/非数值返回 空
      */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
@@ -245,7 +245,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
      * 读取整数节点。
      *
      * @param node 数值节点
-     * @return 整数；缺失/非数值返回 null
+     * @return 整数；缺失/非数值返回 空
      */
     private Integer intVal(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {

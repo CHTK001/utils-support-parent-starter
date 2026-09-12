@@ -51,7 +51,13 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
-    /** 构建PreviewHtml */
+    /**
+     * 构建previewhtml
+     *
+     * @param svgContent SVG内容
+     * @param b64 b64
+     * @return 构建previewhtml的结果
+     */
     private String buildPreviewHtml(String svgContent, String b64) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>SVG Preview</title></head><body>");

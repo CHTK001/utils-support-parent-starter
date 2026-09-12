@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 管线配置模型，描述整条 pipeline 的阶段与 action。
+   * 管线配置模型，描述整条 pipeline 的阶段与 动作。
  *
  * <p>配置结构为 JSON-DSL 解析后的 results：</p>
  * <pre>{@code
@@ -26,6 +26,9 @@ import java.util.Map;
  *         {"type": "realtime"}
  *       ]
  *     }
+ *   }
+ * }
+ * }</pre>
  *   }
  * }
  * }</pre>
@@ -45,12 +48,13 @@ public class PipelineConfig {
     private String id;
 
     /**
-     * stage → action 映射；key "default" 为默认路由
+      * Stage → 动作 映射；键 "默认" 为默认路由
      */
     private Map<String, PipelineStageConfig> stages = new HashMap<>();
 
     /**
      * 返回无信息时的空配置
+     * @return 空的结果
      */
     public static PipelineConfig empty() {
         PipelineConfig cfg = new PipelineConfig();
@@ -59,7 +63,9 @@ public class PipelineConfig {
     }
 
     /**
-     * 单阶段配置 = {"filter": [], "parser": [], "cleaner": [], "standardizer": [], "sink": []}
+      * 单阶段配置 = {"过滤器": [], "parser": [], "清洁剂": [], "standardizer": [], "sink": []}
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Builder

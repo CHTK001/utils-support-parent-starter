@@ -10,7 +10,7 @@ import java.util.function.Function;
  * Bean 方法注入器 SPI。
  *
  * <p>负责将容器中的依赖注入到 Bean 的 setter 方法中。
- * 通过 SPI 机制支持多种注入策略（如 @AutoInject、@Autowired、@Resource、@Inject 等）。</p>
+   * 通过 SPI 机制支持多种注入策略（如 @autoinject、@Autowired、@Resource、@Inject 等）。</p>
  *
  * <p>注入流程：
  * <ol>

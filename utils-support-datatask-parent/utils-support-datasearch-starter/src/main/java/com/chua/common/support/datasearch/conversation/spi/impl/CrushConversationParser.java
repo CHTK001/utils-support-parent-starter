@@ -20,8 +20,8 @@ import java.util.List;
  * Crush conversation parser.
  *
  * <p>Crush keeps per-project SQLite databases at {@code &lt;project&gt;/.crush/crush.db}
- * (indexed by {@code %LOCALAPPDATA%\crush\projects.json}). The {@code messages}
- * table stores role-attributed parts with nested text payloads:</p>
+   * (索引 by {@code %LOCALAPPDATA%\crush\projects.json}). The {@code messages}
+   * table 存储 角色-attributed parts with 嵌套 文本 payloads:</p>
  *
  * <pre>{@code
  * {
@@ -33,6 +33,8 @@ import java.util.List;
  *   ],
  *   "created_at": 1787699317
  * }
+ * }</pre> 1787699317
+ * }
  * }</pre>
  *
  * @author CH
@@ -41,7 +43,7 @@ import java.util.List;
 @Spi("crush")
 public class CrushConversationParser implements ConversationParser {
 
-    private static final Logger log = LoggerFactory.getLogger(CrushConversationParser.class);
+    private static final Logger log = LoggerFactory.getLogger(CrushConversationParser.class); // 日志
 
     private static final Path PROJECTS_INDEX = Path.of(
             System.getProperty("user.home"), "AppData", "Local", "crush", "projects.json");
@@ -62,6 +64,14 @@ public class CrushConversationParser implements ConversationParser {
 
     /**
      * 流式解析全部项目的会话消息。
+     * @param value 值
+     * @param fallback 降级
+     /**
+      * 流消息。
+      * @return 流消息的结果
+      */
+     * @return 第一个nonblank的结果
+     * @param raw raw
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
@@ -71,6 +81,10 @@ public class CrushConversationParser implements ConversationParser {
             return Flux.empty();
         }
         log.info("[crush] scanning {} project databases", databases.size());
+        /**
+         * 列表projectdatabases。
+         * @return 列表projectdatabases的结果
+         */
         return Flux.fromIterable(databases)
                 .flatMap(this::streamDatabase, 2);
     }
@@ -98,6 +112,11 @@ public class CrushConversationParser implements ConversationParser {
             }
         } catch (Exception e) {
             log.warn("[crush] index parse failed: {}", e.getMessage());
+        /**
+         * 流database。
+         * @param db db
+         * @return 流database的结果
+         */
         }
         return result;
     }
@@ -120,6 +139,13 @@ public class CrushConversationParser implements ConversationParser {
         }).subscribeOn(Schedulers.boundedElastic())
           .onErrorResume(e -> {
               log.debug("[crush] stream failed {}: {}", db, e.getMessage());
+              /**
+               * 转为消息。
+               * @param rs R
+               * @param db db
+               * @return 转为消息的结果
+               * @param raw raw
+               */
               return Flux.empty();
           });
     }
@@ -164,6 +190,12 @@ public class CrushConversationParser implements ConversationParser {
         } catch (Exception e) {
             log.debug("[crush] json parse failed: {}", e.getMessage());
             return Json.parse("[]");
+        /**
+          * asstr。
+         * @param value 值
+         * @return asStr的结果
+         * @param fallback 降级
+         */
         }
     }
 

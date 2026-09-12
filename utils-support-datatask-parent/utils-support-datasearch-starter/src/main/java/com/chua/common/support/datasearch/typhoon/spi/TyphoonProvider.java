@@ -34,7 +34,7 @@ public interface TyphoonProvider {
      * 获取单个台风完整详情（含历史路径与预报）。
      *
      * @param tfid 台风编号（如 202618）
-     * @return 台风详情；数据源不可达或编号不存在时返回 null
+     * @return 台风详情；数据源不可达或编号不存在时返回 空
      */
     TyphoonDetail getTyphoon(String tfid);
 }

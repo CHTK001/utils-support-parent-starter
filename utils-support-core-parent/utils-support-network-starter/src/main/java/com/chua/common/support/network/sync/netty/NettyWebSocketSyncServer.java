@@ -23,23 +23,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi("netty-websocket")
 public class NettyWebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
 
-    /** 服务器Socket */
+    /** 服务器套接字 */
     private ServerSocket serverSocket;
     /** 执行器 */
     private ExecutorService executor;
     /** Connections */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
-    /** clients */
+    /** 客户端 */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /** subscriptions */
     private final Map<String, Set<String>> subscriptions = new ConcurrentHashMap<>();
-    /** Listeners */
+    /** 监听器 */
     private final List<SyncServerListener> listeners = new ArrayList<>();
-    /** ConnectionIDSEQ */
+    /** connectionidseq */
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
-     * 创建 NettyWebSocketSyncServer 实例
+      * 创建 nettyweb套接字同步服务端 实例
      * @param setting setting
      */
     public NettyWebSocketSyncServer(ServerSetting setting) {
@@ -47,7 +47,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
@@ -60,7 +60,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
@@ -118,37 +118,37 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** 获取ConnectedClients */
+    /** 获取连接客户端 */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取ClientMetadata */
+    /** 获取客户端metadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
 
-    /** AcceptLoop */
+    /** accept循环 */
     private void acceptLoop() {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
@@ -168,7 +168,11 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         }
     }
 
-    /** 处理Connection */
+    /**
+     * 处理Connection
+     *
+     * @param conn conn
+     */
     private void handleConnection(Connection conn) {
         try {
             if (!performHandshake(conn)) {
@@ -183,7 +187,12 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         }
     }
 
-    /** PerformHandshake */
+    /**
+     * 执行handshake
+     *
+     * @param conn conn
+     * @return 执行handshake的结果
+     */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
@@ -220,7 +229,11 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         return true;
     }
 
-    /** 读取Frames */
+    /**
+     * 读取帧
+     *
+     * @param conn conn
+     */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -281,7 +294,12 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         }
     }
 
-    /** ComputeWebSocketAccept */
+    /**
+     * computeweb套接字accept
+     *
+     * @param key 键
+     * @return computeweb套接字accept的结果
+     */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -289,7 +307,12 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         return Base64.getEncoder().encodeToString(digest);
     }
 
-    /** 构建TextFrame */
+    /**
+     * 构建文本帧
+     *
+     * @param payload payload
+     * @return 构建文本帧的结果
+     */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -315,7 +338,11 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         return out.toByteArray();
     }
 
-    /** 关闭Connection */
+    /**
+     * 关闭Connection
+     *
+     * @param conn conn
+     */
     private void closeConnection(Connection conn) {
         try {
             conn.close();
@@ -329,21 +356,31 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
         notifyListener(l -> l.onClientDisconnected(sessionId));
     }
 
-    /** 通知Listener */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {
                 action.accept(listener);
             } catch (Exception e) {
                 // ignore
+    /**
+     * Connection类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
             }
         }
     }
 
     private static class Connection {
-        Socket socket;
-        OutputStream out;
-        String sessionId;
+        Socket socket; // 套接字
+        OutputStream out; // 出
+        String sessionId; // 会话标识
 
         Connection(Socket socket) {
             this.socket = socket;

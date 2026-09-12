@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Qwen Code usage parser.
+   * 通义千问 编码 usage parser.
  *
  * <p>Qwen Code (Alibaba's Gemini-CLI fork) persists one usage statistics line
- * per session at {@code ~/.qwen/usage_record.jsonl}, with per-model token
- * breakdowns — unlike upstream Gemini CLI which stores nothing:</p>
+   * per 会话 at {@code ~/.qwen/usage_record.jsonl}, with per-模型 令牌
+   * breakdowns — unlike upstream Gemini CLI which 存储 nothing:</p>
  *
  * <pre>{@code
  * {
@@ -31,6 +31,10 @@ import java.util.Map;
  *     "gemini-3.6-flash": {
  *       "requests": 4, "inputTokens": 31871, "outputTokens": 23,
  *       "cachedTokens": 0, "thoughtsTokens": 352, "totalTokens": 32246
+ *     }
+ *   }
+ * }
+ * }</pre>kens": 352, "totalTokens": 32246
  *     }
  *   }
  * }
@@ -84,6 +88,11 @@ public class QwenUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
+     * 解析线safe。
+     * @param line 线
+     * @return 解析线safe的结果
+     */
     private List<AiUsage> parseLineSafe(String line) {
         try {
             return parseLine(line);
@@ -93,6 +102,11 @@ public class QwenUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析线。
+     * @param line 线
+     * @return 解析线的结果
+     */
     private List<AiUsage> parseLine(String line) {
         if (line.isBlank()) {
             return List.of();

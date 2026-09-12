@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Bean;
 public class PrometheusAutoConfiguration {
 
     /**
-     * 创建默认 PrometheusClient
+      * 创建默认 prometheus客户端
      *
      * @param properties 配置
      * @return 客户端
@@ -46,7 +46,7 @@ public class PrometheusAutoConfiguration {
     }
 
     /**
-     * 创建默认 PrometheusEngine
+      * 创建默认 prometheusengine
      *
      * @param client 默认客户端
      * @return 引擎

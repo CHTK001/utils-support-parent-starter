@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 系统服务描述 — 将 RuntimeArtifact 注册为操作系统级服务时的配置。
+   * 系统服务描述 — 将 runtimeartifact 注册为操作系统级服务时的配置。
  *
  * @author CH
  * @since 4.0.0.42
@@ -37,7 +37,7 @@ public class ManagedService {
     private String description;
 
     /**
-     * 关联的工件 ID
+      * 关联的工件 标识
      */
     private String artifactId;
 
@@ -93,11 +93,13 @@ public class ManagedService {
      * 重启间隔
      */
     @Builder.Default
-    /** RestartSEC */
+    /** restartsec */
     private int restartSec = 10;
 
     /**
      * 服务类型枚举
+     * @author CH
+     * @since 4.0.0
      */
     public enum ServiceType {
         WINDOWS_SERVICE,

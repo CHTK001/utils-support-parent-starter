@@ -134,7 +134,11 @@ public class JdkTelnetServer extends AbstractServer {
         }
         sessions.clear();
         if (serverSocket != null) {
-            try { serverSocket.close(); } catch (IOException ignored) {}
+            try {
+                serverSocket.close();
+            } catch (IOException ignored) {
+                // NOTHING
+            }
             log.info("JDK TelnetServer stopped");
         }
         if (workerPool != null) {
@@ -183,7 +187,11 @@ public class JdkTelnetServer extends AbstractServer {
             session = new TelnetSession(clientId, socket);
         } catch (IOException e) {
             log.error("创建会话失败: {}", e.getMessage());
-            try { socket.close(); } catch (IOException ignored) {}
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+                // NOTHING
+            }
             return;
         }
         sessions.put(clientId, session);
@@ -419,7 +427,11 @@ public class JdkTelnetServer extends AbstractServer {
          * 关闭会话。
          */
         public void close() {
-            try { socket.close(); } catch (IOException ignored) {}
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+                // NOTHING
+            }
         }
 
         /**

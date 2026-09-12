@@ -10,28 +10,29 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 自动序列化器提供者。
  * <p>
- * 基于 ConcurrentHashMap 实现线程安全的序列化器缓存，
- * 按实体类类型缓存 AutoSerializer 实例，避免重复创建开销。
+   * 基于 并发哈希映射 实现线程安全的序列化器缓存，
+   * 按实体类类型缓存 auto序列化器 实例，避免重复创建开销。
  * </p>
  *
  * @author CH
+ * @since 4.0.0
  */
 public class AutoSerializerProvider implements SerializerProvider {
 
     /**
-     * 序列化器缓存，Key 为实体类类型，Value 为对应的 AutoSerializer 实例
+      * 序列化器缓存，键 为实体类类型，值 为对应的 auto序列化器 实例
      */
     private final Map<Class<?>, AutoSerializer<?>> serializerCache = new ConcurrentHashMap<>();
 
     /**
      * 获取指定类型的序列化器。
      * <p>
-     * 如果缓存中不存在则创建新的 AutoSerializer 实例并缓存。
+      * 如果缓存中不存在则创建新的 auto序列化器 实例并缓存。
      * </p>
      *
      * @param type 目标实体类类型
      * @param <T>  泛型类型
-     * @return 对应的 Serializer 实例
+     * @return 对应的 序列化器 实例
      */
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -40,11 +41,11 @@ public class AutoSerializerProvider implements SerializerProvider {
     }
 
     /**
-     * 获取指定类型的 AutoSerializer 实例。
+      * 获取指定类型的 auto序列化器 实例。
      *
      * @param type 目标实体类类型
      * @param <T>  泛型类型
-     * @return 对应的 AutoSerializer 实例
+     * @return 对应的 auto序列化器 实例
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends Serializable> AutoSerializer<T> getAutoSerializer(Class<T> type) {

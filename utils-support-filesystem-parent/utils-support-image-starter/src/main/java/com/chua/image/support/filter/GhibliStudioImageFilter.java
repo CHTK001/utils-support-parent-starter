@@ -107,7 +107,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private double colorHarmonyStrength = 0.6;
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat() {
         
         return "jpeg";
@@ -115,7 +115,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -173,6 +173,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     /**
      * 应用色彩分层处理
      * 模拟动画中的分层上色技术
+     * @param src src
+     * @return applyColorLayering的结果
      */
     private BufferedImage applyColorLayering(BufferedImage src) {
         int width = src.getWidth();
@@ -212,6 +214,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 增强暖色调和饱和度
+     * @param src src
+     * @return 增强warmtone和saturation的结果
      */
     private BufferedImage enhanceWarmToneAndSaturation(BufferedImage src) {
         int width = src.getWidth();
@@ -259,6 +263,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 应用自然光影效果
+     * @param src src
+     * @return applynatural照明的结果
      */
     private BufferedImage applyNaturalLighting(BufferedImage src) {
         int width = src.getWidth();
@@ -299,6 +305,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 应用柔和对比度
+     * @param src src
+     * @return applySoftContrast的结果
      */
     private BufferedImage applySoftContrast(BufferedImage src) {
         int width = src.getWidth();
@@ -330,6 +338,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 应用艺术化边缘处理
+     * @param src src
+     * @return applyArtisticEdges的结果
      */
     private BufferedImage applyArtisticEdges(BufferedImage src) {
         int width = src.getWidth();
@@ -379,6 +389,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 计算艺术化边缘强度
+     * @param src src
+     * @param x x
+     * @param y y
+     * @return calculateArtisticEdgeStrength的结果
      */
     private double calculateArtisticEdgeStrength(BufferedImage src, int x, int y) {
         int centerRgb = src.getRGB(x, y);
@@ -404,7 +418,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** Converter */
+    /** 转换器 */
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -428,6 +442,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 应用手绘质感
+     * @param src src
+     * @return applyHandDrawnTexture的结果
      */
     private BufferedImage applyHandDrawnTexture(BufferedImage src) {
         int width = src.getWidth();
@@ -464,6 +480,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 应用色彩和谐处理
+     * @param src src
+     * @return applyColorHarmony的结果
      */
     private BufferedImage applyColorHarmony(BufferedImage src) {
         int width = src.getWidth();
@@ -510,6 +528,8 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * 应用梦幻氛围
+     * @param src src
+     * @return applyDreamyAtmosphere的结果
      */
     private BufferedImage applyDreamyAtmosphere(BufferedImage src) {
         int width = src.getWidth();
@@ -551,6 +571,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * RGB转HSV色彩空间
+     * @param r r
+     * @param g g
+     * @param b b
+     * @return rgb转为hsv的结果
      */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
@@ -584,6 +608,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
      * HSV转RGB色彩空间
+     * @param h h
+     * @param s s
+     * @param v v
+     * @return hsv转为rgb的结果
      */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;

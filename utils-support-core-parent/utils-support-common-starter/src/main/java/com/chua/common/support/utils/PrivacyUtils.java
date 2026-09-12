@@ -54,7 +54,7 @@ public final class PrivacyUtils {
      * @param prefixNoMaskLen  保留前缀长度
      * @param suffixNoMaskLen  保留后缀长度
      * @param symbol           掩码占位符，为空时默认使用 "*"
-     * @return 脱敏后的字符串；入参为 null 时返回 null
+     * @return 脱敏后的字符串；入参为 空 时返回 空
      */
     public static String desValue(String origin, int prefixNoMaskLen, int suffixNoMaskLen, String symbol) {
         if (origin == null) {

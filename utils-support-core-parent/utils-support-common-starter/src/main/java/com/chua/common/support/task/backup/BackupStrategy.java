@@ -23,6 +23,8 @@ import java.util.List;
  *   if (result.isSuccess()) {
  *       System.out.println("备份成功: " + result.getFileCount() + " 个文件");
  *   }
+ * }</pre> + result.getFileCount() + " 个文件");
+ *   }
  * }</pre>
  *
  * @author CH

@@ -36,14 +36,14 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
      */
     private List<String> table;
 
-    /** 创建 PpWordRecognitionTranslator 实例 */
+    /** 创建 ppword认可translator 实例 */
     public PpWordRecognitionTranslator() {
         this(false);
     }
 
     /**
-     * 创建 PpWordRecognitionTranslator 实例
-     * @param useSpaceChar useSpaceChar
+      * 创建 ppword认可translator 实例
+     * @param useSpaceChar usespacechar
      */
     public PpWordRecognitionTranslator(boolean useSpaceChar) {
         this.useSpaceChar = useSpaceChar;
@@ -64,7 +64,12 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
         }
     }
 
-    /** 打开Vocabulary */
+    /**
+     * 打开Vocabulary
+     *
+     * @param model 模型
+     * @return 打开vocabulary的结果
+     */
     private InputStream openVocabulary(Model model) throws IOException {
         String[] candidates = {
                 "ppocr_keys_v1.txt",
@@ -77,14 +82,14 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
             try {
                 return model.getArtifact(name).openStream();
             } catch (Exception ignored) {
-                // try next
+ // 尝试 下一个
             }
         }
         throw new IOException("OCR 字典未找到，请将 keys 文件放入模型目录");
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         StringBuilder sb = new StringBuilder();
         NDArray tokens = list.singletonOrThrow();
@@ -110,7 +115,7 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         int imgC = 3;

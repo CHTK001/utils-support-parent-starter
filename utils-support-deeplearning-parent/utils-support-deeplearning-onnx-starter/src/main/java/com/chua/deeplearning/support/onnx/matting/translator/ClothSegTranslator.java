@@ -19,15 +19,19 @@ import java.awt.image.WritableRaster;
  * 取 argmax 生成前景 mask，RGBA 输出。
  *
  * @author CH
+ * @since 4.0.0
  */
 public final class ClothSegTranslator implements Translator<Image, Image> {
 
-    private static final int SIZE = 768;
-    private static final int CH = 4;
+    private static final int SIZE = 768; // 大小
+    private static final int CH = 4; // CH
 
-    private int width, height;
-    private BufferedImage originalImage;
+    private int width, height; // height
+    private BufferedImage originalImage; // 原始镜像
 
+    /**
+      * clothsegtranslator。
+     */
     public ClothSegTranslator() {
     }
 
@@ -95,15 +99,31 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
         return createRgbaImage(maskImg);
     }
 
+    /**
+     * 转为缓冲镜像。
+     * @param input 输入
+     * @return 转为缓冲镜像的结果
+     */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
-        if (wrapped instanceof BufferedImage bi) return bi;
+        if (wrapped instanceof BufferedImage bi) {
+            return bi;
+        }
         throw new IllegalStateException("无法获取 BufferedImage");
     }
 
+    /**
+     * resize转为。
+     * @param input 输入
+     * @param tw tw
+     * @param th th
+     * @return resize转为的结果
+     */
     private BufferedImage resizeTo(Image input, int tw, int th) {
         BufferedImage src = toBufferedImage(input);
-        if (src.getWidth() == tw && src.getHeight() == th) return src;
+        if (src.getWidth() == tw && src.getHeight() == th) {
+            return src;
+        }
         BufferedImage resized = new BufferedImage(tw, th, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = resized.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -112,6 +132,11 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
         return resized;
     }
 
+    /**
+     * 创建rgba镜像。
+     * @param mask mask
+     * @return 创建rgba镜像的结果
+     */
     private Image createRgbaImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Bean 工具类，提供对象属性复制、对象与 Map 互转、对象类型转换等常用操作。
+   * Bean 工具类，提供对象属性复制、对象与 映射 互转、对象类型转换等常用操作。
  *
  * <p>内部通过 SPI 机制自动选择最优的 {@link BeanCopier} 实现：
  * <ul>
@@ -46,12 +46,12 @@ import java.util.Map;
 public final class BeanUtils {
 
     /**
-     * 默认 BeanCopier SPI 扩展名（asm 字节码实现）。
+      * 默认 Beancopier SPI 扩展名（asm 字节码实现）。
      */
     private static final String ASM_COUPIER = "asm";
 
     /**
-     * 回退 BeanCopier SPI 扩展名（jdk 反射实现）。
+      * 回退 Beancopier SPI 扩展名（jdk 反射实现）。
      */
     private static final String JDK_COUPIER = "jdk";
 
@@ -84,7 +84,7 @@ public final class BeanUtils {
         COPIER = copier;
     }
 
-    /** 创建 BeanUtils 实例 */
+    /** 创建 Bean工具 实例 */
     private BeanUtils() {
     }
 
@@ -92,7 +92,7 @@ public final class BeanUtils {
      * 将源对象的属性复制到目标类型的全新实例中。
      *
      * @param source 源对象，允许为 {@code null}
-     * @param target 目标类型 Class 对象
+     * @param target 目标类型 类 对象
      * @param <T>    目标类型泛型
      * @return 复制完成的目标对象
      * @throws BeanNotInstantiationException 当无法实例化目标类型时抛出
@@ -135,9 +135,9 @@ public final class BeanUtils {
     }
 
     /**
-     * 将 Map 中的值复制到目标对象的属性中。
+      * 将 映射 中的值复制到目标对象的属性中。
      *
-     * @param sourceMap 源 Map
+     * @param sourceMap 源 映射
      * @param target    目标对象
      */
     public static void copyProperties(Map<String, Object> sourceMap, Object target) {
@@ -147,10 +147,10 @@ public final class BeanUtils {
     }
 
     /**
-     * 将源对象的属性复制到目标 Map 中。
+      * 将源对象的属性复制到目标 映射 中。
      *
      * @param source 源对象
-     * @param target 目标 Map
+     * @param target 目标 映射
      */
     public static void copyProperties(Object source, Map<String, Object> target) {
         if (!ObjectUtils.isNull(COPIER)) {
@@ -162,7 +162,7 @@ public final class BeanUtils {
      * 将源对象列表批量复制为目标类型列表。
      *
      * @param sourceList  源对象列表
-     * @param targetClass 目标类型 Class 对象
+     * @param targetClass 目标类型 类 对象
      * @param <S>         源类型泛型
      * @param <T>         目标类型泛型
      * @return 复制完成的目标类型列表，源列表为空时返回空列表
@@ -175,19 +175,19 @@ public final class BeanUtils {
     }
 
     /**
-     * 将对象转为 Map（默认无上下文）。
+      * 将对象转为 映射（默认无上下文）。
      *
      * <p>如果字段标注了 {@link FieldProperty @FieldProperty}，则使用注解的映射规则。</p>
      *
      * @param source 源对象
-     * @return 转换后的 Map
+     * @return 转换后的 映射
      */
     public static Map<String, Object> objectToMap(Object source) {
         return objectToMap(source, null);
     }
 
     /**
-     * 将对象转为 Map（含上下文数据）。
+      * 将对象转为 映射（含上下文数据）。
      *
      * <p>字段标注了 {@link FieldProperty @FieldProperty} 时：
      * <ol>
@@ -199,8 +199,8 @@ public final class BeanUtils {
      * </p>
      *
      * @param source  源对象
-     * @param context 上下文数据（用于 #{key} 表达式和转换器）
-     * @return 转换后的 Map
+     * @param context 上下文数据（用于 #{键} 表达式和转换器）
+     * @return 转换后的 映射
      */
     public static Map<String, Object> objectToMap(Object source, Map<String, Object> context) {
         if (ObjectUtils.isNull(source)) {
@@ -209,11 +209,11 @@ public final class BeanUtils {
         if (source instanceof Map) {
             return (Map<String, Object>) source;
         }
-        // 先通过 BeanCopier 复制所有属性到 Map
+ // 先通过 Beancopier 复制所有属性到 映射
         Map<String, Object> result = new LinkedHashMap<>();
         copyProperties(source, result);
 
-        // 检查 @FieldProperty 注解，进行字段映射覆盖
+ // 检查 @字段财产 注解，进行字段映射覆盖
         Class<?> clazz = source.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             FieldProperty fp = field.getAnnotation(FieldProperty.class);
@@ -224,7 +224,7 @@ public final class BeanUtils {
             String mappedName = resolveMappedName(fp, field);
             Object rawValue = result.remove(field.getName());
 
-            // 构建上下文（含 originalValue 供转换器使用）
+ // 构建上下文（含 原始值 供转换器使用）
             FieldMappingContext ctx = FieldMappingContext.builder()
                     .fieldName(field.getName())
                     .mappedName(mappedName)
@@ -237,7 +237,7 @@ public final class BeanUtils {
             // 应用 Writer 转换器（优先级最高）
             Object value = applyWriterConverter(fp, rawValue, ctx);
             if (ObjectUtils.isNull(value)) {
-                // 应用默认值（含 #{key} 上下文解析）
+ // 应用默认值（含 #{键} 上下文解析）
                 value = resolveDefaultValue(fp, ctx);
             }
             if (ObjectUtils.isNull(value)) {
@@ -271,7 +271,7 @@ public final class BeanUtils {
     }
 
     /**
-     * 解析格式。如果字段值本身已有格式信息（如 LocalDate），优先使用。
+      * 解析格式。如果字段值本身已有格式信息（如 本地日期），优先使用。
      *
      * @param fp       字段上的 {@link FieldProperty} 注解
      * @param rawValue 字段原始值（未使用，保留以备扩展）
@@ -285,7 +285,7 @@ public final class BeanUtils {
     }
 
     /**
-     * 应用 Writer 转换器。如果成功返回非 null，直接使用转换结果。
+      * 应用 Writer 转换器。如果成功返回非 空，直接使用转换结果。
      *
      * @param fp       字段上的 {@link FieldProperty} 注解
      * @param rawValue 字段原始值
@@ -295,7 +295,7 @@ public final class BeanUtils {
     private static Object applyWriterConverter(FieldProperty fp, Object rawValue, FieldMappingContext ctx) {
         Class<? extends FieldConverter> converterClass = fp.writer();
         if (ObjectUtils.isNull(converterClass) || FieldConverter.class.equals(converterClass)) {
-            // 没有配置转换器，直接返回 null
+ // 没有配置转换器，直接返回 空
             return null;
         }
         try {
@@ -320,7 +320,7 @@ public final class BeanUtils {
             return null;
         }
 
-        // 处理 #{key} 表达式
+ // 处理 #{键} 表达式
         if (dv.startsWith(CONTEXT_PLACEHOLDER_PREFIX) && dv.endsWith(CONTEXT_PLACEHOLDER_SUFFIX)) {
             String key = dv.substring(CONTEXT_PLACEHOLDER_PREFIX_LENGTH, dv.length() - 1).trim();
             Map<String, Object> context = ctx.getContext();
@@ -368,7 +368,7 @@ public final class BeanUtils {
      * 将源对象尽可能转换为目标类型的新实例。
      *
      * @param source     源对象
-     * @param targetType 目标类型 Class 对象
+     * @param targetType 目标类型 类 对象
      * @param <T>        目标类型泛型
      * @return 转换后的目标对象，无法转换时返回 {@code null}
      */

@@ -7,7 +7,7 @@ import lombok.Data;
  * 验证码解析响应结果
  * <p>
  * 封装验证码解析服务返回的处理结果，包含解析是否成功、
- * 解析得到的 token、任务 ID、错误码及执行耗时等信息。
+   * 解析得到的 令牌、任务 标识、错误码及执行耗时等信息。
  * </p>
  *
  * @author CH
@@ -23,12 +23,12 @@ public class CaptchaResponse {
     private boolean success;
 
     /**
-     * 解析得到的 token
+      * 解析得到的 令牌
      */
     private String token;
 
     /**
-     * 任务 ID
+      * 任务 标识
      */
     private String taskId;
 

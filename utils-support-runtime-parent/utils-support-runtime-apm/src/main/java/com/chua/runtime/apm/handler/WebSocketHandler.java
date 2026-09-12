@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * WebSocket Handler — intercepts WebSocket connections and messages.
+   * WebSocket 处理器 — intercepts WebSocket connections 和 消息.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,30 +15,30 @@ import com.chua.runtime.protocol.Software;
 public class WebSocketHandler extends AbstractAppHandler {
 
     /**
-     * websocket 会话
+      * WebSocket 会话
      */
     private static final String WEBSOCKET_SESSION = "javax/websocket/Session";
     /**
-     * 会话 methods
+      * 会话 方法
      */
     private static final String[] SESSION_METHODS = {"getBasicRemote", "getAsyncRemote", "close"};
     /**
-     * remote endpoint
+      * 远程 端点
      */
     private static final String REMOTE_ENDPOINT = "javax/websocket/RemoteEndpoint";
     /**
-     * remote methods
+      * 远程 方法
      */
     private static final String[] REMOTE_METHODS = {"sendText", "sendBinary", "sendObject"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "websocket-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "websocket.enabled";
     }
@@ -50,13 +50,13 @@ public class WebSocketHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.WEBSOCKET;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(WEBSOCKET_SESSION, SESSION_METHODS);
         registerAll(REMOTE_ENDPOINT, REMOTE_METHODS);

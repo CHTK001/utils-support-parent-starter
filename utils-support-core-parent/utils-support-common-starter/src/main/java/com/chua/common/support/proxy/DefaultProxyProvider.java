@@ -53,6 +53,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         └── 用户自定义拦截器
  * after(obj, method, args, proxy)            ← 后置处理（finally 中执行）
  * handleException(...)                       ← 异常处理
+ * }</pre>...)                       ← 异常处理
  * }</pre>
  * <p>
  * 注解扫描 SPI 约定：
@@ -64,7 +65,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <T> 代理接口类型
  * @author CH
  * @since 2025/11/26
- * @version 1.1.0
+   * @版本 1.1.0
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 class DefaultProxyProvider<T> implements ProxyProvider<T> {
@@ -117,11 +118,11 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     /**
      * 对象上下文。
      * <p>
-     * 用于与 IoC 容器集成，提供 Bean 的查找和注入能力。
+      * 用于与 IOC 容器集成，提供 Bean 的查找和注入能力。
      * </p>
      */
     @Getter
-    /** Object上下文 */
+    /** 对象上下文 */
     private ObjectContext objectContext;
 
     /**
@@ -156,7 +157,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     /**
      * 创建默认代理提供者实例。
      *
-     * @param type 目标接口类型，不能为 null
+     * @param type 目标接口类型，不能为 空
      */
     DefaultProxyProvider(Class<T> type) {
         this.type = type;
@@ -227,14 +228,14 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     }
 
     @Override
-    /** TryAsm */
+    /** 尝试asm */
     public ProxyProvider<T> tryAsm(boolean enable) {
         this.tryAsm = enable;
         return this;
     }
 
     @Override
-    /** TryJavassist */
+    /** 尝试javassist */
     public ProxyProvider<T> tryJavassist(boolean enable) {
         this.tryJavassist = enable;
         return this;
@@ -298,14 +299,14 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * 尝试使用 ASM 创建代理对象。
      * <p>
      * 通过 SPI 机制查找名为 "asm" 的 {@link ProxyFactory} 扩展点，
-     * 如果找到则调用其创建代理方法。若发生任何异常或工厂不存在，返回 null。
+      * 如果找到则调用其创建代理方法。若发生任何异常或工厂不存在，返回 空。
      * </p>
      *
      * @param type     目标接口类型
      * @param ifaces   要代理的额外接口数组
      * @param loader   类加载器
      * @param intercept 组合后的方法拦截器
-     * @return ASM 创建的代理对象，如果失败则返回 null
+     * @return ASM 创建的代理对象，如果失败则返回 空
      */
     private T tryAsm(Class<T> type, Class<?>[] ifaces, ClassLoader loader, MethodIntercept<T> intercept) {
         try {
@@ -323,14 +324,14 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * 尝试使用 Javassist 创建代理对象。
      * <p>
      * 通过 SPI 机制查找名为 "javassist" 的 {@link ProxyFactory} 扩展点，
-     * 如果找到则调用其创建代理方法。若发生任何异常或工厂不存在，返回 null。
+      * 如果找到则调用其创建代理方法。若发生任何异常或工厂不存在，返回 空。
      * </p>
      *
      * @param type     目标接口类型
      * @param ifaces   要代理的额外接口数组
      * @param loader   类加载器
      * @param intercept 组合后的方法拦截器
-     * @return Javassist 创建的代理对象，如果失败则返回 null
+     * @return Javassist 创建的代理对象，如果失败则返回 空
      */
     private T tryJavassist(Class<T> type, Class<?>[] ifaces, ClassLoader loader, MethodIntercept<T> intercept) {
         try {
@@ -356,7 +357,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         }
         return new MethodIntercept<>() {
             @Override
-            /** Before */
+            /** 之前 */
             public void before(Object obj, Method method, Object[] args, T proxy) {
                 delegate.before(obj, method, args, proxy);
             }
@@ -387,13 +388,13 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
             }
 
             @Override
-            /** After */
+            /** 之后 */
             public void after(Object obj, Method method, Object[] args, T proxy) {
                 delegate.after(obj, method, args, proxy);
             }
 
             @Override
-            /** 处理Exception */
+            /** 处理异常 */
             public Object handleException(Object obj, Method method, Object[] args, T proxy, Throwable throwable) {
                 return delegate.handleException(obj, method, args, proxy, throwable);
             }
@@ -427,7 +428,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
                 continue;
             }
 
-            // 按 order 升序组成洋葱链：数值越小越靠外层执行
+ // 按 订单 升序组成洋葱链：数值越小越靠外层执行
             List<MethodAnnotationIntercept<Annotation>> sorted = new ArrayList<>(matched);
             sorted.sort(Comparator.comparingInt(MethodAnnotationIntercept::order));
 
@@ -444,11 +445,11 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * 根据注解全名查找匹配的拦截器列表。
      * <p>
      * 先从缓存中查找，缓存不存在则通过 SPI 按名称 {@code annotationTypeName} 查找，
-     * 找到后提取 order 排序并缓存。查找结果也通过 {@code annotationType()} 做二次校验确认。
+      * 找到后提取 订单 排序并缓存。查找结果也通过 {@code annotationType()} 做二次校验确认。
      * </p>
      *
      * @param annotationTypeName 注解全限定类名
-     * @return 匹配的拦截器列表，不会为 null
+     * @return 匹配的拦截器列表，不会为 空
      */
     private List<MethodAnnotationIntercept<Annotation>> findAnnotationIntercepts(String annotationTypeName) {
         if (!enableAnnotationScan) {
@@ -478,7 +479,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
             return List.of();
         }
 
-        // SPI name 在注册时被 toUpperCase，需大写化后查找
+ // SPI 名称 在注册时被 转为大写大小写，需大写化后查找
         String spiName = annotationTypeName.toUpperCase(Locale.ROOT);
         List<MethodAnnotationIntercept> intercepts = provider.getNewExtensions(spiName);
         if (intercepts == null || intercepts.isEmpty()) {
@@ -642,13 +643,15 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * 包装为处理器，提供方法签名匹配（{@link #matches(String, Method)}）
      * 和执行（{@link #invoke(ProxyMethod, MethodInvocation)}）的统一接口。
      * </p>
+     * @author CH
+     * @since 4.0.0
      */
     private static class ArroundHandler {
         /** Intercept */
         private final MethodArroundIntercept intercept;
-        /** Patterns */
+        /** 模式 */
         private final String[] patterns;
-        /** Match类型 */
+        /** 匹配类型 */
         private final MatchUtils.MatchType matchType;
         /** 排序 */
         private final int order;
@@ -657,7 +660,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
          * 构造环绕处理器。
          *
          * @param intercept 环绕拦截器实例
-         * @param patterns  方法签名匹配模式数组（null 或空数组表示全方法匹配）
+         * @param patterns  方法签名匹配模式数组（空 或空数组表示全方法匹配）
          * @param matchType 匹配类型
          * @param order     执行顺序值
          */
@@ -670,14 +673,14 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         }
 
         /**
-         * 从 {@link MethodArroundIntercept} 创建 ArroundHandler。
+          * 从 {@link MethodArroundIntercept} 创建 arround处理器。
          * <p>
          * 解析拦截器类上的 {@link Around} 注解，提取方法签名匹配模式
          * 和执行顺序配置。如果注解缺失则跳过；{@code value} 为空数组时表示全方法匹配。
          * </p>
          *
          * @param intercept 环绕拦截器实例
-         * @return ArroundHandler 实例，如果无法创建则返回 null
+         * @return ArroundHandler 实例，如果无法创建则返回 空
          */
         static ArroundHandler of(MethodArroundIntercept intercept) {
             Around mapping = intercept.getClass().getAnnotation(Around.class);
@@ -690,10 +693,10 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
                         .filter(s -> s != null && !s.isEmpty())
                         .toArray(String[]::new);
             } else {
-                // value 为空数组或 null 表示全方法匹配
+ // 值 为空数组或 空 表示全方法匹配
                 patterns = null;
             }
-            // order: 取 @Around.order 与拦截器接口 order 的较小值
+ // 订单: 取 @Around.订单 与拦截器接口 订单 的较小值
             int aroundOrder = mapping.order();
             int interfaceOrder = intercept.order();
             int effectiveOrder = Math.min(aroundOrder, interfaceOrder);
@@ -703,7 +706,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         /**
          * 判断是否匹配指定的方法签名或方法名。
          * <p>
-         * 当 patterns 为 null（未指定匹配模式）时匹配所有方法。
+          * 当 模式 为 空（未指定匹配模式）时匹配所有方法。
          * </p>
          *
          * @param signature 方法签名
@@ -711,7 +714,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
          * @return 如果匹配则返回 true
          */
         boolean matches(String signature, Method method) {
-            // patterns 为 null 表示全方法匹配
+ // 模式 为 空 表示全方法匹配
             if (patterns == null) {
                 return true;
             }

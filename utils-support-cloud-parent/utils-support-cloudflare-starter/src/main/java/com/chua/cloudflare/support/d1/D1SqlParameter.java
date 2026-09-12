@@ -8,10 +8,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * D1 SQL 参数绑定（同时支持 ? 占位符与 :name 命名参数）。
+   * D1 SQL 参数绑定（同时支持 ? 占位符与 :名称 命名参数）。
  *
  * @author CH
  * @since 4.0.0.42
+ * @param positional 位置
+ * @param named 名称
+ * @return d1sql参数的结果
  */
 public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
 
@@ -23,7 +26,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     /**
      * 构造位置参数。
      *
-     * @param params 参数列表（可空/可 null）
+     * @param params 参数列表（可空/可 空）
      * @return D1SqlParameter
      */
     public static D1SqlParameter ofPositional(Object[] params) {
@@ -43,7 +46,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     /**
      * 获取位置参数（{@code ?} 占位符）。
      *
-     * @return 位置参数数组（不为 null）
+     * @return 位置参数数组（不为 空）
      */
     public Object[] getPositional() {
         return positional == null ? new Object[0] : positional;
@@ -52,7 +55,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     /**
      * 获取命名参数映射。
      *
-     * @return 命名参数 Map
+     * @return 命名参数 映射
      */
     public Map<String, Object> getNamed() {
         return named == null ? Map.of() : named;

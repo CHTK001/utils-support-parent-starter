@@ -33,8 +33,8 @@ import java.util.Map;
  * 基于 Milvus 向量数据库的 {@link AbstractVectorStorage} 实现。
  *
  * <p>通过 MilvusClientV2 SDK 连接远程 Milvus 服务，使用 collection 存储向量。
- * 构造函数自动创建 collection，写入数据后需调用 {@link #release()} 刷新索引，
- * 搜索前需确保 collection 已加载。</p>
+   * 构造函数自动创建 集合，写入数据后需调用 {@link #release()} 刷新索引，
+   * 搜索前需确保 集合 已加载。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -47,7 +47,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     private final MilvusClientV2 client;
 
     /**
-     * Collection 名称
+      * 集合 名称
      */
     private final String collectionName;
 
@@ -74,7 +74,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
      * @param dimension  向量维度
      * @param algorithm  比较算法
      * @param host       Milvus 服务地址（支持完整 URI，如 https://...）
-     * @param port       Milvus 服务端口（仅当 host 不含协议时使用）
+     * @param port       Milvus 服务端口（仅当 主机 不含协议时使用）
      * @param collection 集合名称
      * @param token      认证令牌（可选）
      */
@@ -96,7 +96,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 初始化 Milvus collection。
+      * 初始化 Milvus 集合。
      */
     private void initCollection() {
         boolean exists = client.hasCollection(HasCollectionReq.builder()
@@ -123,6 +123,8 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
 
     /**
      * 将业务层算法名称映射为 Milvus {@link IndexParam.MetricType}。
+     * @param algo algo
+     * @return 转为milvus指标类型的结果
      */
     private static IndexParam.MetricType toMilvusMetricType(VectorCompareAlgorithm algo) {
         if (algo == null) {
@@ -148,7 +150,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** Do添加 */
+    /** 执行添加 */
     protected synchronized boolean doAdd(String id, float[] vector) {
         com.google.gson.JsonObject entity = new com.google.gson.JsonObject();
         entity.addProperty("id", id);
@@ -163,7 +165,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 删除指定 id 的向量。
+      * 删除指定 标识 的向量。
      *
      * <p>通过 Milvus {@code delete} 接口按主键 id 删除，删除后置空已刷新标记，
      * 下次搜索前自动重新 flush。</p>
@@ -186,10 +188,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 更新指定 id 的向量数据。
+      * 更新指定 标识 的向量数据。
      *
      * <p>先查询确认 id 存在，再通过 Milvus {@code upsert} 覆盖写入（主键相同即更新）。
-     * 维度不匹配时抛出 {@link IllegalArgumentException}，id 不存在时返回 false。</p>
+      * 维度不匹配时抛出 {@link IllegalArgumentException}，标识 不存在时返回 false。</p>
      *
      * @param id     向量标识
      * @param vector 新的向量数据
@@ -221,7 +223,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** Do搜索 */
+    /** 执行搜索 */
     protected synchronized List<Vector> doSearch(float[] query, int topK) {
         if (!released) {
             release();
@@ -250,7 +252,9 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 从 Milvus 返回的 entity 中提取向量数据。
+      * 从 Milvus 返回的 实体 中提取向量数据。
+     * @param entity 实体
+     * @return extract向量的结果
      */
     private static float[] extractVector(Map<String, Object> entity) {
         if (entity == null) {
@@ -298,7 +302,12 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
         }
     }
 
-    /** GsonFloatArray */
+    /**
+     * gsonfloatarray
+     *
+     * @param data 数据
+     * @return gsonFloatArray的结果
+     */
     private static com.google.gson.JsonArray gsonFloatArray(float[] data) {
         com.google.gson.JsonArray arr = new com.google.gson.JsonArray();
         for (float v : data) {

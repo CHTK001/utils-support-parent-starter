@@ -22,8 +22,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * 基于 chinese-xinhua 字库的汉字字典提供器（在线 JSON + 内置兜底）。
  *
  * <p>在线数据源：<a href="https://github.com/pwxcoo/chinese-xinhua">chinese-xinhua</a>
- * 的 word.json（约 3 万字），结构为 {@code {"word":..., "oldword":..., "strokes":...,
- * "pinyin":..., "radicals":..., "explanation":..., "more":...}}。
+   * 的 word.json（约 3 万字），结构为 {@编码 {"word":..., "oldword":..., "strokes":...,
+   * "pinyin":..., "radicals":..., "解释":..., "more":...}}。
  *
  * <p>首次查询时惰性拉取并建立字索引，后续查询复用内存索引；
  * 在线获取失败（离线 / 网络受限）时自动回退到内置常见汉字，保证核心能力可用。
@@ -41,7 +41,7 @@ public class OnlineHanziProvider implements HanziProvider {
     private static final String DEFAULT_URL =
             "https://cdn.jsdelivr.net/gh/pwxcoo/chinese-xinhua@master/data/word.json";
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /** HTTP客户端 */
@@ -56,7 +56,7 @@ public class OnlineHanziProvider implements HanziProvider {
     /** 内置兜底数据 */
     private static final List<HanziInfo> FALLBACK = buildFallback();
 
-    /** 创建 OnlineHanziProvider 实例 */
+    /** 创建 onlinehanzi提供者 实例 */
     public OnlineHanziProvider() {
         this(DEFAULT_URL);
     }
@@ -72,7 +72,7 @@ public class OnlineHanziProvider implements HanziProvider {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "chinese-xinhua";
     }
@@ -117,12 +117,22 @@ public class OnlineHanziProvider implements HanziProvider {
         return values.get(ThreadLocalRandom.current().nextInt(values.size()));
     }
 
-    /** 判断是否包含关键词 */
+    /**
+     * 判断是否包含关键词
+     *
+     * @param text 文本
+     * @param kw kw
+     * @return contains的结果
+     */
     private static boolean contains(String text, String kw) {
         return text != null && text.contains(kw);
     }
 
-    /** 加载索引（惰性 + 在线失败回退内置） */
+    /**
+     * 加载索引（惰性 + 在线失败回退内置）
+     *
+     * @return 加载索引的结果
+     */
     private Map<String, HanziInfo> loadIndex() {
         Map<String, HanziInfo> cached = index;
         if (!cached.isEmpty()) {
@@ -160,7 +170,12 @@ public class OnlineHanziProvider implements HanziProvider {
         }
     }
 
-    /** 解析 */
+    /**
+     * 解析
+     *
+     * @param n n
+     * @return 解析的结果
+     */
     private static HanziInfo parse(JsonNode n) {
         if (n == null || !n.isObject()) {
             return null;
@@ -175,7 +190,13 @@ public class OnlineHanziProvider implements HanziProvider {
         );
     }
 
-    /** Text */
+    /**
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -183,6 +204,7 @@ public class OnlineHanziProvider implements HanziProvider {
 
     /**
      * 内置常见汉字兜底数据（在线不可用时的核心词条）。
+     * @return 构建降级的结果
      */
     private static List<HanziInfo> buildFallback() {
         List<HanziInfo> list = new ArrayList<>();

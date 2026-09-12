@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
- * public class TencentSmsMessagePush implements MessagePush {
+   * 公共 类 tencentsms消息push implements 消息push {
  *
  * @author CH
  * @since 4.0.0.42
@@ -64,21 +64,21 @@ public class TencentSmsMessagePush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 TencentSmsMessagePush 实例 */
+    /** 创建 tencentsms消息push 实例 */
     public TencentSmsMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 TencentSmsMessagePush 实例
-     * @param environment environment
+      * 创建 tencentsms消息push 实例
+     * @param environment 环境
      */
     public TencentSmsMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    /** 获取Provider */
+    /** 获取提供者 */
     public String getProvider() {
         return "tencent-sms";
     }
@@ -86,7 +86,7 @@ public class TencentSmsMessagePush implements MessagePush {
     @Override
     /**
      * 发送
-     * @param request request
+     * @param request 请求
      */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
@@ -161,7 +161,7 @@ public class TencentSmsMessagePush implements MessagePush {
     }
 
     @Override
-    /** ListTemplates */
+    /** 列表templates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
@@ -169,7 +169,7 @@ public class TencentSmsMessagePush implements MessagePush {
     @Override
     /**
      * 获取Template
-     * @param templateId templateId
+     * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
@@ -186,9 +186,9 @@ public class TencentSmsMessagePush implements MessagePush {
     @Override
     /**
      * 发送Template
-     * @param templateId templateId
-     * @param to to
-     * @param params params
+     * @param templateId templateid
+     * @param to 转为
+     * @param params 参数
      */
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()

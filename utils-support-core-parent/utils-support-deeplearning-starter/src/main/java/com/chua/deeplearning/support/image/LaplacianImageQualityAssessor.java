@@ -16,6 +16,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
  *         .blurThreshold(100)
  *         .assess(imageBytes);
  * boolean ok = info.sharpnessOk() && info.brightnessOk();
+ * }</pre>essOk() && info.brightnessOk();
  * }</pre>
  *
  * @author CH
@@ -59,14 +60,14 @@ public class LaplacianImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public ImageQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageQualityAssessor modelPath(String path) {
         return this;
     }
@@ -78,7 +79,7 @@ public class LaplacianImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
-    /** Assess */
+    /** 评定 */
     public ImageQualityInfo assess(byte[] imageData) {
         double blurScore = ImageUtils.blurScore(imageData);
         double brightness = ImageUtils.meanGray(imageData);

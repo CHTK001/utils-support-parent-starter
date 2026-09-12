@@ -6,7 +6,7 @@ import lombok.Getter;
  * 通用预测结果。
  * <p>
  * 适用于文本分类、情感分析、性别/年龄识别等场景。
- * 支持 String 值和 float[] 向量两种结果形态。
+   * 支持 字符串 值和 float[] 向量两种结果形态。
  * </p>
  *
  * @author CH
@@ -112,6 +112,8 @@ public class PredictResult {
 
     /**
      * 预测结果构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class PredictResultBuilder {
 

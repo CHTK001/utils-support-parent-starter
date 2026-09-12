@@ -14,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Qwen2.5-Instruct ONNX 因果语言模型（onnxruntime 直连 + KV cache 自回归）。
+   * 通义千问2.5-Instruct ONNX 因果语言模型（onnxruntime 直连 + KV 缓存 自回归）。
  *
  * <p>模型为 HF decoder-with-past 导出（59 输入：input_ids / attention_mask / position_ids
- * + 28 层 past_key_values），首步传空 cache，后续步注入上一步的 present KV。
- * 支持 CUDA EP（{@code useGpu}）。资源由 ModelRegistry downloadUrl 拉取。</p>
+   * + 28 层 past_键_值），首步传空 缓存，后续步注入上一步的 present KV。
+   * 支持 CUDA EP（{@code useGpu}）。资源由 模型registry downloadurl 拉取。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -26,25 +26,48 @@ import java.util.Map;
 @Slf4j
 public class OnnxQwenTranslator implements ITranslator<String, String>, AutoCloseable {
 
-    private final String modelId;
-    private final boolean useGpu;
-    private static final int MAX_NEW_TOKENS = 128;
+    private final String modelId; // 模型标识
+    private final boolean useGpu; // usegpu
+    private static final int MAX_NEW_TOKENS = 128; // 最大新令牌
 
-    private final float temperature;
-    private final float repeatPenalty;
-    private final int topK;
+    private final float temperature; // temperature
+    private final float repeatPenalty; // repeat罚款
+    private final int topK; // topk
 
-    private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    private int eosTokenId = -1;
-    private volatile boolean initialized;
-    private int kvDim = 128;
-    /** 隐藏层数（从模型输入动态解析，0.5B=24 / 1.5B=28） */
+    private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer; // tokenizer
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    private int eosTokenId = -1; // eos令牌标识
+    private volatile boolean initialized; // 初始化
+    private int kvDim = 128; // kvdim
+    /**
+     * 隐藏层数（从模型输入动态解析，0.5B=24 / 1.5B=28）
+     *
+     /**
+      * onnx通义千问translator。
+      */
+     * @param modelId 模型标识
+     * @param useGpu usegpu
+     * @param temperature temperature
+     * @param repeatPenalty repeat罚款
+     /**
+      * onnx通义千问translator。
+      * @param modelId 模型标识
+      * @param useGpu usegpu
+      */
+     * @param topK topk
+      * @param temperature temperature
+      * @param repeatPenalty repeat罚款
+     */
     private int nLayers = 24;
 
     public OnnxQwenTranslator() {
         this("qwen2-1.5b-onnx", false);
+    /**
+     * onnx通义千问translator。
+     * @param modelId 模型id
+     * @param useGpu useGpu
+     */
     }
 
     public OnnxQwenTranslator(String modelId, boolean useGpu) {
@@ -61,6 +84,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
 
     /**
      * 从 URL 下载资源到模型目录（若不存在），供外部权重 / tokenizer 补充下载。
+     * @param dir dir
+     * @param fileName 文件名称
+     * @param url url
      */
     private static void downloadIfMissing(Path dir, String fileName, String url) throws Exception {
         if (dir == null) {
@@ -187,6 +213,11 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         log.info("[QwenOnnx] ORT session ready (gpu={}, kvDim={}, layers={}) model={}", useGpu, kvDim, nLayers, modelPath);
     }
 
+    /**
+     * 对话。
+     * @param userPrompt 用户提示符
+     * @return 对话的结果
+     */
     public String chat(String userPrompt) throws Exception {
         prepare();
         String chat = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
@@ -259,6 +290,10 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         return out.toString().trim();
     }
 
+    /**
+     * 空past。
+     * @return 空past的结果
+     */
     private Map<String, OnnxTensor> emptyPast() throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
         for (int layer = 0; layer < nLayers; layer++) {
@@ -272,6 +307,11 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         return m;
     }
 
+    /**
+      * collectpast。
+     * @param result 结果
+     * @return collectPast的结果
+     */
     private Map<String, OnnxTensor> collectPast(OrtSession.Result result) throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
         for (int layer = 0; layer < nLayers; layer++) {
@@ -283,12 +323,27 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         return m;
     }
 
+    /**
+     * 是否eos。
+     * @param id 标识
+     * @return 是否eos的结果
+     */
     private boolean isEos(int id) {
         return eosTokenId >= 0 && id == eosTokenId;
     }
 
     /**
      * 检测已生成片段是否陷入退化解（重复/循环），用于提前终止。
+     * @param logits logits
+     /**
+      * 是否degenerate。
+      * @param tokens 令牌
+      * @param promptLen 提示符len
+      * @return 是否degenerate的结果
+      */
+     * @return argmax的结果
+     * @param n n
+     * @param token 令牌
      */
     private static boolean isDegenerate(java.util.List<Long> tokens, int promptLen) {
         int gen = tokens.size() - promptLen;
@@ -330,6 +385,11 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             r[i] = 1L;
         }
         return r;
+    /**
+     * 范围。
+     * @param n n
+     * @return 范围的结果
+     */
     }
 
     private static long[] range(int n) {
@@ -338,6 +398,13 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             r[i] = i;
         }
         return r;
+    /**
+     * 下一个令牌。
+     * @param logits logits
+     * @param tokens 令牌
+     * @param promptLen 提示符len
+     * @return 下一个令牌的结果
+     */
     }
 
     private int nextToken(float[] logits, java.util.List<Long> tokens, int promptLen) {
@@ -359,6 +426,14 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             return sample(scores, temperature, topK);
         }
         return argmax(scores);
+    /**
+     * 样本。
+     * @param scores scores
+     * @param temp temp
+     * @param k k
+     * @return 样本的结果
+     * @param logits logits
+     */
     }
 
     private int sample(float[] scores, float temp, int k) {

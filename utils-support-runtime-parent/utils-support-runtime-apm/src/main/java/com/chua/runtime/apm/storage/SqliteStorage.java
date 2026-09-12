@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SQLite 存储 — 嵌入式本地落盘实现。
+   * sqlite 存储 — 嵌入式本地落盘实现。
  *
  * <p>通过 {@code apm.storage.type=sqlite} 启用，数据持久化到本地 SQLite 文件，
  * 重启后数据不丢失。默认路径为 {@code ./apm.db}，可通过
@@ -43,8 +43,8 @@ import java.util.Map;
  * 读操作使用独立连接，互不阻塞。</p>
  *
  * <p>日志说明：本类使用 Lombok {@code @Log}（java.util.logging）而非 {@code @Slf4j}，
- * 这是刻意为之 —— 本类随 agent.jar 通过 {@code -Xbootclasspath/a} 进入 bootstrap
- * classloader，该 classloader 无法解析 slf4j-api（由 agent shade relocation 到
+   * 这是刻意为之 —— 本类随 智能体.jar 通过 {@code -Xbootclasspath/a} 进入 bootstrap
+   * classloader，该 classloader 无法解析 slf4j-api（由 智能体 shade relocation 到
  * {@code com.chua.runtime.shaded.slf4j}），故使用 JDK 自带 JUL；Log 记录相应采用
  * {@code String.format} 而非 SLF4J {@code {}} 占位符，为对 {@code @Log} 的合理适配。</p>
  *
@@ -105,7 +105,7 @@ public class SqliteStorage implements ApmStorage {
     private int capacity;
 
     /**
-     * 写锁 — SQLite 单写者，串行化所有写操作
+      * 写锁 — sqlite 单写者，串行化所有写操作
      */
     private final Object writeLock = new Object();
 
@@ -379,7 +379,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
-    /** 查询Logs */
+    /** 查询日志 */
     public List<LogRecord> queryLogs(Query query) {
         StringBuilder sql = new StringBuilder(
                 "SELECT id, timestamp, level, logger, class_name, method_name, message, trace_id FROM logs WHERE 1=1");
@@ -447,7 +447,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "sqlite";
     }
@@ -770,7 +770,7 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-     * 反序列化 JSON 字符串为 Map。
+      * 反序列化 JSON 字符串为 映射。
      *
      * @param json JSON 字符串
      * @return Map

@@ -10,16 +10,32 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * 向量存储 I/O 性能对比测试。
  * 对比三种读取路径：
- *   1. 顺序 DataInputStream 扫描（旧版 FILE 模式）
- *   2. MappedByteBuffer 顺序扫描（无索引，整文件 mmap）
- *   3. B+Tree + MappedByteBuffer 精确偏移读取（HYBRID 模式）
+   * 1. 顺序 数据输入流 扫描（旧版 文件 模式）
+   * 2. mappedbyte缓冲 顺序扫描（无索引，整文件 mmap）
+   * 3. B+树 + mappedbyte缓冲 精确偏移读取（HYBRID 模式）
+ * @author CH
+ * @since 4.0.0
+ * @param count 数量
+ * @param flushBatch flushbatch
+ * @param label 标签
  */
 public class VectorIOBench {
 
-    private static final int DIM = 128;
+    private static final int DIM = 128; // DIM
+    /**
+     * main。
+     * @param args 参数
+     * @param count 数量
+     * @param flushBatch flushbatch
+     * @param label 标签
+     */
     private static final Random RND = ThreadLocalRandom.current();
-    private static Path testDir;
+    private static Path testDir; // 测试dir
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("io-bench-");
         System.out.println("============================================");
@@ -48,7 +64,9 @@ public class VectorIOBench {
         long t0 = System.nanoTime();
         for (int i = 0; i < count; i++) {
             gen.add("id_" + i, randomVec());
-            if ((i + 1) % flushBatch == 0) gen.flush();
+            if ((i + 1) % flushBatch == 0) {
+                gen.flush();
+            }
         }
         gen.flush();
         gen.close();
@@ -58,13 +76,13 @@ public class VectorIOBench {
         System.out.printf("  写入: %d ms | 磁盘: %.1f MB | 分片: %d%n",
                 writeMs, diskBytes / 1_048_576.0, shardCount);
 
-        // ---- 测试 A: 旧版顺序 DataInputStream ----
+ // ---- 测试 A: 旧版顺序 数据输入流 ----
         long seqNs = measureSequential(dataDir, count, diskBytes);
         System.out.printf("  [A] 顺序 DataInputStream: %d us  |  %.0f QPS  |  %.0f MB/s%n",
                 seqNs / 1000, 1_000_000.0 / seqNs,
                 diskBytes / 1_048_576.0 / (seqNs / 1_000_000.0));
 
-        // ---- 测试 B: MappedByteBuffer 顺序扫描 ----
+ // ---- 测试 B: mappedbyte缓冲 顺序扫描 ----
         long mmapNs = measureMmapSequential(dataDir, count, diskBytes);
         System.out.printf("  [B] MappedByteBuffer 顺序: %d us  |  %.0f QPS  |  %.0f MB/s%n",
                 mmapNs / 1000, 1_000_000.0 / mmapNs,
@@ -85,10 +103,19 @@ public class VectorIOBench {
 
     // ==================== 三种搜索方式 ====================
 
-    /** A: 旧版顺序扫描 - 每个分片开 DataInputStream 逐条读 */
+    /**
+     * A: 旧版顺序扫描 - 每个分片开 数据输入流 逐条读
+     *
+     * @param dir dir
+     * @param expectedCount 期望数量
+     * @param diskBytes diskbytes
+     * @return 测量sequential的结果
+     */
     private static long measureSequential(Path dir, int expectedCount, long diskBytes) throws Exception {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
-        if (files == null || files.length == 0) return Long.MAX_VALUE;
+        if (files == null || files.length == 0) {
+            return Long.MAX_VALUE;
+        }
         Arrays.sort(files);
         float[] query = randomVec();
         int rounds = Math.max(3, 100_000 / Math.min(expectedCount, 10_000));
@@ -104,7 +131,9 @@ public class VectorIOBench {
                         int idLen = in.readInt();
                         byte[] idBytes = new byte[idLen]; in.readFully(idBytes);
                         float[] v = new float[dim];
-                        for (int j = 0; j < dim; j++) v[j] = in.readFloat();
+                        for (int j = 0; j < dim; j++) {
+                            v[j] = in.readFloat();
+                        }
                         in.readUTF();
                         cosineSIMD(query, v);
                     }
@@ -115,10 +144,19 @@ public class VectorIOBench {
         return total / rounds;
     }
 
-    /** B: MappedByteBuffer 顺序扫描 - 整文件 mmap 后顺序读 */
+    /**
+     * B: mappedbyte缓冲 顺序扫描 - 整文件 mmap 后顺序读
+     *
+     * @param dir dir
+     * @param expectedCount 期望数量
+     * @param diskBytes diskbytes
+     * @return 测量mmapsequential的结果
+     */
     private static long measureMmapSequential(Path dir, int expectedCount, long diskBytes) throws Exception {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
-        if (files == null || files.length == 0) return Long.MAX_VALUE;
+        if (files == null || files.length == 0) {
+            return Long.MAX_VALUE;
+        }
         Arrays.sort(files);
         float[] query = randomVec();
         int rounds = Math.max(3, 100_000 / Math.min(expectedCount, 10_000));
@@ -134,9 +172,13 @@ public class VectorIOBench {
                     float[] vecBuf = new float[dim];
                     for (int i = 0; i < count; i++) {
                         int idLen = buf.getInt();
-                        if (idLen > idBuf.length) idBuf = new byte[idLen];
+                        if (idLen > idBuf.length) {
+                            idBuf = new byte[idLen];
+                        }
                         buf.get(idBuf, 0, idLen);
-                        for (int k = 0; k < dim; k++) vecBuf[k] = buf.getFloat();
+                        for (int k = 0; k < dim; k++) {
+                            vecBuf[k] = buf.getFloat();
+                        }
                         int metaLen = buf.getShort();
                         buf.position(buf.position() + metaLen);
                         cosineSIMD(query, vecBuf);
@@ -148,7 +190,14 @@ public class VectorIOBench {
         return total / rounds;
     }
 
-    /** C: HYBRID - B+Tree 索引 + MappedByteBuffer 精确偏移读取 */
+    /**
+     * C: HYBRID - B+树 索引 + mappedbyte缓冲 精确偏移读取
+     *
+     * @param dir dir
+     * @param expectedCount 期望数量
+     * @param diskBytes diskbytes
+     * @return 测量hybrid的结果
+     */
     private static long measureHybrid(Path dir, int expectedCount, long diskBytes) throws Exception {
         DefaultVectorStorage storage = DefaultVectorStorage.builder()
                 .dimension(DIM).dir(dir)
@@ -169,16 +218,34 @@ public class VectorIOBench {
 
     // ==================== 工具方法 ====================
 
+    /**
+     * 随机vec。
+     * @return 随机vec的结果
+     */
     private static float[] randomVec() {
         float[] v = new float[DIM];
-        for (int i = 0; i < DIM; i++) v[i] = RND.nextFloat() * 2 - 1;
+        for (int i = 0; i < DIM; i++) {
+            v[i] = RND.nextFloat() * 2 - 1;
+        }
         float n = 0;
-        for (float f : v) n += f * f;
+        for (float f : v) {
+            n += f * f;
+        }
         n = (float) Math.sqrt(n);
-        if (n > 0) for (int i = 0; i < DIM; i++) v[i] /= n;
+        if (n > 0) {
+            for (int i = 0; i < DIM; i++) {
+                v[i] /= n;
+            }
+        }
         return v;
     }
 
+    /**
+      * cosinesimd。
+     * @param a a
+     * @param b b
+     * @return cosineSIMD的结果
+     */
     private static float cosineSIMD(float[] a, float[] b) {
         double dot = 0, nA = 0, nB = 0;
         for (int i = 0; i < a.length; i++) { dot += a[i] * b[i]; nA += a[i] * a[i]; nB += b[i] * b[i]; }
@@ -186,6 +253,11 @@ public class VectorIOBench {
         return d == 0 ? 0f : (float) (dot / d);
     }
 
+    /**
+     * totaldisk大小。
+     * @param dir dir
+     * @return totaldisk大小的结果
+     */
     private static long totalDiskSize(Path dir) {
         try {
             return Files.list(dir).filter(p -> p.toString().endsWith(".bin"))
@@ -193,11 +265,20 @@ public class VectorIOBench {
         } catch (Exception e) { return 0; }
     }
 
+    /**
+     * shard数量。
+     * @param dir dir
+     * @return shard数量的结果
+     */
     private static int shardCount(Path dir) {
         File[] fs = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
         return fs == null ? 0 : fs.length;
     }
 
+    /**
+     * 删除recursively。
+     * @param dir dir
+     */
     private static void deleteRecursively(Path dir) {
         try { Files.walk(dir).sorted(Comparator.reverseOrder())
                 .forEach(p -> { try { Files.delete(p); } catch (Exception ignored) {} });

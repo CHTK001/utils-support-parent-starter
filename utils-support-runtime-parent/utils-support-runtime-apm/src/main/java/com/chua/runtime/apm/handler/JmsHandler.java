@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * JMS Handler — intercepts JMS producer/consumer operations.
+   * JMS 处理器 — intercepts JMS producer/consumer operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,30 +23,30 @@ public class JmsHandler extends AbstractAppHandler {
      */
     private static final String MESSAGE_CONSUMER = "javax/jms/MessageConsumer";
     /**
-     * SESSION
+      * 会话
      */
     private static final String SESSION = "javax/jms/Session";
     /**
-     * producer methods
+      * producer 方法
      */
     private static final String[] PRODUCER_METHODS = {"send"};
     /**
-     * consumer methods
+      * consumer 方法
      */
     private static final String[] CONSUMER_METHODS = {"receive", "receiveNoWait"};
     /**
-     * 会话 methods
+      * 会话 方法
      */
     private static final String[] SESSION_METHODS = {"createProducer", "createConsumer", "createDurableConsumer"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "jms-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "jms.enabled";
     }
@@ -58,13 +58,13 @@ public class JmsHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.JMS;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(MESSAGE_PRODUCER, PRODUCER_METHODS);
         registerAll(MESSAGE_CONSUMER, CONSUMER_METHODS);

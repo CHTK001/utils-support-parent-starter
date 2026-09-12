@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 深度学习模型列表工具。
  * <p>
- * 统一从 {@link IdentificationEngine} / {@link ModelRegistry} 按引擎名称（provider）与能力过滤模型，
+   * 统一从 {@link IdentificationEngine} / {@link ModelRegistry} 按引擎名称（提供者）与能力过滤模型，
  * 为各本地 {@code XxxClient} 的 {@code models()} 提供一致的模型列表来源。
  * </p>
  *
@@ -21,14 +21,14 @@ import java.util.List;
  */
 public final class DeeplearningModels {
 
-    /** 创建 DeeplearningModels 实例 */
+    /** 创建 deeplearning模型 实例 */
     private DeeplearningModels() {
     }
 
     /**
-     * 获取指定引擎（provider）注册的全部模型。
+      * 获取指定引擎（提供者）注册的全部模型。
      *
-     * @param engine 引擎名称，如 "onnx"、"pytorch"、"paddle"、"tensorflow"、"llama"
+     * @param engine 引擎名称，如 "onnx"、"pytorch"、"飞桨"、"tensorflow"、"llama"
      * @return 模型定义列表
      */
     public static List<ModelDefinition> models(String engine) {
@@ -58,8 +58,8 @@ public final class DeeplearningModels {
      * <p>从 ModelRegistry 条目中匹配输入输出类型，返回满足条件的模型定义列表。</p>
      *
      * @param engine     引擎名称，如 "onnx"、"pytorch"
-     * @param inputType  输入类型（可为 null 表示不限制）
-     * @param outputType 输出类型（可为 null 表示不限制）
+     * @param inputType  输入类型（可为 空 表示不限制）
+     * @param outputType 输出类型（可为 空 表示不限制）
      * @return 模型定义列表
      */
     public static List<ModelDefinition> models(String engine, Class<?> inputType, Class<?> outputType) {
@@ -82,10 +82,10 @@ public final class DeeplearningModels {
     }
 
     /**
-     * 按模型 ID 精确获取模型定义。
+      * 按模型 标识 精确获取模型定义。
      *
      * @param modelId 模型标识
-     * @return 模型定义，不存在返回 null
+     * @return 模型定义，不存在返回 空
      */
     public static ModelDefinition byId(String modelId) {
         if (modelId == null || modelId.isBlank()) {
@@ -109,10 +109,10 @@ public final class DeeplearningModels {
     }
 
     /**
-     * 获取指定引擎的模型 ID 列表。
+      * 获取指定引擎的模型 标识 列表。
      *
      * @param engine 引擎名称
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     public static List<String> modelIds(String engine) {
         List<String> ids = new ArrayList<>();
@@ -131,8 +131,8 @@ public final class DeeplearningModels {
      * 无推荐条目时退化为列表第一个；{@code auto} 设备策略下自动探测本机 GPU。</p>
      *
      * @param engine        引擎名称（如 "onnx"）
-     * @param deviceSetting 设备设置：auto / cpu / gpu / cuda，可为 null（走系统属性，缺省 auto）
-     * @return 推荐模型 ID；无可用模型返回 null
+     * @param deviceSetting 设备设置：auto / cpu / gpu / cuda，可为 空（走系统属性，缺省 auto）
+     * @return 推荐模型 标识；无可用模型返回 空
      */
     public static String recommended(String engine, String deviceSetting) {
         if (engine == null || engine.isBlank()) {

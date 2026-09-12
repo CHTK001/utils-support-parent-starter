@@ -57,8 +57,8 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
 
     /**
-     * 创建 RabbitmqDispatcherProvider 实例
-     * @param config config
+      * 创建 rabbitmqdispatcher提供者 实例
+     * @param config 配置
      */
     public RabbitmqDispatcherProvider(DispatcherConfig config) {
         super(config);

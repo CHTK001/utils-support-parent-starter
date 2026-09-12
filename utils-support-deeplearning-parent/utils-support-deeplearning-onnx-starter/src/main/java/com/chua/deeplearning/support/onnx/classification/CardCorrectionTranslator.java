@@ -21,7 +21,7 @@ import java.util.Map;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * 卡片矫正检测（CenterNet，ORT 原生 + OpenCV）。
+   * 卡片矫正检测（centernet，ORT 原生 + 打开cv）。
  *
  * <p>检测卡片四角点（如身份证、银行卡），用于图像矫正。
  * 模型 {@code cv/card_correction/card_detection.onnx} 由 jar
@@ -37,19 +37,24 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class CardCorrectionTranslator implements ITranslator<byte[], List<DetectionInfo>> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 768;
     /** 热力图尺寸 */
-    /** Heat_size */
+    /** Heat_大小 */
 
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
     private float thresholdOverride = -1f;
 
-    /** 取生效阈值。 */
+    /**
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
-    private static final int HEAT_SIZE = 192;
+    private static final int HEAT_SIZE = 192; // heat大小
     /** 角点数量 */
     /** Num_corners */
     private static final int NUM_CORNERS = 4;
@@ -57,14 +62,14 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     /** Stride */
     private static final int STRIDE = 4;
     /** 置信度阈值 */
-    /** Conf_threshold */
+    /** Conf_阈值 */
     private static final float CONF_THRESHOLD = 0.3f;
 
     /** 资源基础路径 */
-    /** Resource_base */
+    /** Resource_基础 */
     private static final String RESOURCE_BASE = "cv/card_correction/";
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "card_detection.onnx";
 
     /** ONNX 运行时环境 */
@@ -80,7 +85,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     private int srcHeight;
 
     /**
-     * 共享实例（避免多实例重复提取模型 / 创建 session）。
+      * 共享实例（避免多实例重复提取模型 / 创建 会话）。
      */
     private static volatile CardCorrectionTranslator shared;
 
@@ -110,7 +115,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         if (session != null) {
             return;
         }
-        // 固定缓存目录（NativeLoader 按 taskId 全局去重，不能用每次新建的临时目录）
+ // 固定缓存目录（NAT加载 按 任务标识 全局去重，不能用每次新建的临时目录）
         Path modelDir = Path.of(System.getProperty("java.io.tmpdir"), "chua-models", "card-correction");
         if (!Files.isDirectory(modelDir) || !Files.exists(modelDir.resolve(MODEL_FILE))) {
             Files.createDirectories(modelDir);
@@ -135,7 +140,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "card-correction-detector";
     }
@@ -170,7 +175,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
      * 卡片透视矫正：检测卡片四边形并拉平为水平矩形图。
      *
      * @param imageData 原图
-     * @return 矫正后的卡片图（PNG），未检测到卡片返回 null
+     * @return 矫正后的卡片图（PNG），未检测到卡片返回 空
      */
     public byte[] correct(byte[] imageData) {
         try {
@@ -243,6 +248,8 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
 
     /**
      * 对已解码的 Mat 检测卡片四边形（原图坐标）。
+     * @param src src
+     * @return detectQuadsOn的结果
      */
     private List<float[][]> detectQuadsOn(Mat src) {
         try {
@@ -280,6 +287,10 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
 
     /**
      * 解码卡片四边形角点（原图坐标）。
+     * @param hm hm
+     * @param wh wh
+     * @param reg reg
+     * @return decodeCorners的结果
      */
     private List<float[][]> decodeCorners(float[][] hm, float[][][] wh, float[][][] reg) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
@@ -344,7 +355,14 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         return kept;
     }
 
-    /** 是否Local最大值 */
+    /**
+     * 是否本地最大值
+     *
+     * @param hm hm
+     * @param x x
+     * @param y y
+     * @return 是否本地最大的结果
+     */
     private boolean isLocalMax(float[][] hm, int x, int y) {
         float v = hm[y][x];
         for (int dy = -1; dy <= 1; dy++) {
@@ -361,7 +379,12 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         return true;
     }
 
-    /** ToMatD */
+    /**
+     * 转为matd
+     *
+     * @param value 值
+     * @return 转为mat2d的结果
+     */
     private float[][] toMat2D(Object value) {
         // 输入 [1, C, H, W]，单通道 C=1 → 返回 [H][W]
         float[][][][] arr4 = (float[][][][]) value;
@@ -377,14 +400,19 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         return out;
     }
 
-    /** ToMatD */
+    /**
+     * 转为matd
+     *
+     * @param value 值
+     * @return 转为mat3d的结果
+     */
     private float[][][] toMat3D(Object value) {
         float[][][][] arr4 = (float[][][][]) value;
         return arr4[0];
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Kimi 会话客户端：负责 token 管理、设备指纹请求头与基础 HTTP 调用。
+   * Kimi 会话客户端：负责 令牌 管理、设备指纹请求头与基础 HTTP 调用。
  *
  * <p>基于项目统一 {@link HttpClient} 抽象（自动选择 OkHttp/HttpClient5/JDK 实现）。
- * appKey 支持两种 token：</p>
+   * app键 支持两种 令牌：</p>
  * <ul>
  *   <li>JWT access token（{@code token=eyJ...}）：直接使用，过期前无需刷新</li>
  *   <li>refresh token：通过 {@code /api/auth/token/refresh} 换取短期 access token，自动缓存</li>
@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class KimiSession implements AutoCloseable {
 
     /**
-     * token 刷新提前量（秒），在过期前 5 分钟提前刷新。
+      * 令牌 刷新提前量（秒），在过期前 5 分钟提前刷新。
      */
     private static final long REFRESH_BUFFER_SECONDS = 300;
 
@@ -47,45 +47,45 @@ public class KimiSession implements AutoCloseable {
     private final String baseUrl;
 
     /**
-     * 原始 token（appKey）。
+      * 原始 令牌（app键）。
      */
     private final String rawToken;
 
     /**
-     * 当前 access token。
+      * 当前 access 令牌。
      */
     private volatile String accessToken;
 
     /**
-     * 当前 access token 过期时间（epoch 秒，0 表示未知）。
+      * 当前 access 令牌 过期时间（轮次 秒，0 表示未知）。
      */
     private volatile long expiresAt;
 
     /**
-     * 当前 token 类型：jwt / refresh。
+      * 当前 令牌 类型：JWT / refresh。
      */
     private volatile String tokenType;
 
     /**
-     * 设备 ID（客户端持久化身份）。
+      * 设备 标识（客户端持久化身份）。
      */
     private final String deviceId;
 
     /**
-     * 会话 ID。
+      * 会话 标识。
      */
     private final String sessionId;
 
     /**
-     * token 刷新互斥锁。
+      * 令牌 刷新互斥锁。
      */
     private final ReentrantLock refreshLock = new ReentrantLock();
 
     /**
      * 构造 Kimi 会话客户端。
      *
-     * @param appKey  原始 token（JWT 或 refresh token）
-     * @param baseUrl 基础地址，null 时用默认值
+     * @param appKey  原始 令牌（JWT 或 refresh 令牌）
+     * @param baseUrl 基础地址，空 时用默认值
      */
     public KimiSession(String appKey, String baseUrl) {
         this.rawToken = appKey == null ? "" : appKey.strip();
@@ -106,10 +106,10 @@ public class KimiSession implements AutoCloseable {
     }
 
     /**
-     * 获取当前有效的 access token，必要时自动刷新。
+      * 获取当前有效的 access 令牌，必要时自动刷新。
      *
-     * @return access token
-     * @throws RuntimeException token 刷新失败时抛出
+     * @return access 令牌
+     * @throws RuntimeException 令牌 刷新失败时抛出
      */
     public String getAccessToken() {
         if (needsRefresh()) {
@@ -126,8 +126,8 @@ public class KimiSession implements AutoCloseable {
     }
 
     /**
-     * 判断当前 token 是否需要刷新。
-     * JWT token 直接使用，过期后由调用方重新提供。
+      * 判断当前 令牌 是否需要刷新。
+      * JWT 令牌 直接使用，过期后由调用方重新提供。
      *
      * @return true 需要刷新
      */
@@ -142,7 +142,7 @@ public class KimiSession implements AutoCloseable {
     }
 
     /**
-     * 使用 refresh token 换取新的 access token。
+      * 使用 refresh 令牌 换取新的 access 令牌。
      *
      * @throws RuntimeException 刷新失败时抛出
      */
@@ -188,9 +188,9 @@ public class KimiSession implements AutoCloseable {
     }
 
     /**
-     * 发起 connect 帧对话请求。
+      * 发起 连接 帧对话请求。
      *
-     * @param encodedBody connect 编码后的请求字节
+     * @param encodedBody 连接 编码后的请求字节
      * @return HTTP 响应
      */
     public ClientResponse postChat(byte[] encodedBody) {
@@ -231,7 +231,7 @@ public class KimiSession implements AutoCloseable {
     }
 
     /**
-     * 认证请求头（不含 device 指纹，用于 token 刷新）。
+      * 认证请求头（不含 device 指纹，用于 令牌 刷新）。
      *
      * @return 请求头映射
      */
@@ -247,7 +247,7 @@ public class KimiSession implements AutoCloseable {
     }
 
     /**
-     * 构建浏览器指纹 User-Agent。
+      * 构建浏览器指纹 用户-智能体。
      *
      * @return User-Agent 字符串
      */
@@ -289,6 +289,7 @@ public class KimiSession implements AutoCloseable {
 
     /**
      * 服务器地址（用户可配置）。
+     * @return 获取baseurl的结果
      */
     public String getBaseUrl() {
         return baseUrl;

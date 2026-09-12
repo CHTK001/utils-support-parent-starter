@@ -69,11 +69,11 @@ public interface IdentificationEngine {
      * 按能力接口查询所有模型名称。
      *
      * <p>如传 {@code ImageDetector.class} 返回所有图像检测模型 ID，
-     * 传 {@code FeatureExtractor.class} 返回所有特征提取模型 ID。
+      * 传 {@code FeatureExtractor.class} 返回所有特征提取模型 标识。
      * 模型注册时声明的能力接口经 {@code ModelDefinition.capabilities} 标签化，
      * 这里按能力标签过滤。</p>
      *
-     * @param capabilityInterface 能力接口（可为 null，返回全部）
+     * @param capabilityInterface 能力接口（可为 空，返回全部）
      * @return 模型名称列表
      */
     List<String> getModelNamesByCapability(Class<?> capabilityInterface);

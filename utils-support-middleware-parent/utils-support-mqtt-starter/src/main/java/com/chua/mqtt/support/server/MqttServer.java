@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  * <p>
  * 继承 {@link AbstractServer}，支持 {@link ServerFilter} 过滤器链、
  * {@link OnOpen}/{@link OnClose}/{@link OnMessage} 注解处理。
- * 基于原生 ServerSocket 实现 MQTT 3.1.1 协议，支持 CONNECT/PUBLISH/SUBSCRIBE/UNSUBSCRIBE/PINGREQ/DISCONNECT。
+   * 基于原生 服务端套接字 实现 MQTT 3.1.1 协议，支持 连接/发布/订阅/UNSUBSCRIBE/PINGREQ/断开连接。
  * </p>
  *
  * <h2>使用方式</h2>
@@ -57,6 +57,8 @@ import java.util.function.Consumer;
  * server.start();
  * server.publish("order", "hello");
  * server.stop();
+ * }</pre>服务端.发布("订单", "hello");
+   * 服务端.停止();
  * }</pre>
  *
  * @author CH
@@ -67,7 +69,7 @@ import java.util.function.Consumer;
 public class MqttServer extends AbstractServer {
 
     /**
-     * 原生 MQTT 主题订阅处理器（保留原有 topicSubscribers 机制）
+      * 原生 MQTT 主题订阅处理器（保留原有 topicsubscribers 机制）
      */
     private final Map<String, List<BiConsumer<String, String>>> topicSubscribers = new ConcurrentHashMap<>();
 
@@ -102,12 +104,12 @@ public class MqttServer extends AbstractServer {
     private ExecutorService workerPool;
 
     /**
-     * ServerSocket 实例
+      * 服务端套接字 实例
      */
     private ServerSocket serverSocket;
 
     /**
-     * 创建 MqttServer 实例
+      * 创建 mqtt服务端 实例
      * @param setting setting
      */
     public MqttServer(ServerSetting setting) {
@@ -115,7 +117,7 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -138,7 +140,7 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         running = false;
         if (serverSocket != null) {
@@ -165,7 +167,7 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.MQTT;
     }
@@ -212,13 +214,13 @@ public class MqttServer extends AbstractServer {
 
     // ==================== 注解方法缓存 ====================
 
-    /** ONopenmethods */
+    /** onopenmethods */
     private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
-    /** ONclosemethods */
+    /** onclosemethods */
     private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
-    /** ON消息methods */
+    /** ON消息方法 */
     private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
-    /** ON错误methods */
+    /** ON错误方法 */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     @Override
@@ -252,12 +254,30 @@ public class MqttServer extends AbstractServer {
         return this;
     }
 
-    /** AnnotatedMethod */
+    /**
+     * annotated方法
+     *
+     * @param beanClass Bean类
+     * @param method 方法
+     * @return annotated方法的结果
+     */
     private record AnnotatedMethod(Class<?> beanClass, Method method) {}
-    /** AnnotatedMessage */
+    /**
+     * annotated消息
+     *
+     * @param beanClass Bean类
+     * @param method 方法
+     * @param topic topic
+     * @return annotated消息的结果
+     */
     private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {}
 
-    /** 分发AnnotatedMethods */
+    /**
+     * 分发annotated方法
+     *
+     * @param methods 方法
+     * @param args 参数
+     */
     private void dispatchAnnotatedMethods(List<AnnotatedMethod> methods, Object... args) {
         ObjectContext ctx = getObjectContext();
         if (ctx == null) {
@@ -271,7 +291,12 @@ public class MqttServer extends AbstractServer {
         }
     }
 
-    /** 分发Annotated发布 */
+    /**
+     * 分发Annotated发布
+     *
+     * @param topic topic
+     * @param payload payload
+     */
     private void dispatchAnnotatedPublish(String topic, String payload) {
         ObjectContext ctx = getObjectContext();
         if (ctx == null) {
@@ -287,7 +312,13 @@ public class MqttServer extends AbstractServer {
         }
     }
 
-    /** Safe调用 */
+    /**
+     * Safe调用
+     *
+     * @param bean Bean
+     * @param method 方法
+     * @param args 参数
+     */
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
@@ -304,7 +335,13 @@ public class MqttServer extends AbstractServer {
         }
     }
 
-    /** 调用Method */
+    /**
+     * 调用方法
+     *
+     * @param handler 处理器
+     * @param method 方法
+     * @param args 参数
+     */
     private void invokeMethod(Object handler, Method method, Object... args) {
         try {
             ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
@@ -320,7 +357,13 @@ public class MqttServer extends AbstractServer {
         }
     }
 
-    /** MatchTopic */
+    /**
+     * 匹配topic
+     *
+     * @param pattern 模式
+     * @param topic topic
+     * @return 匹配topic的结果
+     */
     private static boolean matchTopic(String pattern, String topic) {
         if ("#".equals(pattern)) {
             return true;
@@ -346,7 +389,7 @@ public class MqttServer extends AbstractServer {
         return p == pp.length && t == tp.length;
     }
 
-    /** AcceptLoop */
+    /** accept循环 */
     private void acceptLoop() {
         while (running) {
             try {
@@ -366,15 +409,21 @@ public class MqttServer extends AbstractServer {
     }
 
     // ==================== 客户端会话 ====================
+    /**
+     * 客户端会话类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private class ClientSession {
-        /** 客户端ID */
+        /** 客户端标识 */
         private String clientId;
-        /** Socket */
+        /** 套接字 */
         private final Socket socket;
-        /** IN */
+        /** 入 */
         private final DataInputStream in;
-        /** OUT */
+        /** 出 */
         private final DataOutputStream out;
         /** Subscriptions */
         private final Set<String> subscriptions = new CopyOnWriteArraySet<>();
@@ -422,7 +471,11 @@ public class MqttServer extends AbstractServer {
             }
         }
 
-        /** 处理发布 */
+        /**
+         * 处理发布
+         *
+         * @param firstByte 第一个byte
+         */
         private void handlePublish(int firstByte) throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -580,7 +633,11 @@ public class MqttServer extends AbstractServer {
             sendUnsuback(packetId);
         }
 
-        /** 发送Suback */
+        /**
+         * 发送Suback
+         *
+         * @param packetId 数据包标识
+         */
         private void sendSuback(int packetId) throws IOException {
             out.write(0x70);
             out.write(0x03);
@@ -590,7 +647,11 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
-        /** 发送Unsuback */
+        /**
+         * 发送Unsuback
+         *
+         * @param packetId 数据包标识
+         */
         private void sendUnsuback(int packetId) throws IOException {
             out.write(0xB0);
             out.write(0x02);
@@ -615,7 +676,11 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
-        /** 发送Puback */
+        /**
+         * 发送Puback
+         *
+         * @param packetId 数据包标识
+         */
         private void sendPuback(int packetId) throws IOException {
             out.write(0x40);
             out.write(0x02);
@@ -624,7 +689,13 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
-        /** BroadcastToSubscribers */
+        /**
+         * broadcast转为subscribers
+         *
+         * @param topic topic
+         * @param message 消息
+         * @param qos qos
+         */
         private void broadcastToSubscribers(String topic, String message, int qos) {
             for (ClientSession other : clients.values()) {
                 for (String sub : other.subscriptions) {
@@ -640,7 +711,13 @@ public class MqttServer extends AbstractServer {
             }
         }
 
-        /** 发送发布 */
+        /**
+         * 发送发布
+         *
+         * @param topic topic
+         * @param payload payload
+         * @param qos qos
+         */
         private void sendPublish(String topic, String payload, int qos) throws IOException {
             byte[] topicBytes = topic.getBytes(StandardCharsets.UTF_8);
             byte[] payloadBytes = payload.getBytes(StandardCharsets.UTF_8);
@@ -655,7 +732,11 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
-        /** 读取Remaining获取长度 */
+        /**
+         * 读取Remaining获取长度
+         *
+         * @return 读取remaining长度的结果
+         */
         private int readRemainingLength() throws IOException {
             int multiplier = 1;
             int value = 0;
@@ -668,7 +749,11 @@ public class MqttServer extends AbstractServer {
             return value;
         }
 
-        /** 写入Remaining获取长度 */
+        /**
+         * 写入Remaining获取长度
+         *
+         * @param length 长度
+         */
         private void writeRemainingLength(int length) throws IOException {
             do {
                 int digit = length % 128;
@@ -680,7 +765,7 @@ public class MqttServer extends AbstractServer {
             } while (length > 0);
         }
 
-        /** 跳过Packet */
+        /** 跳过数据包 */
         private void skipPacket() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] skip = new byte[remainingLength];
@@ -697,12 +782,19 @@ public class MqttServer extends AbstractServer {
     }
 
     // ==================== 异常类 ====================
+    /**
+     * mqtt服务端异常类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class MqttServerException extends RuntimeException {
         /**
-         * 创建 MqttServerException 实例
-         * @param message message
-         * @param Throwable Throwable
+          * 创建 mqtt服务端异常 实例
+         * @param message 消息
+         * @param cause Throwable
+         * @param cause cause
          */
         public MqttServerException(String message, Throwable cause) {
             super(message, cause);

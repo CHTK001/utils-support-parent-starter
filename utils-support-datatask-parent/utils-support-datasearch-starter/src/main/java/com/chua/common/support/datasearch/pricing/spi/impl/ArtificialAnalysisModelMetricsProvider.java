@@ -37,22 +37,22 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     /** Leaderboard_url */
     private static final String LEADERBOARD_URL = "https://artificialanalysis.ai/zh/leaderboards/providers";
 
-    /** 模型排行榜页(含活跃参数量 activeParams) */
+    /** 模型排行榜页(含活跃参数量 活跃参数) */
     private static final String MODELS_URL = "https://artificialanalysis.ai/models";
 
     /** 图标地址前缀（相对路径补全用） */
     private static final String LOGO_BASE = "https://artificialanalysis.ai";
 
-    /** 记录锚点：转义形态的 \"model\":{\"slug\":\"xxx\" */
+    /** 记录锚点：转义形态的 \"模型\":{\"slug\":\"xxx\" */
     private static final Pattern ANCHOR =
             Pattern.compile("\\\\\"model\\\\\":\\{\\\\\"slug\\\\\":\\\\\\\"");
 
-    /** 目录条目：{"slug":"x","name":"y",...,"creator":{"id":"...","name":"z","logo":"/img/logos/x.svg"}} */
+    /** 目录条目：{"slug":"x","名称":"y",...,"creator":{"标识":"...","名称":"z","logo":"/img/logos/x.SVG"}} */
     private static final Pattern CATALOG_ENTRY = Pattern.compile(
             "\\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\\[]*?)"
                     + "\"creator\":\\{\"id\":\"[^\"]*\",\"name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
 
-    /** 图片输入能力推断：slug 含 image/clip/vit 等关键词 */
+    /** 图片输入能力推断：slug 含 镜像/clip/vit 等关键词 */
     private static final Pattern IMAGE_INPUT_PATTERN = Pattern.compile(
             "image|clip|vit|vision|multimodal", Pattern.CASE_INSENSITIVE);
 
@@ -160,7 +160,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     : (logoPath.startsWith("http") ? logoPath
                     : (logoPath.startsWith("/") ? LOGO_BASE + logoPath : LOGO_BASE + "/img/logos/" + logoPath));
 
-            // 能力标签：基础 chat + 推断出的多维能力
+ // 能力标签：基础 对话 + 推断出的多维能力
             List<String> capabilities = new ArrayList<>(4);
             capabilities.add("chat");
             if (Boolean.TRUE.equals(reasoning)) { capabilities.add("reasoning"); }
@@ -200,10 +200,10 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      *
      * <p>providers 页不含参数量字段；models 页将活跃参数量放在结构化数据集
      * {@code {"label":"...","activeParams":104,"passiveParams":2696,"detailsUrl":"/models/kimi-k3"}}
-     * 中（仅覆盖部分主流模型），slug 从 detailsUrl 提取。</p>
+      * 中（仅覆盖部分主流模型），slug 从 detailsurl 提取。</p>
      *
      * @param html 模型页原始 HTML（含转义）
-     * @return slug -> activeParams(十亿)
+     * @return slug -> 活跃参数(十亿)
      */
     private Map<String, BigDecimal> parseActiveParams(String html) {
         Map<String, BigDecimal> result = new LinkedHashMap<>();
@@ -221,7 +221,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      * 从模型排行榜页解析思考等级（slug -> effort）。
      *
      * <p>models 页每个推理模型记录带 {@code "effort":{"slug":"max","label":"max","level":60}},
-     * 提取其档位 slug（max / high / medium / low）；非推理模型无此字段，不收录。</p>
+      * 提取其档位 slug（最大 / high / medium / low）；非推理模型无此字段，不收录。</p>
      *
      * @param html 模型页原始 HTML（含转义）
      * @return slug -> 思考等级
@@ -243,7 +243,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      *
      * @param window 窗口文本
      * @param key 字段键的转义正则片段
-     * @return 数值，缺失或为 null 字面量时返回 null
+     * @return 数值，缺失或为 空 字面量时返回 空
      */
     private BigDecimal num(String window, String key) {
         Matcher m = Pattern.compile(key + "(-?[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)").matcher(window);
@@ -260,7 +260,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
      *
      * @param s 窗口文本
      * @param regex 正则
-     * @return 第一个捕获组，未匹配返回 null
+     * @return 第一个捕获组，未匹配返回 空
      */
     private String group1(String s, String regex) {
         Matcher m = Pattern.compile(regex).matcher(s);

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * 任务去重器。
  *
  * <p>基于 taskId 进行去重，防止同一任务被重复派发。
- * 内部使用 ConcurrentHashMap + TTL 自动清理过期记录。</p>
+   * 内部使用 并发哈希映射 + TTL 自动清理过期记录。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -62,7 +62,7 @@ public class TaskDeduplicator {
     /**
      * 检查是否为重复任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示重复
      */
     public boolean isDuplicate(String taskId) {
@@ -84,7 +84,7 @@ public class TaskDeduplicator {
     /**
      * 标记任务已处理。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      */
     public void markProcessed(String taskId) {
         if (taskId != null && !taskId.isEmpty()) {
@@ -95,7 +95,7 @@ public class TaskDeduplicator {
     /**
      * 移除任务去重标记。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      */
     public void remove(String taskId) {
         if (taskId != null) {

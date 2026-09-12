@@ -26,9 +26,9 @@ public interface ImageDetector {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -38,9 +38,9 @@ public interface ImageDetector {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default ImageDetector provider(String provider) {
@@ -57,7 +57,12 @@ public interface ImageDetector {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static ImageDetector create(String name) {
         return new DefaultImageDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -68,7 +73,7 @@ public interface ImageDetector {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageDetector.class);
@@ -160,12 +165,12 @@ class DefaultImageDetector implements ImageDetector {
     private final ModelSetting setting;
 
     /**
-     * 检测阈值（null 表示未显式设置，使用各模型自身默认值）。
+      * 检测阈值（空 表示未显式设置，使用各模型自身默认值）。
      */
     private Float threshold;
 
     /**
-     * NMS 阈值（null 表示未显式设置，使用各模型自身默认值）。
+      * NMS 阈值（空 表示未显式设置，使用各模型自身默认值）。
      */
     private Float nms;
 
@@ -199,7 +204,7 @@ class DefaultImageDetector implements ImageDetector {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public ImageDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
@@ -213,7 +218,7 @@ class DefaultImageDetector implements ImageDetector {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -228,7 +233,12 @@ class DefaultImageDetector implements ImageDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Detect */
+    /**
+     * Detect
+     *
+     * @param imageData 镜像数据
+     * @return detect的结果
+     */
     public List<DetectionInfo> detect(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, detectOptions());
@@ -259,7 +269,7 @@ class DefaultImageDetector implements ImageDetector {
     /**
      * 汇总显式设置的运行参数（未设置的键不出现，保留各模型默认值）。
      *
-     * @return 运行参数（可能为空 Map）
+     * @return 运行参数（可能为空 映射）
      */
     private java.util.Map<String, Object> detectOptions() {
         return com.chua.deeplearning.support.engine.DetectOptions.of(threshold, nms);

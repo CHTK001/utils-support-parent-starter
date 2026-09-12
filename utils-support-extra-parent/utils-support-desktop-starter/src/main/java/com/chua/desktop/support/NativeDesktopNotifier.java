@@ -28,7 +28,7 @@ public interface NativeDesktopNotifier {
     /**
      * 获取当前平台名称。
      *
-     * @return 平台名称（如 windows、mac、linux）
+     * @return 平台名称（如 窗口、mac、Linux）
      */
     String getPlatform();
 

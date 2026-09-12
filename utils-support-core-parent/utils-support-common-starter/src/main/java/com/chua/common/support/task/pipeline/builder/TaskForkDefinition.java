@@ -31,6 +31,8 @@ import java.util.function.Consumer;
  *         .errorStrategy(ForkErrorStrategy.WAIT_ALL)
  *     .taskEnd()                                // 结束分叉定义
  *     .build();
+ * }</pre>       // 结束分叉定义
+   * .构建();
  * }</pre>
  *
  * <p><strong>方式2：预构建 Pipeline 传入</strong></p>
@@ -49,6 +51,8 @@ import java.util.function.Consumer;
  *         .branch("b", branchB)
  *     .taskEnd()
  *     .build();
+ * }</pre>结束()
+   * .构建();
  * }</pre>
  *
  * <p><strong>方式3：从 taskStart 转换</strong></p>
@@ -59,6 +63,8 @@ import java.util.function.Consumer;
  *         .branch("a", branchA)
  *         .branch("b", branchB)
  *     .taskEnd()                                // 结束定义
+ *     .build();
+ * }</pre>                     // 结束定义
  *     .build();
  * }</pre>
  *
@@ -85,7 +91,7 @@ import java.util.function.Consumer;
  */
 public class TaskForkDefinition {
 
-    /** ID */
+    /** 标识 */
     private final String id;
     /** PRE处理器 */
     private PipelineNode preHandler;
@@ -95,7 +101,7 @@ public class TaskForkDefinition {
     private final Map<String, Pipeline> branches = new LinkedHashMap<>();
     /** 错误策略 */
     private ForkErrorStrategy errorStrategy;
-    /** params */
+    /** 参数 */
     private Map<String, Object> params;
     /** env */
     private Map<String, Object> env;
@@ -115,7 +121,7 @@ public class TaskForkDefinition {
      * 完成定义，将分叉节点添加到流水线，返回构建器继续链式配置。
      *
      * <p>与 {@link TaskDefinition#fork()} 或 {@link PipelineBuilder#fork(String)} 配对使用，
-     * 构成完整的分叉定义：taskStart → fork → branch → ... → taskEnd。</p>
+      * 构成完整的分叉定义：任务启动 → fork → 分支 → ... → 任务结束。</p>
      *
      * @return PipelineBuilder
      */
@@ -161,7 +167,7 @@ public class TaskForkDefinition {
      * {@link PipelineContext#createBranchContext()} 创建独立上下文。</p>
      *
      * <p>分支结果存储在父上下文的 {@code nodeOutputs} 中，以 {@link com.chua.common.support.task.pipeline.core.ForkResult}
-     * 结构化对象存储，key 为分叉节点的 nodeId。</p>
+      * 结构化对象存储，键 为分叉节点的 节点id。</p>
      *
      * @param name           分支名称（用于结果存储和日志标识）
      * @param branchPipeline 分支流水线实例
@@ -189,6 +195,7 @@ public class TaskForkDefinition {
      *         .step("b1", ctx -> { doB1(ctx); return null; })
      *     .endFork()                            // 结束分支 "b"
      * .taskEnd()
+     * }</pre>.任务结束()
      * }</pre>
      *
      * <p>对于复杂分支（含判断节点、子流水线等），请使用
@@ -212,6 +219,7 @@ public class TaskForkDefinition {
      *     .startFork("a").step("a1", ...).endFork()
      *     .startFork("b").step("b1", ...).endFork()
      * .endFork()    // 等价于 .taskEnd()
+     * }</pre>nd()
      * }</pre>
      *
      * @return PipelineBuilder
@@ -238,7 +246,7 @@ public class TaskForkDefinition {
     }
 
     /**
-     * 设置节点参数（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）。
+      * 设置节点参数（JSON 构建时传入，执行时注入到 ctx.节点本地数据）。
      *
      * @param params 节点参数映射
      * @return this
@@ -308,7 +316,7 @@ public class TaskForkDefinition {
      *
      * <p>适用于分叉执行前需要根据条件决定路由的场景。</p>
      *
-     * @param handler PipelineNode 处理器
+     * @param handler pipeline节点 处理器
      * @return this
      */
     public TaskForkDefinition step(PipelineNode handler) {

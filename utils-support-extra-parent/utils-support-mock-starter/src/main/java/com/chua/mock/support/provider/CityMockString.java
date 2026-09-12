@@ -21,6 +21,8 @@ public class CityMockString implements MockString {
 
     /**
      * 中国主要城市池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] CITIES = {
             "北京", "上海", "广州", "深圳", "杭州", "南京", "成都", "武汉", "长沙", "厦门",

@@ -27,7 +27,7 @@ import java.util.Map;
  * HTTP 爬虫抓取器。
  *
  * <p>基于 JDK 内置的 {@link HttpClient} 实现 Web 页面抓取。
- * 支持 GET/POST 请求、自定义请求头、Cookie、代理、超时控制等功能。
+   * 支持 获取/POST 请求、自定义请求头、Cookie、代理、超时控制等功能。
  * 当 OkHttp 不在类路径上时作为默认 HTTP 抓取实现。</p>
  *
  * <p>SPI 名称：{@code fetcher:http}</p>
@@ -50,24 +50,24 @@ public class HttpFetcher implements SpiderFetcher {
     private static final String ATTR_TIMEOUT = "timeoutMs";
 
     /**
-     * 请求属性键：User-Agent。
+      * 请求属性键：用户-智能体。
      */
     private static final String ATTR_USER_AGENT = "userAgent";
 
     /**
-     * 默认 User-Agent
+      * 默认 用户-智能体
      */
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
                     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
     /**
-     * JDK HttpClient 实例（无代理时的共享实例）
+      * JDK HTTP客户端 实例（无代理时的共享实例）
      */
     private final HttpClient httpClient;
 
     /**
-     * 默认构造器，使用默认超时和 User-Agent。
+      * 默认构造器，使用默认超时和 用户-智能体。
      */
     public HttpFetcher() {
         this(DEFAULT_TIMEOUT);
@@ -86,7 +86,7 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     @Override
-    /** Fetch */
+    /** 获取 */
     public SpiderResponse fetch(SpiderRequest request) {
         long startTime = System.currentTimeMillis();
         SpiderResponse.SpiderResponseBuilder builder = SpiderResponse.builder()
@@ -95,7 +95,7 @@ public class HttpFetcher implements SpiderFetcher {
         try {
             HttpRequest.Builder reqBuilder = buildHttpRequest(request);
 
-            // 每次请求独立 HttpClient：带代理时新建，不污染共享实例
+ // 每次请求独立 HTTP客户端：带代理时新建，不污染共享实例
             HttpClient client = chooseClient(request);
 
             HttpResponse<String> response = client.send(
@@ -133,7 +133,7 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     /**
-     * 构建 JDK HttpRequest.Builder：URL + 方法 + 头 + Cookie + body。
+      * 构建 JDK http请求.构建器：URL + 方法 + 头 + Cookie + 主体。
      *
      * @param request 爬虫请求
      * @return JDK 请求构造器
@@ -217,7 +217,7 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     /**
-     * 根据代理配置构建 JDK ProxySelector。
+      * 根据代理配置构建 JDK 代理selector。
      *
      * <p>根据 {@link SpiderProxyConfig#getProxyProtocol()} 选择代理类型：
      * SOCKS/SOCKS5 使用 {@link Proxy.Type#SOCKS}，其余（HTTP/HTTPS）使用
@@ -242,7 +242,7 @@ public class HttpFetcher implements SpiderFetcher {
             }
 
             @Override
-            /** 连接Failed */
+            /** 连接失败 */
             public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
                 log.warn("[spider-fetcher] 代理连接失败: {} - {}", uri, ioe.getMessage());
             }
@@ -250,10 +250,10 @@ public class HttpFetcher implements SpiderFetcher {
     }
 
     /**
-     * 合并 Cookie 字符串与结构化 cookieList 为标准 Cookie 请求头。
+      * 合并 Cookie 字符串与结构化 Cookie列表 为标准 Cookie 请求头。
      *
      * @param request 爬虫请求
-     * @return Cookie 请求头值；都为空时返回 null
+     * @return Cookie 请求头值；都为空时返回 空
      */
     private String buildCookieHeader(SpiderRequest request) {
         StringBuilder builder = new StringBuilder();

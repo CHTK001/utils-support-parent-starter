@@ -24,10 +24,12 @@ import java.util.zip.Deflater;
  * encoder.addFrame(frame1, 100);              // 每帧 100ms
  * encoder.addFrame(frame2, 100);
  * encoder.finish();
+ * }</pre>er.addFrame(frame2, 100);
+ * encoder.finish();
  * }</pre>
  *
  * <p>输出格式：8-bit RGBA（颜色类型 6），首帧数据写入 IDAT，后续帧写入 fdAT，
- * 帧控制信息写入 fcTL（整帧绘制：x/y=0，dispose=NONE，blend=SOURCE）。</p>
+   * 帧控制信息写入 函数计算tl（整帧绘制：x/y=0，dispose=无，blend=源）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -126,7 +128,7 @@ public class ApngEncoder {
         out.write(PNG_SIGNATURE);
         writeIHDR(width, height);
 
-        // acTL：总帧数 + 播放次数
+ // actl：总帧数 + 播放次数
         byte[] acTL = new byte[8];
         putIntBE(acTL, 0, frames.size());
         putIntBE(acTL, 4, loopCount);
@@ -140,7 +142,7 @@ public class ApngEncoder {
             // fcTL：帧控制（30 字节 = sequence(4) + 控制数据(26)）
             writeChunk("fcTL", buildFcTL(sequence++, frame.getWidth(), frame.getHeight(), delayMs));
 
-            // 帧数据：首帧 IDAT（不占 sequence），后续帧 fdAT（带 sequence）
+ // 帧数据：首帧 IDAT（不占 sequence），后续帧 fdat（带 sequence）
             byte[] compressed = compressFrame(frame, width, height);
             if (i == 0) {
                 writeChunk("IDAT", compressed);
@@ -159,31 +161,38 @@ public class ApngEncoder {
     // ==================== 块写入 ====================
 
     /**
-     * 写入 IHDR 块：8-bit RGBA（颜色类型 6），无隔行。
+      * 写入 IHDR 块：8-钻头 RGBA（颜色类型 6），无隔行。
+     * @param width width
+     * @param height height
      */
     private void writeIHDR(int width, int height) throws IOException {
         byte[] ihdr = new byte[13];
         putIntBE(ihdr, 0, width);
         putIntBE(ihdr, 4, height);
-        ihdr[8] = 8;                  // bit depth
-        ihdr[9] = PNG.PNG_COLOR_RGB_ALPHA; // color type 6
+        ihdr[8] = 8; // 钻头 深度
+        ihdr[9] = PNG.PNG_COLOR_RGB_ALPHA; // color 类型 6
         ihdr[10] = 0;                 // compression
-        ihdr[11] = 0;                 // filter
+        ihdr[11] = 0; // 过滤器
         ihdr[12] = 0;                 // interlace
         writeChunk("IHDR", ihdr);
     }
 
     /**
-     * 构建 fcTL 块数据（30 字节）：sequence(4) + width/height/x/y/delay(20) + dispose/blend(2)。
-     * 整帧绘制（x/y=0），dispose=NONE，blend=SOURCE。
+      * 构建 函数计算tl 块数据（30 字节）：sequence(4) + width/height/x/y/延迟(20) + dispose/blend(2)。
+      * 整帧绘制（x/y=0），dispose=无，blend=源。
+     * @param sequence sequence
+     * @param width width
+     * @param height height
+     * @param delayMillis 延迟millis
+     * @return 构建函数计算tl的结果
      */
     private static byte[] buildFcTL(int sequence, int width, int height, int delayMillis) {
         byte[] fcTL = new byte[30];
         putIntBE(fcTL, 0, sequence);
         putIntBE(fcTL, 4, width);
         putIntBE(fcTL, 8, height);
-        putIntBE(fcTL, 12, 0);     // x_offset
-        putIntBE(fcTL, 16, 0);     // y_offset
+        putIntBE(fcTL, 12, 0); // x_偏移量
+        putIntBE(fcTL, 16, 0); // y_偏移量
         // delay：delay_num = 毫秒，delay_den = 1000 → 精确毫秒
         putIntBE(fcTL, 20, delayMillis);
         putIntBE(fcTL, 24, 1000);
@@ -193,7 +202,9 @@ public class ApngEncoder {
     }
 
     /**
-     * 写入一个 PNG 块：length + type + data + CRC。
+      * 写入一个 PNG 块：长度 + 类型 + 数据 + CRC。
+     * @param type 类型
+     * @param data 数据
      */
     private void writeChunk(String type, byte[] data) throws IOException {
         out.writeInt(data.length);
@@ -208,7 +219,25 @@ public class ApngEncoder {
     }
 
     /**
-     * 压缩一帧为 PNG 扫描线数据：每行 filter=0 + RGBA 像素，zlib 压缩。
+      * 压缩一帧为 PNG 扫描线数据：每行 过滤器=0 + RGBA 像素，zlib 压缩。
+     * @param data 数据
+     /**
+      * compress帧。
+      * @param frame 帧
+      * @param canvasW Canvasw
+      * @param canvasH Canvash
+      * @return compress帧的结果
+      */
+     * @param offset 偏移量
+     * @param value 值
+      * @param data 数据
+     /**
+      * compress帧。
+      * @param frame 帧
+      * @param canvasW Canvasw
+      * @param canvasH Canvash
+      * @return compress帧的结果
+      */
      */
     private static byte[] compressFrame(BufferedImage frame, int canvasW, int canvasH) throws IOException {
         int w = frame.getWidth();
@@ -224,7 +253,7 @@ public class ApngEncoder {
         }
 
         for (int y = 0; y < h; y++) {
-            raw.write(0); // filter: none
+            raw.write(0); // 过滤器: 无
             int base = y * w;
             for (int x = 0; x < w; x++) {
                 int argb = pixels[base + x];

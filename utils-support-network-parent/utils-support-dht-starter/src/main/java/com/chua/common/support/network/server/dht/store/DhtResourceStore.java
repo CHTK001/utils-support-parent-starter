@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * DHT 资源（InfoHash）对等节点存储。
+   * DHT 资源（信息哈希）对等节点存储。
  * <p>
- * 用于 BitTorrent DHT 场景，记录每个 infohash 对应的 peers。
+   * 用于 钻头torrent DHT 场景，记录每个 infohash 对应的 peers。
  * </p>
  *
  * @author CH
@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DhtResourceStore {
 
     /**
-     * infohash 到 DiscoveredPeer 列表的映射
+      * infohash 到 discoveredpeer 列表的映射
      */
     private final Map<String, CopyOnWriteArrayList<DiscoveredPeer>> store = new ConcurrentHashMap<>();
 
@@ -35,7 +35,7 @@ public class DhtResourceStore {
      * @param infohash     infohash 字符串
      * @param host         peer 主机地址
      * @param port         peer 端口号
-     * @param sourceNodeId 发现该 peer 的源节点 ID
+     * @param sourceNodeId 发现该 peer 的源节点 标识
      */
     public void recordPeer(String infohash, String host, int port, String sourceNodeId) {
         DiscoveredPeer peer = new DiscoveredPeer(host, port, sourceNodeId, System.currentTimeMillis());
@@ -125,6 +125,8 @@ public class DhtResourceStore {
      * <p>
      * 记录从 DHT 网络中发现的 peer 信息，包括网络地址和来源。
      * </p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class DiscoveredPeer {
 
@@ -139,7 +141,7 @@ public class DhtResourceStore {
         public final int port;
 
         /**
-         * 发现该 peer 的源节点 ID。
+          * 发现该 peer 的源节点 标识。
          */
         public final String sourceNodeId;
 
@@ -153,7 +155,7 @@ public class DhtResourceStore {
          *
          * @param host         peer 主机地址
          * @param port         peer 端口号
-         * @param sourceNodeId 源节点 ID
+         * @param sourceNodeId 源节点 标识
          * @param discoveredAt 发现时间戳
          */
         public DiscoveredPeer(String host, int port, String sourceNodeId, long discoveredAt) {

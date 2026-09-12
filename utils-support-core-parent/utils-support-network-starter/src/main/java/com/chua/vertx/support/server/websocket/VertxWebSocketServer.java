@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @Spi("vertx-websocket")
@@ -33,13 +34,13 @@ public class VertxWebSocketServer extends AbstractServer {
     private Vertx vertx;
     /** 服务器 */
     private io.vertx.core.http.HttpServer server;
-    /** topicHandlers */
+    /** topic处理器 */
     private final Map<String, List<ServerHandler>> topicHandlers = new ConcurrentHashMap<>();
     /** Connections */
     private final List<ServerWebSocket> connections = new CopyOnWriteArrayList<>();
 
     /**
-     * 创建 VertxWebSocketServer 实例
+      * 创建 vertxweb套接字服务端 实例
      * @param setting setting
      */
     public VertxWebSocketServer(ServerSetting setting) {
@@ -47,10 +48,10 @@ public class VertxWebSocketServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         // 事件循环数提到 CPU 核数:WebSocket 帧解析/回显都在事件循环执行,
-        // bossThreads 默认 1 会让单事件循环成为高并发吞吐瓶颈
+ // bossthreads 默认 1 会让单事件循环成为高并发吞吐瓶颈
         int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);
         int workerPoolSize = Math.max(setting.getWorkerThreads(), Runtime.getRuntime().availableProcessors() * 4);
 
@@ -90,7 +91,7 @@ public class VertxWebSocketServer extends AbstractServer {
                 if (handlers == null) {
                     return;
                 }
-                // 事件循环直跑:WebSocket 回声 handler 为非阻塞回调,无需 executeBlocking 切 worker 线程,
+ // 事件循环直跑:WebSocket 回声 处理器 为非阻塞回调,无需 执行阻塞 切 工人 线程,
                 // 高并发下省去每消息线程切换 + 队列调度开销,吞吐显著提升
                 VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
                 VertxServerResponse response = new VertxServerResponse(ws);
@@ -117,7 +118,7 @@ public class VertxWebSocketServer extends AbstractServer {
                 if (handlers == null) {
                     return;
                 }
-                // 事件循环直跑:WebSocket 回声 handler 为非阻塞回调,无需 executeBlocking 切 worker 线程,
+ // 事件循环直跑:WebSocket 回声 处理器 为非阻塞回调,无需 执行阻塞 切 工人 线程,
                 // 高并发下省去每消息线程切换 + 队列调度开销,吞吐显著提升
                 VertxServerRequest request = new VertxServerRequest(finalTopic, finalBody);
                 VertxServerResponse response = new VertxServerResponse(ws);
@@ -144,7 +145,7 @@ public class VertxWebSocketServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (server != null) {
             try {
@@ -164,7 +165,7 @@ public class VertxWebSocketServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
@@ -192,13 +193,24 @@ public class VertxWebSocketServer extends AbstractServer {
         return this;
     }
 
-    /** On订阅 */
+    /**
+     * On订阅
+     *
+     * @param topic topic
+     * @param handler 处理器
+     * @return on订阅的结果
+     */
     public VertxWebSocketServer onSubscribe(String topic, ServerHandler handler) {
         topicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
-    /** 发布 */
+    /**
+     * 发布
+     *
+     * @param topic topic
+     * @param payload payload
+     */
     public void publish(String topic, String payload) {
         String text = topic + "\n" + payload;
         for (ServerWebSocket ws : connections) {
@@ -208,7 +220,13 @@ public class VertxWebSocketServer extends AbstractServer {
         }
     }
 
-    /** 创建MessageHandler */
+    /**
+     * 创建消息处理器
+     *
+     * @param bean Bean
+     * @param method 方法
+     * @return 创建消息处理器的结果
+     */
     private ServerHandler createMessageHandler(Object bean, Method method) {
         method.setAccessible(true);
         return (request, response) -> {
@@ -242,7 +260,13 @@ public class VertxWebSocketServer extends AbstractServer {
         };
     }
 
-    /** 调用AnnotatedMethods */
+    /**
+     * 调用annotated方法
+     *
+     * @param annotationType 注解类型
+     * @author CH
+     * @since 4.0.0
+     */
     private void invokeAnnotatedMethods(Class<? extends Annotation> annotationType) {
         if (getObjectContext() == null) {
             return;
@@ -288,79 +312,79 @@ public class VertxWebSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Path */
+        /** 获取路径 */
         public String getPath() {
             return "/ws/" + topic;
         }
 
         @Override
-        /** 获取Method */
+        /** 获取方法 */
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取Params */
+        /** 获取参数 */
         public Map<String, String> getParams() {
             return Collections.emptyMap();
         }
 
         @Override
-        /** 获取Param */
+        /** 获取参数 */
         public String getParam(String name) {
             return null;
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             return "text/plain";
         }
 
         @Override
-        /** 获取Content获取长度 */
+        /** 获取内容获取长度 */
         public long getContentLength() {
             return body != null ? body.getBytes().length : -1;
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return body != null ? body.getBytes() : new byte[0];
         }
 
         @Override
-        /** 获取BodyString */
+        /** 获取主体字符串 */
         public String getBodyString() {
             return body;
         }
 
         @Override
-        /** 获取InputStream */
+        /** 获取输入流 */
         public java.io.InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(body != null ? body.getBytes() : new byte[0]);
         }
 
         @Override
-        /** 获取RemoteAddress */
+        /** 获取远程地址 */
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return 0;
         }
@@ -378,7 +402,14 @@ public class VertxWebSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 设置Attribute */
+        /**
+         * 设置Attribute
+         *
+         * @param name 名称
+         * @param value 值
+         * @author CH
+         * @since 4.0.0
+         */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
@@ -388,7 +419,7 @@ public class VertxWebSocketServer extends AbstractServer {
 
         /** WS */
         private final ServerWebSocket ws;
-        /** ended */
+        /** 结束 */
         private volatile boolean ended;
         /** committed */
         private volatile boolean committed;
@@ -402,70 +433,70 @@ public class VertxWebSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Status */
+        /** 获取状态 */
         public int getStatus() {
             return status;
         }
 
         @Override
-        /** 设置Status */
+        /** 设置状态 */
         public ServerResponse setStatus(int status) {
             this.status = status;
             return this;
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 设置Header */
+        /** 设置头部 */
         public ServerResponse setHeader(String name, String value) {
             return this;
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             return null;
         }
 
         @Override
-        /** 设置ContentType */
+        /** 设置内容类型 */
         public ServerResponse setContentType(String contentType) {
             return this;
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(byte[] body) {
             this.result = body;
             return this;
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(String body) {
             this.result = body;
             return this;
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return result instanceof byte[] ? (byte[]) result : null;
         }
 
         @Override
-        /** 获取OutputStream */
+        /** 获取输出流 */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
@@ -497,13 +528,13 @@ public class VertxWebSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 是否Ended */
+        /** 是否结束 */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
-        /** End */
+        /** 结束 */
         public void end() {
             this.ended = true;
         }
@@ -525,7 +556,7 @@ public class VertxWebSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 设置Result */
+        /** 设置结果 */
         public ServerResponse setResult(Object result) {
             this.result = result;
             if (result != null && ws != null && !ws.isClosed()) {
@@ -535,7 +566,7 @@ public class VertxWebSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Result */
+        /** 获取结果 */
         public Object getResult() {
             return result;
         }

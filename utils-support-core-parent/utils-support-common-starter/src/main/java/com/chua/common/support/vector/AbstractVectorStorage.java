@@ -34,7 +34,7 @@ public abstract class AbstractVectorStorage implements VectorStorage {
      * 构造抽象向量存储。
      *
      * @param dimension 向量维度
-     * @param algorithm 比较算法（可为 null，默认欧几里得）
+     * @param algorithm 比较算法（可为 空，默认欧几里得）
      */
     protected AbstractVectorStorage(int dimension, VectorCompareAlgorithm algorithm) {
         this.dimension = dimension;
@@ -49,7 +49,7 @@ public abstract class AbstractVectorStorage implements VectorStorage {
     protected VectorCompareAlgorithm getAlgorithm() {
         return algorithm;
     }
-    /** Dimension */
+    /** 维度 */
     @Override
     public int dimension() {
         checkNotClosed();
@@ -104,7 +104,7 @@ public abstract class AbstractVectorStorage implements VectorStorage {
      * @param results 候选结果列表（需包含向量数据）
      * @param query   查询向量
      * @param topK    最终需要的数量
-     * @return 按自定义算法排序的前 topK 个结果
+     * @return 按自定义算法排序的前 topk 个结果
      */
     protected List<Vector> rerank(List<Vector> results, float[] query, int topK) {
         VectorCompareAlgorithm algo = getAlgorithm();

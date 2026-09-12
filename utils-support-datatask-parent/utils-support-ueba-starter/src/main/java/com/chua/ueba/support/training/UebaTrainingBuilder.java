@@ -39,7 +39,7 @@ import java.util.Objects;
 @Slf4j
 public final class UebaTrainingBuilder {
 
-    /** classpath 默认配置文件 */
+    /** 类路径 默认配置文件 */
     private static final String DEFAULT_CONFIG_RESOURCE = "ueba-config.yaml";
 
     /** 默认输出目录（相对当前工作目录） */
@@ -60,7 +60,7 @@ public final class UebaTrainingBuilder {
     /** 已解析的配置 */
     private UebaConfig config;
 
-    /** 配置来源文件路径（config(Path)/configFile 时非 null，复制时保留原始注释） */
+    /** 配置来源文件路径（配置(路径)/配置文件 时非 空，复制时保留原始注释） */
     private Path configSource;
 
     /** 训练数据 CSV 路径 */
@@ -81,15 +81,15 @@ public final class UebaTrainingBuilder {
     /** Python 解释器命令 */
     private String pythonCommand = DEFAULT_PYTHON;
 
-    /** 续训来源目录（已有模型或 checkpoint，null 表示从零训练） */
+    /** 续训来源目录（已有模型或 checkpoint，空 表示从零训练） */
     private Path resumeDir;
 
     /**
      * 以内存配置对象设置配置。
      *
-     * @param config UEBA 配置，不能为 null
+     * @param config UEBA 配置，不能为 空
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 config 为 null 时
+     * @throws IllegalArgumentException 当 配置 为 空 时
      */
     public UebaTrainingBuilder config(UebaConfig config) {
         Objects.requireNonNull(config, "config must not be null");
@@ -101,9 +101,9 @@ public final class UebaTrainingBuilder {
     /**
      * 以文件路径设置配置（训练产物将复制该文件并保留注释）。
      *
-     * @param path 配置文件路径，不能为 null
+     * @param path 配置文件路径，不能为 空
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 path 为 null 时
+     * @throws IllegalArgumentException 当 路径 为 空 时
      * @throws UncheckedIOException     当配置文件读取失败时
      */
     public UebaTrainingBuilder config(Path path) {
@@ -116,9 +116,9 @@ public final class UebaTrainingBuilder {
     /**
      * 以文件路径字符串设置配置。
      *
-     * @param file 配置文件路径，不能为 null 或空白
+     * @param file 配置文件路径，不能为 空 或空白
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 file 为 null 或空白时
+     * @throws IllegalArgumentException 当 文件 为 空 或空白时
      */
     public UebaTrainingBuilder configFile(String file) {
         if (file == null || file.isBlank()) {
@@ -128,11 +128,11 @@ public final class UebaTrainingBuilder {
     }
 
     /**
-     * 以 classpath 资源设置配置。
+      * 以 类路径 资源设置配置。
      *
-     * @param resource classpath 资源路径，不能为 null 或空白
+     * @param resource 类路径 资源路径，不能为 空 或空白
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 resource 为 null/空白或资源不存在时
+     * @throws IllegalArgumentException 当 resource 为 空/空白或资源不存在时
      */
     public UebaTrainingBuilder configResource(String resource) {
         if (resource == null || resource.isBlank()) {
@@ -151,11 +151,11 @@ public final class UebaTrainingBuilder {
     }
 
     /**
-     * 设置训练数据 CSV 路径（列：timestamp,ip,path,method,status,user_agent,response_time,response_size）。
+      * 设置训练数据 CSV 路径（列：时间戳,ip,路径,方法,状态,用户_智能体,响应_时间,响应_大小）。
      *
-     * @param dataCsv 训练数据路径，不能为 null
+     * @param dataCsv 训练数据路径，不能为 空
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 dataCsv 为 null 或文件不存在时
+     * @throws IllegalArgumentException 当 数据csv 为 空 或文件不存在时
      */
     public UebaTrainingBuilder data(Path dataCsv) {
         Objects.requireNonNull(dataCsv, "dataCsv must not be null");
@@ -169,9 +169,9 @@ public final class UebaTrainingBuilder {
     /**
      * 设置训练数据 CSV 路径。
      *
-     * @param dataFile 训练数据文件路径，不能为 null 或空白
+     * @param dataFile 训练数据文件路径，不能为 空 或空白
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 dataFile 为 null 或空白时
+     * @throws IllegalArgumentException 当 数据文件 为 空 或空白时
      */
     public UebaTrainingBuilder data(String dataFile) {
         if (dataFile == null || dataFile.isBlank()) {
@@ -195,7 +195,7 @@ public final class UebaTrainingBuilder {
     /**
      * 设置输出目录（模型与回写配置的落盘位置）。
      *
-     * @param outputDir 输出目录，允许为 null（使用默认目录）
+     * @param outputDir 输出目录，允许为 空（使用默认目录）
      * @return 当前构建器
      */
     public UebaTrainingBuilder outputDir(Path outputDir) {
@@ -206,7 +206,7 @@ public final class UebaTrainingBuilder {
     /**
      * 设置输出目录字符串。
      *
-     * @param outputDir 输出目录，允许为 null 或空白
+     * @param outputDir 输出目录，允许为 空 或空白
      * @return 当前构建器
      */
     public UebaTrainingBuilder outputDir(String outputDir) {
@@ -222,7 +222,7 @@ public final class UebaTrainingBuilder {
      *
      * @param epochs 训练轮数，必须大于 0
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 epochs 小于等于 0 时
+     * @throws IllegalArgumentException 当 轮次 小于等于 0 时
      */
     public UebaTrainingBuilder epochs(int epochs) {
         if (epochs <= 0) {
@@ -237,7 +237,7 @@ public final class UebaTrainingBuilder {
      *
      * @param batchSize 批大小，必须大于 0
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 batchSize 小于等于 0 时
+     * @throws IllegalArgumentException 当 批量大小 小于等于 0 时
      */
     public UebaTrainingBuilder batchSize(int batchSize) {
         if (batchSize <= 0) {
@@ -252,7 +252,7 @@ public final class UebaTrainingBuilder {
      *
      * @param learningRate 学习率，必须大于 0
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 learningRate 小于等于 0 时
+     * @throws IllegalArgumentException 当 学习rate 小于等于 0 时
      */
     public UebaTrainingBuilder learningRate(double learningRate) {
         if (learningRate <= 0.0d) {
@@ -265,9 +265,9 @@ public final class UebaTrainingBuilder {
     /**
      * 设置 Python 解释器命令。
      *
-     * @param pythonCommand Python 解释器，不能为 null 或空白
+     * @param pythonCommand Python 解释器，不能为 空 或空白
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 pythonCommand 为 null 或空白时
+     * @throws IllegalArgumentException 当 Python命令 为 空 或空白时
      */
     public UebaTrainingBuilder python(String pythonCommand) {
         if (pythonCommand == null || pythonCommand.isBlank()) {
@@ -281,9 +281,9 @@ public final class UebaTrainingBuilder {
      * 设置续训来源目录（输出过模型的目录或 .pt checkpoint），从已有模型继续训练；
      * 不调用则从零开始训练。
      *
-     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 null
+     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 空
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 resumeDir 为 null 时
+     * @throws IllegalArgumentException 当 resumedir 为 空 时
      */
     public UebaTrainingBuilder resume(Path resumeDir) {
         Objects.requireNonNull(resumeDir, "resumeDir must not be null");
@@ -294,9 +294,9 @@ public final class UebaTrainingBuilder {
     /**
      * 设置续训来源路径字符串。
      *
-     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 null 或空白
+     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 空 或空白
      * @return 当前构建器
-     * @throws IllegalArgumentException 当 resumeDir 为 null 或空白时
+     * @throws IllegalArgumentException 当 resumedir 为 空 或空白时
      */
     public UebaTrainingBuilder resume(String resumeDir) {
         if (resumeDir == null || resumeDir.isBlank()) {
@@ -308,7 +308,7 @@ public final class UebaTrainingBuilder {
     /**
      * 构建训练管线。
      *
-     * @return 训练管线，绝不为 null
+     * @return 训练管线，绝不为 空
      * @throws IllegalArgumentException 当配置未设置或训练数据未设置时
      */
     public UebaTrainer build() {
@@ -355,7 +355,7 @@ public final class UebaTrainingBuilder {
     /**
      * CSV 字段转义（逗号/引号/换行）。
      *
-     * @param value 字段值，允许为 null
+     * @param value 字段值，允许为 空
      * @return 转义后的字段值
      */
     private static String csv(String value) {

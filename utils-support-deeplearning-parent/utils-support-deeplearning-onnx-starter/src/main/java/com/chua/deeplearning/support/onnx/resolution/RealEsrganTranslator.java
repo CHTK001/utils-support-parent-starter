@@ -44,7 +44,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     private final int scale;
 
     /**
-     * NDArray
+      * ndarray
      */
     private NDManager manager;
 
@@ -74,7 +74,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         int h = buffered.getHeight();
@@ -100,12 +100,12 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
 
-        // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX NDArray 会递归崩溃）
+ // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX ndarray 会递归崩溃）
         int off = shape.length == 4 ? 1 : 0;
         int c = (int) shape[off];
         int h = (int) shape[off + 1];

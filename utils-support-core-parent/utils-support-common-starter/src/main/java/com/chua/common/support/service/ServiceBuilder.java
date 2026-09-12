@@ -29,6 +29,9 @@ import java.util.Map;
  *     .toRemote("192.168.1.10", 22, "root", "pass")
  *     .install()
  *     .start();
+ * }</pre>mote("192.168.1.10", 22, "root", "pass")
+ *     .install()
+ *     .start();
  * }</pre>
  *
  * <h3>SPI 实现映射</h3>
@@ -68,7 +71,7 @@ public class ServiceBuilder implements Closeable {
     private String stopCmd;
     /** 服务名称 */
     private String serviceName;
-    /** PID 文件路径（null 则使用默认） */
+    /** PID 文件路径（空 则使用默认） */
     private String pidFile;
     /** 工作目录 */
     private String workingDir;
@@ -77,6 +80,7 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 创建本地服务构建器（快捷工厂方法）。
+     * @return 本地的结果
      */
     public static LocalDsl local() {
         return new LocalDsl();
@@ -84,6 +88,7 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 创建远程服务构建器（快捷工厂方法）。
+     * @return 远程的结果
      */
     public static RemoteDsl remote() {
         return new RemoteDsl();
@@ -93,6 +98,8 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 设置 jar 路径。
+     * @param jarPath jar路径
+     * @return withJar的结果
      */
     public ServiceBuilder withJar(String jarPath) {
         this.jarPath = jarPath;
@@ -100,7 +107,9 @@ public class ServiceBuilder implements Closeable {
     }
 
     /**
-     * 设置启动命令（支持 {jar} 占位符，自动替换为 jarPath）。
+      * 设置启动命令（支持 {jar} 占位符，自动替换为 jar路径）。
+     * @param startCmd 启动CMD
+     * @return with启动cmd的结果
      */
     public ServiceBuilder withStartCmd(String startCmd) {
         this.startCmd = startCmd;
@@ -109,6 +118,8 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 设置停止命令（支持 {pid} 占位符）。
+     * @param stopCmd 停止CMD
+     * @return with停止cmd的结果
      */
     public ServiceBuilder withStopCmd(String stopCmd) {
         this.stopCmd = stopCmd;
@@ -117,6 +128,8 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 设置服务名称。
+     * @param serviceName 服务名称
+     * @return with服务名称的结果
      */
     public ServiceBuilder withServiceName(String serviceName) {
         this.serviceName = serviceName;
@@ -125,6 +138,8 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 设置 PID 文件路径（可选）。
+     * @param pidFile pid文件
+     * @return withpid文件的结果
      */
     public ServiceBuilder withPidFile(String pidFile) {
         this.pidFile = pidFile;
@@ -133,6 +148,8 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 设置工作目录（可选）。
+     * @param workingDir workingdir
+     * @return withWorkingDir的结果
      */
     public ServiceBuilder withWorkingDir(String workingDir) {
         this.workingDir = workingDir;
@@ -141,6 +158,8 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 设置环境变量（可选）。
+     * @param env env
+     * @return withEnv的结果
      */
     public ServiceBuilder withEnv(Map<String, String> env) {
         this.env = env;
@@ -151,6 +170,7 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 切换到本地部署模式。
+     * @return 转为位置的结果
      */
     public LocationManager toLocation() {
         return new LocationManager(this);
@@ -158,6 +178,7 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 切换到远程部署模式。
+     * @return 转为远程的结果
      */
     public RemoteManager toRemote() {
         return new RemoteManager(this);
@@ -167,6 +188,7 @@ public class ServiceBuilder implements Closeable {
      * 切换到远程部署模式（指定协议 ssh/winrm）。
      *
      * @param protocol 远程协议（ssh / winrm）
+     * @return 转为远程的结果
      */
     public RemoteManager toRemote(String protocol) {
         return new RemoteManager(this, protocol);
@@ -174,6 +196,11 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 切换到远程部署模式（便捷重载，传入 SSH 连接参数）。
+     * @param host 主机
+     * @param port 端口
+     * @param username 用户名
+     * @param password 密码
+     * @return 转为远程的结果
      */
     public RemoteManager toRemote(String host, int port, String username, String password) {
         RemoteManager mgr = new RemoteManager(this);
@@ -189,6 +216,7 @@ public class ServiceBuilder implements Closeable {
      * @param port     远程端口
      * @param username 用户名
      * @param password 密码
+     * @return 转为远程的结果
      */
     public RemoteManager toRemote(String protocol, String host, int port, String username, String password) {
         RemoteManager mgr = new RemoteManager(this, protocol);
@@ -198,6 +226,11 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 切换到远程部署模式（使用 SSH 私钥认证）。
+     * @param host 主机
+     * @param port 端口
+     * @param username 用户名
+     * @param privateKeyPath 私募键路径
+     * @return 转为远程键的结果
      */
     public RemoteManager toRemoteKey(String host, int port, String username, String privateKeyPath) {
         RemoteManager mgr = new RemoteManager(this);
@@ -209,11 +242,16 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 本地服务管理器 DSL。
+     * @author CH
+     * @since 4.0.0
+     * @param host 主机
+     * @param port 端口
+     * @return with远程的结果
      */
     public static class LocationManager {
 
-        private final ServiceBuilder builder;
-        private final ServiceManager manager;
+        private final ServiceBuilder builder; // 构建器
+        private final ServiceManager manager; // 管理器
 
         LocationManager(ServiceBuilder builder) {
             this.builder = builder;
@@ -221,12 +259,29 @@ public class ServiceBuilder implements Closeable {
                     .getExtension(SPI_SERVICE);
             if (manager == null) {
                 throw new IllegalStateException("[service] 未找到 ServiceManager 实现，请确保 classpath 包含相关依赖");
+            /**
+             * with服务。
+             * @param serviceName 服务名称
+             * @return with服务的结果
+             */
             }
         }
 
         public ServiceBuilder withService(String serviceName) {
             builder.withServiceName(serviceName);
+            /**
+             * with位置。
+             * @param jarPath jar路径
+             * @return with位置的结果
+             * @param host 主机
+             * @param port 端口
+             */
             return builder;
+        /**
+         * with位置。
+         * @param jarPath jar路径
+         * @return with位置的结果
+         */
         }
 
         public ServiceBuilder withLocation(String jarPath) {
@@ -241,6 +296,7 @@ public class ServiceBuilder implements Closeable {
 
         /**
          * 启动服务。
+         * @return 启动的结果
          */
         public long start() {
             resolveAndValidate();
@@ -274,6 +330,7 @@ public class ServiceBuilder implements Closeable {
 
         /**
          * 查询服务状态。
+         * @return 状态的结果
          */
         public boolean status() {
             if (builder.jarPath == null || builder.jarPath.isBlank()) {
@@ -297,6 +354,14 @@ public class ServiceBuilder implements Closeable {
 
         /**
          * 卸载服务。
+         * @return 构建启动cmd的结果
+         /**
+          * uninstall。
+          */
+          * @return 构建启动cmd的结果
+         /**
+          * uninstall。
+          */
          */
         public void uninstall() {
             resolveAndValidate();
@@ -327,18 +392,20 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 远程服务管理器 DSL。
+     * @author CH
+     * @since 4.0.0
      */
     public static class RemoteManager {
 
-        private final ServiceBuilder builder;
-        private final RemoteServiceManager manager;
+        private final ServiceBuilder builder; // 构建器
+        private final RemoteServiceManager manager; // 管理器
 
         // 远程连接参数
         private String sshHost;
-        private int sshPort = 22;
-        private String sshUsername;
-        private String sshPassword;
-        private String sshPrivateKey;
+        private int sshPort = 22; // ssh端口
+        private String sshUsername; // ssh用户名
+        private String sshPassword; // ssh密码
+        private String sshPrivateKey; // ssh私募键
 
         RemoteManager(ServiceBuilder builder) {
             this(builder, DEFAULT_PROTOCOL);
@@ -349,6 +416,9 @@ public class ServiceBuilder implements Closeable {
          *
          * @param builder  宿主构建器
          * @param protocol SPI 名称（ssh 或 winrm）
+         * @param host 主机
+         * @param port 端口
+         * @return with远程的结果
          */
         RemoteManager(ServiceBuilder builder, String protocol) {
             this.builder = builder;
@@ -357,37 +427,79 @@ public class ServiceBuilder implements Closeable {
             if (manager == null) {
                 throw new IllegalStateException("[service] 未找到 RemoteServiceManager 实现: protocol="
                         + protocol + "，请确保 classpath 包含 ssh-starter 或 winrm-starter 依赖");
+            /**
+             * with主机。
+             * @param host 主机
+             * @return with主机的结果
+             */
             }
         }
 
         public RemoteManager withHost(String host) {
             this.sshHost = host;
+            /**
+             * with端口。
+             * @param port 端口
+             * @return with端口的结果
+             */
             return this;
         }
 
         public RemoteManager withPort(int port) {
             this.sshPort = port;
+            /**
+             * with用户名。
+             * @param username 用户名
+             * @return with用户名的结果
+             */
             return this;
         }
 
         public RemoteManager withUsername(String username) {
             this.sshUsername = username;
+            /**
+             * with密码。
+             * @param password 密码
+             * @return with密码的结果
+             */
             return this;
         }
 
         public RemoteManager withPassword(String password) {
             this.sshPassword = password;
+            /**
+             * with私募键。
+             * @param privateKeyPath 私募键路径
+             * @return with私募键的结果
+             */
             return this;
         }
 
         public RemoteManager withPrivateKey(String privateKeyPath) {
             this.sshPrivateKey = privateKeyPath;
+            /**
+             * with服务。
+             * @param serviceName 服务名称
+             * @return with服务的结果
+             */
             return this;
         }
 
         public ServiceBuilder withService(String serviceName) {
             builder.withServiceName(serviceName);
+            /**
+             * with位置。
+             * @param jarPath jar路径
+             * @return with位置的结果
+             * @param host 主机
+             * @param port 端口
+             */
             return builder;
+        /**
+         * with位置。
+         * @param jarPath jar路径
+         * @return with位置的结果
+         */
         }
 
         public ServiceBuilder withLocation(String jarPath) {
@@ -402,7 +514,9 @@ public class ServiceBuilder implements Closeable {
         }
 
         /**
-         * 设置服务名称（委托给外部 Builder）。
+          * 设置服务名称（委托给外部 构建器）。
+         * @param serviceName 服务名称
+         * @return with服务名称的结果
          */
         public RemoteManager withServiceName(String serviceName) {
             builder.withServiceName(serviceName);
@@ -410,7 +524,9 @@ public class ServiceBuilder implements Closeable {
         }
 
         /**
-         * 设置 jar 路径（委托给外部 Builder）。
+          * 设置 jar 路径（委托给外部 构建器）。
+         * @param jarPath jar路径
+         * @return withJar的结果
          */
         public RemoteManager withJar(String jarPath) {
             builder.withJar(jarPath);
@@ -418,7 +534,9 @@ public class ServiceBuilder implements Closeable {
         }
 
         /**
-         * 设置启动命令（覆盖默认 java -jar 命令）。
+          * 设置启动命令（覆盖默认 Java -jar 命令）。
+         * @param cmd CMD
+         * @return with启动cmd的结果
          */
         public RemoteManager withStartCmd(String cmd) {
             builder.withStartCmd(cmd);
@@ -427,6 +545,7 @@ public class ServiceBuilder implements Closeable {
 
         /**
          * 建立 SSH 连接。
+         * @return 连接的结果
          */
         public RemoteManager connect() {
             resolveAndValidate();
@@ -445,6 +564,7 @@ public class ServiceBuilder implements Closeable {
 
         /**
          * 启动远程服务（先连接，后启动）。
+         * @return 启动的结果
          */
         public long start() {
             if (!manager.isConnected()) {
@@ -484,6 +604,7 @@ public class ServiceBuilder implements Closeable {
 
         /**
          * 查询远程服务状态。
+         * @return 状态的结果
          */
         public boolean status() {
             if (!manager.isConnected()) {
@@ -509,6 +630,14 @@ public class ServiceBuilder implements Closeable {
 
         /**
          * 卸载远程服务（删除 systemd unit、停止进程）。
+         * @return 构建远程启动cmd的结果
+         /**
+          * uninstall。
+          */
+          * @return 构建远程启动cmd的结果
+         /**
+          * uninstall。
+          */
          */
         public void uninstall() {
             if (!manager.isConnected()) {
@@ -546,13 +675,33 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 本地模式快捷入口：{@code ServiceBuilder.local().start()}
+     * @author CH
+     * @since 4.0.0
+     * @return 转为位置的结果
+     * @param cmd CMD
      */
     public static class LocalDsl {
+        /**
+          * withjar。
+         * @param jarPath jar路径
+         * @return withJar的结果
+         */
         private final ServiceBuilder b = new ServiceBuilder();
 
+        /**
+         * withJar。
+         * @param jarPath jar路径
+         * @return withJar的结果
+         */
         public LocalDsl withJar(String jarPath) {
             b.withJar(jarPath);
             return this;
+        /**
+         * with服务名称。
+         * @param name 名称
+         * @return with服务名称的结果
+         * @param cmd cmd
+         */
         }
 
         public LocalDsl withServiceName(String name) {
@@ -572,11 +721,42 @@ public class ServiceBuilder implements Closeable {
 
     /**
      * 远程模式快捷入口：{@code ServiceBuilder.remote().start()}
+     * @author CH
+     * @since 4.0.0
+     * @param host 主机
+     * @param port 端口
+     * @param username 用户名
+     * @param password 密码
+     /**
+       * withjar。
+      * @param jarPath jar路径
+      * @return withJar的结果
+      */
+     * @return 转为远程的结果
      */
     public static class RemoteDsl {
-        private final ServiceBuilder b = new ServiceBuilder();
+        private final ServiceBuilder b = new ServiceBuilder(); // b
 
+        /**
+         * with服务名称。
+         * @param name 名称
+         * @return with服务名称的结果
+         * @param host 主机
+         /**
+          * withJar。
+          * @param jarPath jar路径
+          * @return withJar的结果
+          */
+         * @param port 端口
+         * @param username 用户名
+         * @param password 密码
+         */
         public RemoteDsl withJar(String jarPath) {
+            /**
+             * with服务名称。
+             * @param name 名称
+             * @return with服务名称的结果
+             */
             b.withJar(jarPath);
             return this;
         }
@@ -596,6 +776,20 @@ public class ServiceBuilder implements Closeable {
          * 指定协议（ssh/winrm）后切换远程模式。
          *
          * @param protocol 远程协议（ssh / winrm）
+         * @param host 主机
+         /**
+          * 转为远程。
+          * @param protocol 协议
+          * @param host 主机
+          * @param port 端口
+          * @param username 用户名
+          * @param password 密码
+          * @return 转为远程的结果
+          */
+         * @param port 端口
+         * @param username 用户名
+         * @param privateKey 私募键
+         * @return 转为远程键的结果
          */
         public RemoteManager toRemote(String protocol, String host, int port, String username, String password) {
             RemoteManager m = new RemoteManager(b, protocol);

@@ -31,6 +31,7 @@ import javax.sql.DataSource;
  *
  * // 测试清理
  * engine.cleanup().cleanupByPrefix("test_");
+ * }</pre>p().cleanupByPrefix("test_");
  * }</pre>
  * </p>
  *
@@ -88,7 +89,7 @@ public class H2Engine extends JdbcEngine {
      * <pre>{@code
      * engine.cleanup().cleanupByPrefix("test_");  // 隔离测试前缀
      * engine.cleanup().truncateAll();             // 清空数据保留表结构
-     * }</pre>
+     * }</pre>/pre>
      *
      * @return H2CleanupPlugin 实例
      */

@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class SmbProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "smb";
     }
@@ -59,7 +59,13 @@ public class SmbProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToCommandName */
+    /**
+     * 转为命令名称
+     *
+     * @param magic 魔法
+     * @param command 命令
+     * @return 转为命令名称的结果
+     */
     private static String toCommandName(int magic, int command) {
         if (magic == 0x424d53fe) {
             return "SMB2_Command_" + command;

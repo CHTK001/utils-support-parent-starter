@@ -21,7 +21,7 @@ public class StartNode implements PipelineNode {
     private final String id;
 
     /**
-     * 起始节点的下一节点 ID
+      * 起始节点的下一节点 标识
      */
     private final String nextNodeId;
 
@@ -29,7 +29,7 @@ public class StartNode implements PipelineNode {
      * 构造起始节点。
      *
      * @param id         节点唯一标识
-     * @param nextNodeId 下一节点 ID
+     * @param nextNodeId 下一节点 标识
      */
     public StartNode(String id, String nextNodeId) {
         this.id = id;
@@ -37,15 +37,15 @@ public class StartNode implements PipelineNode {
     }
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getId() {
         return id;
     }
 
-    /** 节点类型：start。 */
+    /** 节点类型：启动。 */
     @Override
     public String getType() {
         return "start";

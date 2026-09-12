@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * 插件类加载器 — 每个插件独立 ClassLoader，支持 lib 目录下的传递依赖。
+   * 插件类加载器 — 每个插件独立 类加载，支持 lib 目录下的传递依赖。
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,7 +22,7 @@ public class PluginClassLoader extends URLClassLoader {
 
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(PluginClassLoader.class.getName());
     /**
@@ -94,7 +94,7 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     /**
-     * 是否是需要 Bootstrap ClassLoader 加载的类。
+      * 是否是需要 Bootstrap 类加载 加载的类。
      *
      * @param name 类名
      * @return 是返回 true
@@ -169,17 +169,29 @@ public class PluginClassLoader extends URLClassLoader {
         return plugins;
     }
 
-    /** 获取PluginName */
+    /**
+     * 获取plugin名称
+     *
+     * @return 获取plugin名称的结果
+     */
     public String getPluginName() {
         return pluginName;
     }
 
-    /** 获取PluginDir */
+    /**
+     * 获取plugindir
+     *
+     * @return 获取plugindir的结果
+     */
     public Path getPluginDir() {
         return pluginDir;
     }
 
-    /** 获取LoadedClasses */
+    /**
+     * 获取加载类
+     *
+     * @return 获取加载类的结果
+     */
     public Set<String> getLoadedClasses() {
         return Collections.unmodifiableSet(loadedClasses);
     }

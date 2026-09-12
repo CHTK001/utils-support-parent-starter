@@ -30,15 +30,15 @@ public class EndNode implements PipelineNode {
     }
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getId() {
         return id;
     }
 
-    /** 节点类型：end。 */
+    /** 节点类型：结束。 */
     @Override
     public String getType() {
         return "end";

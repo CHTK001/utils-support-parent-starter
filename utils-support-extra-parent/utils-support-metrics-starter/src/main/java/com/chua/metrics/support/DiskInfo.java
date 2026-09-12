@@ -16,7 +16,7 @@ public class DiskInfo {
     private String name;
 
     /**
-     * 挂载点路径（如 /、/home 等）
+      * 挂载点路径（如 /、/Home 等）
      */
     private String mountPoint;
 

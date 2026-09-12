@@ -13,7 +13,7 @@ import java.util.Set;
  * 认证过滤器，验证请求是否携带有效的认证凭证。
  *
  * <p>检查请求头中的 {@code Authorization} 字段，未携带或 token 不在白名单中时
- * 返回 401 并终止过滤器链。默认不校验具体 token 值，仅检查是否携带。
+   * 返回 401 并终止过滤器链。默认不校验具体 令牌 值，仅检查是否携带。
  *
  * <h2>配置参数</h2>
  * <ul>
@@ -38,7 +38,7 @@ public class AuthServerFilter implements ServerFilter {
     private String authHeader = DEFAULT_AUTH_HEADER;
 
     /**
-     * 有效 token 白名单
+      * 有效 令牌 白名单
      */
     private final Set<String> validTokens = new HashSet<>();
 
@@ -75,7 +75,7 @@ public class AuthServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (isExcluded(request.getPath())) {
             chain.doFilter(request, response);
@@ -94,18 +94,23 @@ public class AuthServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 10;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "AuthServerFilter";
     }
 
-    /** 是否Excluded */
+    /**
+     * 是否Excluded
+     *
+     * @param path 路径
+     * @return 是否excluded的结果
+     */
     private boolean isExcluded(String path) {
         if (path == null) {
             return false;

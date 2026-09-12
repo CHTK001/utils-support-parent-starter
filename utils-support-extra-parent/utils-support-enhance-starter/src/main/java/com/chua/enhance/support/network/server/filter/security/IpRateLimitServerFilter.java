@@ -59,7 +59,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String ip = resolveClientIp(request);
         TokenBucket bucket = buckets.computeIfAbsent(ip,
@@ -72,18 +72,23 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 25;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "IpRateLimitServerFilter";
     }
 
-    /** 解析ClientIp */
+    /**
+     * 解析客户端ip
+     *
+     * @param request 请求
+     * @return resolve客户端ip的结果
+     */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isEmpty()) {
@@ -99,15 +104,17 @@ public class IpRateLimitServerFilter implements ServerFilter {
 
     /**
      * 令牌桶实现，支持按时间补充令牌。
+     * @author CH
+     * @since 4.0.0
      */
     private static class TokenBucket {
         /** 容量 */
         private final int capacity;
         /** Refill比率PERMS */
         private final double refillRatePerMs;
-        /** Tokens */
+        /** 令牌 */
         private final AtomicLong tokens;
-        /** lastRefillTime */
+        /** 最后一个refill时间 */
         private volatile long lastRefillTime;
 
         TokenBucket(int capacity, int refillRatePerSecond) {
@@ -117,7 +124,11 @@ public class IpRateLimitServerFilter implements ServerFilter {
             this.lastRefillTime = System.currentTimeMillis();
         }
 
-        /** TryConsume */
+        /**
+         * 尝试consume
+         *
+         * @return 尝试consume的结果
+         */
         synchronized boolean tryConsume() {
             refill();
             long current = tokens.get();

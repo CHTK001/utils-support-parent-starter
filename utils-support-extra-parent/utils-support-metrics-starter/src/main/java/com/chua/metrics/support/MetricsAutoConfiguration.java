@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Metrics 自动配置类。
+   * 指标 自动配置类。
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class MetricsAutoConfiguration {
 
     /**
-     * 创建 MetricsService 实例。
+      * 创建 指标服务 实例。
      *
      * @param properties 配置属性
      * @return MetricsService 实例

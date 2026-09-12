@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
- * ViT-H-14 (Chinese-CLIP) 中文文本特征提取 Translator。
+   * vit-H-14 (Chinese-CLIP) 中文文本特征提取 Translator。
  *
  * <p>基于 Chinese-CLIP ViT-H-14 的文本编码器（RoBERTa-wwm-ext-large-chinese）：
  * 输入中文文本，输出 1024 维文本特征向量，可与图像特征向量计算余弦相似度。</p>
@@ -42,7 +42,7 @@ import java.util.Arrays;
 @Slf4j
 public class VitH14TextTranslator implements Translator<String, float[]> {
 
-    /** 文本最大长度（Chinese-CLIP RoBERTa） */
+    /** 文本最大长度（Chinese-CLIP roberta） */
     private static final int TEXT_MAX_LENGTH = 52;
 
     /** 分词器 */
@@ -72,13 +72,13 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     }
 
     /**
-     * 处理输入：文本 → token IDs [1, 52]。
+      * 处理输入：文本 → 令牌 ids [1, 52]。
      *
      * <p>使用 HuggingFace Tokenizer 分词，截断到 TEXT_MAX_LENGTH。</p>
      *
      * @param ctx   翻译上下文
      * @param input 中文文本
-     * @return NDList 包含 input_ids [1, 52]
+     * @return NDList 包含 输入_标识 [1, 52]
      */
     @Override
     @Nonnull
@@ -92,10 +92,10 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     }
 
     /**
-     * 处理输出：unnorm_text_features → float[]。
+      * 处理输出：unnorm_文本_特征 → float[]。
      *
      * @param ctx  翻译上下文
-     * @param list NDList 包含 text_features [1, 1024]
+     * @param list nd列表 包含 文本_特征 [1, 1024]
      * @return 1024 维特征向量
      */
     @Override
@@ -111,6 +111,10 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
 
     @Override
     @Nullable
+    /**
+     * 获取batchifier。
+     * @return 获取batchifier的结果
+     */
     public Batchifier getBatchifier() {
         return null;
     }
@@ -137,7 +141,12 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
         return dot / (float) (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
-    /** 解析 ModelRoot */
+    /**
+     * 解析 模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");
@@ -146,7 +155,13 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
         return parent != null ? parent : Paths.get("models/onnx");
     }
 
-    /** 解析 FirstExisting */
+    /**
+     * 解析 第一个existing
+     *
+     * @param modelRoot 模型根
+     * @param names 名称
+     * @return resolve第一个existing的结果
+     */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);
@@ -157,7 +172,13 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
         throw new IOException("找不到必需文件，尝试: " + Arrays.toString(names) + "，根目录: " + modelRoot);
     }
 
-    /** 截断 token IDs 到指定长度 */
+    /**
+     * 截断 令牌 ids 到指定长度
+     *
+     * @param ids 标识
+     * @param maxLen 最大len
+     * @return truncate的结果
+     */
     private static long[] truncate(long[] ids, int maxLen) {
         long[] out = new long[maxLen];
         System.arraycopy(ids, 0, out, 0, Math.min(ids.length, maxLen));

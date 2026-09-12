@@ -17,9 +17,9 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface DepthEstimator {
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -29,9 +29,9 @@ public interface DepthEstimator {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default DepthEstimator provider(String provider) {
@@ -65,7 +65,7 @@ public interface DepthEstimator {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.DepthEstimator.class);
@@ -160,7 +160,7 @@ class DefaultDepthEstimator implements DepthEstimator {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public DepthEstimator modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -175,7 +175,12 @@ class DefaultDepthEstimator implements DepthEstimator {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Estimate */
+    /**
+     * Estimate
+     *
+     * @param imageData 镜像数据
+     * @return estimate的结果
+     */
     public byte[] estimate(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);

@@ -21,6 +21,7 @@ import java.util.List;
  *   String answer = ChatClient.create("onnx", "")
  *       .model("minimind")
  *       .chatSync("你好，请介绍一下自己。");
+ * }</pre>("你好，请介绍一下自己。");
  * }</pre>
  *
  * @author CH
@@ -39,7 +40,7 @@ public class OnnxChatClient extends AbstractLocalChatClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, String.class);
     }

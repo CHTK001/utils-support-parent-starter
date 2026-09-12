@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
  * 移除图像中的颜色信息，只保留亮度信息。
  *
  * 技术原理：
- * - 使用BufferedImage的TYPE_BYTE_GRAY模式
+   * - 使用缓冲镜像的类型_BYTE_GRAY模式
  * - 自动应用标准的RGB到灰度转换公式
  * - 保持图像的原始尺寸和细节
  *
@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
  * - 质量保证：保持图像的细节和对比度
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Slf4j
@@ -43,7 +43,7 @@ public class ImageGrayImageFilter extends AbstractImageFilter {
     /**
      * 执行灰度化滤镜处理
      *
-     * 将输入的彩色图像转换为灰度图像。使用BufferedImage的TYPE_BYTE_GRAY
+      * 将输入的彩色图像转换为灰度图像。使用缓冲镜像的类型_BYTE_GRAY
      * 模式来自动处理RGB到灰度的转换，确保转换质量和性能。
      *
      * @param src 源彩色图像
@@ -58,7 +58,7 @@ public class ImageGrayImageFilter extends AbstractImageFilter {
             int width = src.getWidth();
             int height = src.getHeight();
 
-            // 逐像素复制，BufferedImage会自动进行RGB到灰度的转换
+ // 逐像素复制，缓冲镜像会自动进行RGB到灰度的转换
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     grayImage.setRGB(x, y, src.getRGB(x, y));

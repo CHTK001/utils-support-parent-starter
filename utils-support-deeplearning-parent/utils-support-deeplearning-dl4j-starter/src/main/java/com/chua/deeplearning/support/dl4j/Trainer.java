@@ -22,6 +22,7 @@ public interface Trainer {
      * <pre>{@code
      * TrainResult result = Trainer.fluent()
      *         .data("/data").saveTo("/model").epochs(20).batchSize(8).fit();
+     * }</pre>Size(8).fit();
      * }</pre>
      *
      * @return 链式训练管道
@@ -34,7 +35,7 @@ public interface Trainer {
      * 执行训练。
      *
      * @param argument     训练超参数
-     * @param modelPath    预训练模型路径（本地 zip 或目录）
+     * @param modelPath    预训练模型路径（本地 压缩 或目录）
      * @param savePath     模型保存路径（目录或完整文件路径）
      * @param dataRootPath 训练数据根目录（子目录为类别）
      * @param listener     进度回调（可为 {@link TrainListener#NOOP}）

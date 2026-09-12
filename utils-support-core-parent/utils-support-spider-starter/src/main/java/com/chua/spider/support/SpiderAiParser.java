@@ -31,19 +31,19 @@ public interface SpiderAiParser {
      * <p>使用 ChatClient 对页面纯文本进行智能摘要，生成简洁的总结内容。
      * 总结结果将被写入 {@link SpiderResult#getAiSummary()}。
      *
-     * @param result 爬取解析结果，需包含 text 字段
+     * @param result 爬取解析结果，需包含 文本 字段
      * @return AI 总结文本，失败时返回空字符串
      */
     String summarize(SpiderResult result);
 
     /**
-     * 按 Schema 从内容中提取结构化数据。
+      * 按 模式 从内容中提取结构化数据。
      *
      * <p>给定一个 Schema 描述（如 JSON 模板），通过 AI 从页面文本中
      * 提取对应的字段值。例如从新闻页面提取：标题、作者、发布时间、正文。
      *
      * @param result 爬取解析结果
-     * @param schema Schema 描述，如 "{\"title\": \"\", \"author\": \"\", \"date\": \"\"}"
+     * @param schema 模式 描述，如 "{\"title\": \"\", \"作者\": \"\", \"日期\": \"\"}"
      * @return 提取的字段键值对
      */
     Map<String, Object> extract(SpiderResult result, String schema);

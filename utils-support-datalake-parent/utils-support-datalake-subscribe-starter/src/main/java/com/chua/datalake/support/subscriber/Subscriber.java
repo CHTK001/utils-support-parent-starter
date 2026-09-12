@@ -1,7 +1,7 @@
 package com.chua.datalake.support.subscriber;
 
 /**
- * 订阅器抽象。绑定 subscriberId 与 offset 推进逻辑。
+   * 订阅器抽象。绑定 subscriberid 与 偏移量 推进逻辑。
  *
  * <p>订阅器通过 {@code OffsetFlow} 持久化 offset；
  * 接收方以本地 {@link #onPush(PushPayload)} 抽象推送。</p>
@@ -12,7 +12,7 @@ package com.chua.datalake.support.subscriber;
 public interface Subscriber {
 
     /**
-     * 返回订阅器唯一 ID
+      * 返回订阅器唯一 标识
      */
     String subscriberId();
 

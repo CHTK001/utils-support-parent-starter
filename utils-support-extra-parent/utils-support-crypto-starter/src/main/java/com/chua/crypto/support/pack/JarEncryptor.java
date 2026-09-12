@@ -19,7 +19,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 /**
- * 可执行程序包加密器（SpringBoot FatJar / 普通 Jar）
+   * 可执行程序包加密器（springboot fatjar / 普通 Jar）
  *
  * <p>将可运行程序整体加密为自保护发行包：
  * <ul>
@@ -28,10 +28,10 @@ import java.util.regex.Pattern;
  *   <li>配置文件 — 链式开关 {@code encryptConfig(true)} 后，application/bootstrap 等配置一并加密，
  *       运行期由引导类加载器透明解密，磁盘始终密文</li>
  *   <li>主密钥 — 以 CHKF 封装块内嵌至 {@code META-INF/chua.crypto.key}：
- *       SERVER_BOUND 策略下密钥与打包机绑定，程序拷贝到其他服务器无法启动；
- *       CUSTOM 策略下需口令启动；亦可在启动时改用私钥文件解封</li>
+   * 服务端_BOUND 策略下密钥与打包机绑定，程序拷贝到其他服务器无法启动；
+   * 习俗 策略下需口令启动；亦可在启动时改用私钥文件解封</li>
  *   <li>引导器 — 注入零依赖的 {@code launch} 包并接管 Manifest Main-Class，
- *       原 Main-Class 记录于 {@code Chua-Original-Main-Class}</li>
+   * 原 Main-类 记录于 {@code Chua-Original-Main-Class}</li>
  * </ul>
  *
  * <p>使用示例：
@@ -47,6 +47,7 @@ import java.util.regex.Pattern;
  *         .execute();
  *
  * // 发行后运行：java -jar app-secure.jar（SERVER_BOUND 本机免参；CUSTOM 加 -Dchua.crypto.pin=xxx）
+ * }</pre> // 发行后运行：java -jar app-secure.jar（SERVER_BOUND 本机免参；CUSTOM 加 -Dchua.crypto.pin=xxx）
  * }</pre>
  *
  * @author CH
@@ -80,7 +81,7 @@ public class JarEncryptor {
     private static final String LAUNCH_PACKAGE = "com/chua/crypto/support/launch/";
 
     /**
-     * FatJar 依赖目录前缀
+      * fatjar 依赖目录前缀
      */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
 
@@ -90,7 +91,7 @@ public class JarEncryptor {
     private static final Pattern SIGNATURE_FILE = Pattern.compile("^META-INF/.*\\.(SF|DSA|RSA|EC)$");
 
     /**
-     * 配置文件条目模式（encryptConfig 开启时生效）
+      * 配置文件条目模式（encrypt配置 开启时生效）
      */
     private static final Pattern CONFIG_ENTRY =
             Pattern.compile("^(application|bootstrap)[-.\\w]*\\.(yml|yaml|properties)$");
@@ -121,7 +122,7 @@ public class JarEncryptor {
     private boolean encryptLibs = true;
 
     /**
-     * 是否对应用 class 做混淆处理（剥离调试信息）
+      * 是否对应用 类 做混淆处理（剥离调试信息）
      */
     private boolean obfuscate;
 
@@ -131,7 +132,7 @@ public class JarEncryptor {
     private boolean renamePrivates;
 
     /**
-     * 源包是否为 SpringBoot 布局（execute 期间判定）
+      * 源包是否为 springboot 布局（执行 期间判定）
      */
     private boolean springBootLayout;
 
@@ -238,7 +239,7 @@ public class JarEncryptor {
     }
 
     /**
-     * 开启应用 class 混淆（剥离调试信息：源文件名/行号表/局部变量表）
+      * 开启应用 类 混淆（剥离调试信息：源文件名/行号表/局部变量表）
      *
      * @param obfuscate true 表示启用
      * @return 当前对象
@@ -274,7 +275,7 @@ public class JarEncryptor {
     /**
      * 追加明文保留排除项（条目路径前缀匹配）
      *
-     * @param prefixes 前缀列表（如 BOOT-INF/classes/static/）
+     * @param prefixes 前缀列表（如 BOOT-INF/类/静态/）
      * @return 当前对象
      */
     public JarEncryptor exclude(String... prefixes) {
@@ -374,7 +375,7 @@ public class JarEncryptor {
     }
 
     /**
-     * 判断是否可执行包（存在 Main-Class）
+      * 判断是否可执行包（存在 Main-类）
      *
      * @param jarPath 包路径
      * @return true 表示可执行
@@ -403,10 +404,10 @@ public class JarEncryptor {
     }
 
     /**
-     * 判断条目是否为应用自身 class（混淆作用域：排除引导器与依赖包）
+      * 判断条目是否为应用自身 类（混淆作用域：排除引导器与依赖包）
      *
      * @param name 条目名
-     * @return true 表示应用 class
+     * @return true 表示应用 类
      */
     private boolean isAppClass(String name) {
         if (!name.endsWith(".class") || name.startsWith(LAUNCH_PACKAGE)) {
@@ -416,7 +417,7 @@ public class JarEncryptor {
     }
 
     /**
-     * 改写清单：Main-Class 替换为引导器，原主类写入专属属性
+      * 改写清单：Main-类 替换为引导器，原主类写入专属属性
      *
      * @param original 原清单
      * @return 新清单

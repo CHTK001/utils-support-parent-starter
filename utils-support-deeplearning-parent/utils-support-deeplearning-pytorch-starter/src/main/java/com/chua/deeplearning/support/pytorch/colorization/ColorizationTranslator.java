@@ -14,7 +14,7 @@ import ai.djl.translate.TranslatorContext;
  * 图像上色 Translator（灰度 → 彩色）。
  * <p>
  * 简化版：将输入转为灰度单通道并 resize 到 256，输出彩色图。
- * 适用于常见 Colorization TorchScript 模型。
+   * 适用于常见 Colorization torchscript 模型。
  * </p>
  *
  * @author CH
@@ -38,7 +38,7 @@ public class ColorizationTranslator implements Translator<Image, Image> {
     private int height;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -55,7 +55,7 @@ public class ColorizationTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         if (output.getShape().dimension() == 4 && output.getShape().get(0) == 1) {

@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * DistilBERT SST-2              Translator   
+   * distilbert SST-2              Translator
  * <p>
  *                         
  *          POSITIVE / NEGATIVE             
@@ -34,10 +34,10 @@ import javax.annotation.Nullable;
 public class DistilBertSentimentTranslator implements Translator<String, Classifications> {
 
     /** 最大长度 */
-    /** Max_length */
+    /** 最大_长度 */
     private static final int MAX_LENGTH = 128;
     /** 标签列表 */
-    /** Labels */
+    /** 标签 */
     private static final List<String> LABELS = List.of("NEGATIVE", "POSITIVE");
 
     /** 分词器 */
@@ -65,7 +65,13 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
 
     @Override
     @Nonnull
-    /** 处理Input */
+    /**
+     * 处理输入
+     *
+     * @param ctx ctx
+     * @param input 输入
+     * @return 处理输入的结果
+     */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("HuggingFaceTokenizer             ");
@@ -88,7 +94,13 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
 
     @Override
     @Nonnull
-    /** 处理Output */
+    /**
+     * 处理输出
+     *
+     * @param ctx ctx
+     * @param list 列表
+     * @return 处理输出的结果
+     */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) {
@@ -102,12 +114,21 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
 
     @Override
     @Nullable
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+     *
+     * @return 获取batchifier的结果
+     */
     public Batchifier getBatchifier() {
         return null;
     }
 
-    /** 查找TokenizerPath */
+    /**
+     * 查找tokenizer路径
+     *
+     * @param modelPath 模型路径
+     * @return findtokenizer路径的结果
+     */
     private static Path findTokenizerPath(Path modelPath) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
         if (root == null) { return null; }
@@ -120,7 +141,12 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
         return null;
     }
 
-    /** Softmax */
+    /**
+     * Softmax
+     *
+     * @param logits logits
+     * @return softmax的结果
+     */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float l : logits) { max = Math.max(max, l); }

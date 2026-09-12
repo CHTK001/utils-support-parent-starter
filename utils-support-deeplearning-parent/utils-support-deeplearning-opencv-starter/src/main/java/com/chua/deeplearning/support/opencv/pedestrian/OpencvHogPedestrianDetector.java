@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 纯 OpenCV HOG 行人检测翻译器。
+   * 纯 打开cv HOG 行人检测翻译器。
  * <p>使用 OpenCV 内置的默认行人检测器，无需外部模型文件。</p>
  *
  * @author CH
@@ -56,7 +56,7 @@ public class OpencvHogPedestrianDetector extends OpencvModelTranslator {
     }
 
     @Override
-    /** DoTranslate */
+    /** 执行translate */
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {
             throw new IllegalArgumentException("仅支持 byte[] 输入");

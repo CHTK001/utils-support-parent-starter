@@ -12,7 +12,7 @@ import java.nio.file.Path;
  */
 public final class WalFactory {
 
-    /** 创建 WalFactory 实例 */
+    /** 创建 wal工厂 实例 */
     private WalFactory() {
     }
 

@@ -17,7 +17,7 @@ import java.nio.file.Path;
  *   <li>auto（默认）— 自动探测 NVIDIA 驱动 + onnxruntime_gpu 构件，可用则 GPU</li>
  *   <li>GPU 加载或推理失败时，<b>自动降级</b>为 CPU 并重建会话（粘性，后续请求保持 CPU）</li>
  *   <li>显式设置通过系统属性 {@code deeplearning.device=cpu|gpu} 或注册表
- *       options 的 {@code device} 键注入</li>
+   * 期权 的 {@code device} 键注入</li>
  * </ul></p>
  *
  * @author CH
@@ -37,12 +37,12 @@ public class DjlModelFactory implements AutoCloseable {
     private final Path modelPath;
 
     /**
-     * 引擎名称，可为 null（自动推断）。
+      * 引擎名称，可为 空（自动推断）。
      */
     private final String engineName;
 
     /**
-     * 设备设置：null/blank 跟随系统属性 deeplearning.device（默认 auto）。
+      * 设备设置：空/blank 跟随系统属性 deeplearning.device（默认 auto）。
      */
     private final String deviceSetting;
 
@@ -62,7 +62,7 @@ public class DjlModelFactory implements AutoCloseable {
     private volatile boolean forceCpu;
 
     /**
-     * 当前实际使用的设备："gpu" / "cpu"，未初始化为 null。
+      * 当前实际使用的设备："gpu" / "cpu"，未初始化为 空。
      */
     private volatile String deviceInUse;
 
@@ -78,6 +78,8 @@ public class DjlModelFactory implements AutoCloseable {
 
     /**
      * Translator 创建工厂。
+     * @author CH
+     * @since 4.0.0
      */
     @FunctionalInterface
     public interface TranslatorFactory {
@@ -95,6 +97,7 @@ public class DjlModelFactory implements AutoCloseable {
      * @param modelName          模型名称
      * @param modelPath          模型路径
      * @param translatorFactory  Translator 工厂
+     * @return djl模型工厂的结果
      */
     public DjlModelFactory(String modelName, Path modelPath, TranslatorFactory translatorFactory) {
         this(modelName, modelPath, null, translatorFactory);
@@ -105,8 +108,9 @@ public class DjlModelFactory implements AutoCloseable {
      *
      * @param modelName          模型名称
      * @param modelPath          模型路径
-     * @param engineName         引擎名称（OnnxRuntime / PyTorch / PaddlePaddle / TensorFlow）
+     * @param engineName         引擎名称（onnxruntime / pytorch / PaddlePaddle / tensor流）
      * @param translatorFactory  Translator 工厂
+     * @return djl模型工厂的结果
      */
     public DjlModelFactory(String modelName, Path modelPath, String engineName, TranslatorFactory translatorFactory) {
         this(modelName, modelPath, engineName, null, translatorFactory);
@@ -117,8 +121,8 @@ public class DjlModelFactory implements AutoCloseable {
      *
      * @param modelName          模型名称
      * @param modelPath          模型路径
-     * @param engineName         引擎名称，可为 null（自动推断）
-     * @param deviceSetting      设备设置：auto / cpu / gpu / cuda，可为 null
+     * @param engineName         引擎名称，可为 空（自动推断）
+     * @param deviceSetting      设备设置：auto / cpu / gpu / cuda，可为 空
      * @param translatorFactory  Translator 工厂
      */
     public DjlModelFactory(String modelName, Path modelPath, String engineName,
@@ -163,7 +167,7 @@ public class DjlModelFactory implements AutoCloseable {
         return forceCpu ? "cpu" : DeviceSelector.resolve(deviceSetting);
     }
 
-    /** EnsureInitialized */
+    /** ensure初始化 */
     private void ensureInitialized() {
         if (initialized) {
             return;
@@ -214,7 +218,7 @@ public class DjlModelFactory implements AutoCloseable {
                 ? resolveEngine(modelPath)
                 : engineName;
         model = Model.newInstance(modelName, engine);
-        // ONNX Runtime 引擎依据该属性决定是否启用 CUDA EP（OrtModel.load 读取）
+ // ONNX Runtime 引擎依据该属性决定是否启用 CUDA EP（ort模型.加载 读取）
         model.setProperty("ortDevice", "gpu".equals(device) ? "cuda" : "cpu");
 
         Path loadPath = modelPath;
@@ -314,7 +318,7 @@ public class DjlModelFactory implements AutoCloseable {
     /**
      * 当前实际使用的设备。
      *
-     * @return "gpu" / "cpu"；未初始化时返回 null
+     * @return "gpu" / "cpu"；未初始化时返回 空
      */
     public String deviceInUse() {
         return deviceInUse;

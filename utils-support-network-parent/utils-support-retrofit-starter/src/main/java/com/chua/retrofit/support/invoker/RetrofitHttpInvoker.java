@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
  * {@code @RequestMethod} 类级注解解析 baseUrl。</p>
  *
  * <p>SPI 名称为 {@code "http"}，order=100 优先级高于默认的 {@code HttpInvoker}，
- * 当 classpath 中存在 Retrofit2 依赖时自动生效。</p>
+   * 当 类路径 中存在 Retrofit2 依赖时自动生效。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,12 +36,12 @@ import java.util.concurrent.ConcurrentMap;
 public class RetrofitHttpInvoker implements Invoker {
 
     /**
-     * proxy cache
+      * 代理 缓存
      */
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * class level annotations
+      * 类 级别 注解
      */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
@@ -49,7 +49,12 @@ public class RetrofitHttpInvoker implements Invoker {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param apiClass api类
+     * @return 创建的结果
+     */
     public <T> T create(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -59,7 +64,12 @@ public class RetrofitHttpInvoker implements Invoker {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 创建New */
+    /**
+     * 创建新
+     *
+     * @param apiClass api类
+     * @return 创建新的结果
+     */
     public <T> T createNew(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -86,11 +96,11 @@ public class RetrofitHttpInvoker implements Invoker {
     }
 
     /**
-     * 解析接口类级注解中的 baseUrl。
+      * 解析接口类级注解中的 baseurl。
      * 优先尝试 Spring {@code @RequestMapping}，回退到 {@code @RequestMethod}。
      *
      * @param clazz 接口类
-     * @return 解析后的 baseUrl，未声明返回空串
+     * @return 解析后的 baseurl，未声明返回空串
      */
     private static String resolveBaseUrl(Class<?> clazz) {
         // 优先尝试 Spring 类级注解
@@ -121,7 +131,7 @@ public class RetrofitHttpInvoker implements Invoker {
     }
 
     /**
-     * 标准化 baseUrl：确保以 / 结尾（Retrofit 要求）。
+      * 标准化 baseurl：确保以 / 结尾（Retrofit 要求）。
      *
      * @param url 原始 URL
      * @return 以 / 结尾的 URL
@@ -131,7 +141,7 @@ public class RetrofitHttpInvoker implements Invoker {
     }
 
     /**
-     * 反射读取注解的 value 属性。
+      * 反射读取注解的 值 属性。
      *
      * @param ann 注解实例
      * @return value 值，无值返回空串

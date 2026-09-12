@@ -16,10 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * 路由模式发现：subnet 网段内 gossip 探测扩散。
+   * 路由模式发现：子网 网段内 gossip 探测扩散。
  *
  * <p>策略：首启全量探测一次（解决已开启节点没数据），后续随机抽样扩散
- * （每次取 gossipTargetCount 台已知节点 + 网段随机抽样），周期全量兜底保证最终一致。</p>
+   * （每次取 gossipTarget数量 台已知节点 + 网段随机抽样），周期全量兜底保证最终一致。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -30,12 +30,16 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     private static final int FULL_PROBE_INTERVAL_ROUNDS = 10;
     /** 并发同步线程池（固定大小，避免节点数过多时线程爆炸） */
     private static final int SYNC_POOL_SIZE = 8;
-    private static final ExecutorService syncExecutor = ThreadUtils.newDaemonFixedThreadPool(SYNC_POOL_SIZE, "scatter-sync");
+    private static final ExecutorService syncExecutor = ThreadUtils.newDaemonFixedThreadPool(SYNC_POOL_SIZE, "scatter-sync"); // 同步执行器
 
-    private long probeRound = 0;
-    /** 每轮同步请求 ID 计数器 */
+    private long probeRound = 0; // 探针round
+    /** 每轮同步请求 标识 计数器 */
     private final AtomicInteger roundRequestIdSeq = new AtomicInteger(0);
 
+    /**
+      * routemodediscovery。
+     * @param setting setting
+     */
     public RouteModeDiscovery(ScatterSetting setting) {
         super(setting);
     }
@@ -60,7 +64,11 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
-    /** 向目标节点拉取服务表并合并（gossip 扩散）。 */
+    /**
+     * 向目标节点拉取服务表并合并（gossip 扩散）。
+     *
+     * @param node 节点
+     */
     protected void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(String.valueOf(roundRequestIdSeq.incrementAndGet()),
                 setting.getServicePath(), setting.getTimeoutMillis());
@@ -75,6 +83,17 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
      * 解析网段内所有可达主机（前 254 个地址，跳过网络/广播地址）。
      *
      * @return 网段节点列表
+     * @param value 值
+     /**
+      * resolve子网节点。
+      * @return resolve子网节点的结果
+      */
+     * @param addr addr
+      * @param value 值
+     /**
+      * resolve子网节点。
+      * @return resolve子网节点的结果
+      */
      */
     private List<ScatterNode> resolveSubnetNodes() {
         String subnet = setting.getSubnet();

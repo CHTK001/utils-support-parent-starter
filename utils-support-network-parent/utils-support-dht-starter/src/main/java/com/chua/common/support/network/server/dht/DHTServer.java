@@ -17,7 +17,7 @@ import java.util.Set;
  * DHT 服务器，提供链式构建的 DHT 节点服务。
  * <p>
  * 封装 {@link DhtProtocol} 和 {@link DhtNettyServer}，提供便捷的链式 API 和
- * 内置 KRPC 协议桥接支持，可与标准 BitTorrent DHT 网络互通。
+   * 内置 KRPC 协议桥接支持，可与标准 钻头torrent DHT 网络互通。
  * </p>
  *
  * <pre>{@code
@@ -26,6 +26,8 @@ import java.util.Set;
  *     .addSeed("router.bittorrent.com:6881")
  *     .addSeed("dht.transmissionbt.com:6881")
  *     .build();
+ * server.start();
+ * }</pre>d();
  * server.start();
  * }</pre>
  *
@@ -41,7 +43,7 @@ public class DHTServer extends AbstractServer {
     private final DhtConfig config;
 
     /**
-     * 本地节点 ID。
+      * 本地节点 标识。
      */
     private final KademliaNodeId selfId;
 
@@ -61,9 +63,10 @@ public class DHTServer extends AbstractServer {
     private DhtCrawlListener crawlListener;
 
     /**
-     * 创建 DHTServer 实例
-     * @param config config
-     * @param KademliaNodeId KademliaNodeId
+      * 创建 dht服务端 实例
+     * @param config 配置
+     * @param selfId kademlia节点标识
+     * @param selfId selfid
      */
     private DHTServer(DhtConfig config, KademliaNodeId selfId) {
         super(createSetting(config));
@@ -72,7 +75,7 @@ public class DHTServer extends AbstractServer {
     }
 
     /**
-     * 创建新的 DHTServer 构建器。
+      * 创建新的 dht服务端 构建器。
      *
      * @return DhtServerBuilder 实例
      */
@@ -80,7 +83,12 @@ public class DHTServer extends AbstractServer {
         return new DhtServerBuilder();
     }
 
-    /** 创建Setting */
+    /**
+     * 创建Setting
+     *
+     * @param config 配置
+     * @return 创建setting的结果
+     */
     private static ServerSetting createSetting(DhtConfig config) {
         ServerSetting setting = ServerSetting.defaults();
         setting.setProtocol("dht");
@@ -90,13 +98,13 @@ public class DHTServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.UDP;
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             this.bridge = new KrpcDhtBridge();
@@ -120,14 +128,19 @@ public class DHTServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (protocol != null) {
             protocol.close();
         }
     }
 
-    /** 处理KrpcMessage */
+    /**
+     * 处理krpc消息
+     *
+     * @param data 数据
+     * @param sender 发送
+     */
     private void handleKrpcMessage(byte[] data, InetSocketAddress sender) {
         try {
             KrpcMessage krpc = KrpcMessage.parse(data);
@@ -150,7 +163,7 @@ public class DHTServer extends AbstractServer {
     }
 
     /**
-     * 获取本地节点 ID。
+      * 获取本地节点 标识。
      *
      * @return KademliaNodeId 实例
      */
@@ -168,10 +181,10 @@ public class DHTServer extends AbstractServer {
     }
 
     /**
-     * 向指定节点发送 FIND_NODE 查询。
+      * 向指定节点发送 查找_节点 查询。
      *
      * @param target   目标节点地址
-     * @param targetId 目标节点 ID
+     * @param targetId 目标节点 标识
      * @return 查询到的节点列表
      */
     public List<DhtPeer> findNode(InetSocketAddress target, KademliaNodeId targetId) {
@@ -181,7 +194,7 @@ public class DHTServer extends AbstractServer {
     /**
      * 迭代查找目标节点，返回最接近的 k 个节点。
      *
-     * @param target 目标节点 ID
+     * @param target 目标节点 标识
      * @return 最接近的节点列表
      */
     public List<DhtPeer> iterativeFindNode(KademliaNodeId target) {
@@ -202,7 +215,7 @@ public class DHTServer extends AbstractServer {
      * 从 DHT 网络中查找键对应的值。
      *
      * @param key 键
-     * @return 找到的值，未找到返回 null
+     * @return 找到的值，未找到返回 空
      */
     public String findValue(String key) {
         return protocol.findValue(key);
@@ -218,7 +231,7 @@ public class DHTServer extends AbstractServer {
     }
 
     /**
-     * 向指定节点发送 KRPC get_peers 查询。
+      * 向指定节点发送 KRPC 获取_peers 查询。
      *
      * @param target   目标节点地址
      * @param infohash 目标 infohash
@@ -233,7 +246,7 @@ public class DHTServer extends AbstractServer {
      *
      * @param hexInfohash 十六进制 infohash
      * @param timeoutMs   超时时间（毫秒）
-     * @return 种子名称，未找到返回 null
+     * @return 种子名称，未找到返回 空
      */
     public String lookupName(String hexInfohash, int timeoutMs) {
         return protocol.lookupName(hexInfohash, timeoutMs);
@@ -242,7 +255,7 @@ public class DHTServer extends AbstractServer {
     /**
      * 添加种子节点地址。
      *
-     * @param seed 种子节点地址，格式 "host:port"
+     * @param seed 种子节点地址，格式 "主机:端口"
      */
     public void addSeed(String seed) {
         protocol.addSeed(seed);
@@ -259,14 +272,14 @@ public class DHTServer extends AbstractServer {
      * 检测外部地址（NAT 穿透）。
      *
      * @param stunServer STUN 服务器地址
-     * @return 检测到的外部地址，失败返回 null
+     * @return 检测到的外部地址，失败返回 空
      */
     public InetSocketAddress detectExternalAddress(InetSocketAddress stunServer) {
         return protocol.detectExternalAddress(stunServer);
     }
 
     /**
-     * 全网公开的 BitTorrent DHT 引导节点地址，默认包含。
+      * 全网公开的 钻头torrent DHT 引导节点地址，默认包含。
      */
     private static final Set<String> DEFAULT_SEEDS = Set.of(
             "router.bittorrent.com:6881",
@@ -276,7 +289,9 @@ public class DHTServer extends AbstractServer {
     );
 
     /**
-     * DHTServer 构建器，支持链式调用。
+      * dht服务端 构建器，支持链式调用。
+     * @author CH
+     * @since 4.0.0
      */
     public static class DhtServerBuilder {
 
@@ -291,7 +306,7 @@ public class DHTServer extends AbstractServer {
         private String host = "0.0.0.0";
 
         /**
-         * 固定节点 ID（hex 格式），为空则随机生成。
+          * 固定节点 标识（hex 格式），为空则随机生成。
          */
         private String nodeId;
 
@@ -346,7 +361,7 @@ public class DHTServer extends AbstractServer {
         private Set<String> seeds = new LinkedHashSet<>(DEFAULT_SEEDS);
 
         /**
-         * 构造 DHTServer 构建器。
+          * 构造 dht服务端 构建器。
          */
         DhtServerBuilder() {
         }
@@ -385,7 +400,7 @@ public class DHTServer extends AbstractServer {
         }
 
         /**
-         * 设置固定节点 ID（hex 格式），为空则随机生成。
+          * 设置固定节点 标识（hex 格式），为空则随机生成。
          *
          * @param nodeId 40 字符 hex 字符串
          * @return this
@@ -486,7 +501,7 @@ public class DHTServer extends AbstractServer {
         /**
          * 添加一个种子节点地址。
          *
-         * @param seed 种子地址，格式 "host:port"
+         * @param seed 种子地址，格式 "主机:端口"
          * @return this
          */
         public DhtServerBuilder addSeed(String seed) {
@@ -497,7 +512,7 @@ public class DHTServer extends AbstractServer {
         /**
          * 设置种子节点地址（覆盖默认的公开引导节点）。
          *
-         * @param seeds 种子地址数组，格式 "host:port"
+         * @param seeds 种子地址数组，格式 "主机:端口"
          * @return this
          */
         public DhtServerBuilder seeds(String... seeds) {
@@ -507,7 +522,7 @@ public class DHTServer extends AbstractServer {
         }
 
         /**
-         * 构建 DHTServer 实例。
+          * 构建 dht服务端 实例。
          *
          * @return DHTServer 实例
          */

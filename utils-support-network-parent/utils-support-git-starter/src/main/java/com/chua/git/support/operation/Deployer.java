@@ -24,6 +24,8 @@ import com.chua.git.support.model.DeployResult;
  *         .projectPath("module-a/pom.xml")
  *         .goals("clean", "package")
  *         .execute();
+ * }</pre>als("clean", "package")
+ *         .execute();
  * }</pre>
  *
  * @author CH
@@ -34,7 +36,7 @@ public interface Deployer {
     /**
      * 部署器显示名称。
      *
-     * @return 名称标识（如 "maven"、"gradle"、"docker"）
+     * @return 名称标识（如 "Maven"、"Gradle"、"Docker"）
      */
     String name();
 
@@ -49,7 +51,7 @@ public interface Deployer {
     /**
      * 执行部署。
      *
-     * @param gitClient 已打开的 GitClient，提供本地仓库路径
+     * @param gitClient 已打开的 Git客户端，提供本地仓库路径
      * @param config    部署配置
      * @return 部署结果
      */

@@ -17,12 +17,12 @@ public class MethodDescribe {
 
     /** 目标 */
     private final Object target;
-    /** Method */
+    /** 方法 */
     private final Method method;
     /** 名称 */
     private final String name;
-    private final Class<?> returnType;
-    private final Class<?>[] parameterTypes;
+    private final Class<?> returnType; // 返回类型
+    private final Class<?>[] parameterTypes; // 参数类型
     /** Parameternames */
     private final String[] parameterNames;
 
@@ -47,7 +47,7 @@ public class MethodDescribe {
         this.name = method.getName();
         this.returnType = method.getReturnType();
         this.parameterTypes = method.getParameterTypes();
-        // 不解析参数名（需要 -parameters 编译参数）
+ // 不解析参数名（需要 -参数 编译参数）
         this.parameterNames = new String[0];
     }
 

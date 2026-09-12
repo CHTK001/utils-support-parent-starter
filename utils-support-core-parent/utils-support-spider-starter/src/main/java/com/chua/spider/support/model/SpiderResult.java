@@ -14,7 +14,7 @@ import java.util.Map;
  * 爬虫解析结果。
  *
  * <p>Parser 将原始响应解析后产生的结构化数据，包含页面标题、文本内容、
- * 链接列表、结构化字段等。AiParser 可能在此基础上添加 AI 总结、分类等信息。
+   * 链接列表、结构化字段等。aiparser 可能在此基础上添加 AI 总结、分类等信息。
  * Pipeline 组件负责消费此结果。
  *
  * @author CH
@@ -70,7 +70,7 @@ public class SpiderResult {
      * <p>Parser 或 AiParser 从页面中提取的结构化数据，如作者、发布时间、分类等。
      */
     @Builder.Default
-    private Map<String, Object> structured = new LinkedHashMap<>();
+    private Map<String, Object> structured = new LinkedHashMap<>(); // Structured Streaming Streaming Streaming
 
     /**
      * 提取的链接列表。
@@ -99,7 +99,7 @@ public class SpiderResult {
      * <p>爬取过程中产生的附加元数据，如抓取时间、解析耗时等。
      */
     @Builder.Default
-    private Map<String, Object> metadata = new LinkedHashMap<>();
+    private Map<String, Object> metadata = new LinkedHashMap<>(); // metadata
 
     /**
      * 内容类型。

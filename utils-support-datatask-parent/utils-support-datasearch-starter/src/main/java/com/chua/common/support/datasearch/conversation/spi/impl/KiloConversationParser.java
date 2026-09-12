@@ -24,7 +24,7 @@ import java.util.Map;
  * <pre>{@code
  * part.data    = { "type": "text", "text": "Say ok" }
  * message.data = { "role": "user", "model": {...}, ... }
- * }</pre>
+ * }</pre></pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -32,10 +32,14 @@ import java.util.Map;
 @Spi("kilo")
 public class KiloConversationParser implements ConversationParser {
 
-    private static final Logger log = LoggerFactory.getLogger(KiloConversationParser.class);
+    private static final Logger log = LoggerFactory.getLogger(KiloConversationParser.class); // 日志
 
-    private static final Path DB_PATH = resolveDbPath();
+    private static final Path DB_PATH = resolveDbPath(); // db路径
 
+    /**
+     * resolvedb路径。
+     * @return resolvedb路径的结果
+     */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
@@ -62,6 +66,13 @@ public class KiloConversationParser implements ConversationParser {
 
     /**
      * 流式解析全部文本消息。
+     * @param value 值
+     * @return asStr的结果
+     /**
+      * 流消息。
+      * @return 流消息的结果
+      */
+     * @param raw raw
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
@@ -73,6 +84,11 @@ public class KiloConversationParser implements ConversationParser {
                 .addDataSource("kilo-conv", DB_PATH.toString());
         return engine.query(SQL_TEXT_PARTS)
                 .map(this::toMessage)
+                /**
+                 * 转为消息。
+                 * @param row row
+                 * @return 转为消息的结果
+                 */
                 .doOnComplete(() -> log.info("[kilo] conversation stream complete"));
     }
 
@@ -100,6 +116,12 @@ public class KiloConversationParser implements ConversationParser {
                 .contentType("text")
                 .content(text)
                 .model(model)
+                /**
+                 * extract模型id。
+                 * @param raw raw
+                 * @return extract模型id的结果
+                 * @param value 值
+                 */
                 .build();
     }
 

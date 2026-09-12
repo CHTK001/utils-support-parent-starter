@@ -8,17 +8,18 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * SafeTensor 模型注册表。
+   * safetensor 模型注册表。
  * <p>
- * 镜像 Python safetensor_models.py 中 MODEL_REGISTRY 的完整模型清单。
+   * 镜像 Python safetensor_模型.py 中 模型_REGISTRY 的完整模型清单。
  * 提供 Java 侧对 safetensor 托管模型的统一发现与查询能力。
  * </p>
  *
  * @since 4.0.0.42
+ * @author CH
  */
 public final class SafeTensorModelRegistry {
 
-    /** 创建 SafeTensorModelRegistry 实例 */
+    /** 创建 safetensor模型registry 实例 */
     private SafeTensorModelRegistry() {
     }
 
@@ -26,10 +27,11 @@ public final class SafeTensorModelRegistry {
      * 模型描述条目。
      *
      * @param id 模型标识
-     * @param type 模型类型（llm / image_gen / asr / tts / ocr / detection / face_detection 等）
-     * @param source 下载来源（modelscope / huggingface / local）
+     * @param type 模型类型（llm / 镜像_gen / asr / tts / ocr / detection / face_detection 等）
+     * @param source 下载来源（modelscope / huggingface / 本地）
       * @author CH
      * @param description 模型描述
+     * @return 模型entry的结果
      */
     public record ModelEntry(String id, String type, String source, String description) {
     }
@@ -59,7 +61,7 @@ public final class SafeTensorModelRegistry {
     }
 
     /**
-     * 按 ID 查找模型。
+      * 按 标识 查找模型。
      *
      * @param id 模型标识
      * @return 匹配的模型条目
@@ -82,9 +84,9 @@ public final class SafeTensorModelRegistry {
     }
 
     /**
-     * 根据模型 ID 解析对应的 type。
+      * 根据模型 标识 解析对应的 类型。
      *
-     * @param modelId 模型 ID
+     * @param modelId 模型 标识
      * @return 模型类型，未找到时返回 "llm"
      */
     public static String resolveType(String modelId) {
@@ -94,7 +96,12 @@ public final class SafeTensorModelRegistry {
         return byId(modelId).map(e -> e.type).orElseGet(() -> guessType(modelId));
     }
 
-    /** GuessType */
+    /**
+     * guess类型
+     *
+     * @param name 名称
+     * @return guess类型的结果
+     */
     private static String guessType(String name) {
         if (name.contains("qwen") || name.contains("llama") || name.contains("minimind") || name.contains("phi")) {
             if (name.contains("minimind-3v")) {
@@ -156,7 +163,11 @@ public final class SafeTensorModelRegistry {
         return "llm";
     }
 
-    /** 构建Registry */
+    /**
+     * 构建Registry
+     *
+     * @return 构建registry的结果
+     */
     private static List<ModelEntry> buildRegistry() {
         List<ModelEntry> list = new ArrayList<>();
 

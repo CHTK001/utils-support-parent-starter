@@ -12,7 +12,7 @@ public class MysqlCreateUserStep implements UserManager.CreateUserStep {
 
     /** 数据来源 */
     private final DataSource dataSource;
-    /** Username */
+    /** 用户名 */
     private final String username;
     /** 密码 */
     private String password;
@@ -25,14 +25,14 @@ public class MysqlCreateUserStep implements UserManager.CreateUserStep {
     }
 
     @Override
-    /** WithPassword */
+    /** with密码 */
     public UserManager.CreateUserStep withPassword(String password) {
         this.password = password;
         return this;
     }
 
     @Override
-    /** WithHost */
+    /** with主机 */
     public UserManager.CreateUserStep withHost(String host) {
         this.host = host;
         return this;

@@ -19,15 +19,16 @@ import java.util.Map;
  * Crush usage parser.
  *
  * <p>Crush (github.com/charmbracelet/crush) keeps per-project SQLite databases
- * at {@code <project>/.crush/crush.db}, indexed by
+   * at {@code <project>/.crush/crush.db}, 索引 by
  * {@code ~/.local/share/crush/projects.json}. The {@code sessions} table holds
- * session-level token and cost aggregates:</p>
+   * 会话-级别 令牌 和 cost aggregates:</p>
  *
  * <pre>{@code
  * CREATE TABLE sessions (
  *   id, title, message_count,
  *   prompt_tokens INTEGER, completion_tokens INTEGER, cost REAL,
  *   created_at, updated_at, ... )   -- timestamps in epoch seconds
+ * }</pre>ed_at, ... )   -- timestamps in epoch seconds
  * }</pre>
  *
  * @author CH
@@ -45,8 +46,8 @@ public class CrushUsageParser extends BaseUsageParser {
                     + "WHERE prompt_tokens > 0 OR completion_tokens > 0 "
                     + "ORDER BY created_at ASC";
 
-    private static final String PROVIDER_CRUSH = "crush";
-    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L;
+    private static final String PROVIDER_CRUSH = "crush"; // 提供者crush
+    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
 
     /**
      * 返回 SPI 名称。
@@ -74,6 +75,18 @@ public class CrushUsageParser extends BaseUsageParser {
 
     /**
      * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
+     * @param row row
+     /**
+      * 列表projectdatabases。
+      * @return 列表projectdatabases的结果
+      */
+     * @param db db
+     * @return 转为AIusage的结果
+      * @param row row
+     /**
+      * 列表projectdatabases。
+      * @return 列表projectdatabases的结果
+      */
      */
     private List<Path> listProjectDatabases() {
         List<Path> result = new ArrayList<>();

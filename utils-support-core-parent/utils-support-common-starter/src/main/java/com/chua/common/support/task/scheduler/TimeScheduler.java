@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
  * scheduler.scheduleCron("daily-task", () -> log("执行"), "0 0 12 * * ?");
  * scheduler.scheduleFixedRate("heartbeat", () -> log("心跳"), 5, TimeUnit.SECONDS);
  * scheduler.shutdown();
+ * }</pre>"心跳"), 5, TimeUnit.SECONDS);
+ * scheduler.shutdown();
  * }</pre>
  *
  * @author CH
@@ -65,7 +67,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 调度一个任务（指定 ID 和触发器）
+      * 调度一个任务（指定 标识 和触发器）
      *
      * @param id      任务唯一标识
      * @param task    待执行的任务逻辑
@@ -77,7 +79,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 调度一个任务（自动生成 ID 和指定触发器）
+      * 调度一个任务（自动生成 标识 和指定触发器）
      *
      * @param task    待执行的任务逻辑
      * @param trigger 触发策略
@@ -88,7 +90,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 调度一个 Cron 任务（指定 ID）
+      * 调度一个 Cron 任务（指定 标识）
      *
      * <p>基于标准 6 字段 Cron 表达式调度任务。
      *
@@ -102,7 +104,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 调度一个 Cron 任务（自动生成 ID）
+      * 调度一个 Cron 任务（自动生成 标识）
      *
      * @param task 待执行的任务逻辑
      * @param cron 标准 6 字段 Cron 表达式
@@ -113,7 +115,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 调度一个固定频率任务（指定 ID，无初始延迟）
+      * 调度一个固定频率任务（指定 标识，无初始延迟）
      *
      * @param id       任务唯一标识
      * @param task     待执行的任务逻辑
@@ -126,7 +128,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 调度一个固定频率任务（指定 ID 和初始延迟）
+      * 调度一个固定频率任务（指定 标识 和初始延迟）
      *
      * @param id           任务唯一标识
      * @param task         待执行的任务逻辑
@@ -140,7 +142,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 调度一个固定频率任务（自动生成 ID，无初始延迟）
+      * 调度一个固定频率任务（自动生成 标识，无初始延迟）
      *
      * @param task     待执行的任务逻辑
      * @param interval 执行间隔
@@ -189,7 +191,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 取消指定 ID 的调度任务
+      * 取消指定 标识 的调度任务
      *
      * @param id 任务唯一标识
      * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}
@@ -199,7 +201,7 @@ public class TimeScheduler {
     }
 
     /**
-     * 检查指定 ID 的调度任务是否正在运行
+      * 检查指定 标识 的调度任务是否正在运行
      *
      * @param id 任务唯一标识
      * @return 如果任务存在且未被取消返回 {@code true}，否则返回 {@code false}

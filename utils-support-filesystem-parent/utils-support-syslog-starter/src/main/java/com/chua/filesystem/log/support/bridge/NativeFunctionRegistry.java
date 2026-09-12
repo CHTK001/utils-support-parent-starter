@@ -28,7 +28,7 @@ public final class NativeFunctionRegistry {
     private final Linker linker;
     /** 符号查找表，用于按名称解析原生函数地址 */
     private final SymbolLookup lookup;
-    /** MethodHandle 句柄缓存，key 为「函数名@方法描述符」，避免重复 downcall 绑定 */
+    /** 方法处理 句柄缓存，键 为「函数名@方法描述符」，避免重复 downcall 绑定 */
     private final Map<String, MethodHandle> handleCache;
 
     /**
@@ -52,7 +52,7 @@ public final class NativeFunctionRegistry {
      * 按库名加载原生库并创建注册表。
      *
      * <p>复用 {@link NativeUtils#load(String, String)} 完成跨平台原生库加载
-     * （依次尝试 {@code System.loadLibrary}、classpath 下 {@code /native/{platform}/}、
+      * （依次尝试 {@code System.loadLibrary}、类路径 下 {@code /native/{platform}/}、
      * 用户目录 {@code ~/.native/} 等位置，含架构回退），加载成功后通过
      * {@link SymbolLookup#loaderLookup()} 获取已装入 JVM 的原生符号查找表，并构造
      * {@link NativeFunctionRegistry} 用于缓存 {@link MethodHandle}。

@@ -42,7 +42,7 @@ import java.util.function.Function;
  * <ul>
  *   <li>入参契约为"恰好一个 Collection"，不满足时抛出 {@link IllegalStateException}；</li>
  *   <li>返回 {@code Map}（key = 入参元素）：{@code mergeAll} 整批合并——窗口内全部调用的
- *       集合实参取并集，调用一次核心方法，再按"元素归属"将结果拆分为子 Map 回填各调用者；</li>
+   * 集合实参取并集，调用一次核心方法，再按"元素归属"将结果拆分为子 映射 回填各调用者；</li>
  *   <li>返回非 {@code Map}：降级为同参折叠（相同实参合并执行一次并广播结果）；</li>
  *   <li>空集合实参 / 无 SPI 实现：直接执行不折叠。</li>
  * </ul>
@@ -114,10 +114,10 @@ public class CollapsibleIntercept
     }
 
     /**
-     * 折叠执行失败时的降级：注解 fallback 非空时调用降级方法（支持 bean#method 与同类方法名）。
+      * 折叠执行失败时的降级：注解 降级 非空时调用降级方法（支持 Bean#方法 与同类方法名）。
      *
      * <p>降级方法返回值非 null 视为降级成功；降级不可用（无 fallback 配置/Bean 或方法不存在/
-     * 降级方法返回 null）时抛出原始异常（Error 不包装直接抛出）。</p>
+      * 降级方法返回 空）时抛出原始异常（错误 不包装直接抛出）。</p>
      *
      * @param annotation  折叠注解
      * @param proxyMethod 被拦截方法信息
@@ -138,7 +138,7 @@ public class CollapsibleIntercept
     }
 
     /**
-     * 将折叠执行异常包装为可抛出形态（Error 原样抛出，异常包装为 RuntimeException）。
+      * 将折叠执行异常包装为可抛出形态（错误 原样抛出，异常包装为 runtime异常）。
      *
      * @param cause 原始异常
      * @return 可抛出的运行时异常
@@ -154,7 +154,7 @@ public class CollapsibleIntercept
     }
 
     /**
-     * Spring 容器装配回调：注册全局降级容器（线程无关），供并发线程解析 bean#method 降级。
+      * Spring 容器装配回调：注册全局降级容器（线程无关），供并发线程解析 Bean#方法 降级。
      *
      * @param applicationContext Spring 容器
      */
@@ -250,7 +250,7 @@ public class CollapsibleIntercept
     }
 
     /**
-     * 创建折叠执行器：返回 Map 走合并拆分模式，其余走同参折叠（降级）模式。
+      * 创建折叠执行器：返回 映射 走合并拆分模式，其余走同参折叠（降级）模式。
      *
      * @param name        执行器名称
      * @param annotation  折叠注解
@@ -329,7 +329,7 @@ public class CollapsibleIntercept
     }
 
     /**
-     * 按方法入参声明类型实例化合并后的集合实参（Set 参数使用 LinkedHashSet，其余使用 ArrayList）。
+      * 按方法入参声明类型实例化合并后的集合实参（设置 参数使用 链接哈希设置，其余使用 array列表）。
      *
      * @param parameterType 方法入参类型
      * @param union         元素并集
@@ -353,7 +353,7 @@ public class CollapsibleIntercept
     private Object invokeCore(InvocationKey key, Object mergedArg) throws Throwable {
         Method method = key.method;
         // 合并批核心调用在原始目标对象上反射执行：接口方法 / 包私有声明类方法跨包受访问限制，
-        // 统一放行访问检查（CGLIB 覆写方法为 public，setAccessible 为无害操作）
+ // 统一放行访问检查（CGLIB 覆写方法为 公共，设置accessible 为无害操作）
         method.setAccessible(true);
         Set<Method> methods = collapsingMethods.get();
         methods.add(method);
@@ -402,17 +402,17 @@ public class CollapsibleIntercept
     }
 
     /**
-     * SpEL 表达式解析器（线程安全可复用）
+      * spel 表达式解析器（线程安全可复用）
      */
     private static final SpelExpressionParser SPEL_PARSER = new SpelExpressionParser();
 
     /**
-     * key() SpEL 表达式缓存（表达式字符串 -> 编译后表达式）
+      * 键() spel 表达式缓存（表达式字符串 -> 编译后表达式）
      */
     private static final Map<String, Expression> SPEL_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 解析元素归约键提取器：注解 key() 非空时按 SpEL 从元素求值，否则元素自身即键。
+      * 解析元素归约键提取器：注解 键() 非空时按 spel 从元素求值，否则元素自身即键。
      *
      * @param annotation 折叠注解
      * @return 元素 -> 归约键 提取函数
@@ -430,7 +430,7 @@ public class CollapsibleIntercept
     }
 
     /**
-     * 折叠调用标识：方法 + 实参集合，equals/hashCode 不包含调用上下文。
+      * 折叠调用标识：方法 + 实参集合，equals/哈希编码 不包含调用上下文。
      *
      * <p>同参折叠模式下 equals 决定合并分组；合并拆分模式下整批执行不依赖 equals。</p>
      */
@@ -457,7 +457,7 @@ public class CollapsibleIntercept
         private final MethodInvocation invocation;
 
         /**
-         * 元素归约键提取器（key() SpEL；缺省为元素自身，不参与相等比较）
+          * 元素归约键提取器（键() spel；缺省为元素自身，不参与相等比较）
          */
         private final Function<Object, Object> keyExtractor;
 

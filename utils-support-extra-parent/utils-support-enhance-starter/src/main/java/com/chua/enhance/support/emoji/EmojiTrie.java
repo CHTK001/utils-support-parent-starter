@@ -89,7 +89,7 @@ public class EmojiTrie {
      * 根据 Unicode 查找 Emoji
      *
      * @param unicode Unicode 字符串
-     * @return Emoji 对象，未找到返回 null
+     * @return Emoji 对象，未找到返回 空
      */
     public Emoji getEmoji(String unicode) {
         if (unicode == null) {
@@ -104,7 +104,7 @@ public class EmojiTrie {
      * @param text  字符数组
      * @param start 起始位置
      * @param end   结束位置
-     * @return Emoji 对象，未找到返回 null
+     * @return Emoji 对象，未找到返回 空
      */
     public Emoji getEmoji(char[] text, int start, int end) {
         if (text == null || start < 0 || end > text.length || start >= end) {
@@ -125,6 +125,8 @@ public class EmojiTrie {
 
     /**
      * 匹配结果枚举
+     * @author CH
+     * @since 4.0.0
      */
     public static class Matches {
         /** Exactmatch */
@@ -136,9 +138,11 @@ public class EmojiTrie {
 
         /**
          * 创建 Matches 实例
-         * @param exactMatch exactMatch
-         * @param boolean boolean
-         * @param boolean boolean
+         * @param exactMatch exact匹配
+         * @param exactMatch 布尔值
+         * @param exactMatch 布尔值
+         * @param prefixMatch 前缀匹配
+         * @param impossibleMatch impossible匹配
          */
         private Matches(boolean exactMatch, boolean prefixMatch, boolean impossibleMatch) {
             this.exactMatch = exactMatch;
@@ -146,39 +150,65 @@ public class EmojiTrie {
             this.impossibleMatch = impossibleMatch;
         }
 
-        /** Exact */
+        /**
+         * Exact
+         *
+         * @return exact的结果
+         */
         public static Matches exact() {
             return new Matches(true, false, false);
         }
 
-        /** Prefix */
+        /**
+         * 前缀
+         *
+         * @return 前缀的结果
+         */
         public static Matches prefix() {
             return new Matches(false, true, false);
         }
 
-        /** Impossible */
+        /**
+         * Impossible
+         *
+         * @return impossible的结果
+         */
         public static Matches impossible() {
             return new Matches(false, false, true);
         }
 
-        /** ExactMatch */
+        /**
+         * exact匹配
+         *
+         * @return exact匹配的结果
+         */
         public boolean exactMatch() {
             return exactMatch;
         }
 
-        /** PrefixMatch */
+        /**
+         * 前缀匹配
+         *
+         * @return 前缀匹配的结果
+         */
         public boolean prefixMatch() {
             return prefixMatch;
         }
 
-        /** ImpossibleMatch */
+        /**
+         * impossible匹配
+         *
+         * @return impossible匹配的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public boolean impossibleMatch() {
             return impossibleMatch;
         }
     }
 
     private static class Node {
-        Emoji emoji;
-        Map<Character, Node> children = new HashMap<>();
+        Emoji emoji; // emoji
+        Map<Character, Node> children = new HashMap<>(); // children
     }
 }

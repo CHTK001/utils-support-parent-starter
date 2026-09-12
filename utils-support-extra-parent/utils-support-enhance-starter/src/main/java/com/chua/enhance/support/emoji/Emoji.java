@@ -44,27 +44,47 @@ public class Emoji {
      */
     private List<String> emoticons = new ArrayList<>();
 
-    /** 获取EmojiChar */
+    /**
+     * 获取emojichar
+     *
+     * @return 获取emojichar的结果
+     */
     public String getEmojiChar() {
         return unicode;
     }
 
-    /** 获取DecimalSurrogateHtml */
+    /**
+     * 获取decimalsurrogatehtml
+     *
+     * @return 获取decimalsurrogatehtml的结果
+     */
     public String getDecimalSurrogateHtml() {
         return getDecimalHtml();
     }
 
-    /** 获取HexHtmlShort */
+    /**
+     * 获取hexhtmlshort
+     *
+     * @return 获取hexhtmlshort的结果
+     */
     public String getHexHtmlShort() {
         return getHexHtml();
     }
 
-    /** 获取DecimalHtmlShort */
+    /**
+     * 获取decimalhtmlshort
+     *
+     * @return 获取decimalhtmlshort的结果
+     */
     public String getDecimalHtmlShort() {
         return getDecimalHtml();
     }
 
-    /** 获取Emoticons */
+    /**
+     * 获取Emoticons
+     *
+     * @return 获取emoticons的结果
+     */
     public List<String> getEmoticons() {
         return emoticons;
     }

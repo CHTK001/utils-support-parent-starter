@@ -55,16 +55,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public interface ObjectContext {
 
     /**
-     * 存储 ObjectContext 实例对应的配置。
+      * 存储 对象上下文 实例对应的配置。
      * <p>用于 default 方法持有一个状态副本。</p>
      */
     Map<ObjectContext, ObjectContextConfig> CONFIG_HOLDER = new ConcurrentHashMap<>();
 
     /**
-     * 每个 ObjectContext 实例持有的唯一 BeanDefinitionRegistry。
+      * 每个 对象上下文 实例持有的唯一 Beandefinitionregistry。
      * <p>解决 registerBean()/getBean() 数据不互通的问题。</p>
      * <p>使用 {@link ConcurrentHashMap} 的强引用持有，容器关闭时（{@link #close()}）显式移除，
-     * 避免 WeakHashMap 在实例暂时无强引用时被 GC 后丢失所有 BeanDefinition。</p>
+      * 避免 weak哈希映射 在实例暂时无强引用时被 GC 后丢失所有 Beandefinition。</p>
      */
     Map<ObjectContext, BeanDefinitionRegistry> REGISTRY_HOLDER = new ConcurrentHashMap<>();
 
@@ -83,11 +83,11 @@ public interface ObjectContext {
     /**
      * 按类型获取 Bean 实例。
      * <p>从所有 BeanDefinitionRegistry 中按类型匹配，
-     * 按 BeanDefinition#getPriority() 从高到低返回第一个成功初始化的非空实例。</p>
+      * 按 Beandefinition#获取priority() 从高到低返回第一个成功初始化的非空实例。</p>
      *
      * @param <T>  目标类型泛型
      * @param type Bean 类型
-     * @return Bean 实例，不存在返回 null
+     * @return Bean 实例，不存在返回 空
      */
     <T> T getBeanOfType(Class<T> type);
 
@@ -96,7 +96,7 @@ public interface ObjectContext {
      *
      * @param <T>  目标类型泛型
      * @param type Bean 类型
-     * @return Bean 实例，不存在返回 null
+     * @return Bean 实例，不存在返回 空
      */
     <T> T getBeanOfTypeSafely(Class<T> type);
 
@@ -207,10 +207,10 @@ public interface ObjectContext {
     /**
      * 发布事件。
      * <p>默认委托给当前容器关联的 {@link EventPublisher#publish(Object)}，
-     * 子类可重写以路由到原生容器（如 Spring ApplicationContext）。</p>
+      * 子类可重写以路由到原生容器（如 Spring application上下文）。</p>
      *
      * @param event 事件对象
-     * @return 本次分发调用的监听器数量；事件为 null 返回 0
+     * @return 本次分发调用的监听器数量；事件为 空 返回 0
      */
     default int publish(Object event) {
         if (event == null) {
@@ -301,10 +301,10 @@ public interface ObjectContext {
      * <ul>
      *   <li>{@link ObjectContextConfig#shouldScan()} — 为 true 时扫描指定包路径下的类并自动注册</li>
      *   <li>{@link ObjectContextConfig#isSpiEnabled()} — 控制 BeanDefinitionRegistry 初始化时
-     *       是否通过 SPI 发现 BeanDefinitionRegister 实现（由 {@link #getRegistry(boolean)} 决定）</li>
+      * 是否通过 SPI 发现 Beandefinition注册 实现（由 {@link #getRegistry(boolean)} 决定）</li>
      * </ul>
      *
-     * @param config 容器配置，null 时等同 {@link ObjectContextConfig#defaults()}
+     * @param config 容器配置，空 时等同 {@link ObjectContextConfig#defaults()}
      */
     default void init(ObjectContextConfig config) {
         if (config == null) {
@@ -345,7 +345,7 @@ public interface ObjectContext {
      * 并触发实例化、依赖注入和生命周期初始化。</p>
      *
      * @param type Bean 类型
-     * @throws com.chua.common.support.objects.exception.BeanDefinitionException type 为 null 或注册失败时抛出
+     * @throws com.chua.common.support.objects.exception.BeanDefinitionException 类型 为 空 或注册失败时抛出
      */
     default void registerBean(Class<?> type) {
         if (type == null) {
@@ -359,7 +359,7 @@ public interface ObjectContext {
     }
 
     /**
-     * 按 BeanDefinition 注册 Bean。
+      * 按 Beandefinition 注册 Bean。
      * <p>直接注册给定的 BeanDefinition，触发实例化、依赖注入和生命周期初始化。</p>
      *
      * @param beanDefinition Bean 定义
@@ -387,8 +387,8 @@ public interface ObjectContext {
     /**
      * 注册一个已创建的对象实例到容器。
      * <p>通过 BeanDefinitionGenerator SPI 链生成 BeanDefinition，
-     * 用 SingletonBeanDefinition 包装已存在的实例后注册到 BeanDefinitionRegistry，
-     * 并立即执行依赖注入和生命周期初始化（@AutoInject、@ConfigValue、@PostConstruct）。</p>
+      * 用 单例Beandefinition 包装已存在的实例后注册到 Beandefinitionregistry，
+      * 并立即执行依赖注入和生命周期初始化（@autoinject、@配置值、@postconstruct）。</p>
      *
      * @param bean 要注册的对象实例
      * @throws com.chua.common.support.objects.exception.BeanDefinitionException 注册失败时抛出
@@ -440,13 +440,13 @@ public interface ObjectContext {
     }
 
     /**
-     * 注册一个 BeanDefinitionRegister（编程式挂接，绕过 SPI）。
+      * 注册一个 Beandefinition注册（编程式挂接，绕过 SPI）。
      *
      * <p>用于将外部容器（如 OSGi 框架、远程节点、第三方插件）提供的
-     * BeanDefinitionRegister 接入当前上下文，使其参与 Bean 查找与解析。
-     * 该方法线程安全，重复注册同名 Register 将被忽略。</p>
+      * Beandefinition注册 接入当前上下文，使其参与 Bean 查找与解析。
+      * 该方法线程安全，重复注册同名 注册 将被忽略。</p>
      *
-     * @param register 待注册的 BeanDefinitionRegister
+     * @param register 待注册的 Beandefinition注册
      * @return true 表示新增成功
      * @throws com.chua.common.support.objects.exception.BeanDefinitionException 入参为空或挂接失败
      */
@@ -517,7 +517,7 @@ public interface ObjectContext {
     // ==================== 注册中心 ====================
 
     /**
-     * 获取 BeanDefinitionRegistry。
+      * 获取 Beandefinitionregistry。
      *
      * @return Bean 定义注册中心
      */
@@ -526,9 +526,9 @@ public interface ObjectContext {
     }
 
     /**
-     * 获取 BeanDefinitionRegistry，可控制是否启用 SPI 发现。
+      * 获取 Beandefinitionregistry，可控制是否启用 SPI 发现。
      *
-     * @param spiEnabled 是否通过 SPI 发现 BeanDefinitionRegister
+     * @param spiEnabled 是否通过 SPI 发现 Beandefinition注册
      * @return Bean 定义注册中心
      */
     default BeanDefinitionRegistry getRegistry(boolean spiEnabled) {

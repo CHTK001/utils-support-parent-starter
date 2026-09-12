@@ -13,14 +13,14 @@ import java.util.Map;
 public interface DataSyncSink {
 
     /**
-     * Sink 实例 ID。
+      * Sink 实例 标识。
      */
     String SINK_ID = "sinkId";
 
     /**
      * Sink 实例唯一标识。
      *
-     * @return Sink ID
+     * @return Sink 标识
      */
     String sinkId();
 

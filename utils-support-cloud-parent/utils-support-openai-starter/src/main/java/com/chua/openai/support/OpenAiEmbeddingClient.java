@@ -21,10 +21,10 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * OpenAI 嵌入向量客户端。
+   * 打开AI 嵌入向量客户端。
  *
  * <p>基于 OpenAI Java SDK 的 {@link EmbeddingClient} 实现，支持 OpenAI 兼容接口的
- * 所有服务商（如 OpenAI、SiliconFlow、SenseTime 等）。
+   * 所有服务商（如 打开AI、silicon流、sense时间 等）。
  *
  * <p>通过 SPI 机制注册以下别名：
  * <ul>
@@ -41,6 +41,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *       .model("text-embedding-3-small")
  *       .dimensions(256)
  *       .embedding("要向量化的文本");
+ * }</pre>imensions(256)
+ *       .embedding("要向量化的文本");
  * }</pre>
  *
  * @author CH
@@ -51,7 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class OpenAiEmbeddingClient implements EmbeddingClient {
 
     /**
-     * OpenAI 默认 API 地址
+      * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
@@ -81,7 +83,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     private Integer dimensions;
 
     /**
-     * 构造 OpenAI 嵌入向量客户端。
+      * 构造 打开AI 嵌入向量客户端。
      *
      * @param setting 客户端配置
      */
@@ -92,21 +94,21 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Dimensions */
+    /** 维度 */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
     }
 
     @Override
-    /** Embedding */
+    /** 嵌入 */
     public float[] embedding(String text) {
         if (text == null || text.isBlank()) {
             return new float[dimension()];
@@ -117,7 +119,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatch */
+    /** 嵌入batch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -139,7 +141,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingWithResponse */
+    /** 嵌入with响应 */
     public EmbeddingResponse embeddingWithResponse(String text) {
         if (text == null || text.isBlank()) {
             return buildEmptyResponse();
@@ -149,7 +151,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatchWithResponse */
+    /** 嵌入batchwith响应 */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         if (texts == null || texts.length == 0) {
             return EmbeddingResponse.builder()
@@ -186,14 +188,14 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     @Override
     /** 关闭 */
     public void close() {
-        // OpenAI SDK 客户端在每次请求中通过 try-with-resources 自动创建和关闭，无需额外清理
+ // 打开AI SDK 客户端在每次请求中通过 尝试-with-resources 自动创建和关闭，无需额外清理
         log.debug("OpenAiEmbeddingClient 已关闭");
     }
 
     // ==================== 内部方法 ====================
 
     /**
-     * 创建 OpenAI HTTP 客户端。
+      * 创建 打开AI HTTP 客户端。
      *
      * @return OpenAI 客户端实例
      */
@@ -231,7 +233,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
             paramsBuilder.inputOfArrayOfStrings(sanitized);
         }
 
-        // 支持 dimensions 参数（仅 text-embedding-3 及以上模型支持）
+ // 支持 维度 参数（仅 文本-嵌入-3 及以上模型支持）
         if (dimensions != null && dimensions > 0) {
             paramsBuilder.dimensions((long) dimensions);
         }
@@ -240,7 +242,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-     * 将向量列表转换为 EmbeddingResponse.Embedding 列表。
+      * 将向量列表转换为 嵌入响应.嵌入 列表。
      *
      * @param vectors 浮点数向量列表
      * @return Embedding 列表
@@ -261,7 +263,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     /**
      * 构建用量信息。
      *
-     * @param response  OpenAI 原始响应
+     * @param response  打开AI 原始响应
      * @param duration  请求耗时（毫秒）
      * @param startTime 请求开始时间戳
      * @return 用量信息
@@ -299,9 +301,9 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-     * 解析 OpenAI 嵌入向量响应。
+      * 解析 打开AI 嵌入向量响应。
      *
-     * @param response OpenAI 原始响应
+     * @param response 打开AI 原始响应
      * @return 浮点数向量列表
      */
     private static List<float[]> parseEmbeddings(CreateEmbeddingResponse response) {
@@ -345,6 +347,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
 
     /**
      * 获取当前维度（有配置值则用配置值，否则使用默认值）。
+     * @return 维度的结果
      */
     private int dimension() {
         return dimensions != null ? dimensions : DEFAULT_DIMENSIONS;
@@ -354,7 +357,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
      * 解析代理地址字符串。
      *
      * @param proxyStr 代理地址字符串，支持 http://、socks5:// 格式
-     * @return Proxy 对象，解析失败时返回 null
+     * @return Proxy 对象，解析失败时返回 空
      */
     private static Proxy resolveProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {

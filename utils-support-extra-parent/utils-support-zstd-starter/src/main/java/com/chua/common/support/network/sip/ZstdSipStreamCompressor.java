@@ -22,8 +22,8 @@ public class ZstdSipStreamCompressor implements SipStreamCompressor {
     @Override
     public OutputStream wrap(OutputStream out) throws IOException {
         try {
-            // TODO: 集成 Zstd native library（JNI 或 zstd-jni）创建压缩输出流
-            // 示例占位：实际需替换为 ZstdOutputStream 或 PackedOutputStream
+ // TODO: 集成 Zstd NAT 图书馆（JNI 或 zstd-jni）创建压缩输出流
+ // 示例占位：实际需替换为 zstd输出流 或 packed输出流
             throw new IOException("Zstd native library not integrated yet; use GZIP as fallback");
         } catch (Throwable t) {
             throw new IOException("SIP Zstd 包装输出流失败", t);
@@ -33,8 +33,8 @@ public class ZstdSipStreamCompressor implements SipStreamCompressor {
     @Override
     public InputStream unwrap(InputStream in) throws IOException {
         try {
-            // TODO: 集成 Zstd native library 创建解压输入流
-            // 示例占位：实际需替换为 ZstdInputStream 或 PackedInputStream
+ // TODO: 集成 Zstd NAT 图书馆 创建解压输入流
+ // 示例占位：实际需替换为 zstd输入流 或 packed输入流
             throw new IOException("Zstd native library not integrated yet; use GZIP as fallback");
         } catch (Throwable t) {
             throw new IOException("SIP Zstd 解压输入流失败", t);

@@ -26,7 +26,7 @@ import java.nio.file.Path;
 public class FileSecretKeyStore extends AbstractWrappedKeyStore {
 
     /**
-     * 载体魔数：Chua Key File
+      * 载体魔数：Chua 键 文件
      */
     private static final byte[] MAGIC = {'C', 'H', 'K', 'F'};
 

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * </ol></p>
  *
  * <p>线程安全说明：{@link #createInstance()} 使用 {@code synchronized} 保护热重载流程，
- * 避免多线程并发检测变更和编译导致的 ClassLoader 泄漏。</p>
+   * 避免多线程并发检测变更和编译导致的 类加载 泄漏。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -39,7 +39,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     private final AtomicReference<ClassLoader> scriptClassLoader = new AtomicReference<>();
 
     /**
-     * 热重载锁，保护 createInstance() 中的变更检测 → 销毁 → 编译流程
+      * 热重载锁，保护 创建instance() 中的变更检测 → 销毁 → 编译流程
      */
     private final Object hotReloadLock = new Object();
 
@@ -54,7 +54,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     private Listener listener;
 
     /**
-     * 缓存的脚本实例，避免每次调用 getBean() 都重新编译
+      * 缓存的脚本实例，避免每次调用 获取Bean() 都重新编译
      */
     private Object scriptInstance;
 
@@ -76,19 +76,19 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
-    /** 获取ScriptClassLoader */
+    /** 获取script类加载 */
     public ClassLoader getScriptClassLoader() {
         return scriptClassLoader.get();
     }
 
     @Override
-    /** 设置ScriptClassLoader */
+    /** 设置script类加载 */
     public void setScriptClassLoader(ClassLoader classLoader) {
         this.scriptClassLoader.set(classLoader);
     }
 
     @Override
-    /** 获取ScriptMarker */
+    /** 获取script记号笔 */
     public ScriptMarker getScriptMarker() {
         return scriptMarker;
     }
@@ -103,7 +103,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
-    /** 获取Listener */
+    /** 获取监听器 */
     public Listener getListener() {
         return listener;
     }
@@ -122,7 +122,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
      * 创建脚本对象实例（线程安全）。
      *
      * <p>使用 {@code synchronized} 保护热重载流程，避免多线程并发检测变更和编译
-     * 导致 ClassLoader 泄漏或重复创建。</p>
+      * 导致 类加载 泄漏或重复创建。</p>
      *
      * <p>热重载时，先断开旧实例引用再编译新实例，确保旧实例及其关联的类可被 GC 回收。</p>
      */
@@ -132,7 +132,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         }
 
         synchronized (hotReloadLock) {
-            // 检测脚本源码是否变化，变化则销毁旧 ClassLoader 并断开旧实例引用
+ // 检测脚本源码是否变化，变化则销毁旧 类加载 并断开旧实例引用
             if (listener.isChange()) {
                 if (log.isDebugEnabled()) {
                     log.debug("[ScriptDefinition] 检测到脚本源码变更，执行热重载: name={}", getName());
@@ -141,7 +141,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
                 this.scriptInstance = null;
             }
 
-            // 获取当前 ClassLoader，首次使用时取默认类加载器
+ // 获取当前 类加载，首次使用时取默认类加载器
             ClassLoader current = scriptClassLoader.get();
             if (current == null) {
                 current = ClassUtils.getDefaultClassLoader();
@@ -158,7 +158,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
                     type = instance.getClass();
                 }
                 setBeanClass(type);
-                // 保存脚本标记器产生的 ClassLoader
+ // 保存脚本标记器产生的 类加载
                 ClassLoader newClassLoader = scriptMarker.getScriptClassLoader();
                 if (newClassLoader != null) {
                     setScriptClassLoader(newClassLoader);
@@ -169,7 +169,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
-    /** 是否AssignableFrom */
+    /** 是否assignable从 */
     public boolean isAssignableFrom(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -178,16 +178,16 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         if (beanClass == null) {
             return false;
         }
-        // 优先走 JDK 类型判断（同 ClassLoader 场景）
+ // 优先走 JDK 类型判断（同 类加载 场景）
         if (ClassUtils.isAssignable(beanClass, clazz)) {
             return true;
         }
-        // 跨 ClassLoader 场景：字符串全限定名匹配（含父类/接口递归）
+ // 跨 类加载 场景：字符串全限定名匹配（含父类/接口递归）
         return isAssignableFromTypeHierarchy(beanClass, clazz.getName());
     }
 
     @Override
-    /** 是否AssignableFrom */
+    /** 是否assignable从 */
     public boolean isAssignableFrom(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -224,7 +224,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     @Override
-    /** Do获取Bean */
+    /** 执行获取Bean */
     protected Object doGetBean() {
         return scriptInstance;
     }
@@ -239,12 +239,12 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
      * 销毁脚本类加载器。
      *
      * <p>热重载时调用，释放旧 ClassLoader 占用的 Metaspace 内存。
-     * 如果 ClassLoader 实现了 {@link AutoCloseable}，优先调用 close()；
+      * 如果 类加载 实现了 {@link AutoCloseable}，优先调用 关闭()；
      * 否则回退到 {@link ClassUtils#unregisterClassLoader(ClassLoader)}。</p>
      *
      * <p>异常安全保证：即使 close() 失败，也会兜底调用
      * {@link ClassUtils#unregisterClassLoader(ClassLoader)} 尝试从全局注册表移除，
-     * 避免 ClassLoader 成为孤儿对象。</p>
+      * 避免 类加载 成为孤儿对象。</p>
      */
     public void destroyScriptClassLoader() {
         ClassLoader classLoader = this.scriptClassLoader.getAndSet(null);
@@ -255,7 +255,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
             log.debug("[ScriptDefinition] 销毁脚本类加载器: name={}, type={}, hash={}",
                     getName(), classLoader.getClass().getName(), System.identityHashCode(classLoader));
         }
-        // 新增：销毁前清理 Groovy 内部缓存（sourceCache、ClassInfo 反射缓存）
+ // 新增：销毁前清理 Groovy 内部缓存（源缓存、类信息 反射缓存）
         clearGroovyCache(classLoader);
         try {
             if (classLoader instanceof AutoCloseable autoCloseable) {
@@ -266,7 +266,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         } catch (Exception e) {
             log.error("[ScriptDefinition] 销毁脚本类加载器失败: {}", classLoader, e);
             // 兜底：即使 close() 失败，也尝试从全局注册表移除，
-            // 避免 ClassLoader 成为孤儿对象（既不在 scriptClassLoader 中，也不在注册表中）
+ // 避免 类加载 成为孤儿对象（既不在 script类加载 中，也不在注册表中）
             try {
                 ClassUtils.unregisterClassLoader(classLoader);
             } catch (Exception ignored) {
@@ -276,17 +276,18 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     /**
-     * 清理 GroovyClassLoader 的内部缓存。
+      * 清理 groovy类加载 的内部缓存。
      *
      * <p>通过反射调用 {@code GroovyClassLoader.clearCache()} 方法，
-     * 在 close() 之前释放 sourceCache 和 ClassInfo 反射缓存，
-     * 帮助 Metaspace 内存回收。仅当 ClassLoader 是 GroovyClassLoader 实例时执行。</p>
+      * 在 关闭() 之前释放 源缓存 和 类信息 反射缓存，
+      * 帮助 Metaspace 内存回收。仅当 类加载 是 groovy类加载 实例时执行。</p>
+     * @param classLoader 类加载
      */
     private void clearGroovyCache(ClassLoader classLoader) {
         if (classLoader == null) {
             return;
         }
-        // 通过类名判断是否为 GroovyClassLoader，避免直接依赖 Groovy 类
+ // 通过类名判断是否为 Groovy类加载，避免直接依赖 Groovy 类
         if ("groovy.lang.GroovyClassLoader".equals(classLoader.getClass().getName())) {
             try {
                 ReflectUtils.invoke(classLoader, "clearCache", void.class);
@@ -300,7 +301,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
      * 销毁 Bean。
      *
      * <p>除执行父类生命周期销毁外，额外释放脚本 ClassLoader，
-     * 避免脚本引擎产生的 ClassLoader 内存泄漏被忽略。</p>
+      * 避免脚本引擎产生的 类加载 内存泄漏被忽略。</p>
      */
     @Override
     public void destroyBean() {

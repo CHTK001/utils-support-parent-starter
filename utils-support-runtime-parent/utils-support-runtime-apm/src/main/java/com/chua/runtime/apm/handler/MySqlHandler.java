@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * MySQL 应用层 Handler — 拦截 MySQL JDBC 驱动关键调用并生成应用语义传输记录。
+   * MySQL 应用层 处理器 — 拦截 MySQL JDBC 驱动关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -25,27 +25,27 @@ import com.chua.runtime.protocol.Software;
 public class MySqlHandler extends AbstractAppHandler {
 
     /**
-     * ConnectionImpl 类内部名
+      * connectionimpl 类内部名
      */
     private static final String MYSQL_CONNECTION_CLASS = "com/mysql/cj/jdbc/ConnectionImpl";
 
     /**
-     * StatementImpl 类内部名
+      * 对账单impl 类内部名
      */
     private static final String MYSQL_STATEMENT_CLASS = "com/mysql/cj/jdbc/StatementImpl";
 
     /**
-     * ClientPreparedStatement 类内部名
+      * 客户端prepared对账单 类内部名
      */
     private static final String MYSQL_CLIENT_PREPARED_STATEMENT_CLASS = "com/mysql/cj/jdbc/ClientPreparedStatement";
 
     /**
-     * ServerPreparedStatement 类内部名
+      * 服务端prepared对账单 类内部名
      */
     private static final String MYSQL_SERVER_PREPARED_STATEMENT_CLASS = "com/mysql/cj/jdbc/ServerPreparedStatement";
 
     /**
-     * SQL 执行方法集合（Statement / PreparedStatement 共有）
+      * SQL 执行方法集合（对账单 / prepared对账单 共有）
      */
     private static final String[] SQL_METHODS = {"execute", "executeQuery", "executeUpdate"};
 
@@ -55,13 +55,13 @@ public class MySqlHandler extends AbstractAppHandler {
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "mysql-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "mysql.enabled";
     }
@@ -73,13 +73,13 @@ public class MySqlHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.MYSQL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAllEntryExit(MYSQL_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(MYSQL_CLIENT_PREPARED_STATEMENT_CLASS, SQL_METHODS);

@@ -5,7 +5,7 @@ import com.chua.deeplearning.support.model.FaceQualityInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ONNX 人脸质量评估引擎（SPI provider="onnx"）。
+   * ONNX 人脸质量评估引擎（SPI 提供者="onnx"）。
  *
  * <p>注册表中无匹配的人脸质量评估模型，必须通过 {@code .model("模型ID")} 显式指定
  * 已注册模型，否则抛出异常。</p>
@@ -32,20 +32,24 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxFaceQualityAssessor 实例
-     * @param apiKey apiKey
+      * 创建 onnxfacequalityassessor 实例
+     * @param apiKey API密钥
      */
     public OnnxFaceQualityAssessor(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FaceQualityAssessor model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + FaceQualityAssessor.listModels());
@@ -54,7 +58,7 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public FaceQualityAssessor blurThreshold(double blurThreshold) {
         this.blurThreshold = blurThreshold;
         return this;
@@ -68,7 +72,7 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
-    /** Assess */
+    /** 评定 */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).device(device).assess(imageData);
     }

@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Vert.x Handler — intercepts Vert.x HTTP server/client operations.
+   * Vert.x 处理器 — intercepts Vert.x HTTP 服务端/客户端 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,22 +23,22 @@ public class VertxHandler extends AbstractAppHandler {
      */
     private static final String HTTP_CLIENT_REQUEST = "io/vertx/core/http/HttpClientRequest";
     /**
-     * 服务器 methods
+      * 服务器 方法
      */
     private static final String[] SERVER_METHODS = {"handler", "body", "params", "headers"};
     /**
-     * 客户端 methods
+      * 客户端 方法
      */
     private static final String[] CLIENT_METHODS = {"send", "end", "putHeader"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "vertx-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "vertx.enabled";
     }
@@ -50,13 +50,13 @@ public class VertxHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(HTTP_SERVER_REQUEST, SERVER_METHODS);
         registerAll(HTTP_CLIENT_REQUEST, CLIENT_METHODS);

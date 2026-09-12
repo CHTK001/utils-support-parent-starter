@@ -52,7 +52,7 @@ public class FileVectorStorage implements VectorStorage {
     private final Path file;
 
     /**
-     * 内存索引：id → 向量（LinkedHashMap 保持插入序）
+      * 内存索引：标识 → 向量（链接哈希映射 保持插入序）
      */
     private final Map<String, float[]> store = new LinkedHashMap<>();
 
@@ -61,6 +61,11 @@ public class FileVectorStorage implements VectorStorage {
      */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
+    /**
+     * 文件向量storage。
+     * @param dimension 维度
+     * @param file 文件
+     */
     private FileVectorStorage(int dimension, Path file) {
         this.dimension = dimension;
         this.file = file;
@@ -223,7 +228,11 @@ public class FileVectorStorage implements VectorStorage {
         }
     }
 
-    /** 校验维度 */
+    /**
+     * 校验维度
+     *
+     * @param vector 向量
+     */
     private void checkDim(float[] vector) {
         if (vector.length != dimension) {
             throw new IllegalArgumentException(

@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Socket.IO 协议下的 SyncClient 实现，基于 socket.io-client-java。
+   * 套接字.IO 协议下的 同步客户端 实现，基于 套接字.io-客户端-Java。
  * <p>支持自动重连（间隔 3 秒）与按 topic 的事件订阅。</p>
  *
  * @author CH
@@ -48,7 +48,7 @@ public class SocketIOSyncClient implements SyncClient {
     private final java.util.List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-     * Socket.IO socket 实例
+      * 套接字.IO 套接字 实例
      */
     private Socket socket;
 
@@ -103,13 +103,13 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 是否Connected */
+    /** 是否连接 */
     public boolean isConnected() {
         return connected && socket != null && socket.connected();
     }
 
     @Override
-    /** 获取ClientId */
+    /** 获取客户端id */
     public String getClientId() {
         return clientId;
     }
@@ -142,13 +142,13 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
@@ -165,7 +165,7 @@ public class SocketIOSyncClient implements SyncClient {
         disconnect();
     }
 
-    /** Do连接 */
+    /** 执行连接 */
     private void doConnect() throws Exception {
         URI uri = URI.create(serverUrl);
         IO.Options options = new IO.Options();
@@ -199,7 +199,11 @@ public class SocketIOSyncClient implements SyncClient {
         }
     }
 
-    /** EnsureTopicListener */
+    /**
+     * ensuretopic监听器
+     *
+     * @param topic topic
+     */
     private void ensureTopicListener(String topic) {
         if (socket == null) {
             return;
@@ -212,7 +216,11 @@ public class SocketIOSyncClient implements SyncClient {
         });
     }
 
-    /** 通知Listeners */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

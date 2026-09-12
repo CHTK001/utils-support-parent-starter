@@ -44,10 +44,10 @@ public class SkillArgumentSchema {
     /**
      * 创建 SkillArgumentSchema 实例
      * @param name name
-     * @param String String
-     * @param String String
-     * @param boolean boolean
-     * @param List List
+     * @param name String
+     * @param name String
+     * @param required boolean
+     * @param enumValues List
      * @param enumValues enumValues
      */
     public SkillArgumentSchema(String name, String description, String type, boolean required, List<String> enumValues) {

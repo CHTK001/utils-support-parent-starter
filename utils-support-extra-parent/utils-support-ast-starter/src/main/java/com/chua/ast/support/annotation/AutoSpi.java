@@ -27,10 +27,12 @@ import java.lang.annotation.*;
  * // 省略别名：优先读取类上的 @Spi / @Extension 注解，否则取「类名去掉接口名」推导
  * @AutoSpi
  * public class BgeEmbeddingClient implements EmbeddingClient { ... }
+ * }</pre>i
+   * 公共 类 bge嵌入客户端 implements 嵌入客户端 { ... }
  * }</pre>
  *
  * <p>与运行时注解的关系：若实现类上已标注 common-starter 的 {@code @Spi} 或 {@code @Extension}，
- * 其 value 会被自动用作别名写入索引文件；未标注时按「类名去掉接口名」推导
+   * 其 值 会被自动用作别名写入索引文件；未标注时按「类名去掉接口名」推导
  * （如 {@code MiniLMEmbeddingClient} 实现 {@code EmbeddingClient} 推导为 {@code MiniLM}）。</p>
  *
  * @author CH
@@ -53,6 +55,7 @@ public @interface AutoSpi {
      *
      * // 自动推导实现接口
      * @AutoSpi
+     * }</pre>     * @AutoSpi
      * }</pre>
      *
      * @return SPI 接口全限定名数组
@@ -76,7 +79,7 @@ public @interface AutoSpi {
      *
      * // 指定多个别名
      * @AutoSpi(name = {"json", "application/json"})
-     * }</pre>
+     * }</pre>e>
      *
      * @return 扩展名（别名）数组
      */

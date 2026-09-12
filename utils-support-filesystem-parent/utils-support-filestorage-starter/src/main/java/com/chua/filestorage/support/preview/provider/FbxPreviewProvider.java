@@ -16,11 +16,16 @@ import java.util.Set;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param data 数据
+ * @return 解析fbx的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-fbx")
 public class FbxPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("fbx");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("fbx"); // 支持exts
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -61,6 +66,14 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
         int objectCount = 0;
         for (int i = 0; i < data.length - 13; i++) {
             // 寻找 "Objects\x00" 标记
+    /**
+     * fbx信息类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
             if (data[i] == 'O' && data[i + 1] == 'b' && data[i + 2] == 'j' &&
                 data[i + 3] == 'e' && data[i + 4] == 'c' && data[i + 5] == 't' &&
                 data[i + 6] == 's' && data[i + 7] == 0) {
@@ -72,6 +85,12 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
         info.objectCount = objectCount;
 
         return info;
+    /**
+     * 构建html。
+     * @param info 信息
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     private String buildHtml(FbxInfo info, long fileSize) {
@@ -104,22 +123,36 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
         sb.append("</div></body></html>");
 
         return sb.toString();
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 
     private static class FbxInfo {
-        String version = "未知";
-        int nodeCount = 0;
-        int objectCount = 0;
+        String version = "未知"; // 版本
+        int nodeCount = 0; // 节点数量
+        int objectCount = 0; // 对象数量
     }
 }

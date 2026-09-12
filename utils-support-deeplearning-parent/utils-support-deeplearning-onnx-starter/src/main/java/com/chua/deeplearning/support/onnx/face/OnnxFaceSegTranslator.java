@@ -17,7 +17,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 /**
- * ParseNet 人脸分割 Translator（ONNX 版，AIAS traced 导出）。
+   * 解析net 人脸分割 Translator（ONNX 版，AIAS 追踪 导出）。
  *
  * <p>模型输入 512×512 人脸图（RGB 归一化 mean/std=0.5），输出 [1,19,512,512] 分割 logits；
  * 内部 argmax + 二值化 + 高斯模糊，输出人脸软 mask 图像（0~255 灰度）。</p>
@@ -55,7 +55,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
     private static final int THRESHOLD = 10;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         int w = input.getWidth();
@@ -75,7 +75,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.get(0);
         long[] shape = out.getShape().getShape();
@@ -119,7 +119,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
         mask.release();
         blur1.release();
 
-        // 去除 10px 黑边
+ // 去除 10Px 黑边
         if (THRESHOLD < hh && THRESHOLD < ww) {
             blur2.submat(0, THRESHOLD, 0, ww).setTo(org.opencv.core.Scalar.all(0));
             blur2.submat(hh - THRESHOLD, hh, 0, ww).setTo(org.opencv.core.Scalar.all(0));

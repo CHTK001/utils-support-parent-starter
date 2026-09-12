@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Undertow Handler — intercepts request handling in Undertow.
+   * Undertow 处理器 — intercepts 请求 处理 入 Undertow.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class UndertowHandler extends AbstractAppHandler {
 
     /**
-     * HTTP handler
+      * HTTP 处理器
      */
     private static final String HTTP_HANDLER = "io/undertow/server/HttpHandler";
     /**
-     * handle 请求
+      * 处理 请求
      */
     private static final String[] HANDLE_REQUEST = {"handleRequest"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "undertow-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "undertow.enabled";
     }
@@ -42,13 +42,13 @@ public class UndertowHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(HTTP_HANDLER, HANDLE_REQUEST);
     }

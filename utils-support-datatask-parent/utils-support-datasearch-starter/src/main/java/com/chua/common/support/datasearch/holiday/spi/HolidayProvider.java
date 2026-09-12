@@ -42,10 +42,10 @@ public interface HolidayProvider {
     boolean isWorkday(LocalDate date);
 
     /**
-     * 获取指定日期的节假日信息（非节假日返回 null）
+      * 获取指定日期的节假日信息（非节假日返回 空）
      *
      * @param date 日期
-     * @return 节假日信息，非节假日为 null
+     * @return 节假日信息，非节假日为 空
      */
     HolidayInfo getHoliday(LocalDate date);
 

@@ -20,7 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 爬虫拦截过滤器，基于 User-Agent 识别并拦截爬虫请求，并检测客户端的周期性重复请求。
+   * 爬虫拦截过滤器，基于 用户-智能体 识别并拦截爬虫请求，并检测客户端的周期性重复请求。
  *
  * <p><b>User-Agent 拦截：</b>内置常见爬虫特征关键词（搜索引擎爬虫、下载工具、HTTP 客户端库等），
  * 命中后默认返回 403 拦截；可通过配置关闭拦截仅记录日志。</p>
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 public class CrawlerServerFilter implements ServerFilter {
 
     /**
-     * 默认爬虫 User-Agent 特征关键词
+      * 默认爬虫 用户-智能体 特征关键词
      */
     private static final Set<String> DEFAULT_UA_KEYWORDS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "googlebot", "bingbot", "yandexbot", "baiduspider", "sogou", "360spider", "bytespider",
@@ -65,7 +65,7 @@ public class CrawlerServerFilter implements ServerFilter {
      */
     private static final boolean DEFAULT_ENABLED = true;
     /**
-     * 默认启用 User-Agent 拦截
+      * 默认启用 用户-智能体 拦截
      */
     private static final boolean DEFAULT_BLOCK_ENABLED = true;
     /**
@@ -99,24 +99,24 @@ public class CrawlerServerFilter implements ServerFilter {
     private boolean blockEnabled = DEFAULT_BLOCK_ENABLED;
     /** Block状态 */
     private int blockStatus = DEFAULT_BLOCK_STATUS;
-    /** Period是否启用 */
+    /** 周期是否启用 */
     private boolean periodEnabled = DEFAULT_PERIOD_ENABLED;
-    /** Period最小值times */
+    /** 周期最小值时间 */
     private int periodMinTimes = DEFAULT_PERIOD_MIN_TIMES;
     /** Periodwindow秒 */
     private int periodWindowSeconds = DEFAULT_PERIOD_WINDOW_SECONDS;
-    /** Period最大值间隔比率 */
+    /** 周期最大值间隔比率 */
     private double periodMaxIntervalRatio = DEFAULT_PERIOD_MAX_INTERVAL_RATIO;
     /** Cleanup间隔秒 */
     private long cleanupIntervalSeconds = DEFAULT_CLEANUP_INTERVAL_SECONDS;
 
     /**
-     * 爬虫 User-Agent 关键词集合（内置 + 自定义）
+      * 爬虫 用户-智能体 关键词集合（内置 + 自定义）
      */
     private final Set<String> uaKeywords = new HashSet<>(DEFAULT_UA_KEYWORDS);
 
     /**
-     * 客户端周期请求记录：key = IP|METHOD|URI → 窗口内请求时间戳队列
+      * 客户端周期请求记录：键 = IP|方法|URI → 窗口内请求时间戳队列
      */
     private final Map<String, Deque<Long>> periodRecords = new ConcurrentHashMap<>();
 
@@ -183,7 +183,7 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (!enabled) {
             chain.doFilter(request, response);
@@ -211,21 +211,21 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 30;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "CrawlerServerFilter";
     }
 
     /**
-     * 判断 User-Agent 是否命中爬虫特征关键词。
+      * 判断 用户-智能体 是否命中爬虫特征关键词。
      *
-     * @param userAgent User-Agent 请求头值
+     * @param userAgent 用户-智能体 请求头值
      * @return true 表示命中爬虫特征
      */
     private boolean isCrawler(String userAgent) {
@@ -240,6 +240,8 @@ public class CrawlerServerFilter implements ServerFilter {
 
     /**
      * 检测同一个客户端是否周期性请求相同地址，命中时仅记录日志。
+     * @param request 请求
+     * @param clientIp 客户端ip
      */
     private void detectPeriodicRequest(ServerRequest request, String clientIp) {
         String uri = request.getUri();
@@ -268,6 +270,8 @@ public class CrawlerServerFilter implements ServerFilter {
 
     /**
      * 判断时间戳队列的相邻请求间隔是否呈现规律周期（最大间隔 / 最小间隔 ≤ 阈值）。
+     * @param times 时间
+     * @return 是否periodic的结果
      */
     private boolean isPeriodic(Deque<Long> times) {
         long min = Long.MAX_VALUE;
@@ -287,7 +291,12 @@ public class CrawlerServerFilter implements ServerFilter {
         return max > 0 && min > 0 && (double) max / min <= periodMaxIntervalRatio;
     }
 
-    /** 最小值Interval */
+    /**
+     * 最小值间隔
+     *
+     * @param times 时间
+     * @return 最小间隔的结果
+     */
     private long minInterval(Deque<Long> times) {
         long min = Long.MAX_VALUE;
         Long prev = null;
@@ -300,7 +309,12 @@ public class CrawlerServerFilter implements ServerFilter {
         return min == Long.MAX_VALUE ? 0 : min;
     }
 
-    /** 最大值Interval */
+    /**
+     * 最大值间隔
+     *
+     * @param times 时间
+     * @return 最大间隔的结果
+     */
     private long maxInterval(Deque<Long> times) {
         long max = Long.MIN_VALUE;
         Long prev = null;
@@ -341,7 +355,9 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     /**
-     * 解析客户端真实 IP，优先从 X-Forwarded-For 头获取。
+      * 解析客户端真实 IP，优先从 X-远期-For 头获取。
+     * @param request 请求
+     * @return resolve客户端ip的结果
      */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");

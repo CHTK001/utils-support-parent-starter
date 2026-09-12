@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * HTTP 客户端应用层 Handler — 拦截 OkHttp / Apache HttpClient 调用并生成应用语义传输记录。
+   * HTTP 客户端应用层 处理器 — 拦截 OkHttp / Apache HTTP客户端 调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -23,7 +23,7 @@ import com.chua.runtime.protocol.Software;
 public class HttpClientHandler extends AbstractAppHandler {
 
     /**
-     * OkHttp RealCall 类内部名
+      * OkHttp realcall 类内部名
      */
     private static final String OKHTTP_REAL_CALL = "okhttp3/RealCall";
 
@@ -33,7 +33,7 @@ public class HttpClientHandler extends AbstractAppHandler {
     private static final String OKHTTP_ASYNC_CALL = "okhttp3/RealCall$AsyncCall";
 
     /**
-     * Apache HttpClient InternalHttpClient 类内部名
+      * Apache HTTP客户端 内部http客户端 类内部名
      */
     private static final String APACHE_HTTP_CLIENT = "org/apache/http/impl/client/InternalHttpClient";
 
@@ -48,18 +48,18 @@ public class HttpClientHandler extends AbstractAppHandler {
     private static final String[] OKHTTP_ASYNC_METHODS = {"executeOn"};
 
     /**
-     * HttpClient 方法集合
+      * HTTP客户端 方法集合
      */
     private static final String[] APACHE_METHODS = {"doExecute"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "httpclient-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "httpclient.enabled";
     }
@@ -71,13 +71,13 @@ public class HttpClientHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** SoftwareForEntry */
+    /** softwareforentry */
     protected Software softwareForEntry(InterceptContext ctx) {
         String cn = ctx.getClassName();
         if (cn != null && cn.startsWith("okhttp")) {
@@ -90,7 +90,7 @@ public class HttpClientHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(OKHTTP_REAL_CALL, OKHTTP_METHODS);
         registerAll(OKHTTP_ASYNC_CALL, OKHTTP_ASYNC_METHODS);

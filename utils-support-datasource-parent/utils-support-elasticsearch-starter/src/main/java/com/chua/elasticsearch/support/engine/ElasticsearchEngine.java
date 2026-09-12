@@ -72,7 +72,7 @@ public class ElasticsearchEngine implements Engine {
     private ElasticsearchClient client;
 
     @Override
-    /** 添加DataSource */
+    /** 添加数据源 */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof String url) {
@@ -100,14 +100,14 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 设置DefaultDataSourceName */
+    /** 设置默认数据源名称 */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
-    /** 获取DefaultDataSourceName */
+    /** 获取默认数据源名称 */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
@@ -118,13 +118,17 @@ public class ElasticsearchEngine implements Engine {
         return new EsMetaData(this);
     }
 
-    /** 获取Client */
+    /**
+     * 获取客户端
+     *
+     * @return 获取客户端的结果
+     */
     public ElasticsearchClient getClient() {
         return client;
     }
 
     @Override
-    /** Store */
+    /** 存储 */
     public <T> Engine store(String name, List<T> data) {
         if (client == null) {
             throw new IllegalStateException("请先 addDataSource 配置 Elasticsearch 客户端");
@@ -146,27 +150,36 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @param n n
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
@@ -197,32 +210,32 @@ public class ElasticsearchEngine implements Engine {
              * @param ps ps
              * @param ps ps
              * @param ps ps
-             * @param to to
-             * @param entityClass entityClass
+             * @param to 转为
+             * @param entityClass 实体类
              * @param col col
              * @param col col
-             * @param entityClass entityClass
+             * @param entityClass 实体类
              * @param col col
              * @param col col
-             * @param entityClass entityClass
-             * @param conditions conditions
+             * @param entityClass 实体类
+             * @param conditions 条件
              * @param m m
-             * @param entityClass entityClass
+             * @param entityClass 实体类
              * @param e e
-             * @param conditions conditions
+             * @param conditions 条件
              * @param m m
              * @param c c
              * @param m m
              * @param m m
              * @param op op
              * @param m m
-             * @param field field
-             * @param values values
+             * @param field 字段
+             * @param values 值
              * @param m m
-             * @param field field
-             * @param values values
+             * @param field 字段
+             * @param values 值
              * @param m m
-             * @param value value
+             * @param value 值
              * @param s s
              * @param l l
              * @param i i
@@ -231,14 +244,14 @@ public class ElasticsearchEngine implements Engine {
              * @param d d
              * @param f f
              * @param b b
-             * @param value value
-             * @param source source
-             * @param entityClass entityClass
-             * @param converted converted
+             * @param value 值
+             * @param source 源
+             * @param entityClass 实体类
+             * @param converted 转换
              * @param e e
              * @param e e
-             * @param value value
-             * @param targetType targetType
+             * @param value 值
+             * @param targetType Target类型
              * @param num num
              */
             protected String resolveColumn(
@@ -247,7 +260,7 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
@@ -259,32 +272,32 @@ public class ElasticsearchEngine implements Engine {
                      * @param ps ps
                      * @param ps ps
                      * @param ps ps
-                     * @param to to
-                     * @param entityClass entityClass
+                     * @param to 转为
+                     * @param entityClass 实体类
                      * @param col col
                      * @param col col
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
                      * @param col col
                      * @param col col
-                     * @param entityClass entityClass
-                     * @param conditions conditions
+                     * @param entityClass 实体类
+                     * @param conditions 条件
                      * @param m m
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
                      * @param e e
-                     * @param conditions conditions
+                     * @param conditions 条件
                      * @param m m
                      * @param c c
                      * @param m m
                      * @param m m
                      * @param op op
                      * @param m m
-                     * @param field field
-                     * @param values values
+                     * @param field 字段
+                     * @param values 值
                      * @param m m
-                     * @param field field
-                     * @param values values
+                     * @param field 字段
+                     * @param values 值
                      * @param m m
-                     * @param value value
+                     * @param value 值
                      * @param s s
                      * @param l l
                      * @param i i
@@ -293,14 +306,14 @@ public class ElasticsearchEngine implements Engine {
                      * @param d d
                      * @param f f
                      * @param b b
-                     * @param value value
-                     * @param source source
-                     * @param entityClass entityClass
-                     * @param converted converted
+                     * @param value 值
+                     * @param source 源
+                     * @param entityClass 实体类
+                     * @param converted 转换
                      * @param e e
                      * @param e e
-                     * @param value value
-                     * @param targetType targetType
+                     * @param value 值
+                     * @param targetType Target类型
                      * @param num num
                      */
                     protected String resolveColumn(
@@ -311,7 +324,7 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** List */
+            /** 列表 */
             public List<T> list() {
                 return search(entityClass, getConditions());
             }
@@ -350,28 +363,28 @@ public class ElasticsearchEngine implements Engine {
              * 解析Column
              * @param col col
              * @param col col
-             * @param entityClass entityClass
+             * @param entityClass 实体类
              * @param col col
              * @param col col
-             * @param entityClass entityClass
-             * @param conditions conditions
+             * @param entityClass 实体类
+             * @param conditions 条件
              * @param m m
-             * @param entityClass entityClass
+             * @param entityClass 实体类
              * @param e e
-             * @param conditions conditions
+             * @param conditions 条件
              * @param m m
              * @param c c
              * @param m m
              * @param m m
              * @param op op
              * @param m m
-             * @param field field
-             * @param values values
+             * @param field 字段
+             * @param values 值
              * @param m m
-             * @param field field
-             * @param values values
+             * @param field 字段
+             * @param values 值
              * @param m m
-             * @param value value
+             * @param value 值
              * @param s s
              * @param l l
              * @param i i
@@ -380,14 +393,14 @@ public class ElasticsearchEngine implements Engine {
              * @param d d
              * @param f f
              * @param b b
-             * @param value value
-             * @param source source
-             * @param entityClass entityClass
-             * @param converted converted
+             * @param value 值
+             * @param source 源
+             * @param entityClass 实体类
+             * @param converted 转换
              * @param e e
              * @param e e
-             * @param value value
-             * @param targetType targetType
+             * @param value 值
+             * @param targetType Target类型
              * @param num num
              */
             protected String resolveColumn(
@@ -396,7 +409,7 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
@@ -404,28 +417,28 @@ public class ElasticsearchEngine implements Engine {
                     /**
                      * 解析Column
                      * @param col col
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
                      * @param col col
                      * @param col col
-                     * @param entityClass entityClass
-                     * @param conditions conditions
+                     * @param entityClass 实体类
+                     * @param conditions 条件
                      * @param m m
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
                      * @param e e
-                     * @param conditions conditions
+                     * @param conditions 条件
                      * @param m m
                      * @param c c
                      * @param m m
                      * @param m m
                      * @param op op
                      * @param m m
-                     * @param field field
-                     * @param values values
+                     * @param field 字段
+                     * @param values 值
                      * @param m m
-                     * @param field field
-                     * @param values values
+                     * @param field 字段
+                     * @param values 值
                      * @param m m
-                     * @param value value
+                     * @param value 值
                      * @param s s
                      * @param l l
                      * @param i i
@@ -434,14 +447,14 @@ public class ElasticsearchEngine implements Engine {
                      * @param d d
                      * @param f f
                      * @param b b
-                     * @param value value
-                     * @param source source
-                     * @param entityClass entityClass
-                     * @param converted converted
+                     * @param value 值
+                     * @param source 源
+                     * @param entityClass 实体类
+                     * @param converted 转换
                      * @param e e
                      * @param e e
-                     * @param value value
-                     * @param targetType targetType
+                     * @param value 值
+                     * @param targetType Target类型
                      * @param num num
                      */
                     protected String resolveColumn(
@@ -469,25 +482,25 @@ public class ElasticsearchEngine implements Engine {
              * 解析Column
              * @param col col
              * @param col col
-             * @param entityClass entityClass
-             * @param conditions conditions
+             * @param entityClass 实体类
+             * @param conditions 条件
              * @param m m
-             * @param entityClass entityClass
+             * @param entityClass 实体类
              * @param e e
-             * @param conditions conditions
+             * @param conditions 条件
              * @param m m
              * @param c c
              * @param m m
              * @param m m
              * @param op op
              * @param m m
-             * @param field field
-             * @param values values
+             * @param field 字段
+             * @param values 值
              * @param m m
-             * @param field field
-             * @param values values
+             * @param field 字段
+             * @param values 值
              * @param m m
-             * @param value value
+             * @param value 值
              * @param s s
              * @param l l
              * @param i i
@@ -496,14 +509,14 @@ public class ElasticsearchEngine implements Engine {
              * @param d d
              * @param f f
              * @param b b
-             * @param value value
-             * @param source source
-             * @param entityClass entityClass
-             * @param converted converted
+             * @param value 值
+             * @param source 源
+             * @param entityClass 实体类
+             * @param converted 转换
              * @param e e
              * @param e e
-             * @param value value
-             * @param targetType targetType
+             * @param value 值
+             * @param targetType Target类型
              * @param num num
              */
             protected String resolveColumn(
@@ -512,7 +525,7 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
@@ -520,25 +533,25 @@ public class ElasticsearchEngine implements Engine {
                     /**
                      * 解析Column
                      * @param col col
-                     * @param entityClass entityClass
-                     * @param conditions conditions
+                     * @param entityClass 实体类
+                     * @param conditions 条件
                      * @param m m
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
                      * @param e e
-                     * @param conditions conditions
+                     * @param conditions 条件
                      * @param m m
                      * @param c c
                      * @param m m
                      * @param m m
                      * @param op op
                      * @param m m
-                     * @param field field
-                     * @param values values
+                     * @param field 字段
+                     * @param values 值
                      * @param m m
-                     * @param field field
-                     * @param values values
+                     * @param field 字段
+                     * @param values 值
                      * @param m m
-                     * @param value value
+                     * @param value 值
                      * @param s s
                      * @param l l
                      * @param i i
@@ -547,14 +560,14 @@ public class ElasticsearchEngine implements Engine {
                      * @param d d
                      * @param f f
                      * @param b b
-                     * @param value value
-                     * @param source source
-                     * @param entityClass entityClass
-                     * @param converted converted
+                     * @param value 值
+                     * @param source 源
+                     * @param entityClass 实体类
+                     * @param converted 转换
                      * @param e e
                      * @param e e
-                     * @param value value
-                     * @param targetType targetType
+                     * @param value 值
+                     * @param targetType Target类型
                      * @param num num
                      */
                     protected String resolveColumn(
@@ -573,14 +586,14 @@ public class ElasticsearchEngine implements Engine {
     }
 
     // ---------------------------------------------------------------
-    // 查询执行 — 条件翻译为 ES Query DSL
+ // 查询执行 — 条件翻译为 ES 查询 DSL
     // ---------------------------------------------------------------
 
     /**
-     * 执行查询，将条件列表翻译为 ES Query 并搜索。
+      * 执行查询，将条件列表翻译为 ES 查询 并搜索。
      *
      * @param entityClass 实体类类型
-     * @param conditions  条件列表（来自 LambdaQueryWrapper）
+     * @param conditions  条件列表（来自 lambda查询包装器）
      * @param <T>         实体类型
      * @return 查询结果列表
      */
@@ -610,14 +623,14 @@ public class ElasticsearchEngine implements Engine {
     }
 
     // ---------------------------------------------------------------
-    // Condition → ES Query 翻译
+ // 条件 → ES 查询 翻译
     // ---------------------------------------------------------------
 
     /**
-     * 将条件列表（AND 连接）翻译为 ES Query。
+      * 将条件列表（和 连接）翻译为 ES 查询。
      *
      * @param conditions 条件列表
-     * @return ES Query
+     * @return ES 查询
      */
     static Query buildQuery(List<Condition> conditions) {
         if (CollectionUtils.isEmpty(conditions)) {
@@ -634,10 +647,10 @@ public class ElasticsearchEngine implements Engine {
     }
 
     /**
-     * 翻译单个 Condition 为 ES Query。
+      * 翻译单个 条件 为 ES 查询。
      *
      * @param c 条件
-     * @return ES Query
+     * @return ES 查询
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     static Query buildConditionQuery(Condition c) {
@@ -709,11 +722,11 @@ public class ElasticsearchEngine implements Engine {
     }
 
     /**
-     * 构建 IN 查询（terms）。
+      * 构建 入 查询（terms）。
      *
      * @param field  字段名
      * @param values 值集合
-     * @return ES Query
+     * @return ES 查询
      */
     static Query buildInQuery(String field, Collection<?> values) {
         if (CollectionUtils.isEmpty(values)) {
@@ -728,11 +741,11 @@ public class ElasticsearchEngine implements Engine {
     }
 
     /**
-     * 构建 NOT IN 查询。
+      * 构建 NOT 入 查询。
      *
      * @param field  字段名
      * @param values 值集合
-     * @return ES Query
+     * @return ES 查询
      */
     static Query buildNotInQuery(String field, Collection<?> values) {
         if (CollectionUtils.isEmpty(values)) {
@@ -752,7 +765,7 @@ public class ElasticsearchEngine implements Engine {
     // ---------------------------------------------------------------
 
     /**
-     * 将任意值转为 ES FieldValue。
+      * 将任意值转为 ES 字段值。
      *
      * @param value 值
      * @return FieldValue
@@ -810,7 +823,7 @@ public class ElasticsearchEngine implements Engine {
     // ---------------------------------------------------------------
 
     /**
-     * 将 ES 返回的 Map 映射为实体对象。
+      * 将 ES 返回的 映射 映射为实体对象。
      *
      * @param source      ES 文档源
      * @param entityClass 目标实体类型

@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
- * Quarkus (MicroProfile Config) 配置注入器，通过反射处理 {@code @ConfigProperty} 注解的字段和方法参数。
+   * Quarkus (micro配置文件 配置) 配置注入器，通过反射处理 {@code @ConfigProperty} 注解的字段和方法参数。
  *
  * <p>不直接依赖 microprofile-config-api 编译 API，所有注解均通过反射按类名检测。</p>
  *
@@ -26,7 +26,7 @@ import java.lang.reflect.Parameter;
 public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfigInjector {
 
     /**
-     * config property
+      * 配置 财产
      */
     private static final String CONFIG_PROPERTY = "org.eclipse.microprofile.config.inject.ConfigProperty";
     /**
@@ -35,7 +35,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     private static final String UNCONFIGURED_VALUE = "org.eclipse.microprofile.config.inject.ConfigProperty.UNCONFIGURED_VALUE";
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) {
             return false;
@@ -57,7 +57,7 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -93,7 +93,12 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return hit ? result : null;
     }
 
-    /** 是否拥有ConfigProperty */
+    /**
+     * 是否拥有配置财产
+     *
+     * @param annotations 注解
+     * @return 是否包含配置财产的结果
+     */
     private boolean hasConfigProperty(Annotation[] annotations) {
         for (Annotation ann : annotations) {
             if (CONFIG_PROPERTY.equals(ann.annotationType().getName())) {
@@ -103,7 +108,12 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return false;
     }
 
-    /** 查找ConfigProperty */
+    /**
+     * 查找配置财产
+     *
+     * @param annotations 注解
+     * @return find配置财产的结果
+     */
     private Annotation findConfigProperty(Annotation[] annotations) {
         for (Annotation ann : annotations) {
             if (CONFIG_PROPERTY.equals(ann.annotationType().getName())) {
@@ -113,7 +123,14 @@ public class QuarkusBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return null;
     }
 
-    /** 解析Value */
+    /**
+     * 解析值
+     *
+     * @param annotation 注解
+     * @param targetType Target类型
+     * @param environment 环境
+     * @return resolve值的结果
+     */
     private Object resolveValue(Annotation annotation, Class<?> targetType, Environment environment) {
         try {
             String name = (String) ReflectUtils.invoke(annotation, "name", String.class);

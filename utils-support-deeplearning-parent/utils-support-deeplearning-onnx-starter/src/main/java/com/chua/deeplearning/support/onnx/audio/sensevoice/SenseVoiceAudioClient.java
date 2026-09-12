@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 /**
- * 基于 ONNX Runtime 的本地 SenseVoice ASR 客户端。
+   * 基于 ONNX Runtime 的本地 sensevoice ASR 客户端。
  *
  * <p>SenseVoice-small 支持中/英/日/韩/粤五种语言，含 ITN 数字归一化，
  * 中文效果优于同级 Whisper。通过 {@link SenseVoiceTranslator} 在本地 CPU
@@ -22,6 +22,7 @@ import java.util.UUID;
  * <pre>{@code
  *   String text = VirtualClient.create("sensevoice", "")
  *       .transcribe(Path.of("audio.wav"));
+ * }</pre>f("audio.wav"));
  * }</pre>
  *
  * @author CH
@@ -37,7 +38,7 @@ public class SenseVoiceAudioClient implements VirtualClient {
     private static final String DEFAULT_MODEL = "sensevoice-small";
 
     /**
-     * classpath 资源根路径
+      * 类路径 资源根路径
      */
     private static final String RESOURCE_BASE = "audio/asr/";
 
@@ -62,7 +63,7 @@ public class SenseVoiceAudioClient implements VirtualClient {
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
     /**
-     * 任务 ID 前缀
+      * 任务 标识 前缀
      */
     private static final String TASK_ID_PREFIX = "sensevoice-";
 
@@ -209,7 +210,7 @@ public class SenseVoiceAudioClient implements VirtualClient {
         }
     }
 
-    /** 确保模型已从 classpath 解压并加载 */
+    /** 确保模型已从 类路径 解压并加载 */
     private void ensurePrepared() {
         if (prepared) {
             return;
@@ -247,7 +248,11 @@ public class SenseVoiceAudioClient implements VirtualClient {
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
-    /** 将 bytes/stream 输入物化为临时文件 */
+    /**
+     * 将 bytes/流 输入物化为临时文件
+     *
+     * @return resolve音频路径的结果
+     */
     private Path resolveAudioPath() {
         if (audioPath != null) {
             return audioPath;

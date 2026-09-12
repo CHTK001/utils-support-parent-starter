@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 媒体类型（MIME Type）工具类，基于 Guava {@link com.google.common.net.MediaType} 提供文件名与 MIME 字符串之间的解析能力。
+   * 媒体类型（MIME 类型）工具类，基于 Guava {@link com.google.common.net.MediaType} 提供文件名与 MIME 字符串之间的解析能力。
  *
  * <h3>支持的 MIME 类型</h3>
  * <ul>
@@ -45,7 +45,7 @@ import java.util.Optional;
  * @see com.google.common.net.MediaType
  */
 public class MediaTypeUtils {
-    /** 创建 MediaTypeUtils 实例 */
+    /** 创建 media类型工具 实例 */
     private MediaTypeUtils() {
         //
     }
@@ -74,7 +74,7 @@ public class MediaTypeUtils {
      *
      * @param mediaType MIME 类型字符串，格式为 "{@code type/subtype}" 或 "{@code type/subtype;param=value}"，
      *                  例如 {@code "image/jpeg"} 或 {@code "text/html;charset=utf-8"}；
-     *                  不允许为 {@code null}，Guava parse 方法不接受 null 输入
+      * 不允许为 {@code null}，Guava 解析 方法不接受 空 输入
      * @return 包含解析结果的 {@link Optional}；实际不会出现 {@code Optional.empty()}，
      *         但 API 设计保留了这个可能性以应对未来变化
      */
@@ -101,7 +101,7 @@ public class MediaTypeUtils {
      * <ul>
      *   <li><b>行为结果相同：</b>两者在匹配失败时都返回 {@link MediaType#ANY_TYPE}</li>
      *   <li><b>实现路径不同：</b>本方法通过 {@link #getMediaTypes(String)} → 列表 → {@code findFirst} 取首元素，
-     *       而 {@code getMediaTypeNullable} 通过 {@link #getMediaType(String)} → Optional → {@code orElse}</li>
+      * 而 {@code getMediaTypeNullable} 通过 {@link #getMediaType(String)} → 期权 → {@code orElse}</li>
      *   <li><b>语义侧重：</b>本方法强调"取第一个匹配结果或返回兜底类型"，
      *       {@code getMediaTypeNullable} 强调"允许为空的解析"</li>
      * </ul>
@@ -119,7 +119,7 @@ public class MediaTypeUtils {
      * 根据文件名解析 {@link MediaType}，匹配失败时返回 {@link MediaType#ANY_TYPE} 而非抛出异常或返回 {@code null}。
      *
      * <p>内部流程：调用 {@link #getMediaType(String)} 获取 {@link Optional} 结果，
-     * 通过 {@code orElse(MediaType.ANY_TYPE)} 解包；如果 Optional 为空（理论上不会发生），
+      * 通过 {@code orElse(MediaType.ANY_TYPE)} 解包；如果 期权 为空（理论上不会发生），
      * 则返回 {@link MediaType#ANY_TYPE} 作为兜底值。
      *
      * <p><b>边界情况：</b>
@@ -160,7 +160,7 @@ public class MediaTypeUtils {
      *   <li><b>API 扩展预留：</b>List 返回类型为未来版本升级为真正的多类型匹配（如根据内容嗅探返回多个候选类型）
      *       保留了空间，无需破坏现有调用方签名</li>
      *   <li><b>流式操作兼容：</b>返回 List 允许调用方直接使用 {@code stream()}、{@code forEach()} 等
-     *       集合操作，与 Java Stream API 的编程风格保持一致</li>
+      * 集合操作，与 Java 流 API 的编程风格保持一致</li>
      *   <li><b>统一返回类型：</b>与 Guava 部分 API 的返回约定对齐，上层代码无需区分单结果与多结果的处理逻辑</li>
      * </ul>
      *

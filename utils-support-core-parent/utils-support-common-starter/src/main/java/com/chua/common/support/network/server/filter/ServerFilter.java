@@ -96,6 +96,7 @@ public interface ServerFilter {
      * </p>
      */
     default void destroy() {
+        // NOTHING
     }
 
     /**

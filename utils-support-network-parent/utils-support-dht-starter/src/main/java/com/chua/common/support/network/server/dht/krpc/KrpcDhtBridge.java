@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 内部 DHT 与标准 KRPC 协议之间的桥接器。
  * <p>
- * 实现 DHT 内部消息格式（JSON）与 BitTorrent KRPC 协议格式（Bencode）的双向转换，
- * 支持紧凑节点列表编解码，使本 DHT 实现能与标准 BitTorrent DHT 网络互通。
+   * 实现 DHT 内部消息格式（JSON）与 钻头torrent KRPC 协议格式（Bencode）的双向转换，
+   * 支持紧凑节点列表编解码，使本 DHT 实现能与标准 钻头torrent DHT 网络互通。
  * </p>
  *
  * @author CH
@@ -31,27 +31,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class KrpcDhtBridge {
 
     /**
-     * KRPC 节点 ID 的字节长度（20 字节 = 160 位）
+      * KRPC 节点 标识 的字节长度（20 字节 = 160 位）
      */
     private static final int KRP_NODE_ID_BYTES = 20;
 
     /**
-     * 事务 ID 计数器
+      * 事务 标识 计数器
      */
     private final AtomicInteger txCounter = new AtomicInteger(0);
 
     /**
-     * 挂起的查询映射（事务 ID -> PendingQuery）
+      * 挂起的查询映射（事务 标识 -> pending查询）
      */
     private final Map<String, PendingQuery> pending = new ConcurrentHashMap<>();
 
     /**
-     * 挂起的查询记录，包含事务 ID、原始请求和消息类型。
+      * 挂起的查询记录，包含事务 标识、原始请求和消息类型。
+     * @author CH
+     * @since 4.0.0
      */
     public static class PendingQuery {
 
         /**
-         * 事务 ID
+          * 事务 标识
          */
         public final String txId;
 
@@ -73,7 +75,7 @@ public class KrpcDhtBridge {
         /**
          * 构造挂起查询记录。
          *
-         * @param txId    事务 ID
+         * @param txId    事务 标识
          * @param request 原始请求
          * @param type    消息类型
          */
@@ -86,9 +88,9 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 生成随机的 KRPC 节点 ID（SHA-1 哈希）。
+      * 生成随机的 KRPC 节点 标识（SHA-1 哈希）。
      *
-     * @return 20 字节的节点 ID
+     * @return 20 字节的节点 标识
      */
     public static byte[] generateNodeId() {
         try {
@@ -103,10 +105,10 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 将十六进制节点 ID 转换为 KRPC 协议中的 20 字节原始 ID。
+      * 将十六进制节点 标识 转换为 KRPC 协议中的 20 字节原始 标识。
      *
      * @param hex 十六进制字符串
-     * @return 20 字节原始 ID
+     * @return 20 字节原始 标识
      */
     public static byte[] hexToRawId(String hex) {
         if (hex == null || hex.isEmpty()) {
@@ -122,9 +124,9 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 将 KRPC 协议的 20 字节原始 ID 转换为十六进制字符串。
+      * 将 KRPC 协议的 20 字节原始 标识 转换为十六进制字符串。
      *
-     * @param raw 20 字节原始 ID
+     * @param raw 20 字节原始 标识
      * @return 十六进制字符串
      */
     public static String rawIdToHex(byte[] raw) {
@@ -155,9 +157,9 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 生成下一个事务 ID。
+      * 生成下一个事务 标识。
      *
-     * @return 2 字节的事务 ID
+     * @return 2 字节的事务 标识
      */
     public String nextTxId() {
         int n = txCounter.incrementAndGet() & 0xffff;
@@ -167,7 +169,7 @@ public class KrpcDhtBridge {
     /**
      * 注册挂起的查询。
      *
-     * @param txId    事务 ID
+     * @param txId    事务 标识
      * @param request 原始请求
      * @param type    消息类型
      */
@@ -178,8 +180,8 @@ public class KrpcDhtBridge {
     /**
      * 移除并返回挂起的查询。
      *
-     * @param txId 事务 ID
-     * @return PendingQuery 实例，未找到返回 null
+     * @param txId 事务 标识
+     * @return PendingQuery 实例，未找到返回 空
      */
     public PendingQuery removePending(String txId) {
         return pending.remove(txId);
@@ -213,7 +215,7 @@ public class KrpcDhtBridge {
      * 将 DHT 内部消息编码为 KRPC 查询格式。
      *
      * @param msg  DHT 消息
-     * @param txId 事务 ID
+     * @param txId 事务 标识
      * @return Bencode 编码的字节数组
      */
     public byte[] encodeQuery(DhtMessage msg, String txId) {
@@ -336,7 +338,7 @@ public class KrpcDhtBridge {
      * 将 DHT 内部响应消息编码为 KRPC 响应格式。
      *
      * @param resp DHT 响应消息
-     * @param txId 事务 ID
+     * @param txId 事务 标识
      * @return Bencode 编码的字节数组
      */
     public byte[] encodeResponse(DhtMessage resp, String txId) {
@@ -474,7 +476,7 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 解码紧凑节点列表（每个节点 26 字节）为 DhtPeer 列表。
+      * 解码紧凑节点列表（每个节点 26 字节）为 dhtpeer 列表。
      *
      * @param data 紧凑编码的字节数组
      * @return 节点列表
@@ -512,9 +514,9 @@ public class KrpcDhtBridge {
     /**
      * 将主机和端口编码为紧凑地址格式（6 字节）。
      *
-     * @param host 主机 IPv4 地址
+     * @param host 主机 ipv4 地址
      * @param port 端口号
-     * @return 6 字节数组，格式异常时返回 null
+     * @return 6 字节数组，格式异常时返回 空
      */
     private byte[] compactAddressBytes(String host, int port) {
         try {
@@ -560,9 +562,9 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 从 Map 中获取字节数组类型的值。
+      * 从 映射 中获取字节数组类型的值。
      *
-     * @param map Map
+     * @param map 映射
      * @param key 键
      * @return 字节数组
      */
@@ -581,9 +583,9 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 从 Map 中获取字符串类型的值。
+      * 从 映射 中获取字符串类型的值。
      *
-     * @param map Map
+     * @param map 映射
      * @param key 键
      * @return 字符串
      */
@@ -602,9 +604,9 @@ public class KrpcDhtBridge {
     }
 
     /**
-     * 从 Map 中获取长整型类型的值。
+      * 从 映射 中获取长整型类型的值。
      *
-     * @param map Map
+     * @param map 映射
      * @param key 键
      * @return 长整型值
      */

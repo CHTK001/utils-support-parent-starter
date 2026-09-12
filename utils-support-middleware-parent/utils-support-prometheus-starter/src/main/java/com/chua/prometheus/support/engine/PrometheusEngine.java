@@ -149,7 +149,7 @@ public class PrometheusEngine implements Engine {
     /**
      * 即时查询
      *
-     * @param promql PromQL
+     * @param promql promql
      * @return 查询结果
      */
     public QueryResult query(String promql) {
@@ -184,46 +184,55 @@ public class PrometheusEngine implements Engine {
     }
 
     @Override
-    /** Store */
+    /** 存储 */
     public <T> Engine store(String name, List<T> data) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持数据存储");
     }
 
     @Override
-    /** 设置DefaultDataSourceName */
+    /** 设置默认数据源名称 */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
-    /** 获取DefaultDataSourceName */
+    /** 获取默认数据源名称 */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @param name 名称
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return (EngineDataSource<T>) dataSources.get(name);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }

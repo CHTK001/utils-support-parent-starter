@@ -15,7 +15,7 @@ import java.util.Optional;
  * 基于文件存储的验证码任务持久化实现
  * <p>
  * 使用纯文本文件存储任务结果，每行一条记录。
- * 格式为：taskId|success|token|message|errorCode
+   * 格式为：任务id|成功|令牌|消息|错误编码
  * 内存中维护缓存以减少文件 IO，每次变更后全量写回文件。
  * </p>
  *

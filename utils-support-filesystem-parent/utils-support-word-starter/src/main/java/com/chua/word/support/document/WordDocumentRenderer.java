@@ -14,7 +14,7 @@ import java.math.BigInteger;
  * Word 文档导出器。
  *
  * <p>先通过 {@link DocumentTemplate} 渲染 Markdown，再写入 Word 段落/表格结构，
- * 保证与 DEFAULT / SWAGGER 模板内容一致。</p>
+   * 保证与 默认 / Swagger 模板内容一致。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,19 +23,19 @@ import java.math.BigInteger;
 public class WordDocumentRenderer implements DocumentProvider {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "word";
     }
 
     @Override
-    /** 获取Extensions */
+    /** 获取延伸 */
     public String[] getExtensions() {
         return new String[]{".docx", ".doc"};
     }
 
     @Override
-    /** Export */
+    /** 导出 */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         try (XWPFDocument doc = new XWPFDocument()) {
             writeTitle(doc, data);
@@ -54,7 +54,12 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
-    /** 写入Title */
+    /**
+     * 写入Title
+     *
+     * @param doc doc
+     * @param data 数据
+     */
     private void writeTitle(XWPFDocument doc, DocumentData data) {
         XWPFParagraph titlePara = doc.createParagraph();
         titlePara.setAlignment(ParagraphAlignment.CENTER);
@@ -64,7 +69,12 @@ public class WordDocumentRenderer implements DocumentProvider {
         titleRun.setFontSize(18);
     }
 
-    /** 写入Meta */
+    /**
+     * 写入Meta
+     *
+     * @param doc doc
+     * @param data 数据
+     */
     private void writeMeta(XWPFDocument doc, DocumentData data) {
         addInfoLine(doc, "数据库: " + nullToEmpty(data.getDatabaseName()));
     addInfoLine(doc, "产品: " + nullToEmpty(data.getProductName()) + " " + nullToEmpty(data.getProductVersion()));
@@ -75,7 +85,12 @@ public class WordDocumentRenderer implements DocumentProvider {
         addInfoLine(doc, "");
     }
 
-    /** 写入Tables */
+    /**
+     * 写入Tables
+     *
+     * @param doc doc
+     * @param data 数据
+     */
     private void writeTables(XWPFDocument doc, DocumentData data) {
         if (data.getTables() == null) {
             return;
@@ -128,7 +143,12 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
-    /** 添加InfoLine */
+    /**
+     * 添加信息线
+     *
+     * @param doc doc
+     * @param text 文本
+     */
     private void addInfoLine(XWPFDocument doc, String text) {
         XWPFParagraph para = doc.createParagraph();
         XWPFRun run = para.createRun();
@@ -137,7 +157,11 @@ public class WordDocumentRenderer implements DocumentProvider {
         run.setFontFamily("微软雅黑");
     }
 
-    /** StyleHeaderRow */
+    /**
+     * style头部row
+     *
+     * @param row row
+     */
     private void styleHeaderRow(XWPFTableRow row) {
         for (int i = 0; i < row.getTableCells().size(); i++) {
             XWPFTableCell cell = row.getCell(i);
@@ -160,7 +184,11 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
-    /** 设置TableBorders */
+    /**
+     * 设置tableborders
+     *
+     * @param table table
+     */
     private void setTableBorders(XWPFTable table) {
         CTTbl ctTbl = table.getCTTbl();
         CTTblPr tblPr = ctTbl.getTblPr() != null ? ctTbl.getTblPr() : ctTbl.addNewTblPr();
@@ -174,14 +202,27 @@ public class WordDocumentRenderer implements DocumentProvider {
         setBorder(borders.addNewInsideV(), "1", STBorder.SINGLE, "auto");
     }
 
-    /** 设置Border */
+    /**
+     * 设置Border
+     *
+     * @param border border
+     * @param size 大小
+     * @param type 类型
+     * @param color color
+     */
     private void setBorder(CTBorder border, String size, STBorder.Enum type, String color) {
         border.setSz(BigInteger.valueOf(Long.parseLong(size)));
         border.setVal(type);
         border.setColor(color);
     }
 
-    /** 设置CellValue */
+    /**
+     * 设置cell值
+     *
+     * @param row row
+     * @param cellIndex cell索引
+     * @param value 值
+     */
     private void setCellValue(XWPFTableRow row, int cellIndex, String value) {
         XWPFTableCell cell = row.getCell(cellIndex);
         if (cell != null) {
@@ -189,7 +230,12 @@ public class WordDocumentRenderer implements DocumentProvider {
         }
     }
 
-    /** NullToEmpty */
+    /**
+     * 空转为空
+     *
+     * @param value 值
+     * @return 空转为空的结果
+     */
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }

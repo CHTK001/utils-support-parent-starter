@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * MyBatis Handler — intercepts MyBatis SQL execution.
+   * MyBatis 处理器 — intercepts MyBatis SQL 执行.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class MyBatisHandler extends AbstractAppHandler {
 
     /**
-     * sql 会话
+      * SQL 会话
      */
     private static final String SQL_SESSION = "org/apache/ibatis/session/SqlSession";
     /**
-     * sql methods
+      * SQL 方法
      */
     private static final String[] SQL_METHODS = {"selectOne", "selectList", "selectMap", "insert", "update", "delete"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "mybatis-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "mybatis.enabled";
     }
@@ -42,13 +42,13 @@ public class MyBatisHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.SQL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(SQL_SESSION, SQL_METHODS);
     }

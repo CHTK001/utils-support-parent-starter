@@ -6,6 +6,7 @@ import lombok.Data;
  * BIOS/固件信息实体类。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Firmware {

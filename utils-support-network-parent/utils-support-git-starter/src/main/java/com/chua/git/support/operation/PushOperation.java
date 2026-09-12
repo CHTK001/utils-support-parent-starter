@@ -11,7 +11,7 @@ import org.eclipse.jgit.transport.RefSpec;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 推送操作（git push）。
+   * 推送操作（Git push）。
  *
  * <p>将本地提交推送到远程仓库。支持：</p>
  * <ul>
@@ -40,6 +40,10 @@ import java.util.concurrent.CompletableFuture;
  *         .branch("main")
  *         .prompt("修复登录密码重置问题")
  *         .execute();
+ * }</pre>igin")
+ *         .branch("main")
+ *         .prompt("修复登录密码重置问题")
+ *         .execute();
  * }</pre>
  *
  * @author CH
@@ -49,7 +53,7 @@ import java.util.concurrent.CompletableFuture;
 public class PushOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
@@ -64,7 +68,7 @@ public class PushOperation {
     private String remote = "origin";
 
     /**
-     * 待推送的分支名称，null 表示使用默认推送策略。
+      * 待推送的分支名称，空 表示使用默认推送策略。
      */
     private String branch;
 
@@ -86,7 +90,7 @@ public class PushOperation {
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public PushOperation(GitClient client) {
         this.client = client;
@@ -139,7 +143,7 @@ public class PushOperation {
     }
 
     /**
-     * 推送标签（git push --tags）。
+      * 推送标签（Git push --标签）。
      *
      * @return 当前操作实例
      */
@@ -149,7 +153,7 @@ public class PushOperation {
     }
 
     /**
-     * 设置提交备注 (prompt)，记录在操作日志中。
+      * 设置提交备注 (提示符)，记录在操作日志中。
      *
      * <p>JGit 原生 push 本身不传输 commit message，此 prompt 仅作为
      * 业务语义补充，便于日志追踪。</p>
@@ -192,7 +196,7 @@ public class PushOperation {
      * 执行实际推送逻辑。
      *
      * <p>构造 JGit PushCommand，设远端、refspec、进度监视器，然后执行 push。
-     * 最后统计所有返回的 RemoteRefUpdate 数量，形成 PushResult。</p>
+      * 最后统计所有返回的 远程ref更新 数量，形成 push结果。</p>
      *
      * @return 推送结果
      */
@@ -201,7 +205,7 @@ public class PushOperation {
             // 确保仓库已打开
             client.open();
 
-            // 构建 JGit PushCommand
+ // 构建 jgit push命令
             PushCommand push = client.getGit().push();
             push.setRemote(remote);
             push.setForce(force);

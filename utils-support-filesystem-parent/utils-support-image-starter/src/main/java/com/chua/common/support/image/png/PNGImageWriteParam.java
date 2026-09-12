@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import javax.imageio.ImageWriteParam;
 import java.util.Locale;
 /**
- * PNG 图像写入参数类，继承自 ImageWriteParam，配置 PNG 图像的压缩参数。
+   * PNG 图像写入参数类，继承自 镜像写入参数，配置 PNG 图像的压缩参数。
  *
 * @author CH
  * @since 4.0.0.42

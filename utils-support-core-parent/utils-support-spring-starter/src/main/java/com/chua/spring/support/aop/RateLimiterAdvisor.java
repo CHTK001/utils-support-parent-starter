@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
     /**
-     * 创建 RateLimiterAdvisor 实例
+      * 创建 rate限制advisor 实例
      * @param intercept intercept
      */
     public RateLimiterAdvisor(RateLimiterIntercept intercept) {
@@ -31,7 +31,15 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
     }
 
     @Override
-    /** Matches */
+    /**
+     * Matches
+     *
+     * @param method 方法
+     * @param targetClass Target类
+     * @return 匹配的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(RateLimiter.class);
     }

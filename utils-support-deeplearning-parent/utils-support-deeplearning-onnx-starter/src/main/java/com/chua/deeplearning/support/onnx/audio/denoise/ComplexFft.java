@@ -4,7 +4,7 @@ package com.chua.deeplearning.support.onnx.audio.denoise;
  * 通用复数 FFT / IFFT（支持任意长度）。
  * <p>
  * 长度若为 2 的幂则使用经典 radix-2 Cooley-Tukey；否则使用 Bluestein 算法
- * （chirp z-transform，正 chirp + 取模防溢出）折叠为 2 的幂长度卷积。
+   * （chirp z-转换，正 chirp + 取模防溢出）折叠为 2 的幂长度卷积。
  * IFFT 使用共轭技巧实现。供 DFSMN fbank power 谱、STFT / ISTFT 使用。
  * </p>
  *
@@ -147,7 +147,7 @@ class ComplexFft {
     }
 
     /**
-     * Bluestein 算法（chirp z-transform）任意长度前向 FFT。
+      * Bluestein 算法（chirp z-转换）任意长度前向 FFT。
      * <p>
      * 正 chirp：w[i] = exp(+jπi²/n)，其中 i² 以 2n 取模防止三角精度劣化；
      * 卷积核 b 在 b[i] 与 b[m-i] 两处放置 w[i] 以表示偶对称的 w[-(n-1)..n-1]。

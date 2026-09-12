@@ -33,7 +33,7 @@ public class WordTextExtractor implements TextExtractor {
             "Heading4", "Heading5", "Heading6", "heading1", "heading2", "heading3"};
 
     @Override
-    /** ExtractText */
+    /** extract文本 */
     public List<TextExtractResult> extractText(File file) {
         List<TextExtractResult> results = new ArrayList<>();
         String currentSection = "";
@@ -95,6 +95,8 @@ public class WordTextExtractor implements TextExtractor {
 
     /**
      * 判断段落是否为标题。
+     * @param p p
+     * @return 是否heading的结果
      */
     private boolean isHeading(XWPFParagraph p) {
         String style = p.getStyle();
@@ -110,7 +112,7 @@ public class WordTextExtractor implements TextExtractor {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "docx";
     }

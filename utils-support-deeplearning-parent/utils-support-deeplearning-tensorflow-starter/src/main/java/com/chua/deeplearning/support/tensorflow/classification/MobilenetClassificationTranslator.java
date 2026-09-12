@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * TensorFlow MobileNet / ImageNet 分类 Translator。
+   * tensor流 mobilenet / 镜像net 分类 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -52,19 +52,19 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
     private final int imageSize;
 
     /**
-     * ImageNet 类别名称列表
+      * 镜像net 类别名称列表
      */
     private List<String> classes;
 
     /**
-     * 构造 MobileNet 分类 Translator，使用默认输入尺寸 224。
+      * 构造 mobilenet 分类 Translator，使用默认输入尺寸 224。
      */
     public MobilenetClassificationTranslator() {
         this(DEFAULT_IMAGE_SIZE);
     }
 
     /**
-     * 构造 MobileNet 分类 Translator。
+      * 构造 mobilenet 分类 Translator。
      *
      * @param imageSize 输入图像边长（像素）
      */
@@ -87,20 +87,20 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, imageSize, imageSize);
         if (!array.getDataType().equals(DataType.FLOAT32)) {
             array = array.toType(DataType.FLOAT32, false);
         }
-        // TF MobileNet 常见：[-1,1]
+ // TF mobilenet 常见：[-1,1]
         array = array.div(NORM_DENOMINATOR).sub(NORM_OFFSET);
         return new NDList(array);
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray probabilities = list.singletonOrThrow();
         if (classes == null || classes.isEmpty()) {

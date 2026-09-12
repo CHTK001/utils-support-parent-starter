@@ -32,6 +32,9 @@ import java.util.Map;
  *         );
  *     }
  * }
+ * }</pre>*         );
+ *     }
+ * }
  * }</pre>
  *
  * @author CH
@@ -44,7 +47,7 @@ public interface FileStorageFilterSetting {
      * 返回支持的滤镜能力列表。
      * <p>如 {@code ["resize", "grayscale", "blur", "watermark"]}。</p>
      *
-     * @return 支持的滤镜 ID 列表
+     * @return 支持的滤镜 标识 列表
      */
     default List<String> capabilities() {
         return Collections.emptyList();
@@ -73,17 +76,28 @@ public interface FileStorageFilterSetting {
     /**
      * 滤镜配置。
      *
-     * @param id     滤镜 ID（对应 ImageFilter SPI 名称，如 {@code "resize"}、{@code "blur"}）
+     * @param id     滤镜 标识（对应 镜像过滤器 SPI 名称，如 {@code "resize"}、{@code "blur"}）
      * @param params 滤镜参数（键值对）
      */
     record ImageFilterConfig(String id, Map<String, Object> params) {
 
-        /** Of */
+        /**
+         * 的
+         *
+         * @param id 标识
+         * @param params 参数
+         * @return 的的结果
+         */
         public static ImageFilterConfig of(String id, Map<String, Object> params) {
             return new ImageFilterConfig(id, params);
         }
 
-        /** Of */
+        /**
+         * 的
+         *
+         * @param id 标识
+         * @return 的的结果
+         */
         public static ImageFilterConfig of(String id) {
             return new ImageFilterConfig(id, Collections.emptyMap());
         }

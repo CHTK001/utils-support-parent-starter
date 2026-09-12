@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 签名工具类，提供基于 Map 参数的签名计算与验证功能。
+   * 签名工具类，提供基于 映射 参数的签名计算与验证功能。
  *
  * <p>核心功能：对传入的 Map 参数按 key 自然排序，去除 value 为空的数据，
  * 拼接为 {@code key1=value1&key2=value2} 格式的字符串后计算 MD5/SHA256 签名。</p>
@@ -41,6 +41,10 @@ import java.util.stream.Collectors;
  *
  * // 构建包含签名的参数 Map
  * Map<String, Object> signedParams = SignUtils.buildSignedParams(params, "secretKey");
+ * }</pre>ils.wechatSignHmacSha256(params, "apiKey");
+ *
+ * // 构建包含签名的参数 Map
+ * Map<String, Object> signedParams = SignUtils.buildSignedParams(params, "secretKey");
  * }</pre>
  *
  * @author CH
@@ -65,21 +69,21 @@ public class SignUtils {
             new HashSet<>(Arrays.asList("sign", "signature")));
 
     /**
-     * 微信支付签名需要排除的参数名称（小写）：sign、sign_type
+      * 微信支付签名需要排除的参数名称（小写）：标志、标志_类型
      */
     private static final Set<String> WECHAT_EXCLUDE_KEYS = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList("sign", "sign_type")));
 
-    /** 创建 SignUtils 实例 */
+    /** 创建 标志工具 实例 */
     private SignUtils() {
     }
 
     // ==================== MD5 签名（key=secretKey 模式） ====================
 
     /**
-     * 对 Map 参数计算 MD5 签名（无密钥）。
+      * 对 映射 参数计算 MD5 签名（无密钥）。
      *
-     * @param params 待签名参数，允许为 null
+     * @param params 待签名参数，允许为 空
      * @return 32 位小写十六进制 MD5 签名字符串
      */
     public static String sign(Map<String, ?> params) {
@@ -87,10 +91,10 @@ public class SignUtils {
     }
 
     /**
-     * 对 Map 参数计算 MD5 签名（带密钥，密钥以 {@code &key=secretKey} 形式追加）。
+      * 对 映射 参数计算 MD5 签名（带密钥，密钥以 {@code &key=secretKey} 形式追加）。
      *
-     * @param params    待签名参数，允许为 null
-     * @param secretKey 签名密钥，允许为 null 或空
+     * @param params    待签名参数，允许为 空
+     * @param secretKey 签名密钥，允许为 空 或空
      * @return 32 位小写十六进制 MD5 签名字符串
      */
     public static String sign(Map<String, ?> params, String secretKey) {
@@ -98,14 +102,19 @@ public class SignUtils {
     }
 
     /**
-     * 对 Map 参数计算 MD5 签名（带密钥，自定义分隔符，密钥以 {@code key=secretKey} 形式追加）。
+      * 对 映射 参数计算 MD5 签名（带密钥，自定义分隔符，密钥以 {@code key=secretKey} 形式追加）。
+     * @param params 参数
+     * @param secretKey secret键
+     * @param kvSeparator kvseparator
+     * @param paramSeparator 参数separator
+     * @return 标志的结果
      */
     public static String sign(Map<String, ?> params, String secretKey, String kvSeparator, String paramSeparator) {
         return sign(params, secretKey, kvSeparator, paramSeparator, null);
     }
 
     /**
-     * 对 Map 参数计算 MD5 签名（带密钥，自定义分隔符，可排除指定 key）。
+      * 对 映射 参数计算 MD5 签名（带密钥，自定义分隔符，可排除指定 键）。
      */
     public static String sign(Map<String, ?> params, String secretKey, String kvSeparator,
                               String paramSeparator, Set<String> excludeKeys) {
@@ -116,18 +125,21 @@ public class SignUtils {
     // ==================== MD5 签名（密钥直接追加模式） ====================
 
     /**
-     * 对 Map 参数计算 MD5 签名（密钥直接追加在末尾，不使用 {@code key=} 前缀）。
+      * 对 映射 参数计算 MD5 签名（密钥直接追加在末尾，不使用 {@code key=} 前缀）。
+     * @param params 参数
+     * @param secretKey secret键
+     * @return 标志direct键的结果
      */
     public static String signDirectKey(Map<String, ?> params, String secretKey) {
         return signDirectKey(params, secretKey, DEFAULT_KEY_VALUE_SEPARATOR, DEFAULT_PARAM_SEPARATOR);
     }
 
     /**
-     * SignDirectKey
-     * @param params params
-     * @param secretKey secretKey
-     * @param kvSeparator kvSeparator
-     * @param paramSeparator paramSeparator
+      * 标志direct键
+     * @param params 参数
+     * @param secretKey 密钥
+     * @param kvSeparator kvseparator
+     * @param paramSeparator 参数separator
      */
     public static String signDirectKey(Map<String, ?> params, String secretKey,
                                        String kvSeparator, String paramSeparator) {
@@ -135,12 +147,12 @@ public class SignUtils {
     }
 
     /**
-     * SignDirectKey
-     * @param params params
-     * @param secretKey secretKey
-     * @param kvSeparator kvSeparator
-     * @param paramSeparator paramSeparator
-     * @param excludeKeys excludeKeys
+      * 标志direct键
+     * @param params 参数
+     * @param secretKey 密钥
+     * @param kvSeparator kvseparator
+     * @param paramSeparator 参数separator
+     * @param excludeKeys exclude键
      */
     public static String signDirectKey(Map<String, ?> params, String secretKey,
                                        String kvSeparator, String paramSeparator,
@@ -151,17 +163,23 @@ public class SignUtils {
 
     // ==================== SHA256 签名 ====================
 
-    /** SignSha */
+    /**
+     * 标志sha
+     *
+     * @param params 参数
+     * @param secretKey secret键
+     * @return 标志sha256的结果
+     */
     public static String signSha256(Map<String, ?> params, String secretKey) {
         return signSha256(params, secretKey, DEFAULT_KEY_VALUE_SEPARATOR, DEFAULT_PARAM_SEPARATOR);
     }
 
     /**
-     * SignSha
-     * @param params params
-     * @param secretKey secretKey
-     * @param kvSeparator kvSeparator
-     * @param paramSeparator paramSeparator
+      * 标志sha
+     * @param params 参数
+     * @param secretKey 密钥
+     * @param kvSeparator kvseparator
+     * @param paramSeparator 参数separator
      */
     public static String signSha256(Map<String, ?> params, String secretKey,
                                     String kvSeparator, String paramSeparator) {
@@ -169,12 +187,12 @@ public class SignUtils {
     }
 
     /**
-     * SignSha
-     * @param params params
-     * @param secretKey secretKey
-     * @param kvSeparator kvSeparator
-     * @param paramSeparator paramSeparator
-     * @param excludeKeys excludeKeys
+      * 标志sha
+     * @param params 参数
+     * @param secretKey 密钥
+     * @param kvSeparator kvseparator
+     * @param paramSeparator 参数separator
+     * @param excludeKeys exclude键
      */
     public static String signSha256(Map<String, ?> params, String secretKey,
                                     String kvSeparator, String paramSeparator,
@@ -191,7 +209,7 @@ public class SignUtils {
      * <p>算法：按 key 的 ASCII 码从小到大排序，过滤空值，排除 sign/sign_type 字段，
      * 拼接为 {@code key1=value1&key2=value2&key=apiKey}，计算 MD5 并转大写。</p>
      *
-     * @param params  待签名参数，允许为 null
+     * @param params  待签名参数，允许为 空
      * @param apiKey  微信支付 API 密钥
      * @return 32 位大写十六进制 MD5 签名字符串
      */
@@ -205,9 +223,9 @@ public class SignUtils {
      * 微信支付 HMAC-SHA256 签名。
      *
      * <p>算法：按 key 的 ASCII 码从小到大排序，过滤空值，排除 sign/sign_type 字段，
-     * 拼接为 {@code key1=value1&key2=value2&key=apiKey}，以 apiKey 为密钥计算 HMAC-SHA256 并转大写。</p>
+      * 拼接为 {@code key1=value1&key2=value2&key=apiKey}，以 API密钥 为密钥计算 HMAC-SHA256 并转大写。</p>
      *
-     * @param params  待签名参数，允许为 null
+     * @param params  待签名参数，允许为 空
      * @param apiKey  微信支付 API 密钥
      * @return 64 位大写十六进制 HMAC-SHA256 签名字符串
      */
@@ -220,7 +238,7 @@ public class SignUtils {
     /**
      * 验证微信支付 MD5 签名。
      *
-     * @param params  包含 sign 字段的参数 Map
+     * @param params  包含 标志 字段的参数 映射
      * @param sign    待验证的签名字符串（大写或小写均可）
      * @param apiKey  微信支付 API 密钥
      * @return 签名匹配返回 {@code true}
@@ -236,7 +254,7 @@ public class SignUtils {
     /**
      * 验证微信支付 HMAC-SHA256 签名。
      *
-     * @param params  包含 sign 字段的参数 Map
+     * @param params  包含 标志 字段的参数 映射
      * @param sign    待验证的签名字符串（大写或小写均可）
      * @param apiKey  微信支付 API 密钥
      * @return 签名匹配返回 {@code true}
@@ -266,11 +284,11 @@ public class SignUtils {
     // ==================== 构建待签名字符串 ====================
 
     /**
-     * 构建SignContent
-     * @param params params
-     * @param secretKey secretKey
-     * @param kvSeparator kvSeparator
-     * @param paramSeparator paramSeparator
+      * 构建标志内容
+     * @param params 参数
+     * @param secretKey 密钥
+     * @param kvSeparator kvseparator
+     * @param paramSeparator 参数separator
      */
     public static String buildSignContent(Map<String, ?> params, String secretKey,
                                           String kvSeparator, String paramSeparator) {
@@ -304,13 +322,13 @@ public class SignUtils {
      *   </li>
      * </ol>
      *
-     * @param params        待签名参数，允许为 null
-     * @param secretKey     签名密钥，允许为 null 或空
+     * @param params        待签名参数，允许为 空
+     * @param secretKey     签名密钥，允许为 空 或空
      * @param kvSeparator   键值连接符
      * @param paramSeparator 参数分隔符
-     * @param excludeKeys   需要排除的 key 集合，允许为 null
+     * @param excludeKeys   需要排除的 键 集合，允许为 空
      * @param directKey     是否密钥直接追加模式
-     * @param filterBlank   是否过滤空白值（true=过滤 null 和空白字符串；false=仅过滤 null）
+     * @param filterBlank   是否过滤空白值（true=过滤 空 和空白字符串；false=仅过滤 空）
      * @return 拼接后的待签名字符串
      */
     public static String buildSignContent(Map<String, ?> params, String secretKey,
@@ -323,7 +341,7 @@ public class SignUtils {
         // 构建排除集合（小写化）
         Set<String> excludeSet = normalizeExcludeKeys(excludeKeys);
 
-        // 按 key 自然排序，过滤空值，排除指定 key
+ // 按 键 自然排序，过滤空值，排除指定 键
         TreeMap<String, String> sortedMap = new TreeMap<>();
         if (params != null) {
             for (Map.Entry<String, ?> entry : params.entrySet()) {
@@ -369,23 +387,31 @@ public class SignUtils {
     // ==================== 构建排序参数字符串 ====================
 
     /**
-     * 构建排序后的参数字符串（排除 sign/signature，默认过滤空白值）。
+      * 构建排序后的参数字符串（排除 标志/签名，默认过滤空白值）。
+     * @param params 参数
+     * @return 构建排序参数字符串的结果
      */
     public static String buildSortedParamString(Map<String, ?> params) {
         return buildSortedParamString(params, DEFAULT_EXCLUDE_KEYS);
     }
 
-    /** 构建SortedParamString */
+    /**
+     * 构建排序参数字符串
+     *
+     * @param params 参数
+     * @param excludeKeys exclude键
+     * @return 构建排序参数字符串的结果
+     */
     public static String buildSortedParamString(Map<String, ?> params, Set<String> excludeKeys) {
         return buildSortedParamString(params, excludeKeys, DEFAULT_PARAM_SEPARATOR, DEFAULT_KEY_VALUE_SEPARATOR);
     }
 
     /**
-     * 构建SortedParamString
-     * @param params params
-     * @param excludeKeys excludeKeys
+      * 构建排序参数字符串
+     * @param params 参数
+     * @param excludeKeys exclude键
      * @param separator separator
-     * @param kvSeparator kvSeparator
+     * @param kvSeparator kvseparator
      */
     public static String buildSortedParamString(Map<String, ?> params, Set<String> excludeKeys,
                                                 String separator, String kvSeparator) {
@@ -395,11 +421,11 @@ public class SignUtils {
     /**
      * 构建排序后的参数字符串（完整参数）。
      *
-     * @param params        待签名参数，允许为 null
-     * @param excludeKeys   需要排除的 key 集合，允许为 null
+     * @param params        待签名参数，允许为 空
+     * @param excludeKeys   需要排除的 键 集合，允许为 空
      * @param separator     参数分隔符
      * @param kvSeparator   键值连接符
-     * @param filterBlank   是否过滤空白值（true=过滤 null 和空白字符串；false=仅过滤 null）
+     * @param filterBlank   是否过滤空白值（true=过滤 空 和空白字符串；false=仅过滤 空）
      * @return 排序后的参数字符串
      */
     public static String buildSortedParamString(Map<String, ?> params, Set<String> excludeKeys,
@@ -410,7 +436,14 @@ public class SignUtils {
 
     // ==================== 签名验证 ====================
 
-    /** 验证 */
+    /**
+     * 验证
+     *
+     * @param params 参数
+     * @param sign 标志
+     * @param secretKey secret键
+     * @return 验证的结果
+     */
     public static boolean verify(Map<String, ?> params, String sign, String secretKey) {
         if (sign == null) {
             return false;
@@ -420,17 +453,24 @@ public class SignUtils {
         return sign.equalsIgnoreCase(calculated);
     }
 
-    /** 验证DirectKey */
+    /**
+     * 验证direct键
+     *
+     * @param params 参数
+     * @param sign 标志
+     * @param secretKey secret键
+     * @return 验证direct键的结果
+     */
     public static boolean verifyDirectKey(Map<String, ?> params, String sign, String secretKey) {
         return verifyDirectKey(params, sign, secretKey, DEFAULT_EXCLUDE_KEYS);
     }
 
     /**
-     * VerifyDirectKey
-     * @param params params
-     * @param sign sign
-     * @param secretKey secretKey
-     * @param excludeKeys excludeKeys
+      * 验证direct键
+     * @param params 参数
+     * @param sign 标志
+     * @param secretKey 密钥
+     * @param excludeKeys exclude键
      */
     public static boolean verifyDirectKey(Map<String, ?> params, String sign, String secretKey,
                                           Set<String> excludeKeys) {
@@ -442,17 +482,24 @@ public class SignUtils {
         return sign.equalsIgnoreCase(calculated);
     }
 
-    /** 验证Sha */
+    /**
+     * 验证Sha
+     *
+     * @param params 参数
+     * @param sign 标志
+     * @param secretKey secret键
+     * @return 验证sha256的结果
+     */
     public static boolean verifySha256(Map<String, ?> params, String sign, String secretKey) {
         return verifySha256(params, sign, secretKey, DEFAULT_EXCLUDE_KEYS);
     }
 
     /**
-     * VerifySha
-     * @param params params
-     * @param sign sign
-     * @param secretKey secretKey
-     * @param excludeKeys excludeKeys
+      * 验证sha
+     * @param params 参数
+     * @param sign 标志
+     * @param secretKey 密钥
+     * @param excludeKeys exclude键
      */
     public static boolean verifySha256(Map<String, ?> params, String sign, String secretKey,
                                        Set<String> excludeKeys) {
@@ -466,12 +513,25 @@ public class SignUtils {
 
     // ==================== 构建签名参数 Map ====================
 
-    /** 构建SignedParams */
+    /**
+     * 构建标志参数
+     *
+     * @param params 参数
+     * @param secretKey secret键
+     * @return 构建标志参数的结果
+     */
     public static Map<String, Object> buildSignedParams(Map<String, ?> params, String secretKey) {
         return buildSignedParams(params, secretKey, "sign");
     }
 
-    /** 构建SignedParams */
+    /**
+     * 构建标志参数
+     *
+     * @param params 参数
+     * @param secretKey secret键
+     * @param signKey 标志键
+     * @return 构建标志参数的结果
+     */
     public static Map<String, Object> buildSignedParams(Map<String, ?> params, String secretKey, String signKey) {
         Map<String, Object> signedParams = params != null ? new HashMap<>(params) : new HashMap<>();
         String signValue = signDirectKey(params, secretKey);
@@ -479,7 +539,13 @@ public class SignUtils {
         return signedParams;
     }
 
-    /** 构建ShaSignedParams */
+    /**
+     * 构建sha标志参数
+     *
+     * @param params 参数
+     * @param secretKey secret键
+     * @return 构建sha256标志参数的结果
+     */
     public static Map<String, Object> buildSha256SignedParams(Map<String, ?> params, String secretKey) {
         Map<String, Object> signedParams = params != null ? new HashMap<>(params) : new HashMap<>();
         String signValue = signSha256(params, secretKey);
@@ -489,12 +555,25 @@ public class SignUtils {
 
     // ==================== 提取并验证签名 ====================
 
-    /** ExtractAnd验证Sign */
+    /**
+     * extract和验证标志
+     *
+     * @param params 参数
+     * @param secretKey secret键
+     * @return extract和验证标志的结果
+     */
     public static boolean extractAndVerifySign(Map<String, Object> params, String secretKey) {
         return extractAndVerifySign(params, secretKey, "sign");
     }
 
-    /** ExtractAnd验证Sign */
+    /**
+     * extract和验证标志
+     *
+     * @param params 参数
+     * @param secretKey secret键
+     * @param signKey 标志键
+     * @return extract和验证标志的结果
+     */
     public static boolean extractAndVerifySign(Map<String, Object> params, String secretKey, String signKey) {
         if (params == null || !params.containsKey(signKey)) {
             return false;
@@ -508,7 +587,12 @@ public class SignUtils {
 
     // ==================== 内部工具方法 ====================
 
-    /** NormalizeExcludeKeys */
+    /**
+     * 归一化需要排除的签名键集合：过滤 null、转小写并去重。
+     *
+     * @param excludeKeys 待排除的键集合（可能含 null 或大写形式）
+     * @return 归一化后的小写键集合；入参为 null 或空时返回空集合
+     */
     private static Set<String> normalizeExcludeKeys(Set<String> excludeKeys) {
         if (excludeKeys == null || excludeKeys.isEmpty()) {
             return Collections.emptySet();

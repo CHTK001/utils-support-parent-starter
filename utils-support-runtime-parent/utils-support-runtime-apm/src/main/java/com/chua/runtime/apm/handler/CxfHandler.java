@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Apache CXF Handler — intercepts CXF WebService client invocation.
+   * Apache CXF 处理器 — intercepts CXF web服务 客户端 invocation.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,26 +19,26 @@ public class CxfHandler extends AbstractAppHandler {
      */
     private static final String INVOKER = "org/apache/cxf/endpoint/ClientImpl";
     /**
-     * PROXY
+      * 代理
      */
     private static final String PROXY = "org/apache/cxf/frontend/ClientProxy";
     /**
-     * invoke methods
+      * invoke 方法
      */
     private static final String[] INVOKE_METHODS = {"invoke"};
     /**
-     * proxy methods
+      * 代理 方法
      */
     private static final String[] PROXY_METHODS = {"invoke"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "cxf-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "cxf.enabled";
     }
@@ -50,13 +50,13 @@ public class CxfHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(INVOKER, INVOKE_METHODS);
         registerAll(PROXY, PROXY_METHODS);

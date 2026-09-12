@@ -28,6 +28,8 @@ public class NicknameMockString implements MockString {
     };
     /**
      * 意象词池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] IMAGES = {
             "猫咪", "小鱼", "星星", "月亮", "奶茶", "柠檬", "布丁", "小鹿",

@@ -10,10 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 运行时上下文持有者 — 通过 Agent 注入后提供全局运行时管理器访问入口。
+   * 运行时上下文持有者 — 通过 智能体 注入后提供全局运行时管理器访问入口。
  *
  * <p>当 RuntimeAgent 通过 premain 或 agentmain 加载到 JVM 后，
- * 会将 RuntimeManager 实例存入本上下文，应用可通过静态方法随时获取。</p>
+   * 会将 runtime管理器 实例存入本上下文，应用可通过静态方法随时获取。</p>
  *
  * <h3>用法</h3>
  * <pre>{@code
@@ -33,6 +33,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * // 启动
  * RuntimeContextHolder.start("my-app");
+ * }</pre> 启动
+   * runtime上下文holder.启动("my-app");
  * }</pre>
  *
  * @author CH
@@ -41,7 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class RuntimeContextHolder {
 
     /**
-     * 全局 RuntimeManager 实例
+      * 全局 runtime管理器 实例
      */
     private static final AtomicReference<RuntimeManager> managerRef = new AtomicReference<>(null);
 
@@ -50,14 +52,14 @@ public final class RuntimeContextHolder {
      */
     private static final Map<String, RuntimeArtifact> quickArtifacts = new ConcurrentHashMap<>();
 
-    /** 创建 RuntimeContextHolder 实例 */
+    /** 创建 runtime上下文holder 实例 */
     private RuntimeContextHolder() {
     }
 
     /**
-     * 设置全局 RuntimeManager 实例。
+      * 设置全局 runtime管理器 实例。
      *
-     * @param manager RuntimeManager 实例
+     * @param manager runtime管理器 实例
      */
     public static void setManager(RuntimeManager manager) {
         RuntimeManager old = managerRef.getAndSet(manager);
@@ -71,16 +73,16 @@ public final class RuntimeContextHolder {
     }
 
     /**
-     * 获取全局 RuntimeManager 实例。
+      * 获取全局 runtime管理器 实例。
      *
-     * @return RuntimeManager 实例，未初始化返回 null
+     * @return RuntimeManager 实例，未初始化返回 空
      */
     public static RuntimeManager getManager() {
         return managerRef.get();
     }
 
     /**
-     * 获取或创建全局 RuntimeManager 实例。
+      * 获取或创建全局 runtime管理器 实例。
      *
      * @return RuntimeManager 实例
      */
@@ -112,7 +114,7 @@ public final class RuntimeContextHolder {
     /**
      * 快捷获取工件。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 工件描述
      */
     public static RuntimeArtifact getArtifact(String id) {
@@ -122,7 +124,7 @@ public final class RuntimeContextHolder {
     /**
      * 快捷启动工件。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时实例
      */
     public static com.chua.runtime.support.RuntimeInstance start(String id) {
@@ -132,7 +134,7 @@ public final class RuntimeContextHolder {
     /**
      * 快捷停止工件。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时实例
      */
     public static com.chua.runtime.support.RuntimeInstance stop(String id) {
@@ -142,7 +144,7 @@ public final class RuntimeContextHolder {
     /**
      * 快捷重启工件。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时实例
      */
     public static com.chua.runtime.support.RuntimeInstance restart(String id) {
@@ -152,7 +154,7 @@ public final class RuntimeContextHolder {
     /**
      * 快捷获取工件状态。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时状态
      */
     public static RuntimeStatus getStatus(String id) {
@@ -162,7 +164,7 @@ public final class RuntimeContextHolder {
     /**
      * 快捷查询工件是否正在运行。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行中返回 true
      */
     public static boolean isRunning(String id) {
@@ -172,7 +174,7 @@ public final class RuntimeContextHolder {
     /**
      * 快捷订阅工件实时日志。
      *
-     * @param id       工件 ID
+     * @param id       工件 标识
      * @param callback 日志行回调
      */
     public static void tailLog(String id, com.chua.common.support.lang.cmd.LineCallback callback) {
@@ -180,9 +182,9 @@ public final class RuntimeContextHolder {
     }
 
     /**
-     * 快捷查询所有工件 ID。
+      * 快捷查询所有工件 标识。
      *
-     * @return 工件 ID 列表
+     * @return 工件 标识 列表
      */
     public static java.util.List<String> listArtifactIds() {
         return getOrCreateManager().getArtifactIds();
@@ -198,7 +200,7 @@ public final class RuntimeContextHolder {
     }
 
     /**
-     * 关闭全局 RuntimeManager。
+      * 关闭全局 runtime管理器。
      */
     public static void shutdown() throws Exception {
         RuntimeManager manager = managerRef.get();

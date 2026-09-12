@@ -23,9 +23,9 @@ public interface SpeechRecognizer {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -35,9 +35,9 @@ public interface SpeechRecognizer {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default SpeechRecognizer provider(String provider) {
@@ -54,7 +54,12 @@ public interface SpeechRecognizer {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static SpeechRecognizer create(String name) {
         return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -65,7 +70,7 @@ public interface SpeechRecognizer {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.speech.SpeechRecognizer.class);
@@ -152,7 +157,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
-     * 默认采样率（16kHz）。
+      * 默认采样率（16khz）。
      */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
 
@@ -220,7 +225,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public SpeechRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -234,7 +239,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
-    /** SampleRate */
+    /** 样本rate */
     public SpeechRecognizer sampleRate(int rate) {
         this.sampleRate = rate;
         return this;
@@ -242,7 +247,12 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Recognize */
+    /**
+     * Recognize
+     *
+     * @param audioData 音频数据
+     * @return recognize的结果
+     */
     public String recognize(byte[] audioData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
@@ -254,7 +264,13 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Recognize */
+    /**
+     * Recognize
+     *
+     * @param audioData 音频数据
+     * @param language language
+     * @return recognize的结果
+     */
     public String recognize(byte[] audioData, String language) {
         this.lang = language;
         return recognize(audioData);

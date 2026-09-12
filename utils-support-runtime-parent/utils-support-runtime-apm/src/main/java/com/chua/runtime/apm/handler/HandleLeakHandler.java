@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 句柄泄漏 Handler — 监控文件 / Socket / Thread / 锁等资源句柄。
+   * 句柄泄漏 处理器 — 监控文件 / 套接字 / Thread / 锁等资源句柄。
  *
  * <p>记录每个句柄的创建和关闭时间，定期扫描超时未关闭的句柄
  * 生成泄漏报告。</p>
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(HandleLeakHandler.class.getName());
 
@@ -54,7 +54,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-     * 启用配置属性 key
+      * 启用配置属性 键
      */
     private static final String PROP_LEAK_ENABLED = "leak.enabled";
 
@@ -73,22 +73,22 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
             System.getProperty("leak.threshold.ms", "1000"));
 
     /**
-     * 内部名：FileInputStream
+      * 内部名：文件输入流
      */
     private static final String FILE_INPUT_STREAM = "java/io/FileInputStream";
 
     /**
-     * 内部名：FileOutputStream
+      * 内部名：文件输出流
      */
     private static final String FILE_OUTPUT_STREAM = "java/io/FileOutputStream";
 
     /**
-     * 内部名：Socket
+      * 内部名：套接字
      */
     private static final String SOCKET = "java/net/Socket";
 
     /**
-     * 内部名：ServerSocket
+      * 内部名：服务端套接字
      */
     private static final String SERVER_SOCKET = "java/net/ServerSocket";
 
@@ -98,7 +98,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     private final Map<String, HandleRecord> handles;
 
     /**
-     * 句柄 ID 自增
+      * 句柄 标识 自增
      */
     private final AtomicLong idGenerator;
 
@@ -112,7 +112,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
-    /** 创建 HandleLeakHandler 实例 */
+    /** 创建 处理leak处理器 实例 */
     public HandleLeakHandler() {
         this.handles = new ConcurrentHashMap<>();
         this.idGenerator = new AtomicLong(0);
@@ -120,13 +120,13 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return HANDLER_VERSION;
     }
@@ -173,7 +173,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("HandleLeakHandler[enabled=%s, handles=%d, leaks=%d]",
                 enabled, handles.size(), detectLeaks().size());
@@ -186,7 +186,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** OnIntercept */
+    /** onintercept */
     public void onIntercept(com.chua.runtime.spy.InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -264,7 +264,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
             oldest.setClosed(true);
             oldest.setLastUsedAt(System.currentTimeMillis());
             handles.remove(oldest.getHandleId());
-            // 持久化：句柄关闭（更新 closedAt）
+ // 持久化：句柄关闭（更新 关闭at）
             try {
                 StringBuilder stack = new StringBuilder();
                 StackTraceElement[] stackTrace = oldest.getStackTrace();
@@ -349,6 +349,8 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
      * 句柄类型枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum HandleKind {
 
@@ -359,7 +361,7 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
         FILE,
 
         /**
-         * Socket
+          * 套接字
          */
         SOCKET,
 
@@ -386,12 +388,14 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
      * 句柄记录。
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class HandleRecord {
 
         /**
-         * 句柄唯一 ID
+          * 句柄唯一 标识
          */
         private String handleId;
 

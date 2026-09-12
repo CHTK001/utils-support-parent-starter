@@ -44,11 +44,14 @@ import java.util.*;
  */
 public class AnnotationUtils {
 
+    /**
+     * 注解工具。
+     */
     private AnnotationUtils() {}
 
     /**
-     * 别名缓存：窄注解 Class（WeakHashMap key）→ 宽注解全限定名。
-     * 使用 WeakHashMap 保证窄注解类被 GC 回收时缓存自动清理，防止类加载器泄漏。
+      * 别名缓存：窄注解 类（weak哈希映射 键）→ 宽注解全限定名。
+      * 使用 weak哈希映射 保证窄注解类被 GC 回收时缓存自动清理，防止类加载器泄漏。
      */
     private static final Map<Class<? extends Annotation>, String> ALIAS_NARROW_TO_WIDE =
             new java.util.WeakHashMap<>();
@@ -62,7 +65,7 @@ public class AnnotationUtils {
 
     /**
      * 懒加载别名映射：从所有 SPI 实现的 {@link AnnotationDefinitionResolver} 中收集别名。
-     * common-starter 不包含任何具体框架的硬编码，别名发现完全由 SPI 承担。
+      * common-starter 不包含任何具体框架的硬编码，别名发现完全由 SPI 承担。
      */
     private static void ensureAliasesLoaded() {
         if (aliasesLoaded) {
@@ -143,6 +146,12 @@ public class AnnotationUtils {
         return false;
     }
 
+    /**
+     * 是否注解present。
+     * @param clazz clazz
+     * @param annotationClass 注解类
+     * @return 是否注解present的结果
+     */
     public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         if (clazz == null || annotationClass == null) {
             return false;
@@ -150,6 +159,12 @@ public class AnnotationUtils {
         return isAnnotationPresent((AnnotatedElement) clazz, annotationClass);
     }
 
+    /**
+     * 是否注解present。
+     * @param method 方法
+     * @param annotationClass 注解类
+     * @return 是否注解present的结果
+     */
     public static boolean isAnnotationPresent(Method method, Class<? extends Annotation> annotationClass) {
         if (method == null || annotationClass == null) {
             return false;
@@ -167,6 +182,21 @@ public class AnnotationUtils {
      * @param <A>             注解泛型
      * @return 找到的注解实例，未找到返回 {@code null}
      * @since 4.0.0.43
+     * @param method 方法
+     /**
+      * 获取注解。
+      * @param element element
+      * @param annotationClass 注解类
+      * @return 获取注解的结果
+      */
+     * @param clazz clazz
+      * @param method 方法
+     /**
+      * 获取注解。
+      * @param element element
+      * @param annotationClass 注解类
+      * @return 获取注解的结果
+      */
      */
     public static <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotationClass) {
         if (element == null || annotationClass == null) {
@@ -318,7 +348,7 @@ public class AnnotationUtils {
     }
 
     /**
-     * 将窄注解 Class 解析为对应的宽注解 Class（通过 SPI）。
+      * 将窄注解 类 解析为对应的宽注解 类（通过 SPI）。
      *
      * @param annotationClass 窄注解类型
      * @return 对应的宽注解类型，无别名时返回原值
@@ -355,8 +385,13 @@ public class AnnotationUtils {
         return ALIAS_NARROW_TO_WIDE.getOrDefault(annotationClassName, annotationClassName);
     }
 
-    // ---- private helpers ----
+ // ---- 私募 助手 ----
 
+    /**
+     * 是否别名。
+     * @param annotationClass 注解类
+     * @return 是否别名的结果
+     */
     private static boolean isAlias(Class<? extends Annotation> annotationClass) {
         return ALIAS_SOURCE_SET.contains(annotationClass.getName());
     }
@@ -367,13 +402,15 @@ public class AnnotationUtils {
      * 正向：GetMapping → RequestMapping
      * 反向：RequestMapping → {GetMapping, PostMapping, PutMapping, DeleteMapping, ...}
      * </pre>
+     * @param target Target
+     * @return 构建搜索设置的结果
      */
     private static Set<Class<? extends Annotation>> buildSearchSet(Class<? extends Annotation> target) {
         Set<Class<? extends Annotation>> set = new LinkedHashSet<>();
         set.add(target);
         ensureAliasesLoaded();
         String targetName = target.getName();
-        // 正向：target 是窄注解，加入其宽注解
+ // 正向：Target 是窄注解，加入其宽注解
         String wide = ALIAS_NARROW_TO_WIDE.get(targetName);
         if (wide != null && !wide.equals(targetName)) {
             try {
@@ -381,7 +418,7 @@ public class AnnotationUtils {
             } catch (Exception ignored) {
             }
         }
-        // 反向：target 是宽注解，加入所有窄注解
+ // 反向：Target 是宽注解，加入所有窄注解
         for (Map.Entry<Class<? extends Annotation>, String> entry : ALIAS_NARROW_TO_WIDE.entrySet()) {
             if (entry.getValue().equals(targetName) && !entry.getKey().equals(targetName)) {
                 try {
@@ -393,6 +430,12 @@ public class AnnotationUtils {
         return set;
     }
 
+    /**
+     * 是否包含别名匹配。
+     * @param element element
+     * @param annotationClass 注解类
+     * @return 是否包含别名匹配的结果
+     */
     private static boolean hasAliasMatch(AnnotatedElement element, Class<? extends Annotation> annotationClass) {
         for (Class<? extends Annotation> alt : buildSearchSet(annotationClass)) {
             if (!alt.equals(annotationClass) && element.isAnnotationPresent(alt)) {
@@ -419,6 +462,12 @@ public class AnnotationUtils {
         return null;
     }
 
+    /**
+     * 是否包含inherited注解。
+     * @param clazz clazz
+     * @param annotationClass 注解类
+     * @return 是否包含inherited注解的结果
+     */
     private static boolean hasInheritedAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
@@ -435,6 +484,12 @@ public class AnnotationUtils {
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * findinherited注解。
+     * @param clazz clazz
+     * @param annotationClass 注解类
+     * @return findinherited注解的结果
+     */
     private static <A extends Annotation> A findInheritedAnnotation(Class<?> clazz, Class<A> annotationClass) {
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
@@ -452,6 +507,12 @@ public class AnnotationUtils {
         return null;
     }
 
+    /**
+     * 是否包含overridden注解。
+     * @param method 方法
+     * @param annotationClass 注解类
+     * @return 是否包含overridden注解的结果
+     */
     private static boolean hasOverriddenAnnotation(Method method, Class<? extends Annotation> annotationClass) {
         String name = method.getName();
         Class<?>[] paramTypes = method.getParameterTypes();
@@ -473,6 +534,12 @@ public class AnnotationUtils {
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * findoverridden注解。
+     * @param method 方法
+     * @param annotationClass 注解类
+     * @return findoverridden注解的结果
+     */
     private static <A extends Annotation> A findOverriddenAnnotation(Method method, Class<A> annotationClass) {
         String name = method.getName();
         Class<?>[] paramTypes = method.getParameterTypes();
@@ -579,6 +646,11 @@ public class AnnotationUtils {
         return null;
     }
 
+    /**
+     * 获取父类。
+     * @param clazz clazz
+     * @return 获取父类的结果
+     */
     private static java.util.List<Class<?>> getSuperClasses(Class<?> clazz) {
         java.util.List<Class<?>> list = new java.util.ArrayList<>();
         Class<?> current = clazz.getSuperclass();
@@ -591,6 +663,12 @@ public class AnnotationUtils {
 
     // ---- 原有方法保留 ----
 
+    /**
+     * 获取注解attributes。
+     * @param clazz clazz
+     * @param annotationClass 注解类
+     * @return 获取注解attributes的结果
+     */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = new HashMap<>();
         Annotation annotation = clazz.getAnnotation(annotationClass);

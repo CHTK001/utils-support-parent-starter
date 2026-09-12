@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>字节码插桩实现：</p>
  * <p>对目标文件类（如 java/io/FileInputStream）的 read/write 方法，
- * 在方法入口/出口插入 RuntimeSpy.onIntercept()。</p>
+   * 在方法入口/出口插入 runtimespy.onintercept()。</p>
  *
  * <p>ASM 插入的字节码：</p>
  * <pre>
@@ -34,22 +34,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(FileHandler.class.getName());
 
     /**
-     * FileInputStream 类名
+      * 文件输入流 类名
      */
     private static final String FILE_INPUT = "java/io/FileInputStream";
 
     /**
-     * FileOutputStream 类名
+      * 文件输出流 类名
      */
     private static final String FILE_OUTPUT = "java/io/FileOutputStream";
 
     /**
-     * RandomAccessFile 类名
+      * 随机access文件 类名
      */
     private static final String RANDOM_FILE = "java/io/RandomAccessFile";
 
@@ -78,20 +78,20 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
-    /** 创建 FileHandler 实例 */
+    /** 创建 文件处理器 实例 */
     public FileHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "file-handler";
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return "1.0.0";
     }
@@ -128,7 +128,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("FileHandler[enabled=%s, records=%d]", enabled, records.size());
     }
@@ -190,7 +190,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 FileInputStream 拦截。
+      * 注册 文件输入流 拦截。
      */
     private void registerInputStreamIntercepts() {
         RuntimeSpy.registerInterceptor(FILE_INPUT, "<init>",
@@ -203,7 +203,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 FileOutputStream 拦截。
+      * 注册 文件输出流 拦截。
      */
     private void registerOutputStreamIntercepts() {
         RuntimeSpy.registerInterceptor(FILE_OUTPUT, "<init>",
@@ -216,7 +216,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 RandomAccessFile 拦截。
+      * 注册 随机access文件 拦截。
      */
     private void registerRandomAccessIntercepts() {
         RuntimeSpy.registerInterceptor(RANDOM_FILE, "<init>",
@@ -267,6 +267,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
      * 文件操作记录。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class FileRecord {

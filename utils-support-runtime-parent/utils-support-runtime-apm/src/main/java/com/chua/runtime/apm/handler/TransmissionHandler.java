@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 传输链路 Handler — 拦截 Socket / ServerSocket / DatagramSocket / HttpURLConnection。
+   * 传输链路 处理器 — 拦截 套接字 / 服务端套接字 / datagram套接字 / httpurlconnection。
  *
  * <p>职责：</p>
  * <ul>
@@ -42,12 +42,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(TransmissionHandler.class.getName());
 
     /**
-     * handler 名称
+      * 处理器 名称
      */
     private static final String HANDLER_NAME = "transmission-handler";
 
@@ -57,7 +57,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-     * 启用配置属性 key
+      * 启用配置属性 键
      */
     private static final String PROP_TRANSMISSION_ENABLED = "transmission.enabled";
 
@@ -72,42 +72,42 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final int MAX_RECORDS = 10000;
 
     /**
-     * Socket 内部名（java.net.Socket）
+      * 套接字 内部名（Java.net.套接字）
      */
     private static final String SOCKET = "java/net/Socket";
 
     /**
-     * ServerSocket 内部名
+      * 服务端套接字 内部名
      */
     private static final String SERVER_SOCKET = "java/net/ServerSocket";
 
     /**
-     * DatagramSocket 内部名
+      * datagram套接字 内部名
      */
     private static final String DATAGRAM_SOCKET = "java/net/DatagramSocket";
 
     /**
-     * HttpURLConnection 内部名
+      * httpurlconnection 内部名
      */
     private static final String HTTP_URL_CONNECTION = "java/net/HttpURLConnection";
 
     /**
-     * Socket 拦截方法列表（连接/读取/写入/关闭）
+      * 套接字 拦截方法列表（连接/读取/写入/关闭）
      */
     private static final String[] SOCKET_METHODS = {"connect", "getInputStream", "getOutputStream", "close"};
 
     /**
-     * ServerSocket 拦截方法列表（接收连接）
+      * 服务端套接字 拦截方法列表（接收连接）
      */
     private static final String[] SERVER_SOCKET_METHODS = {"accept"};
 
     /**
-     * DatagramSocket 拦截方法列表（发送/接收）
+      * datagram套接字 拦截方法列表（发送/接收）
      */
     private static final String[] DATAGRAM_METHODS = {"send", "receive"};
 
     /**
-     * HttpURLConnection 拦截方法列表（连接）
+      * httpurlconnection 拦截方法列表（连接）
      */
     private static final String[] HTTP_METHODS = {"connect"};
 
@@ -117,7 +117,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
 
     /**
-     * host:port → 计数（依赖图数据）
+      * 主机:端口 → 计数（依赖图数据）
      */
     private final Map<String, Long> connectionCount;
 
@@ -142,7 +142,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final ThreadLocal<TransmissionRecord> TRANSMISSION_HOLDER =
             new ThreadLocal<>();
 
-    /** 创建 TransmissionHandler 实例 */
+    /** 创建 transmission处理器 实例 */
     public TransmissionHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.connectionCount = new ConcurrentHashMap<>();
@@ -150,13 +150,13 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return HANDLER_VERSION;
     }
@@ -193,7 +193,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("TransmissionHandler[enabled=%s, records=%d]", enabled, records.size());
     }
@@ -204,19 +204,19 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         return enabled && started.get();
     }
 
-    /** 注册SocketInterceptors */
+    /** 注册套接字拦截器 */
     private void registerSocketInterceptors() {
         for (String method : SOCKET_METHODS) {
             RuntimeSpy.registerInterceptor(SOCKET, method, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(SOCKET, method, "", InterceptPoint.EXIT, this);
-            // EXCEPTION 拦截 JDK 核心类（java/net/Socket 等）会触发 VerifyError，
-            // 因为 AdviceAdapter 的 onMethodExit 与 try/catch 包装产生 frame 冲突。
-            // Socket.connect 抛 ConnectException 的场景由 NetHandler.NET_CONNECT_POST 捕获即可。
+ // 异常 拦截 JDK 核心类（Java/net/套接字 等）会触发 验证错误，
+ // 因为 advice适配器 的 on方法exit 与 尝试/卡扣 包装产生 帧 冲突。
+ // 套接字.连接 抛 连接异常 的场景由 net处理器.NET_连接_POST 捕获即可。
         }
         for (String method : SERVER_SOCKET_METHODS) {
             RuntimeSpy.registerInterceptor(SERVER_SOCKET, method, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(SERVER_SOCKET, method, "", InterceptPoint.EXIT, this);
-            // 同上：EXCEPTION 注册会在 ServerSocket.accept 等热点方法触发 VerifyError
+ // 同上：异常 注册会在 服务端套接字.accept 等热点方法触发 验证错误
         }
         for (String method : DATAGRAM_METHODS) {
             RuntimeSpy.registerInterceptor(DATAGRAM_SOCKET, method, "", InterceptPoint.ENTRY, this);
@@ -229,7 +229,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** OnIntercept */
+    /** onintercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -243,15 +243,19 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 本地网络身份缓存 — 避免在 handleEntry 阶段重复解析 InetAddress.getLocalHost()
+      * 本地网络身份缓存 — 避免在 处理entry 阶段重复解析 inet地址.获取本地主机()
      */
     private static volatile String LOCAL_HOST;
     /**
-     * local 端口 hint
+      * 本地 端口 hint
      */
     private static volatile int LOCAL_PORT_HINT = -1;
 
-    /** 解析LocalHost */
+    /**
+     * 解析本地主机
+     *
+     * @return resolve本地主机的结果
+     */
     private static String resolveLocalHost() {
         if (LOCAL_HOST != null) {
             return LOCAL_HOST;
@@ -264,7 +268,11 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         return LOCAL_HOST;
     }
 
-    /** 处理Entry */
+    /**
+     * 处理Entry
+     *
+     * @param ctx ctx
+     */
     private void handleEntry(InterceptContext ctx) {
         try {
             String className = ctx.getClassName();
@@ -284,13 +292,13 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
             record.setProtocol(protocol);
 
             // 端点角色 + 源端点：
-            //   - ServerSocket.accept → SERVER（接收端）
-            //   - Socket/HttpURLConnection → CLIENT（发起端）
+ // - 服务端套接字.accept → 服务端（接收端）
+ // - 套接字/httpurlconnection → 客户端（发起端）
             Object instance = ctx.getUserData();
             if (SERVER_SOCKET.equals(className)) {
                 record.setSource(Endpoint.builder().kind(EndpointKind.SERVER).build());
             } else if (HTTP_URL_CONNECTION.equals(className) && instance != null) {
-                // 反射提取 HTTP URL 推算 source host:port
+ // 反射提取 HTTP URL 推算 源 主机:端口
                 String url = SoftwareDetector.extractHttpUrl(instance);
                 String sourceHost = resolveLocalHost();
                 int sourcePort = LOCAL_PORT_HINT;
@@ -318,7 +326,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                         sourcePort = local.getPort();
                     }
                 } catch (Exception ignore) {
-                    // socket 未连接或访问异常
+ // 套接字 未连接或访问异常
                 }
                 record.setSource(Endpoint.builder()
                         .kind(EndpointKind.CLIENT)
@@ -341,7 +349,11 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** 处理Exit */
+    /**
+     * 处理Exit
+     *
+     * @param ctx ctx
+     */
     private void handleExit(InterceptContext ctx) {
         try {
             TransmissionRecord record = TRANSMISSION_HOLDER.get();
@@ -365,7 +377,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
 
             records.add(record);
 
-            // 同步到依赖图（DependencyGraphHandler）
+ // 同步到依赖图（dependency图计算处理器）
             emitToDependencyGraph(record);
 
             // 持久化（SPI 接入存储层）
@@ -378,7 +390,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 把单次传输事件同步到 DependencyGraphHandler，生成 source → target 边。
+      * 把单次传输事件同步到 dependency图计算处理器，生成 源 → Target 边。
      *
      * @param record 传输记录
      */
@@ -401,7 +413,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 补充目标端点信息（port / host / software / operation）。
+      * 补充目标端点信息（端口 / 主机 / software / operation）。
+     * @param ctx ctx
+     * @param record record
      */
     private void enrichTargetEndpoint(InterceptContext ctx, TransmissionRecord record) {
         String className = ctx.getClassName();
@@ -418,10 +432,15 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** EnrichSocketEndpoint */
+    /**
+     * enrich套接字端点
+     *
+     * @param ctx ctx
+     * @param record record
+     */
     private void enrichSocketEndpoint(InterceptContext ctx, TransmissionRecord record) {
         try {
-            // 反射获取 Socket 实例（从 InterceptContext 的 userData 或自身）
+ // 反射获取 套接字 实例（从 intercept上下文 的 用户数据 或自身）
             Object socket = resolveSocketObject(ctx);
             if (socket != null) {
                 String host = "?";
@@ -433,7 +452,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
                         port = remote.getPort();
                     }
                 } catch (Exception e) {
-                    // socket 未连接
+ // 套接字 未连接
                 }
                 Protocol protocol = record.getProtocol();
                 if (protocol == null || protocol == Protocol.UNKNOWN) {
@@ -453,10 +472,15 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** EnrichDatagramEndpoint */
+    /**
+     * enrichdatagram端点
+     *
+     * @param ctx ctx
+     * @param record record
+     */
     private void enrichDatagramEndpoint(InterceptContext ctx, TransmissionRecord record) {
-        // DatagramSocket 的 send/receive 目标地址来自 DatagramPacket 参数
-        // 此处通过栈分析已有 software 信息，protocol 已设为 UDP
+ // datagram套接字 的 发送/接收 目标地址来自 datagram数据包 参数
+ // 此处通过栈分析已有 software 信息，协议 已设为 UDP
         if (record.getTarget() == null) {
             record.setTarget(Endpoint.builder()
                     .kind(EndpointKind.SERVER)
@@ -466,7 +490,12 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** EnrichHttpEndpoint */
+    /**
+     * enrichhttp端点
+     *
+     * @param ctx ctx
+     * @param record record
+     */
     private void enrichHttpEndpoint(InterceptContext ctx, TransmissionRecord record) {
         try {
             Object conn = resolveHttpConnection(ctx);
@@ -499,6 +528,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
      * 推断协议：优先用栈分析识别的软件栈反查默认协议，其次用类名兜底。
+     * @param software software
+     * @param className 类名称
+     * @return infer协议从stack和类的结果
      */
     private Protocol inferProtocolFromStackAndClass(Software software, String className) {
         // 已识别软件栈 → 反查默认协议
@@ -558,7 +590,12 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
         }
     }
 
-    /** InferProtocolFromClass */
+    /**
+     * infer协议从类
+     *
+     * @param internalName 内部名称
+     * @return infer协议从类的结果
+     */
     private Protocol inferProtocolFromClass(String internalName) {
         if (internalName == null) {
             return Protocol.UNKNOWN;
@@ -575,23 +612,41 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
         return Protocol.UNKNOWN;
     }
 
-    /** 解析SocketObject */
+    /**
+     * 解析套接字对象
+     *
+     * @param ctx ctx
+     * @return resolve套接字对象的结果
+     */
     private Object resolveSocketObject(InterceptContext ctx) {
-        // 从 userData 优先；否则从 ctx 自身的 this 引用尝试获取
+ // 从 用户数据 优先；否则从 ctx 自身的 this 引用尝试获取
         return ctx.getUserData() != null ? ctx.getUserData() : null;
     }
 
-    /** 解析HttpConnection */
+    /**
+     * 解析httpconnection
+     *
+     * @param ctx ctx
+     * @return resolveHttpConnection的结果
+     */
     private Object resolveHttpConnection(InterceptContext ctx) {
         return ctx.getUserData() != null ? ctx.getUserData() : null;
     }
 
-    /** 获取Records */
+    /**
+     * 获取Records
+     *
+     * @return 获取records的结果
+     */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
     }
 
-    /** 获取Connection计算数量 */
+    /**
+     * 获取Connection计算数量
+     *
+     * @return 获取connection数量的结果
+     */
     public Map<String, Long> getConnectionCount() {
         return Collections.unmodifiableMap(connectionCount);
     }

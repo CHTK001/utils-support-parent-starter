@@ -5,8 +5,8 @@ package com.chua.kimi.support;
  *
  * @param text                   最终回答文本
  * @param thinkingContent        思考链内容（仅思考模式有值）
- * @param remoteChatId           远程会话 ID，用于多轮上下文
- * @param lastAssistantMessageId 最后一条 assistant 消息 ID，用于多轮上下文
+ * @param remoteChatId           远程会话 标识，用于多轮上下文
+ * @param lastAssistantMessageId 最后一条 assistant 消息 标识，用于多轮上下文
  * @param errorMessage           错误消息（请求失败时非空）
  * @author CH
  * @since 4.0.0.42

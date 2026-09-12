@@ -4,10 +4,10 @@ import com.chua.deeplearning.support.face.FaceClarityDetector;
 import com.chua.deeplearning.support.model.FaceQualityInfo;
 
 /**
- * OpenCV 人脸清晰度检测器（SPI provider="opencv"）。
+   * 打开cv 人脸清晰度检测器（SPI 提供者="opencv"）。
  *
  * <p>默认使用 {@code opencv-face-quality} 引擎模型（Haar 级联 + Laplacian 方差），
- * 纯 OpenCV 算法，无需下载模型文件，嵌入式友好。</p>
+   * 纯 打开cv 算法，无需下载模型文件，嵌入式友好。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -53,33 +53,37 @@ public class OpencvFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FaceClarityDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "opencv-face-quality";
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public FaceClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** 最小值FaceRatio */
+    /** 最小值faceratio */
     public FaceClarityDetector minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FaceClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -93,7 +97,7 @@ public class OpencvFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
-    /** Assess */
+    /** 评定 */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

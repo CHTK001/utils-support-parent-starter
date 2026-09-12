@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 任务拓扑图 — 承载 TaskRunner 的 DAG 结构并完成合法性校验。
+   * 任务拓扑图 — 承载 任务runner 的 DAG 结构并完成合法性校验。
  *
  * <p>职责：</p>
  * <ul>
@@ -29,7 +29,7 @@ public final class TaskGraph {
     private final String name;
 
     /**
-     * 注册顺序保持的节点定义表：id -> definition
+      * 注册顺序保持的节点定义表：标识 -> definition
      */
     private final Map<String, TaskDefinition> definitions = new LinkedHashMap<>();
 
@@ -37,9 +37,9 @@ public final class TaskGraph {
      * 创建任务拓扑图。
      *
      * @param name        运行名称，不为空
-     * @param definitions 节点定义集合，非空且 ID 唯一、依赖完整
+     * @param definitions 节点定义集合，非空且 标识 唯一、依赖完整
      * @return 拓扑图实例
-     * @throws IllegalArgumentException 当集合为空、ID 重复或依赖缺失时
+     * @throws IllegalArgumentException 当集合为空、标识 重复或依赖缺失时
      */
     public static TaskGraph of(String name, Collection<TaskDefinition> definitions) {
         if (name == null || name.isBlank()) {
@@ -147,9 +147,9 @@ public final class TaskGraph {
     }
 
     /**
-     * 获取全部节点 ID（注册顺序）。
+      * 获取全部节点 标识（注册顺序）。
      *
-     * @return 节点 ID 集合
+     * @return 节点 标识 集合
      */
     public List<String> nodeIds() {
         return List.copyOf(definitions.keySet());

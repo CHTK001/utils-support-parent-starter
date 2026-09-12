@@ -17,7 +17,7 @@ import java.util.Map;
  * <p>Goose (github.com/block/goose) stores sessions in a SQLite database at
  * {@code %APPDATA%\Block\goose\data\sessions\sessions.db} on Windows. The
  * {@code usage_ledger} table records one row per LLM call with exact token,
- * cache and cost attribution:</p>
+   * 缓存 和 cost 归因:</p>
  *
  * <pre>{@code
  * CREATE TABLE usage_ledger (
@@ -25,6 +25,8 @@ import java.util.Map;
  *   model TEXT, input_tokens INTEGER, output_tokens INTEGER,
  *   total_tokens INTEGER, cache_read_tokens INTEGER,
  *   cache_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
+ * )
+ * }</pre>_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
  * )
  * }</pre>
  *
@@ -44,8 +46,8 @@ public class GooseUsageParser extends BaseUsageParser {
                     + "WHERE input_tokens > 0 OR output_tokens > 0 "
                     + "ORDER BY created_timestamp ASC";
 
-    private static final String PROVIDER_GOOSE = "goose";
-    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L;
+    private static final String PROVIDER_GOOSE = "goose"; // 提供者goose
+    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
 
     /**
      * 返回 SPI 名称。
@@ -58,6 +60,13 @@ public class GooseUsageParser extends BaseUsageParser {
 
     /**
      * 流式解析全部用量台账记录。
+     * @param row row
+     * @return 转为AIusage的结果
+     /**
+      * 流全部。
+      * @return 流全部的结果
+      */
+      * @param row row
      */
     @Override
     public Flux<AiUsage> streamAll() {

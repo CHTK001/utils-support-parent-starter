@@ -10,8 +10,8 @@ import java.util.Map;
 /**
  * KRPC 协议消息模型。
  * <p>
- * 遵循 BitTorrent KRPC 协议格式，支持 query（y='q'）、response（y='r'）和 error（y='e'）三种类型。
- * 用于与标准 BitTorrent DHT 网络进行兼容的 RPC 通信。
+   * 遵循 钻头torrent KRPC 协议格式，支持 查询（y='Q'）、响应（y='R'）和 错误（y='e'）三种类型。
+   * 用于与标准 钻头torrent DHT 网络进行兼容的 RPC 通信。
  * </p>
  *
  * @author CH
@@ -20,7 +20,7 @@ import java.util.Map;
 public class KrpcMessage {
 
     /**
-     * 事务 ID
+      * 事务 标识
      */
     public String t;
 
@@ -30,7 +30,7 @@ public class KrpcMessage {
     public char y;
 
     /**
-     * 查询类型（仅 y='q' 时有值，如 "ping"、"find_node"）
+      * 查询类型（仅 y='Q' 时有值，如 "ping"、"查找_节点"）
      */
     public String q;
 
@@ -170,7 +170,7 @@ public class KrpcMessage {
     }
 
     /**
-     * 将对象转换为字符串（支持 String 和 byte[] 两种存储格式）。
+      * 将对象转换为字符串（支持 字符串 和 byte[] 两种存储格式）。
      *
      * @param v 值对象
      * @return 字符串表示

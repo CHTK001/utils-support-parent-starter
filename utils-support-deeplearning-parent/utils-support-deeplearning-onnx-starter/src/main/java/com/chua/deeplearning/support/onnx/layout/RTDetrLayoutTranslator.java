@@ -19,23 +19,32 @@ import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * RT-DETR v2 文档版面检测 Translator（DocLayNet 17 类）。
+   * RT-DETR v2 文档版面检测 Translator（doclaynet 17 类）。
  *
  * <p>双输入 images[N,3,640,640] + orig_target_sizes[N,2]，
- * 输出 labels/scores/boxes（已后处理）。</p>
+   * 输出 标签/scores/boxes（已后处理）。</p>
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects> {
 
-    private static final int INPUT_SIZE = 640;
-    private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
-    private static final float[] STD = {0.229f, 0.224f, 0.225f};
+    private static final int INPUT_SIZE = 640; // 输入大小
+    private static final float[] MEAN = {0.485f, 0.456f, 0.406f}; // MEAN
+    private static final float[] STD = {0.229f, 0.224f, 0.225f}; // STD
 
-    private float scoreThreshold = 0.5f;
-    private int imgWidth;
-    private int imgHeight;
+    private float scoreThreshold = 0.5f; // score阈值
+    private int imgWidth; // imgwidth
+    private int imgHeight; // imgheight
 
+    /**
+      * rtdetrlayouttranslator。
+     */
     public RTDetrLayoutTranslator() {}
+    /**
+      * rtdetrlayouttranslator。
+     * @param threshold 阈值
+     */
     public RTDetrLayoutTranslator(float threshold) { this.scoreThreshold = threshold; }
 
     /**
@@ -63,15 +72,16 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
 
         float[] chw = new float[3 * INPUT_SIZE * INPUT_SIZE];
         int idx = 0;
-        for (int c = 0; c < 3; c++)
-            for (int y = 0; y < INPUT_SIZE; y++)
+        for (int c = 0; c < 3; c++) {
+            for (int y = 0; y < INPUT_SIZE; y++) {
                 for (int x = 0; x < INPUT_SIZE; x++) {
-                    int rgb = resized.getRGB(x, y);
-                    // 仅 /255 缩放（preprocessor_config.json: do_normalize=false）
-                    chw[idx++] = ((rgb >> (16 - 8 * c)) & 0xff) / 255.0f;
+                int rgb = resized.getRGB(x, y);
+                // 仅 /255 缩放（preprocessor_config.json: do_normalize=false）
+                chw[idx++] = ((rgb >> (16 - 8 * c)) & 0xff) / 255.0f;
                 }
-
-        NDArray images = manager.create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
+                NDArray images = manager.create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
+            }
+        }
         images.setName("images");
         NDArray sizes = manager.create(new long[][]{{imgHeight, imgWidth}});
         sizes.setName("orig_target_sizes");
@@ -83,15 +93,28 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
         NDArray labelNd = null, scoreNd = null, boxNd = null;
         for (NDArray nd : list) {
             String n = nd.getName();
-            if ("labels".equals(n)) labelNd = nd;
-            else if ("scores".equals(n)) scoreNd = nd;
-            else if ("boxes".equals(n)) boxNd = nd;
+            if ("labels".equals(n)) {
+                labelNd = nd;
+            }
+            else if ("scores".equals(n)) {
+                scoreNd = nd;
+            }
+            else if ("boxes".equals(n)) {
+                boxNd = nd;
+            }
         }
-        if (labelNd == null) labelNd = list.get(0);
-        if (scoreNd == null && list.size() > 1) scoreNd = list.get(1);
-        if (boxNd == null && list.size() > 2) boxNd = list.get(2);
-        if (labelNd == null || scoreNd == null || boxNd == null)
+        if (labelNd == null) {
+            labelNd = list.get(0);
+        }
+        if (scoreNd == null && list.size() > 1) {
+            scoreNd = list.get(1);
+        }
+        if (boxNd == null && list.size() > 2) {
+            boxNd = list.get(2);
+        }
+        if (labelNd == null || scoreNd == null || boxNd == null) {
             return new DetectedObjects(List.of(), List.of(), List.of());
+        }
 
         long[] labels = labelNd.toLongArray();
         float[] scores = scoreNd.toFloatArray();
@@ -105,21 +128,27 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
         List<ai.djl.modality.cv.output.BoundingBox> boxList = new ArrayList<>();
 
         for (int i = 0; i < numBoxes; i++) {
-            if (scores[i] < scoreThreshold) continue;
+            if (scores[i] < scoreThreshold) {
+                continue;
+            }
             int clsId = (int) labels[i];
             String label = clsId < LABELS.length ? LABELS[clsId] : "region_" + clsId;
 
             int bi = i * boxDim;
             float x1 = boxArr[bi], y1 = boxArr[bi+1], x2 = boxArr[bi+2], y2 = boxArr[bi+3];
             float w = x2 - x1, h = y2 - y1;
-            if (w <= 0 || h <= 0) continue;
+            if (w <= 0 || h <= 0) {
+                continue;
+            }
 
             nameList.add(label);
             probList.add((double) scores[i]);
             boxList.add(new Rectangle(x1 / imgWidth, y1 / imgHeight, w / imgWidth, h / imgHeight));
         }
 
-        if (nameList.isEmpty()) return new DetectedObjects(List.of(), List.of(), List.of());
+        if (nameList.isEmpty()) {
+            return new DetectedObjects(List.of(), List.of(), List.of());
+        }
         return new DetectedObjects(nameList, probList, boxList);
     }
 

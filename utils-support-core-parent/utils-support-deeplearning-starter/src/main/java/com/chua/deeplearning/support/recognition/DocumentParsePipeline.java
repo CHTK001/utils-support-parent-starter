@@ -22,7 +22,7 @@ import java.util.Objects;
  *
  * <p>调度已注册的文档解析 / 多模态理解模型（如 donut、smol-docling-combined 等），
  * 输出结构化文本。各模型输出类型不同，本管线统一返回翻译器原始输出 {@link Object}，
- * 常用模型（donut）输出含 {@code jsonText} 的 DonutResult，可调用
+   * 常用模型（donut）输出含 {@code jsonText} 的 donut结果，可调用
  * {@link #recognizeText(byte[])} 提取字符串形式的结果。</p>
  *
  * <pre>{@code
@@ -31,6 +31,7 @@ import java.util.Objects;
  *         .build();
  * Object result = pipeline.recognizeSingle(imageBytes);
  * String text = pipeline.recognizeText(imageBytes);
+ * }</pre>tring text = pipeline.recognizeText(imageBytes);
  * }</pre>
  *
  * @author CH
@@ -198,14 +199,14 @@ public class DocumentParsePipeline {
         if (result instanceof String s) {
             return s;
         }
-        // donut 输出 DonutResult（含 jsonText），通过反射避免子模块依赖
+ // donut 输出 donut结果（含 json文本），通过反射避免子模块依赖
         try {
             Object text = ReflectUtils.invoke(result, "getJsonText", Object.class);
             if (text != null) {
                 return text.toString();
             }
         } catch (Exception ignored) {
-            // fall through
+ // 下降 through
         }
         return result.toString();
     }
@@ -224,7 +225,7 @@ public class DocumentParsePipeline {
     /**
      * 枚举可用文档解析模型。
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {

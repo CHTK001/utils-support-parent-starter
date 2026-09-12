@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public class SshTunnel implements Tunnel {
 
     /**
-     * ssh Client
+      * ssh 客户端
      */
     private final SshClient sshClient;
     /**
@@ -25,7 +25,7 @@ public class SshTunnel implements Tunnel {
      */
     private final SshClient.TunnelDefinition definition;
     /**
-     * bind Address
+      * bind 地址
      */
     private final String bindAddress;
 
@@ -34,7 +34,7 @@ public class SshTunnel implements Tunnel {
      */
     private AutoCloseable tracker;
     /**
-     * open
+      * 打开
      */
     private volatile boolean open;
     /**
@@ -42,16 +42,17 @@ public class SshTunnel implements Tunnel {
      */
     private Consumer<TunnelInfo> callback;
     /**
-     * actual Port
+      * actual 端口
      */
     private int actualPort = -1;
 
     /**
-     * 创建 SshTunnel 实例
-     * @param sshClient sshClient
-     * @param SshClient SshClient
+      * 创建 sshtunnel 实例
+     * @param sshClient ssh客户端
+     * @param sshClient ssh客户端
      * @param definition definition
-     * @param String String
+     * @param bindAddress 字符串
+     * @param bindAddress bind地址
      */
     public SshTunnel(SshClient sshClient, SshClient.TunnelDefinition definition, String bindAddress) {
         this.sshClient = sshClient;
@@ -132,7 +133,7 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
-    /** 获取Info */
+    /** 获取信息 */
     public TunnelInfo getInfo() {
         return TunnelInfo.of(
                 actualPort,
@@ -145,7 +146,7 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
-    /** OnInfo */
+    /** on信息 */
     public void onInfo(Consumer<TunnelInfo> callback) {
         this.callback = callback;
     }
@@ -156,7 +157,12 @@ public class SshTunnel implements Tunnel {
         return open;
     }
 
-    /** ToTunnelType */
+    /**
+     * 转为tunnel类型
+     *
+     * @param type 类型
+     * @return 转为tunnel类型的结果
+     */
     private static TunnelType toTunnelType(SshClient.TunnelDefinition.Type type) {
         if (type == null) {
             return null;

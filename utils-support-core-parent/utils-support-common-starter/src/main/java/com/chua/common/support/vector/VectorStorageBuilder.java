@@ -15,7 +15,7 @@ import com.chua.common.support.spi.ServiceProvider;
 public class VectorStorageBuilder {
 
     /**
-     * 存储类型，默认 MEMORY。
+      * 存储类型，默认 内存。
      */
     private String type = "MEMORY";
 
@@ -45,12 +45,12 @@ public class VectorStorageBuilder {
     private String token;
 
     /**
-     * Milvus collection 名称，仅 MILVUS 类型生效。
+      * Milvus 集合 名称，仅 MILVUS 类型生效。
      */
     private String collection = "vector_store";
 
     /**
-     * cuVS/jvector 向量存储配置属性，仅 VECTOR 类型生效。
+      * cuvs/jvector 向量存储配置属性，仅 向量 类型生效。
      */
     private Object vectorProperties;
 
@@ -66,7 +66,7 @@ public class VectorStorageBuilder {
     /**
      * 设置存储类型。
      *
-     * @param type 存储类型（MEMORY / MILVUS / JVECTOR / VECTOR）
+     * @param type 存储类型（内存 / MILVUS / JVECTOR / 向量）
      * @return this
      */
     public VectorStorageBuilder type(String type) {
@@ -146,9 +146,9 @@ public class VectorStorageBuilder {
     }
 
     /**
-     * 设置 MILVUS collection 名称。
+      * 设置 MILVUS 集合 名称。
      *
-     * @param collection collection 名称
+     * @param collection 集合 名称
      * @return this
      */
     public VectorStorageBuilder collection(String collection) {
@@ -157,7 +157,7 @@ public class VectorStorageBuilder {
     }
 
     /**
-     * 设置向量存储配置属性（cuVS/jvector），仅 VECTOR 类型生效。
+      * 设置向量存储配置属性（cuvs/jvector），仅 向量 类型生效。
      *
      * @param properties 配置对象（如 {@code VectorStorageProperties}）
      * @return this
@@ -184,7 +184,7 @@ public class VectorStorageBuilder {
     }
 
     /**
-     * 通过 ServiceProvider SPI 创建可选模块（jvector/milvus）的向量存储。
+      * 通过 服务提供者 SPI 创建可选模块（jvector/milvus）的向量存储。
      *
      * @param spiName    SPI 扩展名
      * @param dimension  向量维度

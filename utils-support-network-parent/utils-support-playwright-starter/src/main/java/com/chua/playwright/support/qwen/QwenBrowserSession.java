@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
  * 通义千问浏览器会话。
  *
  * <p>基于 Playwright 注入 Cookie，保持持久页面，在同一会话中连续对话，
- * 让 Qwen 云端自动维护上下文历史。
+   * 让 通义千问 云端自动维护上下文历史。
  *
  * @author CH
  * @since 2026/08/12
@@ -62,9 +62,10 @@ public class QwenBrowserSession implements AutoCloseable {
     private boolean pageReady;
 
     /**
-     * 创建 QwenBrowserSession 实例
-     * @param cookieString cookieString
-     * @param String String
+      * 创建 通义千问browser会话 实例
+     * @param cookieString Cookie字符串
+     * @param cookieString 字符串
+     * @param userDataDir 用户数据dir
      */
     public QwenBrowserSession(String cookieString, String userDataDir) {
         this.playwright = Playwright.create();
@@ -107,7 +108,7 @@ public class QwenBrowserSession implements AutoCloseable {
 
     /**
      * 发送聊天消息并等待回答。
-     * 在持久页面中连续输入，保持 Qwen 云端会话上下文。
+      * 在持久页面中连续输入，保持 通义千问 云端会话上下文。
      *
      * @param body     JSON 请求体字符串
      * @param model    模型名称
@@ -201,7 +202,11 @@ public class QwenBrowserSession implements AutoCloseable {
         }
     }
 
-    /** InjectCookies */
+    /**
+     * injectCookie
+     *
+     * @param cookieString Cookie字符串
+     */
     private void injectCookies(String cookieString) {
         Map<String, String> cookies = parseCookies(cookieString);
         List<com.microsoft.playwright.options.Cookie> cookieList = new ArrayList<>(cookies.size());
@@ -212,7 +217,12 @@ public class QwenBrowserSession implements AutoCloseable {
         context.addCookies(cookieList);
     }
 
-    /** 解析Cookies */
+    /**
+     * 解析Cookie
+     *
+     * @param cookieString Cookie字符串
+     * @return 解析Cookie的结果
+     */
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = new LinkedHashMap<>();
         if (cookieString == null || cookieString.isBlank()) {
@@ -229,7 +239,12 @@ public class QwenBrowserSession implements AutoCloseable {
         return map;
     }
 
-    /** ExtractPrompt */
+    /**
+     * extract提示符
+     *
+     * @param body 主体
+     * @return extract提示符的结果
+     */
     private static String extractPrompt(String body) {
         try {
             JsonObject obj = JsonObject.parse(body);

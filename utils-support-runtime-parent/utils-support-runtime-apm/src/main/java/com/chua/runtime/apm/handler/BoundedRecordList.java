@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 有界线程安全记录列表 — 替代裸 ArrayList + Collections.synchronizedList。
+   * 有界线程安全记录列表 — 替代裸 array列表 + 集合.同步列表。
  *
  * <p>提供:</p>
  * <ul>
@@ -25,13 +25,13 @@ public class BoundedRecordList<T> implements Iterable<T> {
      */
     private final ArrayList<T> delegate;
     /**
-     * max大小
+      * 最大大小
      */
     private final int maxSize;
 
     /**
-     * 创建 BoundedRecordList 实例
-     * @param maxSize maxSize
+      * 创建 boundedrecord列表 实例
+     * @param maxSize 最大大小
      */
     public BoundedRecordList(int maxSize) {
         this.maxSize = maxSize;
@@ -39,8 +39,9 @@ public class BoundedRecordList<T> implements Iterable<T> {
     }
 
     /**
-     * 原子添加 — 超限时淘汰最旧 1 条,然后 add。
-     * 整个流程在 synchronized 块内完成,避免 size() 与 remove(0)/add 的竞态。
+      * 原子添加 — 超限时淘汰最旧 1 条,然后 添加。
+      * 整个流程在 同步 块内完成,避免 大小() 与 移除(0)/添加 的竞态。
+     * @param record record
      */
     public synchronized void add(T record) {
         if (record == null) {
@@ -61,6 +62,7 @@ public class BoundedRecordList<T> implements Iterable<T> {
 
     /**
      * 当前大小。
+     * @return 大小的结果
      */
     public synchronized int size() {
         return delegate.size();
@@ -68,6 +70,8 @@ public class BoundedRecordList<T> implements Iterable<T> {
 
     /**
      * 获取最后 n 条(用于 tail)。返回不可变快照,迭代期间并发修改不影响。
+     * @param n n
+     * @return tail的结果
      */
     public synchronized List<T> tail(int n) {
         if (n <= 0 || delegate.isEmpty()) {
@@ -79,6 +83,7 @@ public class BoundedRecordList<T> implements Iterable<T> {
 
     /**
      * 获取全部记录的不可变快照。
+     * @return snapshot的结果
      */
     public synchronized List<T> snapshot() {
         return Collections.unmodifiableList(new ArrayList<>(delegate));

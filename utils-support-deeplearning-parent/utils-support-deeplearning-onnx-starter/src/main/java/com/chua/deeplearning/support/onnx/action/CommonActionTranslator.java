@@ -23,7 +23,7 @@ import java.util.Arrays;
  * <p>
  *                   
  * 1.                 224x224
- * 2.             ImageNet          
+   * 2.             镜像net
  * 3.           CHW       
  * </p>
  *
@@ -147,7 +147,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -160,7 +160,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         var output = list.singletonOrThrow();
         output = output.softmax(0);

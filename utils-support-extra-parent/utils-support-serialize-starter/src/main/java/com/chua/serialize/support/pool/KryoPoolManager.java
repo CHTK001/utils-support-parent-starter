@@ -14,16 +14,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Kryo 序列化器对象池管理器。
  * <p>
- * 维护一个 KryoSerializer 对象池，通过 acquire/release 模式复用序列化器实例，
+   * 维护一个 kryo序列化器 对象池，通过 acquire/release 模式复用序列化器实例，
  * 避免频繁创建和销毁 Kryo 实例带来的性能开销。适合高并发序列化场景。
  * </p>
  *
  * @param <T> 可序列化的目标类型
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class KryoPoolManager<T extends Serializable> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 全局管理器缓存，按实体类类型缓存管理器实例
@@ -51,7 +52,7 @@ public class KryoPoolManager<T extends Serializable> {
     private final AtomicInteger totalCreated = new AtomicInteger(0);
 
     /**
-     * 私有构造函数，通过 getInstance() 静态方法获取实例。
+      * 私有构造函数，通过 获取instance() 静态方法获取实例。
      *
      * @param clazz  目标实体类类型
      * @param maxSize 对象池最大容量
@@ -87,7 +88,7 @@ public class KryoPoolManager<T extends Serializable> {
     }
 
     /**
-     * 从池中获取一个可用的 KryoSerializer。
+      * 从池中获取一个可用的 kryo序列化器。
      * <p>
      * 如果池中有空闲实例则直接复用，否则创建新实例。
      * </p>

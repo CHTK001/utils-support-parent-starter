@@ -38,7 +38,7 @@ public class AsposeExcelFileConvertSystem implements FileConvertSystem {
     private static final List<String> TARGETS = List.of("pdf", "xls", "xlsx", "xlsm", "xlsb", "csv", "html", "htm", "json", "markdown", "md", "xml", "tsv");
 
     /**
-     * 格式与 Aspose.Cells SaveFormat 常量映射表
+      * 格式与 Aspose.Cells 保存格式化 常量映射表
      */
     private static final Map<String, Integer> FORMAT_MAP = Map.ofEntries(
         Map.entry("pdf", SaveFormat.PDF), Map.entry("xls", SaveFormat.EXCEL_97_TO_2003),
@@ -51,7 +51,7 @@ public class AsposeExcelFileConvertSystem implements FileConvertSystem {
     );
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String source, String target) {
         if (!SOURCES.contains(source)) {
             return false;

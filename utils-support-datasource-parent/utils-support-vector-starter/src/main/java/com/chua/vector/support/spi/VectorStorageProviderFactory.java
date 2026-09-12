@@ -99,7 +99,10 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 尝试选择 cuVS，不可用时降级到 jvector 并记录日志。
+      * 尝试选择 cuvs，不可用时降级到 jvector 并记录日志。
+     * @param props props
+     * @param backendName backend名称
+     * @return 尝试或降级的结果
      */
     private VectorStorageProperties.Backend tryOrFallback(VectorStorageProperties props, String backendName) {
         try {
@@ -119,7 +122,9 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 尝试获取 GPU，不可用时抛出异常（requireGpu=true 场景）。
+      * 尝试获取 GPU，不可用时抛出异常（requiregpu=true 场景）。
+     * @param props props
+     * @return 选择gpu或抛出的结果
      */
     private VectorStorageProperties.Backend selectGpuOrThrow(VectorStorageProperties props) {
         VectorStorageProperties.Backend backend = selectBestBackend(props);
@@ -135,9 +140,10 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 通过 RuntimeDetector SPI 选择最优后端。
+      * 通过 runtimedetector SPI 选择最优后端。
      *
      * @return 选中的后端类型
+     * @param props props
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBestBackend(VectorStorageProperties props) {
@@ -163,6 +169,14 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
 
     /**
      * 根据名称选择对应后端（内部方法，不抛异常）。
+     * @param properties 属性
+     * @return 转为属性的结果
+     /**
+      * 选择backend。
+      * @param name 名称
+      * @return 选择backend的结果
+      */
+      * @param properties 属性
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBackend(String name) {

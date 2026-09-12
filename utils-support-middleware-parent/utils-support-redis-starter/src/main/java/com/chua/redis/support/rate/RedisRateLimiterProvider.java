@@ -30,10 +30,12 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     private final RRateLimiter rateLimiter;
 
     /**
-     * 创建 RedisRateLimiterProvider 实例
-     * @param name name
-     * @param String String
-     * @param double double
+      * 创建 redisrate限制提供者 实例
+     * @param name 名称
+     * @param name 字符串
+     * @param permitsPerSecond double
+     * @param redisUri redisuri
+     * @param permitsPerSecond 许可证persecond
      */
     public RedisRateLimiterProvider(String name, String redisUri, double permitsPerSecond) {
         this.name = name;
@@ -45,10 +47,12 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     }
 
     /**
-     * 创建 RedisRateLimiterProvider 实例
-     * @param name name
-     * @param RedissonClient RedissonClient
-     * @param double double
+      * 创建 redisrate限制提供者 实例
+     * @param name 名称
+     * @param redissonClient redisson客户端
+     * @param permitsPerSecond double
+     * @param redissonClient redisson客户端
+     * @param permitsPerSecond 许可证persecond
      */
     public RedisRateLimiterProvider(String name, RedissonClient redissonClient, double permitsPerSecond) {
         this.name = name;
@@ -58,19 +62,19 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
-    /** Try获取 */
+    /** 尝试获取 */
     public boolean tryAcquire() {
         return rateLimiter.tryAcquire();
     }
 
     @Override
-    /** Try获取 */
+    /** 尝试获取 */
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         return rateLimiter.tryAcquire(timeout, timeUnit);
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return name;
     }

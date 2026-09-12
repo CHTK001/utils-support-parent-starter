@@ -19,7 +19,7 @@ import java.util.function.Function;
 public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Autowired.class);
     }
@@ -27,11 +27,11 @@ public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServic
     @Override
     /**
      * Inject
-     * @param field field
-     * @param bean bean
-     * @param beanDefinition beanDefinition
-     * @param beanProvider beanProvider
-     * @param typeProvider typeProvider
+     * @param field 字段
+     * @param bean Bean
+     * @param beanDefinition Beandefinition
+     * @param beanProvider Bean提供者
+     * @param typeProvider 类型提供者
      */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,

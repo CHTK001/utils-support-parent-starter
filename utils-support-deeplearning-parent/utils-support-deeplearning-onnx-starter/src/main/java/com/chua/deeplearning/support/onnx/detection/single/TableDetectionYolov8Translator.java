@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.detection.single;
 
 /**
- * 通用表格检测 Translator（YOLOv8n @ 640, 1 类 table）。
+   * 通用表格检测 Translator（yolov8n @ 640, 1 类 table）。
  *
  * <p>基于 YOLOv8n 微调的通用表格检测模型。输出表格区域 bbox（归一化坐标）。
  *
@@ -26,7 +26,7 @@ package com.chua.deeplearning.support.onnx.detection.single;
 public class TableDetectionYolov8Translator extends AbstractSingleClassYolov8Translator {
 
     /**
-     * 类别资源路径（classpath）。
+      * 类别资源路径（类路径）。
      */
     public static final String CLASS_NAMES_RESOURCE = "vision/table/yolov8n/class.names.txt";
 
@@ -42,20 +42,20 @@ public class TableDetectionYolov8Translator extends AbstractSingleClassYolov8Tra
      *
      * @param inputSize    输入尺寸
      * @param threshold    置信度阈值
-     * @param nmsThreshold NMS IoU 阈值
+     * @param nmsThreshold NMS iou 阈值
      */
     public TableDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }
 
     @Override
-    /** ClassNamesResourcePath */
+    /** 类名称resource路径 */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
-    /** DefaultClassName */
+    /** 默认类名称 */
     protected String defaultClassName() {
         return "table";
     }

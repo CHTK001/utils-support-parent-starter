@@ -18,7 +18,7 @@ import java.util.Map;
  * 阿里云语音电话实现（基于 dysmsapi Tea SDK）
  *
  * <p>通过阿里云 dysmsapi20170525 SDK 的 Tea-OpenAPI 框架调用语音服务。
- * 使用 SingleCallByTts 接口实现文本转语音外呼。
+   * 使用 单个callbytts 接口实现文本转语音外呼。
  *
  * <h3>环境配置</h3>
  * <pre>
@@ -37,21 +37,21 @@ public class AlibabaVoiceCall implements VoiceCall {
     /** 消息环境 */
     private final MessageEnvironment environment;
 
-    /** 创建 AlibabaVoiceCall 实例 */
+    /** 创建 alibabavoicecall 实例 */
     public AlibabaVoiceCall() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 AlibabaVoiceCall 实例
-     * @param environment environment
+      * 创建 alibabavoicecall 实例
+     * @param environment 环境
      */
     public AlibabaVoiceCall(MessageEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    /** 获取Provider */
+    /** 获取提供者 */
     public String getProvider() {
         return "alibaba-voice";
     }
@@ -134,7 +134,7 @@ public class AlibabaVoiceCall implements VoiceCall {
     }
 
     @Override
-    /** 获取调用Status */
+    /** 获取调用状态 */
     public CallResponse getCallStatus(String callId) throws Exception {
         long start = System.currentTimeMillis();
 

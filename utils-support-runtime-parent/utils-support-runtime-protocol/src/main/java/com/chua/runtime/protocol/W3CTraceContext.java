@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
- * W3C Trace Context 标准实现。
+   * W3C 追踪 上下文 标准实现。
  *
  * <p>遵循 W3C Recommendation: <a href="https://www.w3.org/TR/trace-context/">Trace Context</a>。</p>
  *
@@ -33,12 +33,12 @@ import java.util.regex.Pattern;
 public final class W3CTraceContext {
 
     /**
-     * traceparent header 名（小写）
+      * traceparent 头部 名（小写）
      */
     public static final String HEADER_TRACEPARENT = "traceparent";
 
     /**
-     * tracestate header 名（小写）
+      * tracestate 头部 名（小写）
      */
     public static final String HEADER_TRACESTATE = "tracestate";
 
@@ -48,7 +48,7 @@ public final class W3CTraceContext {
     public static final String VERSION = "00";
 
     /**
-     * traceparent 格式正则：version-traceid-parentid-flags（hex）
+      * traceparent 格式正则：版本-traceid-parentid-flags（hex）
      */
     private static final Pattern TRACEPARENT_PATTERN =
             Pattern.compile("^([0-9a-f]{2})-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$");
@@ -58,12 +58,12 @@ public final class W3CTraceContext {
      */
     private static final String INVALID_TRACE_ID_1 = "00000000000000000000000000000000";
     /**
-     * invalid trace 标识 2
+      * invalid 追踪 标识 2
      */
     private static final String INVALID_TRACE_ID_2 = "ffffffffffffffffffffffffffffffff";
 
     /**
-     * 全 0 parentId 屏蔽
+      * 全 0 父id 屏蔽
      */
     private static final String INVALID_PARENT_ID = "0000000000000000";
 
@@ -72,11 +72,11 @@ public final class W3CTraceContext {
      */
     private final String version;
     /**
-     * trace Id
+      * 追踪 标识
      */
     private final String traceId;
     /**
-     * span Id
+      * span 标识
      */
     private final String spanId;
     /**
@@ -85,11 +85,14 @@ public final class W3CTraceContext {
     private final byte flags;
 
     /**
-     * 创建 W3CTraceContext 实例
-     * @param version version
-     * @param String String
-     * @param String String
-     * @param byte byte
+      * 创建 W3c追踪上下文 实例
+     * @param version 版本
+     * @param version 字符串
+     * @param version 字符串
+     * @param flags byte
+     * @param traceId 追踪标识
+     * @param spanId spanid
+     * @param flags flags
      */
     private W3CTraceContext(String version, String traceId, String spanId, byte flags) {
         this.version = version;
@@ -99,10 +102,10 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 构造当前 Span 的 traceparent header 值（用于 HTTP 出站请求注入）。
+      * 构造当前 Span 的 traceparent 头部 值（用于 HTTP 出站请求注入）。
      *
      * <p>当前线程追踪上下文通过反射从 {@code com.chua.runtime.spy.RuntimeSpy} 读取，
-     * 避免 protocol 模块反向依赖 spy。</p>
+      * 避免 协议 模块反向依赖 spy。</p>
      *
      * @return traceparent 字符串；若无追踪上下文则基于随机生成
      */
@@ -113,9 +116,9 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 通过反射从 {@code com.chua.runtime.spy.RuntimeSpy} 读取当前线程 traceId。
+      * 通过反射从 {@code com.chua.runtime.spy.RuntimeSpy} 读取当前线程 追踪id。
      *
-     * @return 当前 traceId，未配置或读取失败返回 null
+     * @return 当前 追踪标识，未配置或读取失败返回 空
      */
     private static String readCurrentTraceId() {
         try {
@@ -126,7 +129,8 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 通过反射从 {@code com.chua.runtime.spy.RuntimeSpy} 读取当前线程 spanId。
+      * 通过反射从 {@code com.chua.runtime.spy.RuntimeSpy} 读取当前线程 spanid。
+     * @return 读取当前spanid的结果
      */
     private static String readCurrentSpanId() {
         try {
@@ -138,6 +142,9 @@ public final class W3CTraceContext {
 
     /**
      * 通过反射调用 {@code com.chua.runtime.spy.RuntimeSpy.restore(...)} 应用追踪上下文。
+     * @param traceId 追踪标识
+     * @param spanId spanid
+     * @return restore当前的结果
      */
     private static boolean restoreCurrent(String traceId, String spanId) {
         try {
@@ -156,8 +163,8 @@ public final class W3CTraceContext {
     /**
      * 显式参数构造 traceparent 字符串。
      *
-     * @param traceId 32 位 hex traceId（可为 null，自动生成）
-     * @param spanId  16 位 hex spanId（可为 null，自动生成）
+     * @param traceId 32 位 hex 追踪标识（可为 空，自动生成）
+     * @param spanId  16 位 hex spanid（可为 空，自动生成）
      * @param flags   8 位 flags（高 6 位预留，低 1 位 sampled）
      * @return traceparent 字符串
      */
@@ -168,12 +175,12 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 从 traceparent header 中解析 W3C Trace Context。
+      * 从 traceparent 头部 中解析 W3C 追踪 上下文。
      *
      * <p>解析失败或字段非法（全 0、全 f 等）时返回 null。</p>
      *
-     * @param header traceparent header 值
-     * @return 解析后的 W3CTraceContext，非法返回 null
+     * @param header traceparent 头部 值
+     * @return 解析后的 W3c追踪上下文，非法返回 空
      */
     public static W3CTraceContext extract(String header) {
         if (header == null) {
@@ -183,7 +190,7 @@ public final class W3CTraceContext {
         if (trimmed.isEmpty()) {
             return null;
         }
-        // W3C 允许前导空格（多 header 拼接），首个非空字符之前允许空格
+ // W3C 允许前导空格（多 头部 拼接），首个非空字符之前允许空格
         int start = 0;
         while (start < trimmed.length() && trimmed.charAt(start) == ' ') {
             start++;
@@ -214,12 +221,12 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 提取后应用到当前线程追踪栈 — 让后续 ENTRY 作为上游 spanId 的子节点。
+      * 提取后应用到当前线程追踪栈 — 让后续 ENTRY 作为上游 spanid 的子节点。
      *
      * <p>使用反射调用 {@code com.chua.runtime.spy.RuntimeSpy.restore(...)}，
-     * 避免 protocol 模块反向依赖 spy。</p>
+      * 避免 协议 模块反向依赖 spy。</p>
      *
-     * @param header traceparent header 值
+     * @param header traceparent 头部 值
      * @return 是否成功应用
      */
     public static boolean extractAndRestore(String header) {
@@ -231,7 +238,7 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 生成 32 位 hex traceId。
+      * 生成 32 位 hex 追踪id。
      *
      * @return 32 位 hex 字符串
      */
@@ -242,7 +249,7 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 生成 16 位 hex spanId。
+      * 生成 16 位 hex spanid。
      *
      * @return 16 位 hex 字符串
      */
@@ -252,7 +259,9 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 校验 traceId 合法性（非全 0、非全 f）。
+      * 校验 追踪id 合法性（非全 0、非全 f）。
+     * @param traceId 追踪标识
+     * @return 是否valid追踪id的结果
      */
     private static boolean isValidTraceId(String traceId) {
         if (traceId == null || traceId.length() != 32) {
@@ -262,7 +271,9 @@ public final class W3CTraceContext {
     }
 
     /**
-     * 校验 spanId 合法性（非全 0）。
+      * 校验 spanid 合法性（非全 0）。
+     * @param spanId spanid
+     * @return 是否validspanid的结果
      */
     private static boolean isValidSpanId(String spanId) {
         if (spanId == null || spanId.length() != 16) {
@@ -271,35 +282,52 @@ public final class W3CTraceContext {
         return !INVALID_PARENT_ID.equals(spanId);
     }
 
-    /** 获取Version */
+    /**
+     * 获取版本
+     *
+     * @return 获取版本的结果
+     */
     public String getVersion() {
         return version;
     }
 
-    /** 获取TraceId */
+    /**
+     * 获取追踪id
+     *
+     * @return 获取追踪id的结果
+     */
     public String getTraceId() {
         return traceId;
     }
 
-    /** 获取SpanId */
+    /**
+     * 获取spanid
+     *
+     * @return 获取spanid的结果
+     */
     public String getSpanId() {
         return spanId;
     }
 
-    /** 获取Flags */
+    /**
+     * 获取Flags
+     *
+     * @return 获取flags的结果
+     */
     public byte getFlags() {
         return flags;
     }
 
     /**
-     * 是否被采样（flags bit 0 = 1）
+      * 是否被采样（flags 钻头 0 = 1）
+     * @return 是否样本的结果
      */
     public boolean isSampled() {
         return (flags & 0x01) != 0;
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         return String.format("W3C[ver=%s, traceId=%s, spanId=%s, flags=%02x]",
                 version, traceId, spanId, flags & 0xff);

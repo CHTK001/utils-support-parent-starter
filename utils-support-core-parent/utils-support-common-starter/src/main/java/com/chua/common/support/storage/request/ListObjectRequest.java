@@ -21,7 +21,7 @@ public class ListObjectRequest {
     private String filePath;
 
     /**
-     * 分页标记（requestId），用于翻页。
+      * 分页标记（请求id），用于翻页。
      */
     private String marker;
 

@@ -23,12 +23,12 @@ import java.util.logging.Logger;
  */
 public class LoggingListener implements PipelineListener {
 
-    /** Logger */
+    /** 日志记录器 */
     private static final Logger LOGGER = Logger.getLogger(LoggingListener.class.getName());
 
     /** 节点级别 */
     private final Level nodeLevel;
-    /** Complete级别 */
+    /** 完成级别 */
     private final Level completeLevel;
     /** 错误级别 */
     private final Level errorLevel;
@@ -72,12 +72,12 @@ public class LoggingListener implements PipelineListener {
         }
     }
 
-    /** 节点异常时按错误级别输出日志；默认返回 null 终止流水线（可覆写定制恢复路径）。 */
+    /** 节点异常时按错误级别输出日志；默认返回 空 终止流水线（可覆写定制恢复路径）。 */
     @Override
     public String onError(PipelineContext<?> context, Throwable e) {
         LOGGER.log(errorLevel, "[Pipeline:" + context.getPipelineId()
                 + "] !! Error at node: " + context.getCurrentNodeId(), e);
-        // 默认返回 null（终止流水线），不干预错误恢复路由
+ // 默认返回 空（终止流水线），不干预错误恢复路由
         return null;
     }
 

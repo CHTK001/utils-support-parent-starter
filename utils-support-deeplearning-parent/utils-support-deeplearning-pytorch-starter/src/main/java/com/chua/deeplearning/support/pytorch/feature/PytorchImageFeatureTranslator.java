@@ -11,10 +11,10 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * PyTorch 图像特征提取 Translator。
+   * pytorch 图像特征提取 Translator。
  * <p>
- * 224x224 + ImageNet 归一化，输出 L2 归一化特征向量。
- * 适用于 ResNet/CLIP/MobileNet 等 embedding 模型。
+   * 224x224 + 镜像net 归一化，输出 L2 归一化特征向量。
+   * 适用于 Rnet/CLIP/mobilenet 等 嵌入 模型。
  * </p>
  *
  * @author CH
@@ -28,17 +28,17 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
     private static final int IMAGE_SIZE = 224;
 
     /**
-     * ImageNet 均值。
+      * 镜像net 均值。
      */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
-     * ImageNet 标准差。
+      * 镜像net 标准差。
      */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -50,7 +50,7 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         while (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {

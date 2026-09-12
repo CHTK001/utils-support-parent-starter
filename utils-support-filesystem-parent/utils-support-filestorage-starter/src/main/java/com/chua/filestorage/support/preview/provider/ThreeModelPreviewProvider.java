@@ -58,14 +58,20 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
-    /** 构建Script */
+    /**
+     * 构建script
+     *
+     * @param b64 b64
+     * @param ext ext
+     * @return 构建script的结果
+     */
     private String buildScript(String b64, String ext) {
         return "(async function(){var b='" + b64 + "';var e='" + ext.toLowerCase() + "';" +
-                // base64 → ArrayBuffer
+ // 基础64 → array缓冲
                 "var p=function(b){for(var a=atob(b),i=a.length,ab=new ArrayBuffer(i),v=new Uint8Array(ab);i--;)v[i]=a.charCodeAt(i);return ab};" +
-                // base64 → string
+ // 基础64 → 字符串
                 "var ts=function(b){return new TextDecoder().decode(p(b))};" +
-                // import Three.js
+ // 导入 Three.js
                 "var m=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js');" +
                 "var GL=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/GLTFLoader.js');" +
                 "var OL=await import('https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/loaders/OBJLoader.js');" +
@@ -82,12 +88,12 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "var dl2=new m.DirectionalLight(0x4488ff,0.4);dl2.position.set(-10,-5,-10);s.add(dl2);" +
                 // controls
                 "var co=new OC.OrbitControls(ca,r.domElement);co.enableDamping=true;co.dampingFactor=0.1;" +
-                // helpers
+ // 助手
                 "s.add(new m.GridHelper(10,10,0x444466,0x333355));" +
-                // error handler
+ // 错误 处理器
                 "var sh=function(msg){var el=document.getElementById('error');el.textContent=msg;el.style.display='block';" +
                 "document.getElementById('loading').style.display='none'};" +
-                // load model
+ // 加载 模型
                 "try{var obj;" +
                 // GLB
                 "if(e==='glb'){obj=await new Promise(function(ok,fail){" +
@@ -119,9 +125,9 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "var bx=new m.Box3().setFromObject(obj);var ct=bx.getCenter(new m.Vector3());" +
                 "var sz=bx.getSize(new m.Vector3());var md=Math.max(sz.x,sz.y,sz.z,0.01);" +
                 "obj.position.sub(ct);ca.position.set(0,md*0.8,md*2);co.target.set(0,0,0);" +
-                // add to scene
+ // 添加 转为 scene
                 "}s.add(obj);document.getElementById('loading').style.display='none';" +
-                // info bar
+ // 信息 bar
                 "var info=document.createElement('div');info.id='info';" +
                 "info.textContent=e.toUpperCase()+' | Three.js | 鼠标拖拽旋转 / 滚轮缩放';" +
                 "document.body.appendChild(info);" +
@@ -169,11 +175,11 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
                 "for(var aa=0;aa<=64;aa++){var aang=ast+(aend-ast)*aa/64;" +
                 "pts.push(acx+Math.cos(aang)*acr,acy+Math.sin(aang)*acr,acz)" +
                 "if(aa>0)pts.push(acx+Math.cos(ast+(aend-ast)*(aa-1)/64)*acr,acy+Math.sin(ast+(aend-ast)*(aa-1)/64)*acr,acz)}}}" +
-                // create line segments
+ // 创建 线 segments
                 "var geom=new TH.BufferGeometry();geom.setAttribute('position',new TH.Float32BufferAttribute(pts,3));" +
                 "var mat=new TH.LineBasicMaterial({color:0x4488ff,linewidth:1});" +
                 "var group=new TH.Group();group.add(new TH.LineSegments(geom,mat));" +
-                // add point markers for small models
+ // 添加 point 记号笔 for small 模型
                 "return group}";
     }
 }

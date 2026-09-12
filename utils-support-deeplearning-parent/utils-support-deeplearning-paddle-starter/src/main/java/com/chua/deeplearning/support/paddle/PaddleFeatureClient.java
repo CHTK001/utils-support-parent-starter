@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 基于 PaddlePaddle 的本地特征提取客户端。
  * <p>
- * 调度 paddle 引擎下已注册的特征模型（如人脸特征、人脸关键点等 Image→float[] 模型），
+   * 调度 飞桨 引擎下已注册的特征模型（如人脸特征、人脸关键点等 镜像→float[] 模型），
  * 统一以 {@link FeatureClient} 对外提供特征提取能力。
  * </p>
  *
@@ -23,7 +23,7 @@ import java.util.List;
 public class PaddleFeatureClient extends AbstractLocalFeatureClient {
 
     /**
-     * 构造 Paddle 特征提取客户端。
+      * 构造 飞桨 特征提取客户端。
      *
      * @param setting 客户端配置
      */
@@ -32,7 +32,7 @@ public class PaddleFeatureClient extends AbstractLocalFeatureClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, null, float[].class);
     }

@@ -23,7 +23,7 @@ public class MysqlDropIndexStep implements IndexManager.DropIndexStep {
     }
 
     @Override
-    /** OnTable */
+    /** ontable */
     public IndexManager.DropIndexStep onTable(String table) {
         this.table = table;
         return this;

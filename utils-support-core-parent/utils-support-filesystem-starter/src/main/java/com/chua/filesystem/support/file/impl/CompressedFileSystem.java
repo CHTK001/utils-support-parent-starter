@@ -23,6 +23,8 @@ import java.util.zip.ZipOutputStream;
  *      .addBytes("config.yml", configBytes)
  *      .addString("readme.txt", "Hello World")
  *      .close();
+ * }</pre>ing("readme.txt", "Hello World")
+ *      .close();
  * }</pre>
  *
  * <h3>指定提取</h3>
@@ -35,6 +37,8 @@ import java.util.zip.ZipOutputStream;
  *   // 列出所有文件
  *   List<String> files = zip.list();
  *   zip.close();
+ * }</pre>ist();
+ *   zip.close();
  * }</pre>
  *
  * @author CH
@@ -42,15 +46,16 @@ import java.util.zip.ZipOutputStream;
  */
 public class CompressedFileSystem implements AutoCloseable {
 
-    /** ZIP路径 */
+    /** 压缩路径 */
     private final Path zipPath;
     /** Readonly */
     private final boolean readOnly;
 
     /**
-     * 创建 CompressedFileSystem 实例
-     * @param zipPath zipPath
-     * @param boolean boolean
+      * 创建 compressed文件系统 实例
+     * @param zipPath 压缩路径
+     * @param readOnly 布尔值
+     * @param readOnly 读取only
      */
     private CompressedFileSystem(Path zipPath, boolean readOnly) {
         this.zipPath = zipPath;
@@ -58,9 +63,9 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-     * 创建新的 ZIP 文件（写模式）
+      * 创建新的 压缩 文件（写模式）
      *
-     * @param zipPath ZIP 文件路径
+     * @param zipPath 压缩 文件路径
      * @return CompressedFileSystem 实例
      */
     public static CompressedFileSystem create(Path zipPath) {
@@ -68,9 +73,9 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-     * 打开已有的 ZIP 文件（读模式）
+      * 打开已有的 压缩 文件（读模式）
      *
-     * @param zipPath ZIP 文件路径
+     * @param zipPath 压缩 文件路径
      * @return CompressedFileSystem 实例
      */
     public static CompressedFileSystem open(Path zipPath) {
@@ -208,6 +213,7 @@ public class CompressedFileSystem implements AutoCloseable {
 
     /**
      * 获取压缩包文件路径
+     * @return 获取路径的结果
      */
     public Path getPath() {
         return zipPath;
@@ -223,6 +229,6 @@ public class CompressedFileSystem implements AutoCloseable {
     @Override
     /** 关闭 */
     public void close() {
-        // ZIP 操作完成后无需特殊关闭
+ // 压缩 操作完成后无需特殊关闭
     }
 }

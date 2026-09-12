@@ -12,15 +12,15 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ViTPose Base Simple ONNX                 
+   * vitpose 基础 简单 ONNX
  * <p>
- *      : onnx-community/vitpose-base-simple
+   * : onnx-社区/vitpose-基础-简单
  * </p>
  * <p>
  *      : 17                COCO                   
  * </p>
  * <p>
- *      : float[17][3]  (x, y, confidence)
+   * : float[17][3]  (x, y, 信心)
  * </p>
  *
  * @author CH
@@ -30,10 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 public class VitPoseTranslator implements Translator<Image, float[][]> {
 
     /** 输入高度 */
-    /** Input_h */
+    /** 输入_h */
     private static final int INPUT_H = 256;
     /** 输入宽度 */
-    /** Input_w */
+    /** 输入_w */
     private static final int INPUT_W = 192;
     /** 关键点数量 */
     /** Num_keypoints */
@@ -49,14 +49,14 @@ public class VitPoseTranslator implements Translator<Image, float[][]> {
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /** 原始宽度 */
-    /** Original宽度 */
+    /** 原始宽度 */
     private int originalWidth;
     /** 原始高度 */
-    /** Original高度 */
+    /** 原始高度 */
     private int originalHeight;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -81,7 +81,7 @@ public class VitPoseTranslator implements Translator<Image, float[][]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray heatmaps = list.singletonOrThrow();
 

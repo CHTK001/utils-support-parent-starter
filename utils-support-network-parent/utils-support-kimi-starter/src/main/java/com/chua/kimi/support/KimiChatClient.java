@@ -69,17 +69,17 @@ public class KimiChatClient implements ChatClient {
     private final KimiSession session;
 
     /**
-     * 远程 chat id（多轮上下文）。
+      * 远程 对话 标识（多轮上下文）。
      */
     private String remoteChatId;
 
     /**
-     * 最后一条 assistant 消息 id（多轮上下文）。
+      * 最后一条 assistant 消息 标识（多轮上下文）。
      */
     private String lastAssistantMessageId;
 
     /**
-     * 临时会话 id。
+      * 临时会话 标识。
      */
     private String requestConversationId;
 
@@ -99,7 +99,7 @@ public class KimiChatClient implements ChatClient {
     private Double temperature;
 
     /**
-     * 当前最大 token 数。
+      * 当前最大 令牌 数。
      */
     private Integer maxTokens;
 
@@ -109,7 +109,7 @@ public class KimiChatClient implements ChatClient {
     private String system;
 
     /**
-     * 会话字符串 id。
+      * 会话字符串 标识。
      */
     private String conversationId;
 
@@ -119,12 +119,12 @@ public class KimiChatClient implements ChatClient {
     private Map<String, Object> extraBody;
 
     /**
-     * topP 参数。
+      * topp 参数。
      */
     private Double topP;
 
     /**
-     * stop 参数。
+      * 停止 参数。
      */
     private List<String> stop;
 
@@ -134,7 +134,7 @@ public class KimiChatClient implements ChatClient {
     private Long seed;
 
     /**
-     * responseFormat 参数。
+      * 响应格式化 参数。
      */
     private String responseFormat;
 
@@ -154,7 +154,7 @@ public class KimiChatClient implements ChatClient {
     private final List<ChatTool> tools = new ArrayList<>();
 
     /**
-     * toolChoice 参数。
+      * toolchoice 参数。
      */
     private String toolChoice;
 
@@ -186,7 +186,7 @@ public class KimiChatClient implements ChatClient {
     /**
      * 构造 Kimi 逆向代理对话客户端。
      *
-     * @param setting 客户端配置，其中 appKey 为 token 串
+     * @param setting 客户端配置，其中 app键 为 令牌 串
      */
     public KimiChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -199,7 +199,7 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -213,21 +213,21 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值Tokens */
+    /** 最大值令牌 */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** ExtraBody */
+    /** extra主体 */
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody;
         return this;
@@ -255,7 +255,7 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** TopP */
+    /** topp */
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
@@ -276,14 +276,14 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** Response格式化 */
+    /** 响应格式化 */
     public ChatClient responseFormat(String responseFormat) {
         this.responseFormat = responseFormat;
         return this;
     }
 
     @Override
-    /** 添加Image */
+    /** 添加镜像 */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
@@ -297,7 +297,7 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加AttachmentUrl */
+    /** 添加attachmenturl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
@@ -323,42 +323,42 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** ToolChoice */
+    /** toolchoice */
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
     @Override
-    /** 添加UserHistory */
+    /** 添加用户历史 */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加AssistantHistory */
+    /** 添加assistant历史 */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** Session */
+    /** 会话 */
     public ChatClient session(String sessionId) {
         this.conversationId = sessionId;
         return this;
     }
 
     @Override
-    /** NewChat */
+    /** 新对话 */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -370,7 +370,7 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -383,7 +383,7 @@ public class KimiChatClient implements ChatClient {
     }
 
     @Override
-    /** Chat */
+    /** 对话 */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         this.chat(prompt, consumer, () -> {
         }, e -> {
@@ -394,10 +394,10 @@ public class KimiChatClient implements ChatClient {
     @Override
     /**
      * 对话
-     * @param prompt prompt
+     * @param prompt 提示符
      * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+     * @param onComplete on完成
+     * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -467,7 +467,7 @@ public class KimiChatClient implements ChatClient {
             String fullText = result.text();
             String thinkText = result.thinkingContent();
 
-            // 先发送 STREAMING 让 chatSync 能收集到内容
+ // 先发送 Streaming 让 对话同步 能收集到内容
             if (fullText != null && !fullText.isEmpty()) {
                 consumer.accept(ChatResponse.builder()
                         .state(ChatResponse.State.STREAMING)
@@ -501,14 +501,14 @@ public class KimiChatClient implements ChatClient {
 
     @Override
     /**
-     * GenerateImage
-     * @param prompt prompt
+      * generate镜像
+     * @param prompt 提示符
      * @param ratio ratio
      * @param n n
      * @param width width
      * @param height height
      * @param quality quality
-     * @param refImageKey refImageKey
+     * @param refImageKey ref镜像键
      */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
@@ -526,12 +526,12 @@ public class KimiChatClient implements ChatClient {
 
     @Override
     /**
-     * GenerateVideo
-     * @param prompt prompt
+      * generate视频
+     * @param prompt 提示符
      * @param ratio ratio
-     * @param cameraMovement cameraMovement
-     * @param refImageKey refImageKey
-     * @param timeoutSeconds timeoutSeconds
+     * @param cameraMovement 摄像头移动
+     * @param refImageKey ref镜像键
+     * @param timeoutSeconds 超时seconds
      */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
@@ -628,7 +628,7 @@ try {
      * 从事件中提取阶段标识。
      *
      * @param event 事件 JSON
-     * @return thinking / answer / null
+     * @return thinking / answer / 空
      */
     private static String extractPhase(JsonObject event) {
         JsonObject block = event.getJsonObject("block");
@@ -661,7 +661,7 @@ try {
      *
      * @param event 事件 JSON
      * @param phase 阶段
-     * @return 内容，无则返回 null
+     * @return 内容，无则返回 空
      */
     private static String extractContent(JsonObject event, String phase) {
         JsonObject block = event.getJsonObject("block");
@@ -693,7 +693,7 @@ try {
     }
 
     /**
-     * 格式化消息为 Kimi 文本协议（system: / role: 逐行）。
+      * 格式化消息为 Kimi 文本协议（系统: / 角色: 逐行）。
      *
      * @param msgs   历史消息
      * @param prompt 当前问题

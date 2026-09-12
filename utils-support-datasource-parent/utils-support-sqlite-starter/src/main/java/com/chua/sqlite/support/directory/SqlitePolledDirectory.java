@@ -9,9 +9,9 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * SQLite 数据库轮询目录实现，基于 JDBC 查询的快照对比机制。
+   * sqlite 数据库轮询目录实现，基于 JDBC 查询的快照对比机制。
  * <p>
- * 通过定期执行自定义 SQL 查询，对比前后结果快照发现数据变更（INSERT / UPDATE / DELETE）。
+   * 通过定期执行自定义 SQL 查询，对比前后结果快照发现数据变更（插入 / 更新 / 删除）。
  * 内部使用 {@link DiffPolledDirectory} 的差异对比算法：
  * <ol>
  *   <li>每次轮询执行配置的 SQL 查询，获取所有行</li>
@@ -38,6 +38,9 @@ import java.util.regex.Pattern;
  *     .setProperty("jdbc.url", "jdbc:sqlite:/data/test.db");
  *
  * SqlitePolledDirectory poller = new SqlitePolledDirectory("users", env);
+ * poller.addListener(new SimplePolledListener(System.out::println));
+ * poller.start(env);
+ * }</pre> env);
  * poller.addListener(new SimplePolledListener(System.out::println));
  * poller.start(env);
  * }</pre>
@@ -79,11 +82,11 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
     private final int tsColumnIndex;
 
     /**
-     * 构造 SQLite 轮询目录。
+      * 构造 sqlite 轮询目录。
      *
      * @param listenPath  逻辑路径（用于事件标识，通常为表名）
-     * @param environment 环境配置，必须包含 jdbc.url 属性
-     * @throws IllegalArgumentException 如果 jdbc.url 未配置
+     * @param environment 环境配置，必须包含 JDBC.url 属性
+     * @throws IllegalArgumentException 如果 JDBC.url 未配置
      */
     public SqlitePolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
@@ -152,8 +155,8 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
      * 从编码后的快照字符串中提取修改时间戳。
      * <p>
      * 输入格式 {@code key|timestamp}，返回 {@code timestamp} 部分。
-     * 优先尝试解析为 long 类型；如果 timestamp 是字符串类型，
-     * 使用其 hashCode 作为粗糙的变更检测标识（仅用于判断是否变化，不表示实际时间）。
+      * 优先尝试解析为 long 类型；如果 时间戳 是字符串类型，
+      * 使用其 哈希编码 作为粗糙的变更检测标识（仅用于判断是否变化，不表示实际时间）。
      * </p>
      *
      * @param item 编码后的快照字符串

@@ -228,6 +228,8 @@ public class PlaywrightScreenshot {
 
     /**
      * 截图配置
+     * @author CH
+     * @since 4.0.0
      */
     public static class ScreenshotConfig {
         /**
@@ -239,7 +241,7 @@ public class PlaywrightScreenshot {
          */
         private int viewportHeight = 720;
         /**
-         * full Page
+          * 完整 Page
          */
         private boolean fullPage = false;
         /**
@@ -251,15 +253,15 @@ public class PlaywrightScreenshot {
          */
         private long waitTimeout = 30000;
         /**
-         * extraWait（毫秒）
+          * extrawait（毫秒）
          */
         private long extraWaitMillis = 0;
         /**
-         * locale
+          * 区域
          */
         private String locale = "zh-CN";
         /**
-         * timezone Id
+          * timezone 标识
          */
         private String timezoneId = "Asia/Shanghai";
         /**
@@ -267,7 +269,7 @@ public class PlaywrightScreenshot {
          */
         private String baseUrl;
         /**
-         * extra Http Headers
+          * extra Http 头部
          */
         private java.util.Map<String, String> extraHttpHeaders;
         /**
@@ -279,133 +281,241 @@ public class PlaywrightScreenshot {
          */
         private String executablePath;
 
-        /** 获取ViewportWidth */
+        /**
+         * 获取viewportwidth
+         *
+         * @return 获取viewportwidth的结果
+         */
         public int getViewportWidth() {
             return viewportWidth;
         }
 
-        /** 设置ViewportWidth */
+        /**
+         * 设置viewportwidth
+         *
+         * @param viewportWidth viewportwidth
+         * @return 设置viewportwidth的结果
+         */
         public ScreenshotConfig setViewportWidth(int viewportWidth) {
             this.viewportWidth = viewportWidth;
             return this;
         }
 
-        /** 获取ViewportHeight */
+        /**
+         * 获取viewportheight
+         *
+         * @return 获取viewportheight的结果
+         */
         public int getViewportHeight() {
             return viewportHeight;
         }
 
-        /** 设置ViewportHeight */
+        /**
+         * 设置viewportheight
+         *
+         * @param viewportHeight viewportheight
+         * @return 设置viewportheight的结果
+         */
         public ScreenshotConfig setViewportHeight(int viewportHeight) {
             this.viewportHeight = viewportHeight;
             return this;
         }
 
-        /** 获取FullPage */
+        /**
+         * 获取完整page
+         *
+         * @return 获取完整page的结果
+         */
         public boolean getFullPage() {
             return fullPage;
         }
 
-        /** 设置FullPage */
+        /**
+         * 设置完整page
+         *
+         * @param fullPage 完整page
+         * @return 设置完整page的结果
+         */
         public ScreenshotConfig setFullPage(boolean fullPage) {
             this.fullPage = fullPage;
             return this;
         }
 
-        /** 获取WaitSelector */
+        /**
+         * 获取waitselector
+         *
+         * @return 获取waitselector的结果
+         */
         public String getWaitSelector() {
             return waitSelector;
         }
 
-        /** 设置WaitSelector */
+        /**
+         * 设置waitselector
+         *
+         * @param waitSelector waitselector
+         * @return 设置waitselector的结果
+         */
         public ScreenshotConfig setWaitSelector(String waitSelector) {
             this.waitSelector = waitSelector;
             return this;
         }
 
-        /** 获取WaitTimeout */
+        /**
+         * 获取wait超时
+         *
+         * @return 获取wait超时的结果
+         */
         public long getWaitTimeout() {
             return waitTimeout;
         }
 
-        /** 设置WaitTimeout */
+        /**
+         * 设置wait超时
+         *
+         * @param waitTimeout wait超时
+         * @return 设置wait超时的结果
+         */
         public ScreenshotConfig setWaitTimeout(long waitTimeout) {
             this.waitTimeout = waitTimeout;
             return this;
         }
 
-        /** 获取ExtraWaitMillis */
+        /**
+         * 获取extrawaitmillis
+         *
+         * @return 获取extrawaitmillis的结果
+         */
         public long getExtraWaitMillis() {
             return extraWaitMillis;
         }
 
-        /** 设置ExtraWaitMillis */
+        /**
+         * 设置extrawaitmillis
+         *
+         * @param extraWaitMillis extrawaitmillis
+         * @return 设置extrawaitmillis的结果
+         */
         public ScreenshotConfig setExtraWaitMillis(long extraWaitMillis) {
             this.extraWaitMillis = extraWaitMillis;
             return this;
         }
 
-        /** 获取Locale */
+        /**
+         * 获取区域
+         *
+         * @return 获取区域的结果
+         */
         public String getLocale() {
             return locale;
         }
 
-        /** 设置Locale */
+        /**
+         * 设置区域
+         *
+         * @param locale 区域
+         * @return 设置区域的结果
+         */
         public ScreenshotConfig setLocale(String locale) {
             this.locale = locale;
             return this;
         }
 
-        /** 获取TimezoneId */
+        /**
+         * 获取timezoneid
+         *
+         * @return 获取timezoneid的结果
+         */
         public String getTimezoneId() {
             return timezoneId;
         }
 
-        /** 设置TimezoneId */
+        /**
+         * 设置timezoneid
+         *
+         * @param timezoneId timezoneid
+         * @return 设置timezoneid的结果
+         */
         public ScreenshotConfig setTimezoneId(String timezoneId) {
             this.timezoneId = timezoneId;
             return this;
         }
 
-        /** 获取BaseUrl */
+        /**
+         * 获取baseurl
+         *
+         * @return 获取baseurl的结果
+         */
         public String getBaseUrl() {
             return baseUrl;
         }
 
-        /** 设置BaseUrl */
+        /**
+         * 设置baseurl
+         *
+         * @param baseUrl baseurl
+         * @return 设置baseurl的结果
+         */
         public ScreenshotConfig setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
-        /** 获取ExtraHttpHeaders */
+        /**
+         * 获取extrahttp头部
+         *
+         * @return 获取extrahttp头部的结果
+         */
         public java.util.Map<String, String> getExtraHttpHeaders() {
             return extraHttpHeaders;
         }
 
-        /** 设置ExtraHttpHeaders */
+        /**
+         * 设置extrahttp头部
+         *
+         * @param extraHttpHeaders extrahttp头部
+         * @return 设置extrahttp头部的结果
+         */
         public ScreenshotConfig setExtraHttpHeaders(java.util.Map<String, String> extraHttpHeaders) {
             this.extraHttpHeaders = extraHttpHeaders;
             return this;
         }
 
-        /** 获取SlowMo */
+        /**
+         * 获取slowmo
+         *
+         * @return 获取slowmo的结果
+         */
         public long getSlowMo() {
             return slowMo;
         }
 
-        /** 设置SlowMo */
+        /**
+         * 设置slowmo
+         *
+         * @param slowMo slowmo
+         * @return 设置slowmo的结果
+         */
         public ScreenshotConfig setSlowMo(long slowMo) {
             this.slowMo = slowMo;
             return this;
         }
 
-        /** 获取ExecutablePath */
+        /**
+         * 获取executable路径
+         *
+         * @return 获取executable路径的结果
+         */
         public String getExecutablePath() {
             return executablePath;
         }
 
-        /** 设置ExecutablePath */
+        /**
+         * 设置executable路径
+         *
+         * @param executablePath executable路径
+         * @return 设置executable路径的结果
+         */
         public ScreenshotConfig setExecutablePath(String executablePath) {
             this.executablePath = executablePath;
             return this;

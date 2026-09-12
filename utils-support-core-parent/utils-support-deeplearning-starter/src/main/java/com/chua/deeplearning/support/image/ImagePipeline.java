@@ -32,6 +32,10 @@ import java.util.Objects;
  *         .build();
  * pipeline.enroll("id1", imageBytes);
  * List<ImageSearchHit> hits = pipeline.search(queryBytes, 5);
+ * }</pre>超分
+ *         .build();
+ * pipeline.enroll("id1", imageBytes);
+ * List<ImageSearchHit> hits = pipeline.search(queryBytes, 5);
  * }</pre>
  *
  * @author CH
@@ -74,9 +78,9 @@ public class ImagePipeline {
      *
      * @param featureExtractor 特征提取器
      * @param vectorStorage    向量存储
-     * @param segmentor        分割器，可为 null
-     * @param enhancer         增强器，可为 null
-     * @param superResolution  超分辨率，可为 null
+     * @param segmentor        分割器，可为 空
+     * @param enhancer         增强器，可为 空
+     * @param superResolution  超分辨率，可为 空
      */
     public ImagePipeline(FeatureExtractor featureExtractor, VectorStorage vectorStorage,
                          ImageSegmenter segmentor, ImageEnhancer enhancer, ImageEnhancer superResolution) {
@@ -141,9 +145,9 @@ public class ImagePipeline {
         }
 
         /**
-         * 按模型 ID 创建特征提取器。
+          * 按模型 标识 创建特征提取器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder featureExtractor(String modelId) {
@@ -174,9 +178,9 @@ public class ImagePipeline {
         }
 
         /**
-         * 按模型 ID 创建分割器。
+          * 按模型 标识 创建分割器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder segmentor(String modelId) {
@@ -196,9 +200,9 @@ public class ImagePipeline {
         }
 
         /**
-         * 按模型 ID 创建增强器。
+          * 按模型 标识 创建增强器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder enhancer(String modelId) {
@@ -218,9 +222,9 @@ public class ImagePipeline {
         }
 
         /**
-         * 按模型 ID 创建超分辨率。
+          * 按模型 标识 创建超分辨率。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder superResolution(String modelId) {
@@ -264,7 +268,7 @@ public class ImagePipeline {
     /**
      * 入库：图片 → 特征 → 向量库。
      *
-     * @param id        业务 ID
+     * @param id        业务 标识
      * @param imageData 图片
      * @return 是否成功
      */
@@ -275,7 +279,7 @@ public class ImagePipeline {
     /**
      * 入库：直接写特征。
      *
-     * @param id      业务 ID
+     * @param id      业务 标识
      * @param feature 特征
      * @return 是否成功
      */
@@ -286,7 +290,7 @@ public class ImagePipeline {
     /**
      * 入库：带元数据。
      *
-     * @param id        业务 ID
+     * @param id        业务 标识
      * @param imageData 图片
      * @param metadata  元数据
      * @param content   附加文本
@@ -374,7 +378,7 @@ public class ImagePipeline {
     /**
      * 分割器。
      *
-     * @return ImageSegmenter，未配置时返回 null
+     * @return ImageSegmenter，未配置时返回 空
      */
     public ImageSegmenter segmentor() {
         return segmentor;
@@ -383,7 +387,7 @@ public class ImagePipeline {
     /**
      * 增强器。
      *
-     * @return ImageEnhancer，未配置时返回 null
+     * @return ImageEnhancer，未配置时返回 空
      */
     public ImageEnhancer enhancer() {
         return enhancer;
@@ -392,7 +396,7 @@ public class ImagePipeline {
     /**
      * 超分辨率。
      *
-     * @return ImageEnhancer，未配置时返回 null
+     * @return ImageEnhancer，未配置时返回 空
      */
     public ImageEnhancer superResolution() {
         return superResolution;

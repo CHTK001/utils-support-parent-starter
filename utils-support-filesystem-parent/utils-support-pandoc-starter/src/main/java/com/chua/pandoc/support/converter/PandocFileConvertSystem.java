@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
  * Pandoc 通用文档格式转换器。
  *
  * <p>通过命令行调用 Pandoc 实现多种文档格式的相互转换。
- * 支持 markdown、HTML、docx、epub、LaTeX、rst、org、textile、mediawiki 等格式的交叉转换，
- * 并支持输出为 PDF（需 LaTeX 引擎）和多种幻灯片格式。</p>
+   * 支持 markdown、HTML、docx、epub、乳胶、rst、org、textile、mediawiki 等格式的交叉转换，
+   * 并支持输出为 PDF（需 乳胶 引擎）和多种幻灯片格式。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -104,7 +104,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String source, String target) {
         if (source == null || target == null) {
             return false;
@@ -230,6 +230,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
      *
      * @param extension 文件扩展名
      * @param format    Pandoc 格式名
+     * @return 格式化mapping的结果
      */
     private record FormatMapping(String extension, String format) {
     }

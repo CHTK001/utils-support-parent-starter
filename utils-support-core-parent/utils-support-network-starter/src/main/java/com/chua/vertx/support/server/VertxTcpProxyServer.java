@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 基于 Vert.x 事件循环的 TCP 代理服务器,与 {@link com.chua.common.support.network.server.proxy.TcpProxyServer}
- * 能力对齐,但转发完全走事件循环(NetSocket.pipeTo 双向泵送),无每连接虚拟线程开销:
+   * 能力对齐,但转发完全走事件循环(net套接字.管道转为 双向泵送),无每连接虚拟线程开销:
  * <ul>
  *   <li>前端连接接入后,通过 {@link ProxyTargetResolver} 解析后端地址</li>
  *   <li>{@link NetClient} 建立后端连接,双向 {@code pipeTo} 转发(背压自动处理)</li>
@@ -45,20 +45,20 @@ public class VertxTcpProxyServer extends AbstractServer {
     private NetClient netClient;
 
     /**
-     * 创建 VertxTcpProxyServer 实例
+      * 创建 vertxtcp代理服务端 实例
      * @param setting setting
      */
     public VertxTcpProxyServer(ServerSetting setting) {
         super(setting);
-        // 与 TcpProxyServer 一致:SPI 加载时 resolver 未提供,拒绝所有连接,调用方自行注入
+ // 与 tcp代理服务端 一致:SPI 加载时 解析器 未提供,拒绝所有连接,调用方自行注入
         this.targetResolver = remote -> null;
     }
 
     /**
-     * 创建 VertxTcpProxyServer 实例
+      * 创建 vertxtcp代理服务端 实例
      * @param setting setting
-     * @param ProxyTargetResolver ProxyTargetResolver
-     * @param targetResolver targetResolver
+     * @param targetResolver 代理Target解析器
+     * @param targetResolver Target解析器
      */
     public VertxTcpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
@@ -66,9 +66,10 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     /**
-     * 创建 VertxTcpProxyServer 实例
+      * 创建 vertxtcp代理服务端 实例
      * @param setting setting
-     * @param InetSocketAddress InetSocketAddress
+     * @param backend inet套接字地址
+     * @param backend backend
      */
     public VertxTcpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting);
@@ -76,7 +77,7 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -88,7 +89,7 @@ public class VertxTcpProxyServer extends AbstractServer {
             netClient = vertx.createNetClient(new NetClientOptions()
                     .setTcpNoDelay(setting.isTcpNoDelay())
                     .setConnectTimeout(setting.getReadTimeout())
-                    // 后端连接 TCP 性能优化:FastOpen 加速握手,QuickAck 减 ACK 延迟
+ // 后端连接 TCP 性能优化:fast打开 加速握手,quickACK 减 ACK 延迟
                     // 注意:不使用 TCP_CORK——小报文场景下它延迟发送最多 200ms,吞吐暴跌
                     .setTcpFastOpen(true)
                     .setTcpQuickAck(true)
@@ -108,7 +109,7 @@ public class VertxTcpProxyServer extends AbstractServer {
                     .setTcpKeepAlive(true);
             netServer = vertx.createNetServer(options);
             netServer.connectHandler(this::handleProxy);
-            // Vert.x 5.x:listen 返回 Future,异步完成;用 latch 等监听就绪并回填端口
+ // Vert.x 5.x:监听 返回 期货,异步完成;用 插销 等监听就绪并回填端口
             CountDownLatch ready = new CountDownLatch(1);
             netServer.listen().onSuccess(server -> {
                 setting.setPort(netServer.actualPort());
@@ -129,7 +130,7 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (netServer != null) {
             try {
@@ -153,12 +154,16 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
-    /** 处理Proxy */
+    /**
+     * 处理代理
+     *
+     * @param front front
+     */
     private void handleProxy(NetSocket front) {
         InetSocketAddress backend;
         try {
@@ -177,12 +182,12 @@ public class VertxTcpProxyServer extends AbstractServer {
             return;
         }
         // 关键:先暂停前端,防止客户端数据在 pipeTo 安装前(后端连接建立期间)于
-        // flowing 模式下被丢弃——数据早于 onSuccess 到达 front 时会丢失,后端收不到
-        // 完整请求 → 不回显 → 客户端挂起。连接成功后 resume 交由 pipeTo 消费。
+ // 流 模式下被丢弃——数据早于 on成功 到达 front 时会丢失,后端收不到
+ // 完整请求 → 不回显 → 客户端挂起。连接成功后 resume 交由 管道转为 消费。
         front.pause();
         Future<NetSocket> connectFuture = netClient.connect(backend.getPort(), backend.getHostString());
         connectFuture.onSuccess(back -> {
-            // 双向 pipeTo:背压由 Vert.x 自动处理,事件循环零拷贝泵送。
+ // 双向 管道转为:背压由 Vert.x 自动处理,事件循环零拷贝泵送。
             // pipeTo 在源端 EOF 时自动 end 目标端(自带关闭传播),无需手动级联 close
             front.pipeTo(back);
             back.pipeTo(front);

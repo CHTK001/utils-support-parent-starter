@@ -21,15 +21,15 @@ import java.util.Map;
 public class WordReadBuilder extends ReadBuilder {
 
     /**
-     * 创建 WordReadBuilder 实例
-     * @param file file
+      * 创建 word读取构建器 实例
+     * @param file 文件
      */
     public WordReadBuilder(File file) {
         super(file);
     }
 
     @Override
-    /** WithCharset */
+    /** with字符集 */
     public WordReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -37,6 +37,7 @@ public class WordReadBuilder extends ReadBuilder {
 
     /**
      * 提取 Word 文档的全部文本内容
+     * @return 文本的结果
      */
     public String text() {
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {
@@ -55,6 +56,7 @@ public class WordReadBuilder extends ReadBuilder {
 
     /**
      * 按段落读取
+     * @return paragraphs的结果
      */
     public List<String> paragraphs() {
         List<String> result = new ArrayList<>();
@@ -74,7 +76,8 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     /**
-     * 读取表格数据（Word 表格），每条为 Map
+      * 读取表格数据（Word 表格），每条为 映射
+     * @return tableRows的结果
      */
     public List<Map<String, String>> tableRows() {
         List<Map<String, String>> result = new ArrayList<>();
@@ -122,6 +125,7 @@ public class WordReadBuilder extends ReadBuilder {
 
     /**
      * 获取文档标题
+     * @return title的结果
      */
     public String title() {
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {
@@ -132,13 +136,13 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** AsLines */
+    /** as线 */
     public List<String> asLines() {
          return paragraphs(); 
     }
 
     @Override
-    /** AsString */
+    /** as字符串 */
     public String asString() {
          return text(); 
     }

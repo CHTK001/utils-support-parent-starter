@@ -14,21 +14,21 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * SmolDocling Vision Translator
+   * smoldocling Vision Translator
  * <p>
  *                                                                    Vision                
  * <p>
  *                
  * -                                   (512x512)
  * -                      
- * -           5          : [batch, num_images, channels, height, width]
- * -        pixel_attention_mask: [batch, num_images, height, width] (512x512)
+   * -           5          : [批量, num_镜像, 通道, height, width]
+   * -        pixel_attention_mask: [批量, num_镜像, height, width] (512x512)
  * <p>
  *                
  * -                   
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/22
  */
 @Slf4j
@@ -41,7 +41,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
     private static final int INPUT_IMAGE_SIZE = 512;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -57,20 +57,20 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         array = array.div(255.0f);
 
         //           CHW       : [3, height, width]
-        //          NDImageUtils.normalize                       CHW       
+ // nd镜像工具.normalize                       CHW
         array = array.transpose(2, 0, 1);
 
-        //             ImageNet          
+ // 镜像net
         //     CHW                         
         float[] mean = {0.485f, 0.456f, 0.406f};
         float[] std = {0.229f, 0.224f, 0.225f};
         array = NDImageUtils.normalize(array, mean, std);
 
-        //              5          : [batch, num_images, channels, height, width]
+ // 5          : [批量, num_镜像, 通道, height, width]
         //             : [3, height, width] (CHW)
-        //              num_images       : [1, 3, height, width]
+ // num_镜像       : [1, 3, height, width]
         array = array.expandDims(0);
-        //              batch       : [1, 1, 3, height, width]
+ // 批量       : [1, 1, 3, height, width]
         array = array.expandDims(0);
 
         if (log.isDebugEnabled()) {
@@ -78,8 +78,8 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         }
 
         //        pixel_attention_mask                      true   bool          
-        //          pixel_attention_mask                    pixel_values                   512x512   
-        //              4     mask: [batch, num_images, height, width]
+ // pixel_attention_mask                    pixel_值                   512x512
+ // 4     mask: [批量, num_镜像, height, width]
         long batchSize = 1; //           1
         long numImages = 1; //           1
         long maskHeight = INPUT_IMAGE_SIZE; //                 mask
@@ -168,7 +168,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
             }
         }
 
-        //                       BOOLEAN
+ // 布尔值
         if (!finalDtype.equals(DataType.BOOLEAN)) {
             log.warn("pixel_attention_mask                    BOOLEAN: {},             ", finalDtype);
             Shape shapeBeforeTypeChange = pixelAttentionMask.getShape();
@@ -196,26 +196,26 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
                     maskShapeObj, finalShape);
 
             try {
-                //        rank                 expandDims       
+ // rank                 expanddims
                 if (finalRank != 4) {
                     long[] currentShape = finalShape.getShape();
                     int currentRank = currentShape.length;
 
                     if (currentRank == 1) {
-                        //     reshape     [maskHeight, maskWidth]
+ // reshape     [maskheight, maskwidth]
                         NDArray hwArray = pixelAttentionMask.reshape(new Shape(maskHeight, maskWidth));
-                        //        num_images       : [1, maskHeight, maskWidth]
+ // num_镜像       : [1, maskheight, maskwidth]
                         NDArray imgArray = hwArray.expandDims(0);
-                        //        batch       : [1, 1, maskHeight, maskWidth]
+ // 批量       : [1, 1, maskheight, maskwidth]
                         pixelAttentionMask = imgArray.expandDims(0);
                     } else if (currentRank == 2) {
-                        //        num_images     batch       
+ // num_镜像     批量
                         // onMask.expandDims(0); // [1, maskHeight, maskWidth]
                         NDArray imgArray = pixelAttentionMask.expandDims(0);
                         // gArray.expandDims(0); // [1, 1, maskHeight, maskWidth]
                         pixelAttentionMask = imgArray.expandDims(0);
                     } else if (currentRank == 3) {
-                        //        batch       
+ // 批量
                         // onMask.expandDims(0); // [1, 1, maskHeight, maskWidth]
                         pixelAttentionMask = pixelAttentionMask.expandDims(0);
                     }
@@ -263,7 +263,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public SmolDoclingVisionOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("             Vision             : {}          ", list.size());
@@ -282,7 +282,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
             log.debug("Vision             : image_features shape={}", imageFeatures.getShape());
         }
 
-        //                          NDArray           float                                  
+ // ndarray           float
         return new SmolDoclingVisionOutput(imageFeatures);
     }
 

@@ -26,7 +26,7 @@ public interface EmailProvider {
     /**
      * 创建一个临时邮箱地址。
      *
-     * @return 邮箱地址；创建失败返回 null
+     * @return 邮箱地址；创建失败返回 空
      */
     String createEmail();
 
@@ -42,7 +42,7 @@ public interface EmailProvider {
      * 查询该邮箱收到的第一封未读邮件。
      *
      * @param email 邮箱地址
-     * @return 第一封邮件；无邮件时返回 null
+     * @return 第一封邮件；无邮件时返回 空
      */
     default EmailInfo fetchFirstEmail(String email) {
         List<EmailInfo> emails = fetchEmails(email);

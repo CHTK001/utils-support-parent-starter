@@ -24,12 +24,15 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * 适用于底层协议解析、数据序列化和字节流处理等场景。
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2020/12/26
  */
 @Slf4j
 public class ByteUtils extends BitUtils {
 
+    /**
+     * byte工具。
+     */
     private ByteUtils() {}
 
     /** Digits */
@@ -447,7 +450,7 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     *    byte[]      boolean
+      * byte[]      布尔值
      *
      * @param bytes byte array
      * @return boolean
@@ -468,10 +471,10 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     * byte array to char value
+      * byte array 转为 char 值
      *
      * @param bytes byte array
-     * @return char value
+     * @return char 值
      */
     public static char toChar(byte[] bytes) {
         if (null == bytes) {
@@ -482,10 +485,10 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     * byte array to char value
+      * byte array 转为 char 值
      *
      * @param bytes byte array
-     * @return char value
+     * @return char 值
      */
     public static char[] toChars(byte[] bytes) {
         if (null == bytes || bytes.length < CHAR_SIZE) {
@@ -495,10 +498,10 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     * byte array to double value
+      * byte array 转为 double 值
      *
      * @param bytes byte array
-     * @return double value
+     * @return double 值
      */
     public static double toDouble(byte[] bytes) {
         if (null == bytes) {
@@ -509,10 +512,10 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     * byte array to float value
+      * byte array 转为 float 值
      *
      * @param bytes byte array
-     * @return float value
+     * @return float 值
      */
     public static float toFloat(byte[] bytes) {
         if (null == bytes) {
@@ -523,10 +526,10 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     * byte array to int value
+      * byte array 转为 int 值
      *
      * @param bytes byte array
-     * @return int value
+     * @return int 值
      */
     public static int toInt(byte[] bytes) {
         if (null == bytes) {
@@ -537,10 +540,10 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     * byte array to long value
+      * byte array 转为 long 值
      *
      * @param bytes byte array
-     * @return long value
+     * @return long 值
      */
     public static long toLong(byte[] bytes) {
         if (null == bytes) {
@@ -550,10 +553,10 @@ public class ByteUtils extends BitUtils {
     }
 
     /**
-     * byte array to short value
+      * byte array 转为 short 值
      *
      * @param bytes byte array
-     * @return short value
+     * @return short 值
      */
     public static short toShort(byte[] bytes) {
         if (null == bytes) {
@@ -578,6 +581,7 @@ public class ByteUtils extends BitUtils {
      *
      * @param bytes             
      * @return          
+     * @param charset 字符集
      */
     public static String toString(byte[] bytes, Charset charset) {
         return new String(bytes, charset);
@@ -588,6 +592,7 @@ public class ByteUtils extends BitUtils {
      *
      * @param bytes             
      * @return          
+     * @param charset 字符集
      */
     public static String toString(byte[] bytes, String charset) {
         return new String(bytes, Charset.forName(charset));
@@ -658,7 +663,7 @@ public class ByteUtils extends BitUtils {
 
     /**
      *                         <br>
-     * 1   Byte         ByteBuffer                                        2                        Arrays.toString      
+      * 1   Byte         byte缓冲                                        2                        Arrays.转为字符串
      *
      * @param obj       
      * @return          
@@ -669,7 +674,7 @@ public class ByteUtils extends BitUtils {
 
     /**
      *                         <br>
-     * 1   Byte         ByteBuffer                                        2                        Arrays.toString      
+      * 1   Byte         byte缓冲                                        2                        Arrays.转为字符串
      *
      * @param obj           
      * @param charset          

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Lucene 引擎的 DataSync OUTPUT Provider。
+   * Lucene 引擎的 数据同步 输出 提供者。
  * <p>将 {@link Flux}&lt;Map&gt; 批量写入 Lucene 索引。</p>
  *
  * @author CH
@@ -46,7 +46,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
     private final String sourceId;
 
     /**
-     * Agent 标识
+      * 智能体 标识
      */
     private final String agentId;
 
@@ -61,7 +61,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
      * @param engine    Lucene 引擎
      * @param tableName 表名
      * @param sourceId  源标识
-     * @param agentId   Agent 标识
+     * @param agentId   智能体 标识
      * @param batchSize 批大小
      */
     private LuceneDataSyncSource(LuceneEngine engine, String tableName,
@@ -79,7 +79,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
      * @param engine    Lucene 引擎
      * @param tableName 表名
      * @param sourceId  源标识
-     * @param agentId   Agent 标识
+     * @param agentId   智能体 标识
      * @return 实例
      */
     public static LuceneDataSyncSource output(LuceneEngine engine, String tableName,
@@ -93,7 +93,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
      * @param engine    Lucene 引擎
      * @param tableName 表名
      * @param sourceId  源标识
-     * @param agentId   Agent 标识
+     * @param agentId   智能体 标识
      * @param batchSize 批大小
      * @return 实例
      */
@@ -109,13 +109,13 @@ public class LuceneDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** SourceId */
+    /** 源id */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() {
         return agentId;
     }
@@ -127,7 +127,7 @@ public class LuceneDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** CurrentOffset */
+    /** 当前偏移量 */
     public SyncDataOffset currentOffset() {
         return null;
     }

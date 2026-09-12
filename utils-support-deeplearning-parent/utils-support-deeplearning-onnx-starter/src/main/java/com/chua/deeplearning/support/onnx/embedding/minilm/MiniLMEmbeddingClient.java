@@ -11,10 +11,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * all-MiniLM-L6-v2 本地离线嵌入客户端（SPI provider="minilm"）。
+   * 全部-minilm-L6-v2 本地离线嵌入客户端（SPI 提供者="minilm"）。
  *
  * <p>本地基于 Xenova/all-MiniLM-L6-v2 的 int8 量化 ONNX（23MB，~50ms/句，CPU 即可），
- * 文本 → 384 维 L2 归一化句向量。与 sentence-transformers/all-MiniLM-L6-v2 语义一致，
+   * 文本 → 384 维 L2 归一化句向量。与 sentence-transformers/全部-minilm-L6-v2 语义一致，
  * 可直接用于余弦相似度 / 向量检索 / 聚类。</p>
  *
  * <p>用法（与云端 EmbeddingClient 完全一致）：
@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   EmbeddingClient client = EmbeddingClient.create("minilm", "")
  *       .model("minilm");
  *   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
+ * }</pre>   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
  * }</pre>
  * </p>
  *
@@ -53,7 +54,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     private volatile String resolvedModel;
 
     /**
-     * 创建 MiniLMEmbeddingClient 实例
+      * 创建 minilm嵌入客户端 实例
      * @param setting setting
      */
     public MiniLMEmbeddingClient(EmbeddingClientSetting setting) {
@@ -61,14 +62,14 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Provider */
+    /** 提供者 */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.resolvedModel = null;
@@ -76,13 +77,17 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Dimensions */
+    /** 维度 */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
     }
 
-    /** Translator */
+    /**
+     * Translator
+     *
+     * @return translator的结果
+     */
     private MiniLMEmbeddingTranslator translator() {
         String model = setting.getModel();
         String key = model == null || model.isBlank() || "minilm".equalsIgnoreCase(model)
@@ -108,7 +113,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Embedding */
+    /** 嵌入 */
     public float[] embedding(String text) {
         try {
             int maxLen = setting.getMaxLen() != null && setting.getMaxLen() > 0 ? setting.getMaxLen() : DEFAULT_MAX_LEN;
@@ -119,7 +124,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatch */
+    /** 嵌入batch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -132,7 +137,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingWithResponse */
+    /** 嵌入with响应 */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -145,7 +150,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatchWithResponse */
+    /** 嵌入batchwith响应 */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -163,13 +168,13 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingAsync */
+    /** 嵌入异步 */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** EmbeddingBatchAsync */
+    /** 嵌入batch异步 */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }

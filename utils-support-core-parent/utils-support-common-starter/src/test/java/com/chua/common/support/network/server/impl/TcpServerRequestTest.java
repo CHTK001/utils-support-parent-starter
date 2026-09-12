@@ -1,7 +1,7 @@
 package com.chua.common.support.network.server.impl;
 
 /**
- * TcpServerRequest 单元测试（无 JUnit 依赖，直接运行 main）。
+   * tcp服务端请求 单元测试（无 junit 依赖，直接运行 main）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -11,10 +11,14 @@ public class TcpServerRequestTest {
     private static final java.net.InetSocketAddress REMOTE =
             new java.net.InetSocketAddress("127.0.0.1", 54321);
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) {
         int passed = 0, total = 0;
 
-        // Test 1: GET /hello
+ // 测试 1: 获取 /hello
         total++;
         String http1 = "GET /hello HTTP/1.1\r\nHost: localhost\r\n\r\n";
         TcpServerRequest req1 = new TcpServerRequest(
@@ -27,9 +31,11 @@ public class TcpServerRequestTest {
                 + " | path=" + req1.getPath()
                 + " method=" + req1.getMethod()
                 + " bodyLen=" + req1.getBody().length);
-        if (ok1) passed++;
+        if (ok1) {
+            passed++;
+        }
 
-        // Test 2: POST /echo with body
+ // 测试 2: POST /echo with 主体
         total++;
         String body = "hello tcp";
         String http2 = "POST /echo HTTP/1.1\r\nContent-Type: text/plain\r\n"
@@ -42,9 +48,11 @@ public class TcpServerRequestTest {
         System.out.println("[parsePostEcho] " + (ok2 ? "PASS" : "FAIL")
                 + " | path=" + req2.getPath()
                 + " body=" + req2.getBodyString());
-        if (ok2) passed++;
+        if (ok2) {
+            passed++;
+        }
 
-        // Test 3: non-HTTP raw data
+ // 测试 3: non-HTTP raw 数据
         total++;
         byte[] raw = "raw-data".getBytes(java.nio.charset.StandardCharsets.UTF_8);
         TcpServerRequest req3 = new TcpServerRequest(raw, REMOTE, null);
@@ -55,9 +63,11 @@ public class TcpServerRequestTest {
                 + " | path=" + req3.getPath()
                 + " method=" + req3.getMethod()
                 + " body=" + req3.getBodyString());
-        if (ok3) passed++;
+        if (ok3) {
+            passed++;
+        }
 
-        // Test 4: response build
+ // 测试 4: 响应 构建
         total++;
         TcpServerResponse resp = new TcpServerResponse();
         resp.setStatus(200).setBody("hello tcp").end();
@@ -66,7 +76,9 @@ public class TcpServerRequestTest {
         boolean ok4 = respStr.contains("HTTP/1.1 200") && respStr.contains("hello tcp");
         System.out.println("[buildResponse] " + (ok4 ? "PASS" : "FAIL")
                 + " | response: " + respStr.lines().findFirst().orElse(""));
-        if (ok4) passed++;
+        if (ok4) {
+            passed++;
+        }
 
         System.out.println("Result: " + passed + "/" + total + " passed");
         System.exit(passed == total ? 0 : 1);

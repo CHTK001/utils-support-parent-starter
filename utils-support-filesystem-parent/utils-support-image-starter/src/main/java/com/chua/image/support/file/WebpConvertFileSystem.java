@@ -17,15 +17,15 @@ import java.util.List;
 
 
 /**
- * WebP 格式转换器（Java 实现）
+   * webp 格式转换器（Java 实现）
  * <p>
- * 使用 webp-imageio-core 库实现 WebP 格式的转换。
- * 支持 WebP 与其他常见图片格式之间的相互转换：
- * - WebP ↔ JPEG (.jpg, .jpeg)
- * - WebP ↔ PNG (.png)
- * - WebP ↔ BMP (.bmp)
- * - WebP ↔ GIF (.gif)
- * - WebP ↔ ICO (.ico)
+   * 使用 webp-imageio-核心 库实现 webp 格式的转换。
+   * 支持 webp 与其他常见图片格式之间的相互转换：
+   * - webp ↔ JPEG (.jpg, .jpeg)
+   * - webp ↔ PNG (.png)
+   * - webp ↔ BMP (.bmp)
+   * - webp ↔ GIF (.gif)
+   * - webp ↔ ICO (.ico)
  * </p>
  * <p>
  * 注意：此实现优先级较低（默认优先级 0），如果存在 Rust 实现（优先级 100），
@@ -40,7 +40,7 @@ import java.util.List;
 public class WebpConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
-     * 支持的图片格式（除 WebP 外）
+      * 支持的图片格式（除 webp 外）
      */
     private static final String[] SUPPORTED_FORMATS = {"jpeg", "jpg", "png", "bmp", "gif", "ico"};
 
@@ -52,7 +52,7 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         
         return "webp";
@@ -78,7 +78,7 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** Do转换 */
+    /** 执行转换 */
     protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
         try {
             // 读取图片
@@ -98,7 +98,13 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
         }
     }
 
-    /** 是否Support格式化 */
+    /**
+     * 是否支持格式化
+     *
+     * @param sourceFormat 源格式化
+     * @param targetFormat Target格式化
+     * @return 是否支持格式化的结果
+     */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换
         if (sourceFormat != null && sourceFormat.equalsIgnoreCase(targetFormat)) {
@@ -120,16 +126,16 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** SupportedTypes */
+    /** 支持类型 */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         List<ConvertFileSystem.ConvertSupport> supports = new ArrayList<>();
         
-        // WebP 转其他格式
+ // webp 转其他格式
         for (String format : SUPPORTED_FORMATS) {
             supports.add(new ConvertFileSystem.ConvertSupport("webp", format));
         }
         
-        // 其他格式转 WebP
+ // 其他格式转 webp
         for (String format : SUPPORTED_FORMATS) {
             supports.add(new ConvertFileSystem.ConvertSupport(format, "webp"));
         }

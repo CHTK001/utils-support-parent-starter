@@ -9,7 +9,12 @@ import java.lang.reflect.Constructor;
 public class ConstructorStation {
 
     @SuppressWarnings("unchecked")
-    /** NewInstance */
+    /**
+     * 新instance
+     *
+     * @param constructor constructor
+     * @return 新instance的结果
+     */
     public static <T> T newInstance(Constructor<T> constructor) {
         try {
             constructor.setAccessible(true);
@@ -20,7 +25,13 @@ public class ConstructorStation {
     }
 
     @SuppressWarnings("unchecked")
-    /** NewInstance */
+    /**
+     * 新instance
+     *
+     * @param constructor constructor
+     * @param args 参数
+     * @return 新instance的结果
+     */
     public static <T> T newInstance(Constructor<T> constructor, Object... args) {
         try {
             constructor.setAccessible(true);

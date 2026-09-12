@@ -18,14 +18,21 @@ import java.util.List;
 
 /**
  * 豆瓣 (douban2) 影视搜索提供器
+ * @author CH
+ * @since 4.0.0
  */
 @Spi("douban2")
 public class Douban2ResourceProvider extends AbstractResourceProvider {
+    /**
+     * douban2resource提供者。
+     */
     public Douban2ResourceProvider() { super(); }
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
-        if (!StringUtils.hasText(kw)) return ReturnPageResult.error("关键词不能为空");
+        if (!StringUtils.hasText(kw)) {
+            return ReturnPageResult.error("关键词不能为空");
+        }
         try {
             HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).followRedirects(HttpClient.Redirect.NORMAL).build();
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create("https://www.douban.com/search?query=" + java.net.URLEncoder.encode(kw, "UTF-8")))

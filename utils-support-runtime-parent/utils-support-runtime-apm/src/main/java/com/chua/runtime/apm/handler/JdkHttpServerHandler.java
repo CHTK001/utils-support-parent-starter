@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * JDK HttpServer Handler — intercepts incoming HTTP requests handled by com.sun.net.httpserver.
+   * JDK http服务端 处理器 — intercepts 收入 HTTP Requests 处理 by com.sun.net.httpserver.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class JdkHttpServerHandler extends AbstractAppHandler {
 
     /**
-     * HTTP handler
+      * HTTP 处理器
      */
     private static final String HTTP_HANDLER = "com/sun/net/httpserver/HttpHandler";
     /**
-     * handle methods
+      * 处理 方法
      */
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "jdk-http-server-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "jdk-http-server.enabled";
     }
@@ -42,13 +42,13 @@ public class JdkHttpServerHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(HTTP_HANDLER, HANDLE_METHODS);
     }

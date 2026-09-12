@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Windows 系统服务管理器 — 基于 {@code sc.exe} 命令管理 Windows 服务。
+   * 窗口 系统服务管理器 — 基于 {@code sc.exe} 命令管理 窗口 服务。
  *
  * <p>支持 Windows XP 及以上版本，通过系统自带的 sc.exe 工具实现服务安装、
  * 卸载、启动、停止、查询状态等操作。不支持开机自启类型设置（sc.exe 原生能力有限）。</p>
@@ -28,13 +28,13 @@ public class WindowsServiceManager implements ServiceManager {
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "windows";
     }
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported() {
         String osName = System.getProperty("os.name", "").toLowerCase();
         return osName.contains("win");
@@ -128,7 +128,7 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public CmdResult status(String serviceName) {
         String cmd = "sc query \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -151,7 +151,7 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 是否Enabled */
+    /** 是否已启用 */
     public boolean isEnabled(String serviceName) {
         CmdResult result = status(serviceName);
         if (!result.isSuccess()) {
@@ -169,10 +169,10 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     /**
-     * 将启动类型映射为 sc.exe 的 start 参数值。
+      * 将启动类型映射为 sc.exe 的 启动 参数值。
      *
-     * @param startupType 启动类型（auto / manual / disabled）
-     * @return sc.exe 的 start 参数值
+     * @param startupType 启动类型（auto / manual / 已禁用）
+     * @return sc.exe 的 启动 参数值
      */
     private String mapStartupType(String startupType) {
         if (startupType == null) {

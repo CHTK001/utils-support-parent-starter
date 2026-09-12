@@ -24,7 +24,7 @@ import java.util.Map;
  * 腾讯混元生图图片生成客户端
  *
  * <p>基于腾讯混元大模型生图 API 的 {@link ImageClient} 实现，通过 HTTP 协议
- * 调用混元生图接口。该接口返回的图片数据可能为 base64 编码或 URL，
+   * 调用混元生图接口。该接口返回的图片数据可能为 基础64 编码或 URL，
  * 实现中自动识别并处理两种格式。
  *
  * @author CH
@@ -95,7 +95,7 @@ public class HunyuanImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
@@ -110,7 +110,7 @@ public class HunyuanImageClient implements ImageClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -131,25 +131,25 @@ public class HunyuanImageClient implements ImageClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
     @Override
-    /** ControlType */
+    /** control类型 */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
@@ -213,9 +213,9 @@ public BufferedImage generate(String prompt) {
         if (content == null || content.isBlank()) {
             throw new RuntimeException("混元生图返回的 content 为空");
         }
-        // 判断 content 是 base64 还是 URL
+ // 判断 内容 是 基础64 还是 URL
         if (content.startsWith("data:image") || content.startsWith("/9j/") || content.startsWith("iVBOR")) {
-            // base64 格式
+ // 基础64 格式
             String base64Data = content;
             if (base64Data.contains(",")) {
                 base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
@@ -240,13 +240,13 @@ public BufferedImage generate(String prompt) {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("腾讯混元生图不支持异步任务模式，请使用 generate() 方法同步生成");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("腾讯混元生图不支持异步任务模式");
     }

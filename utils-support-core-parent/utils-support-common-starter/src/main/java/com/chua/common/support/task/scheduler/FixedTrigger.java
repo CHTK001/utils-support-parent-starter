@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  *
  * // 首次延迟 1 秒后，每 3 秒执行一次
  * FixedTrigger trigger = new FixedTrigger(1000, 3000, TimeUnit.MILLISECONDS);
- * }</pre>
+ * }</pre>pre>
  *
  * @author CH
  * @since 1.0.0
@@ -92,7 +92,7 @@ public class FixedTrigger implements Trigger {
      * 计算从指定时间开始的下一次执行时间
      *
      * <p>计算公式：{@code startTime + (floor(elapsed / interval) + 1) * interval + initialDelay}
-     * 其中 elapsed 为从 startTime 到 from 的时间差。
+      * 其中 elapsed 为从 启动时间 到 从 的时间差。
      *
      * @param from 基准时间点
      * @return 下一次执行时间点

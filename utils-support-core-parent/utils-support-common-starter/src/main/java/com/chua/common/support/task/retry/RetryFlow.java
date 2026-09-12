@@ -13,9 +13,11 @@ import java.util.function.Supplier;
  * <pre>{@code
  * RetryFlow.of("api").maxRetries(5).backoff(backoffProvider).execute(() -> callApi());
  * RetryFlow.of("api").maxRetries(3).fallback(() -> fallbackResult).execute(() -> callApi());
+ * }</pre>back(() -> fallbackResult).execute(() -> callApi());
  * }</pre>
  *
  * @since 2026/07/24
+ * @author CH
  */
 public final class RetryFlow {
 
@@ -50,8 +52,8 @@ public final class RetryFlow {
     private Supplier<Object> fallback;
 
     /**
-     * 创建 RetryFlow 实例
-     * @param name name
+      * 创建 重试流 实例
+     * @param name 名称
      */
     private RetryFlow(String name) {
         this.name = name;
@@ -60,6 +62,7 @@ public final class RetryFlow {
     /**
      * 重试监听接口。
  * @author CH
+     * @since 4.0.0
      */
     @FunctionalInterface
     public interface RetryListener {
@@ -178,7 +181,11 @@ public final class RetryFlow {
         });
     }
 
-    /** 解析Backoff */
+    /**
+     * 解析退避
+     *
+     * @return resolve退避的结果
+     */
     private BackoffProvider resolveBackoff() {
         if (backoff != null) {
             return backoff;

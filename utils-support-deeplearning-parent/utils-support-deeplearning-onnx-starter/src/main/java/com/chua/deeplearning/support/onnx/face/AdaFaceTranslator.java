@@ -11,10 +11,10 @@ import ai.djl.translate.TranslatorContext;
 
 
 /**
- * AdaFace — 自适应人脸特征提取模型（Adaptive Face Recognition）
+   * adaface — 自适应人脸特征提取模型（Adaptive Face 认可）
  * <p>
- * 基于自适应 margin 策略，在低质量人脸上比 ArcFace 表现更优。
- * 典型变体：AdaFace IR101 (WebFace12M 训练)，输入 112x112 RGB 人脸图，输出 512 维归一化 embedding。
+   * 基于自适应 margin 策略，在低质量人脸上比 arcface 表现更优。
+   * 典型变体：adaface IR101 (webface12M 训练)，输入 112x112 RGB 人脸图，输出 512 维归一化 嵌入。
  * <p>
  * 输入要求：
  * - 单张人脸图像（已裁剪对齐）
@@ -24,7 +24,7 @@ import ai.djl.translate.TranslatorContext;
  * - 通道顺序：CHW
  * <p>
  * 输出说明：
- * - 512 维 float[] embedding
+   * - 512 维 float[] 嵌入
  * - 已做 L2 归一化
  *
  * @author CH
@@ -33,7 +33,7 @@ import ai.djl.translate.TranslatorContext;
 public class AdaFaceTranslator implements Translator<Image, float[]> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
@@ -55,7 +55,7 @@ public class AdaFaceTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         float[] features = array.toFloatArray();

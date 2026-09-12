@@ -6,7 +6,7 @@ import com.chua.datasync.agent.support.model.Directional;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * CSV 数据同步 Source，从 CSV 文件读取数据。
+   * CSV 数据同步 源，从 CSV 文件读取数据。
  * <p>
  * 底层委托 {@link DelimitedDataSyncAgentSource} 实现，支持 RFC 4180 CSV 格式。
  * </p>
@@ -18,9 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 public class CsvDataSyncAgentSource extends DelimitedDataSyncAgentSource implements DataSyncAgentSource, Directional {
 
     /**
-     * 构造 CSV Source。
+      * 构造 CSV 源。
      *
-     * @param sourceId Source 实例 ID
+     * @param sourceId 源 实例 标识
      * @param inputId 输入标识
      * @param filePath CSV 文件路径
      */
@@ -29,9 +29,9 @@ public class CsvDataSyncAgentSource extends DelimitedDataSyncAgentSource impleme
     }
 
     /**
-     * 构造 CSV Source。
+      * 构造 CSV 源。
      *
-     * @param sourceId Source 实例 ID
+     * @param sourceId 源 实例 标识
      * @param inputId 输入标识
      * @param filePath CSV 文件路径
      * @param delimiter 定界符，默认","

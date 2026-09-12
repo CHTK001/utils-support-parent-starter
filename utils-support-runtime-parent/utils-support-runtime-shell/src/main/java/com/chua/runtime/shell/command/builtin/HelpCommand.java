@@ -29,7 +29,7 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "help";
     }

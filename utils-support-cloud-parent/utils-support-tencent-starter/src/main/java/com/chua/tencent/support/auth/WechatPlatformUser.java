@@ -24,6 +24,7 @@ public class WechatPlatformUser {
     /**
  * @author CH
      * 平台类型
+     * @since 4.0.0
      */
     public enum PlatformType {
         /** 微信小程序 */
@@ -43,13 +44,22 @@ public class WechatPlatformUser {
         }
 
         @JsonValue
-        /** 获取Value */
+        /**
+         * 获取值
+         *
+         * @return 获取值的结果
+         */
         public String getValue() {
             return value;
         }
 
         @JsonCreator
-        /** FromValue */
+        /**
+         * 从值
+         *
+         * @param value 值
+         * @return 从值的结果
+         */
         public static PlatformType fromValue(String value) {
             if (value == null) {
                 return null;
@@ -64,7 +74,7 @@ public class WechatPlatformUser {
     }
 
     /**
-     * 主键ID
+      * 主键标识
      */
     private Long id;
 
@@ -74,7 +84,7 @@ public class WechatPlatformUser {
     private String unionId;
 
     /**
-     * 应用appId
+      * 应用appid
      */
     private String appId;
 

@@ -15,11 +15,11 @@ import java.io.ByteArrayOutputStream;
  * 图像抠图（matting）能力接口。
  *
  * <p>输入图像，输出透明背景 PNG。底层基于 DJL onnxruntime-engine 的抠图模型（如 modnet），
- * OpenCV 预处理 + djl-onnx 推理。</p>
+   * 打开cv 预处理 + djl-onnx 推理。</p>
  *
  * <pre>{@code
  * byte[] png = MattingService.create("modnet").matte(imageBytes);
- * }</pre>
+ * }</pre> * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,9 +27,9 @@ import java.io.ByteArrayOutputStream;
 public interface MattingService {
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -39,9 +39,9 @@ public interface MattingService {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default MattingService provider(String provider) {

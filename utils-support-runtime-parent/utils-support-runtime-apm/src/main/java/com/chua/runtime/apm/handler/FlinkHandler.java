@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Flink Handler — intercepts Flink DataStream operations.
+   * Flink 处理器 — intercepts Flink 数据流 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class FlinkHandler extends AbstractAppHandler {
 
     /**
-     * data stream
+      * 数据 流
      */
     private static final String DATA_STREAM = "org/apache/flink/streaming/api/datastream/DataStream";
     /**
-     * stream methods
+      * 流 方法
      */
     private static final String[] STREAM_METHODS = {"execute", "print", "collect", "count", "map", "filter", "flatMap"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "flink-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "flink.enabled";
     }
@@ -42,13 +42,13 @@ public class FlinkHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(DATA_STREAM, STREAM_METHODS);
     }

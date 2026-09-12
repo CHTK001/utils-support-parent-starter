@@ -24,7 +24,7 @@ public interface LicenseRegistry {
      * 查询指纹注册的私钥封装块
      *
      * @param fingerprint 指纹十六进制串
-     * @return 封装块字节；未注册返回 null
+     * @return 封装块字节；未注册返回 空
      */
     byte[] lookup(String fingerprint);
 
@@ -55,7 +55,7 @@ public interface LicenseRegistry {
     /**
      * 全部注册项快照（管理端展示用）
      *
-     * @return 只读映射：指纹 -> Base64(封装块)
+     * @return 只读映射：指纹 -> 基础64(封装块)
      */
     Map<String, String> snapshot();
 }

@@ -15,7 +15,7 @@ public interface ProxyFetcher {
     /**
      * 获取代理列表。
      *
-     * @return 代理地址列表，格式为 "host:port"
+     * @return 代理地址列表，格式为 "主机:端口"
      */
     List<String> fetchProxies();
 

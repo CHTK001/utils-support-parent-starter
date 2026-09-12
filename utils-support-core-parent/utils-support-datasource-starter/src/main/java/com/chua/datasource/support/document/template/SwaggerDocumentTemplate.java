@@ -3,7 +3,7 @@ package com.chua.datasource.support.document.template;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * Swagger / OpenAPI 风格文档模板。
+   * Swagger / 打开api 风格文档模板。
  *
  * <p>模板文件位于 datasource-starter：</p>
  * <ul>
@@ -18,19 +18,19 @@ import com.chua.common.support.spi.annotations.Spi;
 public class SwaggerDocumentTemplate extends AbstractClasspathDocumentTemplate {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "swagger";
     }
 
     @Override
-    /** HtmlTemplatePath */
+    /** htmltemplate路径 */
     protected String htmlTemplatePath() {
         return "document/templates/swagger/index.html";
     }
 
     @Override
-    /** MarkdownTemplatePath */
+    /** markdowntemplate路径 */
     protected String markdownTemplatePath() {
         return "document/templates/swagger/document.markdown";
     }

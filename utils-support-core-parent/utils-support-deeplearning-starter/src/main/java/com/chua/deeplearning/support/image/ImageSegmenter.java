@@ -23,9 +23,9 @@ public interface ImageSegmenter {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -35,9 +35,9 @@ public interface ImageSegmenter {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default ImageSegmenter provider(String provider) {
@@ -54,7 +54,12 @@ public interface ImageSegmenter {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static ImageSegmenter create(String name) {
         return new DefaultImageSegmenter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -65,7 +70,7 @@ public interface ImageSegmenter {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageSegmenter.class);
@@ -177,7 +182,7 @@ class DefaultImageSegmenter implements ImageSegmenter {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageSegmenter modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -192,7 +197,12 @@ class DefaultImageSegmenter implements ImageSegmenter {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Segment */
+    /**
+     * Segment
+     *
+     * @param imageData 镜像数据
+     * @return segment的结果
+     */
     public byte[] segment(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);
@@ -204,7 +214,13 @@ class DefaultImageSegmenter implements ImageSegmenter {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Segment */
+    /**
+     * Segment
+     *
+     * @param imageData 镜像数据
+     * @param targetClass Target类
+     * @return segment的结果
+     */
     public byte[] segment(byte[] imageData, int targetClass) {
         return segment(imageData);
     }

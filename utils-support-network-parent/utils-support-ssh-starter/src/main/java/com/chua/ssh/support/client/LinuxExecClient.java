@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Linux 命令执行客户端，兼容 ServerMetricsServiceImpl 调用方式
+   * Linux 命令执行客户端，兼容 服务端指标服务impl 调用方式
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,12 +19,12 @@ public class LinuxExecClient implements AutoCloseable {
      */
     private final ClientSetting setting;
     /**
-     * ssh Client
+      * ssh 客户端
      */
     private SshClient sshClient;
 
     /**
-     * 创建 LinuxExecClient 实例
+      * 创建 Linux执行客户端 实例
      * @param setting setting
      */
     public LinuxExecClient(ClientSetting setting) {
@@ -44,7 +44,13 @@ public class LinuxExecClient implements AutoCloseable {
         this.sshClient.connect();
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param command 命令
+     * @param timeoutMs 超时ms
+     * @return 执行命令的结果
+     */
     public SshClient.ExecResult executeCommand(String command, int timeoutMs) {
         if (sshClient == null) {
             throw new IllegalStateException("SSH 客户端未连接，请先调用 connect()");
@@ -58,7 +64,12 @@ public class LinuxExecClient implements AutoCloseable {
         }
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param command 命令
+     * @return 执行命令的结果
+     */
     public SshClient.ExecResult executeCommand(String command) {
         return executeCommand(command, 30_000);
     }

@@ -21,7 +21,7 @@ import java.util.List;
 @Spi("mysql")
 public class MysqlPermissionManager implements PermissionManager, DataSourceAware {
 
-    private DataSource dataSource;
+    private DataSource dataSource; // 数据源
 
     @Override
     public void setDataSource(DataSource dataSource) {
@@ -37,7 +37,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     public List<PermissionInfo> listPermissions() {
         List<PermissionInfo> result = new ArrayList<>();
         try (Connection conn = dataSource.getConnection()) {
-            // Global privileges
+ // 全局 privileges
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(
                          "SELECT GRANTEE, PRIVILEGE_TYPE, IS_GRANTABLE"
@@ -48,7 +48,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
                             "YES".equals(rs.getString("IS_GRANTABLE"))));
                 }
             }
-            // Collect users first
+ // Collect 用户 第一个
             List<String[]> users = new ArrayList<>();
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT User, Host FROM mysql.user")) {
@@ -56,7 +56,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
                     users.add(new String[]{rs.getString("User"), rs.getString("Host")});
                 }
             }
-            // Query SHOW GRANTS for each user
+ // 查询 SHOW GRANTS for each 用户
             for (String[] u : users) {
                 try (Statement stmt = conn.createStatement();
                      ResultSet rs = stmt.executeQuery("SHOW GRANTS FOR '"
@@ -77,28 +77,52 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         return result;
     }
 
+    /**
+     * 解析grantprivileges。
+     * @param sql SQL
+     * @return 解析grantprivileges的结果
+     */
     private static String parseGrantPrivileges(String sql) {
-        if (sql == null) return null;
+        if (sql == null) {
+            return null;
+        }
         int on = sql.indexOf(" ON ");
         int to = sql.indexOf(" TO ");
-        if (on < 0 || to < 0 || to <= on) return null;
+        if (on < 0 || to < 0 || to <= on) {
+            return null;
+        }
         // Privileges are between first space after "GRANT" and " ON"
         int grantIdx = sql.indexOf("GRANT ");
-        if (grantIdx < 0) return null;
+        if (grantIdx < 0) {
+            return null;
+        }
         return sql.substring(grantIdx + 6, on).trim();
     }
 
+    /**
+     * 解析grantdatabase。
+     * @param sql SQL
+     * @return 解析grantdatabase的结果
+     */
     private static String parseGrantDatabase(String sql) {
-        if (sql == null) return null;
+        if (sql == null) {
+            return null;
+        }
         int on = sql.indexOf(" ON ");
         int to = sql.indexOf(" TO ");
-        if (on < 0 || to < 0 || to <= on) return null;
+        if (on < 0 || to < 0 || to <= on) {
+            return null;
+        }
         String target = sql.substring(on + 4, to).trim();
-        // Remove backticks
+ // 移除 backticks
         target = target.replaceAll("`", "");
-        if ("*".equals(target) || "*.*".equals(target)) return null;
-        // Remove .* suffix
-        if (target.endsWith(".*")) target = target.substring(0, target.length() - 2);
+        if ("*".equals(target) || "*.*".equals(target)) {
+            return null;
+        }
+ // 移除 .* 后缀
+        if (target.endsWith(".*")) {
+            target = target.substring(0, target.length() - 2);
+        }
         return target;
     }
 
@@ -119,8 +143,15 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         return new RevokeAction(dataSource, privileges);
     }
 
+    /**
+     * strip引述。
+     * @param raw raw
+     * @return strip引述的结果
+     */
     private static String stripQuote(String raw) {
-        if (raw == null) return raw;
+        if (raw == null) {
+            return raw;
+        }
         String clean = raw.trim();
         // Remove surrounding quotes: 'user'@'host' -> user'@'host
         if (clean.startsWith("'") && clean.endsWith("'")) {
@@ -129,15 +160,24 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         int at = clean.indexOf('@');
         if (at > 0) {
             String u = clean.substring(0, at);
-            // Strip any trailing quote left behind
-            while (u.endsWith("'")) u = u.substring(0, u.length() - 1);
+ // Strip 任意 trailing 引述 left behind
+            while (u.endsWith("'")) {
+                u = u.substring(0, u.length() - 1);
+            }
             return u;
         }
-        // No @ sign — might be bare username from SHOW GRANTS
-        while (clean.endsWith("'")) clean = clean.substring(0, clean.length() - 1);
+ // No @ 标志 — might be bare 用户名 从 SHOW GRANTS
+        while (clean.endsWith("'")) {
+            clean = clean.substring(0, clean.length() - 1);
+        }
         return clean;
     }
 
+    /**
+     * 执行sql。
+     * @param ds ds
+     * @param sql SQL
+     */
     private static void execSql(DataSource ds, String sql) {
         try (Connection conn = ds.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -148,12 +188,21 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     // ==================== Inner Actions ====================
+     /**
+      * grant动作类。
+      *
+      * @author CH
+      * @since 4.0.0
+      */
+     * revoke动作类。
+     *
+     */
 
     private static class GrantAction implements GrantStep {
-        private final DataSource dataSource;
-        private final String privileges;
-        private String user = null;
-        private String database = null;
+        private final DataSource dataSource; // 数据源
+        private final String privileges; // privileges
+        private String user = null; // 用户
+        private String database = null; // database
 
         GrantAction(DataSource dataSource, String privileges) {
             this.dataSource = dataSource;
@@ -183,7 +232,9 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
 
         @Override
         public void execute() {
-            if (user == null) throw new IllegalStateException("必须指定 toUser()");
+            if (user == null) {
+                throw new IllegalStateException("必须指定 toUser()");
+            }
             String target = database != null ? "`" + database + "`.*" : "*.*";
             execSql(dataSource, "GRANT " + privileges + " ON " + target + " TO '" + user + "'@'%'");
         }
@@ -214,7 +265,9 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
 
         @Override
         public void execute() {
-            if (user == null) throw new IllegalStateException("必须指定 fromUser()");
+            if (user == null) {
+                throw new IllegalStateException("必须指定 fromUser()");
+            }
             execSql(dataSource, "REVOKE " + privileges + " ON *.* FROM '" + user + "'@'%'");
         }
     }

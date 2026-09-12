@@ -32,6 +32,8 @@ public class LoremMockString implements MockString {
     };
     /**
      * 默认单词数量
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int DEFAULT_WORDS = 10;
 

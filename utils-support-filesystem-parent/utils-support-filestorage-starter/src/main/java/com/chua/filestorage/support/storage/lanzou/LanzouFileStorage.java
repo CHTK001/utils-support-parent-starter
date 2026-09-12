@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  * <h3>Key 约定</h3>
  * <p>蓝奏云以数字 {@code file_id} 唯一标识文件。{@code listObject} 返回的每个条目的
  * {@link Metadata#getKey()} 形如 {@code <file_id>/<文件名>}，调用 {@code getObject/deleteObject}
- * 时透传该 Key 即可（实现会从中解析出 file_id）。</p>
+   * 时透传该 键 即可（实现会从中解析出 文件_标识）。</p>
  *
  * <h3>配置</h3>
  * <pre>{@code
@@ -56,6 +56,9 @@ import java.util.regex.Pattern;
  *         "uid", "1645999",                         // 可选，缺省从 cookie 的 ylogin 提取
  *         "rootFolderId", "-1",                    // 可选，默认 -1（全部）
  *         "uploadUrl", "https://up.lanzou.com/up"  // 可选，上传端点
+ *     ))
+ *     .build();
+ * }</pre>/up"  // 可选，上传端点
  *     ))
  *     .build();
  * }</pre>
@@ -82,7 +85,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
     private final LanzouHttp http;
 
     /**
-     * 登录用户 ID。
+      * 登录用户 标识。
      */
     private final String uid;
 
@@ -102,8 +105,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
     private final Map<String, String> extra;
 
     /**
-     * 创建 LanzouFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 lanzou文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public LanzouFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -122,7 +125,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 从 cookie 文件（Netscape 或 playwright JSON）读取并拼装为 Cookie 头串。
+      * 从 Cookie 文件（Netscape 或 playwright JSON）读取并拼装为 Cookie 头串。
+     * @param path 路径
+     * @return 加载Cookie的结果
      */
     private String loadCookie(String path) {
         if (path == null || path.isEmpty()) {
@@ -140,7 +145,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 解析 Netscape cookie 文件（每行 7 字段）。
+      * 解析 Netscape Cookie 文件（每行 7 字段）。
+     * @param raw raw
+     * @return 解析netscapeCookie的结果
      */
     private String parseNetscapeCookie(String raw) {
         StringBuilder builder = new StringBuilder();
@@ -162,7 +169,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 解析 playwright JSON cookie 数组（[{name,value,...}]）。
+      * 解析 playwright JSON Cookie 数组（[{名称,值,...}]）。
+     * @param raw raw
+     * @return 解析jsonCookie的结果
      */
     private String parseJsonCookie(String raw) {
         StringBuilder builder = new StringBuilder();
@@ -179,7 +188,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 从 cookie 串提取登录 UID（ylogin 字段）。
+      * 从 Cookie 串提取登录 UID（ylogin 字段）。
+     * @param cookie Cookie
+     * @return extractUid的结果
      */
     private String extractUid(String cookie) {
         if (cookie == null) {
@@ -191,8 +202,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * PutObject
-     * @param request request
+      * 放入对象
+     * @param request 请求
      */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
@@ -204,7 +215,7 @@ public class LanzouFileStorage extends AbstractFileStorage {
             fields.put("uid", uid);
             fields.put("task", "1");
             // 蓝奏云上传为 H5 分片协议，formhash 由前端动态获取；此处提供 multipart 直传框架，
-            // 端点可通过 extraProperties.uploadUrl 配置，适用于服务端接受直传的场景。
+ // 端点可通过 extra属性.uploadurl 配置，适用于服务端接受直传的场景。
             String resp = http.upload(uploadUrl, referer, fields, "file", fileName, content);
             JsonObject json = Json.getJsonObject(resp);
             if (json != null && json.getType("zt", 0, Integer.class) == 1) {
@@ -230,8 +241,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * 获取Object
-     * @param request request
+      * 获取对象
+     * @param request 请求
      */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
@@ -274,8 +285,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * 获取Object
-     * @param key key
+      * 获取对象
+     * @param key 键
      */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
@@ -285,8 +296,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * 删除Object
-     * @param key key
+      * 删除对象
+     * @param key 键
      */
     public DeleteObjectResult deleteObject(String key) {
         try {
@@ -312,8 +323,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * ExistObject
-     * @param request request
+      * exist对象
+     * @param request 请求
      */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
@@ -335,8 +346,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * ListObject
-     * @param request request
+      * 列表对象
+     * @param request 请求
      */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
@@ -370,6 +381,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
      * 递归列出某文件夹下的全部文件（含子文件夹）。
+     * @param folderId 文件夹标识
+     * @return 列表全部的结果
      */
     private List<LanzouFile> listAll(String folderId) {
         List<LanzouFile> result = new ArrayList<>();
@@ -381,7 +394,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 列出文件夹下的文件（task=5）。
+      * 列出文件夹下的文件（任务=5）。
+     * @param folderId 文件夹标识
+     * @return 列表文件的结果
      */
     private List<LanzouFile> listFiles(String folderId) {
         String resp = postTask("5", Map.of("folder_id", folderId, "pg", "1"), referer);
@@ -395,7 +410,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 列出文件夹下的子文件夹（task=47）。
+      * 列出文件夹下的子文件夹（任务=47）。
+     * @param folderId 文件夹标识
+     * @return 列表文件夹的结果
      */
     private List<LanzouFile> listFolders(String folderId) {
         String resp = postTask("47", Map.of("folder_id", folderId), referer);
@@ -410,6 +427,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
      * 解析文件/文件夹数组为模型列表。
+     * @param root 根
+     * @param list 列表
+     * @param directory 目录
      */
     private void parseFileArray(JsonObject root, List<LanzouFile> list, boolean directory) {
         JsonArray array = root.getJsonArray("text");
@@ -426,6 +446,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
      * 单个文件/文件夹对象转换。
+     * @param o o
+     * @param directory 目录
+     * @return 转为lanzou文件的结果
      */
     private LanzouFile toLanzouFile(JsonObject o, boolean directory) {
         String id = directory ? o.getType("fol_id", "", String.class) : o.getType("id", "", String.class);
@@ -445,7 +468,11 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 提交 doupload.php 任务。
+      * 提交 doupload.PHP 任务。
+     * @param task 任务
+     * @param params 参数
+     * @param referer referer
+     * @return post任务的结果
      */
     private String postTask(String task, Map<String, String> params, String referer) {
         Map<String, String> body = new LinkedHashMap<>(params);
@@ -454,7 +481,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 从 Key（<file_id>/<name> 或纯 file_id）解析出 file_id。
+      * 从 键（<file_id>/<name> 或纯 文件_标识）解析出 文件_标识。
+     * @param key 键
+     * @return resolve文件id的结果
      */
     private String resolveFileId(String key) {
         if (key == null) {
@@ -467,19 +496,23 @@ public class LanzouFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * 解析上传目标文件夹 ID。
+      * 解析上传目标文件夹 标识。
+     * @param filePath 文件路径
+     * @return resolve文件夹id的结果
      */
     private String resolveFolderId(String filePath) {
         if (filePath == null || filePath.isEmpty()) {
             return rootFolderId;
         }
-        // filePath 可能是 folder_id 或 路径；取首个片段作为 folder_id
+ // 文件路径 可能是 文件夹_标识 或 路径；取首个片段作为 文件夹_标识
         String first = filePath.contains("/") ? filePath.substring(0, filePath.indexOf('/')) : filePath;
         return first.isEmpty() ? rootFolderId : first;
     }
 
     /**
      * 解析蓝奏云大小文本（如 "330.6 K"）为字节数。
+     * @param sizeText 大小文本
+     * @return 解析大小的结果
      */
     private long parseSize(String sizeText) {
         if (sizeText == null || sizeText.isEmpty()) {

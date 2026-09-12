@@ -24,10 +24,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DatalakeServer 构建器。
+   * 数据湖服务端 构建器。
  *
  * <p>对外提供链式构建入口，统一注入依赖项。一旦 {@link #dataSyncServer(DataSyncServer)}
- * 被调用，构建时会自动把 DataSync 调度器的 ExecutorManager 替换为 DatalakeExecutorManager。</p>
+   * 被调用，构建时会自动把 数据同步 调度器的 执行器管理器 替换为 数据湖执行器管理器。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -46,12 +46,12 @@ public class DatalakeServerBuilder {
     private final Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
 
     /**
-     * 外部注入的 DataSyncServer
+      * 外部注入的 数据同步服务端
      */
     private DataSyncServer dataSyncServer;
 
     /**
-     * DispatcherProvider 实例
+      * dispatcher提供者 实例
      */
     private DispatcherProvider dispatcher;
 
@@ -61,12 +61,12 @@ public class DatalakeServerBuilder {
     private String dataPath;
 
     /**
-     * offset 门面
+      * 偏移量 门面
      */
     private OffsetFlow offsetFlow;
 
     /**
-     * 启动期注入的 API Server
+      * 启动期注入的 API 服务端
      */
     private Server apiServer;
 
@@ -119,9 +119,9 @@ public class DatalakeServerBuilder {
     }
 
     /**
-     * 注入 DataSyncServer
+      * 注入 数据同步服务端
      *
-     * @param dataSyncServer DataSyncServer 实例
+     * @param dataSyncServer 数据同步服务端 实例
      * @return 当前构建器
      */
     public DatalakeServerBuilder dataSyncServer(DataSyncServer dataSyncServer) {
@@ -141,9 +141,9 @@ public class DatalakeServerBuilder {
     }
 
     /**
-     * 注入自定义 API Server
+      * 注入自定义 API 服务端
      *
-     * @param apiServer API Server 实例
+     * @param apiServer API 服务端 实例
      * @return 当前构建器
      */
     public DatalakeServerBuilder apiServer(Server apiServer) {
@@ -152,7 +152,7 @@ public class DatalakeServerBuilder {
     }
 
     /**
-     * 构建 DatalakeServer 实例
+      * 构建 数据湖服务端 实例
      *
      * @return 已配置的服务器
      */

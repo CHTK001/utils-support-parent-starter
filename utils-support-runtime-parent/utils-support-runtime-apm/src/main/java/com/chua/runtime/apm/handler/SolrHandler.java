@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Solr 应用层 Handler — 拦截 Apache Solr Client 请求并生成应用语义传输记录。
+   * Solr 应用层 处理器 — 拦截 Apache Solr 客户端 请求并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -22,22 +22,22 @@ import com.chua.runtime.protocol.Software;
 public class SolrHandler extends AbstractAppHandler {
 
     /**
-     * solr 客户端
+      * Solr 客户端
      */
     private static final String SOLR_CLIENT = "org/apache/solr/client/solrj/SolrClient";
     /**
-     * solr methods
+      * Solr 方法
      */
     private static final String[] SOLR_METHODS = {"request"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "solr-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "solr.enabled";
     }
@@ -49,13 +49,13 @@ public class SolrHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.SOLR;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(SOLR_CLIENT, SOLR_METHODS);
     }

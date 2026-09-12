@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * OkHttp Handler — intercepts OkHttp call execution.
+   * OkHttp 处理器 — intercepts OkHttp call 执行.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,18 +19,18 @@ public class OkHttpHandler extends AbstractAppHandler {
      */
     private static final String CALL = "okhttp3/Call";
     /**
-     * execute methods
+      * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute", "enqueue"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "okhttp-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "okhttp.enabled";
     }
@@ -42,13 +42,13 @@ public class OkHttpHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(CALL, EXECUTE_METHODS);
     }

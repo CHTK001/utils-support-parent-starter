@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 本注册表仅作为"类型 → 原型"的目录，不再承担节点发现职责。</p>
  *
  * @since 4.0.0.42
+ * @author CH
  */
 public final class FlowNodeRegistry {
 
@@ -78,7 +79,7 @@ public final class FlowNodeRegistry {
      * 原型不可克隆时返回原型本身。</p>
      *
      * @param type 节点类型标识
-     * @return 节点副本，未注册时返回 null
+     * @return 节点副本，未注册时返回 空
      */
     public static FlowNode createNode(String type) {
         Registration registration = REGISTRY.get(type);

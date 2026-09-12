@@ -45,6 +45,7 @@ public class FFmpegMediaInfo {
      * 视频流信息。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     public static class VideoStream {
         /** 流索引 */
@@ -70,37 +71,101 @@ public class FFmpegMediaInfo {
          */
         private double duration;
 
-        /** 获取Index */
+        /**
+         * 获取索引
+         *
+         * @return 获取索引的结果
+         */
         public int getIndex() { return index; }
-        /** 设置Index */
+        /**
+         * 设置索引
+         *
+         * @param v v
+         */
         public void setIndex(int v) { index = v; }
-        /** 获取Codec */
+        /**
+         * 获取Codec
+         *
+         * @return 获取codec的结果
+         */
         public String getCodec() { return codec; }
-        /** 设置Codec */
+        /**
+         * 设置Codec
+         *
+         * @param v v
+         */
         public void setCodec(String v) { codec = v; }
-        /** 获取CodecLongName */
+        /**
+         * 获取codeclong名称
+         *
+         * @return 获取codeclong名称的结果
+         */
         public String getCodecLongName() { return codecLongName; }
-        /** 设置CodecLongName */
+        /**
+         * 设置codeclong名称
+         *
+         * @param v v
+         */
         public void setCodecLongName(String v) { codecLongName = v; }
-        /** 获取Width */
+        /**
+         * 获取Width
+         *
+         * @return 获取width的结果
+         */
         public int getWidth() { return width; }
-        /** 设置Width */
+        /**
+         * 设置Width
+         *
+         * @param v v
+         */
         public void setWidth(int v) { width = v; }
-        /** 获取Height */
+        /**
+         * 获取Height
+         *
+         * @return 获取height的结果
+         */
         public int getHeight() { return height; }
-        /** 设置Height */
+        /**
+         * 设置Height
+         *
+         * @param v v
+         */
         public void setHeight(int v) { height = v; }
-        /** 获取Fps */
+        /**
+         * 获取Fps
+         *
+         * @return 获取fps的结果
+         */
         public double getFps() { return fps; }
-        /** 设置Fps */
+        /**
+         * 设置Fps
+         *
+         * @param v v
+         */
         public void setFps(double v) { fps = v; }
-        /** 获取Bitrate */
+        /**
+         * 获取Bitrate
+         *
+         * @return 获取bitrate的结果
+         */
         public long getBitrate() { return bitrate; }
-        /** 设置Bitrate */
+        /**
+         * 设置Bitrate
+         *
+         * @param v v
+         */
         public void setBitrate(long v) { bitrate = v; }
-        /** 获取Duration */
+        /**
+         * 获取持续时间
+         *
+         * @return 获取持续时间的结果
+         */
         public double getDuration() { return duration; }
-        /** 设置Duration */
+        /**
+         * 设置持续时间
+         *
+         * @param v v
+         */
         public void setDuration(double v) { duration = v; }
     }
 
@@ -108,6 +173,7 @@ public class FFmpegMediaInfo {
      * 音频流信息。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     public static class AudioStream {
         /** 流索引 */
@@ -123,7 +189,7 @@ public class FFmpegMediaInfo {
         private int sampleRate;
         /** 声道数 */
         private int channels;
-        /** 声道布局（如 stereo, 5.1） */
+        /** 声道布局（如 立体, 5.1） */
         private String channelLayout;
         /** 音频码率（bps） */
         private long bitrate;
@@ -133,70 +199,198 @@ public class FFmpegMediaInfo {
          */
         private double duration;
 
-        /** 获取Index */
+        /**
+         * 获取索引
+         *
+         * @return 获取索引的结果
+         */
         public int getIndex() { return index; }
-        /** 设置Index */
+        /**
+         * 设置索引
+         *
+         * @param v v
+         */
         public void setIndex(int v) { index = v; }
-        /** 获取Codec */
+        /**
+         * 获取Codec
+         *
+         * @return 获取codec的结果
+         */
         public String getCodec() { return codec; }
-        /** 设置Codec */
+        /**
+         * 设置Codec
+         *
+         * @param v v
+         */
         public void setCodec(String v) { codec = v; }
-        /** 获取CodecLongName */
+        /**
+         * 获取codeclong名称
+         *
+         * @return 获取codeclong名称的结果
+         */
         public String getCodecLongName() { return codecLongName; }
-        /** 设置CodecLongName */
+        /**
+         * 设置codeclong名称
+         *
+         * @param v v
+         */
         public void setCodecLongName(String v) { codecLongName = v; }
-        /** 获取SampleRate */
+        /**
+         * 获取样本rate
+         *
+         * @return 获取样本rate的结果
+         */
         public int getSampleRate() { return sampleRate; }
-        /** 设置SampleRate */
+        /**
+         * 设置样本rate
+         *
+         * @param v v
+         */
         public void setSampleRate(int v) { sampleRate = v; }
-        /** 获取Channels */
+        /**
+         * 获取通道
+         *
+         * @return 获取通道的结果
+         */
         public int getChannels() { return channels; }
-        /** 设置Channels */
+        /**
+         * 设置通道
+         *
+         * @param v v
+         */
         public void setChannels(int v) { channels = v; }
-        /** 获取ChannelLayout */
+        /**
+         * 获取通道layout
+         *
+         * @return 获取通道layout的结果
+         */
         public String getChannelLayout() { return channelLayout; }
-        /** 设置ChannelLayout */
+        /**
+         * 设置通道layout
+         *
+         * @param v v
+         */
         public void setChannelLayout(String v) { channelLayout = v; }
-        /** 获取Bitrate */
+        /**
+         * 获取Bitrate
+         *
+         * @return 获取bitrate的结果
+         */
         public long getBitrate() { return bitrate; }
-        /** 设置Bitrate */
+        /**
+         * 设置Bitrate
+         *
+         * @param v v
+         */
         public void setBitrate(long v) { bitrate = v; }
-        /** 获取Duration */
+        /**
+         * 获取持续时间
+         *
+         * @return 获取持续时间的结果
+         */
         public double getDuration() { return duration; }
-        /** 设置Duration */
+        /**
+         * 设置持续时间
+         *
+         * @param v v
+         */
         public void setDuration(double v) { duration = v; }
     }
 
-    /** 获取Filename */
+    /**
+     * 获取文件名
+     *
+     * @return 获取文件名的结果
+     */
     public String getFilename() { return filename; }
-    /** 设置Filename */
+    /**
+     * 设置文件名
+     *
+     * @param v v
+     */
     public void setFilename(String v) { filename = v; }
-    /** 获取格式化Name */
+    /**
+     * 获取格式化名称
+     *
+     * @return 获取格式化名称的结果
+     */
     public String getFormatName() { return formatName; }
-    /** 设置格式化Name */
+    /**
+     * 设置格式化名称
+     *
+     * @param v v
+     */
     public void setFormatName(String v) { formatName = v; }
-    /** 获取格式化LongName */
+    /**
+     * 获取格式化long名称
+     *
+     * @return 获取格式化long名称的结果
+     */
     public String getFormatLongName() { return formatLongName; }
-    /** 设置格式化LongName */
+    /**
+     * 设置格式化long名称
+     *
+     * @param v v
+     */
     public void setFormatLongName(String v) { formatLongName = v; }
-    /** 获取Duration */
+    /**
+     * 获取持续时间
+     *
+     * @return 获取持续时间的结果
+     */
     public double getDuration() { return duration; }
-    /** 设置Duration */
+    /**
+     * 设置持续时间
+     *
+     * @param v v
+     */
     public void setDuration(double v) { duration = v; }
-    /** 获取获取大小 */
+    /**
+     * 获取获取大小
+     *
+     * @return 获取大小的结果
+     */
     public long getSize() { return size; }
-    /** 设置获取大小 */
+    /**
+     * 设置获取大小
+     *
+     * @param v v
+     */
     public void setSize(long v) { size = v; }
-    /** 获取Bitrate */
+    /**
+     * 获取Bitrate
+     *
+     * @return 获取bitrate的结果
+     */
     public long getBitrate() { return bitrate; }
-    /** 设置Bitrate */
+    /**
+     * 设置Bitrate
+     *
+     * @param v v
+     */
     public void setBitrate(long v) { bitrate = v; }
-    /** 获取VideoStream */
+    /**
+     * 获取视频流
+     *
+     * @return 获取视频流的结果
+     */
     public VideoStream getVideoStream() { return videoStream; }
-    /** 设置VideoStream */
+    /**
+     * 设置视频流
+     *
+     * @param v v
+     */
     public void setVideoStream(VideoStream v) { videoStream = v; }
-    /** 获取AudioStream */
+    /**
+     * 获取音频流
+     *
+     * @return 获取音频流的结果
+     */
     public AudioStream getAudioStream() { return audioStream; }
-    /** 设置AudioStream */
+    /**
+     * 设置音频流
+     *
+     * @param v v
+     */
     public void setAudioStream(AudioStream v) { audioStream = v; }
 }

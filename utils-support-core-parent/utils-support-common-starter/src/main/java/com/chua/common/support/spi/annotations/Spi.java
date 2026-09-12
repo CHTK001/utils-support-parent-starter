@@ -3,7 +3,7 @@ package com.chua.common.support.spi.annotations;
 import java.lang.annotation.*;
 
 /**
- * SPI (Service Provider Interface) 注解
+   * SPI (服务 提供者 接口) 注解
  *
  * <p>用于标记服务提供者接口（SPI）的实现类或注入点，
  * 实现基于名称或类型的服务发现与依赖注入。
@@ -66,6 +66,8 @@ import java.lang.annotation.*;
  *
  *     @Spi({"xml", "default"})
  *     private DataProcessor xmlProcessor;
+ * }
+ * }</pre>xml处理器;
  * }
  * }</pre>
  *
@@ -145,6 +147,7 @@ public @interface Spi {
      *
      * @Spi(value = "file", order = -100)   // 低优先级，作为兜底
      * public class FileCache implements Cache { }
+     * }</pre> { }
      * }</pre>
      *
      * @return 优先级顺序，默认为 0

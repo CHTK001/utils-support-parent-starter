@@ -49,7 +49,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     public static final String DECRYPTED_SOURCE_NAME = "chuaCryptoDecryptedConfig";
 
     /**
-     * 排序：晚于 ConfigData 装载，保证配置文件已就绪
+      * 排序：晚于 配置数据 装载，保证配置文件已就绪
      */
     public static final int ORDER = ConfigDataEnvironmentPostProcessor.ORDER + 1;
 
@@ -87,7 +87,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-     * 绑定 chua.crypto.* 配置
+      * 绑定 chua.加密货币.* 配置
      *
      * @param environment 环境
      * @return 属性对象
@@ -104,7 +104,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
      *
      * @param crypto        加密门面
      * @param files         配置文件列表
-     * @param decryptedFile 计数器（out 参数，记录实际解密文件数）
+     * @param decryptedFile 计数器（出 参数，记录实际解密文件数）
      * @return 属性键值
      */
     private Map<String, Object> decryptWholeFileConfigs(Crypto crypto, List<String> files, int[] decryptedFile) {
@@ -141,7 +141,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-     * 解析 properties 内容
+      * 解析 属性 内容
      *
      * @param content 配置明文
      * @return 扁平属性表
@@ -181,7 +181,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-     * 递归展平嵌套 Map 为点号分隔键
+      * 递归展平嵌套 映射 为点号分隔键
      *
      * @param prefix 键前缀
      * @param source 嵌套结构

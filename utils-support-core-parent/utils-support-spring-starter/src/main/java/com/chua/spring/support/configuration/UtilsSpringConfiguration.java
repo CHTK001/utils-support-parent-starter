@@ -27,28 +27,46 @@ public class UtilsSpringConfiguration {
 
     @Bean
     @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
-    /** Distributed锁Intercept */
+    /**
+     * Distributed锁Intercept
+     *
+     * @return distributed锁intercept的结果
+     */
     public DistributedLockIntercept distributedLockIntercept() {
         return new DistributedLockIntercept();
     }
 
     @Bean
     @ConditionalOnMissingBeanDefinition({"distributedLockIntercept", "distributedLockAdvisor"})
-    /** Distributed锁Advisor */
+    /**
+     * Distributed锁Advisor
+     *
+     * @param intercept intercept
+     * @return distributed锁advisor的结果
+     */
     public DistributedLockAdvisor distributedLockAdvisor(DistributedLockIntercept intercept) {
         return new DistributedLockAdvisor(intercept);
     }
 
     @Bean
     @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
-    /** Collapse拦截 */
+    /**
+     * Collapse拦截
+     *
+     * @return collapsibleIntercept的结果
+     */
     public CollapsibleIntercept collapsibleIntercept() {
         return new CollapsibleIntercept();
     }
 
     @Bean
     @ConditionalOnMissingBeanDefinition({"collapsibleIntercept", "collapsibleAdvisor"})
-    /** CollapseAdvisor */
+    /**
+     * collapseadvisor
+     *
+     * @param intercept intercept
+     * @return collapsibleAdvisor的结果
+     */
     public CollapsibleAdvisor collapsibleAdvisor(CollapsibleIntercept intercept) {
         return new CollapsibleAdvisor(intercept);
     }

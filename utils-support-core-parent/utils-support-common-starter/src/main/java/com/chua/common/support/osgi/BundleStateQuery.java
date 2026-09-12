@@ -12,37 +12,37 @@ import java.util.Map;
 public interface BundleStateQuery {
 
     /**
-     * 根据符号名称获取特定的 OSGi 捆绑包。
+      * 根据符号名称获取特定的 osgi 捆绑包。
      *
      * @param symbolicName 捆绑包的符号名称
-     * @return 对应的 OSGi 捆绑包对象，如果未找到则返回 null
+     * @return 对应的 osgi 捆绑包对象，如果未找到则返回 空
      */
     OsgiBundle getBundle(String symbolicName);
 
     /**
-     * 根据指定状态获取所有匹配的 OSGi 捆绑包列表。
+      * 根据指定状态获取所有匹配的 osgi 捆绑包列表。
      *
      * @param state 要查询的捆绑包状态字符串
-     * @return 匹配状态的 OSGi 捆绑包列表
+     * @return 匹配状态的 osgi 捆绑包列表
      */
     List<OsgiBundle> getBundlesByState(String state);
 
     /**
-     * 获取当前处于活动（ACTIVE）状态的 OSGi 捆绑包列表。
+      * 获取当前处于活动（活跃）状态的 osgi 捆绑包列表。
      *
-     * @return 活动状态的 OSGi 捆绑包列表
+     * @return 活动状态的 osgi 捆绑包列表
      */
     List<OsgiBundle> getActiveBundles();
 
     /**
-     * 获取系统中已安装的 OSGi 捆绑包总数。
+      * 获取系统中已安装的 osgi 捆绑包总数。
      *
      * @return 捆绑包的总数量
      */
     long getBundleCount();
 
     /**
-     * 获取当前 OSGi 框架的统计信息。
+      * 获取当前 osgi 框架的统计信息。
      *
      * @return 包含框架统计数据的键值对映射
      */

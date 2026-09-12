@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * PDF 文本提取器 SPI 实现，从 PDF 文档中提取纯文本内容。
  * <p>
- * 基于 Apache PDFBox 实现，支持提取全部页面的文本。
+   * 基于 Apache pdfbox 实现，支持提取全部页面的文本。
  * </p>
  *
  * @author CH
@@ -32,7 +32,7 @@ import java.util.Map;
 public class PdfTextExtractor implements TextExtractor {
 
     @Override
-    /** ExtractText */
+    /** extract文本 */
     public List<TextExtractResult> extractText(File file) {
         List<TextExtractResult> results = new ArrayList<>();
 
@@ -62,6 +62,8 @@ public class PdfTextExtractor implements TextExtractor {
 
     /**
      * 解析 PDF 书签（大纲），建立 页码 → 章节名称 的映射。
+     * @param doc doc
+     * @return resolveBookmarks的结果
      */
     private Map<Integer, String> resolveBookmarks(PDDocument doc) throws IOException {
         Map<Integer, String> pageToSection = new java.util.LinkedHashMap<>();
@@ -79,9 +81,9 @@ public class PdfTextExtractor implements TextExtractor {
      * 同时尝试获取书签指向的目标页码，并将其存入映射表中。如果书签没有明确的页码或解析失败，则跳过该书签。
      * </p>
      *
-     * @param node           当前正在处理的书签节点 (PDOutlineNode)
-     * @param doc            加载的PDF文档对象 (PDDocument)
-     * @param pageToSection  用于存储页码到章节名称映射的有序Map
+     * @param node           当前正在处理的书签节点 (pdoutline节点)
+     * @param doc            加载的PDF文档对象 (pd文档)
+     * @param pageToSection  用于存储页码到章节名称映射的有序映射
      * @param parentSection  当前节点的父级章节路径字符串
      */
     private void collectBookmarks(PDOutlineNode node,
@@ -121,7 +123,7 @@ public class PdfTextExtractor implements TextExtractor {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "pdf";
     }

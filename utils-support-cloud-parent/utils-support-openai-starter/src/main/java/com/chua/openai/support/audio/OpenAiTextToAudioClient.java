@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * OpenAI 文字转语音（TTS）客户端。
+   * 打开AI 文字转语音（TTS）客户端。
  *
  * <p>基于 OpenAI 音频标准接口 {@code POST /v1/audio/speech} 的 {@link TextToAudioClient}
- * 实现，支持 OpenAI 兼容接口的所有服务商（如 OpenAI、SiliconFlow、SenseTime、b.ai 等）。
+   * 实现，支持 打开AI 兼容接口的所有服务商（如 打开AI、silicon流、sense时间、b.AI 等）。
  *
  * <p>通过 SPI 机制注册以下别名：
  * <ul>
@@ -35,6 +35,7 @@ import java.util.UUID;
  *       .voice("alloy")
  *       .format("mp3")
  *       .synthesize("你好世界");
+ * }</pre>       .synthesize("你好世界");
  * }</pre>
  *
  * @author CH
@@ -45,7 +46,7 @@ import java.util.UUID;
 public class OpenAiTextToAudioClient implements TextToAudioClient {
 
     /**
-     * OpenAI 默认 API 地址
+      * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
@@ -95,7 +96,7 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
     private String text;
 
     /**
-     * 构造 OpenAI TTS 客户端。
+      * 构造 打开AI TTS 客户端。
      *
      * @param setting 客户端配置
      */

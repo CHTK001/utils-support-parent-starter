@@ -34,6 +34,7 @@ import java.util.function.Consumer;
  * Spider.create()
  *     .addUrl("https://example.com")
  *     .run();
+ * }</pre>;
  * }</pre>
  *
  * <p>并发采集示例：
@@ -42,6 +43,8 @@ import java.util.function.Consumer;
  *     .addUrl("https://example.com")
  *     .threads(5)                     // 5 个线程并发
  *     .pipeline(result -> System.out.println(result.getTitle()))
+ *     .run();
+ * }</pre>)))
  *     .run();
  * }</pre>
  *
@@ -52,6 +55,7 @@ import java.util.function.Consumer;
  *     .fetcher("auto")               // 自动选择可用的抓取器
  *     .parser("auto")                // 自动选择可用的解析器
  *     .run();
+ * }</pre>;
  * }</pre>
  *
  * @author CH
@@ -98,6 +102,7 @@ public interface Spider {
      * List<SpiderResult> results = Spider.create()
      *     .addUrl("https://example.com")
      *     .runSync();
+     * }</pre>unSync();
      * }</pre>
      *
      * @return 本次爬虫执行的全部结果
@@ -105,7 +110,7 @@ public interface Spider {
     List<SpiderResult> runSync();
 
     /**
-     * 使用 task/scheduler 模块驱动爬虫定时执行。
+      * 使用 任务/调度器 模块驱动爬虫定时执行。
      *
      * <p>将 {@code spider.run()} 包装为 {@link Runnable}，
      * 委托给 {@link com.chua.common.support.task.scheduler.SchedulerProvider} 按 {@link Trigger} 策略调度。
@@ -120,6 +125,7 @@ public interface Spider {
      *
      * // 取消调度
      * task.cancel();
+     * }</pre>   * task.cancel();
      * }</pre>
      *
      * <p>注意：每次调度触发都会新建一个 Spider 实例执行单次爬取，
@@ -159,13 +165,15 @@ public interface Spider {
      * <p>通过链式调用配置爬虫的各个组件，最后调用 {@link #build()} 或
      * {@link #run()} 完成构建并执行。所有组件都有内置默认实现，
      * 用户只需关注需要定制的部分。
+     * @author CH
+     * @since 4.0.0
      */
     interface Builder {
 
         /**
          * 设置站点配置。
          *
-         * @param site 目标站点配置（域名、请求间隔、User-Agent、最大深度等）
+         * @param site 目标站点配置（域名、请求间隔、用户-智能体、最大深度等）
          * @return 当前构建器
          */
         Builder site(SpiderSite site);
@@ -256,7 +264,7 @@ public interface Spider {
          * <p>通过 SPI 名称选择，如 {@code "ai"}。需提供 API Key 用于 ChatClient。
          *
          * @param name   SPI 名称
-         * @param apiKey AI 服务商 API Key
+         * @param apiKey AI 服务商 API 键
          * @return 当前构建器
          */
         Builder aiParser(String name, String apiKey);
@@ -311,6 +319,9 @@ public interface Spider {
          *         System.out.println(article.getTitle());
          *     })
          *     .run();
+         * }</pre>le());
+         *     })
+          * .运行();
          * }</pre>
          *
          * @param targetClass 目标 POJO 类型
@@ -328,7 +339,7 @@ public interface Spider {
          *
          * @param targetClass 目标 POJO 类型
          * @param aiProvider  AI 服务商，如 "openai"、"deepseek"
-         * @param aiApiKey    API Key
+         * @param aiApiKey    API 键
          * @param consumer    类型化回调
          * @param <T>         POJO 类型
          * @return 当前构建器

@@ -7,7 +7,7 @@ import com.github.hui.quick.plugin.qrcode.wrapper.QrCodeOptions;
 import java.awt.*;
 
 /**
- * 提供绘图解析功能的抽象类，作为DrawResolver接口的一个实现基础。
+   * 提供绘图解析功能的抽象类，作为draw解析器接口的一个实现基础。
  * 该类为抽象类，不能直接实例化，但提供了基本的框架，以供具体实现时继承和扩展。
  *
  * @author CH
@@ -20,7 +20,7 @@ public abstract class AbstractDrawResolver implements DrawResolver {
     protected final Graphics2D g2;
     /** Detectinner颜色 */
     protected final Color detectInnerColor;
-    /** DetectOUT颜色 */
+    /** detect出颜色 */
     protected final Color detectOutColor;
     /** QR代码配置 */
     protected final QrCodeOptions qrCodeConfig;
@@ -36,9 +36,9 @@ public abstract class AbstractDrawResolver implements DrawResolver {
     protected final QrCodeOptions.DrawStyle drawStyle;
     /** 设置 */
     protected final QrSetting setting;
-    /** MatrixH */
+    /** matrixh */
     protected final int matrixH;
-    /** MatrixW */
+    /** matrixw */
     protected final int matrixW;
     /** Detectcorner尺寸 */
     protected final int detectCornerSize;
@@ -48,13 +48,13 @@ public abstract class AbstractDrawResolver implements DrawResolver {
     protected final int leftPadding;
 
     /**
-     * 创建 AbstractDrawResolver 实例
+      * 创建 抽象draw解析器 实例
      * @param g2 g2
-     * @param detectInnerColor detectInnerColor
-     * @param detectOutColor detectOutColor
-     * @param qrCodeConfig qrCodeConfig
-     * @param bitMatrix bitMatrix
-     * @param drawOptions drawOptions
+     * @param detectInnerColor detect内部color
+     * @param detectOutColor detect出color
+     * @param qrCodeConfig qr编码配置
+     * @param bitMatrix 钻头matrix
+     * @param drawOptions draw期权
      * @param setting setting
      */
     public AbstractDrawResolver(Graphics2D g2,

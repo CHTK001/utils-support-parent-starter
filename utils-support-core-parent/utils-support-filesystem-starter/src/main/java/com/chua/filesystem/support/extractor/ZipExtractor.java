@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * ZIP 压缩文件提取器（支持密码）
+   * 压缩 压缩文件提取器（支持密码）
  *
  * <p>使用 zip4j 库实现，支持带密码保护的 ZIP 文件解压。</p>
  *
@@ -33,7 +33,7 @@ public class ZipExtractor implements Extractor {
     private static final int BUFFER_SIZE = 8192;
 
     @Override
-    /** SupportedExtensions */
+    /** 支持延伸 */
     public String[] supportedExtensions() {
         return new String[]{".zip"};
     }
@@ -45,11 +45,11 @@ public class ZipExtractor implements Extractor {
     }
 
     /**
-     * 将 ZIP 文件提取到目标目录
+      * 将 压缩 文件提取到目标目录
      *
-     * @param sourceFile 源 ZIP 文件
+     * @param sourceFile 源 压缩 文件
      * @param targetDir  目标目录
-     * @param password   密码（可选，null 表示无密码）
+     * @param password   密码（可选，空 表示无密码）
      * @return 提取是否成功
      */
     public boolean extract(File sourceFile, File targetDir, String password) {

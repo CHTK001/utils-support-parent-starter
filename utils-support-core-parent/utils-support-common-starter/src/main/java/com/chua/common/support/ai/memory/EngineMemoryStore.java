@@ -48,7 +48,7 @@ public class EngineMemoryStore implements MemoryStore {
     /**
      * 创建 EngineMemoryStore 实例
      * @param engine engine
-     * @param MemoryConfig MemoryConfig
+     * @param config MemoryConfig
      */
     public EngineMemoryStore(Engine engine, MemoryConfig config) {
         this.engine = engine;

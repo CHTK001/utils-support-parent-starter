@@ -32,8 +32,8 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
 
     @Override
     /**
-     * 获取Property
-     * @param key key
+      * 获取财产
+     * @param key 键
      */
     public String getProperty(String key) {
         return delegate.getProperty(key);
@@ -41,9 +41,9 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
 
     @Override
     /**
-     * 获取Property
-     * @param key key
-     * @param defaultValue defaultValue
+      * 获取财产
+     * @param key 键
+     * @param defaultValue 默认值
      */
     public String getProperty(String key, String defaultValue) {
         return delegate.getProperty(key, defaultValue);
@@ -61,8 +61,8 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
 
     @Override
     /**
-     * 获取RequiredProperty
-     * @param key key
+      * 获取required财产
+     * @param key 键
      */
     public String getRequiredProperty(String key) throws IllegalStateException {
         String value = delegate.getProperty(key);
@@ -84,7 +84,7 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     @Override
     /**
      * 解析Placeholders
-     * @param text text
+     * @param text 文本
      */
     public String resolvePlaceholders(String text) {
         return HELPER.replacePlaceholders(text, key -> {
@@ -95,8 +95,8 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
 
     @Override
     /**
-     * 解析RequiredPlaceholders
-     * @param text text
+      * 解析requiredplaceholders
+     * @param text 文本
      */
     public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
         String resolved = resolvePlaceholders(text);
@@ -108,29 +108,29 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
 
     @Override
     /**
-     * ContainsProperty
-     * @param key key
+      * contains财产
+     * @param key 键
      */
     public boolean containsProperty(String key) {
         return delegate.containsProperty(key);
     }
 
     @Override
-    /** 获取ActiveProfiles */
+    /** 获取活跃配置文件 */
     public String[] getActiveProfiles() {
         return new String[0];
     }
 
     @Override
-    /** 获取DefaultProfiles */
+    /** 获取默认配置文件 */
     public String[] getDefaultProfiles() {
         return new String[0];
     }
 
     @Override
     /**
-     * AcceptsProfiles
-     * @param profiles profiles
+      * accepts配置文件
+     * @param profiles 配置文件
      */
     public boolean acceptsProfiles(String... profiles) {
         return false;
@@ -139,8 +139,9 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     @Override
     @SuppressWarnings("deprecation")
     /**
-     * AcceptsProfiles
-     * @param profiles profiles
+      * accepts配置文件
+     * @param profiles 配置文件
+     * @return accepts配置文件的结果
      */
     public boolean acceptsProfiles(org.springframework.core.env.Profiles profiles) {
         return false;

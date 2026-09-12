@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * OnlyOffice 文档转换器。
+   * only办公室 文档转换器。
  *
  * <p>通过 OnlyOffice Document Server API 实现 Office 文档的在线格式转换。
  * 支持 doc/docx/xls/xlsx/ppt/pptx 等多种格式转换为 PDF。</p>
@@ -32,7 +32,7 @@ public class OnlyOfficeFileConvertSystem implements FileConvertSystem {
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx");
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String source, String target) {
         if (!"pdf".equals(target)) {
             return false;

@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubtitleSearchResult {
-    /** SubtitleID */
+    /** subtitleid */
     private String subtitleId;
-    /** 视频ID */
+    /** 视频标识 */
     private String videoId;
     /** 视频名称 */
     private String videoName;

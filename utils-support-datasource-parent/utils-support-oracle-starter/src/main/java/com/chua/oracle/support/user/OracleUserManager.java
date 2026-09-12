@@ -53,7 +53,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
     /**
-     * 查询 Oracle 数据库中所有用户（需要 DBA 权限访问 dba_users 视图）。
+      * 查询 Oracle 数据库中所有用户（需要 DBA 权限访问 dba_用户 视图）。
      *
      * @return 用户信息列表
      */
@@ -87,7 +87,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
     /**
-     * 删除一个 Oracle 用户（使用 CASCADE 级联删除其 Schema 对象）。
+      * 删除一个 Oracle 用户（使用 CASCADE 级联删除其 模式 对象）。
      *
      * @param username 用户名
      * @return 执行步骤对象

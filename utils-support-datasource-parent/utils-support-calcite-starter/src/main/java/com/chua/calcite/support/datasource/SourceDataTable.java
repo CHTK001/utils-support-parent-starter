@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * 将 {@link Engine} 实体表适配为可查询/可写的 {@link MutableDataTable}。
  * <p>
- * 读：通过 Engine Lambda 查询；写：同步内存 dataStores，FileEngine 时按 autoPersist 写回文件。
+   * 读：通过 Engine Lambda 查询；写：同步内存 数据存储，文件engine 时按 autopersist 写回文件。
  * </p>
  *
  * @author CH
@@ -57,6 +57,20 @@ public class SourceDataTable extends MutableDataTable {
      * @param name        表名
      * @param engine      引擎实例
      * @param entityClass 实体类型
+     * @return 获取column类型的结果
+     /**
+      * 源数据table。
+      * @param name 名称
+      * @param engine engine
+      * @param entityClass 实体类
+      */
+      * @return 获取column类型的结果
+     /**
+      * 源数据table。
+      * @param name 名称
+      * @param engine engine
+      * @param entityClass 实体类
+      */
      */
     public SourceDataTable(String name, Engine engine, Class<?> entityClass) {
         super(name);
@@ -74,7 +88,14 @@ public class SourceDataTable extends MutableDataTable {
         return columnTypes;
     }
 
-    /** 获取Engine */
+     /**
+      * 获取engine。
+      * @return 获取engine的结果
+      */
+     * 获取Engine
+     *
+     * @return 获取实体类的结果
+     */
     public Engine getEngine() {
         return engine;
     }
@@ -85,7 +106,11 @@ public class SourceDataTable extends MutableDataTable {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取Data */
+    /**
+     * 获取数据
+     *
+     * @return 获取数据的结果
+     */
     public List<Map<String, Object>> getData() {
         List<Map<String, Object>> rows = queryRows();
         List<Map<String, Object>> data = super.getData();
@@ -108,7 +133,8 @@ public class SourceDataTable extends MutableDataTable {
     }
 
     /**
-     * 用完整行快照替换表数据（供 Calcite ModifiableTable 写回）。
+      * 用完整行快照替换表数据（供 Calcite modifiabletable 写回）。
+     * @param rows rows
      */
     public void replaceAllRows(List<Map<String, Object>> rows) {
         List<Map<String, Object>> data = super.getData();
@@ -122,7 +148,11 @@ public class SourceDataTable extends MutableDataTable {
     }
 
     @SuppressWarnings("unchecked")
-    /** 查询Rows */
+    /**
+     * 查询Rows
+     *
+     * @return 查询rows的结果
+     */
     private List<Map<String, Object>> queryRows() {
         try {
             var results = engine.query((Class<Object>) entityClass).list();
@@ -140,7 +170,11 @@ public class SourceDataTable extends MutableDataTable {
         }
     }
 
-    /** PersistSnapshot */
+    /**
+     * persistsnapshot
+     *
+     * @param rows rows
+     */
     private void persistSnapshot(List<Map<String, Object>> rows) {
         List<Object> entities = new ArrayList<>(rows.size());
         for (Map<String, Object> row : rows) {
@@ -149,7 +183,7 @@ public class SourceDataTable extends MutableDataTable {
         String storeName = resolveStoreName();
         if (engine instanceof AbstractEngine abstractEngine) {
             abstractEngine.store(storeName, entities);
-            // 兼容实体表名与 load 名
+ // 兼容实体表名与 加载 名
             if (!storeName.equals(getName())) {
                 abstractEngine.store(getName(), entities);
             }
@@ -163,7 +197,11 @@ public class SourceDataTable extends MutableDataTable {
         log.debug("[calcite] SourceDataTable [{}] 写回 {} 行 -> {}", getName(), entities.size(), storeName);
     }
 
-    /** 解析StoreName */
+    /**
+     * 解析存储名称
+     *
+     * @return resolve存储名称的结果
+     */
     private String resolveStoreName() {
         // AbstractEngine 表名规则：User -> user
         String simple = entityClass.getSimpleName();
@@ -177,7 +215,12 @@ public class SourceDataTable extends MutableDataTable {
         return sb.toString();
     }
 
-    /** MapToEntity */
+    /**
+     * 映射转为实体
+     *
+     * @param row row
+     * @return 映射转为实体的结果
+     */
     private Object mapToEntity(Map<String, Object> row) {
         try {
             Object instance = ReflectUtils.instantiate(entityClass);
@@ -196,7 +239,12 @@ public class SourceDataTable extends MutableDataTable {
         }
     }
 
-    /** EntityToRow */
+    /**
+     * 实体转为row
+     *
+     * @param entity 实体
+     * @return 实体转为row的结果
+     */
     private Map<String, Object> entityToRow(Object entity) {
         Map<String, Object> row = new LinkedHashMap<>(getters.size());
         for (int i = 0; i < getters.size(); i++) {
@@ -209,7 +257,12 @@ public class SourceDataTable extends MutableDataTable {
         return row;
     }
 
-    /** 解析Getters */
+    /**
+     * 解析Getters
+     *
+     * @param entityClass 实体类
+     * @return resolveGetters的结果
+     */
     private static List<Method> resolveGetters(Class<?> entityClass) {
         List<Method> result = new ArrayList<>();
         for (Method method : entityClass.getMethods()) {
@@ -231,7 +284,13 @@ public class SourceDataTable extends MutableDataTable {
         return Collections.unmodifiableList(result);
     }
 
-    /** 解析Setters */
+    /**
+     * 解析Setters
+     *
+     * @param entityClass 实体类
+     * @param getters getters
+     * @return resolveSetters的结果
+     */
     private static List<Method> resolveSetters(Class<?> entityClass, List<Method> getters) {
         List<Method> setters = new ArrayList<>(getters.size());
         for (Method getter : getters) {
@@ -249,7 +308,16 @@ public class SourceDataTable extends MutableDataTable {
         return Collections.unmodifiableList(setters);
     }
 
-    /** ToColumnNames */
+     /**
+      * 转为column名称。
+      * @param getters getters
+      * @return 转为column名称的结果
+      */
+     * 转为column名称
+     *
+     * @param getters getters
+     * @return 转为column类型的结果
+     */
     private static List<String> toColumnNames(List<Method> getters) {
         List<String> names = new ArrayList<>(getters.size());
         for (Method getter : getters) {
@@ -266,7 +334,12 @@ public class SourceDataTable extends MutableDataTable {
         return Collections.unmodifiableList(types);
     }
 
-    /** GetterToColumnName */
+    /**
+     * getter转为column名称
+     *
+     * @param getter getter
+     * @return getter转为column名称的结果
+     */
     private static String getterToColumnName(Method getter) {
         String methodName = getter.getName();
         String prop = methodName.startsWith("is") ? methodName.substring(2) : methodName.substring(3);
@@ -276,7 +349,13 @@ public class SourceDataTable extends MutableDataTable {
         return Character.toLowerCase(prop.charAt(0)) + prop.substring(1);
     }
 
-    /** 转换Value */
+    /**
+     * 转换值
+     *
+     * @param value 值
+     * @param targetType Target类型
+     * @return 转换值的结果
+     */
     private static Object convertValue(Object value, Class<?> targetType) {
         if (value == null || targetType.isInstance(value)) {
             return value;

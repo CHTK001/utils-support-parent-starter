@@ -9,11 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * BGE 文本嵌入 Translator（registry 路径，ORT 原生 + HuggingFace Tokenizer）。
+   * BGE 文本嵌入 Translator（registry 路径，ORT 原生 + huggingface Tokenizer）。
  *
  * <p>替代错误的 ClipTextFeatureTranslator 注册（bge 模型需要
  * {@code input_ids + attention_mask + token_type_ids} 三输入，CLIP 只提供 input_ids）。
- * 模型 + tokenizer.json 由 models jar（如 bge-small-zh/en）提供，NativeLoader 解压。</p>
+   * 模型 + tokenizer.json 由 模型 jar（如 bge-small-zh/en）提供，NAT加载 解压。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,7 +22,7 @@ import java.nio.file.Path;
 public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
 
     /** 默认最大长度 */
-    /** Default_max_len */
+    /** 默认_最大_len */
     private static final int DEFAULT_MAX_LEN = 512;
 
     /** 翻译器 */
@@ -34,7 +34,7 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
     /** 是否已加载 */
     private volatile boolean loaded;
 
-    /** 创建 BgeTextFeatureTranslator 实例 */
+    /** 创建 bge文本特征translator 实例 */
     public BgeTextFeatureTranslator() {
         this.translator = new BgeEmbeddingTranslator();
     }
@@ -81,7 +81,7 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
                 // 尝试下一个候选
             }
         }
-        // 2. 若 jar 内未找到，尝试从 ModelRegistry 下载缓存读取（新模型如 bge-base-zh）
+ // 2. 若 jar 内未找到，尝试从 模型registry 下载缓存读取（新模型如 bge-基础-zh）
         if (modelDir == null) {
             String registryModelId = System.getProperty("bge.registry.model", "");
             if (!registryModelId.isBlank()) {
@@ -114,7 +114,7 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "bge-text-feature";
     }
@@ -139,7 +139,7 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         translator.close();

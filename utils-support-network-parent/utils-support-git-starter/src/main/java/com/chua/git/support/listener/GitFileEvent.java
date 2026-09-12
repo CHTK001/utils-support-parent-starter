@@ -1,7 +1,7 @@
 package com.chua.git.support.listener;
 
 /**
- * Git 文件变更事件，封装一次 pull/watch 中检测到的单文件变更信息。
+   * Git 文件变更事件，封装一次 拉手/watch 中检测到的单文件变更信息。
  *
  * <p>当 {@link GitClient#pull(GitFileListener)} 或
  * {@link FetchOperation#listener(GitFileListener)} 检测到 HEAD 树发生变化时，
@@ -19,11 +19,14 @@ package com.chua.git.support.listener;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return git文件事件的结果
  */
 public record GitFileEvent(ChangeType changeType, String filePath) {
 
     /**
      * 变更类型枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum ChangeType {
         /** 文件新增 */

@@ -20,17 +20,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryTaskStore implements TaskStore {
 
     /**
-     * 任务状态映射：taskId -> TaskEntry
+      * 任务状态映射：任务id -> 任务entry
      */
     private final Map<String, TaskEntry> tasks = new ConcurrentHashMap<>();
 
     /**
      * 任务条目。
+     * @author CH
+     * @since 4.0.0
      */
     private static class TaskEntry {
-        Task<?> task;
-        TaskStatus status;
-        TaskResult<?> result;
+        Task<?> task; // 任务
+        TaskStatus status; // 状态
+        TaskResult<?> result; // 结果
 
         TaskEntry(Task<?> task, TaskStatus status) {
             this.task = task;
@@ -39,7 +41,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
-    /** 保存Task */
+    /** 保存任务 */
     public void saveTask(Task<?> task, TaskStatus status) {
         if (task != null && task.getTaskId() != null) {
             tasks.compute(task.getTaskId(), (k, v) -> {
@@ -54,7 +56,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
-    /** 更新Status */
+    /** 更新状态 */
     public void updateStatus(String taskId, TaskStatus status) {
         TaskEntry entry = tasks.get(taskId);
         if (entry != null) {
@@ -63,7 +65,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
-    /** 保存Result */
+    /** 保存结果 */
     public void saveResult(TaskResult<?> result) {
         if (result != null && result.getTaskId() != null) {
             TaskEntry entry = tasks.computeIfAbsent(result.getTaskId(),
@@ -79,7 +81,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
-    /** 获取Status */
+    /** 获取状态 */
     public TaskStatus getStatus(String taskId) {
         TaskEntry entry = tasks.get(taskId);
         return entry != null ? entry.status : null;
@@ -103,7 +105,7 @@ public class InMemoryTaskStore implements TaskStore {
     }
 
     @Override
-    /** 移除Task */
+    /** 移除任务 */
     public void removeTask(String taskId) {
         tasks.remove(taskId);
     }

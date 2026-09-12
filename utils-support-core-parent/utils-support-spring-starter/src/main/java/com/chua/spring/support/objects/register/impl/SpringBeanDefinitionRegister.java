@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * <p>委托 {@link SpringBeanUtils} 获取 Spring {@link ApplicationContext}，
  * 所有查询直接委派 Spring 上下文。
- * Bean 实例由 Spring 容器管理，本注册器仅做桥接，不执行框架 IoC 生命周期。</p>
+   * Bean 实例由 Spring 容器管理，本注册器仅做桥接，不执行框架 IOC 生命周期。</p>
  *
  * @author CH
  * @since 2024/12/20
@@ -39,7 +39,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     private volatile boolean closed;
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "spring";
     }
@@ -51,7 +51,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return false;
     }
@@ -87,7 +87,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** 获取BeanDefinition */
+    /** 获取Beandefinition */
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null || closed) {
             return null;
@@ -110,7 +110,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -135,7 +135,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -151,7 +151,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** ContainsBean */
+    /** containsBean */
     public boolean containsBean(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -161,7 +161,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** 获取BeanDefinitionNames */
+    /** 获取Beandefinition名称 */
     public Collection<String> getBeanDefinitionNames() {
         if (closed) {
             return Collections.emptyList();
@@ -174,7 +174,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** 获取BeansWithAnnotation */
+    /** 获取Beanwith注解 */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -193,7 +193,7 @@ public class SpringBeanDefinitionRegister extends BeanSingletonRegistry implemen
     }
 
     @Override
-    /** 获取BeansWithMethodAnnotation */
+    /** 获取Beanwith方法注解 */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }

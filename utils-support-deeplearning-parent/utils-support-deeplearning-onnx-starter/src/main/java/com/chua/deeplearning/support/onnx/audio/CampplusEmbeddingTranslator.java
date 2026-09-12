@@ -35,27 +35,27 @@ import java.util.Map;
 @Slf4j
 public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]> {
 
-    private static final int SAMPLE_RATE = 16000;
-    private static final int FEATURE_DIM = 80;
-    private static final int FFT_N = 512;
-    private static final int FRAME_LEN = 400;
-    private static final int FRAME_SHIFT = 160;
-    private static final int EMBEDDING_DIM = 192;
+    private static final int SAMPLE_RATE = 16000; // 样本rate
+    private static final int FEATURE_DIM = 80; // 特征dim
+    private static final int FFT_N = 512; // FFT_N
+    private static final int FRAME_LEN = 400; // 帧len
+    private static final int FRAME_SHIFT = 160; // 帧Shift
+    private static final int EMBEDDING_DIM = 192; // 嵌入dim
 
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    private String modelPath;
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    private String modelPath; // 模型路径
 
     /**
-     * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
+      * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
      *
      * @param modelPath 模型路径
      */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
-    private double[][] melFilters;
-    private volatile boolean prepared = false;
+    private double[][] melFilters; // mel过滤器
+    private volatile boolean prepared = false; // prepared
 
     @Override
     public String name() {
@@ -71,10 +71,10 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
                 throw new IllegalArgumentException("Cannot decode audio data");
             }
 
-            // Compute fbank 80-dim features
+ // Compute fbank 80-dim 特征
             double[][] feat80 = computeFbank80(pcm);
 
-            // CAM++ takes raw fbank [1, T, 80]
+ // CAM++ 取 raw fbank [1, T, 80]
             long[] shape = {1, feat80.length, FEATURE_DIM};
             float[] flat = new float[feat80.length * FEATURE_DIM];
             int pos = 0;
@@ -84,17 +84,17 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
                 }
             }
 
-            // Create input tensor
+ // 创建 输入 tensor
             OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv,
                     FloatBuffer.wrap(flat), shape);
 
-            // Run inference
+ // 运行 推理
             String inputName = session.getInputNames().iterator().next();
             Map<String, OnnxTensor> inputs = new HashMap<>();
             inputs.put(inputName, inputTensor);
 
             try (OrtSession.Result results = session.run(inputs)) {
-                // Output shape: [1, 192]
+ // 输出 shape: [1, 192]
                 float[][] output = (float[][]) results.get(0).getValue();
                 float[] embedding = output[0];
 
@@ -116,10 +116,17 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
         }
     }
 
+    /**
+      * ensureprepared。
+     */
     private void ensurePrepared() throws Exception {
-        if (prepared) return;
+        if (prepared) {
+            return;
+        }
         synchronized (this) {
-            if (prepared) return;
+            if (prepared) {
+                return;
+            }
             ortEnv = OrtEnvironment.getEnvironment();
             melFilters = buildKaldiMelFilters(FFT_N / 2 + 1);
 
@@ -136,10 +143,19 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
         }
     }
 
+    /**
+     * resolve模型路径。
+     * @param pathStr 路径str
+     * @return resolve模型路径的结果
+     */
     private static Path resolveModelPath(String pathStr) {
-        if (pathStr == null || pathStr.isBlank()) return null;
+        if (pathStr == null || pathStr.isBlank()) {
+            return null;
+        }
         Path abs = Path.of(pathStr);
-        if (Files.exists(abs)) return abs;
+        if (Files.exists(abs)) {
+            return abs;
+        }
         try {
             var is = CampplusEmbeddingTranslator.class.getClassLoader()
                     .getResourceAsStream(pathStr.startsWith("/") ? pathStr.substring(1) : pathStr);
@@ -154,6 +170,11 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
         return null;
     }
 
+    /**
+     * decode转为pcm。
+     * @param audioData 音频数据
+     * @return decode转为pcm的结果
+     */
     private float[] decodeToPcm(byte[] audioData) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(
@@ -183,12 +204,17 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
         }
     }
 
-    /** Kaldi-style fbank 80-dim feature extraction */
+    /**
+     * Kaldi-style fbank 80-dim 特征 extraction
+     *
+     * @param samples 样本
+     * @return computeFbank80的结果
+     */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
         int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
 
-        // Povey window
+ // Povey 窗口
         double[] window = new double[FRAME_LEN];
         for (int j = 0; j < FRAME_LEN; j++) {
             window[j] = Math.pow(0.5 - 0.5 * Math.cos(2.0 * Math.PI * j / FRAME_LEN), 0.85);
@@ -207,10 +233,14 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
                 frame[j] = cur - 0.97F * samples[off + j - 1];
             }
             double mean = 0;
-            for (double v : frame) mean += v;
+            for (double v : frame) {
+                mean += v;
+            }
             mean /= FRAME_LEN;
             double var = 0;
-            for (double v : frame) var += (v - mean) * (v - mean);
+            for (double v : frame) {
+                var += (v - mean) * (v - mean);
+            }
             var /= FRAME_LEN;
             double std = Math.sqrt(var + 1e-9);
             for (int j = 0; j < FRAME_LEN; j++) {
@@ -241,6 +271,11 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
         return feat;
     }
 
+    /**
+     * 构建kaldimel过滤器。
+     * @param nFreq nfreq
+     * @return 构建kaldimel过滤器的结果
+     */
     private double[][] buildKaldiMelFilters(int nFreq) {
         double lowFreq = 20.0;
         double highFreq = 8000.0;
@@ -276,9 +311,16 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
         return filters;
     }
 
+    /**
+     * fft。
+     * @param re re
+     * @param im im
+     */
     private void fft(double[] re, double[] im) {
         int n = re.length;
-        if (n == 0) return;
+        if (n == 0) {
+            return;
+        }
         int bits = Integer.numberOfTrailingZeros(n);
         for (int i = 0; i < n; i++) {
             int j = Integer.reverse(i) >>> (32 - bits);

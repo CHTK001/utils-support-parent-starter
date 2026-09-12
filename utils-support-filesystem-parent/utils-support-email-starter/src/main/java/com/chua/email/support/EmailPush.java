@@ -51,7 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
- * public class EmailPush implements MessagePush {
+   * 公共 类 emailpush implements 消息push {
  *
  * @author CH
  * @since 4.0.0.42
@@ -63,21 +63,21 @@ public class EmailPush implements MessagePush {
     /** templates */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 EmailPush 实例 */
+    /** 创建 emailpush 实例 */
     public EmailPush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 EmailPush 实例
-     * @param environment environment
+      * 创建 emailpush 实例
+     * @param environment 环境
      */
     public EmailPush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    /** 获取Provider */
+    /** 获取提供者 */
     public String getProvider() {
         return "email";
     }
@@ -85,7 +85,7 @@ public class EmailPush implements MessagePush {
     @Override
     /**
      * 发送
-     * @param request request
+     * @param request 请求
      */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
@@ -93,7 +93,7 @@ public class EmailPush implements MessagePush {
         Properties props = buildProperties();
         String from = environment.get("smtp.from", environment.get("smtp.username"));
 
-        // 创建 Session
+ // 创建 会话
         var session = javax.mail.Session.getInstance(props);
 
         // 构建邮件
@@ -131,7 +131,7 @@ public class EmailPush implements MessagePush {
     }
 
     @Override
-    /** ListTemplates */
+    /** 列表templates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
@@ -139,7 +139,7 @@ public class EmailPush implements MessagePush {
     @Override
     /**
      * 获取Template
-     * @param templateId templateId
+     * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
@@ -147,6 +147,7 @@ public class EmailPush implements MessagePush {
 
     /**
      * 注册模板
+     * @param template template
      */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);
@@ -154,6 +155,7 @@ public class EmailPush implements MessagePush {
 
     /**
      * 构建 SMTP 属性
+     * @return 构建属性的结果
      */
     private Properties buildProperties() {
         Properties props = new Properties();

@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * NATS Handler — intercepts NATS publish/subscribe operations.
+   * NATS 处理器 — intercepts NATS 发布/订阅 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,26 +15,26 @@ import com.chua.runtime.protocol.Software;
 public class NatsHandler extends AbstractAppHandler {
 
     /**
-     * nats 连接
+      * NATS 连接
      */
     private static final String NATS_CONNECTION = "io/nats/client/Connection";
     /**
-     * publish methods
+      * 发布 方法
      */
     private static final String[] PUBLISH_METHODS = {"publish"};
     /**
-     * subscribe methods
+      * 订阅 方法
      */
     private static final String[] SUBSCRIBE_METHODS = {"subscribe"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "nats-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "nats.enabled";
     }
@@ -46,13 +46,13 @@ public class NatsHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.NATS;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(NATS_CONNECTION, PUBLISH_METHODS);
         registerAll(NATS_CONNECTION, SUBSCRIBE_METHODS);

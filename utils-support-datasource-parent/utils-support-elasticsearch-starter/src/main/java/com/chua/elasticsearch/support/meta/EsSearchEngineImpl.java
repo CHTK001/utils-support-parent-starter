@@ -28,7 +28,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     private final ElasticsearchEngine engine;
 
     /**
-     * 创建 EsSearchEngineImpl 实例
+      * 创建 es搜索engineimpl 实例
      * @param engine engine
      */
     public EsSearchEngineImpl(ElasticsearchEngine engine) {
@@ -36,13 +36,13 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "elasticsearch";
     }
 
     @Override
-    /** ListIndexes */
+    /** 列表索引 */
     public List<String> listIndexes() {
         try {
             var response = engine.getClient().indices().get(i -> i.index("*"));
@@ -53,7 +53,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取Index */
+    /** 获取索引 */
     public SearchIndexDef getIndex(String indexName) {
         try {
             GetIndexResponse indexResponse = engine.getClient().indices().get(i -> i.index(indexName));
@@ -91,7 +91,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 创建Index */
+    /** 创建索引 */
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null) {
             throw new IllegalArgumentException("索引定义不能为空");
@@ -135,7 +135,12 @@ public class EsSearchEngineImpl implements SearchEngine {
         }
     }
 
-    /** 构建Property */
+    /**
+     * 构建财产
+     *
+     * @param type 类型
+     * @return 构建财产的结果
+     */
     private Property buildProperty(String type) {
         if (type == null) {
             return PropertyBuilders.text(b -> b);
@@ -159,7 +164,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 删除Index */
+    /** 删除索引 */
     public boolean deleteIndex(String indexName) {
         try {
             engine.getClient().indices().delete(d -> d.index(indexName));
@@ -170,7 +175,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取Client */
+    /** 获取客户端 */
     public Object getClient() {
         return engine.getClient();
     }

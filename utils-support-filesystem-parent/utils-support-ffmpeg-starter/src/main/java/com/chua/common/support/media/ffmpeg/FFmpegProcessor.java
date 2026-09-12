@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.util.function.Consumer;
 
 /**
- * FFmpeg 处理器 SPI 接口，定义音视频处理的核心操作。
+   * ffmpeg 处理器 SPI 接口，定义音视频处理的核心操作。
  *
  * @author CH
  * @since 4.0.0.42
@@ -95,12 +95,12 @@ public interface FFmpegProcessor {
     /** 获取视频时长 */
     double getDuration(File input) throws IOException;
 
-    /** 判断 FFmpeg 是否可用 */
+    /** 判断 ffmpeg 是否可用 */
     boolean isAvailable();
 
     /** 获取版本信息 */
     String getVersion();
 
-    /** 执行自定义 FFmpeg 命令 */
+    /** 执行自定义 ffmpeg 命令 */
     FFmpegResult execute(String... args) throws IOException;
 }

@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Pulsar 应用层 Handler — 拦截 Apache Pulsar Client 关键调用并生成应用语义传输记录。
+   * Pulsar 应用层 处理器 — 拦截 Apache Pulsar 客户端 关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -43,13 +43,13 @@ public class PulsarHandler extends AbstractAppHandler {
     private static final String[] CONSUMER_METHODS = {"receive", "receiveAsync", "acknowledge"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "pulsar-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "pulsar.enabled";
     }
@@ -61,26 +61,26 @@ public class PulsarHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.PULSAR;
     }
 
     @Override
-    /** SoftwareForEntry */
+    /** softwareforentry */
     protected Software softwareForEntry(InterceptContext ctx) {
         return Software.PULSAR;
     }
 
     @Override
-    /** KindForEntry */
+    /** 种类forentry */
     protected EndpointKind kindForEntry(InterceptContext ctx) {
         String cn = ctx.getClassName();
         return cn != null && cn.contains("Producer") ? EndpointKind.PRODUCER : EndpointKind.CONSUMER;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(PRODUCER_CLASS, PRODUCER_METHODS);
         registerAll(CONSUMER_CLASS, CONSUMER_METHODS);

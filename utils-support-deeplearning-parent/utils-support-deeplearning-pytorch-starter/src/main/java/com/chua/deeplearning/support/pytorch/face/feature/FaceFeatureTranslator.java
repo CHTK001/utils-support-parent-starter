@@ -12,7 +12,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * 通用人脸特征 Translator（160x160，FaceNet 风格）。
+   * 通用人脸特征 Translator（160x160，facenet 风格）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,7 +20,7 @@ import ai.djl.translate.TranslatorContext;
 public class FaceFeatureTranslator implements Translator<Image, float[]> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Pipeline pipeline = new Pipeline();
@@ -34,7 +34,7 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         while (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
@@ -53,7 +53,12 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
         return Batchifier.STACK;
     }
 
-    /** LNormalize */
+    /**
+     * lnormalize
+     *
+     * @param feature 特征
+     * @return l2Normalize的结果
+     */
     private static float[] l2Normalize(float[] feature) {
         double sum = 0;
         for (float v : feature) {

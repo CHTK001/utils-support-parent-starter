@@ -25,6 +25,9 @@ import java.util.Objects;
  *         .balance("weight")
  *         .start();
  * int port = proxy.getPort();
+ * }</pre>"weight")
+ *         .start();
+ * int port = proxy.getPort();
  * }</pre>
  *
  * @author CH
@@ -64,7 +67,7 @@ public class ReverseProxyServer implements AutoCloseable {
     /** 负载均衡策略。 */
     private String balance;
 
-    /** 排除的服务 ID。 */
+    /** 排除的服务 标识。 */
     private String excludeServerId;
 
     /**
@@ -157,7 +160,7 @@ public class ReverseProxyServer implements AutoCloseable {
     /**
      * 设置负载均衡策略。
      *
-     * @param balance 策略名（如 weight）
+     * @param balance 策略名（如 权重）
      * @return this
      */
     public ReverseProxyServer balance(String balance) {
@@ -166,9 +169,9 @@ public class ReverseProxyServer implements AutoCloseable {
     }
 
     /**
-     * 设置排除的服务 ID（避免自转发）。
+      * 设置排除的服务 标识（避免自转发）。
      *
-     * @param excludeServerId 服务 ID
+     * @param excludeServerId 服务 标识
      * @return this
      */
     public ReverseProxyServer excludeServerId(String excludeServerId) {

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Bean 生命周期管理器，统一调度所有 BeanDefinitionLifecycle SPI 实现。
+   * Bean 生命周期管理器，统一调度所有 Beandefinitionlifecycle SPI 实现。
  *
  * @author CH
  * @since 2024/12/20

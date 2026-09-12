@@ -24,7 +24,7 @@ public class HardwareConfig {
      * 设备类型：cpu / gpu（缺省 auto，由运行时按本机探测决定）
      */
     @Builder.Default
-    private final String device = "auto";
+    private final String device = "auto"; // device
 
     /**
      * GPU 运行所需最低显存（MB）。用于判断服务器 GPU 显存上限是否支持该模型。
@@ -35,10 +35,10 @@ public class HardwareConfig {
      * 是否推荐。同一能力类型可同时推荐多个，运行时按服务器配置从推荐列表中挑选。
      */
     @Builder.Default
-    private final boolean recommended = false;
+    private final boolean recommended = false; // recommended
 
     /**
-     * 便于日志/展示的描述信息，可为 null
+      * 便于日志/展示的描述信息，可为 空
      */
     private final String description;
 
@@ -72,7 +72,7 @@ public class HardwareConfig {
     /**
      * 便于日志/展示的描述信息。
      *
-     * @return 描述信息，可为 null
+     * @return 描述信息，可为 空
      */
     public String description() {
         return description;

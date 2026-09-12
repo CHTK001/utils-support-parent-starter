@@ -45,7 +45,7 @@ public interface WalLog extends Closeable {
     void sync() throws IOException;
 
     /**
-     * 当前最大 LSN（最近一次 append 分配的 LSN，初始 0）。
+      * 当前最大 LSN（最近一次 追加 分配的 LSN，初始 0）。
      *
      * @return 当前 LSN
      */
@@ -120,7 +120,7 @@ public interface WalLog extends Closeable {
     WalReplayResult replay(long fromLsn, WalReplayHandler handler) throws IOException;
 
     /**
-     * 范围回放 [fromLsn, toLsn)。
+      * 范围回放 [从lsn, 转为lsn)。
      *
      * <p>支持重复处理部分数据：业务方拿到 records 列表后可再次遍历。</p>
      *
@@ -173,7 +173,7 @@ public interface WalLog extends Closeable {
     /**
      * 列出所有分片。
      *
-     * @return 分片列表（按 segmentNo 升序）
+     * @return 分片列表（按 segmentno 升序）
      */
     List<WalSegmentInfo> listSegments();
 

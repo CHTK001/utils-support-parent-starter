@@ -33,16 +33,20 @@ import static com.chua.common.support.constant.RegexConstant.INT_PATTERN;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0
  */
 public class NumberUtils {
 
+    /**
+     * 数字工具。
+     */
     private NumberUtils() {
     }
 
-    /** Long_min */
+    /** Long_最小 */
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
 
-    /** Long_max */
+    /** Long_最大 */
     private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
     /** A */
@@ -87,13 +91,13 @@ public class NumberUtils {
         return 1 / (1 + Math.exp(-0.1 * x));
     }
     /**
-     * 保留 BigDecimal 精度。
+      * 保留 bigdecimal 精度。
      *
      * <p>使用四舍五入模式保留指定位数的小数。
      *
-     * @param value 待处理的 BigDecimal
+     * @param value 待处理的 bigdecimal
      * @param scale 小数位数
-     * @return 处理后的 BigDecimal
+     * @return 处理后的 bigdecimal
      */
     public static BigDecimal reserve(BigDecimal value, int scale) {
         return value.setScale(scale, RoundingMode.HALF_UP);
@@ -106,7 +110,7 @@ public class NumberUtils {
      *
      * @param value 待处理的 float 值
      * @param scale 小数位数
-     * @return 处理后的 BigDecimal
+     * @return 处理后的 bigdecimal
      */
     public static BigDecimal reserve(float value, int scale) {
         return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP);
@@ -119,7 +123,7 @@ public class NumberUtils {
      *
      * @param value 待处理的 double 值
      * @param scale 小数位数
-     * @return 处理后的 BigDecimal
+     * @return 处理后的 bigdecimal
      */
     public static BigDecimal reserve(double value, int scale) {
         return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP);
@@ -140,7 +144,7 @@ public class NumberUtils {
      *
      * @param start 起始值（包含）
      * @param end   结束值（包含）
-     * @return [start, end] 区间内的随机整数
+     * @return [start, 结束] 区间内的随机整数
      */
     public static int getNum(int start, int end) {
         return (int) (Math.random() * (end - start + 1) + start);
@@ -203,7 +207,7 @@ public class NumberUtils {
     }
 
     /**
-     * 加法运算（Number + Number），空值按 0 处理。
+      * 加法运算（数字 + 数字），空值按 0 处理。
      *
      * @param v1 加数
      * @param v2 加数
@@ -214,7 +218,7 @@ public class NumberUtils {
     }
 
     /**
-     * 累加多个 Number 值，空值按 0 处理。
+      * 累加多个 数字 值，空值按 0 处理。
      *
      * @param values 数值数组
      * @return 总和
@@ -260,9 +264,9 @@ public class NumberUtils {
     }
 
     /**
-     * 累加多个 BigDecimal 值，空值按 0 处理。
+      * 累加多个 bigdecimal 值，空值按 0 处理。
      *
-     * @param values BigDecimal 数组
+     * @param values bigdecimal 数组
      * @return 总和
      * @since 4.0.0
      */
@@ -283,7 +287,7 @@ public class NumberUtils {
     }
 
     /**
-     * 向上取整除法（ceil division）。
+      * 向上取整除法（ceil 分部）。
      *
      * <p>返回大于或等于两数之商的最小整数。JDK 8 无 Math.ceilDiv，此方法用 Math.ceil 模拟。
      *
@@ -352,7 +356,7 @@ public class NumberUtils {
     }
 
     /**
-     * 除法运算（Number / Number），精度 10 位。
+      * 除法运算（数字 / 数字），精度 10 位。
      *
      * @param v1 被除数
      * @param v2 除数
@@ -380,7 +384,7 @@ public class NumberUtils {
      * @param v1 v1
      * @param v2 v2
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static double div(float v1, float v2, int scale) {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
@@ -392,7 +396,7 @@ public class NumberUtils {
      * @param v1 v1
      * @param v2 v2
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static double div(float v1, double v2, int scale) {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
@@ -404,7 +408,7 @@ public class NumberUtils {
      * @param v1 v1
      * @param v2 v2
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static double div(double v1, float v2, int scale) {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
@@ -416,7 +420,7 @@ public class NumberUtils {
      * @param v1 v1
      * @param v2 v2
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static double div(double v1, double v2, int scale) {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
@@ -428,7 +432,7 @@ public class NumberUtils {
      * @param v1 v1
      * @param v2 v2
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static double div(Double v1, Double v2, int scale) {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
@@ -440,7 +444,7 @@ public class NumberUtils {
      * @param v1 v1
      * @param v2 v2
      * @param scale scale
-     * @return the result
+     * @return the 结果
      * @since 3.1.0
      */
     public static BigDecimal div(Number v1, Number v2, int scale) {
@@ -453,7 +457,7 @@ public class NumberUtils {
      * @param v1 v1
      * @param v2 v2
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal div(String v1, String v2, int scale) {
         return div(v1, v2, scale, RoundingMode.HALF_UP);
@@ -466,7 +470,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      */
     public static double div(float v1, float v2, int scale, RoundingMode roundingMode) {
         return div(Float.toString(v1), Float.toString(v2), scale, roundingMode).doubleValue();
@@ -479,7 +483,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      */
     public static double div(float v1, double v2, int scale, RoundingMode roundingMode) {
         return div(Float.toString(v1), Double.toString(v2), scale, roundingMode).doubleValue();
@@ -492,7 +496,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      */
     public static double div(double v1, float v2, int scale, RoundingMode roundingMode) {
         return div(Double.toString(v1), Float.toString(v2), scale, roundingMode).doubleValue();
@@ -505,7 +509,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      */
     public static double div(double v1, double v2, int scale, RoundingMode roundingMode) {
         return div(Double.toString(v1), Double.toString(v2), scale, roundingMode).doubleValue();
@@ -518,7 +522,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      */
     public static double div(Double v1, Double v2, int scale, RoundingMode roundingMode) {
         return div(v1, (Number) v2, scale, roundingMode).doubleValue();
@@ -531,7 +535,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      * @since 3.1.0
      */
     public static BigDecimal div(Number v1, Number v2, int scale, RoundingMode roundingMode) {
@@ -545,7 +549,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal div(String v1, String v2, int scale, RoundingMode roundingMode) {
         return div(new BigDecimal(v1), new BigDecimal(v2), scale, roundingMode);
@@ -558,7 +562,7 @@ public class NumberUtils {
      * @param v2 v2
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      * @since 3.0.9
      */
     public static BigDecimal div(BigDecimal v1, BigDecimal v2, int scale, RoundingMode roundingMode) {
@@ -577,7 +581,7 @@ public class NumberUtils {
      * @param numerator numerator
      * @param denominator denominator
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static double divide(long numerator, long denominator, int scale) {
         BigDecimal numeratorBd = new BigDecimal(numerator);
@@ -590,7 +594,7 @@ public class NumberUtils {
      *
      * @param numerator numerator
      * @param denominator denominator
-     * @return the result
+     * @return the 结果
      */
     public static double divide(long numerator, long denominator) {
         return divide(numerator, denominator, 2);
@@ -602,7 +606,7 @@ public class NumberUtils {
      * @param numerator numerator
      * @param denominator denominator
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static double divide(double numerator, double denominator, int scale) {
         BigDecimal numeratorBd = BigDecimal.valueOf(numerator);
@@ -615,7 +619,7 @@ public class NumberUtils {
      *
      * @param numerator numerator
      * @param denominator denominator
-     * @return the result
+     * @return the 结果
      */
     public static double divide(double numerator, double denominator) {
         return divide(numerator, denominator, 2);
@@ -626,7 +630,7 @@ public class NumberUtils {
      *
      * @param m m
      * @param n n
-     * @return the result
+     * @return the 结果
      */
     public static int divisor(int m, int n) {
         while (m % n != 0) {
@@ -640,12 +644,12 @@ public class NumberUtils {
     /**
      *             
      * <p>
-     * n! = n * (n-1) * ... * end
+      * n! = n * (n-1) * ... * 结束
      * </p>
      *
-     * @param start start
-     * @param end end
-     * @return the result
+     * @param start 启动
+     * @param end 结束
+     * @return the 结果
      * @since 4.1.0
      */
     public static long factorial(long start, long end) {
@@ -665,7 +669,7 @@ public class NumberUtils {
      * </p>
      *
      * @param n n
-     * @return the result
+     * @return the 结果
      */
     public static long factorial(long n) {
         return factorial(n, 1);
@@ -674,8 +678,8 @@ public class NumberUtils {
     /**
      *       
      *
-     * @param max max
-     * @param min min
+     * @param max 最大
+     * @param min 最小
      * @return int
      */
     public static int fences(long max, long min) {
@@ -688,7 +692,7 @@ public class NumberUtils {
     /**
      *                                                                                                 1000            
      *
-     * @param numberAsString numberAsString
+     * @param numberAsString 数字as字符串
      * @return                                     1000         
      */
     public static boolean isThousandSeparator(String numberAsString) {
@@ -710,7 +714,7 @@ public class NumberUtils {
     }
 
     /**
-     * is integer string.
+      * 是否 integer 字符串.
      *
      * @param str str
      * @return is integer
@@ -747,7 +751,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double mul(float v1, float v2) {
         return mul(Float.toString(v1), Float.toString(v2)).doubleValue();
@@ -758,7 +762,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double mul(float v1, double v2) {
         return mul(Float.toString(v1), Double.toString(v2)).doubleValue();
@@ -769,7 +773,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double mul(double v1, float v2) {
         return mul(Double.toString(v1), Float.toString(v2)).doubleValue();
@@ -780,7 +784,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double mul(double v1, double v2) {
         return mul(Double.toString(v1), Double.toString(v2)).doubleValue();
@@ -788,11 +792,11 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double mul(Double v1, Double v2) {
         return mul(v1, (Number) v2).doubleValue();
@@ -800,11 +804,11 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal mul(Number v1, Number v2) {
         return mul(new Number[]{v1, v2});
@@ -812,10 +816,10 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
-     * @param values values
-     * @return the result
+     * @param values 值
+     * @return the 结果
      * @since 4.0.0
      */
     public static BigDecimal mul(Number... values) {
@@ -837,7 +841,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      * @since 3.0.8
      */
     public static BigDecimal mul(String v1, String v2) {
@@ -846,10 +850,10 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
-     * @param values values
-     * @return the result
+     * @param values 值
+     * @return the 结果
      * @since 4.0.0
      */
     public static BigDecimal mul(String... values) {
@@ -867,10 +871,10 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
-     * @param values values
-     * @return the result
+     * @param values 值
+     * @return the 结果
      * @since 4.0.0
      */
     public static BigDecimal mul(BigDecimal... values) {
@@ -890,7 +894,7 @@ public class NumberUtils {
      *
      * @param m m
      * @param n n
-     * @return the result
+     * @return the 结果
      */
     public static int multiple(int m, int n) {
         return m * n / divisor(m, n);
@@ -901,7 +905,7 @@ public class NumberUtils {
      *
      * @param num1       1
      * @param num2       2
-     * @return the result
+     * @return the 结果
      */
     public static int multiply(int num1, double num2) {
         return multiply((double) num1, num2);
@@ -912,7 +916,7 @@ public class NumberUtils {
      *
      * @param num1       1
      * @param num2       2
-     * @return the result
+     * @return the 结果
      */
     public static int multiply(long num1, double num2) {
         double num1D = ((Long) num1).doubleValue();
@@ -924,7 +928,7 @@ public class NumberUtils {
      *
      * @param num1       1
      * @param num2       2
-     * @return the result
+     * @return the 结果
      */
     public static int multiply(double num1, double num2) {
         BigDecimal num1Bd = BigDecimal.valueOf(num1);
@@ -934,12 +938,13 @@ public class NumberUtils {
     }
 
     /**
-     * String         Number
+      * 字符串         数字
      *
      * @param <T>               
-     * @param text text
-     * @param targetClass targetClass
+     * @param text 文本
+     * @param targetClass Target类
      * @return Number
+     * @param number 数字
      */
 @SuppressWarnings("all")
     public static <T extends Number> T parseNumber(Number number, Class<T> targetClass) {
@@ -985,11 +990,11 @@ public class NumberUtils {
     }
 
     /**
-     * Raise an <em>overflow</em> exception for the given number and target class.
+      * 加薪 an <em>overflow</em> 异常 for the given 数字 和 Target 类.
      *
-     * @param number      the number we tried to convert
-     * @param targetClass the target class we tried to convert to
-     * @throws IllegalArgumentException if there is an overflow
+     * @param number      the 数字 we tried 转为 转换
+     * @param targetClass the Target 类 we tried 转为 转换 转为
+     * @throws IllegalArgumentException if there 是否 an overflow
      */
     private static void raiseOverflowException(Number number, Class<?> targetClass) {
         throw new IllegalArgumentException("Could not convert number [" + number + "] of type [" +
@@ -997,13 +1002,13 @@ public class NumberUtils {
     }
 
     /**
-     * Check for a {@code BigInteger}/{@code BigDecimal} long overflow
-     * before returning the given number as a long value.
+      * 检查 for a {@code BigInteger}/{@code BigDecimal} long overflow
+      * 之前 返回 the given 数字 as a long 值.
      *
-     * @param number      the number to convert
-     * @param targetClass the target class to convert to
-     * @return the long value, if convertible without overflow
-     * @throws IllegalArgumentException if there is an overflow
+     * @param number      the 数字 转为 转换
+     * @param targetClass the Target 类 转为 转换 转为
+     * @return the long 值, if 转换 without overflow
+     * @throws IllegalArgumentException if there 是否 an overflow
      * @see #raiseOverflowException
      */
     private static long checkedLongValue(Number number, Class<? extends Number> targetClass) {
@@ -1021,11 +1026,11 @@ public class NumberUtils {
     }
 
     /**
-     * String         Number
+      * 字符串         数字
      *
      * @param <T>               
-     * @param text text
-     * @param targetClass targetClass
+     * @param text 文本
+     * @param targetClass Target类
      * @return Number
      */
     public static <T extends Number> T converterNumber(String text, Class<T> targetClass) {
@@ -1058,8 +1063,8 @@ public class NumberUtils {
      *                                  +1
      *
      * @param total total
-     * @param partCount partCount
-     * @return the result
+     * @param partCount part数量
+     * @return the 结果
      * @since 4.0.7
      */
     public static int partValue(int total, int partCount) {
@@ -1068,12 +1073,12 @@ public class NumberUtils {
 
     /**
      *                               N                           <br>
-     *       isPlusOneWhenHasRem   true                                       +1                           
+      * 是否plusoneWhen.js是否包含rem   true                                       +1
      *
      * @param total total
-     * @param partCount partCount
+     * @param partCount part数量
      * @param isPlusOneWhenHasRem                            +1
-     * @return the result
+     * @return the 结果
      * @since 4.0.7
      */
     public static int partValue(int total, int partCount, boolean isPlusOneWhenHasRem) {
@@ -1087,9 +1092,9 @@ public class NumberUtils {
     /**
      *          
      *
-     * @param current current
+     * @param current 当前
      * @param total total
-     * @return the result
+     * @return the 结果
      */
     public static double percentage(double current, double total) {
         return current / total * 100.;
@@ -1098,9 +1103,9 @@ public class NumberUtils {
     /**
      *                
      *
-     * @param start start
-     * @param end end
-     * @return the result
+     * @param start 启动
+     * @param end 结束
+     * @return the 结果
      * @see IntStream
      */
     public static IntStream range(int start, int end) {
@@ -1110,8 +1115,8 @@ public class NumberUtils {
     /**
      *                
      *
-     * @param end end
-     * @return the result
+     * @param end 结束
+     * @return the 结果
      * @see IntStream
      */
     public static IntStream range(int end) {
@@ -1121,7 +1126,7 @@ public class NumberUtils {
     /**
      *                
      *
-     * @param end end
+     * @param end 结束
      * @param consumer consumer
      * @see IntStream
      */
@@ -1132,8 +1137,8 @@ public class NumberUtils {
     /**
      *                
      *
-     * @param start start
-     * @param end end
+     * @param start 启动
+     * @param end 结束
      * @param consumer consumer
      * @see IntStream
      */
@@ -1144,7 +1149,7 @@ public class NumberUtils {
     /**
      *                
      *
-     * @param end end
+     * @param end 结束
      * @param consumer consumer
      * @see IntStream
      */
@@ -1155,9 +1160,9 @@ public class NumberUtils {
     /**
      *                
      *
-     * @param start start
-     * @param end end
-     * @return the result
+     * @param start 启动
+     * @param end 结束
+     * @return the 结果
      * @see IntStream
      */
     public static IntStream rangeClosed(int start, int end) {
@@ -1171,7 +1176,7 @@ public class NumberUtils {
      *
      * @param v v
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal round(double v, int scale) {
         return round(v, scale, RoundingMode.HALF_UP);
@@ -1182,9 +1187,9 @@ public class NumberUtils {
      *                          {@link RoundingMode#HALF_UP}<br>
      *             2            123.456789 =    123.46
      *
-     * @param numberStr numberStr
+     * @param numberStr 数字str
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal round(String numberStr, int scale) {
         return round(numberStr, scale, RoundingMode.HALF_UP);
@@ -1195,9 +1200,9 @@ public class NumberUtils {
      *                          {@link RoundingMode#HALF_UP}<br>
      *             2            123.456789 =    123.46
      *
-     * @param number number
+     * @param number 数字
      * @param scale scale
-     * @return the result
+     * @return the 结果
      * @since 4.1.0
      */
     public static BigDecimal round(BigDecimal number, int scale) {
@@ -1211,7 +1216,7 @@ public class NumberUtils {
      * @param v v
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal round(double v, int scale, RoundingMode roundingMode) {
         return round(Double.toString(v), scale, roundingMode);
@@ -1221,10 +1226,10 @@ public class NumberUtils {
      *                         <br>
      *                            123.456789 =    123.4567
      *
-     * @param numberStr numberStr
+     * @param numberStr 数字str
      * @param scale                                               0            0
-     * @param roundingMode                       {@link RoundingMode}               null                     
-     * @return the result
+     * @param roundingMode                       {@link RoundingMode}               空
+     * @return the 结果
      */
     public static BigDecimal round(String numberStr, int scale, RoundingMode roundingMode) {
         if (scale < 0) {
@@ -1237,10 +1242,10 @@ public class NumberUtils {
      *                         <br>
      *                            123.456789 =    123.4567
      *
-     * @param number number
+     * @param number 数字
      * @param scale                                               0            0
-     * @param roundingMode                       {@link RoundingMode}               null                     
-     * @return the result
+     * @param roundingMode                       {@link RoundingMode}               空
+     * @return the 结果
      */
     public static BigDecimal round(BigDecimal number, int scale, RoundingMode roundingMode) {
         if (null == number) {
@@ -1259,9 +1264,9 @@ public class NumberUtils {
     /**
      *                                              
      *
-     * @param number number
+     * @param number 数字
      * @param scale scale
-     * @return the result
+     * @return the 结果
      * @since 4.1.0
      */
     public static BigDecimal roundDown(Number number, int scale) {
@@ -1271,9 +1276,9 @@ public class NumberUtils {
     /**
      *                                              
      *
-     * @param value value
+     * @param value 值
      * @param scale scale
-     * @return the result
+     * @return the 结果
      * @since 4.1.0
      */
     public static BigDecimal roundDown(BigDecimal value, int scale) {
@@ -1295,9 +1300,9 @@ public class NumberUtils {
      *                         
      * </pre>
      *
-     * @param number number
+     * @param number 数字
      * @param scale scale
-     * @return the result
+     * @return the 结果
      * @since 4.1.0
      */
     public static BigDecimal roundHalfEven(Number number, int scale) {
@@ -1319,9 +1324,9 @@ public class NumberUtils {
      *                         
      * </pre>
      *
-     * @param value value
+     * @param value 值
      * @param scale scale
-     * @return the result
+     * @return the 结果
      * @since 4.1.0
      */
     public static BigDecimal roundHalfEven(BigDecimal value, int scale) {
@@ -1335,7 +1340,7 @@ public class NumberUtils {
      *
      * @param v v
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static String roundStr(double v, int scale) {
         return round(v, scale).toString();
@@ -1346,9 +1351,9 @@ public class NumberUtils {
      *                          {@link RoundingMode#HALF_UP}<br>
      *             2            123.456789 =    123.46
      *
-     * @param numberStr numberStr
+     * @param numberStr 数字str
      * @param scale scale
-     * @return the result
+     * @return the 结果
      * @since 3.2.2
      */
     public static String roundStr(String numberStr, int scale) {
@@ -1362,7 +1367,7 @@ public class NumberUtils {
      * @param v v
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      * @since 3.2.2
      */
     public static String roundStr(double v, int scale, RoundingMode roundingMode) {
@@ -1373,10 +1378,10 @@ public class NumberUtils {
      *                         <br>
      *                            123.456789 =    123.4567
      *
-     * @param numberStr numberStr
+     * @param numberStr 数字str
      * @param scale scale
      * @param roundingMode                       {@link RoundingMode}
-     * @return the result
+     * @return the 结果
      * @since 3.2.2
      */
     public static String roundStr(String numberStr, int scale, RoundingMode roundingMode) {
@@ -1386,8 +1391,8 @@ public class NumberUtils {
     /**
      *          Integer      
      *
-     * @param value value
-     * @return the result
+     * @param value 值
+     * @return the 结果
      */
     public static int saturatedCast(long value) {
         if (value > Integer.MAX_VALUE) {
@@ -1402,9 +1407,9 @@ public class NumberUtils {
     /**
      *                   {scale}      
      *
-     * @param value value
+     * @param value 值
      * @param scale scale
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal scale(Long value, int scale) {
         if (null == value) {
@@ -1417,10 +1422,10 @@ public class NumberUtils {
     /**
      *             
      *
-     * @param size size
-     * @param realSize realSize
+     * @param size 大小
+     * @param realSize real大小
      * @param thread thread
-     * @return the result
+     * @return the 结果
      */
     public static List<Map.Entry<Long, Long>> split(long size, long realSize, int thread) {
         List<Map.Entry<Long, Long>> result = new LinkedList<>();
@@ -1453,7 +1458,7 @@ public class NumberUtils {
      *              {@link Math#sqrt(double)}
      *
      * @param x x
-     * @return the result
+     * @return the 结果
      */
     public static long sqrt(long x) {
         long y = 0;
@@ -1476,7 +1481,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double sub(float v1, float v2) {
         return sub(Float.toString(v1), Float.toString(v2)).doubleValue();
@@ -1487,7 +1492,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double sub(float v1, double v2) {
         return sub(Float.toString(v1), Double.toString(v2)).doubleValue();
@@ -1498,7 +1503,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double sub(double v1, float v2) {
         return sub(Double.toString(v1), Float.toString(v2)).doubleValue();
@@ -1509,7 +1514,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double sub(double v1, double v2) {
         return sub(Double.toString(v1), Double.toString(v2)).doubleValue();
@@ -1520,7 +1525,7 @@ public class NumberUtils {
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static double sub(Double v1, Double v2) {
         return sub(v1, (Number) v2).doubleValue();
@@ -1528,11 +1533,11 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
      * @param v1 v1
      * @param v2 v2
-     * @return the result
+     * @return the 结果
      */
     public static BigDecimal sub(Number v1, Number v2) {
         return sub(new Number[]{v1, v2});
@@ -1540,10 +1545,10 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
-     * @param values values
-     * @return the result
+     * @param values 值
+     * @return the 结果
      * @since 4.0.0
      */
     public static BigDecimal sub(Number... values) {
@@ -1565,10 +1570,10 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
-     * @param values values
-     * @return the result
+     * @param values 值
+     * @return the 结果
      * @since 4.0.0
      */
     public static BigDecimal sub(String... values) {
@@ -1589,10 +1594,10 @@ public class NumberUtils {
 
     /**
      *                            <br>
-     *                         null                     0
+      * 空                     0
      *
-     * @param values values
-     * @return the result
+     * @param values 值
+     * @return the 结果
      * @since 4.0.0
      */
     public static BigDecimal sub(BigDecimal... values) {
@@ -1615,9 +1620,9 @@ public class NumberUtils {
      *                                     
      *
      * @param minuend minuend
-     * @param reduction reduction
+     * @param reduction 减少
      * @param scale                         (                        )
-     * @return the result
+     * @return the 结果
      */
     public static double subtract(double minuend, double reduction, int scale) {
         BigDecimal minuendBd = BigDecimal.valueOf(minuend);
@@ -1630,8 +1635,8 @@ public class NumberUtils {
      *          
      *
      * @param minuend minuend
-     * @param reduction reduction
-     * @return the result
+     * @param reduction 减少
+     * @return the 结果
      */
     public static double subtract(double minuend, double reduction) {
         BigDecimal minuendBd = BigDecimal.valueOf(minuend);
@@ -1642,8 +1647,8 @@ public class NumberUtils {
     /**
      *          {@link BigDecimal}
      *
-     * @param number number
-     * @return {@link BigDecimal}
+     * @param number 数字
+     * @return {@link bigdecimal}
      * @since 4.0.9
      */
     public static BigDecimal toBigDecimal(Number number) {
@@ -1667,8 +1672,8 @@ public class NumberUtils {
     /**
      *          {@link BigDecimal}
      *
-     * @param number number
-     * @return {@link BigDecimal}
+     * @param number 数字
+     * @return {@link bigdecimal}
      * @since 4.0.9
      */
     public static BigDecimal toBigDecimal(String number) {
@@ -1681,8 +1686,8 @@ public class NumberUtils {
     /**
      *          {@link BigInteger}
      *
-     * @param number number
-     * @return {@link BigInteger}
+     * @param number 数字
+     * @return {@link biginteger}
      * @since 5.4.5
      */
     public static BigInteger toBigInteger(Number number) {
@@ -1702,8 +1707,8 @@ public class NumberUtils {
     /**
      *          {@link BigInteger}
      *
-     * @param number number
-     * @return {@link BigInteger}
+     * @param number 数字
+     * @return {@link biginteger}
      * @since 5.4.5
      */
     public static BigInteger toBigInteger(String number) {
@@ -1723,8 +1728,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @return the byte represented by the string, or <code>zero</code> if
-     * conversion fails
+     * @return the byte represented by the 字符串, 或 <code>zero</code> if
+      * 转换 失败
      * @since 2.5
      */
     public static byte toByte(final String str) {
@@ -1733,7 +1738,7 @@ public class NumberUtils {
 
     /**
      * <p>Convert a <code>String</code> to a <code>byte</code>, returning a
-     * default value if the conversion fails.</p>
+      * 默认 值 if the 转换 失败.</p>
      *
      * <p>If the string is <code>null</code>, the default value is returned.</p>
      *
@@ -1744,8 +1749,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @param defaultValue defaultValue
-     * @return the byte represented by the string, or the default if conversion fails
+     * @param defaultValue 默认值
+     * @return the byte represented by the 字符串, 或 the 默认 if 转换 失败
      * @since 2.5
      */
     public static byte toByte(final String str, final byte defaultValue) {
@@ -1772,9 +1777,9 @@ public class NumberUtils {
      *   NumberHelper.toDouble("1.5")  = 1.5d
      * </pre>
      *
-     * @param str the string to convert, may be <code>null</code>
-     * @return the double represented by the string, or <code>0.0d</code>
-     * if conversion fails
+     * @param str the 字符串 转为 转换, may be <code>空</code>
+     * @return the double represented by the 字符串, 或 <code>0.0d</code>
+      * if 转换 失败
      * @since 2.1
      */
     public static double toDouble(final String str) {
@@ -1782,7 +1787,7 @@ public class NumberUtils {
     }
 
     /**
-     * Number            double<br>
+      * 数字            double<br>
      * float                                                            
      *
      * @param value             float   
@@ -1800,10 +1805,10 @@ public class NumberUtils {
 
     /**
      * <p>Convert a <code>String</code> to a <code>double</code>, returning a
-     * default value if the conversion fails.</p>
+      * 默认 值 if the 转换 失败.</p>
      *
      * <p>If the string <code>str</code> is <code>null</code>, the default
-     * value is returned.</p>
+      * 值 是否 返回.</p>
      *
      * <pre>
      *   NumberHelper.toDouble(null, 1.1d)   = 1.1d
@@ -1811,10 +1816,10 @@ public class NumberUtils {
      *   NumberHelper.toDouble("1.5", 0.0d)  = 1.5d
      * </pre>
      *
-     * @param str          the string to convert, may be <code>null</code>
-     * @param defaultValue the default value
-     * @return the double represented by the string, or defaultValue
-     * if conversion fails
+     * @param str          the 字符串 转为 转换, may be <code>空</code>
+     * @param defaultValue the 默认 值
+     * @return the double represented by the 字符串, 或 默认值
+      * if 转换 失败
      * @since 2.1
      */
     public static double toDouble(final String str, final double defaultValue) {
@@ -1839,8 +1844,8 @@ public class NumberUtils {
      *   NumberHelper.toDouble(BigDecimal.valueOf(8.5d)) = 8.5d
      * </pre>
      *
-     * @param value the <code>BigDecimal</code> to convert, may be <code>null</code>.
-     * @return the double represented by the <code>BigDecimal</code> or
+     * @param value the <code>bigdecimal</code> 转为 转换, may be <code>空</code>.
+     * @return the double represented by the <code>bigdecimal</code> 或
      * <code>0.0d</code> if the <code>BigDecimal</code> is <code>null</code>.
      * @since 3.8
      */
@@ -1854,10 +1859,10 @@ public class NumberUtils {
      *   NumberHelper.toDouble(BigDecimal.valueOf(8.5d), 1.1d) = 8.5d
      * </pre>
      *
-     * @param value        the <code>BigDecimal</code> to convert, may be <code>null</code>.
-     * @param defaultValue the default value
-     * @return the double represented by the <code>BigDecimal</code> or the
-     * defaultValue if the <code>BigDecimal</code> is <code>null</code>.
+     * @param value        the <code>bigdecimal</code> 转为 转换, may be <code>空</code>.
+     * @param defaultValue the 默认 值
+     * @return the double represented by the <code>bigdecimal</code> 或 the
+      * 默认值 if the <code>bigdecimal</code> 是否 <code>空</code>.
      * @since 3.8
      */
     public static double toDouble(final BigDecimal value, final double defaultValue) {
@@ -1877,9 +1882,9 @@ public class NumberUtils {
      *   NumberHelper.toDoubleValue("1.5")  = 1.5d
      * </pre>
      *
-     * @param str the string to convert, may be <code>null</code>
-     * @return the double represented by the string, or <code>0.0d</code>
-     * if conversion fails
+     * @param str the 字符串 转为 转换, may be <code>空</code>
+     * @return the double represented by the 字符串, 或 <code>0.0d</code>
+      * if 转换 失败
      * @since 2.1
      */
     public static double toDoubleValue(final String str) {
@@ -1888,10 +1893,10 @@ public class NumberUtils {
 
     /**
      * <p>Convert a <code>String</code> to a <code>double</code>, returning a
-     * default value if the conversion fails.</p>
+      * 默认 值 if the 转换 失败.</p>
      *
      * <p>If the string <code>str</code> is <code>null</code>, the default
-     * value is returned.</p>
+      * 值 是否 返回.</p>
      *
      * <pre>
      *   NumberHelper.toDoubleValue(null, 1.1d)   = 1.1d
@@ -1899,10 +1904,10 @@ public class NumberUtils {
      *   NumberHelper.toDoubleValue("1.5", 0.0d)  = 1.5d
      * </pre>
      *
-     * @param str          the string to convert, may be <code>null</code>
-     * @param defaultValue the default value
-     * @return the double represented by the string, or defaultValue
-     * if conversion fails
+     * @param str          the 字符串 转为 转换, may be <code>空</code>
+     * @param defaultValue the 默认 值
+     * @return the double represented by the 字符串, 或 默认值
+      * if 转换 失败
      * @since 2.1
      */
     public static double toDoubleValue(final String str, final double defaultValue) {
@@ -1929,9 +1934,9 @@ public class NumberUtils {
      *   NumberHelper.toFloat("1.5")  = 1.5f
      * </pre>
      *
-     * @param str the string to convert, may be <code>null</code>
-     * @return the float represented by the string, or <code>0.0f</code>
-     * if conversion fails
+     * @param str the 字符串 转为 转换, may be <code>空</code>
+     * @return the float represented by the 字符串, 或 <code>0.0f</code>
+      * if 转换 失败
      * @since 2.1
      */
     public static Float toFloat(final String str) {
@@ -1940,10 +1945,10 @@ public class NumberUtils {
 
     /**
      * <p>Convert a <code>String</code> to a <code>float</code>, returning a
-     * default value if the conversion fails.</p>
+      * 默认 值 if the 转换 失败.</p>
      *
      * <p>If the string <code>str</code> is <code>null</code>, the default
-     * value is returned.</p>
+      * 值 是否 返回.</p>
      *
      * <pre>
      *   NumberHelper.toFloat(null, 1.1f)   = 1.0f
@@ -1951,10 +1956,10 @@ public class NumberUtils {
      *   NumberHelper.toFloat("1.5", 0.0f)  = 1.5f
      * </pre>
      *
-     * @param str          the string to convert, may be <code>null</code>
-     * @param defaultValue the default value
-     * @return the float represented by the string, or defaultValue
-     * if conversion fails
+     * @param str          the 字符串 转为 转换, may be <code>空</code>
+     * @param defaultValue the 默认 值
+     * @return the float represented by the 字符串, 或 默认值
+      * if 转换 失败
      * @since 2.1
      */
     public static Float toFloat(final String str, final Float defaultValue) {
@@ -1981,9 +1986,9 @@ public class NumberUtils {
      *   NumberHelper.toFloatValue("1.5")  = 1.5f
      * </pre>
      *
-     * @param str the string to convert, may be <code>null</code>
-     * @return the float represented by the string, or <code>0.0f</code>
-     * if conversion fails
+     * @param str the 字符串 转为 转换, may be <code>空</code>
+     * @return the float represented by the 字符串, 或 <code>0.0f</code>
+      * if 转换 失败
      * @since 2.1
      */
     public static float toFloatValue(final String str) {
@@ -1992,10 +1997,10 @@ public class NumberUtils {
 
     /**
      * <p>Convert a <code>String</code> to a <code>float</code>, returning a
-     * default value if the conversion fails.</p>
+      * 默认 值 if the 转换 失败.</p>
      *
      * <p>If the string <code>str</code> is <code>null</code>, the default
-     * value is returned.</p>
+      * 值 是否 返回.</p>
      *
      * <pre>
      *   NumberHelper.toFloatValue(null, 1.1f)   = 1.1f
@@ -2003,10 +2008,10 @@ public class NumberUtils {
      *   NumberHelper.toFloatValue("1.5", 0.0f)  = 1.5f
      * </pre>
      *
-     * @param str          the string to convert, may be <code>null</code>
-     * @param defaultValue the default value
-     * @return the float represented by the string, or defaultValue
-     * if conversion fails
+     * @param str          the 字符串 转为 转换, may be <code>空</code>
+     * @param defaultValue the 默认 值
+     * @return the float represented by the 字符串, 或 默认值
+      * if 转换 失败
      * @since 2.1
      */
     public static float toFloatValue(final String str, final float defaultValue) {
@@ -2040,7 +2045,7 @@ public class NumberUtils {
      *   NumberHelper.toInt(1L)  = 1
      * </pre>
      *
-     * @param longValue longValue
+     * @param longValue long值
      * @return int       
      */
     public static Integer toInt(final Long longValue) {
@@ -2054,8 +2059,9 @@ public class NumberUtils {
      *   NumberHelper.toInt("1", 0)  = 1
      * </pre>
      *
-     * @param source source
-     * @param defaultValue defaultValue
+     * @param source 源
+     * @param defaultValue 默认值
+     * @return 转为int的结果
      */
     public static int toInt(final String source, final int defaultValue) {
         if (source == null) {
@@ -2074,7 +2080,7 @@ public class NumberUtils {
      *   NumberHelper.toIntValue(1L)  = 1
      * </pre>
      *
-     * @param longValue longValue
+     * @param longValue long值
      * @return int       
      */
     public static int toIntValue(final Long longValue) {
@@ -2102,8 +2108,9 @@ public class NumberUtils {
      *   NumberHelper.Integer("1", 0)  = 1
      * </pre>
      *
-     * @param source source
-     * @param defaultValue defaultValue
+     * @param source 源
+     * @param defaultValue 默认值
+     * @return 转为integer的结果
      */
     public static Integer toInteger(final String source, final Integer defaultValue) {
         if (source == null) {
@@ -2125,6 +2132,7 @@ public class NumberUtils {
      *
      * @param str str
      * @since 2.1
+     * @return 转为long的结果
      */
     public static Long toLong(final String str) {
         return toLong(str, 0L);
@@ -2138,8 +2146,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @param defaultValue defaultValue
-     * @return the long represented by the string, or the default if conversion fails
+     * @param defaultValue 默认值
+     * @return the long represented by the 字符串, 或 the 默认 if 转换 失败
      * @since 2.1
      */
     public static Long toLong(final String str, final Long defaultValue) {
@@ -2162,6 +2170,7 @@ public class NumberUtils {
      *
      * @param str str
      * @since 2.1
+     * @return 转为long值的结果
      */
     public static long toLongValue(final String str) {
         return toLongValue(str, 0L);
@@ -2175,8 +2184,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @param defaultValue defaultValue
-     * @return the long represented by the string, or the default if conversion fails
+     * @param defaultValue 默认值
+     * @return the long represented by the 字符串, 或 the 默认 if 转换 失败
      * @since 2.1
      */
     public static long toLongValue(final String str, final long defaultValue) {
@@ -2191,18 +2200,20 @@ public class NumberUtils {
     }
 
     /**
-     * @param value value
+     * @param value 值
      * @since 3.8
+     * @return 转为scaledbigdecimal的结果
      */
     public static BigDecimal toScaledBigDecimal(final BigDecimal value) {
         return toScaledBigDecimal(value, 2, RoundingMode.HALF_EVEN);
     }
 
     /**
-     * @param value value
+     * @param value 值
      * @param scale scale
-     * @param roundingMode roundingMode
+     * @param roundingMode roundingmode
      * @since 3.8
+     * @return 转为scaledbigdecimal的结果
      */
     public static BigDecimal toScaledBigDecimal(final BigDecimal value, final int scale, final RoundingMode roundingMode) {
         if (value == null) {
@@ -2212,9 +2223,9 @@ public class NumberUtils {
     }
 
     /**
-     * toScaledBigDecimal
+      * 转为scaledbigdecimal
      *
-     * @param value value
+     * @param value 值
      * @return BigDecimal
      * @since 3.8
      */
@@ -2223,11 +2234,11 @@ public class NumberUtils {
     }
 
     /**
-     * toScaledBigDecimal
+      * 转为scaledbigdecimal
      *
-     * @param value value
+     * @param value 值
      * @param scale scale
-     * @param roundingMode roundingMode
+     * @param roundingMode roundingmode
      * @return BigDecimal
      * @since 3.8
      */
@@ -2243,9 +2254,9 @@ public class NumberUtils {
     }
 
     /**
-     * toScaledBigDecimal
+      * 转为scaledbigdecimal
      *
-     * @param value value
+     * @param value 值
      * @return BigDecimal
      * @since 3.8
      */
@@ -2254,11 +2265,11 @@ public class NumberUtils {
     }
 
     /**
-     * toScaledBigDecimal
+      * 转为scaledbigdecimal
      *
-     * @param value value
+     * @param value 值
      * @param scale scale
-     * @param roundingMode roundingMode
+     * @param roundingMode roundingmode
      * @return BigDecimal
      * @since 3.8
      */
@@ -2286,8 +2297,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @return the short represented by the string, or <code>zero</code> if
-     * conversion fails
+     * @return the short represented by the 字符串, 或 <code>zero</code> if
+      * 转换 失败
      * @since 2.5
      */
     public static short toShort(final String str) {
@@ -2296,7 +2307,7 @@ public class NumberUtils {
 
     /**
      * <p>Convert a <code>String</code> to an <code>short</code>, returning a
-     * default value if the conversion fails.</p>
+      * 默认 值 if the 转换 失败.</p>
      *
      * <p>If the string is <code>null</code>, the default value is returned.</p>
      *
@@ -2307,8 +2318,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @param defaultValue defaultValue
-     * @return the short represented by the string, or the default if conversion fails
+     * @param defaultValue 默认值
+     * @return the short represented by the 字符串, 或 the 默认 if 转换 失败
      * @since 2.5
      */
     public static short toShort(final String str, final short defaultValue) {
@@ -2325,7 +2336,7 @@ public class NumberUtils {
     /**
      *       bigint
      *
-     * @param value value
+     * @param value 值
      * @return BigInteger
      */
     private static BigInteger decodeBigInteger(String value) {
@@ -2356,7 +2367,7 @@ public class NumberUtils {
     /**
      *          Hex         
      *
-     * @param value value
+     * @param value 值
      * @return          Hex         
      */
     private static boolean isHexNumber(final String value) {
@@ -2448,7 +2459,7 @@ public class NumberUtils {
      *
      * @param bigNum1       1
      * @param bigNum2       2
-     * @return the result
+     * @return the 结果
      * @since 3.0.9
      */
     public static boolean isGreater(BigDecimal bigNum1, BigDecimal bigNum2) {
@@ -2460,7 +2471,7 @@ public class NumberUtils {
      *
      * @param bigNum1       1
      * @param bigNum2       2
-     * @return the result
+     * @return the 结果
      * @since 3, 0.9
      */
     public static boolean isGreaterOrEqual(BigDecimal bigNum1, BigDecimal bigNum2) {
@@ -2472,7 +2483,7 @@ public class NumberUtils {
      *
      * @param bigNum1       1
      * @param bigNum2       2
-     * @return the result
+     * @return the 结果
      * @since 3, 0.9
      */
     public static boolean isLess(BigDecimal bigNum1, BigDecimal bigNum2) {
@@ -2484,7 +2495,7 @@ public class NumberUtils {
      *
      * @param bigNum1       1
      * @param bigNum2       2
-     * @return the result
+     * @return the 结果
      * @since 3, 0.9
      */
     public static boolean isLessOrEqual(BigDecimal bigNum1, BigDecimal bigNum2) {
@@ -2498,7 +2509,7 @@ public class NumberUtils {
      *
      * @param num1       1
      * @param num2       2
-     * @return the result
+     * @return the 结果
      * @since 5.4.2
      */
     public static boolean equals(double num1, double num2) {
@@ -2512,7 +2523,7 @@ public class NumberUtils {
      *
      * @param num1       1
      * @param num2       2
-     * @return the result
+     * @return the 结果
      * @since 5.4.5
      */
     public static boolean equals(float num1, float num2) {
@@ -2526,7 +2537,7 @@ public class NumberUtils {
      *
      * @param num1       1
      * @param num2       2
-     * @return the result
+     * @return the 结果
      * @since 5.4.5
      */
     public static boolean equals(int num1, int num2) {
@@ -2542,7 +2553,7 @@ public class NumberUtils {
      *
      * @param bigNum1       1
      * @param bigNum2       2
-     * @return the result
+     * @return the 结果
      */
     public static boolean equals(BigDecimal bigNum1, BigDecimal bigNum2) {
         if (bigNum1.equals(bigNum2)) {
@@ -2557,9 +2568,9 @@ public class NumberUtils {
     /**
      * zero
      *
-     * @param value value
-     * @param defaultValue defaultValue
-     * @return the result
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return the 结果
      */
     public static int isValid(Integer value, int defaultValue) {
         return null == value || value == 0 ? defaultValue : value;
@@ -2568,9 +2579,9 @@ public class NumberUtils {
     /**
      * zero
      *
-     * @param value value
-     * @param defaultValue defaultValue
-     * @return the result
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return the 结果
      */
     public static int isZero(int value, int defaultValue) {
         return value == 0 ? defaultValue : value;
@@ -2579,9 +2590,9 @@ public class NumberUtils {
     /**
      * zero
      *
-     * @param value value
-     * @param defaultValue defaultValue
-     * @return the result
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return the 结果
      */
     public static double isZero(double value, double defaultValue) {
         return Double.compare(0.0d, value) == 0 ? defaultValue : value;
@@ -2590,8 +2601,8 @@ public class NumberUtils {
     /**
      * excel         
      *
-     * @param value value
-     * @return the result
+     * @param value 值
+     * @return the 结果
      */
     public static String toExcelCell(int value) {
         value = value - 65;
@@ -2607,7 +2618,7 @@ public class NumberUtils {
      *                             --> 12354
      *
      * @param chinese chinese
-     * @return the result
+     * @return the 结果
      */
     public static String getNumberFromChinese(String chinese) {
         String result = "0";
@@ -2751,7 +2762,7 @@ public class NumberUtils {
      * 12354 --> 一万二千三百五十四
      *
      * @param alabo alabo
-     * @return the result
+     * @return the 结果
      */
     public static String getNumberFromAlamo(String alabo) {
         StringBuilder result = new StringBuilder();
@@ -2788,10 +2799,10 @@ public class NumberUtils {
     }
 
     /**
-     *       singleNumList   j                        0
+      * 单个num列表   j                        0
      *
-     * @param singleNumList singleNumList
-     * @param offset offset
+     * @param singleNumList 单个num列表
+     * @param offset 偏移量
      * @return                0
      */
     private static boolean afterNotAllZero(List<String> singleNumList, int offset) {
@@ -2806,8 +2817,8 @@ public class NumberUtils {
     /**
      *       
      *
-     * @param data data
-     * @return the result
+     * @param data 数据
+     * @return the 结果
      */
     public static double getVariance(double[] data) {
         int m = data.length;
@@ -2826,7 +2837,8 @@ public class NumberUtils {
     /**
      *          
      *
-     * @return the result
+     * @return the 结果
+     * @param data 数据
      */
     public static double getAverage(double[] data) {
         BigDecimal bigDecimal = BigDecimal.ZERO;
@@ -2841,6 +2853,7 @@ public class NumberUtils {
      * sigma
      *
      * @return sigma
+     * @param data 数据
      */
     public static double getStandardDeviation(double[] data) {
         int m = data.length;
@@ -2862,8 +2875,8 @@ public class NumberUtils {
      * @param x            x   
      * @param mean mean
      * @param variance variance
-     * @param stdDeviation stdDeviation
-     * @return the result
+     * @param stdDeviation stddeviation
+     * @return the 结果
      */
     public static double getY(double x, double mean, double variance, double stdDeviation) {
         return Math.pow(Math.exp(-(((x - mean) * (x - mean)) / ((2 * variance)))), 1 / (stdDeviation * Math.sqrt(2 * Math.PI)));
@@ -2872,8 +2885,8 @@ public class NumberUtils {
     /**
      *                
      *
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param value 值
+     * @param defaultValue 默认值
      * @return int
      */
     public static int isPositive(Integer value, int defaultValue) {
@@ -2881,22 +2894,22 @@ public class NumberUtils {
     }
 
     /**
-     *                         null            0                                                      
+      * 空            0
      *
-     * @param value                            null
-     * @param defaultValue                      null         0                     
+     * @param value                            空
+     * @param defaultValue                      空         0
      * @return                      null               0                                          
      */
     public static Number defaultIfNullOrPositive(Number value, Number defaultValue) {
-        //                            null         0                                                
+ // 空         0
         return null == value || value.intValue() <= 0 ? defaultValue : value;
     }
 
     /**
-     *                            Number         
+      * 数字
      *
-     * @param data                            null
-     * @return          null         null                        Number                           null
+     * @param data                            空
+     * @return          null         空                        数字                           空
      */
     public static <T> Number parseNumber(T data) {
         if (null == data) {
@@ -2912,7 +2925,7 @@ public class NumberUtils {
 
     /**
      *                
-     * @param value value
+     * @param value 值
      * @return  boolean
      */
     public static boolean isDigits(String value) {

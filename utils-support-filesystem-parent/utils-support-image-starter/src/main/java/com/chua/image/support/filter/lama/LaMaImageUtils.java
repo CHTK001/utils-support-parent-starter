@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * LaMa图像处理工具类
+   * lama图像处理工具类
  * <p>
  * 提供图像预处理、后处理和格式转换等功能
  * </p>
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 public class LaMaImageUtils {
 
     /**
-     * 将BufferedImage转换为ONNX输入张量数据
+      * 将缓冲镜像转换为ONNX输入张量数据
      *
      * @param image  输入图像
      * @param config 配置参数
@@ -51,7 +51,7 @@ public class LaMaImageUtils {
             int g = (pixel >> 8) & 0xFF;
             int b = pixel & 0xFF;
             
-            // 标准化到[0,1]然后应用ImageNet标准化
+ // 标准化到[0,1]然后应用镜像net标准化
             float rNorm = (r / 255.0f - means[0]) / stds[0];
             float gNorm = (g / 255.0f - means[1]) / stds[1];
             float bNorm = (b / 255.0f - means[2]) / stds[2];
@@ -69,7 +69,7 @@ public class LaMaImageUtils {
     }
 
     /**
-     * 将ONNX输出张量转换为BufferedImage
+      * 将ONNX输出张量转换为缓冲镜像
      *
      * @param tensorData 输出张量数据 [C, H, W] 格式
      * @param config     配置参数
@@ -130,6 +130,9 @@ public class LaMaImageUtils {
 
     /**
      * 从alpha通道生成mask
+     * @param image 镜像
+     * @param config 配置
+     * @return generatemask从alpha的结果
      */
     private static float[] generateMaskFromAlpha(BufferedImage image, LaMaConfiguration config) {
         int size = config.getInputSize();
@@ -154,6 +157,9 @@ public class LaMaImageUtils {
 
     /**
      * 根据颜色生成mask
+     * @param image 镜像
+     * @param config 配置
+     * @return generatemask从color的结果
      */
     private static float[] generateMaskFromColor(BufferedImage image, LaMaConfiguration config) {
         int size = config.getInputSize();
@@ -274,6 +280,11 @@ public class LaMaImageUtils {
 
     /**
      * 创建羽化mask
+     * @param mask mask
+     * @param width width
+     * @param height height
+     * @param radius radius
+     * @return 创建featheredmask的结果
      */
     private static float[] createFeatheredMask(float[] mask, int width, int height, int radius) {
         float[] feathered = mask.clone();
@@ -311,6 +322,10 @@ public class LaMaImageUtils {
 
     /**
      * 混合两个像素
+     * @param pixel1 pixel1
+     * @param pixel2 pixel2
+     * @param alpha alpha
+     * @return blendPixels的结果
      */
     private static int blendPixels(int pixel1, int pixel2, float alpha) {
         int r1 = (pixel1 >> 16) & 0xFF;
@@ -351,6 +366,8 @@ public class LaMaImageUtils {
 
     /**
      * 应用锐化滤镜
+     * @param image 镜像
+     * @return applySharpen的结果
      */
     private static BufferedImage applySharpen(BufferedImage image) {
         // 简单的锐化核
@@ -365,6 +382,8 @@ public class LaMaImageUtils {
 
     /**
      * 应用颜色校正
+     * @param image 镜像
+     * @return applyColorCorrection的结果
      */
     private static BufferedImage applyColorCorrection(BufferedImage image) {
         // 简单的对比度和亮度调整
@@ -395,6 +414,10 @@ public class LaMaImageUtils {
 
     /**
      * 应用卷积操作
+     * @param image 镜像
+     * @param kernel kernel
+     * @param kernelSize kernel大小
+     * @return applyConvolution的结果
      */
     private static BufferedImage applyConvolution(BufferedImage image, float[] kernel, int kernelSize) {
         int width = image.getWidth();

@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * DrawEyeResolver接口定义了绘制眼睛图形的方法。
+   * draweye解析器接口定义了绘制眼睛图形的方法。
  * @author CH
  * @since 4.0.0.42
  */

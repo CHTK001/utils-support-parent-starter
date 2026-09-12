@@ -37,21 +37,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 基于 langchain4j 实现的 ReAct Agent。
+   * 基于 langchain4j 实现的 re行为 智能体。
  * 支持 MCP 工具调用、Skill 动态注入、工具链式推理，
- * 通过 ChatModel 与 LLM 交互，完成 ReAct 循环。
+   * 通过 对话模型 与 LLM 交互，完成 re行为 循环。
  *
  * @author CH
+ * @since 4.0.0
  */
 public class LangChain4jAgent implements Agent {
 
     /**
-     * Agent 定义，包含系统提示词、最大工具调用次数等配置
+      * 智能体 定义，包含系统提示词、最大工具调用次数等配置
      */
     private AgentDefinition definition;
 
     /**
-     * Agent 运行模式：AUTO / TOOL / DIRECT 等
+      * 智能体 运行模式：AUTO / TOOL / DIRECT 等
      */
     private AgentMode mode = AgentMode.AUTO;
 
@@ -61,12 +62,12 @@ public class LangChain4jAgent implements Agent {
     private int maxToolIterations = 5;
 
     /**
-     * 聊天客户端集合，key 为 Agent ID
+      * 聊天客户端集合，键 为 智能体 标识
      */
     private final Map<String, ChatClient> chatClients = new HashMap<>();
 
     /**
-     * 子 Agent 定义列表
+      * 子 智能体 定义列表
      */
     private final List<AgentDefinition> subAgentDefinitions = new ArrayList<>();
 
@@ -81,15 +82,15 @@ public class LangChain4jAgent implements Agent {
     private SkillManager globalSkillManager;
 
     /**
-     * langchain4j ChatModel，Agent 实际与 LLM 交互的底层模型
+      * langchain4j 对话模型，智能体 实际与 LLM 交互的底层模型
      */
     private ChatModel chatModel;
 
     /**
-     * 设置 Agent 运行模式
+      * 设置 智能体 运行模式
      *
-     * @param mode 运行模式，null 时默认使用 AUTO
-     * @return 当前 Agent 实例，支持链式调用
+     * @param mode 运行模式，空 时默认使用 AUTO
+     * @return 当前 智能体 实例，支持链式调用
      */
     @Override
     public Agent mode(AgentMode mode) {
@@ -101,7 +102,7 @@ public class LangChain4jAgent implements Agent {
      * 设置默认聊天客户端
      *
      * @param chatClient 聊天客户端实例
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent chatClient(ChatClient chatClient) {
@@ -110,11 +111,11 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 按 Agent ID 设置聊天客户端
+      * 按 智能体 标识 设置聊天客户端
      *
-     * @param agentId    Agent 标识
+     * @param agentId    智能体 标识
      * @param chatClient 聊天客户端实例
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent chatClient(String agentId, ChatClient chatClient) {
@@ -126,7 +127,7 @@ public class LangChain4jAgent implements Agent {
      * 设置全局 MCP 管理器
      *
      * @param mcpManager MCP 管理器实例
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent mcpManager(McpManager mcpManager) {
@@ -135,11 +136,11 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 按 Agent ID 设置 MCP 管理器（仅首次设置生效）
+      * 按 智能体 标识 设置 MCP 管理器（仅首次设置生效）
      *
-     * @param agentId    Agent 标识
+     * @param agentId    智能体 标识
      * @param mcpManager MCP 管理器实例
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent mcpManager(String agentId, McpManager mcpManager) {
@@ -153,7 +154,7 @@ public class LangChain4jAgent implements Agent {
      * 设置全局 Skill 管理器
      *
      * @param skillManager Skill 管理器实例
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent skillManager(SkillManager skillManager) {
@@ -162,11 +163,11 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 按 Agent ID 设置 Skill 管理器（仅首次设置生效）
+      * 按 智能体 标识 设置 Skill 管理器（仅首次设置生效）
      *
-     * @param agentId      Agent 标识
+     * @param agentId      智能体 标识
      * @param skillManager Skill 管理器实例
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent skillManager(String agentId, SkillManager skillManager) {
@@ -177,10 +178,10 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 注册子 Agent 定义
+      * 注册子 智能体 定义
      *
-     * @param subAgent 子 Agent 定义
-     * @return 当前 Agent 实例
+     * @param subAgent 子 智能体 定义
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent subAgent(AgentDefinition subAgent) {
@@ -196,7 +197,7 @@ public class LangChain4jAgent implements Agent {
      * @param name        Skill 名称
      * @param description Skill 描述
      * @param handler     处理器
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent skill(String name, String description, com.chua.common.support.ai.skill.SkillHandler handler) {
@@ -207,7 +208,7 @@ public class LangChain4jAgent implements Agent {
      * 开启或关闭 MCP 工具（当前实现占位）
      *
      * @param mcp 是否开启
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent mcp(boolean mcp) {
@@ -218,7 +219,7 @@ public class LangChain4jAgent implements Agent {
      * 设置工具调用最大迭代次数
      *
      * @param maxIterations 最大迭代次数
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent maxToolIterations(int maxIterations) {
@@ -230,7 +231,7 @@ public class LangChain4jAgent implements Agent {
      * 设置记忆配置（当前实现占位）
      *
      * @param memoryConfig 记忆配置
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent memoryConfig(com.chua.common.support.ai.memory.MemoryConfig memoryConfig) {
@@ -241,7 +242,7 @@ public class LangChain4jAgent implements Agent {
      * 设置上下文压缩配置（当前实现占位）
      *
      * @param compressionConfig 压缩配置
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent compressionConfig(com.chua.common.support.ai.agent.AgentCompressionConfig compressionConfig) {
@@ -251,7 +252,7 @@ public class LangChain4jAgent implements Agent {
     /**
      * 获取上下文压缩配置（当前实现占位）
      *
-     * @return 始终返回 null
+     * @return 始终返回 空
      */
     @Override
     public com.chua.common.support.ai.agent.AgentCompressionConfig compressionConfig() {
@@ -262,7 +263,7 @@ public class LangChain4jAgent implements Agent {
      * 开启或关闭规划模式（当前实现占位）
      *
      * @param plan 是否开启
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent plan(boolean plan) {
@@ -273,7 +274,7 @@ public class LangChain4jAgent implements Agent {
      * 设置规划最大任务数（当前实现占位）
      *
      * @param planMaxTask 最大任务数
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent planMaxTask(int planMaxTask) {
@@ -284,7 +285,7 @@ public class LangChain4jAgent implements Agent {
      * 设置调试钩子（当前实现占位）
      *
      * @param debugHook 调试钩子
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent debugHook(com.chua.common.support.ai.agent.AgentDebugHook debugHook) {
@@ -295,7 +296,7 @@ public class LangChain4jAgent implements Agent {
      * 设置规划钩子（当前实现占位）
      *
      * @param planHook 规划钩子
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent planHook(com.chua.common.support.ai.agent.AgentPlanHook planHook) {
@@ -306,7 +307,7 @@ public class LangChain4jAgent implements Agent {
      * 设置最大重试次数（当前实现占位）
      *
      * @param maxRetries 最大重试次数
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent maxRetries(int maxRetries) {
@@ -317,7 +318,7 @@ public class LangChain4jAgent implements Agent {
      * 设置重试退避策略（当前实现占位）
      *
      * @param strategy 退避策略
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent retryBackoff(com.chua.common.support.ai.agent.AgentRetryConfig.BackoffStrategy strategy) {
@@ -328,7 +329,7 @@ public class LangChain4jAgent implements Agent {
      * 设置重试基础延迟（当前实现占位）
      *
      * @param baseDelayMillis 基础延迟（毫秒）
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent retryBaseDelay(long baseDelayMillis) {
@@ -339,7 +340,7 @@ public class LangChain4jAgent implements Agent {
      * 设置完整重试配置（当前实现占位）
      *
      * @param retryConfig 重试配置
-     * @return 当前 Agent 实例
+     * @return 当前 智能体 实例
      */
     @Override
     public Agent retryConfig(com.chua.common.support.ai.agent.AgentRetryConfig retryConfig) {
@@ -347,7 +348,7 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 获取 Agent 定义
+      * 获取 智能体 定义
      *
      * @return Agent 定义
      */
@@ -357,9 +358,9 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 获取子 Agent 定义列表（返回不可变副本）
+      * 获取子 智能体 定义列表（返回不可变副本）
      *
-     * @return 子 Agent 定义列表
+     * @return 子 智能体 定义列表
      */
     @Override
     public List<AgentDefinition> getSubAgents() {
@@ -367,10 +368,10 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 执行 Agent 推理。
+      * 执行 智能体 推理。
      * 初始化对话上下文，构建工具规格，进入 ReAct 循环：
      * 调用 LLM → 检查是否触发工具调用 → 执行工具 → 追加结果 → 继续循环。
-     * 循环次数受 maxToolIterations 限制，超出后返回当前最终输出。
+      * 循环次数受 最大tooliterations 限制，超出后返回当前最终输出。
      *
      * @param input 用户输入
      * @return Agent 响应结果
@@ -445,17 +446,17 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 关闭 Agent，释放资源
+      * 关闭 智能体，释放资源
      */
     @Override
     public void close() {
     }
 
     /**
-     * 设置 langchain4j ChatModel
+      * 设置 langchain4j 对话模型
      *
-     * @param chatModel ChatModel 实例
-     * @return 当前 Agent 实例
+     * @param chatModel 对话模型 实例
+     * @return 当前 智能体 实例
      */
     public LangChain4jAgent chatModel(ChatModel chatModel) {
         this.chatModel = chatModel;
@@ -465,7 +466,7 @@ public class LangChain4jAgent implements Agent {
     /**
      * 解析有效最大工具迭代次数。
      * 优先使用链式设置的值，其次使用 definition 中的值，
-     * 两者均未设置时使用默认值 5。若最终值为非正数则使用 Integer.MAX_VALUE。
+      * 两者均未设置时使用默认值 5。若最终值为非正数则使用 Integer.最大_值。
      *
      * @param chainValue 链式设置的值
      * @param defValue   定义中的值
@@ -479,7 +480,7 @@ public class LangChain4jAgent implements Agent {
     /**
      * 构建工具规格列表。
      * 从 MCP 管理器和 Skill 管理器中分别收集工具描述，
-     * 转换为 langchain4j 的 ToolSpecification 格式。
+      * 转换为 langchain4j 的 toolspecification 格式。
      *
      * @return 工具规格列表
      */
@@ -513,8 +514,8 @@ public class LangChain4jAgent implements Agent {
 
     /**
      * 构建工具执行器映射。
-     * 将 MCP 工具和 Skill 工具分别注册为 ToolExecutor，
-     * key 为工具名称，value 为执行函数。
+      * 将 MCP 工具和 Skill 工具分别注册为 tool执行器，
+      * 键 为工具名称，值 为执行函数。
      *
      * @return 工具名称到执行器的映射
      */
@@ -575,8 +576,8 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 解析工具调用参数 JSON 为 Map。
-     * 空 JSON 或 {} 时返回空 Map。
+      * 解析工具调用参数 JSON 为 映射。
+      * 空 JSON 或 {} 时返回空 映射。
      *
      * @param json JSON 字符串
      * @return 参数映射
@@ -590,11 +591,11 @@ public class LangChain4jAgent implements Agent {
     }
 
     /**
-     * 从 MCP 工具的 JSON Schema 构建 langchain4j 参数描述。
-     * 将 schema 中的 properties 映射为 JsonStringSchema，
+      * 从 MCP 工具的 JSON 模式 构建 langchain4j 参数描述。
+      * 将 模式 中的 属性 映射为 json字符串模式，
      * 提取 required 字段列表。
      *
-     * @param schema MCP 工具的输入 schema
+     * @param schema MCP 工具的输入 模式
      * @return 参数描述对象
      */
     private static JsonObjectSchema buildParametersFromSchema(Map<String, Object> schema) {
@@ -630,8 +631,8 @@ public class LangChain4jAgent implements Agent {
 
     /**
      * 从 Skill 定义构建 langchain4j 参数描述。
-     * 根据 Skill 参数类型（number/integer/boolean/enum/string）
-     * 映射为对应的 JsonSchema 子类。
+      * 根据 Skill 参数类型（数字/integer/布尔值/enum/字符串）
+      * 映射为对应的 json模式 子类。
      *
      * @param skill Skill 定义
      * @return 参数描述对象
@@ -672,6 +673,8 @@ public class LangChain4jAgent implements Agent {
     /**
      * 工具执行器函数式接口。
      * 接收参数映射，返回执行结果文本。
+     * @author CH
+     * @since 4.0.0
      */
     @FunctionalInterface
     private interface ToolExecutor {

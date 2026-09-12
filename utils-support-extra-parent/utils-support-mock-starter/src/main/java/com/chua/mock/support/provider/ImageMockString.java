@@ -54,6 +54,8 @@ public class ImageMockString implements MockString {
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
     /**
      * 默认种子长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int SEED_LENGTH = 8;
 

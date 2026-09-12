@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.Optional;
 
 /**
- * 基于 WebDAV 的配置保存/加载器。
+   * 基于 webdav 的配置保存/加载器。
  *
  * <p>使用 Sardine WebDAV 客户端将配置数据持久化到远程 WebDAV 服务器。
  * 作为 {@link ConfigSaveOrLoader} 的 SPI 实现，支持配置的保存、加载和删除操作。</p>
@@ -36,7 +36,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     private final String baseUrl;
 
     /**
-     * 创建 WebdavConfigSaveOrLoader 实例
+      * 创建 webdav配置保存或加载 实例
      * @param setting setting
      */
     public WebdavConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
@@ -53,12 +53,21 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         this.baseUrl = url + (basePath.endsWith("/") ? basePath : basePath + "/");
     }
 
-    /** FullUrl */
+    /**
+     * 完整url
+     *
+     * @param key 键
+     * @return 完整url的结果
+     */
     private String fullUrl(String key) {
         return baseUrl + normalizeKey(key);
     }
 
-    /** EnsureParentPath */
+    /**
+     * ensure父路径
+     *
+     * @param key 键
+     */
     private void ensureParentPath(String key) throws IOException {
         String normalized = normalizeKey(key);
         if (!normalized.contains("/")) {

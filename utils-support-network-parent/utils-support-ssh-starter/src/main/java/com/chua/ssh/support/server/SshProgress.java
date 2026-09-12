@@ -16,6 +16,9 @@ import com.chua.common.support.lang.process.ProgressBarStyle;
  *     }
  *     bar.done("完成");
  * }
+ * }</pre>     }
+ *     bar.done("完成");
+ * }
  * }</pre>
  *
  * @author CH

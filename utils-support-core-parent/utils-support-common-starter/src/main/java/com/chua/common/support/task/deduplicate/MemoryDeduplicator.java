@@ -9,9 +9,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 内存去重器，基于 ConcurrentHashMap 实现。
+   * 内存去重器，基于 并发哈希映射 实现。
  * <p>
- * 按 key 判重，支持 TTL 自动过期清理，默认 5 分钟。
+   * 按 键 判重，支持 TTL 自动过期清理，默认 5 分钟。
  * 实现 {@link AutoCloseable}：不再使用时必须调用 {@link #close()}
  * 释放内部清理线程，防止线程泄漏。
  * </p>
@@ -35,7 +35,7 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
 
     /** TTLMS */
     private final long ttlMs;
-    /** processed */
+    /** 处理 */
     private final Map<String, Long> processed;
     /** Cleanup执行器 */
     private final ScheduledThreadPoolExecutor cleanupExecutor;
@@ -50,7 +50,7 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
     /**
      * 构造去重器，指定 TTL。
      *
-     * @param ttlMs TTL 毫秒数，超过该时间未访问的 key 将被清理
+     * @param ttlMs TTL 毫秒数，超过该时间未访问的 键 将被清理
      */
     public MemoryDeduplicator(long ttlMs) {
         this.ttlMs = ttlMs;
@@ -66,9 +66,9 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
     }
 
     /**
-     * 判断 key 是否已处理过。
+      * 判断 键 是否已处理过。
      *
-     * @param key 去重 key
+     * @param key 去重 键
      * @return true 表示已处理（重复）
      */
     @Override
@@ -77,9 +77,9 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
     }
 
     /**
-     * 标记 key 为已处理。
+      * 标记 键 为已处理。
      *
-     * @param key 去重 key
+     * @param key 去重 键
      */
     @Override
     public void markProcessed(String key) {
@@ -114,7 +114,7 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
     }
 
     /**
-     * 清理过期的 key。
+      * 清理过期的 键。
      */
     private void cleanup() {
         long now = System.currentTimeMillis();

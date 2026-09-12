@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Lettuce 应用层 Handler — 拦截 Redis Lettuce 客户端调用并生成应用语义传输记录。
+   * Lettuce 应用层 处理器 — 拦截 Redis Lettuce 客户端调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -15,7 +15,7 @@ import com.chua.runtime.protocol.Software;
  * </ul>
  *
  * <p>Lettuce 的同步/异步命令均通过 {@code CommandHandler.write(RedisCommand)} 下发，
- * 因此在此单点插桩即可覆盖 get/set/hset 等全部命令。</p>
+   * 因此在此单点插桩即可覆盖 获取/设置/hset 等全部命令。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,7 +23,7 @@ import com.chua.runtime.protocol.Software;
 public class LettuceHandler extends AbstractAppHandler {
 
     /**
-     * CommandHandler 类内部名
+      * 命令处理器 类内部名
      */
     private static final String COMMAND_HANDLER_CLASS = "io/lettuce/core/protocol/CommandHandler";
 
@@ -33,13 +33,13 @@ public class LettuceHandler extends AbstractAppHandler {
     private static final String[] WRITE_METHODS = {"write", "writeFlush"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "lettuce-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "lettuce.enabled";
     }
@@ -51,13 +51,13 @@ public class LettuceHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.REDIS;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(COMMAND_HANDLER_CLASS, WRITE_METHODS);
     }

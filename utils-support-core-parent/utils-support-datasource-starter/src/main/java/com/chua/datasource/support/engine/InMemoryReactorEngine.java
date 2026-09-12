@@ -24,18 +24,45 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param clazz clazz
+ * @return 执行查询的结果
+ * @param pn pn
+ * @param ps ps
  */
 @Spi("memory")
 public class InMemoryReactorEngine implements ReactorEngine {
+/**
+ * 查询。
+ * @param entityClass 实体类
+ * @return 查询的结果
+ */
 
-    private final InMemoryEngine delegate = new InMemoryEngine();
+    private final InMemoryEngine delegate = new InMemoryEngine(); // delegate
 
+    /**
+     * 列表。
+     * @return 列表的结果
+     */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
             @Override
             public Flux<T> list() {
+                /**
+                 * one。
+                 * @return one的结果
+                 * @param clazz clazz
+                 * @param pn pn
+                 * @param ps ps
+                 */
                 return Flux.fromIterable(doQuery(entityClass));
+            /**
+             * one。
+             * @return one的结果
+             * @param clazz clazz
+             * @param pn pn
+             * @param ps ps
+             */
             }
 
             @Override

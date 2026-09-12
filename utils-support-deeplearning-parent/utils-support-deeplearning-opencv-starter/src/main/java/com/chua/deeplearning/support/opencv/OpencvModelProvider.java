@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * 纯 OpenCV 批量模型提供者。
+   * 纯 打开cv 批量模型提供者。
  * <p>
  * 一次注册人脸检测、眼睛、微笑、侧脸、人体、HOG 行人、图像质量、人脸质量等模型。
  * </p>
@@ -67,7 +67,7 @@ public class OpencvModelProvider implements BulkModelProvider {
     }
 
     @Override
-    /** 获取All */
+    /** 获取全部 */
     public List<TranslatorModelDefinition> getAll() {
         List<TranslatorModelDefinition> list = new ArrayList<>();
         add(list, "opencv-face-detector", FACE, () -> new OpencvFaceDetector(FACE));
@@ -90,7 +90,7 @@ public class OpencvModelProvider implements BulkModelProvider {
      * 安全创建并加入模型定义。
      *
      * @param list      结果列表
-     * @param modelId   模型 ID
+     * @param modelId   模型 标识
      * @param modelPath 模型路径，可为空
      * @param supplier  翻译器工厂
      */

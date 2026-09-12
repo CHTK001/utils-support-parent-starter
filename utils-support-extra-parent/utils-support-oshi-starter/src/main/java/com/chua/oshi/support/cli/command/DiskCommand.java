@@ -54,7 +54,7 @@ public final class DiskCommand extends AbstractCommand {
             System.out.println(Formatter.table("", new String[]{"Model", "Serial", "Size", "Partitions", "State"}, rows));
         }
 
-        // ── Partitions ──
+ // ── 分区 ──
         System.out.println();
         System.out.println("Partitions:");
         List<String[]> prow = new ArrayList<>();
@@ -75,7 +75,7 @@ public final class DiskCommand extends AbstractCommand {
             System.out.println(Formatter.table("", new String[]{"ID", "Disk", "Mount", "Size", "Type"}, prow));
         }
 
-        // ── File system usage ──
+ // ── 文件 系统 usage ──
         System.out.println();
         List<SysFile> sysFiles = Oshi.newSysFile();
         System.out.println("File System Usage (" + sysFiles.size() + "):");

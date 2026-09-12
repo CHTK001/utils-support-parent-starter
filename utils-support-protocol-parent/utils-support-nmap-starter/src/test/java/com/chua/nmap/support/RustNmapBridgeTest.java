@@ -8,13 +8,15 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * RustNmapBridge 测试
+   * rustnmapbridge 测试
  * 动态库存在时跑集成测试，不存在时只验证加载状态
+ * @author CH
+ * @since 4.0.0
  */
 class RustNmapBridgeTest {
 
-    private static final Logger log = LoggerFactory.getLogger(RustNmapBridgeTest.class);
-    private static final boolean NATIVE_LOADED = RustNmapBridge.isLoaded();
+    private static final Logger log = LoggerFactory.getLogger(RustNmapBridgeTest.class); // 日志
+    private static final boolean NATIVE_LOADED = RustNmapBridge.isLoaded(); // NAT加载
 
     @BeforeAll
     static void logLoadStatus() {
@@ -33,7 +35,7 @@ class RustNmapBridgeTest {
     @Test
     @DisplayName("isLoaded 返回明确的布尔值")
     void isLoaded_returns_boolean() {
-        // 不管加载成功与否，isLoaded 必须返回确定值
+ // 不管加载成功与否，是否加载 必须返回确定值
         boolean loaded = RustNmapBridge.isLoaded();
         log.info("[RustNmap] isLoaded={}", loaded);
         // 只要不抛异常即通过
@@ -121,7 +123,7 @@ class RustNmapBridgeTest {
     void pingHost_returns_json() {
         Assumptions.assumeTrue(NATIVE_LOADED, "跳过：动态库未加载");
         String result = RustNmapBridge.pingHost("127.0.0.1", 1000);
-        // 可能为null（主机不可达），但不应抛异常
+ // 可能为空（主机不可达），但不应抛异常
         log.info("[RustNmap] pingHost 127.0.0.1 结果: {}", result);
     }
 

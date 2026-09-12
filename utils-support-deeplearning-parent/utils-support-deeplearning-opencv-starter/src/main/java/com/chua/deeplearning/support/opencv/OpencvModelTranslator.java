@@ -16,9 +16,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * 纯 OpenCV 翻译器抽象基类。
+   * 纯 打开cv 翻译器抽象基类。
  * <p>
- * 不依赖 DJL，直接使用 OpenCV 传统视觉算法或 DNN 做预处理、推理、后处理。
+   * 不依赖 DJL，直接使用 打开cv 传统视觉算法或 DNN 做预处理、推理、后处理。
  * 子类只需实现 {@link #doTranslate(Object)} 完成具体模型推理逻辑。
  * </p>
  *
@@ -44,7 +44,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelName;
     }
@@ -81,9 +81,9 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-     * BufferedImage 转 Mat（BGR）。
+      * 缓冲镜像 转 Mat（BGR）。
      *
-     * @param image BufferedImage 对象
+     * @param image 缓冲镜像 对象
      * @return OpenCV Mat 对象
      */
     protected static Mat bufferedToMat(BufferedImage image) {
@@ -100,7 +100,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     /**
      * Mat 转 byte[]（PNG 格式）。
      *
-     * @param mat OpenCV Mat 对象
+     * @param mat 打开cv Mat 对象
      * @return PNG 格式字节数组
      */
     protected static byte[] matToBytes(Mat mat) {
@@ -111,9 +111,9 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-     * Mat 转 BufferedImage。
+      * Mat 转 缓冲镜像。
      *
-     * @param mat OpenCV Mat 对象
+     * @param mat 打开cv Mat 对象
      * @return BufferedImage 对象
      */
     protected static BufferedImage matToBufferedImage(Mat mat) {
@@ -138,13 +138,13 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-     * 从文件系统或 classpath 解析模型文件。
+      * 从文件系统或 类路径 解析模型文件。
      * <p>
-     * classpath 资源会复制到临时目录，保证 CascadeClassifier 等 API 可按路径读取。
+      * 类路径 资源会复制到临时目录，保证 cascadeclassifier 等 API 可按路径读取。
      * </p>
      *
-     * @param modelPath 模型路径（文件系统绝对/相对路径，或 classpath 路径）
-     * @return 模型文件的 File 对象
+     * @param modelPath 模型路径（文件系统绝对/相对路径，或 类路径 路径）
+     * @return 模型文件的 文件 对象
      */
     public static File resolveModelPath(String modelPath) {
         if (modelPath == null || modelPath.isBlank()) {

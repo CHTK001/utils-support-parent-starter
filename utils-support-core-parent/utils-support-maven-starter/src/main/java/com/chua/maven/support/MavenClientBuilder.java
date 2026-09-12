@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * MavenClient 链式构建器。
+   * Maven客户端 链式构建器。
  * <p>
  * 提供流式 API 配置 Maven 编译参数，支持同步和异步编译。
  * 基于 {@link MavenClient} 执行实际编译操作。
@@ -36,6 +36,10 @@ import java.util.concurrent.Future;
  *     .projectPath("pom.xml")
  *     .goal("clean", "compile", "package")
  *     .execute();
+ * }</pre>ult = MavenClient.create()
+ *     .projectPath("pom.xml")
+ *     .goal("clean", "compile", "package")
+ *     .execute();
  * }</pre>
  *
  * @author CH
@@ -54,7 +58,7 @@ public class MavenClientBuilder {
     private List<String> goals;
 
     /**
-     * 激活的 Profile 列表
+      * 激活的 配置文件 列表
      */
     private List<String> profiles;
 
@@ -116,67 +120,119 @@ public class MavenClientBuilder {
 
     // ==================== Getter ====================
 
-    /** 获取ProjectPath */
+    /**
+     * 获取project路径
+     *
+     * @return 获取project路径的结果
+     */
     public String getProjectPath() {
         return projectPath;
     }
 
-    /** 获取Goals */
+    /**
+     * 获取Goals
+     *
+     * @return 获取goals的结果
+     */
     public List<String> getGoals() {
         return goals;
     }
 
-    /** 获取EffectiveGoals */
+    /**
+     * 获取effectivegoals
+     *
+     * @return 获取effectivegoals的结果
+     */
     public List<String> getEffectiveGoals() {
         return goals.isEmpty() ? DEFAULT_GOALS : goals;
     }
 
-    /** 获取Profiles */
+    /**
+     * 获取配置文件
+     *
+     * @return 获取配置文件的结果
+     */
     public List<String> getProfiles() {
         return profiles;
     }
 
-    /** 是否跳过Tests */
+    /**
+     * 是否跳过测试
+     *
+     * @return 是否跳过测试的结果
+     */
     public boolean isSkipTests() {
         return skipTests;
     }
 
-    /** 是否Quiet */
+    /**
+     * 是否Quiet
+     *
+     * @return 是否quiet的结果
+     */
     public boolean isQuiet() {
         return quiet;
     }
 
-    /** 是否调试 */
+    /**
+     * 是否调试
+     *
+     * @return 是否调试的结果
+     */
     public boolean isDebug() {
         return debug;
     }
 
-    /** 是否Offline */
+    /**
+     * 是否Offline
+     *
+     * @return 是否offline的结果
+     */
     public boolean isOffline() {
         return offline;
     }
 
-    /** 获取JdkVersion */
+    /**
+     * 获取jdk版本
+     *
+     * @return 获取jdk版本的结果
+     */
     public String getJdkVersion() {
         return jdkVersion;
     }
 
-    /** 获取ProgressCallback */
+    /**
+     * 获取进步callback
+     *
+     * @return 获取进步callback的结果
+     */
     public MavenCompilerProgress getProgressCallback() {
         return progressCallback;
     }
 
-    /** 获取CompilerCallback */
+    /**
+     * 获取compilercallback
+     *
+     * @return 获取compilercallback的结果
+     */
     public MavenCompilerCallback getCompilerCallback() {
         return compilerCallback;
     }
 
-    /** 获取Properties */
+    /**
+     * 获取属性
+     *
+     * @return 获取属性的结果
+     */
     public Properties getProperties() {
         return properties;
     }
 
-    /** 获取Executor */
+    /**
+     * 获取执行器
+     *
+     * @return 获取执行器的结果
+     */
     public ExecutorService getExecutor() {
         return executor;
     }
@@ -219,9 +275,9 @@ public class MavenClientBuilder {
     }
 
     /**
-     * 设置 Maven Profile
+      * 设置 Maven 配置文件
      *
-     * @param profiles Profile 列表
+     * @param profiles 配置文件 列表
      * @return this
      */
     public MavenClientBuilder profile(String... profiles) {
@@ -232,9 +288,9 @@ public class MavenClientBuilder {
     }
 
     /**
-     * 设置激活的 Profile 列表（清空并替换）
+      * 设置激活的 配置文件 列表（清空并替换）
      *
-     * @param profiles Profile ID 列表
+     * @param profiles 配置文件 标识 列表
      * @return this
      */
     public MavenClientBuilder profiles(List<String> profiles) {
@@ -395,7 +451,7 @@ public class MavenClientBuilder {
     /**
      * 批量添加系统属性
      *
-     * @param properties 属性 Map
+     * @param properties 属性 映射
      * @return this
      */
     public MavenClientBuilder properties(Map<String, String> properties) {
@@ -424,12 +480,12 @@ public class MavenClientBuilder {
     }
 
     /**
-     * 执行编译（异步），返回 Future
+      * 执行编译（异步），返回 期货
      * <p>
-     * 使用配置的线程池或默认线程池执行。通过返回的 Future 可取消编译。
+      * 使用配置的线程池或默认线程池执行。通过返回的 期货 可取消编译。
      * </p>
      *
-     * @return Future，可通过 get() 获取编译结果
+     * @return Future，可通过 获取() 获取编译结果
      */
     public Future<MavenCompileResult> executeAsync() {
         ExecutorService pool = executor != null ? executor : Executors.newSingleThreadExecutor();
@@ -437,7 +493,7 @@ public class MavenClientBuilder {
     }
 
     /**
-     * 构建 MavenClient 配置并返回客户端实例。
+       * 构建 Maven客户端 配置并返回客户端实例。
      *
      * @return MavenClient 实例
      */
@@ -446,10 +502,10 @@ public class MavenClientBuilder {
     }
 
     /**
-     * 构建并编译，然后返回可用于部署的 DeployClient。
+      * 构建并编译，然后返回可用于部署的 deploy客户端。
      * <p>
      * 这是一个便捷方法，等价于先 {@link #execute()} 再获取 {@link MavenDeployClient}。
-     * 如果编译失败，部署客户端中的 result 将包含错误信息。
+      * 如果编译失败，部署客户端中的 结果 将包含错误信息。
      * </p>
      *
      * <pre>{@code
@@ -466,6 +522,8 @@ public class MavenClientBuilder {
      *     // 或部署到远程服务器
      *     deploy.deployToSsh("192.168.1.100", 22, "root", "password", "/opt/app/");
      * }
+     * }</pre>", 22, "root", "password", "/opt/app/");
+     * }
      * }</pre>
      *
      * @return MavenDeployClient 部署客户端
@@ -478,7 +536,7 @@ public class MavenClientBuilder {
     /**
      * 构建并异步编译，然后返回部署客户端。
      *
-     * @return Future，异步完成后可通过 get() 获取 MavenDeployClient
+     * @return Future，异步完成后可通过 获取() 获取 mavendeploy客户端
      */
     public Future<MavenDeployClient> compileAndDeployAsync() {
         ExecutorService pool = executor != null ? executor : Executors.newSingleThreadExecutor();

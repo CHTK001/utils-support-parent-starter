@@ -53,7 +53,7 @@ public class H264NvencEncoder implements VideoEncoder {
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
 
     /**
-     * FFmpeg 帧录制器
+      * ffmpeg 帧录制器
      */
     private FFmpegFrameRecorder recorder;
 
@@ -63,7 +63,7 @@ public class H264NvencEncoder implements VideoEncoder {
     private ByteArrayOutputStream memoryStream;
 
     /**
-     * memoryStream 的扩展 holder，允许 drain 部分字节并 reset 避免反复全量复制。
+      * 内存流 的扩展 holder，允许 drain 部分字节并 reset 避免反复全量复制。
      */
     private DrainableByteArrayOutputStream memoryStreamHolder;
 
@@ -123,7 +123,7 @@ public class H264NvencEncoder implements VideoEncoder {
     private int prevFirstNalType = -1;
 
     /**
-     * NVENC 是否在下一帧强制 IDR（通过 forced-idr option 或 av_opt_set）
+      * NVENC 是否在下一帧强制 IDR（通过 forced-idr 期权 或 av_opt_设置）
      */
     private boolean pendingForceIdr;
 
@@ -133,7 +133,7 @@ public class H264NvencEncoder implements VideoEncoder {
     private final java.io.ByteArrayOutputStream gopBuffer = new java.io.ByteArrayOutputStream(256 * 1024);
 
     /**
-     * 上次 flush 时 gopBuffer 字节数
+      * 上次 flush 时 gop缓冲 字节数
      */
     private int lastGopSize = 0;
 
@@ -148,12 +148,12 @@ public class H264NvencEncoder implements VideoEncoder {
     private String codecName;
 
     /**
-     * 反射获取的 AVFormatContext 字段
+      * 反射获取的 av格式化上下文 字段
      */
     private Field ocField;
 
     /**
-     * 反射获取的 AVCodecContext 字段
+      * 反射获取的 avcodec上下文 字段
      */
     private Field videoCField;
 
@@ -254,25 +254,25 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 获取CodecName */
+    /** 获取codec名称 */
     public String getCodecName() {
         return codecName != null ? codecName : "none";
     }
 
     @Override
-    /** 获取CodecId */
+    /** 获取codecid */
     public int getCodecId() {
         return org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_H264;
     }
 
     @Override
-    /** 是否HardwareAccelerated */
+    /** 是否hardware加速 */
     public boolean isHardwareAccelerated() {
         return true;
     }
 
     @Override
-    /** ForceKeyFrame */
+    /** force键帧 */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
         this.pendingForceIdr = true;
@@ -333,7 +333,7 @@ public class H264NvencEncoder implements VideoEncoder {
      * 这样保证前端每次收到的都是完整 GOP 的 IDR + SEI + IDR slice。
      * </p>
      *
-     * @param frame 输入 YUV Frame
+     * @param frame 输入 YUV 帧
      * @return 编码后的 H264 数据（含完整 GOP IDR），或空（中间的 P/SEI 帧）
      */
     private byte[] encodeFrame(Frame frame) throws Exception {
@@ -365,7 +365,7 @@ public class H264NvencEncoder implements VideoEncoder {
         long t3 = System.nanoTime();
 
         // 修复 O(n²) 内存拷贝：以前每次 toByteArray() 复制整个累计 buffer（30s 后 100MB+），
-        // 然后 System.arraycopy 截取增量。改为从 memoryStreamHolder 读取增量后 reset。
+ // 然后 系统.arraycopy 截取增量。改为从 内存流holder 读取增量后 reset。
         long totalLen = memoryStream.size();
         long len = totalLen - captureSize;
         byte[] frameBytes;
@@ -398,7 +398,7 @@ public class H264NvencEncoder implements VideoEncoder {
         }
 
         // 修复：每帧都返回（不再仅在 IDR 时返回）。SPS/PPS 仅在首帧或 IDR 时拼接到头部。
-        // P 帧不解码不影响浏览器使用——前端 WebCodecs/WebAssembly decoder 能正确处理 I/P 帧流。
+ // P 帧不解码不影响浏览器使用——前端 webcodecs/webassembly 解码器 能正确处理 I/P 帧流。
         byte[] result;
         if (hasIdr && spsPpsAnnexB != null) {
             result = new byte[spsPpsAnnexB.length + frameBytes.length];
@@ -498,7 +498,13 @@ public class H264NvencEncoder implements VideoEncoder {
         }
     }
 
-    /** BytesToHex */
+    /**
+     * bytes转为hex
+     *
+     * @param data 数据
+     * @param n n
+     * @return bytes转为hex的结果
+     */
     private static String bytesToHex(byte[] data, int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
@@ -508,7 +514,7 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-     * 清除 AV_CODEC_FLAG_GLOBAL_HEADER 标志，强制编码器在每帧中写入 SPS/PPS。
+      * 清除 AV_CODEC_FLAG_全局_头部 标志，强制编码器在每帧中写入 SPS/PPS。
      */
     private void clearGlobalHeader() {
         if (videoCField == null || recorder == null) {
@@ -545,12 +551,12 @@ public class H264NvencEncoder implements VideoEncoder {
             }
             byte[] data = new byte[extradataSize];
             extradata.get(data);
-            // avcC 格式: 5 字节头 + SPS 列表 + PPS 列表
+ // avcc 格式: 5 字节头 + SPS 列表 + PPS 列表
             if (data[0] != 1) {
                 log.warn("[H264NvencEncoder] extradata version != 1: {}", data[0]);
                 return;
             }
-            // numSPS 在 data[5] 的低 5 位
+ // numsps 在 数据[5] 的低 5 位
             int numSPS = data[5] & 0x1f;
             int pos = 6;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -594,7 +600,7 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-     * 刷新 AVIO 输出缓冲区，确保编码数据写入 memoryStream。
+      * 刷新 AVIO 输出缓冲区，确保编码数据写入 内存流。
      */
     private void flushOutput() {
         if (ocField == null || recorder == null) {
@@ -616,7 +622,7 @@ public class H264NvencEncoder implements VideoEncoder {
      * @param frame 输入帧
      * @param inW   输入宽度
      * @param inH   输入高度
-     * @return 缩放后的 Frame
+     * @return 缩放后的 帧
      */
     private Frame scaleFrame(Frame frame, int inW, int inH) {
         BytePointer srcData;
@@ -635,7 +641,7 @@ public class H264NvencEncoder implements VideoEncoder {
         }
         scaledBuf.clear();
 
-        // sws_scale 输出到临时 AVFrame
+ // sws_scale 输出到临时 av帧
         org.bytedeco.ffmpeg.avutil.AVFrame tmpFrame = org.bytedeco.ffmpeg.global.avutil.av_frame_alloc();
         int size = org.bytedeco.ffmpeg.global.avutil.av_image_get_buffer_size(
                 avutil.AV_PIX_FMT_YUV420P, encWidth, encHeight, 1);
@@ -655,7 +661,7 @@ public class H264NvencEncoder implements VideoEncoder {
         sws_scale(sws, new PointerPointer(srcData), new IntPointer(srcStride),
                 0, inH, new PointerPointer(tmpFrame), tmpFrame.linesize());
 
-        // 复制到 JavaCV Frame
+ // 复制到 javacv 帧
         byte[] plane = new byte[Math.max(ySize, uSize)];
         new BytePointer(tmpFrame.data(0)).get(plane, 0, ySize);
         scaledBuf.put(plane, 0, ySize);
@@ -679,7 +685,7 @@ public class H264NvencEncoder implements VideoEncoder {
     @Override
     /** 设置Crf */
     public synchronized void setCrf(int crf) {
-        // NVENC 通过 bit_rate 控制质量，recorder 不直接支持动态修改
+ // NVENC 通过 钻头_rate 控制质量，recorder 不直接支持动态修改
     }
 
     @Override
@@ -752,12 +758,12 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-     * 可增量排出（drain）字节的 ByteArrayOutputStream。
+      * 可增量排出（drain）字节的 bytearray输出流。
      * <p>
-     * 解决 H264NvencEncoder 旧实现中 {@code memoryStream.toByteArray() + System.arraycopy}
+      * 解决 H264nvenc编码器 旧实现中 {@code memoryStream.toByteArray() + System.arraycopy}
      * 带来的 O(n²) 内存拷贝问题：每次编码一帧前，编码器记录 {@code memoryStream.size()}，
      * 编码 + flush 之后需要读取增量并清空。如果直接调用 {@code toByteArray()}，
-     * 30 秒后累计 buffer 达到 100MB+ 后，每次都会完整复制 100MB。
+      * 30 秒后累计 缓冲 达到 100MB+ 后，每次都会完整复制 100MB。
      * </p>
      * <p>
      * 本类通过 {@link #drain(int, int)} 直接读取并清空指定区间，避免重复扫描。
@@ -768,7 +774,13 @@ public class H264NvencEncoder implements VideoEncoder {
             super(capacity);
         }
 
-        /** 读取 [offset, offset+length) 区间的字节并 reset() 清空整个累计区。 */
+        /**
+         * 读取 [偏移量, 偏移量+长度) 区间的字节并 reset() 清空整个累计区。
+         *
+         * @param offset 偏移量
+         * @param length 长度
+         * @return drain的结果
+         */
         synchronized byte[] drain(int offset, int length) {
             byte[] out = new byte[length];
             System.arraycopy(this.buf, offset, out, 0, length);
@@ -776,7 +788,7 @@ public class H264NvencEncoder implements VideoEncoder {
             return out;
         }
 
-        /** 暴露底层 ByteArrayOutputStream 视图（用于 MemoryOutputStream 适配）。 */
+        /** 暴露底层 bytearray输出流 视图（用于 内存输出流 适配）。 */
         ByteArrayOutputStream asByteArrayOutputStream() {
             return this;
         }

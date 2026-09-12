@@ -54,6 +54,7 @@ public record WalReplayResult(
      * 空结果。
      *
      * @return WalReplayResult 空实例
+     * @param checkpoint checkpoint
      */
     public static WalReplayResult empty(CheckpointMeta checkpoint) {
         return new WalReplayResult(checkpoint, java.util.Collections.emptyList());

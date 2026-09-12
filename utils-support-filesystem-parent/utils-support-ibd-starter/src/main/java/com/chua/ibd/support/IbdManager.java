@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  *   // 获取资源路径
  *   Path resource = ibd.getResource("config.json");
+ * }</pre>= ibd.getResource("config.json");
  * }</pre>
  *
  * @author CH
@@ -62,6 +63,8 @@ public class IbdManager {
 
     /**
      * 使用指定工作目录创建
+     * @param resourcePrefix resource前缀
+     * @param workDir workdir
      */
     public IbdManager(String resourcePrefix, Path workDir) {
         this.resourcePrefix = resourcePrefix;
@@ -70,6 +73,8 @@ public class IbdManager {
 
     /**
      * 创建 IBD 管理器（便捷方法）
+     * @param resourcePrefix resource前缀
+     * @return 创建的结果
      */
     public static IbdManager create(String resourcePrefix) {
         return new IbdManager(resourcePrefix);
@@ -88,7 +93,7 @@ public class IbdManager {
     /**
      * 获取资源文件路径
      *
-     * @param resourceName 资源名称（如 "config.json"、"scripts/process.py"）
+     * @param resourceName 资源名称（如 "配置.json"、"script/处理.py"）
      * @return 资源文件路径
      */
     public Path getResource(String resourceName) {
@@ -97,6 +102,7 @@ public class IbdManager {
 
     /**
      * 获取所有已解压的资源
+     * @return 获取extractedresources的结果
      */
     public Map<String, Path> getExtractedResources() {
         return extractedResources;
@@ -104,6 +110,7 @@ public class IbdManager {
 
     /**
      * 获取工作目录
+     * @return 获取workdir的结果
      */
     public Path getWorkDir() {
         return workDir;
@@ -111,6 +118,7 @@ public class IbdManager {
 
     /**
      * 设置脚本执行器
+     * @param executor 执行器
      */
     public void setScriptExecutor(ScriptExecutor executor) {
         this.scriptExecutor = executor;
@@ -119,7 +127,7 @@ public class IbdManager {
     /**
      * 执行脚本
      *
-     * @param scriptName 脚本名称（如 "process.py"）
+     * @param scriptName 脚本名称（如 "处理.py"）
      * @param context    上下文参数
      * @return 脚本执行结果
      */
@@ -142,12 +150,16 @@ public class IbdManager {
         if (classPath.endsWith(".jar")) {
             extractFromJar(classPath);
         } else {
-            // 开发模式：从 classpath 目录复制
+ // 开发模式：从 类路径 目录复制
             extractFromClasspath(classPath);
         }
     }
 
-    /** ExtractFromJar */
+    /**
+     * extract从jar
+     *
+     * @param jarPath jar路径
+     */
     private void extractFromJar(String jarPath) throws IOException {
         Path jar = Path.of(jarPath);
         try (var fs = FileSystems.newFileSystem(jar)) {
@@ -157,7 +169,7 @@ public class IbdManager {
             }
             Files.walkFileTree(root, new SimpleFileVisitor<>() {
                 @Override
-                /** VisitFile */
+                /** visit文件 */
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     try {
                         Path target = workDir.resolve(root.relativize(file).toString());
@@ -172,8 +184,12 @@ public class IbdManager {
         }
     }
 
-    /** ExtractFromClasspath */
+    /**
+     * extract从类路径
+     *
+     * @param classPath 类路径
+     */
     private void extractFromClasspath(String classPath) {
-        // classpath 目录模式下，资源已在原位，无需解压
+ // 类路径 目录模式下，资源已在原位，无需解压
     }
 }

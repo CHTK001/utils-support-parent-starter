@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Hibernate Handler — intercepts Hibernate ORM session operations.
+   * Hibernate 处理器 — intercepts Hibernate ORM 会话 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class HibernateHandler extends AbstractAppHandler {
 
     /**
-     * SESSION
+      * 会话
      */
     private static final String SESSION = "org/hibernate/Session";
     /**
-     * 会话 methods
+      * 会话 方法
      */
     private static final String[] SESSION_METHODS = {"save", "update", "delete", "load", "get", "merge", "persist"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "hibernate-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "hibernate.enabled";
     }
@@ -42,13 +42,13 @@ public class HibernateHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.SQL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(SESSION, SESSION_METHODS);
     }

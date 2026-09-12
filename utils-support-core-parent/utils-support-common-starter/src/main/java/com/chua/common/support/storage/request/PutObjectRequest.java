@@ -40,6 +40,10 @@ import static com.chua.common.support.utils.UrlUtils.*;
  *     .fileName("data.csv")
  *     .inputStream(inputStream)
  *     .build();
+ * }</pre>ctRequest req3 = PutObjectRequest.builder()
+ *     .fileName("data.csv")
+ *     .inputStream(inputStream)
+ *     .build();
  * }</pre>
  *
  * @author CH
@@ -76,7 +80,7 @@ public class PutObjectRequest {
     private String filePath;
 
     /**
-     * 文件元数据（如 Content-Type、Content-Length 等）。
+      * 文件元数据（如 内容-类型、内容-长度 等）。
      */
     private Metadata metadata;
 
@@ -124,11 +128,11 @@ public class PutObjectRequest {
     }
 
     /**
-     * 获取完整的对象 Key。
+      * 获取完整的对象 键。
      *
      * <p>自动规范化：去除多余斜杠、反斜杠，防止路径穿越（../）。</p>
      *
-     * @return 规范化后的 Key（路径 + 文件名）
+     * @return 规范化后的 键（路径 + 文件名）
      */
     public String getKey() {
         String name = getFileName();
@@ -187,7 +191,12 @@ public class PutObjectRequest {
         }
     }
 
-    /** 读取Bytes */
+    /**
+     * 读取Bytes
+     *
+     * @param file 文件
+     * @return 读取bytes的结果
+     */
     private static byte[] readBytes(File file) {
         try (var fis = new java.io.FileInputStream(file)) {
             return fis.readAllBytes();

@@ -15,14 +15,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * hfl/chinese-t5-base Seq2Seq ONNX 翻译器
+   * hfl/chinese-t5-基础 Seq2Seq ONNX 翻译器
  * <p>
- * 在海量中文语料上从头预训练的 T5 模型，与 T5 共享相同 encoder-decoder 架构，
+   * 在海量中文语料上从头预训练的 T5 模型，与 T5 共享相同 编码器-解码器 架构，
  * 但词表、tokenizer、位置嵌入均为中文重新设计。适用于中文摘要、翻译、生成等任务。
  * </p>
  * <p>
- * 模型来源：huggingface.co/hfl/chinese-t5-base
- * 架构：Encoder-Decoder (ONNX: encoder_model.onnx / decoder_with_past_model.onnx)
+   * 模型来源：huggingface.co/hfl/chinese-t5-基础
+   * 架构：编码器-解码器 (ONNX: 编码器_模型.onnx / 解码器_with_past_模型.onnx)
  * 输入：中文文本字符串
  * 输出：生成的中文字符串
  * </p>
@@ -42,10 +42,10 @@ import java.nio.file.Path;
 public class ChineseT5BaseTranslator implements Translator<String, String> {
 
     /** 最大输入长度 */
-    /** Max_input_length */
+    /** 最大_输入_长度 */
     private static final int MAX_INPUT_LENGTH = 512;
     /** 结束符标识 */
-    /** Eos_id */
+    /** Eos_标识 */
     private static final long EOS_ID = 1L;
 
     /** 分词器 */
@@ -70,7 +70,7 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("ChineseT5Base tokenizer not initialized");
@@ -91,7 +91,7 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         NDArray tokenIds = logits.argMax(2);
@@ -115,7 +115,12 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
         return null;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -126,7 +131,13 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
         return modelPath;
     }
 
-    /** 查找File */
+    /**
+     * 查找文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

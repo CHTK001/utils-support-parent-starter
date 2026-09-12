@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * DFSMN 语音降噪（单麦 48k 实时近场，PSM）。
  * <p>
- * 复刻 ModelScope {@code speech_dfsmn_ans_psm_48k_causal} pipeline：输入带噪 48kHz 单声道
+   * 复刻 模型scope {@code speech_dfsmn_ans_psm_48k_causal} pipeline：输入带噪 48khz 单声道
  * wav/pcm 字节，输出降噪后音频字节（与输入封装格式一致）。处理链路：kaldi fbank(120 维)
  * → ONNX mask(961 维) → STFT 谱乘 mask → librosa ISTFT 重建。
  * </p>
@@ -42,17 +42,17 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     /** mask 维度（FFT/2+1） */
     private static final int N_MASK = 961;
 
-    private static final String RESOURCE_BASE = "audio/denoise/dfsmn_ans/";
-    private static final String MODEL_FILE = "model.onnx";
-    private static final String MODEL_ID = "dfsmn-ans";
+    private static final String RESOURCE_BASE = "audio/denoise/dfsmn_ans/"; // RESOURCE_基础
+    private static final String MODEL_FILE = "model.onnx"; // 模型文件
+    private static final String MODEL_ID = "dfsmn-ans"; // 模型标识
 
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    private final DfsmnStftIStft stft = new DfsmnStftIStft();
-    private DfsmnKaldiFbank fbank;
-    private volatile boolean loaded;
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    private final DfsmnStftIStft stft = new DfsmnStftIStft(); // stft
+    private DfsmnKaldiFbank fbank; // fbank
+    private volatile boolean loaded; // 加载
 
-    private static volatile DfsmnAnsTranslator shared;
+    private static volatile DfsmnAnsTranslator shared; // 共享
 
     /**
      * 获取共享实例。
@@ -71,14 +71,14 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     }
 
     /**
-     * 构造 DfsmnAnsTranslator 实例（dither=1.0，ModelScope 默认）。
+      * 构造 dfsmnanstranslator 实例（dither=1.0，模型scope 默认）。
      */
     public DfsmnAnsTranslator() {
         this.fbank = new DfsmnKaldiFbank();
     }
 
     /**
-     * 构造 DfsmnAnsTranslator 实例。
+      * 构造 dfsmnanstranslator 实例。
      *
      * @param dither fbank dither 系数（0 关闭，供确定性测试）
      */
@@ -174,7 +174,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
                 try (OrtSession.Result result = session.run(inputs)) {
                     masks = readMasks((OnnxTensor) result.get("output").orElseThrow(), frames);
                 }
-                // mask[frame][961]，与 stftFrames 对齐（分帧一致）
+ // mask[帧][961]，与 stft帧 对齐（分帧一致）
                 float[][] mask2 = new float[stftFrames][N_MASK];
                 for (int f = 0; f < Math.min(stftFrames, frames); f++) {
                     System.arraycopy(masks[f], 0, mask2[f], 0, N_MASK);
@@ -187,7 +187,10 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     }
 
     /**
-     * 读取 (1, frames, 961) mask 张量为 [frames][961]。
+      * 读取 (1, 帧, 961) mask 张量为 [帧][961]。
+     * @param tensor tensor
+     * @param frames 帧
+     * @return 读取masks的结果
      */
     private float[][] readMasks(OnnxTensor tensor, int frames) throws Exception {
         float[] flat = tensor.getFloatBuffer().array();

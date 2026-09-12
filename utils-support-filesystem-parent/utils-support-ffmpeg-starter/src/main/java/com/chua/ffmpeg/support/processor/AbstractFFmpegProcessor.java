@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * FFmpeg 处理器抽象基类，提供 FFmpeg 可执行文件查找和通用参数构建逻辑。
+   * ffmpeg 处理器抽象基类，提供 ffmpeg 可执行文件查找和通用参数构建逻辑。
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,17 +25,17 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     protected String loadError;
 
     /**
-     * FFmpeg 可执行文件路径
+      * ffmpeg 可执行文件路径
      */
     protected File ffmpegFile;
 
     /**
-     * FFprobe 可执行文件路径
+      * ffprobe 可执行文件路径
      */
     protected File ffprobeFile;
 
     /**
-     * 构造处理器并自动查找 FFmpeg。
+      * 构造处理器并自动查找 ffmpeg。
      */
     protected AbstractFFmpegProcessor() {
         try {
@@ -47,14 +47,14 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-     * 在系统 PATH 和常见路径中查找 FFmpeg。
+      * 在系统 路径 和常见路径中查找 ffmpeg。
      */
     protected void locateFFmpeg() {
         String os = System.getProperty("os.name").toLowerCase();
         String ffmpegExe = os.contains("win") ? "ffmpeg.exe" : "ffmpeg";
         String ffprobeExe = os.contains("win") ? "ffprobe.exe" : "ffprobe";
 
-        // 查找系统 PATH
+ // 查找系统 路径
         String pathEnv = System.getenv("PATH");
         if (pathEnv != null) {
             for (String dir : pathEnv.split(File.pathSeparator)) {
@@ -91,6 +91,8 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
 
     /**
      * 解析文件扩展名作为目标格式。
+     * @param output 输出
+     * @return resolve格式化的结果
      */
     protected String resolveFormat(File output) {
         String name = output.getName();
@@ -99,7 +101,9 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-     * 将 FFmpegOptions 转换为命令行参数字符串数组。
+      * 将 ffmpeg期权 转换为命令行参数字符串数组。
+     * @param opts opts
+     * @return 构建codec参数的结果
      */
     protected String[] buildCodecArgs(FFmpegOptions opts) {
         java.util.List<String> args = new java.util.ArrayList<>();
@@ -125,6 +129,6 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 是否Available */
+    /** 是否可用 */
     public boolean isAvailable() { return available; }
 }

@@ -17,14 +17,33 @@ import java.util.regex.Pattern;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param rtf rtf
+ * @return extract文本的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-rtf")
 public class RtfPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("rtf");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("rtf"); // 支持exts
+    /**
+     * 支持。
+     * @param ext ext
+     * @param mime mime
+     * @return 支持的结果
+     * @param rtf rtf
+     * @param content 内容
+     */
     private static final Pattern RTF_GROUP = Pattern.compile("\\\\[a-z]+\\d*\\s?");
     private static final Pattern RTF_SPECIAL = Pattern.compile("\\\\['{}\\\\~_-]");
     private static final Pattern RTF_CONTROL = Pattern.compile("\\\\[a-zA-Z]+\\d*\\s?");
+/**
+ * 支持。
+ * @param ext ext
+ * @param mime mime
+ * @return 支持的结果
+ */
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -45,8 +64,12 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     private String extractText(String rtf) {
         // 移除 RTF 头部
         int docStart = rtf.indexOf("\\pard");
-        if (docStart < 0) docStart = rtf.indexOf("\\");
-        if (docStart < 0) return rtf;
+        if (docStart < 0) {
+            docStart = rtf.indexOf("\\");
+        }
+        if (docStart < 0) {
+            return rtf;
+        }
 
         String body = rtf.substring(docStart);
 
@@ -79,6 +102,12 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
         return body;
     }
 
+    /**
+     * 构建html。
+     * @param text 文本
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     private String buildHtml(String text, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -104,14 +133,30 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
         return sb.toString();
     }
 
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     */
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * human大小。
+     * @param bytes bytes
+     * @return human大小的结果
+     */
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 }

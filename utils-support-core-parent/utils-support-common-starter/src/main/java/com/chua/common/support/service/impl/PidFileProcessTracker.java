@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("pidfile")
 public class PidFileProcessTracker implements ServiceProcessTracker {
 
-    private final ConcurrentHashMap<String, Long> pidCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> pidCache = new ConcurrentHashMap<>(); // pid缓存
 
     @Override
     public long startProcess(String serviceName, String startCmd, String pidFile) {
@@ -153,6 +153,13 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
 
     /**
      * 检测进程 PID（跨平台兼容）。
+     * @return 是否窗口的结果
+     /**
+       * detectpid。
+      * @param process 处理
+      * @param serviceName 服务名称
+      * @return detectPid的结果
+      */
      */
     private long detectPid(Process process, String serviceName) {
         long pid = process.pid();

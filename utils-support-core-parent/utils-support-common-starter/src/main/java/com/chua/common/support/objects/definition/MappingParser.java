@@ -16,7 +16,7 @@ public interface MappingParser {
     /**
      * 解析对象中的所有映射。
      *
-     * @param mappingObject 待解析对象（通常是 Controller / Handler 实例）
+     * @param mappingObject 待解析对象（通常是 控制器 / 处理器 实例）
      * @return 映射定义列表
      */
     MappingDefinition[] parse(Object mappingObject);
@@ -26,7 +26,7 @@ public interface MappingParser {
      *
      * @param method        方法对象
      * @param mappingObject 所属对象实例
-     * @return 映射定义，不适用则返回 null
+     * @return 映射定义，不适用则返回 空
      */
     MappingDefinition parseMethod(Method method, Object mappingObject);
 

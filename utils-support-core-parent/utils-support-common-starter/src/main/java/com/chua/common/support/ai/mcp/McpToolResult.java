@@ -29,8 +29,8 @@ public class McpToolResult {
     /**
      * 创建 McpToolResult 实例
      * @param success success
-     * @param Object Object
-     * @param String String
+     * @param content Object
+     * @param errorMessage String
      */
     public McpToolResult(boolean success, Object content, String errorMessage) {
         this.success = success;

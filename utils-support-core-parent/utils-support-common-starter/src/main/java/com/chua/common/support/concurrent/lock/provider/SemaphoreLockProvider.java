@@ -44,7 +44,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     /**
      * 创建 SemaphoreLockProvider 实例
      * @param name name
-     * @param boolean boolean
+     * @param fair boolean
      */
     public SemaphoreLockProvider(String name, boolean fair) {
         this(name, 1, fair);
@@ -53,7 +53,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     /**
      * 创建 SemaphoreLockProvider 实例
      * @param name name
-     * @param int int
+     * @param permits int
      */
     public SemaphoreLockProvider(String name, int permits) {
         this(name, permits, false);
@@ -62,8 +62,8 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     /**
      * 创建 SemaphoreLockProvider 实例
      * @param name name
-     * @param int int
-     * @param boolean boolean
+     * @param permits int
+     * @param fair boolean
      */
     public SemaphoreLockProvider(String name, int permits, boolean fair) {
         this.name = name;

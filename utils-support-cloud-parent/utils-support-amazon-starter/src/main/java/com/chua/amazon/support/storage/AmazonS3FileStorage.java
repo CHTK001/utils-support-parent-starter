@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Amazon S3 文件存储实现（兼容所有 S3 协议存储：MinIO、Ceph、JuiceFS 等）。
+   * 亚马逊 S3 文件存储实现（兼容所有 S3 协议存储：最小io、Ceph、juicefs 等）。
  *
  * <p>基于 AWS SDK for Java S3 实现 {@link FileStorage} SPI 接口。</p>
  *
@@ -36,12 +36,12 @@ import java.util.List;
 @Spi({"s3", "amazon"})
 public class AmazonS3FileStorage extends AbstractFileStorage {
 
-    /** Amazon S3 客户端 */
+    /** 亚马逊 S3 客户端 */
     private final AmazonS3 s3Client;
 
     /**
-     * 创建 AmazonS3FileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 amazons3文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public AmazonS3FileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -54,7 +54,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -75,7 +75,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -101,7 +101,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -109,7 +109,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             s3Client.deleteObject(bucket, key);
@@ -125,7 +125,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = s3Client.doesObjectExist(bucket, request.getKey());
@@ -142,14 +142,14 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsV2Request listReq = new ListObjectsV2Request()
                     .withBucketName(bucket)
                     .withPrefix(request.getFilePath())
                     .withMaxKeys(request.getLimit());
-            // S3 V2 API 使用 continuationToken 代替 marker
+ // S3 V2 API 使用 continuation令牌 代替 记号笔
             if (request.getMarker() != null) {
                 listReq.withContinuationToken(request.getMarker());
             }
@@ -165,7 +165,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
                         .build());
             }
 
-            // 分页：如果结果被截断，返回下一页的 continuationToken
+ // 分页：如果结果被截断，返回下一页的 continuation令牌
             boolean truncated = listing.isTruncated();
             String nextMarker = truncated ? listing.getNextContinuationToken() : null;
 

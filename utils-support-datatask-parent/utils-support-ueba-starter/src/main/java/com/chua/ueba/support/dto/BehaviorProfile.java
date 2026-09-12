@@ -25,15 +25,15 @@ import java.util.List;
 @AllArgsConstructor
 public class BehaviorProfile implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 实体标识（IP 或 Session ID）
+      * 实体标识（IP 或 会话 标识）
      */
     private String entityId;
 
     /**
-     * 预测类别下标，范围 [0, numClasses)
+      * 预测类别下标，范围 [0, num类)
      */
     private int predictedClass;
 
@@ -56,7 +56,7 @@ public class BehaviorProfile implements Serializable {
      * 最近访问路径（按时间倒序）
      */
     @Builder.Default
-    private List<String> recentPaths = new ArrayList<>();
+    private List<String> recentPaths = new ArrayList<>(); // recent路径
 
     /**
      * 行为风险分数，范围 [0, 1]，越大越危险

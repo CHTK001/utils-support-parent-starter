@@ -26,7 +26,7 @@ public interface PhoneLocationProvider {
      * <p>号码需为 11 位中国大陆手机号（如 13800138000）。
      *
      * @param phone 手机号码
-     * @return 归属地信息；格式非法或查询失败返回 null
+     * @return 归属地信息；格式非法或查询失败返回 空
      */
     PhoneLocationInfo getLocation(String phone);
 }

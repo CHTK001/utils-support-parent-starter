@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Spark Handler — intercepts Spark Dataset/DataFrame actions.
+   * Spark 处理器 — intercepts Spark 数据集/数据帧 Actions.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class SparkHandler extends AbstractAppHandler {
 
     /**
-     * DATASET
+      * 数据集
      */
     private static final String DATASET = "org/apache/spark/sql/Dataset";
     /**
-     * action methods
+      * 动作 方法
      */
     private static final String[] ACTION_METHODS = {"collect", "show", "count", "head", "first", "take", "foreach", "write"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "spark-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "spark.enabled";
     }
@@ -42,13 +42,13 @@ public class SparkHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(DATASET, ACTION_METHODS);
     }

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Spring Boot 集成 ObjectContext — 桥接 Spring ApplicationContext 与核心容器。
+   * Spring Boot 集成 对象上下文 — 桥接 Spring application上下文 与核心容器。
  *
  * <p>核心职责：</p>
  * <ul>
@@ -60,7 +60,7 @@ public class SpringBootObjectContext implements ObjectContext {
     private final ApplicationContext applicationContext;
 
     /**
-     * 本地 BeanDefinitionRegistry（用于非 Spring 管理的 Bean）
+      * 本地 Beandefinitionregistry（用于非 Spring 管理的 Bean）
      */
     private final BeanDefinitionRegistry localRegistry;
 
@@ -70,7 +70,7 @@ public class SpringBootObjectContext implements ObjectContext {
     private Environment environment;
 
     /**
-     * 事件发布器，每个 SpringBootObjectContext 实例独立持有
+      * 事件发布器，每个 springboot对象上下文 实例独立持有
      */
     private final EventPublisher eventPublisher = new EventPublisher();
 
@@ -80,9 +80,9 @@ public class SpringBootObjectContext implements ObjectContext {
     private volatile boolean closed = false;
 
     /**
-     * 构造 SpringBootObjectContext。
+      * 构造 springboot对象上下文。
      *
-     * @param applicationContext Spring ApplicationContext
+     * @param applicationContext Spring application上下文
      * @param config             容器配置
      */
     public SpringBootObjectContext(ApplicationContext applicationContext, ObjectContextConfig config) {
@@ -111,7 +111,7 @@ public class SpringBootObjectContext implements ObjectContext {
     @Override
     /** 获取Bean */
     public <T> T getBean(String name, Class<T> type) {
-        // 1. Spring ApplicationContext
+ // 1. Spring application上下文
         try {
             if (applicationContext.containsBean(name)) {
                 return applicationContext.getBean(name, type);
@@ -120,7 +120,7 @@ public class SpringBootObjectContext implements ObjectContext {
             log.trace("[springboot-context] Spring getBean('{}') failed: {}", name, e.getMessage());
         }
 
-        // 2. 按类型从 Spring 查找（name 可能不匹配 Spring Bean 名称）
+ // 2. 按类型从 Spring 查找（名称 可能不匹配 Spring Bean 名称）
         try {
             T bean = applicationContext.getBean(type);
             if (bean != null) {
@@ -146,7 +146,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanOfType */
+    /** 获取Bean的类型 */
     public <T> T getBeanOfType(Class<T> type) {
         // 1. Spring
         try {
@@ -170,7 +170,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanOfTypeSafely */
+    /** 获取Bean的类型safely */
     public <T> T getBeanOfTypeSafely(Class<T> type) {
         try {
             return getBeanOfType(type);
@@ -181,7 +181,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanOfTypes */
+    /** 获取Bean的类型 */
     public <T> Map<String, T> getBeanOfTypes(Class<T> type) {
         Map<String, T> result = new LinkedHashMap<>();
 
@@ -201,19 +201,19 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanOfTypeCollection */
+    /** 获取Bean的类型集合 */
     public <T> Collection<T> getBeanOfTypeCollection(Class<T> type) {
         return getBeanOfTypes(type).values();
     }
 
     @Override
-    /** 获取BeansWithAnnotation */
+    /** 获取Beanwith注解 */
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         return applicationContext.getBeansWithAnnotation(annotationType);
     }
 
     @Override
-    /** 获取MethodWithAnnotation */
+    /** 获取方法with注解 */
     public List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         List<MethodDefinition> result = new ArrayList<>();
         // 1. Spring 容器中标注了该类注解的 Bean 上的方法
@@ -243,7 +243,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     /**
-     * 收集 Bean 上标注了指定注解的方法，包装为 MethodDefinition。
+      * 收集 Bean 上标注了指定注解的方法，包装为 方法definition。
      *
      * @param result         输出列表
      * @param beanName       Bean 名称
@@ -261,7 +261,7 @@ public class SpringBootObjectContext implements ObjectContext {
                 continue;
             }
             if (method.isAnnotationPresent(annotationType)) {
-                // 通过 TypeBeanDefinition 复用 MethodDefinition 引用父 BeanDefinition 的能力
+ // 通过 类型Beandefinition 复用 方法definition 引用父 Beandefinition 的能力
                 BeanDefinition parent = TypeBeanDefinition.of(beanClass, beanName);
                 result.add(new MethodDefinition(parent, method));
             }
@@ -274,7 +274,7 @@ public class SpringBootObjectContext implements ObjectContext {
         if (bean == null) {
             return;
         }
-        // 利用 Spring 的 AutowireCapableBeanFactory 进行依赖注入
+ // 利用 Spring 的 autowirecapableBean工厂 进行依赖注入
         try {
             applicationContext.getAutowireCapableBeanFactory().autowireBean(bean);
         } catch (Exception e) {
@@ -285,7 +285,7 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Bean 存在性检查 ====================
 
     @Override
-    /** ContainsBean */
+    /** containsBean */
     public boolean containsBean(String name) {
         if (applicationContext.containsBean(name)) {
             return true;
@@ -294,7 +294,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 是否Singleton */
+    /** 是否单例 */
     public boolean isSingleton(String name) {
         if (applicationContext.containsBean(name)) {
             return applicationContext.isSingleton(name);
@@ -303,7 +303,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanDefinitionNames */
+    /** 获取Beandefinition名称 */
     public Collection<String> getBeanDefinitionNames() {
         Set<String> names = new LinkedHashSet<>();
         names.addAll(Arrays.asList(applicationContext.getBeanDefinitionNames()));
@@ -312,13 +312,13 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanDefinition计算数量 */
+    /** 获取Beandefinition计算数量 */
     public int getBeanDefinitionCount() {
         return applicationContext.getBeanDefinitionCount() + localRegistry.getBeanDefinitionCount();
     }
 
     @Override
-    /** 是否拥有BeanOfType */
+    /** 是否拥有Bean的类型 */
     public <T> boolean hasBeanOfType(Class<T> type) {
         try {
             return !applicationContext.getBeansOfType(type).isEmpty();
@@ -328,7 +328,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanNames */
+    /** 获取Bean名称 */
     public Collection<String> getBeanNames(Class<?> type) {
         Set<String> names = new LinkedHashSet<>();
         try {
@@ -340,7 +340,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取BeanProvider */
+    /** 获取Bean提供者 */
     public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
         return () -> getBeanOfType(requiredType);
     }
@@ -348,7 +348,7 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Environment ====================
 
     @Override
-    /** 获取Environment */
+    /** 获取环境 */
     public Environment getEnvironment() {
         if (environment == null) {
             environment = new SpringBootEnvironment(applicationContext);
@@ -375,7 +375,7 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取EventPublisher */
+    /** 获取事件发布 */
     public EventPublisher getEventPublisher() {
         return eventPublisher;
     }
@@ -451,9 +451,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Spring ApplicationContext 访问 ====================
 
     /**
-     * 获取 Spring ApplicationContext。
+      * 获取 Spring application上下文。
      *
-     * @return Spring ApplicationContext
+     * @return Spring application上下文
      */
     public ApplicationContext getApplicationContext() {
         return applicationContext;
@@ -478,7 +478,7 @@ public class SpringBootObjectContext implements ObjectContext {
             log.warn("[springboot-context] 清理本地注册表失败: {}", e.getMessage());
         }
 
-        // 调用接口默认实现清理 CONFIG_HOLDER / REGISTRY_HOLDER
+ // 调用接口默认实现清理 配置_HOLDER / REGISTRY_HOLDER
         ObjectContext.super.close();
         log.info("[springboot-context] 已关闭");
     }
@@ -492,11 +492,13 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Spring Environment 适配器 ====================
 
     /**
-     * Spring Environment 适配器 — 将 Spring 的 Environment 适配为 ObjectContext 的 Environment。
+      * Spring 环境 适配器 — 将 Spring 的 环境 适配为 对象上下文 的 环境。
+     * @author CH
+     * @since 4.0.0
      */
     private static class SpringBootEnvironment implements Environment {
 
-        /** SpringENV */
+        /** springenv */
         private final org.springframework.core.env.Environment springEnv;
 
         SpringBootEnvironment(ApplicationContext applicationContext) {
@@ -504,70 +506,70 @@ public class SpringBootObjectContext implements ObjectContext {
         }
 
         @Override
-        /** 获取Property */
+        /** 获取财产 */
         public String getProperty(String key) {
             return springEnv.getProperty(key);
         }
 
         @Override
-        /** 获取Property */
+        /** 获取财产 */
         public String getProperty(String key, String defaultValue) {
             return springEnv.getProperty(key, defaultValue);
         }
 
         @Override
-        /** 获取Property */
+        /** 获取财产 */
         public <T> T getProperty(String key, Class<T> targetType) {
             return springEnv.getProperty(key, targetType);
         }
 
         @Override
-        /** 获取Property */
+        /** 获取财产 */
         public <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
             T value = springEnv.getProperty(key, targetType);
             return value != null ? value : defaultValue;
         }
 
         @Override
-        /** 设置Property */
+        /** 设置财产 */
         public void setProperty(String key, Object value) {
-            // Spring Environment 不支持直接 setProperty，留空
+ // Spring 环境 不支持直接 设置财产，留空
         }
 
         @Override
-        /** ContainsProperty */
+        /** contains财产 */
         public boolean containsProperty(String key) {
             return springEnv.containsProperty(key);
         }
 
         @Override
-        /** 添加ChangeListener */
+        /** 添加改变监听器 */
         public void addChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
-            // Spring Environment 适配器暂不实现监听器
+ // Spring 环境 适配器暂不实现监听器
         }
 
         @Override
-        /** 移除ChangeListener */
+        /** 移除改变监听器 */
         public void removeChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
-            // Spring Environment 适配器暂不实现监听器
+ // Spring 环境 适配器暂不实现监听器
         }
 
         @Override
-        /** 添加ConfigSource */
+        /** 添加配置源 */
         public void addConfigSource(com.chua.common.support.config.source.PropertySource propertySource) {
-            // Spring Environment 适配器暂不实现 ConfigSource 动态添加
+ // Spring 环境 适配器暂不实现 配置源 动态添加
         }
 
         @Override
-        /** 移除ConfigSource */
+        /** 移除配置源 */
         public void removeConfigSource(com.chua.common.support.config.source.PropertySource propertySource) {
-            // Spring Environment 适配器暂不实现 ConfigSource 动态移除
+ // Spring 环境 适配器暂不实现 配置源 动态移除
         }
 
         @Override
         /** Refresh */
         public void refresh() {
-            // Spring Environment 不需要主动刷新配置源
+ // Spring 环境 不需要主动刷新配置源
         }
     }
 }

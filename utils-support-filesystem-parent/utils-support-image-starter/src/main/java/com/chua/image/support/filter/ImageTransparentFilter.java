@@ -30,12 +30,12 @@ import javax.annotation.Nullable;
  * 2. 获取当前像素的RGB值
  * 3. 检查是否为背景色（如纯黑：R=0,G=0,B=0）
  * 4. 将背景像素的Alpha设为0（完全透明）
- * 5. 将处理后的像素写入新的BufferedImage
+   * 5. 将处理后的像素写入新的缓冲镜像
  *
  * 默认行为：
  * - 将纯黑像素（R=0,G=0,B=0）设为透明
  * - 保留所有非纯黑像素的原始颜色和透明度
- * - 输出TYPE_INT_ARGB格式以支持Alpha通道
+   * - 输出类型_INT_ARGB格式以支持Alpha通道
  *
  * 应用场景：
  * - 图标处理：移除图标背景使其透明
@@ -46,12 +46,12 @@ import javax.annotation.Nullable;
  *
  * 注意事项：
  * - 仅对纯黑(R=0,G=0,B=0)像素生效
- * - 输出图像为TYPE_INT_ARGB格式以保留透明度
+   * - 输出图像为类型_INT_ARGB格式以保留透明度
  * - 近似黑色的像素不会被处理，需预处理调整阈值
  * - 对于复杂背景可能需要更高级的背景分割算法
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Spi("transparent")
@@ -60,10 +60,10 @@ public class ImageTransparentFilter extends AbstractImageFilter{
     /**
      * 对图像应用透明度过滤。
      * 此方法旨在被子类覆盖，以实现具体的透明度过滤逻辑。
-     * 当前实现返回 null，表示尚未实现具体的过滤逻辑。
+      * 当前实现返回 空，表示尚未实现具体的过滤逻辑。
      *
      * @param src 源图像，包含需要处理的像素数据
-     * @param dst 目标图像，用于存储过滤后的结果，可以为null
+     * @param dst 目标图像，用于存储过滤后的结果，可以为空
      * @return 处理后的透明度过滤图像，当前实现返回null
      */
     @Override
@@ -83,7 +83,7 @@ public class ImageTransparentFilter extends AbstractImageFilter{
                     color = new Color(0, 0, 0, 0);
                 }
 
-                // 将处理后的像素写入新的BufferedImage
+ // 将处理后的像素写入新的缓冲镜像
                 newImage.setRGB(x, y, color.getRGB());
             }
         }

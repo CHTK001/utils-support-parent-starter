@@ -22,17 +22,17 @@ import java.util.Arrays;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * CLIPSeg 零样本语义分割 Translator
+   * clipseg 零样本语义分割 Translator
  * <p>
- * CLIPSeg 是基于 CLIP 的零样本分割模型，通过文本描述直接对图像进行语义分割，
- * 无需训练即可分割任意目标类别（如 "a person"、"a car"、"a tree" 等）。
+   * clipseg 是基于 CLIP 的零样本分割模型，通过文本描述直接对图像进行语义分割，
+   * 无需训练即可分割任意目标类别（如 "a person"、"a car"、"a 树" 等）。
  * 适用于需要灵活指定分割类别的场景。
  * </p>
  * <p>
  * 模型来源：huggingface.co/Xenova/clipseg-rd64-refined
  * 架构：CNN + CLIP 文本编码器
- * 输入：Image + 文本描述（通过构造方法传入）
- * 输出：Image（二值分割掩码，255=前景，0=背景）
+   * 输入：镜像 + 文本描述（通过构造方法传入）
+   * 输出：镜像（二值分割掩码，255=前景，0=背景）
  * </p>
  * <p>
  * 输入流程：
@@ -50,21 +50,21 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, Image> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 352;
     /** 最大文本长度 */
-    /** Max_text_length */
+    /** 最大_文本_长度 */
     private static final int MAX_TEXT_LENGTH = 77;
 
     /** 提示词 */
-    /** Prompt */
+    /** 提示符 */
     private final String prompt;
 
     /** 分词器 */
     /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
-    /** 外部掩码概率阈值（区间 (0,1)，null 表示未配置时以 logits>0 为界）。 */
+    /** 外部掩码概率阈值（区间 (0,1)，空 表示未配置时以 logits>0 为界）。 */
     private Float probThreshold;
 
     /**
@@ -82,14 +82,15 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         }
     }
 
-    /** 创建 CLIPSegZeroShotSegmentationTranslator 实例 */
+    /** 创建 clipsegzeroshotsegmentationtranslator 实例 */
     public CLIPSegZeroShotSegmentationTranslator() {
         this("object");
     }
 
     /**
-     * 创建 CLIPSegZeroShotSegmentationTranslator 实例
-     * @param String String
+      * 创建 clipsegzeroshotsegmentationtranslator 实例
+     * @param prompt 字符串
+     * @param prompt 提示符
      */
     public CLIPSegZeroShotSegmentationTranslator(@Nonnull String prompt) {
         this.prompt = prompt != null ? prompt : "object";
@@ -113,7 +114,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         if (tokenizer == null) {
             throw new IllegalStateException("CLIPSeg tokenizer not initialized");
@@ -144,7 +145,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -164,7 +165,12 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         return null;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -175,7 +181,13 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         return modelPath;
     }
 
-    /** 查找File */
+    /**
+     * 查找文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

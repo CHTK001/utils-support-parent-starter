@@ -47,6 +47,8 @@ public class PasswordMockString implements MockString {
     private static final int DEFAULT_MIN = 8;
     /**
      * 默认最长密码长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int DEFAULT_MAX = 20;
 

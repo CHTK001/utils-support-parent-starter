@@ -15,14 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * CodeFormer ONNX                 
+   * 编码former ONNX
  * <p>
- * CodeFormer                                     
+   * 编码former
  *       face restoration / enhancement                                 
  *       blurry / low-quality / damaged face -> restored face               
  * </p>
  * <p>
- *      : 512x512 RGB Image
+   * : 512x512 RGB 镜像
  *      : bluefoxcreation/Codeformer-ONNX
  * </p>
  *
@@ -33,7 +33,7 @@ import java.awt.image.BufferedImage;
 public class CodeFormerTranslator implements Translator<Image, Image> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 512;
     /** 均值数组 */
     /** Mean */
@@ -43,12 +43,12 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
 
         // 纯 Java 预处理：AWT BICUBIC resize + CHW 标准化，
-        // 避免 NDImageUtils.resize / NDArray 张量运算在部分 engine（Rust/ONNX）不受支持
+ // 避免 nd镜像工具.resize / ndarray 张量运算在部分 engine（Rust/ONNX）不受支持
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_CUBIC);
 
@@ -67,7 +67,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
         NDArray array = manager.create(data, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
 
         // 身份条件权重 w：模型导出为「标量条件」形式（fuse 块直接与特征广播相乘，
-        // feature channel 为 256/128，仅标量可广播），故传 [1,1] 标量。
+ // 特征 通道 为 256/128，仅标量可广播），故传 [1,1] 标量。
         // 注：模型输入声明 w 为 tensor(double)，需用 double 创建。
         NDArray w = manager.create(new double[]{1.0d}, new Shape(1, 1));
 
@@ -75,7 +75,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         // 模型输出 3 个：y(修复图) / logits / style_feat，取第一个 y
         NDArray outputImg = list.get(0);
@@ -143,7 +143,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // 返回 null：单输入无需 batch 包装，避免 Batchifier.STACK 将 x 变为 5 维导致 rank 不匹配
+ // 返回 空：单输入无需 批量 包装，避免 Batchifier.STACK 将 x 变为 5 维导致 rank 不匹配
         return null;
     }
 }

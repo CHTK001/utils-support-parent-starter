@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 通用 MarianMT 嵌入式机器翻译器（ORT 原生 + HuggingFace Tokenizer）。
+   * 通用 marianmt 嵌入式机器翻译器（ORT 原生 + huggingface Tokenizer）。
  *
  * <p>支持多语言对（英中/中英/英法/英德/英西/英俄/中日等）。Marian 为 encoder-decoder 自回归架构：
  * <ol>
@@ -38,27 +38,27 @@ import java.util.Set;
 public class OpusMtTranslationTranslator implements ITranslator<String, String>, AutoCloseable {
 
     /**
-     * 解码起始 token（= pad id），Marian 固定。
+      * 解码起始 令牌（= pad 标识），Marian 固定。
      */
     private static final long DECODER_START_ID = 65000L;
 
     /**
-     * EOS token id（Marian 固定为 0）。
+      * EOS 令牌 标识（Marian 固定为 0）。
      */
     private static final long EOS_ID = 0L;
 
     /**
-     * 候选翻译分隔符 "-" 的 token id，生成到它即取第一个候选。
+      * 候选翻译分隔符 "-" 的 令牌 标识，生成到它即取第一个候选。
      */
     private static final long SEPARATOR_ID = 15L;
 
     /**
-     * 解码器层数（marian-base 固定 6）。
+      * 解码器层数（marian-基础 固定 6）。
      */
     private static final int NUM_LAYERS = 6;
 
     /**
-     * 注意力头数（marian-base d_model=512 / 64）。
+      * 注意力头数（marian-基础 d_模型=512 / 64）。
      */
     private static final int NUM_HEADS = 8;
 
@@ -78,22 +78,22 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     private static final float REPETITION_PENALTY = 2.2f;
 
     /**
-     * encoder 模型文件名。
+      * 编码器 模型文件名。
      */
     private static final String ENCODER_FILE = "encoder_model_quantized.onnx";
 
     /**
-     * decoder（首步）模型文件名。
+      * 解码器（首步）模型文件名。
      */
     private static final String DECODER_FILE = "decoder_model_quantized.onnx";
 
     /**
-     * decoder（带缓存）模型文件名。
+      * 解码器（带缓存）模型文件名。
      */
     private static final String DECODER_PAST_FILE = "decoder_with_past_model_quantized.onnx";
 
     /**
-     * 模型 ID（registry 标识，用于路径解析/下载缓存隔离）。
+      * 模型 标识（registry 标识，用于路径解析/下载缓存隔离）。
      */
     private final String modelId;
 
@@ -103,7 +103,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     private final String resourceBase;
 
     /**
-     * HF 模型仓库 onnx 目录 URL（downloadUrl 模式，如 {@code https://huggingface.co/Xenova/opus-mt-en-zh/resolve/main/onnx}）。
+      * HF 模型仓库 onnx 目录 URL（downloadurl 模式，如 {@code https://huggingface.co/Xenova/opus-mt-en-zh/resolve/main/onnx}）。
      */
     private final String downloadBaseUrl;
 
@@ -121,10 +121,10 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     private volatile boolean loaded;
 
     /**
-     * 构造通用 MarianMT 翻译器。
+      * 构造通用 marianmt 翻译器。
      *
-     * @param modelId         模型 ID（registry 标识）
-     * @param resourceBase    嵌入式 jar 资源根目录；为空时走 downloadUrl 下载
+     * @param modelId         模型 标识（registry 标识）
+     * @param resourceBase    嵌入式 jar 资源根目录；为空时走 downloadurl 下载
      * @param downloadBaseUrl HF 模型仓库 onnx 目录 URL；为空时表示仅嵌入式
      */
     public OpusMtTranslationTranslator(String modelId, String resourceBase, String downloadBaseUrl) {
@@ -191,7 +191,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
         if (downloadBaseUrl == null || downloadBaseUrl.isBlank()) {
             throw new IllegalArgumentException(modelId + " 未配置资源位置");
         }
-        // downloadUrl 模式：下载四文件到缓存目录 %TEMP%/chua-dl-models/{modelId}
+ // downloadurl 模式：下载四文件到缓存目录 %TEMP%/chua-dl-模型/{模型标识}
         Path cacheDir = Path.of(System.getProperty("java.io.tmpdir"), "chua-dl-models", modelId);
         Files.createDirectories(cacheDir);
         String[] files = {ENCODER_FILE, DECODER_FILE, DECODER_PAST_FILE, "tokenizer.json"};
@@ -213,7 +213,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelId;
     }
@@ -246,7 +246,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
             long[] encMask = attn;
             int decSeq;
 
-            // 2. decoder 首步：decoder_start_token + encoder_hidden_states
+ // 2. 解码器 首步：解码器_启动_令牌 + 编码器_hidden_状态
             Map<String, OnnxTensor> feed = new HashMap<>();
             feed.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(new long[]{DECODER_START_ID}), new long[]{1, 1}));
             feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(encMask), new long[]{1, ids.length}));
@@ -269,7 +269,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
                 long[] eKvShape = ((OnnxTensor) first.get("present.0.encoder.key").get()).getInfo().getShape();
                 decSeq = (int) ((OnnxTensor) first.get("present.0.decoder.key").get()).getInfo().getShape()[2];
 
-                // 3. decoder_with_past 循环：自回归生成
+ // 3. 解码器_with_past 循环：自回归生成
                 for (int step = 0; step < MAX_GENERATE_STEPS; step++) {
                     Map<String, OnnxTensor> f2 = new HashMap<>();
                     f2.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(new long[]{next}), new long[]{1, 1}));
@@ -353,8 +353,8 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
      * 从 logits 取 argmax（含重复惩罚 + 禁止 pad）。
      *
      * @param result ORT 推理结果
-     * @param gen    已生成 token
-     * @return 下一 token id
+     * @param gen    已生成 令牌
+     * @return 下一 令牌 标识
      */
     private static long argmax(OrtSession.Result result, List<Long> gen) throws Exception {
         OnnxTensor logitsTensor = (OnnxTensor) result.get("logits").get();

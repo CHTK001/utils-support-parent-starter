@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  *
  * <p><strong>分支结果存储：</strong></p>
  * <p>各分支执行完毕后，结果以 {@link ForkResult} 结构化对象存入父上下文的 {@code nodeOutputs}，
- * key 为分叉节点的 nodeId。后续节点可通过 {@code ctx.getData("fork1", ForkResult.class)}
+   * 键 为分叉节点的 节点id。后续节点可通过 {@code ctx.getData("fork1", ForkResult.class)}
  * 获取完整结果，再通过 {@link ForkResult#getBranch(String)} 获取指定分支的输出。</p>
  *
  * <pre>
@@ -72,6 +72,8 @@ import java.util.stream.Collectors;
  *     .taskEnd()
  *     .task("finalize", ctx -> { finalize(ctx); return null; }).taskEnd()
  *     .build();
+ * }</pre>结束()
+   * .构建();
  * }</pre>
  *
  * @author CH
@@ -91,12 +93,12 @@ public class ForkNode implements PipelineNode {
     private final Map<String, Pipeline> branches;
 
     /**
-     * 错误处理策略，默认 WAIT_ALL
+      * 错误处理策略，默认 WAIT_全部
      */
     private final ForkErrorStrategy errorStrategy;
 
     /**
-     * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）
+      * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.节点本地数据）
      */
     private Map<String, Object> params;
 
@@ -109,7 +111,7 @@ public class ForkNode implements PipelineNode {
      * 前置处理器（在分叉分支执行前调用，可选）。
      *
      * <p>前置处理器在所有分叉分支启动之前执行，适用于初始化共享数据等场景。
-     * 处理器返回值决定后续路由，返回 null 则继续执行分叉分支。</p>
+      * 处理器返回值决定后续路由，返回 空 则继续执行分叉分支。</p>
      */
     private PipelineNode preHandler;
 
@@ -118,7 +120,7 @@ public class ForkNode implements PipelineNode {
      *
      * @param id            节点唯一标识
      * @param branches      分支名称 -> 子流水线映射
-     * @param errorStrategy 错误处理策略，null 时默认 WAIT_ALL
+     * @param errorStrategy 错误处理策略，空 时默认 WAIT_全部
      */
     public ForkNode(String id, Map<String, Pipeline> branches, ForkErrorStrategy errorStrategy) {
         this.id = id;
@@ -128,9 +130,9 @@ public class ForkNode implements PipelineNode {
     }
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     @Override
     public String getId() {
@@ -207,7 +209,7 @@ public class ForkNode implements PipelineNode {
     /**
      * 获取前置处理器。
      *
-     * @return 前置处理器，未设置时返回 null
+     * @return 前置处理器，未设置时返回 空
      */
     public PipelineNode getPreHandler() {
         return preHandler;
@@ -235,7 +237,7 @@ public class ForkNode implements PipelineNode {
         if (preHandler != null) {
             String result = preHandler.execute(context);
             if (result != null) {
-                // 前置处理器返回非null，跳过分叉执行，直接路由
+ // 前置处理器返回非空，跳过分叉执行，直接路由
                 return result;
             }
         }
@@ -251,11 +253,11 @@ public class ForkNode implements PipelineNode {
             return null;
         }
 
-        // 并行执行（结构化并发：StructuredTaskScope — Java 25 API）
+ // 并行执行（结构化并发：Structured Streaming Streaming任务scope — Java 25 API）
         ConcurrentLinkedQueue<BranchResult> results = new ConcurrentLinkedQueue<>();
 
         if (errorStrategy == ForkErrorStrategy.FAIL_FAST) {
-            // FAIL_FAST：任一分支失败时取消剩余分支
+ // 失败_FAST：任一分支失败时取消剩余分支
             AtomicBoolean failed = new AtomicBoolean(false);
             try (var scope = StructuredTaskScope.open(
                     StructuredTaskScope.Joiner.allUntil(subtask -> failed.get()))) {
@@ -292,7 +294,7 @@ public class ForkNode implements PipelineNode {
                         id, context.getPipelineId(), e);
             }
         } else {
-            // WAIT_ALL：等待所有分支完成，汇总异常
+ // WAIT_全部：等待所有分支完成，汇总异常
             try (var scope = StructuredTaskScope.open(
                     StructuredTaskScope.Joiner.awaitAll())) {
                 for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
@@ -336,7 +338,7 @@ public class ForkNode implements PipelineNode {
             }
         }
 
-        // 将分支结果以 ForkResult 结构化对象存入父上下文 nodeOutputs
+ // 将分支结果以 fork结果 结构化对象存入父上下文 节点输出
         Map<String, Object> branchOutputs = new LinkedHashMap<>();
         Map<String, List<String>> branchHistories = new LinkedHashMap<>();
         for (BranchResult result : results) {
@@ -363,7 +365,7 @@ public class ForkNode implements PipelineNode {
         PipelineContext<?> branchCtx = parentCtx.createBranchContext();
         branchPipeline.execute(branchCtx);
 
-        // 以 ForkResult 结构化存储，与多分支路径格式一致
+ // 以 fork结果 结构化存储，与多分支路径格式一致
         Map<String, Object> branchOutputs = new LinkedHashMap<>();
         branchOutputs.put(branchName, branchCtx.getCurrentData());
         Map<String, List<String>> branchHistories = new LinkedHashMap<>();
@@ -374,11 +376,13 @@ public class ForkNode implements PipelineNode {
 
     /**
      * 分支执行结果。
+     * @author CH
+     * @since 4.0.0
      */
     private static class BranchResult {
-        final String branchName;
-        final PipelineContext<?> context;
-        final Exception error;
+        final String branchName; // 分支名称
+        final PipelineContext<?> context; // 上下文
+        final Exception error; // 错误
 
         BranchResult(String branchName, PipelineContext<?> context, Exception error) {
             this.branchName = branchName;

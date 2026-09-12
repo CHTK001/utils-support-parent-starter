@@ -23,10 +23,10 @@ import java.util.List;
  *  "content": [ { "text": "Say ok" } ]}
  * {"type": "gemini", "id": "...", "timestamp": "...ISO...",
  *  "content": "ok", "model": "gemini-3.5-flash"}
- * }</pre>
+ * }</pre>re>
  *
  * <p>User content is an array of text blocks while assistant content is a
- * plain string — both normalised to {@code contentType="text"}.</p>
+   * plain 字符串 — both normalised 转为 {@code contentType="text"}.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -69,6 +69,14 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
 
     /**
      * 解析单行事件为零或多条消息记录。
+     * @param ts ts
+     * @return 解析instant转为millis的结果
+     /**
+      * 解析线。
+      * @param line 线
+      * @return 解析线的结果
+      */
+      * @param ts ts
      */
     @Override
     protected List<ConversationMessage> parseLine(String line) {

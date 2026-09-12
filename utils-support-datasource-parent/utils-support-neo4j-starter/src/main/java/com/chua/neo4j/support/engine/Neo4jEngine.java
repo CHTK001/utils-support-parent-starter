@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Neo4j 图数据库引擎实现，通过 Bolt 协议连接 Neo4j 执行 Cypher 查询。
+   * Neo4j 图数据库引擎实现，通过 螺栓 协议连接 Neo4j 执行 Cypher 查询。
  * <p>
  * 支持 Lambda 链式查询、条件过滤、分页、更新和删除操作。
  * 条件自动转为参数化 Cypher WHERE 子句，防止 Cypher 注入。
@@ -73,16 +73,29 @@ public class Neo4jEngine implements Engine {
      */
     private final java.util.Properties dialectProps;
 
+    /**
+      * Neo4jengine。
+     */
     public Neo4jEngine() {
         this.dialectProps = loadProps("neo4j");
     }
 
-    /** 从类路径加载 .env 文件为 Properties */
+     /**
+      * 加载props。
+      * @param protocol 协议
+      * @return 加载props的结果
+      */
+     * 从类路径加载 .env 文件为 属性
+     *
+     * @return 支持NATpagination的结果
+     */
     private static java.util.Properties loadProps(String protocol) {
         try {
             java.io.InputStream is = Neo4jEngine.class.getClassLoader()
                     .getResourceAsStream("META-INF/dialect-env/" + protocol + ".env");
-            if (is == null) return new java.util.Properties();
+            if (is == null) {
+                return new java.util.Properties();
+            }
             java.util.Properties props = new java.util.Properties();
             props.load(new java.io.BufferedReader(
                     new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8)));
@@ -99,7 +112,13 @@ public class Neo4jEngine implements Engine {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 添加DataSource */
+    /**
+     * 添加数据源
+     *
+     * @param name 名称
+     * @param ds ds
+     * @return 添加数据源的结果
+     */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof String uri) {
@@ -115,7 +134,7 @@ public class Neo4jEngine implements Engine {
     /**
      * 连接 Neo4j 数据库。
      *
-     * @param uri      Bolt URI，如 bolt://host:7687
+     * @param uri      螺栓 URI，如 螺栓://主机:7687
      * @param user     用户名
      * @param password 密码
      * @return 当前引擎实例
@@ -137,14 +156,14 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
-    /** 设置DefaultDataSourceName */
+    /** 设置默认数据源名称 */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
-    /** Store */
+    /** 存储 */
     public <T> Engine store(String name, List<T> data) {
         if (driver == null || CollectionUtils.isEmpty(data)) {
             return this;
@@ -188,27 +207,36 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @param n n
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
@@ -242,43 +270,43 @@ public class Neo4jEngine implements Engine {
              * @param ps ps
              * @param ps ps
              * @param ps ps
-             * @param to to
-             * @param entityClass entityClass
+             * @param to 转为
+             * @param entityClass 实体类
              * @param col col
              * @param col col
-             * @param entityClass entityClass
+             * @param entityClass 实体类
              * @param col col
              * @param col col
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param params params
-             * @param params params
-             * @param entityClass entityClass
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param params 参数
+             * @param params 参数
+             * @param entityClass 实体类
              * @param e e
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param setValues setValues
-             * @param params params
-             * @param params params
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param setValues 设置值
+             * @param params 参数
+             * @param params 参数
              * @param e e
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param params params
-             * @param params params
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param params 参数
+             * @param params 参数
              * @param e e
-             * @param conditions conditions
-             * @param params params
-             * @param alias alias
+             * @param conditions 条件
+             * @param params 参数
+             * @param alias 别名
              * @param 0 0
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param sb sb
              * @param c c
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param 0 0
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param val val
              * @param val val
              * @param val val
@@ -287,14 +315,14 @@ public class Neo4jEngine implements Engine {
              * @param val val
              * @param val val
              * @param props props
-             * @param entityClass entityClass
-             * @param paramType paramType
-             * @param value value
+             * @param entityClass 实体类
+             * @param paramType 参数类型
+             * @param value 值
              * @param e e
              * @param e e
-             * @param value value
-             * @param targetType targetType
-             * @param Number Number
+             * @param value 值
+             * @param targetType Target类型
+             * @param Number 数字
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -302,7 +330,7 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
@@ -314,43 +342,43 @@ public class Neo4jEngine implements Engine {
                      * @param ps ps
                      * @param ps ps
                      * @param ps ps
-                     * @param to to
-                     * @param entityClass entityClass
+                     * @param to 转为
+                     * @param entityClass 实体类
                      * @param col col
                      * @param col col
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
                      * @param col col
                      * @param col col
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param params params
-                     * @param params params
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param params 参数
+                     * @param entityClass 实体类
                      * @param e e
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param setValues setValues
-                     * @param params params
-                     * @param params params
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param setValues 设置值
+                     * @param params 参数
+                     * @param params 参数
                      * @param e e
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param params params
-                     * @param params params
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param params 参数
                      * @param e e
-                     * @param conditions conditions
-                     * @param params params
-                     * @param alias alias
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param alias 别名
                      * @param 0 0
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param sb sb
                      * @param c c
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param 0 0
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param val val
                      * @param val val
                      * @param val val
@@ -359,14 +387,14 @@ public class Neo4jEngine implements Engine {
                      * @param val val
                      * @param val val
                      * @param props props
-                     * @param entityClass entityClass
-                     * @param paramType paramType
-                     * @param value value
+                     * @param entityClass 实体类
+                     * @param paramType 参数类型
+                     * @param value 值
                      * @param e e
                      * @param e e
-                     * @param value value
-                     * @param targetType targetType
-                     * @param Number Number
+                     * @param value 值
+                     * @param targetType Target类型
+                     * @param Number 数字
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -376,7 +404,7 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
-            /** List */
+            /** 列表 */
             public List<T> list() {
                 return cypherQuery(entityClass, getConditions());
             }
@@ -396,10 +424,10 @@ public class Neo4jEngine implements Engine {
             public Page<T> page(int pn, int ps) {
                 int offset = (pn - 1) * ps;
                 int limit = ps;
-                // 原生分页：limit 非零时驱动 SKIP/LIMIT
+ // 原生分页：限制 非零时驱动 跳过/限制
                 if (supportsNativePagination() && limit > 0) {
                     List<T> all = cypherQuery(entityClass, getConditions(), offset, limit);
-                    long total = all.size(); // 注意：原生分页时 total 需另发 COUNT 查询
+                    long total = all.size(); // 注意：原生分页时 total 需另发 数量 查询
                     return new Page<>(pn, ps, total, all);
                 }
                 // 内存兜底
@@ -424,39 +452,39 @@ public class Neo4jEngine implements Engine {
              * 解析Column
              * @param col col
              * @param col col
-             * @param entityClass entityClass
+             * @param entityClass 实体类
              * @param col col
              * @param col col
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param params params
-             * @param params params
-             * @param entityClass entityClass
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param params 参数
+             * @param params 参数
+             * @param entityClass 实体类
              * @param e e
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param setValues setValues
-             * @param params params
-             * @param params params
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param setValues 设置值
+             * @param params 参数
+             * @param params 参数
              * @param e e
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param params params
-             * @param params params
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param params 参数
+             * @param params 参数
              * @param e e
-             * @param conditions conditions
-             * @param params params
-             * @param alias alias
+             * @param conditions 条件
+             * @param params 参数
+             * @param alias 别名
              * @param 0 0
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param sb sb
              * @param c c
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param 0 0
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param val val
              * @param val val
              * @param val val
@@ -465,14 +493,14 @@ public class Neo4jEngine implements Engine {
              * @param val val
              * @param val val
              * @param props props
-             * @param entityClass entityClass
-             * @param paramType paramType
-             * @param value value
+             * @param entityClass 实体类
+             * @param paramType 参数类型
+             * @param value 值
              * @param e e
              * @param e e
-             * @param value value
-             * @param targetType targetType
-             * @param Number Number
+             * @param value 值
+             * @param targetType Target类型
+             * @param Number 数字
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -480,7 +508,7 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
@@ -488,39 +516,39 @@ public class Neo4jEngine implements Engine {
                     /**
                      * 解析Column
                      * @param col col
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
                      * @param col col
                      * @param col col
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param params params
-                     * @param params params
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param params 参数
+                     * @param entityClass 实体类
                      * @param e e
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param setValues setValues
-                     * @param params params
-                     * @param params params
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param setValues 设置值
+                     * @param params 参数
+                     * @param params 参数
                      * @param e e
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param params params
-                     * @param params params
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param params 参数
                      * @param e e
-                     * @param conditions conditions
-                     * @param params params
-                     * @param alias alias
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param alias 别名
                      * @param 0 0
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param sb sb
                      * @param c c
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param 0 0
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param val val
                      * @param val val
                      * @param val val
@@ -529,14 +557,14 @@ public class Neo4jEngine implements Engine {
                      * @param val val
                      * @param val val
                      * @param props props
-                     * @param entityClass entityClass
-                     * @param paramType paramType
-                     * @param value value
+                     * @param entityClass 实体类
+                     * @param paramType 参数类型
+                     * @param value 值
                      * @param e e
                      * @param e e
-                     * @param value value
-                     * @param targetType targetType
-                     * @param Number Number
+                     * @param value 值
+                     * @param targetType Target类型
+                     * @param Number 数字
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -563,36 +591,36 @@ public class Neo4jEngine implements Engine {
              * 解析Column
              * @param col col
              * @param col col
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param params params
-             * @param params params
-             * @param entityClass entityClass
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param params 参数
+             * @param params 参数
+             * @param entityClass 实体类
              * @param e e
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param setValues setValues
-             * @param params params
-             * @param params params
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param setValues 设置值
+             * @param params 参数
+             * @param params 参数
              * @param e e
-             * @param entityClass entityClass
-             * @param conditions conditions
-             * @param params params
-             * @param params params
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param params 参数
+             * @param params 参数
              * @param e e
-             * @param conditions conditions
-             * @param params params
-             * @param alias alias
+             * @param conditions 条件
+             * @param params 参数
+             * @param alias 别名
              * @param 0 0
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param sb sb
              * @param c c
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param 0 0
-             * @param params params
-             * @param alias alias
+             * @param params 参数
+             * @param alias 别名
              * @param val val
              * @param val val
              * @param val val
@@ -601,14 +629,14 @@ public class Neo4jEngine implements Engine {
              * @param val val
              * @param val val
              * @param props props
-             * @param entityClass entityClass
-             * @param paramType paramType
-             * @param value value
+             * @param entityClass 实体类
+             * @param paramType 参数类型
+             * @param value 值
              * @param e e
              * @param e e
-             * @param value value
-             * @param targetType targetType
-             * @param Number Number
+             * @param value 值
+             * @param targetType Target类型
+             * @param Number 数字
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -616,7 +644,7 @@ public class Neo4jEngine implements Engine {
             }
 
             @Override
-            /** NewInstance */
+            /** 新instance */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
@@ -624,36 +652,36 @@ public class Neo4jEngine implements Engine {
                     /**
                      * 解析Column
                      * @param col col
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param params params
-                     * @param params params
-                     * @param entityClass entityClass
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param params 参数
+                     * @param entityClass 实体类
                      * @param e e
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param setValues setValues
-                     * @param params params
-                     * @param params params
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param setValues 设置值
+                     * @param params 参数
+                     * @param params 参数
                      * @param e e
-                     * @param entityClass entityClass
-                     * @param conditions conditions
-                     * @param params params
-                     * @param params params
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param params 参数
                      * @param e e
-                     * @param conditions conditions
-                     * @param params params
-                     * @param alias alias
+                     * @param conditions 条件
+                     * @param params 参数
+                     * @param alias 别名
                      * @param 0 0
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param sb sb
                      * @param c c
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param 0 0
-                     * @param params params
-                     * @param alias alias
+                     * @param params 参数
+                     * @param alias 别名
                      * @param val val
                      * @param val val
                      * @param val val
@@ -662,14 +690,14 @@ public class Neo4jEngine implements Engine {
                      * @param val val
                      * @param val val
                      * @param props props
-                     * @param entityClass entityClass
-                     * @param paramType paramType
-                     * @param value value
+                     * @param entityClass 实体类
+                     * @param paramType 参数类型
+                     * @param value 值
                      * @param e e
                      * @param e e
-                     * @param value value
-                     * @param targetType targetType
-                     * @param Number Number
+                     * @param value 值
+                     * @param targetType Target类型
+                     * @param Number 数字
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -688,6 +716,17 @@ public class Neo4jEngine implements Engine {
 
     /**
      * 执行 Cypher 查询。
+     * @param entityClass 实体类
+     * @param conditions 条件
+     /**
+      * cypher查询。
+      * @param entityClass 实体类
+      * @param conditions 条件
+      * @return cypher查询的结果
+      */
+     * @param offset 偏移量
+     * @param limit 限制
+     * @return cypher查询的结果
      */
     @SuppressWarnings("unchecked")
     private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions) {
@@ -709,10 +748,14 @@ public class Neo4jEngine implements Engine {
             cypher.append(" WHERE ").append(whereClause);
         }
         cypher.append(" RETURN n");
-        // 原生分页：追加 SKIP/LIMIT
+ // 原生分页：追加 跳过/限制
         if (supportsNativePagination() && (limit > 0 || offset > 0)) {
-            if (offset > 0) cypher.append(" SKIP ").append(offset);
-            if (limit > 0) cypher.append(" LIMIT ").append(limit);
+            if (offset > 0) {
+                cypher.append(" SKIP ").append(offset);
+            }
+            if (limit > 0) {
+                cypher.append(" LIMIT ").append(limit);
+            }
         }
 
         try (var session = driver.session()) {
@@ -772,6 +815,9 @@ public class Neo4jEngine implements Engine {
 
     /**
      * 执行 Cypher 删除。
+     * @param entityClass 实体类
+     * @param conditions 条件
+     * @return cypher删除的结果
      */
     @SuppressWarnings("unchecked")
     private <T> int cypherDelete(Class<T> entityClass, List<Condition> conditions) {
@@ -801,7 +847,7 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 将结构化 Condition 列表构建为 Cypher WHERE 子句。
+      * 将结构化 条件 列表构建为 Cypher WHERE 子句。
      *
      * @param conditions 条件列表
      * @param params     参数映射（输出）
@@ -826,7 +872,7 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 追加单个条件到 StringBuilder。
+      * 追加单个条件到 字符串构建器。
      */
     private void appendCondition(
             StringBuilder sb,
@@ -910,7 +956,13 @@ public class Neo4jEngine implements Engine {
     }
 
     @SuppressWarnings("unchecked")
-    /** MapToEntity */
+    /**
+     * 映射转为实体
+     *
+     * @param props props
+     * @param entityClass 实体类
+     * @return 映射转为实体的结果
+     */
     private <T> T mapToEntity(Map<String, Object> props, Class<T> entityClass) {
         try {
             T instance = ReflectUtils.instantiate(entityClass);
@@ -939,7 +991,13 @@ public class Neo4jEngine implements Engine {
         }
     }
 
-    /** 转换Number */
+    /**
+     * 转换数字
+     *
+     * @param value 值
+     * @param targetType Target类型
+     * @return 转换数字的结果
+     */
     private Object convertNumber(Object value, Class<?> targetType) {
         if (!(value instanceof Number)) {
             return value;

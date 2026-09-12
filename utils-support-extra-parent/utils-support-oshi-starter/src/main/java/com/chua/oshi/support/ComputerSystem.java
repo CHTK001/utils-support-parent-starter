@@ -8,6 +8,7 @@ import lombok.Data;
  * 描述计算机整机的制造商、型号、序列号等资产信息。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class ComputerSystem {

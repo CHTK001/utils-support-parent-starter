@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * JRebel 许可证 HTTP 服务器。
+   * jrebel 许可证 HTTP 服务器。
  * <p>
- * 基于 JDK HttpServer 实现，通过 {@link AbstractServer#registerMapping(String, HttpMethod, com.chua.common.support.network.server.ServerHandler)}
- * 直接注册 JRebel/XRebel 许可证服务端点。
+   * 基于 JDK http服务端 实现，通过 {@link AbstractServer#registerMapping(String, HttpMethod, com.chua.common.support.network.server.ServerHandler)}
+   * 直接注册 jrebel/xrebel 许可证服务端点。
  * </p>
  *
  * <pre>{@code
@@ -32,6 +32,8 @@ import java.util.UUID;
  *     .port(8080)
  *     .build();
  * AbstractServer server = new JRebelHttpServer(setting);
+ * server.start();
+ * }</pre>(setting);
  * server.start();
  * }</pre>
  *
@@ -44,7 +46,7 @@ import java.util.UUID;
     @Slf4j
     public class JRebelHttpServer extends AbstractServer {
 
-    private static final String STATUS_SUCCESS = "SUCCESS";
+    private static final String STATUS_SUCCESS = "SUCCESS"; // 状态成功
 
     /**
      * 许可证服务
@@ -52,7 +54,7 @@ import java.util.UUID;
     private final JRebelLicenseService licenseService;
 
     /**
-     * 创建 JRebelHttpServer 实例
+      * 创建 jrebelhttp服务端 实例
      * @param setting setting
      */
     public JRebelHttpServer(ServerSetting setting) {
@@ -60,9 +62,9 @@ import java.util.UUID;
     }
 
     /**
-     * 创建 JRebelHttpServer 实例
+      * 创建 jrebelhttp服务端 实例
      * @param setting setting
-     * @param licenseService licenseService
+     * @param licenseService 执照服务
      */
     public JRebelHttpServer(ServerSetting setting, JRebelLicenseService licenseService) {
         super(setting);
@@ -71,7 +73,7 @@ import java.util.UUID;
     }
 
     /**
-     * 注册 JRebel 所有端点路由
+      * 注册 jrebel 所有端点路由
      */
     private void registerRoutes() {
         registerMapping("/jrebel/leases", HttpMethod.POST, this::handleCreateLease);
@@ -87,8 +89,8 @@ import java.util.UUID;
 
     /**
      * 处理创建Lease
-     * @param request request
-     * @param response response
+     * @param request 请求
+     * @param response 响应
      */
     private void handleCreateLease(ServerRequest request, ServerResponse response) throws Exception {
         String body = request.getBodyString();
@@ -115,8 +117,8 @@ import java.util.UUID;
 
     /**
      * 处理校验Connection
-     * @param request request
-     * @param response response
+     * @param request 请求
+     * @param response 响应
      */
     private void handleValidateConnection(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> result = new HashMap<>();
@@ -140,8 +142,8 @@ import java.util.UUID;
 
     /**
      * 处理Ping
-     * @param request request
-     * @param response response
+     * @param request 请求
+     * @param response 响应
      */
     private void handlePing(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> result = licenseService.createPingResponse();
@@ -154,9 +156,9 @@ import java.util.UUID;
     // ==================== 生成 GUID ====================
 
     /**
-     * 处理GenerateGuid
-     * @param request request
-     * @param response response
+      * 处理generateguid
+     * @param request 请求
+     * @param response 响应
      */
     private void handleGenerateGuid(ServerRequest request, ServerResponse response) throws Exception {
         String clientId = request.getParam("clientId");
@@ -174,9 +176,9 @@ import java.util.UUID;
     // ==================== 获取票据 ====================
 
     /**
-     * 处理ObtainTicket
-     * @param request request
-     * @param response response
+      * 处理obtainticket
+     * @param request 请求
+     * @param response 响应
      */
     private void handleObtainTicket(ServerRequest request, ServerResponse response) throws Exception {
         String salt = request.getParam("salt");
@@ -209,8 +211,8 @@ licenseType=0
 
     /**
      * 处理释放Ticket
-     * @param request request
-     * @param response response
+     * @param request 请求
+     * @param response 响应
      */
     private void handleReleaseTicket(ServerRequest request, ServerResponse response) throws Exception {
         String ticketId = request.getParam("ticketId");
@@ -228,7 +230,7 @@ licenseType=0
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -249,11 +251,15 @@ licenseType=0
     }
 
     /**
-     * JDK HttpServer 实例
+      * JDK http服务端 实例
      */
     private com.sun.net.httpserver.HttpServer httpServer;
 
-    /** 创建Executor */
+    /**
+     * 创建执行器
+     *
+     * @return 创建执行器的结果
+     */
     private java.util.concurrent.Executor createExecutor() {
         return new java.util.concurrent.ThreadPoolExecutor(
                 setting.getWorkerThreads(),
@@ -282,13 +288,13 @@ licenseType=0
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (httpServer != null) {
             httpServer.stop(0);
@@ -299,6 +305,11 @@ licenseType=0
     // ==================== 参数解析辅助方法 ====================
 
     @SuppressWarnings("unchecked")
+    /**
+     * 解析主体。
+     * @param body 主体
+     * @return 解析主体的结果
+     */
     private Map<String, Object> parseBody(String body) {
         if (body == null || body.isEmpty()) {
             return Map.of();
@@ -311,10 +322,11 @@ licenseType=0
     }
 
     /**
-     * 获取String
-     * @param params params
-     * @param key key
-     * @param defaultValue defaultValue
+      * 获取字符串
+     * @param params 参数
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取字符串的结果
      */
     private String getString(Map<String, Object> params, String key, String defaultValue) {
         if (params.containsKey(key)) {
@@ -325,10 +337,11 @@ licenseType=0
     }
 
     /**
-     * 获取Boolean
-     * @param params params
-     * @param key key
-     * @param defaultValue defaultValue
+      * 获取布尔值
+     * @param params 参数
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取布尔值的结果
      */
     private boolean getBoolean(Map<String, Object> params, String key, boolean defaultValue) {
         if (params.containsKey(key)) {
@@ -344,9 +357,10 @@ licenseType=0
 
     /**
      * 获取Long
-     * @param params params
-     * @param key key
-     * @param defaultValue defaultValue
+     * @param params 参数
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取long的结果
      */
     private long getLong(Map<String, Object> params, String key, long defaultValue) {
         if (params.containsKey(key)) {

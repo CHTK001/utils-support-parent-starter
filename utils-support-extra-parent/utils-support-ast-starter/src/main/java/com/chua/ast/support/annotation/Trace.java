@@ -3,7 +3,7 @@ package com.chua.ast.support.annotation;
 import java.lang.annotation.*;
 
 /**
- * 方法链路追踪注解，编译期自动插入 traceId 管理和耗时日志
+   * 方法链路追踪注解，编译期自动插入 追踪id 管理和耗时日志
  *
  * <p>特性：</p>
  * <ul>
@@ -14,6 +14,7 @@ import java.lang.annotation.*;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)

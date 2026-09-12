@@ -4,7 +4,7 @@ import com.chua.git.support.listener.GitProgressListener;
 import org.eclipse.jgit.lib.ProgressMonitor;
 
 /**
- * JGit {@link ProgressMonitor} 与项目自定义的 {@link GitProgressListener} 适配器。
+   * jgit {@link ProgressMonitor} 与项目自定义的 {@link GitProgressListener} 适配器。
  *
  * <p>JGit 内部请求进度报告时只会调用 ProgressMonitor 的方法，而业务侧接口是
  * {@link GitProgressListener}。该适配器将两者一一对应：</p>
@@ -53,7 +53,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     /**
      * 任务开始。
      *
-     * @param title     任务名称，如 "remote: Counting objects"
+     * @param title     任务名称，如 "远程: 数量 对象"
      * @param totalWork 总工作量，-1 → 未知
      */
     @Override
@@ -64,7 +64,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     /**
      * 进度更新。
      *
-     * @param completed 自上次 update 之后的增量
+     * @param completed 自上次 更新 之后的增量
      */
     @Override
     public void update(int completed) {
@@ -90,7 +90,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     }
 
     /**
-     * （JGit 7.x 新增）忽略时长显示开关。
+      * （jgit 7.x 新增）忽略时长显示开关。
      *
      * @param enabled 是否显示
      */

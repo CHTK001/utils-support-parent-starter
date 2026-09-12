@@ -48,13 +48,13 @@ public class CalciteDataScheme implements DataScheme {
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return name;
     }
 
     @Override
-    /** 获取TableNames */
+    /** 获取table名称 */
     public List<String> getTableNames() {
         return tables.stream().map(DataTable::getName).collect(Collectors.toList());
     }

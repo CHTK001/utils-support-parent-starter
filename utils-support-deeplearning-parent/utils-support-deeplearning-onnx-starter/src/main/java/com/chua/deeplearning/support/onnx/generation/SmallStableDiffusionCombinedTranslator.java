@@ -25,7 +25,7 @@ import java.util.Set;
  *
  * <p><b>原生 ORT 实现</b>：三个阶段均通过 ai.onnxruntime 原生会话执行，
  * 不经过 DJL 模型包装——规避该导出版本文本编码器输出 uint32 张量、
- * DJL NDArray 不支持的问题；文本编码阶段仅请求 fp32 输出。</p>
+   * DJL ndarray 不支持的问题；文本编码阶段仅请求 fp32 输出。</p>
  *
  * <p>设备策略：跟随 {@link DeviceSelector}——auto 模式探测到可用 GPU 时
  * 各会话启用 CUDA EP，任一会话初始化失败自动整体降级 CPU（粘性）。
@@ -37,7 +37,7 @@ import java.util.Set;
  * {@code deeplearning.device}。</p>
  *
  * <p>权重来源：{@code subpixel/small-stable-diffusion-v0-onnx-ort-web}
- * （OFA-Sys/small-stable-diffusion-v0 的 ONNX 转换；UNet 权重外置 weights.pb）。
+   * （OFA-Sys/small-st-diffusion-v0 的 ONNX 转换；unet 权重外置 权重.pb）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -56,7 +56,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
-     * CLIP 填充 token ID（&lt;|endoftext|&gt;）
+      * CLIP 填充 令牌 标识（&lt;|endoftext|&gt;）
      */
     private static final long PAD_TOKEN_ID = 49407L;
 
@@ -76,13 +76,13 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private static final int TRAIN_TIMESTEPS = 1000;
 
     /**
-     * 权重仓库基础地址（HuggingFace）
+      * 权重仓库基础地址（huggingface）
      */
     private static final String HF_BASE =
             "https://huggingface.co/nmkd/stable-diffusion-1.5-onnx/resolve/main";
 
     /**
-     * CLIP tokenizer.json 来源（各 OpenAI CLIP 变体共享同一 BPE 词表）
+      * CLIP tokenizer.json 来源（各 打开AI CLIP 变体共享同一 BPE 词表）
      */
     private static final String TOKENIZER_URL =
             "https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/main/tokenizer.json";
@@ -123,7 +123,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private volatile String negative = System.getProperty("small.sd.negative", "");
 
     /**
-     * LCM 少步模式（-Dsmall.sd.lcm=true）：guidance=1（跳过 uncond 分支，UNet 前向减半），
+      * LCM 少步模式（-Dsmall.sd.lcm=true）：guidance=1（跳过 uncond 分支，unet 前向减半），
      * 默认步数 4。适配 LCM Dreamshaper 等一致性蒸馏模型。
      */
     private static final boolean LCM_MODE = Boolean.getBoolean("small.sd.lcm");
@@ -134,12 +134,12 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private String deviceSetting = System.getProperty("deeplearning.device");
 
     /**
-     * UNet 独立设备设置（NaN 时可单独落 CPU，TE/VAE 保持 GPU）
+      * unet 独立设备设置（nan 时可单独落 CPU，TE/VAE 保持 GPU）
      */
     private String unetDeviceSetting = System.getProperty("small.sd.unetDevice");
 
     /**
-     * UNet 是否已强制运行于 CPU
+      * unet 是否已强制运行于 CPU
      */
     private volatile boolean unetOnCpu;
 
@@ -174,12 +174,12 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private OrtSession textEncoderSession;
 
     /**
-     * 文本编码输出名（fp32 的 hidden state）
+      * 文本编码输出名（fp32 的 hidden 状态）
      */
     private String textEncoderOutput;
 
     /**
-     * UNet 会话
+      * unet 会话
      */
     private OrtSession unetSession;
 
@@ -205,7 +205,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
     /**
      * 配置构造：从 {@link com.chua.deeplearning.support.ai.DetectionConfiguration} 的
-     * systemOption 读取参数（键：width/height/steps/guidance/seed/negative/device/unetDevice），
+      * 系统期权 读取参数（键：width/height/steps/guidance/参见/negative/device/unetdevice），
      * 未提供的键回退到系统属性 small.sd.* 与 deeplearning.device。
      *
      * @param config 检测/推理配置
@@ -226,6 +226,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
     /**
      * 从配置读取整数（缺失回退默认）。
+     * @param c c
+     * @param k k
+     * @param def def
+     * @return optInt的结果
      */
     private static int optInt(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, int def) {
         if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
@@ -237,6 +241,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
     /**
      * 从配置读取浮点（缺失回退默认）。
+     * @param c c
+     * @param k k
+     * @param def def
+     * @return optDbl的结果
      */
     private static double optDbl(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, double def) {
         if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
@@ -247,6 +255,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
     /**
      * 从配置读取字符串（缺失回退默认）。
+     * @param c c
+     * @param k k
+     * @param def def
+     * @return optStr的结果
      */
     private static String optStr(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, String def) {
         if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
@@ -257,6 +269,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
     /**
      * 从配置读取长整数（缺失回退默认）。
+     * @param c c
+     * @param k k
+     * @param def def
+     * @return optLng的结果
      */
     private static Long optLng(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, Long def) {
         if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
@@ -328,7 +344,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     /**
      * 全流程执行：分词 → 文本编码 → DDIM 去噪 → VAE 解码 → PNG 字节。
      *
-     * @param input 提示词（String）
+     * @param input 提示词（字符串）
      * @return PNG 图像字节数组
      */
     @Override
@@ -366,7 +382,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                 if (i == 0) {
                     log.info("[Small SD v0][STAGE] step0 eps[min={}, max={}] / [{}]",
                             fmin(epsCond), fmax(epsCond), fmaxAbs(epsCond));
-                    // GPU fp16 数值异常（NaN）检测：降级 CPU 重跑整条流水线
+ // GPU fp16 数值异常（nan）检测：降级 CPU 重跑整条流水线
                     if (Float.isNaN(epsCond[0]) || Float.isInfinite(epsCond[0])) {
                         if (!forceCpu && "gpu".equals(deviceUsed)) {
                             log.warn("[Small SD v0][编排] GPU 输出 NaN（fp16 数值异常），降级 CPU 重跑，"
@@ -471,7 +487,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      *
      * @param base      权重目录
      * @param useGpu    TE/VAE 是否 CUDA
-     * @param unetUseGpu UNet 是否 CUDA（可独立落 CPU）
+     * @param unetUseGpu unet 是否 CUDA（可独立落 CPU）
      * @throws OrtException 会话创建失败
      */
     private void openSessions(Path base, boolean useGpu, boolean unetUseGpu) throws OrtException, IOException {
@@ -552,6 +568,10 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      */
     private static final Path D_DRIVE_BASE = java.nio.file.Paths.get("D:\\chua-dl-models\\small-sd");
 
+    /**
+      * resolvebasedir。
+     * @return resolveBaseDir的结果
+     */
     private Path resolveBaseDir() {
         Path configured = ModelRegistry.resolveConfiguredPath("vision/detection/small-sd");
         if (configured != null) {
@@ -633,7 +653,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * 编码正/空负提示词对。
      *
      * @param prompt 正向提示词
-     * @return [无条件ids, 条件ids]
+     * @return [无条件ids, 条件标识]
      * @throws IOException 分词失败
      */
     private long[][] tokenizePair(String prompt) throws IOException {
@@ -645,7 +665,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * 定长分词（截断/填充到 77）。
      *
      * @param text 文本
-     * @return token ids
+     * @return token 标识
      * @throws IOException 失败
      */
     private long[] tokenize(String text) throws IOException {
@@ -681,9 +701,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 文本编码前向（仅请求 fp32 hidden state 输出）。
+      * 文本编码前向（仅请求 fp32 hidden 状态 输出）。
      *
-     * @param ids token ids（长度 77）
+     * @param ids 令牌 标识（长度 77）
      * @return 嵌入 [77*768]
      * @throws OrtException 推理失败
      */
@@ -709,7 +729,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 单次 UNet 噪声预测。
+      * 单次 unet 噪声预测。
      *
      * @param latent 当前 latent
      * @param t      时间步
@@ -745,7 +765,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * float 数组转半精度 DirectBuffer。
+      * float 数组转半精度 direct缓冲。
      *
      * @param data 原始数据
      * @return 半精度缓冲
@@ -847,7 +867,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * float 数组转 half bits（IEEE 754 半精度）。
+      * float 数组转 half 钻头（IEEE 754 半精度）。
      *
      * @param f 单精度值
      * @return 半精度位模式
@@ -877,7 +897,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 数组最小值（含 NaN 检测输出）。
+      * 数组最小值（含 nan 检测输出）。
+     * @param a a
+     * @return fmin的结果
      */
     private static float fmin(float[] a) {
         float m = Float.POSITIVE_INFINITY;
@@ -889,6 +911,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
     /**
      * 数组最大值。
+     * @param a a
+     * @return fmax的结果
      */
     private static float fmax(float[] a) {
         float m = Float.NEGATIVE_INFINITY;
@@ -900,6 +924,8 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
 
     /**
      * 数组绝对值最大值。
+     * @param a a
+     * @return fmaxAbs的结果
      */
     private static float fmaxAbs(float[] a) {
         float m = 0f;
@@ -910,7 +936,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     }
 
     /**
-     * 是否包含 NaN/Infinity。
+      * 是否包含 nan/Infinity。
+     * @param a a
+     * @return 是否包含nan的结果
      */
     private static boolean hasNaN(float[] a) {
         for (float v : a) {

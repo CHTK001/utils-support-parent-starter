@@ -17,33 +17,33 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class ConversationMessage {
 
-    /** 来源工具标识（如 claude-code、qoder） */
+    /** 来源工具标识（如 claude-编码、qoder） */
     private String provider;
 
-    /** 会话 ID */
+    /** 会话 标识 */
     private String sessionId;
 
-    /** 消息 ID */
+    /** 消息 标识 */
     private String messageId;
 
-    /** 角色：user / assistant */
+    /** 角色：用户 / assistant */
     private String role;
 
     /**
      * 内容块类型。
      *
      * <p>text = 正文文本；thinking = 思考块（内容为空）；
-     * tool_use = 工具调用（内容为工具名）；tool_result = 工具结果（内容为空）。</p>
+      * tool_use = 工具调用（内容为工具名）；tool_结果 = 工具结果（内容为空）。</p>
      */
     private String contentType;
 
-    /** 文本内容（仅 text 块有值） */
+    /** 文本内容（仅 文本 块有值） */
     private String content;
 
     /** assistant 消息的模型名 */
     private String model;
 
-    /** 时间戳（epoch 毫秒） */
+    /** 时间戳（轮次 毫秒） */
     private Long timestamp;
 
     /** 消息发生时的工作目录 */

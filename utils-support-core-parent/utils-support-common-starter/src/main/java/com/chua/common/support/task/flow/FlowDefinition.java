@@ -11,7 +11,7 @@ import java.util.Map;
  * 流程定义图模型。
  *
  * <p>前后端共享的流程 JSON 图格式载体，包含节点与连线集合。
- * 可序列化为 JSON 并在前端 ReFlow 画布与后端引擎之间双向传递，
+   * 可序列化为 JSON 并在前端 re流 画布与后端引擎之间双向传递，
  * 是流程编排的核心数据契约。</p>
  *
  * <p>JSON 结构示例：</p>
@@ -26,6 +26,8 @@ import java.util.Map;
  *     { "from": "start", "to": "end", "label": "" }
  *   ]
  * }
+ * }</pre> ]
+ * }
  * }</pre>
  *
  * @author CH
@@ -35,7 +37,7 @@ import java.util.Map;
 public class FlowDefinition {
 
     /**
-     * 流程定义 ID
+      * 流程定义 标识
      */
     private String id;
 
@@ -57,8 +59,8 @@ public class FlowDefinition {
     /**
      * 查找指定节点定义。
      *
-     * @param nodeId 节点 ID
-     * @return 节点定义，不存在时返回 null
+     * @param nodeId 节点 标识
+     * @return 节点定义，不存在时返回 空
      */
     public FlowNodeDef findNode(String nodeId) {
         for (FlowNodeDef node : nodes) {
@@ -72,7 +74,7 @@ public class FlowDefinition {
     /**
      * 查找节点的出边列表。
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      * @return 出边列表，不存在时返回空列表
      */
     public List<FlowEdgeDef> findOutEdges(String nodeId) {
@@ -136,8 +138,8 @@ public class FlowDefinition {
      * <p>描述节点之间的有向边，label 为空表示顺序边，
      * 为 "true"/"false" 时表示条件分支的走向。</p>
      *
-     * @param from  源节点 ID
-     * @param to    目标节点 ID
+     * @param from  源节点 标识
+     * @param to    目标节点 标识
      * @param label 边标签
  * @author CH
      * @since 4.0.0.42
@@ -151,8 +153,8 @@ public class FlowDefinition {
         /**
          * 创建顺序连线。
          *
-         * @param from 源节点 ID
-         * @param to   目标节点 ID
+         * @param from 源节点 标识
+         * @param to   目标节点 标识
          * @return 连线定义实例
          */
         public static FlowEdgeDef of(String from, String to) {

@@ -23,9 +23,9 @@ import java.util.function.Consumer;
 @Spi(value = {"javacv"}, order = 50)
 public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
-    /** available */
+    /** 可用 */
     private static volatile boolean available = false;
-    /** Load错误 */
+    /** 加载错误 */
     private static String loadError = null;
 
     static {
@@ -39,13 +39,13 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 转换Video */
+    /** 转换视频 */
     public void convertVideo(File input, File output, String targetFormat) throws IOException {
         convertVideo(input, output, targetFormat, FFmpegOptions.defaultOptions());
     }
 
     @Override
-    /** 转换Video */
+    /** 转换视频 */
     public void convertVideo(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -92,11 +92,11 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-     * 转换Video
-     * @param inputStream inputStream
-     * @param outputStream outputStream
-     * @param inputFormat inputFormat
-     * @param outputFormat outputFormat
+      * 转换视频
+     * @param inputStream 输入流
+     * @param outputStream 输出流
+     * @param inputFormat 输入格式化
+     * @param outputFormat 输出格式化
      */
     public void convertVideo(InputStream inputStream, OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
@@ -125,7 +125,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** ExtractAudio */
+    /** extract音频 */
     public void extractAudio(File videoInput, File audioOutput, String audioFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -153,13 +153,13 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 转换Audio */
+    /** 转换音频 */
     public void convertAudio(File input, File output, String targetFormat) throws IOException {
         convertAudio(input, output, targetFormat, FFmpegOptions.defaultOptions());
     }
 
     @Override
-    /** 转换Audio */
+    /** 转换音频 */
     public void convertAudio(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -189,7 +189,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** CaptureFrame */
+    /** capture帧 */
     public void captureFrame(File videoInput, File imageOutput, double timestamp) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -213,7 +213,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** CaptureFrames */
+    /** capture帧 */
     public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -243,7 +243,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** GenerateThumbnail */
+    /** generatethumbnail */
     public void generateThumbnail(File videoInput, File imageOutput, int width, int height) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -308,7 +308,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** Concat */
+    /** 连接 */
     public void concat(File[] inputs, File output) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -370,7 +370,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 获取MediaInfo */
+    /** 获取media信息 */
     public FFmpegMediaInfo getMediaInfo(File input) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -414,7 +414,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 获取Duration */
+    /** 获取持续时间 */
     public double getDuration(File input) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -429,11 +429,11 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-     * VideoToGif
-     * @param videoInput videoInput
-     * @param gifOutput gifOutput
-     * @param startTime startTime
-     * @param duration duration
+      * 视频转为gif
+     * @param videoInput 视频输入
+     * @param gifOutput gif输出
+     * @param startTime 启动时间
+     * @param duration 持续时间
      * @param width width
      * @param fps fps
      */
@@ -473,7 +473,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** ImagesToVideo */
+    /** 镜像转为视频 */
     public void imagesToVideo(File imageDir, File videoOutput, int fps, String imagePattern) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -506,7 +506,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 推送Stream */
+    /** 推送流 */
     public void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -548,9 +548,9 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     @Override
     /**
      * 推送流式输出
-     * @param input input
-     * @param streamUrl streamUrl
-     * @param options options
+     * @param input 输入
+     * @param streamUrl 流url
+     * @param options 期权
      * @param callback callback
      */
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
@@ -563,10 +563,10 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-     * 推送流式输出设置Frames
-     * @param input input
-     * @param streamUrl streamUrl
-     * @param options options
+      * 推送流式输出设置帧
+     * @param input 输入
+     * @param streamUrl 流url
+     * @param options 期权
      * @param callback callback
      */
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
@@ -578,12 +578,12 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-     * 推送流式输出Internal
-     * @param input input
-     * @param streamUrl streamUrl
-     * @param options options
+      * 推送流式输出内部
+     * @param input 输入
+     * @param streamUrl 流url
+     * @param options 期权
      * @param callback callback
-     * @param withImageData withImageData
+     * @param withImageData with镜像数据
      */
     private void pushStreamInternal(String input, String streamUrl, FFmpegOptions options,
                                     Consumer<FrameInfo> callback, boolean withImageData) throws IOException {
@@ -634,7 +634,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 拉取Stream */
+    /** 拉取流 */
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
         if (!available) {
             throw new IllegalStateException("JavaCV FFmpeg不可用: " + loadError);
@@ -674,9 +674,9 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     @Override
     /**
      * 拉取流式输出
-     * @param streamUrl streamUrl
-     * @param output output
-     * @param duration duration
+     * @param streamUrl 流url
+     * @param output 输出
+     * @param duration 持续时间
      * @param callback callback
      */
     public void pullStream(String streamUrl, File output, double duration,
@@ -689,10 +689,10 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-     * 拉取流式输出设置Frames
-     * @param streamUrl streamUrl
-     * @param output output
-     * @param duration duration
+      * 拉取流式输出设置帧
+     * @param streamUrl 流url
+     * @param output 输出
+     * @param duration 持续时间
      * @param callback callback
      */
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
@@ -704,12 +704,12 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-     * 拉取流式输出Internal
-     * @param streamUrl streamUrl
-     * @param output output
-     * @param duration duration
+      * 拉取流式输出内部
+     * @param streamUrl 流url
+     * @param output 输出
+     * @param duration 持续时间
      * @param callback callback
-     * @param withImageData withImageData
+     * @param withImageData with镜像数据
      */
     private void pullStreamInternal(String streamUrl, File output, double duration,
                                     Consumer<FrameInfo> callback, boolean withImageData) throws IOException {
@@ -759,7 +759,11 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-     * 构建 FrameInfo 对象
+      * 构建 帧信息 对象
+     * @param frame 帧
+     * @param frameNumber 帧数字
+     * @param grabber grabber
+     * @return 构建帧信息的结果
      */
     private FrameInfo buildFrameInfo(Frame frame, long frameNumber, FFmpegFrameGrabber grabber) {
         FrameInfo info = new FrameInfo();
@@ -774,7 +778,9 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-     * 将 BufferedImage 编码为 JPEG 字节
+      * 将 缓冲镜像 编码为 JPEG 字节
+     * @param image 镜像
+     * @return 转为jpegbytes的结果
      */
     private byte[] toJpegBytes(BufferedImage image) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -783,13 +789,13 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 是否Available */
+    /** 是否可用 */
     public boolean isAvailable() {
         return available;
     }
 
     @Override
-    /** 获取Version */
+    /** 获取版本 */
     public String getVersion() {
         return "JavaCV-based FFmpeg Processor";
     }

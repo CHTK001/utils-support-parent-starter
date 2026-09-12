@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 偏移量存储接口，定义偏移量的读取与持久化契约。
  * <p>
- * Source 通过此接口实现增量读取能力的偏移量持久化。
+   * 源 通过此接口实现增量读取能力的偏移量持久化。
  * </p>
  *
  * @author CH
@@ -16,9 +16,9 @@ import java.util.List;
 public interface SyncDataOffsetStorage {
 
     /**
-     * 读取指定 Source 的偏移量。
+      * 读取指定 源 的偏移量。
      *
-     * @param sourceId Source ID
+     * @param sourceId 源 标识
      * @param defaultValue 默认值（读取失败时返回）
      * @return 偏移量
      */
@@ -32,9 +32,9 @@ public interface SyncDataOffsetStorage {
     void write(SyncDataOffset offset);
 
     /**
-     * 删除指定 Source 的偏移量。
+      * 删除指定 源 的偏移量。
      *
-     * @param sourceId Source ID
+     * @param sourceId 源 标识
      */
     void delete(String sourceId);
 

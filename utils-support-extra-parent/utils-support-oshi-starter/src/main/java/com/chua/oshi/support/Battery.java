@@ -8,6 +8,7 @@ import lombok.Data;
  * 主要用于笔记本电脑的电池监控，桌面端可能无数据。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Battery {
@@ -33,7 +34,7 @@ public class Battery {
     private double maxCapacity;
 
     /**
-     * 状态（Charging / Discharging / Full / Unknown）。
+      * 状态（Charging / Discharging / 完整 / Unknown）。
      */
     private String state;
 

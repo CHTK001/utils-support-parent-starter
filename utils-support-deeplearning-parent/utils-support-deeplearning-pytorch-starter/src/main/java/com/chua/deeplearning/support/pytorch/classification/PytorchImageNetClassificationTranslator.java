@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * PyTorch ImageNet 分类 Translator。
+   * pytorch 镜像net 分类 Translator。
  * <p>
- * 输入 224x224，ImageNet 均值/方差归一化，输出 softmax 分类结果。
- * 适用于 ResNet / MobileNet / EfficientNet 等 TorchScript 模型。
+   * 输入 224x224，镜像net 均值/方差归一化，输出 softmax 分类结果。
+   * 适用于 Rnet / mobilenet / efficientnet 等 torchscript 模型。
  * </p>
  *
  * @author CH
@@ -36,12 +36,12 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     private static final int IMAGE_SIZE = 224;
 
     /**
-     * ImageNet 均值。
+      * 镜像net 均值。
      */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
-     * ImageNet 标准差。
+      * 镜像net 标准差。
      */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
@@ -60,7 +60,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -72,7 +72,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() > 1 && logits.getShape().get(0) == 1) {
@@ -100,7 +100,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     /**
-     * 从模型同目录加载 synset.txt / labels.txt。
+      * 从模型同目录加载 synset.txt / 标签.txt。
      *
      * @param modelPath 模型路径
      * @return 标签列表

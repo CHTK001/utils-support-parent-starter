@@ -42,7 +42,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String sourceType, String targetType) {
         if (!SOURCE_TYPE.equals(sourceType)) {
             return false;
@@ -67,7 +67,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-     * 执行外部 Python ibd2sql 命令以生成 SQL 内容
+      * 执行外部 Python ibd2SQL 命令以生成 SQL 内容
      *
      * @param ibdFile 待转换的 IBD 文件对象
      * @return 生成的 SQL 字符串内容
@@ -84,12 +84,12 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-     * 将 FileSource 转换为本地 File 对象
+      * 将 文件源 转换为本地 文件 对象
      *
      * <p>如果源是路径则直接返回，如果是输入流则先复制到临时文件再返回。</p>
      *
      * @param src 源文件源
-     * @return 对应的 File 对象
+     * @return 对应的 文件 对象
      */
     private File toFile(FileSource src) throws IOException {
         if (src.isPath()) {

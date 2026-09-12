@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 /**
  * GZ/GZIP格式归档输入流提供者
  * <p>
- * 基于commons-compress实现，优先级高于common模块的实现。
+   * 基于commons-compress实现，优先级高于通用模块的实现。
  * 注意：GZ是单文件压缩格式，不是归档格式，所以只包含一个条目。
  * </p>
  *
@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
 public class GzipCompressArchiveInputStream implements CompressArchiveInputStream {
 
     /**
-     * 判断是否Support
-     * @param file file
+      * 判断是否支持
+     * @param file 文件
      * @return isSupport
      */
     @Override
@@ -41,11 +41,11 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     }
 
     /**
-     * 创建InputStream
-     * @param inputStream inputStream
-     * @param file file
+      * 创建输入流
+     * @param inputStream 输入流
+     * @param file 文件
      * @param char char
-     * @param password password
+     * @param password 密码
      * @return createInputStream
      */
     @Override
@@ -60,7 +60,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     }
 
     /**
-     * 获取FormatName
+      * 获取格式化名称
      * @return getFormatName
      */
     @Override
@@ -71,14 +71,16 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     /**
      * GZIP归档输入流适配器
      * <p>
-     * 将commons-compress的GzipCompressorInputStream适配为ArchiveInputStream
+       * 将commons-compress的gzipcompressor输入流适配为Arch Linux Linux输入流
      * GZ格式是单文件压缩，所以只包含一个条目
      * </p>
+     * @author CH
+     * @since 4.0.0
      */
     private static class GzipArchiveInputStreamAdapter implements ArchiveInputStream {
 
         /**
-         * 原始GzipCompressorInputStream
+          * 原始gzipcompressor输入流
          */
         private final GzipCompressorInputStream gzipInputStream;
 
@@ -100,7 +102,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
          * 构造GZIP归档输入流适配器
          *
-         * @param gzipInputStream commons-compress的GzipCompressorInputStream
+         * @param gzipInputStream commons-compress的gzipcompressor输入流
          * @param file            压缩文件
          */
         GzipArchiveInputStreamAdapter(GzipCompressorInputStream gzipInputStream, File file) {
@@ -109,7 +111,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-         * 获取NextEntry
+          * 获取下一个entry
          * @return getNextEntry
          */
         @Override
@@ -163,7 +165,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-         * 获取skip
+          * 获取跳过
          * @param n n
          * @return skip
          */
@@ -173,7 +175,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-         * 获取available
+          * 获取可用
          * @return available
          */
         @Override
@@ -199,7 +201,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-         * 获取markSupported
+          * 获取mark支持
          * @return markSupported
          */
         @Override
@@ -221,6 +223,8 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
      * <p>
      * GZ格式是单文件压缩，所以条目大小未知
      * </p>
+     * @author CH
+     * @since 4.0.0
      */
     private static class GzipEntryAdapter implements ArchiveEntry {
 
@@ -232,7 +236,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-         * 获取Name
+          * 获取名称
          * @return getName
          */
         @Override
@@ -241,7 +245,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-         * 判断是否Directory
+          * 判断是否目录
          * @return isDirectory
          */
         @Override
@@ -250,7 +254,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-         * 获取Size
+          * 获取大小
          * @return getSize
          */
 @Override

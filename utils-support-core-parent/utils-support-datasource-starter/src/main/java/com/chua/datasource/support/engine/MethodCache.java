@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * MethodHandle 级别的 getter/setter 缓存，用于按字段名反射访问对象属性，避免每次调用都重新解析方法。
+   * 方法处理 级别的 getter/setter 缓存，用于按字段名反射访问对象属性，避免每次调用都重新解析方法。
  * <p>
  * 键为 {@code (Class<?>)} + 字段名，值为 {@link MethodHandle}。
  * {@link #getValue(Object, String)} 与 {@link #setValue(Object, String, Object)} 在方法缺失或调用异常时静默返回 {@code null}，不会抛出。
@@ -18,21 +18,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 final class MethodCache {
 
-    private static final Map<Class<?>, Map<String, MethodHandle>> GETTERS = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Map<String, MethodHandle>> SETTERS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Map<String, MethodHandle>> GETTERS = new ConcurrentHashMap<>(); // GETTERS
+    private static final Map<Class<?>, Map<String, MethodHandle>> SETTERS = new ConcurrentHashMap<>(); // SETTERS
 
-    /** 创建 MethodCache 实例 */
+    /** 创建 方法缓存 实例 */
     private MethodCache() {
     }
 
-    /** 获取Value */
+    /**
+     * 获取值
+     *
+     * @param obj obj
+     * @param field 字段
+     * @return 获取值的结果
+     */
     static Object getValue(Object obj, String field) {
         MethodHandle mh = getter(obj.getClass(), field);
         if (mh != null) {
             try {
                 return mh.invoke(obj);
             } catch (Throwable ignored) {
-                // MethodHandle 调用失败，降级到直接反射
+ // 方法处理 调用失败，降级到直接反射
             }
         }
         /* 降级：MethodHandle 跨模块受限时直接反射 */
@@ -58,7 +64,13 @@ final class MethodCache {
         return null;
     }
 
-    /** 设置Value */
+    /**
+     * 设置值
+     *
+     * @param obj obj
+     * @param field 字段
+     * @param value 值
+     */
     static void setValue(Object obj, String field, Object value) {
         MethodHandle mh = setter(obj.getClass(), field);
         if (mh != null) {
@@ -66,7 +78,7 @@ final class MethodCache {
                 mh.invoke(obj, value);
                 return;
             } catch (Throwable ignored) {
-                // MethodHandle 调用失败，降级到直接反射
+ // 方法处理 调用失败，降级到直接反射
             }
         }
         /* 降级：MethodHandle 跨模块受限时直接反射 */
@@ -84,19 +96,37 @@ final class MethodCache {
         }
     }
 
-    /** Getter */
+    /**
+     * Getter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return getter的结果
+     */
     private static MethodHandle getter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = GETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
         return classCache.computeIfAbsent(field, k -> findGetter(clazz, field));
     }
 
-    /** Setter */
+    /**
+     * Setter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return setter的结果
+     */
     private static MethodHandle setter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = SETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
         return classCache.computeIfAbsent(field, k -> findSetter(clazz, field));
     }
 
-    /** 查找Getter */
+    /**
+     * 查找Getter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return findGetter的结果
+     */
     private static MethodHandle findGetter(Class<?> clazz, String field) {
         try {
             String camel = toCamelCase(field);
@@ -121,7 +151,13 @@ final class MethodCache {
         return null;
     }
 
-    /** 查找Setter */
+    /**
+     * 查找Setter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return findSetter的结果
+     */
     private static MethodHandle findSetter(Class<?> clazz, String field) {
         try {
             String camel = toCamelCase(field);
@@ -137,7 +173,12 @@ final class MethodCache {
         return null;
     }
 
-    /** ToCamelCase */
+    /**
+     * 转为camel大小写
+     *
+     * @param name 名称
+     * @return 转为camel大小写的结果
+     */
     private static String toCamelCase(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;

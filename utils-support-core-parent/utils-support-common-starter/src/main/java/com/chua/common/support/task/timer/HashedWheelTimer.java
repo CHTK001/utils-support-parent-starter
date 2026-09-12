@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 哈希时间轮实现（Hashed Wheel Timer）。
+   * 哈希时间轮实现（哈希 Wheel 定时器）。
  *
  * <p>基于环形槽位数组 + 双向链表，tick 线程按<strong>绝对时间轴</strong>推进
  * （任务耗时不会造成周期漂移，落后时连续补扫），到期任务提交到独立虚拟线程执行器并发运行。</p>
@@ -46,7 +46,7 @@ public class HashedWheelTimer implements Timer {
     private final long tickMillis;
 
     /**
-     * 环形槽位（每个槽：持有 Task 双向链表）
+      * 环形槽位（每个槽：持有 任务 双向链表）
      */
     private final Slot[] wheel;
 
@@ -61,12 +61,12 @@ public class HashedWheelTimer implements Timer {
     private volatile boolean running;
 
     /**
-     * tick 工作线程引用（用于 shutdown 时中断睡眠立即退出）
+      * tick 工作线程引用（用于 关闭 时中断睡眠立即退出）
      */
     private volatile Thread tickThread;
 
     /**
-     * 到期任务执行器（虚拟线程 per task，慢任务互不阻塞）
+      * 到期任务执行器（虚拟线程 per 任务，慢任务互不阻塞）
      */
     private final ExecutorService taskExecutor;
 
@@ -112,7 +112,9 @@ public class HashedWheelTimer implements Timer {
      * 计算目标槽位偏移。
      *
      * <p>规则：delay &le; 0（已到期）取 1 —— 挂到最近的下一槽尽快补触发，
-     * 而非等完整一圈；否则按 ceil(delay / tickMillis) 向上取整精确落位。</p>
+      * 而非等完整一圈；否则按 ceil(延迟 / tickmillis) 向上取整精确落位。</p>
+     * @param delayMillis 延迟millis
+     * @return computeslot偏移量的结果
      */
     private int computeSlotOffset(long delayMillis) {
         if (delayMillis <= 0) {
@@ -127,7 +129,7 @@ public class HashedWheelTimer implements Timer {
         long deadline = System.currentTimeMillis() + timeUnit.toMillis(delay);
         TimerTask wrapped = new TimerTask(UUID.randomUUID().toString(), "delay-" + delay + timeUnit,
                 task, deadline);
-        // 时间轮已关闭时拒绝调度，返回 null 由调用方感知
+ // 时间轮已关闭时拒绝调度，返回 空 由调用方感知
         return schedule(wrapped) ? wrapped : null;
     }
 
@@ -233,7 +235,8 @@ public class HashedWheelTimer implements Timer {
      * 保证单任务故障不影响时间轮与其他任务。
      *
      * <p>使用手工构造的 {@link FutureTask}：<strong>先绑定 future 再入队</strong>，
-     * 消除"任务已启动但 cancel 读不到 future"的竞态窗口。</p>
+      * 消除"任务已启动但 cancel 读不到 期货"的竞态窗口。</p>
+     * @param task 任务
      */
     private void submitTask(TimerTask task) {
         var futureTask = new FutureTask<Void>(() -> {
@@ -258,6 +261,8 @@ public class HashedWheelTimer implements Timer {
     /**
      * 安全错误记录：SLF4J 输出失败时降级 stderr，
      * 确保日志系统自身的故障不会反噬时间轮线程。
+     * @param taskName 任务名称
+     * @param failure 失败
      */
     private static void safeLogError(String taskName, Throwable failure) {
         try {
@@ -269,7 +274,9 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-     * 槽位：持有 Task 的双向链表，独立槽锁保护（分槽细粒度并发）。
+      * 槽位：持有 任务 的双向链表，独立槽锁保护（分槽细粒度并发）。
+     * @author CH
+     * @since 4.0.0
      */
     static class Slot {
 
@@ -380,6 +387,8 @@ public class HashedWheelTimer implements Timer {
 
     /**
      * 双向链表节点。
+     * @author CH
+     * @since 4.0.0
      */
     static class TaskNode {
 

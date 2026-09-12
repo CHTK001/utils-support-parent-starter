@@ -12,9 +12,9 @@ import java.net.URL;
 import java.util.Base64;
 
 /**
- * SafeTensor 图像工具类。
+   * safetensor 图像工具类。
  * <p>
- * 将多种输入类型（BufferedImage、byte[]、File、路径字符串、URL、InputStream）统一转为 Base64 PNG。
+   * 将多种输入类型（缓冲镜像、byte[]、文件、路径字符串、URL、输入流）统一转为 基础64 PNG。
  * </p>
  *
  * @author CH
@@ -22,11 +22,11 @@ import java.util.Base64;
  */
 final class SafeTensorImageUtils {
 
-    /** 创建 SafeTensorImageUtils 实例 */
+    /** 创建 safetensor镜像工具 实例 */
     private SafeTensorImageUtils() {}
 
     /**
-     * 将输入图像转为 Base64 PNG 字符串。
+      * 将输入图像转为 基础64 PNG 字符串。
      *
      * @param input 图像输入
      * @return base64 编码字符串
@@ -47,7 +47,7 @@ final class SafeTensorImageUtils {
     }
 
     /**
-     * 将输入转为 BufferedImage。
+      * 将输入转为 缓冲镜像。
      *
      * @param input 输入
      * @return BufferedImage
@@ -80,10 +80,10 @@ final class SafeTensorImageUtils {
     }
 
     /**
-     * 检查并规范化 Base64 字符串。
+      * 检查并规范化 基础64 字符串。
      *
      * @param text 输入字符串
-     * @return 规范化后的 base64，如果非 base64 则返回 null
+     * @return 规范化后的 基础64，如果非 基础64 则返回 空
      */
     private static String normalizeBase64(String text) {
         if (text == null || text.isBlank()) {

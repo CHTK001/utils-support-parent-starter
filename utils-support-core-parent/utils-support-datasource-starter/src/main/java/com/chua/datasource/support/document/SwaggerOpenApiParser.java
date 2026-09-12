@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Swagger / OpenAPI 文档解析器。
+   * Swagger / 打开api 文档解析器。
  *
  * <p>支持两种输入模式：</p>
  * <ul>
@@ -40,7 +40,9 @@ public class SwaggerOpenApiParser implements DocumentParser {
         Map<String, String> overrides = new HashMap<>();
         if (config.getOptions() != null) {
             config.getOptions().forEach((k, v) -> {
-                if (v != null) overrides.put(k, v.toString());
+                if (v != null) {
+                    overrides.put(k, v.toString());
+                }
             });
         }
 
@@ -54,24 +56,31 @@ public class SwaggerOpenApiParser implements DocumentParser {
         return data;
     }
 
-    // ── public static entry points ─────────────────────────
+ // ── 公共 静态 entry points ─────────────────────────
 
     /**
-     * 从 OpenAPI JSON 字符串解析为文档数据。
+      * 从 打开api JSON 字符串解析为文档数据。
+     * @param json json
+     * @param overrides overrides
+     * @return 解析的结果
      */
     public static OpenApiDocumentData parse(String json, Map<String, String> overrides) {
         OpenApiDocumentData data = new OpenApiDocumentData();
-        if (json == null || json.isBlank()) return data;
+        if (json == null || json.isBlank()) {
+            return data;
+        }
 
         try {
             JsonObject root = Json.getJsonObject(json);
 
-            // Basic info
+ // 基础 信息
             String specVersion = root.getType("openapi", "", String.class);
             if (specVersion.isBlank()) {
                 specVersion = root.getType("swagger", "", String.class);
             }
-            if (specVersion.isBlank()) specVersion = "3.0.0";
+            if (specVersion.isBlank()) {
+                specVersion = "3.0.0";
+            }
 
             JsonObject info = root.getJsonObject("info");
             applyOverride(data, overrides, "title",     info.getType("title", "", String.class));
@@ -79,7 +88,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
             applyOverride(data, overrides, "description", info.getType("description", "", String.class));
             applyOverrides(data, overrides);
 
-            // Tags
+ // 标签
             JsonArray tagsArr = root.getJsonArray("tags");
             List<OpenApiTag> tags = new ArrayList<>();
             if (tagsArr != null) {
@@ -95,16 +104,22 @@ public class SwaggerOpenApiParser implements DocumentParser {
             }
             data.setTags(tags);
 
-            // Paths → Endpoints
+ // 路径 → 端点
             List<OpenApiEndpoint> endpoints = new ArrayList<>();
             JsonObject paths = root.getJsonObject("paths");
             if (paths != null) {
                 paths.forEach((path, pathObj) -> {
-                    if (!(pathObj instanceof JsonObject pathNode)) return;
+                    if (!(pathObj instanceof JsonObject pathNode)) {
+                        return;
+                    }
                     pathNode.forEach((methodStr, opObj) -> {
                         String method = methodStr.toUpperCase(Locale.ENGLISH);
-                        if (!isHttpMethod(method)) return;
-                        if (!(opObj instanceof JsonObject op)) return;
+                        if (!isHttpMethod(method)) {
+                            return;
+                        }
+                        if (!(opObj instanceof JsonObject op)) {
+                            return;
+                        }
 
                         OpenApiEndpoint ep = new OpenApiEndpoint();
                         ep.setMethod(method);
@@ -115,7 +130,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
                             ep.setSummary(ep.getDescription());
                         }
 
-                        // Tag
+ // 标签
                         JsonArray epTags = op.getJsonArray("tags");
                         if (epTags != null && epTags.size() > 0) {
                             ep.setTag(epTags.getJsonObject(0).getType("name", "", String.class));
@@ -123,18 +138,18 @@ public class SwaggerOpenApiParser implements DocumentParser {
                             ep.setTag(resolveDefaultTag(path));
                         }
 
-                        // Parameters
+ // 参数
                         List<OpenApiParam> params = new ArrayList<>();
                         collectParams(op, params);
                         ep.setParameters(params);
 
-                        // RequestBody
+ // 请求主体
                         JsonObject rb = op.getJsonObject("requestBody");
                         if (rb != null) {
                             ep.setRequestBody(parseRequestBody(rb));
                         }
 
-                        // Responses
+ // 响应
                         List<OpenApiResponse> responses = new ArrayList<>();
                         JsonObject respNode = op.getJsonObject("responses");
                         if (respNode != null) {
@@ -148,7 +163,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
             }
             data.setEndpoints(endpoints);
 
-            // Security schemes → section
+ // 安全性 schemes → section
             JsonObject components = root.getJsonObject("components");
             if (components != null) {
                 JsonObject secSchemes = components.getJsonObject("securitySchemes");
@@ -163,7 +178,7 @@ public class SwaggerOpenApiParser implements DocumentParser {
                 }
             }
 
-            // Servers → Base URL section
+ // 服务端 → 基础 URL section
             JsonArray servers = root.getJsonArray("servers");
             if (servers != null && !servers.isEmpty()) {
                 StringBuilder sb = new StringBuilder("## 基础 URL\n\n");
@@ -173,7 +188,9 @@ public class SwaggerOpenApiParser implements DocumentParser {
                         String srvUrl = srv.getType("url", "", String.class);
                         String desc = srv.getType("description", null, String.class);
                         sb.append("- `").append(srvUrl).append("`");
-                        if (desc != null && !desc.isBlank()) sb.append(" — ").append(desc);
+                        if (desc != null && !desc.isBlank()) {
+                            sb.append(" — ").append(desc);
+                        }
                         sb.append("\n");
                     }
                 }
@@ -190,9 +207,17 @@ public class SwaggerOpenApiParser implements DocumentParser {
         return data;
     }
 
+    /**
+     * 解析从类路径。
+     * @param resourcePath resource路径
+     * @param overrides overrides
+     * @return 解析从类路径的结果
+     */
     public static OpenApiDocumentData parseFromClasspath(String resourcePath, Map<String, String> overrides) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        if (cl == null) cl = SwaggerOpenApiParser.class.getClassLoader();
+        if (cl == null) {
+            cl = SwaggerOpenApiParser.class.getClassLoader();
+        }
         InputStream is = cl.getResourceAsStream(resourcePath);
         if (is == null) {
             throw new IllegalStateException("OpenAPI 资源不存在: " + resourcePath);
@@ -206,6 +231,12 @@ public class SwaggerOpenApiParser implements DocumentParser {
         return parse(json, overrides);
     }
 
+    /**
+     * 解析从url。
+     * @param url url
+     * @param overrides overrides
+     * @return 解析从url的结果
+     */
     public static OpenApiDocumentData parseFromUrl(String url, Map<String, String> overrides) {
         try {
             java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new URL(url).openConnection();
@@ -227,8 +258,13 @@ public class SwaggerOpenApiParser implements DocumentParser {
         }
     }
 
-    // ── helpers ──────────────────────────────────────────────
+ // ── 助手 ──────────────────────────────────────────────
 
+    /**
+     * 是否http方法。
+     * @param m m
+     * @return 是否http方法的结果
+     */
     private static boolean isHttpMethod(String m) {
         return "GET".equals(m) || "POST".equals(m) || "PUT".equals(m)
                 || "DELETE".equals(m) || "PATCH".equals(m) || "HEAD".equals(m)
@@ -239,34 +275,71 @@ public class SwaggerOpenApiParser implements DocumentParser {
                                       String key, String defaultValue) {
         if (overrides != null && overrides.containsKey(key)) {
             String v = overrides.get(key);
-            if      ("title".equals(key))     data.setTitle(v);
-            else if ("version".equals(key))   data.setVersion(v);
-            else if ("description".equals(key)) data.setDescription(v);
+            if      ("title".equals(key)) {
+                data.setTitle(v);
+            }
+            else if ("version".equals(key)) {
+                data.setVersion(v);
+            }
+            else if ("description".equals(key)) {
+                data.setDescription(v);
+            }
         } else if (defaultValue != null) {
-            if      ("title".equals(key))     data.setTitle(defaultValue);
-            else if ("version".equals(key))   data.setVersion(defaultValue);
-            else if ("description".equals(key)) data.setDescription(defaultValue);
-        }
-    }
-
-    private static void applyOverrides(OpenApiDocumentData data, Map<String, String> overrides) {
-        if (overrides == null) return;
-        if (overrides.containsKey("title"))     data.setTitle(overrides.get("title"));
-        if (overrides.containsKey("version"))   data.setVersion(overrides.get("version"));
-        if (overrides.containsKey("description")) data.setDescription(overrides.get("description"));
-    }
-
-    private static void collectParams(JsonObject op, List<OpenApiParam> params) {
-        // Operation-level parameters
-        JsonArray paramsArr = op.getJsonArray("parameters");
-        if (paramsArr != null) {
-            for (int i = 0; i < paramsArr.size(); i++) {
-                JsonObject p = paramsArr.getJsonObject(i);
-                if (p != null) params.add(parseParam(p));
+            if      ("title".equals(key)) {
+                data.setTitle(defaultValue);
+            }
+            else if ("version".equals(key)) {
+                data.setVersion(defaultValue);
+            }
+            else if ("description".equals(key)) {
+                data.setDescription(defaultValue);
             }
         }
     }
 
+    /**
+      * applyoverrides。
+     * @param data 数据
+     * @param overrides overrides
+     */
+    private static void applyOverrides(OpenApiDocumentData data, Map<String, String> overrides) {
+        if (overrides == null) {
+            return;
+        }
+        if (overrides.containsKey("title")) {
+            data.setTitle(overrides.get("title"));
+        }
+        if (overrides.containsKey("version")) {
+            data.setVersion(overrides.get("version"));
+        }
+        if (overrides.containsKey("description")) {
+            data.setDescription(overrides.get("description"));
+        }
+    }
+
+    /**
+     * collect参数。
+     * @param op op
+     * @param params 参数
+     */
+    private static void collectParams(JsonObject op, List<OpenApiParam> params) {
+ // Operation-级别 参数
+        JsonArray paramsArr = op.getJsonArray("parameters");
+        if (paramsArr != null) {
+            for (int i = 0; i < paramsArr.size(); i++) {
+                JsonObject p = paramsArr.getJsonObject(i);
+                if (p != null) {
+                    params.add(parseParam(p));
+                }
+            }
+        }
+    }
+
+    /**
+     * 解析参数。
+     * @param node 节点
+     * @return 解析参数的结果
+     */
     private static OpenApiParam parseParam(JsonObject node) {
         OpenApiParam p = new OpenApiParam();
         p.setName(node.getType("name", "", String.class));
@@ -280,6 +353,11 @@ public class SwaggerOpenApiParser implements DocumentParser {
         return p;
     }
 
+    /**
+     * 解析请求主体。
+     * @param node 节点
+     * @return 解析请求主体的结果
+     */
     private static OpenApiRequestBody parseRequestBody(JsonObject node) {
         OpenApiRequestBody body = new OpenApiRequestBody();
         body.setRequired(Boolean.TRUE.equals(node.getType("required", false, Boolean.class)));
@@ -295,7 +373,9 @@ public class SwaggerOpenApiParser implements DocumentParser {
                     JsonObject schema = ctObj.getJsonObject("schema");
                     if (schema != null) {
                         String t = schema.getType("type", null, String.class);
-                        if (t != null) body.setType(t);
+                        if (t != null) {
+                            body.setType(t);
+                        }
                     }
                 }
                 if (ctNode instanceof JsonObject ctObj && ctObj.hasKey("example")) {
@@ -306,9 +386,16 @@ public class SwaggerOpenApiParser implements DocumentParser {
         return body;
     }
 
+    /**
+     * 解析响应。
+     * @param responsesNode 响应节点
+     * @param responses 响应
+     */
     private static void parseResponses(JsonObject responsesNode, List<OpenApiResponse> responses) {
         responsesNode.forEach((codeStr, respNode) -> {
-            if (!(respNode instanceof JsonObject respObj)) return;
+            if (!(respNode instanceof JsonObject respObj)) {
+                return;
+            }
             OpenApiResponse resp = new OpenApiResponse();
             resp.setCode(codeStr);
             resp.setDescription(respObj.getType("description", null, String.class));
@@ -316,7 +403,9 @@ public class SwaggerOpenApiParser implements DocumentParser {
             JsonObject content = respObj.getJsonObject("content");
             if (content != null) {
                 content.forEach((ct, ctNode) -> {
-                    if (!(ctNode instanceof JsonObject ctObj)) return;
+                    if (!(ctNode instanceof JsonObject ctObj)) {
+                        return;
+                    }
                     if (ctObj.hasKey("schema")) {
                         JsonObject schema = ctObj.getJsonObject("schema");
                         if (schema != null && schema.hasKey("properties")) {
@@ -324,7 +413,9 @@ public class SwaggerOpenApiParser implements DocumentParser {
                             if (props != null) {
                                 List<OpenApiParam> fields = new ArrayList<>();
                                 props.forEach((fieldName, fieldNode) -> {
-                                    if (!(fieldNode instanceof JsonObject f)) return;
+                                    if (!(fieldNode instanceof JsonObject f)) {
+                                        return;
+                                    }
                                     OpenApiParam fParam = new OpenApiParam();
                                     fParam.setName(fieldName);
                                     fParam.setType(f.getType("type", "string", String.class));
@@ -345,6 +436,11 @@ public class SwaggerOpenApiParser implements DocumentParser {
         });
     }
 
+    /**
+     * resolve默认标签。
+     * @param path 路径
+     * @return resolve默认标签的结果
+     */
     private static String resolveDefaultTag(String path) {
         String[] parts = path.stripLeading().split("/");
         if (parts.length > 1 && !parts[1].startsWith("{")) {
@@ -353,15 +449,24 @@ public class SwaggerOpenApiParser implements DocumentParser {
         return "default";
     }
 
+    /**
+     * render安全性section。
+     * @param schemes schemes
+     * @return render安全性section的结果
+     */
     private static String renderSecuritySection(JsonObject schemes) {
         StringBuilder sb = new StringBuilder();
         schemes.forEach((name, scheme) -> {
-            if (!(scheme instanceof JsonObject s)) return;
+            if (!(scheme instanceof JsonObject s)) {
+                return;
+            }
             String type = s.getType("type", "", String.class);
             String desc = s.getType("description", null, String.class);
             sb.append("### ").append(name).append("\n\n");
             sb.append("- **类型**: ").append(type).append("\n");
-            if (desc != null && !desc.isBlank()) sb.append("- **说明**: ").append(desc).append("\n");
+            if (desc != null && !desc.isBlank()) {
+                sb.append("- **说明**: ").append(desc).append("\n");
+            }
 
             if ("http".equals(type) && s.hasKey("scheme")) {
                 sb.append("\n```\nAuthorization: Bearer <token>\n```\n\n");

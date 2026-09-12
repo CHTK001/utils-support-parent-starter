@@ -30,7 +30,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
      */
     private final OkHttpClient client;
 
-    /** 创建 OkHttpExecutor 实例 */
+    /** 创建 okhttp执行器 实例 */
     public OkHttpExecutor() {
         this.client = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
@@ -40,13 +40,13 @@ public class OkHttpExecutor implements HttpClientExecutor {
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "okhttp";
     }
 
     @Override
-    /** 是否Available */
+    /** 是否可用 */
     public boolean isAvailable() {
         return ReflectUtils.forName("okhttp3.OkHttpClient") != null;
     }
@@ -102,7 +102,12 @@ public class OkHttpExecutor implements HttpClientExecutor {
         }
     }
 
-    /** ToClientResponse */
+    /**
+     * 转为客户端响应
+     *
+     * @param okResp okresp
+     * @return 转为客户端响应的结果
+     */
     private ClientResponse toClientResponse(Response okResp) throws IOException {
         ClientResponse resp = new ClientResponse();
         resp.setStatusCode(okResp.code());
@@ -114,7 +119,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() { return 0; }
 
     @Override

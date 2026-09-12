@@ -55,7 +55,7 @@ import javax.annotation.Nullable;
  * - 支持RGB三通道独立计算
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 @SpiDescribe("Sobel边缘检测滤镜")
@@ -92,7 +92,7 @@ public class ImageSobelFilter extends AbstractImageFilter {
      * - false：Y 方向卷积核（水平方向算子）
      *
      * @param src 源图像
-     * @param dst 目标图像（可选，若为null则自动创建）
+     * @param dst 目标图像（可选，若为空则自动创建）
      * @return 边缘检测处理后的图像
      */
     @Override

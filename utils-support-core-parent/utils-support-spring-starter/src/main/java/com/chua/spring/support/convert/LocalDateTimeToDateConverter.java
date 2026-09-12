@@ -8,7 +8,7 @@ import java.time.ZoneId;
 import java.util.Date;
 
 /**
- * LocalDateTime 转 Date 转换器
+   * 本地日期时间 转 日期 转换器
  * 将 {@link LocalDateTime} 转换为 {@link Date}
  *
  * @author CH
@@ -32,17 +32,17 @@ public class LocalDateTimeToDateConverter implements Converter<LocalDateTime, Da
     /**
      * 使用指定时区构造转换器
      *
-     * @param zoneId 时区，例如 ZoneId.of("Asia/Shanghai")
+     * @param zoneId 时区，例如 zoneid.的("Asia/Shanghai")
      */
     public LocalDateTimeToDateConverter(ZoneId zoneId) {
         this.zoneId = zoneId != null ? zoneId : ZoneId.systemDefault();
     }
 
     /**
-     * 将 LocalDateTime 转换为 Date
+      * 将 本地日期时间 转换为 日期
      *
-     * @param source 源 LocalDateTime 对象
-     * @return Date 对象，如果 source 为 null 则返回 null
+     * @param source 源 本地日期时间 对象
+     * @return Date 对象，如果 源 为 空 则返回 空
      */
     @Override
     public Date convert(LocalDateTime source) {

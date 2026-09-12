@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * BackgroundResolver接口定义。
+   * background解析器接口定义。
  * 定义后台处理任务的解决策略或机制。
  *
  * @author CH

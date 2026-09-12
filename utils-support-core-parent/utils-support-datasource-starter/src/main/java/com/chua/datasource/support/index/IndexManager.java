@@ -14,6 +14,7 @@ public interface IndexManager {
      * 创建索引步骤接口。
      *
  * @author CH
+     * @since 4.0.0
      */
     interface CreateIndexStep {
 
@@ -34,6 +35,7 @@ public interface IndexManager {
      * 删除索引步骤接口。
      *
  * @author CH
+     * @since 4.0.0
      */
     interface DropIndexStep {
 

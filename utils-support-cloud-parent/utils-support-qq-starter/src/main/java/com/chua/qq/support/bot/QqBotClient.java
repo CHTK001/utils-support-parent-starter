@@ -39,7 +39,7 @@ import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * QQ Bot 客户端，实现 {@link BotClient} 接口。
+   * QQ 机器人 客户端，实现 {@link BotClient} 接口。
  * <p>对接 QQ 开放平台 Bot API（群机器人 / 频道机器人）。
  * 通过 WebSocket 接收事件，通过 REST API 发送消息。</p>
  *
@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public class QqBotClient implements BotClient {
 
     /**
-     * 应用 ID
+      * 应用 标识
      */
     private String appId;
 
@@ -60,7 +60,7 @@ public class QqBotClient implements BotClient {
     private String appSecret;
 
     /**
-     * Bot Token
+      * 机器人 令牌
      */
     private String botToken;
 
@@ -80,7 +80,7 @@ public class QqBotClient implements BotClient {
     private long readTimeoutMillis = 30_000;
 
     /**
-     * Webhook 验证 Token
+      * Webhook 验证 令牌
      */
     private String webhookVerifyToken;
 
@@ -115,7 +115,7 @@ public class QqBotClient implements BotClient {
     private volatile String accessToken;
 
     /**
-     * 会话 ID
+      * 会话 标识
      */
     private volatile String sessionId;
 
@@ -157,7 +157,7 @@ public class QqBotClient implements BotClient {
     private static final int WS_OP_HELLO = 10;
 
     /**
-     * WebSocket Heartbeat Ack 操作码
+      * WebSocket 心跳 ACK 操作码
      */
     private static final int WS_OP_HEARTBEAT_ACK = 11;
 
@@ -177,7 +177,7 @@ public class QqBotClient implements BotClient {
     private static final int WS_OP_RECONNECT = 7;
 
     /**
-     * WebSocket Invalid Session 操作码
+      * WebSocket Invalid 会话 操作码
      */
     private static final int WS_OP_INVALID_SESSION = 9;
 
@@ -199,9 +199,9 @@ public class QqBotClient implements BotClient {
     @Override
     /**
      * 配置
-     * @param token token
+     * @param token 令牌
      * @param secret secret
-     * @param encodingAesKey encodingAesKey
+     * @param encodingAesKey 编码aes键
      */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
@@ -218,7 +218,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
-    /** Token */
+    /** 令牌 */
     public BotClient token(String token) {
         this.appId = token;
         return this;
@@ -232,14 +232,14 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
-    /** EncodingAesKey */
+    /** 编码aes键 */
     public BotClient encodingAesKey(String encodingAesKey) {
         this.botToken = encodingAesKey;
         return this;
     }
 
     @Override
-    /** BaseUrl */
+    /** baseurl */
     public BotClient baseUrl(String baseUrl) {
         if (StringUtils.isNotEmpty(baseUrl)) {
             this.baseUrl = baseUrl;
@@ -249,166 +249,166 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 连接TimeoutMillis
-     * @param connectTimeoutMillis connectTimeoutMillis
-     * @param readTimeoutMillis readTimeoutMillis
-     * @param configSaveOrLoader configSaveOrLoader
+      * 连接超时millis
+     * @param connectTimeoutMillis 连接超时millis
+     * @param readTimeoutMillis 读取超时millis
+     * @param configSaveOrLoader 配置保存或加载
      * @param intents intents
-     * @param token token
+     * @param token 令牌
      * @param ignored ignored
      * @param e e
      * @param e e
      * @param e e
-     * @param appId appId
-     * @param appSecret appSecret
-     * @param authToken authToken
-     * @param authToken authToken
-     * @param sessionId sessionId
+     * @param appId appid
+     * @param appSecret appsecret
+     * @param authToken 认证令牌
+     * @param authToken 认证令牌
+     * @param sessionId 会话标识
      * @param WS_OP_IDENTIFY WS_OP_IDENTIFY
      * @param payload payload
      * @param array array
      * @param ws ws
      * @param ws ws
-     * @param data data
-     * @param last last
+     * @param data 数据
+     * @param last 最后一个
      * @param e e
      * @param ws ws
-     * @param error error
-     * @param error error
+     * @param error 错误
+     * @param error 错误
      * @param ws ws
-     * @param statusCode statusCode
-     * @param reason reason
+     * @param statusCode 状态编码
+     * @param reason ReasonMLML
      * @param ws ws
-     * @param message message
+     * @param message 消息
      * @param ws ws
-     * @param message message
-     * @param rawMessage rawMessage
+     * @param message 消息
+     * @param rawMessage raw消息
      * @param d d
-     * @param intervalMs intervalMs
+     * @param intervalMs 间隔ms
      * @param 10_000 10_000
-     * @param interval interval
-     * @param interval interval
+     * @param interval 间隔
+     * @param interval 间隔
      * @param ignored ignored
-     * @param message message
+     * @param message 消息
      * @param true true
-     * @param eventType eventType
-     * @param data data
-     * @param data data
+     * @param eventType 事件类型
+     * @param data 数据
+     * @param data 数据
      * @param e e
      * @param e e
-     * @param eventType eventType
+     * @param eventType 事件类型
      * @param e e
-     * @param eventType eventType
-     * @param data data
-     * @param List List
-     * @param Map Map
-     * @param timestamp timestamp
+     * @param eventType 事件类型
+     * @param data 数据
+     * @param List 列表
+     * @param Map 映射
+     * @param timestamp 时间戳
      * @param e e
-     * @param toUser toUser
-     * @param content content
-     * @param content content
-     * @param toUser toUser
-     * @param content content
-     * @param content content
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param title title
      * @param desc desc
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param message message
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param message 消息
      * @param e e
      * @param e e
-     * @param message message
-     * @param toUser toUser
-     * @param content content
-     * @param content content
+     * @param message 消息
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
      * @param 0 0
-     * @param messageReference messageReference
-     * @param mentionedUserIds mentionedUserIds
-     * @param mentionedList mentionedList
-     * @param body body
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param messageReference 消息引用
+     * @param mentionedUserIds 提及用户标识
+     * @param mentionedList 提及列表
+     * @param body 主体
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 1 1
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 2 2
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -420,7 +420,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
-    /** 读取TimeoutMillis */
+    /** 读取超时millis */
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
@@ -428,164 +428,164 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * Config保存OrLoader
-     * @param configSaveOrLoader configSaveOrLoader
+      * 配置保存或加载
+     * @param configSaveOrLoader 配置保存或加载
      * @param intents intents
-     * @param token token
+     * @param token 令牌
      * @param ignored ignored
      * @param e e
      * @param e e
      * @param e e
-     * @param appId appId
-     * @param appSecret appSecret
-     * @param authToken authToken
-     * @param authToken authToken
-     * @param sessionId sessionId
+     * @param appId appid
+     * @param appSecret appsecret
+     * @param authToken 认证令牌
+     * @param authToken 认证令牌
+     * @param sessionId 会话标识
      * @param WS_OP_IDENTIFY WS_OP_IDENTIFY
      * @param payload payload
      * @param array array
      * @param ws ws
      * @param ws ws
-     * @param data data
-     * @param last last
+     * @param data 数据
+     * @param last 最后一个
      * @param e e
      * @param ws ws
-     * @param error error
-     * @param error error
+     * @param error 错误
+     * @param error 错误
      * @param ws ws
-     * @param statusCode statusCode
-     * @param reason reason
+     * @param statusCode 状态编码
+     * @param reason ReasonMLML
      * @param ws ws
-     * @param message message
+     * @param message 消息
      * @param ws ws
-     * @param message message
-     * @param rawMessage rawMessage
+     * @param message 消息
+     * @param rawMessage raw消息
      * @param d d
-     * @param intervalMs intervalMs
+     * @param intervalMs 间隔ms
      * @param 10_000 10_000
-     * @param interval interval
-     * @param interval interval
+     * @param interval 间隔
+     * @param interval 间隔
      * @param ignored ignored
-     * @param message message
+     * @param message 消息
      * @param true true
-     * @param eventType eventType
-     * @param data data
-     * @param data data
+     * @param eventType 事件类型
+     * @param data 数据
+     * @param data 数据
      * @param e e
      * @param e e
-     * @param eventType eventType
+     * @param eventType 事件类型
      * @param e e
-     * @param eventType eventType
-     * @param data data
-     * @param List List
-     * @param Map Map
-     * @param timestamp timestamp
+     * @param eventType 事件类型
+     * @param data 数据
+     * @param List 列表
+     * @param Map 映射
+     * @param timestamp 时间戳
      * @param e e
-     * @param toUser toUser
-     * @param content content
-     * @param content content
-     * @param toUser toUser
-     * @param content content
-     * @param content content
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param title title
      * @param desc desc
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param message message
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param message 消息
      * @param e e
      * @param e e
-     * @param message message
-     * @param toUser toUser
-     * @param content content
-     * @param content content
+     * @param message 消息
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
      * @param 0 0
-     * @param messageReference messageReference
-     * @param mentionedUserIds mentionedUserIds
-     * @param mentionedList mentionedList
-     * @param body body
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param messageReference 消息引用
+     * @param mentionedUserIds 提及用户标识
+     * @param mentionedList 提及列表
+     * @param body 主体
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 1 1
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 2 2
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -608,9 +608,9 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-     * 设置 Webhook 验证 Token
+      * 设置 Webhook 验证 令牌
      *
-     * @param token 验证 Token
+     * @param token 验证 令牌
      * @return this
      */
     public QqBotClient webhookVerifyToken(String token) {
@@ -711,6 +711,7 @@ public class QqBotClient implements BotClient {
 
     /**
      * 获取访问令牌
+     * @return 获取access令牌的结果
      */
     private String getAccessToken() throws Exception {
         if (botToken != null && !botToken.isBlank()) {
@@ -797,7 +798,11 @@ public class QqBotClient implements BotClient {
         sendWsMessage(Json.toJson(frame));
     }
 
-    /** 获取EffectiveAuthToken */
+    /**
+     * 获取effective认证令牌
+     *
+     * @return 获取effective认证令牌的结果
+     */
     private String getEffectiveAuthToken() {
         if (botToken != null && !botToken.isBlank()) {
             return "QQBot " + botToken;
@@ -807,6 +812,8 @@ public class QqBotClient implements BotClient {
 
     /**
      * 将意图数组按位或合并
+     * @param array array
+     * @return 或的结果
      */
     private int or(int[] array) {
         if (array == null || array.length == 0) {
@@ -822,6 +829,8 @@ public class QqBotClient implements BotClient {
     /**
      * WebSocket 监听器内部类
      *
+     * @author CH
+     * @since 4.0.0
      */
     private class WebSocketListener implements WebSocket.Listener {
 
@@ -895,6 +904,7 @@ public class QqBotClient implements BotClient {
 
     /**
      * 处理 WebSocket 消息
+     * @param rawMessage raw消息
      */
     @SuppressWarnings("unchecked")
     private void handleWsMessage(String rawMessage) {
@@ -937,6 +947,7 @@ public class QqBotClient implements BotClient {
 
     /**
      * 启动心跳
+     * @param intervalMs 间隔ms
      */
     private void startHeartbeat(long intervalMs) {
         if (heartbeatExecutor != null) {
@@ -982,6 +993,7 @@ public class QqBotClient implements BotClient {
 
     /**
      * 发送 WebSocket 消息
+     * @param message 消息
      */
     private void sendWsMessage(String message) {
         WebSocket ws = webSocket;
@@ -1098,6 +1110,8 @@ public class QqBotClient implements BotClient {
 
     /**
      * 解析时间戳
+     * @param timestamp 时间戳
+     * @return 解析时间戳的结果
      */
     private long parseTimestamp(String timestamp) {
         try {
@@ -1109,9 +1123,9 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送Text
-     * @param toUser toUser
-     * @param content content
+      * 发送文本
+     * @param toUser 转为用户
+     * @param content 内容
      */
     public BotSendResult sendText(String toUser,
             String content) {
@@ -1120,109 +1134,109 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送TextAsync
-     * @param toUser toUser
-     * @param content content
-     * @param content content
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+      * 发送文本异步
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param title title
      * @param desc desc
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param message message
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param message 消息
      * @param e e
      * @param e e
-     * @param message message
-     * @param toUser toUser
-     * @param content content
-     * @param content content
+     * @param message 消息
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
      * @param 0 0
-     * @param messageReference messageReference
-     * @param mentionedUserIds mentionedUserIds
-     * @param mentionedList mentionedList
-     * @param body body
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param messageReference 消息引用
+     * @param mentionedUserIds 提及用户标识
+     * @param mentionedList 提及列表
+     * @param body 主体
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 1 1
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 2 2
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -1236,9 +1250,9 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送Image
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+      * 发送镜像
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      */
     public BotSendResult sendImage(String toUser,
             String mediaPath) {
@@ -1247,103 +1261,103 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送ImageAsync
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+      * 发送镜像异步
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param title title
      * @param desc desc
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
-     * @param message message
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
+     * @param message 消息
      * @param e e
      * @param e e
-     * @param message message
-     * @param toUser toUser
-     * @param content content
-     * @param content content
+     * @param message 消息
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
      * @param 0 0
-     * @param messageReference messageReference
-     * @param mentionedUserIds mentionedUserIds
-     * @param mentionedList mentionedList
-     * @param body body
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param messageReference 消息引用
+     * @param mentionedUserIds 提及用户标识
+     * @param mentionedList 提及列表
+     * @param body 主体
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 1 1
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 2 2
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -1358,8 +1372,8 @@ public class QqBotClient implements BotClient {
     @Override
     /**
      * 发送Voice
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      */
     public BotSendResult sendVoice(String toUser,
             String mediaPath) {
@@ -1368,9 +1382,9 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送Video
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+      * 发送视频
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param title title
      * @param desc desc
      */
@@ -1387,9 +1401,9 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送File
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+      * 发送文件
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      */
     public BotSendResult sendFile(String toUser,
             String mediaPath) {
@@ -1448,87 +1462,87 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送Async
-     * @param message message
-     * @param toUser toUser
-     * @param content content
-     * @param content content
+      * 发送异步
+     * @param message 消息
+     * @param toUser 转为用户
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
      * @param 0 0
-     * @param messageReference messageReference
-     * @param mentionedUserIds mentionedUserIds
-     * @param mentionedList mentionedList
-     * @param body body
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param messageReference 消息引用
+     * @param mentionedUserIds 提及用户标识
+     * @param mentionedList 提及列表
+     * @param body 主体
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 1 1
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 2 2
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -1539,9 +1553,9 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-     * 发送TextInternal
-     * @param toUser toUser
-     * @param content content
+      * 发送文本内部
+     * @param toUser 转为用户
+     * @param content 内容
      */
     private BotSendResult sendTextInternal(String toUser,
             String content) {
@@ -1555,81 +1569,81 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-     * 发送分组TextInternal
-     * @param groupId groupId
-     * @param content content
-     * @param content content
+      * 发送分组文本内部
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
      * @param 0 0
-     * @param body body
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
+     * @param body 主体
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
      * @param 0 0
-     * @param messageReference messageReference
-     * @param mentionedUserIds mentionedUserIds
-     * @param mentionedList mentionedList
-     * @param body body
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param messageReference 消息引用
+     * @param mentionedUserIds 提及用户标识
+     * @param mentionedList 提及列表
+     * @param body 主体
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 1 1
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 2 2
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -1646,76 +1660,76 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-     * 发送分组MentionInternal
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
+      * 发送分组提及内部
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
      * @param 0 0
-     * @param messageReference messageReference
-     * @param mentionedUserIds mentionedUserIds
-     * @param mentionedList mentionedList
-     * @param body body
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param messageReference 消息引用
+     * @param mentionedUserIds 提及用户标识
+     * @param mentionedList 提及列表
+     * @param body 主体
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 1 1
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      * @param 2 2
-     * @param base64 base64
-     * @param body body
+     * @param base64 基础64
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -1742,9 +1756,9 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-     * 发送ImageInternal
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+      * 发送镜像内部
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      */
     private BotSendResult sendImageInternal(String toUser,
             String mediaPath) {
@@ -1770,9 +1784,9 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-     * 发送VoiceInternal
-     * @param toUser toUser
-     * @param mediaPath mediaPath
+      * 发送voice内部
+     * @param toUser 转为用户
+     * @param mediaPath media路径
      */
     private BotSendResult sendVoiceInternal(String toUser,
             String mediaPath) {
@@ -1799,53 +1813,53 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-     * 发送FileViaUpload
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param mediaPath mediaPath
+      * 发送文件viaupload
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param mediaPath media路径
      * @param 7 7
-     * @param fileUuid fileUuid
-     * @param body body
+     * @param fileUuid 文件uuid
+     * @param body 主体
      * @param e e
      * @param e e
-     * @param toUser toUser
-     * @param mediaPath mediaPath
-     * @param path path
-     * @param body body
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param path 路径
+     * @param body 主体
      * @param 0 0
      * @param e e
      * @param e e
-     * @param baseUrl baseUrl
-     * @param useWebhookMode useWebhookMode
-     * @param userStore userStore
+     * @param baseUrl baseurl
+     * @param useWebhookMode usewebhookmode
+     * @param userStore 用户存储
      * @param e e
      * @param e e
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -1924,6 +1938,9 @@ public class QqBotClient implements BotClient {
 
     /**
      * 发送 API 请求
+     * @param path 路径
+     * @param body 主体
+     * @return 发送api的结果
      */
     private BotSendResult sendApi(String path, JsonObject body) {
         try {
@@ -1965,7 +1982,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
-    /** 获取Config */
+    /** 获取配置 */
     public Map<String, Object> getConfig() {
         Map<String, Object> config = new ConcurrentHashMap<>();
         config.put("appId", appId != null ? appId : "");
@@ -1978,7 +1995,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
-    /** UserStore */
+    /** 用户存储 */
     public BotClient userStore(BotUserStore userStore) {
         if (userStore != null) {
             this.userStore = userStore;
@@ -1987,13 +2004,13 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
-    /** ListUsers */
+    /** 列表用户 */
     public List<BotUserInfo> listUsers() {
         return userStore.findAll();
     }
 
     @Override
-    /** ListGroups */
+    /** 列表群体 */
     public List<BotGroupInfo> listGroups() {
         if (!running.get()) {
             return Collections.emptyList();
@@ -2039,9 +2056,9 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送To分组
-     * @param groupId groupId
-     * @param content content
+      * 发送转为分组
+     * @param groupId 群体标识
+     * @param content 内容
      */
     public BotSendResult sendToGroup(String groupId,
             String content) {
@@ -2050,30 +2067,30 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送To分组Async
-     * @param groupId groupId
-     * @param content content
-     * @param content content
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+      * 发送转为分组异步
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param content 内容
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -2087,27 +2104,27 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 发送To分组Mention
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param groupId groupId
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param content content
-     * @param mentionedUserIds mentionedUserIds
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+      * 发送转为分组提及
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param groupId 群体标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param content 内容
+     * @param mentionedUserIds 提及用户标识
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -2133,17 +2150,17 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 添加MessageListener
-     * @param listener listener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+      * 添加消息监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -2158,16 +2175,16 @@ public class QqBotClient implements BotClient {
 
     @Override
     /**
-     * 移除MessageListener
-     * @param listener listener
-     * @param listener listener
-     * @param challengeToken challengeToken
-     * @param currentBackoff currentBackoff
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
+      * 移除消息监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param challengeToken challenge令牌
+     * @param currentBackoff 当前退避
+     * @param BACKOFF_MAX_MS 退避_最大_MS
      * @param e e
-     * @param BACKOFF_MAX_MS BACKOFF_MAX_MS
-     * @param value value
-     * @param defaultValue defaultValue
+     * @param BACKOFF_MAX_MS 退避_最大_MS
+     * @param value 值
+     * @param defaultValue 默认值
      * @param n n
      * @param e e
      * @param ignored ignored
@@ -2179,7 +2196,7 @@ public class QqBotClient implements BotClient {
     }
 
     @Override
-    /** 添加记录错误Listener */
+    /** 添加记录错误监听器 */
     public BotClient addErrorListener(BotErrorListener listener) {
         if (listener != null) {
             errorListeners.add(listener);
@@ -2211,7 +2228,12 @@ public class QqBotClient implements BotClient {
         return useWebhookMode;
     }
 
-    /** SleepBackoff */
+    /**
+     * sleep退避
+     *
+     * @param currentBackoff 当前退避
+     * @return sleep退避的结果
+     */
     private long sleepBackoff(long currentBackoff) {
         long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
         try {
@@ -2224,7 +2246,13 @@ public class QqBotClient implements BotClient {
                 BACKOFF_MAX_MS);
     }
 
-    /** ToInt */
+    /**
+     * 转为int
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 转为int的结果
+     */
     private static int toInt(Object value, int defaultValue) {
         if (value instanceof Number n) {
             return n.intValue();
@@ -2232,7 +2260,11 @@ public class QqBotClient implements BotClient {
         return defaultValue;
     }
 
-    /** 通知记录错误 */
+    /**
+     * 通知记录错误
+     *
+     * @param e e
+     */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {

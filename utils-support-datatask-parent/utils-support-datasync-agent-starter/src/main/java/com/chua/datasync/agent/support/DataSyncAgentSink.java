@@ -14,7 +14,7 @@ public interface DataSyncAgentSink {
     /**
      * 获取 Sink 实例唯一标识。
      *
-     * @return Sink 实例 ID
+     * @return Sink 实例 标识
      */
     String sinkId();
 

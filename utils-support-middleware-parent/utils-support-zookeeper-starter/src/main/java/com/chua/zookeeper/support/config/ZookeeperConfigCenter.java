@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * ZooKeeper 配置中心实现。
  * <p>
- * 基于 Apache Curator 框架连接 ZooKeeper，将 ZNode 节点作为配置存储载体。
- * 支持 YAML、Properties 两种配置格式的自动解析。
+   * 基于 Apache Curator 框架连接 ZooKeeper，将 z节点 节点作为配置存储载体。
+   * 支持 YAML、属性 两种配置格式的自动解析。
  * 配置路径规则：/{@code dataId} 或 /{@code group}/{@code dataId}。
  * </p>
  * <p>
@@ -63,7 +63,7 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
         }
 
         try {
-            // 构建 ZNode 路径：支持绝对路径和相对路径
+ // 构建 z节点 路径：支持绝对路径和相对路径
             String configPath = dataId.startsWith("/") ? dataId : "/" + dataId;
 
             // 检查节点是否存在
@@ -110,19 +110,19 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
                     10000
             );
 
-            // 构建 CuratorFramework
+ // 构建 curator框架
             CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
                     .connectString(configCenterSetting.getAddress())
                     .retryPolicy(retryPolicy)
                     .connectionTimeoutMs(configCenterSetting.getConnectionTimeout())
                     .sessionTimeoutMs(configCenterSetting.getReadTimeout());
 
-            // 设置命名空间（profile 作为根路径隔离不同环境）
+ // 设置命名空间（配置文件 作为根路径隔离不同环境）
             if (StringUtils.isNotBlank(configCenterSetting.getProfile())) {
                 builder.namespace(configCenterSetting.getProfile());
             }
 
-            // 设置 Digest 认证
+ // 设置 摘要 认证
             if (StringUtils.isNotBlank(configCenterSetting.getUsername()) &&
                     StringUtils.isNotBlank(configCenterSetting.getPassword())) {
                 String authString = configCenterSetting.getUsername() + ":" + configCenterSetting.getPassword();
@@ -191,7 +191,7 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
                 }
             }
 
-            // 尝试 Properties 格式解析
+ // 尝试 属性 格式解析
             if (isPropertiesContent(configContent)) {
                 return parsePropertiesContent(configContent);
             }
@@ -216,20 +216,20 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 判断是否为 Properties 格式内容。
+      * 判断是否为 属性 格式内容。
      * <p>Properties 格式特征：包含等号和换行符。</p>
      *
      * @param content 配置内容
-     * @return true-是 Properties 格式
+     * @return true-是 属性 格式
      */
     private boolean isPropertiesContent(String content) {
         return content.contains("=") && content.contains("\n");
     }
 
     /**
-     * 解析 Properties 格式的配置内容。
+      * 解析 属性 格式的配置内容。
      *
-     * @param content Properties 格式的字符串
+     * @param content 属性 格式的字符串
      * @return 键值映射
      */
     private Map<String, Object> parsePropertiesContent(String content) {

@@ -14,16 +14,16 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * LCM-LoRA UNet                      
+   * LCM-lora unet
  * <p>
- *        LCM-LoRA     UNet                            
+   * LCM-lora     unet
  *                               
  * </p>
  * <p>
  *                
  * -                       
  * -                       
- * -     UNet             
+   * -     unet
  * </p>
  * <p>
  *                   
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/26
  */
 @Slf4j
@@ -91,7 +91,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
         // HWC -> CHW
         array = array.transpose(2, 0, 1);
 
-        //             ImageNet          
+ // 镜像net
         var mean = manager.create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));
         var std = manager.create(new float[]{0.5f, 0.5f, 0.5f}, new Shape(3, 1, 1));
         array = array.sub(mean).div(std);
@@ -107,7 +107,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
      *                   
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return                
      */
     @Override
@@ -127,7 +127,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
             // CHW -> HWC
             output = output.transpose(1, 2, 0);
 
-            //    NDArray                  
+ // ndarray
             var img = ai.djl.modality.cv.ImageFactory.getInstance().fromNDArray(output);
 
             if (log.isDebugEnabled()) {

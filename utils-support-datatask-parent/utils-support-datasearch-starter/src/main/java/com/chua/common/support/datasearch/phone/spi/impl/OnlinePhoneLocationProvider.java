@@ -36,7 +36,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     /** 在线接口地址模板 */
     private static final String DEFAULT_URL_TEMPLATE = "https://tenapi.cn/v2/mobile?phone=%s";
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /** HTTP客户端 */
@@ -48,7 +48,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     /** 内置号码段前缀表：前 4 位（如 1380）-> 归属地 */
     private static final Map<String, PhoneLocationInfo> PREFIX_TABLE = buildPrefixTable();
 
-    /** 创建 OnlinePhoneLocationProvider 实例 */
+    /** 创建 onlinephone位置提供者 实例 */
     public OnlinePhoneLocationProvider() {
         this(DEFAULT_URL_TEMPLATE);
     }
@@ -64,7 +64,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "tenapi";
     }
@@ -79,7 +79,12 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
         return online != null ? online : lookupFallback(phone);
     }
 
-    /** 在线查询 */
+    /**
+     * 在线查询
+     *
+     * @param phone phone
+     * @return 获取online的结果
+     */
     private PhoneLocationInfo fetchOnline(String phone) {
         try {
             ClientResponse resp = httpClient.get(String.format(urlTemplate, phone));
@@ -105,7 +110,12 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
         }
     }
 
-    /** 内置前缀表兜底 */
+    /**
+     * 内置前缀表兜底
+     *
+     * @param phone phone
+     * @return lookup降级的结果
+     */
     private PhoneLocationInfo lookupFallback(String phone) {
         String prefix4 = phone.substring(0, 4);
         PhoneLocationInfo hit = PREFIX_TABLE.get(prefix4);
@@ -120,7 +130,12 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
         return new PhoneLocationInfo(phone, "", "", "", "", "");
     }
 
-    /** 按前 3 位识别运营商 */
+    /**
+     * 按前 3 位识别运营商
+     *
+     * @param prefix 前缀
+     * @return carrierByPrefix3的结果
+     */
     private static String carrierByPrefix3(String prefix) {
         if (prefix.startsWith("13") || prefix.startsWith("15") || prefix.startsWith("18")) {
             return "中国移动";
@@ -134,7 +149,13 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
         return null;
     }
 
-    /** Text */
+    /**
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -142,6 +163,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
 
     /**
      * 内置常用号码段前缀表（前 4 位 -> 属地）。
+     * @return 构建前缀table的结果
      */
     private static Map<String, PhoneLocationInfo> buildPrefixTable() {
         Map<String, PhoneLocationInfo> map = new HashMap<>();
@@ -185,7 +207,15 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
         return map;
     }
 
-    /** 添加前缀表词条 */
+    /**
+     * 添加前缀表词条
+     *
+     * @param map 映射
+     * @param prefix 前缀
+     * @param province province
+     * @param city city
+     * @param carrier carrier
+     */
     private static void add(Map<String, PhoneLocationInfo> map, String prefix, String province, String city, String carrier) {
         map.put(prefix, new PhoneLocationInfo("", province, city, carrier, "", ""));
     }

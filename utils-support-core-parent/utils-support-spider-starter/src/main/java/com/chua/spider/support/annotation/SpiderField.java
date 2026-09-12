@@ -20,6 +20,8 @@ import java.lang.annotation.Target;
  *
  * @SpiderField(selector = "div.content", attr = "html")
  * private String contentHtml;
+ * }</pre>ntent", attr = "html")
+ * private String contentHtml;
  * }</pre>
  *
  * <h3>方式2：AI 提取（动态/复杂页面）</h3>
@@ -29,6 +31,7 @@ import java.lang.annotation.Target;
  *
  * @SpiderField(ai = "作者名字")
  * private String author;
+ * }</pre> String author;
  * }</pre>
  *
  * <h3>方式3：混合提取</h3>
@@ -38,6 +41,7 @@ import java.lang.annotation.Target;
  *
  * @SpiderField(ai = "文章摘要")           // AI 补充
  * private String summary;
+ * }</pre>ng summary;
  * }</pre>
  *
  * @author CH
@@ -73,7 +77,7 @@ public @interface SpiderField {
      *   <li>其他任意 HTML 属性名</li>
      * </ul>
      *
-     * @return 要提取的属性名，默认 "text"
+     * @return 要提取的属性名，默认 "文本"
      */
     String attr() default "text";
 

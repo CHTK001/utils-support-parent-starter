@@ -50,6 +50,8 @@ import java.util.concurrent.TimeUnit;
  *
  * // 非阻塞获取（返回null如果未完成）
  * Object data = result.getOutput();
+ * }</pre>/ 非阻塞获取（返回空如果未完成）
+   * 对象 数据 = 结果.获取输出();
  * }</pre>
  *
  * @author CH
@@ -59,7 +61,7 @@ import java.util.concurrent.TimeUnit;
 public class AsyncResult {
 
     /**
-     * 异步子流水线节点 ID
+      * 异步子流水线节点 标识
      */
     private final String nodeId;
 
@@ -74,7 +76,7 @@ public class AsyncResult {
     private volatile List<String> history;
 
     /**
-     * 异步子流水线 ID
+      * 异步子流水线 标识
      */
     private final String pipelineId;
 
@@ -96,8 +98,8 @@ public class AsyncResult {
     /**
      * 构造异步结果（初始未完成状态）。
      *
-     * @param nodeId     异步子流水线节点 ID
-     * @param pipelineId 异步子流水线 ID
+     * @param nodeId     异步子流水线节点 标识
+     * @param pipelineId 异步子流水线 标识
      */
     public AsyncResult(String nodeId, String pipelineId) {
         this.nodeId = nodeId;
@@ -172,9 +174,9 @@ public class AsyncResult {
     }
 
     /**
-     * 获取异步子流水线节点 ID。
+      * 获取异步子流水线节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getNodeId() {
         return nodeId;
@@ -186,7 +188,7 @@ public class AsyncResult {
      * <p>如果异步子流水线尚未完成，返回 null。使用 {@link #await()} 等待完成后再获取。</p>
      *
      * @param <V> 数据值类型
-     * @return 输出数据，未完成时返回 null
+     * @return 输出数据，未完成时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getOutput() {
@@ -198,7 +200,7 @@ public class AsyncResult {
      *
      * @param type 期望的数据类型
      * @param <V>  数据值类型
-     * @return 输出数据，未完成或类型不匹配时返回 null
+     * @return 输出数据，未完成或类型不匹配时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getOutput(Class<V> type) {
@@ -215,9 +217,9 @@ public class AsyncResult {
     }
 
     /**
-     * 获取异步子流水线 ID。
+      * 获取异步子流水线 标识。
      *
-     * @return 子流水线 ID
+     * @return 子流水线 标识
      */
     public String getPipelineId() {
         return pipelineId;
@@ -244,13 +246,13 @@ public class AsyncResult {
     /**
      * 获取执行异常。
      *
-     * @return 异常，未失败时返回 null
+     * @return 异常，未失败时返回 空
      */
     public Throwable getError() {
         return error;
     }
 
-    /** 返回含 nodeId 与状态的调试字符串。 */
+    /** 返回含 节点id 与状态的调试字符串。 */
     @Override
     public String toString() {
         return "AsyncResult{" +

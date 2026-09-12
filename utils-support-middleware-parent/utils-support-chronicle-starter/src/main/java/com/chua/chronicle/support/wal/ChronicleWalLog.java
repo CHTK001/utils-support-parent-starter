@@ -28,18 +28,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-/** @author CH */
+/** @作者 CH */
 
 @Spi("chronicle")
 public class ChronicleWalLog implements WalLog {
 
-    /** Field_lsn */
+    /** 字段_lsn */
     private static final String FIELD_LSN = "lsn";
-    /** Field_op */
+    /** 字段_op */
     private static final String FIELD_OP = "op";
-    /** Field_payload */
+    /** 字段_payload */
     private static final String FIELD_PAYLOAD = "payload";
-    /** Field_checkpoint */
+    /** 字段_checkpoint */
     private static final String FIELD_CHECKPOINT = "checkpointLsn";
 
     /** 队列 */
@@ -50,14 +50,14 @@ public class ChronicleWalLog implements WalLog {
     private final WalConfig config;
     /** 当前LSN */
     private final AtomicLong currentLsn = new AtomicLong(0L);
-    /** CheckpointLSN */
+    /** checkpointlsn */
     private final AtomicLong checkpointLsn = new AtomicLong(0L);
     /** closed */
     private volatile boolean closed;
 
     /**
-     * 创建 ChronicleWalLog 实例
-     * @param config config
+      * 创建 chroniclewal日志 实例
+     * @param config 配置
      */
     public ChronicleWalLog(WalConfig config) {
         this.config = config;
@@ -77,7 +77,12 @@ public class ChronicleWalLog implements WalLog {
         scanTail();
     }
 
-    /** 解析Dir */
+    /**
+     * 解析Dir
+     *
+     * @param config 配置
+     * @return resolveDir的结果
+     */
     private Path resolveDir(WalConfig config) {
         Path walDir = config.walDir();
         if (walDir != null) {
@@ -122,7 +127,7 @@ public class ChronicleWalLog implements WalLog {
                 ValueIn in = dc.wire().read(FIELD_CHECKPOINT);
                 if (in.isPresent()) {
                     cp = in.int64();
-                    // the last checkpoint found wins
+ // the 最后一个 checkpoint found wins
                 }
             }
         }
@@ -144,13 +149,13 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** Sync */
+    /** 同步 */
     public void sync() throws IOException {
         ensureOpen();
     }
 
     @Override
-    /** CurrentLsn */
+    /** 当前lsn */
     public long currentLsn() {
         return currentLsn.get();
     }
@@ -183,7 +188,7 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** ForceCheckpoint */
+    /** forcecheckpoint */
     public void forceCheckpoint(long lsn) throws IOException {
         ensureOpen();
         long target = Math.max(0L, lsn);
@@ -273,7 +278,7 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** 查找ByLsn */
+    /** 查找bylsn */
     public Optional<WalRecord> findByLsn(long lsn) throws IOException {
         ensureOpen();
         ExcerptTailer tailer = queue.createTailer();
@@ -304,13 +309,13 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** PurgeCheckpointed */
+    /** purgecheckpointed */
     public int purgeCheckpointed(int keepSegments) throws IOException {
         return 0;
     }
 
     @Override
-    /** CurrentSegment */
+    /** 当前segment */
     public WalSegmentInfo currentSegment() {
         return new WalSegmentInfo(1,
                 checkpointLsn.get() + 1,
@@ -321,7 +326,7 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** ListSegments */
+    /** 列表segments */
     public List<WalSegmentInfo> listSegments() {
         return Collections.singletonList(currentSegment());
     }

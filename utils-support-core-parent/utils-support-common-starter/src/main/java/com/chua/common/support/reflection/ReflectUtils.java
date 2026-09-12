@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 /**
- * 统一反射工具类 — 基于 MethodHandle + LambdaMetafactory 实现。
+   * 统一反射工具类 — 基于 方法处理 + lambdametafactory 实现。
  *
  * <p>所有反射操作必须通过本类完成，禁止在业务代码中直接调用 {@code java.lang.reflect} API。</p>
  *
@@ -34,19 +34,19 @@ public final class ReflectUtils {
 
     // ==================== 缓存 ====================
 
-    /** MethodHandle 缓存：key = className + "." + methodName + paramTypes */
+    /** 方法处理 缓存：键 = 类名称 + "." + 方法名称 + 参数类型 */
     private static final ConcurrentMap<String, MethodHandle> METHOD_HANDLE_CACHE = new ConcurrentHashMap<>(512);
 
-    /** Field getter MethodHandle 缓存 */
+    /** 字段 getter 方法处理 缓存 */
     private static final ConcurrentMap<String, MethodHandle> FIELD_GETTER_CACHE = new ConcurrentHashMap<>(256);
 
-    /** Field setter MethodHandle 缓存 */
+    /** 字段 setter 方法处理 缓存 */
     private static final ConcurrentMap<String, MethodHandle> FIELD_SETTER_CACHE = new ConcurrentHashMap<>(256);
 
-    /** ClassLoader 缓存 */
+    /** 类加载 缓存 */
     private static final ConcurrentMap<String, Class<?>> CLASS_NAME_CACHE = new ConcurrentHashMap<>(256);
 
-    /** MethodHandles.Lookup 实例 */
+    /** 方法处理.Lookup 实例 */
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
     /** 私有构造，禁止实例化 */
@@ -59,7 +59,7 @@ public final class ReflectUtils {
      * 加载类（带缓存）。
      *
      * @param className 全限定类名
-     * @return Class 对象，加载失败返回 null
+     * @return Class 对象，加载失败返回 空
      */
     public static Class<?> forName(String className) {
         if (className == null || className.isEmpty()) {
@@ -76,11 +76,11 @@ public final class ReflectUtils {
     }
 
     /**
-     * 加载类（指定 ClassLoader，带缓存）。
+      * 加载类（指定 类加载，带缓存）。
      *
      * @param className     全限定类名
      * @param classLoader   类加载器
-     * @return Class 对象，加载失败返回 null
+     * @return Class 对象，加载失败返回 空
      */
     public static Class<?> forName(String className, ClassLoader classLoader) {
         if (className == null || className.isEmpty()) {
@@ -119,7 +119,7 @@ public final class ReflectUtils {
     }
 
     /**
-     * 加载类（指定 ClassLoader）并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
+      * 加载类（指定 类加载）并校验其是否兼容指定的返回类型（泛型安全，避免外部强转）。
      *
      * @param className   全限定类名
      * @param classLoader 类加载器
@@ -139,9 +139,9 @@ public final class ReflectUtils {
     // ==================== 方法调用 ====================
 
     /**
-     * 调用实例方法（MethodHandle 路径）。
+      * 调用实例方法（方法处理 路径）。
      *
-     * @param target       目标对象，静态方法传 null
+     * @param target       目标对象，静态方法传 空
      * @param methodName   方法名
      * @param returnType   返回类型
      * @param argTypes     参数类型数组
@@ -241,13 +241,13 @@ public final class ReflectUtils {
     }
 
     /**
-     * 获取 MethodHandle（带缓存）。
+      * 获取 方法处理（带缓存）。
      *
      * @param clazz        目标类
      * @param methodName   方法名
      * @param returnType   返回类型
      * @param paramTypes   参数类型
-     * @return MethodHandle，找不到返回 null
+     * @return MethodHandle，找不到返回 空
      */
     public static MethodHandle findMethodHandle(Class<?> clazz, String methodName,
                                                  Class<?> returnType, Class<?>... paramTypes) {
@@ -261,14 +261,14 @@ public final class ReflectUtils {
                     MethodType mt = MethodType.methodType(returnType, paramTypes);
                     return LOOKUP.findVirtual(clazz, methodName, mt);
                 } catch (NoSuchMethodException | IllegalAccessException e) {
-                    // 尝试 public 方法
+ // 尝试 公共 方法
                     try {
                         MethodType mt = MethodType.methodType(returnType, paramTypes);
                         return LOOKUP.findStatic(clazz, methodName, mt);
                     } catch (NoSuchMethodException | IllegalAccessException ex) {
                         // 返回类型容错：请求的返回类型与方法实际类型不一致（如注解代理 value() 实际返回 String
-                        // 而调用方请求 Object.class），findVirtual 为精确类型匹配会失败；
-                        // 按实际返回类型查找后原样返回，由 invokeWithArguments 自动适配
+ // 而调用方请求 对象.类），查找虚拟 为精确类型匹配会失败；
+ // 按实际返回类型查找后原样返回，由 invokewith参数 自动适配
                         return findWithActualReturnType(clazz, methodName, paramTypes);
                     }
                 }
@@ -280,7 +280,7 @@ public final class ReflectUtils {
     }
 
     /**
-     * 获取静态 MethodHandle（带缓存）。
+      * 获取静态 方法处理（带缓存）。
      */
     public static MethodHandle findStaticMethodHandle(Class<?> clazz, String methodName,
                                                        Class<?> returnType, Class<?>... paramTypes) {
@@ -310,7 +310,7 @@ public final class ReflectUtils {
      *
      * @param target    目标对象
      * @param fieldName 字段名
-     * @return 字段值，找不到或异常返回 null
+     * @return 字段值，找不到或异常返回 空
      */
     public static Object getField(Object target, String fieldName) {
         if (target == null || fieldName == null) {
@@ -356,7 +356,10 @@ public final class ReflectUtils {
     }
 
     /**
-     * 查找字段（沿继承链），返回 MethodHandle getter。
+      * 查找字段（沿继承链），返回 方法处理 getter。
+     * @param clazz clazz
+     * @param fieldName 字段名称
+     * @return find字段getter的结果
      */
     private static MethodHandle findFieldGetter(Class<?> clazz, String fieldName) {
         String key = "GET:" + clazz.getName() + "|" + fieldName;
@@ -366,7 +369,7 @@ public final class ReflectUtils {
                 while (c != null) {
                     try {
                         java.lang.reflect.Field f = c.getDeclaredField(fieldName);
-                        // Java 9+ privateLookupIn：解决内部类/嵌套类 private 字段的 MethodHandle 权限问题
+ // Java 9+ 私募lookup入：解决内部类/嵌套类 私募 字段的 方法处理 权限问题
                         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
                         return lookup.unreflectGetter(f);
                     } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -381,7 +384,10 @@ public final class ReflectUtils {
     }
 
     /**
-     * 查找字段（沿继承链），返回 MethodHandle setter。
+      * 查找字段（沿继承链），返回 方法处理 setter。
+     * @param clazz clazz
+     * @param fieldName 字段名称
+     * @return find字段setter的结果
      */
     private static MethodHandle findFieldSetter(Class<?> clazz, String fieldName) {
         String key = "SET:" + clazz.getName() + "|" + fieldName;
@@ -391,7 +397,7 @@ public final class ReflectUtils {
                 while (c != null) {
                     try {
                         java.lang.reflect.Field f = c.getDeclaredField(fieldName);
-                        // Java 9+ privateLookupIn：解决内部类/嵌套类 private 字段的 MethodHandle 权限问题
+ // Java 9+ 私募lookup入：解决内部类/嵌套类 私募 字段的 方法处理 权限问题
                         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
                         return lookup.unreflectSetter(f);
                     } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -406,11 +412,11 @@ public final class ReflectUtils {
     }
 
     /**
-     * 查找字段（沿继承链），返回 java.lang.reflect.Field（用于兼容场景）。
+      * 查找字段（沿继承链），返回 Java.lang.reflect.字段（用于兼容场景）。
      *
      * @param clazz   目标类
      * @param name    字段名
-     * @return Field 对象，找不到返回 null
+     * @return Field 对象，找不到返回 空
      */
     public static java.lang.reflect.Field findField(Class<?> clazz, String name) {
         Class<?> c = clazz;
@@ -429,7 +435,8 @@ public final class ReflectUtils {
      *
      * @param clazz         目标类
      * @param nameSubstring 字段名字符串片段
-     * @return 第一个匹配的字段值，找不到返回 null
+     * @return 第一个匹配的字段值，找不到返回 空
+     * @param target Target
      */
     public static Object findFieldBySubstring(Object target, String nameSubstring) {
         if (target == null || nameSubstring == null) {
@@ -452,11 +459,11 @@ public final class ReflectUtils {
     // ==================== 实例化 ====================
 
     /**
-     * 无参实例化（MethodHandle 路径）。
+      * 无参实例化（方法处理 路径）。
      *
      * @param clazz 目标类
      * @param <T>   返回类型
-     * @return 实例，失败返回 null
+     * @return 实例，失败返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T instantiate(Class<T> clazz) {
@@ -469,7 +476,7 @@ public final class ReflectUtils {
                 return null;
             }
             /* invoke 会自动做 asType 适配；invokeExact 在泛型擦除后调用点签名
-             * 为 ()Object，与构造器句柄类型 ()X 不匹配，必然抛 WrongMethodTypeException */
+              * 为 ()对象，与构造器句柄类型 ()X 不匹配，必然抛 wrong方法类型异常 */
             return clazz.cast(handle.invoke());
         } catch (Throwable e) {
             log.debug("[ReflectUtils] 实例化失败: {}", clazz.getName(), e);
@@ -478,12 +485,12 @@ public final class ReflectUtils {
     }
 
     /**
-     * 带参实例化（MethodHandle 路径）。
+      * 带参实例化（方法处理 路径）。
      *
      * @param clazz  目标类
      * @param args   构造参数
      * @param <T>    返回类型
-     * @return 实例，失败返回 null
+     * @return 实例，失败返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T instantiate(Class<T> clazz, Object... args) {
@@ -508,7 +515,7 @@ public final class ReflectUtils {
      *
      * @param className 全限定类名
      * @param <T>       返回类型
-     * @return 实例，失败返回 null
+     * @return 实例，失败返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T instantiate(String className) {
@@ -520,7 +527,10 @@ public final class ReflectUtils {
     }
 
     /**
-     * 获取构造器 MethodHandle（带缓存）。
+      * 获取构造器 方法处理（带缓存）。
+     * @param clazz clazz
+     * @param paramTypes 参数类型
+     * @return findconstructor处理的结果
      */
     private static MethodHandle findConstructorHandle(Class<?> clazz, Class<?>... paramTypes) {
         String key = "CTOR:" + clazz.getName() + "@" + formatTypes(paramTypes);
@@ -541,7 +551,7 @@ public final class ReflectUtils {
     // ==================== 动态代理 ====================
 
     /**
-     * 创建 JDK 动态代理（通过 MethodHandle 桥接）。
+      * 创建 JDK 动态代理（通过 方法处理 桥接）。
      *
      * @param loader     类加载器
      * @param interfaces 接口数组
@@ -558,7 +568,7 @@ public final class ReflectUtils {
     // ==================== LambdaMetafactory ====================
 
     /**
-     * 将 MethodHandle 适配为函数式接口的 lambda 实例（使用 LambdaMetafactory）。
+      * 将 方法处理 适配为函数式接口的 lambda 实例（使用 lambdametafactory）。
      *
      * <p>典型用法：将私有方法或静态方法转换为 {@link Function}/{@link Runnable} 等。</p>
      *
@@ -568,10 +578,12 @@ public final class ReflectUtils {
      *           MethodType.methodType(void.class, int.class));
      *   ObjIntConsumer<Integer> fn = ReflectUtils.asFunctionalInterface(
      *           mh, ObjIntConsumer.class, Integer.class, int.class);
+     * }</pre>rface(
+     *           mh, ObjIntConsumer.class, Integer.class, int.class);
      * }</pre>
      *
-     * @param implMethod       实现方法的 MethodHandle（已 bindTo target）
-     * @param functionalInterface 目标函数式接口 Class
+     * @param implMethod       实现方法的 方法处理（已 bind转为 Target）
+     * @param functionalInterface 目标函数式接口 类
      * @param paramTypes       函数式接口方法参数类型（按顺序）
      * @param <T>              函数式接口类型
      * @return lambda 实例
@@ -582,10 +594,10 @@ public final class ReflectUtils {
                                                Class<?>... paramTypes) {
         try {
             MethodType mt = MethodType.methodType(void.class, paramTypes);
-            // 如果 implMethod 返回非 void，需要 adaptConstants 处理
+ // 如果 impl方法 返回非 Void Linux Linux，需要 adapt常量 处理
             MethodType implType = implMethod.type();
             if (implType.returnType() != void.class) {
-                // 调整为返回 Object 以便 Box/unbox
+ // 调整为返回 对象 以便 Box/unbox
                 implMethod = implMethod.asType(MethodType.methodType(Object.class, paramTypes));
             }
             return functionalInterface.cast(LambdaMetafactory.metafactory(
@@ -603,7 +615,10 @@ public final class ReflectUtils {
     }
 
     /**
-     * 将无参 MethodHandle 适配为 {@link java.util.concurrent.Callable}。
+      * 将无参 方法处理 适配为 {@link java.util.concurrent.Callable}。
+     * @param mh mh
+     * @param returnType 返回类型
+     * @return asCallable的结果
      */
     @SuppressWarnings("unchecked")
     public static <T> java.util.concurrent.Callable<T> asCallable(MethodHandle mh, Class<T> returnType) {
@@ -624,16 +639,16 @@ public final class ReflectUtils {
     // ==================== 内部工具 ====================
 
     /**
-     * 构建 MethodHandle 缓存 key。
+      * 构建 方法处理 缓存 键。
      */
     /**
      * 返回类型容错查找：请求的返回类型与方法实际类型不一致时，
-     * 遍历 public 方法按名称与参数类型定位，返回实际类型的 MethodHandle。
+      * 遍历 公共 方法按名称与参数类型定位，返回实际类型的 方法处理。
      *
      * @param clazz      目标类
      * @param methodName 方法名
      * @param paramTypes 参数类型
-     * @return 实际类型的 MethodHandle；未找到返回 null
+     * @return 实际类型的 方法处理；未找到返回 空
      */
     private static MethodHandle findWithActualReturnType(Class<?> clazz, String methodName,
                                                          Class<?>[] paramTypes) {
@@ -668,7 +683,7 @@ public final class ReflectUtils {
     }
 
     /**
-     * 构建静态 MethodHandle 缓存 key。
+      * 构建静态 方法处理 缓存 键。
      */
     private static String buildStaticMethodKey(Class<?> clazz, String methodName,
                                                 Class<?> returnType, Class<?>... paramTypes) {
@@ -678,6 +693,8 @@ public final class ReflectUtils {
 
     /**
      * 格式化类型数组为字符串。
+     * @param types 类型
+     * @return 格式化类型的结果
      */
     private static String formatTypes(Class<?>... types) {
         if (types == null || types.length == 0) {
@@ -695,6 +712,8 @@ public final class ReflectUtils {
 
     /**
      * 根据参数值推断参数类型数组。
+     * @param args 参数
+     * @return infer参数类型的结果
      */
     private static Class<?>[] inferArgTypes(Object... args) {
         if (args == null || args.length == 0) {
@@ -722,6 +741,7 @@ public final class ReflectUtils {
 
     /**
      * 返回当前缓存条目数。
+     * @return 缓存大小的结果
      */
     public static int cacheSize() {
         return METHOD_HANDLE_CACHE.size() + FIELD_GETTER_CACHE.size() + FIELD_SETTER_CACHE.size();

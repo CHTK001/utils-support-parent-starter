@@ -21,7 +21,7 @@ import java.util.Set;
 @Spi("preview-shapefile")
 public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("shp", "shx", "dbf", "prj", "qix", "sbn", "sbx");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("shp", "shx", "dbf", "prj", "qix", "sbn", "sbx"); // 支持exts
 
     private static final String[] SHAPE_TYPES = {
         "Null Shape", "Point", "PolyLine", "Polygon", "MultiPoint",
@@ -51,6 +51,11 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /**
+     * 解析shp。
+     * @param data 数据
+     * @return 解析shp的结果
+     */
     private ShpInfo parseShp(byte[] data) {
         ShpInfo info = new ShpInfo();
 
@@ -88,6 +93,14 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
         }
 
         // 边界框: 偏移 36-67
+    /**
+     * shp信息类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
         buf.position(36);
         info.xmin = buf.getDouble();
         info.ymin = buf.getDouble();
@@ -95,6 +108,12 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
         info.ymax = buf.getDouble();
 
         return info;
+    /**
+     * 构建html。
+     * @param info 信息
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     private String buildHtml(ShpInfo info, long fileSize) {
@@ -136,6 +155,12 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
         sb.append("</div></body></html>");
 
         return sb.toString();
+    /**
+     * 构建简单html。
+     * @param ext ext
+     * @param fileSize 文件大小
+     * @return 构建简单html的结果
+     */
     }
 
     private String buildSimpleHtml(String ext, long fileSize) {
@@ -163,23 +188,37 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
         sb.append("</div></body></html>");
 
         return sb.toString();
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 
     private static class ShpInfo {
-        String version = "未知";
-        String shapeType = "Unknown";
-        long fileLength = 0;
-        double xmin = 0, ymin = 0, xmax = 0, ymax = 0;
+        String version = "未知"; // 版本
+        String shapeType = "Unknown"; // shape类型
+        long fileLength = 0; // 文件长度
+        double xmin = 0, ymin = 0, xmax = 0, ymax = 0; // xmin
     }
 }

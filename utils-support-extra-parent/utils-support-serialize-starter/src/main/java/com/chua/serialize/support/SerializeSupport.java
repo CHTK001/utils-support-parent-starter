@@ -20,6 +20,7 @@ import java.io.Serializable;
  * </ul>
  *
  * @author CH
+ * @since 4.0.0
  */
 public class SerializeSupport {
 
@@ -38,11 +39,11 @@ public class SerializeSupport {
     /**
      * 创建一个基于自动序列化的流式处理对象。
      * <p>
-     * 默认使用 AutoSerializer（Kryo → JSON → Java 降级策略）。
+      * 默认使用 auto序列化器（Kryo → JSON → Java 降级策略）。
      *
      * @param clazz 要序列化的目标类型
      * @param <T>   泛型类型，必须是 Serializable 接口
-     * @return 返回配置好的 SerializerFlow 对象
+     * @return 返回配置好的 序列化器流 对象
      */
     public static <T extends Serializable> SerializerFlow createFlow(Class<T> clazz) {
         AutoSerializer<T> autoSerializer = new AutoSerializer<>(clazz);
@@ -56,7 +57,7 @@ public class SerializeSupport {
      *
      * @param clazz 要序列化的目标类型
      * @param <T>   泛型类型，必须是 Serializable 接口
-     * @return 返回 KryoSerializer 实例
+     * @return 返回 kryo序列化器 实例
      */
     public static <T extends Serializable> KryoSerializer<T> createKryo(Class<T> clazz) {
         return new KryoSerializer<>(clazz);
@@ -70,7 +71,7 @@ public class SerializeSupport {
      * @param clazz  要序列化的目标类型
      * @param maxSize 对象池的最大容量
      * @param <T>    泛型类型，必须是 Serializable 接口
-     * @return 返回 KryoPoolManager 实例
+     * @return 返回 kryo游泳池管理器 实例
      */
     public static <T extends Serializable> KryoPoolManager<T> createPool(Class<T> clazz, int maxSize) {
         return KryoPoolManager.getInstance(clazz, maxSize);
@@ -83,7 +84,7 @@ public class SerializeSupport {
      *
      * @param clazz 要序列化的目标类型
      * @param <T>   泛型类型，必须是 Serializable 接口
-     * @return 返回 KryoPoolManager 实例
+     * @return 返回 kryo游泳池管理器 实例
      */
     public static <T extends Serializable> KryoPoolManager<T> createPool(Class<T> clazz) {
         return KryoPoolManager.getInstance(clazz);
@@ -101,7 +102,7 @@ public class SerializeSupport {
      *
      * @param clazz 要序列化的目标类型
      * @param <T>   泛型类型，必须是 Serializable 接口
-     * @return 返回 AutoSerializer 实例
+     * @return 返回 auto序列化器 实例
      */
     public static <T extends Serializable> AutoSerializer<T> createAuto(Class<T> clazz) {
         return new AutoSerializer<>(clazz);
@@ -110,11 +111,11 @@ public class SerializeSupport {
     /**
      * 根据类类型获取对应的序列化器。
      * <p>
-     * 内部使用 AutoSerializerProvider 缓存序列化器实例。
+      * 内部使用 auto序列化器提供者 缓存序列化器实例。
      *
      * @param clazz 要获取序列化器的目标类型
      * @param <T>   泛型类型，必须是 Serializable 接口
-     * @return 返回对应的 Serializer 实例
+     * @return 返回对应的 序列化器 实例
      */
     public static <T extends Serializable> Serializer<T> getSerializer(Class<T> clazz) {
         return PROVIDER.getSerializer(clazz);
@@ -123,7 +124,7 @@ public class SerializeSupport {
     /**
      * 获取当前的自动序列化提供者实例。
      *
-     * @return 返回 AutoSerializerProvider 实例
+     * @return 返回 auto序列化器提供者 实例
      */
     public static AutoSerializerProvider getProvider() {
         return PROVIDER;

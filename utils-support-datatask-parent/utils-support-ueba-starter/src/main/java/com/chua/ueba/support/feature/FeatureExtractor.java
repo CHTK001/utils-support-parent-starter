@@ -16,8 +16,8 @@ import java.util.Objects;
 /**
  * 特征提取器。
  * <p>
- * 负责将原始流量事件窗口转换为模型输入：AutoEncoder 所需的 IP 聚合特征向量，
- * 以及 LSTM/GRU 所需的行为序列（类别 ID 序列 + 数值序列）。所有原始指标的计算
+   * 负责将原始流量事件窗口转换为模型输入：auto编码器 所需的 IP 聚合特征向量，
+   * 以及 LSTM/GRU 所需的行为序列（类别 标识 序列 + 数值序列）。所有原始指标的计算
  * 集中在本类（{@link #rawIpFeature}），规则评分 {@code RuleBasedScorer} 复用同一
  * 入口，避免重复实现。特征顺序严格遵循配置中 {@code features} 的定义。
  * </p>
@@ -28,7 +28,7 @@ import java.util.Objects;
 @Slf4j
 public class FeatureExtractor {
 
-    /** 一天的小时数，用于 time_of_day 归一化 */
+    /** 一天的小时数，用于 时间_的_day 归一化 */
     private static final double HOURS_PER_DAY = 24.0d;
 
     /** HTTP 4xx/5xx 状态码下限 */
@@ -50,8 +50,8 @@ public class FeatureExtractor {
     /**
      * 构造特征提取器。
      *
-     * @param config UEBA 配置，不能为 null，且 features 不能为空
-     * @throws IllegalArgumentException 当 config 为 null 或 features 为空时
+     * @param config UEBA 配置，不能为 空，且 特征 不能为空
+     * @throws IllegalArgumentException 当 配置 为 空 或 特征 为空时
      */
     public FeatureExtractor(UebaConfig config) {
         Objects.requireNonNull(config, "config must not be null");
@@ -65,17 +65,17 @@ public class FeatureExtractor {
     /**
      * 返回当前配置，供规则评分等协作组件读取模型参数。
      *
-     * @return UEBA 配置对象，绝不为 null
+     * @return UEBA 配置对象，绝不为 空
      */
     public UebaConfig config() {
         return config;
     }
 
     /**
-     * 提取 IP 聚合特征向量（AutoEncoder 输入）。
+      * 提取 IP 聚合特征向量（auto编码器 输入）。
      *
      * @param window 窗口内流量事件列表，允许为空
-     * @return 特征向量，长度等于配置 features 数量，顺序与配置一致
+     * @return 特征向量，长度等于配置 特征 数量，顺序与配置一致
      */
     public float[] extractIpFeatures(List<TrafficEvent> window) {
         float[] vector = new float[features.size()];
@@ -88,12 +88,12 @@ public class FeatureExtractor {
     }
 
     /**
-     * 提取行为序列的类别 ID 序列（LSTM/GRU 输入之一）。
+      * 提取行为序列的类别 标识 序列（LSTM/GRU 输入之一）。
      *
      * @param window 窗口内流量事件列表，允许为空
      * @param seqLen 序列长度，必须大于 0
-     * @return 长度等于 seqLen 的 ID 数组，不足 seqLen 时左端补 0
-     * @throws IllegalArgumentException 当 seqLen 小于等于 0 时
+     * @return 长度等于 seqlen 的 标识 数组，不足 seqlen 时左端补 0
+     * @throws IllegalArgumentException 当 seqlen 小于等于 0 时
      */
     public int[] extractSequenceIds(List<TrafficEvent> window, int seqLen) {
         if (seqLen <= 0) {
@@ -117,14 +117,14 @@ public class FeatureExtractor {
      * <p>
      * 每个时间步的数值特征顺序固定为：
      * 是否错误(0/1) → 小时相位(0~1) → 响应耗时(归一化) → 方法编码(归一化)，
-     * 不足 seqLen 时左端补 0。与训练端特征顺序必须一致。
+      * 不足 seqlen 时左端补 0。与训练端特征顺序必须一致。
      * </p>
      *
      * @param window     窗口内流量事件列表，允许为空
      * @param seqLen     序列长度，必须大于 0
      * @param numNumeric 每步数值特征数量，必须大于 0
-     * @return 长度等于 seqLen 的数值特征数组
-     * @throws IllegalArgumentException 当 seqLen 或 numNumeric 小于等于 0 时
+     * @return 长度等于 seqlen 的数值特征数组
+     * @throws IllegalArgumentException 当 seqlen 或 numnumeric 小于等于 0 时
      */
     public float[][] extractSequenceNumeric(List<TrafficEvent> window, int seqLen, int numNumeric) {
         if (seqLen <= 0) {
@@ -150,13 +150,13 @@ public class FeatureExtractor {
         return numeric;
     }
 
-    /** GET 方法编码 */
+    /** 获取 方法编码 */
     private static final int METHOD_CODE_GET = 0;
     /** POST 方法编码 */
     private static final int METHOD_CODE_POST = 1;
-    /** PUT 方法编码 */
+    /** 放入 方法编码 */
     private static final int METHOD_CODE_PUT = 2;
-    /** DELETE 方法编码 */
+    /** 删除 方法编码 */
     private static final int METHOD_CODE_DELETE = 3;
     /** 其它方法编码 */
     private static final int METHOD_CODE_OTHER = 4;
@@ -166,7 +166,7 @@ public class FeatureExtractor {
     /**
      * 计算单个原始 IP 指标（未归一化）。
      *
-     * @param def    特征定义，不能为 null
+     * @param def    特征定义，不能为 空
      * @param window 窗口内流量事件列表，允许为空
      * @return 原始指标值
      */
@@ -208,7 +208,7 @@ public class FeatureExtractor {
      * 路径熵：访问路径分布的 Shannon 熵。
      *
      * @param window 事件列表
-     * @return 熵值（比特），范围 [0, log2(不同路径数)]，窗口为空时返回 0
+     * @return 熵值（比特），范围 [0, 日志2(不同路径数)]，窗口为空时返回 0
      */
     private double pathEntropy(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
@@ -283,7 +283,7 @@ public class FeatureExtractor {
     }
 
     /**
-     * UA 多样性：不同 User-Agent 数占比。
+      * UA 多样性：不同 用户-智能体 数占比。
      *
      * @param window 事件列表
      * @return 多样性值，范围 [0, 1]，窗口为空时返回 0
@@ -365,7 +365,7 @@ public class FeatureExtractor {
     /**
      * HTTP 方法编码。
      *
-     * @param method 方法字符串，允许为 null
+     * @param method 方法字符串，允许为 空
      * @return 方法编码
      */
     private static int methodCode(String method) {
@@ -382,12 +382,12 @@ public class FeatureExtractor {
     }
 
     /**
-     * 路径到类别 ID 的编码，优先查配置词表，未命中时退化为稳定哈希。
+      * 路径到类别 标识 的编码，优先查配置词表，未命中时退化为稳定哈希。
      * <p>哈希回退的上界取自训练回写的词表（preprocessing.vocab 最大 ID + 1），
-     * 确保索引不超出 ONNX Embedding 表大小；词表为空时才用配置的类别特征 vocabSize。</p>
+      * 确保索引不超出 ONNX 嵌入 表大小；词表为空时才用配置的类别特征 vocab大小。</p>
      *
-     * @param event 流量事件，不能为 null
-     * @return 类别 ID，范围 [1, vocabBound)，0 保留给填充位
+     * @param event 流量事件，不能为 空
+     * @return 类别 标识，范围 [1, vocabbound)，0 保留给填充位
      */
     private int encodePath(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
@@ -403,9 +403,9 @@ public class FeatureExtractor {
     }
 
     /**
-     * 计算类别 ID 的取值上界。
+      * 计算类别 标识 的取值上界。
      *
-     * @param vocab 配置词表，允许为 null 或空
+     * @param vocab 配置词表，允许为 空 或空
      * @return 上界，至少为 2
      */
     private int vocabBound(Map<String, Integer> vocab) {
@@ -427,7 +427,7 @@ public class FeatureExtractor {
     /**
      * 按特征配置归一化原始值。
      *
-     * @param def 特征定义，不能为 null
+     * @param def 特征定义，不能为 空
      * @param raw 原始值
      * @return 归一化后的值
      */
@@ -442,7 +442,7 @@ public class FeatureExtractor {
     /**
      * 按特征名从配置 scaler 归一化原始值。
      *
-     * @param featureName 特征名，不能为 null
+     * @param featureName 特征名，不能为 空
      * @param raw         原始值
      * @return 归一化后的值
      */

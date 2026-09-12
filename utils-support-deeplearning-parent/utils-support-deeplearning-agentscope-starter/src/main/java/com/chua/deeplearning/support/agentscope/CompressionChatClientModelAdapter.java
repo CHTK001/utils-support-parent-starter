@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 将压缩专用 {@link ChatClient} 适配为 AgentScope 的 {@link Model} 接口。
+   * 将压缩专用 {@link ChatClient} 适配为 智能体scope 的 {@link Model} 接口。
  *
  * <p>供 {@link com.chua.common.support.ai.agent.AgentContextCompressionService}
  * 在偏差矫正阶段调用，使用独立的高阶模型进行基线总结和上下文矫正。
@@ -39,9 +39,10 @@ public class CompressionChatClientModelAdapter implements Model {
     private final String modelName;
 
     /**
-     * 创建 CompressionChatClientModelAdapter 实例
-     * @param compressionChatClient compressionChatClient
-     * @param String String
+      * 创建 compression对话客户端模型适配器 实例
+     * @param compressionChatClient compression对话客户端
+     * @param modelName 字符串
+     * @param modelName 模型名称
      */
     public CompressionChatClientModelAdapter(ChatClient compressionChatClient, String modelName) {
         this.compressionChatClient = compressionChatClient;
@@ -49,7 +50,7 @@ public class CompressionChatClientModelAdapter implements Model {
     }
 
     @Override
-    /** Stream */
+    /** 流 */
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractLastUserPrompt(messages);
 
@@ -71,12 +72,17 @@ public class CompressionChatClientModelAdapter implements Model {
     }
 
     @Override
-    /** 获取ModelName */
+    /** 获取模型名称 */
     public String getModelName() {
         return modelName;
     }
 
-    /** ExtractLastUserPrompt */
+    /**
+     * extract最后一个用户提示符
+     *
+     * @param messages 消息
+     * @return extract最后一个用户提示符的结果
+     */
     private static String extractLastUserPrompt(List<Msg> messages) {
         if (messages == null || messages.isEmpty()) {
             return "";

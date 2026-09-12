@@ -18,7 +18,7 @@ import java.util.Locale;
 public class CsvPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String extension, String mimeType) {
         return "csv".equalsIgnoreCase(extension) || "text/csv".equals(mimeType);
     }
@@ -60,7 +60,12 @@ public class CsvPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
-    /** EscapeHtml */
+    /**
+     * escapehtml
+     *
+     * @param s s
+     * @return escapeHtml的结果
+     */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

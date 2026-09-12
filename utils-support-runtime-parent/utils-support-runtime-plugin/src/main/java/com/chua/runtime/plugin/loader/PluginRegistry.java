@@ -16,7 +16,7 @@ import java.util.*;
 public class PluginRegistry {
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class.getName());
     /**
@@ -29,7 +29,7 @@ public class PluginRegistry {
      */
     private final List<PluginInfo> pluginList;
 
-    /** 创建 PluginRegistry 实例 */
+    /** 创建 pluginregistry 实例 */
     public PluginRegistry() {
         this.pluginMap = new HashMap<>();
         this.pluginList = new ArrayList<>();

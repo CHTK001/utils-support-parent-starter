@@ -235,7 +235,7 @@ public class ProxyMethod {
     /**
      * 获取方法参数名与参数值的映射关系。
      * 根据当前方法的参数名称与构建时传入的参数值 {@link #args} 一一对应组装。
-     * 若参数为 {@code null} 则返回空 Map。
+      * 若参数为 {@code null} 则返回空 映射。
      *
      * @return 参数名-参数值映射表，顺序与参数定义一致
      */
@@ -258,7 +258,7 @@ public class ProxyMethod {
     /**
      * 获取当前方法的返回类型。
      *
-     * @return 返回类型的 Class 对象
+     * @return 返回类型的 类 对象
      */
     public Class<?> getReturnType() {
         return method.getReturnType();
@@ -294,7 +294,7 @@ public class ProxyMethod {
     /**
      * 获取当前方法的返回类型（与 {@link #getReturnType()} 等效）。
      *
-     * @return 返回类型的 Class 对象
+     * @return 返回类型的 类 对象
      */
     public Class<?> returnType() {
         return method.getReturnType();

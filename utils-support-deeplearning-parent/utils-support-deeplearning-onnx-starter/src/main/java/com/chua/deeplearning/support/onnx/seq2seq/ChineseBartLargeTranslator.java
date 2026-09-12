@@ -18,12 +18,12 @@ import java.nio.file.Path;
  * fnlp/bart-large-chinese Seq2Seq ONNX 翻译器
  * <p>
  * 复旦大学 NLP 团队在约 200G 中文语料上重新训练的 BART-large 模型，
- * 针对中文语义进行了结构调整和优化。相比 base 版本，参数量更大、表达能力更强，
+   * 针对中文语义进行了结构调整和优化。相比 基础 版本，参数量更大、表达能力更强，
  * 适用于更复杂的中文生成任务如长文本摘要、复杂翻译、篇章级生成等。
  * </p>
  * <p>
  * 模型来源：huggingface.co/fnlp/bart-large-chinese
- * 架构：Encoder-Decoder (ONNX: model.onnx)
+   * 架构：编码器-解码器 (ONNX: 模型.onnx)
  * 输入：中文文本字符串
  * 输出：生成的中文字符串
  * </p>
@@ -43,7 +43,7 @@ import java.nio.file.Path;
 public class ChineseBartLargeTranslator implements Translator<String, String> {
 
     /** 最大输入长度 */
-    /** Max_input_length */
+    /** 最大_输入_长度 */
     private static final int MAX_INPUT_LENGTH = 1024;
 
     /** 分词器 */
@@ -68,7 +68,7 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("ChineseBartLarge tokenizer not initialized");
@@ -89,7 +89,7 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         NDArray tokenIds = logits.argMax(2);
@@ -105,7 +105,12 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
         return null;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -116,7 +121,13 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
         return modelPath;
     }
 
-    /** 查找File */
+    /**
+     * 查找文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

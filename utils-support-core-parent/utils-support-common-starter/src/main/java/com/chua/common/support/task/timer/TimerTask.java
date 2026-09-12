@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 时间轮任务封装。
  *
  * <p>封装待执行的 {@link Runnable} 及其调度元数据，支持取消和到期回调。
- * 每个 TimerTask 在注册时由时间轮分配唯一 ID。
+   * 每个 定时器任务 在注册时由时间轮分配唯一 标识。
  *
  * <h3>生命周期</h3>
  * <pre>
@@ -50,10 +50,10 @@ public class TimerTask {
     /** 槽位索引（注册后写入） */
     volatile int slotIndex = -1;
 
-    /** 任务节点（双向链表，Object 持有 HashedWheelTimer.TaskNode 以避免循环依赖） */
+    /** 任务节点（双向链表，对象 持有 哈希wheel定时器.任务节点 以避免循环依赖） */
     volatile Object node;
 
-    /** 在途执行的 Future（提交到任务执行器后写入，cancel 时用于中断执行线程） */
+    /** 在途执行的 期货（提交到任务执行器后写入，cancel 时用于中断执行线程） */
     private volatile Future<?> runningFuture;
 
     /**
@@ -88,7 +88,7 @@ public class TimerTask {
     /**
      * 执行任务逻辑（同步调用，由 tick 线程调用）。
      *
-     * @return 执行是否成功（未取消且任务不为 null）
+     * @return 执行是否成功（未取消且任务不为 空）
      */
     public boolean run() {
         if (isCancelled()) {
@@ -122,9 +122,9 @@ public class TimerTask {
     }
 
     /**
-     * 绑定在途执行的 Future（仅供时间轮提交任务时调用）。
+      * 绑定在途执行的 期货（仅供时间轮提交任务时调用）。
      *
-     * @param future 执行器返回的 Future
+     * @param future 执行器返回的 期货
      */
     void setRunningFuture(Future<?> future) {
         this.runningFuture = future;

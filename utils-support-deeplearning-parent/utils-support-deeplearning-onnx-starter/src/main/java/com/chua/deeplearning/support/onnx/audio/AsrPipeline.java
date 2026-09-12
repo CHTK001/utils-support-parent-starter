@@ -34,6 +34,8 @@ import java.util.List;
  *           .postProcess(true)            // 可选：默认 true
  *           .build()
  *           .transcribe(Path.of("a.wav"));
+ * }</pre>           .build()
+ *           .transcribe(Path.of("a.wav"));
  * }</pre>
  *
  * @author CH
@@ -63,7 +65,7 @@ public final class AsrPipeline {
     private static final float DEFAULT_MAX_SEG = 28F;
 
     /**
-     * 引擎 id（必选）
+      * 引擎 标识（必选）
      */
     private final String engineId;
 
@@ -73,12 +75,12 @@ public final class AsrPipeline {
     private final String language;
 
     /**
-     * VAD 类型（null 表示不做 VAD）。
+      * VAD 类型（空 表示不做 VAD）。
      */
     private final String vadType;
 
     /**
-     * 降噪增强器（null 表示不降噪）。
+      * 降噪增强器（空 表示不降噪）。
      */
     private final SpeechEnhancer denoiseEnhancer;
 
@@ -102,6 +104,10 @@ public final class AsrPipeline {
      */
     private final float maxSegSec;
 
+    /**
+      * asrpipeline。
+     * @param b b
+     */
     private AsrPipeline(Builder b) {
         this.engineId = b.engineId;
         this.language = b.language;
@@ -116,7 +122,7 @@ public final class AsrPipeline {
     /**
      * 创建构建器。
      *
-     * @param engineId 必选：ASR 引擎 id（moonshine / whisper-tiny / paraformer-zh-small 等）
+     * @param engineId 必选：ASR 引擎 标识（moonshine / whisper-tiny / paraformer-zh-small 等）
      * @return 构建器
      */
     public static Builder builder(String engineId) {
@@ -179,7 +185,7 @@ public final class AsrPipeline {
     /**
      * 可选-A：按类型 VAD 切分。
      *
-     * @param s    16kHz 单声道采样
+     * @param s    16khz 单声道采样
      * @param type VAD 类型（"energy" / "silero" 等）
      * @return 语音段列表
      */
@@ -196,7 +202,7 @@ public final class AsrPipeline {
      * <p>RMS 门限判定有声帧；短于最小时长的片段丢弃；相邻语音段间隙小于
      * 0.6 秒时自动合并为完整语句；超过最大段长强制二次切分。</p>
      *
-     * @param s           16kHz 单声道采样
+     * @param s           16khz 单声道采样
      * @param silenceRms  静音 RMS 门限
      * @param minSegSec   最短语音段秒数
      * @param maxSegSec   最大段长秒数
@@ -253,7 +259,7 @@ public final class AsrPipeline {
     /**
      * 关闭 VAD 时按最大段长强制切块。
      *
-     * @param s 16kHz 单声道采样
+     * @param s 16khz 单声道采样
      * @return 分块列表
      */
     private List<float[]> forceSplit(float[] s) {
@@ -288,12 +294,12 @@ public final class AsrPipeline {
     }
 
     /**
-     * 可选-B：降噪预处理（委托给 SpeechEnhancer）。
+      * 可选-B：降噪预处理（委托给 语音enhancer）。
      *
      * <p>管线内部为 16k float：先上采样至 48k 封装 WAV 送增强器，
      * 再将增强结果解码回 16k float；失败时回退原始音频。</p>
      *
-     * @param s 16kHz 采样
+     * @param s 16khz 采样
      * @return 增强后采样
      */
     private float[] denoise(float[] s) {
@@ -332,7 +338,7 @@ public final class AsrPipeline {
     public static final class Builder {
 
         /**
-         * 引擎 id（必选）
+          * 引擎 标识（必选）
          */
         private final String engineId;
 
@@ -342,12 +348,12 @@ public final class AsrPipeline {
         private String language;
 
         /**
-         * VAD 类型（null 表示不做 VAD）
+          * VAD 类型（空 表示不做 VAD）
          */
         private String vadType;
 
         /**
-         * 降噪增强器（null 表示不降噪）
+          * 降噪增强器（空 表示不降噪）
          */
         private SpeechEnhancer denoiseEnhancer;
 
@@ -371,6 +377,11 @@ public final class AsrPipeline {
          */
         private float maxSegSec = DEFAULT_MAX_SEG;
 
+        /**
+         * 构建器。
+         * @param engineId engineid
+         * @return 构建器的结果
+         */
         private Builder(String engineId) {
             if (engineId == null || engineId.isBlank()) {
                 throw new IllegalArgumentException("engineId 为必选项");
@@ -397,7 +408,7 @@ public final class AsrPipeline {
          * .vad("energy")   // 能量 VAD（默认参数）
          * }</pre>
          *
-         * @param type VAD 类型（"energy" 等），null 关闭
+         * @param type VAD 类型（"energy" 等），空 关闭
          * @return 构建器
          */
         public Builder vad(String type) {
@@ -406,14 +417,14 @@ public final class AsrPipeline {
         }
 
         /**
-         * 可选-B：降噪模型 ID（嘈杂场景建议开启）。
+          * 可选-B：降噪模型 标识（嘈杂场景建议开启）。
          *
          * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
          * <pre>{@code
          * .denoise("dfsmn-ans")  // DFSMN 单麦近场降噪
          * }</pre>
          *
-         * @param modelId 模型 ID（对应 {@link SpeechEnhancer} 注册表），null 关闭
+         * @param modelId 模型 标识（对应 {@link SpeechEnhancer} 注册表），空 关闭
          * @return 构建器
          */
         public Builder denoise(String modelId) {

@@ -9,7 +9,7 @@ import java.util.List;
  * AI 用量解析器接口 — 解析外部 AI 工具本地存储的用量数据。
  *
  * <p>各工具（OpenCode、Codex 等）在本地存储了各自的用量信息，
- * UsageParser 负责从这些本地文件/配置中解析出标准化的 {@link AiUsage}。</p>
+   * usageparser 负责从这些本地文件/配置中解析出标准化的 {@link AiUsage}。</p>
  *
  * @author CH
  * @since 4.0.0.42

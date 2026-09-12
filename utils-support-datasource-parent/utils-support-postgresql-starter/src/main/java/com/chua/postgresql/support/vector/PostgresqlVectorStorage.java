@@ -21,7 +21,7 @@ import java.util.Map;
  * </ul>
  * </p>
  * <p>
- * 首次 add 时自动：
+   * 首次 添加 时自动：
  * <ol>
  *   <li>创建 {@code vector} 扩展（如未存在）</li>
  *   <li>创建向量表（JSON 存储向量，兼容无 pgvector 环境）</li>
@@ -36,6 +36,8 @@ import java.util.Map;
  *         .algorithm("cosine")
  *         .properties(new MysqlVectorStorageProvider.MysqlVectorStorageProps(dataSource))
  *         .build();
+ * }</pre>r.MysqlVectorStorageProps(dataSource))
+ *         .build();
  * }</pre>
  * </p>
  *
@@ -45,16 +47,22 @@ import java.util.Map;
  */
 public class PostgresqlVectorStorage extends AbstractVectorStorage {
 
-    private final DataSource dataSource;
-    private final String tableName;
-    private final String idColumn;
-    private final String vectorColumn;
-    private final int hnswM;
-    private final int hnswEfSearch;
-    private volatile boolean schemaInitialized;
+    private final DataSource dataSource; // 数据源
+    private final String tableName; // table名称
+    private final String idColumn; // idcolumn
+    private final String vectorColumn; // 向量column
+    private final int hnswM; // hnswm
+    private final int hnswEfSearch; // hnswef搜索
+    private volatile boolean schemaInitialized; // 模式初始化
     /** 降级存储（pgvector 不可用时初始化） */
     private volatile com.chua.common.support.vector.VectorStorage fallback;
 
+    /**
+     * postgresql向量storage。
+     * @param dataSource 数据源
+     * @param dimension 维度
+     * @param algorithm algorithm
+     */
     public PostgresqlVectorStorage(DataSource dataSource, int dimension, VectorCompareAlgorithm algorithm) {
         this(dataSource, dimension, algorithm, new PostgresqlVectorStorageProperties());
     }
@@ -114,10 +122,15 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
 
     // ==================== 内部实现 ====================
 
+    /**
+     * ensure模式。
+     */
     private synchronized void ensureSchema() {
-        if (schemaInitialized) return;
+        if (schemaInitialized) {
+            return;
+        }
         try (Connection conn = dataSource.getConnection()) {
-            // 1. 确保 vector 扩展存在
+ // 1. 确保 向量 扩展存在
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute("CREATE EXTENSION IF NOT EXISTS vector");
             }
@@ -149,9 +162,16 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
 
     /**
      * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
+     * @return 构建相似度op的结果
+     /**
+      * resolved。
+      * @return resolved的结果
+      */
      */
     private com.chua.common.support.vector.VectorStorage resolved() {
-        if (fallback != null) return fallback;
+        if (fallback != null) {
+            return fallback;
+        }
         ensureSchema();
         return this;
     }
@@ -167,14 +187,20 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 将 float[] 转为 PostgreSQL vector 字面量，如 {@code '[0.1,0.2,0.3]'}.
+      * 将 float[] 转为 PostgreSQL 向量 字面量，如 {@code '[0.1,0.2,0.3]'}.
+     * @param arr arr
+     * @return floatarray转为pg向量字面量的结果
      */
     private static String floatArrayToPgVectorLiteral(float[] arr) {
-        if (arr == null || arr.length == 0) return "[]";
+        if (arr == null || arr.length == 0) {
+            return "[]";
+        }
         StringBuilder sb = new StringBuilder(arr.length * 8);
         sb.append('[');
         for (int i = 0; i < arr.length; i++) {
-            if (i > 0) sb.append(',');
+            if (i > 0) {
+                sb.append(',');
+            }
             sb.append(arr[i]);
         }
         sb.append(']');
@@ -182,26 +208,49 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 将 PostgreSQL vector 对象转为 float[]。
+      * 将 PostgreSQL 向量 对象转为 float[]。
+     * @param json json
+     /**
+      * pg向量转为对象。
+      * @param obj obj
+      * @return pg向量转为对象的结果
+      */
+     * @return jsonarray转为floatarray的结果
      */
     private static float[] pgVectorToObject(Object obj) {
-        if (obj == null) return null;
-        if (obj instanceof float[] fa) return fa;
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof float[] fa) {
+            return fa;
+        }
         if (obj instanceof double[] da) {
             float[] result = new float[da.length];
-            for (int i = 0; i < da.length; i++) result[i] = (float) da[i];
+            for (int i = 0; i < da.length; i++) {
+                result[i] = (float) da[i];
+            }
             return result;
         }
         String s = obj.toString();
         return jsonArrayToFloatArray(s);
+    /**
+     * floatarray转为json。
+     * @param vector 向量
+     * @return floatarray转为json的结果
+     * @param json json
+     */
     }
 
     private static String floatArrayToJson(float[] vector) {
-        if (vector == null || vector.length == 0) return "[]";
+        if (vector == null || vector.length == 0) {
+            return "[]";
+        }
         StringBuilder sb = new StringBuilder(vector.length * 8);
         sb.append('[');
         for (int i = 0; i < vector.length; i++) {
-            if (i > 0) sb.append(',');
+            if (i > 0) {
+                sb.append(',');
+            }
             sb.append(vector[i]);
         }
         sb.append(']');
@@ -209,11 +258,17 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     private static float[] jsonArrayToFloatArray(String json) {
-        if (json == null || json.isBlank()) return null;
+        if (json == null || json.isBlank()) {
+            return null;
+        }
         String trimmed = json.trim();
-        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) return null;
+        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+            return null;
+        }
         String inner = trimmed.substring(1, trimmed.length() - 1).trim();
-        if (inner.isEmpty()) return new float[0];
+        if (inner.isEmpty()) {
+            return new float[0];
+        }
         String[] parts = inner.split(",");
         float[] result = new float[parts.length];
         for (int i = 0; i < parts.length; i++) {

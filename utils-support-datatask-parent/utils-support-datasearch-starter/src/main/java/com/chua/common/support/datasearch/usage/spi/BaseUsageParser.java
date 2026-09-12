@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * UsageParser 基类 — 提供按天聚合公共逻辑。
+   * usageparser 基类 — 提供按天聚合公共逻辑。
  *
  * <p>子类实现 {@link #parseAll()} 从各自数据源读取原始用量记录，
  * 本基类提供 {@link #aggregateByDay(List)} 按天分组聚合的通用能力。</p>
@@ -26,14 +26,14 @@ import java.util.Map;
  */
 public abstract class BaseUsageParser implements UsageParser {
 
-    /** Logger */
+    /** 日志记录器 */
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // DAY_FMT
 
     /**
      * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
-     * 直接覆写 streamAll() 的子类不受影响。
+      * 直接覆写 流全部() 的子类不受影响。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -41,9 +41,9 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 阻塞式全量装载（可选覆写）：供未直接实现 streamAll 的存量子类使用。
+      * 阻塞式全量装载（可选覆写）：供未直接实现 流全部 的存量子类使用。
      *
-     * @return 原始 AiUsage 记录列表
+     * @return 原始 aiusage 记录列表
      */
     protected List<AiUsage> parseAll() {
         throw new UnsupportedOperationException(
@@ -54,7 +54,7 @@ public abstract class BaseUsageParser implements UsageParser {
      * 按行惰性读取文本文件（内存占用与总量无关）。
      *
      * @param file 文本文件
-     * @return 行内容流；文件由 Flux.using 负责关闭
+     * @return 行内容流；文件由 Flux.使用 负责关闭
      */
     protected static Flux<String> streamLines(java.nio.file.Path file) {
         return Flux.using(
@@ -70,7 +70,7 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 解析 ISO-8601 时间字符串为 epoch 毫秒（子类通用工具）。
+      * 解析 ISO-8601 时间字符串为 轮次 毫秒（子类通用工具）。
      *
      * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
      * 解析失败返回 0L。</p>
@@ -90,7 +90,7 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 解析 yyyy-MM-dd 日期字符串为当天零点的 epoch 毫秒（子类通用工具）。
+      * 解析 yyyy-MM-dd 日期字符串为当天零点的 轮次 毫秒（子类通用工具）。
      *
      * @param dateStr 日期字符串
      * @return epoch 毫秒；入参为空或非法时返回 0L
@@ -113,7 +113,7 @@ public abstract class BaseUsageParser implements UsageParser {
      *
      * @param value    待检查的值
      * @param fallback 兜底值
-     * @return value 非空白时返回 value，否则返回 fallback
+     * @return value 非空白时返回 值，否则返回 降级
      */
     protected static String firstNonBlank(String value, String fallback) {
         if (value != null && !value.isBlank()) {
@@ -138,7 +138,7 @@ public abstract class BaseUsageParser implements UsageParser {
             try {
                 return Integer.parseInt(s.trim());
             } catch (NumberFormatException ignored) {
-                // fall through
+ // 下降 through
             }
         }
         return 0;
@@ -158,7 +158,7 @@ public abstract class BaseUsageParser implements UsageParser {
             try {
                 return Long.parseLong(s.trim());
             } catch (NumberFormatException ignored) {
-                // fall through
+ // 下降 through
             }
         }
         return 0L;
@@ -178,7 +178,7 @@ public abstract class BaseUsageParser implements UsageParser {
             try {
                 return Double.parseDouble(s.trim());
             } catch (NumberFormatException ignored) {
-                // fall through
+ // 下降 through
             }
         }
         return 0.0d;
@@ -195,10 +195,25 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-     * 将原始记录按天聚合，每天一条 AiUsage 记录。
+      * 将原始记录按天聚合，每天一条 AIusage 记录。
      *
      * @param records 原始用量记录列表
      * @return 按天聚合后的记录列表
+     * @author CH
+     * @since 4.0.0
+     * @param d d
+     /**
+       * aggregatebyday。
+      * @param records records
+      * @return aggregateByDay的结果
+      */
+     * @param millis millis
+      * @param d d
+     /**
+      * aggregateByDay。
+      * @param records records
+      * @return aggregateByDay的结果
+      */
      */
     protected List<AiUsage> aggregateByDay(List<AiUsage> records) {
         Map<String, DayAggregator> dayMap = new LinkedHashMap<>();
@@ -223,14 +238,14 @@ public abstract class BaseUsageParser implements UsageParser {
 
     protected static class DayAggregator {
 
-        private final String day;
-        private final String provider;
-        private int inputTokens;
-        private int outputTokens;
-        private int totalTokens;
-        private BigDecimal totalCost = BigDecimal.ZERO;
-        private long totalDuration;
-        private int count;
+        private final String day; // day
+        private final String provider; // 提供者
+        private int inputTokens; // 输入令牌
+        private int outputTokens; // 输出令牌
+        private int totalTokens; // total令牌
+        private BigDecimal totalCost = BigDecimal.ZERO; // totalcost
+        private long totalDuration; // total持续时间
+        private int count; // 数量
 
         DayAggregator(String day, String provider) {
             this.day = day;

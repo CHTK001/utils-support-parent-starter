@@ -24,7 +24,7 @@ import java.util.function.Function;
  *
  * <p>与 {@link JsonRpcServer} 的多服务路由配套：每个目标接口持有独立的
  * {@link JsonRpcHttpClient}，并在请求体中以 {@code service} 字段携带接口全限定名，
- * 供服务端路由到对应的 handler。版本 / 分组以请求头 {@code X-RPC-Version} /
+   * 供服务端路由到对应的 处理器。版本 / 分组以请求头 {@code X-RPC-Version} /
  * {@code X-RPC-Group} 传递，服务端据此做服务治理校验。</p>
  *
  * @author CH
@@ -60,10 +60,12 @@ public class JsonRpcClient implements RpcClient {
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
     /**
-     * 创建 JsonRpcClient 实例
-     * @param rpcRegistryConfigs rpcRegistryConfigs
-     * @param RpcConsumerConfig RpcConsumerConfig
-     * @param String String
+      * 创建 jsonrpc客户端 实例
+     * @param rpcRegistryConfigs rpcregistry配置
+     * @param consumerConfig rpcconsumer配置
+     * @param name 字符串
+     * @param consumerConfig consumer配置
+     * @param name 名称
      */
     public JsonRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.consumerConfig = consumerConfig;
@@ -79,7 +81,12 @@ public class JsonRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    /** 获取 */
+    /**
+     * 获取
+     *
+     * @param targetType Target类型
+     * @return 获取的结果
+     */
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type -> {
             Class<T> t = (Class<T>) type;
@@ -126,6 +133,8 @@ public class JsonRpcClient implements RpcClient {
     /**
      * 远程调用实现：携带 {@code service} 路由字段 + 服务治理请求头，
      * 并按消费者配置进行有限次网络重试。
+     * @author CH
+     * @since 4.0.0
      */
     private class RpcInvoker implements Function<ProxyMethod, Object> {
 
@@ -173,7 +182,7 @@ public class JsonRpcClient implements RpcClient {
         }
 
         /**
-         * 解包异常链，找到最底层原因（jsonrpc4j 会把业务异常包装为 JsonRpcClientException）。
+          * 解包异常链，找到最底层原因（jsonrpc4j 会把业务异常包装为 jsonrpc客户端异常）。
          *
          * @param throwable 原始异常
          * @return 最底层异常
@@ -186,7 +195,12 @@ public class JsonRpcClient implements RpcClient {
             return cur;
         }
 
-        /** Do调用 */
+        /**
+         * 执行调用
+         *
+         * @param proxyMethod 代理方法
+         * @return 执行invoke的结果
+         */
         private Object doInvoke(ProxyMethod proxyMethod) throws Throwable {
             JsonRpcHttpClient client = ensureClient(targetType);
             Map<String, String> headers = buildHeaders();

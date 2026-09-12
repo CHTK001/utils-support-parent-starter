@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
  * 传输链路事件 — 一次网络 / 进程内传输的记录。
  *
  * <p>同时为链路追踪（traceId/spanId）和传输链路（source/target）提供数据。
- * 应用层 Handler（Jedis/ZK/HTTP 客户端）显式声明 protocol + operation；
- * Socket 层 Handler 通过端口推断 protocol。</p>
+   * 应用层 处理器（Jedis/ZK/HTTP 客户端）显式声明 协议 + operation；
+   * 套接字 层 处理器 通过端口推断 协议。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,17 +22,17 @@ import lombok.NoArgsConstructor;
 public class TransmissionRecord {
 
     /**
-     * 关联的追踪 ID
+      * 关联的追踪 标识
      */
     private String traceId;
 
     /**
-     * 关联的 Span ID
+      * 关联的 Span 标识
      */
     private String spanId;
 
     /**
-     * 父 Span ID（嵌套调用时填）
+      * 父 Span 标识（嵌套调用时填）
      */
     private String parentSpanId;
 
@@ -57,7 +57,7 @@ public class TransmissionRecord {
     private Software software;
 
     /**
-     * 操作描述（"GET /api/order"、"SET user:1"、"CREATE /znode/path"）
+      * 操作描述（"获取 /api/订单"、"设置 用户:1"、"创建 /znode/路径"）
      */
     private String operation;
 
@@ -69,7 +69,7 @@ public class TransmissionRecord {
     private StatusCode status = StatusCode.UNSET;
 
     /**
-     * 状态码（HTTP status / ZK rc / Redis reply）
+      * 状态码（HTTP 状态 / ZK rc / Redis reply）
      */
     private int statusCode;
 

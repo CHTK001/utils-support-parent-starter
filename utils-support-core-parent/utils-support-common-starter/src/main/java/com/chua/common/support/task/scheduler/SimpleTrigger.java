@@ -44,7 +44,7 @@ public class SimpleTrigger implements Trigger {
     }
 
     /**
-     * 获取从当前时间起的前 count 次触发时间。
+      * 获取从当前时间起的前 数量 次触发时间。
      */
     @Override
     public List<LocalDateTime> getFireTimes(int count) {
@@ -53,7 +53,7 @@ public class SimpleTrigger implements Trigger {
     }
 
     /**
-     * 获取从指定基准时间起的前 count 次触发时间，按间隔递推。
+      * 获取从指定基准时间起的前 数量 次触发时间，按间隔递推。
      */
     @Override
     public List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {

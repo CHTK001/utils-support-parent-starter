@@ -26,11 +26,11 @@ import java.util.concurrent.ConcurrentMap;
 final class SpringObjectContextBridge {
 
     /**
-     * 已注册到 Spring 的 beanName 缓存，key = beanName，value = bean 实例引用
+      * 已注册到 Spring 的 Bean名称 缓存，键 = Bean名称，值 = Bean 实例引用
      */
     private static final ConcurrentMap<String, Object> REGISTERED = new ConcurrentHashMap<>();
 
-    /** 创建 SpringObjectContextBridge 实例 */
+    /** 创建 spring对象上下文bridge 实例 */
     private SpringObjectContextBridge() {
     }
 
@@ -61,9 +61,9 @@ final class SpringObjectContextBridge {
             return;
         }
         try {
-            // 注册单例，使 Spring 后续可通过 getBean / @Autowired 获取
+ // 注册单例，使 Spring 后续可通过 获取Bean / @Autowired 获取
             ((SingletonBeanRegistry) factory).registerSingleton(beanName, bean);
-            // 注册 RootBeanDefinition，使 getBeanDefinitionNames / getBeanDefinitionCount 等元数据接口可用
+ // 注册 根Beandefinition，使 获取Beandefinition名称 / 获取Beandefinition数量 等元数据接口可用
             RootBeanDefinition bd = new RootBeanDefinition(bean.getClass());
             bd.setScope(org.springframework.beans.factory.config.BeanDefinition.SCOPE_SINGLETON);
             bd.setAutowireCandidate(true);
@@ -76,7 +76,7 @@ final class SpringObjectContextBridge {
     }
 
     /**
-     * 解析默认 beanName：小驼峰类名（首字母小写），与 {@code TypeBeanDefinition.of} 保持一致。
+      * 解析默认 Bean名称：小驼峰类名（首字母小写），与 {@code TypeBeanDefinition.of} 保持一致。
      *
      * @param beanClass Bean 类型
      * @return beanName

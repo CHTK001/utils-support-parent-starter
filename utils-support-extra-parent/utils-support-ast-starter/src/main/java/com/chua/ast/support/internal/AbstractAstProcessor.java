@@ -14,7 +14,7 @@ import javax.tools.Diagnostic;
 import java.lang.reflect.Field;
 
 /**
- * AST 处理器基类，封装了 TreeMaker 和 Names 的获取逻辑。
+   * AST 处理器基类，封装了 树maker 和 名称 的获取逻辑。
  * <p>
  * 子类只需实现 {@link #process(java.util.Set, javax.annotation.processing.RoundEnvironment)} 方法，
  * 通过 {@link #getTreeMaker()} 和 {@link #getNames(TreeMaker)} 获取 javac 编译树 API 的工具实例。
@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
 public abstract class AbstractAstProcessor extends AbstractProcessor {
 
     /**
-     * Trees 实例，用于获取编译树。
+      * 树 实例，用于获取编译树。
      */
     protected Trees trees;
 
@@ -46,7 +46,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     protected Context context;
 
     /**
-     * 初始化处理器，获取 Trees 实例。
+      * 初始化处理器，获取 树 实例。
      *
      * @param processingEnv 编译处理环境
      */
@@ -65,13 +65,13 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 通过 JavacTrees 的 Context 获取 TreeMaker 实例。
+      * 通过 javac树 的 上下文 获取 树maker 实例。
      * <p>
-     * 尝试两种方式获取 Context：方式一从 JavacProcessingEnvironment 直接获取，
-     * 方式二从 JavacTrees 反射获取。
+      * 尝试两种方式获取 上下文：方式一从 javac处理环境 直接获取，
+      * 方式二从 javac树 反射获取。
      * </p>
      *
-     * @return TreeMaker 实例，获取失败返回 null
+     * @return TreeMaker 实例，获取失败返回 空
      */
     protected TreeMaker getTreeMaker() {
         if (trees == null) {
@@ -99,12 +99,12 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 方式一：从 JavacProcessingEnvironment 反射获取 Context。
+      * 方式一：从 javac处理环境 反射获取 上下文。
      * <p>
      * 优先调用 {@code getContext()} 方法，若不存在则回退到反射读取 {@code context} 字段。
      * </p>
      *
-     * @return javac Context，获取失败返回 null
+     * @return javac 上下文，获取失败返回 空
      */
     private Context getContextFromJavacEnv() {
         try {
@@ -130,12 +130,12 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 方式二：从 JavacTrees 反射获取 Context。
+      * 方式二：从 javac树 反射获取 上下文。
      * <p>
      * 依次尝试 {@code context}、{@code treeContext} 字段名，返回第一个成功读取的值。
      * </p>
      *
-     * @return javac Context，获取失败返回 null
+     * @return javac 上下文，获取失败返回 空
      */
     private Context getContextFromJavacTrees() {
         JavacTrees javacTrees = (JavacTrees) trees;
@@ -154,13 +154,13 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 从 Context 获取 Names 实例。
+      * 从 上下文 获取 名称 实例。
      * <p>
-     * 优先从已获取的 Context 中获取 Names，若 Context 为空则从 TreeMaker 中反射获取。
+      * 优先从已获取的 上下文 中获取 名称，若 上下文 为空则从 树maker 中反射获取。
      * </p>
      *
-     * @param maker TreeMaker 实例
-     * @return Names 实例，获取失败返回 null
+     * @param maker 树maker 实例
+     * @return Names 实例，获取失败返回 空
      */
     protected Names getNames(TreeMaker maker) {
         if (context != null) {
@@ -179,9 +179,9 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 检查 Trees API 是否可用。
+      * 检查 树 API 是否可用。
      *
-     * @return Trees 实例不为 null 时返回 true
+     * @return Trees 实例不为 空 时返回 true
      */
     protected boolean isTreeApiAvailable() {
         return trees != null;

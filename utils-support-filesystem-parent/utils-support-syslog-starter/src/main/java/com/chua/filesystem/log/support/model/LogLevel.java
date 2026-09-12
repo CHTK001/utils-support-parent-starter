@@ -33,12 +33,21 @@ public enum LogLevel {
         this.severity = severity;
     }
 
-    /** 获取Severity */
+    /**
+     * 获取Severity
+     *
+     * @return 获取severity的结果
+     */
     public int getSeverity() {
         return severity;
     }
 
-    /** MeetsMinimum */
+    /**
+     * meetsminimum
+     *
+     * @param minLevel 最小级别
+     * @return meetsMinimum的结果
+     */
     public boolean meetsMinimum(LogLevel minLevel) {
         return minLevel == null || this.severity >= minLevel.severity;
     }

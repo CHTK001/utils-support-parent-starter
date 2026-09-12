@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 服务提供者接口，提供 SPI（Service Provider Interface）机制的核心功能。
+   * 服务提供者接口，提供 SPI（服务 提供者 接口）机制的核心功能。
  * <p>
  * 该接口是整个 SPI 框架的核心，提供了服务发现、注册、获取、管理等完整功能。
  * 支持通过名称获取服务实例、服务注册、服务发现、条件加载等高级特性。
@@ -53,6 +53,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 获取所有服务
  * List<DataProcessor> processors = provider.collect();
+ *
+ * // 注册新服务
+ * provider.register("custom", new CustomDataProcessor());
+ * }</pre>ider.collect();
  *
  * // 注册新服务
  * provider.register("custom", new CustomDataProcessor());
@@ -168,7 +172,7 @@ public interface ServiceProvider<T> {
      * 根据名称获取单个服务实例。
      *
      * @param name 服务名称
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     T getExtension(@Nullable String name);
@@ -177,7 +181,7 @@ public interface ServiceProvider<T> {
      * 根据多个名称获取服务实例，优先返回第一个匹配项。
      *
      * @param name 服务名称数组
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     T getExtension(@Nonnull String... name);
@@ -186,7 +190,7 @@ public interface ServiceProvider<T> {
      * 根据枚举值获取服务实例。
      *
      * @param name 枚举值
-     * @return 服务实例，如果未找到或值为 null 则返回 null
+     * @return 服务实例，如果未找到或值为 空 则返回 空
      */
     @Nullable
     default T getExtension(@Nullable Enum name) {
@@ -201,7 +205,7 @@ public interface ServiceProvider<T> {
      *
      * @param name 服务名称
      * @param args 构造参数
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     T getNewExtension(@Nullable String name, @Nonnull Object... args);
@@ -211,7 +215,7 @@ public interface ServiceProvider<T> {
      *
      * @param type 目标类型
      * @param args 构造参数
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     T getNewExtension(@Nonnull Class<?> type, @Nonnull Object... args);
@@ -221,7 +225,7 @@ public interface ServiceProvider<T> {
      *
      * @param name 枚举值
      * @param args 构造参数
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     default T getNewExtension(@Nullable Enum name, @Nonnull Object... args) {
@@ -235,7 +239,7 @@ public interface ServiceProvider<T> {
      * 创建默认服务实例（无名称）。
      *
      * @param args 构造参数
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     default T newExtension(@Nonnull Object... args) {
@@ -247,7 +251,7 @@ public interface ServiceProvider<T> {
      *
      * @param name 枚举值
      * @param args 构造参数
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     default T getExtension(@Nullable Enum name, @Nonnull Object... args) {
@@ -259,7 +263,7 @@ public interface ServiceProvider<T> {
      *
      * @param name 服务名称
      * @param args 构造参数
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     T getDeepNewExtension(@Nullable String name, @Nonnull Object... args);
@@ -270,7 +274,7 @@ public interface ServiceProvider<T> {
      * @param uid  唯一标识符
      * @param name 服务名称
      * @param args 构造参数
-     * @return 服务实例，如果未找到则返回 null
+     * @return 服务实例，如果未找到则返回 空
      */
     @Nullable
     T getKeepExtension(@Nonnull String uid, @Nullable String name, @Nonnull Object... args);
@@ -286,7 +290,7 @@ public interface ServiceProvider<T> {
      * 获取有效的服务提供者实例。
      *
      * @param args 构造参数
-     * @return 服务实例，如果无效则返回 null
+     * @return 服务实例，如果无效则返回 空
      */
     @Nullable
     T getValidProvider(@Nonnull Object... args);
@@ -508,7 +512,7 @@ public interface ServiceProvider<T> {
      * 获取指定类型的服务定义。
      *
      * @param type 类型
-     * @return 服务定义，如果未找到则返回 null
+     * @return 服务定义，如果未找到则返回 空
      */
     @Nullable
     ServiceDefinition getDefinition(@Nullable String type);
@@ -620,7 +624,7 @@ public interface ServiceProvider<T> {
      * 全部失败则抛出最后一个异常。</p>
      *
      * @param name 服务名称
-     * @return 服务代理，未找到任何实现时返回 null
+     * @return 服务代理，未找到任何实现时返回 空
      */
     @Nullable
     default T getExtensionFactory(@Nullable String name) {
@@ -638,7 +642,7 @@ public interface ServiceProvider<T> {
      *
      * @param name 服务名称
      * @param args 构造参数
-     * @return 服务代理，未找到任何实现时返回 null
+     * @return 服务代理，未找到任何实现时返回 空
      */
     @Nullable
     default T getNewExtensionFactory(@Nullable String name, @Nonnull Object... args) {
@@ -650,7 +654,7 @@ public interface ServiceProvider<T> {
      * 构建按优先级自动降级的服务代理。
      *
      * @param instances 按优先级排序的服务实例列表（高优先级在前）
-     * @return 服务代理，列表为空时返回 null
+     * @return 服务代理，列表为空时返回 空
      */
     @Nullable
     default T proxyFactory(@Nonnull List<T> instances) {
@@ -684,7 +688,7 @@ public interface ServiceProvider<T> {
                         continue;
                     }
                     try {
-                        // 基于接口方法重建 ProxyMethod，避免 reload 副作用污染其他实现
+ // 基于接口方法重建 代理方法，避免 reload 副作用污染其他实现
                         ProxyMethod fresh = ProxyMethod.builder()
                                 .method(proxyMethod.getMethod())
                                 .args(proxyMethod.getArgs())

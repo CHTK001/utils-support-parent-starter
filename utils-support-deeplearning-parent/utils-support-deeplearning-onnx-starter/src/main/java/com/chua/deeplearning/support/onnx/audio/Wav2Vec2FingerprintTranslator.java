@@ -60,6 +60,8 @@ import java.util.Map;
  *       "audio/fingerprint/wav2vec2-zh/model.onnx",
  *       "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
  *       false, null);
+ * }</pre>/main/model.onnx",
+ *       false, null);
  * }</pre>
  *
  * <h2>注意事项</h2>
@@ -89,7 +91,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     private String modelPath;
 
     /**
-     * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
+      * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
      *
      * @param modelPath 模型路径
      */
@@ -100,7 +102,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     /**
      * 构造翻译器。
      *
-     * @param modelPath ONNX 模型文件路径（可为 classpath 资源或文件系统绝对路径）
+     * @param modelPath ONNX 模型文件路径（可为 类路径 资源或文件系统绝对路径）
      */
     public Wav2Vec2FingerprintTranslator(String modelPath) {
         this.modelPath = modelPath;
@@ -153,7 +155,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
             opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
             session = ortEnv.createSession(modelFile.toString(), opts);
 
-            // 通过 dummy inference 推断 hidden size 和 max length
+ // 通过 dummy 推理 推断 hidden 大小 和 最大 长度
             inferModelStructure();
             prepared = true;
             log.info("[Wav2Vec2Fingerprint] 模型加载完成: {} (hidden={}, maxLen={})",
@@ -165,7 +167,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
      * 通过一次 dummy 推理推断模型结构参数。
      *
      * <p>构造一个全零的 dummy 输入张量，执行一次前向推理，
-     * 从输出张量的 shape 中提取 hidden_size 和 max_input_length。</p>
+      * 从输出张量的 shape 中提取 hidden_大小 和 最大_输入_长度。</p>
      */
     private void inferModelStructure() {
         try {
@@ -180,7 +182,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
                 ai.onnxruntime.OnnxValue outVal = result.get(0);
                 if (outVal instanceof OnnxTensor outTensor) {
                     long[] shape = outTensor.getInfo().getShape();
-                    // shape 通常为 [1, seq_len, hidden_size] 或 [1, hidden_size]
+ // shape 通常为 [1, seq_len, hidden_大小] 或 [1, hidden_大小]
                     if (shape.length == 3) {
                         hiddenSize = (int) shape[2];
                     } else if (shape.length == 2) {
@@ -194,10 +196,10 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 解析模型文件路径：优先尝试文件系统，其次尝试 classpath 资源。
+      * 解析模型文件路径：优先尝试文件系统，其次尝试 类路径 资源。
      *
-     * @param pathStr 模型路径字符串（绝对路径、相对路径或 classpath: 前缀）
-     * @return 本地 Path；不存在返回 null
+     * @param pathStr 模型路径字符串（绝对路径、相对路径或 类路径: 前缀）
+     * @return 本地 路径；不存在返回 空
      */
     private static Path resolveModelPath(String pathStr) {
         if (pathStr == null || pathStr.isBlank()) {
@@ -208,7 +210,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
         if (Files.exists(abs)) {
             return abs;
         }
-        // classpath 路径（含 classpath: 前缀或裸相对路径）
+ // 类路径 路径（含 类路径: 前缀或裸相对路径）
         String resource = pathStr;
         if (pathStr.startsWith("classpath:")) {
             resource = pathStr.substring("classpath:".length());
@@ -252,7 +254,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
      * </p>
      *
      * @param audioData 音频原始字节（WAV 或 PCM）
-     * @return 特征向量（维度 = hidden_size）
+     * @return 特征向量（维度 = hidden_大小）
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -289,7 +291,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
             Map<String, OnnxTensor> feed = new HashMap<>();
             feed.put(inputName, inputTensor);
             try (OrtSession.Result result = session.run(feed)) {
-                // 步骤 5：从输出张量中提取 hidden state
+ // 步骤 5：从输出张量中提取 hidden 状态
                 ai.onnxruntime.OnnxValue outVal = result.get(0);
                 if (!(outVal instanceof OnnxTensor outTensor)) {
                     throw new RuntimeException("模型输出类型不兼容: " + outVal.getClass().getSimpleName());
@@ -302,15 +304,15 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
                 int seqLen = (int) shape[1];
                 int hs = (int) shape[2];
                 float[] pooled = new float[hs];
-                // hidden 数组 layout: [batch][seq_len][hidden_size] 按行优先展平
-                // 即 hidden[i * seqLen * hs + t * hs + h]
+ // hidden 数组 layout: [批量][seq_len][hidden_大小] 按行优先展平
+ // 即 hidden[i * seqlen * hs + t * hs + h]
                 for (int t = 0; t < seqLen; t++) {
                     int base = t * hs;
                     for (int h = 0; h < hs; h++) {
                         pooled[h] += hidden[base + h];
                     }
                 }
-                // 除以 seqLen 得到均值
+ // 除以 seqlen 得到均值
                 float invSeqLen = 1.0f / seqLen;
                 for (int h = 0; h < hs; h++) {
                     pooled[h] *= invSeqLen;
@@ -323,17 +325,17 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 将音频字节数组解码为 16kHz 单声道 float 采样数组。
+      * 将音频字节数组解码为 16khz 单声道 float 采样数组。
      *
      * <p>支持以下输入格式：
      * <ul>
      *   <li>WAV 文件（自动解析 RIFF 头，支持 8-bit/16-bit/32-bit PCM 及 float）</li>
      *   <li>裸 PCM 字节（假设为 16-bit 有符号小端，直接转换为 float）</li>
      * </ul>
-     * 解码后统一重采样至 16kHz 单声道，采样值范围 [-1.0, 1.0]。</p>
+      * 解码后统一重采样至 16khz 单声道，采样值范围 [-1.0, 1.0]。</p>
      *
      * @param bytes 音频字节数组
-     * @return 16kHz 单声道 float 采样数组；解析失败返回 null
+     * @return 16kHz 单声道 float 采样数组；解析失败返回 空
      */
     private static float[] decodeAudioToPcm(byte[] bytes) {
         if (bytes == null || bytes.length < 44) {
@@ -352,7 +354,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
      * 直接解析 WAV 文件头并提取 PCM 采样（高性能路径）。
      *
      * @param wavBytes WAV 文件字节
-     * @return 16kHz 单声道 float 采样；解析失败返回 null
+     * @return 16kHz 单声道 float 采样；解析失败返回 空
      */
     private static float[] decodeWavDirect(byte[] wavBytes) {
         try {
@@ -391,7 +393,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
                 }
                 pcm[i] = sum / channels;
             }
-            // 若采样率不是 16kHz，进行重采样
+ // 若采样率不是 16khz，进行重采样
             if (Math.abs(sampleRate - 16000) < 1) {
                 return pcm;
             }
@@ -405,7 +407,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
      * 通过 Java Sound API 解码音频（通用兜底路径）。
      *
      * @param bytes 音频字节
-     * @return 16kHz 单声道 float 采样；失败返回 null
+     * @return 16kHz 单声道 float 采样；失败返回 空
      */
     private static float[] decodeViaJavaSound(byte[] bytes) {
         try {
@@ -427,7 +429,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 将 Java Sound 解码后的原始字节转换为 16kHz 单声道 float 数组。
+      * 将 Java Sound 解码后的原始字节转换为 16khz 单声道 float 数组。
      *
      * @param raw   原始采样字节
      * @param fmt   音频格式信息
@@ -489,7 +491,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 在字节流中查找 "data" 字节的偏移位置（用于 WAV 头解析）。
+      * 在字节流中查找 "数据" 字节的偏移位置（用于 WAV 头解析）。
      *
      * @param bytes WAV 字节数组
      * @return "data" 偏移量；未找到返回 -1
@@ -500,12 +502,24 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
         return idx >= 0 ? idx : -1;
     }
 
-    /** 读取小端序 16 位整数 */
+    /**
+     * 读取小端序 16 位整数
+     *
+     * @param b b
+     * @param off off
+     * @return 读取leshort的结果
+     */
     private static int readLeShort(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8);
     }
 
-    /** 读取小端序 32 位整数 */
+    /**
+     * 读取小端序 32 位整数
+     *
+     * @param b b
+     * @param off off
+     * @return 读取leint的结果
+     */
     private static int readLeInt(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8) |
                 ((b[off + 2] & 0xff) << 16) | ((b[off + 3] & 0xff) << 24);

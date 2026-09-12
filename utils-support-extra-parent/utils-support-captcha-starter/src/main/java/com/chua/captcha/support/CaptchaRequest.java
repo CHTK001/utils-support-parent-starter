@@ -7,7 +7,7 @@ import lombok.Data;
  * 验证码解析请求参数
  * <p>
  * 封装提交验证码解析请求所需的全部参数，包括验证码类型、
- * 目标页面 URL、siteKey、代理设置、超时时间等。
+   * 目标页面 URL、site键、代理设置、超时时间等。
  * </p>
  *
  * @author CH
@@ -28,12 +28,12 @@ public class CaptchaRequest {
     private String url;
 
     /**
-     * 目标网站 siteKey
+      * 目标网站 site键
      */
     private String siteKey;
 
     /**
-     * reCAPTCHA v3 使用的 action 参数
+      * recaptcha v3 使用的 动作 参数
      */
     private String action;
 

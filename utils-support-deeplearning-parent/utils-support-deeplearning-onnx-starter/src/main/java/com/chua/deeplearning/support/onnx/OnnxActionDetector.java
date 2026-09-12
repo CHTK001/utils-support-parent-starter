@@ -10,13 +10,21 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return resolve模型的结果
+ * @param model 模型
  */
 @Slf4j
 public class OnnxActionDetector implements ActionDetector {
 
-    private String modelName;
-    private float threshold = 0.45f;
-    private String modelPath;
+    private String modelName; // 模型名称
+    private float threshold = 0.45f; // 阈值
+    private String modelPath; // 模型路径
+    /**
+     * onnx动作detector。
+     * @param apiKey api键
+     * @return resolve模型的结果
+     * @param model 模型
+     */
     private String device = "cpu";
 
     public OnnxActionDetector(String apiKey) {

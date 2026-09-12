@@ -51,7 +51,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
     public static final String NAME = "database";
 
     /**
-     * 默认查询 SQL（适配 sys_ai_usage 表结构）
+      * 默认查询 SQL（适配 sys_AI_usage 表结构）
      */
     private static final String DEFAULT_QUERY_SQL =
             "SELECT sys_ai_usage_provider, sys_ai_usage_model," +
@@ -140,7 +140,9 @@ public class DatabaseUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将数据库行映射为 AiUsage 对象。
+      * 将数据库行映射为 AIusage 对象。
+     * @param row row
+     * @return 映射转为AIusage的结果
      */
     private AiUsage mapToAiUsage(Map<String, Object> row) {
         AiUsage.AiUsageBuilder builder = AiUsage.builder();
@@ -195,6 +197,8 @@ public class DatabaseUsageParser extends BaseUsageParser {
 
     /**
      * 获取映射后的列名。
+     * @param field 字段
+     * @return 获取mappedcolumn的结果
      */
     private String getMappedColumn(String field) {
         return fieldMapping.getOrDefault(field, field);

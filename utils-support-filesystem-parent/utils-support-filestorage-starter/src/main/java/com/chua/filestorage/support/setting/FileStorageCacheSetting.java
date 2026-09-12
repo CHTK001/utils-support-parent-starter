@@ -28,7 +28,7 @@ public class FileStorageCacheSetting {
     private String pdfCacheDir = System.getProperty("java.io.tmpdir") + "/filestorage-pdf-cache";
 
     /**
-     * 闪图 0 字节 marker 文件目录。
+      * 闪图 0 字节 记号笔 文件目录。
      * <p>默认为 {@code ${java.io.tmpdir}/filestorage-flash}</p>
      */
     @Builder.Default
@@ -60,7 +60,7 @@ public class FileStorageCacheSetting {
     private long maxMemoryFileSize = 5L * 1024 * 1024;
 
     /**
-     * 闪图 token 过期时间（秒）。
+      * 闪图 令牌 过期时间（秒）。
      * <p>默认 600（10 分钟）。</p>
      */
     @Builder.Default

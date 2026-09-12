@@ -5,8 +5,8 @@ import javax.sql.DataSource;
 /**
  * 数据源创建器接口。
  * <p>
- * 统一管理多种类型的数据源（JDBC DataSource、DataScheme 等），
- * 通过 SPI 机制可以注册不同的实现（如 CalciteDataSourceCreator）。
+   * 统一管理多种类型的数据源（JDBC 数据源、数据scheme 等），
+   * 通过 SPI 机制可以注册不同的实现（如 calcite数据源creator）。
  * </p>
  *
  * @author CH

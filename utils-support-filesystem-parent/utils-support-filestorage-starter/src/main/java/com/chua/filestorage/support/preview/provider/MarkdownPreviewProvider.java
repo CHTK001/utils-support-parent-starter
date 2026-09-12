@@ -21,7 +21,7 @@ import java.util.Locale;
 public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String extension, String mimeType) {
         return "md".equalsIgnoreCase(extension) || "text/markdown".equals(mimeType);
     }
@@ -47,7 +47,12 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
-    /** RenderToHtml */
+    /**
+     * render转为html
+     *
+     * @param md md
+     * @return render转为html的结果
+     */
     private static String renderToHtml(String md) {
         StringBuilder sb = new StringBuilder();
         boolean inCodeBlock = false;
@@ -104,7 +109,12 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
         return sb.toString();
     }
 
-    /** EscapeHtml */
+    /**
+     * escapehtml
+     *
+     * @param s s
+     * @return escapeHtml的结果
+     */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

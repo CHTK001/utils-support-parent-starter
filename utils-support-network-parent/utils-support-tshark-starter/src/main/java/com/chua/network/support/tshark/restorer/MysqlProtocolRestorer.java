@@ -4,8 +4,8 @@ package com.chua.network.support.tshark.restorer;
  * MySQL 协议还原器。
  *
  * <p>MySQL packet: payload_length(3 LE) + sequence_id(1) + payload。
- * 握手/响应首包含 Server Greeting 标识 "5.5.x-5.7.x" / "8.0.x"。
- * COM_QUERY 命令 packet payload 首字节为 0x03。</p>
+   * 握手/响应首包含 服务端 Greeting 标识 "5.5.x-5.7.x" / "8.0.x"。
+   * COM_查询 命令 数据包 payload 首字节为 0x03。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,7 +13,7 @@ package com.chua.network.support.tshark.restorer;
 public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "mysql";
     }
@@ -59,7 +59,7 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
         sb.append("seq=").append(seqId);
         sb.append(", payload=").append(payloadLen).append("B");
         if (seqId == 0) {
-            // Server Greeting
+ // 服务端 Greeting
             int protoVer = rawData[4] & 0xff;
             sb.append(", greeting, serverVersion=").append(parseServerVersion(rawData));
             sb.append(", protocol=").append(protoVer);
@@ -78,7 +78,12 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** 解析ServerVersion */
+    /**
+     * 解析服务端版本
+     *
+     * @param data 数据
+     * @return 解析服务端版本的结果
+     */
     private static String parseServerVersion(byte[] data) {
         if (data.length < 5) {
             return "?";
@@ -92,7 +97,12 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToCommandName */
+    /**
+     * 转为命令名称
+     *
+     * @param cmd CMD
+     * @return 转为命令名称的结果
+     */
     private static String toCommandName(int cmd) {
         return switch (cmd) {
             case 0x00 -> "COM_SLEEP";

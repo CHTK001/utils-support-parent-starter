@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * 日期时间转换器配置类
  * <p>
- * 自动注册以下转换器到 Spring 的 ConversionService：
+   * 自动注册以下转换器到 Spring 的 转换服务：
  * <ul>
  *   <li>String ↔ LocalDate</li>
  *   <li>String ↔ LocalDateTime</li>
@@ -38,7 +38,7 @@ public class DateConvertConfiguration {
     private final String timePattern;
 
     /**
-     * 日期时间格式，默认使用 ISO 本地日期时间格式（yyyy-MM-ddTHH:mm:ss）
+      * 日期时间格式，默认使用 ISO 本地日期时间格式（yyyy-MM-ddthh:mm:ss）
      */
     private final String dateTimePattern;
 
@@ -63,7 +63,7 @@ public class DateConvertConfiguration {
     }
 
     /**
-     * 注册日期时间转换器到 ConversionService
+      * 注册日期时间转换器到 转换服务
      *
      * @return ConversionService 实例
      */
@@ -71,23 +71,23 @@ public class DateConvertConfiguration {
     public ConversionService conversionService() {
         DefaultConversionService conversionService = new DefaultConversionService();
 
-        // 注册 LocalDate 转换器
+ // 注册 本地日期 转换器
         conversionService.addConverter(new LocalDateToStringConverter(datePattern));
         conversionService.addConverter(new StringToLocalDateConverter(datePattern));
 
-        // 注册 LocalDateTime 转换器
+ // 注册 本地日期时间 转换器
         conversionService.addConverter(new LocalDateTimeToStringConverter(dateTimePattern));
         conversionService.addConverter(new StringToLocalDateTimeConverter(dateTimePattern));
 
-        // 注册 LocalTime 转换器
+ // 注册 本地时间 转换器
         conversionService.addConverter(new LocalTimeToStringConverter(timePattern));
         conversionService.addConverter(new StringToLocalTimeConverter(timePattern));
 
-        // 注册 Date 与 LocalDate 转换器
+ // 注册 日期 与 本地日期 转换器
         conversionService.addConverter(new DateToLocalDateConverter());
         conversionService.addConverter(new LocalDateToDateConverter());
 
-        // 注册 Date 与 LocalDateTime 转换器
+ // 注册 日期 与 本地日期时间 转换器
         conversionService.addConverter(new DateToLocalDateTimeConverter());
         conversionService.addConverter(new LocalDateTimeToDateConverter());
 

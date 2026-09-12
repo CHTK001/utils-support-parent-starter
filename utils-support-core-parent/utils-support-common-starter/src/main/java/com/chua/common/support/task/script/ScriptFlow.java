@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * ScriptFlow flow = ScriptFlow.of("js");
  * flow.load(Path.of("transform.js"));
  * Object result = flow.execute(Path.of("transform.js"), Map.of("name", "test"));
+ * }</pre>transform.js"), Map.of("name", "test"));
  * }</pre>
  *
  * @author CH
@@ -33,8 +34,8 @@ public class ScriptFlow {
     private final Map<Path, Boolean> loadedScripts = new ConcurrentHashMap<>();
 
     /**
-     * 创建 ScriptFlow 实例
-     * @param provider provider
+      * 创建 script流 实例
+     * @param provider 提供者
      */
     private ScriptFlow(ScriptProvider provider) {
         this.provider = provider;
@@ -43,7 +44,7 @@ public class ScriptFlow {
     /**
      * 创建脚本流程管理器。
      *
-     * @param engineName 脚本引擎名称（如 "js"、"groovy"）
+     * @param engineName 脚本引擎名称（如 "js"、"Groovy"）
      * @return ScriptFlow 实例
      */
     public static ScriptFlow of(String engineName) {
@@ -147,7 +148,11 @@ public class ScriptFlow {
         return results;
     }
 
-    /** 获取ScriptExtension */
+    /**
+     * 获取script延伸
+     *
+     * @return 获取script延伸的结果
+     */
     private String getScriptExtension() {
         return switch (provider.engineName()) {
             case "js" -> ".js";

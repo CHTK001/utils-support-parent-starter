@@ -6,7 +6,7 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 /**
- * Redis SET 命令处理器，设置字符串键值。
+   * Redis 设置 命令处理器，设置字符串键值。
  *
  * @author CH
  * @since 4.0.0.42

@@ -9,7 +9,7 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.onnx.face.OnnxImageProcessor;
 
 /**
- * InsightFace 性别年龄预测 Translator（buffalo_l genderage）。
+   * 洞见face 性别年龄预测 Translator（buffalo_l genderage）。
  *
  * <p>96×96 RGB 输入（归一化 (rgb-127.5)/128），输出 3 维：</p>
  * <ul>
@@ -27,14 +27,14 @@ public class InsightFaceGenderAgeTranslator implements Translator<Image, float[]
     private static final int INPUT_SIZE = 96;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return OnnxImageProcessor.toModelInput(input, INPUT_SIZE, INPUT_SIZE, 3, false,
                 127.5f, 1.0f / 128.0f, ctx.getNDManager());
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         return array.toFloatArray();

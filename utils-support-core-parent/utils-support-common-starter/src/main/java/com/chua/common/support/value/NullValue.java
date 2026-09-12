@@ -4,8 +4,8 @@ package com.chua.common.support.value;
 /**
  * 空值实现（空对象模式）。
  * <p>
- * 当值为 null 时，{@link Value#of(Object)} 返回此单例，避免空指针异常。
- * 所有方法都针对 null 语义进行了安全处理。
+   * 当值为 空 时，{@link Value#of(Object)} 返回此单例，避免空指针异常。
+   * 所有方法都针对 空 语义进行了安全处理。
  * </p>
  *
  * @author CH
@@ -21,7 +21,7 @@ final class NullValue implements Value<Object> {
     }
 
     /**
-     * 始终返回 null。
+      * 始终返回 空。
      *
      * @return null
      */
@@ -31,7 +31,7 @@ final class NullValue implements Value<Object> {
     }
 
     /**
-     * 始终返回 null。
+      * 始终返回 空。
      *
      * @return null
      */
@@ -51,10 +51,10 @@ final class NullValue implements Value<Object> {
     }
 
     /**
-     * 判断指定值是否为 null。
+      * 判断指定值是否为 空。
      *
      * @param value 指定值
-     * @return true 表示指定值为 null
+     * @return true 表示指定值为 空
      */
     @Override
     public boolean is(Object value) {

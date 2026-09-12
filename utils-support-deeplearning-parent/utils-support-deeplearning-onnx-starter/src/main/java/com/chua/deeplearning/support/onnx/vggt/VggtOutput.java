@@ -8,7 +8,7 @@ import lombok.Data;
  *        VGGT                                      3D                      
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Data
@@ -29,7 +29,7 @@ public class VggtOutput {
     /**
      *             
      * <p>
-     *          [num_gaussians, feature_dim]
+      * [num_gaussians, 特征_dim]
      */
     private long[] shape;
 

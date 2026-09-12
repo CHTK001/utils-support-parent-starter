@@ -9,7 +9,7 @@ import javax.tools.Diagnostic;
 import java.lang.reflect.Field;
 
 /**
- * AST 工具类，封装 javac Tree API 的常用操作
+   * AST 工具类，封装 javac 树 API 的常用操作
  *
  * <p>提供从 {@code com.sun.tools.javac.*} 内部 API 获取 TreeMaker、Names 等核心工具的方法。
  * 所有方法均为静态方法，无需实例化即可使用。</p>
@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
  */
 public final class AstUtils {
 
-    /** 创建 AstUtils 实例 */
+    /** 创建 ast工具 实例 */
     private AstUtils() {
     }
 
@@ -28,7 +28,7 @@ public final class AstUtils {
     // ========================================================================
 
     /**
-     * 获取 TreeMaker 实例
+      * 获取 树maker 实例
      *
      * @param env 编译处理环境
      * @return TreeMaker 实例
@@ -39,7 +39,7 @@ public final class AstUtils {
     }
 
     /**
-     * 获取 Names 实例
+      * 获取 名称 实例
      *
      * @param env 编译处理环境
      * @return Names 实例
@@ -50,12 +50,12 @@ public final class AstUtils {
     }
 
     /**
-     * 从编译处理环境中获取 javac Context 实例
+      * 从编译处理环境中获取 javac 上下文 实例
      *
      * <p>通过 JavacTrees 反射获取 Context 对象。</p>
      *
      * @param env 编译处理环境
-     * @return javac Context 实例
+     * @return javac 上下文 实例
      */
     public static com.sun.tools.javac.util.Context javacContext(ProcessingEnvironment env) {
         com.sun.tools.javac.api.JavacTrees javacTrees =
@@ -70,12 +70,12 @@ public final class AstUtils {
     }
 
     /**
-     * 将 Element 转换为 JCMethodDecl
+      * 将 Element 转换为 jc方法decl
      *
      * @param methodElement 方法元素
      * @param env           编译处理环境
      * @param messager      消息处理器
-     * @return JCMethodDecl 实例，转换失败返回 null
+     * @return JCMethodDecl 实例，转换失败返回 空
      */
     public static com.sun.tools.javac.tree.JCTree.JCMethodDecl asJcMethod(Element methodElement, ProcessingEnvironment env, Messager messager) {
         com.sun.source.util.Trees trees = com.sun.source.util.Trees.instance(env);
@@ -92,9 +92,9 @@ public final class AstUtils {
     // ========================================================================
 
     /**
-     * 创建 null 字面量表达式
+      * 创建 空 字面量表达式
      *
-     * @param maker TreeMaker 实例
+     * @param maker 树maker 实例
      * @return null 字面量
      */
     public static com.sun.tools.javac.tree.JCTree.JCLiteral nullLiteral(com.sun.tools.javac.tree.TreeMaker maker) {
@@ -104,8 +104,8 @@ public final class AstUtils {
     /**
      * 创建标识符表达式
      *
-     * @param maker TreeMaker 实例
-     * @param names Names 实例
+     * @param maker 树maker 实例
+     * @param names 名称 实例
      * @param name  标识符名称
      * @return 标识符表达式
      */
@@ -118,7 +118,7 @@ public final class AstUtils {
     /**
      * 创建相等比较表达式 {@code left == right}
      *
-     * @param maker TreeMaker 实例
+     * @param maker 树maker 实例
      * @param left  左操作数
      * @param right 右操作数
      * @return 相等比较表达式
@@ -132,7 +132,7 @@ public final class AstUtils {
     /**
      * 创建不等比较表达式 {@code left != right}
      *
-     * @param maker TreeMaker 实例
+     * @param maker 树maker 实例
      * @param left  左操作数
      * @param right 右操作数
      * @return 不等比较表达式
@@ -146,7 +146,7 @@ public final class AstUtils {
     /**
      * 创建表达式语句
      *
-     * @param maker TreeMaker 实例
+     * @param maker 树maker 实例
      * @param expr  表达式
      * @return 表达式语句
      */
@@ -158,7 +158,7 @@ public final class AstUtils {
     /**
      * 创建赋值表达式 {@code var = value}
      *
-     * @param maker TreeMaker 实例
+     * @param maker 树maker 实例
      * @param lhs   左值
      * @param rhs   右值
      * @return 赋值表达式
@@ -172,7 +172,7 @@ public final class AstUtils {
     /**
      * 创建代码块
      *
-     * @param maker TreeMaker 实例
+     * @param maker 树maker 实例
      * @param stats 语句列表
      * @return 代码块
      */
@@ -185,10 +185,10 @@ public final class AstUtils {
     /**
      * 创建 if 语句
      *
-     * @param maker     TreeMaker 实例
+     * @param maker     树maker 实例
      * @param condition 条件表达式
-     * @param thenBlock then 代码块
-     * @param elseBlock else 语句，可为 null
+     * @param thenBlock 然后 代码块
+     * @param elseBlock else 语句，可为 空
      * @return if 语句
      */
     public static com.sun.tools.javac.tree.JCTree.JCIf ifStmt(com.sun.tools.javac.tree.TreeMaker maker,
@@ -199,10 +199,10 @@ public final class AstUtils {
     }
 
     /**
-     * 创建 throw 语句 {@code throw new XxxException(message)}
+      * 创建 抛出 语句 {@code throw new XxxException(message)}
      *
-     * @param maker              TreeMaker 实例
-     * @param names              Names 实例
+     * @param maker              树maker 实例
+     * @param names              名称 实例
      * @param exceptionClassName 异常类名
      * @param message            异常消息
      * @return throw 语句
@@ -267,10 +267,10 @@ public final class AstUtils {
     }
 
     /**
-     * 判断 TypeMirror 是否为基本类型或包装类型（含 String）
+      * 判断 类型mirror 是否为基本类型或包装类型（含 字符串）
      *
      * @param type 类型镜像
-     * @return 如果是基本类型、包装类或 String 返回 true，否则返回 false
+     * @return 如果是基本类型、包装类或 字符串 返回 true，否则返回 false
      */
     public static boolean isPrimitiveOrWrapper(TypeMirror type) {
         if (type == null) {
@@ -293,20 +293,20 @@ public final class AstUtils {
     }
 
     /**
-     * 判断 TypeMirror 是否为 String 类型
+      * 判断 类型mirror 是否为 字符串 类型
      *
      * @param type 类型镜像
-     * @return 如果是 java.lang.String 类型返回 true，否则返回 false
+     * @return 如果是 Java.lang.字符串 类型返回 true，否则返回 false
      */
     public static boolean isString(TypeMirror type) {
         return type != null && "java.lang.String".equals(type.toString());
     }
 
     /**
-     * 创建无参的 new 表达式 {@code new XxxClass()}
+      * 创建无参的 新 表达式 {@code new XxxClass()}
      *
-     * @param maker     TreeMaker 实例
-     * @param names     Names 实例
+     * @param maker     树maker 实例
+     * @param names     名称 实例
      * @param className 类名
      * @return new 表达式
      */
@@ -320,10 +320,10 @@ public final class AstUtils {
     }
 
     /**
-     * 创建带参数的 new 表达式 {@code new XxxClass(args)}
+      * 创建带参数的 新 表达式 {@code new XxxClass(args)}
      *
-     * @param maker     TreeMaker 实例
-     * @param names     Names 实例
+     * @param maker     树maker 实例
+     * @param names     名称 实例
      * @param className 类名
      * @param args      构造参数列表
      * @return new 表达式
@@ -341,8 +341,8 @@ public final class AstUtils {
     /**
      * 创建字段访问表达式 {@code owner.fieldName}
      *
-     * @param maker     TreeMaker 实例
-     * @param names     Names 实例
+     * @param maker     树maker 实例
+     * @param names     名称 实例
      * @param owner     所有者名称
      * @param fieldName 字段名称
      * @return 字段访问表达式
@@ -358,8 +358,8 @@ public final class AstUtils {
     /**
      * 创建方法调用表达式 {@code owner.methodName(args...)}
      *
-     * @param maker      TreeMaker 实例
-     * @param names      Names 实例
+     * @param maker      树maker 实例
+     * @param names      名称 实例
      * @param owner      所有者名称
      * @param methodName 方法名称
      * @param args       参数列表
@@ -379,10 +379,10 @@ public final class AstUtils {
     }
 
     /**
-     * 创建 SELECT 访问表达式 {@code owner.name}
+      * 创建 选择 访问表达式 {@code owner.name}
      *
-     * @param maker TreeMaker 实例
-     * @param names Names 实例
+     * @param maker 树maker 实例
+     * @param names 名称 实例
      * @param owner 所有者名称
      * @param name  名称
      * @return 字段访问表达式
@@ -401,6 +401,8 @@ public final class AstUtils {
 
     /**
      * @deprecated 已废弃，请使用 {@link #asJcMethod(Element, ProcessingEnvironment, Messager)}
+     * @param methodTree 方法树
+     * @return asjc方法decl的结果
      */
     @Deprecated
     public static com.sun.tools.javac.tree.JCTree.JCMethodDecl asJcMethodDecl(com.sun.source.tree.Tree methodTree) {
@@ -412,6 +414,8 @@ public final class AstUtils {
 
     /**
      * @deprecated 已废弃，请使用 {@link #treeMaker(ProcessingEnvironment)}
+     * @param env env
+     * @return 获取树maker的结果
      */
     @Deprecated
     public static com.sun.tools.javac.tree.TreeMaker getTreeMaker(ProcessingEnvironment env) {
@@ -420,6 +424,8 @@ public final class AstUtils {
 
     /**
      * @deprecated 已废弃，请使用 {@link #names(ProcessingEnvironment)}
+     * @param env env
+     * @return 获取名称的结果
      */
     @Deprecated
     public static com.sun.tools.javac.util.Names getNames(ProcessingEnvironment env) {
@@ -438,6 +444,8 @@ public final class AstUtils {
 
     /**
      * @deprecated 已废弃，请使用 {@link #nullLiteral(TreeMaker)}
+     * @param maker maker
+     * @return make空字面量的结果
      */
     @Deprecated
     public static com.sun.tools.javac.tree.JCTree.JCLiteral makeNullLiteral(com.sun.tools.javac.tree.TreeMaker maker) {
@@ -455,13 +463,13 @@ public final class AstUtils {
     }
 
     /**
-     * 创建 AST 字面量表达式，根据参数类型自动选择对应的 TypeTag
+      * 创建 AST 字面量表达式，根据参数类型自动选择对应的 类型标签
      *
      * <p>该方法用于 {@link com.chua.ast.support.annotation.DefaultValue @DefaultValue} 注解的编译期处理，
      * 根据参数的类型生成对应的字面量 AST 节点。</p>
      *
-     * @param maker        TreeMaker 实例
-     * @param names        Names 实例
+     * @param maker        树maker 实例
+     * @param names        名称 实例
      * @param defaultValue 默认值字符串
      * @param paramType    参数类型镜像
      * @return 字面量 AST 表达式
@@ -514,13 +522,13 @@ public final class AstUtils {
     }
 
     // ========================================================================
-    // JCLiteral 工具方法
+ // jc字面量 工具方法
     // ========================================================================
 
     /**
-     * 创建 JCLiteral 字面量，根据值的类型自动选择对应的 TypeTag
+      * 创建 jc字面量 字面量，根据值的类型自动选择对应的 类型标签
      *
-     * @param maker TreeMaker 实例
+     * @param maker 树maker 实例
      * @param value 字面量值
      * @return JCLiteral 实例
      */
@@ -540,7 +548,7 @@ public final class AstUtils {
         } else if (value instanceof String) {
             return maker.Literal(com.sun.tools.javac.code.TypeTag.CLASS, value);
         }
-        // null
+ // 空
         return maker.Literal(com.sun.tools.javac.code.TypeTag.BOT, null);
     }
 }

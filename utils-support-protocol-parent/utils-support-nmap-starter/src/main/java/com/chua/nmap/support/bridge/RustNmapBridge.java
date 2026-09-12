@@ -2,7 +2,9 @@ package com.chua.nmap.support.bridge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.chua.common.support.os.Platform;
+import com.chua.common.support.utils.NativeLoader;
+import com.chua.common.support.utils.NativeUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Rust Nmap原生桥接类
@@ -13,19 +15,35 @@ import com.chua.common.support.os.Platform;
  * @author CH
  * @since 2024/12/30
  */
+@Slf4j
 public class RustNmapBridge {
 
-    private static final String LIBRARY_NAME = "rust_nmap";
-    private static volatile boolean loaded = false;
-    private static volatile Throwable loadError = null;
+    private static final String LIBRARY_NAME = "rust_nmap"; // 图书馆名称
+    private static volatile boolean loaded = false; // 加载
+    private static volatile Throwable loadError = null; // 加载错误
 
     static {
+        loadLibrary();
+    }
+
+    /**
+     * 加载原生动态库（classpath /native/{platform}/ 下提取并加载），线程安全。
+     */
+    public static synchronized void loadLibrary() {
+        if (loaded) {
+            return;
+        }
         try {
-            Platform.loadNativeLibrary(LIBRARY_NAME);
+            NativeLoader.of(LIBRARY_NAME)
+                    .toTarget(NativeUtils.tempRoot().resolve("rust-nmap"))
+                    .glob("*" + LIBRARY_NAME + "*")
+                    .load();
             loaded = true;
+            log.info("[nmap] native library loaded: {}", LIBRARY_NAME);
         } catch (Throwable e) {
             loadError = e;
             loaded = false;
+            log.warn("[nmap] native library load failed: {}", e.getMessage());
         }
     }
 
@@ -103,7 +121,7 @@ public class RustNmapBridge {
      * @param host    目标主机
      * @param port    端口号
      * @param timeout 超时时间（毫秒）
-     * @return 端口状态（0=open, 1=closed, 2=filtered, -1=error）
+     * @return 端口状态（0=open, 1=关闭, 2=过滤器, -1=错误）
      */
     public static native int scanSingleTcpPort(String host, int port, int timeout);
 

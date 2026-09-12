@@ -42,10 +42,11 @@ import java.util.stream.IntStream;
  *
  * //                      
  * YoloClsTranslator translator = new YoloClsTranslator(224, 224, classes, 5);
+ * }</pre>sses, 5);
  * }</pre>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025-01-22
  */
 @Slf4j
@@ -143,7 +144,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
      *                   
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return             
      * @throws Exception             
      */

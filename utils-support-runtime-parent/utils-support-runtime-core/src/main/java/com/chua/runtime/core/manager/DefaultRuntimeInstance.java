@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 默认运行时实例 — 基于 ProcessBuilder 管理进程生命周期。
+   * 默认运行时实例 — 基于 处理构建器 管理进程生命周期。
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,7 +36,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
 
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(DefaultRuntimeInstance.class.getName());
     /**
@@ -75,7 +75,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     private final LogStream logStream;
 
     /**
-     * 退出 Future
+      * 退出 期货
      */
     private final CompletableFuture<CmdResult> onExitFuture;
 
@@ -90,7 +90,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     private volatile long startTime;
 
     /**
-     * 创建 DefaultRuntimeInstance 实例
+      * 创建 默认runtimeinstance 实例
      * @param artifact artifact
      */
     public DefaultRuntimeInstance(RuntimeArtifact artifact) {
@@ -108,7 +108,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public RuntimeStatus status() {
         return status.get();
     }
@@ -133,7 +133,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
                     .build();
         }
 
-        // 优先通过 SPI RuntimeLauncher 启动
+ // 优先通过 SPI runtimelauncher 启动
         RuntimeLauncher launcher = RuntimeLauncher.find(artifact.getType().name());
         if (launcher != null) {
             CmdResult result = launcher.start(artifact);
@@ -213,7 +213,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     @Override
     /** 停止 */
     public synchronized CmdResult stop() {
-        // 优先通过 SPI RuntimeLauncher 停止
+ // 优先通过 SPI runtimelauncher 停止
         RuntimeLauncher launcher = RuntimeLauncher.find(artifact.getType().name());
         if (launcher != null) {
             CmdResult result = launcher.stop(artifact);
@@ -260,7 +260,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Health校验 */
+    /** 健康校验 */
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String cmd = artifact.getHealthCheckCommand();
@@ -279,13 +279,13 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 记录日志Stream */
+    /** 记录日志流 */
     public LogStream logStream() {
         return logStream;
     }
 
     @Override
-    /** OnExit */
+    /** onexit */
     public CompletableFuture<CmdResult> onExit() {
         return onExitFuture;
     }
@@ -297,7 +297,11 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         logStream.close();
     }
 
-    /** 构建Command */
+    /**
+     * 构建命令
+     *
+     * @return 构建命令的结果
+     */
     private List<String> buildCommand() {
         List<String> cmd = new ArrayList<>();
         Path exec = artifact.getExecutable();
@@ -328,13 +332,22 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         return cmd;
     }
 
-    /** 是否拥有Health校验 */
+    /**
+     * 是否拥有健康校验
+     *
+     * @return 是否包含健康检查的结果
+     */
     private boolean hasHealthCheck() {
         return StringUtils.isNotEmpty(artifact.getHealthCheckUrl())
                 || StringUtils.isNotEmpty(artifact.getHealthCheckCommand());
     }
 
-    /** Health校验Http */
+    /**
+     * 健康校验Http
+     *
+     * @param url url
+     * @return 健康检查http的结果
+     */
     private CmdResult healthCheckHttp(String url) {
         try {
             HttpClient client = HttpClient.newBuilder()
@@ -352,7 +365,11 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
     }
 
-    /** 开始记录日志Reader */
+    /**
+     * 开始记录日志Reader
+     *
+     * @param process 处理
+     */
     private void startLogReader(Process process) {
         stopLogReader();
         Thread t = new Thread(() -> {
@@ -383,7 +400,11 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         }
     }
 
-    /** WaitForExitAsync */
+    /**
+     * waitforexit异步
+     *
+     * @param process 处理
+     */
     private void waitForExitAsync(Process process) {
         CompletableFuture.runAsync(() -> {
             try {

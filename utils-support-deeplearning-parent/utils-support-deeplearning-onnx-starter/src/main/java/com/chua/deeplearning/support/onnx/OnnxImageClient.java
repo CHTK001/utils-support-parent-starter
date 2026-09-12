@@ -21,6 +21,7 @@ import java.util.List;
  *   BufferedImage image = ImageClient.create("onnx", "")
  *       .model("small-stable-diffusion-combined")
  *       .generate("一只柴犬在樱花树下");
+ * }</pre>     .generate("一只柴犬在樱花树下");
  * }</pre>
  *
  * @author CH
@@ -39,7 +40,7 @@ public class OnnxImageClient extends AbstractLocalImageClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, ai.djl.modality.cv.Image.class);
     }

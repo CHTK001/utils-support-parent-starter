@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Thrift 应用层 Handler — 拦截 Apache Thrift RPC 进出站调用并生成应用语义传输记录。
+   * Thrift 应用层 处理器 — 拦截 Apache Thrift RPC 进出站调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -22,23 +22,23 @@ import com.chua.runtime.protocol.Software;
 public class ThriftHandler extends AbstractAppHandler {
 
     /**
-     * TServiceClient 类内部名
+      * t服务客户端 类内部名
      */
     private static final String T_SERVICE_CLIENT = "org/apache/thrift/TServiceClient";
 
     /**
-     * TServiceClient 方法集合（进出站核心）
+      * t服务客户端 方法集合（进出站核心）
      */
     private static final String[] CLIENT_METHODS = {"sendBase", "recvBase"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "thrift-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "thrift.enabled";
     }
@@ -50,13 +50,13 @@ public class ThriftHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.THRIFT;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(T_SERVICE_CLIENT, CLIENT_METHODS);
     }

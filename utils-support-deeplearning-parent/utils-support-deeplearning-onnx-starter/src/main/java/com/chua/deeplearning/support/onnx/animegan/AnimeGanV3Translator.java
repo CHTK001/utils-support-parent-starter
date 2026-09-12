@@ -16,9 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * AnimeGANv3                
+   * animeganv3
  * <p>
- *        AnimeGANv3                                           
+   * animeganv3
  *
  *                
  * 1.                                                    
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * 3.                                  
  *
  * @author CH
- * @version 4.0.0.30
+   * @版本 4.0.0.30
  * @since 2024/12/20
  */
 @Slf4j
@@ -42,7 +42,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
      */
     private int originalWidth;
     /** 原始高度 */
-    /** Original高度 */
+    /** 原始高度 */
     private int originalHeight;
 
     /**
@@ -63,7 +63,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
         }
 
         //           NDArray (HWC       )
-        // rust 引擎未实现 NDArray.resize，先用 Java2D 缩放到目标尺寸
+ // Rust 引擎未实现 ndarray.resize，先用 Java2D 缩放到目标尺寸
         java.awt.image.BufferedImage src = (java.awt.image.BufferedImage) input.getWrappedImage();
         java.awt.image.BufferedImage scaled = new java.awt.image.BufferedImage(
                 INPUT_SIZE, INPUT_SIZE, java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -183,7 +183,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
         //             
         Image result = ImageFactory.getInstance().fromNDArray(output);
 
-        //                       （Java2D 缩放，rust 引擎未实现 NDArray.resize）
+ // （Java2D 缩放，Rust 引擎未实现 ndarray.resize）
         if (result.getWidth() != originalWidth || result.getHeight() != originalHeight) {
             if (log.isDebugEnabled()) {
                 log.debug("                      {}x{}     {}x{}", result.getWidth(), result.getHeight(), originalWidth, originalHeight);
@@ -213,7 +213,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     /**
      *                   
      *
-     * @return              -        NONE                    processInput                               
+     * @return              -        无                    处理输入
      */
     @Override
     public Batchifier getBatchifier() {

@@ -20,7 +20,7 @@ import com.chua.datalake.support.model.DataEnvelope;
 public interface PipelineEngine {
 
     /**
-     * 以管线 ID 执行一条数据
+      * 以管线 标识 执行一条数据
      *
      * @param pipelineId 管线标识
      * @param envelope   待处理的数据信封

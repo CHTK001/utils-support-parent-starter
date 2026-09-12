@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 
 /**
- * MODNet 人像抠图 Translator（OpenCV 预处理 + djl-onnx 推理）。
+   * modnet 人像抠图 Translator（打开cv 预处理 + djl-onnx 推理）。
  *
  * <p>输入图像 → OpenCV 缩放（正方形 targetSize，16 的倍数）→ CHW 归一化 → float[] 喂入 djl-onnx。
  * 输出 alpha mask [1,1,H,W]，合成透明 RGBA 图像。</p>
@@ -28,7 +28,7 @@ import java.awt.image.BufferedImage;
 public class DjlMattingTranslator implements Translator<Image, Image> {
 
     /**
-     * 目标处理尺寸（MODNet 约束：16 的倍数，正方形）
+      * 目标处理尺寸（modnet 约束：16 的倍数，正方形）
      */
     private static final int TARGET_SIZE = 512;
 
@@ -38,15 +38,21 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
     private static final String INPUT_NAME = "input";
 
     /**
-     * 当前原始图像（processInput 保存，processOutput 合成用）
+      * 当前原始图像（处理输入 保存，处理输出 合成用）
      */
     private BufferedImage originalImage;
 
     @Override
     @Nonnull
-    /** 处理Input */
+    /**
+     * 处理输入
+     *
+     * @param ctx ctx
+     * @param input 输入
+     * @return 处理输入的结果
+     */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
-        // OpenCV 预处理：Image → BufferedImage → Mat → 缩放 → CHW 归一化 → float[]
+ // 打开cv 预处理：镜像 → 缓冲镜像 → Mat → 缩放 → CHW 归一化 → float[]
         ImageUtils.load();
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         if (buffered == null) {
@@ -61,10 +67,10 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * OpenCV 预处理：缩放正方形 + CHW 归一化。
+      * 打开cv 预处理：缩放正方形 + CHW 归一化。
      *
      * @param src 原图
-     * @return [3, size, size] 归一化像素（RGB）
+     * @return [3, 大小, 大小] 归一化像素（RGB）
      */
     private float[] preprocess(BufferedImage src) {
         Mat img;
@@ -95,7 +101,13 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
 
     @Override
     @Nonnull
-    /** 处理Output */
+    /**
+     * 处理输出
+     *
+     * @param ctx ctx
+     * @param list 列表
+     * @return 处理输出的结果
+     */
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray alpha = list.singletonOrThrow();
         float[] flat = alpha.toFloatArray();

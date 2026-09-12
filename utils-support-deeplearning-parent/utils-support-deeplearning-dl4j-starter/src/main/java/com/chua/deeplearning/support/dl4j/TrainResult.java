@@ -16,7 +16,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class TrainResult implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 是否训练成功。

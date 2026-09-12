@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * HDFS Handler — intercepts Hadoop FileSystem operations.
+   * HDFS 处理器 — intercepts Hadoop 文件系统 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class HdfsHandler extends AbstractAppHandler {
 
     /**
-     * file system
+      * 文件 系统
      */
     private static final String FILE_SYSTEM = "org/apache/hadoop/fs/FileSystem";
     /**
-     * fs methods
+      * fs 方法
      */
     private static final String[] FS_METHODS = {"open", "create", "delete", "rename", "listStatus", "mkdirs", "exists", "getFileStatus"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "hdfs-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "hdfs.enabled";
     }
@@ -42,13 +42,13 @@ public class HdfsHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(FILE_SYSTEM, FS_METHODS);
     }

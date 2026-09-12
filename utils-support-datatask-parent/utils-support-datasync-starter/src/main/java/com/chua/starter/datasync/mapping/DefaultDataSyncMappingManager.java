@@ -38,7 +38,7 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
     }
 
     @Override
-    /** 获取MappingsByInputId */
+    /** 获取mappingsby输入id */
     public List<DataSyncMapping> getMappingsByInputId(String inputId) {
         List<DataSyncMapping> result = new ArrayList<>();
         for (DataSyncMapping mapping : mappings.values()) {
@@ -50,7 +50,7 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
     }
 
     @Override
-    /** 获取MappingsByOutputId */
+    /** 获取mappingsby输出id */
     public List<DataSyncMapping> getMappingsByOutputId(String outputId) {
         List<DataSyncMapping> result = new ArrayList<>();
         for (DataSyncMapping mapping : mappings.values()) {
@@ -68,7 +68,7 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
     }
 
     @Override
-    /** 创建FromConfig */
+    /** 创建从配置 */
     public DataSyncMapping createFromConfig(String mappingId, DataSyncConfigDefinition config) {
         return new DefaultDataSyncMapping(mappingId, config);
     }

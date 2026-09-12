@@ -18,6 +18,7 @@ import java.util.List;
  *
  * PipelineContext<String> ctx = pipeline.execute("input");
  * pipeline.printTree(ctx.getHistory());
+ * }</pre>获取历史());
  * }</pre>
  *
  * @author CH
@@ -28,7 +29,7 @@ public interface Pipeline {
     /**
      * 获取流水线唯一标识。
      *
-     * @return 流水线 ID
+     * @return 流水线 标识
      */
     String getId();
 
@@ -65,7 +66,7 @@ public interface Pipeline {
     <T> PipelineContext<T> resume(PipelineContext<T> context);
 
     /**
-     * 恢复执行流水线 — 从 WAL 断点继续（无 WAL 数据时等同于 execute）。
+      * 恢复执行流水线 — 从 WAL 断点继续（无 WAL 数据时等同于 执行）。
      *
      * <p>恢复流程：</p>
      * <ol>
@@ -105,7 +106,7 @@ public interface Pipeline {
     /**
      * 打印流水线 B+ 树拓扑结构，已执行节点用 {@code *} 标记高亮。
      *
-     * @param history 已执行节点 ID 列表，传 null 时不标记
+     * @param history 已执行节点 标识 列表，传 空 时不标记
      */
     void printTree(List<String> history);
 
@@ -118,7 +119,7 @@ public interface Pipeline {
      * <p>子流水线和并行分支递归展开，遵循"自己管自己"原则 —
      * 每条 Pipeline 负责打印自己的节点树。</p>
      *
-     * @param history      已执行节点 ID 列表，传 null 时不标记
+     * @param history      已执行节点 标识 列表，传 空 时不标记
      * @param colorEnabled 是否启用 ANSI 颜色输出
      */
     default void printTree(List<String> history, boolean colorEnabled) {
@@ -142,11 +143,13 @@ public interface Pipeline {
      *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
      *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()
      *     .build();
+     * }</pre>束()
+      * .构建();
      * }</pre>
      *
      * <p>终端效果：每个节点执行后，同一棵树原地刷新，已执行节点逐步变为 ✓。</p>
      *
-     * @param history      已执行节点 ID 列表，传 null 时不标记
+     * @param history      已执行节点 标识 列表，传 空 时不标记
      * @param colorEnabled 是否启用 ANSI 颜色输出
      */
     default void drawTree(List<String> history, boolean colorEnabled) {

@@ -18,13 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * PP-OCR 文本方向分类（ORT 原生 + OpenCV）。
+   * PP-OCR 文本方向分类（ORT 原生 + 打开cv）。
  *
  * <p>检测文本方向（0° / 180°），OCR 管线前置。模型
  * {@code ocr/direction/ppocr_cls/model.onnx} 由 jar
  * {@code utils-support-models-onnx-ppocr-cls} 提供。输入 {@code x [1,3,48,192]}
- * （OpenCV resize 48×192、归一化 (v/255-0.5)/0.5），输出 {@code fetch_name_0 [1,2]}
- * softmax（index 0=0°、index 1=180°）。替代 DJL 版（NDImageUtils 不兼容）。</p>
+   * （打开cv resize 48×192、归一化 (v/255-0.5)/0.5），输出 {@code fetch_name_0 [1,2]}
+   * softmax（索引 0=0°、索引 1=180°）。替代 DJL 版（nd镜像工具 不兼容）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -43,10 +43,10 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     private static final List<String> CLASSES = List.of("0", "180");
 
     /** 资源基础路径 */
-    /** Resource_base */
+    /** Resource_基础 */
     private static final String RESOURCE_BASE = "ocr/direction/ppocr_cls/";
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "model.onnx";
 
     /** ONNX 运行时环境 */
@@ -84,7 +84,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "pp-word-rotate";
     }
@@ -100,7 +100,12 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
         }
     }
 
-    /** Classify */
+    /**
+     * Classify
+     *
+     * @param imageData 镜像数据
+     * @return classify的结果
+     */
     private DirectionInfo classify(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -161,7 +166,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

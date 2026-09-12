@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.Base64;
 
 /**
- * Base64 Mock 生成器
+   * 基础64 Mock 生成器
  *
  * <p>对随机字节做 Base64 编码生成字符串，
  * 如 {@code 0qz7mH2K4nQ9lT0o+X3sJw==}。</p>
@@ -23,6 +23,8 @@ public class Base64MockString implements MockString {
 
     /**
      * 随机内容长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int CONTENT_LENGTH = 16;
 

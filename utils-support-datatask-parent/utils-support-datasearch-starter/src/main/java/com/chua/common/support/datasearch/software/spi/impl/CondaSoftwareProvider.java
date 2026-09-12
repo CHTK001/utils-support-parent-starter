@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Conda 软件包管理器提供器。
  *
  * <p>通过 conda CLI 搜索、安装和卸载 Conda / Anaconda 环境中的软件包。
- * 支持 <code>conda search</code>、<code>conda install -y</code>、
+   * 支持 <code>Conda 搜索</code>、<code>Conda install -y</code>、
  * <code>conda remove -y</code>。
  *
  * @author CH
@@ -33,7 +33,7 @@ public class CondaSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "conda";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -48,13 +48,13 @@ public class CondaSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("conda 搜索完成, exitCode={}", exitCode);
             }
@@ -89,17 +89,24 @@ public class CondaSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -115,7 +122,12 @@ public class CondaSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析CondaOutput */
+    /**
+     * 解析conda输出
+     *
+     * @param output 输出
+     * @return 解析conda输出的结果
+     */
     private List<SoftwareInfo> parseCondaOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -127,7 +139,7 @@ public class CondaSoftwareProvider implements SoftwareProvider {
                         || trimmed.equals("done")) {
                     continue;
                 }
-                // 列格式: name  version  build  channel
+ // 列格式: 名称  版本  构建  通道
                 String[] tokens = trimmed.split("\\s+");
                 if (tokens.length < 2) {
                     continue;
@@ -144,7 +156,12 @@ public class CondaSoftwareProvider implements SoftwareProvider {
         return results;
     }
 
-    /** LooksLikeVersion */
+    /**
+     * lookslike版本
+     *
+     * @param s s
+     * @return lookslike版本的结果
+     */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.contains("/");
     }

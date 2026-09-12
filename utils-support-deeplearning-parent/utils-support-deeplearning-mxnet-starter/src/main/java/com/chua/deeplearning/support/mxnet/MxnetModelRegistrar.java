@@ -5,10 +5,10 @@ import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.image.ImageClassifier;
 
 /**
- * MXNet 模块模型集中注册器。
+   * mxnet 模块模型集中注册器。
  * <p>
- * 通过 SPI 被主框架加载；relativePath 相对 models 根目录，统一 mxnet/ 前缀。
- * 支持 MXNet 模型符号文件与参数文件。
+   * 通过 SPI 被主框架加载；relative路径 相对 模型 根目录，统一 mxnet/ 前缀。
+   * 支持 mxnet 模型符号文件与参数文件。
  * </p>
  *
  * @author CH
@@ -26,9 +26,9 @@ public class MxnetModelRegistrar implements ModelRegistrar {
         registerAll();
     }
 
-    /** 注册All */
+    /** 注册全部 */
     private static void registerAll() {
-        // 图像分类 - InceptionV3
+ // 图像分类 - inceptionv3
         reg("mxnet-inceptionv3",
                 "com.chua.deeplearning.support.mxnet.translator.InceptionV3ActionTranslator",
                 ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class,
@@ -43,12 +43,12 @@ public class MxnetModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
+     * @param relativePath relative路径
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,

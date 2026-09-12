@@ -33,7 +33,7 @@ public interface EmbeddingService {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.embedding.EmbeddingService.class);
@@ -161,7 +161,7 @@ class DefaultEmbeddingService implements EmbeddingService {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public EmbeddingService modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -176,7 +176,12 @@ class DefaultEmbeddingService implements EmbeddingService {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Embed */
+    /**
+     * Embed
+     *
+     * @param text 文本
+     * @return embed的结果
+     */
     public float[] embed(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);
@@ -188,7 +193,12 @@ class DefaultEmbeddingService implements EmbeddingService {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Embed */
+    /**
+     * Embed
+     *
+     * @param imageData 镜像数据
+     * @return embed的结果
+     */
     public float[] embed(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -199,7 +209,7 @@ class DefaultEmbeddingService implements EmbeddingService {
     }
 
     @Override
-    /** EmbedBatch */
+    /** embedbatch */
     public List<float[]> embedBatch(List<String> texts) {
         int size = texts.size();
         List<float[]> result = new ArrayList<>(size);

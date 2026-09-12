@@ -20,7 +20,7 @@ import java.util.Base64;
  * GCM 自带完整性校验：密文被篡改或密钥不匹配时解密直接失败。
  *
  * <p>{@link #encryptTagged(byte[], byte[])} 系列在密文头部追加 4 字节魔数 {@code CHKJ}，
- * 用于程序包加密场景（FatJar 内的 class/依赖 jar/配置条目），运行期引导器按魔数识别并透明解密。
+   * 用于程序包加密场景（fatjar 内的 类/依赖 jar/配置条目），运行期引导器按魔数识别并透明解密。
  *
  * @author CH
  * @since 2026-08-26
@@ -28,7 +28,7 @@ import java.util.Base64;
 public final class DataCipher {
 
     /**
-     * 程序包加密条目魔数：Chua Key Jar
+      * 程序包加密条目魔数：Chua 键 Jar
      */
     public static final byte[] MAGIC_TAGGED = {'C', 'H', 'K', 'J'};
 
@@ -172,7 +172,7 @@ public final class DataCipher {
     }
 
     /**
-     * 加密并编码为 Base64 字符串
+      * 加密并编码为 基础64 字符串
      *
      * @param key       主密钥
      * @param plaintext 明文字符串（UTF-8）
@@ -184,10 +184,10 @@ public final class DataCipher {
     }
 
     /**
-     * 解密 Base64 密文字符串
+      * 解密 基础64 密文字符串
      *
      * @param key       主密钥
-     * @param ciphertext Base64 密文
+     * @param ciphertext 基础64 密文
      * @return 明文字符串
      */
     public static String decryptToString(byte[] key, String ciphertext) {

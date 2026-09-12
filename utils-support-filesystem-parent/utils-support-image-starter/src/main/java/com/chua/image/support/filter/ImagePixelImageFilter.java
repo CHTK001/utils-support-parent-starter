@@ -52,7 +52,7 @@ import javax.annotation.Nullable;
  * - 实时性：适合实时图像处理应用
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/5/27
  */
 @Spi("pixel")

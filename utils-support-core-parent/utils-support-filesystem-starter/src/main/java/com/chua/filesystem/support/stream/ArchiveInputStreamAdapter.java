@@ -7,9 +7,9 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 
 /**
- * ArchiveInputStream适配器
+   * Arch Linux Linux输入流适配器
  * <p>
- * 将commons-compress的ArchiveInputStream适配为项目接口
+   * 将commons-compress的Arch Linux Linux输入流适配为项目接口
  * </p>
  *
  * @author CH
@@ -18,14 +18,14 @@ import javax.annotation.Nullable;
 public class ArchiveInputStreamAdapter implements ArchiveInputStream {
 
     /**
-     * 原始ArchiveInputStream（commons-compress）
+       * 原始Arch Linux Linux输入流（commons-compress）
      */
     private final org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate;
 
     /**
      * 构造函数
      *
-     * @param delegate commons-compress的ArchiveInputStream
+     * @param delegate commons-compress的Arch Linux Linux Linux输入流
      */
     public ArchiveInputStreamAdapter(org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate) {
         this.delegate = delegate;
@@ -33,7 +33,11 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
 
     @Override
     @Nullable
-    /** 获取NextEntry */
+    /**
+     * 获取下一个entry
+     *
+     * @return 获取下一个entry的结果
+     */
     public ArchiveEntry getNextEntry() throws IOException {
         var entry = delegate.getNextEntry();
         if (entry == null) {
@@ -67,7 +71,7 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** Available */
+    /** 可用 */
     public int available() throws IOException {
         return delegate.available();
     }
@@ -85,7 +89,7 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 标记Supported */
+    /** 标记支持 */
     public boolean markSupported() {
         return delegate.markSupported();
     }

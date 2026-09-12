@@ -24,7 +24,7 @@ import java.util.List;
 public interface SchedulerProvider {
 
     /**
-     * 调度一个任务（自动生成任务 ID）
+      * 调度一个任务（自动生成任务 标识）
      *
      * <p>为任务自动生成唯一的标识符，并按照触发器的策略执行。
      *
@@ -35,7 +35,7 @@ public interface SchedulerProvider {
     ScheduledTask schedule(Runnable task, Trigger trigger);
 
     /**
-     * 调度一个任务（指定任务 ID）
+      * 调度一个任务（指定任务 标识）
      *
      * <p>使用指定的标识符注册任务。如果该 ID 已存在对应的调度任务，
      * 会先取消旧任务再注册新任务。
@@ -62,7 +62,7 @@ public interface SchedulerProvider {
     ScheduledTask reschedule(String id, Trigger trigger);
 
     /**
-     * 取消指定 ID 的调度任务
+      * 取消指定 标识 的调度任务
      *
      * <p>取消后任务将不再触发后续执行。如果任务正在执行中，
      * 会尝试中断执行线程。
@@ -73,7 +73,7 @@ public interface SchedulerProvider {
     boolean cancel(String id);
 
     /**
-     * 检查指定 ID 的调度任务是否正在运行
+      * 检查指定 标识 的调度任务是否正在运行
      *
      * @param id 任务唯一标识
      * @return 如果任务存在且未被取消返回 {@code true}，否则返回 {@code false}

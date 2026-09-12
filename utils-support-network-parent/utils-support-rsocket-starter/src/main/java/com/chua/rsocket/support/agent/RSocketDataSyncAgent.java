@@ -16,12 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * RSocket 数据同步 Agent
+   * r套接字 数据同步 智能体
  * <p>通过 RSocket 与 DataSyncServer 建立双向流式连接。</p>
  *
  * <pre>{@code
  * RSocketDataSyncAgent agent = new RSocketDataSyncAgent(
  *         "agent-1", "source-1", "localhost", 8080);
+ * agent.start();
+ * }</pre> 8080);
  * agent.start();
  * }</pre>
  *
@@ -31,11 +33,11 @@ import java.util.Map;
 public class RSocketDataSyncAgent implements DataSyncAgent {
 
     /**
-     * agent Id
+      * 智能体 标识
      */
     private final String agentId;
     /**
-     * source Id
+      * 源 标识
      */
     private final String sourceId;
     /**
@@ -47,12 +49,12 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
      */
     private final int port;
     /**
-     * source
+      * 源
      */
     private final DataSyncSource source;
 
     /**
-     * r Socket
+      * R 套接字
      */
     private RSocket rSocket;
     /**
@@ -61,12 +63,16 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     private volatile boolean running = false;
 
     /**
-     * 创建 RSocketDataSyncAgent 实例
-     * @param agentId agentId
-     * @param String String
-     * @param String String
-     * @param int int
-     * @param DataSyncSource DataSyncSource
+      * 创建 r套接字数据同步智能体 实例
+     * @param agentId 智能体标识
+     * @param agentId 字符串
+     * @param agentId 字符串
+     * @param port int
+     * @param source 数据同步源
+     * @param sourceId 源标识
+     * @param host 主机
+     * @param port 端口
+     * @param source 源
      */
     public RSocketDataSyncAgent(String agentId, String sourceId, String host, int port, DataSyncSource source) {
         this.agentId = agentId;
@@ -101,13 +107,13 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() {
         return agentId;
     }
 
     @Override
-    /** ToSource */
+    /** 转为源 */
     public DataSyncSource toSource() {
         return source;
     }
@@ -119,12 +125,16 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** DataUrl */
+    /** 数据url */
     public String dataUrl() {
         return "tcp://" + host + ":" + port;
     }
 
-    /** 获取RSocket */
+    /**
+     * 获取r套接字
+     *
+     * @return 获取r套接字的结果
+     */
     public RSocket getRSocket() {
         return rSocket;
     }

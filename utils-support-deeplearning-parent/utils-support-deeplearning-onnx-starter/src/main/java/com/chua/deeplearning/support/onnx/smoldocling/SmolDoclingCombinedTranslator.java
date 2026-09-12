@@ -11,29 +11,29 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 /**
- * SmolDocling                   
+   * smoldocling
  * <p>
- *        SmolDocling                                                    
+   * smoldocling
  * </p>
  * <p>
  *                
  * 1.              -> Vision ->             
  * 2.              -> Embed ->             
- * 3.              +              -> Decoder ->                   
+   * 3.              +              -> 解码器 ->
  * </p>
  * <p>
  *                
  * -                          
- * -                          vision   embed   decoder   
+   * -                          vision   embed   解码器
  * -                          
  * </p>
  * <p>
  *                                                                   
- *     Translator           SmolDocling                                  
+   * Translator           smoldocling
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/26
  */
 @Slf4j
@@ -50,7 +50,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     private SmolDoclingEmbedTranslator embedTranslator;
 
     /**
-     * Decoder          
+      * 解码器
      */
     private SmolDoclingDecoderTranslator decoderTranslator;
 
@@ -91,7 +91,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
      *
      * @param ctx                     
      * @param input                                        
-     * @return Vision              NDList
+     * @return Vision              nd列表
      * @throws Exception             
      */
     @Override
@@ -110,7 +110,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
      * </p>
      *
      * @param ctx                    
-     * @param list              NDList          Vision                               
+     * @param list              nd列表          Vision
      * @return                         
      * @throws Exception             
      */
@@ -147,14 +147,14 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
         // var embedOutput = embedTranslator.processOutput(ctx, embedModelOutput);
 
         //                                  
-        //                                               decoder             
+ // 解码器
 
         if (log.isDebugEnabled()) {
             log.debug("[SmolDocling Combined][Translator]                  :              shape={}",
                     visionOutput.getShapeString());
         }
 
-        //                                decoder                                  
+ // 解码器
         return "";
     }
 
@@ -170,6 +170,8 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
 
     /**
      *             
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class CombinedInput {
@@ -179,7 +181,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
         private Image image;
 
         /**
-         *        token IDs
+          * 令牌 ids
          */
         private long[] textTokens;
 
@@ -187,7 +189,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
          *             
          *
          * @param image                  
-         * @param textTokens        token IDs
+         * @param textTokens        令牌 标识
          */
         public CombinedInput(Image image, long[] textTokens) {
             this.image = image;

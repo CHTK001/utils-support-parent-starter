@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 public final class ConfigValueResolvers {
 
-    /** Resolvers */
+    /** 解析器 */
     private static final List<ConfigValueExpressionResolver> RESOLVERS;
 
     static {
@@ -27,7 +27,7 @@ public final class ConfigValueResolvers {
         RESOLVERS = list;
     }
 
-    /** 创建 ConfigValueResolvers 实例 */
+    /** 创建 配置值解析器 实例 */
     private ConfigValueResolvers() {
     }
 
@@ -40,7 +40,7 @@ public final class ConfigValueResolvers {
      * @param targetType  目标类型
      * @param environment 环境配置
      * @param <T>         泛型类型
-     * @return 解析后的值，不支持或无法解析返回 null
+     * @return 解析后的值，不支持或无法解析返回 空
      */
     public static <T> T resolve(String expression, Class<T> targetType, Environment environment) {
         if (expression == null || environment == null) {

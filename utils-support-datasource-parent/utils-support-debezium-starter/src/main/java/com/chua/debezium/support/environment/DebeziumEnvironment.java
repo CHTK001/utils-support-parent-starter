@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
  * DirectoryPollerEnvironment env = DebeziumEnvironment.mysql("cdc-1")
  *     .host("localhost").port(3306).username("root").password("pass").database("mydb")
  *     .build();
+ * }</pre>ass").database("mydb")
+ *     .build();
  * }</pre>
  *
  * @author CH
@@ -87,7 +89,7 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * 创建通用 Builder。
+      * 创建通用 构建器。
      *
      * @return Builder 实例
      */
@@ -96,7 +98,7 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * MySQL CDC Builder 快捷入口。
+      * MySQL CDC 构建器 快捷入口。
      *
      * @param connectorName 连接器名
      * @return Builder 实例
@@ -106,7 +108,7 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * PostgreSQL CDC Builder 快捷入口。
+      * PostgreSQL CDC 构建器 快捷入口。
      *
      * @param connectorName 连接器名
      * @return Builder 实例
@@ -116,7 +118,7 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * Oracle CDC Builder 快捷入口。
+      * Oracle CDC 构建器 快捷入口。
      *
      * @param connectorName 连接器名
      * @return Builder 实例
@@ -126,7 +128,7 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * SQL Server CDC Builder 快捷入口。
+      * SQL 服务端 CDC 构建器 快捷入口。
      *
      * @param connectorName 连接器名
      * @return Builder 实例
@@ -136,7 +138,7 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * MongoDB CDC Builder 快捷入口。
+      * MongoDB CDC 构建器 快捷入口。
      *
      * @param connectorName 连接器名
      * @return Builder 实例
@@ -146,7 +148,7 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * MariaDB CDC Builder 快捷入口。
+      * mariadb CDC 构建器 快捷入口。
      *
      * @param connectorName 连接器名
      * @return Builder 实例
@@ -156,7 +158,9 @@ public class DebeziumEnvironment {
     }
 
     /**
-     * Debezium 环境配置 Builder。
+      * Debezium 环境配置 构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
 
@@ -184,7 +188,7 @@ public class DebeziumEnvironment {
          * 设置连接器名。
          *
          * @param name 连接器名
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder connectorName(String name) {
             props.put(KEY_CONNECTOR_NAME, name);
@@ -195,7 +199,7 @@ public class DebeziumEnvironment {
          * 设置连接器类型。
          *
          * @param type 连接器类型
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder connectorType(String type) {
             props.put(KEY_CONNECTOR_TYPE, type);
@@ -206,7 +210,7 @@ public class DebeziumEnvironment {
          * 设置数据库主机。
          *
          * @param host 主机地址
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder host(String host) {
             props.put(KEY_HOST, host);
@@ -217,7 +221,7 @@ public class DebeziumEnvironment {
          * 设置数据库端口（字符串）。
          *
          * @param port 端口字符串
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder port(String port) {
             props.put(KEY_PORT, port);
@@ -228,7 +232,7 @@ public class DebeziumEnvironment {
          * 设置数据库端口（int）。
          *
          * @param port 端口数值
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder port(int port) {
             props.put(KEY_PORT, String.valueOf(port));
@@ -239,7 +243,7 @@ public class DebeziumEnvironment {
          * 设置数据库用户名。
          *
          * @param username 用户名
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder username(String username) {
             props.put(KEY_USERNAME, username);
@@ -250,7 +254,7 @@ public class DebeziumEnvironment {
          * 设置数据库密码。
          *
          * @param password 密码
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder password(String password) {
             props.put(KEY_PASSWORD, password);
@@ -261,7 +265,7 @@ public class DebeziumEnvironment {
          * 设置数据库名。
          *
          * @param database 数据库名
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder database(String database) {
             props.put(KEY_DATABASE, database);
@@ -272,7 +276,7 @@ public class DebeziumEnvironment {
          * 设置 PostgreSQL 复制槽名。
          *
          * @param slotName 复制槽名
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder slotName(String slotName) {
             props.put(KEY_SLOT_NAME, slotName);
@@ -283,7 +287,7 @@ public class DebeziumEnvironment {
          * 设置 PostgreSQL 解码插件名。
          *
          * @param pluginName 插件名
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder pluginName(String pluginName) {
             props.put(KEY_PLUGIN_NAME, pluginName);
@@ -294,7 +298,7 @@ public class DebeziumEnvironment {
          * 设置是否自动初始化环境。
          *
          * @param autoSetup 是否自动配置
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder autoSetup(boolean autoSetup) {
             props.put(KEY_AUTO_SETUP, String.valueOf(autoSetup));
@@ -306,7 +310,7 @@ public class DebeziumEnvironment {
          *
          * @param key   属性键
          * @param value 属性值
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder property(String key, String value) {
             props.put(key, value);
@@ -318,7 +322,7 @@ public class DebeziumEnvironment {
          *
          * @param interval 间隔
          * @param unit     时间单位
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder pollingInterval(long interval, TimeUnit unit) {
             this.pollingInterval = interval;
@@ -330,7 +334,7 @@ public class DebeziumEnvironment {
          * 设置监听事件类型。
          *
          * @param events 事件类型
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public Builder events(WatcherEvent... events) {
             this.events = Set.of(events);
@@ -352,7 +356,7 @@ public class DebeziumEnvironment {
             if (props.get(KEY_CONNECTOR_NAME) == null) {
                 missing.add(KEY_CONNECTOR_NAME);
             }
-            // 关系型数据库需要 host / username
+ // 关系型数据库需要 主机 / 用户名
             if (!CONNECTOR_TYPE_MONGODB.equals(type)) {
                 if (props.get(KEY_HOST) == null) {
                     missing.add(KEY_HOST);
@@ -379,7 +383,7 @@ public class DebeziumEnvironment {
         }
 
         /**
-         * 构建 DirectoryPollerEnvironment。
+          * 构建 目录poller环境。
          *
          * @return 已配置的环境实例
          */

@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
  * 姓名拼音 Mock 生成器
  *
  * <p>由姓氏拼音与名字拼音池组合生成，首字母大写的无空格拼音，
- * 如「ZhangWei」「LiJingwen」。</p>
+   * 如「zhangwei」「lijingwen」。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -29,6 +29,8 @@ public class PinyinMockString implements MockString {
     };
     /**
      * 名字拼音池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] GIVEN_NAMES = {
             "Wei", "Fang", "Na", "Min", "Jing", "Li", "Qiang", "Lei", "Jun", "Yang",

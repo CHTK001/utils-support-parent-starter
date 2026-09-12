@@ -28,6 +28,9 @@ import java.util.Set;
  *     }
  *     return null;  // 按默认顺序执行
  * })
+ * }</pre>  }
+   * 返回 空;  // 按默认顺序执行
+ * })
  * }</pre>
  *
  * <p><strong>动态路由：</strong></p>
@@ -36,6 +39,8 @@ import java.util.Set;
  *     Object result = doProcess(ctx.getCurrentData());
  *     ctx.setCurrentData(result);
  *     return "validate";  // 跳转到 validate 节点
+ * })
+ * }</pre>     return "validate";  // 跳转到 validate 节点
  * })
  * }</pre>
  *
@@ -55,17 +60,17 @@ public class TaskNode implements PipelineNode {
     private final PipelineNode handler;
 
     /**
-     * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）
+      * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.节点本地数据）
      */
     private Map<String, Object> params;
 
     /**
-     * 节点环境参数映射（定义时配置，执行时以 "env." 前缀注入到 ctx.nodeLocalData）
+      * 节点环境参数映射（定义时配置，执行时以 "env." 前缀注入到 ctx.节点本地数据）
      */
     private Map<String, Object> env;
 
     /**
-     * 重试配置，null 表示不重试
+      * 重试配置，空 表示不重试
      */
     private RetryConfig retryConfig;
 
@@ -86,6 +91,9 @@ public class TaskNode implements PipelineNode {
      *     })
      *     .taskEnd()
      * }</pre>
+     *     })
+      * .任务结束()
+     * }</pre>
      */
     private Set<String> units;
 
@@ -93,7 +101,7 @@ public class TaskNode implements PipelineNode {
      * 构造执行节点。
      *
      * @param id      节点唯一标识
-     * @param handler 业务逻辑处理器，返回 null 按默认顺序执行，返回节点 ID 则跳转
+     * @param handler 业务逻辑处理器，返回 空 按默认顺序执行，返回节点 标识 则跳转
      */
     public TaskNode(String id, PipelineNode handler) {
         this.id = id;
@@ -102,15 +110,15 @@ public class TaskNode implements PipelineNode {
     }
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getId() {
         return id;
     }
 
-    /** 节点类型：task。 */
+    /** 节点类型：任务。 */
     @Override
     public String getType() {
         return "task";
@@ -149,7 +157,7 @@ public class TaskNode implements PipelineNode {
     /**
      * 设置重试配置。
      *
-     * @param retryConfig 重试配置，null 表示不重试
+     * @param retryConfig 重试配置，空 表示不重试
      */
     public void setRetryConfig(RetryConfig retryConfig) {
         this.retryConfig = retryConfig;
@@ -164,19 +172,19 @@ public class TaskNode implements PipelineNode {
     /**
      * 设置数据依赖声明。
      *
-     * @param units 依赖的节点 ID 集合
+     * @param units 依赖的节点 标识 集合
      */
     public void setUnits(Set<String> units) {
         this.units = units != null ? units : Collections.emptySet();
     }
 
-    /** 返回聚合结果的目标节点 ID 集合。 */
+    /** 返回聚合结果的目标节点 标识 集合。 */
     @Override
     public Set<String> getUnits() {
         return units != null ? units : Collections.emptySet();
     }
 
-    /** 执行任务处理器逻辑并返回下一节点 ID。 */
+    /** 执行任务处理器逻辑并返回下一节点 标识。 */
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);

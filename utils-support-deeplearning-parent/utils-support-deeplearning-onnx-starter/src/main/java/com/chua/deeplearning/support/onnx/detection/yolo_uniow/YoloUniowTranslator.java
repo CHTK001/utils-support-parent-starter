@@ -28,16 +28,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * YOLO-UniOW 通用开世界目标检测（Open-World Object Detection）Translator。
+   * YOLO-uniow 通用开世界目标检测（打开-World 对象 Detection）Translator。
  *
  * <p>YOLO-UniOW（清华 THU-MIG，arxiv 2412.20645）基于 YOLO-World + YOLOv10，
  * 支持开世界动态词表检测。ONNX 部署模型输入 {@code images(1,3,640,640)} +
  * {@code text_features(1,N,512)}（类别文本嵌入，需与模型文本编码器一致），
  * 输出 3 个尺度特征图 {@code (1,H,W, 4*reg_max + N)}——前 64 通道为 bbox
- * DFL 分布 logits（reg_max=16，4 边×16 bin），后 N 通道为类别 logits。</p>
+   * DFL 分布 logits（reg_最大=16，4 边×16 bin），后 N 通道为类别 logits。</p>
  *
  * <p>解码流程与 AXERA-TECH/YOLO-UniOW（easydeploy 部署）保持一致：
- * DFL softmax 积分 → dist2bbox（ltrb → xywh，anchor 中心网格偏移 0.5）→
+   * DFL softmax 积分 → dist2bbox（ltrb → xywh，锚栓 中心网格偏移 0.5）→
  * 乘以 stride 还原像素 → sigmoid 类别分数 → 阈值过滤 → NMS。</p>
  *
  * @author CH
@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
 
-    private static final Logger log = LoggerFactory.getLogger(YoloUniowTranslator.class);
+    private static final Logger log = LoggerFactory.getLogger(YoloUniowTranslator.class); // 日志
 
     /** 输入尺寸 */
     private static final int INPUT_SIZE = 640;
@@ -53,7 +53,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     /** 默认置信度阈值 */
     private static final float DEFAULT_THRESHOLD = 0.25f;
 
-    /** 默认 NMS IoU 阈值 */
+    /** 默认 NMS iou 阈值 */
     private static final float DEFAULT_NMS = 0.5f;
 
     /** DFL 积分 bin 数 */
@@ -62,36 +62,36 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     /** 特征图 stride（640 输入：80/40/20 网格） */
     private static final int[] STRIDES = {8, 16, 32};
 
-    /** 文本嵌入 classpath 资源路径（LVIS 1203 类，1203×512） */
+    /** 文本嵌入 类路径 资源路径（LVIS 1203 类，1203×512） */
     private static final String EMBEDDINGS_RESOURCE =
             "vision/detection/yolo_uniow/class_embeddings_1203x512.f32";
 
-    /** 类别名 classpath 资源路径 */
+    /** 类别名 类路径 资源路径 */
     private static final String CLASS_NAMES_RESOURCE =
             "vision/detection/yolo_uniow/class.names.txt";
 
     /** 回退类别 */
     private static final List<String> DEFAULT_CLASSES = List.of("dog", "horse", "sheep", "cow");
 
-    private final float threshold;
-    private final float nmsThreshold;
-    private final List<String> classes;
-    private float[] textFeatures;
+    private final float threshold; // 阈值
+    private final float nmsThreshold; // nms阈值
+    private final List<String> classes; // 类
+    private float[] textFeatures; // 文本特征
 
     /** 原始图像尺寸（用于结果坐标还原） */
     private int imageWidth;
-    private int imageHeight;
+    private int imageHeight; // 镜像height
 
-    /** 创建 YoloUniowTranslator 实例（默认阈值 0.25 / NMS 0.5） */
+    /** 创建 yolouniowtranslator 实例（默认阈值 0.25 / NMS 0.5） */
     public YoloUniowTranslator() {
         this(DEFAULT_THRESHOLD, DEFAULT_NMS);
     }
 
     /**
-     * 创建 YoloUniowTranslator 实例。
+      * 创建 yolouniowtranslator 实例。
      *
      * @param threshold    置信度阈值
-     * @param nmsThreshold NMS IoU 阈值
+     * @param nmsThreshold NMS iou 阈值
      */
     public YoloUniowTranslator(float threshold, float nmsThreshold) {
         this.threshold = threshold;
@@ -103,7 +103,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * 指定外部嵌入文件（覆盖 classpath 资源）。
+      * 指定外部嵌入文件（覆盖 类路径 资源）。
      *
      * @param path 嵌入文件路径（float32 数组，N×512）
      * @return this
@@ -190,7 +190,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
                     ltrbGrid[e] = sum > 0f ? weighted / sum : 0f;
                 }
 
-                // dist2bbox（grid 单元）→ xywh 像素：anchor 中心 ± ltrb，× stride
+ // dist2bbox（grid 单元）→ xywh 像素：锚栓 中心 ± ltrb，× stride
                 float l = ltrbGrid[0], t = ltrbGrid[1], r = ltrbGrid[2], b = ltrbGrid[3];
                 float cx = (anchorCx + (r - l) / 2f * stride);
                 float cy = (anchorCy + (b - t) / 2f * stride);
@@ -222,7 +222,10 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     // ==================== NMS 与结果组装 ====================
 
     /**
-     * 按分数阈值过滤 + NMS，组装 DetectedObjects。
+      * 按分数阈值过滤 + NMS，组装 detected对象。
+     * @param clsData cls数据
+     * @param boxData box数据
+     * @return decodeDetections的结果
      */
     private DetectedObjects decodeDetections(float[] clsData, float[] boxData) {
         int numAnchors = clsData.length / classes.size();
@@ -317,7 +320,8 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     // ==================== 资源加载 ====================
 
     /**
-     * 从 classpath 加载类别名列表。
+      * 从 类路径 加载类别名列表。
+     * @return 加载类名称的结果
      */
     private List<String> loadClassNames() {
         List<String> result = new ArrayList<>();
@@ -348,7 +352,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * 从 classpath 资源加载文本嵌入（float32 数组）。
+      * 从 类路径 资源加载文本嵌入（float32 数组）。
+     * @param resource resource
+     * @return 加载嵌入的结果
      */
     private float[] loadEmbeddings(String resource) {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)) {
@@ -363,6 +369,19 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
 
     /**
      * 从外部文件加载文本嵌入（float32 数组）。
+     * @param is 是否
+     /**
+      * 加载嵌入。
+      * @param path 路径
+      * @return 加载嵌入的结果
+      */
+     * @return 读取floats的结果
+      * @param is 是否
+     /**
+      * 加载嵌入。
+      * @param path 路径
+      * @return 加载嵌入的结果
+      */
      */
     private float[] loadEmbeddings(Path path) {
         try (InputStream is = Files.newInputStream(path)) {
@@ -397,6 +416,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
      * HWC(RGB) → CHW(BGR) 并归一化到 [0,1]。
      * <p>mmdet/YOLO 系模型训练输入为 BGR（OpenCV 惯例），
      * DJL {@code Image.toNDArray} 返回 RGB，需反转通道。</p>
+     * @param ctx ctx
+     * @param array array
+     * @return 转为normalizedchw的结果
      */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();

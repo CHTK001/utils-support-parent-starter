@@ -11,7 +11,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * TAESD (Tiny Auto Encoder for Stable Diffusion) VAE                      
+   * TAESD (Tiny Auto 编码器 for st Diffusion) VAE
  *
  * <p>    Stable Diffusion              latents           RGB          
  *              SD VAE (~350MB)   TAESD     ~10MB                      5-10       </p>
@@ -25,10 +25,10 @@ import ai.djl.translate.TranslatorContext;
 public class TaesdDecoderTranslator implements Translator<NDList, Image> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, NDList input) {
         NDArray latent = input.singletonOrThrow();
-        // Batchifier.STACK                 batch                          batch dim             
+ // Batchifier.STACK                 批量                          批量 dim
         if (latent.getShape().dimension() >= 4 && latent.getShape().get(0) == 1) {
             latent = latent.squeeze(0);
         }
@@ -36,7 +36,7 @@ public class TaesdDecoderTranslator implements Translator<NDList, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         try (NDManager manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch")) {
             NDArray output = list.singletonOrThrow();

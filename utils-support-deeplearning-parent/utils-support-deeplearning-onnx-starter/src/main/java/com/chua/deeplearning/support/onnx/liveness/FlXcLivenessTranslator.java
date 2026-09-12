@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * FLXC 炫彩人脸活体检测 Translator（ModelScope iic/cv_manual_face-liveness_flxc）。
+   * FLXC 炫彩人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flxc）。
  *
  * <p>ResNet 结构，输入 112×112×12（4 帧 × RGB 3 通道，炫彩光源序列），输出
  * {@code [1,2]} = [活体概率, 假体概率]。返回索引 0（活体概率）作为活体分数。</p>
@@ -38,7 +38,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     private static final int CHANNELS = 12;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
@@ -59,7 +59,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Float processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.get(0);
         float[] values = out.toFloatArray();
@@ -74,7 +74,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+ // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;
     }
 }

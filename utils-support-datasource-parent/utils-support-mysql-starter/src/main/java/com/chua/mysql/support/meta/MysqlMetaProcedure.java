@@ -21,26 +21,29 @@ import java.util.List;
 public class MysqlMetaProcedure extends AbstractMetaProcedure {
 
     /**
-     * 创建 MysqlMetaProcedure 实例
-     * @param metaData metaData
-     * @param Engine Engine
+      * 创建 mysqlmetaprocedure 实例
+     * @param metaData meta数据
+     * @param engine Engine
+     * @param engine engine
      */
     protected MysqlMetaProcedure(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-     * 创建 MysqlMetaProcedure 实例
-     * @param metaData metaData
-     * @param Engine Engine
-     * @param String String
+      * 创建 mysqlmetaprocedure 实例
+     * @param metaData meta数据
+     * @param engine Engine
+     * @param procedureName 字符串
+     * @param engine engine
+     * @param procedureName procedure名称
      */
     protected MysqlMetaProcedure(AbstractMetaData metaData, Engine engine, String procedureName) {
         super(metaData, engine, procedureName);
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<ProcedureDef> list() {
         List<ProcedureDef> result = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -84,12 +87,16 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     }
 
     @Override
-    /** Drop */
+    /** 掉落 */
     public boolean drop(String procedureName) {
         return executeUpdate("DROP PROCEDURE IF EXISTS `" + procedureName + "`");
     }
 
-    /** 获取Connection */
+    /**
+     * 获取Connection
+     *
+     * @return 获取connection的结果
+     */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -102,7 +109,14 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
-    /** 执行更新 */
+    /**
+     * 执行更新
+     *
+     * @param sql SQL
+     * @return 执行更新的结果
+     * @author CH
+     * @since 4.0.0
+     */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -125,9 +139,9 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         private final StringBuilder body = new StringBuilder();
         /** 语言 */
         private String language = "SQL";
-        /** Security类型 */
+        /** 安全性类型 */
         private String securityType;
-        /** Comment */
+        /** 评论 */
         private String comment;
 
         MysqlProcedureCreateBuilder(MysqlMetaProcedure metaProcedure, String procedureName) {
@@ -136,7 +150,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** In */
+        /** 入 */
         public ProcedureCreateBuilder in(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -146,7 +160,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** Out */
+        /** 出 */
         public ProcedureCreateBuilder out(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -166,7 +180,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** Param */
+        /** 参数 */
         public ProcedureCreateBuilder param(String name, String type, String direction) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -176,7 +190,7 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** Body */
+        /** 主体 */
         public ProcedureCreateBuilder body(String body) {
             this.body.append(body);
             return this;
@@ -190,21 +204,21 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** SecurityType */
+        /** 安全性类型 */
         public ProcedureCreateBuilder securityType(String securityType) {
             this.securityType = securityType;
             return this;
         }
 
         @Override
-        /** Comment */
+        /** 评论 */
         public ProcedureCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
-        /** OrReplace */
+        /** 或替换 */
         public ProcedureCreateBuilder orReplace() {
             return this;
         }

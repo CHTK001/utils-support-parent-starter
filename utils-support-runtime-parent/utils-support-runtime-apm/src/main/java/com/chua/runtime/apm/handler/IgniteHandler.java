@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Ignite Handler — intercepts Ignite cache operations.
+   * Ignite 处理器 — intercepts Ignite 缓存 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class IgniteHandler extends AbstractAppHandler {
 
     /**
-     * ignite cache
+      * ignite 缓存
      */
     private static final String IGNITE_CACHE = "org/apache/ignite/IgniteCache";
     /**
-     * cache methods
+      * 缓存 方法
      */
     private static final String[] CACHE_METHODS = {"get", "put", "remove", "replace", "getAndPut", "getAndRemove", "query"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "ignite-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "ignite.enabled";
     }
@@ -42,13 +42,13 @@ public class IgniteHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.IGNITE;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(IGNITE_CACHE, CACHE_METHODS);
     }

@@ -28,8 +28,8 @@ public class MutableDataTable implements DataTable {
     private final List<Map<String, Object>> data;
 
     /**
-     * 创建 MutableDataTable 实例
-     * @param name name
+      * 创建 mutable数据table 实例
+     * @param name 名称
      */
     public MutableDataTable(String name) {
         this.name = name;
@@ -56,19 +56,19 @@ public class MutableDataTable implements DataTable {
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return name;
     }
 
     @Override
-    /** 获取ColumnNames */
+    /** 获取column名称 */
     public List<String> getColumnNames() {
         return columnNames;
     }
 
     @Override
-    /** 获取Data */
+    /** 获取数据 */
     public List<Map<String, Object>> getData() {
         return data;
     }

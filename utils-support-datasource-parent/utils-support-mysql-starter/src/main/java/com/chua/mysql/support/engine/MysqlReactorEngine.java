@@ -13,6 +13,7 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
  * MysqlReactorEngine engine = new MysqlReactorEngine();
  * engine.addDataSource("default", "localhost", 3306, "mydb", "root", "password");
  * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
+ * }</pre>er::getName, "张三").list();
  * }</pre>
  *
  * @author CH

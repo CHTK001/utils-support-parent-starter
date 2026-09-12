@@ -70,7 +70,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
      * 构造 SFTP 目录轮询器。
      *
      * @param listenPath SFTP 远程目录路径
-     * @param environment 环境配置（需包含 host、port、username、password）
+     * @param environment 环境配置（需包含 主机、端口、用户名、密码）
      */
     public SftpPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
@@ -83,8 +83,8 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     @Override
     /**
      * 开始
-     * @param environment environment
-     * @param executor executor
+     * @param environment 环境
+     * @param executor 执行器
      */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
@@ -108,7 +108,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
-    /** ListAndModified */
+    /** 列表和modified */
     protected List<SftpClient.DirEntry> listAndModified(String path) {
         try {
             Iterable<SftpClient.DirEntry> dirEntries = sftp.readDir(path);
@@ -123,7 +123,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
-    /** 获取FileName */
+    /** 获取文件名 */
     protected String getFileName(SftpClient.DirEntry item) {
         return item.getFilename();
     }

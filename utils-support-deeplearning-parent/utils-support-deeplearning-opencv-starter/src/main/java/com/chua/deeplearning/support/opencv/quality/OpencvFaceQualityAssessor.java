@@ -17,7 +17,7 @@ import org.opencv.objdetect.CascadeClassifier;
 import java.io.File;
 
 /**
- * 纯 OpenCV 人脸质量评估翻译器。
+   * 纯 打开cv 人脸质量评估翻译器。
  * <p>结合 Haar 人脸检测与模糊/亮度/尺寸指标，判断人脸是否可用于后续识别。</p>
  *
  * @author CH
@@ -94,7 +94,7 @@ public class OpencvFaceQualityAssessor extends OpencvModelTranslator {
     }
 
     @Override
-    /** DoTranslate */
+    /** 执行translate */
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {
             throw new IllegalArgumentException("仅支持 byte[] 输入");

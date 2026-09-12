@@ -33,9 +33,9 @@ public interface RuntimeInstance extends AutoCloseable {
     RuntimeStatus status();
 
     /**
-     * 获取进程 ID（仅 RUNNING 状态有效）。
+      * 获取进程 标识（仅 RUNNING 状态有效）。
      *
-     * @return 进程 ID，未运行时返回 -1
+     * @return 进程 标识，未运行时返回 -1
      */
     long pid();
 
@@ -83,7 +83,7 @@ public interface RuntimeInstance extends AutoCloseable {
     LogStream logStream();
 
     /**
-     * 获取进程退出时的 Future。
+      * 获取进程退出时的 期货。
      *
      * <p>可用于等待进程自然退出。</p>
      *

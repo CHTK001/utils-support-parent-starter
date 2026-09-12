@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ZIP4J 压缩文件系统 SPI 实现（支持密码保护）。
+   * 压缩4J 压缩文件系统 SPI 实现（支持密码保护）。
  *
  * <p>通过 SPI 机制注册为 {@code "zip4j"} 类型的文件系统实现。
- * 基于 zip4j 库提供更强大的 ZIP 操作，支持密码加密/解密。</p>
+   * 基于 压缩4j 库提供更强大的 压缩 操作，支持密码加密/解密。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,7 +27,7 @@ import java.util.List;
 public class Zip4jFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "zip4j";
     }
@@ -39,7 +39,14 @@ public class Zip4jFileSystem implements FileSystem {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+     *
+     * @param file 文件
+     * @return 写入的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public WriteBuilder write(File file) {
         return new Zip4jWriteBuilder(file);
     }
@@ -73,19 +80,33 @@ public class Zip4jFileSystem implements FileSystem {
             return setPassword(password);
         }
 
-        /** 设置Password */
+        /**
+         * 设置密码
+         *
+         * @param password 密码
+         * @return 设置密码的结果
+         */
         public Zip4jReadBuilder setPassword(String password) {
             this.password = password != null ? password.toCharArray() : null;
             return this;
         }
 
-        /** 设置Password */
+        /**
+         * 设置密码
+         *
+         * @param password 密码
+         * @return 设置密码的结果
+         */
         public Zip4jReadBuilder setPassword(char[] password) {
             this.password = password;
             return this;
         }
 
-        /** ListEntries */
+        /**
+         * 列表entries
+         *
+         * @return 列表entries的结果
+         */
         public List<String> listEntries() {
             List<String> entries = new ArrayList<>();
             try (ZipFile zipFile = openZip()) {
@@ -96,17 +117,31 @@ public class Zip4jFileSystem implements FileSystem {
             return entries;
         }
 
-        /** ExtractAll */
+        /**
+         * extract全部
+         *
+         * @param targetDir Targetdir
+         */
         public void extractAll(File targetDir) {
             extract(targetDir);
         }
 
-        /** Extract */
+        /**
+         * Extract
+         *
+         * @param entryName entry名称
+         * @param targetDir Targetdir
+         */
         public void extract(String entryName, File targetDir) {
             extract(targetDir, entryName);
         }
 
-        /** Extract */
+        /**
+         * Extract
+         *
+         * @param targetDir Targetdir
+         * @param entryNames entry名称
+         */
         public void extract(File targetDir, String... entryNames) {
             try (ZipFile zipFile = openZip()) {
                 if (!targetDir.exists()) {
@@ -126,7 +161,12 @@ public class Zip4jFileSystem implements FileSystem {
             }
         }
 
-        /** 读取Entry */
+        /**
+         * 读取Entry
+         *
+         * @param entryName entry名称
+         * @return 读取entry的结果
+         */
         public String readEntry(String entryName) {
             try (ZipFile zipFile = openZip();
                  InputStream is = zipFile.getInputStream(zipFile.getFileHeader(entryName));
@@ -146,9 +186,9 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         /**
-         * 打开 Zip 文件。
+          * 打开 压缩 文件。
          * <p>zip4j 原生支持分卷读取，无需特殊处理。
-         * 只需指向主 .zip 文件，zip4j 会自动检测并读取分卷。</p>
+          * 只需指向主 .压缩 文件，压缩4j 会自动检测并读取分卷。</p>
          *
          * @return ZipFile 实例
          */
@@ -167,7 +207,13 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         @Override
-        /** AsString */
+        /**
+         * as字符串
+         *
+         * @return as字符串的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -204,13 +250,23 @@ public class Zip4jFileSystem implements FileSystem {
             return this;
         }
 
-        /** 设置Password */
+        /**
+         * 设置密码
+         *
+         * @param password 密码
+         * @return 设置密码的结果
+         */
         public Zip4jWriteBuilder setPassword(String password) {
             this.password = password != null ? password.toCharArray() : null;
             return this;
         }
 
-        /** 设置Password */
+        /**
+         * 设置密码
+         *
+         * @param password 密码
+         * @return 设置密码的结果
+         */
         public Zip4jWriteBuilder setPassword(char[] password) {
             this.password = password;
             return this;
@@ -246,32 +302,55 @@ public class Zip4jFileSystem implements FileSystem {
             return setCompressionLevel(level);
         }
 
-        /** 设置CompressionLevel */
+        /**
+         * 设置compression级别
+         *
+         * @param level 级别
+         * @return 设置compression级别的结果
+         */
         public Zip4jWriteBuilder setCompressionLevel(CompressionLevel level) {
             this.compressionLevel = level;
             return this;
         }
 
-        /** 添加File */
+        /**
+         * 添加文件
+         *
+         * @param entryName entry名称
+         * @param source 源
+         * @return 添加文件的结果
+         */
         public Zip4jWriteBuilder addFile(String entryName, File source) {
             entries.add(new EntryData(entryName, source));
             return this;
         }
 
-        /** 添加Stream */
+        /**
+         * 添加流
+         *
+         * @param entryName entry名称
+         * @param in 入
+         * @return 添加流的结果
+         */
         public Zip4jWriteBuilder addStream(String entryName, InputStream in) {
             entries.add(new EntryData(entryName, in));
             return this;
         }
 
-        /** 添加Bytes */
+        /**
+         * 添加Bytes
+         *
+         * @param entryName entry名称
+         * @param bytes bytes
+         * @return 添加bytes的结果
+         */
         public Zip4jWriteBuilder addBytes(String entryName, byte[] bytes) {
             entries.add(new EntryData(entryName, bytes));
             return this;
         }
 
         @Override
-        /** Finish */
+        /** 饰面 */
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -293,7 +372,7 @@ public class Zip4jFileSystem implements FileSystem {
                     }
 
                     // 设置分卷参数（仅对第一个条目生效）
-                    // zip4j 2.11.x 分卷通过 createSplitZipFile 实现，不在 ZipParameters 中设置
+ // 压缩4j 2.11.x 分卷通过 创建分割压缩文件 实现，不在 压缩参数 中设置
 
                     if (ed.getSource() != null) {
                         zipFile.addFile(ed.getSource(), params);
@@ -309,7 +388,14 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+         *
+         * @param data 数据
+         * @return 写入的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public Zip4jWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);
@@ -324,10 +410,10 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         private static class EntryData {
-            final String entryName;
-            final File source;
-            final InputStream inputStream;
-            final byte[] bytes;
+            final String entryName; // entry名称
+            final File source; // 源
+            final InputStream inputStream; // 输入流
+            final byte[] bytes; // bytes
 
             EntryData(String entryName, File source) {
                 this.entryName = entryName; this.source = source;

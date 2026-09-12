@@ -38,7 +38,7 @@ public final class ContextCompressor {
     /**
      * 创建 ContextCompressor 实例
      * @param config config
-     * @param ChatClient ChatClient
+     * @param fallbackClient ChatClient
      */
     private ContextCompressor(ContextCompressionConfig config, ChatClient fallbackClient) {
         this.config = config != null ? config : ContextCompressionConfig.builder().build();

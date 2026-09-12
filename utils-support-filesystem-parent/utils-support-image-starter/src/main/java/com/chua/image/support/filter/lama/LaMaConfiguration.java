@@ -7,9 +7,9 @@ import javax.annotation.Nullable;
 
 
 /**
- * LaMa图像修复模型配置类
+   * lama图像修复模型配置类
  * <p>
- * LaMa (Large Mask Inpainting) 是一个用于图像修复的深度学习模型，
+   * lama (Large Mask Inpainting) 是一个用于图像修复的深度学习模型，
  * 可以智能地填补图像中的缺失区域或移除不需要的对象。
  * </p>
  * 
@@ -39,7 +39,7 @@ public class LaMaConfiguration {
 
     /**
      * 输入图像尺寸
-     * LaMa模型通常使用512x512的输入尺寸
+      * lama模型通常使用512x512的输入尺寸
      * 较大的尺寸可能提供更好的效果但需要更多内存
      */
     private int inputSize = 512;
@@ -57,8 +57,8 @@ public class LaMaConfiguration {
     private boolean useGpu = false;
 
     /**
-     * GPU设备ID
-     * 当使用GPU时指定设备ID，默认为0
+      * GPU设备标识
+      * 当使用GPU时指定设备标识，默认为0
      */
     private int gpuDeviceId = 0;
 
@@ -103,7 +103,7 @@ public class LaMaConfiguration {
      * 指定需要移除的颜色，格式为RGB
      */
     // 默认白色
-    /** target颜色 */
+    /** Target颜色 */
     private int[] targetColor = {255, 255, 255};
 
     /**
@@ -259,7 +259,7 @@ public class LaMaConfiguration {
     /**
      * 获取输入张量的形状
      *
-     * @return 张量形状 [batch, channels, height, width]
+     * @return 张量形状 [批量, 通道, height, width]
      */
     public long[] getInputShape() {
         return new long[]{1, 3, inputSize, inputSize};
@@ -268,7 +268,7 @@ public class LaMaConfiguration {
     /**
      * 获取mask张量的形状
      *
-     * @return mask张量形状 [batch, channels, height, width]
+     * @return mask张量形状 [批量, 通道, height, width]
      */
     public long[] getMaskShape() {
         return new long[]{1, 1, inputSize, inputSize};
@@ -302,7 +302,7 @@ public class LaMaConfiguration {
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         
         return String.format("LaMaConfiguration{modelPath='%s', inputSize=%d, threads=%d, useGpu=%s}",

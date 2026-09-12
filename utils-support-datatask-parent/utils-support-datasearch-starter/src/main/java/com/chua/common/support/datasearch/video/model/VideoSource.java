@@ -12,80 +12,132 @@ public class VideoSource {
     private String videoSourceUrl;
     /** 视频来源令牌 */
     private String videoSourceToken;
-    /** 视频来源用户agent */
+    /** 视频来源用户智能体 */
     private String videoSourceUserAgent;
-    /** 视频来源connect超时 */
+    /** 视频来源连接超时 */
     private Integer videoSourceConnectTimeout;
     /** 视频来源最大值resource */
     private Integer videoSourceMaxResource;
     /** 视频来源最小值year */
     private Integer videoSourceMinYear;
 
-    /** 创建 VideoSource 实例 */
+    /** 创建 视频源 实例 */
     public VideoSource() {
     }
 
-    /** 获取VideoSourceUrl */
+    /**
+     * 获取视频源url
+     *
+     * @return 获取视频源url的结果
+     */
     public String getVideoSourceUrl() {
         return videoSourceUrl;
     }
 
-    /** 设置VideoSourceUrl */
+    /**
+     * 设置视频源url
+     *
+     * @param videoSourceUrl 视频源url
+     */
     public void setVideoSourceUrl(String videoSourceUrl) {
         this.videoSourceUrl = videoSourceUrl;
     }
 
-    /** 获取VideoSourceToken */
+    /**
+     * 获取视频源令牌
+     *
+     * @return 获取视频源令牌的结果
+     */
     public String getVideoSourceToken() {
         return videoSourceToken;
     }
 
-    /** 设置VideoSourceToken */
+    /**
+     * 设置视频源令牌
+     *
+     * @param videoSourceToken 视频源令牌
+     */
     public void setVideoSourceToken(String videoSourceToken) {
         this.videoSourceToken = videoSourceToken;
     }
 
-    /** 获取VideoSourceUserAgent */
+    /**
+     * 获取视频源用户智能体
+     *
+     * @return 获取视频源用户智能体的结果
+     */
     public String getVideoSourceUserAgent() {
         return videoSourceUserAgent;
     }
 
-    /** 设置VideoSourceUserAgent */
+    /**
+     * 设置视频源用户智能体
+     *
+     * @param videoSourceUserAgent 视频源用户智能体
+     */
     public void setVideoSourceUserAgent(String videoSourceUserAgent) {
         this.videoSourceUserAgent = videoSourceUserAgent;
     }
 
-    /** 获取VideoSource连接Timeout */
+    /**
+     * 获取视频源连接超时
+     *
+     * @return 获取视频源连接超时的结果
+     */
     public Integer getVideoSourceConnectTimeout() {
         return videoSourceConnectTimeout;
     }
 
-    /** 设置VideoSource连接Timeout */
+    /**
+     * 设置视频源连接超时
+     *
+     * @param videoSourceConnectTimeout 视频源连接超时
+     */
     public void setVideoSourceConnectTimeout(Integer videoSourceConnectTimeout) {
         this.videoSourceConnectTimeout = videoSourceConnectTimeout;
     }
 
-    /** 获取VideoSource最大值Resource */
+    /**
+     * 获取视频源最大值Resource
+     *
+     * @return 获取视频源最大resource的结果
+     */
     public Integer getVideoSourceMaxResource() {
         return videoSourceMaxResource;
     }
 
-    /** 设置VideoSource最大值Resource */
+    /**
+     * 设置视频源最大值Resource
+     *
+     * @param videoSourceMaxResource 视频源最大resource
+     */
     public void setVideoSourceMaxResource(Integer videoSourceMaxResource) {
         this.videoSourceMaxResource = videoSourceMaxResource;
     }
 
-    /** 获取VideoSource最小值Year */
+    /**
+     * 获取视频源最小值Year
+     *
+     * @return 获取视频源最小year的结果
+     */
     public Integer getVideoSourceMinYear() {
         return videoSourceMinYear;
     }
 
-    /** 设置VideoSource最小值Year */
+    /**
+     * 设置视频源最小值Year
+     *
+     * @param videoSourceMinYear 视频源最小year
+     */
     public void setVideoSourceMinYear(Integer videoSourceMinYear) {
         this.videoSourceMinYear = videoSourceMinYear;
     }
 
-    /** 获取VideoSourceTypeForList */
+    /**
+     * 获取视频源类型for列表
+     *
+     * @return 获取视频源类型for列表的结果
+     */
     public String[] getVideoSourceTypeForList() {
         return new String[]{"MV", "TV", "AC"};
     }

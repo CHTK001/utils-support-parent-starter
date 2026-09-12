@@ -26,13 +26,13 @@ public class PpWordRotateTranslator implements Translator<Image, Classifications
     private final List<String> classes = Arrays.asList("No Rotate", "Rotate");
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         return new Classifications(this.classes, list.singletonOrThrow());
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager());
         img = NDImageUtils.resize(img, 192, 48);

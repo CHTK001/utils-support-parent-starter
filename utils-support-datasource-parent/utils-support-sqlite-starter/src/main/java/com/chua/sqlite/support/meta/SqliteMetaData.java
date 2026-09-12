@@ -14,7 +14,7 @@ import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.JdbcMetaTable;
 
 /**
- * SQLite 元数据入口，提供对象化 DDL（建表/删表/重命名）。
+   * sqlite 元数据入口，提供对象化 DDL（建表/删表/重命名）。
  *
  * <p>通过 SPI 注册，SqliteEngine.meta() 自动加载。</p>
  *

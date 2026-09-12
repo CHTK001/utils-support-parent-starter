@@ -12,9 +12,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * JRebel 许可证服务。
+   * jrebel 许可证服务。
  * <p>
- * 提供 JRebel/XRebel 许可证的生成和管理功能。
+   * 提供 jrebel/xrebel 许可证的生成和管理功能。
  * </p>
  *
  * @author CH
@@ -55,7 +55,7 @@ public class JRebelLicenseService {
      */
     private final Map<String, LicenseInfo> licenseCache = new ConcurrentHashMap<>();
 
-    /** 创建 JRebelLicenseService 实例 */
+    /** 创建 jrebel执照服务 实例 */
     public JRebelLicenseService() {
         this.jRebelSign = new JRebelSign();
     }
@@ -211,6 +211,8 @@ public class JRebelLicenseService {
 
     /**
      * 许可证信息
+     * @author CH
+     * @since 4.0.0
      */
     public static class LicenseInfo {
         /**
@@ -235,11 +237,11 @@ public class JRebelLicenseService {
         private final boolean offline;
 
         /**
-         * 创建 LicenseInfo 实例
+          * 创建 执照信息 实例
          * @param guid guid
-         * @param username username
-         * @param validFrom validFrom
-         * @param validUntil validUntil
+         * @param username 用户名
+         * @param validFrom valid从
+         * @param validUntil validuntil
          * @param offline offline
          */
         public LicenseInfo(String guid, String username, String validFrom,
@@ -251,27 +253,47 @@ public class JRebelLicenseService {
             this.offline = offline;
         }
 
-        /** 获取Guid */
+        /**
+         * 获取Guid
+         *
+         * @return 获取guid的结果
+         */
         public String getGuid() {
             return guid;
         }
 
-        /** 获取Username */
+        /**
+         * 获取用户名
+         *
+         * @return 获取用户名的结果
+         */
         public String getUsername() {
             return username;
         }
 
-        /** 获取Valid从创建 */
+        /**
+         * 获取Valid从创建
+         *
+         * @return 获取valid从的结果
+         */
         public String getValidFrom() {
             return validFrom;
         }
 
-        /** 获取ValidUntil */
+        /**
+         * 获取validuntil
+         *
+         * @return 获取validuntil的结果
+         */
         public String getValidUntil()        {
             return validUntil;
         }
 
-        /** 是否Offline */
+        /**
+         * 是否Offline
+         *
+         * @return 是否offline的结果
+         */
         public boolean isOffline() {
             return offline;
         }

@@ -12,6 +12,7 @@ package com.chua.deeplearning.support.weka.result;
  * @param rank                 排名（1 表示最重要）
  * @author CH
  * @since 4.0.0.42
+ * @return 特征importance的结果
  */
 public record FeatureImportance(String feature, double importance, double normalizedImportance, int rank) {
 

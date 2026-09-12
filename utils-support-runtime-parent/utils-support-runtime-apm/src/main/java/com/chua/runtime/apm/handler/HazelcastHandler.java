@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Hazelcast 应用层 Handler — 拦截 Hazelcast IMap 操作并生成应用语义传输记录。
+   * Hazelcast 应用层 处理器 — 拦截 Hazelcast i映射 操作并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -22,22 +22,22 @@ import com.chua.runtime.protocol.Software;
 public class HazelcastHandler extends AbstractAppHandler {
 
     /**
-     * imap class
+      * imap 类
      */
     private static final String IMAP_CLASS = "com/hazelcast/map/IMap";
     /**
-     * 映射 methods
+      * 映射 方法
      */
     private static final String[] MAP_METHODS = {"get", "put", "remove", "replace", "putIfAbsent", "delete", "containsKey", "size"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "hazelcast-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "hazelcast.enabled";
     }
@@ -49,13 +49,13 @@ public class HazelcastHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HAZELCAST;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(IMAP_CLASS, MAP_METHODS);
     }

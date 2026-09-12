@@ -8,6 +8,7 @@ import lombok.Data;
  * 描述单根内存条的详细信息，区别于 Mem 的全局内存汇总。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class PhysicalMemory {
@@ -23,7 +24,7 @@ public class PhysicalMemory {
     private String memoryType;
 
     /**
-     * 内存频率（MHz）。
+      * 内存频率（mhz）。
      */
     private long clockSpeed;
 
@@ -33,7 +34,7 @@ public class PhysicalMemory {
     private String manufacturer;
 
     /**
-     * 制造商 ID。
+      * 制造商 标识。
      */
     private String manufacturerId;
 

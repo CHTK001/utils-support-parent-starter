@@ -11,7 +11,7 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * WinRM 文件客户端，实现 WinRM 协议下的文件操作。
+   * winrm 文件客户端，实现 winrm 协议下的文件操作。
  *
  * <p>注意：WinRM 本身不直接提供文件传输功能，本实现通过 PowerShell 命令模拟文件操作。</p>
  *
@@ -37,12 +37,12 @@ public class WinRmFileClient implements FileClient {
     private static final String FORCE_FLAG = " -Force";
 
     /**
-     * WinRM 命令执行客户端
+      * winrm 命令执行客户端
      */
     private final WinRmExecClient winrmClient;
 
     /**
-     * 通过客户端设置构造 WinRM 文件客户端。
+      * 通过客户端设置构造 winrm 文件客户端。
      *
      * @param setting 客户端连接配置
      */
@@ -56,9 +56,9 @@ public class WinRmFileClient implements FileClient {
     }
 
     /**
-     * 复用已连接的 WinRM 命令客户端构造文件客户端，避免重复认证配置。
+      * 复用已连接的 winrm 命令客户端构造文件客户端，避免重复认证配置。
      *
-     * @param execClient 已建立连接的 WinRM 命令客户端
+     * @param execClient 已建立连接的 winrm 命令客户端
      */
     public WinRmFileClient(WinRmExecClient execClient) {
         this.winrmClient = execClient;
@@ -81,7 +81,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
-    /** ListFiles */
+    /** 列表文件 */
     public List<String> listFiles(String path) throws IOException {
         String command = "Get-ChildItem -Path \"" + path + "\" | Select-Object -ExpandProperty Name";
         String output = winrmClient.exec().command(command).executeAndGetOutput();
@@ -95,7 +95,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
-    /** UploadFile */
+    /** upload文件 */
     public void uploadFile(InputStream inputStream, String path) throws IOException {
         byte[] data = inputStream.readAllBytes();
         String encoded = Base64.getEncoder().encodeToString(data);
@@ -106,7 +106,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
-    /** DownloadFile */
+    /** download文件 */
     public void downloadFile(String path, OutputStream outputStream) throws IOException {
         String command = "powershell \"[Convert]::ToBase64String([IO.File]::ReadAllBytes('" + path + "'))\"";
         String output = winrmClient.exec().command(command).executeAndGetOutput();
@@ -116,14 +116,14 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
-    /** 读取File */
+    /** 读取文件 */
     public String readFile(String path) throws IOException {
         String command = "Get-Content -Path \"" + path + "\"";
         return winrmClient.exec().command(command).executeAndGetOutput();
     }
 
     @Override
-    /** 创建Directory */
+    /** 创建目录 */
     public void createDirectory(String path, boolean recursive) throws IOException {
         String forceFlag = recursive ? FORCE_FLAG : "";
         String command = "New-Item -ItemType Directory -Path \"" + path + "\"" + forceFlag;
@@ -156,7 +156,7 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
-    /** 是否Directory */
+    /** 是否目录 */
     public boolean isDirectory(String path) throws IOException {
         String command = "(Get-Item -Path \"" + path + "\").PSIsContainer";
         String result = winrmClient.exec().command(command).executeAndGetOutput();

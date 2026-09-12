@@ -27,28 +27,32 @@ public class Query {
     /** 偏移 */
     private int offset = 0;
 
-    /** traceId 精确匹配 */
+    /** 追踪id 精确匹配 */
     private String traceId;
 
-    /** 源端点 host 模糊匹配 */
+    /** 源端点 主机 模糊匹配 */
     private String sourceHost;
 
-    /** 目标端点 host 模糊匹配 */
+    /** 目标端点 主机 模糊匹配 */
     private String targetHost;
 
     /** 协议过滤（HTTP/TCP/...） */
     private String protocol;
 
-    /** 软件栈过滤（JEDIS/TOMCAT/...） */
+    /** 软件栈过滤（JEDIS/Tomcat/...） */
     private String software;
 
-    /** 状态过滤（OK/ERROR） */
+    /** 状态过滤（OK/错误） */
     private String status;
 
     /** 只查询错误 */
     private boolean errorOnly;
 
-    /** 全量查询（limit=100，无其他过滤） */
+    /**
+     * 全量查询（限制=100，无其他过滤）
+     *
+     * @return 全部的结果
+     */
     public static Query all() {
         return new Query();
     }

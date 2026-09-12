@@ -21,7 +21,7 @@ import java.util.*;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * FastSAM-s 分割 Translator（YOLOv8-seg 架构，单模型自动分割）。
+   * fastsam-s 分割 Translator（yolov8-seg 架构，单模型自动分割）。
  *
  * <p>FastSAM 是 YOLOv8 与 SAM 的融合，单模型自动检测并分割任意物体。
  * 输入 {@code [1,3,1024,1024]}，输出检测框 + 原型掩码。
@@ -37,38 +37,43 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class FastSamSegmentTranslator {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 1024;
     /** 类别数量 */
     /** Num_classes */
     private static final int NUM_CLASSES = 1;
     /** 原型掩码数量 */
-    /** Num_protos */
+    /** Num_Proto.io.io */
     private static final int NUM_PROTOS = 32;
     /** 步长 */
     /** Stride */
     private static final int STRIDE = 4;
     /** 置信度阈值 */
-    /** Conf_threshold */
+    /** Conf_阈值 */
     private static final float CONF_THRESHOLD = 0.3f;
     /** NMS 阈值 */
-    /** Nms_threshold */
+    /** Nms_阈值 */
     private static final float NMS_THRESHOLD = 0.5f;
     /** 掩码尺寸 */
-    /** Mask_size */
+    /** Mask_大小 */
     private static final int MASK_SIZE = 256;
 
     /** 资源基础路径 */
-    /** Resource_base */
+    /** Resource_基础 */
     private static final String RESOURCE_BASE = "vision/seg/fastsam/onnx/";
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "fastsam_s.onnx";
 
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
     private float thresholdOverride = -1f;
 
-    /** 取生效阈值。 */
+    /**
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -88,7 +93,9 @@ public class FastSamSegmentTranslator {
 
     /** Prepare */
     private synchronized void prepare() throws Exception {
-        if (session != null) return;
+        if (session != null) {
+            return;
+        }
         Path tmpDir = Files.createTempDirectory("fastsam-onnx-");
         tmpDir.toFile().deleteOnExit();
         Path modelDir = tmpDir.resolve("fastsam");
@@ -118,13 +125,18 @@ public class FastSamSegmentTranslator {
         }
     }
 
-    /** Segment */
+    /**
+     * Segment
+     *
+     * @param input 输入
+     * @return segment的结果
+     */
     public Image segment(Image input) throws Exception {
         prepare();
         srcWidth = input.getWidth();
         srcHeight = input.getHeight();
 
-        // Preprocess: resize to 1024x1024 stretch, /255
+ // Preprocess: resize 转为 1024x1024 stretch, /255
         BufferedImage src = toBufferedImage(input);
         BufferedImage canvas = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
 
@@ -159,13 +171,21 @@ public class FastSamSegmentTranslator {
         }
     }
 
-    /** Postprocess */
+    /**
+     * Postprocess
+     *
+     * @param detections detections
+     * @param protos Proto.io.io
+     * @return postprocess的结果
+     */
     private Image postprocess(float[] detections, float[][][] protos) throws Exception {
         int numPreds = detections.length / 37;
         int numDetections = 0;
         for (int i = 0; i < numPreds; i++) {
             float conf = detections[i * 37 + 4];
-            if (conf > CONF_THRESHOLD) numDetections++;
+            if (conf > CONF_THRESHOLD) {
+                numDetections++;
+            }
         }
 
         float[][] boxes = new float[numDetections][];
@@ -174,7 +194,9 @@ public class FastSamSegmentTranslator {
         int detIdx = 0;
         for (int i = 0; i < numPreds; i++) {
             float conf = detections[i * 37 + 4];
-            if (conf <= effThreshold(CONF_THRESHOLD)) continue;
+            if (conf <= effThreshold(CONF_THRESHOLD)) {
+                continue;
+            }
             float cx = detections[i * 37] / INPUT_SIZE * srcWidth;
             float cy = detections[i * 37 + 1] / INPUT_SIZE * srcHeight;
             float w = detections[i * 37 + 2] / INPUT_SIZE * srcWidth;
@@ -192,7 +214,7 @@ public class FastSamSegmentTranslator {
         // NMS
         int[] keep = nms(boxes, scores, NMS_THRESHOLD);
 
-        // Merge masks
+ // 合并 masks
         BufferedImage result = new BufferedImage(srcWidth, srcHeight, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = result.getRaster();
 
@@ -200,7 +222,7 @@ public class FastSamSegmentTranslator {
             int ki = keep[k];
             float[] coeffs = maskCoeffs[ki];
 
-            // Compute mask from prototypes
+ // Compute mask 从 原型
             float[][] mask = new float[MASK_SIZE][MASK_SIZE];
             for (int y = 0; y < MASK_SIZE; y++) {
                 for (int x = 0; x < MASK_SIZE; x++) {
@@ -215,7 +237,7 @@ public class FastSamSegmentTranslator {
                 }
             }
 
-            // Resize mask to image size and blend
+ // Resize mask 转为 镜像 大小 和 blend
             BufferedImage maskImg = new BufferedImage(MASK_SIZE, MASK_SIZE, BufferedImage.TYPE_BYTE_GRAY);
             WritableRaster maskRaster = maskImg.getRaster();
             for (int y = 0; y < MASK_SIZE; y++) {
@@ -242,31 +264,54 @@ public class FastSamSegmentTranslator {
         return ImageFactory.getInstance().fromImage(result);
     }
 
-    /** Nms */
+    /**
+     * Nms
+     *
+     * @param boxes boxes
+     * @param scores scores
+     * @param threshold 阈值
+     * @return nms的结果
+     */
     private int[] nms(float[][] boxes, float[] scores, float threshold) {
         int n = boxes.length;
         Integer[] idx = new Integer[n];
-        for (int i = 0; i < n; i++) idx[i] = i;
+        for (int i = 0; i < n; i++) {
+            idx[i] = i;
+        }
         Arrays.sort(idx, (a, b) -> Float.compare(scores[b], scores[a]));
 
         boolean[] suppressed = new boolean[n];
         List<Integer> kept = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int ii = idx[i];
-            if (suppressed[ii]) continue;
+            if (suppressed[ii]) {
+                continue;
+            }
             kept.add(ii);
             for (int j = i + 1; j < n; j++) {
                 int jj = idx[j];
-                if (suppressed[jj]) continue;
-                if (iou(boxes[ii], boxes[jj]) > threshold) suppressed[jj] = true;
+                if (suppressed[jj]) {
+                    continue;
+                }
+                if (iou(boxes[ii], boxes[jj]) > threshold) {
+                    suppressed[jj] = true;
+                }
             }
         }
         int[] result = new int[kept.size()];
-        for (int i = 0; i < kept.size(); i++) result[i] = kept.get(i);
+        for (int i = 0; i < kept.size(); i++) {
+            result[i] = kept.get(i);
+        }
         return result;
     }
 
-    /** Iou */
+    /**
+     * Iou
+     *
+     * @param a a
+     * @param b b
+     * @return iou的结果
+     */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
         float y1 = Math.max(a[1], b[1]);
@@ -278,10 +323,17 @@ public class FastSamSegmentTranslator {
         return inter / (areaA + areaB - inter + 1e-9f);
     }
 
-    /** ToBufferedImage */
+    /**
+     * 转为缓冲镜像
+     *
+     * @param input 输入
+     * @return 转为缓冲镜像的结果
+     */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
-        if (wrapped instanceof BufferedImage b) return b;
+        if (wrapped instanceof BufferedImage b) {
+            return b;
+        }
         return (BufferedImage) ImageFactory.getInstance().fromImage(input).getWrappedImage();
     }
 

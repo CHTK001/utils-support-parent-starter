@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 工作区状态查询操作（git status）。
+   * 工作区状态查询操作（Git 状态）。
  *
  * <p>对已打开的本地仓库，查询暂存区、工作区、未跟踪文件状态。</p>
  *
@@ -22,6 +22,7 @@ import java.util.Set;
  * StatusResult status = client.status().execute();
  * boolean clean = status.isClean();
  * List<String> untracked = status.untracked();
+ * }</pre>= status.untracked();
  * }</pre>
  *
  * @author CH
@@ -31,14 +32,14 @@ import java.util.Set;
 public class StatusOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public StatusOperation(GitClient client) {
         this.client = client;
@@ -48,6 +49,16 @@ public class StatusOperation {
      * 执行状态查询。
      *
      * @return 工作区状态
+     * @param set 设置
+     /**
+      * 执行。
+      * @return 执行的结果
+      */
+      * @param set 设置
+     /**
+      * 执行。
+      * @return 执行的结果
+      */
      */
     public StatusResult execute() {
         try {

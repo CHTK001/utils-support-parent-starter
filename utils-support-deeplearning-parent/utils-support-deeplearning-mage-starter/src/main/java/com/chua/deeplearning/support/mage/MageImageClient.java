@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Microsoft Mage 图像生成客户端（SPI provider="mage"）。
+   * Microsoft Mage 图像生成客户端（SPI 提供者="mage"）。
  *
  * <p>通过 HTTP 调用<b>自部署</b>的 Mage 推理服务（见本模块 {@code scripts/server.py}），
  * 后端为微软 Mage 家族的 4B 生成模型：
@@ -39,7 +39,7 @@ import java.util.Map;
  * </pre>
  *
  * <p>使用前提：先在 GPU 机器上部署 Mage 服务（Mage 官方仅发布 PyTorch 权重，
- * 无法像其他模型一样以 ONNX 形式内嵌运行），然后配置 baseUrl 指向该服务。
+   * 无法像其他模型一样以 ONNX 形式内嵌运行），然后配置 baseurl 指向该服务。
  *
  * <p>调用示例：
  * <pre>{@code
@@ -55,6 +55,8 @@ import java.util.Map;
  *       .model("mage-flow-edit-turbo")
  *       .referenceImage(Files.readAllBytes(Path.of("dog.jpg")))
  *       .generate("把背景换成一片向日葵田");
+ * }</pre>nceImage(Files.readAllBytes(Path.of("dog.jpg")))
+ *       .generate("把背景换成一片向日葵田");
  * }</pre>
  *
  * <p>模型 ID 约定：
@@ -66,7 +68,7 @@ import java.util.Map;
  *   <li>{@code mage-flow-edit} — Mage-Flow-Edit-4B（RL 对齐），30 步</li>
  *   <li>{@code mage-flow-edit-turbo} — Mage-Flow-Edit-4B-Turbo，4 步蒸馏</li>
  * </ul>
- * 服务端按 ID 自动映射到对应的 🤗 Hub 权重（microsoft/Mage-Flow*）。
+   * 服务端按 标识 自动映射到对应的 🤗 Hub 权重（microsoft/Mage-流*）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -96,7 +98,7 @@ public class MageImageClient implements ImageClient {
     private final ImageClientSetting setting;
 
     /**
-     * 当前使用的模型 ID
+      * 当前使用的模型 标识
      */
     private String model;
 
@@ -121,12 +123,12 @@ public class MageImageClient implements ImageClient {
     private String negativePrompt;
 
     /**
-     * 随机种子；null 表示由服务端随机
+      * 随机种子；空 表示由服务端随机
      */
     private Long seed;
 
     /**
-     * 去噪步数；覆盖模型默认值（Base 30 / RL 20 / Turbo 4）
+      * 去噪步数；覆盖模型默认值（基础 30 / RL 20 / Turbo 4）
      */
     private Integer steps;
 
@@ -160,14 +162,14 @@ public class MageImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Size */
+    /** 大小 */
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
@@ -175,14 +177,14 @@ public class MageImageClient implements ImageClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
-    /** NegativePrompt */
+    /** negative提示符 */
     public ImageClient negativePrompt(String negativePrompt) {
         this.negativePrompt = negativePrompt;
         return this;
@@ -216,7 +218,7 @@ public class MageImageClient implements ImageClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) {
         if (image != null && image.length > 0) {
             this.referenceImages.add(image);
@@ -225,7 +227,7 @@ public class MageImageClient implements ImageClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(BufferedImage image) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", out);
@@ -236,13 +238,13 @@ public class MageImageClient implements ImageClient {
     }
 
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("Mage-Flow-Edit 由指令驱动编辑强度，不支持 imageStrength");
     }
 
     @Override
-    /** ControlType */
+    /** control类型 */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("Mage-Flow 不支持 ControlNet");
     }
@@ -290,19 +292,19 @@ public class MageImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("Mage 服务为同步接口，请使用 generate()");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("Mage 服务为同步接口，请使用 generate()");
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return MODELS;
     }
@@ -314,7 +316,7 @@ public class MageImageClient implements ImageClient {
     }
 
     /**
-     * 解析响应中的第一张 Base64 图片并解码为 {@link BufferedImage}。
+      * 解析响应中的第一张 基础64 图片并解码为 {@link BufferedImage}。
      *
      * @param json 服务端 JSON 响应
      * @param path 请求路径（用于错误信息）
@@ -348,9 +350,9 @@ public class MageImageClient implements ImageClient {
     }
 
     /**
-     * 构建 Authorization 头。
+      * 构建 授权 头。
      *
-     * @return 已配置 appKey 时返回 Bearer 头，否则返回空串（不携带认证）
+     * @return 已配置 app键 时返回 Bearer 头，否则返回空串（不携带认证）
      */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
@@ -380,7 +382,7 @@ public class MageImageClient implements ImageClient {
     }
 
     /**
-     * Mage-Flow 全家族模型定义。
+      * Mage-流 全家族模型定义。
      */
     private static final List<ModelDefinition> MODELS = List.of(
             ModelDefinition.builder()

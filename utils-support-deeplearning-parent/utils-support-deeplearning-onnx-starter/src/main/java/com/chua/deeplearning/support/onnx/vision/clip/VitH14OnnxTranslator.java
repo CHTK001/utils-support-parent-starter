@@ -18,10 +18,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * ViT-H-14 ONNX 图像特征提取 Translator。
+   * vit-H-14 ONNX 图像特征提取 Translator。
  *
  * <p>基于 Chinese-CLIP ViT-H-14 模型：输入图像，输出 1024 维图像特征向量。
- * 支持动态 batch size，适用于图像检索、图像匹配等场景。</p>
+   * 支持动态 批量 大小，适用于图像检索、图像匹配等场景。</p>
  *
  * <p>流程：图像 → resize(224x224) → normalize(CLIP) → CHW → ONNX 推理 → 特征向量。</p>
  *
@@ -37,7 +37,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     /** 模型名称 */
     private static final String NAME = "vit-h-14";
 
-    /** 输入图像尺寸（ViT-H 224） */
+    /** 输入图像尺寸（vit-H 224） */
     private static final int IMAGE_SIZE = 224;
 
     /** CLIP 图像均值 */
@@ -86,7 +86,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
             return;
         }
 
-        // 加载 OpenCV 原生库
+ // 加载 打开cv 原生库
         ImageUtils.load();
 
         // 解析模型路径
@@ -124,7 +124,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
             return cached;
         }
 
-        // 3. 尝试从 NativeLoader 解压资源
+ // 3. 尝试从 NAT加载 解压资源
         try {
             NativeLoader.of("vit-h-14-resources")
                     .from(VitH14OnnxTranslator.class.getClassLoader())
@@ -156,9 +156,9 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     }
 
     /**
-     * 提取图像特征（ITranslator 接口实现）
+      * 提取图像特征（itranslator 接口实现）
      *
-     * @param input DJL Image 图像
+     * @param input DJL 镜像 图像
      * @return 1024 维特征向量
      */
     @Override
@@ -178,7 +178,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     /**
      * 提取单张图像特征
      *
-     * @param image DJL Image 图像
+     * @param image DJL 镜像 图像
      * @return 1024 维特征向量
      */
     public float[] extractFeature(Image image) {
@@ -188,7 +188,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     /**
      * 批量提取图像特征
      *
-     * @param images DJL Image 图像数组
+     * @param images DJL 镜像 图像数组
      * @return 特征向量数组，每个元素为 1024 维特征
      */
     public float[][] extractFeatures(Image[] images) {
@@ -206,7 +206,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     /**
      * ONNX 推理
      *
-     * @param images DJL Image 图像数组
+     * @param images DJL 镜像 图像数组
      * @return 特征向量数组
      * @throws Exception 推理异常
      */
@@ -236,8 +236,8 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     /**
      * 批量图像预处理：resize → CHW → normalize
      *
-     * @param images DJL Image 图像数组
-     * @return 归一化像素 [batch, 3, 224, 224]
+     * @param images DJL 镜像 图像数组
+     * @return 归一化像素 [批量, 3, 224, 224]
      * @throws Exception 预处理异常
      */
     private float[] preprocessBatch(Image[] images) throws Exception {
@@ -256,7 +256,7 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
      *
      * <p>使用 OpenCV (ImageUtils) 缩放图像，输出 [3, 224, 224] 归一化像素（RGB 顺序）。</p>
      *
-     * @param image DJL Image 图像
+     * @param image DJL 镜像 图像
      * @return 归一化像素 [3, 224, 224]
      * @throws Exception 预处理异常
      */

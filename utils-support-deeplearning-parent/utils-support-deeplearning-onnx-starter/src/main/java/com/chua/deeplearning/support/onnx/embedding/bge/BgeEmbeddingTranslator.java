@@ -44,7 +44,7 @@ public class BgeEmbeddingTranslator {
     /**
      * 加载 jar 内打包的 BGE 模型。
      *
-     * @param basePath   jar 内资源目录（如 nlp/embedding/bge-small-zh-v1.5/）
+     * @param basePath   jar 内资源目录（如 nlp/嵌入/bge-small-zh-v1.5/）
      * @param modelFile  模型文件名
      * @param tokenizerFile tokenizer 文件名
      * @return tokenizer（HuggingFace tokenizer 由 DJL 加载）
@@ -93,7 +93,11 @@ public class BgeEmbeddingTranslator {
         createSession(modelPath);
     }
 
-    /** 创建Session */
+    /**
+     * 创建会话
+     *
+     * @param modelPath 模型路径
+     */
     private void createSession(String modelPath) throws IOException {
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();
@@ -109,7 +113,7 @@ public class BgeEmbeddingTranslator {
     /**
      * 计算文本句向量（已池化）。
      *
-     * @param inputIds      token IDs
+     * @param inputIds      令牌 标识
      * @param attentionMask attention mask
      * @return 句向量 float[]
      */
@@ -128,7 +132,7 @@ public class BgeEmbeddingTranslator {
             inputs.put("attention_mask", attMaskTensor);
             inputs.put("token_type_ids", typeIdsTensor);
             try (OrtSession.Result result = session.run(inputs)) {
-                // Try sentence_embedding output first, fallback to last_hidden_state with CLS pooling
+ // 尝试 sentence_嵌入 输出 第一个, 降级 转为 最后一个_hidden_状态 with CLS 游泳池
                 float[][] pooled = null;
                 float[][][] hidden = null;
                 for (Map.Entry<String, OnnxValue> entry : result) {
@@ -148,7 +152,7 @@ public class BgeEmbeddingTranslator {
                     return pooled[0];
                 }
                 if (hidden != null) {
-                    return hidden[0][0]; // CLS token
+                    return hidden[0][0]; // CLS 令牌
                 }
                 throw new IOException("BGE 输出格式不识别");
             }
@@ -156,7 +160,7 @@ public class BgeEmbeddingTranslator {
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

@@ -59,7 +59,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     private static final int TIMEOUT = 10000;
 
     /**
-     * 模拟浏览器的 User-Agent。
+      * 模拟浏览器的 用户-智能体。
      */
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
@@ -162,7 +162,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
      *
      * @param item        搜索结果 DOM 元素
      * @param videoSearch 搜索参数
-     * @return 视频信息对象，解析失败返回 null
+     * @return 视频信息对象，解析失败返回 空
      */
     private VideoInfoResult parseSearchItem(Element item, VideoSearch videoSearch) {
         try {
@@ -239,7 +239,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
      * </p>
      *
      * @param detailUrl 详情页 URL
-     * @return Jsoup Document，获取失败返回 null
+     * @return Jsoup 文档，获取失败返回 空
      */
     private Document fetchDetailPage(String detailUrl) {
         try {
@@ -331,9 +331,9 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     ) {}
 
     /**
-     * 解析详情页 info 文本中的结构化字段。
+      * 解析详情页 信息 文本中的结构化字段。
      *
-     * @param infoText info 纯文本
+     * @param infoText 信息 纯文本
      * @return 解析出的字段集合
      */
     private InfoFields parseInfoText(String infoText) {
@@ -350,12 +350,12 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 从 info 文本中提取单字段值。
+      * 从 信息 文本中提取单字段值。
      * <p>
      * 从 {@code start} 标记后开始，到 {@code ends} 中任意一个标记前结束（不含标记）。
      * </p>
      *
-     * @param text   info 全文
+     * @param text   信息 全文
      * @param start  起始标记（含）
      * @param ends   结束标记列表
      * @return 提取值，找不到返回空字符串
@@ -379,7 +379,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     /**
      * 提取上映年份。
      *
-     * @param infoText info 文本
+     * @param infoText 信息 文本
      * @return 年份字符串
      */
     private String extractYear(String infoText) {
@@ -406,7 +406,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     /**
      * 提取语言字段。
      *
-     * @param infoText info 文本
+     * @param infoText 信息 文本
      * @return 语言字符串
      */
     private String extractLanguage(String infoText) {
@@ -425,7 +425,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     /**
      * 提取又名字段。
      *
-     * @param infoText info 文本
+     * @param infoText 信息 文本
      * @return 又名字符串
      */
     private String extractAlias(String infoText) {
@@ -443,7 +443,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 根据结构化字段组装 VideoInfoResult 对象。
+      * 根据结构化字段组装 视频信息结果 对象。
      *
      * @param title      标题
      * @param rating     评分
@@ -480,7 +480,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 构造最小可用 VideoInfoResult（用于详情页解析失败时的兜底）。
+      * 构造最小可用 视频信息结果（用于详情页解析失败时的兜底）。
      *
      * @param title      标题
      * @param rating     评分

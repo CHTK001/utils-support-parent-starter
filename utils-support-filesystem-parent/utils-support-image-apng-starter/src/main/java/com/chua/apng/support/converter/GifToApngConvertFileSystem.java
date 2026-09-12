@@ -65,7 +65,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** Do转换 */
+    /** 执行转换 */
     protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
         try {
             // 读取 GIF 文件
@@ -89,14 +89,20 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         
         return "apng";
     
     }
 
-    /** 是否Support格式化 */
+    /**
+     * 是否支持格式化
+     *
+     * @param sourceFormat 源格式化
+     * @param targetFormat Target格式化
+     * @return 是否支持格式化的结果
+     */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         if (sourceFormat == null || targetFormat == null) {
             return false;
@@ -108,7 +114,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** SupportedTypes */
+    /** 支持类型 */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         List<ConvertFileSystem.ConvertSupport> supports = new ArrayList<>();
         supports.add(new ConvertFileSystem.ConvertSupport("gif", "apng"));
@@ -176,7 +182,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
                 String metadataFormat = metadata.getNativeMetadataFormatName();
                 org.w3c.dom.Node root = metadata.getAsTree(metadataFormat);
 
-                // 查找 GraphicControlExtension 节点
+ // 查找 graphiccontrol延伸 节点
                 org.w3c.dom.Node gce = findNode(root, "GraphicControlExtension");
                 if (gce != null) {
                     org.w3c.dom.NamedNodeMap attributes = gce.getAttributes();
@@ -201,6 +207,9 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
      * 查找指定名称的节点
+     * @param parent 父
+     * @param nodeName 节点名称
+     * @return find节点的结果
      */
     private org.w3c.dom.Node findNode(org.w3c.dom.Node parent, String nodeName) {
         if (parent.getNodeName().equals(nodeName)) {
@@ -343,29 +352,40 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
      * 动画帧数据类
+     * @author CH
+     * @since 4.0.0
      */
     private static class AnimationFrame {
         /** 图片 */
         private final BufferedImage image;
-        /** Delay */
+        /** 延迟 */
         private final int delay;
 
         /**
-         * 创建 AnimationFrame 实例
-         * @param image image
-         * @param int int
+          * 创建 animation帧 实例
+         * @param image 镜像
+         * @param delay int
+         * @param delay 延迟
          */
         public AnimationFrame(BufferedImage image, int delay) {
             this.image = image;
             this.delay = delay;
         }
 
-        /** 获取Image */
+        /**
+         * 获取镜像
+         *
+         * @return 获取镜像的结果
+         */
         public BufferedImage getImage() {
             return image;
         }
 
-        /** 获取Delay */
+        /**
+         * 获取延迟
+         *
+         * @return 获取延迟的结果
+         */
         public int getDelay() {
             return delay;
         }

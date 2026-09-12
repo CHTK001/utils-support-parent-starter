@@ -12,16 +12,16 @@ import java.security.MessageDigest;
 import java.util.Map;
 
 /**
- * file-viewer 静态资源过滤器。
+   * 文件-viewer 静态资源过滤器。
  *
  * <p>从 classpath 读取 {@code file-viewer/} 资源并 Serve 到路径。
  * 支持带版本号的 URL（{@code /file-viewer/{version}/...}）和不带版本号的 URL（{@code /file-viewer/...}）。
- * 大文件（WASM/Worker/字体）启用 immutable 缓存 + ETag，减少服务器交互。</p>
+   * 大文件（WebAssembly/工人/字体）启用 immutable 缓存 + e标签，减少服务器交互。</p>
  *
  * <p>缓存策略：
  * <ul>
  *   <li>JS/CSS/WASM/字体：{@code Cache-Control: public, immutable, max-age=31536000}（1年永久缓存）
- *       配合 ETag，内容变化后浏览器自动重新下载。</li>
+   * 配合 e标签，内容变化后浏览器自动重新下载。</li>
  *   <li>小文件（bcmap/json/svg 等）：{@code Cache-Control: public, max-age=86400}（24小时）。</li>
  * </ul>
  * </p>
@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class FileViewerStaticFilter implements ServerFilter {
 
-    /** 版本路径前缀：/file-viewer/{version}/ */
+    /** 版本路径前缀：/文件-viewer/{版本}/ */
     private static final String VERSION_PREFIX_PATTERN = "/file-viewer/[^/]+/";
 
     /** MIME 类型映射 */
@@ -63,7 +63,7 @@ public class FileViewerStaticFilter implements ServerFilter {
         MIME_TYPES = java.util.Collections.unmodifiableMap(m);
     }
 
-    /** 需要 long-ttl + immutable 缓存的文件类型（WASM/Worker/字体/主 JS bundle） */
+    /** 需要 long-ttl + immutable 缓存的文件类型（WebAssembly/工人/字体/主 JS bundle） */
     private static final java.util.Set<String> IMMUTABLE_EXTS;
     static {
         java.util.Set<String> s = new java.util.HashSet<>();
@@ -81,11 +81,11 @@ public class FileViewerStaticFilter implements ServerFilter {
         }
 
         // 兼容两种路径格式：
-        //  1. /file-viewer/{version}/vendor/...  （版本路径，新版本）
-        //  2. /file-viewer/vendor/...             （无前缀路径，老版本兼容）
+ // 1. /文件-viewer/{版本}/供应商/...  （版本路径，新版本）
+ // 2. /文件-viewer/供应商/...             （无前缀路径，老版本兼容）
         String resourcePath;
         if (path.matches(VERSION_PREFIX_PATTERN + ".*")) {
-            // 去掉 /file-viewer/{version}/
+ // 去掉 /文件-viewer/{版本}/
             int secondSlash = path.indexOf('/', 14); // skip "/file-viewer/"
             resourcePath = path.substring(secondSlash + 1);
         } else {
@@ -106,7 +106,7 @@ public class FileViewerStaticFilter implements ServerFilter {
             String ext = getExt(resourcePath);
             String contentType = MIME_TYPES.getOrDefault(ext, "application/octet-stream");
 
-            // 计算 ETag（基于文件内容 MD5）
+ // 计算 e标签（基于文件内容 MD5）
             String etag = computeEtag(bytes);
             String ifNoneMatch = request.getHeader("If-None-Match");
             if (ifNoneMatch != null && ifNoneMatch.equals(etag)) {
@@ -128,6 +128,11 @@ public class FileViewerStaticFilter implements ServerFilter {
         }
     }
 
+    /**
+      * computeetag。
+     * @param bytes bytes
+     * @return computeEtag的结果
+     */
     private static String computeEtag(byte[] bytes) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -144,6 +149,11 @@ public class FileViewerStaticFilter implements ServerFilter {
         }
     }
 
+    /**
+     * 获取ext。
+     * @param path 路径
+     * @return 获取ext的结果
+     */
     private static String getExt(String path) {
         int dot = path.lastIndexOf('.');
         return dot > 0 ? path.substring(dot + 1).toLowerCase() : "";

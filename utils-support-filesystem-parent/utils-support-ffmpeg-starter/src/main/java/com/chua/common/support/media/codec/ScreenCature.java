@@ -24,10 +24,10 @@ public interface ScreenCature extends AutoCloseable {
     boolean init(int width, int height, int fps);
 
     /**
-     * 采集一帧图像，YUV420P 格式的 Frame。
+      * 采集一帧图像，YUV420P 格式的 帧。
      * <p>Frame 的 image[0]=Y, image[1]=U, image[2]=V 为 DirectByteBuffer，零拷贝。</p>
      *
-     * @return YUV420P 格式的 Frame，失败返回 null
+     * @return YUV420P 格式的 帧，失败返回 空
      */
     Frame grabFrame();
 

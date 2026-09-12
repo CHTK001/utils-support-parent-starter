@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * MinIO 文件存储实现。
+   * 最小io 文件存储实现。
  *
  * <p>基于 MinIO Java SDK（{@code io.minio:minio}）实现 {@link FileStorage} SPI 接口，<br>
- * 提供对 MinIO 对象存储的完整操作支持。</p>
+   * 提供对 最小io 对象存储的完整操作支持。</p>
  *
  * <p>MinIO 是一个高性能的 S3 兼容对象存储服务器，可在本地通过 Docker 快速部署，<br>
  * 非常适合开发测试环境使用。</p>
@@ -34,6 +34,7 @@ import java.util.Objects;
  *   -e MINIO_ROOT_USER=minioadmin \
  *   -e MINIO_ROOT_PASSWORD=minioadmin \
  *   minio/minio server /data --console-address ":9001"
+ * }</pre>le-address ":9001"
  * }</pre>
  *
  * <p>启动后访问 http://127.0.0.1:9001（控制台）或通过 9000 端口（API）进行操作。</p>
@@ -48,6 +49,7 @@ import java.util.Objects;
  *     .region("us-east-1")
  *     .build();
  * FileStorage storage = FileStorage.createStorage("minio", setting);
+ * }</pre>age("minio", setting);
  * }</pre>
  *
  * @author CH
@@ -60,8 +62,8 @@ public class MinioFileStorage extends AbstractFileStorage {
     private final MinioClient minioClient;
 
     /**
-     * 创建 MinioFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 minio文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public MinioFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -73,7 +75,7 @@ public class MinioFileStorage extends AbstractFileStorage {
         ensureBucket();
     }
 
-    /** EnsureBucket */
+    /** ensurebucket */
     private void ensureBucket() {
         try {
             boolean exists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
@@ -85,7 +87,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -115,12 +117,12 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
 
-            // 获取对象内容流（GetObjectResponse 本身携带了对象元数据）
+ // 获取对象内容流（获取对象响应 本身携带了对象元数据）
             GetObjectResponse response = minioClient.getObject(GetObjectArgs.builder()
                     .bucket(bucket)
                     .object(key)
@@ -149,7 +151,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -157,7 +159,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
@@ -176,7 +178,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             minioClient.statObject(StatObjectArgs.builder()
@@ -188,7 +190,7 @@ public class MinioFileStorage extends AbstractFileStorage {
                     .exists(true)
                     .build();
         } catch (Exception e) {
-            // MinIO SDK 在对象不存在时抛出异常（ErrorResponseException），视为不存在
+ // 最小io SDK 在对象不存在时抛出异常（错误响应异常），视为不存在
             return ExistObjectResult.builder()
                     .resultCode(ObjectResult.ResultCode.SUCCESS)
                     .exists(false)
@@ -197,7 +199,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             List<Metadata> metadataList = new ArrayList<>();
@@ -222,9 +224,9 @@ public class MinioFileStorage extends AbstractFileStorage {
                         .build());
             }
 
-            // MinIO SDK 的 Iterable 在迭代完所有结果后自动终止，
+ // 最小io SDK 的 可迭代 在迭代完所有结果后自动终止，
             // 无法直接获取 "是否还有下一页" 的信息。
-            // 这里使用最后一条记录的 key 作为 marker 的简化方案。
+ // 这里使用最后一条记录的 键 作为 记号笔 的简化方案。
             boolean hasMore = metadataList.size() >= request.getLimit();
             String nextMarker = hasMore ? lastKey : null;
 
@@ -244,7 +246,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     @Override
     /** 关闭 */
     public void close() {
-        // MinioClient 实现了 AutoCloseable，调用其 close 方法释放资源
+ // minio客户端 实现了 auto关闭，调用其 关闭 方法释放资源
         if (minioClient != null) {
             try {
                 minioClient.close();

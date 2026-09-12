@@ -23,7 +23,7 @@ import reactor.core.scheduler.Schedulers;
  */
 public abstract class AbstractJsonlConversationParser implements ConversationParser {
 
-    /** Logger */
+    /** 日志记录器 */
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
@@ -63,6 +63,13 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     /**
      * 流式解析全部会话消息：递归列出 {@link #rootDir()} 下匹配后缀的文件，
      * 逐文件惰性读取并委托 {@link #parseLine(String)}。
+     * @param file 文件
+     * @return 流文件的结果
+     /**
+      * 流消息。
+      * @return 流消息的结果
+      */
+      * @param file 文件
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
@@ -97,6 +104,11 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
                 });
     }
 
+    /**
+     * 解析线safe。
+     * @param line 线
+     * @return 解析线safe的结果
+     */
     private List<ConversationMessage> parseLineSafe(String line) {
         try {
             return parseLine(line);
@@ -106,6 +118,10 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
         }
     }
 
+    /**
+     * 列表transcripts。
+     * @return 列表transcripts的结果
+     */
     private List<Path> listTranscripts() {
         List<Path> files = new java.util.ArrayList<>();
         for (Path root : rootDirs()) {

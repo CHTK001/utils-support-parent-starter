@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Reactive Streams Handler — intercepts Publisher/Subscriber operations.
+   * 响应式 流 处理器 — intercepts 发布/Subscriber operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,26 +27,26 @@ public class ReactiveStreamsHandler extends AbstractAppHandler {
      */
     private static final String SUBSCRIPTION = "org/reactivestreams/Subscription";
     /**
-     * subscribe methods
+      * 订阅 方法
      */
     private static final String[] SUBSCRIBE_METHODS = {"subscribe"};
     /**
-     * on methods
+      * on 方法
      */
     private static final String[] ON_METHODS = {"onNext", "onError", "onComplete"};
     /**
-     * 请求 methods
+      * 请求 方法
      */
     private static final String[] REQUEST_METHODS = {"request", "cancel"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "reactive-streams-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "reactive-streams.enabled";
     }
@@ -58,13 +58,13 @@ public class ReactiveStreamsHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.MESSAGE;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(PUBLISHER, SUBSCRIBE_METHODS);
         registerAll(SUBSCRIBER, ON_METHODS);

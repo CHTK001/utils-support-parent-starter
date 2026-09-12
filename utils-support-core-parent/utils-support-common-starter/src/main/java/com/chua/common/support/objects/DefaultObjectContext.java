@@ -22,7 +22,7 @@ import java.util.function.Function;
  * 默认对象容器实现。
  *
  * <p>持有 {@link ObjectContextConfig} 和 {@link BeanDefinitionRegistry} 实例，
- * 替代接口静态 {@code WeakHashMap} holder，提供线程安全、可 GC 的轻量级 IoC 容器。</p>
+   * 替代接口静态 {@code WeakHashMap} holder，提供线程安全、可 GC 的轻量级 IOC 容器。</p>
  *
  * <p>核心职责：
  * <ul>
@@ -40,6 +40,8 @@ import java.util.function.Function;
  * context.init(ObjectContextConfig.defaults());
  * context.registerBean(new MyService());
  * MyService service = context.getBean(MyService.class);
+ * }</pre>an(new MyService());
+ * MyService service = context.getBean(MyService.class);
  * }</pre>
  *
  * @author CH
@@ -54,7 +56,7 @@ public class DefaultObjectContext implements ObjectContext {
     private ObjectContextConfig config;
 
     /**
-     * Bean 定义注册中心（延迟初始化，直到第一次 getRegistry() 或 init()）
+      * Bean 定义注册中心（延迟初始化，直到第一次 获取registry() 或 初始化()）
      */
     private volatile BeanDefinitionRegistry registry;
 
@@ -76,22 +78,23 @@ public class DefaultObjectContext implements ObjectContext {
     // ==================== 构造器 ====================
 
     /**
-     * 使用默认配置创建容器（不自动 init，需手动调用 {@link #init()}）
+      * 使用默认配置创建容器（不自动 初始化，需手动调用 {@link #init()}）
      */
     public DefaultObjectContext() {
     }
 
     /**
-     * 使用指定配置创建容器（不自动 init）
+      * 使用指定配置创建容器（不自动 初始化）
+     * @param config 配置
      */
     public DefaultObjectContext(ObjectContextConfig config) {
         this.config = config;
     }
 
     /**
-     * 创建容器并从 classpath 配置（application.yml 等）完成初始化。
+      * 创建容器并从 类路径 配置（application.yml 等）完成初始化。
      *
-     * @return 已 init 的上下文
+     * @return 已 初始化 的上下文
      */
     public static DefaultObjectContext create() {
         DefaultObjectContext context = new DefaultObjectContext();
@@ -103,7 +106,7 @@ public class DefaultObjectContext implements ObjectContext {
      * 创建容器并使用指定配置完成初始化。
      *
      * @param config 容器配置
-     * @return 已 init 的上下文
+     * @return 已 初始化 的上下文
      */
     public static DefaultObjectContext create(ObjectContextConfig config) {
         DefaultObjectContext context = new DefaultObjectContext();
@@ -137,7 +140,7 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
     /**
-     * 为注册中心中所有 BeanDefinition 设置容器回调，
+      * 为注册中心中所有 Beandefinition 设置容器回调，
      * 使其在构造器注入和字段注入时能从容器查找依赖。
      */
     private void configureAllBeanDefinitionProviders() {
@@ -151,7 +154,8 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
     /**
-     * 为单个 BeanDefinition 设置容器回调。
+      * 为单个 Beandefinition 设置容器回调。
+     * @param def def
      */
     private void configureBeanDefinitionProvider(BeanDefinition def) {
         if (!(def instanceof AbstractBeanDefinition abd)) {
@@ -162,13 +166,13 @@ public class DefaultObjectContext implements ObjectContext {
         abd.setEnvironment(getEnvironment());
     }
 
-        /** 设置Config */
+        /** 设置配置 */
 @Override
     public void setConfig(ObjectContextConfig config) {
         this.config = config;
     }
 
-        /** 获取Config */
+        /** 获取配置 */
 @Override
     public ObjectContextConfig getConfig() {
         if (config != null) {
@@ -211,7 +215,7 @@ public class DefaultObjectContext implements ObjectContext {
         return eventPublisher.publish(event);
     }
 
-        /** 获取BeanProvider */
+        /** 获取Bean提供者 */
 @Override
     public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
         return new DefaultObjectProvider<>(this, requiredType);
@@ -334,7 +338,7 @@ public class DefaultObjectContext implements ObjectContext {
         return (T) bean;
     }
 
-        /** 获取BeanOfType */
+        /** 获取Bean的类型 */
 @Override
     public <T> T getBeanOfType(Class<T> type) {
         if (type == null || closed) {
@@ -363,7 +367,7 @@ public class DefaultObjectContext implements ObjectContext {
         return null;
     }
 
-        /** 获取BeanOfTypeSafely */
+        /** 获取Bean的类型safely */
 @Override
     public <T> T getBeanOfTypeSafely(Class<T> type) {
         try {
@@ -373,7 +377,7 @@ public class DefaultObjectContext implements ObjectContext {
         }
     }
 
-        /** 获取BeanOfTypes */
+        /** 获取Bean的类型 */
 @Override
     public <T> Map<String, T> getBeanOfTypes(Class<T> type) {
         if (type == null || closed || registry == null) {
@@ -397,13 +401,13 @@ public class DefaultObjectContext implements ObjectContext {
         return result;
     }
 
-        /** 获取BeanOfTypeCollection */
+        /** 获取Bean的类型集合 */
 @Override
     public <T> Collection<T> getBeanOfTypeCollection(Class<T> type) {
         return getBeanOfTypes(type).values();
     }
 
-        /** 获取BeansWithAnnotation */
+        /** 获取Beanwith注解 */
 @Override
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed || registry == null) {
@@ -427,7 +431,7 @@ public class DefaultObjectContext implements ObjectContext {
         return result;
     }
 
-        /** 获取MethodWithAnnotation */
+        /** 获取方法with注解 */
 @Override
     public List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed || registry == null) {
@@ -474,7 +478,7 @@ public class DefaultObjectContext implements ObjectContext {
         beanDefinition.injectAndAssemble(bean);
     }
 
-        /** ContainsBean */
+        /** containsBean */
 @Override
     public boolean containsBean(String name) {
         if (closed) {
@@ -483,7 +487,7 @@ public class DefaultObjectContext implements ObjectContext {
         return name != null && registry.containsBean(name);
     }
 
-        /** 是否Singleton */
+        /** 是否单例 */
 @Override
     public boolean isSingleton(String name) {
         if (closed || name == null) {
@@ -493,7 +497,7 @@ public class DefaultObjectContext implements ObjectContext {
         return def != null && def.getScope() == BeanScope.SINGLETON;
     }
 
-        /** 获取BeanDefinitionNames */
+        /** 获取Beandefinition名称 */
 @Override
     public Collection<String> getBeanDefinitionNames() {
         if (closed) {
@@ -502,7 +506,7 @@ public class DefaultObjectContext implements ObjectContext {
         return getRegistry(getConfig().isSpiEnabled()).getBeanDefinitionNames();
     }
 
-        /** 获取BeanDefinition计算数量 */
+        /** 获取Beandefinition计算数量 */
 @Override
     public int getBeanDefinitionCount() {
         if (closed) {
@@ -511,7 +515,7 @@ public class DefaultObjectContext implements ObjectContext {
         return getRegistry(getConfig().isSpiEnabled()).getBeanDefinitionCount();
     }
 
-        /** 是否拥有BeanOfType */
+        /** 是否拥有Bean的类型 */
 @Override
     public <T> boolean hasBeanOfType(Class<T> type) {
         if (type == null || closed) {
@@ -520,7 +524,7 @@ public class DefaultObjectContext implements ObjectContext {
         return !registry.getBeanDefinitionOfType(type).isEmpty();
     }
 
-        /** 获取BeanNames */
+        /** 获取Bean名称 */
 @Override
     public Collection<String> getBeanNames(Class<?> type) {
         if (type == null || closed) {
@@ -532,13 +536,13 @@ public class DefaultObjectContext implements ObjectContext {
                 .toList();
     }
 
-        /** 获取Environment */
+        /** 获取环境 */
 @Override
     public Environment getEnvironment() {
         return environment;
     }
 
-        /** 获取EventPublisher */
+        /** 获取事件发布 */
 @Override
     public EventPublisher getEventPublisher() {
         return eventPublisher;

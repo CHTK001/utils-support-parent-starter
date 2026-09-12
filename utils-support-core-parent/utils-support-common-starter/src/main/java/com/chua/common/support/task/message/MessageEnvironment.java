@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 消息环境配置
  *
  * <p>集中管理消息推送相关的环境配置，如 SMTP 服务器、API Key、模板目录等。
- * 不同的 MessageProvider 实现读取各自需要的配置项。
+   * 不同的 消息提供者 实现读取各自需要的配置项。
  *
  * <h3>常见配置项</h3>
  * <pre>
@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MessageEnvironment {
 
-    /** properties */
+    /** 属性 */
     private final Map<String, String> properties = new ConcurrentHashMap<>();
 
     /**
@@ -66,7 +66,7 @@ public class MessageEnvironment {
      * 获取配置值
      *
      * @param key 配置键
-     * @return 配置值，不存在返回 null
+     * @return 配置值，不存在返回 空
      */
     public String get(String key) {
         return properties.get(key);

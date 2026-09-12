@@ -10,7 +10,7 @@ import java.util.Map;
  * Quick 快速创建门面接口。
  *
  * <p>提供「脚本式 DSL 门面」能力，一条链式调用即可完成：包导入、常量/变量/环境绑定、
- * 类初始化、XML/JSON 数据导入、Map/List/Table 集合构造、动态类生成与脚本执行。</p>
+   * 类初始化、XML/JSON 数据导入、映射/列表/Table 集合构造、动态类生成与脚本执行。</p>
  *
  * <p>每个 {@link Quick} 实例内部持有<b>独立的 {@link ObjectContext}</b>（轻量 IoC 容器），
  * 互不干扰，关闭后自动释放资源。</p>
@@ -41,6 +41,8 @@ import java.util.Map;
  * // XML/JSON 导入数据
  * quick.fromJson("{\"name\":\"zhang\",\"age\":25}");
  * quick.fromXml("<user><name>li</name><age>30</age></user>");
+ * }</pre>age\":25}");
+   * quick.从xml("<user><name>li</name><age>30</age></user>");
  * }</pre>
  *
  * <h2>完整链式调用示例（importPackage + fromXml + dynamic + execute 组合）</h2>
@@ -78,6 +80,11 @@ import java.util.Map;
  *
  * // 7. 用完释放内部上下文
  * quick.close();
+ * }</pre>*       + "  }"
+ *       + "}");
+ *
+ * // 7. 用完释放内部上下文
+   * quick.关闭();
  * }</pre>
  *
  * @author CH
@@ -90,7 +97,7 @@ public interface Quick extends AutoCloseable {
     // ==================== 创建 ====================
 
     /**
-     * 创建 Quick 实例（内部独立 ObjectContext，默认配置）。
+      * 创建 Quick 实例（内部独立 对象上下文，默认配置）。
      *
      * @return Quick 实例
      */
@@ -101,7 +108,7 @@ public interface Quick extends AutoCloseable {
     /**
      * 创建 Quick 实例，复用指定类加载器。
      *
-     * @param classLoader 类加载器，null 时使用线程上下文类加载器
+     * @param classLoader 类加载器，空 时使用线程上下文类加载器
      * @return Quick 实例
      */
     static Quick create(ClassLoader classLoader) {
@@ -109,9 +116,9 @@ public interface Quick extends AutoCloseable {
     }
 
     /**
-     * 创建 Quick 实例，复用外部 ObjectContext。
+      * 创建 Quick 实例，复用外部 对象上下文。
      *
-     * @param context 外部对象容器，null 时创建独立容器
+     * @param context 外部对象容器，空 时创建独立容器
      * @return Quick 实例
      */
     static Quick create(ObjectContext context) {
@@ -121,7 +128,7 @@ public interface Quick extends AutoCloseable {
     // ==================== 上下文 ====================
 
     /**
-     * 获取内部独立的 ObjectContext。
+      * 获取内部独立的 对象上下文。
      *
      * <p>每个 Quick 实例持有独立的轻量 IoC 容器，用于变量/常量/Bean 的注册与查找。</p>
      *
@@ -132,7 +139,7 @@ public interface Quick extends AutoCloseable {
     // ==================== 脚本绑定 ====================
 
     /**
-     * 导入包路径，供脚本源码生成时自动添加 import 语句。
+      * 导入包路径，供脚本源码生成时自动添加 导入 语句。
      *
      * @param packages 包名数组，如 {@code "java.time"}、{@code "java.util"}
      * @return 当前 Quick 实例（链式）
@@ -161,12 +168,12 @@ public interface Quick extends AutoCloseable {
      * 获取变量值。
      *
      * @param name 变量名
-     * @return 变量值，不存在返回 null
+     * @return 变量值，不存在返回 空
      */
     Object variable(String name);
 
     /**
-     * 设置环境属性（写入内部 ObjectContext 的 Environment）。
+      * 设置环境属性（写入内部 对象上下文 的 环境）。
      *
      * @param key   属性键
      * @param value 属性值
@@ -177,7 +184,7 @@ public interface Quick extends AutoCloseable {
     // ==================== 数据导入 ====================
 
     /**
-     * 从 JSON 字符串导入数据（解析为 Map 并绑定为变量）。
+      * 从 JSON 字符串导入数据（解析为 映射 并绑定为变量）。
      *
      * @param json JSON 字符串
      * @return 当前 Quick 实例（链式）
@@ -185,7 +192,7 @@ public interface Quick extends AutoCloseable {
     Quick fromJson(String json);
 
     /**
-     * 从 XML 字符串导入数据（解析为 Map 并绑定为变量）。
+      * 从 XML 字符串导入数据（解析为 映射 并绑定为变量）。
      *
      * @param xml XML 字符串
      * @return 当前 Quick 实例（链式）
@@ -238,7 +245,7 @@ public interface Quick extends AutoCloseable {
     // ==================== 集合构造器 ====================
 
     /**
-     * 创建 Map 链式构造器。
+      * 创建 映射 链式构造器。
      *
      * @param <K> 键类型
      * @param <V> 值类型
@@ -247,7 +254,7 @@ public interface Quick extends AutoCloseable {
     <K, V> MapBuilder<K, V> map();
 
     /**
-     * 创建 List 链式构造器。
+      * 创建 列表 链式构造器。
      *
      * @param <E> 元素类型
      * @return List 构造器
@@ -255,10 +262,10 @@ public interface Quick extends AutoCloseable {
     <E> ListBuilder<E> list();
 
     /**
-     * 创建 Table 链式构造器（Guava Table，row/column/value 三维）。
+      * 创建 Table 链式构造器（Guava Table，row/column/值 三维）。
      *
-     * @param <R> 行类型（需 {@link Comparable}，用于 TreeBasedTable）
-     * @param <C> 列类型（需 {@link Comparable}，用于 TreeBasedTable）
+     * @param <R> 行类型（需 {@link Comparable}，用于 树基础table）
+     * @param <C> 列类型（需 {@link Comparable}，用于 树基础table）
      * @param <V> 值类型
      * @return Table 构造器
      */
@@ -267,10 +274,10 @@ public interface Quick extends AutoCloseable {
     // ==================== 动态类 ====================
 
     /**
-     * 编译 Java 源码为 Class（Compiler SPI：jdk 默认，asm/groovy 等按依赖自动发现）。
+      * 编译 Java 源码为 类（Compiler SPI：jdk 默认，asm/Groovy 等按依赖自动发现）。
      *
      * @param source Java 源码字符串
-     * @return 编译后的 Class
+     * @return 编译后的 类
      */
     Class<?> compile(String source);
 
@@ -278,7 +285,7 @@ public interface Quick extends AutoCloseable {
      * 动态生成指定父类型（类或接口）的子类并实例化。
      *
      * <p>内部通过 {@link Compiler} SPI 实现：common-starter 默认使用 JdkCompiler，
-     * 引入 utils-support-asm-starter 后自动切换到 ASM/Javassist 实现。</p>
+      * 引入 utils-support-asm-starter 后自动切换到 ASM/Javassist 实现。</p>
      *
      * @param superType 父类型（接口或类）
      * @param source    子类成员源码（方法体），如 {@code "public void run() { ... }"}
@@ -302,7 +309,7 @@ public interface Quick extends AutoCloseable {
      * </ul>
      *
      * <p><b>安全提示：</b>{@code execute} 会编译并执行任意 Java 源码，等同于远程代码执行能力，
-     * 仅应在受信任的脚本/配置来源下使用（与 GroovyShell 等脚本门面一致）。</p>
+      * 仅应在受信任的脚本/配置来源下使用（与 groovyshell 等脚本门面一致）。</p>
      *
      * @param script Java 脚本源码或代码片段
      * @return 执行结果
@@ -335,7 +342,7 @@ public interface Quick extends AutoCloseable {
      *
      * @param name Bean 名称
      * @param <T>  泛型类型
-     * @return Bean 实例，不存在返回 null
+     * @return Bean 实例，不存在返回 空
      */
     <T> T get(String name);
 
@@ -344,7 +351,7 @@ public interface Quick extends AutoCloseable {
      *
      * @param type Bean 类型
      * @param <T>  泛型类型
-     * @return Bean 实例，不存在返回 null
+     * @return Bean 实例，不存在返回 空
      */
     <T> T get(Class<T> type);
 
@@ -357,10 +364,12 @@ public interface Quick extends AutoCloseable {
     // ==================== 内部构造器接口 ====================
 
     /**
-     * Map 链式构造器，支持多种 Map 实现。
+      * 映射 链式构造器，支持多种 映射 实现。
      *
      * @param <K> 键类型
      * @param <V> 值类型
+     * @author CH
+     * @since 4.0.0
      */
     interface MapBuilder<K, V> {
 
@@ -374,16 +383,16 @@ public interface Quick extends AutoCloseable {
         MapBuilder<K, V> put(K key, V value);
 
         /**
-         * 指定 Map 实现类型。
+          * 指定 映射 实现类型。
          *
-         * @param type 实现类型：{@code hash}（HashMap 默认）、{@code linked}（LinkedHashMap）、
+         * @param type 实现类型：{@code hash}（哈希映射 默认）、{@code linked}（链接哈希映射）、
          *             {@code tree}（TreeMap）、{@code concurrent}（ConcurrentHashMap）
          * @return 当前构造器（链式）
          */
         MapBuilder<K, V> type(String type);
 
         /**
-         * 构建 Map。
+          * 构建 映射。
          *
          * @return Map 实例
          */
@@ -391,9 +400,11 @@ public interface Quick extends AutoCloseable {
     }
 
     /**
-     * List 链式构造器，支持多种 List 实现。
+      * 列表 链式构造器，支持多种 列表 实现。
      *
      * @param <E> 元素类型
+     * @author CH
+     * @since 4.0.0
      */
     interface ListBuilder<E> {
 
@@ -406,16 +417,16 @@ public interface Quick extends AutoCloseable {
         ListBuilder<E> add(E value);
 
         /**
-         * 指定 List 实现类型。
+          * 指定 列表 实现类型。
          *
-         * @param type 实现类型：{@code array}（ArrayList 默认）、{@code linked}（LinkedList）、
+         * @param type 实现类型：{@code array}（array列表 默认）、{@code linked}（链接列表）、
          *             {@code sorted}（SortedArrayList）、{@code sync}（CopyOnWriteArrayList）
          * @return 当前构造器（链式）
          */
         ListBuilder<E> type(String type);
 
         /**
-         * 构建 List。
+          * 构建 列表。
          *
          * @return List 实例
          */
@@ -425,9 +436,11 @@ public interface Quick extends AutoCloseable {
     /**
      * Table 链式构造器（Guava Table）。
      *
-     * @param <R> 行类型（需 {@link Comparable}，用于 TreeBasedTable）
-     * @param <C> 列类型（需 {@link Comparable}，用于 TreeBasedTable）
+     * @param <R> 行类型（需 {@link Comparable}，用于 树基础table）
+     * @param <C> 列类型（需 {@link Comparable}，用于 树基础table）
      * @param <V> 值类型
+     * @author CH
+     * @since 4.0.0
      */
     interface TableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>, V> {
 
@@ -444,7 +457,7 @@ public interface Quick extends AutoCloseable {
         /**
          * 指定 Table 实现类型。
          *
-         * @param type 实现类型：{@code hash}（HashBasedTable 默认）、{@code tree}（TreeBasedTable）
+         * @param type 实现类型：{@code hash}（哈希基础table 默认）、{@code tree}（树基础table）
          * @return 当前构造器（链式）
          */
         TableBuilder<R, C, V> type(String type);

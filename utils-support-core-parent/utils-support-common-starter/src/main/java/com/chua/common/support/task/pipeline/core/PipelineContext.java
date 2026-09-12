@@ -46,41 +46,41 @@ public class PipelineContext<T> {
     private final String pipelineId;
 
     /**
-     * 当前正在执行的节点 ID
+      * 当前正在执行的节点 标识
      */
     private String currentNodeId;
 
     /**
-     * 下一个将要执行的节点 ID
+      * 下一个将要执行的节点 标识
      */
     private String nextNodeId;
 
     /**
-     * 按添加顺序的下一个节点 ID（只读，由引擎注入，供节点判断逻辑使用）
+      * 按添加顺序的下一个节点 标识（只读，由引擎注入，供节点判断逻辑使用）
      */
     private String nextNodeIdInOrder;
 
     /**
-     * 已执行节点 ID 历史列表，按执行顺序排列
+      * 已执行节点 标识 历史列表，按执行顺序排列
      */
     private final List<String> history;
 
     /**
-     * 当前动作，控制引擎下一步行为，默认为 NEXT
+      * 当前动作，控制引擎下一步行为，默认为 下一个
      */
     private Action action;
 
     /**
-     * 扩展属性 Map，用于节点间共享自定义数据。
+      * 扩展属性 映射，用于节点间共享自定义数据。
      *
      * <p>在并行分支/异步并行子流程中，此 Map 通过引用共享，所有分支读写同一 Map。
-     * 使用 ConcurrentHashMap 保证跨线程读写的线程安全（ParallelNode 的主干与异步子流程并发执行）。
-     * 注意：复合操作（如先读后写同一 key）仍由调用方自行保证原子性。</p>
+      * 使用 并发哈希映射 保证跨线程读写的线程安全（并行节点 的主干与异步子流程并发执行）。
+      * 注意：复合操作（如先读后写同一 键）仍由调用方自行保证原子性。</p>
      */
     private Map<String, Object> attributes;
 
     /**
-     * 节点输出数据 Map，引擎自动存储每个节点的输出数据。
+      * 节点输出数据 映射，引擎自动存储每个节点的输出数据。
      *
      * <p>每个节点执行完毕后，引擎自动将节点输出存入此 Map，key 为节点 ID。
      * 后续任意节点可通过 {@link #getNodeOutput(String)} 或 {@link #getData(String)} 获取之前节点的输出。</p>
@@ -125,7 +125,7 @@ public class PipelineContext<T> {
     /**
      * 构造流水线上下文。
      *
-     * @param pipelineId   流水线 ID
+     * @param pipelineId   流水线 标识
      * @param originalData 原始输入数据
      */
     public PipelineContext(String pipelineId, T originalData) {
@@ -134,7 +134,7 @@ public class PipelineContext<T> {
         this.currentData = originalData;
         this.history = new ArrayList<>();
         this.action = Action.NEXT;
-        // attributes 使用 ConcurrentHashMap：ParallelNode 等异步节点跨线程共享，需保证读写线程安全
+ // attributes 使用 并发哈希映射：并行节点 等异步节点跨线程共享，需保证读写线程安全
         this.attributes = new ConcurrentHashMap<>();
         this.nodeOutputs = new ConcurrentHashMap<>();
     }
@@ -167,56 +167,56 @@ public class PipelineContext<T> {
     }
 
     /**
-     * 获取流水线 ID。
+      * 获取流水线 标识。
      *
-     * @return 流水线 ID
+     * @return 流水线 标识
      */
     public String getPipelineId() {
         return pipelineId;
     }
 
     /**
-     * 获取当前正在执行的节点 ID。
+      * 获取当前正在执行的节点 标识。
      *
-     * @return 当前节点 ID
+     * @return 当前节点 标识
      */
     public String getCurrentNodeId() {
         return currentNodeId;
     }
 
     /**
-     * 设置当前正在执行的节点 ID。
+      * 设置当前正在执行的节点 标识。
      *
-     * @param currentNodeId 当前节点 ID
+     * @param currentNodeId 当前节点 标识
      */
     public void setCurrentNodeId(String currentNodeId) {
         this.currentNodeId = currentNodeId;
     }
 
     /**
-     * 获取下一个将要执行的节点 ID。
+      * 获取下一个将要执行的节点 标识。
      *
-     * @return 下一节点 ID
+     * @return 下一节点 标识
      */
     public String getNextNodeId() {
         return nextNodeId;
     }
 
     /**
-     * 设置下一个将要执行的节点 ID。
+      * 设置下一个将要执行的节点 标识。
      *
      * <p>节点可通过此方法改变默认执行顺序，配合 {@link Action#JUMP} 使用可实现跳转。</p>
      *
-     * @param nextNodeId 下一节点 ID
+     * @param nextNodeId 下一节点 标识
      */
     public void setNextNodeId(String nextNodeId) {
         this.nextNodeId = nextNodeId;
     }
 
     /**
-     * 获取已执行节点 ID 历史列表。
+      * 获取已执行节点 标识 历史列表。
      *
-     * @return 历史节点 ID 列表，按执行顺序排列
+     * @return 历史节点 标识 列表，按执行顺序排列
      */
     public List<String> getHistory() {
         return history;
@@ -225,7 +225,7 @@ public class PipelineContext<T> {
     /**
      * 添加节点到执行历史。
      *
-     * @param nodeId 已执行的节点 ID
+     * @param nodeId 已执行的节点 标识
      */
     public void addHistory(String nodeId) {
         this.history.add(nodeId);
@@ -259,9 +259,9 @@ public class PipelineContext<T> {
     }
 
     /**
-     * 获取扩展属性 Map。
+      * 获取扩展属性 映射。
      *
-     * @return 扩展属性 Map
+     * @return 扩展属性 映射
      */
     public Map<String, Object> getAttributes() {
         return attributes;
@@ -271,11 +271,11 @@ public class PipelineContext<T> {
      * 设置扩展属性。
      *
      * <p>attributes 为 ConcurrentHashMap，不允许 null 值；
-     * 传入 null 时忽略（与 {@link #setNodeOutput(String, Object)} 的 null 守卫行为一致）。
+      * 传入 空 时忽略（与 {@link #setNodeOutput(String, Object)} 的 空 守卫行为一致）。
      * 如需清除属性，请使用 {@code getAttributes().remove(key)}。</p>
      *
      * @param key   属性键
-     * @param value 属性值，null 时忽略
+     * @param value 属性值，空 时忽略
      */
     public void setAttribute(String key, Object value) {
         if (value != null) {
@@ -288,7 +288,7 @@ public class PipelineContext<T> {
      *
      * @param key 属性键
      * @param <V> 属性值类型
-     * @return 属性值，不存在时返回 null
+     * @return 属性值，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getAttribute(String key) {
@@ -298,7 +298,7 @@ public class PipelineContext<T> {
     // ==================== 节点输出数据 ====================
 
     /**
-     * 获取节点输出数据 Map。
+      * 获取节点输出数据 映射。
      *
      * <p>每个节点执行完毕后，引擎自动将节点输出存入此 Map，key 为节点 ID。</p>
      *
@@ -315,7 +315,7 @@ public class PipelineContext<T> {
      * <strong>节点输出存储契约</strong>：{@code currentData} 为 null 时跳过存储；
      * 节点已自存结构化结果（{@code AsyncResult}/{@code ForkResult}/{@code SubPipelineResult}）时不覆盖。</p>
      *
-     * @return 节点输出数据 Map（ConcurrentHashMap，线程安全）
+     * @return 节点输出数据 映射（并发哈希映射，线程安全）
      * @see com.chua.common.support.task.pipeline.builder.DefaultPipeline
      */
     public Map<String, Object> getNodeOutputs() {
@@ -331,10 +331,10 @@ public class PipelineContext<T> {
      * 用户也可手动调用此方法存储自定义数据。</p>
      *
      * <p><strong>注意：</strong>本方法自身仅忽略 null 值，不执行引擎调用前的"不覆盖"检查；
-     * 手动调用写入已存在的 key 时会覆盖原值（包括已存储的结构化结果）。</p>
+      * 手动调用写入已存在的 键 时会覆盖原值（包括已存储的结构化结果）。</p>
      *
-     * @param nodeId 节点 ID
-     * @param data   节点输出数据，null 时忽略（nodeOutputs 为 ConcurrentHashMap，不允许 null 值）
+     * @param nodeId 节点 标识
+     * @param data   节点输出数据，空 时忽略（节点输出 为 并发哈希映射，不允许 空 值）
      * @see com.chua.common.support.task.pipeline.builder.DefaultPipeline
      */
     public void setNodeOutput(String nodeId, Object data) {
@@ -356,9 +356,9 @@ public class PipelineContext<T> {
      *   <li>并行节点：返回 {@link AsyncResult}，可通过 {@code getData(nodeId, AsyncResult.class).await()} 阻塞等待完成</li>
      * </ul>
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      * @param <V>    数据值类型
-     * @return 节点输出数据，不存在时返回 null
+     * @return 节点输出数据，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getNodeOutput(String nodeId) {
@@ -369,12 +369,12 @@ public class PipelineContext<T> {
      * 获取指定节点的输出数据（带类型转换）。
      *
      * <p>与 {@link #getNodeOutput(String)} 类似，但支持指定目标类型。
-     * 如果节点输出数据不是指定类型，将抛出 ClassCastException。</p>
+      * 如果节点输出数据不是指定类型，将抛出 类cast异常。</p>
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      * @param type   期望的数据类型
      * @param <V>    数据值类型
-     * @return 节点输出数据，不存在时返回 null
+     * @return 节点输出数据，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getNodeOutput(String nodeId, Class<V> type) {
@@ -394,11 +394,12 @@ public class PipelineContext<T> {
      *
      * // 带类型转换
      * String result = ctx.getData("validate", String.class);
+     * }</pre>etData("validate", String.class);
      * }</pre>
      *
-     * @param taskId 节点 ID
+     * @param taskId 节点 标识
      * @param <V>    数据值类型
-     * @return 节点输出数据，不存在时返回 null
+     * @return 节点输出数据，不存在时返回 空
      */
     public <V> V getData(String taskId) {
         return getNodeOutput(taskId);
@@ -409,32 +410,32 @@ public class PipelineContext<T> {
      *
      * <p>等价于 {@link #getNodeOutput(String, Class)}，提供更简洁的调用方式。</p>
      *
-     * @param taskId 节点 ID
+     * @param taskId 节点 标识
      * @param type   期望的数据类型
      * @param <V>    数据值类型
-     * @return 节点输出数据，不存在时返回 null
+     * @return 节点输出数据，不存在时返回 空
      */
     public <V> V getData(String taskId, Class<V> type) {
         return getNodeOutput(taskId, type);
     }
 
     /**
-     * 获取按添加顺序的下一个节点 ID。
+      * 获取按添加顺序的下一个节点 标识。
      *
      * <p>此值为只读，由引擎在节点执行前注入，供节点判断逻辑使用。
      * 与 {@link #getNextNodeId()} 不同，本方法返回的是流水线定义时的顺序下一节点，
      * 而 {@code getNextNodeId()} 返回的是实际将要执行的下一节点（可能被修改）。</p>
      *
-     * @return 按顺序的下一个节点 ID，若当前为末尾节点则返回 null
+     * @return 按顺序的下一个节点 标识，若当前为末尾节点则返回 空
      */
     public String getNextNodeIdInOrder() {
         return nextNodeIdInOrder;
     }
 
     /**
-     * 设置按添加顺序的下一个节点 ID（由引擎内部调用）。
+      * 设置按添加顺序的下一个节点 标识（由引擎内部调用）。
      *
-     * @param nextNodeIdInOrder 按顺序的下一个节点 ID
+     * @param nextNodeIdInOrder 按顺序的下一个节点 标识
      */
     public void setNextNodeIdInOrder(String nextNodeIdInOrder) {
         this.nextNodeIdInOrder = nextNodeIdInOrder;
@@ -449,7 +450,7 @@ public class PipelineContext<T> {
      *   <li><strong>attributes</strong> — 节点间共享，整个流水线生命周期内持续存在</li>
      * </ul>
      *
-     * @return 当前节点本地数据 Map，首次访问时自动创建
+     * @return 当前节点本地数据 映射，首次访问时自动创建
      */
     public Map<String, Object> getNodeLocalData() {
         if (nodeLocalData == null) {
@@ -461,7 +462,7 @@ public class PipelineContext<T> {
     /**
      * 设置当前节点本地数据。
      *
-     * @param nodeLocalData 节点本地数据 Map
+     * @param nodeLocalData 节点本地数据 映射
      */
     public void setNodeLocalData(Map<String, Object> nodeLocalData) {
         this.nodeLocalData = nodeLocalData;
@@ -472,7 +473,7 @@ public class PipelineContext<T> {
      *
      * @param key 数据键
      * @param <V> 数据值类型
-     * @return 数据值，不存在时返回 null
+     * @return 数据值，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getNodeLocalValue(String key) {
@@ -506,7 +507,7 @@ public class PipelineContext<T> {
      * <p>当节点执行抛出异常时，引擎将异常存入此字段。
      * 错误恢复节点可通过此方法获取异常信息做条件判断。</p>
      *
-     * @return 最近一次异常，无异常时返回 null
+     * @return 最近一次异常，无异常时返回 空
      */
     public Throwable getLastError() {
         return lastError;
@@ -527,7 +528,7 @@ public class PipelineContext<T> {
      * <p>如果最近异常为 {@link PipelineException}，返回其简短错误码；
      * 否则返回异常类名的简化形式。</p>
      *
-     * @return 错误码字符串，无异常时返回 null
+     * @return 错误码字符串，无异常时返回 空
      */
     public String getLastErrorCode() {
         if (lastError == null) {
@@ -537,7 +538,7 @@ public class PipelineContext<T> {
             return "PIPELINE_" + lastError.getMessage().replaceAll("[^a-zA-Z0-9_]", "_").toUpperCase();
         }
         String className = lastError.getClass().getSimpleName();
-        // 移除常见后缀：Exception, Error
+ // 移除常见后缀：异常, 错误
         if (className.endsWith("Exception")) {
             className = className.substring(0, className.length() - 9);
         } else if (className.endsWith("Error")) {
@@ -585,17 +586,17 @@ public class PipelineContext<T> {
      * <p><strong>并发安全说明：</strong></p>
      * <p>各分支的 {@code currentData} 完全独立，不存在并发写入冲突。
      * {@code nodeOutputs} 与 {@code attributes} 均为 ConcurrentHashMap，跨线程读写安全；
-     * 但复合操作（如先读后写同一 key）的原子性需调用方自行保证。</p>
+      * 但复合操作（如先读后写同一 键）的原子性需调用方自行保证。</p>
      *
      * @return 新的分支上下文，共享只读数据和输出，但当前数据和控制状态独立
      */
     public PipelineContext<T> createBranchContext() {
         PipelineContext<T> branch = new PipelineContext<>(this.pipelineId, this.originalData);
-        // currentData 不共享引用 — 各分支独立修改，避免并发冲突
+ // 当前数据 不共享引用 — 各分支独立修改，避免并发冲突
         branch.currentData = this.currentData;
         // attributes 共享引用 — 跨分支共享自定义数据
         branch.attributes = this.attributes;
-        // nodeOutputs 共享引用 — 各分支通过不同 key 写入，ConcurrentHashMap 保证线程安全
+ // 节点输出 共享引用 — 各分支通过不同 键 写入，并发哈希映射 保证线程安全
         branch.nodeOutputs = this.nodeOutputs;
         return branch;
     }
@@ -614,16 +615,16 @@ public class PipelineContext<T> {
      * 的嵌套场景分支直接复用父 scope 运行，与 {@code ForkNode} 分支行为一致。
      * {@code attributes} 为 ConcurrentHashMap，支持异步并行场景下主干与子流程的跨线程读写。</p>
      *
-     * @param branchPipelineId 子流水线 ID（用于日志与结果结构化存储）
-     * @param branchData       子流水线的输入数据（作为 originalData 与初始 currentData）
+     * @param branchPipelineId 子流水线 标识（用于日志与结果结构化存储）
+     * @param branchData       子流水线的输入数据（作为 原始数据 与初始 当前数据）
      * @param <U>              子流水线数据类型
-     * @return 新的子流水线上下文，共享 attributes 与 nodeOutputs
+     * @return 新的子流水线上下文，共享 attributes 与 节点输出
      */
     public <U> PipelineContext<U> createBranchContext(String branchPipelineId, U branchData) {
         PipelineContext<U> branch = new PipelineContext<>(branchPipelineId, branchData);
-        // attributes 共享引用 — 子流程与父流程读写同一 Map
+ // attributes 共享引用 — 子流程与父流程读写同一 映射
         branch.attributes = this.attributes;
-        // nodeOutputs 共享引用 — 子流程节点输出对父流程可见（ConcurrentHashMap 保证线程安全）
+ // 节点输出 共享引用 — 子流程节点输出对父流程可见（并发哈希映射 保证线程安全）
         branch.nodeOutputs = this.nodeOutputs;
         return branch;
     }

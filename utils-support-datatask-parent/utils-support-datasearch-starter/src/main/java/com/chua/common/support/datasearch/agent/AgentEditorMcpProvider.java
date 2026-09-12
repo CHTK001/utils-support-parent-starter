@@ -46,7 +46,7 @@ public class AgentEditorMcpProvider extends AgentEditorProvider implements McpPr
     /**
      * 将 datasearch MCP 安装到指定客户端对应的 AI 编辑器，使用 STDIO 传输模式。
      *
-     * @param clientId 客户端标识，可为编辑器名称（如 Cursor）或配置目录（如 .cursor）
+     * @param clientId 客户端标识，可为编辑器名称（如 Cursor）或配置目录（如 .Cursor）
      * @param toolId   工具标识
      * @return 安装成功返回 true；客户端不存在或安装失败返回 false
      */

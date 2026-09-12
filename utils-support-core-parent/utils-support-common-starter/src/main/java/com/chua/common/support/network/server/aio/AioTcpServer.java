@@ -294,7 +294,9 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         try {
             java.net.SocketAddress addr = channel.getRemoteAddress();
             if (addr instanceof InetSocketAddress isa) remoteAddr = isa;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            // NOTHING
+        }
         TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, StandardCharsets.UTF_8);
         TcpServerResponse response = new TcpServerResponse();
         try {
@@ -514,6 +516,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
 
             @Override
             public void flush() {
+                // NOTHING
             }
         };
     }

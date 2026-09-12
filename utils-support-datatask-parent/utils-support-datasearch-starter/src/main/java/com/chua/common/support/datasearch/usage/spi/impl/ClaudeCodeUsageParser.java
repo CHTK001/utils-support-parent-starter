@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Claude Code usage parser - parses token usage from local JSONL session files.
+   * Claude 编码 usage parser - 解析 令牌 usage 从 本地 JSONL 会话 文件.
  *
  * <p>Data source is the {@code ~/.claude/projects} directory.</p>
  *
@@ -36,6 +36,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
 
     /**
      * 遗留实现（不再属于契约）：全量装载。请优先使用 {@link #streamAll()}。
+     * @return 解析全部的结果
      */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
@@ -87,6 +88,8 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
 
     /**
      * 单个 JSONL 文件的行流（惰性 + 背压）。
+     * @param file 文件
+     * @return 流jsonl文件的结果
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         return streamLines(file)
@@ -97,7 +100,9 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 安全解析单行，失败返回 empty。
+      * 安全解析单行，失败返回 空。
+     * @param line 线
+     * @return 解析线safe的结果
      */
     private java.util.Optional<AiUsage> parseLineSafe(String line) {
         try {
@@ -110,6 +115,14 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
 
     /**
      * 逐行读取 JSONL 文件并追加解析结果（旧契约内部实现）。
+     * @param model 模型
+     /**
+      * 解析jsonl文件。
+      * @param file 文件
+      * @param result 结果
+      */
+     * @return normalize模型的结果
+     * @param node 节点
      */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -161,10 +174,18 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
                         : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
                 .startTime(startTime > 0 ? startTime : null)
                 .build());
+    /**
+     * 解析时间戳。
+     * @param ts ts
+     * @return 解析时间戳的结果
+     * @param model 模型
+     */
     }
 
     private long parseTimestamp(String ts) {
-        if (ts == null || ts.isBlank()) return 0L;
+        if (ts == null || ts.isBlank()) {
+            return 0L;
+        }
         try { return java.time.OffsetDateTime.parse(ts).toInstant().toEpochMilli(); }
         catch (Exception e) { return 0L; }
     }

@@ -26,23 +26,24 @@ public class PythonScriptExecutor implements ScriptExecutor {
      */
     private final long timeoutMillis;
 
-    /** 创建 PythonScriptExecutor 实例 */
+    /** 创建 pythonscript执行器 实例 */
     public PythonScriptExecutor() {
         this("python3");
     }
 
     /**
-     * 创建 PythonScriptExecutor 实例
-     * @param pythonPath pythonPath
+      * 创建 pythonscript执行器 实例
+     * @param pythonPath Python路径
      */
     public PythonScriptExecutor(String pythonPath) {
         this(pythonPath, 60000);
     }
 
     /**
-     * 创建 PythonScriptExecutor 实例
-     * @param pythonPath pythonPath
-     * @param long long
+      * 创建 pythonscript执行器 实例
+     * @param pythonPath Python路径
+     * @param timeoutMillis long
+     * @param timeoutMillis 超时millis
      */
     public PythonScriptExecutor(String pythonPath, long timeoutMillis) {
         this.pythonPath = pythonPath;
@@ -91,7 +92,7 @@ public class PythonScriptExecutor implements ScriptExecutor {
     }
 
     @Override
-    /** 获取Extension */
+    /** 获取延伸 */
     public String getExtension() {
         return ".py";
     }

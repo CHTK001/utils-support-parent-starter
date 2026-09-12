@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @Builder
 public class MusicTrackDetail {
-    /** TrackID */
+    /** trackid */
     private String trackId;
     /** 来源 */
     private String source;
@@ -24,7 +24,7 @@ public class MusicTrackDetail {
     private String artist;
     /** Album */
     private String album;
-    /** CoverURL */
+    /** coverurl */
     private String coverUrl;
     /** 流URL */
     private String streamUrl;
@@ -34,9 +34,9 @@ public class MusicTrackDetail {
     private String lyrics;
     /** Play数量 */
     private Long playCount;
-    /** Comment数量 */
+    /** 评论数量 */
     private Long commentCount;
-    /** Comments */
+    /** 评论 */
     private List<MusicComment> comments;
 }
 

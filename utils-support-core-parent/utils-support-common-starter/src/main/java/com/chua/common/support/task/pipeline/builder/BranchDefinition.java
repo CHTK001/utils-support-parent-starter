@@ -37,6 +37,11 @@ package com.chua.common.support.task.pipeline.builder;
  *     .branch("yes", "processNode")
  *     .branch("no", "errorNode")
  *     .taskEnd()
+ * }</pre> "yes" : "no")
+ *     .decision()
+ *     .branch("yes", "processNode")
+ *     .branch("no", "errorNode")
+ *     .taskEnd()
  * }</pre>
  *
  * @author CH
@@ -46,7 +51,7 @@ package com.chua.common.support.task.pipeline.builder;
 public class BranchDefinition {
 
     /**
-     * 分支标签（handler 返回值匹配的 key）
+      * 分支标签（处理器 返回值匹配的 键）
      */
     private final String key;
 
@@ -71,7 +76,7 @@ public class BranchDefinition {
      *
      * <p>功能上与 {@link #toNode(String)} 完全等价，语义上表示目标节点是执行节点（task）。</p>
      *
-     * @param nodeId 目标执行节点 ID
+     * @param nodeId 目标执行节点 标识
      * @return 父级判断节点定义，继续配置其他分支
      */
     public TaskDecisionDefinition toTask(String nodeId) {
@@ -83,7 +88,7 @@ public class BranchDefinition {
      *
      * <p>功能上与 {@link #toNode(String)} 完全等价，语义上表示目标节点是判断节点（decision）。</p>
      *
-     * @param nodeId 目标判断节点 ID
+     * @param nodeId 目标判断节点 标识
      * @return 父级判断节点定义，继续配置其他分支
      */
     public TaskDecisionDefinition toDecision(String nodeId) {
@@ -95,7 +100,7 @@ public class BranchDefinition {
      *
      * <p>功能上与 {@link #toNode(String)} 完全等价，语义上表示目标节点是子流水线节点（subPipeline）。</p>
      *
-     * @param nodeId 目标子流水线节点 ID
+     * @param nodeId 目标子流水线节点 标识
      * @return 父级判断节点定义，继续配置其他分支
      */
     public TaskDecisionDefinition toSubPipeline(String nodeId) {
@@ -107,7 +112,7 @@ public class BranchDefinition {
      *
      * <p>将分支标签映射到目标节点 ID，等价于 {@code parent.branch(key, nodeId)}。</p>
      *
-     * @param nodeId 目标节点 ID
+     * @param nodeId 目标节点 标识
      * @return 父级判断节点定义，继续配置其他分支
      */
     public TaskDecisionDefinition toNode(String nodeId) {

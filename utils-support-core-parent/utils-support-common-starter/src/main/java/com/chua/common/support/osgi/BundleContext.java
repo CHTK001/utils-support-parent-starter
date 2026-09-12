@@ -45,7 +45,7 @@ public interface BundleContext {
      *
      * @param type 服务接口类型
      * @param <T>  服务类型
-     * @return 服务实例，未找到返回 null
+     * @return 服务实例，未找到返回 空
      */
     <T> T getService(Class<T> type);
 }

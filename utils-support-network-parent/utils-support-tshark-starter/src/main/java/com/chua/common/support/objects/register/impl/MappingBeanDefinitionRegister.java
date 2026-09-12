@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * URL 路径到 MappingDefinition 的注册器，提供按路径 / 方法的查询与增删。
+   * URL 路径到 mappingdefinition 的注册器，提供按路径 / 方法的查询与增删。
  *
  * @author CH
  * @since 4.0.0
@@ -24,7 +24,7 @@ public class MappingBeanDefinitionRegister {
      *
      * @param path   请求路径
      * @param method 请求方法（当前仅作占位）
-     * @return 命中的 MappingDefinition，未命中返回 Optional.empty()
+     * @return 命中的 mappingdefinition，未命中返回 期权.空()
      */
     public Optional<MappingDefinition> findMappingDefinition(String path, String method) {
         for (MappingDefinition mapping : mappings) {
@@ -37,12 +37,12 @@ public class MappingBeanDefinitionRegister {
     }
 
     /**
-     * 判断单个映射是否匹配 path + method。
+      * 判断单个映射是否匹配 路径 + 方法。
      *
      * @param mapping 映射定义
      * @param path    请求路径
      * @param method  请求方法
-     * @return 命中返回 Optional.of(mapping)，否则返回 empty
+     * @return 命中返回 期权.的(mapping)，否则返回 空
      */
     private Optional<MappingDefinition> checkMatch(MappingDefinition mapping, String path, String method) {
         String[] urls = mapping.getUrls();
@@ -112,7 +112,7 @@ public class MappingBeanDefinitionRegister {
     }
 
     /**
-     * 按路径与方法移除所有匹配的映射定义（当前实现忽略 method 参数）。
+      * 按路径与方法移除所有匹配的映射定义（当前实现忽略 方法 参数）。
      *
      * @param path   路径
      * @param method HTTP 方法
@@ -146,7 +146,7 @@ public class MappingBeanDefinitionRegister {
     }
 
     /**
-     * 判断是否存在命中该路径与方法（method 当前忽略）的映射定义。
+      * 判断是否存在命中该路径与方法（方法 当前忽略）的映射定义。
      *
      * @param path   路径
      * @param method HTTP 方法

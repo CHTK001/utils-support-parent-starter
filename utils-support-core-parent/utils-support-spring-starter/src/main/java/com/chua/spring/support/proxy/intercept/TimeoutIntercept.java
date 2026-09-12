@@ -28,13 +28,13 @@ import java.util.concurrent.TimeoutException;
 public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Timeout> {
 
     @Override
-    /** AnnotationType */
+    /** 注解类型 */
     public Class<Timeout> annotationType() {
         return Timeout.class;
     }
 
     @Override
-    /** Order */
+    /** 订单 */
     public int order() {
         return 100;
     }
@@ -42,10 +42,10 @@ public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implemen
     @Override
     /** Intercept */
     public Object intercept(Timeout annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
-        // 解析超时名称（支持 SpEL），未填使用 类名.方法名
+ // 解析超时名称（支持 spel），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);
 
-        // 解析超时时间（支持 SpEL 和占位符），解析失败时使用默认值
+ // 解析超时时间（支持 spel 和占位符），解析失败时使用默认值
         long timeoutMillis = resolveLong(annotation.timeout(), 3000, proxyMethod);
 
         // 构建超时门面
@@ -77,7 +77,7 @@ public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implemen
      *
      * @param annotation  超时注解
      * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值，找不到时返回 null
+     * @return 回退方法的返回值，找不到时返回 空
      */
     private Object resolveFallback(Timeout annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);

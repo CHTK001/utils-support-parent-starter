@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * YOLOv11n Face ONNX Translator（嵌入 jar，纯 Java 预处理，兼容 onnxruntime engine）。
+   * yolov11n Face ONNX Translator（嵌入 jar，纯 Java 预处理，兼容 onnxruntime engine）。
  *
  * <p>真人/动物卡通人脸检测：YOLOv11n-face（AdamCodd）。输入 640×640 RGB 归一化 [0,1]，
  * 输出 [1,5,8400]（cx,cy,w,h,face_conf）。</p>
@@ -41,7 +41,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     private static final int INPUT_SIZE = 640;
 
     /**
-     * 置信度阈值（默认 0.45），可经 DetectionConfiguration 覆盖。
+      * 置信度阈值（默认 0.45），可经 detection配置 覆盖。
      */
     private float confThreshold = 0.45f;
 
@@ -104,7 +104,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     private int imageHeight;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -138,7 +138,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.get(0);
         long[] shape = output.getShape().getShape();
@@ -206,7 +206,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                 }
                 conf = Math.max(conf, data[idx]);
             }
-            // YOLOv8 onnx 输出原始 logit，需做 sigmoid 转为概率
+ // yolov8 onnx 输出原始 logit，需做 sigmoid 转为概率
             conf = 1f / (1f + (float) Math.exp(-conf));
             if (conf < confThreshold) {
                 continue;
@@ -254,14 +254,18 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         java.util.List<Integer> finalKeep = new java.util.ArrayList<>();
         boolean[] suppressed = new boolean[names.size()];
         for (int i = 0; i < names.size(); i++) {
-            if (suppressed[i]) continue;
+            if (suppressed[i]) {
+                continue;
+            }
             finalKeep.add(i);
             Rectangle ri = rects.get(i);
             double cxI = ri.getX() + ri.getWidth() / 2.0;
             double cyI = ri.getY() + ri.getHeight() / 2.0;
             double diagI = Math.sqrt(ri.getWidth() * ri.getWidth() + ri.getHeight() * ri.getHeight());
             for (int j = i + 1; j < names.size(); j++) {
-                if (suppressed[j]) continue;
+                if (suppressed[j]) {
+                    continue;
+                }
                 Rectangle rj = rects.get(j);
                 double cxJ = rj.getX() + rj.getWidth() / 2.0;
                 double cyJ = rj.getY() + rj.getHeight() / 2.0;
@@ -356,7 +360,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+ // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
  * 本地引擎特征提取客户端抽象基类。
  * <p>
  * 统一实现 {@link FeatureClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
- * 已注册的 String/byte[] → float[] 翻译器执行特征提取，并提供该引擎的模型列表。
+   * 已注册的 字符串/byte[] → float[] 翻译器执行特征提取，并提供该引擎的模型列表。
  * 支持文本特征与图像特征两种输入模态。子类只需指定引擎名称。
  * </p>
  *
@@ -23,7 +23,7 @@ import java.util.List;
 public abstract class AbstractLocalFeatureClient implements FeatureClient {
 
     /**
-     * 引擎名称（provider）
+      * 引擎名称（提供者）
      */
     protected final String engine;
 
@@ -56,20 +56,20 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** Provider */
+    /** 提供者 */
     public FeatureClient provider(String provider) {
         return this;
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FeatureClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Dimensions */
+    /** 维度 */
     public FeatureClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
@@ -113,7 +113,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** ExtractImage */
+    /** extract镜像 */
     public float[] extractImage(byte[] imageData) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -148,7 +148,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * ONNX 模块模型集中注册器。
  * <p>通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
- * relativePath 支持文件系统路径，或 classpath: 前缀（JAR 内嵌）。</p>
+   * relative路径 支持文件系统路径，或 类路径: 前缀（JAR 内嵌）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -26,7 +26,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         registerAll();
     }
 
-    /** 注册All */
+    /** 注册全部 */
     private static void registerAll() {
         // 通用动作识别：识别图片中人物动作（跑步、跳跃等），输出动作类别+置信度；适用安防监控、体育分析
         reg("common-action", "com.chua.deeplearning.support.onnx.action.CommonActionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/action/common/action.onnx", "https://huggingface.co/onnx-community/action-recognition/resolve/main/onnx/model.onnx", false, null);
@@ -151,7 +151,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("small-sd-vae-decoder", "com.chua.deeplearning.support.onnx.generation.SmallSdVaeDecoderTranslator", ai.djl.ndarray.NDList.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/small-sd/vae_decoder/model.onnx",
                 "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/vae_decoder/model.onnx", false, null);
         // 文本到图像生成(Small-SD Combined 全流程编排)：文本编码 → CFG 引导 DDIM 去噪 → VAE 解码；
-        // 主模型为文本编码器，UNet/VAE/tokenizer.json 由编排器自动下载（fp32 约 3GB，含 UNet 外部权重 weights.pb）
+ // 主模型为文本编码器，unet/VAE/tokenizer.json 由编排器自动下载（fp32 约 3GB，含 unet 外部权重 权重.pb）
         reg("small-stable-diffusion-combined", "com.chua.deeplearning.support.onnx.generation.SmallStableDiffusionCombinedTranslator", String.class, ai.djl.modality.cv.Image.class, Object.class, "vision/detection/small-sd/text_encoder/model.onnx",
                 "https://huggingface.co/subpixel/small-stable-diffusion-v0-onnx-ort-web/resolve/main/text_encoder/model.onnx", false, null);
         // 图像生成(TAESD Decoder)：微型 VAE 解码器，极轻量级，用于快速解码潜变量；适用快速图像预览
@@ -178,17 +178,17 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("matting-u2netp", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/u2netp/u2netp.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/u2netp/u2netp.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/u2netp/u2netp.onnx"), false, null);
         // 抠图(ISNet 通用)：F:\models/isnet-general-use.onnx，178MB，1024×1024
         reg("matting-isnet", "com.chua.deeplearning.support.onnx.matting.translator.IsnetSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/isnet/isnet.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/isnet/isnet.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/isnet/isnet.onnx"), false, null);
-        // 动漫人像分割：F:\models/anime.onnx，176MB，1024×1024
+ // 动漫人像分割：F:\模型/anime.onnx，176MB，1024×1024
         reg("anime-seg", "com.chua.deeplearning.support.onnx.matting.translator.IsnetSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/anime/anime.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/anime/anime.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/anime/anime.onnx"), false, null);
         // 衣物分割(U2Net Cloth)：F:\models/cloth.onnx，176MB，768×768 4通道输出；适用服装换装、虚拟试衣
         reg("cloth-seg", "com.chua.deeplearning.support.onnx.matting.translator.ClothSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/cloth/cloth.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/cloth/cloth.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/cloth/cloth.onnx"), false, null);
-        // 人像全身分割：F:\models/human.onnx，176MB，320×320
+ // 人像全身分割：F:\模型/human.onnx，176MB，320×320
         reg("human-seg", "com.chua.deeplearning.support.onnx.matting.translator.U2netSegTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "seg/human/human.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/human/human.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/human/human.onnx"), false, null);
-        // SAM2-tiny：encoder/decoder 双文件交互式分割，需点提示；暂不注册（适合人机交互场景）
+ // SAM2-tiny：编码器/解码器 双文件交互式分割，需点提示；暂不注册（适合人机交互场景）
         // 超分辨率(Nomos2)：4x 图像超分辨率，增强动漫/二次元图片细节；适用动漫放大、老旧图片修复
         reg("nomos2", "com.chua.deeplearning.support.onnx.nomos2.Nomos2Translator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageEnhancer.class, "vision/enhancement/esrgan/4xNomos2_otf_esrgan_fp32_opset17.onnx");
         // OCR方向检测(PP-OCR)：检测文本方向（0°/90°/180°/270°），PaddleOCR 预处理；适用 OCR 流水线前置
-        // #DISABLED# pp-word-rotate 已禁用（模型未随 jar 分发，避免注册后加载失败）
+ // #已禁用# pp-word-rotate 已禁用（模型未随 jar 分发，避免注册后加载失败）
         // reg("pp-word-rotate", "com.chua.deeplearning.support.onnx.ocr.direction.PpWordRotateTranslator", byte[].class, com.chua.deeplearning.support.onnx.ocr.direction.DirectionInfo.class, Object.class, "ocr/direction/ppocr_cls/model.onnx");
         // OCR文字识别(PP-OCR Server)：PP-OCRv5 服务器版文字识别，精度高但较慢；适用高精度 OCR
         reg("pp-word-extractor", "com.chua.deeplearning.support.onnx.ocr.extractor.PpWordExtractorTranslator", ai.djl.modality.cv.Image.class, String.class, Object.class, "ocr/recognition/PP-OCRv5_server_rec_infer/PP-OCRv5_server_rec.onnx");
@@ -282,7 +282,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("grounding-dino", "com.chua.deeplearning.support.onnx.dino.GroundingDinoTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/grounding-dino-tiny/model.onnx", "https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx",
                 java.util.List.of("https://hf-mirror.com/onnx-community/grounding-dino-tiny-ONNX/resolve/main/onnx/model.onnx"), false, "model.onnx");
         // 文本摘要(T5-small)：英文摘要/生成/翻译，多任务 seq2seq；modelscope 下载
-        // 注意：T5 为 encoder-decoder 自回归多文件模型（encoder/decoder/decoder_with_past + tokenizer），
+ // 注意：T5 为 编码器-解码器 自回归多文件模型（编码器/解码器/解码器_with_past + tokenizer），
         // 由 T5Seq2SeqOrtTranslator 按"嵌入/缓存/modelscope 下载"自行组装，注册不设 downloadUrl 避免单文件预下载。
         reg("t5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.T5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/t5-small/encoder_model_int8.onnx", null, null, false, null);
         // 文本摘要(T5-base)：英文摘要/生成，质量优于 t5-small（12 层 12 头）；modelscope 下载
@@ -291,9 +291,9 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("mt5-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5Seq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-small/encoder_model_fp16.onnx", null, null, false, null);
         // 多语言摘要/生成(mT5-base)：中文多句→一句总结，12 层 12 头；modelscope 下载
         reg("mt5-base-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5BaseSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-base/encoder_model_fp16.onnx", null, null, false, null);
-        // 达摩院中文 mT5-base：中文对话改写/摘要，中文能力优于原版 mT5；int8 ONNX 需本地放置
+ // 达摩院中文 mt5-基础：中文对话改写/摘要，中文能力优于原版 mt5；int8 ONNX 需本地放置
         reg("mt5-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.Mt5ZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/mt5-zh/encoder_model_int8.onnx", null, null, false, null);
-        // 中文 BART-large：fnlp/bart-large-chinese，400M 中文书面语，int8 量化，downloadUrl 模式（Z:\temp\onnx-zh-bart-int8）
+ // 中文 BART-large：fnlp/bart-large-chinese，400M 中文书面语，int8 量化，downloadurl 模式（Z:\temp\onnx-zh-bart-int8）
         reg("bart-zh-seq2seq", "com.chua.deeplearning.support.onnx.seq2seq.BartZhSeq2SeqOrtTranslator", String.class, String.class, Object.class, "nlp/seq2seq/bart-zh/encoder_model_int8.onnx", null, null, false, null);
         // 机器翻译(opus-mt-zh-en)：Helsinki-NLP 中译英 MarianMT，嵌入式模型 jar 提供，无需下载；适用中文翻译英文
         reg("opus-mt-zh-en", "com.chua.deeplearning.support.onnx.nlp.translation.OpusMtZhEnTranslationTranslator", String.class, String.class, com.chua.deeplearning.support.nlp.TextTranslator.class, "nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/nlp/translation/opus_mt_zh_en/encoder_model_quantized.onnx"), false, null);
@@ -350,7 +350,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("dog-classification", "com.chua.deeplearning.support.onnx.classification.DogClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx");
         // 猫分类（零样本）：识别图像中的猫，区分猫与其他动物；适用宠物识别、安防监控
         reg("cat-classification", "com.chua.deeplearning.support.onnx.classification.CatClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx");
-        // 食物分类（零样本）：识别常见食物类别，替代原 Food-101 PyTorch 模型；适用食物识别、饮食记录（candidates 由调用方传入）
+ // 食物分类（零样本）：识别常见食物类别，替代原 Food-101 pytorch 模型；适用食物识别、饮食记录（candidates 由调用方传入）
         reg("food-101-classification", "com.chua.deeplearning.support.onnx.classification.SiglipZeroShotClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/zeroshot/siglip-base-patch16-224/onnx/model.onnx", null, false, null);
         // 植物识别(Plant classification)：识别室内植物种类；适用植物识别、园艺
         reg("plant-classification", "com.chua.deeplearning.support.onnx.classification.EfficientNetLite0ClassificationTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/classification/plant/model.onnx", "https://huggingface.co/onnx-community/house-plant-image-detection-ONNX/resolve/main/onnx/model.onnx", false, null);
@@ -390,15 +390,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 情绪识别(YOLOv11-face)：YOLOv11n 人脸情绪识别（开心、难过、生气等）；适用人脸情绪分析
         reg("yolo-face-emotion", "com.chua.deeplearning.support.onnx.emotion.EmotionFerplusTranslator", ai.djl.modality.cv.Image.class, Object.class, Object.class, "face/expression/yolo11-face-emotion.onnx", "https://huggingface.co/leeyunjai/yolo11-face-emotion-fer2013-cls/resolve/main/model.onnx", false, null);
         // 语音识别(Whisper-tiny)：OpenAI Whisper 多语言语音识别，音频转文本；适用语音转写、字幕生成、TTS 回读验证
-        // 模型权重在 utils-support-models-onnx-whisper jar 中（audio/asr/whisper-tiny/，fp32 约 251MB）
-        // 由 WhisperAudioClient 直接加载（encoder + 两阶段 decoder），无需注册 translator 类。
+ // 模型权重在 utils-support-onnx-whisper jar 中（音频/asr/whisper-tiny/，fp32 约 251MB）
+ // 由 whisper音频客户端 直接加载（编码器 + 两阶段 解码器），无需注册 translator 类。
         reg("whisper-tiny", null, byte[].class, String.class, Object.class, "audio/asr/whisper-tiny/config.json", "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/asr/whisper-tiny/config.json", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/asr/whisper-tiny/config.json"), false, null);
 
         // preprocess+encode+uncached+cached 四模型 int8 约 118MB），词表 32768
         // 语音识别(SenseVoice-small)：阿里 FunAudioLLM 多语言 ASR（中/英/日/韩/粤），含 ITN 数字归一化
-        // 模型权重在 utils-support-models-onnx-sensevoice jar 中（audio/asr/sensevoice-small/，int8 约 228MB）
-        // 由 SenseVoiceAudioClient 直接加载（fbank+LFR+CMVN+CTC），无需注册 translator 类。
-        // 双模式：嵌入式 + downloadUrl 自动下载（内网/无外网时自动回落嵌入式副本）
+ // 模型权重在 utils-support-onnx-sensevoice jar 中（音频/asr/sensevoice-small/，int8 约 228MB）
+ // 由 sensevoice音频客户端 直接加载（fbank+LFR+CMVN+CTC），无需注册 translator 类。
+ // 双模式：嵌入式 + downloadurl 自动下载（内网/无外网时自动回落嵌入式副本）
         reg("sensevoice", null, byte[].class, String.class, Object.class,
                 "audio/asr/sensevoice-small/model.int8.onnx",
                 "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/asr/sensevoice-small/model.int8.onnx",
@@ -408,8 +408,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 文本生成(MiniMind)：小型因果语言模型，中文文本续写/生成，完全离线；适用离线文本生成、对话
         reg("minimind", "com.chua.deeplearning.support.onnx.text.minimind.MiniMindTranslator", String.class, String.class, Object.class, "models/minimind/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/models/minimind/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/models/minimind/model.onnx"), false, null);
         // 中文通用语言模型(Gemma-3-270M it)：原版 262144 完整词表（含中文），fp16 + KV-cache ONNX，
-        // 中文对话/文本生成；downloadUrl 自动下载（不再内嵌模型文件，tokenizer 仍从 models jar 抽取）。
-        // 文件位于仓库 gemma-3-270m-it/ 子目录（model_fp16.onnx + model_fp16.onnx_data 权重）
+ // 中文对话/文本生成；downloadurl 自动下载（不再内嵌模型文件，tokenizer 仍从 模型 jar 抽取）。
+ // 文件位于仓库 gemma-3-270m-it/ 子目录（模型_fp16.onnx + 模型_fp16.onnx_数据 权重）
         String gemmaItUrl = "https://huggingface.co/chtk/chua-dl-models/resolve/main/gemma-3-270m-it/model_fp16.onnx";
         reg("gemma-3-270m", "com.chua.deeplearning.support.onnx.text.gemma3.Gemma3Translator", String.class, String.class, Object.class,
                 null,
@@ -479,36 +479,36 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("duguang-det-large", "com.chua.deeplearning.support.onnx.ocr.duguang.DuguangDetTranslator", byte[].class, java.util.List.class, com.chua.deeplearning.support.image.ImageDetector.class, "ocr/duguang/large/det_512.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/ocr/duguang/large/det_512.onnx"), false, null);
 
         // ==================== 语音合成 TTS ====================
-        // DFSMN 语音降噪（单麦 48k 实时近场，PSM）：输入带噪 48kHz 单声道 wav/pcm，输出降噪后音频。
-        // 模型打包在 utils-support-models-onnx-dfsmn-ans jar 中（audio/denoise/dfsmn_ans/，源自 ModelScope speech_dfsmn_ans_psm_48k_causal）。
+ // DFSMN 语音降噪（单麦 48k 实时近场，PSM）：输入带噪 48khz 单声道 wav/pcm，输出降噪后音频。
+ // 模型打包在 utils-support-onnx-dfsmn-ans jar 中（音频/denoise/dfsmn_ans/，源自 模型scope 语音_dfsmn_ans_psm_48k_Causal）。
         reg("dfsmn-ans", "com.chua.deeplearning.support.onnx.audio.denoise.DfsmnAnsTranslator", byte[].class, byte[].class, com.chua.deeplearning.support.speech.SpeechEnhancer.class, "audio/denoise/dfsmn_ans/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/denoise/dfsmn_ans/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/denoise/dfsmn_ans/model.onnx"), false, null);
         // 印章检测（SDT Seal inspection，YOLO 640）：检测 4 类印章（公章/个人章/审核章/其他）。
-        // 模型打包在 utils-support-models-onnx-seal-inspection jar 中（vision/detection/seal/）。
+ // 模型打包在 utils-support-onnx-seal-inspection jar 中（vision/detection/seal/）。
 // D-FINE-L 实时目标检测（Objects365 预训练 -> COCO 80 类对齐，57.3 AP，int8 量化嵌入式）
-// RT-DETR v2 文档版面检测（DocLayNet 17 类，169MB fp32 嵌入式）
+ // RT-DETR v2 文档版面检测（doclaynet 17 类，169MB fp32 嵌入式）
         reg("rtdetr-layout", "com.chua.deeplearning.support.onnx.layout.RTDetrLayoutTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/layout/rtdetr/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/layout/rtdetr/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/layout/rtdetr/model.onnx"), false, null);
         reg("dfine-l-obj2coco", "com.chua.deeplearning.support.onnx.detr.DFineTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/dfine_l_obj2coco/model_quantized.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/dfine_l_obj2coco/model_quantized.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/dfine_l_obj2coco/model_quantized.onnx"), false, null);
         reg("seal-inspection", "com.chua.deeplearning.support.onnx.yolo.SealInspectionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class, com.chua.deeplearning.support.image.ImageDetector.class, "vision/detection/seal/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/detection/seal/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/detection/seal/model.onnx"), false, null);
         // MMS-TTS-English（VITS）：英文语音合成，输入文本输出 WAV 音频；适用英文朗读、语音播报。
-        // 模型打包在 utils-support-models-onnx-mms-tts-eng jar 中（audio/tts/mms-tts-eng/），
-        // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
+ // 模型打包在 utils-support-onnx-mms-tts-eng jar 中（音频/tts/mms-tts-eng/），
+ // 由 onnx文本转为音频客户端 直接加载，无需注册 translator 类。
         reg("mms-tts-eng", null, String.class, byte[].class, Object.class, "audio/tts/mms-tts-eng/model_quantized.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/tts/mms-tts-eng/model_quantized.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/tts/mms-tts-eng/model_quantized.onnx"), false, null);
 
-        // Pocket-TTS（Kyutai 100M 流匹配 TTS）：多语言语音合成（含零样本声音克隆），24kHz WAV；
-        // 模型打包在 utils-support-models-onnx-pocket-tts jar 中（audio/tts/pocket-tts/，~225MB int8），
-        // 由 OnnxTextToAudioClient 直接加载，无需注册 translator 类。
+ // Pocket-TTS（Kyutai 100M 流匹配 TTS）：多语言语音合成（含零样本声音克隆），24khz WAV；
+ // 模型打包在 utils-support-onnx-pocket-tts jar 中（音频/tts/pocket-tts/，~225MB int8），
+ // 由 onnx文本转为音频客户端 直接加载，无需注册 translator 类。
         reg("pocket-tts", null, String.class, byte[].class, Object.class, "audio/tts/pocket-tts/config.json", "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/tts/pocket-tts/config.json", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/tts/pocket-tts/config.json"), false, null);
 
-        // VITS-icefall-zh 中文 TTS（AISHELL3 174 说话人）：中文语音合成，8kHz WAV；
-        // 模型打包在 utils-support-models-onnx-vits-icefall-zh jar 中（audio/tts/vits-icefall-zh/），
+ // VITS-icefall-zh 中文 TTS（AISHELL3 174 说话人）：中文语音合成，8khz WAV；
+ // 模型打包在 utils-support-onnx-vits-icefall-zh jar 中（音频/tts/vits-icefall-zh/），
         // 由 OnnxTextToAudioClient 直接加载，支持 .voice("SSB0005") 指定说话人。
         reg("vits-icefall-zh", null, String.class, byte[].class, Object.class, "audio/tts/vits-icefall-zh/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/audio/tts/vits-icefall-zh/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/audio/tts/vits-icefall-zh/model.onnx"), false, null);
 
         // ==================== 音频指纹提取（Audio Fingerprint） ====================
         // wav2vec2-large-xlsr-53 中文（768维嵌入）：Facebook AI 自监督语音预训练模型，
-        // 最后一层 hidden state 经全局平均池化为固定维度向量；适用于音频指纹匹配、
-        // 相似音频检索、声纹初筛。输入 16kHz 单声道 PCM/WAV，输出 768 维 float[]。
-        // 模型约 950MB，通过 downloadUrl 自动下载，hf-mirror 备用。
+ // 最后一层 hidden 状态 经全局平均池化为固定维度向量；适用于音频指纹匹配、
+ // 相似音频检索、声纹初筛。输入 16khz 单声道 PCM/WAV，输出 768 维 float[]。
+ // 模型约 950MB，通过 downloadurl 自动下载，hf-mirror 备用。
         reg("wav2vec2-zh-fingerprint",
                 "com.chua.deeplearning.support.onnx.audio.Wav2Vec2FingerprintTranslator",
                 byte[].class, float[].class,
@@ -517,8 +517,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
                 java.util.List.of("https://hf-mirror.com/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx"),
                 false, null);
-        // wav2vec2-base backbone（Wav2Vec2ForPreTraining，768维 hidden state）：正宗的 wav2vec2 预训练
-        // 主干模型，输出真正的 768 维语音表征（mean pooling over time）。适用于音频指纹匹配、相似
+ // wav2vec2-基础 backbone（Wav2Vec2forpre培训假，768维 hidden 状态）：正宗的 wav2vec2 预训练
+ // 主干模型，输出真正的 768 维语音表征（mean 游泳池 over 时间）。适用于音频指纹匹配、相似
         // 音频检索、声纹初筛。输入 16kHz 单声道 PCM/WAV，输出 768 维 float[]，同源音频 cosine 相似度 > 0.9。
         // 模型约 90MB（INT4 量化版），JAR 内嵌。
         // 来源：https://huggingface.co/onnx-community/wav2vec2-base-ONNX/resolve/main/onnx/model_q4.onnx
@@ -529,10 +529,10 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "audio/fingerprint/wav2vec2-base/model.onnx");
 
         // ==================== 说话人嵌入（Speaker Embedding） ====================
-        // wespeaker-resnet34-LM（512维 x-vector）：专用于说话人验证的 ResNet34+LM 架构，
-        // 输入 16kHz 单声道 PCM/WAV，输出 512 维 L2 归一化嵌入向量。
-        // 嵌入式 jar：utils-support-models-onnx-wespeaker（INT8 量化，~6.7MB）。
-        // 配合 DefaultSpeakerDiarizer（VAD 时间切分）完成端到端说话人分离。
+ // wespeaker-resnet34-LM（512维 x-向量）：专用于说话人验证的 Rnet34+LM 架构，
+ // 输入 16khz 单声道 PCM/WAV，输出 512 维 L2 归一化嵌入向量。
+ // 嵌入式 jar：utils-support-onnx-wespeaker（INT8 量化，~6.7MB）。
+ // 配合 默认speakerdiarizer（VAD 时间切分）完成端到端说话人分离。
         reg("wespeaker-resnet34",
                 "com.chua.deeplearning.support.onnx.audio.WespeakerEmbeddingTranslator",
                 byte[].class, float[].class,
@@ -540,8 +540,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "audio/speaker/wespeaker-resnet34/model.onnx");
 
         // CAM++ 声纹嵌入（192维）：阿里 DAMO 说话人验证模型，中文优化，
-        // 输入 16kHz 单声道 PCM/WAV，输出 192 维 L2 归一化嵌入向量。
-        // 嵌入式 jar：utils-support-models-onnx-sensevoice（~28MB）。
+ // 输入 16khz 单声道 PCM/WAV，输出 192 维 L2 归一化嵌入向量。
+ // 嵌入式 jar：utils-support-onnx-sensevoice（~28MB）。
         // 适用声纹识别、说话人验证、声纹入库检索。
         reg("campplus-voiceprint",
                 "com.chua.deeplearning.support.onnx.audio.CampplusEmbeddingTranslator",
@@ -575,8 +575,8 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 java.util.List.of("https://hf-mirror.com/Instemic/yolo-world-onnx/resolve/main/yolov8l-worldv2.onnx"),
                 false, "model.onnx");
         // ==================== 图像描述 Image Captioning ====================
-        // ViT-GPT2：图像内容文字描述。encoder 打包在 utils-support-models-onnx-vit-gpt2-captioning jar，
-        // decoder 较大（~151MB）自动下载（modelscope Xenova/vit-gpt2-image-captioning）。
+ // vit-GPT2：图像内容文字描述。编码器 打包在 utils-support-onnx-vit-gpt2-captioning jar，
+ // 解码器 较大（~151MB）自动下载（modelscope Xenova/vit-gpt2-镜像-captioning）。
         reg("vit-gpt2-captioning", "com.chua.deeplearning.support.onnx.image.captioning.VitGpt2CaptioningTranslator",
                 ai.djl.modality.cv.Image.class, String.class, Object.class,
                 "vision/captioning/vit-gpt2/decoder_model_quantized.onnx",
@@ -603,7 +603,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
                 "vision/clip/vit-h-14/text_encoder.onnx");
         // ==================== WeMM-Embedding 多模态文本嵌入 ====================
         // 多模态文本嵌入(WeMM-2B)：腾讯 WeMM-Embedding-2B 文本分支，2048维 Matryoshka（64/128/256/512/1024/2048），
-        // 支持中文/英文，适用高精度语义搜索、多模态检索；downloadUrl 自动下载（chtk/wemm-embedding-onnx）
+ // 支持中文/英文，适用高精度语义搜索、多模态检索；downloadurl 自动下载（chtk/wemm-嵌入-onnx）
         String wemm2bUrl = "https://hf-mirror.com/chtk/wemm-embedding-onnx/resolve/main/model.onnx";
         reg("wemm-embedding-2b", "com.chua.deeplearning.support.onnx.embedding.wemm.WeMMEmbeddingClient",
                 String.class, float[].class, com.chua.deeplearning.support.feature.FeatureExtractor.class,
@@ -628,12 +628,12 @@ public class OnnxModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
+     * @param relativePath relative路径
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
@@ -645,15 +645,15 @@ public class OnnxModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
-     * @param downloadUrl downloadUrl
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
      * @param compress compress
-     * @param downloadFileName downloadFileName
+     * @param downloadFileName download文件名称
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
@@ -666,16 +666,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
-     * @param downloadUrl downloadUrl
-     * @param downloadMirrors downloadMirrors
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param downloadMirrors downloadmirrors
      * @param compress compress
-     * @param downloadFileName downloadFileName
+     * @param downloadFileName download文件名称
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
@@ -690,17 +690,17 @@ public class OnnxModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
-     * @param downloadUrl downloadUrl
-     * @param downloadMirrors downloadMirrors
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param downloadMirrors downloadmirrors
      * @param compress compress
-     * @param downloadFileName downloadFileName
-     * @param hardwareConfig hardwareConfig
+     * @param downloadFileName download文件名称
+     * @param hardwareConfig hardware配置
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,

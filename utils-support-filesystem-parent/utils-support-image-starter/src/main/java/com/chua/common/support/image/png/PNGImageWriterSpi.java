@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
  */
 public class PNGImageWriterSpi extends ImageWriterSpi {
     // 定义供应商名称
-    /** Vendor名称 */
+    /** 供应商名称 */
     private static final String vendorName = "Karstian Lee";
 
     // 定义版本号
@@ -30,7 +30,7 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     private static final String version = "1.0";
 
     // 支持的图像格式名称，包括 PNG 和 APNG
-    /** Names */
+    /** 名称 */
     private static final String[] names = { "png", "PNG", "apng", "APNG" };
 
     // 支持的文件后缀
@@ -42,18 +42,18 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     private static final String[] MIMETypes = { "image/png", "image/x-png", "image/apng" };
 
     // 图像写入器类名
-    /** 写入器class名称 */
+    /** 写入器类名称 */
     private static final String writerClassName =
             "com.tianscar.imageio.plugins.png.PNGImageWriter";
 
     // 图像读取器服务提供者名称
-    /** 读取器SPInames */
+    /** 读取器spinames */
     private static final String[] readerSpiNames = {
             "com.tianscar.imageio.plugins.png.PNGImageReaderSpi"
     };
 
     /**
-     * 构造函数，初始化 ImageWriterSpi 的基类信息。
+      * 构造函数，初始化 镜像writerspi 的基类信息。
      */
     public PNGImageWriterSpi() {
         super(vendorName,
@@ -106,7 +106,7 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
 
         boolean hasAlpha = colorModel.hasAlpha();
         // 修复 4464413: PNG 透明度测试失败
-        // 因为对于具有 alpha 通道的 IndexColorModel，
+ // 因为对于具有 alpha 通道的 索引color模型，
         // numBands == 1 && hasAlpha == true，从而导致下面的检查失败并返回 false。
         if (colorModel instanceof IndexColorModel) {
             return true;

@@ -25,11 +25,16 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class UdpScatterNodeServer extends AbstractServer {
 
-    private final ScatterNodeHandler handler;
-    private DatagramSocket socket;
-    private ExecutorService workerPool;
-    private volatile boolean running = false;
+    private final ScatterNodeHandler handler; // 处理器
+    private DatagramSocket socket; // 套接字
+    private ExecutorService workerPool; // 工人游泳池
+    private volatile boolean running = false; // running
 
+    /**
+     * udpscatter节点服务端。
+     * @param setting setting
+     * @param handler 处理器
+     */
     public UdpScatterNodeServer(ServerSetting setting, ScatterNodeHandler handler) {
         super(setting);
         this.handler = handler;

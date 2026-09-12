@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * Pocket-TTS 专用 tokenizer（基于 vocab.json 的 BPE 分词器）。
  *
  * <p>Pocket-TTS 使用 sentencepiece 训练的分词器。本类从 vocab.json 加载词表，
- * 实现贪心最长匹配（Greedily Longest Match）进行文本分词。</p>
+   * 实现贪心最长匹配（Greedily Longest 匹配）进行文本分词。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,23 +24,23 @@ import java.util.regex.Pattern;
 @Slf4j
 public class PocketTtsTokenizer {
 
-    /** vocab.json 中的 token id 正则模式 */
+    /** vocab.json 中的 令牌 标识 正则模式 */
     private static final Pattern VOCAB_PATTERN =
             Pattern.compile("\"([^\"]+)\"\\s*:\\s*(\\d+)");
 
     /** 单次最大匹配长度（字符） */
     private static final int MAX_MATCH_LEN = 20;
 
-    /** 词表：token string → id */
+    /** 词表：令牌 字符串 → 标识 */
     private final Map<String, Integer> vocab = new LinkedHashMap<>(4096);
 
-    /** BOS token id */
+    /** BOS 令牌 标识 */
     private int bosId = 1;
-    /** EOS token id */
+    /** EOS 令牌 标识 */
     private int eosId = 2;
-    /** UNK token id */
+    /** UNK 令牌 标识 */
     private int unkId = 0;
-    /** PAD token id */
+    /** PAD 令牌 标识 */
     private int padId = 3;
 
     /**
@@ -88,12 +88,12 @@ public class PocketTtsTokenizer {
     }
 
     /**
-     * 将文本编码为 token id 序列。
+      * 将文本编码为 令牌 标识 序列。
      * <p>策略：贪心最长匹配（从左到右，优先匹配词表中最长的前缀）。
      * 未登录字符以单个字符查找，若仍不在词表中则使用 UNK。</p>
      *
      * @param text 输入文本
-     * @return token id 数组
+     * @return token 标识 数组
      */
     public long[] encode(String text) {
         if (text == null || text.isBlank()) {
@@ -111,7 +111,7 @@ public class PocketTtsTokenizer {
             }
         }
 
-        // 预估 token 数量：每 2 个字符约 1 个 token，加上 bos/eos
+ // 预估 令牌 数量：每 2 个字符约 1 个 令牌，加上 bos/eos
         List<Long> ids = new ArrayList<>((processed.length() + 1) / 2 + 2);
         ids.add((long) bosId);
 
@@ -154,7 +154,7 @@ public class PocketTtsTokenizer {
     }
 
     /**
-     * List 转 long 数组。
+      * 列表 转 long 数组。
      *
      * @param list 元素列表
      * @return long 数组

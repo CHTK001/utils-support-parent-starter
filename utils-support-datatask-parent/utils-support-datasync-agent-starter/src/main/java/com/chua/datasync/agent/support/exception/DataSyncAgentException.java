@@ -71,7 +71,7 @@ public class DataSyncAgentException extends RuntimeException {
     }
 
     /**
-     * 构造同步异常（带 cause 和 args）。
+      * 构造同步异常（带 cause 和 参数）。
      *
      * @param errorCode 错误码
      * @param cause 原因
@@ -111,7 +111,7 @@ public class DataSyncAgentException extends RuntimeException {
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         return errorCode.codeString() + " " + getMessage();
     }

@@ -13,10 +13,10 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.util.Map;
 
 /**
- * SQL Server 老版本兼容引擎（SQL Server 2000/2005）。
+   * SQL 服务端 老版本兼容引擎（SQL 服务端 2000/2005）。
  *
  * <p>使用 jTDS 驱动替代微软官方 mssql-jdbc，
- * 后者最低仅支持 SQL Server 2008 R2。jTDS 1.3.x 是社区维护最活跃的老版本兼容驱动。
+   * 后者最低仅支持 SQL 服务端 2008 R2。jtds 1.3.x 是社区维护最活跃的老版本兼容驱动。
  *
  * <p>jTDS URL 参数通过 {@link DataSourceOptions#jtdsUrlParams()} 传入，默认使用
  * {@code selectMethod=cursor}，不使用 NTLM 认证时 domain 不添加。
@@ -30,6 +30,8 @@ import java.util.Map;
  * Map<String, String> params = Map.of("domain", "MYDOMAIN");
  * DataSourceOptions opts = new DataSourceOptions("default", "localhost", 1433, "master", "DOMAIN\\sa", "password", null, params);
  * engine.addDataSource(opts);
+ * }</pre>"DOMAIN\\sa", "password", null, params);
+ * engine.addDataSource(opts);
  * }</pre>
  *
  * @author CH
@@ -38,14 +40,39 @@ import java.util.Map;
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyEngine extends JdbcEngine {
 
-    /** jTDS JDBC URL 前缀 */
+    /** jtds JDBC URL 前缀 */
     private static final String JTDS_URL_PREFIX = "jdbc:jtds:sqlserver://";
 
-    /** jTDS URL 默认参数：游标模式读取结果集 */
+    /** jtds URL 默认参数：游标模式读取结果集 */
     private static final String DEFAULT_JTDS_SELECT_METHOD = "cursor";
-    /** 默认最大连接数 */
+    /**
+     * 默认最大连接数
+     *
+     /**
+      * 添加数据源。
+      * @param name 名称
+      * @param host 主机
+      * @param port 端口
+      * @param database database
+      * @param username 用户名
+      * @param password 密码
+      * @return 添加数据源的结果
+      */
+     * @param options 期权
+     * @return 添加数据源的结果
+     */
     private static final int DEFAULT_MAX_POOL_SIZE = 10;
 
+    /**
+     * 添加数据源。
+     * @param name 名称
+     * @param host 主机
+     * @param port 端口
+     * @param database database
+     * @param username 用户名
+     * @param password 密码
+     * @return 添加数据源的结果
+     */
     public Engine addDataSource(String name, String host, int port, String database, String username, String password) {
         DataSourceOptions options = new DataSourceOptions(name, host, port, database, username, password, null, null);
         return addDataSource(options);

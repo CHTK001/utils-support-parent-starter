@@ -9,6 +9,7 @@ import java.nio.file.Paths;
  * <p>使用 {@link Builder} 构造，不可变。</p>
  *
  * @since 4.0.0.42
+ * @author CH
  */
 public final class WalConfig {
 
@@ -73,7 +74,7 @@ public final class WalConfig {
     private final long fsyncBatchIntervalMs;
 
     /**
-     * 是否使用 mmap（MEMORY_MAP 模式，写入走 RandomAccessWriter；读取走 MappedByteBuffer）
+      * 是否使用 mmap（内存_映射 模式，写入走 随机accesswriter；读取走 mappedbyte缓冲）
      */
     private final boolean useMemoryMap;
 
@@ -98,7 +99,7 @@ public final class WalConfig {
     private final byte[] magic;
 
     /**
-     * 创建 WalConfig 实例
+      * 创建 wal配置 实例
      * @param b b
      */
     private WalConfig(Builder b) {
@@ -215,7 +216,7 @@ public final class WalConfig {
     }
 
     /**
-     * 创建 Builder。
+      * 创建 构建器。
      *
      * @return Builder 实例
      */
@@ -242,18 +243,18 @@ public final class WalConfig {
         SEGMENT,
 
         /**
-         * 基于 Chronicle Queue 的实现（由 utils-support-chronicle-starter 提供）
+          * 基于 Chronicle 队列 的实现（由 utils-support-chronicle-starter 提供）
          */
         CHRONICLE,
 
         /**
-         * 基于 Kafka 的实现（由 utils-support-kafka-starter 提供）
+          * 基于 Kafka 的实现（由 utils-support-kafka-starter 提供）
          */
         KAFKA
     }
 
     /**
-     * WAL 配置 Builder。
+      * WAL 配置 构建器。
      *
      * @since 4.0.0.42
      */
@@ -265,7 +266,7 @@ public final class WalConfig {
     private Path walDir = Paths.get("./wal");
 
     /**
-     * 命名空间（默认 "default"）
+      * 命名空间（默认 "默认"）
      */
     private String namespace = "default";
 
@@ -290,7 +291,7 @@ public final class WalConfig {
     private long fsyncBatchIntervalMs = 50L;
 
     /**
-     * 是否使用 mmap（默认 false，SIMPLE 模式下生效）
+      * 是否使用 mmap（默认 false，简单 模式下生效）
      */
     private boolean useMemoryMap = false;
 
@@ -316,6 +317,8 @@ public final class WalConfig {
 
     /**
      * 设置 WAL 目录。
+     * @param walDir waldir
+     * @return walDir的结果
      */
     public Builder walDir(Path walDir) {
         this.walDir = walDir;
@@ -324,6 +327,8 @@ public final class WalConfig {
 
     /**
      * 设置命名空间。
+     * @param namespace namespace
+     * @return namespace的结果
      */
     public Builder namespace(String namespace) {
         this.namespace = namespace == null ? "default" : namespace;
@@ -332,6 +337,8 @@ public final class WalConfig {
 
     /**
      * 设置实现类型。
+     * @param impl impl
+     * @return impl的结果
      */
     public Builder impl(WalImpl impl) {
         this.impl = impl;
@@ -340,6 +347,8 @@ public final class WalConfig {
 
     /**
      * 设置是否 fsync。
+     * @param syncOnWrite 同步on写入
+     * @return 同步on写入的结果
      */
     public Builder syncOnWrite(boolean syncOnWrite) {
         this.syncOnWrite = syncOnWrite;
@@ -348,6 +357,8 @@ public final class WalConfig {
 
     /**
      * 设置 fsync 批量大小。
+     * @param fsyncBatchSize fsyncbatch大小
+     * @return fsyncbatch大小的结果
      */
     public Builder fsyncBatchSize(int fsyncBatchSize) {
         this.fsyncBatchSize = Math.max(1, fsyncBatchSize);
@@ -356,6 +367,8 @@ public final class WalConfig {
 
     /**
      * 设置 fsync 批量间隔毫秒。
+     * @param fsyncBatchIntervalMs fsyncbatch间隔ms
+     * @return fsyncbatch间隔ms的结果
      */
     public Builder fsyncBatchIntervalMs(long fsyncBatchIntervalMs) {
         this.fsyncBatchIntervalMs = Math.max(0L, fsyncBatchIntervalMs);
@@ -364,6 +377,8 @@ public final class WalConfig {
 
     /**
      * 设置是否使用 mmap。
+     * @param useMemoryMap use内存映射
+     * @return use内存映射的结果
      */
     public Builder useMemoryMap(boolean useMemoryMap) {
         this.useMemoryMap = useMemoryMap;
@@ -372,6 +387,8 @@ public final class WalConfig {
 
         /**
          * 设置分片最大字节数。
+         * @param maxSegmentBytes 最大segmentbytes
+         * @return 最大segmentbytes的结果
          */
         public Builder maxSegmentBytes(long maxSegmentBytes) {
             this.maxSegmentBytes = maxSegmentBytes;
@@ -380,6 +397,8 @@ public final class WalConfig {
 
         /**
          * 设置分片最大记录数。
+         * @param maxRecordsPerSegment 最大recordspersegment
+         * @return 最大recordspersegment的结果
          */
         public Builder maxRecordsPerSegment(int maxRecordsPerSegment) {
             this.maxRecordsPerSegment = maxRecordsPerSegment;
@@ -388,6 +407,8 @@ public final class WalConfig {
 
         /**
          * 设置保留 checkpoint 分片数。
+         * @param keepCheckpointedSegments keepcheckpointedsegments
+         * @return keepCheckpointedSegments的结果
          */
         public Builder keepCheckpointedSegments(int keepCheckpointedSegments) {
             this.keepCheckpointedSegments = keepCheckpointedSegments;
@@ -396,6 +417,8 @@ public final class WalConfig {
 
         /**
          * 设置文件魔数。
+         * @param magic 魔法
+         * @return 魔法的结果
          */
         public Builder magic(byte[] magic) {
             this.magic = magic == null ? DEFAULT_MAGIC.clone() : magic.clone();
@@ -403,7 +426,7 @@ public final class WalConfig {
         }
 
         /**
-         * 构建 WalConfig 实例。
+          * 构建 wal配置 实例。
          *
          * @return WalConfig
          */

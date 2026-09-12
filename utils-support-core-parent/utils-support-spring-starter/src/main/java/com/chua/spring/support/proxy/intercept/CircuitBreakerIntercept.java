@@ -28,13 +28,13 @@ import java.lang.reflect.Method;
 public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<CircuitBreaker> {
 
     @Override
-    /** AnnotationType */
+    /** 注解类型 */
     public Class<CircuitBreaker> annotationType() {
         return CircuitBreaker.class;
     }
 
     @Override
-    /** Order */
+    /** 订单 */
     public int order() {
         return 100;
     }
@@ -42,10 +42,10 @@ public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept i
     @Override
     /** Intercept */
     public Object intercept(CircuitBreaker annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
-        // 解析熔断器名称：优先使用注解 name（支持 SpEL），未填则使用 类名.方法名
+ // 解析熔断器名称：优先使用注解 名称（支持 spel），未填则使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);
 
-        // 解析各阈值属性（支持 SpEL 和占位符），解析失败时使用默认值
+ // 解析各阈值属性（支持 spel 和占位符），解析失败时使用默认值
         int failureThreshold = resolveInt(annotation.failureThreshold(), 5, proxyMethod);
         int successThreshold = resolveInt(annotation.successThreshold(), 2, proxyMethod);
         long waitDuration = resolveLong(annotation.waitDuration(), annotation.recoveryTime(), 60000, proxyMethod);
@@ -79,7 +79,7 @@ public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept i
      *
      * @param annotation  熔断注解
      * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值，找不到回退方法时返回 null
+     * @return 回退方法的返回值，找不到回退方法时返回 空
      */
     private Object resolveFallback(CircuitBreaker annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);

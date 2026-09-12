@@ -18,7 +18,7 @@ import java.util.Map;
  * Llama 3 GPU 对话翻译器。
  * <p>
  * 利用 llama.cpp 的 GPU 加速能力进行 Llama 3 模型的文本生成推理。
- * 通过 ModelParameters 配置 GPU 层数和上下文大小。
+   * 通过 模型参数 配置 GPU 层数和上下文大小。
  * </p>
  *
  * <p>支持运行时参数注入（通过 {@link DetectionConfigurable#configure(Map)} 或 {@link ModelParameters}）：</p>
@@ -39,9 +39,9 @@ import java.util.Map;
 @Slf4j
 public class Llama3ChatTranslator implements ITranslator<String, String>, DetectionConfigurable, AutoCloseable {
 
-    /** 单次回答最大 token 数 */
+    /** 单次回答最大 令牌 数 */
     private static final int DEFAULT_N_PREDICT = 512;
-    /** Llama 3 chat 结束标记 */
+    /** Llama 3 对话 结束标记 */
     private static final String END_TOKEN = "<|end_of_text|>";
     /** 默认上下文大小 */
     private static final int DEFAULT_CTX_SIZE = 4096;
@@ -50,11 +50,11 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     /** 默认温度 */
     private static final float DEFAULT_TEMPERATURE = 0.7f;
 
-    private final String modelId;
-    private volatile LlamaModel model;
-    private volatile boolean initialized;
+    private final String modelId; // 模型标识
+    private volatile LlamaModel model; // 模型
+    private volatile boolean initialized; // 初始化
 
-    /** 运行时配置的 GPU 层数（null = 使用默认） */
+    /** 运行时配置的 GPU 层数（空 = 使用默认） */
     private volatile Integer gpuLayers;
     /** 运行时配置的上下文大小 */
     private volatile Integer ctxSize;
@@ -62,11 +62,11 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     private volatile Integer topK;
     /** 运行时配置的温度 */
     private volatile Float temperature;
-    /** 运行时配置的最大输出 token */
+    /** 运行时配置的最大输出 令牌 */
     private volatile Integer nPredict;
     /** 运行时配置的线程数 */
     private volatile Integer threads;
-    /** 运行时配置的 device 选择（null/blank = auto） */
+    /** 运行时配置的 device 选择（空/blank = auto） */
     private volatile String device;
 
     /**
@@ -79,7 +79,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     /**
      * 构造器。
      *
-     * @param modelId 模型 ID
+     * @param modelId 模型 标识
      */
     public Llama3ChatTranslator(String modelId) {
         this.modelId = modelId;
@@ -201,7 +201,8 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     }
 
     /**
-     * 解析 gpuLayers：优先运行时配置，其次默认 -1（全部 GPU）。
+      * 解析 gpulayers：优先运行时配置，其次默认 -1（全部 GPU）。
+     * @return resolveGpuLayers的结果
      */
     private int resolveGpuLayers() {
         if (gpuLayers != null) {
@@ -215,7 +216,8 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     }
 
     /**
-     * 解析 ctxSize：优先运行时配置，其次默认 4096。
+      * 解析 ctx大小：优先运行时配置，其次默认 4096。
+     * @return resolvectx大小的结果
      */
     private int resolveCtxSize() {
         return ctxSize != null ? ctxSize : DEFAULT_CTX_SIZE;
@@ -223,13 +225,16 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
 
     /**
      * 解析 threads：优先运行时配置，其次 CPU 核心数。
+     * @return resolveThreads的结果
      */
     private int resolveThreads() {
         return threads != null ? threads : Runtime.getRuntime().availableProcessors();
     }
 
     /**
-     * 逐 token 生成，遇结束符或达到上限提前终止。
+      * 逐 令牌 生成，遇结束符或达到上限提前终止。
+     * @param parameters 参数
+     * @return generatewith限制的结果
      */
     private String generateWithLimit(InferenceParameters parameters) {
         StringBuilder sb = new StringBuilder();

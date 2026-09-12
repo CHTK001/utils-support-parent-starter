@@ -5,8 +5,8 @@ import javax.annotation.Nullable;
 /**
  * 文件搜索条件
  *
- * @param rootPath        根目录路径，null 表示当前工作目录
- * @param namePattern     文件名通配符模式（如 "*.txt"、"report?.pdf"），null 表示不限
+ * @param rootPath        根目录路径，空 表示当前工作目录
+ * @param namePattern     文件名通配符模式（如 "*.txt"、"report?.pdf"），空 表示不限
  * @param minSize         最小文件大小（字节），-1 表示不限
  * @param maxSize         最大文件大小（字节），-1 表示不限
  * @param maxResults      最大返回结果数，0 表示不限，默认 1000
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * @param excludePatterns 要排除的文件名模式列表
  * @param followLinks     是否跟踪符号链接，默认 false
  * @param includeHidden   是否包含隐藏文件，默认 false
- * @param sortBy          排序方式：name / size / path / modified
+ * @param sortBy          排序方式：名称 / 大小 / 路径 / modified
  * @param order           排序方向：asc / desc
  *
  * @author CH
@@ -106,7 +106,7 @@ public record FileSearchCriteria(
         private long minSize = -1;
         /** 最大值尺寸 */
         private long maxSize = -1;
-        /** 最大值results */
+        /** 最大值结果 */
         private int maxResults = DEFAULT_MAX_RESULTS;
         /** 最大值深度 */
         private int maxDepth = DEFAULT_MAX_DEPTH;
@@ -118,84 +118,148 @@ public record FileSearchCriteria(
         private boolean followLinks = false;
         /** Includehidden */
         private boolean includeHidden = false;
-        /** SortBY */
+        /** 排序by */
         private String sortBy = SORT_BY_SIZE;
         /** 排序 */
         private String order = ORDER_DESC;
 
-        /** RootPath */
+        /**
+         * 根路径
+         *
+         * @param rootPath 根路径
+         * @return 根路径的结果
+         */
         public Builder rootPath(String rootPath) {
             this.rootPath = rootPath;
             return this;
         }
 
-        /** NamePattern */
+        /**
+         * 名称模式
+         *
+         * @param namePattern 名称模式
+         * @return 名称模式的结果
+         */
         public Builder namePattern(String namePattern) {
             this.namePattern = namePattern;
             return this;
         }
 
-        /** 最小值获取大小 */
+        /**
+         * 最小值获取大小
+         *
+         * @param minSize 最小大小
+         * @return 最小大小的结果
+         */
         public Builder minSize(long minSize) {
             this.minSize = minSize;
             return this;
         }
 
-        /** 最大值获取大小 */
+        /**
+         * 最大值获取大小
+         *
+         * @param maxSize 最大大小
+         * @return 最大大小的结果
+         */
         public Builder maxSize(long maxSize) {
             this.maxSize = maxSize;
             return this;
         }
 
-        /** 最大值Results */
+        /**
+         * 最大值结果
+         *
+         * @param maxResults 最大结果
+         * @return 最大结果的结果
+         */
         public Builder maxResults(int maxResults) {
             this.maxResults = maxResults;
             return this;
         }
 
-        /** 最大值Depth */
+        /**
+         * 最大值深度
+         *
+         * @param maxDepth 最大深度
+         * @return 最大深度的结果
+         */
         public Builder maxDepth(int maxDepth) {
             this.maxDepth = maxDepth;
             return this;
         }
 
-        /** ExcludeDirs */
+        /**
+         * excludedirs
+         *
+         * @param excludeDirs excludedirs
+         * @return excludeDirs的结果
+         */
         public Builder excludeDirs(String... excludeDirs) {
             this.excludeDirs = excludeDirs;
             return this;
         }
 
-        /** ExcludePatterns */
+        /**
+         * exclude模式
+         *
+         * @param excludePatterns exclude模式
+         * @return exclude模式的结果
+         */
         public Builder excludePatterns(String... excludePatterns) {
             this.excludePatterns = excludePatterns;
             return this;
         }
 
-        /** FollowLinks */
+        /**
+         * follow链接
+         *
+         * @param followLinks follow链接
+         * @return follow链接的结果
+         */
         public Builder followLinks(boolean followLinks) {
             this.followLinks = followLinks;
             return this;
         }
 
-        /** IncludeHidden */
+        /**
+         * includehidden
+         *
+         * @param includeHidden includehidden
+         * @return includeHidden的结果
+         */
         public Builder includeHidden(boolean includeHidden) {
             this.includeHidden = includeHidden;
             return this;
         }
 
-        /** 排序By */
+        /**
+         * 排序By
+         *
+         * @param sortBy 排序by
+         * @return 排序by的结果
+         */
         public Builder sortBy(String sortBy) {
             this.sortBy = sortBy;
             return this;
         }
 
-        /** Order */
+        /**
+         * 订单
+         *
+         * @param order 订单
+         * @return 订单的结果
+         */
         public Builder order(String order) {
             this.order = order;
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public FileSearchCriteria build() {
             return new FileSearchCriteria(
                     rootPath, namePattern, minSize, maxSize, maxResults, maxDepth,

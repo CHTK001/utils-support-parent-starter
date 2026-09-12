@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Dubbo 应用层 Handler — 拦截 Dubbo RPC 进出站调用并生成应用语义传输记录。
+   * Dubbo 应用层 处理器 — 拦截 Dubbo RPC 进出站调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -23,33 +23,33 @@ import com.chua.runtime.protocol.Software;
 public class DubboHandler extends AbstractAppHandler {
 
     /**
-     * DubboInvoker 类内部名
+      * Dubboinvoker 类内部名
      */
     private static final String DUBBO_INVOKER = "org/apache/dubbo/rpc/protocol/dubbo/DubboInvoker";
 
     /**
-     * DubboProtocol 类内部名
+      * Dubbo协议 类内部名
      */
     private static final String DUBBO_PROTOCOL = "org/apache/dubbo/rpc/protocol/dubbo/DubboProtocol";
 
     /**
-     * DubboInvoker 方法集合
+      * Dubboinvoker 方法集合
      */
     private static final String[] INVOKER_METHODS = {"doInvoke"};
 
     /**
-     * DubboProtocol 方法集合
+      * Dubbo协议 方法集合
      */
     private static final String[] PROTOCOL_METHODS = {"refer", "export", "request"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "dubbo-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "dubbo.enabled";
     }
@@ -61,13 +61,13 @@ public class DubboHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.DUBBO;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(DUBBO_INVOKER, INVOKER_METHODS);
         registerAll(DUBBO_PROTOCOL, PROTOCOL_METHODS);

@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 /**
- * ONNX 人脸检测引擎（SPI provider="onnx"）。
+   * ONNX 人脸检测引擎（SPI 提供者="onnx"）。
  *
  * <p>用法：
  * <pre>{@code
@@ -16,6 +16,7 @@ import java.util.List;
  *       .model("scrfd-face-detector")
  *       .threshold(0.5f);
  *   List<PredictRectangle> faces = detector.detect(imageData);
+ * }</pre>detect(imageData);
  * }</pre>
  * </p>
  *
@@ -43,22 +44,22 @@ public class OnnxFaceDetector implements FaceDetector {
     private String device = DEFAULT_DEVICE;
 
     /**
-     * 创建 OnnxFaceDetector 实例
-     * @param apiKey apiKey
+      * 创建 onnxfacedetector 实例
+     * @param apiKey API密钥
      */
     public OnnxFaceDetector(String apiKey) {
         this.apiKey = apiKey;
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FaceDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
@@ -98,7 +99,7 @@ public class OnnxFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** DetectInfo */
+    /** detect信息 */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         return detect(imageData).stream()
                 .map(r -> new DetectionInfo(

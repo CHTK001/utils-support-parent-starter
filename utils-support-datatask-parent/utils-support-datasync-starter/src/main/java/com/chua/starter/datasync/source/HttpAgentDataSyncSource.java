@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HTTP Agent 数据同步 Source，从远程 Agent 拉取数据。
+   * HTTP 智能体 数据同步 源，从远程 智能体 拉取数据。
  *
  * <p>通过 HTTP GET 请求调用 Agent 接口获取数据，支持 JSON 响应解析。
  *
@@ -32,12 +32,12 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     private volatile ReactiveHttpClient httpClient;
 
     /**
-     * 创建 HttpAgentDataSyncSource 实例
+      * 创建 http智能体数据同步源 实例
      *
-     * @param sourceId sourceId
-     * @param inputId  inputId
-     * @param agentId  agentId
-     * @param agentUrl agentUrl
+     * @param sourceId 源标识
+     * @param inputId  输入标识
+     * @param agentId  智能体标识
+     * @param agentUrl 智能体url
      */
     public HttpAgentDataSyncSource(String sourceId, String inputId, String agentId, String agentUrl) {
         this.sourceId = sourceId;
@@ -76,6 +76,8 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
 
     /**
      * 解析 JSON 响应，支持数组或单对象。
+     * @return 获取http客户端的结果
+     * @param body 主体
      */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseJsonResponse(String body) {

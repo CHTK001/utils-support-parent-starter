@@ -8,7 +8,7 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
 
 /**
- * CORS 跨域过滤器，为 HTTP 响应添加跨域资源共享头。
+   * 跨域资源共享 跨域过滤器，为 HTTP 响应添加跨域资源共享头。
  *
  * <p>处理 OPTIONS 预检请求直接返回 204，为普通请求添加 Access-Control-* 头。
  * 支持动态配置允许的源、方法、头等。
@@ -64,7 +64,7 @@ public class CorsServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         response.setHeader("Access-Control-Allow-Origin", allowOrigin);
         response.setHeader("Access-Control-Allow-Methods", allowMethods);
@@ -82,19 +82,19 @@ public class CorsServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 5;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "CorsServerFilter";
     }
 
     @Override
-    /** SupportProtocols */
+    /** 支持协议 */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }

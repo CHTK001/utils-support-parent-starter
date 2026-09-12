@@ -21,27 +21,27 @@ import java.util.Map;
 
 
 /**
- * YOLOv5                      
+   * yolov5
  * <p>
- *        YOLOv5                                     
+   * yolov5
  *                                                          
  * </p>
  * <p>
  *                
  * -                               Detection                                       
- * -          YOLOv5-License-Plate                           /         
+   * -          yolov5-执照-铭牌                           /
  * -                640x640               
  * -                             [0, 1]
  * </p>
  * <p>
  *                
  * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
- * -                [1, 25200, 15] - (x_center, y_center, w, h, obj_conf, 8            , class1_conf, class2_conf)
+   * -                [1, 25200, 15] - (x_center, y_center, w, h, obj_conf, 8            , 类1_conf, 类2_conf)
  * -                    NMS                           
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/22
  */
 @Slf4j
@@ -86,10 +86,10 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
      *                                     
      * <p>
      *             
-     * - inputSize: 640x640
-     * - confThreshold: 0.3
-     * - iouThreshold: 0.5
-     * - topK: 100
+      * - 输入大小: 640x640
+      * - conf阈值: 0.3
+      * - iou阈值: 0.5
+      * - topk: 100
      * </p>
      */
     public Yolo5PlateDetectTranslator() {
@@ -97,7 +97,7 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     /**
-     *                       Map          
+      * 映射
      *
      * @param arguments             
      */
@@ -146,7 +146,7 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -164,12 +164,12 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         var manager = ctx.getNDManager();
         var letterBoxResult = (LetterBoxUtils.ResizeResult) ctx.getAttachment("letterBoxResult");
 
-        // [x_center, y_center, w, h, obj_conf, 8 keypoints, class1_conf, class2_conf]
+ // [x_center, y_center, w, h, obj_conf, 8 keypoints, 类1_conf, 类2_conf]
         var dets = list.singletonOrThrow();
         var dets0 = dets.get(0);
         // obj_conf [5:13] 类置信度 [13:15]

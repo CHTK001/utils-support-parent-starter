@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * OpenClaw usage parser.
+   * 打开claw usage parser.
  *
  * <p>OpenClaw records each agent run as a trajectory JSONL under
  * {@code ~/.openclaw/agents/<agent>/sessions/<id>.trajectory.jsonl}.
- * Every LLM completion emits a {@code model.completed} trace carrying real
+   * Every LLM 完成 emits a {@code model.completed} 追踪 carrying real
  * per-call usage:</p>
  *
  * <pre>{@code
@@ -32,6 +32,8 @@ import java.util.Optional;
  *   "provider": "custom-custom9d",
  *   "modelId": "deepseek-v4-flash",
  *   "usage": { "input": 79086, "output": 6, "cacheRead": 4096, "total": 83188 }
+ * }
+ * }</pre>Read": 4096, "total": 83188 }
  * }
  * }</pre>
  *
@@ -44,10 +46,10 @@ public class OpenClawUsageParser extends BaseUsageParser {
     private static final Path OPENCLAW_DIR = Path.of(
             System.getProperty("user.home"), ".openclaw");
 
-    private static final String PROVIDER_OPENCLAW = "openclaw";
+    private static final String PROVIDER_OPENCLAW = "openclaw"; // 提供者openclaw
 
     /**
-     * Returns the SPI name for OpenClaw.
+      * 返回 the SPI 名称 for 打开claw.
      *
      * @return {@code "openclaw"}
      */
@@ -56,7 +58,7 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Streams per-completion usage records from all trajectory files.
+     * 流 per-完成 usage records 从 全部 trajectory 文件.
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -107,13 +109,25 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Locates the usage block of a model.completed event.
+      * Locates the usage block 的 a 模型.完成 事件.
      *
      * <p>OpenClaw nests it under {@code data.usage}; older schemas may carry
-     * it at the top level, so both positions are checked.</p>
+      * it at the top 级别, so both 位置 are 检查.</p>
      *
-     * @param node parsed trajectory line
-     * @return the usage block, or a missing node when absent
+     * @param node 解析 trajectory 线
+     * @return the usage block, 或 a missing 节点 When.js.js absent
+     * @param line 线
+     /**
+      * 读取usage。
+      * @param node 节点
+      * @return 读取usage的结果
+      */
+      * @param line 线
+     /**
+      * 读取usage。
+      * @param node 节点
+      * @return 读取usage的结果
+      */
      */
     private JsonNode readUsage(JsonNode node) {
         JsonNode data = node.get("data");

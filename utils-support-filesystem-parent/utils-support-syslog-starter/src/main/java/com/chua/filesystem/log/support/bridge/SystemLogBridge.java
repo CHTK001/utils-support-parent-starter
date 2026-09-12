@@ -7,7 +7,7 @@ import com.chua.filesystem.log.support.spi.impl.WindowsEventLogProvider;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 系统日志桥接器 - 统一管理各平台 FFM FunctionRegistry
+   * 系统日志桥接器 - 统一管理各平台 FFM functionregistry
  * <p>
  * 负责：
  * <ul>
@@ -28,16 +28,20 @@ public final class SystemLogBridge {
 
     /** win32Registry */
     private volatile NativeFunctionRegistry win32Registry;
-    /** linuxRegistry */
+    /** Linuxregistry */
     private volatile NativeFunctionRegistry linuxRegistry;
     /** initialized */
     private volatile boolean initialized;
 
-    /** 创建 SystemLogBridge 实例 */
+    /** 创建 系统日志bridge 实例 */
     private SystemLogBridge() {
     }
 
-    /** 获取Instance */
+    /**
+     * 获取Instance
+     *
+     * @return 获取instance的结果
+     */
     public static SystemLogBridge getInstance() {
         return INSTANCE;
     }
@@ -62,17 +66,29 @@ public final class SystemLogBridge {
         }
     }
 
-    /** 获取WinRegistry */
+    /**
+     * 获取winregistry
+     *
+     * @return 获取win32registry的结果
+     */
     public NativeFunctionRegistry getWin32Registry() {
         return win32Registry;
     }
 
-    /** 获取LinuxRegistry */
+    /**
+     * 获取Linuxregistry
+     *
+     * @return 获取Linuxregistry的结果
+     */
     public NativeFunctionRegistry getLinuxRegistry() {
         return linuxRegistry;
     }
 
-    /** 创建Provider */
+    /**
+     * 创建提供者
+     *
+     * @return 创建提供者的结果
+     */
     public SystemLogProvider createProvider() {
         if (PlatformSystems.isWindows()) {
             return new WindowsEventLogProvider(this);
@@ -86,7 +102,11 @@ public final class SystemLogBridge {
         throw new UnsupportedOperationException("Unsupported platform for system log");
     }
 
-    /** 初始化Windows */
+    /**
+     * 初始化窗口
+     *
+     * @return 初始化窗口的结果
+     */
     private NativeFunctionRegistry initializeWindows() {
         try {
             return NativeFunctionRegistry.ofLibrary("Advapi32");
@@ -96,7 +116,11 @@ public final class SystemLogBridge {
         }
     }
 
-    /** 初始化Linux */
+    /**
+     * 初始化Linux
+     *
+     * @return 初始化Linux的结果
+     */
     private NativeFunctionRegistry initializeLinux() {
         try {
             return NativeFunctionRegistry.ofLibrary("systemd");

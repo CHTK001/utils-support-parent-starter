@@ -52,7 +52,7 @@ public class QpsServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         long now = System.currentTimeMillis();
         if (now - windowStartTime >= 1000) {
@@ -71,13 +71,13 @@ public class QpsServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 22;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "QpsServerFilter";
     }

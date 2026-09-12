@@ -29,8 +29,8 @@ import java.util.List;
 @Spi("mail-tm")
 public class MailTmEmailProvider implements EmailProvider {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final String BASE = "https://api.mail.tm";
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
+    private static final String BASE = "https://api.mail.tm"; // 基础
 
     @Override
     public String name() {
@@ -73,7 +73,7 @@ public class MailTmEmailProvider implements EmailProvider {
                 return null;
             }
 
-            // 3. 获取 token
+ // 3. 获取 令牌
             String tokenBody = "{\"address\":\"" + email
                     + "\",\"password\":\"" + password + "\"}";
             String tokenResp = HttpClientFactory.of(BASE + "/token")
@@ -89,7 +89,7 @@ public class MailTmEmailProvider implements EmailProvider {
                 return null;
             }
 
-            // 4. 缓存 token
+ // 4. 缓存 令牌
             System.setProperty("mailtm.token." + email, token);
             log.info("[MailTM] 创建邮箱成功: {}", email);
             return email;
@@ -162,6 +162,11 @@ public class MailTmEmailProvider implements EmailProvider {
         return emails.isEmpty() ? null : emails.get(0);
     }
 
+    /**
+     * 随机前缀。
+     * @param length 长度
+     * @return 随机前缀的结果
+     */
     private static String randomPrefix(int length) {
         String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder(length);

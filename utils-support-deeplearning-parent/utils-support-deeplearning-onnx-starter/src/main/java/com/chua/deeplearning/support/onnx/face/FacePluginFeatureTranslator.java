@@ -9,15 +9,15 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * FacePlugin face feature extraction Translator (Inception-ResNet-v50).
+   * faceplugin face 特征 extraction Translator (Inception-Rnet-v50).
  *
  * <p>Model: irn50_pytorch
- * Input:  1x3x128x128 RGB, normalized by /256
- * Output: 256-dim embedding (irn50.forward 内部已做 torch.max 合并两段 256 维),
+   * 输入:  1x3x128x128 RGB, normalized by /256
+   * 输出: 256-dim 嵌入 (irn50.远期 内部已做 torch.最大 合并两段 256 维),
  * 在输出阶段只需 L2 归一化。
  *
  * <p>The face image must be aligned (using landmarks) before passing to this translator.
- * Alignment parameters: leftEyeX=48, leftEyeY=64, rightEyeX=40 (from Python SDK).
+   * Alignment 参数: lefteyex=48, lefteyey=64, righteyex=40 (从 Python SDK).
  *
  * @author CH
  * @since 2026-08-08
@@ -25,15 +25,15 @@ import ai.djl.translate.TranslatorContext;
 public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 128;
 
-    /** 创建 FacePluginFeatureTranslator 实例 */
+    /** 创建 faceplugin特征translator 实例 */
     public FacePluginFeatureTranslator() {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_SIZE || input.getWidth() != INPUT_SIZE) {
             input = input.resize(INPUT_SIZE, INPUT_SIZE, false);
@@ -46,7 +46,7 @@ public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         float[] raw = array.toFloatArray();
@@ -70,7 +70,7 @@ public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
 @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // 输入已包含 batch 维（shape [1, C, H, W]），无需 batchifier 再次叠加
+ // 输入已包含 批量 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;
     }
 }

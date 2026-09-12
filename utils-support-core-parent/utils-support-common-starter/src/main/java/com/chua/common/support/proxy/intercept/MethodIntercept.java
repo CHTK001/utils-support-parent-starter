@@ -20,21 +20,27 @@ import javax.annotation.Nullable;
 public interface MethodIntercept<T> {
 
     /**
-     * 判断方法是否是 toString 方法
+      * 判断方法是否是 转为字符串 方法
+     * @param method 方法
+     * @return 是否转为字符串的结果
      */
     static boolean isToString(Method method) {
         return "toString".equals(method.getName()) && method.getParameterCount() == 0;
     }
 
     /**
-     * 判断方法是否是 getClass 方法
+      * 判断方法是否是 获取类 方法
+     * @param method 方法
+     * @return 是否获取类的结果
      */
     static boolean isGetClass(Method method) {
         return "getClass".equals(method.getName()) && method.getParameterCount() == 0;
     }
 
     /**
-     * 判断方法是否是 hashCode 方法
+      * 判断方法是否是 哈希编码 方法
+     * @param method 方法
+     * @return 是否哈希编码的结果
      */
     static boolean isHashCode(Method method) {
         return "hashCode".equals(method.getName()) && method.getParameterCount() == 0;
@@ -42,6 +48,8 @@ public interface MethodIntercept<T> {
 
     /**
      * 判断方法是否是 equals 方法
+     * @param method 方法
+     * @return 是否equals的结果
      */
     static boolean isEquals(Method method) {
         return "equals".equals(method.getName()) && method.getParameterCount() == 1
@@ -68,7 +76,7 @@ public interface MethodIntercept<T> {
     /**
      * 异常处理，当方法调用发生异常时此方法会被调用
      *
-     * @return 异常处理结果，返回 null 表示不处理异常
+     * @return 异常处理结果，返回 空 表示不处理异常
      */
     default Object handleException(Object obj, Method method, Object[] args, T proxy, Throwable throwable) {
         return null;

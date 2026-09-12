@@ -12,7 +12,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * Amazon Rekognition 风格人脸特征 Translator。
+   * 亚马逊 Rekognition 风格人脸特征 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,7 +20,7 @@ import ai.djl.translate.TranslatorContext;
 public class AmazonFaceFeatureTranslator implements Translator<Image, float[]> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Pipeline pipeline = new Pipeline();
@@ -34,7 +34,7 @@ public class AmazonFaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return FaceEmbeddingHelper.toFeature(list);
     }

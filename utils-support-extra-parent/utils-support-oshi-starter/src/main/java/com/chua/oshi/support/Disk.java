@@ -6,15 +6,16 @@ import lombok.Data;
  * 物理磁盘信息实体类。
  * <p>
  * 封装物理磁盘的型号、容量、旋转速度、健康状态等底层硬件信息。
- * 区别于 SysFile（分区/挂载点级别），Disk 描述的是物理设备本身。
+   * 区别于 sys文件（分区/挂载点级别），Disk 描述的是物理设备本身。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Disk {
 
     /**
-     * 磁盘控制器类型（HDD / SSD / NVMe / RAID / Unknown）。
+      * 磁盘控制器类型（HDD / SSD / nvme / RAID / Unknown）。
      */
     private String controllerType;
 

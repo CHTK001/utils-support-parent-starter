@@ -42,7 +42,11 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         return false;
     }
 
-    /** 处理Parameter */
+    /**
+     * 处理参数
+     *
+     * @param paramElement 参数element
+     */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
         if (!(enclosing instanceof ExecutableElement methodElement)) {
@@ -90,7 +94,12 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         }
     }
 
-    /** 是否StringType */
+    /**
+     * 是否字符串类型
+     *
+     * @param type 类型
+     * @return 是否字符串类型的结果
+     */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) {
             return false;
@@ -100,12 +109,12 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-     * 构建PadTruncateStatement
+      * 构建padtruncate对账单
      * @param maker maker
-     * @param names names
-     * @param paramName paramName
-     * @param minLength minLength
-     * @param maxLength maxLength
+     * @param names 名称
+     * @param paramName 参数名称
+     * @param minLength 最小长度
+     * @param maxLength 最大长度
      */
     private JCTree.JCStatement buildPadTruncateStatement(TreeMaker maker, Names names,
                                                           String paramName, int minLength, int maxLength) {
@@ -169,7 +178,12 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
         return maker.If(notNullCheck, ifBody, null);
     }
 
-    /** 前置Statement */
+    /**
+     * 前置对账单
+     *
+     * @param body 主体
+     * @param stmt stmt
+     */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);
     }

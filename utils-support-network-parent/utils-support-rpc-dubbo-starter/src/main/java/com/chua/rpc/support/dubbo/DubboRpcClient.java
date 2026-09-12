@@ -26,31 +26,33 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DubboRpcClient implements RpcClient {
 
     /**
-     * registry Configs
+      * registry 配置
      */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
-     * application Config
+      * application 配置
      */
     private final ApplicationConfig applicationConfig;
     /**
-     * consumer Config
+      * consumer 配置
      */
     private final ConsumerConfig consumerConfig;
     /**
-     * rpc Consumer Config
+      * rpc Consumer 配置
      */
     private final RpcConsumerConfig rpcConsumerConfig;
     /**
-     * reference Cache
+      * 引用 缓存
      */
     private final Map<Class<?>, ReferenceConfig<?>> referenceCache = new ConcurrentHashMap<>();
 
     /**
-     * 创建 DubboRpcClient 实例
-     * @param rpcRegistryConfigs rpcRegistryConfigs
-     * @param RpcConsumerConfig RpcConsumerConfig
-     * @param String String
+      * 创建 Dubborpc客户端 实例
+     * @param rpcRegistryConfigs rpcregistry配置
+     * @param consumerCfg rpcconsumer配置
+     * @param name 字符串
+     * @param consumerCfg consumercfg
+     * @param name 名称
      */
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {
         this.rpcConsumerConfig = consumerCfg;
@@ -77,7 +79,12 @@ public class DubboRpcClient implements RpcClient {
         this.consumerConfig = buildConsumerConfig(consumerCfg);
     }
 
-    /** 构建ConsumerConfig */
+    /**
+     * 构建consumer配置
+     *
+     * @param cfg cfg
+     * @return 构建consumer配置的结果
+     */
     private ConsumerConfig buildConsumerConfig(RpcConsumerConfig cfg) {
         if (cfg == null) {
             return null;
@@ -98,7 +105,12 @@ public class DubboRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取 */
+    /**
+     * 获取
+     *
+     * @param targetType Target类型
+     * @return 获取的结果
+     */
     public <T> T get(Class<T> targetType) {
         ReferenceConfig<T> reference = (ReferenceConfig<T>) referenceCache.computeIfAbsent(targetType, type -> {
             ReferenceConfig<T> ref = new ReferenceConfig<>();

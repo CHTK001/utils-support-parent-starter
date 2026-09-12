@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Prometheus 链式客户端
  * <p>
- * 基于 JDK HttpClient 封装 Prometheus HTTP API, 支持即时查询、范围查询、
+   * 基于 JDK HTTP客户端 封装 Prometheus HTTP API, 支持即时查询、范围查询、
  * 序列/标签发现、目标/规则/告警查询。
  * </p>
  *
@@ -41,6 +41,7 @@ import java.util.Map;
  *
  * QueryResult result = client.query("up").execute();
  * List<PrometheusTarget> targets = client.targets().list();
+ * }</pre>metheusTarget> targets = client.targets().list();
  * }</pre>
  *
  * @author CH
@@ -121,7 +122,7 @@ public class PrometheusClient implements AutoCloseable {
     }
 
     /**
-     * 创建 Builder
+      * 创建 构建器
      *
      * @return Builder
      */
@@ -130,11 +131,11 @@ public class PrometheusClient implements AutoCloseable {
     }
 
     /**
-     * 构造 Basic Auth 头
+      * 构造 基础 认证 头
      *
      * @param username 用户名
      * @param password 密码
-     * @return Basic Auth 值, 无认证返回 null
+     * @return Basic 认证 值, 无认证返回 空
      */
     private static String buildBasicAuth(String username, String password) {
         if (username == null || username.isEmpty()) {
@@ -149,7 +150,7 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * 即时查询入口
      *
-     * @param promql PromQL
+     * @param promql promql
      * @return QueryOperation
      */
     public QueryOperation query(String promql) {
@@ -159,7 +160,7 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * 范围查询入口
      *
-     * @param promql PromQL
+     * @param promql promql
      * @return RangeQueryOperation
      */
     public RangeQueryOperation queryRange(String promql) {
@@ -323,10 +324,10 @@ public class PrometheusClient implements AutoCloseable {
     // ==================== 内部 HTTP ====================
 
     /**
-     * 发送 GET 并解析为 JsonObject
+      * 发送 获取 并解析为 json对象
      *
      * @param pathAndQuery 路径与查询串
-     * @return JsonObject, 失败返回 null
+     * @return JsonObject, 失败返回 空
      */
     private JsonObject getJson(String pathAndQuery) {
         try {
@@ -353,7 +354,7 @@ public class PrometheusClient implements AutoCloseable {
     }
 
     /**
-     * 发送 GET 并解析为 JsonArray
+      * 发送 获取 并解析为 jsonarray
      *
      * @param pathAndQuery 路径与查询串
      * @return JsonArray, 失败返回空
@@ -366,7 +367,7 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * 执行即时查询
      *
-     * @param promql PromQL
+     * @param promql promql
      * @return QueryResult
      */
     private QueryResult doQuery(String promql) {
@@ -378,7 +379,7 @@ public class PrometheusClient implements AutoCloseable {
     /**
      * 执行范围查询
      *
-     * @param promql   PromQL
+     * @param promql   promql
      * @param startSec 起始时间(秒)
      * @param endSec   结束时间(秒)
      * @param stepSec  步长(秒)
@@ -458,10 +459,10 @@ public class PrometheusClient implements AutoCloseable {
     }
 
     /**
-     * 从值对 [timestamp, "value"] 中提取数值
+      * 从值对 [时间戳, "值"] 中提取数值
      *
      * @param pair 值对
-     * @return 数值, 失败返回 null
+     * @return 数值, 失败返回 空
      */
     private Double valueFromPair(Object pair) {
         if (!(pair instanceof java.util.Collection<?> col) || col.isEmpty()) {
@@ -479,7 +480,7 @@ public class PrometheusClient implements AutoCloseable {
     }
 
     /**
-     * JsonObject 转 Map
+      * json对象 转 映射
      *
      * @param obj 对象
      * @return Map
@@ -508,6 +509,8 @@ public class PrometheusClient implements AutoCloseable {
 
     /**
      * 对象转字符串
+     * @param o o
+     * @return str的结果
      */
     private static String str(Object o) {
         return o == null ? null : String.valueOf(o);
@@ -515,6 +518,8 @@ public class PrometheusClient implements AutoCloseable {
 
     /**
      * 对象转 long
+     * @param o o
+     * @return long或zero的结果
      */
     private static long longOrZero(Object o) {
         if (o == null) {
@@ -529,6 +534,8 @@ public class PrometheusClient implements AutoCloseable {
 
     /**
      * 对象转 double
+     * @param o o
+     * @return double或zero的结果
      */
     private static double doubleOrZero(Object o) {
         if (o == null) {
@@ -546,7 +553,7 @@ public class PrometheusClient implements AutoCloseable {
      */
     @Override
     public void close() {
-        // JDK HttpClient 无需显式关闭
+ // JDK HTTP客户端 无需显式关闭
     }
 
     // ==================== 链式操作 ====================
@@ -560,14 +567,14 @@ public class PrometheusClient implements AutoCloseable {
     public class QueryOperation {
 
         /**
-         * PromQL
+          * promql
          */
         private final String promql;
 
         /**
          * 构造方法
          *
-         * @param promql PromQL
+         * @param promql promql
          */
         QueryOperation(String promql) {
             this.promql = promql;
@@ -585,7 +592,7 @@ public class PrometheusClient implements AutoCloseable {
         /**
          * 执行并返回首个值
          *
-         * @return 首个值, 无数据返回 null
+         * @return 首个值, 无数据返回 空
          */
         public Double firstValue() {
             QueryResult result = doQuery(promql);
@@ -598,7 +605,7 @@ public class PrometheusClient implements AutoCloseable {
         /**
          * 执行并返回首个序列
          *
-         * @return 首个序列, 无数据返回 null
+         * @return 首个序列, 无数据返回 空
          */
         public PrometheusMetric first() {
             QueryResult result = doQuery(promql);
@@ -618,7 +625,7 @@ public class PrometheusClient implements AutoCloseable {
     public class RangeQueryOperation {
 
         /**
-         * PromQL
+          * promql
          */
         private final String promql;
 
@@ -640,7 +647,7 @@ public class PrometheusClient implements AutoCloseable {
         /**
          * 构造方法
          *
-         * @param promql PromQL
+         * @param promql promql
          */
         RangeQueryOperation(String promql) {
             this.promql = promql;
@@ -709,7 +716,7 @@ public class PrometheusClient implements AutoCloseable {
         /**
          * 设置匹配器
          *
-         * @param matcher PromQL 标签匹配器, 如 up
+         * @param matcher promql 标签匹配器, 如 up
          * @return this
          */
         public SeriesOperation match(String matcher) {
@@ -736,9 +743,10 @@ public class PrometheusClient implements AutoCloseable {
     }
 
     /**
-     * Builder
+      * 构建器
      *
      * @since 4.0.0.42
+     * @author CH
      */
     public static class Builder {
 
@@ -774,7 +782,7 @@ public class PrometheusClient implements AutoCloseable {
         }
 
         /**
-         * 设置 Basic Auth
+          * 设置 基础 认证
          *
          * @param user 用户名
          * @param pwd  密码

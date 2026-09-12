@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * DL4J ResNet50 推理模型（有状态，OOP 风格）。
+   * DL4J Rnet50 推理模型（有状态，OOP 风格）。
  *
  * <p>构造时加载模型一次，后续通过实例方法进行分类、特征提取和比对，
- * 避免每次调用都重新加载模型。移植自 AIAS 2_training_platform 的推理能力。</p>
+   * 避免每次调用都重新加载模型。移植自 AIAS 2_培训假_platform 的推理能力。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,12 +27,12 @@ import java.util.List;
 public class ResNet50InferenceModel {
 
     /**
-     * ResNet50 图片大小。
+      * Rnet50 图片大小。
      */
     public static final int IMG_SIZE = 224;
 
     /**
-     * 特征向量维度（ResNet50 flatten_1 层输出）。
+      * 特征向量维度（Rnet50 flatten_1 层输出）。
      */
     public static final int FEATURE_DIMENSION = 2048;
 
@@ -41,12 +41,12 @@ public class ResNet50InferenceModel {
      */
     private static final float MATCH_THRESHOLD = 0.5f;
 
-    private final ComputationGraph model;
-    private final List<String> labels;
-    private final int width;
-    private final int height;
-    private final int nChannels;
-    private final NativeImageLoader loader;
+    private final ComputationGraph model; // 模型
+    private final List<String> labels; // 标签
+    private final int width; // width
+    private final int height; // height
+    private final int nChannels; // n通道
+    private final NativeImageLoader loader; // 加载
 
     /**
      * 加载模型并指定类别标签。
@@ -83,7 +83,7 @@ public class ResNet50InferenceModel {
     /**
      * 图片分类推理。
      *
-     * @param image OpenCV Mat 图片
+     * @param image 打开cv Mat 图片
      * @return 分类预测结果
      * @throws IOException 图片处理异常
      */
@@ -102,12 +102,12 @@ public class ResNet50InferenceModel {
     /**
      * 图片特征提取。
      *
-     * @param image OpenCV Mat 图片
+     * @param image 打开cv Mat 图片
      * @return 2048 维特征向量
      * @throws IOException 图片处理异常
      */
     public float[] extractFeature(Mat image) throws IOException {
-        // 移除 fc1000 输出层，以 flatten_1 为输出（2048 维）
+ // 移除 函数计算1000 输出层，以 flatten_1 为输出（2048 维）
         ComputationGraph embeddingModel = new TransferLearning.GraphBuilder(model)
                 .removeVertexAndConnections("fc1000")
                 .setOutputs("flatten_1")

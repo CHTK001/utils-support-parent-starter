@@ -35,6 +35,8 @@ public class BankCardMockString implements MockString {
     private static final int LENGTH_16 = 16;
     /**
      * 19 位卡号总长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int LENGTH_19 = 19;
 

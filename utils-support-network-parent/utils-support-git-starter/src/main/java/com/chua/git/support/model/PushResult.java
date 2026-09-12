@@ -19,13 +19,14 @@ package com.chua.git.support.model;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return push结果的结果
  */
 public record PushResult(boolean success, int refUpdates, String messages) {
 
     /**
      * 快速创建"无变更"结果。
      *
-     * @return 推送成功但无新内容的 PushResult
+     * @return 推送成功但无新内容的 push结果
      */
     public static PushResult noChange() {
         return new PushResult(true, 0, "Everything up-to-date.");

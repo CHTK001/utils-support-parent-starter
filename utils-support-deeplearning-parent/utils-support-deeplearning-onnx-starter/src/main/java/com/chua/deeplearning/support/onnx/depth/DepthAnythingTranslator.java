@@ -17,16 +17,16 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * Depth-Anything V2 ONNX                 
+   * 深度-Anything V2 ONNX
  * <p>
- * Depth-Anything V2                                   
- *       monocular depth estimation                                
- *       single RGB image -> depth map                                   
+   * 深度-Anything V2
+   * monocular 深度 estimation
+   * 单个 RGB 镜像 -> 深度 映射
  * </p>
  * <p>
- *      : 518x518 RGB  ImageNet normalize
+   * : 518x518 RGB  镜像net normalize
  *      : [1, 3, 518, 518] -> [1, 1, H/14, W/14]                
- *      : Image                       
+   * : 镜像
  * </p>
  *
  * @author CH
@@ -36,7 +36,7 @@ import java.awt.image.BufferedImage;
 public class DepthAnythingTranslator implements Translator<Image, Image> {
 
     /** 模型尺寸 */
-    /** Model_size */
+    /** 模型_大小 */
     private static final int MODEL_SIZE = 518;
     /** 均值数组 */
     /** Mean */
@@ -51,7 +51,7 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
     private int height;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -77,7 +77,7 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depth = list.singletonOrThrow();
 

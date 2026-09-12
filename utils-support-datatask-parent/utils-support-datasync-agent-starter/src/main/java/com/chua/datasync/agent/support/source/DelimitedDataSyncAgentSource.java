@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 定界符数据同步 Source，从定界符文件读取数据。
+   * 定界符数据同步 源，从定界符文件读取数据。
  * <p>
  * 流式读取，支持 UTF-8 编码，支持增量读取：
- * 当 params["offset"] 为数字时，跳过对应行数后开始读取。
- * 本次读取结束后通过 getLastReadOffset() 返回当前行号，
- * Scheduler 调用 writeOffset() 持久化。
+   * 当 参数["偏移量"] 为数字时，跳过对应行数后开始读取。
+   * 本次读取结束后通过 获取最后一个读取偏移量() 返回当前行号，
+   * 调度器 调用 写入偏移量() 持久化。
  * </p>
  *
  * @author CH
@@ -48,23 +48,30 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     private volatile long lastLineNumber = 0;
 
     /**
-     * 创建 DelimitedDataSyncAgentSource 实例
-     * @param sourceId sourceId
-     * @param String String
-     * @param String String
-     * @param String String
+      * 创建 delimited数据同步智能体源 实例
+     * @param sourceId 源标识
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param inputId 输入标识
+     * @param filePath 文件路径
+     * @param delimiter delimiter
      */
     public DelimitedDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter) {
         this(sourceId, inputId, filePath, delimiter, new FileSyncDataOffsetStorage());
     }
 
     /**
-     * 创建 DelimitedDataSyncAgentSource 实例
-     * @param sourceId sourceId
-     * @param String String
-     * @param String String
-     * @param String String
-     * @param SyncDataOffsetStorage SyncDataOffsetStorage
+      * 创建 delimited数据同步智能体源 实例
+     * @param sourceId 源标识
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param offsetStorage 同步数据偏移量storage
+     * @param inputId 输入标识
+     * @param filePath 文件路径
+     * @param delimiter delimiter
+     * @param offsetStorage 偏移量storage
      */
     public DelimitedDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter, SyncDataOffsetStorage offsetStorage) {
         this.sourceId = sourceId;
@@ -75,25 +82,25 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
-    /** SourceId */
+    /** 源id */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** InputId */
+    /** 输入id */
     public String inputId() {
         return inputId;
     }
 
     @Override
-    /** 读取Offset */
+    /** 读取偏移量 */
     public SyncDataOffset readOffset(Map<String, Object> params) {
         return offsetStorage.read(sourceId, null);
     }
 
     @Override
-    /** 写入Offset */
+    /** 写入偏移量 */
     public void writeOffset(SyncDataOffset offset) {
         if (offset == null) {
             return;
@@ -161,7 +168,7 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
-    /** 获取Last读取Offset */
+    /** 获取最后一个读取偏移量 */
     public Object getLastReadOffset() {
         return lastLineNumber;
     }

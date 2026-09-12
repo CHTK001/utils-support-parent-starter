@@ -11,7 +11,7 @@ import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 
 /**
- * JsonPath SPI 实现，基于 <a href="https://github.com/json-path/JsonPath">jayway JsonPath</a>。
+   * json路径 SPI 实现，基于 <a href="https://github.com/json-path/JsonPath">jayway json路径</a>。
  *
  * <p>提供声明式 JSON 路径查询与操作能力，支持一次性调用和链式操作两种模式。</p>
  *
@@ -29,7 +29,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 public class JsonPathImpl implements JsonPath {
 
     /**
-     * 默认配置：Jackson 序列化 + 路径不存在时返回 null
+      * 默认配置：Jackson 序列化 + 路径不存在时返回 空
      */
     private static final Configuration DEFAULT_CONFIG = Configuration.builder()
             .jsonProvider(new JacksonJsonProvider())
@@ -100,7 +100,7 @@ public class JsonPathImpl implements JsonPath {
     }
 
     @Override
-    /** Put */
+    /** 放入 */
     public String put(String json, String jsonPath, String key, Object value) {
         try {
             return PARSE_CTX.parse(json).put(jsonPath, key, value).jsonString();
@@ -195,7 +195,7 @@ public class JsonPathImpl implements JsonPath {
     }
 
     @Override
-    /** Put */
+    /** 放入 */
     public JsonPath put(String jsonPath, String key, Object value) {
         ensureParsed();
         documentContext.put(jsonPath, key, value);
@@ -235,7 +235,7 @@ public class JsonPathImpl implements JsonPath {
     }
 
     @Override
-    /** ToJson */
+    /** 转为json */
     public String toJson() {
         ensureParsed();
         return documentContext.jsonString();

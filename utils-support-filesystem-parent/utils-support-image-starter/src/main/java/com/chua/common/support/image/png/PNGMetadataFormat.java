@@ -12,8 +12,8 @@ import javax.annotation.Nullable;
  * PNG 元数据格式定义。
  *
  * <p>继承自 {@link javax.imageio.metadata.IIOMetadataFormatImpl}，
- * 定义 PNG 原生元数据格式的结构，包括所有 PNG 块（IHDR、PLTE、tRNS、gAMA 等）以及
- * APNG 动画块（acTL、fcTL、fdAT）的元素和属性约束。</p>
+   * 定义 PNG 原生元数据格式的结构，包括所有 PNG 块（IHDR、PLTE、trns、gama 等）以及
+   * APNG 动画块（actl、函数计算tl、fdat）的元素和属性约束。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,32 +23,32 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     /** 实例 */
     private static IIOMetadataFormat instance = null;
 
-    /** Value_0 */
+    /** 值_0 */
     private static final String VALUE_0 = "0";
-    /** Value_1 */
+    /** 值_1 */
     private static final String VALUE_1 = "1";
-    /** Value_12 */
+    /** 值_12 */
     private static final String VALUE_12 = "12";
-    /** Value_23 */
+    /** 值_23 */
     private static final String VALUE_23 = "23";
-    /** Value_31 */
+    /** 值_31 */
     private static final String VALUE_31 = "31";
-    /** Value_59 */
+    /** 值_59 */
     private static final String VALUE_59 = "59";
-    /** Value_60 */
+    /** 值_60 */
     private static final String VALUE_60 = "60";
-    /** Value_255 */
+    /** 值_255 */
     private static final String VALUE_255 = "255";
     // 2^16 - 1
     // ;
-    /** Value_max_16 */
+    /** 值_最大_16 */
     private static final String VALUE_MAX_16 = "65535";
     // 2^32 - 1
     // ;
-    /** Value_max_32 */
+    /** 值_最大_32 */
     private static final String VALUE_MAX_32 = "2147483647";
 
-    /** 创建 PNGMetadataFormat 实例 */
+    /** 创建 pngmetadata格式化 实例 */
     private PNGMetadataFormat() {
         super(PNGMetadata.nativeMetadataFormatName,
               CHILD_POLICY_SOME);
@@ -565,16 +565,20 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     }
 
     /**
-     * 是否可以NodeAppear
-     * @param elementName elementName
-     * @param imageType imageType
+      * 是否可以节点appear
+     * @param elementName element名称
+     * @param imageType 镜像类型
      */
     public boolean canNodeAppear(String elementName,
                                  ImageTypeSpecifier imageType) {
         return true;
     }
 
-    /** 获取Instance */
+    /**
+     * 获取Instance
+     *
+     * @return 获取instance的结果
+     */
     public static synchronized IIOMetadataFormat getInstance() {
         if (instance == null) {
             instance = new PNGMetadataFormat();

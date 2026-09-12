@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ArcSoft 人脸裁剪翻译器
+   * arcsoft 人脸裁剪翻译器
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,15 +27,15 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
     private final FaceEngine faceEngine;
 
     /**
-     * 创建 ArcFaceCropperTranslator 实例
-     * @param faceEngine faceEngine
+      * 创建 arcfacecroppertranslator 实例
+     * @param faceEngine faceengine
      */
     public ArcFaceCropperTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "arcface-cropper";
     }

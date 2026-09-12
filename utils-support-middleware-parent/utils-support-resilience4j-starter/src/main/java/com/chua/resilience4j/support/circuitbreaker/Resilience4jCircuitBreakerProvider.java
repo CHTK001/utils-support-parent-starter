@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 基于 Resilience4j 的熔断器实现。
+   * 基于 韧性4j 的熔断器实现。
  *
  * <p>SPI 名称为 {@code "default"}，order=100 优先级高于内存实现。</p>
  *
@@ -32,11 +32,14 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     private final AtomicLong callStartNs = new AtomicLong(-1);
 
     /**
-     * 创建 Resilience4jCircuitBreakerProvider 实例
-     * @param name name
-     * @param int int
-     * @param int int
-     * @param long long
+      * 创建 韧性4j熔断中断提供者 实例
+     * @param name 名称
+     * @param failureThreshold int
+     * @param failureThreshold int
+     * @param waitDuration long
+     * @param failureThreshold 失败阈值
+     * @param successThreshold 成功阈值
+     * @param waitDuration wait持续时间
      */
     public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
@@ -49,7 +52,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** Try获取 */
+    /** 尝试获取 */
     public boolean tryAcquire() {
         boolean acquired = circuitBreaker.tryAcquirePermission();
         if (acquired) {
@@ -59,7 +62,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** RecordSuccess */
+    /** record成功 */
     public void recordSuccess() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -69,7 +72,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** RecordFailure */
+    /** record失败 */
     public void recordFailure() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -92,7 +95,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return circuitBreaker.getName();
     }

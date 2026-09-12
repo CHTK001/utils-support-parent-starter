@@ -126,7 +126,7 @@ public class GifDecoder {
             try {
                 nativeFormat = (String) ReflectUtils.invoke(metadata, "getNativeMetadataFormatName", Object.class);
             } catch (Exception ignored) {
-                // Java 25+: getNativeMetadataFormatName removed
+ // Java 25+: 获取natmetadata格式化名称 移除
                 nativeFormat = "javax_imageio_gif_image_1.0";
             }
             if (nativeFormat == null) {
@@ -157,7 +157,7 @@ public class GifDecoder {
     /**
      * 从 GIF 全局元数据中解析循环播放次数。
      * <p>
-     * 循环次数来源于 Netscape 扩展（NETSCAPE2.0）中 applicationExtension 节点的 data 字段，
+      * 循环次数来源于 Netscape 扩展（NETSCAPE2.0）中 application延伸 节点的 数据 字段，
      * 字节序列为 {@code [0x01, low, high]}，其中第 3 个字节表示循环次数。
      * </p>
      *
@@ -203,7 +203,7 @@ public class GifDecoder {
      *
      * @param node     当前遍历节点
      * @param nodeName 目标节点名称
-     * @return 匹配到的节点，未找到时返回 null
+     * @return 匹配到的节点，未找到时返回 空
      */
     private IIOMetadataNode findNodeByName(IIOMetadataNode node, String nodeName) {
         if (nodeName.equals(node.getNodeName())) {
@@ -252,8 +252,8 @@ public class GifDecoder {
     /**
      * 根据索引获取指定帧画面。
      *
-     * @param index 帧索引，越界时返回 null
-     * @return 帧画面，越界时返回 null
+     * @param index 帧索引，越界时返回 空
+     * @return 帧画面，越界时返回 空
      */
     public BufferedImage getFrame(int index) {
         if (index < 0 || index >= frames.size()) {

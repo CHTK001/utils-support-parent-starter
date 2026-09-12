@@ -10,7 +10,7 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
  */
 public class H2Dialect extends com.chua.datasource.support.dialect.AbstractDialect {
 
-    public static final String VERSION = "H2 2.x";
+    public static final String VERSION = "H2 2.x"; // 版本
 
     @Override
     public String protocol() {

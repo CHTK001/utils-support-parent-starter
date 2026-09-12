@@ -34,10 +34,10 @@ public class MemoryFlowDefinitionStore implements FlowDefinitionStore {
     }
 
     /**
-     * 按 ID 查询流程定义。
+      * 按 标识 查询流程定义。
      *
-     * @param flowId 流程 ID
-     * @return 流程定义，不存在时返回 null
+     * @param flowId 流程 标识
+     * @return 流程定义，不存在时返回 空
      */
     @Override
     public FlowDefinition get(String flowId) {
@@ -45,9 +45,9 @@ public class MemoryFlowDefinitionStore implements FlowDefinitionStore {
     }
 
     /**
-     * 按 ID 删除流程定义。
+      * 按 标识 删除流程定义。
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @return 删除成功返回 true
      */
     @Override

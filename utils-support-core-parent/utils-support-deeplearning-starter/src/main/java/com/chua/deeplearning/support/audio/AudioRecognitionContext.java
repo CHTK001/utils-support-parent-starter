@@ -26,9 +26,9 @@ public class AudioRecognitionContext {
     private byte[] rawAudio;
     /** VAD 切分结果（语音/静音分段） */
     private List<SpeakerSegment> vadSegments;
-    /** 各片段的说话人嵌入向量（与 vadSegments 一一对应） */
+    /** 各片段的说话人嵌入向量（与 vadsegments 一一对应） */
     private float[][] speakerEmbeddings;
-    /** 各片段归属的说话人 ID（聚类后，与 vadSegments 一一对应） */
+    /** 各片段归属的说话人 标识（聚类后，与 vadsegments 一一对应） */
     private String[] speakerAssignments;
     /** 各片段的 ASR 转录文本 */
     private String[] transcripts;

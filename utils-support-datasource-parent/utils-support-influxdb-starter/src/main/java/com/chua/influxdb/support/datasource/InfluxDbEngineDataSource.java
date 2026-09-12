@@ -5,7 +5,7 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import org.influxdb.InfluxDB;
 
 /**
- * InfluxDB 数据源封装，持有官方 {@link InfluxDB} 客户端。
+   * influxdb 数据源封装，持有官方 {@link InfluxDB} 客户端。
  *
  * @author CH
  * @since 4.0.0.42
@@ -50,7 +50,7 @@ public class InfluxDbEngineDataSource implements EngineDataSource<InfluxDB> {
      * @param username 用户名
      * @param password 密码
      * @param database 数据库
-     * @param source   InfluxDB 客户端
+     * @param source   influxdb 客户端
      */
     public InfluxDbEngineDataSource(String name, String url, String username,
                                     String password, String database, InfluxDB source) {
@@ -80,7 +80,7 @@ public class InfluxDbEngineDataSource implements EngineDataSource<InfluxDB> {
         return this;
     }
 
-    /** 非 SQL 方言返回 null */
+    /** 非 SQL 方言返回 空 */
     @Override
     public Dialect getDialect() {
         return null;

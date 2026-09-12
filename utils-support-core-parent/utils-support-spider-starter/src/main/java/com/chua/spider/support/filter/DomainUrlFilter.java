@@ -22,6 +22,7 @@ import java.util.Set;
  * // 只爬取 example.com 及其子域名
  * DomainUrlFilter filter = new DomainUrlFilter("example.com");
  * filter.accept(request); // true 如果 URL 在 example.com 域名下
+ * }</pre> 域名下
  * }</pre>
  *
  * @author CH

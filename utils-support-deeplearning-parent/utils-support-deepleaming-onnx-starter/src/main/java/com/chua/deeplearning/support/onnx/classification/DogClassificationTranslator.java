@@ -9,10 +9,17 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.47
+ * @param candidates candidates
+ * @return 构建参数的结果
  */
 public class DogClassificationTranslator extends SiglipZeroShotClassificationTranslator {
 
     private static final String DOGS = "dog,cat,bird,fish,horse,rabbit,hamster," +
+            /**
+              * dogclassificationtranslator。
+             * @param candidates candidates
+             * @return 构建参数的结果
+             */
             "squirrel,deer,raccoon,fox,wolf,lion,tiger,bear";
 
     public DogClassificationTranslator() {

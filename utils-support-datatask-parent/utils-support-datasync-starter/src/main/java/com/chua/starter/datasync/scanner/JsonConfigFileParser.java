@@ -24,7 +24,7 @@ public class JsonConfigFileParser implements ConfigFileParser {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".json");

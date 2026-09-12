@@ -35,6 +35,9 @@ import weka.classifiers.evaluation.Evaluation;
  * EvaluationReport report = regressor.evaluate(model, data);
  * report.rmse();            // 均方根误差
  * report.mae();             // 平均绝对误差
+ * }</pre>, data);
+ * report.rmse();            // 均方根误差
+ * report.mae();             // 平均绝对误差
  * }</pre>
  *
  * @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
@@ -46,7 +49,7 @@ public class WekaRandomForestRegressor {
     /**
      * 训练回归模型。
      *
-     * @param data    带目标列的数据，不能为 null
+     * @param data    带目标列的数据，不能为 空
      * @param options 随机森林参数，传 {@code null} 使用默认值
      * @return 训练完成的模型
      * @throws WekaException 数据缺少目标列、数据行不足或训练失败
@@ -65,8 +68,8 @@ public class WekaRandomForestRegressor {
     /**
      * 预测单条数据。
      *
-     * @param model 已训练模型，不能为 null
-     * @param row   预测数据行（列名 -> 值，可缺省目标列），不能为 null
+     * @param model 已训练模型，不能为 空
+     * @param row   预测数据行（列名 -> 值，可缺省目标列），不能为 空
      * @return 回归预测值
      * @throws WekaException 模型未训练或预测失败
      */
@@ -80,8 +83,8 @@ public class WekaRandomForestRegressor {
     /**
      * 批量预测。
      *
-     * @param model 已训练模型，不能为 null
-     * @param rows  预测数据行，不能为 null
+     * @param model 已训练模型，不能为 空
+     * @param rows  预测数据行，不能为 空
      * @return 回归预测值列表（与输入顺序一致）
      * @throws WekaException 模型未训练或预测失败
      */
@@ -99,8 +102,8 @@ public class WekaRandomForestRegressor {
     /**
      * 评估模型（K 折交叉验证，默认 10 折）。
      *
-     * @param model 已训练模型，不能为 null
-     * @param data  评估数据，不能为 null
+     * @param model 已训练模型，不能为 空
+     * @param data  评估数据，不能为 空
      * @return 评估报告（RMSE + MAE）
      * @throws WekaException 评估失败
      */
@@ -111,8 +114,8 @@ public class WekaRandomForestRegressor {
     /**
      * 评估模型（K 折交叉验证）。
      *
-     * @param model    已训练模型，不能为 null
-     * @param data     评估数据，不能为 null
+     * @param model    已训练模型，不能为 空
+     * @param data     评估数据，不能为 空
      * @param numFolds 折数（至少 2，推荐 10），取值小于 2 时按 2 处理
      * @return 评估报告
      * @throws WekaException 数据量不足或评估失败

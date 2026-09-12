@@ -64,7 +64,7 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
      * 构造 FTP 目录轮询器。
      *
      * @param listenPath  FTP 远程目录路径
-     * @param environment 环境配置（需包含 host、port 等）
+     * @param environment 环境配置（需包含 主机、端口 等）
      */
     public FtpPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
@@ -78,8 +78,8 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     @Override
     /**
      * 开始
-     * @param environment environment
-     * @param executor executor
+     * @param environment 环境
+     * @param executor 执行器
      */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
@@ -99,7 +99,7 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     }
 
     @Override
-    /** ListAndModified */
+    /** 列表和modified */
     protected List<FTPFile> listAndModified(String path) {
         try {
             FTPFile[] files = client.listFiles(path);
@@ -111,7 +111,7 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     }
 
     @Override
-    /** 获取FileName */
+    /** 获取文件名 */
     protected String getFileName(FTPFile item) {
         return item.getName();
     }

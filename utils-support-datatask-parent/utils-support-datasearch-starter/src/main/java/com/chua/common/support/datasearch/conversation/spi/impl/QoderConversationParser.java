@@ -16,7 +16,7 @@ import java.util.List;
  *
  * <p>Qoder CLI persists sessions as Claude-Code-style JSONL transcripts under
  * {@code ~/.qoder/projects/<project>/<sessionId>.jsonl}: user content is a
- * plain string while assistant content is an array of typed blocks.</p>
+   * plain 字符串 while assistant 内容 是否 an array 的 类型 blocks.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -59,6 +59,14 @@ public class QoderConversationParser extends AbstractJsonlConversationParser {
 
     /**
      * 解析单行事件为零或多条消息记录。
+     * @param ts ts
+     * @return 解析instant转为millis的结果
+     /**
+      * 解析线。
+      * @param line 线
+      * @return 解析线的结果
+      */
+      * @param ts ts
      */
     @Override
     protected List<ConversationMessage> parseLine(String line) {

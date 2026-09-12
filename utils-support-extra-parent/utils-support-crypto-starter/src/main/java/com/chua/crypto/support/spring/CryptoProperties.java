@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 系统加密配置属性（chua.crypto.*）
+   * 系统加密配置属性（chua.加密货币.*）
  *
  * <p>配置示例：
  * <pre>{@code
@@ -26,6 +26,7 @@ import java.util.List;
  *     secret: ${CHUA_CRYPTO_SECRET}  # 自定义口令（建议环境变量注入）
  *     encrypt-config-files: true     # 配置文件是否一起解密装载
  *     config-files: application.yml, application-prod.yml
+ * }</pre> * 配置-文件: application.yml, application-prod.yml
  * }</pre>
  *
  * @author CH
@@ -56,7 +57,7 @@ public class CryptoProperties {
     private KeyStoreType storeType = KeyStoreType.FILE;
 
     /**
-     * 密钥文件路径（支持 FatJar 相对路径解析）
+      * 密钥文件路径（支持 fatjar 相对路径解析）
      */
     private String keyFile;
 

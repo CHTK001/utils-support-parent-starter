@@ -69,6 +69,7 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     private volatile boolean redirectToIndex = true;
 
     public StaticResourceServerFilter() {
+        // NOTHING
     }
 
     /**

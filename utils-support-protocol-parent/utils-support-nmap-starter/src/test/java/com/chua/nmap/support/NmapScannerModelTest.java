@@ -4,11 +4,13 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * NmapScanner 数据模型测试（不依赖动态库）
+   * nmapscanner 数据模型测试（不依赖动态库）
+ * @author CH
+ * @since 4.0.0
  */
 class NmapScannerModelTest {
 
-    // ── ScanOptions ───────────────────────────────────────────────────────────
+ // ── 扫描期权 ───────────────────────────────────────────────────────────
 
     @Test
     void scanOptions_defaults() {
@@ -52,7 +54,7 @@ class NmapScannerModelTest {
         assertEquals(NmapScanner.ScanType.TCP_SYN, opts.getScanType());
     }
 
-    // ── PortInfo ──────────────────────────────────────────────────────────────
+ // ── 端口信息 ──────────────────────────────────────────────────────────────
 
     @Test
     void portInfo_toString_open() {
@@ -76,7 +78,7 @@ class NmapScannerModelTest {
         }
     }
 
-    // ── HostInfo ──────────────────────────────────────────────────────────────
+ // ── 主机信息 ──────────────────────────────────────────────────────────────
 
     @Test
     void hostInfo_toString_alive() {
@@ -112,7 +114,7 @@ class NmapScannerModelTest {
         assertEquals(64, h.getTtl());
     }
 
-    // ── ScanResult ────────────────────────────────────────────────────────────
+ // ── 扫描结果 ────────────────────────────────────────────────────────────
 
     @Test
     void scanResult_fields() {
@@ -127,7 +129,7 @@ class NmapScannerModelTest {
         assertEquals(500L, r.getDuration());
     }
 
-    // ── ServiceInfo ───────────────────────────────────────────────────────────
+ // ── 服务信息 ───────────────────────────────────────────────────────────
 
     @Test
     void serviceInfo_fields() {
@@ -143,7 +145,7 @@ class NmapScannerModelTest {
         assertEquals(90, s.getConfidence());
     }
 
-    // ── OsInfo ────────────────────────────────────────────────────────────────
+ // ── os信息 ────────────────────────────────────────────────────────────────
 
     @Test
     void osInfo_fields() {
@@ -158,7 +160,7 @@ class NmapScannerModelTest {
         assertEquals(85, o.getAccuracy());
     }
 
-    // ── ScanProgress ──────────────────────────────────────────────────────────
+ // ── 扫描进步 ──────────────────────────────────────────────────────────
 
     @Test
     void scanProgress_fields() {
@@ -172,7 +174,7 @@ class NmapScannerModelTest {
         assertEquals(50.0, p.getProgress());
     }
 
-    // ── ScanType enum ─────────────────────────────────────────────────────────
+ // ── 扫描类型 enum ─────────────────────────────────────────────────────────
 
     @Test
     void scanType_all_values() {

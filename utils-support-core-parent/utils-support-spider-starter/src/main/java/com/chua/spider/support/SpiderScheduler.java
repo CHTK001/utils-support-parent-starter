@@ -38,7 +38,7 @@ public interface SpiderScheduler {
      *
      * <p>如果队列为空，返回 null。调度器应在此方法中控制请求间隔。
      *
-     * @return 下一个待爬取的请求，队列为空时返回 null
+     * @return 下一个待爬取的请求，队列为空时返回 空
      */
     SpiderRequest dequeue();
 

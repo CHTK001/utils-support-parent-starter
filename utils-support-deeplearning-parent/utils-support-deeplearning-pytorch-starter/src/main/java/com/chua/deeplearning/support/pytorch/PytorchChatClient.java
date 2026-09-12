@@ -10,9 +10,9 @@ import com.chua.deeplearning.support.ai.client.DeeplearningModels;
 import java.util.List;
 
 /**
- * 基于 PyTorch (DJL) 的本地文本对话客户端。
+   * 基于 pytorch (DJL) 的本地文本对话客户端。
  * <p>
- * 调度 pytorch 引擎下已注册的文本生成模型（如 NLLB / Opus 翻译、text-feature 等），
+   * 调度 pytorch 引擎下已注册的文本生成模型（如 NLLB / Opus 翻译、文本-特征 等），
  * 统一以 {@link ChatClient} 对外提供文本生成能力。
  * </p>
  *
@@ -23,7 +23,7 @@ import java.util.List;
 public class PytorchChatClient extends AbstractLocalChatClient {
 
     /**
-     * 构造 PyTorch 对话客户端。
+      * 构造 pytorch 对话客户端。
      *
      * @param setting 客户端配置
      */
@@ -32,7 +32,7 @@ public class PytorchChatClient extends AbstractLocalChatClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, String.class);
     }

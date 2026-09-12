@@ -73,7 +73,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
      * 构造方法
      *
      * @param factory     创建新实例的工厂, 必填
-     * @param configurator 实例配置回调, 可为 null (表示无配置)
+     * @param configurator 实例配置回调, 可为 空 (表示无配置)
      */
     protected AbstractPooledClient(Supplier<T> factory, Function<T, T> configurator) {
         this.factory = factory;
@@ -95,9 +95,9 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
      * 自身既是池化目标又是客户端时的构造方法
      *
      * <p>当子类自身就是 {@code T} 的实现 (例如 {@code DefaultChatClient extends AbstractPooledClient<DefaultChatClient>}),
-     * 可通过此构造方法直接使用, 内部 borrowClient 会返回 this。
+      * 可通过此构造方法直接使用, 内部 borrow客户端 会返回 this。
      *
-     * @param selfMarker 仅用于区分重载, 传任意非 null 值
+     * @param selfMarker 仅用于区分重载, 传任意非 空 值
      */
     protected AbstractPooledClient(Object selfMarker) {
         this.factory = null;
@@ -106,7 +106,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
 
     @Override
-    /** ConfigurePool */
+    /** configure游泳池 */
     public final void configurePool(Number size) {
         int target = size == null ? MODE_SINGLETON : size.intValue();
         synchronized (this) {
@@ -127,7 +127,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
 
     @Override
-    /** 获取Pool */
+    /** 获取游泳池 */
     public final ObjectPool<T> getPool() {
         return objectPool;
     }
@@ -210,6 +210,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
     /**
      * 创建并配置新实例
+     * @return 创建和configure的结果
      */
     @SuppressWarnings("unchecked")
     private T createAndConfigure() {
@@ -229,6 +230,8 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
     /**
      * 创建对象池
+     * @param maxTotal 最大total
+     * @return 创建游泳池的结果
      */
     private ObjectPool<T> createPool(int maxTotal) {
         ObjectPoolConfig config = ObjectPoolConfig.builder()

@@ -11,7 +11,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * BigGAN 图像生成 Translator。
+   * biggan 图像生成 Translator。
  * <p>输入类别 ID（Long），输出生成图像。</p>
  *
  * @author CH
@@ -37,7 +37,7 @@ public class BigGANTranslator implements Translator<Long, Image> {
     }
 
     /**
-     * 构造 BigGAN Translator。
+      * 构造 biggan Translator。
      *
      * @param size       输出分辨率 128/256/512
      * @param truncation 截断系数
@@ -56,7 +56,7 @@ public class BigGANTranslator implements Translator<Long, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Long classId) {
         NDArray noise = ctx.getNDManager().randomNormal(new Shape(1, noiseSize));
         // truncation trick
@@ -67,7 +67,7 @@ public class BigGANTranslator implements Translator<Long, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray ndArray = list.get(0);
         NDArray output = ctx.getNDManager().create(ndArray.toFloatArray(), ndArray.getShape());

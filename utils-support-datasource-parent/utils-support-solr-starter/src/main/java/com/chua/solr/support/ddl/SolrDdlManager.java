@@ -15,16 +15,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Solr DDL 管理器：把「集合（collection）/核」映射为框架统一的
+   * Solr DDL 管理器：把「集合（集合）/核」映射为框架统一的
  * {@link TableDef}/{@link ColumnDef} 定义体系。
  *
  * <p>概念映射：集合 ≙ 表；schema 字段 ≙ 列。
  * {@link #createTableDDL} 生成的 DDL 文本为 SolrCloud 管理动作的 JSON 表示
- * （Solr 无 SQL 方言，该 JSON 即可提交给 Collections API 执行）。</p>
+   * （Solr 无 SQL 方言，该 JSON 即可提交给 集合 API 执行）。</p>
+ * @author CH
+ * @since 4.0.0
  */
 public class SolrDdlManager implements DslManager {
 
-    /** Solr 客户端（绑定到 /solr 根路径） */
+    /** Solr 客户端（绑定到 /Solr 根路径） */
     private final SolrClient client;
 
     /** 默认分片数 */
@@ -36,7 +38,7 @@ public class SolrDdlManager implements DslManager {
     /**
      * 构造管理器。
      *
-     * @param client 绑定 /solr 根路径的客户端
+     * @param client 绑定 /Solr 根路径的客户端
      */
     public SolrDdlManager(SolrClient client) {
         this.client = client;
@@ -48,13 +50,23 @@ public class SolrDdlManager implements DslManager {
         return "solr";
     }
 
-    /** 设置分片数 */
+    /**
+     * 设置分片数
+     *
+     * @param numShards numshards
+     * @return numShards的结果
+     */
     public SolrDdlManager numShards(int numShards) {
         this.numShards = numShards;
         return this;
     }
 
-    /** 设置副本数 */
+    /**
+     * 设置副本数
+     *
+     * @param replicationFactor replicationfactor
+     * @return replicationFactor的结果
+     */
     public SolrDdlManager replicationFactor(int replicationFactor) {
         this.replicationFactor = replicationFactor;
         return this;
@@ -128,6 +140,7 @@ public class SolrDdlManager implements DslManager {
 
     /**
      * 真正创建集合（结构性 DDL 执行）。
+     * @param collectionName 集合名称
      */
     public void createCollection(String collectionName) throws Exception {
         CollectionAdminRequest.Create.createCollection(collectionName, numShards, replicationFactor)
@@ -135,7 +148,10 @@ public class SolrDdlManager implements DslManager {
     }
 
     /**
-     * 向集合 schema 追加字段（等价 ALTER TABLE ADD COLUMN）。
+      * 向集合 模式 追加字段（等价 ALTER TABLE 添加 COLUMN）。
+     * @param collectionName 集合名称
+     * @param fieldName 字段名称
+     * @param fieldType 字段类型
      */
     public void addField(String collectionName, String fieldName, String fieldType) throws Exception {
         new SchemaRequest.AddField(java.util.Map.of("name", fieldName, "type", fieldType))
@@ -144,6 +160,7 @@ public class SolrDdlManager implements DslManager {
 
     /**
      * 删除集合。
+     * @param collectionName 集合名称
      */
     public void dropCollection(String collectionName) throws Exception {
         CollectionAdminRequest.deleteCollection(collectionName).process(client);
@@ -151,6 +168,11 @@ public class SolrDdlManager implements DslManager {
 
     // ==================== 内部 ====================
 
+    /**
+     * 读取columns。
+     * @param tableName table名称
+     * @return 读取columns的结果
+     */
     private List<ColumnDef> readColumns(String tableName) {
         List<ColumnDef> columns = new ArrayList<>();
         try {
@@ -174,7 +196,12 @@ public class SolrDdlManager implements DslManager {
         return columns;
     }
 
-    /** 便捷工厂 */
+    /**
+     * 便捷工厂
+     *
+     * @param solrBaseUrl Solrbaseurl
+     * @return 的的结果
+     */
     public static SolrDdlManager of(String solrBaseUrl) {
         return new SolrDdlManager(new HttpSolrClient.Builder(solrBaseUrl).build());
     }

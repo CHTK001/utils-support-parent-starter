@@ -20,7 +20,7 @@ public interface TextTo3DGenerator {
      * @param prompt       文本描述（英文效果最佳）
      * @param format       输出格式
      * @param style        风格
-     * @param quality      质量（draft / standard / high）
+     * @param quality      质量（draft / 标准 / high）
      * @return 3D 模型
      * @throws IOException IO 异常
      */

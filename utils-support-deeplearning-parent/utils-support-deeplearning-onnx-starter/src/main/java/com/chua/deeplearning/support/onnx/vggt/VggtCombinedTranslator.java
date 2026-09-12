@@ -28,7 +28,7 @@ import java.io.IOException;
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/26
  */
 @Slf4j
@@ -81,11 +81,11 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     /**
      *                   
      * <p>
-     *                          VggtOutput       
+      * vggt输出
      * </p>
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return VggtOutput       
      * @throws Exception             
      */

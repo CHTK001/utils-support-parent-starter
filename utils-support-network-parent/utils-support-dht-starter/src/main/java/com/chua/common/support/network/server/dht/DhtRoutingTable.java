@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * Kademlia 路由表。
  * <p>
- * 维护 160 个 K-Bucket，每个 Bucket 对应 160 位 ID 空间的一个前缀长度。
+   * 维护 160 个 K-Bucket，每个 Bucket 对应 160 位 标识 空间的一个前缀长度。
  * 提供节点插入、查找、以及基于 XOR 距离的最近节点查询功能。
  * </p>
  *
@@ -22,7 +22,7 @@ import java.util.Set;
 public class DhtRoutingTable {
 
     /**
-     * 本地节点的 ID
+      * 本地节点的 标识
      */
     private final KademliaNodeId selfId;
 
@@ -39,7 +39,7 @@ public class DhtRoutingTable {
     /**
      * 构造路由表。
      *
-     * @param selfId 本地节点 ID
+     * @param selfId 本地节点 标识
      * @param k      K 值（每个 Bucket 容量）
      */
     public DhtRoutingTable(KademliaNodeId selfId, int k) {
@@ -54,7 +54,7 @@ public class DhtRoutingTable {
     /**
      * 插入节点到路由表。
      * <p>
-     * 根据节点 ID 与本地 ID 的 XOR 距离计算目标 Bucket 索引，
+      * 根据节点 标识 与本地 标识 的 XOR 距离计算目标 Bucket 索引，
      * 如果 Bucket 已满且最旧节点连续 3 次 Ping 失败，则替换该节点。
      * </p>
      *
@@ -90,10 +90,10 @@ public class DhtRoutingTable {
     }
 
     /**
-     * 根据节点 ID 查找路由表中的节点。
+      * 根据节点 标识 查找路由表中的节点。
      *
-     * @param nodeId 要查找的节点 ID
-     * @return 找到的 DhtPeer，未找到返回 null
+     * @param nodeId 要查找的节点 标识
+     * @return 找到的 dhtpeer，未找到返回 空
      */
     public synchronized DhtPeer findPeer(String nodeId) {
         int bucketIndex = selfId.getBucketIndex(KademliaNodeId.fromHex(nodeId));
@@ -102,9 +102,9 @@ public class DhtRoutingTable {
     }
 
     /**
-     * 根据节点 ID 从路由表中移除节点。
+      * 根据节点 标识 从路由表中移除节点。
      *
-     * @param nodeId 要移除的节点 ID
+     * @param nodeId 要移除的节点 标识
      */
     public synchronized void removePeer(String nodeId) {
         int bucketIndex = selfId.getBucketIndex(KademliaNodeId.fromHex(nodeId));
@@ -112,13 +112,13 @@ public class DhtRoutingTable {
     }
 
     /**
-     * 查找距离目标节点最近的 count 个节点。
+      * 查找距离目标节点最近的 数量 个节点。
      * <p>
      * 首先从目标 Bucket 获取，不够时从临近 Bucket 扩展，
-     * 最后按 XOR 距离排序后返回前 count 个。
+      * 最后按 XOR 距离排序后返回前 数量 个。
      * </p>
      *
-     * @param target 目标节点 ID
+     * @param target 目标节点 标识
      * @param count  需要的节点数量
      * @return 最近节点的列表
      */
@@ -152,7 +152,7 @@ public class DhtRoutingTable {
     }
 
     /**
-     * 将指定 Bucket 中的节点添加到结果列表中，直到达到 maxCount 上限。
+      * 将指定 Bucket 中的节点添加到结果列表中，直到达到 最大数量 上限。
      *
      * @param result   结果列表
      * @param bucket   源 Bucket
@@ -196,9 +196,9 @@ public class DhtRoutingTable {
     }
 
     /**
-     * 获取路由表中所有节点的 ID 集合。
+      * 获取路由表中所有节点的 标识 集合。
      *
-     * @return 节点 ID 的 Set
+     * @return 节点 标识 的 设置
      */
     public synchronized Set<String> getAllPeerIds() {
         Set<String> ids = new HashSet<>();

@@ -18,20 +18,20 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class CloudflareConfig implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * API Token 或 Account API Key。访问 D1 推荐使用 API Token。
+      * API 令牌 或 账户 API 键。访问 D1 推荐使用 API 令牌。
      */
     private String token;
 
     /**
-     * 账户 ID（Account ID），D1 REST 接口路径需要。
+      * 账户 标识（账户 标识），D1 REST 接口路径需要。
      */
     private String accountId;
 
     /**
-     * 默认数据库 ID（D1 database_id）。
+      * 默认数据库 标识（D1 database_标识）。
      */
     private String databaseId;
 

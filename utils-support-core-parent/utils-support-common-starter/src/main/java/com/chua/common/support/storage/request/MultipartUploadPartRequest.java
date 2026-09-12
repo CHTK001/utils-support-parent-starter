@@ -15,7 +15,7 @@ import lombok.Data;
 public class MultipartUploadPartRequest {
 
     /**
-     * 上传任务 ID
+      * 上传任务 标识
      */
     private String uploadId;
 

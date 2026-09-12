@@ -11,7 +11,7 @@ import java.io.File;
  * INI 文件系统 SPI 实现。
  *
  * <p>基于 {@link com.chua.filesystem.support.ini.IniParser IniParser} 工具类实现
- * INI 格式的读取与写入，支持 Section / Key-Value 结构。</p>
+   * INI 格式的读取与写入，支持 Section / 键-值 结构。</p>
  *
  * <h2>使用示例</h2>
  * <pre>{@code
@@ -22,6 +22,7 @@ import java.io.File;
  *
  * // 写入
  * fs.write(new File("output.ini")).write(Map.of("server", Map.of("port", "8080")));
+ * }</pre>("server", Map.of("port", "8080")));
  * }</pre>
  *
  * @author CH
@@ -31,7 +32,7 @@ import java.io.File;
 public class IniFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "ini";
     }

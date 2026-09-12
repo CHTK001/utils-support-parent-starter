@@ -7,12 +7,12 @@ package com.chua.common.support.datasearch.video.spi.data;
  * @since 4.0.0.42
  */
 public class TmdbCountry {
-    /** 创建 TmdbCountry 实例 */
+    /** 创建 tmdbcountry 实例 */
     private TmdbCountry() {
     }
 
     /**
-     * ͨ过 ISO-3166-1 两λ字ĸ代码获ȡ native_name
+      * ͨ过 ISO-3166-1 两λ字ĸ代码获ȡ NAT_名称
      *
      * @param iso 大Сд不敏感
      * @return 对Ӧ的本地名称，δ找到返?null
@@ -30,6 +30,8 @@ public class TmdbCountry {
 
     /**
      * 与国家代码һһ对Ӧ的ö举，按需ɾ减
+     * @author CH
+     * @since 4.0.0
      */
     public enum Code {
         AD("Andorra"),
@@ -291,7 +293,11 @@ public class TmdbCountry {
             this.nativeName = nativeName;
         }
 
-        /** NativeName */
+        /**
+         * NAT名称
+         *
+         * @return NAT名称的结果
+         */
         public String nativeName() {
             return nativeName;
         }

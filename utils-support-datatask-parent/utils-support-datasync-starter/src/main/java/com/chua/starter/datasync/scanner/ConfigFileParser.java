@@ -3,7 +3,7 @@ package com.chua.starter.datasync.scanner;
 import java.nio.file.Path;
 
 /**
- * 配置文件解析器，将文件解析为 DataSyncConfigDefinition。
+   * 配置文件解析器，将文件解析为 数据同步配置definition。
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,7 +19,7 @@ public interface ConfigFileParser {
     boolean supports(Path file);
 
     /**
-     * 解析文件为 DataSyncConfigDefinition。
+      * 解析文件为 数据同步配置definition。
      *
      * @param file 文件路径
      * @return 配置定义

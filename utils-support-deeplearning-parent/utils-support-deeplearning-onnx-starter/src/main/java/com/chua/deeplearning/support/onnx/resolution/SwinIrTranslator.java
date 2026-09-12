@@ -16,9 +16,9 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 /**
- * SwinIR ONNX                 
+   * swinir ONNX
  * <p>
- *      denoising / super-resolution                   
+   * denoising / 父-resolution
  * </p>
  * <p>
  *      :
@@ -48,12 +48,12 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     private int height;
 
     /**
-     * SwinIR 模型固定输入尺寸（128x128）
+      * swinir 模型固定输入尺寸（128x128）
      */
     private static final int INPUT_SIZE = 128;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -88,12 +88,12 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
 
-        // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX NDArray 会递归崩溃）
+ // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX ndarray 会递归崩溃）
         int off = shape.length == 4 ? 1 : 0;
         int outH = (int) shape[off + 1];
         int outW = (int) shape[off + 2];

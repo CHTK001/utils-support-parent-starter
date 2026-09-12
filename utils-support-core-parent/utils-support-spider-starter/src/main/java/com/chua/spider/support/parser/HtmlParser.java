@@ -77,7 +77,7 @@ public class HtmlParser implements SpiderParser {
     }
 
     @Override
-    /** SupportedContentTypes */
+    /** 支持内容类型 */
     public String[] supportedContentTypes() {
         return SUPPORTED_TYPES;
     }
@@ -113,7 +113,7 @@ public class HtmlParser implements SpiderParser {
     private Map<String, Object> extractMeta(Document doc) {
         Map<String, Object> meta = new LinkedHashMap<>();
 
-        // 提取 name 类 meta
+ // 提取 名称 类 meta
         for (Element element : doc.select("meta[name]")) {
             String name = element.attr("name").toLowerCase();
             String content = element.attr("content");
@@ -122,7 +122,7 @@ public class HtmlParser implements SpiderParser {
             }
         }
 
-        // 提取 property 类 meta（Open Graph）
+ // 提取 财产 类 meta（打开 图计算）
         for (Element element : doc.select("meta[property]")) {
             String property = element.attr("property").toLowerCase();
             String content = element.attr("content");

@@ -39,7 +39,7 @@ public class AsposePptFileConvertSystem implements FileConvertSystem {
     private static final List<String> TARGETS = List.of("pdf", "ppt", "pptx", "html", "htm", "tiff", "xps");
 
     /**
-     * 格式与 Aspose.Slides SaveFormat 常量映射表
+      * 格式与 Aspose.Slides 保存格式化 常量映射表
      */
     private static final Map<String, Integer> FORMAT_MAP = Map.ofEntries(
         Map.entry("pdf", SaveFormat.Pdf), Map.entry("ppt", SaveFormat.Ppt),
@@ -49,7 +49,7 @@ public class AsposePptFileConvertSystem implements FileConvertSystem {
     );
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String source, String target) {
         if (!SOURCES.contains(source)) {
             return false;

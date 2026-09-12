@@ -26,9 +26,9 @@ public interface ImageClassifier {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -38,9 +38,9 @@ public interface ImageClassifier {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default ImageClassifier provider(String provider) {
@@ -57,7 +57,12 @@ public interface ImageClassifier {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static ImageClassifier create(String name) {
         return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -68,7 +73,7 @@ public interface ImageClassifier {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageClassifier.class);
@@ -128,7 +133,7 @@ public interface ImageClassifier {
     List<DetectionInfo> classifyTopK(byte[] imageData, int k);
 
     /**
-     * 设置置信度阈值（null 表示使用模型默认值）。
+      * 设置置信度阈值（空 表示使用模型默认值）。
      *
      * @param threshold 阈值
      * @return this
@@ -160,11 +165,11 @@ class DefaultImageClassifier implements ImageClassifier {
      * 识别引擎。
      */
     /**
-     * 置信度阈值（null 表示使用模型默认值）。
+      * 置信度阈值（空 表示使用模型默认值）。
      */
     private Float threshold;
 
-    private final IdentificationEngine engine;
+    private final IdentificationEngine engine; // engine
 
     /**
      * 模型名称。
@@ -213,21 +218,21 @@ class DefaultImageClassifier implements ImageClassifier {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public ImageClassifier threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** TopK */
+    /** topk */
     public ImageClassifier topK(int k) {
         this.topK = k;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageClassifier modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -242,7 +247,12 @@ class DefaultImageClassifier implements ImageClassifier {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Classify */
+    /**
+     * Classify
+     *
+     * @param imageData 镜像数据
+     * @return classify的结果
+     */
     public String classify(byte[] imageData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -254,7 +264,13 @@ class DefaultImageClassifier implements ImageClassifier {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** ClassifyTopK */
+    /**
+     * classifytopk
+     *
+     * @param imageData 镜像数据
+     * @param k k
+     * @return classifyTopK的结果
+     */
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

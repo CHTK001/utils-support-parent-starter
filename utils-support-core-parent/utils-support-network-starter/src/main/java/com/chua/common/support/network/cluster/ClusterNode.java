@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * </ol>
  *
  * <p>scatter 内置路由决策：请求到达本节点时，按 path+protocol 查内部 hash 表，
- * 若本节点有能力则本地处理（由业务 filter 实现），否则转发至集群内其他节点。</p>
+   * 若本节点有能力则本地处理（由业务 过滤器 实现），否则转发至集群内其他节点。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -41,22 +41,26 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClusterNode implements AutoCloseable {
 
-    private final ClusterSetting clusterSetting;
-    private final ScatterServiceDiscovery discovery;
-    private final String scatterId;
-    private final String selfNodeId;
+    private final ClusterSetting clusterSetting; // clustersetting
+    private final ScatterServiceDiscovery discovery; // discovery
+    private final String scatterId; // scatterid
+    private final String selfNodeId; // self节点标识
 
-    private Server httpServer;
-    private TcpProxyServer tcpProxy;
-    private ScatterNodeServer nodeServer;
-    private int httpPort;
-    private int tcpPort;
-    private int scatterPort;
+    private Server httpServer; // http服务端
+    private TcpProxyServer tcpProxy; // tcp代理
+    private ScatterNodeServer nodeServer; // 节点服务端
+    private int httpPort; // http端口
+    private int tcpPort; // tcp端口
+    private int scatterPort; // scatter端口
     /** 本节点实际注册的服务路径列表 */
     private List<String> registeredPaths = List.of();
-    /** 本节点注册的 http/tcp serverId，用于注销 */
+    /** 本节点注册的 http/tcp 服务端标识，用于注销 */
     private final List<String> selfServerIds = new ArrayList<>();
 
+    /**
+     * cluster节点。
+     * @param clusterSetting clustersetting
+     */
     public ClusterNode(ClusterSetting clusterSetting) throws Exception {
         this.clusterSetting = clusterSetting;
         this.scatterId = clusterSetting.getScatterId() == null || clusterSetting.getScatterId().isBlank()
@@ -70,14 +74,14 @@ public class ClusterNode implements AutoCloseable {
         if (remoteClient != null) {
             this.discovery.remoteClient(remoteClient);
         }
-        // 先启动 discovery（不启动定时任务），nodeServer 端口确定后再 start
+ // 先启动 discovery（不启动定时任务），节点服务端 端口确定后再 启动
     }
 
     /**
      * 启动节点：绑定端口 → 启动 discovery 定时任务 → 启动 HTTP/TCP 代理 → 注册服务。
      */
     public void start() throws Exception {
-        // ① 先启动 nodeServer，确定 scatter 通信端口
+ // ① 先启动 节点服务端，确定 scatter 通信端口
         this.nodeServer = new TcpScatterBuilder(clusterSetting.toScatterSetting())
                 .buildNodeServer(discovery);
         nodeServer.start();
@@ -126,10 +130,10 @@ public class ClusterNode implements AutoCloseable {
             log.info("ClusterNode TCP 入口启动: {}:{} (scatterId={})", clusterSetting.getHost(), tcpPort, scatterId);
         }
 
-        // ⑤ 注册本节点自身能力（基于 httpEnabled/tcpEnabled 及 servicePaths）
+ // ⑤ 注册本节点自身能力（基于 http已启用/tcp已启用 及 服务路径）
         registerSelf();
 
-        // ⑥ 注册显式 addServer 声明的远端目标（由 ClusterServer builder 传入）
+ // ⑥ 注册显式 添加服务端 声明的远端目标（由 cluster服务端 构建器 传入）
         registerExternalServers();
 
         this.registeredPaths = resolveServicePaths();
@@ -137,7 +141,11 @@ public class ClusterNode implements AutoCloseable {
                 selfNodeId, scatterId, httpPort, tcpPort);
     }
 
-    /** 解析实际使用的服务路径列表。 */
+    /**
+     * 解析实际使用的服务路径列表。
+     *
+     * @return resolve服务路径的结果
+     */
     private List<String> resolveServicePaths() {
         List<String> paths = clusterSetting.getServicePaths();
         if (paths == null || paths.isEmpty()) {
@@ -146,7 +154,7 @@ public class ClusterNode implements AutoCloseable {
         return paths;
     }
 
-    /** 将本节点自身注册进集群（按 httpEnabled/tcpEnabled + 服务路径）。 */
+    /** 将本节点自身注册进集群（按 http已启用/tcp已启用 + 服务路径）。 */
     private void registerSelf() {
         List<String> paths = resolveServicePaths();
         for (String path : paths) {
@@ -168,9 +176,9 @@ public class ClusterNode implements AutoCloseable {
         log.info("ClusterNode 自身已注册: paths={}, serverIds={}", paths, selfServerIds);
     }
 
-    /** 将显式 addServer 声明的远端目标注册进集群，供 scatter 扩散。 */
+    /** 将显式 添加服务端 声明的远端目标注册进集群，供 scatter 扩散。 */
     private void registerExternalServers() {
-        // ClusterServer builder 会在启动前把 entry 传给 ClusterSetting
+ // cluster服务端 构建器 会在启动前把 entry 传给 clustersetting
         List<ServerEntry> entries = clusterSetting.getServerEntries();
         if (entries == null || entries.isEmpty()) {
             return;
@@ -199,18 +207,34 @@ public class ClusterNode implements AutoCloseable {
         }
     }
 
+    /**
+     * discovery。
+     * @return discovery的结果
+     */
     public ScatterServiceDiscovery discovery() {
         return discovery;
     }
 
+    /**
+     * 获取http端口。
+     * @return 获取http端口的结果
+     */
     public int getHttpPort() {
         return httpPort;
     }
 
+    /**
+     * 获取tcp端口。
+     * @return 获取tcp端口的结果
+     */
     public int getTcpPort() {
         return tcpPort;
     }
 
+    /**
+     * 获取scatter端口。
+     * @return 获取scatter端口的结果
+     */
     public int getScatterPort() {
         return scatterPort;
     }

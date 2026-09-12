@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * 基于 kcp-base 的 KCP 同步客户端实现。
+   * 基于 kcp-基础 的 KCP 同步客户端实现。
  *
  * <p>通过 KCP 可靠 UDP 长连接与服务端双向同步，支持注册、主题订阅与消息收发，
  * 与 {@link KcpSyncServer} 配对使用。</p>
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 public class KcpSyncClient implements SyncClient {
 
     /**
-     * 服务端 URL（kcp://host:port）
+      * 服务端 URL（kcp://主机:端口）
      */
     private final String serverUrl;
     /**
@@ -45,22 +45,23 @@ public class KcpSyncClient implements SyncClient {
     private boolean connected;
 
     /**
-     * 连接前注册的订阅缓存（topic -> handler），连接成功后统一应用
+      * 连接前注册的订阅缓存（topic -> 处理器），连接成功后统一应用
      */
     private final Map<String, SyncMessageHandler> pendingSubscriptions = new ConcurrentHashMap<>();
 
     /**
-     * 创建 KcpSyncClient 实例
-     * @param serverUrl serverUrl
+      * 创建 kcp同步客户端 实例
+     * @param serverUrl 服务端url
      */
     public KcpSyncClient(String serverUrl) {
         this("kcp-sync-client", serverUrl);
     }
 
     /**
-     * 创建 KcpSyncClient 实例
-     * @param clientId clientId
-     * @param String String
+      * 创建 kcp同步客户端 实例
+     * @param clientId 客户端标识
+     * @param clientId 字符串
+     * @param serverUrl 服务端url
      */
     public KcpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
@@ -99,12 +100,18 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
-    /** 是否Connected */
+    /** 是否连接 */
     public boolean isConnected() {
         return connected && kcpClient != null && kcpClient.isConnected();
     }
 
-    /** 执行 */
+    /**
+     * 执行
+     *
+     * @param topic topic
+     * @param message 消息
+     * @return 执行的结果
+     */
     public String execute(String topic, Object message) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -112,7 +119,14 @@ public class KcpSyncClient implements SyncClient {
         return kcpClient.execute(topic, message, 5000);
     }
 
-    /** 执行 */
+    /**
+     * 执行
+     *
+     * @param topic topic
+     * @param message 消息
+     * @param timeoutMs 超时ms
+     * @return 执行的结果
+     */
     public String execute(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -120,7 +134,13 @@ public class KcpSyncClient implements SyncClient {
         return kcpClient.execute(topic, message, timeoutMs);
     }
 
-    /** 执行Async */
+    /**
+     * 执行异步
+     *
+     * @param topic topic
+     * @param message 消息
+     * @return 执行异步的结果
+     */
     public CompletableFuture<String> executeAsync(String topic, Object message) {
         if (!isConnected()) {
             CompletableFuture<String> failed = new CompletableFuture<>();
@@ -130,7 +150,14 @@ public class KcpSyncClient implements SyncClient {
         return kcpClient.executeAsync(topic, message);
     }
 
-    /** 执行Async */
+    /**
+     * 执行异步
+     *
+     * @param topic topic
+     * @param message 消息
+     * @param timeoutMs 超时ms
+     * @return 执行异步的结果
+     */
     public CompletableFuture<String> executeAsync(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
             CompletableFuture<String> failed = new CompletableFuture<>();
@@ -154,7 +181,12 @@ public class KcpSyncClient implements SyncClient {
         kcpClient.send(topic, message);
     }
 
-    /** 发布 */
+    /**
+     * 发布
+     *
+     * @param topic topic
+     * @param message 消息
+     */
     public void publish(String topic, Object message) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -181,7 +213,7 @@ public class KcpSyncClient implements SyncClient {
      */
     @Override
     public void removeListener(SyncFlowListener listener) {
-        // KcpClient 不支持按实例移除监听器，空实现保持接口契约
+ // kcp客户端 不支持按实例移除监听器，空实现保持接口契约
     }
 
     /**
@@ -197,7 +229,7 @@ public class KcpSyncClient implements SyncClient {
     @Override
     /** 订阅 */
     public void subscribe(String topic, SyncMessageHandler handler) {
-        // 允许连接前注册订阅（ConnectionPool 在连接建立前调用 responseSubscriber）
+ // 允许连接前注册订阅（connection游泳池 在连接建立前调用 响应subscriber）
         if (topic != null && handler != null) {
             pendingSubscriptions.put(topic, handler);
         }
@@ -246,12 +278,20 @@ public class KcpSyncClient implements SyncClient {
         disconnect();
     }
 
-    /** 获取ClientId */
+    /**
+     * 获取客户端id
+     *
+     * @return 获取客户端id的结果
+     */
     public String getClientId() {
         return clientId;
     }
 
-    /** 获取ServerUrl */
+    /**
+     * 获取服务端url
+     *
+     * @return 获取服务端url的结果
+     */
     public String getServerUrl() {
         return serverUrl;
     }

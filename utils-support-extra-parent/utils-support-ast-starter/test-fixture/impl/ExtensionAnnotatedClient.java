@@ -5,8 +5,8 @@ import com.chua.common.support.spi.annotations.Extension;
 import com.chua.test.spi.EmbeddingClient;
 
 /**
- * @Extension + @AutoSpi: runtime prefers annotation names, index only needs a bare discovery line
- * (no {@code extjson=...} alias line, avoiding N×M duplicate registration).
+   * @延伸 + @autospi: runtime prefers 注解 名称, 索引 only needs a bare discovery 线
+   * (no {@code extjson=...} 别名 线, avoiding N×M 重复 registration).
  *
  * @author CH
  * @since 4.0.0.42
@@ -16,7 +16,7 @@ import com.chua.test.spi.EmbeddingClient;
 public class ExtensionAnnotatedClient implements EmbeddingClient {
 
     @Override
-    /** Embedding */
+    /** 嵌入 */
     public float[] embedding(String text) {
         return new float[0];
     }

@@ -13,7 +13,7 @@ import com.chua.common.support.spi.ServiceProvider;
 /**
  * 图像增强器。
  * <p>
- * 覆盖超分、风格迁移、上色、去模糊等 Image→Image 能力。
+   * 覆盖超分、风格迁移、上色、去模糊等 镜像→镜像 能力。
  * 输入/输出均为图像字节数组。
  * </p>
  *
@@ -30,9 +30,9 @@ public interface ImageEnhancer {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -42,9 +42,9 @@ public interface ImageEnhancer {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default ImageEnhancer provider(String provider) {
@@ -61,7 +61,12 @@ public interface ImageEnhancer {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static ImageEnhancer create(String name) {
         return new DefaultImageEnhancer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -72,7 +77,7 @@ public interface ImageEnhancer {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageEnhancer.class);
@@ -167,7 +172,7 @@ class DefaultImageEnhancer implements ImageEnhancer {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageEnhancer modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -182,7 +187,12 @@ class DefaultImageEnhancer implements ImageEnhancer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Enhance */
+    /**
+     * 增强
+     *
+     * @param imageData 镜像数据
+     * @return 增强的结果
+     */
     public byte[] enhance(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

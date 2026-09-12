@@ -15,22 +15,31 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+/**
+ * 智能体调试middleware类。
+ *
+ * @author CH
+ * @since 4.0.0
+ * @param v v
+ * @return safeLong的结果
+ * @param event 事件
+ */
 
 public class AgentDebugMiddleware implements MiddlewareBase {
 
-    private static final Logger log = LoggerFactory.getLogger(AgentDebugMiddleware.class);
-    private static final Set<String> PLAN_TOOLS = Set.of("plan_enter", "plan_write", "plan_exit");
+    private static final Logger log = LoggerFactory.getLogger(AgentDebugMiddleware.class); // 日志
+    private static final Set<String> PLAN_TOOLS = Set.of("plan_enter", "plan_write", "plan_exit"); // PLAN_TOOLS
 
-    private final String agentId;
-    private final AgentDebugHook debugHook;
-    private final AgentPlanHook planHook;
-    private final int planMaxTask;
+    private final String agentId; // 智能体标识
+    private final AgentDebugHook debugHook; // 调试hook
+    private final AgentPlanHook planHook; // planhook
+    private final int planMaxTask; // plan最大任务
 
-    private long startTime = System.currentTimeMillis();
-    private int iteration = 0;
-    private int toolCallCount = 0;
-    private long totalInputTokens = 0;
-    private long totalOutputTokens = 0;
+    private long startTime = System.currentTimeMillis(); // 启动时间
+    private int iteration = 0; // 迭代
+    private int toolCallCount = 0; // toolcall数量
+    private long totalInputTokens = 0; // total输入令牌
+    private long totalOutputTokens = 0; // total输出令牌
 
     public AgentDebugMiddleware(String agentId, AgentDebugHook debugHook,
                                  AgentPlanHook planHook, int planMaxTask) {
@@ -64,21 +73,34 @@ public class AgentDebugMiddleware implements MiddlewareBase {
     public Flux<AgentEvent> onActing(Agent agent, io.agentscope.core.middleware.ActingInput input,
                                        Function<io.agentscope.core.middleware.ActingInput, Flux<AgentEvent>> next) {
         log.debug("[Middleware] onAgent called, onReasoning called, onActing called");
+        /**
+         * on事件。
+         * @param event 事件
+         * @return resolvetool名称的结果
+         */
         return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
     }
 
     private void onEvent(AgentEvent event) {
         log.debug("[Middleware] onEvent: {}", event != null ? event.getType() : "null");
         log.debug("[Middleware] onEvent: {}", event != null ? event.getType() : "null");
-        if (event == null) return;
+        if (event == null) {
+            return;
+        }
         try {
             String type = event.getType().name();
             String toolName = resolveToolName(event);
-            if ("AGENT_END".equals(type)) type = "POST_CALL";
+            if ("AGENT_END".equals(type)) {
+                type = "POST_CALL";
+            }
             Map<String, Object> attrs = new HashMap<>(16);
             attrs.put("eventClass", event.getClass().getSimpleName());
-            if (toolName != null) attrs.put("toolName", toolName);
-            if (planMaxTask > 0) attrs.put("planMaxTask", planMaxTask);
+            if (toolName != null) {
+                attrs.put("toolName", toolName);
+            }
+            if (planMaxTask > 0) {
+                attrs.put("planMaxTask", planMaxTask);
+            }
             long now = System.currentTimeMillis();
             long elapsed = now - startTime;
             attrs.put("elapsedMillis", elapsed);
@@ -112,21 +134,38 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                     .build();
 
             log.debug("[Middleware] calling debugHook with type={}", hookEvent.getType());
-            if (debugHook != null) debugHook.onDebug(hookEvent);
-            if (planHook != null && isPlanRelated(type, toolName)) planHook.onPlan(hookEvent);
+            if (debugHook != null) {
+                debugHook.onDebug(hookEvent);
+            }
+            if (planHook != null && isPlanRelated(type, toolName)) {
+                planHook.onPlan(hookEvent);
+            }
         } catch (Exception e) {
             log.debug("[AgentDebugMiddleware] event processing error: {}", e.getMessage());
         }
     }
 
     private static String resolveToolName(AgentEvent event) {
-        if (event instanceof ToolCallStartEvent start) return start.getToolCallName();
+        if (event instanceof ToolCallStartEvent start) {
+            return start.getToolCallName();
+        }
         return null;
+    /**
+     * 是否planrelated。
+     * @param type 类型
+     * @param toolName tool名称
+     * @return 是否planrelated的结果
+     * @param v v
+     */
     }
 
     private static boolean isPlanRelated(String type, String toolName) {
-        if (type != null && (type.toUpperCase(Locale.ROOT).startsWith("PLAN_") || type.contains("PLAN"))) return true;
-        if (toolName != null && PLAN_TOOLS.contains(toolName.toLowerCase(Locale.ROOT))) return true;
+        if (type != null && (type.toUpperCase(Locale.ROOT).startsWith("PLAN_") || type.contains("PLAN"))) {
+            return true;
+        }
+        if (toolName != null && PLAN_TOOLS.contains(toolName.toLowerCase(Locale.ROOT))) {
+            return true;
+        }
         return false;
     }
 

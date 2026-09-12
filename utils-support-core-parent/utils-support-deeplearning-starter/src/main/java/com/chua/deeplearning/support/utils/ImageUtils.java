@@ -25,15 +25,15 @@ import com.chua.deeplearning.support.model.DetectionInfo;
 import com.chua.deeplearning.support.model.PredictRectangle;
 
 /**
- * 图像预处理工具（替代 DJL NDArray / NDImageUtils）。
+   * 图像预处理工具（替代 DJL ndarray / nd镜像工具）。
  *
  * <p>在 DJL onnxruntime-engine 下，NDManager 不支持 resize/div 等张量计算。
  * 本工具完成图像操作，返回 float[] 像素，再由
  * {@code ctx.getNDManager().create(float[], shape)} 喂入模型。</p>
  *
  * <p>字节级操作（裁剪/旋转等）优先委托 {@link ImageProcessor} SPI 代理执行
- * （按 {@code @SpiOrder} 优先级：Rust &gt; OpenCV &gt; AWT，失败自动降级），
- * 代理执行失败时回退到本地 OpenCV 实现，保证兼容性。</p>
+   * （按 {@code @SpiOrder} 优先级：Rust &gt; 打开cv &gt; AWT，失败自动降级），
+   * 代理执行失败时回退到本地 打开cv 实现，保证兼容性。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -41,11 +41,11 @@ import com.chua.deeplearning.support.model.PredictRectangle;
 public final class ImageUtils {
 
     /**
-     * OpenCV 是否已加载（静态单例，进程内只加载一次）。
+      * 打开cv 是否已加载（静态单例，进程内只加载一次）。
      */
     private static volatile boolean loaded;
 
-    /** JPEG 文件结束标记（EOI）：0xFF 0xD9 */
+    /** JPEG 文件结束标记（EOI）：0xff 0Adobe Adobe XD9 */
     private static final byte[] JPEG_EOF = {(byte) 0xFF, (byte) 0xD9};
 
     /** PNG IEND 块类型签名：49 45 4E 44（"IEND"），位于文件末尾 CRC 之前 */
@@ -67,7 +67,7 @@ public final class ImageUtils {
     }
 
     /**
-     * 确保 OpenCV 已加载（幂等，进程内只加载一次）。
+      * 确保 打开cv 已加载（幂等，进程内只加载一次）。
      *
      * <p>统一在此管理 {@code nu.pattern.OpenCV.loadLocally()}，
      * 各 translator 一律调用本方法，避免散落的重复加载。</p>
@@ -84,11 +84,11 @@ public final class ImageUtils {
     }
 
     /**
-     * 将 DJL Image 缩放并转 CHW 归一化像素（RGB 顺序，无 mean/std）。
+      * 将 DJL 镜像 缩放并转 CHW 归一化像素（RGB 顺序，无 mean/std）。
      *
      * @param image DJL 图像
      * @param size  目标尺寸（正方形）
-     * @return [3, size, size] float 像素
+     * @return [3, 大小, 大小] float 像素
      */
     public static float[] toTensor(Image image, int size) {
         TensorOptions options = new TensorOptions(image, size, null, null, false);
@@ -96,13 +96,13 @@ public final class ImageUtils {
     }
 
     /**
-     * 将 DJL Image 短边缩放 + 中心裁剪，转 CHW 归一化像素（RGB，mean/std）。
+      * 将 DJL 镜像 短边缩放 + 中心裁剪，转 CHW 归一化像素（RGB，mean/std）。
      *
      * @param image DJL 图像
      * @param size  目标尺寸
-     * @param mean  均值（可为 null）
-     * @param std   标准差（可为 null）
-     * @return [3, size, size] float 像素
+     * @param mean  均值（可为 空）
+     * @param std   标准差（可为 空）
+     * @return [3, 大小, 大小] float 像素
      */
     public static float[] toTensorCenterCrop(Image image, int size, float[] mean, float[] std) {
         TensorOptions options = new TensorOptions(image, size, mean, std, true);
@@ -110,13 +110,13 @@ public final class ImageUtils {
     }
 
     /**
-     * 将 DJL Image 直接 resize 到目标尺寸，转 CHW 归一化像素（RGB，mean/std）。
+      * 将 DJL 镜像 直接 resize 到目标尺寸，转 CHW 归一化像素（RGB，mean/std）。
      *
      * @param image DJL 图像
      * @param size  目标尺寸
-     * @param mean  均值（可为 null）
-     * @param std   标准差（可为 null）
-     * @return [3, size, size] float 像素
+     * @param mean  均值（可为 空）
+     * @param std   标准差（可为 空）
+     * @return [3, 大小, 大小] float 像素
      */
     public static float[] toTensorResize(Image image, int size, float[] mean, float[] std) {
         TensorOptions options = new TensorOptions(image, size, mean, std, false);
@@ -124,10 +124,10 @@ public final class ImageUtils {
     }
 
     /**
-     * 将 DJL Image 转 CHW 归一化像素。
+      * 将 DJL 镜像 转 CHW 归一化像素。
      *
      * @param options 张量转换选项，包含图像、尺寸、均值、标准差和裁剪策略
-     * @return [3, size, size] float 像素
+     * @return [3, 大小, 大小] float 像素
      */
     public static float[] toTensor(TensorOptions options) {
         load();
@@ -179,13 +179,13 @@ public final class ImageUtils {
     }
 
     /**
-     * BufferedImage → OpenCV Mat（BGR）。
+      * 缓冲镜像 → 打开cv Mat（BGR）。
      *
      * @param image 图像
      * @return Mat
      */
     /**
-     * BufferedImage → Mat（BGR）。
+      * 缓冲镜像 → Mat（BGR）。
      *
      * <p>直接像素拷贝（避免 PNG 编解码往返），输出 CV_8UC3 BGR Mat，调用方负责 release。</p>
      *
@@ -217,10 +217,10 @@ public final class ImageUtils {
     }
 
     /**
-     * OpenCV Mat（BGR）→ BufferedImage。
+      * 打开cv Mat（BGR）→ 缓冲镜像。
      *
      * <p>直接像素拷贝（避免 PNG 编解码往返），输出 {@link BufferedImage#TYPE_INT_RGB}，
-     * 保证 getRGB 与 Mat BGR 值无损往返。</p>
+      * 保证 获取rgb 与 Mat BGR 值无损往返。</p>
      *
      * @param mat Mat（BGR）
      * @return BufferedImage
@@ -266,13 +266,13 @@ public final class ImageUtils {
     }
 
     /**
-     * BufferedImage 按指定宽高缩放。
+      * 缓冲镜像 按指定宽高缩放。
      *
      * @param image         源图像
      * @param width         目标宽
      * @param height        目标高
      * @param interpolation 插值方式（Imgproc.INTER_*）
-     * @return 缩放后的 BufferedImage
+     * @return 缩放后的 缓冲镜像
      */
     public static BufferedImage resize(BufferedImage image, int width, int height, int interpolation) {
         Mat src = toMat(image);
@@ -292,7 +292,7 @@ public final class ImageUtils {
      * 图像字节按指定宽高缩放（返回 PNG 字节）。
      *
      * <p>优先委托 {@link ImageProcessor} SPI 代理（Rust &gt; OpenCV &gt; AWT），
-     * 代理执行失败时回退到本地 OpenCV 实现。</p>
+      * 代理执行失败时回退到本地 打开cv 实现。</p>
      *
      * @param imageData     图像字节
      * @param width         目标宽
@@ -312,7 +312,7 @@ public final class ImageUtils {
     }
 
     /**
-     * 本地 OpenCV 实现：图像字节按指定宽高缩放。
+      * 本地 打开cv 实现：图像字节按指定宽高缩放。
      *
      * @param imageData     图像字节
      * @param width         目标宽
@@ -339,6 +339,7 @@ public final class ImageUtils {
      *
      * @param options 裁剪选项，包含源 Mat 和像素坐标尺寸
      * @return 裁剪后的新 Mat
+     * @param src src
      */
     public static Mat crop(Mat src, ImageCropOptions options) {
         load();
@@ -353,7 +354,7 @@ public final class ImageUtils {
      * 按像素矩形裁剪（返回 PNG 字节）。
      *
      * <p>优先委托 {@link ImageProcessor} SPI 代理（Rust &gt; OpenCV &gt; AWT），
-     * 代理执行失败时回退到本地 OpenCV 实现。</p>
+      * 代理执行失败时回退到本地 打开cv 实现。</p>
      *
      * @param options 裁剪选项，包含图像字节和像素坐标尺寸
      * @return 裁剪后 PNG 字节
@@ -372,7 +373,7 @@ public final class ImageUtils {
     }
 
     /**
-     * 本地 OpenCV 实现：按像素矩形裁剪。
+      * 本地 打开cv 实现：按像素矩形裁剪。
      *
      * @param imageData 图像字节
      * @param x         左边界
@@ -484,7 +485,7 @@ public final class ImageUtils {
     }
 
     /**
-     * 将数值限定在 [min, max] 区间内。
+      * 将数值限定在 [最小, 最大] 区间内。
      *
      * @param value 原始数值
      * @param min   下限
@@ -496,10 +497,10 @@ public final class ImageUtils {
     }
 
     /**
-     * 将 byte[] 解码为 BufferedImage。
+      * 将 byte[] 解码为 缓冲镜像。
      *
      * @param imageData 图像字节
-     * @return BufferedImage，解码失败返回 null
+     * @return BufferedImage，解码失败返回 空
      */
     public static BufferedImage toBufferedImage(byte[] imageData) {
         Mat src = decode(imageData);
@@ -517,7 +518,7 @@ public final class ImageUtils {
      * 解码 PNG/JPG 字节为 Mat。
      *
      * @param imageData 图像字节
-     * @return Mat，解码失败返回 null
+     * @return Mat，解码失败返回 空
      */
     public static Mat decode(byte[] imageData) {
         load();
@@ -568,6 +569,7 @@ public final class ImageUtils {
      *
      * @param mat Mat
      * @return PNG 字节
+     * @param bi bi
      */
     public static byte[] encode(java.awt.image.BufferedImage bi) {
         try {
@@ -669,7 +671,7 @@ public static byte[] encode(Mat mat) {
      * 旋转图像（90/180/270 度）。
      *
      * <p>优先委托 {@link ImageProcessor} SPI 代理（Rust &gt; OpenCV &gt; AWT），
-     * 代理执行失败时回退到本地 OpenCV 实现。</p>
+      * 代理执行失败时回退到本地 打开cv 实现。</p>
      *
      * @param imageData 图像字节
      * @param degree    90/180/270
@@ -686,7 +688,7 @@ public static byte[] encode(Mat mat) {
     }
 
     /**
-     * 本地 OpenCV 实现：旋转图像。
+      * 本地 打开cv 实现：旋转图像。
      *
      * @param imageData 图像字节
      * @param degree    90/180/270
@@ -712,7 +714,7 @@ public static byte[] encode(Mat mat) {
     }
 
     /**
-     * 对倾斜文字/图像执行 deskew（绕中心 warpAffine 旋转扶正，白底填充）。
+      * 对倾斜文字/图像执行 deskew（绕中心 warpaffine 旋转扶正，白底填充）。
      *
      * <p>用于 OCR 裁剪块小角度倾斜矫正，或文档扫描件倾斜修复。
      * 角度越小效果越好，超过 30° 建议用 {@link #rotate} 处理 90° 倍角。</p>
@@ -927,7 +929,7 @@ public static byte[] encode(Mat mat) {
      * 5 点仿射对齐人脸到标准模板（修复/超分前处理，避免拉伸变形）。
      *
      * <p>与 AIAS face_restoration_sdk 一致：用 5 点（左眼、右眼、鼻、左嘴角、右嘴角）
-     * 最小二乘估计 2×3 仿射矩阵（SVD 求解超定方程），warpAffine 到 512×512 FFHQ 模板。</p>
+      * 最小二乘估计 2×3 仿射矩阵（SVD 求解超定方程），warpaffine 到 512×512 FFHQ 模板。</p>
      *
      * @param src       原图 Mat（BGR）
      * @param keypoints 源人脸 5 点（像素坐标，顺序：左眼、右眼、鼻、左嘴角、右嘴角）
@@ -974,9 +976,9 @@ public static byte[] encode(Mat mat) {
      * 将修复后的人脸（对齐 512 空间）通过逆仿射贴回原图，并用软 mask 与背景融合。
      *
      * <p>流程（AIAS face_restoration_sdk 同款）：<br>
-     * 1. 逆仿射变换 restoredFace 到原图尺寸；<br>
-     * 2. 逆仿射变换 softMask 到原图尺寸（软 mask，插值后保持边缘渐变）；<br>
-     * 3. 像素级融合：result = mask * restored + (1 - mask) * background。</p>
+      * 1. 逆仿射变换 restoredface 到原图尺寸；<br>
+      * 2. 逆仿射变换 softmask 到原图尺寸（软 mask，插值后保持边缘渐变）；<br>
+      * 3. 像素级融合：结果 = mask * restored + (1 - mask) * background。</p>
      *
      * @param background  原图 Mat（BGR，不修改）
      * @param restoredFace 修复后的对齐人脸 Mat（512×512，BGR）
@@ -1015,7 +1017,7 @@ public static byte[] encode(Mat mat) {
         Core.multiply(mkF, new org.opencv.core.Scalar(1.0 / 255.0), mkNorm);
 
         // result = mask * restored + (1-mask) * background
-        // 单通道 mask 广播到 3 通道（merge 复制三次）
+ // 单通道 mask 广播到 3 通道（合并 复制三次）
         Mat mask3 = new Mat();
         java.util.List<Mat> maskChannels = java.util.List.of(mkNorm, mkNorm, mkNorm);
         Core.merge(maskChannels, mask3);
@@ -1102,17 +1104,19 @@ public static byte[] encode(Mat mat) {
     /**
      * 在图像上绘制检测框（支持旋转框）+ 中文文本标签。
      * <p>用 AWT Graphics2D 绘制中文文字（OpenCV putText 不支持中文），
-     * 检测框用 OpenCV polylines（支持旋转框）。</p>
+      * 检测框用 打开cv polylines（支持旋转框）。</p>
      *
      * @param imageData 原图字节
      * @param boxes     检测结果（含角度/rw/rh/cx/cy）
-     * @param labels    对应每个框的文本标签（可为 null）
+     * @param labels    对应每个框的文本标签（可为 空）
      * @return 标注后 JPEG 字节
      */
     public static byte[] drawDetectionsWithLabels(byte[] imageData, List<DetectionInfo> boxes, List<String> labels) {
         load();
         Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
-        if (src == null) return imageData;
+        if (src == null) {
+            return imageData;
+        }
         try {
             for (DetectionInfo box : boxes) {
                 if (Math.abs(box.angle()) > 0.5f && box.rw() > 0 && box.rh() > 0) {
@@ -1193,7 +1197,9 @@ public static byte[] encode(Mat mat) {
     public static byte[] drawDetections(byte[] imageData, List<DetectionInfo> boxes) {
         load();
         Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
-        if (src == null) return imageData;
+        if (src == null) {
+            return imageData;
+        }
         try {
             for (DetectionInfo box : boxes) {
                 if (Math.abs(box.angle()) > 0.5f && box.rw() > 0 && box.rh() > 0) {

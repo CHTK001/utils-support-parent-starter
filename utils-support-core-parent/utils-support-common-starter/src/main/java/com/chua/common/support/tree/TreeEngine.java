@@ -33,7 +33,7 @@ public interface TreeEngine<K extends Comparable<K>, V> {
     Optional<V> get(K key);
 
     /**
-     * 范围查询：返回 [from, to) 区间内所有键值对，按升序排列。
+      * 范围查询：返回 [从, 转为) 区间内所有键值对，按升序排列。
      *
      * @param from 下界（含）
      * @param to   上界（不含）

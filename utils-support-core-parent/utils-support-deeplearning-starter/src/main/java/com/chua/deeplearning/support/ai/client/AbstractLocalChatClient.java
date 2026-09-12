@@ -18,7 +18,7 @@ import java.util.Map;
  * 本地引擎文本对话客户端抽象基类。
  * <p>
  * 统一实现 {@link ChatClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
- * 已注册的 String→String 翻译器执行文本生成，并提供该引擎的模型列表。
+   * 已注册的 字符串→字符串 翻译器执行文本生成，并提供该引擎的模型列表。
  * 子类只需指定引擎名称（如 "onnx"、"pytorch"、"llama"）。
  * </p>
  *
@@ -28,7 +28,7 @@ import java.util.Map;
 public abstract class AbstractLocalChatClient implements ChatClient {
 
     /**
-     * 引擎名称（provider）
+      * 引擎名称（提供者）
      */
     protected final String engine;
 
@@ -43,7 +43,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     protected String model;
 
     /**
-     * 客户端配置（用于在 chatSync 时向 translator 注入 device / useGpu / gpuLayers 等参数）
+      * 客户端配置（用于在 对话同步 时向 translator 注入 device / usegpu / gpulayers 等参数）
      */
     protected final ChatClientSetting setting;
 
@@ -61,7 +61,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -91,13 +91,13 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         return chatSync(prompt, 0);
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt, long timeoutMillis) {
         String modelName = resolveModel();
         Map<String, Object> options = resolveOptions();
@@ -112,15 +112,15 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     /**
-     * 解析运行时参数（device / useGpu / gpuLayers / ctxSize / topK / temperature / topP /
-     * maxTokens / threads / nPredict）注入到 translator。
+      * 解析运行时参数（device / usegpu / gpulayers / ctx大小 / topk / temperature / topp /
+      * 最大令牌 / threads / npredict）注入到 translator。
      *
      * <p>来源：{@link ChatClientSetting} 显式字段 + {@code deeplearning.device} 系统属性 + 硬编码默认。</p>
      *
      * <p>device 解析走 {@link DeviceSelector#resolve(String)}：auto/cpu/gpu/cuda → 归一化 cpu/gpu。
-     * useGpu 走设置或系统属性；其他字段为 null 时由 translator 用自己的默认值。</p>
+      * usegpu 走设置或系统属性；其他字段为 空 时由 translator 用自己的默认值。</p>
      *
-     * @return 配置 Map，可为空
+     * @return 配置 映射，可为空
      */
     protected Map<String, Object> resolveOptions() {
         ChatClientSetting setting = this.setting;
@@ -128,7 +128,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
         if (setting == null) {
             return opts;
         }
-        // device 字段：优先 setting.deviceSetting，其次 system prop deeplearning.device
+ // device 字段：优先 setting.devicesetting，其次 系统 prop deeplearning.device
         String deviceSetting = setting.getDeviceSetting();
         if (deviceSetting == null || deviceSetting.isBlank()) {
             deviceSetting = System.getProperty(DeviceSelector.PROP);
@@ -170,7 +170,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSyncWithResponse */
+    /** 对话同步with响应 */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder()
@@ -179,13 +179,13 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         return this;
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

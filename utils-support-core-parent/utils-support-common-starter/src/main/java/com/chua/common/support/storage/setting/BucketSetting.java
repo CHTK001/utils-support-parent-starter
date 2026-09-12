@@ -7,7 +7,7 @@ import lombok.Data;
  * 对象存储（Bucket）配置。
  *
  * <p>包含连接对象存储服务所需的全部配置信息：
- * endpoint、accessKey、secretKey、bucket 名称、区域等。</p>
+   * 端点、访问密钥、密钥、bucket 名称、区域等。</p>
  *
  * @author CH
  * @since 1.0
@@ -27,17 +27,17 @@ public class BucketSetting {
     private String region;
 
     /**
-     * Access Key ID（访问密钥 ID）。
+      * Access 键 标识（访问密钥 标识）。
      */
     private String accessKeyId;
 
     /**
-     * Access Key Secret（访问密钥密钥）。
+      * Access 键 Secret（访问密钥密钥）。
      */
     private String accessKeySecret;
 
     /**
-     * Endpoint 地址，如 "https://oss-cn-hangzhou.aliyuncs.com"。
+      * 端点 地址，如 "https://oss-cn-hangzhou.aliyuncs.com"。
      */
     private String endpoint;
 

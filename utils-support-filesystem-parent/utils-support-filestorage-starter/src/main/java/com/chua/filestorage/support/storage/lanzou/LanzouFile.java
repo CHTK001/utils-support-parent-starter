@@ -16,7 +16,7 @@ import lombok.Data;
 public class LanzouFile {
 
     /**
-     * 条目 ID，文件对应 file_id，文件夹对应 folder_id。
+      * 条目 标识，文件对应 文件_标识，文件夹对应 文件夹_标识。
      */
     private String id;
 

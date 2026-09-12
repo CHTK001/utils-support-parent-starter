@@ -62,7 +62,12 @@ public class DefaultCodeEyeRender implements CodeEyeRender {
         //formatCodeEye(builder, setting);
     }
 
-    /** 格式化CodeEye */
+    /**
+     * 格式化编码eye
+     *
+     * @param builder 构建器
+     * @param setting setting
+     */
     private void formatCodeEye(QrCodeGenWrapper.Builder builder, CodeEyeSetting setting) {
         CodeEyeStyle codeEye = setting.getCodeEye();
         if(null == codeEye || NONE == codeEye) {

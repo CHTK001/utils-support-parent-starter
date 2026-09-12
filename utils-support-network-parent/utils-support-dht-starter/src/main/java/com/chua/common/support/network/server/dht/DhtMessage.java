@@ -34,12 +34,12 @@ public class DhtMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 消息类型，例如 PING、FIND_NODE、STORE 等
+      * 消息类型，例如 PING、查找_节点、存储 等
      */
     private DhtMessageType type;
 
     /**
-     * 发送者的节点 ID（160 位十六进制字符串）
+      * 发送者的节点 标识（160 位十六进制字符串）
      */
     private String senderId;
 
@@ -54,37 +54,37 @@ public class DhtMessage implements Serializable {
     private int senderPort;
 
     /**
-     * 目标节点 ID，用于 FIND_NODE、FIND_VALUE 等消息定位目标
+      * 目标节点 标识，用于 查找_节点、查找_值 等消息定位目标
      */
     private String targetId;
 
     /**
-     * BitTorrent infohash（仅在 GET_PEERS / ANNOUNCE_PEER 中使用）
+      * 钻头torrent infohash（仅在 获取_PEERS / ANNOUNCE_PEER 中使用）
      */
     private String infohash;
 
     /**
-     * ANNOUNCE_PEER 中的 implied_port 标志，0 表示使用显式端口
+      * ANNOUNCE_PEER 中的 implied_端口 标志，0 表示使用显式端口
      */
     private int impliedPort;
 
     /**
-     * STORE / FIND_VALUE 操作中的键
+      * 存储 / 查找_值 操作中的键
      */
     private String key;
 
     /**
-     * STORE / FIND_VALUE 操作中的值
+      * 存储 / 查找_值 操作中的值
      */
     private String value;
 
     /**
-     * FIND_NODE_RESPONSE 中携带的近邻节点列表
+      * 查找_节点_响应 中携带的近邻节点列表
      */
     private List<DhtPeer> peers;
 
     /**
-     * GET_PEERS_RESPONSE 中携带的多个值映射
+      * 获取_PEERS_响应 中携带的多个值映射
      */
     private Map<String, String> values;
 
@@ -94,7 +94,7 @@ public class DhtMessage implements Serializable {
     private long timestamp;
 
     /**
-     * STORE 消息中值的生存时间（秒）
+      * 存储 消息中值的生存时间（秒）
      */
     private int ttl;
 
@@ -109,12 +109,12 @@ public class DhtMessage implements Serializable {
     private transient int recipientPort;
 
     /**
-     * KRPC 事务 ID（仅入站 KRPC 查询时设置，不参与序列化）
+      * KRPC 事务 标识（仅入站 KRPC 查询时设置，不参与序列化）
      */
     private transient String krpcTxId;
 
     /**
-     * 从 JSON 字符串反序列化为 DhtMessage 对象。
+      * 从 JSON 字符串反序列化为 dht消息 对象。
      *
      * @param json JSON 字符串
      * @return DhtMessage 实例

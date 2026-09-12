@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * 图像绘制解析器类，继承自抽象绘制解析器类 AbstractDrawResolver。
+   * 图像绘制解析器类，继承自抽象绘制解析器类 抽象draw解析器。
  * 用于处理图像的绘制逻辑。
  *
  * @author CH
@@ -28,15 +28,20 @@ import javax.annotation.Nullable;
 @Spi("IMAGE_V2")
 public class ImageDrawResolver extends AbstractDrawResolver{
     /**
-     * 创建 ImageDrawResolver 实例
+      * 创建 镜像draw解析器 实例
      * @param g2 g2
-     * @param Color Color
-     * @param Color Color
-     * @param QrCodeOptions QrCodeOptions
-     * @param BitMatrixEx BitMatrixEx
-     * @param QrCodeOptions QrCodeOptions
-     * @param drawOptions drawOptions
-     * @param QrSetting QrSetting
+     * @param detectInnerColor Color
+     * @param detectInnerColor Color
+     * @param qrCodeConfig qr编码期权
+     * @param bitMatrix 钻头matrixex
+     * @param qrCodeConfig qr编码期权
+     * @param drawOptions draw期权
+     * @param setting qrsetting
+     * @param detectInnerColor detect内部color
+     * @param detectOutColor detect出color
+     * @param qrCodeConfig qr编码配置
+     * @param bitMatrix 钻头matrix
+     * @param setting setting
      */
     public ImageDrawResolver(Graphics2D g2, Color detectInnerColor, Color detectOutColor, QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrCodeOptions.DrawOptions drawOptions, QrSetting setting) {
         super(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);

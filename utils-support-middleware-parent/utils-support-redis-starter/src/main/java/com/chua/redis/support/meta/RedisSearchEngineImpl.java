@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Redis RediSearch 搜索引擎实现。
+   * Redis redi搜索 搜索引擎实现。
  *
  * @author CH
  * @since 4.0.0.42
@@ -26,7 +26,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     private final RediSearchEngine engine;
 
     /**
-     * 创建 RedisSearchEngineImpl 实例
+      * 创建 redis搜索engineimpl 实例
      * @param engine engine
      */
     public RedisSearchEngineImpl(RediSearchEngine engine) {
@@ -34,13 +34,13 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "redis";
     }
 
     @Override
-    /** ListIndexes */
+    /** 列表索引 */
     public List<String> listIndexes() {
         List<String> indexes = new ArrayList<>();
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
@@ -59,7 +59,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取Index */
+    /** 获取索引 */
     public SearchIndexDef getIndex(String indexName) {
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
             Object response = jedis.sendCommand(() -> SafeEncoder.encode("FT.INFO"), SafeEncoder.encode(indexName));
@@ -96,7 +96,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 创建Index */
+    /** 创建索引 */
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null) {
             throw new IllegalArgumentException("索引定义不能为空");
@@ -127,7 +127,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 删除Index */
+    /** 删除索引 */
     public boolean deleteIndex(String indexName) {
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
             jedis.sendCommand(() -> SafeEncoder.encode("FT.DROPINDEX"), SafeEncoder.encode(indexName));
@@ -138,7 +138,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取Client */
+    /** 获取客户端 */
     public Object getClient() {
         return engine.getPoolPublic(engine.getDefaultDataSourceName());
     }

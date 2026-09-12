@@ -9,6 +9,7 @@ import lombok.Data;
  * 所有容量单位为字节（Byte），使用率为 [0.0, 1.0] 的小数。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Mem {

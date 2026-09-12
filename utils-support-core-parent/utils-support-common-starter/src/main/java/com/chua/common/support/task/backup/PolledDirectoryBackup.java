@@ -16,7 +16,7 @@ import java.util.List;
  *
  * <p>专门用于备份轮询目录中已处理的记录（deleted → insert）。
  * 当轮询目录中的文件被标记为删除（或移动到归档目录）时，
- * 本策略将这些记录备份为 insert 格式的文件，便于审计和恢复。
+   * 本策略将这些记录备份为 插入 格式的文件，便于审计和恢复。
  *
  * <h3>工作流程</h3>
  * <pre>
@@ -44,30 +44,32 @@ public class PolledDirectoryBackup implements BackupStrategy {
      * 类型
      */
     private static final String TYPE = "polled";
-    /** Date_fmt */
+    /** 日期_fmt */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    /** Time_fmt */
+    /** 时间_fmt */
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
      * 记录转换器
      *
      * <p>将轮询目录中的文件内容转换为 insert 格式记录。
+     * @author CH
+     * @since 4.0.0
      */
     @FunctionalInterface
     public interface RecordTransformer {
 
         /**
-         * 转换文件内容为 insert 记录
+          * 转换文件内容为 插入 记录
          *
          * @param fileName 文件名
          * @param content  文件内容
-         * @return insert 格式记录，返回 null 表示跳过
+         * @return insert 格式记录，返回 空 表示跳过
          */
         String transform(String fileName, String content);
     }
 
-    /** 默认转换器：包装为 JSON insert 格式 */
+    /** 默认转换器：包装为 JSON 插入 格式 */
     private static final RecordTransformer DEFAULT_TRANSFORMER = (fileName, content) -> {
         return "{\"type\":\"insert\",\"source\":\"" + fileName + "\","
                 + "\"timestamp\":\"" + LocalDateTime.now().format(TIME_FMT) + "\","
@@ -77,13 +79,18 @@ public class PolledDirectoryBackup implements BackupStrategy {
     /** Transformer */
     private RecordTransformer transformer = DEFAULT_TRANSFORMER;
 
-    /** 创建 PolledDirectoryBackup 实例 */
+    /**
+     * 创建 polled目录backup 实例
+     *
+     * @return polled目录backup的结果
+     */
     public PolledDirectoryBackup() {
     }
 
     /**
-     * 创建 PolledDirectoryBackup 实例
+      * 创建 polled目录backup 实例
      * @param transformer transformer
+     * @return polled目录backup的结果
      */
     public PolledDirectoryBackup(RecordTransformer transformer) {
         this.transformer = transformer;
@@ -149,7 +156,7 @@ public class PolledDirectoryBackup implements BackupStrategy {
                 try {
                     String fileName = file.getFileName().toString();
 
-                    // 跳过已备份的文件（.insert.json 后缀）
+ // 跳过已备份的文件（.插入.json 后缀）
                     if (fileName.endsWith(".insert.json")) {
                         return FileVisitResult.CONTINUE;
                     }
@@ -157,7 +164,7 @@ public class PolledDirectoryBackup implements BackupStrategy {
                     // 读取文件内容
                     String content = Files.readString(file);
 
-                    // 转换为 insert 记录
+ // 转换为 插入 记录
                     String insertRecord = transformer.transform(fileName, content);
                     if (insertRecord == null) {
                         return FileVisitResult.CONTINUE;

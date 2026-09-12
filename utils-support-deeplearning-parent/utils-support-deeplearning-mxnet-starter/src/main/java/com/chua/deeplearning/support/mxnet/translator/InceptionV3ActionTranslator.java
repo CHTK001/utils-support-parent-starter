@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * MXNet InceptionV3 图像分类 Translator。
+   * mxnet inceptionv3 图像分类 Translator。
  * <p>输入图像将被缩放至 299x299 并归一化，输出 ImageNet 类别概率分布。</p>
  *
  * @author CH
@@ -39,14 +39,14 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
     /** Delegate */
     private final ImageClassificationTranslator delegate;
 
-    /** 创建 InceptionV3ActionTranslator 实例 */
+    /** 创建 inceptionv3动作translator 实例 */
     public InceptionV3ActionTranslator() {
         this(Map.of());
     }
 
     /**
-     * 创建 InceptionV3ActionTranslator 实例
-     * @param arguments arguments
+      * 创建 inceptionv3动作translator 实例
+     * @param arguments 参数
      */
     public InceptionV3ActionTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = new LinkedHashMap<>();
@@ -72,13 +72,13 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return delegate.processInput(ctx, input);
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         return delegate.processOutput(ctx, list);
     }

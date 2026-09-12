@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于 Lettuce 的 Redis 响应式引擎，实现 ReactorEngine 接口。
+   * 基于 Lettuce 的 Redis 响应式引擎，实现 reactorengine 接口。
  *
  * <p>不依赖 R2DBC，完全基于 Lettuce 的响应式 API 实现。
  * 所有操作通过 boundedElastic 调度器执行，避免阻塞 Reactor 事件循环线程。</p>
@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 前缀扫描
  * Flux<String> keys = engine.scanKeys("user:*");
+ * }</pre>scanKeys("user:*");
  * }</pre>
  *
  * @author CH
@@ -58,7 +59,7 @@ public class RedisReactorEngine implements ReactorEngine {
     private static final String REDIS_PREFIX = "redis://";
 
     /**
-     * 数据源名称 -> Lettuce RedisClient
+      * 数据源名称 -> Lettuce redis客户端
      */
     private final Map<String, RedisClient> lettuceClients = new ConcurrentHashMap<>();
 
@@ -82,7 +83,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * 添加 Redis 数据源。
      *
      * @param name     数据源名称
-     * @param redisUrl Redis 连接 URL（如 redis://127.0.0.1:6379）
+     * @param redisUrl Redis 连接 URL（如 Redis://127.0.0.1:6379）
      * @return this
      */
     public RedisReactorEngine addDataSource(String name, String redisUrl) {
@@ -164,10 +165,10 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 获取指定数据源的 Lettuce RedisClient。
+      * 获取指定数据源的 Lettuce redis客户端。
      *
      * @param name 数据源名称
-     * @return Lettuce RedisClient，未配置返回 null
+     * @return Lettuce Redis客户端，未配置返回 空
      */
     public RedisClient getLettuceClient(String name) {
         return lettuceClients.get(name);
@@ -176,7 +177,7 @@ public class RedisReactorEngine implements ReactorEngine {
     // ==================== ReactorEngine 接口实现 ====================
 
     /**
-     * Redis 不支持 SQL Lambda 查询，抛出 UnsupportedOperationException。
+      * Redis 不支持 SQL Lambda 查询，抛出 unsupportedoperation异常。
      */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
@@ -184,7 +185,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * Redis 不支持 SQL Lambda 更新，抛出 UnsupportedOperationException。
+      * Redis 不支持 SQL Lambda 更新，抛出 unsupportedoperation异常。
      */
     @Override
     public <T> ReactorLambdaUpdateWrapper<T> update(Class<T> entityClass) {
@@ -192,7 +193,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * Redis 不支持 SQL Lambda 删除，抛出 UnsupportedOperationException。
+      * Redis 不支持 SQL Lambda 删除，抛出 unsupportedoperation异常。
      */
     @Override
     public <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass) {
@@ -200,12 +201,12 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式执行任意 Redis 命令，返回单行 Map 结果（列名 -> 值）。
+      * 响应式执行任意 Redis 命令，返回单行 映射 结果（列名 -> 值）。
      *
      * <p>支持命令：GET、SET、DEL、EXISTS、TTL、INCR、LPUSH、RPUSH、LPOP、RPOP、
      * HGET、HSET、HGETALL、SMEMBERS、ZADD、ZRANGE 等。</p>
      *
-     * @param sql    Redis 命令（大写，如 "GET mykey"）
+     * @param sql    Redis 命令（大写，如 "获取 mykey"）
      * @param params 命令参数
      * @return 结果行 Flux，单条记录
      */
@@ -230,7 +231,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * 响应式执行任意 Redis 命令并映射为类型化对象。
      *
      * @param sql     Redis 命令
-     * @param rowType 目标类型（仅支持 String/Long/Integer/Boolean）
+     * @param rowType 目标类型（仅支持 字符串/Long/Integer/布尔值）
      * @param params  命令参数
      * @param <T>     行类型
      * @return 类型化结果 Flux
@@ -264,7 +265,7 @@ public class RedisReactorEngine implements ReactorEngine {
         if (name == null) {
             return Mono.error(new IllegalStateException("未配置 Redis 数据源"));
         }
-        // 将命令名与参数重新组合，确保 executeSingleCommand 能正确解析
+ // 将命令名与参数重新组合，确保 执行单个命令 能正确解析
         Object[] fullArgs = new Object[params.length + 1];
         fullArgs[0] = sql.toUpperCase();
         System.arraycopy(params, 0, fullArgs, 1, params.length);
@@ -319,7 +320,7 @@ public class RedisReactorEngine implements ReactorEngine {
      * </ul>
      *
      * @param name    数据源名称
-     * @param command 命令字符串（如 "GET" 或 "GET mykey"）
+     * @param command 命令字符串（如 "获取" 或 "获取 mykey"）
      * @param params  额外参数（结构化调用时使用）
      * @return 命令执行结果
      */
@@ -344,7 +345,7 @@ public class RedisReactorEngine implements ReactorEngine {
                 cmd = parts[0];
                 args = Arrays.copyOfRange(parts, 1, parts.length);
             } else {
-                // 结构化模式：command 为命令名，params 为参数
+ // 结构化模式：命令 为命令名，参数 为参数
                 cmd = command.trim().toUpperCase();
                 args = new String[params.length];
                 for (int i = 0; i < params.length; i++) {
@@ -543,7 +544,7 @@ public class RedisReactorEngine implements ReactorEngine {
     // ==================== 高级响应式 KV 操作 ====================
 
     /**
-     * 响应式 GET 操作。
+      * 响应式 获取 操作。
      *
      * @param key 键
      * @return 值 Mono，不存在返回空 Mono
@@ -556,7 +557,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 SET 操作（永不过期）。
+      * 响应式 设置 操作（永不过期）。
      *
      * @param key   键
      * @param value 值
@@ -648,7 +649,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 Hash GET。
+      * 响应式 哈希 获取。
      *
      * @param key   哈希键
      * @param field 字段名
@@ -662,7 +663,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 Hash SET。
+      * 响应式 哈希 设置。
      *
      * @param key   哈希键
      * @param field 字段名
@@ -676,7 +677,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 Hash GETALL，返回所有字段的 Flux。
+      * 响应式 哈希 GETALL，返回所有字段的 Flux。
      *
      * @param key 哈希键
      * @return 字段值对 Flux
@@ -700,9 +701,9 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 Key 扫描（前缀匹配），返回匹配键的 Flux。
+      * 响应式 键 扫描（前缀匹配），返回匹配键的 Flux。
      *
-     * @param pattern 匹配模式（如 "user:*"）
+     * @param pattern 匹配模式（如 "用户:*"）
      * @return 匹配的键 Flux
      */
     public Flux<String> scanKeys(String pattern) {
@@ -717,7 +718,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 List LPUSH。
+      * 响应式 列表 LPUSH。
      *
      * @param key    列表键
      * @param values 值数组
@@ -726,7 +727,9 @@ public class RedisReactorEngine implements ReactorEngine {
     public Mono<Long> lpush(String key, String... values) {
         return Mono.fromCallable(() -> {
             RedisClient client = lettuceClients.get(defaultDataSourceName);
-            if (client == null) throw new IllegalStateException("Redis 数据源未配置");
+            if (client == null) {
+                throw new IllegalStateException("Redis 数据源未配置");
+            }
             Duration timeout = timeouts.getOrDefault(defaultDataSourceName, Duration.ofSeconds(5));
             io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
             conn.setTimeout(timeout);
@@ -737,7 +740,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 List LRANGE。
+      * 响应式 列表 LRANGE。
      *
      * @param key   列表键
      * @param start 起始索引
@@ -756,7 +759,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 Set SMEMBERS。
+      * 响应式 设置 SMEMBERS。
      *
      * @param key 集合键
      * @return 成员列表 Flux
@@ -773,7 +776,7 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 Set SADD。
+      * 响应式 设置 SADD。
      *
      * @param key    集合键
      * @param values 值数组
@@ -782,7 +785,9 @@ public class RedisReactorEngine implements ReactorEngine {
     public Mono<Long> sadd(String key, String... values) {
         return Mono.fromCallable(() -> {
             RedisClient client = lettuceClients.get(defaultDataSourceName);
-            if (client == null) throw new IllegalStateException("Redis 数据源未配置");
+            if (client == null) {
+                throw new IllegalStateException("Redis 数据源未配置");
+            }
             Duration timeout = timeouts.getOrDefault(defaultDataSourceName, Duration.ofSeconds(5));
             io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
             conn.setTimeout(timeout);
@@ -806,7 +811,7 @@ public class RedisReactorEngine implements ReactorEngine {
     /**
      * 响应式批量执行命令（Pipeline 模拟）。
      *
-     * @param commands 命令列表，每项为 "CMD arg1 arg2 ..." 格式
+     * @param commands 命令列表，每项为 "CMD 参数1 参数2 ..." 格式
      * @return 结果列表 Flux
      */
     public Flux<Object> execBatch(List<String> commands) {
@@ -864,9 +869,9 @@ public class RedisReactorEngine implements ReactorEngine {
     // ==================== 类型转换辅助方法 ====================
 
     /**
-     * 使用 Converter 转换字符串为 Long，转换失败时兜底 parseLong。
+      * 使用 转换器 转换字符串为 Long，转换失败时兜底 解析long。
      *
-     * @param converted 转换结果（可能为 null）
+     * @param converted 转换结果（可能为 空）
      * @param raw       原始字符串
      * @return Long 值
      */
@@ -878,9 +883,9 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 使用 Converter 转换字符串为 Integer，转换失败时兜底 parseInt。
+      * 使用 转换器 转换字符串为 Integer，转换失败时兜底 解析int。
      *
-     * @param converted 转换结果（可能为 null）
+     * @param converted 转换结果（可能为 空）
      * @param raw       原始字符串
      * @return Integer 值
      */
@@ -892,9 +897,9 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 使用 Converter 转换字符串为 Double，转换失败时兜底 parseDouble。
+      * 使用 转换器 转换字符串为 Double，转换失败时兜底 解析double。
      *
-     * @param converted 转换结果（可能为 null）
+     * @param converted 转换结果（可能为 空）
      * @param raw       原始字符串
      * @return Double 值
      */

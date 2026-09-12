@@ -7,9 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * SafeTensor 模型下载管理器。
+   * safetensor 模型下载管理器。
  * <p>
- * 自动从 ModelScope / HuggingFace 等来源下载模型 safetensor 文件。
+   * 自动从 模型scope / huggingface 等来源下载模型 safetensor 文件。
  * 优先通过 Python 推理服务下载，失败时回退到本地 Java 直接下载。
  * </p>
  *
@@ -27,8 +27,8 @@ public class SafeTensorModelDownloadManager {
     private final Path modelRoot;
 
     /**
-     * 创建 SafeTensorModelDownloadManager 实例
-     * @param client client
+      * 创建 safetensor模型download管理器 实例
+     * @param client 客户端
      */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client) {
         String root = System.getProperty("safetensor.model.root", "D:/safetensor_models");
@@ -37,9 +37,10 @@ public class SafeTensorModelDownloadManager {
     }
 
     /**
-     * 创建 SafeTensorModelDownloadManager 实例
-     * @param client client
-     * @param Path Path
+      * 创建 safetensor模型download管理器 实例
+     * @param client 客户端
+     * @param modelRoot 路径
+     * @param modelRoot 模型根
      */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client, Path modelRoot) {
         this.modelRoot = modelRoot;
@@ -76,6 +77,11 @@ public class SafeTensorModelDownloadManager {
 
     /**
      * 通过 Python 命令行直接下载模型。
+     * @param modelName 模型名称
+     * @param source 源
+     * @param revision revision
+     * @param targetPath Target路径
+     * @return downloadDirect的结果
      */
     private String downloadDirect(String modelName, String source, String revision, Path targetPath) {
         try {

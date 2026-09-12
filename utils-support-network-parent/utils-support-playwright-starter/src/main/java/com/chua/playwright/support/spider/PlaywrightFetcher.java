@@ -19,7 +19,7 @@ import java.time.Duration;
  * Playwright 浏览器渲染抓取器。
  *
  * <p>基于 Playwright 实现支持 JavaScript 渲染的页面抓取。
- * 适用于需要执行 JS 才能获取完整内容的 SPA 或动态页面。
+   * 适用于需要执行 JS 才能获取完整内容的 水疗中心 或动态页面。
  * 内部持有 Playwright 浏览器实例，{@link #close()} 可释放资源。
  *
  * <p>SPI 名称：{@code playwright}，配合 {@link PlaywrightParser} 使用。
@@ -52,7 +52,7 @@ public class PlaywrightFetcher implements SpiderFetcher {
     private final Browser browser;
 
     /**
-     * 默认构造器，启动 Chromium 浏览器。
+      * 默认构造器，启动 铬 浏览器。
      */
     public PlaywrightFetcher() {
         this.playwright = Playwright.create();
@@ -72,7 +72,7 @@ public class PlaywrightFetcher implements SpiderFetcher {
     }
 
     @Override
-    /** Fetch */
+    /** 获取 */
     public SpiderResponse fetch(SpiderRequest request) {
         long startTime = System.currentTimeMillis();
         SpiderResponse.SpiderResponseBuilder builder = SpiderResponse.builder()

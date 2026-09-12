@@ -47,6 +47,7 @@ import java.lang.annotation.*;
  * // 示例 3：在接口上使用
  * @SpiOrder(0)
  * public interface ImageCorrector { }
+ * }</pre>}
  * }</pre>
  * <p>
  * 优先级规则说明：
@@ -56,7 +57,7 @@ import java.lang.annotation.*;
  *   <li>当都不存在时，默认优先级为 0</li>
  * </ul>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  * @since 2025/01/22
  * @see Spi

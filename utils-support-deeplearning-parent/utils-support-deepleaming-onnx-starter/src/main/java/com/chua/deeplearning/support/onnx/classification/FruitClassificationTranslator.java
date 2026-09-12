@@ -9,12 +9,19 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.47
+ * @param candidates candidates
+ * @return 构建参数的结果
  */
 public class FruitClassificationTranslator extends SiglipZeroShotClassificationTranslator {
 
     private static final String FRUITS =
             "apple,banana,orange,grape,strawberry,watermelon,lemon,pineapple,mango," +
             "pear,peach,kiwi,pomegranate,blueberry,raspberry,plum,apricot,fig," +
+            /**
+              * fruitclassificationtranslator。
+             * @param candidates candidates
+             * @return 构建参数的结果
+             */
             "papaya,passion fruit,coconut,avocado,chanoy";
 
     public FruitClassificationTranslator() {

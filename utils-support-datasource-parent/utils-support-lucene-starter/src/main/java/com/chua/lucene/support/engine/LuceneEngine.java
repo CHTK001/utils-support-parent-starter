@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 基于 Apache Lucene 的内存搜索引擎。
  * <p>
- * LuceneEngine 继承自 {@link AbstractEngine}，将 SQL 风格的 WHERE 条件通过
+   * Luceneengine 继承自 {@link AbstractEngine}，将 SQL 风格的 WHERE 条件通过
  * {@link SqlExpressionParser} 解析为 AST，再转换为 Lucene {@link Query} 执行搜索。
  * </p>
  * <h2>核心架构</h2>
@@ -62,6 +62,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *              BTreeNode → Lucene Query（按字段类型构建）
  *                    ↓
  *              IndexSearcher.search(Query, N)
+ *                    ↓
+ *              TopDocs → Document[] → List<T>
+ * }</pre>, N)
  *                    ↓
  *              TopDocs → Document[] → List<T>
  * }</pre>
@@ -77,7 +80,7 @@ import java.util.concurrent.ConcurrentHashMap;
   public class LuceneEngine extends AbstractEngine implements FulltextSearch {
 
      /**
-      * Lucene 索引目录映射表，键为表名，值为 Directory 实例。
+       * Lucene 索引目录映射表，键为表名，值为 目录 实例。
       */
     private final Map<String, Directory> indexDirectories = new ConcurrentHashMap<>();
 
@@ -106,16 +109,16 @@ import java.util.concurrent.ConcurrentHashMap;
     /**
      * 构造 Lucene 引擎，指定索引根目录。
      * <p>如果指定了目录路径，索引数据持久化到文件系统；
-     * 如果为 null，使用 ByteBuffersDirectory（内存）。</p>
+      * 如果为 空，使用 byte缓冲目录（内存）。</p>
      *
-     * @param indexPath 索引根目录路径，null 表示内存目录
+     * @param indexPath 索引根目录路径，空 表示内存目录
      */
     public LuceneEngine(Path indexPath) {
         this.indexPath = indexPath;
     }
 
     /**
-     * 索引根目录路径，null 表示使用内存目录
+      * 索引根目录路径，空 表示使用内存目录
      */
     private final Path indexPath;
 
@@ -179,7 +182,7 @@ import java.util.concurrent.ConcurrentHashMap;
      *
      * @param name 数据源名称
      * @param <T>  底层源类型
-     * @return 数据源封装实例，不存在则返回 null
+     * @return 数据源封装实例，不存在则返回 空
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -233,12 +236,13 @@ import java.util.concurrent.ConcurrentHashMap;
      * 将实体对象列表索引到 Lucene 索引中。
      * <p>
      * 根据实体类名确定表名（驼峰转下划线），在对应的索引目录中写入文档。
-     * 如果该表首次被索引，会自动创建 Directory。
+      * 如果该表首次被索引，会自动创建 目录。
      * </p>
      *
      * @param entityClass 实体类类型
      * @param entities    实体对象列表
      * @param <T>         实体类型
+     * @return 索引的结果
      */
     @SuppressWarnings("unchecked")
     public <T> void index(Class<T> entityClass, List<T> entities) {
@@ -258,7 +262,7 @@ import java.util.concurrent.ConcurrentHashMap;
     /**
      * 执行全文搜索。
      * <p>
-     * 使用 Lucene 默认的 QueryParser 解析搜索字符串，在指定表的索引中搜索。
+      * 使用 Lucene 默认的 查询parser 解析搜索字符串，在指定表的索引中搜索。
      * </p>
      *
      * @param entityClass 实体类类型
@@ -286,10 +290,10 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 执行结构化搜索（使用 WHERE 条件转换的 Lucene Query）。
+      * 执行结构化搜索（使用 WHERE 条件转换的 Lucene 查询）。
      *
      * @param tableName  表名
-     * @param luceneQuery  Lucene Query（由 WhereClauseConverter 生成）
+     * @param luceneQuery  Lucene 查询（由 whereclause转换器 生成）
      * @param entityClass 实体类类型
      * @param <T>         实体类型
      * @return 匹配的实体列表
@@ -319,6 +323,7 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param entityClass 实体类类型
      * @param fieldNames 需要建立全文索引的字段名称（Lucene 引擎暂按实体全字段索引，此参数保留以兼容接口）
      * @param <T> 实体类型
+     * @return 创建fulltext索引的结果
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -368,6 +373,7 @@ import java.util.concurrent.ConcurrentHashMap;
      * @param entityClass 实体类类型
      * @param fieldNames 需要删除索引的字段名称（Lucene 引擎按表级删除，此参数保留以兼容接口）
      * @param <T> 实体类型
+     * @return 掉落fulltext索引的结果
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -389,7 +395,7 @@ import java.util.concurrent.ConcurrentHashMap;
      * 执行分页结构化搜索。
      *
      * @param tableName  表名
-     * @param luceneQuery  Lucene Query
+     * @param luceneQuery  Lucene 查询
      * @param pageNum    页码
      * @param pageSize   每页大小
      * @param entityClass 实体类类型
@@ -428,7 +434,13 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @SafeVarargs
-    /** 分组By */
+    /**
+     * 分组By
+     *
+     * @param entityClass 实体类
+     * @param groupByCols 群体bycols
+     * @return 群体by的结果
+     */
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
     }
@@ -441,15 +453,15 @@ import java.util.concurrent.ConcurrentHashMap;
         private final LuceneEngine engine;
         /** Entityclass */
         private final Class<T> entityClass;
-        /** 分组BYcols */
+        /** 分组bycols */
         private final List<String> groupByCols = new ArrayList<>();
         /** Where */
         private String where;
         /** 参数 */
         private Object[] params;
-        /** SortCOL */
+        /** 排序col */
         private String sortCol;
-        /** SortASC */
+        /** 排序asc */
         private boolean sortAsc = true;
 
         GroupByQueryWrapper(LuceneEngine engine, Class<T> entityClass, String... groupByCols) {
@@ -464,27 +476,49 @@ import java.util.concurrent.ConcurrentHashMap;
             }
         }
 
-        /** Where */
+        /**
+         * Where
+         *
+         * @param where where
+         * @param params 参数
+         * @return where的结果
+         */
         public GroupByQueryWrapper<T> where(String where, Object... params) {
             this.where = where;
             this.params = params;
             return this;
         }
 
-        /** OrderBy */
+        /**
+         * 订单by
+         *
+         * @param col col
+         * @param asc asc
+         * @return 订单by的结果
+         */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
             return this;
         }
 
-        /** List */
+        /**
+         * 列表
+         *
+         * @return 列表的结果
+         */
         public List<Map<String, Object>> list() {
             List<T> entities = engine.executeNewQuery(where, params, entityClass, 0, 0);
             return groupEntities(entities, groupByCols);
         }
 
-        /** Page */
+        /**
+         * Page
+         *
+         * @param pn pn
+         * @param ps ps
+         * @return page的结果
+         */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<T> all = engine.executeNewQuery(where, params, entityClass, 0, 0);
             List<Map<String, Object>> grouped = groupEntities(all, groupByCols);
@@ -496,7 +530,13 @@ import java.util.concurrent.ConcurrentHashMap;
             return new Page<>(pn, ps, grouped.size(), grouped.subList(from, to));
         }
 
-        /** 分组Entities */
+        /**
+         * 分组Entities
+         *
+         * @param entities 实体
+         * @param groupByCols 群体bycols
+         * @return 群体实体的结果
+         */
         private static <T> List<Map<String, Object>> groupEntities(List<T> entities, List<String> groupByCols) {
             if (entities.isEmpty() || groupByCols.isEmpty()) {
                 return Collections.emptyList();
@@ -553,7 +593,13 @@ import java.util.concurrent.ConcurrentHashMap;
             return result;
         }
 
-        /** 获取FieldValue */
+        /**
+         * 获取字段值
+         *
+         * @param obj obj
+         * @param fieldName 字段名称
+         * @return 获取字段值的结果
+         */
         private static Object getFieldValue(Object obj, String fieldName) {
             if (obj == null || fieldName == null) {
                 return null;
@@ -583,7 +629,12 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
-        /** ToComparable */
+        /**
+         * 转为comparable
+         *
+         * @param value 值
+         * @return 转为comparable的结果
+         */
         private static Comparable toComparable(Object value) {
             if (value == null) {
                 return null;
@@ -595,7 +646,13 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
-        /** 比较Nullable */
+        /**
+         * 比较Nullable
+         *
+         * @param a a
+         * @param b b
+         * @return compare空的结果
+         */
         private static int compareNullable(Comparable a, Comparable b) {
             if (a == null && b == null) {
                 return 0;
@@ -670,6 +727,9 @@ import java.util.concurrent.ConcurrentHashMap;
     /**
      * 替换 SQL 中的 {@code ?} 占位符为实际参数值。
      * <p>字符串值自动加单引号，数值原样输出，null 转为 NULL。</p>
+     * @param where where
+     * @param params 参数
+     * @return resolvePlaceholders的结果
      */
     protected String resolvePlaceholders(String where, Object[] params) {
         if (params == null || params.length == 0) {
@@ -696,7 +756,10 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 将 AST 节点递归转换为 Lucene Query。
+      * 将 AST 节点递归转换为 Lucene 查询。
+     * @param node 节点
+     * @param entityClass 实体类
+     * @return 构建查询的结果
      */
     protected Query buildQuery(BTreeNode node, Class<?> entityClass) {
         return switch (node.getType()) {
@@ -719,7 +782,10 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 构建比较节点的 Lucene Query。
+      * 构建比较节点的 Lucene 查询。
+     * @param node 节点
+     * @param entityClass 实体类
+     * @return 构建comparison的结果
      */
     @SuppressWarnings("unchecked")
     private Query buildComparison(BTreeNode node, Class<?> entityClass) {
@@ -772,6 +838,10 @@ import java.util.concurrent.ConcurrentHashMap;
     /**
      * 字段精确匹配查询（=）。
      * <p>根据字段的 Java 类型选择正确的 Lucene Query 子类。</p>
+     * @param field 字段
+     * @param value 值
+     * @param entityClass 实体类
+     * @return exact查询的结果
      */
     private Query exactQuery(String field, Object value, Class<?> entityClass) {
         Class<?> type = resolveFieldType(field, entityClass);
@@ -884,6 +954,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
     /**
      * 反射获取实体字段的 Java 类型。
+     * @param fieldName 字段名称
+     * @param entityClass 实体类
+     * @return resolve字段类型的结果
      */
     private Class<?> resolveFieldType(String fieldName, Class<?> entityClass) {
         java.lang.reflect.Field f = ReflectUtils.findField(entityClass, fieldName);
@@ -891,7 +964,9 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 解析 IN 列表字符串 {@code ('a','b')} 或 {@code (1,2,3)} 为值列表。
+      * 解析 入 列表字符串 {@code ('a','b')} 或 {@code (1,2,3)} 为值列表。
+     * @param list 列表
+     * @return 解析入列表的结果
      */
     private List<Object> parseInList(String list) {
         List<Object> result = new ArrayList<>();
@@ -935,6 +1010,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
     /**
      * 将日期/时间值转换为毫秒时间戳。
+     * @param value 值
+     * @param type 类型
+     * @return 转为轮次millis的结果
      */
     private static long toEpochMillis(Object value, Class<?> type) {
         if (type == Date.class) {
@@ -952,8 +1030,8 @@ import java.util.concurrent.ConcurrentHashMap;
     /**
      * 获取指定实体类对应的数据列表。
      * <p>
-     * 优先从内存 dataStores 返回通过 store() 注入的数据；
-     * 若 dataStores 为空，则返回空列表（数据通过 index() 进入 Lucene 索引）。
+      * 优先从内存 数据存储 返回通过 存储() 注入的数据；
+      * 若 数据存储 为空，则返回空列表（数据通过 索引() 进入 Lucene 索引）。
      * </p>
      *
      * @param entityClass 实体类类型
@@ -1118,7 +1196,14 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
-    /** 构建查询FromWhere */
+    /**
+     * 构建查询从where
+     *
+     * @param where where
+     * @param params 参数
+     * @param entityClass 实体类
+     * @return 构建查询从where的结果
+     */
     protected <T> Query buildQueryFromWhere(String where, Object[] params, Class<T> entityClass) {
         if (where == null || where.trim().isEmpty()) {
             return new MatchAllDocsQuery();
@@ -1128,7 +1213,14 @@ import java.util.concurrent.ConcurrentHashMap;
         return buildQuery(tree, entityClass);
     }
 
-    /** 搜索Documents */
+    /**
+     * 搜索文档
+     *
+     * @param where where
+     * @param params 参数
+     * @param entityClass 实体类
+     * @return 搜索文档的结果
+     */
     private <T> List<Document> searchDocuments(String where, Object[] params, Class<T> entityClass) throws IOException {
         Query query = buildQueryFromWhere(where, params, entityClass);
         Directory directory = getOrCreateDirectory(getTableName(entityClass));
@@ -1143,7 +1235,13 @@ import java.util.concurrent.ConcurrentHashMap;
         }
     }
 
-    /** 添加FieldToDoc */
+    /**
+     * 添加字段转为doc
+     *
+     * @param doc doc
+     * @param fieldName 字段名称
+     * @param value 值
+     */
     static void addFieldToDoc(Document doc, String fieldName, Object value) {
         if (value instanceof String str) {
             doc.add(new StringField(fieldName, str, org.apache.lucene.document.Field.Store.YES));
@@ -1188,12 +1286,12 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 将 Lucene ScoreDoc 数组转换为实体对象列表。
+      * 将 Lucene scoredoc 数组转换为实体对象列表。
      * <p>
-     * 通过 Document.ID 查找原始实体对象（从 dataStores 缓存）。
+      * 通过 文档.标识 查找原始实体对象（从 数据存储 缓存）。
      * </p>
      *
-     * @param reader      Lucene DirectoryReader
+     * @param reader      Lucene 目录读取
      * @param scoreDocs   搜索结果
      * @param entityClass 实体类类型
      * @param <T>         实体类型
@@ -1210,7 +1308,7 @@ import java.util.concurrent.ConcurrentHashMap;
                     results.add(entity);
                 }
             } catch (IOException e) {
-                // skip
+ // 跳过
             }
         }
         return results;

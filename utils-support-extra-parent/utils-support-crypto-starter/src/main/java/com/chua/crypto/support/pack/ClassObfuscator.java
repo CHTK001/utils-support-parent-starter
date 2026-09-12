@@ -19,16 +19,16 @@ import java.util.Set;
  * <p>两层处理（先混淆后加密，密文内已是不可读字节码）：
  *
  * <h2>1. 调试信息剥离（默认开启，行为无损）</h2>
- * 移除 SourceFile / LineNumberTable / LocalVariableTable，
+   * 移除 源文件 / 线数字table / 本地变量table，
  * 使 javap -c、IDE 反编译输出失去行号与局部变量名。
  *
  * <h2>2. 私有成员重命名（可选，需自行评估反射兼容性）</h2>
- * 重命名 private 字段与方法为 p0/p1... 并同步修正类内全部引用
+   * 重命名 私募 字段与方法为 p0/p1... 并同步修正类内全部引用
  * （含 lambda invokedynamic 引用的私有实现方法）。
  *
  * <h2>排除项</h2>
- * 构造器/静态块、synthetic 成员、serialVersionUID、@Deprecated 成员不做重命名；
- * 仅处理应用自身 class（BOOT-INF/classes），依赖包整体加密不逐类改写。
+   * 构造器/静态块、synthetic 成员、串行版本uid、@已弃用 成员不做重命名；
+   * 仅处理应用自身 类（BOOT-INF/类），依赖包整体加密不逐类改写。
  *
  * @author CH
  * @since 2026-08-26
@@ -47,7 +47,7 @@ public final class ClassObfuscator {
     }
 
     /**
-     * 混淆单个 class 文件
+      * 混淆单个 类 文件
      *
      * @param bytes          原始字节
      * @param renamePrivates 是否重命名私有成员
@@ -59,8 +59,8 @@ public final class ClassObfuscator {
     }
 
     /**
-     * 剥离调试信息：SKIP_DEBUG 跳过 SourceFile/LineNumberTable/LocalVariableTable，
-     * ClassWriter(reader,0) 复用常量池并原样保留 StackMapTable 等帧属性
+      * 剥离调试信息：跳过_调试 跳过 源文件/线数字table/本地变量table，
+      * 类writer(读取,0) 复用常量池并原样保留 stack映射table 等帧属性
      *
      * @param bytes 原始字节
      * @return 处理后字节
@@ -108,12 +108,12 @@ public final class ClassObfuscator {
         private final String owner;
 
         /**
-         * 方法重命名表："name descriptor" -> 新名
+          * 方法重命名表："名称 descriptor" -> 新名
          */
         private final Map<String, String> methods;
 
         /**
-         * 字段重命名表："name descriptor" -> 新名
+          * 字段重命名表："名称 descriptor" -> 新名
          */
         private final Map<String, String> fields;
 
@@ -157,7 +157,10 @@ public final class ClassObfuscator {
         }
 
         /**
-         * 判断成员是否可重命名：私有、非构造/静态块、非 synthetic、非 Deprecated
+          * 判断成员是否可重命名：私有、非构造/静态块、非 synthetic、非 已弃用
+         * @param access access
+         * @param name 名称
+         * @return 是否renamable的结果
          */
         private boolean isRenamable(int access, String name) {
             boolean deprecated = (access & Opcodes.ACC_DEPRECATED) != 0;

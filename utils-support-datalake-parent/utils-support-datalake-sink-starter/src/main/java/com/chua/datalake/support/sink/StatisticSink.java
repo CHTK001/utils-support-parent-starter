@@ -19,7 +19,7 @@ import java.util.Map;
 public class StatisticSink implements AccessSink {
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "statistic";
     }

@@ -44,7 +44,7 @@ public interface Input extends AutoCloseable {
      * 批量读取数据
      *
      * @param batchSize 期望的批次大小
-     * @return 同步上下文批次（可能为空列表，不会为 null）
+     * @return 同步上下文批次（可能为空列表，不会为 空）
      */
     List<SyncContext> readBatch(int batchSize);
 

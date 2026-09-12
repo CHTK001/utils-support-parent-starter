@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Redis/Jedis 应用层 Handler — 拦截 Jedis 客户端调用并生成应用语义传输记录。
+   * Redis/Jedis 应用层 处理器 — 拦截 Jedis 客户端调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -40,22 +40,22 @@ import java.util.logging.Logger;
  */
 public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(JedisHandler.class.getName());
 
     /**
-     * redis.clients.jedis.Jedis
+      * Redis.客户端.jedis.Jedis
      */
     private static final String JEDIS_CLASS = "redis/clients/jedis/Jedis";
 
     /**
-     * redis.clients.jedis.BinaryJedis
+      * Redis.客户端.jedis.binaryjedis
      */
     private static final String BINARY_JEDIS_CLASS = "redis/clients/jedis/BinaryJedis";
 
     /**
-     * redis.clients.jedis.JedisCluster
+      * Redis.客户端.jedis.jediscluster
      */
     private static final String JEDIS_CLUSTER_CLASS = "redis/clients/jedis/JedisCluster";
 
@@ -69,7 +69,7 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
     /**
-     * enabled
+      * 已启用
      */
     private boolean enabled;
     /**
@@ -77,20 +77,20 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
-    /** 创建 JedisHandler 实例 */
+    /** 创建 jedis处理器 实例 */
     public JedisHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "jedis-handler";
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return "1.0.0";
     }
@@ -126,7 +126,7 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("JedisHandler[enabled=%s, records=%d]", enabled, records.size());
     }
@@ -138,7 +138,7 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册拦截规则 — Jedis/BinaryJedis 关键命令方法 + JedisCluster 集群入口。
+      * 注册拦截规则 — Jedis/binaryjedis 关键命令方法 + jediscluster 集群入口。
      *
      * <p>descriptor 用空串表示任意描述符（SpyTransformer 不依赖 descriptor 区分）。</p>
      */
@@ -155,12 +155,12 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
             // Jedis 主类
             RuntimeSpy.registerInterceptor(JEDIS_CLASS, command, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(JEDIS_CLASS, command, "", InterceptPoint.EXIT, this);
-            // BinaryJedis 父类（部分方法在父类中）
+ // binaryjedis 父类（部分方法在父类中）
             RuntimeSpy.registerInterceptor(BINARY_JEDIS_CLASS, command, "", InterceptPoint.ENTRY, this);
             RuntimeSpy.registerInterceptor(BINARY_JEDIS_CLASS, command, "", InterceptPoint.EXIT, this);
         }
 
-        // JedisCluster — 集群命令（同样的命令名，但内部按 slot 转发）
+ // jediscluster — 集群命令（同样的命令名，但内部按 slot 转发）
         String[] clusterCommands = {"get", "set", "del", "exists", "expire", "hget", "hset", "hgetAll"};
         for (String command : clusterCommands) {
             RuntimeSpy.registerInterceptor(JEDIS_CLUSTER_CLASS, command, "", InterceptPoint.ENTRY, this);
@@ -169,7 +169,7 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** OnIntercept */
+    /** onintercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -185,11 +185,15 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * CURRENT
+      * 当前
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
-    /** 处理Entry */
+    /**
+     * 处理Entry
+     *
+     * @param ctx ctx
+     */
     private void handleEntry(InterceptContext ctx) {
         try {
             TransmissionRecord record = new TransmissionRecord();
@@ -229,7 +233,11 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** 处理Exit */
+    /**
+     * 处理Exit
+     *
+     * @param ctx ctx
+     */
     private void handleExit(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -246,7 +254,11 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** 处理Exception */
+    /**
+     * 处理异常
+     *
+     * @param ctx ctx
+     */
     private void handleException(InterceptContext ctx) {
         try {
             TransmissionRecord record = CURRENT.get();
@@ -267,7 +279,12 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** 添加And发送 */
+    /**
+     * 添加和发送
+     *
+     * @param record record
+     * @param isError 是否错误
+     */
     private void addAndEmit(TransmissionRecord record, boolean isError) {
         records.add(record);
         try {
@@ -290,10 +307,15 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** DeriveOperation */
+    /**
+     * deriveoperation
+     *
+     * @param ctx ctx
+     * @return deriveOperation的结果
+     */
     private static String deriveOperation(InterceptContext ctx) {
         String op = ctx.getMethodName();
-        // 尝试从调用栈第一个 String 字面量作为 key
+ // 尝试从调用栈第一个 字符串 字面量作为 键
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         for (StackTraceElement frame : stack) {
             String cn = frame.getClassName();
@@ -305,7 +327,9 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 反射读取 Jedis 实例的 host（Jedis 通常继承自 BinaryJedis，host 在 connection 字段中）。
+      * 反射读取 Jedis 实例的 主机（Jedis 通常继承自 binaryjedis，主机 在 connection 字段中）。
+     * @param jedis jedis
+     * @return extract主机的结果
      */
     private static String extractHost(Object jedis) {
         if (jedis == null) {
@@ -328,7 +352,12 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         return "redis";
     }
 
-    /** ExtractPort */
+    /**
+     * extract端口
+     *
+     * @param jedis jedis
+     * @return extract端口的结果
+     */
     private static int extractPort(Object jedis) {
         if (jedis == null) {
             return 6379;
@@ -350,7 +379,10 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 在继承链中寻找名为 name 的字段，返回字段值。
+      * 在继承链中寻找名为 名称 的字段，返回字段值。
+     * @param target Target
+     * @param names 名称
+     * @return find字段chain值的结果
      */
     private static Object findFieldChainValue(Object target, String... names) {
         if (target == null || names == null) {
@@ -365,7 +397,11 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         return null;
     }
 
-    /** LocalHost */
+    /**
+     * 本地主机
+     *
+     * @return 本地主机的结果
+     */
     private static String localHost() {
         try {
             return java.net.InetAddress.getLocalHost().getHostAddress();
@@ -374,7 +410,11 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** 获取Records */
+    /**
+     * 获取Records
+     *
+     * @return 获取records的结果
+     */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
     }

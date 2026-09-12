@@ -19,6 +19,9 @@ public final class TrainerFactory {
     /** 默认训练器实例（懒加载） */
     private static volatile Trainer current;
 
+    /**
+     * trainer工厂。
+     */
     private TrainerFactory() {
     }
 
@@ -43,7 +46,7 @@ public final class TrainerFactory {
     /**
      * 替换当前训练器实现（例如注入 Spring 管理或自定义实现的 Bean）。
      *
-     * @param trainer 新训练器；传 null 恢复默认
+     * @param trainer 新训练器；传 空 恢复默认
      */
     public static void setCurrent(Trainer trainer) {
         synchronized (TrainerFactory.class) {

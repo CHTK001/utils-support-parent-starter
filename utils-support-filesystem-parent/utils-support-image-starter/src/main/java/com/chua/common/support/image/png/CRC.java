@@ -28,7 +28,7 @@ final class CRC {
     private int crc = 0xffffffff;
 
     static {
-        // Initialize CRC table
+ // 初始化 CRC table
         for (int n = 0; n < 256; n++) {
             int c = n;
             for (int k = 0; k < 8; k++) {

@@ -18,9 +18,9 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface OcrRecognizer {
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -30,9 +30,9 @@ public interface OcrRecognizer {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default OcrRecognizer provider(String provider) {
@@ -65,7 +65,7 @@ public interface OcrRecognizer {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.ocr.OcrRecognizer.class);
@@ -132,7 +132,7 @@ public interface OcrRecognizer {
     List<OcrResult> recognizeDetail(byte[] imageData);
 
     /**
-     * 设置置信度阈值（null 表示使用模型默认值）。
+      * 设置置信度阈值（空 表示使用模型默认值）。
      *
      * @param threshold 阈值
      * @return this
@@ -164,11 +164,11 @@ class DefaultOcrRecognizer implements OcrRecognizer {
      * 识别引擎。
      */
     /**
-     * 置信度阈值（null 表示使用模型默认值）。
+      * 置信度阈值（空 表示使用模型默认值）。
      */
     private Float threshold;
 
-    private final IdentificationEngine engine;
+    private final IdentificationEngine engine; // engine
 
     /**
      * 模型名称。
@@ -220,7 +220,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public OcrRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
@@ -234,7 +234,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public OcrRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -248,7 +248,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** UseGpu */
+    /** usegpu */
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
@@ -256,9 +256,14 @@ class DefaultOcrRecognizer implements OcrRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Recognize */
+    /**
+     * Recognize
+     *
+     * @param imageData 镜像数据
+     * @return recognize的结果
+     */
     public String recognize(byte[] imageData) {
-        // 优先走 String 路径（单行 rec 模型返回纯文本）
+ // 优先走 字符串 路径（单行 rec 模型返回纯文本）
         try {
             ITranslator<byte[], String> t =
                     (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -278,7 +283,9 @@ class DefaultOcrRecognizer implements OcrRecognizer {
         // 拼接所有识别结果文本
         StringBuilder sb = new StringBuilder();
         for (OcrResult r : results) {
-            if (sb.length() > 0) sb.append("\n");
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
             sb.append(r.text());
         }
         return sb.toString();
@@ -286,7 +293,12 @@ class DefaultOcrRecognizer implements OcrRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** RecognizeDetail */
+    /**
+     * recognizedetail
+     *
+     * @param imageData 镜像数据
+     * @return recognizeDetail的结果
+     */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<OcrResult>> t =
                 (ITranslator<byte[], List<OcrResult>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

@@ -41,6 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 取消任务
  * Mono<Boolean> cancelled = reactive.cancel(task.getTaskId());
+ * }</pre>ive.watch(task.getTaskId());
+ *
+ * // 取消任务
+ * Mono<Boolean> cancelled = reactive.cancel(task.getTaskId());
  * }</pre>
  *
  * @author CH
@@ -55,13 +59,13 @@ public class ReactiveTaskManager {
     private final TaskManager manager;
 
     /**
-     * taskId -> CompletableFuture（submit 单次等待）
+      * 任务id -> completable期货（submit 单次等待）
      */
     private final ConcurrentHashMap<String, CompletableFuture<TaskResult<?>>> submitFutures =
             new ConcurrentHashMap<>();
 
     /**
-     * taskId -> 监听器列表（用于清理）
+      * 任务id -> 监听器列表（用于清理）
      */
     private final ConcurrentHashMap<String, List<TaskStateListener>> watchListeners =
             new ConcurrentHashMap<>();
@@ -69,7 +73,7 @@ public class ReactiveTaskManager {
     /**
      * 构造响应式门面，包装指定任务管理器。
      *
-     * @param manager 底层同步任务管理器，不可为 null
+     * @param manager 底层同步任务管理器，不可为 空
      */
     public ReactiveTaskManager(TaskManager manager) {
         if (manager == null) {
@@ -81,7 +85,7 @@ public class ReactiveTaskManager {
     /**
      * 获取底层任务管理器实例。
      *
-     * @return 底层 TaskManager
+     * @return 底层 任务管理器
      */
     public TaskManager getManager() {
         return manager;
@@ -95,7 +99,7 @@ public class ReactiveTaskManager {
      * <p>任务提交后立即返回 Mono，当任务执行完成（SUCCESS / FAILED / CANCELLED / TIMEOUT）
      * 时发射结果；若任务已存在则直接返回当前结果。</p>
      *
-     * @param task 任务，taskId 必须已设置
+     * @param task 任务，任务标识 必须已设置
      * @param <T>  负载数据类型
      * @return 任务结果 Mono，任务不存在时发射错误
      */
@@ -110,7 +114,7 @@ public class ReactiveTaskManager {
         if (existing != null) {
             return (Mono<TaskResult<T>>) (Mono<?>) Mono.just(existing);
         }
-        // 用 CompletableFuture 桥接回调
+ // 用 completable期货 桥接回调
         CompletableFuture<TaskResult<?>> future = new CompletableFuture<>();
         submitFutures.put(taskId, future);
         TaskCallback callback = new TaskCallback() {
@@ -145,7 +149,7 @@ public class ReactiveTaskManager {
     /**
      * 获取任务当前状态。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 任务状态 Mono，不存在返回空 Mono
      */
     public Mono<TaskStatus> getStatus(String taskId) {
@@ -157,7 +161,7 @@ public class ReactiveTaskManager {
     /**
      * 获取任务结果（若已完成）。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 任务结果 Mono，不存在或未完成返回空 Mono
      */
     @SuppressWarnings("unchecked")
@@ -175,7 +179,7 @@ public class ReactiveTaskManager {
      * <p>当事件监听器触发 onCompleted 时发射 {@link TaskResult}，
      * 流持续到任务进入终态后自动完成。</p>
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @param <T>    结果类型
      * @return 任务结果流
      */
@@ -213,7 +217,7 @@ public class ReactiveTaskManager {
     /**
      * 取消对指定任务的状态监听。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      */
     public void unwatch(String taskId) {
         List<TaskStateListener> listeners = watchListeners.remove(taskId);
@@ -229,7 +233,7 @@ public class ReactiveTaskManager {
     /**
      * 取消任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 取消成功返回 Mono.TRUE
      */
     public Mono<Boolean> cancel(String taskId) {
@@ -249,7 +253,7 @@ public class ReactiveTaskManager {
     /**
      * 暂停任务（服务端不再派发，工作端可继续执行已有任务）。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 暂停成功返回 Mono.TRUE
      */
     public Mono<Boolean> pause(String taskId) {
@@ -260,7 +264,7 @@ public class ReactiveTaskManager {
     /**
      * 恢复暂停的任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 恢复成功返回 Mono.TRUE
      */
     public Mono<Boolean> resume(String taskId) {
@@ -269,7 +273,7 @@ public class ReactiveTaskManager {
     }
 
     /**
-     * 关闭响应式门面，清理所有监听器和 Future。
+      * 关闭响应式门面，清理所有监听器和 期货。
      */
     public void close() {
         watchListeners.clear();
@@ -285,7 +289,7 @@ public class ReactiveTaskManager {
     // ==================== 链式构建 API ====================
 
     /**
-     * 开启链式任务构建，自动生成 taskId。
+      * 开启链式任务构建，自动生成 任务id。
      *
      * <p>用法：</p>
      * <pre>{@code
@@ -294,6 +298,8 @@ public class ReactiveTaskManager {
      *         .tag("priority", "high")
      *         .timeout(Duration.ofSeconds(10))
      *         .maxRetries(2)
+     *         .submit();   // 返回 Mono，订阅后提交
+     * }</pre>(2)
      *         .submit();   // 返回 Mono，订阅后提交
      * }</pre>
      *
@@ -331,17 +337,17 @@ public class ReactiveTaskManager {
         private final T payload;
 
         /**
-         * 自动生成的任务 ID
+          * 自动生成的任务 标识
          */
         private final String taskId = TaskIdGenerator.generateId();
 
         /**
-         * 链路追踪 ID（默认与 taskId 相同）
+          * 链路追踪 标识（默认与 任务id 相同）
          */
         private String traceId;
 
         /**
-         * 父任务 ID
+          * 父任务 标识
          */
         private String parentTaskId;
 
@@ -390,9 +396,9 @@ public class ReactiveTaskManager {
         }
 
         /**
-         * 设置链路追踪 ID。
+          * 设置链路追踪 标识。
          *
-         * @param traceId 追踪 ID
+         * @param traceId 追踪 标识
          * @return this
          */
         public TaskFluent<T> traceId(String traceId) {
@@ -401,9 +407,9 @@ public class ReactiveTaskManager {
         }
 
         /**
-         * 设置父任务 ID（子任务场景）。
+          * 设置父任务 标识（子任务场景）。
          *
-         * @param parentTaskId 父任务 ID
+         * @param parentTaskId 父任务 标识
          * @return this
          */
         public TaskFluent<T> parentTaskId(String parentTaskId) {

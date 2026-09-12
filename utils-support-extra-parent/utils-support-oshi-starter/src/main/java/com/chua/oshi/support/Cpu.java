@@ -9,6 +9,7 @@ import lombok.Data;
  * 所有使用率字段取值范围为 [0.0, 100.0]，表示百分比。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Cpu {

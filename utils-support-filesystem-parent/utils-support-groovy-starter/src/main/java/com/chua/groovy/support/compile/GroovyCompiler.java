@@ -10,7 +10,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
  * Groovy 动态编译器实现。
  *
  * <p>通过 {@link Compiler} SPI 机制注册为 {@code "groovy"} 编译器，
- * 支持在运行时将 Groovy 源代码字符串动态编译为 Java Class 对象。
+   * 支持在运行时将 Groovy 源代码字符串动态编译为 Java 类 对象。
  * 内部使用 {@link GroovyClassLoader} 完成编译和类加载。
  *
  * <h3>使用示例</h3>
@@ -19,6 +19,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
  *   String source = "class Hello {{ def greet() {{ \"Hello, \" + name }} }}";
  *   Class<?> clazz = compiler.doCompile("Hello", source);
  *   Object instance = clazz.getDeclaredConstructor().newInstance();
+ * }</pre>ce();
  * }</pre>
  *
  * <h3>特性说明</h3>
@@ -61,7 +62,7 @@ public class GroovyCompiler implements Compiler {
 
     @Override
     public Class<?> doCompile(String name, String source) throws Throwable {
-        // 使用独立的 GroovyClassLoader 编译，避免类加载器污染
+ // 使用独立的 Groovy类加载 编译，避免类加载器污染
         try (GroovyClassLoader groovyClassLoader = new GroovyClassLoader(
                 Thread.currentThread().getContextClassLoader(), CONFIG)) {
             try {

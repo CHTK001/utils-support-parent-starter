@@ -14,17 +14,17 @@ public interface OpenIdConvertService {
     /**
      * 将小程序openid转换为公众号openid
      *
-     * @param miniAppId       小程序appId
-     * @param officialAppId   公众号appId
+     * @param miniAppId       小程序appid
+     * @param officialAppId   公众号appid
      * @param miniAppOpenId   小程序用户的openid
      * @return 公众号对应的openid
      */
     String convertToOfficialOpenId(String miniAppId, String officialAppId, String miniAppOpenId);
 
     /**
-     * 将小程序openid转换为公众号openid（使用默认小程序appId）
+      * 将小程序openid转换为公众号openid（使用默认小程序appid）
      *
-     * @param officialAppId 公众号appId
+     * @param officialAppId 公众号appid
      * @param miniAppOpenId 小程序用户的openid
      * @return 公众号对应的openid
      */

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 基于 chinese-poetry 全唐诗语料的诗词提供器（在线 JSON + 内置兜底）。
+   * 基于 chinese-Poetry 全唐诗语料的诗词提供器（在线 JSON + 内置兜底）。
  *
  * <p>在线数据源：<a href="https://github.com/chinese-poetry/chinese-poetry">chinese-poetry</a>
  * 全唐诗 {@code poet.tang.0.json}，结构为 {@code {"author":..., "title":..., "paragraphs":[...]}}，
@@ -41,7 +41,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
     /** 默认分卷数 */
     private static final int DEFAULT_VOLUME_COUNT = 5;
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /** HTTP客户端 */
@@ -59,7 +59,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
     /** 内置兜底数据 */
     private static final List<PoetryInfo> FALLBACK = buildFallback();
 
-    /** 创建 OnlinePoetryProvider 实例 */
+    /** 创建 onlinepoetry提供者 实例 */
     public OnlinePoetryProvider() {
         this(DEFAULT_URL_TEMPLATE, DEFAULT_VOLUME_COUNT);
     }
@@ -77,7 +77,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "chinese-poetry";
     }
@@ -93,7 +93,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
     }
 
     @Override
-    /** ByAuthor */
+    /** by作者 */
     public List<PoetryInfo> byAuthor(String author, int limit) {
         if (author == null || author.isBlank()) {
             return Collections.emptyList();
@@ -129,12 +129,22 @@ public class OnlinePoetryProvider implements PoetryProvider {
         return result;
     }
 
-    /** 判断是否包含关键词 */
+    /**
+     * 判断是否包含关键词
+     *
+     * @param text 文本
+     * @param kw kw
+     * @return contains的结果
+     */
     private static boolean contains(String text, String kw) {
         return text != null && text.contains(kw);
     }
 
-    /** 加载语料（惰性 + 在线失败回退内置） */
+    /**
+     * 加载语料（惰性 + 在线失败回退内置）
+     *
+     * @return 加载的结果
+     */
     private List<PoetryInfo> load() {
         List<PoetryInfo> result = cached;
         if (!result.isEmpty()) {
@@ -172,7 +182,12 @@ public class OnlinePoetryProvider implements PoetryProvider {
         }
     }
 
-    /** 解析 */
+    /**
+     * 解析
+     *
+     * @param n n
+     * @return 解析的结果
+     */
     private static PoetryInfo parse(JsonNode n) {
         if (n == null || !n.isObject()) {
             return null;
@@ -192,7 +207,13 @@ public class OnlinePoetryProvider implements PoetryProvider {
         return new PoetryInfo(title, author, "唐代", paragraphs);
     }
 
-    /** Text */
+    /**
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -200,6 +221,7 @@ public class OnlinePoetryProvider implements PoetryProvider {
 
     /**
      * 内置经典名篇兜底数据（在线不可用时的核心词条）。
+     * @return 构建降级的结果
      */
     private static List<PoetryInfo> buildFallback() {
         List<PoetryInfo> list = new ArrayList<>();
@@ -214,7 +236,14 @@ public class OnlinePoetryProvider implements PoetryProvider {
         return list;
     }
 
-    /** 添加兜底词条 */
+    /**
+     * 添加兜底词条
+     *
+     * @param list 列表
+     * @param title title
+     * @param author 作者
+     * @param lines 线
+     */
     private static void add(List<PoetryInfo> list, String title, String author, String... lines) {
         List<String> paragraphs = new ArrayList<>();
         for (String line : lines) {

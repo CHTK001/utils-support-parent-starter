@@ -54,6 +54,7 @@ public class MathUtils {
      * @param y 概率密度 f(x)
      * @author CH
      * @since 4.0.0.42
+     * @return 样本point的结果
      */
     public record SamplePoint(double x, double y) {
     }
@@ -132,7 +133,7 @@ public class MathUtils {
         double step = (end - start) / (sampleSize - 1);
         List<SamplePoint> points = new ArrayList<>(sampleSize);
         for (int i = 0; i < sampleSize; i++) {
-            // 当前 x：start + i·step（末项恰为 end）
+ // 当前 x：启动 + i·step（末项恰为 结束）
             double x = start + i * step;
             double y = gaussianPdf(x, mean, stdDev);
             points.add(new SamplePoint(x, y));
@@ -250,7 +251,7 @@ public class MathUtils {
         // 最小二乘解
         double slope = sxy / sxx;
         double intercept = meanY - slope * meanX;
-        // 决定系数 R² 与皮尔逊相关系数 r（y 无波动时均取 0，避免除零产生 NaN）
+ // 决定系数 R² 与皮尔逊相关系数 R（y 无波动时均取 0，避免除零产生 nan）
         double rSquared = 0.0;
         double pearson = 0.0;
         if (syy > 0.0) {
@@ -269,14 +270,14 @@ public class MathUtils {
      * @param x 自变量序列
      * @param y 因变量序列
      * @param predictX 待预测的自变量序列
-     * @return 预测 y 值序列（长度与 predictX 一致）
+     * @return 预测 y 值序列（长度与 predictx 一致）
      */
     public static double[] linearPredict(double[] x, double[] y, double[] predictX) {
         // 参数校验
         if (predictX == null || predictX.length == 0) {
             return new double[0];
         }
-        // 输入序列非法时返回与 predictX 等长的全 0 数组
+ // 输入序列非法时返回与 predictx 等长的全 0 数组
         if (x == null || y == null || x.length != y.length || x.length < 2) {
             double[] zeros = new double[predictX.length];
             Arrays.fill(zeros, 0.0);
@@ -293,7 +294,7 @@ public class MathUtils {
     // ==================== 移动平均：简单移动平均 SMA ====================
 
     /**
-     * 简单移动平均（SMA，Simple Moving Average）。
+      * 简单移动平均（SMA，简单 Move.com Average）。
      *
      * <p>对输入序列按窗口大小 window 进行等权滑动平均，常用于时间序列平滑去噪。
      *
@@ -339,7 +340,7 @@ public class MathUtils {
     }
 
     /**
-     * 对列表形式的序列做简单移动平均，等价于 {@link #simpleMovingAverage(double[], int)} 的 List 重载。
+      * 对列表形式的序列做简单移动平均，等价于 {@link #simpleMovingAverage(double[], int)} 的 列表 重载。
      *
      * <p>返回新的 {@code double[]}，不修改输入。
      *
@@ -354,7 +355,7 @@ public class MathUtils {
         }
         double[] arr = new double[values.size()];
         for (int i = 0; i < values.size(); i++) {
-            // 使用 Objects.requireNonNullElse 将 null 视作 0（避免 NPE）
+ // 使用 对象.requirenon空else 将 空 视作 0（避免 NPE）
             Number num = values.get(i);
             arr[i] = Objects.requireNonNullElse(num, 0).doubleValue();
         }
@@ -474,7 +475,7 @@ public class MathUtils {
     }
 
     /**
-     * Min-Max 归一化，将值映射到 [0, 1] 区间。
+      * 最小-最大 归一化，将值映射到 [0, 1] 区间。
      *
      * <p>公式：x̂ = (x - min) / (max - min)
      *
@@ -706,7 +707,7 @@ public class MathUtils {
     // ==================== 内部工具方法 ====================
 
     /**
-     * 将 value 限制在 [min, max] 区间内，NaN 返回 0。
+      * 将 值 限制在 [最小, 最大] 区间内，nan 返回 0。
      *
      * @param value 输入值
      * @param min   下界
@@ -727,10 +728,10 @@ public class MathUtils {
     }
 
     /**
-     * 将 |value| 限制在不超过 maxValue，符号保持不变，NaN 返回 0。
+      * 将 |值| 限制在不超过 最大值，符号保持不变，nan 返回 0。
      *
      * @param value    输入值
-     * @param maxValue |value| 的最大绝对值
+     * @param maxValue |值| 的最大绝对值
      * @return 限幅后的值
      */
     private static double clampAbs(double value, double maxValue) {

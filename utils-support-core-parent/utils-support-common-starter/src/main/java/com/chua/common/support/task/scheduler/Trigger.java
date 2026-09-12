@@ -26,6 +26,7 @@ import java.util.List;
  * // 固定间隔触发器：每 5 秒执行一次
  * Trigger trigger = new FixedTrigger(5, TimeUnit.SECONDS);
  * List<LocalDateTime> times = trigger.getFireTimes(10);
+ * }</pre>FireTimes(10);
  * }</pre>
  *
  * @author CH

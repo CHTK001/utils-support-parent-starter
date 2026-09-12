@@ -64,11 +64,13 @@ import java.lang.annotation.Target;
  * @Spi("repo-write-trace")
  * @Around(value = {"com.foo.*Repository#save*", "com.foo.*Repository#update*"}, matchType = MatchUtils.MatchType.WILDCARD)
  * public class RepoWriteIntercept implements MethodArroundIntercept { ... }
+ * }</pre>= 匹配工具.匹配类型.WILDCARD)
+   * 公共 类 repo写入intercept implements 方法arroundintercept { ... }
  * }</pre>
  *
  * @author CH
  * @since 2025/11/26
- * @version 1.1.0
+   * @版本 1.1.0
  * @see com.chua.common.support.proxy.intercept.MethodArroundIntercept
  * @see MethodAnnotationIntercept
  */

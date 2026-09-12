@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * RSocket Agent 数据源
+   * r套接字 智能体 数据源
  * <p>Server 侧通过 RSocket request-stream / fire-and-forget 与 Agent 交互。</p>
  *
  * @author CH
@@ -24,11 +24,11 @@ import java.util.Map;
 public class RSocketAgentDataSyncSource implements DataSyncSource {
 
     /**
-     * agent Id
+      * 智能体 标识
      */
     private final String agentId;
     /**
-     * source Id
+      * 源 标识
      */
     private final String sourceId;
     /**
@@ -41,11 +41,14 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     private final int port;
 
     /**
-     * 创建 RSocketAgentDataSyncSource 实例
-     * @param agentId agentId
-     * @param String String
-     * @param String String
-     * @param int int
+      * 创建 r套接字智能体数据同步源 实例
+     * @param agentId 智能体标识
+     * @param agentId 字符串
+     * @param agentId 字符串
+     * @param port int
+     * @param sourceId 源标识
+     * @param host 主机
+     * @param port 端口
      */
     public RSocketAgentDataSyncSource(String agentId, String sourceId, String host, int port) {
         this.agentId = agentId;
@@ -55,9 +58,10 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     /**
-     * 创建 RSocketAgentDataSyncSource 实例
-     * @param agentId agentId
-     * @param String String
+      * 创建 r套接字智能体数据同步源 实例
+     * @param agentId 智能体标识
+     * @param agentId 字符串
+     * @param sourceId 源标识
      */
     public RSocketAgentDataSyncSource(String agentId, String sourceId) {
         this(agentId, sourceId, "localhost", 8080);
@@ -70,13 +74,13 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** SourceId */
+    /** 源id */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() {
         return agentId;
     }
@@ -111,7 +115,7 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** CurrentOffset */
+    /** 当前偏移量 */
     public SyncDataOffset currentOffset() {
         return null;
     }

@@ -29,9 +29,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("ip-api")
 public class IpApiLocationProvider implements LocationProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(IpApiLocationProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(IpApiLocationProvider.class); // 日志
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
     /** 查询地址模板（空 IP 时定位请求者自身） */
     private static final String LOCATE_URL = "http://ip-api.com/json/%s?lang=zh-CN";
@@ -42,9 +42,9 @@ public class IpApiLocationProvider implements LocationProvider {
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126 Safari/537.36";
 
-    /** 缓存（key -> [定位, 时间戳]） */
+    /** 缓存（键 -> [定位, 时间戳]） */
     private final Map<String, LocationInfo> cache = new ConcurrentHashMap<>();
-    private final Map<String, Long> cachedAt = new ConcurrentHashMap<>();
+    private final Map<String, Long> cachedAt = new ConcurrentHashMap<>(); // 缓存at
 
     @Override
     public String name() {
@@ -65,10 +65,10 @@ public class IpApiLocationProvider implements LocationProvider {
     }
 
     /**
-     * 执行定位（空 key 表示请求者自身）。
+      * 执行定位（空 键 表示请求者自身）。
      *
      * @param key IP 或空串
-     * @return 定位信息；失败返回 null
+     * @return 定位信息；失败返回 空
      */
     private LocationInfo locate(String key) {
         Long ts = cachedAt.get(key);
@@ -107,7 +107,7 @@ public class IpApiLocationProvider implements LocationProvider {
      * 读取数值节点。
      *
      * @param node 数值节点
-     * @return 数值；缺失/非数值返回 null
+     * @return 数值；缺失/非数值返回 空
      */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {

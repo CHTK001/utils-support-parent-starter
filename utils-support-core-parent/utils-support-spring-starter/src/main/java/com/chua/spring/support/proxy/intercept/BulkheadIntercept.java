@@ -28,13 +28,13 @@ import java.lang.reflect.Method;
 public class BulkheadIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Bulkhead> {
 
     @Override
-    /** AnnotationType */
+    /** 注解类型 */
     public Class<Bulkhead> annotationType() {
         return Bulkhead.class;
     }
 
     @Override
-    /** Order */
+    /** 订单 */
     public int order() {
         return 100;
     }
@@ -42,10 +42,10 @@ public class BulkheadIntercept extends AbstractMethodAnnotationIntercept impleme
     @Override
     /** Intercept */
     public Object intercept(Bulkhead annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
-        // 解析隔离名称（支持 SpEL），未填使用 类名.方法名
+ // 解析隔离名称（支持 spel），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);
 
-        // 解析最大并发数（支持 SpEL 和占位符），解析失败时使用默认值
+ // 解析最大并发数（支持 spel 和占位符），解析失败时使用默认值
         int maxConcurrent = resolveInt(annotation.maxConcurrent(), 10, proxyMethod);
         boolean fair = annotation.fair();
 
@@ -72,7 +72,7 @@ public class BulkheadIntercept extends AbstractMethodAnnotationIntercept impleme
      *
      * @param annotation  隔离注解
      * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值，找不到时返回 null
+     * @return 回退方法的返回值，找不到时返回 空
      */
     private Object resolveFallback(Bulkhead annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);

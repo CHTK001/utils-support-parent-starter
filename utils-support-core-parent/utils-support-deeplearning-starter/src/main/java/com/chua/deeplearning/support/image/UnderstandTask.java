@@ -40,7 +40,7 @@ public enum UnderstandTask {
     /** 区域提议 */
     REGION_PROPOSAL("<REGION_PROPOSAL>");
 
-    /** prompt 前缀 */
+    /** 提示符 前缀 */
     private final String prompt;
 
     UnderstandTask(String prompt) {
@@ -48,7 +48,7 @@ public enum UnderstandTask {
     }
 
     /**
-     * 获取 prompt 前缀。
+      * 获取 提示符 前缀。
      *
      * @return prompt 前缀字符串
      */
@@ -57,10 +57,10 @@ public enum UnderstandTask {
     }
 
     /**
-     * 将 input 插入 prompt，生成完整提示词。
+      * 将 输入 插入 提示符，生成完整提示词。
      *
-     * @param input 输入文本，替换 prompt 中的 {input} 占位符
-     * @return 完整 prompt
+     * @param input 输入文本，替换 提示符 中的 {输入} 占位符
+     * @return 完整 提示符
      */
     public String promptWithInput(String input) {
         return prompt.replace("{input}", input);

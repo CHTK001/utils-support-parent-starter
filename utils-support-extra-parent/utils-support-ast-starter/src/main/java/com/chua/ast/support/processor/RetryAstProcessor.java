@@ -43,7 +43,11 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
         return false;
     }
 
-    /** 处理Method */
+    /**
+     * 处理方法
+     *
+     * @param methodElement 方法element
+     */
     private void processMethod(ExecutableElement methodElement) {
         com.sun.source.tree.Tree tree = trees.getTree(methodElement);
         if (!(tree instanceof JCTree.JCMethodDecl jcMethod)) {
@@ -93,13 +97,13 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-     * 构建RetryStatement
+      * 构建重试对账单
      * @param maker maker
-     * @param names names
-     * @param originalBody originalBody
-     * @param times times
-     * @param delay delay
-     * @param maxDelay maxDelay
+     * @param names 名称
+     * @param originalBody 原始主体
+     * @param times 时间
+     * @param delay 延迟
+     * @param maxDelay 最大延迟
      * @param strategy strategy
      */
     private JCTree.JCStatement buildRetryStatement(TreeMaker maker, Names names,
@@ -126,7 +130,7 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
                 hasReturn = true;
             }
         }
-        // 只有当方法体没有 return 语句时才添加 break
+ // 只有当方法体没有 返回 语句时才添加 中断
         if (!hasReturn) {
             tryStats.append(maker.Break(null));
         }
@@ -174,16 +178,23 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
                 com.sun.tools.javac.util.List.of(incrementStmt),
                 tryStatement);
 
-        // 包装在 try-catch 中，确保异常被抛出
+ // 包装在 尝试-卡扣 中，确保异常被抛出
         com.sun.tools.javac.util.ListBuffer<JCTree.JCStatement> stats = new com.sun.tools.javac.util.ListBuffer<>();
         stats.append(forLoop);
-        // 添加不可能到达的 return 语句，避免编译器报错
+ // 添加不可能到达的 返回 语句，避免编译器报错
         stats.append(maker.Return(maker.Literal(com.sun.tools.javac.code.TypeTag.BOT, null)));
 
         return maker.Block(0, stats.toList());
     }
 
-    /** 构建ThreadSleep */
+    /**
+     * 构建threadsleep
+     *
+     * @param maker maker
+     * @param names 名称
+     * @param delayExpr 延迟expr
+     * @return 构建threadsleep的结果
+     */
     private JCTree.JCStatement buildThreadSleep(TreeMaker maker, Names names, JCTree.JCExpression delayExpr) {
         JCTree.JCExpression sleepCall = maker.Apply(
                 com.sun.tools.javac.util.List.nil(),

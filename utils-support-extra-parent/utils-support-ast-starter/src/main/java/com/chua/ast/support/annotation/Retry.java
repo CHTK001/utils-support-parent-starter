@@ -17,7 +17,7 @@ import java.lang.annotation.*;
  * // 指数退避重试：最多重试3次，初始间隔100ms，最大间隔5000ms
  * @Retry(times = 3, delay = 100, maxDelay = 5000, strategy = RetryStrategy.EXPONENTIAL)
  * public void process() { ... }
- * }</pre>
+ * }</pre> }</pre>
  *
  * @author CH
  * @since 4.0.0.42

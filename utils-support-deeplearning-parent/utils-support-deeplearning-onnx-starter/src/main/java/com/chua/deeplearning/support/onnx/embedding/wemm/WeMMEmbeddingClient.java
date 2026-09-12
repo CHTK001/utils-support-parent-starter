@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * WeMM-Embedding 本地离线嵌入客户端（SPI provider="wemm"）。
+   * wemm-嵌入 本地离线嵌入客户端（SPI 提供者="wemm"）。
  *
  * <p>腾讯微信视觉团队开发的多模态嵌入模型，文本分支支持
  * 2B / 4B / 9B 三档。输出 L2 归一化嵌入向量，可直接用于
@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  *   EmbeddingClient client = EmbeddingClient.create("wemm", "")
  *       .model("wemm-embedding-4b");
+ *   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
+ * }</pre>dding-4b");
  *   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
  * }</pre>
  * </p>
@@ -46,14 +48,19 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     private volatile String resolvedModel;
 
     /**
-     * 创建 WeMMEmbeddingClient 实例
+      * 创建 wemm嵌入客户端 实例
      * @param setting setting
      */
     public WeMMEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
     }
 
-    /** 解析模型标识为资源基础路径 */
+    /**
+     * 解析模型标识为资源基础路径
+     *
+     * @param model 模型
+     * @return 创建translator的结果
+     */
     private WeMMEmbeddingTranslator createTranslator(String model) {
         String m = model == null ? "" : model.toLowerCase();
         if (m.contains("9b")) {
@@ -62,19 +69,19 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         if (m.contains("4b")) {
             return WeMMEmbeddingTranslator.embedding4b();
         }
-        // default: 2b
+ // 默认: 2b
         return new WeMMEmbeddingTranslator();
     }
 
     @Override
-    /** Provider */
+    /** 提供者 */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.resolvedModel = null;
@@ -82,13 +89,17 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Dimensions */
+    /** 维度 */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
     }
 
-    /** 获取翻译器 */
+    /**
+     * 获取翻译器
+     *
+     * @return translator的结果
+     */
     private WeMMEmbeddingTranslator translator() {
         String model = setting.getModel();
         String key = model == null || model.isBlank() ? "wemm-embedding-2b" : model;
@@ -111,7 +122,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Embedding */
+    /** 嵌入 */
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -130,7 +141,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatch */
+    /** 嵌入batch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -143,7 +154,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingWithResponse */
+    /** 嵌入with响应 */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -153,7 +164,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatchWithResponse */
+    /** 嵌入batchwith响应 */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -166,13 +177,13 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingAsync */
+    /** 嵌入异步 */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** EmbeddingBatchAsync */
+    /** 嵌入batch异步 */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }

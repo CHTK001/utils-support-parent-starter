@@ -25,6 +25,8 @@ import java.lang.annotation.*;
  *     @ShellMethod("pwd", description = "显示当前工作目录")
  *     public String pwd(String[] args) { ... }
  * }
+ * }</pre> pwd(字符串[] 参数) { ... }
+ * }
  * }</pre>
  *
  * @author CH

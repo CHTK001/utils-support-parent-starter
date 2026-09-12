@@ -17,6 +17,12 @@ import java.lang.reflect.Method;
  */
 public class TimeoutAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
+    /**
+     * 超时advisor。
+     * @param intercept intercept
+     * @author CH
+     * @since 4.0.0
+     */
     public TimeoutAdvisor(TimeoutIntercept intercept) {
         super(new TimeoutAdvice(intercept));
     }
@@ -27,7 +33,7 @@ public class TimeoutAdvisor extends StaticMethodMatcherPointcutAdvisor {
     }
 
     private static class TimeoutAdvice implements MethodInterceptor {
-        private final TimeoutIntercept intercept;
+        private final TimeoutIntercept intercept; // intercept
 
         TimeoutAdvice(TimeoutIntercept intercept) {
             this.intercept = intercept;

@@ -20,10 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * 文件引擎实现，支持 CSV、Excel、JSON、DBF 等表格文件的 Lambda ORM 查询。
  * <p>
  * 通过 {@link #load(String, String)} 加载文件数据到内存，利用 {@link MemoryWhereParser}
- * 解析 WHERE 条件进行内存过滤，完整支持 LambdaQueryWrapper / LambdaUpdateWrapper / LambdaDeleteWrapper。
+   * 解析 WHERE 条件进行内存过滤，完整支持 lambda查询包装器 / lambda更新包装器 / lambda删除包装器。
  * </p>
  * <p>
- * 支持自动持久化：update / delete 操作默认写回源文件，可通过 {@link #autoPersist(boolean)} 全局关闭，
+   * 支持自动持久化：更新 / 删除 操作默认写回源文件，可通过 {@link #autoPersist(boolean)} 全局关闭，
  * 或通过 {@link #autoPersist(String, boolean)} 按表关闭。也可手动调用 {@link #save(String)} / {@link #saveAll()}。
  * </p>
  *
@@ -45,6 +45,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 删除（自动写回 user.csv）
  * engine.delete(User.class)
+ *     .eq(User::getId, 1L)
+ *     .remove();
+ * }</pre>gine.delete(User.class)
  *     .eq(User::getId, 1L)
  *     .remove();
  * }</pre>
@@ -70,11 +73,13 @@ public class FileEngine extends AbstractEngine {
 
     /**
      * 文件表元数据
+     * @author CH
+     * @since 4.0.0
      */
     private static class TableMeta {
-        File file;
-        String fileType;
-        boolean autoPersist;
+        File file; // 文件
+        String fileType; // 文件类型
+        boolean autoPersist; // autopersist
 
         TableMeta(File file, String fileType, boolean autoPersist) {
             this.file = file;
@@ -123,7 +128,7 @@ public class FileEngine extends AbstractEngine {
      *
      * @param name     数据源名称
      * @param filePath 文件路径
-     * @param type     文件类型（csv/excel/json/dbf），null 则自动识别
+     * @param type     文件类型（csv/excel/json/dbf），空 则自动识别
      * @param <T>      实体类型
      * @return 当前引擎实例
      */
@@ -136,7 +141,7 @@ public class FileEngine extends AbstractEngine {
      *
      * @param name   数据源名称
      * @param file   文件对象
-     * @param type   文件类型（csv/excel/json/dbf），null 则自动识别
+     * @param type   文件类型（csv/excel/json/dbf），空 则自动识别
      * @param <T>    实体类型
      * @return 当前引擎实例
      */
@@ -167,7 +172,7 @@ public class FileEngine extends AbstractEngine {
      * 解析并校验表格文件类型，仅允许 {@link #SUPPORTED_TYPES}。
      *
      * @param file 文件
-     * @param type 显式类型，可为 null（按扩展名识别）
+     * @param type 显式类型，可为 空（按扩展名识别）
      * @return SPI 类型名：csv / excel / json / dbf
      */
     static String resolveSupportedType(File file, String type) {
@@ -197,7 +202,7 @@ public class FileEngine extends AbstractEngine {
     /**
      * 全局开关：是否开启自动持久化，默认 true。
      * <p>
-     * 开启后，update / delete 操作会自动将变更写回源文件。
+      * 开启后，更新 / 删除 操作会自动将变更写回源文件。
      * </p>
      *
      * @param autoPersist 是否自动持久化
@@ -252,6 +257,8 @@ public class FileEngine extends AbstractEngine {
 
     /**
      * 解析表元数据：优先按名称，其次默认数据源，最后任意首个。
+     * @param name 名称
+     * @return resolveMeta的结果
      */
     private TableMeta resolveMeta(String name) {
         TableMeta meta = tableMetas.get(name);
@@ -265,10 +272,12 @@ public class FileEngine extends AbstractEngine {
     }
 
     /**
-     * 解析内存数据：优先实体表名，其次 load 时的 name/default。
+      * 解析内存数据：优先实体表名，其次 加载 时的 名称/默认。
      * <p>
-     * 惰性 Map→Entity 转换后数据可能挂在实体表名下，而 meta 仍用 load 名称。
+      * 惰性 映射→实体 转换后数据可能挂在实体表名下，而 meta 仍用 加载 名称。
      * </p>
+     * @param name 名称
+     * @return resolve数据存储的结果
      */
     private List<?> resolveDataStore(String name) {
         List<?> raw = dataStores.get(name);
@@ -279,7 +288,7 @@ public class FileEngine extends AbstractEngine {
             raw = dataStores.get("default");
         }
         if (raw == null && !dataStores.isEmpty()) {
-            // 优先取实体列表（非 Map 行）
+ // 优先取实体列表（非 映射 行）
             for (List<?> list : dataStores.values()) {
                 if (list != null && !list.isEmpty() && !(list.get(0) instanceof Map)) {
                     return list;
@@ -303,7 +312,16 @@ public class FileEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 执行New查询 */
+    /**
+     * 执行新查询
+     *
+     * @param where where
+     * @param args 参数
+     * @param clazz clazz
+     * @param limit 限制
+     * @param offset 偏移量
+     * @return 执行新查询的结果
+     */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         List<T> data = getData(clazz);
         if (data.isEmpty()) {
@@ -322,10 +340,12 @@ public class FileEngine extends AbstractEngine {
     }
 
     /**
-     * 获取指定实体类对应的数据列表，并在首次访问时将 List&lt;Map&gt; 惰性转换为 List&lt;T&gt;。
+      * 获取指定实体类对应的数据列表，并在首次访问时将 列表&lt;映射&gt; 惰性转换为 列表&lt;T&gt;。
      * <p>
-     * 转换后 dataStores 中存储实体对象，后续 update / delete 的 in-memory 操作可直接使用 getter/setter。
+      * 转换后 数据存储 中存储实体对象，后续 更新 / 删除 的 入-内存 操作可直接使用 getter/setter。
      * </p>
+     * @param entityClass 实体类
+     * @return 获取数据的结果
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -357,7 +377,7 @@ public class FileEngine extends AbstractEngine {
             for (Object item : data) {
                 entities.add(mapToEntity((Map<String, Object>) item, entityClass));
             }
-            // 统一挂到实体表名 + 原 load 名，避免 save/update 找不到最新数据
+ // 统一挂到实体表名 + 原 加载 名，避免 保存/更新 找不到最新数据
             dataStores.put(tableName, entities);
             dataStores.put(storeKey, entities);
             if (defaultDataSourceName != null) {
@@ -372,7 +392,12 @@ public class FileEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 执行更新 */
+    /**
+     * 执行更新
+     *
+     * @param sql SQL
+     * @return 执行更新的结果
+     */
     public <T> int executeUpdate(UpdateSql<T> sql) {
         int rows = super.executeUpdate(sql);
         if (rows > 0) {
@@ -383,7 +408,12 @@ public class FileEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 执行删除 */
+    /**
+     * 执行删除
+     *
+     * @param sql SQL
+     * @return 执行删除的结果
+     */
     public <T> int executeDelete(DeleteSql<T> sql) {
         int rows = super.executeDelete(sql);
         if (rows > 0) {
@@ -395,9 +425,9 @@ public class FileEngine extends AbstractEngine {
     // ==================== 原生 SQL（AST → 行引用 + 自动持久化） ====================
 
     /**
-     * 执行原生 SELECT：SQL 编译为 AST 后在表行引用上求值。
+      * 执行原生 选择：SQL 编译为 AST 后在表行引用上求值。
      *
-     * @param sql    SELECT 语句（支持 WHERE/ORDER BY/LIMIT/COUNT(*)）
+     * @param sql    选择 语句（支持 WHERE/订单 BY/限制/数量(*)）
      * @param params ? 绑定参数
      * @return 结果行
      */
@@ -409,8 +439,8 @@ public class FileEngine extends AbstractEngine {
     }
 
     /**
-     * 执行原生 DML：INSERT / UPDATE / DELETE 作用于表行引用，
-     * 影响行数大于零时按 autoPersist 配置自动写回源文件。
+      * 执行原生 DML：插入 / 更新 / 删除 作用于表行引用，
+      * 影响行数大于零时按 autopersist 配置自动写回源文件。
      *
      * @param sql    DML 语句
      * @param params ? 绑定参数
@@ -436,7 +466,7 @@ public class FileEngine extends AbstractEngine {
      *
      * @param table 表名
      * @return 可变行引用列表
-     * @throws IllegalStateException 表未通过 load 加载时抛出
+     * @throws IllegalStateException 表未通过 加载 加载时抛出
      */
     private List<Object> resolveMutableRows(String table) {
         List<?> rows = dataStores.get(table);
@@ -452,11 +482,11 @@ public class FileEngine extends AbstractEngine {
     }
 
     /**
-     * 提取 FROM 子句后的表名，供原生 SQL 定位数据。
+      * 提取 从 子句后的表名，供原生 SQL 定位数据。
      *
-     * @param sql SELECT 或 DML 语句
+     * @param sql 选择 或 DML 语句
      * @return 表名
-     * @throws IllegalArgumentException 缺少 FROM 子句时抛出
+     * @throws IllegalArgumentException 缺少 从 子句时抛出
      */
     private static String extractTable(String sql) {
         java.util.regex.Matcher m = java.util.regex.Pattern
@@ -469,7 +499,12 @@ public class FileEngine extends AbstractEngine {
 
     // ==================== 内部方法 ====================
 
-    /** NormalizeEmptyStrings */
+    /**
+     * normalize空字符串
+     *
+     * @param rows rows
+     * @return normalize空字符串的结果
+     */
     private static List<Map<String, Object>> normalizeEmptyStrings(List<Map<String, Object>> rows) {
         if (rows == null || rows.isEmpty()) {
             return rows;
@@ -486,17 +521,28 @@ public class FileEngine extends AbstractEngine {
         return result;
     }
 
-    /** PersistIfAuto */
+    /**
+     * persistifauto
+     *
+     * @param clazz clazz
+     * @return persistIfAuto的结果
+     */
     private <T> void persistIfAuto(Class<T> clazz) {
         String tableName = getTableName(clazz);
         TableMeta meta = resolveMeta(tableName);
         if (meta != null && meta.autoPersist) {
-            // save 内部会 resolveMeta + resolveDataStore，兼容 load 名与实体表名不一致
+ // 保存 内部会 resolvemeta + resolve数据存储，兼容 加载 名与实体表名不一致
             save(tableName);
         }
     }
 
-    /** 写入File */
+    /**
+     * 写入文件
+     *
+     * @param meta meta
+     * @param maps 映射
+     * @return 写入文件的结果
+     */
     private <T> void writeFile(TableMeta meta, List<Map<String, Object>> maps) {
         FileSystem fs = FileSystem.create(meta.fileType);
         WriteBuilder writer = fs.write(meta.file);
@@ -504,7 +550,13 @@ public class FileEngine extends AbstractEngine {
         writer.finish();
     }
 
-        /** MapToEntity */
+        /**
+         * 映射转为实体
+         *
+         * @param map 映射
+         * @param clazz clazz
+         * @return 映射转为实体的结果
+         */
 @SuppressWarnings("unchecked")
     private <T> T mapToEntity(Map<String, Object> map, Class<T> clazz) {
         try {
@@ -518,7 +570,12 @@ public class FileEngine extends AbstractEngine {
         }
     }
 
-    /** EntitiesToMaps */
+    /**
+     * 实体转为映射
+     *
+     * @param entities 实体
+     * @return 实体转为映射的结果
+     */
     private <T> List<Map<String, Object>> entitiesToMaps(List<T> entities) {
         if (entities.isEmpty()) {
             return Collections.emptyList();
@@ -532,7 +589,13 @@ public class FileEngine extends AbstractEngine {
         return maps;
     }
 
-    /** CollectFields */
+    /**
+     * collect字段
+     *
+     * @param bean Bean
+     * @param clazz clazz
+     * @param map 映射
+     */
     private static void collectFields(Object bean, Class<?> clazz, Map<String, Object> map) {
         for (Field field : clazz.getDeclaredFields()) {
             field.setAccessible(true);
@@ -550,12 +613,20 @@ public class FileEngine extends AbstractEngine {
         }
     }
 
-    /** 获取PropertyValue */
+    /**
+     * 获取财产值
+     *
+     * @param bean Bean
+     * @param field 字段
+     * @return 获取财产值的结果
+     */
     private static Object getPropertyValue(Object bean, String field) {
         try {
             String getter = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
             Object result = ReflectUtils.invoke(bean, getter, Object.class);
-            if (result != null) return result;
+            if (result != null) {
+                return result;
+            }
             String isGetter = "is" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
             return ReflectUtils.invoke(bean, isGetter, Object.class);
         } catch (Exception ignored) {
@@ -563,7 +634,12 @@ public class FileEngine extends AbstractEngine {
         return null;
     }
 
-    /** ToCamelCase */
+    /**
+     * 转为camel大小写
+     *
+     * @param name 名称
+     * @return 转为camel大小写的结果
+     */
     private static String toCamelCase(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;
@@ -580,7 +656,13 @@ public class FileEngine extends AbstractEngine {
         return sb.toString();
     }
 
-    /** 设置FieldValue */
+    /**
+     * 设置字段值
+     *
+     * @param obj obj
+     * @param field 字段
+     * @param value 值
+     */
     private void setFieldValue(Object obj, String field, Object value) {
         try {
             String camelField = toCamelCase(field);
@@ -593,7 +675,19 @@ public class FileEngine extends AbstractEngine {
         }
     }
 
-    /** 转换Value */
+     /**
+      * 转换值。
+      * @param value 值
+      * @param targetType Target类型
+      * @return 转换值的结果
+      */
+     * 转换值
+     *
+     * @param data 数据
+     * @param limit 限制
+     * @param offset 偏移量
+     * @return 限制slice的结果
+     */
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null || targetType.isInstance(value)) {
             return value;
@@ -642,7 +736,9 @@ public class FileEngine extends AbstractEngine {
     }
 
     private static <T> List<T> limitSlice(List<T> data, int limit, int offset) {
-        if (limit <= 0 && offset <= 0) return data;
+        if (limit <= 0 && offset <= 0) {
+            return data;
+        }
         int from = Math.min(offset, data.size());
         int to = limit > 0 ? Math.min(from + limit, data.size()) : data.size();
         return from >= data.size() ? Collections.emptyList() : data.subList(from, to);

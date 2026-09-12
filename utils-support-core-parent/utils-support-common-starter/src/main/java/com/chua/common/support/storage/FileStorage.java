@@ -16,10 +16,10 @@ import com.chua.common.support.storage.result.PutObjectResult;
 import com.chua.common.support.storage.setting.BucketSetting;
 
 /**
- * 文件存储 SPI（Service Provider Interface）接口。
+   * 文件存储 SPI（服务 提供者 接口）接口。
  *
  * <p>定义统一的文件存储操作契约，支持对象存储（OSS/S3/COS 等）、
- * WebDAV、文件系统等多种存储后端的接入。</p>
+   * webdav、文件系统等多种存储后端的接入。</p>
  *
  * <p>核心操作：</p>
  * <ul>
@@ -53,11 +53,11 @@ public interface FileStorage extends AutoCloseable {
     GetObjectResult getObject(GetObjectRequest request);
 
     /**
-     * 获取/下载文件（通过 Key 字符串）。
+      * 获取/下载文件（通过 键 字符串）。
      *
      * <p>将 Key（如 "dir/file.txt"）解析为 {@link GetObjectRequest} 后调用核心方法。</p>
      *
-     * @param key 文件 Key，支持 "path/file.ext" 格式
+     * @param key 文件 键，支持 "路径/文件.ext" 格式
      * @return 下载结果
      */
     GetObjectResult getObject(String key);
@@ -65,7 +65,7 @@ public interface FileStorage extends AutoCloseable {
     /**
      * 删除文件。
      *
-     * @param key 要删除的文件 Key
+     * @param key 要删除的文件 键
      * @return 删除结果
      */
     DeleteObjectResult deleteObject(String key);
@@ -89,7 +89,7 @@ public interface FileStorage extends AutoCloseable {
     /**
      * 通过 SPI 创建文件存储实例。
      *
-     * @param name          存储类型名称（如 "oss"、"s3"、"bos" 等）
+     * @param name          存储类型名称（如 "对象存储"、"s3"、"bos" 等）
      * @param bucketSetting 存储配置
      * @return 文件存储实例
      */

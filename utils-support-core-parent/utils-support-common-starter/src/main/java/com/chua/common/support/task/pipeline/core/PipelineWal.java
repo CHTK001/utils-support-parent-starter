@@ -45,6 +45,7 @@ import java.util.*;
  *
  * // 终止并销毁 WAL
  * pipeline.stop();
+ * }</pre>line.停止();
  * }</pre>
  *
  * <p><strong>序列化解耦：</strong>WAL 的上下文快照序列化直接使用 Jackson
@@ -76,7 +77,7 @@ public class PipelineWal implements AutoCloseable {
     public static final byte OP_CHECKPOINT = 3;
 
     /**
-     * 流水线 ID（用作 WAL namespace）
+      * 流水线 标识（用作 WAL namespace）
      */
     private final String pipelineId;
 
@@ -91,8 +92,8 @@ public class PipelineWal implements AutoCloseable {
     private final WalConfig walConfig;
 
     /**
-     * JSON 序列化使用的 ObjectMapper — 直接复用 {@link JacksonJsonProvider#getMapper()} 的全局配置
-     * （含 java.time 支持、日期格式、统一门户注解适配），线程安全单例。
+      * JSON 序列化使用的 对象映射器 — 直接复用 {@link JacksonJsonProvider#getMapper()} 的全局配置
+      * （含 Java.时间 支持、日期格式、统一门户注解适配），线程安全单例。
      */
     private static final ObjectMapper MAPPER = JacksonJsonProvider.getMapper();
 
@@ -105,11 +106,13 @@ public class PipelineWal implements AutoCloseable {
      * 上下文快照 — 用于 WAL 回放时恢复上下文状态
      *
      * <p>记录每个节点完成后的上下文关键状态，用于崩溃恢复。</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class ContextSnapshot {
-        /** 当前节点 ID */
+        /** 当前节点 标识 */
         public String currentNodeId;
-        /** 下一节点 ID */
+        /** 下一节点 标识 */
         public String nextNodeId;
         /** 当前数据（JSON 序列化形式） */
         public Object currentData;
@@ -125,7 +128,11 @@ public class PipelineWal implements AutoCloseable {
         /** 默认构造器（JSON 反序列化用） */
         public ContextSnapshot() {}
 
-        /** 从上下文创建快照 */
+        /**
+         * 从上下文创建快照
+         *
+         * @param ctx ctx
+         */
         public ContextSnapshot(PipelineContext<?> ctx) {
             this.currentNodeId = ctx.getCurrentNodeId();
             this.nextNodeId = ctx.getNextNodeId();
@@ -138,10 +145,11 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-     * 创建 PipelineWal 实例。
+      * 创建 pipelinewal 实例。
      *
-     * @param pipelineId 流水线 ID
+     * @param pipelineId 流水线 标识
      * @param walDir     WAL 存储目录
+     * @return PipelineWal的结果
      */
     public PipelineWal(String pipelineId, String walDir) {
         this.pipelineId = pipelineId;
@@ -154,10 +162,11 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-     * 创建 PipelineWal 实例（使用自定义 WalConfig）。
+      * 创建 pipelinewal 实例（使用自定义 wal配置）。
      *
-     * @param pipelineId 流水线 ID
+     * @param pipelineId 流水线 标识
      * @param walConfig  WAL 配置
+     * @return PipelineWal的结果
      */
     public PipelineWal(String pipelineId, WalConfig walConfig) {
         this.pipelineId = pipelineId;
@@ -194,6 +203,7 @@ public class PipelineWal implements AutoCloseable {
      * @param input 输入数据
      * @param <T>   数据类型
      * @throws IOException IO 异常
+     * @return 追加启动的结果
      */
     public <T> void appendStart(T input) throws IOException {
         ensureOpen();
@@ -239,7 +249,7 @@ public class PipelineWal implements AutoCloseable {
      *
      * @param input 原始输入数据（用于创建新上下文）
      * @param <T>   数据类型
-     * @return 恢复的上下文，无 WAL 数据时返回 null
+     * @return 恢复的上下文，无 WAL 数据时返回 空
      * @throws IOException IO 异常
      */
     public <T> PipelineContext<T> replay(T input) throws IOException {
@@ -250,7 +260,7 @@ public class PipelineWal implements AutoCloseable {
         Object originalInput = null;
 
         WalReplayResult result = walLog.replay((lsn, op, payload) -> {
-            // 回放处理在循环外通过 result.records 进行
+ // 回放处理在循环外通过 结果.records 进行
             return true;
         });
 
@@ -376,9 +386,9 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-     * 获取流水线 ID。
+      * 获取流水线 标识。
      *
-     * @return 流水线 ID
+     * @return 流水线 标识
      */
     public String getPipelineId() {
         return pipelineId;
@@ -411,6 +421,8 @@ public class PipelineWal implements AutoCloseable {
      *
      * <p>序列化失败会记录警告并返回空数组——调用方写入的将是无效记录，
      * 恢复侧需容忍空 payload（见 {@link #deserializeObject}）。</p>
+     * @param obj obj
+     * @return serialize对象的结果
      */
     private byte[] serializeObject(Object obj) {
         if (obj == null) {
@@ -430,6 +442,8 @@ public class PipelineWal implements AutoCloseable {
      * 从字节数组反序列化对象。
      *
      * <p>反序列化失败记录警告并返回 null，由调用方决定降级策略。</p>
+     * @param payload payload
+     * @return deserialize对象的结果
      */
     private Object deserializeObject(byte[] payload) {
         if (payload == null || payload.length == 0) {
@@ -448,6 +462,8 @@ public class PipelineWal implements AutoCloseable {
      * 反序列化上下文快照。
      *
      * <p>快照损坏时记录警告并返回 null——恢复流程将回退到最近的有效检查点。</p>
+     * @param payload payload
+     * @return deserializeSnapshot的结果
      */
     private ContextSnapshot deserializeSnapshot(byte[] payload) {
         if (payload == null || payload.length == 0) {

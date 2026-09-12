@@ -14,10 +14,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * BigDataCloud 逆地理编码实现。
+   * big数据cloud 逆地理编码实现。
  *
  * <p>经纬度 → 行政地址：{@code https://api.bigdatacloud.net/data/reverse-geocode-client}
- * （免费、无需 key、支持中文，返回国家/省/市/区）。</p>
+   * （免费、无需 键、支持中文，返回国家/省/市/区）。</p>
  *
  * <p>IP → 物理地址：先经 {@link IpApiLocationProvider} 定位到经纬度再逆编码，
  * 定位失败时回退为「城市 + 省份 + 国家」行政信息拼接。</p>
@@ -30,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("bigdatacloud")
 public class BigDataCloudGeocodeProvider implements GeocodeProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(BigDataCloudGeocodeProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(BigDataCloudGeocodeProvider.class); // 日志
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
     /** 逆地理编码地址模板 */
     private static final String REVERSE_URL =
@@ -44,11 +44,11 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126 Safari/537.36";
 
-    private final IpApiLocationProvider locationProvider = new IpApiLocationProvider();
+    private final IpApiLocationProvider locationProvider = new IpApiLocationProvider(); // 位置提供者
 
     /** 逆编码缓存（"lat,lon" -> 地址） */
     private final Map<String, String> cache = new ConcurrentHashMap<>();
-    private final Map<String, Long> cachedAt = new ConcurrentHashMap<>();
+    private final Map<String, Long> cachedAt = new ConcurrentHashMap<>(); // 缓存at
 
     @Override
     public String name() {
@@ -118,7 +118,7 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
      * 按「区/市/省/国家」顺序拼接行政地址。
      *
      * @param root 逆编码响应
-     * @return 地址；全部缺失时返回 null
+     * @return 地址；全部缺失时返回 空
      */
     private String buildAddress(JsonNode root) {
         StringBuilder sb = new StringBuilder();

@@ -11,9 +11,9 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
- * AR格式归档输入流提供者
+   * 增强现实格式归档输入流提供者
  * <p>
- * AR（Archive）格式通常用于Unix/Linux静态库文件（.a文件）
+   * 增强现实（Arch Linux Linux）格式通常用于Unix/Linux静态库文件（.a文件）
  * </p>
  *
  * @author CH
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 public class ArCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -33,14 +33,14 @@ public class ArCompressArchiveInputStream implements CompressArchiveInputStream 
     }
 
     @Override
-    /** 创建InputStream */
+    /** 创建输入流 */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var arInputStream = new ArArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(arInputStream);
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "ar";
     }

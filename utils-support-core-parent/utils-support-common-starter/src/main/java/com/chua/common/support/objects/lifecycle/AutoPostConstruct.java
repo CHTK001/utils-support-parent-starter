@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * PostConstruct 注解，标记初始化方法。
+   * postconstruct 注解，标记初始化方法。
  *
  * @author CH
  * @since 2024/12/20

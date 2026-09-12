@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * 内存向量存储实现，适用于测试和小规模场景。
  * <p>
- * 使用 {@link BPlusTree} 作为主索引（O(log N) 查找），替代原 {@link ConcurrentHashMap}
+   * 使用 {@link BPlusTree} 作为主索引（O(日志 N) 查找），替代原 {@link ConcurrentHashMap}
  * 的线性遍历，同时保持线程安全的读写锁语义。搜索时遍历全部向量计算距离。
  * </p>
  *
@@ -21,10 +21,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class MemoryVectorStorage extends AbstractVectorStorage {
 
-    /** B+ Tree 主索引：id → Vector，提供 O(log N) 点查和有序遍历。 */
+    /** B+ 树 主索引：标识 → 向量，提供 O(日志 N) 点查和有序遍历。 */
     private final BPlusTree<String, Vector> store = new BPlusTree<>(128);
 
-    /** 读写锁：写操作（add/remove/update/clear）独占，读操作（search/size）共享。 */
+    /** 读写锁：写操作（添加/移除/更新/clear）独占，读操作（搜索/大小）共享。 */
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     /**
@@ -46,7 +46,9 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
         }
         rwLock.writeLock().lock();
         try {
-            if (store.containsKey(vector.id())) return false;
+            if (store.containsKey(vector.id())) {
+                return false;
+            }
             store.put(vector.id(), vector);
             return true;
         } finally {
@@ -62,7 +64,9 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
         }
         rwLock.writeLock().lock();
         try {
-            if (store.containsKey(id)) return false;
+            if (store.containsKey(id)) {
+                return false;
+            }
             store.put(id, new Vector(id, vector));
             return true;
         } finally {
@@ -108,7 +112,9 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
         }
         rwLock.writeLock().lock();
         try {
-            if (!store.containsKey(id)) return false;
+            if (!store.containsKey(id)) {
+                return false;
+            }
             store.put(id, new Vector(id, vector));
             return true;
         } finally {
@@ -156,15 +162,27 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
         }
     }
 
-    /** 合并元数据，score 插入到最前面。 */
+    /**
+     * 合并元数据，score 插入到最前面。
+     *
+     * @param v v
+     * @param score score
+     * @return 合并metadata的结果
+     */
     private static Map<String, Object> mergeMetadata(Vector v, double score) {
         var meta = new java.util.LinkedHashMap<String, Object>();
         meta.put("score", score);
-        if (v.metadata() != null) meta.putAll(v.metadata());
+        if (v.metadata() != null) {
+            meta.putAll(v.metadata());
+        }
         return Map.copyOf(meta);
     }
 
-    /** 遍历 B+ Tree 全部条目（通过 range 查询）。 */
+    /**
+     * 遍历 B+ 树 全部条目（通过 范围 查询）。
+     *
+     * @return 全部entries的结果
+     */
     private List<Map.Entry<String, Vector>> allEntries() {
         return store.range(null, null);
     }

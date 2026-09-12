@@ -37,21 +37,26 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     private final boolean append;
 
     /**
-     * 创建 DelimitedDataSyncAgentSink 实例
-     * @param sinkId sinkId
-     * @param String String
-     * @param String String
+      * 创建 delimited数据同步智能体sink 实例
+     * @param sinkId sinkid
+     * @param sinkId 字符串
+     * @param sinkId 字符串
+     * @param filePath 文件路径
+     * @param delimiter delimiter
      */
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter) {
         this(sinkId, filePath, delimiter, false);
     }
 
     /**
-     * 创建 DelimitedDataSyncAgentSink 实例
-     * @param sinkId sinkId
-     * @param String String
-     * @param String String
-     * @param boolean boolean
+      * 创建 delimited数据同步智能体sink 实例
+     * @param sinkId sinkid
+     * @param sinkId 字符串
+     * @param sinkId 字符串
+     * @param append 布尔值
+     * @param filePath 文件路径
+     * @param delimiter delimiter
+     * @param append 追加
      */
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter, boolean append) {
         this.sinkId = sinkId;
@@ -61,7 +66,7 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     }
 
     @Override
-    /** SinkId */
+    /** sinkid */
     public String sinkId() {
         return sinkId;
     }
@@ -89,7 +94,11 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
         }
     }
 
-    /** 打开Writer */
+    /**
+     * 打开Writer
+     *
+     * @return 打开writer的结果
+     */
     private BufferedWriter openWriter() throws java.io.IOException {
         if (append) {
             return Files.newBufferedWriter(filePath, StandardCharsets.UTF_8,
@@ -104,7 +113,7 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     @Override
     /** 关闭 */
     public void close() {
-        // 每次 write 都是 try-with-resources，无需额外关闭
+ // 每次 写入 都是 尝试-with-resources，无需额外关闭
     }
 
     @Override

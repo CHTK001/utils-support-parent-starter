@@ -11,7 +11,7 @@ import java.util.List;
  * 支持批量写入、批量消费、位点追踪、死信投递和背压控制。</p>
  *
  * <p>通过 SPI（@Spi 注解或 META-INF/services）注册实现，
- * 由 ServiceProvider 按名称发现。</p>
+   * 由 服务提供者 按名称发现。</p>
  *
  * @author CH
  * @since 2026/07/28
@@ -37,14 +37,14 @@ public interface Sink extends AutoCloseable {
      * <p>由输出端调用，从缓冲中拉取待写出的数据。</p>
      *
      * @param batchSize 期望的批次大小
-     * @return 同步上下文批次（可能为空列表，不会为 null）
+     * @return 同步上下文批次（可能为空列表，不会为 空）
      */
     List<SyncContext> consumeBatch(int batchSize);
 
     /**
      * 获取当前位点
      *
-     * @return 当前同步位点，无数据时返回 null
+     * @return 当前同步位点，无数据时返回 空
      */
     Position getCurrentPosition();
 

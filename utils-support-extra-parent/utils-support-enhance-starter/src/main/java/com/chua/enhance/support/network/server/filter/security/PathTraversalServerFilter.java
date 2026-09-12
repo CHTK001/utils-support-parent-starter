@@ -38,7 +38,7 @@ public class PathTraversalServerFilter implements ServerFilter {
     private static final String ROOT_PATH = new File("").getAbsolutePath();
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null) {
@@ -63,18 +63,23 @@ public class PathTraversalServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 8;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "PathTraversalServerFilter";
     }
 
-    /** 是否Traversal */
+    /**
+     * 是否Traversal
+     *
+     * @param path 路径
+     * @return 是否traversal的结果
+     */
     private boolean isTraversal(String path) {
         return path.contains(TRAVERSAL_PATTERN) || path.contains("\\\\");
     }

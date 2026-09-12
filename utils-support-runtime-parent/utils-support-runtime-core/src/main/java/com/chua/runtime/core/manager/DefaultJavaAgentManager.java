@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 默认 Java Agent 管理器。
+   * 默认 Java 智能体 管理器。
  *
  * @author CH
  * @since 4.0.0.42
@@ -21,7 +21,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
 
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(DefaultJavaAgentManager.class.getName());
     /**
@@ -30,13 +30,13 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     private static final int CMD_TIMEOUT = 30;
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "default";
     }
 
     @Override
-    /** ListPids */
+    /** 列表pids */
     public Map<Integer, String> listPids() {
         Map<Integer, String> jvms = new HashMap<>();
         try {
@@ -61,7 +61,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     }
 
     @Override
-    /** InspectJvm */
+    /** inspectjvm */
     public CmdResult inspectJvm(int pid) {
         try {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
@@ -92,7 +92,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     }
 
     @Override
-    /** AttachByPort */
+    /** attachby端口 */
     public CmdResult attachByPort(int port, Path agentPath, String options) {
         return attach(port, agentPath, options);
     }

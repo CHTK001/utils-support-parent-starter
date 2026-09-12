@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Paraformer 特征提取器（纯 Java 实现，复刻 kaldi-native-fbank + sherpa-onnx 流程）。
+   * Paraformer 特征提取器（纯 Java 实现，复刻 kaldi-NAT-fbank + sherpa-onnx 流程）。
  * <p>
  * 处理链路：WAV 样本(16k, int16 范围) → kaldi fbank(80 维) → LFR 拼接(7 帧→560 维) → CMVN 归一化。
  * </p>
  * <ul>
  *   <li>kaldi fbank：帧长 25ms(400)、帧移 10ms(160)、hamming 窗、pre-emphasis 0.97、
- *       DC 去除、FFT 512(补零)、power 谱、80 维 mel 滤波器组(20~8000Hz)、log 能量</li>
+   * DC 去除、FFT 512(补零)、power 谱、80 维 mel 滤波器组(20~8000Hz)、日志 能量</li>
  *   <li>LFR(Low Frame Rate)：窗口 7、步长 6，输出帧数 = 1 + (n-1)/6，每帧 7×80=560 维，
  *       越界处按边界帧复制</li>
  *   <li>CMVN：对每帧 80 维执行 (x + neg_mean) × inv_stddev，参数来自 ONNX metadata</li>
@@ -22,27 +22,27 @@ import java.util.List;
 public class ParaformerFbankExtractor {
 
     /** 采样率 */
-    /** Sample_rate */
+    /** 样本_rate */
     private static final float SAMPLE_RATE = 16000.0f;
 
     /** 帧长（毫秒） */
-    /** Frame_length_ms */
+    /** 帧_长度_ms */
     private static final float FRAME_LENGTH_MS = 25.0f;
 
     /** 帧移（毫秒） */
-    /** Frame_shift_ms */
+    /** 帧_Shift_ms */
     private static final float FRAME_SHIFT_MS = 10.0f;
 
     /** 帧移采样数 */
-    /** Window_shift */
+    /** 窗口_Shift */
     private static final int WINDOW_SHIFT = (int) (SAMPLE_RATE * 0.001f * FRAME_SHIFT_MS);
 
     /** 帧长采样数 */
-    /** Window_size */
+    /** 窗口_大小 */
     private static final int WINDOW_SIZE = (int) (SAMPLE_RATE * 0.001f * FRAME_LENGTH_MS);
 
     /** FFT 长度（400 向上取整到 2 的幂） */
-    /** Padded_window_size */
+    /** Padded_窗口_大小 */
     private static final int PADDED_WINDOW_SIZE = 512;
 
     /** 谱 bin 数（512/2+1） */
@@ -66,31 +66,31 @@ public class ParaformerFbankExtractor {
     private static final float PREEMPH_COEFF = 0.97f;
 
     /** 是否去除直流分量 */
-    /** Remove_dc_offset */
+    /** 移除_dc_偏移量 */
     private static final boolean REMOVE_DC_OFFSET = true;
 
     /** 帧间能量下限 */
-    /** Energy_floor */
+    /** Energy_地板 */
     private static final float ENERGY_FLOOR = 1.0f;
 
     /** LFR 窗口大小 */
-    /** Lfr_window_size */
+    /** Lfr_窗口_大小 */
     private static final int LFR_WINDOW_SIZE = 7;
 
     /** LFR 窗口步长 */
-    /** Lfr_window_shift */
+    /** Lfr_窗口_Shift */
     private static final int LFR_WINDOW_SHIFT = 6;
 
     /** hamming 窗口系数 */
-    /** Window */
+    /** 窗口 */
     private final float[] window;
 
-    /** mel 滤波器组权重：每行一个 bin 的 {offset, weights[]} */
+    /** mel 滤波器组权重：每行一个 bin 的 {偏移量, 权重[]} */
     /** Mel_banks */
     private final float[][] melWeights;
 
     /** mel 滤波器组每行起始 fft bin */
-    /** Mel_offsets */
+    /** Mel_偏移量 */
     private final int[] melOffsets;
 
     /** CMVN 负均值（80 维） */
@@ -102,10 +102,10 @@ public class ParaformerFbankExtractor {
     private float[] invStddev;
 
     /** 是否已配置 CMVN 参数 */
-    /** Has_cmvn */
+    /** 是否包含_cmvn */
     private boolean hasCmvn;
 
-    /** 创建 ParaformerFbankExtractor 实例 */
+    /** 创建 paraformerfbankextractor 实例 */
     public ParaformerFbankExtractor() {
         this.window = buildWindow();
         MelBank bank = buildMelBank();
@@ -129,7 +129,7 @@ public class ParaformerFbankExtractor {
     /**
      * 提取完整特征：fbank → LFR → CMVN。
      *
-     * @param samples 16kHz 单声道样本（int16 范围，约 ±32768）
+     * @param samples 16khz 单声道样本（int16 范围，约 ±32768）
      * @return (frames, 560) 扁平 float 数组，每帧 560 维
      */
     public float[] extract(float[] samples) {
@@ -155,9 +155,9 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 计算 kaldi fbank（80 维 log-mel 能量）。
+      * 计算 kaldi fbank（80 维 日志-mel 能量）。
      *
-     * @param samples 16kHz 单声道样本
+     * @param samples 16khz 单声道样本
      * @return (frames, 80) 特征矩阵
      */
     private float[][] computeFbank(float[] samples) {
@@ -170,7 +170,7 @@ public class ParaformerFbankExtractor {
             int start = frame * WINDOW_SHIFT;
             System.arraycopy(samples, start, buf, 0, WINDOW_SIZE);
 
-            // DC offset 去除
+ // DC 偏移量 去除
             if (REMOVE_DC_OFFSET) {
                 removeDcOffset(buf);
             }
@@ -198,7 +198,7 @@ public class ParaformerFbankExtractor {
                 for (int k = 0; k < melWeights[m].length; k++) {
                     energy += melWeights[m][k] * power[melOffsets[m] + k];
                 }
-                // log 能量，下限 epsilon
+ // 日志 能量，下限 epsilon
                 float t = Math.max(energy, Float.MIN_NORMAL);
                 mel[m] = (float) Math.log(t);
             }
@@ -210,8 +210,8 @@ public class ParaformerFbankExtractor {
     /**
      * LFR 拼接：每输出帧取窗口 7 帧拼接成 560 维，越界处按边界帧复制。
      *
-     * @param fbank (frames, 80) 特征矩阵
-     * @return 扁平 (lfrFrames * 560) 数组
+     * @param fbank (帧, 80) 特征矩阵
+     * @return 扁平 (lfr帧 * 560) 数组
      */
     private float[] applyLfr(float[][] fbank) {
         int inputFrames = fbank.length;
@@ -299,7 +299,7 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-     * 构造 hamming 窗：0.54 - 0.46·cos(2πi/(N-1))。
+      * 构造 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
      *
      * @return 400 维窗口系数
      */
@@ -375,6 +375,7 @@ public class ParaformerFbankExtractor {
      *
      * @param weights 每行权重数组
      * @param offsets 每行起始 fft bin
+     * @return MelBank的结果
      */
     private record MelBank(float[][] weights, int[] offsets) {
     }

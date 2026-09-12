@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 基于 Vert.x NetClient 的短连接 TcpClient 实现。
+   * 基于 Vert.x net客户端 的短连接 tcp客户端 实现。
  *
  * <p>{@link #call(String, int, byte[])}：connect → send 请求帧 → 等待响应帧 → close，
  * 一请求一响应一断（短连接）。用于 scatter 等需要短连接的场景。</p>
@@ -24,9 +24,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class VertxTcpClient implements TcpClient {
 
-    private Vertx vertx;
-    private final NetClient netClient;
+    private Vertx vertx; // vertx
+    private final NetClient netClient; // net客户端
 
+    /**
+     * vertxtcp客户端。
+     */
     public VertxTcpClient() {
         this.vertx = Vertx.vertx(new VertxOptions()
                 .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))
@@ -43,7 +46,7 @@ public class VertxTcpClient implements TcpClient {
         AtomicBoolean done = new AtomicBoolean(false);
         Future<NetSocket> connectFuture = netClient.connect(port, host);
         connectFuture.onSuccess(socket -> {
-            // 响应帧协议（与 JdkTcpClient.exchange 对称）：4 字节长度头 + body
+ // 响应帧协议（与 jdktcp客户端.exchange 对称）：4 字节长度头 + 主体
             Buffer accumulated = Buffer.buffer();
             socket.handler(buffer -> {
                 accumulated.appendBuffer(buffer);
@@ -72,7 +75,7 @@ public class VertxTcpClient implements TcpClient {
                     future.completeExceptionally(err);
                 }
             });
-            // 发送请求帧（4 字节长度头 + body，与 JdkTcpClient 对称）
+ // 发送请求帧（4 字节长度头 + 主体，与 jdktcp客户端 对称）
             Buffer framed = Buffer.buffer(4 + request.length);
             framed.appendInt(request.length);
             framed.appendBytes(request);

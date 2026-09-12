@@ -56,23 +56,23 @@ public class SpiderTimerService {
      * 任务回调：接收到时执行爬虫逻辑
      */
     private Consumer<SpiderDefinition> taskHandler = def -> {
-        // 默认空实现，由调用方通过 setTaskHandler 注入
+ // 默认空实现，由调用方通过 设置任务处理器 注入
         log.info("[spider-config] 到期: spiderCode={}", def.getSpiderCode());
     };
 
     /**
-     * 已注册的调度任务：spiderCode -> ScheduledFuture
+      * 已注册的调度任务：蜘蛛编码 -> 调度期货
      */
     private final Map<String, ScheduledFuture<?>> futures = new ConcurrentHashMap<>();
 
     /**
-     * 扫描线程的 Future（用于 shutdown 时取消）
+      * 扫描线程的 期货（用于 关闭 时取消）
      */
     private ScheduledFuture<?> scanFuture;
 
     /**
-     * 创建 SpiderTimerService 实例
-     * @param definitionStore definitionStore
+      * 创建 蜘蛛定时器服务 实例
+     * @param definitionStore definition存储
      */
     public SpiderTimerService(SpiderDefinitionStore definitionStore) {
         this.scheduler = Executors.newScheduledThreadPool(DEFAULT_POOL_SIZE,

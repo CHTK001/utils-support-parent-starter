@@ -47,6 +47,11 @@ import java.util.logging.Logger;
  *         ...
  *     }
  * }
+ * }</pre>eStatement()
+ *             .executeQuery("SELECT * FROM sales.orders")) {
+ *         ...
+ *     }
+ * }
  * }</pre>
  * </p>
  *
@@ -59,12 +64,12 @@ import java.util.logging.Logger;
 public class CalciteDataSourceCreator implements DataSourceCreator {
 
     /**
-     * 已注册的 JDBC 数据源（名称 -> DataSource）
+      * 已注册的 JDBC 数据源（名称 -> 数据源）
      */
     private final Map<String, DataSource> dataSources = new LinkedHashMap<>();
 
     /**
-     * 已注册的 DataScheme 虚拟库列表
+      * 已注册的 数据scheme 虚拟库列表
      */
     private final List<DataScheme> schemes = new ArrayList<>();
 
@@ -96,7 +101,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     // ---------------------------------------------------------------
 
     @Override
-    /** 添加DataSource */
+    /** 添加数据源 */
     public CalciteDataSourceCreator addDataSource(String name, DataSource dataSource) {
         Objects.requireNonNull(name, "dataSource name must not be null");
         Objects.requireNonNull(dataSource, "dataSource must not be null");
@@ -130,7 +135,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         if (existing instanceof CalciteDataScheme) {
             ((CalciteDataScheme) existing).addTable(table);
         } else if (existing != null) {
-            // 非 CalciteDataScheme 的情况，创建一个新的包装
+ // 非 calcite数据scheme 的情况，创建一个新的包装
             CalciteDataScheme wrapper = new CalciteDataScheme(schemaName);
             for (String tName : existing.getTableNames()) {
                 DataTable t = existing.getTable(tName);
@@ -148,10 +153,14 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     }
 
     // ---------------------------------------------------------------
-    // 创建 DataSource
+ // 创建 数据源
     // ---------------------------------------------------------------
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @return 创建的结果
+     */
     public DataSource create() {
         return new UnifiedCalciteDataSource(
                 new LinkedHashMap<>(this.dataSources),
@@ -166,10 +175,12 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
 
     /**
      * 统一的 Calcite 数据源，内部封装了 JDBC 数据源和虚拟表的聚合逻辑。
+     * @author CH
+     * @since 4.0.0
      */
     private static class UnifiedCalciteDataSource implements DataSource {
 
-        /** dataSources */
+        /** 数据源 */
         private final Map<String, DataSource> dataSources;
         /** Schemes */
         private final List<DataScheme> schemes;
@@ -204,7 +215,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
                 }
             }
 
-            // 2. 注册 DataScheme 虚拟库
+ // 2. 注册 数据scheme 虚拟库
             for (DataScheme scheme : schemes) {
                 String schemaName = scheme.getName();
                 if (schemaName == null || schemaName.isEmpty()) {
@@ -250,7 +261,12 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
 
         @Override
         @SuppressWarnings("unchecked")
-        /** Unwrap */
+        /**
+         * Unwrap
+         *
+         * @param iface iface
+         * @return unwrap的结果
+         */
         public <T> T unwrap(Class<T> iface) throws SQLException {
             if (iface.isInstance(this)) {
                 return (T) this;
@@ -259,7 +275,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
-        /** 是否WrapperFor */
+        /** 是否包装器for */
         public boolean isWrapperFor(Class<?> iface) {
             return iface.isInstance(this);
         }
@@ -276,29 +292,31 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
-        /** 设置LoginTimeout */
+        /** 设置login超时 */
         public void setLoginTimeout(int seconds) {
         }
 
         @Override
-        /** 获取LoginTimeout */
+        /** 获取login超时 */
         public int getLoginTimeout() {
             return 0;
         }
 
         @Override
-        /** 获取ParentLogger */
+        /** 获取父日志记录器 */
         public Logger getParentLogger() {
             return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         }
     }
 
     /**
-     * 将 DataScheme 映射为 Calcite Schema，为每个 DataTable 提供 ScannableTable。
+      * 将 数据scheme 映射为 Calcite 模式，为每个 数据table 提供 scannabletable。
+     * @author CH
+     * @since 4.0.0
      */
     private static class DataSchemeSchema extends AbstractSchema {
 
-        /** tableMap */
+        /** table映射 */
         private final Map<String, Table> tableMap;
 
         DataSchemeSchema(Map<String, Table> tableMap) {
@@ -306,7 +324,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
-        /** 获取TableMap */
+        /** 获取table映射 */
         protected Map<String, Table> getTableMap() {
             return tableMap;
         }

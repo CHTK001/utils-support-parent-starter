@@ -37,10 +37,10 @@ public class SkillDefinition {
     /**
      * 创建 SkillDefinition 实例
      * @param name name
-     * @param String String
-     * @param List List
+     * @param name String
+     * @param arguments List
      * @param arguments arguments
-     * @param SkillHandler SkillHandler
+     * @param handler SkillHandler
      */
     public SkillDefinition(String name, String description, List<SkillArgumentSchema> arguments, SkillHandler handler) {
         this.name = name;

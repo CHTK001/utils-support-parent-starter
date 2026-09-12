@@ -34,6 +34,8 @@ import java.util.Base64;
  * Server server = ServerBuilder.create().type("jdk").host("0.0.0.0").port(8641).build();
  * server.addFilter(new LicenseServerFilter(registry, "prod-secret".toCharArray()));
  * server.start();
+ * }</pre>er(registry, "prod-secret".toCharArray()));
+ * server.start();
  * }</pre>
  *
  * @author CH
@@ -47,7 +49,7 @@ public class LicenseServerFilter implements ServerFilter {
     private static final String DEFAULT_REGISTRY = "licenses.txt";
 
     /**
-     * 签名响应版本前缀（与 launch.LicenseKeyClient 对应）
+      * 签名响应版本前缀（与 launch.执照键客户端 对应）
      */
     private static final String SIGNED_PREFIX = "v1.";
 
@@ -62,13 +64,13 @@ public class LicenseServerFilter implements ServerFilter {
     private char[] secret;
 
     /**
-     * 默认构造：init 时从参数/默认路径加载注册表
+      * 默认构造：初始化 时从参数/默认路径加载注册表
      */
     public LicenseServerFilter() {
     }
 
     /**
-     * 注册表注入构造（编程装配场景，init 不再覆盖）
+      * 注册表注入构造（编程装配场景，初始化 不再覆盖）
      *
      * @param registry 已加载的注册表
      */
@@ -80,7 +82,7 @@ public class LicenseServerFilter implements ServerFilter {
      * 全参构造：注册表 + 响应签名密钥（生产推荐）
      *
      * @param registry       已加载的注册表
-     * @param responseSecret 响应签名密钥（客户端 chua.crypto.license-secret 须一致）
+     * @param responseSecret 响应签名密钥（客户端 chua.加密货币.执照-secret 须一致）
      */
     public LicenseServerFilter(LicenseRegistry registry, char[] responseSecret) {
         this.registry = registry;
@@ -146,7 +148,7 @@ public class LicenseServerFilter implements ServerFilter {
     }
 
     /**
-     * 计算响应签名 HmacSHA256(secret, blob)
+      * 计算响应签名 hmacsha256(secret, blob)
      *
      * @param blob 私钥封装块
      * @return 摘要
@@ -166,7 +168,7 @@ public class LicenseServerFilter implements ServerFilter {
      *
      * @param json 请求体
      * @param field 字段名
-     * @return 值或 null
+     * @return 值或 空
      */
     static String extract(String json, String field) {
         if (json == null) {

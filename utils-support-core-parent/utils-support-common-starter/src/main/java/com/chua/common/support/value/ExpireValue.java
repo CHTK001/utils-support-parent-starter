@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * <p>线程安全：内部状态读写通过实例监视器同步，可在多线程间共享。</p>
  *
  * <p>序列化说明：回调与加载器字段为 transient，注册了回调/加载器的实例参与序列化时，
- * 反序列化后两者重置为 null（过期行为退化为清除），值与过期时间戳可正常保留。</p>
+   * 反序列化后两者重置为 空（过期行为退化为清除），值与过期时间戳可正常保留。</p>
  *
  * <h2>使用方式</h2>
  * <pre>{@code
@@ -50,6 +50,10 @@ import java.util.function.Supplier;
  * if (config.isExpire()) {
  *     config.refresh();
  * }
+ * }</pre>）
+   * if (配置.是否expire()) {
+   * 配置.refresh();
+ * }
  * }</pre>
  *
  * @param <T> 值类型
@@ -59,19 +63,19 @@ import java.util.function.Supplier;
 public class ExpireValue<T> implements Value<T> {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
-    /** 未设置过期时间的时间戳（值为 null 或已清除时） */
+    /** 未设置过期时间的时间戳（值为 空 或已清除时） */
     private static final long UNSET_EXPIRE_AT = 0L;
 
-    /** 永不过期的过期时间戳（ttl 为 null 时使用） */
+    /** 永不过期的过期时间戳（ttl 为 空 时使用） */
     private static final long NEVER_EXPIRE_AT = Long.MAX_VALUE;
 
-    /** 当前值，清除后为 null */
+    /** 当前值，清除后为 空 */
     private volatile T value;
     /** 过期时间戳（毫秒），未设置时为 0 */
     private volatile long expireAt;
-    /** 过期回调（有返回值）：return null 清除，return 新值 替换并重新计时 */
+    /** 过期回调（有返回值）：返回 空 清除，返回 新值 替换并重新计时 */
     private volatile transient Function<? super T, ? extends T> expireCallback;
     /** 重新加载提供者，过期或手动刷新时从此处加载新值 */
     private volatile transient Supplier<? extends T> loader;
@@ -81,8 +85,8 @@ public class ExpireValue<T> implements Value<T> {
     /**
      * 构造函数，通过工厂方法 {@link #of(Object, Duration)} 创建实例。
      *
-     * @param value 初始值，允许 null（null 表示初始即为已清除状态）
-     * @param ttl 存活时间，可为 null（null 表示永不过期）
+     * @param value 初始值，允许 空（空 表示初始即为已清除状态）
+     * @param ttl 存活时间，可为 空（空 表示永不过期）
      */
     private ExpireValue(T value, Duration ttl) {
         this.value = value;
@@ -91,7 +95,7 @@ public class ExpireValue<T> implements Value<T> {
     }
 
     /**
-     * 计算下一次过期时间戳：ttl 为 null 时永不过期。
+      * 计算下一次过期时间戳：ttl 为 空 时永不过期。
      *
      * @return 过期时间戳（毫秒），或 {@link #NEVER_EXPIRE_AT}
      */
@@ -102,10 +106,10 @@ public class ExpireValue<T> implements Value<T> {
     // ==================== 工厂方法 ====================
 
     /**
-     * 创建 ExpireValue 实例。
+      * 创建 expire值 实例。
      *
-     * @param value 初始值，允许 null（null 表示初始即为已清除状态）
-     * @param ttl 存活时间，可为 null（null 表示永不过期），不允许为负
+     * @param value 初始值，允许 空（空 表示初始即为已清除状态）
+     * @param ttl 存活时间，可为 空（空 表示永不过期），不允许为负
      * @param <T> 值类型
      * @return ExpireValue 实例
      * @throws IllegalArgumentException ttl 为负时
@@ -118,11 +122,11 @@ public class ExpireValue<T> implements Value<T> {
     }
 
     /**
-     * 创建 ExpireValue 实例（按时间单位）。
+      * 创建 expire值 实例（按时间单位）。
      *
-     * @param value 初始值，允许 null（null 表示初始即为已清除状态）
+     * @param value 初始值，允许 空（空 表示初始即为已清除状态）
      * @param amount 存活时长数值，不允许为负
-     * @param unit 存活时长单位，可为 null（null 表示永不过期）
+     * @param unit 存活时长单位，可为 空（空 表示永不过期）
      * @param <T> 值类型
      * @return ExpireValue 实例
      * @throws IllegalArgumentException amount 为负时
@@ -140,10 +144,10 @@ public class ExpireValue<T> implements Value<T> {
      * 获取值，过期时自动处理。
      *
      * <p>未过期直接返回值；已过期时按优先级处理：
-     * 过期回调（return null 清除，return 新值 替换并重新计时）>
-     * 重新加载（从 {@link #loader(Supplier)} 加载并重新计时）> 清除（值变为 null）。</p>
+      * 过期回调（返回 空 清除，返回 新值 替换并重新计时）>
+      * 重新加载（从 {@link #loader(Supplier)} 加载并重新计时）> 清除（值变为 空）。</p>
      *
-     * @return 当前值，清除后返回 null
+     * @return 当前值，清除后返回 空
      */
     @Override
     public T getValue() {
@@ -202,11 +206,11 @@ public class ExpireValue<T> implements Value<T> {
      * 注册过期回调（有返回值形式）。
      *
      * <p>{@link #getValue()} 检测到过期时自动触发：
-     * 回调返回 null 表示清除值，返回新值表示替换旧值并按 TTL 重新计时。</p>
+      * 回调返回 空 表示清除值，返回新值表示替换旧值并按 TTL 重新计时。</p>
      *
-     * @param callback 回调，入参为过期的旧值；返回值 null 清除、非 null 替换；不能为 null
+     * @param callback 回调，入参为过期的旧值；返回值 空 清除、非 空 替换；不能为 空
      * @return 当前实例（链式调用）
-     * @throws NullPointerException callback 为 null 时
+     * @throws NullPointerException callback 为 空 时
      */
     public ExpireValue<T> onExpire(Function<? super T, ? extends T> callback) {
         if (callback != null) {
@@ -221,9 +225,9 @@ public class ExpireValue<T> implements Value<T> {
      * <p>内部组合为有返回值回调并 return null，即通知完成后清除值；
      * 与 {@link #onExpire(Function)} 互斥，后调用者覆盖先调用者。</p>
      *
-     * @param listener 通知，入参为过期的旧值；不能为 null
+     * @param listener 通知，入参为过期的旧值；不能为 空
      * @return 当前实例（链式调用）
-     * @throws NullPointerException listener 为 null 时
+     * @throws NullPointerException 监听器 为 空 时
      */
     public ExpireValue<T> onExpireNotify(Consumer<? super T> listener) {
         if (listener == null) {
@@ -239,11 +243,11 @@ public class ExpireValue<T> implements Value<T> {
      * 注册重新加载提供者。
      *
      * <p>设置了加载器后，过期（且未注册过期回调）时会从此处重新加载新值并按 TTL 重新计时；
-     * 加载器返回 null 则清除。同时供 {@link #refresh()} 手动重新加载使用。</p>
+      * 加载器返回 空 则清除。同时供 {@link #refresh()} 手动重新加载使用。</p>
      *
-     * @param loader 重新加载提供者，不能为 null
+     * @param loader 重新加载提供者，不能为 空
      * @return 当前实例（链式调用）
-     * @throws NullPointerException loader 为 null 时
+     * @throws NullPointerException 加载 为 空 时
      */
     public ExpireValue<T> loader(Supplier<? extends T> loader) {
         if (loader != null) {
@@ -299,7 +303,7 @@ public class ExpireValue<T> implements Value<T> {
      * <p>与 {@link #getValue()} 的区别：本方法不处理过期，
      * 用于核对与拷贝场景；需要过期自愈行为请使用 {@link #getValue()}。</p>
      *
-     * @return 当前原始值，清除后为 null
+     * @return 当前原始值，清除后为 空
      */
     public T peek() {
         return value;
@@ -308,7 +312,7 @@ public class ExpireValue<T> implements Value<T> {
     /**
      * 获取过期时间戳（毫秒）。
      *
-     * @return 过期时间戳，值为 null 或已清除时为 0
+     * @return 过期时间戳，值为 空 或已清除时为 0
      */
     public long expireAt() {
         return expireAt;
@@ -317,7 +321,7 @@ public class ExpireValue<T> implements Value<T> {
     /**
      * 获取存活时间。
      *
-     * @return 存活时间，可为 null（null 表示永不过期）
+     * @return 存活时间，可为 空（空 表示永不过期）
      */
     public Duration ttl() {
         return ttl;
@@ -328,7 +332,7 @@ public class ExpireValue<T> implements Value<T> {
     /**
      * 获取转换过程中产生的异常。
      *
-     * @return 始终返回 null（本实现不记录转换异常）
+     * @return 始终返回 空（本实现不记录转换异常）
      */
     @Override
     public Throwable getThrowable() {
@@ -336,7 +340,7 @@ public class ExpireValue<T> implements Value<T> {
     }
 
     /**
-     * 判断当前值是否为 null（原始读取，不触发过期处理）。
+      * 判断当前值是否为 空（原始读取，不触发过期处理）。
      *
      * @return true 表示值已清除或从未设置
      */
@@ -348,8 +352,8 @@ public class ExpireValue<T> implements Value<T> {
     /**
      * 判断当前值是否等于指定值（原始读取，不触发过期处理）。
      *
-     * @param target 指定值，允许 null
-     * @return true 表示相等（null 与 null 相等）
+     * @param target 指定值，允许 空
+     * @return true 表示相等（空 与 空 相等）
      */
     @Override
     public boolean is(T target) {

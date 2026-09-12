@@ -22,7 +22,7 @@ import java.util.Locale;
 public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String extension, String mimeType) {
         return "pdf".equalsIgnoreCase(extension)
                 || "application/pdf".equals(mimeType);

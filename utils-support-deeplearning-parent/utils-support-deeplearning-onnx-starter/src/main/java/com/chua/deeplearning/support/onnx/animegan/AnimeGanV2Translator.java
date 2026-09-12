@@ -14,9 +14,9 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * AnimeGANv2 Translator
+   * animeganv2 Translator
  * <p>
- * AnimeGANv2 动漫风格迁移，支持以下风格：
+   * animeganv2 动漫风格迁移，支持以下风格：
  * <ul>
  *   <li>Hayao - 宫崎骏风格（来自 AnimeGANv2 原始权重）</li>
  *   <li>Shinkai - 新海诚风格（来自 AnimeGANv2 原始权重）</li>
@@ -31,14 +31,14 @@ import lombok.extern.slf4j.Slf4j;
  * 参考: https://github.com/TachibanaYoshino/AnimeGANv2
  *
  * @author CH
- * @version 4.0.0.42
+   * @版本 4.0.0.42
  * @since 2026/8/15
  */
 @Slf4j
 public class AnimeGanV2Translator implements Translator<Image, Image> {
 
     /**
-     * 输入尺寸（AnimeGANv2 固定 512x512）
+      * 输入尺寸（animeganv2 固定 512x512）
      */
     private static final int INPUT_SIZE = 512;
 
@@ -53,7 +53,7 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     private int originalHeight;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -62,7 +62,7 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
             log.debug("AnimeGANv2 输入图像尺寸: {}x{}", originalWidth, originalHeight);
         }
 
-        // NHWC 像素，RGB [-1,1]（规避 onnxruntime NDArray 不支持的 op）
+ // NHWC 像素，RGB [-1,1]（规避 onnxruntime ndarray 不支持的 op）
         float[] hwc = resizeHwc(hwcPixels(input), originalWidth, originalHeight, INPUT_SIZE, INPUT_SIZE);
         int wh = INPUT_SIZE * INPUT_SIZE;
         float[] nhwc = new float[wh * 3];
@@ -80,7 +80,7 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
 
@@ -177,7 +177,7 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     /**
-     * BufferedImage 缩放。
+      * 缓冲镜像 缩放。
      *
      * @param src 源图
      * @param dw  目标宽

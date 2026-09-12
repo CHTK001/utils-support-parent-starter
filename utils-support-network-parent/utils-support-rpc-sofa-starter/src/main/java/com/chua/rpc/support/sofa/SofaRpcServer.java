@@ -29,31 +29,33 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SofaRpcServer implements RpcServer {
 
     /**
-     * registry Configs
+      * registry 配置
      */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
-     * 服务器 Configs
+      * 服务器 配置
      */
     private final List<ServerConfig> serverConfigs = new ArrayList<>();
     /**
-     * 提供者 Configs
+      * 提供者 配置
      */
     private final List<ProviderConfig<?>> providerConfigs = new ArrayList<>();
     /**
-     * state
+      * 状态
      */
     private final AtomicBoolean state = new AtomicBoolean(false);
     /**
-     * application Config
+      * application 配置
      */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
 
     /**
-     * 创建 SofaRpcServer 实例
-     * @param rpcRegistryConfigs rpcRegistryConfigs
-     * @param RpcProtocolConfig RpcProtocolConfig
-     * @param String String
+      * 创建 sofarpc服务端 实例
+     * @param rpcRegistryConfigs rpcregistry配置
+     * @param protocolConfig rpc协议配置
+     * @param name 字符串
+     * @param protocolConfig 协议配置
+     * @param name 名称
      */
     public SofaRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig.setAppName(name);
@@ -63,7 +65,7 @@ public class SofaRpcServer implements RpcServer {
             if (config.getAddress() != null)  { item.setAddress(config.getAddress()); }
             if (config.getTimeout() != null)  { item.setTimeout(config.getTimeout()); }
             if ("local".equals(config.getProtocol())) {
-                // SOFA LocalRegistry 的 regFile 为 null 时抛 RPC-010060017，必须显式指定本地注册文件路径
+ // SOFA 本地registry 的 reg文件 为 空 时抛 RPC-010060017，必须显式指定本地注册文件路径
                 item.setFile(localRegistryFile(name));
             }
             registryConfigs.add(item);
@@ -72,7 +74,7 @@ public class SofaRpcServer implements RpcServer {
     }
 
     /**
-     * 计算 local 注册中心使用的本地注册文件路径（server 与 client 必须同名才能互相发现）。
+      * 计算 本地 注册中心使用的本地注册文件路径（服务端 与 客户端 必须同名才能互相发现）。
      *
      * <p>目录选择优先级：系统属性 {@code sofa.rpc.registry.file.dir} → 用户目录
      * {@code ~/.sofa-rpc} → 系统临时目录。避免固定落在 tmpdir 导致跨进程/容器重启后
@@ -93,7 +95,11 @@ public class SofaRpcServer implements RpcServer {
         return Paths.get(dir, "sofa-rpc-local-" + safe + ".data").toString();
     }
 
-    /** 初始化Protocol */
+    /**
+     * 初始化协议
+     *
+     * @param config 配置
+     */
     private void initProtocol(RpcProtocolConfig config) {
         if (config == null) { return; }
         ServerConfig item = new ServerConfig();
@@ -128,7 +134,7 @@ public class SofaRpcServer implements RpcServer {
     }
 
     @Override
-    /** AfterProperties设置 */
+    /** 之后属性设置 */
     public void afterPropertiesSet() {
         state.compareAndSet(false, true);
         log.info("SofaRpcServer initialized");
@@ -161,7 +167,7 @@ public class SofaRpcServer implements RpcServer {
     }
 
     @Override
-    /** 获取连接信息（SOFA 内部不暴露 channel 级连接，返回监听端点） */
+    /** 获取连接信息（SOFA 内部不暴露 通道 级连接，返回监听端点） */
     public List<RpcConnectionInfo> getConnections() {
         long now = System.currentTimeMillis();
         List<RpcConnectionInfo> result = new ArrayList<>(serverConfigs.size());

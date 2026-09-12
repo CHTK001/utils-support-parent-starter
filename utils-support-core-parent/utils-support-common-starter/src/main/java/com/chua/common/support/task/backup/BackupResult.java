@@ -32,25 +32,25 @@ public class BackupResult {
      * 备份的文件列表
      */
     @Builder.Default
-    private List<Path> files = List.of();
+    private List<Path> files = List.of(); // 文件
 
     /**
      * 备份的文件总数
      */
     @Builder.Default
-    private int fileCount = 0;
+    private int fileCount = 0; // 文件数量
 
     /**
      * 备份的总大小（字节）
      */
     @Builder.Default
-    private long totalSize = 0;
+    private long totalSize = 0; // total大小
 
     /**
      * 耗时（毫秒）
      */
     @Builder.Default
-    private long durationMillis = 0;
+    private long durationMillis = 0; // 持续时间millis
 
     /**
      * 错误信息
@@ -59,6 +59,11 @@ public class BackupResult {
 
     /**
      * 创建成功结果
+     * @param path 路径
+     * @param files 文件
+     * @param size 大小
+     * @param duration 持续时间
+     * @return 成功的结果
      */
     public static BackupResult success(Path path, List<Path> files, long size, long duration) {
         return BackupResult.builder()
@@ -73,6 +78,8 @@ public class BackupResult {
 
     /**
      * 创建失败结果
+     * @param errorMessage 错误消息
+     * @return 失败的结果
      */
     public static BackupResult failure(String errorMessage) {
         return BackupResult.builder()

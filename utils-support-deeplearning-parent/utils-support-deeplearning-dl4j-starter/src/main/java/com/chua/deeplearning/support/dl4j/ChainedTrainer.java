@@ -18,10 +18,13 @@ import com.chua.deeplearning.support.dl4j.train.ResNet50TransferTrainer;
  *         .classifier(3)
  *         .listener(new ProgressLogger())
  *         .fit();
+ * }</pre>         .classifier(3)
+ *         .listener(new ProgressLogger())
+ *         .fit();
  * }</pre>
  *
  * <p>每次 {@link #fit()} 消费当前配置并执行一次训练；本类是不可变/一次性使用语义——
- * branch 出的新管道不会影响源管道，便于并行试验不同超参数。</p>
+   * 分支 出的新管道不会影响源管道，便于并行试验不同超参数。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -30,7 +33,7 @@ public final class ChainedTrainer {
 
     /** 底层训练器 */
     private final Trainer trainer;
-    /** 训练超参数（可变副本，避免污染 defaults 缓存） */
+    /** 训练超参数（可变副本，避免污染 默认 缓存） */
     private final TrainArgument argument;
     /** 预训练模型路径 */
     private final String modelPath;
@@ -42,7 +45,7 @@ public final class ChainedTrainer {
     private final TrainListener listener;
 
     /**
-     * 私有构造，仅供 {@link #of(Trainer)} 与链式 method 使用。
+      * 私有构造，仅供 {@link #of(Trainer)} 与链式 方法 使用。
      *
      * @param trainer      底层训练器
      * @param argument     超参数
@@ -55,7 +58,7 @@ public final class ChainedTrainer {
                            String modelPath, String savePath,
                            String dataRootPath, TrainListener listener) {
         this.trainer = trainer == null ? new ResNet50TransferTrainer() : trainer;
-        // 复制默认配置，使用 mutable 副本避免污染静态 defaults
+ // 复制默认配置，使用 mutable 副本避免污染静态 默认
         this.argument = argument == null ? TrainArgument.defaults() : copy(argument);
         this.modelPath = modelPath;
         this.savePath = savePath;
@@ -259,6 +262,8 @@ public final class ChainedTrainer {
 
     /**
      * 对参数副本执行的链式命令（同一终端调用内部复用）。
+     * @author CH
+     * @since 4.0.0
      */
     @FunctionalInterface
     private interface ArgumentConsumer {

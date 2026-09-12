@@ -16,7 +16,7 @@ import java.util.Map;
  * YAML 配置文件解析器。
  *
  * <p>解析 YAML 格式的配置文件（.yaml 或 .yml 后缀）。
- * 将 YAML 的层级结构展平为点分隔的 key-value 对。</p>
+   * 将 YAML 的层级结构展平为点分隔的 键-值 对。</p>
  *
  * <p>解析规则：
  * <ul>

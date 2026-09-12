@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * npm 软件包管理器提供器。
+   * NPM 软件包管理器提供器。
  *
  * <p>通过 npm CLI 搜索、安装和卸载 Node.js 软件包。
- * 支持 <code>npm search</code>、<code>npm install</code>、<code>npm uninstall</code>。
+   * 支持 <code>NPM 搜索</code>、<code>NPM install</code>、<code>NPM uninstall</code>。
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,7 +33,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "npm";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -48,13 +48,13 @@ public class NpmSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("npm 搜索完成, exitCode={}", exitCode);
             }
@@ -89,17 +89,24 @@ public class NpmSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -115,11 +122,16 @@ public class NpmSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析NpmOutput */
+    /**
+     * 解析npm输出
+     *
+     * @param output 输出
+     * @return 解析npm输出的结果
+     */
     private List<SoftwareInfo> parseNpmOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
-            // npm search --json 返回 JSON 数组，每项包含 name、version、description 等
+ // NPM 搜索 --json 返回 JSON 数组，每项包含 名称、版本、description 等
             for (String line : output.split("\\r?\\n")) {
                 String trimmed = line.trim();
                 if (trimmed.isEmpty() || trimmed.equals("[]")) {
@@ -140,7 +152,13 @@ public class NpmSoftwareProvider implements SoftwareProvider {
         return results;
     }
 
-    /** ExtractJsonValue */
+    /**
+     * extractjson值
+     *
+     * @param json json
+     * @param key 键
+     * @return extractjson值的结果
+     */
     private String extractJsonValue(String json, String key) {
         String searchKey = "\"" + key + "\"";
         int keyIndex = json.indexOf(searchKey);

@@ -28,14 +28,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * ZeroMQ RPC 客户端实现（JeroMQ，纯 Java 无需原生依赖）。
+   * zeromq RPC 客户端实现（jeromq，纯 Java 无需原生依赖）。
  *
  * <p>与 {@link ZmqRpcServer}（ROUTER）配套使用，客户端维护一个 <strong>DEALER
  * 套接字</strong>连接服务端。DEALER 支持异步收发：发送序列化后的
  * {@link RpcRequest} 单帧报文，服务端按连接处理并回包。</p>
  *
  * <p><b>并发模型</b>：每个 DEALER 套接字在 JeroMQ 内维护独立的收发线程与
- * 消息队列，多个调用线程共享同一套接字时，通过请求 ID 帧区分响应归属——但为
+   * 消息队列，多个调用线程共享同一套接字时，通过请求 标识 帧区分响应归属——但为
  * 保持与 {@link RpcSerialization} 单帧报文的简洁性，当前实现采用<b>每个目标接口
  * 一个独立套接字 + 请求锁</b>的同步模型，避免响应串扰。</p>
  *
@@ -47,7 +47,7 @@ import java.util.function.Function;
  *
  * <p><b>服务发现</b>：构造器传入的 {@link RpcRegistryConfig} 中 protocol 为注册中心类型
  * （如 {@code zookeeper}/{@code nacos}）时，自动通过 SPI 加载 {@link ServiceDiscovery}，
- * 每次建连按 {@code /appName/serviceName} 动态解析服务端地址；protocol 为
+   * 每次建连按 {@code /appName/serviceName} 动态解析服务端地址；协议 为
  * {@code direct}/{@code zmq} 或空时取第一个地址直连，与无注册中心场景兼容。</p>
  *
  * <p><b>同 JVM 直调</b>：消费者配置 {@code inline=true} 时，若目标服务已在本进程通过
@@ -130,8 +130,8 @@ public class ZmqRpcClient implements RpcClient {
     /**
      * 构造器。
      *
-     * @param registryConfigs 注册中心配置列表；protocol 为 "zookeeper"/"nacos" 等时走服务发现，
-     *                        为 {@code null} 或 protocol 为 "direct"/"zmq"/空时取第一个地址直连
+     * @param registryConfigs 注册中心配置列表；协议 为 "ZooKeeper"/"nacos" 等时走服务发现，
+      * 为 {@code null} 或 协议 为 "direct"/"zmq"/空时取第一个地址直连
      * @param consumerConfig  消费者配置（超时 / 重试 / 重试间隔），可为 {@code null}
      * @param name            应用名（用于服务发现路径查询）
      */
@@ -154,7 +154,7 @@ public class ZmqRpcClient implements RpcClient {
     }
 
     /**
-     * 初始化服务发现：遍历注册中心配置，protocol 为注册中心类型（zookeeper/nacos 等）时
+      * 初始化服务发现：遍历注册中心配置，协议 为注册中心类型（ZooKeeper/nacos 等）时
      * 通过 SPI 加载 {@link ServiceDiscovery} 并启动。
      *
      * @return 服务发现实例，纯直连模式下返回 {@code null}
@@ -204,7 +204,12 @@ public class ZmqRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
-    /** 获取远程代理 */
+    /**
+     * 获取远程代理
+     *
+     * @param targetType Target类型
+     * @return 获取的结果
+     */
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type ->
                 ProxyUtils.newProxy((Class<T>) type, type.getClassLoader(),
@@ -252,7 +257,9 @@ public class ZmqRpcClient implements RpcClient {
     }
 
     /**
-     * 远程调用实现：RpcInvoker 通过 {@link RpcSerialization} 完成请求序列化与响应反序列化。
+      * 远程调用实现：rpcinvoker 通过 {@link RpcSerialization} 完成请求序列化与响应反序列化。
+     * @author CH
+     * @since 4.0.0
      */
     private class RpcInvoker implements Function<ProxyMethod, Object> {
 
@@ -328,7 +335,7 @@ public class ZmqRpcClient implements RpcClient {
 
             ZMQ.Socket socket = ensureSocket(targetType);
             byte[] requestData = rpcSerialization.serialize(request);
-            // DEALER 单帧发送；JeroMQ 内部线程负责实际 IO，send 后本线程阻塞 recv
+ // DEALER 单帧发送；jeromq 内部线程负责实际 IO，发送 后本线程阻塞 recv
             boolean sent = socket.send(requestData, 0);
             if (!sent) {
                 throw RpcException.transport("ZMQ send failed");
@@ -357,13 +364,13 @@ public class ZmqRpcClient implements RpcClient {
                 method.setAccessible(true);
                 Object result = ReflectUtils.invoke(localService, method.getName(), Object.class,
                         method.getParameterTypes(), proxyMethod.getArgs());
-                // 语义对齐：服务端通过 RpcServer 返回 Future 时也做同样解包
+ // 语义对齐：服务端通过 rpc服务端 返回 期货 时也做同样解包
                 if (result instanceof java.util.concurrent.Future) {
                     return ((java.util.concurrent.Future<?>) result).get();
                 }
                 return result;
             } catch (Exception e) {
-                // ReflectUtils.invoke 内部已吞掉 Throwable（调用失败返回 null），
+ // reflect工具.invoke 内部已吞掉 抛出（调用失败返回 空），
                 // 此处仅处理 Future.get() 等本方法显式抛出的异常
                 throw RpcException.transport("Inline ZMQ-RPC invoke failed", e);
             }

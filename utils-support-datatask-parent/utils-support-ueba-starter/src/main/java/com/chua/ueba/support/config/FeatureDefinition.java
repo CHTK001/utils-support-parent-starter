@@ -26,15 +26,17 @@ import java.util.List;
 @AllArgsConstructor
 public class FeatureDefinition implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 默认类别特征词表大小（当未显式配置 vocabSize 时）
+      * 默认类别特征词表大小（当未显式配置 vocab大小 时）
      */
     public static final int DEFAULT_VOCAB_SIZE = 1000;
 
     /**
      * 特征类型枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum FeatureType {
         /**
@@ -43,7 +45,7 @@ public class FeatureDefinition implements Serializable {
         NUMERIC,
 
         /**
-         * 类别特征，如路径 ID、HTTP 方法
+          * 类别特征，如路径 标识、HTTP 方法
          */
         CATEGORICAL,
 
@@ -55,6 +57,8 @@ public class FeatureDefinition implements Serializable {
 
     /**
      * 归一化方式枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum NormalizeType {
         /**
@@ -63,7 +67,7 @@ public class FeatureDefinition implements Serializable {
         NONE,
 
         /**
-         * min-max 归一化，需提供 min/max
+          * 最小-最大 归一化，需提供 最小/最大
          */
         MINMAX,
 
@@ -74,7 +78,7 @@ public class FeatureDefinition implements Serializable {
     }
 
     /**
-     * 特征名称，如 request_rate、path_entropy，必须与特征计算器支持的名字一致
+      * 特征名称，如 请求_rate、路径_entropy，必须与特征计算器支持的名字一致
      */
     private String name;
 
@@ -85,13 +89,13 @@ public class FeatureDefinition implements Serializable {
     private FeatureType type = FeatureType.NUMERIC;
 
     /**
-     * 归一化方式，默认 NONE
+      * 归一化方式，默认 无
      */
     @Builder.Default
     private NormalizeType normalize = NormalizeType.NONE;
 
     /**
-     * 聚合窗口（秒），用于计算 request_rate 等与时间相关的指标，默认 60
+      * 聚合窗口（秒），用于计算 请求_rate 等与时间相关的指标，默认 60
      */
     @Builder.Default
     private long window = 60L;

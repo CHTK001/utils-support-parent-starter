@@ -28,6 +28,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  *         .task("b1", ctx -> { doB1(ctx); return null; })
  *     .endFork()
  * .taskEnd()
+ * }</pre> .任务结束()
  * }</pre>
  *
  * <p><strong>复杂用法 — builder() 获取完整编排能力：</strong></p>
@@ -52,6 +53,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  *             .taskEnd()
  *     .endFork()
  * .taskEnd()
+ * }</pre> .任务结束()
  * }</pre>
  *
  * @author CH
@@ -67,7 +69,7 @@ public class ForkBranchBuilder {
     /** 内部构建器，用于构建分支流水线 */
     private final PipelineBuilder innerBuilder;
 
-    /** 父分叉定义，endFork() 时返回 */
+    /** 父分叉定义，结束fork() 时返回 */
     private final TaskForkDefinition parent;
 
     /**
@@ -90,7 +92,7 @@ public class ForkBranchBuilder {
      * <p>每个步骤是一个任务节点，分支内按添加顺序依次执行。</p>
      *
      * @param id      步骤节点唯一标识
-     * @param handler 业务逻辑处理器，返回 null 按默认顺序执行，返回节点 ID 则跳转
+     * @param handler 业务逻辑处理器，返回 空 按默认顺序执行，返回节点 标识 则跳转
      * @return this
      */
     public ForkBranchBuilder step(String id, PipelineNode handler) {
@@ -116,7 +118,7 @@ public class ForkBranchBuilder {
      * <p>判断节点根据路由回调返回的目标节点 ID 进行跳转。</p>
      *
      * @param id     节点唯一标识
-     * @param router 路由处理器，返回目标节点 ID
+     * @param router 路由处理器，返回目标节点 标识
      * @return this
      */
     public ForkBranchBuilder decision(String id, PipelineNode router) {
@@ -140,7 +142,7 @@ public class ForkBranchBuilder {
      * 添加分叉节点到当前分支（分支内嵌套分叉）。
      *
      * <p>返回 {@link TaskForkDefinition}，支持分支内嵌套分叉编排。
-     * 完成嵌套分叉定义后（调用 taskEnd），需通过 {@link #builder()} 继续添加节点，
+      * 完成嵌套分叉定义后（调用 任务结束），需通过 {@link #builder()} 继续添加节点，
      * 或直接调用 {@link #endFork()} 结束当前分支。</p>
      *
      * @param id 分叉节点唯一标识
@@ -153,7 +155,7 @@ public class ForkBranchBuilder {
     // ========== 完整编排能力 ==========
 
     /**
-     * 获取内部 PipelineBuilder，支持完整编排能力。
+      * 获取内部 pipeline构建器，支持完整编排能力。
      *
      * <p><strong>设计原则：主干管外层，分支自己嵌套自己处理。</strong></p>
      * <p>通过 builder() 可以做任何 PipelineBuilder 支持的操作：</p>
@@ -181,9 +183,9 @@ public class ForkBranchBuilder {
      *             .endFork()
      *         .taskEnd()
      * .endFork()                                  // 结束分支 "a"
-     * }</pre>
+     * }</pre>   * }</pre>
      *
-     * @return 内部 PipelineBuilder
+     * @return 内部 pipeline构建器
      */
     public PipelineBuilder builder() {
         return innerBuilder;

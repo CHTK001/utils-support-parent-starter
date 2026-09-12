@@ -20,12 +20,12 @@ import java.util.Map;
 public class PushPayload {
 
     /**
-     * 订阅器 ID
+      * 订阅器 标识
      */
     private String subscriberId;
 
     /**
-     * offset
+      * 偏移量
      */
     private long offset;
 

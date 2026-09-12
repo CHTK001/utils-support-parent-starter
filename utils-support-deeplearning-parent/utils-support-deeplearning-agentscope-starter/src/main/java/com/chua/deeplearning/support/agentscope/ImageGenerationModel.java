@@ -17,7 +17,7 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * 将 ImageClient 适配为 AgentScope 的 Model，使子 Agent 具备文生图能力。
+   * 将 镜像客户端 适配为 智能体scope 的 模型，使子 智能体 具备文生图能力。
  *
  * <p>AgentScope 只认文本 Model，本适配器将图像生成结果转为 base64 文本返回。
  *
@@ -33,9 +33,10 @@ public class ImageGenerationModel implements Model {
     private final String modelName;
 
     /**
-     * 创建 ImageGenerationModel 实例
-     * @param imageClient imageClient
-     * @param String String
+      * 创建 镜像generation模型 实例
+     * @param imageClient 镜像客户端
+     * @param modelName 字符串
+     * @param modelName 模型名称
      */
     public ImageGenerationModel(ImageClient imageClient, String modelName) {
         this.imageClient = imageClient;
@@ -43,7 +44,7 @@ public class ImageGenerationModel implements Model {
     }
 
     @Override
-    /** Stream */
+    /** 流 */
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractPrompt(messages);
         String resultText;
@@ -66,12 +67,17 @@ public class ImageGenerationModel implements Model {
     }
 
     @Override
-    /** 获取ModelName */
+    /** 获取模型名称 */
     public String getModelName() {
         return modelName;
     }
 
-    /** ExtractPrompt */
+    /**
+     * extract提示符
+     *
+     * @param messages 消息
+     * @return extract提示符的结果
+     */
     private static String extractPrompt(List<Msg> messages) {
         for (int i = messages.size() - 1; i >= 0; i--) {
             Msg msg = messages.get(i);
@@ -83,7 +89,12 @@ public class ImageGenerationModel implements Model {
         return "";
     }
 
-    /** ToBasePng */
+    /**
+     * 转为basepng
+     *
+     * @param image 镜像
+     * @return 转为base64png的结果
+     */
     private static String toBase64Png(BufferedImage image) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);

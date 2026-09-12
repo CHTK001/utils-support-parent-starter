@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Nacos 应用层 Handler — 拦截 Nacos 注册中心客户端关键调用并生成应用语义传输记录。
+   * Nacos 应用层 处理器 — 拦截 Nacos 注册中心客户端关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -23,12 +23,12 @@ import com.chua.runtime.protocol.Software;
 public class NacosHandler extends AbstractAppHandler {
 
     /**
-     * NacosNamingService 类内部名
+      * nacos名称服务 类内部名
      */
     private static final String NAMING_SERVICE = "com/alibaba/nacos/client/naming/NacosNamingService";
 
     /**
-     * NacosConfigService 类内部名
+      * nacos配置服务 类内部名
      */
     private static final String CONFIG_SERVICE = "com/alibaba/nacos/client/config/NacosConfigService";
 
@@ -46,13 +46,13 @@ public class NacosHandler extends AbstractAppHandler {
     private static final String[] CONFIG_METHODS = {"getConfig", "publishConfig", "removeConfig"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "nacos-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "nacos.enabled";
     }
@@ -64,13 +64,13 @@ public class NacosHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.NACOS;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(NAMING_SERVICE, NAMING_METHODS);
         registerAll(CONFIG_SERVICE, CONFIG_METHODS);

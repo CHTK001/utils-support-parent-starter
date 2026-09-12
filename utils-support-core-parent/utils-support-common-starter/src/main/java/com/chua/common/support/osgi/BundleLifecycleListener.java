@@ -4,7 +4,7 @@ package com.chua.common.support.osgi;
 /**
  * OSGI Bundle 生命周期监听器接口。
  * <p>
- * 该接口定义了用于监听 OSGi Bundle 各种生命周期事件的回调方法。
+   * 该接口定义了用于监听 osgi Bundle 各种生命周期事件的回调方法。
  * 实现此接口的类可以接收关于 Bundle 安装、启动、停止、更新、卸载以及状态变更的通知。
  * </p>
  *

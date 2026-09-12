@@ -13,17 +13,17 @@ import java.util.Map;
 
 
 /**
- * BERT-SQuAD                   
+   * BERT-squad
  * <p>
- *             : token_ids, attention_mask, segment_ids
- *             : start_logits, end_logits
+   * : 令牌_标识, attention_mask, segment_标识
+   * : 启动_logits, 结束_logits
  * <p>
  *          :
  * -        BERT tokenizer                                  
- * -        token_ids, attention_mask, segment_ids
+   * -        令牌_标识, attention_mask, segment_标识
  * <p>
  *          :
- * -     start_logits     end_logits                                        
+   * -     启动_logits     结束_logits
  * -                   
  *
  * @author CH
@@ -33,27 +33,27 @@ import java.util.Map;
 public class BertSquadTranslator implements Translator<Map<String, String>, String> {
 
     /**
-     * BERT-SQuAD                               
+      * BERT-squad
      */
     private static final int MAX_LENGTH = 384;
 
     /**
-     * BERT [CLS] token ID
+      * BERT [CLS] 令牌 标识
      */
     private static final int CLS_TOKEN_ID = 101;
 
     /**
-     * BERT [SEP] token ID
+      * BERT [SEP] 令牌 标识
      */
     private static final int SEP_TOKEN_ID = 102;
 
     /**
-     * BERT [UNK] token ID
+      * BERT [UNK] 令牌 标识
      */
     private static final int UNK_TOKEN_ID = 100;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Map<String, String> input) {
         NDManager manager = ctx.getNDManager();
         
@@ -65,7 +65,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
         String[] questionTokens = question.toLowerCase().split("\\s+");
         String[] contextTokens = context.toLowerCase().split("\\s+");
         
-        //                   : [CLS] question [SEP] context [SEP]
+ // : [CLS] question [SEP] 上下文 [SEP]
         int maxTokens = Math.min(MAX_LENGTH - 2, questionTokens.length + contextTokens.length + 3);
         long[] tokenIds = new long[maxTokens];
         long[] attentionMask = new long[maxTokens];
@@ -77,7 +77,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
         segmentIds[pos] = 0;
         pos++;
         
-        //        tokens
+ // 令牌
         for (int i = 0; i < questionTokens.length && pos < maxTokens - 1; i++) {
             tokenIds[pos] = hashToken(questionTokens[i]);
             attentionMask[pos] = 1;
@@ -90,7 +90,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
         segmentIds[pos] = 0;
         pos++;
         
-        //           tokens
+ // 令牌
         for (int i = 0; i < contextTokens.length && pos < maxTokens - 1; i++) {
             tokenIds[pos] = hashToken(contextTokens[i]);
             attentionMask[pos] = 1;
@@ -119,7 +119,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         if (list.size() < 2) {
             return "";
@@ -147,22 +147,22 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
             }
         }
         
-        //                    token_ids                                              
+ // 令牌_标识
         return String.format("            : %d-%d (      : %.2f)", startIdx, endIdx, maxScore);
     }
 
     /**
-     *           token hash                             BERT vocab   
+      * 令牌 哈希                             BERT vocab
      *
      * @param token                   
-     * @return                             BERT vocab ID
+     * @return                             BERT vocab 标识
      */
     private long hashToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return UNK_TOKEN_ID;
         }
         
-        //           hash                      BERT vocab       
+ // 哈希                      BERT vocab
         long hash = token.hashCode();
         return Math.abs(hash % 30000) + 100;
     }

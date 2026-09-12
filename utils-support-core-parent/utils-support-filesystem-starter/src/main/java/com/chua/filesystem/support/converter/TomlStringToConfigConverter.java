@@ -13,7 +13,7 @@ import java.util.Map;
  * TOML字符串转配置
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 @SuppressWarnings("ALL")
@@ -25,7 +25,7 @@ public class TomlStringToConfigConverter implements StringToConfigConverter {
     /** 转换 */
     public Map<String, Object> convert(String value) {
         try {
-            // 使用 Jackson 的 TomlFactory 解析 TOML
+ // 使用 Jackson 的 toml工厂 解析 TOML
             ObjectMapper mapper = new ObjectMapper(new TomlFactory());
             return mapper.readValue(value, Map.class);
         } catch (Exception e) {

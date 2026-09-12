@@ -36,7 +36,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     private final DjlModelFactory factory;
 
     /**
-     * DJL Translator 输入是否为图像（processInput 第一参数为 {@link Image}）。
+      * DJL Translator 输入是否为图像（处理输入 第一参数为 {@link Image}）。
      */
     private final boolean imageInput;
 
@@ -69,7 +69,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
      * @param modelName      模型名称
      * @param modelPath      模型路径
      * @param engineName     引擎名称
-     * @param deviceSetting  设备设置：auto / cpu / gpu / cuda，可为 null
+     * @param deviceSetting  设备设置：auto / cpu / gpu / cuda，可为 空
      * @param djlTranslator  DJL Translator
      */
     public DjlModelTranslator(String modelName, Path modelPath, String engineName,
@@ -83,7 +83,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     /**
-     * 判断 DJL Translator 的 processInput 是否接收 {@link Image}。
+      * 判断 DJL Translator 的 处理输入 是否接收 {@link Image}。
      *
      * @param djlTranslator DJL Translator
      * @return true 表示图像输入
@@ -93,7 +93,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
             return false;
         }
         // 泛型接口会生成桥接方法 processInput(TranslatorContext, Object)，
-        // 需遍历找到参数类型最具体（非 Object）的真实签名
+ // 需遍历找到参数类型最具体（非 对象）的真实签名
         Class<?> bestParam = null;
         for (Method method : djlTranslator.getClass().getMethods()) {
             if ("processInput".equals(method.getName()) && method.getParameterCount() == 2) {
@@ -114,7 +114,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelName;
     }
@@ -154,7 +154,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
      * 将 DJL 推理输出适配为框架类型。
      * <p>DJL 检测模型（如 SCRFD/YOLO）返回 {@link DetectedObjects}，适配为
      * {@code List<PredictRectangle>}（归一化坐标×图像尺寸转像素）；
-     * 分类模型返回 {@link Classifications}，适配为最可能类别名（String）。
+      * 分类模型返回 {@link Classifications}，适配为最可能类别名（字符串）。
      * 非这两种输出原样返回。</p>
      *
      * @param result DJL 推理输出
@@ -170,7 +170,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
                 if (wrapped instanceof java.awt.image.BufferedImage bufferedImage) {
                     boolean hasAlpha = bufferedImage.getColorModel().hasAlpha();
                     if (hasAlpha) {
-                        // 有 alpha 通道，用 ImageIO 写 PNG 保留透明
+ // 有 alpha 通道，用 镜像io 写 PNG 保留透明
                         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
                         javax.imageio.ImageIO.write(bufferedImage, "PNG", baos);
                         return baos.toByteArray();
@@ -189,7 +189,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
                             BoundingBox box = det.getBoundingBox();
                             Rectangle bounds = box.getBounds();
                             // DJL 的 bounds 为 0~1 归一化坐标，需乘图像尺寸转像素；
-                            // 关键点 path 同样归一化，一并转像素（人脸 5 点，用于对齐）
+ // 关键点 路径 同样归一化，一并转像素（人脸 5 点，用于对齐）
                             float scaleX = imgW > 0 ? imgW : 1f;
                             float scaleY = imgH > 0 ? imgH : 1f;
                             java.util.List<float[]> keypoints = new java.util.ArrayList<>();
@@ -218,7 +218,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
             return boxes;
         }
         if (result instanceof ai.djl.modality.Classifications classifications) {
-            // 分类输出 → 最可能类别名（业务接口 ImageClassifier 期望 String）
+ // 分类输出 → 最可能类别名（业务接口 镜像classifier 期望 字符串）
             List<ai.djl.modality.Classifications.Classification> items = classifications.items();
             if (items != null && !items.isEmpty()) {
                 String top = String.valueOf(items.get(0).getClassName());
@@ -228,7 +228,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
             return "";
         }
         if (result instanceof com.chua.deeplearning.support.ai.result.PredictResult predictResult) {
-            // 通用预测结果 → 字符串标签（表情/年龄等业务接口期望 String）
+ // 通用预测结果 → 字符串标签（表情/年龄等业务接口期望 字符串）
             String value = predictResult.value();
             return value == null ? "" : value;
         }

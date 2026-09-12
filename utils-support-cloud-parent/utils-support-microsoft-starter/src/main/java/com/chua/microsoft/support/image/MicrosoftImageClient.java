@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Azure OpenAI DALL-E 图片生成客户端
+   * Azure 打开AI DALL-E 图片生成客户端
  *
  * <p>基于 Azure OpenAI Service Images generation API 的 {@link ImageClient} 实现，
- * 通过 HTTP 协议调用 DALL-E 3 / DALL-E 2 模型进行图片生成，兼容 OpenAI 接口格式。
+   * 通过 HTTP 协议调用 DALL-E 3 / DALL-E 2 模型进行图片生成，兼容 打开AI 接口格式。
  *
  * @author CH
  * @since 4.0.0.42
@@ -32,7 +32,7 @@ import java.util.Map;
 public class MicrosoftImageClient implements ImageClient {
 
     /**
-     * Azure OpenAI 默认 API 地址
+      * Azure 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.azure.com";
 
@@ -97,7 +97,7 @@ public class MicrosoftImageClient implements ImageClient {
     private Integer steps;
 
     /**
-     * 构造 Azure OpenAI DALL-E 图片生成客户端
+      * 构造 Azure 打开AI DALL-E 图片生成客户端
      *
      * @param setting 客户端配置
      */
@@ -112,7 +112,7 @@ public class MicrosoftImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
@@ -127,14 +127,14 @@ public class MicrosoftImageClient implements ImageClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
-    /** NegativePrompt */
+    /** negative提示符 */
     public ImageClient negativePrompt(String negativePrompt) {
         this.negativePrompt = negativePrompt;
         return this;
@@ -169,25 +169,25 @@ public class MicrosoftImageClient implements ImageClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
     @Override
-    /** ControlType */
+    /** control类型 */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
@@ -241,7 +241,7 @@ public BufferedImage generate(String prompt) {
     /**
      * 解析响应并下载图片
      *
-     * @param json Azure OpenAI 返回的 JSON 响应
+     * @param json Azure 打开AI 返回的 JSON 响应
      * @return BufferedImage 对象
      * @throws IOException 下载或解析失败
      */
@@ -272,13 +272,13 @@ public BufferedImage generate(String prompt) {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("Azure OpenAI DALL-E 不支持异步任务模式，请使用 generate() 方法同步生成");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("Azure OpenAI DALL-E 不支持异步任务模式");
     }
@@ -289,7 +289,7 @@ public BufferedImage generate(String prompt) {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         throw new UnsupportedOperationException("Azure OpenAI 不支持模型列表查询");
     }

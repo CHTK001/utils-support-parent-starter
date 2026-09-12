@@ -36,22 +36,49 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param clazz clazz
+ * @return 执行查询的结果
+ * @param pn pn
+ * @param ps ps
  */
 @Spi("file")
 public class FileReactorEngine implements ReactorEngine {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
     private static final TypeReference<List<Map<String, Object>>> JSON_LIST_TYPE =
             new TypeReference<List<Map<String, Object>>>() {};
+/**
+ * 查询。
+ * @param entityClass 实体类
+ * @return 查询的结果
+ */
 
-    private final FileEngine delegate = new FileEngine();
+    private final FileEngine delegate = new FileEngine(); // delegate
 
+    /**
+     * 列表。
+     * @return 列表的结果
+     */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
             @Override
             public Flux<T> list() {
+                /**
+                 * one。
+                 * @return one的结果
+                 * @param clazz clazz
+                 * @param pn pn
+                 * @param ps ps
+                 */
                 return Flux.fromIterable(doQuery(entityClass));
+            /**
+             * one。
+             * @return one的结果
+             * @param clazz clazz
+             * @param pn pn
+             * @param ps ps
+             */
             }
 
             @Override
@@ -174,7 +201,7 @@ public class FileReactorEngine implements ReactorEngine {
                     ).then(Mono.just(this)));
         }
 
-        // 其他格式回退到同步 FileEngine（boundedElastic 调度阻塞 I/O）
+ // 其他格式回退到同步 文件engine（boundedElastic 调度阻塞 I/O）
         return Mono.fromCallable(() -> {
             delegate.load(name, filePath);
             return this;
@@ -182,10 +209,25 @@ public class FileReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 通过 AsynchronousFileChannel 非阻塞读取文件全部内容。
+      * 通过 asynchronous文件通道 非阻塞读取文件全部内容。
+     * @param line 线
+     /**
+      * 读取文件异步。
+      * @param path 路径
+      * @return 读取文件异步的结果
+      */
+     * @param separator separator
+     * @return 解析线的结果
+     * @param name 名称
+     * @param bytes bytes
      */
     private static Mono<byte[]> readFileAsync(Path path) {
         return Mono.create(sink -> {
+            /**
+             * 完成。
+             * @param result 结果
+             * @param attachment attachment
+             */
             try {
                 AsynchronousFileChannel channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ);
                 ByteBuffer buffer = ByteBuffer.allocate((int) channel.size());
@@ -195,6 +237,11 @@ public class FileReactorEngine implements ReactorEngine {
                         buffer.flip();
                         byte[] data = new byte[buffer.remaining()];
                         buffer.get(data);
+                        /**
+                         * 失败。
+                         * @param exc exc
+                         * @param attachment attachment
+                         */
                         try { channel.close(); } catch (IOException ignored) {}
                         sink.success(data);
                     }
@@ -207,6 +254,14 @@ public class FileReactorEngine implements ReactorEngine {
                 });
             } catch (Exception e) {
                 sink.error(e);
+            /**
+             * 解析json。
+             * @param name 名称
+             * @param bytes bytes
+             * @return 解析json的结果
+             * @param line 线
+             * @param separator separator
+             */
             }
         });
     }
@@ -237,7 +292,9 @@ public class FileReactorEngine implements ReactorEngine {
         List<Map<String, Object>> result = new ArrayList<>(lines.length - 1);
         for (int i = 1; i < lines.length; i++) {
             String line = lines[i].trim();
-            if (line.isEmpty()) continue;
+            if (line.isEmpty()) {
+                continue;
+            }
             String[] values = parseLine(line, separator);
             Map<String, Object> row = new LinkedHashMap<>();
             for (int j = 0; j < headers.length && j < values.length; j++) {
@@ -268,7 +325,8 @@ public class FileReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 获取底层同步 FileEngine。
+      * 获取底层同步 文件engine。
+     * @return 获取delegate的结果
      */
     public FileEngine getDelegate() {
         return delegate;

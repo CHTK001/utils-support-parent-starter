@@ -16,12 +16,12 @@ import lombok.Data;
 public class TaskResult<T> {
 
     /**
-     * 任务 ID（与 Task.taskId 一致）
+      * 任务 标识（与 任务.任务id 一致）
      */
     private String taskId;
 
     /**
-     * 链路追踪 ID
+      * 链路追踪 标识
      */
     private String traceId;
 
@@ -36,12 +36,12 @@ public class TaskResult<T> {
     private T data;
 
     /**
-     * 错误信息（success 为 false 时填充）
+      * 错误信息（成功 为 false 时填充）
      */
     private String errorMessage;
 
     /**
-     * 执行节点 ID
+      * 执行节点 标识
      */
     private String workerNodeId;
 
@@ -53,9 +53,9 @@ public class TaskResult<T> {
     /**
      * 创建成功结果。
      *
-     * @param taskId      任务 ID
+     * @param taskId      任务 标识
      * @param data        结果数据
-     * @param workerNodeId 执行节点 ID
+     * @param workerNodeId 执行节点 标识
      * @param <T>         数据类型
      * @return 成功结果
      */
@@ -71,9 +71,9 @@ public class TaskResult<T> {
     /**
      * 创建失败结果。
      *
-     * @param taskId       任务 ID
+     * @param taskId       任务 标识
      * @param errorMessage 错误信息
-     * @param workerNodeId 执行节点 ID
+     * @param workerNodeId 执行节点 标识
      * @param <T>          数据类型
      * @return 失败结果
      */

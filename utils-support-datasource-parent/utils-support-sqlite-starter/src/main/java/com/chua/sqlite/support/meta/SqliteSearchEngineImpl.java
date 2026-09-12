@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SQLite 搜索引擎实现，基于 FTS5 虚拟表提供索引管理。
+   * sqlite 搜索引擎实现，基于 FTS5 虚拟表提供索引管理。
  * <p>
- * 使用 SQLite FTS5 扩展实现全文检索索引，索引名与 FTS5 虚拟表名对应。
+   * 使用 sqlite FTS5 扩展实现全文检索索引，索引名与 FTS5 虚拟表名对应。
  * </p>
  *
  * @author CH
@@ -29,6 +29,16 @@ public class SqliteSearchEngineImpl implements SearchEngine {
      * 构造方法。
      *
      * @param engine 引擎实例
+     * @return 列表索引的结果
+     /**
+      * sqlite搜索engineimpl。
+      * @param engine engine
+      */
+      * @return 列表索引的结果
+     /**
+      * sqlite搜索engineimpl。
+      * @param engine engine
+      */
      */
     public SqliteSearchEngineImpl(SqliteEngine engine) {
         this.engine = engine;
@@ -139,6 +149,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
 
     /**
      * 获取默认数据源。
+     * @return 获取数据源的结果
      */
     @SuppressWarnings("unchecked")
     private DataSource getDataSource() {
@@ -152,6 +163,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
 
     /**
      * 获取 JDBC 连接。
+     * @return 获取jdbcconnection的结果
      */
     private Connection getJdbcConnection() throws SQLException {
         return getDataSource().getConnection();
@@ -159,6 +171,8 @@ public class SqliteSearchEngineImpl implements SearchEngine {
 
     /**
      * 转义标识符（表名/列名），防止 SQL 注入。
+     * @param name 名称
+     * @return escapeIdentifier的结果
      */
     private static String escapeIdentifier(String name) {
         if (name == null) {

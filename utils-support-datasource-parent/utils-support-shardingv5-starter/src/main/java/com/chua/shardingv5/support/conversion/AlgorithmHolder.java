@@ -7,7 +7,7 @@ import java.util.Map;
  */
 
 public class AlgorithmHolder {
-    final String type; final Map<String, String> props;
+    final String type; final Map<String, String> props; // 类型
     AlgorithmHolder(String type, Map<String, String> props) {
         this.type = type; this.props = props;
     }

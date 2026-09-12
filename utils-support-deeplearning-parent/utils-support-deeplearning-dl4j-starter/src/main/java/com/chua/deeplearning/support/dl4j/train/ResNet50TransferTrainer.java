@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * ResNet50 迁移学习训练器。
+   * Rnet50 迁移学习训练器。
  *
  * <p>移植自 AIAS 2_training_platform 的 {@code TrainResNet50}，核心流程：</p>
  * <ol>
@@ -36,7 +36,7 @@ import java.util.List;
 public class ResNet50TransferTrainer implements Trainer {
 
     /**
-     * 默认保存模型文件名（savePath 为目录时使用）。
+      * 默认保存模型文件名（保存路径 为目录时使用）。
      */
     private static final String DEFAULT_MODEL_NAME = "NewResNet50.zip";
 
@@ -134,7 +134,7 @@ public class ResNet50TransferTrainer implements Trainer {
             double tempScore = eval.f1();
             log.info("[DL4J] epoch {} | F1: {} | 当前最优: {}", i + 1, tempScore, bestScore);
 
-            // 保存最优模型（先更新 bestScore，再上报进度）
+ // 保存最优模型（先更新 bestscore，再上报进度）
             if (tempScore > bestScore) {
                 bestScore = tempScore;
                 log.info("[DL4J] 保存模型，F1: {}", bestScore);

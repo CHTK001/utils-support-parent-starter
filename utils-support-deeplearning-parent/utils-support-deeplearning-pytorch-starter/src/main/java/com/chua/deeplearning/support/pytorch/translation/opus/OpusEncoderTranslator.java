@@ -18,7 +18,7 @@ import java.util.Arrays;
 public class OpusEncoderTranslator implements NoBatchifyTranslator<int[], NDArray> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, int[] input) {
         NDManager manager = ctx.getNDManager();
         NDArray inputIdArray = manager.create(input).expandDims(0).toType(DataType.INT64, false);
@@ -35,7 +35,7 @@ public class OpusEncoderTranslator implements NoBatchifyTranslator<int[], NDArra
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public NDArray processOutput(TranslatorContext ctx, NDList list) {
         NDArray encoderHiddenStates = list.get(0);
         encoderHiddenStates.detach();

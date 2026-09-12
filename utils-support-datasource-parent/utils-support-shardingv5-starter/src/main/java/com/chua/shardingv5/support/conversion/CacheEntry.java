@@ -7,8 +7,8 @@ import java.util.List;
  */
 
 public class CacheEntry {
-    final List<String> tables;
-    final long expireAt;
+    final List<String> tables; // tables
+    final long expireAt; // expireat
     CacheEntry(List<String> tables, long expireAt) {
         this.tables = tables; this.expireAt = expireAt;
     }

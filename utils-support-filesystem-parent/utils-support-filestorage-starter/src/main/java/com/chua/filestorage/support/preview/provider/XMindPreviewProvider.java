@@ -14,7 +14,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * XMind 思维导图预览提供器。
+   * xmind 思维导图预览提供器。
  *
  * <p>SPI 类型：{@code preview-xmind}。解析 XMind ZIP 包中的内容，生成可折叠树状 HTML 展示思维导图结构。
  * 支持两种格式：</p>
@@ -32,9 +32,9 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     /**
      * 判断是否支持该扩展名的预览。
      *
-     * @param ext  文件扩展名（不含点号，如 "xmind"），可为 null
+     * @param ext  文件扩展名（不含点号，如 "xmind"），可为 空
      * @param mime MIME 类型（本实现不依赖 MIME，仅校验扩展名）
-     * @return 当 {@code ext} 非 null 且等于 "xmind"（不区分大小写）时返回 true
+     * @return 当 {@code ext} 非 空 且等于 "xmind"（不区分大小写）时返回 true
      */
     @Override
     public boolean supports(String ext, String mime) {
@@ -42,16 +42,16 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 预览 XMind 思维导图，返回包含可折叠树结构的完整 HTML 页面。
+      * 预览 xmind 思维导图，返回包含可折叠树结构的完整 HTML 页面。
      *
      * <p>解析流程：优先读取 content.json（新格式），失败后读取 content.xml（旧格式），
      * 均失败时返回"无法解析"提示页面。</p>
      *
-     * @param content XMind 文件的原始字节内容（ZIP 格式）
+     * @param content xmind 文件的原始字节内容（压缩 格式）
      * @param ext     文件扩展名（如 "xmind"）
      * @param mime    MIME 类型（本实现忽略）
      * @return 预览结果，包含 HTML 内容
-     * @throws IOException 读取 ZIP 时发生 I/O 错误
+     * @throws IOException 读取 压缩 时发生 I/O 错误
      */
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
@@ -64,7 +64,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 从 XMind ZIP 包中提取主题层级结构。
+      * 从 xmind 压缩 包中提取主题层级结构。
      *
      * <p>依次尝试：</p>
      * <ol>
@@ -73,12 +73,12 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      * </ol>
      * <p>首次成功解析到非空主题列表即返回，两者均失败时返回空列表。</p>
      *
-     * @param xmindBytes XMind 文件的原始 ZIP 字节内容
+     * @param xmindBytes xmind 文件的原始 压缩 字节内容
      * @return 根主题列表（通常只有一个根主题），解析失败时返回空列表
-     * @throws IOException 读取 ZIP 流时发生 I/O 错误
+     * @throws IOException 读取 压缩 流时发生 I/O 错误
      */
     private List<TopicNode> extractFromZip(byte[] xmindBytes) throws IOException {
-        // 优先尝试 content.json（XMind Zen/2020+ 新格式）
+ // 优先尝试 内容.json（xmind Zen/2020+ 新格式）
         String json = extractFromZipByName(xmindBytes, "content.json");
         if (json != null) {
             List<TopicNode> roots = parseTopics(json);
@@ -87,7 +87,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
             }
         }
 
-        // 回退尝试 content.xml（XMind 8 旧格式）
+ // 回退尝试 内容.xml（xmind 8 旧格式）
         String xml = extractFromZipByName(xmindBytes, "content.xml");
         if (xml != null) {
             List<TopicNode> roots = parseTopicsFromXml(xml);
@@ -100,15 +100,15 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 按文件名从 ZIP 中提取单个文件的内容。
+      * 按文件名从 压缩 中提取单个文件的内容。
      *
      * <p>先做精确匹配（根目录下同名文件），未命中则做后缀模糊匹配
      * （兼容 {@code xmind/content.json} 等带路径前缀的情况）。</p>
      *
-     * @param xmindBytes ZIP 文件的原始字节内容
-     * @param targetName 目标文件名（如 "content.json"、"content.xml"）
-     * @return 文件内容字符串；ZIP 中不存在该文件时返回 null
-     * @throws IOException 读取 ZIP 流时发生 I/O 错误
+     * @param xmindBytes 压缩 文件的原始字节内容
+     * @param targetName 目标文件名（如 "内容.json"、"内容.xml"）
+     * @return 文件内容字符串；ZIP 中不存在该文件时返回 空
+     * @throws IOException 读取 压缩 流时发生 I/O 错误
      */
     private String extractFromZipByName(byte[] xmindBytes, String targetName) throws IOException {
         // 第一趟：精确匹配文件名
@@ -120,7 +120,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
                 }
             }
         }
-        // 第二趟：后缀模糊匹配（兼容含路径前缀的条目，如 xmind/content.json）
+ // 第二趟：后缀模糊匹配（兼容含路径前缀的条目，如 xmind/内容.json）
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(xmindBytes))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -133,13 +133,13 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 解析 XMind Zen/2020+ 的 content.json，提取主题层级结构。
+      * 解析 xmind Zen/2020+ 的 内容.json，提取主题层级结构。
      *
      * <p>content.json 格式示例：</p>
      * <pre>[{"rootTopic":{"title":"根主题","children":{"attached":[...]}}}]</pre>
      * <p>本方法采用简易 JSON 字符串扫描（不依赖 JSON 库），从 {@code "rootTopic"} 开始递归解析。</p>
      *
-     * @param json content.json 的文件内容字符串
+     * @param json 内容.json 的文件内容字符串
      * @return 根主题列表（通常只有一个元素），解析失败或内容为空时返回空列表
      */
     private List<TopicNode> parseTopics(String json) {
@@ -163,13 +163,13 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 解析 XMind 8 的 content.xml，提取主题层级结构。
+      * 解析 xmind 8 的 内容.xml，提取主题层级结构。
      *
      * <p>XML 命名空间：{@code urn:xmind:xmap:xmlns:content:2.0}，层级关系：</p>
      * <pre>xmap-content → sheet → topic → title + children → topics(type="attached") → topic …</pre>
      * <p>使用 JDK 内置 DOM 解析器，禁用外部 DTD/实体加载以防止 XXE 攻击。</p>
      *
-     * @param xml content.xml 的文件内容字符串
+     * @param xml 内容.xml 的文件内容字符串
      * @return 根主题列表（每个 sheet 的根主题），解析失败或内容为空时返回空列表
      */
     private List<TopicNode> parseTopicsFromXml(String xml) {
@@ -178,7 +178,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
             return roots;
         }
         try {
-            // 创建安全的 DocumentBuilder（禁用外部实体，防止 XXE）
+ // 创建安全的 文档构建器（禁用外部实体，防止 XXE）
             javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -276,7 +276,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      *
      * @param parent   父 DOM 元素
      * @param childName 子元素名称（如 "title"）
-     * @return 子元素的 trim 后文本内容；不存在或为空时返回 null
+     * @return 子元素的 修剪 后文本内容；不存在或为空时返回 空
      */
     private String getTextContent(org.w3c.dom.Element parent, String childName) {
         org.w3c.dom.NodeList list = parent.getElementsByTagNameNS(
@@ -292,15 +292,15 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 递归解析 JSON 格式的 topic 对象（用于 XMind Zen/2020+ content.json）。
+      * 递归解析 JSON 格式的 topic 对象（用于 xmind Zen/2020+ 内容.json）。
      *
      * <p>从 {@code startPos} 位置开始，先提取 {@code title} 字段，
      * 再定位 {@code children → attachments/attached} 数组，
      * 通过大括号计数递归解析每个子 topic 对象。</p>
      *
-     * @param json     content.json 的完整内容字符串
+     * @param json     内容.json 的完整内容字符串
      * @param startPos 当前 topic 对象在 JSON 字符串中的起始位置
-     * @return 解析出的主题节点；解析失败时返回 null
+     * @return 解析出的主题节点；解析失败时返回 空
      */
     private TopicNode parseTopicObject(String json, int startPos) {
         String title = extractStringValue(json, startPos, "title");
@@ -359,7 +359,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 从 JSON 字符串中提取指定 key 对应的字符串值。
+      * 从 JSON 字符串中提取指定 键 对应的字符串值。
      *
      * <p>从 {@code startPos} 开始查找 {@code "key": "value"} 结构，
      * 处理转义字符（反斜杠、双引号、换行）。</p>
@@ -367,7 +367,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      * @param json     完整的 JSON 字符串
      * @param startPos 起始搜索位置
      * @param key      要查找的字段名（不含引号，如 "title"）
-     * @return 字段值字符串；未找到或距离超过 500 字符时返回 null
+     * @return 字段值字符串；未找到或距离超过 500 字符时返回 空
      */
     private String extractStringValue(String json, int startPos, String key) {
         String search = "\"" + key + "\"";
@@ -426,7 +426,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      * 无主题时显示"无法解析思维导图内容"提示。</p>
      *
      * @param roots    根主题列表（通常只有一个根主题）
-     * @param fileSize 原始 XMind 文件的字节大小（用于显示文件信息）
+     * @param fileSize 原始 xmind 文件的字节大小（用于显示文件信息）
      * @return 完整的 HTML 页面字符串
      */
     private String buildHtml(List<TopicNode> roots, long fileSize) {
@@ -507,8 +507,8 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     /**
      * 转义 HTML 特殊字符，防止 XSS 注入。
      *
-     * @param text 原始文本（可为 null）
-     * @return 转义后的安全文本；输入为 null 时返回空字符串
+     * @param text 原始文本（可为 空）
+     * @return 转义后的安全文本；输入为 空 时返回空字符串
      */
     private String escapeHtml(String text) {
         if (text == null) {
@@ -540,9 +540,11 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      * 思维导图主题节点（内部数据结构）。
      *
      * <p>每个节点包含一个标题和零到多个子节点，构成树形结构。</p>
+     * @author CH
+     * @since 4.0.0
      */
     private static class TopicNode {
-        /** 主题标题（不可为 null） */
+        /** 主题标题（不可为 空） */
         String title;
         /** 子主题列表（可能为空） */
         List<TopicNode> children = new ArrayList<>();

@@ -45,6 +45,8 @@ import java.util.function.Consumer;
  *     })
  *     .taskEnd()                              // 结束定义
  *     .build();
+ * }</pre> // 结束定义
+   * .构建();
  * }</pre>
  *
  * <p><strong>便捷方法：</strong></p>
@@ -67,7 +69,7 @@ import java.util.function.Consumer;
  */
 public class TaskParallelDefinition {
 
-    /** ID */
+    /** 标识 */
     private final String id;
     /** PRE处理器 */
     private PipelineNode preHandler;
@@ -77,15 +79,15 @@ public class TaskParallelDefinition {
     private final Pipeline subPipeline;
     /** 开始节点 */
     private String startNode;
-    /** params */
+    /** 参数 */
     private Map<String, Object> params;
     /** env */
     private Map<String, Object> env;
-    /** environment */
+    /** 环境 */
     private Map<String, Object> environment;
-    /** Merge当前数据 */
+    /** 合并当前数据 */
     private boolean mergeCurrentData = true;
-    private BiConsumer<PipelineContext<?>, AsyncResult> completionHandler;
+    private BiConsumer<PipelineContext<?>, AsyncResult> completionHandler; // 完成处理器
 
     /**
      * 构造并行子流水线定义。
@@ -104,7 +106,7 @@ public class TaskParallelDefinition {
      * 完成定义，将并行子流水线节点添加到流水线，返回构建器继续链式配置。
      *
      * <p>与 {@link TaskDefinition#parallel(Pipeline)} 配对使用，
-     * 构成完整的并行子流水线定义：task → parallel → ... → taskEnd。</p>
+      * 构成完整的并行子流水线定义：任务 → 并行 → ... → 任务结束。</p>
      *
      * @return PipelineBuilder
      */
@@ -122,7 +124,7 @@ public class TaskParallelDefinition {
         if (env != null && !env.isEmpty()) {
             node.setEnv(env);
         }
-        // environment 注入到 params 中（与 TaskDefinition 的 environment 语义一致）
+ // 环境 注入到 参数 中（与 任务definition 的 环境 语义一致）
         if (environment != null && !environment.isEmpty()) {
             Map<String, Object> mergedParams = new LinkedHashMap<>();
             if (node.getParams() != null && !node.getParams().isEmpty()) {
@@ -169,9 +171,9 @@ public class TaskParallelDefinition {
     }
 
     /**
-     * 设置子流水线起始节点 ID。
+      * 设置子流水线起始节点 标识。
      *
-     * @param startNodeId 子流水线中的起始节点 ID
+     * @param startNodeId 子流水线中的起始节点 标识
      * @return this
      */
     public TaskParallelDefinition start(String startNodeId) {
@@ -262,7 +264,7 @@ public class TaskParallelDefinition {
     }
 
     /**
-     * 设置并行完成后是否将输出合并到父上下文的 currentData。
+      * 设置并行完成后是否将输出合并到父上下文的 当前数据。
      *
      * <p>默认 true。并行子流程的结果必须合并回主干，否则后续节点无法获取并行执行的结果。
      * 默认启用合并，确保数据流完整性。</p>
@@ -270,7 +272,7 @@ public class TaskParallelDefinition {
      * <p>注意：并行完成时主干可能已在其他节点，合并 currentData 可能覆盖当前节点的数据。
      * 如需自定义合并逻辑，可通过 {@link #onComplete(BiConsumer)} 手动处理。</p>
      *
-     * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 currentData
+     * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 当前数据
      * @return this
      */
     public TaskParallelDefinition mergeCurrentData(boolean mergeCurrentData) {
@@ -313,7 +315,7 @@ public class TaskParallelDefinition {
     /**
      * 设置有返回值的步骤处理器（Function 模式）。
      *
-     * @param handler PipelineNode 处理器
+     * @param handler pipeline节点 处理器
      * @return this
      */
     public TaskParallelDefinition step(PipelineNode handler) {

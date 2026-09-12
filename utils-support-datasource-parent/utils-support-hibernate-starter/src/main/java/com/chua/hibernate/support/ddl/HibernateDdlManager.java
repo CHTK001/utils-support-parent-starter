@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * // 或手动指定方言
  * mgr.setDialect(Dialect.getExtension("mysql"));
+ * }</pre>ialect.getExtension("mysql"));
  * }</pre>
  * </p>
  *
@@ -92,7 +93,7 @@ public class HibernateDdlManager implements DslManager {
     /**
      * 获取当前使用的方言。
      *
-     * @return 方言实例（可能为 null）
+     * @return 方言实例（可能为 空）
      */
     public Dialect getDialect() {
         return dialect;
@@ -102,7 +103,7 @@ public class HibernateDdlManager implements DslManager {
      * 获取或自动检测方言。
      * <p>如果已手动设置方言，直接返回；否则通过 JDBC URL 自动匹配已注册的 Dialect SPI。</p>
      *
-     * @return 方言实例（检测失败返回 null）
+     * @return 方言实例（检测失败返回 空）
      */
     private Dialect resolveDialect() {
         if (dialect != null) {
@@ -119,7 +120,7 @@ public class HibernateDdlManager implements DslManager {
             for (Map.Entry<String, Dialect> entry : all.entrySet()) {
                 try {
                     String dialectUrl = entry.getValue().url();
-                    // 提取协议前缀：取 jdbc:xxx 部分
+ // 提取协议前缀：取 JDBC:xxx 部分
                     // 兼容 jdbc:mysql:// 和 jdbc:h2:<path> 两种格式
                     String protocolKey = extractJdbcProtocol(dialectUrl);
                     if (protocolKey != null && url.startsWith(protocolKey)) {
@@ -148,13 +149,13 @@ public class HibernateDdlManager implements DslManager {
      * </p>
      *
      * @param dialectUrl 方言的 URL 模板
-     * @return 协议前缀，解析失败返回 null
+     * @return 协议前缀，解析失败返回 空
      */
     private String extractJdbcProtocol(String dialectUrl) {
         if (dialectUrl == null || !dialectUrl.startsWith("jdbc:")) {
             return null;
         }
-        // 取 jdbc:xxx 部分，兼容 jdbc:mysql:// 和 jdbc:h2:path 两种格式
+ // 取 JDBC:xxx 部分，兼容 JDBC:MySQL:// 和 JDBC:h2:路径 两种格式
         int secondColon = dialectUrl.indexOf(':', 5);
         return secondColon > 0 ? dialectUrl.substring(0, secondColon) : dialectUrl;
     }
@@ -204,7 +205,15 @@ public class HibernateDdlManager implements DslManager {
         return def;
     }
 
-    /** 解析ActualSchema */
+    /**
+     * 解析actual模式
+     *
+     * @param meta meta
+     * @param catalog catalog
+     * @param schema 模式
+     * @param table table
+     * @return resolveactual模式的结果
+     */
     private String resolveActualSchema(DatabaseMetaData meta, String catalog, String schema, String table) throws Exception {
         if (schema != null) {
             return schema;
@@ -226,7 +235,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
-    /** 创建TableDDL */
+    /** 创建tableddl */
     public String createTableDDL(String catalogName, String schemaName, String tableName) {
         Dialect d = resolveDialect();
         TableDef def = getTable(catalogName, schemaName, tableName);
@@ -239,7 +248,7 @@ public class HibernateDdlManager implements DslManager {
                 ? d.quote(schemaName) : schemaName;
         StringBuilder sb = new StringBuilder();
 
-        // CREATE TABLE 关键词
+ // 创建 TABLE 关键词
         if (d != null) {
             sb.append(d.getCreateTableString());
         } else {
@@ -248,7 +257,7 @@ public class HibernateDdlManager implements DslManager {
         sb.append(" ").append(tableNameQuoted).append(" (\n");
 
         List<ColumnDef> cols = def.getColumns();
-        // 收集需要在 CREATE TABLE 之后执行的独立 SQL 语句（如 PG 系方言的 COMMENT ON）
+ // 收集需要在 创建 TABLE 之后执行的独立 SQL 语句（如 PG 系方言的 评论 ON）
         StringBuilder afterDdlSb = new StringBuilder();
 
         for (int i = 0; i < cols.size(); i++) {
@@ -267,7 +276,7 @@ public class HibernateDdlManager implements DslManager {
                 sb.append(" ").append(d.getAutoIncrementKeyword());
             }
 
-            // NOT NULL
+ // NOT 空
             if (!c.isNullable()) {
                 sb.append(" NOT NULL");
             }
@@ -291,7 +300,7 @@ public class HibernateDdlManager implements DslManager {
                         sb.append(" ").append(commentSql);
                     }
                 } else {
-                    // PG 系方言：生成独立的 COMMENT ON 语句
+ // PG 系方言：生成独立的 评论 ON 语句
                     String fullColName = schemaNameQuoted != null
                             ? schemaNameQuoted + "." + colNameQuoted
                             : colNameQuoted;
@@ -358,7 +367,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
-    /** 复制TableStructure */
+    /** 复制table结构 */
     public String copyTableStructure(String schemaName, String sourceTableName, String targetTableName) {
         Dialect d = resolveDialect();
         String src = (d != null) ? d.quote(sourceTableName) : sourceTableName;
@@ -367,7 +376,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
-    /** ListTables */
+    /** 列表tables */
     public List<TableDef> listTables(String catalogName, String schemaName) {
         List<TableDef> result = new ArrayList<>();
         try (Connection conn = dataSource.getConnection()) {
@@ -385,7 +394,7 @@ public class HibernateDdlManager implements DslManager {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "hibernate";
     }

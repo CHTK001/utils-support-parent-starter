@@ -18,8 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class RustFileSearchBridge {
 
-    private static volatile boolean loaded = false;
-    private static final Object LOCK = new Object();
+    private static volatile boolean loaded = false; // 加载
+    private static final Object LOCK = new Object(); // 锁
 
     public record FileResultData(
             String path, long size, long lastModified, boolean isDirectory,
@@ -30,9 +30,13 @@ public final class RustFileSearchBridge {
      * 加载原生动态库。线程安全，重复调用无副作用。
      */
     public static synchronized void loadLibrary() {
-        if (loaded) return;
+        if (loaded) {
+            return;
+        }
         synchronized (LOCK) {
-            if (loaded) return;
+            if (loaded) {
+                return;
+            }
             try {
                 NativeLoader.of("file-search")
                         .toTarget(NativeUtils.tempRoot().resolve("file-search"))
@@ -54,12 +58,52 @@ public final class RustFileSearchBridge {
      */
     public static boolean isLoaded() { return loaded; }
 
-    // JNI native ??? Rust DLL ???????
+ // JNI NAT ??? Rust DLL ???????
+    /**
+     * 搜索by名称。
+     * @param root 根
+     * @param pattern 模式
+     * @param max 最大
+     * @param cb cb
+     * @return 搜索by名称的结果
+     */
     public static native int searchByName(String root, String pattern, int max, Consumer<FileResultData> cb);
+    /**
+     * 获取树。
+     * @param root 根
+     * @param depth 深度
+     * @param max 最大
+     * @param cb cb
+     * @return 获取树的结果
+     */
     public static native int getTree(String root, int depth, int max, Consumer<FileResultData> cb);
+    /**
+     * 搜索by大小。
+     * @param root 根
+     * @param minSize 最小大小
+     * @param maxSize 最大大小
+     * @param max 最大
+     * @param cb cb
+     * @return 搜索by大小的结果
+     */
     public static native int searchBySize(String root, long minSize, long maxSize, int max, Consumer<FileResultData> cb);
+    /**
+     * 搜索by路径。
+     * @param root 根
+     * @param pattern 模式
+     * @param max 最大
+     * @param cb cb
+     * @return 搜索by路径的结果
+     */
     public static native int searchByPath(String root, String pattern, int max, Consumer<FileResultData> cb);
+    /**
+     * 获取版本。
+     * @return 获取版本的结果
+     */
     public static native String getVersion();
+    /**
+     * cancel。
+     */
     public static native void cancel();
 
     // ===== ?? API =====

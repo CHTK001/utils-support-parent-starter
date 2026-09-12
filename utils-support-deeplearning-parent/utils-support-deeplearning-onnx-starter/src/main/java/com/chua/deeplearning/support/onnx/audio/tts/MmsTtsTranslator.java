@@ -25,7 +25,7 @@ import java.util.Properties;
  * 输入文本 → 字符级 tokenizer 分词 → ONNX 推理 → waveform 波形 → WAV 字节数组。</p>
  *
  * <p>模型输入：{@code input_ids} [batch, seq] int64 + {@code attention_mask} [batch, seq] int64；
- * 输出：{@code waveform} [batch, n_samples] float32。</p>
+   * 输出：{@code waveform} [批量, n_样本] float32。</p>
  *
  * <p>资源在 jar 内路径：{@code audio/tts/mms-tts-eng/} 下，由 {@link NativeLoader} 解压后加载。</p>
  *
@@ -46,7 +46,7 @@ public class MmsTtsTranslator {
     private static final int MAX_INPUT_LENGTH = 512;
 
     /**
-     * classpath 资源根路径
+      * 类路径 资源根路径
      */
     private static final String RESOURCE_BASE = "audio/tts/mms-tts-eng/";
 
@@ -61,12 +61,12 @@ public class MmsTtsTranslator {
     private static final String VOCAB_FILE = "tokenizer.json";
 
     /**
-     * 未知 token ID
+      * 未知 令牌 标识
      */
     private static final int UNK_ID = 38;
 
     /**
-     * 空格在词表中的 token（VITS 用 "_" 表示空格）
+      * 空格在词表中的 令牌（VITS 用 "_" 表示空格）
      */
     private static final String SPACE_TOKEN = "_";
 
@@ -76,7 +76,7 @@ public class MmsTtsTranslator {
     private static final String CACHE_ROOT = "audio/tts/";
 
     /**
-     * 字符 → token ID 映射
+      * 字符 → 令牌 标识 映射
      */
     private Map<Character, Integer> charToId;
 
@@ -240,13 +240,13 @@ public class MmsTtsTranslator {
     }
 
     /**
-     * 文本转 token IDs（字符级）。
+      * 文本转 令牌 ids（字符级）。
      *
      * <p>未知字符跳过（不使用 &lt;unk&gt;，因其 id 超出 embedding 范围）；
-     * 空格映射为 {@code _} token。</p>
+      * 空格映射为 {@code _} 令牌。</p>
      *
      * @param text 文本
-     * @return token ids
+     * @return token 标识
      */
     private long[] encode(String text) {
         java.util.ArrayList<Long> ids = new java.util.ArrayList<>();
@@ -299,7 +299,7 @@ public class MmsTtsTranslator {
     /**
      * ORT 推理获取波形。
      *
-     * @param ids  token ids
+     * @param ids  令牌 标识
      * @param mask attention mask
      * @return 波形数据
      * @throws Exception 推理异常

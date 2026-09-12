@@ -54,7 +54,7 @@ public class SpiderExecutionStore {
      * 按批次号查询。
      *
      * @param executionNo 批次号
-     * @return 执行记录，不存在返回 null
+     * @return 执行记录，不存在返回 空
      */
     public SpiderExecutionRecord get(String executionNo) {
         return storage.get(executionNo);

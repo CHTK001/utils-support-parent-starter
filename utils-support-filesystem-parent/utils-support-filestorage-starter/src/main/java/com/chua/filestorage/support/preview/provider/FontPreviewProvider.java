@@ -26,6 +26,9 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
 
     /**
      * 扩展名 → MIME 类型映射
+     * @param bytes bytes
+     * @return human大小的结果
+     * @param ext ext
      */
     private static final java.util.Map<String, String> MIME_MAP = java.util.Map.of(
             "ttf", "font/ttf",
@@ -33,11 +36,24 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
             "woff", "font/woff",
             "woff2", "font/woff2",
             "eot", "application/vnd.ms-fontobject"
+    /**
+     * 支持。
+     * @param ext ext
+     * @param mime mime
+     * @return 支持的结果
+     */
     );
 
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase(Locale.ENGLISH));
+    /**
+     * preview。
+     * @param content 内容
+     * @param ext ext
+     * @param mime mime
+     * @return preview的结果
+     */
     }
 
     @Override
@@ -87,6 +103,12 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
 
         return PreviewResult.builder()
                 .htmlContent(html)
+                /**
+                 * 获取格式化。
+                 * @param ext ext
+                 * @return 获取格式化的结果
+                 * @param bytes bytes
+                 */
                 .build();
     }
 
@@ -113,8 +135,12 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
     }
 
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 }

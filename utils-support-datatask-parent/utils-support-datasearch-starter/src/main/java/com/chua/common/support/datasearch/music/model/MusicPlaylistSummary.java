@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 public class MusicPlaylistSummary {
-    /** PlaylistID */
+    /** playlistid */
     private String playlistId;
     /** 来源 */
     private String source;
@@ -20,9 +20,9 @@ public class MusicPlaylistSummary {
     private String title;
     /** 描述 */
     private String description;
-    /** CoverURL */
+    /** coverurl */
     private String coverUrl;
-    /** Author */
+    /** 作者 */
     private String author;
     /** Track数量 */
     private Integer trackCount;
@@ -30,7 +30,7 @@ public class MusicPlaylistSummary {
     private String accentColor;
     /** Play数量 */
     private Long playCount;
-    /** Comment数量 */
+    /** 评论数量 */
     private Long commentCount;
 }
 

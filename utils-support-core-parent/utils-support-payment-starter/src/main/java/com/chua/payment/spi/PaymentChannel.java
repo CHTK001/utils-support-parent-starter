@@ -20,6 +20,9 @@ import com.chua.payment.support.PaymentResponse;
  *           .outTradeNo("ORD20260101001")
  *           .scene(Scene.APP)
  *           .build());
+ * }</pre>       .outTradeNo("ORD20260101001")
+ *           .scene(Scene.APP)
+ *           .build());
  * }</pre>
  *
  * @author CH

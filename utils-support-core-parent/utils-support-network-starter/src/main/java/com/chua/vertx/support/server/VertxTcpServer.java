@@ -48,15 +48,15 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     private Vertx vertx;
     /** NET服务器 */
     private NetServer netServer;
-    /** Worker池 */
+    /** 工人池 */
     private ExecutorService workerPool;
-    /** handlers */
+    /** 处理器 */
     private final Map<String, JdkTcpServer.TcpHandler> handlers = new ConcurrentHashMap<>();
-    /** 帧处理器（TcpServer 接口，短连接一请求一响应） */
+    /** 帧处理器（tcp服务端 接口，短连接一请求一响应） */
     private com.chua.common.support.network.tcp.callback.TcpServerHandler frameHandler;
 
     /**
-     * 创建 VertxTcpServer 实例
+      * 创建 vertxtcp服务端 实例
      * @param setting setting
      */
     public VertxTcpServer(ServerSetting setting) {
@@ -64,14 +64,14 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     @Override
-    /** 注册帧处理器（TcpServer 接口） */
+    /** 注册帧处理器（tcp服务端 接口） */
     public VertxTcpServer setHandler(com.chua.common.support.network.tcp.callback.TcpServerHandler handler) {
         this.frameHandler = handler;
         return this;
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -92,15 +92,15 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                     // 收发缓冲放大:与内核窗口对齐,减少小包分片与 ACK 往返,提升高并发吞吐
                     .setReceiveBufferSize(Math.max(setting.getBufferSize(), 16384))
                     .setSendBufferSize(Math.max(setting.getBufferSize(), 16384))
-                    // 吞吐优化:TCP_QUICKACK 减少 ACK 延迟,FastOpen 加速握手
-                    // 注意:不使用 TCP_CORK——它延迟发送最多 200ms 合并小包,对 HTTP 合并 header/body 有利,
+ // 吞吐优化:TCP_QUICKACK 减少 ACK 延迟,fast打开 加速握手
+ // 注意:不使用 TCP_CORK——它延迟发送最多 200ms 合并小包,对 HTTP 合并 头部/主体 有利,
                     // 但对小报文 echo/流式协议每个响应都要等 200ms 才发出,吞吐暴跌(实测 QPS 从 4.9 万掉到 1.2 千)
                     .setTcpQuickAck(true)
                     .setTcpFastOpen(true)
                     .setTcpKeepAlive(true);
             netServer = vertx.createNetServer(options);
             netServer.connectHandler(this::handleSocket);
-            // Vert.x 5.x:listen 返回 Future,异步完成;用 latch 等监听就绪并回填端口,
+ // Vert.x 5.x:监听 返回 期货,异步完成;用 插销 等监听就绪并回填端口,
             // 否则 start() 返回时端口仍为 0,客户端无法连接
             java.util.concurrent.CountDownLatch ready = new java.util.concurrent.CountDownLatch(1);
             netServer.listen().onSuccess(server -> {
@@ -122,7 +122,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (netServer != null) {
             try {
@@ -143,12 +143,16 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
-    /** 处理Socket */
+    /**
+     * 处理套接字
+     *
+     * @param socket 套接字
+     */
     private void handleSocket(NetSocket socket) {
         String clientKey = socket.remoteAddress() != null ? socket.remoteAddress().toString() : "";
         JdkTcpServer.TcpHandler handler = findHandler(clientKey);
@@ -166,7 +170,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                 }
             });
         } else if (urlMappingFilter != null && urlMappingFilter.getFactory().routeCount() > 0) {
-            // URL 路由模式：走 Filter Chain
+ // URL 路由模式：走 过滤器 Chain
             workerPool.submit(() -> processViaFilterChain(socket));
         } else if (frameHandler != null) {
             // 帧模式(TcpServer 接口):短连接一请求一响应,读完整帧→处理→写响应→关闭
@@ -178,7 +182,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                     if (frame != null) {
                         byte[] response = frameHandler.handle(frame);
                         if (response != null) {
-                            // 响应帧协议（与 JdkTcpClient.exchange 对称）：4 字节长度头 + body
+ // 响应帧协议（与 jdktcp客户端.exchange 对称）：4 字节长度头 + 主体
                             byte[] len = new byte[4];
                             len[0] = (byte) (response.length >>> 24);
                             len[1] = (byte) (response.length >>> 16);
@@ -204,12 +208,15 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-     * 通过 Filter Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 NetSocket。
+      * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 net套接字。
+     * @param socket 套接字
      */
     private void processViaFilterChain(NetSocket socket) {
         try {
             byte[] frame = readFrame(new NetSocketInputStream(socket));
-            if (frame == null) return;
+            if (frame == null) {
+                return;
+            }
             TcpServerRequest request = new TcpServerRequest(frame, null, StandardCharsets.UTF_8);
             TcpServerResponse response = new TcpServerResponse();
             try {
@@ -239,10 +246,28 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-     * 读取一帧（与 JdkTcpClient 长度帧协议对称：4 字节长度头 + ScatterFrame body）。
+      * 读取一帧（与 jdktcp客户端 长度帧协议对称：4 字节长度头 + scatter帧 主体）。
      *
      * @param in 输入流
-     * @return 完整帧字节，EOF 返回 null
+     * @return 完整帧字节，EOF 返回 空
+     * @param buf buf
+     /**
+      * 读取帧。
+      * @param in 入
+      * @return 读取帧的结果
+      */
+      * @param buf buf
+     /**
+      * 读取帧。
+      * @param in 入
+      * @return 读取帧的结果
+      */
+      * @param buf buf
+     /**
+      * 读取帧。
+      * @param in 入
+      * @return 读取帧的结果
+      */
      */
     private static byte[] readFrame(InputStream in) throws IOException {
         byte[] lenBytes = new byte[4];
@@ -275,7 +300,12 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         return total;
     }
 
-    /** 查找Handler */
+    /**
+     * 查找处理器
+     *
+     * @param clientKey 客户端键
+     * @return find处理器的结果
+     */
     private JdkTcpServer.TcpHandler findHandler(String clientKey) {
         JdkTcpServer.TcpHandler handler = handlers.get(clientKey);
         if (handler != null) {
@@ -302,9 +332,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         return this;
     }
 
-    /** 基于 NetSocket 的 InputStream(阻塞读,虚拟线程专用)。 */
+    /** 基于 net套接字 的 输入流(阻塞读,虚拟线程专用)。 */
     private static final class NetSocketInputStream extends InputStream {
-        /** 数据段:一次性拷贝 Vert.x Buffer 的 backing bytes,避免 per-byte boxing */
+        /** 数据段:一次性拷贝 Vert.x 缓冲 的 backing bytes,避免 per-byte boxing */
         private static final class Segment {
             final byte[] data;
             int pos;
@@ -312,9 +342,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
         /** 结束哨兵(关闭信号) */
         private static final Segment EOS = new Segment(new byte[0]);
-        /** Socket */
+        /** 套接字 */
         private final NetSocket socket;
-        /** 数据段队列:LinkedBlockingQueue.take() 自带 LockSupport.park 阻塞(替代 Thread.sleep 轮询) */
+        /** 数据段队列:链接阻塞队列.取() 自带 锁支持.park 阻塞(替代 Thread.sleep 轮询) */
         private final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
         /** Closed */
         private volatile boolean closed;
@@ -327,7 +357,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
                 if (buf.length() == 0) {
                     return;
                 }
-                // 拷贝一次就好,避免 Vert.x Buffer 被底层回收而我们在排队
+ // 拷贝一次就好,避免 Vert.x 缓冲 被底层回收而我们在排队
                 queue.offer(new Segment(buf.getBytes()));
             });
             socket.closeHandler(v -> {
@@ -372,7 +402,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
 
         @Override
-        /** Available */
+        /** 可用 */
         public int available() {
             Segment c = current;
             int avail = (c == null || c.pos >= c.data.length) ? 0 : (c.data.length - c.pos);
@@ -381,11 +411,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
     }
 
-    /** 基于 NetSocket 的 OutputStream(阻塞写,虚拟线程专用)。 */
+    /** 基于 net套接字 的 输出流(阻塞写,虚拟线程专用)。 */
     private static final class NetSocketOutputStream extends OutputStream {
-        /** Socket */
+        /** 套接字 */
         private final NetSocket socket;
-        /** 攒批缓冲：write(int)/小块写入先入缓冲，flush 时一次性写 socket（避免逐字节 Vert.x 调用） */
+        /** 攒批缓冲：写入(int)/小块写入先入缓冲，flush 时一次性写 套接字（避免逐字节 Vert.x 调用） */
         private final byte[] buf = new byte[8192];
         private int pos;
 
@@ -423,7 +453,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         /** 刷写 */
         public void flush() {
             if (pos > 0) {
-                // 拷贝后写：避免 Buffer 共享内部攒批数组（后续覆写会影响异步发送）
+ // 拷贝后写：避免 缓冲 共享内部攒批数组（后续覆写会影响异步发送）
                 socket.write(io.vertx.core.buffer.Buffer.buffer(java.util.Arrays.copyOf(buf, pos)));
                 pos = 0;
             }

@@ -1,7 +1,7 @@
 package com.chua.webview.support.webview;
 
 /**
- * WebView 窗口接口定义。
+   * webview 窗口接口定义。
  *
  * @author CH
  * @since 4.0.0.42
@@ -9,7 +9,7 @@ package com.chua.webview.support.webview;
 public interface WebViewWindow {
 
     /**
-     * 打开指定的 WebView 窗口。
+      * 打开指定的 webview 窗口。
      *
      * @param url    要加载的网页 URL 地址。
      * @param title  窗口显示的标题文本。
@@ -28,7 +28,7 @@ public interface WebViewWindow {
     }
 
     /**
-     * 关闭当前的 WebView 窗口。
+      * 关闭当前的 webview 窗口。
      */
     void close();
 }

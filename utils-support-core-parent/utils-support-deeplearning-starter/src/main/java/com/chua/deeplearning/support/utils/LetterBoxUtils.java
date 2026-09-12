@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 
 /**
- * LetterBox 图像缩放填充工具，将图像等比缩放后填充到目标尺寸，满足 YOLO 等模型输入要求
+   * letterbox 图像缩放填充工具，将图像等比缩放后填充到目标尺寸，满足 YOLO 等模型输入要求
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,7 +25,9 @@ import java.util.ArrayList;
 public class LetterBoxUtils {
 
     /**
-     * LetterBox 填充位置枚举，定义图像缩放后在画布中的放置位置
+      * letterbox 填充位置枚举，定义图像缩放后在画布中的放置位置
+     * @author CH
+     * @since 4.0.0
      */
     public enum PaddingPosition {
         /**
@@ -43,11 +45,13 @@ public class LetterBoxUtils {
     }
 
     /**
-     * LetterBox 缩放结果，保存缩放后的图像和缩放填充参数
+      * letterbox 缩放结果，保存缩放后的图像和缩放填充参数
+     * @author CH
+     * @since 4.0.0
      */
     public static class ResizeResult {
         /**
-         * LetterBox 处理后的 NDArray 图像张量（HWC 格式）
+          * letterbox 处理后的 ndarray 图像张量（HWC 格式）
          */
         public NDArray image;
         /**
@@ -73,13 +77,13 @@ public class LetterBoxUtils {
     }
 
     /**
-     * 使用已有的缩放参数构造 ResizeResult 结果对象
+      * 使用已有的缩放参数构造 resize结果 结果对象
      *
-     * @param paddingImg 填充后的 NDArray 图像
+     * @param paddingImg 填充后的 ndarray 图像
      * @param r          等比缩放比例
      * @param left       左侧填充像素数
      * @param top        顶部填充像素数
-     * @return 封装了缩放元数据的 ResizeResult 对象
+     * @return 封装了缩放元数据的 resize结果 对象
      */
     public static ResizeResult letterboxWithMeta(NDArray paddingImg, float r, int left, int top) {
         var result = new ResizeResult();
@@ -93,15 +97,16 @@ public class LetterBoxUtils {
     }
 
     /**
-     * 对图像执行 LetterBox 等比缩放 + 填充操作，返回缩放后的图像和元数据
+      * 对图像执行 letterbox 等比缩放 + 填充操作，返回缩放后的图像和元数据
      *
-     * @param manager  NDManager，用于创建新的 NDArray 张量
-     * @param img      输入图像 NDArray（HWC 格式）
+     * @param manager  nd管理器，用于创建新的 ndarray 张量
+     * @param img      输入图像 ndarray（HWC 格式）
      * @param targetW  目标宽度（像素）
      * @param targetH  目标高度（像素）
      * @param padColor 填充颜色值（RGB 归一化到 0-1 范围）
      * @param position 填充位置策略，可选 CENTER / LEFT_TOP / RIGHT_BOTTOM
-     * @return 包含缩放后图像和元数据的 ResizeResult 对象
+     * @return 包含缩放后图像和元数据的 resize结果 对象
+     * @param ndManager nd管理器
      */
     public static ResizeResult letterbox(NDManager ndManager, NDArray img, int targetW, int targetH, float padColor, PaddingPosition position) {
         long origH = img.getShape().get(0);
@@ -111,7 +116,7 @@ public class LetterBoxUtils {
         int newW = Math.round(origW * r);
         int newH = Math.round(origH * r);
 
-        // 用 AWT 完成 resize + padding（规避 DJL NDArray 不支持 set/NDIndex）
+ // 用 AWT 完成 resize + padding（规避 DJL ndarray 不支持 设置/nd索引）
         long[] shape = img.getShape().getShape();
         int oH = (int) shape[0], oW = (int) shape[1];
         float[] pixels = img.toType(DataType.FLOAT32, false).toFloatArray();
@@ -145,7 +150,7 @@ public class LetterBoxUtils {
         }
         g2d.drawImage(resized, left, top, null);
         g2d.dispose();
-        // 转回 NDArray
+ // 转回 ndarray
         int tLen = targetW * targetH;
         float[] out = new float[3 * tLen];
         for (int y = 0; y < targetH; y++) {
@@ -165,15 +170,15 @@ public class LetterBoxUtils {
     }
 
     /**
-     * 将 LetterBox 处理后的边界框坐标还原到原始图像坐标系
+      * 将 letterbox 处理后的边界框坐标还原到原始图像坐标系
      *
-     * @param boxes           待还原的边界框 NDArray
+     * @param boxes           待还原的边界框 ndarray
      * @param scaleRatio       缩放比例
      * @param left             左侧填充偏移量
      * @param top              顶部填充偏移量
      * @param keypointStart    关键点起始列的索引位置
      * @param keypointDim      关键点维度，取 0 表示没有关键点
-     * @return 还原到原始图像坐标系后的边界框 NDArray
+     * @return 还原到原始图像坐标系后的边界框 ndarray
      */
     public static NDArray restoreBox(NDArray boxes, float scaleRatio, float left, float top, int keypointStart, int keypointDim) {
         // 还原 bbox 坐标
@@ -201,14 +206,14 @@ public class LetterBoxUtils {
     }
 
     /**
-     * 将 LetterBox 处理后的单个 Rectangle 边界框还原到原始图像坐标系
+      * 将 letterbox 处理后的单个 Rectangle 边界框还原到原始图像坐标系
      *
      * @param rectangle        待还原的矩形边界框
      * @param scale            缩放比例
      * @param origImageWidth   原始图像宽度（像素）
      * @param origImageHeight                    原图像高度（像素）
-     * @param inputWidth      模型输入宽度（像素），即 LetterBox 的目标宽度
-     * @param inputHeight                       模型输入高度（像素），即 LetterBox 的目标高度
+     * @param inputWidth      模型输入宽度（像素），即 letterbox 的目标宽度
+     * @param inputHeight                       模型输入高度（像素），即 letterbox 的目标高度
      * @return 还原后的归一化 Rectangle 对象
      */
     public static Rectangle restoreBox(Rectangle rectangle, float scale, int origImageWidth, int origImageHeight, int inputWidth, int inputHeight) {
@@ -228,14 +233,14 @@ public class LetterBoxUtils {
     }
 
     /**
-     * 将 LetterBox 处理后的 Landmark 关键点还原到原始图像坐标系
+      * 将 letterbox 处理后的 Landmark 关键点还原到原始图像坐标系
      *
      * @param landmark                 Landmark 关键点对象
      * @param scale                    缩放比例
      * @param origImageWidth  原始图像宽度（像素）
      * @param origImageHeight                      原始图像高度（像素）
-     * @param inputWidth      模型输入图像宽度（像素），即 LetterBox 的目标宽度
-     * @param inputHeight                       模型输入图像高度（像素），即 LetterBox 的目标高度
+     * @param inputWidth      模型输入图像宽度（像素），即 letterbox 的目标宽度
+     * @param inputHeight                       模型输入图像高度（像素），即 letterbox 的目标高度
      * @param isNormalized             关键点坐标是否为归一化坐标（0-1 范围）
      * @return 还原后的 Landmark 对象
      */
@@ -295,15 +300,15 @@ public class LetterBoxUtils {
     }
 
     /**
-     * 将 LetterBox 图像中的绝对坐标还原为原始图像坐标
+      * 将 letterbox 图像中的绝对坐标还原为原始图像坐标
      *
-     * @param targetW LetterBox 目标宽度（像素）
-     * @param targetH                LetterBox 目标高度（像素）
-     * @param x1      LetterBox 图像中的 x1 坐标（像素）
-     * @param y1              LetterBox 图像中的 y1 坐标（像素）
-     * @param x2              LetterBox 图像中的 x2 坐标（像素）
-     * @param y2              LetterBox 图像中的 y2 坐标（像素）
-     * @param result  LetterBox 缩放结果对象，包含缩放比例和 padding 偏移
+     * @param targetW letterbox 目标宽度（像素）
+     * @param targetH                letterbox 目标高度（像素）
+     * @param x1      letterbox 图像中的 x1 坐标（像素）
+     * @param y1              letterbox 图像中的 y1 坐标（像素）
+     * @param x2              letterbox 图像中的 x2 坐标（像素）
+     * @param y2              letterbox 图像中的 y2 坐标（像素）
+     * @param result  letterbox 缩放结果对象，包含缩放比例和 padding 偏移
      * @param origW          原始图像宽度（像素）
      * @param origH                         原始图像高度（像素）
      * @return 还原后的坐标数组 [x1, y1, x2, y2]
@@ -324,13 +329,13 @@ public class LetterBoxUtils {
     }
 
     /**
-     * 使用 AWT BufferedImage 缩放图像（替代 DJL NDImageUtils.resize，规避 Rust NDArray 不支持 resize 的问题）。
+      * 使用 AWT 缓冲镜像 缩放图像（替代 DJL nd镜像工具.resize，规避 Rust ndarray 不支持 resize 的问题）。
      *
-     * @param ndManager NDManager
-     * @param img       输入图像 NDArray（HWC float32，值范围 0-1）
+     * @param ndManager nd管理器
+     * @param img       输入图像 ndarray（HWC float32，值范围 0-1）
      * @param newW      目标宽度
      * @param newH      目标高度
-     * @return 缩放后的 NDArray（HWC float32）
+     * @return 缩放后的 ndarray（HWC float32）
      */
     public static NDArray resizeWithAwt(NDManager ndManager, NDArray img, int newW, int newH) {
         long[] shape = img.getShape().getShape();
@@ -346,7 +351,9 @@ public class LetterBoxUtils {
                 int g = (int) (pixels[len + idx] * 255f);
                 int b = (int) (pixels[2 * len + idx] * 255f);
                 int rgb = (r << 16) | (g << 8) | (b);
-                if (rgb < 0) rgb = 0;
+                if (rgb < 0) {
+                    rgb = 0;
+                }
                 bi.setRGB(x, y, rgb);
             }
         }

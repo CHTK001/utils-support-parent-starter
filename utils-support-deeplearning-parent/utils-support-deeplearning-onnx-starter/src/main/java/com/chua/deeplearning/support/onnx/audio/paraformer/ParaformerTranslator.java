@@ -23,10 +23,10 @@ import java.util.Map;
  * Paraformer ONNX Translator（音频文件 → 转写文本）。
  * <p>
  * 流程：WAV(16k int16) → kaldi fbank(80) → LFR(560) → CMVN → ONNX 单次推理 →
- * greedy search(按帧 argmax，遇 EOS 停止) → tokens 解码。
+   * greedy 搜索(按帧 argmax，遇 EOS 停止) → 令牌 解码。
  * </p>
  * <p>
- * ONNX 模型输入输出（已按 model.int8.onnx 实测确认）：
+   * ONNX 模型输入输出（已按 模型.int8.onnx 实测确认）：
  * <ul>
  *   <li>输入 {@code speech}：(1, T, 560) float32</li>
  *   <li>输入 {@code speech_lengths}：(1,) int64</li>
@@ -42,38 +42,38 @@ import java.util.Map;
 public class ParaformerTranslator {
 
     /** 采样率 */
-    /** Sample_rate */
+    /** 样本_rate */
     private static final int SAMPLE_RATE = 16000;
 
     /** 输入名：语音特征 */
-    /** Speech_in */
+    /** 语音_入 */
     private static final String INPUT_SPEECH = "speech";
 
     /** 输入名：特征帧数 */
-    /** Length_in */
+    /** 长度_入 */
     private static final String INPUT_SPEECH_LENGTHS = "speech_lengths";
 
     /** 特征维度（LFR 后 560 = 80×7） */
-    /** Feature_dim */
+    /** 特征_dim */
     private static final int FEATURE_DIM = 560;
 
-    /** 模型 metadata key：vocab size */
+    /** 模型 metadata 键：vocab 大小 */
     /** Meta_vocab */
     private static final String META_VOCAB_SIZE = "vocab_size";
 
-    /** 模型 metadata key：LFR 窗口 */
-    /** Meta_lfr_window */
+    /** 模型 metadata 键：LFR 窗口 */
+    /** Meta_lfr_窗口 */
     private static final String META_LFR_WINDOW_SIZE = "lfr_window_size";
 
-    /** 模型 metadata key：LFR 步长 */
-    /** Meta_lfr_shift */
+    /** 模型 metadata 键：LFR 步长 */
+    /** Meta_lfr_Shift */
     private static final String META_LFR_WINDOW_SHIFT = "lfr_window_shift";
 
-    /** 模型 metadata key：CMVN 负均值 */
+    /** 模型 metadata 键：CMVN 负均值 */
     /** Meta_neg_mean */
     private static final String META_NEG_MEAN = "neg_mean";
 
-    /** 模型 metadata key：CMVN 逆标准差 */
+    /** 模型 metadata 键：CMVN 逆标准差 */
     /** Meta_inv_stddev */
     private static final String META_INV_STDDEV = "inv_stddev";
 
@@ -82,7 +82,7 @@ public class ParaformerTranslator {
     private OrtEnvironment ortEnv;
 
     /** ONNX 会话 */
-    /** Session */
+    /** 会话 */
     private OrtSession session;
 
     /** 特征提取器 */
@@ -100,7 +100,7 @@ public class ParaformerTranslator {
     /**
      * 加载模型与词表。
      *
-     * @param modelDir 模型目录（含 model.int8.onnx、tokens.txt）
+     * @param modelDir 模型目录（含 模型.int8.onnx、令牌.txt）
      * @throws Exception 加载失败
      */
     public void prepare(Path modelDir) throws Exception {
@@ -160,7 +160,7 @@ public class ParaformerTranslator {
      * 查找模型目录下的 ONNX 文件。
      *
      * @param dir 模型目录
-     * @return ONNX 文件路径，找不到返回 null
+     * @return ONNX 文件路径，找不到返回 空
      * @throws IOException 列目录失败
      */
     private static Path findOnnx(Path dir) throws IOException {
@@ -210,7 +210,7 @@ public class ParaformerTranslator {
             seqLen = (int) shape[1];
         }
 
-        // greedy search
+ // greedy 搜索
         int vocabSize = tokenizer.vocabSize();
         int eosId = tokenizer.eosId();
         List<Integer> tokenIds = new ArrayList<>();
@@ -235,7 +235,7 @@ public class ParaformerTranslator {
     }
 
     /**
-     * 加载音频为 16kHz 单声道 int16 范围样本（约 ±32768）。
+      * 加载音频为 16khz 单声道 int16 范围样本（约 ±32768）。
      *
      * @param path 音频文件路径
      * @return 样本数组

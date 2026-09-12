@@ -69,7 +69,7 @@ public class DefaultPipelineManager implements PipelineManager {
     private final Map<String, String> store = new ConcurrentHashMap<>();
 
     /**
-     * 编译后的 PipelineConfig 缓存。
+      * 编译后的 pipeline配置 缓存。
      *
      * <p>这是性能优化的核心数据结构：</p>
      * <ul>
@@ -105,16 +105,16 @@ public class DefaultPipelineManager implements PipelineManager {
      * 保存或更新一条管线配置。
      *
      * <p>此方法是"编译触发点"：每次调用都会将 JSON 反序列化为 PipelineConfig，
-     * 并存入 compiledCache。如果 JSON 格式错误，warn 日志记录后忽略，不影响已有缓存。</p>
+      * 并存入 compiled缓存。如果 JSON 格式错误，warn 日志记录后忽略，不影响已有缓存。</p>
      *
      * @param pipelineId 管线唯一标识
      * @param jsonDsl    管线 DSL 的 JSON 字符串
      */
     @Override
     public void savePipeline(String pipelineId, String jsonDsl) {
-        // 先写原始 store（保证即使编译失败，原始数据也不丢失）
+ // 先写原始 存储（保证即使编译失败，原始数据也不丢失）
         store.put(pipelineId, jsonDsl);
-        // 同步编译：将 JSON 解析为 PipelineConfig 对象
+ // 同步编译：将 JSON 解析为 pipeline配置 对象
         try {
             PipelineConfig config = Json.fromJson(jsonDsl, PipelineConfig.class);
             if (config != null) {
@@ -133,14 +133,16 @@ public class DefaultPipelineManager implements PipelineManager {
      * 获取管线的原始 JSON DSL。
      *
      * <p>此方法返回原始字符串，供调试、序列化、或 fallback 路径使用。
-     * 高频 execute 路径应优先使用 {@link #getCompiledPipeline}。</p>
+      * 高频 执行 路径应优先使用 {@link #getCompiledPipeline}。</p>
      *
-     * @param pipelineId 管线 ID
-     * @return 原始 JSON 字符串，未注册则返回 null
+     * @param pipelineId 管线 标识
+     * @return 原始 JSON 字符串，未注册则返回 空
      */
     @Override
     public String getPipeline(String pipelineId) {
-        if (pipelineId == null) return null;
+        if (pipelineId == null) {
+            return null;
+        }
         return store.get(pipelineId);
     }
 
@@ -154,16 +156,22 @@ public class DefaultPipelineManager implements PipelineManager {
      *   <li>编译结果写回缓存，后续调用直接命中</li>
      * </ol>
      *
-     * @param pipelineId 管线 ID
-     * @return 编译后的 PipelineConfig，未注册或解析失败返回 null
+     * @param pipelineId 管线 标识
+     * @return 编译后的 pipeline配置，未注册或解析失败返回 空
      */
     public PipelineConfig getCompiledPipeline(String pipelineId) {
-        if (pipelineId == null) return null;
-        // 第一次访问：缓存未命中，从 store 读取 JSON 并编译
+        if (pipelineId == null) {
+            return null;
+        }
+ // 第一次访问：缓存未命中，从 存储 读取 JSON 并编译
         PipelineConfig cached = compiledCache.get(pipelineId);
-        if (cached != null) return cached;
+        if (cached != null) {
+            return cached;
+        }
         String dslJson = store.get(pipelineId);
-        if (dslJson == null || dslJson.isEmpty()) return null;
+        if (dslJson == null || dslJson.isEmpty()) {
+            return null;
+        }
         try {
             cached = Json.fromJson(dslJson, PipelineConfig.class);
             if (cached != null) {
@@ -178,7 +186,7 @@ public class DefaultPipelineManager implements PipelineManager {
     /**
      * 删除一条管线配置及其编译缓存。
      *
-     * @param pipelineId 管线 ID
+     * @param pipelineId 管线 标识
      */
     @Override
     public void deletePipeline(String pipelineId) {
@@ -187,9 +195,9 @@ public class DefaultPipelineManager implements PipelineManager {
     }
 
     /**
-     * 返回所有已注册管线的 ID 集合（不可修改）。
+      * 返回所有已注册管线的 标识 集合（不可修改）。
      *
-     * @return 管线 ID 集合
+     * @return 管线 标识 集合
      */
     @Override
     public Iterable<String> pipelineIds() {

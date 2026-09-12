@@ -44,11 +44,14 @@ import java.util.function.Function;
  * runner.execute(input);        // 异步 CompletableFuture<RunResult>
  * runner.executeSync(input);    // 同步
  * runner.executeReactor();      // Mono<RunResult>
+ * }</pre>nResult>
+ * runner.executeSync(input);    // 同步
+ * runner.executeReactor();      // Mono<RunResult>
  * }</pre>
  *
  * <p>约束：{@code policy(...)} 为必填项，未设置时任何执行入口都会抛出
  * {@link IllegalStateException}。同一 runner 可多次执行；事件流为有界缓冲
- * （4096 条，溢出丢最旧），跨执行累积并以 RUN_STARTED 分界，
+   * （4096 条，溢出丢最旧），跨执行累积并以 运行_启动 分界，
  * 长期复用时可调用 {@link #clearEvents()} 重置。</p>
  *
  * @author CH
@@ -72,7 +75,7 @@ public class TaskRunner {
     private final Map<String, TaskDefinition> definitions = new LinkedHashMap<>();
 
     /**
-     * 全局默认单任务超时，null 表示不限时
+      * 全局默认单任务超时，空 表示不限时
      */
     private Duration timeout;
 
@@ -107,12 +110,12 @@ public class TaskRunner {
     private volatile Sinks.Many<RunnerEvent> eventSink = newSink();
 
     /**
-     * 事件流替换锁：clearEvents 与 bridgeEvent 的互斥
+      * 事件流替换锁：clear事件 与 bridge事件 的互斥
      */
     private final Object sinkLock = new Object();
 
     /**
-     * 拓扑结构版本号：task() 注册时递增
+      * 拓扑结构版本号：任务() 注册时递增
      */
     private volatile int structureVersion;
 
@@ -159,7 +162,7 @@ public class TaskRunner {
     }
 
     /**
-     * 设置全局默认单任务超时，可被节点级 timeout 覆盖。
+      * 设置全局默认单任务超时，可被节点级 超时 覆盖。
      *
      * @param d 超时时长，必须为正
      * @return 当前运行器
@@ -174,7 +177,7 @@ public class TaskRunner {
     }
 
     /**
-     * 设置全局默认重试次数，可被节点级 retry 覆盖。
+      * 设置全局默认重试次数，可被节点级 重试 覆盖。
      *
      * @param n 重试次数（不含首次执行），必须 ≥ 0
      * @return 当前运行器
@@ -190,7 +193,7 @@ public class TaskRunner {
     /**
      * 设置完成策略（必填项）。
      *
-     * @param p 完成策略，不为 null
+     * @param p 完成策略，不为 空
      * @return 当前运行器
      */
     public TaskRunner policy(CompletionPolicy p) {
@@ -201,7 +204,7 @@ public class TaskRunner {
     /**
      * 注册事件监听器。
      *
-     * @param l 监听器，不为 null
+     * @param l 监听器，不为 空
      * @return 当前运行器
      */
     public TaskRunner listener(RunnerListener l) {
@@ -226,10 +229,10 @@ public class TaskRunner {
     /**
      * 注册任务节点。
      *
-     * @param id     节点 ID，运行内唯一且非空
+     * @param id     节点 标识，运行内唯一且非空
      * @param action 执行函数，接收上下文并返回结果值
      * @return 任务定义，用于链式追加配置
-     * @throws IllegalStateException 当 ID 重复注册时
+     * @throws IllegalStateException 当 标识 重复注册时
      */
     public TaskDefinition task(String id, Function<RunnerContext, Object> action) {
         Objects.requireNonNull(action, "action must not be null");
@@ -249,8 +252,8 @@ public class TaskRunner {
      * 调用 {@code future.cancel(true)} 会中断执行线程，
      * 结构化并发作用域随之取消全部在途子任务。</p>
      *
-     * @param input 初始输入，可为 null
-     * @return 整体结果 Future；cancel 后以 CancellationException 结束
+     * @param input 初始输入，可为 空
+     * @return 整体结果 期货；cancel 后以 cancellation异常 结束
      * @throws IllegalStateException 当未设置策略或未注册任务时
      */
     public CompletableFuture<RunResult> execute(Object input) {
@@ -277,7 +280,7 @@ public class TaskRunner {
     /**
      * 同步执行整个拓扑图，在调用线程上阻塞完成。
      *
-     * @param input 初始输入，可为 null
+     * @param input 初始输入，可为 空
      * @return 整体结果
      * @throws IllegalStateException 当未设置策略或未注册任务时
      */
@@ -291,7 +294,7 @@ public class TaskRunner {
      *
      * <p>完全惰性：参数校验与执行均推迟到订阅时刻。</p>
      *
-     * @param input 初始输入，可为 null
+     * @param input 初始输入，可为 空
      * @return 整体结果 Mono（订阅时校验并触发执行）
      */
     public Mono<RunResult> executeReactor(Object input) {

@@ -27,15 +27,15 @@ public interface GeocodeProvider {
      *
      * @param latitude  纬度
      * @param longitude 经度
-     * @return 物理地址（如 "北京市东城区...中国"）；解析失败返回 null
+     * @return 物理地址（如 "北京市东城区...中国"）；解析失败返回 空
      */
     String reverseGeocode(double latitude, double longitude);
 
     /**
      * IP 转物理地址。
      *
-     * @param ip IPv4 地址
-     * @return 物理地址；解析失败返回 null
+     * @param ip ipv4 地址
+     * @return 物理地址；解析失败返回 空
      */
     String ipToAddress(String ip);
 }

@@ -24,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
  *     .build();
  * server.start();
  * server.stop();
+ * }</pre>build();
+ * server.start();
+ * server.stop();
  * }</pre>
  *
  * @author CH
@@ -46,25 +49,25 @@ public class SmbServer extends AbstractServer {
      */
     private final String password;
     /**
-     * share Name
+      * 共享 名称
      */
     private final String shareName;
     /**
-     * root Path
+      * 根 路径
      */
     private final String rootPath;
     /**
-     * 服务器 Handle
+      * 服务器 处理
      */
     private volatile long serverHandle = -1;
 
     /**
-     * 创建 SmbServer 实例
+      * 创建 smb服务端 实例
      * @param setting setting
-     * @param user user
-     * @param password password
-     * @param shareName shareName
-     * @param rootPath rootPath
+     * @param user 用户
+     * @param password 密码
+     * @param shareName 共享名称
+     * @param rootPath 根路径
      */
     protected SmbServer(ServerSetting setting, String user, String password,
                         String shareName, String rootPath) {
@@ -76,13 +79,13 @@ public class SmbServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.SMB;
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             RustSmbServerBridge.loadLibrary();
@@ -102,7 +105,7 @@ public class SmbServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (serverHandle > 0) {
             try {
@@ -118,7 +121,13 @@ public class SmbServer extends AbstractServer {
 
     // ==================== 构建器 ====================
 
-    /** Builder */
+    /**
+     * 构建器
+     *
+     * @return 构建器的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -142,51 +151,85 @@ public class SmbServer extends AbstractServer {
          */
         private String password = "";
         /**
-         * share Name
+          * 共享 名称
          */
         private String shareName = "smbshare";
         /**
-         * root Path
+          * 根 路径
          */
         private String rootPath = "/tmp/smbroot";
 
-        /** Port */
+        /**
+         * 端口
+         *
+         * @param port 端口
+         * @return 端口的结果
+         */
         public Builder port(int port) {
             this.port = port;
             return this;
         }
 
-        /** Host */
+        /**
+         * 主机
+         *
+         * @param host 主机
+         * @return 主机的结果
+         */
         public Builder host(String host) {
             this.host = host;
             return this;
         }
 
-        /** User */
+        /**
+         * 用户
+         *
+         * @param user 用户
+         * @return 用户的结果
+         */
         public Builder user(String user) {
             this.user = user;
             return this;
         }
 
-        /** Password */
+        /**
+         * 密码
+         *
+         * @param password 密码
+         * @return 密码的结果
+         */
         public Builder password(String password) {
             this.password = password;
             return this;
         }
 
-        /** ShareName */
+        /**
+         * 共享名称
+         *
+         * @param shareName 共享名称
+         * @return 共享名称的结果
+         */
         public Builder shareName(String shareName) {
             this.shareName = shareName;
             return this;
         }
 
-        /** RootPath */
+        /**
+         * 根路径
+         *
+         * @param rootPath 根路径
+         * @return 根路径的结果
+         */
         public Builder rootPath(String rootPath) {
             this.rootPath = rootPath;
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public SmbServer build() {
             ServerSetting setting = ServerSetting.defaults();
             setting.setHost(host);

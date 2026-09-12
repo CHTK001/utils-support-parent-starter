@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Composer 软件包管理器提供器。
  *
  * <p>通过 composer CLI 搜索、安装和卸载 PHP 依赖包。
- * 支持 <code>composer search</code>、<code>composer global require</code>、
+   * 支持 <code>Composer 搜索</code>、<code>Composer 全局 require</code>、
  * <code>composer global remove</code>。
  *
  * @author CH
@@ -33,7 +33,7 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "composer";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -48,13 +48,13 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("composer 搜索完成, exitCode={}", exitCode);
             }
@@ -89,17 +89,24 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -115,7 +122,12 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析ComposerOutput */
+    /**
+     * 解析composer输出
+     *
+     * @param output 输出
+     * @return 解析composer输出的结果
+     */
     private List<SoftwareInfo> parseComposerOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -124,8 +136,8 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
                 if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("Loading")) {
                     continue;
                 }
-                // composer search 输出: name description
-                // 例如: laravel/framework The Laravel framework.
+ // Composer 搜索 输出: 名称 description
+ // 例如: laravel/框架 The Laravel 框架.
                 int firstSpace = trimmed.indexOf(' ');
                 String name;
                 String description;

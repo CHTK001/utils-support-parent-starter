@@ -41,15 +41,16 @@ public class NetNormalTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 NetNormalTranslator 实例 */
+    /** 创建 netnormaltranslator 实例 */
     public NetNormalTranslator() {
         this(512, 512);
     }
 
     /**
-     * 创建 NetNormalTranslator 实例
-     * @param imageResolution imageResolution
-     * @param int int
+      * 创建 netnormaltranslator 实例
+     * @param imageResolution 镜像resolution
+     * @param imageResolution int
+     * @param detectResolution detectresolution
      */
     public NetNormalTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
@@ -57,7 +58,7 @@ public class NetNormalTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -72,7 +73,7 @@ public class NetNormalTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray normal = list.singletonOrThrow();
         if (normal.getShape().dimension() == 4 && normal.getShape().get(0) == 1) {

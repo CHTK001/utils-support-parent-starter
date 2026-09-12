@@ -18,7 +18,7 @@ import java.util.List;
  *
  * <p>一站式完成：密钥策略设置（自定义/绑定服务器）、生命周期设置（一次性读取即销毁/持久）、
  * 密钥载体选择（密钥文件/内存）、数据加解密、配置文件整体或单值加密。
- * 同时适配普通 Java、SpringBoot、FatJar 等运行形态（相对路径自动按 工作目录 → Jar 目录 → 用户目录 解析）。
+   * 同时适配普通 Java、springboot、fatjar 等运行形态（相对路径自动按 工作目录 → Jar 目录 → 用户目录 解析）。
  *
  * <h2>使用示例</h2>
  * <pre>{@code
@@ -41,6 +41,12 @@ import java.util.List;
  * Crypto.create()
  *         .encryptConfig(true)
  *         .configFile("application.yml", "application-prod.yml")
+ *         .build()
+ *         .encryptConfigFiles();
+ *
+ * String cipherText = crypto.encryptToString("hello");
+ * String plainText  = crypto.decryptToString(cipherText);
+ * }</pre>
  *         .build()
  *         .encryptConfigFiles();
  *
@@ -129,7 +135,7 @@ public class Crypto implements AutoCloseable {
     /**
      * 设置密钥策略
      *
-     * @param keyPolicy 自定义(CUSTOM)/绑定服务器(SERVER_BOUND)
+     * @param keyPolicy 自定义(习俗)/绑定服务器(服务端_BOUND)
      * @return 当前对象
      */
     public Crypto keyPolicy(KeyPolicy keyPolicy) {
@@ -140,7 +146,7 @@ public class Crypto implements AutoCloseable {
     /**
      * 设置密钥生命周期
      *
-     * @param lifecycle 一次性读取即销毁(ONE_TIME)/持久(PERSISTENT)
+     * @param lifecycle 一次性读取即销毁(ONE_时间)/持久(PERSISTENT)
      * @return 当前对象
      */
     public Crypto lifecycle(KeyLifecycle lifecycle) {
@@ -161,7 +167,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置自定义口令（CUSTOM 策略必填；SERVER_BOUND 策略可作为 pepper 叠加）
+      * 设置自定义口令（习俗 策略必填；服务端_BOUND 策略可作为 pepper 叠加）
      *
      * @param secret 口令字符数组
      * @return 当前对象
@@ -182,7 +188,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 固定服务器指纹标识（SERVER_BOUND 策略容灾迁移场景；缺省自动采集本机指纹）
+      * 固定服务器指纹标识（服务端_BOUND 策略容灾迁移场景；缺省自动采集本机指纹）
      *
      * @param serverId 稳定标识
      * @return 当前对象
@@ -193,7 +199,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置数据加密算法（缺省 AES/GCM/NoPadding）
+      * 设置数据加密算法（缺省 AES/GCM/nopadding）
      *
      * @param algorithm JCE 变换名
      * @return 当前对象
@@ -225,7 +231,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 追加参与整体加解密的配置文件（隐式开启 encryptConfig）
+      * 追加参与整体加解密的配置文件（隐式开启 encrypt配置）
      *
      * @param files 配置文件路径（可多个）
      * @return 当前对象
@@ -278,6 +284,7 @@ public class Crypto implements AutoCloseable {
      *   <li>MEMORY：直接生成随机主密钥；FILE：缺失时自动引导生成</li>
      *   <li>统一经载体 load 完成校验（ONE_TIME 在此步销毁落盘副本）</li>
      * </ol>
+     * @return 初始化内部的结果
      */
     private synchronized Crypto initializeInternal() {
         if (initialized) {
@@ -389,7 +396,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 加密字符串（UTF-8），返回 Base64 密文
+      * 加密字符串（UTF-8），返回 基础64 密文
      *
      * @param plaintext 明文
      * @return Base64 密文
@@ -400,9 +407,9 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 解密 Base64 密文
+      * 解密 基础64 密文
      *
-     * @param ciphertext Base64 密文
+     * @param ciphertext 基础64 密文
      * @return 明文
      */
     public String decryptToString(String ciphertext) {
@@ -415,7 +422,7 @@ public class Crypto implements AutoCloseable {
     // ------------------------------------------------------------------
 
     /**
-     * 批量加密已登记的配置文件（encryptConfig(true)+configFile(...) 场景）
+      * 批量加密已登记的配置文件（encrypt配置(true)+配置文件(...) 场景）
      *
      * @return 处理后的密文文件路径列表
      */

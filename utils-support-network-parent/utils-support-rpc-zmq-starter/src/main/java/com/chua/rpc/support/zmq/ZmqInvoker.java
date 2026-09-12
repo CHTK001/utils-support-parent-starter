@@ -15,7 +15,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 
 /**
- * 基于 ZeroMQ RPC（JeroMQ）的 {@link Invoker} 实现。
+   * 基于 zeromq RPC（jeromq）的 {@link Invoker} 实现。
  *
  * <p>通过 {@link RpcClient#createClient(String, java.util.List, RpcConsumerConfig, String)}
  * 以 {@code "zmq"} 协议创建 RPC 客户端代理，支持 {@code @RemoteService(protocol = "zmq")}
@@ -38,7 +38,7 @@ import java.util.Collections;
 @Spi("zmq")
 public class ZmqInvoker implements Invoker {
 
-    /** 类级地址注解集合（Spring MVC RequestMapping） */
+    /** 类级地址注解集合（Spring MVC 请求mapping） */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };
@@ -56,7 +56,7 @@ public class ZmqInvoker implements Invoker {
     }
 
     @Override
-    /** 创建New（不缓存） */
+    /** 创建新（不缓存） */
     public <T> T createNew(Class<T> apiClass) {
         return createProxy(apiClass, true);
     }
@@ -94,7 +94,7 @@ public class ZmqInvoker implements Invoker {
     }
 
     /**
-     * 解析接口类级端点地址：按优先级读取 Spring MVC RequestMapping、
+      * 解析接口类级端点地址：按优先级读取 Spring MVC 请求mapping、
      * {@link RequestMethod}、{@link InvokerService}、{@link RemoteService#url()}。
      *
      * @param clazz 接口类型
@@ -131,7 +131,7 @@ public class ZmqInvoker implements Invoker {
     }
 
     /**
-     * 提取注解 {@code value} 属性值（支持 String 与 String[] 类型）。
+      * 提取注解 {@code value} 属性值（支持 字符串 与 字符串[] 类型）。
      *
      * @param ann 注解实例
      * @return 提取到的值，无法解析时返回空字符串
@@ -147,7 +147,7 @@ public class ZmqInvoker implements Invoker {
                 return a[0];
             }
         } catch (Exception ignored) {
-            // 注解无 value 属性时忽略
+ // 注解无 值 属性时忽略
         }
         return "";
     }

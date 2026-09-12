@@ -12,7 +12,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * MiDaS 深度估计 Translator。
+   * midas 深度估计 Translator。
  * <p>输入 RGB 图，输出可视化深度图。</p>
  *
  * @author CH
@@ -40,15 +40,16 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 MidasDepthTranslator 实例 */
+    /** 创建 midas深度translator 实例 */
     public MidasDepthTranslator() {
         this(512, 512);
     }
 
     /**
-     * 创建 MidasDepthTranslator 实例
-     * @param detectResolution detectResolution
-     * @param int int
+      * 创建 midas深度translator 实例
+     * @param detectResolution detectresolution
+     * @param detectResolution int
+     * @param imageResolution 镜像resolution
      */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
@@ -56,7 +57,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -69,7 +70,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depthPt = list.singletonOrThrow();
         NDArray min = depthPt.min();
@@ -90,7 +91,12 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         return Batchifier.STACK;
     }
 
-    /** ToDisplayNdArray */
+    /**
+     * 转为displayndarray
+     *
+     * @param depthPt 深度pt
+     * @return 转为displayndarray的结果
+     */
     private NDArray toDisplayNdArray(NDArray depthPt) {
         NDArray normalized = depthPt;
         while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) {
@@ -115,7 +121,14 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         throw new IllegalArgumentException("Unsupported MiDaS depth shape: " + normalized.getShape());
     }
 
-    /** 调整大小 */
+    /**
+     * 调整大小
+     *
+     * @param h h
+     * @param w w
+     * @param resolution resolution
+     * @return resize64的结果
+     */
     private int[] resize64(double h, double w, double resolution) {
         double k = resolution / Math.min(h, w);
         h *= k;

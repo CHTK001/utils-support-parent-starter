@@ -20,27 +20,27 @@ import java.util.Map;
 
 
 /**
- * YOLOv8                      
+   * yolov8
  * <p>
- *        YOLOv8 身份证检测                                
+   * yolov8 身份证检测
  *                                  
  * </p>
  * <p>
  *                
  * -                               Detection                           
- * -          YOLOv8-License-Plate                           /         
+   * -          yolov8-执照-铭牌                           /
  * -                640x640               
  * -                             [0, 1]
  * </p>
  * <p>
  *                
  * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
- * -                [1, 6, 8400] - (x_center, y_center, w, h, class1_conf, class2_conf)
+   * -                [1, 6, 8400] - (x_center, y_center, w, h, 类1_conf, 类2_conf)
  * -                    NMS                           
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/22
  */
 @Slf4j
@@ -77,7 +77,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     private int imageHeight;
 
     /**
-     * LetterBox             
+      * letterbox
      */
     private LetterBoxUtils.ResizeResult letterBoxResult;
 
@@ -85,10 +85,10 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
      *                                     
      * <p>
      *             
-     * - inputSize: 640x640
-     * - minConfThreshold: 0.3
-     * - iouThreshold: 0.5
-     * - topK: 100
+      * - 输入大小: 640x640
+      * - 最小conf阈值: 0.3
+      * - iou阈值: 0.5
+      * - topk: 100
      * </p>
      */
     public Yolo8IdCardDetectTranslator() {
@@ -96,7 +96,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-     *                       Map          
+      * 映射
      *
      * @param arguments             
      */
@@ -142,7 +142,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    /** 澶勭悊Input */
+    /** 澶勭悊输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -159,7 +159,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    /** 澶勭悊Output */
+    /** 澶勭悊输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         var manager = ctx.getNDManager();
 
@@ -197,7 +197,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
         // NMS                   
         int[] keepIndices = NMSUtils.nms(boxes, scores.squeeze(), iouThreshold);
         var kept = result.get(manager.create(keepIndices));
-        //              topK            
+ // topk
         if (keepIndices.length > topK) {
             int[] topkIndices = new int[topK];
             System.arraycopy(keepIndices, 0, topkIndices, 0, topK);

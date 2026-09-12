@@ -21,7 +21,7 @@ public interface TaskCallback {
     /**
      * 任务执行失败回调。
      *
-     * @param taskId   任务 ID
+     * @param taskId   任务 标识
      * @param error    错误信息
      */
     default void onError(String taskId, String error) {
@@ -30,7 +30,7 @@ public interface TaskCallback {
     /**
      * 任务执行超时回调。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      */
     default void onTimeout(String taskId) {
     }
@@ -38,7 +38,7 @@ public interface TaskCallback {
     /**
      * 任务进度更新回调。
      *
-     * @param taskId    任务 ID
+     * @param taskId    任务 标识
      * @param progress  进度百分比（0-100）
      * @param message   进度描述
      */

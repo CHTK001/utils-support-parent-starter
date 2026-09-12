@@ -23,9 +23,9 @@ public interface FeatureExtractor {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -35,9 +35,9 @@ public interface FeatureExtractor {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default FeatureExtractor provider(String provider) {
@@ -54,7 +54,12 @@ public interface FeatureExtractor {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static FeatureExtractor create(String name) {
         return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -65,7 +70,7 @@ public interface FeatureExtractor {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.feature.FeatureExtractor.class);
@@ -189,7 +194,7 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FeatureExtractor modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -211,7 +216,12 @@ class DefaultFeatureExtractor implements FeatureExtractor {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Extract */
+    /**
+     * Extract
+     *
+     * @param imageData 镜像数据
+     * @return extract的结果
+     */
     public float[] extract(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -223,7 +233,12 @@ class DefaultFeatureExtractor implements FeatureExtractor {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Extract */
+    /**
+     * Extract
+     *
+     * @param text 文本
+     * @return extract的结果
+     */
     public float[] extract(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);

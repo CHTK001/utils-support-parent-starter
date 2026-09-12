@@ -17,7 +17,7 @@ public interface WalChain {
      *
      * @param op      操作类型
      * @param payload 业务字节流
-     * @return 当前 WalChain（链式调用）
+     * @return 当前 walchain（链式调用）
      */
     WalChain add(byte op, byte[] payload);
 
@@ -26,7 +26,7 @@ public interface WalChain {
      *
      * @param op 操作类型
      * @param s  业务字符串
-     * @return 当前 WalChain（链式调用）
+     * @return 当前 walchain（链式调用）
      */
     WalChain add(byte op, String s);
 
@@ -34,7 +34,7 @@ public interface WalChain {
      * 追加一条空 payload 的操作。
      *
      * @param op 操作类型
-     * @return 当前 WalChain（链式调用）
+     * @return 当前 walchain（链式调用）
      */
     WalChain add(byte op);
 

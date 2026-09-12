@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
- * LogSink — 审计型 Sink，打印到日志。
+   * 日志sink — 审计型 Sink，打印到日志。
  *
  * <p>实现 {@link AccessSink}，不需要存储 DataSource。</p>
  *
@@ -21,7 +21,7 @@ import java.util.Map;
 public class LogSink implements AccessSink {
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "log";
     }

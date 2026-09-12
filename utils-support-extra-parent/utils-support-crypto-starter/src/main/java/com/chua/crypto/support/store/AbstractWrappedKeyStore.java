@@ -75,7 +75,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
 
     /**
      * 收紧载体文件权限：POSIX 文件系统设为仅属主读写；NTFS 等不支持 POSIX 权限的
-     * 文件系统跳过（依赖目录 ACL），失败不影响写入结果
+      * 文件系统跳过（依赖目录 访问控制列表），失败不影响写入结果
      *
      * @param target 载体文件
      */
@@ -84,7 +84,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
             Set<PosixFilePermission> ownerOnly = PosixFilePermissions.fromString("rw-------");
             Files.setPosixFilePermissions(target, ownerOnly);
         } catch (UnsupportedOperationException | IOException ignored) {
-            // Windows/FAT 等无 POSIX 权限语义的文件系统，依赖部署目录 ACL
+ // 窗口/FAT 等无 POSIX 权限语义的文件系统，依赖部署目录 访问控制列表
         }
     }
 

@@ -10,10 +10,10 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * 代码 / 文本预览提供者：js、css、xml、json、yaml、java、py 等 → 语法高亮 HTML。
+   * 代码 / 文本预览提供者：js、CSS、xml、json、yaml、Java、py 等 → 语法高亮 HTML。
  *
  * <p>注意：html/htm 已由 HtmlPreviewProvider 接管，csv 已由 CsvPreviewProvider 接管，
- * md 已由 MarkdownPreviewProvider 接管，svg 已由 SvgPreviewProvider 接管。</p>
+   * md 已由 markdownpreview提供者 接管，SVG 已由 SVGpreview提供者 接管。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -21,7 +21,7 @@ import java.util.Set;
 @Spi("preview-code")
 public class CodePreviewProvider implements FileStoragePreviewProvider {
 
-    /** Code_exts */
+    /** 编码_exts */
     private static final Set<String> CODE_EXTS = Set.of(
             "js", "ts", "jsx", "tsx", "css", "scss", "less",
             "xml", "json", "yaml", "yml", "toml",
@@ -30,11 +30,11 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
             "properties", "cfg", "conf", "ini", "env"
     );
 
-    /** 已有专门 SPI 提供者抢跑的扩展名，CodePreviewProvider 不应匹配 */
+    /** 已有专门 SPI 提供者抢跑的扩展名，编码preview提供者 不应匹配 */
     private static final Set<String> BYPASS_EXTS = Set.of("html", "htm", "csv", "md", "svg");
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String extension, String mimeType) {
         // 排除已有专门 SPI 提供者的扩展名
         if (extension != null && BYPASS_EXTS.contains(extension.toLowerCase(Locale.ENGLISH))) {
@@ -75,7 +75,12 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
         return PreviewResult.builder().htmlContent(html).embeddedCss(css).build();
     }
 
-    /** EscapeHtml */
+    /**
+     * escapehtml
+     *
+     * @param s s
+     * @return escapeHtml的结果
+     */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
                 .replace("\"", "&quot;");

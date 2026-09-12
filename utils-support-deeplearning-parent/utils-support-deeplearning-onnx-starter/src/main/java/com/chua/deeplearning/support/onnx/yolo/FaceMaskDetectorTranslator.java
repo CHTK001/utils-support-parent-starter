@@ -3,11 +3,20 @@ package com.chua.deeplearning.support.onnx.yolo;
 import java.util.Arrays;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+/**
+ * FaceMaskDetectorTranslator类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 
 public class FaceMaskDetectorTranslator extends YoloTranslator {
 
-    private static final List<String> FACE_MASK_2_CLASSES = Arrays.asList("cloth", "surgical");
+    private static final List<String> FACE_MASK_2_CLASSES = Arrays.asList("cloth", "surgical"); // facemask2类
 
+    /**
+      * facemaskdetectortranslator。
+     */
     public FaceMaskDetectorTranslator() {
         super(640, 0.05f, 0.50f, FACE_MASK_2_CLASSES, true);
     }

@@ -35,7 +35,7 @@ import java.util.*;
  * </p>
  * <p>
  * 别名推导规则：优先使用 {@code @AutoSpi.name()} 显式指定；其次读取实现类上的
- * common-starter {@code @Spi} / {@code @Extension} 注解（按全限定名反射匹配，避免模块依赖）；
+   * common-starter {@code @Spi} / {@code @Extension} 注解（按全限定名反射匹配，避免模块依赖）；
  * 最后按「类名去掉接口名」推导（如 {@code MiniLMEmbeddingClient} 推导为 {@code MiniLM}）。
  * </p>
  * <p>
@@ -63,12 +63,12 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     private static final String EXTENSIONS_PATH = "META-INF/extensions/";
 
     /**
-     * common-starter {@code @Spi} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
+      * common-starter {@code @Spi} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
      */
     private static final String SPI_ANNOTATION = "com.chua.common.support.spi.annotations.Spi";
 
     /**
-     * common-starter {@code @Extension} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
+      * common-starter {@code @Extension} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
      */
     private static final String EXTENSION_ANNOTATION = "com.chua.common.support.spi.annotations.Extension";
 
@@ -144,7 +144,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
         String implSimpleName = implElement.getSimpleName().toString();
         String[] explicitNames = annotation.name();
 
-        // 类上是否同时存在 @Spi / @Extension：运行时注解名优先，索引行别名仅在无注解时生效
+ // 类上是否同时存在 @Spi / @延伸：运行时注解名优先，索引行别名仅在无注解时生效
         boolean hasAnnotationNames = hasSpiOrExtension(implElement);
         if (hasAnnotationNames && explicitNames.length > 0) {
             warn("@" + AutoSpi.class.getSimpleName() + "(name = ...) 在类上同时存在 @Spi/@Extension 时"
@@ -192,7 +192,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     /**
      * 推导实现类对应的 SPI 接口列表
      * <p>
-     * 优先使用注解 value 显式指定；缺省时递归收集实现类及其父类实现的所有非 JDK 接口。
+      * 优先使用注解 值 显式指定；缺省时递归收集实现类及其父类实现的所有非 JDK 接口。
      * </p>
      *
      * @param annotation  注解实例
@@ -257,7 +257,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 判断类上是否存在 common-starter {@code @Spi} / {@code @Extension} 注解
+      * 判断类上是否存在 common-starter {@code @Spi} / {@code @Extension} 注解
      * <p>运行时 {@code ServiceDefinitionUtils} 优先读取这两个注解生成名称，
      * 索引行别名仅在类无注解时生效，因此带注解的类只需生成「发现行」。</p>
      *
@@ -275,7 +275,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 读取类上 {@code @Spi} / {@code @Extension} 注解的 value 值
+      * 读取类上 {@code @Spi} / {@code @Extension} 注解的 值 值
      *
      * @param implElement 实现类元素
      * @return 注解声明的名称列表
@@ -292,7 +292,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 读取注解镜像中名为 {@code value} 的属性值（支持 String 与 String[]）
+      * 读取注解镜像中名为 {@code value} 的属性值（支持 字符串 与 字符串[]）
      *
      * @param mirror 注解镜像
      * @return 属性值列表

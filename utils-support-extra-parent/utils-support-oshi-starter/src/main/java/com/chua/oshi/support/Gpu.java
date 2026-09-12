@@ -6,12 +6,13 @@ import lombok.Data;
  * 显卡/GPU 信息实体类。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Gpu {
 
     /**
-     * 显卡名称（如 NVIDIA GeForce RTX 4090）。
+      * 显卡名称（如 NVIDIA geforce RTX 4090）。
      */
     private String name;
 

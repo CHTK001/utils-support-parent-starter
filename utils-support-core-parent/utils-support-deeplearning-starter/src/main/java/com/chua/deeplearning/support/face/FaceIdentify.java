@@ -25,6 +25,7 @@ import java.util.Objects;
  *         .requireLive(true)
  *         .build();
  * List&lt;FaceIdentifyHit&gt; results = identify.identify(sceneBytes);
+ * }</pre>sults = identify.identify(sceneBytes);
  * }</pre>
  *
  * @author CH
@@ -48,7 +49,7 @@ public class FaceIdentify {
     private final FaceDetector detector;
 
     /**
-     * 活体检测器，可为 null。
+      * 活体检测器，可为 空。
      */
     private final LivenessDetector liveness;
 
@@ -81,7 +82,7 @@ public class FaceIdentify {
      * 构造。
      *
      * @param detector           检测器
-     * @param liveness           活体，可为 null
+     * @param liveness           活体，可为 空
      * @param featureExtractor   特征
      * @param vectorStorage      向量库
      * @param topK               Top-K
@@ -182,9 +183,9 @@ public class FaceIdentify {
         }
 
         /**
-         * 按模型 ID 创建检测器。
+          * 按模型 标识 创建检测器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder detector(String modelId) {
@@ -204,9 +205,9 @@ public class FaceIdentify {
         }
 
         /**
-         * 按模型 ID 创建活体检测器。
+          * 按模型 标识 创建活体检测器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder liveness(String modelId) {
@@ -226,9 +227,9 @@ public class FaceIdentify {
         }
 
         /**
-         * 按模型 ID 创建特征提取器。
+          * 按模型 标识 创建特征提取器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder featureExtractor(String modelId) {
@@ -313,7 +314,7 @@ public class FaceIdentify {
      * 仅对最大人脸识别。
      *
      * @param imageData 场景图
-     * @return 结果，无人脸时 null；requireLive 且非活体时仍返回 hit（live=false, hits 空）或 null
+     * @return 结果，无人脸时 空；requirelive 且非活体时仍返回 hit（live=false, hits 空）或 空
      */
     public FaceIdentifyHit identifyLargest(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
@@ -344,7 +345,7 @@ public class FaceIdentify {
     /**
      * 入库：已裁剪人脸图（可选活体校验）。
      *
-     * @param id        人员 ID
+     * @param id        人员 标识
      * @param faceImage 人脸图
      * @return 是否成功
      */
@@ -361,7 +362,7 @@ public class FaceIdentify {
     /**
      * 入库：场景图取最大人脸。
      *
-     * @param id        人员 ID
+     * @param id        人员 标识
      * @param imageData 场景图
      * @return 是否成功
      */
@@ -377,7 +378,7 @@ public class FaceIdentify {
     /**
      * 入库：特征 + 元数据。
      *
-     * @param id       人员 ID
+     * @param id       人员 标识
      * @param feature  特征
      * @param metadata 元数据
      * @param content  内容
@@ -477,7 +478,7 @@ public class FaceIdentify {
     /**
      * 活体检测器。
      *
-     * @return LivenessDetector 或 null
+     * @return LivenessDetector 或 空
      */
     public LivenessDetector liveness() {
         return liveness;
@@ -505,6 +506,9 @@ public class FaceIdentify {
      * 活体检测结果记录。
      *
      * @since 4.0.0.42
+     * @param live live
+     * @param score score
+     * @return liveness结果的结果
      */
     private record LivenessResult(boolean live, float score) {
     }

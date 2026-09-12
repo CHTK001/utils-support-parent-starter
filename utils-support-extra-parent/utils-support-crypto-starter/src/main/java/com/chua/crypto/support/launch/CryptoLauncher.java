@@ -20,7 +20,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * 加密程序包引导器（Manifest 注入的 Main-Class）
+   * 加密程序包引导器（Manifest 注入的 Main-类）
  *
  * <p>启动流程：
  * <ol>
@@ -121,12 +121,12 @@ public final class CryptoLauncher {
     public static final String PROP_LAZY = "chua.crypto.lazy";
 
     /**
-     * FatJar 依赖目录前缀
+      * fatjar 依赖目录前缀
      */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
 
     /**
-     * FatJar 应用类根前缀
+      * fatjar 应用类根前缀
      */
     private static final String BOOT_CLASSES_PREFIX = "BOOT-INF/classes/";
 
@@ -165,7 +165,7 @@ public final class CryptoLauncher {
             if (originalMain == null || originalMain.isBlank()) {
                 throw new IllegalStateException("缺少清单属性 " + ATTR_ORIGINAL_MAIN + "，请确认已由 chua-crypto 打包");
             }
-            // 兼容：若记录的是 Boot 加载器则回退 Start-Class
+ // 兼容：若记录的是 Boot 加载器则回退 启动-类
             if (originalMain.startsWith("org.springframework.boot.loader.")) {
                 String startClass = attrs.getValue("Start-Class");
                 if (startClass != null && !startClass.isBlank()) {
@@ -191,7 +191,7 @@ public final class CryptoLauncher {
 
     /**
      * 收紧目录权限（best-effort）：POSIX 文件系统设为仅属主读写执行；
-     * 不支持 POSIX 语义的文件系统跳过，依赖部署环境 ACL
+      * 不支持 POSIX 语义的文件系统跳过，依赖部署环境 访问控制列表
      *
      * @param dir 目标目录
      */
@@ -203,7 +203,7 @@ public final class CryptoLauncher {
                     java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE};
             Files.setPosixFilePermissions(dir, new java.util.HashSet<>(java.util.Arrays.asList(perms)));
         } catch (UnsupportedOperationException | IOException ignored) {
-            // Windows/FAT 等无 POSIX 权限语义的文件系统
+ // 窗口/FAT 等无 POSIX 权限语义的文件系统
         }
     }
 
@@ -308,7 +308,7 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 惰性模式：应用 class 经 {@link EncryptedAppClassLoader} 按需解密，不落盘。
+      * 惰性模式：应用 类 经 {@link EncryptedAppClassLoader} 按需解密，不落盘。
      *
      * @param self   包文件
      * @param master 主密钥
@@ -334,7 +334,7 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 收集 FatJar 依赖条目并按名称排序
+      * 收集 fatjar 依赖条目并按名称排序
      *
      * @param jar 加密程序包
      * @return 依赖条目列表
@@ -432,7 +432,7 @@ public final class CryptoLauncher {
     /**
      * 读取口令：系统属性优先，其次环境变量
      *
-     * @return 口令字符数组（可能为 null）
+     * @return 口令字符数组（可能为 空）
      */
     private static char[] readSecret() {
         String pin = System.getProperty(PROP_PIN);
@@ -446,7 +446,7 @@ public final class CryptoLauncher {
      * 取第一个非空字符串
      *
      * @param values 候选值
-     * @return 首个非空值或 null
+     * @return 首个非空值或 空
      */
     private static String firstNonBlank(String... values) {
         for (String value : values) {

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于 Apache HttpClient5 的 HTTP 客户端执行器
+   * 基于 Apache HTTP客户端5 的 HTTP 客户端执行器
  *
  * @author CH
  * @since 4.0.0.42
@@ -31,23 +31,23 @@ import java.util.concurrent.TimeUnit;
 public class HttpClient5Executor implements HttpClientExecutor {
 
     /**
-     * Apache HttpClient5 客户端实例
+      * Apache HTTP客户端5 客户端实例
      */
     private CloseableHttpClient client;
 
-    /** 创建 HttpClient5Executor 实例 */
+    /** 创建 HTTP客户端5执行器 实例 */
     public HttpClient5Executor() {
         this.client = HttpClients.createDefault();
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "httpclient5";
     }
 
     @Override
-    /** 是否Available */
+    /** 是否可用 */
     public boolean isAvailable() {
         try {
             ReflectUtils.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
@@ -57,7 +57,12 @@ public class HttpClient5Executor implements HttpClientExecutor {
         }
     }
 
-    /** ToRequest */
+    /**
+     * 转为请求
+     *
+     * @param request 请求
+     * @return 转为请求的结果
+     */
     private org.apache.hc.client5.http.classic.methods.HttpUriRequestBase toRequest(ClientRequest request) {
         String method = request.getMethod().name();
         HttpUriRequestBase req = switch (method) {
@@ -121,7 +126,12 @@ public class HttpClient5Executor implements HttpClientExecutor {
         }
     }
 
-    /** ToClientResponse */
+    /**
+     * 转为客户端响应
+     *
+     * @param resp resp
+     * @return 转为客户端响应的结果
+     */
     private ClientResponse toClientResponse(CloseableHttpResponse resp) throws Exception {
         ClientResponse cr = new ClientResponse();
         cr.setStatusCode(resp.getCode());
@@ -135,7 +145,7 @@ public class HttpClient5Executor implements HttpClientExecutor {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() { return 1; }
 
     @Override

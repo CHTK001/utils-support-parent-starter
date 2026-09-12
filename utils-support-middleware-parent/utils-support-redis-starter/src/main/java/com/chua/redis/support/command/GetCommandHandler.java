@@ -6,7 +6,7 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 /**
- * Redis GET 命令处理器，查询字符串键值。
+   * Redis 获取 命令处理器，查询字符串键值。
  *
  * <p>返回"命中数量"语义：key 存在返回 1，不存在返回 0。</p>
  *

@@ -10,9 +10,9 @@ import javax.annotation.Nullable;
 
 
 /**
- * LaMa滤镜工厂类
+   * lama滤镜工厂类
  * <p>
- * 提供便捷的LaMa滤镜创建和管理功能，包括：
+   * 提供便捷的lama滤镜创建和管理功能，包括：
  * 1. 滤镜实例缓存和复用
  * 2. 预设配置的快速创建
  * 3. 资源管理和清理
@@ -27,8 +27,8 @@ public class LaMaFilterFactory {
 
     /**
      * 滤镜实例缓存
-     * Key: 配置的唯一标识
-     * Value: LaMa滤镜实例
+      * 键: 配置的唯一标识
+      * 值: lama滤镜实例
      */
     private static final ConcurrentMap<String, LaMaImageFilter> FILTER_CACHE = new ConcurrentHashMap<>();
 
@@ -62,7 +62,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建默认LaMa滤镜
+      * 创建默认lama滤镜
      *
      * @return LaMa滤镜实例
      */
@@ -71,7 +71,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建默认LaMa滤镜
+      * 创建默认lama滤镜
      *
      * @param modelPath 模型路径
      * @return LaMa滤镜实例
@@ -85,7 +85,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建高质量LaMa滤镜
+      * 创建高质量lama滤镜
      *
      * @return LaMa滤镜实例
      */
@@ -94,7 +94,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建高质量LaMa滤镜
+      * 创建高质量lama滤镜
      *
      * @param modelPath 模型路径
      * @return LaMa滤镜实例
@@ -108,7 +108,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建快速LaMa滤镜
+      * 创建快速lama滤镜
      *
      * @return LaMa滤镜实例
      */
@@ -117,7 +117,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建快速LaMa滤镜
+      * 创建快速lama滤镜
      *
      * @param modelPath 模型路径
      * @return LaMa滤镜实例
@@ -131,7 +131,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建GPU加速LaMa滤镜
+      * 创建GPU加速lama滤镜
      *
      * @return LaMa滤镜实例
      */
@@ -140,7 +140,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建GPU加速LaMa滤镜
+      * 创建GPU加速lama滤镜
      *
      * @param modelPath 模型路径
      * @return LaMa滤镜实例
@@ -154,7 +154,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建自动mask LaMa滤镜
+      * 创建自动mask lama滤镜
      *
      * @param targetColor 目标颜色
      * @return LaMa滤镜实例
@@ -164,7 +164,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建自动mask LaMa滤镜
+      * 创建自动mask lama滤镜
      *
      * @param modelPath   模型路径
      * @param targetColor 目标颜色
@@ -179,7 +179,7 @@ public class LaMaFilterFactory {
     }
 
     /**
-     * 创建自定义配置的LaMa滤镜
+      * 创建自定义配置的lama滤镜
      *
      * @param config 配置
      * @return LaMa滤镜实例

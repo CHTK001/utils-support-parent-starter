@@ -5,7 +5,7 @@ import com.chua.common.support.network.ip.IpPosition;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * QQWry IP 地理位置查询 SPI 实现。
+   * qqwry IP 地理位置查询 SPI 实现。
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,7 +13,7 @@ import com.chua.common.support.spi.annotations.Spi;
 @Spi("qqwry")
 public class QqwryIpPosition implements IpPosition {
 
-    /** Default_db */
+    /** 默认_db */
     private static final String DEFAULT_DB = "qqwry.dat";
 
     /** 读取器 */

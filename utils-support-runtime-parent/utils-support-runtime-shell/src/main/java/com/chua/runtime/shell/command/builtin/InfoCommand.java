@@ -16,7 +16,7 @@ import java.util.Properties;
 public class InfoCommand implements Command {
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "info";
     }

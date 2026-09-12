@@ -29,11 +29,11 @@ import java.util.Map;
 /**
  * 并发工具 Actuator 端点
  * <p>
- * 提供限流器、熔断器、分布式锁的配置持久化（SQLite）与运行状态查看能力。
+   * 提供限流器、熔断器、分布式锁的配置持久化（sqlite）与运行状态查看能力。
  * </p>
  *
  * <p><b>Boot 4 路径约束重构</b>：端点路径不含方法名，多个无参 {@code @ReadOperation}
- * 会同时映射到根路径 {@code /actuator/concurrent}（天然冲突，此前因此回退无 @WebEndpoint）。
+   * 会同时映射到根路径 {@code /actuator/concurrent}（天然冲突，此前因此回退无 @web端点）。
  * 现统一为<b>指标前缀选择器</b>结构（每类操作路径互斥，全部功能保留）：</p>
  * <ul>
  *     <li>{@code GET  /actuator/concurrent} —— 总览（计数 + 各指标配置列表 + 运行状态）</li>
@@ -58,19 +58,25 @@ import java.util.Map;
         "com.chua.common.support.concurrent.circuitbreaker.CircuitBreakerFlow",
         "com.chua.common.support.concurrent.lock.LockFlow",
         // 端点依赖 datasource 仓储类：仓储 starter 缺失时整体退避（避免类加载失败）
+/**
+ * 并发端点类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
         "com.chua.starter.datasource.repository.RateLimiterConfigRepository",
         "com.chua.starter.datasource.repository.CircuitBreakerConfigRepository",
         "com.chua.starter.datasource.repository.DistributedLockConfigRepository"
 })
 public class ConcurrentEndpoint {
 
-    private static final String METRIC_RATE_LIMITER = "ratelimiter";
-    private static final String METRIC_CIRCUIT_BREAKER = "circuitbreaker";
-    private static final String METRIC_LOCK = "lock";
+    private static final String METRIC_RATE_LIMITER = "ratelimiter"; // 指标rate限制
+    private static final String METRIC_CIRCUIT_BREAKER = "circuitbreaker"; // 指标熔断中断
+    private static final String METRIC_LOCK = "lock"; // 指标锁
 
-    private final RateLimiterConfigRepository rateLimiterRepo;
-    private final CircuitBreakerConfigRepository cbRepo;
-    private final DistributedLockConfigRepository lockRepo;
+    private final RateLimiterConfigRepository rateLimiterRepo; // rate限制repo
+    private final CircuitBreakerConfigRepository cbRepo; // cbrepo
+    private final DistributedLockConfigRepository lockRepo; // 锁repo
 
     public ConcurrentEndpoint(ObjectProvider<RateLimiterConfigRepository> rateLimiterRepo,
                               ObjectProvider<CircuitBreakerConfigRepository> cbRepo,
@@ -80,7 +86,11 @@ public class ConcurrentEndpoint {
         this.lockRepo = lockRepo.getIfAvailable();
     }
 
-    /** 根路径：计数 + 各指标配置列表 + 运行状态（唯一无参 @ReadOperation——根路径不冲突） */
+    /**
+     * 根路径：计数 + 各指标配置列表 + 运行状态（唯一无参 @读取operation——根路径不冲突）
+     *
+     * @return overview的结果
+     */
     @ReadOperation
     public Map<String, Object> overview() {
         Map<String, Object> result = new HashMap<>();
@@ -93,19 +103,30 @@ public class ConcurrentEndpoint {
         return result;
     }
 
-    /** GET /{metric}：单指标配置列表 + 运行状态 */
+    /**
+     * 获取 /{指标}：单指标配置列表 + 运行状态
+     *
+     * @param metric 指标
+     * @return 指标的结果
+     */
     @ReadOperation
     public Map<String, Object> metric(@Selector String metric) {
         return configAndStatus(metric, null);
     }
 
-    /** GET /{metric}/{name}：单配置详情 + 运行状态 */
+    /**
+     * 获取 /{指标}/{名称}：单配置详情 + 运行状态
+     *
+     * @param metric 指标
+     * @param name 名称
+     * @return detail的结果
+     */
     @ReadOperation
     public Map<String, Object> detail(@Selector String metric, @Selector String name) {
         return configAndStatus(metric, name);
     }
 
-    /** POST /{metric}/{name}：配置保存 */
+    /** POST /{指标}/{名称}：配置保存 */
     @WriteOperation
     public Map<String, Object> save(@Selector String metric, @Selector String name,
                                     Map<String, Object> body) {
@@ -121,7 +142,13 @@ public class ConcurrentEndpoint {
         return Map.of("error", "unknown metric: " + metric);
     }
 
-    /** DELETE /{metric}/{name}：配置删除 */
+    /**
+     * 删除 /{指标}/{名称}：配置删除
+     *
+     * @param metric 指标
+     * @param name 名称
+     * @return 删除的结果
+     */
     @DeleteOperation
     public Map<String, Object> delete(@Selector String metric, @Selector String name) {
         if (METRIC_RATE_LIMITER.equals(metric)) {
@@ -151,7 +178,13 @@ public class ConcurrentEndpoint {
         return Map.of("error", "unknown metric: " + metric);
     }
 
-    /** POST /{metric}/clear：运行时缓存清空（action 须为 clear——路径第 3 段） */
+    /**
+     * POST /{指标}/clear：运行时缓存清空（动作 须为 clear——路径第 3 段）
+     *
+     * @param metric 指标
+     * @param action 动作
+     * @return clear全部的结果
+     */
     @WriteOperation
     public Map<String, Object> clearAll(@Selector String metric, @Selector String action) {
         if (!"clear".equals(action)) {
@@ -179,7 +212,7 @@ public class ConcurrentEndpoint {
         return Map.of("error", "unknown metric: " + metric);
     }
 
-    /** POST /{metric}/{name}/reset：单点复位（当前仅熔断器支持） */
+    /** POST /{指标}/{名称}/reset：单点复位（当前仅熔断器支持） */
     @WriteOperation
     public Map<String, Object> resetOne(@Selector String metric, @Selector String name,
                                         @Selector String action) {
@@ -198,16 +231,25 @@ public class ConcurrentEndpoint {
     }
 
     // ==================== 旧 API 委托器（兼容直接调用方——无 actuator 注解，不参与端点映射）====================
-    // 重构前方法名/形状被 /api/strategy/monitor 回退路径（demo 控制器）直接调用；保留为纯方法
+ // 重构前方法名/形状被 /api/strategy/监控 回退路径（demo 控制器）直接调用；保留为纯方法
     // 委托到新内部实现，actuator 仅暴露新指标前缀路径（旧方法不产生重复根操作）
 
-    /** [旧] 限流器配置列表（直接调用方兼容） */
+    /**
+     * [旧] 限流器配置列表（直接调用方兼容）
+     *
+     * @return 限流配置的结果
+     */
     public List<Map<String, Object>> ratelimiterConfig() {
         Object configs = metric(METRIC_RATE_LIMITER).get("configs");
         return configs instanceof List ? (List<Map<String, Object>>) configs : List.of();
     }
 
-    /** [旧] 限流器配置单点（name）——仓储缺失时保留原"配置存储未初始化"语义（配置查询经仓储，不依赖运行时流） */
+    /**
+     * [旧] 限流器配置单点（名称）——仓储缺失时保留原"配置存储未初始化"语义（配置查询经仓储，不依赖运行时流）
+     *
+     * @param name 名称
+     * @return 限流配置的结果
+     */
     public Map<String, Object> ratelimiterConfig(String name) {
         if (rateLimiterRepo == null) {
             return Map.of("error", "配置存储未初始化（未配置 datasource）");
@@ -225,18 +267,31 @@ public class ConcurrentEndpoint {
                 .orElse(Map.of("error", "not found: " + name));
     }
 
-    /** [旧] 限流器运行时状态列表 */
+    /**
+     * [旧] 限流器运行时状态列表
+     *
+     * @return 限流的结果
+     */
     public List<Map<String, Object>> ratelimiter() {
         Object status = metric(METRIC_RATE_LIMITER).get("status");
         return status instanceof List ? (List<Map<String, Object>>) status : List.of();
     }
 
-    /** [旧] 熔断器单点运行时状态（name） */
+    /**
+     * [旧] 熔断器单点运行时状态（名称）
+     *
+     * @param name 名称
+     * @return circuitbreaker的结果
+     */
     public Map<String, Object> circuitbreaker(String name) {
         return detail(METRIC_CIRCUIT_BREAKER, name);
     }
 
-    /** [旧] 锁运行时状态列表 */
+    /**
+     * [旧] 锁运行时状态列表
+     *
+     * @return 锁的结果
+     */
     public List<Map<String, Object>> lock() {
         Object status = metric(METRIC_LOCK).get("status");
         return status instanceof List ? (List<Map<String, Object>>) status : List.of();
@@ -244,7 +299,13 @@ public class ConcurrentEndpoint {
 
     // ==================== 内部实现 ====================
 
-    /** 单指标（可选 name）的配置列表 + 运行状态 */
+    /**
+     * 单指标（可选 名称）的配置列表 + 运行状态
+     *
+     * @param metric 指标
+     * @param name 名称
+     * @return 配置和状态的结果
+     */
     private Map<String, Object> configAndStatus(String metric, String name) {
         if (METRIC_RATE_LIMITER.equals(metric)) {
             return ratelimiterView(name);
@@ -258,7 +319,12 @@ public class ConcurrentEndpoint {
         return Map.of("error", "unknown metric: " + metric);
     }
 
-    /** 限流器：配置 + 运行状态（name 为空返回列表，否则单点） */
+    /**
+     * 限流器：配置 + 运行状态（名称 为空返回列表，否则单点）
+     *
+     * @param name 名称
+     * @return 限流view的结果
+     */
     private Map<String, Object> ratelimiterView(String name) {
         List<Map<String, Object>> configs = new ArrayList<>();
         if (rateLimiterRepo != null) {
@@ -295,7 +361,12 @@ public class ConcurrentEndpoint {
         return Map.of("configs", configs, "status", status);
     }
 
-    /** 熔断器：配置 + 运行状态（name 为空返回列表，否则单点） */
+    /**
+     * 熔断器：配置 + 运行状态（名称 为空返回列表，否则单点）
+     *
+     * @param name 名称
+     * @return circuitbreakerView的结果
+     */
     private Map<String, Object> circuitbreakerView(String name) {
         List<Map<String, Object>> configs = new ArrayList<>();
         if (cbRepo != null) {
@@ -331,7 +402,17 @@ public class ConcurrentEndpoint {
         return Map.of("configs", configs, "status", status);
     }
 
-    /** 锁：配置 + 运行状态（name 为空返回列表，否则单点） */
+     /**
+      * 锁view。
+      * @param name 名称
+      * @return 锁view的结果
+      */
+     * 锁：配置 + 运行状态（名称 为空返回列表，否则单点）
+     *
+     * @param name 名称
+     * @param body 主体
+     * @return 锁配置保存的结果
+     */
     private Map<String, Object> lockView(String name) {
         List<Map<String, Object>> configs = new ArrayList<>();
         if (lockRepo != null) {
@@ -364,6 +445,12 @@ public class ConcurrentEndpoint {
             r.put("name", p.getName());
             r.put("type", p.getType());
             r.put("config", configs.stream()
+                    /**
+                     * 限流配置保存。
+                     * @param name 名称
+                     * @param body 主体
+                     * @return 限流配置保存的结果
+                     */
                     .filter(c -> name.equals(c.get("name"))).findFirst().orElse(null));
             return r;
         }
@@ -388,6 +475,12 @@ public class ConcurrentEndpoint {
         config.setWarmupPeriodMs(warmup);
         config.setTimeoutMs(timeout);
         config.setEnabled(enabled);
+/**
+ * circuitbreaker配置保存。
+ * @param name 名称
+ * @param body 主体
+ * @return circuitbreaker配置保存的结果
+ */
 
         rateLimiterRepo.save(config);
         reloadRateLimiter(name);
@@ -446,7 +539,11 @@ public class ConcurrentEndpoint {
         return Map.of("name", name, "message", "保存成功，缓存已清除");
     }
 
-    /** 重载限流器（保存后生效）——原实现语义：移除缓存后经 of() 重建 */
+    /**
+     * 重载限流器（保存后生效）——原实现语义：移除缓存后经 的() 重建
+     *
+     * @param name 名称
+     */
     private void reloadRateLimiter(String name) {
         if (rateLimiterRepo == null) {
             return;
@@ -459,6 +556,12 @@ public class ConcurrentEndpoint {
         });
     }
 
+    /**
+     * 转为double。
+     * @param value 值
+     * @param def def
+     * @return 转为double的结果
+     */
     private double toDouble(Object value, double def) {
         try {
             return value == null ? def : Double.parseDouble(value.toString());
@@ -467,6 +570,12 @@ public class ConcurrentEndpoint {
         }
     }
 
+    /**
+     * 转为long。
+     * @param value 值
+     * @param def def
+     * @return 转为long的结果
+     */
     private long toLong(Object value, long def) {
         try {
             return value == null ? def : Long.parseLong(value.toString());
@@ -475,6 +584,12 @@ public class ConcurrentEndpoint {
         }
     }
 
+    /**
+     * 解析int。
+     * @param value 值
+     * @param def def
+     * @return 解析int的结果
+     */
     private int parseInt(Object value, int def) {
         try {
             return value == null ? def : Integer.parseInt(value.toString());
@@ -483,10 +598,22 @@ public class ConcurrentEndpoint {
         }
     }
 
+    /**
+     * 转为bool。
+     * @param value 值
+     * @param def def
+     * @return 转为bool的结果
+     */
     private boolean toBool(Object value, boolean def) {
         return value == null ? def : Boolean.parseBoolean(value.toString());
     }
 
+    /**
+     * 转为字符串。
+     * @param value 值
+     * @param def def
+     * @return 转为字符串的结果
+     */
     private String toString(Object value, String def) {
         return value == null ? def : value.toString();
     }

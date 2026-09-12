@@ -18,10 +18,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于阿里云 DataV GeoAtlas 的行政区划提供器（在线 API）。
+   * 基于阿里云 数据v geoAtlas 的行政区划提供器（在线 API）。
  *
  * <p>数据源：<a href="https://geo.datav.aliyun.com/areas_v3/bound/{code}_full.json">
- * DataV GeoAtlas</a>，覆盖省 / 市 / 区 / 街道四级，每年随民政部调整同步更新。
+   * 数据v geoAtlas</a>，覆盖省 / 市 / 区 / 街道四级，每年随民政部调整同步更新。
  *
  * <p>支持「构造设置几级数据」：通过 {@code new AlibabaRegionProvider(level)} 设定默认层级，
  * 亦可调用 {@link #getRegions(int)} / {@link #getTree(int)} 显式指定。
@@ -36,10 +36,10 @@ public class AlibabaRegionProvider implements RegionProvider {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(AlibabaRegionProvider.class);
 
-    /** Base */
+    /** 基础 */
     private static final String BASE = "https://geo.datav.aliyun.com/areas_v3/bound/";
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -55,7 +55,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     /** HTTP客户端 */
     private final HttpClient httpClient;
 
-    /** 创建 AlibabaRegionProvider 实例 */
+    /** 创建 alibabaregion提供者 实例 */
     public AlibabaRegionProvider() {
         this(2);
     }
@@ -71,7 +71,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "alibaba";
     }
@@ -99,14 +99,20 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     @Override
-    /** 获取Tree */
+    /** 获取树 */
     public RegionInfo getTree(int maxLevel) {
         RegionInfo root = new RegionInfo("100000", "中国", 0, "country", null, 0, 0);
         build(root, 0, Math.max(1, maxLevel));
         return root;
     }
 
-    /** 构建 */
+    /**
+     * 构建
+     *
+     * @param node 节点
+     * @param cur cur
+     * @param max 最大
+     */
     private void build(RegionInfo node, int cur, int max) {
         if (cur >= max) {
             node.setChildren(Collections.emptyList());
@@ -119,7 +125,12 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
-    /** 扁平化 */
+    /**
+     * 扁平化
+     *
+     * @param node 节点
+     * @param out 出
+     */
     private void flatten(RegionInfo node, List<RegionInfo> out) {
         if (node.getAdcode() != null && !"100000".equals(node.getAdcode()) && node.getLevel() > 0) {
             out.add(node);
@@ -131,7 +142,12 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
-    /** FetchChildren */
+    /**
+     * 获取children
+     *
+     * @param adcode adcode
+     * @return 获取children的结果
+     */
     private List<RegionInfo> fetchChildren(String adcode) {
         List<RegionInfo> cached = CACHE.get(adcode);
         if (cached != null) {
@@ -153,7 +169,12 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
-    /** 解析 */
+    /**
+     * 解析
+     *
+     * @param json json
+     * @return 解析的结果
+     */
     private List<RegionInfo> parse(String json) {
         List<RegionInfo> list = new ArrayList<>();
         try {
@@ -179,7 +200,12 @@ public class AlibabaRegionProvider implements RegionProvider {
         return list;
     }
 
-    /** MapLevel */
+    /**
+     * 映射级别
+     *
+     * @param lv lv
+     * @return 映射级别的结果
+     */
     private static int mapLevel(String lv) {
         if (lv == null) {
             return 0;
@@ -198,13 +224,24 @@ public class AlibabaRegionProvider implements RegionProvider {
         }
     }
 
-    /** Text */
+    /**
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
     }
 
-    /** 解析Center */
+    /**
+     * 解析Center
+     *
+     * @param c c
+     * @return 解析center的结果
+     */
     private static double[] parseCenter(JsonNode c) {
         if (c == null || !c.isArray() || c.size() < 2) {
             return new double[]{0, 0};

@@ -24,7 +24,7 @@ public final class FileSearchService {
     /** 提供者 */
     private final FileSearchProvider provider;
 
-    /** 创建 FileSearchService 实例 */
+    /** 创建 文件搜索服务 实例 */
     private FileSearchService() {
         FileSearchProvider p = null;
 

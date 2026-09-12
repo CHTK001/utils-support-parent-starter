@@ -32,10 +32,10 @@ public class FlowInstanceRegistry {
     }
 
     /**
-     * 按实例 ID 查询流程实例。
+      * 按实例 标识 查询流程实例。
      *
-     * @param instanceId 实例 ID
-     * @return 流程实例，不存在时返回 null
+     * @param instanceId 实例 标识
+     * @return 流程实例，不存在时返回 空
      */
     public FlowInstance get(String instanceId) {
         return storage.get(instanceId);
@@ -44,7 +44,7 @@ public class FlowInstanceRegistry {
     /**
      * 移除流程实例。
      *
-     * @param instanceId 实例 ID
+     * @param instanceId 实例 标识
      */
     public void remove(String instanceId) {
         storage.remove(instanceId);

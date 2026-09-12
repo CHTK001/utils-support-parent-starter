@@ -7,7 +7,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * {@link ConditionalOnMissingBeanDefinition} 的条件实现：
- * 在 {@link ConfigurationPhase#REGISTER_BEAN} 阶段检查 BeanDefinitionRegistry
+   * 在 {@link ConfigurationPhase#REGISTER_BEAN} 阶段检查 Beandefinitionregistry
  * 是否已存在指定名称的 Bean 定义。
  *
  * @author CH

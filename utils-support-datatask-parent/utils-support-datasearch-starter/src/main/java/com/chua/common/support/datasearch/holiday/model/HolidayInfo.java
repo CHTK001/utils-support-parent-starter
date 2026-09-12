@@ -23,21 +23,24 @@ public class HolidayInfo {
     private final String name;
 
     /**
-     * 类型：holiday=法定节假日，work=调休补班（占用休息日上班）
+      * 类型：假日=法定节假日，work=调休补班（占用休息日上班）
      */
     private final String type;
 
     /**
-     * 是否放假（type=holiday 为 true）
+      * 是否放假（类型=假日 为 true）
      */
     private final boolean offDay;
 
     /**
-     * 创建 HolidayInfo 实例
-     * @param date date
-     * @param String String
-     * @param String String
-     * @param boolean boolean
+      * 创建 假日信息 实例
+     * @param date 日期
+     * @param name 字符串
+     * @param name 字符串
+     * @param offDay 布尔值
+     * @param name 名称
+     * @param type 类型
+     * @param offDay offday
      */
     public HolidayInfo(LocalDate date, String name, String type, boolean offDay) {
         this.date = date;
@@ -46,28 +49,44 @@ public class HolidayInfo {
         this.offDay = offDay;
     }
 
-    /** 获取Date */
+    /**
+     * 获取日期
+     *
+     * @return 获取日期的结果
+     */
     public LocalDate getDate() {
         return date;
     }
 
-    /** 获取Name */
+    /**
+     * 获取名称
+     *
+     * @return 获取名称的结果
+     */
     public String getName() {
         return name;
     }
 
-    /** 获取Type */
+    /**
+     * 获取类型
+     *
+     * @return 获取类型的结果
+     */
     public String getType() {
         return type;
     }
 
-    /** 是否OffDay */
+    /**
+     * 是否offday
+     *
+     * @return 是否offday的结果
+     */
     public boolean isOffDay() {
         return offDay;
     }
 
     /**
-     * 转换为 Map 用于 JSON 序列化
+      * 转换为 映射 用于 JSON 序列化
      *
      * @return Map 表示
      */

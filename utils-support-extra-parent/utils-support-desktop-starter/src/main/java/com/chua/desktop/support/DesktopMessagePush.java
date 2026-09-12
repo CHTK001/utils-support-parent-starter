@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 桌面通知推送实现
  *
  * <p>通过 {@link NativeDesktopNotifier} 调用操作系统原生桌面通知能力。
- * 自动检测平台并选择对应的原生实现（Windows/macOS/Linux）。
+   * 自动检测平台并选择对应的原生实现（窗口/macOS/Linux）。
  *
  * <h3>环境配置</h3>
  * <pre>
@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
- * public class DesktopMessagePush implements MessagePush {
+   * 公共 类 desktop消息push implements 消息push {
  *
  * @author CH
  * @since 4.0.0.42
@@ -62,21 +62,21 @@ public class DesktopMessagePush implements MessagePush {
     /** templates */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 DesktopMessagePush 实例 */
+    /** 创建 desktop消息push 实例 */
     public DesktopMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 DesktopMessagePush 实例
-     * @param environment environment
+      * 创建 desktop消息push 实例
+     * @param environment 环境
      */
     public DesktopMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    /** 获取Provider */
+    /** 获取提供者 */
     public String getProvider() {
         return "desktop";
     }
@@ -84,7 +84,7 @@ public class DesktopMessagePush implements MessagePush {
     @Override
     /**
      * 发送
-     * @param request request
+     * @param request 请求
      */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
@@ -113,7 +113,7 @@ public class DesktopMessagePush implements MessagePush {
     }
 
     @Override
-    /** ListTemplates */
+    /** 列表templates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
@@ -121,7 +121,7 @@ public class DesktopMessagePush implements MessagePush {
     @Override
     /**
      * 获取Template
-     * @param templateId templateId
+     * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);

@@ -16,7 +16,7 @@ import java.lang.management.RuntimeMXBean;
 public class StatusCommand implements Command {
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "status";
     }

@@ -46,6 +46,9 @@ import lombok.extern.slf4j.Slf4j;
  *     writer.writeLine("业务线程立即返回");
  *     writer.writeLine("另一条日志");
  * } // close() 时停止线程并刷盘
+ * }</pre>");
+ *     writer.writeLine("另一条日志");
+ * } // 关闭() 时停止线程并刷盘
  * }</pre>
  *
  * @author CH
@@ -165,7 +168,7 @@ public class AsyncLogWriter implements AutoCloseable {
      * 初始化分段内存映射，失败则返回降级模式。
      *
      * @param preallocateSize 预分配映射总大小
-     * @return 映射结果，{@link MmapResult#ok} 为 false 表示降级
+     * @return 映射结果，{@link mmap结果#ok} 为 false 表示降级
      */
     private MmapResult initMmap(long preallocateSize) {
         ensureParentDir();
@@ -493,7 +496,7 @@ public class AsyncLogWriter implements AutoCloseable {
     /**
      * 安静关闭文件通道。
      *
-     * @param ch 待关闭通道，可能为 null
+     * @param ch 待关闭通道，可能为 空
      */
     private static void closeChannelQuietly(FileChannel ch) {
         if (ch != null) {
@@ -506,7 +509,7 @@ public class AsyncLogWriter implements AutoCloseable {
     }
 
     @Override
-    /** 关闭写入器，刷盘数据并释放当前线程的 ThreadLocal 映射视图缓存 */
+    /** 关闭写入器，刷盘数据并释放当前线程的 thread本地 映射视图缓存 */
     public void close() {
         running = false;
         threadViews.remove();
@@ -546,8 +549,9 @@ public class AsyncLogWriter implements AutoCloseable {
          * 构造结果。
          *
          * @param ok       是否成功
-         * @param channel  通道，失败为 null
-         * @param segments 分段，失败为 null
+         * @param channel  通道，失败为 空
+         * @param segments 分段，失败为 空
+         * @return mmap结果的结果
          */
         private MmapResult(boolean ok, FileChannel channel, Segment[] segments) {
             this.ok = ok;
@@ -611,6 +615,7 @@ public class AsyncLogWriter implements AutoCloseable {
          *
          * @param index    段索引
          * @param capacity 单区容量
+         * @return Segment的结果
          */
         private Segment(int index, int capacity) {
             this.index = index;
@@ -659,6 +664,7 @@ public class AsyncLogWriter implements AutoCloseable {
          * 构造构建器。
          *
          * @param file 目标日志文件
+         * @return 构建器的结果
          */
         public Builder(File file) {
             this.file = file;
@@ -732,7 +738,7 @@ public class AsyncLogWriter implements AutoCloseable {
         /**
          * 构建异步日志写入器。
          *
-         * @return {@link AsyncLogWriter} 实例
+         * @return {@link 异步日志writer} 实例
          */
         public AsyncLogWriter build() {
             return new AsyncLogWriter(this);

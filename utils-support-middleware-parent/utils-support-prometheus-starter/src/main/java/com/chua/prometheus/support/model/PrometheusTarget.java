@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 /**
  * Prometheus 抓取目标
  * <p>
- * 对应 {@code /api/v1/targets} 返回的 activeTargets 元素。
+   * 对应 {@code /api/v1/targets} 返回的 活跃Target 元素。
  * </p>
  *
  * @author CH
@@ -26,7 +26,7 @@ public class PrometheusTarget {
     private String scrapeUrl;
 
     /**
-     * 所属 Job
+      * 所属 作业
      */
     private String job;
 

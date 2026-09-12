@@ -39,25 +39,25 @@ final class LanzouSharePageParser {
             Pattern.compile("<iframe[^>]*\\bsrc\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
 
     /**
-     * AJAX 提交地址提取，蓝奏云固定为 /ajaxm.php。
+      * AJAX 提交地址提取，蓝奏云固定为 /ajaxm.PHP。
      */
     private static final Pattern AJAX_URL_PATTERN =
             Pattern.compile("url\\s*:\\s*['\"](/ajaxm\\.php[^'\"]*)['\"]");
 
     /**
-     * AJAX data 块提取。
+      * AJAX 数据 块提取。
      */
     private static final Pattern DATA_BLOCK_PATTERN =
             Pattern.compile("data\\s*:\\s*\\{([^{}]*?action[^{}]*?)}", Pattern.DOTALL);
 
     /**
-     * 有密码形态下的 sign 提取（skdklds='...'）。
+      * 有密码形态下的 标志 提取（skdklds='...'）。
      */
     private static final Pattern SIGN_PATTERN =
             Pattern.compile("skdklds\\s*=\\s*['\"]([^'\"]+)['\"]");
 
     /**
-     * data 块内 key:value 提取（值可带引号或不带）。
+      * 数据 块内 键:值 提取（值可带引号或不带）。
      */
     private static final Pattern KV_PATTERN =
             Pattern.compile("(\\w+)\\s*:\\s*['\"]?([^,'\"}]+?)['\"]?\\s*(?:,|})");
@@ -68,7 +68,7 @@ final class LanzouSharePageParser {
     private static final Pattern VAR_PATTERN =
             Pattern.compile("var\\s+(\\w+)\\s*=\\s*['\"]([^'\"]*)['\"]");
 
-    /** 创建 LanzouSharePageParser 实例 */
+    /** 创建 lanzou共享pageparser 实例 */
     private LanzouSharePageParser() {
     }
 
@@ -78,7 +78,7 @@ final class LanzouSharePageParser {
      * @param http         蓝奏 HTTP 客户端（用于访问 iframe 二级页，自动处理 WAF 挑战）
      * @param mainHtml     主分享页 HTML（已通过 WAF 挑战）
      * @param shareBaseUrl 分享页 URL（用于拼接相对地址与 Referer）
-     * @param password     分享密码（公开分享传 null 或空串）
+     * @param password     分享密码（公开分享传 空 或空串）
      * @return 直链信息
      */
     static LanzouShareInfo parse(LanzouHttp http, String mainHtml, String shareBaseUrl, String password) {
@@ -106,6 +106,11 @@ final class LanzouSharePageParser {
 
     /**
      * 解析 iframe 二级页拿到直链。
+     * @param http http
+     * @param iframeHtml iframehtml
+     * @param iframeUrl iframeurl
+     * @param password 密码
+     * @return 解析iframe的结果
      */
     private static LanzouShareInfo parseIframe(LanzouHttp http, String iframeHtml, String iframeUrl, String password) {
         String ajaxPath = matchFirst(AJAX_URL_PATTERN, iframeHtml, 1);
@@ -118,10 +123,13 @@ final class LanzouSharePageParser {
     }
 
     /**
-     * 解析 AJAX data 块，将变量引用还原为实际值。
+      * 解析 AJAX 数据 块，将变量引用还原为实际值。
      *
      * <p>取值规则：值为字面量（被引号包裹或为纯数字）则直接用；否则视为 JS 变量名，
-     * 在页面中按 {@code var 名='值'} 求值；加密分享但 data 块无 p 字段时补充密码。</p>
+      * 在页面中按 {@code var 名='值'} 求值；加密分享但 数据 块无 p 字段时补充密码。</p>
+     * @param html HTML
+     * @param password 密码
+     * @return resolveAJAX参数的结果
      */
     private static Map<String, String> resolveAjaxParams(String html, String password) {
         Map<String, String> params = new LinkedHashMap<>();
@@ -151,6 +159,9 @@ final class LanzouSharePageParser {
 
     /**
      * 在页面内查找变量定义值。
+     * @param html HTML
+     * @param name 名称
+     * @return lookupVar的结果
      */
     private static String lookupVar(String html, String name) {
         Matcher m = VAR_PATTERN.matcher(html);
@@ -164,6 +175,8 @@ final class LanzouSharePageParser {
 
     /**
      * 解析下载接口响应为直链信息。
+     * @param resp resp
+     * @return resolveDownload的结果
      */
     private static LanzouShareInfo resolveDownload(String resp) {
         JsonObject json = Json.getJsonObject(resp);
@@ -189,6 +202,10 @@ final class LanzouSharePageParser {
 
     /**
      * 提取第一个匹配分组。
+     * @param p p
+     * @param html HTML
+     * @param group 群体
+     * @return 匹配第一个的结果
      */
     private static String matchFirst(Pattern p, String html, int group) {
         if (html == null) {
@@ -200,6 +217,9 @@ final class LanzouSharePageParser {
 
     /**
      * 拼接绝对地址。
+     * @param path 路径
+     * @param base 基础
+     * @return 转为absolute的结果
      */
     private static String toAbsolute(String path, String base) {
         if (path.startsWith("http")) {
@@ -210,6 +230,8 @@ final class LanzouSharePageParser {
 
     /**
      * 提取协议+域名。
+     * @param url url
+     * @return origin的结果
      */
     private static String origin(String url) {
         int idx = url.indexOf("//");

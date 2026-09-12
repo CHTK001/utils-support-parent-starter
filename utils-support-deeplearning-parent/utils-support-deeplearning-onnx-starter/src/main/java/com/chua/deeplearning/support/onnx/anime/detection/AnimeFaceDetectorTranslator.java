@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Anime Face YOLOv8 ONNX Translator（嵌入式，纯 Java 预处理，兼容 onnxruntime engine）。
+   * Anime Face yolov8 ONNX Translator（嵌入式，纯 Java 预处理，兼容 onnxruntime engine）。
  *
  * <p>动漫人脸检测：YOLOv8 v1.4_n（deepghs/anime_face_detection）。
  * 输入 640×640 RGB 归一化 [0,1]，输出 [1,5,8400]（cx,cy,w,h,face_conf）。</p>
@@ -44,7 +44,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * 置信度阈值。
      */
-    /** 置信度阈值（默认 0.5），可经 DetectionConfiguration 覆盖。 */
+    /** 置信度阈值（默认 0.5），可经 detection配置 覆盖。 */
         /**
      * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
      *
@@ -63,7 +63,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
         this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
     }
 
-private float confThreshold = 0.45f;
+private float confThreshold = 0.45f; // conf阈值
 
     /**
      * NMS IOU 阈值。
@@ -101,7 +101,7 @@ private float confThreshold = 0.45f;
     private int imageHeight;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -136,14 +136,14 @@ private float confThreshold = 0.45f;
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.get(0);
         long[] shape = output.getShape().getShape();
         // 直接读 flat float 数组，避免 ORT 引擎不支持的 squeeze/transpose（会递归 StackOverflow）
         float[] data = output.toFloatArray();
 
-        // 兼容 [1,5,8400] / [5,8400] / [1,8400,5] 布局，统一为 [numDets, numChannels]
+ // 兼容 [1,5,8400] / [5,8400] / [1,8400,5] 布局，统一为 [numdets, num通道]
         int dim = shape.length;
         if (dim == 3) {
             // [B,C,N]：C 小（通道维 5/6）。内存为通道优先（C-contiguous），必须按 ch*N+i 步长读，
@@ -183,7 +183,7 @@ private float confThreshold = 0.45f;
     private DetectedObjects processNch(int dim, long[] shape, float[] data) {
         int c = (int) shape[dim - 2];
         int n = (int) shape[dim - 1];
-        // [C,N]：按列读；若为 [B,N,C] 取 batch0 的 [N,C] 视作 [C,N]？不合理，
+ // [C,N]：按列读；若为 [B,N,C] 取 批量0 的 [N,C] 视作 [C,N]？不合理，
         // 这里按 [C,N] 步长 C 大在前处理
         float[] boxes = new float[n * c];
         for (int i = 0; i < n; i++) {
@@ -207,7 +207,7 @@ private float confThreshold = 0.45f;
     }
 
     /**
-     * 从 [numDets, numChannels] 扁平数组组装检测框。
+      * 从 [numdets, num通道] 扁平数组组装检测框。
      *
      * @param data     扁平数据
      * @param numDets  检测数
@@ -327,7 +327,7 @@ private float confThreshold = 0.45f;
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+ // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;
     }
 }

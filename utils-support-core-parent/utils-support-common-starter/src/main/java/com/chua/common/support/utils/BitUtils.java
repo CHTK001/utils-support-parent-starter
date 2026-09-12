@@ -11,11 +11,14 @@ import static com.chua.common.support.utils.ByteUtils.*;
  * 转换为二进制位数组或位字符串，亦可对二进制字符串进行补齐、截断和分段拼接，适用于协议解析、调试和位运算场景。
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/3/3
  */
 public class BitUtils {
 
+    /**
+     * 钻头工具。
+     */
     protected BitUtils() {}
 
     /**
@@ -26,33 +29,33 @@ public class BitUtils {
      * 单个字节的长度，单位为字节。
      */
     public static final int BYTE_LENGTH = 1;
-    /** Byte_size */
+    /** Byte_大小 */
     public static final int BYTE_SIZE = BYTE_LENGTH;
-    /** Byte_bit_size */
+    /** Byte_钻头_大小 */
     public static final int BYTE_BIT_SIZE = BIT_LENGTH;
-    /** Int_size */
+    /** Int_大小 */
     public static final int INT_SIZE = 4 * BYTE_SIZE;
-    /** Int_bit_size */
+    /** Int_钻头_大小 */
     public static final int INT_BIT_SIZE = 4 * BYTE_BIT_SIZE;
-    /** Float_size */
+    /** Float_大小 */
     public static final int FLOAT_SIZE = INT_SIZE;
-    /** Long_size */
+    /** Long_大小 */
     public static final int LONG_SIZE = 8 * BYTE_SIZE;
-    /** Long_bit_size */
+    /** Long_钻头_大小 */
     public static final int LONG_BIT_SIZE = 8 * BYTE_BIT_SIZE;
-    /** Double_size */
+    /** Double_大小 */
     public static final int DOUBLE_SIZE = LONG_SIZE;
-    /** Double_bit_size */
+    /** Double_钻头_大小 */
     public static final int DOUBLE_BIT_SIZE = LONG_BIT_SIZE;
-    /** Short_size */
+    /** Short_大小 */
     public static final int SHORT_SIZE = 2 * BYTE_SIZE;
-    /** Short_bit_size */
+    /** Short_钻头_大小 */
     public static final int SHORT_BIT_SIZE = 2 * BYTE_BIT_SIZE;
-    /** Char_size */
+    /** Char_大小 */
     public static final int CHAR_SIZE = SHORT_SIZE;
-    /** Char_bit_size */
+    /** Char_钻头_大小 */
     public static final int CHAR_BIT_SIZE = SHORT_BIT_SIZE;
-    /** Empty_bytes */
+    /** 空_bytes */
     private static final byte[] EMPTY_BYTES = new byte[0];
 
     /** Symbol_blank */

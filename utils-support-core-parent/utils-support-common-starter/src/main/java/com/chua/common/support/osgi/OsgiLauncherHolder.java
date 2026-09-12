@@ -15,7 +15,7 @@ public class OsgiLauncherHolder {
     /** INSTANCE */
     private static volatile OsgiLauncher INSTANCE;
 
-    /** 创建 OsgiLauncherHolder 实例 */
+    /** 创建 osgilauncherholder 实例 */
     private OsgiLauncherHolder() {}
 
     /**
@@ -30,7 +30,7 @@ public class OsgiLauncherHolder {
     /**
      * 获取全局唯一的 OSGI 启动器实例。
      *
-     * @return OSGI 启动器，未设置时返回 null
+     * @return OSGI 启动器，未设置时返回 空
      */
     public static OsgiLauncher getInstance() {
         return INSTANCE;

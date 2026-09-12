@@ -13,12 +13,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * SocketIO 数据同步 Agent
+   * Socket.IO 数据同步 智能体
  * <p>通过 SocketIO 与 DataSyncServer 保持长连接，支持双向事件通信。</p>
  *
  * <pre>{@code
  * SocketIODataSyncAgent agent = new SocketIODataSyncAgent(
  *         "agent-1", "source-1", "http://server:8080");
+ * agent.start();
+ * }</pre>8080");
  * agent.start();
  * }</pre>
  *
@@ -28,11 +30,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class SocketIODataSyncAgent implements DataSyncAgent {
 
     /**
-     * agent Id
+      * 智能体 标识
      */
     private final String agentId;
     /**
-     * source Id
+      * 源 标识
      */
     private final String sourceId;
     /**
@@ -40,12 +42,12 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
      */
     private final String serverUrl;
     /**
-     * source
+      * 源
      */
     private final DataSyncSource source;
 
     /**
-     * socket
+      * 套接字
      */
     private io.socket.client.Socket socket;
     /**
@@ -53,16 +55,19 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
      */
     private volatile boolean running = false;
     /**
-     * 消息 Queue
+      * 消息 队列
      */
     private final BlockingQueue<Map<String, Object>> messageQueue = new LinkedBlockingQueue<>();
 
     /**
-     * 创建 SocketIODataSyncAgent 实例
-     * @param agentId agentId
-     * @param String String
-     * @param String String
-     * @param DataSyncSource DataSyncSource
+      * 创建 套接字io数据同步智能体 实例
+     * @param agentId 智能体标识
+     * @param agentId 字符串
+     * @param agentId 字符串
+     * @param source 数据同步源
+     * @param sourceId 源标识
+     * @param serverUrl 服务端url
+     * @param source 源
      */
     public SocketIODataSyncAgent(String agentId, String sourceId, String serverUrl, DataSyncSource source) {
         this.agentId = agentId;
@@ -99,11 +104,11 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() { return agentId; }
 
     @Override
-    /** ToSource */
+    /** 转为源 */
     public DataSyncSource toSource() { return source; }
 
     @Override
@@ -111,10 +116,14 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     public boolean isRunning() { return running; }
 
     @Override
-    /** DataUrl */
+    /** 数据url */
     public String dataUrl() { return ""; }
 
-    /** 处理拉取 */
+    /**
+     * 处理拉取
+     *
+     * @param args 参数
+     */
     private void handlePull(Object[] args) {
         if (args.length == 0) {
             return;
@@ -132,7 +141,11 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         ));
     }
 
-    /** 处理推送 */
+    /**
+     * 处理推送
+     *
+     * @param args 参数
+     */
     private void handlePush(Object[] args) {
         if (args.length == 0) {
             return;
@@ -149,7 +162,11 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         emit(Map.of("type", "push_result", "status", "ok"));
     }
 
-    /** 发送 */
+    /**
+     * 发送
+     *
+     * @param data 数据
+     */
     private void emit(Map<String, Object> data) {
         if (socket == null || !socket.connected()) {
             return;

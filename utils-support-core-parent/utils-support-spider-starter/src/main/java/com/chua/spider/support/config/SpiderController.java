@@ -59,7 +59,7 @@ public class SpiderController {
      * 查询爬虫定义详情。
      *
      * @param spiderCode 爬虫编码
-     * @return 爬虫定义，不存在时返回 null
+     * @return 爬虫定义，不存在时返回 空
      */
     @GetMapping("/detail")
     public Result<SpiderDefinition> detail(@RequestParam String spiderCode) {
@@ -119,7 +119,7 @@ public class SpiderController {
     }
 
     /**
-     * 统一响应结构，与前端 ReturnResult 类型一致。
+      * 统一响应结构，与前端 返回结果 类型一致。
      */
     public record Result<T>(
             String code,

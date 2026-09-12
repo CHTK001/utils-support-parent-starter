@@ -4,7 +4,7 @@ package com.chua.runtime.protocol;
  * 网络协议枚举 — 用于标识传输层 / 应用层协议。
  *
  * <p>Socket 层通过端口号映射推断协议；应用层 Handler
- * （如 Jedis/ZK/HttpClient）显式声明协议。</p>
+   * （如 Jedis/ZK/HTTP客户端）显式声明协议。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -82,7 +82,7 @@ public enum Protocol {
     EUREKA("Eureka", 8761, false),
 
     /**
-     * HashiCorp Consul（注册/配置中心，HTTP 协议）
+      * hashicorp Consul（注册/配置中心，HTTP 协议）
      */
     CONSUL("Consul", 8500, false),
 
@@ -117,7 +117,7 @@ public enum Protocol {
     ORACLE("Oracle", 1521, false),
 
     /**
-     * Microsoft SQL Server
+      * Microsoft SQL 服务端
      */
     SQLSERVER("SQL Server", 1433, false),
 
@@ -127,7 +127,7 @@ public enum Protocol {
     DB2("DB2", 50000, false),
 
     /**
-     * ClickHouse（OLAP 列式数据库）
+      * click房子（OLAP 列式数据库）
      */
     CLICKHOUSE("ClickHouse", 8123, false),
 
@@ -137,7 +137,7 @@ public enum Protocol {
     DAMENG("达梦", 5236, false),
 
     /**
-     * KingbaseES（金仓，国产关系型数据库）
+      * kingbasees（金仓，国产关系型数据库）
      */
     KINGBASE("金仓", 54321, false),
 
@@ -162,7 +162,7 @@ public enum Protocol {
     THRIFT("Thrift", 9090, false),
 
     /**
-     * Apache ShardingSphere（分库分表）
+      * Apache 分库分表sphere（分库分表）
      */
     SHARDING_SPHERE("ShardingSphere", 0, false),
 
@@ -202,7 +202,7 @@ public enum Protocol {
     IGNITE("Ignite", 10800, false),
 
 /**
-     * RSocket
+      * r套接字
      */
     RSOCKET("RSocket", 7000, false),
 
@@ -212,7 +212,7 @@ public enum Protocol {
     NATS("NATS", 4222, false),
 
     /**
-     * InfluxDB
+      * influxdb
      */
     INFLUXDB("InfluxDB", 8086, false),
 
@@ -227,7 +227,7 @@ public enum Protocol {
     INTERNAL("Internal", 0, false),
 
 /**
-     * SQL (generic database protocol)
+      * SQL (generic database 协议)
      */
     SQL("SQL", 0, false),
 
@@ -237,7 +237,7 @@ public enum Protocol {
     WEBSOCKET("WebSocket", 80, false),
 
     /**
-     * 通用消息（Spring Cloud Stream 等跨协议消息通道）
+      * 通用消息（Spring Cloud 流 等跨协议消息通道）
      */
     MESSAGE("Message", 0, false),
 
@@ -247,15 +247,15 @@ public enum Protocol {
     UNKNOWN("Unknown", 0, false);
 
     /**
-     * display Name
+      * display 名称
      */
     private final String displayName;
     /**
-     * 默认 Port
+      * 默认 端口
      */
     private final int defaultPort;
     /**
-     * text
+      * 文本
      */
     private final boolean text;
 
@@ -293,7 +293,7 @@ public enum Protocol {
     }
 
     /**
-     * 根据端口号推断协议（Socket 层 Handler 用）。
+      * 根据端口号推断协议（套接字 层 处理器 用）。
      *
      * @param port 端口
      * @return 推断的协议

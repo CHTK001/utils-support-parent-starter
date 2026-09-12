@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
- * SafeTensor 版面解析翻译器。
+   * safetensor 版面解析翻译器。
  * <p>
- * 调用 Python SafeTensor HTTP 推理服务，将文档图片转换为结构化 Markdown 文本。
- * 支持 Unlimited-OCR、OvisOCR2 等端到端文档解析模型。
+   * 调用 Python safetensor HTTP 推理服务，将文档图片转换为结构化 Markdown 文本。
+   * 支持 Unlimited-OCR、ovisocr2 等端到端文档解析模型。
  * 对应业务接口：{@link com.chua.deeplearning.support.layout.LayoutDetector#parse(byte[])}
  * </p>
  *
@@ -27,11 +27,14 @@ public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
     private final String modelType;
 
     /**
-     * 创建 SafeTensorLayoutTranslator 实例
-     * @param host host
-     * @param int int
-     * @param String String
-     * @param String String
+      * 创建 safetensorlayouttranslator 实例
+     * @param host 主机
+     * @param port int
+     * @param host 字符串
+     * @param host 字符串
+     * @param port 端口
+     * @param modelName 模型名称
+     * @param modelType 模型类型
      */
     public SafeTensorLayoutTranslator(String host, int port, String modelName, String modelType) {
         this.client = new SafeTensorServiceClient(host, port);
@@ -40,14 +43,19 @@ public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelName;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Translate */
+    /**
+     * Translate
+     *
+     * @param input 输入
+     * @return translate的结果
+     */
     public String translate(byte[] input) {
         if (input == null || input.length == 0) {
             return "";

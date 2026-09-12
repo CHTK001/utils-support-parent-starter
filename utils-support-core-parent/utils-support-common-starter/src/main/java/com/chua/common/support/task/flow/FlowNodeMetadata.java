@@ -12,7 +12,7 @@ import java.util.List;
  * <p>{@code schema} 为该节点的配置表单元信息列表，前端据此动态渲染属性编辑表单；
  * 未提供配置字段时为空列表。</p>
  *
- * @param type     节点类型标识，如 "spider"、"httpCall"
+ * @param type     节点类型标识，如 "蜘蛛"、"httpcall"
  * @param name     节点类型名称，默认取类型标识
  * @param describe 节点类型功能描述
  * @param schema   节点配置表单元信息列表，可为空

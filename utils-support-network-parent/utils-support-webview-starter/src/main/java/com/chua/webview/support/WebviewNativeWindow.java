@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 基于 webview_java 的 WebView 实现。
+   * 基于 webview_Java 的 webview 实现。
  * <p>
- * 使用 JNA 技术封装原生 WebView：
+   * 使用 JNA 技术封装原生 webview：
  * <ul>
  *   <li>Windows: WebView2 (Edge Chromium)</li>
  *   <li>macOS: WKWebView</li>
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * </p>
  * <p>
- * 通过 {@link ConditionalOnClass} 注解，仅在 classpath 中存在
+   * 通过 {@link ConditionalOnClass} 注解，仅在 类路径 中存在
  * {@code dev.webview.Webview} 类时生效，支持 SPI 自动装配。
  * </p>
  *
@@ -41,7 +41,7 @@ public class WebviewNativeWindow implements WebViewWindow {
     private Thread runThread;
 
     /**
-     * 打开 WebView 窗口并加载指定 URL。
+      * 打开 webview 窗口并加载指定 URL。
      *
      * @param url    要加载的 URL 地址
      * @param title  窗口标题
@@ -67,7 +67,7 @@ public class WebviewNativeWindow implements WebViewWindow {
     }
 
     /**
-     * 关闭 WebView 窗口并释放资源。
+      * 关闭 webview 窗口并释放资源。
      */
     @Override
     public void close() {

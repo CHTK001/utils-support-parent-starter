@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.detection.single;
 
 /**
- * 中文印章检测 Translator（YOLOv8n @ 640, 1 类 seal）。
+   * 中文印章检测 Translator（yolov8n @ 640, 1 类 seal）。
  *
  * <p>基于 YOLOv8n 微调的中文印章检测模型，输出圆形 / 方形红色印章 bbox。
  *
@@ -26,7 +26,7 @@ package com.chua.deeplearning.support.onnx.detection.single;
 public class SealDetectionYolov8Translator extends AbstractSingleClassYolov8Translator {
 
     /**
-     * 类别资源路径（classpath）。
+      * 类别资源路径（类路径）。
      */
     public static final String CLASS_NAMES_RESOURCE = "vision/seal/yolov8n/class.names.txt";
 
@@ -42,20 +42,20 @@ public class SealDetectionYolov8Translator extends AbstractSingleClassYolov8Tran
      *
      * @param inputSize    输入尺寸
      * @param threshold    置信度阈值
-     * @param nmsThreshold NMS IoU 阈值
+     * @param nmsThreshold NMS iou 阈值
      */
     public SealDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }
 
     @Override
-    /** ClassNamesResourcePath */
+    /** 类名称resource路径 */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
-    /** DefaultClassName */
+    /** 默认类名称 */
     protected String defaultClassName() {
         return "seal";
     }

@@ -24,6 +24,8 @@ public class DrawerPipeline {
      * @param conf  识别置信度
      * @param index 当前进度（从 0 开始）
      * @param total 总检测框数
+     * @author CH
+     * @since 4.0.0
      */
     @FunctionalInterface
     public interface ProcessCallback {
@@ -68,6 +70,7 @@ public class DrawerPipeline {
      * 构造标注管线。
      *
      * @param minConfidence 最小置信度
+     * @return DrawerPipeline的结果
      */
     public DrawerPipeline(float minConfidence) {
         this.minConfidence = minConfidence;

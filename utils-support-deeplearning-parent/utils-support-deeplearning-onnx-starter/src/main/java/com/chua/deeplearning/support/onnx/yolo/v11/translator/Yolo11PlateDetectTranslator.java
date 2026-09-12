@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * YOLOv11 车牌检测 Translator（morsetechlab/yolov11-license-plate-detection）。
+   * yolov11 车牌检测 Translator（morsetechlab/yolov11-执照-铭牌-detection）。
  *
  * <p>模型 {@code vision/detection/yolo11_plate/yolo11_plate_detect.onnx} 内嵌于本模块
  * resources。输入 {@code [1,3,640,640]}（letterbox + 归一化），输出 {@code [1,5,8400]}：
- * 每列 = cx, cy, w, h, conf（单类 license-plate）。输出坐标为归一化值，
+   * 每列 = cx, cy, w, h, conf（单类 执照-铭牌）。输出坐标为归一化值，
  * 由 {@code DjlModelTranslator} 统一乘图像尺寸转像素。</p>
  *
  * @author CH
@@ -50,12 +50,12 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
     private static final float DEFAULT_IOU_THRESHOLD = 0.45f;
 
     /**
-     * 置信度阈值（可通过 DetectionConfiguration.systemOption("threshold") 覆盖）。
+      * 置信度阈值（可通过 detection配置.系统期权("阈值") 覆盖）。
      */
     private final float confThreshold;
 
     /**
-     * IOU 阈值（可通过 DetectionConfiguration.systemOption("iouThreshold") 覆盖）。
+      * IOU 阈值（可通过 detection配置.系统期权("iou阈值") 覆盖）。
      */
     private final float iouThreshold;
 
@@ -89,6 +89,9 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
      */
     private int padY;
 
+    /**
+     * yolo11铭牌detecttranslator。
+     */
     public Yolo11PlateDetectTranslator() {
         this(null);
     }
@@ -189,7 +192,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-     * 读取第 boxIdx 个框的第 featureIdx 个特征（自动适配行/列主序）。
+      * 读取第 boxidx 个框的第 特征idx 个特征（自动适配行/列主序）。
      */
     private static float val(float[] data, int boxIdx, int featureIdx,
                              boolean transposed, long numBoxes, int features) {
@@ -199,6 +202,9 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
 
     /**
      * HWC uint8 RGB → CHW float32 /255。
+     * @param manager 管理器
+     * @param hwc hwc
+     * @return 转为normalizedchw的结果
      */
     private static NDArray toNormalizedChw(NDManager manager, NDArray hwc) {
         Shape shape = hwc.getShape();

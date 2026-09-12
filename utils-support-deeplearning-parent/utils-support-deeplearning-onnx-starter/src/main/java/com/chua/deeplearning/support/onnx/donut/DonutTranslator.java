@@ -21,9 +21,9 @@ import java.util.Arrays;
  * </p>
  * <p>
  *        Hugging Face                Donut                               
- * -          pixel_values            RGB                                        2560x1920
- * -          logits   token                       (batch_size, sequence_length, vocab_size)
- * -              token           JSON       
+   * -          pixel_值            RGB                                        2560x1920
+   * -          logits   令牌                       (批量_大小, sequence_长度, vocab_大小)
+   * -              令牌           JSON
  * </p>
  * <p>
  *          https://github.com/clovaai/donut
@@ -47,12 +47,12 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     private static final int IMAGE_HEIGHT = 1920;
 
     /**
-     *                         ImageNet          
+      * 镜像net
      */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
-     *                            ImageNet          
+      * 镜像net
      */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
@@ -74,7 +74,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
      * 1.                 2560x1920
      * 2.           RGB       
      * 3.              [0, 1]
-     * 4.        ImageNet                            
+      * 4.        镜像net
      * </p>
      *
      * @param ctx                     
@@ -95,12 +95,12 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     /**
      *             
      * <p>
-     *                    token                 JSON       
+      * 令牌                 JSON
      * </p>
      * <p>
      * Donut                
-     * - logits             (batch_size, sequence_length, vocab_size)
-     * -        argmax        token IDs                        
+      * - logits             (批量_大小, sequence_长度, vocab_大小)
+      * -        argmax        令牌 ids
      * </p>
      *
      * @param ctx                    
@@ -115,7 +115,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
 
         //                                     
         if (shape.dimension() == 3) {
-            //        logits        [batch_size, sequence_length, vocab_size]
+ // logits        [批量_大小, sequence_长度, vocab_大小]
             var batchSize = (int) shape.get(0);
             var sequenceLength = (int) shape.get(1);
             var vocabSize = (int) shape.get(2);
@@ -125,7 +125,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
             //                      
             var batchOutput = batchSize > 1 ? output.get("0") : output;
 
-            //                       token ID   argmax   
+ // 令牌 标识   argmax
             var tokenIds = new long[sequenceLength];
             for (int i = 0; i < sequenceLength; i++) {
                 var positionLogits = batchOutput.get("{}", i);
@@ -133,7 +133,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
                 tokenIds[i] = tokenId;
             }
 
-            //        token                
+ // 令牌
             var jsonText = decodeTokens(tokenIds);
 
             return DonutResult.builder()
@@ -143,12 +143,12 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
                     .build();
 
         } else if(shape.dimension() == 2) {
-            //           [sequence_length, vocab_size]     [batch_size, sequence_length]
+ // [sequence_长度, vocab_大小]     [批量_大小, sequence_长度]
             var dim1 = (int) shape.get(0);
             var dim2 = (int) shape.get(1);
 
             if (dim2 > 1000) {
-                //           [sequence_length, vocab_size]
+ // [sequence_长度, vocab_大小]
                 log.info("[Donut][            ]           logits       : [{}x{}]", dim1, dim2);
                 var tokenIds = new long[dim1];
                 for (int i = 0; i < dim1; i++) {
@@ -163,7 +163,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
                         .confidence(1.0f)
                         .build();
             } else {
-                //                    token IDs [batch_size, sequence_length]
+ // 令牌 标识 [批量_大小, sequence_长度]
                 log.info("[Donut][            ]           token IDs       : [{}x{}]", dim1, dim2);
                 var batchOutput = dim1 > 1 ? output.get("0") : output;
                 var tokenIds = batchOutput.toLongArray();
@@ -190,10 +190,10 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
      * -                 2560x1920                            letterbox   
      * - RGB                 BGR   
      * -              [0, 1]
-     * -        ImageNet                            
+      * -        镜像net
      * </p>
      *
-     * @param manager NDManager       
+     * @param manager nd管理器
      * @param image               
      * @return                          [1, 3, 1920, 2560]
      */
@@ -206,7 +206,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
         //                    (HWC to CHW)                 [0, 1]
         img = img.transpose(2, 0, 1).div(255.0f);
 
-        //                                ImageNet                      
+ // 镜像net
         img = NDImageUtils.normalize(img, MEAN, STD);
 
         //                    [1, 3, 1920, 2560]
@@ -216,13 +216,13 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     }
 
     /**
-     *        token                
+      * 令牌
      * <p>
      *                                                                 BART tokenizer
-     *                          token IDs                              
+      * 令牌 ids
      * </p>
      *
-     * @param tokenIds token ID       
+     * @param tokenIds 令牌 标识
      * @return                   
      */
     private String decodeTokens(long[] tokenIds) {
@@ -231,7 +231,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
         }
 
         try {
-            //              token       pad   eos       
+ // 令牌       pad   eos
             var validTokens = Arrays.stream(tokenIds)
                     .filter(tokenId -> tokenId > 0 && tokenId < 65536)
                     .toArray();
@@ -240,15 +240,15 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
                 return "";
             }
 
-            //                       token ID                
+ // 令牌 标识
             //                             BART tokenizer             
             var sb = new StringBuilder();
             for (var tokenId : validTokens) {
-                //                       token
+ // 令牌
                 if (tokenId == 0 || tokenId == 1 || tokenId == 2) {
                     continue;
                 }
-                //        token ID     ASCII                         
+ // 令牌 标识     ASCII
                 if (tokenId >= 32 && tokenId < 127) {
                     sb.append((char) tokenId);
                 } else if(tokenId < 65536) {

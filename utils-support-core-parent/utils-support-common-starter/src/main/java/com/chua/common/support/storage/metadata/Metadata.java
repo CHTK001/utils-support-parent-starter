@@ -36,7 +36,7 @@ public class Metadata {
     private String suffix;
 
     /**
-     * 文件内容类型（MIME Type，如 "application/pdf"）。
+      * 文件内容类型（MIME 类型，如 "application/pdf"）。
      */
     private String contentType;
 
@@ -51,14 +51,14 @@ public class Metadata {
     private boolean directory;
 
     /**
-     * 文件 ETag（实体标签）。
+      * 文件 e标签（实体标签）。
      */
     private String etag;
 
     /**
-     * 获取文件的完整 Key。
+      * 获取文件的完整 键。
      *
-     * @return 完整 Key
+     * @return 完整 键
      */
     public String getKey() {
         if (path == null || path.isEmpty()) {

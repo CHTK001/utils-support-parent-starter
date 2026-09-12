@@ -30,7 +30,7 @@ import com.chua.common.support.spi.ServiceProvider;
  *
  * <h2>输出数据结构</h2>
  * <p>每个片段由 {@link SpeakerSegment} 描述，包含说话人 ID、起止时间和可选转录文本。
- * 返回的列表按时间升序排列，同一说话人的多个片段可能持有相同 ID。</p>
+   * 返回的列表按时间升序排列，同一说话人的多个片段可能持有相同 标识。</p>
  *
  * <h2>与 ASR 的配合</h2>
  * <p>说话人分离仅负责<b>时间切分</b>和<b>说话人归属</b>，不进行文字转录。
@@ -45,6 +45,9 @@ import com.chua.common.support.spi.ServiceProvider;
  *       String text = VirtualClient.create("whisper", "")
  *           .model("whisper-tiny")
  *           .transcribe(cropAudio(audioBytes, seg.startTimeMs(), seg.durationMs()));
+ *       // 将文本回填到片段中
+ *   }
+ * }</pre>rtTimeMs(), seg.durationMs()));
  *       // 将文本回填到片段中
  *   }
  * }</pre>
@@ -74,16 +77,16 @@ public interface SpeakerDiarizer {
     }
 
     /**
-     * 设置 SPI provider（链式调用）。
+      * 设置 SPI 提供者（链式调用）。
      */
     default SpeakerDiarizer provider(String provider) {
         return this;
     }
 
     /**
-     * 设置模型 ID（链式调用）。
+      * 设置模型 标识（链式调用）。
      *
-     * @param model 模型标识，须在 ModelRegistry 中以 SpeakerDiarizer.class 注册
+     * @param model 模型标识，须在 模型registry 中以 speakerdiarizer.类 注册
      * @return this
      */
     default SpeakerDiarizer model(String model) {
@@ -101,9 +104,9 @@ public interface SpeakerDiarizer {
     }
 
     /**
-     * 查询当前引擎下所有已注册的说话人分离模型 ID 列表。
+      * 查询当前引擎下所有已注册的说话人分离模型 标识 列表。
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.SpeakerDiarizer.class);
@@ -121,7 +124,7 @@ public interface SpeakerDiarizer {
     }
 
     /**
-     * 设置模型本地路径（绝对路径或 classpath 路径）。
+      * 设置模型本地路径（绝对路径或 类路径 路径）。
      *
      * @param path 模型路径
      * @return this
@@ -165,7 +168,7 @@ public interface SpeakerDiarizer {
      * 若为其他格式，内部将尝试自动解码和重采样。</p>
      *
      * @param audioData 音频原始字节
-     * @return 按时间排序的说话人片段列表，每个片段含说话人 ID 和时间戳
+     * @return 按时间排序的说话人片段列表，每个片段含说话人 标识 和时间戳
      */
     List<SpeakerSegment> diarize(byte[] audioData);
 

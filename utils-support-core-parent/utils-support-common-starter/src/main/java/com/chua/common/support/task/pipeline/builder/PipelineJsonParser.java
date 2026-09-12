@@ -47,6 +47,11 @@ import java.util.*;
  *     }
  *   ]
  * }
+ * }</pre>出格式化": "json"
+ *       }
+ *     }
+ *   ]
+ * }
  * }</pre>
  *
  * <p><strong>字段说明：</strong></p>
@@ -81,7 +86,7 @@ import java.util.*;
 public class PipelineJsonParser {
 
     /**
-     * 解析 JSON 字符串并创建 PipelineBuilder。
+      * 解析 JSON 字符串并创建 pipeline构建器。
      *
      * @param json JSON 字符串
      * @return PipelineBuilder 实例
@@ -96,7 +101,7 @@ public class PipelineJsonParser {
         String pipelineId = root.getString("id", "pipeline-" + UUID.randomUUID().toString().substring(0, 8));
         PipelineBuilder builder = PipelineBuilder.newBuilder(pipelineId);
 
-        // 解析 start/end
+ // 解析 启动/结束
         String startId = root.getString("start", null);
         String endId = root.getString("end", null);
         if (startId != null) {
@@ -106,7 +111,7 @@ public class PipelineJsonParser {
             builder.end(endId);
         }
 
-        // 解析 nodes 数组
+ // 解析 节点 数组
         List<JsonNode> nodes = root.getArray("nodes");
         if (nodes == null || nodes.isEmpty()) {
             throw new IllegalArgumentException("JSON must contain 'nodes' array with at least one node");
@@ -124,7 +129,7 @@ public class PipelineJsonParser {
 
             switch (type) {
                 case "task": {
-                    // 创建占位 TaskNode（回调返回 null，后续可通过代码覆盖注入逻辑）
+ // 创建占位 任务节点（回调返回 空，后续可通过代码覆盖注入逻辑）
                     TaskNode taskNode = new TaskNode(nodeId, ctx -> null);
                     if (params != null && !params.isEmpty()) {
                         taskNode.setParams(params);
@@ -136,7 +141,7 @@ public class PipelineJsonParser {
                 case "decision": {
                     // 解析 branches（可选，用于可视化）
                     Map<String, String> branches = node.getObjectAsStringMap("branches");
-                    // 创建占位 DecisionNode（回调返回 null，后续可通过代码覆盖注入路由逻辑）
+ // 创建占位 decision节点（回调返回 空，后续可通过代码覆盖注入路由逻辑）
                     DecisionNode decisionNode = new DecisionNode(nodeId, ctx -> null);
                     if (branches != null && !branches.isEmpty()) {
                         decisionNode.branches(branches);
@@ -144,7 +149,7 @@ public class PipelineJsonParser {
                     if (params != null && !params.isEmpty()) {
                         decisionNode.setParams(params);
                     }
-                    // 手动添加到 builder
+ // 手动添加到 构建器
                     builder.getNodes().add(decisionNode);
                     builder.getNodeMap().put(nodeId, decisionNode);
                     break;
@@ -161,9 +166,11 @@ public class PipelineJsonParser {
 
     /**
      * 简易 JSON 节点表示
+     * @author CH
+     * @since 4.0.0
      */
     static class JsonNode {
-        /** data */
+        /** 数据 */
         private final Map<String, Object> data;
 
         JsonNode(Map<String, Object> data) {
@@ -186,11 +193,11 @@ public class PipelineJsonParser {
         }
 
         /**
-         * 获取对象值（String -> String 映射）。
+          * 获取对象值（字符串 -> 字符串 映射）。
          * 自动将值转为字符串表示。
          *
          * @param key 属性键
-         * @return 字符串映射，不存在时返回 null
+         * @return 字符串映射，不存在时返回 空
          */
         Map<String, String> getObjectAsStringMap(String key) {
             Object val = data.get(key);
@@ -210,7 +217,7 @@ public class PipelineJsonParser {
          * 获取对象值（支持任意值类型）。
          *
          * @param key 属性键
-         * @return 任意值类型的映射，不存在时返回 null
+         * @return 任意值类型的映射，不存在时返回 空
          */
         Map<String, Object> getObjectMap(String key) {
             Object val = data.get(key);
@@ -224,7 +231,9 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 简易 JSON 解析（支持对象、数组、字符串、布尔值、数字、null）
+      * 简易 JSON 解析（支持对象、数组、字符串、布尔值、数字、空）
+     * @param json json
+     * @return 解析json的结果
      */
     static JsonNode parseJson(String json) {
         Object result = parseValue(json.trim(), new int[]{0});
@@ -236,7 +245,13 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("JSON root must be an object");
     }
 
-    /** 解析Value */
+    /**
+     * 解析值
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @return 解析值的结果
+     */
     private static Object parseValue(String json, int[] pos) {
         skipWhitespace(json, pos);
         if (pos[0] >= json.length()) {
@@ -259,7 +274,13 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Unexpected character at position " + pos[0] + ": " + c);
     }
 
-    /** 解析Object */
+    /**
+     * 解析对象
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @return 解析对象的结果
+     */
     private static Map<String, Object> parseObject(String json, int[] pos) {
         Map<String, Object> map = new LinkedHashMap<>();
         // 跳过 '{'
@@ -287,7 +308,13 @@ public class PipelineJsonParser {
         return map;
     }
 
-    /** 解析Array */
+    /**
+     * 解析Array
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @return 解析array的结果
+     */
     private static List<Object> parseArray(String json, int[] pos) {
         List<Object> list = new ArrayList<>();
         // 跳过 '['
@@ -310,7 +337,13 @@ public class PipelineJsonParser {
         return list;
     }
 
-    /** 解析String */
+    /**
+     * 解析字符串
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @return 解析字符串的结果
+     */
     private static String parseString(String json, int[] pos) {
         skipWhitespace(json, pos);
         if (json.charAt(pos[0]) != '"') {
@@ -346,7 +379,13 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Unterminated string");
     }
 
-    /** 解析Boolean */
+    /**
+     * 解析布尔值
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @return 解析布尔值的结果
+     */
     private static Boolean parseBoolean(String json, int[] pos) {
         if (json.startsWith("true", pos[0])) {
             pos[0] += 4;
@@ -358,7 +397,13 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Invalid boolean at position " + pos[0]);
     }
 
-    /** 解析Null */
+    /**
+     * 解析空
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @return 解析空的结果
+     */
     private static Object parseNull(String json, int[] pos) {
         if (json.startsWith("null", pos[0])) {
             pos[0] += 4;
@@ -367,7 +412,13 @@ public class PipelineJsonParser {
         throw new IllegalArgumentException("Invalid null at position " + pos[0]);
     }
 
-    /** 解析Number */
+    /**
+     * 解析数字
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @return 解析数字的结果
+     */
     private static Number parseNumber(String json, int[] pos) {
         int start = pos[0];
         while (pos[0] < json.length()) {
@@ -385,14 +436,25 @@ public class PipelineJsonParser {
         return Long.parseLong(numStr);
     }
 
-    /** 跳过Whitespace */
+    /**
+     * 跳过Whitespace
+     *
+     * @param json json
+     * @param pos 采购订单
+     */
     private static void skipWhitespace(String json, int[] pos) {
         while (pos[0] < json.length() && Character.isWhitespace(json.charAt(pos[0]))) {
             pos[0]++;
         }
     }
 
-    /** ExpectChar */
+    /**
+     * 期望char
+     *
+     * @param json json
+     * @param pos 采购订单
+     * @param expected 期望
+     */
     private static void expectChar(String json, int[] pos, char expected) {
         if (pos[0] >= json.length() || json.charAt(pos[0]) != expected) {
             throw new IllegalArgumentException(

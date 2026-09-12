@@ -47,7 +47,7 @@ public final class CpuCommand extends AbstractCommand {
                 )
         );
 
-        // ── Per-core usage ──
+ // ── Per-核心 usage ──
         long[][] prev = processor.getProcessorCpuLoadTicks();
         try {
             Thread.sleep(500);
@@ -83,7 +83,7 @@ public final class CpuCommand extends AbstractCommand {
         }
         System.out.println(Formatter.table("", headers, rows));
 
-        // ── Load & context switches ──
+ // ── 加载 & 上下文 switches ──
         System.out.println(
                 Formatter.panel("",
                         "Load (1/5/15m)", String.format("%.2f / %.2f / %.2f",
@@ -117,6 +117,11 @@ public final class CpuCommand extends AbstractCommand {
         }
     }
 
+    /**
+     * 当前freq。
+     * @param processor 处理器
+     * @return 当前freq的结果
+     */
     private static long currentFreq(CentralProcessor processor) {
         long[] freqs = processor.getCurrentFreq();
         if (freqs == null || freqs.length == 0) {
@@ -129,6 +134,11 @@ public final class CpuCommand extends AbstractCommand {
         return max;
     }
 
+    /**
+     * 格式化hz。
+     * @param hz hz
+     * @return 格式化hz的结果
+     */
     private static String formatHz(long hz) {
         if (hz >= 1_000_000_000L) {
             return String.format("%.2f GHz", hz / 1_000_000_000.0);
@@ -139,6 +149,12 @@ public final class CpuCommand extends AbstractCommand {
         return hz + " Hz";
     }
 
+    /**
+     * truncate。
+     * @param s s
+     * @param max 最大
+     * @return truncate的结果
+     */
     private static String truncate(String s, int max) {
         if (s == null) {
             return "";

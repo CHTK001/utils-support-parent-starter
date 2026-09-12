@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 public class ObjectResult {
 
     /**
-     * 请求标记（marker），用于分页或追踪。
+      * 请求标记（记号笔），用于分页或追踪。
      */
     private String marker;
 
@@ -34,6 +34,8 @@ public class ObjectResult {
 
     /**
      * 操作结果状态码枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum ResultCode {
         /**

@@ -17,7 +17,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 /**
- * NAFNet ONNX             /            /                     
+   * nafnet ONNX             /            /
  *
  * <p>         :                                        384   64                HWC     CHW                       [0, 1]
  *
@@ -32,17 +32,17 @@ import java.awt.image.BufferedImage;
 public class NafNetTranslator implements Translator<Image, Image> {
 
     /**
-     * NAFNet                                                                 0
+      * nafnet                                                                 0
      */
     private static final int MIN_SIZE = 384;
 
     /**
-     * NAFNet
+      * nafnet
      */
     private static final int SIZE_ALIGN = 64;
 
     /**
-     * NAFNet ONNX NDManager                                                    
+      * nafnet ONNX nd管理器
      */
     private NDManager manager;
 
@@ -66,7 +66,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         this.origWidth = src.getWidth();
@@ -98,12 +98,12 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
 
-        // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze/clip（ONNX NDArray 不支持）
+ // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze/clip（ONNX ndarray 不支持）
         int off = shape.length == 4 ? 1 : 0;
         int outH = (int) shape[off + 1];
         int outW = (int) shape[off + 2];
@@ -165,7 +165,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                                         MIN_SIZE          SIZE_ALIGN             
+      * 最小_大小          大小_ALIGN
      *
      * @param size                       
      * @return                                

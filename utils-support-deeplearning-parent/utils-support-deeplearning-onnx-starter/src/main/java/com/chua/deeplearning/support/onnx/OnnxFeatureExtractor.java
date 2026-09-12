@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxFeatureExtractor implements FeatureExtractor {
@@ -19,26 +19,30 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxFeatureExtractor 实例
-     * @param apiKey apiKey
+      * 创建 onnx特征extractor 实例
+     * @param apiKey API密钥
      */
     public OnnxFeatureExtractor(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FeatureExtractor model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "dino-v2";
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FeatureExtractor modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;

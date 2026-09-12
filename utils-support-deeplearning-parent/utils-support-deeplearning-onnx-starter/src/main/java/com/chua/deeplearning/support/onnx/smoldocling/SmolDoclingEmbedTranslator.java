@@ -10,30 +10,30 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * SmolDocling Embed Translator
+   * smoldocling Embed Translator
  * <p>
- *                 token IDs                      
+   * 令牌 ids
  * <p>
  *                
- * -     token IDs           NDArray
+   * -     令牌 ids           ndarray
  * -        attention_mask
  * <p>
  *                
  * -                   
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/22
  */
 @Slf4j
 public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclingEmbedOutput> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, long[] input) throws Exception {
         NDManager manager = ctx.getNDManager();
 
-        //        input_ids NDArray
+ // 输入_标识 ndarray
         // Shape: [batch_size, sequence_length] = [1, seq_len]
         NDArray inputIds = manager.create(input).expandDims(0);
         inputIds.setName("input_ids");
@@ -46,7 +46,7 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public SmolDoclingEmbedOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("             Embed             : {}          ", list.size());
@@ -65,7 +65,7 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
             log.debug("Embed             : embeddings shape={}", embeddings.getShape());
         }
 
-        //                          NDArray           float                                  
+ // ndarray           float
         return new SmolDoclingEmbedOutput(embeddings);
     }
 

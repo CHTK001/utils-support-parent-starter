@@ -29,15 +29,15 @@ public interface LocationProvider {
     /**
      * 定位当前服务器（客户端模式）：返回服务器公网 IP 的定位信息。
      *
-     * @return 定位信息；数据源不可达时返回 null
+     * @return 定位信息；数据源不可达时返回 空
      */
     LocationInfo locateSelf();
 
     /**
      * 按 IP 定位（服务端模式）：IP 转经纬度 + 城市 + 物理地址。
      *
-     * @param ip IPv4 地址
-     * @return 定位信息；数据源不可达或 IP 非法时返回 null
+     * @param ip ipv4 地址
+     * @return 定位信息；数据源不可达或 IP 非法时返回 空
      */
     LocationInfo locateIp(String ip);
 
@@ -45,11 +45,11 @@ public interface LocationProvider {
      * 从 HTTP 请求头解析客户端真实 IP（服务端模式）。
      *
      * <p>依次尝试 {@code X-Forwarded-For}（取第一个）、{@code X-Real-IP}，
-     * 最后回退到 {@code remoteAddr}（Socket 直连地址）。</p>
+      * 最后回退到 {@code remoteAddr}（套接字 直连地址）。</p>
      *
-     * @param headers    请求头（key 大小写不敏感）
-     * @param remoteAddr 服务端 socket 直连地址，可为 null
-     * @return 客户端真实 IP；均缺失时返回 null
+     * @param headers    请求头（键 大小写不敏感）
+     * @param remoteAddr 服务端 套接字 直连地址，可为 空
+     * @return 客户端真实 IP；均缺失时返回 空
      */
     default String resolveClientIp(Map<String, String> headers, String remoteAddr) {
         if (headers != null) {
@@ -71,7 +71,7 @@ public interface LocationProvider {
      *
      * @param headers 请求头
      * @param key     头名
-     * @return 头值；缺失时返回 null
+     * @return 头值；缺失时返回 空
      */
     private static String firstHeader(Map<String, String> headers, String key) {
         String direct = headers.get(key);

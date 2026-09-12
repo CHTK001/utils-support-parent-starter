@@ -16,7 +16,7 @@ import java.util.Map;
  * Cloudflare API v4 客户端。
  *
  * <p>封装 Cloudflare REST API 公共入口，承载认证头注入、超时控制与错误解析。
- * D1 SQLite 访问路径：
+   * D1 sqlite 访问路径：
  * {@code POST /accounts/{account_id}/d1/database/{db_id}/query}</p>
  *
  * @author CH
@@ -31,7 +31,7 @@ public class CloudflareClient {
     private final CloudflareConfig config;
 
     /**
-     * HTTP 客户端（复用 common-starter 的 HttpClient 抽象）
+      * HTTP 客户端（复用 common-starter 的 HTTP客户端 抽象）
      */
     private final HttpClient httpClient;
 
@@ -65,7 +65,7 @@ public class CloudflareClient {
      * 执行 Cloudflare API 调用，返回响应 {@code result} 字段。
      *
      * @param method  HTTP 方法
-     * @param path    API 路径（不含 baseUrl），如 {@code "/accounts/{aid}/d1/database/{id}/query"}
+     * @param path    API 路径（不含 baseurl），如 {@code "/accounts/{aid}/d1/database/{标识}/查询"}
      * @param payload 请求体（可空），将被序列化为 JSON
      * @return Cloudflare 响应 {@code result} 字段
      */
@@ -90,10 +90,10 @@ public class CloudflareClient {
     }
 
     /**
-     * GET 请求。
+      * 获取 请求。
      *
      * @param path API 路径
-     * @return 响应 result 字段
+     * @return 响应 结果 字段
      */
     public Object get(String path) {
         return call(HttpMethod.GET, path, null);
@@ -104,14 +104,14 @@ public class CloudflareClient {
      *
      * @param path    API 路径
      * @param payload 请求体
-     * @return 响应 result 字段
+     * @return 响应 结果 字段
      */
     public Object post(String path, Object payload) {
         return call(HttpMethod.POST, path, payload);
     }
 
     /**
-     * 构建带 Bearer Token 的请求头。
+      * 构建带 Bearer 令牌 的请求头。
      *
      * @return 头信息
      */
@@ -128,7 +128,7 @@ public class CloudflareClient {
      * <p>响应格式：{@code {"success":true, "result":...}} 或失败时含 {@code errors}。</p>
      *
      * @param body 响应体 JSON 字符串
-     * @return result 字段（Object/Map/List 等）
+     * @return result 字段（对象/映射/列表 等）
      */
     @SuppressWarnings("unchecked")
     private Object parseResult(String body) {

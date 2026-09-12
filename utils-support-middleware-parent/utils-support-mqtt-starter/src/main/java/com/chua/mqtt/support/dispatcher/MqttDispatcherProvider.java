@@ -38,7 +38,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MqttDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-     * 默认客户端 ID 前缀，后接当前时间戳以保证唯一性
+      * 默认客户端 标识 前缀，后接当前时间戳以保证唯一性
      */
     private static final String DEFAULT_CLIENT_ID_PREFIX = "mqtt-dispatcher-";
 
@@ -49,7 +49,7 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
      * 主题 -> 分发定义列表 的映射表。
-     * 一个主题可被多个分发器订阅，使用 CopyOnWriteArrayList 保证遍历时的线程安全。
+      * 一个主题可被多个分发器订阅，使用 副本on写入array列表 保证遍历时的线程安全。
      */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
@@ -76,13 +76,13 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
             client.connect();
             client.setCallback(new MqttCallback() {
                 @Override
-                /** ConnectionLost */
+                /** connectionlost */
                 public void connectionLost(Throwable cause) {
                     log.warn("MQTT 连接已断开: {}", cause.getMessage(), cause);
                 }
 
                 @Override
-                /** MessageArrived */
+                /** 消息arrived */
                 public void messageArrived(String topic, MqttMessage message) {
                     var defs = definitionMap.get(topic);
                     if (defs != null) {
@@ -94,7 +94,7 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
                 }
 
                 @Override
-                /** DeliveryComplete */
+                /** delivery完成 */
                 public void deliveryComplete(IMqttDeliveryToken token) {
                 }
             });
@@ -107,12 +107,12 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
     /**
      * 向指定主题发布消息。
      * <p>
-     * 使用 QoS 1（至少一次）投递语义，确保消息不丢失。
+      * 使用 qos 1（至少一次）投递语义，确保消息不丢失。
      * 消息体为 {@link Object#toString()} 的 UTF-8 编码字节数组。
      * </p>
      *
      * @param topic 目标主题名称，不能为空
-     * @param body  消息体，为 null 时发布空消息
+     * @param body  消息体，为 空 时发布空消息
      */
     @Override
     public void publish(String topic, Object body) {

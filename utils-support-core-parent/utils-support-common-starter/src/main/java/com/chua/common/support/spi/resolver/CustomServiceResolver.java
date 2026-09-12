@@ -38,12 +38,12 @@ public class CustomServiceResolver implements ServiceResolver {
 
 
     /**
-     * SPI 配置文件在 classpath 中的路径
+      * SPI 配置文件在 类路径 中的路径
      */
     private static final String PATH = "META-INF/extensions";
 
     /**
-     * UTF-8 BOM 字符（Zero Width No-Break Space U+FEFF）
+      * UTF-8 BOM 字符（Zero Width No-中断 Space U+FEFF）
      */
     private static final char BOM = '\uFEFF';
 
@@ -139,7 +139,7 @@ public class CustomServiceResolver implements ServiceResolver {
      * 解析 SPI 配置行中的名称和类名
      *
      * @param line 配置行
-     * @return 包含别名和类名的数组，解析失败返回 null
+     * @return 包含别名和类名的数组，解析失败返回 空
      */
     protected String[] parseSpiNameAndClassName(String line) {
         if (null == line || "".equals(line)) {

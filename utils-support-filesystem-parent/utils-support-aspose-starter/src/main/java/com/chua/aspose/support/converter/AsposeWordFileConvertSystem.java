@@ -19,7 +19,7 @@ import java.util.Map;
  * Aspose.Words 文档格式转换器。
  *
  * <p>支持 Word 全系列格式（doc/docx/dot/dotx/docm/dotm/wps）的相互转换，
- * 以及转换为 pdf/html/txt/rtf/epub/odt/xps 等格式。</p>
+   * 以及转换为 pdf/HTML/txt/rtf/epub/odt/xps 等格式。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -39,7 +39,7 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
     private static final List<String> TARGETS = List.of("pdf", "doc", "docx", "dot", "dotx", "html", "htm", "txt", "rtf", "epub", "odt", "xps");
 
     /**
-     * 格式与 Aspose.Words SaveFormat 常量映射表
+      * 格式与 Aspose.Words 保存格式化 常量映射表
      */
     private static final Map<String, Integer> FORMAT_MAP = Map.ofEntries(
         Map.entry("doc", SaveFormat.DOC), Map.entry("docx", SaveFormat.DOCX),
@@ -51,7 +51,7 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
     );
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String source, String target) {
         if (!SOURCES.contains(source)) {
             return false;

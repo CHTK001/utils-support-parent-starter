@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * RedisSearch 全文检索索引 Sink：基于 Redis Stack 的 FT.CREATE / FT.INFO 命令为每条 topic 建立全文索引。
+   * redis搜索 全文检索索引 Sink：基于 Redis Stack 的 FT.创建 / FT.信息 命令为每条 topic 建立全文索引。
  * <p>SPI 类型 {@code "redis-search"}。默认连接 {@code 127.0.0.1:6379}，可由 setter 覆盖。</p>
  *
  * @author CH
@@ -28,12 +28,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RedisSearchSink implements DataSink {
 
     /**
-     * FT.CREATE 命令
+      * FT.创建 命令
      */
     private static final ProtocolCommand FT_CREATE = () -> SafeEncoder.encode("FT.CREATE");
 
     /**
-     * FT.INFO 命令
+      * FT.信息 命令
      */
     private static final ProtocolCommand FT_INFO = () -> SafeEncoder.encode("FT.INFO");
 
@@ -63,7 +63,7 @@ public class RedisSearchSink implements DataSink {
     private int port = 6379;
 
     /**
-     * 鉴权密码，null 表示无密码
+      * 鉴权密码，空 表示无密码
      */
     private String password;
 
@@ -160,7 +160,7 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-     * 写入一条 envelope：自动创建 topic 对应索引（首条时），HASH 存储为 {@code ds:{topic}:{traceId}}。
+      * 写入一条 envelope：自动创建 topic 对应索引（首条时），哈希 存储为 {@code ds:{topic}:{追踪id}}。
      *
      * @param envelope 数据信封
      * @param config   附加配置（当前未使用）
@@ -196,7 +196,7 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-     * 索引自动创建逻辑：FT.INFO 失败时按 sample 字段类型推断（Number→NUMERIC，其他→TEXT）构造 FT.CREATE。
+      * 索引自动创建逻辑：FT.信息 失败时按 样本 字段类型推断（数字→NUMERIC，其他→文本）构造 FT.创建。
      *
      * @param jedis      Jedis 连接
      * @param indexName  索引名
@@ -217,7 +217,7 @@ public class RedisSearchSink implements DataSink {
                 }
             }
             try {
-                // 将 schema 按空格拆分成多个 FT.CREATE 参数，逐个编码为字节数组
+ // 将 模式 按空格拆分成多个 FT.创建 参数，逐个编码为字节数组
                 String[] schemaParts = schema.toString().split(" ");
                 byte[][] args = new byte[schemaParts.length + 1][];
                 args[0] = SafeEncoder.encode(indexName);
@@ -233,10 +233,10 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-     * 把 {@code Map<String, Object>} 转为 HSET 可写的 {@code Map<String, String>}，跳过 null 值。
+      * 把 {@code Map<String, Object>} 转为 HSET 可写的 {@code Map<String, String>}，跳过 空 值。
      *
      * @param data 原始数据
-     * @return 字符串形式的新 map
+     * @return 字符串形式的新 映射
      */
     private static Map<String, String> convertToStringMap(Map<String, Object> data) {
         Map<String, String> result = new java.util.LinkedHashMap<>();
@@ -249,7 +249,7 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-     * @return 始终返回 null（Redis 不接入 Engine）
+     * @return 始终返回 空（Redis 不接入 Engine）
      */
     @Override
     public EngineDataSource<?> getDataSource() {

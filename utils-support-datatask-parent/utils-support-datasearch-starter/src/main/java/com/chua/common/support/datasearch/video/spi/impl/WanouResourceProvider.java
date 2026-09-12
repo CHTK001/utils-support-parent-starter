@@ -29,14 +29,14 @@ import java.util.List;
  */
 @Spi("Wanou")
 public class WanouResourceProvider extends AbstractResourceProvider {
-    /** 创建 WanouResourceProvider 实例 */
+    /** 创建 wanouresource提供者 实例 */
     public WanouResourceProvider() {
         super();
     }
 
     /**
-     * 创建 WanouResourceProvider 实例
-     * @param videoSource videoSource
+      * 创建 wanouresource提供者 实例
+     * @param videoSource 视频源
      */
     public WanouResourceProvider(VideoSource videoSource) {
         super(videoSource);
@@ -100,7 +100,13 @@ public class WanouResourceProvider extends AbstractResourceProvider {
         }
     }
 
-    /** 注册Download */
+    /**
+     * 注册Download
+     *
+     * @param videoDownloads 视频downloads
+     * @param vodDownFrom voddown从
+     * @param vodDownUrl voddownurl
+     */
     private void registerDownload(List<VideoDownload> videoDownloads, String vodDownFrom, String vodDownUrl) {
         if (null == vodDownFrom) {
             return;
@@ -116,7 +122,14 @@ public class WanouResourceProvider extends AbstractResourceProvider {
         }
     }
 
-    /** TransferName */
+    /**
+     * 调动名称
+     *
+     * @param s s
+     * @return 调动名称的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public String transferName(String s) {
         return switch (s.toLowerCase()) {
             case "bd" -> "百度网盘";
@@ -178,15 +191,15 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private Integer vodId;
             /** 类型标识 */
             @JsonProperty("type_id")
-            /** 类型ID */
+            /** 类型标识 */
             private Integer typeId;
             /** 类型标识 */
             @JsonProperty("type_id_1")
-            /** 类型ID1 */
+            /** 类型标识1 */
             private Integer typeId1;
             /** 分组标识 */
             @JsonProperty("group_id")
-            /** 分组ID */
+            /** 分组标识 */
             private Integer groupId;
             /** 影片名称 */
             @JsonProperty("vod_name")
@@ -206,7 +219,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private Integer vodStatus;
             /** 首字母 */
             @JsonProperty("vod_letter")
-            /** VODletter */
+            /** vodletter */
             private String vodLetter;
             /** 颜色标识 */
             @JsonProperty("vod_color")
@@ -218,7 +231,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodTag;
             /** 分类 */
             @JsonProperty("vod_class")
-            /** VODclass */
+            /** vodclass */
             private String vodClass;
             /** 封面图 */
             @JsonProperty("vod_pic")
@@ -226,23 +239,23 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodPic;
             /** 缩略图 */
             @JsonProperty("vod_pic_thumb")
-            /** VODPICthumb */
+            /** vodpicthumb */
             private String vodPicThumb;
             /** 轮播图 */
             @JsonProperty("vod_pic_slide")
-            /** VODPICslide */
+            /** vodpicslide */
             private String vodPicSlide;
             /** 截图图集 */
             @JsonProperty("vod_pic_screenshot")
-            /** VODPICscreenshot */
+            /** vodpicscreenshot */
             private String vodPicScreenshot;
             /** 演员列表 */
             @JsonProperty("vod_actor")
-            /** VODactor */
+            /** vodactor */
             private String vodActor;
             /** 导演 */
             @JsonProperty("vod_director")
-            /** VODdirector */
+            /** voddirector */
             private String vodDirector;
             /** 编剧 */
             @JsonProperty("vod_writer")
@@ -250,19 +263,19 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodWriter;
             /** 幕后花絮 */
             @JsonProperty("vod_behind")
-            /** VODbehind */
+            /** vodbehind */
             private String vodBehind;
             /** 简介 */
             @JsonProperty("vod_blurb")
-            /** VODblurb */
+            /** vodblurb */
             private String vodBlurb;
             /** 备注 */
             @JsonProperty("vod_remarks")
-            /** VODremarks */
+            /** vodremarks */
             private String vodRemarks;
             /** 上映时间 */
             @JsonProperty("vod_pubdate")
-            /** VODpubdate */
+            /** vodpubdate */
             private String vodPubdate;
             /** 总集数 */
             @JsonProperty("vod_total")
@@ -270,7 +283,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private Integer vodTotal;
             /** 连载状态 */
             @JsonProperty("vod_serial")
-            /** VODserial */
+            /** vodserial */
             private String vodSerial;
             /** 电视台 */
             @JsonProperty("vod_tv")
@@ -278,19 +291,19 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodTv;
             /** 星期 */
             @JsonProperty("vod_weekday")
-            /** VODweekday */
+            /** vodweekday */
             private String vodWeekday;
             /** 地区 */
             @JsonProperty("vod_area")
-            /** VODarea */
+            /** vodarea */
             private String vodArea;
             /** 语言 */
             @JsonProperty("vod_lang")
-            /** VODlang */
+            /** vodlang */
             private String vodLang;
             /** 年份 */
             @JsonProperty("vod_year")
-            /** VODyear */
+            /** vodyear */
             private String vodYear;
             /** 版本 */
             @JsonProperty("vod_version")
@@ -302,11 +315,11 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodState;
             /** 作者 */
             @JsonProperty("vod_author")
-            /** VODauthor */
+            /** vodauthor */
             private String vodAuthor;
             /** 跳转地址 */
             @JsonProperty("vod_jumpurl")
-            /** VODjumpurl */
+            /** vodjumpurl */
             private String vodJumpurl;
             /** 模板 */
             @JsonProperty("vod_tpl")
@@ -314,15 +327,15 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodTpl;
             /** 播放模板 */
             @JsonProperty("vod_tpl_play")
-            /** VODTPLplay */
+            /** vodtplplay */
             private String vodTplPlay;
             /** 下载模板 */
             @JsonProperty("vod_tpl_down")
-            /** VODTPLdown */
+            /** vodtpldown */
             private String vodTplDown;
             /** 是否完结 */
             @JsonProperty("vod_isend")
-            /** VODisend */
+            /** vodisend */
             private Integer vodIsend;
             /** 是否锁定 */
             @JsonProperty("vod_lock")
@@ -334,35 +347,35 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private Integer vodLevel;
             /** 版权 */
             @JsonProperty("vod_copyright")
-            /** VODcopyright */
+            /** vodcopyright */
             private Integer vodCopyright;
             /** 积分 */
             @JsonProperty("vod_points")
-            /** VODpoints */
+            /** vodpoints */
             private Integer vodPoints;
             /** 播放所需积分 */
             @JsonProperty("vod_points_play")
-            /** VODpointsplay */
+            /** vodpointsplay */
             private Integer vodPointsPlay;
             /** 下载所需积分 */
             @JsonProperty("vod_points_down")
-            /** VODpointsdown */
+            /** vodpointsdown */
             private Integer vodPointsDown;
             /** 点击量 */
             @JsonProperty("vod_hits")
-            /** VODhits */
+            /** vodhits */
             private Integer vodHits;
             /** 日点击量 */
             @JsonProperty("vod_hits_day")
-            /** VODhitsDAY */
+            /** vodhitsday */
             private Integer vodHitsDay;
             /** 周点击量 */
             @JsonProperty("vod_hits_week")
-            /** VODhitsweek */
+            /** vodhitsweek */
             private Integer vodHitsWeek;
             /** 月点击量 */
             @JsonProperty("vod_hits_month")
-            /** VODhitsmonth */
+            /** vodhitsmonth */
             private Integer vodHitsMonth;
             /** 时长 */
             @JsonProperty("vod_duration")
@@ -374,7 +387,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private Integer vodUp;
             /** 下载开关 */
             @JsonProperty("vod_down")
-            /** VODdown */
+            /** voddown */
             private Integer vodDown;
             /** 评分 */
             @JsonProperty("vod_score")
@@ -382,7 +395,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodScore;
             /** 评分总数 */
             @JsonProperty("vod_score_all")
-            /** VOD分数ALL */
+            /** VOD分数全部 */
             private Integer vodScoreAll;
             /** 评分人数 */
             @JsonProperty("vod_score_num")
@@ -394,7 +407,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodTime;
             /** 添加时间戳 */
             @JsonProperty("vod_time_add")
-            /** VOD时间ADD */
+            /** VOD时间添加 */
             private Integer vodTimeAdd;
             /** 点击更新时间戳 */
             @JsonProperty("vod_time_hits")
@@ -406,19 +419,19 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private Integer vodTimeMake;
             /** 试看秒数 */
             @JsonProperty("vod_trysee")
-            /** VODtrysee */
+            /** vodtrysee */
             private Integer vodTrysee;
             /** 豆瓣标识 */
             @JsonProperty("vod_douban_id")
-            /** VODdoubanID */
+            /** voddoubanid */
             private Integer vodDoubanId;
             /** 豆瓣评分 */
             @JsonProperty("vod_douban_score")
-            /** VODdouban分数 */
+            /** voddouban分数 */
             private String vodDoubanScore;
             /** 重定向地址 */
             @JsonProperty("vod_reurl")
-            /** VODreurl */
+            /** vodreurl */
             private String vodReurl;
             /** 相关视频 */
             @JsonProperty("vod_rel_vod")
@@ -438,19 +451,19 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodPwdUrl;
             /** 播放密码 */
             @JsonProperty("vod_pwd_play")
-            /** VODPWDplay */
+            /** vodpwdplay */
             private String vodPwdPlay;
             /** 带密码播放地址 */
             @JsonProperty("vod_pwd_play_url")
-            /** VODPWDplayURL */
+            /** vodpwdplayurl */
             private String vodPwdPlayUrl;
             /** 下载密码 */
             @JsonProperty("vod_pwd_down")
-            /** VODPWDdown */
+            /** vodpwddown */
             private String vodPwdDown;
             /** 带密码下载地址 */
             @JsonProperty("vod_pwd_down_url")
-            /** VODPWDdownURL */
+            /** vodpwddownurl */
             private String vodPwdDownUrl;
             /** 内容 */
             @JsonProperty("vod_content")
@@ -458,47 +471,47 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             private String vodContent;
             /** 播放来源 */
             @JsonProperty("vod_play_from")
-            /** VODplayfrom */
+            /** vodplayfrom */
             private String vodPlayFrom;
             /** 播放服务器 */
             @JsonProperty("vod_play_server")
-            /** VODplay服务器 */
+            /** vodplay服务器 */
             private String vodPlayServer;
             /** 播放说明 */
             @JsonProperty("vod_play_note")
-            /** VODplaynote */
+            /** vodplaynote */
             private String vodPlayNote;
             /** 播放地址 */
             @JsonProperty("vod_play_url")
-            /** VODplayURL */
+            /** vodplayurl */
             private String vodPlayUrl;
             /** 下载来源 */
             @JsonProperty("vod_down_from")
-            /** VODdownfrom */
+            /** voddownfrom */
             private String vodDownFrom;
             /** 下载服务器 */
             @JsonProperty("vod_down_server")
-            /** VODdown服务器 */
+            /** voddown服务器 */
             private String vodDownServer;
             /** 下载说明 */
             @JsonProperty("vod_down_note")
-            /** VODdownnote */
+            /** voddownnote */
             private String vodDownNote;
             /** 下载地址 */
             @JsonProperty("vod_down_url")
-            /** VODdownURL */
+            /** voddownurl */
             private String vodDownUrl;
             /** 剧情概要 */
             @JsonProperty("vod_plot")
-            /** VODplot */
+            /** vodplot */
             private Integer vodPlot;
             /** 剧情名称 */
             @JsonProperty("vod_plot_name")
-            /** VODplot名称 */
+            /** vodplot名称 */
             private String vodPlotName;
             /** 剧情详细介绍 */
             @JsonProperty("vod_plot_detail")
-            /** VODplotdetail */
+            /** vodplotdetail */
             private String vodPlotDetail;
             /** 类型名称 */
             @JsonProperty("type_name")

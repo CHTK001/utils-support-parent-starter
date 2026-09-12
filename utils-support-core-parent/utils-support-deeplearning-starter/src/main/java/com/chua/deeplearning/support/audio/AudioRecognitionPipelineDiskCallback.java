@@ -11,22 +11,43 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.43
+ * @param arr arr
+ * @return 去重数量的结果
+ * @param result 结果
+ * @param elapsedMs elapsedms
+ * @param segments segments
  */
 @Slf4j
 public class AudioRecognitionPipelineDiskCallback implements AudioRecognitionPipelineCallback {
 
     @Override
     public void onVad(List<SpeakerSegment> segments) {
+        /**
+         * on嵌入。
+         * @param embeddings 嵌入
+         */
         log.info("[audio-callback] VAD 切分完成：{} 个语音片段", segments.size());
     }
 
     @Override
     public void onEmbedding(float[][] embeddings) {
+        /**
+          * oncluster。
+         * @param assignments assignments
+         */
         log.info("[audio-callback] 说话人嵌入提取完成：{} 个片段", embeddings.length);
     }
 
     @Override
     public void onCluster(String[] assignments) {
+        /**
+          * ontranscribe。
+         * @param transcripts transcripts
+         * @param arr arr
+         * @return 去重数量的结果
+         * @param result 结果
+         * @param elapsedMs elapsedms
+         */
         log.info("[audio-callback] 说话人聚类完成：{} 个说话人", distinctCount(assignments));
     }
 

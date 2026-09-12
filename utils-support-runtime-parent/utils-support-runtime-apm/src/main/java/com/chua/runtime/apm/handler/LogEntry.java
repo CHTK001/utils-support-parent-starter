@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 日志条目 — 由 LogHandler 在收到 SLF4J/JUL/Log4j 等日志框架插桩事件后构造并收集。
+   * 日志条目 — 由 日志处理器 在收到 SLF4J/JUL/日志4j 等日志框架插桩事件后构造并收集。
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,12 +19,12 @@ public class LogEntry {
     private long timestamp;
 
     /**
-     * 日志级别（INFO / DEBUG / WARN / ERROR / TRACE）
+      * 日志级别（信息 / 调试 / WARN / 错误 / 追踪）
      */
     private String level;
 
     /**
-     * Logger 名称（点分隔格式，如 {@code com.example.biz.BusinessLogger}）
+      * 日志记录器 名称（点分隔格式，如 {@code com.example.biz.BusinessLogger}）
      */
     private String logger;
 

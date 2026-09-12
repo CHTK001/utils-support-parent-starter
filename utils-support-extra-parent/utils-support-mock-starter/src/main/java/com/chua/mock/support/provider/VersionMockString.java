@@ -14,6 +14,8 @@ import javax.annotation.Nonnull;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param environment 环境
+ * @return 获取字符串的结果
  */
 @Spi({"version", "version-no", "semver"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")

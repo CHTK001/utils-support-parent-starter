@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class DnsProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "dns";
     }
@@ -59,7 +59,7 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
         sb.append(", authority=").append(nsCount);
         sb.append(", additional=").append(arCount);
 
-        // 解析 Query 段
+ // 解析 查询 段
         int idx = 12;
         for (int i = 0; i < qdCount && idx < rawData.length; i++) {
             String name = readName(rawData, idx);
@@ -109,7 +109,7 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 读取 DNS 域名（处理 label 与 pointer）。
+      * 读取 DNS 域名（处理 标签 与 pointer）。
      *
      * @param data 完整 DNS 报文
      * @param idx  起始偏移
@@ -181,6 +181,8 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
 
     /**
      * 资源记录类型转可读名称。
+     * @param type 类型
+     * @return 转为类型名称的结果
      */
     private static String toTypeName(int type) {
         return switch (type) {
@@ -203,7 +205,9 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * DNS 类（Class）转可读名称。
+      * DNS 类（类）转可读名称。
+     * @param cls cls
+     * @return 转为类名称的结果
      */
     private static String toClassName(int cls) {
         return switch (cls) {
@@ -218,6 +222,8 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
 
     /**
      * DNS RCODE 转可读名称。
+     * @param rcode rcode
+     * @return 转为rcode的结果
      */
     private static String toRcode(int rcode) {
         return switch (rcode) {

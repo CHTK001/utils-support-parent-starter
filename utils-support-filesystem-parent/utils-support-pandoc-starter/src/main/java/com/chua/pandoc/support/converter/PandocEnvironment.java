@@ -82,9 +82,9 @@ public class PandocEnvironment {
     }
 
     /**
-     * 在系统 PATH 中查找 pandoc
+      * 在系统 路径 中查找 pandoc
      *
-     * @return pandoc 路径，未找到返回 null
+     * @return pandoc 路径，未找到返回 空
      */
     private static String findPandoc() {
         String osName = System.getProperty("os.name").toLowerCase();
@@ -136,7 +136,7 @@ public class PandocEnvironment {
      *
      * <p>先通过包管理器安装，失败后回退到直接下载。</p>
      *
-     * @return 安装后的 pandoc 路径，失败返回 null
+     * @return 安装后的 pandoc 路径，失败返回 空
      */
     private static String installPandoc() {
         try {
@@ -167,6 +167,7 @@ public class PandocEnvironment {
 
     /**
      * 通过直接下载方式安装 Pandoc
+     * @return install从directdownload的结果
      */
     private static String installFromDirectDownload() {
         String osName = System.getProperty("os.name").toLowerCase();
@@ -186,7 +187,9 @@ public class PandocEnvironment {
     }
 
     /**
-     * 在 Windows 上安装 Pandoc
+      * 在 窗口 上安装 Pandoc
+     * @param arch Arch Linux Linux
+     * @return install窗口的结果
      */
     private static String installWindows(String arch) throws Exception {
         String fileName = "pandoc-" + PANDOC_VERSION + "-windows-x86_64.msi";
@@ -228,7 +231,8 @@ public class PandocEnvironment {
     }
 
     /**
-     * 打印 Windows 手动安装指引
+      * 打印 窗口 手动安装指引
+     * @param downloadUrl downloadurl
      */
     private static void printWindowsManualGuide(String downloadUrl) {
         String homeDir = System.getProperty("user.home");
@@ -245,6 +249,7 @@ public class PandocEnvironment {
 
     /**
      * 在 macOS 上安装 Pandoc
+     * @return installMacOs的结果
      */
     private static String installMacOs() throws Exception {
         String fileName = "pandoc-" + PANDOC_VERSION + "-macOS.dmg";
@@ -282,6 +287,7 @@ public class PandocEnvironment {
 
     /**
      * 打印 macOS 手动安装指引
+     * @param downloadUrl downloadurl
      */
     private static void printMacManualGuide(String downloadUrl) {
         log.warn("========== Pandoc 手动安装指引 ==========");
@@ -294,6 +300,8 @@ public class PandocEnvironment {
 
     /**
      * 在 Linux 上安装 Pandoc
+     * @param arch Arch Linux Linux
+     * @return installLinux的结果
      */
     private static String installLinux(String arch) throws Exception {
         String archSuffix = arch.contains("64") ? "amd64" : "arm64";
@@ -344,6 +352,8 @@ public class PandocEnvironment {
 
     /**
      * 打印 Linux 手动安装指引
+     * @param downloadUrl downloadurl
+     * @param archSuffix Arch Linux Linux后缀
      */
     private static void printLinuxManualGuide(String downloadUrl, String archSuffix) {
         log.warn("========== Pandoc 手动安装指引 ==========");
@@ -359,6 +369,8 @@ public class PandocEnvironment {
 
     /**
      * 打印通用手动安装指引 (不支持的操作系统)
+     * @param osName os名称
+     * @param arch Arch Linux Linux
      */
     private static void logManualInstallGuide(String osName, String arch) {
         log.warn("========== Pandoc 手动安装指引 ==========");
@@ -400,11 +412,25 @@ public class PandocEnvironment {
     private static void downloadFile(String downloadUrl, Path targetPath) throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, new TrustManager[]{new X509TrustManager() {
-            /** 校验ClientTrusted */
+            /**
+             * 校验客户端信任
+             *
+             * @param chain chain
+             * @param authType 认证类型
+             */
             public void checkClientTrusted(X509Certificate[] chain, String authType) {}
-            /** 校验ServerTrusted */
+            /**
+             * 校验服务端信任
+             *
+             * @param chain chain
+             * @param authType 认证类型
+             */
             public void checkServerTrusted(X509Certificate[] chain, String authType) {}
-            /** 获取AcceptedIssuers */
+            /**
+             * 获取acceptedissuers
+             *
+             * @return 获取acceptedissuers的结果
+             */
             public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
         }}, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());

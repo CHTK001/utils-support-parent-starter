@@ -11,7 +11,7 @@ public class TsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
     /**
      * 构造 TSV Sink。
      *
-     * @param sinkId Sink 实例 ID
+     * @param sinkId Sink 实例 标识
      * @param filePath TSV 文件路径
      */
     public TsvDataSyncAgentSink(String sinkId, String filePath) {
@@ -21,7 +21,7 @@ public class TsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
     /**
      * 构造 TSV Sink。
      *
-     * @param sinkId Sink 实例 ID
+     * @param sinkId Sink 实例 标识
      * @param filePath TSV 文件路径
      * @param append 是否追加模式
      */

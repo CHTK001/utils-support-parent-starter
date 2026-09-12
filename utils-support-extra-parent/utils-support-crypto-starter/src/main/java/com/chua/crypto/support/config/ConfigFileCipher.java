@@ -16,13 +16,13 @@ import java.util.Base64;
  * <p>支持两种粒度：
  *
  * <h2>1. 整文件加密</h2>
- * 加密后文件首行为固定标记行，正文为 Base64 密文：
+   * 加密后文件首行为固定标记行，正文为 基础64 密文：
  * <pre>
  * #!CHKF-CONFIG:1
  * hR2Pf...（Base64）
  * </pre>
- * 适用于 application.yml / application.properties 等整体敏感的配置；
- * SpringBoot 环境下由 EnvironmentPostProcessor 在启动期透明解密装载。
+   * 适用于 application.yml / application.属性 等整体敏感的配置；
+   * springboot 环境下由 环境post处理器 在启动期透明解密装载。
  *
  * <h2>2. 单值加密（ENC(...) 包裹）</h2>
  * 配置中的敏感值可单独加密为 {@code ENC(Base64密文)}，其余配置保持明文可读，
@@ -189,7 +189,7 @@ public final class ConfigFileCipher {
     }
 
     /**
-     * 校验字符串是否为合法 Base64
+      * 校验字符串是否为合法 基础64
      *
      * @param text 待校验文本
      * @return true 表示合法

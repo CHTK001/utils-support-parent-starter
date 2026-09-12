@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 依赖图节点 — 一次传输的边（source → target）。
+   * 依赖图节点 — 一次传输的边（源 → Target）。
  *
  * <p>聚合统计：相同源和目标的多次传输累计 callCount、totalDuration，
- * 平均耗时 = totalDuration / callCount。</p>
+   * 平均耗时 = total持续时间 / call数量。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -105,9 +105,9 @@ public class DependencyEdge {
     }
 
     /**
-     * 边的稳定 ID。
+      * 边的稳定 标识。
      *
-     * @return source nodeId → target nodeId
+     * @return source 节点标识 → Target 节点标识
      */
     public String edgeId() {
         return source.nodeId() + " -> " + target.nodeId();

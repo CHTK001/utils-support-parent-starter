@@ -54,13 +54,13 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== 工厂方法 ====================
 
     /**
-     * 从 Class 创建 TypeBeanDefinition，自动检测作用域。
+      * 从 类 创建 类型Beandefinition，自动检测作用域。
      *
      * <p>Bean 名称默认取类名首字母小写（如 UserService -> userService）。
      * 如果类名为空字符串，则取全限定名。</p>
      *
      * @param beanClass Bean 类
-     * @return TypeBeanDefinition 实例，beanClass 为 null 时返回 null
+     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
      */
     public static TypeBeanDefinition of(Class<?> beanClass) {
         if (beanClass == null) {
@@ -85,11 +85,11 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-     * 从 Class 创建 TypeBeanDefinition，指定 Bean 名称。
+      * 从 类 创建 类型Beandefinition，指定 Bean 名称。
      *
      * @param beanClass Bean 类
      * @param beanName  Bean 名称
-     * @return TypeBeanDefinition 实例，beanClass 为 null 时返回 null
+     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
      */
     public static TypeBeanDefinition of(Class<?> beanClass, String beanName) {
         if (beanClass == null) {
@@ -105,12 +105,12 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-     * 从 Class 创建 TypeBeanDefinition，并附加注册器。
+      * 从 类 创建 类型Beandefinition，并附加注册器。
      *
      * @param beanClass Bean 类
      * @param beanName  Bean 名称
      * @param register  注册器
-     * @return TypeBeanDefinition 实例，beanClass 为 null 时返回 null
+     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
      */
     public static TypeBeanDefinition of(Class<?> beanClass, String beanName, BeanDefinitionRegister register) {
         TypeBeanDefinition def = of(beanClass, beanName);
@@ -143,7 +143,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== 类加载器 ====================
 
     @Override
-    /** 获取ClassLoader */
+    /** 获取类加载 */
     public ClassLoader getClassLoader() {
         if (classLoader != null) {
             return classLoader;
@@ -189,6 +189,8 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     /**
      * 选择参数最多的构造器。
+     * @param beanClass Bean类
+     * @return 选择最大参数constructor的结果
      */
     private static Constructor<?> selectMaxParamConstructor(Class<?> beanClass) {
         Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
@@ -263,7 +265,11 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
         return args;
     }
 
-    /** 获取ConstructorResolvers */
+    /**
+     * 获取constructor解析器
+     *
+     * @return 获取constructor解析器的结果
+     */
     private List<BeanConstructorResolver> getConstructorResolvers() {
         if (constructorResolvers == null) {
             synchronized (this) {
@@ -301,7 +307,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== 单例缓存 ====================
 
     @Override
-    /** Do获取Bean */
+    /** 执行获取Bean */
     protected Object doGetBean() {
         return singletonInstance;
     }

@@ -12,9 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * LCM-LoRA VAE                   
+   * LCM-lora VAE
  * <p>
- *              LCM-LoRA           VAE                
+   * LCM-lora           VAE
  *                                     
  * </p>
  * <p>
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/26
  */
 @Slf4j
@@ -66,7 +66,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
      *                   
      *
      * @param ctx                     
-     * @param input        NDList                              
+     * @param input        nd列表
      * @return                         
      */
     @Override
@@ -91,7 +91,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
      *                   
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return                   
      */
     @Override
@@ -111,7 +111,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
             // CHW -> HWC
             output = output.transpose(1, 2, 0);
 
-            //    NDArray                  
+ // ndarray
             var img = ai.djl.modality.cv.ImageFactory.getInstance().fromNDArray(output);
 
             if (log.isDebugEnabled()) {

@@ -36,12 +36,17 @@ import com.chua.common.support.proxy.intercept.MethodIntercept;
  *     .enableAnnotationScan(true)
  *     .enableArround(true)
  *     .build();
+ * }</pre>用户服务.类)
+   * .Target(新 用户服务impl())
+   * .enable注解扫描(true)
+   * .enablearround(true)
+   * .构建();
  * }</pre>
  *
  * @param <T> 代理接口类型
  * @author CH
  * @since 2025/11/26
- * @version 1.0.0
+   * @版本 1.0.0
  */
 public interface ProxyProvider<T> {
 
@@ -63,7 +68,7 @@ public interface ProxyProvider<T> {
      * 创建代理提供者实例，并指定对象上下文。
      *
      * <p>在创建代理提供者的同时注入 {@link ObjectContext}，
-     * 使得代理对象可以访问容器中的其他 Bean。适用于 Spring、Guice 等 IoC 集成场景。</p>
+      * 使得代理对象可以访问容器中的其他 Bean。适用于 Spring、Guice 等 IOC 集成场景。</p>
      *
      * @param type          目标接口类型，如 {@code Service.class}
      * @param objectContext 对象上下文，用于 Bean 查找和依赖注入
@@ -78,7 +83,7 @@ public interface ProxyProvider<T> {
      * 设置类加载器。
      *
      * <p>指定创建代理对象时使用的类加载器。默认使用目标接口的类加载器。
-     * 在 OSGi、Tomcat 等具有多个类加载器的环境中，正确设置类加载器至关重要。</p>
+      * 在 osgi、Tomcat 等具有多个类加载器的环境中，正确设置类加载器至关重要。</p>
      *
      * @param classLoader 类加载器，如 {@code Thread.currentThread().getContextClassLoader()}
      * @return 当前代理提供者实例（支持链式调用）
@@ -196,7 +201,7 @@ public interface ProxyProvider<T> {
      *
      * <p>设置用户自定义的方法拦截器，用于拦截代理对象的方法调用。
      * 拦截器接口 {@link MethodIntercept} 提供了完整的拦截生命周期：
-     * 前置处理（before）→ 方法调用（invoke）→ 后置处理（after）→ 异常处理（handleException）。</p>
+      * 前置处理（之前）→ 方法调用（invoke）→ 后置处理（之后）→ 异常处理（处理异常）。</p>
      *
      * <p><b>使用示例：</b></p>
      * <pre>{@code
@@ -212,9 +217,12 @@ public interface ProxyProvider<T> {
      *         System.out.println("后置: " + method.getName());
      *     }
      * });
+     * }</pre>.println("后置: " + 方法.获取名称());
+     *     }
+     * });
      * }</pre>
      *
-     * @param methodIntercept 方法拦截器实例，传入 null 会使用空拦截器
+     * @param methodIntercept 方法拦截器实例，传入 空 会使用空拦截器
      * @return 当前代理提供者实例（支持链式调用）
      */
     ProxyProvider<T> methodIntercept(MethodIntercept<T> methodIntercept);

@@ -18,13 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * YOLOv5 车牌识别（CVHub520/yolov5_car_plate，ORT 原生 + OpenCV）。
+   * yolov5 车牌识别（cvhub520/yolov5_car_铭牌，ORT 原生 + 打开cv）。
  *
  * <p>模型 {@code vision/detection/yolov5_plate/yolov5_plate_rec_color.onnx} 由 jar
  * {@code utils-support-models-onnx-yolov5-plate} 提供。输入 {@code [1,3,48,168]}
- * （OpenCV resize 到 48×168，按 mean=0.588/std=0.193 归一化），输出
+   * （打开cv resize 到 48×168，按 mean=0.588/std=0.193 归一化），输出
  * {@code output_1 [1,21,78]}（CTC 字符 logits）+ {@code output_2 [1,5]}（颜色 logits）。
- * 字符集来自 yolov5_car_plate.yaml 的 names。</p>
+   * 字符集来自 yolov5_car_铭牌.yaml 的 名称。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -53,7 +53,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     private static final float STD = 0.193f;
 
     /**
-     * 字符集（yaml names，index 0 为 blank）。
+      * 字符集（yaml 名称，索引 0 为 blank）。
      */
     private static final String CHARS = "#京沪津渝冀晋蒙辽吉黑苏浙皖闽赣鲁豫鄂湘粤桂琼川贵云藏陕甘青宁新学警港澳挂使领民航危0123456789ABCDEFGHJKLMNPQRSTUVWXYZ险品";
 
@@ -223,6 +223,8 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
 
     /**
      * 转二维数组 [steps][classes]。
+     * @param value 值
+     * @return 转为mat2d的结果
      */
     private float[][] toMat2D(Object value) {
         if (value instanceof float[][][][] arr4) {
@@ -237,6 +239,8 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
 
     /**
      * 转一维向量 [classes]。
+     * @param value 值
+     * @return 转为向量的结果
      */
     private float[] toVector(Object value) {
         if (value instanceof float[][][][] arr4) {
@@ -252,7 +256,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

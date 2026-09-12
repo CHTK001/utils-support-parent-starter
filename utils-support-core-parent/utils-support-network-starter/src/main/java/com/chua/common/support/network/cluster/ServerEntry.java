@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ServerEntry {
 
-    /** 服务路径，如 "/api"、"/pay" */
+    /** 服务路径，如 "/api"、"/薪酬" */
     private String servicePath;
 
     /** 目标主机 */
@@ -32,11 +32,15 @@ public class ServerEntry {
     /** 协议：http / tcp / udp */
     private String protocol;
 
-    /** 业务分组（null 时回落到 ClusterSetting.scatterId） */
+    /** 业务分组（空 时回落到 clustersetting.scatterid） */
     private String scatterId;
 
     /**
      * 便捷构造：HTTP 服务。
+     * @param servicePath 服务路径
+     * @param host 主机
+     * @param port 端口
+     * @return http的结果
      */
     public static ServerEntry http(String servicePath, String host, int port) {
         return new ServerEntry(servicePath, host, port, "http", null);
@@ -44,6 +48,10 @@ public class ServerEntry {
 
     /**
      * 便捷构造：TCP 服务。
+     * @param servicePath 服务路径
+     * @param host 主机
+     * @param port 端口
+     * @return tcp的结果
      */
     public static ServerEntry tcp(String servicePath, String host, int port) {
         return new ServerEntry(servicePath, host, port, "tcp", null);
@@ -72,6 +80,7 @@ public class ServerEntry {
 
     /**
      * 获取规范化协议名。
+     * @return normalized协议的结果
      */
     public String normalizedProtocol() {
         return protocol == null || protocol.isBlank() ? "http" : protocol.toLowerCase();

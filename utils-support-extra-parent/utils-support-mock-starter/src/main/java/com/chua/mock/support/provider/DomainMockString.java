@@ -29,6 +29,8 @@ public class DomainMockString implements MockString {
     };
     /**
      * 顶级域名池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] TLDS = {"com", "cn", "net", "org", "io", "xyz", "top", "tech", "cloud", "online"};
 

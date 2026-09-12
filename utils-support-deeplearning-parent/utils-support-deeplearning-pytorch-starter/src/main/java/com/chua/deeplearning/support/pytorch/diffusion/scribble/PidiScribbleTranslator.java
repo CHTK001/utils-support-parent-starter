@@ -12,7 +12,7 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.diffusion.DiffusionResizeHelper;
 
 /**
- * PiDiNet 涂鸦/边缘条件图 Translator（简化版，无 OpenCV NMS）。
+   * pidinet 涂鸦/边缘条件图 Translator（简化版，无 打开cv NMS）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -44,16 +44,18 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 PidiScribbleTranslator 实例 */
+    /** 创建 pidiscribbletranslator 实例 */
     public PidiScribbleTranslator() {
         this(512, 512, true);
     }
 
     /**
-     * 创建 PidiScribbleTranslator 实例
-     * @param imageResolution imageResolution
-     * @param int int
-     * @param boolean boolean
+      * 创建 pidiscribbletranslator 实例
+     * @param imageResolution 镜像resolution
+     * @param imageResolution int
+     * @param safe 布尔值
+     * @param detectResolution detectresolution
+     * @param safe safe
      */
     public PidiScribbleTranslator(int imageResolution, int detectResolution, boolean safe) {
         this.imageResolution = imageResolution;
@@ -62,7 +64,7 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -76,7 +78,7 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray edge = list.get(list.size() - 1);
         if (edge.getShape().dimension() == 4 && edge.getShape().get(0) == 1) {
@@ -96,7 +98,13 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(result.toType(DataType.UINT8, false));
     }
 
-    /** SafeStep */
+    /**
+     * safestep
+     *
+     * @param edge edge
+     * @param step step
+     * @return safeStep的结果
+     */
     private NDArray safeStep(NDArray edge, int step) {
         edge = edge.toType(DataType.FLOAT32, false);
         edge = edge.mul((float) (step + 1));

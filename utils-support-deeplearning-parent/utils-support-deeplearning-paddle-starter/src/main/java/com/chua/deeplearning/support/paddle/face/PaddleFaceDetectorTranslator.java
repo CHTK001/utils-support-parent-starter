@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Paddle 人脸检测 Translator。
+   * 飞桨 人脸检测 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -40,15 +40,16 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
      */
     private final List<String> className;
 
-    /** 创建 PaddleFaceDetectorTranslator 实例 */
+    /** 创建 飞桨facedetectortranslator 实例 */
     public PaddleFaceDetectorTranslator() {
         this(0.5f, 0.7f);
     }
 
     /**
-     * 创建 PaddleFaceDetectorTranslator 实例
+      * 创建 飞桨facedetectortranslator 实例
      * @param shrink shrink
-     * @param float float
+     * @param shrink float
+     * @param threshold 阈值
      */
     public PaddleFaceDetectorTranslator(float shrink, float threshold) {
         this.shrink = shrink;
@@ -57,13 +58,13 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return processImageInput(ctx.getNDManager(), input, shrink);
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
@@ -83,7 +84,14 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
         return new DetectedObjects(objectNames, probabilitiesResult, boxes);
     }
 
-    /** 处理ImageInput */
+    /**
+     * 处理镜像输入
+     *
+     * @param manager 管理器
+     * @param input 输入
+     * @param currentShrink 当前shrink
+     * @return 处理镜像输入的结果
+     */
     private NDList processImageInput(NDManager manager, Image input, float currentShrink) {
         NDArray array = input.toNDArray(manager);
         Shape shape = array.getShape();

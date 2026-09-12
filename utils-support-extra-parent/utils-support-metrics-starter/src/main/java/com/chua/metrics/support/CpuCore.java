@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class CpuCore {
     /**
-     * 核心 ID（从 0 开始）
+      * 核心 标识（从 0 开始）
      */
     private int id;
 

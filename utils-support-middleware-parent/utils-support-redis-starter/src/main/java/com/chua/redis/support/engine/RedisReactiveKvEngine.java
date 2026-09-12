@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * 基于 RedisReactorEngine 的响应式 KV 工具类，提供便捷的响应式 KV 操作。
+   * 基于 redisreactorengine 的响应式 KV 工具类，提供便捷的响应式 KV 操作。
  *
  * <p>此类不实现 KvEngine 接口（接口为同步），而是作为响应式操作的便捷封装。
  * 所有操作通过 boundedElastic 调度器执行，避免阻塞 Reactor 事件循环线程。</p>
@@ -26,7 +26,7 @@ public class RedisReactiveKvEngine {
     /**
      * 使用指定引擎构造响应式 KV 引擎。
      *
-     * @param engine 底层 RedisReactorEngine 实例
+     * @param engine 底层 redisreactorengine 实例
      */
     public RedisReactiveKvEngine(RedisReactorEngine engine) {
         this.engine = engine;
@@ -116,7 +116,7 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 Hash GET。
+      * 响应式 哈希 获取。
      *
      * @param key   哈希键
      * @param field 字段名
@@ -127,7 +127,7 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 Hash SET。
+      * 响应式 哈希 设置。
      *
      * @param key   哈希键
      * @param field 字段名
@@ -139,7 +139,7 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 Hash GETALL，返回所有字段的 Flux。
+      * 响应式 哈希 GETALL，返回所有字段的 Flux。
      *
      * @param key 哈希键
      * @return 字段值对 Flux
@@ -149,9 +149,9 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 Key 扫描（前缀匹配），返回匹配键的 Flux。
+      * 响应式 键 扫描（前缀匹配），返回匹配键的 Flux。
      *
-     * @param pattern 匹配模式（如 "user:*"）
+     * @param pattern 匹配模式（如 "用户:*"）
      * @return 匹配的键 Flux
      */
     public Flux<String> scanKeys(String pattern) {
@@ -161,7 +161,7 @@ public class RedisReactiveKvEngine {
     /**
      * 响应式前缀扫描并获取值，返回匹配键值对的 Flux。
      *
-     * @param prefix 键前缀（如 "user:"）
+     * @param prefix 键前缀（如 "用户:"）
      * @return 匹配键值对 Flux
      */
     public Flux<Map.Entry<String, String>> findAllByPrefix(String prefix) {
@@ -175,7 +175,7 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 List LPUSH。
+      * 响应式 列表 LPUSH。
      *
      * @param key    列表键
      * @param values 值数组
@@ -186,7 +186,7 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 List LRANGE。
+      * 响应式 列表 LRANGE。
      *
      * @param key   列表键
      * @param start 起始索引
@@ -198,7 +198,7 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 Set SMEMBERS。
+      * 响应式 设置 SMEMBERS。
      *
      * @param key 集合键
      * @return 成员列表 Flux
@@ -208,7 +208,7 @@ public class RedisReactiveKvEngine {
     }
 
     /**
-     * 响应式 Set SADD。
+      * 响应式 设置 SADD。
      *
      * @param key    集合键
      * @param values 值数组

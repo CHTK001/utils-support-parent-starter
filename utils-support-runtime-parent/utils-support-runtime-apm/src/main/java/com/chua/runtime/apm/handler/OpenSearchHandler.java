@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * OpenSearch Handler — intercepts OpenSearch client operations.
+   * 打开搜索 处理器 — intercepts 打开搜索 客户端 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,18 +19,18 @@ public class OpenSearchHandler extends AbstractAppHandler {
      */
     private static final String REST_CLIENT = "org/opensearch/client/RestHighLevelClient";
     /**
-     * 客户端 methods
+      * 客户端 方法
      */
     private static final String[] CLIENT_METHODS = {"search", "get", "index", "delete", "update", "bulk", "count", "exists"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "opensearch-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "opensearch.enabled";
     }
@@ -42,13 +42,13 @@ public class OpenSearchHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.ELASTICSEARCH;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(REST_CLIENT, CLIENT_METHODS);
     }

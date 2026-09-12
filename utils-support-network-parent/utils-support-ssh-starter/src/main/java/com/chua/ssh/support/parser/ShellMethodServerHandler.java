@@ -28,15 +28,15 @@ import java.util.Map;
 public class ShellMethodServerHandler implements HttpDefaultServerHandler {
 
     /**
-     * object Context
+      * 对象 上下文
      */
     private final ObjectContext objectContext;
     /**
-     * target Class
+      * Target 类
      */
     private final Class<?> targetClass;
     /**
-     * method
+      * 方法
      */
     private final Method method;
     /**
@@ -49,13 +49,16 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
     private final String produce;
 
     /**
-     * 创建 ShellMethodServerHandler 实例
-     * @param objectContext objectContext
-     * @param Class Class
-     * @param targetClass targetClass
-     * @param Method Method
-     * @param String String
-     * @param String String
+      * 创建 shell方法服务端处理器 实例
+     * @param objectContext 对象上下文
+     * @param targetClass 类
+     * @param targetClass Target类
+     * @param method 方法
+     * @param path 字符串
+     * @param path 字符串
+     * @param method 方法
+     * @param path 路径
+     * @param produce produce
      */
     public ShellMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path, String produce) {
         this.objectContext = objectContext;
@@ -66,13 +69,13 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     @Override
-    /** Path */
+    /** 路径 */
     public String path() {
         return path;
     }
 
     @Override
-    /** Method */
+    /** 方法 */
     public HttpMethod method() {
         return null;
     }
@@ -112,7 +115,12 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         }
     }
 
-    /** 解析Args */
+    /**
+     * 解析参数
+     *
+     * @param request 请求
+     * @return resolve参数的结果
+     */
     private static String[] resolveArgs(ServerRequest request) {
         List<String> args = new java.util.ArrayList<>();
         for (int i = 0; ; i++) {
@@ -125,7 +133,14 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         return args.toArray(new String[0]);
     }
 
-    /** 构建Args */
+    /**
+     * 构建参数
+     *
+     * @param paramTypes 参数类型
+     * @param args 参数
+     * @param sshRes sshr
+     * @return 构建参数的结果
+     */
     private static Object[] buildArgs(Class<?>[] paramTypes, String[] args, SshCommandResponse sshRes) {
         Object[] result = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
@@ -140,7 +155,13 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
         return result;
     }
 
-    /** RenderView */
+    /**
+     * renderview
+     *
+     * @param data 数据
+     * @param produce produce
+     * @return renderView的结果
+     */
     private static String renderView(Object data, String produce) {
         if (data == null) {
             return "";

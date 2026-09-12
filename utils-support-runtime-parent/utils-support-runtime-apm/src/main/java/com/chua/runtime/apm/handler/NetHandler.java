@@ -12,11 +12,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 网络拦截器 — 劫持 Socket/HTTP/TCP/UDP 通信。
+   * 网络拦截器 — 劫持 套接字/HTTP/TCP/UDP 通信。
  *
  * <p>字节码插桩实现：</p>
  * <p>对目标网络类（如 java/net/Socket）的 connect/read/write 方法，
- * 在方法入口/出口插入 RuntimeSpy.onIntercept()。</p>
+   * 在方法入口/出口插入 runtimespy.onintercept()。</p>
  *
  * <p>ASM 插入的字节码：</p>
  * <pre>
@@ -39,22 +39,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(NetHandler.class.getName());
 
     /**
-     * java.net.Socket 类名
+      * Java.net.套接字 类名
      */
     private static final String SOCKET_CLASS = "java/net/Socket";
 
     /**
-     * java.net.DatagramSocket 类名
+      * Java.net.datagram套接字 类名
      */
     private static final String DATAGRAM_CLASS = "java/net/DatagramSocket";
 
     /**
-     * java.net.HttpURLConnection 类名
+      * Java.net.httpurlconnection 类名
      */
     private static final String HTTP_URL_CONN = "java/net/HttpURLConnection";
 
@@ -83,20 +83,20 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
-    /** 创建 NetHandler 实例 */
+    /** 创建 net处理器 实例 */
     public NetHandler() {
         this.records = new BoundedRecordList<>(MAX_RECORDS);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "net-handler";
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return "1.0.0";
     }
@@ -135,7 +135,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("NetHandler[enabled=%s, records=%d]", enabled, records.size());
     }
@@ -231,7 +231,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 Socket 连接拦截。
+      * 注册 套接字 连接拦截。
      */
     private void registerSocketIntercepts() {
         RuntimeSpy.registerInterceptor(SOCKET_CLASS, "connect",
@@ -242,7 +242,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 DatagramSocket (UDP) 拦截。
+      * 注册 datagram套接字 (UDP) 拦截。
      */
     private void registerDatagramIntercepts() {
         RuntimeSpy.registerInterceptor(DATAGRAM_CLASS, "send",
@@ -253,7 +253,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 HttpURLConnection 拦截。
+      * 注册 httpurlconnection 拦截。
      */
     private void registerHttpIntercepts() {
         RuntimeSpy.registerInterceptor(HTTP_URL_CONN, "connect",
@@ -319,6 +319,8 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
      * 更新动作函数接口。
+     * @author CH
+     * @since 4.0.0
      */
     private interface UpdateAction {
 
@@ -334,6 +336,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
      * 网络记录。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class NetRecord {

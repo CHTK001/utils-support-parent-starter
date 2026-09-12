@@ -37,31 +37,35 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  * </ul>
  *
  * @author CH
+ * @since 4.0.0
  */
 public class ObjectUtils {
 
+    /**
+     * 对象工具。
+     */
     private ObjectUtils() {
     }
 
-    private static final long serialVersionUID = 1L;
-    /** Initial_hash */
+    private static final long serialVersionUID = 1L; // 串行版本uid
+    /** Initial_哈希 */
     private static final int INITIAL_HASH = 7;
     /** 倍数 */
     private static final int MULTIPLIER = 31;
 
-    /** Empty_string */
+    /** 空_字符串 */
     private static final String EMPTY_STRING = "";
-    /** Null_string */
+    /** 空_字符串 */
     private static final String NULL_STRING = "null";
-    /** Array_start */
+    /** Array_启动 */
     private static final String ARRAY_START = "{";
-    /** Array_end */
+    /** Array_结束 */
     private static final String ARRAY_END = "}";
-    /** Empty_array */
+    /** 空_array */
     private static final String EMPTY_ARRAY = ARRAY_START + ARRAY_END;
     /** Array_element_separator */
     private static final String ARRAY_ELEMENT_SEPARATOR = ", ";
-    /** At_sign */
+    /** At_标志 */
     private static final char AT_SIGN = '@';
 
 
@@ -76,7 +80,7 @@ public class ObjectUtils {
      * @param value      布尔条件
      * @param trueValue  条件为 true 时返回的值
      * @param falseValue 条件为 false 时返回的值
-     * @return 根据条件返回 trueValue 或 falseValue
+     * @return 根据条件返回 true值 或 false值
      */
     @Nullable
     public static <O, T> T optional(boolean value, @Nullable T trueValue, @Nullable T falseValue) {
@@ -93,7 +97,7 @@ public class ObjectUtils {
      * @param value            待检查的对象
      * @param trueOrNoneValue  对象非空时返回的值
      * @param falseOrNullValue 对象为空时返回的值
-     * @return 根据 value 是否为空返回对应的值
+     * @return 根据 值 是否为空返回对应的值
      */
     @Nullable
     public static <O, T> T optional(@Nullable O value, @Nullable T trueOrNoneValue, @Nullable T falseOrNullValue) {
@@ -128,8 +132,8 @@ public class ObjectUtils {
      *   <li>数组类型使用 {@link Arrays#equals} 逐元素比较</li>
      * </ul>
      *
-     * @param o1 对象 1，可为 null
-     * @param o2 对象 2，可为 null
+     * @param o1 对象 1，可为 空
+     * @param o2 对象 2，可为 空
      * @return 两个对象相等返回 true，否则返回 false
      */
     public static boolean nullSafeEquals(@Nullable Object o1, @Nullable Object o2) {
@@ -191,11 +195,11 @@ public class ObjectUtils {
 
 
     /**
-     * Return as hash code for the given object; typically the value of
+      * 返回 as 哈希 编码 for the given 对象; typically the 值 的
      * {@code Object#hashCode()}}. If the object is an array,
-     * this method will delegate to any of the {@code nullSafeHashCode}
-     * methods for arrays in this class. If the object is {@code null},
-     * this method returns 0.
+      * this 方法 will delegate 转为 任意 的 the {@code nullSafeHashCode}
+      * 方法 for arrays 入 this 类. If the 对象 是否 {@code null},
+      * this 方法 返回 0.
      *
      * @see Object#hashCode()
      * @see #nullSafeHashCode(Object[])
@@ -207,6 +211,8 @@ public class ObjectUtils {
      * @see #nullSafeHashCode(int[])
      * @see #nullSafeHashCode(long[])
      * @see #nullSafeHashCode(short[])
+     * @param obj obj
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(Object obj) {
         if (obj == null) {
@@ -246,8 +252,10 @@ public class ObjectUtils {
 
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(Object[] array) {
         if (array == null) {
@@ -261,8 +269,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(boolean[] array) {
         if (array == null) {
@@ -276,8 +286,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(byte[] array) {
         if (array == null) {
@@ -291,8 +303,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(char[] array) {
         if (array == null) {
@@ -306,8 +320,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(double[] array) {
         if (array == null) {
@@ -321,8 +337,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(float[] array) {
         if (array == null) {
@@ -336,8 +354,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(int[] array) {
         if (array == null) {
@@ -351,8 +371,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(long[] array) {
         if (array == null) {
@@ -366,8 +388,10 @@ public class ObjectUtils {
     }
 
     /**
-     * Return a hash code based on the contents of the specified array.
-     * If {@code array} is {@code null}, this method returns 0.
+      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
+      * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * @param array array
+     * @return 空safe哈希编码的结果
      */
     public static int nullSafeHashCode(short[] array) {
         if (array == null) {
@@ -400,7 +424,7 @@ public class ObjectUtils {
      * @param v1 值 1
      * @param v2 值 2
      * @param <T> 值类型
-     * @return 第一个非空的值，如果都为空则返回 null
+     * @return 第一个非空的值，如果都为空则返回 空
      */
 @SuppressWarnings("ALL")
     public static <T>T firstNonNull(T v1, T v2) {
@@ -449,14 +473,14 @@ public class ObjectUtils {
         return Optional.ofNullable(value).orElse(defaultValue);
     }
     /**
-     * 如果 Class 为空或 void 类型则返回默认 Class。
+      * 如果 类 为空或 Void Linux 类型则返回默认 类。
      *
      * <p>处理 {@link Void#TYPE}、{@link Void} 和 null 三种情况。
      *
-     * @param value        待检查的 Class
-     * @param defaultValue 默认 Class
+     * @param value        待检查的 类
+     * @param defaultValue 默认 类
      * @param <T>          类型
-     * @return 有效的 Class 或默认值
+     * @return 有效的 类 或默认值
      */
     public static <T> Class<T> defaultIfNull(Class<?> value, Class<?> defaultValue) {
         if (null == value || void.class.isAssignableFrom(value) || Void.class.isAssignableFrom(value)) {
@@ -475,7 +499,7 @@ public class ObjectUtils {
      * @param successFunction 值非空时的转换函数
      * @param <T>             输入类型
      * @param <E>             输出类型
-     * @return 转换后的值，值为空时返回 null
+     * @return 转换后的值，值为空时返回 空
      */
     public static <T, E>E defaultIfNull(T value, Function<T, E> successFunction) {
         return defaultIfNull(value, successFunction, null);
@@ -488,7 +512,7 @@ public class ObjectUtils {
      *
      * @param value           待检查的值
      * @param successFunction 值非空时的转换函数
-     * @param nullFunction    值为空时的回调 Supplier
+     * @param nullFunction    值为空时的回调 供应商
      * @param <T>             输入类型
      * @param <E>             输出类型
      * @return 转换后的值或回调结果
@@ -514,12 +538,12 @@ public class ObjectUtils {
 
 
     /**
-     * Return a String representation of the specified Object.
+      * 返回 a 字符串 representation 的 the specified 对象.
      * <p>Builds a String representation of the contents in case of an array.
-     * Returns a {@code "null"} String if {@code obj} is {@code null}.
+      * 返回 a {@code "null"} 字符串 if {@code obj} 是否 {@code null}.
      *
-     * @param obj the object to build a String representation for
-     * @return a String representation of {@code obj}
+     * @param obj the 对象 转为 构建 a 字符串 representation for
+     * @return a 字符串 representation 的 {@code obj}
      */
     public static String nullSafeToString(Object obj) {
         if (obj == null) {
@@ -561,14 +585,14 @@ public class ObjectUtils {
     }
 
     /**
-     * Convert the given array (which may be a primitive array) to an
-     * object array (if necessary of primitive orm objects).
+      * 转换 the given array (which may be a primitive array) 转为 an
+      * 对象 array (if necessary 的 primitive orm 对象).
      * <p>A {@code null} source value will be converted to an
-     * empty Object array.
+      * 空 对象 array.
      *
      * @param source the (potentially primitive) array
-     * @return the corresponding object array (never {@code null})
-     * @throws IllegalArgumentException if the parameter is not an array
+     * @return the corresponding 对象 array (从不 {@code null})
+     * @throws IllegalArgumentException if the 参数 是否 not an array
      */
     public static Object[] toObjectArray(Object source) {
         if (source instanceof Object[]) {
@@ -630,7 +654,7 @@ public class ObjectUtils {
         return obj1.equals(obj2);
     }
     /**
-     * 比较两个对象是否相等，支持 BigDecimal 特殊比较。
+      * 比较两个对象是否相等，支持 bigdecimal 特殊比较。
      *
      * <p>比较规则：
      * <ol>
@@ -700,7 +724,7 @@ public class ObjectUtils {
      * @param function 转换函数
      * @param <E>      输出类型
      * @param <T>      输入类型
-     * @return 转换后的值或 null
+     * @return 转换后的值或 空
      */
     public static <E, T>E withNull(T value,  SafeFunction<T, E> function) {
         if (null == value) {
@@ -764,12 +788,12 @@ public class ObjectUtils {
      * 判断对象是否是指定类型的实例。
      *
      * <p>值为空且目标为 void 类型时返回 null。
-     * 否则检查类型兼容性，兼容时返回原值，不兼容时返回 null。
+      * 否则检查类型兼容性，兼容时返回原值，不兼容时返回 空。
      *
      * @param value  待检查的对象
      * @param target 目标类型
      * @param <T>    目标类型
-     * @return 类型兼容时返回原值，否则返回 null
+     * @return 类型兼容时返回原值，否则返回 空
      */
     public static <T> T withAssignableFrom(Object value, Class<T> target) {
         if (null == value && ClassUtils.isVoid(target)) {
@@ -788,7 +812,7 @@ public class ObjectUtils {
      * @param function 转换函数
      * @param <T>      输出类型
      * @param <E>      输入类型
-     * @return 转换后的值或 null
+     * @return 转换后的值或 空
      */
     public static <T, E> T ifValid(E value, Function<E, T> function) {
         boolean rs = null == value || (value instanceof String && "".equals(value));
@@ -799,10 +823,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 判断对象是否为 null。
+      * 判断对象是否为 空。
      *
      * @param value 待检查的对象
-     * @return 为 null 返回 true，否则返回 false
+     * @return 为 空 返回 true，否则返回 false
      */
     public static boolean isNull(Object value) {
         return null == value;
@@ -831,7 +855,7 @@ public class ObjectUtils {
     }
 
     /**
-     * 追加对象的身份标识字符串到 StringBuffer。
+      * 追加对象的身份标识字符串到 字符串缓冲。
      *
      * <p>生成格式为 {@code 类名@十六进制哈希码} 的身份标识字符串。
      *
@@ -840,7 +864,7 @@ public class ObjectUtils {
      * ObjectUtils.identityToString(buf, Boolean.TRUE)  = buf.append("java.lang.Boolean@7fa"
      * </pre>
      *
-     * @param buffer 追加的目标 StringBuffer
+     * @param buffer 追加的目标 字符串缓冲
      * @param object 对象
      * @since 2.4
      */
@@ -950,7 +974,7 @@ public class ObjectUtils {
      * 将对象转为字符串。
      *
      * @param value 对象
-     * @return 字符串表示，为 null 时返回 null
+     * @return 字符串表示，为 空 时返回 空
      */
     public static String toString(Object value) {
         return value == null ? null : value.toString();
@@ -961,7 +985,7 @@ public class ObjectUtils {
      * 将值包装为 {@link Comparable}。
      *
      * <p>如果值已实现 Comparable 则直接返回，否则使用 toString 比较。
-     * 值为 null 时返回始终相等（compareTo 返回 0）的 Comparable。
+      * 值为 空 时返回始终相等（compare转为 返回 0）的 Comparable。
      *
      * @param value 待包装的值
      * @param <E>   值类型

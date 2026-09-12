@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </ol>
  *
  * <p>单节点链路（熔断降级 → 超时 → 预算感知重试）由 {@link AbstractRunnerProvider} 组装。
- * 本类无共享可变状态，实例可安全支撑并发的多次 run。</p>
+   * 本类无共享可变状态，实例可安全支撑并发的多次 运行。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -144,7 +144,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
      * <p>前置的成功结果已在各自执行路径写入 {@link RunnerContext}，
      * 本方法仅做就绪等待与级联跳过判定。</p>
      *
-     * @return SKIPPED 结果表示应级联跳过；null 表示前置全部就绪、可执行
+     * @return SKIPPED 结果表示应级联跳过；空 表示前置全部就绪、可执行
      * @throws InterruptedException 等待期间被中断（仅发生在取消/关停路径）
      */
     private TaskResult awaitDependenciesOrSkip(TaskDefinition def,

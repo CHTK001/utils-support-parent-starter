@@ -73,8 +73,8 @@ public class CommandLine {
  private String programName = "java";
 
  /**
-  * 创建 CommandLine 实例
-  * @param args args
+   * 创建 命令线 实例
+   * @param args 参数
   */
  private CommandLine(String[] args) {
  this.args = args == null ? new String[0] : args;
@@ -95,7 +95,7 @@ public class CommandLine {
  * 注册命令元数据（链式调用）。
  *
  * @param name 长命令名（不含 --）
- * @param shortName 短命令名（不含 -），传 null 表示无短名
+ * @param shortName 短命令名（不含 -），传 空 表示无短名
  * @param description 命令描述
  * @return this
  */
@@ -178,7 +178,7 @@ public class CommandLine {
  * 获取选项值。
  *
  * @param name 选项基础名
- * @return 值，未设置返回 null
+ * @return 值，未设置返回 空
  */
  public String get(String name) {
  return resolve(name);
@@ -261,7 +261,13 @@ public class CommandLine {
  }
  }
 
-/** ConsumeValue */
+/**
+ * consume值
+ *
+ * @param index 索引
+ * @param token 令牌
+ * @return consume值的结果
+ */
 private int consumeValue(int index, String token) {
   String value = null;
   String key = token;
@@ -276,7 +282,11 @@ private int consumeValue(int index, String token) {
   return ++index;
   }
 
- /** 注册Long */
+ /**
+   * 注册Long
+   *
+   * @param token 令牌
+  */
  private void registerLong(String token) {
  String base = token.substring(2);
  int eq = base.indexOf('=');
@@ -286,7 +296,11 @@ private int consumeValue(int index, String token) {
  longToBase.put(base, base);
  }
 
- /** 注册Short */
+ /**
+   * 注册Short
+   *
+   * @param token 令牌
+  */
  private void registerShort(String token) {
  String base = token.substring(1);
  int eq = base.indexOf('=');
@@ -296,7 +310,12 @@ private int consumeValue(int index, String token) {
  shortToBase.put(base, base);
  }
 
- /** 解析 */
+ /**
+   * 解析
+   *
+   * @param name 名称
+   * @return resolve的结果
+  */
  private String resolve(String name) {
  if (name == null) {
  return null;
@@ -321,12 +340,14 @@ private int consumeValue(int index, String token) {
 
  /**
  * 命令规格内部类。
+   * @author CH
+   * @since 4.0.0
  */
  private static class CommandSpec {
- final String name;
- final String shortName;
- final String description;
- final String defaultValue;
+ final String name; // 名称
+ final String shortName; // short名称
+ final String description; // description
+ final String defaultValue; // 默认值
 
  CommandSpec(String name, String shortName, String description, String defaultValue) {
  this.name = name;

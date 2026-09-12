@@ -21,6 +21,7 @@ import java.util.List;
  *
  *   // 恢复指定日期
  *   RestoreResult result = restore.restoreByDate(config, LocalDate.of(2026, 7, 15));
+ * }</pre>Date(config, LocalDate.of(2026, 7, 15));
  * }</pre>
  *
  * @author CH

@@ -25,13 +25,13 @@ public class NetVortexFetcher implements ProxyFetcher {
     private static final String URL = "https://net-vortex.com/free-proxies";
 
     /**
-     * 匹配 IP:PORT 格式的正则
+      * 匹配 IP:端口 格式的正则
      */
     private static final Pattern PATTERN = Pattern.compile(
             "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{2,5})");
 
     @Override
-    /** FetchProxies */
+    /** 获取代理 */
     public List<String> fetchProxies() {
         List<String> proxies = new ArrayList<>();
         try {
@@ -46,7 +46,7 @@ public class NetVortexFetcher implements ProxyFetcher {
     }
 
     @Override
-    /** 获取SourceName */
+    /** 获取源名称 */
     public String getSourceName() {
         return "netvortex";
     }

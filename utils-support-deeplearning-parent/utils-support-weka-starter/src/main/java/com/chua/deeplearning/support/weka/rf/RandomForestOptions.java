@@ -23,6 +23,8 @@ import lombok.Setter;
  * options.setMaxDepth(20);
  * options.setSeed(42);             // 固定种子保证可复现
  * RandomForestModel model = classifier.train(data, options);
+ * }</pre>现
+ * RandomForestModel model = classifier.train(data, options);
  * }</pre>
  *
  * @author CH
@@ -32,7 +34,7 @@ import lombok.Setter;
 @Setter
 public class RandomForestOptions implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /** 树的数量（默认 10） */
     private int numTrees = 10;

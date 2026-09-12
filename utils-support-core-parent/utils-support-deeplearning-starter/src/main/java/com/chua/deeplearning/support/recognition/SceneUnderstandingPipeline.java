@@ -20,14 +20,15 @@ import java.util.Objects;
  * 场景理解管线。
  *
  * <p>调度已注册的场景理解 / 深度 / 多模态理解模型（如 vggt、vggt-combined、
- * vggt-output、depth-anything 等），输出原始翻译器结果 {@link Object}。
- * 调用方按模型对应输出类型强转（VggtOutput / Image 等）。</p>
+   * vggt-输出、深度-anything 等），输出原始翻译器结果 {@link Object}。
+   * 调用方按模型对应输出类型强转（vggt输出 / 镜像 等）。</p>
  *
  * <pre>{@code
  * SceneUnderstandingPipeline pipeline = SceneUnderstandingPipeline.builder()
  *         .model("vggt")
  *         .build();
  * Object result = pipeline.recognizeSingle(imageBytes);
+ * }</pre>sult = pipeline.recognizeSingle(imageBytes);
  * }</pre>
  *
  * @author CH
@@ -188,7 +189,7 @@ public class SceneUnderstandingPipeline {
     /**
      * 枚举可用场景理解模型。
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {

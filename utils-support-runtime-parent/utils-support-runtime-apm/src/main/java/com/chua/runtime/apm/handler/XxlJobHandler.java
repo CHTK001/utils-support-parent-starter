@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * XXL-Job Handler — intercepts XXL-Job task execution.
+   * XXL-作业 处理器 — intercepts XXL-作业 任务 执行.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,30 +15,30 @@ import com.chua.runtime.protocol.Software;
 public class XxlJobHandler extends AbstractAppHandler {
 
     /**
-     * job handler
+      * 作业 处理器
      */
     private static final String JOB_HANDLER = "com/xxl/job/core/handler/IJobHandler";
     /**
-     * EXECUTOR
+      * 执行器
      */
     private static final String EXECUTOR = "com/xxl/job/core/executor/XxlJobExecutor";
     /**
-     * execute methods
+      * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute"};
     /**
-     * start methods
+      * 启动 方法
      */
     private static final String[] START_METHODS = {"start", "stop"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "xxl-job-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "xxl-job.enabled";
     }
@@ -50,13 +50,13 @@ public class XxlJobHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(JOB_HANDLER, EXECUTE_METHODS);
         registerAll(EXECUTOR, START_METHODS);

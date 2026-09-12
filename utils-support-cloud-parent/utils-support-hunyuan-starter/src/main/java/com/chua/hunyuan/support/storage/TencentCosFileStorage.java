@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 腾讯云 COS（Cloud Object Storage）文件存储实现。
+   * 腾讯云 COS（Cloud 对象 Storage）文件存储实现。
  *
  * <p>基于腾讯云 COS Java SDK 实现 {@link FileStorage} SPI 接口，
  * 提供对象存储的上传、下载、删除、存在性检查、列表等操作。</p>
@@ -48,6 +48,7 @@ import java.util.List;
  *     .region("ap-guangzhou")
  *     .build();
  * FileStorage storage = FileStorage.createStorage("cos", setting);
+ * }</pre>e("cos", setting);
  * }</pre>
  *
  * @author CH
@@ -60,8 +61,8 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     private final COSClient cosClient;
 
     /**
-     * 创建 TencentCosFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 tencentcos文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public TencentCosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -71,7 +72,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(com.chua.common.support.storage.request.PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -103,7 +104,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(com.chua.common.support.storage.request.GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -130,7 +131,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -138,7 +139,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             cosClient.deleteObject(bucket, key);
@@ -154,7 +155,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = cosClient.doesObjectExist(bucket, request.getKey());
@@ -177,7 +178,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsRequest listReq = new ListObjectsRequest();
@@ -200,7 +201,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
                         .build());
             }
 
-            // 分页：如果结果被截断，返回下一页的 marker
+ // 分页：如果结果被截断，返回下一页的 记号笔
             boolean truncated = listing.isTruncated();
             String nextMarker = truncated ? listing.getNextMarker() : null;
 

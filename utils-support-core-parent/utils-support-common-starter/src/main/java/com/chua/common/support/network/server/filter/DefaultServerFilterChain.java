@@ -123,6 +123,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
             try {
                 l.beforeFilter(filter, request, response);
             } catch (Exception ignored) {
+                // NOTHING
             }
         }
     }
@@ -137,6 +138,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
             try {
                 l.afterFilter(filter, elapsed, request, response);
             } catch (Exception ignored) {
+                // NOTHING
             }
         }
     }

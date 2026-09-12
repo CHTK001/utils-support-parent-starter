@@ -44,7 +44,7 @@ public interface AnnotationDefinitionResolver {
     Collection<AnnotationAliasMapping> getAliasMappings();
 
     /**
-     * 将窄注解 Class 解析为宽注解 Class。
+      * 将窄注解 类 解析为宽注解 类。
      *
      * @param narrowAnnotation 窄注解类型（如 {@code GetMapping.class}）
      * @return 宽注解类型（如 {@code RequestMapping.class}），无映射时返回原值
@@ -64,7 +64,7 @@ public interface AnnotationDefinitionResolver {
     }
 
     /**
-     * 判断给定的注解 Class 是否为映射别名（有对应的宽注解）。
+      * 判断给定的注解 类 是否为映射别名（有对应的宽注解）。
      *
      * @param annotationClass 注解类型
      * @return 如果存在别名映射返回 {@code true}
@@ -80,10 +80,19 @@ public interface AnnotationDefinitionResolver {
 
     /**
      * 注解别名映射，描述窄注解与宽注解的对应关系。
+     * @author CH
+     * @since 4.0.0
+     * @return 获取wide名称的结果
      */
     final class AnnotationAliasMapping {
-        private final String narrowName;
-        private final String wideName;
+        private final String narrowName; // narrow名称
+        private final String wideName; // wide名称
+/**
+ * 注解别名mapping。
+ * @param narrowName narrow名称
+ * @param wideName wide名称
+ * @return 获取wide名称的结果
+ */
 
         public AnnotationAliasMapping(String narrowName, String wideName) {
             this.narrowName = narrowName;

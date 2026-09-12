@@ -114,9 +114,9 @@ public class PlatePipeline {
         }
 
         /**
-         * 按模型 ID 创建检测器。
+          * 按模型 标识 创建检测器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder detector(String modelId) {
@@ -136,9 +136,9 @@ public class PlatePipeline {
         }
 
         /**
-         * 按模型 ID 创建识别器。
+          * 按模型 标识 创建识别器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder recognizer(String modelId) {
@@ -257,7 +257,7 @@ public class PlatePipeline {
      * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按模型名称约定归类
      * （车牌检测 / 车牌识别）。新增模型注册后自动出现在对应分组。</p>
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {
@@ -283,7 +283,7 @@ public class PlatePipeline {
      * 按模型名称约定归类车牌模型。
      *
      * @param entry 注册表条目
-     * @return 能力分组；无法识别时返回 null
+     * @return 能力分组；无法识别时返回 空
      */
     private static String groupOf(ModelRegistry.Entry entry) {
         String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();

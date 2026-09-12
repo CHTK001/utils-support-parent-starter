@@ -16,7 +16,7 @@ import java.util.List;
  * Shell 会话 — 处理单个 Telnet 连接的命令交互。
  *
  * <p>支持 Tab 键补全：当客户端发送 \t 时，调用 Command.complete()
- * 或 CommandRegistry.complete() 给出补全建议并回显。</p>
+   * 或 命令registry.完成() 给出补全建议并回显。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,7 +25,7 @@ public class ShellSession implements Runnable {
 
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(ShellSession.class.getName());
     /**
@@ -154,7 +154,7 @@ public class ShellSession implements Runnable {
             List<String> matches = registry.complete(prefix);
             printCompletions(matches, writer);
         } else {
-            // 子命令/参数补全（委派给具体 Command）
+ // 子命令/参数补全（委派给具体 命令）
             String cmdName = parts[0];
             Command command = registry.find(cmdName);
             if (command == null) {

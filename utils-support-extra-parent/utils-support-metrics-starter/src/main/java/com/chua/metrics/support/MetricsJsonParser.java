@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * JSON 解析器，负责将字节数组解析为 MetricsSnapshot 对象。
+   * JSON 解析器，负责将字节数组解析为 指标snapshot 对象。
  *
  * <p>Rust 侧使用 serde_json 序列化，Java 侧使用 Jackson 解析。</p>
  *
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MetricsJsonParser {
 
     /**
-     * ObjectMapper 实例
+      * 对象映射器 实例
      */
     private final ObjectMapper objectMapper;
 
@@ -29,10 +29,10 @@ public class MetricsJsonParser {
     }
 
     /**
-     * 解析 JSON 字符串为 MetricsSnapshot 对象。
+      * 解析 JSON 字符串为 指标snapshot 对象。
      *
      * @param json JSON 字符串
-     * @return MetricsSnapshot 对象，解析失败返回 null
+     * @return MetricsSnapshot 对象，解析失败返回 空
      */
     public MetricsSnapshot parse(String json) {
         if (json == null || json.isEmpty()) {

@@ -35,14 +35,14 @@ public class TenpayProvider implements PaymentChannel {
     /** 配置对象 */
     private final TenpayConfig config;
 
-    /** 创建 TenpayProvider 实例 */
+    /** 创建 tenpay提供者 实例 */
     public TenpayProvider() {
         this(null);
     }
 
     /**
-     * 创建 TenpayProvider 实例
-     * @param config config
+      * 创建 tenpay提供者 实例
+     * @param config 配置
      */
     public TenpayProvider(TenpayConfig config) {
         this.config = config;
@@ -50,7 +50,7 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     @Override
-    /** Pay */
+    /** 薪酬 */
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case JSAPI:
@@ -69,7 +69,11 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
-    /** 构建Service */
+    /**
+     * 构建服务
+     *
+     * @return 构建服务的结果
+     */
     private WxPayService buildService() {
         if (config == null) {
             return null;
@@ -85,7 +89,12 @@ public class TenpayProvider implements PaymentChannel {
         return payService;
     }
 
-    /** JsapiPay */
+    /**
+     * jsapi薪酬
+     *
+     * @param request 请求
+     * @return jsapi薪酬的结果
+     */
     private PaymentResponse jsapiPay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("JSAPI");
@@ -106,7 +115,12 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
-    /** AppPay */
+    /**
+     * app薪酬
+     *
+     * @param request 请求
+     * @return app薪酬的结果
+     */
     private PaymentResponse appPay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("APP");
@@ -124,7 +138,12 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
-    /** HPay */
+    /**
+     * h薪酬
+     *
+     * @param request 请求
+     * @return h5薪酬的结果
+     */
     private PaymentResponse h5Pay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("MWEB");
@@ -152,7 +171,12 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
-    /** NativePay */
+    /**
+     * NAT薪酬
+     *
+     * @param request 请求
+     * @return NAT薪酬的结果
+     */
     private PaymentResponse nativePay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("NATIVE");
@@ -175,7 +199,12 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
-    /** BarCodePay */
+    /**
+     * bar编码薪酬
+     *
+     * @param request 请求
+     * @return bar编码薪酬的结果
+     */
     private PaymentResponse barCodePay(PaymentRequest request) {
         WxPayMicropayRequest micropayRequest = new WxPayMicropayRequest();
         if (request.getExtParams() != null) {
@@ -201,7 +230,12 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
-    /** 构建OrderRequest */
+    /**
+     * 构建订单请求
+     *
+     * @param request 请求
+     * @return 构建订单请求的结果
+     */
     private WxPayUnifiedOrderRequest buildOrderRequest(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
         orderRequest.setBody(request.getSubject());
@@ -220,7 +254,11 @@ public class TenpayProvider implements PaymentChannel {
         return orderRequest;
     }
 
-    /** 校验Result */
+    /**
+     * 校验结果
+     *
+     * @param result 结果
+     */
     private void checkResult(BaseWxPayResult result) {
         if (!"SUCCESS".equals(result.getReturnCode())) {
             throw new PayException("WXPAY_ERROR", result.getReturnMsg());
@@ -230,7 +268,12 @@ public class TenpayProvider implements PaymentChannel {
         }
     }
 
-    /** ToJson */
+    /**
+     * 转为json
+     *
+     * @param map 映射
+     * @return 转为json的结果
+     */
     private static String toJson(Map<String, String> map) {
         if (map == null || map.isEmpty()) {
             return "{}";

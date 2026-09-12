@@ -5,7 +5,7 @@ import com.chua.deeplearning.support.ocr.OcrResult;
 import com.chua.deeplearning.support.ocr.OcrPipeline;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxOcrRecognizer implements OcrRecognizer {
@@ -25,35 +25,51 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxOcrRecognizer 实例
-     * @param apiKey apiKey
+      * 创建 onnxocrrecognizer 实例
+     * @param apiKey API密钥
      */
     public OnnxOcrRecognizer(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public OcrRecognizer model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "paddleocrv6";
     }
 
-    /** DetectorModel */
+    /**
+     * detector模型
+     *
+     * @return detector模型的结果
+     */
     private String detectorModel() {
         String m = resolveModel();
         return m.contains("-det") ? m : m + "-det";
     }
 
-    /** RecognizerModel */
+    /**
+     * recognizer模型
+     *
+     * @return recognizer模型的结果
+     */
     private String recognizerModel() {
         String m = resolveModel();
-        if (m.contains("-rec")) return m;
-        if (m.contains("-det")) return m.replace("-det", "-rec");
+        if (m.contains("-rec")) {
+            return m;
+        }
+        if (m.contains("-det")) {
+            return m.replace("-det", "-rec");
+        }
         return m + "-rec";
     }
 
@@ -65,14 +81,14 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public OcrRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** UseGpu */
+    /** usegpu */
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
@@ -96,7 +112,7 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** RecognizeDetail */
+    /** recognizedetail */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return OcrPipeline.builder()
                 .detector(detectorModel())

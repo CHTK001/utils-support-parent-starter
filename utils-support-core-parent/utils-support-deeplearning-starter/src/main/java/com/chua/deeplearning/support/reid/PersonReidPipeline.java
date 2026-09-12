@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 行人重识别（Person ReID）管线 — 基于特征提取模型。
+   * 行人重识别（Person reid）管线 — 基于特征提取模型。
  *
  * <p>与 OpenCV DNN person_reid.py 示例类似，支持：
  * <ul>
@@ -35,40 +35,40 @@ public class PersonReidPipeline {
     private final FeatureExtractor extractor;
 
     /**
-     * 行人检测器（可为 null，不检测直接提特征）
+      * 行人检测器（可为 空，不检测直接提特征）
      */
     private final ImageDetector detector;
 
     /**
-     * 向量入库设施（可选；注入后启用持久化 enroll/search）
+      * 向量入库设施（可选；注入后启用持久化 enroll/搜索）
      */
     private final VectorStorage storage;
 
     /**
-     * 构造 ReID 管线。
+      * 构造 reid 管线。
      *
-     * @param extractor 特征提取模型（如 clip-image-feature、resnet50-feature 等）
+     * @param extractor 特征提取模型（如 clip-镜像-特征、resnet50-特征 等）
      */
     public PersonReidPipeline(FeatureExtractor extractor) {
         this(extractor, null);
     }
 
     /**
-     * 构造 ReID 管线（含行人检测）。
+      * 构造 reid 管线（含行人检测）。
      *
      * @param extractor 特征提取模型
-     * @param detector  行人检测模型（可为 null）
+     * @param detector  行人检测模型（可为 空）
      */
     public PersonReidPipeline(FeatureExtractor extractor, ImageDetector detector) {
         this(extractor, detector, null);
     }
 
     /**
-     * 构造 ReID 管线（带向量入库能力）。
+      * 构造 reid 管线（带向量入库能力）。
      *
      * @param extractor 特征提取模型
-     * @param detector  行人检测模型（可为 null）
-     * @param storage   向量库；为 null 时使用本地文件库
+     * @param detector  行人检测模型（可为 空）
+     * @param storage   向量库；为 空 时使用本地文件库
      */
     public PersonReidPipeline(FeatureExtractor extractor, ImageDetector detector,
             VectorStorage storage) {
@@ -78,7 +78,7 @@ public class PersonReidPipeline {
     }
 
     /**
-     * 默认文件向量库（512 维，与 ReID 特征一致）。
+      * 默认文件向量库（512 维，与 reid 特征一致）。
      *
      * @return 存储实例
      */
@@ -97,7 +97,8 @@ public class PersonReidPipeline {
      *
      * @param feature 特征向量
      * @param label   标签/路径
-     * @param bbox    检测框（可为 null）
+     * @param bbox    检测框（可为 空）
+     * @return GalleryEntry的结果
      */
     public record GalleryEntry(float[] feature, String label, DetectionInfo bbox) {}
 
@@ -107,6 +108,7 @@ public class PersonReidPipeline {
      * @param label  标签
      * @param score  相似度（0~1）
      * @param bbox   检测框
+     * @return 搜索结果的结果
      */
     public record SearchResult(String label, float score, DetectionInfo bbox) {}
 
@@ -188,6 +190,8 @@ public class PersonReidPipeline {
 
     /**
      * L2 归一化。
+     * @param vec vec
+     * @return normalize的结果
      */
     private static float[] normalize(float[] vec) {
         float norm = 0f;
@@ -207,6 +211,9 @@ public class PersonReidPipeline {
 
     /**
      * 点积（归一化后等价于余弦相似度）。
+     * @param a a
+     * @param b b
+     * @return dot的结果
      */
     private static float dot(float[] a, float[] b) {
         float sum = 0f;
@@ -232,7 +239,7 @@ public class PersonReidPipeline {
     }
 
     /**
-     * 检索：待测行人图与库内特征比对，返回 TopK。
+      * 检索：待测行人图与库内特征比对，返回 topk。
      *
      * @param imageData 待测图片
      * @param topK 返回条数

@@ -25,8 +25,8 @@ import java.util.Map;
  * 百度文心一格图片生成客户端
  *
  * <p>基于百度文心一格 API 的 {@link ImageClient} 实现，通过 HTTP 协议
- * 调用文心一格（ERNIE-ViLG）系列模型的图片生成接口。
- * 需要先通过 OAuth 2.0 获取 access_token 后再发起图片生成请求。
+   * 调用文心一格（ERNIE-vilg）系列模型的图片生成接口。
+   * 需要先通过 OAuth 2.0 获取 access_令牌 后再发起图片生成请求。
  *
  * @author CH
  * @since 4.0.0.42
@@ -91,7 +91,7 @@ public class BaiduImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
@@ -106,7 +106,7 @@ public class BaiduImageClient implements ImageClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -120,25 +120,25 @@ public class BaiduImageClient implements ImageClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
     @Override
-    /** ControlType */
+    /** control类型 */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
@@ -178,7 +178,7 @@ public class BaiduImageClient implements ImageClient {
     }
 
     /**
-     * 获取百度 OAuth 2.0 access_token
+      * 获取百度 OAuth 2.0 access_令牌
      *
      * @return access_token 字符串
      * @throws IOException 网络请求异常
@@ -240,13 +240,13 @@ public class BaiduImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("百度文心一格不支持异步任务模式，请使用 generate() 方法同步生成");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("百度文心一格不支持异步任务模式");
     }

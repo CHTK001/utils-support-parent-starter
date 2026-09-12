@@ -31,11 +31,15 @@ import java.util.Map;
  *         .name("_acme-challenge.example.com")
  *         .content("challenge-value")
  *         .build());
+ * }</pre>"TXT")
+ *         .name("_acme-challenge.example.com")
+ *         .content("challenge-value")
+ *         .build());
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
- * @version 1.0.0
+   * @版本 1.0.0
  */
 @Slf4j
 @Spi("cloudflare")
@@ -47,7 +51,11 @@ public class CloudflareDnsProvider implements DnsProvider {
     private CloudflareClient client;
 
     /**
-     * 区域 ID（zoneId），由 zoneName 解析得到
+      * 区域 标识（zoneid），由 zone名称 解析得到
+     * @param name 名称
+     * @param type 类型
+     * @return 列表records的结果
+     * @param config 配置
      */
     private String zoneId;
 
@@ -66,6 +74,11 @@ public class CloudflareDnsProvider implements DnsProvider {
                 ? config.getZoneId()
                 : resolveZoneId(config.getZoneName());
         return this;
+    /**
+     * 添加record。
+     * @param record record
+     * @return 添加record的结果
+     */
     }
 
     @Override
@@ -87,6 +100,13 @@ public class CloudflareDnsProvider implements DnsProvider {
         client.post("/zones/" + zoneId + "/dns_records", payload);
         log.info("Cloudflare DNS 记录添加成功: {} {} -> {}", record.getType(), record.getName(), record.getContent());
         return this;
+    /**
+     * 移除record。
+     * @param record record
+     * @return 移除record的结果
+     * @param name 名称
+     * @param type 类型
+     */
     }
 
     @Override
@@ -127,10 +147,10 @@ public class CloudflareDnsProvider implements DnsProvider {
     }
 
     /**
-     * 解析区域 ID。
+      * 解析区域 标识。
      *
      * @param zoneName 区域名称（主域名）
-     * @return 区域 ID
+     * @return 区域 标识
      */
     @SuppressWarnings("unchecked")
     private String resolveZoneId(String zoneName) {
@@ -151,7 +171,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     }
 
     /**
-     * 将 Cloudflare 记录 Map 转换为 {@link DnsRecord}。
+      * 将 Cloudflare 记录 映射 转换为 {@link DnsRecord}。
      *
      * @param map Cloudflare 记录
      * @return DNS 记录
@@ -177,7 +197,7 @@ public class CloudflareDnsProvider implements DnsProvider {
      * 安全转字符串。
      *
      * @param obj 对象
-     * @return 字符串，null 时返回 null
+     * @return 字符串，null 时返回 空
      */
     private String str(Object obj) {
         return obj == null ? null : obj.toString();

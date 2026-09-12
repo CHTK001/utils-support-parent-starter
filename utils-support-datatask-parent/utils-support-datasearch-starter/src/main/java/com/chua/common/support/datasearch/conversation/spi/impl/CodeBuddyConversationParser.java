@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tencent CodeBuddy Code conversation parser.
+   * 腾讯云 编码buddy 编码 conversation parser.
  *
  * <p>CodeBuddy Code persists sessions as JSONL transcripts under
  * {@code ~/.codebuddy/projects/<project>/<sessionId>.jsonl} (CN edition:
  * {@code ~/.codebuddycn}). Message lines use a flat shape where the content
- * array blocks are typed {@code input_text} / {@code output_text}:</p>
+   * array blocks are 类型 {@code input_text} / {@code output_text}:</p>
  *
  * <pre>{@code
  * {
@@ -24,6 +24,8 @@ import java.util.List;
  *   "type": "message", "role": "user" | "assistant",
  *   "sessionId": "...", "cwd": "...",
  *   "content": [ { "type": "input_text", "text": "..." } ]
+ * }
+ * }</pre>", "text": "..." } ]
  * }
  * }</pre>
  *

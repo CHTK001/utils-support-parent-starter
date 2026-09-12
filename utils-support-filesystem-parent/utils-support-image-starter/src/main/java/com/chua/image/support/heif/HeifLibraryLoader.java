@@ -20,17 +20,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class HeifLibraryLoader {
 
-    private static final String LIBRARY_NAME = "chua_native_heif";
-    private static volatile boolean loaded = false;
+    private static final String LIBRARY_NAME = "chua_native_heif"; // 图书馆名称
+    private static volatile boolean loaded = false; // 加载
 
+    /**
+     * heif图书馆加载。
+     */
     private HeifLibraryLoader() {
     }
 
     /**
      * 加载原生库。线程安全，可重复调用。
+     * @return 是否加载的结果
+     /**
+      * 加载。
+      */
+      * @return 是否加载的结果
+     /**
+      * 加载。
+      */
      */
     public static synchronized void load() {
-        if (loaded) return;
+        if (loaded) {
+            return;
+        }
         try {
             Path targetDir = NativeUtils.tempRoot().resolve(LIBRARY_NAME);
             NativeLoader.of(LIBRARY_NAME)

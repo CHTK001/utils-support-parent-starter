@@ -41,30 +41,31 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * OWLv2                                   Translator
+   * owlv2                                   Translator
  *
  * @author CH
+ * @since 4.0.0
 */
 @Slf4j
 public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, DetectedObjects> {
 
     /** JSON 对象映射器 */
-    /** Object_mapper */
+    /** 对象_映射器 */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /** 中文匹配正则 */
-    /** Chinese_pattern */
+    /** Chinese_模式 */
     private static final Pattern CHINESE_PATTERN = Pattern.compile(".*[\\u4e00-\\u9fff].*");
     /** 默认候选列表 */
-    /** Default_candidates */
+    /** 默认_candidates */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "flower", "dog", "car");
     /** 默认阈值 */
-    /** Default_threshold */
+    /** 默认_阈值 */
     private static final double DEFAULT_THRESHOLD = 0.10d;
     /** 默认 NMS 阈值 */
-    /** Default_nms_threshold */
+    /** 默认_nms_阈值 */
     private static final double DEFAULT_NMS_THRESHOLD = 0.50d;
     /** 默认低信息方差 */
-    /** Default_low_info_variance */
+    /** 默认_low_信息_variance */
     private static final double DEFAULT_LOW_INFO_VARIANCE = 25d;
     /** 中文转英文映射表 */
     private static final Map<String, String> CHINESE_TO_ENGLISH;
@@ -95,16 +96,16 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 候选输入标识 */
-    /** Candidate输入IDS */
+    /** Candidate输入标识 */
     private long[][] candidateInputIds = new long[0][];
     /** 候选注意力掩码 */
     /** Candidateattentionmasks */
     private long[][] candidateAttentionMasks = new long[0][];
     /** 候选输出标签 */
-    /** Candidate输出labels */
+    /** Candidate输出标签 */
     private List<String> candidateOutputLabels = DEFAULT_CANDIDATES;
     /** 候选模型标签 */
-    /** Candidate模型labels */
+    /** Candidate模型标签 */
     private List<String> candidateModelLabels = DEFAULT_CANDIDATES;
     /** 输入宽度 */
     private int inputWidth = 960;
@@ -121,13 +122,13 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     private float rescaleFactor = 1f / 255f;
 
     /** 是否为低信息图像 */
-    /** LOWinformation图片 */
+    /** lowinformation图片 */
     private boolean lowInformationImage;
     /** 原始宽度 */
-    /** Original宽度 */
+    /** 原始宽度 */
     private int originalWidth;
     /** 原始高度 */
-    /** Original高度 */
+    /** 原始高度 */
     private int originalHeight;
     /** 缩放比例 */
     /** Resize比例尺 */
@@ -139,14 +140,14 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     /** PADY坐标 */
     private int padY;
 
-    /** 创建 Owlv2ZeroShotDetectorTranslator 实例 */
+    /** 创建 Owlv2zeroshotdetectortranslator 实例 */
     public Owlv2ZeroShotDetectorTranslator() {
         this(DetectionConfiguration.DEFAULT);
     }
 
     /**
-     * 创建 Owlv2ZeroShotDetectorTranslator 实例
-     * @param configuration configuration
+      * 创建 Owlv2zeroshotdetectortranslator 实例
+     * @param configuration 配置
      */
     public Owlv2ZeroShotDetectorTranslator(DetectionConfiguration configuration) {
         DetectionConfiguration cfg = configuration == null ? DetectionConfiguration.DEFAULT : configuration;
@@ -171,7 +172,13 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
 
     @Override
     @Nonnull
-    /** 处理Input */
+    /**
+     * 处理输入
+     *
+     * @param ctx ctx
+     * @param input 输入
+     * @return 处理输入的结果
+     */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         BufferedImage original = (BufferedImage) input.getWrappedImage();
         originalWidth = original.getWidth();
@@ -205,7 +212,13 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
 
     @Override
     @Nonnull
-    /** 处理Output */
+    /**
+     * 处理输出
+     *
+     * @param ctx ctx
+     * @param list 列表
+     * @return 处理输出的结果
+     */
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (lowInformationImage) {
             return emptyDetections();
@@ -268,12 +281,20 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
 
     @Override
     @Nullable
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+     *
+     * @return 获取batchifier的结果
+     */
     public Batchifier getBatchifier() {
         return null;
     }
 
-    /** 加载PreprocessorConfig */
+    /**
+     * 加载preprocessor配置
+     *
+     * @param configPath 配置路径
+     */
     private void loadPreprocessorConfig(Path configPath) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(configPath.toFile());
         JsonNode size = root.path("size");
@@ -303,7 +324,12 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         candidateOutputLabels = new ArrayList<>(normalized.values());
     }
 
-    /** NormalizeCandidate */
+    /**
+     * normalizecandidate
+     *
+     * @param label 标签
+     * @return normalizeCandidate的结果
+     */
     private String normalizeCandidate(String label) {
         if (!CHINESE_PATTERN.matcher(label).matches()) {
             return label.trim().toLowerCase(Locale.ROOT);
@@ -315,7 +341,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         return mapped;
     }
 
-    /** 构建TextInputs */
+    /** 构建文本输入 */
     private void buildTextInputs() {
         List<long[]> idsList = new ArrayList<>(candidateModelLabels.size());
         int maxLength = 1;
@@ -339,7 +365,12 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         }
     }
 
-    /** Letterbox */
+    /**
+     * Letterbox
+     *
+     * @param image 镜像
+     * @return letterbox的结果
+     */
     private BufferedImage letterbox(BufferedImage image) {
         double widthScale = inputWidth / (double) image.getWidth();
         double heightScale = inputHeight / (double) image.getHeight();
@@ -363,7 +394,13 @@ finally {
         return canvas;
     }
 
-    /** 解码Rectangle */
+    /**
+     * 解码Rectangle
+     *
+     * @param boxesArray boxesarray
+     * @param boxIndex box索引
+     * @return decodeRectangle的结果
+     */
     private Rectangle decodeRectangle(NDArray boxesArray, int boxIndex) {
         double centerX = boxesArray.getFloat(boxIndex, 0) * inputWidth;
         double centerY = boxesArray.getFloat(boxIndex, 1) * inputHeight;
@@ -396,7 +433,12 @@ finally {
        );
     }
 
-    /** 应用Nms */
+    /**
+     * 应用Nms
+     *
+     * @param candidates candidates
+     * @return applyNms的结果
+     */
     private List<DetectionCandidate> applyNms(List<DetectionCandidate> candidates) {
         if (candidates.isEmpty()) {
             return Collections.emptyList();
@@ -418,7 +460,13 @@ finally {
         return kept;
     }
 
-    /** CalculateIoU */
+    /**
+     * calculateiou
+     *
+     * @param first 第一个
+     * @param second second
+     * @return calculateIoU的结果
+     */
     private double calculateIoU(Rectangle first, Rectangle second) {
         double x1 = Math.max(first.getX(), second.getX());
         double y1 = Math.max(first.getY(), second.getY());
@@ -429,7 +477,12 @@ finally {
         return union <= 0d ? 0d : intersection / union;
     }
 
-    /** 是否LowInformationImage */
+    /**
+     * 是否low信息镜像
+     *
+     * @param image 镜像
+     * @return 是否low信息镜像的结果
+     */
     private boolean isLowInformationImage(BufferedImage image) {
         long samples = 0L;
         double sum = 0d;
@@ -456,7 +509,13 @@ finally {
         return variance < DEFAULT_LOW_INFO_VARIANCE;
     }
 
-    /** 读取FloatArray */
+    /**
+     * 读取floatarray
+     *
+     * @param node 节点
+     * @param defaults 默认
+     * @return 读取floatarray的结果
+     */
     private float[] readFloatArray(JsonNode node, float[] defaults) {
         if (node == null || !node.isArray() || node.size() != defaults.length) {
             return defaults;
@@ -468,7 +527,12 @@ finally {
         return values;
     }
 
-    /** 解析Candidates */
+    /**
+     * 解析Candidates
+     *
+     * @param rawCandidates rawcandidates
+     * @return 解析candidates的结果
+     */
     private List<String> parseCandidates(String rawCandidates) {
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
@@ -483,7 +547,13 @@ finally {
         return new ArrayList<>(values);
     }
 
-    /** 读取Argument */
+    /**
+     * 读取参数
+     *
+     * @param arguments 参数
+     * @param key 键
+     * @return 读取参数的结果
+     */
     private String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -492,7 +562,14 @@ finally {
         return value == null ? null : String.valueOf(value);
     }
 
-    /** 读取Double */
+    /**
+     * 读取Double
+     *
+     * @param arguments 参数
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 读取double的结果
+     */
     private double readDouble(Map<String, ?> arguments, String key, double defaultValue) {
         String value = readArgument(arguments, key);
         if (StringUtils.isBlank(value)) {
@@ -505,12 +582,22 @@ finally {
         }
     }
 
-    /** 格式化Prompt */
+    /**
+     * 格式化提示符
+     *
+     * @param candidate candidate
+     * @return 格式化提示符的结果
+     */
     private String formatPrompt(String candidate) {
         return candidate;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -527,7 +614,13 @@ finally {
         return modelPath;
     }
 
-    /** 解析RequiredFile */
+    /**
+     * 解析required文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return resolverequired文件的结果
+     */
     private Path resolveRequiredFile(Path root, String name) throws IOException {
         Path file = root.resolve(name);
         if (Files.exists(file)) {
@@ -536,7 +629,12 @@ finally {
         throw new IOException("          OWLv2             : " + file);
     }
 
-    /** Sigmoid */
+    /**
+     * Sigmoid
+     *
+     * @param value 值
+     * @return sigmoid的结果
+     */
     private double sigmoid(double value) {
         if (value >= 0d) {
             double exp = Math.exp(-value);
@@ -546,17 +644,35 @@ finally {
         return exp / (1d + exp);
     }
 
-    /** Clip */
+    /**
+     * Clip
+     *
+     * @param value 值
+     * @param min 最小
+     * @param max 最大
+     * @return clip的结果
+     */
     private double clip(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
 
-    /** EmptyDetections */
+    /**
+     * 空detections
+     *
+     * @return 空detections的结果
+     */
     private DetectedObjects emptyDetections() {
         return new DetectedObjects(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    /** DetectionCandidate */
+    /**
+     * detectioncandidate
+     *
+     * @param label 标签
+     * @param score score
+     * @param rectangle rectangle
+     * @return DetectionCandidate的结果
+     */
     private record DetectionCandidate(String label, double score, Rectangle rectangle) {
     }
 }

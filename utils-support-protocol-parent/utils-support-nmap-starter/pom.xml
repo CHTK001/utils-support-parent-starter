@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>utils-support-protocol-parent</artifactId>
-        <version>4.0.0.40</version>
+        <version>4.0.0.42</version>
     </parent>
     <artifactId>utils-support-nmap-starter</artifactId>
     <name>Utils Support Nmap Starter - Rust原生网络扫描模块</name>
@@ -25,12 +25,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.13.0-M3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.5.18</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

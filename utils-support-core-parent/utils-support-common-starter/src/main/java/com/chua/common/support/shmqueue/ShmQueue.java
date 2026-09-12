@@ -3,10 +3,10 @@ package com.chua.common.support.shmqueue;
 import java.util.ServiceLoader;
 
 /**
- * ShmQueue 抽象基类 / 用户侧 API 入口。
+   * shm队列 抽象基类 / 用户侧 API 入口。
  *
  * <p>本类定义 SPSC 共享内存环形队列的统一 Java 接口，不依赖任何具体原生实现。
- * 具体后端（如 utils-support-native-shm-queue 提供的 libshmqueue.so 绑定）通过
+   * 具体后端（如 utils-support-shm-queue-starter 提供的 libshmqueue.so 绑定）通过
  * {@link ShmQueueProvider} SPI 机制加载，运行时通过 {@link ServiceLoader} 自动发现。</p>
  *
  * <h2>典型用法</h2>
@@ -26,12 +26,14 @@ import java.util.ServiceLoader;
  * </ol>
  *
  * @since 4.0.0.42
+ * @author CH
  */
 public abstract class ShmQueue implements AutoCloseable {
 
     /**
      * 等待模式
       * @author CH
+     * @since 4.0.0
      */
     public enum Mode {
         /**
@@ -39,7 +41,7 @@ public abstract class ShmQueue implements AutoCloseable {
          */
         SPIN(0),
         /**
-         * 纯阻塞：eventfd/WinEvent，低 CPU
+          * 纯阻塞：eventfd/win事件，低 CPU
          */
         BLOCK(1),
         /**
@@ -59,17 +61,20 @@ public abstract class ShmQueue implements AutoCloseable {
 
     /**
      * 消息体
+     * @param type 类型
+     * @param bytes bytes
+     * @return 消息的结果
      */
     public record Message(int type, byte[] bytes) {
         /**
-         * 防御性拷贝：null 视为空数组
+          * 防御性拷贝：空 视为空数组
          */
         public Message {
             bytes = bytes == null ? new byte[0] : bytes;
         }
 
         @Override
-        /** ToString */
+        /** 转为字符串 */
         public String toString() {
             return "Message{type=" + type + ", len=" + bytes.length + "}";
         }
@@ -162,7 +167,7 @@ public abstract class ShmQueue implements AutoCloseable {
      * @param mode      等待模式
      * @return ShmQueue 实例
      * @throws ShmQueueException     创建失败
-     * @throws IllegalStateException  未找到任何 Provider
+     * @throws IllegalStateException  未找到任何 提供者
      */
     public static ShmQueue create(String name, int capacity, int slotSize, Mode mode) {
         ShmQueueProvider provider = firstProvider();
@@ -175,7 +180,7 @@ public abstract class ShmQueue implements AutoCloseable {
      * @param name 共享内存对象名
      * @return ShmQueue 实例
      * @throws ShmQueueException     attach 失败
-     * @throws IllegalStateException  未找到任何 Provider
+     * @throws IllegalStateException  未找到任何 提供者
      */
     public static ShmQueue attach(String name) {
         ShmQueueProvider provider = firstProvider();
@@ -183,10 +188,10 @@ public abstract class ShmQueue implements AutoCloseable {
     }
 
     /**
-     * 查找第一个可用的 Provider 实现。
+      * 查找第一个可用的 提供者 实现。
      *
-     * @return 第一个 Provider
-     * @throws IllegalStateException 未找到任何 Provider
+     * @return 第一个 提供者
+     * @throws IllegalStateException 未找到任何 提供者
      */
     private static ShmQueueProvider firstProvider() {
         for (ShmQueueProvider p : ServiceLoader.load(ShmQueueProvider.class)) {
@@ -201,7 +206,7 @@ public abstract class ShmQueue implements AutoCloseable {
      * 发送一条消息。
      *
      * @param msgType 消息类型
-     * @param data    数据（可为 null 表示空消息）
+     * @param data    数据（可为 空 表示空消息）
      * @throws ShmQueueException 队列满/数据过大等错误
      */
     public abstract void send(int msgType, byte[] data);
@@ -224,7 +229,8 @@ public abstract class ShmQueue implements AutoCloseable {
     public abstract Message recvTimeout(long timeoutNanos);
 
     /**
-     * 设置混合模式的自旋时间（纳秒）。SPIN/BLOCK 模式下此调用无意义。
+      * 设置混合模式的自旋时间（纳秒）。Spin/BLOCK 模式下此调用无意义。
+     * @param spinNs Spinns
      */
     public abstract void setSpinNanos(long spinNs);
 

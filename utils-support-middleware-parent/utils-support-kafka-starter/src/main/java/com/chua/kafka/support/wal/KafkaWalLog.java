@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Spi("kafka")
 public class KafkaWalLog implements WalLog {
 
-    /** Checkpoint_file */
+    /** Checkpoint_文件 */
     private static final String CHECKPOINT_FILE = "checkpoint.dat";
     /** 配置 */
     private final WalConfig config;
@@ -45,7 +45,7 @@ public class KafkaWalLog implements WalLog {
     private final KafkaConsumer<String, byte[]> consumer;
     /** 当前LSN */
     private final AtomicLong currentLsn = new AtomicLong(0);
-    /** CheckpointLSN */
+    /** checkpointlsn */
     private final AtomicLong checkpointLsn = new AtomicLong(0);
     /** 锁 */
     private final ReentrantLock lock = new ReentrantLock();
@@ -53,8 +53,8 @@ public class KafkaWalLog implements WalLog {
     private volatile boolean closed;
 
     /**
-     * 创建 KafkaWalLog 实例
-     * @param config config
+      * 创建 kafkawal日志 实例
+     * @param config 配置
      */
     public KafkaWalLog(WalConfig config) {
         this.config = config;
@@ -101,7 +101,12 @@ public class KafkaWalLog implements WalLog {
         currentLsn.set(max);
     }
 
-    /** ExtractLsn */
+    /**
+     * extractlsn
+     *
+     * @param record record
+     * @return extractLsn的结果
+     */
     private long extractLsn(ConsumerRecord<String, byte[]> record) {
         try {
             String key = record.key();
@@ -111,13 +116,17 @@ public class KafkaWalLog implements WalLog {
         }
     }
 
-    /** CheckpointPath */
+    /**
+     * checkpoint路径
+     *
+     * @return checkpoint路径的结果
+     */
     private Path checkpointPath() {
         Path dir = config.walDir() != null ? config.walDir() : Path.of(System.getProperty("java.io.tmpdir"), "wal");
         return dir.resolve(topic).resolve(CHECKPOINT_FILE);
     }
 
-    /** 加载CheckpointFromFile */
+    /** 加载checkpoint从文件 */
     private void loadCheckpointFromFile() {
         try {
             Path p = checkpointPath();
@@ -161,14 +170,14 @@ public class KafkaWalLog implements WalLog {
     }
 
     @Override
-    /** Sync */
+    /** 同步 */
     public void sync() throws IOException {
         ensureOpen();
         producer.flush();
     }
 
     @Override
-    /** CurrentLsn */
+    /** 当前lsn */
     public long currentLsn() {
         return currentLsn.get();
     }
@@ -207,7 +216,7 @@ public class KafkaWalLog implements WalLog {
     }
 
     @Override
-    /** ForceCheckpoint */
+    /** forcecheckpoint */
     public void forceCheckpoint(long lsn) throws IOException {
         ensureOpen();
         lock.lock();
@@ -324,7 +333,7 @@ public class KafkaWalLog implements WalLog {
     }
 
     @Override
-    /** 查找ByLsn */
+    /** 查找bylsn */
     public Optional<WalRecord> findByLsn(long lsn) throws IOException {
         ensureOpen();
         lock.lock();
@@ -355,13 +364,13 @@ public class KafkaWalLog implements WalLog {
     }
 
     @Override
-    /** PurgeCheckpointed */
+    /** purgecheckpointed */
     public int purgeCheckpointed(int keepSegments) throws IOException {
         return 0;
     }
 
     @Override
-    /** CurrentSegment */
+    /** 当前segment */
     public WalSegmentInfo currentSegment() {
         return new WalSegmentInfo(1, checkpointLsn.get() + 1, currentLsn.get(),
                 (int) Math.max(0, currentLsn.get() - checkpointLsn.get()),
@@ -369,7 +378,7 @@ public class KafkaWalLog implements WalLog {
     }
 
     @Override
-    /** ListSegments */
+    /** 列表segments */
     public List<WalSegmentInfo> listSegments() {
         return Collections.singletonList(currentSegment());
     }

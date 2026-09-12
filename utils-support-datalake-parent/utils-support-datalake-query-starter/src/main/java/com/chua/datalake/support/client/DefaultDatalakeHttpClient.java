@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 默认 HttpClient 实现，基于 JDK HttpClient 调用 ApiServer /query 路由。
+   * 默认 HTTP客户端 实现，基于 JDK HTTP客户端 调用 api服务端 /查询 路由。
  *
  * @author CH
  * @since 4.0.0.42
@@ -12,8 +12,8 @@ import java.util.Map;
 public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
 
     /**
-     * 创建 DefaultDatalakeHttpClient 实例
-     * @param baseUrl baseUrl
+      * 创建 默认数据湖http客户端 实例
+     * @param baseUrl baseurl
      */
     public DefaultDatalakeHttpClient(String baseUrl) {
         super(baseUrl);

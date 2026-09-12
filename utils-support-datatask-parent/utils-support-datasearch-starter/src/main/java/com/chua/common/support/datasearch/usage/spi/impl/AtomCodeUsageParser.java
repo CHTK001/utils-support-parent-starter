@@ -17,10 +17,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 /**
- * AtomCode usage parser - parses token usage from local session turn transcripts.
+   * Atom编码 usage parser - 解析 令牌 usage 从 本地 会话 turn transcripts.
  *
  * <p>Data source is {@code ~/.atomcode/sessions/<session-dir>/<session-id>.jsonl}.
- * Each line records one turn of a session; every turn carries a top-level
+   * Each 线 records one turn 的 a 会话; every turn carries a top-级别
  * {@code usage} block with real per-turn token counts:</p>
  *
  * <pre>{@code
@@ -37,11 +37,13 @@ import reactor.core.scheduler.Schedulers;
  *   "tools": [...],
  *   "usage": { "prompt": 46135, "completion": 9507, "cached": 45824 }
  * }
+ * }</pre>824 }
+ * }
  * }</pre>
  *
  * <p>Unlike Command Code transcripts, AtomCode turn lines carry no
  * {@code model}/{@code provider}/{@code costUsd} fields; only token counts are
- * extracted, so no cost estimation is performed here.</p>
+   * extracted, so no cost estimation 是否 执行 here.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -49,18 +51,18 @@ import reactor.core.scheduler.Schedulers;
 @Spi("atomcode")
 public class AtomCodeUsageParser extends BaseUsageParser {
 
-    private static final Logger log = LoggerFactory.getLogger(AtomCodeUsageParser.class);
+    private static final Logger log = LoggerFactory.getLogger(AtomCodeUsageParser.class); // 日志
 
     /**
-     * AtomCode home 目录，支持 ATOMCODE_HOME 环境变量覆盖。
+      * Atom编码 Home 目录，支持 ATOMCODE_Home 环境变量覆盖。
      * 默认为 ~/.atomcode
      */
     private static final Path ATOMCODE_HOME;
 
-    /** Session transcripts root: $ATOMCODE_HOME/sessions */
+    /** 会话 transcripts 根: $ATOMCODE_Home/会话 */
     private static final Path SESSIONS_DIR;
 
-    private static final String PROVIDER_ATOMCODE = "atomcode";
+    private static final String PROVIDER_ATOMCODE = "atomcode"; // 提供者atomcode
 
     static {
         String envHome = System.getenv("ATOMCODE_HOME");
@@ -78,7 +80,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析全部 session 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
+      * 流式解析全部 会话 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -104,6 +106,8 @@ public class AtomCodeUsageParser extends BaseUsageParser {
 
     /**
      * 单个 JSONL 文件的行流（惰性 + 背压）。
+     * @param file 文件
+     * @return 流jsonl文件的结果
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         return streamLines(file)
@@ -114,7 +118,9 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 安全解析单行，失败返回 empty。
+      * 安全解析单行，失败返回 空。
+     * @param line 线
+     * @return 解析线safe的结果
      */
     private Optional<AiUsage> parseLineSafe(String line) {
         try {
@@ -126,9 +132,11 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将一条转录行转换为 AiUsage 记录。
+      * 将一条转录行转换为 AIusage 记录。
      *
      * <p>仅接受带顶层 {@code usage} 且含有效 token 数的 turn 记录。</p>
+     * @param node 节点
+     * @return 解析节点的结果
      */
     private Optional<AiUsage> parseNode(JsonNode node) {
         JsonNode usage = node.get("usage");

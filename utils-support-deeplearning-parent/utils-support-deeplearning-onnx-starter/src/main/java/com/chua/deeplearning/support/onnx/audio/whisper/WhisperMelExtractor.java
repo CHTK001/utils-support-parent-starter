@@ -3,12 +3,12 @@ package com.chua.deeplearning.support.onnx.audio.whisper;
 /**
  * Whisper mel spectrogram 提取器（纯 Java 实现，无外部依赖）。
  * <p>
- * 复现 HuggingFace transformers {@code WhisperFeatureExtractor} 行为：
- * 1. pad/trim 到 30 秒（480000 samples @16kHz）
- * 2. STFT：n_fft=400, hop=160, hann window
+   * 复现 huggingface transformers {@code WhisperFeatureExtractor} 行为：
+   * 1. pad/修剪 到 30 秒（480000 样本 @16khz）
+   * 2. STFT：n_fft=400, hop=160, hann 窗口
  * 3. Power spectrogram → magnitude
  * 4. 80 通道 Slaney-style mel 滤波器组
- * 5. log10 + clamp(max-8) + 缩放到 (val+4)/4
+   * 5. 日志10 + clamp(最大-8) + 缩放到 (val+4)/4
  * </p>
  *
  * @author CH
@@ -16,33 +16,33 @@ package com.chua.deeplearning.support.onnx.audio.whisper;
  */
 public class WhisperMelExtractor {
 
-    /** 16kHz 采样率 */
-    /** Sample_rate */
+    /** 16khz 采样率 */
+    /** 样本_rate */
     public static final int SAMPLE_RATE = 16000;
     /** 30 秒音频长度 */
-    /** Chunk_length */
+    /** Chunk_长度 */
     public static final int CHUNK_LENGTH = 30;
-    /** 480000 samples */
-    /** N_samples */
+    /** 480000 样本 */
+    /** N_样本 */
     public static final int N_SAMPLES = SAMPLE_RATE * CHUNK_LENGTH;
     /** FFT 大小 */
     /** N_fft */
     public static final int N_FFT = 400;
     /** 跳步 */
-    /** Hop_length */
+    /** Hop_长度 */
     public static final int HOP_LENGTH = 160;
     /** Mel 通道数 */
     /** N_mels */
     public static final int N_MELS = 80;
     /** STFT 帧数：1 + (480000 / 160) = 3001, 但用 center padding 后实际是 3000 */
-    /** N_frames */
+    /** N_帧 */
     public static final int N_FRAMES = 3000;
 
     /** 窗口向量 */
-    /** Window */
+    /** 窗口 */
     private final float[] window;
 
-    /** 创建 WhisperMelExtractor 实例 */
+    /** 创建 whispermelextractor 实例 */
     public WhisperMelExtractor() {
         // Hann window (periodic, length n_fft)
         this.window = new float[N_FFT];
@@ -54,8 +54,8 @@ public class WhisperMelExtractor {
     /**
      * 从音频样本提取 mel 频谱。
      *
-     * @param audio float 数组，任意长度（会自动 pad/trim 到 30s）
-     * @return (80, 3000) float32 log-mel
+     * @param audio float 数组，任意长度（会自动 pad/修剪 到 30s）
+     * @return (80, 3000) float32 日志-mel
      */
     public float[][] extract(float[] audio) {
         // 1. 截断到 30s；中心零填充（与参考实现一致：pad N_FFT/2 零，不预补满 30s）
@@ -97,7 +97,7 @@ public class WhisperMelExtractor {
         // 3. mel filterbank
         float[][] mel = applyMelFilterbank(mag);
 
-        // 4. log10（复用步骤 2 声明的有效帧数）
+ // 4. 日志10（复用步骤 2 声明的有效帧数）
         for (int m = 0; m < N_MELS; m++) {
             for (int f = 0; f < nValidFrames; f++) {
                 mel[m][f] = (float) Math.log10(Math.max(mel[m][f], 1e-10));
@@ -108,14 +108,18 @@ public class WhisperMelExtractor {
         float maxV = Float.NEGATIVE_INFINITY;
         for (int m = 0; m < N_MELS; m++) {
             for (int f = 0; f < nValidFrames; f++) {
-                if (mel[m][f] > maxV) maxV = mel[m][f];
+                if (mel[m][f] > maxV) {
+                    maxV = mel[m][f];
+                }
             }
         }
         float floor = maxV - 8.0f;
         for (int m = 0; m < N_MELS; m++) {
             for (int f = 0; f < nValidFrames; f++) {
                 float v = mel[m][f];
-                if (v < floor) v = floor;
+                if (v < floor) {
+                    v = floor;
+                }
                 mel[m][f] = (v + 4.0f) / 4.0f;
             }
         }
@@ -127,7 +131,12 @@ public class WhisperMelExtractor {
         return out;
     }
 
-    /** 应用MelFilterbank */
+    /**
+     * 应用melfilterbank
+     *
+     * @param mag mag
+     * @return applyMelFilterbank的结果
+     */
     private float[][] applyMelFilterbank(float[][] mag) {
         float[][] mel = new float[N_MELS][mag[0].length];
         int nFreq = mag.length;
@@ -169,12 +178,22 @@ public class WhisperMelExtractor {
         return mel;
     }
 
-    /** HzToMel */
+    /**
+     * hz转为mel
+     *
+     * @param hz hz
+     * @return hz转为mel的结果
+     */
     private static float hzToMel(float hz) {
         return (float) (2595.0 * Math.log10(1.0 + hz / 700.0));
     }
 
-    /** MelToHz */
+    /**
+     * mel转为hz
+     *
+     * @param mel mel
+     * @return mel转为hz的结果
+     */
     private static float melToHz(float mel) {
         return (float) (700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0));
     }

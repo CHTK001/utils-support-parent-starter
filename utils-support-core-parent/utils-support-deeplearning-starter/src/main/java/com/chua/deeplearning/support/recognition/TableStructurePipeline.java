@@ -20,7 +20,7 @@ import java.util.Objects;
  * 表格结构识别管线。
  *
  * <p>调度已注册的表格结构识别模型（如 pp-structure-v2、table-struct 等）。
- * 各模型输出类型不同（如 TableStructureResult、Object 等），本管线统一返回
+   * 各模型输出类型不同（如 table结构结果、对象 等），本管线统一返回
  * 翻译器原始输出 {@link Object}，调用方按模型对应类型强转。</p>
  *
  * <pre>{@code
@@ -28,6 +28,7 @@ import java.util.Objects;
  *         .model("pp-structure-v2")
  *         .build();
  * Object result = pipeline.recognizeSingle(imageBytes);
+ * }</pre>ult = pipeline.recognizeSingle(imageBytes);
  * }</pre>
  *
  * @author CH
@@ -188,7 +189,7 @@ public class TableStructurePipeline {
     /**
      * 枚举可用表格结构模型。
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {

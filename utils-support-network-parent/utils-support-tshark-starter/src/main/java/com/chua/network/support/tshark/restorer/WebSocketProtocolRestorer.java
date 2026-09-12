@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
  *   <li>masking key (4 bytes, only if MASK=1)</li>
  *   <li>payload (with mask XOR)</li>
  * </ul>
- * opcode: 0x1=text, 0x2=binary, 0x8=close, 0x9=ping, 0xa=pong, 0xf=continuation</p>
+   * opcode: 0x1=文本, 0x2=binary, 0x8=关闭, 0x9=ping, 0xa=pong, 0xf=continuation</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,7 +19,7 @@ package com.chua.network.support.tshark.restorer;
 public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "websocket";
     }
@@ -109,7 +109,12 @@ public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToOpcodeName */
+    /**
+     * 转为opcode名称
+     *
+     * @param opcode opcode
+     * @return 转为opcode名称的结果
+     */
     private static String toOpcodeName(int opcode) {
         return switch (opcode) {
             case 0x0 -> "Continuation";

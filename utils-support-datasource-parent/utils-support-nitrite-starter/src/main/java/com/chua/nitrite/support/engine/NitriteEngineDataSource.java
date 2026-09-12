@@ -35,25 +35,25 @@ public class NitriteEngineDataSource implements EngineDataSource<Object> {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return name;
     }
 
     @Override
-    /** 获取Source */
+    /** 获取源 */
     public Object getSource() {
         return nitrite;
     }
 
     @Override
-    /** 获取Source */
+    /** 获取源 */
     public <R> R getSource(Class<R> type) {
         return type.cast(nitrite);
     }
 
     @Override
-    /** 设置Source */
+    /** 设置源 */
     public EngineDataSource<Object> setSource(Object source) {
         return this;
     }
@@ -71,13 +71,13 @@ public class NitriteEngineDataSource implements EngineDataSource<Object> {
     }
 
     @Override
-    /** TunnelPort */
+    /** tunnel端口 */
     public int tunnelPort() {
         return 0;
     }
 
     @Override
-    /** 设置TunnelPort */
+    /** 设置tunnel端口 */
     public EngineDataSource<Object> setTunnelPort(int tunnelPort) {
         return this;
     }
@@ -89,13 +89,13 @@ public class NitriteEngineDataSource implements EngineDataSource<Object> {
     }
 
     @Override
-    /** Username */
+    /** 用户名 */
     public String username() {
         return null;
     }
 
     @Override
-    /** Password */
+    /** 密码 */
     public String password() {
         return null;
     }

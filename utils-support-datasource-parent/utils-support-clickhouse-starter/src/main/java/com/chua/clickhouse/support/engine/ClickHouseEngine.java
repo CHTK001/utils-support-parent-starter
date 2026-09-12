@@ -11,16 +11,17 @@ import com.chua.datasource.support.engine.JdbcEngine;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
- * ClickHouse 数据库引擎。
+   * click房子 数据库引擎。
  *
  * <p>继承自 {@link JdbcEngine}，提供 ClickHouse 特有的便捷数据源配置方法。
- * 使用 HikariCP 连接池，默认最大连接数为 10。</p>
+   * 使用 hikaricp 连接池，默认最大连接数为 10。</p>
  *
  * <p>使用示例：
  * <pre>{@code
  * ClickHouseEngine engine = new ClickHouseEngine();
  * engine.addDataSource(new DataSourceOptions("default", "localhost", 8123, "default", "default", "", null));
  * List<User> users = engine.query(User.class).list();
+ * }</pre><User> users = engine.query(User.class).list();
  * }</pre>
  * </p>
  *
@@ -31,7 +32,7 @@ import com.zaxxer.hikari.HikariDataSource;
 public class ClickHouseEngine extends JdbcEngine {
 
     /**
-     * 添加一个 ClickHouse 数据源。
+      * 添加一个 click房子 数据源。
      *
      * <p>自动配置 JDBC URL（HTTP 端口，默认 8123）、用户名、密码和连接池大小。</p>
      *
@@ -49,7 +50,7 @@ public class ClickHouseEngine extends JdbcEngine {
     }
 
     /**
-     * 添加一个 ClickHouse 数据源（支持隧道穿透）。
+      * 添加一个 click房子 数据源（支持隧道穿透）。
      *
      * @param options 数据源选项，包含连接信息和可选隧道
      * @return 当前引擎实例

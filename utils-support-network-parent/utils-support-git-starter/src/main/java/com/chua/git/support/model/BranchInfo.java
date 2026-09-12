@@ -10,16 +10,17 @@ import org.eclipse.jgit.lib.Ref;
  *
  * @param name       分支完整引用名，如 {@code refs/heads/main} 或 {@code refs/remotes/origin/main}
  * @param shortName  分支短名称，本地分支为 {@code main}，远程分支不含远端前缀也为 {@code main}
- * @param objectId   分支 HEAD 指向的提交 ID（40 位 SHA-1 或 64 位 SHA-256）
+ * @param objectId   分支 HEAD 指向的提交 标识（40 位 SHA-1 或 64 位 SHA-256）
  * @param isRemote   是否为远程分支（引用名前缀为 {@code refs/remotes/}）
  *
  * @author CH
  * @since 4.0.0.42
+ * @return 分支信息的结果
  */
 public record BranchInfo(String name, String shortName, String objectId, boolean isRemote) {
 
     /**
-     * 从 JGit 的 {@link Ref} 对象织造 {@code BranchInfo}。
+      * 从 jgit 的 {@link Ref} 对象织造 {@code BranchInfo}。
      *
      * <p>解析规则：</p>
      * <ul>

@@ -15,6 +15,9 @@ import java.util.Objects;
  */
 public final class BinaryTreeConverter {
 
+    /**
+     * binary树转换器。
+     */
     private BinaryTreeConverter() {
     }
 

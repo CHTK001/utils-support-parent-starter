@@ -24,9 +24,9 @@ public interface ImageGenerator {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -36,9 +36,9 @@ public interface ImageGenerator {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default ImageGenerator provider(String provider) {
@@ -55,7 +55,12 @@ public interface ImageGenerator {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static ImageGenerator create(String name) {
         return new DefaultImageGenerator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -66,7 +71,7 @@ public interface ImageGenerator {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageGenerator.class);
@@ -105,9 +110,9 @@ public interface ImageGenerator {
     }
 
     /**
-     * 按类别 ID 生成图像。
+      * 按类别 标识 生成图像。
      *
-     * @param classId 类别 ID
+     * @param classId 类别 标识
      * @return 图像字节数组
      */
     byte[] generate(long classId);
@@ -161,7 +166,7 @@ class DefaultImageGenerator implements ImageGenerator {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageGenerator modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -176,7 +181,12 @@ class DefaultImageGenerator implements ImageGenerator {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Generate */
+    /**
+     * Generate
+     *
+     * @param classId 类标识
+     * @return generate的结果
+     */
     public byte[] generate(long classId) {
         ITranslator<Long, byte[]> t =
                 (ITranslator<Long, byte[]>) engine.get(modelName, ITranslator.class);

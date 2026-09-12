@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * URL 映射定义——MappingDefinition 的具体实现。
+   * URL 映射定义——mappingdefinition 的具体实现。
  *
  * @author CH
  * @since 4.0.0.42

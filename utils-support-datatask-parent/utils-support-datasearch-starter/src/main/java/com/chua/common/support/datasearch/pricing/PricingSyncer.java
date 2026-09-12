@@ -27,6 +27,7 @@ import java.util.Map;
  *
  *   // 从本地文件缓存加载全部定价
  *   List<ModelDefinition> all = PricingSyncer.loadAll(loader);
+ * }</pre>ition> all = PricingSyncer.loadAll(loader);
  * }</pre>
  *
  * @author CH
@@ -37,7 +38,7 @@ public final class PricingSyncer {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(PricingSyncer.class);
 
-    /** 创建 PricingSyncer 实例 */
+    /** 创建 pricing同步 实例 */
     private PricingSyncer() {
     }
 

@@ -1,7 +1,7 @@
 package com.chua.runtime.protocol;
 
 /**
- * Span 类型（OpenTelemetry SpanKind 语义）。
+   * Span 类型（打开telemetry span种类 语义）。
  *
  * <p>SpanKind 决定 Span 在依赖图中的位置：</p>
  * <ul>

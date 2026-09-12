@@ -14,9 +14,9 @@ public class DonutResult {
     /** JSON文本 */
     private String jsonText;
     /** 标记标识数组 */
-    /** 令牌IDS */
+    /** 令牌标识 */
     private long[] tokenIds;
     /** 置信度 */
-    /** Confidence */
+    /** 信心 */
     private float confidence;
 }

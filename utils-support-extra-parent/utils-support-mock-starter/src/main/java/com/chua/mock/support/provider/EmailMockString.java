@@ -37,6 +37,8 @@ public class EmailMockString implements MockString {
     private static final int USERNAME_MIN = 5;
     /**
      * 用户名长度上界
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int USERNAME_MAX = 13;
 

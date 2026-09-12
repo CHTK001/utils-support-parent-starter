@@ -22,12 +22,12 @@ public class DefaultBeanConstructorResolver implements BeanConstructorResolver {
     @Override
     /**
      * 解析
-     * @param paramType paramType
-     * @param paramName paramName
-     * @param annotations annotations
-     * @param typeProvider typeProvider
-     * @param nameProvider nameProvider
-     * @param beanDefinition beanDefinition
+     * @param paramType 参数类型
+     * @param paramName 参数名称
+     * @param annotations 注解
+     * @param typeProvider 类型提供者
+     * @param nameProvider 名称提供者
+     * @param beanDefinition Beandefinition
      */
     public Object resolve(Class<?> paramType, String paramName, Annotation[] annotations,
                           Function<Class<?>, Object> typeProvider,

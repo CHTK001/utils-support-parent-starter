@@ -11,13 +11,22 @@ import java.nio.charset.StandardCharsets;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return 获取payload的结果
  */
 public class ScatterFrame {
 
-    private final byte type;
-    private final int requestId;
-    private final String path;
-    private final byte[] payload;
+    private final byte type; // 类型
+    private final int requestId; // 请求标识
+    private final String path; // 路径
+    private final byte[] payload; // payload
+/**
+ * scatter帧。
+ * @param type 类型
+ * @param requestId 请求标识
+ * @param path 路径
+ * @param payload payload
+ * @return 获取payload的结果
+ */
 
     public ScatterFrame(byte type, int requestId, String path, byte[] payload) {
         this.type = type;

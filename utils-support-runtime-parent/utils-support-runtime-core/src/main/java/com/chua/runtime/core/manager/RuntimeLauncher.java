@@ -9,7 +9,7 @@ import com.chua.runtime.core.model.RuntimeStatus;
  * 运行时启动器 SPI 接口。
  *
  * <p>各 {@link com.chua.common.support.lang.cmd.RuntimeType} 通过 SPI 提供独立的启动/停止实现，
- * 避免在 {@link DefaultRuntimeInstance} 中硬编码。容器类（TOMCAT）可委托给
+   * 避免在 {@link DefaultRuntimeInstance} 中硬编码。容器类（Tomcat）可委托给
  * {@link com.chua.common.support.network.container.WebContainer} 管理。</p>
  *
  * @author CH
@@ -18,7 +18,7 @@ import com.chua.runtime.core.model.RuntimeStatus;
 public interface RuntimeLauncher {
 
     /**
-     * 当前启动器支持的 RuntimeType 名称（如 {@code JAR}、{@code TOMCAT}）。
+      * 当前启动器支持的 runtime类型 名称（如 {@code JAR}、{@code TOMCAT}）。
      *
      * @return 类型名
      */

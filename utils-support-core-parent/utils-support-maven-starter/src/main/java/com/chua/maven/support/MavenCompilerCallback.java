@@ -30,6 +30,8 @@ import java.util.List;
  *         }
  *     })
  *     .compile();
+ * }</pre> *     })
+ *     .compile();
  * }</pre>
  *
  * @author CH

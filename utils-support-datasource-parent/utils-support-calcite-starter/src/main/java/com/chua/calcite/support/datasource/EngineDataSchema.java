@@ -90,20 +90,21 @@ public class EngineDataSchema implements DataScheme {
     }
 
     /**
-     * 底层引擎（供 SQL UPDATE 路由等使用）。
+      * 底层引擎（供 SQL 更新 路由等使用）。
+     * @return 获取engine的结果
      */
     public Engine getEngine() {
         return engine;
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return name;
     }
 
     @Override
-    /** 获取TableNames */
+    /** 获取table名称 */
     public List<String> getTableNames() {
         return tables.stream().map(DataTable::getName).collect(Collectors.toList());
     }

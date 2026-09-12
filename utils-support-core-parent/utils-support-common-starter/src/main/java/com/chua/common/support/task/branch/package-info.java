@@ -1,5 +1,5 @@
 /**
- * 轻量惰性分支工具 —— 以流式链替代 if-else / try-catch。
+   * 轻量惰性分支工具 —— 以流式链替代 if-else / 尝试-卡扣。
  *
  * <p>核心入口 {@link com.chua.common.support.task.branch.Branch}：
  * {@code of(seed)} 起链，{@code when/elseIf/otherwise} 与内置判断构成条件组，

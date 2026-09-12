@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * 通义千问逆向代理对话客户端。
  *
  * <p>基于 {@link QwenBrowserSession} 在 Playwright 浏览器页面内发起
- * 原生 fetch 请求，借助阿里云前端 JS 自动注入 {@code ssxmod_itna} 指纹，
+   * 原生 获取 请求，借助阿里云前端 JS 自动注入 {@code ssxmod_itna} 指纹，
  * 实现 Cookie 认证的通义千问免费对话。
  *
  * <p>SPI 名称：{@code qwen-proxy}，appKey 为 Cookie 串
@@ -38,6 +38,7 @@ import java.util.function.Consumer;
  * ChatClient client = ChatClient.create("qwen-proxy",
  *     "token=xxx; ssxmod_itna=xxx");
  * String answer = client.model("qwen-plus").chatSync("你好");
+ * }</pre>-plus").chatSync("你好");
  * }</pre>
  *
  * @author CH
@@ -74,7 +75,7 @@ public class QwenProxyChatClient implements ChatClient {
     private Double temperature;
 
     /**
-     * 当前最大 Token 数。
+      * 当前最大 令牌 数。
      */
     private Integer maxTokens;
 
@@ -84,7 +85,7 @@ public class QwenProxyChatClient implements ChatClient {
     private String system;
 
     /**
-     * 当前会话 ID。
+      * 当前会话 标识。
      */
     private String conversationId;
 
@@ -98,7 +99,7 @@ public class QwenProxyChatClient implements ChatClient {
      */
     private Double topP;
     /**
-     * stop
+      * 停止
      */
     private List<String> stop;
     /**
@@ -106,11 +107,11 @@ public class QwenProxyChatClient implements ChatClient {
      */
     private Long seed;
     /**
-     * response Format
+      * 响应 格式化
      */
     private String responseFormat;
     /**
-     * image Urls
+      * 镜像 Urls
      */
     private final List<String> imageUrls = new ArrayList<>();
     /**
@@ -137,7 +138,7 @@ public class QwenProxyChatClient implements ChatClient {
     private boolean smartSearch;
 
     /**
-     * 技能管理器（用于 prompt 注入）。
+      * 技能管理器（用于 提示符 注入）。
      */
     private SkillManager skillManager;
 
@@ -154,7 +155,7 @@ public class QwenProxyChatClient implements ChatClient {
     /**
      * 构造通义千问逆向代理对话客户端。
      *
-     * @param setting 客户端配置，其中 appKey 为 Cookie 串
+     * @param setting 客户端配置，其中 app键 为 Cookie 串
      */
     public QwenProxyChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -167,7 +168,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -181,21 +182,21 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值Tokens */
+    /** 最大值令牌 */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** ExtraBody */
+    /** extra主体 */
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody;
         return this;
@@ -223,7 +224,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** TopP */
+    /** topp */
     public ChatClient topP(Double topP) { this.topP = topP; return this; }
 
     @Override
@@ -235,11 +236,11 @@ public class QwenProxyChatClient implements ChatClient {
     public ChatClient seed(Long seed) { this.seed = seed; return this; }
 
     @Override
-    /** Response格式化 */
+    /** 响应格式化 */
     public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
 
     @Override
-    /** 添加Image */
+    /** 添加镜像 */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
@@ -253,7 +254,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加AttachmentUrl */
+    /** 添加attachmenturl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
@@ -279,42 +280,42 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** ToolChoice */
+    /** toolchoice */
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
     @Override
-    /** 添加UserHistory */
+    /** 添加用户历史 */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加AssistantHistory */
+    /** 添加assistant历史 */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** Session */
+    /** 会话 */
     public ChatClient session(String sessionId) {
         this.conversationId = sessionId;
         return this;
     }
 
     @Override
-    /** NewChat */
+    /** 新对话 */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -327,7 +328,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -340,7 +341,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** Chat */
+    /** 对话 */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -351,10 +352,10 @@ public class QwenProxyChatClient implements ChatClient {
     @Override
     /**
      * 对话
-     * @param prompt prompt
+     * @param prompt 提示符
      * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+     * @param onComplete on完成
+     * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -422,14 +423,14 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-     * GenerateImage
-     * @param prompt prompt
+      * generate镜像
+     * @param prompt 提示符
      * @param ratio ratio
      * @param n n
      * @param width width
      * @param height height
      * @param quality quality
-     * @param refImageKey refImageKey
+     * @param refImageKey ref镜像键
      */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
@@ -447,7 +448,7 @@ public class QwenProxyChatClient implements ChatClient {
             throw new RuntimeException("Qwen 图像生成失败: " + result.errorMessage());
         }
 
-        // 从 rawEvents 中提取 image_list
+ // 从 raw事件 中提取 镜像_列表
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
         List<Map<String, Object>> rawEvents = result.rawEvents();
         if (rawEvents != null) {
@@ -489,12 +490,12 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-     * GenerateVideo
-     * @param prompt prompt
+      * generate视频
+     * @param prompt 提示符
      * @param ratio ratio
-     * @param cameraMovement cameraMovement
-     * @param refImageKey refImageKey
-     * @param timeoutSeconds timeoutSeconds
+     * @param cameraMovement 摄像头移动
+     * @param refImageKey ref镜像键
+     * @param timeoutSeconds 超时seconds
      */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
@@ -524,6 +525,9 @@ public class QwenProxyChatClient implements ChatClient {
 
     /**
      * 从回答文本中提取图片 URL。
+     * @param text 文本
+     * @param prompt 提示符
+     * @return extract镜像从文本的结果
      */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();

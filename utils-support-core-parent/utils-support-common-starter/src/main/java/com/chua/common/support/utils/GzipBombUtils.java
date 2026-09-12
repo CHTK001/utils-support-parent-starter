@@ -46,7 +46,7 @@ public class GzipBombUtils {
     private static final int DEFLATE_BUFFER_BYTES = 1024;
 
     /**
-     * 默认生成体积(MB),{@link #generateScalableBomb(Long)} 在 sizeMb 为 null/负值时使用。
+      * 默认生成体积(MB),{@link #generateScalableBomb(Long)} 在 大小mb 为 空/负值时使用。
      */
     private static final long DEFAULT_SIZE_MB = 500L;
 
@@ -89,6 +89,9 @@ public class GzipBombUtils {
      */
     private static final byte[] GZIP_FOOTER = new byte[GZIP_FOOTER_LENGTH];
 
+    /**
+     * gzipbomb工具。
+     */
     private GzipBombUtils() {}
 
     // ============================ 公开 API ============================
@@ -128,7 +131,7 @@ public class GzipBombUtils {
     // ============================ 内部实现 ============================
 
     /**
-     * 创建 DEFLATE 炸弹模板:压缩 1MB 全零字节(BEST_COMPRESSION + SYNC_FLUSH)。
+      * 创建 DEFLATE 炸弹模板:压缩 1MB 全零字节(BEST_COMPRESSION + 同步_FLUSH)。
      *
      * @return DEFLATE 压缩模板字节
      */
@@ -151,7 +154,7 @@ public class GzipBombUtils {
      * 解析最终目标体积(MB)。
      *
      * @param sizeMb 原始入参,可空
-     * @return 合法目标体积(MB):为 null/负 → {@link #DEFAULT_SIZE_MB};否则上限截断到 {@link #MAX_SIZE_MB}
+     * @return 合法目标体积(MB):为 空/负 → {@link #DEFAULT_SIZE_MB};否则上限截断到 {@link #MAX_SIZE_MB}
      */
     private static long resolveSizeMb(Long sizeMb) {
         if (null == sizeMb || sizeMb < 0L) {

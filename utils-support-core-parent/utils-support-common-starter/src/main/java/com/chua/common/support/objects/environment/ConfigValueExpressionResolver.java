@@ -29,7 +29,7 @@ public interface ConfigValueExpressionResolver {
      * @param targetType  目标类型
      * @param environment 环境配置
      * @param <T>         泛型类型
-     * @return 解析后的值，无法解析返回 null
+     * @return 解析后的值，无法解析返回 空
      */
     <T> T resolve(String expression, Class<T> targetType, Environment environment);
 }

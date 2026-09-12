@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * RSocket Handler — intercepts RSocket requester/responder operations.
+   * r套接字 处理器 — intercepts r套接字 请求/responder operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class RSocketHandler extends AbstractAppHandler {
 
     /**
-     * rsocket requests
+      * rsocket Requests
      */
     private static final String RSOCKET_REQUESTS = "io/rsocket/RSocket";
     /**
-     * rsocket methods
+      * rsocket 方法
      */
     private static final String[] RSOCKET_METHODS = {"requestResponse", "requestStream", "requestChannel", "requestFireAndForget"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "rsocket-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "rsocket.enabled";
     }
@@ -42,13 +42,13 @@ public class RSocketHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.RSOCKET;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(RSOCKET_REQUESTS, RSOCKET_METHODS);
     }

@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Method;
 
 /**
- * 默认生命周期处理器，支持 InitializingAware 接口、@PostConstruct、@PreDestroy。
+   * 默认生命周期处理器，支持 初始化aware 接口、@postconstruct、@pre销毁。
  *
  * @author CH
  * @since 2024/12/20
@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
@@ -42,7 +42,7 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
             aware.afterPropertiesSet();
             log.debug("InitializingAware.afterPropertiesSet(): {}", beanName);
         }
-        // @PostConstruct
+ // @postconstruct
         invokeAnnotatedMethods(bean, AutoPostConstruct.class);
     }
 
@@ -52,11 +52,16 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         if (bean == null) {
             return;
         }
-        // @PreDestroy
+ // @pre销毁
         invokeAnnotatedMethods(bean, AutoPreDestroy.class);
     }
 
-    /** 调用AnnotatedMethods */
+    /**
+     * 调用annotated方法
+     *
+     * @param bean Bean
+     * @param annotationType 注解类型
+     */
     private void invokeAnnotatedMethods(Object bean, Class<? extends java.lang.annotation.Annotation> annotationType) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.isAnnotationPresent(annotationType) && method.getParameterCount() == 0) {

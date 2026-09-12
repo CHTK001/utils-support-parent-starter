@@ -40,7 +40,7 @@ import com.chua.common.support.utils.RgbOptions;
  * - 支持动态图像处理
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 public abstract class AbstractImageFilter implements ImageFilter {
@@ -96,9 +96,9 @@ public abstract class AbstractImageFilter implements ImageFilter {
     public int tr = 0, tg = 0, tb = 0;
 
     /**
-     * 转换BufferedImage图像
+      * 转换缓冲镜像图像
      *
-     * @param image 需要处理的BufferedImage对象
+     * @param image 需要处理的缓冲镜像对象
      * @return 处理后的BufferedImage对象
      * @throws IOException 处理过程中可能发生的IO异常
      */
@@ -111,7 +111,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     /**
      * 初始化图像数据
      *
-     * 从BufferedImage中提取像素数据，分离RGB三个颜色通道，
+      * 从缓冲镜像中提取像素数据，分离RGB三个颜色通道，
      * 为后续的滤镜处理做准备。
      *
      * @param image 待处理的图像对象
@@ -224,7 +224,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
      * 如果未指定颜色模型，则使用源图像的颜色模型。
      *
      * @param src        源图像
-     * @param colorModel 目标颜色模型，可以为null
+     * @param colorModel 目标颜色模型，可以为空
      * @return 新创建的兼容图像
      */
     public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel colorModel) {
@@ -240,7 +240,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
      * 具体的滤镜效果由子类实现。此方法定义了滤镜处理的标准接口。
      *
      * @param src 源图像
-     * @param dst 目标图像，可以为null
+     * @param dst 目标图像，可以为空
      * @return 处理后的图像
      */
     abstract public BufferedImage filter(BufferedImage src, BufferedImage dst);
@@ -262,7 +262,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
      * 某些几何变换滤镜可能会重写此方法。
      *
      * @param srcPt 源点坐标
-     * @param dstPt 目标点坐标，可以为null
+     * @param dstPt 目标点坐标，可以为空
      * @return 变换后的点坐标
      */
     public Point2D getPoint2D(Point2D srcPt, Point2D dstPt) {
@@ -277,14 +277,14 @@ public abstract class AbstractImageFilter implements ImageFilter {
      * 高效获取图像ARGB像素数据
      *
      * 这是一个优化的像素获取方法，对于INT_ARGB和INT_RGB类型的图像，
-     * 直接从光栅数据获取，避免BufferedImage.getRGB的性能损失。
+      * 直接从光栅数据获取，避免缓冲镜像.获取rgb的性能损失。
      *
-     * @param image  BufferedImage对象
+     * @param image  缓冲镜像对象
      * @param x      像素区域的左上角X坐标
      * @param y      像素区域的左上角Y坐标
      * @param width  像素区域的宽度
      * @param height 像素区域的高度
-     * @param pixels 存储像素数据的数组，可以为null
+     * @param pixels 存储像素数据的数组，可以为空
      * @return ARGB格式的像素数据数组
      * @see #setRgb
      */
@@ -300,9 +300,9 @@ public abstract class AbstractImageFilter implements ImageFilter {
      * 高效设置图像ARGB像素数据
      *
      * 这是一个优化的像素设置方法，对于INT_ARGB和INT_RGB类型的图像，
-     * 直接设置光栅数据，避免BufferedImage.setRGB的性能损失。
+      * 直接设置光栅数据，避免缓冲镜像.设置rgb的性能损失。
      *
-     * @param image  BufferedImage对象
+     * @param image  缓冲镜像对象
      * @param x      像素区域的左上角X坐标
      * @param y      像素区域的左上角Y坐标
      * @param width  像素区域的宽度
@@ -339,7 +339,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     }
 
     /**
-     * 将RGB颜色通道数据转换为BufferedImage
+      * 将RGB颜色通道数据转换为缓冲镜像
      *
      * @return 根据当前RGB数据创建的BufferedImage对象
      */

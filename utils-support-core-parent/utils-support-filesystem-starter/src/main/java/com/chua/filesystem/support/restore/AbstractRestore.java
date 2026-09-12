@@ -14,7 +14,7 @@ import java.nio.file.Path;
  * 提供恢复接口的基础实现，子类需要实现具体的恢复逻辑。
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  * @since 4.0.0.42
  */
@@ -64,7 +64,7 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** RestoreStructure */
+    /** restore结构 */
     public RestoreResult restoreStructure(File sourceFile) throws Exception {
         RestoreSetting originalSetting = this.restoreSetting;
         try {
@@ -85,7 +85,7 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** RestoreData */
+    /** restore数据 */
     public RestoreResult restoreData(File sourceFile) throws Exception {
         RestoreSetting originalSetting = this.restoreSetting;
         try {
@@ -109,13 +109,13 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** RestoreToTable */
+    /** restore转为table */
     public RestoreResult restoreToTable(File sourceFile, String targetTable) throws Exception {
         return restoreToTable(sourceFile, null, targetTable);
     }
 
     @Override
-    /** RestoreToTable */
+    /** restore转为table */
     public RestoreResult restoreToTable(File sourceFile, String targetSchema, String targetTable) throws Exception {
         RestoreSetting originalSetting = this.restoreSetting;
         try {
@@ -148,6 +148,8 @@ public abstract class AbstractRestore implements Restore {
 
     /**
      * 获取文件扩展名
+     * @param file 文件
+     * @return 获取文件延伸的结果
      */
     protected String getFileExtension(File file) {
         String name = file.getName();

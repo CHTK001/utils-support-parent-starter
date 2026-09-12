@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * JDBC 数据同步 Source，从关系型数据库读取数据。
+   * JDBC 数据同步 源，从关系型数据库读取数据。
  * <p>
- * 基于 HikariCP 连接池，支持增量读取：
- * 当 params["offset"] 有值时，追加 WHERE id > offset 条件过滤已读行。
+   * 基于 hikaricp 连接池，支持增量读取：
+   * 当 参数["偏移量"] 有值时，追加 WHERE 标识 > 偏移量 条件过滤已读行。
  * </p>
  *
  * @author CH
@@ -43,15 +43,20 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     private final HikariDataSource dataSource;
 
     /**
-     * 创建 JdbcDataSyncAgentSource 实例
-     * @param sourceId sourceId
-     * @param String String
-     * @param String String
-     * @param String String
-     * @param String String
-     * @param String String
-     * @param String String
-     * @param columnNames columnNames
+      * 创建 jdbc数据同步智能体源 实例
+     * @param sourceId 源标识
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param sourceId 字符串
+     * @param columnNames column名称
+     * @param inputId 输入标识
+     * @param jdbcUrl jdbcurl
+     * @param username 用户名
+     * @param password 密码
+     * @param sql SQL
      */
     public JdbcDataSyncAgentSource(String sourceId, String inputId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
         this.sourceId = sourceId;
@@ -64,7 +69,14 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         this.dataSource = createDataSource(jdbcUrl, username, password);
     }
 
-    /** 创建DataSource */
+    /**
+     * 创建数据源
+     *
+     * @param url url
+     * @param user 用户
+     * @param pass 通过
+     * @return 创建数据源的结果
+     */
     private HikariDataSource createDataSource(String url, String user, String pass) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -79,13 +91,13 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     @Override
-    /** SourceId */
+    /** 源id */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** InputId */
+    /** 输入id */
     public String inputId() {
         return inputId;
     }
@@ -101,7 +113,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
 
         log.info("[JdbcDataSyncAgentSource] 开始读取数据, sourceId={}, sql={}", sourceId, sqlWithOffset);
 
-        // Connection/PreparedStatement 需在订阅时创建，避免 Flux 惰性执行时语句已被关闭
+ // Connection/prepared对账单 需在订阅时创建，避免 Flux 惰性执行时语句已被关闭
         return Flux.create(sink -> {
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sqlWithOffset,
@@ -148,7 +160,12 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
         return Direction.INPUT;
     }
 
-    /** 构建SqlWithOffset */
+    /**
+     * 构建sqlwith偏移量
+     *
+     * @param offsetValue 偏移量值
+     * @return 构建sqlwith偏移量的结果
+     */
     private String buildSqlWithOffset(Object offsetValue) {
         if (offsetValue == null) {
             return sql;

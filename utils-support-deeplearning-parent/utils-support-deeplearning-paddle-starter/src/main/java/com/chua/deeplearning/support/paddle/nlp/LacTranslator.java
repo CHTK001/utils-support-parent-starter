@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Paddle LAC 中文分词/词性标注 Translator。
+   * 飞桨 LAC 中文分词/词性标注 Translator。
  * <p>输出 [token, label] 二维数组。</p>
  *
  * @author CH
@@ -28,12 +28,12 @@ import java.util.Map;
 public class LacTranslator implements Translator<String, String[][]> {
 
     /**
-     * 词 → id。
+      * 词 → 标识。
      */
     private final Map<String, String> word2IdDict = new HashMap<>();
 
     /**
-     * id → label。
+      * 标识 → 标签。
      */
     private final Map<String, String> id2LabelDict = new HashMap<>();
 
@@ -43,7 +43,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     private final Map<String, String> wordReplaceDict = new HashMap<>();
 
     /**
-     * OOV id。
+      * OOV 标识。
      */
     private String oovId;
 
@@ -62,7 +62,11 @@ public class LacTranslator implements Translator<String, String[][]> {
         oovId = word2IdDict.getOrDefault("OOV", "0");
     }
 
-    /** 加载WordDic */
+    /**
+     * 加载worddic
+     *
+     * @param model 模型
+     */
     private void loadWordDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/word.dic", "word.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -79,7 +83,11 @@ public class LacTranslator implements Translator<String, String[][]> {
         }
     }
 
-    /** 加载TagDic */
+    /**
+     * 加载标签dic
+     *
+     * @param model 模型
+     */
     private void loadTagDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/tag.dic", "tag.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -94,7 +102,11 @@ public class LacTranslator implements Translator<String, String[][]> {
         }
     }
 
-    /** 加载b */
+    /**
+     * 加载b
+     *
+     * @param model 模型
+     */
     private void loadQ2b(Model model) {
         try (InputStream is = open(model, "lac/q2b.dic", "q2b.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -113,7 +125,13 @@ public class LacTranslator implements Translator<String, String[][]> {
         }
     }
 
-    /** 打开 */
+    /**
+     * 打开
+     *
+     * @param model 模型
+     * @param names 名称
+     * @return 打开的结果
+     */
     private InputStream open(Model model, String... names) throws IOException {
         for (String name : names) {
             try {
@@ -125,7 +143,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         this.input = input == null ? "" : input;
         NDManager manager = ctx.getNDManager();
@@ -146,7 +164,13 @@ public class LacTranslator implements Translator<String, String[][]> {
         return new NDList(ndArray);
     }
 
-    /** Try设置Lod */
+    /**
+     * 尝试设置Lod
+     *
+     * @param ndArray ndarray
+     * @param begin 开始
+     * @param end 结束
+     */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
             Class<?> pp = ReflectUtils.forName("ai.djl.paddlepaddle.engine.PpNDArray");
@@ -161,7 +185,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray tags = list.get(0);
         long[] tagIds = tags.toLongArray();

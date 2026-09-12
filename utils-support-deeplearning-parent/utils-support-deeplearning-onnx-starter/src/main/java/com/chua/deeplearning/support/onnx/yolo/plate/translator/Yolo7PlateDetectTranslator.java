@@ -20,27 +20,27 @@ import java.util.Map;
 
 
 /**
- * YOLOv7                      
+   * yolov7
  * <p>
- *        YOLOv7                                     
+   * yolov7
  *                                                          
  * </p>
  * <p>
  *                
  * -                               Detection                                       
- * -          YOLOv7-License-Plate                           /         
+   * -          yolov7-执照-铭牌                           /
  * -                640x640               
  * -                             [0, 1]
  * </p>
  * <p>
  *                
  * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
- * -                [1, 25200, 18] - (x_center, y_center, w, h, obj_conf, class1_conf, class2_conf, 8            )
+   * -                [1, 25200, 18] - (x_center, y_center, w, h, obj_conf, 类1_conf, 类2_conf, 8            )
  * -                    NMS                           
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/22
  */
 @Slf4j
@@ -82,7 +82,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     private int imageHeight;
 
     /**
-     * LetterBox             
+      * letterbox
      */
     private LetterBoxUtils.ResizeResult letterBoxResult;
 
@@ -90,10 +90,10 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
      *                                     
      * <p>
      *             
-     * - inputSize: 640x640
-     * - confThreshold: 0.3
-     * - iouThreshold: 0.5
-     * - topK: 100
+      * - 输入大小: 640x640
+      * - conf阈值: 0.3
+      * - iou阈值: 0.5
+      * - topk: 100
      * </p>
      */
     public Yolo7PlateDetectTranslator() {
@@ -101,7 +101,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     /**
-     *                       Map          
+      * 映射
      *
      * @param arguments             
      */
@@ -150,7 +150,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -167,18 +167,18 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         var manager = ctx.getNDManager();
         int numCls = 2;
-        // [x_center, y_center, w, h, obj_conf, class1_conf, class2_conf, 8 keypoints]
+ // [x_center, y_center, w, h, obj_conf, 类1_conf, 类2_conf, 8 keypoints]
         var dets = list.singletonOrThrow();
         var dets0 = dets.get(0);
         var conf = dets0.get(":4");
         var mask = conf.gt(minConfThreshold);
         var detsFiltered = dets0.get(mask);
 
-        // obj_conf [4:5] class1_conf [5:6] class2_conf [6:7]
+ // obj_conf [4:5] 类1_conf [5:6] 类2_conf [6:7]
         var clsLogits = detsFiltered.get(":, 5:7");
         var confFiltered = detsFiltered.get(":, 4").reshape(-1, 1);
         clsLogits = clsLogits.mul(confFiltered);

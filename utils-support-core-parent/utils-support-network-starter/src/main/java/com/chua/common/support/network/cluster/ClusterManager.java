@@ -39,13 +39,35 @@ public class ClusterManager {
     private final ScatterServiceDiscovery discovery;
     /** Balance */
     private final String balance;
-    /** Self 节点 ID */
+    /** Self 节点 标识 */
     private final String selfNodeId;
-    /** 分组 ID */
+    /** 分组 标识 */
     private final String groupId;
-    /** 已注册的 ServerEntry（含本节点与远端目标） */
+    /**
+     * 已注册的 服务端entry（含本节点与远端目标）
+     *
+     /**
+      * cluster管理器。
+      * @param discovery discovery
+      * @param balance balance
+      */
+     * @param discovery discovery
+     * @param balance balance
+     * @param selfNodeId self节点标识
+     */
     private final List<ServerEntry> entries = new ArrayList<>();
 
+    /**
+     * cluster管理器。
+     * @param discovery discovery
+     * @param balance balance
+     * @param selfNodeId self节点id
+     /**
+      * cluster管理器。
+      * @param discovery discovery
+      * @param balance balance
+      */
+     */
     public ClusterManager(ScatterServiceDiscovery discovery, String balance) {
         this(discovery, balance, null);
     }
@@ -94,6 +116,8 @@ public class ClusterManager {
 
     /**
      * 获取指定服务路径下的全部节点。
+     * @param servicePath 服务路径
+     * @return 节点的结果
      */
     public Set<Discovery> nodes(String servicePath) {
         return discovery.getServiceAll(servicePath);
@@ -101,6 +125,10 @@ public class ClusterManager {
 
     /**
      * 按业务分组和协议过滤节点。
+     * @param servicePath 服务路径
+     * @param scatterId scatterid
+     * @param protocol 协议
+     * @return 节点的结果
      */
     public Set<Discovery> nodes(String servicePath, String scatterId, String protocol) {
         return discovery.getServiceAll(servicePath).stream()
@@ -115,7 +143,7 @@ public class ClusterManager {
      * @param servicePath 服务路径
      * @param scatterId   业务分组
      * @param protocol    协议（http/tcp）
-     * @return 目标节点，无可用节点返回 null
+     * @return 目标节点，无可用节点返回 空
      */
     public Discovery route(String servicePath, String scatterId, String protocol) {
         if (selfNodeId == null || selfNodeId.isBlank()) {
@@ -127,7 +155,7 @@ public class ClusterManager {
             if (d == null) {
                 return null;
             }
-            // 排除以本 nodeId 为前缀的 serverId（形如 nodeId-http / nodeId-tcp）
+ // 排除以本 节点标识 为前缀的 服务端标识（形如 节点标识-http / 节点标识-tcp）
             if (!d.getServerId().startsWith(selfNodeId + "-")) {
                 return d;
             }
@@ -147,6 +175,10 @@ public class ClusterManager {
 
     /**
      * 可用节点数。
+     * @param servicePath 服务路径
+     * @param scatterId scatterid
+     * @param protocol 协议
+     * @return healthy数量的结果
      */
     public int healthyCount(String servicePath, String scatterId, String protocol) {
         return nodes(servicePath, scatterId, protocol).size();
@@ -154,6 +186,10 @@ public class ClusterManager {
 
     /**
      * 检查节点是否健康（仍在集群视图中）。
+     * @param servicePath 服务路径
+     * @param scatterId scatterid
+     * @param target Target
+     * @return 是否healthy的结果
      */
     public boolean isHealthy(String servicePath, String scatterId, Discovery target) {
         if (target == null) {
@@ -169,6 +205,7 @@ public class ClusterManager {
 
     /**
      * 获取已注册的所有服务元数据。
+     * @return 获取entries的结果
      */
     public List<ServerEntry> getEntries() {
         return List.copyOf(entries);
@@ -176,12 +213,18 @@ public class ClusterManager {
 
     /**
      * 便捷：获取集群全部节点列表。
+     * @return 全部节点的结果
      */
     public List<Discovery> allNodes() {
         return discovery.getServiceAll("/").stream().toList();
     }
 
-    /** ServerEntry → Discovery 转换。 */
+    /**
+     * 服务端entry → Discovery 转换。
+     *
+     * @param entry entry
+     * @return 转为discovery的结果
+     */
     private Discovery toDiscovery(ServerEntry entry) {
         String proto = entry.normalizedProtocol();
         String serverId = entry.getHost() + ":" + entry.getPort();

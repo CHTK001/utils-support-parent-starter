@@ -132,7 +132,7 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
@@ -147,7 +147,7 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -182,25 +182,25 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
     @Override
-    /** ControlType */
+    /** control类型 */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
@@ -236,7 +236,7 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -283,7 +283,7 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         try {
             String url = normalizeBaseUrl() + "/api/v1/tasks/" + taskId;
@@ -359,7 +359,7 @@ public class AlibabaImageClient implements ImageClient {
     /**
      * 轮询任务直至完成
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 任务最终响应
      */
     private ImageResponse pollTask(String taskId) {

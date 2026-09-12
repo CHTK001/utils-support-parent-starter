@@ -38,7 +38,7 @@ public class SpiderProxyPool {
     private String poolName;
 
     /**
-     * 代理池策略（ROUND 轮询 / RANDOM 随机）
+      * 代理池策略（ROUND 轮询 / 随机 随机）
      */
     private String poolStrategy = "ROUND";
 

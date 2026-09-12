@@ -25,11 +25,11 @@ import java.util.List;
  *                 {@link ObbResult}                               +        +             
  * <p>
  *                            
- * - [cx, cy, w, h, class_scores..., angle]
+   * - [cx, cy, w, h, 类_scores..., angle]
  * <p>
  *          
- * -                                      [1, features, boxes]     [1, boxes, features]                      
- * -                       ProbIoU              NMS                     
+   * -                                      [1, 特征, boxes]     [1, boxes, 特征]
+   * -                       probiou              NMS
  *
  * @author CH
  * @since 2026/01/28
@@ -171,7 +171,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
      *                   
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return OBB             
      */
     @Override
@@ -246,15 +246,15 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *           reshape     [boxes, features]          [1, features, boxes]     [1, boxes, features]   
+      * reshape     [boxes, 特征]          [1, 特征, boxes]     [1, boxes, 特征]
      *
      * @param rawResult             
-     * @return [boxes, features]
+     * @return [boxes, 特征]
      */
     private NDArray reshapeToBoxesFirst(NDArray rawResult) {
         var shape = rawResult.getShape();
         if (shape.dimension() == 2) {
-            //           [boxes, features]     [features, boxes]
+ // [boxes, 特征]     [特征, boxes]
             var boxes = shape.get(0);
             var features = shape.get(1);
             if (features < boxes) {
@@ -275,15 +275,15 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
             return rawResult.squeeze(0).transpose();
         }
 
-        // [1, boxes, features]
+ // [1, boxes, 特征]
         return rawResult.squeeze(0);
     }
 
     /**
-     *           NMS          ProbIoU   
+      * NMS          probiou
      *
      * @param boxes                       
-     * @param iouThreshold IoU       
+     * @param iouThreshold iou
      * @return                         
      */
     private List<YoloRotatedBox> rotatedNms(List<YoloRotatedBox> boxes, double iouThreshold) {

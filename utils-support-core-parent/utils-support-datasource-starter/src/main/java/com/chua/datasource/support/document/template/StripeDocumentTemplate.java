@@ -33,12 +33,12 @@ public class StripeDocumentTemplate extends AbstractClasspathDocumentTemplate {
     }
 
     /**
-     * 重写 buildVariables，补充 stripe 模板专用的导出时间占位符。
+      * 重写 构建变量，补充 stripe 模板专用的导出时间占位符。
      */
     @Override
     protected java.util.Map<String, Object> buildVariables(DocumentData data, DocumentExportConfig config) {
         java.util.Map<String, Object> vars = super.buildVariables(data, config);
-        // exportTime 已在父类中设置，此处确保格式统一
+ // 导出时间 已在父类中设置，此处确保格式统一
         return vars;
     }
 }

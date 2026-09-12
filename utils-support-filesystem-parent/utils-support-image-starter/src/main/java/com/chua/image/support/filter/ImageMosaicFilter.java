@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
  * - 创意设计：现代数字艺术效果
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
@@ -123,7 +123,7 @@ public class ImageMosaicFilter extends AbstractImageFilter {
                 int blockWidth = size;
                 int blockHeight = size;
 
-                // 处理边界块：最后一行或最后一列可能不足一个完整的size
+ // 处理边界块：最后一行或最后一列可能不足一个完整的大小
                 if (i == xCount - 1) {
                     blockWidth = src.getWidth() - x;
                 }

@@ -18,6 +18,9 @@ import java.lang.annotation.Target;
  *     private boolean checkCodeOpen;
  *     ...
  * }
+ * }</pre>eckCodeOpen;
+ *     ...
+ * }
  * }</pre>
  *
  * @author CH
@@ -28,7 +31,7 @@ import java.lang.annotation.Target;
 public @interface GlobalSettingGroup {
 
     /**
-     * 配置分组名，对应 sys_setting.sys_setting_group 字段。
+      * 配置分组名，对应 sys_setting.sys_setting_群体 字段。
      *
      * @return 分组名
      */

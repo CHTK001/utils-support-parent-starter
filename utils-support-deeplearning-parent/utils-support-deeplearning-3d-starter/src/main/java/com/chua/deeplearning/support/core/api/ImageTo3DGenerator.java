@@ -17,10 +17,10 @@ public interface ImageTo3DGenerator {
     /**
      * 根据单张图片生成 3D 模型
      *
-     * @param image        图片字节（PNG/JPG/WebP，最多 8MB）
+     * @param image        图片字节（PNG/JPG/webp，最多 8MB）
      * @param format       输出格式
      * @param style        风格
-     * @param quality      质量（draft / standard / high）
+     * @param quality      质量（draft / 标准 / high）
      * @return 3D 模型
      * @throws IOException IO 异常
      */
@@ -32,7 +32,7 @@ public interface ImageTo3DGenerator {
      * @param images       多视角图片列表（最多 6 张）
      * @param format       输出格式
      * @param style        风格
-     * @param quality      质量（draft / standard / high）
+     * @param quality      质量（draft / 标准 / high）
      * @return 3D 模型
      * @throws IOException IO 异常
      */

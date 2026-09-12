@@ -22,10 +22,10 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
     private final Class<T> type;
 
     /**
-     * 创建 DefaultObjectProvider 实例
+      * 创建 默认对象提供者 实例
      * @param ctx ctx
-     * @param Class Class
-     * @param type type
+     * @param type 类
+     * @param type 类型
      */
     public DefaultObjectProvider(ObjectContext ctx, Class<T> type) {
         this.ctx = ctx;
@@ -33,7 +33,7 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public T getObject() {
         return ctx.getBeanOfTypeSafely(type);
     }

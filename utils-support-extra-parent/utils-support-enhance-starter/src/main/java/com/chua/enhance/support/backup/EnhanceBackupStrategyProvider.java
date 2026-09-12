@@ -42,13 +42,13 @@ public class EnhanceBackupStrategyProvider implements BackupStrategy {
     private static final String TYPE = "daily";
     /** Archive_dir */
     private static final String ARCHIVE_DIR = "archive";
-    /** Date_fmt */
+    /** 日期_fmt */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     /** Delegate */
     private static final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return TYPE;
     }
@@ -56,18 +56,18 @@ public class EnhanceBackupStrategyProvider implements BackupStrategy {
     @Override
     /** 执行 */
     public BackupResult execute(BackupConfig config) {
-        // 委托给 DefaultDailyBackupStrategy 处理核心逻辑
+ // 委托给 默认dailybackupstrategy 处理核心逻辑
         return delegate.execute(config);
     }
 
     @Override
-    /** CleanExpired */
+    /** cleanexpired */
     public int cleanExpired(BackupConfig config) {
         return delegate.cleanExpired(config);
     }
 
     @Override
-    /** ListBackups */
+    /** 列表backups */
     public List<Path> listBackups(BackupConfig config) {
         return delegate.listBackups(config);
     }

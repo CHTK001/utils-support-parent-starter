@@ -12,7 +12,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 暂存与提交操作（git add / git commit）。
+   * 暂存与提交操作（Git 添加 / Git commit）。
  *
  * <p>支持：</p>
  * <ul>
@@ -37,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
  * // 3. 异步全量提交
  * CompletableFuture<String> f = (CompletableFuture<String>) client.commit()
  *         .async().full("chore: 更新依赖版本");
+ * }</pre>ore: 更新依赖版本");
  * }</pre>
  *
  * @author CH
@@ -46,7 +47,7 @@ import java.util.concurrent.CompletableFuture;
 public class CommitOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
@@ -83,7 +84,7 @@ public class CommitOperation {
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public CommitOperation(GitClient client) {
         this.client = client;
@@ -124,7 +125,7 @@ public class CommitOperation {
     }
 
     /**
-     * 暂存所有变更（等同于 git add -A）。
+      * 暂存所有变更（等同于 Git 添加 -A）。
      *
      * @return 当前操作实例
      */
@@ -141,7 +142,7 @@ public class CommitOperation {
     }
 
     /**
-     * 从暂存区移除指定路径（git rm --cached）。
+      * 从暂存区移除指定路径（Git rm --缓存）。
      *
      * @param paths 文件路径
      * @return 当前操作实例
@@ -239,6 +240,10 @@ public class CommitOperation {
 
     // ==================== 内部方法 ====================
 
+    /**
+     * 执行commit。
+     * @return 执行commit的结果
+     */
     private String doCommit() {
         try {
             client.open();

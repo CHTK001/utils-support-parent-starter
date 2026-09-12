@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Java Agent 管理器接口。
+   * Java 智能体 管理器接口。
  *
  * @author CH
  * @since 4.0.0.42

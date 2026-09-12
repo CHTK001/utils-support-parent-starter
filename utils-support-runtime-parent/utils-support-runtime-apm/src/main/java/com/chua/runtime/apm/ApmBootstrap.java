@@ -113,16 +113,16 @@ import java.util.Map;
 public class ApmBootstrap {
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(ApmBootstrap.class.getName());
     /**
-     * 全局唯一实例（RuntimeAgent.premain 启动时设置）
+      * 全局唯一实例（runtime智能体.premain 启动时设置）
      */
     private static volatile ApmBootstrap globalInstance;
 
     /**
-     * 处理器列表 — CopyOnWriteArrayList 保证并发读(handler 列表)与启动期注册/启动写不冲突。
+      * 处理器列表 — 副本on写入array列表 保证并发读(处理器 列表)与启动期注册/启动写不冲突。
      */
     private final List<Plugin> handlers;
 
@@ -235,7 +235,7 @@ public class ApmBootstrap {
         handlers.add(new CuratorHandler());
         handlers.add(new PahoMqttHandler());
         handlers.add(new AsyncHttpClientHandler());
-        // 每个 handler 独立 try/catch,单个失败不阻断其他
+ // 每个 处理器 独立 尝试/卡扣,单个失败不阻断其他
         for (Plugin handler : handlers) {
             try {
                 handler.init(context);
@@ -249,7 +249,7 @@ public class ApmBootstrap {
      * 注册自定义处理器。
      *
      * <p>同时使用默认 {@link PluginContext} 调用 {@link Plugin#init(PluginContext)}，
-     * 否则处理器中需要初始化的字段（如 enabled）将保持默认值，start() 会被短路。</p>
+      * 否则处理器中需要初始化的字段（如 已启用）将保持默认值，启动() 会被短路。</p>
      *
      * @param handler 插件处理器
      */
@@ -322,7 +322,7 @@ public class ApmBootstrap {
         if (!started) {
             return;
         }
-        // 1. 逆序停止 handler — 注销拦截规则
+ // 1. 逆序停止 处理器 — 注销拦截规则
         for (int i = handlers.size() - 1; i >= 0; i--) {
             Plugin handler = handlers.get(i);
             try {
@@ -332,7 +332,7 @@ public class ApmBootstrap {
                 LOG.log(Level.SEVERE, String.format("APM 处理器[%s] 停止失败", handler.name()), e);
             }
         }
-        // 2. 短暂排空 — 让 in-flight 的事件完成 onIntercept 落盘
+ // 2. 短暂排空 — 让 入-flight 的事件完成 onintercept 落盘
         try {
             Thread.sleep(100L);
         } catch (InterruptedException e) {
@@ -365,7 +365,7 @@ public class ApmBootstrap {
      *
      * @param type 处理器类型
      * @param <T>  处理器泛型
-     * @return 处理器实例，不存在返回 null
+     * @return 处理器实例，不存在返回 空
      */
     public <T extends Plugin> T getHandler(Class<T> type) {
         for (Plugin handler : handlers) {
@@ -377,9 +377,9 @@ public class ApmBootstrap {
     }
 
     /**
-     * 获取全局 ApmBootstrap 实例。
+      * 获取全局 apmbootstrap 实例。
      *
-     * @return 全局实例，未启动时返回 null
+     * @return 全局实例，未启动时返回 空
      */
     public static ApmBootstrap getGlobal() {
         return globalInstance;
@@ -390,7 +390,7 @@ public class ApmBootstrap {
      *
      * @param type 处理器类型
      * @param <T>  处理器泛型
-     * @return 处理器实例，全局未启动或类型不存在时返回 null
+     * @return 处理器实例，全局未启动或类型不存在时返回 空
      */
     public static <T extends Plugin> T getGlobalHandler(Class<T> type) {
         ApmBootstrap global = globalInstance;

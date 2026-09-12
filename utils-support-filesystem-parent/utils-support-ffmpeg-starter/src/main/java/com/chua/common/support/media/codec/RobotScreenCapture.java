@@ -12,7 +12,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 /**
- * 基于 java.awt.Robot 的纯 Java 屏幕采集实现。
+   * 基于 Java.awt.Robot 的纯 Java 屏幕采集实现。
  *
  * <p>无需任何 native 依赖，跨平台支持 Windows / Linux / macOS。</p>
  *
@@ -33,9 +33,9 @@ public class RobotScreenCapture implements ScreenCature {
     private int fps;
     /** Initialized */
     private boolean initialized;
-    /** Frame转换器 */
+    /** 帧转换器 */
     private Java2DFrameConverter frameConverter;
-    /** CaptureBUF */
+    /** capturebuf */
     private java.awt.image.BufferedImage captureBuf;
 
     @Override
@@ -60,7 +60,7 @@ public class RobotScreenCapture implements ScreenCature {
     }
 
     @Override
-    /** GrabFrame */
+    /** grab帧 */
     public Frame grabFrame() {
         if (!initialized || robot == null) {
             log.warn("[RobotScreenCapture] 未初始化，无法采集");

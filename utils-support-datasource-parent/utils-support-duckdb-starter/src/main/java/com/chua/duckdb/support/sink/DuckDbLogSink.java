@@ -14,7 +14,7 @@ import java.util.Map;
 
 
 /**
- * DuckDB 日志数据落地实现，将日志消息按 key/value 形式写入本地 DuckDB 表。
+   * duckdb 日志数据落地实现，将日志消息按 键/值 形式写入本地 duckdb 表。
  * <p>
  * SPI 类型 {@code "duckdb-log"}，启动时自动建表 {@code datalake_log}。
  * </p>
@@ -27,7 +27,7 @@ import java.util.Map;
 public class DuckDbLogSink implements DataSink {
 
     /**
-     * datalake_log 表 DDL：trace_id / pipeline_id / topic / log_key / log_value / log_timestamp / created_at
+      * 数据湖_日志 表 DDL：追踪_标识 / pipeline_标识 / topic / 日志_键 / 日志_值 / 日志_时间戳 / 创建_at
      */
     private static final String TABLE_DDL = """
             CREATE TABLE IF NOT EXISTS datalake_log (
@@ -69,14 +69,14 @@ public class DuckDbLogSink implements DataSink {
     /**
      * 设置 JDBC 连接串。
      *
-     * @param jdbcUrl jdbc:duckdb:... 或 jdbc:duckdb:/path/to/file.db
+     * @param jdbcUrl JDBC:duckdb:... 或 JDBC:duckdb:/路径/转为/文件.db
      */
     public void setJdbcUrl(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "duckdb-log";
     }

@@ -65,7 +65,7 @@ public class FlowProps {
      * 获取原始属性值。
      *
      * @param key 属性键
-     * @return 属性值，不存在时返回 null
+     * @return 属性值，不存在时返回 空
      */
     public Object get(String key) {
         return values.get(key);
@@ -75,7 +75,7 @@ public class FlowProps {
      * 获取字符串属性值。
      *
      * @param key 属性键
-     * @return 字符串值，不存在或非字符串时返回 null
+     * @return 字符串值，不存在或非字符串时返回 空
      */
     public String getString(String key) {
         Object value = values.get(key);
@@ -98,7 +98,7 @@ public class FlowProps {
      * 获取整型属性值。
      *
      * @param key 属性键
-     * @return 整数值，不存在或转换失败时返回 null
+     * @return 整数值，不存在或转换失败时返回 空
      */
     public Integer getInt(String key) {
         Object value = values.get(key);
@@ -127,7 +127,7 @@ public class FlowProps {
      * 获取布尔属性值。
      *
      * @param key 属性键
-     * @return 布尔值，不存在或转换失败时返回 null
+     * @return 布尔值，不存在或转换失败时返回 空
      */
     public Boolean getBoolean(String key) {
         Object value = values.get(key);
@@ -144,7 +144,7 @@ public class FlowProps {
      * 获取小数属性值。
      *
      * @param key 属性键
-     * @return 小数值，不存在或转换失败时返回 null
+     * @return 小数值，不存在或转换失败时返回 空
      */
     public Double getDouble(String key) {
         Object value = values.get(key);

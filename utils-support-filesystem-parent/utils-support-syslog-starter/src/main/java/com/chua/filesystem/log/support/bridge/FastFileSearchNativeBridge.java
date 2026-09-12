@@ -20,7 +20,7 @@ import java.util.function.BiConsumer;
 /**
  * 快速文件搜索原生库桥接 - Java 25 FFM (Panama) 绑定
  * <p>
- * Windows NTFS MFT 直读搜索（需要管理员权限）。
+   * 窗口 NTFS MFT 直读搜索（需要管理员权限）。
  * </p>
  *
  * @author CH
@@ -31,17 +31,17 @@ public final class FastFileSearchNativeBridge {
 
     /** Arena */
     private static Arena ARENA;
-    /** Library */
+    /** 图书馆 */
     private static SymbolLookup LIBRARY;
 
-    /** SearchMFThandle */
+    /** 搜索mfthandle */
     private static MethodHandle searchMftHandle;
     /** Cancelhandle */
     private static MethodHandle cancelHandle;
 
-    /** loaded */
+    /** 加载 */
     private static volatile boolean loaded = false;
-    /** Load_lock */
+    /** 加载_锁 */
     private static final Object LOAD_LOCK = new Object();
 
     /** Linker */
@@ -51,13 +51,13 @@ public final class FastFileSearchNativeBridge {
         loadLibrary();
     }
 
-    /** 创建 FastFileSearchNativeBridge 实例 */
+    /** 创建 fast文件搜索NATbridge 实例 */
     private FastFileSearchNativeBridge() {
         throw new UnsupportedOperationException("Utility class");
     }
 
     /**
-     * 加载快速文件搜索原生库（fast_file_search）。
+      * 加载快速文件搜索原生库（fast_文件_搜索）。
      *
      * <p>通过 {@link NativeLoader} 将 classpath 下 {@code /native/{platform}/} 目录中匹配
      * {@code *fast_file_search*} 的动态库抽取到 JVM 临时目录下的
@@ -133,7 +133,7 @@ public final class FastFileSearchNativeBridge {
     }
 
     /**
-     * 在指定根目录下执行 NTFS MFT 直读搜索（仅 Windows 有效）。
+      * 在指定根目录下执行 NTFS MFT 直读搜索（仅 窗口 有效）。
      *
      * <p>该方法通过 FFM 下行调用原生 {@code fast_search_mft} 函数，直接读取 NTFS 主文件表（MFT）
      * 实现高速文件名匹配搜索（通常需要管理员权限）。搜索过程中每命中一条结果，原生层会通过
@@ -207,7 +207,7 @@ public final class FastFileSearchNativeBridge {
         return loaded;
     }
 
-    /** 校验Loaded */
+    /** 校验加载 */
     private static void checkLoaded() {
         if (!loaded) {
             throw new IllegalStateException(
@@ -215,7 +215,12 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
-    /** 创建CallbackStub */
+    /**
+     * 创建callbackstub
+     *
+     * @param consumer consumer
+     * @return 创建callbackstub的结果
+     */
     private static MemorySegment createCallbackStub(BiConsumer<String, Long> consumer) {
         try {
             var lookup = MethodHandles.lookup();
@@ -231,7 +236,13 @@ public final class FastFileSearchNativeBridge {
         }
     }
 
-    /** UpcallCallback */
+    /**
+     * upcallcallback
+     *
+     * @param pathPtr 路径ptr
+     * @param length 长度
+     * @param consumer consumer
+     */
     private static void upcallCallback(MemorySegment pathPtr, long length, BiConsumer<String, Long> consumer) {
         if (pathPtr.equals(MemorySegment.NULL)) { return; }
         String path = pathPtr.reinterpret(length).getString(0, StandardCharsets.UTF_8);

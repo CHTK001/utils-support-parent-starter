@@ -25,9 +25,9 @@ public interface FaceQualityAssessor {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -37,9 +37,9 @@ public interface FaceQualityAssessor {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default FaceQualityAssessor provider(String provider) {
@@ -56,7 +56,12 @@ public interface FaceQualityAssessor {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static FaceQualityAssessor create(String name) {
         return new DefaultFaceQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -67,7 +72,7 @@ public interface FaceQualityAssessor {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceQualityAssessor.class);
@@ -203,21 +208,21 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public FaceQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** 最小值FaceRatio */
+    /** 最小值faceratio */
     public FaceQualityAssessor minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FaceQualityAssessor modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -232,7 +237,12 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Assess */
+    /**
+     * 评定
+     *
+     * @param imageData 镜像数据
+     * @return 评定的结果
+     */
     public FaceQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], FaceQualityInfo> t =
                 (ITranslator<byte[], FaceQualityInfo>) engine.get(modelName, ITranslator.class);

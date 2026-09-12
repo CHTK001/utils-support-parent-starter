@@ -21,9 +21,9 @@ import java.util.Map;
 public interface DataSink {
 
     /**
-     * 返回 Sink 类型标识，同时对应发布到 DispatcherProvider 的 topic
+      * 返回 Sink 类型标识，同时对应发布到 dispatcher提供者 的 topic
      *
-     * @return 类型标识（例如 "jdbc"、"real-time"、"stats"、"log"）
+     * @return 类型标识（例如 "JDBC"、"real-时间"、"stats"、"日志"）
      */
     String type();
 
@@ -38,9 +38,9 @@ public interface DataSink {
     void stop();
 
     /**
-     * 处理一条完成通道传递来的 DataEnvelope
+      * 处理一条完成通道传递来的 数据envelope
      *
-     * @param envelope 携带待处理数据的 DataEnvelope
+     * @param envelope 携带待处理数据的 数据envelope
      * @param config   可由管线配置传入的附加参数
      * @return true 表示处理成功，false 表示注册失败
      */
@@ -48,9 +48,9 @@ public interface DataSink {
 
     /**
      * 获取封装的底层数据源。
-     * 存储型 Sink 返回 DataSource，访问型 Sink 返回 null。
+      * 存储型 Sink 返回 数据源，访问型 Sink 返回 空。
      *
-     * @return EngineDataSource 或 null
+     * @return EngineDataSource 或 空
      */
     EngineDataSource<?> getDataSource();
 }

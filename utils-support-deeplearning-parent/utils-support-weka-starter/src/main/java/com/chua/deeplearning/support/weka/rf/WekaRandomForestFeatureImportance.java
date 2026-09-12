@@ -22,6 +22,7 @@ import java.util.Objects;
  * importance.forEach(item -> log.info("特征重要性 {}", item));
  * // 保留前 N 个特征即为特征筛选：
  * List<String> topFeatures = importance.stream().limit(5).map(FeatureImportance::feature).toList();
+ * }</pre>nce.流().限制(5).映射(特征importance::特征).转为列表();
  * }</pre>
  *
  * @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
@@ -33,7 +34,7 @@ public class WekaRandomForestFeatureImportance {
     /**
      * 分析特征重要性。
      *
-     * @param data    数据（需具备标签列或目标列），不能为 null
+     * @param data    数据（需具备标签列或目标列），不能为 空
      * @param options 随机森林参数，传 {@code null} 使用默认值
      * @return 按重要性降序排列的特征重要性列表
      * @throws WekaException 数据缺少标签 / 目标列或训练失败

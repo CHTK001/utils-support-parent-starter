@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * VSCode Copilot usage parser.
+   * VS 编码 Copilot usage parser.
  *
  * <p>GitHub Copilot CLI stores per-request usage in a local SQLite database at
  * {@code ~/.copilot/session-store.db}, table {@code assistant_usage_events}:</p>
@@ -24,11 +24,13 @@ import java.util.List;
  *   cache_write_tokens, reasoning_tokens, total_nano_aiu,
  *   duration_ms, time_to_first_token_ms, finish_reason, ...
  * )
+ * }</pre>duration_ms, time_to_first_token_ms, finish_reason, ...
+ * )
  * }</pre>
  *
  * <p>Rows only appear after successful GitHub authentication
- * (fine-grained PAT via {@code GH_TOKEN} or OAuth login). The VSCode IDE
- * extension itself keeps usage server-side; only the CLI persists locally.</p>
+   * (罚金-grained PAT via {@code GH_TOKEN} 或 OAuth login). The VS Code IDE
+   * 延伸 itself keeps usage 服务端-side; only the CLI persists 本地.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -48,12 +50,12 @@ public class VscodeUsageParser extends BaseUsageParser {
                     + "ORDER BY created_at ASC";
 
     /**
-     * Returns the SPI name for VSCode Copilot.
+      * 返回 the SPI 名称 for VS Code Copilot.
      *
      * @return {@code "vscode"}
      */
     /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+      * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
      */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
@@ -66,9 +68,9 @@ public class VscodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Parses all usage events from the Copilot CLI session store.
+      * 解析 全部 usage 事件 从 the Copilot CLI 会话 存储.
      *
-     * @return list of AiUsage records, one per billed API request
+     * @return list 的 aiusage records, one per 账单 API 请求
      */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
@@ -90,11 +92,11 @@ public class VscodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Converts one assistant_usage_events row into an AiUsage record.
+      * 转换 one assistant_usage_事件 row into an AIusage record.
      *
-     * @param rs result set positioned on the row to convert
-     * @return populated AiUsage record
-     * @throws SQLException if column access fails
+     * @param rs 结果 设置 位置 on the row 转为 转换
+     * @return populated aiusage record
+     * @throws SQLException if column access 失败
      */
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {
                 long startTime = parseInstantToMillis(rs.getString(1));

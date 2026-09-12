@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.liveness.LivenessDetector;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxLivenessDetector implements LivenessDetector {
@@ -18,33 +18,37 @@ public class OnnxLivenessDetector implements LivenessDetector {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxLivenessDetector 实例
-     * @param apiKey apiKey
+      * 创建 onnxlivenessdetector 实例
+     * @param apiKey API密钥
      */
     public OnnxLivenessDetector(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public LivenessDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "face-liveness-flrgb";
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public LivenessDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public LivenessDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
@@ -64,7 +68,7 @@ public class OnnxLivenessDetector implements LivenessDetector {
     }
 
     @Override
-    /** LiveScore */
+    /** livescore */
     public float liveScore(byte[] imageData) {
         return LivenessDetector.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).liveScore(imageData);
     }

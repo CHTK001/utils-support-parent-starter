@@ -88,7 +88,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-     * execute 调用次数
+      * 执行 调用次数
      */
     private final AtomicLong executedCount = new AtomicLong();
 
@@ -340,7 +340,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     /**
      * 整批合并回填：调用一次结果映射器，将合并结果按调用者逐项回填。
      *
-     * @param group 整批任务（mergeAll 模式下即全部调用）
+     * @param group 整批任务（合并全部 模式下即全部调用）
      */
     private void runMapped(Collection<Task<INPUT, OUTPUT>> group) {
         List<INPUT> inputs = collectInputs(group);
@@ -389,7 +389,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
      *
      * @param task 本次调用任务
      * @return 调用结果
-     * @throws Throwable 执行异常（解除 ExecutionException 包装）
+     * @throws Throwable 执行异常（解除 执行异常 包装）
      */
     private OUTPUT await(Task<INPUT, OUTPUT> task) throws Throwable {
         try {
@@ -471,6 +471,11 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
          */
         private final AtomicInteger sequence = new AtomicInteger(0);
 
+        /**
+         * platformdaemonthread工厂。
+         * @param prefix 前缀
+         * @return platformdaemonthread工厂的结果
+         */
         private PlatformDaemonThreadFactory(String prefix) {
             this.prefix = prefix;
         }

@@ -23,13 +23,14 @@ import java.util.function.Consumer;
  */
 public class SolrMeta extends AbstractMetaSearch {
 
-    /** Search引擎 */
+    /** 搜索引擎 */
     private final SolrSearchEngine searchEngine;
 
     /**
-     * 创建 SolrMeta 实例
-     * @param metaData metaData
-     * @param SolrEngine SolrEngine
+      * 创建 Solrmeta 实例
+     * @param metaData meta数据
+     * @param engine Solrengine
+     * @param engine engine
      */
     public SolrMeta(AbstractMetaData metaData, SolrEngine engine) {
         super(metaData, engine);
@@ -37,7 +38,7 @@ public class SolrMeta extends AbstractMetaSearch {
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<SearchIndexDef> list() {
         List<String> indexNames = searchEngine.listIndexes();
         List<SearchIndexDef> result = new ArrayList<>();
@@ -63,7 +64,7 @@ public class SolrMeta extends AbstractMetaSearch {
     }
 
     @Override
-    /** Drop */
+    /** 掉落 */
     public boolean drop(String indexName) {
         return searchEngine.deleteIndex(indexName);
     }
@@ -84,7 +85,14 @@ public class SolrMeta extends AbstractMetaSearch {
     }
 
     @Override
-    /** Optimize */
+    /**
+     * 优化
+     *
+     * @param indexName 索引名称
+     * @return 优化的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public boolean optimize(String indexName) {
         SolrClient client = ((SolrEngine) engine).getClient();
         if (client == null) {
@@ -102,7 +110,7 @@ public class SolrMeta extends AbstractMetaSearch {
 
         /** 索引名称 */
         private final String indexName;
-        /** Fields */
+        /** 字段 */
         private final List<SearchFieldDef> fields = new ArrayList<>();
         /** settings */
         private final Map<String, Object> settings = new LinkedHashMap<>();
@@ -132,7 +140,7 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** Field */
+        /** 字段 */
         public SearchIndexCreateBuilder field(String name, String type) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -142,7 +150,7 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** Field */
+        /** 字段 */
         public SearchIndexCreateBuilder field(String name, String type, Consumer<SearchFieldBuilder> config) {
             SearchFieldDef field = new SearchFieldDef();
             field.setName(name);
@@ -161,7 +169,7 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** Fields */
+        /** 字段 */
         public SearchIndexCreateBuilder fields(List<SearchFieldDef> fields) {
             this.fields.addAll(fields);
             return this;
@@ -182,7 +190,13 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** 执行 */
+        /**
+         * 执行
+         *
+         * @return 执行的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);
@@ -201,7 +215,7 @@ public class SolrMeta extends AbstractMetaSearch {
         private String analyzer;
         /** Searchanalyzer */
         private String searchAnalyzer;
-        /** Indexed */
+        /** 索引 */
         private boolean indexed = true;
         /** Stored */
         private boolean stored;
@@ -223,14 +237,14 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** Index */
+        /** 索引 */
         public SearchFieldBuilder index(boolean indexed) {
             this.indexed = indexed;
             return this;
         }
 
         @Override
-        /** Store */
+        /** 存储 */
         public SearchFieldBuilder store(boolean stored) {
             this.stored = stored;
             return this;
@@ -243,7 +257,7 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** Text */
+        /** 文本 */
         public SearchFieldBuilder text() {
             return this;
         }
@@ -255,25 +269,25 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** LongType */
+        /** long类型 */
         public SearchFieldBuilder longType() {
             return this;
         }
 
         @Override
-        /** FloatType */
+        /** float类型 */
         public SearchFieldBuilder floatType() {
             return this;
         }
 
         @Override
-        /** DoubleType */
+        /** double类型 */
         public SearchFieldBuilder doubleType() {
             return this;
         }
 
         @Override
-        /** Date */
+        /** 日期 */
         public SearchFieldBuilder date() {
             return this;
         }
@@ -285,38 +299,38 @@ public class SolrMeta extends AbstractMetaSearch {
         }
 
         @Override
-        /** Object */
+        /** 对象 */
         public SearchFieldBuilder object() {
             return this;
         }
 
         @Override
-        /** Nested */
+        /** 嵌套 */
         public SearchFieldBuilder nested() {
             return this;
         }
 
         @Override
-        /** Weight */
+        /** 权重 */
         public SearchFieldBuilder weight(double weight) {
             this.weight = weight;
             return this;
         }
 
         @Override
-        /** IgnoreAbove */
+        /** ignoreabove */
         public SearchFieldBuilder ignoreAbove(int ignoreAbove) {
             return this;
         }
 
         @Override
-        /** DocValues */
+        /** doc值 */
         public SearchFieldBuilder docValues(boolean docValues) {
             return this;
         }
 
         @Override
-        /** NullValue */
+        /** 空值 */
         public SearchFieldBuilder nullValue(String nullValue) {
             return this;
         }

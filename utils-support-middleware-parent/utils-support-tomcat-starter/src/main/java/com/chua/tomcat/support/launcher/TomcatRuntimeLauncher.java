@@ -30,11 +30,11 @@ import java.util.List;
 @Spi("TOMCAT")
 public class TomcatRuntimeLauncher implements RuntimeLauncher {
 
-    /** container */
+    /** 容器 */
     private volatile WebContainer container;
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "TOMCAT";
     }
@@ -67,7 +67,7 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
             String containerName = (args != null && args.size() > 2 && args.get(2) != null)
                     ? args.get(2) : "tomcat";
 
-            // 通过 SPI 加载 WebContainer
+ // 通过 SPI 加载 web容器
             container = ServiceProvider.of(WebContainer.class).getExtension(containerName);
             if (container == null) {
                 return CmdResult.builder()
@@ -130,7 +130,7 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public RuntimeStatus status() {
         if (container != null && container.isRunning()) {
             return RuntimeStatus.RUNNING;

@@ -37,6 +37,8 @@ import java.util.Map;
  *   .write("用户登录: userId=1001")
  *   .write(Map.of("level", "ERROR", "message", "连接超时"))
  *   .finish();
+ * }</pre>l", "ERROR", "message", "连接超时"))
+ *   .finish();
  * }</pre>
  *
  * @author CH
@@ -153,7 +155,7 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** WithCharset */
+    /** with字符集 */
     public LogWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -227,7 +229,7 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** Finish */
+    /** 饰面 */
     public void finish() {
         if (file == null) {
             return;
@@ -257,7 +259,8 @@ public class LogWriteBuilder extends WriteBuilder {
     // ==================== 内部方法 ====================
 
     /**
-     * 创建文件写入器（根据 appendMode 决定追加或覆盖）。
+      * 创建文件写入器（根据 追加mode 决定追加或覆盖）。
+     * @return 创建writer的结果
      */
     private BufferedWriter createWriter() throws IOException {
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
@@ -270,6 +273,8 @@ public class LogWriteBuilder extends WriteBuilder {
 
     /**
      * 将 pending 中的条目解析为行列表。
+     * @param entry entry
+     * @return resolve线的结果
      */
     @SuppressWarnings("unchecked")
     private List<String> resolveLines(Object entry) {
@@ -294,6 +299,8 @@ public class LogWriteBuilder extends WriteBuilder {
 
     /**
      * 格式化单行：前缀 + 时间戳 + 内容 + 后缀。
+     * @param line 线
+     * @return 格式化线的结果
      */
     private String formatLine(String line) {
         StringBuilder sb = new StringBuilder();

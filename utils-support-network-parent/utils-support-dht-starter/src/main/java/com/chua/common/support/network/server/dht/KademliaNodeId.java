@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
- * Kademlia 160 位节点 ID。
+   * Kademlia 160 位节点 标识。
  * <p>
  * 使用 SHA-1 哈希生成 160 位（20 字节）的节点标识符，
  * 支持 XOR 距离计算和 K-Bucket 索引定位，是 Kademlia 协议的核心数据结构。
@@ -19,18 +19,18 @@ import java.util.Arrays;
 public class KademliaNodeId implements Comparable<KademliaNodeId> {
 
     /**
-     * 节点 ID 的总位数（160 位）
+      * 节点 标识 的总位数（160 位）
      */
     public static final int ID_LENGTH = 160;
     /**
-     * 节点 ID 的原始字节数组（20 字节，克隆保护）。
+      * 节点 标识 的原始字节数组（20 字节，克隆保护）。
      */
     private final byte[] id;
 
     /**
-     * 使用指定的 20 字节数组构造节点 ID。
+      * 使用指定的 20 字节数组构造节点 标识。
      *
-     * @param id 20 字节的节点 ID 原始字节
+     * @param id 20 字节的节点 标识 原始字节
      */
     public KademliaNodeId(byte[] id) {
         if (id.length != ID_LENGTH / 8) {
@@ -40,9 +40,9 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     /**
-     * 生成一个随机的节点 ID（基于 SHA-1 哈希当前纳秒时间和随机数）。
+      * 生成一个随机的节点 标识（基于 SHA-1 哈希当前纳秒时间和随机数）。
      *
-     * @return 随机生成的 KademliaNodeId 实例
+     * @return 随机生成的 kademlia节点标识 实例
      */
     public static KademliaNodeId random() {
         try {
@@ -55,9 +55,9 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     /**
-     * 根据字符串生成节点 ID（SHA-1 哈希字符串内容）。
+      * 根据字符串生成节点 标识（SHA-1 哈希字符串内容）。
      *
-     * @param str 用于生成 ID 的源字符串
+     * @param str 用于生成 标识 的源字符串
      * @return KademliaNodeId 实例
      */
     public static KademliaNodeId fromString(String str) {
@@ -70,7 +70,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     /**
-     * 从十六进制字符串解析节点 ID。
+      * 从十六进制字符串解析节点 标识。
      *
      * @param hex 40 字符的十六进制字符串
      * @return KademliaNodeId 实例
@@ -84,7 +84,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     /**
-     * 获取节点 ID 的原始字节数组（克隆副本）。
+      * 获取节点 标识 的原始字节数组（克隆副本）。
      *
      * @return 20 字节数组
      */
@@ -93,7 +93,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     /**
-     * 将节点 ID 转换为 BigInteger 用于数值比较和距离计算。
+      * 将节点 标识 转换为 biginteger 用于数值比较和距离计算。
      *
      * @return BigInteger 表示
      */
@@ -104,8 +104,8 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     /**
      * 计算当前节点与另一节点的 XOR 距离。
      *
-     * @param other 另一个节点 ID
-     * @return XOR 结果作为新的 KademliaNodeId
+     * @param other 另一个节点 标识
+     * @return XOR 结果作为新的 kademlia节点标识
      */
     public KademliaNodeId xor(KademliaNodeId other) {
         byte[] result = new byte[id.length];
@@ -121,7 +121,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
      * 通过 XOR 后最高位的位置确定，范围 0 ~ 159。
      * </p>
      *
-     * @param other 目标节点 ID
+     * @param other 目标节点 标识
      * @return K-Bucket 索引（0 ~ 159）
      */
     public int getBucketIndex(KademliaNodeId other) {
@@ -137,10 +137,10 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     /**
-     * 计算当前节点与另一节点的距离（XOR 距离的 bit 位数）。
+      * 计算当前节点与另一节点的距离（XOR 距离的 钻头 位数）。
      *
-     * @param other 另一个节点 ID
-     * @return XOR 距离的 bit 长度
+     * @param other 另一个节点 标识
+     * @return XOR 距离的 钻头 长度
      */
     public int getDistance(KademliaNodeId other) {
         BigInteger d = this.getInt().xor(other.getInt());
@@ -148,7 +148,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     @Override
-    /** 比较To */
+    /** 比较转为 */
     public int compareTo(KademliaNodeId o) {
         return this.getInt().compareTo(o.getInt());
     }
@@ -167,13 +167,13 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     @Override
-    /** HashCode */
+    /** 哈希编码 */
     public int hashCode() {
         return Arrays.hashCode(id);
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         StringBuilder sb = new StringBuilder(40);
         for (byte b : id) {

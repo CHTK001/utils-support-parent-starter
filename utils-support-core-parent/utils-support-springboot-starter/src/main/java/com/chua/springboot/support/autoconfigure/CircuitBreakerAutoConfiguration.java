@@ -21,21 +21,34 @@ public class CircuitBreakerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    /** CircuitBreakerProvider */
+    /**
+     * 熔断中断提供者
+     *
+     * @return 熔断中断提供者的结果
+     */
     public CircuitBreakerProvider circuitBreakerProvider() {
         return new InMemoryCircuitBreakerProvider("default", 5, 2, 60000);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    /** CircuitBreakerIntercept */
+    /**
+     * 熔断中断intercept
+     *
+     * @return 熔断中断intercept的结果
+     */
     public CircuitBreakerIntercept circuitBreakerIntercept() {
         return new CircuitBreakerIntercept();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    /** CircuitBreakerAdvisor */
+    /**
+     * 熔断中断advisor
+     *
+     * @param intercept intercept
+     * @return 熔断中断advisor的结果
+     */
     public CircuitBreakerAdvisor circuitBreakerAdvisor(CircuitBreakerIntercept intercept) {
         return new CircuitBreakerAdvisor(intercept);
     }

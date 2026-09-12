@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.speech.SpeechRecognizer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ONNX 语音识别引擎（SPI provider="onnx"）。
+   * ONNX 语音识别引擎（SPI 提供者="onnx"）。
  *
  * <p>注册表中无可用语音识别模型，必须通过 {@code .model("模型ID")} 显式指定
  * 已注册模型，否则抛出异常。</p>
@@ -41,20 +41,24 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxSpeechRecognizer 实例
-     * @param apiKey apiKey
+      * 创建 onnx语音recognizer 实例
+     * @param apiKey API密钥
      */
     public OnnxSpeechRecognizer(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public SpeechRecognizer model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + SpeechRecognizer.listModels());
@@ -70,14 +74,14 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public SpeechRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** SampleRate */
+    /** 样本rate */
     public SpeechRecognizer sampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
         return this;

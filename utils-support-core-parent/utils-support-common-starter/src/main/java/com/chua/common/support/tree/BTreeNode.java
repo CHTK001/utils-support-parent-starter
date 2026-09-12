@@ -13,10 +13,10 @@ import java.util.List;
  */
 class BTreeNode<K, V> {
 
-    List<K> keys = new ArrayList<>();
-    List<V> values = new ArrayList<>();
-    List<BTreeNode<K, V>> children = new ArrayList<>();
-    boolean leaf;
+    List<K> keys = new ArrayList<>(); // 键
+    List<V> values = new ArrayList<>(); // 值
+    List<BTreeNode<K, V>> children = new ArrayList<>(); // children
+    boolean leaf; // leaf
 
     BTreeNode(boolean leaf) {
         this(leaf, 16);
@@ -24,9 +24,15 @@ class BTreeNode<K, V> {
 
     BTreeNode(boolean leaf, int capacity) {
         this.leaf = leaf;
-        if (keys instanceof ArrayList) ((ArrayList<?>) keys).ensureCapacity(capacity);
-        if (values instanceof ArrayList) ((ArrayList<?>) values).ensureCapacity(capacity);
-        if (children instanceof ArrayList) ((ArrayList<?>) children).ensureCapacity(capacity + 1);
+        if (keys instanceof ArrayList) {
+            ((ArrayList<?>) keys).ensureCapacity(capacity);
+        }
+        if (values instanceof ArrayList) {
+            ((ArrayList<?>) values).ensureCapacity(capacity);
+        }
+        if (children instanceof ArrayList) {
+            ((ArrayList<?>) children).ensureCapacity(capacity + 1);
+        }
     }
 
     List<K> getKeys() { return keys; }

@@ -15,7 +15,7 @@ import oshi.hardware.Sensors;
 import java.util.List;
 
 /**
- * oshc status — 全局仪表盘：系统概况、CPU、内存、磁盘、网络一览。
+   * oshc 状态 — 全局仪表盘：系统概况、CPU、内存、磁盘、网络一览。
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,7 +36,7 @@ public final class StatusCommand extends AbstractCommand {
     public void execute(CommandLine options) {
         HardwareAbstractionLayer hw = Oshi.getHardware();
 
-        // ── System info ──
+ // ── 系统 信息 ──
         Sys sys = Oshi.newSys();
         oshi.hardware.ComputerSystem cs = hw.getComputerSystem();
         System.out.println();
@@ -59,7 +59,7 @@ public final class StatusCommand extends AbstractCommand {
         System.out.println("  " + pad("user", cpu.getUser()) + pad("sys", cpu.getSys())
                 + pad("wait", cpu.getWait()) + pad("idle", cpu.getFree()));
 
-        // ── Memory ──
+ // ── 内存 ──
         System.out.println();
         Mem mem = Oshi.newMem();
         System.out.println("Memory: " + Formatter.formatBytes(mem.getUsed()) + " / "
@@ -67,7 +67,7 @@ public final class StatusCommand extends AbstractCommand {
         System.out.println("  " + Formatter.bar(mem.getUsage(), 30));
         System.out.println("  " + Formatter.formatBytes(mem.getFree()) + " free");
 
-        // ── Virtual memory ──
+ // ── 虚拟 内存 ──
         oshi.hardware.GlobalMemory globalMem = hw.getMemory();
         oshi.hardware.VirtualMemory vMem = globalMem.getVirtualMemory();
         if (vMem != null) {
@@ -80,7 +80,7 @@ public final class StatusCommand extends AbstractCommand {
             }
         }
 
-        // ── Physical memory modules ──
+ // ── Physical 内存 modules ──
         List<oshi.hardware.PhysicalMemory> pmms = globalMem.getPhysicalMemory();
         if (!pmms.isEmpty()) {
             System.out.println("  Physical: " + pmms.size() + " module(s)");
@@ -164,6 +164,12 @@ public final class StatusCommand extends AbstractCommand {
         System.out.println();
     }
 
+    /**
+     * pad。
+     * @param label 标签
+     * @param val val
+     * @return pad的结果
+     */
     private static String pad(String label, double val) {
         return String.format("%-5s %6.1f%%  ", label, val);
     }

@@ -1,7 +1,7 @@
 package com.chua.network.support.tshark;
 
 /**
- * TShark 数据包解析结果记录。
+   * tshark 数据包解析结果记录。
  *
  * <p>包含源/目的地址端口、协议类型、摘要信息、原始JSON、TCP生命周期数据及协议还原文本。</p>
  *
@@ -12,7 +12,7 @@ package com.chua.network.support.tshark;
  * @param protocol 协议名称（HTTP/TLS/DNS/TCP/UDP/ICMP/ARP/OTHER）
  * @param length 数据包长度（字节）
  * @param info 人可读的摘要信息
- * @param rawData 原始TShark JSON字符串
+ * @param rawData 原始tshark JSON字符串
  * @param lifecycleJson TCP生命周期JSON（非TCP协议为空对象"{}"）
  * @param restoredText 协议还原文本（HTTP/DNS/...），不可还原时为 {@code null}
  * @author CH

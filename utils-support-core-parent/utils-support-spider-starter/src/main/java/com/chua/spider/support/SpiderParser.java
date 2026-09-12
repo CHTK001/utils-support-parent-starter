@@ -26,11 +26,11 @@ public interface SpiderParser {
      * 解析响应内容。
      *
      * <p>根据响应的 contentType 选择合适的解析策略，将原始内容
-     * 解析为包含标题、文本、结构化字段等信息的 Result 对象。
-     * 返回 null 表示该解析器无法处理此内容。
+      * 解析为包含标题、文本、结构化字段等信息的 结果 对象。
+      * 返回 空 表示该解析器无法处理此内容。
      *
      * @param response 爬取响应，包含原始内容和内容类型
-     * @return 解析结果，包含标题、文本、结构化数据等；无法解析时返回 null
+     * @return 解析结果，包含标题、文本、结构化数据等；无法解析时返回 空
      */
     SpiderResult parse(SpiderResponse response);
 

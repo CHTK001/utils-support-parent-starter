@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Windows 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 Event Log API
+   * 窗口 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 事件 日志 API
  *
  * @author CH
  * @since 4.0.0.42
@@ -35,20 +35,20 @@ import java.util.regex.PatternSyntaxException;
 @Slf4j
 public class WindowsEventLogProvider implements SystemLogProvider {
 
-    /** Sources */
+    /** 源 */
     private static final List<String> SOURCES = List.of("System", "Application", "Security");
 
-    /** Eventlog_sequential_read */
+    /** Eventlog_sequential_读取 */
     private static final int EVENTLOG_SEQUENTIAL_READ = 0x0001;
-    /** Eventlog_forwards_read */
+    /** Eventlog_远期_读取 */
     private static final int EVENTLOG_FORWARDS_READ    = 0x0004;
-    /** Eventlog_seek_read */
+    /** Eventlog_seek_读取 */
     private static final int EVENTLOG_SEEK_READ        = 0x0002;
 
-    /** Buffer_size */
+    /** 缓冲_大小 */
     private static final int BUFFER_SIZE = 65536;
 
-    /** Timestamp_formatter */
+    /** 时间戳_formatter */
     private static final DateTimeFormatter TIMESTAMP_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .withZone(ZoneId.systemDefault());
@@ -56,19 +56,19 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     /** 注册表 */
     private final NativeFunctionRegistry registry;
 
-    /** openEventLog */
+    /** 打开事件日志 */
     private volatile MethodHandle openEventLog;
-    /** readEventLog */
+    /** 读取事件日志 */
     private volatile MethodHandle readEventLog;
-    /** closeEventLog */
+    /** 关闭事件日志 */
     private volatile MethodHandle closeEventLog;
-    /** getNumberOfEventLogRecords */
+    /** 获取数字的事件日志records */
     private volatile MethodHandle getNumberOfEventLogRecords;
-    /** getLastErrorHandle */
+    /** 获取最后一个错误处理 */
     private volatile MethodHandle getLastErrorHandle;
 
     /**
-     * 创建 WindowsEventLogProvider 实例
+      * 创建 窗口事件日志提供者 实例
      * @param bridge bridge
      */
     public WindowsEventLogProvider(SystemLogBridge bridge) {
@@ -91,7 +91,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 是否PlatformSupported */
+    /** 是否platform支持 */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isWindows() && registry != null;
@@ -99,7 +99,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 获取Sources */
+    /** 获取源 */
     public List<String> getSources() {
         
         return SOURCES;
@@ -197,33 +197,33 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 解析EventLogRecords
-     * @param buffer buffer
-     * @param bytesRead bytesRead
-     * @param source source
+      * 解析事件日志records
+     * @param buffer 缓冲
+     * @param bytesRead bytes读取
+     * @param source 源
      * @param regex regex
-     * @param minLevel minLevel
+     * @param minLevel 最小级别
      * @param remaining remaining
-     * @param results results
+     * @param results 结果
      * @param remaining remaining
-     * @param offset offset
-     * @param bytesRead bytesRead
-     * @param offset offset
-     * @param stringOffset stringOffset
-     * @param message message
-     * @param level level
-     * @param source source
-     * @param message message
-     * @param null null
-     * @param buffer buffer
-     * @param recordOffset recordOffset
-     * @param stringOffset stringOffset
+     * @param offset 偏移量
+     * @param bytesRead bytes读取
+     * @param offset 偏移量
+     * @param stringOffset 字符串偏移量
+     * @param message 消息
+     * @param level 级别
+     * @param source 源
+     * @param message 消息
+     * @param null 空
+     * @param buffer 缓冲
+     * @param recordOffset record偏移量
+     * @param stringOffset 字符串偏移量
      * @param i i
-     * @param eventType eventType
+     * @param eventType 事件类型
      * @param glob glob
      * @param e e
      * @param glob glob
-     * @param handleObj handleObj
+     * @param handleObj 处理obj
      * @param seg seg
      * @param num num
      * @param e e
@@ -281,7 +281,14 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return parsed;
     }
 
-    /** ExtractString */
+    /**
+     * extract字符串
+     *
+     * @param buffer 缓冲
+     * @param recordOffset record偏移量
+     * @param stringOffset 字符串偏移量
+     * @return extract字符串的结果
+     */
     public static String extractString(MemorySegment buffer, int recordOffset, int stringOffset) {
         int stringsStart = recordOffset + stringOffset;
         if (stringsStart <= 0 || stringsStart >= (int) buffer.byteSize()) {
@@ -299,7 +306,12 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return sb.toString().trim();
     }
 
-    /** MapEventTypeToLevel */
+    /**
+     * 映射事件类型转为级别
+     *
+     * @param eventType 事件类型
+     * @return 映射事件类型转为级别的结果
+     */
     public static LogLevel mapEventTypeToLevel(short eventType) {
         return switch (eventType) {
             case 1  -> LogLevel.ERROR;
@@ -309,7 +321,12 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         };
     }
 
-    /** CompilePattern */
+    /**
+     * compile模式
+     *
+     * @param glob glob
+     * @return compile模式的结果
+     */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) {
             return null;
@@ -348,7 +365,12 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         }
     }
 
-    /** CoerceToMemorySegment */
+    /**
+     * coerce转为内存segment
+     *
+     * @param handleObj 处理obj
+     * @return coerce转为内存segment的结果
+     */
     private static MemorySegment coerceToMemorySegment(Object handleObj) {
         if (handleObj instanceof MemorySegment seg) {
             return seg;
@@ -359,7 +381,11 @@ public class WindowsEventLogProvider implements SystemLogProvider {
         return null;
     }
 
-    /** 获取Last记录错误 */
+    /**
+     * 获取最后一个记录错误
+     *
+     * @return 获取最后一个错误的结果
+     */
     private int getLastError() {
         if (getLastErrorHandle == null) {
             return 0;

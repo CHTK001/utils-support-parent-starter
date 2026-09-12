@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OpenRouter 统一模型指标提供者。
+   * 打开router 统一模型指标提供者。
  *
  * <p>补充 Artificial Analysis 缺失的维度，数据来自官方 JSON API
  * {@code https://openrouter.ai/api/v1/models}（公开、无需 key）：</p>
@@ -22,7 +22,7 @@ import java.util.List;
  * </ul>
  *
  * <p>价格口径统一为 USD / 百万 Token（与 Artificial Analysis 一致），图片与检索按次计费。
- * 模型 id 取 {@code provider/model} 的尾段，与 Artificial Analysis 的 slug 对齐，便于
+   * 模型 标识 取 {@code provider/model} 的尾段，与 Artificial Analysis 的 slug 对齐，便于
  * {@code DataSearchModelPricingProvider} 多源合并。</p>
  *
  * @author CH
@@ -31,13 +31,13 @@ import java.util.List;
 @Spi("openrouter")
 public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider {
 
-    /** OpenRouter 模型列表 API(免 key) */
+    /** 打开router 模型列表 API(免 键) */
     private static final String OPENROUTER_URL = "https://openrouter.ai/api/v1/models";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
     /**
-     * 从 OpenRouter 拉取全部模型指标。
+      * 从 打开router 拉取全部模型指标。
      *
      * @return 模型指标列表；接口不可达或结构变化时返回空列表
      */
@@ -57,7 +57,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-     * 解析 OpenRouter 模型列表 JSON。
+      * 解析 打开router 模型列表 JSON。
      *
      * @param json API 响应
      * @return 模型指标列表
@@ -120,10 +120,10 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-     * 将每 token 价格换算为 USD / 百万 Token。
+      * 将每 令牌 价格换算为 USD / 百万 令牌。
      *
      * @param node 价格节点
-     * @return 每百万 Token 价格；缺失/非数值/零时返回 null
+     * @return 每百万 令牌 价格；缺失/非数值/零时返回 空
      */
     private BigDecimal perMillion(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
@@ -144,7 +144,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
      * 读取按次计费的价格（图片/检索）。
      *
      * @param node 价格节点
-     * @return 单次价格；缺失/非数值/零时返回 null
+     * @return 单次价格；缺失/非数值/零时返回 空
      */
     private BigDecimal perImage(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
@@ -182,7 +182,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
      * 判断输入模态是否包含指定类型。
      *
      * @param architecture 架构节点
-     * @param modality     模态名（如 image）
+     * @param modality     模态名（如 镜像）
      * @return 包含返回 true
      */
     private boolean containsModality(JsonNode architecture, String modality) {
@@ -202,7 +202,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
      * 读取数值节点。
      *
      * @param node 数值节点
-     * @return 数值；缺失/非数值返回 null
+     * @return 数值；缺失/非数值返回 空
      */
     private BigDecimal number(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {

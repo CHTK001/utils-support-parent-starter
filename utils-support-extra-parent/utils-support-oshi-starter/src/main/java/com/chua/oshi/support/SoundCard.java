@@ -6,6 +6,7 @@ import lombok.Data;
  * 声卡信息实体类。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class SoundCard {

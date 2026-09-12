@@ -58,7 +58,7 @@ public class PreviewPdfCache {
     /** 缓存 TTL（秒），0 表示永不过期 */
     private final long ttlSeconds;
 
-    /** 内存 LRU 缓存：key → pdf 字节（access-order 驱逐最久未访问的） */
+    /** 内存 LRU 缓存：键 → pdf 字节（access-订单 驱逐最久未访问的） */
     private final LinkedHashMap<String, byte[]> memoryCache;
 
     /** 内存缓存容量（条目数） */
@@ -67,7 +67,7 @@ public class PreviewPdfCache {
     /** 单文件内存缓存上限（字节），超过此值不放入内存 */
     private final long maxMemoryFileSize;
 
-    /** 并发去重：key → 正在进行的转换 Future，避免同一文件重复转换 */
+    /** 并发去重：键 → 正在进行的转换 期货，避免同一文件重复转换 */
     private final ConcurrentHashMap<String, CompletableFuture<byte[]>> inflightMap = new ConcurrentHashMap<>();
 
     /** 后台清理调度器 */
@@ -84,13 +84,13 @@ public class PreviewPdfCache {
 
     // ==================== 构造 ====================
 
-    /** 创建 PreviewPdfCache 实例（使用全部默认值） */
+    /** 创建 previewpdf缓存 实例（使用全部默认值） */
     public PreviewPdfCache() {
         this(DEFAULT_CACHE_DIR, DEFAULT_TTL_SECONDS, DEFAULT_MEMORY_CAPACITY, DEFAULT_MAX_MEMORY_FILE_SIZE);
     }
 
     /**
-     * 创建 PreviewPdfCache 实例
+      * 创建 previewpdf缓存 实例
      * @param cacheDir 缓存目录
      */
     public PreviewPdfCache(Path cacheDir) {
@@ -98,7 +98,7 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 创建 PreviewPdfCache 实例
+      * 创建 previewpdf缓存 实例
      * @param cacheDir   缓存目录
      * @param ttlSeconds 缓存 TTL（秒），0 表示永不过期
      */
@@ -107,7 +107,7 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 创建 PreviewPdfCache 实例（完整参数）
+      * 创建 previewpdf缓存 实例（完整参数）
      *
      * @param cacheDir         缓存目录
      * @param ttlSeconds       缓存 TTL（秒），0 表示永不过期
@@ -120,7 +120,7 @@ public class PreviewPdfCache {
         this.memoryCapacity = memoryCapacity;
         this.maxMemoryFileSize = maxMemoryFileSize;
 
-        // access-order LinkedHashMap 实现 LRU
+ // access-订单 链接哈希映射 实现 LRU
         this.memoryCache = new LinkedHashMap<>(memoryCapacity, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, byte[]> eldest) {
@@ -161,8 +161,8 @@ public class PreviewPdfCache {
      * <p>返回的字节数组是内存缓存的引用（不可修改），或从磁盘读取的新副本。</p>
      *
      * @param storageName 存储名称
-     * @param key         文件 Key
-     * @return PDF 字节数组；若不存在或已过期返回 null
+     * @param key         文件 键
+     * @return PDF 字节数组；若不存在或已过期返回 空
      */
     public byte[] get(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
@@ -201,13 +201,13 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 获取缓存文件路径（兼容旧 API，内部委托 get()）。
+      * 获取缓存文件路径（兼容旧 API，内部委托 获取()）。
      *
      * <p>注意：此方法返回的 Path 仅在调用时有效，并发场景下建议使用 {@link #get(String, String)}。</p>
      *
      * @param storageName 存储名称
-     * @param key         文件 Key
-     * @return 缓存文件路径，若不存在返回 null
+     * @param key         文件 键
+     * @return 缓存文件路径，若不存在返回 空
      */
     public Path getCacheFile(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
@@ -218,7 +218,7 @@ public class PreviewPdfCache {
      * 写入缓存（同时写磁盘和内存）。
      *
      * @param storageName 存储名称
-     * @param key         文件 Key
+     * @param key         文件 键
      * @param pdfBytes    转换后的 PDF 字节数组
      * @return 写入后的磁盘文件路径
      * @throws IOException IO 异常
@@ -256,9 +256,9 @@ public class PreviewPdfCache {
      * 避免重复转换浪费 CPU/IO。</p>
      *
      * @param storageName 存储名称
-     * @param key         文件 Key
+     * @param key         文件 键
      * @param converter   转换函数（仅在缓存未命中且无进行中转换时调用）
-     * @return PDF 字节数组；转换失败返回 null
+     * @return PDF 字节数组；转换失败返回 空
      */
     public byte[] getOrConvert(String storageName, String key, java.util.function.Supplier<byte[]> converter) {
         // 1. 先查缓存（内存 + 磁盘）
@@ -267,7 +267,7 @@ public class PreviewPdfCache {
             return cached;
         }
 
-        // 2. 并发去重：用 CompletableFuture 确保同一 key 只触发一次转换
+ // 2. 并发去重：用 completable期货 确保同一 键 只触发一次转换
         String cacheKey = buildCacheKey(storageName, key);
         CompletableFuture<byte[]> future = inflightMap.computeIfAbsent(cacheKey, k -> {
             return CompletableFuture.supplyAsync(() -> {
@@ -301,10 +301,10 @@ public class PreviewPdfCache {
     // ==================== 清理 ====================
 
     /**
-     * 清理指定 Key 的缓存（磁盘 + 内存）。
+      * 清理指定 键 的缓存（磁盘 + 内存）。
      *
      * @param storageName 存储名称
-     * @param key         文件 Key
+     * @param key         文件 键
      */
     public void evict(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
@@ -353,16 +353,32 @@ public class PreviewPdfCache {
 
     // ==================== 统计 ====================
 
-    /** 获取缓存统计信息 */
+    /**
+     * 获取缓存统计信息
+     *
+     * @return 获取stats的结果
+     */
     public CacheStats getStats() {
         synchronized (memoryCache) {
             return new CacheStats(hitCount.get(), missCount.get(), evictionCount.get(), memoryCache.size());
         }
     }
 
-    /** 缓存统计信息 */
+    /**
+     * 缓存统计信息
+     *
+     * @param hitCount hit数量
+     * @param missCount miss数量
+     * @param evictionCount eviction数量
+     * @param memorySize 内存大小
+     * @return 缓存stats的结果
+     */
     public record CacheStats(long hitCount, long missCount, long evictionCount, int memorySize) {
-        /** 命中率 */
+        /**
+         * 命中率
+         *
+         * @return hitRate的结果
+         */
         public double hitRate() {
             long total = hitCount + missCount;
             return total == 0 ? 0.0 : (double) hitCount / total;
@@ -381,7 +397,7 @@ public class PreviewPdfCache {
      * 检查磁盘缓存文件是否存在且未过期。
      *
      * @param cacheKey 缓存键
-     * @return 缓存文件路径；不存在或已过期返回 null（过期文件会被自动删除）
+     * @return 缓存文件路径；不存在或已过期返回 空（过期文件会被自动删除）
      */
     private Path getDiskCacheFile(String cacheKey) {
         String fileName = DigestUtils.md5(cacheKey) + ".pdf";
@@ -457,7 +473,7 @@ public class PreviewPdfCache {
      * 构建缓存键。
      *
      * @param storageName 存储名称
-     * @param key         文件 Key
+     * @param key         文件 键
      * @return 缓存键
      */
     private String buildCacheKey(String storageName, String key) {

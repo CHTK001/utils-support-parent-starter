@@ -8,7 +8,7 @@ import javax.sql.DataSource;
  * Oracle 创建用户链式步骤实现。
  * <p>
  * Oracle 语法：{@code CREATE USER 用户名 IDENTIFIED BY "密码"}
- * 创建后自动授予 CONNECT 角色。
+   * 创建后自动授予 连接 角色。
  * </p>
  *
  * @author CH
@@ -18,7 +18,7 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
 
     /** 数据来源 */
     private final DataSource dataSource;
-    /** Username */
+    /** 用户名 */
     private final String username;
     /** 密码 */
     private String password;
@@ -43,7 +43,7 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
     }
 
     /**
-     * Oracle 不支持 host 概念，忽略此参数。
+      * Oracle 不支持 主机 概念，忽略此参数。
      *
      * @param host 忽略
      * @return this
@@ -54,7 +54,7 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
     }
 
     /**
-     * 执行 CREATE USER 并授予 CONNECT 权限。
+      * 执行 创建 用户 并授予 连接 权限。
      */
     @Override
     public void execute() {

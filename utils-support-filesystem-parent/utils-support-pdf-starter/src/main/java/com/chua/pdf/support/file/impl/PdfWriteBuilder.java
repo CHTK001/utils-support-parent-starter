@@ -25,7 +25,7 @@ import java.util.Map;
  * PDF 文件写入构建器。
  *
  * <p>基于 PDFBox 实现简单文本内容的 PDF 文件生成。
- * 支持延迟写入（多次 write + finish）和实时写入（writeAndFlush），
+   * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
  * 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
  *
  * @author CH
@@ -69,8 +69,8 @@ public class PdfWriteBuilder extends WriteBuilder {
     private float lineSpacing = 16;
 
     /**
-     * 创建 PdfWriteBuilder 实例
-     * @param file file
+      * 创建 pdf写入构建器 实例
+     * @param file 文件
      */
     public PdfWriteBuilder(File file) {
         super(file);
@@ -157,6 +157,7 @@ public class PdfWriteBuilder extends WriteBuilder {
      * 将文本行加入延迟写入队列。
      *
      * @param lines 文本行列表
+     * @return 写入的结果
      */
     public PdfWriteBuilder write(List<String> lines) {
         pending.add(lines);
@@ -171,9 +172,10 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 将 Map 数据加入延迟写入队列。
+      * 将 映射 数据加入延迟写入队列。
      *
-     * @param rows Map 数据列表
+     * @param rows 映射 数据列表
+     * @return 写入映射的结果
      */
     public PdfWriteBuilder writeMap(List<Map<String, Object>> rows) {
         pending.add(rows);
@@ -198,9 +200,9 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 实时写入 Map 数据。
+      * 实时写入 映射 数据。
      *
-     * @param rows Map 数据列表
+     * @param rows 映射 数据列表
      */
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
@@ -215,7 +217,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** Finish */
+    /** 饰面 */
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
@@ -269,7 +271,11 @@ public class PdfWriteBuilder extends WriteBuilder {
         }
     }
 
-    /** 设置Metadata */
+    /**
+     * 设置Metadata
+     *
+     * @param doc doc
+     */
     private void setMetadata(PDDocument doc) {
         PDDocumentInformation info = new PDDocumentInformation();
         if (title != null) {
@@ -281,7 +287,11 @@ public class PdfWriteBuilder extends WriteBuilder {
         doc.setDocumentInformation(info);
     }
 
-    /** Do写入Text */
+    /**
+     * 执行写入文本
+     *
+     * @param lines 线
+     */
     private void doWriteText(List<String> lines) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
@@ -307,7 +317,11 @@ public class PdfWriteBuilder extends WriteBuilder {
         }
     }
 
-    /** Do写入Map */
+    /**
+     * 执行写入映射
+     *
+     * @param rows rows
+     */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);

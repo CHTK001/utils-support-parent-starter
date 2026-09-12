@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.face.FaceRecognizer;
 import com.chua.deeplearning.support.face.FaceFeature;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxFaceRecognizer implements FaceRecognizer {
@@ -20,33 +20,37 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxFaceRecognizer 实例
-     * @param apiKey apiKey
+      * 创建 onnxfacerecognizer 实例
+     * @param apiKey API密钥
      */
     public OnnxFaceRecognizer(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FaceRecognizer model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "arc-face";
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public FaceRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FaceRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
@@ -60,7 +64,7 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     }
 
     @Override
-    /** ExtractFeature */
+    /** extract特征 */
     public float[] extractFeature(byte[] imageData) {
         return FaceRecognizer.create(resolveModel()).threshold(threshold).modelPath(modelPath).device(device).extractFeature(imageData);
     }

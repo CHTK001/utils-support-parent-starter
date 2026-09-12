@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 /**
- * Cron 表达式解析器（Quartz 兼容）。
+   * Cron 表达式解析器（石英石 兼容）。
  *
  * <p>支持 5 字段或 6 字段（Quartz 格式，含秒）：
  * <pre>
@@ -46,7 +46,7 @@ public class CronExpression {
     private static final String LIST_DELIMITER = ",";
 
     /**
-     * 是否使用 6 字段 Quartz 格式（含秒）。
+      * 是否使用 6 字段 石英石 格式（含秒）。
      */
     private final boolean hasSeconds;
 
@@ -61,15 +61,15 @@ public class CronExpression {
     private final Field minutes;
     /** Hours */
     private final Field hours;
-    /** DaysOFmonth */
+    /** daysofmonth */
     private final Field daysOfMonth;
     /** Months */
     private final Field months;
-    /** DaysOFweek */
+    /** daysofweek */
     private final Field daysOfWeek;
 
     /**
-     * DOM / DOW 是否为通配（影响 OR / AND 语义判定）。
+      * DOM / DOW 是否为通配（影响 或 / 和 语义判定）。
      */
     private final boolean domIsAny;
     /** DOWISANY */
@@ -113,6 +113,8 @@ public class CronExpression {
 
     /**
      * 判定字段是否为通配（{@code *} 或 {@code ?}）。
+     * @param field 字段
+     * @return 是否wildcard的结果
      */
     private static boolean isWildcard(String field) {
         if (StringUtils.isEmpty(field)) {
@@ -128,7 +130,7 @@ public class CronExpression {
      * 最坏情况扫描一年（5 字段 31.5 万分钟，6 字段扫描过大会更慢，调用方应控制）。</p>
      *
      * @param base 基准时间（不含本次）
-     * @return 下次触发时间；找不到返回 null
+     * @return 下次触发时间；找不到返回 空
      */
     public LocalDateTime nextAfter(LocalDateTime base) {
         ZonedDateTime cursor = base.atZone(ZoneId.systemDefault());
@@ -188,6 +190,10 @@ public class CronExpression {
 
     /**
      * 解析单个 cron 字段。
+     * @param expr expr
+     * @param min 最小
+     * @param max 最大
+     * @return 解析字段的结果
      */
     private Field parseField(String expr, int min, int max) {
         if ("*".equals(expr) || "?".equals(expr)) {
@@ -225,7 +231,7 @@ public class CronExpression {
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         return expression;
     }
@@ -239,13 +245,15 @@ public class CronExpression {
         private final int min;
         /** 最大值 */
         private final int max;
-        /** Bits */
+        /** 钻头 */
         private final boolean[] bits;
 
         /**
-         * 创建 Field 实例
-         * @param min min
-         * @param int int
+          * 创建 字段 实例
+         * @param min 最小
+         * @param min int
+         * @param max 最大
+         * @return 字段的结果
          */
         private Field(int min, int max) {
             this.min = min;
@@ -253,14 +261,27 @@ public class CronExpression {
             this.bits = new boolean[max - min + 1];
         }
 
-        /** Any */
+        /**
+         * 任意
+         *
+         * @param min 最小
+         * @param max 最大
+         * @return 任意的结果
+         */
         static Field any(int min, int max) {
             Field f = new Field(min, max);
             Arrays.fill(f.bits, true);
             return f;
         }
 
-        /** Step */
+        /**
+         * Step
+         *
+         * @param start 启动
+         * @param max 最大
+         * @param step step
+         * @return step的结果
+         */
         static Field step(int start, int max, int step) {
             Field f = new Field(0, max);
             for (int v = start; v <= max; v += step) {
@@ -269,7 +290,14 @@ public class CronExpression {
             return f;
         }
 
-        /** List */
+        /**
+         * 列表
+         *
+         * @param min 最小
+         * @param max 最大
+         * @param values 值
+         * @return 列表的结果
+         */
         static Field list(int min, int max, int[] values) {
             Field f = new Field(min, max);
             for (int v : values) {
@@ -281,7 +309,14 @@ public class CronExpression {
             return f;
         }
 
-        /** Fixed */
+        /**
+         * Fixed
+         *
+         * @param min 最小
+         * @param max 最大
+         * @param value 值
+         * @return fixed的结果
+         */
         static Field fixed(int min, int max, int value) {
             Field f = new Field(min, max);
             f.bits[value - min] = true;

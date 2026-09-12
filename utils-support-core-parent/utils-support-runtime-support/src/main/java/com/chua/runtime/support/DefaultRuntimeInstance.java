@@ -72,7 +72,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     private final LogStream logStream;
 
     /**
-     * 进程退出时的 Future
+      * 进程退出时的 期货
      */
     private final CompletableFuture<CmdResult> onExitFuture;
 
@@ -106,7 +106,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public RuntimeStatus status() {
         return status.get();
     }
@@ -285,7 +285,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Health校验 */
+    /** 健康校验 */
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String command = artifact.getHealthCheckCommand();
@@ -308,13 +308,13 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 记录日志Stream */
+    /** 记录日志流 */
     public LogStream logStream() {
         return logStream;
     }
 
     @Override
-    /** OnExit */
+    /** onexit */
     public CompletableFuture<CmdResult> onExit() {
         return onExitFuture;
     }
@@ -421,7 +421,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 启动日志读取线程，从进程的 InputStream 逐行读取并推送到 LogStream。
+      * 启动日志读取线程，从进程的 输入流 逐行读取并推送到 日志流。
      *
      * @param process 进程实例
      */
@@ -458,7 +458,7 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-     * 异步等待进程退出，退出时更新状态并完成 onExit Future。
+      * 异步等待进程退出，退出时更新状态并完成 onexit 期货。
      *
      * @param process 进程实例
      */

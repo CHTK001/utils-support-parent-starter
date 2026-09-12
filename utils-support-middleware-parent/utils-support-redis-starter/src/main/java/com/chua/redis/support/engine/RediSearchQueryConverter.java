@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * RediSearch 查询语句转换器。
+   * redi搜索 查询语句转换器。
  *
  * <p>将 SQL WHERE 子句转换为 RediSearch FT.SEARCH 查询语法，
- * 支持 AND/OR/NOT/BETWEEN/LIKE/IN/IS NULL/比较运算符等常见 SQL 表达式。</p>
+   * 支持 和/或/NOT/BETWEEN/LIKE/入/是否 空/比较运算符等常见 SQL 表达式。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class RediSearchQueryConverter {
 
     /**
-     * 将 SQL WHERE 子句转换为 RediSearch 查询语法。
+      * 将 SQL WHERE 子句转换为 redi搜索 查询语法。
      *
      * @param sqlWhere SQL WHERE 子句
      * @param params   参数列表
@@ -91,7 +91,7 @@ public class RediSearchQueryConverter {
     }
 
     /**
-     * 按顶层 AND/OR 分割表达式。
+      * 按顶层 和/或 分割表达式。
      *
      * @param expr SQL 表达式
      * @return 分割后的子表达式列表
@@ -137,7 +137,7 @@ public class RediSearchQueryConverter {
     }
 
     /**
-     * 转换单个条件为 RediSearch 语法。
+      * 转换单个条件为 redi搜索 语法。
      *
      * @param cond 单个条件
      * @param ph   参数持有者
@@ -212,8 +212,8 @@ public class RediSearchQueryConverter {
         }
 
         /*
-         * 处理 IN/NOT IN 条件。
-         * 转换为 RediSearch 的 (val1|val2|...) 语法。
+          * 处理 入/NOT 入 条件。
+          * 转换为 redi搜索 的 (val1|val2|...) 语法。
          */
         if (cond.toUpperCase().contains("IN")) {
             int inIdx = cond.toUpperCase().indexOf("IN (");
@@ -244,6 +244,8 @@ public class RediSearchQueryConverter {
      * 参数持有者。
      *
      * <p>按顺序提供 SQL 参数值，记录上一个值用于范围查询。</p>
+     * @author CH
+     * @since 4.0.0
      */
     static class ParamHolder {
 

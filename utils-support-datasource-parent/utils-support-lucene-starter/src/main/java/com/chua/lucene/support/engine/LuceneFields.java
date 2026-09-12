@@ -9,7 +9,7 @@ package com.chua.lucene.support.engine;
 public final class LuceneFields {
 
     /**
-     * 文档 id 字段名
+      * 文档 标识 字段名
      */
     public static final String ID = "id";
 

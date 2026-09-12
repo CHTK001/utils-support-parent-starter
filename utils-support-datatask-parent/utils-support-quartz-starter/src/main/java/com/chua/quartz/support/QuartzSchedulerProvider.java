@@ -16,10 +16,10 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于 Quartz 的调度器提供者实现
+   * 基于 石英石 的调度器提供者实现
  *
  * <p>使用 Quartz {@link org.quartz.Scheduler} 提供企业级任务调度能力。
- * Quartz 是一个功能强大的开源任务调度框架，支持复杂的调度策略、
+   * 石英石 是一个功能强大的开源任务调度框架，支持复杂的调度策略、
  * 持久化、集群部署等高级特性。
  *
  * <p>核心特性：
@@ -37,17 +37,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
 
     /**
-     * Quartz 调度器
+      * 石英石 调度器
      */
     private final Scheduler scheduler;
 
     /**
-     * 任务运行器缓存（供 DelegateJob 访问）
+      * 任务运行器缓存（供 delegate作业 访问）
      */
     static final Map<String, Runnable> TASK_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 创建默认配置的 Quartz 调度器提供者
+      * 创建默认配置的 石英石 调度器提供者
      */
     public QuartzSchedulerProvider() {
         try {
@@ -59,9 +59,9 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-     * 创建使用指定配置的 Quartz 调度器提供者
+      * 创建使用指定配置的 石英石 调度器提供者
      *
-     * @param config Quartz 配置属性
+     * @param config 石英石 配置属性
      */
     public QuartzSchedulerProvider(Properties config) {
         try {
@@ -74,7 +74,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** DoSchedule */
+    /** 执行调度 */
     public synchronized void doSchedule(String id, Runnable task, Trigger trigger) {
         try {
             TASK_CACHE.put(id, task);
@@ -98,7 +98,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** DoReschedule */
+    /** 执行reschedule */
     public synchronized void doReschedule(String id, Trigger trigger) {
         try {
             var oldTriggerKey = TriggerKey.triggerKey(id, "default");
@@ -114,7 +114,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** DoCancel */
+    /** 执行cancel */
     public synchronized void doCancel(String id) {
         try {
             scheduler.deleteJob(JobKey.jobKey(id, "default"));
@@ -125,7 +125,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** Do关闭 */
+    /** 执行关闭 */
     protected synchronized void doShutdown() {
         try {
             if (scheduler != null && !scheduler.isShutdown()) {
@@ -138,7 +138,10 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-     * 将框架通用 Trigger 转换为 Quartz Trigger
+      * 将框架通用 Trigger 转换为 石英石 Trigger
+     * @param id 标识
+     * @param trigger trigger
+     * @return 转为石英石trigger的结果
      */
     private org.quartz.Trigger toQuartzTrigger(String id, Trigger trigger) {
         if (trigger instanceof CronTrigger ct) {
@@ -159,13 +162,20 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
         throw new IllegalArgumentException("Unsupported trigger type: " + trigger.getClass());
     }
 
-    /** ToDate */
+    /**
+     * 转为日期
+     *
+     * @param ldt ldt
+     * @return 转为日期的结果
+     */
     private static Date toDate(LocalDateTime ldt) {
         return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**
-     * Quartz 委托任务
+      * 石英石 委托任务
+     * @author CH
+     * @since 4.0.0
      */
     public static class DelegateJob implements Job {
         @Override

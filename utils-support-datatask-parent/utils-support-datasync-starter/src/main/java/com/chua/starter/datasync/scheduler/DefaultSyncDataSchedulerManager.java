@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
  * 默认数据同步调度器管理器。
  *
  * <p>每秒轮询一次，检查 Cron 条件并执行字段映射转换。
- * 执行器由 ExecutorManager 池化管理，调度器仅负责发布数据。</p>
+   * 执行器由 执行器管理器 池化管理，调度器仅负责发布数据。</p>
  *
  * <p>管线默认使用 {@link Schedulers#boundedElastic()} 异步执行，
- * 避免调度线程被慢 Source 阻塞；支持可配置的背压、重试与并发参数。</p>
+   * 避免调度线程被慢 源 阻塞；支持可配置的背压、重试与并发参数。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -88,12 +88,12 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     private final FieldMappingConverter fieldMappingConverter;
 
     /**
-     * 已订阅的 Sink 标识集合（格式：outputId|sinkId），避免重复订阅
+      * 已订阅的 Sink 标识集合（格式：输出id|sinkid），避免重复订阅
      */
     private final Set<String> subscribedSinkKeys;
 
     /**
-     * 触发器缓存（mappingId -> Trigger），避免每秒重复解析 Cron 表达式
+      * 触发器缓存（mappingid -> Trigger），避免每秒重复解析 Cron 表达式
      */
     private final Map<String, Trigger> triggerCache = new ConcurrentHashMap<>();
 
@@ -103,7 +103,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     private final Map<String, LocalDateTime> lastExecutionTimeMap = new ConcurrentHashMap<>();
 
     /**
-     * 失败重试计数器（mappingId -> 连续失败次数），用于熔断退避
+      * 失败重试计数器（mappingid -> 连续失败次数），用于熔断退避
      */
     private final Map<String, AtomicInteger> retryCounters = new ConcurrentHashMap<>();
 
@@ -114,21 +114,23 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
     /**
      * 调度器配置。
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Builder
     public static class SchedulerConfig {
 
         /**
-         * flatMap 并行度
+          * flat映射 并行度
          */
-        /** flatMap 并行度 */
+        /** flat映射 并行度 */
         @Builder.Default
         /** Flat映射parallelism */
         private int flatMapParallelism = 10;
 
         /**
-         * 最大 buffer 行数上限（默认无限制，设置 >0 的数值后启用上限）
+          * 最大 缓冲 行数上限（默认无限制，设置 >0 的数值后启用上限）
          */
         /** 最大缓冲行数 */
         @Builder.Default
@@ -140,7 +142,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
          */
         /** 每秒最大速率 */
         @Builder.Default
-        /** 最大值比率PERsecond */
+        /** 最大值比率persecond */
         private int maxRatePerSecond = 0;
 
         /**
@@ -148,7 +150,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
          */
         /** 最大重试次数 */
         @Builder.Default
-        /** 重试最大值attempts */
+        /** 重试最大值尝试 */
         private int retryMaxAttempts = 2;
 
         /**
@@ -156,7 +158,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
          */
         /** 重试退避时间（毫秒） */
         @Builder.Default
-        /** 重试backoffMS */
+        /** 重试退避ms */
         private long retryBackoffMs = 500;
 
         /**
@@ -181,11 +183,11 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
          */
         /** 内存占用百分比 */
         @Builder.Default
-        /** Memory百分比 */
+        /** 内存百分比 */
         private int memoryPercent = 30;
 
         /**
-         * 估算单行数据字节数（Map 开销 + 字段值，默认 256 字节）
+          * 估算单行数据字节数（映射 开销 + 字段值，默认 256 字节）
          */
         /** 预估行字节数 */
         @Builder.Default
@@ -193,7 +195,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         private int estimatedRowBytes = 256;
 
         /**
-         * 是否启用直连派发模式（同 JVM 内 publish 直接调用 subscriber，绕过 Chronicle）。
+          * 是否启用直连派发模式（同 JVM 内 发布 直接调用 subscriber，绕过 Chronicle）。
          * 默认 false 使用 Chronicle 磁盘派发；true 时跳过 Chronicle 提高吞吐。
          */
         /** 是否直接分发 */
@@ -220,17 +222,20 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     }
 
     /**
-     * 创建 DefaultSyncDataSchedulerManager 实例
-     * @param dataSyncServer dataSyncServer
+      * 创建 默认同步数据调度器管理器 实例
+     * @param dataSyncServer 数据同步服务端
+     * @return 默认同步数据调度器管理器的结果
      */
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer) {
         this(dataSyncServer, SchedulerConfig.builder().build());
     }
 
     /**
-     * 创建 DefaultSyncDataSchedulerManager 实例
-     * @param dataSyncServer dataSyncServer
-     * @param SchedulerConfig SchedulerConfig
+      * 创建 默认同步数据调度器管理器 实例
+     * @param dataSyncServer 数据同步服务端
+     * @param config 调度器配置
+     * @param config 配置
+     * @return 默认同步数据调度器管理器的结果
      */
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer, SchedulerConfig config) {
         this.dataSyncServer = dataSyncServer;
@@ -320,7 +325,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 if (!isTriggerSatisfied(mapping)) {
                     continue;
                 }
-                // 记录执行时间（用于 isTriggerSatisfied 去重）
+ // 记录执行时间（用于 是否triggersatisfied 去重）
                 lastExecutionTimeMap.put(mapping.mappingId(), java.time.LocalDateTime.now());
                 executeMapping(mapping);
             }
@@ -347,7 +352,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
             trigger = triggerCache.computeIfAbsent(mapping.mappingId(), id -> {
                 String cron = mapping.cron();
                 if (cron == null || cron.isBlank()) {
-                    // cron 为空，使用默认 SimpleTrigger（每分钟触发一次）
+ // cron 为空，使用默认 简单trigger（每分钟触发一次）
                     return new com.chua.common.support.task.scheduler.SimpleTrigger(java.time.Duration.ofMinutes(1));
                 } else {
                     try {
@@ -414,7 +419,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 return;
             }
 
-        // 方向约束：source 应为 INPUT，sink 应为 OUTPUT
+ // 方向约束：源 应为 输入，sink 应为 输出
         if (source instanceof com.chua.datasync.agent.support.model.Directional) {
             com.chua.datasync.agent.support.model.Direction srcDir = ((com.chua.datasync.agent.support.model.Directional) source).direction();
             if (srcDir != com.chua.datasync.agent.support.model.Direction.INPUT) {
@@ -442,7 +447,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         List<DataSyncFieldMapping> fieldMappings = mapping.mappings() == null ? List.of() : mapping.mappings();
         Map<String, Object> readParams = buildReadParams(mapping, source);
 
-        // 构建响应式管线：IO 读（弹性线程池）→ buffer → CPU 处理（parallel 固定线程池）
+ // 构建响应式管线：IO 读（弹性线程池）→ 缓冲 → CPU 处理（并行 固定线程池）
         Flux<Map<String, Object>> sourceFlux = Flux.just(source)
                 .flatMap(s -> s.read(readParams))
                 .subscribeOn(Schedulers.boundedElastic());
@@ -452,7 +457,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
             sourceFlux = sourceFlux.limitRate(config.getMaxRatePerSecond());
         }
 
-        // 分批处理（CPU 密集型：字段转换 + 发布，切到 parallel 固定线程池减少切换开销）
+ // 分批处理（CPU 密集型：字段转换 + 发布，切到 并行 固定线程池减少切换开销）
         int batchSize = mapping.batch() > 0 ? mapping.batch() : DEFAULT_BATCH_SIZE;
         long maxRows = config.getMaxBufferRows() > 0 ? config.getMaxBufferRows() : Long.MAX_VALUE;
         int prefetch = config.computePrefetch(batchSize);
@@ -528,7 +533,13 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
                 .collect(Collectors.toList());
     }
 
-    /** 构建读取Params */
+    /**
+     * 构建读取参数
+     *
+     * @param mapping mapping
+     * @param source 源
+     * @return 构建读取参数的结果
+     */
     private Map<String, Object> buildReadParams(DataSyncMapping mapping, DataSyncAgentSource source) {
         Map<String, Object> params = mapping.params() == null ? new HashMap<>() : new HashMap<>(mapping.params());
         com.chua.datasync.agent.support.model.SyncDataOffset storedOffset = source.readOffset(params);
@@ -539,7 +550,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     }
 
     /**
-     * 持久化 Source 的读取偏移量。
+      * 持久化 源 的读取偏移量。
      *
      * <p>由 publish 成功后调用，确保至少已成功发送至执行器后再推进 offset，
      * 避免进程重启后丢失已投递的数据。</p>

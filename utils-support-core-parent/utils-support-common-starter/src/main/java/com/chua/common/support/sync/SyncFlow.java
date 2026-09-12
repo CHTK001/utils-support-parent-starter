@@ -35,6 +35,10 @@ import java.util.concurrent.atomic.AtomicLong;
  *         .batchSize(100)
  *         .build();
  * flow.start();
+ * }</pre>0))
+ *         .batchSize(100)
+ *         .build();
+ * flow.start();
  * }</pre>
  *
  * @author CH
@@ -94,8 +98,8 @@ public class SyncFlow implements AutoCloseable {
     private ExecutorService producerExecutor;
 
     /**
-     * 创建 SyncFlow 实例
-     * @param builder builder
+      * 创建 同步流 实例
+     * @param builder 构建器
      */
     private SyncFlow(Builder builder) {
         this.name = builder.name;
@@ -384,6 +388,7 @@ public class SyncFlow implements AutoCloseable {
      * 同步流构建器
      *
      * @since 2026/07/28
+     * @author CH
      */
     public static class Builder {
 
@@ -423,8 +428,8 @@ public class SyncFlow implements AutoCloseable {
         private long retryInterval = 1000;
 
         /**
-         * 创建 Builder 实例
-         * @param name name
+          * 创建 构建器 实例
+         * @param name 名称
          */
         private Builder(String name) {
             this.name = name;

@@ -40,14 +40,14 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     /** JSON 对象映射器 */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 创建 BilibiliResourceProvider 实例 */
+    /** 创建 bilibiliresource提供者 实例 */
     public BilibiliResourceProvider() {
         super();
     }
 
     /**
-     * 创建 BilibiliResourceProvider 实例
-     * @param videoSource videoSource
+      * 创建 bilibiliresource提供者 实例
+     * @param videoSource 视频源
      */
     public BilibiliResourceProvider(VideoSource videoSource) {
         super(videoSource);
@@ -65,7 +65,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
         List<VideoInfoResult> results = new ArrayList<>();
 
         try {
-            // 构建请求（使用原生 HttpClient，绕过框架层 Cookie/编码差异）
+ // 构建请求（使用原生 HTTP客户端，绕过框架层 Cookie/编码差异）
             String encodedKeyword = java.net.URLEncoder.encode(keyword, java.nio.charset.StandardCharsets.UTF_8);
             String searchType = ObjectUtils.defaultIfNull(getSearchType(videoSearch), "1");
             String apiUrl = BILIBILI_SEARCH_API
@@ -116,7 +116,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
                                 String duration = video.path("duration").asText();
                                 String pubDate = video.path("pubdate").asText();
 
-                                // 创建VideoInfo对象
+ // 创建视频信息对象
                                 VideoInfoResult videoInfo = new VideoInfoResult();
                                 videoInfo.setVideoName(title);
                                 videoInfo.setVideoAliasName(title);
@@ -161,7 +161,12 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
         }
     }
 
-    /** 获取搜索Type */
+    /**
+     * 获取搜索类型
+     *
+     * @param videoSearch 视频搜索
+     * @return 获取搜索类型的结果
+     */
     private String getSearchType(VideoSearch videoSearch) {
         //0=综合（默认），1=视频，2=番剧，3=影视，5=用户，6=专栏，7=直播，8=相簿，9=话题，12=课程
         String category = videoSearch.getVideoType();

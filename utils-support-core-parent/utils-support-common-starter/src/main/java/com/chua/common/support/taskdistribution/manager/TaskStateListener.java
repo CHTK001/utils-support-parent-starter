@@ -16,7 +16,7 @@ public interface TaskStateListener {
     /**
      * 任务状态变更回调。
      *
-     * @param taskId   任务 ID
+     * @param taskId   任务 标识
      * @param oldState 旧状态
      * @param newState 新状态
      */
@@ -24,7 +24,7 @@ public interface TaskStateListener {
     }
 
     /**
-     * 任务完成回调（SUCCESS / FAILED）。
+      * 任务完成回调（成功 / 失败）。
      *
      * @param result 执行结果
      */

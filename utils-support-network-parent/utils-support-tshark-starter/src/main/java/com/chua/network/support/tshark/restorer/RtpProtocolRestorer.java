@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class RtpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "rtp";
     }
@@ -74,7 +74,12 @@ public class RtpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToPayloadTypeName */
+    /**
+     * 转为payload类型名称
+     *
+     * @param pt pt
+     * @return 转为payload类型名称的结果
+     */
     private static String toPayloadTypeName(int pt) {
         return switch (pt) {
             case 0 -> "PCMU";

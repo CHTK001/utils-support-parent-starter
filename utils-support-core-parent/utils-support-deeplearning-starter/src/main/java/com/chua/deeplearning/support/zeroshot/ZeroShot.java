@@ -26,6 +26,7 @@ import java.util.Map;
  * // 自定义模型
  * String result = ZeroShot.classifier("mobileclip-zero-shot")
  *         .classify(imageData);
+ * }</pre>ify(imageData);
  * }</pre>
  *
  * <h3>零样本检测（Zero-Shot Detection）</h3>
@@ -37,13 +38,14 @@ import java.util.Map;
  * List<DetectionInfo> result = ZeroShot.detector("yolov8s-world")
  *         .threshold(0.2f)
  *         .detect(imageData);
+ * }</pre>       .detect(imageData);
  * }</pre>
  *
  * <h3>零样本分割（Zero-Shot Segmentation）</h3>
  * <pre>{@code
  * // 一行代码：输入图片，返回分割掩码
  * byte[] mask = ZeroShot.segment(imageData);
- * }</pre>
+ * }</pre>re>
  *
  * <h3>可用零样本模型</h3>
  * <ul>
@@ -108,7 +110,7 @@ public final class ZeroShot {
     /**
      * 创建零样本分类器构建器（指定模型）。
      *
-     * @param modelId 模型 ID（如 "siglip-zero-shot-classification", "mobileclip-zero-shot"）
+     * @param modelId 模型 标识（如 "siglip-zero-shot-classification", "mobileclip-zero-shot"）
      * @return 分类器构建器
      */
     public static ClassifierBuilder classifier(String modelId) {
@@ -118,7 +120,7 @@ public final class ZeroShot {
     /**
      * 创建零样本检测器构建器（指定模型）。
      *
-     * @param modelId 模型 ID（如 "yolov8s-world", "owlv2-zero-shot-detector"）
+     * @param modelId 模型 标识（如 "yolov8s-world", "owlv2-zero-shot-detector"）
      * @return 检测器构建器
      */
     public static DetectorBuilder detector(String modelId) {
@@ -128,7 +130,7 @@ public final class ZeroShot {
     /**
      * 创建零样本分割器构建器（指定模型）。
      *
-     * @param modelId 模型 ID（如 "clipseg-zero-shot"）
+     * @param modelId 模型 标识（如 "clipseg-zero-shot"）
      * @return 分割器构建器
      */
     public static SegmenterBuilder segmenter(String modelId) {
@@ -140,7 +142,7 @@ public final class ZeroShot {
     /**
      * 列出所有可用的零样本分类模型。
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     public static List<String> listClassifiers() {
         return ImageClassifier.listModels().stream()
@@ -151,7 +153,7 @@ public final class ZeroShot {
     /**
      * 列出所有可用的零样本检测模型。
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     public static List<String> listDetectors() {
         return ImageDetector.listModels().stream()
@@ -162,7 +164,7 @@ public final class ZeroShot {
     /**
      * 列出所有可用的零样本分割模型。
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     public static List<String> listSegmenters() {
         return ImageSegmenter.listModels().stream()
@@ -173,7 +175,7 @@ public final class ZeroShot {
     /**
      * 列出所有零样本模型（分类 + 检测 + 分割）。
      *
-     * @return 模型 ID → 类型 映射
+     * @return 模型 标识 → 类型 映射
      */
     public static Map<String, String> listAll() {
         var result = new LinkedHashMap<String, String>();
@@ -196,13 +198,23 @@ public final class ZeroShot {
             this.modelId = modelId;
         }
 
-        /** 设置运行设备 */
+        /**
+         * 设置运行设备
+         *
+         * @param device device
+         * @return device的结果
+         */
         public ClassifierBuilder device(String device) {
             this.device = device;
             return this;
         }
 
-        /** 执行分类（返回分类结果字符串） */
+        /**
+         * 执行分类（返回分类结果字符串）
+         *
+         * @param imageData 镜像数据
+         * @return classify的结果
+         */
         public String classify(byte[] imageData) {
             return ImageClassifier.create(modelId).device(device).classify(imageData);
         }
@@ -220,19 +232,34 @@ public final class ZeroShot {
             this.modelId = modelId;
         }
 
-        /** 设置检测阈值 */
+        /**
+         * 设置检测阈值
+         *
+         * @param threshold 阈值
+         * @return 阈值的结果
+         */
         public DetectorBuilder threshold(float threshold) {
             this.threshold = threshold;
             return this;
         }
 
-        /** 设置运行设备 */
+        /**
+         * 设置运行设备
+         *
+         * @param device device
+         * @return device的结果
+         */
         public DetectorBuilder device(String device) {
             this.device = device;
             return this;
         }
 
-        /** 执行检测 */
+        /**
+         * 执行检测
+         *
+         * @param imageData 镜像数据
+         * @return detect的结果
+         */
         public List<DetectionInfo> detect(byte[] imageData) {
             return ImageDetector.create(modelId)
                     .device(device)
@@ -252,13 +279,23 @@ public final class ZeroShot {
             this.modelId = modelId;
         }
 
-        /** 设置运行设备 */
+        /**
+         * 设置运行设备
+         *
+         * @param device device
+         * @return device的结果
+         */
         public SegmenterBuilder device(String device) {
             this.device = device;
             return this;
         }
 
-        /** 执行分割 */
+        /**
+         * 执行分割
+         *
+         * @param imageData 镜像数据
+         * @return segment的结果
+         */
         public byte[] segment(byte[] imageData) {
             return ImageSegmenter.create(modelId)
                     .device(device)

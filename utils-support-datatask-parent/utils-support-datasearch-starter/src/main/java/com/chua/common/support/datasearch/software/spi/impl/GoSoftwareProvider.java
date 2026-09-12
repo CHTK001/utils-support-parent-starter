@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
  * Go 软件包管理器提供器。
  *
  * <p>通过 go CLI 查询、安装 Go 模块与命令。
- * 搜索使用 <code>go list -m -versions</code>（按模块路径查询可用版本），
- * 安装使用 <code>go install &lt;module&gt;@latest</code>，
+   * 搜索使用 <code>Go 列表 -m -版本</code>（按模块路径查询可用版本），
+   * 安装使用 <code>Go install &lt;module&gt;@latest</code>，
  * 卸载为尽力而为（清除已安装的命令二进制）。
  *
  * @author CH
@@ -34,7 +34,7 @@ public class GoSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "go";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -49,13 +49,13 @@ public class GoSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("go 搜索完成, exitCode={}", exitCode);
             }
@@ -91,17 +91,24 @@ public class GoSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -117,7 +124,12 @@ public class GoSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析GoOutput */
+    /**
+     * 解析go输出
+     *
+     * @param output 输出
+     * @return 解析go输出的结果
+     */
     private List<SoftwareInfo> parseGoOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -127,7 +139,7 @@ public class GoSoftwareProvider implements SoftwareProvider {
                     // 跳过错误信息(如 go: module ...: invalid version)
                     continue;
                 }
-                // 输出格式: github.com/foo/bar v1.0.0 v1.1.0 ...
+ // 输出格式: GitHub.com/foo/bar v1.0.0 v1.1.0 ...
                 String[] tokens = trimmed.split("\\s+");
                 if (tokens.length < 1) {
                     continue;

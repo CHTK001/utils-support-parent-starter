@@ -23,9 +23,9 @@ public interface SpeechSynthesizer {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -35,9 +35,9 @@ public interface SpeechSynthesizer {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default SpeechSynthesizer provider(String provider) {
@@ -54,7 +54,12 @@ public interface SpeechSynthesizer {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static SpeechSynthesizer create(String name) {
         return new DefaultSpeechSynthesizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -65,7 +70,7 @@ public interface SpeechSynthesizer {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.speech.SpeechSynthesizer.class);
@@ -229,7 +234,7 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public SpeechSynthesizer modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -243,7 +248,7 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     }
 
     @Override
-    /** Speed */
+    /** 速度 */
     public SpeechSynthesizer speed(float speed) {
         this.speed = speed;
         return this;
@@ -258,7 +263,12 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Synthesize */
+    /**
+     * 综合
+     *
+     * @param text 文本
+     * @return 综合的结果
+     */
     public byte[] synthesize(String text) {
         ITranslator<String, byte[]> t =
                 (ITranslator<String, byte[]>) engine.get(modelName, ITranslator.class);

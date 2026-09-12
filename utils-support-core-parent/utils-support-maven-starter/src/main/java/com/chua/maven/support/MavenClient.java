@@ -46,6 +46,10 @@ import java.util.regex.Pattern;
  *
  * // 取消编译
  * future.cancel(true);
+ * }</pre>mpile结果&gt; 期货 = 客户端.执行异步();
+ *
+ * // 取消编译
+   * 期货.cancel(true);
  * }</pre>
  *
  * @author CH
@@ -67,7 +71,7 @@ public class MavenClient implements AutoCloseable {
     private final List<String> goals;
 
     /**
-     * 激活的 Profile 列表
+      * 激活的 配置文件 列表
      */
     private final List<String> profiles;
 
@@ -125,28 +129,28 @@ public class MavenClient implements AutoCloseable {
      * 编译阶段进度阈值
      */
     private static final int PROGRESS_VALIDATION = 5;
-    /** Progress_resolve */
+    /** 进步_resolve */
     private static final int PROGRESS_RESOLVE = 15;
-    /** Progress_compile */
+    /** 进步_compile */
     private static final int PROGRESS_COMPILE = 50;
-    /** Progress_test */
+    /** 进步_测试 */
     private static final int PROGRESS_TEST = 75;
-    /** Progress_package */
+    /** 进步_包 */
     private static final int PROGRESS_PACKAGE = 90;
-    /** Progress_complete */
+    /** 进步_完成 */
     private static final int PROGRESS_COMPLETE = 100;
 
     /**
      * Maven 输出解析正则
      */
     private static final Pattern BUILD_SUCCESS_PATTERN = Pattern.compile("BUILD\\s+SUCCESS");
-    /** Build_failure_pattern */
+    /** 构建_失败_模式 */
     private static final Pattern BUILD_FAILURE_PATTERN = Pattern.compile("BUILD\\s+FAILURE");
-    /** Error_line_pattern */
+    /** 错误_线_模式 */
     private static final Pattern ERROR_LINE_PATTERN = Pattern.compile("\\[ERROR\\]\\s*(.+)");
-    /** Compiling_pattern */
+    /** Compiling_模式 */
     private static final Pattern COMPILING_PATTERN = Pattern.compile("Compiling\\s+(\\d+)\\s+source\\s+files");
-    /** Testing_pattern */
+    /** 测试_模式 */
     private static final Pattern TESTING_PATTERN = Pattern.compile("Tests run:\\s+(\\d+)");
 
     MavenClient(MavenClientBuilder builder) {
@@ -167,7 +171,7 @@ public class MavenClient implements AutoCloseable {
     // ==================== 工厂方法 ====================
 
     /**
-     * 创建 MavenClientBuilder 构建器
+       * 创建 Maven客户端构建器 构建器
      *
      * @return Builder 构建器
      */
@@ -189,7 +193,7 @@ public class MavenClient implements AutoCloseable {
     /**
      * 执行编译（异步）
      *
-     * @return Future 编译结果的 Future
+     * @return Future 编译结果的 期货
      */
     public Future<MavenCompileResult> executeAsync() {
         java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor(
@@ -227,7 +231,7 @@ public class MavenClient implements AutoCloseable {
     // ==================== 包级调用接口 ====================
 
     /**
-     * 从 Builder 执行编译
+      * 从 构建器 执行编译
      *
      * @param builder 构建器
      * @return 编译结果
@@ -251,7 +255,7 @@ public class MavenClient implements AutoCloseable {
         notifyStart(projectPath);
         notifyProgress("开始编译 " + projectPath + " [goals=" + effectiveGoals + "]", 0);
 
-        // 1. 解析 Maven home
+ // 1. 解析 Maven Home
         String mavenHome = resolveMavenHome();
         if (mavenHome == null) {
             long duration = Duration.between(start, Instant.now()).toMillis();
@@ -268,7 +272,7 @@ public class MavenClient implements AutoCloseable {
         List<String> errorLines = new ArrayList<>();
         int[] progressHolder = {0};
 
-        // 3. 创建 InvocationRequest
+ // 3. 创建 invocation请求
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(projectPath));
         request.setGoals(effectiveGoals);
@@ -357,7 +361,7 @@ public class MavenClient implements AutoCloseable {
      *
      * @param output             标准输出
      * @param exitCode           Maven 退出码
-     * @param executionException 执行异常（可能为 null）
+     * @param executionException 执行异常（可能为 空）
      * @return 错误列表
      */
     private List<String> buildErrorList(String output, int exitCode, Exception executionException) {
@@ -368,7 +372,7 @@ public class MavenClient implements AutoCloseable {
             } else {
                 errors.add("Maven 退出码: " + exitCode);
             }
-            // 提取 ERROR 行
+ // 提取 错误 行
             String[] lines = output.split("\n");
             for (String line : lines) {
                 Matcher matcher = ERROR_LINE_PATTERN.matcher(line);
@@ -418,7 +422,7 @@ public class MavenClient implements AutoCloseable {
     /**
      * 解析 Maven 安装路径
      *
-     * @return Maven 安装目录路径，找不到返回 null
+     * @return Maven 安装目录路径，找不到返回 空
      */
     private String resolveMavenHome() {
         // 1. 检查系统属性
@@ -427,19 +431,19 @@ public class MavenClient implements AutoCloseable {
             return path;
         }
 
-        // 2. 检查 MAVEN_HOME 环境变量
+ // 2. 检查 Maven_Home 环境变量
         path = System.getenv("MAVEN_HOME");
         if (path != null && !path.isBlank() && new File(path).exists()) {
             return path;
         }
 
-        // 3. 检查 M2_HOME
+ // 3. 检查 M2_Home
         path = System.getenv("M2_HOME");
         if (path != null && !path.isBlank() && new File(path).exists()) {
             return path;
         }
 
-        // 4. 尝试在 PATH 中查找 mvn.cmd 或 mvn
+ // 4. 尝试在 路径 中查找 mvn.CMD 或 mvn
         String pathEnv = System.getenv("PATH");
         if (pathEnv != null) {
             String[] pathDirs = pathEnv.split(File.pathSeparator);
@@ -476,7 +480,7 @@ public class MavenClient implements AutoCloseable {
             log.info("[maven] Maven 编译成功 [{}] 耗时: {}ms", projectPath, duration);
         } else {
             log.error("[maven] Maven 编译失败 [{}] exitCode: {} 耗时: {}ms", projectPath, exitCode, duration);
-            // 输出 ERROR 行到日志
+ // 输出 错误 行到日志
             String[] lines = output.split("\n");
             for (String line : lines) {
                 if (line.contains("[ERROR]")) {
@@ -568,6 +572,8 @@ public class MavenClient implements AutoCloseable {
 
     /**
      * Maven 客户端异常
+     * @author CH
+     * @since 4.0.0
      */
     public static class MavenClientException extends RuntimeException {
         /**

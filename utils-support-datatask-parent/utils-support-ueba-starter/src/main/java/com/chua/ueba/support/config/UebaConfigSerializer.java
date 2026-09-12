@@ -17,8 +17,8 @@ import java.util.Objects;
 /**
  * UEBA 配置序列化器。
  * <p>
- * 将内存中的 {@link UebaConfig} 以纯 YAML 结构写盘（仅基础类型：list/map/string/
- * number/bool），与 Java 读取端 schema 完全一致，可被 Python 训练脚本直接
+   * 将内存中的 {@link UebaConfig} 以纯 YAML 结构写盘（仅基础类型：列表/映射/字符串/
+   * 数字/bool），与 Java 读取端 模式 完全一致，可被 Python 训练脚本直接
  * {@code yaml.safe_load} 解析。用于程序化构造配置（非文件来源）时的训练契约落盘。
  * </p>
  *
@@ -36,9 +36,9 @@ public final class UebaConfigSerializer {
     /**
      * 将配置以纯 YAML 写入目标文件。
      *
-     * @param target 目标文件，不能为 null
-     * @param config 配置对象，不能为 null
-     * @throws IllegalArgumentException 当任一参数为 null 时
+     * @param target 目标文件，不能为 空
+     * @param config 配置对象，不能为 空
+     * @throws IllegalArgumentException 当任一参数为 空 时
      * @throws UncheckedIOException     当写入失败时
      */
     public static void write(Path target, UebaConfig config) {
@@ -56,10 +56,10 @@ public final class UebaConfigSerializer {
     }
 
     /**
-     * 将配置转换为纯结构 Map（与 YAML schema 一致）。
+      * 将配置转换为纯结构 映射（与 YAML 模式 一致）。
      *
-     * @param config 配置对象，不能为 null
-     * @return 纯结构 Map
+     * @param config 配置对象，不能为 空
+     * @return 纯结构 映射
      */
     private static Map<String, Object> toPlainMap(UebaConfig config) {
         Map<String, Object> root = new LinkedHashMap<>(8);
@@ -74,7 +74,7 @@ public final class UebaConfigSerializer {
     /**
      * 序列化特征列表。
      *
-     * @param defs 特征定义列表，允许为 null
+     * @param defs 特征定义列表，允许为 空
      * @return 纯结构列表
      */
     private static List<Object> features(List<FeatureDefinition> defs) {
@@ -97,10 +97,10 @@ public final class UebaConfigSerializer {
     }
 
     /**
-     * 序列化 AutoEncoder 配置。
+      * 序列化 auto编码器 配置。
      *
-     * @param ae AutoEncoder 配置，允许为 null
-     * @return 纯结构 Map，ae 为 null 时返回空 Map
+     * @param ae auto编码器 配置，允许为 空
+     * @return 纯结构 映射，ae 为 空 时返回空 映射
      */
     private static Map<String, Object> autoEncoder(UebaConfig.AutoEncoder ae) {
         Map<String, Object> map = new LinkedHashMap<>(4);
@@ -117,8 +117,8 @@ public final class UebaConfigSerializer {
     /**
      * 序列化 LSTM 配置。
      *
-     * @param lstm LSTM 配置，允许为 null
-     * @return 纯结构 Map，lstm 为 null 时返回空 Map
+     * @param lstm LSTM 配置，允许为 空
+     * @return 纯结构 映射，lstm 为 空 时返回空 映射
      */
     private static Map<String, Object> lstm(UebaConfig.Lstm lstm) {
         Map<String, Object> map = new LinkedHashMap<>(6);
@@ -137,8 +137,8 @@ public final class UebaConfigSerializer {
     /**
      * 序列化风险配置。
      *
-     * @param risk 风险配置，允许为 null
-     * @return 纯结构 Map，risk 为 null 时返回空 Map
+     * @param risk 风险配置，允许为 空
+     * @return 纯结构 映射，risk 为 空 时返回空 映射
      */
     private static Map<String, Object> risk(UebaConfig.Risk risk) {
         Map<String, Object> map = new LinkedHashMap<>(4);
@@ -155,8 +155,8 @@ public final class UebaConfigSerializer {
     /**
      * 序列化预处理参数。
      *
-     * @param preprocessing 预处理配置，允许为 null
-     * @return 纯结构 Map，preprocessing 为 null 时返回空 Map
+     * @param preprocessing 预处理配置，允许为 空
+     * @return 纯结构 映射，preprocessing 为 空 时返回空 映射
      */
     private static Map<String, Object> preprocessing(UebaConfig.Preprocessing preprocessing) {
         Map<String, Object> map = new LinkedHashMap<>(2);
@@ -181,10 +181,10 @@ public final class UebaConfigSerializer {
     }
 
     /**
-     * 序列化归一化参数（仅写入非 null 字段）。
+      * 序列化归一化参数（仅写入非 空 字段）。
      *
-     * @param scaler 归一化参数，允许为 null
-     * @return 纯结构 Map，scaler 为 null 时返回空 Map
+     * @param scaler 归一化参数，允许为 空
+     * @return 纯结构 映射，scaler 为 空 时返回空 映射
      */
     private static Map<String, Object> scaler(UebaConfig.Scaler scaler) {
         Map<String, Object> map = new LinkedHashMap<>(4);

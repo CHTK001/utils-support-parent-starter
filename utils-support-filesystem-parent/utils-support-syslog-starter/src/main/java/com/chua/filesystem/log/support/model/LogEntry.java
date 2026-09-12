@@ -7,9 +7,9 @@ import javax.annotation.Nonnull;
  *
  * @param timestamp 时间戳 (ISO-8601)
  * @param level     日志级别
- * @param source    日志源 (如 System, Application, Security, journald)
+ * @param source    日志源 (如 系统, Application, 安全性, journald)
  * @param message   日志消息内容
- * @param provider  提供者名称 (windows, linux, macos)
+ * @param provider  提供者名称 (窗口, Linux, macOS)
  * @param rawData   原始数据 (平台特定的原生格式)
  *
  * @author CH

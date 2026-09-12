@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 /**
  * WAV / PCM 音频解码与封装工具。
  * <p>解析 RIFF WAV（支持 PCM 8/16/32 位、IEEE float 32），输出 float 样本；纯 PCM 按
- * 48kHz 单声道 int16 处理。支持线性插值重采样到目标采样率。</p>
+   * 48khz 单声道 int16 处理。支持线性插值重采样到目标采样率。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -44,6 +44,9 @@ public class WavDecoder {
 
     /**
      * 解析 WAV 为 float 样本并重采样。
+     * @param data 数据
+     * @param targetSampleRate Target样本rate
+     * @return decodeWav的结果
      */
     private static float[] decodeWav(byte[] data, int targetSampleRate) {
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
@@ -133,7 +136,7 @@ public class WavDecoder {
     /**
      * 构造 WAV 头。
      *
-     * @param dataSize      data 子块大小
+     * @param dataSize      数据 子块大小
      * @param sampleRate    采样率
      * @param channels      声道数
      * @param bitsPerSample 位深

@@ -2,8 +2,8 @@ package com.chua.common.support.objects.definition;
 
 
 /**
- * 框架 Bean 定义包装器，用于将外部框架（Spring / CDI / OSGi）管理的 Bean
- * 桥接到框架 IoC 容器。
+   * 框架 Bean 定义包装器，用于将外部框架（Spring / CDI / osgi）管理的 Bean
+   * 桥接到框架 IOC 容器。
  *
  * <p>与 {@link SingletonBeanDefinition} 不同，本类直接跳过 IoC 生命周期
  * （依赖注入、{@code @PostConstruct} 等），因为外部框架的 Bean 已被其
@@ -36,7 +36,7 @@ public class FrameworkBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
-    /** Do获取Bean */
+    /** 执行获取Bean */
     protected Object doGetBean() {
         return instance;
     }

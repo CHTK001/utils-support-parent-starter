@@ -496,7 +496,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         /**
          * 创建 Segment 实例
          * @param initialSize initialSize
-         * @param int int
+         * @param initialSize int
          */
         public Segment(int initialSize, int resizeThreshold) {
             this.referenceManager = createReferenceManager();
@@ -754,7 +754,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         /**
          * 创建 Entry 实例
          * @param key key
-         * @param V V
+         * @param value V
          */
         public Entry(K key, V value) {
             this.key = key;

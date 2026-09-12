@@ -25,14 +25,14 @@ public interface FlowSnapshotStore {
      * 按执行号读取快照。
      *
      * @param executionNo 执行号
-     * @return 快照，不存在时返回 null
+     * @return 快照，不存在时返回 空
      */
     FlowSnapshot load(String executionNo);
 
     /**
-     * 按流程 ID 分页列出快照。
+      * 按流程 标识 分页列出快照。
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @return 快照列表，无则返回空列表
      */
     List<FlowSnapshot> list(String flowId);

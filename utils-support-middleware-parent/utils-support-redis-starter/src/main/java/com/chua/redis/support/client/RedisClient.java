@@ -30,6 +30,7 @@ import java.util.Map;
  *
  * // 响应式用法（扩展方法）
  * Mono<String> valueMono = ((RedisClient) engine).reactiveGet("mykey");
+ * }</pre>ne).reactiveGet("mykey");
  * }</pre>
  *
  * @author CH
@@ -57,7 +58,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     private final RedisReactorEngine engine;
 
     /**
-     * 使用默认配置创建 RedisClient。
+      * 使用默认配置创建 redis客户端。
      * 连接地址为 {@value #DEFAULT_REDIS_URL}。
      */
     public RedisClient() {
@@ -65,19 +66,19 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 使用指定地址创建 RedisClient。
+      * 使用指定地址创建 redis客户端。
      *
-     * @param url Redis 连接地址（如 redis://127.0.0.1:6379）
+     * @param url Redis 连接地址（如 Redis://127.0.0.1:6379）
      */
     public RedisClient(String url) {
         this(url, null);
     }
 
     /**
-     * 使用指定地址和密码创建 RedisClient。
+      * 使用指定地址和密码创建 redis客户端。
      *
      * @param url      Redis 连接地址
-     * @param password 密码（可为 null）
+     * @param password 密码（可为 空）
      */
     public RedisClient(String url, String password) {
         this.engine = new RedisReactorEngine();
@@ -91,9 +92,9 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 使用已有引擎创建 RedisClient（不管理引擎生命周期）。
+      * 使用已有引擎创建 redis客户端（不管理引擎生命周期）。
      *
-     * @param engine 已有的 RedisReactorEngine 实例
+     * @param engine 已有的 redisreactorengine 实例
      */
     public RedisClient(RedisReactorEngine engine) {
         this.engine = engine;
@@ -101,6 +102,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
 
     /**
      * 创建构建器。
+     * @return 构建器的结果
      */
     public static Builder builder() {
         return new Builder();
@@ -112,7 +114,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
      * 同步获取键值。
      *
      * @param key 键
-     * @return 键对应的值；键不存在时返回 null
+     * @return 键对应的值；键不存在时返回 空
      */
     @Override
     public String get(String key) {
@@ -200,10 +202,10 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 同步前缀扫描，返回匹配键值对的 Map。
+      * 同步前缀扫描，返回匹配键值对的 映射。
      *
      * @param prefix 键前缀
-     * @return 匹配前缀的键值对映射；无匹配时返回空 Map
+     * @return 匹配前缀的键值对映射；无匹配时返回空 映射
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -326,7 +328,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     /**
      * 响应式执行任意 Redis 命令。
      *
-     * @param command Redis 命令字符串（如 "GET mykey"）
+     * @param command Redis 命令字符串（如 "获取 mykey"）
      * @return 结果 Mono
      */
     public Mono<Object> reactiveExecCommand(String command) {
@@ -336,7 +338,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     /**
      * 响应式批量执行命令（Pipeline 模拟）。
      *
-     * @param commands 命令列表，每项为 "CMD arg1 arg2 ..." 格式
+     * @param commands 命令列表，每项为 "CMD 参数1 参数2 ..." 格式
      * @return 结果列表 Flux
      */
     public Flux<Object> reactiveExecBatch(List<String> commands) {
@@ -344,7 +346,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 响应式 Hash GET。
+      * 响应式 哈希 获取。
      *
      * @param key   哈希键
      * @param field 字段名
@@ -355,7 +357,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 响应式 Hash SET。
+      * 响应式 哈希 设置。
      *
      * @param key   哈希键
      * @param field 字段名
@@ -367,7 +369,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 响应式 Hash GETALL。
+      * 响应式 哈希 GETALL。
      *
      * @param key 哈希键
      * @return 字段值对 Flux
@@ -377,7 +379,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 响应式 List LRANGE。
+      * 响应式 列表 LRANGE。
      *
      * @param key   列表键
      * @param start 起始索引
@@ -389,7 +391,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 响应式 Set SMEMBERS。
+      * 响应式 设置 SMEMBERS。
      *
      * @param key 集合键
      * @return 成员列表 Flux
@@ -407,28 +409,58 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * RedisClient 构建器。
+      * redis客户端 构建器。
+     * @author CH
+     * @since 4.0.0
+     * @return 构建的结果
+     * @param timeoutMs 超时ms
      */
     public static class Builder {
-        private String host = "127.0.0.1";
-        private int port = 6379;
-        private String password = "";
-        private int database = 0;
+        private String host = "127.0.0.1"; // 主机
+        private int port = 6379; // 端口
+        private String password = ""; // 密码
+        private int database = 0; // database
+        /**
+         * 主机。
+         * @param host 主机
+         * @return 主机的结果
+         */
         private long timeoutMs = 5000;
 
+        /**
+         * 主机。
+         * @param host 主机
+         * @return 主机的结果
+         */
         public Builder host(String host) {
             this.host = host;
             return this;
+        /**
+         * 端口。
+         * @param port 端口
+         * @return 端口的结果
+         */
         }
 
         public Builder port(int port) {
             this.port = port;
             return this;
+        /**
+         * 密码。
+         * @param password 密码
+         * @return 密码的结果
+         */
         }
 
         public Builder password(String password) {
             this.password = password;
             return this;
+        /**
+         * database。
+         * @param database database
+         * @return database的结果
+         * @param timeoutMs 超时ms
+         */
         }
 
         public Builder database(int database) {

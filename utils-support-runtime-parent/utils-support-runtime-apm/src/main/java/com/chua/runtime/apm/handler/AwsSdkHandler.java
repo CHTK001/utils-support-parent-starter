@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * AWS SDK Handler — intercepts AWS client operations.
+   * AWS SDK 处理器 — intercepts AWS 客户端 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class AwsSdkHandler extends AbstractAppHandler {
 
     /**
-     * CLIENT
+      * 客户端
      */
     private static final String CLIENT = "software/amazon/awssdk/core/client/ClientExecution";
     /**
-     * exec methods
+      * 执行 方法
      */
     private static final String[] EXEC_METHODS = {"execute"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "aws-sdk-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "aws-sdk.enabled";
     }
@@ -42,13 +42,13 @@ public class AwsSdkHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(CLIENT, EXEC_METHODS);
     }

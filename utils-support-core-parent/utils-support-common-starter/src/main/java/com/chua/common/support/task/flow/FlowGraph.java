@@ -25,6 +25,8 @@ import java.util.Map;
  *
  * FlowInstance instance = graph.createInstance(Map.of("bizId", "1"));
  * instance.run();
+ * }</pre>h.createInstance(Map.of("bizId", "1"));
+ * instance.run();
  * }</pre>
  *
  * @author CH
@@ -37,7 +39,7 @@ public interface FlowGraph {
      *
      * <p>流程从该节点开始执行。</p>
      *
-     * @param nodeId 起始节点 ID
+     * @param nodeId 起始节点 标识
      * @return 当前编排图，支持链式调用
      */
     FlowGraph start(String nodeId);
@@ -46,9 +48,9 @@ public interface FlowGraph {
      * 顺序连线。
      *
      * <p>从前一个节点依次连接到后续节点，每个参数顺序连接。
-     * 例如 {@code next("a", "b", "c")} 表示前一个节点 → a → b → c。</p>
+      * 例如 {@code next("a", "b", "c")} 表示前一个节点 → a → b → C。</p>
      *
-     * @param nodeIds 目标节点 ID，顺序排列
+     * @param nodeIds 目标节点 标识，顺序排列
      * @return 当前编排图，支持链式调用
      */
     FlowGraph next(String... nodeIds);
@@ -57,11 +59,11 @@ public interface FlowGraph {
      * 配置条件节点分支。
      *
      * <p>为条件节点指定判断结果对应的下一节点，true/false 各可配置多条。
-     * 多目标时按声明顺序依次执行（与 vue-flow 中一个 sourceHandle 连多条边对应）。</p>
+      * 多目标时按声明顺序依次执行（与 vue-流 中一个 源处理 连多条边对应）。</p>
      *
-     * @param nodeId  条件节点 ID
+     * @param nodeId  条件节点 标识
      * @param result  判断结果
-     * @param targets 该结果对应的下一节点 ID，可多个
+     * @param targets 该结果对应的下一节点 标识，可多个
      * @return 当前编排图，支持链式调用
      */
     FlowGraph when(String nodeId, boolean result, String... targets);
@@ -72,7 +74,7 @@ public interface FlowGraph {
      * <p>指定的节点作为流程出口，执行到该节点后流程完成。
      * 若不传参数，则默认标记最后一个节点为终止节点。</p>
      *
-     * @param nodeIds 终止节点 ID，可选
+     * @param nodeIds 终止节点 标识，可选
      * @return 当前编排图，支持链式调用
      */
     FlowGraph end(String... nodeIds);

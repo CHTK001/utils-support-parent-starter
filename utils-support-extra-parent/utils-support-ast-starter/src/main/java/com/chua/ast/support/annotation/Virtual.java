@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * 虚拟线程注解，标记方法将在虚拟线程中执行
  *
  * <p>该注解会在编译期将标记的方法体替换为通过 {@code Thread.startVirtualThread()} 执行的 Runnable 任务。
- * 该注解仅适用于返回类型为 void 的实例方法。</p>
+   * 该注解仅适用于返回类型为 Void Linux 的实例方法。</p>
  *
  * <p>使用示例：</p>
  * <pre>{@code
@@ -26,7 +26,7 @@ import java.lang.annotation.*;
  *         }
  *     });
  * }
- * }</pre>
+ * }</pre></pre>
  *
  * <p><b>注意事项：</b></p>
  * <ul>

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * KCP 同步服务端实现，基于 kcp-netty 提供可靠 UDP 长连接双向同步能力。
+   * KCP 同步服务端实现，基于 kcp-Netty 提供可靠 UDP 长连接双向同步能力。
  *
  * <p>委托给 {@link KcpServer} 处理底层 KCP 通信与消息分发，
  * 通过 SPI 以 {@code "kcp"} 类型注册，与 {@link KcpSyncClient} 配对使用。</p>
@@ -46,38 +46,38 @@ public class KcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     @Override
-    /** 获取Protocol */
+    /** 获取协议 */
     public String getProtocol() {
         return "kcp";
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.KCP;
     }
 
     @Override
-    /** 创建Server */
+    /** 创建服务端 */
     public SyncServer createServer(ServerSetting setting) {
         return new KcpSyncServer(setting);
     }
 
     @Override
-    /** 创建Client */
+    /** 创建客户端 */
     public SyncClient createClient(Object setting) {
         String url = setting instanceof String ? (String) setting : DEFAULT_URL;
         return new KcpSyncClient(url);
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         delegate.start();
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         delegate.stop();
     }
@@ -95,25 +95,25 @@ public class KcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     @Override
-    /** 获取ConnectedClients */
+    /** 获取连接客户端 */
     public List<String> getConnectedClients() {
         return delegate.getConnectedClients();
     }
 
     @Override
-    /** 获取ClientMetadata */
+    /** 获取客户端metadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         return delegate.getClientMetadata(clientId);
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncServerListener listener) {
         delegate.addListener(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncServerListener listener) {
         delegate.removeListener(listener);
     }

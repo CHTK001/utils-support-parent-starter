@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.pose.PoseEstimator;
 import com.chua.deeplearning.support.pose.PoseKeypoint;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxPoseEstimator implements PoseEstimator {
@@ -20,33 +20,37 @@ public class OnnxPoseEstimator implements PoseEstimator {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxPoseEstimator 实例
-     * @param apiKey apiKey
+      * 创建 onnxposeestimator 实例
+     * @param apiKey API密钥
      */
     public OnnxPoseEstimator(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public PoseEstimator model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov8n-pose";
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public PoseEstimator threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public PoseEstimator modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
@@ -66,7 +70,7 @@ public class OnnxPoseEstimator implements PoseEstimator {
     }
 
     @Override
-    /** EstimateMulti */
+    /** estimatemulti */
     public List<List<PoseKeypoint>> estimateMulti(byte[] imageData) {
         List<PoseKeypoint> single = estimate(imageData);
         return single == null ? List.of() : List.of(single);

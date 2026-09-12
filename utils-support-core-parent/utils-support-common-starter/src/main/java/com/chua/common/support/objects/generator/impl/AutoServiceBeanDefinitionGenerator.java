@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AutoService Bean 定义生成器，处理 @AutoService 注解的类。
+   * auto服务 Bean 定义生成器，处理 @auto服务 注解的类。
  *
  * @author CH
  * @since 2024/12/20
@@ -29,7 +29,7 @@ public class AutoServiceBeanDefinitionGenerator implements BeanDefinitionGenerat
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public Boolean isSupport(Class<?> beanClass) {
         if (beanClass == null) {
             return false;

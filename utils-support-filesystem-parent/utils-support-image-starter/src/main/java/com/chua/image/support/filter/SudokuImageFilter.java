@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
  *   - 9+: 粗线条，适合强调效果
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 @Spi("Sudoku")

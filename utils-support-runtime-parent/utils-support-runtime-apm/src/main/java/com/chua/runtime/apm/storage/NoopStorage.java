@@ -9,10 +9,10 @@ import java.util.logging.Logger;
 import com.chua.runtime.protocol.DependencyEdge;
 
 /**
- * 无操作存储 — 默认 fallback。
+   * 无操作存储 — 默认 降级。
  *
  * <p>当 SPI 找不到任何实现，或显式配置 {@code apm.storage.type=noop} 时使用。
- * 所有方法都直接 return，保持原有内存模式兼容。</p>
+   * 所有方法都直接 返回，保持原有内存模式兼容。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,7 +20,7 @@ import com.chua.runtime.protocol.DependencyEdge;
 public class NoopStorage implements ApmStorage {
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(NoopStorage.class.getName());
 

@@ -36,6 +36,7 @@ import java.util.Map;
  *
  * // 原生 SQL 查询（返回 Flux）
  * Flux<Map<String, Object>> rows = engine.query("select * from user where age > ?", 18);
+ * }</pre>>> rows = engine.query("select * from user where age > ?", 18);
  * }</pre>
  *
  * @author CH
@@ -71,7 +72,7 @@ public interface ReactorEngine {
     <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass);
 
     /**
-     * 响应式原生 SQL 查询，返回 Map 行列表的 Flux。
+      * 响应式原生 SQL 查询，返回 映射 行列表的 Flux。
      *
      * @param sql    SQL 语句
      * @param params 参数列表
@@ -91,7 +92,7 @@ public interface ReactorEngine {
     <T> Flux<T> query(String sql, Class<T> rowType, Object... params);
 
     /**
-     * 响应式更新（INSERT / UPDATE / DELETE）。
+      * 响应式更新（插入 / 更新 / 删除）。
      *
      * @param sql    SQL 语句
      * @param params 参数列表
@@ -111,7 +112,7 @@ public interface ReactorEngine {
     /**
      * 通过 SPI 创建响应式引擎实例。
      *
-     * @param type SPI 扩展键（如 "mysql"、"sqlite"、"duckdb"）
+     * @param type SPI 扩展键（如 "MySQL"、"sqlite"、"duckdb"）
      * @return 响应式引擎实例
      */
     static ReactorEngine create(String type) {

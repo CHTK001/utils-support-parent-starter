@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * QQWry 纯真 IP 数据库查询器。
+   * qqwry 纯真 IP 数据库查询器。
  *
  * @author CH
  * @since 4.0.0.42
@@ -75,7 +75,7 @@ public class QQWryReader implements Closeable {
      * 根据 IP 地址字符串查询地理位置信息。
      *
      * @param ip IP 地址字符串，例如 "192.168.1.1"
-     * @return 地理位置信息对象，若未找到则返回 null
+     * @return 地理位置信息对象，若未找到则返回 空
      */
     public IpLocation query(String ip) {
         return query(ipToLong(ip));
@@ -85,7 +85,7 @@ public class QQWryReader implements Closeable {
      * 根据 IP 地址长整型值查询地理位置信息。
      *
      * @param ip IP 地址的长整型表示
-     * @return 地理位置信息对象，若未找到则返回 null
+     * @return 地理位置信息对象，若未找到则返回 空
      */
     public IpLocation query(long ip) {
         int lo = 0;
@@ -200,7 +200,7 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 从指定偏移量读取以 null 结尾的字符串。
+      * 从指定偏移量读取以 空 结尾的字符串。
      *
      * @param offset 起始偏移量
      * @return 读取的字符串
@@ -214,7 +214,7 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 计算从指定偏移量开始到 null 字符的长度。
+      * 计算从指定偏移量开始到 空 字符的长度。
      *
      * @param offset 起始偏移量
      * @return 字符串长度

@@ -28,14 +28,14 @@ public class DetectionConfiguration {
     private String modelName;
 
     /** 覆盖加载的模型名称 */
-    /** Load模型名称 */
+    /** 加载模型名称 */
     private String loadModelName;
 
     /** 模型文件路径 */
-    /** Load模型路径 */
+    /** 加载模型路径 */
     private String loadModelPath;
 
-    /** 系统级选项（appId、appKey 等） */
+    /** 系统级选项（appid、app键 等） */
     private Map<String, Object> systemOption;
 
     /** 默认配置实例 */
@@ -120,7 +120,7 @@ public class DetectionConfiguration {
     }
 
     /**
-     * 优先返回 loadModelName，否则返回默认值。
+      * 优先返回 加载模型名称，否则返回默认值。
      *
      * @param def 兜底值
      * @return 模型名称
@@ -141,9 +141,9 @@ public class DetectionConfiguration {
     }
 
     /**
-     * 获取云端认证 AppId。
+      * 获取云端认证 appid。
      *
-     * @return AppId，未配置时返回 null
+     * @return AppId，未配置时返回 空
      */
     public String optAppId() {
         if (systemOption == null) {
@@ -154,9 +154,9 @@ public class DetectionConfiguration {
     }
 
     /**
-     * 获取云端认证 AppKey。
+      * 获取云端认证 app键。
      *
-     * @return AppKey，未配置时返回 null
+     * @return AppKey，未配置时返回 空
      */
     public String optAppKey() {
         if (systemOption == null) {
@@ -169,7 +169,7 @@ public class DetectionConfiguration {
     /**
      * 获取当前全局配置。
      *
-     * @return 当前 DetectionConfiguration
+     * @return 当前 detection配置
      */
     public static DetectionConfiguration get() {
         return current;
@@ -187,7 +187,7 @@ public class DetectionConfiguration {
     }
 
     /**
-     * 基于当前配置创建 Builder。
+      * 基于当前配置创建 构建器。
      *
      * @return Builder 实例
      */
@@ -196,7 +196,9 @@ public class DetectionConfiguration {
     }
 
     /**
-     * 检测配置 Builder。
+      * 检测配置 构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class DetectionConfigurationBuilder {
 
@@ -206,13 +208,13 @@ public class DetectionConfiguration {
         private final DetectionConfiguration c = new DetectionConfiguration();
 
         /**
-         * 创建空 Builder。
+          * 创建空 构建器。
          */
         public DetectionConfigurationBuilder() {
         }
 
         /**
-         * 基于已有配置创建 Builder。
+          * 基于已有配置创建 构建器。
          *
          * @param src 已有配置
          */
@@ -228,7 +230,7 @@ public class DetectionConfiguration {
          * 设置是否使用 GPU。
          *
          * @param g 是否使用 GPU
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public DetectionConfigurationBuilder useGpu(boolean g) {
             c.useGpu = g;
@@ -239,7 +241,7 @@ public class DetectionConfiguration {
          * 设置模型名称。
          *
          * @param m 模型名称
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public DetectionConfigurationBuilder modelName(String m) {
             c.modelName = m;
@@ -250,7 +252,7 @@ public class DetectionConfiguration {
          * 设置加载模型名称。
          *
          * @param m 加载模型名称
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public DetectionConfigurationBuilder loadModelName(String m) {
             c.loadModelName = m;
@@ -261,7 +263,7 @@ public class DetectionConfiguration {
          * 设置模型文件路径。
          *
          * @param p 模型文件路径
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public DetectionConfigurationBuilder loadModelPath(String p) {
             c.loadModelPath = p;
@@ -272,7 +274,7 @@ public class DetectionConfiguration {
          * 设置系统级选项。
          *
          * @param o 系统级选项
-         * @return 当前 Builder
+         * @return 当前 构建器
          */
         public DetectionConfigurationBuilder systemOption(Map<String, Object> o) {
             c.systemOption = o;

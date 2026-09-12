@@ -6,7 +6,7 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
  * 流水线全局回调监听器。
  *
  * <p>提供流水线执行过程中的生命周期回调，支持在流水线启动、节点执行前后、
- * 异常时、完成时插入自定义逻辑。所有方法均为 default 实现，按需覆盖即可。</p>
+   * 异常时、完成时插入自定义逻辑。所有方法均为 默认 实现，按需覆盖即可。</p>
  *
  * <p>通过 {@link com.chua.common.support.task.pipeline.builder.PipelineBuilder#addListener(PipelineListener)}
  * 注册到流水线，或使用便捷方法 {@code logging()}、{@code onStart()}、{@code onComplete()}、{@code onNextStep()}。</p>
@@ -29,6 +29,9 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
  *         log.error("Node failed: " + ctx.getCurrentNodeId(), e);
  *         return "error-handler";  // 路由到错误处理节点继续执行
  *         // return null;  // 终止流水线
+ *     }
+ * })
+ * }</pre>  // 终止流水线
  *     }
  * })
  * }</pre>
@@ -78,7 +81,7 @@ public interface PipelineListener {
      *
      * @param context 当前流水线上下文
      * @param e       异常信息
-     * @return 恢复节点 ID（继续执行），或 null（终止流水线）
+     * @return 恢复节点 标识（继续执行），或 空（终止流水线）
      */
     default String onError(PipelineContext<?> context, Throwable e) {
         return null;
@@ -112,9 +115,11 @@ public interface PipelineListener {
      *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
      *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()
      *     .build();
+     * }</pre>).任务结束()
+      * .构建();
      * }</pre>
      *
-     * @param context 当前流水线上下文（含 history 等执行状态）
+     * @param context 当前流水线上下文（含 历史 等执行状态）
      */
     default void onDraw(PipelineContext<?> context) {
     }

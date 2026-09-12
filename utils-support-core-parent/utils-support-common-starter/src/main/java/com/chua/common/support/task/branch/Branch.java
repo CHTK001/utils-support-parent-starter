@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * 轻量惰性分支工具 —— 以流式链替代 if-else / try-catch。
+   * 轻量惰性分支工具 —— 以流式链替代 if-else / 尝试-卡扣。
  *
  * <p><strong>定位</strong>：单类、零引擎依赖、惰性求值；用于整理管线代码中散落的
  * 条件判断与异常兜底，使主流程线性可读。</p>
@@ -38,6 +38,8 @@ import java.util.function.Predicate;
  *         .recover(e -> Collections.emptyList())
  *         .get();
  * }</pre>
+   * .获取();
+ * }</pre>
  *
  * <h2>语义契约</h2>
  * <ol>
@@ -48,9 +50,9 @@ import java.util.function.Predicate;
  *       <em>组的原始输入类型 T</em>（而非上一分支的输出），按序首中胜；
  *       以 {@code otherwise} 收尾（等价 else）或 {@code end()} 省略 else 后回到主线。
  *       未跟随任何 {@code when} 的 {@code elseIf}/{@code otherwise} 不可能存在
- *       （它们只存在于 WhenGroup 上）。</li>
+   * （它们只存在于 When.js群体 上）。</li>
  *   <li><strong>null 免疫</strong>：除 {@link #whenNull(Function)} 外，任何谓词与动作
- *       都不会收到 null 入参——当前值为 null 时整组跳过并透传。</li>
+   * 都不会收到 空 入参——当前值为 空 时整组跳过并透传。</li>
  *   <li><strong>异常双通道</strong>：{@link #recover(Function)} 与 {@link #onError(Consumer)}
  *       作用于自注册点之后的步骤直至再次覆盖。前者以返回值续接后续链，
  *       后者仅消费异常并终止链，结果取异常前最近一次成功值。</li>
@@ -72,8 +74,12 @@ import java.util.function.Predicate;
 public final class Branch<T> {
 
     /**
-     * 条件分支：谓词 + 动作；nullAware 标记允许 null 入参（仅 whenNull 使用）。
-     * 内部统一以 Object 签名存储，类型安全由公开泛型门面保证。
+      * 条件分支：谓词 + 动作；空aware 标记允许 空 入参（仅 When.js空 使用）。
+      * 内部统一以 对象 签名存储，类型安全由公开泛型门面保证。
+     * @param condition 条件
+     * @param action 动作
+     * @param nullAware 空aware
+     * @return 大小写的结果
      */
     private record Case(Predicate<Object> condition, Function<Object, Object> action, boolean nullAware) {
     }
@@ -91,19 +97,39 @@ public final class Branch<T> {
     private interface Stage {
     }
 
-    /** 条件组阶段。 */
+    /**
+     * 条件组阶段。
+     *
+     * @param group 群体
+     * @return 群体Stage的结果
+     */
     private record GroupStage(Group group) implements Stage {
     }
 
-    /** 异常恢复注册阶段。 */
+    /**
+     * 异常恢复注册阶段。
+     *
+     * @param fallback 降级
+     * @return recoverStage的结果
+     */
     private record RecoverStage(Function<Throwable, Object> fallback) implements Stage {
     }
 
-    /** 异常终止注册阶段。 */
+    /**
+     * 异常终止注册阶段。
+     *
+     * @param handler 处理器
+     * @return on错误Stage的结果
+     */
     private record OnErrorStage(Consumer<Throwable> handler) implements Stage {
     }
 
-    /** 熔断保护切换阶段。 */
+    /**
+     * 熔断保护切换阶段。
+     *
+     * @param flow 流
+     * @return protectStage的结果
+     */
     private record ProtectStage(CircuitBreakerFlow flow) implements Stage {
     }
 
@@ -113,12 +139,17 @@ public final class Branch<T> {
     /** 已登记的阶段序列。 */
     private final List<Stage> stages = new ArrayList<>();
 
-    /** 当前未封组的条件组；null 表示无开放组。 */
+    /** 当前未封组的条件组；空 表示无开放组。 */
     private Group openGroup;
 
     /** 是否已设置过任意条件分支（规范校验依据）。 */
     private boolean hasCondition;
 
+    /**
+     * 分支。
+     * @param seed 参见
+     * @return 分支的结果
+     */
     private Branch(Object seed) {
         this.seed = seed;
     }
@@ -126,7 +157,7 @@ public final class Branch<T> {
     /**
      * 创建分支链。
      *
-     * @param seed 初始值，可为 null
+     * @param seed 初始值，可为 空
      * @param <T>  值类型
      * @return 分支链
      */
@@ -138,7 +169,7 @@ public final class Branch<T> {
     /**
      * 图像管线常用入口：以字节数组起链。
      *
-     * @param data 图像等二进制数据，可为 null
+     * @param data 图像等二进制数据，可为 空
      * @return 字节数组分支链
      */
     public static Branch<byte[]> ofBytes(byte[] data) {
@@ -178,7 +209,7 @@ public final class Branch<T> {
     /* ---------------- 条件组 ---------------- */
 
     /**
-     * 开启条件组并加入首个分支，返回组视图以续写 elseIf/otherwise/end。
+      * 开启条件组并加入首个分支，返回组视图以续写 elseif/otherwise/结束。
      *
      * <p>当前值为 null 时整组跳过（见类注释 null 免疫契约），谓词不会被调用。</p>
      *
@@ -196,9 +227,9 @@ public final class Branch<T> {
     }
 
     /**
-     * 当前值为 null 时执行（唯一允许动作入参为 null 的入口）。
+      * 当前值为 空 时执行（唯一允许动作入参为 空 的入口）。
      *
-     * @param action 动作，入参为 null
+     * @param action 动作，入参为 空
      * @param <R>    动作产出类型
      * @return 条件组视图
      */
@@ -211,7 +242,7 @@ public final class Branch<T> {
     }
 
     /**
-     * 当前值为空集合 / 空 Map / 空字符串 / 空数组时执行；其余类型视为不命中。
+      * 当前值为空集合 / 空 映射 / 空字符串 / 空数组时执行；其余类型视为不命中。
      *
      * @param action 命中后的动作
      * @param <R>    动作产出类型
@@ -244,7 +275,7 @@ public final class Branch<T> {
     }
 
     /**
-     * 当前值为 Boolean.TRUE 时执行；其余类型视为不命中。
+      * 当前值为 布尔值.TRUE 时执行；其余类型视为不命中。
      *
      * @param action 命中后的动作
      * @param <R>    动作产出类型
@@ -257,10 +288,10 @@ public final class Branch<T> {
     /* ---------------- 异常双通道 ---------------- */
 
     /**
-     * 注册异常恢复：此后步骤抛出的异常交由 fallback 生成兜底值并续接后续链。
+      * 注册异常恢复：此后步骤抛出的异常交由 降级 生成兜底值并续接后续链。
      *
      * <p>兜底值类型与链类型一致——recover 只处理异常，不改变流经值的类型；
-     * 值的类型切换仅由条件动作（when/otherwise 等）完成。</p>
+      * 值的类型切换仅由条件动作（When.js/otherwise 等）完成。</p>
      *
      * @param fallback 兜底函数，入参为捕获到的异常
      * @return 本链
@@ -271,7 +302,7 @@ public final class Branch<T> {
     }
 
     /**
-     * 注册异常出口：此后步骤抛出的异常交由 handler 消费，链随即终止，
+      * 注册异常出口：此后步骤抛出的异常交由 处理器 消费，链随即终止，
      * 结果取异常前最近一次成功值。
      *
      * @param handler 异常消费者
@@ -286,7 +317,7 @@ public final class Branch<T> {
 
     /**
      * 后续步骤经默认配置的命名熔断器执行；熔开时不执行底层逻辑，
-     * 直接进入 recover/onError 流程。
+      * 直接进入 recover/on错误 流程。
      *
      * @param breakerName 熔断器名称（同名共享状态）
      * @return 本链
@@ -320,7 +351,7 @@ public final class Branch<T> {
     /**
      * 折叠求值。未设置任何条件分支时抛出 {@link IllegalStateException}。
      *
-     * @return 链上最终值（可能为 null）
+     * @return 链上最终值（可能为 空）
      */
     @SuppressWarnings("unchecked")
     public T get() {
@@ -368,6 +399,9 @@ public final class Branch<T> {
 
     /**
      * 向开放组追加常规分支。
+     * @param condition 条件
+     * @param action 动作
+     * @param nullAware 空aware
      */
     @SuppressWarnings("unchecked")
     private void addCase(Predicate<?> condition, Function<?, ?> action, boolean nullAware) {
@@ -377,7 +411,10 @@ public final class Branch<T> {
     }
 
     /**
-     * 向开放组追加内部签名分支（whenNull 用）。
+      * 向开放组追加内部签名分支（When.js空 用）。
+     * @param condition 条件
+     * @param action 动作
+     * @param nullAware 空aware
      */
     private void addRawCase(Predicate<Object> condition, Function<?, ?> action, boolean nullAware) {
         openGroup.cases.add(new Case(condition, (Function<Object, Object>) action, nullAware));
@@ -388,14 +425,14 @@ public final class Branch<T> {
 
     /**
      * 求值一个条件组，返回产出值。
-     * 若被 onError 终止则抛出 {@link TerminatedSignal}（由 get() 统一捕获）。
+      * 若被 on错误 终止则抛出 {@link TerminatedSignal}（由 获取() 统一捕获）。
      */
     private Object evalGroup(Group group, Object current,
                              CircuitBreakerFlow breaker,
                              Function<Throwable, Object> recover,
                              Consumer<Throwable> onError) {
         List<Case> cases = group.cases;
-        // null 值：仅 nullAware 分支可介入，其余整组跳过
+ // 空 值：仅 空aware 分支可介入，其余整组跳过
         if (current == null) {
             for (Case c : cases) {
                 if (!c.nullAware()) {
@@ -405,7 +442,7 @@ public final class Branch<T> {
             }
             return current;
         }
-        // 非 null：按序首中胜（nullAware 分支仅在值为 null 时有意义，此处跳过）
+ // 非 空：按序首中胜（空aware 分支仅在值为 空 时有意义，此处跳过）
         for (Case c : cases) {
             if (c.nullAware() || !c.condition().test(current)) {
                 continue;
@@ -417,7 +454,7 @@ public final class Branch<T> {
 
     /**
      * 经熔断器执行动作并套接异常处理；
-     * 被 onError 终止时抛出 {@link TerminatedSignal}。
+      * 被 on错误 终止时抛出 {@link TerminatedSignal}。
      */
     private Object runProtected(java.util.concurrent.Callable<Object> action,
                                 CircuitBreakerFlow breaker,
@@ -441,7 +478,7 @@ public final class Branch<T> {
     }
 
     /**
-     * onError 终止链的内部信号（不会逃逸出 get()）。
+      * on错误 终止链的内部信号（不会逃逸出 获取()）。
      */
     private static final class TerminatedSignal extends Error {
     }
@@ -449,7 +486,7 @@ public final class Branch<T> {
     /* ---------------- 工具方法 ---------------- */
 
     /**
-     * 判定值是否为"空"：集合 / Map / 字符串 / 数组长度为 0。
+      * 判定值是否为"空"：集合 / 映射 / 字符串 / 数组长度为 0。
      *
      * @param v 待判定值
      * @return 空返回 true
@@ -532,6 +569,11 @@ public final class Branch<T> {
         /** 宿主链（裸类型操作内部结构）。 */
         private final Branch<R> owner;
 
+        /**
+         * When.js群体。
+         * @param owner owner
+         * @return When.js群体的结果
+         */
         private WhenGroup(Branch<R> owner) {
             this.owner = owner;
         }

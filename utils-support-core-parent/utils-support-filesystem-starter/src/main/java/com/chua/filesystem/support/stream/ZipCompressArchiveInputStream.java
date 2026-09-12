@@ -11,7 +11,7 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
- * ZIP格式归档输入流提供者
+   * 压缩格式归档输入流提供者
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 public class ZipCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -30,14 +30,14 @@ public class ZipCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     @Override
-    /** 创建InputStream */
+    /** 创建输入流 */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var zipInputStream = new ZipArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(zipInputStream);
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "zip";
     }

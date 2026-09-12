@@ -5,20 +5,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * 输入流适配器类，将ImageInputStream转换为标准InputStream
- * 此类实现了InputStream，以便在需要标准InputStream的地方使用ImageInputStream
+   * 输入流适配器类，将镜像输入流转换为标准输入流
+   * 此类实现了输入流，以便在需要标准输入流的地方使用镜像输入流
  *
  * @author CH
  * @since 4.0.0.42
 */
 final class InputStreamAdapter extends InputStream {
 
-    ImageInputStream stream;
+    ImageInputStream stream; // 流
 
     /**
-     * 构造函数，初始化ImageInputStream
+      * 构造函数，初始化镜像输入流
      *
-     * @param stream ImageInputStream实例，需要被适配的流
+     * @param stream 镜像输入流实例，需要被适配的流
      */
     public InputStreamAdapter(ImageInputStream stream) {
         super();

@@ -36,7 +36,7 @@ public class PoetryInfo {
     private final List<String> paragraphs;
 
     /**
-     * 创建 PoetryInfo 实例
+      * 创建 poetry信息 实例
      *
      * @param title      标题
      * @param author     作者
@@ -50,22 +50,38 @@ public class PoetryInfo {
         this.paragraphs = paragraphs;
     }
 
-    /** 获取标题 */
+    /**
+     * 获取标题
+     *
+     * @return 获取title的结果
+     */
     public String getTitle() {
         return title;
     }
 
-    /** 获取作者 */
+    /**
+     * 获取作者
+     *
+     * @return 获取作者的结果
+     */
     public String getAuthor() {
         return author;
     }
 
-    /** 获取朝代 */
+    /**
+     * 获取朝代
+     *
+     * @return 获取dynasty的结果
+     */
     public String getDynasty() {
         return dynasty;
     }
 
-    /** 获取正文段落 */
+    /**
+     * 获取正文段落
+     *
+     * @return 获取paragraphs的结果
+     */
     public List<String> getParagraphs() {
         return paragraphs;
     }
@@ -83,7 +99,7 @@ public class PoetryInfo {
     }
 
     /**
-     * 转换为 Map 用于 JSON 序列化
+      * 转换为 映射 用于 JSON 序列化
      *
      * @return Map 表示
      */

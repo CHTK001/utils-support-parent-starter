@@ -45,7 +45,7 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
- * @version 1.0.0
+   * @版本 1.0.0
  */
 @Slf4j
 public class Acme4jProvider implements AcmeProvider {
@@ -77,7 +77,7 @@ public class Acme4jProvider implements AcmeProvider {
      */
     private String accountPrivateKeyPem;
     /**
-     * 当前订单（getValidationInfo 创建，requestCertificate 复用）
+      * 当前订单（获取校验信息 创建，请求证书 复用）
      */
     private Order currentOrder;
     /**
@@ -227,7 +227,7 @@ public class Acme4jProvider implements AcmeProvider {
      *
      * @param domain    域名
      * @param challenge 挑战对象
-     * @return 验证信息，不支持的挑战类型返回 null
+     * @return 验证信息，不支持的挑战类型返回 空
      */
     private AcmeValidationInfo buildValidationInfo(String domain, Challenge challenge) {
         AcmeValidationInfo info = new AcmeValidationInfo();

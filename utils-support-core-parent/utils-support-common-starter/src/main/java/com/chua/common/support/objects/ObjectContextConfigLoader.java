@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 从 classpath 上的 application 配置文件加载 {@link ObjectContextConfig}。
+   * 从 类路径 上的 application 配置文件加载 {@link ObjectContextConfig}。
  * <p>行为对齐 Spring Boot：优先读取 {@code application.yml} / {@code application.yaml}，
  * 其次 {@code application.properties}。</p>
  * <p>支持的配置键：
@@ -71,7 +71,7 @@ public final class ObjectContextConfigLoader {
     }
 
     /**
-     * 从 classpath 加载配置，文件不存在或解析失败时返回 builder 默认值。
+      * 从 类路径 加载配置，文件不存在或解析失败时返回 构建器 默认值。
      *
      * @return 解析后的配置
      */
@@ -115,7 +115,7 @@ public final class ObjectContextConfigLoader {
     /**
      * 加载 application 属性源。
      *
-     * @return 属性源，如果未找到则返回 null
+     * @return 属性源，如果未找到则返回 空
      */
     private static PropertySource loadApplicationPropertySource() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -230,7 +230,7 @@ public final class ObjectContextConfigLoader {
     /**
      * 类似 Spring Boot：从启动 main 类推断默认扫描包。
      *
-     * @return 主类的包名，如果无法推断则返回 null
+     * @return 主类的包名，如果无法推断则返回 空
      */
     private static String detectMainPackage() {
         try {

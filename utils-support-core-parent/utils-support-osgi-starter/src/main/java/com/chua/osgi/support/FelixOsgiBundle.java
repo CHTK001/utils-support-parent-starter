@@ -19,10 +19,10 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     /** Bundle */
     private final Bundle bundle;
-    private final List<ServiceRegistration<?>> registrations = new CopyOnWriteArrayList<>();
+    private final List<ServiceRegistration<?>> registrations = new CopyOnWriteArrayList<>(); // registrations
 
     /**
-     * 创建 FelixOsgiBundle 实例
+      * 创建 felixosgibundle 实例
      * @param bundle bundle
      */
     public FelixOsgiBundle(Bundle bundle) {
@@ -30,19 +30,19 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
-    /** 获取SymbolicName */
+    /** 获取symbolic名称 */
     public String getSymbolicName() {
         return bundle.getSymbolicName();
     }
 
     @Override
-    /** 获取Version */
+    /** 获取版本 */
     public String getVersion() {
         return bundle.getVersion().toString();
     }
 
     @Override
-    /** 获取State */
+    /** 获取状态 */
     public String getState() {
         return switch (bundle.getState()) {
             case Bundle.ACTIVE -> "ACTIVE";
@@ -95,7 +95,13 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 注册Service */
+    /**
+     * 注册服务
+     *
+     * @param type 类型
+     * @param service 服务
+     * @return 注册服务的结果
+     */
     public <T> void registerService(Class<T> type, T service) {
         ServiceRegistration<?> registration = bundle.getBundleContext()
                 .registerService(type.getName(), service, null);
@@ -104,7 +110,13 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 注销Service */
+    /**
+     * 注销服务
+     *
+     * @param type 类型
+     * @param service 服务
+     * @return 注销服务的结果
+     */
     public <T> void unregisterService(Class<T> type, T service) {
         registrations.removeIf(reg -> {
             try {
@@ -131,7 +143,12 @@ public class FelixOsgiBundle implements OsgiBundle {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取Services */
+    /**
+     * 获取服务
+     *
+     * @param type 类型
+     * @return 获取服务的结果
+     */
     public <T> List<T> getServices(Class<T> type) {
         try {
             org.osgi.framework.ServiceReference<?>[] refs =

@@ -37,7 +37,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     private static final String DEFAULT_URL_TEMPLATE =
             "https://api.vvhan.com/api/horoscope?type=%s&astro=%s";
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /** HTTP客户端 */
@@ -52,10 +52,10 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
             "天秤座", "天蝎座", "射手座", "摩羯座", "水瓶座", "双鱼座"
     };
 
-    /** 内置兜底运势库：sign -> type -> 运势 */
+    /** 内置兜底运势库：标志 -> 类型 -> 运势 */
     private static final Map<String, Map<String, HoroscopeInfo>> FALLBACK = buildFallback();
 
-    /** 创建 OnlineHoroscopeProvider 实例 */
+    /** 创建 onlinehoroscope提供者 实例 */
     public OnlineHoroscopeProvider() {
         this(DEFAULT_URL_TEMPLATE);
     }
@@ -63,7 +63,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     /**
      * 构造一个指定接口地址模板的提供器。
      *
-     * @param urlTemplate 含 {@code %s}（type）与 {@code %s}（sign）占位符的地址，
+     * @param urlTemplate 含 {@code %s}（类型）与 {@code %s}（标志）占位符的地址，
      *                    如 {@code https://host/api?type=%s&astro=%s}
      */
     public OnlineHoroscopeProvider(String urlTemplate) {
@@ -72,7 +72,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "vvhan";
     }
@@ -95,7 +95,13 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
         return bySign.get(t);
     }
 
-    /** 在线查询 */
+    /**
+     * 在线查询
+     *
+     * @param sign 标志
+     * @param type 类型
+     * @return 获取online的结果
+     */
     private HoroscopeInfo fetchOnline(String sign, String type) {
         try {
             ClientResponse resp = httpClient.get(String.format(urlTemplate, type, sign));
@@ -122,7 +128,12 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
         }
     }
 
-    /** 归一化周期 */
+    /**
+     * 归一化周期
+     *
+     * @param type 类型
+     * @return normalize类型的结果
+     */
     private static String normalizeType(String type) {
         switch (type.trim().toLowerCase()) {
             case "week":
@@ -139,7 +150,13 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
         }
     }
 
-    /** 读取数值指数 */
+    /**
+     * 读取数值指数
+     *
+     * @param n n
+     * @param k k
+     * @return num的结果
+     */
     private static int num(JsonNode n, String k) {
         JsonNode v = n.get(k);
         if (v == null || v.isNull()) {
@@ -152,7 +169,13 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
         return s.isEmpty() ? 0 : Integer.parseInt(s);
     }
 
-    /** Text */
+    /**
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -160,6 +183,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
 
     /**
      * 内置十二星座运势兜底库（在线不可用时的核心数据）。
+     * @return 构建降级的结果
      */
     private static Map<String, Map<String, HoroscopeInfo>> buildFallback() {
         Map<String, Map<String, HoroscopeInfo>> map = new HashMap<>();

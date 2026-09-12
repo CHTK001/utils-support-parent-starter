@@ -20,7 +20,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class MilvusStorageProperties implements Serializable {
 
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -29,12 +29,12 @@ public class MilvusStorageProperties implements Serializable {
     private String host = "127.0.0.1";
 
     /**
-     * Milvus 服务端口（仅当 host 不含协议时使用）
+      * Milvus 服务端口（仅当 主机 不含协议时使用）
      */
     private int port = 19530;
 
     /**
-     * Collection 名称
+      * 集合 名称
      */
     private String collection = "vector_store";
 

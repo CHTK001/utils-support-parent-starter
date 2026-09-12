@@ -35,7 +35,7 @@ import java.util.jar.JarFile;
 public class EncryptedAppClassLoader extends URLClassLoader {
 
     /**
-     * FatJar 应用类根前缀（SpringBoot 结构）
+      * fatjar 应用类根前缀（springboot 结构）
      */
     private static final String BOOT_CLASSES_PREFIX = "BOOT-INF/classes/";
 
@@ -116,7 +116,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
      * 获取包内原始/解密后的条目流（供 URL 连接复用）
      *
      * @param entryName 条目全名
-     * @return 明文输入流；条目不存在返回 null
+     * @return 明文输入流；条目不存在返回 空
      */
     InputStream openDecryptedStream(String entryName) {
         JarEntry entry = jar.getJarEntry(entryName);
@@ -209,6 +209,8 @@ public class EncryptedAppClassLoader extends URLClassLoader {
 
     /**
      * 解密资源协议处理器
+     * @author CH
+     * @since 4.0.0
      */
     private class Handler extends URLStreamHandler {
 
@@ -219,10 +221,16 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     }
 
     /**
-     * 条目内容连接：getInputStream 返回解密字节流
+      * 条目内容连接：获取输入流 返回解密字节流
+     * @author CH
+     * @since 4.0.0
      */
     private class ChkURLConnection extends URLConnection {
 
+        /**
+          * chkurlconnection。
+         * @param url url
+         */
         protected ChkURLConnection(URL url) {
             super(url);
         }

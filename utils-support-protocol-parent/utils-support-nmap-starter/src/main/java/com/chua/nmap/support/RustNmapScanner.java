@@ -2,7 +2,7 @@ package com.chua.nmap.support;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.nmap.support.bridge.RustNmapBridge;
 import lombok.extern.slf4j.Slf4j;
 
@@ -420,18 +420,38 @@ public class RustNmapScanner implements NmapScanner {
 
     private List<PortInfo> parsePortRangeResult(String result, String protocol) {
         List<PortInfo> portInfos = new ArrayList<>();
-        if (result == null || result.isEmpty()) {
+        if (result == null || result.trim().isEmpty()) {
             return portInfos;
         }
-        
-        String[] lines = result.split("\n");
-        for (String line : lines) {
-            if (line.isEmpty()) continue;
-            String[] parts = line.split(":");
-            if (parts.length >= 2) {
-                int port = Integer.parseInt(parts[0]);
-                portInfos.add(parsePortResult(port, parts[1], protocol));
+        try {
+            // Rust 侧输出为 JSON 数组：[{"host":"x","port":22,"state":"open","service":"ssh"}]
+            List<Map<String, Object>> list = new com.fasterxml.jackson.databind.ObjectMapper()
+                    .readValue(result, new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {});
+            if (list == null) {
+                return portInfos;
             }
+            for (Map<String, Object> item : list) {
+                if (item == null || item.get("port") == null) {
+                    continue;
+                }
+                int port;
+                try {
+                    port = ((Number) item.get("port")).intValue();
+                } catch (Exception e) {
+                    continue;
+                }
+                PortInfo portInfo = new PortInfo();
+                portInfo.setPort(port);
+                portInfo.setProtocol(item.get("protocol") == null
+                        ? protocol : String.valueOf(item.get("protocol")));
+                Object state = item.get("state");
+                portInfo.setState(state == null ? PortState.OPEN : parsePortState(state.toString()));
+                Object service = item.get("service");
+                portInfo.setServiceName(service == null ? "unknown" : service.toString());
+                portInfos.add(portInfo);
+            }
+        } catch (Exception e) {
+            log.warn("解析端口扫描结果失败: {}", e.getMessage());
         }
         return portInfos;
     }

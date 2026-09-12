@@ -38,7 +38,7 @@ final class PNGIDATOutputStream extends PNGImageOutputStream {
     protected void startChunk() throws IOException {
         crc.reset();
         this.startPos = stream.getStreamPosition();
-        // length, will backpatch
+ // 长度, will backpatch
         // (-1);
         stream.writeInt(-1);
 

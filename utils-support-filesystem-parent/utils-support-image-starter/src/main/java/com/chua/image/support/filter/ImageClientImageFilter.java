@@ -22,6 +22,10 @@ import java.awt.image.BufferedImage;
  *
  *   // 3. 搴旂敤婊ら暅
  *   BufferedImage result = filter.converter(sourceImage);
+ * }</pre>       .imageStrength(0.6);
+ *
+ *   // 3. 搴旂敤婊ら暅
+ *   BufferedImage result = filter.converter(sourceImage);
  * }</pre>
  *
  * <p>娉ㄦ剰浜嬮」:
@@ -48,7 +52,7 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
 
 
     /**
-     * 榛樿鏋勯€? 鍚庣画闇€瑕佹敞鍏?imageClient 骞惰缃?prompt
+      * 榛樿鏋勯€? 鍚庣画闇€瑕佹敞鍏?镜像客户端 骞惰缃?提示符
      */
     public ImageClientImageFilter() {
     }
@@ -70,7 +74,8 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
 
     /**
      * 璁剧疆鎻愮ず璇?     *
-     * @param prompt 鎻愮ず璇?     * @return 褰撳墠婊ら暅瀹炰緥
+     * @param prompt 鎻愮ず璇?     * @返回 褰撳墠婊ら暅瀹炰緥
+     * @return 提示符的结果
      */
     public ImageClientImageFilter prompt(String prompt) {
         this.prompt = prompt == null ? "" : prompt;
@@ -94,7 +99,7 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
      * 搴旂敤 AI 鍥惧儚杞崲
      *
      * <p>璋冪敤娉ㄥ叆鐨?{@link ImageClient}, 灏嗘簮鍥惧儚浣滀负鍙傝€冨浘,
-     * 缁撳悎 prompt 鍜?imageStrength 璋冪敤 {@code referenceImage(src).prompt(...).imageStrength(...).generate()}銆?     *
+      * 缁撳悎 提示符 鍜?镜像strength 璋冪敤 {@code referenceImage(src).prompt(...).imageStrength(...).generate()}銆?     *
      *
      * @param src 婧愬浘鍍?
      * @param dst 鐩爣鍥惧儚 (鏈护闀滃拷鐣? 濮嬬粓鍒涘缓鏂板浘鍍?

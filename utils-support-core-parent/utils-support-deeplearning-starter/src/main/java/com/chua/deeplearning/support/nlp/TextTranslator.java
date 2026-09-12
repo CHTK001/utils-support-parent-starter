@@ -17,9 +17,9 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface TextTranslator {
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -29,9 +29,9 @@ public interface TextTranslator {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default TextTranslator provider(String provider) {
@@ -65,7 +65,7 @@ public interface TextTranslator {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.nlp.TextTranslator.class);
@@ -160,7 +160,7 @@ class DefaultTextTranslator implements TextTranslator {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public TextTranslator modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -175,7 +175,12 @@ class DefaultTextTranslator implements TextTranslator {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Translate */
+    /**
+     * Translate
+     *
+     * @param text 文本
+     * @return translate的结果
+     */
     public String translate(String text) {
         ITranslator<String, String> t =
                 (ITranslator<String, String>) engine.get(modelName, ITranslator.class);

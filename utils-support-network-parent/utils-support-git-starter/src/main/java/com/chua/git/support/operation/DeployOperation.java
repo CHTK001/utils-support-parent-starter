@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 部署操作流水线：自动 pull → compile → deploy。
+   * 部署操作流水线：自动 拉手 → compile → deploy。
  *
  * <p>执行顺序：</p>
  * <ol>
@@ -45,6 +45,9 @@ import java.util.concurrent.CompletableFuture;
  *         .goals("deploy", "clean", "package")
  *         .deployTarget("/opt/app/")
  *         .execute();
+ * }</pre> *         .goals("deploy", "clean", "package")
+ *         .deployTarget("/opt/app/")
+ *         .execute();
  * }</pre>
  *
  * @author CH
@@ -54,7 +57,7 @@ import java.util.concurrent.CompletableFuture;
 public class DeployOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
@@ -69,7 +72,7 @@ public class DeployOperation {
     private List<String> goals = List.of("clean", "compile", "package");
 
     /**
-     * Maven Profile 列表。
+      * Maven 配置文件 列表。
      */
     private List<String> profiles = List.of();
 
@@ -111,7 +114,7 @@ public class DeployOperation {
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public DeployOperation(GitClient client) {
         this.client = client;
@@ -133,7 +136,7 @@ public class DeployOperation {
     /**
      * 设置 Maven 编译目标列表。
      *
-     * @param goals 目标（如 "clean"、"compile"、"package"）
+     * @param goals 目标（如 "clean"、"compile"、"包"）
      * @return 当前操作实例
      */
     public DeployOperation goals(String... goals) {
@@ -142,9 +145,9 @@ public class DeployOperation {
     }
 
     /**
-     * 设置 Maven Profile。
+      * 设置 Maven 配置文件。
      *
-     * @param profiles Profile 列表
+     * @param profiles 配置文件 列表
      * @return 当前操作实例
      */
     public DeployOperation profiles(String... profiles) {
@@ -175,7 +178,7 @@ public class DeployOperation {
     }
 
     /**
-     * 设置部署目标路径（本地或远程 Directory）。
+      * 设置部署目标路径（本地或远程 目录）。
      *
      * @param targetPath 目标路径
      * @return 当前操作实例
@@ -197,7 +200,7 @@ public class DeployOperation {
     }
 
     /**
-     * 设置 Git 进度监听器（pull 阶段使用）。
+      * 设置 Git 进度监听器（拉手 阶段使用）。
      *
      * @param listener 进度监听器
      * @return 当前操作实例
@@ -231,7 +234,7 @@ public class DeployOperation {
     // ==================== 执行方法 ====================
 
     /**
-     * 执行完整流水线：pull → find deployer → deploy。
+      * 执行完整流水线：拉手 → 查找 deployer → deploy。
      *
      * @return 同步模式返回 {@link DeployResult}，异步模式返回 {@link CompletableFuture}{@code <DeployResult>}
      */
@@ -260,7 +263,7 @@ public class DeployOperation {
         // 确认仓库打开并拉取最新
         client.open();
 
-        // 构建 DeployConfig
+ // 构建 deploy配置
         DeployConfig config = buildConfig();
 
         // 查找 Deployer 实现
@@ -270,7 +273,7 @@ public class DeployOperation {
         }
 
         try {
-            // 执行 git pull
+ // 执行 Git 拉手
             log.info("Deploy 流水线开始: pull -> {}", client.getLocalPath());
             client.pull(fileListener, gitProgressListener);
 
@@ -287,6 +290,7 @@ public class DeployOperation {
 
     /**
      * 根据链式配置构造 {@link DeployConfig}。
+     * @return 构建配置的结果
      */
     private DeployConfig buildConfig() {
         return new DeployConfig(projectPath, goals, profiles, skipTests, jdkVersion, deployTargetPath);
@@ -296,7 +300,9 @@ public class DeployOperation {
      * 查找可用的 Deployer 实现。
      *
      * <p>优先使用自定义部署器，否则通过 {@link ServiceProvider} 加载
-     * 并匹配 supports。通过 {@code META-INF/extensions} 文件注册实现。</p>
+      * 并匹配 支持。通过 {@code META-INF/extensions} 文件注册实现。</p>
+     * @param config 配置
+     * @return findDeployer的结果
      */
     private Deployer findDeployer(DeployConfig config) {
         if (customDeployer != null) {

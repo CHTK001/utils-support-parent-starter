@@ -45,7 +45,7 @@ public class HanziInfo {
     private final String more;
 
     /**
-     * 创建 HanziInfo 实例
+      * 创建 hanzi信息 实例
      *
      * @param character   汉字
      * @param pinyin      拼音
@@ -63,38 +63,62 @@ public class HanziInfo {
         this.more = more;
     }
 
-    /** 获取汉字 */
+    /**
+     * 获取汉字
+     *
+     * @return 获取character的结果
+     */
     public String getCharacter() {
         return character;
     }
 
-    /** 获取拼音 */
+    /**
+     * 获取拼音
+     *
+     * @return 获取pinyin的结果
+     */
     public String getPinyin() {
         return pinyin;
     }
 
-    /** 获取部首 */
+    /**
+     * 获取部首
+     *
+     * @return 获取radicals的结果
+     */
     public String getRadicals() {
         return radicals;
     }
 
-    /** 获取笔画数 */
+    /**
+     * 获取笔画数
+     *
+     * @return 获取strokes的结果
+     */
     public String getStrokes() {
         return strokes;
     }
 
-    /** 获取释义 */
+    /**
+     * 获取释义
+     *
+     * @return 获取解释的结果
+     */
     public String getExplanation() {
         return explanation;
     }
 
-    /** 获取更多信息 */
+    /**
+     * 获取更多信息
+     *
+     * @return 获取more的结果
+     */
     public String getMore() {
         return more;
     }
 
     /**
-     * 转换为 Map 用于 JSON 序列化
+      * 转换为 映射 用于 JSON 序列化
      *
      * @return Map 表示
      */

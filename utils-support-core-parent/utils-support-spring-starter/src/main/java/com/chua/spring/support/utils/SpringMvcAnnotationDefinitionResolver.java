@@ -37,7 +37,7 @@ import java.util.WeakHashMap;
 public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefinitionResolver {
 
     /**
-     * 窄注解 Class → 宽注解全限定名，WeakHashMap key 随类加载器回收自动清理。
+      * 窄注解 类 → 宽注解全限定名，weak哈希映射 键 随类加载器回收自动清理。
      */
     private final java.util.Map<Class<? extends Annotation>, String> aliasCache = new WeakHashMap<>();
 
@@ -89,7 +89,7 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
                 }
             }
 
-            // 策略2：Fallback — 已知候选名 + 反射验证元注解关系
+ // 策略2：降级 — 已知候选名 + 反射验证元注解关系
             String[] candidates = {
                     "org.springframework.web.bind.annotation.GetMapping",
                     "org.springframework.web.bind.annotation.PostMapping",
@@ -102,12 +102,14 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
                 loadIfMappingAlias(name, requestMappingClass);
             }
         } catch (Exception ignored) {
-            // Spring 不在 classpath，忽略
+ // Spring 不在 类路径，忽略
         }
     }
 
     /**
-     * 尝试加载单个候选注解：通过反射检查是否被 @RequestMapping 元注解标注。
+      * 尝试加载单个候选注解：通过反射检查是否被 @请求mapping 元注解标注。
+     * @param className 类名称
+     * @param requestMappingClass 请求mapping类
      */
     @SuppressWarnings("unchecked")
     private void loadIfMappingAlias(String className, Class<?> requestMappingClass) {

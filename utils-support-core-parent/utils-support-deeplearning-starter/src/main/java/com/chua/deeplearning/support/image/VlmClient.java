@@ -16,7 +16,7 @@ public interface VlmClient {
     /**
      * 创建 VLM 客户端。
      *
-     * @param name 扩展名，对应 ServiceProvider 注册的实现
+     * @param name 扩展名，对应 服务提供者 注册的实现
      * @return VLM 客户端实例
      */
     static VlmClient create(String name) {
@@ -26,7 +26,7 @@ public interface VlmClient {
     /**
      * 指定模型名称。
      *
-     * @param model 模型标识（如 florence2、qwen-vl）
+     * @param model 模型标识（如 florence2、通义千问-vl）
      * @return 当前客户端实例（链式调用）
      */
     VlmClient model(String model);

@@ -19,7 +19,7 @@ public class Model3DConfig {
     private boolean enable = true;
 
     /** API 端点 URL */
-    /** Endpoint */
+    /** 端点 */
     private String endpoint = "https://api.trellis.ai/v1";
 
     /** API 密钥（NVIDIA/HF/Replicate） */
@@ -27,15 +27,15 @@ public class Model3DConfig {
     private String apiKey = CommonConstant.EMPTY_STRING;
 
     /** 连接超时时间 */
-    /** Connect超时 */
+    /** 连接超时 */
     private Duration connectTimeout = Duration.ofSeconds(30);
 
     /** 读取超时时间 */
-    /** Read超时 */
+    /** 读取超时 */
     private Duration readTimeout = Duration.ofMinutes(5);
 
     /** 写入超时时间 */
-    /** Write超时 */
+    /** 写入超时 */
     private Duration writeTimeout = Duration.ofSeconds(30);
 
     /** 默认质量 */
@@ -51,6 +51,6 @@ public class Model3DConfig {
     private boolean debugLog = false;
 
     /** 最大并发请求数 */
-    /** 最大值concurrent */
+    /** 最大值并发 */
     private int maxConcurrent = 5;
 }

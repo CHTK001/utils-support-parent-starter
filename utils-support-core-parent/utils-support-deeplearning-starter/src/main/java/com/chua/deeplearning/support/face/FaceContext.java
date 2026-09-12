@@ -152,7 +152,7 @@ public class FaceContext {
     /**
      * 当前人脸框。
      *
-     * @return 当前框，未推进时为 null
+     * @return 当前框，未推进时为 空
      */
     public PredictRectangle currentBox() {
         return currentBox;

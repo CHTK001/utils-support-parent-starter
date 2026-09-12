@@ -11,8 +11,8 @@ package com.chua.network.support.tshark.restorer;
  *   <li>Token (0-8 bytes)</li>
  *   <li>Options + Payload</li>
  * </ul>
- * Type: 0=CON, 1=NON, 2=ACK, 3=RST。
- * Code: 0.01=GET, 0.02=POST, 0.04=DELETE, 2.05=Content, 4.04=Not Found。</p>
+   * 类型: 0=CON, 1=NON, 2=ACK, 3=RST。
+   * 编码: 0.01=获取, 0.02=POST, 0.04=删除, 2.05=内容, 4.04=Not Found。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,7 +20,7 @@ package com.chua.network.support.tshark.restorer;
 public class CoapProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "coap";
     }
@@ -67,7 +67,12 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToTypeName */
+    /**
+     * 转为类型名称
+     *
+     * @param type 类型
+     * @return 转为类型名称的结果
+     */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "CON";
@@ -78,7 +83,13 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
-    /** ToCodeName */
+    /**
+     * 转为编码名称
+     *
+     * @param cls cls
+     * @param detail detail
+     * @return 转为编码名称的结果
+     */
     private static String toCodeName(int cls, int detail) {
         if (cls == 0) {
             return switch (detail) {

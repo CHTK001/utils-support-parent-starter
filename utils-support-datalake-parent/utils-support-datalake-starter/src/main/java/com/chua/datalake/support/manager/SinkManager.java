@@ -23,9 +23,9 @@ public class SinkManager {
     private final Map<String, DataSink> sinkMap;
 
     /**
-     * 构造 SinkManager
+      * 构造 sink管理器
      *
-     * @param sinkMap type → implementation map
+     * @param sinkMap 类型 → implementation 映射
      */
     public SinkManager(Map<String, DataSink> sinkMap) {
         this.sinkMap = sinkMap;
@@ -51,7 +51,7 @@ public class SinkManager {
     }
 
     /**
-     * 查询存储型 sink（有 DataSource）
+      * 查询存储型 sink（有 数据源）
      *
      * @return 存储型 sink 列表
      */
@@ -67,6 +67,8 @@ public class SinkManager {
 
     /**
      * 内部标记型接口，用于在包内识别 {@link AccessSink} 类型而避免外部依赖。
+     * @author CH
+     * @since 4.0.0
      */
     private interface SinkAccessSink extends com.chua.datalake.support.spi.sink.AccessSink {
     }

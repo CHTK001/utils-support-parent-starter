@@ -56,29 +56,31 @@ public class SpiderRunner {
     private final SpiderRequestFactory requestFactory;
 
     /**
-     * Controller 弱引用（不参与 Spring 注入循环）。
+      * 控制器 弱引用（不参与 Spring 注入循环）。
      */
     private volatile SpiderExecutionController controllerRef;
 
     /**
-     * 由 Controller 调用，注入自己引用。
+      * 由 控制器 调用，注入自己引用。
+     * @param controller 控制器
      */
     public void setController(SpiderExecutionController controller) {
         this.controllerRef = controller;
     }
 
     /**
-     * 仅供 Controller 调试接口使用：返回当前 controllerRef 是否为 null。
+      * 仅供 控制器 调试接口使用：返回当前 控制器ref 是否为 空。
+     * @return 获取控制器reffor调试的结果
      */
     public SpiderExecutionController getControllerRefForDebug() {
         return controllerRef;
     }
 
     /**
-     * 创建 SpiderRunner 实例
-     * @param definitionStore definitionStore
-     * @param executionStore executionStore
-     * @param requestFactory requestFactory
+      * 创建 蜘蛛runner 实例
+     * @param definitionStore definition存储
+     * @param executionStore 执行存储
+     * @param requestFactory 请求工厂
      */
     public SpiderRunner(SpiderDefinitionStore definitionStore,
                          SpiderExecutionStore executionStore,
@@ -148,7 +150,7 @@ public class SpiderRunner {
                     .pipeline("console")
                     .build();
 
-            // 使用 CompletableFuture 实现整体超时控制
+ // 使用 completable期货 实现整体超时控制
             var future = CompletableFuture.supplyAsync(spider::runSync,
                     java.util.concurrent.CompletableFuture.delayedExecutor(0, TimeUnit.MILLISECONDS));
             var results = future.get(DEFAULT_JOB_TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -161,7 +163,7 @@ public class SpiderRunner {
             record.setResultCount(count);
             String json = serializeResults(results);
             // 防御：保证 resultsJson 与 resultCount 一致。如果 resultsJson 解析失败或为空但 count>0，
-            // 至少把空数组写进去，避免前端看到 null。
+ // 至少把空数组写进去，避免前端看到 空。
             if (StringUtils.isEmpty(json)) {
                 json = "[]";
                 log.warn("[SpiderRunner] resultsJson 为空，spiderCode={} count={}",
@@ -170,7 +172,7 @@ public class SpiderRunner {
             record.setResultsJson(json);
             log.info("[SpiderRunner] setResultsJson len={} for spiderCode={}",
                     json.length(), definition.getSpiderCode());
-            // 调试钩子（仅在 Controller 已注册时可用）
+ // 调试钩子（仅在 控制器 已注册时可用）
             if (controllerRef != null) {
                 controllerRef.noteSaveState(record);
             }
@@ -195,10 +197,12 @@ public class SpiderRunner {
     }
 
     /**
-     * 将 SpiderResult 列表序列化为 JSON 字符串。
+      * 将 蜘蛛结果 列表序列化为 JSON 字符串。
      *
      * <p>仅保留抓取结果的核心字段（标题/URL/正文/结构化/链接），避免序列化整个
      * DOM 树等大字段导致内存爆炸。</p>
+     * @param results 结果
+     * @return serialize结果的结果
      */
     private String serializeResults(List<com.chua.spider.support.model.SpiderResult> results) {
         if (CollectionUtils.isEmpty(results)) {

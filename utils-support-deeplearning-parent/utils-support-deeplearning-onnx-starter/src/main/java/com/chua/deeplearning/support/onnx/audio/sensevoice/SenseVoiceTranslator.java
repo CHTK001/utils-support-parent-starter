@@ -26,12 +26,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * SenseVoice-small ONNX 推理器（音频文件 → 转写文本，支持中/英/日/韩/粤）。
+   * sensevoice-small ONNX 推理器（音频文件 → 转写文本，支持中/英/日/韩/粤）。
  *
  * <p>复刻 sherpa-onnx 官方离线推理流程：</p>
  * <ol>
  *   <li>Kaldi fbank 80 维（预加重 0.97 / 去直流 / Povey 窗^0.85 /
- *       512 点功率谱 / HTK-mel 0~8kHz / log）</li>
+   * 512 点功率谱 / HTK-mel 0~8khz / 日志）</li>
  *   <li>LFR 帧堆叠：窗口 7 帧、步移 6 帧 → 560 维超帧</li>
  *   <li>CMVN：从模型元数据读取 neg_mean / inv_stddev 应用</li>
  *   <li>推理：x + x_length + language(zh=3) + text_norm(with_itn=14)</li>
@@ -57,13 +57,13 @@ public class SenseVoiceTranslator {
     private static final int FEATURE_DIM = 80;
 
     /**
-     * FFT 长度（kaldi round-to-pow2=false 时直接用 frameLen=400，
-     * sherpa knf 使用 N=frameLen 即 400 点 rfft；此处与 python 基准保持 512 一致）
+      * FFT 长度（kaldi round-转为-pow2=false 时直接用 帧len=400，
+      * sherpa knf 使用 N=帧len 即 400 点 rfft；此处与 Python 基准保持 512 一致）
      */
     private static final int FFT_N = 512;
 
     /**
-     * blank token id
+      * blank 令牌 标识
      */
     private static final int BLANK_ID = 0;
 
@@ -77,9 +77,9 @@ public class SenseVoiceTranslator {
             "<|withitn|>", "<|woitn|>", "<|startofcontext|>", "<|endofcontext|>",
             "<s>", "</s>", "<unk>");
 
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    /** id → token 词表 */
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    /** 标识 → 令牌 词表 */
     private Map<Integer, String> vocab;
     /** CMVN 减项 */
     private float[] negMean;
@@ -89,11 +89,11 @@ public class SenseVoiceTranslator {
     private int lfrWindowSize;
     /** LFR 帧移帧数 */
     private int lfrWindowShift;
-    /** 语言 id 映射（zh/en/ja/ko/yue/auto） */
+    /** 语言 标识 映射（zh/en/ja/ko/yue/auto） */
     private Map<String, Integer> langIds;
-    /** with-itn 的 text_norm 取值 */
+    /** with-itn 的 文本_norm 取值 */
     private int withItnId;
-    /** blank id（元数据可覆盖默认值） */
+    /** blank 标识（元数据可覆盖默认值） */
     private int blankId;
     /** 是否就绪 */
     private boolean prepared;
@@ -101,7 +101,7 @@ public class SenseVoiceTranslator {
     /**
      * 使用解压后的模型目录初始化。
      *
-     * @param modelDir 含 model.int8.onnx 与 tokens.txt 的目录
+     * @param modelDir 含 模型.int8.onnx 与 令牌.txt 的目录
      * @throws Exception 初始化失败
      */
     public synchronized void prepare(Path modelDir) throws Exception {
@@ -159,12 +159,22 @@ public class SenseVoiceTranslator {
         }
     }
 
-    /** 是否已初始化 */
+    /**
+     * 是否已初始化
+     *
+     * @return 是否prepared的结果
+     */
     public boolean isPrepared() {
         return prepared;
     }
 
-    /** 返回第一个存在的候选文件路径 */
+    /**
+     * 返回第一个存在的候选文件路径
+     *
+     * @param dir dir
+     * @param names 名称
+     * @return 第一个existing的结果
+     */
     private static Path firstExisting(Path dir, String... names) {
         for (String n : names) {
             Path p = dir.resolve(n);
@@ -175,7 +185,11 @@ public class SenseVoiceTranslator {
         return null;
     }
 
-    /** 加载 id→token 词表（tokens.txt 格式：token 空格 id） */
+    /**
+     * 加载 标识→令牌 词表（令牌.txt 格式：令牌 空格 标识）
+     *
+     * @param tokensPath 令牌路径
+     */
     private void loadVocab(Path tokensPath) throws IOException {
         this.vocab = new HashMap<>(4096);
         for (String line : Files.readAllLines(tokensPath)) {
@@ -197,7 +211,7 @@ public class SenseVoiceTranslator {
     }
 
     /**
-     * Init hardcoded metadata.
+      * 初始化 hardcoded metadata.
      */
     private void initHardcodedMetadata() {
         this.lfrWindowSize = 7;
@@ -212,12 +226,18 @@ public class SenseVoiceTranslator {
         langMap.put("ko", 12);
         langMap.put("yue", 7);
         this.langIds = langMap;
-        // CMVN 不在此硬编码——完整 560 维 neg_mean/inv_stddev 由 applyModelMetadata 从模型元数据读取
+ // CMVN 不在此硬编码——完整 560 维 neg_mean/inv_stddev 由 apply模型metadata 从模型元数据读取
         this.negMean = new float[0];
         this.invStddev = new float[0];
     }
 
-    /** 解析逗号分隔浮点数组 */
+    /**
+     * 解析逗号分隔浮点数组
+     *
+     * @param csv csv
+     * @param mapper 映射器
+     * @return 解析floatarray的结果
+     */
     private static float[] parseFloatArray(String csv, ObjectMapper mapper) {
         try {
             JsonNode arr = mapper.readTree("[" + csv + "]");
@@ -231,7 +251,14 @@ public class SenseVoiceTranslator {
         }
     }
 
-    /** 元数据整型取值（带默认） */
+    /**
+     * 元数据整型取值（带默认）
+     *
+     * @param meta meta
+     * @param key 键
+     * @param def def
+     * @return int或默认的结果
+     */
     private static int intOrDefault(Map<String, String> meta, String key, int def) {
         String v = meta.get(key);
         if (v == null || v.isBlank()) {
@@ -245,10 +272,10 @@ public class SenseVoiceTranslator {
     }
 
     /**
-     * 转写音频文件（仅返回文本，不暴露 emotion / event 元数据）。
+      * 转写音频文件（仅返回文本，不暴露 情绪 / 事件 元数据）。
      *
-     * @param audioPath 音频路径（16kHz 效果最佳）
-     * @param language 语言代码（zh/en/ja/ko/yue/auto），null 或 auto 自动检测
+     * @param audioPath 音频路径（16khz 效果最佳）
+     * @param language 语言代码（zh/en/ja/ko/yue/auto），空 或 auto 自动检测
      * @return 转写文本
      * @throws Exception 推理失败
      */
@@ -257,13 +284,13 @@ public class SenseVoiceTranslator {
     }
 
     /**
-     * 转写音频文件并返回完整富文本结果（text + language + emotion + events）。
+      * 转写音频文件并返回完整富文本结果（文本 + language + 情绪 + 事件）。
      *
      * <p>SenseVoice 的 CTC token 流中，特殊标记按出现顺序携带语种、情感、事件；
      * 例如 {@code <|zh|><|NEUTRAL|><|Speech|>你好世界}。本方法解析这些前缀并剥离。</p>
      *
-     * @param audioPath 音频路径（16kHz 效果最佳）
-     * @param language 语言代码（zh/en/ja/ko/yue/auto），null 或 auto 自动检测
+     * @param audioPath 音频路径（16khz 效果最佳）
+     * @param language 语言代码（zh/en/ja/ko/yue/auto），空 或 auto 自动检测
      * @return 富文本结果
      * @throws Exception 推理失败
      */
@@ -315,15 +342,22 @@ public class SenseVoiceTranslator {
 
     /** CTC 解析后的富文本结果 */
     public static class RichResult {
-        /** 转写文本（已剥离所有特殊 token） */
+        /** 转写文本（已剥离所有特殊 令牌） */
         public final String text;
         /** 检测到的语种（zh/en/ja/ko/yue/nospeech/auto） */
         public final String language;
         /** 情感（NEUTRAL/HAPPY/SAD/ANGRY/FEARFUL/DISGUSTED/SURPRISED/EMO_UNKNOWN） */
         public final String emotion;
-        /** 事件标签（Speech/BGM/Laughter/...） */
+        /** 事件标签（语音/BGM/Laughter/...） */
         public final List<String> events;
 
+        /**
+         * rich结果。
+         * @param text 文本
+         * @param language language
+         * @param emotion 情绪
+         * @param events 事件
+         */
         public RichResult(String text, String language, String emotion, List<String> events) {
             this.text = text;
             this.language = language;
@@ -333,7 +367,9 @@ public class SenseVoiceTranslator {
     }
 
     /**
-     * 解析 CTC id 序列：抽取语种/情感/事件特殊 token，剩余拼接为文本。
+      * 解析 CTC 标识 序列：抽取语种/情感/事件特殊 令牌，剩余拼接为文本。
+     * @param ids 标识
+     * @return 解析rich的结果
      */
     private RichResult parseRich(List<Integer> ids) {
         StringBuilder sb = new StringBuilder();
@@ -357,7 +393,7 @@ public class SenseVoiceTranslator {
                         "startofcontext", "endofcontext").contains(inner)) {
                     events.add(inner);
                 } else if (inner.equals("s") || inner.equals("/s") || inner.equals("unk")) {
-                    // skip
+ // 跳过
                 }
                 continue;
             }
@@ -366,7 +402,12 @@ public class SenseVoiceTranslator {
         return new RichResult(sb.toString().trim(), lang, emo, events);
     }
 
-    /** 解析语言代码到模型 id；未知时回退 auto */
+    /**
+     * 解析语言代码到模型 标识；未知时回退 auto
+     *
+     * @param language language
+     * @return resolveLanguage的结果
+     */
     private int resolveLanguage(String language) {
         if (language != null && !language.isBlank()) {
             Integer id = langIds.get(language.trim().toLowerCase());
@@ -378,7 +419,13 @@ public class SenseVoiceTranslator {
         return autoId != null ? autoId : 0;
     }
 
-    /** CTC 贪心解码：argmax → 去连续重复 → 去 blank */
+    /**
+     * CTC 贪心解码：argmax → 去连续重复 → 去 blank
+     *
+     * @param logits logits
+     * @param vocabSize vocab大小
+     * @return greedyCtc的结果
+     */
     private List<Integer> greedyCtc(float[] logits, int vocabSize) {
         List<Integer> ids = new ArrayList<>();
         int frames = logits.length / vocabSize;
@@ -401,7 +448,12 @@ public class SenseVoiceTranslator {
         return ids;
     }
 
-    /** id 序列转文本：跳过特殊标记 */
+    /**
+     * 标识 序列转文本：跳过特殊标记
+     *
+     * @param ids 标识
+     * @return detokenize的结果
+     */
     private String detokenize(List<Integer> ids) {
         StringBuilder sb = new StringBuilder();
         for (int id : ids) {
@@ -421,7 +473,7 @@ public class SenseVoiceTranslator {
      * use_power=true、povey 窗^0.85、snip_edges=true、无能量列。</p>
      *
      * @param samples 单声道采样
-     * @return [T, 80] log-mel 特征
+     * @return [T, 80] 日志-mel 特征
      */
     private double[][] computeFbank(float[] samples) {
         int frameLen = 400;
@@ -493,7 +545,13 @@ public class SenseVoiceTranslator {
         return feat;
     }
 
-    /** 构建 Kaldi 风格 mel 滤波器（HTK 刻度 0~8kHz，返回 [bin][mel] 权重矩阵） */
+    /**
+     * 构建 Kaldi 风格 mel 滤波器（HTK 刻度 0~8khz，返回 [bin][mel] 权重矩阵）
+     *
+     * @param sampleRate 样本rate
+     * @param nBins nbins
+     * @return 构建kaldimel过滤器的结果
+     */
     private static double[][] buildKaldiMelFilters(int sampleRate, int nBins) {
         double[][] filters = new double[nBins][FEATURE_DIM];
         int fftBins = FFT_N / 2 + 1;
@@ -528,18 +586,28 @@ public class SenseVoiceTranslator {
         return filters;
     }
 
-    /** Hz → HTK mel */
+    /**
+     * Hz → HTK mel
+     *
+     * @param hz hz
+     * @return hz转为mel的结果
+     */
     private static double hzToMel(double hz) {
         return 1127.0 * Math.log(1.0 + hz / 700.0);
     }
 
-    /** mel → Hz */
+    /**
+     * mel → Hz
+     *
+     * @param mel mel
+     * @return mel转为hertz的结果
+     */
     private static double melToHertz(double mel) {
         return 700.0 * (Math.exp(mel / 1127.0) - 1.0);
     }
 
     /**
-     * LFR 帧堆叠：window 帧 × shift 步移拼接为高维超帧。
+      * LFR 帧堆叠：窗口 帧 × Shift 步移拼接为高维超帧。
      *
      * @param feat80 [T, 80] 特征
      * @return [T', 560] 超帧
@@ -572,7 +640,11 @@ public class SenseVoiceTranslator {
         return out;
     }
 
-    /** 就地应用 CMVN：x = (x + negMean) * invStddev */
+    /**
+     * 就地应用 CMVN：x = (x + negmean) * invstddev
+     *
+     * @param x x
+     */
     private void applyCmvn(float[][] x) {
         if (negMean.length == 0 || invStddev.length == 0) {
             return;
@@ -585,7 +657,7 @@ public class SenseVoiceTranslator {
     }
 
     /**
-     * 加载音频为 16kHz 单声道 [-1,1] 浮点采样。
+      * 加载音频为 16khz 单声道 [-1,1] 浮点采样。
      *
      * @param path 音频路径
      * @return 采样数组
@@ -639,7 +711,12 @@ public class SenseVoiceTranslator {
         }
     }
 
-    /** 二维数组展平为一维 */
+    /**
+     * 二维数组展平为一维
+     *
+     * @param mat mat
+     * @return flatten的结果
+     */
     private static float[] flatten(float[][] mat) {
         int total = 0;
         for (float[] row : mat) {
@@ -654,7 +731,12 @@ public class SenseVoiceTranslator {
         return out;
     }
 
-    /** 张量转一维数组 */
+    /**
+     * 张量转一维数组
+     *
+     * @param t t
+     * @return 转为floatarray的结果
+     */
     private static float[] toFloatArray(OnnxTensor t) {
         FloatBuffer fb = t.getFloatBuffer();
         float[] arr = new float[fb.remaining()];

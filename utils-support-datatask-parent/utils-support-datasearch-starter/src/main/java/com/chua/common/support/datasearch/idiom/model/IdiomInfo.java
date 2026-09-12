@@ -45,7 +45,7 @@ public class IdiomInfo {
     private final String example;
 
     /**
-     * 创建 IdiomInfo 实例
+      * 创建 idiom信息 实例
      *
      * @param word         成语
      * @param pinyin       拼音
@@ -63,38 +63,62 @@ public class IdiomInfo {
         this.example = example;
     }
 
-    /** 获取成语 */
+    /**
+     * 获取成语
+     *
+     * @return 获取word的结果
+     */
     public String getWord() {
         return word;
     }
 
-    /** 获取拼音 */
+    /**
+     * 获取拼音
+     *
+     * @return 获取pinyin的结果
+     */
     public String getPinyin() {
         return pinyin;
     }
 
-    /** 获取首字母缩写 */
+    /**
+     * 获取首字母缩写
+     *
+     * @return 获取abbreviation的结果
+     */
     public String getAbbreviation() {
         return abbreviation;
     }
 
-    /** 获取出处 */
+    /**
+     * 获取出处
+     *
+     * @return 获取derivation的结果
+     */
     public String getDerivation() {
         return derivation;
     }
 
-    /** 获取释义 */
+    /**
+     * 获取释义
+     *
+     * @return 获取解释的结果
+     */
     public String getExplanation() {
         return explanation;
     }
 
-    /** 获取例句 */
+    /**
+     * 获取例句
+     *
+     * @return 获取example的结果
+     */
     public String getExample() {
         return example;
     }
 
     /**
-     * 转换为 Map 用于 JSON 序列化
+      * 转换为 映射 用于 JSON 序列化
      *
      * @return Map 表示
      */

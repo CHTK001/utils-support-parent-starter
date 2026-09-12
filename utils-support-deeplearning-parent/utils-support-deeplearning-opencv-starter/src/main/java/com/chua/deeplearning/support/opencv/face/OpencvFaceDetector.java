@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 纯 OpenCV 人脸检测翻译器。
+   * 纯 打开cv 人脸检测翻译器。
  * <p>
- * 使用 OpenCV Haar 级联分类器做人脸检测，不依赖 DJL 或 ONNX Runtime。
+   * 使用 打开cv Haar 级联分类器做人脸检测，不依赖 DJL 或 ONNX Runtime。
  * 输入为图像字节数组，输出为检测到的人脸列表（{@link PredictRectangle}）。
  * </p>
  *
@@ -33,7 +33,7 @@ public class OpencvFaceDetector extends OpencvModelTranslator {
     private final String modelPath;
 
     /**
-     * OpenCV 人脸检测级联分类器。
+      * 打开cv 人脸检测级联分类器。
      */
     private final CascadeClassifier classifier;
 
@@ -60,7 +60,7 @@ public class OpencvFaceDetector extends OpencvModelTranslator {
     /**
      * 构造人脸检测翻译器。
      *
-     * @param modelPath Haar 级联分类器模型文件路径（支持文件系统路径或 classpath 路径）
+     * @param modelPath Haar 级联分类器模型文件路径（支持文件系统路径或 类路径 路径）
      */
     public OpencvFaceDetector(String modelPath) {
         super("opencv-face-detector");

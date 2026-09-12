@@ -18,10 +18,15 @@ import javax.annotation.Nullable;
 @Slf4j
 public class MatchUtils {
 
+    /**
+     * 匹配工具。
+     */
     private MatchUtils() {}
 
     /**
      * 匹配类型枚举
+     * @author CH
+     * @since 4.0.0
      */
     @Getter
     public enum MatchType {
@@ -77,6 +82,9 @@ public class MatchUtils {
 
     /**
      * 通配符匹配
+     * @param pattern 模式
+     * @param text 文本
+     * @return 匹配wildcard的结果
      */
     private static boolean matchWildcard(String pattern, String text) {
         return PathMatcher.INSTANCE.match(pattern, text);
@@ -84,6 +92,9 @@ public class MatchUtils {
 
     /**
      * 正则匹配
+     * @param regex regex
+     * @param text 文本
+     * @return 匹配regex的结果
      */
     private static boolean matchRegex(String regex, String text) {
         try {
@@ -96,6 +107,9 @@ public class MatchUtils {
 
     /**
      * 自动匹配：先精确匹配，再通配符，再正则
+     * @param pattern 模式
+     * @param text 文本
+     * @return 匹配auto的结果
      */
     private static boolean matchAuto(String pattern, String text) {
         if (pattern.equals(text)) {

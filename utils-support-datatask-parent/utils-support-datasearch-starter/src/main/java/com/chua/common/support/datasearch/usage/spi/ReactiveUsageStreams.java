@@ -15,6 +15,9 @@ import java.util.List;
  */
 public final class ReactiveUsageStreams {
 
+    /**
+     * 响应式usage流。
+     */
     private ReactiveUsageStreams() {
     }
 
@@ -34,6 +37,8 @@ public final class ReactiveUsageStreams {
 
     /**
      * 串行合并（逐个解析器顺序产出）。
+     * @param parsers parsers
+     * @return 连接的结果
      */
     public static Flux<AiUsage> concat(List<? extends UsageParser> parsers) {
         return Flux.fromIterable(parsers).concatMap(UsageParser::streamAll);

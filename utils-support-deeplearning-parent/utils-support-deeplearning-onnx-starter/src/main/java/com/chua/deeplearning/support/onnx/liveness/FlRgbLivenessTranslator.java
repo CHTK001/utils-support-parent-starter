@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * FLRGB 人脸活体检测 Translator（ModelScope iic/cv_manual_face-liveness_flrgb）。
+   * FLRGB 人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flrgb）。
  *
  * <p>ResNet 结构，输入 112×112 RGB（[0,1] 归一化），输出 {@code final_actions [1,2]}
  * = [活体概率, 假体概率]。返回索引 0（活体概率）作为活体分数（0~1，越高越可能是活体）。</p>
@@ -31,7 +31,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
     private static final int INPUT_SIZE = 112;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         int w = input.getWidth();
         int h = input.getHeight();
@@ -50,7 +50,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Float processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.get(0);
         float[] values = out.toFloatArray();
@@ -66,7 +66,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+ // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;
     }
 }

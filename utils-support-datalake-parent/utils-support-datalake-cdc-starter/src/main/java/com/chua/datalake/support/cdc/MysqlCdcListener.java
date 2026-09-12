@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * MySQL CDC 入站适配器：binlog 事件 → INSERT/UPDATE/DELETE → DataEnvelope → PipelineEngine。
+   * MySQL CDC 入站适配器：binlog 事件 → 插入/更新/删除 → 数据envelope → pipelineengine。
  *
  * <p>通过 MySQL Binlog Protocol 实时捕获数据库变更，将行级事件转换为
  * {@link DataEnvelope} 交给 PipelineEngine 处理。</p>
@@ -44,13 +44,13 @@ public class MysqlCdcListener {
     /** 密码 */
     private final String password;
 
-    /** 服务器 ID（集群唯一） */
+    /** 服务器 标识（集群唯一） */
     private final int serverId;
 
-    /** 监听的表 ID（null = 全部） */
+    /** 监听的表 标识（空 = 全部） */
     private final Long tableIdFilter;
 
-    /** 管线 ID */
+    /** 管线 标识 */
     private final String pipelineId;
 
     /** 管线引擎 */
@@ -62,6 +62,10 @@ public class MysqlCdcListener {
     /** 运行状态 */
     private volatile boolean running = false;
 
+    /**
+     * mysqlcdc监听器。
+     * @param builder 构建器
+     */
     private MysqlCdcListener(Builder builder) {
         this.host = builder.host;
         this.port = builder.port;
@@ -138,7 +142,9 @@ public class MysqlCdcListener {
 
         if (eventData instanceof WriteRowsEventData) {
             WriteRowsEventData data = (WriteRowsEventData) eventData;
-            if (tableIdFilter != null && data.getTableId() != tableIdFilter) return;
+            if (tableIdFilter != null && data.getTableId() != tableIdFilter) {
+                return;
+            }
 
             for (Serializable[] row : data.getRows()) {
                 Map<String, Object> rowMap = new HashMap<>();
@@ -150,7 +156,9 @@ public class MysqlCdcListener {
             }
         } else if (eventData instanceof UpdateRowsEventData) {
             UpdateRowsEventData data = (UpdateRowsEventData) eventData;
-            if (tableIdFilter != null && data.getTableId() != tableIdFilter) return;
+            if (tableIdFilter != null && data.getTableId() != tableIdFilter) {
+                return;
+            }
 
             for (Map.Entry<Serializable[], Serializable[]> row : data.getRows()) {
                 Map<String, Object> rowMap = new HashMap<>();
@@ -163,7 +171,9 @@ public class MysqlCdcListener {
             }
         } else if (eventData instanceof DeleteRowsEventData) {
             DeleteRowsEventData data = (DeleteRowsEventData) eventData;
-            if (tableIdFilter != null && data.getTableId() != tableIdFilter) return;
+            if (tableIdFilter != null && data.getTableId() != tableIdFilter) {
+                return;
+            }
 
             for (Serializable[] row : data.getRows()) {
                 Map<String, Object> rowMap = new HashMap<>();
@@ -177,7 +187,7 @@ public class MysqlCdcListener {
     }
 
     /**
-     * 发布事件到 PipelineEngine。
+      * 发布事件到 pipelineengine。
      *
      * @param data 事件数据
      */
@@ -216,30 +226,76 @@ public class MysqlCdcListener {
         return running;
     }
 
-    // ━━━━━━━━━━━━━━ Builder ━━━━━━━━━━━━━━
+ // ━━━━━━━━━━━━━━ 构建器 ━━━━━━━━━━━━━━
 
     /**
      * MySQL CDC 监听器构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
-        private String host = "127.0.0.1";
-        private int port = 3306;
-        private String username = "root";
-        private String password = "";
-        private int serverId = 1;
-        private Long tableId;
-        private String pipelineId;
-        private PipelineEngine pipelineEngine;
+        private String host = "127.0.0.1"; // 主机
+        private int port = 3306; // 端口
+        private String username = "root"; // 用户名
+        private String password = ""; // 密码
+        private int serverId = 1; // 服务端标识
+        private Long tableId; // tableid
+        private String pipelineId; // pipelineid
+        private PipelineEngine pipelineEngine; // pipelineengine
 
+        /**
+         * 主机。
+         * @param host 主机
+         * @return 主机的结果
+         */
         public Builder host(String host) { this.host = host; return this; }
+        /**
+         * 端口。
+         * @param port 端口
+         * @return 端口的结果
+         */
         public Builder port(int port) { this.port = port; return this; }
+        /**
+         * 用户名。
+         * @param username 用户名
+         * @return 用户名的结果
+         */
         public Builder username(String username) { this.username = username; return this; }
+        /**
+         * 密码。
+         * @param password 密码
+         * @return 密码的结果
+         */
         public Builder password(String password) { this.password = password; return this; }
+        /**
+         * 服务端id。
+         * @param serverId 服务端标识
+         * @return 服务端id的结果
+         */
         public Builder serverId(int serverId) { this.serverId = serverId; return this; }
+        /**
+          * tableid。
+         * @param tableId tableid
+         * @return tableId的结果
+         */
         public Builder tableId(Long tableId) { this.tableId = tableId; return this; }
+        /**
+          * pipelineid。
+         * @param pipelineId pipelineid
+         * @return pipelineId的结果
+         */
         public Builder pipelineId(String pipelineId) { this.pipelineId = pipelineId; return this; }
+        /**
+          * pipelineengine。
+         * @param engine engine
+         * @return pipelineEngine的结果
+         */
         public Builder pipelineEngine(PipelineEngine engine) { this.pipelineEngine = engine; return this; }
 
+        /**
+         * 构建。
+         * @return 构建的结果
+         */
         public MysqlCdcListener build() {
             if (pipelineId == null || pipelineEngine == null) {
                 throw new IllegalArgumentException("pipelineId 和 pipelineEngine 不能为空");

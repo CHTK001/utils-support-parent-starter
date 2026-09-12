@@ -24,10 +24,17 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return 获取url的结果
+ * @param videoSource 视频源
  */
 @Spi("wuji")
 public class WuJiResourceProvider extends AbstractResourceProvider {
 
+    /**
+     * wujiresource提供者。
+     * @return 获取url的结果
+     * @param videoSource 视频源
+     */
     private static final String MARKER = "<td class=\"result-title\"";
 
     public WuJiResourceProvider() {

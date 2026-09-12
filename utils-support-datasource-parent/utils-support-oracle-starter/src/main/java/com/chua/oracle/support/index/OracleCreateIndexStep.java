@@ -8,7 +8,7 @@ import javax.sql.DataSource;
  * Oracle 创建索引链式步骤实现。
  * <p>
  * 语法：{@code CREATE INDEX 索引名 ON 表名 [USING 算法] (列名)}
- * Oracle 的 USING 子句可选（默认或指定 BITMAP/BTREE 等）。
+   * Oracle 的 使用 子句可选（默认或指定 BITMAP/BTREE 等）。
  * </p>
  *
  * @author CH
@@ -93,7 +93,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
     }
 
     /**
-     * 执行 CREATE INDEX 语句。
+      * 执行 创建 索引 语句。
      */
     @Override
     public void execute() {

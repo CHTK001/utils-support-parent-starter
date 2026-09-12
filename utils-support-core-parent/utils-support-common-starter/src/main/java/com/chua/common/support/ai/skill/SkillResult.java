@@ -29,8 +29,8 @@ public class SkillResult {
     /**
      * 创建 SkillResult 实例
      * @param success success
-     * @param Object Object
-     * @param String String
+     * @param content Object
+     * @param errorMessage String
      */
     public SkillResult(boolean success, Object content, String errorMessage) {
         this.success = success;

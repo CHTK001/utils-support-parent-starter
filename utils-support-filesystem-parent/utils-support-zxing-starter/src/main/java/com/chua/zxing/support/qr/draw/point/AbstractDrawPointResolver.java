@@ -10,28 +10,33 @@ import java.awt.image.BufferedImage;
 import static com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.*;
 
 /**
- * DrawPointResolver接口用于定义绘制点的操作。
+   * drawpoint解析器接口用于定义绘制点的操作。
  * 规定了一个绘制图形的方法，需要由实现类具体实现绘制的逻辑。
 * @author CH
  * @since 4.0.0.42
 */
 public abstract class AbstractDrawPointResolver implements DrawPointResolver{
 
-    QrCodeOptions qrCodeConfig;
-    Graphics2D g2;
-    BitMatrixEx bitMatrix;
-    int leftPadding;
-    int topPadding;
-    int infoSize;
+    QrCodeOptions qrCodeConfig; // qr编码配置
+    Graphics2D g2; // g2
+    BitMatrixEx bitMatrix; // 钻头matrix
+    int leftPadding; // leftpadding
+    int topPadding; // toppadding
+    int infoSize; // 信息大小
 
     /**
-     * 创建 AbstractDrawPointResolver 实例
-     * @param qrCodeConfig qrCodeConfig
-     * @param Graphics2D Graphics2D
-     * @param BitMatrixEx BitMatrixEx
-     * @param int int
-     * @param int int
-     * @param int int
+      * 创建 抽象drawpoint解析器 实例
+     * @param qrCodeConfig qr编码配置
+     * @param g2 Graphics2D
+     * @param bitMatrix 钻头matrixex
+     * @param leftPadding int
+     * @param leftPadding int
+     * @param leftPadding int
+     * @param g2 g2
+     * @param bitMatrix 钻头matrix
+     * @param leftPadding leftpadding
+     * @param topPadding toppadding
+     * @param infoSize 信息大小
      */
     public AbstractDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
         this.qrCodeConfig = qrCodeConfig;
@@ -84,8 +89,8 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
     abstract void draw(Graphics2D g2d, int x, int y, int w, int h, BufferedImage img, String txt);
 
     /**
-     * 该抽象方法用于判断是否扩展DotSize对象。
-     * @param dotSize 待判断的DotSize对象
+      * 该抽象方法用于判断是否扩展dot大小对象。
+     * @param dotSize 待判断的dot大小对象
      * @return 如果能够扩展，则返回true；否则返回false
      */
     abstract boolean expand(DotSize dotSize);

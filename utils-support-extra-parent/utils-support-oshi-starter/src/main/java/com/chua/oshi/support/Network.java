@@ -6,6 +6,7 @@ import lombok.Data;
  * 网络接口信息实体类。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Network {
@@ -26,12 +27,12 @@ public class Network {
     private String mac;
 
     /**
-     * IPv4 地址数组。
+      * ipv4 地址数组。
      */
     private String[] ipv4;
 
     /**
-     * IPv6 地址数组。
+      * ipv6 地址数组。
      */
     private String[] ipv6;
 
@@ -41,7 +42,7 @@ public class Network {
     private String[] subnetMasks;
 
     /**
-     * IPv6 前缀长度数组。
+      * ipv6 前缀长度数组。
      */
     private Short[] prefixLengths;
 
@@ -116,7 +117,7 @@ public class Network {
     private String ifOperStatus;
 
     /**
-     * 接口类型（以太网/WiFi/虚拟等）。
+      * 接口类型（以太网/wifi/虚拟等）。
      */
     private int ifType;
 

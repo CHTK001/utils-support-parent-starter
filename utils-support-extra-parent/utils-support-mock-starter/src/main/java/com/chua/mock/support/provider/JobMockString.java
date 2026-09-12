@@ -21,6 +21,8 @@ public class JobMockString implements MockString {
 
     /**
      * 职业池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] JOBS = {
             "医生", "教师", "工程师", "程序员", "设计师", "会计", "律师", "厨师", "司机",

@@ -43,7 +43,7 @@ public class EngineDeleteWrapper<T> extends LambdaDeleteWrapper<T> {
     }
 
     @Override
-    /** NewInstance */
+    /** 新instance */
     protected LambdaDeleteWrapper<T> newInstance() {
         return new EngineDeleteWrapper<>(engine, entityClass);
     }

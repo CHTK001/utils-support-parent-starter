@@ -25,6 +25,8 @@ import java.util.function.Supplier;
  *     () -> api.call("/b"),
  *     () -> api.call("/c")
  * );
+ * }</pre>() -> api.call("/c")
+ * );
  * }</pre>
  *
  * @author CH

@@ -36,6 +36,8 @@ public class WechatMockString implements MockString {
     private static final int DEFAULT_MIN = 6;
     /**
      * 默认长度上界
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int DEFAULT_MAX = 20;
 

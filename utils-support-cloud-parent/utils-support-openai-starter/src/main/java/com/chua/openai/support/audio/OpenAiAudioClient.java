@@ -21,10 +21,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * OpenAI 语音识别（ASR / STT）客户端。
+   * 打开AI 语音识别（ASR / STT）客户端。
  *
  * <p>基于 OpenAI 音频标准接口 {@code POST /v1/audio/transcriptions} 的 {@link VirtualClient}
- * 实现，支持 OpenAI 兼容接口的所有服务商（如 OpenAI、SiliconFlow、SenseTime、b.ai 等）。
+   * 实现，支持 打开AI 兼容接口的所有服务商（如 打开AI、silicon流、sense时间、b.AI 等）。
  *
  * <p>通过 SPI 机制注册以下别名：
  * <ul>
@@ -39,6 +39,7 @@ import java.util.UUID;
  *       .model("whisper-1")
  *       .language("zh")
  *       .transcribe(Path.of("audio.wav"));
+ * }</pre>(Path.of("audio.wav"));
  * }</pre>
  *
  * @author CH
@@ -49,7 +50,7 @@ import java.util.UUID;
 public class OpenAiAudioClient implements VirtualClient {
 
     /**
-     * OpenAI 默认 API 地址
+      * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
@@ -94,7 +95,7 @@ public class OpenAiAudioClient implements VirtualClient {
     private Path audioPath;
 
     /**
-     * 构造 OpenAI 语音识别客户端。
+      * 构造 打开AI 语音识别客户端。
      *
      * @param setting 客户端配置
      */
@@ -255,9 +256,9 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-     * 解析音频字节：优先使用已设置的 audio 字节，其次音频路径。
+      * 解析音频字节：优先使用已设置的 音频 字节，其次音频路径。
      *
-     * @param path 调用方法时传入的路径（可为 null）
+     * @param path 调用方法时传入的路径（可为 空）
      * @return 音频字节
      * @throws IOException 读取失败时抛出
      */
@@ -288,7 +289,7 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-     * 解析音频 Content-Type。
+      * 解析音频 内容-类型。
      *
      * @param filename 文件名
      * @return MIME 类型

@@ -21,17 +21,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("netty-http")
 public class NettyHttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
 
-    /** clients */
+    /** 客户端 */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
-    /** messageQueues */
+    /** 消息队列 */
     private final Map<String, java.util.Queue<String>> messageQueues = new ConcurrentHashMap<>();
-    /** Listeners */
+    /** 监听器 */
     private final List<SyncServerListener> listeners = new ArrayList<>();
     /** 服务器 */
     private com.sun.net.httpserver.HttpServer server;
 
     /**
-     * 创建 NettyHttpSyncServer 实例
+      * 创建 nettyhttp同步服务端 实例
      * @param setting setting
      */
     public NettyHttpSyncServer(ServerSetting setting) {
@@ -39,7 +39,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             server = com.sun.net.httpserver.HttpServer.create(
@@ -91,7 +91,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (server != null) {
             server.stop(0);
@@ -121,37 +121,43 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
-    /** 获取ConnectedClients */
+    /** 获取连接客户端 */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取ClientMetadata */
+    /** 获取客户端metadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
-    /** 拉取Message */
+    /**
+     * 拉取消息
+     *
+     * @param topics topics
+     * @param timeout 超时
+     * @return 拉手消息的结果
+     */
     private String pullMessage(String[] topics, int timeout) {
         long deadline = System.currentTimeMillis() + timeout * 1000L;
         while (System.currentTimeMillis() < deadline) {
@@ -171,7 +177,13 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         return null;
     }
 
-    /** 发送Response */
+    /**
+     * 发送响应
+     *
+     * @param exchange exchange
+     * @param code 编码
+     * @param body 主体
+     */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -181,7 +193,13 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         }
     }
 
-    /** ExtractParam */
+    /**
+     * extract参数
+     *
+     * @param body 主体
+     * @param key 键
+     * @return extract参数的结果
+     */
     private String extractParam(String body, String key) {
         String pattern = "\"" + key + "\"";
         int idx = body.indexOf(pattern);
@@ -200,7 +218,12 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         return body.substring(start + 1, end);
     }
 
-    /** 解析查询 */
+    /**
+     * 解析查询
+     *
+     * @param query 查询
+     * @return 解析查询的结果
+     */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -222,7 +245,11 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
         return params;
     }
 
-    /** 通知Listener */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

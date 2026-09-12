@@ -32,7 +32,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * 基于 kcp-base 的 KCP 消息客户端实现，与 {@link KcpServer} 配对使用。
+   * 基于 kcp-基础 的 KCP 消息客户端实现，与 {@link KcpServer} 配对使用。
  *
  * <p>通过 KCP 可靠 UDP 长连接与服务端双向同步，支持注册、主题订阅、
  * 消息收发以及 {@code OnOpen}/{@code OnMessage}/{@code OnClose}/{@code OnError} 注解分发。
@@ -45,6 +45,7 @@ import java.util.function.Consumer;
  * client.connect();
  * client.send("greet", "hello");
  * client.close();
+ * }</pre> * 客户端.关闭();
  * }</pre>
  *
  * @author CH
@@ -99,17 +100,17 @@ public class KcpClient {
     private final String clientId;
 
     /**
-     * 服务端 URL（kcp://host:port）
+      * 服务端 URL（kcp://主机:端口）
      */
     private final String serverUrl;
 
     /**
-     * Netty 事件循环组（kcp-base 复用）
+      * Netty 事件循环组（kcp-基础 复用）
      */
     private EventLoopGroup eventLoopGroup;
 
     /**
-     * kcp-base 客户端实例
+      * kcp-基础 客户端实例
      */
     private kcp.KcpClient kcpBaseClient;
 
@@ -119,18 +120,18 @@ public class KcpClient {
     private volatile Ukcp session;
 
     /**
-     * 待响应 Future 表（requestId -> Future）
+      * 待响应 期货 表（请求id -> 期货）
      */
     private final Map<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
 
     /**
      * 跨包接收缓冲：服务端批量聚合后一条 KCP 消息可能含多条 \n 分隔的消息，
-     * 且大消息会被分包到达（每次 handleReceive 只是碎片），未完成行保留到下一包。
+      * 且大消息会被分包到达（每次 处理接收 只是碎片），未完成行保留到下一包。
      */
     private final StringBuilder receiveBuffer = new StringBuilder(256);
 
     /**
-     * 主题订阅处理器表（topic -> handler 列表）
+      * 主题订阅处理器表（topic -> 处理器 列表）
      */
     private final Map<String, List<BiConsumer<String, String>>> topicSubscribers = new ConcurrentHashMap<>();
 
@@ -140,27 +141,27 @@ public class KcpClient {
     private final Map<String, Object> metadata = new HashMap<>();
 
     /**
-     * 已注册的注解 Bean（beanClass -> 实例）
+      * 已注册的注解 Bean（Bean类 -> 实例）
      */
     private final Map<Class<?>, Object> annotatedBeans = new ConcurrentHashMap<>();
 
     /**
-     * OnOpen 注解方法列表
+      * on打开 注解方法列表
      */
     private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
 
     /**
-     * OnClose 注解方法列表
+      * on关闭 注解方法列表
      */
     private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
 
     /**
-     * OnMessage 注解方法列表
+      * on消息 注解方法列表
      */
     private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
 
     /**
-     * OnError 注解方法列表
+      * on错误 注解方法列表
      */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
@@ -185,27 +186,28 @@ public class KcpClient {
     private final List<Consumer<Throwable>> errorListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 注册确认 Future
+      * 注册确认 期货
      */
     private volatile CompletableFuture<Void> registerFuture;
 
     /**
-     * 客户端 ID 计数器
+      * 客户端 标识 计数器
      */
     private static final AtomicLong CLIENT_COUNTER = new AtomicLong();
 
     /**
-     * 创建 KcpClient 实例
-     * @param serverUrl serverUrl
+      * 创建 kcp客户端 实例
+     * @param serverUrl 服务端url
      */
     public KcpClient(String serverUrl) {
         this("kcp-client-" + CLIENT_COUNTER.incrementAndGet(), serverUrl);
     }
 
     /**
-     * 创建 KcpClient 实例
-     * @param clientId clientId
-     * @param String String
+      * 创建 kcp客户端 实例
+     * @param clientId 客户端标识
+     * @param clientId 字符串
+     * @param serverUrl 服务端url
      */
     public KcpClient(String clientId, String serverUrl) {
         this.clientId = clientId;
@@ -254,22 +256,40 @@ public class KcpClient {
         }
     }
 
-    /** 是否Connected */
+    /**
+     * 是否连接
+     *
+     * @return 是否连接的结果
+     */
     public boolean isConnected() {
         return session != null && session.isActive();
     }
 
-    /** 获取ClientId */
+    /**
+     * 获取客户端id
+     *
+     * @return 获取客户端id的结果
+     */
     public String getClientId() {
         return clientId;
     }
 
-    /** 发送 */
+    /**
+     * 发送
+     *
+     * @param topic topic
+     * @param message 消息
+     */
     public void send(String topic, Object message) {
         publish(topic, message);
     }
 
-    /** 发布 */
+    /**
+     * 发布
+     *
+     * @param topic topic
+     * @param message 消息
+     */
     public void publish(String topic, Object message) {
         checkConnected();
         writeRaw(topic + ":" + message);
@@ -277,12 +297,22 @@ public class KcpClient {
 
     /**
      * 同步请求-响应。
+     * @param topic topic
+     * @param message 消息
+     * @return 执行的结果
      */
     public String execute(String topic, Object message) {
         return execute(topic, message, DEFAULT_TIMEOUT_MS);
     }
 
-    /** 执行 */
+    /**
+     * 执行
+     *
+     * @param topic topic
+     * @param message 消息
+     * @param timeoutMs 超时ms
+     * @return 执行的结果
+     */
     public String execute(String topic, Object message, long timeoutMs) {
         try {
             return executeAsync(topic, message, timeoutMs).get(timeoutMs, TimeUnit.MILLISECONDS);
@@ -291,12 +321,25 @@ public class KcpClient {
         }
     }
 
-    /** 执行Async */
+    /**
+     * 执行异步
+     *
+     * @param topic topic
+     * @param message 消息
+     * @return 执行异步的结果
+     */
     public CompletableFuture<String> executeAsync(String topic, Object message) {
         return executeAsync(topic, message, DEFAULT_TIMEOUT_MS);
     }
 
-    /** 执行Async */
+    /**
+     * 执行异步
+     *
+     * @param topic topic
+     * @param message 消息
+     * @param timeoutMs 超时ms
+     * @return 执行异步的结果
+     */
     public CompletableFuture<String> executeAsync(String topic, Object message, long timeoutMs) {
         checkConnected();
         String requestId = java.util.UUID.randomUUID().toString();
@@ -310,42 +353,77 @@ public class KcpClient {
         return future;
     }
 
-    /** 订阅 */
+    /**
+     * 订阅
+     *
+     * @param topic topic
+     * @param handler 处理器
+     * @return 订阅的结果
+     */
     public KcpClient subscribe(String topic, BiConsumer<String, String> handler) {
         topicSubscribers.computeIfAbsent(topic, key -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+     *
+     * @param topic topic
+     */
     public void unsubscribe(String topic) {
         topicSubscribers.remove(topic);
     }
 
-    /** OnMessage */
+    /**
+     * on消息
+     *
+     * @param listener 监听器
+     * @return on消息的结果
+     */
     public KcpClient onMessage(BiConsumer<String, String> listener) {
         messageListeners.add(listener);
         return this;
     }
 
-    /** On连接 */
+    /**
+     * On连接
+     *
+     * @param listener 监听器
+     * @return on连接的结果
+     */
     public KcpClient onConnect(Consumer<String> listener) {
         connectListeners.add(listener);
         return this;
     }
 
-    /** On断开 */
+    /**
+     * On断开
+     *
+     * @param listener 监听器
+     * @return on断开连接的结果
+     */
     public KcpClient onDisconnect(Consumer<String> listener) {
         disconnectListeners.add(listener);
         return this;
     }
 
-    /** On记录错误 */
+    /**
+     * On记录错误
+     *
+     * @param listener 监听器
+     * @return on错误的结果
+     */
     public KcpClient onError(Consumer<Throwable> listener) {
         errorListeners.add(listener);
         return this;
     }
 
-    /** 注册Bean */
+    /**
+     * 注册Bean
+     *
+     * @param bean Bean
+     * @return 注册Bean的结果
+     */
     public KcpClient registerBean(Object bean) {
         if (bean == null) {
             return this;
@@ -375,7 +453,11 @@ public class KcpClient {
         return this;
     }
 
-    /** 获取Metadata */
+    /**
+     * 获取Metadata
+     *
+     * @return 获取metadata的结果
+     */
     public Map<String, Object> getMetadata() {
         return Collections.unmodifiableMap(metadata);
     }
@@ -385,26 +467,35 @@ public class KcpClient {
         disconnect();
     }
 
-    /** 写入Raw */
+    /**
+     * 写入Raw
+     *
+     * @param text 文本
+     */
     private void writeRaw(String text) {
         ByteBuf buf = Unpooled.copiedBuffer(text, StandardCharsets.UTF_8);
         try {
             session.write(buf);
         } finally {
-            // kcp-base 内部 retain/release
+ // kcp-基础 内部 retain/release
         }
     }
 
-    /** 校验Connected */
+    /** 校验连接 */
     private void checkConnected() {
         if (session == null || !session.isActive()) {
             throw new IllegalStateException("KCP 未连接");
         }
     }
 
-    /** 解析Remote */
+    /**
+     * 解析远程
+     *
+     * @param url url
+     * @return 解析远程的结果
+     */
     private InetSocketAddress parseRemote(String url) {
-        // 解析 kcp://host:port
+ // 解析 kcp://主机:端口
         String s = url;
         if (s.startsWith("kcp://")) {
             s = s.substring(6);
@@ -416,7 +507,7 @@ public class KcpClient {
     }
 
     /**
-     * 分发无参/带参注解方法（OnOpen/OnClose/OnError）。
+      * 分发无参/带参注解方法（on打开/on关闭/on错误）。
      *
      * @param methods 注解方法列表
      * @param args    方法参数（可为空）
@@ -431,7 +522,7 @@ public class KcpClient {
     }
 
     /**
-     * 按主题分发 OnMessage 注解方法。
+      * 按主题分发 on消息 注解方法。
      *
      * @param topic   主题
      * @param payload 消息内容
@@ -519,30 +610,34 @@ public class KcpClient {
      *
      * @param beanClass Bean 类型
      * @param method    注解方法
+     * @return annotated方法的结果
      */
     private record AnnotatedMethod(Class<?> beanClass, Method method) {
     }
 
     /**
-     * OnMessage 注解方法元信息。
+      * on消息 注解方法元信息。
      *
      * @param beanClass Bean 类型
      * @param method    注解方法
      * @param topic     订阅主题
+     * @return annotated消息的结果
      */
     private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {
     }
 
     /**
-     * kcp-base 客户端 KcpListener，把服务端消息分发到订阅者/监听器。
+      * kcp-基础 客户端 kcp监听器，把服务端消息分发到订阅者/监听器。
+     * @author CH
+     * @since 4.0.0
      */
     private final class OAuthKcpListener implements KcpListener {
 
         @Override
-        /** OnConnected */
+        /** on连接 */
         public void onConnected(Ukcp ukcp) {
-            // 服务端会收到 register:clientId 的第一帧作为注册请求
-            // 这里仅触发连接事件，回写 register: 让服务端把 clientId 绑定
+ // 服务端会收到 注册:客户端标识 的第一帧作为注册请求
+ // 这里仅触发连接事件，回写 注册: 让服务端把 客户端标识 绑定
             sendRegister();
             notifyConnect(clientId);
             dispatchAnnotatedMethods(onOpenMethods);
@@ -551,7 +646,7 @@ public class KcpClient {
         @Override
         /** 处理接收 */
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
-            // kcp-base 1.6.2 ReadTask 自行管理 ByteBuf 引用计数，此处不可 release（双重释放会 IllegalReferenceCountException）
+ // kcp-基础 1.6.2 读取任务 自行管理 bytebuf 引用计数，此处不可 release（双重释放会 illegal引用数量异常）
             // 服务端批量聚合 + KCP 分包：追加到跨包缓冲，按 \n 切出完整行分发，未完成行保留
             synchronized (receiveBuffer) {
                 receiveBuffer.append(byteBuf.toString(StandardCharsets.UTF_8));
@@ -576,7 +671,7 @@ public class KcpClient {
         }
 
         @Override
-        /** 处理Exception */
+        /** 处理异常 */
         public void handleException(Throwable ex, Ukcp ukcp) {
             log.error("KCP 客户端异常: {}", ex.getMessage(), ex);
             notifyError(ex);
@@ -600,13 +695,17 @@ public class KcpClient {
             }
         }
 
-        /** 处理Line */
+        /**
+         * 处理线
+         *
+         * @param line 线
+         */
         private void handleLine(String line) {
             int colon = line.indexOf(':');
             String topic = colon > 0 ? line.substring(0, colon) : line;
             String payload = colon > 0 ? line.substring(colon + 1) : "";
 
-            // 注册确认：registered:clientId
+ // 注册确认：注册:客户端标识
             if (topic.equals(CMD_REGISTERED) || line.startsWith(CMD_REGISTERED + ":")) {
                 if (registerFuture != null) {
                     registerFuture.complete(null);
@@ -627,7 +726,7 @@ public class KcpClient {
                         return;
                     }
                 }
-                // 没有匹配的 requestId，仍按普通消息分发
+ // 没有匹配的 请求标识，仍按普通消息分发
                 dispatchMessage(innerTopic, body);
                 return;
             }
@@ -635,7 +734,12 @@ public class KcpClient {
             dispatchMessage(topic, payload);
         }
 
-        /** 分发Message */
+        /**
+         * 分发消息
+         *
+         * @param topic topic
+         * @param payload payload
+         */
         private void dispatchMessage(String topic, String payload) {
             for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicSubscribers.entrySet()) {
                 if (matchTopic(entry.getKey(), topic)) {
@@ -656,11 +760,17 @@ public class KcpClient {
                     log.error("KCP 消息监听异常", e);
                 }
             }
-            // @OnMessage 注解分发
+ // @on消息 注解分发
             dispatchAnnotatedPublish(topic, payload);
         }
 
-        /** MatchTopic */
+        /**
+         * 匹配topic
+         *
+         * @param pattern 模式
+         * @param topic topic
+         * @return 匹配topic的结果
+         */
         private boolean matchTopic(String pattern, String topic) {
             if ("#".equals(pattern)) {
                 return true;
@@ -686,7 +796,11 @@ public class KcpClient {
             return p == pp.length && t == tp.length;
         }
 
-        /** 通知连接 */
+        /**
+         * 通知连接
+         *
+         * @param clientId 客户端标识
+         */
         private void notifyConnect(String clientId) {
             for (Consumer<String> l : connectListeners) {
                 try {
@@ -696,7 +810,11 @@ public class KcpClient {
             }
         }
 
-        /** 通知断开 */
+        /**
+         * 通知断开
+         *
+         * @param clientId 客户端标识
+         */
         private void notifyDisconnect(String clientId) {
             for (Consumer<String> l : disconnectListeners) {
                 try {
@@ -706,7 +824,11 @@ public class KcpClient {
             }
         }
 
-        /** 通知记录错误 */
+        /**
+         * 通知记录错误
+         *
+         * @param ex ex
+         */
         private void notifyError(Throwable ex) {
             for (Consumer<Throwable> l : errorListeners) {
                 try {

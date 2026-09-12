@@ -28,7 +28,7 @@ public interface IdiomProvider {
      * <p>词形完全匹配，找不到时返回 null。
      *
      * @param word 成语词形（如：守株待兔）
-     * @return 成语信息；不存在返回 null
+     * @return 成语信息；不存在返回 空
      */
     IdiomInfo get(String word);
 

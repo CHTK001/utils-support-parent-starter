@@ -31,6 +31,8 @@ public class UsernameMockString implements MockString {
     private static final int DEFAULT_MIN = 6;
     /**
      * 默认最长用户名长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int DEFAULT_MAX = 16;
 

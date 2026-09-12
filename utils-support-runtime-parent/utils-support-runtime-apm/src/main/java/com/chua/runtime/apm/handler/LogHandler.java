@@ -15,11 +15,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 日志拦截器 — 劫持 SLF4J/Jul/APCL 日志框架和 System.out/err。
+   * 日志拦截器 — 劫持 SLF4J/Jul/APCL 日志框架和 系统.出/err。
  *
  * <p>字节码插桩实现：</p>
  * <p>对目标日志类（如 org/slf4j/Logger）的 info/debug/warn/error 方法，
- * 在方法入口插入 RuntimeSpy.onIntercept()，方法出口也插入调用。</p>
+   * 在方法入口插入 runtimespy.onintercept()，方法出口也插入调用。</p>
  *
  * <p>ASM 插入的字节码：</p>
  * <pre>
@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(LogHandler.class.getName());
 
@@ -57,7 +57,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-     * 启用配置属性 key
+      * 启用配置属性 键
      */
     private static final String PROP_LOG_ENABLED = "log.enabled";
 
@@ -67,27 +67,27 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final String DEFAULT_ENABLED = "true";
 
     /**
-     * SLF4J Logger 类名（内部名格式）
+      * SLF4J 日志记录器 类名（内部名格式）
      */
     private static final String SLF4J_LOGGER = "org/slf4j/Logger";
 
     /**
-     * SLF4J LoggerFactory 类名
+      * SLF4J 日志记录器工厂 类名
      */
     private static final String SLF4J_FACTORY = "org/slf4j/LoggerFactory";
 
     /**
-     * java.util.logging Logger 类名
+      * Java.util.日志 日志记录器 类名
      */
     private static final String JUL_LOGGER = "java/util/logging/Logger";
 
     /**
-     * Apache Commons Logging Log 类名
+      * Apache Commons 日志 日志 类名
      */
     private static final String APCL_LOG = "org/apache/commons/logging/Log";
 
     /**
-     * Log4j2 Logger 类名
+      * 日志4j2 日志记录器 类名
      */
     private static final String LOG4J2_LOGGER = "org/apache/logging/log4j/Logger";
 
@@ -124,17 +124,17 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     private boolean enabled;
 
     /**
-     * 是否已劫持 System.out/err
+      * 是否已劫持 系统.出/err
      */
     private final AtomicBoolean streamsHijacked;
 
     /**
-     * 原始 System.out
+      * 原始 系统.出
      */
     private PrintStream originalOut;
 
     /**
-     * 原始 System.err
+      * 原始 系统.err
      */
     private PrintStream originalErr;
 
@@ -143,20 +143,20 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private PluginContext context;
 
-    /** 创建 LogHandler 实例 */
+    /** 创建 日志处理器 实例 */
     public LogHandler() {
         this.logEntries = new com.chua.runtime.apm.handler.BoundedRecordList<>(MAX_LOGS);
         this.streamsHijacked = new AtomicBoolean(false);
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return HANDLER_VERSION;
     }
@@ -182,13 +182,13 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
         // 注册 JUL 日志拦截
         registerJulIntercepts();
 
-        // 注册 Apache Commons Logging 拦截
+ // 注册 Apache Commons 日志 拦截
         registerApclIntercepts();
 
-        // 注册 Log4j2 拦截
+ // 注册 日志4j2 拦截
         registerLog4j2Intercepts();
 
-        // 劫持 System.out/err
+ // 劫持 系统.出/err
         hijackSystemStreams();
 
         LOG.log(Level.INFO, "LogHandler 启动完成，已注册日志拦截点");
@@ -198,7 +198,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     /** 停止 */
     public void stop() throws Exception {
         this.enabled = false;
-        // 恢复 System.out/err
+ // 恢复 系统.出/err
         if (originalOut != null) {
             System.setOut(originalOut);
         }
@@ -211,7 +211,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("LogHandler[enabled=%s, logs=%d]", enabled, logEntries.size());
     }
@@ -223,7 +223,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 接收插桩事件 — 由 RuntimeSpy 路由调用。
+      * 接收插桩事件 — 由 runtimespy 路由调用。
      *
      * @param context 插桩上下文
      */
@@ -280,7 +280,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 java.util.logging 拦截。
+      * 注册 Java.util.日志 拦截。
      */
     private void registerJulIntercepts() {
         String[] julMethods = {"log", "fine", "warning", "severe", "config", "info"};
@@ -301,7 +301,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 Apache Commons Logging 拦截。
+      * 注册 Apache Commons 日志 拦截。
      */
     private void registerApclIntercepts() {
         for (String method : LOG_METHODS) {
@@ -315,7 +315,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册 Log4j2 拦截。
+      * 注册 日志4j2 拦截。
      */
     private void registerLog4j2Intercepts() {
         for (String method : LOG_METHODS) {
@@ -329,7 +329,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 劫持 System.out 和 System.err。
+      * 劫持 系统.出 和 系统.err。
      */
     private void hijackSystemStreams() {
         if (!streamsHijacked.compareAndSet(false, true)) {
@@ -365,11 +365,11 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 从 Logger 实例反射获取业务类名。
+      * 从 日志记录器 实例反射获取业务类名。
      *
-     * @param loggerInstance Logger 实例（SLF4J/JUL/APCL/Log4j2）
+     * @param loggerInstance 日志记录器 实例（SLF4J/JUL/APCL/日志4j2）
      * @param className 类内部名（兜底用）
-     * @return 业务类名（如 com.example.demo.DemoController）
+     * @return 业务类名（如 com.example.demo.demo控制器）
      */
     private String extractLoggerName(Object loggerInstance, String className) {
         if (loggerInstance == null) {
@@ -473,6 +473,8 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
 
     /**
      * 日志输出流包装器。
+     * @author CH
+     * @since 4.0.0
      */
     private static class LoggingPrintStream extends PrintStream {
 

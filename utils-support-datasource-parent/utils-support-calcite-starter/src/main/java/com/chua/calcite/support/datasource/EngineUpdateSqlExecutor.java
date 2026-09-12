@@ -15,13 +15,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 将简单 SQL UPDATE 路由到 {@link Engine}（Calcite ModifiableTable 不支持 UPDATE）。
+   * 将简单 SQL 更新 路由到 {@link Engine}（Calcite modifiabletable 不支持 更新）。
  * <p>
  * 支持形态（MySQL 词法，反引号可选）：
  * <pre>
  * UPDATE [`schema`.]`table` SET `c1`=v1, `c2`=v2 WHERE `c3`=v3 [AND `c4`=v4 ...]
  * </pre>
- * SET/WHERE 值支持：字符串字面量、数字、NULL、布尔。
+   * 设置/WHERE 值支持：字符串字面量、数字、空、布尔。
  * </p>
  *
  * @author CH
@@ -31,14 +31,14 @@ import java.util.regex.Pattern;
 public final class EngineUpdateSqlExecutor {
 
     /**
-     * UPDATE 语句解析正则
+      * 更新 语句解析正则
      */
     private static final Pattern UPDATE = Pattern.compile(
             "(?is)^\\s*UPDATE\\s+(?:(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s*\\.\\s*)?(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s+SET\\s+(.+?)(?:\\s+WHERE\\s+(.+))?\\s*$"
     );
 
     /**
-     * SQL UPDATE 关键字
+      * SQL 更新 关键字
      */
     private static final String SQL_UPDATE_KEYWORD = "UPDATE";
 
@@ -57,10 +57,10 @@ public final class EngineUpdateSqlExecutor {
     }
 
     /**
-     * 若 SQL 为可路由的 UPDATE 则执行并返回影响行数；否则返回 null 交由 Calcite。
+      * 若 SQL 为可路由的 更新 则执行并返回影响行数；否则返回 空 交由 Calcite。
      *
      * @param sql 原始 SQL
-     * @return 影响行数；不可路由返回 null
+     * @return 影响行数；不可路由返回 空
      */
     public Integer tryExecute(String sql) {
         if (sql == null) {
@@ -97,7 +97,14 @@ public final class EngineUpdateSqlExecutor {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    /** 执行更新 */
+    /**
+     * 执行更新
+     *
+     * @param source 源
+     * @param sets 设置
+     * @param wheres wheres
+     * @return 执行更新的结果
+     */
     private int executeUpdate(SourceDataTable source, Map<String, Object> sets, Map<String, Object> wheres) {
         Engine engine = source.getEngine();
         Class<?> entityClass = source.getEntityClass();
@@ -113,7 +120,13 @@ public final class EngineUpdateSqlExecutor {
         return rows;
     }
 
-    /** 解析Table */
+    /**
+     * 解析Table
+     *
+     * @param schema 模式
+     * @param table table
+     * @return resolveTable的结果
+     */
     private SourceDataTable resolveTable(String schema, String table) {
         String tableKey = table == null ? null : table.toLowerCase(Locale.ROOT);
         for (DataScheme scheme : schemes) {
@@ -137,7 +150,12 @@ public final class EngineUpdateSqlExecutor {
         return null;
     }
 
-    /** 解析Assignments */
+    /**
+     * 解析Assignments
+     *
+     * @param part part
+     * @return 解析assignments的结果
+     */
     private static Map<String, Object> parseAssignments(String part) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (String seg : splitTopLevel(part, ',')) {
@@ -154,7 +172,12 @@ public final class EngineUpdateSqlExecutor {
         return map;
     }
 
-    /** 解析And判断相等 */
+    /**
+     * 解析和判断相等
+     *
+     * @param where where
+     * @return 解析和equals的结果
+     */
     private static Map<String, Object> parseAndEquals(String where) {
         Map<String, Object> map = new LinkedHashMap<>();
         // 仅支持 AND 连接的 col = val
@@ -172,7 +195,12 @@ public final class EngineUpdateSqlExecutor {
         return map;
     }
 
-    /** IndexOfAssign */
+    /**
+     * 索引的assign
+     *
+     * @param seg seg
+     * @return 索引的assign的结果
+     */
     private static int indexOfAssign(String seg) {
         boolean inStr = false;
         for (int i = 0; i < seg.length(); i++) {
@@ -190,7 +218,13 @@ public final class EngineUpdateSqlExecutor {
         return -1;
     }
 
-    /** 分割TopLevel */
+    /**
+     * 分割top级别
+     *
+     * @param text 文本
+     * @param sep sep
+     * @return 分割top级别的结果
+     */
     private static List<String> splitTopLevel(String text, char sep) {
         List<String> parts = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
@@ -217,7 +251,13 @@ public final class EngineUpdateSqlExecutor {
         return parts;
     }
 
-    /** 分割TopLevel */
+    /**
+     * 分割top级别
+     *
+     * @param text 文本
+     * @param keyword keyword
+     * @return 分割top级别的结果
+     */
     private static List<String> splitTopLevel(String text, String keyword) {
         List<String> parts = new ArrayList<>();
         String upper = text.toUpperCase(Locale.ROOT);
@@ -246,7 +286,12 @@ public final class EngineUpdateSqlExecutor {
         return parts;
     }
 
-    /** UnquoteIdent */
+    /**
+     * unquoteident
+     *
+     * @param ident ident
+     * @return unquoteIdent的结果
+     */
     private static String unquoteIdent(String ident) {
         if (ident == null) {
             return null;
@@ -261,7 +306,12 @@ public final class EngineUpdateSqlExecutor {
         return ident;
     }
 
-    /** 解析Literal */
+    /**
+     * 解析字面量
+     *
+     * @param raw raw
+     * @return 解析字面量的结果
+     */
     private static Object parseLiteral(String raw) {
         if (raw == null) {
             return null;
@@ -296,7 +346,13 @@ public final class EngineUpdateSqlExecutor {
         return s;
     }
 
-    /** First */
+    /**
+     * 第一个
+     *
+     * @param a a
+     * @param b b
+     * @return 第一个的结果
+     */
     private static String first(String a, String b) {
         return a != null ? a : b;
     }

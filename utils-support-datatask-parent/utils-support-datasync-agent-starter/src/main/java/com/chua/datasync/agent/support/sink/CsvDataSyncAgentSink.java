@@ -13,7 +13,7 @@ public class CsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
      *
      * <p>如需追加写入（如周期性同步落盘），请使用三参构造显式传入 {@code append=true}。</p>
      *
-     * @param sinkId Sink 实例 ID
+     * @param sinkId Sink 实例 标识
      * @param filePath CSV 文件路径
      */
     public CsvDataSyncAgentSink(String sinkId, String filePath) {
@@ -23,7 +23,7 @@ public class CsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
     /**
      * 构造 CSV Sink。
      *
-     * @param sinkId Sink 实例 ID
+     * @param sinkId Sink 实例 标识
      * @param filePath CSV 文件路径
      * @param append 是否追加模式
      */

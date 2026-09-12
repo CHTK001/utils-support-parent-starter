@@ -17,14 +17,14 @@ import java.util.Objects;
  */
 class BPlusTreeNode<K, V> {
 
-    final boolean leaf;
+    final boolean leaf; // leaf
     /** 当前节点所有键，有序排列 */
     List<K> keys = new ArrayList<>();
-    /** 与 keys 一一对应的值 */
+    /** 与 键 一一对应的值 */
     List<V> values = new ArrayList<>();
     /** 内部节点的子节点列表（叶子节点为空） */
     List<BPlusTreeNode<K, V>> children = new ArrayList<>();
-    /** 叶子节点之间的链表后继指针；内部节点为 null */
+    /** 叶子节点之间的链表后继指针；内部节点为 空 */
     BPlusTreeNode<K, V> next;
 
     BPlusTreeNode(boolean leaf) {
@@ -33,13 +33,19 @@ class BPlusTreeNode<K, V> {
 
     BPlusTreeNode(boolean leaf, int capacity) {
         this.leaf = leaf;
-        if (keys instanceof ArrayList) ((ArrayList<?>) keys).ensureCapacity(capacity);
-        if (values instanceof ArrayList) ((ArrayList<?>) values).ensureCapacity(capacity);
-        if (children instanceof ArrayList) ((ArrayList<?>) children).ensureCapacity(capacity + 1);
+        if (keys instanceof ArrayList) {
+            ((ArrayList<?>) keys).ensureCapacity(capacity);
+        }
+        if (values instanceof ArrayList) {
+            ((ArrayList<?>) values).ensureCapacity(capacity);
+        }
+        if (children instanceof ArrayList) {
+            ((ArrayList<?>) children).ensureCapacity(capacity + 1);
+        }
     }
 
     /**
-     * 返回 keys 的当前容量（用于拷贝时预估新节点大小）。
+      * 返回 键 的当前容量（用于拷贝时预估新节点大小）。
      */
     int keysCapacity() {
         return keys instanceof ArrayList ? ((ArrayList<?>) keys).size() : keys.size();

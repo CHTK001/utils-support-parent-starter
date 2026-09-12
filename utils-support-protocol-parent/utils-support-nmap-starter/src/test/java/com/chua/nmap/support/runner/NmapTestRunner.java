@@ -8,12 +8,18 @@ import java.util.List;
 
 /**
  * Nmap 独立测试入口，打包成 fat jar 后在 Linux 服务器上直接运行
- * 用法: java -jar nmap-test.jar [target_ip]
+   * 用法: Java -jar nmap-测试.jar [Target_ip]
+ * @author CH
+ * @since 4.0.0
  */
 public class NmapTestRunner {
 
-    private static final String SEP = "─".repeat(50);
+    private static final String SEP = "─".repeat(50); // SEP
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) {
         String target = args.length > 0 ? args[0] : "172.16.0.40";
 
@@ -83,7 +89,9 @@ public class NmapTestRunner {
                 String banner = RustNmapBridge.getBanner(target, p.getPort(), 2000);
                 if (banner != null && !banner.isBlank()) {
                     String preview = banner.replaceAll("[\\r\\n]+", " ").trim();
-                    if (preview.length() > 80) preview = preview.substring(0, 80) + "...";
+                    if (preview.length() > 80) {
+                        preview = preview.substring(0, 80) + "...";
+                    }
                     System.out.print("  " + preview);
                 }
             }

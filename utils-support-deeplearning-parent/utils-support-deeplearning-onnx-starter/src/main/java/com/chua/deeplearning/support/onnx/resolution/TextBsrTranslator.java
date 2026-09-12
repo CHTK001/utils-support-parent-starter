@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * TextBSR 文字超分辨率（ORT 原生 + OpenCV）。
+   * 文本bsr 文字超分辨率（ORT 原生 + 打开cv）。
  *
  * <p>基于 RRDBNet（scale=4）的文字图像盲超分模型，提升模糊文字清晰度，OCR 预处理。
  * 模型 {@code vision/text_restore/textbsr/textbsr.onnx} 由 jar
@@ -90,10 +90,10 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /** 资源基础路径 */
-    /** Resource_base */
+    /** Resource_基础 */
     private static final String RESOURCE_BASE = "vision/text_restore/textbsr/";
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "textbsr.onnx";
 
     /** ONNX 运行时环境 */
@@ -131,7 +131,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "text-bsr";
     }
@@ -147,7 +147,12 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
         }
     }
 
-    /** Enhance */
+    /**
+     * 增强
+     *
+     * @param imageData 镜像数据
+     * @return 增强的结果
+     */
     private BufferedImage enhance(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -211,7 +216,11 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     }
 
     /**
-     * 将 ONNX 输出 [3,H*4,W*4]（归一化）转为 BufferedImage。
+      * 将 ONNX 输出 [3,H*4,W*4]（归一化）转为 缓冲镜像。
+     * @param data 数据
+     * @param width width
+     * @param height height
+     * @return 转为缓冲镜像的结果
      */
     private BufferedImage toBufferedImage(float[][][] data, int width, int height) {
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -230,7 +239,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

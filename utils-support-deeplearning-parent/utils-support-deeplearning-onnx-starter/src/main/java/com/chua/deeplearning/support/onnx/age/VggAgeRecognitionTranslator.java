@@ -23,22 +23,22 @@ import org.slf4j.LoggerFactory;
  *                                                                                                          
  *
  *              (vgg_ilsvrc_16_age_imdb_wiki):
- * -       : [batch_size=1, channels=3, height=224, width=224] float32
- * -       : [batch_size, 101] float32 (0-100                   )
+   * -       : [批量_大小=1, 通道=3, height=224, width=224] float32
+   * -       : [批量_大小, 101] float32 (0-100                   )
  *
  *                      
- *                age = sum(probability[i] * i for i in range(0, 101))
+   * age = sum(probability[i] * i for i 入 范围(0, 101))
  *                 age                    [0.01, 0.05, ..., 0.8, 0.1, ...]
  *                 = 0*0.01 + 1*0.05 + ... + 25*0.8 + 26*0.1 + ...
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025/11/06
  */
 public class VggAgeRecognitionTranslator implements Translator<Image, PredictResult> {
 
     /** 日志记录器 */
-    /** Logger */
+    /** 日志记录器 */
     private static final Logger LOGGER = LoggerFactory.getLogger(VggAgeRecognitionTranslator.class);
 
     /**
@@ -67,10 +67,10 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     }
 
     /**
-     *              -     Image                          NDArray
+      * -     镜像                          ndarray
      *
      *             :
-     * 1.     Image           NDArray
+      * 1.     镜像           ndarray
      * 2.           224  224
      * 3.           CHW       
      * 4.           float32
@@ -89,7 +89,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
 
             NDManager manager = ctx.getNDManager();
 
-            //        Image     NDArray
+ // 镜像     ndarray
             NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
 
             //           224  224
@@ -130,16 +130,16 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     }
 
     /**
-     *              -                 NDList                   
+      * -                 nd列表
      *
      *             :
-     * 1.     NDList                         0-100                      
+      * 1.     nd列表                         0-100
      * 2.                      
      * 3.                         
      * 4.                         
      *
      * @param ctx                   
-     * @param list                 NDList
+     * @param list                 nd列表
      * @return                          "25.5    "   
      */
     @Override
@@ -195,7 +195,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     /**
      *                         
      *
-     *                   : age = sum(probability[i] * i for i in range(0, 101))
+      * : age = sum(probability[i] * i for i 入 范围(0, 101))
      *
      * @param probs 0-100                         
      * @return                   

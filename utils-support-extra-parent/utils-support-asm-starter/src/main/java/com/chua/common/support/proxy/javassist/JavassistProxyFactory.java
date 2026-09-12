@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
  * Javassist 代理工厂，基于 Javassist 字节码增强技术创建类代理。
  *
  * <p>与 JDK 动态代理不同，Javassist 可以代理具体类（非接口），通过生成子类实现代理。
- * 适用于需要代理 POJO、Service 实现类等非接口类型的场景。</p>
+   * 适用于需要代理 POJO、服务 实现类等非接口类型的场景。</p>
  *
  * @param <T> 代理类型
  * @author CH
@@ -35,10 +35,10 @@ public class JavassistProxyFactory<T> implements ProxyFactory<T> {
     @Override
     @SneakyThrows
     /**
-     * 创建Proxy
-     * @param target target
-     * @param interfaces interfaces
-     * @param classLoader classLoader
+      * 创建代理
+     * @param target Target
+     * @param interfaces 接口
+     * @param classLoader 类加载
      * @param intercept intercept
      */
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,

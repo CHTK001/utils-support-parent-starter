@@ -31,7 +31,7 @@ public class DataSourceEnvironment {
     private String databaseType;
 
     /**
-     * 命名空间 / Schema
+      * 命名空间 / 模式
      */
     private String schema;
 

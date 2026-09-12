@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  * - 对于已经很亮的图像效果有限
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Spi("Bright")
@@ -57,7 +57,7 @@ public class ImageBrightImageFilter extends AbstractImageFilter {
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        // 注意：这里应该使用TYPE_INT_RGB而不是TYPE_BYTE_GRAY，因为我们要保持彩色
+ // 注意：这里应该使用类型_INT_RGB而不是类型_BYTE_GRAY，因为我们要保持彩色
         BufferedImage brightImage = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         int width = src.getWidth();

@@ -6,7 +6,7 @@ import com.chua.spider.support.model.SpiderRequest;
  * 爬虫 URL 过滤器 SPI 接口。
  *
  * <p>在 URL 被 {@link SpiderScheduler} 入队之前进行过滤，
- * 决定哪些 URL 应该被爬取、哪些应该被忽略。多个 Filter 可组合使用。
+   * 决定哪些 URL 应该被爬取、哪些应该被忽略。多个 过滤器 可组合使用。
  * 常见过滤策略：
  * <ul>
  *   <li>域名白名单 - 只爬取指定域名内的链接</li>

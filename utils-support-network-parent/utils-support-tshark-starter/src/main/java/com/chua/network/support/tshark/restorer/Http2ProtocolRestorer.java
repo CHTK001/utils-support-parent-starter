@@ -4,8 +4,8 @@ package com.chua.network.support.tshark.restorer;
  * HTTP/2 协议还原器。
  *
  * <p>HTTP/2 连接前言：客户端发送 PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n (24 bytes)。
- * 服务端发送 24 字节 magic + SETTINGS 帧。
- * 帧格式: length(3) + type(1) + flags(1) + streamId(4) + payload。</p>
+   * 服务端发送 24 字节 魔法 + SETTINGS 帧。
+   * 帧格式: 长度(3) + 类型(1) + flags(1) + 流id(4) + payload。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,7 +13,7 @@ package com.chua.network.support.tshark.restorer;
 public class Http2ProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "http2";
     }
@@ -30,7 +30,7 @@ public class Http2ProtocolRestorer extends AbstractProtocolRestorer {
         if (rawData == null || rawData.length < 9) {
             return false;
         }
-        // HTTP/2 client preface magic
+ // HTTP/2 客户端 preface 魔法
         if (rawData.length >= 24) {
             return rawData[0] == 'P' && rawData[1] == 'R' && rawData[2] == 'I'
                     && rawData[3] == ' ' && rawData[4] == '*' && rawData[5] == ' '
@@ -69,7 +69,12 @@ public class Http2ProtocolRestorer extends AbstractProtocolRestorer {
         return "[HTTP/2] unknown";
     }
 
-    /** ToFrameTypeName */
+    /**
+     * 转为帧类型名称
+     *
+     * @param type 类型
+     * @return 转为帧类型名称的结果
+     */
     private static String toFrameTypeName(int type) {
         return switch (type) {
             case 0x0 -> "DATA";

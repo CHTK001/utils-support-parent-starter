@@ -29,14 +29,14 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 public class Florence2Translator implements ITranslator<Object[], String> {
-    private static final Logger log = LoggerFactory.getLogger(Florence2Translator.class);
-    private static final String NAME = "florence2";
-    private static final int IMAGE_SIZE = 768;
-    private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
-    private static final float[] STD = {0.229f, 0.224f, 0.225f};
-    private static final int ENCODER_SEQ_LEN = 577;
-    private static final int NUM_LAYERS = 6;
-    private static final int NUM_HEADS = 12;
-    private static final int HEAD_DIM = 64;
-    private static final int HIDDEN_SIZE = 768;
-    private static final int VOCAB_SIZE = 51289;
+    private static final Logger log = LoggerFactory.getLogger(Florence2Translator.class); // 日志
+    private static final String NAME = "florence2"; // 名称
+    private static final int IMAGE_SIZE = 768; // 镜像大小
+    private static final float[] MEAN = {0.485f, 0.456f, 0.406f}; // MEAN
+    private static final float[] STD = {0.229f, 0.224f, 0.225f}; // STD
+    private static final int ENCODER_SEQ_LEN = 577; // 编码器seqlen
+    private static final int NUM_LAYERS = 6; // NUM_LAYERS
+    private static final int NUM_HEADS = 12; // NUM_HEADS
+    private static final int HEAD_DIM = 64; // HEAD_DIM
+    private static final int HIDDEN_SIZE = 768; // hidden大小
+    private static final int VOCAB_SIZE = 51289; // vocab大小

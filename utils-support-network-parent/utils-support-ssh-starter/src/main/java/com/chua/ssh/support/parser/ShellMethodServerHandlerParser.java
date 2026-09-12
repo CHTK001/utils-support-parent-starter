@@ -45,7 +45,7 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
 
         Set<String> processedClasses = new HashSet<>();
 
-        // 处理类级 @ShellMethod 注解的 Bean
+ // 处理类级 @Shell方法 注解的 Bean
         Map<String, Object> classBeans = objectContext.getBeansWithAnnotation(ShellMethod.class);
         if (classBeans != null) {
             for (Map.Entry<String, Object> entry : classBeans.entrySet()) {
@@ -56,7 +56,7 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
             }
         }
 
-        // 处理方法级 @ShellMethod 注解（类上无注解时）
+ // 处理方法级 @Shell方法 注解（类上无注解时）
         List<com.chua.common.support.objects.definition.MethodDefinition> methodDefs =
                 objectContext.getMethodWithAnnotation(ShellMethod.class);
         if (methodDefs != null) {
@@ -65,7 +65,7 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
                 if (ann == null) {
                     continue;
                 }
-                // 跳过已被类级别处理过的 bean，避免重复注册与 invoke 工厂方法异常
+ // 跳过已被类级别处理过的 Bean，避免重复注册与 invoke 工厂方法异常
                 Class<?> clazz = md.getParentBeanDefinition().getBean().getClass();
                 if (!processedClasses.add(clazz.getName())) {
                     continue;

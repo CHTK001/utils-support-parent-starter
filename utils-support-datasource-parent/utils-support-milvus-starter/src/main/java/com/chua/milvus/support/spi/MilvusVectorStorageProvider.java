@@ -29,9 +29,9 @@ public class MilvusVectorStorageProvider implements VectorStorageProvider {
     @Override
     /**
      * 创建
-     * @param dimension dimension
+     * @param dimension 维度
      * @param algorithm algorithm
-     * @param properties properties
+     * @param properties 属性
      */
     public VectorStorage create(int dimension,
                                 VectorCompareAlgorithm algorithm,

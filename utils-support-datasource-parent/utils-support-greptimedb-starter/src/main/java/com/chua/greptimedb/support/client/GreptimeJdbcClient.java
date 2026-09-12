@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * GreptimeDB JDBC 客户端：经 MySQL 协议（默认 {@value #DEFAULT_MYSQL_PORT} 端口）执行真实 SQL。
+   * greptimedb JDBC 客户端：经 MySQL 协议（默认 {@value #DEFAULT_MYSQL_PORT} 端口）执行真实 SQL。
  * <p>
  * 这是官方文档推荐的查询方式——"支持 MySQL 或 PostgreSQL 的成熟 SQL Driver"。
  * 使用 {@link PreparedStatement} 参数绑定，杜绝 SQL 注入；
@@ -29,8 +29,8 @@ public class GreptimeJdbcClient implements AutoCloseable {
 
     /**
      * 连接参数：关闭 SSL 探测、允许公钥获取、超时控制；
-     * 会话时区固定 UTC —— GreptimeDB 经 MySQL 协议返回的 TIMESTAMP 为 UTC 墙钟值，
-     * 固定后驱动解析出的 epoch 与写入值严格一致，不受应用机时区影响。
+      * 会话时区固定 UTC —— greptimedb 经 MySQL 协议返回的 时间戳 为 UTC 墙钟值，
+      * 固定后驱动解析出的 轮次 与写入值严格一致，不受应用机时区影响。
      */
     private static final String JDBC_PARAMS = "?useSSL=false&allowPublicKeyRetrieval=true"
             + "&connectTimeout=10000&socketTimeout=60000"
@@ -39,8 +39,9 @@ public class GreptimeJdbcClient implements AutoCloseable {
     /**
      * 查询结果集。
      *
-     * @param columns 列名列表（按 SELECT 顺序）
+     * @param columns 列名列表（按 选择 顺序）
      * @param rows    已物化的行数据，每行为与 columns 等长的数组
+     * @return jdbc结果的结果
      */
     public record JdbcResult(List<String> columns, List<Object[]> rows) {
     }
@@ -143,7 +144,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
                 return true;
             }
         }
-        // SQLState 08xxx 为连接类异常
+ // SQL状态 08xxx 为连接类异常
         String state = e.getSQLState();
         return state != null && state.startsWith("08");
     }
@@ -152,7 +153,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * 执行查询并物化结果集。
      *
      * @param sql    含 {@code ?} 占位符的 SQL
-     * @param params 占位符参数，可为 null
+     * @param params 占位符参数，可为 空
      * @return 列名与行数据
      * @throws SQLException 执行失败
      */
@@ -190,7 +191,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * 执行 DML/DDL 语句。
      *
      * @param sql    含 {@code ?} 占位符的 SQL
-     * @param params 占位符参数，可为 null
+     * @param params 占位符参数，可为 空
      * @return 服务端报告的影响行数
      * @throws SQLException 执行失败
      */
@@ -245,7 +246,7 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * 按序绑定占位符参数。
      *
      * @param ps     预编译语句
-     * @param params 参数列表，可为 null
+     * @param params 参数列表，可为 空
      * @throws SQLException 绑定失败
      */
     private static void bind(PreparedStatement ps, List<Object> params) throws SQLException {
