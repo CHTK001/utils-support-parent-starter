@@ -20,7 +20,6 @@
         <module>utils-support-springboot-starter</module>
         <module>utils-support-osgi-starter</module>
         <module>utils-support-payment-starter</module>
-        <module>utils-support-auth-starter</module>
         <module>utils-support-flow-starter</module>
         <module>utils-support-spider-starter</module>
         <module>utils-support-deeplearning-starter</module>
