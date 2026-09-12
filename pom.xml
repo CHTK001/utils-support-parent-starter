@@ -2018,6 +2018,7 @@
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
                             <arg>--enable-preview</arg>
                             <arg>-parameters</arg>
+                            <arg>--add-modules=jdk.incubator.vector</arg>
                         </compilerArgs>
                         <annotationProcessorPaths>
                             <path>

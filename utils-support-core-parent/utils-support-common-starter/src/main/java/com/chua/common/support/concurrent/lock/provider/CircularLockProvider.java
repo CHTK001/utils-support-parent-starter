@@ -82,6 +82,9 @@ public class CircularLockProvider extends AbstractLockProvider {
 
     @Override
     protected boolean doTryLock(int timeout, TimeUnit timeUnit) {
+        if (acquire()) {
+            return true;
+        }
         long deadline = System.currentTimeMillis() + toMillis(timeout, timeUnit);
         while (System.currentTimeMillis() < deadline) {
             if (acquire()) {
@@ -89,13 +92,12 @@ public class CircularLockProvider extends AbstractLockProvider {
             }
             sleepQuietly(1L);
         }
-        return acquire();
+        return false;
     }
 
     @Override
     protected void doUnlock() {
-        int idx = readIndex.getAndUpdate(i -> (i + 1) % size);
-        holders[idx].set(false);
+        releaseSlot();
     }
 
     @Override
@@ -118,7 +120,7 @@ public class CircularLockProvider extends AbstractLockProvider {
     }
 
     /**
-     * 环形分配一个空闲槽位（CAS 自旋，最多环绕一圈）。
+     * 环形分配一个空闲槽位（最多环绕一圈，非阻塞）。
      *
      * @return 成功占位返回 true，无空闲槽位返回 false
      */
@@ -132,6 +134,17 @@ public class CircularLockProvider extends AbstractLockProvider {
             }
         }
         return false;
+    }
+
+    /**
+     * 释放读指针指向的槽位并前移。
+     *
+     * @return 被释放的槽位索引
+     */
+    private int releaseSlot() {
+        int idx = readIndex.getAndUpdate(i -> (i + 1) % size);
+        holders[idx].set(false);
+        return idx;
     }
 
     /**
