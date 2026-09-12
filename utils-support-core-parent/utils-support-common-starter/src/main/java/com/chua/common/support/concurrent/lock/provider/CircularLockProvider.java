@@ -1,6 +1,7 @@
 package com.chua.common.support.concurrent.lock.provider;
 
 import com.chua.common.support.concurrent.lock.AbstractLockProvider;
+import com.chua.common.support.concurrent.lock.LockSetting;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.concurrent.Semaphore;
@@ -37,9 +38,17 @@ public class CircularLockProvider extends AbstractLockProvider {
     private final Semaphore semaphore;
 
     /**
-     * 锁名称
+     * 锁名称，可由 {@link #configure(LockSetting)} 覆盖
      */
-    private final String name;
+    private volatile String name;
+
+    /**
+     * 无参构造，SPI 实例化使用，默认名称 "default"，容量 1（等价于互斥锁）。
+     * 名称可通过 {@link #configure(LockSetting)} 在 {@code LockFlow} 注册时覆盖。
+     */
+    public CircularLockProvider() {
+        this("default", 1);
+    }
 
     /**
      * 构造方法。
@@ -64,6 +73,19 @@ public class CircularLockProvider extends AbstractLockProvider {
      */
     public CircularLockProvider(String name) {
         this(name, 1);
+    }
+
+    /**
+     * 应用锁配置：SPI 无参实例化后由 {@code LockFlow} 调用，
+     * 用配置的锁名称覆盖构造时的默认名称。
+     *
+     * @param setting 锁配置，为 null 或名称为空时保持现有名称
+     */
+    @Override
+    public void configure(LockSetting setting) {
+        if (setting != null && setting.getName() != null && !setting.getName().isEmpty()) {
+            this.name = setting.getName();
+        }
     }
 
     @Override

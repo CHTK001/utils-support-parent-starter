@@ -1,16 +1,24 @@
 package com.chua.common.support.lang.datasource.flyway;
 
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
+
 import java.nio.file.Path;
 
 /**
  * 数据库迁移接口，提供类似 Flyway 的 SQL 脚本版本化管理能力。
  *
  * <p>规范命名的迁移脚本（{@code V{版本}__{描述}.sql}）按版本升序执行，
- * 已应用的迁移记录在内存中，重复 {@link #migrate()} 不会重复执行。</p>
+ * 已应用的迁移记录在版本历史表中，重复 {@link #migrate()} 不会重复执行。</p>
+ *
+ * <p>本接口为 SPI 扩展点：{@code utils-support-common-starter} 提供默认实现
+ * {@link DefaultFlyway}；业务方可通过 {@code @Spi("flyway")} + 更高 {@code order}
+ * 注册增强实现（如 {@code utils-support-flyway-starter}），统一通过
+ * {@code Engine#flyway()} 获取，接口常量 {@link #SPI_NAME} 作为扩展名。</p>
  *
  * <p>使用示例：</p>
  * <pre>{@code
- * Engine engine = DuckDBEngine.create("duckdb");
+ * Engine engine = Engine.create("jdbc");
  * engine.flyway()
  *     .location("classpath:db/migration")
  *     .migrate();
@@ -26,7 +34,10 @@ import java.nio.file.Path;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi(Flyway.SPI_NAME)
 public interface Flyway {
+    /** SPI 名称 */
+    String SPI_NAME = "flyway";
 
     /**
      * 添加迁移脚本位置。

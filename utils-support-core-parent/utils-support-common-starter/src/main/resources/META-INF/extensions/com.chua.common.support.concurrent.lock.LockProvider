@@ -1,1 +1,2 @@
 semaphore=com.chua.common.support.concurrent.lock.provider.SemaphoreLockProvider
+circular=com.chua.common.support.concurrent.lock.provider.CircularLockProvider
