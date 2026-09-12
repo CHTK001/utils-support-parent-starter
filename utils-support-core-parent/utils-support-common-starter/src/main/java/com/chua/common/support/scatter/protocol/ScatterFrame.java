@@ -4,29 +4,20 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
-* scatter 帧编解码（最小编码，见 {@link ScatterProtocol}）。
-*
-* <p>帧布局：magic(1) type(1) requestId(4) pathLen(1) path(N) payloadLen(4) payload(M)。
-* 支持 REQ/PUSH/RESP/ACK/ELEC 五种类型；payload 为业务序列化数据（JSON 字节）。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @return 获取payload的结果
+ * scatter 帧编解码（最小编码，见 {@link ScatterProtocol}）。
+ *
+ * <p>帧布局：magic(1) type(1) requestId(4) pathLen(1) path(N) payloadLen(4) payload(M)。
+ * 支持 REQ/PUSH/RESP/ACK/ELEC 五种类型；payload 为业务序列化数据（JSON 字节）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ScatterFrame {
 
-    private final byte type; // 类型
-    private final int requestId; // 请求标识
-    private final String path; // 路径
-    private final byte[] payload; // payload
-/**
-* scatter帧。
-* @param type 类型
-* @param requestId 请求标识
-* @param path 路径
-* @param payload payload
-* @return 获取payload的结果
- */
+    private final byte type;
+    private final int requestId;
+    private final String path;
+    private final byte[] payload;
 
     public ScatterFrame(byte type, int requestId, String path, byte[] payload) {
         this.type = type;
@@ -52,9 +43,9 @@ public class ScatterFrame {
     }
 
     /**
-    * 编码为字节数组。
-    *
-    * @return 帧字节
+     * 编码为字节数组。
+     *
+     * @return 帧字节
      */
     public byte[] encode() {
         byte[] pathBytes = path.getBytes(StandardCharsets.UTF_8);
@@ -74,10 +65,10 @@ public class ScatterFrame {
     }
 
     /**
-    * 解码字节数组为帧。
-    *
-    * @param data 帧字节
-    * @return 帧对象
+     * 解码字节数组为帧。
+     *
+     * @param data 帧字节
+     * @return 帧对象
      */
     public static ScatterFrame decode(byte[] data) {
         if (data == null || data.length < 11) {

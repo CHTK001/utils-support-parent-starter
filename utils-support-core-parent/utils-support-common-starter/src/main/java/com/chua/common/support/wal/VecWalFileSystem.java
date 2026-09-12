@@ -11,19 +11,10 @@ import java.util.Optional;
 /**
 * VEC（向量）格式 WAL 文件系统实现。
 * payload: int32 键len + 键(utf8) + int32 dim + float[dim] + int32 metalen + meta(utf8)
+*
 * @author CH
 * @since 4.0.0
-* @param id 标识
-* @param dim dim
-* @param data 数据
-* @param metadata metadata
- /**
-   * vecwal文件系统。
-   * @param config 配置
-  */
- * @return VecRecord的结果
- * @param payload payload
- */
+*/
 @Spi("wal-vec")
 public class VecWalFileSystem extends AbstractWalFileSystem {
 /**

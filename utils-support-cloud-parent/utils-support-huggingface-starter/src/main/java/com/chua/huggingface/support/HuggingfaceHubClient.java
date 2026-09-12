@@ -22,84 +22,82 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Hugging Face Hub 仓库客户端（模型/数据集仓库管理，SPI 提供者="huggingface"）。
-*
-* <p>覆盖 Hub REST API 的增删查改与文件上传下载（含 LFS 大文件）：
-* <ul>
-*   <li>{@link #getRepoInfo(String)}：仓库元信息查询（GET /api/models/{repoId}）。</li>
-*   <li>{@link #listFiles(String)}：仓库文件清单（解析 API 响应的 siblings 字段）。</li>
-*   <li>{@link #whoami()}：令牌账户信息查询（GET /api/whoami-v2）。</li>
-*   <li>{@link #downloadFile(String, String, Path)}：单文件下载（免鉴权 resolve URL，
-*       自动跟随 302 跳转至 LFS 存储）。</li>
-*   <li>{@link #downloadSnapshot(String, Path)}：git clone 完整仓库（含 LFS 大权重）。</li>
-*   <li>{@link #uploadFile(String, String, Path)}：单文件上传，走新版 commit 端点
-* （preupload 判定 LFS/regular → LFS 批量+放入 或 基础64 内联 → NDJSON commit）。</li>
-*   <li>{@link #deleteFile(String, String)}：单文件删除（commit 端点 deletedFile 操作）。</li>
-*   <li>{@link #createRepo(String, String, boolean)}：创建仓库（POST /api/repos/create）。</li>
-*   <li>{@link #deleteRepo(String)}：删除仓库（DELETE /api/repos/delete）。</li>
-*   <li>{@link #uploadSnapshot(String, Path)}：git push 上传本地仓库（LFS 大文件首选）。</li>
-* </ul>
-*
-* <p>国内网络直连 huggingface.co 可能出现 PKIX 证书校验失败，
-* 可调用 {@link #mirror()} 切换到 hf-mirror.com 镜像（仅读路径可用，
-* 写接口会被 308 跳回官方站）。</p>
-*
-* <p>典型用法：
-* <pre>{@code
-*   HuggingfaceHubClient hub = new HuggingfaceHubClient("hf_xxx-token").mirror();
-*
-*   List<String> files = hub.listFiles("segmind/tiny-sd");
-*   hub.downloadFile("segmind/tiny-sd", "config.json", Path.of("/data/cache/config.json"));
-*   Path repo = hub.downloadSnapshot("segmind/tiny-sd", Path.of("/data/cache"));
-*
-*   hub.createRepo("my-model", "model", false);
-*   hub.uploadFile("my-org/my-model", "config.json", Path.of("./local/config.json"));
-*   hub.uploadSnapshot("my-org/my-model", Path.of("./local-repo"));
-* }</pre>son"));
-*   hub.uploadSnapshot("my-org/my-model", Path.of("./local-repo"));
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Hugging Face Hub 仓库客户端（模型/数据集仓库管理，SPI provider="huggingface"）。
+ *
+ * <p>覆盖 Hub REST API 的增删查改与文件上传下载（含 LFS 大文件）：
+ * <ul>
+ *   <li>{@link #getRepoInfo(String)}：仓库元信息查询（GET /api/models/{repoId}）。</li>
+ *   <li>{@link #listFiles(String)}：仓库文件清单（解析 API 响应的 siblings 字段）。</li>
+ *   <li>{@link #whoami()}：令牌账户信息查询（GET /api/whoami-v2）。</li>
+ *   <li>{@link #downloadFile(String, String, Path)}：单文件下载（免鉴权 resolve URL，
+ *       自动跟随 302 跳转至 LFS 存储）。</li>
+ *   <li>{@link #downloadSnapshot(String, Path)}：git clone 完整仓库（含 LFS 大权重）。</li>
+ *   <li>{@link #uploadFile(String, String, Path)}：单文件上传，走新版 commit 端点
+ *       （preupload 判定 LFS/regular → LFS batch+PUT 或 base64 内联 → NDJSON commit）。</li>
+ *   <li>{@link #deleteFile(String, String)}：单文件删除（commit 端点 deletedFile 操作）。</li>
+ *   <li>{@link #createRepo(String, String, boolean)}：创建仓库（POST /api/repos/create）。</li>
+ *   <li>{@link #deleteRepo(String)}：删除仓库（DELETE /api/repos/delete）。</li>
+ *   <li>{@link #uploadSnapshot(String, Path)}：git push 上传本地仓库（LFS 大文件首选）。</li>
+ * </ul>
+ *
+ * <p>国内网络直连 huggingface.co 可能出现 PKIX 证书校验失败，
+ * 可调用 {@link #mirror()} 切换到 hf-mirror.com 镜像（仅读路径可用，
+ * 写接口会被 308 跳回官方站）。</p>
+ *
+ * <p>典型用法：
+ * <pre>{@code
+ *   HuggingfaceHubClient hub = new HuggingfaceHubClient("hf_xxx-token").mirror();
+ *
+ *   List<String> files = hub.listFiles("segmind/tiny-sd");
+ *   hub.downloadFile("segmind/tiny-sd", "config.json", Path.of("/data/cache/config.json"));
+ *   Path repo = hub.downloadSnapshot("segmind/tiny-sd", Path.of("/data/cache"));
+ *
+ *   hub.createRepo("my-model", "model", false);
+ *   hub.uploadFile("my-org/my-model", "config.json", Path.of("./local/config.json"));
+ *   hub.uploadSnapshot("my-org/my-model", Path.of("./local-repo"));
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class HuggingfaceHubClient {
 
     /**
-    * 默认分支
+     * 默认分支
      */
     public static final String DEFAULT_REVISION = "main";
 
     /**
-    * 访问令牌（hf_ 开头），可为 空（仅公开仓库只读）
+     * 访问令牌（hf_ 开头），可为 null（仅公开仓库只读）
      */
     private final String token;
 
     /**
-    * Hub 基地址，默认官方地址，可通过 {@link #mirror()} 切换镜像
+     * Hub 基地址，默认官方地址，可通过 {@link #mirror()} 切换镜像
      */
     private String baseUrl = HuggingfaceConstants.DEFAULT_HUB_BASE_URL;
 
     /**
-    * 构造 Hub 客户端（官方地址 huggingface.co）。
-    *
-    * @param token Hugging Face 访问令牌（Settings -> Access 令牌），允许为空（仅公开仓库只读）
+     * 构造 Hub 客户端（官方地址 huggingface.co）。
+     *
+     * @param token Hugging Face 访问令牌（Settings -> Access Tokens），允许为空（仅公开仓库只读）
      */
     public HuggingfaceHubClient(String token) {
         this.token = token;
     }
 
     /**
-    * 构造无鉴权客户端（官方地址，仅可访问公开仓库）。
+     * 构造无鉴权客户端（官方地址，仅可访问公开仓库）。
      */
     public HuggingfaceHubClient() {
         this(null);
     }
 
     /**
-    * 切换基地址为国内镜像 hf-mirror.com（API 兼容，解决 PKIX 证书失败/直连慢问题）。
-    *
-    * @return this
+     * 切换基地址为国内镜像 hf-mirror.com（API 兼容，解决 PKIX 证书失败/直连慢问题）。
+     *
+     * @return this
      */
     public HuggingfaceHubClient mirror() {
         this.baseUrl = HuggingfaceConstants.MIRROR_HUB_BASE_URL;
@@ -107,10 +105,10 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 设置自定义基地址（如自建代理或企业镜像）。
-    *
-    * @param baseUrl Hub 基地址，如 {@code https://hf-mirror.com}
-    * @return this
+     * 设置自定义基地址（如自建代理或企业镜像）。
+     *
+     * @param baseUrl Hub 基地址，如 {@code https://hf-mirror.com}
+     * @return this
      */
     public HuggingfaceHubClient baseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -118,20 +116,20 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 获取仓库基地址（当前生效值）。
-    *
-    * @return 基地址
+     * 获取仓库基地址（当前生效值）。
+     *
+     * @return 基地址
      */
     public String getBaseUrl() {
         return baseUrl;
     }
 
     /**
-    * 查询当前令牌对应的账户信息（获取 /api/whoami-v2）。
-    *
-    * <p>未携带令牌时抛异常（HF 对匿名 whoami 返回 401）。</p>
-    *
-    * @return 账户信息（name、id、isPro、orgs、auth 等）
+     * 查询当前令牌对应的账户信息（GET /api/whoami-v2）。
+     *
+     * <p>未携带令牌时抛异常（HF 对匿名 whoami 返回 401）。</p>
+     *
+     * @return 账户信息（name、id、isPro、orgs、auth 等）
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> whoami() {
@@ -139,10 +137,10 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 查询仓库元信息（公开仓库免鉴权）。
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @return 仓库元信息（id、private、downloads、likes、siblings 等）
+     * 查询仓库元信息（公开仓库免鉴权）。
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @return 仓库元信息（id、private、downloads、likes、siblings 等）
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getRepoInfo(String repoId) {
@@ -150,10 +148,10 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 列出仓库文件清单（公开仓库免鉴权）。
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @return 文件路径列表（来自 API 响应的 siblings.rfilename）
+     * 列出仓库文件清单（公开仓库免鉴权）。
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @return 文件路径列表（来自 API 响应的 siblings.rfilename）
      */
     public List<String> listFiles(String repoId) {
         Map<String, Object> info = getRepoInfo(repoId);
@@ -170,29 +168,29 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 下载仓库单个文件到本地（默认 main 分支，公开仓库免鉴权）。
-    *
-    * <p>LFS 大文件由 resolve URL 302 跳转到 LFS 存储，客户端自动跟随重定向。</p>
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param pathInRepo 仓库内文件路径（如 {@code config.json}、{@code model.safetensors}）
-    * @param target 本地保存路径
+     * 下载仓库单个文件到本地（默认 main 分支，公开仓库免鉴权）。
+     *
+     * <p>LFS 大文件由 resolve URL 302 跳转到 LFS 存储，客户端自动跟随重定向。</p>
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param pathInRepo 仓库内文件路径（如 {@code config.json}、{@code model.safetensors}）
+     * @param target 本地保存路径
      */
     public void downloadFile(String repoId, String pathInRepo, Path target) {
         downloadFile(repoId, DEFAULT_REVISION, pathInRepo, target);
     }
 
     /**
-    * 下载仓库指定分支/revision 的单个文件到本地。
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param revision 分支名或 commit 标识（如 {@code main}）
-    * @param pathInRepo 仓库内文件路径
-    * @param target 本地保存路径
+     * 下载仓库指定分支/revision 的单个文件到本地。
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param revision 分支名或 commit id（如 {@code main}）
+     * @param pathInRepo 仓库内文件路径
+     * @param target 本地保存路径
      */
     public void downloadFile(String repoId, String revision, String pathInRepo, Path target) {
         String path = String.format(HuggingfaceConstants.PATH_RESOLVE, repoId, revision, pathInRepo);
- // 下载为幂等 获取，遇瞬时 5xx（代理/CDN 抖动）自动重试
+        // 下载为幂等 GET，遇瞬时 5xx（代理/CDN 抖动）自动重试
         ClientResponse resp = null;
         for (int attempt = 1; attempt <= 3; attempt++) {
             resp = HttpClientFactory.of(baseUrl + path)
@@ -228,14 +226,14 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 通过 {@code git clone} 拉取完整 Hub 仓库到本地目录（支持 LFS 大权重）。
-    *
-    * <p>需本机安装 {@code git} 与 {@code git-lfs}（大文件权重走 LFS）。
-    * 仓库克隆在 {@code localDir/<repoName>} 子目录下。</p>
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param localDir 本地目标父目录（仓库克隆到其下子目录）
-    * @return 克隆后的仓库根目录
+     * 通过 {@code git clone} 拉取完整 Hub 仓库到本地目录（支持 LFS 大权重）。
+     *
+     * <p>需本机安装 {@code git} 与 {@code git-lfs}（大文件权重走 LFS）。
+     * 仓库克隆在 {@code localDir/<repoName>} 子目录下。</p>
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param localDir 本地目标父目录（仓库克隆到其下子目录）
+     * @return 克隆后的仓库根目录
      */
     public Path downloadSnapshot(String repoId, Path localDir) {
         if (!Files.exists(localDir)) {
@@ -261,30 +259,30 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 上传本地文件到 Hub 仓库（REST API，默认 main 分支）。
-    *
-    * <p>使用 {@code POST /api/models/{repoId}/upload/{revision}/{path}} 接口，
-    * 需携带访问令牌。超大文件（GB 级 LFS 权重）建议改用 {@link #uploadSnapshot}（Git push）。</p>
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param pathInRepo 仓库内目标路径
-    * @param localPath 本地文件路径
+     * 上传本地文件到 Hub 仓库（REST API，默认 main 分支）。
+     *
+     * <p>使用 {@code POST /api/models/{repoId}/upload/{revision}/{path}} 接口，
+     * 需携带访问令牌。超大文件（GB 级 LFS 权重）建议改用 {@link #uploadSnapshot}（git push）。</p>
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param pathInRepo 仓库内目标路径
+     * @param localPath 本地文件路径
      */
     public void uploadFile(String repoId, String pathInRepo, Path localPath) {
         uploadFile(repoId, DEFAULT_REVISION, pathInRepo, localPath);
     }
 
     /**
-    * 上传本地文件到 Hub 仓库指定分支（新版 commit 端点）。
-    *
-    * <p>流程：preupload 判定文件走 LFS 还是 regular →
-    * LFS 文件先经 批量 API 取上传 URL 并 放入；
-    * 最后以 NDJSON commit 提交（regular 内联 基础64，LFS 引用 oid/大小）。</p>
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param revision 分支名（如 {@code main}）
-    * @param pathInRepo 仓库内目标路径
-    * @param localPath 本地文件路径
+     * 上传本地文件到 Hub 仓库指定分支（新版 commit 端点）。
+     *
+     * <p>流程：preupload 判定文件走 LFS 还是 regular →
+     * LFS 文件先经 batch API 取上传 URL 并 PUT；
+     * 最后以 NDJSON commit 提交（regular 内联 base64，LFS 引用 oid/size）。</p>
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param revision 分支名（如 {@code main}）
+     * @param pathInRepo 仓库内目标路径
+     * @param localPath 本地文件路径
      */
     public void uploadFile(String repoId, String revision, String pathInRepo, Path localPath) {
         if (!Files.exists(localPath)) {
@@ -308,10 +306,10 @@ public class HuggingfaceHubClient {
                         "size", size)))));
         String mode = extractUploadMode(preupload, pathInRepo);
         if ("lfs".equals(mode)) {
- // 2a. LFS：批量 取上传 URL 并 放入
+            // 2a. LFS：batch 取上传 URL 并 PUT
             uploadLfsObject(repoId, "model", revision, pathInRepo, oid, size, content);
         }
- // 2b. regular：无需预传，commit 时内联 基础64
+        // 2b. regular：无需预传，commit 时内联 base64
 
         // 3. NDJSON commit
         Map<String, Object> fileValue = new LinkedHashMap<>();
@@ -335,21 +333,21 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 删除 Hub 仓库中的文件（默认 main 分支）。
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param pathInRepo 仓库内文件路径
+     * 删除 Hub 仓库中的文件（默认 main 分支）。
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param pathInRepo 仓库内文件路径
      */
     public void deleteFile(String repoId, String pathInRepo) {
         deleteFile(repoId, DEFAULT_REVISION, pathInRepo);
     }
 
     /**
-    * 删除 Hub 仓库指定分支中的文件（commit 端点 删除文件 操作）。
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param revision 分支名（如 {@code main}）
-    * @param pathInRepo 仓库内文件路径
+     * 删除 Hub 仓库指定分支中的文件（commit 端点 deletedFile 操作）。
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param revision 分支名（如 {@code main}）
+     * @param pathInRepo 仓库内文件路径
      */
     public void deleteFile(String repoId, String revision, String pathInRepo) {
         Map<String, Object> op = Map.of("key", "deletedFile", "value", Map.of("path", pathInRepo));
@@ -358,14 +356,14 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 创建新仓库（模型或数据集）。
-    *
-    * @param repoName 仓库名（形如 {@code owner/repo-name}）
-    * @param repoType 仓库类型：{@code model} 或 {@code dataset}
-    * @param isPrivate 是否私有
+     * 创建新仓库（模型或数据集）。
+     *
+     * @param repoName 仓库名（形如 {@code owner/repo-name}）
+     * @param repoType 仓库类型：{@code model} 或 {@code dataset}
+     * @param isPrivate 是否私有
      */
     public void createRepo(String repoName, String repoType, boolean isPrivate) {
- // HF API 的 名称 字段只接受仓库名（不含 owner），owner 单独传
+        // HF API 的 name 字段只接受仓库名（不含 owner），owner 单独传
         String name = repoName;
         String owner = null;
         int slash = repoName.indexOf('/');
@@ -396,11 +394,11 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 删除 Hub 仓库（模型或数据集）。
-    *
-    * <p>HF API 要求 body 为 {@code {name, organization, type}}（name 不含 owner 前缀）。</p>
-    *
-    * @param repoId 形如 {@code owner/repo-name}
+     * 删除 Hub 仓库（模型或数据集）。
+     *
+     * <p>HF API 要求 body 为 {@code {name, organization, type}}（name 不含 owner 前缀）。</p>
+     *
+     * @param repoId 形如 {@code owner/repo-name}
      */
     public void deleteRepo(String repoId) {
         String name = repoId;
@@ -434,13 +432,13 @@ public class HuggingfaceHubClient {
     // ─────────────────────────── commit 端点内部实现 ───────────────────────────
 
     /**
-    * 提交一次 commit（NDJSON 主体）：头部 行 + 单个操作行。
-    *
-    * @param repoId 形如 {@code owner/repo-name}
-    * @param repoType 仓库类型（模型/数据集/space）
-    * @param revision 分支名
-    * @param operation 操作行（键/值 结构）
-    * @param summary commit 摘要
+     * 提交一次 commit（NDJSON body）：header 行 + 单个操作行。
+     *
+     * @param repoId 形如 {@code owner/repo-name}
+     * @param repoType 仓库类型（model/dataset/space）
+     * @param revision 分支名
+     * @param operation 操作行（key/value 结构）
+     * @param summary commit 摘要
      */
     private void postCommit(String repoId, String repoType, String revision,
                             Map<String, Object> operation, String summary) {
@@ -465,7 +463,7 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * LFS 对象预上传：批量 API 取上传 URL，再 放入 文件内容。
+     * LFS 对象预上传：batch API 取上传 URL，再 PUT 文件内容。
      */
     @SuppressWarnings("unchecked")
     private void uploadLfsObject(String repoId, String repoType, String revision,
@@ -503,7 +501,7 @@ public class HuggingfaceHubClient {
         Map<String, Object> obj = (Map<String, Object>) list.get(0);
         Object actions = obj.get("actions");
         if (actions == null) {
- // 对象已存在于 HF 存储，无需 放入
+            // 对象已存在于 HF 存储，无需 PUT
             log.debug("[hf-hub] LFS 对象已存在，跳过上传: {}", pathInRepo);
             return;
         }
@@ -512,15 +510,15 @@ public class HuggingfaceHubClient {
         if (uploadAction == null) {
             throw new RuntimeException("LFS batch 响应缺少 upload 动作: " + resp.getBodyString());
         }
- // 镜像场景下 批量 响应的 multipart 完成 URL 可能指向不可达 主机（如 hf-mirror.org），
- // 对齐到当前 baseurl；直接 S3 预签名 URL（含 X-Amz-* / 非本 Hub API 路径）不受影响
+        // 镜像场景下 batch 响应的 multipart 完成 URL 可能指向不可达 host（如 hf-mirror.org），
+        // 对齐到当前 baseUrl；直接 S3 预签名 URL（含 X-Amz-* / 非本 Hub API 路径）不受影响
         String uploadUrl = alignLfsHost((String) uploadAction.get("href"));
- // multipart 分片上传（头部 含 chunk_大小 + 分片 URL 00001..000NN）：大文件镜像站常用
+        // multipart 分片上传（header 含 chunk_size + 分片 URL 00001..000NN）：大文件镜像站常用
         Object headerObj = uploadAction.get("header");
         if (headerObj instanceof Map<?, ?> header && header.get("chunk_size") != null) {
             uploadMultipart(uploadUrl, oid, size, content, (Map<String, Object>) header);
         } else {
- // 基础 直传：href 是 S3 预签名 URL（自带 X-Amz-* 鉴权），不能附加 授权 头，
+            // basic 直传：href 是 S3 预签名 URL（自带 X-Amz-* 鉴权），不能附加 Authorization 头，
             // 否则 S3 报 "Only one auth mechanism allowed"；也不带自定义请求头（与 huggingface_hub 一致）
             ClientResponse putResp = HttpClientFactory.of(uploadUrl)
                     .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
@@ -535,8 +533,8 @@ public class HuggingfaceHubClient {
         // verify 步骤：把对象注册为可用，否则 commit 报 "LFS pointer pointed to a file that does not exist"
         Object verifyActionObj = actionsMap.get("verify");
         if (verifyActionObj != null) {
- // 镜像场景（hf-mirror.com）下 批量 响应可能返回 hf-mirror.org 等不可达 主机，
- // 需对齐到当前 baseurl 的 主机（S3 预签名 upload URL 除外，由 S3 直接可达）
+            // 镜像场景（hf-mirror.com）下 batch 响应可能返回 hf-mirror.org 等不可达 host，
+            // 需对齐到当前 baseUrl 的 host（S3 预签名 upload URL 除外，由 S3 直接可达）
             String verifyUrl = alignLfsHost((String) ((Map<String, Object>) verifyActionObj).get("href"));
             ClientResponse verifyResp = HttpClientFactory.of(verifyUrl)
                     .header("Authorization", buildAuthHeader())
@@ -555,14 +553,14 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * multipart 分片上传：按 chunk_大小 切分文件，逐片 放入 到 S3 分片 URL，
-    * 最后 放入 完成 URL（完成_multipart）结束。
-    *
-    * @param completeUrl multipart 完成 URL
-    * @param oid         LFS oid（sha256）
-    * @param size        文件总大小
-    * @param content     完整文件内容
-    * @param header      批量 响应 头部：含 chunk_大小 与 00001..000NN 分片 URL
+     * multipart 分片上传：按 chunk_size 切分文件，逐片 PUT 到 S3 分片 URL，
+     * 最后 PUT 完成 URL（complete_multipart）结束。
+     *
+     * @param completeUrl multipart 完成 URL
+     * @param oid         LFS oid（sha256）
+     * @param size        文件总大小
+     * @param content     完整文件内容
+     * @param header      batch 响应 header：含 chunk_size 与 00001..000NN 分片 URL
      */
     private void uploadMultipart(String completeUrl, String oid, long size, byte[] content,
                                  Map<String, Object> header) {
@@ -582,7 +580,7 @@ public class HuggingfaceHubClient {
         }
         log.info("[hf-hub] LFS multipart 上传: {} bytes, {} parts x {}B", size, partUrls.size(), chunkSize);
 
- // 收集每个分片 放入 响应的 e标签，完成 multipart 时需要
+        // 收集每个分片 PUT 响应的 ETag，完成 multipart 时需要
         List<Map<String, Object>> parts = new ArrayList<>();
         int offset = 0;
         for (int i = 0; i < partUrls.size(); i++) {
@@ -590,7 +588,7 @@ public class HuggingfaceHubClient {
             byte[] part = new byte[len];
             System.arraycopy(content, offset, part, 0, len);
             offset += len;
- // S3 预签名分片 URL：不带 授权/自定义头（与 huggingface_hub 一致）
+            // S3 预签名分片 URL：不带 Authorization/自定义头（与 huggingface_hub 一致）
             ClientResponse partResp = HttpClientFactory.of(partUrls.get(i))
                     .connectTimeout(HuggingfaceConstants.CONNECT_TIMEOUT_MILLIS)
                     .readTimeout(HuggingfaceConstants.UPLOAD_TIMEOUT_MILLIS)
@@ -606,8 +604,8 @@ public class HuggingfaceHubClient {
             log.debug("[hf-hub] multipart 分片 {}/{} 已上传 (etag={})", i + 1, partUrls.size(), etag);
         }
 
- // 完成 multipart：POST oid/大小/parts（含各分片 e标签）到完成 URL
- // （官方 HF 与镜像站均用 POST；缺 parts 或 part数字 会返回 400）
+        // 完成 multipart：POST oid/size/parts（含各分片 ETag）到完成 URL
+        // （官方 HF 与镜像站均用 POST；缺 parts 或 partNumber 会返回 400）
         Map<String, Object> doneBody = new LinkedHashMap<>();
         doneBody.put("oid", oid);
         doneBody.put("size", size);
@@ -628,11 +626,11 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 从响应头中不区分大小写地取值。
-    *
-    * @param resp      客户端响应
-    * @param headerName 头名（小写或任意大小写）
-    * @return 头值；不存在返回 空
+     * 从响应头中不区分大小写地取值。
+     *
+     * @param resp      客户端响应
+     * @param headerName 头名（小写或任意大小写）
+     * @return 头值；不存在返回 null
      */
     private String getHeaderIgnoreCase(ClientResponse resp, String headerName) {
         if (resp == null) {
@@ -652,10 +650,7 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 解析 preupload 响应，返回指定路径的上传模式（lfs/regular）。
-    * @param preupload preupload
-    * @param pathInRepo 路径入repo
-    * @return extractUploadMode的结果
+     * 解析 preupload 响应，返回指定路径的上传模式（lfs/regular）。
      */
     @SuppressWarnings("unchecked")
     private String extractUploadMode(Map<String, Object> preupload, String pathInRepo) {
@@ -672,11 +667,7 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 执行 JSON 请求（POST/删除）并解析 映射 响应。
-    * @param method 方法
-    * @param path 路径
-    * @param body 主体
-    * @return postJson的结果
+     * 执行 JSON 请求（POST/DELETE）并解析 Map 响应。
      */
     @SuppressWarnings("unchecked")
     private Map<String, Object> postJson(String method, String path, String body) {
@@ -695,18 +686,14 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 文件采样（前 512 字节，与 huggingface_hub 一致，用于 preupload 判定 LFS/regular）。
-    * @param content 内容
-    * @return 样本的的结果
+     * 文件采样（前 512 字节，与 huggingface_hub 一致，用于 preupload 判定 LFS/regular）。
      */
     private static byte[] sampleOf(byte[] content) {
         return java.util.Arrays.copyOf(content, (int) Math.min(512, content.length));
     }
 
     /**
-    * 计算 SHA-256 十六进制摘要（LFS oid）。
-    * @param content 内容
-    * @return sha256Hex的结果
+     * 计算 SHA-256 十六进制摘要（LFS oid）。
      */
     private static String sha256Hex(byte[] content) {
         try {
@@ -722,13 +709,13 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 通过 {@code git push} 上传本地仓库到 Hub 远端（LFS 大文件首选）。
-    *
-    * <p>需本机安装 {@code git} 与 {@code git-lfs}。本地必须已是 git 仓库（{@code .git}），
-    * 并配置好用户名/邮箱（{@code git config user.name/email}）。</p>
-    *
-    * @param repoId 形如 {@code my-org/my-model}
-    * @param localRepoPath 本地 Git 仓库根目录
+     * 通过 {@code git push} 上传本地仓库到 Hub 远端（LFS 大文件首选）。
+     *
+     * <p>需本机安装 {@code git} 与 {@code git-lfs}。本地必须已是 git 仓库（{@code .git}），
+     * 并配置好用户名/邮箱（{@code git config user.name/email}）。</p>
+     *
+     * @param repoId 形如 {@code my-org/my-model}
+     * @param localRepoPath 本地 git 仓库根目录
      */
     public void uploadSnapshot(String repoId, Path localRepoPath) {
         if (!Files.exists(localRepoPath.resolve(".git"))) {
@@ -756,13 +743,13 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 将 LFS 验证/commit 等 API URL 的 主机 对齐到当前 baseurl 的 主机。
-    *
-    * <p>镜像场景（如 hf-mirror.com）下 batch 响应可能返回 hf-mirror.org 等不可达 host，
-    * 仅当 URL 属于本 Hub API（非 S3 预签名）时对齐。</p>
-    *
-    * @param url 原始 URL（可为 空）
-    * @return 对齐后的 URL
+     * 将 LFS verify/commit 等 API URL 的 host 对齐到当前 baseUrl 的 host。
+     *
+     * <p>镜像场景（如 hf-mirror.com）下 batch 响应可能返回 hf-mirror.org 等不可达 host，
+     * 仅当 URL 属于本 Hub API（非 S3 预签名）时对齐。</p>
+     *
+     * @param url 原始 URL（可为 null）
+     * @return 对齐后的 URL
      */
     private String alignLfsHost(String url) {
         if (url == null || url.isBlank()) {
@@ -775,8 +762,8 @@ public class HuggingfaceHubClient {
             if (baseHost == null || urlHost == null || baseHost.equals(urlHost)) {
                 return url;
             }
- // 仅对齐本 Hub API 路径（信息/lfs、commit、preupload、multipart 完成等），
- // 直接 S3 预签名 URL（CAS-bridge.xethub.hf.co / *.s3 / *.cloudfront）不在此列
+            // 仅对齐本 Hub API 路径（info/lfs、commit、preupload、multipart 完成等），
+            // 直接 S3 预签名 URL（cas-bridge.xethub.hf.co / *.s3 / *.cloudfront）不在此列
             if (!url.contains("/info/lfs/") && !url.contains("/commit/") && !url.contains("/preupload/")
                     && !url.contains("/api/")) {
                 return url;
@@ -792,27 +779,10 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 执行带鉴权的 HTTP 请求并解析 JSON 响应。
-    *
-    * <p>GET 为幂等读操作，遇瞬时 5xx（代理/CDN 抖动）自动重试；
-    * POST/删除 非幂等，不重试。</p>
-    * @param template template
-    * @param repoId repoid
-     /**
-      * 请求json。
-      * @param method 方法
-      * @param path 路径
-      * @return 请求json的结果
-      */
-     * @return 格式化路径的结果
-      * @param template template
-      * @param repoId repoId
-     /**
-     * 请求json。
-     * @param method 方法
-     * @param path 路径
-     * @return 请求json的结果
-      */
+     * 执行带鉴权的 HTTP 请求并解析 JSON 响应。
+     *
+     * <p>GET 为幂等读操作，遇瞬时 5xx（代理/CDN 抖动）自动重试；
+     * POST/DELETE 非幂等，不重试。</p>
      */
     @SuppressWarnings("unchecked")
     private Map<String, Object> requestJson(String method, String path) {
@@ -854,13 +824,7 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 构建带鉴权信息的 Git URL（OAuth2:&lt;令牌&gt;@ 形式）。
-    * @return 构建认证头部的结果
-     /**
-      * 构建authenticatedgiturl。
-      * @param repoId repoid
-      * @return 构建authenticatedgiturl的结果
-      */
+     * 构建带鉴权信息的 git URL（oauth2:&lt;token&gt;@ 形式）。
      */
     private String buildAuthenticatedGitUrl(String repoId) {
         if (token == null || token.isBlank()) {
@@ -877,11 +841,11 @@ public class HuggingfaceHubClient {
     }
 
     /**
-    * 执行外部命令并等待完成。
-    *
-    * @param cmd 命令与参数
-    * @param workDir 工作目录
-    * @return 进程退出码
+     * 执行外部命令并等待完成。
+     *
+     * @param cmd 命令与参数
+     * @param workDir 工作目录
+     * @return 进程退出码
      */
     private int exec(List<String> cmd, Path workDir) {
         try {

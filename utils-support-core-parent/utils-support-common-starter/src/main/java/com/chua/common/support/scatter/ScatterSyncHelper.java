@@ -12,34 +12,27 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* scatter 同步辅助工具：集中处理 TCP 短连接、超时、重试与 请求id 生成。
-*
-* <p>所有 Scatter 模块的网络调用统一通过此类，避免散落的重复代码与遗漏的超时控制。</p>
-*
-* @author CH
-* @since 4.0.0.42
-*
+ * scatter 同步辅助工具：集中处理 TCP 短连接、超时、重试与 requestId 生成。
+ *
+ * <p>所有 Scatter 模块的网络调用统一通过此类，避免散落的重复代码与遗漏的超时控制。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ **/
 @Slf4j
 public final class ScatterSyncHelper {
 
     /** 最大重试次数 */
     private static final int MAX_RETRIES = 3;
-    /** 请求 标识 原子计数（线程安全，按目标节点隔离） */
+    /** 请求 ID 原子计数（线程安全，按目标节点隔离） */
     private static final ConcurrentHashMap<String, Integer> REQUEST_ID_SEQ = new ConcurrentHashMap<>();
-    /** 可注入的自定义 TCP 客户端（SPI/测试场景），空 时自动创建 */
+    /** 可注入的自定义 TCP 客户端（SPI/测试场景），null 时自动创建 */
     private static volatile TcpClient customClient;
 
-    /**
-    * scatter同步助手。
-     */
     private ScatterSyncHelper() {
     }
 
-    /**
-    * 注入自定义 TCP 客户端（未启动前调用，SPI/测试场景）。
-    *
-    * @param client 客户端
-     */
+    /** 注入自定义 TCP 客户端（未启动前调用，SPI/测试场景）。 */
     public static void setCustomClient(TcpClient client) {
         customClient = client;
     }
@@ -48,24 +41,15 @@ public final class ScatterSyncHelper {
     public static void resetForTest() {
         customClient = null;
         REQUEST_ID_SEQ.clear();
-        com.chua.common.support.scatter.discovery.AbstractScatterDiscovery.resetAllCaches();
-    }
-
-    /** 测试类结束后清理所有实例，防止跨测试类污染。 */
-    public static void resetAll() {
-        customClient = null;
-        REQUEST_ID_SEQ.clear();
-        com.chua.common.support.scatter.discovery.AbstractScatterDiscovery.resetAllCaches();
-        com.chua.common.support.scatter.discovery.AbstractScatterDiscovery.resetInstances();
     }
 
     /**
-    * 拉取目标节点的服务表（带超时 + 重试）。
-    *
-    * @param context        请求上下文
-    * @param node           目标节点
-    * @param timeoutMillis  单次超时毫秒
-    * @return 同步结果（失败时返回 空）
+     * 拉取目标节点的服务表（带超时 + 重试）。
+     *
+     * @param context        请求上下文
+     * @param node           目标节点
+     * @param timeoutMillis  单次超时毫秒
+     * @return 同步结果（失败时返回 null）
      */
     public static ScatterResult<List<Discovery>> fetch(ScatterContext context, ScatterNode node,
                                                        long timeoutMillis) {
@@ -105,12 +89,12 @@ public final class ScatterSyncHelper {
     }
 
     /**
-    * 向节点推送数据（带超时，无响应值场景）。
-    *
-    * @param node          目标节点
-    * @param frame         帧
-    * @param timeoutMillis 超时毫秒
-    * @return true=收到 ACK
+     * 向节点推送数据（带超时，无响应值场景）。
+     *
+     * @param node          目标节点
+     * @param frame         帧
+     * @param timeoutMillis 超时毫秒
+     * @return true=收到 ACK
      */
     public static boolean push(ScatterNode node, ScatterFrame frame, long timeoutMillis) {
         try {
@@ -132,29 +116,11 @@ public final class ScatterSyncHelper {
     }
 
     /**
-    * 批量广播帧（逐个节点，失败不中断）。
-    *
-    * @param nodes         目标节点列表
-    * @param frame         帧
-    * @param timeoutMillis 超时毫秒
-    * @param node 节点
-     /**
-      * broadcast。
-      * @param nodes 节点
-      * @param frame 帧
-      * @param timeoutMillis 超时millis
-      */
-     * @return 下一个请求id的结果
-     * @param host 主机
-     * @param port 端口
-     * @param payload payload
-      * @param node 节点
-     /**
-     * broadcast。
-     * @param nodes 节点
-     * @param frame 帧
-     * @param timeoutMillis 超时millis
-      */
+     * 批量广播帧（逐个节点，失败不中断）。
+     *
+     * @param nodes         目标节点列表
+     * @param frame         帧
+     * @param timeoutMillis 超时毫秒
      */
     public static void broadcast(List<ScatterNode> nodes, ScatterFrame frame, long timeoutMillis) {
         if (nodes == null || nodes.isEmpty()) {
@@ -200,7 +166,7 @@ public final class ScatterSyncHelper {
     private static int nextRequestId(ScatterNode node) {
         String key = node.getNodeId() + ":" + node.getHost() + ":" + node.getPort();
         int seq = REQUEST_ID_SEQ.merge(key, 1, Integer::sum);
- // 防止整型溢出：超出 最大_值 时重置为 1
+        // 防止整型溢出：超出 MAX_VALUE 时重置为 1
         if (seq <= 0) {
             REQUEST_ID_SEQ.put(key, 1);
             return 1;

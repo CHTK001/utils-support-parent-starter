@@ -14,27 +14,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
-* scatter UDP 节点服务端（无连接短报文语义）。
-*
-* <p>基于 {@link DatagramSocket}：收到报文 → 解析帧 → 分派处理 → 原地址回响应。
-* UDP 天然无连接，无长连接维护成本。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * scatter UDP 节点服务端（无连接短报文语义）。
+ *
+ * <p>基于 {@link DatagramSocket}：收到报文 → 解析帧 → 分派处理 → 原地址回响应。
+ * UDP 天然无连接，无长连接维护成本。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class UdpScatterNodeServer extends AbstractServer {
 
-    private final ScatterNodeHandler handler; // 处理器
-    private DatagramSocket socket; // 套接字
-    private ExecutorService workerPool; // 工人游泳池
-    private volatile boolean running = false; // running
+    private final ScatterNodeHandler handler;
+    private DatagramSocket socket;
+    private ExecutorService workerPool;
+    private volatile boolean running = false;
 
-    /**
-    * udpscatter节点服务端。
-    * @param setting setting
-    * @param handler 处理器
-     */
     public UdpScatterNodeServer(ServerSetting setting, ScatterNodeHandler handler) {
         super(setting);
         this.handler = handler;

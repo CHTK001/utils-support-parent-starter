@@ -138,23 +138,10 @@ public class QoderUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 转换 one transcript JSON 线 into an AIusage record When.js it 是否 a
-    * 账单 assistant 响应.
-    *
-    * @param node 解析 JSON 的 a 单个 transcript 线
-    * @return the 解析 record, 或 空 for non-assistant 或 unbilled 线
-    * @param usage usage
-     /**
-      * 解析节点。
-      * @param node 节点
-      * @return 解析节点的结果
-      */
-      * @param usage usage
-     /**
-     * 解析节点。
-     * @param node 节点
-     * @return 解析节点的结果
-      */
+     * 将单条转录 JSON 行转换为 AiUsage 记录；仅处理带真实 token 的 assistant 响应。
+     *
+     * @param node 解析后的 JSON 行
+     * @return 用量记录；非目标行时 empty
      */
     private java.util.Optional<AiUsage> parseNode(JsonNode node) {
         if (!"assistant".equals(node.get("type").toStringValue())) {

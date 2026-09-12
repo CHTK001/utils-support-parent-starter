@@ -18,41 +18,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Cline conversation parser.
-*
-* <p>Cline CLI stores each session's full message history in a single JSON
-* 文档 at {@code ~/.cline/data/sessions/<id>/<id>.messages.json}:</p>
-*
-* <pre>{@code
-* {
-*   "sessionId": "...",
-*   "messages": [
-*     { "id": "msg_...", "role": "user",
-*       "content": [ { "type": "text", "text": "<user_input ...>..." } ],
-*       "ts": 1787538184446,
-*       "modelInfo": { "id": "gemini-3.6-flash" } }
-*   ]
-* }
-* }</pre>lash" } }
-*   ]
-* }
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Cline conversation parser.
+ *
+ * <p>Cline CLI stores each session's full message history in a single JSON
+ * document at {@code ~/.cline/data/sessions/<id>/<id>.messages.json}:</p>
+ *
+ * <pre>{@code
+ * {
+ *   "sessionId": "...",
+ *   "messages": [
+ *     { "id": "msg_...", "role": "user",
+ *       "content": [ { "type": "text", "text": "<user_input ...>..." } ],
+ *       "ts": 1787538184446,
+ *       "modelInfo": { "id": "gemini-3.6-flash" } }
+ *   ]
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("cline")
 public class ClineConversationParser implements ConversationParser {
 
-    private static final Logger log = LoggerFactory.getLogger(ClineConversationParser.class); // 日志
+    private static final Logger log = LoggerFactory.getLogger(ClineConversationParser.class);
 
     private static final Path SESSIONS_DIR = Path.of(
             System.getProperty("user.home"), ".cline", "data", "sessions");
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "cline"}
+     * 返回 SPI 名称。
+     *
+     * @return {@code "cline"}
      */
     @Override
     public String name() {
@@ -60,14 +57,7 @@ public class ClineConversationParser implements ConversationParser {
     }
 
     /**
-    * 流式解析全部会话消息：每个 消息.json 一个惰性任务。
-    * @param node 节点
-    * @param sessionId 会话标识
-     /**
-      * 流消息。
-      * @return 流消息的结果
-      */
-     * @return 解析消息的结果
+     * 流式解析全部会话消息：每个 messages.json 一个惰性任务。
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
@@ -81,10 +71,6 @@ public class ClineConversationParser implements ConversationParser {
                 .flatMap(file -> Mono.fromCallable(() -> parseFile(file))
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMapMany(Flux::fromIterable),
-                        /**
-                        * 列表消息文件。
-                        * @return 列表消息文件的结果
-                         */
                         4);
     }
 
@@ -99,13 +85,6 @@ public class ClineConversationParser implements ConversationParser {
         } catch (IOException e) {
             log.warn("[cline] walk failed: {}", e.getMessage(), e);
             return List.of();
-        /**
-        * 解析文件。
-        * @param file 文件
-        * @return 解析文件的结果
-        * @param node 节点
-        * @param sessionId 会话id
-         */
         }
     }
 

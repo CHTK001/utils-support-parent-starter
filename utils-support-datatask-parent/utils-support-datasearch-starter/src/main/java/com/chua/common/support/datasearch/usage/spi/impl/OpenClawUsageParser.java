@@ -17,28 +17,26 @@ import java.util.List;
 import java.util.Optional;
 
 /**
-* 打开claw usage parser.
-*
-* <p>OpenClaw records each agent run as a trajectory JSONL under
-* {@code ~/.openclaw/agents/<agent>/sessions/<id>.trajectory.jsonl}.
-* Every LLM 完成 emits a {@code model.completed} 追踪 carrying real
-* per-call usage:</p>
-*
-* <pre>{@code
-* {
-*   "type": "model.completed",
-*   "ts": "2026-07-04T07:16:40.531Z",
-*   "sessionId": "7284d6f1-...",
-*   "provider": "custom-custom9d",
-*   "modelId": "deepseek-v4-flash",
-*   "usage": { "input": 79086, "output": 6, "cacheRead": 4096, "total": 83188 }
-* }
-* }</pre>Read": 4096, "total": 83188 }
-* }
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * OpenClaw usage parser.
+ *
+ * <p>OpenClaw records each agent run as a trajectory JSONL under
+ * {@code ~/.openclaw/agents/<agent>/sessions/<id>.trajectory.jsonl}.
+ * Every LLM completion emits a {@code model.completed} trace carrying real
+ * per-call usage:</p>
+ *
+ * <pre>{@code
+ * {
+ *   "type": "model.completed",
+ *   "ts": "2026-07-04T07:16:40.531Z",
+ *   "sessionId": "7284d6f1-...",
+ *   "provider": "custom-custom9d",
+ *   "modelId": "deepseek-v4-flash",
+ *   "usage": { "input": 79086, "output": 6, "cacheRead": 4096, "total": 83188 }
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("openclaw")
 public class OpenClawUsageParser extends BaseUsageParser {
@@ -46,19 +44,19 @@ public class OpenClawUsageParser extends BaseUsageParser {
     private static final Path OPENCLAW_DIR = Path.of(
             System.getProperty("user.home"), ".openclaw");
 
-    private static final String PROVIDER_OPENCLAW = "openclaw"; // 提供者openclaw
+    private static final String PROVIDER_OPENCLAW = "openclaw";
 
     /**
-    * 返回 the SPI 名称 for 打开claw.
-    *
-    * @return {@code "openclaw"}
+     * Returns the SPI name for OpenClaw.
+     *
+     * @return {@code "openclaw"}
      */
     public String name() {
         return "openclaw";
     }
 
     /**
-    * 流 per-完成 usage records 从 全部 trajectory 文件.
+     * Streams per-completion usage records from all trajectory files.
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -109,13 +107,13 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 定位 model.completed 事件的 usage 块。
-    *
-    * <p>OpenClaw 将 usage 嵌套在 {@code data.usage} 下；旧版 schema 可能
-    * 放在顶层，因此两种位置都会检查。</p>
-    *
-    * @param node 解析后的 trajectory 行
-    * @return usage 块；缺失时返回缺失节点
+     * Locates the usage block of a model.completed event.
+     *
+     * <p>OpenClaw nests it under {@code data.usage}; older schemas may carry
+     * it at the top level, so both positions are checked.</p>
+     *
+     * @param node parsed trajectory line
+     * @return the usage block, or a missing node when absent
      */
     private JsonNode readUsage(JsonNode node) {
         JsonNode data = node.get("data");

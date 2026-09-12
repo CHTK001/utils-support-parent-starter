@@ -15,34 +15,32 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 日志文件写入构建器。
-*
-* <p>支持以下写入模式：</p>
-* <ul>
-*     <li><b>追加模式</b> — 在文件末尾追加内容（默认）</li>
-*     <li><b>覆盖模式</b> — 覆盖文件全部内容</li>
-*     <li><b>时间戳前缀</b> — 自动为每行添加 {@code [yyyy-MM-dd HH:mm:ss]} 前缀</li>
-*     <li><b>延迟写入</b> — 多次 {@link #write(Object)} 后调用 {@link #finish()} 批量写入</li>
-*     <li><b>行级别回调</b> — 通过 {@link #withCallback(WriteCallback)} 监控写入进度</li>
-* </ul>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* LogWriteBuilder wb = (LogWriteBuilder) logFs.write(new File("app.log"));
-*
-* // 追加模式 + 时间戳 + 多条写入
-* wb.append()
-*   .withTimestamp(true)
-*   .write("系统启动成功")
-*   .write("用户登录: userId=1001")
-*   .write(Map.of("level", "ERROR", "message", "连接超时"))
-*   .finish();
-* }</pre>l", "ERROR", "message", "连接超时"))
-*   .finish();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 日志文件写入构建器。
+ *
+ * <p>支持以下写入模式：</p>
+ * <ul>
+ *     <li><b>追加模式</b> — 在文件末尾追加内容（默认）</li>
+ *     <li><b>覆盖模式</b> — 覆盖文件全部内容</li>
+ *     <li><b>时间戳前缀</b> — 自动为每行添加 {@code [yyyy-MM-dd HH:mm:ss]} 前缀</li>
+ *     <li><b>延迟写入</b> — 多次 {@link #write(Object)} 后调用 {@link #finish()} 批量写入</li>
+ *     <li><b>行级别回调</b> — 通过 {@link #withCallback(WriteCallback)} 监控写入进度</li>
+ * </ul>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * LogWriteBuilder wb = (LogWriteBuilder) logFs.write(new File("app.log"));
+ *
+ * // 追加模式 + 时间戳 + 多条写入
+ * wb.append()
+ *   .withTimestamp(true)
+ *   .write("系统启动成功")
+ *   .write("用户登录: userId=1001")
+ *   .write(Map.of("level", "ERROR", "message", "连接超时"))
+ *   .finish();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class LogWriteBuilder extends WriteBuilder {
 
@@ -69,9 +67,9 @@ public class LogWriteBuilder extends WriteBuilder {
     private String lineSeparator = System.lineSeparator();
 
     /**
-    * 构造日志写入构建器。
-    *
-    * @param file 目标日志文件
+     * 构造日志写入构建器。
+     *
+     * @param file 目标日志文件
      */
     public LogWriteBuilder(File file) {
         super(file);
@@ -80,9 +78,9 @@ public class LogWriteBuilder extends WriteBuilder {
     // ==================== 链式配置 ====================
 
     /**
-    * 设置为追加模式（写入到文件末尾）。
-    *
-    * @return 当前构建器
+     * 设置为追加模式（写入到文件末尾）。
+     *
+     * @return 当前构建器
      */
     public LogWriteBuilder append() {
         this.appendMode = true;
@@ -90,9 +88,9 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 设置为覆盖模式（从头写入）。
-    *
-    * @return 当前构建器
+     * 设置为覆盖模式（从头写入）。
+     *
+     * @return 当前构建器
      */
     public LogWriteBuilder overwrite() {
         this.appendMode = false;
@@ -100,10 +98,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 设置是否自动添加时间戳前缀。
-    *
-    * @param enabled 是否启用
-    * @return 当前构建器
+     * 设置是否自动添加时间戳前缀。
+     *
+     * @param enabled 是否启用
+     * @return 当前构建器
      */
     public LogWriteBuilder withTimestamp(boolean enabled) {
         this.withTimestamp = enabled;
@@ -111,10 +109,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 设置自定义时间戳格式。
-    *
-    * @param pattern {@link DateTimeFormatter} 格式
-    * @return 当前构建器
+     * 设置自定义时间戳格式。
+     *
+     * @param pattern {@link DateTimeFormatter} 格式
+     * @return 当前构建器
      */
     public LogWriteBuilder withTimestampFormat(String pattern) {
         this.timestampFormatter = DateTimeFormatter.ofPattern(pattern);
@@ -122,10 +120,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 设置行前缀（时间戳之前）。
-    *
-    * @param prefix 前缀字符串
-    * @return 当前构建器
+     * 设置行前缀（时间戳之前）。
+     *
+     * @param prefix 前缀字符串
+     * @return 当前构建器
      */
     public LogWriteBuilder withPrefix(String prefix) {
         this.prefix = prefix;
@@ -133,10 +131,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 设置行后缀（追加在行尾）。
-    *
-    * @param suffix 后缀字符串
-    * @return 当前构建器
+     * 设置行后缀（追加在行尾）。
+     *
+     * @param suffix 后缀字符串
+     * @return 当前构建器
      */
     public LogWriteBuilder withSuffix(String suffix) {
         this.suffix = suffix;
@@ -144,10 +142,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 设置自定义换行符。
-    *
-    * @param lineSeparator 换行符
-    * @return 当前构建器
+     * 设置自定义换行符。
+     *
+     * @param lineSeparator 换行符
+     * @return 当前构建器
      */
     public LogWriteBuilder withLineSeparator(String lineSeparator) {
         this.lineSeparator = lineSeparator;
@@ -155,7 +153,7 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** with字符集 */
+    /** WithCharset */
     public LogWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -171,10 +169,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 追加写入单条文本。
-    *
-    * @param line 文本行
-    * @return 当前构建器
+     * 追加写入单条文本。
+     *
+     * @param line 文本行
+     * @return 当前构建器
      */
     public LogWriteBuilder write(String line) {
         pending.add(line);
@@ -182,10 +180,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 追加写入多条文本。
-    *
-    * @param lines 文本行列表
-    * @return 当前构建器
+     * 追加写入多条文本。
+     *
+     * @param lines 文本行列表
+     * @return 当前构建器
      */
     public LogWriteBuilder write(List<String> lines) {
         pending.addAll(lines);
@@ -193,9 +191,9 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 立即写入单条文本（不入队列，直接写入文件）。
-    *
-    * @param line 文本行
+     * 立即写入单条文本（不入队列，直接写入文件）。
+     *
+     * @param line 文本行
      */
     public void writeAndFlush(String line) {
         try (BufferedWriter writer = createWriter()) {
@@ -210,9 +208,9 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 立即写入多条文本（不入队列，直接写入文件）。
-    *
-    * @param lines 文本行列表
+     * 立即写入多条文本（不入队列，直接写入文件）。
+     *
+     * @param lines 文本行列表
      */
     public void writeAndFlush(List<String> lines) {
         try (BufferedWriter writer = createWriter()) {
@@ -229,7 +227,7 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** 饰面 */
+    /** Finish */
     public void finish() {
         if (file == null) {
             return;
@@ -259,8 +257,7 @@ public class LogWriteBuilder extends WriteBuilder {
     // ==================== 内部方法 ====================
 
     /**
-    * 创建文件写入器（根据 追加mode 决定追加或覆盖）。
-    * @return 创建writer的结果
+     * 创建文件写入器（根据 appendMode 决定追加或覆盖）。
      */
     private BufferedWriter createWriter() throws IOException {
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
@@ -272,9 +269,7 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 将 pending 中的条目解析为行列表。
-    * @param entry entry
-    * @return resolve线的结果
+     * 将 pending 中的条目解析为行列表。
      */
     @SuppressWarnings("unchecked")
     private List<String> resolveLines(Object entry) {
@@ -298,9 +293,7 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 格式化单行：前缀 + 时间戳 + 内容 + 后缀。
-    * @param line 线
-    * @return 格式化线的结果
+     * 格式化单行：前缀 + 时间戳 + 内容 + 后缀。
      */
     private String formatLine(String line) {
         StringBuilder sb = new StringBuilder();

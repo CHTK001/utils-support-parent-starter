@@ -268,8 +268,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
         }
         String slug = modelName.trim()
                 .replaceAll("\\([^)]*\\)", " ")
-                .replaceAll("\\b(thinking|xhigh|high|medium|low|fast)\\b", " ",
-                        java.util.regex.Pattern.CASE_INSENSITIVE)
+                .replaceAll("(?i)\\b(thinking|xhigh|high|medium|low|fast)\\b", " ")
                 .toLowerCase(Locale.ROOT)
                 .replaceAll("[^a-z0-9.]+", "-")
                 .replaceAll("^-+|-+$", "")

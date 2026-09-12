@@ -14,68 +14,65 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-* sqlite 真响应式 Hook — 基于 OS 原生异步 I/O（IOCP / io_uring）。
-*
-* <p><b>核心特性：</b></p>
-* <ul>
-*   <li>零专用线程：使用 OS 原生异步 I/O，事件通过回调直接推送</li>
-*   <li>零轮询：无 select/poll/epoll，无 CPU 空转</li>
-*   <li>背压：FluxSink.OverflowStrategy.LATEST，消费者慢时只保留最新</li>
-*   <li>非阻塞：exec 异步执行，events 完全事件驱动</li>
-* </ul>
-*
-* <p><b>使用示例：</b></p>
-* <pre>{@code
-* try (SqliteReactorHook hook = new SqliteReactorHook("mydb.sqlite")) {
-*     // 事件流：完全非阻塞，OS 异步推送
-*     hook.events()
-*         .filter(e -> e.getTable().equals("users"))
-*         .subscribe(e -> System.out.println(e.getType() + " on " + e.getTable()));
-*
-*     // 执行 SQL：非阻塞
-*     hook.exec("INSERT INTO users(name) VALUES('Alice')")
-*         .subscribe();
-* }
-* }</pre>NTO users(name) VALUES('Alice')")
-*         .subscribe();
-* }
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.43
+ * SQLite 真响应式 Hook — 基于 OS 原生异步 I/O（IOCP / io_uring）。
+ *
+ * <p><b>核心特性：</b></p>
+ * <ul>
+ *   <li>零专用线程：使用 OS 原生异步 I/O，事件通过回调直接推送</li>
+ *   <li>零轮询：无 select/poll/epoll，无 CPU 空转</li>
+ *   <li>背压：FluxSink.OverflowStrategy.LATEST，消费者慢时只保留最新</li>
+ *   <li>非阻塞：exec 异步执行，events 完全事件驱动</li>
+ * </ul>
+ *
+ * <p><b>使用示例：</b></p>
+ * <pre>{@code
+ * try (SqliteReactorHook hook = new SqliteReactorHook("mydb.sqlite")) {
+ *     // 事件流：完全非阻塞，OS 异步推送
+ *     hook.events()
+ *         .filter(e -> e.getTable().equals("users"))
+ *         .subscribe(e -> System.out.println(e.getType() + " on " + e.getTable()));
+ *
+ *     // 执行 SQL：非阻塞
+ *     hook.exec("INSERT INTO users(name) VALUES('Alice')")
+ *         .subscribe();
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 public final class SqliteReactorHook implements AutoCloseable {
 
-    private static final Linker LINKER = Linker.nativeLinker(); // 链接
-    private static volatile SymbolLookup SYM_LOOKUP; // SYM_LOOKUP
-    private static final int EVENT_BUF_SIZE = 512; // 事件buf大小
+    private static final Linker LINKER = Linker.nativeLinker();
+    private static volatile SymbolLookup SYM_LOOKUP;
+    private static final int EVENT_BUF_SIZE = 512;
 
-    private static volatile MethodHandle HOOK_OPEN_ASYNC_HANDLE; // hook打开异步处理
-    private static volatile MethodHandle HOOK_EXEC_ASYNC_HANDLE; // hook执行异步处理
-    private static volatile MethodHandle HOOK_CLOSE_ASYNC_HANDLE; // hook关闭异步处理
-    private static volatile boolean LIBRARY_RESOLVED = false; // 图书馆resolved
-    private static volatile boolean LIBRARY_OK = false; // 图书馆ok
+    private static volatile MethodHandle HOOK_OPEN_ASYNC_HANDLE;
+    private static volatile MethodHandle HOOK_EXEC_ASYNC_HANDLE;
+    private static volatile MethodHandle HOOK_CLOSE_ASYNC_HANDLE;
+    private static volatile boolean LIBRARY_RESOLVED = false;
+    private static volatile boolean LIBRARY_OK = false;
 
-    /** 实例 标识，用于全局回调分发 */
+    /** 实例 ID，用于全局回调分发 */
     private final long instanceId;
-    private final MemorySegment handle; // 处理
-    private final Sinks.Many<SqliteChangeEvent> eventSink; // 事件sink
-    private final Flux<SqliteChangeEvent> flux; // flux
+    private final MemorySegment handle;
+    private final Sinks.Many<SqliteChangeEvent> eventSink;
+    private final Flux<SqliteChangeEvent> flux;
 
-    /** 全局实例映射（NAT 回调通过 标识 找到 Java 实例） */
+    /** 全局实例映射（native 回调通过 ID 找到 Java 实例） */
     private static final ConcurrentHashMap<Long, SqliteReactorHook> INSTANCES = new ConcurrentHashMap<>();
-    private static final AtomicLong INSTANCE_COUNTER = new AtomicLong(0); // instance数量
+    private static final AtomicLong INSTANCE_COUNTER = new AtomicLong(0);
 
     /** 保持 Arena 存活（回调期间不能释放） */
     private Arena callbackArena;
 
-    /** 防止 关闭() 重入 */
+    /** 防止 close() 重入 */
     private volatile boolean closed = false;
 
     /**
-    * 创建真响应式 sqlite Hook。
-    *
-    * @param dbPath sqlite 数据库文件路径
+     * 创建真响应式 SQLite Hook。
+     *
+     * @param dbPath SQLite 数据库文件路径
      */
     public SqliteReactorHook(String dbPath) {
         if (!loadLibrary()) {
@@ -86,19 +83,19 @@ public final class SqliteReactorHook implements AutoCloseable {
         this.eventSink = Sinks.many().multicast().onBackpressureBuffer(256, false);
         this.flux = eventSink.asFlux();
 
- // 保持 Arena 存活（用于回调函数指针）— 必须用 的共享，因为 NAT 回调在 io_uring 线程触发
+        // 保持 Arena 存活（用于回调函数指针）— 必须用 ofShared，因为 native 回调在 io_uring 线程触发
         this.callbackArena = Arena.ofShared();
         INSTANCES.put(instanceId, this);
 
         try {
             // 创建 C 回调函数指针
             // hook_event_fn 签名: void (*)(const char *json, void *user_data)
- // onnat事件 是 静态 方法，通过 用户_数据 分发到实例
+            // onNativeEvent 是 static 方法，通过 user_data 分发到实例
             MethodHandle mh = onEventHandle();
             FunctionDescriptor fd = FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS);
             MemorySegment callback = LINKER.upcallStub(mh, fd, callbackArena);
 
- // 用户_数据 传递 instanceid（转换为指针）
+            // user_data 传递 instanceId（转换为指针）
             MemorySegment userId = callbackArena.allocate(ValueLayout.JAVA_LONG);
             userId.set(ValueLayout.JAVA_LONG, 0, instanceId);
 
@@ -113,28 +110,26 @@ public final class SqliteReactorHook implements AutoCloseable {
             }
         } catch (Throwable e) {
             INSTANCES.remove(instanceId);
-            if (callbackArena != null) {
-                callbackArena.close();
-            }
+            if (callbackArena != null) callbackArena.close();
             throw new RuntimeException("Failed to open async hook", e);
         }
     }
 
     /**
-    * 获取变更事件流。
-    * <p>完全非阻塞，事件由 OS 异步 I/O 完成时直接推送。</p>
-    *
-    * @return 变更事件 Flux，支持背压（LATEST 策略）
+     * 获取变更事件流。
+     * <p>完全非阻塞，事件由 OS 异步 I/O 完成时直接推送。</p>
+     *
+     * @return 变更事件 Flux，支持背压（LATEST 策略）
      */
     public Flux<SqliteChangeEvent> events() {
         return flux;
     }
 
     /**
-    * 执行 SQL（非阻塞）。
-    *
-    * @param sql UTF-8 编码的 SQL 语句
-    * @return SQLite 返回码（0 = 成功），Mono 包装
+     * 执行 SQL（非阻塞）。
+     *
+     * @param sql UTF-8 编码的 SQL 语句
+     * @return SQLite 返回码（0 = 成功），Mono 包装
      */
     public Mono<Integer> exec(String sql) {
         return Mono.fromCallable(() -> execSync(sql))
@@ -153,26 +148,21 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
 
     /**
-    * C 回调入口（被 OS 异步 I/O 完成时调用）。
-    * <p>此方法在 native 线程调用，直接推送事件到 Reactor 流。</p>
-    *
-    * @param jsonPtr   事件 JSON 字符串指针
-    * @param userIdPtr 用户 标识 指针（存储 instanceid）
-    * @return 是否打开的结果
+     * C 回调入口（被 OS 异步 I/O 完成时调用）。
+     * <p>此方法在 native 线程调用，直接推送事件到 Reactor 流。</p>
+     *
+     * @param jsonPtr   事件 JSON 字符串指针
+     * @param userIdPtr 用户 ID 指针（存储 instanceId）
      */
     @SuppressWarnings("unused")
     private static void onNativeEvent(MemorySegment jsonPtr, MemorySegment userIdPtr) {
-        if (jsonPtr == null || jsonPtr.equals(MemorySegment.NULL)) {
-            return;
-        }
+        if (jsonPtr == null || jsonPtr.equals(MemorySegment.NULL)) return;
 
         try {
             long userId = userIdPtr.reinterpret(Long.MAX_VALUE).get(ValueLayout.JAVA_LONG, 0);
             SqliteReactorHook instance = INSTANCES.get(userId);
 
-            if (instance == null) {
-                return;
-            }
+            if (instance == null) return;
 
             String json = jsonPtr.reinterpret(Long.MAX_VALUE).getString(0, StandardCharsets.UTF_8);
             SqliteChangeEvent event = parseEvent(json);
@@ -184,9 +174,7 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
     @Override
     public void close() {
-        if (closed) {
-            return;
-        }
+        if (closed) return;
         closed = true;
 
         INSTANCES.remove(instanceId);
@@ -218,21 +206,8 @@ public final class SqliteReactorHook implements AutoCloseable {
      * ═══════════════════════════════════════════════════════════════ */
 
     /**
-    * 创建 onNAT事件 的 方法处理（用于 FFM upcall）。
-    * <p>注意：这是一个 static 方法，通过 user_data 分发到实例。</p>
-    * @param json json
-     /**
-      * on事件处理。
-      * @return on事件处理的结果
-      */
-     * @return 解析事件的结果
-     * @param name 名称
-     * @param desc desc
-      * @param json json
-     /**
-     * on事件处理。
-     * @return on事件处理的结果
-      */
+     * 创建 onNativeEvent 的 MethodHandle（用于 FFM upcall）。
+     * <p>注意：这是一个 static 方法，通过 user_data 分发到实例。</p>
      */
     private static MethodHandle onEventHandle() {
         try {
@@ -247,13 +222,9 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
 
     private static boolean loadLibrary() {
-        if (LIBRARY_RESOLVED) {
-            return LIBRARY_OK;
-        }
+        if (LIBRARY_RESOLVED) return LIBRARY_OK;
         synchronized (SqliteReactorHook.class) {
-            if (LIBRARY_RESOLVED) {
-                return LIBRARY_OK;
-            }
+            if (LIBRARY_RESOLVED) return LIBRARY_OK;
             try {
                 String os = System.getProperty("os.name", "").toLowerCase();
                 String libName;
@@ -266,9 +237,7 @@ public final class SqliteReactorHook implements AutoCloseable {
                     dirName = "linux-x86_64";
                 }
                 try (var is = SqliteReactorHook.class.getResourceAsStream("/native/" + dirName + "/" + libName)) {
-                    if (is == null) {
-                        throw new UnsatisfiedLinkError("Native library not found: " + libName);
-                    }
+                    if (is == null) throw new UnsatisfiedLinkError("Native library not found: " + libName);
                     var tmpDir = java.nio.file.Files.createTempDirectory("sqlite-hook");
                     var tmpPath = tmpDir.resolve(libName);
                     java.nio.file.Files.copy(is, tmpPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -300,15 +269,11 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
 
     static SqliteChangeEvent parseEvent(String json) {
-        if (json == null || json.isEmpty()) {
-            return null;
-        }
+        if (json == null || json.isEmpty()) return null;
 
         // 验证 JSON 格式
         String type = extractString(json, "type");
-        if (type == null) {
-            return null;
-        }
+        if (type == null) return null; // 无效 JSON 或缺少 type 字段
 
         String table = extractString(json, "table");
         long rowId = extractLong(json, "rowId");
@@ -329,51 +294,25 @@ public final class SqliteReactorHook implements AutoCloseable {
         };
     }
 
-    /**
-    * extract字符串。
-    * @param json json
-    * @param key 键
-    * @return extract字符串的结果
-     */
     private static String extractString(String json, String key) {
         int ki = json.indexOf("\"" + key + "\"");
-        if (ki < 0) {
-            return null;
-        }
+        if (ki < 0) return null;
         int ci = json.indexOf(':', ki + key.length() + 2);
-        if (ci < 0) {
-            return null;
-        }
+        if (ci < 0) return null;
         int si = json.indexOf('"', ci + 1);
-        if (si < 0) {
-            return null;
-        }
+        if (si < 0) return null;
         int ei = json.indexOf('"', si + 1);
-        if (ei < 0) {
-            ei = json.length() - 1;
-        }
+        if (ei < 0) ei = json.length() - 1;
         return json.substring(si + 1, ei);
     }
 
-    /**
-    * extractlong。
-    * @param json json
-    * @param key 键
-    * @return extractLong的结果
-     */
     private static long extractLong(String json, String key) {
         int ki = json.indexOf("\"" + key + "\"");
-        if (ki < 0) {
-            return 0L;
-        }
+        if (ki < 0) return 0L;
         int ci = json.indexOf(':', ki + key.length() + 2);
-        if (ci < 0) {
-            return 0L;
-        }
+        if (ci < 0) return 0L;
         int end = ci + 1;
-        while (end < json.length() && Character.isDigit(json.charAt(end))) {
-            end++;
-        }
+        while (end < json.length() && Character.isDigit(json.charAt(end))) end++;
         try {
             return Long.parseLong(json.substring(ci + 1, end));
         } catch (NumberFormatException e) {

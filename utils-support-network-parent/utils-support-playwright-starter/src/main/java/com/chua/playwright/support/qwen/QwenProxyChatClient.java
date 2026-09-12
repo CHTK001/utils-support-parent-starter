@@ -24,25 +24,24 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
-* 通义千问逆向代理对话客户端。
-*
-* <p>基于 {@link QwenBrowserSession} 在 Playwright 浏览器页面内发起
-* 原生 获取 请求，借助阿里云前端 JS 自动注入 {@code ssxmod_itna} 指纹，
-* 实现 Cookie 认证的通义千问免费对话。
-*
-* <p>SPI 名称：{@code qwen-proxy}，appKey 为 Cookie 串
-* （{@code token=xxx; ssxmod_itna=xxx}）。
-*
-* <p>用法：
-* <pre>{@code
-* ChatClient client = ChatClient.create("qwen-proxy",
-*     "token=xxx; ssxmod_itna=xxx");
-* String answer = client.model("qwen-plus").chatSync("你好");
-* }</pre>-plus").chatSync("你好");
-* }</pre>
-*
-* @author CH
-* @since 2026/08/12
+ * 通义千问逆向代理对话客户端。
+ *
+ * <p>基于 {@link QwenBrowserSession} 在 Playwright 浏览器页面内发起
+ * 原生 fetch 请求，借助阿里云前端 JS 自动注入 {@code ssxmod_itna} 指纹，
+ * 实现 Cookie 认证的通义千问免费对话。
+ *
+ * <p>SPI 名称：{@code qwen-proxy}，appKey 为 Cookie 串
+ * （{@code token=xxx; ssxmod_itna=xxx}）。
+ *
+ * <p>用法：
+ * <pre>{@code
+ * ChatClient client = ChatClient.create("qwen-proxy",
+ *     "token=xxx; ssxmod_itna=xxx");
+ * String answer = client.model("qwen-plus").chatSync("你好");
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/08/12
  */
 @Slf4j
 @Spi("qwen-proxy")
@@ -50,112 +49,112 @@ import java.util.function.Consumer;
 public class QwenProxyChatClient implements ChatClient {
 
     /**
-    * 默认通义千问基础地址。
+     * 默认通义千问基础地址。
      */
     private static final String DEFAULT_BASE_URL = "https://chat.qwen.ai";
 
     /**
-    * 浏览器会话。
+     * 浏览器会话。
      */
     private final QwenBrowserSession session;
 
     /**
-    * 客户端配置。
+     * 客户端配置。
      */
     private final ChatClientSetting setting;
 
     /**
-    * 当前模型名称。
+     * 当前模型名称。
      */
     private String model;
 
     /**
-    * 当前温度参数。
+     * 当前温度参数。
      */
     private Double temperature;
 
     /**
-    * 当前最大 令牌 数。
+     * 当前最大 Token 数。
      */
     private Integer maxTokens;
 
     /**
-    * 当前系统提示词。
+     * 当前系统提示词。
      */
     private String system;
 
     /**
-    * 当前会话 标识。
+     * 当前会话 ID。
      */
     private String conversationId;
 
     /**
-    * 额外请求体参数。
+     * 额外请求体参数。
      */
     private Map<String, Object> extraBody;
 
     /**
-    * top P
+     * top P
      */
     private Double topP;
     /**
-    * 停止
+     * stop
      */
     private List<String> stop;
     /**
-    * seed
+     * seed
      */
     private Long seed;
     /**
-    * 响应 格式化
+     * response Format
      */
     private String responseFormat;
     /**
-    * 镜像 Urls
+     * image Urls
      */
     private final List<String> imageUrls = new ArrayList<>();
     /**
-    * attachments
+     * attachments
      */
     private final List<Attachment> attachments = new ArrayList<>();
     /**
-    * tools
+     * tools
      */
     private final List<ChatTool> tools = new ArrayList<>();
     /**
-    * tool Choice
+     * tool Choice
      */
     private String toolChoice;
 
     /**
-    * 是否启用深度思考。
+     * 是否启用深度思考。
      */
     private boolean thinking;
 
     /**
-    * 是否启用智能搜索。
+     * 是否启用智能搜索。
      */
     private boolean smartSearch;
 
     /**
-    * 技能管理器（用于 提示符 注入）。
+     * 技能管理器（用于 prompt 注入）。
      */
     private SkillManager skillManager;
 
     /**
-    * 对话历史消息列表。
+     * 对话历史消息列表。
      */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-    * 外部传入的完整历史记录。
+     * 外部传入的完整历史记录。
      */
     private List<ChatMessage> externalHistory;
 
     /**
-    * 构造通义千问逆向代理对话客户端。
-    *
-    * @param setting 客户端配置，其中 app键 为 Cookie 串
+     * 构造通义千问逆向代理对话客户端。
+     *
+     * @param setting 客户端配置，其中 appKey 为 Cookie 串
      */
     public QwenProxyChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -168,7 +167,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 模型 */
+    /** Model */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -182,21 +181,21 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值令牌 */
+    /** 最大值Tokens */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** 系统 */
+    /** System */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** extra主体 */
+    /** ExtraBody */
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody;
         return this;
@@ -224,7 +223,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** topp */
+    /** TopP */
     public ChatClient topP(Double topP) { this.topP = topP; return this; }
 
     @Override
@@ -236,11 +235,11 @@ public class QwenProxyChatClient implements ChatClient {
     public ChatClient seed(Long seed) { this.seed = seed; return this; }
 
     @Override
-    /** 响应格式化 */
+    /** Response格式化 */
     public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
 
     @Override
-    /** 添加镜像 */
+    /** 添加Image */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
@@ -254,7 +253,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加attachmenturl */
+    /** 添加AttachmentUrl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
@@ -280,42 +279,42 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** toolchoice */
+    /** ToolChoice */
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
     @Override
-    /** 添加用户历史 */
+    /** 添加UserHistory */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加assistant历史 */
+    /** 添加AssistantHistory */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** 历史 */
+    /** History */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** 会话 */
+    /** Session */
     public ChatClient session(String sessionId) {
         this.conversationId = sessionId;
         return this;
     }
 
     @Override
-    /** 新对话 */
+    /** NewChat */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -328,7 +327,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话同步 */
+    /** ChatSync */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -341,7 +340,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话 */
+    /** Chat */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -351,11 +350,11 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -423,14 +422,14 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-    * generate镜像
-    * @param prompt 提示符
-    * @param ratio ratio
-    * @param n n
-    * @param width width
-    * @param height height
-    * @param quality quality
-    * @param refImageKey ref镜像键
+     * GenerateImage
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param n n
+     * @param width width
+     * @param height height
+     * @param quality quality
+     * @param refImageKey refImageKey
      */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
@@ -448,7 +447,7 @@ public class QwenProxyChatClient implements ChatClient {
             throw new RuntimeException("Qwen 图像生成失败: " + result.errorMessage());
         }
 
- // 从 raw事件 中提取 镜像_列表
+        // 从 rawEvents 中提取 image_list
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
         List<Map<String, Object>> rawEvents = result.rawEvents();
         if (rawEvents != null) {
@@ -490,12 +489,12 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-    * generate视频
-    * @param prompt 提示符
-    * @param ratio ratio
-    * @param cameraMovement 摄像头移动
-    * @param refImageKey ref镜像键
-    * @param timeoutSeconds 超时seconds
+     * GenerateVideo
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param cameraMovement cameraMovement
+     * @param refImageKey refImageKey
+     * @param timeoutSeconds timeoutSeconds
      */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
@@ -524,10 +523,7 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     /**
-    * 从回答文本中提取图片 URL。
-    * @param text 文本
-    * @param prompt 提示符
-    * @return extract镜像从文本的结果
+     * 从回答文本中提取图片 URL。
      */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
@@ -554,11 +550,11 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     /**
-    * 构建通义千问请求体。
-    *
-    * @param prompt   用户输入
-    * @param modelName 模型名称
-    * @return JSON 请求体字符串
+     * 构建通义千问请求体。
+     *
+     * @param prompt   用户输入
+     * @param modelName 模型名称
+     * @return JSON 请求体字符串
      */
     private String buildRequestBody(String prompt, String modelName) {
         String actualSystem = system;

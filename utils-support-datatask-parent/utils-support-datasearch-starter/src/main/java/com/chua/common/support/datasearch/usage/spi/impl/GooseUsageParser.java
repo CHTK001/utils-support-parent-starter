@@ -59,14 +59,7 @@ public class GooseUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 流式解析全部用量台账记录。
-    * @param row row
-    * @return 转为AIusage的结果
-     /**
-      * 流全部。
-      * @return 流全部的结果
-      */
-      * @param row row
+     * 流式解析全部用量台账记录。
      */
     @Override
     public Flux<AiUsage> streamAll() {
