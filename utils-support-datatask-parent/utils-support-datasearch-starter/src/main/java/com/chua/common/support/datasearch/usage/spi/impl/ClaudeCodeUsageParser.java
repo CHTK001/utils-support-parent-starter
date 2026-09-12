@@ -9,16 +9,41 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
-   * Claude 编码 usage parser - 解析 令牌 usage 从 本地 JSONL 会话 文件.
+ * Claude Code usage parser — parses token usage from local JSONL session files.
  *
- * <p>Data source is the {@code ~/.claude/projects} directory.</p>
+ * <p>Data source is the {@code ~/.claude/projects} directory, where Claude
+ * Code writes one append-only JSONL transcript per session. Each
+ * {@code type=assistant} record carries the upstream token usage block:</p>
+ *
+ * <pre>{@code
+ * {
+ *   "type": "assistant",
+ *   "timestamp": "2026-08-26T00:14:15.979Z",
+ *   "message": {
+ *     "role": "assistant",
+ *     "model": "claude-sonnet-4-20250514",
+ *     "usage": {
+ *       "input_tokens": 1200,
+ *       "output_tokens": 84,
+ *       "cache_read_input_tokens": 512,
+ *       "cache_creation_input_tokens": 0
+ *     }
+ *   }
+ * }
+ * }</pre>
+ *
+ * <p>Only assistant records whose {@code usage} block has non-zero input or
+ * output tokens are emitted; cache-only / zero-usage lines are skipped.
+ * {@code <synthetic>} model names are normalized to {@code "unknown"}.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -29,6 +54,11 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     private static final Path PROJECTS_DIR = Path.of(
             System.getProperty("user.home"), ".claude", "projects");
 
+    /**
+     * 返回 SPI 名称。
+     *
+     * @return {@code "claude-code"}
+     */
     @Override
     public String name() {
         return "claude-code";
@@ -36,7 +66,8 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
 
     /**
      * 遗留实现（不再属于契约）：全量装载。请优先使用 {@link #streamAll()}。
-     * @return 解析全部的结果
+     *
+     * @return 原始用量记录列表
      */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
@@ -63,8 +94,11 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         return result;
     }
 
-        /**
-     * 流式解析全部 JSONL 会话文件：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
+    /**
+     * 流式解析全部 JSONL 会话文件：逐文件、逐行惰性拉取，内存占用与单条记录
+     * 相关而与总量无关。
+     *
+     * @return 用量记录流
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -88,41 +122,39 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
 
     /**
      * 单个 JSONL 文件的行流（惰性 + 背压）。
-     * @param file 文件
-     * @return 流jsonl文件的结果
+     *
+     * @param file 转录文件
+     * @return 用量记录流
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         return streamLines(file)
                 .filter(line -> !line.isBlank())
                 .map(this::parseLineSafe)
-                .filter(java.util.Optional::isPresent)
-                .map(java.util.Optional::get);
+                .filter(Optional::isPresent)
+                .map(Optional::get);
     }
 
     /**
-      * 安全解析单行，失败返回 空。
-     * @param line 线
-     * @return 解析线safe的结果
+     * 安全解析单行，失败返回 empty（不中断流）。
+     *
+     * @param line 单行 JSON
+     * @return 用量记录；非用量行或解析失败时 empty
      */
-    private java.util.Optional<AiUsage> parseLineSafe(String line) {
+    private Optional<AiUsage> parseLineSafe(String line) {
         try {
             return parseNode(Json.parse(line));
         } catch (Exception e) {
             log.debug("[claude-code] line parse failed: {}", e.getMessage());
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
     /**
      * 逐行读取 JSONL 文件并追加解析结果（旧契约内部实现）。
-     * @param model 模型
-     /**
-      * 解析jsonl文件。
-      * @param file 文件
-      * @param result 结果
-      */
-     * @return normalize模型的结果
-     * @param node 节点
+     *
+     * @param file   转录文件
+     * @param result 累积结果列表
+     * @throws IOException 文件读取失败
      */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -141,30 +173,36 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         }
     }
 
-    private java.util.Optional<AiUsage> parseNode(JsonNode node) {
+    /**
+     * 将单条 JSONL 记录解析为用量；仅处理带非零 usage 的 assistant 行。
+     *
+     * @param node 解析后的记录
+     * @return 用量记录；非目标行时 empty
+     */
+    private Optional<AiUsage> parseNode(JsonNode node) {
         if (!"assistant".equals(node.get("type").toStringValue())) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         JsonNode message = node.get("message");
         if (message.isMissingValue()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         if (!"assistant".equals(message.get("role").toStringValue())) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         JsonNode usage = message.get("usage");
         if (usage.isMissingValue()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         int inputTokens = usage.get("input_tokens").toIntValue(-1);
         int outputTokens = usage.get("output_tokens").toIntValue(-1);
         if (inputTokens <= 0 && outputTokens <= 0) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         int cacheRead = usage.get("cache_read_input_tokens").toIntValue(0);
         int cacheWrite = usage.get("cache_creation_input_tokens").toIntValue(0);
         long startTime = parseTimestamp(node.get("timestamp").toStringValue());
-        return java.util.Optional.of(AiUsage.builder()
+        return Optional.of(AiUsage.builder()
                 .provider("anthropic")
                 .model(normalizeModel(message.get("model").toStringValue()))
                 .inputTokens(inputTokens)
@@ -174,23 +212,33 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
                         : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
                 .startTime(startTime > 0 ? startTime : null)
                 .build());
-    /**
-     * 解析时间戳。
-     * @param ts ts
-     * @return 解析时间戳的结果
-     * @param model 模型
-     */
     }
 
+    /**
+     * 解析 ISO-8601 时间戳为 epoch 毫秒。
+     *
+     * @param ts ISO-8601 时间字符串
+     * @return epoch 毫秒；为空或非法时 0
+     */
     private long parseTimestamp(String ts) {
         if (ts == null || ts.isBlank()) {
             return 0L;
         }
-        try { return java.time.OffsetDateTime.parse(ts).toInstant().toEpochMilli(); }
-        catch (Exception e) { return 0L; }
+        try {
+            return java.time.OffsetDateTime.parse(ts).toInstant().toEpochMilli();
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 
+    /**
+     * 归一化模型名：{@code <synthetic>} 占位归一为 {@code "unknown"}。
+     *
+     * @param model 原始模型名
+     * @return 归一化结果
+     */
     private String normalizeModel(String model) {
-        return (model == null || "<synthetic>".equals(model)) ? "unknown" : model;
+        return (model == null || model.isBlank() || "<synthetic>".equals(model))
+                ? "unknown" : model;
     }
 }

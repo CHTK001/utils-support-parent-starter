@@ -109,25 +109,13 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-      * Locates the usage block 的 a 模型.完成 事件.
+     * 定位 model.completed 事件的 usage 块。
      *
-     * <p>OpenClaw nests it under {@code data.usage}; older schemas may carry
-      * it at the top 级别, so both 位置 are 检查.</p>
+     * <p>OpenClaw 将 usage 嵌套在 {@code data.usage} 下；旧版 schema 可能
+     * 放在顶层，因此两种位置都会检查。</p>
      *
-     * @param node 解析 trajectory 线
-     * @return the usage block, 或 a missing 节点 When.js.js absent
-     * @param line 线
-     /**
-      * 读取usage。
-      * @param node 节点
-      * @return 读取usage的结果
-      */
-      * @param line 线
-     /**
-      * 读取usage。
-      * @param node 节点
-      * @return 读取usage的结果
-      */
+     * @param node 解析后的 trajectory 行
+     * @return usage 块；缺失时返回缺失节点
      */
     private JsonNode readUsage(JsonNode node) {
         JsonNode data = node.get("data");

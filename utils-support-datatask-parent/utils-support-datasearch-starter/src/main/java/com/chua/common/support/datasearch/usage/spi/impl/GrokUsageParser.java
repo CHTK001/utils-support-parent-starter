@@ -6,9 +6,10 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,68 +17,62 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
-   * Grok 构建 (xAI) usage parser.
+ * Grok Build (xAI) usage parser.
  *
- * <p>Grok Build is xAI's agentic coding CLI. Each session lives under
- * {@code ~/.grok/sessions/<encoded-cwd>/<session-uuid>/} and contains:</p>
- * <ul>
- *   <li>{@code updates.jsonl} — ACP-style append-only event stream; the
-   * authoritative usage 源. Each {@code turn_completed} 事件 carries
- *       a per-turn usage block (NOT a running total):
- *       <pre>{@code
- *       {
-   * "参数": {
-   * "更新": {
-   * "会话更新": "turn_完成",
- *             "usage": {
-   * "输入令牌": 1234,          // 含 缓存 的全量输入
-   * "输出令牌": 56,
-   * "缓存读取令牌": 900,
-   * "缓存创建令牌": 34,
-   * "ReasonML令牌": 12,
-   * "模型usage": { "grok-4.5-构建": { ... } }
- *             }
- *           },
-   * "_meta": { "智能体时间戳ms": 1783322059000 }
- *         },
-   * "时间戳": 1783322059
- *       }
- *       }</pre></li>
- *   <li>{@code signals.json} — cumulative context-window counters, used only
-   * When.js no {@code turn_completed} 事件 carry usage (legacy 会话);
- *       {@code totalTokens} is a context-size watermark, not a billed total.</li>
- * </ul>
+ * <p>Grok Build persists per-session append-only updates under
+ * {@code ~/.grok/sessions/<encoded-cwd>/<session-id>/updates.jsonl}.
+ * Each {@code turn_completed} update carries a real per-turn usage envelope:</p>
  *
- * <p>Token semantics: Grok reports {@code inputTokens} inclusive of cached
-   * 输入, so the non-缓存 输入 是否 {@编码 输入令牌 - 缓存读取 -
-   * 缓存创建}; {@code outputTokens} 是否 reported minus ReasonML so the
-   * ReasonML 数量 是否 a separate, additive 字段. 全部 per-turn usage
-   * records are real (non-estimated) When.js present. When.js 下降 back 转为
- * {@code signals.json} the parser emits a single estimated context-token
- * snapshot flagged {@code estimated = true}.</p>
+ * <pre>{@code
+ * {
+ *   "params": {
+ *     "update": {
+ *       "sessionUpdate": "turn_completed",
+ *       "usage": {
+ *         "inputTokens": 4200,        // whole prompt, cache read/write INCLUDED
+ *         "outputTokens": 300,       // includes reasoning
+ *         "cachedReadTokens": 3900,
+ *         "cacheCreationTokens": 120,
+ *         "reasoningTokens": 90,
+ *         "totalCostUsd": 0.0042
+ *       },
+ *       "model": "grok-4-fast"
+ *     }
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>In Grok's camelCase shape {@code inputTokens} is inclusive of cache
+ * read/write and {@code outputTokens} is inclusive of reasoning — this parser
+ * splits both into mutually exclusive columns so downstream aggregation does
+ * not double-count. Cost may arrive as {@code totalCostUsd} or as integer
+ * ticks ({@code totalCostUsdTicks}, where 10_000_000_000 ticks = 1 USD).</p>
+ *
+ * <p>When an updates.jsonl has no turn usage, the sibling {@code signals.json}
+ * carries a cumulative {@code totalTokens} watermark; a single estimated record
+ * is emitted as fallback.</p>
  *
  * @author CH
- * @since 4.0.0.44
+ * @since 4.0.0.43
  */
 @Spi("grok")
 public class GrokUsageParser extends BaseUsageParser {
 
-    private static final Path GROC_HOME = resolveHome(); // grocHome
+    /** USD ticks per US dollar (Grok's costUsdTicks unit). */
+    private static final long USD_TICKS_PER_USD = 10_000_000_000L;
 
-    private static final String PROVIDER_GROK = "grok"; // 提供者grok
+    private static final String PROVIDER_GROK = "grok";
 
-    private static final String CURRENCY_USD = "USD"; // 货币usd
+    private static final Path GROK_HOME;
 
-    /**
-     * resolveHome。
-     * @return resolveHome的结果
-     */
-    private static Path resolveHome() {
-        String grokHome = System.getenv("GROK_HOME");
-        if (grokHome != null && !grokHome.isBlank()) {
-            return Path.of(grokHome);
+    static {
+        String env = System.getenv("TOKENTRACKER_GROK_HOME");
+        if (env == null || env.isBlank()) {
+            env = System.getenv("GROK_HOME");
         }
-        return Path.of(System.getProperty("user.home"), ".grok");
+        GROK_HOME = (env != null && !env.isBlank())
+                ? Path.of(env)
+                : Path.of(System.getProperty("user.home"), ".grok");
     }
 
     /**
@@ -91,180 +86,210 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析全部会话的 turn_completed 用量事件。
-     *
-     * <p>按文件惰性拉取：先枚举 sessions 目录，再逐文件逐行流式解析，
-     * 内存占用与单条记录相关而非与总量相关。</p>
+     * 流式解析全部会话更新文件中的回合用量事件。
      */
     @Override
     public Flux<AiUsage> streamAll() {
-        Path sessionsDir = GROC_HOME.resolve("sessions");
-        if (!Files.isDirectory(sessionsDir)) {
-            log.debug("[grok] sessions dir not found: {} (Grok Build not installed)", sessionsDir);
-            return Flux.empty();
-        }
-        List<Path> files;
-        try (var stream = Files.walk(sessionsDir)) {
-            files = stream.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().equals("updates.jsonl"))
-                    .toList();
-        } catch (Exception e) {
-            log.warn("[grok] walk failed: {}", e.getMessage(), e);
-            return Flux.empty();
-        }
+        List<Path> files = listUpdateFiles();
         if (files.isEmpty()) {
-            log.debug("[grok] no updates.jsonl files under {}", sessionsDir);
+            log.debug("[grok] no updates.jsonl under {}", GROK_HOME.resolve("sessions"));
             return Flux.empty();
         }
-        log.info("[grok] streaming from {} session files", files.size());
+        log.info("[grok] streaming {} update files", files.size());
         return Flux.fromIterable(files)
-                .flatMap(this::streamUpdatesFile, 4)
-                .onErrorResume(e -> {
-                    log.debug("[grok] read failed: {}", e.getMessage());
-                    return Flux.empty();
-                });
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(this::streamUpdatesFile, 4);
     }
 
     /**
-      * 流式解析单个 更新.jsonl。
+     * 枚举 {@code ~/.grok/sessions/**/updates.jsonl} 文件。
      *
-     * @param file 更新 事件文件
+     * @return 更新文件列表
+     */
+    private List<Path> listUpdateFiles() {
+        Path sessionsRoot = GROK_HOME.resolve("sessions");
+        if (!Files.isDirectory(sessionsRoot)) {
+            return List.of();
+        }
+        try (var stream = Files.walk(sessionsRoot)) {
+            return stream.filter(Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().equals("updates.jsonl"))
+                    .toList();
+        } catch (IOException e) {
+            log.warn("[grok] walk {} failed: {}", sessionsRoot, e.getMessage());
+            return List.of();
+        }
+    }
+
+    /**
+     * 流式解析单个更新文件（惰性逐行）。
+     *
+     * @param file 更新事件文件
      * @return 逐 turn 用量记录流
      */
     private Flux<AiUsage> streamUpdatesFile(Path file) {
+        String sessionId = file.getParent().getFileName().toString();
         return streamLines(file)
-                .flatMap(line -> Mono.fromCallable(() -> parseTurnLine(line))
-                                .subscribeOn(Schedulers.boundedElastic())
-                                .flatMap(Mono::justOrEmpty),
-                        16)
+                .filter(line -> !line.isBlank())
+                .map(line -> parseLineSafe(line, sessionId))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .onErrorResume(e -> {
-                    log.debug("[grok] read failed {}: {}", file.getFileName(), e.getMessage());
+                    log.debug("[grok] read {} failed: {}", file.getFileName(), e.getMessage());
                     return Flux.empty();
                 });
     }
 
-    /**
-      * 解析单行，仅处理 会话更新=turn_完成 且带 usage 块的事件。
-     *
-     * @param line 单行 JSON
-     * @return 用量记录（无则 空）
-     */
-    private Optional<AiUsage> parseTurnLine(String line) {
-        if (line.isBlank()) {
-            return Optional.empty();
-        }
+    private Optional<AiUsage> parseLineSafe(String line, String sessionId) {
         try {
-            JsonNode node = Json.parse(line);
-            JsonNode update = node.get("params").get("update");
-            if (!"turn_completed".equals(update.get("sessionUpdate").toStringValue())) {
-                return Optional.empty();
-            }
-            JsonNode usage = update.get("usage");
-            if (usage.isMissingValue()) {
-                return Optional.empty();
-            }
-            int inputTokens = usage.get("inputTokens").toIntValue(0);
-            int outputTokens = usage.get("outputTokens").toIntValue(0);
-            int cachedRead = Math.max(usage.get("cachedReadTokens").toIntValue(0),
-                    usage.get("cacheReadInputTokens").toIntValue(0));
-            int cacheCreation = Math.max(usage.get("cacheCreationTokens").toIntValue(0),
-                    usage.get("cachedWriteTokens").toIntValue(0));
-            int reasoning = usage.get("reasoningTokens").toIntValue(0);
-            if (inputTokens <= 0 && outputTokens <= 0) {
-                return Optional.empty();
-            }
- // Grok camel大小写 口径的 输入令牌 含 缓存；输出令牌 含 ReasonML。
-            // 非缓存输入 = 全量输入 - 缓存读 - 缓存写；净输出 = 全量输出 - 推理。
-            int nonCachedInput = Math.max(0, inputTokens - cachedRead - cacheCreation);
-            int netOutput = Math.max(0, outputTokens - reasoning);
-            JsonNode meta = node.get("params").get("_meta");
-            long startTime = parseGrokTimestamp(meta, node);
-            String model = pickGrokModel(usage);
-
-            return Optional.of(AiUsage.builder()
-                    .provider(PROVIDER_GROK)
-                    .model(model)
-                    .inputTokens(nonCachedInput)
-                    .outputTokens(netOutput)
-                    .totalTokens(nonCachedInput + netOutput)
-                    .cacheTokens(cachedRead > 0 ? cachedRead : (cacheCreation > 0 ? cacheCreation : null))
-                    .reasoningTokens(reasoning > 0 ? reasoning : null)
-                    .currency(CURRENCY_USD)
-                    .estimated(false)
-                    .startTime(startTime > 0 ? startTime : null)
-                    .build());
+            return parseLine(line, sessionId);
         } catch (Exception e) {
-            log.debug("[grok] line parse failed: {}", e.getMessage());
+            log.debug("[grok] parse failed: {}", e.getMessage());
             return Optional.empty();
         }
     }
 
     /**
-      * 从 _meta.智能体时间戳ms / 顶层 时间戳 推断事件时间。
+     * 解析一条 updates.jsonl 行：仅接受 {@code params.update.sessionUpdate=turn_completed}
+     * 且携带非空 usage 的回合事件。
      *
-     * @param meta _meta 节点
-     * @param root 根节点
-     * @return epoch 毫秒；无法解析时 0
+     * @param line JSONL 行
+     * @param sessionId 会话 id
+     * @return 用量记录
      */
-    private long parseGrokTimestamp(JsonNode meta, JsonNode root) {
-        if (!meta.isMissingValue()) {
-            int agentMs = meta.get("agentTimestampMs").toIntValue(0);
-            if (agentMs > 0) {
-                return agentMs;
-            }
+    private Optional<AiUsage> parseLine(String line, String sessionId) {
+        JsonNode node = Json.parse(line);
+        JsonNode update = node.get("params").get("update");
+        if (update.isMissingValue()) {
+            update = node.get("update");
         }
-        long top = root.get("timestamp").toLongValue(0L);
-        if (top <= 0) {
-            return 0L;
+        if (update.isMissingValue()
+                || !"turn_completed".equals(update.get("sessionUpdate").toStringValue())) {
+            return Optional.empty();
         }
-        // Grok 顶层 timestamp 可能是秒级（<= 1e12）或毫秒级
-        return top > 1_000_000_000_000L ? top : top * 1000L;
+        JsonNode usage = update.get("usage");
+        if (usage.isMissingValue()) {
+            return Optional.empty();
+        }
+        // Grok camelCase：inputTokens 含缓存、outputTokens 含 reasoning —— 拆分后存储
+        boolean camelShape = !usage.get("inputTokens").isMissingValue();
+        long rawInput = usage.get("inputTokens").toLongValue(
+                usage.get("input_tokens").toLongValue(0L));
+        long cachedRead = usage.get("cachedReadTokens").toLongValue(
+                usage.get("cacheReadInputTokens").toLongValue(
+                        usage.get("cache_read_input_tokens").toLongValue(0L)));
+        long cacheWrite = usage.get("cacheCreationTokens").toLongValue(
+                usage.get("cachedWriteTokens").toLongValue(
+                        usage.get("cacheWriteInputTokens").toLongValue(
+                                usage.get("cache_creation_input_tokens").toLongValue(0L))));
+        long rawOutput = usage.get("outputTokens").toLongValue(
+                usage.get("output_tokens").toLongValue(0L));
+        long reasoning = usage.get("reasoningTokens").toLongValue(
+                usage.get("reasoning_output_tokens").toLongValue(0L));
+        long totalReported = usage.get("totalTokens").toLongValue(
+                usage.get("total_tokens").toLongValue(0L));
+
+        long inputTokens = camelShape
+                ? Math.max(0L, rawInput - cachedRead - cacheWrite)
+                : rawInput;
+        long outputTokens = Math.max(0L, rawOutput - reasoning);
+        long totalTokens = totalReported > 0
+                ? totalReported
+                : inputTokens + cachedRead + cacheWrite + outputTokens + reasoning;
+        if (totalTokens <= 0) {
+            return Optional.empty();
+        }
+
+        BigDecimal costUsd = grokCostUsd(usage);
+        String model = firstNonBlank(
+                update.get("model").toStringValue(),
+                pickGrokModel(usage),
+                PROVIDER_GROK + "-unknown");
+
+        return Optional.of(AiUsage.builder()
+                .provider(PROVIDER_GROK)
+                .model(model)
+                .requestId(firstNonBlank(node.get("promptId").toStringValue(), sessionId))
+                .inputTokens(intOf(inputTokens))
+                .outputTokens(intOf(outputTokens))
+                .totalTokens(intOf(totalTokens))
+                .cacheTokens(intOf(Math.max(cachedRead, cacheWrite)))
+                .reasoningTokens(reasoning > 0 ? intOf(reasoning) : null)
+                .totalCost(costUsd)
+                .currency("USD")
+                .startTime(timestampMillis(node))
+                .build());
     }
 
     /**
-      * 从 usage.模型usage 选出 令牌 量最大的模型名。
+     * 提取 Grok 成本：支持 USD 直接值与 ticks 整数（10^10 ticks = 1 USD）。
      *
      * @param usage usage 节点
-     * @return 模型名；无则 {@code "grok-build"}
+     * @return USD 金额；缺失或负数时返回 null
+     */
+    private BigDecimal grokCostUsd(JsonNode usage) {
+        long ticks = usage.get("costUsdTicks").toLongValue(
+                usage.get("totalCostUsdTicks").toLongValue(
+                        usage.get("cost_usd_ticks").toLongValue(
+                                usage.get("total_cost_usd_ticks").toLongValue(0L))));
+        if (ticks > 0) {
+            return BigDecimal.valueOf(ticks).divide(BigDecimal.valueOf(USD_TICKS_PER_USD));
+        }
+        double usd = usage.get("totalCostUsd").toDoubleValue(
+                usage.get("costUsd").toDoubleValue(
+                        usage.get("total_cost_usd").toDoubleValue(
+                                usage.get("cost_usd").toDoubleValue(0.0d))));
+        return usd > 0 ? BigDecimal.valueOf(usd) : null;
+    }
+
+    /**
+     * 行内时间戳（兼容 ISO 与 epoch 秒/毫秒）。
+     *
+     * @param node 行节点
+     * @return epoch 毫秒；无法解析时返回 0
+     */
+    private long timestampMillis(JsonNode node) {
+        JsonNode meta = node.get("params").get("_meta");
+        long agentMs = meta.get("agentTimestampMs").toLongValue(0L);
+        if (agentMs > 0) {
+            return agentMs;
+        }
+        long ts = node.get("timestamp").toLongValue(0L);
+        if (ts > 0) {
+            return ts < 10_000_000_000L ? ts * 1000L : ts;
+        }
+        return parseInstantToMillis(node.get("timestamp").toStringValue());
+    }
+
+    /**
+     * 从 usage.modelUsage 选出令牌量最大的模型名。
+     *
+     * @param usage usage 节点
+     * @return 模型名；无则空串
      */
     private String pickGrokModel(JsonNode usage) {
         JsonNode modelUsage = usage.get("modelUsage");
-        if (!modelUsage.isMissingValue() && modelUsage.isObject()) {
-            java.util.Map<String, Object> map = modelUsage.toJsonObject().toMap();
-            String best = null;
-            long bestTokens = -1L;
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                if (entry.getValue() instanceof Map<?, ?> stats) {
-                    Map<String, Object> converted = new java.util.HashMap<>();
-                    stats.forEach((k, v) -> {
-                        if (k instanceof String s) {
-                            converted.put(s, v);
-                        }
-                    });
-                    long tokens = asInt(converted.get("totalTokens"))
-                            + asInt(converted.get("inputTokens"))
-                            + asInt(converted.get("outputTokens"));
-                    if (tokens >= bestTokens) {
-                        bestTokens = tokens;
-                        best = entry.getKey();
-                    }
-                }
+        if (modelUsage.isMissingValue() || !modelUsage.isObject()) {
+            return "";
+        }
+        String best = "";
+        long bestTokens = -1L;
+        for (Map.Entry<String, Object> entry : modelUsage.toJsonObject().toMap().entrySet()) {
+            if (!(entry.getValue() instanceof Map<?, ?> stats)) {
+                continue;
             }
-            if (best != null && !best.isBlank()) {
-                return best;
+            long tokens = asInt(stats.get("totalTokens"))
+                    + asInt(stats.get("inputTokens"))
+                    + asInt(stats.get("outputTokens"));
+            if (tokens >= bestTokens) {
+                bestTokens = tokens;
+                best = entry.getKey();
             }
         }
-        return "grok-build";
+        return best;
     }
 
-    /**
-      * 读取 映射 中指定 键 的 int 值（容错，缺失/非数字返回 0）。
-     *
-     * @param map  统计 映射
-     * @param key  键名
-     * @return int 值
-     */
-    private static int asInt(java.util.Map<String, Object> map, String key) {
-        return map == null ? 0 : asInt(map.get(key));
+    private static int intOf(long value) {
+        return (int) Math.min(value, Integer.MAX_VALUE);
     }
 }
