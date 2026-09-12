@@ -73,3 +73,48 @@ Guacamole Web 前端默认 `127.0.0.1:8080/guacamole/`，短 token 有效期默�
 utils-support-guacamole-starter
 ├── utils-support-common-starter（ExpireValue 短 token 有效期维护）
 ```
+
+---
+
+## 对接实战经验（重要）
+
+### 1. WebSocket 隧道必须回显 guacamole 子协议
+
+guacamole-common-js 的 `WebSocketTunnel` 以 `new WebSocket(url, "guacamole")` 发起连接，
+请求头携带 `Sec-WebSocket-Protocol: guacamole`。**后端 WebSocket 握手必须回显该子协议**，
+否则浏览器校验失败直接断开（报 `Sent non-empty 'Sec-WebSocket-Protocol' header but no
+response was received`）。
+
+Spring WebSocket 后端注册端点时需声明支持的子协议：
+
+```java
+registry.addHandler(terminalHandler, "/ws/terminal")
+        .setHandshakeHandler(new DefaultHandshakeHandler() {{
+            setSupportedProtocols("guacamole");
+        }})
+        .setAllowedOriginPatterns("*");
+```
+
+> 若前端使用自定义 Tunnel（不强制子协议，如自研 `new WebSocket(url)` 无第二参数），
+> 可跳过此项；但官方 `WebSocketTunnel` 固定携带，服务端必须配合。
+
+### 2. 自定义 Tunnel 的保活时序（前端）
+
+guacd 协议要求客户端对服务端 `sync` 指令回发 `sync`，否则 ~15s 判定客户端假死断连
+（code=1000）。官方 Client 在 `display.flush`（走 requestAnimationFrame）后才回发，
+页面失焦/后台标签页时 rAF 停摆会导致永远等不到回发。自定义 Tunnel 应在协议层**收到
+sync/nop 立即回发**（参考 `ScGuacTunnel.ts` 实现）。
+
+另注意两个坑：
+
+- 布尔值必须编码为 `"1"/"0"`（`String(true)` 会得到 `"true"`，guacd 按整数解析得 0，
+  所有按键被当松键 → 终端无回显）；
+- `Guacamole.Tunnel.INTERNAL_DATA_OPCODE` 是空字符串 `''` 而非 `"nop"`，手工拼心跳
+  指令会得到畸形指令（`.0.;`）触发 guacd "Instruction parse error" 断连。
+
+### 3. 短链模式与官方 guacamole-client 的关系
+
+本模块的 `webHost/webPort` 指向**官方 guacamole-client WAR**（或兼容其 `#token=`
+fragment 约定的自研前端）的地址；`url(token)` 生成 `http://webHost:webPort/guacamole/#token=xxx`
+形式的会话 URL。若宿主前端自行实现 guacamole 客户端（guacamole-common-js 直连
+自建 WS 隧道），可不使用短链 URL，仅参考 `RemoteSpec` 的参数登记/解析语义。
